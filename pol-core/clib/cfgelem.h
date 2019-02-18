@@ -6,7 +6,6 @@
 
 #ifndef CLIB_CFGELEM_H
 #define CLIB_CFGELEM_H
-#include "compilerspecifics.h"
 #include "maputil.h"
 
 #include <map>
@@ -19,12 +18,8 @@ namespace Clib
 class ConfigProperty
 {
 public:
-  ConfigProperty();
-  ConfigProperty( const char* name, const char* value );
-  ConfigProperty( const std::string& name, const std::string& value );
-  ConfigProperty( std::string* pname, std::string* pvalue );
-
-  ~ConfigProperty();
+  ConfigProperty( std::string name, std::string value );
+  ~ConfigProperty() = default;
 
 protected:
   std::string name_;
@@ -59,7 +54,7 @@ class ConfigElem : public ConfigElemBase
 public:
   ConfigElem();
   virtual ~ConfigElem();
-  virtual size_t estimateSize() const POL_OVERRIDE;
+  virtual size_t estimateSize() const override;
   friend class ConfigFile;
 
   bool has_prop( const char* propname ) const;
@@ -101,12 +96,12 @@ public:
   std::string read_string( const char* propname, const char* dflt ) const;
 
 
-  void add_prop( const char* propname, const char* str );
-  void add_prop( const char* propname, unsigned int lval );
-  void add_prop( const char* propname, unsigned short sval );
-  void add_prop( const char* propname, short sval );
+  void add_prop( std::string propname, std::string propval );
+  void add_prop( std::string propname, unsigned int lval );
+  void add_prop( std::string propname, unsigned short sval );
+  void add_prop( std::string propname, short sval );
 
-  POL_NORETURN void throw_error( const std::string& errmsg ) const;
+  [[noreturn]] void throw_error( const std::string& errmsg ) const;
   void warn( const std::string& errmsg ) const;
   void warn_with_line( const std::string& errmsg ) const;
 
@@ -116,7 +111,7 @@ public:
   void set_source( const ConfigSource* source );
 
 protected:
-  POL_NORETURN void prop_not_found( const char* propname ) const;
+  [[noreturn]] void prop_not_found( const char* propname ) const;
   typedef std::multimap<std::string, std::string, ci_cmp_pred> Props;
   Props properties;
 };
@@ -164,18 +159,18 @@ public:
   std::string read_string( const char* propname, const char* dflt ) const;
 
 
-  void add_prop( const char* propname, const char* str );
-  void add_prop( const char* propname, unsigned int lval );
-  void add_prop( const char* propname, unsigned short sval );
+  void add_prop( std::string propname, std::string propval );
+  void add_prop( std::string propname, unsigned int lval );
+  void add_prop( std::string propname, unsigned short sval );
 
-  POL_NORETURN void throw_error( const std::string& errmsg ) const;
+  [[noreturn]] void throw_error( const std::string& errmsg ) const;
   void warn( const std::string& errmsg ) const;
 
   void set_rest( const char* newrest );
   void set_source( const ConfigElem& elem );
 
 protected:
-  POL_NORETURN void prop_not_found( const char* propname ) const;
+  [[noreturn]] void prop_not_found( const char* propname ) const;
   std::string type_;
   std::string rest_;
 
@@ -184,6 +179,6 @@ protected:
 
   ConfigSource* source_;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif

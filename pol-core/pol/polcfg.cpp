@@ -30,12 +30,13 @@
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-#include "core.h"
-#include "globals/state.h"
-#include "globals/uvars.h"
+// TODO: get rid of the dependencies and move to plib
+#include "core.h" // todo save_full does not belong here
+#include "globals/state.h" // todo polsig dependency
+#include "globals/uvars.h" // todo split write task
 #include "objtype.h"
-#include "polsig.h"
-#include "proplist.h"
+#include "polsig.h" // thread_checkpoint
+#include "proplist.h" // todo like uvars
 
 namespace Pol
 {
@@ -287,7 +288,7 @@ void PolConfig::reload_pol_cfg()
     stat( "pol.cfg", &newst );
 
     if ( ( newst.st_mtime != PolConfig::pol_cfg_stat.st_mtime ) &&
-         ( newst.st_mtime < time( NULL ) - 10 ) )
+         ( newst.st_mtime < time( nullptr ) - 10 ) )
     {
       POLLOG_INFO << "Reloading pol.cfg...";
       memcpy( &PolConfig::pol_cfg_stat, &newst, sizeof PolConfig::pol_cfg_stat );

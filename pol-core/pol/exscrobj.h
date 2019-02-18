@@ -13,7 +13,6 @@
 #include "../bscript/bobject.h"
 #endif
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 
@@ -33,21 +32,21 @@ class UOExecutor;
 
 extern Bscript::BApplicObjType scriptexobjimp_type;
 typedef weak_ptr<UOExecutor> ScriptExPtr;
-class ScriptExObjImp : public Bscript::BApplicObj<ScriptExPtr>
+class ScriptExObjImp final : public Bscript::BApplicObj<ScriptExPtr>
 {
   typedef Bscript::BApplicObj<ScriptExPtr> base;
 
 public:
   explicit ScriptExObjImp( UOExecutor* uoexec );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin = false ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member_id( const int id ) POL_OVERRIDE;
+                                               bool forcebuiltin = false ) override;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
+  virtual Bscript::BObjectRef get_member_id( const int id ) override;
 };
 }
 }

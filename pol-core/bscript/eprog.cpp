@@ -8,6 +8,7 @@
 #include <cstdio>
 
 #include "../clib/refptr.h"
+#include "../clib/stlutil.h"
 #include "escriptv.h"
 #include "fmodule.h"
 
@@ -33,7 +34,7 @@ EScriptProgram::EScriptProgram()
       version( 0 ),
       invocations( 0 ),
       instr_cycles( 0 ),
-      pkg( NULL ),
+      pkg( nullptr ),
       instr(),
       debug_loaded( false ),
       savecurblock( 0 ),
@@ -74,5 +75,5 @@ void EScriptProgram::clear_modules()
 {
   Clib::delete_all( modules );
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

@@ -22,6 +22,7 @@
 #include <string>
 
 #include "../../bscript/berror.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib_endian.h"
@@ -30,6 +31,8 @@
 #include "../../clib/stlutil.h"
 #include "../../clib/streamsaver.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/tiles.h"
+#include "../../plib/uconst.h"
 #include "../containr.h"
 #include "../extobj.h"
 #include "../fnsearch.h"
@@ -44,12 +47,11 @@
 #include "../network/client.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../polvar.h"
 #include "../realms/realm.h"
 #include "../scrsched.h"
-#include "../tiles.h"
-#include "../uconst.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uworld.h"
@@ -74,7 +76,7 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, unsigned char
   std::string tmp;
   if ( is >> tmp )
   {
-    graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), NULL, 0 ) );
+    graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), nullptr, 0 ) );
     if ( graphic )
     {
       unsigned short xd, yd;
@@ -105,7 +107,7 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, const std::st
   std::string tmp;
   if ( is >> tmp )
   {
-    graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), NULL, 0 ) );
+    graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), nullptr, 0 ) );
     if ( graphic )
     {
       unsigned short xd, yd;
@@ -126,7 +128,7 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, const std::st
   std::string alttmp;
   if ( ok && altis >> alttmp )
   {
-    altgraphic = static_cast<unsigned short>( strtoul( alttmp.c_str(), NULL, 0 ) );
+    altgraphic = static_cast<unsigned short>( strtoul( alttmp.c_str(), nullptr, 0 ) );
     return;
   }
   else
@@ -266,9 +268,9 @@ void clean_boatshapes()
   Core::BoatShapes::iterator iter = Core::gamestate.boatshapes.begin();
   for ( ; iter != Core::gamestate.boatshapes.end(); ++iter )
   {
-    if ( iter->second != NULL )
+    if ( iter->second != nullptr )
       delete iter->second;
-    iter->second = NULL;
+    iter->second = nullptr;
   }
   Core::gamestate.boatshapes.clear();
 }
@@ -278,17 +280,17 @@ bool BoatShapeExists( u16 multiid )
   return Core::gamestate.boatshapes.count( multiid ) != 0;
 }
 
-void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx,
+void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u8 speed, u16 newx,
                               u16 newy, bool relative )
 {
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
   u16 xmod = newx - x;
   u16 ymod = newy - y;
-  Core::UFACING b_facing = boat_facing();
+  Plib::UFACING b_facing = boat_facing();
 
   if ( relative == false )
-    move_dir = static_cast<Core::UFACING>( ( b_facing + move_dir ) * 7 );
+    move_dir = static_cast<Plib::UFACING>( ( b_facing + move_dir ) * 7 );
 
   msg->offset += 2;  // Length
   msg->Write<u32>( serial_ext );
@@ -321,7 +323,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
 
   for ( auto& component : Components )
   {
-    if ( component != NULL && !component->orphan() )
+    if ( component != nullptr && !component->orphan() )
     {
       msg->Write<u32>( component->serial_ext );
       msg->WriteFlipped<u16>( static_cast<u16>( component->x + xmod ) );
@@ -339,7 +341,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   msg.Send( client, len );
 }
 
-void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy,
+void UBoat::send_smooth_move_to_inrange( Plib::UFACING move_dir, u8 speed, u16 newx, u16 newy,
                                          bool relative )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
@@ -439,7 +441,7 @@ void UBoat::send_display_boat( Network::Client* client )
 
   for ( auto& component : Components )
   {
-    if ( component != NULL && !component->orphan() )
+    if ( component != nullptr && !component->orphan() )
     {
       msg->Write<u8>( 0xF3u );
       msg->WriteFlipped<u16>( 0x1u );
@@ -507,7 +509,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
 
   for ( auto& component : Components )
   {
-    if ( component != NULL && !component->orphan() )
+    if ( component != nullptr && !component->orphan() )
       send_item( client, component.get() );
   }
 }
@@ -593,10 +595,10 @@ void unpause_paused()
 UBoat::UBoat( const Items::ItemDesc& descriptor ) : UMulti( descriptor )
 {
   passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
-  tillerman = NULL;
-  hold = NULL;
-  portplank = NULL;
-  starboardplank = NULL;
+  tillerman = nullptr;
+  hold = nullptr;
+  portplank = nullptr;
+  starboardplank = nullptr;
 }
 
 UBoat* UBoat::as_boat()
@@ -687,7 +689,7 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
   if ( Core::IsItem( obj->serial ) )
   {
     const Item* item = static_cast<const Item*>( obj );
-    if ( item->container != NULL )
+    if ( item->container != nullptr )
       return false;
   }
   short rx = obj->x - bc.x;
@@ -696,7 +698,7 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
   return bc.mdef.body_contains( rx, ry );
 }
 
-void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation,
+void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocation,
                              unsigned short newx, unsigned short newy, Realms::Realm* oldrealm )
 {
   bool any_orphans = false;
@@ -741,7 +743,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
 
         MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x, chr->y, chr, oldrealm );
         chr->position_changed();
-        if ( chr->client != NULL )
+        if ( chr->client != nullptr )
         {
           if ( oldrealm != chr->realm )
           {
@@ -805,7 +807,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
         s16 dx, dy;
         dx = item->x - oldlocation.x;  // keeps relative distance from boat mast
         dy = item->y - oldlocation.y;
-        // Core::move_item( item, newx + dx, newy + dy, item->z, NULL );
+        // Core::move_item( item, newx + dx, newy + dy, item->z, nullptr );
 
         item->set_dirty();
 
@@ -829,7 +831,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
         item->y += Core::move_delta[move_dir].ymove;
 
         item->restart_decay_timer();
-        MoveItemWorldPosition( oldx, oldy, item, NULL );
+        MoveItemWorldPosition( oldx, oldy, item, nullptr );
       }
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
@@ -868,17 +870,17 @@ void UBoat::turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir )
   case LEFT:
     chr->x = x + yd;
     chr->y = y - xd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 6 ) & 7 );
+    chr->facing = static_cast<Plib::UFACING>( ( chr->facing + 6 ) & 7 );
     break;
   case AROUND:
     chr->x = x - xd;
     chr->y = y - yd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 4 ) & 7 );
+    chr->facing = static_cast<Plib::UFACING>( ( chr->facing + 4 ) & 7 );
     break;
   case RIGHT:
     chr->x = x - yd;
     chr->y = y + xd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 2 ) & 7 );
+    chr->facing = static_cast<Plib::UFACING>( ( chr->facing + 2 ) & 7 );
     break;
   case NO_TURN:
     break;
@@ -913,9 +915,9 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
         turn_traveller_coords( chr, dir );
 
 
-        Core::MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x, chr->y, chr, NULL );
+        Core::MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x, chr->y, chr, nullptr );
         chr->position_changed();
-        if ( chr->client != NULL )
+        if ( chr->client != nullptr )
         {
           if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
           {
@@ -982,7 +984,7 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
 
       item->restart_decay_timer();
 
-      MoveItemWorldPosition( oldx, oldy, item, NULL );
+      MoveItemWorldPosition( oldx, oldy, item, nullptr );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
           item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
@@ -1018,7 +1020,7 @@ void UBoat::remove_orphans()
           ++itr )
     {
       UObject* obj = ( *itr ).get();
-      if ( obj == NULL )
+      if ( obj == nullptr )
       {
         set_dirty();
         travellers_.erase( itr );
@@ -1153,7 +1155,7 @@ bool UBoat::deck_empty() const
 bool UBoat::hold_empty() const
 {
   Items::Item* it = this->hold;
-  if ( it == NULL )
+  if ( it == nullptr )
   {
     return true;
   }
@@ -1170,7 +1172,7 @@ void UBoat::do_tellmoves()
   {
     UObject* obj = travellerRef.get();
 
-    if ( obj != NULL )  // sometimes we've destroyed objects because of control scripts
+    if ( obj != nullptr )  // sometimes we've destroyed objects because of control scripts
     {
       if ( obj->ismobile() )
       {
@@ -1201,7 +1203,7 @@ bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms
     x = newx;
     y = newy;
 
-    move_travellers( Core::FACING_N, bc, newx, newy,
+    move_travellers( Plib::FACING_N, bc, newx, newy,
                      oldrealm );  // facing is ignored if params 3 & 4 are not USHRT_MAX
     move_components( oldrealm );
     // NOTE, send_boat_to_inrange pauses those it sends to.
@@ -1220,18 +1222,18 @@ bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms
   return result;
 }
 
-bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
+bool UBoat::move( Plib::UFACING dir, u8 speed, bool relative )
 {
   bool result;
 
   BoatMoveGuard registerguard( this );
 
-  Core::UFACING move_dir;
+  Plib::UFACING move_dir;
 
   if ( relative == false )
     move_dir = dir;
   else
-    move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
+    move_dir = static_cast<Plib::UFACING>( ( dir + boat_facing() ) & 7 );
 
   unsigned short newx, newy;
   newx = x + Core::move_delta[move_dir].xmove;
@@ -1308,9 +1310,9 @@ const MultiDef& UBoat::multi_ifturn( RELATIVE_DIR dir )
   return *MultiDefByMultiID( multiid_dir );
 }
 
-Core::UFACING UBoat::boat_facing() const
+Plib::UFACING UBoat::boat_facing() const
 {
-  return static_cast<Core::UFACING>( ( multiid & 3 ) * 2 );
+  return static_cast<Plib::UFACING>( ( multiid & 3 ) * 2 );
 }
 
 const BoatShape& UBoat::boatshape() const
@@ -1334,7 +1336,7 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
   for ( ; itr != end && itr2 != end2 && old_itr != old_end; ++itr, ++itr2, ++old_itr )
   {
     Items::Item* item = itr->get();
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       if ( item->orphan() )
         continue;
@@ -1342,9 +1344,9 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
       // This should be rare enough for a simple log to be the solution. We don't want POL to crash
       // in MoveItemWorldPosition() because the item was not in the world to start with, so we skip
       // it.
-      if ( item->container != NULL || item->has_gotten_by() )
+      if ( item->container != nullptr || item->has_gotten_by() )
       {
-        u32 containerSerial = ( item->container != NULL ) ? item->container->serial : 0;
+        u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
         POLLOG_ERROR.Format(
             "Boat component is gotten or in a container and couldn't be moved together with the "
             "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
@@ -1401,7 +1403,7 @@ void UBoat::move_components( Realms::Realm* oldrealm )
   for ( ; itr != end && itr2 != end2; ++itr, ++itr2 )
   {
     Items::Item* item = itr->get();
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       if ( item->orphan() )
       {
@@ -1411,9 +1413,9 @@ void UBoat::move_components( Realms::Realm* oldrealm )
       // This should be rare enough for a simple log to be the solution. We don't want POL to crash
       // in MoveItemWorldPosition() because the item was not in the world to start with, so we skip
       // it.
-      if ( item->container != NULL || item->has_gotten_by() )
+      if ( item->container != nullptr || item->has_gotten_by() )
       {
-        u32 containerSerial = ( item->container != NULL ) ? item->container->serial : 0;
+        u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
         POLLOG_INFO.Format(
             "Boat component is gotten or in a container and couldn't be moved together with the "
             "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
@@ -1469,7 +1471,7 @@ bool UBoat::turn( RELATIVE_DIR dir )
 
     // send_boat_to_inrange( this, x ,y, false ); // pauses those it sends to
     turn_travellers( dir, bc );
-    transform_components( old_boatshape, NULL );
+    transform_components( old_boatshape, nullptr );
     send_display_boat_to_inrange( x, y );
     do_tellmoves();
     unpause_paused();
@@ -1507,13 +1509,13 @@ void UBoat::rescan_components()
 {
   UPlank* plank;
 
-  if ( portplank != NULL && !portplank->orphan() )
+  if ( portplank != nullptr && !portplank->orphan() )
   {
     plank = static_cast<UPlank*>( portplank );
     plank->setboat( this );
   }
 
-  if ( starboardplank != NULL && !starboardplank->orphan() )
+  if ( starboardplank != nullptr && !starboardplank->orphan() )
   {
     plank = static_cast<UPlank*>( starboardplank );
     plank->setboat( this );
@@ -1524,17 +1526,17 @@ void UBoat::reread_components()
 {
   for ( auto& component : Components )
   {
-    if ( component == NULL )
+    if ( component == nullptr )
       continue;
     // check boat members here
-    if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == NULL )
+    if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == nullptr )
       tillerman = component.get();
-    if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == NULL )
+    if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == nullptr )
       portplank = component.get();
     if ( component->objtype_ == Core::settingsManager.extobj.starboard_plank &&
-         starboardplank == NULL )
+         starboardplank == nullptr )
       starboardplank = component.get();
-    if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == NULL )
+    if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == nullptr )
       hold = component.get();
   }
 }
@@ -1568,7 +1570,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
     if ( Core::IsItem( tmp_serial ) )
     {
       Items::Item* item = Core::find_toplevel_item( tmp_serial );
-      if ( item != NULL )
+      if ( item != nullptr )
       {
         if ( BoatShape::objtype_is_component( item->objtype_ ) )
         {
@@ -1584,7 +1586,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
     {
       Mobile::Character* chr = Core::system_find_mobile( tmp_serial );
 
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         if ( on_ship( bc, chr ) )
           travellers_.push_back( Traveller( chr ) );
@@ -1594,7 +1596,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   while ( elem.remove_prop( "Component", &tmp_serial ) )
   {
     Items::Item* item = Core::system_find_item( tmp_serial );
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       if ( BoatShape::objtype_is_component( item->objtype_ ) )
       {
@@ -1629,7 +1631,7 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
   }
   for ( auto& component : Components )
   {
-    if ( component != NULL && !component->orphan() )
+    if ( component != nullptr && !component->orphan() )
     {
       sw() << "\tComponent\t0x" << fmt::hex( component->serial ) << pf_endl;
     }
@@ -1646,7 +1648,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   multiid += multiid_offset;
 
   const MultiDef* md = MultiDefByMultiID( multiid );
-  if ( md == NULL )
+  if ( md == nullptr )
   {
     return new Bscript::BError(
         "Multi definition not found for Boat, objtype=" + Clib::hexint( descriptor.objtype ) +
@@ -1697,22 +1699,22 @@ void UBoat::create_components()
         itr != end; ++itr )
   {
     Items::Item* component = Items::Item::create( itr->objtype );
-    if ( component == NULL )
+    if ( component == nullptr )
       continue;
     // check boat members here
-    if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == NULL )
+    if ( component->objtype_ == Core::settingsManager.extobj.tillerman && tillerman == nullptr )
       tillerman = component;
-    if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == NULL )
+    if ( component->objtype_ == Core::settingsManager.extobj.port_plank && portplank == nullptr )
       portplank = component;
     if ( component->objtype_ == Core::settingsManager.extobj.starboard_plank &&
-         starboardplank == NULL )
+         starboardplank == nullptr )
       starboardplank = component;
-    if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == NULL )
+    if ( component->objtype_ == Core::settingsManager.extobj.hold && hold == nullptr )
       hold = component;
 
     component->graphic = itr->graphic;
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
-    component->height = Core::tileheight( component->graphic );
+    component->height = Plib::tileheight( component->graphic );
     component->x = x + itr->xdelta;
     component->y = y + itr->ydelta;
     component->z = z + static_cast<s8>( itr->zdelta );
@@ -1764,7 +1766,7 @@ Bscript::BObjectImp* UBoat::component_list( unsigned char type ) const
   Bscript::ObjArray* arr = new Bscript::ObjArray;
   for ( const auto& component : Components )
   {
-    if ( component != NULL && !component->orphan() )
+    if ( component != nullptr && !component->orphan() )
     {
       if ( type == COMPONENT_ALL )
       {
@@ -1784,7 +1786,7 @@ void UBoat::destroy_components()
 {
   for ( auto& component : Components )
   {
-    if ( component != NULL && !component->orphan() )
+    if ( component != nullptr && !component->orphan() )
     {
       Core::destroy_item( component.get() );
     }
@@ -1802,6 +1804,15 @@ size_t UBoat::estimatedSize() const
                 + 3 * sizeof( Traveller* ) + travellers_.capacity() * sizeof( Traveller ) +
                 3 * sizeof( Items::Item** ) + Components.capacity() * sizeof( Items::Item* );
   return size;
+}
+
+bool UBoat::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                             Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.boat_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 
 Bscript::BObjectImp* destroy_boat( UBoat* boat )
@@ -1825,5 +1836,5 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat )
   boat->destroy();
   return new Bscript::BLong( 1 );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

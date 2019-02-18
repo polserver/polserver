@@ -32,8 +32,8 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
@@ -126,9 +126,9 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   }
   // send to those nearby
   u16 range;
-  if ( type == Core::TEXTTYPE_WHISPER )
+  if ( type == Plib::TEXTTYPE_WHISPER )
     range = Core::settingsManager.ssopt.whisper_range;
-  else if ( type == Core::TEXTTYPE_YELL )
+  else if ( type == Plib::TEXTTYPE_YELL )
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
@@ -333,9 +333,9 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
     }
     // send to those nearby
     u16 range;
-    if ( msgin->type == Core::TEXTTYPE_WHISPER )
+    if ( msgin->type == Plib::TEXTTYPE_WHISPER )
       range = Core::settingsManager.ssopt.whisper_range;
-    else if ( msgin->type == Core::TEXTTYPE_YELL )
+    else if ( msgin->type == Plib::TEXTTYPE_YELL )
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
@@ -498,7 +498,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
 
   if ( msgin->type & 0xc0 )
   {
-    Bscript::BLong* atoken = NULL;
+    Bscript::BLong* atoken = nullptr;
     if ( speechtokens.get() == nullptr )
       speechtokens.reset( new Bscript::ObjArray() );
     for ( u16 j = 0; j < numtokens; j++ )
@@ -506,7 +506,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
       atoken = new Bscript::BLong( Get12BitNumber( (u8*)( msgin->wtext ), j + 1 ) );
       speechtokens->addElement( atoken );
     }
-    if ( gamestate.system_hooks.speechmul_hook != NULL )
+    if ( gamestate.system_hooks.speechmul_hook )
     {
       gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ),
                                                    new Bscript::ObjArray( *speechtokens.get() ),
@@ -518,5 +518,5 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
   SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen,
                      speechtokens.release() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

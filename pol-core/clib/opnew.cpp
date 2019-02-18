@@ -11,14 +11,9 @@
  */
 
 
-#ifdef WINDOWS
-#include "pol_global_config_win.h"
-#else
-#include "pol_global_config.h"
-#endif
-
 #include "logfacility.h"
 #include "opnew.h"
+#include "pol_global_config.h"
 
 #ifdef _WIN32
 #include <malloc.h>

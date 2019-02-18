@@ -21,6 +21,7 @@
 #include <string>
 #include <time.h>
 
+#include "../clib/Program/ProgramConfig.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
@@ -32,6 +33,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/threadhelp.h"
 #include "../clib/timer.h"
+#include "../plib/poltype.h"
 #include "../plib/systemstate.h"
 #include "accounts/accounts.h"
 #include "containr.h"
@@ -50,7 +52,6 @@
 #include "multi/house.h"
 #include "multi/multi.h"
 #include "objecthash.h"
-#include "poltype.h"
 #include "polvar.h"
 #include "resource.h"
 #include "savedata.h"
@@ -68,7 +69,7 @@ namespace Module
 void commit_datastore();
 void read_datastore_dat();
 void write_datastore( Clib::StreamWriter& sw );
-}
+}  // namespace Module
 namespace Core
 {
 void read_party_dat();
@@ -106,7 +107,7 @@ void read_character( Clib::ConfigElem& elem )
   }
   catch ( std::exception& )
   {
-    if ( chr.get() != NULL )
+    if ( chr.get() != nullptr )
       chr->destroy();
     throw;
   }
@@ -137,7 +138,7 @@ void read_npc( Clib::ConfigElem& elem )
   }
   catch ( std::exception& )
   {
-    if ( npc.get() != NULL )
+    if ( npc.get() != nullptr )
       npc->destroy();
     throw;
   }
@@ -157,7 +158,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "SERIAL", &serial ) == false )
   {
     ERROR_PRINT << "Item element has no SERIAL property, omitting.\n";
-    return NULL;
+    return nullptr;
   }
 
   if ( !IsItem( serial ) )
@@ -168,7 +169,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     {
       throw std::runtime_error( "Data integrity error" );
     }
-    return NULL;
+    return nullptr;
   }
 
   if ( Plib::systemstate.config.check_integrity )
@@ -182,20 +183,20 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
   {
     ERROR_PRINT.Format( "Item (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
-    return NULL;
+    return nullptr;
   }
   if ( gamestate.old_objtype_conversions.count( objtype ) )
     objtype = gamestate.old_objtype_conversions[objtype];
 
   Items::Item* item = Items::Item::create( objtype, serial );
-  if ( item == NULL )
+  if ( item == nullptr )
   {
     ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" )
         << objtype << serial;
     if ( !Plib::systemstate.config.ignore_load_errors )
       throw std::runtime_error( "Item::create failed!" );
     else
-      return NULL;
+      return nullptr;
   }
   item->realm = find_realm( "britannia" );
 
@@ -227,7 +228,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 
   Items::Item* item = read_item( elem );
   // dave added 1/15/3, protect against further crash if item is null. Should throw instead?
-  if ( item == NULL )
+  if ( item == nullptr )
   {
     elem.warn_with_line( "Error reading item SERIAL or OBJTYPE." );
     return;
@@ -245,7 +246,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
     if ( IsCharacter( container_serial ) )  // it's equipped on a character
     {
       Mobile::Character* chr = system_find_mobile( container_serial );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         equip_loaded_item( chr, item );
       }
@@ -255,7 +256,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       }
       return;
     }
-    Items::Item* cont_item = NULL;
+    Items::Item* cont_item = nullptr;
     // bool new_parent_cont = false;
 
     while ( !parent_conts.empty() )
@@ -272,7 +273,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       }
     }
 
-    if ( cont_item == NULL )
+    if ( cont_item == nullptr )
     {
       cont_item = system_find_item( container_serial );
       // new_parent_cont = true;
@@ -342,7 +343,7 @@ void read_multi( Clib::ConfigElem& elem )
     objtype = gamestate.old_objtype_conversions[objtype];
 
   Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
-  if ( multi == NULL )
+  if ( multi == nullptr )
   {
     ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" )
         << objtype << serial;
@@ -356,7 +357,7 @@ void read_multi( Clib::ConfigElem& elem )
 std::string elapsed( clock_t start, clock_t end )
 {
   size_t ms = static_cast<size_t>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
-  return Clib::decint( ms ) + " ms";
+  return Clib::tostring( ms ) + " ms";
 }
 
 void slurp( const char* filename, const char* tags, int sysfind_flags )
@@ -486,7 +487,7 @@ void read_multis_dat()
   //    while( cf.read( elem ))
   //    {
   //      UMulti* multi = read_multi( elem );
-  //      if (multi == NULL) throw runtime_error( "multi creation returned NULL!" );
+  //      if (multi == nullptr) throw runtime_error( "multi creation returned nullptr!" );
   //
   //      add_multi_to_world( multi );
   //    }
@@ -517,7 +518,7 @@ Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm*
       return item;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 int import_count;
@@ -535,7 +536,7 @@ void import( Clib::ConfigElem& elem )
 
   Items::Item* item = Items::Item::create( objtype, 0x40000000 );  // dummy serial
 
-  if ( item == NULL )
+  if ( item == nullptr )
   {
     ERROR_PRINT.Format( "Unable to import item: objtype=0x{:X}\n" ) << objtype;
     throw std::runtime_error( "Item::create failed!" );
@@ -678,7 +679,7 @@ int read_data()
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
 
-      if ( chr->acct != NULL )
+      if ( chr->acct != nullptr )
         chr->logged_in( false );
     }
   }
@@ -816,7 +817,7 @@ void write_system_data( Clib::StreamWriter& sw )
 {
   sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION << pf_endl
        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDateTime\t"
-       << POL_BUILD_DATETIME << pf_endl << "\tLastItemSerialNumber\t"
+       << Clib::ProgramConfig::build_datetime() << pf_endl << "\tLastItemSerialNumber\t"
        << GetCurrentItemSerialNumber() << pf_endl                                // dave 3/9/3
        << "\tLastCharSerialNumber\t" << GetCurrentCharSerialNumber() << pf_endl  // dave 3/9/3
        << "}" << pf_endl << pf_endl;
@@ -947,12 +948,12 @@ void write_multis( Clib::StreamWriter& ofs )
           if ( Clib::exit_signalled )  // drop waiting commit on shutdown
           {
             Multi::UHouse* house = multi->as_house();
-            if ( house != NULL )
+            if ( house != nullptr )
             {
               if ( house->IsCustom() )
               {
                 if ( house->IsWaitingForAccept() )
-                  house->AcceptHouseCommit( NULL, false );
+                  house->AcceptHouseCommit( nullptr, false );
               }
             }
           }
@@ -1047,7 +1048,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
       SaveContext sc;
       bool result = true;
       std::vector<std::future<bool>> critical_parts;
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
@@ -1065,8 +1066,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_items( sc.items );
@@ -1077,8 +1078,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_characters( sc );
@@ -1089,8 +1090,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_npcs( sc );
@@ -1101,8 +1102,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_multis( sc.multis );
@@ -1113,8 +1114,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           gamestate.storage.print( sc.storage );
@@ -1125,8 +1126,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_resources_dat( sc.resource );
@@ -1137,8 +1138,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_guilds( sc.guilds );
@@ -1149,8 +1150,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           Module::write_datastore( sc.datastore );
@@ -1163,8 +1164,8 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
-      critical_parts.push_back( std::move( gamestate.task_thread_pool.checked_push( [&]() {
+      } ) );
+      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
         {
           write_party( sc.party );
@@ -1175,7 +1176,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
           Clib::force_backtrace();
           result = false;
         }
-      } ) ) );
+      } ) );
       for ( auto& task : critical_parts )
         task.wait();
 
@@ -1353,7 +1354,7 @@ void read_gameservers()
 #ifdef __linux__
       /* try to look up */
       struct hostent host_ret;
-      struct hostent* host_result = NULL;
+      struct hostent* host_result = nullptr;
       char tmp_buf[1024];
       int my_h_errno;
       int res = gethostbyname_r( svr->hostname.c_str(), &host_ret, tmp_buf, sizeof tmp_buf,
@@ -1414,5 +1415,5 @@ void read_gameservers()
   if ( networkManager.servers.empty() )
     throw std::runtime_error( "There must be at least one GameServer in SERVERS.CFG." );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

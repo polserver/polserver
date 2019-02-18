@@ -22,8 +22,8 @@
 #include "../network/client.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
-#include "../pktboth.h"
-#include "../pktdef.h"
+#include "../network/pktboth.h"
+#include "../network/pktdef.h"
 #include "../ufunc.h"
 #include "../unicode.h"
 #include "../uoexec.h"
@@ -48,7 +48,7 @@ void send_unicode_prompt( Client* client, u32 serial )
 void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 {
   Module::UnicodeExecutorModule* uniemod = client->gd->prompt_uniemod;
-  if ( uniemod == NULL )
+  if ( uniemod == nullptr )
     return;  // log it?
 
   int textlen = ( ( cfBEu16( msg->msglen ) - offsetof( Core::PKTBI_C2, wtext ) ) /
@@ -62,7 +62,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
   }
 
   bool ok = true;
-  Bscript::BObject* valstack = NULL;
+  Bscript::BObject* valstack = nullptr;
 
 #if ( 0 )
   // client version of the packet should always send this as a 1??
@@ -92,7 +92,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 
         POLLOG_ERROR << "Client #" << static_cast<unsigned long>( client->instance_ )
                      << " (account "
-                     << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" )
+                     << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" )
                      << ") sent invalid unicode control characters (RequestInputUC)\n";
         break;  // for
       }
@@ -115,12 +115,12 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 
   uniemod->exec.ValueStack.back().set( valstack );  // error or struct, regardless.
   uniemod->uoexec.os_module->revive();
-  uniemod->prompt_chr = NULL;
-  client->gd->prompt_uniemod = NULL;
+  uniemod->prompt_chr = nullptr;
+  client->gd->prompt_uniemod = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////
-}
+}  // namespace Core
 namespace Bscript
 {
 using namespace Module;
@@ -133,7 +133,7 @@ TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
         {"RequestInputUC", &UnicodeExecutorModule::mf_RequestInputUC},
         {"SendSysMessageUC", &UnicodeExecutorModule::mf_SendSysMessageUC},
         {"SendTextEntryGumpUC", &UnicodeExecutorModule::mf_SendTextEntryGumpUC}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -142,16 +142,16 @@ u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
     : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
       uoexec( exec ),
-      prompt_chr( NULL )
+      prompt_chr( nullptr )
 {
 }
 
 UnicodeExecutorModule::~UnicodeExecutorModule()
 {
-  if ( prompt_chr != NULL )
+  if ( prompt_chr != nullptr )
   {
-    prompt_chr->client->gd->prompt_uniemod = NULL;
-    prompt_chr = NULL;
+    prompt_chr->client->gd->prompt_uniemod = nullptr;
+    prompt_chr = nullptr;
   }
 }
 
@@ -340,5 +340,10 @@ BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()
 
   return new BError( "Function not implimented" );
 }
+
+size_t UnicodeExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
 }
-}
+}  // namespace Module
+}  // namespace Pol

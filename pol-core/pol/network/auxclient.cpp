@@ -5,11 +5,7 @@
  */
 
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "auxclient.h"
 
@@ -30,7 +26,6 @@
 #include "../../clib/wnsckt.h"
 #include "../../plib/pkg.h"
 #include "../globals/network.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../polsem.h"
 #include "../scrdef.h"
@@ -207,7 +202,7 @@ void AuxClientThread::run()
         std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
         event->addMember( "type", new Bscript::String( "recv" ) );
         event->addMember( "value", value.release() );
-        _uoexec->os_module->signal_event( event.release() );
+        _uoexec->signal_event( event.release() );
       }
     }
     else

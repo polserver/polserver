@@ -18,8 +18,6 @@ ModuleFunction::ModuleFunction( const char* fname, int i_nargs, UserFunction* i_
 {
 }
 
-ModuleFunction::~ModuleFunction() {}
-
 FunctionalityModule::FunctionalityModule( const char* i_modname )
     : have_indexes( false ), modulename( i_modname )
 {
@@ -47,7 +45,7 @@ void FunctionalityModule::addFunction( const char* funcname, int nparams, UserFu
   functions.push_back( mf );
 
   // compiler only:
-  if ( uf != NULL )
+  if ( uf != nullptr )
     owned_userfuncs.push_back( uf );
 }
 

@@ -55,7 +55,7 @@ UObject* ObjectHash::Find( u32 serial )
   if ( itr != hash.end() )
     return ( itr->second ).get();
   else
-    return NULL;
+    return nullptr;
 }
 
 u32 ObjectHash::GetNextUnusedItemSerial()

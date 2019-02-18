@@ -81,7 +81,7 @@ BObjectRef BPacket::get_member_id( const int /*id*/ )  // id test
 BObjectRef BPacket::get_member( const char* membername )
 {
   ObjMember* objmember = getKnownObjMember( membername );
-  if ( objmember != NULL )
+  if ( objmember != nullptr )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
@@ -96,11 +96,11 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     if ( ex.numParams() != 1 )
       return new BError( "SendPacket requires 1 parameter." );
 
-    Mobile::Character* chr = NULL;
-    Network::Client* client = NULL;
+    Mobile::Character* chr = nullptr;
+    Network::Client* client = nullptr;
     if ( getCharacterOrClientParam( ex, 0, chr, client ) )
     {
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         if ( !chr->has_active_client() )
           return new BLong( 0 );
@@ -108,7 +108,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
         client = chr->client;
       }
 
-      if ( client != NULL )
+      if ( client != nullptr )
       {
         if ( client->isConnected() )
         {
@@ -505,7 +505,7 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
     break;
   }
   default:
-    return NULL;
+    return nullptr;
   }
   return new BError( "Invalid parameter" );
 }
@@ -514,10 +514,10 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
 BObjectImp* BPacket::call_method( const char* methodname, Executor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->call_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 BObjectImp* BPacket::copy() const
 {

@@ -24,7 +24,7 @@ bool Character::start_spell_script( Bscript::EScriptProgram* prog, Core::USpell*
 
 void Character::schedule_spell( Core::USpell* spell )
 {
-  passert( spell_task == NULL );
+  passert( spell_task == nullptr );
   new Core::SpellTask( &spell_task,
                        // polclock() + spell->delay() * POLCLOCKS_PER_SEC / 1000,
                        Core::polclock(), this, spell, true );

@@ -31,7 +31,7 @@ TmplExecutorModule<UtilExecutorModule>::FunctionTable
         {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll},
         {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime},
         {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -126,7 +126,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
 
 
   if ( time_stamp <= 0 )
-    seconds = time( NULL );
+    seconds = time( nullptr );
   else
     seconds = time_stamp;
 
@@ -181,5 +181,5 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   else
     return new BError( "Format string too long." );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

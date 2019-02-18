@@ -38,8 +38,8 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "polcfg.h"
 #include "servdesc.h"
 #include "startloc.h"
@@ -181,7 +181,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     {
       struct hostent* he =
           gethostbyname( server->hostname.c_str() );  // FIXME: here is a potential server lockup
-      if ( he != NULL && he->h_addr_list[0] )
+      if ( he != nullptr && he->h_addr_list[0] )
       {
         char* addr = he->h_addr_list[0];
         server->ip[0] = addr[3];
@@ -387,7 +387,7 @@ void send_start( Network::Client* client )
 
 void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and character listing
 {
-  client->encrypt_server_stream = 1;
+  client->encrypt_server_stream = true;
 
   if ( Network::is_banned_ip( client ) )
   {
@@ -400,7 +400,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
      For now, we already have the account in client->acct.
      Might work different if real loginservers were used. */
   Accounts::Account* acct = Accounts::find_account( msg->name );
-  if ( acct == NULL )
+  if ( acct == nullptr )
   {
     send_login_error( client, LOGIN_ERROR_NO_ACCOUNT );
     client->Disconnect();
@@ -487,8 +487,8 @@ void handle_delete_character( Network::Client* client, PKTIN_83* msg )
 {
   u32 charidx = cfBEu32( msg->charidx );
 
-  if ( ( charidx >= Plib::systemstate.config.character_slots ) || ( client->acct == NULL ) ||
-       ( client->acct->get_character( charidx ) == NULL ) )
+  if ( ( charidx >= Plib::systemstate.config.character_slots ) || ( client->acct == nullptr ) ||
+       ( client->acct->get_character( charidx ) == nullptr ) )
   {
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
@@ -497,8 +497,8 @@ void handle_delete_character( Network::Client* client, PKTIN_83* msg )
 
   Accounts::Account* acct = client->acct;
   Mobile::Character* chr = acct->get_character( charidx );
-  if ( chr->client != NULL || ( !Plib::systemstate.config.allow_multi_clients_per_account &&
-                                acct->has_active_characters() ) )
+  if ( chr->client != nullptr || ( !Plib::systemstate.config.allow_multi_clients_per_account &&
+                                   acct->has_active_characters() ) )
   {
     send_login_error( client, LOGIN_ERROR_OTHER_CHAR_INUSE );
     client->Disconnect();
@@ -518,5 +518,5 @@ void KR_Verifier_Response( Network::Client* /*client*/, PKTIN_E4* /*msg*/ )
 {
   //
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

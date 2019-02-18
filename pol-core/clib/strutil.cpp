@@ -20,90 +20,6 @@ namespace Pol
 {
 namespace Clib
 {
-std::string hexint( unsigned short v )
-{
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
-std::string hexint( signed int v )
-{
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
-}
-std::string hexint( unsigned int v )
-{
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
-std::string hexint( signed long v )
-{
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
-}
-std::string hexint( unsigned long v )
-{
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
-}
-#ifdef _WIN64
-std::string hexint( size_t v )
-{
-  OSTRINGSTREAM os;
-  os << "0x" << std::hex << v;
-  return OSTRINGSTREAM_STR( os );
-}
-#endif
-
-std::string decint( unsigned short v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
-std::string decint( signed int v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
-std::string decint( unsigned int v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
-std::string decint( signed long v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-std::string decint( unsigned long v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
-#ifdef _WIN64
-std::string decint( size_t v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-#endif
-
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue )
 {
   std::string::size_type start = istr.find_first_not_of( " \t\r\n" );
@@ -282,5 +198,5 @@ std::string strupper( const std::string& str )
 {
   return boost::to_upper_copy( str );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

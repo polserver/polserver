@@ -12,14 +12,13 @@
 #include <stddef.h>
 #include <string>
 
-#include <format/format.h>
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
+#include "../../plib/clidata.h"
 #include "../../plib/systemstate.h"
 #include "../baseobject.h"
-#include "../clidata.h"
 #include "../containr.h"
 #include "../door.h"
 #include "../extobj.h"
@@ -45,6 +44,7 @@
 #include "itemdesc.h"
 #include "weapon.h"
 #include "wepntmpl.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -73,7 +73,7 @@ Item* Item::create( u32 objtype, u32 serial )
     else
     {
       ERROR_PRINT << message.str() << "\n";
-      return NULL;
+      return nullptr;
     }
   }
 }
@@ -92,12 +92,12 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   else if ( id.type == ItemDesc::BOATDESC )
   {
     // still created with create_multi
-    return NULL;
+    return nullptr;
   }
   else if ( id.type == ItemDesc::HOUSEDESC )
   {
     // still created with create_multi
-    return NULL;
+    return nullptr;
   }
   else if ( ( objtype >= Core::gamestate.spell_scroll_objtype_limits[0][0] &&
               objtype <= Core::gamestate.spell_scroll_objtype_limits[0][1] ) ||
@@ -155,7 +155,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer
   // useage.
-  item->tile_layer = Core::tilelayer( graphic );
+  item->tile_layer = Plib::tilelayer( graphic );
 
   // Have to be set after the item is created, because item graphic changes
   // Because items can have facing 0 as the lightsource we use as default 127 to check
@@ -201,7 +201,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
                                              // Overwrite on Server-Restart
     item->setprop(
         "ct",
-        "i" + Clib::decint(
+        "i" + Clib::tostring(
                   Core::read_gameclock() ) );  // Pergon: Init Property CreateTime for a new Item
 #endif
 
@@ -256,5 +256,5 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   return item;
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

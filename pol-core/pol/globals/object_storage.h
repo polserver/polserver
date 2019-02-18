@@ -1,16 +1,14 @@
 #ifndef GLOBALS_OBJ_STORAGE_H
 #define GLOBALS_OBJ_STORAGE_H
 
-
-#include <boost/noncopyable.hpp>
 #include <cstddef>
 #include <map>
 #include <unordered_map>
 #include <vector>
 
 #include "../../clib/rawtypes.h"
+#include "../../plib/poltype.h"
 #include "../objecthash.h"
-#include "../poltype.h"
 
 namespace Pol
 {
@@ -20,11 +18,13 @@ namespace Core
 typedef std::unordered_map<pol_serial_t, unsigned> SerialIndexMap;
 typedef std::multimap<pol_serial_t, UObject*> DeferList;
 
-class ObjectStorageManager : boost::noncopyable
+class ObjectStorageManager
 {
 public:
   ObjectStorageManager();
   ~ObjectStorageManager();
+  ObjectStorageManager( const ObjectStorageManager& ) = delete;
+  ObjectStorageManager& operator=( const ObjectStorageManager& ) = delete;
 
   void deinitialize();
   struct MemoryUsage;
@@ -68,6 +68,6 @@ public:
 };
 
 extern ObjectStorageManager objStorageManager;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

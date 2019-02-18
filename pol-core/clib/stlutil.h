@@ -12,7 +12,6 @@
 #define STLUTIL_H
 
 #include "Header_Windows.h"
-#include "compilerspecifics.h"
 #include <cstring>
 #include <sstream>
 
@@ -46,7 +45,7 @@ template <class S1, class S2>
 inline int stringicmp( const S1& str1, const S2& str2 )
 {
 #ifdef _WIN32
-  return stricmp( str1.c_str(), str2.c_str() );
+  return _stricmp( str1.c_str(), str2.c_str() );
 #else
   return strcasecmp( str1.c_str(), str2.c_str() );
 #endif
@@ -55,7 +54,7 @@ template <class S1, const char*>
 inline int stringicmp( const S1& str1, const char* str2 )
 {
 #ifdef _WIN32
-  return stricmp( str1.c_str(), str2 );
+  return _stricmp( str1.c_str(), str2 );
 #else
   return strcasecmp( str1.c_str(), str2 );
 #endif
@@ -64,7 +63,7 @@ template <const char*, class S2>
 inline int stringicmp( const char* str1, const S2& str2 )
 {
 #ifdef _WIN32
-  return stricmp( str1, str2.c_str() );
+  return _stricmp( str1, str2.c_str() );
 #else
   return strcasecmp( str1, str2.c_str() );
 #endif
@@ -75,20 +74,12 @@ inline int stringicmp( const char* str1, const S2& str2 )
 #define OSTRINGSTREAM std::ostringstream
 #define OSTRINGSTREAM_STR( x ) x.str()
 
-template <class T>
-std::string tostring( const T& v )
-{
-  OSTRINGSTREAM os;
-  os << v;
-  return OSTRINGSTREAM_STR( os );
-}
-
 template <class T, size_t N>
-CONSTEXPR size_t arsize( T ( & )[N] )
+constexpr size_t arsize( T ( & )[N] )
 {
   return N;
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 
 #endif

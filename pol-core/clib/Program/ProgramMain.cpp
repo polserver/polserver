@@ -5,12 +5,8 @@
 #include "../Debugging/ExceptionParser.h"
 #include "../logfacility.h"
 #include "ProgramConfig.h"
-
-#ifdef WINDOWS
-#include "../pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
+
 #ifdef ENABLE_BENCHMARK
 #include <benchmark/benchmark.h>
 #endif
@@ -79,7 +75,7 @@ void ProgramMain::start( int argc, char* argv[] )
     std::string binaryPath = argv[0];
 #ifdef WINDOWS
     char modulePath[_MAX_PATH];
-    if ( GetModuleFileName( NULL, modulePath, sizeof modulePath ) )
+    if ( GetModuleFileName( nullptr, modulePath, sizeof modulePath ) )
       binaryPath = modulePath;
 #endif
     PROG_CONFIG::configureProgramEnvironment( binaryPath );
@@ -181,7 +177,7 @@ int ProgramMain::programArgsFindEquals( const std::string& filter, int defaultVa
   std::string val = programArgsFindEquals( filter, "" );
   if ( val.empty() )
     return defaultVal;
-  return strtoul( val.c_str(), NULL, hexVal ? 16 : 10 );
+  return strtoul( val.c_str(), nullptr, hexVal ? 16 : 10 );
 }
 }
 }  // namespaces

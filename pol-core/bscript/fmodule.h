@@ -33,7 +33,7 @@ public:
   bool used;         // compiler only
 
   ModuleFunction( const char* fname, int nargs, UserFunction* uf );
-  ~ModuleFunction();
+  ~ModuleFunction() = default;
 };
 
 class FunctionalityModule
@@ -54,7 +54,7 @@ public:
   explicit FunctionalityModule( const char* modname );
   ~FunctionalityModule();
 
-  void addFunction( const char* funcname, int nparams, UserFunction* uf = NULL );
+  void addFunction( const char* funcname, int nparams, UserFunction* uf = nullptr );
   void fillFunctionsByName();
 
 private:

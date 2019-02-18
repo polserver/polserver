@@ -19,7 +19,7 @@ class SourceChecker(metaclass=abc.ABCMeta):
 	''' A generic script running checks over the whole source tree '''
 
 	# Folders to ignore, relative to root
-	IGNORE = ('.git', )
+	IGNORE = ('.git', 'bin-build', 'bin', 'lib', 'doc', 'testsuite')
 
 	# Description of what is being checked
 	WHAT = ''

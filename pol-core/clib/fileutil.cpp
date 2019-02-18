@@ -55,7 +55,7 @@ bool IsDirectory( const char* dir )
     sdir = sdir.erase( sdir.length() - 1, 1 );
   struct stat st;
   if ( stat( sdir.c_str(), &st ) )
-    return 0;
+    return false;
   return ( st.st_mode & S_IFDIR ? true : false );
 }
 
@@ -84,7 +84,7 @@ int make_dir( const char* dir )
   if ( access( dir, 0 ) )
   {
 #ifdef _WIN32
-    if ( CreateDirectory( dir, NULL ) )  // why is windows too good for POSIX?
+    if ( CreateDirectory( dir, nullptr ) )  // why is windows too good for POSIX?
 #else
     if ( mkdir( dir, 0777 ) == 0 )
 #endif
@@ -100,7 +100,7 @@ int make_dir( const char* dir )
       if ( make_dir( parent_dir.c_str() ) )
         return -1;
 #ifdef _WIN32
-      if ( CreateDirectory( dir, NULL ) )
+      if ( CreateDirectory( dir, nullptr ) )
         return 0;
 #else
       if ( mkdir( dir, 0777 ) == 0 )

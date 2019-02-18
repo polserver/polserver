@@ -7,11 +7,7 @@
 #ifndef CLIB_CLIB_H
 #define CLIB_CLIB_H
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #ifndef __STDDEF_H
 #include "stddef.h"
@@ -80,12 +76,16 @@ char* binary( unsigned int val, int nbits );
 void incStr( char* str );
 
 
-/* GCCC is soo weak... */
+/* Compiler specific implementations for case insensitive compare... */
 #ifdef __GNUC__
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif
 
+#ifdef _MSC_VER
+#define stricmp _stricmp
+#define strnicmp _strnicmp
+#endif
 
 #ifdef __cplusplus
 #define PARAMS ...

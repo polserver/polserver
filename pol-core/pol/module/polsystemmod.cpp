@@ -23,7 +23,6 @@
 #include "../../bscript/impstr.h"
 #include "../../clib/clib.h"
 #include "../../clib/clib_MD5.h"
-#include "../../clib/compilerspecifics.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/strutil.h"
@@ -71,18 +70,18 @@ private:
 Bscript::BApplicObjType packageobjimp_type;
 // typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
 typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
-class PackageObjImp : public PackageObjImpBase
+class PackageObjImp final : public PackageObjImpBase
 {
   typedef PackageObjImpBase base;
 
 public:
   explicit PackageObjImp( const PackagePtrHolder& other );
-  virtual const char* typeOf() const POL_OVERRIDE;
-  virtual u8 typeOfInt() const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* copy() const POL_OVERRIDE;
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
   virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) POL_OVERRIDE;
-  virtual Bscript::BObjectRef get_member( const char* membername ) POL_OVERRIDE;
+                                            Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
 };
 PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
     : PackageObjImpBase( &packageobjimp_type, other )
@@ -199,7 +198,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelName()
   else if ( getStringParam( 0, cmdlevel_alias ) )
   {
     Core::CmdLevel* cmdlevel = Core::FindCmdLevelByAlias( cmdlevel_alias->data() );
-    if ( cmdlevel == NULL )
+    if ( cmdlevel == nullptr )
       return new BError( "Could not find a command level with that alias." );
     else
       return new String( cmdlevel->name );
@@ -215,7 +214,7 @@ BObjectImp* PolSystemExecutorModule::mf_GetCmdLevelNumber()
     return new BError( "Invalid parameter type." );
 
   Core::CmdLevel* cmdlevel_search = Core::find_cmdlevel( cmdlvlname->data() );
-  if ( cmdlevel_search == NULL )
+  if ( cmdlevel_search == nullptr )
     return new BError( "Could not find a command level with that name." );
 
   return new BLong( cmdlevel_search->cmdlevel );
@@ -254,8 +253,8 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
     std::unique_ptr<BDictionary> cmd_lvl_list( new BDictionary );
     for ( unsigned num = 0; num < Core::gamestate.cmdlevels.size(); ++num )
     {
-      ObjArray* script_list = Core::GetCommandsInPackage( NULL, num );
-      if ( script_list == NULL )
+      ObjArray* script_list = Core::GetCommandsInPackage( nullptr, num );
+      if ( script_list == nullptr )
         continue;
       else if ( !script_list->ref_arr.empty() )
         cmd_lvl_list->addMember( new BLong( num ), script_list );
@@ -273,7 +272,7 @@ BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
     for ( unsigned num = 0; num < Core::gamestate.cmdlevels.size(); ++num )
     {
       ObjArray* script_list = Core::GetCommandsInPackage( pkg, num );
-      if ( script_list == NULL )
+      if ( script_list == nullptr )
         continue;
       else if ( !script_list->ref_arr.empty() )
         cmd_lvl_list->addMember( new BLong( num ), script_list );
@@ -293,7 +292,7 @@ BObjectImp* PolSystemExecutorModule::mf_ReloadConfiguration()
 
 BObjectImp* PolSystemExecutorModule::mf_ReadMillisecondClock()
 {
-  return new BLong( Core::polticks_t_to_ms( Core::polclock() ) );
+  return new Double( Core::polclock_t_to_ms( Core::polclock() ) );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_ListenPoints()

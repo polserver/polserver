@@ -168,10 +168,10 @@ result. Doubles will be truncated.
   </function>
 
   <function name="SizeOf">
-    <prototype>SizeOf(expr)</prototype>
-    <parameter name="expr" value="An expression to evaluate" />
+    <prototype>SizeOf(obj)</prototype>
+    <parameter name="obj" value="Any object" />
     <explain>
-      Returns an estimate of the memory used
+      Returns an estimate of the memory used in bytes.
     </explain>
     <return>An int</return>
   </function>
@@ -351,4 +351,20 @@ const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code
     <explain>Converts a number to an boolean value.</explain>
     <return>Returns an Boolean object.</return>
   </function>
+
+  <function name="EncodeBase64">
+    <prototype>EncodeBase64( str )</prototype>
+    <parameter name="str" value="a string" />
+    <explain>Returns a base64 encoded string string.</explain>
+    <return>A String</return>
+  </function>
+
+  <function name="DecodeBase64">
+    <prototype>DecodeBase64( str )</prototype>
+    <parameter name="str" value="a string" />
+    <explain>Takes a base64 encoded string and converts it back to standard.</explain>
+    <return>A String</return>
+  </function>
+  
+  
 </ESCRIPT>

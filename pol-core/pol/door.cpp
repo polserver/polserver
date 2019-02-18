@@ -7,9 +7,12 @@
 
 #include <stddef.h>
 
+#include "../bscript/executor.h"
 #include "../clib/rawtypes.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
+#include "syshookscript.h"
 #include "ufunc.h"
 #include "uworld.h"
 
@@ -57,7 +60,7 @@ void UDoor::toggle()
     y += dd->ymod;
   }
 
-  MoveItemWorldPosition( oldx, oldy, this, NULL );
+  MoveItemWorldPosition( oldx, oldy, this, nullptr );
 
   send_item_to_inrange( this );
 }
@@ -86,6 +89,15 @@ void UDoor::close()
 size_t UDoor::estimatedSize() const
 {
   return base::estimatedSize();
+}
+
+bool UDoor::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                             unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.door_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

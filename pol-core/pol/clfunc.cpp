@@ -2,8 +2,8 @@
  *
  * @par History
  * - 2009-03-03 Nando - private_say_above_cl(), say_above_cl(), send_sysmessage_cl() Crash fix when
- * arguments are NULL
- * - 2009/12/04 Turley: if arguments are NULL still add the terminator
+ * arguments are nullptr
+ * - 2009/12/04 Turley: if arguments are nullptr still add the terminator
  */
 
 
@@ -14,7 +14,7 @@
 
 #include "mobile/charactr.h"
 #include "network/packethelper.h"
-#include "pktdef.h"
+#include "network/pktdef.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -31,7 +31,7 @@ void send_sysmessage_cl( Client* client, /*Character *chr_from, ObjArray* oText,
   msg->offset += 2;
   unsigned textlen = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -47,7 +47,7 @@ void send_sysmessage_cl( Client* client, /*Character *chr_from, ObjArray* oText,
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write( "System", 30, false );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->Write( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
     msg->offset += 2;
@@ -64,7 +64,7 @@ void say_above_cl( UObject* obj, unsigned int cliloc_num, const u16* arguments, 
   msg->offset += 2;
   unsigned textlen = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -80,7 +80,7 @@ void say_above_cl( UObject* obj, unsigned int cliloc_num, const u16* arguments, 
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write( obj->description().c_str(), 30, false );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->Write( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
     msg->offset += 2;
@@ -98,7 +98,7 @@ void private_say_above_cl( Mobile::Character* chr, const UObject* obj, unsigned 
   msg->offset += 2;
   unsigned textlen = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -114,7 +114,7 @@ void private_say_above_cl( Mobile::Character* chr, const UObject* obj, unsigned 
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write( obj->description().c_str(), 30, false );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->Write( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
     msg->offset += 2;
@@ -133,7 +133,7 @@ void send_sysmessage_cl_affix( Client* client, unsigned int cliloc_num, const ch
   msg->offset += 2;
   unsigned textlen = 0, affix_len = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -154,7 +154,7 @@ void send_sysmessage_cl_affix( Client* client, unsigned int cliloc_num, const ch
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
   msg->Write( "System", 30, false );
   msg->Write( affix, static_cast<u16>( affix_len ) );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->WriteFlipped( arguments, static_cast<u16>( textlen ), true );
   else
     msg->offset += 2;
@@ -171,7 +171,7 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const char* affi
   msg->offset += 2;
   unsigned textlen = 0, affix_len = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -192,7 +192,7 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const char* affi
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
   msg->Write( obj->description().c_str(), 30, false );
   msg->Write( affix, static_cast<u16>( affix_len ) );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->WriteFlipped( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
     msg->offset += 2;
@@ -212,7 +212,7 @@ void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
   msg->offset += 2;
   unsigned textlen = 0, affix_len = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -233,7 +233,7 @@ void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
   msg->Write( obj->description().c_str(), 30, false );
   msg->Write( affix, static_cast<u16>( affix_len ) );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->WriteFlipped( arguments, static_cast<u16>( textlen ), true );
   else
     msg->offset += 2;
@@ -250,7 +250,7 @@ void build_sysmessage_cl( PktOut_C1* msg, unsigned int cliloc_num, const u16* ar
   msg->offset += 2;
   unsigned textlen = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -266,7 +266,7 @@ void build_sysmessage_cl( PktOut_C1* msg, unsigned int cliloc_num, const u16* ar
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write( "System", 30, false );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->Write( arguments, static_cast<u16>( textlen ), true );  // ctLEu16
   else
     msg->offset += 2;
@@ -283,7 +283,7 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const c
   msg->offset += 2;
   unsigned textlen = 0, affix_len = 0;
 
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
   {
     while ( arguments[textlen] != L'\0' )
       ++textlen;
@@ -304,7 +304,7 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const c
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
   msg->Write( "System", 30, false );
   msg->Write( affix, static_cast<u16>( affix_len ) );
-  if ( arguments != NULL )
+  if ( arguments != nullptr )
     msg->WriteFlipped( arguments, static_cast<u16>( textlen ), true );
   else
     msg->offset += 2;
@@ -313,5 +313,5 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const c
   msg->WriteFlipped<u16>( len );
   msg->offset = len;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

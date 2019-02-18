@@ -2,76 +2,19 @@
 #define POL_GLOBAL_CONFIG_H
 
 #cmakedefine USE_BOOST_REGEX
-#cmakedefine DEBUG_FLYWEIGHT
+#cmakedefine ENABLE_FLYWEIGHT_REPORT
 #cmakedefine MEMORYLEAK
 #cmakedefine PERGON
 #cmakedefine ESCRIPT_PROFILE
-#cmakedefine GIT_REVISION
 #cmakedefine HAVE_OPENSSL
 #cmakedefine HAVE_MYSQL
 #cmakedefine ENABLE_BENCHMARK
 
-#define POL_VERSION                 @POL_VERSION@
-#define POL_VERSION_STR             "@POL_VERSION_STR@"
-#define POL_VERSION_NAME            "@POL_VERSION_NAME@"
-#define POL_VERSION_ID              "POL@POL_VERSION_STR@ @POL_VERSION_NAME@"
-#define POL_BUILD_DATETIME          __DATE__ " " __TIME__
-#define POL_BUILD_ARCH_BITS_STR     "@ARCH_BITS@"
-#define POL_COPYRIGHT               "Copyright (C) 1993-2018 Eric N. Swanson"
-
-
-#ifdef PERGON
-#define POL_BUILD_TARGET_TAG_PERGON " - Pergon"
-#else
-#define POL_BUILD_TARGET_TAG_PERGON ""
-#endif
-
-#ifdef MEMORYLEAK
-#define POL_BUILD_TARGET_TAG_MEMLEAK " - MemoryLeak"
-#else
-#define POL_BUILD_TARGET_TAG_MEMLEAK ""
-#endif
-
-#ifdef ESCRIPT_PROFILE
-#define POL_BUILD_TARGET_TAG_PROFILE " - EscriptProfile"
-#else
-#define POL_BUILD_TARGET_TAG_PROFILE ""
-#endif
-
-#ifdef GIT_REVISION
-#define POL_REVISION_TAG " (Rev. " @GIT_REVISION@ ")"
-#else
-#define POL_REVISION_TAG ""
-#endif
-
-#if defined(LINUX)
-  #define POL_BUILD_TARGET ("LINUX (" POL_BUILD_ARCH_BITS_STR "bit)" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK "" POL_BUILD_TARGET_TAG_PROFILE "" POL_REVISION_TAG)
-#elif defined( WINDOWS )
-#if ( _MSC_VER <= 1700 )
-#define POL_BUILD_TARGET                                                 \
-  ( "VS2012" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
-    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#elif ( _MSC_VER <= 1800 )
-#define POL_BUILD_TARGET                                                 \
-  ( "VS2013" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
-    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#elif ( _MSC_VER <= 1900 )
-#define POL_BUILD_TARGET                                                 \
-  ( "VS2015" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
-    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#elif ( _MSC_VER <= 2000 )
-#define POL_BUILD_TARGET                                                 \
-  ( "VS2017" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
-    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#else
-#define POL_BUILD_TARGET                                                    \
-  ( "[UNKNOWN]" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
-    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#endif
-#else
-#define POL_BUILD_TARGET                                                    \
-  ( "[UNKNOWN]" POL_BUILD_TARGET_TAG_PERGON "" POL_BUILD_TARGET_TAG_MEMLEAK \
-    "" POL_BUILD_TARGET_TAG_PROFILE "" POL_64 "" POL_REVISION_TAG )
-#endif
+#define POL_VERSION @POL_VERSION@
+#define POL_VERSION_STR "@POL_VERSION_STR@"
+#define POL_VERSION_NAME "@POL_VERSION_NAME@"
+#define POL_VERSION_ID "POL@POL_VERSION_STR@ @POL_VERSION_NAME@"
+#define POL_BUILD_ARCH_BITS_STR "@ARCH_BITS@"
+#define POL_COPYRIGHT "Copyright (C) 1993-2018 Eric N. Swanson"
 
 #endif /* POL_GLOBAL_CONFIG_H */

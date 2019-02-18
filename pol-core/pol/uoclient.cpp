@@ -10,6 +10,7 @@
 #include <string>
 
 #include "../clib/cfgelem.h"
+#include "../clib/logfacility.h"
 #include "../plib/pkg.h"
 #include "globals/network.h"
 #include "mobile/attribute.h"
@@ -32,7 +33,8 @@ size_t UoClientProtocol::estimateSize() const
 UoClientListener::UoClientListener( Clib::ConfigElem& elem )
     : port( elem.remove_ushort( "PORT" ) ),
       aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
-      sticky( elem.remove_bool( "KeepClients", false ) )
+      sticky( elem.remove_bool( "KeepClients", false ) ),
+      login_clients()
 
 {
   CalculateCryptKeys( elem.remove_string( "ENCRYPTION", "none" ), encryption );
@@ -40,7 +42,9 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
 
 size_t UoClientListener::estimateSize() const
 {
-  return sizeof( UoClientListener );
+  size_t size = sizeof( UoClientListener );
+  size += login_clients.size() * ( sizeof( UoClientThread ) + 3 * sizeof( void* ) );
+  return size;
 }
 
 void checka( Clib::ConfigElem& elem, UoClientGeneral::Mapping& mapping, const char* tag )
@@ -97,7 +101,14 @@ void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
     {
       ExportScript* shs = new ExportScript( pkg, temp );
       if ( shs->Initialize() )
+      {
         networkManager.uoclient_general.method_script = shs;
+        POLLOG_INFO << "\n"
+                       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+                       "WARNING: uoclient.cfg MethodScript entry is deprecated! Use syshook.cfg "
+                       "SystemMethod Mobile entry instead.\n"
+                       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+      }
       else
         delete shs;
     }
@@ -112,7 +123,7 @@ void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 
 void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
-  networkManager.uoclient_listeners.push_back( UoClientListener( elem ) );
+  networkManager.uoclient_listeners.emplace_back( elem );
 }
 
 void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -153,5 +164,5 @@ void UoClientGeneral::deinitialize()
     method_script = nullptr;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -34,6 +34,7 @@ struct CompilerConfig
   bool OptimizeObjectMembers;
   bool ErrorOnWarning;
   bool ThreadedCompilation;
+  int  NumberOfThreads;
   bool ParanoiaWarnings;
 
   void Read( const std::string& path );

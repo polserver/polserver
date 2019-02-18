@@ -5,9 +5,9 @@
  * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
  */
 
-#include "mdump.h"
 #include "clib.h"
 #include "logfacility.h"
+#include "mdump.h"
 #include "passert.h"
 #include "strexcpt.h"
 #include "threadhelp.h"
@@ -82,13 +82,13 @@ void HiddenMiniDumper::Initialize()
   assert( !_Initialized );
   _Initialized = true;
 
-  auto time_tm = Clib::localtime( time( NULL ) );
+  auto time_tm = Clib::localtime( time( nullptr ) );
   strftime( _StartTimestamp, sizeof _StartTimestamp, "%Y%m%d%H%M%S", &time_tm );
 
   // appname will be obtained from progver
 
   // find a better value for your app
-  // HWND hParent = NULL;
+  // HWND hParent = nullptr;
 
   /*
       firstly see if dbghelp.dll is around and has the function we need
@@ -96,9 +96,9 @@ void HiddenMiniDumper::Initialize()
       (e.g. Windows 2000)
       */
   char szDbgHelpPath[_MAX_PATH];
-  char* szResult = NULL;
+  char* szResult = nullptr;
 
-  if ( GetModuleFileName( NULL, szDbgHelpPath, _MAX_PATH ) )
+  if ( GetModuleFileName( nullptr, szDbgHelpPath, _MAX_PATH ) )
   {
     char* pSlash = strchr( szDbgHelpPath, '\\' );
     if ( pSlash )
@@ -108,7 +108,7 @@ void HiddenMiniDumper::Initialize()
     }
   }
 
-  if ( hDbgHelpDll == NULL )
+  if ( hDbgHelpDll == nullptr )
   {
     // load any version we can
     hDbgHelpDll = ::LoadLibrary( "DBGHELP.DLL" );
@@ -147,8 +147,8 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
   {
     dumppath << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
 
-    HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, NULL,
-                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+    HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr,
+                                 CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr );
 
     if ( hFile != INVALID_HANDLE_VALUE )
     {
@@ -156,7 +156,7 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
       ExInfo.ThreadId = ::GetCurrentThreadId();
       ExInfo.ExceptionPointers = pExceptionInfo;
-      ExInfo.ClientPointers = NULL;
+      ExInfo.ClientPointers = 0;
 
       // write the dump
       MINIDUMP_TYPE dumptype;
@@ -168,8 +168,8 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
         dumptype = MiniDumpNormal;
 
       ERROR_PRINT << "Unhandled Exception! Minidump started...\n";
-      BOOL bOK =
-          pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo, NULL, NULL );
+      BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo,
+                        nullptr, nullptr );
       if ( bOK )
       {
         result.Format(
@@ -222,14 +222,14 @@ public:
 
 protected:
   // no output
-  virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) POL_OVERRIDE {}
+  virtual void OnSymInit( LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName ) override {}
   virtual void OnLoadModule( LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result,
-                             LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) POL_OVERRIDE
+                             LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion ) override
   {
   }
-  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) POL_OVERRIDE{};
-  virtual void OnOutput( LPCSTR szText ) POL_OVERRIDE { _log << szText; }
-  virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) POL_OVERRIDE
+  virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) override{};
+  virtual void OnOutput( LPCSTR szText ) override { _log << szText; }
+  virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) override
   {
     try
     {

@@ -32,7 +32,7 @@
 
 #include "../../bscript/execmodl.h"
 #include "../../clib/rawtypes.h"
-#include "../poltype.h"
+#include "../../plib/poltype.h"
 #include "../reftypes.h"
 
 namespace Pol
@@ -56,7 +56,7 @@ class Menu;
 class UContainer;
 class UOExecutor;
 class UObject;
-}
+}  // namespace Core
 namespace Mobile
 {
 class Character;
@@ -132,6 +132,8 @@ public:
   Bscript::BObjectImp* mf_PlayStationaryEffect();
   Bscript::BObjectImp* mf_GetMapInfo();
   Bscript::BObjectImp* mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
+  Bscript::BObjectImp* mf_ListItemsInBoxOfObjType( /* objtype, x1, y1, z1, x2, y2, z2, realm */ );
+  Bscript::BObjectImp* mf_ListObjectsInBoxOfClass( /* POL_Class, x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
   Bscript::BObjectImp* mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, flags, realm */ );
@@ -284,6 +286,10 @@ public:
   Bscript::BObjectImp* mf_SendPopUpMenu( /* to_whom, above, menu */ );
   Bscript::BObjectImp* mf_SingleClick( /*who, what*/ );
 
+  Bscript::BObjectImp* mf_ListStaticsNearLocationOfType(
+      /* x, y, z, range, objtype, flags, realm */ );
+  Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag( /* x, y, z, range, flags, realm */ );
+
   Core::UOExecutor& uoexec;
 
   /* If we're asking a character for a target, who is it?
@@ -317,6 +323,8 @@ public:
   explicit UOExecutorModule( Core::UOExecutor& exec );
   ~UOExecutorModule();
 
+  virtual size_t sizeEstimate() const override;
+
 protected:
   // bool getStaticMenuParam( unsigned param, Menu*& menu );
   bool getDynamicMenuParam( unsigned param, Core::Menu*& menu );
@@ -349,6 +357,6 @@ private:  // not implemented
   UOExecutorModule( const UOExecutorModule& );
   UOExecutorModule& operator=( const UOExecutorModule& );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

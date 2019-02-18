@@ -3,11 +3,7 @@
  * @par History
  */
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include "sqlmod.h"
 
@@ -42,7 +38,7 @@ TmplExecutorModule<SQLExecutorModule>::FunctionTable
         {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows},
         {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb},
         {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -51,6 +47,11 @@ SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
     : Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )
 {
+}
+
+size_t SQLExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
 }
 
 #ifdef HAVE_MYSQL
@@ -183,7 +184,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
     {
       const BObjectRef& ref = params->ref_arr[i];
       const BObject* obj = ref.get();
-      if ( obj != NULL )
+      if ( obj != nullptr )
         sharedParams->insert( sharedParams->end(), obj->impptr()->getStringRep() );
     }
   }
@@ -304,7 +305,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
     return new BError( "Invalid parameters" );
   }
   const char* name = result->field_name( index );
-  if ( name == 0 )
+  if ( name == nullptr )
     return new BError( "Column does not exist" );
   return new String( name );
 }
@@ -371,5 +372,5 @@ MF_NO_MYSQL( mf_NumRows )
 MF_NO_MYSQL( mf_Close )
 MF_NO_MYSQL( mf_FetchRow )
 #endif
-}
-}
+}  // namespace Module
+}  // namespace Pol

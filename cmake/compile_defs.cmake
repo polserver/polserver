@@ -3,6 +3,8 @@ function(set_compile_flags target is_executable)
   target_include_directories(${target}  PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
     ${PROJECT_BINARY_DIR} #global config
+  )
+  target_include_directories(${target}  PRIVATE SYSTEM
     ${BOOST_SOURCE_DIR} # boost
     "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
     "${CMAKE_CURRENT_LIST_DIR}/../../lib/picojson-1.3.0" #pico
@@ -116,7 +118,7 @@ function(set_compile_flags target is_executable)
     if (${release} AND ${linux})
       if (${ENABLE_ASAN} OR ${ENABLE_USAN} OR ${ENABLE_MSAN} OR ${ENABLE_TSAN})
         #dont strip
-      else()
+      elseif(${STRIP_BINARIES})
         target_link_libraries(${target} PUBLIC
           -s # strip
         )
@@ -207,6 +209,11 @@ function(use_curl target)
   target_compile_definitions(${target} PRIVATE
     CURL_STATICLIB
   )
+  if (${linux})
+    target_link_libraries(${target} PUBLIC ssl)
+  else()
+    target_link_libraries(${target} PUBLIC wldap32)
+  endif()
 endfunction()
 
 function(use_benchmark target)
@@ -222,11 +229,15 @@ function(warning_suppression target)
       /wd4786 #identifier trunc for debug
     >
     $<${linux}:
-      -Wno-unknown-pragmas
-      -Wno-unused-result
-      -Wno-unused-function
-      -Wno-format
-      -fno-strict-aliasing  
     >
   )
+endfunction()
+
+function(use_tidy target)
+  if (ENABLE_TIDY)
+    set_target_properties(
+      ${target} PROPERTIES
+      CXX_CLANG_TIDY "${DO_CLANG_TIDY}"
+    )
+  endif()
 endfunction()

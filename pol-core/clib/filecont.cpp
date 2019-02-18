@@ -23,7 +23,7 @@ namespace Clib
 FileContents::FileContents( const char* filename )
 {
   FILE* fp = fopen( filename, "rb" );
-  if ( fp == NULL )
+  if ( fp == nullptr )
   {
     ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
     throw std::runtime_error( "Error opening file" );

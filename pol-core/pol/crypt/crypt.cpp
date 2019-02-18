@@ -1,6 +1,6 @@
 
 #include "../../clib/passert.h"
-#include "../uconst.h"
+#include "../../plib/uconst.h"
 #include "blowfish.h"
 #include "crypt.h"
 #include "cryptbase.h"
@@ -14,8 +14,6 @@ namespace Pol
 namespace Crypt
 {
 CCryptNoCrypt::CCryptNoCrypt() : CCryptBase() {}
-
-CCryptNoCrypt::~CCryptNoCrypt() {}
 
 int CCryptNoCrypt::Receive( void* buffer, int max_expected, SOCKET socket )
 {
@@ -33,8 +31,6 @@ void CCryptNoCrypt::Init( void* pvSeed, int type )
 
 CCryptBlowfish::CCryptBlowfish() : CCryptBaseCrypt(), bfish() {}
 
-CCryptBlowfish::~CCryptBlowfish() {}
-
 CCryptBlowfish::CCryptBlowfish( unsigned int masterKey1, unsigned int masterKey2 )
 {
   SetMasterKeys( masterKey1, masterKey2 );
@@ -51,12 +47,6 @@ int CCryptBlowfish::Receive( void* buffer, int max_expected, SOCKET socket )
     Decrypt( encrypted_data, buffer, count );
   }
   return count;
-}
-
-void CCryptBlowfish::SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 )
-{
-  m_masterKey[0] = masterKey1 & 0xFFFFFFFF;
-  m_masterKey[1] = masterKey2 & 0xFFFFFFFF;
 }
 
 void CCryptBlowfish::Init( void* pvSeed, int type )
@@ -96,8 +86,6 @@ void CCryptBlowfish::Decrypt( void* pvIn, void* pvOut, int len )
 
 CCryptBlowfishOld::CCryptBlowfishOld() : CCryptBlowfish() {}
 
-CCryptBlowfishOld::~CCryptBlowfishOld() {}
-
 CCryptBlowfishOld::CCryptBlowfishOld( unsigned int masterKey1, unsigned int masterKey2 )
 {
   SetMasterKeys( masterKey1, masterKey2 );
@@ -129,8 +117,6 @@ void CCryptBlowfishOld::Decrypt( void* pvIn, void* pvOut, int len )
 // BLOWFISH 1.25.36
 
 CCrypt12536::CCrypt12536() : CCryptBlowfish() {}
-
-CCrypt12536::~CCrypt12536() {}
 
 CCrypt12536::CCrypt12536( unsigned int masterKey1, unsigned int masterKey2 )
 {
@@ -164,8 +150,6 @@ void CCrypt12536::Decrypt( void* pvIn, void* pvOut, int len )
 
 CCryptBlowfishTwofish::CCryptBlowfishTwofish() : CCryptBaseCrypt(), bfish(), tfish() {}
 
-CCryptBlowfishTwofish::~CCryptBlowfishTwofish() {}
-
 CCryptBlowfishTwofish::CCryptBlowfishTwofish( unsigned int masterKey1, unsigned int masterKey2 )
 {
   SetMasterKeys( masterKey1, masterKey2 );
@@ -182,12 +166,6 @@ int CCryptBlowfishTwofish::Receive( void* buffer, int max_expected, SOCKET socke
     Decrypt( encrypted_data, buffer, count );
   }
   return count;
-}
-
-void CCryptBlowfishTwofish::SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 )
-{
-  m_masterKey[0] = masterKey1 & 0xFFFFFFFF;
-  m_masterKey[1] = masterKey2 & 0xFFFFFFFF;
 }
 
 void CCryptBlowfishTwofish::Init( void* pvSeed, int type )
@@ -229,8 +207,6 @@ void CCryptBlowfishTwofish::Decrypt( void* pvIn, void* pvOut, int len )
 
 CCryptTwofish::CCryptTwofish() : CCryptBaseCrypt(), tfish(), md5() {}
 
-CCryptTwofish::~CCryptTwofish() {}
-
 CCryptTwofish::CCryptTwofish( unsigned int masterKey1, unsigned int masterKey2 )
 {
   SetMasterKeys( masterKey1, masterKey2 );
@@ -247,12 +223,6 @@ int CCryptTwofish::Receive( void* buffer, int max_expected, SOCKET socket )
     Decrypt( encrypted_data, buffer, count );
   }
   return count;
-}
-
-void CCryptTwofish::SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 )
-{
-  m_masterKey[0] = masterKey1 & 0xFFFFFFFF;
-  m_masterKey[1] = masterKey2 & 0xFFFFFFFF;
 }
 
 void CCryptTwofish::Init( void* pvSeed, int type )
@@ -296,5 +266,5 @@ void CCryptTwofish::Decrypt( void* pvIn, void* pvOut, int len )
     tfish.Decrypt( pIn, pOut, len );
   }
 }
-}
-}
+}  // namespace Crypt
+}  // namespace Pol

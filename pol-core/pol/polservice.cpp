@@ -42,8 +42,8 @@ class PolService : public Clib::CNTService
 {
 public:
   PolService();
-  virtual void Run() POL_OVERRIDE;
-  virtual void OnStop() POL_OVERRIDE;
+  virtual void Run() override;
+  virtual void OnStop() override;
 };
 
 PolService::PolService() : Clib::CNTService( "POL" )
@@ -118,7 +118,7 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
 
     Shell_NotifyIcon( NIM_ADD, &ndata );
 
-    SetWindowPos( hwndDlg, NULL, -10, -10, 0, 0, SWP_NOZORDER | SWP_NOMOVE );
+    SetWindowPos( hwndDlg, nullptr, -10, -10, 0, 0, SWP_NOZORDER | SWP_NOMOVE );
     hwnd = hwndDlg;
     break;
 
@@ -127,13 +127,13 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
     if ( lParam == WM_RBUTTONDOWN )
     {
       // Beep(200,200); // Removed beep... ! (Debugging POLLaunch made me hate this :/)
-      HMENU m = LoadMenu( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDR_POPUP ) );
+      HMENU m = LoadMenu( GetModuleHandle( nullptr ), MAKEINTRESOURCE( IDR_POPUP ) );
       HMENU subm = GetSubMenu( m, 0 );
       POINT p;
       GetCursorPos( &p );
 
       SetForegroundWindow( hwndDlg );
-      BOOL rc = TrackPopupMenu( subm, TPM_LEFTALIGN, p.x, p.y, 0, hwndDlg, NULL );
+      BOOL rc = TrackPopupMenu( subm, TPM_LEFTALIGN, p.x, p.y, 0, hwndDlg, nullptr );
       PostMessage( hwndDlg, WM_NULL, 0, 0 );
     }
     break;
@@ -155,17 +155,17 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
       BOOL rc;
       rc = CreateProcess( "constub.exe",
       "constub.exe",
-      NULL,
-      NULL,
+      nullptr,
+      nullptr,
       TRUE,  // inherit handles
       CREATE_NEW_CONSOLE,
-      NULL,
-      NULL,
+      nullptr,
+      nullptr,
       &si,
       &pi );
       DWORD err = GetLastError();
       Sleep( 5000 );
-      rc = WriteFile( si.hStdOutput, "abcdef", 6, NULL, NULL );
+      rc = WriteFile( si.hStdOutput, "abcdef", 6, nullptr, nullptr );
       */
       /*
       HWND x = GetConsoleWindow();
@@ -217,13 +217,13 @@ void SystemTrayDialogThread( void* )
 {
 // modeless:
 #if DLG_MODELESS
-  hwnd = CreateDialog( NULL, MAKEINTRESOURCE( IDD_DIALOG1 ), NULL, DialogProc );
+  hwnd = CreateDialog( nullptr, MAKEINTRESOURCE( IDD_DIALOG1 ), nullptr, DialogProc );
   ShowWindow( hwnd, SW_HIDE );
 
   BOOL bRet;
   MSG msg;
 
-  while ( ( bRet = GetMessage( &msg, NULL, 0, 0 ) ) != 0 )
+  while ( ( bRet = GetMessage( &msg, nullptr, 0, 0 ) ) != 0 )
   {
     if ( bRet == -1 )
     {
@@ -238,7 +238,7 @@ void SystemTrayDialogThread( void* )
   }
 #else
   // modal:
-  DialogBox( NULL, MAKEINTRESOURCE( IDD_DIALOG1 ), NULL, DialogProc );
+  DialogBox( nullptr, MAKEINTRESOURCE( IDD_DIALOG1 ), nullptr, DialogProc );
 #endif
 }
 
@@ -275,17 +275,17 @@ void InitializeSystemTrayHandling()
   ndata.uID = 2000;
   ndata.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
   ndata.uCallbackMessage = WM_ICON_NOTIFY;
-  ndata.hIcon = ::LoadIcon( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDI_POLTRAY ) );
+  ndata.hIcon = ::LoadIcon( GetModuleHandle( nullptr ), MAKEINTRESOURCE( IDI_POLTRAY ) );
   strcpy( ndata.szTip, "POL Initializing" );
 
-  _beginthread( SystemTrayDialogThread, 0, NULL );
+  _beginthread( SystemTrayDialogThread, 0, nullptr );
   SetConsoleCtrlHandler( control_handler_SystemTray, TRUE );
-  //    _beginthreadex( NULL,
+  //    _beginthreadex( nullptr,
   //                    0,
   //                    SystemTrayDialogThread,
   //                    0,
-  //                    NULL );
-  // CreateThread(NULL,0,Thread,NULL,0,NULL);
+  //                    nullptr );
+  // CreateThread(nullptr,0,Thread,nullptr,0,nullptr);
   //    threadhelp::start_thread( SystemTrayDialogThread, "SystemTrayDialog" );
 }
 
@@ -294,7 +294,7 @@ void ShutdownSystemTrayHandling()
   if ( hwnd )
   {
 #ifdef _M_X64
-    PDWORD_PTR res = NULL;
+    PDWORD_PTR res = nullptr;
     LRESULT rc = SendMessageTimeout( hwnd, WM_COMMAND, ID_SHUTDOWN, 0, SMTO_NORMAL, 5000, res );
 #else
     DWORD res;

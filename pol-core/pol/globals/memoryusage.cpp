@@ -1,6 +1,6 @@
 #include "memoryusage.h"
 
-#include <format/format.h>
+#include "../../clib/boostutils.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../plib/systemstate.h"
@@ -12,12 +12,9 @@
 #include "state.h"
 #include "ucfg.h"
 #include "uvars.h"
+#include <format/format.h>
 
-#ifdef WINDOWS
-#include "../../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 namespace Pol
 {
@@ -34,7 +31,7 @@ void MemoryUsage::log()
   size_t multibuffer_size = Multi::multidef_buffer.estimateSize();
   auto network_size = networkManager.estimateSize();
   auto object_sizes = objStorageManager.estimateSize();
-  auto script_sizes = scriptScheduler.estimateSize();
+  auto script_sizes = scriptScheduler.estimateSize( false );
   size_t settings_size = settingsManager.estimateSize();
   size_t state_size = stateManager.estimateSize();
   auto config_sizes = configurationbuffer.estimateSize();
@@ -80,16 +77,19 @@ void MemoryUsage::log()
   logs.push_back( std::make_pair( "ObjArmorSize", object_sizes.obj_armor_size ) );
   logs.push_back( std::make_pair( "ObjMultiCount", object_sizes.obj_multi_count ) );
   logs.push_back( std::make_pair( "ObjMultiSize", object_sizes.obj_multi_size ) );
-
-#ifdef DEBUG_FLYWEIGHT
-  for ( size_t i = 0; i < boost_utils::debug_flyweight_queries.size(); ++i )
+  logs.push_back( std::make_pair( "BObjectAllocatorSize", Bscript::bobject_alloc.memsize ) );
+  logs.push_back( std::make_pair( "UninitAllocatorSize", Bscript::uninit_alloc.memsize ) );
+  logs.push_back( std::make_pair( "BLongAllocatorSize", Bscript::blong_alloc.memsize ) );
+  logs.push_back( std::make_pair( "BDoubleAllocatorSize", Bscript::double_alloc.memsize ) );
+#ifdef ENABLE_FLYWEIGHT_REPORT
+  auto flydata = boost_utils::Query::getCountAndSize();
+  int i = 0;
+  for ( const auto& data : flydata )
   {
-    auto ptr = boost_utils::debug_flyweight_queries[i];
-    if ( ptr == nullptr )
-      continue;
     auto str = std::to_string( i );
-    logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Count", ptr->bucket_count() ) );
-    logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Size", ptr->estimateSize() ) );
+    logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Count", data.first ) );
+    logs.push_back( std::make_pair( "FlyWeightBucket" + str + "Size", data.second ) );
+    ++i;
   }
 #endif
   bool needs_header = !Clib::FileExists( "log/memoryusage.log" );
@@ -112,5 +112,5 @@ void MemoryUsage::log()
 
   CLOSE_FLEXLOG( log );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -71,15 +71,16 @@ namespace Crypt
 
 
 // Constructor / Destructor
-CCryptBase::CCryptBase() {}
-CCryptBase::~CCryptBase() {}
-
-// Constructor / Destructor
 CCryptBaseCrypt::CCryptBaseCrypt() : CCryptBase(), lcrypt(), m_type( 0 )
 {
   memset( &m_masterKey, 0, sizeof( m_masterKey ) );
   memset( &encrypted_data, 0, sizeof( encrypted_data ) );
 }
-CCryptBaseCrypt::~CCryptBaseCrypt() {}
+
+void CCryptBaseCrypt::SetMasterKeys( unsigned int masterKey1, unsigned int masterKey2 )
+{
+  m_masterKey[0] = masterKey1 & 0xFFFFFFFF;
+  m_masterKey[1] = masterKey2 & 0xFFFFFFFF;
 }
-}
+}  // namespace Crypt
+}  // namespace Pol

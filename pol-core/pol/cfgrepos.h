@@ -11,11 +11,7 @@
 #ifndef CFGREPOS_H
 #define CFGREPOS_H
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include <map>
 #include <string>
@@ -47,9 +43,13 @@ private:
       PropImpList;
 
 public:
+  StoredConfigElem() = default;
   StoredConfigElem( Clib::ConfigElem& elem );
-  StoredConfigElem();
   ~StoredConfigElem();
+
+  StoredConfigElem( const StoredConfigElem& elem ) = delete;
+  StoredConfigElem& operator=( const StoredConfigElem& ) = delete;
+
   size_t estimateSize() const;
 
   Bscript::BObjectImp* getimp( const std::string& propname ) const;
@@ -61,10 +61,6 @@ public:
 
 private:
   PropImpList propimps_;
-
-  // not implemented:
-  StoredConfigElem( const StoredConfigElem& elem );
-  StoredConfigElem& operator=( const StoredConfigElem& );
 };
 
 class StoredConfigFile : public ref_counted

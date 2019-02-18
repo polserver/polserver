@@ -2,7 +2,6 @@ language: cpp
 
 sudo: false
 
-
 #script:
   #  - wget https://dl.bintray.com/kaitai-io/universal/0.8/kaitai-struct-compiler-0.8.zip
   #  - unzip kaitai-struct-compiler-0.8.zip
@@ -26,32 +25,31 @@ matrix:
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-7']
+          packages: ['g++-7', 'kwstyle']
       env: CXX_P=g++-7 CC_P=gcc-7 NOPCH=0
 
     - os: linux
       compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
-      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=0
+          sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'kwstyle']
+      env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=0
 
     - os: linux
       compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-trusty-5.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-5.0', 'libstdc++6', 'libstdc++-6-dev']
-      env: CXX_P=clang++-5.0 CC_P=clang-5.0 NOPCH=1
+          sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
+          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev']
+      env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=1
 
 before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y kwstyle
   - cd bin-build
   - wget https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip
   - unzip ninja-linux.zip
   - chmod +x ninja
+  - export PATH=$TRAVIS_BUILD_DIR/bin-build:$PATH
   - ./ninja --version
 
 before_script:
@@ -67,12 +65,19 @@ script:
   - echo -en 'travis_fold:end:script.build\\r'
 
   - echo 'Tests...' && echo -en 'travis_fold:start:script.tests\\r'
-  - cd ../testsuite/escript
-  - ./performtests.py ../../bin/ecompile ../../bin/runecl -n 5 -q;
-  - cd ../style
-  - ./checknl.py -q;
-  - ./checkstyle.py -q;
+  - |
+    if [[ "$NOPCH" == "0" ]]; then
+      ctest -j 2 --output-on-failure --repeat-until-fail 5 || travis_terminate 1;
+    fi
   - echo -en 'travis_fold:end:script.tests\\r'
+  - echo 'Style...' && echo -en 'travis_fold:start:script.style\\r'
+  - |
+    if [[ "$NOPCH" == "0" ]]; then
+      cd ../testsuite/style
+      ./checknl.py -q || travis_terminate 1;
+      ./checkstyle.py -q || travis_terminate 1;
+    fi
+  - echo -en 'travis_fold:end:script.style\\r'
 
 notifications:
   email:

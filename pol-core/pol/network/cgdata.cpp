@@ -25,21 +25,21 @@ namespace Pol
 namespace Network
 {
 ClientGameData::ClientGameData()
-    : vendor( NULL ),
+    : vendor( nullptr ),
       gumpmods(),
-      textentry_uoemod( NULL ),
-      target_cursor_uoemod( NULL ),
-      menu_selection_uoemod( NULL ),
-      popup_menu_selection_uoemod( NULL ),
-      prompt_uoemod( NULL ),
-      resurrect_uoemod( NULL ),
-      selcolor_uoemod( NULL ),
-      prompt_uniemod( NULL ),
-      justice_region( NULL ),
+      textentry_uoemod( nullptr ),
+      target_cursor_uoemod( nullptr ),
+      menu_selection_uoemod( nullptr ),
+      popup_menu_selection_uoemod( nullptr ),
+      prompt_uoemod( nullptr ),
+      resurrect_uoemod( nullptr ),
+      selcolor_uoemod( nullptr ),
+      prompt_uniemod( nullptr ),
+      justice_region( nullptr ),
       lightlevel( 0 ),
-      // light_region(NULL),
-      music_region( NULL ),
-      weather_region( NULL ),
+      // light_region(nullptr),
+      music_region( nullptr ),
+      weather_region( nullptr ),
       custom_house_serial( 0 )
 {
 }
@@ -56,73 +56,73 @@ void ClientGameData::clear()
     GumpMods::iterator it = gumpmods.begin();
     Module::UOExecutorModule* uoemod = it->second;
     uoemod->uoexec.os_module->revive();
-    uoemod->gump_chr = NULL;
+    uoemod->gump_chr = nullptr;
     gumpmods.erase( it );
   }
 
-  if ( textentry_uoemod != NULL )
+  if ( textentry_uoemod != nullptr )
   {
     textentry_uoemod->uoexec.os_module->revive();
-    textentry_uoemod->textentry_chr = NULL;
-    textentry_uoemod = NULL;
+    textentry_uoemod->textentry_chr = nullptr;
+    textentry_uoemod = nullptr;
   }
 
-  if ( menu_selection_uoemod != NULL )
+  if ( menu_selection_uoemod != nullptr )
   {
     menu_selection_uoemod->uoexec.os_module->revive();
-    menu_selection_uoemod->menu_selection_chr = NULL;
-    menu_selection_uoemod = NULL;
+    menu_selection_uoemod->menu_selection_chr = nullptr;
+    menu_selection_uoemod = nullptr;
   }
 
-  if ( popup_menu_selection_uoemod != NULL )
+  if ( popup_menu_selection_uoemod != nullptr )
   {
     popup_menu_selection_uoemod->uoexec.os_module->revive();
-    popup_menu_selection_uoemod->popup_menu_selection_chr = NULL;
-    popup_menu_selection_uoemod->popup_menu_selection_above = NULL;
-    popup_menu_selection_uoemod = NULL;
+    popup_menu_selection_uoemod->popup_menu_selection_chr = nullptr;
+    popup_menu_selection_uoemod->popup_menu_selection_above = nullptr;
+    popup_menu_selection_uoemod = nullptr;
   }
 
-  if ( prompt_uoemod != NULL )
+  if ( prompt_uoemod != nullptr )
   {
     prompt_uoemod->uoexec.os_module->revive();
-    prompt_uoemod->prompt_chr = NULL;
-    prompt_uoemod = NULL;
+    prompt_uoemod->prompt_chr = nullptr;
+    prompt_uoemod = nullptr;
   }
 
-  if ( resurrect_uoemod != NULL )
+  if ( resurrect_uoemod != nullptr )
   {
     resurrect_uoemod->uoexec.os_module->revive();
-    resurrect_uoemod->resurrect_chr = NULL;
-    resurrect_uoemod = NULL;
+    resurrect_uoemod->resurrect_chr = nullptr;
+    resurrect_uoemod = nullptr;
   }
 
-  if ( selcolor_uoemod != NULL )
+  if ( selcolor_uoemod != nullptr )
   {
     selcolor_uoemod->uoexec.os_module->revive();
-    selcolor_uoemod->selcolor_chr = NULL;
-    selcolor_uoemod = NULL;
+    selcolor_uoemod->selcolor_chr = nullptr;
+    selcolor_uoemod = nullptr;
   }
 
-  if ( target_cursor_uoemod != NULL )
+  if ( target_cursor_uoemod != nullptr )
   {
     target_cursor_uoemod->uoexec.os_module->revive();
-    target_cursor_uoemod->target_cursor_chr = NULL;
-    target_cursor_uoemod = NULL;
+    target_cursor_uoemod->target_cursor_chr = nullptr;
+    target_cursor_uoemod = nullptr;
   }
 
-  if ( prompt_uniemod != NULL )
+  if ( prompt_uniemod != nullptr )
   {
     prompt_uniemod->uoexec.os_module->revive();
-    prompt_uniemod->prompt_chr = NULL;
-    prompt_uniemod = NULL;
+    prompt_uniemod->prompt_chr = nullptr;
+    prompt_uniemod = nullptr;
   }
   if ( custom_house_serial != 0 )
   {
     Multi::UMulti* multi = Core::system_find_multi( custom_house_serial );
-    if ( multi != NULL )
+    if ( multi != nullptr )
     {
       Multi::UHouse* house = multi->as_house();
-      if ( house != NULL )
+      if ( house != nullptr )
       {
         house->CurrentDesign.FillComponents( house );
         house->WorkingDesign.FillComponents( house, false );  // keep in sync
@@ -145,12 +145,12 @@ void ClientGameData::add_gumpmod( Module::UOExecutorModule* uoemod, u32 gumpid )
   gumpmods[gumpid] = uoemod;
 }
 
-/// Given a gumpid, finds the module that registered it, returns NULL if not found
+/// Given a gumpid, finds the module that registered it, returns nullptr if not found
 Module::UOExecutorModule* ClientGameData::find_gumpmod( u32 gumpid )
 {
   GumpMods::iterator it = gumpmods.find( gumpid );
   if ( it == gumpmods.end() )
-    return NULL;
+    return nullptr;
   return it->second;
 }
 

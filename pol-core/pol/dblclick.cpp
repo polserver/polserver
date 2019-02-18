@@ -32,9 +32,9 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "objtype.h"
-#include "pktdef.h"
-#include "pktin.h"
 #include "realms/realm.h"
 #include "scrdef.h"
 #include "scrsched.h"
@@ -95,7 +95,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       {
         ref_ptr<Bscript::EScriptProgram> prog;
         prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
-        if ( prog.get() != NULL && client->chr->start_script( prog.get(), false ) )
+        if ( prog.get() != nullptr && client->chr->start_script( prog.get(), false ) )
         {
           return;
         }
@@ -138,7 +138,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     {
       ref_ptr<Bscript::EScriptProgram> prog;
       prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
-      if ( prog.get() != NULL )
+      if ( prog.get() != nullptr )
         script_ran =
             client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( chr ) );
     }
@@ -177,7 +177,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     // next, check people's backpacks. (don't recurse down)
     //    (not done yet)
 
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       const Items::ItemDesc& id = item->itemdesc();
 
@@ -218,7 +218,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       {
         ref_ptr<Bscript::EScriptProgram> prog;
         prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
-        if ( prog.get() != NULL )
+        if ( prog.get() != nullptr )
           client->chr->start_script( prog.get(), false, new Module::EItemRefObjImp( item ) );
       }
 
@@ -230,12 +230,12 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     if ( client->chr->is_trading() )
     {
       UContainer* cont = client->chr->trade_container()->find_container( serial );
-      if ( cont != NULL )
+      if ( cont != nullptr )
       {
         cont->builtin_on_use( client );
         if ( !cont->locked() )
         {
-          if ( client->chr->trading_with->client != NULL )
+          if ( client->chr->trading_with->client != nullptr )
             cont->builtin_on_use( client->chr->trading_with->client );
         }
         return;
@@ -243,5 +243,5 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

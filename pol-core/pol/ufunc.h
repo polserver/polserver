@@ -16,9 +16,9 @@
 #include <stddef.h>
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "core.h"
 #include "network/packets.h"
-#include "uconst.h"
 
 namespace Pol
 {
@@ -26,7 +26,7 @@ namespace Network
 {
 class Client;
 class RemoveObjectPkt;
-}
+}  // namespace Network
 namespace Mobile
 {
 class Character;
@@ -169,35 +169,36 @@ void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realm
 
 // find_legal_item: search worn items, including backpack recursively, and
 // items on the ground, recursively, for an item of a given serial.
-Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = NULL,
-                              bool* isRemoteContainer = NULL );
+Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = nullptr,
+                              bool* isRemoteContainer = nullptr );
 
 void send_sysmessage( Network::Client* client, const char* text,
-                      unsigned short font = DEFAULT_TEXT_FONT,
-                      unsigned short color = DEFAULT_TEXT_COLOR );
+                      unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                      unsigned short color = Plib::DEFAULT_TEXT_COLOR );
 void send_sysmessage( Network::Client* client, const u16* wtext, const char lang[4],
-                      unsigned short font = DEFAULT_TEXT_FONT,
-                      unsigned short color = DEFAULT_TEXT_COLOR );
-void broadcast( const char* text, unsigned short font = DEFAULT_TEXT_FONT,
-                unsigned short color = DEFAULT_TEXT_COLOR,
-                unsigned short requiredCmdLevel = DEFAULT_TEXT_REQUIREDCMD );
-void broadcast( const u16* wtext, const char lang[4], unsigned short font = DEFAULT_TEXT_FONT,
-                unsigned short color = DEFAULT_TEXT_COLOR,
-                unsigned short requiredCmdLevel = DEFAULT_TEXT_REQUIREDCMD );
-bool say_above( const UObject* obj, const char* text, unsigned short font = DEFAULT_TEXT_FONT,
-                unsigned short color = DEFAULT_TEXT_COLOR,
+                      unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                      unsigned short color = Plib::DEFAULT_TEXT_COLOR );
+void broadcast( const char* text, unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
+                unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
+void broadcast( const u16* wtext, const char lang[4], unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
+                unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
+bool say_above( const UObject* obj, const char* text, unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
 bool say_above( const UObject* obj, const u16* wtext, const char lang[4],
-                unsigned short font = DEFAULT_TEXT_FONT, unsigned short color = DEFAULT_TEXT_COLOR,
+                unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 bool private_say_above( Mobile::Character* chr, const UObject* obj, const char* text,
-                        unsigned short font = DEFAULT_TEXT_FONT,
-                        unsigned short color = DEFAULT_TEXT_COLOR,
+                        unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                        unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
 bool private_say_above( Mobile::Character* chr, const UObject* obj, const u16* wtext,
-                        const char lang[4], unsigned short font = DEFAULT_TEXT_FONT,
-                        unsigned short color = DEFAULT_TEXT_COLOR,
+                        const char lang[4], unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                        unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 Items::Item* copy_item( const Items::Item* src_item );
@@ -214,7 +215,7 @@ void transmit_to_others_inrange( Mobile::Character* center, const void* msg, uns
 
 void destroy_item( Items::Item* item );
 
-void move_item( Items::Item* item, UFACING facing );
+void move_item( Items::Item* item, Plib::UFACING facing );
 void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz,
                 Realms::Realm* oldrealm );
 
@@ -257,6 +258,6 @@ void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const c
 void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0,
                         u32 cl_name = 0, u32 cl_descr = 0,
                         std::vector<u32> arguments = std::vector<u32>() );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

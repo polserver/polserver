@@ -22,7 +22,6 @@
 #include <time.h>
 #include <vector>
 
-#include "compilerspecifics.h"
 #include "maputil.h"
 
 namespace Pol
@@ -38,14 +37,14 @@ class ConfigSource
 public:
   virtual ~ConfigSource() {}
   virtual void display_error( const std::string& msg, bool show_curline = true,
-                              const ConfigElemBase* elem = NULL, bool error = true ) const = 0;
+                              const ConfigElemBase* elem = nullptr, bool error = true ) const = 0;
 };
 
 class ConfigFile : public ConfigSource
 {
 public:
-  explicit ConfigFile( const char* filename = NULL, const char* allowed_types = NULL );
-  explicit ConfigFile( const std::string& filename, const char* allowed_types = NULL );
+  explicit ConfigFile( const char* filename = nullptr, const char* allowed_types = nullptr );
+  explicit ConfigFile( const std::string& filename, const char* allowed_types = nullptr );
   virtual ~ConfigFile();
 
   void open( const char* i_filename );
@@ -68,9 +67,9 @@ protected:
   bool _read( ConfigElem& elem );
   bool _read( VectorConfigElem& elem );
   virtual void display_error( const std::string& msg, bool show_curline = true,
-                              const ConfigElemBase* elem = NULL,
-                              bool error = true ) const POL_OVERRIDE;
-  POL_NORETURN void display_and_rethrow_exception();
+                              const ConfigElemBase* elem = nullptr,
+                              bool error = true ) const override;
+  [[noreturn]] void display_and_rethrow_exception();
   void register_allowed_type( const char* allowed_type );
 
 private:
@@ -93,8 +92,8 @@ class StubConfigSource : public ConfigSource
 {
 public:
   virtual void display_error( const std::string& msg, bool show_curline, const ConfigElemBase* elem,
-                              bool error ) const POL_OVERRIDE;
+                              bool error ) const override;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif

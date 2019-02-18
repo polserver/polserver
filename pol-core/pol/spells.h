@@ -11,7 +11,6 @@
 #include <time.h>
 #include <vector>
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "action.h"
 #include "globals/uvars.h"
@@ -156,7 +155,7 @@ class SpellTask : public OneShotTask
 public:
   SpellTask( OneShotTask** handle, polclock_t run_when, Mobile::Character* caster, USpell* spell,
              bool dummy );
-  virtual void on_run() POL_OVERRIDE;
+  virtual void on_run() override;
 
 private:
   CharacterRef caster_;

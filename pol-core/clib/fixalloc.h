@@ -16,11 +16,7 @@
 #ifndef __CLIB_FIXALLOC_H
 #define __CLIB_FIXALLOC_H
 
-#ifdef WINDOWS
-#include "pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #include <assert.h>
 #include <stddef.h>
@@ -53,11 +49,13 @@ public:
   void log_stuff( const std::string& detail );
 #endif
 
+  size_t memsize = 0;
+
 protected:
   void* refill( void );
 
 private:
-  Buffer* freelist_;
+  Buffer* freelist_ = nullptr;
 #ifdef MEMORYLEAK
   int buffers;
   int requests;
@@ -69,7 +67,7 @@ private:
 template <size_t N, size_t B>
 fixed_allocator<N, B>::fixed_allocator()
 {
-  freelist_ = NULL;
+  freelist_ = nullptr;
   buffers = 0;
   requests = 0;
   max_requests = 0;
@@ -105,7 +103,7 @@ void* fixed_allocator<N, B>::allocate()
 #endif
 
   Buffer* p = freelist_;
-  if ( p != NULL )
+  if ( p != nullptr )
   {
     freelist_ = p->next;
     return p;
@@ -121,12 +119,12 @@ void* fixed_allocator<N, B>::refill()
 {
   size_t nbytes = sizeof( Buffer[B] );
 
-  Buffer* morebuf = static_cast<Buffer*>(::operator new( nbytes ) );
+  Buffer* morebuf = static_cast<Buffer*>( ::operator new( nbytes ) );
 
 #ifdef MEMORYLEAK
   buffers++;
 #endif
-
+  memsize += nbytes;
   Buffer* walk = morebuf + 1;
   int count = B - 2;
   while ( count-- )
@@ -135,7 +133,7 @@ void* fixed_allocator<N, B>::refill()
     walk->next = next;
     walk++;
   }
-  walk->next = NULL;
+  walk->next = nullptr;
   freelist_ = morebuf + 1;
   return morebuf;
 }
@@ -180,6 +178,6 @@ void fixed_allocator<N, B>::deallocate( void* vp, size_t size )
   else
     ::operator delete( vp );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif

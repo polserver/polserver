@@ -25,8 +25,8 @@ public:
   BOOL IsInstalled();
   BOOL Install();
   BOOL Uninstall();
-  void LogEvent( WORD wType, DWORD dwID, const char* pszS1 = NULL, const char* pszS2 = NULL,
-                 const char* pszS3 = NULL );
+  void LogEvent( WORD wType, DWORD dwID, const char* pszS1 = nullptr, const char* pszS2 = nullptr,
+                 const char* pszS3 = nullptr );
   BOOL StartService();
   void SetStatus( DWORD dwState );
   BOOL Initialize();

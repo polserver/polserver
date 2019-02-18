@@ -20,19 +20,21 @@
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
 #include "../clib/streamsaver.h"
+#include "../plib/clidata.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "baseobject.h"
-#include "clidata.h"
 #include "dynproperties.h"
 #include "globals/state.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "objtype.h"
 #include "polcfg.h"
 #include "proplist.h"
 #include "realms.h"
 #include "realms/realm.h"
+#include "syshookscript.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "uobjcnt.h"
 
 namespace Pol
@@ -76,7 +78,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
       serial_ext( 0 ),
       objtype_( objtype ),
       color( 0 ),
-      facing( FACING_N ),
+      facing( Plib::FACING_N ),
       _rev( 0 ),
       name_( "" ),
       flags_(),
@@ -85,7 +87,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
   graphic = Items::getgraphic( objtype );
   flags_.set( OBJ_FLAGS::DIRTY );
   flags_.set( OBJ_FLAGS::SAVE_ON_EXIT );
-  height = tileheight( graphic );
+  height = Plib::tileheight( graphic );
   ++stateManager.uobjcount.uobject_count;
 }
 
@@ -213,12 +215,12 @@ void UObject::setname( const std::string& newname )
 
 UObject* UObject::owner()
 {
-  return NULL;
+  return nullptr;
 }
 
 const UObject* UObject::owner() const
 {
-  return NULL;
+  return nullptr;
 }
 
 UObject* UObject::self_as_owner()
@@ -264,7 +266,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
 
   sw() << "\tRevision\t" << rev() << pf_endl;
-  if ( realm == NULL )
+  if ( realm == nullptr )
     sw() << "\tRealm\tbritannia" << pf_endl;
   else
     sw() << "\tRealm\t" << realm->name() << pf_endl;
@@ -292,7 +294,7 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   graphic = elem.remove_ushort( "GRAPHIC", static_cast<u16>( objtype_ ) );
   fixInvalidGraphic();
 
-  height = tileheight( graphic );
+  height = Plib::tileheight( graphic );
 
   color = elem.remove_ushort( "COLOR", 0 );
 
@@ -396,5 +398,12 @@ const char* UObject::target_tag() const
 {
   return "object";
 }
+
+bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                               unsigned int* PC ) const
+{
+  return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
+                                                 methodname, ex, hook, PC );
 }
-}
+}  // namespace Core
+}  // namespace Pol

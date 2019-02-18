@@ -62,7 +62,7 @@
 
 <event>
   <name>SYSEVENT_ENTEREDAREA</name>
-  <explain>A character entered inside a range around the NPC. Note, ignores Z distance.</explain>
+  <explain>A character entered inside a range around the NPC or top-level item. Note, ignores Z distance.</explain>
   <ID>0x00000010</ID>
   <member mname="type" value="SYSEVENT_ENTEREDAREA (0x00000010)"/>
   <member mname="source" value="Character Reference"/>
@@ -73,7 +73,7 @@
 
 <event>
   <name>SYSEVENT_LEFTAREA</name>
-  <explain>A character left the range around the NPC. Note, ignores Z distance.</explain>
+  <explain>A character left the range around the NPC or top-level item. Note, ignores Z distance.</explain>
   <ID>0x00000020</ID>
   <member mname="type" value="SYSEVENT_LEFTAREA (0x00000020)"/>
   <member mname="source" value="Character Reference"/>

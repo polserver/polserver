@@ -10,8 +10,8 @@ namespace Clib
 class ProgramConfig
 {
 public:
-  ProgramConfig();
-  virtual ~ProgramConfig();
+  ProgramConfig() = default;
+  virtual ~ProgramConfig() = default;
 
   /**
    * @brief Returns the name of the currently running program
@@ -23,6 +23,8 @@ public:
    */
   static std::string programDir();
 
+  static std::string build_target();
+  static std::string build_datetime();
   /**
    * @brief Configures the bug reporting system
    */
@@ -32,8 +34,8 @@ private:
   static std::string m_programName;
   static std::string m_programDir;
 };
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 #define PROG_CONFIG Pol::Clib::ProgramConfig
 

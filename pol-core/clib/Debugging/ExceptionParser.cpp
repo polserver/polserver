@@ -3,20 +3,15 @@
 #include "../Program/ProgramConfig.h"
 #include "../logfacility.h"
 #include "../threadhelp.h"
+#include "pol_global_config.h"
 #include <format/format.h>
 
-#ifdef WINDOWS
-#include "../pol_global_config_win.h"
-#else
-#include "pol_global_config.h"
-#endif
-
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>
@@ -245,26 +240,26 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   {
     fprintf( stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(),
              gai_strerror( res ), res );
-    exit( 1 );
+    std::_Exit( 1 );
   }
 
   switch ( serverAddr->ai_addr->sa_family )
   {
   case AF_INET:
     if ( inet_ntop( AF_INET, &( (struct sockaddr_in*)serverAddr->ai_addr )->sin_addr, targetIP,
-                    INET_ADDRSTRLEN ) == NULL )
-      exit( 1 );
+                    INET_ADDRSTRLEN ) == nullptr )
+      std::_Exit( 1 );
     break;
 
   case AF_INET6:
     if ( inet_ntop( AF_INET6, &( (struct sockaddr_in*)serverAddr->ai_addr )->sin_addr, targetIP,
-                    INET6_ADDRSTRLEN ) == NULL )
-      exit( 1 );
+                    INET6_ADDRSTRLEN ) == nullptr )
+      std::_Exit( 1 );
     break;
 
   default:
     fprintf( stderr, "Unknown address family found for %s\n", host.c_str() );
-    exit( 1 );
+    std::_Exit( 1 );
   }
 
   // create the socket
@@ -277,7 +272,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   {
     fprintf( stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(),
              targetIP, strerror( errno ), errno );
-    exit( 1 );
+    std::_Exit( 1 );
   }
 
   freeaddrinfo( serverAddr );  // not needed anymore
@@ -326,11 +321,11 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
    */
   string host = "polserver.com";
   string url = "/pol/report_program_abort.php";
-  if ( ( m_programAbortReportingServer.c_str() != NULL ) &&
+  if ( ( m_programAbortReportingServer.c_str() != nullptr ) &&
        ( m_programAbortReportingServer != "" ) )
   {
     host = m_programAbortReportingServer;
-    if ( m_programAbortReportingUrl.c_str() != NULL )
+    if ( m_programAbortReportingUrl.c_str() != nullptr )
       url = m_programAbortReportingUrl;
   }
 
@@ -355,10 +350,11 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
                    "comp=" +
                    getCompilerVersion() +
                    "&"
-                   "comp_time=" POL_BUILD_DATETIME
+                   "comp_time=" +
+                   ProgramConfig::build_datetime() +
                    "&"
                    "build_target=" +
-                   POL_BUILD_TARGET +
+                   ProgramConfig::build_target() +
                    "&"
                    "build_revision=" POL_VERSION_ID
                    "&"
@@ -391,7 +387,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
           "POL will exit now. Please, post the following to the forum: "
           "http://forums.polserver.com/.\n" );
     string tStackTrace = ExceptionParser::getTrace();
-    printf( tStackTrace.c_str() );
+    printf( "%s", tStackTrace.c_str() );
     printf( "Admin contact: %s\n", m_programAbortReportingReporter.c_str() );
     printf( "Executable: %s\n", PROG_CONFIG::programName().c_str() );
     printf( "Start time: %s\n", m_programStart.c_str() );
@@ -400,8 +396,8 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "Stack trace:\n%s", tStackTrace.c_str() );
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
-    printf( "Compile time: %s\n", POL_BUILD_DATETIME );
-    printf( "Build target: %s\n", POL_BUILD_TARGET );
+    printf( "Compile time: %s\n", ProgramConfig::build_datetime().c_str() );
+    printf( "Build target: %s\n", ProgramConfig::build_target().c_str() );
     printf( "Build revision: %s\n", POL_VERSION_ID );
 #ifndef _WIN32
     printf( "GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__ );
@@ -426,7 +422,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
     }
 
     // finally, go to hell
-    exit( 1 );
+    std::_Exit( 1 );
   }
   break;
   default:
@@ -440,7 +436,7 @@ ExceptionParser::ExceptionParser() {}
 
 ExceptionParser::~ExceptionParser() {}
 
-  ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WIN32
 string ExceptionParser::getTrace()
@@ -512,7 +508,7 @@ string ExceptionParser::getTrace()
 
       int res;
       funcnName = abi::__cxa_demangle( beginFuncName, funcnName, &funcNameSize, &res );
-      unsigned int binaryOffset = strtoul( beginBinaryOffset, NULL, 16 );
+      unsigned int binaryOffset = strtoul( beginBinaryOffset, nullptr, 16 );
       if ( res == 0 )
       {
         string funcnNameStr = ( funcnName ? funcnName : "" );
@@ -561,11 +557,11 @@ static void handleSignalLinux( int signal, siginfo_t* signalInfo, void* arg )
 {
   (void)arg;
   logExceptionSignal( signal );
-  if ( signalInfo != NULL )
+  if ( signalInfo != nullptr )
   {
     if ( signal == SIGSEGV )
     {
-      if ( signalInfo->si_addr != NULL )
+      if ( signalInfo->si_addr != nullptr )
         printf( "Segmentation fault detected - faulty memory reference at location: %p\n",
                 signalInfo->si_addr );
       else
@@ -630,27 +626,27 @@ void ExceptionParser::initGlobalExceptionCatching()
   sigemptyset( &sigAction.sa_mask );
   sigAction.sa_sigaction = handleSignalLinux;
   sigAction.sa_flags = SA_SIGINFO;
-  sigaction( SIGINT, &sigAction, NULL );
-  sigaction( SIGTERM, &sigAction, NULL );
-  sigaction( SIGSEGV, &sigAction, NULL );
-  sigaction( SIGABRT, &sigAction, NULL );
+  sigaction( SIGINT, &sigAction, nullptr );
+  sigaction( SIGTERM, &sigAction, nullptr );
+  sigaction( SIGSEGV, &sigAction, nullptr );
+  sigaction( SIGABRT, &sigAction, nullptr );
   sigAction.sa_sigaction = handleStackTraceRequestLinux;
-  sigaction( SIGUSR1, &sigAction, NULL );
+  sigaction( SIGUSR1, &sigAction, nullptr );
 
   // set handler stack
   stack_t tStack;
   // mmap: no false positives for leak, plus guardpages to get SIGSEGV on memory overwrites
-  char* mem = static_cast<char*>( mmap( NULL, SIGSTKSZ + 2 * getpagesize(), PROT_READ | PROT_WRITE,
-                                        MAP_PRIVATE | MAP_ANON, -1, 0 ) );
+  char* mem = static_cast<char*>( mmap( nullptr, SIGSTKSZ + 2 * getpagesize(),
+                                        PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0 ) );
   mprotect( mem, getpagesize(), PROT_NONE );
   mprotect( mem + getpagesize() + SIGSTKSZ, getpagesize(), PROT_NONE );
   tStack.ss_sp = mem + getpagesize();
   tStack.ss_size = SIGSTKSZ;
   tStack.ss_flags = 0;
-  if ( sigaltstack( &tStack, NULL ) == -1 )
+  if ( sigaltstack( &tStack, nullptr ) == -1 )
   {
     printf( "Could not set signal handler stack\n" );
-    exit( 1 );
+    std::exit( 1 );
   }
 }
 #else   // _WIN32
@@ -681,5 +677,5 @@ bool ExceptionParser::programAbortReporting()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol

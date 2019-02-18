@@ -1,8 +1,0 @@
-program test()
- var a := 1;
- case a
- 1: var b,c;
-    break;
- default: break;
- endcase
-endprogram

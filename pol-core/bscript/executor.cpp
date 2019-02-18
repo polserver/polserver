@@ -16,9 +16,9 @@
 #include "executor.h"
 
 #include "../clib/clib.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "berror.h"
 #include "config.h"
@@ -36,6 +36,7 @@
 #endif
 
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 
 #ifdef ESCRIPT_PROFILE
@@ -78,7 +79,7 @@ Executor::Executor()
       PC( 0 ),
       Locals2( new BObjectRefVec ),
       nLines( 0 ),
-      current_module_function( NULL ),
+      current_module_function( nullptr ),
       prog_ok_( false ),
       viewmode_( false ),
       runs_to_completion_( false ),
@@ -86,7 +87,7 @@ Executor::Executor()
       debug_state_( DEBUG_STATE_NONE ),
       breakpoints_(),
       bp_skip_( ~0u ),
-      func_result_( NULL )
+      func_result_( nullptr )
 {
   Clib::SpinLockGuard lock( _executor_lock );
   ++executor_count;
@@ -107,7 +108,7 @@ Executor::~Executor()
     executor_instances.erase( this );
   }
   delete Locals2;
-  Locals2 = NULL;
+  Locals2 = nullptr;
 
   while ( !upperLocals2.empty() )
   {
@@ -126,13 +127,13 @@ bool Executor::AttachFunctionalityModules()
     // if no function in the module is actually called, don't go searching for it.
     if ( fm->functions.empty() )
     {
-      execmodules.push_back( NULL );
+      execmodules.push_back( nullptr );
       continue;
     }
 
     ExecutorModule* em = findModule( fm->modulename );
     execmodules.push_back( em );
-    if ( em == NULL )
+    if ( em == nullptr )
     {
       ERROR_PRINT << "WARNING: " << scriptname() << ": Unable to find module "
                   << fm->modulename.get() << "\n";
@@ -280,7 +281,7 @@ BObject* Executor::getParamObj( unsigned param )
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -293,7 +294,7 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
 
   BObjectImp* imp = fparams[param].get()->impptr();
 
-  passert( imp != NULL );
+  passert( imp != nullptr );
 
   if ( imp->isa( type ) )
   {
@@ -313,7 +314,7 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
           << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
       DEBUGLOG << tmp.str();
     }
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -326,7 +327,7 @@ BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type
 
   BObjectImp* imp = fparams[param].get()->impptr();
 
-  passert( imp != NULL );
+  passert( imp != nullptr );
 
   if ( imp->isa( type ) )
   {
@@ -334,11 +335,11 @@ BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type
   }
   else
   {
-    std::string report = "Invalid parameter type.  Expected param " + Clib::decint( param ) +
+    std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
                          " as " + BObjectImp::typestr( type ) + ", got " +
                          BObjectImp::typestr( imp->type() );
     func_result_ = new BError( report );
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -356,14 +357,14 @@ const BLong* Executor::getLongParam( unsigned param )
 bool Executor::getStringParam( unsigned param, const String*& pstr )
 {
   pstr = getStringParam( param );
-  return ( pstr != NULL );
+  return ( pstr != nullptr );
 }
 
 bool Executor::getParam( unsigned param, int& value )
 {
   BLong* plong =
       Clib::explicit_cast<BLong*, BObjectImp*>( getParamImp( param, BObjectImp::OTLong ) );
-  if ( plong == NULL )
+  if ( plong == nullptr )
     return false;
 
   value = plong->value();
@@ -389,9 +390,9 @@ bool Executor::getParam( unsigned param, int& value, int maxval )
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( value ) + " out of expected range of [0.." +
-                           Clib::decint( maxval ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( value ) + " out of expected range of [0.." +
+                           Clib::tostring( maxval ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -416,9 +417,9 @@ bool Executor::getParam( unsigned param, int& value, int minval, int maxval )
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( value ) + " out of expected range of [" +
-                           Clib::decint( minval ) + ".." + Clib::decint( maxval ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( value ) + " out of expected range of [" +
+                           Clib::tostring( minval ) + ".." + Clib::tostring( maxval ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -457,15 +458,15 @@ bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
 {
   pobjarr =
       Clib::explicit_cast<ObjArray*, BObjectImp*>( getParamImp( param, BObjectImp::OTArray ) );
-  return ( pobjarr != NULL );
+  return ( pobjarr != nullptr );
 }
 
 void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
 {
   BApplicPtr* ap =
       EXPLICIT_CAST( BApplicPtr*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicPtr ) );
-  if ( ap == NULL )
-    return NULL;
+  if ( ap == nullptr )
+    return nullptr;
 
   if ( ap->pointer_type() == pointer_type )
   {
@@ -480,7 +481,7 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
                                           pointer address*/
              << ", got datatype " << BObjectImp::typestr( ap->type() ) << "\n";
 
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -488,8 +489,8 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
 {
   BApplicObjBase* aob = EXPLICIT_CAST(
       BApplicObjBase*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicObj ) );
-  if ( aob == NULL )
-    return NULL;
+  if ( aob == nullptr )
+    return nullptr;
 
   if ( aob->object_type() == object_type )
   {
@@ -504,7 +505,7 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
                                           pointer address*/
              << ", got datatype " << aob->getStringRep() << "\n";
 
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -523,9 +524,9 @@ bool Executor::getParam( unsigned param, unsigned short& value, unsigned short m
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [0.." +
-                           Clib::decint( maxval ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [0.." +
+                           Clib::tostring( maxval ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -552,9 +553,9 @@ bool Executor::getParam( unsigned param, unsigned short& value, unsigned short m
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [" +
-                           Clib::decint( minval ) + ".." + Clib::decint( maxval ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [" +
+                           Clib::tostring( minval ) + ".." + Clib::tostring( maxval ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -579,9 +580,9 @@ bool Executor::getParam( unsigned param, unsigned short& value )
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [0.." +
-                           Clib::decint( USHRT_MAX ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [0.." +
+                           Clib::tostring( USHRT_MAX ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -606,9 +607,9 @@ bool Executor::getParam( unsigned param, unsigned& value )
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [0.." +
-                           Clib::decint( INT_MAX ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [0.." +
+                           Clib::tostring( INT_MAX ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -634,9 +635,9 @@ bool Executor::getParam( unsigned param, short& value )
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [" +
-                           Clib::decint( SHRT_MIN ) + ".." + Clib::decint( SHRT_MAX ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [" +
+                           Clib::tostring( SHRT_MIN ) + ".." + Clib::tostring( SHRT_MAX ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -662,9 +663,9 @@ bool Executor::getParam( unsigned param, short& value, short maxval )
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [" +
-                           Clib::decint( SHRT_MIN ) + ".." + Clib::decint( maxval ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [" +
+                           Clib::tostring( SHRT_MIN ) + ".." + Clib::tostring( maxval ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -690,9 +691,9 @@ bool Executor::getParam( unsigned param, short& value, short minval, short maxva
     }
     else
     {
-      std::string report = "Parameter " + Clib::decint( param ) + " value " +
-                           Clib::decint( longvalue ) + " out of expected range of [" +
-                           Clib::decint( minval ) + ".." + Clib::decint( maxval ) + "]";
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( longvalue ) + " out of expected range of [" +
+                           Clib::tostring( minval ) + ".." + Clib::tostring( maxval ) + "]";
       func_result_ = new BError( report );
       return false;
     }
@@ -775,7 +776,7 @@ BObject* Executor::makeObj( const Token& token )
     passert( 0 );
     break;
   }
-  return NULL;
+  return nullptr;
 }
 
 BObjectRef Executor::getObjRef( void )
@@ -808,7 +809,7 @@ void Executor::execFunc( const Token& token )
 
   ExecutorModule* em = execmodules[token.module];
 
-  func_result_ = NULL;
+  func_result_ = nullptr;
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
   strm << em->functionName( modfunc->funcidx );
@@ -829,7 +830,7 @@ void Executor::execFunc( const Token& token )
       BObject obj( resimp );
     }
     ValueStack.push_back( BObjectRef( new BObject( func_result_ ) ) );
-    func_result_ = NULL;
+    func_result_ = nullptr;
   }
   else if ( resimp )
   {
@@ -840,14 +841,14 @@ void Executor::execFunc( const Token& token )
     ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
   }
 
-  current_module_function = NULL;
+  current_module_function = nullptr;
   return;
 }
 
 // RSV_LOCAL
 void Executor::ins_makeLocal( const Instruction& /*ins*/ )
 {
-  passert( Locals2 != NULL );
+  passert( Locals2 != nullptr );
 
   Locals2->push_back( BObjectRef() );
   Locals2->back().set( new BObject( UninitObject::create() ) );
@@ -945,11 +946,11 @@ BObjectRef Executor::checkmember( BObject& left, const BObject& right )
 ContIterator::ContIterator() : BObjectImp( BObjectImp::OTUnknown ) {}
 BObject* ContIterator::step()
 {
-  return NULL;
+  return nullptr;
 }
 BObjectImp* ContIterator::copy( void ) const
 {
-  return NULL;
+  return nullptr;
 }
 size_t ContIterator::sizeEstimate() const
 {
@@ -960,11 +961,11 @@ std::string ContIterator::getStringRep() const
   return "<iterator>";
 }
 
-class ArrayIterator : public ContIterator
+class ArrayIterator final : public ContIterator
 {
 public:
   ArrayIterator( ObjArray* pArr, BObject* pIterVal );
-  virtual BObject* step() POL_OVERRIDE;
+  virtual BObject* step() override;
 
 private:
   size_t m_Index;
@@ -987,11 +988,11 @@ BObject* ArrayIterator::step()
 {
   m_pIterVal->increment();
   if ( ++m_Index > m_pArray->ref_arr.size() )
-    return NULL;
+    return nullptr;
 
   BObjectRef& objref = m_pArray->ref_arr[m_Index - 1];
   BObject* elem = objref.get();
-  if ( elem == NULL )
+  if ( elem == nullptr )
   {
     elem = new BObject( UninitObject::create() );
     objref.set( elem );
@@ -1046,7 +1047,7 @@ void Executor::ins_stepforeach( const Instruction& ins )
 
   BObjectRef& objref = arr->ref_arr[blong->value() - 1];
   BObject* elem = objref.get();
-  if ( elem == NULL )
+  if ( elem == nullptr )
   {
     elem = new BObject( UninitObject::create() );
     objref.set( elem );
@@ -1081,7 +1082,7 @@ void Executor::ins_stepforeach2( const Instruction& ins )
   ContIterator* pIter = static_cast<ContIterator*>( ( *Locals2 )[locsize - 2]->impptr() );
 
   BObject* next = pIter->step();
-  if ( next != NULL )
+  if ( next != nullptr )
   {
     ( *Locals2 )[locsize - 3].set( next );
     PC = ins.token.lval;
@@ -1142,13 +1143,15 @@ int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
     if ( type == CASE_TYPE_LONG )
     {
-      if ( blong->value() == *(const int*)dataptr )
+      int v = blong->value();
+      if ( std::memcmp( &v, dataptr, sizeof( int ) ) == 0 )
         return offset;
       dataptr += 4;
     }
@@ -1169,7 +1172,8 @@ int Executor::ins_casejmp_findstring( const Token& token, String* bstringimp )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
@@ -1197,7 +1201,8 @@ int Executor::ins_casejmp_finddefault( const Token& token )
   const unsigned char* dataptr = token.dataptr;
   for ( ;; )
   {
-    unsigned short offset = *(const unsigned short*)dataptr;
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
     dataptr += 2;
     unsigned char type = *dataptr;
     dataptr += 1;
@@ -2299,7 +2304,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
     }
 
     objref.set( new BObject( func_result_ ) );
-    func_result_ = NULL;
+    func_result_ = nullptr;
   }
   else if ( imp )
   {
@@ -2361,7 +2366,7 @@ void Executor::ins_call_method( const Instruction& ins )
     }
 
     objref.set( new BObject( func_result_ ) );
-    func_result_ = NULL;
+    func_result_ = nullptr;
   }
   else if ( imp )
   {
@@ -2486,7 +2491,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
   if ( Locals2 )
   {
     delete Locals2;
-    Locals2 = NULL;
+    Locals2 = nullptr;
   }
   if ( !upperLocals2.empty() )
   {
@@ -2562,8 +2567,8 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 
 void Executor::ins_funcref( const Instruction& ins )
 {
-  ValueStack.push_back(
-    BObjectRef( new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
+  ValueStack.push_back( BObjectRef(
+      new BObject( new BFunctionRef( ins.token.lval, ins.token.type, scriptname() ) ) ) );
 }
 
 void Executor::ins_nop( const Instruction& /*ins*/ ) {}
@@ -3039,7 +3044,7 @@ ExecutorModule* Executor::findModule( const std::string& name )
     if ( stricmp( module->moduleName.get().c_str(), name.c_str() ) == 0 )
       return module;
   }
-  return NULL;
+  return nullptr;
 }
 
 void Executor::attach_debugger()
@@ -3130,6 +3135,11 @@ size_t Executor::sizeEstimate() const
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
+  for ( const auto& module : availmodules )
+  {
+    if ( module != nullptr )
+      size += module->sizeEstimate();
+  }
   size += 3 * sizeof( ExecutorModule** ) + execmodules.capacity() * sizeof( ExecutorModule* );
   size += 3 * sizeof( ExecutorModule** ) + availmodules.capacity() * sizeof( ExecutorModule* );
   size += 3 * sizeof( unsigned* ) + breakpoints_.size() * sizeof( unsigned );
@@ -3138,6 +3148,15 @@ size_t Executor::sizeEstimate() const
   return size;
 }
 
+bool Executor::builtinMethodForced( const char*& methodname )
+{
+  if ( methodname[0] == '_' )
+  {
+    ++methodname;
+    return true;
+  }
+  return false;
+}
 
 #ifdef ESCRIPT_PROFILE
 void Executor::profile_escript( std::string name, unsigned long profile_start )
@@ -3193,11 +3212,11 @@ unsigned long Executor::GetTimeUs()
   if ( !bInitialized )
   {
     bInitialized = true;
-    gettimeofday( &t1, NULL );
+    gettimeofday( &t1, nullptr );
   }
 
   timeval t2;
-  gettimeofday( &t2, NULL );
+  gettimeofday( &t2, nullptr );
 
   double elapsedTime;
   elapsedTime = ( t2.tv_sec - t1.tv_sec ) * 1000000.0;
@@ -3208,5 +3227,5 @@ unsigned long Executor::GetTimeUs()
 }
 #endif
 #endif
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

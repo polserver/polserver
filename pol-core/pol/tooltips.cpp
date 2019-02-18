@@ -24,7 +24,7 @@
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "uobject.h"
 #include "uworld.h"
@@ -42,7 +42,7 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
   if ( !IsCharacter( serial ) )
   {
     Items::Item* item = find_legal_item( client->chr, serial );
-    if ( item != NULL )
+    if ( item != nullptr )
     {
       const Items::ItemDesc& id = item->itemdesc();
       if ( !id.tooltip.empty() )
@@ -138,5 +138,5 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   msg->WriteFlipped<u16>( len );
   msg.Send( client, len );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

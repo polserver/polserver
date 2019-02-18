@@ -30,6 +30,17 @@ namespace Module
 {
 using namespace Bscript;
 
+static const std::string base64_chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+
+
+static inline bool is_base64( unsigned char c )
+{
+  return ( isalnum( c ) || ( c == '+' ) || ( c == '/' ) );
+}
+
 BasicExecutorModule::BasicExecutorModule( Executor& exec )
     : Bscript::TmplExecutorModule<BasicExecutorModule>( "Basic", exec )
 {
@@ -247,7 +258,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CInt()
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new BLong( strtoul( str->data(), NULL, 0 ) );
+    return new BLong( strtoul( str->data(), nullptr, 0 ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
   {
@@ -271,7 +282,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CDbl()
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new Double( strtod( str->data(), NULL ) );
+    return new Double( strtod( str->data(), nullptr ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
   {
@@ -347,7 +358,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
         itr != itrend; ++itr )
   {
     BObject* bo = ( itr->get() );
-    if ( bo == NULL )
+    if ( bo == nullptr )
       continue;
     Bscript::BObjectImp* imp = bo->impptr();
     if ( imp )
@@ -388,7 +399,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
   {
     String* str = static_cast<String*>( imp );
     char s[20];
-    sprintf( s, "0x%X", static_cast<unsigned int>( strtoul( str->data(), NULL, 0 ) ) );
+    sprintf( s, "0x%X", static_cast<unsigned int>( strtoul( str->data(), nullptr, 0 ) ) );
     return new String( s );
   }
   else
@@ -707,6 +718,115 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Boolean()
     return new BError( "Boolean() expects an Integer or Boolean" );
   }
 }
+
+/*
+Base64 encode/decode snippit by Rene Nyffenegger rene.nyffenegger@adp-gmbh.ch
+Copyright (C) 2004-2008 Rene Nyffenegger
+*/
+Bscript::BObjectImp* BasicExecutorModule::mf_EncodeBase64()
+{
+  std::string encoded_string = exec.paramAsString( 0 );
+
+  if ( encoded_string.empty() )
+    return new BError( "Invalid parameter type" );
+
+  unsigned int in_len = static_cast<unsigned int>( encoded_string.length() );
+
+  unsigned char const* bytes_to_encode =
+      reinterpret_cast<const unsigned char*>( encoded_string.c_str() );
+  std::string ret;
+  int i = 0;
+  int j = 0;
+  unsigned char char_array_3[3];
+  unsigned char char_array_4[4];
+
+  while ( in_len-- )
+  {
+    char_array_3[i++] = *( bytes_to_encode++ );
+    if ( i == 3 )
+    {
+      char_array_4[0] = ( char_array_3[0] & 0xfc ) >> 2;
+      char_array_4[1] = ( ( char_array_3[0] & 0x03 ) << 4 ) + ( ( char_array_3[1] & 0xf0 ) >> 4 );
+      char_array_4[2] = ( ( char_array_3[1] & 0x0f ) << 2 ) + ( ( char_array_3[2] & 0xc0 ) >> 6 );
+      char_array_4[3] = char_array_3[2] & 0x3f;
+
+      for ( i = 0; ( i < 4 ); i++ )
+        ret += base64_chars[char_array_4[i]];
+      i = 0;
+    }
+  }
+
+  if ( i )
+  {
+    for ( j = i; j < 3; j++ )
+      char_array_3[j] = '\0';
+
+    char_array_4[0] = ( char_array_3[0] & 0xfc ) >> 2;
+    char_array_4[1] = ( ( char_array_3[0] & 0x03 ) << 4 ) + ( ( char_array_3[1] & 0xf0 ) >> 4 );
+    char_array_4[2] = ( ( char_array_3[1] & 0x0f ) << 2 ) + ( ( char_array_3[2] & 0xc0 ) >> 6 );
+    char_array_4[3] = char_array_3[2] & 0x3f;
+
+    for ( j = 0; ( j < i + 1 ); j++ )
+      ret += base64_chars[char_array_4[j]];
+
+    while ( ( i++ < 3 ) )
+      ret += '=';
+  }
+
+  return new String( ret );
+}
+
+Bscript::BObjectImp* BasicExecutorModule::mf_DecodeBase64()
+{
+  std::string encoded_string = exec.paramAsString( 0 );
+
+  if ( encoded_string.empty() )
+    return new BError( "Invalid parameter type" );
+
+  int in_len = static_cast<int>( encoded_string.size() );
+  int i = 0;
+  int j = 0;
+  int in_ = 0;
+  unsigned char char_array_4[4], char_array_3[3];
+  std::string ret;
+
+  while ( in_len-- && ( encoded_string[in_] != '=' ) && is_base64( encoded_string[in_] ) )
+  {
+    char_array_4[i++] = encoded_string[in_];
+    in_++;
+    if ( i == 4 )
+    {
+      for ( i = 0; i < 4; i++ )
+        char_array_4[i] = static_cast<u8>( base64_chars.find( char_array_4[i] ) );
+
+      char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
+      char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
+      char_array_3[2] = ( ( char_array_4[2] & 0x3 ) << 6 ) + char_array_4[3];
+
+      for ( i = 0; ( i < 3 ); i++ )
+        ret += char_array_3[i];
+      i = 0;
+    }
+  }
+
+  if ( i )
+  {
+    for ( j = i; j < 4; j++ )
+      char_array_4[j] = 0;
+
+    for ( j = 0; j < 4; j++ )
+      char_array_4[j] = static_cast<u8>( base64_chars.find( char_array_4[j] ) );
+
+    char_array_3[0] = ( char_array_4[0] << 2 ) + ( ( char_array_4[1] & 0x30 ) >> 4 );
+    char_array_3[1] = ( ( char_array_4[1] & 0xf ) << 4 ) + ( ( char_array_4[2] & 0x3c ) >> 2 );
+    char_array_3[2] = ( ( char_array_4[2] & 0x3 ) << 6 ) + char_array_4[3];
+
+    for ( j = 0; ( j < i - 1 ); j++ )
+      ret += char_array_3[j];
+  }
+
+  return new String( ret );
+}
 }  // namespace Module
 
 namespace Bscript
@@ -741,6 +861,8 @@ TmplExecutorModule<BasicExecutorModule>::FunctionTable
         {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
         {"Boolean", &BasicExecutorModule::mf_Boolean},
         {"PackJSON", &BasicExecutorModule::mf_PackJSON},
-        {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON}};
-}
-}
+        {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON},
+        {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64},
+        {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64}};
+}  // namespace Bscript
+}  // namespace Pol

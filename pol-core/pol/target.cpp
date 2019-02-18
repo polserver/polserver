@@ -24,7 +24,7 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "polclass.h"
 #include "realms/realm.h"
 #include "ufunc.h"
@@ -52,11 +52,11 @@ void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
     POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
                  << " used out of sequence cursor.\n";
 
-    targetter->tcursor2 = NULL;
+    targetter->tcursor2 = nullptr;
     return;
   }
 
-  targetter->tcursor2 = NULL;
+  targetter->tcursor2 = nullptr;
   tcursor->handle_target_cursor( targetter, msg );
 }
 
@@ -151,9 +151,9 @@ bool TargetCursor::send_object_cursor( Network::Client* client, PKTBI_6C::CURSOR
 
 void TargetCursor::cancel( Mobile::Character* chr )
 {
-  chr->tcursor2 = NULL;
+  chr->tcursor2 = nullptr;
   if ( inform_on_cancel_ )
-    on_target_cursor( chr, NULL );
+    on_target_cursor( chr, nullptr );
 }
 
 void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
@@ -162,7 +162,7 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
   {
     if ( chr->dead() )  // but is dead
     {
-      if ( chr->client != NULL )
+      if ( chr->client != nullptr )
         send_sysmessage( chr->client, "I am dead and cannot do that." );
       cancel( chr );
       return;
@@ -170,7 +170,7 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 
     if ( ( chr->frozen() || chr->paralyzed() ) && !chr->can_freemove() )
     {
-      if ( chr->client != NULL )
+      if ( chr->client != nullptr )
       {
         if ( chr->frozen() )
           private_say_above( chr, chr, "I am frozen and cannot do that." );
@@ -183,11 +183,11 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 
     u32 selected_serial = cfBEu32( msg->selected_serial );
     UObject* obj = system_find_object( selected_serial );
-    if ( obj != NULL && obj->script_isa( POLCLASS_MOBILE ) && !obj->script_isa( POLCLASS_NPC ) )
+    if ( obj != nullptr && obj->script_isa( POLCLASS_MOBILE ) && !obj->script_isa( POLCLASS_NPC ) )
     {
       Mobile::Character* targeted = find_character( selected_serial );
       // check for when char is not logged on
-      if ( targeted != NULL )
+      if ( targeted != nullptr )
       {
         if ( !chr->is_visible_to_me( targeted ) )
         {
@@ -235,9 +235,9 @@ LosCheckedTargetCursor::LosCheckedTargetCursor( void ( *func )( Mobile::Characte
 
 void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
-  if ( msgin == NULL )
+  if ( msgin == nullptr )
   {
-    ( *func )( chr, NULL );
+    ( *func )( chr, nullptr );
     return;
   }
 
@@ -246,27 +246,27 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
   UObject* uobj = find_toplevel_object( selected_serial );
   // FIXME inefficient, but neither works well by itself.
   bool additlegal = false;
-  if ( uobj == NULL )
+  if ( uobj == nullptr )
     uobj = find_legal_item( chr, selected_serial, &additlegal );
 
-  if ( uobj == NULL )
+  if ( uobj == nullptr )
     uobj = system_find_multi( selected_serial );
 
-  if ( uobj == NULL )
+  if ( uobj == nullptr )
   {
-    if ( chr->client != NULL )
+    if ( chr->client != nullptr )
       send_sysmessage( chr->client, "What you selected does not seem to exist." );
     if ( inform_on_cancel_ )
-      ( *func )( chr, NULL );
+      ( *func )( chr, nullptr );
     return;
   }
 
   if ( !additlegal && !chr->realm->has_los( *chr, *uobj->toplevel_owner() ) )
   {
-    if ( chr->client != NULL )
+    if ( chr->client != nullptr )
       send_sysmessage( chr->client, "That is not within your line of sight." );
     if ( inform_on_cancel_ )
-      ( *func )( chr, NULL );
+      ( *func )( chr, nullptr );
     return;
   }
 
@@ -284,9 +284,9 @@ NoLosCheckedTargetCursor::NoLosCheckedTargetCursor( void ( *func )( Mobile::Char
 
 void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
 {
-  if ( msgin == NULL )
+  if ( msgin == nullptr )
   {
-    ( *func )( chr, NULL );
+    ( *func )( chr, nullptr );
     return;
   }
 
@@ -295,18 +295,18 @@ void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6
   UObject* uobj = find_toplevel_object( selected_serial );
   // FIXME inefficient, but neither works well by itself.
   bool additlegal = false;
-  if ( uobj == NULL )
+  if ( uobj == nullptr )
     uobj = find_legal_item( chr, selected_serial, &additlegal );
 
-  if ( uobj == NULL )
+  if ( uobj == nullptr )
     uobj = system_find_multi( selected_serial );
 
-  if ( uobj == NULL )
+  if ( uobj == nullptr )
   {
-    if ( chr->client != NULL )
+    if ( chr->client != nullptr )
       send_sysmessage( chr->client, "What you selected does not seem to exist." );
     if ( inform_on_cancel_ )
-      ( *func )( chr, NULL );
+      ( *func )( chr, nullptr );
     return;
   }
 
@@ -385,11 +385,11 @@ NoLosCharacterCursor::NoLosCharacterCursor( void ( *func )( Mobile::Character*,
 
 void NoLosCharacterCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msgin )
 {
-  if ( msgin == NULL )
+  if ( msgin == nullptr )
     return;
   u32 selected_serial = cfBEu32( msgin->selected_serial );
   Mobile::Character* chr = find_character( selected_serial );
-  if ( chr != NULL )
+  if ( chr != nullptr )
     ( *func )( targetter, chr );
 }
 
@@ -401,9 +401,9 @@ NoLosUObjectCursor::NoLosUObjectCursor( void ( *func )( Mobile::Character*, UObj
 
 void NoLosUObjectCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6C* msgin )
 {
-  if ( msgin == NULL )
+  if ( msgin == nullptr )
   {
-    ( *func )( targetter, NULL );
+    ( *func )( targetter, nullptr );
     return;
   }
   u32 selected_serial = cfBEu32( msgin->selected_serial );
@@ -415,7 +415,7 @@ void NoLosUObjectCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6
   }
   else if ( inform_on_cancel_ )
   {
-    ( *func )( targetter, NULL );
+    ( *func )( targetter, nullptr );
   }
 }
 
@@ -437,5 +437,5 @@ Cursors::Cursors()
       stoplog_cursor( stop_packetlog )
 {
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -58,7 +58,7 @@ bool JusticeRegion::RunEnterScript( Mobile::Character* chr )
     return false;
 
   ScriptDef sd;
-  if ( !sd.config_nodie( enter_script_, 0, 0 ) )
+  if ( !sd.config_nodie( enter_script_, nullptr, nullptr ) )
     return false;
   if ( !sd.exists() )
     return false;
@@ -74,7 +74,7 @@ bool JusticeRegion::RunLeaveScript( Mobile::Character* chr )
     return false;
 
   ScriptDef sd;
-  if ( !sd.config_nodie( leave_script_, 0, 0 ) )
+  if ( !sd.config_nodie( leave_script_, nullptr, nullptr ) )
     return false;
   if ( !sd.exists() )
     return false;
@@ -87,13 +87,13 @@ bool JusticeRegion::RunLeaveScript( Mobile::Character* chr )
 // This function is static!
 bool JusticeRegion::RunNoCombatCheck( Network::Client* client )
 {
-  JusticeRegion* cur_justice_region = NULL;
+  JusticeRegion* cur_justice_region = nullptr;
 
-  if ( client != NULL && client->gd != NULL )
+  if ( client != nullptr && client->gd != nullptr )
     cur_justice_region = client->gd->justice_region;
 
   bool no_combat = false;
-  if ( cur_justice_region != NULL )
+  if ( cur_justice_region != nullptr )
     no_combat = cur_justice_region->nocombat_;
 
   return no_combat;

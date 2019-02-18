@@ -10,8 +10,7 @@
 #include <map>
 #include <string>
 
-#include "../clib/compilerspecifics.h"
-#include "poltype.h"
+#include "../plib/poltype.h"
 #include "proplist.h"
 #include "zone.h"
 
@@ -113,12 +112,11 @@ public:
   virtual T* getregion( const std::string& regionname );
 
 protected:
-  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const POL_OVERRIDE;
+  virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const override;
 };
 
 template <class T>
-RegionGroup<T>::RegionGroup( const char* name )
-    : RegionGroupBase( name )
+RegionGroup<T>::RegionGroup( const char* name ) : RegionGroupBase( name )
 {
 }
 
@@ -142,6 +140,6 @@ inline Region* RegionGroup<T>::create_region( Clib::ConfigElem& elem, RegionId i
 
 void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
                        const char* other_filename, const char* tags_expected );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

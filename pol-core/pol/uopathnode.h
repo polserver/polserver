@@ -23,9 +23,8 @@ class AStarBlockers
 public:
   int xLow, xHigh, yLow, yHigh;
 
-  class BlockNode
+  struct BlockNode
   {
-  public:
     short x;
     short y;
     short z;
@@ -44,9 +43,7 @@ public:
 
   void AddBlocker( short x, short y, short z )
   {
-    BlockNode* theNode;
-
-    theNode = new BlockNode;
+    BlockNode* theNode = new BlockNode;
 
     theNode->x = x;
     theNode->y = y;
@@ -57,20 +54,18 @@ public:
 
   ~AStarBlockers()
   {
-    for ( BlockNodeVector::iterator blockNode = m_List.begin(); blockNode != m_List.end();
-          ++blockNode )
-      delete ( *blockNode );
+    for ( auto blockNode : m_List )
+    {
+      delete blockNode;
+    }
   }
 
   bool IsBlocking( short x, short y, short z )
   {
-    BlockNode* theNode;
-    for ( BlockNodeVector::iterator blockNode = m_List.begin(), blockNode_end = m_List.end();
-          blockNode != blockNode_end; ++blockNode )
+    for ( const auto blockNode : m_List )
     {
-      theNode = ( *blockNode );
-      if ( ( theNode->x == x ) && ( theNode->y == y ) &&
-           ( abs( theNode->z - z ) < settingsManager.ssopt.default_character_height ) )
+      if ( ( blockNode->x == x ) && ( blockNode->y == y ) &&
+           ( abs( blockNode->z - z ) < settingsManager.ssopt.default_character_height ) )
         return true;
     }
     return false;
@@ -122,7 +117,7 @@ bool UOPathState::IsGoal( UOPathState& nodeGoal )
 {
   return ( ( nodeGoal.x == x ) && ( nodeGoal.y == y ) &&
            ( abs( nodeGoal.z - z ) <= settingsManager.ssopt.default_character_height ) );
-  //return (IsSameState(nodeGoal));
+  // return (IsSameState(nodeGoal));
 }
 float UOPathState::GetCost( UOPathState& successor )
 {
@@ -142,26 +137,23 @@ std::string UOPathState::Name()
 bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
                                  UOPathState* /*parent_node*/, bool doors_block )
 {
-  UOPathState* NewNode;
-  short i, j;
-  short newx, newy, newz;
-  Multi::UMulti* supporting_multi = NULL;
-  Items::Item* walkon_item = NULL;
-  bool blocked;
+  Multi::UMulti* supporting_multi = nullptr;
+  Items::Item* walkon_item = nullptr;
+
   UOPathState SolutionStartNode = ( *( astarsearch->GetSolutionStart() ) );
   UOPathState SolutionEndNode = ( *( astarsearch->GetSolutionEnd() ) );
-  NewNode = new UOPathState();
+  UOPathState* NewNode = new UOPathState();
 
-  for ( i = -1; i <= 1; i++ )
+  for ( short i = -1; i <= 1; i++ )
   {
-    for ( j = -1; j <= 1; j++ )
+    for ( short j = -1; j <= 1; j++ )
     {
       if ( ( i == 0 ) && ( j == 0 ) )
         continue;
 
-      newx = x + i;
-      newy = y + j;
-      newz = z;
+      short newx = x + i;
+      short newy = y + j;
+      short newz = z;
 
       if ( ( newx < 0 ) || ( newx < ( theBlockers->xLow ) ) || ( newx > ( theBlockers->xHigh ) ) ||
            ( newx > ( (int)realm->width() ) ) )
@@ -172,17 +164,17 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
         continue;
 
       if ( realm->walkheight( newx, newy, z, &newz, &supporting_multi, &walkon_item, doors_block,
-                              Core::MOVEMODE_LAND ) )
+                              Plib::MOVEMODE_LAND ) )
       {
         // Forbid diagonal move, if between 2 blockers - OWHorus {2011-04-26)
-        blocked = false;
+        bool blocked = false;
         if ( ( i != 0 ) && ( j != 0 ) )  // do only for diagonal moves
         {
           // If both neighbouring tiles are blocked, the move is illegal (diagonal move)
           if ( !realm->walkheight( x + i, y, z, &newz, &supporting_multi, &walkon_item, doors_block,
-                                   Core::MOVEMODE_LAND ) )
+                                   Plib::MOVEMODE_LAND ) )
             blocked = !( realm->walkheight( x, y + j, z, &newz, &supporting_multi, &walkon_item,
-                                            doors_block, Core::MOVEMODE_LAND ) );
+                                            doors_block, Plib::MOVEMODE_LAND ) );
         }
 
         if ( !blocked )
@@ -213,6 +205,6 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
   delete NewNode;
   return true;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

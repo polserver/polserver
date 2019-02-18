@@ -7,7 +7,6 @@
 
 #include "scrstore.h"
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
@@ -18,6 +17,7 @@
 #include "polcfg.h"
 #include "profile.h"
 #include "scrdef.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -65,7 +65,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
     {
       POLLOG_ERROR << "Unable to read script '" << pathname << "'\n";
     }
-    return ref_ptr<Bscript::EScriptProgram>( 0 );
+    return ref_ptr<Bscript::EScriptProgram>( nullptr );
   }
 
   if ( cache_script )
@@ -96,7 +96,7 @@ ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool com
     {
       POLLOG_ERROR << "Unable to read script '" << script.name() << "'\n";
     }
-    return ref_ptr<Bscript::EScriptProgram>( 0 );
+    return ref_ptr<Bscript::EScriptProgram>( nullptr );
   }
 
   if ( cache_script )
@@ -119,10 +119,10 @@ int unload_script( const std::string& name_in )
     ScriptStorage::iterator cur = itr;
     ++itr;
 
-    const std::string& nm = ( *cur ).first;
-    const char* nm_cstr = nm.c_str();
-    if ( strstr( nm_cstr, name_in.c_str() ) )
+    if ( strstr( cur->first.c_str(), name_in.c_str() ) )
     {
+      std::string nm = cur->first;
+      const char* nm_cstr = nm.c_str();
       INFO_PRINT << "Unloading " << nm_cstr << "\n";
       scriptScheduler.scrstore.erase( cur );
       ++n;

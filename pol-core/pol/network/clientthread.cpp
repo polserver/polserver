@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include <string>
 
-#include <format/format.h>
 #include "../../bscript/bobject.h"
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
@@ -18,17 +17,12 @@
 #include "../core.h"
 #include "../crypt/cryptbase.h"
 #include "../mobile/charactr.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
-#include "../pktdef.h"
-#include "../pktinid.h"
 #include "../polcfg.h"
 #include "../polclock.h"
 #include "../polsem.h"
 #include "../schedule.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
-#include "../sockets.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "cgdata.h"  // This might not be needed if the client has a clear_gd() method
@@ -37,6 +31,12 @@
 #include "msghandl.h"
 #include "packethelper.h"
 #include "packets.h"
+#include "pktboth.h"
+#include "pktbothid.h"
+#include "pktdef.h"
+#include "pktinid.h"
+#include "sockets.h"
+#include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
 
@@ -242,7 +242,7 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 6;
 
       polclock_t polclock_now = polclock();
-      if ( ( polclock_now - client->last_packet_at ) >= 120000 )  // 2 mins
+      if ( ( ( polclock_now - client->last_packet_at ) / POLCLOCKS_PER_SEC ) >= 120 )  // 2 mins
       {
         client->forceDisconnect();
         break;
@@ -281,7 +281,7 @@ bool client_io_thread( Network::Client* client, bool login )
     return true;
   POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
       << client->instance_ << Network::AddressToString( &client->ipaddr )
-      << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" );
+      << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" );
 
 
   try
@@ -292,7 +292,8 @@ bool client_io_thread( Network::Client* client, bool login )
       PolLock lck;
       client->unregister();
       INFO_PRINT << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
-                 << " (" << networkManager.clients.size() << " connections)\n";
+                 << " (" << networkManager.clients.size() << "/"
+                 << networkManager.getNumberOfLoginClients() << " connections)\n";
 
       CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
                              ToolTipPrioritySystem );
@@ -354,9 +355,10 @@ bool client_io_thread( Network::Client* client, bool login )
           Mobile::Character* chr = client->chr;
           CLIENT_CHECKPOINT( 16 );
           call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          WorldIterator<NPCFilter>::InRange(
-              chr->x, chr->y, chr->realm, 32,
-              [&]( Mobile::Character* zonechr ) { Mobile::NpcPropagateLeftArea( zonechr, chr ); } );
+          if ( chr->realm )
+          {
+            chr->realm->notify_left( *chr );
+          }
         }
       }
     }
@@ -685,7 +687,8 @@ void report_weird_packet( Network::Client* client, const std::string& why )
   fmt::Writer tmp;
   tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
       << client->instance_ << why << (int)client->buffer[0] << client->bytes_received
-      << client->ipaddrAsString() << ( ( client->acct != NULL ) ? client->acct->name() : "None" );
+      << client->ipaddrAsString()
+      << ( ( client->acct != nullptr ) ? client->acct->name() : "None" );
 
   if ( client->bytes_received <= 64 )
   {
@@ -736,5 +739,5 @@ void handle_humongous_packet( Network::Client* client, unsigned int reported_siz
   tmp.Format( "Humongous packet (length {})", reported_size );
   report_weird_packet( client, tmp.str() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

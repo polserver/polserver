@@ -17,7 +17,7 @@
 #include "../globals/settings.h"
 #include "../guardrgn.h"
 #include "../network/client.h"
-#include "../pktin.h"
+#include "../network/pktin.h"
 #include "../ufunc.h"
 #include "charactr.h"
 
@@ -35,7 +35,7 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 
   u32 serial = cfBEu32( msg->serial );
   Character* defender = Core::find_character( serial );
-  if ( defender != NULL )
+  if ( defender != nullptr )
   {
     if ( !( Core::settingsManager.combat_config.attack_self ) )
     {
@@ -57,7 +57,7 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
       return;
     }
 
-    if ( defender->acct != NULL )
+    if ( defender->acct != nullptr )
     {
       if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
       {
@@ -69,5 +69,5 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
     client->chr->select_opponent( serial );
   }
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

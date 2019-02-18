@@ -153,7 +153,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
   Bscript::BObject bobj1( param1 ? param1 : Bscript::UninitObject::create() );
 
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << filename << "\n";
     throw std::runtime_error( "Error starting script" );
@@ -182,15 +182,15 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
       param ? param
             : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << script.name() << "\n";
     // throw runtime_error( "Error starting script" );
-    return NULL;
+    return nullptr;
   }
 
   std::unique_ptr<UOExecutor> ex( create_script_executor() );
-  if ( program->haveProgram && ( param != NULL ) )
+  if ( program->haveProgram && ( param != nullptr ) )
   {
     ex->pushArg( param );
   }
@@ -200,7 +200,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
 
   if ( !ex->setProgram( program.get() ) )
   {
-    return NULL;
+    return nullptr;
     // throw runtime_error( "Error starting script." );
   }
 
@@ -219,23 +219,23 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   Bscript::BObject bobj3( param3 ? param3 : Bscript::UninitObject::create() );
 
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << script.name() << "\n";
     // throw runtime_error( "Error starting script" );
-    return NULL;
+    return nullptr;
   }
 
   std::unique_ptr<UOExecutor> ex( create_script_executor() );
   if ( program->haveProgram )
   {
-    if ( param3 != NULL )
+    if ( param3 != nullptr )
       ex->pushArg( param3 );
-    if ( param2 != NULL )
+    if ( param2 != nullptr )
       ex->pushArg( param2 );
-    if ( param1 != NULL )
+    if ( param1 != nullptr )
       ex->pushArg( param1 );
-    if ( param0 != NULL )
+    if ( param0 != nullptr )
       ex->pushArg( param0 );
   }
   // ex->addModule( new FileExecutorModule( *ex ) );
@@ -244,7 +244,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
 
   if ( !ex->setProgram( program.get() ) )
   {
-    return NULL;
+    return nullptr;
     // throw runtime_error( "Error starting script." );
   }
 
@@ -263,7 +263,7 @@ Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program
             : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
 
   UOExecutor* ex = create_script_executor();
-  if ( program->haveProgram && ( param != NULL ) )
+  if ( program->haveProgram && ( param != nullptr ) )
   {
     ex->pushArg( param );
   }
@@ -335,7 +335,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
   passert_always( parameter );
   Bscript::BObject bobj( parameter );
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << filename << "\n";
     return false;
@@ -352,7 +352,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
 bool run_script_to_completion( const char* filename )
 {
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << filename << "\n";
     return false;
@@ -367,7 +367,7 @@ bool run_script_to_completion( const char* filename )
 Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script )
 {
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
-  if ( program.get() == NULL )
+  if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << script.name() << "\n";
     return new Bscript::BError( "Unable to read script" );

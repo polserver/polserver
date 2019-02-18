@@ -8,7 +8,6 @@
 #define PLIB_FILEMAPSERVER_H
 
 #include "../clib/binaryfile.h"
-#include "../clib/compilerspecifics.h"
 #include "mapblock.h"
 #include "mapcell.h"
 #include "mapserver.h"
@@ -30,8 +29,8 @@ class FileMapServer : public MapServer
 public:
   explicit FileMapServer( const RealmDescriptor& descriptor );
   virtual ~FileMapServer() {}
-  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const POL_OVERRIDE;
-  virtual size_t sizeEstimate() const POL_OVERRIDE;
+  virtual MAPCELL GetMapCell( unsigned short x, unsigned short y ) const override;
+  virtual size_t sizeEstimate() const override;
 
 protected:
   mutable Clib::BinaryFile _mapfile;

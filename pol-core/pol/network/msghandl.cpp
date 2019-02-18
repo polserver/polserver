@@ -5,13 +5,13 @@
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../globals/network.h"
-#include "../pktboth.h"
-#include "../pktbothid.h"
-#include "../pktin.h"
-#include "../pktinid.h"
-#include "../pktout.h"
-#include "../pktoutid.h"
 #include "client.h"
+#include "pktboth.h"
+#include "pktbothid.h"
+#include "pktin.h"
+#include "pktinid.h"
+#include "pktout.h"
+#include "pktoutid.h"
 
 namespace Pol
 {
@@ -196,5 +196,5 @@ void PacketRegistry::initialize_extended_handlers()
   set_extended_handler( EXTMSGID_SPELLBOOK, handle_open_spellbook );
   set_extended_handler( EXTMSGID_SKILL, handle_use_skill );
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

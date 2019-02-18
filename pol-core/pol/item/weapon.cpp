@@ -13,6 +13,7 @@
 #include <string>
 
 #include "../../bscript/bstruct.h"
+#include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/logfacility.h"
@@ -29,6 +30,7 @@
 #include "../layers.h"
 #include "../mobile/charactr.h"
 #include "../realms/realm.h"
+#include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../umanip.h"
 #include "../uobject.h"
@@ -87,7 +89,7 @@ Core::UACTION default_anim( bool two_handed )
 
 WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
     : EquipDesc( objtype, elem, WEAPONDESC, pkg ),
-      pAttr( NULL ),
+      pAttr( nullptr ),
       delay( elem.remove_ushort( "DELAY", 0 ) ),
       hit_script( elem.remove_string( "HITSCRIPT", "" ), pkg, "scripts/items/" ),
       damage_dice(),
@@ -267,14 +269,14 @@ void load_intrinsic_weapons()
   }
 
   // wrestling_weapon = find_intrinsic_weapon( "Wrestling" );
-  if ( Core::gamestate.wrestling_weapon == NULL )
+  if ( Core::gamestate.wrestling_weapon == nullptr )
     throw std::runtime_error( "A WeaponTemplate for Wrestling is required in itemdesc.cfg" );
 }
 
 /// Creates a new intrinic weapon for an NPC template and returns it
 /// @param elem: The conig element defining the NPC
 /// @param pkg: The package
-/// @returns The created weapon or NULL if none is defined in the template
+/// @returns The created weapon or nullptr if none is defined in the template
 UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
                                                    const Plib::Package* pkg )
 {
@@ -287,45 +289,45 @@ UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
     wpnelem.set_source( elem );
     wpnelem.add_prop( "Objtype", "0xFFFF" );
     wpnelem.add_prop( "Graphic", "1" );
-    wpnelem.add_prop( "Speed", tmp.c_str() );
+    wpnelem.add_prop( "Speed", tmp );
 
     if ( elem.remove_prop( "AttackDelay", &tmp ) )
-      wpnelem.add_prop( "Delay", tmp.c_str() );
+      wpnelem.add_prop( "Delay", tmp );
 
-    wpnelem.add_prop( "Damage", elem.remove_string( "AttackDamage" ).c_str() );
+    wpnelem.add_prop( "Damage", elem.remove_string( "AttackDamage" ) );
 
     if ( elem.has_prop( "AttackSkillId" ) )
-      wpnelem.add_prop( "SkillId", elem.remove_string( "AttackSkillId" ).c_str() );
+      wpnelem.add_prop( "SkillId", elem.remove_string( "AttackSkillId" ) );
     else
-      wpnelem.add_prop( "Attribute", elem.remove_string( "AttackAttribute" ).c_str() );
+      wpnelem.add_prop( "Attribute", elem.remove_string( "AttackAttribute" ) );
 
-    wpnelem.add_prop( "HitSound", elem.remove_string( "AttackHitSound", "0" ).c_str() );
-    wpnelem.add_prop( "MissSound", elem.remove_string( "AttackMissSound", "0" ).c_str() );
-    wpnelem.add_prop( "Anim", elem.remove_string( "AttackAnimation", "0" ).c_str() );
+    wpnelem.add_prop( "HitSound", elem.remove_string( "AttackHitSound", "0" ) );
+    wpnelem.add_prop( "MissSound", elem.remove_string( "AttackMissSound", "0" ) );
+    wpnelem.add_prop( "Anim", elem.remove_string( "AttackAnimation", "0" ) );
     wpnelem.add_prop( "MaxHp", "1" );
     if ( elem.remove_prop( "AttackHitScript", &tmp ) )
-      wpnelem.add_prop( "HitScript", tmp.c_str() );
+      wpnelem.add_prop( "HitScript", tmp );
     if ( elem.remove_prop( "AttackMinRange", &tmp ) )
-      wpnelem.add_prop( "MinRange", tmp.c_str() );
+      wpnelem.add_prop( "MinRange", tmp );
     if ( elem.remove_prop( "AttackMaxRange", &tmp ) )
-      wpnelem.add_prop( "MaxRange", tmp.c_str() );
+      wpnelem.add_prop( "MaxRange", tmp );
 
     if ( elem.has_prop( "AttackProjectile" ) )
     {
       wpnelem.add_prop( "Projectile", "1" );
-      wpnelem.add_prop( "ProjectileType", elem.remove_string( "AttackProjectileType" ).c_str() );
-      wpnelem.add_prop( "ProjectileAnim", elem.remove_string( "AttackProjectileAnim" ).c_str() );
-      wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ).c_str() );
+      wpnelem.add_prop( "ProjectileType", elem.remove_string( "AttackProjectileType" ) );
+      wpnelem.add_prop( "ProjectileAnim", elem.remove_string( "AttackProjectileAnim" ) );
+      wpnelem.add_prop( "ProjectileSound", elem.remove_string( "AttackProjectileSound" ) );
     }
 
     while ( elem.remove_prop( "AttackCProp", &tmp ) )
-      wpnelem.add_prop( "CProp", tmp.c_str() );
+      wpnelem.add_prop( "CProp", tmp );
 
     return create_intrinsic_weapon( elem.rest(), wpnelem, pkg );
   }
   else
   {
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -376,19 +378,19 @@ unsigned short UWeapon::get_random_damage() const
 
 bool UWeapon::is_projectile() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile;
 }
 
 unsigned short UWeapon::projectile_sound() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile_sound;
 }
 
 unsigned short UWeapon::projectile_anim() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile_anim;
 }
 
@@ -401,40 +403,40 @@ return tmpl->projectile_action;
 
 Core::UACTION UWeapon::anim() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->anim;
 }
 
 Core::UACTION UWeapon::mounted_anim() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->mounted_anim;
 }
 
 unsigned short UWeapon::hit_sound() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->hit_sound;
 }
 
 unsigned short UWeapon::miss_sound() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return WEAPON_TMPL->miss_sound;
 }
 
 const WeaponDesc& UWeapon::descriptor() const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
   return *WEAPON_TMPL;
 }
 
 bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 {
-  passert( tmpl != NULL );
+  passert( tmpl != nullptr );
 
   Item* item = cont->find_objtype_noninuse( WEAPON_TMPL->projectile_type );
-  if ( item != NULL )
+  if ( item != nullptr )
   {
     subtract_amount_from_item( item, 1 );
     return true;
@@ -504,9 +506,18 @@ void UWeapon::set_hit_script( const std::string& scriptname )
   }
   else
   {
-    passert( tmpl != NULL );
+    passert( tmpl != nullptr );
     hit_script_.config( scriptname, tmpl->pkg, "scripts/items/", true );
   }
+}
+
+bool UWeapon::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                               Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.weapon_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
 }
 }

@@ -17,7 +17,6 @@
 #include <vector>
 
 #include "../clib/boostutils.h"
-#include "../clib/compilerspecifics.h"
 #include "../clib/maputil.h"
 #include "executor.h"
 
@@ -72,6 +71,8 @@ public:
   const std::string& scriptname() const;
   Executor& exec;
 
+  virtual size_t sizeEstimate() const;
+
 protected:
   ExecutorModule( const char* moduleName, Executor& iExec );
 
@@ -116,9 +117,9 @@ private:
   static bool _func_map_init;
 
 protected:
-  virtual int functionIndex( const std::string& funcname ) POL_OVERRIDE;
-  virtual BObjectImp* execFunc( unsigned idx ) POL_OVERRIDE;
-  virtual std::string functionName( unsigned idx ) POL_OVERRIDE;
+  virtual int functionIndex( const std::string& funcname ) override;
+  virtual BObjectImp* execFunc( unsigned idx ) override;
+  virtual std::string functionName( unsigned idx ) override;
 };
 
 template <class T>
@@ -162,7 +163,7 @@ inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 {
   return function_table[idx].funcname;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 
 #endif

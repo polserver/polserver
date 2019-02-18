@@ -70,7 +70,7 @@ void EScriptProgram::setcontext( const CompilerContext& ctx )
 
 void EScriptProgram::append( const StoredToken& stoken )
 {
-  tokens.append_tok( stoken, 0 );
+  tokens.append_tok( stoken, nullptr );
 
   add_ins_dbg_info();
 }
@@ -84,7 +84,7 @@ void EScriptProgram::append( const StoredToken& stoken, unsigned* posn )
 
 void EScriptProgram::append( const StoredToken& stoken, const CompilerContext& ctx )
 {
-  tokens.append_tok( stoken, 0 );
+  tokens.append_tok( stoken, nullptr );
 
   setcontext( ctx );
 
@@ -370,7 +370,7 @@ int EScriptProgram::write_dbg( const char* fname, bool gen_txt )
   if ( !fp )
     return -1;
 
-  FILE* fptext = NULL;
+  FILE* fptext = nullptr;
   if ( gen_txt )
     fptext = fopen( ( std::string( fname ) + ".txt" ).c_str(), "wt" );
 
@@ -476,9 +476,9 @@ int EScriptProgram::write_dbg( const char* fname, bool gen_txt )
 
   if ( fptext )
     fclose( fptext );
-  fptext = NULL;
+  fptext = nullptr;
   fclose( fp );
-  fp = NULL;
+  fp = nullptr;
 
   return 0;
 }

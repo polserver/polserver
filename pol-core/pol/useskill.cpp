@@ -15,7 +15,7 @@
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "polclock.h"
 #include "scrdef.h"
 #include "scrstore.h"
@@ -63,7 +63,7 @@ bool StartSkillScript( Network::Client* client, const Mobile::Attribute* attrib 
       attrib->script_, true,
       /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     if ( chr->start_skill_script( prog.get() ) )
     {
@@ -116,5 +116,5 @@ bool CanUseSkill( Network::Client* client )
 
   return true;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

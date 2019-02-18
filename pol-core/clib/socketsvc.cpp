@@ -19,7 +19,7 @@ SocketListener::SocketListener( unsigned short port ) : _listen_sck()
 {
   if ( !_listen_sck.listen( port ) )
   {
-    POLLOG_ERROR << "Unable to open listen port " + decint( port );
+    POLLOG_ERROR << "Unable to open listen port " + tostring( port );
     abort();
   }
 }
@@ -30,14 +30,14 @@ SocketListener::SocketListener( unsigned short port, Socket::option opt ) : _lis
 
   if ( !_listen_sck.listen( port ) )
   {
-    POLLOG_ERROR << "Unable to open listen port " + decint( port );
+    POLLOG_ERROR << "Unable to open listen port " + tostring( port );
     abort();
   }
 }
 
-bool SocketListener::GetConnection( unsigned int timeout_sec )
+bool SocketListener::GetConnection( unsigned int timeout_sec, unsigned int timeout_usec )
 {
-  return _listen_sck.select( timeout_sec, 0 );
+  return _listen_sck.select( timeout_sec, timeout_usec );
 }
 
 void SocketListener::accept( Socket& newsck )
@@ -67,5 +67,5 @@ void SocketClientThread::start_thread( SocketClientThread* instance )
 {
   threadhelp::start_thread( _thread_stub2, "SocketClientThread", instance );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

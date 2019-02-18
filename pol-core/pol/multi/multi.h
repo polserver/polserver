@@ -9,7 +9,7 @@
 #ifndef MULTI_H
 #define MULTI_H
 
-#include "../udatfile.h"
+#include "../../plib/udatfile.h"
 
 // also consider: multimap<unsigned int, unsigned int>
 // unsigned int is (x << 16) | y
@@ -29,7 +29,8 @@ namespace Bscript
 {
 class BObjectImp;
 class BStruct;
-}
+class Executor;
+}  // namespace Bscript
 namespace Plib
 {
 class MapShapeList;
@@ -37,6 +38,10 @@ class MapShapeList;
 namespace Realms
 {
 class Realm;
+}
+namespace Core
+{
+class ExportScript;
 }
 namespace Multi
 {
@@ -64,29 +69,31 @@ public:
   static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
                                                s8 z, Realms::Realm* realm, int flags );
 
-  virtual void double_click( Network::Client* client ) POL_OVERRIDE;
+  virtual void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );
   virtual void unregister_object( UObject* obj );
-  virtual bool script_isa( unsigned isatype ) const POL_OVERRIDE;
+  virtual bool script_isa( unsigned isatype ) const override;
 
   const MultiDef& multidef() const;
   virtual class UBoat* as_boat();
   virtual class UHouse* as_house();
-  virtual Bscript::BObjectImp* make_ref() POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const POL_OVERRIDE;
-  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const POL_OVERRIDE;
+  virtual Bscript::BObjectImp* make_ref() override;
+  virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
+  virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;
+  virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                Core::ExportScript** hook, unsigned int* PC ) const override;
 
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
-  virtual bool readobjects( Core::StaticList& vec, s16 rx, s16 ry, s16 zbase );
+  virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
 
   virtual ~UMulti();
-  virtual size_t estimatedSize() const POL_OVERRIDE;
+  virtual size_t estimatedSize() const override;
 
 protected:
   explicit UMulti( const Items::ItemDesc& itemdesc );
 
-  virtual const char* classname() const POL_OVERRIDE;
+  virtual const char* classname() const override;
   friend class ref_ptr<UMulti>;
 
 private:
@@ -98,15 +105,15 @@ inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*r
 {
   return false;
 };
-inline bool UMulti::readobjects( Core::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readobjects( Plib::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
 {
   return false;
 };
-}
+}  // namespace Multi
 namespace Core
 {
 void send_multi( Network::Client* client, const Multi::UMulti* multi );
 void send_multi_to_inrange( const Multi::UMulti* multi );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

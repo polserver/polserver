@@ -42,6 +42,12 @@ if(HAVE_MYSQL)
       ${mysql_path}/lib/libmysql.lib
     )
 
+    add_custom_command(TARGET ${ex_name} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+        "${mysql_path}/lib/libmysql.dll"
+        "$<TARGET_FILE_DIR:${ex_name}>/libmysql.dll"
+    )
+
     install(
       FILES ${mysql_path}/lib/libmysql.dll
       DESTINATION .
@@ -60,3 +66,5 @@ if(DEFINED USE_BOOST_REGEX)
 endif()
 
 dist(${ex_name} .)
+
+use_tidy(${ex_name})

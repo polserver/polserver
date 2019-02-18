@@ -12,7 +12,7 @@
 #include "../../clib/rawtypes.h"
 #include "../clfunc.h"
 #include "../mobile/charactr.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../unicode.h"
 #include "../uoexhelp.h"
 
@@ -28,7 +28,7 @@ TmplExecutorModule<ClilocExecutorModule>::FunctionTable
         {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL},
         {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL},
         {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -140,5 +140,5 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
     return new BError( "Invalid parameter type" );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

@@ -17,17 +17,22 @@
 #include <stddef.h>
 
 #include "../../clib/rawtypes.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/mapserver.h"
 #include "../../plib/mapshape.h"
 #include "../../plib/maptile.h"
 #include "../../plib/maptileserver.h"
+#include "../../plib/poltype.h"
 #include "../../plib/staticserver.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
+#include "../../plib/tiles.h"
+#include "../../plib/uconst.h"
+#include "../../plib/udatfile.h"
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
 #include "../item/itemdesc.h"
+#include "../landtile.h"
 #include "../mobile/charactr.h"
 #include "../multi/customhouses.h"
 #include "../multi/house.h"
@@ -36,10 +41,6 @@
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../objtype.h"
-#include "../poltype.h"
-#include "../tiles.h"
-#include "../uconst.h"
-#include "../udatfile.h"
 #include "../uworld.h"
 #include "realm.h"
 
@@ -50,7 +51,7 @@ namespace Core
 {
 Items::Item* find_walkon_item( Core::ItemsVector& ivec, short z );
 unsigned char flags_from_tileflags( unsigned int uoflags );
-}
+}  // namespace Core
 // namespace Multi {
 // class UMulti;
 // UMulti* find_supporting_multi( Realms::MultiList& mvec, short z );
@@ -67,22 +68,22 @@ bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) c
       Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING | Plib::FLAG::GRADUAL );
 
   bool res = true;
-  lowest_standheight( Core::MOVEMODE_LAND, vec, *z, &res, z );
+  lowest_standheight( Plib::MOVEMODE_LAND, vec, *z, &res, z );
   return res;
 }
 
-void Realm::standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
+void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
                          bool* result_out, short* newz_out, short* gradual_boost )
 {
   static std::vector<const Plib::MapShape*> possible_shapes;
   possible_shapes.clear();
-  bool land_ok = ( movemode & Core::MOVEMODE_LAND ) ? true : false;
-  bool sea_ok = ( movemode & Core::MOVEMODE_SEA ) ? true : false;
-  bool fly_ok = ( movemode & Core::MOVEMODE_FLY ) ? true : false;
+  bool land_ok = ( movemode & Plib::MOVEMODE_LAND ) ? true : false;
+  bool sea_ok = ( movemode & Plib::MOVEMODE_SEA ) ? true : false;
+  bool fly_ok = ( movemode & Plib::MOVEMODE_FLY ) ? true : false;
   short the_boost = 0;
   short new_boost = 0;
 
-  if ( gradual_boost != NULL )
+  if ( gradual_boost != nullptr )
     the_boost = *gradual_boost;
   if ( the_boost < 5 )
     the_boost = 5;
@@ -184,7 +185,7 @@ void Realm::standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
 
   *result_out = ret_result;
   *newz_out = ret_newz;
-  if ( ret_result && ( gradual_boost != NULL ) )
+  if ( ret_result && ( gradual_boost != nullptr ) )
   {
     if ( new_boost > 11 )
       *gradual_boost = 11;
@@ -194,16 +195,16 @@ void Realm::standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
 }
 
 
-void Realm::lowest_standheight( Core::MOVEMODE movemode, Plib::MapShapeList& shapes, short minz,
+void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short minz,
                                 bool* result_out, short* newz_out, short* gradual_boost )
 {
-  bool land_ok = ( movemode & Core::MOVEMODE_LAND ) ? true : false;
-  bool sea_ok = ( movemode & Core::MOVEMODE_SEA ) ? true : false;
-  bool fly_ok = ( movemode & Core::MOVEMODE_FLY ) ? true : false;
+  bool land_ok = ( movemode & Plib::MOVEMODE_LAND ) ? true : false;
+  bool sea_ok = ( movemode & Plib::MOVEMODE_SEA ) ? true : false;
+  bool fly_ok = ( movemode & Plib::MOVEMODE_FLY ) ? true : false;
   short the_boost = 0;
   short new_boost = 0;
 
-  if ( gradual_boost != NULL )
+  if ( gradual_boost != nullptr )
     the_boost = *gradual_boost;
 
   if ( shapes.size() == 1 )  // map only
@@ -297,7 +298,7 @@ void Realm::lowest_standheight( Core::MOVEMODE movemode, Plib::MapShapeList& sha
 
   *result_out = result;
   *newz_out = newz;
-  if ( result && ( gradual_boost != NULL ) )
+  if ( result && ( gradual_boost != nullptr ) )
   {
     if ( new_boost > 11 )
       *gradual_boost = 11;
@@ -315,7 +316,7 @@ void Realm::readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned sh
   {
     if ( ( item->x == x ) && ( item->y == y ) )
     {
-      if ( Core::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
+      if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
       {
         if ( doors_block || item->itemdesc().type != Items::ItemDesc::DOORDESC )
         {
@@ -339,7 +340,7 @@ void Realm::readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned sh
 // new Z given new X, Y, and old Z.
 bool Realm::walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                         Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                        Core::MOVEMODE movemode, short* gradual_boost )
+                        Plib::MOVEMODE movemode, short* gradual_boost )
 {
   if ( x >= width() || y >= height() )
   {
@@ -355,7 +356,7 @@ bool Realm::walkheight( unsigned short x, unsigned short y, short oldz, short* n
 
   readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
-  if ( movemode & Core::MOVEMODE_FLY )
+  if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
   readmultis( shapes, x, y, flags, mvec );
   getmapshapes( shapes, x, y, flags );
@@ -363,7 +364,7 @@ bool Realm::walkheight( unsigned short x, unsigned short y, short oldz, short* n
   bool result;
   standheight( movemode, shapes, oldz, &result, newz, gradual_boost );
 
-  if ( result && ( pwalkon != NULL ) )
+  if ( result && ( pwalkon != nullptr ) )
   {
     if ( !mvec.empty() )
     {
@@ -371,7 +372,7 @@ bool Realm::walkheight( unsigned short x, unsigned short y, short oldz, short* n
     }
     else
     {
-      *pmulti = NULL;
+      *pmulti = nullptr;
     }
 
     if ( !walkon_items.empty() )
@@ -380,7 +381,7 @@ bool Realm::walkheight( unsigned short x, unsigned short y, short oldz, short* n
     }
     else
     {
-      *pwalkon = NULL;
+      *pwalkon = nullptr;
     }
   }
 
@@ -408,7 +409,7 @@ bool Realm::walkheight( const Mobile::Character* chr, unsigned short x, unsigned
 
   readdynamics( shapes, x, y, walkon_items, chr->doors_block() );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
-  if ( chr->movemode & Core::MOVEMODE_FLY )
+  if ( chr->movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
   readmultis( shapes, x, y, flags, mvec );
   getmapshapes( shapes, x, y, flags );
@@ -416,12 +417,12 @@ bool Realm::walkheight( const Mobile::Character* chr, unsigned short x, unsigned
   bool result;
   standheight( chr->movemode, shapes, oldz, &result, newz, gradual_boost );
 
-  if ( result && ( pwalkon != NULL ) )
+  if ( result && ( pwalkon != nullptr ) )
   {
     if ( !mvec.empty() )
     {
       *pmulti = find_supporting_multi( mvec, *newz );
-      if ( *pmulti != NULL )
+      if ( *pmulti != nullptr )
       {
         Multi::UHouse* house = ( *pmulti )->as_house();
         if ( house && house->editing && chr->client &&
@@ -431,14 +432,14 @@ bool Realm::walkheight( const Mobile::Character* chr, unsigned short x, unsigned
     }
     else
     {
-      *pmulti = NULL;
+      *pmulti = nullptr;
       if ( chr->is_house_editing() )
       {
         Multi::UMulti* multi = Core::system_find_multi( chr->client->gd->custom_house_serial );
-        if ( multi != NULL )
+        if ( multi != nullptr )
         {
           Multi::UHouse* house = multi->as_house();
-          if ( house != NULL )
+          if ( house != nullptr )
           {
             Multi::CustomHouseStopEditing( const_cast<Mobile::Character*>( chr ), house );
             Multi::CustomHousesSendFull( house, chr->client, Multi::HOUSE_DESIGN_CURRENT );
@@ -453,7 +454,7 @@ bool Realm::walkheight( const Mobile::Character* chr, unsigned short x, unsigned
     }
     else
     {
-      *pwalkon = NULL;
+      *pwalkon = nullptr;
     }
   }
 
@@ -463,7 +464,7 @@ bool Realm::walkheight( const Mobile::Character* chr, unsigned short x, unsigned
 
 bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                                Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                               Core::MOVEMODE movemode, short* gradual_boost )
+                               Plib::MOVEMODE movemode, short* gradual_boost )
 {
   if ( x >= width() || y >= height() )
   {
@@ -479,7 +480,7 @@ bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, s
 
   readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
-  if ( movemode & Core::MOVEMODE_FLY )
+  if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
   readmultis( shapes, x, y, flags, mvec );
   getmapshapes( shapes, x, y, flags );
@@ -495,7 +496,7 @@ bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, s
     }
     else
     {
-      *pmulti = NULL;
+      *pmulti = nullptr;
     }
 
     if ( !walkon_items.empty() )
@@ -504,7 +505,7 @@ bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, s
     }
     else
     {
-      *pwalkon = NULL;
+      *pwalkon = nullptr;
     }
   }
 
@@ -540,7 +541,7 @@ bool Realm::dropheight( unsigned short dropx, unsigned short dropy, short dropz,
     }
     else
     {
-      *pmulti = NULL;
+      *pmulti = nullptr;
     }
   }
   return result;
@@ -560,7 +561,7 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
     if ( static_debug_on )
     {
       INFO_PRINT << "static: graphic=0x" << fmt::hexu( srec.graphic ) << ", z=" << int( srec.z )
-                 << ", ht=" << int( tileheight( srec.graphic ) ) << "\n";
+                 << ", ht=" << int( Plib::tileheight( srec.graphic ) ) << "\n";
     }
 #endif
 
@@ -599,7 +600,8 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
           if ( static_debug_on )
           {
             INFO_PRINT << "static: objtype=0x" << fmt::hexu( srec.graphic )
-                       << ", z=" << int( srec.z ) << ", ht=" << int( tileheight( srec.graphic ) )
+                       << ", z=" << int( srec.z )
+                       << ", ht=" << int( Plib::tileheight( srec.graphic ) )
                        << " blocks movement to z=" << int( z ) << "\n";
           }
 #endif
@@ -625,8 +627,8 @@ void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned shor
 {
   Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
     Multi::UHouse* house = multi->as_house();
-    if ( house != NULL && house->IsCustom() )  // readshapes switches to working design if the
-                                               // house is being edited,
+    if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if the
+                                                  // house is being edited,
       // everyone in the house would use it for walking...
       multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z );
     else
@@ -642,7 +644,7 @@ void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned shor
 {
   Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
     Multi::UHouse* house = multi->as_house();
-    if ( house != NULL && house->IsCustom() )
+    if ( house != nullptr && house->IsCustom() )
     {
       if ( multi->readshapes( vec, s16( x ) - multi->x, s16( y ) - multi->y, multi->z ) )
         mvec.push_back( multi );
@@ -658,12 +660,12 @@ void Realm::readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned shor
   } );
 }
 
-void Realm::readmultis( Core::StaticList& vec, unsigned short x, unsigned short y ) const
+void Realm::readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const
 {
   Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
     Multi::UHouse* house = multi->as_house();
-    if ( house != NULL && house->IsCustom() )  // readshapes switches to working design if the
-                                               // house is being edited,
+    if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if the
+                                                  // house is being edited,
       // everyone in the house would use it for walking...
       multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
     else
@@ -710,7 +712,7 @@ Multi::UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y,
 {
   if ( !valid( x, y, z ) )
   {
-    return NULL;
+    return nullptr;
   }
 
   static Plib::MapShapeList vec;
@@ -727,12 +729,12 @@ Multi::UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y,
  */
 Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z ) const
 {
-  Multi::UMulti* found = NULL;
+  Multi::UMulti* found = nullptr;
   for ( auto& multi : mvec )
   {
     if ( multi->z <= z )
     {
-      if ( ( found == NULL ) || ( multi->z > found->z ) )
+      if ( ( found == nullptr ) || ( multi->z > found->z ) )
       {
         found = multi;
       }
@@ -785,5 +787,5 @@ void Realm::getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned
   else
     _mapserver->GetMapShapes( shapes, x, y, anyflags );
 }
-}
-}
+}  // namespace Realms
+}  // namespace Pol

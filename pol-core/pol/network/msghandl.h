@@ -8,9 +8,9 @@
 #ifndef MSGHANDL_H
 #define MSGHANDL_H
 
-#include "../pktboth.h"
-#include "../pktin.h"
-#include "../pktout.h"
+#include "pktboth.h"
+#include "pktin.h"
+#include "pktout.h"
 
 namespace Pol
 {
@@ -98,7 +98,7 @@ private:
 #define MSGLEN_2BYTELEN_DATA -2
 
 
-}  // namspace Network
+}  // namespace Network
 namespace Mobile
 {
 void handle_attack( Network::Client* client, Core::PKTIN_05* msg );
@@ -113,7 +113,7 @@ void sellhandler( Network::Client* client, Core::PKTIN_9F* msg );
 void gumpbutton_handler( Network::Client* client, Core::PKTIN_B1* msg );
 void handle_textentry( Network::Client* client, Core::PKTIN_AC* msg );
 void read_book_page_handler( Network::Client* client, Core::PKTBI_66* msg );
-}
+}  // namespace Module
 namespace Core
 {
 void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
@@ -169,6 +169,6 @@ void handle_action( Network::Client* client, PKTIN_12* cmd );
 void handle_cast_spell( Network::Client* client, PKTIN_12* msg );
 void handle_open_spellbook( Network::Client* client, PKTIN_12* msg );
 void handle_use_skill( Network::Client* client, PKTIN_12* msg );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

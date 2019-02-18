@@ -7,7 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
-class PolMain : public ProgramMain
+class PolMain final : public ProgramMain
 {
 public:
   PolMain();

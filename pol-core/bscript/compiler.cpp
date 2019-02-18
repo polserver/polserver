@@ -258,7 +258,7 @@ Token* optimize_long_operation( Token* left, Token* oper, Token* right )
     break;
 
   default:
-    return NULL;
+    return nullptr;
 
     break;
   }
@@ -301,7 +301,7 @@ Token* optimize_double_operation( Token* left, Token* oper, Token* right )
 
 Token* optimize_string_operation( Token* left, Token* oper, Token* right )
 {
-  Token* ntoken = NULL;
+  Token* ntoken = nullptr;
   switch ( oper->id )
   {
   case TOK_ADD:
@@ -321,7 +321,7 @@ Token* optimize_string_operation( Token* left, Token* oper, Token* right )
 
 Token* optimize_long_operation( Token* oper, Token* value )
 {
-  Token* ntoken = NULL;
+  Token* ntoken = nullptr;
   switch ( oper->id )
   {
   case TOK_UNMINUS:
@@ -344,7 +344,7 @@ Token* optimize_long_operation( Token* oper, Token* value )
 }
 Token* optimize_double_operation( Token* oper, Token* value )
 {
-  Token* ntoken = NULL;
+  Token* ntoken = nullptr;
   switch ( oper->id )
   {
   case TOK_UNMINUS:
@@ -359,7 +359,7 @@ Token* optimize_double_operation( Token* oper, Token* value )
 }
 Token* optimize_string_operation( Token* /*oper*/, Token* /*value*/ )
 {
-  return NULL;
+  return nullptr;
 }
 
 void Expression::optimize_binary_operations()
@@ -386,7 +386,7 @@ void Expression::optimize_binary_operations()
       continue;
     }
 
-    Token* ntoken = NULL;
+    Token* ntoken = nullptr;
     switch ( left->id )
     {
     case TOK_LONG:
@@ -439,7 +439,7 @@ void Expression::optimize_unary_operations()
     {
       continue;
     }
-    Token* ntoken = NULL;
+    Token* ntoken = nullptr;
     switch ( value->id )
     {
     case TOK_LONG:
@@ -652,7 +652,7 @@ bool Expression::optimize_token( int i )
     if ( operand->id == TOK_STRING /*|| operand->id == INS_CALL_METHOD*/ )
     {
       ObjMember* objmemb = getKnownObjMember( operand->tokval() );
-      if ( objmemb != NULL && compilercfg.OptimizeObjectMembers )
+      if ( objmemb != nullptr && compilercfg.OptimizeObjectMembers )
       {
         // merge the member name with the member operator.
         oper->id = INS_GET_MEMBER_ID;
@@ -680,7 +680,10 @@ bool Expression::optimize_token( int i )
             // 13: 1L
             // 14: set member id 'warmode' (27) += #
             if ( tokens[tokens.size() - 1]->id == TOK_CONSUMER )
+            {
+              delete tokens.back();
               tokens.pop_back();  // delete consumer
+            }
 
             if ( operand->id == TOK_PLUSEQUAL )
               oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
@@ -849,7 +852,7 @@ Compiler::Compiler()
       programPos( 0 ),
       nProgramArgs( 0 ),
       program_ctx(),
-      program_source( NULL ),
+      program_source( nullptr ),
       included(),
       referencedPathnames(),
       program( new EScriptProgram )
@@ -1769,7 +1772,7 @@ int Compiler::getExpr( CompilerContext& ctx, unsigned flags, size_t* exprlen, Ex
   if ( pex )
   {
     res = readexpr( *pex, ctx, flags );
-    if ( exprlen != NULL )
+    if ( exprlen != nullptr )
       *exprlen = pex->tokens.size();
     inject( *pex );
   }
@@ -1777,7 +1780,7 @@ int Compiler::getExpr( CompilerContext& ctx, unsigned flags, size_t* exprlen, Ex
   {
     Expression ex;
     res = readexpr( ex, ctx, flags );
-    if ( exprlen != NULL )
+    if ( exprlen != nullptr )
       *exprlen = ex.tokens.size();
     inject( ex );
   }
@@ -1790,7 +1793,7 @@ int Compiler::getExpr2( CompilerContext& ctx, unsigned expr_flags, Expression* p
   int res;
   orig_inExpr = inExpr;
   inExpr = 1;
-  res = getExpr( ctx, expr_flags, NULL, pex );
+  res = getExpr( ctx, expr_flags, nullptr, pex );
   inExpr = orig_inExpr;
   return res;
 }
@@ -1879,7 +1882,7 @@ int Compiler::handleDoClause( CompilerContext& ctx, int level )
 
   Token endblock_tkn;
   int res;
-  res = readblock( ctx, level, RSV_DOWHILE, NULL, &endblock_tkn );
+  res = readblock( ctx, level, RSV_DOWHILE, nullptr, &endblock_tkn );
   if ( res < 0 )
     return res;
 
@@ -1920,7 +1923,7 @@ int Compiler::handleRepeatUntil( CompilerContext& ctx, int level )
 
   Token endblock_tkn;
   int res;
-  res = readblock( ctx, level, RSV_UNTIL, NULL, &endblock_tkn );
+  res = readblock( ctx, level, RSV_UNTIL, nullptr, &endblock_tkn );
   if ( res < 0 )
   {
     return res;
@@ -2243,7 +2246,7 @@ int Compiler::handleForEach( CompilerContext& ctx, int level )
   unsigned iter_posn = program->tokens.next();
   enterblock( CanBeLabelled );
   Token endforeach_token;
-  res = readblock( ctx, level, RSV_ENDFOREACH, NULL, &endforeach_token );
+  res = readblock( ctx, level, RSV_ENDFOREACH, nullptr, &endforeach_token );
   if ( res < 0 )
     return res;
 
@@ -2290,11 +2293,11 @@ int Compiler::handleReturn( CompilerContext& ctx )
 
   if ( inFunction )
   {
-    program->append( StoredToken( Mod_Basic, RSV_RETURN, TYP_RESERVED, 0 ), 0 );
+    program->append( StoredToken( Mod_Basic, RSV_RETURN, TYP_RESERVED, 0 ), nullptr );
   }
   else
   {
-    program->append( StoredToken( Mod_Basic, CTRL_PROGEND, TYP_CONTROL, 0 ), 0 );
+    program->append( StoredToken( Mod_Basic, CTRL_PROGEND, TYP_CONTROL, 0 ), nullptr );
   }
   return 0;
 }
@@ -2861,13 +2864,13 @@ int Compiler::readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
       return res;
     if ( token.id == endtokenid )
     {
-      if ( pBlockEndToken != NULL )
+      if ( pBlockEndToken != nullptr )
         getToken( ctx, *pBlockEndToken );
       else
         getToken( ctx, token );  // eat the end-token
       return 0;
     }
-    if ( last_statement_id != NULL )
+    if ( last_statement_id != nullptr )
       *last_statement_id = token.id;
     res = getStatement( ctx, level );
     if ( res < 0 )
@@ -2895,7 +2898,7 @@ int Compiler::handleBracketedWhile( CompilerContext& ctx, int level )
   enterblock( CanBeLabelled );
 
   Token endblock_tkn;
-  res = readblock( ctx, level, RSV_ENDWHILE, NULL, &endblock_tkn );
+  res = readblock( ctx, level, RSV_ENDWHILE, nullptr, &endblock_tkn );
   if ( res < 0 )
     return res;
 
@@ -2903,7 +2906,8 @@ int Compiler::handleBracketedWhile( CompilerContext& ctx, int level )
   emit_leaveblock();
 
   // jump back to conditional expression
-  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, conditional_expr_posn ), 0 );
+  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, conditional_expr_posn ),
+                   nullptr );
 
   // Control should jump past the loop when the expr evaluates to false.
   unsigned exit_loop_posn = prog_tokens->next();
@@ -3418,11 +3422,11 @@ int Compiler::includeModule( const std::string& modulename )
 
   if ( filename_part[0] == ':' )
   {
-    const Plib::Package* pkg = NULL;
+    const Plib::Package* pkg = nullptr;
     std::string path;
-    if ( Plib::pkgdef_split( filename_part, NULL, &pkg, &path ) )
+    if ( Plib::pkgdef_split( filename_part, nullptr, &pkg, &path ) )
     {
-      if ( pkg != NULL )
+      if ( pkg != nullptr )
       {
         filename_full = pkg->dir() + path;
         std::string try_filename_full = pkg->dir() + "include/" + path;
@@ -3579,7 +3583,7 @@ int Compiler::insertBreak( const std::string& label )
       {  // local variables were declared in this scope.  We need to kill 'em.
 
         program->append( StoredToken( Mod_Basic, CTRL_LEAVE_BLOCK, TYP_CONTROL, numVarsToKill ),
-                         0 );
+                         nullptr );
       }
 
       unsigned goto_posn;
@@ -3676,7 +3680,7 @@ int Compiler::handleContinue( CompilerContext& ctx )
       {  // local variables were declared in this scope.  We need to kill 'em.
 
         program->append( StoredToken( Mod_Basic, CTRL_LEAVE_BLOCK, TYP_CONTROL, numVarsToKill ),
-                         0 );
+                         nullptr );
       }
 
       unsigned goto_posn;
@@ -3765,7 +3769,7 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
   unsigned again_posn = prog_tokens->next();
   enterblock( CanBeLabelled );
   Token endblock_tkn;
-  res = readblock( ctx, 1, RSV_ENDFOR, NULL, &endblock_tkn );
+  res = readblock( ctx, 1, RSV_ENDFOR, nullptr, &endblock_tkn );
   if ( res < 0 )
     return res;
 
@@ -3857,7 +3861,7 @@ int Compiler::handleFor_c( CompilerContext& ctx )
   inject( iterate_expr );
   program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
 
-  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), 0 );
+  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), nullptr );
 
   leaveblock( prog_tokens->next(), nextPC );
 
@@ -3924,7 +3928,7 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
 
   enterblock( CanNotBeLabelled );
   Token endblock_tkn;
-  int res = readblock( ctx, 1, RSV_ENDFOR, NULL, &endblock_tkn );
+  int res = readblock( ctx, 1, RSV_ENDFOR, nullptr, &endblock_tkn );
   if ( res < 0 )
     return res;
   leaveblock( 0, 0 );
@@ -3935,7 +3939,7 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
   inject( iterate_expr );
   program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
 
-  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), 0 );
+  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), nullptr );
   patchoffset( if_posn, prog_tokens->next() );
 
   leaveblock( prog_tokens->next(), continuePC );
@@ -3964,7 +3968,7 @@ void Compiler::emitFileLine( CompilerContext& ctx )
   int cnt = program->tokens.count();
   program->fileline.resize( cnt + 1 );
   program->fileline[cnt] =
-      ctx.filename + ", Line " + Clib::decint( static_cast<unsigned int>( ctx.line ) );
+      ctx.filename + ", Line " + Clib::tostring( static_cast<unsigned int>( ctx.line ) );
 }
 void Compiler::emitFileLineIfFileChanged( CompilerContext& ctx )
 {
@@ -4313,7 +4317,7 @@ int Compiler::handleFunction( CompilerContext& ctx )
     program->append(
         StoredToken( Mod_Basic, user_param->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
                      TYP_OPERATOR, posn ),
-        0 );
+        nullptr );
     program->addlocalvar( user_param->name );
 
     localscope.addvar( user_param->name, ctx, true, user_param->unused );
@@ -4424,14 +4428,14 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
     program->append(
         StoredToken( Mod_Basic, params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
                      TYP_OPERATOR, posn ),
-        0 );
+        nullptr );
 
     program->addlocalvar( params->name );
     localscope.addvar( params->name, ctx, true, params->unused );
   }
 
   Token endblock_tkn;
-  res = readblock( ctx, 1, RSV_ENDFUNCTION, NULL, &endblock_tkn );
+  res = readblock( ctx, 1, RSV_ENDFUNCTION, nullptr, &endblock_tkn );
   if ( res < 0 )
   {
     INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
@@ -4607,7 +4611,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
       }
       unsigned posn;
       program->symbols.append( token.tokval(), posn );
-      program->append( StoredToken( Mod_Basic, INS_GET_ARG, TYP_OPERATOR, posn ), 0 );
+      program->append( StoredToken( Mod_Basic, INS_GET_ARG, TYP_OPERATOR, posn ), nullptr );
       program->addlocalvar( token.tokval() );
       localscope.addvar( token.tokval(), ctx, true, unused );
 
@@ -4627,7 +4631,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
   program->haveProgram = true;
   program->expectedArgs = nProgramArgs;
   Token endblock_tkn;
-  res = readblock( ctx, level, RSV_ENDPROGRAM, NULL, &endblock_tkn );
+  res = readblock( ctx, level, RSV_ENDPROGRAM, nullptr, &endblock_tkn );
   if ( res < 0 )
     return res;
 
@@ -4691,7 +4695,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
     program->append(
         StoredToken( Mod_Basic, params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
                      TYP_OPERATOR, posn ),
-        save_ctx, 0 );
+        save_ctx, nullptr );
     program->addlocalvar( params->name );
     localscope.addvar( params->name, ctx, true, params->unused );
   }
@@ -4837,7 +4841,7 @@ int Compiler::compileContext( CompilerContext& ctx )
     throw;
   }
 
-  // currentscope = NULL;
+  // currentscope = nullptr;
   // scopes.pop();
   // assert( scopes.empty() );
 
@@ -4943,10 +4947,10 @@ int Compiler::getFileContents( const char* file, char** iv )
 #endif
 
 
-  char* s = NULL;
+  char* s = nullptr;
 
   FILE* fp = fopen( file, "rb" );
-  if ( fp == NULL )
+  if ( fp == nullptr )
     return -1;
 
   // Goes to the end of file
@@ -4978,9 +4982,10 @@ int Compiler::getFileContents( const char* file, char** iv )
     return -1;
   }
 
-  if (fread( s, filelen, 1, fp ) != 1 )
+  if ( fread( s, filelen, 1, fp ) != 1 )
   {
     fclose( fp );
+    free( s );
     return -1;
   }
 
@@ -4998,11 +5003,11 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
 
   if ( filename_part[0] == ':' )
   {
-    const Plib::Package* pkg = NULL;
+    const Plib::Package* pkg = nullptr;
     std::string path;
-    if ( Plib::pkgdef_split( filename_part, NULL, &pkg, &path ) )
+    if ( Plib::pkgdef_split( filename_part, nullptr, &pkg, &path ) )
     {
-      if ( pkg != NULL )
+      if ( pkg != nullptr )
       {
         filename_full = pkg->dir() + path;
         std::string try_filename_full = pkg->dir() + "include/" + path;
@@ -5446,46 +5451,46 @@ void Compiler::dump( std::ostream& os )
 {
   program->dump( os );
 }
-}
-}
-/*
-    local x;      [ "x", RSV_LOCAL, # ]
-    local x:=5;      [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
-    local x,y:=5;    [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
-    local x:=5,y;
-
-    x := 5;
-
-    declare function foo(a,b,c,d);
-
-    function foo(a,b,c,d)
-    begin
-    return
-    or
-    return "hey"
-    end
-
-    statements:
-
-    if expr [then] statement [else statement];
-
-    do
-    statement;
-    while expr;
-
-    begin
-    statements;
-    end
-
-
-    while expr
-    statement;
-
-
-    Alternative:
-    if expr
-    statments;
-    [else
-    statements; ]
-    endif;
-    */
+}  // namespace Bscript
+}  // namespace Pol
+   /*
+       local x;      [ "x", RSV_LOCAL, # ]
+       local x:=5;      [ "x", RSV_LOCAL, 5, TOK_ASSIGN, # ]
+       local x,y:=5;    [ "x", RSV_LOCAL, #, "y", TOK_LOCAL,
+       local x:=5,y;
+   
+       x := 5;
+   
+       declare function foo(a,b,c,d);
+   
+       function foo(a,b,c,d)
+       begin
+       return
+       or
+       return "hey"
+       end
+   
+       statements:
+   
+       if expr [then] statement [else statement];
+   
+       do
+       statement;
+       while expr;
+   
+       begin
+       statements;
+       end
+   
+   
+       while expr
+       statement;
+   
+   
+       Alternative:
+       if expr
+       statments;
+       [else
+       statements; ]
+       endif;
+       */

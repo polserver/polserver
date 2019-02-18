@@ -52,7 +52,7 @@ TmplExecutorModule<MathExecutorModule>::FunctionTable
         {"ConstE", &MathExecutorModule::mf_ConstE},
 
         {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -225,7 +225,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
     if ( value->ref_arr.empty() )
       return new Bscript::BError( "Array empty" );
 
-    Bscript::BObjectImp* compare = NULL;
+    Bscript::BObjectImp* compare = nullptr;
     for ( std::vector<Bscript::BObjectRef>::iterator itr = value->ref_arr.begin();
           itr != value->ref_arr.end(); ++itr )
     {
@@ -233,19 +233,19 @@ Bscript::BObjectImp* MathExecutorModule::mf_Min()
       {
         Bscript::BObject* bo = ( itr->get() );
 
-        if ( bo == NULL )
+        if ( bo == nullptr )
           continue;
         if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
              ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
         {
-          if ( compare == NULL )
+          if ( compare == nullptr )
             compare = bo->impptr();
           else if ( *( bo->impptr() ) < *compare )
             compare = bo->impptr();
         }
       }
     }
-    if ( compare != NULL )
+    if ( compare != nullptr )
       return ( compare->copy() );
     else
       return new Bscript::BError( "No Integer/Double elements" );
@@ -274,7 +274,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
     if ( value->ref_arr.empty() )
       return new Bscript::BError( "Array empty" );
 
-    Bscript::BObjectImp* compare = NULL;
+    Bscript::BObjectImp* compare = nullptr;
     for ( std::vector<BObjectRef>::iterator itr = value->ref_arr.begin();
           itr != value->ref_arr.end(); ++itr )
     {
@@ -282,19 +282,19 @@ Bscript::BObjectImp* MathExecutorModule::mf_Max()
       {
         Bscript::BObject* bo = ( itr->get() );
 
-        if ( bo == NULL )
+        if ( bo == nullptr )
           continue;
         if ( ( bo->isa( Bscript::BObjectImp::OTDouble ) ) ||
              ( bo->isa( Bscript::BObjectImp::OTLong ) ) )
         {
-          if ( compare == NULL )
+          if ( compare == nullptr )
             compare = bo->impptr();
           else if ( *( bo->impptr() ) >= *compare )
             compare = bo->impptr();
         }
       }
     }
-    if ( compare != NULL )
+    if ( compare != nullptr )
       return ( compare->copy() );
     else
       return new Bscript::BError( "No Integer/Double elements" );
@@ -377,6 +377,8 @@ Bscript::BObjectImp* MathExecutorModule::mf_FormatRealToString()
     char buffer[200];
     /// @todo: sprintf produces different output on some doubles (eg. M_PI)
     ///        on Windows/Linux. Use something else? 2016-01-23 Bodom
+    /// Turley: as of now 2018-10-30 vs2017 on appveyor and travis show no difference with 64bit. Is
+    /// it just a difference between 64bit and 32bit?
     sprintf( buffer, "%.*g", static_cast<int>( digits ), x );
     return new String( buffer );
   }
@@ -441,5 +443,5 @@ Bscript::BObjectImp* MathExecutorModule::mf_Floor()
     return new BError( "Invalid parameter type" );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

@@ -9,11 +9,7 @@
 #define __EXECUTOR_H
 
 
-#ifdef WINDOWS
-#include "../clib/pol_global_config_win.h"
-#else
 #include "pol_global_config.h"
-#endif
 
 #ifndef __EXECTYPE_H
 #include "exectype.h"
@@ -30,12 +26,12 @@
 #include <string>
 #include <vector>
 
-#include <format/format.h>
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -206,6 +202,7 @@ public:
   static BObjectRef removemember( BObject& left, const BObject& right );
   static BObjectRef checkmember( BObject& left, const BObject& right );
   void addmember2( BObject& left, const BObject& right );
+  static bool builtinMethodForced( const char*& methodname );
 
   // execmodules: modules associated with the current program.  References modules owned by
   // availmodules.

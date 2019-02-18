@@ -41,6 +41,7 @@ public:
 
   void read_query_string( const std::string& query_string );
   void read_query_ip();
+  virtual size_t sizeEstimate() const override;
 
   // TODO: clean up the socket ownership thing so these can be private again
 public:
@@ -51,6 +52,6 @@ public:
   Core::UOExecutor& uoexec;
   std::string query_ip_;
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif  // HTTPMOD_H

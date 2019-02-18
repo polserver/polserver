@@ -10,6 +10,7 @@
 #include <stddef.h>
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "mobile/charactr.h"
 #include "multi/customhouses.h"
 #include "multi/house.h"
@@ -18,9 +19,8 @@
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktdef.h"
-#include "pktin.h"
-#include "uconst.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "uworld.h"
 
@@ -56,7 +56,7 @@ void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client 
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
-    if ( ( client->UOExpansionFlag & Network::AOS ) && house != NULL && house->IsCustom() )
+    if ( ( client->UOExpansionFlag & Network::AOS ) && house != nullptr && house->IsCustom() )
       Multi::CustomHousesSendShort( house, client );
   }
 }
@@ -84,7 +84,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
       Multi::UMulti* multi =
           zonechr->realm->find_supporting_multi( zonechr->x, zonechr->y, zonechr->z );
 
-      if ( multi != NULL && multi->serial == serial )
+      if ( multi != nullptr && multi->serial == serial )
         return;
 
       send_char_if_newly_inrange( zonechr, client );
@@ -93,7 +93,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
       Multi::UMulti* multi =
           zoneitem->realm->find_supporting_multi( zoneitem->x, zoneitem->y, zoneitem->z );
 
-      if ( multi != NULL && multi->serial == serial )
+      if ( multi != nullptr && multi->serial == serial )
         return;
 
       send_item_if_newly_inrange( zoneitem, client );
@@ -219,5 +219,5 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

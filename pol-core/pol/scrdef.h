@@ -23,7 +23,7 @@ namespace Core
 class ScriptDef
 {
 public:
-  ScriptDef() : name_( "" ), pkg_( NULL ) {}
+  ScriptDef() : name_( "" ), pkg_( nullptr ) {}
   ScriptDef( const std::string& name, const Plib::Package* pkg, const char* mainpfx );
   ScriptDef( const std::string& name, const Plib::Package* pkg );
   // ScriptDef( const ScriptDef& ); default copy ctor is okay
@@ -46,7 +46,7 @@ public:
   const Plib::Package* pkg() const { return pkg_; }
   bool exists() const;
 
-  std::string relativename( const Plib::Package* pkg = NULL ) const;
+  std::string relativename( const Plib::Package* pkg = nullptr ) const;
   size_t estimatedSize() const;
 
 private:

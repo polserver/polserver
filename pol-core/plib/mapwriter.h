@@ -83,6 +83,6 @@ private:
   size_t solidx2_offset;
   size_t solids_offset;
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

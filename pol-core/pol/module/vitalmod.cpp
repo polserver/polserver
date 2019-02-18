@@ -41,7 +41,7 @@ TmplExecutorModule<VitalExecutorModule>::FunctionTable
         {"SetVital", &VitalExecutorModule::mf_SetVital},
         {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate},
         {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -125,7 +125,7 @@ BObjectImp* VitalExecutorModule::mf_ConsumeMana()
       return new BError( "Spell ID out of range" );
 
     Core::USpell* spell = Core::gamestate.spells[spellid];
-    if ( spell == NULL )
+    if ( spell == nullptr )
       return new BError( "No such spell" );
     else if ( spell->check_mana( chr ) == false )
       return new BLong( 0 );
@@ -206,7 +206,7 @@ BObjectImp* VitalExecutorModule::mf_SetVital( /* mob, vitalid, hundredths */ )
        getParam( 2, value, Core::VITAL_MAX_HUNDREDTHS ) )
   {
     Mobile::VitalValue& vv = chr->vital( vital->vitalid );
-    chr->set_current( vital, vv, value );
+    chr->set_current( vital, vv, value, Mobile::Character::VitalDepletedReason::SCRIPT );
     return new BLong( 1 );
   }
   else
@@ -223,7 +223,8 @@ BObjectImp* VitalExecutorModule::mf_ConsumeVital( /* mob, vital, hundredths */ )
        getParam( 2, hundredths, Core::VITAL_MAX_HUNDREDTHS ) )
   {
     Mobile::VitalValue& vv = chr->vital( vital->vitalid );
-    bool res = chr->consume( vital, vv, hundredths );
+    bool res =
+        chr->consume( vital, vv, hundredths, Mobile::Character::VitalDepletedReason::SCRIPT );
     return new BLong( res ? 1 : 0 );
   }
   else
@@ -236,7 +237,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
   BObjectImp* param1 = getParamImp( 1 );
   BObjectImp* param2 = getParamImp( 2 );
 
-  if ( getCharacterParam( exec, 0, chr ) && param1 != NULL && param2 != NULL )
+  if ( getCharacterParam( exec, 0, chr ) && param1 != nullptr && param2 != nullptr )
   {
     if ( chr->logged_in() )
     {
@@ -249,7 +250,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       {
         String* attrname = static_cast<String*>( param1 );
         Mobile::Attribute* attr = Mobile::Attribute::FindAttribute( attrname->value() );
-        if ( attr == NULL )
+        if ( attr == nullptr )
           return new BError( "Attribute not defined: " + attrname->value() );
         chr->calc_single_attribute( attr );
       }
@@ -262,7 +263,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
       {
         String* vitalname = static_cast<String*>( param2 );
         Core::Vital* vital = Core::FindVital( vitalname->value() );
-        if ( vital == NULL )
+        if ( vital == nullptr )
           return new BError( "Vital not defined: " + vitalname->value() );
         chr->calc_single_vital( vital );
       }
@@ -278,5 +279,5 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
   else
     return new BError( "Invalid parameter type" );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

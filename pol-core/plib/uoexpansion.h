@@ -1,7 +1,6 @@
 #ifndef PLIB_UOEXPANSION_H
 #define PLIB_UOEXPANSION_H
 
-#include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 
 namespace Pol
@@ -88,7 +87,7 @@ const char* getExpansionName( ExpansionVersion x );
 class UOExpansion
 {
 public:
-  virtual ~UOExpansion(){};
+  virtual ~UOExpansion() = default;
   virtual bool hasFeature( A9Feature feature ) const = 0;
   virtual bool hasFeature( B9Feature feature ) const = 0;
   virtual u32 A9Flags() const = 0;
@@ -117,9 +116,8 @@ public:
     return myVersion >= version;
   }
 
-private:  // noncopyable
-  ClientFeatures( const ClientFeatures& );
-  ClientFeatures& operator=( const ClientFeatures& );
+  ClientFeatures( const ClientFeatures& ) = delete;
+  ClientFeatures& operator=( const ClientFeatures& ) = delete;
 };
 
 class FlagExpansion : UOExpansion
@@ -136,20 +134,20 @@ public:
   {
   }
 
-  virtual u32 A9Flags() const POL_OVERRIDE { return m_A9Flag; }
-  virtual u32 B9Flags() const POL_OVERRIDE { return m_B9Flag; }
-  virtual bool hasFeature( A9Feature x ) const POL_OVERRIDE
+  virtual u32 A9Flags() const override { return m_A9Flag; }
+  virtual u32 B9Flags() const override { return m_B9Flag; }
+  virtual bool hasFeature( A9Feature x ) const override
   {
     return ( m_A9Flag & static_cast<u32>( x ) ) != 0;
   }
-  virtual bool hasFeature( B9Feature x ) const POL_OVERRIDE
+  virtual bool hasFeature( B9Feature x ) const override
   {
     return ( m_B9Flag & static_cast<u32>( x ) ) != 0;
   }
 
-  virtual ExpansionVersion version() const POL_OVERRIDE { return m_version; }
-  virtual int characterSlots() const POL_OVERRIDE { return m_slots; }
+  virtual ExpansionVersion version() const override { return m_version; }
+  virtual int characterSlots() const override { return m_slots; }
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif

@@ -12,11 +12,11 @@
 
 #include "../clib/clib_endian.h"
 #include "../clib/passert.h"
+#include "../plib/uconst.h"
 #include "containr.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
-#include "uconst.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
 #include "uobject.h"
@@ -44,13 +44,13 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
       for ( const auto& ochr : chr->realm->zone[wx][wy].characters )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != NULL )
+        if ( _item != nullptr )
           return _item;
       }
       for ( const auto& ochr : chr->realm->zone[wx][wy].npcs )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != NULL )
+        if ( _item != nullptr )
           return _item;
       }
     }
@@ -68,7 +68,7 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
       return item;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 std::string create_nametags( Mobile::Character* chr )
@@ -131,5 +131,5 @@ void handle_singleclick( Network::Client* client, PKTIN_09* msg )
   // TODO: report if someone tries to use singleclick without a connected char (should have been
   // blocked)
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -21,7 +21,7 @@ std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
   if ( spec.empty() )
     return spec;
 
-  if ( pkg != NULL )
+  if ( pkg != nullptr )
     return Bscript::normalize_ecl_filename( pkg->dir() + spec );
 
   if ( spec.find( '/' ) == std::string::npos )
@@ -120,21 +120,21 @@ void ScriptDef::quickconfig( const std::string& name_ecl )
 {
   localname_ = "unknown";
   name_ = name_ecl;
-  pkg_ = NULL;
+  pkg_ = nullptr;
 }
 
 bool ScriptDef::exists() const
 {
   return !empty() && Clib::FileExists( c_str() );
   // ref_ptr<EScriptProgram> prog = find_script2( *this, false, true );
-  // return (prog.get() != NULL);
+  // return (prog.get() != nullptr);
 }
 
 void ScriptDef::clear()
 {
   localname_ = "";
   name_ = "";
-  pkg_ = NULL;
+  pkg_ = nullptr;
 }
 
 size_t ScriptDef::estimatedSize() const

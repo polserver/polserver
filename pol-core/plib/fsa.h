@@ -54,7 +54,7 @@ public:
 
 public:  // methods
   FixedSizeAllocator( size_t MaxElements = FSA_DEFAULT_SIZE )
-      : m_pFirstUsed( NULL ), m_MaxElements( MaxElements )
+      : m_pFirstUsed( nullptr ), m_MaxElements( MaxElements )
   {
     // Allocate enough memory for the maximum number of elements
 
@@ -81,9 +81,9 @@ public:  // methods
     }
 
     // first element should have a null prev
-    m_pFirstFree->pPrev = NULL;
+    m_pFirstFree->pPrev = nullptr;
     // last element should have a null next
-    ( pElement - 1 )->pNext = NULL;
+    ( pElement - 1 )->pNext = nullptr;
   }
 
 
@@ -96,11 +96,11 @@ public:  // methods
   // Allocate a new USER_TYPE and return a pointer to it
   USER_TYPE* alloc()
   {
-    FSA_ELEMENT* pNewNode = NULL;
+    FSA_ELEMENT* pNewNode = nullptr;
 
     if ( !m_pFirstFree )
     {
-      return NULL;
+      return nullptr;
     }
     else
     {
@@ -111,16 +111,16 @@ public:  // methods
       // change that nodes prev free pointer...
       if ( pNewNode->pNext )
       {
-        pNewNode->pNext->pPrev = NULL;
+        pNewNode->pNext->pPrev = nullptr;
       }
 
       // node is now on the used list
 
-      pNewNode->pPrev = NULL;  // the allocated node is always first in the list
+      pNewNode->pPrev = nullptr;  // the allocated node is always first in the list
 
-      if ( m_pFirstUsed == NULL )
+      if ( m_pFirstUsed == nullptr )
       {
-        pNewNode->pNext = NULL;  // no other nodes
+        pNewNode->pNext = nullptr;  // no other nodes
       }
       else
       {
@@ -160,12 +160,12 @@ public:  // methods
     }
 
     // add to free list
-    if ( m_pFirstFree == NULL )
+    if ( m_pFirstFree == nullptr )
     {
       // free list was empty
       m_pFirstFree = pNode;
-      pNode->pPrev = NULL;
-      pNode->pNext = NULL;
+      pNode->pPrev = nullptr;
+      pNode->pNext = nullptr;
     }
     else
     {

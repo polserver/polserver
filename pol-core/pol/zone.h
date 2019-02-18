@@ -7,7 +7,9 @@
 #ifndef ZONE_H
 #define ZONE_H
 
-#include "poltype.h"
+#include <utility>
+
+#include "../plib/poltype.h"
 
 namespace Pol
 {
@@ -16,9 +18,9 @@ namespace Core
 const unsigned ZONE_SIZE = 4;
 const unsigned ZONE_SHIFT = 2;
 
-void XyToZone( xcoord x, ycoord y, unsigned* zonex, unsigned* zoney );
+std::pair<unsigned, unsigned> XyToZone( xcoord x, ycoord y );
 
 typedef unsigned short RegionId;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

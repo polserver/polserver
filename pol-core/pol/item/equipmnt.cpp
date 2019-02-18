@@ -9,6 +9,7 @@
 
 #include <stddef.h>
 
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
 #include "../../clib/clib_endian.h"
@@ -24,6 +25,7 @@
 #include "../globals/uvars.h"
 #include "../layers.h"
 #include "../mobile/charactr.h"
+#include "../syshookscript.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "armor.h"
@@ -55,7 +57,7 @@ Equipment::~Equipment()
       ed->unload_scripts();
 
       delete tmpl;
-      tmpl = NULL;
+      tmpl = nullptr;
     }
   }
 }
@@ -91,7 +93,7 @@ void Equipment::reduce_hp_from_hit()
     if ( isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Mobile::Character* chr = GetCharacterOwner();
-      if ( chr != NULL )
+      if ( chr != nullptr )
         chr->refresh_ar();
     }
     send_object_cache_to_inrange( this );
@@ -124,12 +126,21 @@ void Equipment::setQuality( double value )
   _quality = value;
 }
 
-/// Looks up for an existing intrinsic equipment and return it or NULL if not found
+bool Equipment::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                                 Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.equipment_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
+}
+
+/// Looks up for an existing intrinsic equipment and return it or nullptr if not found
 Equipment* find_intrinsic_equipment( const std::string& name, u8 layer )
 {
   auto itr = Core::gamestate.intrinsic_equipments.find( Core::NameAndLayer( name, layer ) );
   if ( itr == Core::gamestate.intrinsic_equipments.end() )
-    return NULL;
+    return nullptr;
   return itr->second;
 }
 
@@ -186,8 +197,8 @@ void load_npc_intrinsic_equip()
     Clib::ConfigElem elem;
     while ( cf.read( elem ) )
     {
-      Items::create_intrinsic_weapon_from_npctemplate( elem, NULL );
-      Items::create_intrinsic_shield_from_npctemplate( elem, NULL );
+      Items::create_intrinsic_weapon_from_npctemplate( elem, nullptr );
+      Items::create_intrinsic_shield_from_npctemplate( elem, nullptr );
     }
   }
   for ( const auto& pkg : Plib::systemstate.packages )

@@ -12,7 +12,7 @@
 #include "menu.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
-#include "pktin.h"
+#include "network/pktin.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -87,5 +87,5 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
     client->chr->on_menu_selection( client, mi, msg );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

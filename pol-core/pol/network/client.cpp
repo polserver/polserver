@@ -34,18 +34,18 @@
 #include "../globals/network.h"
 #include "../globals/state.h"
 #include "../mobile/charactr.h"
-#include "../pktdef.h"
-#include "../pktin.h"
 #include "../polsig.h"
 #include "../realms/WorldChangeReasons.h"
-#include "../ufunc.h" // only in here temporarily, until logout-on-disconnect stuff is removed
+#include "../ufunc.h"  // only in here temporarily, until logout-on-disconnect stuff is removed
 #include "../unicode.h"
 #include "../uoclient.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
-#include "../xbuffer.h"
 #include "cgdata.h"
 #include "cliface.h"
+#include "pktdef.h"
+#include "pktin.h"
+#include "xbuffer.h"
 
 
 #define PRE_ENCRYPT
@@ -71,10 +71,10 @@ unsigned int Client::instance_counter_;
 std::mutex Client::_SocketMutex;
 
 Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
-    : preDisconnect( 0 ),
-      disconnect( 0 ),
-      acct( NULL ),
-      chr( NULL ),
+    : preDisconnect( false ),
+      disconnect( false ),
+      acct( nullptr ),
+      chr( nullptr ),
       Interface( aInterface ),
       ready( false ),
       csocket( INVALID_SOCKET ),
@@ -87,13 +87,13 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
       bytes_received( 0 ),
       message_length( 0 ),
       cryptengine( create_crypt_engine( encryption ) ),
-      encrypt_server_stream( 0 ),
+      encrypt_server_stream( false ),
       msgtype_filter( Core::networkManager.login_filter.get() ),
       _fpLog_lock(),
       fpLog( "" ),
       pause_count( 0 ),
-      first_xmit_buffer( NULL ),
-      last_xmit_buffer( NULL ),
+      first_xmit_buffer( nullptr ),
+      last_xmit_buffer( nullptr ),
       n_queued( 0 ),
       queued_bytes_counter( 0 ),
       gd( new ClientGameData ),
@@ -131,7 +131,7 @@ void Client::Delete( Client* client )
   std::lock_guard<std::mutex> lock( _SocketMutex );  // TODO: check if this is necessary
   client->PreDelete();
   delete client->cryptengine;  // TODO: move this into a unique_ptr<> or at least ~Client()
-  client->cryptengine = NULL;
+  client->cryptengine = nullptr;
   delete client;
 }
 
@@ -165,7 +165,7 @@ void Client::PreDelete()
 {
   closeConnection();
 
-  if ( chr != NULL && chr->client == this )
+  if ( chr != nullptr && chr->client == this )
   {
     if ( chr->logged_in() )
     {
@@ -173,11 +173,11 @@ void Client::PreDelete()
       send_remove_character_to_nearby( chr );
       chr->logged_in( false );
 
-      chr->set_opponent( NULL );
+      chr->set_opponent( nullptr );
       chr->removal_cleanup();
-      if ( chr->get_opponent() != NULL )
+      if ( chr->get_opponent() != nullptr )
       {
-        chr->set_opponent( NULL, true );
+        chr->set_opponent( nullptr, true );
       }
     }
     else
@@ -189,20 +189,20 @@ void Client::PreDelete()
   // detach the account and character from this client, if they
   // are still associated with it.
 
-  acct = NULL;
+  acct = nullptr;
 
   if ( chr )
   {
     if ( chr->client == this )
-      chr->client = NULL;
-    chr = NULL;
+      chr->client = nullptr;
+    chr = nullptr;
   }
 
   {
     Clib::SpinLockGuard guard( _fpLog_lock );
     if ( !fpLog.empty() )
     {
-      time_t now = time( NULL );
+      time_t now = time( nullptr );
       auto time = Clib::localtime( now );
       FLEXLOG( fpLog ) << "Log closed at " << asctime( &time ) << "\n";
       CLOSE_FLEXLOG( fpLog );
@@ -211,16 +211,16 @@ void Client::PreDelete()
   }
 
   delete gd;
-  gd = NULL;
+  gd = nullptr;
 
-  while ( first_xmit_buffer != NULL )
+  while ( first_xmit_buffer != nullptr )
   {
     Core::XmitBuffer* xbuffer = first_xmit_buffer;
     first_xmit_buffer = first_xmit_buffer->next;
     free( xbuffer );
     --n_queued;
   }
-  last_xmit_buffer = NULL;
+  last_xmit_buffer = nullptr;
 
   // while (!movementqueue.empty())
   //  movementqueue.pop();
@@ -426,9 +426,9 @@ bool Client::IsUOKRClient()
 std::string Client::status() const
 {
   std::string st;
-  if ( acct != NULL )
+  if ( acct != nullptr )
     st += "AC:" + std::string( acct->name() ) + " ";
-  if ( chr != NULL )
+  if ( chr != nullptr )
     st += "CH:" + chr->name() + " ";
   if ( have_queued_data() )
     st += "TXBUF ";
@@ -439,8 +439,8 @@ std::string Client::status() const
   if ( ready )
     st += "RDY ";
   st += ipaddrAsString() + " ";
-  st += "CHK: " + Clib::decint( checkpoint ) + " ";
-  st += "PID: " + Clib::decint( thread_pid ) + " ";
+  st += "CHK: " + Clib::tostring( checkpoint ) + " ";
+  st += "PID: " + Clib::tostring( thread_pid ) + " ";
   st += "LAST: " + Clib::hexint( last_msgtype );
   return st;
 }
@@ -453,13 +453,13 @@ void Client::queue_data( const void* data, unsigned short datalen )
   if ( xbuffer )
   {
     THREAD_CHECKPOINT( active_client, 302 );
-    xbuffer->next = NULL;
+    xbuffer->next = nullptr;
     xbuffer->nsent = 0;
     xbuffer->lenleft = datalen;
     memcpy( xbuffer->data, data, datalen );
     THREAD_CHECKPOINT( active_client, 303 );
-    if ( first_xmit_buffer == NULL || last_xmit_buffer == NULL )
-    {  // in this case, last_xmit_buffer is also NULL, so can't set its ->next.
+    if ( first_xmit_buffer == nullptr || last_xmit_buffer == nullptr )
+    {  // in this case, last_xmit_buffer is also nullptr, so can't set its ->next.
       THREAD_CHECKPOINT( active_client, 304 );
       first_xmit_buffer = xbuffer;
     }
@@ -489,7 +489,7 @@ void Client::xmit( const void* data, unsigned short datalen )
     return;
   if ( encrypt_server_stream )
   {
-    if ( cryptengine == NULL )
+    if ( cryptengine == nullptr )
       return;
     this->cryptengine->Encrypt( (void*)data, (void*)data, datalen );
   }
@@ -528,7 +528,7 @@ void Client::xmit( const void* data, unsigned short datalen )
       if ( !disconnect )
         POLLOG_ERROR.Format( "Client#{}: Disconnecting client due to send() error (1): {}\n" )
             << instance_ << sckerr;
-      disconnect = 1;
+      disconnect = true;
       THREAD_CHECKPOINT( active_client, 209 );
       return;
     }
@@ -557,7 +557,7 @@ void Client::send_queued_data()
   Core::XmitBuffer* xbuffer;
   // hand off data to the sockets layer until it won't take any more.
   // note if a buffer is sent in full, we try to send the next one, ad infinitum
-  while ( NULL != ( xbuffer = first_xmit_buffer ) )
+  while ( nullptr != ( xbuffer = first_xmit_buffer ) )
   {
     int nsent;
     nsent = send( csocket, (char*)&xbuffer->data[xbuffer->nsent], xbuffer->lenleft, 0 );
@@ -578,7 +578,7 @@ void Client::send_queued_data()
         if ( !disconnect )
           POLLOG.Format( "Client#{}: Disconnecting client due to send() error (2): {}\n" )
               << instance_ << sckerr;
-        disconnect = 1;
+        disconnect = true;
         return;
       }
     }
@@ -591,9 +591,9 @@ void Client::send_queued_data()
       if ( xbuffer->lenleft == 0 )
       {
         first_xmit_buffer = first_xmit_buffer->next;
-        if ( first_xmit_buffer == NULL )
+        if ( first_xmit_buffer == nullptr )
         {
-          last_xmit_buffer = NULL;
+          last_xmit_buffer = nullptr;
           POLLOG.Format( "Client#{}: Leaving queued mode ({} bytes xmitted)\n" )
               << instance_ << queued_bytes_counter;
           queued_bytes_counter = 0;
@@ -730,5 +730,5 @@ size_t Client::estimatedSize() const
     size += gd->estimatedSize();
   return size;
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

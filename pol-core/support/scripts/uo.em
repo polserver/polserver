@@ -137,6 +137,11 @@ const DELETE_BY_SCRIPT := 1;
 const ENUMERATE_IGNORE_LOCKED	:= 0x1; // List content of locked container.
 const ENUMERATE_ROOT_ONLY		:= 0x2; // Do not list contents of sub-containers.
 
+// FindObjtypeInContainer constants
+const FINDOBJTYPE_RECURSIVE     := 0x0; // Search in sub-containers (DEFAULT).
+const FINDOBJTYPE_IGNORE_LOCKED := 0x1; // Find matches in locked containers.
+const FINDOBJTYPE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.
+
 // FindSubstance constants
 const FINDSUBSTANCE_IGNORE_LOCKED := 0x1; // Find matches in locked containers
 const FINDSUBSTANCE_ROOT_ONLY     := 0x2; // Do not find matches in sub-containers.
@@ -280,7 +285,7 @@ EquipItem( mobile, item );
 EraseGlobalProperty( propname );
 EraseObjProperty( object, propname );
 FindAccount( acctname );
-FindObjtypeInContainer( container, objtype );
+FindObjtypeInContainer( container, objtype, flags := FINDOBJTYPE_RECURSIVE );
 FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
 FindSubstance( container, objtype, amount, makeinuse := 0, flags := 0 );
 GetAmount( item );
@@ -314,19 +319,23 @@ ListEquippedItems( who );
 ListGhostsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
 ListHostiles( character, range := 20, flags := 0 );
 ListItemsAtLocation( x, y, z, realm := _DEFAULT_REALM );
+ListItemsInBoxOfObjType( objtype, x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListItemsNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
 ListItemsNearLocationOfType( x,y,z, range, objtype, realm := _DEFAULT_REALM );
 ListItemsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );
 ListMobilesInLineOfSight( object, range );
 ListMobilesNearLocation( x, y, z, range, realm := _DEFAULT_REALM );
 ListMobilesNearLocationEx( x,y,z, range, flags, realm := _DEFAULT_REALM );
-ListOfflineMobilesInRealm(realm := _DEFAULT_REALM);
 ListMultisInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
-ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
 ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
+ListObjectsInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM );
+ListObjectsInBoxOfClass( POL_Class, x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM );
+ListOfflineMobilesInRealm(realm := _DEFAULT_REALM);
 ListStaticsAtLocation( x, y, z, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsInBox( x1,y1,z1, x2,y2,z2, flags := 0, realm := _DEFAULT_REALM );
 ListStaticsNearLocation( x, y, z, range, flags := 0, realm := _DEFAULT_REALM );
+ListStaticsNearLocationOfType( x,y,z, range, objtype, flags := 0, realm := _DEFAULT_REALM );
+ListStaticsNearLocationWithFlag( x,y,z, range, flags, realm := _DEFAULT_REALM );
 MoveItemToContainer( item, container, x := -1, y := -1, add_to_existing_stack := 0 );
 MoveItemToSecureTradeWin( item, character );
 MoveObjectToLocation( object, x, y, z, realm := _DEFAULT_REALM, flags := MOVEOBJECT_NORMAL );

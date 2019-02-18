@@ -16,8 +16,8 @@
 #include "../network/msghandl.h"
 #include "../network/packethooks.h"
 #include "../network/packetinterface.h"
+#include "../network/sockio.h"
 #include "../servdesc.h"
-#include "../sockio.h"
 #include "../sqlscrobj.h"
 #include "../uoclient.h"
 
@@ -88,7 +88,7 @@ void NetworkManager::kill_disconnected_clients()
         POLLOG << tmp.str() << "\n";
 
       Network::Client::Delete( client );
-      client = NULL;
+      client = nullptr;
       itr = clients.erase( itr );
     }
     else
@@ -126,6 +126,14 @@ void NetworkManager::deinialize()
   Network::clean_packethooks();
   curl_global_cleanup();
   uoclient_general.deinitialize();
+}
+
+size_t NetworkManager::getNumberOfLoginClients() const
+{
+  size_t no = 0;
+  for ( const auto& ls : uoclient_listeners )
+    no += ls.login_clients.size();
+  return no;
 }
 
 NetworkManager::Memory NetworkManager::estimateSize() const
@@ -191,5 +199,5 @@ NetworkManager::Memory NetworkManager::estimateSize() const
 
   return usage;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

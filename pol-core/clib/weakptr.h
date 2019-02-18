@@ -12,7 +12,6 @@
 
 #include "refptr.h"
 #include <atomic>
-#include <boost/noncopyable.hpp>
 
 //
 //    weak_ptr_owner<T>
@@ -62,11 +61,13 @@ public:
 };
 
 template <class T>
-class weak_ptr_owner : public weak_ptr<T>, boost::noncopyable
+class weak_ptr_owner : public weak_ptr<T>
 {
 public:
   weak_ptr_owner();
   ~weak_ptr_owner();
+  weak_ptr_owner( const weak_ptr_owner& ) = delete;
+  weak_ptr_owner& operator=( const weak_ptr_owner& ) = delete;
   void set( T* obptr );
 };
 

@@ -7,7 +7,6 @@
 #ifndef SAVEDATA_H
 #define SAVEDATA_H
 
-#include <boost/noncopyable.hpp>
 #include <fstream>
 #include <future>
 #include <string>
@@ -18,7 +17,7 @@ namespace Pol
 {
 namespace Core
 {
-class SaveContext : boost::noncopyable
+class SaveContext
 {
   // typedef Clib::ThreadedOFStreamWriter SaveStrategy; // too many context switches!
   typedef Clib::OFStreamWriter SaveStrategy;
@@ -41,6 +40,8 @@ private:
 public:
   SaveContext();
   ~SaveContext();
+  SaveContext( const SaveContext& ) = delete;
+  SaveContext& operator=( const SaveContext& ) = delete;
   SaveStrategy pol;
   SaveStrategy objects;
   SaveStrategy pcs;
@@ -68,6 +69,6 @@ void write_shadow_realms( Clib::StreamWriter& sw );
 bool commit( const std::string& basename );
 void commit_incremental_saves();
 bool should_write_data();
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

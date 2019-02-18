@@ -23,6 +23,7 @@
 #include "../../clib/dirlist.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/pkg.h"
 #include "../binaryfilescrobj.h"
 #include "../core.h"
@@ -49,7 +50,7 @@ TmplExecutorModule<FileAccessExecutorModule>::FunctionTable
         {"ListDirectory", &FileAccessExecutorModule::mf_ListDirectory},
         {"OpenXMLFile", &FileAccessExecutorModule::mf_OpenXMLFile},
         {"CreateXMLFile", &FileAccessExecutorModule::mf_CreateXMLFile}};
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -709,5 +710,5 @@ void load_fileaccess_cfg()
     Core::configurationbuffer.file_access_rules.push_back( fa );
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

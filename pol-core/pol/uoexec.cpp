@@ -16,7 +16,7 @@ namespace Core
 {
 UOExecutor::UOExecutor()
     : Executor(),
-      os_module( NULL ),
+      os_module( nullptr ),
       instr_cycles( 0 ),
       sleep_cycles( 0 ),
       start_time( poltime() ),
@@ -27,8 +27,8 @@ UOExecutor::UOExecutor()
       speech_size( 1 ),
       can_access_offline_mobiles( false ),
       auxsvc_assume_string( false ),
-      pParent( NULL ),
-      pChild( NULL )
+      pParent( nullptr ),
+      pChild( nullptr )
 {
   weakptr.set( this );
   os_module = new Module::OSExecutorModule( *this );
@@ -47,8 +47,8 @@ UOExecutor::~UOExecutor()
         << scriptname() << instr_cycles << sleep_cycles << elapsed;
   }
 
-  pParent = NULL;
-  pChild = NULL;
+  pParent = nullptr;
+  pChild = nullptr;
 }
 
 bool UOExecutor::suspend()
@@ -77,9 +77,16 @@ std::string UOExecutor::state()
     return "Running";
 }
 
+
+bool UOExecutor::signal_event( Bscript::BObjectImp* eventimp )
+{
+  passert_r( os_module != nullptr, "Object cannot receive events but is receiving them!" );
+  return os_module->signal_event( eventimp );
+}
+
 size_t UOExecutor::sizeEstimate() const
 {
   return sizeof( UOExecutor ) + base::sizeEstimate();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

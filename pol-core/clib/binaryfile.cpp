@@ -59,7 +59,7 @@ void BinaryFile::ReadBuffer( void* buffer, std::streamsize length )
 {
   if ( !_file.read( reinterpret_cast<char*>( buffer ), length ) )
     throw std::runtime_error( "BinaryFile::Read('" + _filename + "') failed to read " +
-                              decint( static_cast<int>( length ) ) + " bytes." );
+                              tostring( static_cast<int>( length ) ) + " bytes." );
 }
 
 std::fstream::pos_type BinaryFile::FileSize()
@@ -93,7 +93,7 @@ size_t BinaryFile::GetElementCount( size_t elemsize )
   {
     throw std::runtime_error( _filename +
                               " does not contain an integral number of elements of size " +
-                              decint( elemsize ) );
+                              tostring( elemsize ) );
   }
   return static_cast<unsigned int>( filesize / elemsize );
 }

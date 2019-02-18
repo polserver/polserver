@@ -23,7 +23,6 @@ set (pol_sources  # sorted !
   checkpnt.h
   clfunc.cpp
   clfunc.h
-  clidata.h
   cmbtcfg.cpp
   cmbtcfg.h
   cmdlevel.cpp
@@ -118,6 +117,7 @@ set (pol_sources  # sorted !
   item/weapon.h
   item/wepntmpl.h
   landtile.cpp
+  landtile.h
   layers.h
   lightlvl.h
   listenpt.cpp
@@ -257,6 +257,19 @@ set (pol_sources  # sorted !
   network/packetinterface.h
   network/packets.cpp
   network/packets.h
+  network/pktboth.h
+  network/pktbothid.h
+  network/pktdef.h
+  network/pktin.h
+  network/pktinid.h
+  network/pktni.h
+  network/pktniid.h
+  network/pktout.h
+  network/pktoutid.h
+  network/sockets.h
+  network/sockio.cpp
+  network/sockio.h
+  network/xbuffer.h
   npctemplates.cpp
   npctmpl.cpp
   npctmpl.h
@@ -268,15 +281,6 @@ set (pol_sources  # sorted !
   party.cpp
   party.h
   party_cfg.h
-  pktboth.h
-  pktbothid.h
-  pktdef.h
-  pktin.h
-  pktinid.h
-  pktni.h
-  pktniid.h
-  pktout.h
-  pktoutid.h
   pol.cpp
   pol.h
   pol.rc
@@ -287,9 +291,6 @@ set (pol_sources  # sorted !
   polclock.h
   poldbg.cpp
   poldbg.h
-  polfile.h
-  #polfile1.cpp
-  polfile2.cpp
   polresource.h
   polsem.cpp
   polsem.h
@@ -299,7 +300,6 @@ set (pol_sources  # sorted !
   polstats.h
   poltimer.h
   poltray.ico
-  poltype.h
   polvar.h
   polwww.cpp
   polwww.h
@@ -341,9 +341,6 @@ set (pol_sources  # sorted !
   skills.h
   sngclick.cpp
   sngclick.h
-  sockets.h
-  sockio.cpp
-  sockio.h
   speech.cpp
   spelbook.cpp
   spelbook.h
@@ -383,17 +380,11 @@ set (pol_sources  # sorted !
   textcmd.h
   tildecmd.cpp
   tildecmd.h
-  tiles.cpp
-  tiles.h
   tiplist.h
   tiplstwn.cpp
   tips.cpp
-  tmpvars.cpp
-  tmpvars.h
   tooltips.cpp
   tooltips.h
-  uconst.h
-  udatfile.h
   ufunc.cpp
   ufunc.h
   ufunc2.cpp
@@ -416,14 +407,6 @@ set (pol_sources  # sorted !
   uoexec.h
   uoexhelp.cpp
   uoexhelp.h
-  uofile.h
-  #uofile00.cpp
-  #uofile01.cpp
-  #uofile02.cpp
-  #uofile06.cpp
-  #uofile07.cpp
-  #uofile08.cpp
-  #uofilei.h
   uolisten.cpp
   uopathnode.h
   uoscrobj.cpp
@@ -431,7 +414,6 @@ set (pol_sources  # sorted !
   uoskills.cpp
   uoskills.h
   useskill.cpp
-  ustruct.h
   utype.h
   uworld.cpp
   uworld.h
@@ -439,7 +421,6 @@ set (pol_sources  # sorted !
   vital.h
   watch.h
   wthrtype.h
-  xbuffer.h
   xmlfilescrobj.cpp
   xmlfilescrobj.h
   zone.cpp

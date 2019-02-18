@@ -10,7 +10,6 @@
 #include <stddef.h>
 #include <string>
 
-#include <format/format.h>
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
@@ -23,12 +22,13 @@
 #include "../packetscrobj.h"
 #include "../polsem.h"
 #include "../polsig.h"
-#include "../sockets.h"
 #include "client.h"
 #include "clienttransmit.h"
 #include "packethelper.h"
 #include "packethooks.h"
 #include "packets.h"
+#include "sockets.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -198,7 +198,7 @@ void Client::transmit( const void* data, int len, bool needslock )
   // If there is no outgoing packet script, handled will be false, and the passed params will be
   // unchanged.
   {
-    PacketHookData* phd = NULL;
+    PacketHookData* phd = nullptr;
     handled = GetAndCheckPacketHooked( this, data, phd );
     if ( handled )
     {
@@ -301,5 +301,5 @@ void Client::Disconnect()
     Core::networkManager.clientTransmit->QueueDisconnection( this );
   }
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

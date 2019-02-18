@@ -20,12 +20,15 @@
 #include "../clib/cfgelem.h"
 #include "../clib/clib_endian.h"
 #include "../clib/streamsaver.h"
+#include "../clib/strutil.h"
+#include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktboth.h"
+#include "network/pktboth.h"
 #include "realms/realm.h"
+#include "syshookscript.h"
 #include "ufunc.h"
 #include "uobject.h"
 
@@ -92,18 +95,18 @@ void Map::readProperties( Clib::ConfigElem& elem )
   gumpwidth = elem.remove_ushort( "gumpwidth", 0 );
   gumpheight = elem.remove_ushort( "gumpheight", 0 );
   facetid = elem.remove_ushort( "facetid", 0 );
-  editable = elem.remove_bool( "editable", 0 );
+  editable = elem.remove_bool( "editable", false );
 
   unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
   std::string pinval;
-  char search_string[6];
   int i, px, py;
   struct PinPoint pp;
 
   for ( i = 0; i < numpins; i++ )
   {
-    sprintf( search_string, "Pin%i", i );
-    pinval = elem.remove_string( search_string );
+    std::string search_string( "Pin" );
+    search_string += Clib::tostring( i );
+    pinval = elem.remove_string( search_string.c_str() );
     sscanf( pinval.c_str(), "%i,%i", &px, &py );
 
     pp.x = static_cast<unsigned short>( px );
@@ -176,7 +179,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
 {
   using namespace Bscript;
   BObjectImp* imp = base::script_method_id( id, ex );
-  if ( imp != NULL )
+  if ( imp != nullptr )
     return imp;
 
   switch ( id )
@@ -265,7 +268,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
   }
 
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -273,14 +276,14 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
 Bscript::BObjectImp* Map::script_method( const char* methodname, Bscript::Executor& ex )
 {
   Bscript::BObjectImp* imp = base::script_method( methodname, ex );
-  if ( imp != NULL )
+  if ( imp != nullptr )
     return imp;
 
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != NULL )
+  if ( objmethod != nullptr )
     return this->script_method_id( objmethod->id, ex );
   else
-    return NULL;
+    return nullptr;
 }
 
 bool Map::msgCoordsInBounds( PKTBI_56* msg )
@@ -355,13 +358,22 @@ size_t Map::estimatedSize() const
          + 3 * sizeof( PinPoint* ) + pin_points.capacity() * sizeof( PinPoint );
 }
 
+bool Map::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
+                           unsigned int* PC ) const
+{
+  if ( gamestate.system_hooks.get_method_hook( gamestate.system_hooks.map_method_script.get(),
+                                               methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
+}
+
 void handle_map_pin( Network::Client* client, PKTBI_56* msg )
 {
   // FIXME you really need to check that the item is in fact a map.
   // Can cause crash if someone is messing with their packets to script
   // pin movement on a non-map item.
   Map* my_map = (Map*)find_legal_item( client->chr, cfBEu32( msg->serial ) );
-  if ( my_map == NULL )
+  if ( my_map == nullptr )
     return;
   if ( my_map->editable == false )
     return;
@@ -374,7 +386,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_TOGGLE_EDIT:
   {
     // hmm msg->plotstate never seems to be 1 when type is 6
-    my_map->plotting = my_map->plotting ? 0 : 1;
+    my_map->plotting = my_map->plotting ? false : true;
     Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
     msg56->Write<u32>( msg->serial );
     msg56->Write<u8>( PKTBI_56::TYPE_TOGGLE_RESPONSE );
@@ -451,5 +463,5 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
     break;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -12,7 +12,7 @@
 #endif
 
 #include "../../clib/rawtypes.h"
-#include "../pktdef.h"
+#include "../network/pktdef.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
 
@@ -62,6 +62,8 @@ public:
 
   Mobile::Character* prompt_chr;
 
+  virtual size_t sizeEstimate() const override;
+
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
   bool getItemParam( unsigned param, Items::Item*& itemptr );
@@ -82,6 +84,6 @@ inline bool UnicodeExecutorModule::getUObjectParam( unsigned param, Core::UObjec
 {
   return Core::getUObjectParam( exec, param, objptr );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

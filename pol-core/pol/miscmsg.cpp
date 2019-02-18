@@ -26,7 +26,6 @@
 #include <ctype.h>
 #include <string>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fdump.h"
@@ -35,6 +34,7 @@
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
 #include "../plib/systemstate.h"
+#include "../plib/uconst.h"
 #include "accounts/account.h"
 #include "cmbtcfg.h"
 #include "fnsearch.h"
@@ -48,18 +48,18 @@
 #include "network/client.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
-#include "pktboth.h"
-#include "pktdef.h"
-#include "pktin.h"
+#include "network/pktboth.h"
+#include "network/pktdef.h"
+#include "network/pktin.h"
+#include "network/sockio.h"
 #include "scrstore.h"
-#include "sockio.h"
 #include "spells.h"
 #include "tooltips.h"
-#include "uconst.h"
 #include "ufunc.h"
 #include "unicode.h"
 #include "uobject.h"
 #include "uoscrobj.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -107,7 +107,7 @@ void handle_mode_set( Client* client, PKTBI_72* msg )
 void handle_rename_char( Client* client, PKTIN_75* msg )
 {
   Mobile::Character* chr = find_character( cfBEu32( msg->serial ) );
-  if ( chr != NULL )
+  if ( chr != nullptr )
   {
     if ( client->chr->can_rename( chr ) )
     {
@@ -121,7 +121,7 @@ void handle_rename_char( Client* client, PKTIN_75* msg )
           fmt::Writer tmp;
           tmp.Format( "Client#{} (account {}) attempted an invalid rename (packet 0x{:X}):\n{}\n" )
               << client->instance_
-              << ( ( client->acct != NULL ) ? client->acct->name() : "unknown" )
+              << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" )
               << (int)msg->msgtype << msg->name;
           Clib::fdump( tmp, msg->name, static_cast<int>( strlen( msg->name ) ) );
           POLLOG_INFO << tmp.str();
@@ -152,7 +152,7 @@ void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
 {
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/charprofile", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     Mobile::Character* mobile;
 
@@ -276,7 +276,7 @@ void ext_stats_in( Client* client, PKTBI_BF* msg )
 {
   if ( settingsManager.ssopt.core_handled_locks )
   {
-    const Mobile::Attribute* attrib = NULL;
+    const Mobile::Attribute* attrib = nullptr;
     switch ( msg->extstatin.stat )
     {
     case PKTBI_BF_1A::STAT_STR:
@@ -292,7 +292,7 @@ void ext_stats_in( Client* client, PKTBI_BF* msg )
       return;
     }
 
-    if ( attrib == NULL )  // there's no attribute for this (?)
+    if ( attrib == nullptr )  // there's no attribute for this (?)
       return;
 
     u8 state = msg->extstatin.mode;
@@ -305,9 +305,9 @@ void ext_stats_in( Client* client, PKTBI_BF* msg )
 
 void handle_msg_BF( Client* client, PKTBI_BF* msg )
 {
-  UObject* obj = NULL;
-  Multi::UMulti* multi = NULL;
-  Multi::UHouse* house = NULL;
+  UObject* obj = nullptr;
+  Multi::UMulti* multi = nullptr;
+  Multi::UHouse* house = nullptr;
   switch ( cfBEu16( msg->subcmd ) )
   {
   case PKTBI_BF::TYPE_CLIENT_LANGUAGE:
@@ -317,10 +317,10 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     if ( ( client->UOExpansionFlag & AOS ) == 0 )
       return;
     multi = system_find_multi( cfBEu32( msg->reqfullcustomhouse.house_serial ) );
-    if ( multi != NULL )
+    if ( multi != nullptr )
     {
       house = multi->as_house();
-      if ( house != NULL )
+      if ( house != nullptr )
       {
         if ( client->UOExpansionFlag & AOS )
         {
@@ -335,7 +335,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     if ( ( client->UOExpansionFlag & AOS ) == 0 )
       return;
     obj = system_find_object( cfBEu32( msg->objectcache.serial ) );
-    if ( obj != NULL )
+    if ( obj != nullptr )
     {
       SendAOSTooltip( client, obj );
     }
@@ -362,10 +362,10 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     return;
     break;
   case PKTBI_BF::TYPE_TOGGLE_FLYING:
-    if ( client->chr->race == RACE_GARGOYLE )
+    if ( client->chr->race == Plib::RACE_GARGOYLE )
     {
       // FIXME: add checks if its possible to stand with new movemode
-      client->chr->movemode = ( MOVEMODE )( client->chr->movemode ^ MOVEMODE_FLY );
+      client->chr->movemode = ( Plib::MOVEMODE )( client->chr->movemode ^ Plib::MOVEMODE_FLY );
       send_move_mobile_to_nearby_cansee( client->chr );
       send_goxyz( client, client->chr );
     }
@@ -377,20 +377,20 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
   {
     ref_ptr<Bscript::EScriptProgram> prog =
         find_script( "misc/popupmenu", true, Plib::systemstate.config.cache_interactive_scripts );
-    if ( prog.get() == NULL )
+    if ( prog.get() == nullptr )
       break;
     u32 serial = cfBEu32( msg->serial_request_popup_menu );
     if ( IsCharacter( serial ) )
     {
       Pol::Mobile::Character* chr = system_find_mobile( serial );
-      if ( chr == NULL )
+      if ( chr == nullptr )
         break;
       client->chr->start_script( prog.get(), false, new Pol::Module::ECharacterRefObjImp( chr ) );
     }
     else
     {
       Pol::Items::Item* item = system_find_item( serial );
-      if ( item == NULL )
+      if ( item == nullptr )
         break;
       client->chr->start_script( prog.get(), false, item->make_ref() );
     }
@@ -398,7 +398,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
   }
   case PKTBI_BF::TYPE_POPUP_ENTRY_SELECT:
   {
-    if ( client->chr->on_popup_menu_selection == NULL )
+    if ( client->chr->on_popup_menu_selection == nullptr )
     {
       POLLOG_INFO.Format( "{}/{} tried to use a popup menu, but none was active.\n" )
           << client->acct->name() << client->chr->name();
@@ -429,7 +429,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   Mobile::Character* the_mob = find_character( serial );
-  if ( the_mob != NULL )
+  if ( the_mob != nullptr )
   {
     if ( !client->chr->is_visible_to_me( the_mob ) )
     {
@@ -454,7 +454,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
 
 void handle_se_object_list( Client* client, PKTBI_D6_IN* msgin )
 {
-  UObject* obj = NULL;
+  UObject* obj = nullptr;
   int length = cfBEu16( msgin->msglen ) - 3;
   if ( length < 0 || ( length % 4 ) != 0 )
     return;
@@ -463,7 +463,7 @@ void handle_se_object_list( Client* client, PKTBI_D6_IN* msgin )
   for ( int i = 0; i < count; ++i )
   {
     obj = system_find_object( cfBEu32( msgin->serials[i].serial ) );
-    if ( obj != NULL )
+    if ( obj != nullptr )
       SendAOSTooltip( client, obj );
   }
 }
@@ -609,7 +609,7 @@ void OnGuildButton( Client* client )
 {
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/guildbutton", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     client->chr->start_script( prog.get(), false );
   }
@@ -619,7 +619,7 @@ void OnQuestButton( Client* client )
 {
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/questbutton", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     client->chr->start_script( prog.get(), false );
   }
@@ -629,10 +629,10 @@ void OnChatButton( Client* client )
 {
   ref_ptr<Bscript::EScriptProgram> prog =
       find_script( "misc/chatbutton", true, Plib::systemstate.config.cache_interactive_scripts );
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     client->chr->start_script( prog.get(), false );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

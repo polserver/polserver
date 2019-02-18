@@ -18,8 +18,8 @@
 #include "../clib/rawtypes.h"
 #include "../clib/strutil.h"
 #include "../clib/timer.h"
+#include "../plib/clidata.h"
 #include "../plib/systemstate.h"
-#include "clidata.h"
 #include "containr.h"
 #include "fnsearch.h"
 #include "globals/object_storage.h"
@@ -42,7 +42,7 @@ void load_incremental_indexes()  // indices is such a stupid word
   {
     unsigned next_incremental_counter = objStorageManager.incremental_save_count + 1;
     std::string filename = Plib::systemstate.config.world_data_path + "incr-index-" +
-                           Clib::decint( next_incremental_counter ) + ".txt";
+                           Clib::tostring( next_incremental_counter ) + ".txt";
     if ( !Clib::FileExists( filename ) )
       break;
 
@@ -60,7 +60,7 @@ void load_incremental_indexes()  // indices is such a stupid word
       std::string name, value;
       while ( elem.remove_first_prop( &name, &value ) )
       {
-        pol_serial_t serial = strtoul( name.c_str(), NULL, 0 );
+        pol_serial_t serial = strtoul( name.c_str(), nullptr, 0 );
         objStorageManager.incremental_serial_index[serial] = index;
       }
     }
@@ -81,7 +81,7 @@ void read_incremental_saves()
   for ( unsigned i = 1; i <= objStorageManager.incremental_save_count; ++i )
   {
     std::string filename =
-        Plib::systemstate.config.world_data_path + "incr-data-" + Clib::decint( i ) + ".txt";
+        Plib::systemstate.config.world_data_path + "incr-data-" + Clib::tostring( i ) + ".txt";
     objStorageManager.current_incremental_save = i;
 
     slurp( filename.c_str(), "CHARACTER NPC ITEM GLOBALPROPERTIES SYSTEM MULTI STORAGEAREA" );
@@ -141,7 +141,7 @@ void insert_deferred_items()
     {
       Mobile::Character* chr = system_find_mobile( container_serial );
       Items::Item* item = static_cast<Items::Item*>( obj );
-      if ( chr != NULL )
+      if ( chr != nullptr )
       {
         equip_loaded_item( chr, item );
       }
@@ -167,7 +167,7 @@ void insert_deferred_items()
     {
       Items::Item* cont_item = system_find_item( container_serial );
       Items::Item* item = static_cast<Items::Item*>( obj );
-      if ( cont_item != NULL )
+      if ( cont_item != nullptr )
       {
         add_loaded_item( cont_item, item );
       }
@@ -198,7 +198,7 @@ void insert_deferred_items()
 
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 {
-  item->layer = tilelayer( item->graphic );  // adjust for tiledata changes
+  item->layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
   item->tile_layer = item->layer;            // adjust for tiledata changes
 
   if ( chr->equippable( item ) && item->check_equiptest_scripts( chr, true ) &&
@@ -309,5 +309,5 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     throw std::runtime_error( "Config file error" );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

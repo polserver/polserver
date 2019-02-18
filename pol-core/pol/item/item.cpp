@@ -16,17 +16,19 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/eprog.h"
+#include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
 #include "../../clib/streamsaver.h"
+#include "../../plib/clidata.h"
 #include "../../plib/mapcell.h"
 #include "../../plib/systemstate.h"
-#include "../clidata.h"
 #include "../containr.h"
 #include "../gameclck.h"
 #include "../globals/uvars.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../network/client.h"
 #include "../objtype.h"
 #include "../polcfg.h"
@@ -35,6 +37,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
+#include "../syshookscript.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
 #include "../uoscrobj.h"
@@ -66,7 +69,7 @@ Item* Item::clone() const
   item->setamount( amount_ );
   item->layer = layer;
   item->tile_layer = tile_layer;
-  item->container = NULL;  // was container
+  item->container = nullptr;  // was container
   item->sellprice_( sellprice_() );
   item->buyprice_( buyprice_() );
   item->newbie( newbie() );
@@ -118,7 +121,7 @@ std::string Item::name() const
     const ItemDesc& id = this->itemdesc();
 
     if ( id.desc.get().empty() )
-      return Core::tile_desc( graphic );
+      return Plib::tile_desc( graphic );
     else
       return id.desc;
   }
@@ -159,12 +162,12 @@ std::string Item::description() const
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( Core::tile_flags( graphic ), Core::tile_desc( graphic ),
+      return Core::format_description( Plib::tile_flags( graphic ), Plib::tile_desc( graphic ),
                                        amount_, suffix );
     }
     else
     {
-      return Core::format_description( Core::tile_flags( graphic ), id.desc, amount_, suffix );
+      return Core::format_description( Plib::tile_flags( graphic ), id.desc, amount_, suffix );
     }
   }
 }
@@ -186,7 +189,7 @@ std::string Item::merchant_description() const
     const ItemDesc& id = this->itemdesc();
     if ( id.desc.get().empty() )
     {
-      return Core::format_description( 0, Core::tile_desc( graphic ), 1, suffix );
+      return Core::format_description( 0, Plib::tile_desc( graphic ), 1, suffix );
     }
     else
     {
@@ -235,24 +238,24 @@ bool Item::getbuyprice( u32& bp ) const
 
 Core::UObject* Item::owner()
 {
-  if ( container != NULL )
+  if ( container != nullptr )
     return container->self_as_owner();
   else
-    return NULL;
+    return nullptr;
 }
 
 const Core::UObject* Item::owner() const
 {
-  if ( container != NULL )
+  if ( container != nullptr )
     return container->self_as_owner();
   else
-    return NULL;
+    return nullptr;
 }
 
 Core::UObject* Item::toplevel_owner()
 {
   Item* item = this;
-  while ( item->container != NULL )
+  while ( item->container != nullptr )
     item = item->container;
 
   return item;
@@ -261,7 +264,7 @@ Core::UObject* Item::toplevel_owner()
 const Core::UObject* Item::toplevel_owner() const
 {
   const Item* item = this;
-  while ( item->container != NULL )
+  while ( item->container != nullptr )
     item = item->container;
 
   return item;
@@ -275,7 +278,7 @@ const char* Item::classname() const
 bool Item::default_movable() const
 {
   if ( itemdesc().movable == ItemDesc::DEFAULT )
-    return ( ( Core::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
+    return ( ( Plib::tile_flags( graphic ) & Plib::FLAG::MOVABLE ) != 0 );
   else
     return itemdesc().movable ? true : false;
 }
@@ -387,7 +390,7 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( value != 0 )
     sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
 
-  if ( container != NULL )
+  if ( container != nullptr )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
 
   if ( !on_use_script_.get().empty() )
@@ -525,7 +528,7 @@ void Item::double_click( Network::Client* client )
 
   if ( !on_use_script_.get().empty() )
   {
-    Core::ScriptDef sd( on_use_script_, NULL, "" );
+    Core::ScriptDef sd( on_use_script_, nullptr, "" );
     prog = find_script2( sd,
                          true,  // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
@@ -536,7 +539,7 @@ void Item::double_click( Network::Client* client )
                          Plib::systemstate.config.cache_interactive_scripts );
   }
 
-  if ( prog.get() != NULL )
+  if ( prog.get() != nullptr )
   {
     if ( client->chr->start_itemuse_script( prog.get(), this, itemdesc.requires_attention ) )
       return;
@@ -556,7 +559,7 @@ unsigned short Item::get_senditem_amount() const
 
 bool Item::setlayer( unsigned char in_layer )
 {
-  if ( Core::tilelayer( graphic ) == in_layer )
+  if ( Plib::tilelayer( graphic ) == in_layer )
   {
     layer = in_layer;
     return true;
@@ -569,7 +572,7 @@ bool Item::setlayer( unsigned char in_layer )
 
 bool Item::stackable() const
 {
-  return ( Core::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
+  return ( Plib::tile_flags( graphic ) & Plib::FLAG::STACKABLE ) ? true : false;
 }
 
 void Item::setamount( u16 amount )
@@ -613,7 +616,7 @@ void Item::add_to_self( Item*& item )
     insured( false );
 
   item->destroy();
-  item = NULL;
+  item = nullptr;
 }
 
 #ifdef PERGON
@@ -627,7 +630,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   if ( getprop( "ct", value_self ) )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
       time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
     else
       time_self = Core::read_gameclock();
@@ -639,7 +642,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   if ( item_sub->getprop( "ct", value_sub ) )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_sub.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
       time_sub = static_cast<Bscript::BLong*>( imp.impptr() )->value();
     else
       time_sub = Core::read_gameclock();
@@ -661,7 +664,7 @@ void Item::ct_merge_stacks_pergon( Item*& item_sub )
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop( "ct", "i" + Clib::tostring( time ) );
   increv();
 }
 
@@ -675,7 +678,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   if ( getprop( "ct", value_self ) )
   {
     Bscript::BObject imp( Bscript::BObjectImp::unpack( value_self.c_str() ) );
-    if ( imp.impptr() != NULL && imp->isa( Bscript::BObjectImp::OTLong ) )
+    if ( imp.impptr() != nullptr && imp->isa( Bscript::BObjectImp::OTLong ) )
       time_self = static_cast<Bscript::BLong*>( imp.impptr() )->value();
     else
       time_self = Core::read_gameclock();
@@ -695,7 +698,7 @@ void Item::ct_merge_stacks_pergon( u16 amount_sub )
   else
     time = time_self;
 
-  setprop( "ct", "i" + Clib::decint( time ) );
+  setprop( "ct", "i" + Clib::tostring( time ) );
   increv();
 }
 #endif
@@ -711,7 +714,7 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
   if ( ( amount1 + amount2 ) > this->itemdesc().stack_limit )
     return false;
 
-  if ( container != NULL )
+  if ( container != nullptr )
   {
     int more_weight = weight_of( amount_ + amount ) - weight_of( amount_ );
     if ( more_weight > USHRT_MAX /*std::numeric_limits<unsigned short>::max()*/ )
@@ -751,7 +754,7 @@ bool Item::can_add_to_self( const Item& item, bool force_stacking )
  */
 bool Item::has_only_default_cprops( const ItemDesc* compare ) const
 {
-  if ( compare == NULL )
+  if ( compare == nullptr )
     compare = &( itemdesc() );
   // logic same as Item::can_add_to_self()
   Core::PropertyList myprops( getprops() );  // make a copy :(
@@ -790,7 +793,7 @@ bool Item::amount_to_remove_is_partial( u16 this_item_new_amount ) const
 Item* Item::slice_stacked_item( u16 this_item_new_amount )
 {
   Item* new_item = clone();
-  if ( new_item != NULL )
+  if ( new_item != nullptr )
   {
     new_item->setamount( new_item->amount_ - this_item_new_amount );
     setamount( this_item_new_amount );
@@ -801,7 +804,7 @@ Item* Item::slice_stacked_item( u16 this_item_new_amount )
 Item* Item::remove_part_of_stack( u16 amount_to_remove )
 {
   Item* new_item = clone();
-  if ( new_item != NULL )
+  if ( new_item != nullptr )
   {
     new_item->setamount( amount_to_remove );
     subamount( amount_to_remove );
@@ -819,7 +822,7 @@ void Item::set_use_script( const std::string& scriptname )
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
-  if ( layer && layer != Core::tilelayer( newgraphic ) )
+  if ( layer && layer != Plib::tilelayer( newgraphic ) )
   {
     return false;
   }
@@ -829,8 +832,8 @@ bool Item::setgraphic( u16 newgraphic )
   {
     set_dirty();
     graphic = newgraphic;
-    height = Core::tileheight( graphic );
-    tile_layer = Core::tilelayer( graphic );
+    height = Plib::tileheight( graphic );
+    tile_layer = Plib::tilelayer( graphic );
 
     /// Update facing on graphic change
     const ItemDesc& id = this->itemdesc();
@@ -905,13 +908,13 @@ void Item::on_facing_changed()
 
 void Item::extricate()
 {
-  if ( container != NULL )
+  if ( container != nullptr )
   {
     // hmm, a good place for a virtual?
     if ( Core::IsCharacter( container->serial ) )
     {
       Mobile::Character* chr = chr_from_wornitems( container );
-      passert_always( chr != NULL );  // PRODFIXME linux-crash
+      passert_always( chr != nullptr );  // PRODFIXME linux-crash
       passert_always( chr->is_equipped( this ) );
 
       chr->unequip( this );  // FIXME: should run unequip script
@@ -1063,11 +1066,11 @@ bool Item::check_equip_script( Mobile::Character* chr, bool startup )
 
 bool Item::check_unequip_script()
 {
-  if ( !unequip_script_.get().empty() && container != NULL &&
+  if ( !unequip_script_.get().empty() && container != nullptr &&
        Core::IsCharacter( container->serial ) )
   {
     Mobile::Character* chr = chr_from_wornitems( container );
-    passert_always( chr != NULL );
+    passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
     Bscript::BObject obj( run_unequip_script( chr ) );
@@ -1146,10 +1149,10 @@ bool Item::check_unequiptest_scripts( Mobile::Character* chr )
 
 bool Item::check_unequiptest_scripts()
 {
-  if ( container != NULL && Core::IsCharacter( container->serial ) )
+  if ( container != nullptr && Core::IsCharacter( container->serial ) )
   {
     Mobile::Character* chr = chr_from_wornitems( container );
-    passert_always( chr != NULL );
+    passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
     return check_unequiptest_scripts( chr );
@@ -1172,15 +1175,15 @@ Mobile::Character* Item::GetCharacterOwner()
   {
     Mobile::Character* chr_owner =
         Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
-    if ( chr_owner != NULL )
+    if ( chr_owner != nullptr )
     {
       return chr_owner;
     }
     else
-      return NULL;
+      return nullptr;
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 const char* Item::target_tag() const
@@ -1193,6 +1196,14 @@ double Item::getItemdescQuality() const
   return itemdesc().quality;
 }
 
+Core::UOExecutor* Item::uoexec_control()
+{
+  if ( process() != nullptr )
+    return &process()->uoexec;
+
+  return nullptr;
+}
+
 double Item::getQuality() const
 {
   return quality();
@@ -1201,5 +1212,85 @@ void Item::setQuality( double value )
 {
   quality( value );
 }
+
+bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
+                            Core::ExportScript** hook, unsigned int* PC ) const
+{
+  if ( Core::gamestate.system_hooks.get_method_hook(
+           Core::gamestate.system_hooks.item_method_script.get(), methodname, ex, hook, PC ) )
+    return true;
+  return base::get_method_hook( methodname, ex, hook, PC );
 }
+
+// Event notifications
+
+bool Item::is_visible_to_me( const Mobile::Character* chr ) const
+{
+  if ( chr == nullptr )
+    return false;
+  if ( chr->realm != this->realm )
+    return false;  // noone can see across different realms.
+  if ( !chr->logged_in() )
+    return false;
+
+  // Unless the chr is offline or in a different realm,
+  // items can see anyone (I don't want to bother with privs now...)
+  return true;
 }
+
+void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( pol_distance( wholeft, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( wholeft ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
+}
+
+void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoentered )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
+    return;
+
+  if ( pol_distance( whoentered, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoentered ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+}
+void Pol::Items::Item::inform_moved( Mobile::Character* moved )
+{
+  Core::UOExecutor* ex = uoexec_control();
+  if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
+    return;
+
+  const bool are_inrange =
+      ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
+
+  const bool were_inrange =
+      ( abs( x - moved->lastx ) <= ex->area_size ) && ( abs( y - moved->lasty ) <= ex->area_size );
+
+  if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
+  {
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, moved ) );
+  }
+  else if ( !are_inrange && were_inrange && ex->listens_to( Core::EVID_LEFTAREA ) )
+  {
+    ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, moved ) );
+  }
+}
+
+}  // namespace Items
+}  // namespace Pol
