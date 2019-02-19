@@ -729,6 +729,12 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     break;
   case MBR_SPECIFIC_NAME:
     return new BLong( specific_name() );
+/*  case MBR_FAME:
+   return new BLong( fame() );
+    break;
+  case MBR_KARMA:
+    return new BLong( karma() );
+    break; */
   default:
     return nullptr;
   }
@@ -1959,6 +1965,13 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( casting_spell() );
   case MBR_LAST_TEXTCOLOR:
     return new BLong( last_textcolor() );
+  case MBR_FAME:
+    return new BLong( fame() );
+    break;
+  case MBR_KARMA:
+    return new BLong( karma() );
+    break;
+
   }
   // if all else fails, returns nullptr
   return nullptr;

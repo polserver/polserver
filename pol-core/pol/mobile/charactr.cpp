@@ -331,6 +331,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       registered_house( 0 ),
       truecolor( 0 ),
       trueobjtype( 0 ),
+
       // Note, Item uses the named constructor idiom, but here, it is not used.
       // this is probably okay, but something to keep in mind.
       gender( Plib::GENDER_MALE ),
