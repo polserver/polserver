@@ -729,12 +729,6 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     break;
   case MBR_SPECIFIC_NAME:
     return new BLong( specific_name() );
-/*  case MBR_FAME:
-   return new BLong( fame() );
-    break;
-  case MBR_KARMA:
-    return new BLong( karma() );
-    break; */
   default:
     return nullptr;
   }
@@ -2238,6 +2232,13 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     movement_cost( val );
     return new Double( movement_cost().run_mounted );
   }
+  case MBR_FAME:
+    fame( static_cast<s16>( value ) );
+    return new BLong( fame() );
+  case MBR_KARMA:
+    karma( static_cast<s16>( value ) );
+    return new BLong( karma() );
+
   default:
     return nullptr;
   }
