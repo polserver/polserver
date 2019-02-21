@@ -102,10 +102,16 @@ bool client_io_thread( Network::Client* client, bool login )
 
         // Non-Winsock implementations require nfds to be the largest socket value + 1
 #ifndef _WIN32
-      passert_r(
-          clientSocket < FD_SETSIZE,
-          "Select() implementation in Linux cant handle this many sockets at the same time." )
-          nfds = clientSocket + 1;
+      if ( clientSocket < FD_SETSIZE )
+      {
+        nfds = clientSocket + 1;
+      }
+      else
+      {
+        client->forceDisconnect();
+        throw std::runtime_error(
+            "Select() implementation on Linux cant handle this many sockets at the same time." );
+      }
 #endif
 
       FD_SET( clientSocket, &c_recv_fd );
