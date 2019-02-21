@@ -255,6 +255,9 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.thread_decay_statistics =
       elem.remove_bool( "ThreadDecayStatistics", false );
 
+  Plib::systemstate.config.hide_warning_gump = elem.remove_bool( "HideWarningGump", false );
+  Plib::systemstate.config.hide_warning_item = elem.remove_bool( "HideWarningItem", false );
+
   // store the configuration for the reporting system in the ExceptionParser
   bool reportingActive = elem.remove_bool( "ReportCrashsAutomatically", false );
   std::string reportingAdminEmail = elem.remove_string( "ReportAdminEmail", "" );

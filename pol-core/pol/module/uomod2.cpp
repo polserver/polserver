@@ -1474,10 +1474,13 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
   if ( uoemod == nullptr )
   {
-    POLLOG_INFO.Format(
-        "\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, "
-        "button ID 0x{:X}\n" )
-        << client->chr->serial << gumpid << buttonid;
+    if ( !Plib::systemstate.config.hide_warning_gump )
+    {
+      POLLOG_INFO.Format(
+          "\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, "
+          "button ID 0x{:X}\n" )
+          << client->chr->serial << gumpid << buttonid;
+    }
     return;
   }
 

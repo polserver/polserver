@@ -6,6 +6,13 @@
 	</header>
 	<version name="POL100">
 		<entry>
+			<date>02-18-2019</date>
+			<author>Skinny:</author>
+			<change type="Added">pol.cfg HideWarningGump and HideWarningItem.<br/>
+Many players macros generate warnings messages on the console, causing flooding, especially if you have lots of players online.<br/>
+You can enable setting HideWarningGump=1 and HideWarningItem=1 in the pol.cfg. Default value is 0.</change>
+		</entry>
+		<entry>
 			<date>02-02-2019</date>
 			<author>Yukiko:</author>
 			<change type="Added">uoconvert.exe will now surface the AnimID for equippables to tiles.cfg. This can be used to look-up the gump pic for wearables that are displayed on the paper doll. Add this number to 50000 for male gumpart or 60000 for female gump art. The resulting number will be the gump art that is displayed in the paper doll.</change>
