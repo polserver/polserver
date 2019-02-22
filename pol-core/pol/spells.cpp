@@ -233,11 +233,6 @@ bool USpell::check_mana( Mobile::Character* chr )
   return ( chr->vital( gamestate.pVitalMana->vitalid ).current_ones() >= manacost() );
 }
 
-bool USpell::check_skill( Mobile::Character* chr )
-{
-  return chr->check_skill( SKILLID_MAGERY, params_.difficulty, params_.pointvalue );
-}
-
 void USpell::consume_mana( Mobile::Character* chr )
 {
   chr->consume( gamestate.pVitalMana, chr->vital( gamestate.pVitalMana->vitalid ), manacost() * 100,

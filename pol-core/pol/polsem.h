@@ -30,9 +30,6 @@ void wait_for_pulse( unsigned int millis );
 void wake_tasks_thread();
 void tasks_thread_sleep( unsigned int millis );
 
-void send_ClientTransmit_pulse();
-void wait_for_ClientTransmit_pulse( unsigned int millis );
-
 extern size_t locker;
 #ifdef _WIN32
 extern CRITICAL_SECTION cs;

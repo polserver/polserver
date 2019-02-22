@@ -88,7 +88,6 @@ public:
 
   bool consume_reagents( Mobile::Character* chr );
   bool check_mana( Mobile::Character* chr );
-  bool check_skill( Mobile::Character* chr );
   void consume_mana( Mobile::Character* chr );  // assumes check_mana has returned true
   void speak_power_words( Mobile::Character* chr, unsigned short font, unsigned short color );
   UACTION animation() const;

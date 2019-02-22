@@ -263,31 +263,6 @@ void Client::transmit( const void* data, int len, bool needslock )
   }
 }
 
-void Client::transmitmore( const void* data, int len )
-{
-  {
-    Clib::SpinLockGuard guard( _fpLog_lock );
-    if ( !fpLog.empty() )
-    {
-      fmt::Writer tmp;
-      tmp << "Server -> Client (" << len << " bytes)\n";
-      Clib::fdump( tmp, data, len );
-      FLEXLOG( fpLog ) << tmp.str() << "\n";
-    }
-  }
-
-  if ( encrypt_server_stream )
-  {
-    pause();
-    transmit_encrypted( data, len );
-  }
-  else
-  {
-    xmit( data, static_cast<unsigned short>( len ) );
-    // _xmit( client->csocket, data, len );
-  }
-}
-
 void transmit( Client* client, const void* data, int len )
 {
   Core::networkManager.clientTransmit->AddToQueue( client, data, len );
