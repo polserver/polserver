@@ -159,7 +159,7 @@ public:
 
 private:
   PollingStrategy poller;
-};  // namespace Core
+};
 
 template <class T>
 void set_default_timeouts( SinglePoller<T>& poller, bool single_threaded_login )

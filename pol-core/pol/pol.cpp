@@ -628,39 +628,6 @@ void scripts_thread( void )
   }
 }
 
-void combined_thread( void )
-{
-  polclock_t sleeptime;
-  bool activity;
-  polclock_t script_clocksleft, scheduler_clocksleft;
-  polclock_t sleep_clocks;
-  polclock_t now;
-  while ( !Clib::exit_signalled )
-  {
-    ++stateManager.profilevars.script_passes;
-    do
-    {
-      PolLock lck;
-      step_scripts( &sleeptime, &activity );
-      check_scheduled_tasks( &sleeptime, &activity );
-      restart_all_clients();
-      now = polclock();
-      script_clocksleft = calc_script_clocksleft( now );
-      scheduler_clocksleft = calc_scheduler_clocksleft( now );
-      if ( script_clocksleft < scheduler_clocksleft )
-        sleep_clocks = script_clocksleft;
-      else
-        sleep_clocks = scheduler_clocksleft;
-    } while ( sleep_clocks <= 0 );
-
-    wait_for_pulse( clock_t_to_ms( sleep_clocks ) );
-  }
-}
-
-void decay_thread( void* );
-void decay_thread_shadow( void* );
-void decay_single_thread( void* );
-
 template <class T>
 inline void Delete( T* p )
 {

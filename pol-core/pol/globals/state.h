@@ -32,9 +32,6 @@ public:
 
   const char* last_checkpoint;
 
-  size_t cycles_per_decay_worldzone;
-  size_t cycles_until_decay_worldzone;
-
   bool gflag_enforce_container_limits;
   bool gflag_in_system_load;
   bool gflag_in_system_startup;
