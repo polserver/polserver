@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-02-2019</datemodified>
+		<datemodified>02-22-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>02-22-2019</date>
+			<author>Nando:</author>
+			<change type="Removed">pol.cfg option &quot;ListenPort&quot;. It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.</change>
+		</entry>
 		<entry>
 			<date>02-18-2019</date>
 			<author>Skinny:</author>

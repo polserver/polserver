@@ -28,18 +28,6 @@ void transmit( Client* client, const void* data, int len );
 
 std::string AddressToString( struct sockaddr* addr );
 
-struct PolSocket
-{
-  PolSocket();
-  SOCKET listen_socket;
-  fd_set listen_fd;
-  struct timeval listen_timeout;
-
-  fd_set recv_fd;
-  fd_set err_fd;
-  fd_set send_fd;
-  struct timeval select_timeout;
-};
 }  // namespace Network
 }  // namespace Pol
 #endif

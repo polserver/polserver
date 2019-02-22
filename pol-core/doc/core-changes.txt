@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+02-22-2019 Nando:
+  Removed: pol.cfg option "ListenPort". It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.
 02-18-2019 Skinny:
   Added:   pol.cfg HideWarningGump and HideWarningItem.
            Many players macros generate warnings messages on the console, causing flooding, especially if you have lots of players online.

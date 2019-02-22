@@ -72,7 +72,6 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.pidfile_path =
         Clib::normalized_dir_form( Plib::systemstate.config.pidfile_path );
 
-    Plib::systemstate.config.listen_port = elem.remove_ushort( "ListenPort", 0 );
     Plib::systemstate.config.check_integrity = true;  // elem.remove_bool( "CheckIntegrity", true );
     Plib::systemstate.config.count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
     Plib::systemstate.config.multithread = elem.remove_ushort( "Multithread", 1 );
