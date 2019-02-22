@@ -891,7 +891,6 @@ RealmDataPath=(path to POL Realm files {default realm/})
 PidFilePath=(where POL will write its .pid file {default ./})
 [ClientEncryptionVersion=(string {default none})]
 [CountResourceTiles=(1/0 {default 1}]
-[Multithread=(1/0 {default 1})]
 [WebServer=(1/0 {default 0})]
 [WebServerPort=(int port {default 8080})]
 [IgnoreLoadErrors=(1/0 {default 0})]

@@ -40,7 +40,7 @@ struct PolConfig
   bool log_script_cycles;
   bool count_resource_tiles;
   Crypt::TCryptInfo client_encryption_version;
-  unsigned short multithread;
+
   bool web_server;
   unsigned short web_server_port;
   bool web_server_local_only;

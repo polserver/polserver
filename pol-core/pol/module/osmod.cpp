@@ -76,7 +76,6 @@ TmplExecutorModule<OSExecutorModule>::FunctionTable
         {"run_script", &OSExecutorModule::run_script},
         {"set_debug", &OSExecutorModule::mf_set_debug},
         {"syslog", &OSExecutorModule::mf_Log},
-        {"system_rpm", &OSExecutorModule::mf_system_rpm},
         {"set_priority", &OSExecutorModule::mf_set_priority},
         {"unload_scripts", &OSExecutorModule::mf_unload_scripts},
         {"set_script_option", &OSExecutorModule::mf_set_script_option},
@@ -485,11 +484,6 @@ BObjectImp* OSExecutorModule::mf_Log()
     INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
     return new BLong( 1 );
   }
-}
-
-BObjectImp* OSExecutorModule::mf_system_rpm()
-{
-  return new BLong( static_cast<int>( Core::stateManager.profilevars.last_rpm ) );
 }
 
 BObjectImp* OSExecutorModule::mf_set_priority()

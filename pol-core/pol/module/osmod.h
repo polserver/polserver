@@ -97,7 +97,6 @@ protected:
   Bscript::BObjectImp* mf_parameter();
   Bscript::BObjectImp* mf_set_debug();
   Bscript::BObjectImp* mf_Log();
-  Bscript::BObjectImp* mf_system_rpm();
   Bscript::BObjectImp* mf_set_priority();
   Bscript::BObjectImp* mf_unload_scripts();
   Bscript::BObjectImp* mf_set_script_option();

@@ -811,18 +811,10 @@ void start_threads()
   if ( Plib::systemstate.config.web_server )
     start_http_server();
 
-  if ( Plib::systemstate.config.multithread == 1 )
-  {
-    checkpoint( "start tasks thread" );
-    threadhelp::start_thread( tasks_thread, "Tasks" );
-    checkpoint( "start scripts thread" );
-    threadhelp::start_thread( scripts_thread, "Scripts" );
-  }
-  else
-  {
-    checkpoint( "start combined scripts/tasks thread" );
-    threadhelp::start_thread( combined_thread, "Combined" );
-  }
+  checkpoint( "start tasks thread" );
+  threadhelp::start_thread( tasks_thread, "Tasks" );
+  checkpoint( "start scripts thread" );
+  threadhelp::start_thread( scripts_thread, "Scripts" );
 
   if ( settingsManager.ssopt.decay_items )
   {
@@ -1189,24 +1181,16 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting client listeners" );
   Core::start_uo_client_listeners();
 
-  //  if( 1 )
-  {
-    POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
-  }
-  // if( 1 )
-  {
-    DEINIT_STARTLOG();
-  }
+  POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
+
+  DEINIT_STARTLOG();
   POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" )
       << POL_VERSION_ID << Clib::ProgramConfig::build_target()
       << Clib::ProgramConfig::build_datetime();
-  // if( 1 )
-  {
-    POLLOG_INFO << "Game is active.\n";
-  }
-  Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
-  // goto skip;
+  POLLOG_INFO << "Game is active.\n";
+
+  Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
   Core::restart_pol_clocks();
   Core::polclock_checkin();
@@ -1218,35 +1202,32 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting periodic tasks" );
   Core::start_tasks();
 
-  if ( Plib::systemstate.config.multithread )
-  {
-    Core::checkpoint( "starting threads" );
-    Core::start_threads();
-    Network::start_aux_services();
+  Core::checkpoint( "starting threads" );
+  Core::start_threads();
+  Network::start_aux_services();
 
 #ifdef _WIN32
-    Core::console_thread();
-    Core::checkpoint( "exit signal detected" );
-    Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
+  Core::console_thread();
+  Core::checkpoint( "exit signal detected" );
+  Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
 #else
-    // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
-    // supposed to.
-    // therefore, we have to do this signal checking in this thread.
-    threadhelp::start_thread( Core::console_thread, "Console" );
+  // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
+  // supposed to.
+  // therefore, we have to do this signal checking in this thread.
+  threadhelp::start_thread( Core::console_thread, "Console" );
 
-    Core::catch_signals_thread();
+  Core::catch_signals_thread();
 #endif
-    Core::checkpoint( "waiting for child threads to exit" );
-    // NOTE that it's possible that the thread_status thread not have exited yet..
-    // it signals the catch_signals_thread (this one) just before it exits.
-    // and on windows, we get here right after the console thread exits.
-    while ( threadhelp::child_threads )
-    {
-      Core::pol_sleep_ms( 1000 );
-    }
-    Core::checkpoint( "child threads have shut down" );
+  Core::checkpoint( "waiting for child threads to exit" );
+  // NOTE that it's possible that the thread_status thread not have exited yet..
+  // it signals the catch_signals_thread (this one) just before it exits.
+  // and on windows, we get here right after the console thread exits.
+  while ( threadhelp::child_threads )
+  {
+    Core::pol_sleep_ms( 1000 );
   }
-  
+  Core::checkpoint( "child threads have shut down" );
+
   Core::cancel_all_trades();
   Core::stop_gameclock();
   POLLOG_INFO << "Shutting down...\n";
