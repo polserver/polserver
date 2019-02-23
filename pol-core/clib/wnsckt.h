@@ -48,6 +48,7 @@ public:
   void close();
 
   bool is_local() const;
+  bool is_valid() const;
 
   std::string getpeername() const;
   struct sockaddr peer_address() const;
@@ -75,6 +76,6 @@ private:
   int _options;
   struct sockaddr _peer;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif  // CLIB_WNSCKT_H
