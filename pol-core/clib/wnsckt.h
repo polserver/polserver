@@ -29,8 +29,11 @@ public:
 
   Socket();
   explicit Socket( SOCKET sock );
-  Socket( Socket& sck );  // takes ownership
-  virtual ~Socket();
+  Socket( Socket&& sck );
+  Socket& operator=( Socket&& sck );
+  Socket( const Socket& ) = delete;
+  Socket& operator=( const Socket& ) = delete;
+  ~Socket();
 
   void write( const std::string& str );
 
@@ -38,7 +41,7 @@ public:
   bool listen( unsigned short port );
   bool select( unsigned int seconds, unsigned int useconds );
   bool accept( SOCKET* s, unsigned int mstimeout );
-  bool accept( Socket& newsocket );
+  bool accept( Socket* newsocket );
   bool recvbyte( unsigned char* byte, unsigned int waitms );
   bool recvdata( void* vdest, unsigned len, unsigned int waitms );
   unsigned peek( void* vdest, unsigned len, unsigned int waitms );
@@ -48,7 +51,6 @@ public:
   void close();
 
   bool is_local() const;
-  bool is_valid() const;
 
   std::string getpeername() const;
   struct sockaddr peer_address() const;

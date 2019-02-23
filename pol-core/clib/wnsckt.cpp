@@ -61,12 +61,22 @@ Socket::Socket( SOCKET sock ) : _sck( sock ), _options( none )
   memset( &_peer, 0, sizeof( _peer ) );
 }
 
-Socket::Socket( Socket& sock ) : _sck( sock._sck ), _options( none )
+Socket::Socket( Socket&& sock )
+    : _sck( std::move( sock._sck ) ),
+      _options( std::move( sock._options ) ),
+      _peer( std::move( sock._peer ) )
 {
-  memset( &_peer, 0, sizeof( _peer ) );
   sock._sck = INVALID_SOCKET;
 }
 
+Socket& Socket::operator=( Socket&& sock )
+{
+  _sck = std::move( sock._sck );
+  _options = std::move( sock._options );
+  _peer = std::move( sock._peer );
+  sock._sck = INVALID_SOCKET;
+  return *this;
+}
 
 Socket::~Socket()
 {
@@ -287,7 +297,7 @@ bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
   }
 }
 
-bool Socket::accept( Socket& newsocket )
+bool Socket::accept( Socket* newsocket )
 {
   struct sockaddr client_addr;
   socklen_t addrlen = sizeof client_addr;
@@ -295,14 +305,11 @@ bool Socket::accept( Socket& newsocket )
   if ( s != INVALID_SOCKET )
   {
     apply_socket_options( s );
-    newsocket.setsocket( s );
-    newsocket.setpeer( client_addr );
+    newsocket->setsocket( s );
+    newsocket->setpeer( client_addr );
     return true;
   }
-  else
-  {
-    return false;
-  }
+  return false;
 }
 
 bool Socket::connected() const
@@ -639,11 +646,6 @@ bool Socket::is_local() const
 {
   std::string s = getpeername();
   return ( s == "127.0.0.1" );
-}
-
-bool Socket::is_valid() const
-{
-  return _sck != INVALID_SOCKET;
 }
 }  // namespace Clib
 }  // namespace Pol

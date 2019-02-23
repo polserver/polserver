@@ -101,8 +101,8 @@ private:
 class AuxClientThread final : public Clib::SocketClientThread
 {
 public:
-  AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener );
-  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock, Bscript::BObjectImp* params,
+  AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock );
+  AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock, Bscript::BObjectImp* params,
                    bool assume_string );
   virtual void run() override;
   void transmit( const Bscript::BObjectImp* imp );
@@ -120,7 +120,7 @@ private:
   bool _assume_string;
   std::atomic<int> _transmit_counter;
 };
-}
-}
+}  // namespace Network
+}  // namespace Pol
 
 #endif /* AUXCLIENT_H_ */

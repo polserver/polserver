@@ -635,8 +635,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               }
               uoexec_w.get_weakptr()->os_module->revive();
             }
-            std::unique_ptr<Network::AuxClientThread> client(
-                new Network::AuxClientThread( sd, s, scriptparam->copy(), assume_string ) );
+            std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
+                sd, std::move( s ), scriptparam->copy(), assume_string ) );
             client->run();
           } );
 

@@ -32,7 +32,7 @@ namespace Module
 class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
 {
 public:
-  HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck );
+  HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );
 
   Bscript::BObjectImp* mf_WriteHtml();
   Bscript::BObjectImp* mf_WriteHtmlRaw();

@@ -77,8 +77,7 @@ class UoClientListener;
 class UoClientThread final : public Clib::SocketClientThread
 {
 public:
-  UoClientThread( UoClientListener* def, Clib::SocketListener& SL );
-  UoClientThread( UoClientThread& copy );
+  UoClientThread( UoClientListener* def, Clib::Socket&& newsck );
   virtual void run() override;
   bool create();
   virtual ~UoClientThread() = default;

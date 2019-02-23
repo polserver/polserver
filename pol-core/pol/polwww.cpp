@@ -436,7 +436,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
     UOExecutor* ex = create_script_executor();
     Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
     ex->addModule( uoemod );
-    Module::HttpExecutorModule* hem = new Module::HttpExecutorModule( *ex, sck );
+    Module::HttpExecutorModule* hem = new Module::HttpExecutorModule( *ex, std::move( sck ) );
 
     hem->read_query_string( query_string );
     hem->read_query_ip();

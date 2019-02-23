@@ -1280,7 +1280,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
 class DebugClientThread : public Clib::SocketClientThread
 {
 public:
-  DebugClientThread( Clib::SocketListener& SL ) : Clib::SocketClientThread( SL ) {}
+  DebugClientThread( Clib::Socket&& sock ) : Clib::SocketClientThread( std::move( sock ) ) {}
   virtual void run() override;
 };
 
@@ -1322,13 +1322,14 @@ void debug_listen_thread( void )
     Clib::SocketListener SL( Plib::systemstate.config.debug_port );
     while ( !Clib::exit_signalled )
     {
-      if ( SL.GetConnection( 5 ) )
+      Clib::Socket sock;
+      if ( SL.GetConnection( &sock, 5 ) && sock.connected() )
       {
-        Clib::SocketClientThread* p = new DebugClientThread( SL );
+        Clib::SocketClientThread* p = new DebugClientThread( std::move( sock ) );
         p->start();
       }
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

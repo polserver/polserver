@@ -30,15 +30,11 @@ namespace Pol
 {
 namespace Core
 {
-UoClientThread::UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
-    : Clib::SocketClientThread( SL ), _def( def ), client( nullptr ), login_time( 0 )
-{
-}
-UoClientThread::UoClientThread( UoClientThread& copy )
-    : Clib::SocketClientThread( copy._sck ),
-      _def( copy._def ),
-      client( copy.client ),
-      login_time( copy.login_time )
+UoClientThread::UoClientThread( UoClientListener* def, Clib::Socket&& newsck )
+    : Clib::SocketClientThread( std::move( newsck ) ),
+      _def( def ),
+      client( nullptr ),
+      login_time( 0 )
 {
 }
 
@@ -57,7 +53,7 @@ void UoClientThread::run()
 
 bool UoClientThread::create()
 {
-  if ( !_sck.is_valid() )  // TODO: this should be done somewhere more central
+  if ( !_sck.connected() )  // should not happend, just here to be sure
   {
     POLLOG << "Login failed, socket is invalid\n";
     return false;
@@ -117,12 +113,13 @@ void uo_client_listener_thread( void* arg )
       timeout = 0;
       utimeout = 200000;
     }
-    if ( SL.GetConnection( timeout, utimeout ) )
+    Clib::Socket newsck;
+    if ( SL.GetConnection( &newsck, timeout, utimeout ) && newsck.connected() )
     {
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )
       {
-        std::unique_ptr<UoClientThread> thread( new UoClientThread( ls, SL ) );
+        std::unique_ptr<UoClientThread> thread( new UoClientThread( ls, std::move( newsck ) ) );
         if ( thread->create() )
         {
           client_io_thread( thread->client, true );
@@ -131,7 +128,7 @@ void uo_client_listener_thread( void* arg )
       }
       else
       {
-        Clib::SocketClientThread* thread = new UoClientThread( ls, SL );
+        Clib::SocketClientThread* thread = new UoClientThread( ls, std::move( newsck ) );
         thread->start();
       }
     }
@@ -139,22 +136,22 @@ void uo_client_listener_thread( void* arg )
     auto itr = ls->login_clients.begin();
     while ( itr != ls->login_clients.end() )
     {
-      if ( ( *itr )->client != nullptr && ( *itr )->client->isReallyConnected() )
+      auto client = ( *itr )->client;
+      if ( client != nullptr && client->isReallyConnected() )
       {
-        if ( !client_io_thread( ( *itr )->client, true ) )
+        if ( !client_io_thread( client, true ) )
         {
           itr = ls->login_clients.erase( itr );
           continue;
         }
 
-        if ( ( *itr )->client->isConnected() && ( *itr )->client->chr )
+        if ( client->isConnected() && client->chr )
         {
           Clib::SocketClientThread::start_thread( itr->release() );
           itr = ls->login_clients.erase( itr );
         }
         else if ( ( *itr )->login_time + 10 * 60 < poltime() )
         {
-          auto client = ( *itr )->client;
           POLLOG << "Client#" << client->instance_ << " LoginServer timeout disconnect\n";
           PolLock lck;
           client->forceDisconnect();
