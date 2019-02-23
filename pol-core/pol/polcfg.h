@@ -31,6 +31,7 @@ struct PolConfig
   bool verbose;
   unsigned short loglevel;  // 0=nothing 10=lots
   unsigned short select_timeout_usecs;
+  unsigned short loginserver_timeout_mins;
   bool watch_rpm;
   bool watch_sysload;
   bool log_sysload;
@@ -113,6 +114,6 @@ struct PolConfig
   static struct stat pol_cfg_stat;
   static void reload_pol_cfg();
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

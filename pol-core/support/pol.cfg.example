@@ -58,6 +58,11 @@ MaximumClients=300
 #
 MaximumClientsBypassCmdLevel=1
 
+#
+# LoginServerTimeout: maximum time in minutes allowed to connect with the login server
+#                     (until character is selected)
+#
+LoginServerTimeout 10
 #############################################################################
 ## System Profiling and Performance
 #############################################################################

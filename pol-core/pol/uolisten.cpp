@@ -150,7 +150,8 @@ void uo_client_listener_thread( void* arg )
           Clib::SocketClientThread::start_thread( itr->release() );
           itr = ls->login_clients.erase( itr );
         }
-        else if ( ( *itr )->login_time + 10 * 60 < poltime() )
+        else if ( ( ( *itr )->login_time +
+                    Plib::systemstate.config.loginserver_timeout_mins * 60 ) < poltime() )
         {
           POLLOG << "Client#" << client->instance_ << " LoginServer timeout disconnect\n";
           PolLock lck;
