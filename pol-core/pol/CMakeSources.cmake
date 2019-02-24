@@ -358,7 +358,6 @@ set (pol_sources  # sorted !
   statmsg.h
   storage.cpp
   storage.h
-  stubdata.h
   syshook.cpp
   syshook.h
   syshookscript.cpp

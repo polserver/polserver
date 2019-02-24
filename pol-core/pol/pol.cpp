@@ -1140,8 +1140,6 @@ int xmain_inner( bool testing )
 
   // PrintAllocationData();
 
-  // onetime_create_stubdata();
-
   Core::checkpoint( "running start scripts" );
   Core::run_start_scripts();
 
