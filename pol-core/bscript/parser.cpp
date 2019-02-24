@@ -480,6 +480,15 @@ ObjMember object_members[] = {
     {MBR_PORT, "port", false},	// 220
     {MBR_FAME, "fame", false},
     {MBR_KARMA, "karma", false},
+	// Virtues
+/*    {MBR_HONESTY, "honesty", false},
+    {MBR_COMPASSION, "karma", false},
+    {MBR_FAME, "fame", false},
+    {MBR_KARMA, "karma", false},
+    {MBR_FAME, "fame", false},
+    {MBR_KARMA, "karma", false},
+    {MBR_FAME, "fame", false},
+    {MBR_KARMA, "karma", false} */
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

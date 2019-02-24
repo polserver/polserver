@@ -880,8 +880,13 @@ public:
   DYN_PROPERTY( title_suffix, std::string, Core::PROP_TITLE_SUFFIX, "" );
   DYN_PROPERTY( title_guild, std::string, Core::PROP_TITLE_GUILD, "" );
   DYN_PROPERTY( title_race, std::string, Core::PROP_TITLE_RACE, "" );
-  DYN_PROPERTY( fame, s16, Core::PROP_FAME, 0 );
-  DYN_PROPERTY( karma, s16, Core::PROP_KARMA, 0 );
+  // Non struct option
+/*  DYN_PROPERTY( fame, s16, Core::PROP_FAME, 0 );
+  DYN_PROPERTY( karma, s16, Core::PROP_KARMA, 0 ); */
+
+  //Struct attempt
+/*  DYN_PROPERTY( famekarma, Core::FameKarma, Core::PROP_FAME_KARMA,
+                Core::FameKarma::DEFAULT ); */
 };
 
 
