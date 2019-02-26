@@ -1959,21 +1959,6 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( casting_spell() );
   case MBR_LAST_TEXTCOLOR:
     return new BLong( last_textcolor() );
-	// Non-struct option.
-/*  case MBR_FAME:
-    return new BLong( fame() );
-    break;
-  case MBR_KARMA:
-    return new BLong( karma() );
-    break; */
-	// Struct attempt
-/*  case MBR_FAME:
-    return new BLong( famekarma().fame );
-    break;
-  case MBR_KARMA:
-    return new BLong( famekarma().karma );
-    break;
-*/
   }
   // if all else fails, returns nullptr
   return nullptr;
@@ -2240,29 +2225,6 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     movement_cost( val );
     return new Double( movement_cost().run_mounted );
   }
-// Non struct option
-/*  case MBR_FAME:
-    fame( static_cast<s16>( value ) );
-    return new BLong( fame() );
-  case MBR_KARMA:
-    karma( static_cast<s16>( value ) );
-    return new BLong( karma() ); */
-// Struct attempt
-/*  case MBR_FAME:
-  {
-    auto val = famekarma();
-    val.fame = static_cast<s16>( value );
-    famekarma( val );
-    return new BLong( famekarma().fame );
-  }
-  case MBR_KARMA:
-  {
-    auto val = famekarma();
-    val.karma = static_cast<s16>( value );
-    famekarma( val );
-    return new BLong( famekarma().karma );
-  }
-*/
   default:
     return nullptr;
   }

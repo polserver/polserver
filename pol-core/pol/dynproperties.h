@@ -143,11 +143,6 @@ enum DynPropTypes : u8
   PROP_GOTTEN_ITEM = 57,            // Character
   PROP_PROCESS = 58,                // Item
   PROP_HOUSE = 59,                  // House
-// Non-struect option
-/*  PROP_FAME = 60,					// Character
-  PROP_KARMA = 61,					// Character */
-// Struct attempt
-//  PROP_FAME_KARMA = 60,				// Character
 
   PROP_FLAG_SIZE  // used for bitset size
 };
@@ -184,20 +179,6 @@ struct SkillStatCap
 };
 static_assert( sizeof( SkillStatCap ) == sizeof( u32 ), "size missmatch" );
 
-// Struct attempt
-// combination of fame and karma
-/*struct FameKarma
-{
-  s16 fame;
-  s16 karma;
-  FameKarma();
-  FameKarma( s16 fame, s16 karma );
-  bool operator==( const FameKarma& other ) const;
-
-  static const FameKarma DEFAULT;
-};
-// static_assert( sizeof( FameKarma ) == sizeof( u32 ), "size missmatch" );
-*/
 // combination of followers/followers_max
 struct ExtStatBarFollowers
 {
@@ -393,20 +374,6 @@ inline bool SkillStatCap::operator==( const SkillStatCap& other ) const
 {
   return statcap == other.statcap && skillcap == other.skillcap;
 }
-
-////////////////
-// FameKarma
-// Struct attempt - not sure if this is correct.
-/*inline FameKarma::FameKarma() : fame( 0 ), karma( 0 ) {}
-inline FameKarma::FameKarma( s16 fame, s16 karma )
-    : fame( fame_ ), karma( karma_ )
-*/
-
-/*inline bool FameKarma::operator==( const FameKarma& other ) const
-{
-  return fame == other.fame && karma == other.karma;
-}
-*/
 
 ////////////////
 // ExtStatBarFollowers

@@ -331,7 +331,6 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       registered_house( 0 ),
       truecolor( 0 ),
       trueobjtype( 0 ),
-
       // Note, Item uses the named constructor idiom, but here, it is not used.
       // this is probably okay, but something to keep in mind.
       gender( Plib::GENDER_MALE ),
@@ -577,23 +576,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
 
   sw() << "\tGender\t" << static_cast<int>( gender ) << pf_endl;
   sw() << "\tRace\t" << static_cast<int>( race ) << pf_endl;
-  // Non struct option
-  /*s16 value = fame();
-  if ( value != 0 )
-    sw() << "\tFame\t" << static_cast<s16>( value ) << pf_endl;
-  value = karma();
-  if ( value != 0 )
-  sw() << "\tKarma\t" << static_cast<s16>( value ) << pf_endl; */
-  // Struct attempt
-/*  if ( has_famekarma() )
-  {
-    auto famekarma_value = famekarma();
-    if ( famekarma_value.fame != Core::FameKarma::DEFAULT.fame )
-      sw() << "\tFame\t" << static_cast<int>( famekarma_value.fame ) << pf_endl;
-    if ( famekarma_value.karma != Core::FameKarma::DEFAULT.karma )
-      sw() << "\tKarma\t" << static_cast<int>( famekarma_value.karma ) << pf_endl;
-  } */
-  
+
   if ( dead() )
     sw() << "\tDead\t" << static_cast<int>( dead() ) << pf_endl;
 
@@ -899,17 +882,6 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   gender = static_cast<Plib::UGENDER>( elem.remove_ushort( "GENDER" ) );
   race = static_cast<Plib::URACE>( elem.remove_ushort( "RACE", Plib::RACE_HUMAN ) );
-  // Struct attempt
-  /* s16 value = static_cast<s16>( elem.remove_int( "FAME", 0 ) );
-  if ( value != 0 )
-    FameKarma( fame ) = value;
-  value = static_cast<s16>( elem.remove_int( "KARMA", 0 ) );
-  if ( value != 0 )
-    FameKarma.karma = value; */
-/*  famekarma( Core::FameKarma(
-      static_cast<s16>( elem.remove_int( "FAME", Core::FameKarma::DEFAULT.fame ) ),
-      static_cast<s16>( elem.remove_int( "KARMA", Core::FameKarma::DEFAULT.karma ) ) ) );
-*/
 
   if ( elem.remove_bool( "DEAD", false ) )
     mob_flags_.set( MOB_FLAGS::DEAD );

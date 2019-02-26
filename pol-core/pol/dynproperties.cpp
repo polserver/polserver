@@ -12,8 +12,5 @@ const ExtStatBarFollowers ExtStatBarFollowers::DEFAULT = ExtStatBarFollowers( 0,
 
 const SkillStatCap SkillStatCap::DEFAULT = SkillStatCap( 225, 700 );
 
-// Struct attempt
-//const FameKarma FameKarma::DEFAULT = FameKarma( 0, 0 );
-
 }  // namespace Core
 }  // namespace Pol
