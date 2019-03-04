@@ -9,6 +9,7 @@
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/network/singlepoller.h"
 #include "../../clib/passert.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/stlutil.h"
@@ -55,114 +56,8 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
 
 void report_weird_packet( Network::Client* client, const std::string& why );  // Defined below
 
-
-class PollingWithSelect
-{
-public:
-  explicit PollingWithSelect( SOCKET socket )
-      : socket( socket ), default_timeout{0, 0}, processed( false )
-  {
-    reset();
-  }
-
-  void reset()
-  {
-    processed = false;
-    FD_ZERO( &c_recv_fd );
-    FD_ZERO( &c_err_fd );
-    FD_ZERO( &c_send_fd );
-  }
-
-  void notify_on_incoming() { FD_SET( socket, &c_recv_fd ); }
-  void notify_on_error() { FD_SET( socket, &c_err_fd ); }
-  void notify_on_writable() { FD_SET( socket, &c_send_fd ); }
-
-  bool incoming() { return ( processed ) ? FD_ISSET( socket, &c_recv_fd ) : false; }
-  bool error() { return ( processed ) ? FD_ISSET( socket, &c_err_fd ) : false; }
-  bool writable() { return ( processed ) ? FD_ISSET( socket, &c_send_fd ) : false; }
-
-  void set_timeout( int timeout_sec, int timeout_ms )
-  {
-    default_timeout.tv_sec = timeout_sec;
-    default_timeout.tv_usec = timeout_ms * 1000;
-  }
-
-  int wait_for_events()
-  {
-    passert( valid_socket() );
-
-    // Linux requires nfds to be the largest descriptor + 1, Windows doesn't care
-    const int nfds = socket + 1;
-    timeval c_select_timeout = default_timeout;
-
-    int res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
-
-    // only mark as processed if we don't have errors, otherwise the sets are the same as we
-    // provided
-    if ( res >= 0 )
-      processed = true;
-
-    return res;
-  }
-
-  bool valid_socket()
-  {
-#ifndef _WIN32
-    // Linux and other non-windows OS can't handle FDs larger than FD_SETSIZE when using select()
-    return socket != INVALID_SOCKET && socket < FD_SETSIZE;
-#else
-    return socket != INVALID_SOCKET;
-#endif
-  }
-
-private:
-  fd_set c_recv_fd;
-  fd_set c_err_fd;
-  fd_set c_send_fd;
-
-  SOCKET socket;
-  timeval default_timeout;
-  bool processed;
-};
-
-using DefaultPoller = PollingWithSelect;
-template <class PollingStrategy = DefaultPoller>
-class SinglePoller
-{
-public:
-  explicit SinglePoller( SOCKET socket ) : poller( socket ){};
-  explicit SinglePoller( Network::Client* client ) : poller( client->csocket ){};
-
-  int wait_for_events() { return poller.wait_for_events(); }
-  void set_timeout( int timeout_sec, int timeout_ms )
-  {
-    poller.set_timeout( timeout_sec, timeout_ms );
-  }
-
-  bool incoming() { return poller.incoming(); }
-  bool error() { return poller.error(); }
-  bool writable() { return poller.writable(); }
-
-  bool prepare( bool notify_writable )
-  {
-    if ( !poller.valid_socket() )
-      return false;
-
-    poller.reset();
-    poller.notify_on_incoming();
-    poller.notify_on_error();
-    if ( notify_writable )
-      poller.notify_on_writable();
-
-    return true;
-  }
-
-private:
-  PollingStrategy poller;
-};
-
 template <class T>
-void set_default_timeouts( SinglePoller<T>& poller, bool single_threaded_login )
+void set_polling_timeouts( Clib::SinglePoller<T>& poller, bool single_threaded_login )
 {
   if ( !single_threaded_login )
   {
@@ -170,9 +65,7 @@ void set_default_timeouts( SinglePoller<T>& poller, bool single_threaded_login )
   }
   else
   {
-    // poller expects sec and ms, consider changing the name of timeout_usecs...!
-    const int timeout_ms = Plib::systemstate.config.select_timeout_usecs;
-    poller.set_timeout( 0, timeout_ms );
+    poller.set_timeout( 0, Plib::systemstate.config.select_timeout_usecs );
   }
 }
 
@@ -191,19 +84,18 @@ bool client_io_thread( Network::Client* client, bool login )
   CLIENT_CHECKPOINT( 0 );
   try
   {
-    SinglePoller<PollingWithSelect> poller( client );
-    set_default_timeouts( poller, login );
+    Clib::SinglePoller<Clib::DefaultPoller> clientpoller( client->csocket );
+    set_polling_timeouts( clientpoller, login );
 
     while ( !Clib::exit_signalled && client->isReallyConnected() )
     {
       CLIENT_CHECKPOINT( 1 );
       checkpoint = 1;
-      if ( !poller.prepare( client->have_queued_data() ) )
+      if ( !clientpoller.prepare( client->have_queued_data() ) )
       {
-        if ( client->csocket == INVALID_SOCKET )
-          break;
+        if ( client->csocket != INVALID_SOCKET )
+          client->forceDisconnect();
 
-        client->forceDisconnect();
         throw std::runtime_error(
             "couldn't prepare for polling client socket - limit is reached or invalid socket" );
       }
@@ -213,7 +105,7 @@ bool client_io_thread( Network::Client* client, bool login )
       do
       {
         CLIENT_CHECKPOINT( 2 );
-        res = poller.wait_for_events();
+        res = clientpoller.wait_for_events();
         CLIENT_CHECKPOINT( 3 );
       } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
       checkpoint = 3;
@@ -256,8 +148,7 @@ bool client_io_thread( Network::Client* client, bool login )
       if ( !client->isReallyConnected() )
         break;
 
-      // if ( FD_ISSET( clientSocket, &c_err_fd ) )
-      if ( poller.error() )
+      if ( clientpoller.error() )
       {
         client->forceDisconnect();
         break;
@@ -300,9 +191,7 @@ bool client_io_thread( Network::Client* client, bool login )
       }
       // endregion Speedhack
 
-
-      // if ( FD_ISSET( clientSocket, &c_recv_fd ) )
-      if ( poller.incoming() )
+      if ( clientpoller.incoming() )
       {
         checkpoint = 4;
         CLIENT_CHECKPOINT( 6 );
@@ -335,7 +224,7 @@ bool client_io_thread( Network::Client* client, bool login )
         break;
       }
 
-      if ( client->have_queued_data() && poller.writable() )
+      if ( client->have_queued_data() && clientpoller.writable() )
       {
         PolLock lck;
         CLIENT_CHECKPOINT( 8 );
