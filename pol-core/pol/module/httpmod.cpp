@@ -8,7 +8,7 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/wnsckt.h"
+#include "../../clib/network/wnsckt.h"
 #include "../../plib/systemstate.h"
 #include "../uoexec.h"
 #include "osmod.h"

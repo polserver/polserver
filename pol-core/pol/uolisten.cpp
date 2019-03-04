@@ -12,10 +12,10 @@
 
 #include "../clib/esignal.h"
 #include "../clib/logfacility.h"
-#include "../clib/socketsvc.h"
+#include "../clib/network/socketsvc.h"
+#include "../clib/network/wnsckt.h"
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
-#include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
 #include "core.h"
 #include "globals/network.h"

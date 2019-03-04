@@ -10,7 +10,7 @@
 #include <string>
 
 #include "../../bscript/execmodl.h"
-#include "../../clib/wnsckt.h"
+#include "../../clib/network/wnsckt.h"
 
 namespace Pol
 {

@@ -12,6 +12,7 @@
 
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/network/sockets.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
 #include "../../clib/spinlock.h"
@@ -27,7 +28,6 @@
 #include "packethelper.h"
 #include "packethooks.h"
 #include "packets.h"
-#include "sockets.h"
 #include <format/format.h>
 
 namespace Pol

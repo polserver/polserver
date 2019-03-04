@@ -14,6 +14,7 @@
 #include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "../accounts/account.h"
+#include "../clib/network/sockets.h"
 #include "../core.h"
 #include "../crypt/cryptbase.h"
 #include "../mobile/charactr.h"
@@ -35,7 +36,6 @@
 #include "pktbothid.h"
 #include "pktdef.h"
 #include "pktinid.h"
-#include "sockets.h"
 #include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x

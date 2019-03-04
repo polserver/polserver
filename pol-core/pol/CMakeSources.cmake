@@ -266,7 +266,6 @@ set (pol_sources  # sorted !
   network/pktniid.h
   network/pktout.h
   network/pktoutid.h
-  network/sockets.h
   network/sockio.cpp
   network/sockio.h
   network/xbuffer.h

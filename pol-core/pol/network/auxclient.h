@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "../../clib/refptr.h"
-#include "../../clib/socketsvc.h"
+#include "../../clib/network/socketsvc.h"
 #include "../../clib/weakptr.h"
 #include "../scrdef.h"
 #include "../uoexec.h"

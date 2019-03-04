@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-#include "../clib/socketsvc.h"
+#include "../clib/network/socketsvc.h"
 #include "crypt/cryptkey.h"
 #include "polclock.h"
 
