@@ -222,7 +222,7 @@ std::string AddressToString( const sockaddr* addr )
   char address[INET_ADDRSTRLEN] = {};
   if ( inet_ntop( AF_INET, reinterpret_cast<const void*>( &in_addr->sin_addr ), address,
                   sizeof( address ) ) == nullptr )
-    return std::string( "(error - " + std::to_string( errno ) + ")" );
+    return std::string( "(error - " + std::to_string( socket_errno ) + ")" );
 
   return address;
 }
