@@ -21,7 +21,7 @@ SOCKET open_listen_socket( unsigned short port );
 void apply_socket_options( SOCKET client_socket );
 void disable_nagle( SOCKET client_socket );
 
-std::string AddressToString( struct sockaddr* addr );
+std::string AddressToString( const sockaddr* addr );
 
 }  // namespace Network
 }  // namespace Pol

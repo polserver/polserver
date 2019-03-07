@@ -209,13 +209,22 @@ SOCKET open_listen_socket( unsigned short port )
   return sck;
 }
 
-std::string AddressToString( struct sockaddr* addr )
+std::string AddressToString( const sockaddr* addr )
 {
-  struct sockaddr_in* in_addr = (struct sockaddr_in*)addr;
-  if ( addr->sa_family == AF_INET )
-    return inet_ntoa( in_addr->sin_addr );
-  else
+  if ( addr == nullptr )
+    return "(no address)";
+
+  if ( addr->sa_family != AF_INET )
     return std::string( "(unknown address family " ) + std::to_string( addr->sa_family ) + ")";
+
+  const sockaddr_in* in_addr = reinterpret_cast<const sockaddr_in*>( addr );
+
+  char address[INET_ADDRSTRLEN] = {};
+  if ( inet_ntop( AF_INET, reinterpret_cast<const void*>( &in_addr->sin_addr ), address,
+                  sizeof( address ) ) == nullptr )
+    return std::string( "(error - " + std::to_string( errno ) + ")" );
+
+  return address;
 }
 
 }  // namespace Network

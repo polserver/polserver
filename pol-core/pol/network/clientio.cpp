@@ -36,7 +36,7 @@ namespace Network
 {
 std::string Client::ipaddrAsString() const
 {
-  return AddressToString( const_cast<struct sockaddr*>( &ipaddr ) );
+  return AddressToString( &this->ipaddr );
 }
 
 void Client::recv_remaining( int total_expected )

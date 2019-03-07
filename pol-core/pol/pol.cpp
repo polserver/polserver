@@ -693,7 +693,7 @@ void threadstatus_thread( void )
           << stateManager.polsig.active_client_thread_checkpoint << "\n";
       tmp << "Number of clients: " << Core::networkManager.clients.size() << "\n";
       for ( const auto& client : Core::networkManager.clients )
-        tmp << " " << Network::AddressToString( &client->ipaddr ) << " "
+        tmp << " " << client->ipaddrAsString() << " "
             << ( client->acct == nullptr ? "prelogin " : client->acct->name() ) << " "
             << client->checkpoint << "\n";
       if ( stateManager.polsig.check_attack_after_move_function_checkpoint )

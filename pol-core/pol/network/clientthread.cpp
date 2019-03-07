@@ -256,7 +256,7 @@ bool client_io_thread( Network::Client* client, bool login )
   if ( login && client->isConnected() )
     return true;
   POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
-      << client->instance_ << Network::AddressToString( &client->ipaddr )
+      << client->instance_ << client->ipaddrAsString()
       << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" );
 
 
@@ -267,7 +267,7 @@ bool client_io_thread( Network::Client* client, bool login )
       CLIENT_CHECKPOINT( 9 );
       PolLock lck;
       client->unregister();
-      INFO_PRINT << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
+      INFO_PRINT << "Client disconnected from " << client->ipaddrAsString()
                  << " (" << networkManager.clients.size() << "/"
                  << networkManager.getNumberOfLoginClients() << " connections)\n";
 
@@ -507,7 +507,7 @@ bool process_data( Network::Client* client )
         else
         {
           POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
-              << client->instance_ << Network::AddressToString( &client->ipaddr )
+              << client->instance_ << client->ipaddrAsString()
               << ( client->acct ? client->acct->name() : "unknown" ) << (int)msgtype;
         }
       }
