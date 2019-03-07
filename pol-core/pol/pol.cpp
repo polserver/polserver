@@ -497,11 +497,6 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
   client->send_restart();  // dave removed force=true 5/10/3
 }
 
-void handle_keep_alive( Network::Client* client, PKTBI_73* msg )
-{
-  transmit( client, msg, sizeof *msg );
-}
-
 void restart_all_clients()
 {
   if ( !networkManager.uoclient_protocol.EnableFlowControlPackets )

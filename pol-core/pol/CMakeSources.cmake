@@ -237,6 +237,7 @@ set (pol_sources  # sorted !
   network/client.cpp
   network/client.h
   network/clientio.cpp
+  network/clientio.h
   network/clientthread.cpp
   network/clientthread.h
   network/clienttransmit.cpp
