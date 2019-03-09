@@ -477,18 +477,7 @@ ObjMember object_members[] = {
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
-    {MBR_PORT, "port", false},	// 220
-    {MBR_FAME, "fame", false},
-    {MBR_KARMA, "karma", false},
-	// Virtues
-/*    {MBR_HONESTY, "honesty", false},
-    {MBR_COMPASSION, "karma", false},
-    {MBR_FAME, "fame", false},
-    {MBR_KARMA, "karma", false},
-    {MBR_FAME, "fame", false},
-    {MBR_KARMA, "karma", false},
-    {MBR_FAME, "fame", false},
-    {MBR_KARMA, "karma", false} */
+    {MBR_PORT, "port", false},
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

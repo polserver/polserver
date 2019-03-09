@@ -1474,7 +1474,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
   if ( uoemod == nullptr )
   {
-    if ( Plib::systemstate.config.show_warning_gump )
+    if ( !Plib::systemstate.config.hide_warning_gump )
     {
       POLLOG_INFO.Format(
           "\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, "

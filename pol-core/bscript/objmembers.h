@@ -258,8 +258,6 @@ enum MemberID
   MBR_NO_DROP,
   MBR_NO_DROP_EXCEPTION,
   MBR_PORT, // 220
-  MBR_FAME,
-  MBR_KARMA
 };
 
 
