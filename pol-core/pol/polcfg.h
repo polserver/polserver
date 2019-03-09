@@ -96,8 +96,8 @@ struct PolConfig
   bool single_thread_decay;
   bool thread_decay_statistics;
 
-  bool hide_warning_gump;
-  bool hide_warning_item;
+  bool show_warning_gump;
+  bool show_warning_item;
 
   /**
    * @brief Returns true if program aborts are reported
