@@ -33,7 +33,8 @@ size_t UoClientProtocol::estimateSize() const
 UoClientListener::UoClientListener( Clib::ConfigElem& elem )
     : port( elem.remove_ushort( "PORT" ) ),
       aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
-      sticky( elem.remove_bool( "KeepClients", false ) )
+      sticky( elem.remove_bool( "KeepClients", false ) ),
+      login_clients()
 
 {
   CalculateCryptKeys( elem.remove_string( "ENCRYPTION", "none" ), encryption );
@@ -41,7 +42,9 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
 
 size_t UoClientListener::estimateSize() const
 {
-  return sizeof( UoClientListener );
+  size_t size = sizeof( UoClientListener );
+  size += login_clients.size() * ( sizeof( UoClientThread ) + 3 * sizeof( void* ) );
+  return size;
 }
 
 void checka( Clib::ConfigElem& elem, UoClientGeneral::Mapping& mapping, const char* tag )
@@ -120,7 +123,7 @@ void load_protocol_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 
 void load_listener_entry( const Plib::Package* /*pkg*/, Clib::ConfigElem& elem )
 {
-  networkManager.uoclient_listeners.push_back( UoClientListener( elem ) );
+  networkManager.uoclient_listeners.emplace_back( elem );
 }
 
 void load_uoclient_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -161,5 +164,5 @@ void UoClientGeneral::deinitialize()
     method_script = nullptr;
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

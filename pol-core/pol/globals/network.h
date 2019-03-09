@@ -49,6 +49,7 @@ public:
   void deinialize();
   void kill_disconnected_clients();
 
+  size_t getNumberOfLoginClients() const;
   struct Memory;
 
   Memory estimateSize() const;
