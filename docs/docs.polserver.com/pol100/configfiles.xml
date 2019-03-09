@@ -954,8 +954,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ReportAdminEmail=(string email {default ""})]
 [ReportServer=(string servername {default "polserver.com"})]
 [ReportURL=(string url {default "/pol/report_program_abort.php"})]
-[ShowWarningGump=(1/0 {default 0})]
-[ShowWarningItem=(1/0 {default 0})]
+[ShowWarningGump=(1/0 {default 1})]
+[ShowWarningItem=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
