@@ -119,6 +119,18 @@ MaxCallDepth=100
 #
 ShowRealmInfo=0
 
+#
+# ShowWarningGump: will display unexpected gump warning messages on the console if set to 1.
+# ShowWarningGump= (0/1) Default is 1
+#
+ShowWarningGump=1
+
+#
+# ShowWarningItem: will display equip item and drop item warning messages on the console if set to 1.
+# ShowWarningItem= (0/1) Default is 1
+#
+ShowWarningItem=1
+
 #############################################################################
 ## Debugging
 #############################################################################
