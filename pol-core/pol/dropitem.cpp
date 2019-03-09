@@ -799,7 +799,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   Items::Item* item = client->chr->gotten_item();
   if ( item == nullptr )
   {
-    if ( !Plib::systemstate.config.hide_warning_item )
+    if ( Plib::systemstate.config.show_warning_item )
     {
       POLLOG_ERROR.Format(
           "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
@@ -809,7 +809,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   }
   if ( item->serial != item_serial )
   {
-    if ( !Plib::systemstate.config.hide_warning_item )
+    if ( Plib::systemstate.config.show_warning_item )
     {
       POLLOG_ERROR.Format(
           "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
@@ -875,7 +875,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   Items::Item* item = client->chr->gotten_item();
   if ( item == nullptr )
   {
-    if ( !Plib::systemstate.config.hide_warning_item )
+    if ( Plib::systemstate.config.show_warning_item )
     {
       POLLOG_ERROR.Format(
           "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
@@ -885,7 +885,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   }
   if ( item->serial != item_serial )
   {
-    if ( !Plib::systemstate.config.hide_warning_item )
+    if ( Plib::systemstate.config.show_warning_item )
     {
       POLLOG_ERROR.Format(
           "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
