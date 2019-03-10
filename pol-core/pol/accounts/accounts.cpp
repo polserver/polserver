@@ -80,6 +80,7 @@ void write_account_data()
   unlink( accountsbakfile_c );
   unlink( accountsndtfile_c );
 
+  bool result( true );
   try
   {
     std::ofstream ofs( accountsndtfile_c, std::ios::trunc | std::ios::out );
@@ -93,9 +94,11 @@ void write_account_data()
   catch ( ... )
   {
     POLLOG_ERROR << "failed to store accounts!\n";
+    result = false;
     Clib::force_backtrace();
   }
-
+  if ( !result )
+    return;
   rename( accountstxtfile_c, accountsbakfile_c );
   rename( accountsndtfile_c, accountstxtfile_c );
 

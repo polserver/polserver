@@ -63,7 +63,7 @@ OFStreamWriter::~OFStreamWriter()
 void OFStreamWriter::init( const std::string& filepath )
 {
   _stream->exceptions( std::ios_base::failbit | std::ios_base::badbit );
-  _stream->open( filepath.c_str(), std::ios::out );
+  _stream->open( filepath.c_str(), std::ios::out | std::ios::trunc );
   _stream_name = filepath;
 }
 
@@ -202,5 +202,5 @@ void ThreadedOFStreamWriter::flush_file()
     _stream->close();
   }
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
