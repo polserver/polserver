@@ -1182,20 +1182,20 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
         task.wait();
 
       critical_promise->set_value( result );  // critical part end
+      // TODO: since promise can only be set one time move it into a method with a dedicated try
+      // block, now when in theory an upper part fails the promise gets never set
     }  // deconstructor of the SaveContext flushes and joins the queues
     catch ( std::ios_base::failure& e )
     {
       POLLOG_ERROR << "failed to save datafiles! " << e.what() << ":" << std::strerror( errno )
                    << "\n";
       Clib::force_backtrace();
-      critical_promise->set_value( false );  // critical part end
       result = false;
     }
     catch ( ... )
     {
       POLLOG_ERROR << "failed to save datafiles!\n";
       Clib::force_backtrace();
-      critical_promise->set_value( false );  // critical part end
       result = false;
     }
     if ( result )
