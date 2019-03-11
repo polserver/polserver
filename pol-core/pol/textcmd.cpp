@@ -636,7 +636,7 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
 
         Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
         ex->addModule( uoemod );
-        ex->os_module->priority = 100;
+        ex->priority(100);
 
         if ( ex->setProgram( prog.get() ) )
         {

@@ -555,7 +555,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
@@ -939,7 +939,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
@@ -1358,7 +1358,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {

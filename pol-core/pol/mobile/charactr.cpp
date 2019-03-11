@@ -503,9 +503,9 @@ void Character::stop_skill_script()
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
     script_ex->seterror( true );
-    script_ex->os_module->revive();
-    if ( script_ex->os_module->in_debugger_holdlist() )
-      script_ex->os_module->revive_debugged();
+    script_ex->revive();
+    if ( script_ex->in_debugger_holdlist() )
+      script_ex->revive_debugged();
   }
 }
 
@@ -1949,7 +1949,7 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
-  ex->os_module->priority = 100;
+  ex->priority(100);
 
   if ( ex->setProgram( prog.get() ) )
   {

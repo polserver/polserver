@@ -65,7 +65,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
       }
     }
   }
-  uoemod->uoexec.os_module->revive();
+  uoemod->uoexec.revive();
   uoemod->prompt_chr = nullptr;
   client->gd->prompt_uoemod = nullptr;
 }

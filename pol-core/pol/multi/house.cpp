@@ -985,7 +985,7 @@ void UHouse::walk_on( Mobile::Character* chr )
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->os_module->priority = 100;
+      ex->priority(100);
 
       if ( ex->setProgram( prog.get() ) )
       {
