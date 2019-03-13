@@ -21,12 +21,12 @@ namespace Core
 {
 class ScriptDef;
 
-ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name,
+ref_ptr<Bscript::Program> find_script( const std::string& name,
                                               bool complain_if_not_found = true,
                                               bool cache_script = true );
 
 // find_script2: assumes all directory info is there, along with ".ecl"
-ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script,
+ref_ptr<Bscript::Program> find_script2( const ScriptDef& script,
                                                bool complain_if_not_found = true,
                                                bool cache_script = true );
 

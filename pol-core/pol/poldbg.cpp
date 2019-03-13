@@ -659,8 +659,8 @@ std::string DebugContext::cmd_scriptlist( const std::string& /*rest*/, Results& 
         citr != scriptScheduler.scrstore.end(); ++citr )
   {
     const char* nm = ( ( *citr ).first ).c_str();
-    EScriptProgram* eprog = ( ( *citr ).second ).get();
-    std::string scriptname = eprog->name;
+    Program* eprog = ( ( *citr ).second ).get();
+    std::string scriptname = eprog->scriptname();
     results.push_back( nm );
   }
   return "";
@@ -675,12 +675,15 @@ std::string DebugContext::cmd_setscript( const std::string& rest, Results& /*res
   if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
-  ref_ptr<EScriptProgram> res( ( *itr ).second );
-  EScriptProgram* eprog = res.get();
+  ref_ptr<Program> res( ( *itr ).second );
+  if ( res->type() != Program::ESCRIPT )
+    return "Not an escript file to debug";
+
+  EScriptProgram* eprog = dynamic_cast<EScriptProgram*>( res.get() );
   if ( eprog->read_dbg_file() != 0 )
     return "Failed to load symbols.";
 
-  _script = res;
+  _script.set( eprog );
   return "";
 }
 
@@ -759,8 +762,13 @@ std::string DebugContext::cmd_scriptprofile( const std::string& rest, Results& r
   if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
-  ref_ptr<EScriptProgram> res( ( *itr ).second );
-  EScriptProgram* eprog = res.get();
+  ref_ptr<Program> res( ( *itr ).second );
+
+  if ( res->type() != Program::ESCRIPT )
+    return "Not an escript file to debug";
+
+  EScriptProgram* eprog = dynamic_cast<EScriptProgram*>( res.get() );
+
   size_t count = eprog->instr.size();
   for ( size_t i = 0; i < count; ++i )
   {
@@ -777,8 +785,11 @@ std::string DebugContext::cmd_scriptins( const std::string& rest, Results& resul
   if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
-  ref_ptr<EScriptProgram> res( ( *itr ).second );
-  EScriptProgram* eprog = res.get();
+  ref_ptr<Program> res( ( *itr ).second );
+  if ( res->type() != Program::ESCRIPT )
+    return "Not an escript file to debug";
+
+  EScriptProgram* eprog = dynamic_cast<EScriptProgram*>( res.get() );
   if ( eprog->read_dbg_file() != 0 )
     return "Failed to load symbols.";
 
@@ -814,8 +825,11 @@ std::string DebugContext::cmd_scriptsrc( const std::string& rest, Results& resul
   if ( itr == scriptScheduler.scrstore.end() )
     return "No such script.";
 
-  ref_ptr<EScriptProgram> res( ( *itr ).second );
-  EScriptProgram* eprog = res.get();
+  ref_ptr<Program> res( ( *itr ).second );
+  if ( res->type() != Program::ESCRIPT )
+    return "Not an escript file to debug";
+
+  EScriptProgram* eprog = dynamic_cast<EScriptProgram*>( res.get() );
   if ( eprog->read_dbg_file() != 0 )
     return "Failed to load symbols.";
 

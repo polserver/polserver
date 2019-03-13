@@ -596,7 +596,7 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
         continue;
 
       // cout << "Searching for " << sd.name() << endl;
-      ref_ptr<Bscript::EScriptProgram> prog =
+      ref_ptr<Bscript::Program> prog =
           find_script2( sd,
                         false,  // don't complain if not found
                         Plib::systemstate.config.cache_interactive_scripts );
@@ -605,7 +605,7 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
         // Unicode stuff
 
         std::unique_ptr<UOExecutor> ex( create_script_executor() );
-        if ( prog->haveProgram )
+        if ( prog->hasProgram() )
         {
           if ( wtext && lang )
           {

@@ -1922,7 +1922,7 @@ void Character::get_hitscript_params( double damage, Items::UArmor** parmor,
 
 void Character::run_hit_script( Character* defender, double damage )
 {
-  ref_ptr<Bscript::EScriptProgram> prog = find_script2(
+  ref_ptr<Bscript::Program> prog = find_script2(
       weapon->hit_script(), true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() == nullptr )
     return;

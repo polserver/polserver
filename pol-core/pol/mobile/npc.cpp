@@ -598,7 +598,7 @@ void NPC::start_script()
   Core::ScriptDef sd( script, template_.pkg, "scripts/ai/" );
   // Log( "NPC script starting: %s\n", sd.name().c_str() );
 
-  ref_ptr<Bscript::EScriptProgram> prog = Core::find_script2( sd );
+  ref_ptr<Bscript::Program> prog = Core::find_script2( sd );
   // find_script( "ai/" + script );
 
   if ( prog.get() == nullptr )

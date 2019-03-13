@@ -301,7 +301,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
           return new BError( "No script defined for attribute " + attr->name + "." );
       }
 
-      ref_ptr<EScriptProgram> prog = find_script2(
+      ref_ptr<Program> prog = find_script2(
           script, true,
           /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 

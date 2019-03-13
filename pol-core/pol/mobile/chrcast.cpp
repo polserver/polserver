@@ -17,7 +17,7 @@ namespace Pol
 {
 namespace Mobile
 {
-bool Character::start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell )
+bool Character::start_spell_script( Bscript::Program* prog, Core::USpell* spell )
 {
   return start_script( prog, true, new Bscript::BLong( spell->spell_id() ) );
 }

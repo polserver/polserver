@@ -11,7 +11,7 @@ namespace Pol
 {
 namespace Mobile
 {
-bool Character::start_skill_script( Bscript::EScriptProgram* prog )
+bool Character::start_skill_script( Bscript::Program* prog )
 {
   return start_script( prog, true );
 }

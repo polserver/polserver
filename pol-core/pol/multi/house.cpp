@@ -968,7 +968,7 @@ void UHouse::walk_on( Mobile::Character* chr )
   const Items::ItemDesc& itemdesc = Items::find_itemdesc( objtype_ );
   if ( !itemdesc.walk_on_script.empty() )
   {
-    ref_ptr<Bscript::EScriptProgram> prog;
+    ref_ptr<Bscript::Program> prog;
     prog = find_script2( itemdesc.walk_on_script,
                          true,  // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
@@ -976,7 +976,7 @@ void UHouse::walk_on( Mobile::Character* chr )
     {
       std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );
       ex->addModule( new Module::UOExecutorModule( *ex ) );
-      if ( prog->haveProgram )
+      if ( prog->hasProgram() )
       {
         ex->pushArg( new Bscript::BLong( chr->lastz ) );
         ex->pushArg( new Bscript::BLong( chr->lasty ) );

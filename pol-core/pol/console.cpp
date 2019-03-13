@@ -209,7 +209,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
     PolLock lck;
     ScriptDef sd;
     sd.quickconfig( filename + ".ecl" );
-    ref_ptr<Bscript::EScriptProgram> prog =
+    ref_ptr<Bscript::Program> prog =
         find_script2( sd, true, Plib::systemstate.config.cache_interactive_scripts );
     if ( prog.get() != nullptr )
       start_script( prog, new Bscript::String( getcmdstr( ch ) ) );

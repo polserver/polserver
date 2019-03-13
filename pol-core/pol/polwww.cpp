@@ -420,7 +420,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
 
   PolLock2 lck;
 
-  ref_ptr<Bscript::EScriptProgram> program =
+  ref_ptr<Bscript::Program> program =
       find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
   // find_script( filename, true, config.cache_interactive_scripts );
   if ( program.get() == nullptr )

@@ -27,6 +27,32 @@ if (${linux})
   )
 endif()
 
+if(HAVE_NODEJS)
+  message("* node root dir ${NODE_ROOT_DIR}")
+
+  set(NODE_SOURCE_DIR "${NODE_ROOT_DIR}/src")
+
+  if (${linux})
+    message( FATAL_ERROR "@TODO" )
+    set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/out")
+    set(NODE_LIB "${NODE_INSTALL_DIR}/lib/libnode.a")
+  else()
+    set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/Release")
+    set(NODE_LIB "${NODE_INSTALL_DIR}/node.lib")
+  endif()
+
+  if(NOT EXISTS "${NODE_LIB}")
+    message("node lib not found ${NODE_LIB}")
+  else()
+    message("* node lib ${NODE_LIB}")
+
+    target_include_directories(${ex_name}
+      PUBLIC ${NODE_SOURCE_DIR} ${NODE_ROOT_DIR}/deps/v8/include
+    )
+    target_link_libraries(${ex_name} PUBLIC ${NODE_LIB})
+  endif()
+endif()
+
 if(HAVE_MYSQL)
   if(${windows})
     if (${ARCH_BITS} EQUAL "64")

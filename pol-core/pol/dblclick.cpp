@@ -93,7 +93,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       sd.quickconfig( "scripts/misc/dblclickself.ecl" );
       if ( sd.exists() )
       {
-        ref_ptr<Bscript::EScriptProgram> prog;
+        ref_ptr<Bscript::Program> prog;
         prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
         if ( prog.get() != nullptr && client->chr->start_script( prog.get(), false ) )
         {
@@ -136,7 +136,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     sd.quickconfig( "scripts/misc/dblclickother.ecl" );
     if ( sd.exists() )
     {
-      ref_ptr<Bscript::EScriptProgram> prog;
+      ref_ptr<Bscript::Program> prog;
       prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
       if ( prog.get() != nullptr )
         script_ran =
@@ -216,7 +216,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       sd.quickconfig( "scripts/misc/dblclickitem.ecl" );
       if ( sd.exists() )
       {
-        ref_ptr<Bscript::EScriptProgram> prog;
+        ref_ptr<Bscript::Program> prog;
         prog = find_script2( sd, false, Plib::systemstate.config.cache_interactive_scripts );
         if ( prog.get() != nullptr )
           client->chr->start_script( prog.get(), false, new Module::EItemRefObjImp( item ) );

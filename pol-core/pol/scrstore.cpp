@@ -35,8 +35,7 @@ bool script_loaded( ScriptDef& sd )
   return ( itr != scriptScheduler.scrstore.end() );
 }
 
-ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool complain_if_not_found,
-                                              bool cache_script )
+ref_ptr<Bscript::Program> find_script( const std::string& name, bool complain_if_not_found, bool cache_script )
 {
   ScriptStorage::iterator itr = scriptScheduler.scrstore.find( name.c_str() );
   if ( itr != scriptScheduler.scrstore.end() )
@@ -47,13 +46,13 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
     }
     else
     {
-      ref_ptr<Bscript::EScriptProgram> res( ( *itr ).second );
+      ref_ptr<Bscript::Program> res( ( *itr ).second );
       scriptScheduler.scrstore.erase( itr );
       return res;
     }
   }
 
-  ref_ptr<Bscript::EScriptProgram> program( new Bscript::EScriptProgram );
+  ref_ptr<Bscript::Program> program( new Bscript::EScriptProgram );
   std::string pathname = "scripts/";
   pathname += name.c_str();
   if ( name.find( ".ecl" ) == std::string::npos )
@@ -65,7 +64,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
     {
       POLLOG_ERROR << "Unable to read script '" << pathname << "'\n";
     }
-    return ref_ptr<Bscript::EScriptProgram>( nullptr );
+    return ref_ptr<Bscript::Program>( nullptr );
   }
 
   if ( cache_script )
@@ -80,15 +79,15 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
 
 // NOTE,we assume this has directory info (including scripts/ or pkg/xx)
 //      as well as ".ecl" on the end.
-ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool complain_if_not_found,
+ref_ptr<Bscript::Program> find_script2( const ScriptDef& script, bool complain_if_not_found,
                                                bool cache_script )
 {
   ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script.c_str() );
   if ( itr != scriptScheduler.scrstore.end() )
     return ( *itr ).second;
 
-  ref_ptr<Bscript::EScriptProgram> program( new Bscript::EScriptProgram );
-  program->pkg = script.pkg();
+  ref_ptr<Bscript::Program> program( new Bscript::EScriptProgram );
+  program->package( script.pkg() );
 
   if ( program->read( script.c_str() ) != 0 )
   {
@@ -96,7 +95,7 @@ ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool com
     {
       POLLOG_ERROR << "Unable to read script '" << script.name() << "'\n";
     }
-    return ref_ptr<Bscript::EScriptProgram>( nullptr );
+    return ref_ptr<Bscript::Program>( nullptr );
   }
 
   if ( cache_script )
@@ -159,7 +158,10 @@ void log_all_script_cycle_counts( bool clear_counters )
   u64 total_instr = 0;
   for ( const auto& scr : scriptScheduler.scrstore )
   {
-    total_instr += scr.second->instr_cycles;
+    if ( scr.second.get()->type() != Bscript::Program::ESCRIPT )
+      continue;
+
+    total_instr += dynamic_cast<Bscript::EScriptProgram*>( scr.second.get() )->instr_cycles;
   }
 
   if ( Plib::systemstate.config.multithread )
@@ -180,7 +182,11 @@ void log_all_script_cycle_counts( bool clear_counters )
                                                      << "%";
   for ( const auto& scr : scriptScheduler.scrstore )
   {
-    Bscript::EScriptProgram* eprog = scr.second.get();
+    if ( scr.second.get()->type() != Bscript::Program::ESCRIPT )
+      continue;
+
+    Bscript::EScriptProgram* eprog = dynamic_cast<Bscript::EScriptProgram*>( scr.second.get() );
+
     double cycle_percent =
         total_instr != 0 ? ( static_cast<double>( eprog->instr_cycles ) / total_instr * 100.0 ) : 0;
     tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" )
@@ -203,7 +209,11 @@ void clear_script_profile_counters()
 {
   for ( const auto& scr : scriptScheduler.scrstore )
   {
-    Bscript::EScriptProgram* eprog = scr.second.get();
+    if ( scr.second.get()->type() != Bscript::Program::ESCRIPT )
+      continue;
+
+    Bscript::EScriptProgram* eprog = dynamic_cast<Bscript::EScriptProgram*>( scr.second.get() );
+
     eprog->instr_cycles = 0;
     eprog->invocations = eprog->count() - 1;  // 1 count is the scrstore's
   }

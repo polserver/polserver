@@ -270,6 +270,8 @@ set (pol_sources  # sorted !
   network/sockio.cpp
   network/sockio.h
   network/xbuffer.h
+  node/nodethread.cpp
+  node/nodethread.h
   npctemplates.cpp
   npctmpl.cpp
   npctmpl.h

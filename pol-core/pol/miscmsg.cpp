@@ -150,7 +150,7 @@ void handle_msg_B5( Client* client, PKTIN_B5* /*msg*/ )
 
 void handle_char_profile_request( Client* client, PKTBI_B8_IN* msg )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/charprofile", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {
@@ -375,7 +375,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     break;
   case PKTBI_BF::TYPE_POPUP_MENU_REQUEST:
   {
-    ref_ptr<Bscript::EScriptProgram> prog =
+    ref_ptr<Bscript::Program> prog =
         find_script( "misc/popupmenu", true, Plib::systemstate.config.cache_interactive_scripts );
     if ( prog.get() == nullptr )
       break;
@@ -607,7 +607,7 @@ void handle_aos_commands( Client* client, PKTBI_D7* msg )
 
 void OnGuildButton( Client* client )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/guildbutton", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {
@@ -617,7 +617,7 @@ void OnGuildButton( Client* client )
 
 void OnQuestButton( Client* client )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/questbutton", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {
@@ -627,7 +627,7 @@ void OnQuestButton( Client* client )
 
 void OnChatButton( Client* client )
 {
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/chatbutton", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {

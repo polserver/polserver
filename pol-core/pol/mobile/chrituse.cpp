@@ -27,14 +27,14 @@ namespace Pol
 {
 namespace Mobile
 {
-bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached,
+bool Character::start_script( Bscript::Program* prog, bool start_attached,
                               Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
                               Bscript::BObjectImp* param4 )
 {
   if ( !( !start_attached || ( script_ex == nullptr ) ) )
   {
     POLLOG << "Character::start_script hiccup\n"
-           << "Trying to start script " << prog->name.get() << "\n"
+           << "Trying to start script " << prog->scriptname() << "\n"
            << "Script " << script_ex->scriptname() << " is already running\n";
     return false;  // if it's going to have a passert() error, just return false.
   }
@@ -48,7 +48,7 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
   auto uoemod = new Module::UOExecutorModule( *ex );
   ex->addModule( uoemod );
 
-  if ( prog->haveProgram )
+  if ( prog->hasProgram() )
   {
     if ( param4 )
       ex->pushArg( param4 );
@@ -74,12 +74,12 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
   }
   else
   {
-    POLLOG << "Unable to setProgram(" << prog->name.get() << ")\n";
+    POLLOG << "Unable to setProgram(" << prog->scriptname() << ")\n";
     return false;
   }
 }
 
-bool Character::start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
+bool Character::start_itemuse_script( Bscript::Program* prog, Items::Item* item,
                                       bool start_attached )
 {
   return start_script( prog, start_attached, new Module::EItemRefObjImp( item ) );
@@ -92,7 +92,7 @@ void Item::walk_on( Mobile::Character* chr )
   const Items::ItemDesc& itemdesc = this->itemdesc();
   if ( !itemdesc.walk_on_script.empty() )
   {
-    ref_ptr<Bscript::EScriptProgram> prog;
+    ref_ptr<Bscript::Program> prog;
     prog = find_script2( itemdesc.walk_on_script,
                          true,  // complain if not found
                          Plib::systemstate.config.cache_interactive_scripts );
@@ -100,7 +100,7 @@ void Item::walk_on( Mobile::Character* chr )
     {
       std::unique_ptr<Core::UOExecutor> ex( Core::create_script_executor() );
       ex->addModule( new Module::UOExecutorModule( *ex ) );
-      if ( prog->haveProgram )
+      if ( prog->hasProgram() )
       {
         ex->pushArg( new Bscript::BLong( chr->lastz ) );
         ex->pushArg( new Bscript::BLong( chr->lasty ) );

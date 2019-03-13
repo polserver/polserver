@@ -5291,7 +5291,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
     if ( itemdesc.requires_attention && chr->hidden() )
       chr->unhide();
 
-    ref_ptr<EScriptProgram> prog;
+    ref_ptr<Program> prog;
 
     std::string on_use_script = item->get_use_script_name();
 

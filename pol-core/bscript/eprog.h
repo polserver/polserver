@@ -74,10 +74,37 @@ struct EPDbgFunction
 
 struct BSCRIPT_SECTION_HDR;
 
-class EScriptProgram : public ref_counted
+class Program : public ref_counted
+{
+public:
+  Program();
+  virtual ~Program(){/* Empty implementation */};
+  virtual bool hasProgram() const = 0;
+  virtual int read( const char* fname ) = 0;
+  virtual void package( const Plib::Package* pkg ) = 0;
+  virtual std::string scriptname() const = 0;
+
+  enum ProgramType
+  {
+    ESCRIPT
+  };
+
+  virtual ProgramType type() const = 0;
+};
+
+
+class EScriptProgram : public Program
 {
 public:
   EScriptProgram();
+
+  bool hasProgram() const override;
+  void package( const Plib::Package* pkg ) override;
+
+  Program::ProgramType type() const override;
+  std::string scriptname() const override;
+
+
   void addToken( const Token& token );
   void append( const StoredToken& stoken );
   void append( const StoredToken& stoken, unsigned* posn );

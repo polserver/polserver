@@ -524,7 +524,7 @@ void Item::double_click( Network::Client* client )
   if ( itemdesc.requires_attention && client->chr->hidden() )
     client->chr->unhide();
 
-  ref_ptr<Bscript::EScriptProgram> prog;
+  ref_ptr<Bscript::Program> prog;
 
   if ( !on_use_script_.get().empty() )
   {

@@ -117,6 +117,7 @@
 #include "network/pktin.h"
 #include "network/sockets.h"
 #include "network/sockio.h"
+#include "node/nodethread.h"
 #include "party.h"
 #include "polcfg.h"
 #include "polclock.h"
@@ -865,6 +866,11 @@ void start_threads()
 #ifdef HAVE_MYSQL
   checkpoint( "start sql service thread" );
   start_sql_service();
+#endif
+
+#ifdef HAVE_NODEJS
+  checkpoint( "start nodejs thread" );
+  start_thread( Pol::Node::start_node_thread, "Node Thread" );
 #endif
 }
 

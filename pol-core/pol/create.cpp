@@ -539,7 +539,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   // FIXME : Shouldn't this be triggered at the end of creation?
   run_logon_script( chr );
 
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {
@@ -922,7 +922,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   // FIXME : Shouldn't this be triggered at the end of creation?
   run_logon_script( chr );
 
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {
@@ -1341,7 +1341,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   // FIXME : Shouldn't this be triggered at the end of creation?
   run_logon_script( chr );
 
-  ref_ptr<Bscript::EScriptProgram> prog =
+  ref_ptr<Bscript::Program> prog =
       find_script( "misc/oncreate", true, Plib::systemstate.config.cache_interactive_scripts );
   if ( prog.get() != nullptr )
   {

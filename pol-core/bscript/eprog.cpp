@@ -17,7 +17,7 @@ namespace Pol
 namespace Bscript
 {
 EScriptProgram::EScriptProgram()
-    : ref_counted(),
+    : Program(),
       nglobals( 0 ),
       expectedArgs( 0 ),
       haveProgram( false ),
@@ -71,9 +71,32 @@ EScriptProgram::~EScriptProgram()
   --escript_program_count;
 }
 
+Program::Program() : ref_counted() {
+
+}
+
 void EScriptProgram::clear_modules()
 {
   Clib::delete_all( modules );
 }
+
+bool EScriptProgram::hasProgram() const
+{
+  return haveProgram;
+}
+
+Program::ProgramType EScriptProgram::type() const
+{
+  return Program::ProgramType::ESCRIPT;
+}
+
+void EScriptProgram::package(const Plib::Package* pkg_) {
+  pkg = pkg_;
+}
+
+std::string EScriptProgram::scriptname() const {
+  return name;
+}
+
 }  // namespace Bscript
 }  // namespace Pol

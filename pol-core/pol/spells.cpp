@@ -197,7 +197,7 @@ void USpell::cast( Mobile::Character* chr )
 
   if ( !scriptdef_.empty() )
   {
-    ref_ptr<Bscript::EScriptProgram> prog =
+    ref_ptr<Bscript::Program> prog =
         find_script2( scriptdef_, true, Plib::systemstate.config.cache_interactive_scripts );
 
     if ( prog.get() != nullptr )

@@ -59,7 +59,7 @@ void handle_use_skill( Network::Client* client, PKTIN_12* msg )
 bool StartSkillScript( Network::Client* client, const Mobile::Attribute* attrib )
 {
   Mobile::Character* chr = client->chr;
-  ref_ptr<Bscript::EScriptProgram> prog = find_script2(
+  ref_ptr<Bscript::Program> prog = find_script2(
       attrib->script_, true,
       /* complain if not found */ Plib::systemstate.config.cache_interactive_scripts );
 

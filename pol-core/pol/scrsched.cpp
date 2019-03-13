@@ -152,7 +152,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
   Bscript::BObject bobj0( param0 );  // just to delete if it doesn't go somewhere else
   Bscript::BObject bobj1( param1 ? param1 : Bscript::UninitObject::create() );
 
-  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
+  ref_ptr<Bscript::Program> program = find_script( filename );
   if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << filename << "\n";
@@ -160,7 +160,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
   }
 
   UOExecutor* ex = create_script_executor();
-  if ( program->haveProgram )
+  if ( program->hasProgram() )
   {
     if ( param1 )
       ex->pushArg( param1 );
@@ -181,7 +181,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   Bscript::BObject bobj(
       param ? param
             : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
-  ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
+  ref_ptr<Bscript::Program> program = find_script2( script );
   if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << script.name() << "\n";
@@ -190,7 +190,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   }
 
   std::unique_ptr<UOExecutor> ex( create_script_executor() );
-  if ( program->haveProgram && ( param != nullptr ) )
+  if ( program->hasProgram() && ( param != nullptr ) )
   {
     ex->pushArg( param );
   }
@@ -218,7 +218,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   Bscript::BObject bobj2( param2 ? param2 : Bscript::UninitObject::create() );
   Bscript::BObject bobj3( param3 ? param3 : Bscript::UninitObject::create() );
 
-  ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
+  ref_ptr<Bscript::Program> program = find_script2( script );
   if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << script.name() << "\n";
@@ -227,7 +227,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   }
 
   std::unique_ptr<UOExecutor> ex( create_script_executor() );
-  if ( program->haveProgram )
+  if ( program->hasProgram() )
   {
     if ( param3 != nullptr )
       ex->pushArg( param3 );
@@ -255,7 +255,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
 }
 
 // EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
+Module::UOExecutorModule* start_script( ref_ptr<Bscript::Program> program,
                                         Bscript::BObjectImp* param )
 {
   Bscript::BObject bobj(
@@ -263,7 +263,7 @@ Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program
             : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
 
   UOExecutor* ex = create_script_executor();
-  if ( program->haveProgram && ( param != nullptr ) )
+  if ( program->hasProgram() && ( param != nullptr ) )
   {
     ex->pushArg( param );
   }
@@ -302,7 +302,7 @@ void add_common_exmods( Core::UOExecutor& ex )
   ex.addModule( CreateFileAccessExecutorModule( ex ) );
 }
 
-bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* prog )
+bool run_script_to_completion_worker( UOExecutor& ex, Bscript::Program* prog )
 {
   add_common_exmods( ex );
   ex.addModule( new Module::UOExecutorModule( ex ) );
@@ -334,7 +334,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
 {
   passert_always( parameter );
   Bscript::BObject bobj( parameter );
-  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
+  ref_ptr<Bscript::Program> program = find_script( filename );
   if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << filename << "\n";
@@ -342,7 +342,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
   }
 
   UOExecutor ex;
-  if ( program->haveProgram )
+  if ( program->hasProgram() )
   {
     ex.pushArg( parameter );
   }
@@ -351,7 +351,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
 
 bool run_script_to_completion( const char* filename )
 {
-  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
+  ref_ptr<Bscript::Program> program = find_script( filename );
   if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << filename << "\n";
@@ -366,7 +366,7 @@ bool run_script_to_completion( const char* filename )
 
 Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script )
 {
-  ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
+  ref_ptr<Bscript::Program> program = find_script2( script );
   if ( program.get() == nullptr )
   {
     ERROR_PRINT << "Error reading script " << script.name() << "\n";

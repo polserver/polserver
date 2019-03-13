@@ -1459,7 +1459,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
           PKTIN_B1::INT_ENTRY* intentries_ = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr_ + 1 );
           if ( intentries_->value == client->chr->serial_ext )
           {
-            ref_ptr<EScriptProgram> prog = find_script(
+            ref_ptr<Program> prog = find_script(
                 "misc/virtuebutton", true, Plib::systemstate.config.cache_interactive_scripts );
             if ( prog.get() != nullptr )
               client->chr->start_script( prog.get(), false );
@@ -1785,13 +1785,21 @@ BObjectImp* GetScriptProfiles()
   u64 total_instr = 0;
   for ( const auto& source : scriptScheduler.scrstore )
   {
-    EScriptProgram* eprog = ( ( source ).second ).get();
-    total_instr += eprog->instr_cycles;
+    Program* prog = ( ( source ).second ).get();
+    if ( prog->type() != Bscript::Program::ESCRIPT )
+      continue;
+
+      total_instr += dynamic_cast<Bscript::EScriptProgram*>( prog )->instr_cycles;
+
   }
 
   for ( const auto& src : scriptScheduler.scrstore )
   {
-    EScriptProgram* eprog = ( ( src ).second ).get();
+    Program* prog = ( ( src ).second ).get();
+    if ( prog->type() != Bscript::Program::ESCRIPT )
+      continue;
+
+    EScriptProgram* eprog = dynamic_cast<Bscript::EScriptProgram*>( prog );
 
 
     std::unique_ptr<BStruct> elem = Clib::make_unique<BStruct>();

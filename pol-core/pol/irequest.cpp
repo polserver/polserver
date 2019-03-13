@@ -129,7 +129,7 @@ void skillrequest( Network::Client* client, u32 serial )
     sd.quickconfig( "scripts/misc/skillwin.ecl" );
     if ( sd.exists() )
     {
-      ref_ptr<Bscript::EScriptProgram> prog;
+      ref_ptr<Bscript::Program> prog;
       prog = find_script2( sd,
                            false,  // complain if not found
                            Plib::systemstate.config.cache_interactive_scripts );

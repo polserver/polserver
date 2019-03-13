@@ -1,14 +1,16 @@
 #ifndef POL_GLOBAL_CONFIG_H
 #define POL_GLOBAL_CONFIG_H
-
 #cmakedefine USE_BOOST_REGEX
 #cmakedefine ENABLE_FLYWEIGHT_REPORT
 #cmakedefine MEMORYLEAK
 #cmakedefine PERGON
 #cmakedefine ESCRIPT_PROFILE
-#cmakedefine HAVE_OPENSSL
+#cmakedefine HAVE_OPENSSL 1
 #cmakedefine HAVE_MYSQL
+#cmakedefine HAVE_NODEJS
 #cmakedefine ENABLE_BENCHMARK
+
+#define NODE_ADDON_API_DISABLE_DEPRECATED
 
 #define POL_VERSION @POL_VERSION@
 #define POL_VERSION_STR "@POL_VERSION_STR@"

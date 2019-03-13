@@ -728,8 +728,11 @@ int Executor::getToken( Token& token, unsigned position )
 }
 
 
-bool Executor::setProgram( EScriptProgram* i_prog )
+bool Executor::setProgram( Program* i_progg )
 {
+  EScriptProgram* i_prog = dynamic_cast<EScriptProgram*>( i_progg );
+  if (i_prog == nullptr)
+    throw std::runtime_error("Attempt to set executor to non-EScriptProgram");
   prog_.set( i_prog );
   prog_ok_ = false;
   seterror( true );

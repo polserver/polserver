@@ -79,7 +79,14 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
     usage.scriptstorage_size += ( sizeof( void* ) * 3 + 1 ) / 2;
     usage.scriptstorage_size += script.first.capacity();
     if ( script.second.get() != nullptr )
-      usage.scriptstorage_size += script.second->sizeEstimate();
+    {
+      Bscript::Program* prog = script.second.get();
+      if ( prog->type() != Bscript::Program::ESCRIPT )
+        continue;
+
+      usage.scriptstorage_size += dynamic_cast<Bscript::EScriptProgram*>(prog)->sizeEstimate();
+
+    }
   }
   usage.scriptstorage_count = scrstore.size();
 

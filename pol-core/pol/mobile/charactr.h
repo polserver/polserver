@@ -82,7 +82,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
-class EScriptProgram;
+class Program;
 class ObjArray;
 }  // namespace Bscript
 namespace Clib
@@ -592,13 +592,13 @@ public:
   void schedule_spell( Core::USpell* );
   bool casting_spell() const;
   bool skill_ex_active() const;
-  bool start_script( Bscript::EScriptProgram* prog, bool start_attached,
+  bool start_script( Bscript::Program* prog, bool start_attached,
                      Bscript::BObjectImp* param2 = nullptr, Bscript::BObjectImp* param3 = nullptr,
                      Bscript::BObjectImp* param4 = nullptr );
-  bool start_skill_script( Bscript::EScriptProgram* prog );
-  bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
+  bool start_skill_script( Bscript::Program* prog );
+  bool start_itemuse_script( Bscript::Program* prog, Items::Item* item,
                              bool start_attached );
-  bool start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell );
+  bool start_spell_script( Bscript::Program* prog, Core::USpell* spell );
   void cancel_menu();
 
 private:
