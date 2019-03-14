@@ -14,7 +14,6 @@
 #include "../clib/rawtypes.h"
 #include "item/item.h"
 #include "mobile/charactr.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/cgdata.h"
 #include "network/client.h"
@@ -23,6 +22,7 @@
 #include "network/pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"
+#include "uoexhelp.h"
 
 namespace Pol
 {

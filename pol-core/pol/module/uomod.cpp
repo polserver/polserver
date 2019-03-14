@@ -150,12 +150,12 @@
 #include "../unicode.h"
 #include "../uobject.h"
 #include "../uoexec.h"
+#include "../uoexhelp.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../wthrtype.h"
 #include "cfgmod.h"
-#include "osmod.h"
 
 namespace Pol
 {

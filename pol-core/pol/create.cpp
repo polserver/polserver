@@ -32,7 +32,6 @@
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "mobile/wornitems.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/client.h"
 #include "network/pktdef.h"

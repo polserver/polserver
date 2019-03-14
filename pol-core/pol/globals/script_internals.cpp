@@ -6,7 +6,6 @@
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
-#include "../module/osmod.h"
 #include "../polsig.h"
 #include "../uoexec.h"
 #include "state.h"
@@ -276,7 +275,7 @@ void ScriptScheduler::run_ready()
         THREAD_CHECKPOINT( scripts, 115 );
 
         // runlist.erase( itr );
-        ex->in_hold_list(Core::HoldListType::DEBUGGER_LIST);
+        ex->in_hold_list( Core::HoldListType::DEBUGGER_LIST );
         debuggerholdlist.insert( ex );
         continue;
       }
@@ -289,8 +288,7 @@ void ScriptScheduler::run_ready()
       if ( ex->sleep_until_clock() )
       {
         ex->in_hold_list( Core::HoldListType::TIMEOUT_LIST );
-        ex->hold_itr( 
-            holdlist.insert( HoldList::value_type( ex->sleep_until_clock(), ex ) ) );
+        ex->hold_itr( holdlist.insert( HoldList::value_type( ex->sleep_until_clock(), ex ) ) );
       }
       else
       {

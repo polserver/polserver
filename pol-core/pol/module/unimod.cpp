@@ -27,7 +27,6 @@
 #include "../ufunc.h"
 #include "../unicode.h"
 #include "../uoexec.h"
-#include "osmod.h"
 
 namespace Pol
 {

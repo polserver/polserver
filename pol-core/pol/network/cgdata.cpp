@@ -12,7 +12,6 @@
 #include "../containr.h"
 #include "../fnsearch.h"
 #include "../mobile/npc.h"
-#include "../module/osmod.h"
 #include "../module/unimod.h"
 #include "../module/uomod.h"
 #include "../multi/customhouses.h"

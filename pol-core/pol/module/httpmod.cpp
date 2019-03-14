@@ -11,7 +11,6 @@
 #include "../../clib/wnsckt.h"
 #include "../../plib/systemstate.h"
 #include "../uoexec.h"
-#include "osmod.h"
 
 
 namespace Pol
