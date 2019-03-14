@@ -38,6 +38,64 @@ static_assert(sizeof(char16_t) == sizeof(wchar_t), "Size mismatch between char16
   #define NAPI_NOEXCEPT noexcept
 #endif
 
+#ifdef NAPI_CPP_EXCEPTIONS
+
+// When C++ exceptions are enabled, Errors are thrown directly. There is no need
+// to return anything after the throw statements. The variadic parameter is an
+// optional return value that is ignored.
+// We need _VOID versions of the macros to avoid warnings resulting from
+// leaving the NAPI_THROW_* `...` argument empty.
+
+#define NAPI_THROW(e, ...)  throw e
+#define NAPI_THROW_VOID(e)  throw e
+
+#define NAPI_THROW_IF_FAILED(env, status, ...)           \
+  if ((status) != napi_ok) throw Error::New(env);
+
+#define NAPI_THROW_IF_FAILED_VOID(env, status)           \
+  if ((status) != napi_ok) throw Error::New(env);
+
+#else // NAPI_CPP_EXCEPTIONS
+
+// When C++ exceptions are disabled, Errors are thrown as JavaScript exceptions,
+// which are pending until the callback returns to JS.  The variadic parameter
+// is an optional return value; usually it is an empty result.
+// We need _VOID versions of the macros to avoid warnings resulting from
+// leaving the NAPI_THROW_* `...` argument empty.
+
+#define NAPI_THROW(e, ...)                               \
+  do {                                                   \
+    (e).ThrowAsJavaScriptException();                    \
+    return __VA_ARGS__;                                  \
+  } while (0)
+
+#define NAPI_THROW_VOID(e)                               \
+  do {                                                   \
+    (e).ThrowAsJavaScriptException();                    \
+    return;                                              \
+  } while (0)
+
+#define NAPI_THROW_IF_FAILED(env, status, ...)           \
+  if ((status) != napi_ok) {                             \
+    Error::New(env).ThrowAsJavaScriptException();        \
+    return __VA_ARGS__;                                  \
+  }
+
+#define NAPI_THROW_IF_FAILED_VOID(env, status)           \
+  if ((status) != napi_ok) {                             \
+    Error::New(env).ThrowAsJavaScriptException();        \
+    return;                                              \
+  }
+
+#endif // NAPI_CPP_EXCEPTIONS
+
+#define NAPI_FATAL_IF_FAILED(status, location, message)  \
+  do {                                                   \
+    if ((status) != napi_ok) {                           \
+      Error::Fatal((location), (message));               \
+    }                                                    \
+  } while (0)
+
 ////////////////////////////////////////////////////////////////////////////////
 /// N-API C++ Wrapper Classes
 ///
@@ -1758,6 +1816,68 @@ namespace Napi {
     ObjectReference _receiver;
     FunctionReference _callback;
     std::string _error;
+  };
+
+  class ThreadSafeFunction {
+  public:
+    enum Status {
+      CLOSE,
+      FULL,
+      ERROR,
+      OK
+    };
+
+    template <typename DataType, typename Finalizer,
+              typename Context, typename ResourceString>
+    static ThreadSafeFunction New(napi_env env,
+                                  const Function& callback,
+                                  const Object& resource,
+                                  ResourceString resourceName,
+                                  size_t maxQueueSize,
+                                  size_t initialThreadCount,
+                                  DataType* data,
+                                  Finalizer finalizeCallback,
+                                  Context* context);
+
+    ThreadSafeFunction();
+
+    Status BlockingCall() const;
+
+    template <typename Callback>
+    Status BlockingCall(Callback callback) const;
+
+    template <typename DataType, typename Callback>
+    Status BlockingCall(DataType* data, Callback callback) const;
+
+    Status NonBlockingCall() const;
+
+    template <typename Callback>
+    Status NonBlockingCall(Callback callback) const;
+
+    template <typename DataType, typename Callback>
+    Status NonBlockingCall(DataType* data, Callback callback) const;
+
+    bool Acquire() const;
+    bool Release();
+    bool Abort();
+
+    bool IsAborted() const;
+
+  private:
+    using CallbackWrapper = std::function<void(Napi::Env, Napi::Function)>;
+
+    ThreadSafeFunction(napi_env env, napi_threadsafe_function tsFunctionValue);
+
+    Status CallInternal(CallbackWrapper* callbackWrapper,
+                        napi_threadsafe_function_call_mode mode) const;
+
+    static void CallJS(napi_env env,
+                       napi_value jsCallback,
+                       void* context,
+                       void* data);
+
+    napi_env _env;
+    napi_threadsafe_function _tsFunctionValue;
   };
 
   // Memory management.

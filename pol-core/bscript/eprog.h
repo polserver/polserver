@@ -86,7 +86,8 @@ public:
 
   enum ProgramType
   {
-    ESCRIPT
+    ESCRIPT,
+    JAVASCRIPT
   };
 
   virtual ProgramType type() const = 0;
@@ -97,6 +98,8 @@ class EScriptProgram : public Program
 {
 public:
   EScriptProgram();
+  static Program* create();
+
 
   bool hasProgram() const override;
   void package( const Plib::Package* pkg ) override;

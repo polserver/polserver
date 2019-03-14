@@ -18,6 +18,7 @@
 #include "profile.h"
 #include "scrdef.h"
 #include <format/format.h>
+#include "node/nodethread.h"
 
 
 namespace Pol
@@ -77,8 +78,15 @@ ref_ptr<Bscript::Program> find_script( const std::string& name, bool complain_if
   return program;
 }
 
+ProgramFactoryMap map;
+
+void register_program_type( const std::string& extension, Bscript::Program* ( *factory )() )
+{
+  map.emplace( extension, factory );
+}
+
 // NOTE,we assume this has directory info (including scripts/ or pkg/xx)
-//      as well as ".ecl" on the end.
+//     for the filename, if it has an extension, use that engine. otherwise, try both.
 ref_ptr<Bscript::Program> find_script2( const ScriptDef& script, bool complain_if_not_found,
                                                bool cache_script )
 {
@@ -86,10 +94,20 @@ ref_ptr<Bscript::Program> find_script2( const ScriptDef& script, bool complain_i
   if ( itr != scriptScheduler.scrstore.end() )
     return ( *itr ).second;
 
-  ref_ptr<Bscript::Program> program( new Bscript::EScriptProgram );
-  program->package( script.pkg() );
+  ref_ptr<Bscript::Program> program;
 
-  if ( program->read( script.c_str() ) != 0 )
+  auto mapitr = map.begin();
+
+  for ( ; mapitr != map.end(); mapitr++ ) 
+  {
+    program.set( mapitr->second() );
+    if ( Clib::endsWith( script.name(), mapitr->first ) && program->read( script.c_str() ) == 0 )
+      break;
+    else if ( program->read( (script.name() + mapitr->first).c_str() ) == 0 )
+      break;
+  }
+
+  if ( mapitr == map.end() )
   {
     if ( complain_if_not_found )
     {
@@ -97,6 +115,9 @@ ref_ptr<Bscript::Program> find_script2( const ScriptDef& script, bool complain_i
     }
     return ref_ptr<Bscript::Program>( nullptr );
   }
+
+  program->package( script.pkg() );
+
 
   if ( cache_script )
   {

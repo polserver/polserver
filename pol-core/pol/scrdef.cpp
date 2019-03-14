@@ -10,24 +10,36 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../plib/pkg.h"
+#include "scrstore.h"
 
 namespace Pol
 {
 namespace Core
 {
+extern ProgramFactoryMap map;
+
 std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
                              const char* mainpfx )
 {
   if ( spec.empty() )
     return spec;
 
-  if ( pkg != nullptr )
-    return Bscript::normalize_ecl_filename( pkg->dir() + spec );
+  std::string prefix = ( pkg != nullptr ) ? pkg->dir() + spec :
 
-  if ( spec.find( '/' ) == std::string::npos )
-    return Bscript::normalize_ecl_filename( mainpfx + spec );
-  else
-    return Bscript::normalize_ecl_filename( "scripts/" + spec );
+                                          ( spec.find( '/' ) == std::string::npos )
+                                              ? mainpfx + spec
+                                              : "scripts/" + spec;
+  for ( auto& kv : map )
+  {
+    if ( Clib::endsWith( prefix, kv.first ) )
+      return prefix;
+
+    std::string possibleName = prefix + kv.first;
+    if ( Clib::FileExists( possibleName ) )
+      return possibleName;
+  }
+
+  return Bscript::normalize_ecl_filename( prefix );
 }
 
 ScriptDef::ScriptDef( const std::string& iname, const Plib::Package* ipkg, const char* mainpfx )
@@ -125,7 +137,20 @@ void ScriptDef::quickconfig( const std::string& name_ecl )
 
 bool ScriptDef::exists() const
 {
-  return !empty() && Clib::FileExists( c_str() );
+  if ( empty() )
+    return false;
+
+  else if ( Clib::FileExists( c_str() ) )
+    return true;
+
+  for ( auto& kv : map )
+  {
+    std::string possibleName = name_.get() + kv.first;
+    if ( !Clib::endsWith( name_.get(), kv.first ) && Clib::FileExists( possibleName.c_str() ) )
+      return true;
+  }
+  return false;
+
   // ref_ptr<EScriptProgram> prog = find_script2( *this, false, true );
   // return (prog.get() != nullptr);
 }

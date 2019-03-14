@@ -589,9 +589,9 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
       ScriptDef sd;
       Plib::Package* pkg = cmdlevel.searchlist[diridx].pkg;
       if ( pkg )
-        sd.quickconfig( pkg, cmdlevel.searchlist[diridx].dir + scriptname + ".ecl" );
+        sd.quickconfig( pkg, cmdlevel.searchlist[diridx].dir + scriptname );
       else
-        sd.quickconfig( cmdlevel.searchlist[diridx].dir + scriptname + ".ecl" );
+        sd.quickconfig( cmdlevel.searchlist[diridx].dir + scriptname );
       if ( !sd.exists() )
         continue;
 

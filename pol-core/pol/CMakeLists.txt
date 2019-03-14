@@ -37,7 +37,7 @@ if(HAVE_NODEJS)
     set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/out")
     set(NODE_LIB "${NODE_INSTALL_DIR}/lib/libnode.a")
   else()
-    set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/Release")
+    set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/Debug")
     set(NODE_LIB "${NODE_INSTALL_DIR}/node.lib")
   endif()
 

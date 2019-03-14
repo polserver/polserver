@@ -44,6 +44,9 @@ void mkupper( std::string& str );
 
 std::string strlower( const std::string& str );
 std::string strupper( const std::string& str );
+
+bool endsWith( const std::string& str, const std::string& suffix );
+
 }  // namespace Clib
 }  // namespace Pol
 #endif  // CLIB_STRUTIL_H

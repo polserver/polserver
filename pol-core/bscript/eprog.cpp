@@ -71,6 +71,11 @@ EScriptProgram::~EScriptProgram()
   --escript_program_count;
 }
 
+Program* EScriptProgram::create()
+{
+  return new EScriptProgram();
+}
+
 Program::Program() : ref_counted() {
 
 }

@@ -131,6 +131,7 @@
 #include "savedata.h"
 #include "scrdef.h"
 #include "scrsched.h"
+#include "scrstore.h" 
 #include "sqlscrobj.h"
 #include "ssopt.h"
 #include "testing/poltest.h"
@@ -868,10 +869,6 @@ void start_threads()
   start_sql_service();
 #endif
 
-#ifdef HAVE_NODEJS
-  checkpoint( "start nodejs thread" );
-  start_thread( Pol::Node::start_node_thread, "Node Thread" );
-#endif
 }
 
 void check_incoming_data( void )
@@ -1202,6 +1199,16 @@ int xmain_inner( bool testing )
   Core::Check_libc_version();
 #endif
 
+  Core::register_program_type( ".ecl", Bscript::EScriptProgram::create );
+
+#ifdef HAVE_NODEJS
+  Core::checkpoint( "start nodejs thread" );
+  Node::start_node().wait();
+  // technically, we would need to block here until we have the thread started
+  Core::register_program_type( ".js", Node::JavascriptProgram::create );
+#endif
+
+
   Core::checkpoint( "init default itemdesc defaults" );
   Core::gamestate.empty_itemdesc->doubleclick_range =
       Core::settingsManager.ssopt.default_doubleclick_range;
@@ -1286,6 +1293,7 @@ int xmain_inner( bool testing )
   // PrintAllocationData();
 
   // onetime_create_stubdata();
+
 
   Core::checkpoint( "running start scripts" );
   Core::run_start_scripts();

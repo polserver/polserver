@@ -17,64 +17,6 @@ namespace Napi {
 // Helpers to handle functions exposed from C++.
 namespace details {
 
-#ifdef NAPI_CPP_EXCEPTIONS
-
-// When C++ exceptions are enabled, Errors are thrown directly. There is no need
-// to return anything after the throw statements. The variadic parameter is an
-// optional return value that is ignored.
-// We need _VOID versions of the macros to avoid warnings resulting from
-// leaving the NAPI_THROW_* `...` argument empty.
-
-#define NAPI_THROW(e, ...)  throw e
-#define NAPI_THROW_VOID(e)  throw e
-
-#define NAPI_THROW_IF_FAILED(env, status, ...)           \
-  if ((status) != napi_ok) throw Error::New(env);
-
-#define NAPI_THROW_IF_FAILED_VOID(env, status)           \
-  if ((status) != napi_ok) throw Error::New(env);
-
-#else // NAPI_CPP_EXCEPTIONS
-
-// When C++ exceptions are disabled, Errors are thrown as JavaScript exceptions,
-// which are pending until the callback returns to JS.  The variadic parameter
-// is an optional return value; usually it is an empty result.
-// We need _VOID versions of the macros to avoid warnings resulting from
-// leaving the NAPI_THROW_* `...` argument empty.
-
-#define NAPI_THROW(e, ...)                               \
-  do {                                                   \
-    (e).ThrowAsJavaScriptException();                    \
-    return __VA_ARGS__;                                  \
-  } while (0)
-
-#define NAPI_THROW_VOID(e)                               \
-  do {                                                   \
-    (e).ThrowAsJavaScriptException();                    \
-    return;                                              \
-  } while (0)
-
-#define NAPI_THROW_IF_FAILED(env, status, ...)           \
-  if ((status) != napi_ok) {                             \
-    Error::New(env).ThrowAsJavaScriptException();        \
-    return __VA_ARGS__;                                  \
-  }
-
-#define NAPI_THROW_IF_FAILED_VOID(env, status)           \
-  if ((status) != napi_ok) {                             \
-    Error::New(env).ThrowAsJavaScriptException();        \
-    return;                                              \
-  }
-
-#endif // NAPI_CPP_EXCEPTIONS
-
-#define NAPI_FATAL_IF_FAILED(status, location, message)  \
-  do {                                                   \
-    if ((status) != napi_ok) {                           \
-      Error::Fatal((location), (message));               \
-    }                                                    \
-  } while (0)
-
 // Attach a data item to an object and delete it when the object gets
 // garbage-collected.
 // TODO: Replace this code with `napi_add_finalizer()` whenever it becomes
@@ -3677,6 +3619,159 @@ inline void AsyncWorker::OnWorkComplete(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// ThreadSafeFunction class
+////////////////////////////////////////////////////////////////////////////////
+
+// static
+template <typename DataType, typename Finalizer,
+          typename Context, typename ResourceString>
+inline ThreadSafeFunction ThreadSafeFunction::New(napi_env env,
+                                           const Function& callback,
+                                           const Object& resource,
+                                           ResourceString resourceName,
+                                           size_t maxQueueSize,
+                                           size_t initialThreadCount,
+                                           DataType* data,
+                                           Finalizer finalizeCallback,
+                                           Context* context) {
+  static_assert(details::can_make_string<ResourceString>::value
+      || std::is_convertible<ResourceString, napi_value>::value,
+      "Resource name should be string convertible type");
+
+  napi_threadsafe_function tsFunctionValue;
+  auto* finalizeData = new details::FinalizeData<DataType, Finalizer>({
+      finalizeCallback, context });
+  napi_status status = napi_create_threadsafe_function(env, callback, resource,
+      Value::From(env, resourceName), maxQueueSize, initialThreadCount, data,
+      details::FinalizeData<DataType, Finalizer, Context>::WrapperWithHint,
+      finalizeData, CallJS, &tsFunctionValue);
+  if (status != napi_ok) {
+    delete finalizeData;
+    NAPI_THROW_IF_FAILED(env, status, ThreadSafeFunction());
+  }
+
+  return ThreadSafeFunction(env, tsFunctionValue);
+}
+
+inline ThreadSafeFunction::Status ThreadSafeFunction::BlockingCall() const {
+  return CallInternal(nullptr, napi_tsfn_blocking);
+}
+
+template <typename Callback>
+inline ThreadSafeFunction::Status ThreadSafeFunction::BlockingCall(
+    Callback callback) const {
+  return CallInternal(new CallbackWrapper(callback), napi_tsfn_blocking);
+}
+
+template <typename DataType, typename Callback>
+inline ThreadSafeFunction::Status ThreadSafeFunction::BlockingCall(
+    DataType* data, Callback callback) const {
+  auto wrapper = [data, callback](Env env, Function jsCallback) {
+    callback(env, jsCallback, data);
+  };
+  return CallInternal(new CallbackWrapper(wrapper), napi_tsfn_blocking);
+}
+
+inline ThreadSafeFunction::Status ThreadSafeFunction::NonBlockingCall() const {
+  return CallInternal(nullptr, napi_tsfn_nonblocking);
+}
+
+template <typename Callback>
+inline ThreadSafeFunction::Status ThreadSafeFunction::NonBlockingCall(
+    Callback callback) const {
+  return CallInternal(new CallbackWrapper(callback), napi_tsfn_nonblocking);
+}
+
+template <typename DataType, typename Callback>
+inline ThreadSafeFunction::Status ThreadSafeFunction::NonBlockingCall(
+    DataType* data, Callback callback) const {
+  auto wrapper = [data, callback](Env env, Function jsCallback) {
+    callback(env, jsCallback, data);
+  };
+  return CallInternal(new CallbackWrapper(wrapper), napi_tsfn_nonblocking);
+}
+
+inline bool ThreadSafeFunction::Acquire() const {
+  return !IsAborted() && napi_acquire_threadsafe_function(
+      _tsFunctionValue) == napi_ok;
+}
+
+inline bool ThreadSafeFunction::Release() {
+  return !IsAborted() && napi_release_threadsafe_function(
+      _tsFunctionValue, napi_tsfn_release) == napi_ok;
+}
+
+inline bool ThreadSafeFunction::Abort() {
+  if (IsAborted()) {
+    return false;
+  }
+
+  napi_status status = napi_release_threadsafe_function(
+      _tsFunctionValue, napi_tsfn_abort);
+
+  _tsFunctionValue = nullptr;
+  _env = nullptr;
+
+  return status == napi_ok;
+}
+
+inline bool ThreadSafeFunction::IsAborted() const {
+  return _env == nullptr || _tsFunctionValue == nullptr;
+}
+
+inline ThreadSafeFunction::ThreadSafeFunction()
+  : _env(nullptr),
+    _tsFunctionValue(nullptr) {
+}
+
+inline ThreadSafeFunction::ThreadSafeFunction(
+    napi_env env, napi_threadsafe_function tsFunctionValue)
+  : _env(env),
+    _tsFunctionValue(tsFunctionValue) {
+}
+
+inline ThreadSafeFunction::Status ThreadSafeFunction::CallInternal(
+    CallbackWrapper* callbackWrapper,
+    napi_threadsafe_function_call_mode mode) const {
+  if (IsAborted()) {
+    return CLOSE;
+  }
+  napi_status status = napi_call_threadsafe_function(
+      _tsFunctionValue, callbackWrapper, mode);
+  if (status != napi_ok && callbackWrapper != nullptr) {
+    delete callbackWrapper;
+  }
+
+  switch (status) {
+  case napi_ok:
+    return OK;
+  case napi_closing:
+    return CLOSE;
+  case napi_queue_full:
+    return FULL;
+  default:
+    return ERROR;
+  }
+}
+
+// static
+inline void ThreadSafeFunction::CallJS(napi_env env,
+                                       napi_value jsCallback,
+                                       void* /* context */,
+                                       void* data) {
+  if (env == nullptr && jsCallback == nullptr)
+    return;
+
+  if (data != nullptr) {
+    auto* callbackWrapper = static_cast<CallbackWrapper*>(data);
+    (*callbackWrapper)(env, Function(env, jsCallback));
+    delete callbackWrapper;
+  } else {
+    Function(env, jsCallback).Call({});
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 // Memory Management class
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -3704,10 +3799,6 @@ inline const napi_node_version* VersionManagement::GetNodeVersion(Env env) {
   NAPI_THROW_IF_FAILED(env, status, 0);
   return result;
 }
-
-// These macros shouldn't be useful in user code.
-#undef NAPI_THROW
-#undef NAPI_THROW_IF_FAILED
 
 } // namespace Napi
 
