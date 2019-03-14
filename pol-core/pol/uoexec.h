@@ -17,7 +17,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
-#include "../globals/script_internals.h"
+#include "./globals/script_internals.h"
 
 namespace Pol
 {
