@@ -20,6 +20,8 @@ class Package;
 }
 namespace Core
 {
+std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
+                             const char* mainpfx );
 class ScriptDef
 {
 public:

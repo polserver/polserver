@@ -25,7 +25,7 @@ set(POL_VERSION_NAME "Never Gonna Give You Up")
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
-option(HAVE_NODEJS "Enable node support (experimental)" ON)
+option(HAVE_NODEJS "Enable node support (experimental)" OFF)
 option(ENABLE_FLYWEIGHT_REPORT "Enables flyweight memory report in memoryusage.log" OFF)
 
 option(BUILD_ALL "Build everything" ON)

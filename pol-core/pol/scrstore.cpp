@@ -96,18 +96,16 @@ ref_ptr<Bscript::Program> find_script2( const ScriptDef& script, bool complain_i
 
   ref_ptr<Bscript::Program> program;
 
-  auto mapitr = map.begin();
-
-  for ( ; mapitr != map.end(); mapitr++ ) 
+  for ( auto& kv : map )
   {
-    program.set( mapitr->second() );
-    if ( Clib::endsWith( script.name(), mapitr->first ) && program->read( script.c_str() ) == 0 )
+    if ( Clib::endsWith( script.name(), kv.first ) )
+    {
+      program.set( kv.second() );
       break;
-    else if ( program->read( (script.name() + mapitr->first).c_str() ) == 0 )
-      break;
+    }
   }
 
-  if ( mapitr == map.end() )
+  if ( program == nullptr || program->read( script.name().c_str() ) != 0 )
   {
     if ( complain_if_not_found )
     {

@@ -1016,11 +1016,11 @@ void run_start_scripts()
   run_script_to_completion( "start" );
   for ( const auto& pkg : Plib::systemstate.packages )
   {
-    std::string scriptname = pkg->dir() + "start.ecl";
+    std::string scriptname = Core::full_scriptname("start", pkg, "");
 
     if ( Clib::FileExists( scriptname.c_str() ) )
     {
-      ScriptDef script( "start", pkg, "" );
+      ScriptDef script( "start", pkg );
       Bscript::BObject obj( run_script_to_completion( script ) );
     }
   }
