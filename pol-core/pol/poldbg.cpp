@@ -32,7 +32,6 @@
 #include "../clib/weakptr.h"
 #include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "scrdef.h"
 #include "scrsched.h"

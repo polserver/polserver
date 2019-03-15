@@ -38,7 +38,6 @@
 #include "module/guildmod.h"
 #include "module/httpmod.h"
 #include "module/mathmod.h"
-#include "module/osmod.h"
 #include "module/partymod.h"
 #include "module/polsystemmod.h"
 #include "module/sqlmod.h"

@@ -124,7 +124,6 @@
 #include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../movecost.h"
 #include "../multi/customhouses.h"

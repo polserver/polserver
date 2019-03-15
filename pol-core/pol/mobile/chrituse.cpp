@@ -14,7 +14,6 @@
 #include "../../plib/systemstate.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../scrdef.h"
 #include "../scrsched.h"

@@ -108,10 +108,10 @@ OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
       warn_on_runaway_( true ),
       blocked_( false ),
       sleep_until_clock_( 0 ),
-      in_hold_list_( Core::HoldListType::NO_LIST ),
       hold_itr_(),
-      pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
+      in_hold_list_( Core::HoldListType::NO_LIST ),
       wait_type( Core::WAIT_TYPE::WAIT_UNKNOWN ),
+      pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
       max_eventqueue_size( Core::MAX_EVENTQUEUE_SIZE ),
       events_()
 {

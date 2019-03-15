@@ -47,7 +47,6 @@
 #include "../listenpt.h"
 #include "../mdelta.h"
 #include "../module/npcmod.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../multi/multi.h"
 #include "../npctmpl.h"

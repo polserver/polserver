@@ -93,9 +93,9 @@
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
+#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
-#include "osmod.h"
 #include "uomod.h"
 
 #ifdef MEMORYLEAK

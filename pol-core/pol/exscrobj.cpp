@@ -26,7 +26,6 @@
 #include "../bscript/objmethods.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "polcfg.h"
 #include "uoexec.h"

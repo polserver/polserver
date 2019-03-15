@@ -37,7 +37,6 @@
 #include "../globals/uvars.h"
 #include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
