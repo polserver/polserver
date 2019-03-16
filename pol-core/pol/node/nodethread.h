@@ -20,6 +20,8 @@ namespace Pol
 {
 namespace Node
 {
+extern Napi::ObjectReference obj;
+
 class JavascriptProgram : public Bscript::Program
 {
 public:
@@ -32,6 +34,8 @@ public:
   std::string scriptname() const override;
 
   ProgramType type() const override;
+
+  Napi::ObjectReference obj;
 
 private:
   std::string name;

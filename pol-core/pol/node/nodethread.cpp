@@ -12,7 +12,7 @@
 #include "../clib/threadhelp.h"
 #include "../polclock.h"
 #include "nodethread.h"
-#include <thread>
+#include <future>
 
 
 using namespace Napi;
@@ -31,38 +31,29 @@ void node_thread()
   char *argv[] = {"node", "./main.js"}, argc = 2;
   RegisterBuiltinModules();
   int ret;
-  try {
-
+  try
+  {
     ret = node::Start( argc, argv );
     POLLOG_INFO << "Node thread finished with val " << ret << "\n";
-
   }
   catch ( std::exception& ex )
   {
     POLLOG_INFO << "Node threa errored with message " << ex.what() << "\n";
-
-
   }
 }
 
 Emitter* Emitter::INSTANCE;
 
 
-void require(const std::string& name) 
+std::future<bool> release( Napi::ObjectReference& ref )
 {
-  auto callback = [name]( Env env, Function jsCallback ) {
-    POLLOG_INFO << "Call to require " << name << "\n";
-    auto ret = Emitter::INSTANCE->requireRef.Value().As<Function>().Call( {Napi::String::New( env, name )} );
-    auto funct = ret.As<Object>().Get( "default" );
-    auto ret2 = funct
-                    .As<Object>()
-                    .Get( "toString" )
-                    .As<Function>()
-                    .Call( funct,  {} )
-                    .As<String>()
-                    .Utf8Value();
+  std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
-    POLLOG_INFO << "We got value " << ret2 << "\n";
+
+  auto callback = [&ref, promise]( Env env, Function jsCallback ) {
+    POLLOG_INFO << "Call to release\n";
+    ref.Unref();
+    ( promise )->set_value( true );
     jsCallback.Call( {Number::New( env, clock() )} );
   };
 
@@ -78,12 +69,73 @@ void require(const std::string& name)
     break;
 
   case ThreadSafeFunction::CLOSE:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() is closed" );
-
+    POLLOG_ERROR << "Attempt to call node when thread is closed\n";
+    ( promise )->set_exception( std::make_exception_ptr(
+        std::runtime_error( "Attempt to call node when thread is closed" ) ) );
+    break;
   default:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() failed" );
+    ( promise )->set_exception(
+        std::make_exception_ptr( std::runtime_error( "Attempt to call node failed" ) ) );
+    // Error::Fatal( "NodeThread", "ThreadSafeFunction.*Call() failed" );
   }
+  return promise->get_future();
 }
+
+
+std::future<Napi::ObjectReference> require( const std::string& name )
+{
+  std::shared_ptr<std::promise<Napi::ObjectReference>> promise =
+      std::make_shared<std::promise<Napi::ObjectReference>>();
+
+
+  auto callback = [name, promise]( Env env, Function jsCallback ) {
+    POLLOG_INFO << "Call to require " << name << "\n";
+    auto ret = Emitter::INSTANCE->requireRef.Value().As<Function>().Call(
+        {Napi::String::New( env, name )} );
+    auto funct = ret.As<Object>().Get( "default" );
+    auto ret2 = funct.As<Object>()
+                    .Get( "toString" )
+                    .As<Function>()
+                    .Call( funct, {} )
+                    .As<String>()
+                    .Utf8Value();
+
+    POLLOG_INFO << "We got value " << ret2 << "\n";
+    ( promise )->set_value( Napi::ObjectReference::New( ret.As<Object>(), 1 ) );
+    jsCallback.Call( {Number::New( env, clock() )} );
+  };
+
+  ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
+  switch ( status )
+  {
+  case ThreadSafeFunction::FULL:
+    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() queue is full" );
+
+
+  case ThreadSafeFunction::OK:
+    POLLOG_INFO << "made blocking call\n";
+    break;
+
+  case ThreadSafeFunction::CLOSE:
+    POLLOG_ERROR << "Attempt to call node when thread is closed\n";
+    ( promise )->set_exception( std::make_exception_ptr(
+        std::runtime_error( "Attempt to call node when thread is closed" ) ) );
+    break;
+  default:
+    ( promise )->set_exception(
+        std::make_exception_ptr( std::runtime_error( "Attempt to call node failed" ) ) );
+    // Error::Fatal( "NodeThread", "ThreadSafeFunction.*Call() failed" );
+  }
+  return promise->get_future();
+}
+
+Napi::ObjectReference Node::obj;
+
+template <typename Callback>
+void run_in_node( Callback callback )
+{
+}
+
 void node_shutdown_thread()
 {
   int i = 0;
@@ -91,7 +143,7 @@ void node_shutdown_thread()
   {
     Core::pol_sleep_ms( 500 );
     i++;
-    //if ( i % 2 && i < 10 )
+    // if ( i % 2 && i < 10 )
     //{
     //  POLLOG_INFO << "making blocking call\n";
     //}
@@ -99,7 +151,20 @@ void node_shutdown_thread()
     if ( i == 5 )
     {
       POLLOG_INFO << "Trying require...\n";
-      require( "./mod.js" );
+      auto fut = require( "./script.js" );
+      fut.wait();
+      Node::obj = fut.get();
+
+      //      Node::obj.Value().As<Function>().Call();
+
+      /*
+      
+      fut
+      */
+
+      POLLOG_INFO << "Got value!\n";
+
+      release( Node::obj );
     }
 
     /*else if ( i >= 10 )
@@ -188,8 +253,11 @@ int JavascriptProgram::read( const char* fname )
 {
   try
   {
-    throw std::runtime_error( std::string( "Javascript read not implemented: cannot read " ) +
-                              fname );
+
+    auto fut = Node::require( std::string( "./" ) + fname );
+    fut.wait();
+    obj = fut.get();
+    POLLOG_INFO << "Got a successful read for " << fname << "\n";
     return 0;
   }
   catch ( std::exception& ex )
@@ -252,10 +320,16 @@ Emitter::Emitter( const Napi::CallbackInfo& info ) : Napi::ObjectWrap<Emitter>( 
   tsfn = ThreadSafeFunction::New(
       env,
 
-      info[0].As<Function>(),
+      // info[0].As<Function>(),
+
+      Function::New( env, []( CallbackInfo& info )
+  {
+    POLLOG_INFO << "We got a thing!!!! Called with length " << info.Length() << "\n";
+  }
+      ),
 
       Object(), "work_name", 0, 1,
-      (void*)nullptr,                                       // data for finalize cb
+      (void*)nullptr,                       // data for finalize cb
       []( Napi::Env, void*, Emitter* ) {},  // finalize cb
       this );
 

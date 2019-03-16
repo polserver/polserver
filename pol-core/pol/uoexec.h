@@ -41,6 +41,9 @@ public:
   virtual ~UOExecutor();
   virtual size_t sizeEstimate() const override;
 
+
+    bool setProgram( Bscript::Program* prog );
+
   bool suspend();
   bool revive();
 

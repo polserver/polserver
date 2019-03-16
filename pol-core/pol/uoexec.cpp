@@ -35,6 +35,12 @@ UOExecutor::UOExecutor()
   addModule( os_module );
 }
 
+bool UOExecutor::setProgram( Bscript::Program* i_progg )
+{
+  return Executor::setProgram( i_progg );
+}
+
+
 UOExecutor::~UOExecutor()
 {
   // note, the os_module isn't deleted here because
