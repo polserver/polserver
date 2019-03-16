@@ -217,6 +217,33 @@ function(use_curl target)
   endif()
 endfunction()
 
+function(use_nodejs target)
+  target_include_directories(${target}
+    PUBLIC ${NODE_SOURCE_DIR}/src ${NODE_SOURCE_DIR}/deps/v8/include
+  )
+  if (NOT EXISTS ${NODE_LIB})
+    add_dependencies(${target} nodejs)
+  endif()
+  
+  target_link_libraries(${target} PUBLIC ${NODE_LIB})
+
+  target_compile_definitions(${target} PRIVATE
+    NODE_SHAREDLIB
+  )
+  
+  add_custom_command(TARGET ${target} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+      "${NODE_DLL}"
+      "$<TARGET_FILE_DIR:${ex_name}>/${NODE_DLL_NAME}"
+  )
+
+  install(
+    FILES ${NODE_DLL}
+    DESTINATION .
+    COMPONENT bin
+  )
+endfunction()
+
 function(use_benchmark target)
   if (ENABLE_BENCHMARK) 
     target_link_libraries(${target} PUBLIC benchmark)

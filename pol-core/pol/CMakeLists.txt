@@ -12,6 +12,7 @@ warning_suppression(${ex_name})
 enable_pch(${ex_name})
 use_curl(${ex_name})
 use_benchmark(${ex_name})
+use_nodejs(${ex_name})
 
 target_link_libraries(${ex_name} PUBLIC
   bscript
@@ -25,32 +26,6 @@ if (${linux})
     crypto
     pthread
   )
-endif()
-
-if(HAVE_NODEJS)
-  message("* node root dir ${NODE_ROOT_DIR}")
-
-  set(NODE_SOURCE_DIR "${NODE_ROOT_DIR}/src")
-
-  if (${linux})
-    message( FATAL_ERROR "@TODO" )
-    set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/out")
-    set(NODE_LIB "${NODE_INSTALL_DIR}/lib/libnode.a")
-  else()
-    set(NODE_INSTALL_DIR "${NODE_ROOT_DIR}/Debug")
-    set(NODE_LIB "${NODE_INSTALL_DIR}/node.lib")
-  endif()
-
-  if(NOT EXISTS "${NODE_LIB}")
-    message("node lib not found ${NODE_LIB}")
-  else()
-    message("* node lib ${NODE_LIB}")
-
-    target_include_directories(${ex_name}
-      PUBLIC ${NODE_SOURCE_DIR} ${NODE_ROOT_DIR}/deps/v8/include
-    )
-    target_link_libraries(${ex_name} PUBLIC ${NODE_LIB})
-  endif()
 endif()
 
 if(HAVE_MYSQL)
