@@ -5,12 +5,12 @@
   <fileheader fname="Attributes.em">
     <filedesc>Functions for working with mobile's attributes/skills.</filedesc>
     <datemodified>03/19/2009</datemodified>
-<constant>const ATTRIBUTE_LOCK_UP          := 0;</constant>
-<constant>const ATTRIBUTE_LOCK_DOWN        := 1;</constant>
-<constant>const ATTRIBUTE_LOCK_LOCKED      := 2;</constant>
-<constant>const ATTRIBUTE_MAX_BASE         := 60000;</constant>
-<constant>const ATTRIBUTE_PRECISION_NORMAL := 0;</constant>
-<constant>const ATTRIBUTE_PRECISION_TENTHS := 1;</constant>
+		<constant>const ATTRIBUTE_LOCK_UP          := 0;</constant>
+		<constant>const ATTRIBUTE_LOCK_DOWN        := 1;</constant>
+		<constant>const ATTRIBUTE_LOCK_LOCKED      := 2;</constant>
+		<constant>const ATTRIBUTE_MAX_BASE         := 60000;</constant>
+		<constant>const ATTRIBUTE_PRECISION_NORMAL := 0;</constant>
+		<constant>const ATTRIBUTE_PRECISION_TENTHS := 1;</constant>
   </fileheader>
   
 <function name="CheckSkill">
