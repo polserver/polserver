@@ -12,7 +12,15 @@ warning_suppression(${ex_name})
 enable_pch(${ex_name})
 use_curl(${ex_name})
 use_benchmark(${ex_name})
-use_nodejs(${ex_name})
+
+if(ENABLE_NODEJS)
+  if (${windows})
+    if (${ARCH_BITS} EQUAL "64")
+      use_nodejs(${ex_name})
+    endif()
+  endif()
+endif()
+
 
 target_link_libraries(${ex_name} PUBLIC
   bscript

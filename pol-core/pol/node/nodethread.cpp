@@ -4,9 +4,8 @@
  */
 
 #ifdef HAVE_NODEJS
-#include "node.h"
-#endif
 
+#include "node.h"
 #include "../bscript/eprog.h"
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
@@ -25,6 +24,7 @@ ThreadSafeFunction tsfn;
 
 std::promise<bool> ready;
 
+#ifdef HAVE_NODEJS
 void node_thread()
 {
   POLLOG_INFO << "Starting node thread";
@@ -41,6 +41,7 @@ void node_thread()
     POLLOG_INFO << "Node threa errored with message " << ex.what() << "\n";
   }
 }
+#endif
 
 Emitter* Emitter::INSTANCE;
 
@@ -155,14 +156,6 @@ void node_shutdown_thread()
       fut.wait();
       Node::obj = fut.get();
 
-      //      Node::obj.Value().As<Function>().Call();
-
-      /*
-      
-
-      fut
-      */
-
       POLLOG_INFO << "Got value!\n";
 
       release( Node::obj );
@@ -210,7 +203,6 @@ void node_shutdown_thread()
     {
       POLLOG_INFO << "released\n";
     }
-    nodeFuncs = {};
     //  POLLOG_INFO << "released\n";
 
     //} );
@@ -321,13 +313,7 @@ Emitter::Emitter( const Napi::CallbackInfo& info ) : Napi::ObjectWrap<Emitter>( 
   tsfn = ThreadSafeFunction::New(
       env,
 
-      // info[0].As<Function>(),
-
-      Function::New( env, []( CallbackInfo& info )
-  {
-    POLLOG_INFO << "We got a thing!!!! Called with length " << info.Length() << "\n";
-  }
-      ),
+      info[0].As<Function>(),
 
       Object(), "work_name", 0, 1,
       (void*)nullptr,                       // data for finalize cb
@@ -408,3 +394,6 @@ void RegisterBuiltinModules()
 
 }  // namespace Node
 }  // namespace Pol
+
+#endif
+

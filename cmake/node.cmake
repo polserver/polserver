@@ -18,9 +18,10 @@ set (NODE_PATHNAME "${NODE_PATHNAME_PREFIX}${NODE_PATHNAME_SUFFIX}")
 set (NODE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/${NODE_PATHNAME}")
 set (NODE_LIB "${NODE_SOURCE_DIR}/${NODE_LIBRARY_DIR}/${NODE_LIBRARY_NAME}")
 set (NODE_DLL "${NODE_SOURCE_DIR}/${NODE_LIBRARY_DIR}/${NODE_DLL_NAME}")
+set(NODE_URL "${NODE_URL_BASEPATH}${NODE_PATHNAME}.zip")
 
-  set(NODE_URL "${NODE_URL_BASEPATH}${NODE_PATHNAME}.zip")
-  message("    ** extracting nodejs from ${NODE_URL} => ${NODE_SOURCE_DIR}")
+if(NOT EXISTS "${NODE_LIB}")
+  message("    * extracting nodejs from ${NODE_URL} => ${NODE_SOURCE_DIR}")
     ExternalProject_Add(nodejs
       URL "${NODE_URL}"
       URL_MD5 "${NODE_URL_MD5}"
@@ -38,4 +39,7 @@ set (NODE_DLL "${NODE_SOURCE_DIR}/${NODE_LIBRARY_DIR}/${NODE_DLL_NAME}")
       #LOG_BUILD 1
       #LOG_INSTALL 1
     )
-    set_target_properties (nodejs PROPERTIES FOLDER 3rdParty)
+  set_target_properties (nodejs PROPERTIES FOLDER 3rdParty)
+else()
+  message("node already extracted")
+endif()

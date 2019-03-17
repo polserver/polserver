@@ -228,7 +228,7 @@ function(use_nodejs target)
   target_link_libraries(${target} PUBLIC ${NODE_LIB})
 
   target_compile_definitions(${target} PRIVATE
-    NODE_SHAREDLIB
+    HAVE_NODEJS
   )
   
   add_custom_command(TARGET ${target} POST_BUILD

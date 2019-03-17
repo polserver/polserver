@@ -6,13 +6,16 @@
 
 #ifndef NODETHREAD_H
 #define NODETHREAD_H
+
+#ifdef HAVE_NODEJS
 #undef ERROR
 #include "napi.h"
 
+
 #include "../bscript/eprog.h"
 
-#include <future>
 #include <condition_variable>
+#include <future>
 
 using namespace Napi;
 
@@ -42,15 +45,6 @@ private:
   Plib::Package const* pkg;
 };
 
-struct NodeFunctions
-{
-  ThreadSafeFunction tsfn;
-};
-
-extern std::promise<NodeFunctions> tsfnPromise;
-extern NodeFunctions nodeFuncs;
-extern std::condition_variable condVar;
-
 
 class Emitter : public Napi::ObjectWrap<Emitter>
 {
@@ -64,14 +58,10 @@ public:
   Napi::Value Start( const Napi::CallbackInfo& info );
   Napi::Value Stop( const Napi::CallbackInfo& info );
 
-
-  napi_status emit( const char* name );
-  FunctionReference cbFromCToJs, cbFromJsToC;
   Napi::ObjectReference requireRef;
 
 private:
   static Napi::FunctionReference constructor;
-
 };
 
 struct tsfndata
@@ -86,8 +76,12 @@ std::future<bool> start_node();
 
 void RegisterBuiltinModules();
 
-//void start_node_thread();
+// void start_node_thread();
 }  // namespace Node
 }  // namespace Pol
 // namespace Pol
 #endif
+
+#else
+
+#endif 

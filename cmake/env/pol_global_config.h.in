@@ -7,7 +7,6 @@
 #cmakedefine ESCRIPT_PROFILE
 #cmakedefine HAVE_OPENSSL 1
 #cmakedefine HAVE_MYSQL
-#cmakedefine HAVE_NODEJS
 #cmakedefine ENABLE_BENCHMARK
 
 #define NODE_ADDON_API_DISABLE_DEPRECATED
