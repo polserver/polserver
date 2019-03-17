@@ -46,32 +46,6 @@ private:
 };
 
 
-class Emitter : public Napi::ObjectWrap<Emitter>
-{
-public:
-  static Napi::Object Init( Napi::Env env, Napi::Object exports );
-  Emitter( const Napi::CallbackInfo& info );
-
-  static Emitter* INSTANCE;
-
-
-  Napi::Value Start( const Napi::CallbackInfo& info );
-  Napi::Value Stop( const Napi::CallbackInfo& info );
-
-  Napi::ObjectReference requireRef;
-
-private:
-  static Napi::FunctionReference constructor;
-};
-
-struct tsfndata
-{
-  int id;
-  int clock;
-  int result;
-};
-
-
 std::future<bool> start_node();
 
 void RegisterBuiltinModules();

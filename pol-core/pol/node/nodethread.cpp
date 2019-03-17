@@ -21,7 +21,7 @@ namespace Pol
 namespace Node
 {
 ThreadSafeFunction tsfn;
-
+Napi::ObjectReference requireRef;
 std::promise<bool> ready;
 
 #ifdef HAVE_NODEJS
@@ -42,8 +42,6 @@ void node_thread()
   }
 }
 #endif
-
-Emitter* Emitter::INSTANCE;
 
 
 std::future<bool> release( Napi::ObjectReference& ref )
@@ -91,7 +89,7 @@ std::future<Napi::ObjectReference> require( const std::string& name )
 
   auto callback = [name, promise]( Env env, Function jsCallback ) {
     POLLOG_INFO << "Call to require " << name << "\n";
-    auto ret = Emitter::INSTANCE->requireRef.Value().As<Function>().Call(
+    auto ret = requireRef.Value().As<Function>().Call(
         {Napi::String::New( env, name )} );
     auto funct = ret.As<Object>().Get( "default" );
     auto ret2 = funct.As<Object>()
@@ -284,26 +282,8 @@ enum
   NM_F_INTERNAL = 1 << 2,
 };
 
-Napi::FunctionReference Emitter::constructor;
 
-Napi::Object Emitter::Init( Napi::Env env, Napi::Object exports )
-{
-  Napi::HandleScope scope( env );
-
-  Napi::Function func = DefineClass(
-      env, "Emitter",
-      {InstanceMethod( "start", &Emitter::Start ), InstanceMethod( "stop", &Emitter::Stop )} );
-
-  constructor = Napi::Persistent( func );
-  constructor.SuppressDestruct();
-
-  exports.Set( "Emitter", func );
-  return exports;
-}
-
-// ThreadSafeFunction tsfn;
-
-Emitter::Emitter( const Napi::CallbackInfo& info ) : Napi::ObjectWrap<Emitter>( info )
+static Napi::Value CreateTSFN( CallbackInfo& info )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
@@ -317,15 +297,13 @@ Emitter::Emitter( const Napi::CallbackInfo& info ) : Napi::ObjectWrap<Emitter>( 
 
       Object(), "work_name", 0, 1,
       (void*)nullptr,                       // data for finalize cb
-      []( Napi::Env, void*, Emitter* ) {},  // finalize cb
-      this );
+      []( Napi::Env, void*, void* ) {},  // finalize cb
+      (void*)nullptr );
 
 
   POLLOG_INFO << "setting..\n";
   ready.set_value( true );
   POLLOG_INFO << "set promise value!\n";
-
-  Emitter::INSTANCE = this;
 
   auto callback = []( Napi::Env env, Napi::Function jsCallback ) {
     POLLOG_INFO << "callback from blocking call called!\n";
@@ -350,22 +328,9 @@ Emitter::Emitter( const Napi::CallbackInfo& info ) : Napi::ObjectWrap<Emitter>( 
   }
 
   POLLOG_INFO << "made first blocking call\n";
+  return Boolean::New( env, true );
 }
 
-
-Napi::Value Emitter::Start( const Napi::CallbackInfo& info )
-{
-  Napi::Env env = info.Env();
-  POLLOG_INFO << "Start() called\n";
-  return Napi::Boolean::New( info.Env(), true );
-}
-
-Napi::Value Emitter::Stop( const Napi::CallbackInfo& info )
-{
-  Napi::Env env = info.Env();
-  POLLOG_INFO << "Stop called\n";
-  return env.Undefined();
-}
 
 #define NODE_API_MODULE_LINKED( modname, regfunc )                \
   napi_value __napi_##regfunc( napi_env env, napi_value exports ) \
@@ -376,10 +341,10 @@ Napi::Value Emitter::Stop( const Napi::CallbackInfo& info )
                  NM_F_LINKED )  // NOLINT (readability/null_usage)
 
 
-Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
+static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 {
   POLLOG_INFO << "initializing";
-  Emitter::Init( env, exports );
+  exports.Set( "start", Function::New( env, CreateTSFN ) );
   POLLOG_INFO << "inited";
   return exports;
 }
