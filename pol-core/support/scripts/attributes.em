@@ -6,6 +6,9 @@ const ATTRIBUTE_LOCK_UP     := 0;
 const ATTRIBUTE_LOCK_DOWN   := 1;
 const ATTRIBUTE_LOCK_LOCKED := 2;
 
+const ATTRIBUTE_PRECISION_NORMAL := 0;
+const ATTRIBUTE_PRECISION_TENTHS := 1;
+
 const ATTRIBUTE_MAX_BASE := 60000;
 
 // To-Fix: Uses a skillid - should take in an attribute name.
@@ -15,7 +18,7 @@ AlterAttributeTemporaryMod( character, attrname, delta_tenths );
 
 GetAttributeName( alias_name );
 
-GetAttribute( character, attrname );
+GetAttribute( character, attrname, precision := ATTRIBUTE_PRECISION_NORMAL );
 GetAttributeBaseValue( character, attrname );
 GetAttributeIntrinsicMod( character, attrname );
 GetAttributeTemporaryMod( character, attrname );
