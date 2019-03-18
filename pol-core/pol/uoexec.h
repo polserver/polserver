@@ -35,14 +35,21 @@ class UOExecutor final : public Bscript::Executor
 
 private:
   Module::OSExecutorModule* os_module;
+  ref_ptr<Bscript::Program> prog_;
+
 
 public:
   UOExecutor();
   virtual ~UOExecutor();
   virtual size_t sizeEstimate() const override;
 
+  bool runnable() const;
+  void execInstr();
+  const std::string& scriptname() const;
 
-    bool setProgram( Bscript::Program* prog );
+
+
+  bool setProgram( Bscript::Program* prog );
 
   bool suspend();
   bool revive();

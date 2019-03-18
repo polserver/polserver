@@ -4,11 +4,11 @@ message("* (${lib_name})")
 
 #custom target to show it in IDEs
 add_custom_target(${lib_name} SOURCES
-  uoconvert.cfg
-  pol.cfg.example
-  extobj.cfg
-  boats.cfg
   animxlate.cfg
+  boats.cfg
+  extobj.cfg
+  main.js
+  pol.cfg.example
   scripts/ecompile.cfg.example
   scripts/attributes.em
   scripts/basic.em
@@ -31,11 +31,13 @@ add_custom_target(${lib_name} SOURCES
   scripts/uo.em
   scripts/util.em
   scripts/vitals.em
+  uoconvert.cfg
 )
 
 install(FILES
-  uoconvert.cfg
+  main.js
   pol.cfg.example
+  uoconvert.cfg
   DESTINATION .
   COMPONENT bin
 )

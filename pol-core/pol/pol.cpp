@@ -131,7 +131,7 @@
 #include "savedata.h"
 #include "scrdef.h"
 #include "scrsched.h"
-#include "scrstore.h" 
+#include "scrstore.h"
 #include "sqlscrobj.h"
 #include "ssopt.h"
 #include "testing/poltest.h"
@@ -868,7 +868,6 @@ void start_threads()
   checkpoint( "start sql service thread" );
   start_sql_service();
 #endif
-
 }
 
 void check_incoming_data( void )
@@ -1016,7 +1015,7 @@ void run_start_scripts()
   run_script_to_completion( "start" );
   for ( const auto& pkg : Plib::systemstate.packages )
   {
-    std::string scriptname = Core::full_scriptname("start", pkg, "");
+    std::string scriptname = Core::full_scriptname( "start", pkg, "" );
 
     if ( Clib::FileExists( scriptname.c_str() ) )
     {
@@ -1393,6 +1392,10 @@ int xmain_inner( bool testing )
     // and on windows, we get here right after the console thread exits.
     while ( threadhelp::child_threads )
     {
+#ifdef HAVE_NODEJS
+      if ( threadhelp::child_threads == 2 && Node::running )
+        break;
+#endif
       Core::pol_sleep_ms( 1000 );
     }
     Core::checkpoint( "child threads have shut down" );
@@ -1460,6 +1463,23 @@ int xmain_inner( bool testing )
       POLLOG_INFO << "Not writing data due to pol.cfg InhibitSaves=1 setting.\n";
   }
   Core::gamestate.deinitialize();
+
+
+#ifdef HAVE_NODEJS
+  Node::cleanup();
+  short timeouts_remaining = 5;
+  while ( threadhelp::child_threads )
+  {
+    --timeouts_remaining;
+    if ( timeouts_remaining == 0 )
+    {
+      INFO_PRINT << "Waiting for " << threadhelp::child_threads << " child threads to exit\n";
+      timeouts_remaining = 5;
+    }
+
+    Core::pol_sleep_ms( 1000 );
+  }
+#endif
   return 0;
 }
 

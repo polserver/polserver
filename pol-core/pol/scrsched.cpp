@@ -717,7 +717,7 @@ void deschedule_executor( UOExecutor* ex )
 void list_script( UOExecutor* uoexec )
 {
   fmt::Writer tmp;
-  tmp << uoexec->prog_->name.get();
+  tmp << uoexec->scriptname();
   if ( !uoexec->Globals2.empty() )
     tmp << " Gl=" << uoexec->Globals2.size();
   if ( uoexec->Locals2 && !uoexec->Locals2->empty() )

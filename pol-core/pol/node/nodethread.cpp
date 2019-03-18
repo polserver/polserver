@@ -5,11 +5,11 @@
 
 #ifdef HAVE_NODEJS
 
-#include "node.h"
 #include "../bscript/eprog.h"
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
 #include "../polclock.h"
+#include "node.h"
 #include "nodethread.h"
 #include <future>
 
@@ -23,6 +23,7 @@ namespace Node
 ThreadSafeFunction tsfn;
 Napi::ObjectReference requireRef;
 std::promise<bool> ready;
+std::atomic<bool> running = false;
 
 #ifdef HAVE_NODEJS
 void node_thread()
@@ -33,6 +34,7 @@ void node_thread()
   int ret;
   try
   {
+    running = true;
     ret = node::Start( argc, argv );
     POLLOG_INFO << "Node thread finished with val " << ret << "\n";
   }
@@ -40,20 +42,30 @@ void node_thread()
   {
     POLLOG_INFO << "Node threa errored with message " << ex.what() << "\n";
   }
+  running = false;
 }
 #endif
 
 
-std::future<bool> release( Napi::ObjectReference& ref )
+std::future<bool> release( Napi::ObjectReference* ref )
 {
   std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
 
-  auto callback = [&ref, promise]( Env env, Function jsCallback ) {
+  auto callback = [ref, promise]( Env env, Function jsCallback ) {
     POLLOG_INFO << "Call to release\n";
-    ref.Unref();
-    ( promise )->set_value( true );
-    jsCallback.Call( {Number::New( env, clock() )} );
+    try
+    {
+      ref->Unref();
+      ( promise )->set_value( true );
+      jsCallback.Call( {Number::New( env, clock() )} );
+    }
+    catch ( std::exception& ex )
+    {
+      POLLOG_ERROR << "Exception when attempting to unref obj\n";
+      promise->set_exception( std::make_exception_ptr( ex ) );
+    }
+
   };
 
   ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
@@ -80,6 +92,40 @@ std::future<bool> release( Napi::ObjectReference& ref )
   return promise->get_future();
 }
 
+std::future<bool> call( Napi::ObjectReference& ref )
+{
+  std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
+
+
+  auto callback = [promise, &ref]( Env env, Function jsCallback ) {
+    ref.Get( "default" ).As<Function>().Call( {} );
+    ( promise )->set_value( true );
+    jsCallback.Call( {String::New( env, "release obj" )} );
+  };
+
+  ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
+  switch ( status )
+  {
+  case ThreadSafeFunction::FULL:
+    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() queue is full" );
+
+
+  case ThreadSafeFunction::OK:
+    POLLOG_INFO << "made blocking call\n";
+    break;
+
+  case ThreadSafeFunction::CLOSE:
+    POLLOG_ERROR << "Attempt to call node when thread is closed\n";
+    ( promise )->set_exception( std::make_exception_ptr(
+        std::runtime_error( "Attempt to call node when thread is closed" ) ) );
+    break;
+  default:
+    ( promise )->set_exception(
+        std::make_exception_ptr( std::runtime_error( "Attempt to call node failed" ) ) );
+    // Error::Fatal( "NodeThread", "ThreadSafeFunction.*Call() failed" );
+  }
+  return promise->get_future();
+}
 
 std::future<Napi::ObjectReference> require( const std::string& name )
 {
@@ -89,8 +135,7 @@ std::future<Napi::ObjectReference> require( const std::string& name )
 
   auto callback = [name, promise]( Env env, Function jsCallback ) {
     POLLOG_INFO << "Call to require " << name << "\n";
-    auto ret = requireRef.Value().As<Function>().Call(
-        {Napi::String::New( env, name )} );
+    auto ret = requireRef.Value().As<Function>().Call( {Napi::String::New( env, name )} );
     auto funct = ret.As<Object>().Get( "default" );
     auto ret2 = funct.As<Object>()
                     .Get( "toString" )
@@ -99,7 +144,7 @@ std::future<Napi::ObjectReference> require( const std::string& name )
                     .As<String>()
                     .Utf8Value();
 
-    POLLOG_INFO << "We got value " << ret2 << "\n";
+    POLLOG_INFO << "We got script for " << name << " = " << ret2 << "\n";
     ( promise )->set_value( Napi::ObjectReference::New( ret.As<Object>(), 1 ) );
     jsCallback.Call( {Number::New( env, clock() )} );
   };
@@ -147,7 +192,7 @@ void node_shutdown_thread()
     //  POLLOG_INFO << "making blocking call\n";
     //}
 
-    if ( i == 5 )
+    if ( false && i % 5 == 0 )
     {
       POLLOG_INFO << "Trying require...\n";
       auto fut = require( "./script.js" );
@@ -155,8 +200,13 @@ void node_shutdown_thread()
       Node::obj = fut.get();
 
       POLLOG_INFO << "Got value!\n";
+      auto val = call( obj );
+      val.wait();
+      bool retval = val.get();
+      POLLOG_INFO << "Got return " << retval << "\n";
 
-      release( Node::obj );
+
+      release( &Node::obj ).wait();
     }
 
     /*else if ( i >= 10 )
@@ -164,51 +214,12 @@ void node_shutdown_thread()
       Clib::exit_signalled = true;
     }*/
 
-    else if ( i == 10 )
-    {
-      if ( !tsfn.Release() )
-      {
-        Error::Fatal( "SecondaryThread", "ThreadSafeFunction.Release() failed" );
-      }
-      else
-      {
-        POLLOG_INFO << "released\n";
-      }
-    }
-    else if ( i >= 12 )
+    if ( i >= 1 )
     {
       Clib::exit_signalled = true;
     }
   }
-  // if ( nodeFuncs.tsfn.Acquire() )
-  if ( false )
-  {
-    Core::pol_sleep_ms( 5000 );
 
-    POLLOG_INFO << "release\n";
-
-    // nodeFuncs.tsfn.BlockingCall( []( Env env, Function jsCallback ) {
-    //  jsCallback.Call( {String::New( env, "shutdown" )} );
-    //  // Emitter::E
-    //  POLLOG_INFO << "tsfn releasing\n";
-
-
-    if ( !tsfn.Release() )
-    {
-      Error::Fatal( "SecondaryThread", "ThreadSafeFunction.Release() failed" );
-    }
-    else
-    {
-      POLLOG_INFO << "released\n";
-    }
-    //  POLLOG_INFO << "released\n";
-
-    //} );
-  }
-  else
-  {
-    POLLOG_INFO << "nothing to release tsfn\n";
-  }
 
   // nodeFuncs.tsfn.Release();
 }
@@ -244,7 +255,6 @@ int JavascriptProgram::read( const char* fname )
 {
   try
   {
-
     auto fut = Node::require( std::string( "./" ) + fname );
     fut.wait();
     obj = fut.get();
@@ -274,14 +284,10 @@ Bscript::Program::ProgramType JavascriptProgram::type() const
   return Bscript::Program::JAVASCRIPT;
 }
 
-
-enum
+JavascriptProgram::~JavascriptProgram()
 {
-  NM_F_BUILTIN = 1 << 0,
-  NM_F_LINKED = 1 << 1,
-  NM_F_INTERNAL = 1 << 2,
-};
-
+  // Node::release( &obj );
+}
 
 static Napi::Value CreateTSFN( CallbackInfo& info )
 {
@@ -290,15 +296,14 @@ static Napi::Value CreateTSFN( CallbackInfo& info )
 
   requireRef = Napi::Persistent( info[1].As<Object>() );
 
-  tsfn = ThreadSafeFunction::New(
-      env,
+  tsfn = ThreadSafeFunction::New( env,
 
-      info[0].As<Function>(),
+                                  info[0].As<Function>(),
 
-      Object(), "work_name", 0, 1,
-      (void*)nullptr,                       // data for finalize cb
-      []( Napi::Env, void*, void* ) {},  // finalize cb
-      (void*)nullptr );
+                                  Object(), "work_name", 0, 1,
+                                  (void*)nullptr,                    // data for finalize cb
+                                  []( Napi::Env, void*, void* ) {},  // finalize cb
+                                  (void*)nullptr );
 
 
   POLLOG_INFO << "setting..\n";
@@ -332,15 +337,6 @@ static Napi::Value CreateTSFN( CallbackInfo& info )
 }
 
 
-#define NODE_API_MODULE_LINKED( modname, regfunc )                \
-  napi_value __napi_##regfunc( napi_env env, napi_value exports ) \
-  {                                                               \
-    return Napi::RegisterModule( env, exports, regfunc );         \
-  }                                                               \
-  NAPI_MODULE_X( modname, __napi_##regfunc, nullptr,              \
-                 NM_F_LINKED )  // NOLINT (readability/null_usage)
-
-
 static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 {
   POLLOG_INFO << "initializing";
@@ -349,6 +345,7 @@ static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
   return exports;
 }
 
+
 NODE_API_MODULE_LINKED( tsfn, InitializeNAPI )
 
 void RegisterBuiltinModules()
@@ -356,9 +353,22 @@ void RegisterBuiltinModules()
   _register_tsfn();
 }
 
+void cleanup()
+{
+  release( &Node::requireRef ).wait();
+
+  if ( !tsfn.Release() )
+  {
+    Error::Fatal( "SecondaryThread", "ThreadSafeFunction.Release() failed" );
+  }
+  else
+  {
+    POLLOG_INFO << "released\n";
+  }
+}
+
 
 }  // namespace Node
 }  // namespace Pol
 
 #endif
-

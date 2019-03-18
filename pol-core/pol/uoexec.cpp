@@ -7,6 +7,7 @@
 #include "../plib/systemstate.h"
 #include "globals/settings.h"
 #include "module/osmod.h"
+#include "node/nodethread.h"
 #include "polcfg.h"
 #include "polclock.h"
 
@@ -35,9 +36,60 @@ UOExecutor::UOExecutor()
   addModule( os_module );
 }
 
-bool UOExecutor::setProgram( Bscript::Program* i_progg )
+bool UOExecutor::setProgram( Bscript::Program* i_prog )
 {
-  return Executor::setProgram( i_progg );
+  prog_.set( i_prog );
+  if ( i_prog->type() == Bscript::Program::ProgramType::ESCRIPT )
+    return Executor::setProgram( static_cast<Bscript::EScriptProgram*>( i_prog ) );
+  else
+  {
+    // return Executor::setProgram( static_cast<Bscript::EScriptProgram*>( i_prog ) );
+    return true;
+  }
+}
+
+bool UOExecutor::runnable() const
+{
+  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
+    return Executor::runnable();
+  else
+  {
+    return PC == 0;
+  }
+}
+
+template <typename R>
+bool is_ready( std::future<R> const& f )
+{
+  return f.wait_for( std::chrono::seconds( 0 ) ) == std::future_status::ready;
+}
+
+void UOExecutor::execInstr()
+{
+  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
+    Executor::execInstr();
+  else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
+  {
+    // Executor::execInstr();
+    if ( PC == 0 )
+    {
+      PC++;
+      Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( prog_.get() );
+      auto fut = Node::call( prog->obj );
+      if ( running_to_completion() )
+      {
+        fut.wait();
+        POLLOG_INFO << "js exec instr ret " << fut.get() << "\n";
+      }
+
+    }
+  }
+}
+
+const std::string& UOExecutor::scriptname() const
+{
+  return prog_->scriptname();
+  //  return UOExecutor::runnable();
 }
 
 
@@ -101,7 +153,7 @@ bool UOExecutor::critical() const
 }
 void UOExecutor::critical( bool critical )
 {
-  os_module->critical(critical);
+  os_module->critical( critical );
 }
 
 bool UOExecutor::warn_on_runaway() const
@@ -110,7 +162,7 @@ bool UOExecutor::warn_on_runaway() const
 }
 void UOExecutor::warn_on_runaway( bool warn_on_runaway )
 {
-  os_module->warn_on_runaway(warn_on_runaway);
+  os_module->warn_on_runaway( warn_on_runaway );
 }
 
 unsigned char UOExecutor::priority() const
@@ -119,7 +171,7 @@ unsigned char UOExecutor::priority() const
 }
 void UOExecutor::priority( unsigned char priority )
 {
-  os_module->priority(priority);
+  os_module->priority( priority );
 }
 
 void UOExecutor::SleepFor( int secs )
@@ -171,10 +223,9 @@ Core::HoldListType UOExecutor::in_hold_list() const
 {
   return os_module->in_hold_list();
 }
-void UOExecutor::in_hold_list(Core::HoldListType in_hold_list)
+void UOExecutor::in_hold_list( Core::HoldListType in_hold_list )
 {
   return os_module->in_hold_list( in_hold_list );
-
 }
 
 Bscript::BObjectImp* UOExecutor::clear_event_queue()

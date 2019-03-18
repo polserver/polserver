@@ -104,7 +104,7 @@ public:
   bool AttachFunctionalityModules();
 
 
-  bool setProgram( Program* prog );
+  bool setProgram( EScriptProgram* prog );
 
   BObjectRefVec Globals2;
 
