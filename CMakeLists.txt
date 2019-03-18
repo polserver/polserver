@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-# protect the user for himself
+#protect the user for himself
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR "
     FATAL: In-source builds are not allowed.
@@ -42,7 +42,7 @@ option(ENABLE_MSAN "Enables Memory sanitizer" OFF)
 option(ENABLE_TSAN "Enables Thread sanitizer" OFF)
 
 option(ENABLE_TIDY "Enables clang tidy check" OFF)
-# e.g "-fix;-checks=modernize-use-nullptr")
+#e.g "-fix;-checks=modernize-use-nullptr"
 set(TIDY_ARGS "" CACHE STRING "clang tidy arguments")
 
 if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
@@ -170,4 +170,28 @@ if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
       )
     endif()
   endforeach()
+endif()
+
+#clang-format target for modified and new files
+find_program(
+  CLANG_FORMAT_EXE
+    NAMES "clang-format"
+    DOC "Path to clang-format executable"
+  )
+find_package(Git)
+if(CLANG_FORMAT_EXE AND GIT_EXECUTABLE)
+  message("adding target 'clang_format'")
+  add_custom_target(clang_format
+    COMMAND ${CMAKE_COMMAND}
+      -DGIT=${GIT_EXECUTABLE}
+      -DCLANG_FORMAT=${CLANG_FORMAT_EXE}
+      -DWORKDIR=${CMAKE_CURRENT_SOURCE_DIR}/pol-core
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/clang_format.cmake
+    COMMENT "Formating modified files"
+  )
+  set_target_properties(clang_format PROPERTIES EXCLUDE_FROM_ALL TRUE)
+  set_target_properties(clang_format PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+  set_target_properties(clang_format PROPERTIES FOLDER !BuildTargets)
+else()
+  message("Git or clang-format not found for target 'clang_format'")
 endif()
