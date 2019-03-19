@@ -1,7 +1,7 @@
 ﻿-- POL100 --
-03-17-2019 Kevin:
+03-19-2019 Kevin:
   Changed: attributes::GetAttribute now accepts an optional parameter to specify the precision of the attribute
-           value returned. Use ATTRIBUTE_PRECISION_NORMAL (defualt) to use the existing precision, or 
+           value returned. Use ATTRIBUTE_PRECISION_NORMAL (default) to use the existing precision, or 
            ATTRIBUTE_PRECISION_TENTHS to get the value in tenths.
 
            Since this is a change to the module function's number of arguments, you MUST recompile your scripts.
