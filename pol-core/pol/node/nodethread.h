@@ -63,7 +63,7 @@ private:
 
 std::future<bool> start_node();
 std::future<Napi::ObjectReference> require( const std::string& name );
-std::future<bool> release( Napi::ObjectReference* ref );
+std::future<bool> release( Napi::ObjectReference ref );
 std::future<bool> call( Napi::ObjectReference& ref );
 
 extern std::atomic<bool> running;

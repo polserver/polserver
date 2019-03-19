@@ -67,69 +67,106 @@ inline void request( RequestData* req, Callback callback )
   }
 }
 
-std::future<bool> release( Napi::ObjectReference* ref )
+unsigned long requestNumber = 0;
+struct NodeRequest
+{
+  NodeRequest() : reqId( requestNumber++ ), when( Core::PolClock::now() ), done(){};
+  unsigned long reqId;
+  Core::PolClock::time_point when;
+  Core::PolClock::time_point done;
+};
+
+struct NodeRequireRequest : NodeRequest
+{
+  NodeRequireRequest( const std::string& name ) : NodeRequest(), scriptName( name ){};
+  std::string scriptName;
+};
+
+struct NodeReleaseRequest : NodeRequest
+{
+  NodeReleaseRequest( ObjectReference&& ref ) : NodeRequest(), ref( std::move( ref ) ){};
+  ObjectReference ref;
+};
+
+struct NodeExecRequest : NodeRequest
+{
+  NodeExecRequest( ObjectReference* ref ) : NodeRequest(), ref( ref ){};
+  ObjectReference* ref;
+};
+std::future<bool> release( Napi::ObjectReference ref )
 {
   std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
 
-  auto callback = [ref, promise]( Env env, Function jsCallback ) {
-    POLLOG_INFO << "Call to release [objref = " << ref->Get( "_refId" ).As<String>().Utf8Value()
-                << "\n]";
+  auto callback = [promise]( Env env, Function jsCallback, NodeReleaseRequest* req ) {
+
+    NODELOG.Format( "[{:04x}] [release] releasing {}\n" )
+        << req->reqId << req->ref.Get( "_refId" ).As<String>().Utf8Value();
+
     try
     {
-      ref->Unref();
+      req->ref.Unref();
       ( promise )->set_value( true );
       jsCallback.Call( {Number::New( env, clock() )} );
     }
     catch ( std::exception& ex )
     {
-      POLLOG_ERROR << "Exception when attempting to unref obj\n";
+      POLLOG_ERROR << "[{:04x}] [release] exception when attempting to unref obj:" << ex.what()
+                   << "\n";
       promise->set_exception( std::make_exception_ptr( ex ) );
     }
-
+    delete req;
   };
 
-  ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
-  switch ( status )
+  NodeReleaseRequest* req = new NodeReleaseRequest( std::move( ref ) );
+
+  try
   {
-  case ThreadSafeFunction::FULL:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() queue is full" );
+    request( req, callback );
+  }
 
-
-  case ThreadSafeFunction::OK:
-    POLLOG_INFO << "made blocking call\n";
-    break;
-
-  case ThreadSafeFunction::CLOSE:
-    POLLOG_ERROR << "Attempt to call node when thread is closed\n";
-    ( promise )->set_exception( std::make_exception_ptr(
-        std::runtime_error( "Attempt to call node when thread is closed" ) ) );
-    break;
-  default:
-    ( promise )->set_exception(
-        std::make_exception_ptr( std::runtime_error( "Attempt to call node failed" ) ) );
-    // Error::Fatal( "NodeThread", "ThreadSafeFunction.*Call() failed" );
+  catch ( std::exception& ex )
+  {
+    POLLOG_ERROR << "Node error! " << ex.what() << "\n";
+    if ( req )
+      delete req;
+    promise->set_exception( std::make_exception_ptr( ex ) );
   }
   return promise->get_future();
 }
 
+
+//.Get( "toString" ).As<Function>().Call( funct, {} ).As<String>().Utf8Value();
 std::future<bool> call( Napi::ObjectReference& ref )
 {
   std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
 
-  auto callback = [promise, &ref]( Env env, Function jsCallback, ObjectReference* ref ) {
-    ref->Get( "default" ).As<Function>().Call( {} );
+  auto callback = [promise, &ref]( Env env, Function jsCallback, NodeExecRequest* req ) {
+
+
+    NODELOG.Format( "[{:04x}] [exec] call {} , args TODO\n" )
+        << req->reqId << req->ref->Get( "_refId" ).As<String>().Utf8Value();
+
+    auto ret = req->ref->Get( "default" ).As<Function>().Call( {} );
+
+    auto retString =
+        ret.ToObject().Get( "toString" ).As<Function>().Call( ret, {} ).As<String>().Utf8Value();
+
+
+    NODELOG.Format( "[{:04x}] [exec] returned {}\n" ) << req->reqId << retString;
+
     ( promise )->set_value( true );
-    jsCallback.Call( {String::New( env, "release obj" )} );
   };
+
+  NodeExecRequest* req = new NodeExecRequest( &ref );
 
   try
   {
-    request( &ref, callback );
+    request( req, callback );
   }
 
-  catch (std::exception& ex)
+  catch ( std::exception& ex )
   {
     NODELOG.Format( "[] [call] failed, {} \n" ) << ex.what();
     promise->set_exception( std::make_exception_ptr( ex ) );
@@ -138,23 +175,13 @@ std::future<bool> call( Napi::ObjectReference& ref )
   return promise->get_future();
 }
 
-unsigned long requestNumber = 0;
-
-
 
 std::future<Napi::ObjectReference> require( const std::string& name )
 {
   auto promise = std::make_shared<std::promise<Napi::ObjectReference>>();
-  Core::PolClock::now();
 
-  struct CallRequest
-  {
-    Core::PolClock::time_point clock;
-    std::string scriptName;
-    unsigned long reqId;
-  };
+  auto callback = [promise]( Env env, Function jsCallback, NodeRequireRequest* request ) {
 
-  auto callback = [promise]( Env env, Function jsCallback, CallRequest* request ) {
     NODELOG.Format( "[{:04x}] [require] requesting {}\n" ) << request->reqId << request->scriptName;
     try
     {
@@ -175,9 +202,7 @@ std::future<Napi::ObjectReference> require( const std::string& name )
       req.Set( "_refId", String::New( env, "require(" + request->scriptName + ")@" +
                                                std::to_string( request->reqId ) ) );
 
-      NODELOG.Format( "[{:04x}] [require] resolved, {}\n" )
-          << request->reqId << functCode;
-
+      NODELOG.Format( "[{:04x}] [require] resolved, {}\n" ) << request->reqId << functCode;
       promise->set_value( Napi::ObjectReference::New( req, 1 ) );
     }
     catch ( std::exception& ex )
@@ -186,11 +211,11 @@ std::future<Napi::ObjectReference> require( const std::string& name )
       promise->set_exception( std::make_exception_ptr( ex ) );
     }
 
-    // No need to inform JS main thread we are finished...?
-    // jsCallback.Call( {String::New( env, "require" )} );
+    delete request;
+
   };
 
-  CallRequest* req = new CallRequest( {Core::PolClock::now(), name, requestNumber++} );
+  NodeRequireRequest* req = new NodeRequireRequest( name );
 
   try
   {
@@ -202,7 +227,7 @@ std::future<Napi::ObjectReference> require( const std::string& name )
     POLLOG_ERROR << "Node error! " << ex.what() << "\n";
     if ( req )
       delete req;
-    ( promise )->set_exception( std::make_exception_ptr( ex ) );
+    promise->set_exception( std::make_exception_ptr( ex ) );
   }
   return promise->get_future();
 }
@@ -240,7 +265,7 @@ void node_shutdown_thread()
       POLLOG_INFO << "Got return " << retval << "\n";
 
 
-      release( &Node::obj ).wait();
+      release( std::move( Node::obj ) ).wait();
     }
 
     /*else if ( i >= 10 )
@@ -320,7 +345,7 @@ Bscript::Program::ProgramType JavascriptProgram::type() const
 
 JavascriptProgram::~JavascriptProgram()
 {
-  // Node::release( &obj );
+  Node::release( std::move( obj ) );
 }
 
 static Napi::Value CreateTSFN( CallbackInfo& info )
@@ -375,7 +400,7 @@ void RegisterBuiltinModules()
 
 void cleanup()
 {
-  release( &Node::requireRef ).wait();
+  release( std::move( Node::requireRef ) ).wait();
 
   if ( !tsfn.Release() )
   {
