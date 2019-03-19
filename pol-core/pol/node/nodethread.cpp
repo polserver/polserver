@@ -142,8 +142,7 @@ std::future<bool> call( Napi::ObjectReference& ref )
   std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
 
-  auto callback = [promise, &ref]( Env env, Function jsCallback, NodeExecRequest* req ) {
-
+  auto callback = [promise]( Env env, Function jsCallback, NodeExecRequest* req ) {
 
     NODELOG.Format( "[{:04x}] [exec] call {} , args TODO\n" )
         << req->reqId << req->ref->Get( "_refId" ).As<String>().Utf8Value();
@@ -154,7 +153,9 @@ std::future<bool> call( Napi::ObjectReference& ref )
         ret.ToObject().Get( "toString" ).As<Function>().Call( ret, {} ).As<String>().Utf8Value();
 
 
-    NODELOG.Format( "[{:04x}] [exec] returned {}\n" ) << req->reqId << retString;
+    req->done = Core::PolClock::now();
+    NODELOG.Format( "[{:04x}] [exec] returned {} in {} time\n" ) << req->reqId << retString << 
+         std::chrono::duration_cast<std::chrono::nanoseconds>( req->done - req->when ).count();
 
     ( promise )->set_value( true );
   };
