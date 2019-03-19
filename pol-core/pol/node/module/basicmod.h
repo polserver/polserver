@@ -1,9 +1,8 @@
 #ifndef NODE_BASICMOD_H
 #define NODE_BASICMOD_H
 
-#ifdef HAVE_NODEJS
 
-#include "napi.h"
+#include "../napi-wrap.h"
 
 namespace Pol
 {
@@ -14,7 +13,5 @@ namespace Module
 }
 }
 }
-
-#endif
 
 #endif

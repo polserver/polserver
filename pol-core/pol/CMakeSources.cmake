@@ -270,9 +270,6 @@ set (pol_sources  # sorted !
   network/sockio.cpp
   network/sockio.h
   network/xbuffer.h
-  node/module/basicmod.cpp
-  node/nodethread.cpp
-  node/nodethread.h
   npctemplates.cpp
   npctmpl.cpp
   npctmpl.h
@@ -432,5 +429,19 @@ set (pol_sources  # sorted !
 if(windows)
   set (pol_sources ${pol_sources}
     polservice.cpp
+  )
+endif()
+
+if(ENABLE_NODEJS)
+  set (pol_sources ${pol_sources}
+    node/module/basicmod.cpp
+    node/module/basicmod.h
+    node/jsprog.cpp
+    node/jsprog.h
+    node/napi-wrap.h
+    node/nodecall.cpp
+    node/nodecall.h
+    node/nodethread.cpp
+    node/nodethread.h
   )
 endif()

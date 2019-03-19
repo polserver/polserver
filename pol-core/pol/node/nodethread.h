@@ -7,13 +7,10 @@
 #ifndef NODETHREAD_H
 #define NODETHREAD_H
 
-#ifdef HAVE_NODEJS
-#undef ERROR
 #include "../bscript/eprog.h"
-#include "napi.h"
+#include "napi-wrap.h"
 #include <condition_variable>
 #include <future>
-
 
 enum
 {
@@ -31,40 +28,14 @@ enum
                  NM_F_LINKED )  // NOLINT (readability/null_usage)
 
 
-using namespace Napi;
-
 namespace Pol
 {
 namespace Node
 {
-extern Napi::ObjectReference obj;
-
-class JavascriptProgram : public Bscript::Program
-{
-public:
-  JavascriptProgram();
-  static Program* create();
-
-  bool hasProgram() const override;
-  int read( const char* fname ) override;
-  void package( const Plib::Package* pkg ) override;
-  std::string scriptname() const override;
-
-  ProgramType type() const override;
-
-  Napi::ObjectReference obj;
-
-private:
-  std::string name;
-  Plib::Package const* pkg;
-  ~JavascriptProgram();
-};
-
+extern Napi::ObjectReference requireRef;
+extern Napi::ThreadSafeFunction tsfn;
 
 std::future<bool> start_node();
-std::future<Napi::ObjectReference> require( const std::string& name );
-std::future<bool> release( Napi::ObjectReference ref );
-std::future<bool> call( Napi::ObjectReference& ref );
 
 extern std::atomic<bool> running;
 
@@ -75,9 +46,5 @@ void RegisterBuiltinModules();
 // void start_node_thread();
 }  // namespace Node
 }  // namespace Pol
-// namespace Pol
-#endif
-
-#else
 
 #endif

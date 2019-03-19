@@ -7,7 +7,8 @@
 #include "../plib/systemstate.h"
 #include "globals/settings.h"
 #include "module/osmod.h"
-#include "node/nodethread.h"
+#include "node/jsprog.h"
+#include "node/nodecall.h"
 #include "polcfg.h"
 #include "polclock.h"
 
@@ -81,7 +82,6 @@ void UOExecutor::execInstr()
         fut.wait();
         POLLOG_INFO << "js exec instr ret " << fut.get() << "\n";
       }
-
     }
   }
 }

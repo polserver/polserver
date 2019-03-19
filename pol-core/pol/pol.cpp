@@ -117,6 +117,8 @@
 #include "network/pktin.h"
 #include "network/sockets.h"
 #include "network/sockio.h"
+#include "node/jsprog.h"
+#include "node/nodecall.h"
 #include "node/nodethread.h"
 #include "party.h"
 #include "polcfg.h"
@@ -1393,6 +1395,8 @@ int xmain_inner( bool testing )
     while ( threadhelp::child_threads )
     {
 #ifdef HAVE_NODEJS
+      // We need to keep Node thread running in order to release the references
+      // to the objects later.
       if ( threadhelp::child_threads == 2 && Node::running )
         break;
 #endif
@@ -1466,7 +1470,9 @@ int xmain_inner( bool testing )
 
 
 #ifdef HAVE_NODEJS
+  // Clean up our node thread
   Node::cleanup();
+  // Wait for it to finish
   short timeouts_remaining = 5;
   while ( threadhelp::child_threads )
   {
