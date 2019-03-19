@@ -49,6 +49,8 @@ static LogFileBehaviour startlogBehaviour = {"log/start", false,
                                              std::ios_base::out | std::ios_base::trunc, false};
 static LogFileBehaviour pollogBehaviour = {"log/pol", true, std::ios_base::out | std::ios_base::app,
                                            true};
+static LogFileBehaviour nodelogBehaviour = {"log/node", false,
+                                             std::ios_base::out | std::ios_base::app, false};
 static LogFileBehaviour debuglogBehaviour = {"log/debug", false,
                                              std::ios_base::out | std::ios_base::app, false};
 static LogFileBehaviour scriptlogBehaviour = {"log/script", false,
@@ -164,6 +166,14 @@ void LogFacility::disableDebugLog()
 {
   _worker->send( []() { getSink<LogSink_debuglog>()->disable(); } );
 }
+
+#ifdef ENABLE_NODEJS
+// disables nodelog
+void LogFacility::disableNodeLog()
+{
+  _worker->send( []() { getSink<LogSink_nodelog>()->disable(); } );
+}
+#endif
 
 void LogFacility::disableFileLog()
 {
@@ -428,6 +438,33 @@ void LogSink_pollog::deinitialize_startlog()
 // on construction opens script.log
 LogSink_scriptlog::LogSink_scriptlog() : LogSinkGenericFile( &scriptlogBehaviour ) {}
 
+// on construction opens script.log
+#ifdef ENABLE_NODEJS
+LogSink_nodelog::LogSink_nodelog() : LogSinkGenericFile( &nodelogBehaviour ) {}
+
+// debug.log can be disabled
+void LogSink_nodelog::disable()
+{
+  if ( _filestream.is_open() )
+  {
+    _filestream.flush();
+    _filestream.close();
+  }
+  Disabled = true;
+}
+// only print the msg if not Disabled
+void LogSink_nodelog::addMessage( fmt::Writer* msg )
+{
+  if ( !Disabled )
+    LogSinkGenericFile::addMessage( msg );
+}
+void LogSink_nodelog::addMessage( fmt::Writer* msg, const std::string& )
+{
+  addMessage( msg );
+}
+
+#endif
+
 // on construction opens debug.log
 LogSink_debuglog::LogSink_debuglog() : LogSinkGenericFile( &debuglogBehaviour ) {}
 
@@ -511,6 +548,9 @@ void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg, const std::string& 
 }  // namespace Logging
 }  // namespace Clib
 bool Clib::Logging::LogSink_debuglog::Disabled = false;
+#ifdef ENABLE_NODEJS
+bool Clib::Logging::LogSink_nodelog::Disabled = false;
+#endif
 }  // namespace Pol
 
 // forward define the templates
@@ -551,3 +591,9 @@ SINK_TEMPLATE_DEFINES_DUAL( LogSink_cerr, LogSink_pollog )
 SINK_TEMPLATE_DEFINES_DUAL( LogSink_cerr, LogSink_scriptlog )
 SINK_TEMPLATE_DEFINES_DUAL( LogSink_cerr, LogSink_debuglog )
 SINK_TEMPLATE_DEFINES_DUAL( LogSink_cerr, LogSink_leaklog )
+
+#ifdef ENABLE_NODEJS
+SINK_TEMPLATE_DEFINES( LogSink_nodelog )
+SINK_TEMPLATE_DEFINES_DUAL( LogSink_cout, LogSink_nodelog )
+SINK_TEMPLATE_DEFINES_DUAL( LogSink_cerr, LogSink_nodelog )
+#endif

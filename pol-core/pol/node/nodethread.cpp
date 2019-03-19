@@ -28,7 +28,7 @@ std::atomic<bool> running = false;
 #ifdef HAVE_NODEJS
 void node_thread()
 {
-  POLLOG_INFO << "Starting node thread";
+  POLLOG_INFO << "Starting node thread\n";
   char *argv[] = {"node", "./main.js"}, argc = 2;
   RegisterBuiltinModules();
   int ret;
@@ -36,16 +36,36 @@ void node_thread()
   {
     running = true;
     ret = node::Start( argc, argv );
-    POLLOG_INFO << "Node thread finished with val " << ret << "\n";
+    POLLOG_INFO << "Node thread finished with return value " << ret << "\n";
   }
   catch ( std::exception& ex )
   {
-    POLLOG_INFO << "Node threa errored with message " << ex.what() << "\n";
+    POLLOG_INFO << "Node thread errored with message " << ex.what() << "\n";
   }
   running = false;
 }
 #endif
 
+
+template <typename RequestData, typename Callback>
+inline void request( RequestData* req, Callback callback )
+{
+  ThreadSafeFunction::Status status = tsfn.BlockingCall( req, callback );
+  switch ( status )
+  {
+  case ThreadSafeFunction::OK:
+    break;
+
+  case ThreadSafeFunction::FULL:
+    throw std::runtime_error( "Attempt to call node when thread is closed" );
+
+  case ThreadSafeFunction::CLOSE:
+    throw std::runtime_error( "Attempt to call node when thread is closed" );
+
+  default:
+    throw std::runtime_error( "Attempt to call node failed" );
+  }
+}
 
 std::future<bool> release( Napi::ObjectReference* ref )
 {
@@ -53,7 +73,8 @@ std::future<bool> release( Napi::ObjectReference* ref )
 
 
   auto callback = [ref, promise]( Env env, Function jsCallback ) {
-    POLLOG_INFO << "Call to release\n";
+    POLLOG_INFO << "Call to release [objref = " << ref->Get( "_refId" ).As<String>().Utf8Value()
+                << "\n]";
     try
     {
       ref->Unref();
@@ -97,78 +118,91 @@ std::future<bool> call( Napi::ObjectReference& ref )
   std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
 
-  auto callback = [promise, &ref]( Env env, Function jsCallback ) {
-    ref.Get( "default" ).As<Function>().Call( {} );
+  auto callback = [promise, &ref]( Env env, Function jsCallback, ObjectReference* ref ) {
+    ref->Get( "default" ).As<Function>().Call( {} );
     ( promise )->set_value( true );
     jsCallback.Call( {String::New( env, "release obj" )} );
   };
 
-  ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
-  switch ( status )
+  try
   {
-  case ThreadSafeFunction::FULL:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() queue is full" );
-
-
-  case ThreadSafeFunction::OK:
-    POLLOG_INFO << "made blocking call\n";
-    break;
-
-  case ThreadSafeFunction::CLOSE:
-    POLLOG_ERROR << "Attempt to call node when thread is closed\n";
-    ( promise )->set_exception( std::make_exception_ptr(
-        std::runtime_error( "Attempt to call node when thread is closed" ) ) );
-    break;
-  default:
-    ( promise )->set_exception(
-        std::make_exception_ptr( std::runtime_error( "Attempt to call node failed" ) ) );
-    // Error::Fatal( "NodeThread", "ThreadSafeFunction.*Call() failed" );
+    request( &ref, callback );
   }
+
+  catch (std::exception& ex)
+  {
+    NODELOG.Format( "[] [call] failed, {} \n" ) << ex.what();
+    promise->set_exception( std::make_exception_ptr( ex ) );
+  }
+
   return promise->get_future();
 }
 
+unsigned long requestNumber = 0;
+
+
+
 std::future<Napi::ObjectReference> require( const std::string& name )
 {
-  std::shared_ptr<std::promise<Napi::ObjectReference>> promise =
-      std::make_shared<std::promise<Napi::ObjectReference>>();
+  auto promise = std::make_shared<std::promise<Napi::ObjectReference>>();
+  Core::PolClock::now();
 
-
-  auto callback = [name, promise]( Env env, Function jsCallback ) {
-    POLLOG_INFO << "Call to require " << name << "\n";
-    auto ret = requireRef.Value().As<Function>().Call( {Napi::String::New( env, name )} );
-    auto funct = ret.As<Object>().Get( "default" );
-    auto ret2 = funct.As<Object>()
-                    .Get( "toString" )
-                    .As<Function>()
-                    .Call( funct, {} )
-                    .As<String>()
-                    .Utf8Value();
-
-    POLLOG_INFO << "We got script for " << name << " = " << ret2 << "\n";
-    ( promise )->set_value( Napi::ObjectReference::New( ret.As<Object>(), 1 ) );
-    jsCallback.Call( {Number::New( env, clock() )} );
+  struct CallRequest
+  {
+    Core::PolClock::time_point clock;
+    std::string scriptName;
+    unsigned long reqId;
   };
 
-  ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
-  switch ( status )
+  auto callback = [promise]( Env env, Function jsCallback, CallRequest* request ) {
+    NODELOG.Format( "[{:04x}] [require] requesting {}\n" ) << request->reqId << request->scriptName;
+    try
+    {
+      auto req = requireRef.Value()
+                     .As<Function>()
+                     .Call( {Napi::String::New( env, request->scriptName )} )
+                     .As<Object>();
+
+      auto funct = req.Get( "default" );
+
+      auto functCode = funct.As<Object>()
+                           .Get( "toString" )
+                           .As<Function>()
+                           .Call( funct, {} )
+                           .As<String>()
+                           .Utf8Value();
+
+      req.Set( "_refId", String::New( env, "require(" + request->scriptName + ")@" +
+                                               std::to_string( request->reqId ) ) );
+
+      NODELOG.Format( "[{:04x}] [require] resolved, {}\n" )
+          << request->reqId << functCode;
+
+      promise->set_value( Napi::ObjectReference::New( req, 1 ) );
+    }
+    catch ( std::exception& ex )
+    {
+      NODELOG.Format( "[{:04x}] [require] failed, {} \n" ) << request->reqId << ex.what();
+      promise->set_exception( std::make_exception_ptr( ex ) );
+    }
+
+    // No need to inform JS main thread we are finished...?
+    // jsCallback.Call( {String::New( env, "require" )} );
+  };
+
+  CallRequest* req = new CallRequest( {Core::PolClock::now(), name, requestNumber++} );
+
+  try
   {
-  case ThreadSafeFunction::FULL:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() queue is full" );
+    request( req, callback );
+  }
 
-
-  case ThreadSafeFunction::OK:
-    POLLOG_INFO << "made blocking call\n";
-    break;
-
-  case ThreadSafeFunction::CLOSE:
-    POLLOG_ERROR << "Attempt to call node when thread is closed\n";
-    ( promise )->set_exception( std::make_exception_ptr(
-        std::runtime_error( "Attempt to call node when thread is closed" ) ) );
-    break;
-  default:
-    ( promise )->set_exception(
-        std::make_exception_ptr( std::runtime_error( "Attempt to call node failed" ) ) );
-    // Error::Fatal( "NodeThread", "ThreadSafeFunction.*Call() failed" );
+  catch ( std::exception& ex )
+  {
+    POLLOG_ERROR << "Node error! " << ex.what() << "\n";
+    if ( req )
+      delete req;
+    ( promise )->set_exception( std::make_exception_ptr( ex ) );
   }
   return promise->get_future();
 }
@@ -294,46 +328,32 @@ static Napi::Value CreateTSFN( CallbackInfo& info )
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
 
-  requireRef = Napi::Persistent( info[1].As<Object>() );
-
-  tsfn = ThreadSafeFunction::New( env,
-
-                                  info[0].As<Function>(),
-
-                                  Object(), "work_name", 0, 1,
-                                  (void*)nullptr,                    // data for finalize cb
-                                  []( Napi::Env, void*, void* ) {},  // finalize cb
-                                  (void*)nullptr );
-
-
-  POLLOG_INFO << "setting..\n";
-  ready.set_value( true );
-  POLLOG_INFO << "set promise value!\n";
-
-  auto callback = []( Napi::Env env, Napi::Function jsCallback ) {
-    POLLOG_INFO << "callback from blocking call called!\n";
-    jsCallback.Call( {Number::New( env, clock() )} );
-  };
-
-  ThreadSafeFunction::Status status = tsfn.BlockingCall( callback );
-  switch ( status )
+  try
   {
-  case ThreadSafeFunction::FULL:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() queue is full" );
+    requireRef = Napi::Persistent( info[1].As<Object>() );
+    requireRef.Set( "_refId", String::New( env, "require" ) );
+
+    tsfn = ThreadSafeFunction::New( env,
+
+                                    info[0].As<Function>(),
+
+                                    Object(), "work_name", info[2].As<Number>().Int32Value(), 1,
+                                    (void*)nullptr,                    // data for finalize cb
+                                    []( Napi::Env, void*, void* ) {},  // finalize cb
+                                    (void*)nullptr );
 
 
-  case ThreadSafeFunction::OK:
-    break;
-
-  case ThreadSafeFunction::CLOSE:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() is closed" );
-
-  default:
-    Error::Fatal( "DataSourceThread", "ThreadSafeFunction.*Call() failed" );
+    POLLOG_INFO << "setting..\n";
+    ready.set_value( true );
+    POLLOG_INFO << "set promise value!\n";
+    return Boolean::New( env, true );
   }
-
-  POLLOG_INFO << "made first blocking call\n";
-  return Boolean::New( env, true );
+  catch ( std::exception& ex )
+  {
+    POLLOG_ERROR << "Could not create tsfn: " << ex.what() << "\n";
+    ready.set_exception( std::make_exception_ptr( ex ) );
+    return Boolean::New( env, false );
+  }
 }
 
 

@@ -94,6 +94,21 @@ public:
   virtual ~LogSink_scriptlog() = default;
 };
 
+#ifdef ENABLE_NODEJS
+// debug.log file sink
+class LogSink_nodelog final : public LogSinkGenericFile
+{
+public:
+  LogSink_nodelog();
+  virtual ~LogSink_nodelog() = default;
+  virtual void addMessage( fmt::Writer* msg ) override;
+  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  void disable();
+  static bool Disabled;
+};
+#endif
+
+
 // debug.log file sink
 class LogSink_debuglog final : public LogSinkGenericFile
 {
@@ -150,6 +165,7 @@ public:
   void save( fmt::Writer* message, const std::string& id );
   void registerSink( LogSink* sink );
   void disableDebugLog();
+  void disableNodeLog();
   void disableFileLog();
   void deinitializeStartLog();
   void closeFlexLog( const std::string& id );
@@ -238,6 +254,10 @@ void initLogging( LogFacility* logger );  // initalize the logging
 // log into script.log
 #define SCRIPTLOG \
   Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>( LOG_PRINT_CALLER_INFO ).message()
+// log into node.log (if enabled)
+#define NODELOG                                    \
+  if ( !Clib::Logging::LogSink_nodelog::Disabled ) \
+  Clib::Logging::Message<Clib::Logging::LogSink_nodelog>( LOG_PRINT_CALLER_INFO ).message()
 // log into debug.log (if enabled)
 #define DEBUGLOG                                    \
   if ( !Clib::Logging::LogSink_debuglog::Disabled ) \
@@ -262,6 +282,11 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define DISABLE_DEBUGLOG Clib::Logging::global_logger->disableDebugLog
 // helper bool if the debug.log is disabled (for more complex logging) DEBUGLOG checks also
 #define IS_DEBUGLOG_DISABLED Clib::Logging::LogSink_debuglog::Disabled
+
+// disables the debug.log
+#define DISABLE_NODELOG Clib::Logging::global_logger->disableNodeLog
+// helper bool if the debug.log is disabled (for more complex logging) DEBUGLOG checks also
+#define IS_NODELOG_DISABLED Clib::Logging::LogSink_nodelog::Disabled
 
 #define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
 }  // namespace Pol

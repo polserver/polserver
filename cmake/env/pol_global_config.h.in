@@ -6,6 +6,7 @@
 #cmakedefine PERGON
 #cmakedefine ESCRIPT_PROFILE
 #cmakedefine HAVE_OPENSSL 1
+#cmakedefine ENABLE_NODEJS
 #cmakedefine HAVE_MYSQL
 #cmakedefine ENABLE_BENCHMARK
 

@@ -5,5 +5,5 @@ let myFunct = function() {
   print("Called with args: ", Array.from(arguments));
 };
 
-let val = start(myFunct, require);
+let val = start(myFunct, require, 0);
 print("start value:", val);
