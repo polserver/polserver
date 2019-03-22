@@ -45,8 +45,8 @@ public:
 
   bool runnable() const;
   void execInstr();
-  const std::string& scriptname() const;
-
+  std::string scriptname() const;
+  
 
 
   bool setProgram( Bscript::Program* prog );

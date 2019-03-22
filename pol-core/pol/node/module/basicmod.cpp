@@ -1,8 +1,12 @@
 
-#include "../../clib/logfacility.h"
+#include "../clib/logfacility.h"
 #include "../nodethread.h"
 #include "basicmod.h"
 #include "napi.h"
+
+using namespace Pol;
+using namespace Napi;
+
 namespace Pol
 {
 namespace Node
@@ -16,10 +20,7 @@ namespace Module
 
 static Napi::Object InitializeBasic( Napi::Env env, Napi::Object exports )
 {
-  using namespace Pol;
-
-  POLLOG_INFO << "initializing";
-  exports.Set( "print", Function::New( env, []( CallbackInfo& info ) {
+  exports.Set( "print", Function::New( env, []( const CallbackInfo& info ) {
                  for ( int i = 0; i < info.Length(); i++ )
                  {
                    POLLOG_INFO << info[i]
@@ -32,7 +33,6 @@ static Napi::Object InitializeBasic( Napi::Env env, Napi::Object exports )
                  }
                  POLLOG_INFO << "\n";
                } ) );
-  POLLOG_INFO << "inited";
   return exports;
 }
 

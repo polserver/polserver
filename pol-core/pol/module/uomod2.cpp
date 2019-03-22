@@ -1786,10 +1786,9 @@ BObjectImp* GetScriptProfiles()
   for ( const auto& source : scriptScheduler.scrstore )
   {
     Program* prog = ( ( source ).second ).get();
-    if ( prog->type() != Bscript::Program::ESCRIPT )
-      continue;
+    Bscript::EScriptProgram* eprog = dynamic_cast<Bscript::EScriptProgram*>( prog );
 
-      total_instr += dynamic_cast<Bscript::EScriptProgram*>( prog )->instr_cycles;
+    total_instr += eprog ? eprog->instr_cycles : 0;
 
   }
 
