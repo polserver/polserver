@@ -18,8 +18,6 @@
 #include "../polsem.h"
 #include "../sqlscrobj.h"
 #include "../uoexec.h"
-#include "osmod.h"
-
 
 namespace Pol
 {
@@ -76,7 +74,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       {
         uoexec.get_weakptr()->ValueStack.back().set(
             new BObject( new BError( "Insufficient memory" ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
     else if ( !sql->connect( host.data(), username.data(), password.data() ) )
@@ -88,7 +86,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       {
         uoexec.get_weakptr()->ValueStack.back().set(
             new BObject( new BError( sql->getLastError() ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
     else
@@ -99,7 +97,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
   };
@@ -131,7 +129,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       {
         uoexec.get_weakptr()->ValueStack.back().set(
             new BObject( new BError( "Invalid parameters" ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
     else if ( !sqlRef->select_db( db.c_str() ) )
@@ -143,7 +141,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       {
         uoexec.get_weakptr()->ValueStack.back().set(
             new BObject( new BError( sqlRef->getLastError() ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
     else
@@ -154,7 +152,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
   };
@@ -202,7 +200,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       {
         uoexec.get_weakptr()->ValueStack.back().set(
             new BObject( new BError( "Invalid parameters" ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
     else if ( !sqlRef->query( query, sharedParams ) )
@@ -214,7 +212,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       {
         uoexec.get_weakptr()->ValueStack.back().set(
             new BObject( new BError( sqlRef->getLastError() ) ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
     else
@@ -225,7 +223,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
-        uoexec.get_weakptr()->os_module->revive();
+        uoexec.get_weakptr()->revive();
       }
     }
   };
