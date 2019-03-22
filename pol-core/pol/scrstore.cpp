@@ -14,11 +14,11 @@
 #include "../plib/systemstate.h"
 #include "globals/script_internals.h"
 #include "globals/state.h"
+#include "node/nodethread.h"
 #include "polcfg.h"
 #include "profile.h"
 #include "scrdef.h"
 #include <format/format.h>
-#include "node/nodethread.h"
 
 
 namespace Pol
@@ -36,7 +36,8 @@ bool script_loaded( ScriptDef& sd )
   return ( itr != scriptScheduler.scrstore.end() );
 }
 
-ref_ptr<Bscript::Program> find_script( const std::string& name, bool complain_if_not_found, bool cache_script )
+ref_ptr<Bscript::Program> find_script( const std::string& name, bool complain_if_not_found,
+                                       bool cache_script )
 {
   ScriptStorage::iterator itr = scriptScheduler.scrstore.find( name.c_str() );
   if ( itr != scriptScheduler.scrstore.end() )
@@ -88,7 +89,7 @@ void register_program_type( const std::string& extension, Bscript::Program* ( *f
 // NOTE,we assume this has directory info (including scripts/ or pkg/xx)
 //     for the filename, if it has an extension, use that engine. otherwise, try both.
 ref_ptr<Bscript::Program> find_script2( const ScriptDef& script, bool complain_if_not_found,
-                                               bool cache_script )
+                                        bool cache_script )
 {
   ScriptStorage::iterator itr = scriptScheduler.scrstore.find( script.c_str() );
   if ( itr != scriptScheduler.scrstore.end() )

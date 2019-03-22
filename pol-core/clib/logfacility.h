@@ -14,6 +14,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <memory>
 #include <thread>
 #include <vector>
+#include "pol_global_config.h"
 
 #include "Debugging/LogSink.h"
 

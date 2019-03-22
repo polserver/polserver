@@ -126,7 +126,7 @@ public:
   void dump( std::ostream& os );
   void dump_casejmp( std::ostream& os, const Token& token );
   int write( const char* fname );
-  int read( const char* fname );
+  int read( const char* fname ) override;
   int read_dbg_file();
   int read_progdef_hdr( FILE* fp );
   int read_module( FILE* fp );

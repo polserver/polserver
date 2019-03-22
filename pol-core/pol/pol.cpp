@@ -706,7 +706,7 @@ void threadstatus_thread( void )
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
 #ifdef HAVE_NODEJS
-    // ... unless we have Node, because we need _that_ to be the last thread. 
+    // ... unless we have Node, because we need _that_ to be the last thread.
     // We have to do some clenaup on it, in order to release the references
     // to the objects later.
     if ( threadhelp::child_threads == 2 && Node::running )
@@ -1480,7 +1480,8 @@ int xmain_inner( bool testing )
   // Clean up our node thread
   INFO_PRINT << "Finished core cleanup. Starting node cleaning...";
 
-  if (!Node::cleanup()) {
+  if ( !Node::cleanup() )
+  {
     ERROR_PRINT << " Node cleanup failed! \n";
   }
 
