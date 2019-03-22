@@ -26,11 +26,11 @@ void node_thread()
   // Workaround for node::Start requirement that
   // argv is sequential in memory.
 
-  char *args = new char[20]; 
-  strcpy(args,"node");
+  char* args = new char[20];
+  strcpy( args, "node" );
   args[4] = '\0';
-  strcpy(args + 5*sizeof(char),"./main.js");
-  char *argv[2] = { args, args + sizeof(char) * 5 };
+  strcpy( args + 5 * sizeof( char ), "./main.js" );
+  char* argv[2] = {args, args + sizeof( char ) * 5};
   int argc = 2;
 
   RegisterBuiltinModules();
@@ -75,7 +75,7 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
                                     (void*)nullptr );
 
     running = true;
-    ready.set_value(true);
+    ready.set_value( true );
     NODELOG << "Created TSFN with max queue " << queueSize << "\n";
     return Boolean::New( env, true );
   }
