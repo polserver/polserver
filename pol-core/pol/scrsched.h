@@ -10,6 +10,7 @@
 #include <list>
 #include <set>
 
+#include "../bscript/eprog.h"
 #include "../clib/refptr.h"
 #include "polclock.h"
 
