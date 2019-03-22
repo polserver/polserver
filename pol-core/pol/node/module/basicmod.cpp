@@ -2,7 +2,7 @@
 #include "../clib/logfacility.h"
 #include "../nodethread.h"
 #include "basicmod.h"
-#include "napi.h"
+#include "../napi-wrap.h"
 
 using namespace Pol;
 using namespace Napi;
@@ -21,7 +21,7 @@ namespace Module
 static Napi::Object InitializeBasic( Napi::Env env, Napi::Object exports )
 {
   exports.Set( "print", Function::New( env, []( const CallbackInfo& info ) {
-                 for ( int i = 0; i < info.Length(); i++ )
+                 for ( size_t i = 0; i < info.Length(); i++ )
                  {
                    POLLOG_INFO << info[i]
                                       .As<Object>()

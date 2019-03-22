@@ -3,8 +3,9 @@
  * @par History
  */
 
-#include "jsprog.h"
 #include "../bscript/eprog.h"
+#include "jsprog.h"
+#include "../../clib/logfacility.h"
 #include "nodecall.h"
 
 using namespace Napi;

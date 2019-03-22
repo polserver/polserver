@@ -3,9 +3,10 @@
  * @par History
  */
 
-#include "nodecall.h"
+#include "../../clib/logfacility.h"
 #include "../polclock.h"
 #include "napi-wrap.h"
+#include "nodecall.h"
 #include "nodethread.h"
 #include <future>
 
@@ -112,7 +113,7 @@ std::future<bool> call( Napi::ObjectReference& ref )
   std::shared_ptr<std::promise<bool>> promise = std::make_shared<std::promise<bool>>();
 
 
-  auto callback = [promise]( Env env, Function jsCallback, NodeExecRequest* req ) {
+  auto callback = [promise]( Env /*env*/, Function /*jsCallback*/, NodeExecRequest* req ) {
 
     NODELOG.Format( "[{:04x}] [exec] call {} , args TODO\n" )
         << req->reqId << req->ref->Get( "_refId" ).As<String>().Utf8Value();
@@ -152,7 +153,7 @@ std::future<Napi::ObjectReference> require( const std::string& name )
 {
   auto promise = std::make_shared<std::promise<Napi::ObjectReference>>();
 
-  auto callback = [promise]( Env env, Function jsCallback, NodeRequireRequest* request ) {
+  auto callback = [promise]( Env env, Function /*jsCallback*/, NodeRequireRequest* request ) {
 
     NODELOG.Format( "[{:04x}] [require] requesting {}\n" ) << request->reqId << request->scriptName;
     try

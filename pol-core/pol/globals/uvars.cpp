@@ -27,6 +27,7 @@
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../console.h"
+#include "../../bscript/eprog.h"
 #include "../guardrgn.h"
 #include "../guilds.h"
 #include "../item/equipmnt.h"

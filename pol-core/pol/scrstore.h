@@ -8,7 +8,7 @@
 #define SCRSTORE_H
 
 #include <string>
-
+#include "../bscript/eprog.h"
 #include "../clib/refptr.h"
 
 namespace Pol

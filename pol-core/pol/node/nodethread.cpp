@@ -1,7 +1,8 @@
 
-#include "../clib/esignal.h"
-#include "../clib/threadhelp.h"
+#include "../../clib/esignal.h"
+#include "../../clib/threadhelp.h"
 #include "../polclock.h"
+#include "../../clib/logfacility.h"
 #include "napi-wrap.h"
 #include "node.h"
 #include "nodecall.h"
