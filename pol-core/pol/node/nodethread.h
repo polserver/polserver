@@ -39,7 +39,7 @@ std::future<bool> start_node();
 
 extern std::atomic<bool> running;
 
-void cleanup();
+bool cleanup();
 
 void RegisterBuiltinModules();
 

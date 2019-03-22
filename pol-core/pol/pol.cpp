@@ -705,6 +705,13 @@ void threadstatus_thread( void )
   // we want this thread to be the last out, so that it can report stuff at shutdown.
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
+#ifdef HAVE_NODEJS
+    // ... unless we have Node, because we need _that_ to be the last thread. 
+    // We have to do some clenaup on it, in order to release the references
+    // to the objects later.
+    if ( threadhelp::child_threads == 2 && Node::running )
+      break;
+#endif
     if ( is_polclock_paused_at_zero() )
     {
       polclock_t now = polclock();
@@ -1397,7 +1404,7 @@ int xmain_inner( bool testing )
 #ifdef HAVE_NODEJS
       // We need to keep Node thread running in order to release the references
       // to the objects later.
-      if ( threadhelp::child_threads == 2 && Node::running )
+      if ( threadhelp::child_threads == 1 && Node::running )
         break;
 #endif
       Core::pol_sleep_ms( 1000 );
@@ -1471,7 +1478,12 @@ int xmain_inner( bool testing )
 
 #ifdef HAVE_NODEJS
   // Clean up our node thread
-  Node::cleanup();
+  INFO_PRINT << "Finished core cleanup. Starting node cleaning...";
+
+  if (!Node::cleanup()) {
+    ERROR_PRINT << " Node cleanup failed! \n";
+  }
+
   // Wait for it to finish
   short timeouts_remaining = 5;
   while ( threadhelp::child_threads )
@@ -1479,13 +1491,14 @@ int xmain_inner( bool testing )
     --timeouts_remaining;
     if ( timeouts_remaining == 0 )
     {
-      INFO_PRINT << "Waiting for " << threadhelp::child_threads << " child threads to exit\n";
+      INFO_PRINT << ".";
       timeouts_remaining = 5;
     }
 
     Core::pol_sleep_ms( 1000 );
   }
 #endif
+
   return 0;
 }
 

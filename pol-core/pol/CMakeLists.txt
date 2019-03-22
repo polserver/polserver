@@ -14,11 +14,7 @@ use_curl(${ex_name})
 use_benchmark(${ex_name})
 
 if(ENABLE_NODEJS)
-  if (${windows})
-    if (${ARCH_BITS} EQUAL "64")
-      use_nodejs(${ex_name})
-    endif()
-  endif()
+  use_nodejs(${ex_name})
 endif()
 
 

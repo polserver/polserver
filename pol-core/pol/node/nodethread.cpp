@@ -1,11 +1,11 @@
 
-#include "nodethread.h"
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
 #include "../polclock.h"
 #include "napi-wrap.h"
 #include "node.h"
 #include "nodecall.h"
+#include "nodethread.h"
 
 using namespace Napi;
 
@@ -16,81 +16,44 @@ namespace Node
 ThreadSafeFunction tsfn;
 Napi::ObjectReference requireRef;
 std::promise<bool> ready;
-std::atomic<bool> running = false;
+std::atomic<bool> running;
 
 void node_thread()
 {
+  running = false;
   POLLOG_INFO << "Starting node thread\n";
-  char *argv[] = {"node", "./main.js"}, argc = 2;
+
+  // Workaround for node::Start requirement that
+  // argv is sequential in memory.
+
+  char *args = new char[20]; 
+  strcpy(args,"node");
+  args[4] = '\0';
+  strcpy(args + 5*sizeof(char),"./main.js");
+  char *argv[2] = { args, args + sizeof(char) * 5 };
+  int argc = 2;
+
   RegisterBuiltinModules();
-  int ret;
   try
   {
-    running = true;
-    ret = node::Start( argc, argv );
+    int ret = node::Start( argc, argv );
     POLLOG_INFO << "Node thread finished with return value " << ret << "\n";
   }
   catch ( std::exception& ex )
   {
     POLLOG_INFO << "Node thread errored with message " << ex.what() << "\n";
   }
+  delete args;
   running = false;
-}
-
-void node_shutdown_thread()
-{
-  int i = 0;
-  while ( !Clib::exit_signalled )
-  {
-    Core::pol_sleep_ms( 500 );
-    i++;
-    // if ( i % 2 && i < 10 )
-    //{
-    //  POLLOG_INFO << "making blocking call\n";
-    //}
-
-    if ( false && i % 5 == 0 )
-    {
-      POLLOG_INFO << "Trying require...\n";
-      auto fut = require( "./script.js" );
-      fut.wait();
-      auto obj = fut.get();
-
-      POLLOG_INFO << "Got value!\n";
-      auto val = call( obj );
-      val.wait();
-      bool retval = val.get();
-      POLLOG_INFO << "Got return " << retval << "\n";
-
-
-      release( std::move( obj ) ).wait();
-    }
-
-    /*else if ( i >= 10 )
-    {
-      Clib::exit_signalled = true;
-    }*/
-
-    if ( i >= 1 )
-    {
-      Clib::exit_signalled = true;
-    }
-  }
-
-
-  // nodeFuncs.tsfn.Release();
 }
 
 std::future<bool> start_node()
 {
   threadhelp::start_thread( node_thread, "Node Thread" );
-
-  threadhelp::start_thread( node_shutdown_thread, "Node Shutdown Listener" );
-  //  POLLOG_INFO << "Node thread finished";
   return ready.get_future();
 }
 
-Napi::Value CreateTSFN( CallbackInfo& info )
+Napi::Value CreateTSFN( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
@@ -100,19 +63,20 @@ Napi::Value CreateTSFN( CallbackInfo& info )
     requireRef = Napi::Persistent( info[1].As<Object>() );
     requireRef.Set( "_refId", String::New( env, "require" ) );
 
+    int queueSize = info[2].As<Number>().Int32Value();
+
     tsfn = ThreadSafeFunction::New( env,
 
                                     info[0].As<Function>(),
 
-                                    Object(), "work_name", info[2].As<Number>().Int32Value(), 1,
+                                    Object(), "work_name", queueSize, 1,
                                     (void*)nullptr,                    // data for finalize cb
                                     []( Napi::Env, void*, void* ) {},  // finalize cb
                                     (void*)nullptr );
 
-
-    POLLOG_INFO << "setting..\n";
-    ready.set_value( true );
-    POLLOG_INFO << "set promise value!\n";
+    running = true;
+    ready.set_value(true);
+    NODELOG << "Created TSFN with max queue " << queueSize << "\n";
     return Boolean::New( env, true );
   }
   catch ( std::exception& ex )
@@ -126,9 +90,7 @@ Napi::Value CreateTSFN( CallbackInfo& info )
 
 static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 {
-  POLLOG_INFO << "initializing";
   exports.Set( "start", Function::New( env, CreateTSFN ) );
-  POLLOG_INFO << "inited";
   return exports;
 }
 
@@ -140,18 +102,11 @@ void RegisterBuiltinModules()
   _register_tsfn();
 }
 
-void cleanup()
+bool cleanup()
 {
   release( std::move( Node::requireRef ) ).wait();
 
-  if ( !tsfn.Release() )
-  {
-    Error::Fatal( "SecondaryThread", "ThreadSafeFunction.Release() failed" );
-  }
-  else
-  {
-    POLLOG_INFO << "released\n";
-  }
+  return tsfn.Release();
 }
 
 

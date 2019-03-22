@@ -219,7 +219,7 @@ endfunction()
 
 function(use_nodejs target)
   target_include_directories(${target}
-    PUBLIC ${NODE_SOURCE_DIR}/src ${NODE_SOURCE_DIR}/deps/v8/include
+    PUBLIC SYSTEM ${NODE_SOURCE_DIR}/src ${NODE_SOURCE_DIR}/deps/v8/include
   )
   if (NOT EXISTS ${NODE_LIB})
     add_dependencies(${target} nodejs)

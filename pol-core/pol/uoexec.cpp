@@ -86,10 +86,9 @@ void UOExecutor::execInstr()
   }
 }
 
-const std::string& UOExecutor::scriptname() const
+std::string UOExecutor::scriptname() const
 {
   return prog_->scriptname();
-  //  return UOExecutor::runnable();
 }
 
 
