@@ -14,7 +14,6 @@
 #include "../clib/rawtypes.h"
 #include "item/item.h"
 #include "mobile/charactr.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/cgdata.h"
 #include "network/client.h"
@@ -23,6 +22,7 @@
 #include "network/pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"
+#include "uoexhelp.h"
 
 namespace Pol
 {
@@ -65,7 +65,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
       }
     }
   }
-  uoemod->uoexec.os_module->revive();
+  uoemod->uoexec.revive();
   uoemod->prompt_chr = nullptr;
   client->gd->prompt_uoemod = nullptr;
 }

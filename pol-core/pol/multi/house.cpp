@@ -37,7 +37,6 @@
 #include "../globals/uvars.h"
 #include "../item/itemdesc.h"
 #include "../mobile/charactr.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
@@ -985,7 +984,7 @@ void UHouse::walk_on( Mobile::Character* chr )
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->os_module->priority = 100;
+      ex->priority(100);
 
       if ( ex->setProgram( prog.get() ) )
       {

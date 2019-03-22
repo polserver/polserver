@@ -103,16 +103,16 @@ void freepid( unsigned int pid )
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
     : TmplExecutorModule<OSExecutorModule>( "OS", exec ),
-      critical( false ),
-      priority( 1 ),
-      warn_on_runaway( true ),
+      critical_( false ),
+      priority_( 1 ),
+      warn_on_runaway_( true ),
       blocked_( false ),
       sleep_until_clock_( 0 ),
-      in_hold_list_( NO_LIST ),
       hold_itr_(),
+      in_hold_list_( Core::HoldListType::NO_LIST ),
+      wait_type( Core::WAIT_TYPE::WAIT_UNKNOWN ),
       pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
-      wait_type( WAIT_UNKNOWN ),
-      max_eventqueue_size( MAX_EVENTQUEUE_SIZE ),
+      max_eventqueue_size( Core::MAX_EVENTQUEUE_SIZE ),
       events_()
 {
 }
@@ -218,7 +218,7 @@ BObjectImp* OSExecutorModule::wait_for_event()
 
     if ( nsecs )
     {
-      wait_type = WAIT_EVENT;
+      wait_type = Core::WAIT_TYPE::WAIT_EVENT;
       blocked_ = true;
       sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
     }
@@ -351,7 +351,7 @@ BObjectImp* OSExecutorModule::set_critical()
   int crit;
   if ( exec.getParam( 0, crit ) )
   {
-    critical = ( crit != 0 );
+    critical_ = ( crit != 0 );
     return new BLong( 1 );
   }
   else
@@ -362,7 +362,7 @@ BObjectImp* OSExecutorModule::set_critical()
 
 BObjectImp* OSExecutorModule::is_critical()
 {
-  if ( critical )
+  if ( critical_ )
     return new BLong( 1 );
   else
     return new BLong( 0 );
@@ -497,8 +497,8 @@ BObjectImp* OSExecutorModule::mf_set_priority()
   int newpri;
   if ( getParam( 0, newpri, 1, 255 ) )
   {
-    int oldpri = priority;
-    priority = static_cast<unsigned char>( newpri );
+    int oldpri = priority_;
+    priority_ = static_cast<unsigned char>( newpri );
     return new BLong( oldpri );
   }
   else
@@ -639,7 +639,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               {
                 uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               }
-              uoexec_w.get_weakptr()->os_module->revive();
+              uoexec_w.get_weakptr()->revive();
             }
             std::unique_ptr<Network::AuxClientThread> client(
                 new Network::AuxClientThread( sd, s, scriptparam->copy(), assume_string ) );
@@ -744,7 +744,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
               uoexec_w.get_weakptr()->ValueStack.back().set(
                   new BObject( new String( readBuffer ) ) );
 
-            uoexec_w.get_weakptr()->os_module->revive();
+            uoexec_w.get_weakptr()->revive();
           }
 
           /* always cleanup */
@@ -772,7 +772,7 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
 {
   INC_PROFILEVAR( events );
 
-  if ( blocked_ && ( wait_type == WAIT_EVENT ) )  // already being waited for
+  if ( blocked_ && ( wait_type == Core::WAIT_TYPE::WAIT_EVENT ) )  // already being waited for
   {
     /* Now, the tricky part.  The value to return on an error or
     completion condition has already been pushed onto the value
@@ -828,7 +828,7 @@ void OSExecutorModule::SleepFor( int nsecs )
   if ( nsecs )
   {
     blocked_ = true;
-    wait_type = WAIT_SLEEP;
+    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
     sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
   }
 }
@@ -838,7 +838,7 @@ void OSExecutorModule::SleepForMs( int msecs )
   if ( msecs )
   {
     blocked_ = true;
-    wait_type = WAIT_SLEEP;
+    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
     sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
   }
 }
@@ -846,36 +846,89 @@ void OSExecutorModule::SleepForMs( int msecs )
 void OSExecutorModule::suspend()
 {
   blocked_ = true;
-  wait_type = WAIT_SLEEP;
+  wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
   sleep_until_clock_ = 0;  // wait forever
 }
 
 void OSExecutorModule::revive()
 {
   blocked_ = false;
-  if ( in_hold_list_ == TIMEOUT_LIST )
+  if ( in_hold_list_ == Core::HoldListType::TIMEOUT_LIST )
   {
-    in_hold_list_ = NO_LIST;
+    in_hold_list_ = Core::HoldListType::NO_LIST;
     Core::scriptScheduler.revive_timeout( static_cast<Core::UOExecutor*>( &exec ), hold_itr_ );
   }
-  else if ( in_hold_list_ == NOTIMEOUT_LIST )
+  else if ( in_hold_list_ == Core::HoldListType::NOTIMEOUT_LIST )
   {
-    in_hold_list_ = NO_LIST;
+    in_hold_list_ = Core::HoldListType::NO_LIST;
     Core::scriptScheduler.revive_notimeout( static_cast<Core::UOExecutor*>( &exec ) );
   }
-  else if ( in_hold_list_ == DEBUGGER_LIST )
+  else if ( in_hold_list_ == Core::HoldListType::DEBUGGER_LIST )
   {
     // stays right where it is.
   }
 }
 bool OSExecutorModule::in_debugger_holdlist() const
 {
-  return ( in_hold_list_ == DEBUGGER_LIST );
+  return ( in_hold_list_ == Core::HoldListType::DEBUGGER_LIST );
 }
 void OSExecutorModule::revive_debugged()
 {
-  in_hold_list_ = NO_LIST;
+  in_hold_list_ = Core::HoldListType::NO_LIST;
   Core::scriptScheduler.revive_debugged( static_cast<Core::UOExecutor*>( &exec ) );
+}
+
+bool OSExecutorModule::critical() const
+{
+  return critical_;
+}
+void OSExecutorModule::critical( bool critical )
+{
+  critical_ = critical;
+}
+
+bool OSExecutorModule::warn_on_runaway() const
+{
+  return warn_on_runaway_;
+}
+void OSExecutorModule::warn_on_runaway( bool warn_on_runaway )
+{
+  warn_on_runaway_ = warn_on_runaway;
+}
+
+unsigned char OSExecutorModule::priority() const
+{
+  return priority_;
+}
+void OSExecutorModule::priority( unsigned char priority )
+{
+  priority_ = priority;
+}
+
+Core::polclock_t OSExecutorModule::sleep_until_clock() const
+{
+  return sleep_until_clock_;
+}
+void OSExecutorModule::sleep_until_clock(Core::polclock_t sleep_until_clock) {
+  sleep_until_clock_ = sleep_until_clock;
+}
+
+Core::TimeoutHandle OSExecutorModule::hold_itr() const
+{
+  return hold_itr_;
+}
+void OSExecutorModule::hold_itr(Core::TimeoutHandle hold_itr)
+{
+  hold_itr_ = hold_itr;
+}
+
+Core::HoldListType OSExecutorModule::in_hold_list() const
+{
+  return in_hold_list_;
+}
+void OSExecutorModule::in_hold_list(Core::HoldListType in_hold_list)
+{
+  in_hold_list_ = in_hold_list;
 }
 
 const int SCRIPTOPT_NO_INTERRUPT = 1;
@@ -894,8 +947,8 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
     switch ( optnum )
     {
     case SCRIPTOPT_NO_INTERRUPT:
-      oldval = critical ? 1 : 0;
-      critical = optval ? true : false;
+      oldval = critical_ ? 1 : 0;
+      critical_ = optval ? true : false;
       break;
     case SCRIPTOPT_DEBUG:
       oldval = exec.getDebugLevel();
@@ -905,8 +958,8 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
         exec.setDebugLevel( Executor::NONE );
       break;
     case SCRIPTOPT_NO_RUNAWAY:
-      oldval = warn_on_runaway ? 1 : 0;
-      warn_on_runaway = !optval;
+      oldval = warn_on_runaway_ ? 1 : 0;
+      warn_on_runaway_ = !optval;
       break;
     case SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES:
     {
@@ -946,7 +999,7 @@ struct ScriptDiffData
   u64 instructions;
   u64 pid;
   ScriptDiffData( Core::UOExecutor* ex )
-      : name( ex->scriptname() ), instructions( ex->instr_cycles ), pid( ex->os_module->pid() )
+      : name( ex->scriptname() ), instructions( ex->instr_cycles ), pid( ex->pid() )
   {
   }
   ScriptDiffData( Core::UOExecutor* ex, u64 instr ) : ScriptDiffData( ex )
@@ -987,7 +1040,7 @@ struct PerfData
     const auto& holdlist = Core::scriptScheduler.getHoldlist();
     const auto& notimeoutholdlist = Core::scriptScheduler.getNoTimeoutHoldlist();
     auto collect = [&]( Core::UOExecutor* scr ) {
-      auto itr = data->data.find( scr->os_module->pid() );
+      auto itr = data->data.find( scr->pid() );
       if ( itr == data->data.end() )
         return;
       res.emplace_back( scr, itr->second.instructions );
@@ -1019,7 +1072,7 @@ struct PerfData
     result->addMember( "total_instructions", new Double( sum_instr ) );
     data->uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( result.release() ) );
 
-    data->uoexec_w.get_weakptr()->os_module->revive();
+    data->uoexec_w.get_weakptr()->revive();
   }
 };
 
@@ -1049,14 +1102,13 @@ BObjectImp* OSExecutorModule::mf_performance_diff()
 
   std::unique_ptr<PerfData> perf( new PerfData( this_uoexec->weakptr, max_scripts ) );
   for ( const auto& scr : runlist )
-    perf->data.insert( std::make_pair( scr->os_module->pid(), ScriptDiffData( scr ) ) );
+    perf->data.insert( std::make_pair( scr->pid(), ScriptDiffData( scr ) ) );
   for ( const auto& scr : ranlist )
-    perf->data.insert( std::make_pair( scr->os_module->pid(), ScriptDiffData( scr ) ) );
+    perf->data.insert( std::make_pair( scr->pid(), ScriptDiffData( scr ) ) );
   for ( const auto& scr : holdlist )
-    perf->data.insert(
-        std::make_pair( scr.second->os_module->pid(), ScriptDiffData( scr.second ) ) );
+    perf->data.insert( std::make_pair( scr.second->pid(), ScriptDiffData( scr.second ) ) );
   for ( const auto& scr : notimeoutholdlist )
-    perf->data.insert( std::make_pair( scr->os_module->pid(), ScriptDiffData( scr ) ) );
+    perf->data.insert( std::make_pair( scr->pid(), ScriptDiffData( scr ) ) );
 
   new Core::OneShotTaskInst<PerfData*>( nullptr,
                                         Core::polclock() + second_delta * Core::POLCLOCKS_PER_SEC,

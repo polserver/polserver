@@ -6,7 +6,6 @@
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
-#include "../module/osmod.h"
 #include "../polsig.h"
 #include "../uoexec.h"
 #include "state.h"
@@ -177,12 +176,11 @@ void ScriptScheduler::run_ready()
     passert_paranoid( ex != nullptr );
     runlist.pop_front();  // remove it directly, since itr can get invalid during execution
 
-    Module::OSExecutorModule* os_module = ex->os_module;
     Clib::scripts_thread_script = ex->scriptname();
 
     int inscount = 0;
     int totcount = 0;
-    int insleft = os_module->priority / priority_divide;
+    int insleft = ex->priority() / priority_divide;
     if ( insleft == 0 )
       insleft = 1;
 
@@ -197,7 +195,7 @@ void ScriptScheduler::run_ready()
 
       THREAD_CHECKPOINT( scripts, 113 );
 
-      if ( os_module->blocked() )
+      if ( ex->blocked() )
       {
         ex->warn_runaway_on_cycle =
             ex->instr_cycles + Plib::systemstate.config.runaway_script_threshold;
@@ -208,10 +206,10 @@ void ScriptScheduler::run_ready()
       if ( ex->instr_cycles == ex->warn_runaway_on_cycle )
       {
         ex->runaway_cycles += Plib::systemstate.config.runaway_script_threshold;
-        if ( os_module->warn_on_runaway )
+        if ( ex->warn_on_runaway() )
         {
           fmt::Writer tmp;
-          tmp << "Runaway script[" << os_module->pid() << "]: " << ex->scriptname() << " ("
+          tmp << "Runaway script[" << ex->pid() << "]: " << ex->scriptname() << " ("
               << ex->runaway_cycles << " cycles)\n";
           ex->show_context( tmp, ex->PC );
           SCRIPTLOG << tmp.str();
@@ -219,7 +217,7 @@ void ScriptScheduler::run_ready()
         ex->warn_runaway_on_cycle += Plib::systemstate.config.runaway_script_threshold;
       }
 
-      if ( os_module->critical )
+      if ( ex->critical() )
       {
         ++inscount;
         ++totcount;
@@ -257,7 +255,7 @@ void ScriptScheduler::run_ready()
         {
           ranlist.push_back( ex );
           // ranlist.splice( ranlist.end(), runlist, itr );
-          ex->pParent->os_module->revive();
+          ex->pParent->revive();
         }
         else
         {
@@ -272,30 +270,29 @@ void ScriptScheduler::run_ready()
         }
         continue;
       }
-      else if ( !ex->os_module->blocked() )
+      else if ( !ex->blocked() )
       {
         THREAD_CHECKPOINT( scripts, 115 );
 
         // runlist.erase( itr );
-        ex->os_module->in_hold_list_ = Module::OSExecutorModule::DEBUGGER_LIST;
+        ex->in_hold_list( Core::HoldListType::DEBUGGER_LIST );
         debuggerholdlist.insert( ex );
         continue;
       }
     }
 
-    if ( ex->os_module->blocked() )
+    if ( ex->blocked() )
     {
       THREAD_CHECKPOINT( scripts, 116 );
 
-      if ( ex->os_module->sleep_until_clock_ )
+      if ( ex->sleep_until_clock() )
       {
-        ex->os_module->in_hold_list_ = Module::OSExecutorModule::TIMEOUT_LIST;
-        ex->os_module->hold_itr_ =
-            holdlist.insert( HoldList::value_type( ex->os_module->sleep_until_clock_, ex ) );
+        ex->in_hold_list( Core::HoldListType::TIMEOUT_LIST );
+        ex->hold_itr( holdlist.insert( HoldList::value_type( ex->sleep_until_clock(), ex ) ) );
       }
       else
       {
-        ex->os_module->in_hold_list_ = Module::OSExecutorModule::NOTIMEOUT_LIST;
+        ex->in_hold_list( Core::HoldListType::NOTIMEOUT_LIST );
         notimeoutholdlist.insert( ex );
       }
 

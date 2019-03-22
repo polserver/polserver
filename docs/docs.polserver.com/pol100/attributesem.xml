@@ -5,10 +5,12 @@
   <fileheader fname="Attributes.em">
     <filedesc>Functions for working with mobile's attributes/skills.</filedesc>
     <datemodified>03/19/2009</datemodified>
-<constant>const ATTRIBUTE_LOCK_UP     := 0;</constant>
-<constant>const ATTRIBUTE_LOCK_DOWN   := 1;</constant>
-<constant>const ATTRIBUTE_LOCK_LOCKED := 2;</constant>
-<constant>const ATTRIBUTE_MAX_BASE    := 60000;</constant>
+    <constant>const ATTRIBUTE_LOCK_UP          := 0;</constant>
+    <constant>const ATTRIBUTE_LOCK_DOWN        := 1;</constant>
+    <constant>const ATTRIBUTE_LOCK_LOCKED      := 2;</constant>
+    <constant>const ATTRIBUTE_MAX_BASE         := 60000;</constant>
+    <constant>const ATTRIBUTE_PRECISION_NORMAL := 0;</constant>
+    <constant>const ATTRIBUTE_PRECISION_TENTHS := 1;</constant>
   </fileheader>
   
 <function name="CheckSkill">
@@ -48,12 +50,13 @@
 </function>	
 
 <function name="GetAttribute">
-	<prototype>GetAttribute( character, attrname )</prototype>
+	<prototype>GetAttribute( character, attrname, precision := ATTRIBUTE_PRECISION_NORMAL )</prototype>
 	<parameter name="character" value="Character Reference" />
 	<parameter name="attrname" value="String (attribute name)" />
+	<parameter name="precision" value="Integer" />
 	<explain>Returns the current effective value for the specified attribute on character.</explain>
 	<return>Integer "Effective" attribute value on success (base + temporary mod + intrinsic mod) or 
-Error</return>
+Error. Will return the precision in tenths if ATTRIBUTE_PRECISION_TENTHS is specified. </return>
 	<error>"Invalid parameter type" including if attrname was not found as an attribute</error>
 	<related>Character</related>
 	<relatedcfg>attributes.cfg</relatedcfg>

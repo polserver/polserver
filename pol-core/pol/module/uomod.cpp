@@ -150,12 +150,12 @@
 #include "../unicode.h"
 #include "../uobject.h"
 #include "../uoexec.h"
+#include "../uoexhelp.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../wthrtype.h"
 #include "cfgmod.h"
-#include "osmod.h"
 
 namespace Pol
 {
@@ -784,7 +784,7 @@ void handle_script_cursor( Character* chr, UObject* obj )
           new BObject( obj->make_ref() ) );
     }
     // even on cancel, we wake the script up.
-    chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
+    chr->client->gd->target_cursor_uoemod->uoexec.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -919,7 +919,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
     }
 
-    chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
+    chr->client->gd->target_cursor_uoemod->uoexec.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -1560,7 +1560,7 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
             new BObject( selection ) );
       }
       // 0 is already on the value stack, for the case of cancellation.
-      chr->client->gd->menu_selection_uoemod->uoexec.os_module->revive();
+      chr->client->gd->menu_selection_uoemod->uoexec.revive();
       chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
       chr->client->gd->menu_selection_uoemod = nullptr;
     }

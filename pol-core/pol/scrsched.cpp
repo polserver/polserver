@@ -38,7 +38,6 @@
 #include "module/guildmod.h"
 #include "module/httpmod.h"
 #include "module/mathmod.h"
-#include "module/osmod.h"
 #include "module/partymod.h"
 #include "module/polsystemmod.h"
 #include "module/sqlmod.h"
@@ -85,9 +84,9 @@ void check_blocked( polclock_t* pclocksleft )
     UOExecutor* ex = ( *itr ).second;
     // ++ex->sleep_cycles;
 
-    passert( ex->os_module->blocked_ );
-    passert( ex->os_module->sleep_until_clock_ != 0 );
-    clocksleft = ex->os_module->sleep_until_clock_ - now_clock;
+    passert( ex->blocked() );
+    passert( ex->sleep_until_clock() != 0 );
+    clocksleft = ex->sleep_until_clock() - now_clock;
     if ( clocksleft <= 0 )
     {
       if ( clocksleft == 0 )
@@ -98,7 +97,7 @@ void check_blocked( polclock_t* pclocksleft )
       // read comment above to understand what goes on here.
       // the return value is already on the stack.
       THREAD_CHECKPOINT( scripts, 132 );
-      ex->os_module->revive();
+      ex->revive();
     }
     else
     {
@@ -118,7 +117,7 @@ polclock_t calc_script_clocksleft( polclock_t now )
   {
     auto itr = scriptScheduler.getHoldlist().cbegin();
     UOExecutor* ex = ( *itr ).second;
-    polclock_t clocksleft = ex->os_module->sleep_until_clock_ - now;
+    polclock_t clocksleft = ex->sleep_until_clock() - now;
     if ( clocksleft >= 0 )
       return clocksleft;
     else
@@ -750,7 +749,7 @@ void list_scripts()
 
 void list_crit_script( UOExecutor* uoexec )
 {
-  if ( uoexec->os_module->critical )
+  if ( uoexec->critical() )
     list_script( uoexec );
 }
 void list_crit_scripts( const char* desc, const ExecList& ls )
