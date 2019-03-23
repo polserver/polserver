@@ -1,13 +1,13 @@
 
+#include "nodethread.h"
 #include "../../clib/esignal.h"
+#include "../../clib/logfacility.h"
 #include "../../clib/threadhelp.h"
 #include "../polclock.h"
-#include "../../clib/logfacility.h"
+#include "module/objwrap.h"
 #include "napi-wrap.h"
 #include "node.h"
 #include "nodecall.h"
-#include "nodethread.h"
-#include "module/objwrap.h"
 
 using namespace Napi;
 
@@ -57,6 +57,37 @@ std::future<bool> start_node()
   return ready.get_future();
 }
 
+
+Napi::Value Configure( const CallbackInfo& info )
+{
+  Napi::Env env = info.Env();
+  Napi::HandleScope scope( env );
+
+  try
+  {
+    if ( info.Length() < 1 )
+    {
+      throw Error::New( env, "Missing first argument to cofigure()" );
+    }
+
+    auto arg0 = info[0].As<Object>();
+    if ( !arg0.Has( "require" ) )
+    {
+      throw Error::New( env, "First argument to configure() missing 'require' property" );
+    }
+
+    requireRef = Napi::Persistent( arg0 );
+    requireRef.Set( "_refId", String::New( env, "configure" ) );
+
+    return Boolean::New( env, true );
+  }
+  catch ( std::exception& ex )
+  {
+    POLLOG_ERROR << "Could not create tsfn: " << ex.what() << "\n";
+    return Boolean::New( env, false );
+  }
+}
+
 Napi::Value CreateTSFN( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
@@ -64,10 +95,7 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
 
   try
   {
-    requireRef = Napi::Persistent( info[1].As<Object>() );
-    requireRef.Set( "_refId", String::New( env, "require" ) );
-
-    int queueSize = info[2].As<Number>().Int32Value();
+    int queueSize = info[1].As<Number>().Int32Value();
 
     tsfn = ThreadSafeFunction::New( env,
 
@@ -91,32 +119,36 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
   }
 }
 
+bool Node::cleanup()
+{
+  auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
+    requireRef.Unref();
+    return true;
+  } );
+  call.getRef();
+  return tsfn.Release();
+}
 
+/**
+ * Called when the initial `pol` module gets loaded in JavaScript via
+ * `process._linkedBinding`.
+ */
 static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 {
-  exports.Set( "start", Function::New( env, CreateTSFN ) );
+  exports["start"] = Function::New( env, CreateTSFN );
+  exports["configure"] = Function::New( env, Configure );
+
+  // Register our additional modules
   RegisterBuiltinModules( env, exports );
   return exports;
 }
 
-// Called when TSFN is created, and we can now register our modules,
-// eg. the object wrapper
 void RegisterBuiltinModules( Napi::Env env, Object exports )
 {
   Node::NodeObjectWrap::Init( env, exports );
-  // _register_tsfn();
 }
 
-NODE_API_MODULE_LINKED( tsfn, InitializeNAPI )
-
-
-bool cleanup()
-{
-  release( std::move( Node::requireRef ) ).wait();
-
-  return tsfn.Release();
-}
-
+NODE_API_MODULE_LINKED( pol, InitializeNAPI )
 
 }  // namespace Node
 }  // namespace Pol

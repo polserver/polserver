@@ -3,9 +3,9 @@
  * @par History
  */
 
+#include "jsprog.h"
 #include "../../clib/logfacility.h"
 #include "../bscript/eprog.h"
-#include "jsprog.h"
 #include "nodecall.h"
 #include "nodethread.h"
 
@@ -39,25 +39,22 @@ int JavascriptProgram::read( const char* fname )
 
           try
           {
-            auto requireVal = requireRef.Value().As<Function>().Call(
-                {Napi::String::New( env, scriptName )} );
+            auto requireVal = requireRef.Get( "require" )
+                                  .As<Function>()
+                                  .Call( {Napi::String::New( env, scriptName )} );
             auto requireObj = requireVal.As<Object>();
 
             auto funct = requireObj.Get( "default" );
-            /*
-                  auto functCode = funct.As<Object>()
-                                       .Get( "toString" )
-                                       .As<Function>()
-                                       .Call( funct, {} )
-                                       .As<String>()
-                                       .Utf8Value();*/
+
+            auto functCode = Node::ToUtf8Value( funct );
 
             requireObj.Set( "_refId",
                             String::New( env, std::string( "require(" ) + scriptName + ")@" +
                                                   std::to_string( request->reqId() ) ) );
             return ObjectReference::New( requireObj, 1 );
 
-            NODELOG.Format( "[{:04x}] [require] resolved, {}\n" ) << request->reqId() << scriptName;
+            NODELOG.Format( "[{:04x}] [require] resolved, {} = {}\n" )
+                << request->reqId() << scriptName << functCode;
           }
           catch ( std::exception& ex )
           {
@@ -66,14 +63,14 @@ int JavascriptProgram::read( const char* fname )
           }
         } );
 
-    obj = reqReturn.getRef(); 
+    obj = reqReturn.getRef();
 
     if ( obj.IsEmpty() )
-      {
-      POLLOG_INFO << "Error reading javascript " << fname << "\n";  
+    {
+      POLLOG_INFO << "Error reading javascript " << fname << "\n";
       return 1;
     }
-    
+
     POLLOG_INFO << "Got a successful read for " << fname << "\n";
     return 0;
   }
@@ -102,7 +99,14 @@ Bscript::Program::ProgramType JavascriptProgram::type() const
 
 JavascriptProgram::~JavascriptProgram()
 {
-  Node::release( std::move( obj ) );
+  // Node::release( std::move( obj ) );
+
+
+  auto call = Node::makeCall<bool>( [this]( Napi::Env env, NodeRequest<bool>* request ) {
+    this->obj.Unref();
+    return true;
+  } );
+  call.getRef();
 }
 
 }  // namespace Node

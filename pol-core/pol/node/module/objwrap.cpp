@@ -12,18 +12,20 @@ namespace Pol
 {
 namespace Node
 {
-
-  
 Napi::FunctionReference NodeObjectWrap::constructor;
 
-Napi::Object NodeObjectWrap::Init( Napi::Env env, Napi::Object exports )
+/**
+ * Initialize the NodeObjectWrap module. It does not add any exports to
+ * the JavaScript world (eg. no script should use `new NodeObjectWrap`).
+ */
+Napi::Object NodeObjectWrap::Init( Napi::Env env, Napi::Object /*exports*/ )
 {
   Napi::HandleScope scope( env );
 
   Napi::Function func = DefineClass( env, "NodeObjectWrap",
-                                     {InstanceMethod( "plusOne", &NodeObjectWrap::PlusOne ),
-                                      InstanceMethod( "value", &NodeObjectWrap::GetValue ),
-                                      InstanceMethod( "multiply", &NodeObjectWrap::Multiply )} );
+                                     {
+                                      InstanceMethod( "value", &NodeObjectWrap::GetValue )
+                                      } );
 
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
@@ -31,52 +33,29 @@ Napi::Object NodeObjectWrap::Init( Napi::Env env, Napi::Object exports )
   NODELOG << "We've set our NodeObjectWrapper constructor\n";
 }
 
-NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info ) : Napi::ObjectWrap<NodeObjectWrap>( info )
+NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info )
+    : Napi::ObjectWrap<NodeObjectWrap>( info )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
 
   int length = info.Length();
 
-  if ( length <= 0 || !info[0].IsNumber() )
+  if ( length <= 0 || !info[0].IsExternal() )
   {
-    Napi::TypeError::New( env, "Number expected" ).ThrowAsJavaScriptException();
+    Napi::TypeError::New( env, "External expected" ).ThrowAsJavaScriptException();
   }
 
-  Napi::Number value = info[0].As<Napi::Number>();
-  this->value_ = value.DoubleValue();
+  this->ref = RefType::New( info[0].As<ExtType>(), 1 );
+  this->ref.Value().As<ExtType>().Data();
 }
 
 Napi::Value NodeObjectWrap::GetValue( const Napi::CallbackInfo& info )
 {
-  double num = this->value_;
+  //double num = this->value_;
 
-  return Napi::Number::New( info.Env(), num );
+  return Napi::Number::New( info.Env(), clock() );
 }
 
-Napi::Value NodeObjectWrap::PlusOne( const Napi::CallbackInfo& info )
-{
-  this->value_ = this->value_ + 1;
-
-  return NodeObjectWrap::GetValue( info );
-}
-
-Napi::Value NodeObjectWrap::Multiply( const Napi::CallbackInfo& info )
-{
-  Napi::Number multiple;
-  if ( info.Length() <= 0 || !info[0].IsNumber() )
-  {
-    multiple = Napi::Number::New( info.Env(), 1 );
-  }
-  else
-  {
-    multiple = info[0].As<Napi::Number>();
-  }
-
-  Napi::Object obj =
-      constructor.New( {Napi::Number::New( info.Env(), this->value_ * multiple.DoubleValue() )} );
-
-  return obj;
-}
 }
 }

@@ -26,12 +26,6 @@ namespace Node
 {
 class JavascriptProgram;
 
-std::future<Napi::ObjectReference> require( const std::string& name );
-
-std::future<bool> release( Napi::ObjectReference ref );
-
-std::future<bool> call( Napi::ObjectReference& ref );
-
 //
 //// Callable implements Napi::Value(Env, Request*, Context*)
 // template <typename Return, typename Callable, typename DataType>
@@ -43,7 +37,6 @@ extern std::atomic_uint nextRequestId;
 // CAN ONLY RUN IN NODE THREAD
 inline std::string ToUtf8Value( const Napi::Value& v )
 {
-  
   return !v ? "<unset Napi::Value>"
             : v.IsUndefined() ? "undefined"
                               : v.As<Object>()
