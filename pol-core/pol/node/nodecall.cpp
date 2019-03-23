@@ -18,6 +18,22 @@ namespace Node
 {
 unsigned long requestNumber = 0;
 
+std::atomic_uint Request::nextRequestId( 0 );
+
+
+Request::Request( Napi::Env env ) : reqId_( nextRequestId++ ), timer_(), points_(), env_( env ) {}
+
+unsigned int Request::reqId() const
+{
+  return reqId_;
+}
+
+Request::timestamp Request::checkpoint( const std::string& key )
+{
+  points_.push_back( std::make_tuple( key, timer_.ellapsed() ) );
+  return std::get<1>( points_.back() );
+}
+
 struct NodeRequest
 {
   NodeRequest() : reqId( requestNumber++ ), when( Core::PolClock::now() ), done(){};
