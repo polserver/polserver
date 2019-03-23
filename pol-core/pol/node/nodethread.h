@@ -41,8 +41,6 @@ extern std::atomic<bool> running;
 
 bool cleanup();
 
-void RegisterBuiltinModules();
-
 // void start_node_thread();
 }  // namespace Node
 }  // namespace Pol

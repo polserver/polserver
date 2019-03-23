@@ -27,43 +27,53 @@ bool JavascriptProgram::hasProgram() const
   return false;
 }
 
-std::future<void> Node::makeCall( std::function<Napi::Value( Napi::Env, Request* )>  ) {
-
-  auto p = std::promise<void>();
-  p.set_value();
-  return p.get_future();
-}
-
 int JavascriptProgram::read( const char* fname )
 {
   try
   {
-    // auto fut = Node::require( std::string( "./" ) + fname );
+    auto reqReturn = Node::makeCall<ObjectReference>(
+        [fname]( Napi::Env env, NodeRequest<ObjectReference>* request ) {
 
-    auto fut = Node::makeCall( [fname]( Napi::Env env, Request* request ) {
-      auto req =
-          requireRef.Value().As<Function>().Call( {Napi::String::New( env, fname )} ).As<Object>();
+          auto scriptName = std::string( "./" ) + fname;
+          NODELOG.Format( "[{:04x}] [require] requesting, {}\n" ) << request->reqId() << scriptName;
 
-      auto funct = req.Get( "default" );
+          try
+          {
+            auto requireVal = requireRef.Value().As<Function>().Call(
+                {Napi::String::New( env, scriptName )} );
+            auto requireObj = requireVal.As<Object>();
 
-      auto functCode = funct.As<Object>()
-                           .Get( "toString" )
-                           .As<Function>()
-                           .Call( funct, {} )
-                           .As<String>()
-                           .Utf8Value();
+            auto funct = requireObj.Get( "default" );
+            /*
+                  auto functCode = funct.As<Object>()
+                                       .Get( "toString" )
+                                       .As<Function>()
+                                       .Call( funct, {} )
+                                       .As<String>()
+                                       .Utf8Value();*/
 
+            requireObj.Set( "_refId",
+                            String::New( env, std::string( "require(" ) + scriptName + ")@" +
+                                                  std::to_string( request->reqId() ) ) );
+            return ObjectReference::New( requireObj, 1 );
 
-      req.Set( "_refId", String::New( env, std::string( "require(" ) + fname + ")@" +
-                                               std::to_string( 1234 ) ) );
+            NODELOG.Format( "[{:04x}] [require] resolved, {}\n" ) << request->reqId() << scriptName;
+          }
+          catch ( std::exception& ex )
+          {
+            NODELOG.Format( "[{:04x}] [require] errored, {}\n" ) << request->reqId() << scriptName;
+            return Napi::Reference<Object>();
+          }
+        } );
 
-      NODELOG.Format( "[{:04x}] [require] resolved, {}\n" ) << request->reqId() << functCode;
-      return env.Undefined();
-      // return Napi::ObjectReference::New( req, 1 );
-    } );
+    obj = reqReturn.getRef(); 
 
-    fut.wait();  // waits until
-                 // obj = fut.get();
+    if ( obj.IsEmpty() )
+      {
+      POLLOG_INFO << "Error reading javascript " << fname << "\n";  
+      return 1;
+    }
+    
     POLLOG_INFO << "Got a successful read for " << fname << "\n";
     return 0;
   }

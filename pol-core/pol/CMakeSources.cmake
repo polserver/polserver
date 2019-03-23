@@ -436,11 +436,15 @@ if(ENABLE_NODEJS)
   set (pol_sources ${pol_sources}
     node/module/basicmod.cpp
     node/module/basicmod.h
+    node/module/objwrap.cpp
+    node/module/objwrap.h
+    node/napi-wrap.h
     node/jsprog.cpp
     node/jsprog.h
     node/napi-wrap.h
     node/nodecall.cpp
     node/nodecall.h
+    node/nodecall-inl.h
     node/nodethread.cpp
     node/nodethread.h
   )

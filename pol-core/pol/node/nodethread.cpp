@@ -7,6 +7,7 @@
 #include "node.h"
 #include "nodecall.h"
 #include "nodethread.h"
+#include "module/objwrap.h"
 
 using namespace Napi;
 
@@ -18,6 +19,9 @@ ThreadSafeFunction tsfn;
 Napi::ObjectReference requireRef;
 std::promise<bool> ready;
 std::atomic<bool> running;
+
+// fwd decl
+void RegisterBuiltinModules( Napi::Env env, Object exports );
 
 void node_thread()
 {
@@ -34,7 +38,6 @@ void node_thread()
   char* argv[2] = {args, args + sizeof( char ) * 5};
   int argc = 2;
 
-  RegisterBuiltinModules();
   try
   {
     int ret = node::Start( argc, argv );
@@ -92,16 +95,20 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
 static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 {
   exports.Set( "start", Function::New( env, CreateTSFN ) );
+  RegisterBuiltinModules( env, exports );
   return exports;
 }
 
+// Called when TSFN is created, and we can now register our modules,
+// eg. the object wrapper
+void RegisterBuiltinModules( Napi::Env env, Object exports )
+{
+  Node::NodeObjectWrap::Init( env, exports );
+  // _register_tsfn();
+}
 
 NODE_API_MODULE_LINKED( tsfn, InitializeNAPI )
 
-void RegisterBuiltinModules()
-{
-  _register_tsfn();
-}
 
 bool cleanup()
 {

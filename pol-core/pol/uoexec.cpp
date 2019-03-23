@@ -76,11 +76,16 @@ void UOExecutor::execInstr()
     {
       PC++;
       Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( prog_.get() );
-      auto fut = Node::call( prog->obj );
+      //auto fut = Node::call( prog->obj );
+      Node::callProgram( prog, this /*, args*/ );
+     /* auto fut =
+          Node::makeCall<nullptr_t>( []( Napi::Env env, NodeRequest<ObjectReference>* request ) {
+          
+      });*/
       if ( running_to_completion() )
       {
-        fut.wait();
-        POLLOG_INFO << "js exec instr ret " << fut.get() << "\n";
+        //fut.wait();
+        POLLOG_INFO << "js exec instr ret " << "\n";
       }
     }
   }

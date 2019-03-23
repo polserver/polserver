@@ -1029,7 +1029,7 @@ void run_start_scripts()
     if ( Clib::FileExists( scriptname.c_str() ) )
     {
       ScriptDef script( "start", pkg );
-      Bscript::BObject obj( run_script_to_completion( script ) );
+      Bscript::BObject obj( run_script_to_completion( script, new Bscript::BLong(clock()) ) );
     }
   }
   INFO_PRINT << "Startup script complete.\n";
