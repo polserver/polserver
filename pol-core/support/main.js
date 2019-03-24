@@ -33,7 +33,7 @@
 const pol = process._linkedBinding("pol");
 
 /** @type {PolBasicBinding} */
-const basic = process._linkedBinding("pol");
+const basic = process._linkedBinding("basic");
 
 pol.configure({require});
 
@@ -43,6 +43,8 @@ let coreCallback = function(args) {
 
 if (!pol.start(coreCallback, 0)) {
   basic.print("Could not start TSFN!");
+} else {
+  basic.print("Started TSFN. main.js exiting");
 }
 
 /** 
