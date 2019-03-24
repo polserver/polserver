@@ -1,7 +1,7 @@
 #ifndef NODE_OBJWRAP_H
 #define NODE_OBJWRAP_H
 
-#include "../../bscript/bobject.h"
+#include "../bscript/bobject.h"
 #include "../napi-wrap.h"
 
 namespace Pol
@@ -17,8 +17,8 @@ public:
   using ExtType = External<Bscript::BObjectRef>;
   using RefType = Reference<ExtType>;
 
-  static Napi::Object Init( Napi::Env env, Napi::Object exports );
   NodeObjectWrap( const Napi::CallbackInfo& info );
+  static void Init( Napi::Env env, Napi::Object exports );
 
 private:
   static Napi::FunctionReference constructor;
