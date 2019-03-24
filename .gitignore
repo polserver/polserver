@@ -6,6 +6,7 @@ Makefile
 *.opendb
 *.vspx
 /.vs
+/.vscode
 /CMakeSettings.json
 __pycache__
 

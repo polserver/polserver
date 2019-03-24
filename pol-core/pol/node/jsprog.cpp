@@ -29,6 +29,7 @@ bool JavascriptProgram::hasProgram() const
 
 int JavascriptProgram::read( const char* fname )
 {
+  NODELOG << "[core] requesting " << fname << "\n";
   try
   {
     auto reqReturn = Node::makeCall<ObjectReference>(
@@ -67,11 +68,11 @@ int JavascriptProgram::read( const char* fname )
 
     if ( obj.IsEmpty() )
     {
-      POLLOG_INFO << "Error reading javascript " << fname << "\n";
+      ERROR_PRINT << "Error loading javascript " << fname << ": No ObjectReference returned ";
       return 1;
     }
 
-    POLLOG_INFO << "Got a successful read for " << fname << "\n";
+    NODELOG << "[core] successful read for " << fname << "\n";
     return 0;
   }
   catch ( std::exception& ex )

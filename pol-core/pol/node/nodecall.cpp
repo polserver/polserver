@@ -5,6 +5,7 @@
 
 #include "nodecall.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/stlutil.h"
 #include "../polclock.h"
 #include "../uoexec.h"
 #include "jsprog.h"
@@ -22,7 +23,7 @@ unsigned long requestNumber = 0;
 
 std::atomic_uint nextRequestId( 0 );
 
-void Node::callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
+void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
 {
   auto call = Node::makeCall<int>( [prog, ex]( Napi::Env env, NodeRequest<int>* request ) {
 

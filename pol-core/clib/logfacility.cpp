@@ -50,7 +50,7 @@ static LogFileBehaviour startlogBehaviour = {"log/start", false,
 static LogFileBehaviour pollogBehaviour = {"log/pol", true, std::ios_base::out | std::ios_base::app,
                                            true};
 static LogFileBehaviour nodelogBehaviour = {"log/node", false,
-                                             std::ios_base::out | std::ios_base::app, false};
+                                             std::ios_base::out | std::ios_base::app, true};
 static LogFileBehaviour debuglogBehaviour = {"log/debug", false,
                                              std::ios_base::out | std::ios_base::app, false};
 static LogFileBehaviour scriptlogBehaviour = {"log/script", false,

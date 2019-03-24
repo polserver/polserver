@@ -18,8 +18,9 @@ Napi::FunctionReference NodeObjectWrap::constructor;
  * Initialize the NodeObjectWrap module. It does not add any exports to
  * the JavaScript world (eg. no script should use `new NodeObjectWrap`).
  */
-Napi::Object NodeObjectWrap::Init( Napi::Env env, Napi::Object /*exports*/ )
+void NodeObjectWrap::Init( Napi::Env env, Napi::Object exports )
 {
+  NODELOG << "[node] Initializing NodeObjectWrap\n";
   Napi::HandleScope scope( env );
 
   Napi::Function func = DefineClass( env, "NodeObjectWrap",
@@ -29,8 +30,6 @@ Napi::Object NodeObjectWrap::Init( Napi::Env env, Napi::Object /*exports*/ )
 
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
-
-  NODELOG << "We've set our NodeObjectWrapper constructor\n";
 }
 
 NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info )

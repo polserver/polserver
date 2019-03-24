@@ -63,6 +63,8 @@ Napi::Value Configure( const CallbackInfo& info )
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
 
+  NODELOG << "[node] Received configure() call\n";
+
   try
   {
     if ( info.Length() < 1 )
@@ -78,7 +80,7 @@ Napi::Value Configure( const CallbackInfo& info )
 
     requireRef = Napi::Persistent( arg0 );
     requireRef.Set( "_refId", String::New( env, "configure" ) );
-
+    NODELOG << "[node] Setting reference\n";
     return Boolean::New( env, true );
   }
   catch ( std::exception& ex )
@@ -119,7 +121,7 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
   }
 }
 
-bool Node::cleanup()
+bool cleanup()
 {
   auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
     requireRef.Unref();
@@ -135,6 +137,7 @@ bool Node::cleanup()
  */
 static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 {
+  NODELOG << "Received call from process._linkedbinding(). Exporting modules\n";
   exports["start"] = Function::New( env, CreateTSFN );
   exports["configure"] = Function::New( env, Configure );
 
@@ -145,6 +148,7 @@ static Napi::Object InitializeNAPI( Napi::Env env, Napi::Object exports )
 
 void RegisterBuiltinModules( Napi::Env env, Object exports )
 {
+  NODELOG << "Reg'd built-in\n";
   Node::NodeObjectWrap::Init( env, exports );
 }
 
