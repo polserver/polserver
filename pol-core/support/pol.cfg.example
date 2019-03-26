@@ -357,3 +357,13 @@ Multithread=1
 #   Has no effect in multithread mode
 #
 SelectTimeout=10
+
+#############################################################################
+## Node integration settings (EXPERIMENTAL)
+#############################################################################
+
+# 
+# AdditionalNodeArgs: Additonal arguments to pass to the nodejs process, for 
+example --inspect
+
+AdditionalNodeArgs=

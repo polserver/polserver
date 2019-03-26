@@ -1,14 +1,14 @@
-
 #include "nodethread.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/threadhelp.h"
+#include "../plib/systemstate.h"
 #include "../polclock.h"
 #include "module/objwrap.h"
 #include "napi-wrap.h"
 #include "node.h"
 #include "nodecall.h"
-
+#include <vector>
 using namespace Napi;
 
 namespace Pol
@@ -30,24 +30,44 @@ void node_thread()
 
   // Workaround for node::Start requirement that
   // argv is sequential in memory.
+  int argc = 0;
+  char** carg;
+  std::string argstr = Plib::systemstate.config.node_args.empty()
+                           ? "node ./main.js"
+                           : "node " + Plib::systemstate.config.node_args + " ./main.js";
 
-  char* args = new char[20];
-  strcpy( args, "node" );
-  args[4] = '\0';
-  strcpy( args + 5 * sizeof( char ), "./main.js" );
-  char* argv[2] = {args, args + sizeof( char ) * 5};
-  int argc = 2;
+  size_t len = argstr.size();
+  char* argcstr = new char[len + 1];
+  std::vector<char*> argv;
+
+  std::memcpy( argcstr, argstr.c_str(), len + 1 );
+  argv.push_back( &argcstr[0] );
+  for ( size_t i = 0; i < len; ++i )
+  {
+    if ( argcstr[i] == ' ' )
+    {
+      argcstr[i] = 0;
+      argv.push_back( &argcstr[i] + sizeof( char ) );
+    }
+  }
+  argcstr[len + sizeof( char )] = 0;
+  NODELOG << "Starting with argc = " << argv.size() << ", argv = ";
+  for ( auto& arg : argv )
+    NODELOG << arg << " ";
+  NODELOG << "\n";
 
   try
   {
-    int ret = node::Start( argc, argv );
+    int ret = node::Start( argv.size(), argv.data() );
     POLLOG_INFO << "Node thread finished with return value " << ret << "\n";
   }
   catch ( std::exception& ex )
   {
     POLLOG_INFO << "Node thread errored with message " << ex.what() << "\n";
   }
-  delete[] args;
+  // If the node thread is dead, we need to ensure the server is actually stopped.
+  Clib::exit_signalled = 1;
+  delete[] argcstr;
   running = false;
 }
 
@@ -64,18 +84,28 @@ Napi::Value Configure( const CallbackInfo& info )
   Napi::HandleScope scope( env );
 
   NODELOG << "[node] Received configure() call\n";
-
   try
   {
     if ( info.Length() < 1 )
     {
-      throw Error::New( env, "Missing first argument to cofigure()" );
+      throw Error::New( env, "Missing first argument to configure()" );
     }
 
     auto arg0 = info[0].As<Object>();
-    if ( !arg0.Has( "require" ) )
+    if ( !arg0.Has( "require" ) )  // || !arg0.IsFunction() )
     {
-      throw Error::New( env, "First argument to configure() missing 'require' property" );
+      throw Error::New(
+          env, "First argument to configure() missing 'require' property or is not a function" );
+    }
+
+    for ( auto& requiredModule : {"wrapper", "scriptloader"} )
+    {
+      if ( !arg0.Has( requiredModule ) )
+      {
+        throw Error::New(
+            env, std::string( "First argument to configure() missing required property " ) +
+                     requiredModule + " or is not an object" );
+      }
     }
 
     requireRef = Napi::Persistent( arg0 );
@@ -85,7 +115,8 @@ Napi::Value Configure( const CallbackInfo& info )
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERROR << "Could not create tsfn: " << ex.what() << "\n";
+    POLLOG_ERROR << "Invalid arguments passed to configure(): " << ex.what() << "\n";
+    ready.set_value( false );
     return Boolean::New( env, false );
   }
 }
@@ -94,6 +125,11 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
+
+  if ( requireRef.IsEmpty() )
+  {
+    return Boolean::New( env, false );
+  }
 
   try
   {
@@ -116,19 +152,25 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
   catch ( std::exception& ex )
   {
     POLLOG_ERROR << "Could not create tsfn: " << ex.what() << "\n";
-    ready.set_exception( std::make_exception_ptr( ex ) );
+    ready.set_value( false );
     return Boolean::New( env, false );
   }
 }
 
 bool cleanup()
 {
-  auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
-    requireRef.Unref();
-    return true;
-  } );
-  call.getRef();
-  return tsfn.Release();
+  if ( Node::running )
+  {
+    auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
+      NODELOG.Format( "[{:04x}] [release] releasing require reference {}\n" )
+          << request->reqId() << Node::ToUtf8Value( requireRef.Get( "_refId" ) );
+      requireRef.Unref();
+      return true;
+    } );
+    call.getRef();
+    return tsfn.Release();
+  }
+  return true;
 }
 
 /**

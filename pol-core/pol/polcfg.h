@@ -14,6 +14,7 @@
 #include <string>
 
 #include "crypt/cryptkey.h"
+#include "pol_global_config.h"
 #if !defined( _WIN32 )
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -28,6 +29,9 @@ struct PolConfig
   std::string world_data_path;
   std::string realm_data_path;
   std::string pidfile_path;
+#ifdef ENABLE_NODEJS
+  std::string node_args;
+#endif
   unsigned short listen_port;
   bool verbose;
   unsigned short loglevel;  // 0=nothing 10=lots

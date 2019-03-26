@@ -35,7 +35,11 @@ const pol = process._linkedBinding("pol");
 /** @type {PolBasicBinding} */
 const basic = process._linkedBinding("basic");
 
-pol.configure({require});
+pol.configure({
+  require,
+  wrapper: require('./wrapper.js'),
+  scriptloader: require('./scriptloader')
+});
 
 let coreCallback = function(args) {
   basic.print("Received call from core " /**  + args */);
