@@ -7,14 +7,14 @@
 
 #pragma warning( push )  // safes current warning settings
 #pragma warning( disable : 4100 )
-#include "napi.h" 
+#include "napi.h"
 #pragma warning( pop )  // restores old warnings
 
 #else
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#include "napi.h" 
+#include "napi.h"
 #pragma GCC diagnostic pop
 #endif
 
