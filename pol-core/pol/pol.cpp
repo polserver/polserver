@@ -1029,7 +1029,7 @@ void run_start_scripts()
     if ( Clib::FileExists( scriptname.c_str() ) )
     {
       ScriptDef script( "start", pkg );
-      Bscript::BObject obj( run_script_to_completion( script, new Bscript::BLong(clock()) ) );
+      Bscript::BObject obj( run_script_to_completion( script, new Bscript::BLong( clock() ) ) );
     }
   }
   INFO_PRINT << "Startup script complete.\n";
@@ -1211,9 +1211,14 @@ int xmain_inner( bool testing )
 
 #ifdef HAVE_NODEJS
   Core::checkpoint( "start nodejs thread" );
-  Node::start_node().wait();
-  // technically, we would need to block here until we have the thread started
-  Core::register_program_type( ".js", Node::JavascriptProgram::create );
+  auto nodeFut = Node::start_node();
+  //  block here until we have the thread started
+  nodeFut.wait();
+
+  // FIXME maybe safer to exit if node thread fails? especially considering nothing stops from
+  // multiple configure() or start() calls from js...
+  if ( nodeFut.get() )
+    Core::register_program_type( ".js", Node::JavascriptProgram::create );
 #endif
 
 

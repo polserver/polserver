@@ -8,11 +8,10 @@ namespace Pol
 {
 namespace Node
 {
-  using namespace Napi;
+using namespace Napi;
 
 class NodeObjectWrap : public Napi::ObjectWrap<NodeObjectWrap>
 {
-
 public:
   using ExtType = External<Bscript::BObjectRef>;
   using RefType = Reference<ExtType>;
@@ -20,10 +19,15 @@ public:
   NodeObjectWrap( const Napi::CallbackInfo& info );
   static void Init( Napi::Env env, Napi::Object exports );
 
+  /**
+   * Return a Value corresponding to this impptr
+   */
+  static Napi::Value Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId = 0 );
+
 private:
   static Napi::FunctionReference constructor;
 
-  Napi::Value GetValue( const Napi::CallbackInfo& info );
+  void SetRef( Bscript::BObjectRef& ref );
 
 
   Reference<External<Bscript::BObjectRef>> ref;

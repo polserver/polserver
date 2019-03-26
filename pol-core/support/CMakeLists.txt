@@ -34,8 +34,16 @@ add_custom_target(${lib_name} SOURCES
   uoconvert.cfg
 )
 
+if(ENABLE_NODEJS)
+ install(FILES
+   main.js
+   wrapper.js
+   scriptloader.js
+   DESTINATION .
+   COMPONENT bin
+ )
+endif()
 install(FILES
-  main.js
   pol.cfg.example
   uoconvert.cfg
   DESTINATION .

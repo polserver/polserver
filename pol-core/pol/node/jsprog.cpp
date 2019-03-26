@@ -40,26 +40,42 @@ int JavascriptProgram::read( const char* fname )
 
           try
           {
-            auto requireVal = requireRef.Get( "require" )
+            auto requireVal = requireRef.Get( "scriptloader" )
+                                  .As<Object>()
+                                  .Get( "loadScript" )
                                   .As<Function>()
-                                  .Call( {Napi::String::New( env, scriptName )} );
+                                  .Call( {env.Undefined() /* extUoExec */,
+                                          Napi::String::New( env, scriptName )} );
             auto requireObj = requireVal.As<Object>();
 
             auto funct = requireObj.Get( "default" );
 
-            auto functCode = Node::ToUtf8Value( funct );
+            // We can only run scripts that have a `default` export that is a function.
+            if ( funct.IsUndefined() )
+            {
+              throw std::runtime_error( "No default export" );
+            }
+            else if ( !funct.IsFunction() )
+            {
+              throw std::runtime_error( "default export not a function" );
+            }
+            else
+            {
+              auto functCode = Node::ToUtf8Value( funct );
 
-            requireObj.Set( "_refId",
-                            String::New( env, std::string( "require(" ) + scriptName + ")@" +
-                                                  std::to_string( request->reqId() ) ) );
-            return ObjectReference::New( requireObj, 1 );
+              requireObj.Set( "_refId",
+                              String::New( env, std::string( "require(" ) + scriptName + ")@" +
+                                                    std::to_string( request->reqId() ) ) );
 
-            NODELOG.Format( "[{:04x}] [require] resolved, {} = {}\n" )
-                << request->reqId() << scriptName << functCode;
+              NODELOG.Format( "[{:04x}] [require] resolved, {} = {}\n" )
+                  << request->reqId() << scriptName << functCode;
+
+              return ObjectReference::New( requireObj, 1 );
+            }
           }
           catch ( std::exception& ex )
           {
-            NODELOG.Format( "[{:04x}] [require] errored, {}\n" ) << request->reqId() << scriptName;
+            NODELOG.Format( "[{:04x}] [require] errored, {}\n" ) << request->reqId() << ex.what();
             return Napi::Reference<Object>();
           }
         } );
@@ -68,7 +84,7 @@ int JavascriptProgram::read( const char* fname )
 
     if ( obj.IsEmpty() )
     {
-      ERROR_PRINT << "Error loading javascript " << fname << ": No ObjectReference returned ";
+      ERROR_PRINT << "Error loading javascript " << fname << ": No ObjectReference returned\n";
       return 1;
     }
 
@@ -102,12 +118,17 @@ JavascriptProgram::~JavascriptProgram()
 {
   // Node::release( std::move( obj ) );
 
+  if ( Node::running && !obj.IsEmpty() )
+  {
+    auto call = Node::makeCall<bool>( [this]( Napi::Env env, NodeRequest<bool>* request ) {
+      NODELOG.Format( "[{:04x}] [release] releasing program reference {}\n" )
+          << request->reqId() << Node::ToUtf8Value( this->obj.Get( "_refId" ) );
 
-  auto call = Node::makeCall<bool>( [this]( Napi::Env env, NodeRequest<bool>* request ) {
-    this->obj.Unref();
-    return true;
-  } );
-  call.getRef();
+      this->obj.Unref();
+      return true;
+    } );
+    call.getRef();
+  }
 }
 
 }  // namespace Node
