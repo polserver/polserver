@@ -118,6 +118,10 @@ void PolConfig::read_pol_config( bool initial_load )
 
   Plib::systemstate.config.profile_cprops = elem.remove_bool( "ProfileCProps", false );
 
+#ifdef HAVE_NODEJS
+  Plib::systemstate.config.node_args = elem.remove_string( "AdditionalNodeArgs", "" );
+#endif
+
   Plib::systemstate.config.cache_interactive_scripts =
       elem.remove_bool( "CacheInteractiveScripts", true );
   Plib::systemstate.config.show_speech_colors = elem.remove_bool( "ShowSpeechColors", false );

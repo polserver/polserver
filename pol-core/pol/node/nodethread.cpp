@@ -3,12 +3,14 @@
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/threadhelp.h"
+#include "../plib/systemstate.h"
 #include "../polclock.h"
 #include "module/objwrap.h"
 #include "napi-wrap.h"
 #include "node.h"
 #include "nodecall.h"
-
+#include "nodethread.h"
+#include <vector>
 using namespace Napi;
 
 namespace Pol
@@ -30,24 +32,44 @@ void node_thread()
 
   // Workaround for node::Start requirement that
   // argv is sequential in memory.
+  int argc = 0;
+  char** carg;
+  std::string argstr = Plib::systemstate.config.node_args.empty()
+                           ? "node ./main.js"
+                           : "node " + Plib::systemstate.config.node_args + " ./main.js";
 
-  char* args = new char[20];
-  strcpy( args, "node" );
-  args[4] = '\0';
-  strcpy( args + 5 * sizeof( char ), "./main.js" );
-  char* argv[2] = {args, args + sizeof( char ) * 5};
-  int argc = 2;
+  size_t len = argstr.size();
+  char* argcstr = new char[len + 1];
+  std::vector<char*> argv;
+
+  std::memcpy( argcstr, argstr.c_str(), len + 1 );
+  argv.push_back( &argcstr[0] );
+  for ( size_t i = 0; i < len; ++i )
+  {
+    if ( argcstr[i] == ' ' )
+    {
+      argcstr[i] = 0;
+      argv.push_back( &argcstr[i] + sizeof( char ) );
+    }
+  }
+  argcstr[len + sizeof( char )] = 0;
+  NODELOG << "Starting with argc = " << argv.size() << ", argv = ";
+  for ( auto& arg : argv )
+    NODELOG << arg << " ";
+  NODELOG << "\n";
 
   try
   {
-    int ret = node::Start( argc, argv );
+    int ret = node::Start( argv.size(), argv.data() );
     POLLOG_INFO << "Node thread finished with return value " << ret << "\n";
   }
   catch ( std::exception& ex )
   {
     POLLOG_INFO << "Node thread errored with message " << ex.what() << "\n";
   }
-  delete[] args;
+  // If the node thread is dead, we need to ensure the server is actually stopped.
+  Clib::exit_signalled = 1;
+  delete[] argcstr;
   running = false;
 }
 
