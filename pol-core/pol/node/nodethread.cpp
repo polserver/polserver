@@ -1,4 +1,3 @@
-
 #include "nodethread.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
@@ -9,7 +8,6 @@
 #include "napi-wrap.h"
 #include "node.h"
 #include "nodecall.h"
-#include "nodethread.h"
 #include <vector>
 using namespace Napi;
 
@@ -86,18 +84,28 @@ Napi::Value Configure( const CallbackInfo& info )
   Napi::HandleScope scope( env );
 
   NODELOG << "[node] Received configure() call\n";
-
   try
   {
     if ( info.Length() < 1 )
     {
-      throw Error::New( env, "Missing first argument to cofigure()" );
+      throw Error::New( env, "Missing first argument to configure()" );
     }
 
     auto arg0 = info[0].As<Object>();
-    if ( !arg0.Has( "require" ) )
+    if ( !arg0.Has( "require" ) )  // || !arg0.IsFunction() )
     {
-      throw Error::New( env, "First argument to configure() missing 'require' property" );
+      throw Error::New(
+          env, "First argument to configure() missing 'require' property or is not a function" );
+    }
+
+    for ( auto& requiredModule : {"wrapper", "scriptloader"} )
+    {
+      if ( !arg0.Has( requiredModule ) )
+      {
+        throw Error::New(
+            env, std::string( "First argument to configure() missing required property " ) +
+                     requiredModule + " or is not an object" );
+      }
     }
 
     requireRef = Napi::Persistent( arg0 );
@@ -107,7 +115,8 @@ Napi::Value Configure( const CallbackInfo& info )
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERROR << "Could not create tsfn: " << ex.what() << "\n";
+    POLLOG_ERROR << "Invalid arguments passed to configure(): " << ex.what() << "\n";
+    ready.set_value( false );
     return Boolean::New( env, false );
   }
 }
@@ -116,6 +125,11 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
+
+  if ( requireRef.IsEmpty() )
+  {
+    return Boolean::New( env, false );
+  }
 
   try
   {
@@ -138,19 +152,25 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
   catch ( std::exception& ex )
   {
     POLLOG_ERROR << "Could not create tsfn: " << ex.what() << "\n";
-    ready.set_exception( std::make_exception_ptr( ex ) );
+    ready.set_value( false );
     return Boolean::New( env, false );
   }
 }
 
 bool cleanup()
 {
-  auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
-    requireRef.Unref();
-    return true;
-  } );
-  call.getRef();
-  return tsfn.Release();
+  if ( Node::running )
+  {
+    auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
+      NODELOG.Format( "[{:04x}] [release] releasing require reference {}\n" )
+          << request->reqId() << Node::ToUtf8Value( requireRef.Get( "_refId" ) );
+      requireRef.Unref();
+      return true;
+    } );
+    call.getRef();
+    return tsfn.Release();
+  }
+  return true;
 }
 
 /**
