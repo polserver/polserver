@@ -436,6 +436,8 @@ if(ENABLE_NODEJS)
   set (pol_sources ${pol_sources}
     node/module/basicmod.cpp
     node/module/basicmod.h
+    node/module/modwrap.cpp
+    node/module/modwrap.h
     node/module/objwrap.cpp
     node/module/objwrap.h
     node/napi-wrap.h
