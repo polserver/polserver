@@ -226,7 +226,7 @@ UOExecutorModule::~UOExecutorModule()
   {
     // CHECKME can we cancel the cursor request?
     if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
-      target_cursor_chr->client->gd->target_cursor_uoemod = nullptr;
+      target_cursor_chr->client->gd->target_cursor_object_request = nullptr;
     target_cursor_chr = nullptr;
   }
   if ( menu_selection_chr != nullptr )
@@ -763,31 +763,41 @@ const int TGTOPT_HELPFUL = 0x0004;
 // FIXME susceptible to out-of-sequence target cursors
 void handle_script_cursor( Character* chr, UObject* obj )
 {
-  if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
+  auto req = chr->client->gd->target_cursor_object_request;
+
+  if ( chr != nullptr && req != nullptr )
   {
-    if ( obj != nullptr )
-    {
-      if ( obj->ismobile() )
-      {
-        Character* targetted_chr = static_cast<Character*>( obj );
-        if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HARMFUL )
-        {
-          targetted_chr->inform_engaged( chr );
-          chr->repsys_on_attack( targetted_chr );
-        }
-        else if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HELPFUL )
-        {
-          chr->repsys_on_help( targetted_chr );
-        }
-      }
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set(
-          new BObject( obj->make_ref() ) );
-    }
-    // even on cancel, we wake the script up.
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
-    chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
-    chr->client->gd->target_cursor_uoemod = nullptr;
+    req->respond( chr, obj );
+    chr->client->gd->target_cursor_object_request = nullptr;
   }
+  else
+  {
+  }
+}
+
+
+// FIXME susceptible to out-of-sequence target cursors
+Bscript::BObjectImp* handle_script_cursor2( TargetRequestData* data, Character* chr, UObject* obj )
+{
+  if ( obj != nullptr )
+  {
+    if ( obj->ismobile() )
+    {
+      Character* targetted_chr = static_cast<Character*>( obj );
+      if ( data->target_options & TGTOPT_HARMFUL )
+      {
+        targetted_chr->inform_engaged( chr );
+        chr->repsys_on_attack( targetted_chr );
+      }
+      else if ( data->target_options & TGTOPT_HELPFUL )
+      {
+        chr->repsys_on_help( targetted_chr );
+      }
+    }
+    // the passing of value to script is done in caller
+    return obj->make_ref();
+  }
+  return nullptr;
 }
 
 
@@ -819,7 +829,10 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
-  if ( !uoexec.suspend() )
+  auto req = uoexec.makeRequest( Module::handle_script_cursor2,
+                                 new Core::TargetRequestData( {chr, target_options} ) );
+
+  if ( req == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::Target():\n"
@@ -841,7 +854,7 @@ BObjectImp* UOExecutorModule::mf_Target()
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
 
-  chr->client->gd->target_cursor_uoemod = this;
+  chr->client->gd->target_cursor_object_request = req;
   target_cursor_chr = chr;
 
   return new BLong( 0 );
@@ -882,47 +895,56 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 
 void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
-  if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
+  if ( chr != nullptr && chr->client->gd->target_cursor_coords_request != nullptr )
   {
+    auto req = chr->client->gd->target_cursor_coords_request;
+
     if ( msg != nullptr )
     {
-      BStruct* arr = new BStruct;
-      arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
-      arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
-      arr->addMember( "z", new BLong( msg->z ) );
-      //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
-      //      validate right here. Should we check map/static, or let that reside
-      //      for scripts to run ListStatics? In theory, using Injection or similar,
-      //      you could mine where no mineable tiles are by faking objtype in packet
-      //      and still get the resources?
-      arr->addMember( "objtype", new BLong( cfBEu16( msg->graphic ) ) );
-
-      u32 selected_serial = cfBEu32( msg->selected_serial );
-      if ( selected_serial )
-      {
-        UObject* obj = system_find_object( selected_serial );
-        if ( obj )
-        {
-          arr->addMember( obj->target_tag(), obj->make_ref() );
-        }
-      }
-
-      //      Never trust packet's objtype is the reason here. They should never
-      //      target on other realms. DUH!
-      arr->addMember( "realm", new String( chr->realm->name() ) );
-
-      Multi::UMulti* multi =
-          chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
-      if ( multi != nullptr )
-        arr->addMember( "multi", multi->make_ref() );
-
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
+      req->respond( chr, msg );
+      chr->client->gd->target_cursor_coords_request = nullptr;
     }
-
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
-    chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
-    chr->client->gd->target_cursor_uoemod = nullptr;
+    else
+    {
+      req->abort();
+    }
   }
+}
+
+
+Bscript::BObjectImp* handle_coord_cursor2( TargetRequestData*, Character* chr, PKTBI_6C* msg )
+{
+  BStruct* arr = new BStruct;
+  arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
+  arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
+  arr->addMember( "z", new BLong( msg->z ) );
+  //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
+  //      validate right here. Should we check map/static, or let that reside
+  //      for scripts to run ListStatics? In theory, using Injection or similar,
+  //      you could mine where no mineable tiles are by faking objtype in packet
+  //      and still get the resources?
+  arr->addMember( "objtype", new BLong( cfBEu16( msg->graphic ) ) );
+
+  u32 selected_serial = cfBEu32( msg->selected_serial );
+  if ( selected_serial )
+  {
+    UObject* obj = system_find_object( selected_serial );
+    if ( obj )
+    {
+      arr->addMember( obj->target_tag(), obj->make_ref() );
+    }
+  }
+
+  //      Never trust packet's objtype is the reason here. They should never
+  //      target on other realms. DUH!
+  arr->addMember( "realm", new String( chr->realm->name() ) );
+
+  Multi::UMulti* multi =
+      chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+  if ( multi != nullptr )
+    arr->addMember( "multi", multi->make_ref() );
+
+  return arr;
 }
 
 BObjectImp* UOExecutorModule::mf_TargetCoordinates()
@@ -941,7 +963,11 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new BError( "Client has an active target cursor" );
   }
 
-  if ( !uoexec.suspend() )
+  // auto req = uoexec.makeRequest();
+  auto req = uoexec.makeRequest( Module::handle_coord_cursor2,
+                                 new Core::TargetRequestData( {chr, target_options} ) );
+
+  if ( req == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetCoordinates():\n"
@@ -950,7 +976,7 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   }
 
   gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client );
-  chr->client->gd->target_cursor_uoemod = this;
+  chr->client->gd->target_cursor_coords_request = req;
   target_cursor_chr = chr;
   return new BLong( 0 );
 }
@@ -984,8 +1010,9 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
   {
     return new BError( "Object Type is out of range for Multis" );
   }
+  auto req = uoexec.makeRequest( handle_coord_cursor2, new TargetRequestData( {chr, flags} ) );
 
-  if ( !uoexec.suspend() )
+  if ( req == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetMultiPlacement():\n"
@@ -993,7 +1020,7 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  chr->client->gd->target_cursor_uoemod = this;
+  chr->client->gd->target_cursor_coords_request = req;
   target_cursor_chr = chr;
 
   gamestate.target_cursors.multi_placement_cursor.send_placemulti(

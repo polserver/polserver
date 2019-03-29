@@ -27,7 +27,7 @@ ClientGameData::ClientGameData()
     : vendor( nullptr ),
       gumpmods(),
       textentry_uoemod( nullptr ),
-      target_cursor_uoemod( nullptr ),
+      target_cursor_object_request( nullptr ),
       menu_selection_uoemod( nullptr ),
       popup_menu_selection_uoemod( nullptr ),
       prompt_uoemod( nullptr ),
@@ -102,11 +102,16 @@ void ClientGameData::clear()
     selcolor_uoemod = nullptr;
   }
 
-  if ( target_cursor_uoemod != nullptr )
+  if ( target_cursor_object_request != nullptr )
   {
-    target_cursor_uoemod->uoexec.revive();
-    target_cursor_uoemod->target_cursor_chr = nullptr;
-    target_cursor_uoemod = nullptr;
+    target_cursor_object_request->abort();
+    target_cursor_object_request = nullptr;
+  }
+
+  if ( target_cursor_coords_request != nullptr )
+  {
+    target_cursor_coords_request->abort();
+    target_cursor_coords_request = nullptr;
   }
 
   if ( prompt_uniemod != nullptr )

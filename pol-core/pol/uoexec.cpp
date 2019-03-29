@@ -35,6 +35,8 @@ UOExecutor::UOExecutor()
   addModule( os_module );
 }
 
+u32 Core::nextAsyncRequestId = 0;
+
 UOExecutor::~UOExecutor()
 {
   // note, the os_module isn't deleted here because

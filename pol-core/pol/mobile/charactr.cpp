@@ -4113,7 +4113,7 @@ bool Character::target_cursor_busy() const
 {
   if ( tcursor2 != nullptr )
     return true;
-  if ( client && client->gd && client->gd->target_cursor_uoemod != nullptr )
+  if ( client && client->gd && client->gd->target_cursor_object_request != nullptr )
     return true;
   return false;
 }

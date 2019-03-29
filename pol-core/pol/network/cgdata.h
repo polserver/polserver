@@ -12,7 +12,9 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
+#include "../mobile/charactr.h"
 #include "../reftypes.h"
+#include "../uoexec.h"
 
 namespace Pol
 {
@@ -27,6 +29,8 @@ class JusticeRegion;
 class MusicRegion;
 class UContainer;
 class WeatherRegion;
+template <typename Callback, typename RequestData>
+class UOAsyncRequest;
 }
 namespace Network
 {
@@ -58,8 +62,17 @@ public:
    *  character, target_cursor_ex is that script.
    *  Same for menu selection.
    */
-  Module::UOExecutorModule* target_cursor_uoemod;
+  Core::UOAsyncRequest<Core::TargetObjectCallback,
+                       Core::TargetRequestData>*
+      target_cursor_object_request;
+
+    Core::UOAsyncRequest<Core::TargetCoordsCallback,
+                       Core::TargetRequestData>*
+      target_cursor_coords_request;
+
   Module::UOExecutorModule* menu_selection_uoemod;
+
+  // popup_menu_selection_above, popup_menu_selection_chr
   Module::UOExecutorModule* popup_menu_selection_uoemod;
   Module::UOExecutorModule* prompt_uoemod;
   Module::UOExecutorModule* resurrect_uoemod;
