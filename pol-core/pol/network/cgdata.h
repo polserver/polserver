@@ -14,6 +14,7 @@
 #include "../../clib/refptr.h"
 #include "../mobile/charactr.h"
 #include "../reftypes.h"
+#include "../uoasync.h"
 #include "../uoexec.h"
 
 namespace Pol
@@ -62,12 +63,10 @@ public:
    *  character, target_cursor_ex is that script.
    *  Same for menu selection.
    */
-  Core::UOAsyncRequest<Core::TargetObjectCallback,
-                       Core::TargetRequestData>*
+  Core::UOAsyncRequest<Core::TargetObjectCallback, Core::TargetRequestData>*
       target_cursor_object_request;
 
-    Core::UOAsyncRequest<Core::TargetCoordsCallback,
-                       Core::TargetRequestData>*
+  Core::UOAsyncRequest<Core::TargetCoordsCallback, Core::TargetRequestData>*
       target_cursor_coords_request;
 
   Module::UOExecutorModule* menu_selection_uoemod;

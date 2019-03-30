@@ -35,7 +35,7 @@ UOExecutor::UOExecutor()
   addModule( os_module );
 }
 
-u32 Core::nextAsyncRequestId = 0;
+u32 nextAsyncRequestId = 0;
 
 UOExecutor::~UOExecutor()
 {
