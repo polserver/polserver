@@ -54,8 +54,6 @@ public:
   Module::UOExecutorModule* find_gumpmod( u32 gumpid );
   void remove_gumpmods( Module::UOExecutorModule* );
 
-  Module::UOExecutorModule* textentry_uoemod;
-
 
   /*
    *  If a script is requesting a target cursor from this

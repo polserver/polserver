@@ -201,7 +201,6 @@ UOExecutorModule::UOExecutorModule( UOExecutor& exec )
       popup_menu_selection_above( nullptr ),
       prompt_chr( nullptr ),
       gump_chr( nullptr ),
-      textentry_chr( nullptr ),
       resurrect_chr( nullptr ),
       selcolor_chr( nullptr ),
       target_options( 0 ),
@@ -222,14 +221,6 @@ UOExecutorModule::~UOExecutorModule()
     item->inuse( false );
     reserved_items_.pop_back();
   }
-
-  // if ( target_cursor_chr != nullptr )
-  //{
-  //  // CHECKME can we cancel the cursor request?
-  //  if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
-  //    target_cursor_chr->client->gd->target_cursor_object_request = nullptr;
-  //  target_cursor_chr = nullptr;
-  //}
 
   if ( menu_selection_chr != nullptr )
   {
@@ -257,12 +248,7 @@ UOExecutorModule::~UOExecutorModule()
       gump_chr->client->gd->remove_gumpmods( this );
     gump_chr = nullptr;
   }
-  if ( textentry_chr != nullptr )
-  {
-    if ( textentry_chr->client != nullptr && textentry_chr->client->gd != nullptr )
-      textentry_chr->client->gd->textentry_uoemod = nullptr;
-    textentry_chr = nullptr;
-  }
+
   if ( resurrect_chr != nullptr )
   {
     if ( resurrect_chr->client != nullptr && resurrect_chr->client->gd != nullptr )

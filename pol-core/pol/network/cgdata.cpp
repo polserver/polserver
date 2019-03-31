@@ -26,7 +26,6 @@ namespace Network
 ClientGameData::ClientGameData()
     : vendor( nullptr ),
       gumpmods(),
-      textentry_uoemod( nullptr ),
       menu_selection_uoemod( nullptr ),
       popup_menu_selection_uoemod( nullptr ),
       prompt_uoemod( nullptr ),
@@ -59,12 +58,7 @@ void ClientGameData::clear()
     gumpmods.erase( it );
   }
 
-  if ( textentry_uoemod != nullptr )
-  {
-    textentry_uoemod->uoexec.revive();
-    textentry_uoemod->textentry_chr = nullptr;
-    textentry_uoemod = nullptr;
-  }
+  requests.abortAll();
 
   if ( menu_selection_uoemod != nullptr )
   {
@@ -101,8 +95,6 @@ void ClientGameData::clear()
     selcolor_uoemod->selcolor_chr = nullptr;
     selcolor_uoemod = nullptr;
   }
-
-  requests.abortAll();
 
   if ( prompt_uniemod != nullptr )
   {

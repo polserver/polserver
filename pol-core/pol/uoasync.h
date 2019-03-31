@@ -37,7 +37,8 @@ public:
   enum Type
   {
     TARGET_OBJECT,
-    TARGET_CURSOR
+    TARGET_CURSOR,
+    TEXTENTRY
   };
 
   UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type );
@@ -94,10 +95,13 @@ private:
   using TargetCoordsCallback = Bscript::BObjectImp*( TargetData* data, Mobile::Character* chr,
                                                      PKTBI_6C* msg );
 
+  using TextentryCallback = Bscript::BObjectImp*( Network::Client* client,
+                                                     PKTIN_AC* msg );
 
 public:
   using TargetObject = Core::AsyncRequestHandler<TargetObjectCallback, TargetData>;
   using TargetCoords = Core::AsyncRequestHandler<TargetCoordsCallback, TargetData>;
+  using Textentry = Core::AsyncRequestHandlerSansData<TextentryCallback>;
 
   /**
    * Abort the request by reviving the executor and deleting the request object.

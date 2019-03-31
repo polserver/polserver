@@ -304,7 +304,6 @@ public:
   Core::UObject* popup_menu_selection_above;
   Mobile::Character* prompt_chr;
   Mobile::Character* gump_chr;
-  Mobile::Character* textentry_chr;
   Mobile::Character* resurrect_chr;
   Mobile::Character* selcolor_chr;
 
