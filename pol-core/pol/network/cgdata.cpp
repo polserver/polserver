@@ -26,9 +26,6 @@ namespace Network
 ClientGameData::ClientGameData()
     : vendor( nullptr ),
       gumpmods(),
-      textentry_uoemod( nullptr ),
-      target_cursor_uoemod( nullptr ),
-      menu_selection_uoemod( nullptr ),
       popup_menu_selection_uoemod( nullptr ),
       prompt_uoemod( nullptr ),
       resurrect_uoemod( nullptr ),
@@ -39,7 +36,8 @@ ClientGameData::ClientGameData()
       // light_region(nullptr),
       music_region( nullptr ),
       weather_region( nullptr ),
-      custom_house_serial( 0 )
+      custom_house_serial( 0 ),
+      requests()
 {
 }
 
@@ -59,19 +57,7 @@ void ClientGameData::clear()
     gumpmods.erase( it );
   }
 
-  if ( textentry_uoemod != nullptr )
-  {
-    textentry_uoemod->uoexec.revive();
-    textentry_uoemod->textentry_chr = nullptr;
-    textentry_uoemod = nullptr;
-  }
-
-  if ( menu_selection_uoemod != nullptr )
-  {
-    menu_selection_uoemod->uoexec.revive();
-    menu_selection_uoemod->menu_selection_chr = nullptr;
-    menu_selection_uoemod = nullptr;
-  }
+  requests.abortAll();
 
   if ( popup_menu_selection_uoemod != nullptr )
   {
@@ -100,13 +86,6 @@ void ClientGameData::clear()
     selcolor_uoemod->uoexec.revive();
     selcolor_uoemod->selcolor_chr = nullptr;
     selcolor_uoemod = nullptr;
-  }
-
-  if ( target_cursor_uoemod != nullptr )
-  {
-    target_cursor_uoemod->uoexec.revive();
-    target_cursor_uoemod->target_cursor_chr = nullptr;
-    target_cursor_uoemod = nullptr;
   }
 
   if ( prompt_uniemod != nullptr )

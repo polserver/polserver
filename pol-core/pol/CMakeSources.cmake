@@ -397,6 +397,9 @@ set (pol_sources  # sorted !
   umap.h
   unicode.cpp
   unicode.h
+  uoasync.h
+  uoasync.cpp
+  uoasynchandler.h
   uobjcnt.cpp
   uobjcnt.h
   uobject.cpp

@@ -95,15 +95,17 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeDefaultCap( /* alia
   return new Bscript::BLong( attr->default_cap );
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname */ )
+Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname, precision */ )
 {
   Character* chr;
   const Attribute* attr;
+  short precision;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+       getParam( 2, precision ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.effective() );
+    return new Bscript::BLong( precision == 1 ? av.effective_tenths() : av.effective() );
   }
   else
   {

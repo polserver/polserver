@@ -148,6 +148,8 @@
 #include "../uimport.h"
 #include "../umanip.h"
 #include "../unicode.h"
+#include "../uoasync.h"
+#include "../uoasynchandler.h"
 #include "../uobject.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
@@ -194,13 +196,10 @@ public:
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
     : TmplExecutorModule<UOExecutorModule>( "UO", exec ),
       uoexec( exec ),
-      target_cursor_chr( nullptr ),
-      menu_selection_chr( nullptr ),
       popup_menu_selection_chr( nullptr ),
       popup_menu_selection_above( nullptr ),
       prompt_chr( nullptr ),
       gump_chr( nullptr ),
-      textentry_chr( nullptr ),
       resurrect_chr( nullptr ),
       selcolor_chr( nullptr ),
       target_options( 0 ),
@@ -222,19 +221,6 @@ UOExecutorModule::~UOExecutorModule()
     reserved_items_.pop_back();
   }
 
-  if ( target_cursor_chr != nullptr )
-  {
-    // CHECKME can we cancel the cursor request?
-    if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
-      target_cursor_chr->client->gd->target_cursor_uoemod = nullptr;
-    target_cursor_chr = nullptr;
-  }
-  if ( menu_selection_chr != nullptr )
-  {
-    if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
-      menu_selection_chr->client->gd->menu_selection_uoemod = nullptr;
-    menu_selection_chr = nullptr;
-  }
   if ( popup_menu_selection_chr != nullptr )
   {
     if ( popup_menu_selection_chr->client != nullptr &&
@@ -255,12 +241,7 @@ UOExecutorModule::~UOExecutorModule()
       gump_chr->client->gd->remove_gumpmods( this );
     gump_chr = nullptr;
   }
-  if ( textentry_chr != nullptr )
-  {
-    if ( textentry_chr->client != nullptr && textentry_chr->client->gd != nullptr )
-      textentry_chr->client->gd->textentry_uoemod = nullptr;
-    textentry_chr = nullptr;
-  }
+
   if ( resurrect_chr != nullptr )
   {
     if ( resurrect_chr->client != nullptr && resurrect_chr->client->gd != nullptr )
@@ -763,31 +744,42 @@ const int TGTOPT_HELPFUL = 0x0004;
 // FIXME susceptible to out-of-sequence target cursors
 void handle_script_cursor( Character* chr, UObject* obj )
 {
-  if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
+  if ( chr != nullptr )
   {
-    if ( obj != nullptr )
+    auto req = chr->client->gd->requests.findRequest<Core::UOAsyncRequest::TargetObject>(
+        Core::UOAsyncRequest::Type::TARGET_OBJECT );
+
+    if ( req != nullptr )
     {
-      if ( obj->ismobile() )
-      {
-        Character* targetted_chr = static_cast<Character*>( obj );
-        if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HARMFUL )
-        {
-          targetted_chr->inform_engaged( chr );
-          chr->repsys_on_attack( targetted_chr );
-        }
-        else if ( chr->client->gd->target_cursor_uoemod->target_options & TGTOPT_HELPFUL )
-        {
-          chr->repsys_on_help( targetted_chr );
-        }
-      }
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set(
-          new BObject( obj->make_ref() ) );
+      req->respond( chr, obj );
     }
-    // even on cancel, we wake the script up.
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
-    chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
-    chr->client->gd->target_cursor_uoemod = nullptr;
   }
+}
+
+
+// FIXME susceptible to out-of-sequence target cursors
+Bscript::BObjectImp* handle_script_cursor2( UOAsyncRequest::TargetData* data, Character* chr,
+                                            UObject* obj )
+{
+  if ( obj != nullptr )
+  {
+    if ( obj->ismobile() )
+    {
+      Character* targetted_chr = static_cast<Character*>( obj );
+      if ( data->target_options & TGTOPT_HARMFUL )
+      {
+        targetted_chr->inform_engaged( chr );
+        chr->repsys_on_attack( targetted_chr );
+      }
+      else if ( data->target_options & TGTOPT_HELPFUL )
+      {
+        chr->repsys_on_help( targetted_chr );
+      }
+    }
+    // the passing of value to script is done in caller
+    return obj->make_ref();
+  }
+  return nullptr;
 }
 
 
@@ -819,7 +811,11 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
-  if ( !uoexec.suspend() )
+  ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_OBJECT, Module::handle_script_cursor2,
+      new Core::UOAsyncRequest::TargetData( {target_options} ) );
+
+  if ( req == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::Target():\n"
@@ -840,10 +836,6 @@ BObjectImp* UOExecutorModule::mf_Target()
   }
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
-
-  chr->client->gd->target_cursor_uoemod = this;
-  target_cursor_chr = chr;
-
   return new BLong( 0 );
 }
 
@@ -882,47 +874,57 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 
 void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
-  if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
+  if ( chr != nullptr )
   {
-    if ( msg != nullptr )
+    auto req = chr->client->gd->requests.findRequest<Core::UOAsyncRequest::TargetCoords>(
+        Core::UOAsyncRequest::Type::TARGET_CURSOR );
+
+    if ( req != nullptr && msg != nullptr )
     {
-      BStruct* arr = new BStruct;
-      arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
-      arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
-      arr->addMember( "z", new BLong( msg->z ) );
-      //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
-      //      validate right here. Should we check map/static, or let that reside
-      //      for scripts to run ListStatics? In theory, using Injection or similar,
-      //      you could mine where no mineable tiles are by faking objtype in packet
-      //      and still get the resources?
-      arr->addMember( "objtype", new BLong( cfBEu16( msg->graphic ) ) );
-
-      u32 selected_serial = cfBEu32( msg->selected_serial );
-      if ( selected_serial )
-      {
-        UObject* obj = system_find_object( selected_serial );
-        if ( obj )
-        {
-          arr->addMember( obj->target_tag(), obj->make_ref() );
-        }
-      }
-
-      //      Never trust packet's objtype is the reason here. They should never
-      //      target on other realms. DUH!
-      arr->addMember( "realm", new String( chr->realm->name() ) );
-
-      Multi::UMulti* multi =
-          chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
-      if ( multi != nullptr )
-        arr->addMember( "multi", multi->make_ref() );
-
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
+      req->respond( chr, msg );
     }
-
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
-    chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
-    chr->client->gd->target_cursor_uoemod = nullptr;
+    else
+    {
+      req->abort();
+    }
   }
+}
+
+
+Bscript::BObjectImp* handle_coord_cursor2( Core::UOAsyncRequest::TargetData*, Character* chr,
+                                           PKTBI_6C* msg )
+{
+  BStruct* arr = new BStruct;
+  arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
+  arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
+  arr->addMember( "z", new BLong( msg->z ) );
+  //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
+  //      validate right here. Should we check map/static, or let that reside
+  //      for scripts to run ListStatics? In theory, using Injection or similar,
+  //      you could mine where no mineable tiles are by faking objtype in packet
+  //      and still get the resources?
+  arr->addMember( "objtype", new BLong( cfBEu16( msg->graphic ) ) );
+
+  u32 selected_serial = cfBEu32( msg->selected_serial );
+  if ( selected_serial )
+  {
+    UObject* obj = system_find_object( selected_serial );
+    if ( obj )
+    {
+      arr->addMember( obj->target_tag(), obj->make_ref() );
+    }
+  }
+
+  //      Never trust packet's objtype is the reason here. They should never
+  //      target on other realms. DUH!
+  arr->addMember( "realm", new String( chr->realm->name() ) );
+
+  Multi::UMulti* multi =
+      chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+  if ( multi != nullptr )
+    arr->addMember( "multi", multi->make_ref() );
+
+  return arr;
 }
 
 BObjectImp* UOExecutorModule::mf_TargetCoordinates()
@@ -941,7 +943,11 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new BError( "Client has an active target cursor" );
   }
 
-  if ( !uoexec.suspend() )
+  ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, Module::handle_coord_cursor2,
+      new Core::UOAsyncRequest::TargetData( {target_options} ) );
+
+  if ( req == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetCoordinates():\n"
@@ -950,8 +956,6 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   }
 
   gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client );
-  chr->client->gd->target_cursor_uoemod = this;
-  target_cursor_chr = chr;
   return new BLong( 0 );
 }
 
@@ -984,8 +988,11 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
   {
     return new BError( "Object Type is out of range for Multis" );
   }
+  ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, handle_coord_cursor2,
+      new Core::UOAsyncRequest::TargetData( {flags} ) );
 
-  if ( !uoexec.suspend() )
+  if ( req == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetMultiPlacement():\n"
@@ -993,8 +1000,6 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  chr->client->gd->target_cursor_uoemod = this;
-  target_cursor_chr = chr;
 
   gamestate.target_cursors.multi_placement_cursor.send_placemulti(
       chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
@@ -1545,26 +1550,31 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
   if ( client != nullptr )
   {
     Character* chr = client->chr;
-    if ( chr != nullptr && chr->client->gd->menu_selection_uoemod != nullptr )
+    auto req = client->gd->requests.findRequest<Core::UOAsyncRequest::MenuSelection>(
+        Core::UOAsyncRequest::Type::MENU_SELECTION );
+
+    if ( chr != nullptr && req != nullptr )
     {
-      if ( mi != nullptr && msg != nullptr )
-      {
-        BStruct* selection = new BStruct;
-        // FIXME should make sure objtype and choice are within valid range.
-        selection->addMember( "objtype", new BLong( mi->objtype_ ) );
-        selection->addMember( "graphic", new BLong( mi->graphic_ ) );
-        selection->addMember( "index",
-                              new BLong( cfBEu16( msg->choice ) ) );  // this has been validated
-        selection->addMember( "color", new BLong( mi->color_ ) );
-        chr->client->gd->menu_selection_uoemod->uoexec.ValueStack.back().set(
-            new BObject( selection ) );
-      }
-      // 0 is already on the value stack, for the case of cancellation.
-      chr->client->gd->menu_selection_uoemod->uoexec.revive();
-      chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
-      chr->client->gd->menu_selection_uoemod = nullptr;
+      req->respond( mi, msg );
     }
   }
+}
+
+
+Bscript::BObjectImp* menu_selection_made2( MenuItem* mi, PKTIN_7D* msg )
+{
+  if ( mi != nullptr && msg != nullptr )
+  {
+    BStruct* selection = new BStruct;
+    // FIXME should make sure objtype and choice are within valid range.
+    selection->addMember( "objtype", new BLong( mi->objtype_ ) );
+    selection->addMember( "graphic", new BLong( mi->graphic_ ) );
+    selection->addMember( "index",
+                          new BLong( cfBEu16( msg->choice ) ) );  // this has been validated
+    selection->addMember( "color", new BLong( mi->color_ ) );
+    return selection;
+  }
+  return nullptr;
 }
 
 bool UOExecutorModule::getDynamicMenuParam( unsigned param, Menu*& menu )
@@ -1611,7 +1621,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   Menu* menu;
 
   if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
-       ( chr->client->gd->menu_selection_uoemod != nullptr ) )
+       ( chr->client->gd->requests.hasRequest(Core::UOAsyncRequest::Type::MENU_SELECTION) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -1626,7 +1636,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
     return new BError( "Menu too large" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( Core::UOAsyncRequest::makeRequest(uoexec,chr,UOAsyncRequest::Type::MENU_SELECTION, menu_selection_made2) == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SelectMenuItem():\n"
@@ -1635,9 +1645,6 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   }
 
   chr->menu = menu->getWeakPtr();
-  chr->on_menu_selection = menu_selection_made;
-  chr->client->gd->menu_selection_uoemod = this;
-  menu_selection_chr = chr;
 
   return new BLong( 0 );
 }
@@ -2570,7 +2577,8 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
     return new BError( "Invalid parameter" );
 }
 
-BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range, objtype, realm */ )
+BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(
+    /* x, y, z, range, objtype, realm */ )
 {
   unsigned short x, y;
   int z, range;

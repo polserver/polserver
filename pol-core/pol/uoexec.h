@@ -18,6 +18,8 @@
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 #include "./globals/script_internals.h"
+#include "./mobile/charactr.h"
+#include "./uoasync.h"
 
 namespace Pol
 {
@@ -28,6 +30,8 @@ class OSExecutorModule;
 namespace Core
 {
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
+
+class UOExecutor;
 
 class UOExecutor final : public Bscript::Executor
 {
@@ -104,6 +108,9 @@ public:
 
 
   Bscript::BObjectImp* clear_event_queue();
+
+  Core::UOAsyncRequestHolder requests;
+  void handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp );
 };
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const

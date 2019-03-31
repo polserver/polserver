@@ -30,7 +30,8 @@ UOExecutor::UOExecutor()
       can_access_offline_mobiles( false ),
       auxsvc_assume_string( false ),
       pParent( nullptr ),
-      pChild( nullptr )
+      pChild( nullptr ),
+      requests()
 {
   weakptr.set( this );
   os_module = new Module::OSExecutorModule( *this );
@@ -101,6 +102,7 @@ UOExecutor::~UOExecutor()
 {
   // note, the os_module isn't deleted here because
   // the Executor deletes its ExecutorModules.
+  requests.abortAll();
   if ( ( instr_cycles >= 500 ) && settingsManager.watch.profile_scripts )
   {
     int elapsed = static_cast<int>(
@@ -111,6 +113,14 @@ UOExecutor::~UOExecutor()
 
   pParent = nullptr;
   pChild = nullptr;
+}
+
+void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp )
+{
+  if ( resp != nullptr )
+    ValueStack.back().set( new Bscript::BObject( resp ) );
+  revive();
+  requests.removeRequest( req );
 }
 
 bool UOExecutor::suspend()
