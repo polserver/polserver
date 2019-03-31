@@ -4117,8 +4117,8 @@ bool Character::target_cursor_busy() const
     return true;
 
   if ( client && client->gd &&
-           ( client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::TARGET_CURSOR ) ) ||
-       ( client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::TARGET_OBJECT ) ) )
+       ( client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::TARGET_CURSOR ) ||
+         client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::TARGET_OBJECT ) ) )
     return true;
 
   return false;

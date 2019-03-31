@@ -132,14 +132,14 @@ TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_
 
 bool TargetCursor::send_object_cursor( Network::Client* client, PKTBI_6C::CURSOR_TYPE crstype )
 {
-    Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
-    msg->Write<u8>( PKTBI_6C::UNK1_00 );
-    msg->WriteFlipped<u32>( cursorid_ );
-    msg->Write<u8>( crstype );
-    // rest 0
-    msg.Send( client, sizeof msg->buffer );
-    client->chr->tcursor2 = this;
-    return true;
+  Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
+  msg->Write<u8>( PKTBI_6C::UNK1_00 );
+  msg->WriteFlipped<u32>( cursorid_ );
+  msg->Write<u8>( crstype );
+  // rest 0
+  msg.Send( client, sizeof msg->buffer );
+  client->chr->tcursor2 = this;
+  return true;
 }
 
 void TargetCursor::cancel( Mobile::Character* chr )

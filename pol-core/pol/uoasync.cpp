@@ -2,6 +2,7 @@
 #include <string>
 #include <time.h>
 
+#include "../clib/logfacility.h"
 #include "./network/cgdata.h"
 #include "./network/client.h"
 #include "./uoasync.h"
@@ -118,7 +119,7 @@ bool UOAsyncRequestHolder::hasRequest( Core::UOAsyncRequest::Type type, u32 hint
         return true;
     }
   }
-  return nullptr;
+  return false;
 }
 
 }  // namespace Core

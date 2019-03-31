@@ -1584,9 +1584,9 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
 }
 
 
-/** Request handler. Called when a response that has been created with this handler is `respond()`'d with.
-  * Responsible for transforming the input into a BObjectImp* and returning it. */
-Bscript::BObjectImp* handle_textentry2( nullptr_t /*data*/, Client* client, PKTIN_AC* msg )
+/** Request handler. Called when a response that has been created with this handler is `respond()`'d
+ * with. Responsible for transforming the input into a BObjectImp* and returning it. */
+Bscript::BObjectImp* handle_textentry2( Client* /*client*/, PKTIN_AC* msg )
 {
   BObjectImp* resimp = new BLong( 0 );
   if ( msg->retcode == PKTIN_AC::RETCODE_OKAY )
@@ -1656,8 +1656,8 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
-  if ( Core::UOAsyncRequest::makeRequest(
-           uoexec, chr, Core::UOAsyncRequest::Type::TEXTENTRY, handle_textentry2 ) == nullptr )
+  if ( Core::UOAsyncRequest::makeRequest( uoexec, chr, Core::UOAsyncRequest::Type::TEXTENTRY,
+                                          handle_textentry2 ) == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SendTextEntryGump():\n"
@@ -1670,10 +1670,12 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   return new BLong( 0 );
 }
 
-/** Packet handler for a textentry packet. Responsible for checking if the game data has an active request for Textentry. */
+/** Packet handler for a textentry packet. Responsible for checking if the game data has an active
+ * request for Textentry. */
 void handle_textentry( Client* client, PKTIN_AC* msg )
 {
-  auto req = client->gd->requests.findRequest<Core::UOAsyncRequest::Textentry >( Core::UOAsyncRequest::Type::TEXTENTRY );
+  auto req = client->gd->requests.findRequest<Core::UOAsyncRequest::Textentry>(
+      Core::UOAsyncRequest::Type::TEXTENTRY );
 
   if ( req == nullptr )
   {

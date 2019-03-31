@@ -85,10 +85,9 @@ class AsyncRequestHandlerSansData : public UOAsyncRequest
 private:
 public:
   inline AsyncRequestHandlerSansData( UOExecutor& exec, Mobile::Character* chr,
-                                      UOAsyncRequest::Type type,
-                              Callback* cb )
+                                      UOAsyncRequest::Type type, Callback* cb )
       : UOAsyncRequest( exec, chr, type ),
-        cb_( cb ) {
+        cb_( cb ){
 
         };
   /**
@@ -121,6 +120,44 @@ bool AsyncRequestHandlerSansData<Callback>::respond( Ts... args )
 
   return impptr != nullptr;
 }
+
+
+// With data
+template <typename Callback, typename RequestData>
+ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
+                                                           Mobile::Character* chr, Type type,
+                                                           Callback* callback, RequestData* data )
+{
+  if ( !exec.suspend() )
+  {
+    if ( data != nullptr )
+      delete data;
+    return ref_ptr<Core::UOAsyncRequest>( nullptr );
+  }
+  ref_ptr<Core::UOAsyncRequest> req(
+      new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
+  exec.requests.addRequest( type, req );
+  chr->client->gd->requests.addRequest( type, req );
+  return req;
+}
+
+// No data
+template <typename Callback>
+ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
+                                                           Mobile::Character* chr, Type type,
+                                                           Callback* callback )
+{
+  if ( !exec.suspend() )
+  {
+    return ref_ptr<Core::UOAsyncRequest>( nullptr );
+  }
+  ref_ptr<Core::UOAsyncRequest> req(
+      new AsyncRequestHandlerSansData<Callback>( exec, chr, type, callback ) );
+  exec.requests.addRequest( type, req );
+  chr->client->gd->requests.addRequest( type, req );
+  return req;
+}
+
 
 }  // namespace Core
 }  // namespace Pol

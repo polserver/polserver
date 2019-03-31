@@ -95,8 +95,7 @@ private:
   using TargetCoordsCallback = Bscript::BObjectImp*( TargetData* data, Mobile::Character* chr,
                                                      PKTBI_6C* msg );
 
-  using TextentryCallback = Bscript::BObjectImp*( Network::Client* client,
-                                                     PKTIN_AC* msg );
+  using TextentryCallback = Bscript::BObjectImp*( Network::Client* client, PKTIN_AC* msg );
 
 public:
   using TargetObject = Core::AsyncRequestHandler<TargetObjectCallback, TargetData>;
@@ -107,11 +106,7 @@ public:
    * Abort the request by reviving the executor and deleting the request object.
    */
   bool abort();
-
-
-};  //
-
-// using UOAsyncRequestsHolder =
+};
 
 class UOAsyncRequestHolder
 {
@@ -150,9 +145,9 @@ inline Handler* UOAsyncRequestHolder::findRequest( Core::UOAsyncRequest::Type ty
   {
     // Since no hint provided, always return the first..
     auto req = iter->second;
-    if (!req.empty())
+    if ( !req.empty() )
     {
-      return static_cast<Handler*>( req.at(0).get() );
+      return static_cast<Handler*>( req.at( 0 ).get() );
     }
   }
   return nullptr;
@@ -167,49 +162,12 @@ inline Handler* UOAsyncRequestHolder::findRequest( Core::UOAsyncRequest::Type ty
     for ( auto req : iter->second )
     {
       if ( req->reqId_ == hint )
-        return Clib::explicit_cast<Handler*, Core::UOAsyncRequest*>( iter->second.get() );
+        return static_cast<Handler*>( req );
     }
   }
   return nullptr;
 }
 
-
-// With data
-template <typename Callback, typename RequestData>
-static ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
-                                                                  Mobile::Character* chr, Type type,
-                                                                  Callback* callback,
-                                                                  RequestData* data )
-{
-  if ( !exec.suspend() )
-  {
-    if ( data != nullptr )
-      delete data;
-    return ref_ptr<Core::UOAsyncRequest>( nullptr );
-  }
-  ref_ptr<Core::UOAsyncRequest> req(
-      new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
-  exec.requests.addRequest( type, req );
-  chr->client->gd->requests.addRequest( type, req );
-  return req;
-}
-
-// No data
-template <typename Callback>
-static ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
-                                                                  Mobile::Character* chr, Type type,
-                                                                  Callback* callback )
-{
-  if ( !exec.suspend() )
-  {
-    return ref_ptr<Core::UOAsyncRequest>( nullptr );
-  }
-  ref_ptr<Core::UOAsyncRequest> req(
-      new AsyncRequestHandler<Callback, nullptr_t>( exec, chr, type, callback, nullptr ) );
-  exec.requests.addRequest( type, req );
-  chr->client->gd->requests.addRequest( type, req );
-  return req;
-}
 
 }  // namespace Core
 }  // namespace Pol
