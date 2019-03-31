@@ -34,6 +34,7 @@ namespace Core
 class UOExecutor;
 template <typename Callback, typename RequestData>
 class UOAsyncRequest;
+class ScriptRequest;
 
 extern u32 nextAsyncRequestId;
 
@@ -111,21 +112,23 @@ public:
    * is responded to or aborted.
    */
   template <typename Callback, typename RequestData>
-  UOAsyncRequest<Callback, RequestData>* makeRequest( Callback* callback,
-                                                      RequestData* requestData );
+  ref_ptr<Core::ScriptRequest> makeRequest( Mobile::Character* chr, Callback* callback,
+                                            RequestData* requestData );
 };
 
 template <typename Callback, typename RequestData>
-Core::UOAsyncRequest<Callback, RequestData>* UOExecutor::makeRequest( Callback* callback,
-                                                                      RequestData* data )
+ref_ptr<Core::ScriptRequest> UOExecutor::makeRequest( Mobile::Character* chr, Callback* callback,
+                                                      RequestData* data )
 {
+  // ref_ptr<Core::ScriptRequest> ret;
   if ( !suspend() )
   {
     if ( data != nullptr )
       delete data;
-    return nullptr;
+    return ref_ptr<Core::ScriptRequest>( nullptr );
   }
-  return new UOAsyncRequest<Callback, RequestData>( this, callback, data );
+  auto* req = new UOAsyncRequest<Callback, RequestData>( this, chr, callback, data );
+  return ref_ptr<Core::ScriptRequest>( req );
 }
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const

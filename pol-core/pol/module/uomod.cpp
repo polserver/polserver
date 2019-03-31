@@ -194,7 +194,6 @@ public:
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
     : TmplExecutorModule<UOExecutorModule>( "UO", exec ),
       uoexec( exec ),
-      target_cursor_chr( nullptr ),
       menu_selection_chr( nullptr ),
       popup_menu_selection_chr( nullptr ),
       popup_menu_selection_above( nullptr ),
@@ -222,13 +221,13 @@ UOExecutorModule::~UOExecutorModule()
     reserved_items_.pop_back();
   }
 
-  if ( target_cursor_chr != nullptr )
-  {
-    // CHECKME can we cancel the cursor request?
-    if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
-      target_cursor_chr->client->gd->target_cursor_object_request = nullptr;
-    target_cursor_chr = nullptr;
-  }
+  // if ( target_cursor_chr != nullptr )
+  //{
+  //  // CHECKME can we cancel the cursor request?
+  //  if ( target_cursor_chr->client != nullptr && target_cursor_chr->client->gd != nullptr )
+  //    target_cursor_chr->client->gd->target_cursor_object_request = nullptr;
+  //  target_cursor_chr = nullptr;
+  //}
   if ( menu_selection_chr != nullptr )
   {
     if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
@@ -763,21 +762,22 @@ const int TGTOPT_HELPFUL = 0x0004;
 // FIXME susceptible to out-of-sequence target cursors
 void handle_script_cursor( Character* chr, UObject* obj )
 {
-  auto req = chr->client->gd->target_cursor_object_request;
+  if ( chr != nullptr )
+  {
+    auto req = chr->client->gd->findRequest<Core::ScriptRequest::TargetObject>(
+        Core::ScriptRequest::Type::TARGET_OBJECT );
 
-  if ( chr != nullptr && req != nullptr )
-  {
-    req->respond( chr, obj );
-    chr->client->gd->target_cursor_object_request = nullptr;
-  }
-  else
-  {
+    if ( req != nullptr )
+    {
+      req->respond( chr, obj );
+    }
   }
 }
 
 
 // FIXME susceptible to out-of-sequence target cursors
-Bscript::BObjectImp* handle_script_cursor2( TargetRequestData* data, Character* chr, UObject* obj )
+Bscript::BObjectImp* handle_script_cursor2( ScriptRequest::TargetData* data, Character* chr,
+                                            UObject* obj )
 {
   if ( obj != nullptr )
   {
@@ -829,8 +829,8 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
-  auto req = uoexec.makeRequest( Module::handle_script_cursor2,
-                                 new Core::TargetRequestData( {chr, target_options} ) );
+  ref_ptr<Core::ScriptRequest> req = uoexec.makeRequest(
+      chr, Module::handle_script_cursor2, new ScriptRequest::TargetData( {target_options} ) );
 
   if ( req == nullptr )
   {
@@ -854,8 +854,12 @@ BObjectImp* UOExecutorModule::mf_Target()
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
 
-  chr->client->gd->target_cursor_object_request = req;
-  target_cursor_chr = chr;
+  // chr->client->gd->requests.
+  // ref
+  //
+  chr->client->gd->requests.emplace( ScriptRequest::Type::TARGET_OBJECT,
+                                     req );  // push_back( ref_ptr<Core::ScriptRequest>(req) );
+  // target_cursor_chr = chr;
 
   return new BLong( 0 );
 }
@@ -895,14 +899,14 @@ BObjectImp* UOExecutorModule::mf_TargetCancel()
 
 void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
-  if ( chr != nullptr && chr->client->gd->target_cursor_coords_request != nullptr )
+  if ( chr != nullptr )
   {
-    auto req = chr->client->gd->target_cursor_coords_request;
+    auto req = chr->client->gd->findRequest<Core::ScriptRequest::TargetCoords>(
+        Core::ScriptRequest::Type::TARGET_CURSOR );
 
-    if ( msg != nullptr )
+    if ( req != nullptr )
     {
       req->respond( chr, msg );
-      chr->client->gd->target_cursor_coords_request = nullptr;
     }
     else
     {
@@ -912,7 +916,8 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 }
 
 
-Bscript::BObjectImp* handle_coord_cursor2( TargetRequestData*, Character* chr, PKTBI_6C* msg )
+Bscript::BObjectImp* handle_coord_cursor2( ScriptRequest::TargetData*, Character* chr,
+                                           PKTBI_6C* msg )
 {
   BStruct* arr = new BStruct;
   arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
@@ -964,8 +969,8 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   }
 
   // auto req = uoexec.makeRequest();
-  auto req = uoexec.makeRequest( Module::handle_coord_cursor2,
-                                 new Core::TargetRequestData( {chr, target_options} ) );
+  auto req = uoexec.makeRequest( chr, Module::handle_coord_cursor2,
+                                 new ScriptRequest::TargetData( {target_options} ) );
 
   if ( req == nullptr )
   {
@@ -976,8 +981,8 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   }
 
   gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client );
-  chr->client->gd->target_cursor_coords_request = req;
-  target_cursor_chr = chr;
+  chr->client->gd->requests.emplace(Core::ScriptRequest::Type::TARGET_CURSOR, req);
+  // target_cursor_chr = chr;
   return new BLong( 0 );
 }
 
@@ -1010,7 +1015,8 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
   {
     return new BError( "Object Type is out of range for Multis" );
   }
-  auto req = uoexec.makeRequest( handle_coord_cursor2, new TargetRequestData( {chr, flags} ) );
+  auto req = uoexec.makeRequest( chr, handle_coord_cursor2,
+                                 new ScriptRequest::TargetData( {flags} ) );
 
   if ( req == nullptr )
   {
@@ -1020,8 +1026,8 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  chr->client->gd->target_cursor_coords_request = req;
-  target_cursor_chr = chr;
+  chr->client->gd->requests.emplace( Core::ScriptRequest::Type::TARGET_CURSOR, req );
+  // target_cursor_chr = chr;
 
   gamestate.target_cursors.multi_placement_cursor.send_placemulti(
       chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
@@ -2597,7 +2603,8 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
     return new BError( "Invalid parameter" );
 }
 
-BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range, objtype, realm */ )
+BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType(
+    /* x, y, z, range, objtype, realm */ )
 {
   unsigned short x, y;
   int z, range;

@@ -63,11 +63,12 @@ public:
    *  character, target_cursor_ex is that script.
    *  Same for menu selection.
    */
-  Core::UOAsyncRequest<Core::TargetObjectCallback, Core::TargetRequestData>*
+  // Core::UOAsyncRequest<Core::TargetObjectCallback, Core::TargetRequestData>*
+  /*Core::ScriptRequest::TargetObject*
       target_cursor_object_request;
 
-  Core::UOAsyncRequest<Core::TargetCoordsCallback, Core::TargetRequestData>*
-      target_cursor_coords_request;
+  Core::ScriptRequest::TargetCoords*
+      target_cursor_coords_request;*/
 
   Module::UOExecutorModule* menu_selection_uoemod;
 
@@ -86,6 +87,24 @@ public:
   Core::MusicRegion* music_region;
   Core::WeatherRegion* weather_region;
   u32 custom_house_serial;
+
+
+  std::map<Core::ScriptRequest::Type, ref_ptr<Core::ScriptRequest>> requests;
+
+
+  template <typename Handler>
+  inline Handler* findRequest( Core::ScriptRequest::Type type, u32 hint = 0 )
+  {
+    (void)hint;
+
+    auto iter = requests.find( type );
+
+    if ( iter != requests.end() )
+    {
+      return Clib::explicit_cast<Handler*, Core::ScriptRequest*>( iter->second.get() );
+    }
+    return nullptr;
+  }
 };
 }
 }

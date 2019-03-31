@@ -4113,7 +4113,11 @@ bool Character::target_cursor_busy() const
 {
   if ( tcursor2 != nullptr )
     return true;
-  if ( client && client->gd && client->gd->target_cursor_object_request != nullptr )
+  if ( client && client->gd && 
+    ( client->gd->findRequest<Core::ScriptRequest::TargetCoords>(
+                 Core::ScriptRequest::Type::TARGET_CURSOR ) != nullptr ) ||
+       ( client->gd->findRequest<Core::ScriptRequest::TargetObject>(
+             Core::ScriptRequest::Type::TARGET_OBJECT ) != nullptr ))
     return true;
   return false;
 }
