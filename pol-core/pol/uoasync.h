@@ -30,10 +30,19 @@ namespace Core
 template <typename Callback, typename RequestData>
 class UOAsyncRequest;
 
+
+/** Request number */
+extern u32 nextAsyncRequestId;
+
 class ScriptRequest : public ref_counted
 {
 public:
-  inline ScriptRequest() : ref_counted() {};
+  inline ScriptRequest( UOExecutor* exec, Mobile::Character* chr )
+      : ref_counted(),
+        exec_( exec ),
+        chr_( chr ),
+        handled_( false ),
+        reqId_( nextAsyncRequestId++ ){};
   /**
    * Structure encapsulating data for requesting a target from a character.
    */
@@ -65,10 +74,14 @@ public:
   using TargetCoords = Core::UOAsyncRequest<TargetCoordsCallback, TargetData>;
 
   virtual bool abort() = 0;
+
+  // public for now...
+  UOExecutor* exec_;
+  Mobile::Character* chr_;
+  bool handled_;
+  u32 reqId_;
 };  //
 
-/** Request number */
-extern u32 nextAsyncRequestId;
 
 /**
  * Asynchronous Request class. Returned using `UOExecutor::makeRequest()`.
@@ -79,12 +92,9 @@ class UOAsyncRequest : public ScriptRequest
 private:
 public:
   inline UOAsyncRequest( UOExecutor* exec, Mobile::Character* chr, Callback* cb, RequestData* data )
-      : reqId_( nextAsyncRequestId++ ),
+      : ScriptRequest( exec, chr ),
         cb_( cb ),
-        exec_( exec ),
-        chr_( chr ),
-        data_( data ),
-        handled_( false ){
+        data_( data ){
 
         };
   inline ~UOAsyncRequest()
@@ -111,13 +121,8 @@ public:
    */
   template <typename... Ts>
   bool respond( Ts... args );
-
-  u32 reqId_;
   Callback* cb_;
-  UOExecutor* exec_;
-  Mobile::Character* chr_;
   RequestData* data_;
-  bool handled_;
 };
 
 template <typename Callback, typename RequestData>
