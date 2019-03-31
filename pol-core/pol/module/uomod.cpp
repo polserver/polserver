@@ -196,7 +196,6 @@ public:
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
     : TmplExecutorModule<UOExecutorModule>( "UO", exec ),
       uoexec( exec ),
-      menu_selection_chr( nullptr ),
       popup_menu_selection_chr( nullptr ),
       popup_menu_selection_above( nullptr ),
       prompt_chr( nullptr ),
@@ -222,12 +221,6 @@ UOExecutorModule::~UOExecutorModule()
     reserved_items_.pop_back();
   }
 
-  if ( menu_selection_chr != nullptr )
-  {
-    if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
-      menu_selection_chr->client->gd->menu_selection_uoemod = nullptr;
-    menu_selection_chr = nullptr;
-  }
   if ( popup_menu_selection_chr != nullptr )
   {
     if ( popup_menu_selection_chr->client != nullptr &&
@@ -1557,26 +1550,31 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
   if ( client != nullptr )
   {
     Character* chr = client->chr;
-    if ( chr != nullptr && chr->client->gd->menu_selection_uoemod != nullptr )
+    auto req = client->gd->requests.findRequest<Core::UOAsyncRequest::MenuSelection>(
+        Core::UOAsyncRequest::Type::MENU_SELECTION );
+
+    if ( chr != nullptr && req != nullptr )
     {
-      if ( mi != nullptr && msg != nullptr )
-      {
-        BStruct* selection = new BStruct;
-        // FIXME should make sure objtype and choice are within valid range.
-        selection->addMember( "objtype", new BLong( mi->objtype_ ) );
-        selection->addMember( "graphic", new BLong( mi->graphic_ ) );
-        selection->addMember( "index",
-                              new BLong( cfBEu16( msg->choice ) ) );  // this has been validated
-        selection->addMember( "color", new BLong( mi->color_ ) );
-        chr->client->gd->menu_selection_uoemod->uoexec.ValueStack.back().set(
-            new BObject( selection ) );
-      }
-      // 0 is already on the value stack, for the case of cancellation.
-      chr->client->gd->menu_selection_uoemod->uoexec.revive();
-      chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
-      chr->client->gd->menu_selection_uoemod = nullptr;
+      req->respond( mi, msg );
     }
   }
+}
+
+
+Bscript::BObjectImp* menu_selection_made2( MenuItem* mi, PKTIN_7D* msg )
+{
+  if ( mi != nullptr && msg != nullptr )
+  {
+    BStruct* selection = new BStruct;
+    // FIXME should make sure objtype and choice are within valid range.
+    selection->addMember( "objtype", new BLong( mi->objtype_ ) );
+    selection->addMember( "graphic", new BLong( mi->graphic_ ) );
+    selection->addMember( "index",
+                          new BLong( cfBEu16( msg->choice ) ) );  // this has been validated
+    selection->addMember( "color", new BLong( mi->color_ ) );
+    return selection;
+  }
+  return nullptr;
 }
 
 bool UOExecutorModule::getDynamicMenuParam( unsigned param, Menu*& menu )
@@ -1623,7 +1621,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   Menu* menu;
 
   if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
-       ( chr->client->gd->menu_selection_uoemod != nullptr ) )
+       ( chr->client->gd->requests.hasRequest(Core::UOAsyncRequest::Type::MENU_SELECTION) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -1638,7 +1636,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
     return new BError( "Menu too large" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( Core::UOAsyncRequest::makeRequest(uoexec,chr,UOAsyncRequest::Type::MENU_SELECTION, menu_selection_made2) == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SelectMenuItem():\n"
@@ -1647,9 +1645,6 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   }
 
   chr->menu = menu->getWeakPtr();
-  chr->on_menu_selection = menu_selection_made;
-  chr->client->gd->menu_selection_uoemod = this;
-  menu_selection_chr = chr;
 
   return new BLong( 0 );
 }

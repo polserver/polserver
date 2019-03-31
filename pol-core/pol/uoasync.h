@@ -38,7 +38,8 @@ public:
   {
     TARGET_OBJECT,
     TARGET_CURSOR,
-    TEXTENTRY
+    TEXTENTRY,
+    MENU_SELECTION
   };
 
   UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type );
@@ -97,10 +98,15 @@ private:
 
   using TextentryCallback = Bscript::BObjectImp*( Network::Client* client, PKTIN_AC* msg );
 
+  using MenuSelectionCallback = Bscript::BObjectImp*( MenuItem* mi, PKTIN_7D* msg );
+
+
 public:
   using TargetObject = Core::AsyncRequestHandler<TargetObjectCallback, TargetData>;
   using TargetCoords = Core::AsyncRequestHandler<TargetCoordsCallback, TargetData>;
   using Textentry = Core::AsyncRequestHandlerSansData<TextentryCallback>;
+  using MenuSelection = Core::AsyncRequestHandlerSansData<MenuSelectionCallback>;
+
 
   /**
    * Abort the request by reviving the executor and deleting the request object.

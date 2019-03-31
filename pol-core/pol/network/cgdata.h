@@ -55,13 +55,6 @@ public:
   void remove_gumpmods( Module::UOExecutorModule* );
 
 
-  /*
-   *  If a script is requesting a target cursor from this
-   *  character, target_cursor_ex is that script.
-   *  Same for menu selection.
-   */
-  Module::UOExecutorModule* menu_selection_uoemod;
-
   // popup_menu_selection_above, popup_menu_selection_chr
   Module::UOExecutorModule* popup_menu_selection_uoemod;
   Module::UOExecutorModule* prompt_uoemod;

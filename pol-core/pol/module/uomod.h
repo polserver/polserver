@@ -298,8 +298,6 @@ public:
      Same for menu selection.
      perhaps a single Character*, and an enum task?
      */
-  // Mobile::Character* target_cursor_chr;
-  Mobile::Character* menu_selection_chr;
   Mobile::Character* popup_menu_selection_chr;
   Core::UObject* popup_menu_selection_above;
   Mobile::Character* prompt_chr;
