@@ -17,6 +17,7 @@
 #include "../uoasync.h"
 #include "../uoexec.h"
 
+
 namespace Pol
 {
 namespace Module
@@ -30,8 +31,6 @@ class JusticeRegion;
 class MusicRegion;
 class UContainer;
 class WeatherRegion;
-template <typename Callback, typename RequestData>
-class UOAsyncRequest;
 }
 namespace Network
 {
@@ -63,13 +62,6 @@ public:
    *  character, target_cursor_ex is that script.
    *  Same for menu selection.
    */
-  // Core::UOAsyncRequest<Core::TargetObjectCallback, Core::TargetRequestData>*
-  /*Core::ScriptRequest::TargetObject*
-      target_cursor_object_request;
-
-  Core::ScriptRequest::TargetCoords*
-      target_cursor_coords_request;*/
-
   Module::UOExecutorModule* menu_selection_uoemod;
 
   // popup_menu_selection_above, popup_menu_selection_chr
@@ -88,23 +80,9 @@ public:
   Core::WeatherRegion* weather_region;
   u32 custom_house_serial;
 
+  Pol::Core::UOAsyncRequestHolder requests;
 
-  std::map<Core::ScriptRequest::Type, ref_ptr<Core::ScriptRequest>> requests;
 
-
-  template <typename Handler>
-  inline Handler* findRequest( Core::ScriptRequest::Type type, u32 hint = 0 )
-  {
-    (void)hint;
-
-    auto iter = requests.find( type );
-
-    if ( iter != requests.end() )
-    {
-      return Clib::explicit_cast<Handler*, Core::ScriptRequest*>( iter->second.get() );
-    }
-    return nullptr;
-  }
 };
 }
 }

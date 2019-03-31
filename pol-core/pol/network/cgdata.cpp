@@ -27,7 +27,6 @@ ClientGameData::ClientGameData()
     : vendor( nullptr ),
       gumpmods(),
       textentry_uoemod( nullptr ),
-//      target_cursor_object_request( nullptr ),
       menu_selection_uoemod( nullptr ),
       popup_menu_selection_uoemod( nullptr ),
       prompt_uoemod( nullptr ),
@@ -39,7 +38,8 @@ ClientGameData::ClientGameData()
       // light_region(nullptr),
       music_region( nullptr ),
       weather_region( nullptr ),
-      custom_house_serial( 0 )
+      custom_house_serial( 0 ),
+      requests()
 {
 }
 
@@ -102,11 +102,7 @@ void ClientGameData::clear()
     selcolor_uoemod = nullptr;
   }
 
-  for (auto& req : requests)
-  {
-    req.second->abort();
-  }
-  requests.clear();
+  requests.abortAll();
 
   if ( prompt_uniemod != nullptr )
   {

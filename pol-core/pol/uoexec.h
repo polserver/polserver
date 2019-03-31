@@ -19,7 +19,7 @@
 #include "../clib/weakptr.h"
 #include "./globals/script_internals.h"
 #include "./mobile/charactr.h"
-#include "uoasync.h"
+#include "./uoasync.h"
 
 namespace Pol
 {
@@ -32,12 +32,6 @@ namespace Core
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
 class UOExecutor;
-template <typename Callback, typename RequestData>
-class UOAsyncRequest;
-class ScriptRequest;
-
-extern u32 nextAsyncRequestId;
-
 
 class UOExecutor final : public Bscript::Executor
 {
@@ -105,31 +99,9 @@ public:
 
   Bscript::BObjectImp* clear_event_queue();
 
-  /**
-   * Create a new request. Will return `nullptr` if a request cannot be made, eg.
-   * the executor cannot be suspended. Callback must implement BObjectImp*(RequestData*, ...T args).
-   * The UOAsyncRequest will become the owner of requestData, deleting it when the the the request
-   * is responded to or aborted.
-   */
-  template <typename Callback, typename RequestData>
-  ref_ptr<Core::ScriptRequest> makeRequest( Mobile::Character* chr, Callback* callback,
-                                            RequestData* requestData );
+  Core::UOAsyncRequestHolder requests;
+  void handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp );
 };
-
-template <typename Callback, typename RequestData>
-ref_ptr<Core::ScriptRequest> UOExecutor::makeRequest( Mobile::Character* chr, Callback* callback,
-                                                      RequestData* data )
-{
-  // ref_ptr<Core::ScriptRequest> ret;
-  if ( !suspend() )
-  {
-    if ( data != nullptr )
-      delete data;
-    return ref_ptr<Core::ScriptRequest>( nullptr );
-  }
-  auto* req = new UOAsyncRequest<Callback, RequestData>( this, chr, callback, data );
-  return ref_ptr<Core::ScriptRequest>( req );
-}
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const
 {

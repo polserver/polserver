@@ -132,8 +132,6 @@ TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_
 
 bool TargetCursor::send_object_cursor( Network::Client* client, PKTBI_6C::CURSOR_TYPE crstype )
 {
-  if ( !client->chr->target_cursor_busy() )
-  {
     Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
     msg->Write<u8>( PKTBI_6C::UNK1_00 );
     msg->WriteFlipped<u32>( cursorid_ );
@@ -142,11 +140,6 @@ bool TargetCursor::send_object_cursor( Network::Client* client, PKTBI_6C::CURSOR
     msg.Send( client, sizeof msg->buffer );
     client->chr->tcursor2 = this;
     return true;
-  }
-  else
-  {
-    return false;
-  }
 }
 
 void TargetCursor::cancel( Mobile::Character* chr )
@@ -323,21 +316,14 @@ LosCheckedCoordCursor::LosCheckedCoordCursor( void ( *func )( Mobile::Character*
 
 bool LosCheckedCoordCursor::send_coord_cursor( Network::Client* client )
 {
-  if ( !client->chr->target_cursor_busy() )
-  {
-    Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
-    msg->Write<u8>( PKTBI_6C::UNK1_01 );
-    msg->WriteFlipped<u32>( cursorid_ );
-    msg->Write<u8>( PKTBI_6C::CURSOR_TYPE_NEUTRAL );
-    // rest 0
-    msg.Send( client, sizeof msg->buffer );
-    client->chr->tcursor2 = this;
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  Network::PktHelper::PacketOut<Network::PktOut_6C> msg;
+  msg->Write<u8>( PKTBI_6C::UNK1_01 );
+  msg->WriteFlipped<u32>( cursorid_ );
+  msg->Write<u8>( PKTBI_6C::CURSOR_TYPE_NEUTRAL );
+  // rest 0
+  msg.Send( client, sizeof msg->buffer );
+  client->chr->tcursor2 = this;
+  return true;
 }
 
 void LosCheckedCoordCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )

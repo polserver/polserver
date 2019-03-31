@@ -28,19 +28,19 @@ UOExecutor::UOExecutor()
       can_access_offline_mobiles( false ),
       auxsvc_assume_string( false ),
       pParent( nullptr ),
-      pChild( nullptr )
+      pChild( nullptr ),
+      requests()
 {
   weakptr.set( this );
   os_module = new Module::OSExecutorModule( *this );
   addModule( os_module );
 }
 
-u32 nextAsyncRequestId = 0;
-
 UOExecutor::~UOExecutor()
 {
   // note, the os_module isn't deleted here because
   // the Executor deletes its ExecutorModules.
+  requests.abortAll();
   if ( ( instr_cycles >= 500 ) && settingsManager.watch.profile_scripts )
   {
     int elapsed = static_cast<int>(
@@ -51,6 +51,14 @@ UOExecutor::~UOExecutor()
 
   pParent = nullptr;
   pChild = nullptr;
+}
+
+void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp )
+{
+  if ( resp != nullptr )
+    ValueStack.back().set( new Bscript::BObject( resp ) );
+  revive();
+  requests.removeRequest( req );
 }
 
 bool UOExecutor::suspend()
@@ -97,7 +105,7 @@ bool UOExecutor::critical() const
 }
 void UOExecutor::critical( bool critical )
 {
-  os_module->critical(critical);
+  os_module->critical( critical );
 }
 
 bool UOExecutor::warn_on_runaway() const
@@ -106,7 +114,7 @@ bool UOExecutor::warn_on_runaway() const
 }
 void UOExecutor::warn_on_runaway( bool warn_on_runaway )
 {
-  os_module->warn_on_runaway(warn_on_runaway);
+  os_module->warn_on_runaway( warn_on_runaway );
 }
 
 unsigned char UOExecutor::priority() const
@@ -115,7 +123,7 @@ unsigned char UOExecutor::priority() const
 }
 void UOExecutor::priority( unsigned char priority )
 {
-  os_module->priority(priority);
+  os_module->priority( priority );
 }
 
 void UOExecutor::SleepFor( int secs )
@@ -167,10 +175,9 @@ Core::HoldListType UOExecutor::in_hold_list() const
 {
   return os_module->in_hold_list();
 }
-void UOExecutor::in_hold_list(Core::HoldListType in_hold_list)
+void UOExecutor::in_hold_list( Core::HoldListType in_hold_list )
 {
   return os_module->in_hold_list( in_hold_list );
-
 }
 
 Bscript::BObjectImp* UOExecutor::clear_event_queue()

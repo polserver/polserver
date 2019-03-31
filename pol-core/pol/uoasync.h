@@ -1,10 +1,3 @@
-/** @file
- *
- * @par History
- * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
- */
-
-
 #ifndef __UOASYNC_H
 #define __UOASYNC_H
 
@@ -16,8 +9,8 @@
 #include "../clib/weakptr.h"
 #include "./globals/script_internals.h"
 #include "./mobile/charactr.h"
+#include "./network/client.h"
 #include "./network/pktboth.h"
-#include "uoexec.h"
 
 namespace Pol
 {
@@ -28,35 +21,60 @@ class OSExecutorModule;
 namespace Core
 {
 template <typename Callback, typename RequestData>
-class UOAsyncRequest;
+class AsyncRequestHandler;
+class UOExecutor;
 
 
 /** Request number */
 extern u32 nextAsyncRequestId;
 
-class ScriptRequest : public ref_counted
+class UOAsyncRequest : public ref_counted
 {
 public:
-  inline ScriptRequest( UOExecutor* exec, Mobile::Character* chr )
-      : ref_counted(),
-        exec_( exec ),
-        chr_( chr ),
-        handled_( false ),
-        reqId_( nextAsyncRequestId++ ){};
-  /**
-   * Structure encapsulating data for requesting a target from a character.
-   */
-  struct TargetData
-  {
-    //   Mobile::Character* target_cursor_chr;
-    int target_options;
-  };
-
   enum Type
   {
     TARGET_OBJECT,
     TARGET_CURSOR
   };
+
+  UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type );
+
+  ~UOAsyncRequest();
+
+  /**
+   * Create a new request. Will return `nullptr` if a request cannot be made, eg.
+   * the executor cannot be suspended. Callback must implement BObjectImp*(RequestData*, ...T args).
+   * The AsyncRequestHandler will become the owner of requestData, deleting it when the the the
+   * request is responded to or aborted.
+   */
+  template <typename Callback, typename RequestData>
+  static ref_ptr<Core::UOAsyncRequest> makeRequest( Core::UOExecutor& exec, Mobile::Character* chr,
+                                                    Type type, Callback* callback,
+                                                    RequestData* data );
+
+  /**
+   * Structure encapsulating data for requesting a target from a character.
+   */
+  struct TargetData
+  {
+    int target_options;
+  };
+
+
+public:
+  // public for now...
+  UOExecutor& exec_;
+  Mobile::Character* chr_;
+  bool handled_;
+  u32 reqId_;
+  Type type_;
+
+protected:
+  /**
+   * Used to update all things listening on this request: (1) the UOExecutor with the value +
+   * revive, (2) and remove the request from the client game data
+   */
+  void resolved( Bscript::BObjectImp* resp );
 
 private:
   /**
@@ -70,99 +88,98 @@ private:
 
 
 public:
-  using TargetObject = Core::UOAsyncRequest<TargetObjectCallback, TargetData>;
-  using TargetCoords = Core::UOAsyncRequest<TargetCoordsCallback, TargetData>;
-
-  virtual bool abort() = 0;
-
-  // public for now...
-  UOExecutor* exec_;
-  Mobile::Character* chr_;
-  bool handled_;
-  u32 reqId_;
-};  //
-
-
-/**
- * Asynchronous Request class. Returned using `UOExecutor::makeRequest()`.
- */
-template <typename Callback, typename RequestData>
-class UOAsyncRequest : public ScriptRequest
-{
-private:
-public:
-  inline UOAsyncRequest( UOExecutor* exec, Mobile::Character* chr, Callback* cb, RequestData* data )
-      : ScriptRequest( exec, chr ),
-        cb_( cb ),
-        data_( data ){
-
-        };
-  inline ~UOAsyncRequest()
-  {
-    if ( !handled_ )
-    {
-      POLLOG_ERROR.Format(
-          "Script Error! Request destroyed and unhandled! id = {}, chr = {}, script = {}, PC = "
-          "{}\n" )
-          << reqId_ << chr_->name() << exec_->scriptname() << exec_->PC;
-    }
-  }
-
-  static std::vector<UOAsyncRequest<Callback, RequestData>*> requests;
+  using TargetObject = Core::AsyncRequestHandler<TargetObjectCallback, TargetData>;
+  using TargetCoords = Core::AsyncRequestHandler<TargetCoordsCallback, TargetData>;
 
   /**
    * Abort the request by reviving the executor and deleting the request object.
    */
-  virtual bool abort() override;
+  bool abort();
 
-  /**
-   * Respond to the request. `args` must be the same types as declared when setting up
-   * the request using `UOExecutor::makeRequest()`
-   */
-  template <typename... Ts>
-  bool respond( Ts... args );
-  Callback* cb_;
-  RequestData* data_;
+
+};  //
+
+// using UOAsyncRequestsHolder =
+
+class UOAsyncRequestHolder
+{
+private:
+  std::map<Core::UOAsyncRequest::Type, std::vector<ref_ptr<Core::UOAsyncRequest>>> requests;
+
+
+public:
+  UOAsyncRequestHolder();
+
+  /** Returns the number of aborted requests in this holder */
+  int abortAll();
+
+  void addRequest( Core::UOAsyncRequest::Type type, ref_ptr<Core::UOAsyncRequest> req );
+  bool removeRequest( Core::UOAsyncRequest* req );
+
+  template <typename Handler>
+  Handler* findRequest( Core::UOAsyncRequest::Type type );
+
+  template <typename Handler>
+  Handler* findRequest( Core::UOAsyncRequest::Type type, u32 hint );
+
+  bool hasRequest( Core::UOAsyncRequest::Type type, u32 hint );
+  bool hasRequest( Core::UOAsyncRequest::Type type );
 };
 
-template <typename Callback, typename RequestData>
-bool UOAsyncRequest<Callback, RequestData>::abort()
+
+// FIXME can be moved to a different h?
+
+template <typename Handler>
+inline Handler* UOAsyncRequestHolder::findRequest( Core::UOAsyncRequest::Type type )
 {
-  if ( !handled_ )
-    exec_->revive();
-  return handled_ = true;
+  auto iter = requests.find( type );
+
+  if ( iter != requests.end() )
+  {
+    // Since no hint provided, always return the first..
+    auto req = iter->second;
+    if (!req.empty())
+    {
+      return static_cast<Handler*>( req.at(0).get() );
+    }
+  }
+  return nullptr;
+}
+template <typename Handler>
+inline Handler* UOAsyncRequestHolder::findRequest( Core::UOAsyncRequest::Type type, u32 hint )
+{
+  auto iter = requests.find( type );
+
+  if ( iter != requests.end() )
+  {
+    for ( auto req : iter->second )
+    {
+      if ( req->reqId_ == hint )
+        return Clib::explicit_cast<Handler*, Core::UOAsyncRequest*>( iter->second.get() );
+    }
+  }
+  return nullptr;
 }
 
+
 template <typename Callback, typename RequestData>
-template <typename... Ts>
-bool UOAsyncRequest<Callback, RequestData>::respond( Ts... args )
+static ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
+                                                                  Mobile::Character* chr, Type type,
+                                                                  Callback* callback,
+                                                                  RequestData* data )
 {
-  if ( handled_ )
+  if ( !exec.suspend() )
   {
-    return false;
+    if ( data != nullptr )
+      delete data;
+    return ref_ptr<Core::UOAsyncRequest>( nullptr );
   }
-
-  if ( exec_ == nullptr )
-  {
-    // No exec..???
-    return false;
-  }
-
-  auto impptr = cb_( data_, args... );
-  // deleting data will delete any stack-allocated memory as well
-  if ( data_ != nullptr )
-    delete data_;
-
-  if ( impptr != nullptr )
-  {
-    // If the callback returned a value, send it back to the script.
-    this->exec_->ValueStack.back().set( new Bscript::BObject( impptr ) );
-  }
-
-  this->exec_->revive();
-  return impptr != nullptr;
+  ref_ptr<Core::UOAsyncRequest> req(
+      new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
+  exec.requests.addRequest( type, req );
+  chr->client->gd->requests.addRequest( type, req );
+  return req;
 }
-
 
 }  // namespace Core
 }  // namespace Pol

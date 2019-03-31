@@ -148,6 +148,8 @@
 #include "../uimport.h"
 #include "../umanip.h"
 #include "../unicode.h"
+#include "../uoasync.h"
+#include "../uoasynchandler.h"
 #include "../uobject.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
@@ -228,6 +230,7 @@ UOExecutorModule::~UOExecutorModule()
   //    target_cursor_chr->client->gd->target_cursor_object_request = nullptr;
   //  target_cursor_chr = nullptr;
   //}
+
   if ( menu_selection_chr != nullptr )
   {
     if ( menu_selection_chr->client != nullptr && menu_selection_chr->client->gd != nullptr )
@@ -764,8 +767,8 @@ void handle_script_cursor( Character* chr, UObject* obj )
 {
   if ( chr != nullptr )
   {
-    auto req = chr->client->gd->findRequest<Core::ScriptRequest::TargetObject>(
-        Core::ScriptRequest::Type::TARGET_OBJECT );
+    auto req = chr->client->gd->requests.findRequest<Core::UOAsyncRequest::TargetObject>(
+        Core::UOAsyncRequest::Type::TARGET_OBJECT );
 
     if ( req != nullptr )
     {
@@ -776,7 +779,7 @@ void handle_script_cursor( Character* chr, UObject* obj )
 
 
 // FIXME susceptible to out-of-sequence target cursors
-Bscript::BObjectImp* handle_script_cursor2( ScriptRequest::TargetData* data, Character* chr,
+Bscript::BObjectImp* handle_script_cursor2( UOAsyncRequest::TargetData* data, Character* chr,
                                             UObject* obj )
 {
   if ( obj != nullptr )
@@ -829,8 +832,9 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
-  ref_ptr<Core::ScriptRequest> req = uoexec.makeRequest(
-      chr, Module::handle_script_cursor2, new ScriptRequest::TargetData( {target_options} ) );
+  ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_OBJECT, Module::handle_script_cursor2,
+      new Core::UOAsyncRequest::TargetData( {target_options} ) );
 
   if ( req == nullptr )
   {
@@ -853,14 +857,6 @@ BObjectImp* UOExecutorModule::mf_Target()
   }
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
-
-  // chr->client->gd->requests.
-  // ref
-  //
-  chr->client->gd->requests.emplace( ScriptRequest::Type::TARGET_OBJECT,
-                                     req );  // push_back( ref_ptr<Core::ScriptRequest>(req) );
-  // target_cursor_chr = chr;
-
   return new BLong( 0 );
 }
 
@@ -901,10 +897,10 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
   if ( chr != nullptr )
   {
-    auto req = chr->client->gd->findRequest<Core::ScriptRequest::TargetCoords>(
-        Core::ScriptRequest::Type::TARGET_CURSOR );
+    auto req = chr->client->gd->requests.findRequest<Core::UOAsyncRequest::TargetCoords>(
+        Core::UOAsyncRequest::Type::TARGET_CURSOR );
 
-    if ( req != nullptr )
+    if ( req != nullptr && msg != nullptr )
     {
       req->respond( chr, msg );
     }
@@ -916,7 +912,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 }
 
 
-Bscript::BObjectImp* handle_coord_cursor2( ScriptRequest::TargetData*, Character* chr,
+Bscript::BObjectImp* handle_coord_cursor2( Core::UOAsyncRequest::TargetData*, Character* chr,
                                            PKTBI_6C* msg )
 {
   BStruct* arr = new BStruct;
@@ -968,9 +964,9 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new BError( "Client has an active target cursor" );
   }
 
-  // auto req = uoexec.makeRequest();
-  auto req = uoexec.makeRequest( chr, Module::handle_coord_cursor2,
-                                 new ScriptRequest::TargetData( {target_options} ) );
+  ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, Module::handle_coord_cursor2,
+      new Core::UOAsyncRequest::TargetData( {target_options} ) );
 
   if ( req == nullptr )
   {
@@ -981,8 +977,6 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   }
 
   gamestate.target_cursors.script_cursor2.send_coord_cursor( chr->client );
-  chr->client->gd->requests.emplace(Core::ScriptRequest::Type::TARGET_CURSOR, req);
-  // target_cursor_chr = chr;
   return new BLong( 0 );
 }
 
@@ -1015,8 +1009,9 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
   {
     return new BError( "Object Type is out of range for Multis" );
   }
-  auto req = uoexec.makeRequest( chr, handle_coord_cursor2,
-                                 new ScriptRequest::TargetData( {flags} ) );
+  ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, handle_coord_cursor2,
+      new Core::UOAsyncRequest::TargetData( {flags} ) );
 
   if ( req == nullptr )
   {
@@ -1026,8 +1021,6 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new Bscript::BError( "Script can't be blocked" );
   }
 
-  chr->client->gd->requests.emplace( Core::ScriptRequest::Type::TARGET_CURSOR, req );
-  // target_cursor_chr = chr;
 
   gamestate.target_cursors.multi_placement_cursor.send_placemulti(
       chr->client, objtype, flags, (s16)xoffset, (s16)yoffset, hue );
