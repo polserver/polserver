@@ -22,6 +22,9 @@ namespace Core
 {
 template <typename Callback, typename RequestData>
 class AsyncRequestHandler;
+
+template <typename Callback>
+class AsyncRequestHandlerSansData;
 class UOExecutor;
 
 
@@ -51,6 +54,11 @@ public:
   static ref_ptr<Core::UOAsyncRequest> makeRequest( Core::UOExecutor& exec, Mobile::Character* chr,
                                                     Type type, Callback* callback,
                                                     RequestData* data );
+
+  template <typename Callback>
+  static ref_ptr<Core::UOAsyncRequest> makeRequest( Core::UOExecutor& exec, Mobile::Character* chr,
+                                                    Type type, Callback* callback );
+
 
   /**
    * Structure encapsulating data for requesting a target from a character.
@@ -162,6 +170,7 @@ inline Handler* UOAsyncRequestHolder::findRequest( Core::UOAsyncRequest::Type ty
 }
 
 
+// With data
 template <typename Callback, typename RequestData>
 static ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
                                                                   Mobile::Character* chr, Type type,
@@ -176,6 +185,23 @@ static ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecut
   }
   ref_ptr<Core::UOAsyncRequest> req(
       new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
+  exec.requests.addRequest( type, req );
+  chr->client->gd->requests.addRequest( type, req );
+  return req;
+}
+
+// No data
+template <typename Callback>
+static ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
+                                                                  Mobile::Character* chr, Type type,
+                                                                  Callback* callback )
+{
+  if ( !exec.suspend() )
+  {
+    return ref_ptr<Core::UOAsyncRequest>( nullptr );
+  }
+  ref_ptr<Core::UOAsyncRequest> req(
+      new AsyncRequestHandler<Callback, nullptr_t>( exec, chr, type, callback, nullptr ) );
   exec.requests.addRequest( type, req );
   chr->client->gd->requests.addRequest( type, req );
   return req;

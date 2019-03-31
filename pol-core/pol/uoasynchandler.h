@@ -75,6 +75,53 @@ bool AsyncRequestHandler<Callback, RequestData>::respond( Ts... args )
 }
 
 
+/**
+ * Asynchronous Request class. Returned using `UOExecutor::makeRequest()` with no data attached
+ * to the request (eg. text entry)
+ */
+template <typename Callback>
+class AsyncRequestHandlerSansData : public UOAsyncRequest
+{
+private:
+public:
+  inline AsyncRequestHandlerSansData( UOExecutor& exec, Mobile::Character* chr,
+                                      UOAsyncRequest::Type type,
+                              Callback* cb )
+      : UOAsyncRequest( exec, chr, type ),
+        cb_( cb ) {
+
+        };
+  /**
+   * Respond to the request. `args` must be the same types as declared when setting up
+   * the request using `UOExecutor::makeRequest()`
+   */
+  template <typename... Ts>
+  bool respond( Ts... args );
+  Callback* cb_;
+};
+
+template <typename Callback>
+template <typename... Ts>
+bool AsyncRequestHandlerSansData<Callback>::respond( Ts... args )
+{
+  if ( handled_ )
+  {
+    return false;
+  }
+
+  if ( chr_ == nullptr )
+  {
+    // No chr..???
+    return false;
+  }
+
+  auto impptr = cb_( args... );
+
+  this->resolved( impptr );
+
+  return impptr != nullptr;
+}
+
 }  // namespace Core
 }  // namespace Pol
 
