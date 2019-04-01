@@ -31,42 +31,33 @@ function stripShebang(content) {
 const internalModules = ["basic"];
 
 /**
- * Returns a module for a script, with <module>.exports.default being the function to call.
- * @param {string} paths - Paths that the loaded module can require from
- * @param {object} extUoExec - External<UOExec>...?
- * @param {string} filename - Script to load in core
+ * Returns a function for the script, to be executed later via runScript().
+ * @param {string} filename - Filename to load
+ * @returns {function} - Compiled function
  */
-function loadScript(paths, extUoExec, filename) {
+function loadScript(filename) {
   let contents = fs.readFileSync(filename, "utf-8");
   contents = stripBOM(contents);
   contents = stripShebang(contents);
   filename = path.resolve(filename);
   debugger;
-  let _module = {
-    exports: {},
-    id: filename,
-    children: [],
-    parent: "",
-    loaded: true,
-    paths
-  };
 
-  let _require = new Proxy(require, {
-    apply: function(target, thisArg, argArray) {
-      /** @type {string} */
-      let moduleName = argArray && argArray[0];
-      if (internalModules.indexOf(moduleName) > -1) {
-        console.log("Attempt to load internal module");
-        return {
-          print: function() {
-            console.log.apply(console, arguments);
-          }
-        }; // new PolModuleWrapper(moduleName, extUoExec, filename).exports;
-      }
-      // @ts-ignore
-      return Reflect.apply(...arguments);
-    }
-  });
+  // let _require = new Proxy(require, {
+  //   apply: function(target, thisArg, argArray) {
+  //     /** @type {string} */
+  //     let moduleName = argArray && argArray[0];
+  //     if (internalModules.indexOf(moduleName) > -1) {
+  //       console.log("Attempt to load internal module");
+  //       return {
+  //         print: function() {
+  //           console.log.apply(console, arguments);
+  //         }
+  //       }; // new PolModuleWrapper(moduleName, extUoExec, filename).exports;
+  //     }
+  //     // @ts-ignore
+  //     return Reflect.apply(...arguments);
+  //   }
+  // });
 
   let compiledWrapper = vm.compileFunction(
     contents,
@@ -77,21 +68,43 @@ function loadScript(paths, extUoExec, filename) {
     }
   );
 
+  return compiledWrapper;
+}
+
+function runScript(paths, extUoExec, filename, compiledWrapper, args) {
+  let _module = {
+    exports: {},
+    id: filename,
+    children: [],
+    parent: "",
+    loaded: true,
+    paths
+  };
+  
+  // Delete the modwrap cache, such that a require('modwrap') call will grab the new executor.
+  // Probably need to delete everything...?
+  if (require.cache) delete require.cache.modwrap;
+
   compiledWrapper.call(
     _module,
     _module.exports,
-    _require,
+    require,
     _module,
     filename,
     path.dirname(filename)
   );
+  if (_module.exports && typeof _module.exports.default === "function") {
+    return _module.exports.default.apply(undefined,args);
+  }
 
-  // console.log("result is", result, _module);
-  return _module.exports;
+  /** 
+   * There was no error, but the script didn't export a default function to run. How should we handle 
+   * this...? 
+   */
+  return 1;
 }
 
 module.exports = exports = {
-  loadScript: loadScript.bind(undefined, module.paths)
+  loadScript,
+  runScript: runScript.bind(undefined, module.paths),
 };
-
-console.log(__filename,__dirname);

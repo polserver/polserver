@@ -28,7 +28,7 @@ public:
 
   ProgramType type() const override;
 
-  Napi::ObjectReference obj;
+  Napi::FunctionReference obj;
 
 private:
   std::string name;
