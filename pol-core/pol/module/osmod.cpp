@@ -87,6 +87,8 @@ TmplExecutorModule<OSExecutorModule>::FunctionTable
         {"Debugger", &OSExecutorModule::mf_debugger, UINT_MAX},
         {"PerformanceMeasure", &OSExecutorModule::mf_performance_diff, UINT_MAX},
         {"HTTPRequest", &OSExecutorModule::mf_HTTPRequest, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<OSExecutorModule>::modname = "OS";
 }  // namespace Bscript
 namespace Module
 {
@@ -102,7 +104,7 @@ void freepid( unsigned int pid )
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<OSExecutorModule>( "OS", exec ),
+    : TmplExecutorModule<OSExecutorModule>( exec ),
       critical_( false ),
       priority_( 1 ),
       warn_on_runaway_( true ),

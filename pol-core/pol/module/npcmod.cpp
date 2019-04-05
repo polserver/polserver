@@ -77,13 +77,15 @@ TmplExecutorModule<NPCExecutorModule>::FunctionTable
         // { "CreateBackpack", CreateBackpack },
         // { "CreateItem", CreateItem }
 };
+template <>
+const char* TmplExecutorModule<NPCExecutorModule>::modname = "NPC";
 }  // namespace Bscript
 
 namespace Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : TmplExecutorModule<NPCExecutorModule>( "NPC", ex ), npcref( &npc ), npc( npc )
+    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
   if ( os_module == nullptr )

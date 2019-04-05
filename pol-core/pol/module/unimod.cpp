@@ -132,6 +132,8 @@ TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
         {"RequestInputUC", &UnicodeExecutorModule::mf_RequestInputUC, UINT_MAX},
         {"SendSysMessageUC", &UnicodeExecutorModule::mf_SendSysMessageUC, UINT_MAX},
         {"SendTextEntryGumpUC", &UnicodeExecutorModule::mf_SendTextEntryGumpUC, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<UnicodeExecutorModule>::modname = "unicode";
 }  // namespace Bscript
 namespace Module
 {
@@ -139,7 +141,7 @@ using namespace Bscript;
 u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
-    : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
+    : TmplExecutorModule<UnicodeExecutorModule>( exec ),
       uoexec( exec ),
       prompt_chr( nullptr )
 {

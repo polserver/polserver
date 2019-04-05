@@ -34,11 +34,13 @@ TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
         {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat, UINT_MAX},
         {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem, UINT_MAX},
         {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<UBoatExecutorModule>::modname = "boat";
 }  // namespace Bscript
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec )
+    : Bscript::TmplExecutorModule<UBoatExecutorModule>( exec )
 {
 }
 

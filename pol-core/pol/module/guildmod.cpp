@@ -38,6 +38,8 @@ TmplExecutorModule<GuildExecutorModule>::FunctionTable
         {"FindGuild", &GuildExecutorModule::mf_FindGuild, UINT_MAX},
         {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild, UINT_MAX},
 };
+template <>
+const char* TmplExecutorModule<GuildExecutorModule>::modname = "Guilds";
 }  // namespace Bscript
 namespace Module
 {
@@ -475,7 +477,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 
 
 GuildExecutorModule::GuildExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<GuildExecutorModule>( "Guilds", exec )
+    : TmplExecutorModule<GuildExecutorModule>( exec )
 {
 }
 

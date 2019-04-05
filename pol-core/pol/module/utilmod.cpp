@@ -31,13 +31,15 @@ TmplExecutorModule<UtilExecutorModule>::FunctionTable
         {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll, UINT_MAX},
         {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime, UINT_MAX},
         {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<UtilExecutorModule>::modname = "util";
 }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 UtilExecutorModule::UtilExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec )
+    : Bscript::TmplExecutorModule<UtilExecutorModule>( exec )
 {
 }
 

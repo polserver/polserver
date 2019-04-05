@@ -113,6 +113,8 @@ TmplExecutorModule<PolSystemExecutorModule>::FunctionTable
         {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt, UINT_MAX},
         {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile, UINT_MAX},
 };
+template <>
+const char* TmplExecutorModule<PolSystemExecutorModule>::modname = "polsys";
 }
 namespace Module
 {
@@ -162,7 +164,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec )
+    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( exec )
 {
 }
 

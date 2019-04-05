@@ -43,13 +43,15 @@ TmplExecutorModule<PartyExecutorModule>::FunctionTable
         {"SendPartyMsg", &PartyExecutorModule::mf_SendPartyMsg, UINT_MAX},
         {"SendPrivatePartyMsg", &PartyExecutorModule::mf_SendPrivatePartyMsg, UINT_MAX},
 };
+template <>
+const char* TmplExecutorModule<PartyExecutorModule>::modname = "Party";
 }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 PartyExecutorModule::PartyExecutorModule( Executor& exec )
-    : TmplExecutorModule<PartyExecutorModule>( "Party", exec )
+    : TmplExecutorModule<PartyExecutorModule>( exec )
 {
 }
 

@@ -52,6 +52,8 @@ TmplExecutorModule<MathExecutorModule>::FunctionTable
         {"ConstE", &MathExecutorModule::mf_ConstE, UINT_MAX},
 
         {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<MathExecutorModule>::modname = "math";
 }  // namespace Bscript
 namespace Module
 {
@@ -73,7 +75,7 @@ initer::initer()
 initer _initer;
 
 MathExecutorModule::MathExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<MathExecutorModule>( "math", exec )
+    : Bscript::TmplExecutorModule<MathExecutorModule>( exec )
 {
 }
 

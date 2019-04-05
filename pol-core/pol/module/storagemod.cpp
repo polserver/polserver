@@ -34,6 +34,8 @@ TmplExecutorModule<StorageExecutorModule>::FunctionTable
         {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea, UINT_MAX},
         {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea, UINT_MAX},
         {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<StorageExecutorModule>::modname = "Storage";
 }  // namespace Bscript
 namespace Core
 {
@@ -44,7 +46,7 @@ namespace Module
 using namespace Bscript;
 
 StorageExecutorModule::StorageExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<StorageExecutorModule>( "Storage", exec )
+    : Bscript::TmplExecutorModule<StorageExecutorModule>( exec )
 {
 }
 

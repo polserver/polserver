@@ -36,13 +36,15 @@ TmplExecutorModule<SQLExecutorModule>::FunctionTable
         {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows, UINT_MAX},
         {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb, UINT_MAX},
         {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<SQLExecutorModule>::modname = "sql";
 }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<SQLExecutorModule>( "sql", exec ),
+    : Bscript::TmplExecutorModule<SQLExecutorModule>( exec ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )
 {
 }

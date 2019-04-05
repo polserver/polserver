@@ -41,13 +41,15 @@ TmplExecutorModule<VitalExecutorModule>::FunctionTable
         {"SetVital", &VitalExecutorModule::mf_SetVital, UINT_MAX},
         {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate, UINT_MAX},
         {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<VitalExecutorModule>::modname = "vitals";
 }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
+    : Bscript::TmplExecutorModule<VitalExecutorModule>( exec )
 {
 }
 

@@ -141,8 +141,7 @@ template <class T>
 bool TmplExecutorModule<T>::_func_map_init = false;
 
 template <class T>
-TmplExecutorModule<T>::TmplExecutorModule( const char* modname, Executor& ex )
-    : ExecutorModule( modname, ex )
+TmplExecutorModule<T>::TmplExecutorModule( Executor& ex ) : ExecutorModule( TmplExecutorModule::modname, ex )
 {
   if ( !_func_map_init )
   {

@@ -50,6 +50,8 @@ TmplExecutorModule<FileAccessExecutorModule>::FunctionTable
         {"ListDirectory", &FileAccessExecutorModule::mf_ListDirectory, UINT_MAX},
         {"OpenXMLFile", &FileAccessExecutorModule::mf_OpenXMLFile, UINT_MAX},
         {"CreateXMLFile", &FileAccessExecutorModule::mf_CreateXMLFile, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<FileAccessExecutorModule>::modname = "file";
 }  // namespace Bscript
 namespace Module
 {
@@ -293,7 +295,7 @@ bool HasAppendAccess( const Plib::Package* pkg, const Plib::Package* filepackage
 }
 
 FileAccessExecutorModule::FileAccessExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<FileAccessExecutorModule>( "file", exec )
+    : TmplExecutorModule<FileAccessExecutorModule>( exec )
 {
 }
 

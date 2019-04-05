@@ -54,6 +54,8 @@ TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
         {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem, UINT_MAX},
         {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile, UINT_MAX},
         {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<ConfigFileExecutorModule>::modname = "cfgfile";
 }
 namespace Module
 {
@@ -139,7 +141,7 @@ Bscript::BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
 }
 
 ConfigFileExecutorModule::ConfigFileExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<ConfigFileExecutorModule>( "cfgfile", exec )
+    : TmplExecutorModule<ConfigFileExecutorModule>( exec )
 {
 }
 

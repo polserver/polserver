@@ -194,7 +194,7 @@ public:
 
 
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
-    : TmplExecutorModule<UOExecutorModule>( "UO", exec ),
+    : TmplExecutorModule<UOExecutorModule>( exec ),
       uoexec( exec ),
       popup_menu_selection_chr( nullptr ),
       popup_menu_selection_above( nullptr ),
@@ -1621,7 +1621,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
   Menu* menu;
 
   if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
-       ( chr->client->gd->requests.hasRequest(Core::UOAsyncRequest::Type::MENU_SELECTION) ) )
+       ( chr->client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::MENU_SELECTION ) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -1636,7 +1636,8 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem()
     return new BError( "Menu too large" );
   }
 
-  if ( Core::UOAsyncRequest::makeRequest(uoexec,chr,UOAsyncRequest::Type::MENU_SELECTION, menu_selection_made2) == nullptr )
+  if ( Core::UOAsyncRequest::makeRequest( uoexec, chr, UOAsyncRequest::Type::MENU_SELECTION,
+                                          menu_selection_made2 ) == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SelectMenuItem():\n"
@@ -5712,7 +5713,8 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"DisconnectClient", &UOExecutorModule::mf_DisconnectClient, UINT_MAX},
         {"GetRegionName", &UOExecutorModule::mf_GetRegionName, UINT_MAX},
         {"GetRegionNameAtLocation", &UOExecutorModule::mf_GetRegionNameAtLocation, UINT_MAX},
-        {"GetRegionLightLevelAtLocation", &UOExecutorModule::mf_GetRegionLightLevelAtLocation, UINT_MAX},
+        {"GetRegionLightLevelAtLocation", &UOExecutorModule::mf_GetRegionLightLevelAtLocation,
+         UINT_MAX},
         {"GetRegionString", &UOExecutorModule::mf_GetRegionString, UINT_MAX},
         {"PlayStationaryEffect", &UOExecutorModule::mf_PlayStationaryEffect, UINT_MAX},
         {"GetMapInfo", &UOExecutorModule::mf_GetMapInfo, UINT_MAX},
@@ -5748,8 +5750,10 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"CreateItemInInventory", &UOExecutorModule::mf_CreateItemInInventory, UINT_MAX},
         {"ListMobilesNearLocationEx", &UOExecutorModule::mf_ListMobilesNearLocationEx, UINT_MAX},
         {"SystemFindObjectBySerial", &UOExecutorModule::mf_SystemFindObjectBySerial, UINT_MAX},
-        {"ListItemsNearLocationOfType", &UOExecutorModule::mf_ListItemsNearLocationOfType, UINT_MAX},
-        {"ListItemsNearLocationWithFlag", &UOExecutorModule::mf_ListItemsNearLocationWithFlag, UINT_MAX},
+        {"ListItemsNearLocationOfType", &UOExecutorModule::mf_ListItemsNearLocationOfType,
+         UINT_MAX},
+        {"ListItemsNearLocationWithFlag", &UOExecutorModule::mf_ListItemsNearLocationWithFlag,
+         UINT_MAX},
         {"ListStaticsAtLocation", &UOExecutorModule::mf_ListStaticsAtLocation, UINT_MAX},
         {"ListStaticsNearLocation", &UOExecutorModule::mf_ListStaticsNearLocation, UINT_MAX},
         {"ListGhostsNearLocation", &UOExecutorModule::mf_ListGhostsNearLocation, UINT_MAX},
@@ -5757,7 +5761,8 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"Distance", &UOExecutorModule::mf_Distance, UINT_MAX},
         {"CoordinateDistance", &UOExecutorModule::mf_CoordinateDistance, UINT_MAX},
         {"DistanceEuclidean", &UOExecutorModule::mf_DistanceEuclidean, UINT_MAX},
-        {"CoordinateDistanceEuclidean", &UOExecutorModule::mf_CoordinateDistanceEuclidean, UINT_MAX},
+        {"CoordinateDistanceEuclidean", &UOExecutorModule::mf_CoordinateDistanceEuclidean,
+         UINT_MAX},
         {"GetCoordsInLine", &UOExecutorModule::mf_GetCoordsInLine, UINT_MAX},
         {"GetFacing", &UOExecutorModule::mf_GetFacing, UINT_MAX},
         {"SetRegionLightLevel", &UOExecutorModule::mf_SetRegionLightLevel, UINT_MAX},
@@ -5840,7 +5845,11 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
 
         {"SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu, UINT_MAX},
         {"SingleClick", &UOExecutorModule::mf_SingleClick, UINT_MAX},
-        {"ListStaticsNearLocationOfType", &UOExecutorModule::mf_ListStaticsNearLocationOfType, UINT_MAX},
-        {"ListStaticsNearLocationWithFlag", &UOExecutorModule::mf_ListStaticsNearLocationWithFlag, UINT_MAX}};
+        {"ListStaticsNearLocationOfType", &UOExecutorModule::mf_ListStaticsNearLocationOfType,
+         UINT_MAX},
+        {"ListStaticsNearLocationWithFlag", &UOExecutorModule::mf_ListStaticsNearLocationWithFlag,
+         UINT_MAX}};
+template <>
+const char* Bscript::TmplExecutorModule<Module::UOExecutorModule>::modname = "UO";
 }  // namespace Bscript
 }  // namespace Pol

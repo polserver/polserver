@@ -24,7 +24,7 @@ Napi::FunctionReference NodeModuleWrap<PolModule>::constructor;
 template <typename PolModule>
 void NodeModuleWrap<PolModule>::Init( Napi::Env env, Napi::Object exports )
 {
-  NODELOG << "[modwrap] Initializing " << PolModule::name << "\n";
+  NODELOG << "[modwrap] Initializing " << PolModule::modname << "\n";
   Napi::HandleScope scope( env );
 
   std::vector<Napi::ClassPropertyDescriptor<NodeModuleWrap<PolModule>>> props = {};
@@ -36,10 +36,10 @@ void NodeModuleWrap<PolModule>::Init( Napi::Env env, Napi::Object exports )
   }
 
   Napi::Function func =
-      ObjectWrap<NodeModuleWrap<PolModule>>::DefineClass( env, PolModule::name.c_str(), props );
+      ObjectWrap<NodeModuleWrap<PolModule>>::DefineClass( env, PolModule::modname, props );
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
-  exports.Set( PolModule::name, func );
+  exports.Set( PolModule::modname, func );
 };
 
 // extern Bscript::TmplExecutorModule<Module::BasicIoExecutorModule>::FunctionTable

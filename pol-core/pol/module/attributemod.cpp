@@ -42,6 +42,8 @@ TmplExecutorModule<AttributeExecutorModule>::FunctionTable
         {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod, UINT_MAX},
         {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase, UINT_MAX},
         {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<AttributeExecutorModule>::modname = "attributes";
 }
 namespace Module
 {
@@ -49,7 +51,7 @@ using namespace Bscript;
 using namespace Mobile;
 
 AttributeExecutorModule::AttributeExecutorModule( Executor& exec )
-    : TmplExecutorModule<AttributeExecutorModule>( "attributes", exec )
+    : TmplExecutorModule<AttributeExecutorModule>( exec )
 {
 }
 
