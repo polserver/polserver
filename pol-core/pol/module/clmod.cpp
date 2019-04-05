@@ -25,9 +25,9 @@ template <>
 TmplExecutorModule<ClilocExecutorModule>::FunctionTable
     TmplExecutorModule<ClilocExecutorModule>::function_table = {
 
-        {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL},
-        {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL},
-        {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL}};
+        {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL, UINT_MAX},
+        {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL, UINT_MAX},
+        {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL, UINT_MAX}};
 }  // namespace Bscript
 namespace Module
 {

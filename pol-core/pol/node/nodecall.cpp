@@ -30,6 +30,7 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
   auto call = Node::makeCall<int>( [prog, ex]( Napi::Env env, NodeRequest<int>* request ) {
 
     auto obj = prog->obj.Value();
+    auto reqId = request->reqId();
     NODELOG.Format( "[{:04x}] [exec] call {} , argc {}\n" )
         << request->reqId() << obj.Get( "_refId" ).As<String>().Utf8Value()
         << ex->ValueStack.size();
@@ -40,12 +41,12 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
       Bscript::BObjectRef rightref = ex->ValueStack.back();
       ex->ValueStack.pop_back();
 
-      Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, request->reqId() );
+      Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, reqId );
 
       argv[i] = convertedVal;
 
       NODELOG.Format( "[{:04x}] [exec] argv[{}] = {}\n" )
-          << request->reqId() << i << Node::ToUtf8Value( convertedVal );
+          << reqId << i << Node::ToUtf8Value( convertedVal );
     }
     try
     {
@@ -54,7 +55,13 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
               .As<Object>()
               .Get( "runScript" )
               .As<Function>()
-              .Call( {env.Undefined() /* extUoExec */, Napi::String::New( env, prog->scriptname() ),
+              .Call(
+                  {External<Core::UOExecutor>::New(
+                          env, ex,
+                          [=]( Napi::Env, Core::UOExecutor* data ) {
+                            NODELOG.Format( "[{:04x}] [exec] External<UOExecutor> finalized\n" )
+                                << reqId;
+              }), Napi::String::New( env, prog->scriptname() ),
                       prog->obj.Value(), argv} );
       NODELOG.Format( "[{:04x}] [exec] returned {}\n" )
           << request->reqId() << Node::ToUtf8Value( ret );

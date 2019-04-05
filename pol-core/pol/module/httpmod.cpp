@@ -25,10 +25,10 @@ using namespace Module;
 template <>
 TmplExecutorModule<HttpExecutorModule>::FunctionTable
     TmplExecutorModule<HttpExecutorModule>::function_table = {
-        {"WriteHtml", &HttpExecutorModule::mf_WriteHtml},
-        {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw},
-        {"QueryParam", &HttpExecutorModule::mf_QueryParam},
-        {"QueryIP", &HttpExecutorModule::mf_QueryIP},
+        {"WriteHtml", &HttpExecutorModule::mf_WriteHtml, UINT_MAX},
+        {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw, UINT_MAX},
+        {"QueryParam", &HttpExecutorModule::mf_QueryParam, UINT_MAX},
+        {"QueryIP", &HttpExecutorModule::mf_QueryIP, UINT_MAX}
 };
 }  // namespace Bscript
 namespace Module

@@ -16,7 +16,7 @@ namespace Pol
 {
 namespace Core
 {
-extern ProgramFactoryMap map;
+extern std::map<std::string, Bscript::Program* (*)()> map;
 
 std::string full_scriptname( const std::string& spec, const Plib::Package* pkg,
                              const char* mainpfx )

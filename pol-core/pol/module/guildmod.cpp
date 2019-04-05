@@ -33,10 +33,10 @@ using namespace Module;
 template <>
 TmplExecutorModule<GuildExecutorModule>::FunctionTable
     TmplExecutorModule<GuildExecutorModule>::function_table = {
-        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
-        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
-        {"FindGuild", &GuildExecutorModule::mf_FindGuild},
-        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
+        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds, UINT_MAX},
+        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild, UINT_MAX},
+        {"FindGuild", &GuildExecutorModule::mf_FindGuild, UINT_MAX},
+        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild, UINT_MAX},
 };
 }  // namespace Bscript
 namespace Module

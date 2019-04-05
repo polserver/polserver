@@ -30,17 +30,17 @@ using namespace Module;
 template <>
 TmplExecutorModule<VitalExecutorModule>::FunctionTable
     TmplExecutorModule<VitalExecutorModule>::function_table = {
-        {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage},
-        {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage},
-        {"HealDamage", &VitalExecutorModule::mf_HealDamage},
-        {"ConsumeMana", &VitalExecutorModule::mf_ConsumeMana},
-        {"ConsumeVital", &VitalExecutorModule::mf_ConsumeVital},
-        {"RecalcVitals", &VitalExecutorModule::mf_RecalcVitals},
-        {"GetVitalName", &VitalExecutorModule::mf_GetVitalName},
-        {"GetVital", &VitalExecutorModule::mf_GetVital},
-        {"SetVital", &VitalExecutorModule::mf_SetVital},
-        {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate},
-        {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue}};
+        {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage, UINT_MAX},
+        {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage, UINT_MAX},
+        {"HealDamage", &VitalExecutorModule::mf_HealDamage, UINT_MAX},
+        {"ConsumeMana", &VitalExecutorModule::mf_ConsumeMana, UINT_MAX},
+        {"ConsumeVital", &VitalExecutorModule::mf_ConsumeVital, UINT_MAX},
+        {"RecalcVitals", &VitalExecutorModule::mf_RecalcVitals, UINT_MAX},
+        {"GetVitalName", &VitalExecutorModule::mf_GetVitalName, UINT_MAX},
+        {"GetVital", &VitalExecutorModule::mf_GetVital, UINT_MAX},
+        {"SetVital", &VitalExecutorModule::mf_SetVital, UINT_MAX},
+        {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate, UINT_MAX},
+        {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue, UINT_MAX}};
 }  // namespace Bscript
 namespace Module
 {

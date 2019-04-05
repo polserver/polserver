@@ -51,11 +51,11 @@ if (!pol.start(coreCallback, 0)) {
   basic.print("Started TSFN. main.js exiting");
 }
 
-var original = module.__proto__.constructor._load;
-module.__proto__.constructor._load = function() {
-  basic.print("module.load called with " + Array.from(arguments).join("; "));
-  original.apply(module.__proto__.constructor, arguments);
-};
+// var original = module.__proto__.constructor._load;
+// module.__proto__.constructor._load = function() {
+//   basic.print("module.load called with " + Array.from(arguments).join("; "));
+//   original.apply(module.__proto__.constructor, arguments);
+// };
 /**
  * This script has now ended execution. The node main thread will wait until the thread-safe
  * function created above is released from the non-Node thread (ie, the Core)

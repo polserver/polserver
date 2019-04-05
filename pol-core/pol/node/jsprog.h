@@ -28,7 +28,8 @@ public:
 
   ProgramType type() const override;
 
-  Napi::FunctionReference obj;
+  // the vm.Script
+  Napi::ObjectReference obj;
 
 private:
   std::string name;

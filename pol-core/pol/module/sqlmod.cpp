@@ -27,15 +27,15 @@ using namespace Module;
 template <>
 TmplExecutorModule<SQLExecutorModule>::FunctionTable
     TmplExecutorModule<SQLExecutorModule>::function_table = {
-        {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB},
-        {"MySQL_Query", &SQLExecutorModule::mf_Query},
-        {"MySQL_Close", &SQLExecutorModule::mf_Close},
-        {"MySQL_Num_Fields", &SQLExecutorModule::mf_NumFields},
-        {"MySQL_Fetch_Row", &SQLExecutorModule::mf_FetchRow},
-        {"MySQL_Affected_Rows", &SQLExecutorModule::mf_AffectedRows},
-        {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows},
-        {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb},
-        {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName}};
+        {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB, UINT_MAX},
+        {"MySQL_Query", &SQLExecutorModule::mf_Query, UINT_MAX},
+        {"MySQL_Close", &SQLExecutorModule::mf_Close, UINT_MAX},
+        {"MySQL_Num_Fields", &SQLExecutorModule::mf_NumFields, UINT_MAX},
+        {"MySQL_Fetch_Row", &SQLExecutorModule::mf_FetchRow, UINT_MAX},
+        {"MySQL_Affected_Rows", &SQLExecutorModule::mf_AffectedRows, UINT_MAX},
+        {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows, UINT_MAX},
+        {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb, UINT_MAX},
+        {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName, UINT_MAX}};
 }  // namespace Bscript
 namespace Module
 {

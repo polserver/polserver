@@ -79,7 +79,8 @@ ref_ptr<Bscript::Program> find_script( const std::string& name, bool complain_if
   return program;
 }
 
-ProgramFactoryMap map;
+//ProgramFactoryMap
+std::map<std::string, Bscript::Program* (*)()> map;
 
 void register_program_type( const std::string& extension, Bscript::Program* ( *factory )() )
 {

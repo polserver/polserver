@@ -80,8 +80,7 @@ function createModuleWrap(extUoExec, wrapperConstructor) {
     return moduleExports;
 }
 // 
-debugger;
-require('uo');
+
 
 module.exports = exports = {
     proxyObject,

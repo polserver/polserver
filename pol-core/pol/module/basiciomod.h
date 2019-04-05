@@ -20,6 +20,11 @@ class Executor;
 
 namespace Pol
 {
+namespace Node
+{
+template <typename PolModule>
+class NodeModuleWrap;
+}
 namespace Module
 {
 class BasicIoExecutorModule : public Bscript::TmplExecutorModule<BasicIoExecutorModule>
@@ -28,6 +33,8 @@ public:
   Bscript::BObjectImp* print();
 
   BasicIoExecutorModule( Bscript::Executor& exec );
+
+  friend class Node::NodeModuleWrap<BasicIoExecutorModule>;
 };
 }
 }

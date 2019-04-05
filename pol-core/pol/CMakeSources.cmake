@@ -441,6 +441,7 @@ if(ENABLE_NODEJS)
     node/module/basicmod.h
     node/module/modwrap.cpp
     node/module/modwrap.h
+    node/module/modwrap-inl.h
     node/module/objwrap.cpp
     node/module/objwrap.h
     node/napi-wrap.h

@@ -40,7 +40,7 @@ bool script_loaded( ScriptDef& sd );
 
 
 // Map an extension to a Program* factory
-typedef std::map<std::string, Bscript::Program* (*)()> ProgramFactoryMap;
+//using ProgramFactoryMap = std::map<std::string, Bscript::Program* (*)()>;
 }
 }
 #endif  // SCRSTORE_H

@@ -32,6 +32,7 @@ namespace Pol
 {
 namespace Node
 {
+template <typename PolModule>
 class NodeModuleWrap;
 }
 namespace Bscript
@@ -104,15 +105,19 @@ BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param,
 template <class T>
 class TmplExecutorModule : public ExecutorModule
 {
+public:
+  static const char* modname;
+
 protected:
-  TmplExecutorModule( const char* modname, Executor& exec );
+  TmplExecutorModule( Executor& exec );
 
 
-private:
+protected:
   struct FunctionDef
   {
     std::string funcname;
     BObjectImp* ( T::*fptr )();
+    unsigned argc;
   };
   using FunctionTable = std::vector<FunctionDef>;
 
@@ -120,13 +125,12 @@ private:
   static std::map<std::string, int, Clib::ci_cmp_pred> _func_idx_map;
   static bool _func_map_init;
 
-protected:
   virtual int functionIndex( const std::string& funcname ) override;
   virtual BObjectImp* execFunc( unsigned idx ) override;
   virtual std::string functionName( unsigned idx ) override;
-  friend Node::NodeModuleWrap;
+  friend class Node::NodeModuleWrap<TmplExecutorModule>;
 #ifdef HAVE_NODEJS
- // friend Node::
+  // friend Node::
 #endif
 };
 

@@ -32,11 +32,11 @@ int JavascriptProgram::read( const char* fname )
   NODELOG << "[core] requesting " << fname << "\n";
   try
   {
-    auto reqReturn = Node::makeCall<FunctionReference>(
-        [fname]( Napi::Env env, NodeRequest<FunctionReference>* request ) {
+    auto reqReturn = Node::makeCall<ObjectReference>(
+        [fname]( Napi::Env env, NodeRequest<ObjectReference>* request ) {
 
           auto scriptName = std::string( "./" ) + fname;
-          NODELOG.Format( "[{:04x}] [require] requesting, {}\n" ) << request->reqId() << scriptName;
+          NODELOG.Format( "[{:04x}] [read] requesting, {}\n" ) << request->reqId() << scriptName;
 
           try
           {
@@ -47,18 +47,18 @@ int JavascriptProgram::read( const char* fname )
                                        .Call( {Napi::String::New( env, scriptName )} );
 
             compiledWrapper.As<Object>().Set(
-                "_refId", String::New( env, std::string( "require(" ) + scriptName + ")@" +
+                "_refId", String::New( env, std::string( "vm.Script(" ) + scriptName + ")@" +
                                                 std::to_string( request->reqId() ) ) );
 
-            NODELOG.Format( "[{:04x}] [require] compiled, {}\n" ) << request->reqId() << scriptName;
+            NODELOG.Format( "[{:04x}] [read] compiled, {}\n" ) << request->reqId() << scriptName;
 
 
-            return Napi::Persistent( compiledWrapper.As<Function>() );
+            return Napi::ObjectReference::New( compiledWrapper.As<Object>(), 1 );
           }
           catch ( std::exception& ex )
           {
-            NODELOG.Format( "[{:04x}] [require] errored, {}\n" ) << request->reqId() << ex.what();
-            return Napi::FunctionReference();
+            NODELOG.Format( "[{:04x}] [read] errored, {}\n" ) << request->reqId() << ex.what();
+            return Napi::Reference<Object>();
           }
         } );
 
@@ -66,7 +66,7 @@ int JavascriptProgram::read( const char* fname )
 
     if ( obj.IsEmpty() )
     {
-      ERROR_PRINT << "Error loading javascript " << fname << ": No ObjectReference returned\n";
+      ERROR_PRINT << "Error loading javascript " << fname << ": No ObjectReference returned. Script couldn't compile...? See node.log for more info.\n";
       return 1;
     }
 
