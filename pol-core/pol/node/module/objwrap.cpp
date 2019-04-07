@@ -17,7 +17,7 @@ namespace Node
 Napi::FunctionReference NodeObjectWrap::constructor;
 
 
-Bscript::BObjectImp* NodeObjectWrap::Wrap(Napi::Env env, Napi::Value value, unsigned long reqId )
+Bscript::BObjectImp* NodeObjectWrap::Wrap(Napi::Env /*env*/, Napi::Value value, unsigned long reqId )
 {
   Bscript::BObjectImp* convertedVal;
   if (value.IsBoolean())

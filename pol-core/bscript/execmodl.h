@@ -30,11 +30,6 @@ class Executor;
 
 namespace Pol
 {
-namespace Node
-{
-template <typename PolModule>
-class NodeModuleWrap;
-}
 namespace Bscript
 {
 class ExecutorModule;
@@ -128,10 +123,6 @@ protected:
   virtual int functionIndex( const std::string& funcname ) override;
   virtual BObjectImp* execFunc( unsigned idx ) override;
   virtual std::string functionName( unsigned idx ) override;
-  friend class Node::NodeModuleWrap<TmplExecutorModule>;
-#ifdef HAVE_NODEJS
-  // friend Node::
-#endif
 };
 
 template <class T>

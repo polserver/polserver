@@ -58,7 +58,7 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
               .Call(
                   {External<Core::UOExecutor>::New(
                           env, ex,
-                          [=]( Napi::Env, Core::UOExecutor* data ) {
+                          [=]( Napi::Env, Core::UOExecutor* /*data*/ ) {
                             NODELOG.Format( "[{:04x}] [exec] External<UOExecutor> finalized\n" )
                                 << reqId;
               }), Napi::String::New( env, prog->scriptname() ),

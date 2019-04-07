@@ -30,8 +30,6 @@ void node_thread()
 
   // Workaround for node::Start requirement that
   // argv is sequential in memory.
-  int argc = 0;
-  char** carg;
   std::string argstr = Plib::systemstate.config.node_args.empty()
                            ? "node ./main.js"
                            : "node " + Plib::systemstate.config.node_args + " ./main.js";
@@ -161,7 +159,7 @@ bool cleanup()
 {
   if ( Node::running )
   {
-    auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
+    auto call = Node::makeCall<bool>( []( Napi::Env /*env*/, NodeRequest<bool>* request ) {
       NODELOG.Format( "[{:04x}] [release] releasing require reference {}\n" )
           << request->reqId() << Node::ToUtf8Value( requireRef.Get( "_refId" ) );
       requireRef.Unref();

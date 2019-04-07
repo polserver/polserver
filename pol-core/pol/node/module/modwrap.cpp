@@ -1,12 +1,6 @@
-
 #include "../../module/basiciomod.h"
 #include "../../module/basicmod.h"
 #include "../../uoexec.h"
-#include "../bscript/impstr.h"
-#include "../clib/logfacility.h"
-#include "../clib/stlutil.h"
-#include "../napi-wrap.h"
-#include "../nodecall.h"
 #include "modwrap.h"
 
 

@@ -103,7 +103,7 @@ JavascriptProgram::~JavascriptProgram()
 
   if ( Node::running && !obj.IsEmpty() )
   {
-    auto call = Node::makeCall<bool>( [this]( Napi::Env env, NodeRequest<bool>* request ) {
+    auto call = Node::makeCall<bool>( [this]( Napi::Env /*env*/, NodeRequest<bool>* request ) {
       NODELOG.Format( "[{:04x}] [release] releasing program reference {}\n" )
           << request->reqId()
           << Node::ToUtf8Value( this->obj.Value().As<Object>().Get( "_refId" ) );
