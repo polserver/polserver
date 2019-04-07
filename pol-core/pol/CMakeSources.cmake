@@ -397,6 +397,9 @@ set (pol_sources  # sorted !
   umap.h
   unicode.cpp
   unicode.h
+  uoasync.h
+  uoasync.cpp
+  uoasynchandler.h
   uobjcnt.cpp
   uobjcnt.h
   uobject.cpp
@@ -436,6 +439,9 @@ if(ENABLE_NODEJS)
   set (pol_sources ${pol_sources}
     node/module/basicmod.cpp
     node/module/basicmod.h
+    node/module/modwrap.cpp
+    node/module/modwrap.h
+    node/module/modwrap-inl.h
     node/module/objwrap.cpp
     node/module/objwrap.h
     node/napi-wrap.h

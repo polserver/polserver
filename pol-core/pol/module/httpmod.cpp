@@ -25,18 +25,20 @@ using namespace Module;
 template <>
 TmplExecutorModule<HttpExecutorModule>::FunctionTable
     TmplExecutorModule<HttpExecutorModule>::function_table = {
-        {"WriteHtml", &HttpExecutorModule::mf_WriteHtml},
-        {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw},
-        {"QueryParam", &HttpExecutorModule::mf_QueryParam},
-        {"QueryIP", &HttpExecutorModule::mf_QueryIP},
+        {"WriteHtml", &HttpExecutorModule::mf_WriteHtml, UINT_MAX},
+        {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw, UINT_MAX},
+        {"QueryParam", &HttpExecutorModule::mf_QueryParam, UINT_MAX},
+        {"QueryIP", &HttpExecutorModule::mf_QueryIP, UINT_MAX}
 };
+template <>
+const char* TmplExecutorModule<HttpExecutorModule>::modname = "http";
 }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck )
-    : Bscript::TmplExecutorModule<HttpExecutorModule>( "http", exec ),
+    : Bscript::TmplExecutorModule<HttpExecutorModule>( exec ),
       sck_( isck ),
       continuing_offset( 0 ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )

@@ -33,11 +33,13 @@ using namespace Module;
 template <>
 TmplExecutorModule<GuildExecutorModule>::FunctionTable
     TmplExecutorModule<GuildExecutorModule>::function_table = {
-        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
-        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
-        {"FindGuild", &GuildExecutorModule::mf_FindGuild},
-        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
+        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds, UINT_MAX},
+        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild, UINT_MAX},
+        {"FindGuild", &GuildExecutorModule::mf_FindGuild, UINT_MAX},
+        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild, UINT_MAX},
 };
+template <>
+const char* TmplExecutorModule<GuildExecutorModule>::modname = "Guilds";
 }  // namespace Bscript
 namespace Module
 {
@@ -475,7 +477,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 
 
 GuildExecutorModule::GuildExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<GuildExecutorModule>( "Guilds", exec )
+    : TmplExecutorModule<GuildExecutorModule>( exec )
 {
 }
 

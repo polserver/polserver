@@ -22,6 +22,12 @@ class Executor;
 // FIXME: this is currently misnamed, should be StringExecutorModule
 namespace Pol
 {
+namespace Node
+{
+template <typename PolModule>
+class NodeModuleWrap;
+}
+
 namespace Module
 {
 class BasicExecutorModule : public Bscript::TmplExecutorModule<BasicExecutorModule>
@@ -65,6 +71,8 @@ public:
   Bscript::BObjectImp* mf_DecodeBase64();
 
   BasicExecutorModule( Bscript::Executor& exec );
+
+  friend class Node::NodeModuleWrap<BasicExecutorModule>;
 };
 }  // namespace Module
 }  // namespace Pol

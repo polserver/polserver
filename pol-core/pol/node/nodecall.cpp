@@ -3,7 +3,6 @@
  * @par History
  */
 
-#include "nodecall.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/stlutil.h"
@@ -12,6 +11,7 @@
 #include "jsprog.h"
 #include "module/objwrap.h"
 #include "napi-wrap.h"
+#include "nodecall.h"
 #include "nodethread.h"
 #include <future>
 
@@ -30,32 +30,47 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
   auto call = Node::makeCall<int>( [prog, ex]( Napi::Env env, NodeRequest<int>* request ) {
 
     auto obj = prog->obj.Value();
+    auto reqId = request->reqId();
     NODELOG.Format( "[{:04x}] [exec] call {} , argc {}\n" )
         << request->reqId() << obj.Get( "_refId" ).As<String>().Utf8Value()
         << ex->ValueStack.size();
 
-    // std::vector<Napi::Value> argv;
-    std::vector<napi_value> argv;
+    Napi::Array argv = Array::New( env, ex->ValueStack.size() );
     for ( size_t i = 0; !ex->ValueStack.empty(); )
     {
       Bscript::BObjectRef rightref = ex->ValueStack.back();
       ex->ValueStack.pop_back();
 
-      Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, request->reqId() );
+      Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, reqId );
 
-      argv.push_back( convertedVal );
-
+      argv[i] = convertedVal;
 
       NODELOG.Format( "[{:04x}] [exec] argv[{}] = {}\n" )
-          << request->reqId() << i << Node::ToUtf8Value( convertedVal );
+          << reqId << i << Node::ToUtf8Value( convertedVal );
     }
-    // TODO pass args
-    auto funct = obj.Get( "default" );
-    auto ret = funct.As<Function>().Call( argv );
+    try
+    {
+      auto ret =
+          requireRef.Get( "scriptloader" )
+              .As<Object>()
+              .Get( "runScript" )
+              .As<Function>()
+              .Call(
+                  {External<Core::UOExecutor>::New(
+                          env, ex,
+                          [=]( Napi::Env, Core::UOExecutor* data ) {
+                            NODELOG.Format( "[{:04x}] [exec] External<UOExecutor> finalized\n" )
+                                << reqId;
+              }), Napi::String::New( env, prog->scriptname() ),
+                      prog->obj.Value(), argv} );
+      NODELOG.Format( "[{:04x}] [exec] returned {}\n" )
+          << request->reqId() << Node::ToUtf8Value( ret );
+    }
+    catch ( std::exception& ex )
+    {
+      POLLOG_ERROR.Format( "Error running node script {}: {}\n" ) << prog->scriptname() << ex.what();
+    }
 
-    // auto retString = Node::ToUtf8Value( ret );
-    NODELOG.Format( "[{:04x}] [exec] returned {}\n" )
-        << request->reqId() << Node::ToUtf8Value( ret );
 
     return clock();
   } );

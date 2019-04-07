@@ -158,6 +158,8 @@
 #include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../ufuncstd.h"
+#include "../uoasync.h"
+#include "../uoasynchandler.h"
 #include "../uobjcnt.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
@@ -1948,7 +1950,7 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
-  ex->priority(100);
+  ex->priority( 100 );
 
   if ( ex->setProgram( prog.get() ) )
   {
@@ -4113,8 +4115,12 @@ bool Character::target_cursor_busy() const
 {
   if ( tcursor2 != nullptr )
     return true;
-  if ( client && client->gd && client->gd->target_cursor_uoemod != nullptr )
+
+  if ( client && client->gd &&
+       ( client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::TARGET_CURSOR ) ||
+         client->gd->requests.hasRequest( Core::UOAsyncRequest::Type::TARGET_OBJECT ) ) )
     return true;
+
   return false;
 }
 

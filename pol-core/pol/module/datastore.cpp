@@ -39,10 +39,12 @@ using namespace Module;
 template <>
 TmplExecutorModule<DataFileExecutorModule>::FunctionTable
     TmplExecutorModule<DataFileExecutorModule>::function_table = {
-        {"ListDataFiles", &DataFileExecutorModule::mf_ListDataFiles},
-        {"CreateDataFile", &DataFileExecutorModule::mf_CreateDataFile},
-        {"OpenDataFile", &DataFileExecutorModule::mf_OpenDataFile},
-        {"UnloadDataFile", &DataFileExecutorModule::mf_UnloadDataFile}};
+        {"ListDataFiles", &DataFileExecutorModule::mf_ListDataFiles, UINT_MAX},
+        {"CreateDataFile", &DataFileExecutorModule::mf_CreateDataFile, UINT_MAX},
+        {"OpenDataFile", &DataFileExecutorModule::mf_OpenDataFile, UINT_MAX},
+        {"UnloadDataFile", &DataFileExecutorModule::mf_UnloadDataFile, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<DataFileExecutorModule>::modname = "datafile";
 }
 
 namespace Module
@@ -379,7 +381,7 @@ Bscript::BObjectImp* DataElemRefObjImp::call_method( const char* methodname, Bsc
 }
 
 DataFileExecutorModule::DataFileExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<DataFileExecutorModule>( "datafile", exec )
+    : Bscript::TmplExecutorModule<DataFileExecutorModule>( exec )
 {
 }
 

@@ -26,18 +26,20 @@ using namespace Module;
 template <>
 TmplExecutorModule<UtilExecutorModule>::FunctionTable
     TmplExecutorModule<UtilExecutorModule>::function_table = {
-        {"RandomInt", &UtilExecutorModule::mf_RandomInt},
-        {"RandomFloat", &UtilExecutorModule::mf_RandomFloat},
-        {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll},
-        {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime},
-        {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax}};
+        {"RandomInt", &UtilExecutorModule::mf_RandomInt, UINT_MAX},
+        {"RandomFloat", &UtilExecutorModule::mf_RandomFloat, UINT_MAX},
+        {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll, UINT_MAX},
+        {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime, UINT_MAX},
+        {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<UtilExecutorModule>::modname = "util";
 }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 UtilExecutorModule::UtilExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec )
+    : Bscript::TmplExecutorModule<UtilExecutorModule>( exec )
 {
 }
 

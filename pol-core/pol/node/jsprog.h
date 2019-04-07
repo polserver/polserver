@@ -28,6 +28,7 @@ public:
 
   ProgramType type() const override;
 
+  // the vm.Script
   Napi::ObjectReference obj;
 
 private:

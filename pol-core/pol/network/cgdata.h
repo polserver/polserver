@@ -12,7 +12,11 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
+#include "../mobile/charactr.h"
 #include "../reftypes.h"
+#include "../uoasync.h"
+#include "../uoexec.h"
+
 
 namespace Pol
 {
@@ -50,16 +54,8 @@ public:
   Module::UOExecutorModule* find_gumpmod( u32 gumpid );
   void remove_gumpmods( Module::UOExecutorModule* );
 
-  Module::UOExecutorModule* textentry_uoemod;
 
-
-  /*
-   *  If a script is requesting a target cursor from this
-   *  character, target_cursor_ex is that script.
-   *  Same for menu selection.
-   */
-  Module::UOExecutorModule* target_cursor_uoemod;
-  Module::UOExecutorModule* menu_selection_uoemod;
+  // popup_menu_selection_above, popup_menu_selection_chr
   Module::UOExecutorModule* popup_menu_selection_uoemod;
   Module::UOExecutorModule* prompt_uoemod;
   Module::UOExecutorModule* resurrect_uoemod;
@@ -74,6 +70,10 @@ public:
   Core::MusicRegion* music_region;
   Core::WeatherRegion* weather_region;
   u32 custom_house_serial;
+
+  Pol::Core::UOAsyncRequestHolder requests;
+
+
 };
 }
 }

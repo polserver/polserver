@@ -26,22 +26,24 @@ using namespace Module;
 template <>
 TmplExecutorModule<AttributeExecutorModule>::FunctionTable
     TmplExecutorModule<AttributeExecutorModule>::function_table = {
-        {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill},
-        {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName},
-        {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap},
-        {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute},
-        {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue},
-        {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod},
-        {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
-        {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock},
-        {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap},
-        {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap},
-        {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock},
-        {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue},
-        {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod},
-        {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
-        {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase},
-        {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw}};
+        {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill, UINT_MAX},
+        {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName, UINT_MAX},
+        {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap, UINT_MAX},
+        {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute, UINT_MAX},
+        {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue, UINT_MAX},
+        {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod, UINT_MAX},
+        {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod, UINT_MAX},
+        {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock, UINT_MAX},
+        {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap, UINT_MAX},
+        {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap, UINT_MAX},
+        {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock, UINT_MAX},
+        {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue, UINT_MAX},
+        {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod, UINT_MAX},
+        {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod, UINT_MAX},
+        {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase, UINT_MAX},
+        {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<AttributeExecutorModule>::modname = "attributes";
 }
 namespace Module
 {
@@ -49,7 +51,7 @@ using namespace Bscript;
 using namespace Mobile;
 
 AttributeExecutorModule::AttributeExecutorModule( Executor& exec )
-    : TmplExecutorModule<AttributeExecutorModule>( "attributes", exec )
+    : TmplExecutorModule<AttributeExecutorModule>( exec )
 {
 }
 
@@ -95,15 +97,17 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeDefaultCap( /* alia
   return new Bscript::BLong( attr->default_cap );
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname */ )
+Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname, precision */ )
 {
   Character* chr;
   const Attribute* attr;
+  short precision;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+       getParam( 2, precision ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
-    return new Bscript::BLong( av.effective() );
+    return new Bscript::BLong( precision == 1 ? av.effective_tenths() : av.effective() );
   }
   else
   {

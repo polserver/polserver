@@ -91,6 +91,8 @@
 #include "../statmsg.h"
 #include "../tooltips.h"
 #include "../ufunc.h"
+#include "../uoasync.h"
+#include "../uoasynchandler.h"
 #include "../uobject.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
@@ -1581,6 +1583,36 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   clear_gumphandler( client, uoemod );
 }
 
+
+/** Request handler. Called when a response that has been created with this handler is `respond()`'d
+ * with. Responsible for transforming the input into a BObjectImp* and returning it. */
+Bscript::BObjectImp* handle_textentry2( Client* /*client*/, PKTIN_AC* msg )
+{
+  BObjectImp* resimp = new BLong( 0 );
+  if ( msg->retcode == PKTIN_AC::RETCODE_OKAY )
+  {
+    unsigned short datalen = cfBEu16( msg->datalen );
+    if ( datalen >= 1 && datalen <= 256 && msg->data[datalen - 1] == '\0' )
+    {
+      // dave added isprint checking 4/13/3
+      bool ok = true;
+      --datalen;  // don't include null terminator (already checked)
+      for ( int i = 0; i < datalen; ++i )
+      {
+        if ( !isprint( msg->data[i] ) )
+        {
+          ok = false;
+          break;
+        }
+      }
+      if ( ok )
+      {
+        resimp = new String( msg->data, datalen );
+      }
+    }
+  }
+  return resimp;
+}
 BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 {
   Character* chr;
@@ -1624,7 +1656,8 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
-  if ( !uoexec.suspend() )
+  if ( Core::UOAsyncRequest::makeRequest( uoexec, chr, Core::UOAsyncRequest::Type::TEXTENTRY,
+                                          handle_textentry2 ) == nullptr )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SendTextEntryGump():\n"
@@ -1633,49 +1666,26 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   }
 
   msg.Send( chr->client, len );
-  chr->client->gd->textentry_uoemod = this;
-  textentry_chr = chr;
 
   return new BLong( 0 );
 }
 
+/** Packet handler for a textentry packet. Responsible for checking if the game data has an active
+ * request for Textentry. */
 void handle_textentry( Client* client, PKTIN_AC* msg )
 {
-  if ( client->gd->textentry_uoemod == nullptr )
+  auto req = client->gd->requests.findRequest<Core::UOAsyncRequest::Textentry>(
+      Core::UOAsyncRequest::Type::TEXTENTRY );
+
+  if ( req == nullptr )
   {
     ERROR_PRINT << "Client (Account " << client->chr->acct->name() << ", Character "
                 << client->chr->name() << ")used out-of-sequence textentry command?\n";
     return;
   }
-  BObjectImp* resimp = new BLong( 0 );
-  if ( msg->retcode == PKTIN_AC::RETCODE_OKAY )
-  {
-    unsigned short datalen = cfBEu16( msg->datalen );
-    if ( datalen >= 1 && datalen <= 256 && msg->data[datalen - 1] == '\0' )
-    {
-      // dave added isprint checking 4/13/3
-      bool ok = true;
-      --datalen;  // don't include null terminator (already checked)
-      for ( int i = 0; i < datalen; ++i )
-      {
-        if ( !isprint( msg->data[i] ) )
-        {
-          ok = false;
-          break;
-        }
-      }
-      if ( ok )
-      {
-        resimp = new String( msg->data, datalen );
-      }
-    }
-  }
-
-  client->gd->textentry_uoemod->uoexec.ValueStack.back().set( new BObject( resimp ) );
-  client->gd->textentry_uoemod->uoexec.revive();
-  client->gd->textentry_uoemod->textentry_chr = nullptr;
-  client->gd->textentry_uoemod = nullptr;
+  req->respond( client, msg );
 }
+
 
 class PolCore final : public BObjectImp
 {

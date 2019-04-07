@@ -64,6 +64,25 @@ function stripBOM(content) {
     return content;
 }
 
+function createModuleWrap(extUoExec, wrapperConstructor) {
+    
+    // Lazy load a pol module
+    /** @type {(number|symbol|string)[]} */
+    const mods = ["basic","basicio"];
+
+    const moduleExports = new Proxy( { } /*exports*/, {
+        ownKeys: function(target, handler) { return mods },
+        get: function(target, property, receiver) {
+            if (mods.indexOf(property) === -1) return undefined;
+            return new wrapperConstructor(extUoExec,property);
+        }
+    });
+    return moduleExports;
+}
+// 
+
+
 module.exports = exports = {
     proxyObject,
+    createModuleWrap
 };

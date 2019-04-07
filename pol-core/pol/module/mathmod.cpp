@@ -26,32 +26,34 @@ using namespace Module;
 template <>
 TmplExecutorModule<MathExecutorModule>::FunctionTable
     TmplExecutorModule<MathExecutorModule>::function_table = {
-        {"Sin", &MathExecutorModule::mf_Sin},
-        {"Cos", &MathExecutorModule::mf_Cos},
-        {"Tan", &MathExecutorModule::mf_Tan},
-        {"ASin", &MathExecutorModule::mf_ASin},
-        {"ACos", &MathExecutorModule::mf_ACos},
-        {"ATan", &MathExecutorModule::mf_ATan},
+        {"Sin", &MathExecutorModule::mf_Sin, UINT_MAX},
+        {"Cos", &MathExecutorModule::mf_Cos, UINT_MAX},
+        {"Tan", &MathExecutorModule::mf_Tan, UINT_MAX},
+        {"ASin", &MathExecutorModule::mf_ASin, UINT_MAX},
+        {"ACos", &MathExecutorModule::mf_ACos, UINT_MAX},
+        {"ATan", &MathExecutorModule::mf_ATan, UINT_MAX},
 
-        {"Min", &MathExecutorModule::mf_Min},
-        {"Max", &MathExecutorModule::mf_Max},
-        {"Pow", &MathExecutorModule::mf_Pow},
-        {"Sqrt", &MathExecutorModule::mf_Sqrt},
-        {"Root", &MathExecutorModule::mf_Root},
-        {"Abs", &MathExecutorModule::mf_Abs},
-        {"Log10", &MathExecutorModule::mf_Log10},
-        {"LogE", &MathExecutorModule::mf_LogE},
+        {"Min", &MathExecutorModule::mf_Min, UINT_MAX},
+        {"Max", &MathExecutorModule::mf_Max, UINT_MAX},
+        {"Pow", &MathExecutorModule::mf_Pow, UINT_MAX},
+        {"Sqrt", &MathExecutorModule::mf_Sqrt, UINT_MAX},
+        {"Root", &MathExecutorModule::mf_Root, UINT_MAX},
+        {"Abs", &MathExecutorModule::mf_Abs, UINT_MAX},
+        {"Log10", &MathExecutorModule::mf_Log10, UINT_MAX},
+        {"LogE", &MathExecutorModule::mf_LogE, UINT_MAX},
 
-        {"DegToRad", &MathExecutorModule::mf_DegToRad},
-        {"RadToDeg", &MathExecutorModule::mf_RadToDeg},
+        {"DegToRad", &MathExecutorModule::mf_DegToRad, UINT_MAX},
+        {"RadToDeg", &MathExecutorModule::mf_RadToDeg, UINT_MAX},
 
-        {"Ceil", &MathExecutorModule::mf_Ceil},
-        {"Floor", &MathExecutorModule::mf_Floor},
+        {"Ceil", &MathExecutorModule::mf_Ceil, UINT_MAX},
+        {"Floor", &MathExecutorModule::mf_Floor, UINT_MAX},
 
-        {"ConstPi", &MathExecutorModule::mf_ConstPi},
-        {"ConstE", &MathExecutorModule::mf_ConstE},
+        {"ConstPi", &MathExecutorModule::mf_ConstPi, UINT_MAX},
+        {"ConstE", &MathExecutorModule::mf_ConstE, UINT_MAX},
 
-        {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString}};
+        {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString, UINT_MAX}};
+template <>
+const char* TmplExecutorModule<MathExecutorModule>::modname = "math";
 }  // namespace Bscript
 namespace Module
 {
@@ -73,7 +75,7 @@ initer::initer()
 initer _initer;
 
 MathExecutorModule::MathExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<MathExecutorModule>( "math", exec )
+    : Bscript::TmplExecutorModule<MathExecutorModule>( exec )
 {
 }
 

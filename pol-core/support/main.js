@@ -3,8 +3,8 @@
 /** Define some node-specific variables */
 // var process = process, require = require;
 
-/** 
- * @typedef {Object} PolBasicBinding 
+/**
+ * @typedef {Object} PolBasicBinding
  * @property {(...data:any) => void} print
  */
 
@@ -14,14 +14,14 @@
  * @property {start} start - Start the thread-safe function.
  */
 
- /**
+/**
  * @callback configure
- * @param {any} exports - Exports provided in JavaScript to be used inside the core. This includes 
+ * @param {any} exports - Exports provided in JavaScript to be used inside the core. This includes
  * the `require` reference, allowing use of `require('./script.js')` in the core.
- * @returns {boolean} - True if configured correctly. False otherwise. 
+ * @returns {boolean} - True if configured correctly. False otherwise.
  */
 
- /** 
+/**
  * Start the thread-safe function.
  * @callback start
  * @param {function} coreToJsCallback - Callback executed from core asynchronously.
@@ -37,8 +37,8 @@ const basic = process._linkedBinding("basic");
 
 pol.configure({
   require,
-  wrapper: require('./wrapper.js'),
-  scriptloader: require('./scriptloader')
+  wrapper: require("./wrapper.js"),
+  scriptloader: require("./scriptloader")
 });
 
 let coreCallback = function(args) {
@@ -51,7 +51,7 @@ if (!pol.start(coreCallback, 0)) {
   basic.print("Started TSFN. main.js exiting");
 }
 
-/** 
+/**
  * This script has now ended execution. The node main thread will wait until the thread-safe
  * function created above is released from the non-Node thread (ie, the Core)
  */
