@@ -863,8 +863,8 @@ TmplExecutorModule<BasicExecutorModule>::FunctionTable
         {"Boolean", &BasicExecutorModule::mf_Boolean, UINT_MAX},
         {"PackJSON", &BasicExecutorModule::mf_PackJSON, UINT_MAX},
         {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON, UINT_MAX},
-        {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64, UINT_MAX},
-        {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64, UINT_MAX}};
+        {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64, 1},
+        {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64, 1}};
 template <>
 const char* TmplExecutorModule<BasicExecutorModule>::modname = "Basic";
 }  // namespace Bscript

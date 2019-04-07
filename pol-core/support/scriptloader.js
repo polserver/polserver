@@ -7,35 +7,54 @@ const vm = require("vm"),
   mod = require("module"),
   { Module } = mod;
 
-const { print } = process._linkedBinding("basic");
+/**
+ * NodeModuleWrap native binding. It exports the POL modules as classes inside, eg. `modwrap.BasicIo`.
+ * These classes take a constructor with a single argument -- the External<UOExecutor> object, which
+ * bound to the script specific execution instance module's require() function. By "script specific
+ * execution instance", this is because the script module's own require() function is bound to a
+ * specific function, and not just the prototype's.
+ */
+const modwrap = process._linkedBinding("modwrap");
 
-// let o = Module._load;
-// Module._load = function() {
-//     console.log("load called with",arguments);
-//     if (arguments[0] === "basicio") {
-//       debugger;
-//         return { print: function() { console.log.apply(console,arguments); } }
-//     }
-//     var x = o.apply(Module,arguments);
-//     console.log("returning",x);
-//     return x;
-// }
 
+/**
+ * We create a hook into the Module instance method `require` to construct our modwrap objects
+ * if appropriate.
+ */
 let o = Module.prototype.require;
 Module.prototype.require = function(id) {
-  // debugger;
-  if (id === "basicio") {
-    // debugger;
-    return {
-      print: function() {
-        console.log.apply(console, arguments);
+  const { extUoExec } = this;
+  if (
+    extUoExec &&
+    typeof id === "string" &&
+    typeof modwrap[id] === "function"
+  ) {
+    /**
+     * Construct a new instance of NodeModuleWrap<module>
+     */
+    const mod = new modwrap[id](extUoExec);
+
+    /**
+     * The object above does not have its own properties for the functions. That means,
+     * calling `BasicIo.print("")` would work, but `const { print } = BasicIo; print("")`
+     * would not. We'll copy them over here. This could also be done in the C++ constructor
+     * for NodeModuleWrap<PolModule>.
+     */
+    Reflect.ownKeys(Reflect.getPrototypeOf(mod)).forEach(func => {
+      if (func != "constructor") {
+        Object.defineProperty(mod, func, {
+          value: mod[func].bind(mod)
+        });
       }
-    };
+    });
+    return mod;
   }
-  var ret = o.apply(this, arguments);
-  return ret;
+
+  // Return the original require() method
+  return o.apply(this, arguments);
 };
 
+// Taken from nodejs lib/internal/modules/cjs/helpers.js
 function stripBOM(content) {
   if (content.charCodeAt(0) === 0xfeff) {
     content = content.slice(1);
@@ -43,6 +62,7 @@ function stripBOM(content) {
   return content;
 }
 
+// Taken from nodejs lib/internal/modules/cjs/helpers.js
 function stripShebang(content) {
   // Remove shebang
   if (content.charAt(0) === "#" && content.charAt(1) === "!") {
@@ -58,97 +78,27 @@ function stripShebang(content) {
   return content;
 }
 
-// FIXME should come from the native class
-const internalModules = ["basic"];
-
-/**
- * Returns a function for the script, to be executed later via runScript().
- * @param {string} filename - Filename to load
- * @returns {vm.Script} - Compiled function
- */
-
-function loadScript(filename) {
-  // debugger;
-
-  // let _require = new Proxy(require, {
-  //   apply: function(target, thisArg, argArray) {
-  //     /** @type {string} */
-  //     let moduleName = argArray && argArray[0];
-  //     if (internalModules.indexOf(moduleName) > -1) {
-  //       console.log("Attempt to load internal module");
-  //       return {
-  //         print: function() {
-  //           console.log.apply(console, arguments);
-  //         }
-  //       }; // new PolModuleWrapper(moduleName, extUoExec, filename).exports;
-  //     }
-  //     // @ts-ignore
-  //     return Reflect.apply(...arguments);
-  //   }
-  // });
-
-  // function a() {
-  //   // filename = path.resolve(filename);
-
-  // }
-
-  //   contents = `
-  // (function (exports, require, module, __filename, __dirname) {
-  //   ${contents}
-  // })(_module.exports, require, _module, filename, dirname);
-
-  // if (typeof _module.exports.default === "function") {
-  //   _module.exports.default.apply(undefined,__polarguments);
-  // } else {
-  //   print("Script " + filename + " has no default export to run...");
-  //   1;
-  // }`;
-
-  /** From https://nodejs.org/api/vm.html#vm_constructor_new_vm_script_code_options
-   * Creating a new vm.Script object compiles code but does not run it. The compiled vm.Script
-   * can be run later multiple times. The code is not bound to any global object; rather, it is
-   * bound before each run, just for that run.
-   */
-  // debugger;
-  return new vm.Script(
-    `
-// debugger;
-const modwrap = process._linkedBinding("modwrap");
-let _module = new (require('module').Module)(this.filename, null);
-let compiledWrapper = require('vm').compileFunction(
-  this.contents,
-  ["exports", "require", "module", "__filename", "__dirname"],
-  {
-    filename: this.filename,
-    lineOffset: 0
-  }
-);
-
+// Taken from nodejs lib/internal/modules/cjs/helpers.js
 function makeRequireFunction(mod) {
   const Module = mod.constructor;
 
   function require(path) {
-    if (path == "basicio") {
-      return new (modwrap.basicio)(extUoExec, path);
-    }
     return mod.require(path);
   }
 
   function resolve(request, options) {
-    validateString(request, 'request');
     return Module._resolveFilename(request, mod, false, options);
   }
 
   require.resolve = resolve;
 
   function paths(request) {
-    validateString(request, 'request');
     return Module._resolveLookupPaths(request, mod, true);
   }
 
   resolve.paths = paths;
 
-  require.main = _module;
+  require.main = mod;
 
   // Enable support to add extra extension types.
   require.extensions = Module._extensions;
@@ -158,11 +108,37 @@ function makeRequireFunction(mod) {
   return require;
 }
 
-compiledWrapper.call(_module.exports, _module.exports, makeRequireFunction(_module), _module,
-  this.filename, this.dirname);
+/**
+ * Returns a function for the script, to be executed later via runScript().
+ * @param {string} filename - Filename to load
+ * @returns {vm.Script} - Compiled function
+ */
 
-if (typeof _module.exports.default === "function") {
-  _module.exports.default.apply(undefined,this.__polarguments);
+function loadScript(filename) {
+  /** From https://nodejs.org/api/vm.html#vm_constructor_new_vm_script_code_options
+   * Creating a new vm.Script object compiles code but does not run it. The compiled vm.Script
+   * can be run later multiple times. The code is not bound to any global object; rather, it is
+   * bound before each run, just for that run.
+   */
+
+  // TODO return script and contents to core.
+
+  return new vm.Script(`
+// 'this' is the context created from script.runInNewContext
+const { contents, module , __filename, __dirname, __polarguments } = this;
+let compiledWrapper = require('vm').compileFunction(
+  contents,
+  ["exports", "require", "module", "__filename", "__dirname"],
+  {
+    filename: __filename,
+    lineOffset: 0
+  }
+);
+compiledWrapper.call(module.exports, module.exports, _require, module,
+  __filename, __dirname);
+
+if (typeof module.exports.default === "function") {
+  module.exports.default.apply(undefined,__polarguments);
 } else {
   1;
 }`,
@@ -173,29 +149,33 @@ if (typeof _module.exports.default === "function") {
 /**
  *
  * @param {*} paths
- * @param {string} filename
  * @param {*} extUoExec
+ * @param {string} filename
  * @param {vm.Script} script
- * @param {*[]} args
+ * @param {*[]} args - Arguments sent to script's default exported function. These
+ * are converted BObjectImps from the core, either directly to native JS values (number,
+ * string) or a NodeObjectWrap object.
  * @throws
  */
-function runScript(paths, extUoExec, filename, script, args) {
-  //
+function runScript(extUoExec, filename, script, args) {
+
   try {
-    //debugger;
+    // TODO read script _as well as_ contents from core because right now it will read the file for each call, uh oh
     let contents = stripShebang(stripBOM(fs.readFileSync(filename, "utf-8")));
 
-    // let _require = Object.create(require);
-    // Object.defineProperty(_require,"ext")
+    let _module = new (require("module")).Module(this.filename, null);
+    _module.extUoExec = extUoExec;
+    _module.require = _module.require.bind(_module);
 
     return script.runInNewContext({
       extUoExec,
       __polarguments: args,
-      filename,
-      dirname: path.dirname(filename),
+      __filename,
+      __dirname: path.dirname(filename),
       contents,
-      require: require,
-      process // todo make some pol-process specific object so people can't do process.exit ;)...
+      module: _module,
+      require,
+      _require: makeRequireFunction(_module),
     });
   } catch (e) {
     // Special logging maybe? But throw back up anyway
@@ -205,5 +185,5 @@ function runScript(paths, extUoExec, filename, script, args) {
 
 module.exports = exports = {
   loadScript,
-  runScript: runScript.bind(undefined, module.paths)
+  runScript
 };

@@ -21,25 +21,20 @@ class BasicIoExecutorModule;
 namespace Node
 {
 using namespace Napi;
-// Bscript::TmplExecutorModule<Module::BasicIoExecutorModule>::FunctionTable tbl;
 
-template <typename PolModule>
-class NodeModuleWrap : public Napi::ObjectWrap<NodeModuleWrap<PolModule>>
+template <class T>
+class NodeModuleWrap : public Napi::ObjectWrap<NodeModuleWrap<T>>
 {
 public:
   NodeModuleWrap( const Napi::CallbackInfo& info );
+  Napi::Value MethodWrapper( const CallbackInfo& cbinfo );
   static void Init( Napi::Env env, Napi::Object exports );
 
-  /**
-   * Return a Value corresponding to this impptr
-   */
-
 private:
-  PolModule* polmod;
+  T* polmod;
   static Napi::FunctionReference constructor;
 };
 
-using BasicIoExecutorWrap = NodeModuleWrap<Bscript::TmplExecutorModule<Module::BasicIoExecutorModule>>;
 }
 }
 

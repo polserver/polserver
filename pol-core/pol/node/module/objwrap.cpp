@@ -17,6 +17,35 @@ namespace Node
 Napi::FunctionReference NodeObjectWrap::constructor;
 
 
+Bscript::BObjectImp* NodeObjectWrap::Wrap(Napi::Env env, Napi::Value value, unsigned long reqId )
+{
+  Bscript::BObjectImp* convertedVal;
+  if (value.IsBoolean())
+  {
+    convertedVal = new Bscript::BBoolean( value.ToBoolean() );
+  }
+  else if (value.IsNumber())
+  {
+    convertedVal = new Bscript::BLong( value.ToNumber() );
+  }
+  else if (value.IsString())
+  {
+    convertedVal = new Bscript::String( value.ToString() );
+  } 
+  else if (value.IsUndefined())
+  {
+    convertedVal = new Bscript::UninitObject;
+  } 
+  else
+  {
+    NODELOG.Format( "[{:04x}] [objwrap] error converting napi value of type {} to bobjectimp\n" )
+        << reqId << Node::ValueTypeToString( value.Type() );
+    convertedVal = new Bscript::UninitObject;
+  }
+  return convertedVal;
+
+}
+
 Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId )
 {
   EscapableHandleScope scope( env );
