@@ -41,7 +41,7 @@ Napi::Value NodeModuleWrap<PolModule>::MethodWrapper( const CallbackInfo& cbinfo
   // cleanParams is protected... sooo
   polmod->exec.fparams.clear();
 
-  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
+  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef(funcRet) );
   return convertedFunctRet;
 }
 /**

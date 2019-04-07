@@ -122,8 +122,9 @@ function loadScript(filename) {
    */
 
   // TODO return script and contents to core.
-
+// debugger;
   return new vm.Script(`
+  // debugger;
 // 'this' is the context created from script.runInNewContext
 const { contents, module , __filename, __dirname, __polarguments } = this;
 let compiledWrapper = require('vm').compileFunction(
@@ -158,7 +159,7 @@ if (typeof module.exports.default === "function") {
  * @throws
  */
 function runScript(extUoExec, filename, script, args) {
-
+// debugger;
   try {
     // TODO read script _as well as_ contents from core because right now it will read the file for each call, uh oh
     let contents = stripShebang(stripBOM(fs.readFileSync(filename, "utf-8")));

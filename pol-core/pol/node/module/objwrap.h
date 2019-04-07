@@ -24,21 +24,28 @@ public:
    */
   static Napi::Value Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId = 0 );
 
-    /**
+  /**
    * Return a BObjectImp* corresponding to this Napi Value
    */
-  static Bscript::BObjectImp* Wrap( Napi::Env env, Napi::Value value, unsigned long reqId = 0);
+  static Bscript::BObjectImp* Wrap( Napi::Env env, Napi::Value value, unsigned long reqId = 0 );
+
+  Napi::Value ToString( const CallbackInfo& cbinfo );
+  Napi::Value TypeOfInt( const CallbackInfo& cbinfo );
+
+
+  Napi::Value GetMember( const CallbackInfo& cbinfo );
+
+  Napi::Value SetMember( const CallbackInfo& cbinfo );
+
 
 private:
   static Napi::FunctionReference constructor;
-
-  void SetRef( Bscript::BObjectRef& ref );
 
 
   Reference<External<Bscript::BObjectRef>> ref;
 };
 
-}
-}
+}  // namespace Node
+}  // namespace Pol
 
 #endif
