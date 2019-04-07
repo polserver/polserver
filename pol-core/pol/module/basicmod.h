@@ -76,13 +76,13 @@ public:
 };
 }  // namespace Module
 
-namespace Bscript 
-{
-  template <>
-  const char* TmplExecutorModule<Pol::Module::BasicExecutorModule>::modname;
-
-  template <>
-  TmplExecutorModule<Pol::Module::BasicExecutorModule>::FunctionTable TmplExecutorModule<Pol::Module::BasicExecutorModule>::function_table;
-}
+//namespace Bscript 
+//{
+//  template <>
+//  extern const char* TmplExecutorModule<Pol::Module::BasicExecutorModule>::modname;
+//
+//  template <>
+//  extern TmplExecutorModule<Pol::Module::BasicExecutorModule>::FunctionTable TmplExecutorModule<Pol::Module::BasicExecutorModule>::function_table;
+//}
 }  // namespace Pol
 #endif

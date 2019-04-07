@@ -38,13 +38,13 @@ public:
 };
 }
 
-namespace Bscript 
-{
-  template <>
-  const char* TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::modname;
-
-  template <>
-  TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::FunctionTable TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::function_table;
-}
+//namespace Bscript 
+//{
+//  template <>
+//  extern const char* TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::modname;
+//
+//  template <>
+//  extern TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::FunctionTable TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::function_table;
+//}
 }
 #endif

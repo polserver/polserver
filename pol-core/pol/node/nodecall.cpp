@@ -36,7 +36,7 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
         << ex->ValueStack.size();
 
     Napi::Array argv = Array::New( env, ex->ValueStack.size() );
-    for ( size_t i = 0; !ex->ValueStack.empty(); )
+    for ( size_t i = 0; !ex->ValueStack.empty(); ++i )
     {
       Bscript::BObjectRef rightref = ex->ValueStack.back();
       ex->ValueStack.pop_back();

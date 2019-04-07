@@ -24,7 +24,7 @@ Bscript::Program* JavascriptProgram::create()
 
 bool JavascriptProgram::hasProgram() const
 {
-  return false;
+  return !obj.IsEmpty();
 }
 
 int JavascriptProgram::read( const char* fname )

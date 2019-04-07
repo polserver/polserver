@@ -46,6 +46,7 @@ Bscript::BObjectImp* NodeObjectWrap::Wrap(Napi::Env /*env*/, Napi::Value value, 
 
 }
 
+// FIXME Vulnerable to circular references.. for now!
 Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId )
 {
   EscapableHandleScope scope( env );
@@ -73,18 +74,34 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     auto convt = Clib::explicit_cast<Bscript::String*, Bscript::BObjectImp*>( impptr );
     convertedVal = Napi::String::New( env, convt->value() );
   }
+  else if ( objref->isa( Bscript::BObjectImp::BObjectType::OTArray ) )
+  {
+    auto convt = Clib::explicit_cast<Bscript::ObjArray*, Bscript::BObjectImp*>( impptr );
+
+    convertedVal = Napi::Array::New( env, convt->ref_arr.size() );
+    auto arr = convertedVal.As<Array>();
+    for ( auto i = 0; i < convt->ref_arr.size(); i++ )
+    {
+      arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
+    }
+    //convertedVal = Napi::String::New( env, convt->value() );
+  }
   else if ( objref->isa( Bscript::BObjectImp::BObjectType::OTUninit ) )
   {
     convertedVal = env.Undefined();
   }
-  else if ( objref->isa( Bscript::BObjectImp::BObjectType::OTMobileRef ) )
+  else if ( objref->isa( Bscript::BObjectImp::BObjectType::OTApplicObj ) )
   {
-    auto extVal = NodeObjectWrap::constructor.Call(
-        {Napi::External<Bscript::BObject>::New( env, objref.get() )} );
+    auto convt = Clib::explicit_cast<Bscript::BApplicObjBase*, Bscript::BObjectImp*>( impptr );
+    //convt->
+    convertedVal = Napi::String::New( env, "hello there" );
+    //auto extVal = NodeObjectWrap::constructor.Call(
+    //    {Napi::External<Bscript::BObject>::New( env, objref.get() )} );
 
-    // extVal.As<NodeObjectWrap>().GetValue();
+    //// extVal.As<NodeObjectWrap>().GetValue();
 
-    requireRef.Get( "proxyObject" ).As<Function>().Call( {extVal} );
+    //requireRef.Get( "proxyObject" ).As<Function>().Call( {extVal} );
+
   }
   else
   {

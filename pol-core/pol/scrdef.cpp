@@ -125,6 +125,15 @@ void ScriptDef::quickconfig( const Plib::Package* pkg, const std::string& name_e
 {
   localname_ = "unknown";
   name_ = pkg->dir() + name_ecl;
+  for ( auto& kv : map )
+  {
+    std::string possibleName = name_.get() + kv.first;
+    if ( !Clib::endsWith( name_.get(), kv.first ) && Clib::FileExists( possibleName.c_str() ) )
+    {
+      name_ = possibleName;
+      break;
+    }
+  }
   pkg_ = pkg;
 }
 
@@ -132,6 +141,15 @@ void ScriptDef::quickconfig( const std::string& name_ecl )
 {
   localname_ = "unknown";
   name_ = name_ecl;
+  for ( auto& kv : map )
+  {
+    std::string possibleName = name_.get() + kv.first;
+    if ( !Clib::endsWith( name_.get(), kv.first ) && Clib::FileExists( possibleName.c_str() ) )
+    {
+      name_ = possibleName;
+      break;
+    }
+  }
   pkg_ = nullptr;
 }
 
@@ -143,12 +161,12 @@ bool ScriptDef::exists() const
   else if ( Clib::FileExists( c_str() ) )
     return true;
 
-  for ( auto& kv : map )
-  {
-    std::string possibleName = name_.get() + kv.first;
-    if ( !Clib::endsWith( name_.get(), kv.first ) && Clib::FileExists( possibleName.c_str() ) )
-      return true;
-  }
+  //for ( auto& kv : map )
+  //{
+  //  std::string possibleName = name_.get() + kv.first;
+  //  if ( !Clib::endsWith( name_.get(), kv.first ) && Clib::FileExists( possibleName.c_str() ) )
+  //    return true;
+  //}
   return false;
 
   // ref_ptr<EScriptProgram> prog = find_script2( *this, false, true );
@@ -166,5 +184,5 @@ size_t ScriptDef::estimatedSize() const
 {
   return sizeof( ScriptDef );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
