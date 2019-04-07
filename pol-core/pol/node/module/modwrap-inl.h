@@ -1,6 +1,9 @@
 #ifndef _H_MODWRAP_INL
 #define _H_MODWRAP_INL
 
+#include "modwrap.h"
+#include "objwrap.h"
+
 using namespace Pol;
 using namespace Napi;
 
@@ -16,7 +19,35 @@ namespace Node
 template <typename PolModule>
 Napi::FunctionReference NodeModuleWrap<PolModule>::constructor;
 
+template <typename PolModule>
+Napi::Value NodeModuleWrap<PolModule>::MethodWrapper( const CallbackInfo& cbinfo )
+{
+  Napi::Env env = cbinfo.Env();
+  auto funcIdx = *( static_cast<int*>( cbinfo.Data() ) );
+  NODELOG << "funcidx is " << funcIdx << "\n";
+  auto& funcDef = PolModule::function_table.at( funcIdx );
+  auto jsArgc = cbinfo.Length();
+  auto cArgc = funcDef.argc;
+  auto toCopy = jsArgc >= cArgc ? cArgc : jsArgc;
+  auto toNull = jsArgc < cArgc ? cArgc - jsArgc : 0;
 
+  for ( u32 i = 0; i < toCopy; ++i )
+  {
+    Bscript::BObjectImp* convertedVal = Node::NodeObjectWrap::Wrap( env, cbinfo[i] );
+    polmod->exec.fparams.emplace_back( convertedVal );
+
+  }
+  for ( u32 i = 0; i < toNull; i++ )
+  {
+    polmod->exec.fparams.emplace_back( new Bscript::UninitObject );
+  }
+  auto* funcRet = polmod->execFunc( funcIdx );
+  // cleanParams is protected... sooo
+  polmod->exec.fparams.clear();
+
+  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
+  return convertedFunctRet;
+}
 /**
  * Initialize the NodeModuleWrap module. It does not add any exports to
  * the JavaScript world (eg. no script should use `new NodeModuleWrap`).
@@ -28,11 +59,23 @@ void NodeModuleWrap<PolModule>::Init( Napi::Env env, Napi::Object exports )
   Napi::HandleScope scope( env );
 
   std::vector<Napi::ClassPropertyDescriptor<NodeModuleWrap<PolModule>>> props = {};
-  for ( auto iter : PolModule::function_table )
+  int i = 0;
+  for ( auto& iter : PolModule::function_table )
   {
-    NODELOG << "[modwrap] Module has function " << iter.funcname << "\n";
-    props.emplace_back( ObjectWrap<NodeModuleWrap<PolModule>>::InstanceValue(
-        iter.funcname.c_str(), String::New( env, iter.funcname ) ) );
+    if ( iter.argc < UINT_MAX )
+    {
+      props.emplace_back( ObjectWrap<NodeModuleWrap<PolModule>>::InstanceMethod(
+          iter.funcname.c_str(), &NodeModuleWrap<PolModule>::MethodWrapper, napi_default,
+          (void*)( new int( i ) ) ) );
+      NODELOG << "[modwrap] Module has function " << iter.funcname << " at " << i
+              << " with argc = " << iter.argc << "\n";
+    }
+    else
+    {
+      NODELOG << "[modwrap] Module has unwrapped function " << iter.funcname << " at " << i
+              << " (argc = UINT_MAX)\n";
+    }
+    ++i;
   }
 
   Napi::Function func =
@@ -55,17 +98,16 @@ NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
 
   size_t length = info.Length();
 
-  if ( length <= 0 || !info[0].IsExternal() || !info[1].IsString() )
+  if ( length <= 0 || !info[0].IsExternal() )
   {
-    Napi::TypeError::New( env, "arg1=External, arg2=string expected" ).ThrowAsJavaScriptException();
+    Napi::TypeError::New( env, "arg1=External expected" ).ThrowAsJavaScriptException();
   }
 
-  auto modName = info[1].As<String>().Utf8Value();
   Core::UOExecutor* ex = info[0].As<External<Core::UOExecutor>>().Data();
-  polmod = new Module::BasicIoExecutorModule( *ex );
+  polmod = new PolModule( *ex );
 }
-}
-}
+}  // namespace Node
+}  // namespace Pol
 
 
 #endif

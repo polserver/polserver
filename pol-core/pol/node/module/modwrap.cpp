@@ -1,5 +1,7 @@
 
 #include "../../module/basiciomod.h"
+#include "../../module/basicmod.h"
+//#include "../../../bscript/execmodl.h"
 #include "../../uoexec.h"
 #include "../bscript/impstr.h"
 #include "../clib/logfacility.h"
@@ -14,14 +16,6 @@ using namespace Napi;
 
 namespace Pol
 {
-// namespace Core
-//{
-// class UOExecutor;
-//}
-namespace Bscript
-{
-extern template class TmplExecutorModule<Module::BasicIoExecutorModule>;
-}
 namespace Node
 {
 using PolBasicIoExecutorModule = Bscript::TmplExecutorModule<Module::BasicIoExecutorModule>;
@@ -33,19 +27,9 @@ using PolBasicIoExecutorModule = Bscript::TmplExecutorModule<Module::BasicIoExec
 static Napi::Object InitializeModwrap( Napi::Env env, Napi::Object exports )
 {
   EscapableHandleScope scope( env );
-  // Object modexports = Object::New( env );
   Pol::Node::NodeModuleWrap<Module::BasicIoExecutorModule>::Init( env, exports );
-  /*
-    for ( auto& mod : {"basicio", "basic"} )
-    {
-      exports.Set( mod, Function::New( env, []( const CallbackInfo& info ) {
-                     for ( size_t i = 0; i < info.Length(); i++ )
-                     {
-                       POLLOG_INFO << Node::ToUtf8Value( info[i] ) << " ";
-                     }
-                     POLLOG_INFO << "\n";
-                   } ) ); } */
-  // exports.Set( "modwrap",  )
+  Pol::Node::NodeModuleWrap<Module::BasicExecutorModule>::Init( env, exports );
+
 
   return exports;
 }

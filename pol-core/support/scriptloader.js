@@ -21,20 +21,20 @@ const { print } = process._linkedBinding("basic");
 //     return x;
 // }
 
-let o = Module.prototype.require;
-Module.prototype.require = function(id) {
-  // debugger;
-  if (id === "basicio") {
-    // debugger;
-    return {
-      print: function() {
-        console.log.apply(console, arguments);
-      }
-    };
-  }
-  var ret = o.apply(this, arguments);
-  return ret;
-};
+// let o = Module.prototype.require;
+// Module.prototype.require = function(id) {
+//   // debugger;
+//   if (id === "basicio") {
+//     // debugger;
+//     return {
+//       print: function() {
+//         console.log.apply(console, arguments);
+//       }
+//     };
+//   }
+//   var ret = o.apply(this, arguments);
+//   return ret;
+// };
 
 function stripBOM(content) {
   if (content.charCodeAt(0) === 0xfeff) {
@@ -57,9 +57,6 @@ function stripShebang(content) {
   }
   return content;
 }
-
-// FIXME should come from the native class
-const internalModules = ["basic"];
 
 /**
  * Returns a function for the script, to be executed later via runScript().
@@ -123,13 +120,14 @@ let compiledWrapper = require('vm').compileFunction(
     lineOffset: 0
   }
 );
+//const availModules = Object
 
 function makeRequireFunction(mod) {
   const Module = mod.constructor;
 
   function require(path) {
-    if (path == "basicio") {
-      return new (modwrap.basicio)(extUoExec, path);
+    if (typeof path === "string" && typeof modwrap[path] === "function") {
+      return new (modwrap[path])(extUoExec);
     }
     return mod.require(path);
   }
