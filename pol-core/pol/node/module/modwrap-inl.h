@@ -9,10 +9,6 @@ using namespace Napi;
 
 namespace Pol
 {
-// namespace Core
-//{
-// class UOExecutor;
-//}
 
 namespace Node
 {
@@ -85,10 +81,6 @@ void NodeModuleWrap<PolModule>::Init( Napi::Env env, Napi::Object exports )
   exports.Set( PolModule::modname, func );
 };
 
-// extern Bscript::TmplExecutorModule<Module::BasicIoExecutorModule>::FunctionTable
-//
-// NodeModuleWrap::NodeModuleWrap( const Napi::CallbackInfo& info, Object exports )
-//   : Napi::ObjectWrap<NodeModuleWrap>(info)
 template <typename PolModule>
 NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
     : Napi::ObjectWrap<NodeModuleWrap<PolModule>>( info )
