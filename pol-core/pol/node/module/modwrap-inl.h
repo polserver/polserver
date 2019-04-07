@@ -29,7 +29,7 @@ Napi::Value NodeModuleWrap<PolModule>::MethodWrapper( const CallbackInfo& cbinfo
 
   for ( u32 i = 0; i < toCopy; ++i )
   {
-    Bscript::BObjectImp* convertedVal = Node::NodeObjectWrap::Wrap( env, cbinfo[i] );
+    Bscript::BObjectRef convertedVal = Node::NodeObjectWrap::Wrap( env, cbinfo[i] );
     polmod->exec.fparams.emplace_back( convertedVal );
 
   }

@@ -5796,7 +5796,7 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
 
         {"DestroyItem", &UOExecutorModule::mf_DestroyItem, UINT_MAX},
         {"Detach", &UOExecutorModule::mf_Detach, UINT_MAX},
-        {"EnumerateItemsInContainer", &UOExecutorModule::mf_EnumerateItemsInContainer, UINT_MAX},
+        {"EnumerateItemsInContainer", &UOExecutorModule::mf_EnumerateItemsInContainer, 2},
         {"FindPath", &UOExecutorModule::mf_FindPath, UINT_MAX},
         {"GetAmount", &UOExecutorModule::mf_GetAmount, UINT_MAX},
         {"GetMenuObjTypes", &UOExecutorModule::mf_GetMenuObjTypes, UINT_MAX},

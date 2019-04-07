@@ -17,7 +17,7 @@ namespace Node
 Napi::FunctionReference NodeObjectWrap::constructor;
 
 
-Bscript::BObjectImp* NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
+Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
                                            unsigned long reqId )
 {
   Bscript::BObjectImp* convertedVal;
@@ -37,8 +37,13 @@ Bscript::BObjectImp* NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
   {
     convertedVal = new Bscript::UninitObject;
   }
-  else if ( value.IsUndefined() )
+  else if ( value.ToObject().InstanceOf( NodeObjectWrap::constructor.Value() ) )
   {
+    auto x = Napi::ObjectWrap<NodeObjectWrap>::Unwrap( value.ToObject().Get("_obj").As<Object>() );
+    auto y = x->ref.Value();
+    auto* z = y.Data();
+    auto a = *z;
+    return a;
   }
   else
   {
@@ -46,7 +51,7 @@ Bscript::BObjectImp* NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
         << reqId << Node::ValueTypeToString( value.Type() );
     convertedVal = new Bscript::UninitObject;
   }
-  return convertedVal;
+  return Bscript::BObjectRef(convertedVal);
 }
 
 // FIXME Vulnerable to circular references.. for now!
@@ -77,6 +82,15 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     auto convt = Clib::explicit_cast<Bscript::String*, Bscript::BObjectImp*>( impptr );
     convertedVal = Napi::String::New( env, convt->value() );
   }
+  else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTError ) )
+  {
+    auto convt = Clib::explicit_cast<Bscript::BError*, Bscript::BObjectImp*>( impptr );
+    convertedVal = Napi::Error::New(
+                       env, String::New( env, convt->FindMember( "errortext" )->getStringRep() ) )
+                       .Value();
+  }
+
+
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTArray ) )
   {
     auto convt = Clib::explicit_cast<Bscript::ObjArray*, Bscript::BObjectImp*>( impptr );
@@ -114,7 +128,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     //                env, new Bscript::BObjectRef( impptr ),
     //                []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} );
 
-    auto convertedVal =
+    return
         Node::requireRef.Get( "wrapper" )
             .As<Object>()
             .Get( "proxyObject" )
@@ -124,7 +138,6 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
                 NodeObjectWrap::constructor.New( {Napi::External<Bscript::BObjectRef>::New(
                     env, new Bscript::BObjectRef( impptr ),
                     []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} )} );
-    return convertedVal;
   }
   else
   {

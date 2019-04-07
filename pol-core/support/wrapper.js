@@ -12,7 +12,7 @@
 
 class ProxyBase {
     constructor() {
-        
+
     }
 }
 
@@ -96,17 +96,20 @@ function proxyObject(wrappedObj) {
     // apply? (target: T, thisArg: any, argArray?: any): any;
     // construct? (target: T, argArray: any, newTarget?: any): object;
     get: function(target, p, recv) {
-      console.log("Request for prop ", p);
-      debugger;
+    //   console.log("Request for prop ", p);
+    //   debugger;
       if (p === "toString") {
         return wrappedObj.toString;
       } else if (p === Symbol.toPrimitive) {
         return wrappedObj.toString;
       } else if (p === Symbol.toStringTag) {
         return wrappedObj.toString;
-      } else if (typeof p === "string") {
-        return wrappedObj.getMember(p);
+      } else if (p === "_obj") {
+          return wrappedObj;
       }
+      
+      if (typeof p === "string")
+        return wrappedObj.getMember(p);
       return Reflect.get(target, p, recv);
     }
   });

@@ -2,6 +2,7 @@
 #define NODE_OBJWRAP_H
 
 #include "../bscript/bobject.h"
+#include "../bscript/berror.h"
 #include "../napi-wrap.h"
 
 namespace Pol
@@ -27,7 +28,7 @@ public:
   /**
    * Return a BObjectImp* corresponding to this Napi Value
    */
-  static Bscript::BObjectImp* Wrap( Napi::Env env, Napi::Value value, unsigned long reqId = 0 );
+  static Bscript::BObjectRef Wrap( Napi::Env env, Napi::Value value, unsigned long reqId = 0 );
 
   Napi::Value ToString( const CallbackInfo& cbinfo );
   Napi::Value TypeOfInt( const CallbackInfo& cbinfo );
