@@ -69,6 +69,12 @@ namespace Multi
 {
 class UBoat;
 }
+namespace Node
+{
+template <typename PolModule>
+class NodeModuleWrap;
+}
+
 namespace Module
 {
 class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule>
@@ -321,6 +327,8 @@ public:
   ~UOExecutorModule();
 
   virtual size_t sizeEstimate() const override;
+
+  friend class Node::NodeModuleWrap<UOExecutorModule>;
 
 protected:
   // bool getStaticMenuParam( unsigned param, Menu*& menu );

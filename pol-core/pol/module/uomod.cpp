@@ -5816,7 +5816,7 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"PlaySoundEffectXYZ", &UOExecutorModule::mf_PlaySoundEffectXYZ, UINT_MAX},
         {"PlayMusic", &UOExecutorModule::mf_PlayMusic, UINT_MAX},
         {"SelectMenuItem2", &UOExecutorModule::mf_SelectMenuItem, UINT_MAX},
-        {"SendSysMessage", &UOExecutorModule::mf_SendSysMessage, UINT_MAX},
+        {"SendSysMessage", &UOExecutorModule::mf_SendSysMessage, 4},
         {"SetObjProperty", &UOExecutorModule::mf_SetObjProperty, UINT_MAX},
         {"SetName", &UOExecutorModule::mf_SetName, UINT_MAX},
         {"SubtractAmount", &UOExecutorModule::mf_SubtractAmount, UINT_MAX},
