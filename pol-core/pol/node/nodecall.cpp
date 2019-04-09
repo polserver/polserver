@@ -25,9 +25,13 @@ unsigned long requestNumber = 0;
 
 std::atomic_uint nextRequestId( 0 );
 
-void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
+Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
 {
-  auto call = Node::makeCall<int>( [prog, ex]( Napi::Env env, NodeRequest<int>* request ) {
+  passert( ex->programType() == Bscript::Program::ProgramType::JAVASCRIPT );
+
+  Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( ex->prog_.get() );
+
+  auto call = Node::makeCall<Bscript::BObjectImp*>( [prog, ex]( Napi::Env env, NodeRequest<Bscript::BObjectImp*>* request ) {
 
     auto obj = prog->obj.Value();
     auto reqId = request->reqId();
@@ -48,9 +52,10 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
       NODELOG.Format( "[{:04x}] [exec] argv[{}] = {}\n" )
           << reqId << i << Node::ToUtf8Value( convertedVal );
     }
+
     try
     {
-      auto ret =
+      auto jsRetVal =
           requireRef.Get( "scriptloader" )
               .As<Object>()
               .Get( "runScript" )
@@ -58,26 +63,29 @@ void callProgram( Node::JavascriptProgram* prog, Core::UOExecutor* ex )
               .Call(
                   {External<Core::UOExecutor>::New(
                           env, ex,
-                          [=]( Napi::Env, Core::UOExecutor* /*data*/ ) {
+                          [=]( Napi::Env, Core::UOExecutor* data ) {
                             NODELOG.Format( "[{:04x}] [exec] External<UOExecutor> finalized\n" )
                                 << reqId;
+                            delete data;
               }), Napi::String::New( env, prog->scriptname() ),
                       prog->obj.Value(), argv} );
-      NODELOG.Format( "[{:04x}] [exec] returned {}\n" )
-          << request->reqId() << Node::ToUtf8Value( ret );
+      NODELOG.Format( "[{:04x}] [exec] returned value {}\n" )
+          << request->reqId() << Node::ToUtf8Value( jsRetVal );
+      
+      return NodeObjectWrap::Wrap( env, jsRetVal, reqId )->impptr()->copy();
     }
     catch ( std::exception& ex )
     {
       POLLOG_ERROR.Format( "Error running node script {}: {}\n" ) << prog->scriptname() << ex.what();
+      return static_cast<Bscript::BObjectImp*>( Bscript::UninitObject::create() );
     }
 
-
-    return clock();
   } );
 
-
-  int theValue = call.getRef();
-  NODELOG << "The clock was " << theValue << "\n";
+  auto* impptr = call.getRef();
+  NODELOG.Format( "[{:04x}] [exec] returned to core {}\n" )
+      << call.reqId() << impptr->getStringRep();
+  return impptr;
 }
 
 

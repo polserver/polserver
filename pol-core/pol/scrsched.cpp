@@ -316,8 +316,15 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::Program* prog )
   if ( Plib::systemstate.config.report_rtc_scripts )
     INFO_PRINT << "Script " << ex.scriptname() << " running..";
 
+
   while ( ex.runnable() )
   {
+    if ( prog->type() == Bscript::Program::ProgramType::JAVASCRIPT )
+    {
+      // We are running to completion... So any POL module methods should run on the first
+      // tick.
+      Node::runExecutor( &ex );
+    }
     INFO_PRINT << ".";
     for ( int i = 0; ( i < 1000 ) && ex.runnable(); i++ )
     {
@@ -387,6 +394,13 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   while ( ex.runnable() )
   {
     Clib::scripts_thread_scriptPC = ex.PC;
+    if (program->type() == Bscript::Program::ProgramType::JAVASCRIPT)
+    {
+      // We are running to completion... So any POL module methods should run on the first
+      // tick.
+     return Node::runExecutor( &ex );
+    }
+
     ex.execInstr();
     if ( ++i == 1000 )
     {

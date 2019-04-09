@@ -23,6 +23,10 @@
 
 namespace Pol
 {
+namespace Node
+{
+Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex ) ;
+}
 namespace Module
 {
 class OSExecutorModule;
@@ -48,12 +52,13 @@ public:
   virtual size_t sizeEstimate() const override;
 
   bool runnable() const;
-  void execInstr();
+  //void execInstr();
   std::string scriptname() const;
-  
 
 
   bool setProgram( Bscript::Program* prog );
+
+  friend Bscript::BObjectImp* Node::runExecutor( UOExecutor* ex );
 
   bool suspend();
   bool revive();
@@ -81,6 +86,12 @@ public:
   UOExecutor *pParent, *pChild;
 
 public:
+  inline Bscript::Program::ProgramType programType()
+  {
+    passert( prog_ != nullptr );
+    return prog_->type();
+  };
+
   bool critical() const;
   void critical( bool critical );
 

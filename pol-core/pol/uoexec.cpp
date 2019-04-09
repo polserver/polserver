@@ -52,12 +52,13 @@ bool UOExecutor::setProgram( Bscript::Program* i_prog )
 
 bool UOExecutor::runnable() const
 {
-  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
-    return Executor::runnable();
-  else
-  {
-    return PC == 0;
-  }
+  //if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
+  //  return Executor::runnable();
+  //else
+  //{
+  //  return PC == 0;
+  //}
+  return Executor::runnable();
 }
 
 template <typename R>
@@ -65,32 +66,36 @@ bool is_ready( std::future<R> const& f )
 {
   return f.wait_for( std::chrono::seconds( 0 ) ) == std::future_status::ready;
 }
-
-void UOExecutor::execInstr()
-{
-  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
-    Executor::execInstr();
-  else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
-  {
-    // Executor::execInstr();
-    if ( PC == 0 )
-    {
-      PC++;
-      Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( prog_.get() );
-      //auto fut = Node::call( prog->obj );
-      Node::callProgram( prog, this /*, args*/ );
-     /* auto fut =
-          Node::makeCall<nullptr_t>( []( Napi::Env env, NodeRequest<ObjectReference>* request ) {
-          
-      });*/
-      if ( running_to_completion() )
-      {
-        //fut.wait();
-        POLLOG_INFO << "js exec instr ret " << "\n";
-      }
-    }
-  }
-}
+//
+//void UOExecutor::execInstr()
+//{
+//  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
+//    Executor::execInstr();
+//  else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
+//  {
+//    // Executor::execInstr();
+//    if ( PC == 0 && !done)
+//    {
+//      PC++;
+//     // Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( prog_.get() );
+//      //auto fut = Node::call( prog->obj );
+//      Node::runExecutor( this /*, args*/ );
+//      Executor::sethalt( true );
+//    /*  done = 1;
+//      run_ok_ = false;
+//      PC = 0;*/
+//     /* auto fut =
+//          Node::makeCall<nullptr_t>( []( Napi::Env env, NodeRequest<ObjectReference>* request ) {
+//          
+//      });*/
+//      if ( running_to_completion() )
+//      {
+//        //fut.wait();
+//        POLLOG_INFO << "js exec instr ret " << "\n";
+//      }
+//    }
+//  }
+//}
 
 std::string UOExecutor::scriptname() const
 {

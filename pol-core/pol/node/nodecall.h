@@ -107,8 +107,7 @@ public:
   ReturnType getRef();
 };
 
-void callProgram( Node::JavascriptProgram* p, Core::UOExecutor* uoexec );
-
+Bscript::BObjectImp* runExecutor( Core::UOExecutor* uoexec );
 
 template <typename ReturnType, typename Callable>
 NodeRequest<ReturnType> makeCall( Callable callback );

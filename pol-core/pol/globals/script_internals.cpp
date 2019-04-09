@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "../node/nodecall.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
@@ -83,8 +84,7 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
       if ( prog->type() != Bscript::Program::ESCRIPT )
         continue;
 
-      usage.scriptstorage_size += dynamic_cast<Bscript::EScriptProgram*>(prog)->sizeEstimate();
-
+      usage.scriptstorage_size += dynamic_cast<Bscript::EScriptProgram*>( prog )->sizeEstimate();
     }
   }
   usage.scriptstorage_count = scrstore.size();
@@ -184,6 +184,13 @@ void ScriptScheduler::run_ready()
     runlist.pop_front();  // remove it directly, since itr can get invalid during execution
 
     Clib::scripts_thread_script = ex->scriptname();
+
+    if ( ex->programType() == Bscript::Program::ProgramType::JAVASCRIPT )
+    {
+      //Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( prog_.get() );
+      Node::runExecutor( ex  );
+      continue;
+    }
 
     int inscount = 0;
     int totcount = 0;
