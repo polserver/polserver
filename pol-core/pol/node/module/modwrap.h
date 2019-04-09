@@ -32,11 +32,12 @@ public:
 
 private:
   T* polmod;
+  weak_ptr<Core::UOExecutor> uoexec;
   static Napi::FunctionReference constructor;
 };
 
-}
-}
+}  // namespace Node
+}  // namespace Pol
 
 #include "modwrap-inl.h"
 

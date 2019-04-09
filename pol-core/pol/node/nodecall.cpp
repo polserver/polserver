@@ -61,9 +61,9 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
               .Get( "runScript" )
               .As<Function>()
               .Call(
-                  {External<Core::UOExecutor>::New(
-                          env, ex,
-                          [=]( Napi::Env, Core::UOExecutor* data ) {
+                  {External< weak_ptr<Core::UOExecutor>>::New(
+                          env, new weak_ptr<Core::UOExecutor>(ex->weakptr),
+                          [=]( Napi::Env, weak_ptr<Core::UOExecutor>* data ) {
                             NODELOG.Format( "[{:04x}] [exec] External<UOExecutor> finalized\n" )
                                 << reqId;
                             delete data;

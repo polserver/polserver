@@ -1,6 +1,7 @@
 #ifndef _H_MODWRAP_INL
 #define _H_MODWRAP_INL
 
+#include "../../polsem.h"
 #include "modwrap.h"
 #include "objwrap.h"
 
@@ -9,7 +10,6 @@ using namespace Napi;
 
 namespace Pol
 {
-
 namespace Node
 {
 template <typename PolModule>
@@ -27,21 +27,26 @@ Napi::Value NodeModuleWrap<PolModule>::MethodWrapper( const CallbackInfo& cbinfo
   auto toCopy = jsArgc >= cArgc ? cArgc : jsArgc;
   auto toNull = jsArgc < cArgc ? cArgc - jsArgc : 0;
 
-  for ( u32 i = 0; i < toCopy; ++i )
+  Bscript::BObjectImp* funcRet;
   {
-    Bscript::BObjectRef convertedVal = Node::NodeObjectWrap::Wrap( env, cbinfo[i] );
-    polmod->exec.fparams.emplace_back( convertedVal );
+    Core::PolLock lck;
+    if ( !uoexec.exists() )
+      Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();
 
+    for ( u32 i = 0; i < toCopy; ++i )
+    {
+      Bscript::BObjectRef convertedVal = Node::NodeObjectWrap::Wrap( env, cbinfo[i] );
+      polmod->exec.fparams.emplace_back( convertedVal );
+    }
+    for ( u32 i = 0; i < toNull; i++ )
+    {
+      polmod->exec.fparams.emplace_back( new Bscript::UninitObject );
+    }
+    funcRet = polmod->execFunc( funcIdx );
+    // cleanParams is protected... sooo
+    polmod->exec.fparams.clear();
   }
-  for ( u32 i = 0; i < toNull; i++ )
-  {
-    polmod->exec.fparams.emplace_back( new Bscript::UninitObject );
-  }
-  auto* funcRet = polmod->execFunc( funcIdx );
-  // cleanParams is protected... sooo
-  polmod->exec.fparams.clear();
-
-  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef(funcRet) );
+  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
   return convertedFunctRet;
 }
 /**
@@ -83,7 +88,7 @@ void NodeModuleWrap<PolModule>::Init( Napi::Env env, Napi::Object exports )
 
 template <typename PolModule>
 NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
-    : Napi::ObjectWrap<NodeModuleWrap<PolModule>>( info )
+    : Napi::ObjectWrap<NodeModuleWrap<PolModule>>( info ), uoexec( nullptr )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
@@ -95,8 +100,22 @@ NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
     Napi::TypeError::New( env, "arg1=External expected" ).ThrowAsJavaScriptException();
   }
 
-  Core::UOExecutor* ex = info[0].As<External<Core::UOExecutor>>().Data();
-  polmod = new PolModule( *ex );
+  uoexec = *( info[0].As<External<weak_ptr<Core::UOExecutor>>>().Data() );
+  {
+    Core::PolLock lck;
+    if ( !uoexec.exists() )
+    {
+      Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();
+    }
+
+    polmod = static_cast<PolModule*>( uoexec.get_weakptr()->findModule( PolModule::modname ) );
+
+    if ( polmod == nullptr )
+    {
+      polmod = new PolModule( *uoexec.get_weakptr() );
+      uoexec.get_weakptr()->addModule( polmod );
+    }
+  }
 }
 }  // namespace Node
 }  // namespace Pol

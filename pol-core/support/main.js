@@ -45,6 +45,13 @@ let coreCallback = function(args) {
   basic.print("Received call from core " /**  + args */);
 };
 
+process.on('uncaughtException', (err) => {
+  console.error('There was an uncaught error!!!', err);
+  // here i suppose we should trigger a server shutdown? is it this drastic?
+  // unfortunately since we do not create an _actual_  new node context
+  process.exit(1) //mandatory (as per the Node docs)
+});
+
 if (!pol.start(coreCallback, 0)) {
   basic.print("Could not start TSFN!");
 } else {
