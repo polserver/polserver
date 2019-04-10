@@ -76,7 +76,26 @@ UOExecutor::~UOExecutor()
 {
   // note, the os_module isn't deleted here because
   // the Executor deletes its ExecutorModules.
-  requests.abortAll();
+  for ( auto& req : requests )
+  {
+    std::get<0>( req.second )->abort();
+    ObjectReference& ref = std::get<1>( req.second );
+
+    if (!ref.IsEmpty())
+    {
+      auto call = Node::makeCall<bool>( [&]( Napi::Env env, Node::NodeRequest<bool>* request ) {
+        ref.Value().As<Promise>();
+        ref.Unref();
+        return true;
+      });
+      bool success = call.getRef();
+
+    }
+
+    
+  }
+  requests.clear();
+
   if ( ( instr_cycles >= 500 ) && settingsManager.watch.profile_scripts )
   {
     int elapsed = static_cast<int>(
@@ -89,12 +108,28 @@ UOExecutor::~UOExecutor()
   pChild = nullptr;
 }
 
+void UOExecutor::addRequest( ref_ptr<Core::UOAsyncRequest> req )
+{
+//  requests.emplace( reqreq );
+  if ( programType() == Bscript::Program::ProgramType::JAVASCRIPT )
+  {
+    //auto call = Node::makeCall<Napi::Promise::Deferred>(
+    //    []( Napi::Env env, Node::NodeRequest<Napi::Promise::Deferred>* /*request*/ ) {
+    //      Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New( env );
+    //      // return Persistent<Promise>( deferred.Promise() );
+    //      return deferred;
+    //    } );
+
+    //Napi::Promise::Deferred ref = call.getRef();
+  }
+}
+
 void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp )
 {
   if ( resp != nullptr )
     ValueStack.back().set( new Bscript::BObject( resp ) );
   revive();
-  requests.removeRequest( req );
+ // auto iter = requests.find( req );
 }
 
 bool UOExecutor::suspend()

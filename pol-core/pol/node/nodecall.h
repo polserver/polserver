@@ -110,11 +110,7 @@ public:
 Bscript::BObjectImp* runExecutor( Core::UOExecutor* uoexec );
 
 template <typename ReturnType, typename Callable>
-NodeRequest<ReturnType> makeCall( Callable callback );
-
-
-template <typename ReturnType, typename Callable>
-NodeRequest<ReturnType> makeCall( Callable callback );
+NodeRequest<ReturnType> makeCall( Callable callback, bool blocking = true );
 
 
 }  // namespace Node

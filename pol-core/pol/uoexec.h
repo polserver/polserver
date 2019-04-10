@@ -21,11 +21,15 @@
 #include "./mobile/charactr.h"
 #include "./uoasync.h"
 
+namespace Napi
+{
+class ObjectReference;
+}
 namespace Pol
 {
 namespace Node
 {
-Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex ) ;
+Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex );
 }
 namespace Module
 {
@@ -52,7 +56,7 @@ public:
   virtual size_t sizeEstimate() const override;
 
   bool runnable() const;
-  //void execInstr();
+  // void execInstr();
   std::string scriptname() const;
 
 
@@ -86,7 +90,7 @@ public:
   UOExecutor *pParent, *pChild;
 
 public:
-  inline Bscript::Program::ProgramType programType()
+  inline Bscript::Program::ProgramType programType() const
   {
     passert( prog_ != nullptr );
     return prog_->type();
@@ -120,7 +124,9 @@ public:
 
   Bscript::BObjectImp* clear_event_queue();
 
-  Core::UOAsyncRequestHolder requests;
+  // Core::UOAsyncRequestHolder requests;
+  std::map<u32, std::tuple<ref_ptr<Core::UOAsyncRequest>, Napi::ObjectReference>> requests;
+  void addRequest( ref_ptr<Core::UOAsyncRequest> req );
   void handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp );
 };
 

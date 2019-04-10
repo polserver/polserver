@@ -22,6 +22,7 @@ typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
 typedef std::map<std::string, ref_ptr<Bscript::Program>, Clib::ci_cmp_pred> ScriptStorage;
 typedef std::map<unsigned int, UOExecutor*> PidList;
 typedef HoldList::iterator TimeoutHandle;
+typedef NoTimeoutHoldList ExternalHoldList; // for now..
 
 
 enum HoldListType
@@ -77,6 +78,8 @@ public:
   const ExecList& getRunlist();
   const HoldList& getHoldlist();
   const NoTimeoutHoldList& getNoTimeoutHoldlist();
+  const ExternalHoldList& getExternalHoldlist();
+
 
   const PidList& getPidlist();
 
@@ -84,6 +87,9 @@ public:
   void revive_timeout( UOExecutor* exec, TimeoutHandle hold_itr );
   void revive_notimeout( UOExecutor* exec );
   void revive_debugged( UOExecutor* exec );
+
+  // Remove an externally-mananged script.
+  void free_externalscript( UOExecutor* exec );
 
   // Adds a new executor to the queue directly
   void enqueue( UOExecutor* exec );
@@ -108,8 +114,11 @@ private:
   ExecList runlist;
   ExecList ranlist;
   HoldList holdlist;
+
   NoTimeoutHoldList notimeoutholdlist;
   NoTimeoutHoldList debuggerholdlist;
+  /** Holds a list of externally running scripts. */
+  ExternalHoldList externalholdlist;
 
   PidList pidlist;
   unsigned int next_pid;
@@ -127,6 +136,12 @@ const inline HoldList& ScriptScheduler::getHoldlist()
 {
   return holdlist;
 }
+
+const inline ExternalHoldList& ScriptScheduler::getExternalHoldlist()
+{
+  return externalholdlist;
+}
+
 const inline NoTimeoutHoldList& ScriptScheduler::getNoTimeoutHoldlist()
 {
   return notimeoutholdlist;

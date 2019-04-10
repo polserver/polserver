@@ -50,19 +50,28 @@ Node::timestamp NodeRequest<ReturnType>::checkpoint( const std::string& key )
  */
 
 template <typename ReturnType, typename Callable>
-NodeRequest<ReturnType> makeCall( Callable callable )
+NodeRequest<ReturnType> makeCall( Callable callable, bool blocking )
 {
   auto promise2 = std::make_shared<std::promise<void>>();
   NodeRequest<ReturnType>* req = new NodeRequest<ReturnType>();
 
 
   ThreadSafeFunction::Status status =
-      tsfn.BlockingCall( [req, promise2, callable]( Napi::Env env, Function jsFunc ) {
+      tsfn.BlockingCall( [blocking, req, promise2, callable]( Napi::Env env, Function jsFunc ) {
         (void)jsFunc;  // we do not need to call into the tsfn's registered callback
         req->checkpoint( "enter js thread" );
-        req->ref( callable( env, req ) );
-        promise2->set_value();
-      } );
+        if ( blocking )
+        {
+          req->ref( callable( env, req ) );
+          promise2->set_value();
+        }
+        else
+        {
+          promise2->set_value();
+          req->ref( callable( env, req ) );
+          // FIXME lets get this value back too..? But the core would never _use_ it...
+        }
+      });
 
   try
   {
@@ -92,7 +101,10 @@ NodeRequest<ReturnType> makeCall( Callable callable )
 
   return std::move( *req );
 }
-}
-}
+
+
+}  // namespace Node
+
+}  // namespace Pol
 
 #endif

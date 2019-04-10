@@ -31,6 +31,7 @@ ScriptScheduler::ScriptScheduler()
       holdlist(),
       notimeoutholdlist(),
       debuggerholdlist(),
+      externalholdlist(),
       pidlist(),
       next_pid( PID_MIN )
 {
@@ -55,6 +56,11 @@ void ScriptScheduler::deinitialize()
   {
     delete ( *notimeoutholdlist.begin() );
     notimeoutholdlist.erase( notimeoutholdlist.begin() );
+  }
+  while ( !externalholdlist.empty() )
+  {
+    delete ( *externalholdlist.begin() );
+    externalholdlist.erase( externalholdlist.begin() );
   }
   while ( !debuggerholdlist.empty() )
   {
@@ -173,8 +179,17 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 }
 
 
-void ScriptScheduler::run_ready()
+void ScriptScheduler::free_externalscript(UOExecutor* ex)
 {
+  auto it = externalholdlist.find( ex );
+  passert( it != externalholdlist.end() );
+  NODELOG << "Removing executor " << ex->pid() << " from external holdlist\n";
+  delete ( *it );
+  externalholdlist.erase( it );
+}
+
+void ScriptScheduler::run_ready()
+  {
   THREAD_CHECKPOINT( scripts, 110 );
   while ( !runlist.empty() )
   {
@@ -187,8 +202,21 @@ void ScriptScheduler::run_ready()
 
     if ( ex->programType() == Bscript::Program::ProgramType::JAVASCRIPT )
     {
-      //Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( prog_.get() );
-      Node::runExecutor( ex  );
+      /** We don't really care about the return value, because POL Core does _not_ start
+       * async scripts and wait for the return value somewhere. In other words, the only time
+       * pol starts a script expecting to get a value is when they are running to completion, ie.
+       * _not_ here.
+       *
+       * However, we have to keep the executor alive. We'll throw it in the new `externalholdlist`
+       * ExternalHoldList. It'll stay in there until the Node::runExecutor is done with it. (See
+       * the Finalizer for the Napi::External<> we create)
+       *
+       */
+      Bscript::BObjectImp* thevalue = Node::runExecutor( ex );
+      NODELOG << "Added executor " << ex->pid() << " to external holdlist\n";
+      externalholdlist.emplace( ex );
+      if (thevalue != nullptr)
+        delete thevalue;
       continue;
     }
 
@@ -205,6 +233,7 @@ void ScriptScheduler::run_ready()
       ++ex->instr_cycles;
       THREAD_CHECKPOINT( scripts, 112 );
       Clib::scripts_thread_scriptPC = ex->PC;
+
       ex->execInstr();
 
       THREAD_CHECKPOINT( scripts, 113 );

@@ -13,6 +13,8 @@
 #include "./network/cgdata.h"
 #include "./network/client.h"
 #include "./network/pktboth.h"
+#include "./node/napi-wrap.h"
+#include "./node/nodecall.h"
 #include "uoasync.h"
 #include "uoexec.h"
 
@@ -128,15 +130,21 @@ ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exe
                                                            Mobile::Character* chr, Type type,
                                                            Callback* callback, RequestData* data )
 {
+  using namespace Napi;
+  using namespace Node;
+
   if ( !exec.suspend() )
   {
     if ( data != nullptr )
       delete data;
     return ref_ptr<Core::UOAsyncRequest>( nullptr );
   }
+
+
   ref_ptr<Core::UOAsyncRequest> req(
       new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
-  exec.requests.addRequest( type, req );
+  exec.addRequest( req ); 
+  //.addRequest( type, req );
   chr->client->gd->requests.addRequest( type, req );
   return req;
 }
@@ -153,7 +161,7 @@ ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exe
   }
   ref_ptr<Core::UOAsyncRequest> req(
       new AsyncRequestHandlerSansData<Callback>( exec, chr, type, callback ) );
-  exec.requests.addRequest( type, req );
+  exec.addRequest( req );
   chr->client->gd->requests.addRequest( type, req );
   return req;
 }

@@ -323,7 +323,9 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::Program* prog )
     {
       // We are running to completion... So any POL module methods should run on the first
       // tick.
-      Node::runExecutor( &ex );
+      Bscript::BObjectRef thevalue( Node::runExecutor( &ex ) );
+      // FIXME ???? 
+      return true;
     }
     INFO_PRINT << ".";
     for ( int i = 0; ( i < 1000 ) && ex.runnable(); i++ )
