@@ -328,8 +328,6 @@ public:
 
   virtual size_t sizeEstimate() const override;
 
-  friend class Node::NodeModuleWrap<UOExecutorModule>;
-
 protected:
   // bool getStaticMenuParam( unsigned param, Menu*& menu );
   bool getDynamicMenuParam( unsigned param, Core::Menu*& menu );

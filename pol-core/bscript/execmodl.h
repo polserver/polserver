@@ -30,6 +30,11 @@ class Executor;
 
 namespace Pol
 {
+namespace Node
+{
+template <class PolModule>
+class NodeModuleWrap;
+}
 namespace Bscript
 {
 class ExecutorModule;
@@ -107,7 +112,7 @@ protected:
   TmplExecutorModule( Executor& exec );
 
 
-protected:
+private:
   struct FunctionDef
   {
     std::string funcname;
@@ -115,6 +120,7 @@ protected:
     unsigned argc;
   };
   using FunctionTable = std::vector<FunctionDef>;
+  friend class Node::NodeModuleWrap<T>;
 
   static FunctionTable function_table;
   static std::map<std::string, int, Clib::ci_cmp_pred> _func_idx_map;
@@ -132,7 +138,8 @@ template <class T>
 bool TmplExecutorModule<T>::_func_map_init = false;
 
 template <class T>
-TmplExecutorModule<T>::TmplExecutorModule( Executor& ex ) : ExecutorModule( TmplExecutorModule::modname, ex )
+TmplExecutorModule<T>::TmplExecutorModule( Executor& ex )
+    : ExecutorModule( TmplExecutorModule::modname, ex )
 {
   if ( !_func_map_init )
   {
