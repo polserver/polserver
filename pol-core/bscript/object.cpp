@@ -41,6 +41,7 @@ namespace Bscript
 {
 Clib::fixed_allocator<sizeof( BObject ), 256> bobject_alloc;
 Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
+Clib::fixed_allocator<sizeof( DelayedObject ), 256> delayed_alloc;
 Clib::fixed_allocator<sizeof( BLong ), 256> blong_alloc;
 Clib::fixed_allocator<sizeof( Double ), 256> double_alloc;
 
@@ -996,6 +997,20 @@ bool UninitObject::operator<( const BObjectImp& imp ) const
   return true;
 }
 
+DelayedObject* DelayedObject::SharedInstance;
+ref_ptr<BObjectImp> DelayedObject::SharedInstanceOwner;
+
+DelayedObject::DelayedObject() : BObjectImp( OTDelayedObject ) {}
+
+BObjectImp* DelayedObject::copy( void ) const
+{
+  return create();
+}
+
+size_t DelayedObject::sizeEstimate() const
+{
+  return sizeof( DelayedObject );
+}
 
 ObjArray::ObjArray() : BObjectImp( OTArray ), name_arr(), ref_arr() {}
 

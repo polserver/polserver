@@ -113,6 +113,7 @@ public:
     OTSQLRow = 37,
     OTBoolean = 38,
     OTFuncRef = 39,
+    OTDelayedObject = 40
   };
 
 #if INLINE_BOBJECTIMP_CTOR
@@ -485,6 +486,7 @@ public:
     SharedInstance = nullptr;
   }
 };
+
 extern Clib::fixed_allocator<sizeof( UninitObject ), 256> uninit_alloc;
 
 inline void* UninitObject::operator new( std::size_t /*len*/ )
@@ -496,6 +498,44 @@ inline void UninitObject::operator delete( void* p )
 {
   uninit_alloc.deallocate( p );
 }
+
+class DelayedObject final : public BObjectImp
+{
+public:
+  DelayedObject();
+  DelayedObject( const DelayedObject& i );
+
+  static DelayedObject* SharedInstance;
+  static ref_ptr<BObjectImp> SharedInstanceOwner;
+
+  virtual BObjectImp* copy() const override;
+  virtual size_t sizeEstimate() const override;
+  virtual std::string getStringRep() const override { return "<delayed object>"; }
+
+  void* operator new( std::size_t len );
+  void operator delete( void* );
+
+  static DelayedObject* create() { return SharedInstance; }
+  static void ReleaseSharedInstance()
+  {
+    SharedInstanceOwner.clear();
+    SharedInstance = nullptr;
+  }
+};
+
+
+extern Clib::fixed_allocator<sizeof( DelayedObject ), 256> delayed_alloc;
+
+inline void* DelayedObject::operator new( std::size_t /*len*/ )
+{
+  return delayed_alloc.allocate();
+}
+
+inline void DelayedObject::operator delete( void* p )
+{
+  delayed_alloc.deallocate( p );
+}
+
 class ObjArray final : public BObjectImp
 {
 public:
