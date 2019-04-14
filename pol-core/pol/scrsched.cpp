@@ -400,7 +400,8 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
     {
       // We are running to completion... So any POL module methods should run on the first
       // tick.
-     return Node::runExecutor( &ex );
+      return Node::runExecutor( &ex );
+
     }
 
     ex.execInstr();

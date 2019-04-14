@@ -25,9 +25,46 @@ unsigned long requestNumber = 0;
 
 std::atomic_uint nextRequestId( 0 );
 
+
+std::map<Core::UOExecutor*, Napi::ObjectReference> execToModuleMap;
+
+void emitExecutorShutdowns()
+{
+  auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* request ) {
+    for ( auto& iter : execToModuleMap )
+    {
+      NODELOG.Format( "[{:04x}] [exec] finalizing executor {}\n" )
+          << request->reqId() << iter.first->scriptname();
+      bool retVal = iter.second.Get( "emit" )
+                        .As<Function>()
+                        .Call( iter.second.Value(), {Napi::String::New( env, "shutdown" )} )
+                        .ToBoolean()
+                        .Value();
+      NODELOG.Format( "[{:04x}] [exec] module.emit('shutdown') returned {}\n" )
+          << request->reqId() << retVal;
+      iter.second.Unref();
+    }
+    return true;
+  } );
+  call.getRef();
+  execToModuleMap.clear();
+}
+
+
 Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
 {
   passert( ex->programType() == Bscript::Program::ProgramType::JAVASCRIPT );
+  // Tell the script scheduler we will manage this executor ourselves
+  if ( ex->running_to_completion() )
+  {
+    NODELOG << "Running executor <critical>:" << ex->scriptname() << " to external holdlist\n";
+  }
+  else
+  {
+    NODELOG << "Adding executor " << ex->pid() << ":" << ex->scriptname()
+            << " to external holdlist\n";
+    Core::scriptScheduler.add_externalscript( ex );
+  }
 
   Node::JavascriptProgram* prog = static_cast<Node::JavascriptProgram*>( ex->prog_.get() );
 
@@ -55,7 +92,7 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
 
         try
         {
-          auto jsRetVal =
+          auto jsCall =
               requireRef.Get( "scriptloader" )
                   .As<Object>()
                   .Get( "runScript" )
@@ -63,21 +100,30 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
                   .Call( {External<weak_ptr<Core::UOExecutor>>::New(
                               env, new weak_ptr<Core::UOExecutor>( ex->weakptr ),
                               [=]( Napi::Env, weak_ptr<Core::UOExecutor>* data ) {
-                                NODELOG.Format( "[{:04x}] [exec] External<UOExecutor> finalized\n" )
-                                    << reqId;
                                 {
-                                  // Core::PolClock clk;
                                   if ( data->exists() )
                                   {
+                                    NODELOG.Format( "[{:04x}] [exec] finalized {}\n" )
+                                        << reqId << ex->scriptname();
                                     Core::scriptScheduler.free_externalscript(
                                         data->get_weakptr() );
                                   }
                                 }
                                 delete data;
                               } ),
-                          Napi::String::New( env, prog->scriptname() ), prog->obj.Value(), argv} );
+                          Napi::String::New( env, prog->scriptname() ), prog->obj.Value(), argv} )
+                  .As<Object>();
+
+          auto jsRetVal = jsCall.Get( "value" );
           NODELOG.Format( "[{:04x}] [exec] returned value {}\n" )
               << request->reqId() << Node::ToUtf8Value( jsRetVal );
+          if ( !ex->running_to_completion() )
+          {
+            auto mod = jsCall.Get( "module" ).As<Object>();
+            if ( mod.Get( "_eventsCount" ).As<Number>().Int32Value() > 0 )
+              execToModuleMap.emplace( ex, ObjectReference::New( mod, 1 ) );
+          }
+          // execToModuleMap.find( ex );
 
           return NodeObjectWrap::Wrap( env, jsRetVal, reqId )->impptr()->copy();
         }
@@ -87,7 +133,8 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
               << prog->scriptname() << ex.what();
           return static_cast<Bscript::BObjectImp*>( Bscript::UninitObject::create() );
         }
-      }, ex->running_to_completion() );
+      },
+      ex->running_to_completion() );
 
   if ( ex->running_to_completion() )
   {
@@ -95,9 +142,9 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
     NODELOG.Format( "[{:04x}] [exec] returned to core {}\n" )
         << call.reqId() << impptr->getStringRep();
     return impptr;
-  } 
+  }
   return nullptr;
-   //Bscript::UninitObject::create();
+  // Bscript::UninitObject::create();
 }
 
 

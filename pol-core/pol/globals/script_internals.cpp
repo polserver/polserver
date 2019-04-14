@@ -2,11 +2,11 @@
 
 #include <string.h>
 
-#include "../node/nodecall.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
+#include "../node/nodecall.h"
 #include "../polsig.h"
 #include "../uoexec.h"
 #include "state.h"
@@ -39,13 +39,14 @@ ScriptScheduler::ScriptScheduler()
 
 ScriptScheduler::~ScriptScheduler() {}
 
+Clib::SpinLock externalscript_lock;
+
 // Note, when the program exits, each executor in these queues
 // will be deleted by cleanup_scripts()
 // Therefore, any object that owns an executor must be destroyed
 // before cleanup_scripts() is called.
 void ScriptScheduler::deinitialize()
 {
-  scrstore.clear();
   Clib::delete_all( runlist );
   while ( !holdlist.empty() )
   {
@@ -57,16 +58,43 @@ void ScriptScheduler::deinitialize()
     delete ( *notimeoutholdlist.begin() );
     notimeoutholdlist.erase( notimeoutholdlist.begin() );
   }
-  while ( !externalholdlist.empty() )
-  {
-    delete ( *externalholdlist.begin() );
-    externalholdlist.erase( externalholdlist.begin() );
-  }
   while ( !debuggerholdlist.empty() )
   {
     delete ( *debuggerholdlist.begin() );
     debuggerholdlist.erase( debuggerholdlist.begin() );
   }
+
+#ifdef HAVE_NODEJS
+  Node::triggerGC();
+#endif
+  bool empty;
+
+  {
+    Clib::SpinLockGuard lock( externalscript_lock );
+    empty = externalholdlist.empty();
+  }
+  while ( !empty )
+  {
+    int timeouts_remaining = 5;
+
+    if ( --timeouts_remaining == 0 )
+    {
+      INFO_PRINT << "Waiting for " << externalholdlist.size() << " external scripts to exit\n";
+      timeouts_remaining = 5;
+#ifdef HAVE_NODEJS
+      Node::triggerGC();
+#endif
+    }
+    pol_sleep_ms( 1000 );
+
+    {
+      Clib::SpinLockGuard lock( externalscript_lock );
+      empty = externalholdlist.empty();
+    }
+  }
+
+  // Delete the UOExecutors first, so that the JavascriptProgram ref_ptrs will be cleared here...
+  scrstore.clear();
 }
 
 ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
@@ -178,18 +206,26 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   return usage;
 }
 
-
-void ScriptScheduler::free_externalscript(UOExecutor* ex)
+void ScriptScheduler::add_externalscript( UOExecutor* ex )
 {
+  Clib::SpinLockGuard lock( externalscript_lock );
+  externalholdlist.emplace( ex );
+}
+
+
+void ScriptScheduler::free_externalscript( UOExecutor* ex )
+{
+  Clib::SpinLockGuard lock( externalscript_lock );
   auto it = externalholdlist.find( ex );
   passert( it != externalholdlist.end() );
   NODELOG << "Removing executor " << ex->pid() << " from external holdlist\n";
   delete ( *it );
   externalholdlist.erase( it );
+  ;
 }
 
 void ScriptScheduler::run_ready()
-  {
+{
   THREAD_CHECKPOINT( scripts, 110 );
   while ( !runlist.empty() )
   {
@@ -209,13 +245,16 @@ void ScriptScheduler::run_ready()
        *
        * However, we have to keep the executor alive. We'll throw it in the new `externalholdlist`
        * ExternalHoldList. It'll stay in there until the Node::runExecutor is done with it. (See
-       * the Finalizer for the Napi::External<> we create)
+       * the Finalizer for the Napi::External<> we create). This is done inside runExecutor,
+       * as we want both critical and non-critical scripts to be managed outside of the script
+       * scheduler.
+       * NB: A critical script (eg. start script) will run to completion and use the
+       * return value from the default function syncrhonously, but that doesn't stop it from
+       * starting async things that eventually use the executor.
        *
        */
       Bscript::BObjectImp* thevalue = Node::runExecutor( ex );
-      NODELOG << "Added executor " << ex->pid() << " to external holdlist\n";
-      externalholdlist.emplace( ex );
-      if (thevalue != nullptr)
+      if ( thevalue != nullptr )
         delete thevalue;
       continue;
     }

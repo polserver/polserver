@@ -108,6 +108,7 @@ public:
 };
 
 Bscript::BObjectImp* runExecutor( Core::UOExecutor* uoexec );
+void emitExecutorShutdowns( );
 
 template <typename ReturnType, typename Callable>
 NodeRequest<ReturnType> makeCall( Callable callback, bool blocking = true );

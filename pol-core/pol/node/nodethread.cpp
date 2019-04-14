@@ -155,6 +155,27 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
   }
 }
 
+void triggerGC()
+{
+  Node::emitExecutorShutdowns();
+
+  auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
+    try
+    {
+      auto gc = Node::requireRef.Get( "gc" ).As<Function>().Call( {} );
+      NODELOG.Format( "[{:04x}] [gc] triggering garbage collection\n" ) << request->reqId();
+      return false;
+    }
+    catch ( std::exception& ex )
+    {
+      NODELOG.Format( "[{:04x}] [gc] could not trigger garbage collection: {}\n" )
+          << request->reqId() << ex.what();
+    }
+    return true;
+  }, false);
+  call.getRef();
+}
+
 bool cleanup()
 {
   if ( Node::running )

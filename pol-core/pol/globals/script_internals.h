@@ -89,6 +89,8 @@ public:
   void revive_debugged( UOExecutor* exec );
 
   // Remove an externally-mananged script.
+  void add_externalscript( UOExecutor* exec );
+  // Remove an externally-mananged script.
   void free_externalscript( UOExecutor* exec );
 
   // Adds a new executor to the queue directly

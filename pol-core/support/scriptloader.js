@@ -16,7 +16,6 @@ const vm = require("vm"),
  */
 const modwrap = process._linkedBinding("modwrap");
 
-
 /**
  * We create a hook into the Module instance method `require` to construct our modwrap objects
  * if appropriate.
@@ -122,8 +121,9 @@ function loadScript(filename) {
    */
 
   // TODO return script and contents to core.
-// debugger;
-  return new vm.Script(`
+  // debugger;
+  return new vm.Script(
+    `
   // debugger;
 // 'this' is the context created from script.runInNewContext
 const { contents, module , __filename, __dirname, __polarguments } = this;
@@ -147,6 +147,8 @@ if (typeof module.exports.default === "function") {
   );
 }
 
+const { EventEmitter } = require("events");
+
 /**
  *
  * @param {*} paths
@@ -159,25 +161,44 @@ if (typeof module.exports.default === "function") {
  * @throws
  */
 function runScript(extUoExec, filename, script, args) {
-// debugger;
+  // debugger;
   try {
     // TODO read script _as well as_ contents from core because right now it will read the file for each call, uh oh
     let contents = stripShebang(stripBOM(fs.readFileSync(filename, "utf-8")));
 
+    // Create a new module to load
+    // TODO get full filename..
     let _module = new (require("module")).Module(this.filename, null);
+
+    // We're going to pseudo-inherit EventEmitter, so we can do module.emit() / module.on()
+    for (const key in EventEmitter.prototype) {
+      Object.defineProperty(_module, key, {
+        value: EventEmitter.prototype[key],
+        writable: true
+      });
+    }
+    EventEmitter.call(_module);
+
     _module.extUoExec = extUoExec;
     _module.require = _module.require.bind(_module);
 
-    return script.runInNewContext({
-      extUoExec,
-      __polarguments: args,
-      __filename,
-      __dirname: path.dirname(filename),
-      contents,
-      module: _module,
-      require,
-      _require: makeRequireFunction(_module),
-    });
+    return {
+        module: _module,
+        value: script.runInNewContext({
+          extUoExec,
+          __polarguments: args,
+          __filename,
+          __dirname: path.dirname(filename),
+          contents,
+          module: _module,
+          require,
+          _require: makeRequireFunction(_module)
+       })
+    };
+
+    // We return the module up back to the core. This way, we can module.emit('shutdown')
+  
+    return _module;
   } catch (e) {
     // Special logging maybe? But throw back up anyway
     throw e;

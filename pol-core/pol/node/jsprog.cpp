@@ -109,9 +109,11 @@ JavascriptProgram::~JavascriptProgram()
           << Node::ToUtf8Value( this->obj.Value().As<Object>().Get( "_refId" ) );
 
       this->obj.Unref();
+      NODELOG << "is empty " << this->obj.IsEmpty() << "\n";
       return true;
     } );
-    call.getRef();
+    auto resp = call.getRef();
+    return;
   }
 }
 

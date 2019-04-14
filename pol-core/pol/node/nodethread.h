@@ -40,6 +40,7 @@ std::future<bool> start_node();
 extern std::atomic<bool> running;
 
 bool cleanup();
+void triggerGC();
 
 // void start_node_thread();
 }  // namespace Node
