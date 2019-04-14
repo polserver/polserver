@@ -112,7 +112,7 @@ JavascriptProgram::~JavascriptProgram()
       NODELOG << "is empty " << this->obj.IsEmpty() << "\n";
       return true;
     } );
-    auto resp = call.getRef();
+    call.getRef();
     return;
   }
 }

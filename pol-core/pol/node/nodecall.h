@@ -18,6 +18,10 @@ using namespace Napi;
 
 namespace Pol
 {
+namespace Bscript
+{
+class BObjectImp;
+}
 namespace Core
 {
 class UOExecutor;

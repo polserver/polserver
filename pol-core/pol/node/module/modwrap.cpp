@@ -12,10 +12,7 @@ namespace Pol
 {
 namespace Node
 {
-}
-}
-
-
+    
 static Napi::Object InitializeModwrap( Napi::Env env, Napi::Object exports )
 {
   EscapableHandleScope scope( env );
@@ -27,3 +24,6 @@ static Napi::Object InitializeModwrap( Napi::Env env, Napi::Object exports )
 }
 
 NODE_API_MODULE_LINKED( modwrap, InitializeModwrap )
+}
+}
+

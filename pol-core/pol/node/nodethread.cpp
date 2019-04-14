@@ -159,19 +159,19 @@ void triggerGC()
 {
   Node::emitExecutorShutdowns();
 
-  auto call = Node::makeCall<bool>( []( Napi::Env env, NodeRequest<bool>* request ) {
+  auto call = Node::makeCall<bool>( []( Napi::Env /*env*/, NodeRequest<bool>* request ) {
     try
     {
-      auto gc = Node::requireRef.Get( "gc" ).As<Function>().Call( {} );
+      Node::requireRef.Get( "gc" ).As<Function>().Call( {} );
       NODELOG.Format( "[{:04x}] [gc] triggering garbage collection\n" ) << request->reqId();
-      return false;
+      return true;
     }
     catch ( std::exception& ex )
     {
       NODELOG.Format( "[{:04x}] [gc] could not trigger garbage collection: {}\n" )
           << request->reqId() << ex.what();
+      return false;
     }
-    return true;
   }, false);
   call.getRef();
 }

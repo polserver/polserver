@@ -9,15 +9,21 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-template <typename Module>
-class TmplExecutorModule;
-}
 namespace Module
 {
 class BasicIoExecutorModule;
+class BasicExecutorModule;
+class UOExecutorModule;
+
 }
+namespace Bscript
+{
+extern template class TmplExecutorModule<Module::BasicIoExecutorModule>;
+extern template class TmplExecutorModule<Module::BasicExecutorModule>;
+extern template class TmplExecutorModule<Module::UOExecutorModule>;
+
+}
+
 namespace Node
 {
 using namespace Napi;

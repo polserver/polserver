@@ -67,7 +67,7 @@ bool NodeObjectWrap::resolveDelayedObject(u32 reqId, Bscript::BObjectRef objref)
   // We really only resolve.. so if something errors, it will be a resolution of an error, just like in Escript.
   // eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an Napi::Error), whih is falsey.
   auto& promise = iter->second;
-  auto call = Node::makeCall<bool>( [&](Napi::Env env, NodeRequest<bool>* request) { 
+  auto call = Node::makeCall<bool>( [&](Napi::Env env, NodeRequest<bool>* /*request*/) { 
     promise.Resolve( Wrap( env, objref, reqId ) );
     delayedMap.erase( iter );
     return true;
@@ -127,7 +127,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     // Create a new array of proper size
     convertedVal = Napi::Array::New( env, convt->ref_arr.size() );
     auto arr = convertedVal.As<Array>();
-    for ( auto i = 0; i < convt->ref_arr.size(); i++ )
+    for ( size_t i = 0; i < convt->ref_arr.size(); i++ )
     {
       // Set the value 
       arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
@@ -138,9 +138,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     convertedVal = env.Undefined();
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTApplicObj ) )
-  {
-    auto convt = Clib::explicit_cast<Bscript::BApplicObjBase*, Bscript::BObjectImp*>( impptr );
- 
+  { 
     return Node::requireRef.Get( "wrapper" )
         .As<Object>()
         .Get( "proxyObject" )
