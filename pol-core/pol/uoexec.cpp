@@ -9,6 +9,7 @@
 #include "module/osmod.h"
 #include "node/jsprog.h"
 #include "node/nodecall.h"
+#include "node/module/objwrap.h"
 #include "polcfg.h"
 #include "polclock.h"
 
@@ -78,21 +79,7 @@ UOExecutor::~UOExecutor()
   // the Executor deletes its ExecutorModules.
   for ( auto& req : requests )
   {
-    std::get<0>( req.second )->abort();
-    ObjectReference& ref = std::get<1>( req.second );
-
-    if (!ref.IsEmpty())
-    {
-      auto call = Node::makeCall<bool>( [&]( Napi::Env env, Node::NodeRequest<bool>* request ) {
-        ref.Value().As<Promise>();
-        ref.Unref();
-        return true;
-      });
-      bool success = call.getRef();
-
-    }
-
-    
+    req.get()->abort();
   }
   requests.clear();
 
@@ -110,26 +97,27 @@ UOExecutor::~UOExecutor()
 
 void UOExecutor::addRequest( ref_ptr<Core::UOAsyncRequest> req )
 {
-//  requests.emplace( reqreq );
-  if ( programType() == Bscript::Program::ProgramType::JAVASCRIPT )
-  {
-    //auto call = Node::makeCall<Napi::Promise::Deferred>(
-    //    []( Napi::Env env, Node::NodeRequest<Napi::Promise::Deferred>* /*request*/ ) {
-    //      Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New( env );
-    //      // return Persistent<Promise>( deferred.Promise() );
-    //      return deferred;
-    //    } );
-
-    //Napi::Promise::Deferred ref = call.getRef();
-  }
+    requests.emplace_back( req );
 }
 
 void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp )
 {
-  if ( resp != nullptr )
-    ValueStack.back().set( new Bscript::BObject( resp ) );
+  if ( resp == nullptr )
+  {
+    // The request was aborted. All aborted requests resolve with BLong(0).
+    resp = new Bscript::BLong( 0 );
+  }
+  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
+  {
+    if ( resp != nullptr )
+      ValueStack.back().set( new Bscript::BObject( resp ) );
+  }
+  else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
+  {
+    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, Bscript::BObjectRef( resp ) );
+  }
   revive();
- // auto iter = requests.find( req );
+  // auto iter = requests.find( req );
 }
 
 bool UOExecutor::suspend()

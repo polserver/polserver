@@ -502,32 +502,33 @@ inline void UninitObject::operator delete( void* p )
 class DelayedObject final : public BObjectImp
 {
 public:
-  DelayedObject();
-  DelayedObject( const DelayedObject& i );
+  explicit DelayedObject( int reqId ) : BObjectImp( OTDelayedObject ), reqId_( reqId ) {}
+  // DelayedObject( const DelayedObject& i );
+  // virtual bool operator==( const BObjectImp& objimp ) const override;
 
-  static DelayedObject* SharedInstance;
-  static ref_ptr<BObjectImp> SharedInstanceOwner;
 
   virtual BObjectImp* copy() const override;
   virtual size_t sizeEstimate() const override;
-  virtual std::string getStringRep() const override { return "<delayed object>"; }
+  virtual std::string getStringRep() const override { return std::string("<delayed object: ") + std::to_string(reqId_) + ">"; }
 
   void* operator new( std::size_t len );
   void operator delete( void* );
 
-  static DelayedObject* create() { return SharedInstance; }
-  static void ReleaseSharedInstance()
-  {
-    SharedInstanceOwner.clear();
-    SharedInstance = nullptr;
-  }
+  u32 reqId() const { return reqId_; }
+  
+  private:
+  u32 reqId_;
+
+
 };
 
 
 extern Clib::fixed_allocator<sizeof( DelayedObject ), 256> delayed_alloc;
 
-inline void* DelayedObject::operator new( std::size_t /*len*/ )
+inline void* DelayedObject::operator new( std::size_t len )
 {
+  (void)len;
+  passert_paranoid( len == sizeof( DelayedObject ) );
   return delayed_alloc.allocate();
 }
 

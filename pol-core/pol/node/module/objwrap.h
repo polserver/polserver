@@ -1,8 +1,8 @@
 #ifndef NODE_OBJWRAP_H
 #define NODE_OBJWRAP_H
 
-#include "../bscript/bobject.h"
 #include "../bscript/berror.h"
+#include "../bscript/bobject.h"
 #include "../napi-wrap.h"
 
 namespace Pol
@@ -38,9 +38,12 @@ public:
 
   Napi::Value SetMember( const CallbackInfo& cbinfo );
 
+  /** Can run outside Node env */
+  static bool resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref );
 
 private:
   static Napi::FunctionReference constructor;
+  static std::map<u32, Napi::Promise::Deferred> delayedMap;
 
 
   Reference<External<Bscript::BObjectRef>> ref;

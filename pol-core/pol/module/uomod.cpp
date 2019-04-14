@@ -836,7 +836,7 @@ BObjectImp* UOExecutorModule::mf_Target()
   }
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
-  return new BLong( 0 );
+  return new DelayedObject( req->reqId_ );
 }
 
 BObjectImp* UOExecutorModule::mf_TargetCancel()
@@ -5820,7 +5820,7 @@ TmplExecutorModule<UOExecutorModule>::FunctionTable
         {"SetObjProperty", &UOExecutorModule::mf_SetObjProperty, UINT_MAX},
         {"SetName", &UOExecutorModule::mf_SetName, UINT_MAX},
         {"SubtractAmount", &UOExecutorModule::mf_SubtractAmount, UINT_MAX},
-        {"Target", &UOExecutorModule::mf_Target, UINT_MAX},
+        {"Target", &UOExecutorModule::mf_Target, 2},
         {"TargetCoordinates", &UOExecutorModule::mf_TargetCoordinates, UINT_MAX},
         {"CancelTarget", &UOExecutorModule::mf_TargetCancel, UINT_MAX},
         {"UseItem", &UOExecutorModule::mf_UseItem, UINT_MAX},

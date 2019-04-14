@@ -98,11 +98,6 @@ Executor::Executor()
     UninitObject::SharedInstance = new UninitObject;
     UninitObject::SharedInstanceOwner.set( UninitObject::SharedInstance );
   }
-  if ( !DelayedObject::SharedInstance )
-  {
-    DelayedObject::SharedInstance = new DelayedObject;
-    DelayedObject::SharedInstanceOwner.set( DelayedObject::SharedInstance );
-  }
 }
 
 Executor::~Executor()

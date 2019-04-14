@@ -13,8 +13,6 @@
 #include "./network/cgdata.h"
 #include "./network/client.h"
 #include "./network/pktboth.h"
-#include "./node/napi-wrap.h"
-#include "./node/nodecall.h"
 #include "uoasync.h"
 #include "uoexec.h"
 

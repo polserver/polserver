@@ -124,8 +124,7 @@ public:
 
   Bscript::BObjectImp* clear_event_queue();
 
-  // Core::UOAsyncRequestHolder requests;
-  std::map<u32, std::tuple<ref_ptr<Core::UOAsyncRequest>, Napi::ObjectReference>> requests;
+  std::vector<ref_ptr<Core::UOAsyncRequest>> requests;
   void addRequest( ref_ptr<Core::UOAsyncRequest> req );
   void handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* resp );
 };

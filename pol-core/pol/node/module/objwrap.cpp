@@ -18,7 +18,7 @@ Napi::FunctionReference NodeObjectWrap::constructor;
 
 
 Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
-                                           unsigned long reqId )
+                                          unsigned long reqId )
 {
   Bscript::BObjectImp* convertedVal;
   if ( value.IsBoolean() )
@@ -39,7 +39,8 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
   }
   else if ( value.ToObject().InstanceOf( NodeObjectWrap::constructor.Value() ) )
   {
-    auto x = Napi::ObjectWrap<NodeObjectWrap>::Unwrap( value.ToObject().Get("_obj").As<Object>() );
+    auto x =
+        Napi::ObjectWrap<NodeObjectWrap>::Unwrap( value.ToObject().Get( "_obj" ).As<Object>() );
     auto y = x->ref.Value();
     auto* z = y.Data();
     auto a = *z;
@@ -51,7 +52,28 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
         << reqId << Node::ValueTypeToString( value.Type() );
     convertedVal = new Bscript::UninitObject;
   }
-  return Bscript::BObjectRef(convertedVal);
+  return Bscript::BObjectRef( convertedVal );
+}
+
+std::map<u32, Napi::Promise::Deferred> NodeObjectWrap::delayedMap;
+
+
+bool NodeObjectWrap::resolveDelayedObject(u32 reqId, Bscript::BObjectRef objref)
+{
+  auto iter = delayedMap.find( reqId );
+  if ( iter == delayedMap.end() )
+    return false;
+
+  // We really only resolve.. so if something errors, it will be a resolution of an error, just like in Escript.
+  // eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an Napi::Error), whih is falsey.
+  auto& promise = iter->second;
+  auto call = Node::makeCall<bool>( [&](Napi::Env env, NodeRequest<bool>* request) { 
+    promise.Resolve( Wrap( env, objref, reqId ) );
+    delayedMap.erase( iter );
+    return true;
+  });
+
+  return call.getRef();
 }
 
 // FIXME Vulnerable to circular references.. for now!
@@ -89,19 +111,27 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
                        env, String::New( env, convt->FindMember( "errortext" )->getStringRep() ) )
                        .Value();
   }
-
-
+  else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTDelayedObject ) )
+  {
+    auto convt = Clib::explicit_cast<Bscript::DelayedObject*, Bscript::BObjectImp*>( impptr );
+    // Create a new deferred, and return the promise to the script. 
+    // We store the deferred in our map, to be resolved later.
+    Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New( env );
+    delayedMap.emplace( convt->reqId(), deferred );
+    convertedVal = deferred.Promise();
+  }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTArray ) )
   {
     auto convt = Clib::explicit_cast<Bscript::ObjArray*, Bscript::BObjectImp*>( impptr );
 
+    // Create a new array of proper size
     convertedVal = Napi::Array::New( env, convt->ref_arr.size() );
     auto arr = convertedVal.As<Array>();
     for ( auto i = 0; i < convt->ref_arr.size(); i++ )
     {
+      // Set the value 
       arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
     }
-    // convertedVal = Napi::String::New( env, convt->value() );
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTUninit ) )
   {
@@ -110,34 +140,16 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTApplicObj ) )
   {
     auto convt = Clib::explicit_cast<Bscript::BApplicObjBase*, Bscript::BObjectImp*>( impptr );
-    // convt->
-    // convertedVal = Napi::String::New( env, "hello there" );
-    // auto extVal = NodeObjectWrap::constructor.Call( {Napi::External<Bscript::BObjectRef>::New(
-    //    env, new Bscript::BObjectRef( impptr ),
-    //    []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} );
-    // auto extVal =
-    //    env.Global()
-    //        .Get( "Object" )
-    //        .As<Object>()
-    //        .Get( "create" )
-    //        .As<Function>()
-    //        .Call( {NodeObjectWrap::constructor.Value().Get( "prototype" ).As<Function>()} );
+ 
+    return Node::requireRef.Get( "wrapper" )
+        .As<Object>()
+        .Get( "proxyObject" )
+        .As<Function>()
+        .Call( {
 
-    // NodeObjectWrap::constructor.Call(
-    //    extVal, {Napi::External<Bscript::BObjectRef>::New(
-    //                env, new Bscript::BObjectRef( impptr ),
-    //                []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} );
-
-    return
-        Node::requireRef.Get( "wrapper" )
-            .As<Object>()
-            .Get( "proxyObject" )
-            .As<Function>()
-            .Call( {
-
-                NodeObjectWrap::constructor.New( {Napi::External<Bscript::BObjectRef>::New(
-                    env, new Bscript::BObjectRef( impptr ),
-                    []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} )} );
+            NodeObjectWrap::constructor.New( {Napi::External<Bscript::BObjectRef>::New(
+                env, new Bscript::BObjectRef( impptr ),
+                []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} )} );
   }
   else
   {

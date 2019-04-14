@@ -88,6 +88,10 @@ function proxyObject(wrappedObj) {
     // preventExtensions? (target: T): boolean;
     // getOwnPropertyDescriptor? (target: T, p: PropertyKey): PropertyDescriptor | undefined;
     // has? (target: T, p: PropertyKey): boolean;
+    // has: function(target, key) {
+    //   if (key === "then") return false;
+    // },
+
     // set? (target: T, p: PropertyKey, value: any, receiver: any): boolean;
     // deleteProperty? (target: T, p: PropertyKey): boolean;
     // defineProperty? (target: T, p: PropertyKey, attributes: PropertyDescriptor): boolean;
@@ -98,6 +102,10 @@ function proxyObject(wrappedObj) {
     get: function(target, p, recv) {
     //   console.log("Request for prop ", p);
     //   debugger;
+    if (p === 'then') {
+      return scriptObj;
+    }; //Reflect.get(target, p, recv); 
+
       if (p === "toString") {
         return wrappedObj.toString;
       } else if (p === Symbol.toPrimitive) {

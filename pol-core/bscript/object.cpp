@@ -997,14 +997,10 @@ bool UninitObject::operator<( const BObjectImp& imp ) const
   return true;
 }
 
-DelayedObject* DelayedObject::SharedInstance;
-ref_ptr<BObjectImp> DelayedObject::SharedInstanceOwner;
-
-DelayedObject::DelayedObject() : BObjectImp( OTDelayedObject ) {}
 
 BObjectImp* DelayedObject::copy( void ) const
 {
-  return create();
+  return new DelayedObject( this->reqId_ );
 }
 
 size_t DelayedObject::sizeEstimate() const
