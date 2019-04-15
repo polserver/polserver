@@ -45,7 +45,7 @@ template <>
 TmplExecutorModule<NPCExecutorModule>::FunctionTable
     TmplExecutorModule<NPCExecutorModule>::function_table = {
         {"Wander", &NPCExecutorModule::mf_Wander, UINT_MAX},
-        {"self", &NPCExecutorModule::mf_Self, UINT_MAX},
+        {"self", &NPCExecutorModule::mf_Self, 0},
         {"face", &NPCExecutorModule::face, UINT_MAX},
         {"move", &NPCExecutorModule::move, UINT_MAX},
         {"WalkToward", &NPCExecutorModule::mf_WalkToward, UINT_MAX},

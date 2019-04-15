@@ -14,15 +14,18 @@ namespace Module
 class BasicIoExecutorModule;
 class BasicExecutorModule;
 class UOExecutorModule;
+class NPCExecutorModule;
 
-}
+}  // namespace Module
 namespace Bscript
 {
 extern template class TmplExecutorModule<Module::BasicIoExecutorModule>;
 extern template class TmplExecutorModule<Module::BasicExecutorModule>;
 extern template class TmplExecutorModule<Module::UOExecutorModule>;
+extern template class TmplExecutorModule<Module::NPCExecutorModule>;
 
-}
+
+}  // namespace Bscript
 
 namespace Node
 {

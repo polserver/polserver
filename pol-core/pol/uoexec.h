@@ -33,7 +33,10 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex );
 }
 namespace Module
 {
-class OSExecutorModule;
+//class OSExecutorModule;
+class ThreadInterface;
+
+
 }
 namespace Core
 {
@@ -46,7 +49,9 @@ class UOExecutor final : public Bscript::Executor
   typedef Bscript::Executor base;
 
 private:
+  Module::ThreadInterface* threadint;
   Module::OSExecutorModule* os_module;
+
   ref_ptr<Bscript::Program> prog_;
 
 

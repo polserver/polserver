@@ -29,7 +29,7 @@ Napi::Value NodeModuleWrap<PolModule>::MethodWrapper( const CallbackInfo& cbinfo
 
   Bscript::BObjectImp* funcRet;
   {
-    Core::PolLock lck;
+    // Core::PolLock lck;
     if ( !uoexec.exists() )
       Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();
 
@@ -102,7 +102,7 @@ NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
 
   uoexec = *( info[0].As<External<weak_ptr<Core::UOExecutor>>>().Data() );
   {
-    Core::PolLock lck;
+    //    Core::PolLock lck;
     if ( !uoexec.exists() )
     {
       Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();

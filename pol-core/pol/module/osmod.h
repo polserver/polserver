@@ -19,6 +19,7 @@
 #include "../globals/script_internals.h"
 #include "../polclock.h"
 #include "../uoexhelp.h"
+#include "threadmod.h"
 
 namespace Pol
 {
@@ -49,7 +50,8 @@ polclock_t calc_script_clocksleft( polclock_t now );
 }  // namespace Core
 namespace Module
 {
-class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>
+class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>,
+                         public Module::ThreadInterface
 {
 public:
   bool signal_event( Bscript::BObjectImp* eventimp );
@@ -135,7 +137,6 @@ protected:
   Core::TimeoutHandle hold_itr_;
   Core::HoldListType in_hold_list_;
   Core::WAIT_TYPE wait_type;
-
 
 
   unsigned int pid_;
