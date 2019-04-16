@@ -141,7 +141,7 @@ ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exe
 
   ref_ptr<Core::UOAsyncRequest> req(
       new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
-  exec.addRequest( req ); 
+  exec.addRequest( req );
   //.addRequest( type, req );
   chr->client->gd->requests.addRequest( type, req );
   return req;

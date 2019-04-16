@@ -43,7 +43,8 @@ TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
         {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString, UINT_MAX},
         {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString, UINT_MAX},
         {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray, UINT_MAX},
-        {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary, UINT_MAX},
+        {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary,
+         UINT_MAX},
         {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt, UINT_MAX},
         {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray, UINT_MAX},
         {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal, UINT_MAX},
@@ -56,7 +57,7 @@ TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
         {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile, UINT_MAX}};
 template <>
 const char* TmplExecutorModule<ConfigFileExecutorModule>::modname = "cfgfile";
-}
+}  // namespace Bscript
 namespace Module
 {
 Bscript::BApplicObjType cfgfile_type;
@@ -748,5 +749,5 @@ bool getStoredConfigElemParam( Bscript::ExecutorModule& exmod, unsigned param,
     return false;
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

@@ -36,15 +36,6 @@ public:
 
   friend class Node::NodeModuleWrap<BasicIoExecutorModule>;
 };
-}
-
-//namespace Bscript 
-//{
-//  template <>
-//  extern const char* TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::modname;
-//
-//  template <>
-//  extern TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::FunctionTable TmplExecutorModule<Pol::Module::BasicIoExecutorModule>::function_table;
-//}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

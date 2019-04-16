@@ -3,9 +3,9 @@
  * @par History
  */
 
+#include "jsprog.h"
 #include "../../clib/logfacility.h"
 #include "../bscript/eprog.h"
-#include "jsprog.h"
 #include "nodecall.h"
 #include "nodethread.h"
 
@@ -34,7 +34,6 @@ int JavascriptProgram::read( const char* fname )
   {
     auto reqReturn = Node::makeCall<ObjectReference>(
         [fname]( Napi::Env env, NodeRequest<ObjectReference>* request ) {
-
           auto scriptName = std::string( "./" ) + fname;
           NODELOG.Format( "[{:04x}] [read] requesting, {}\n" ) << request->reqId() << scriptName;
 
@@ -66,7 +65,9 @@ int JavascriptProgram::read( const char* fname )
 
     if ( obj.IsEmpty() )
     {
-      ERROR_PRINT << "Error loading javascript " << fname << ": No ObjectReference returned. Script couldn't compile...? See node.log for more info.\n";
+      ERROR_PRINT << "Error loading javascript " << fname
+                  << ": No ObjectReference returned. Script couldn't compile...? See node.log for "
+                     "more info.\n";
       return 1;
     }
 

@@ -31,9 +31,12 @@ TmplExecutorModule<StorageExecutorModule>::FunctionTable
         {"StorageAreas", &StorageExecutorModule::mf_StorageAreas, UINT_MAX},
         {"FindStorageArea", &StorageExecutorModule::mf_FindStorageArea, UINT_MAX},
         {"CreateStorageArea", &StorageExecutorModule::mf_CreateStorageArea, UINT_MAX},
-        {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea, UINT_MAX},
-        {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea, UINT_MAX},
-        {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea, UINT_MAX}};
+        {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea,
+         UINT_MAX},
+        {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea,
+         UINT_MAX},
+        {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea,
+         UINT_MAX}};
 template <>
 const char* TmplExecutorModule<StorageExecutorModule>::modname = "Storage";
 }  // namespace Bscript

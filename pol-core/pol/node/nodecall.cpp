@@ -140,7 +140,7 @@ Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex )
           NODELOG.Format( "[{:04x}] [exec] errored {}\n" ) << request->reqId() << ex.what();
           POLLOG_ERROR.Format( "Error running node script {}: {}\n" )
               << prog->scriptname() << ex.what();
-          return static_cast<Bscript::BObjectImp*>( new Bscript::BError(ex.what()) );
+          return static_cast<Bscript::BObjectImp*>( new Bscript::BError( ex.what() ) );
         }
       } );
 
