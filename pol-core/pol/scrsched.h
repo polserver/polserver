@@ -50,6 +50,8 @@ UOExecutor* create_full_script_executor();
 void schedule_executor( UOExecutor* ex );
 void deschedule_executor( UOExecutor* ex );
 
+Bscript::BObjectImp* run_executor_to_completion( UOExecutor* ex, const ScriptDef& script );
+
 Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script );
 
 bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parameter );

@@ -29,9 +29,6 @@ Napi::Value NodeModuleWrap<PolModule>::MethodWrapper( const CallbackInfo& cbinfo
 
   Bscript::BObjectImp* funcRet;
   {
-    // Core::PolLock lck;
-    if ( !uoexec.exists() )
-      Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();
 
     for ( u32 i = 0; i < toCopy; ++i )
     {
@@ -100,23 +97,17 @@ NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
     Napi::TypeError::New( env, "arg1=External expected" ).ThrowAsJavaScriptException();
   }
 
-  uoexec = *( info[0].As<External<weak_ptr<Core::UOExecutor>>>().Data() );
+  uoexec = info[0].As<External<Core::UOExecutor>>().Data();
+  
+  polmod = static_cast<PolModule*>( uoexec->findModule( PolModule::modname ) );
+
+  if ( polmod == nullptr )
   {
-    //    Core::PolLock lck;
-    if ( !uoexec.exists() )
-    {
-      Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();
-    }
-
-    polmod = static_cast<PolModule*>( uoexec.get_weakptr()->findModule( PolModule::modname ) );
-
-    if ( polmod == nullptr )
-    {
-      polmod = new PolModule( *uoexec.get_weakptr() );
-      uoexec.get_weakptr()->addModule( polmod );
-    }
-  }
+    polmod = new PolModule( *uoexec );
+    uoexec->addModule( polmod );
+  }  
 }
+
 }  // namespace Node
 }  // namespace Pol
 

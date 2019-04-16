@@ -18,7 +18,6 @@
 #include <ctime>
 #include <exception>
 
-#include <format/format.h>
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../clib/logfacility.h"
@@ -51,6 +50,7 @@
 #include "scrdef.h"
 #include "scrstore.h"
 #include "uoexec.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -301,41 +301,43 @@ void add_common_exmods( Core::UOExecutor& ex )
   ex.addModule( CreateFileAccessExecutorModule( ex ) );
 }
 
-bool run_script_to_completion_worker( UOExecutor& ex, Bscript::Program* prog )
+bool run_script_to_completion_worker( UOExecutor* ex, Bscript::Program* prog )
 {
-  add_common_exmods( ex );
-  ex.addModule( new Module::UOExecutorModule( ex ) );
+  add_common_exmods( *ex );
+  ex->addModule( new Module::UOExecutorModule( *ex ) );
 
-  ex.setProgram( prog );
+  ex->setProgram( prog );
 
-  ex.setDebugLevel( Bscript::Executor::NONE );
-  ex.set_running_to_completion( true );
+  ex->setDebugLevel( Bscript::Executor::NONE );
+  ex->set_running_to_completion( true );
 
-  Clib::scripts_thread_script = ex.scriptname();
+  Clib::scripts_thread_script = ex->scriptname();
 
   if ( Plib::systemstate.config.report_rtc_scripts )
-    INFO_PRINT << "Script " << ex.scriptname() << " running..";
+    INFO_PRINT << "Script " << ex->scriptname() << " running..";
 
 
-  while ( ex.runnable() )
+  while ( ex->runnable() )
   {
     if ( prog->type() == Bscript::Program::ProgramType::JAVASCRIPT )
     {
       // We are running to completion... So any POL module methods should run on the first
       // tick.
-      Bscript::BObjectRef thevalue( Node::runExecutor( &ex ) );
-      // FIXME ???? 
+      Bscript::BObjectRef thevalue( Node::runExecutor( ex ) );
+      // FIXME ????
       return true;
     }
     INFO_PRINT << ".";
-    for ( int i = 0; ( i < 1000 ) && ex.runnable(); i++ )
+    for ( int i = 0; ( i < 1000 ) && ex->runnable(); i++ )
     {
-      Clib::scripts_thread_scriptPC = ex.PC;
-      ex.execInstr();
+      Clib::scripts_thread_scriptPC = ex->PC;
+      ex->execInstr();
     }
   }
   INFO_PRINT << "\n";
-  return ( ex.error_ == false );
+  bool retVal = ex->error_ == false;
+  delete ex;
+  return retVal;
 }
 
 bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parameter )
@@ -349,10 +351,10 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
     return false;
   }
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
   if ( program->hasProgram() )
   {
-    ex.pushArg( parameter );
+    ex->pushArg( parameter );
   }
   return run_script_to_completion_worker( ex, program.get() );
 }
@@ -365,12 +367,10 @@ bool run_script_to_completion( const char* filename )
     ERROR_PRINT << "Error reading script " << filename << "\n";
     return false;
   }
-
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
   return run_script_to_completion_worker( ex, program.get() );
 }
-
 
 Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script )
 {
@@ -396,14 +396,6 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   while ( ex.runnable() )
   {
     Clib::scripts_thread_scriptPC = ex.PC;
-    if (program->type() == Bscript::Program::ProgramType::JAVASCRIPT)
-    {
-      // We are running to completion... So any POL module methods should run on the first
-      // tick.
-      return Node::runExecutor( &ex );
-
-    }
-
     ex.execInstr();
     if ( ++i == 1000 )
     {
@@ -433,9 +425,77 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
     return ex.ValueStack.back().get()->impptr()->copy();
 }
 
+Bscript::BObjectImp* run_executor_to_completion( UOExecutor* ex, const ScriptDef& script )
+{
+  ref_ptr<Bscript::Program> program = find_script2( script );
+  if ( program.get() == nullptr )
+  {
+    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    delete ex;
+    return new Bscript::BError( "Unable to read script" );
+  }
+
+  add_common_exmods( *ex );
+  ex->addModule( new Module::UOExecutorModule( *ex ) );
+
+  ex->setProgram( program.get() );
+
+  ex->setDebugLevel( Bscript::Executor::NONE );
+  ex->set_running_to_completion( true );
+
+  Clib::scripts_thread_script = ex->scriptname();
+
+  if ( ex->runnable() && program->type() == Bscript::Program::ProgramType::JAVASCRIPT )
+  {
+    // We are running to completion... So any POL module methods should run on the first
+    // tick.
+    return Node::runExecutor( ex );
+  }
+
+  int i = 0;
+  bool reported = false;
+  while ( ex->runnable() )
+  {
+    Clib::scripts_thread_scriptPC = ex->PC;
+
+    ex->execInstr();
+    if ( ++i == 1000 )
+    {
+      if ( reported )
+      {
+        INFO_PRINT << ".." << ex->PC;
+      }
+      else
+      {
+        if ( Plib::systemstate.config.report_rtc_scripts )
+        {
+          INFO_PRINT << "Script " << script.name() << " running.." << ex->PC;
+          reported = true;
+        }
+      }
+      i = 0;
+    }
+  }
+  if ( reported )
+    INFO_PRINT << "\n";
+  Bscript::BObjectImp* ret;
+
+  if ( ex->error_ )
+    ret = new Bscript::BError( "Script exited with an error condition" );
+
+  if ( ex->ValueStack.empty() )
+    ret = new Bscript::BLong( 1 );
+  else
+    ret = ex->ValueStack.back().get()->impptr()->copy();
+
+  POLLOG_INFO << "Deleting executor from run_to_completion\n";
+  delete ex;
+  return ret;
+}
+
 Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script )
 {
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
   return run_executor_to_completion( ex, script );
 }
@@ -446,9 +506,9 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
 {
   //??    BObject bobj1( param1 );
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param1 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -459,10 +519,10 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
 {
   //?? BObject bobj1( param1 ), bobj2( param2 );
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
+  ex->pushArg( param2 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -473,11 +533,11 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
 {
   //??    BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 );
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
+  ex->pushArg( param3 );
+  ex->pushArg( param2 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -489,12 +549,12 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
 {
   //??BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ), bobj4( param4 );
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
+  ex->pushArg( param4 );
+  ex->pushArg( param3 );
+  ex->pushArg( param2 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -508,13 +568,13 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
   //??   bobj4( param4 ), bobj5( param5 );
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param5 );
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
+  ex->pushArg( param5 );
+  ex->pushArg( param4 );
+  ex->pushArg( param3 );
+  ex->pushArg( param2 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -529,14 +589,14 @@ Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript:
   //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
   //??   bobj4( param4 ), bobj5( param5 );
 
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param6 );
-  ex.pushArg( param5 );
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
+  ex->pushArg( param6 );
+  ex->pushArg( param5 );
+  ex->pushArg( param4 );
+  ex->pushArg( param3 );
+  ex->pushArg( param2 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -546,15 +606,15 @@ Bscript::BObjectImp* run_script_to_completion(
     Bscript::BObjectImp* param3, Bscript::BObjectImp* param4, Bscript::BObjectImp* param5,
     Bscript::BObjectImp* param6, Bscript::BObjectImp* param7 )
 {
-  UOExecutor ex;
+  UOExecutor* ex = new UOExecutor();
 
-  ex.pushArg( param7 );
-  ex.pushArg( param6 );
-  ex.pushArg( param5 );
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
+  ex->pushArg( param7 );
+  ex->pushArg( param6 );
+  ex->pushArg( param5 );
+  ex->pushArg( param4 );
+  ex->pushArg( param3 );
+  ex->pushArg( param2 );
+  ex->pushArg( param1 );
 
   return run_executor_to_completion( ex, script );
 }
@@ -784,5 +844,5 @@ void list_crit_scripts()
   // list_crit_scripts( "holding", holdlist );
   list_crit_scripts( "ran", scriptScheduler.getRanlist() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

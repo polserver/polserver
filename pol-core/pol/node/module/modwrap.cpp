@@ -40,23 +40,17 @@ NodeModuleWrap<Module::NPCExecutorModule>::NodeModuleWrap( const Napi::CallbackI
     Napi::TypeError::New( env, "arg1=External expected" ).ThrowAsJavaScriptException();
   }
 
-  uoexec = *( info[0].As<External<weak_ptr<Core::UOExecutor>>>().Data() );
-  {
-    Core::PolLock lck;
-    if ( !uoexec.exists() )
-    {
-      Napi::TypeError::New( env, "UOExecutor destroyed" ).ThrowAsJavaScriptException();
-    }
+  uoexec = info[0].As<External<Core::UOExecutor>>().Data();
 
     polmod = static_cast<Module::NPCExecutorModule*>(
-        uoexec.get_weakptr()->findModule( Module::NPCExecutorModule::modname ) );
+        uoexec->findModule( Module::NPCExecutorModule::modname ) );
 
     if ( polmod == nullptr )
     {
       Napi::TypeError::New( env, "Cannot wrap non-existent NPC module" )
           .ThrowAsJavaScriptException();
     }
-  }
+
 }
 
 NODE_API_MODULE_LINKED( modwrap, InitializeModwrap )

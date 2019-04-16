@@ -625,7 +625,7 @@ std::string DebugContext::cmd_call( const std::string& rest, Results& /*results*
         ex.pushArg( arr->ref_arr[i]->impptr() );
       }
     }
-    BObject ret( run_executor_to_completion( ex, sd ) );
+    BObject ret( run_executor_to_completion( std::move(ex), sd ) );
     return "Return value packed: " + ret.impptr()->pack();
   }
   catch ( ... )

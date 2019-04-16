@@ -37,6 +37,8 @@ UOExecutor::UOExecutor()
 {
   weakptr.set( this );
   os_module = new Module::OSExecutorModule( *this );
+  // Default the thread interface to ESCRIPT because... well. we don't want any accidental NPEs!
+  threadint = os_module;
   addModule( os_module );
 }
 
@@ -45,11 +47,9 @@ bool UOExecutor::setProgram( Bscript::Program* i_prog )
   prog_.set( i_prog );
   if ( i_prog->type() == Bscript::Program::ProgramType::ESCRIPT )
   {
-    threadint = os_module;
     return Executor::setProgram( static_cast<Bscript::EScriptProgram*>( i_prog ) );
   }
   else if ( i_prog->type() == Bscript::Program::ProgramType::JAVASCRIPT )
-
   {
     // return Executor::setProgram( static_cast<Bscript::EScriptProgram*>( i_prog ) );
     return true;

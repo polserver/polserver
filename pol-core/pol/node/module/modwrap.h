@@ -41,7 +41,7 @@ public:
 
 private:
   T* polmod;
-  weak_ptr<Core::UOExecutor> uoexec;
+  Core::UOExecutor* uoexec;
   static Napi::FunctionReference constructor;
 };
 
