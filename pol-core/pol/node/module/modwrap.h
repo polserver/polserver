@@ -36,8 +36,9 @@ class NodeModuleWrap : public Napi::ObjectWrap<NodeModuleWrap<T>>
 {
 public:
   NodeModuleWrap( const Napi::CallbackInfo& info );
-  Napi::Value MethodWrapper( const CallbackInfo& cbinfo );
   static void Init( Napi::Env env, Napi::Object exports );
+
+  Napi::Value ExecFunction( const CallbackInfo& info );
 
 private:
   T* polmod;

@@ -1,0 +1,28 @@
+{
+  "name": "pol-node",
+  "version": "0.1.0",
+  "description": "Build Tools for POL-Node integration",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polserver/polserver.git"
+  },
+  "keywords": [
+    "napi",
+    "node",
+    "uo",
+    "pol"
+  ],
+  "author": "POL Developers",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/polserver/polserver/issues"
+  },
+  "homepage": "https://github.com/polserver/polserver#readme",
+  "optionalDependencies": {
+    "jison": "^0.4.18"
+  }
+}

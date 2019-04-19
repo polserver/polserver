@@ -7,14 +7,7 @@ const vm = require("vm"),
   mod = require("module"),
   { Module } = mod;
 
-/**
- * NodeModuleWrap native binding. It exports the POL modules as classes inside, eg. `modwrap.BasicIo`.
- * These classes take a constructor with a single argument -- the External<UOExecutor> object, which
- * bound to the script specific execution instance module's require() function. By "script specific
- * execution instance", this is because the script module's own require() function is bound to a
- * specific function, and not just the prototype's.
- */
-const modwrap = process._linkedBinding("modwrap");
+const modules = require("./modules");
 
 /**
  * We create a hook into the Module instance method `require` to construct our modwrap objects
@@ -26,12 +19,12 @@ Module.prototype.require = function(id) {
   if (
     extUoExec &&
     typeof id === "string" &&
-    typeof modwrap[id] === "function"
+    typeof modules[id] === "function"
   ) {
     /**
      * Construct a new instance of NodeModuleWrap<module>
      */
-    const mod = new modwrap[id](extUoExec);
+    const mod = new modules[id](extUoExec);
 
     /**
      * The object above does not have its own properties for the functions. That means,
@@ -39,13 +32,13 @@ Module.prototype.require = function(id) {
      * would not. We'll copy them over here. This could also be done in the C++ constructor
      * for NodeModuleWrap<PolModule>.
      */
-    Reflect.ownKeys(Reflect.getPrototypeOf(mod)).forEach(func => {
-      if (func != "constructor") {
-        Object.defineProperty(mod, func, {
-          value: mod[func].bind(mod)
-        });
-      }
-    });
+    // Reflect.ownKeys(Reflect.getPrototypeOf(mod)).forEach(func => {
+    //   if (func != "constructor") {
+    //     Object.defineProperty(mod, func, {
+    //       value: mod[func].bind(mod)
+    //     });
+    //   }
+    // });
     return mod;
   }
 

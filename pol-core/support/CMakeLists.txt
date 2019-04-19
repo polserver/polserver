@@ -7,7 +7,6 @@ add_custom_target(${lib_name} SOURCES
   animxlate.cfg
   boats.cfg
   extobj.cfg
-  main.js
   pol.cfg.example
   scripts/ecompile.cfg.example
   scripts/attributes.em
@@ -34,15 +33,6 @@ add_custom_target(${lib_name} SOURCES
   uoconvert.cfg
 )
 
-if(ENABLE_NODEJS)
- install(FILES
-   main.js
-   wrapper.js
-   scriptloader.js
-   DESTINATION .
-   COMPONENT bin
- )
-endif()
 install(FILES
   pol.cfg.example
   uoconvert.cfg
