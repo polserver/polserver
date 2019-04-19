@@ -29,8 +29,8 @@ void NodeModuleWrap<PolModule>::Init( Napi::Env env, Napi::Object exports )
 
   Napi::Function func = ObjectWrap<NodeModuleWrap<PolModule>>::DefineClass(
       env, lowerModname.c_str(),
-      {ObjectWrap<NodeModuleWrap<PolModule>>::InstanceMethod( "execFunc", &ExecFunction )
-        });
+      {ObjectWrap<NodeModuleWrap<PolModule>>::InstanceMethod(
+          "execFunc", &NodeModuleWrap<PolModule>::ExecFunction )} );
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
   exports.Set( lowerModname, func );
@@ -47,8 +47,9 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
   auto funcIdx = polmod->functionIndex( funcName );
 
   NODELOG << "funcidx is " << funcIdx << "\n";
-  if (funcIdx == -1) 
-        Napi::TypeError::New( env, std::string("Unknown function ") + PolModule::modname + funcName ).ThrowAsJavaScriptException();
+  if ( funcIdx == -1 )
+    Napi::TypeError::New( env, std::string( "Unknown function " ) + PolModule::modname + funcName )
+        .ThrowAsJavaScriptException();
 
   Bscript::BObjectImp* funcRet;
   {
@@ -81,14 +82,14 @@ NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
   }
 
   uoexec = info[0].As<External<Core::UOExecutor>>().Data();
-  
+
   polmod = static_cast<PolModule*>( uoexec->findModule( PolModule::modname ) );
 
   if ( polmod == nullptr )
   {
     polmod = new PolModule( *uoexec );
     uoexec->addModule( polmod );
-  }  
+  }
 }
 
 }  // namespace Node

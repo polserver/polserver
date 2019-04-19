@@ -509,17 +509,18 @@ public:
 
   virtual BObjectImp* copy() const override;
   virtual size_t sizeEstimate() const override;
-  virtual std::string getStringRep() const override { return std::string("<delayed object: ") + std::to_string(reqId_) + ">"; }
+  virtual std::string getStringRep() const override
+  {
+    return std::string( "<delayed object: " ) + std::to_string( reqId_ ) + ">";
+  }
 
   void* operator new( std::size_t len );
   void operator delete( void* );
 
   u32 reqId() const { return reqId_; }
-  
-  private:
+
+private:
   u32 reqId_;
-
-
 };
 
 

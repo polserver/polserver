@@ -10,7 +10,7 @@ try {
   parser = new jison.Parser(grammar);
 } catch (e) {
   // Otherwise, we'll take the pre-built one.
-  parser = require("./em-parser").Parser;
+  parser = new (require("./em-parser").Parser);
 }
 
 const modules = ["basicio","uo","npc"];

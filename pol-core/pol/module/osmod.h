@@ -54,43 +54,43 @@ class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>,
                          public Module::ThreadInterface
 {
 public:
-  bool signal_event( Bscript::BObjectImp* eventimp );
-  void suspend();
-  void revive();
+  virtual bool signal_event( Bscript::BObjectImp* eventimp ) override;
+  virtual void suspend() override;
+  virtual void revive() override;
 
   explicit OSExecutorModule( Bscript::Executor& exec );
   ~OSExecutorModule();
 
 
-  void SleepFor( int secs );
-  void SleepForMs( int msecs );
+  virtual void SleepFor( int secs ) override;
+  virtual void SleepForMs( int msecs ) override;
 
-  unsigned int pid() const;
-  bool blocked() const;
+  virtual unsigned int pid() const override;
+  virtual bool blocked() const override;
 
-  bool in_debugger_holdlist() const;
-  void revive_debugged();
-  Bscript::BObjectImp* clear_event_queue();  // DAVE
+  virtual bool in_debugger_holdlist() const override;
+  virtual void revive_debugged() override;
+  virtual Bscript::BObjectImp* clear_event_queue() override;  // DAVE
 
   virtual size_t sizeEstimate() const override;
 
-  bool critical() const;
-  void critical( bool critical );
-
-  bool warn_on_runaway() const;
-  void warn_on_runaway( bool warn_on_runaway );
-
-  unsigned char priority() const;
-  void priority( unsigned char priority );
-
-  Core::polclock_t sleep_until_clock() const;
-  void sleep_until_clock( Core::polclock_t sleep_until_clock );
-
-  Core::TimeoutHandle hold_itr() const;
-  void hold_itr( Core::TimeoutHandle hold_itr );
-
-  Core::HoldListType in_hold_list() const;
-  void in_hold_list( Core::HoldListType in_hold_list );
+  virtual bool critical() const override;
+  virtual void critical( bool critical ) override;
+ 
+  virtual bool warn_on_runaway() const override;
+  virtual void warn_on_runaway( bool warn_on_runaway ) override;
+ 
+  virtual unsigned char priority() const override;
+  virtual void priority( unsigned char priority ) override;
+ 
+  virtual Core::polclock_t sleep_until_clock() const override;
+  virtual void sleep_until_clock( Core::polclock_t sleep_until_clock ) override;
+ 
+  virtual Core::TimeoutHandle hold_itr() const override;
+  virtual void hold_itr( Core::TimeoutHandle hold_itr ) override;
+ 
+  virtual Core::HoldListType in_hold_list() const override;
+  virtual void in_hold_list( Core::HoldListType in_hold_list ) override;
 
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );

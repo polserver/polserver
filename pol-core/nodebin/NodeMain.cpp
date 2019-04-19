@@ -1,6 +1,7 @@
 
 #include "pol_global_config.h"
 
+#include <cstring>
 #include "../clib/logfacility.h"
 #include "NodeMain.h"
 #include "node.h"

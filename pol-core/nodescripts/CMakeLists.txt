@@ -2,7 +2,7 @@ set(lib_name nodescripts)
 
 message("* ${lib_name}")
 
-add_custom_target(${lib_name} SOURCES
+add_custom_target(${lib_name} ALL SOURCES
   main.js
   modules.js
   wrapper.js

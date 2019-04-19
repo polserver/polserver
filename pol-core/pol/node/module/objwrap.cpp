@@ -58,20 +58,21 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
 std::map<u32, Napi::Promise::Deferred> NodeObjectWrap::delayedMap;
 
 
-bool NodeObjectWrap::resolveDelayedObject(u32 reqId, Bscript::BObjectRef objref)
+bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref )
 {
   auto iter = delayedMap.find( reqId );
   if ( iter == delayedMap.end() )
     return false;
 
-  // We really only resolve.. so if something errors, it will be a resolution of an error, just like in Escript.
-  // eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an Napi::Error), whih is falsey.
+  // We really only resolve.. so if something errors, it will be a resolution of an error, just like
+  // in Escript. eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an
+  // Napi::Error), whih is falsey.
   auto& promise = iter->second;
-  auto call = Node::makeCall<bool>( [&](Napi::Env env, NodeRequest<bool>* /*request*/) { 
+  auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* /*request*/ ) {
     promise.Resolve( Wrap( env, objref, reqId ) );
     delayedMap.erase( iter );
     return true;
-  });
+  } );
 
   return call.getRef();
 }
@@ -114,7 +115,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTDelayedObject ) )
   {
     auto convt = Clib::explicit_cast<Bscript::DelayedObject*, Bscript::BObjectImp*>( impptr );
-    // Create a new deferred, and return the promise to the script. 
+    // Create a new deferred, and return the promise to the script.
     // We store the deferred in our map, to be resolved later.
     Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New( env );
     delayedMap.emplace( convt->reqId(), deferred );
@@ -129,7 +130,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     auto arr = convertedVal.As<Array>();
     for ( size_t i = 0; i < convt->ref_arr.size(); i++ )
     {
-      // Set the value 
+      // Set the value
       arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
     }
   }
@@ -138,7 +139,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     convertedVal = env.Undefined();
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTApplicObj ) )
-  { 
+  {
     return Node::requireRef.Get( "wrapper" )
         .As<Object>()
         .Get( "proxyObject" )
