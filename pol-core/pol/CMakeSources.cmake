@@ -444,6 +444,8 @@ if(ENABLE_NODEJS)
     node/module/modwrap-inl.h
     node/module/objwrap.cpp
     node/module/objwrap.h
+    node/module/polosmod.cpp
+    node/module/polosmod.h
     node/napi-wrap.h
     node/jsprog.cpp
     node/jsprog.h

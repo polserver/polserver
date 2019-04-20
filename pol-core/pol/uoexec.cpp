@@ -12,6 +12,7 @@
 #include "node/nodecall.h"
 #include "polcfg.h"
 #include "polclock.h"
+#include "node/module/polosmod.h"
 
 namespace Pol
 {
@@ -51,7 +52,7 @@ bool UOExecutor::setProgram( Bscript::Program* i_prog )
   }
   else if ( i_prog->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
-    // return Executor::setProgram( static_cast<Bscript::EScriptProgram*>( i_prog ) );
+    threadint = new Node::Module::PolOsModule( *this );
     return true;
   }
   return false;
