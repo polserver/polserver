@@ -170,7 +170,7 @@ void triggerGC()
           << request->reqId() << ex.what();
       return false;
     }
-  }, false);
+  }, nullptr, false);
   call.getRef();
 }
 

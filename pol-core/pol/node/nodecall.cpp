@@ -6,6 +6,7 @@
 #include "nodecall.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/spinlock.h"
 #include "../../clib/stlutil.h"
 #include "../polclock.h"
 #include "../uoexec.h"
@@ -14,6 +15,9 @@
 #include "napi-wrap.h"
 #include "nodethread.h"
 #include <future>
+
+#include "../uoscrobj.h"
+
 
 using namespace Napi;
 
@@ -27,27 +31,83 @@ std::atomic_uint nextRequestId( 0 );
 
 
 std::map<Core::UOExecutor*, Napi::ObjectReference> execToModuleMap;
+static Clib::SpinLock modmap_lock;
 
-void emitExecutorShutdowns()
+
+// Only call this inside a Node environment!
+// We are guaranteed the ObjectReference will not have been removed by the OnScriptReturn
+//
+Napi::Object GetRunningScript( Core::UOExecutor* uoexec )
 {
+  auto iter = execToModuleMap.find( uoexec );
+  if ( iter != execToModuleMap.end() )
+  {
+    return iter->second.Value();
+  }
+  return Napi::Object();
+}
+
+bool emitEvent( Core::UOExecutor* exec, Core::EVENTID eventId )
+{
+  return emitEvent( exec, new Pol::Module::UnsourcedEvent( eventId ) );
+}
+
+// If exec is nullptr, it is a broadcast
+bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
+{
+  passert( ev != nullptr );
+
   auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* request ) {
-    for ( auto& iter : execToModuleMap )
+    bool retVal, handled = false;
+    std::string eventName;
+    Bscript::BObjectRef objref( ev );
+
+    if ( ev->isa( Bscript::BObjectImp::OTStruct ) )
     {
-      NODELOG.Format( "[{:04x}] [exec] finalizing executor {}\n" )
-          << request->reqId() << iter.first->scriptname();
-      bool retVal = iter.second.Get( "emit" )
-                        .As<Function>()
-                        .Call( iter.second.Value(), {Napi::String::New( env, "shutdown" )} )
-                        .ToBoolean()
-                        .Value();
-      NODELOG.Format( "[{:04x}] [exec] module.emit('shutdown') returned {}\n" )
-          << request->reqId() << retVal;
-      iter.second.Unref();
+      Bscript::BObjectRef type = ev->get_member( "type" );
+      eventName = type->impptr()->getStringRep();
     }
-    return true;
+    else
+    {
+      eventName = ev->getStringRep();
+    }
+
+    auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
+    auto iter = ( exec == nullptr ? execToModuleMap.begin() : execToModuleMap.find( exec ) );
+    do
+    {
+      NODELOG.Format( "[{:04x}] [exec] sending event to script ({} {}) {} {} {} \n" )
+          << request->reqId() << iter->first->pid() << iter->first->scriptname() << eventName
+          << Node::ToUtf8Value( data ) << objref->impptr()->getStringRep();
+      try
+      {
+        retVal = iter->second.Get( "emit" )
+                     .As<Function>()
+                     .Call( iter->second.Value(), {Napi::String::New( env, eventName ), data} )
+                     .ToBoolean()
+                     .Value();
+        NODELOG.Format( "[{:04x}] [exec] script.emit {} returned {}\n" )
+            << request->reqId() << eventName << retVal;
+      }
+      catch ( std::exception& exc )
+      {
+        retVal = false;
+        NODELOG.Format( "[{:04x}] [exec] script.emit {} returned exception {}\n" )
+            << request->reqId() << eventName << exc.what();
+      }
+      handled = true;
+    } while ( ++iter != execToModuleMap.end() && exec == nullptr );
+
+    if ( exec != nullptr && !handled )
+    {
+      NODELOG.Format( "[{:04x}] [exec] script.emit {} sending event to non-running script?\n" )
+          << request->reqId() << eventName;
+      retVal = false;
+    }
+    return retVal;
   } );
-  call.getRef();
-  execToModuleMap.clear();
+
+  return call.getRef();
 }
 
 struct pid_compare
@@ -65,9 +125,14 @@ Napi::Value OnScriptReturn( const CallbackInfo& cbinfo )
   Core::UOExecutor* ex = req->uoexec_;
   Napi::Value obj = cbinfo.Length() > 0 ? cbinfo[0] : env.Undefined();
 
-  NODELOG.Format( "[{:04x}] [exec] script {} {} returned: {}\n" )
+  NODELOG.Format( "[{:04x}] [exec] script returned, {} {}: {}\n" )
       << req->reqId() << ex->pid() << ex->scriptname() << Node::ToUtf8Value( obj );
 
+  auto iter = execToModuleMap.find( ex );
+  if ( iter != execToModuleMap.end() )
+  {
+    execToModuleMap.erase( iter );
+  }
 
   bool ret = Core::scriptScheduler.free_externalscript( ex );
   NODELOG.Format( "[{:04x}] [exec] freeing executor: {}\n" ) << req->reqId() << ret;
@@ -81,10 +146,16 @@ Napi::Value OnScriptCatch( const CallbackInfo& cbinfo )
   Core::UOExecutor* ex = req->uoexec_;
   Napi::Value obj = cbinfo.Length() > 0 ? cbinfo[0] : env.Undefined();
 
-  NODELOG.Format( "[{:04x}] [exec] script {} {} errored: {}\n" )
+  NODELOG.Format( "[{:04x}] [exec] script error, {} {}: {}\n" )
       << req->reqId()
 
       << ex->pid() << ex->scriptname() << Node::ToUtf8Value( obj );
+
+  auto iter = execToModuleMap.find( ex );
+  if ( iter != execToModuleMap.end() )
+  {
+    execToModuleMap.erase( iter );
+  }
 
   bool ret = Core::scriptScheduler.free_externalscript( ex );
   NODELOG.Format( "[{:04x}] [exec] freeing executor: {}\n" ) << req->reqId() << ret;
@@ -103,7 +174,6 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
 
   /*
   Add the executor to the script scheduler's "External Scripts" holdlist.
-  
 
   Regarding telling the scheduler "we are done" is a little more complex. The External<>
   Finalize callback runs once the V8 garbage collector has freed the reference to the object.
@@ -178,16 +248,14 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
 
           auto jsRetVal = jsCall.Get( "value" );
           auto jsRetObj = jsRetVal.As<Object>();
+          auto mod = jsCall.Get( "module" ).As<Object>();
           NODELOG.Format( "[{:04x}] [exec] returned value {}\n" )
               << request->reqId() << Node::ToUtf8Value( jsRetVal );
-          //     /* if ( !ex->running_to_completion() )
-          //      {
-          //        auto mod = jsCall.Get( "module" ).As<Object>();
 
-          //        if ( mod.Get( "_eventsCount" ).As<Number>().Int32Value() > 0 )
-          //          execToModuleMap.emplace( ex, ObjectReference::New( mod, 1 ) );
-          //      }
-          //*/
+          // Add the module to a map of UOExecutor -> module, so we can trigger events
+          // We will unreference and remove from map in the Return and Catch handlers below.
+          execToModuleMap.emplace( ex, ObjectReference::New( mod, 1 ) );
+
           auto scriptRet = Napi::Function::New( env, OnScriptReturn, "OnScriptReturn", request );
           auto scriptCatch = Napi::Function::New( env, OnScriptCatch, "OnScriptCatch", request );
           auto convertedVal = NodeObjectWrap::Wrap( env, jsRetVal, reqId );

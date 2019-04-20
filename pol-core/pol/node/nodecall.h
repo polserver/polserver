@@ -7,6 +7,8 @@
 #ifndef NODECALL_H
 #define NODECALL_H
 
+#include "../eventid.h"
+#include "../../clib/spinlock.h"
 #include "../../clib/timer.h"
 #include "napi-wrap.h"
 #include "nodethread.h"
@@ -21,6 +23,7 @@ namespace Pol
 namespace Bscript
 {
 class BObjectImp;
+class BObjectRef;
 }
 namespace Core
 {
@@ -96,12 +99,12 @@ private:
   unsigned long reqId_;
   Tools::HighPerfTimer timer_;
   std::vector<timepoint> points_;
-  //Napi::Env env_;
+  // Napi::Env env_;
   ReturnType ref_;
   // std::promise<NodeRequest<ReturnType>> promise;
 
 public:
-  Core::UOExecutor* uoexec_; // for now
+  Core::UOExecutor* uoexec_;  // for now
   NodeRequest( Core::UOExecutor* exec = nullptr );
   unsigned int reqId() const;
   timestamp checkpoint( const std::string& key );
@@ -110,10 +113,16 @@ public:
 };
 
 Bscript::BObjectRef runExecutor( Core::UOExecutor* uoexec );
-void emitExecutorShutdowns();
 
 template <typename ReturnType, typename Callable>
-NodeRequest<ReturnType> makeCall( Callable callback, Core::UOExecutor* uoexec = nullptr, bool blocking = true );
+NodeRequest<ReturnType> makeCall( Callable callback, Core::UOExecutor* uoexec = nullptr,
+                                  bool blocking = true );
+
+// extern std::map<Core::UOExecutor*, Napi::ObjectReference> execToModuleMap;
+// Napi::Object GetRunningScript( Core::UOExecutor* uoexec );
+bool emitEvent( Core::UOExecutor* uoexec, Bscript::BObjectImp* data = nullptr );
+
+bool emitEvent( Core::UOExecutor* uoexec, Core::EVENTID eventName );
 
 
 }  // namespace Node
