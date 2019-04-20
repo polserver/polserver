@@ -12,8 +12,11 @@
 #include "../../bscript/execmodl.h"
 #endif
 
+#include "../globals/script_internals.h"
+
 namespace Pol
 {
+
 namespace Module
 {
 

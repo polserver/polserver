@@ -9,6 +9,7 @@
 #include "../node/nodecall.h"
 #include "../polsig.h"
 #include "../uoexec.h"
+#include "../eventid.h"
 #include "state.h"
 
 namespace Pol
@@ -65,6 +66,7 @@ void ScriptScheduler::deinitialize()
   }
 
 #ifdef HAVE_NODEJS
+  Node::emitEvent( nullptr, Core::EVID_KILL );
   Node::triggerGC();
 #endif
   bool empty;

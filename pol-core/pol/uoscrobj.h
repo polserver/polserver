@@ -275,6 +275,12 @@ public:
   SourcedEvent( Core::EVENTID type, Mobile::Character* source );
 };
 
+class UnsourcedEvent : public Bscript::BStruct
+{
+public:
+  UnsourcedEvent( Core::EVENTID type );
+};
+
 class EngageEvent final : public SourcedEvent
 {
 public:

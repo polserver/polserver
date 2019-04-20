@@ -157,8 +157,6 @@ Napi::Value CreateTSFN( const CallbackInfo& info )
 
 void triggerGC()
 {
-  Node::emitExecutorShutdowns();
-
   auto call = Node::makeCall<bool>( []( Napi::Env /*env*/, NodeRequest<bool>* request ) {
     try
     {
