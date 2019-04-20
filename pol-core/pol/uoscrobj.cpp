@@ -4260,6 +4260,11 @@ SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
   addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
 }
 
+UnsourcedEvent::UnsourcedEvent( Core::EVENTID type )
+{
+  addMember( "type", new BLong( type ) );
+}
+
 SpeechEvent::SpeechEvent( Mobile::Character* speaker, const char* speech )
 {
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
