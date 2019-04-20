@@ -96,15 +96,13 @@ private:
   unsigned long reqId_;
   Tools::HighPerfTimer timer_;
   std::vector<timepoint> points_;
-  Napi::Env env_;
+  //Napi::Env env_;
   ReturnType ref_;
   // std::promise<NodeRequest<ReturnType>> promise;
 
 public:
-  NodeRequest( Napi::Env env );
-  NodeRequest();
-  // std::future<ReturnType> val;
-  std::future<NodeRequest<ReturnType>> future();
+  Core::UOExecutor* uoexec_; // for now
+  NodeRequest( Core::UOExecutor* exec = nullptr );
   unsigned int reqId() const;
   timestamp checkpoint( const std::string& key );
   void ref( ReturnType&& r );
@@ -115,7 +113,7 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* uoexec );
 void emitExecutorShutdowns();
 
 template <typename ReturnType, typename Callable>
-NodeRequest<ReturnType> makeCall( Callable callback, bool blocking = true );
+NodeRequest<ReturnType> makeCall( Callable callback, Core::UOExecutor* uoexec = nullptr, bool blocking = true );
 
 
 }  // namespace Node

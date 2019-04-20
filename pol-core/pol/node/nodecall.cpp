@@ -61,30 +61,33 @@ struct pid_compare
 Napi::Value OnScriptReturn( const CallbackInfo& cbinfo )
 {
   Napi::Env env = cbinfo.Env();
-  Core::UOExecutor* ex = static_cast<Core::UOExecutor*>( cbinfo.Data() );
-
+  auto* req = static_cast<NodeRequest<Bscript::BObjectRef>*>( cbinfo.Data() );
+  Core::UOExecutor* ex = req->uoexec_;
   Napi::Value obj = cbinfo.Length() > 0 ? cbinfo[0] : env.Undefined();
 
-  NODELOG.Format( "[----] [exec] script {} {} returned: {}\n" )
-      << ex->pid() << ex->scriptname() << Node::ToUtf8Value( obj );
+  NODELOG.Format( "[{:04x}] [exec] script {} {} returned: {}\n" )
+      << req->reqId() << ex->pid() << ex->scriptname() << Node::ToUtf8Value( obj );
 
 
   bool ret = Core::scriptScheduler.free_externalscript( ex );
-  NODELOG.Format( "[----] [exec] freeing executor: {}\n" ) << ret;
+  NODELOG.Format( "[{:04x}] [exec] freeing executor: {}\n" ) << req->reqId() << ret;
   return Boolean::New( env, true );
 }
 
 Napi::Value OnScriptCatch( const CallbackInfo& cbinfo )
 {
   Napi::Env env = cbinfo.Env();
-  Core::UOExecutor* ex = static_cast<Core::UOExecutor*>( cbinfo.Data() );
+  auto* req = static_cast<NodeRequest<Bscript::BObjectRef>*>( cbinfo.Data() );
+  Core::UOExecutor* ex = req->uoexec_;
   Napi::Value obj = cbinfo.Length() > 0 ? cbinfo[0] : env.Undefined();
 
-  NODELOG.Format( "[----] [exec] script {} {} errored: {}\n" )
+  NODELOG.Format( "[{:04x}] [exec] script {} {} errored: {}\n" )
+      << req->reqId()
+
       << ex->pid() << ex->scriptname() << Node::ToUtf8Value( obj );
 
   bool ret = Core::scriptScheduler.free_externalscript( ex );
-  NODELOG.Format( "[----] [exec] freeing executor: {}\n" ) << ret;
+  NODELOG.Format( "[{:04x}] [exec] freeing executor: {}\n" ) << req->reqId() << ret;
 
   return Boolean::New( env, false );
 }
@@ -100,7 +103,8 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
 
   /*
   Add the executor to the script scheduler's "External Scripts" holdlist.
-  
+  
+
   Regarding telling the scheduler "we are done" is a little more complex. The External<>
   Finalize callback runs once the V8 garbage collector has freed the reference to the object.
   However, this is not done immediately after the script finishes -- the object is just
@@ -184,8 +188,8 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
           //          execToModuleMap.emplace( ex, ObjectReference::New( mod, 1 ) );
           //      }
           //*/
-          auto scriptRet = Napi::Function::New( env, OnScriptReturn, "OnScriptReturn", ex );
-          auto scriptCatch = Napi::Function::New( env, OnScriptCatch, "OnScriptCatch", ex );
+          auto scriptRet = Napi::Function::New( env, OnScriptReturn, "OnScriptReturn", request );
+          auto scriptCatch = Napi::Function::New( env, OnScriptCatch, "OnScriptCatch", request );
           auto convertedVal = NodeObjectWrap::Wrap( env, jsRetVal, reqId );
 
           if ( jsRetVal.IsPromise() )
@@ -206,13 +210,14 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
           POLLOG_ERROR.Format( "Error running node script {}: {}\n" )
               << prog->scriptname() << e.what();
 
-          auto scriptCatch = Napi::Function::New( env, OnScriptReturn, "OnScriptCatch", ex );
+          auto scriptCatch = Napi::Function::New( env, OnScriptCatch, "OnScriptCatch", request );
           scriptCatch.Call( {String::New( env, e.what() )} );
 
           auto convertedVal = Bscript::BObjectRef( new Bscript::BError( e.what() ) );
           return convertedVal;
         }
-      } );
+      },
+      ex );
 
   auto impref = call.getRef();
   NODELOG.Format( "[{:04x}] [exec] returned to core {}\n" )

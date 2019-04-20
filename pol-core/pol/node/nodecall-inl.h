@@ -7,15 +7,10 @@ namespace Pol
 {
 namespace Node
 {
-template <typename ReturnType>
-NodeRequest<ReturnType>::NodeRequest()
-    : reqId_( nextRequestId++ ), timer_(), points_(), env_( nullptr )
-{
-}
 
 template <typename ReturnType>
-NodeRequest<ReturnType>::NodeRequest( Napi::Env env )
-    : reqId_( nextRequestId++ ), timer_(), points_(), env_( env )
+NodeRequest<ReturnType>::NodeRequest( Core::UOExecutor* uoexec )
+    : reqId_( nextRequestId++ ), timer_(), points_(), uoexec_( uoexec )
 {
 }
 
@@ -50,10 +45,10 @@ Node::timestamp NodeRequest<ReturnType>::checkpoint( const std::string& key )
  */
 
 template <typename ReturnType, typename Callable>
-NodeRequest<ReturnType> makeCall( Callable callable, bool blocking )
+NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, bool blocking )
 {
   auto promise2 = std::make_shared<std::promise<void>>();
-  NodeRequest<ReturnType>* req = new NodeRequest<ReturnType>();
+  NodeRequest<ReturnType>* req = new NodeRequest<ReturnType>( uoexec );
 
 
   ThreadSafeFunction::Status status =
@@ -71,7 +66,7 @@ NodeRequest<ReturnType> makeCall( Callable callable, bool blocking )
           req->ref( callable( env, req ) );
           // FIXME lets get this value back too..? But the core would never _use_ it...
         }
-      });
+      } );
 
   try
   {
