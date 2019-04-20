@@ -134,13 +134,26 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
       arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
     }
   }
+  else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTStruct ) )
+  {
+    auto convt = Clib::explicit_cast<Bscript::BStruct*, Bscript::BObjectImp*>( impptr );
+
+    // Create a new object
+    convertedVal = Napi::Object::New( env );
+    auto obj = convertedVal.As<Object>();
+    for ( auto key : convt->contents() )
+    {
+      obj[key.first] =
+          key.first == "sourcee" ? String::New( env, key.first ) : Wrap( env, key.second, reqId );
+    }
+  }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTUninit ) )
   {
     convertedVal = env.Undefined();
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTApplicObj ) )
   {
-    return Node::requireRef.Get( "wrapper" )
+    convertedVal = Node::requireRef.Get( "wrapper" )
         .As<Object>()
         .Get( "proxyObject" )
         .As<Function>()

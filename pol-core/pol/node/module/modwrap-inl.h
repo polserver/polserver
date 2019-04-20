@@ -46,7 +46,6 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
   std::string funcName = cbinfo[0].As<String>().Utf8Value();
   auto funcIdx = polmod->functionIndex( funcName );
 
-  NODELOG << "funcidx is " << funcIdx << "\n";
   if ( funcIdx == -1 )
     Napi::TypeError::New( env, std::string( "Unknown function " ) + PolModule::modname + funcName )
         .ThrowAsJavaScriptException();
@@ -62,6 +61,7 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
     // cleanParams is protected... sooo
     polmod->exec.fparams.clear();
   }
+  
   auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
   return convertedFunctRet;
 }
