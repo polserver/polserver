@@ -35,6 +35,8 @@ option(ONLY_POL "Build only pol" OFF)
 option(ONLY_POLTOOL "Build only poltool" OFF)
 option(ONLY_UOCONVERT "Build only uoconvert" OFF)
 option(ONLY_UOTOOL "Build only uotool" OFF)
+option(ONLY_NODEBIN "Build only nodebin" OFF)
+
 
 option(ENABLE_ASAN "Enables Address sanitizer" OFF)
 option(ENABLE_USAN "Enables Undefined sanitizer" OFF)
