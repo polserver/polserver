@@ -22,7 +22,7 @@ typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
 typedef std::map<std::string, ref_ptr<Bscript::Program>, Clib::ci_cmp_pred> ScriptStorage;
 typedef std::map<unsigned int, UOExecutor*> PidList;
 typedef HoldList::iterator TimeoutHandle;
-typedef NoTimeoutHoldList ExternalHoldList; // for now..
+typedef NoTimeoutHoldList ExternalHoldList;  // for now..
 
 
 enum HoldListType
@@ -90,8 +90,8 @@ public:
 
   // Remove an externally-mananged script.
   void add_externalscript( UOExecutor* exec );
-  // Remove an externally-mananged script.
-  void free_externalscript( UOExecutor* exec );
+  // Remove an externally-mananged script. Returns `true` if removed, `false` otherwise.
+  bool free_externalscript( UOExecutor* exec );
 
   // Adds a new executor to the queue directly
   void enqueue( UOExecutor* exec );

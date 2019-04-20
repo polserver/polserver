@@ -447,9 +447,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor* ex, const ScriptDef
 
   if ( ex->runnable() && program->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
-    // We are running to completion... So any POL module methods should run on the first
-    // tick.
-    return Node::runExecutor( ex );
+    return Node::runExecutor( ex )->impptr()->copy();
   }
 
   int i = 0;

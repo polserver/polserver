@@ -29,15 +29,15 @@ namespace Pol
 {
 namespace Node
 {
-Bscript::BObjectImp* runExecutor( Core::UOExecutor* ex );
+Bscript::BObjectRef runExecutor( Core::UOExecutor* ex );
 }
 namespace Module
 {
-//class OSExecutorModule;
+// class OSExecutorModule;
 class ThreadInterface;
 
 
-}
+}  // namespace Module
 namespace Core
 {
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
@@ -67,7 +67,7 @@ public:
 
   bool setProgram( Bscript::Program* prog );
 
-  friend Bscript::BObjectImp* Node::runExecutor( UOExecutor* ex );
+  friend Bscript::BObjectRef Node::runExecutor( UOExecutor* ex );
 
   bool suspend();
   bool revive();

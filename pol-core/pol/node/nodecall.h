@@ -111,8 +111,8 @@ public:
   ReturnType getRef();
 };
 
-Bscript::BObjectImp* runExecutor( Core::UOExecutor* uoexec );
-void emitExecutorShutdowns( );
+Bscript::BObjectRef runExecutor( Core::UOExecutor* uoexec );
+void emitExecutorShutdowns();
 
 template <typename ReturnType, typename Callable>
 NodeRequest<ReturnType> makeCall( Callable callback, bool blocking = true );

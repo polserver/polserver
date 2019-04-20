@@ -213,15 +213,15 @@ void ScriptScheduler::add_externalscript( UOExecutor* ex )
 }
 
 
-void ScriptScheduler::free_externalscript( UOExecutor* ex )
+bool ScriptScheduler::free_externalscript( UOExecutor* ex )
 {
   Clib::SpinLockGuard lock( externalscript_lock );
   auto it = externalholdlist.find( ex );
-  passert( it != externalholdlist.end() );
-  NODELOG << "Removing executor " << ex->pid() << " from external holdlist\n";
+  if ( it == externalholdlist.end() )
+    return false;
   delete ( *it );
   externalholdlist.erase( it );
-  ;
+  return true;
 }
 
 void ScriptScheduler::run_ready()
@@ -253,9 +253,9 @@ void ScriptScheduler::run_ready()
        * starting async things that eventually use the executor.
        *
        */
-      Bscript::BObjectImp* thevalue = Node::runExecutor( ex );
-      if ( thevalue != nullptr )
-        delete thevalue;
+      Node::runExecutor( ex );
+      /* if ( thevalue != nullptr )
+         delete thevalue;*/
       continue;
     }
 
