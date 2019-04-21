@@ -3,8 +3,10 @@
 const generator = require("./wrap-generator");
 
 async function run() {
-  await generator.generateModules();
-  await generator.generateObjects();
+  const outPath = process.argv.slice(2).join(" ") || process.cwd();
+  
+  await generator.generateModules(outPath);
+  await generator.generateObjects(outPath);
 }
 
 if (require.main === module) {

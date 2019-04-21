@@ -8,7 +8,8 @@ add_custom_target(${lib_name} ALL SOURCES
   build-scripts/install-deps.js
   build-scripts/wrap-generator.js
   build-scripts/package-lock.json
-
+  templates/modules.hbs
+  templates/objects.hbs
   # Generated files
   modules.js
   objects.js
@@ -18,10 +19,10 @@ SET_SOURCE_FILES_PROPERTIES(modules.js PROPERTIES GENERATED true)
 SET_SOURCE_FILES_PROPERTIES(objects.js PROPERTIES GENERATED true)
 
 add_custom_command(
-  OUTPUT modules.js
-  COMMAND nodebin ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts/install-deps.js ${CMAKE_COMMAND} 
-  COMMAND nodebin ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts/build.js
- # WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  OUTPUT modules.js objects.js
+  COMMAND nodebin install-deps.js ${CMAKE_COMMAND} 
+  COMMAND nodebin build.js ${CMAKE_CURRENT_BINARY_DIR}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts
   DEPENDS nodebin
 )
 

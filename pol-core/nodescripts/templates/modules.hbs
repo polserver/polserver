@@ -5,7 +5,7 @@
   * execution instance", this is because the script module's own require() function is bound to a
   * specific function, and not just the prototype's.
   */
-{{!-- const modwrap = process._linkedBinding("modwrap"); --}}
+const modwrap = process._linkedBinding("modwrap");
 
 {{#each .}}
 function {{@key}}(extUoExec) {

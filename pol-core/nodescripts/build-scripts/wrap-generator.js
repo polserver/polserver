@@ -30,7 +30,7 @@ try {
 } catch (e) {
 
 }
-async function generateModules() {
+async function generateModules(outPath) {
   let parser;
   try {
     // If we have jison, we will try to build the parser.
@@ -46,28 +46,7 @@ async function generateModules() {
     return currVal.endsWith(".em") ? prevVal.concat( [ currVal.substr(0,currVal.length-3) ] ) : prevVal;
   }, []);
 
-  console.log("modules are", modules)
   
-  // let modSrc =
-  // `/**
-  // * NodeModuleWrap native binding. It exports the POL modules as classes inside, eg. \`modwrap.basicio\`.
-  // * These classes take a constructor with a single argument -- the External<UOExecutor> object, which
-  // * bound to the script specific execution instance module's require() function. By "script specific
-  // * execution instance", this is because the script module's own require() function is bound to a
-  // * specific function, and not just the prototype's.
-  // */
-  // const modwrap = process._linkedBinding("modwrap");\n\n` +
-  // modules.map( mod => {
-  //     let { constants = {}, functions = {} } = parser.parse(fs.readFileSync(path.resolve(__dirname,`../../support/scripts/${mod}.em`),"utf-8"));
-  //     let result = [
-  //       `module.exports.${mod} = function ${mod}(extUoExec) {\n  const extMod = new modwrap.${mod}(extUoExec);`,
-  //       Object.entries(constants).map( ([key,val]) => `  this.${key} = ${JSON.stringify(val)};` ).join("\n"),
-  //       Object.entries(functions).map( ([func,args]) => `  this.${  (func[1]&&func[1].match(/[a-z]/))  ? func[0].toLowerCase() : func[0]}${func.substr(1)} = function( ${args.map(a=>a.name).join(", ")} ) { return this.execFunc( "${func}", ${args.map( (a,i) =>typeof a.default !== "undefined"?`arguments.length <= ${i} ? ${JSON.stringify(a.default)} : ${a.name}`:a.name).join(", ")} ); }.bind(extMod);` ).join("\n"),
-  //       '};'
-  //     ];
-  //     return result.join("\n");
-  // }).join("\n");
-
   const modobj = modules.reduce( (prevVal,modName) => { 
     return { 
       ...prevVal, 
@@ -75,30 +54,27 @@ async function generateModules() {
     };
   }, {});
 
-  console.log(modobj);
-
-  debugger;
-
-  if (true || internalGetFunctionIndex) {
+  if (internalGetFunctionIndex) {
     for ( const [modName, modDef] of Object.entries(modobj))
     {
       const { functions } = modDef;
       for ( const funcName in functions ) {
-        functions[funcName].id = 123;
+        functions[funcName].id = internalGetFunctionIndex(modName, funcName);
       }
     }
   }
+
+  debugger;
 
   let templateStr = fs.readFileSync(path.resolve(__dirname,"../templates/modules.hbs"), "utf-8");
   let templateFunc = Handlebars.compile(templateStr);
   let generated = templateFunc( modobj );
 
-  fs.writeFileSync("modules.js", generated, "utf-8");
-// console.log(generated);
+  fs.writeFileSync(path.join(outPath,"modules.js"), generated, "utf-8");
 }
 
 
-async function generateObjects() {
+async function generateObjects(outPath) {
   var parser = new xml2js.Parser();
   let data = await util.promisify(fs.readFile)(path.resolve(__dirname, '../../../docs/docs.polserver.com/pol100/objref.xml'), "utf8");
 
@@ -117,9 +93,6 @@ async function generateObjects() {
       "FunctionObject": undefined
   }, mappedClassesKeys = Object.keys(mappedClasses);
 
-  //Object.keys(mappedClasses).join("|")
-  //    /Array|String|Boolean|Error|Struct|FunctionObject/
-
   result.ESCRIPT.class = result.ESCRIPT.class.filter(clazz => mappedClassesKeys.indexOf(clazz.$.name) === -1);
 
   for (let clazz of result.ESCRIPT.class) {
@@ -134,10 +107,9 @@ async function generateObjects() {
           }
           if (!methodName) throw new Error(`Unknown method parsing ${clazzName}::${method.$.proto}`);
 
-          // if (internalGetKnownObjMembers)
-              prototypes[methodName] =  { 
-                  id: internalGetKnownObjMethods && internalGetKnownObjMethods(methodName) 
-              }; // TODO get real id
+          prototypes[methodName] =  { 
+              id: internalGetKnownObjMethods && internalGetKnownObjMethods(methodName) 
+          }; 
 
           // todo do something with args? maybe for docs? 
           // method.$.proto.substring(index + 1, method.$.proto.length - 1).match(/((\w+)( (\w+))*),?/));
@@ -148,8 +120,8 @@ async function generateObjects() {
       if (clazz.member) for (const member of clazz.member) { 
           const { mname, access } = member.$;
 
-          // memberProps[mname]
-          const knownMember = {id:123};// internalGetKnownObjMembers && internalGetKnownObjMembers(mname);
+          const knownMember = internalGetKnownObjMembers && internalGetKnownObjMembers(mname);
+          
           if (knownMember) {
               memberProps[mname] = { id: knownMember.id, ro: access === "r/o" }
           } else {
@@ -158,6 +130,7 @@ async function generateObjects() {
       }
       clazz.memberProps = memberProps;
   }
+
   var roots = [], nodes = {};
 
   for (let clazz of result.ESCRIPT.class) {
@@ -174,16 +147,13 @@ async function generateObjects() {
       printQueue = printQueue.concat(Object.entries(children));
   }
 
-
-  // Handlebars.registerPartial("")
   debugger;
   let templateStr = fs.readFileSync(path.resolve(__dirname,"../templates/objects.hbs"), "utf-8");
       
   let templateFunc = Handlebars.compile(templateStr);
   let generated = templateFunc( output.map( key => clazzMap[key] ) );
 
-  fs.writeFileSync("objects.js", generated, "utf-8");
-
+  fs.writeFileSync(path.join(outPath,"objects.js"), generated, "utf-8");
 }
 
 module.exports = {
