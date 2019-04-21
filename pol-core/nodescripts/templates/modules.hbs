@@ -1,0 +1,28 @@
+/**
+  * NodeModuleWrap native binding. It exports the POL modules as classes inside, eg. \`modwrap.basicio\`.
+  * These classes take a constructor with a single argument -- the External<UOExecutor> object, which
+  * bound to the script specific execution instance module's require() function. By "script specific
+  * execution instance", this is because the script module's own require() function is bound to a
+  * specific function, and not just the prototype's.
+  */
+{{!-- const modwrap = process._linkedBinding("modwrap"); --}}
+
+{{#each .}}
+function {{@key}}(extUoExec) {
+    const extMod = new modwrap.{{@key}}(extUoExec);
+
+{{#each constants}}
+    this.{{@key}} = {{{stringify .}}};
+{{/each}}
+
+{{#each functions}}
+    this.{{camelCase @key}} = function({{#each .}}{{#if @index}}, {{/if}}{{name}}{{/each}}) { return this.execFunc({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}, {{#each .}}{{#if @index}}, {{/if}}{{#if default}}arguments.length <= {{@index}} ? {{{stringify default}}} : {{name}}{{else}}{{name}}{{/if}}{{/each}}); }.bind(extMod);
+{{/each}}
+}
+
+{{/each}}
+
+module.exports = {
+{{#each .}}{{#if @index}},
+{{/if}}    {{@key}}{{/each}}
+};

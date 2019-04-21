@@ -1,14 +1,21 @@
+const ExtObjSymbol = Symbol("ExtObj");
+
 {{#each .}}class {{$.name}}{{#if parent.[0]}} extends {{parent.[0]}}{{/if}} {
-  constructor() {
+  constructor(extObj) { 
       Object.defineProperties(this, {
-{{#each memberProps}}            "{{@key}}": { {{#if id}}{{#if ro}}writable: false{{else}}set() { this.set_member_id({{id}}); }{{/if}}, get() { this.get_member_id({{id}}); }{{else}}{{#if ro}}writable: false{{else}}set() { this.set_member("{{@key}}"); }{{/if}}, get() { this.get_member("{{@key}}"); }{{/if}} },\n{{/each}}
+            [ExtObjSymbol]: { writable: false, enumerable: false, value: extObj },
+{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set() { this[ExtObjSymbol].set_member({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}); }{{/if}}, get() { this[ExtObjSymbol].get_member({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}); } },
+{{/each}}
       });
   }
+{{#each prototypes}}  {{camelCase @key}}() { return this[ExtObjSymbol].call_method({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}, ...arguments); }
+{{/each}}
 };
-{{#if prototypes}}{{#each prototypes}}{{../$.name}}.prototype.{{@key}} = function() { return {{#if id}}this.call_method_id({{id}});{{else}}this.call_method("{{@key}}");{{/if}} };\n{{/each}}{{/if}}
+
 {{/each}}
   
 
 module.exports = {
-{{#each .}}    {{$.name}},\n{{/each}} 
+{{#each .}}    {{$.name}},
+{{/each}} 
 };
