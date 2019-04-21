@@ -3,6 +3,7 @@
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../clib/weakptr.h"
 #include "../napi-wrap.h"
 
 namespace Pol
@@ -23,23 +24,27 @@ public:
   /**
    * Return a Value corresponding to this impptr
    */
-  static Napi::Value Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId = 0 );
+  static Napi::Value Wrap( Napi::Env env, weak_ptr<Core::UOExecutor> uoexec,
+                           Bscript::BObjectRef objref, unsigned long reqId = 0 );
 
   /**
    * Return a BObjectImp* corresponding to this Napi Value
    */
   static Bscript::BObjectRef Wrap( Napi::Env env, Napi::Value value, unsigned long reqId = 0 );
 
+
   Napi::Value ToString( const CallbackInfo& cbinfo );
   Napi::Value TypeOfInt( const CallbackInfo& cbinfo );
 
 
   Napi::Value GetMember( const CallbackInfo& cbinfo );
+  Napi::Value GetMethodFunction( const CallbackInfo& info );
+
 
   Napi::Value SetMember( const CallbackInfo& cbinfo );
 
   /** Can run outside Node env */
-  static bool resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref );
+  static bool resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec, Bscript::BObjectRef objref );
 
 private:
   static Napi::FunctionReference constructor;
@@ -47,6 +52,7 @@ private:
 
 
   Reference<External<Bscript::BObjectRef>> ref;
+  weak_ptr<Core::UOExecutor> uoexec;
 };
 
 }  // namespace Node

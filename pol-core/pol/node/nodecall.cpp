@@ -58,7 +58,7 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
   passert( ev != nullptr );
 
   auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* request ) {
-    bool retVal, handled = false;
+    bool retVal = false, handled = false;
     std::string eventName;
     Bscript::BObjectRef objref( ev );
 
@@ -72,10 +72,12 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
       eventName = ev->getStringRep();
     }
 
-    auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
+    auto data = Node::NodeObjectWrap::Wrap( env, exec->weakptr, objref, request->reqId() );
     auto iter = ( exec == nullptr ? execToModuleMap.begin() : execToModuleMap.find( exec ) );
     do
     {
+      if ( iter == execToModuleMap.end() )
+        break;
       NODELOG.Format( "[{:04x}] [exec] sending event to script ({} {}) {} {} {} \n" )
           << request->reqId() << iter->first->pid() << iter->first->scriptname() << eventName
           << Node::ToUtf8Value( data ) << objref->impptr()->getStringRep();
@@ -96,7 +98,7 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
             << request->reqId() << eventName << exc.what();
       }
       handled = true;
-    } while ( ++iter != execToModuleMap.end() && exec == nullptr );
+    } while ( ( ++iter ), exec == nullptr );
 
     if ( exec != nullptr && !handled )
     {
@@ -160,7 +162,15 @@ Napi::Value OnScriptCatch( const CallbackInfo& cbinfo )
   bool ret = Core::scriptScheduler.free_externalscript( ex );
   NODELOG.Format( "[{:04x}] [exec] freeing executor: {}\n" ) << req->reqId() << ret;
 
-  return Boolean::New( env, false );
+  return env.Global()
+      .Get( "Promise" )
+      .As<Object>()
+      .Get( "resolve" )
+      .As<Function>()
+      .Call( env.Global().Get( "Promise" ), {Napi::Boolean::New( env, false )} );
+
+  ;
+  // return Boolean::New( env, false );
 }
 
 Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
@@ -222,7 +232,7 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
           Bscript::BObjectRef rightref = ex->ValueStack.back();
           ex->ValueStack.pop_back();
 
-          Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, reqId );
+          Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, ex->weakptr, rightref, reqId );
 
           argv[i] = convertedVal;
 
@@ -262,8 +272,12 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
 
           if ( jsRetVal.IsPromise() )
           {
-            jsRetObj.Get( "then" ).As<Function>().Call( jsRetVal, {scriptRet} );
-            jsRetObj.Get( "catch" ).As<Function>().Call( jsRetVal, {scriptCatch} );
+            auto thenVal = jsRetObj.Get( "then" ).As<Function>().Call( jsRetVal, {scriptRet} );
+            thenVal.As<Object>()
+                .Get( "catch" )
+                .As<Function>()
+                .Call( thenVal, {scriptCatch} )
+                .As<Object>();
           }
           else
           {

@@ -121,7 +121,7 @@ void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* 
   }
   else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
-    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, Bscript::BObjectRef( resp ) );
+    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, this->weakptr, Bscript::BObjectRef( resp ) );
   }
   revive();
   // auto iter = requests.find( req );

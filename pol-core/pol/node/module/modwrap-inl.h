@@ -62,7 +62,7 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
     polmod->exec.fparams.clear();
   }
   
-  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
+  auto convertedFunctRet = NodeObjectWrap::Wrap( env, uoexec->weakptr, Bscript::BObjectRef( funcRet ) );
   return convertedFunctRet;
 }
 

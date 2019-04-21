@@ -1,11 +1,12 @@
 
 #include "objwrap.h"
+#include "../../uoexec.h"
 #include "../bscript/impstr.h"
+#include "../bscript/objmembers.h"
 #include "../clib/logfacility.h"
 #include "../clib/stlutil.h"
 #include "../napi-wrap.h"
 #include "../nodecall.h"
-
 
 using namespace Pol;
 using namespace Napi;
@@ -17,8 +18,7 @@ namespace Node
 Napi::FunctionReference NodeObjectWrap::constructor;
 
 
-Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
-                                          unsigned long reqId )
+Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env env, Napi::Value value, unsigned long reqId )
 {
   Bscript::BObjectImp* convertedVal;
   if ( value.IsBoolean() )
@@ -37,6 +37,15 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
   {
     convertedVal = new Bscript::UninitObject;
   }
+  else if ( value.IsArray() )
+  {
+    auto jsArr = value.As<Array>();
+    auto arr = new Bscript::ObjArray();
+    for ( size_t i = 0; i < jsArr.Length(); ++i )
+      arr->addElement( Wrap( env, jsArr[i], reqId )->impptr()->copy() );
+
+    convertedVal = arr;
+  }
   else if ( value.ToObject().InstanceOf( NodeObjectWrap::constructor.Value() ) )
   {
     auto x =
@@ -45,6 +54,21 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
     auto* z = y.Data();
     auto a = *z;
     return a;
+  }
+  else if ( value.IsObject() )
+  {
+    auto jsObj = value.As<Object>();
+    auto obj = new Bscript::BStruct();
+    auto propNames = jsObj.GetPropertyNames();
+    for ( size_t i = 0; i < propNames.Length(); ++i )
+    {
+      auto propName = propNames.Get( i );
+      NODELOG << "propname is " << propName.ToString().Utf8Value() << "\n";
+      //  propName.As<String>().Utf8Value();
+      obj->addMember( propName.ToString().Utf8Value().c_str(),
+                      Wrap( env, jsObj.Get( propName ), reqId ) );
+    }
+    convertedVal = obj;
   }
   else
   {
@@ -58,7 +82,8 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env /*env*/, Napi::Value value,
 std::map<u32, Napi::Promise::Deferred> NodeObjectWrap::delayedMap;
 
 
-bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref )
+bool NodeObjectWrap::resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec,
+                                           Bscript::BObjectRef objref )
 {
   auto iter = delayedMap.find( reqId );
   if ( iter == delayedMap.end() )
@@ -69,7 +94,7 @@ bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref
   // Napi::Error), whih is falsey.
   auto& promise = iter->second;
   auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* /*request*/ ) {
-    promise.Resolve( Wrap( env, objref, reqId ) );
+    promise.Resolve( Wrap( env, uoexec, objref, reqId ) );
     delayedMap.erase( iter );
     return true;
   } );
@@ -78,7 +103,8 @@ bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref
 }
 
 // FIXME Vulnerable to circular references.. for now!
-Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId )
+Napi::Value NodeObjectWrap::Wrap( Napi::Env env, weak_ptr<Core::UOExecutor> uoexec,
+                                  Bscript::BObjectRef objref, unsigned long reqId )
 {
   EscapableHandleScope scope( env );
   Napi::Value convertedVal;
@@ -131,7 +157,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     for ( size_t i = 0; i < convt->ref_arr.size(); i++ )
     {
       // Set the value
-      arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
+      arr[i] = Wrap( env, uoexec, convt->ref_arr.at( i ), reqId );
     }
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTStruct ) )
@@ -143,8 +169,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     auto obj = convertedVal.As<Object>();
     for ( auto key : convt->contents() )
     {
-      obj[key.first] =
-          key.first == "sourcee" ? String::New( env, key.first ) : Wrap( env, key.second, reqId );
+      obj[key.first] = Wrap( env, uoexec, key.second, reqId );
     }
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTUninit ) )
@@ -153,15 +178,20 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTApplicObj ) )
   {
-    convertedVal = Node::requireRef.Get( "wrapper" )
-        .As<Object>()
-        .Get( "proxyObject" )
-        .As<Function>()
-        .Call( {
+    convertedVal =
+        Node::requireRef.Get( "wrapper" )
+            .As<Object>()
+            .Get( "proxyObject" )
+            .As<Function>()
+            .Call( {
 
-            NodeObjectWrap::constructor.New( {Napi::External<Bscript::BObjectRef>::New(
-                env, new Bscript::BObjectRef( impptr ),
-                []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} )} );
+                NodeObjectWrap::constructor.New(
+                    {Napi::External<Bscript::BObjectRef>::New(
+                         env, new Bscript::BObjectRef( impptr ),
+                         []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } ),
+
+                     Napi::External<weak_ptr<Core::UOExecutor>>::New(
+                         env, new weak_ptr<Core::UOExecutor>( uoexec ) )} )} );
   }
   else
   {
@@ -180,13 +210,18 @@ void NodeObjectWrap::Init( Napi::Env env, Napi::Object /*exports*/ )
   NODELOG << "[node] Initializing NodeObjectWrap\n";
   Napi::HandleScope scope( env );
 
-  Napi::Function func = DefineClass( env, "NodeObjectWrap",
-                                     {InstanceMethod( "getMember", &NodeObjectWrap::GetMember ),
-                                      InstanceMethod( "toString", &NodeObjectWrap::ToString )} );
+  Napi::Function func =
+      DefineClass( env, "NodeObjectWrap",
+                   {InstanceMethod( "getMember", &NodeObjectWrap::GetMember ),
+                    InstanceMethod( "getMethodFunction", &NodeObjectWrap::GetMethodFunction ),
+                    InstanceMethod( "toString", &NodeObjectWrap::ToString )} );
 
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
 }
+
+// returns a function that when called will run call_method, and
+// whos ToPrimitive will be the value (get_member)
 
 Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
 {
@@ -198,8 +233,56 @@ Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
   }
 
   //   objref->impptr()->get_member_id();
-  auto ref = objref->impptr()->get_member( info[0].As<String>().Utf8Value().c_str() );
-  return Wrap( env, ref, 0 );
+  auto membername = info[0].As<String>().Utf8Value();
+  auto impptr = objref->impptr();
+  auto ref = impptr->get_member( membername.c_str() );
+  NODELOG << "membername is " << membername << " getmember " << ref->impptr()->getStringRep()
+          << "\n";
+  return Wrap( env, uoexec, ref );
+}
+
+
+Napi::Value NodeObjectWrap::GetMethodFunction( const CallbackInfo& info )
+{
+  Napi::Env env = info.Env();
+  auto objref = *( ref.Value().Data() );
+  if ( info.Length() < 1 || !info[0].IsString() )
+  {
+    return Napi::Error( env, String::New( env, "Invalid parameters" ) ).Value();
+  }
+
+  //   objref->impptr()->get_member_id();
+  auto membername = info[0].As<String>().Utf8Value();
+  auto impptr = objref->impptr();
+
+  Napi::Function func = Napi::Function::New(
+      env,
+      [this, membername, impptr]( const CallbackInfo& cbinfo ) {
+        Napi::Env env = cbinfo.Env();
+        for ( size_t i = 0; i < cbinfo.Length(); ++i )
+        {
+          uoexec->fparams.emplace_back( Wrap( env, cbinfo[i] ) );
+        }
+        Bscript::BObjectImp* retVal = impptr->call_method( membername.c_str(), * (this->uoexec.get_weakptr()) );
+        uoexec->fparams.clear();
+        return Wrap( env, uoexec, Bscript::BObjectRef( retVal ) );
+      },
+      membername );
+
+  return func;
+
+
+  /*func.DefineProperty( Napi::PropertyDescriptor::Value(
+      env.Global().Get( "Symbol" ).As<Object>().Get( "toPrimitive" ),
+      Function::New( env, []( const CallbackInfo& cbinfo ) {
+        auto ref = impptr->get_member( membername.c_str() );
+        NODELOG << "membername is " << membername << " getmember " << ref->impptr()->getStringRep()
+                << "\n";
+        return Napi::String::New( cbinfo.Env(), ref->impptr()->getStringRep() );
+      } ) ) );
+  return func;*/
+
+  // impptr->get_member impptr->call_method( membername, );
 }
 
 Napi::Value NodeObjectWrap::ToString( const CallbackInfo& info )
@@ -217,7 +300,7 @@ Napi::Value NodeObjectWrap::TypeOfInt( const CallbackInfo& info )
 }
 
 NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info )
-    : Napi::ObjectWrap<NodeObjectWrap>( info )
+    : Napi::ObjectWrap<NodeObjectWrap>( info ), uoexec( nullptr )
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
@@ -231,7 +314,8 @@ NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info )
 
   this->ref = Reference<External<Bscript::BObjectRef>>::New(
       info[0].As<External<Bscript::BObjectRef>>(), 1 );
-  // info[0];
+  auto weakptr = *( info[1].As<External<weak_ptr<Core::UOExecutor>>>().Data() );
+  this->uoexec = weakptr;
 }
 }  // namespace Node
 }  // namespace Pol
