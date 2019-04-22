@@ -49,7 +49,7 @@ function (read_decl em_name content)
 
         string(REGEX MATCH "^const[ ]+([_a-zA-Z]+)[:= \t]+([^;]*);" outconst "${content}")
         if (CMAKE_MATCH_1 AND CMAKE_MATCH_2)
-          message("found const ${CMAKE_MATCH_1} : ${CMAKE_MATCH_2}")
+          #  message("found const ${CMAKE_MATCH_1} : ${CMAKE_MATCH_2}")
           string(FIND ${CMAKE_MATCH_2} "\"" isstring)
           string(FIND ${CMAKE_MATCH_2} "array" isarray)
           string(FIND ${CMAKE_MATCH_2} "_DEFAULT_REALM" isrealm)
@@ -80,21 +80,21 @@ function (read_decl em_name content)
     endif()
 
     set(funcname "${CMAKE_MATCH_1}")
-    message("found :")
-    message(${funcname})
+    #  message("found :")
+    #  message(${funcname})
     string(APPEND funcdefs  "    { \"${funcname}\", { ${funcIdx} , ")
     MATH(EXPR funcIdx "${funcIdx}+1")
 
     if (CMAKE_MATCH_2)
       set(paramstr "${CMAKE_MATCH_2}")
-      message(${paramstr})
+      #  message(${paramstr})
       string(REGEX MATCHALL "," params "${paramstr}")
       list(LENGTH params n)
       math(EXPR n ${n}+1)
-      message("params: ${n}")
+      #  message("params: ${n}")
       string(APPEND funcdefs "${n} } }, // ${paramstr}\n")
     else()
-      message("params: 0")
+      #  message("params: 0")
       string(APPEND funcdefs "0 } },\n")
     endif()
 
@@ -131,7 +131,7 @@ function (read_def modclass content)
 
         string(REGEX MATCH "^const[ ]+([_a-zA-Z]+)[:= \t]+([^;]*);" outconst "${content}")
         if (CMAKE_MATCH_1 AND CMAKE_MATCH_2)
-          message("found const ${CMAKE_MATCH_1} : ${CMAKE_MATCH_2}")
+          #  message("found const ${CMAKE_MATCH_1} : ${CMAKE_MATCH_2}")
           string(FIND ${CMAKE_MATCH_2} "\"" isstring)
           string(FIND ${CMAKE_MATCH_2} "array" isarray)
           string(FIND ${CMAKE_MATCH_2} "_DEFAULT_REALM" isrealm)
@@ -162,19 +162,19 @@ function (read_def modclass content)
     endif()
 
     set(funcname "${CMAKE_MATCH_1}")
-    message("found :")
-    message(${funcname})
+    #  message("found :")
+    #  message(${funcname})
     string(APPEND funcdefs  "    { \"${funcname}\", &${modclass}::mf_${funcname}, ")
     if (CMAKE_MATCH_2)
       set(paramstr "${CMAKE_MATCH_2}")
-      message(${paramstr})
+      #  message(${paramstr})
       string(REGEX MATCHALL "," params "${paramstr}")
       list(LENGTH params n)
       math(EXPR n ${n}+1)
-      message("params: ${n}")
+      #  message("params: ${n}")
       string(APPEND funcdefs "${n} }, // ${paramstr}\n")
     else()
-      message("params: 0")
+      #  message("params: 0")
       string(APPEND funcdefs "0 },\n")
     endif()
 
@@ -187,40 +187,42 @@ function (read_def modclass content)
   file(APPEND ${TMP_FILE} "};\n")
 endfunction()
 
-function(createfunctable em_name)
-  # file(GLOB ems  "${EM_FOLDER}/*.em")
-  set(TMP_FILE "${OUT_FOLDER}/${em_name}-tbl.h.tmp")
-  set(OUT_FILE "${OUT_FOLDER}/${em_name}-tbl.h")
-  set(em "${EM_FOLDER}/${em_name}.em")
-  LIST(GET MODMAP_${em_name} 0 modclass)
-  LIST(GET MODMAP_${em_name} 1 modheader)
+function(createfunctable)
+  file(GLOB ems  "${EM_FOLDER}/*.em")
+  foreach(em ${ems})
+    get_filename_component(em_name ${em} NAME_WE)
+    set(TMP_FILE "${OUT_FOLDER}/${em_name}-tbl.h.tmp")
+    set(OUT_FILE "${OUT_FOLDER}/${em_name}-tbl.h")
+    set(em "${EM_FOLDER}/${em_name}.em")
+    LIST(GET MODMAP_${em_name} 0 modclass)
+    LIST(GET MODMAP_${em_name} 1 modheader)
 
-  message("${em} => ${em_name} => ${modclass}")
+    message("Creating function table definition for ${em} => ${em_name} => ${modclass}")
 
-  file(WRITE ${TMP_FILE} "#ifndef _${em_name}FUNCTBL\n#define _${em_name}FUNCTBL\n")
-  file(APPEND ${TMP_FILE} "// #include \"module/${modheader}.h\"\nnamespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module;\n\n")
-  file(APPEND ${TMP_FILE} "template <>\nconst char* TmplExecutorModule<${modclass}>::modname = \"${em_name}\";\n\ntemplate <>\nTmplExecutorModule<${modclass}>::FunctionTable\n  TmplExecutorModule<${modclass}>::function_table = {\n")
-  FILE(READ ${em} contents)
-  STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
-  #  message(${contents})
+    file(WRITE ${TMP_FILE} "#ifndef _${em_name}FUNCTBL\n#define _${em_name}FUNCTBL\n")
+    file(APPEND ${TMP_FILE} "// #include \"module/${modheader}.h\"\nnamespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module;\n\n")
+    file(APPEND ${TMP_FILE} "template <>\nconst char* TmplExecutorModule<${modclass}>::modname = \"${em_name}\";\n\ntemplate <>\nTmplExecutorModule<${modclass}>::FunctionTable\n  TmplExecutorModule<${modclass}>::function_table = {\n")
+    FILE(READ ${em} contents)
+    STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
+    #  message(${contents})
 
-  read_def("${modclass}" ${contents})
-  
-  file(APPEND ${TMP_FILE} "\n\n")
+    read_def(${modclass} ${contents})
+    
+    file(APPEND ${TMP_FILE} "\n\n")
 
-  
-  file(APPEND ${TMP_FILE} "} // namespace Bscript\n} // namespace Pol\n#endif\n")
+    
+    file(APPEND ${TMP_FILE} "} // namespace Bscript\n} // namespace Pol\n#endif\n")
 
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${TMP_FILE}
-    ${OUT_FILE}
-  )
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${TMP_FILE}
+      ${OUT_FILE}
+    )
+  endforeach()
 endfunction()
 
 
 function(createmodlist)
-  # file(GLOB ems  "${EM_FOLDER}/*.em")
   file(GLOB ems  "${EM_FOLDER}/*.em")
   set(TMP_FILE "${OUT_FOLDER}/modules.cpp.tmp")
   set(OUT_FILE "${OUT_FOLDER}/modules.cpp")
@@ -234,10 +236,9 @@ function(createmodlist)
   foreach(em ${ems})
     get_filename_component(em_name ${em} NAME_WE)
     set(em "${EM_FOLDER}/${em_name}.em")
-    message("${em} => ${em_name} => ${modclass}")
     FILE(READ ${em} contents)
     STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
-    #  message(${contents})
+    message("Creating function table declaration for ${em_name}")
 
     read_decl(${em_name} ${contents})
     
@@ -254,10 +255,9 @@ function(createmodlist)
 endfunction()
 
 
-set(modules attributes basic basicio boat cfgfile cliloc datafile file guilds http math npc os party polsys sql storage unicode uo util vitals)
+# Not used currently...
+# set(modules attributes basic basicio boat cfgfile cliloc datafile file guilds http math npc os party polsys sql storage unicode uo util vitals)
 
-foreach(iter ${modules})
-  createfunctable(${iter})
-endforeach()
+createfunctable()
 
 createmodlist()

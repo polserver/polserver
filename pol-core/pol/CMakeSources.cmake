@@ -207,27 +207,6 @@ set (pol_sources  # sorted !
   module/utilmod.h
   module/vitalmod.cpp
   module/vitalmod.h
-  ${PROJECT_BINARY_DIR}/modules/attributes-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/basic-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/basicio-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/boat-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/cfgfile-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/cliloc-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/datafile-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/file-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/guilds-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/http-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/math-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/npc-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/os-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/party-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/polsys-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/sql-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/storage-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/unicode-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/uo-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/util-tbl.h
-  ${PROJECT_BINARY_DIR}/modules/vitals-tbl.h
   movecost.cpp
   movecost.h
   movement.cpp
