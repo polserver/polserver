@@ -115,7 +115,7 @@ public:
 };
 
 /* IsLegalMove: parameters (move, bounding box)*/
-BObjectImp* NPCExecutorModule::IsLegalMove()
+BObjectImp* NPCExecutorModule::mf_IsLegalMove()
 {
   String* facing_str = static_cast<String*>( exec.getParamImp( 0, BObjectImp::OTString ) );
   BApplicObjBase* appobj =
@@ -140,7 +140,7 @@ BObjectImp* NPCExecutorModule::IsLegalMove()
 }
 
 /* CanMove: parameters (facing)*/
-BObjectImp* NPCExecutorModule::CanMove()
+BObjectImp* NPCExecutorModule::mf_CanMove()
 {
   if ( exec.fparams.size() == 1 )
   {
@@ -310,7 +310,7 @@ BObjectImp* NPCExecutorModule::mf_Wander()
   return move_self( static_cast<Plib::UFACING>( newfacing ), false, adjust_ok );
 }
 
-BObjectImp* NPCExecutorModule::face()
+BObjectImp* NPCExecutorModule::mf_Face()
 {
   BObjectImp* param0 = exec.getParamImp( 0 );
   int flags;
@@ -354,7 +354,7 @@ BObjectImp* NPCExecutorModule::face()
   return new BLong( i_facing );
 }
 
-BObjectImp* NPCExecutorModule::move()
+BObjectImp* NPCExecutorModule::mf_Move()
 {
   BObjectImp* param0 = exec.getParamImp( 0 );
 
@@ -676,7 +676,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
 }
 
 
-BObjectImp* NPCExecutorModule::say()
+BObjectImp* NPCExecutorModule::mf_Say()
 {
   if ( npc.squelched() )
     return new BError( "NPC is squelched" );
@@ -741,7 +741,7 @@ BObjectImp* NPCExecutorModule::say()
   return nullptr;
 }
 
-BObjectImp* NPCExecutorModule::SayUC()
+BObjectImp* NPCExecutorModule::mf_SayUC()
 {
   if ( npc.squelched() )
     return new BError( "NPC is squelched" );
@@ -837,7 +837,7 @@ BObjectImp* NPCExecutorModule::SayUC()
   return nullptr;
 }
 
-BObjectImp* NPCExecutorModule::position()
+BObjectImp* NPCExecutorModule::mf_Position()
 {
   std::unique_ptr<BStruct> oa( new BStruct );
 
@@ -848,12 +848,12 @@ BObjectImp* NPCExecutorModule::position()
   return oa.release();
 }
 
-BObjectImp* NPCExecutorModule::facing()
+BObjectImp* NPCExecutorModule::mf_Facing()
 {
   return new String( Mobile::FacingStr( static_cast<Plib::UFACING>( npc.facing ) ) );
 }
 
-BObjectImp* NPCExecutorModule::getproperty()
+BObjectImp* NPCExecutorModule::mf_GetProperty()
 {
   const String* propname_str;
   if ( exec.getStringParam( 0, propname_str ) )
@@ -874,7 +874,7 @@ BObjectImp* NPCExecutorModule::getproperty()
   }
 }
 
-BObjectImp* NPCExecutorModule::setproperty()
+BObjectImp* NPCExecutorModule::mf_SetProperty()
 {
   const String* propname_str;
   if ( exec.getStringParam( 0, propname_str ) )
@@ -940,7 +940,7 @@ BObjectImp* NPCExecutorModule::CreateItem()
   return new BLong( serial );
 }
 
-BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
+BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 {
   String* arealist =
       EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );

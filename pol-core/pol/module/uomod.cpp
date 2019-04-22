@@ -521,7 +521,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
 }
 
 
-BObjectImp* UOExecutorModule::broadcast()
+BObjectImp* UOExecutorModule::mf_Broadcast()
 {
   const char* text;
   unsigned short font;
@@ -716,7 +716,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
     return new BError( "A parameter was invalid" );
   }
 }
-BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
+BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
 {
   Character* chr;
   UObject* obj;
@@ -840,7 +840,7 @@ BObjectImp* UOExecutorModule::mf_Target()
   return new DelayedObject( req->reqId_ );
 }
 
-BObjectImp* UOExecutorModule::mf_TargetCancel()
+BObjectImp* UOExecutorModule::mf_CancelTarget()
 {
   Character* chr;
   if ( getCharacterParam( exec, 0, chr ) )
@@ -1928,7 +1928,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
+BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZ()
 {
   unsigned short sx, sy;
   unsigned short dx, dy;
@@ -2012,7 +2012,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 }
 
 
-BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
+BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
 {
   UObject* src;
   UObject* dst;
@@ -2049,7 +2049,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
+BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZEx()
 {
   unsigned short sx, sy;
   unsigned short dx, dy;
@@ -2094,7 +2094,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
+BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
 {
   UObject* src;
   unsigned short effect;
@@ -2122,7 +2122,7 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
+BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
 {
   unsigned short x, y;
   short z;

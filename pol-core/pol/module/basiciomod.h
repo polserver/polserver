@@ -30,7 +30,7 @@ namespace Module
 class BasicIoExecutorModule : public Bscript::TmplExecutorModule<BasicIoExecutorModule>
 {
 public:
-  Bscript::BObjectImp* print();
+  Bscript::BObjectImp* mf_Print();
 
   BasicIoExecutorModule( Bscript::Executor& exec );
 

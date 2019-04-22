@@ -92,7 +92,7 @@ SayUC(uc_text, text_type:=SAY_TEXTTYPE_DEFAULT, langcode:=SAY_LANG, do_event:=SA
 
 
 // * deprecated ( use Self().x, Self().y, Self().z ) - Do not use
-position();
+Position();
 
 // Get a custom property.  Equivalent to GetObjProperty( Self(), propertyname )
 GetProperty( propertyname );

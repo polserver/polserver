@@ -242,7 +242,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   return new BLong( 0 );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_ConnectToDB()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_connect()
 {
   const String* host = getStringParam( 0 );
   const String* username = getStringParam( 1 );
@@ -254,7 +254,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_ConnectToDB()
   return background_connect( uoexec.weakptr, host->getStringRep(), username->getStringRep(),
                              password->getStringRep() );
 }
-Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_select_db()
 {
   Core::BSQLConnection* sql =
       static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
@@ -266,7 +266,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_SelectDb()
   return background_select( uoexec.weakptr, sql, db->getStringRep() );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_Query()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_query()
 {
   Core::BSQLConnection* sql =
       static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
@@ -282,7 +282,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_Query()
                            use_parameters ? params : nullptr );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_NumFields()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_num_fields()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
@@ -293,7 +293,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_NumFields()
   return new BLong( result->num_fields() );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_field_name()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
@@ -311,7 +311,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
   return new String( name );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_AffectedRows()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_affected_rows()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
@@ -323,7 +323,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_AffectedRows()
   return new BLong( result->affected_rows() );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_NumRows()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_num_rows()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );
@@ -335,7 +335,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_NumRows()
   return new BLong( result->num_rows() );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_Close()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_close()
 {
   Core::BSQLConnection* sql =
       static_cast<Core::BSQLConnection*>( getParamImp( 0, Bscript::BObjectImp::OTSQLConnection ) );
@@ -345,7 +345,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_Close()
   return new BLong( 1 );
 }
 
-Bscript::BObjectImp* SQLExecutorModule::mf_FetchRow()
+Bscript::BObjectImp* SQLExecutorModule::mf_mysql_fetch_row()
 {
   Core::BSQLResultSet* result =
       static_cast<Core::BSQLResultSet*>( getParamImp( 0, Bscript::BObjectImp::OTSQLResultSet ) );

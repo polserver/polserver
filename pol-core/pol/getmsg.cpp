@@ -72,7 +72,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
 }  // namespace Core
 namespace Module
 {
-Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
+Bscript::BObjectImp* UOExecutorModule::mf_RequestInput()
 {
   Mobile::Character* chr;
   Items::Item* item;

@@ -48,7 +48,7 @@ BasicExecutorModule::BasicExecutorModule( Executor& exec )
 {
 }
 
-Bscript::BObjectImp* BasicExecutorModule::len()
+Bscript::BObjectImp* BasicExecutorModule::mf_Len()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( imp->isa( Bscript::BObjectImp::OTArray ) )
@@ -71,7 +71,7 @@ Bscript::BObjectImp* BasicExecutorModule::len()
   }
 }
 
-Bscript::BObjectImp* BasicExecutorModule::find()
+Bscript::BObjectImp* BasicExecutorModule::mf_Find()
 {
   exec.makeString( 0 );
   String* str = static_cast<String*>( exec.getParamImp( 0 ) );
@@ -83,7 +83,7 @@ Bscript::BObjectImp* BasicExecutorModule::find()
   return new BLong( posn );
 }
 
-Bscript::BObjectImp* BasicExecutorModule::mf_substr()
+Bscript::BObjectImp* BasicExecutorModule::mf_SubStr()
 {
   exec.makeString( 0 );
   String* str = static_cast<String*>( exec.getParamImp( 0 ) );
@@ -236,14 +236,14 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
   }
 }
 
-Bscript::BObjectImp* BasicExecutorModule::lower()
+Bscript::BObjectImp* BasicExecutorModule::mf_Lower()
 {
   String* string = new String( exec.paramAsString( 0 ) );
   string->toLower();
   return string;
 }
 
-Bscript::BObjectImp* BasicExecutorModule::upper()
+Bscript::BObjectImp* BasicExecutorModule::mf_Upper()
 {
   String* string = new String( exec.paramAsString( 0 ) );
   string->toUpper();

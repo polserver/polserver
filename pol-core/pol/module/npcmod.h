@@ -57,8 +57,8 @@ protected:
 
   Bscript::BObjectImp* mf_Wander();
   Bscript::BObjectImp* mf_Self();
-  Bscript::BObjectImp* face();
-  Bscript::BObjectImp* move();
+  Bscript::BObjectImp* mf_Face();
+  Bscript::BObjectImp* mf_Move();
   Bscript::BObjectImp* mf_WalkToward();
   Bscript::BObjectImp* mf_RunToward();
   Bscript::BObjectImp* mf_WalkAwayFrom();
@@ -73,15 +73,15 @@ protected:
   Bscript::BObjectImp* mf_TurnTowardLocation();
   Bscript::BObjectImp* mf_TurnAwayFromLocation();
 
-  Bscript::BObjectImp* say();
-  Bscript::BObjectImp* SayUC();
-  Bscript::BObjectImp* position();
-  Bscript::BObjectImp* facing();
-  Bscript::BObjectImp* getproperty( /* propertyname */ );
-  Bscript::BObjectImp* setproperty( /* propertyname propertyvalue */ );
-  Bscript::BObjectImp* makeboundingbox( /* areastring */ );
-  Bscript::BObjectImp* IsLegalMove();
-  Bscript::BObjectImp* CanMove();
+  Bscript::BObjectImp* mf_Say();
+  Bscript::BObjectImp* mf_SayUC();
+  Bscript::BObjectImp* mf_Position();
+  Bscript::BObjectImp* mf_Facing();
+  Bscript::BObjectImp* mf_GetProperty( /* propertyname */ );
+  Bscript::BObjectImp* mf_SetProperty( /* propertyname propertyvalue */ );
+  Bscript::BObjectImp* mf_MakeBoundingBox( /* areastring */ );
+  Bscript::BObjectImp* mf_IsLegalMove();
+  Bscript::BObjectImp* mf_CanMove();
   Bscript::BObjectImp* CreateBackpack();
   Bscript::BObjectImp* CreateItem();
   Bscript::BObjectImp* mf_SetOpponent();

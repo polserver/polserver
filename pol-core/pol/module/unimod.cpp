@@ -218,7 +218,7 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
   }
 }
 
-BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
+BObjectImp* UnicodeExecutorModule::mf_PrintTextAbovePrivateUC()
 {
   Mobile::Character* chr;
   Core::UObject* obj;

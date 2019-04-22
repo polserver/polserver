@@ -231,7 +231,7 @@ bool ConfigFileExecutorModule::get_cfgfilename( const std::string& cfgdesc, std:
 }
 
 
-Bscript::BObjectImp* ConfigFileExecutorModule::mf_ConfigFile()
+Bscript::BObjectImp* ConfigFileExecutorModule::mf_ReadConfigFile()
 {
   const Bscript::String* cfgdesc_str;
   if ( exec.getStringParam( 0, cfgdesc_str ) )
@@ -351,7 +351,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntKeys()
   }
 }
 
-Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
+Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElem()
 {
   Core::StoredConfigFile* cfile;
 
@@ -389,6 +389,10 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
   {
     return new Bscript::BError( "Parameter 0 must be a Config File" );
   }
+}
+
+inline Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetElemProperty() {
+  return mf_GetConfigString();
 }
 
 Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigString()

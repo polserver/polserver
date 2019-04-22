@@ -357,7 +357,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
 }
 
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
+Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBaseSkill()
 {
   int rawskill;
   if ( getParam( 0, rawskill ) )
@@ -372,7 +372,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRaw()
+Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRawSkill()
 {
   unsigned short baseskill;
   if ( getParam( 0, baseskill ) )
