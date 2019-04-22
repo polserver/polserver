@@ -8,6 +8,7 @@
 
 
 #include "utilmod.h"
+#include "modules/util-tbl.h"
 
 #include <ctime>
 #include <string>

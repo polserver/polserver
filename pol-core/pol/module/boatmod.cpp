@@ -8,6 +8,7 @@
 
 
 #include "boatmod.h"
+#include "modules/boat-tbl.h"
 
 #include <stddef.h>
 

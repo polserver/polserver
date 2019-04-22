@@ -4,7 +4,7 @@
  */
 
 #include "httpmod.h"
-
+#include "modules/http-tbl.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"

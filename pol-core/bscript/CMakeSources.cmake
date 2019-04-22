@@ -40,7 +40,8 @@ set (bscript_sources    # sorted !
   fmodule.cpp
   fmodule.h
   impstr.h
-  modules.h
+  modmethods.h
+  ${PROJECT_BINARY_DIR}/modules/modules.cpp
   object.cpp 
   object.h
   objmembers.h

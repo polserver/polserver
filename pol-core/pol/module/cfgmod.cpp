@@ -7,6 +7,7 @@
 
 
 #include "cfgmod.h"
+#include "modules/cfgfile-tbl.h"
 
 #include <ctype.h>
 #include <fstream>

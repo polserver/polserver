@@ -59,6 +59,7 @@
 #include "compctx.h"
 #include "compilercfg.h"
 #include "fmodule.h"
+#include "modmethods.h"
 #include "modules.h"
 #include "objmembers.h"
 #include "objmethods.h"
@@ -505,6 +506,11 @@ ObjMember* getObjMember( int id )
   else
     return &( object_members[id] );
 }
+
+ModuleMethod* getModuleMethod( const char* mod, const char* funcName ) {
+  return nullptr;
+}
+
 
 ObjMethod object_methods[] = {
     {MTH_ISA, "isa", false},                // 0
@@ -978,12 +984,12 @@ void Parser::write_words( std::ostream& os )
   }
 #endif
 
-  /*
-    WTF is going on in this function?  It seems like it waits for a match, followed
-    by a nonmatch?  eh?
+/*
+  WTF is going on in this function?  It seems like it waits for a match, followed
+  by a nonmatch?  eh?
 
-    What does this mean for variables like "IfDone" etc?
-    */
+  What does this mean for variables like "IfDone" etc?
+  */
 
 #if 0
   int Parser::tryReservedWord(Token& tok, char *t, char **s)
@@ -2469,5 +2475,5 @@ int SmartParser::IP( Expression& expr, CompilerContext& ctx )
   reinit( expr );
   return IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

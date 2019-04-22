@@ -8,7 +8,7 @@
 
 
 #include "mathmod.h"
-
+#include "modules/math-tbl.h"
 #include <cmath>
 #include <stdio.h>
 

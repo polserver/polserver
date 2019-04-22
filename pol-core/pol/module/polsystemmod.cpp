@@ -12,6 +12,7 @@
 
 
 #include "polsystemmod.h"
+#include "modules/polsys-tbl.h"
 
 #include <ctime>
 #include <fstream>
