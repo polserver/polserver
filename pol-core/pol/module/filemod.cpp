@@ -35,25 +35,6 @@
 
 namespace Pol
 {
-// namespace Bscript
-// {
-// using namespace Module;
-// template <>
-// TmplExecutorModule<FileAccessExecutorModule>::FunctionTable
-//     TmplExecutorModule<FileAccessExecutorModule>::function_table = {
-//         {"FileExists", &FileAccessExecutorModule::mf_FileExists, UINT_MAX},
-//         {"ReadFile", &FileAccessExecutorModule::mf_ReadFile, UINT_MAX},
-//         {"WriteFile", &FileAccessExecutorModule::mf_WriteFile, UINT_MAX},
-//         {"AppendToFile", &FileAccessExecutorModule::mf_AppendToFile, UINT_MAX},
-//         {"LogToFile", &FileAccessExecutorModule::mf_LogToFile, UINT_MAX},
-//         {"OpenBinaryFile", &FileAccessExecutorModule::mf_OpenBinaryFile, UINT_MAX},
-//         {"CreateDirectory", &FileAccessExecutorModule::mf_CreateDirectory, UINT_MAX},
-//         {"ListDirectory", &FileAccessExecutorModule::mf_ListDirectory, UINT_MAX},
-//         {"OpenXMLFile", &FileAccessExecutorModule::mf_OpenXMLFile, UINT_MAX},
-//         {"CreateXMLFile", &FileAccessExecutorModule::mf_CreateXMLFile, UINT_MAX}};
-// template <>
-// const char* TmplExecutorModule<FileAccessExecutorModule>::modname = "file";
-// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

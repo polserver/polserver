@@ -232,7 +232,8 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
           Bscript::BObjectRef rightref = ex->ValueStack.back();
           ex->ValueStack.pop_back();
 
-          Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, ex->weakptr, rightref, reqId );
+          Napi::Value convertedVal =
+              Node::NodeObjectWrap::Wrap( env, ex->weakptr, rightref, reqId );
 
           argv[i] = convertedVal;
 

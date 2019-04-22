@@ -9,10 +9,10 @@
 #include "module/osmod.h"
 #include "node/jsprog.h"
 #include "node/module/objwrap.h"
+#include "node/module/polosmod.h"
 #include "node/nodecall.h"
 #include "polcfg.h"
 #include "polclock.h"
-#include "node/module/polosmod.h"
 
 namespace Pol
 {
@@ -121,7 +121,8 @@ void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* 
   }
   else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
-    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, this->weakptr, Bscript::BObjectRef( resp ) );
+    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, this->weakptr,
+                                                Bscript::BObjectRef( resp ) );
   }
   revive();
   // auto iter = requests.find( req );

@@ -121,21 +121,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 
 //////////////////////////////////////////////////////////////////////////
 }  // namespace Core
-// namespace Bscript
-// {
-// using namespace Module;
-// template <>
-// TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
-//     TmplExecutorModule<UnicodeExecutorModule>::function_table = {
-//         {"BroadcastUC", &UnicodeExecutorModule::mf_BroadcastUC, UINT_MAX},
-//         {"PrintTextAboveUC", &UnicodeExecutorModule::mf_PrintTextAboveUC, UINT_MAX},
-//         {"PrintTextAbovePrivateUC", &UnicodeExecutorModule::mf_PrivateTextAboveUC, UINT_MAX},
-//         {"RequestInputUC", &UnicodeExecutorModule::mf_RequestInputUC, UINT_MAX},
-//         {"SendSysMessageUC", &UnicodeExecutorModule::mf_SendSysMessageUC, UINT_MAX},
-//         {"SendTextEntryGumpUC", &UnicodeExecutorModule::mf_SendTextEntryGumpUC, UINT_MAX}};
-// template <>
-// const char* TmplExecutorModule<UnicodeExecutorModule>::modname = "unicode";
-// }  // namespace Bscript
+
 namespace Module
 {
 using namespace Bscript;

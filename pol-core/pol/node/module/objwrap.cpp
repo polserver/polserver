@@ -255,19 +255,20 @@ Napi::Value NodeObjectWrap::GetMethodFunction( const CallbackInfo& info )
   auto membername = info[0].As<String>().Utf8Value();
   auto impptr = objref->impptr();
 
-  Napi::Function func = Napi::Function::New(
-      env,
-      [this, membername, impptr]( const CallbackInfo& cbinfo ) {
-        Napi::Env env = cbinfo.Env();
-        for ( size_t i = 0; i < cbinfo.Length(); ++i )
-        {
-          uoexec->fparams.emplace_back( Wrap( env, cbinfo[i] ) );
-        }
-        Bscript::BObjectImp* retVal = impptr->call_method( membername.c_str(), * (this->uoexec.get_weakptr()) );
-        uoexec->fparams.clear();
-        return Wrap( env, uoexec, Bscript::BObjectRef( retVal ) );
-      },
-      membername );
+  Napi::Function func =
+      Napi::Function::New( env,
+                           [this, membername, impptr]( const CallbackInfo& cbinfo ) {
+                             Napi::Env env = cbinfo.Env();
+                             for ( size_t i = 0; i < cbinfo.Length(); ++i )
+                             {
+                               uoexec->fparams.emplace_back( Wrap( env, cbinfo[i] ) );
+                             }
+                             Bscript::BObjectImp* retVal = impptr->call_method(
+                                 membername.c_str(), *( this->uoexec.get_weakptr() ) );
+                             uoexec->fparams.clear();
+                             return Wrap( env, uoexec, Bscript::BObjectRef( retVal ) );
+                           },
+                           membername );
 
   return func;
 

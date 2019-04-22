@@ -19,42 +19,6 @@
 
 namespace Pol
 {
-// namespace Bscript
-// {
-// using namespace Module;
-
-// template <>
-// TmplExecutorModule<MathExecutorModule>::FunctionTable
-//     TmplExecutorModule<MathExecutorModule>::function_table = {
-//         {"Sin", &MathExecutorModule::mf_Sin, UINT_MAX},
-//         {"Cos", &MathExecutorModule::mf_Cos, UINT_MAX},
-//         {"Tan", &MathExecutorModule::mf_Tan, UINT_MAX},
-//         {"ASin", &MathExecutorModule::mf_ASin, UINT_MAX},
-//         {"ACos", &MathExecutorModule::mf_ACos, UINT_MAX},
-//         {"ATan", &MathExecutorModule::mf_ATan, UINT_MAX},
-
-//         {"Min", &MathExecutorModule::mf_Min, UINT_MAX},
-//         {"Max", &MathExecutorModule::mf_Max, UINT_MAX},
-//         {"Pow", &MathExecutorModule::mf_Pow, UINT_MAX},
-//         {"Sqrt", &MathExecutorModule::mf_Sqrt, UINT_MAX},
-//         {"Root", &MathExecutorModule::mf_Root, UINT_MAX},
-//         {"Abs", &MathExecutorModule::mf_Abs, UINT_MAX},
-//         {"Log10", &MathExecutorModule::mf_Log10, UINT_MAX},
-//         {"LogE", &MathExecutorModule::mf_LogE, UINT_MAX},
-
-//         {"DegToRad", &MathExecutorModule::mf_DegToRad, UINT_MAX},
-//         {"RadToDeg", &MathExecutorModule::mf_RadToDeg, UINT_MAX},
-
-//         {"Ceil", &MathExecutorModule::mf_Ceil, UINT_MAX},
-//         {"Floor", &MathExecutorModule::mf_Floor, UINT_MAX},
-
-//         {"ConstPi", &MathExecutorModule::mf_ConstPi, UINT_MAX},
-//         {"ConstE", &MathExecutorModule::mf_ConstE, UINT_MAX},
-
-//         {"FormatRealToString", &MathExecutorModule::mf_FormatRealToString, UINT_MAX}};
-// template <>
-// const char* TmplExecutorModule<MathExecutorModule>::modname = "math";
-// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

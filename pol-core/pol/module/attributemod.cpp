@@ -6,7 +6,6 @@
 
 
 #include "attributemod.h"
-#include "modules/attributes-tbl.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../globals/uvars.h"
@@ -16,36 +15,11 @@
 #include "../skilladv.h"
 #include "../skillid.h"
 #include "../uoexhelp.h"
+#include "modules/attributes-tbl.h"
 
 
 namespace Pol
 {
-// namespace Bscript
-// {
-// using namespace Module;
-// template <>
-// TmplExecutorModule<AttributeExecutorModule>::FunctionTable TmplExecutorModule<
-//     AttributeExecutorModule>::function_table = {
-//     {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill, UINT_MAX},
-//     {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName, UINT_MAX},
-//     {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap, UINT_MAX},
-//     {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute, UINT_MAX},
-//     {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue, UINT_MAX},
-//     {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod, UINT_MAX},
-//     {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod, UINT_MAX},
-//     {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock, UINT_MAX},
-//     {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap, UINT_MAX},
-//     {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap, UINT_MAX},
-//     {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock, UINT_MAX},
-//     {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue, UINT_MAX},
-//     {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod, UINT_MAX},
-//     {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod,
-//      UINT_MAX},
-//     {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase, UINT_MAX},
-//     {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw, UINT_MAX}};
-// template <>
-// const char* TmplExecutorModule<AttributeExecutorModule>::modname = "attributes";
-// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

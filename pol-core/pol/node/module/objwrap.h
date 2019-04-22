@@ -48,7 +48,8 @@ public:
   Napi::Value SetMember( const CallbackInfo& cbinfo );
 
   /** Can run outside Node env */
-  static bool resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec, Bscript::BObjectRef objref );
+  static bool resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec,
+                                    Bscript::BObjectRef objref );
 
 private:
   static Napi::FunctionReference constructor;

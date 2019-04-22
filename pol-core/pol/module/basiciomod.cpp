@@ -11,18 +11,6 @@
 
 namespace Pol
 {
-// namespace Bscript
-// {
-// using namespace Module;
-// template <>
-// TmplExecutorModule<BasicIoExecutorModule>::FunctionTable
-//     TmplExecutorModule<BasicIoExecutorModule>::function_table = {
-//         {"print", &BasicIoExecutorModule::print, 1}};
-
-// template <>
-// const char* TmplExecutorModule<BasicIoExecutorModule>::modname = "BasicIo";
-// }  // namespace Bscript
-
 namespace Module
 {
 BasicIoExecutorModule::BasicIoExecutorModule( Bscript::Executor& exec )

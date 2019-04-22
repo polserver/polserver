@@ -19,20 +19,6 @@ namespace Core
 {
 std::string http_decodestr( const std::string& s );
 }
-// namespace Bscript
-// {
-// using namespace Module;
-// template <>
-// TmplExecutorModule<HttpExecutorModule>::FunctionTable
-//     TmplExecutorModule<HttpExecutorModule>::function_table = {
-//         {"WriteHtml", &HttpExecutorModule::mf_WriteHtml, UINT_MAX},
-//         {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw, UINT_MAX},
-//         {"QueryParam", &HttpExecutorModule::mf_QueryParam, UINT_MAX},
-//         {"QueryIP", &HttpExecutorModule::mf_QueryIP, UINT_MAX}
-// };
-// template <>
-// const char* TmplExecutorModule<HttpExecutorModule>::modname = "http";
-// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
