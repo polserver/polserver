@@ -2,7 +2,12 @@ set(lib_name nodescripts)
 
 message("* ${lib_name}")
 
-add_custom_target(${lib_name} ALL SOURCES
+add_custom_target(${lib_name} ALL
+  COMMAND nodebin install-deps.js ${CMAKE_COMMAND} 
+  COMMAND nodebin  build.js ${CMAKE_CURRENT_BINARY_DIR}
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts
+  DEPENDS nodebin
+  SOURCES
   build-scripts/build.js
   build-scripts/em-parser.js
   build-scripts/install-deps.js
@@ -11,19 +16,7 @@ add_custom_target(${lib_name} ALL SOURCES
   templates/modules.hbs
   templates/objects.hbs
   # Generated files
-  modules.js
-  objects.js
-)
-
-SET_SOURCE_FILES_PROPERTIES(modules.js PROPERTIES GENERATED true)
-SET_SOURCE_FILES_PROPERTIES(objects.js PROPERTIES GENERATED true)
-
-add_custom_command(
-  OUTPUT modules.js objects.js
-  COMMAND nodebin install-deps.js ${CMAKE_COMMAND} 
-  COMMAND nodebin build.js ${CMAKE_CURRENT_BINARY_DIR}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts
-  DEPENDS nodebin
+  BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/modules.js ${CMAKE_CURRENT_BINARY_DIR}/objects.js
 )
 
  install(FILES

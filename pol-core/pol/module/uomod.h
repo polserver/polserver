@@ -111,7 +111,7 @@ public:
   Bscript::BObjectImp* mf_SetRegionWeatherLevel();
   Bscript::BObjectImp* mf_CreateAccount();
   Bscript::BObjectImp* mf_SetScriptController();
-  Bscript::BObjectImp* mf_PolCore();
+  Bscript::BObjectImp* mf_POLCore();
   Bscript::BObjectImp* mf_GetWorldHeight();
   Bscript::BObjectImp* mf_StartSpellEffect();
   Bscript::BObjectImp* mf_GetSpellDifficulty();
@@ -120,7 +120,7 @@ public:
   Bscript::BObjectImp* mf_GetMultiDimensions();
   Bscript::BObjectImp* mf_DestroyMulti();
   Bscript::BObjectImp* mf_SendTextEntryGump();
-  Bscript::BObjectImp* mf_SendGumpMenu();
+  Bscript::BObjectImp* mf_SendDialogGump();
   Bscript::BObjectImp* mf_CloseGump();
   Bscript::BObjectImp* mf_CloseWindow( /* chr, type, who */ );
   Bscript::BObjectImp* mf_SendEvent();
@@ -250,7 +250,7 @@ public:
   Bscript::BObjectImp* mf_SetName();
   Bscript::BObjectImp* mf_SetObjProperty();
 
-  Bscript::BObjectImp* mf_SelectMenuItem();  // character, menuname
+  Bscript::BObjectImp* mf_SelectMenuItem2();  // character, menuname
   Bscript::BObjectImp* mf_SendSysMessage();  // Character, Text
   Bscript::BObjectImp* mf_SubtractAmount();  // Item, Amount
   Bscript::BObjectImp* mf_Target();          // Character to choose

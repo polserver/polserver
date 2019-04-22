@@ -42,13 +42,26 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
 {
   Napi::Env env = cbinfo.Env();
 
-  // FIXME Optimization by making the first argument be the index instead of the name
-  std::string funcName = cbinfo[0].As<String>().Utf8Value();
-  auto funcIdx = polmod->functionIndex( funcName );
+  if ( cbinfo.Length() == 0 )
+  {
+    return env.Undefined();
+  }
+  int funcIdx = -1;
 
-  if ( funcIdx == -1 )
-    Napi::TypeError::New( env, std::string( "Unknown function " ) + PolModule::modname + funcName )
-        .ThrowAsJavaScriptException();
+  if ( cbinfo[0].IsNumber() )
+  {
+    funcIdx = cbinfo[0].As<Number>().Int32Value();
+  }
+  else
+  {
+    auto funcName = cbinfo[0].ToString().Utf8Value();
+    funcIdx = polmod->functionIndex( funcName );
+
+    if ( funcIdx == -1 )
+      Napi::TypeError::New( env,
+                            std::string( "Unknown function " ) + PolModule::modname + funcName )
+          .ThrowAsJavaScriptException();
+  }
 
   Bscript::BObjectImp* funcRet;
   {
@@ -61,8 +74,9 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
     // cleanParams is protected... sooo
     polmod->exec.fparams.clear();
   }
-  
-  auto convertedFunctRet = NodeObjectWrap::Wrap( env, uoexec->weakptr, Bscript::BObjectRef( funcRet ) );
+
+  auto convertedFunctRet =
+      NodeObjectWrap::Wrap( env, uoexec->weakptr, Bscript::BObjectRef( funcRet ) );
   return convertedFunctRet;
 }
 

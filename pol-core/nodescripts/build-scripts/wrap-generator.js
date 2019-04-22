@@ -19,14 +19,22 @@ Handlebars.registerHelper("trimLast", (val, sepRegex) => {
 });
 
 
+Handlebars.registerHelper('exists', function(conditional, options) {
+  if(typeof conditional !== "undefined") {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+});
+
 // We'll try to get the 'polparser' linked internal module. If it exists, we can optimize known members and table functions.
 
-let polparser, internalGetKnownObjMembers, internalGetKnownObjMethods, internalGetFunctionIndex;
+let polparser, internalGetKnownObjMember, internalGetKnownObjMethod, internalGetKnownModuleMethod;
 try {
     polparser = process._linkedBinding("polparser");
-    internalGetKnownObjMembers = polparser.internalGetKnownObjMembers;
-    internalGetKnownObjMethods = polparser.internalGetKnownObjMethods;
-    internalGetFunctionIndex = polparser.internalGetFunctionIndex;
+    internalGetKnownObjMember = polparser.getKnownObjMember;
+    internalGetKnownObjMethod = polparser.getKnownObjMethod;
+    internalGetKnownModuleMethod = polparser.getKnownModuleMethod;
 } catch (e) {
 
 }
@@ -54,12 +62,13 @@ async function generateModules(outPath) {
     };
   }, {});
 
-  if (internalGetFunctionIndex) {
+  if (internalGetKnownModuleMethod) {
     for ( const [modName, modDef] of Object.entries(modobj))
     {
       const { functions } = modDef;
       for ( const funcName in functions ) {
-        functions[funcName].id = internalGetFunctionIndex(modName, funcName);
+        const internal = internalGetKnownModuleMethod(modName, funcName);
+        if (internal) functions[funcName].id = internal.id;
       }
     }
   }
@@ -107,9 +116,12 @@ async function generateObjects(outPath) {
           }
           if (!methodName) throw new Error(`Unknown method parsing ${clazzName}::${method.$.proto}`);
 
-          prototypes[methodName] =  { 
-              id: internalGetKnownObjMethods && internalGetKnownObjMethods(methodName) 
-          }; 
+          const internal = internalGetKnownObjMethod && internalGetKnownObjMethod(methodName) 
+          if (internal) {
+            prototypes[methodName] =  { 
+                  id: internal.id
+            }; 
+          }
 
           // todo do something with args? maybe for docs? 
           // method.$.proto.substring(index + 1, method.$.proto.length - 1).match(/((\w+)( (\w+))*),?/));
@@ -120,8 +132,7 @@ async function generateObjects(outPath) {
       if (clazz.member) for (const member of clazz.member) { 
           const { mname, access } = member.$;
 
-          const knownMember = internalGetKnownObjMembers && internalGetKnownObjMembers(mname);
-          
+          const knownMember = internalGetKnownObjMember && internalGetKnownObjMember(mname);
           if (knownMember) {
               memberProps[mname] = { id: knownMember.id, ro: access === "r/o" }
           } else {

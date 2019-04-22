@@ -1616,7 +1616,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
   return false;
 }
 
-BObjectImp* UOExecutorModule::mf_SelectMenuItem()
+BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
 {
   Character* chr;
   Menu* menu;

@@ -16,7 +16,7 @@ function {{@key}}(extUoExec) {
 {{/each}}
 
 {{#each functions}}
-    this.{{camelCase @key}} = function({{#each .}}{{#if @index}}, {{/if}}{{name}}{{/each}}) { return this.execFunc({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}, {{#each .}}{{#if @index}}, {{/if}}{{#if default}}arguments.length <= {{@index}} ? {{{stringify default}}} : {{name}}{{else}}{{name}}{{/if}}{{/each}}); }.bind(extMod);
+    this.{{camelCase @key}} = function({{#each .}}{{#if @index}}, {{/if}}{{name}}{{/each}}) { return this.execFunc({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, {{#each .}}{{#if @index}}, {{/if}}{{#if default}}arguments.length <= {{@index}} ? {{{stringify default}}} : {{name}}{{else}}{{name}}{{/if}}{{/each}}); }.bind(extMod);
 {{/each}}
 }
 

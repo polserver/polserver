@@ -4,11 +4,11 @@ const ExtObjSymbol = Symbol("ExtObj");
   constructor(extObj) { 
       Object.defineProperties(this, {
             [ExtObjSymbol]: { writable: false, enumerable: false, value: extObj },
-{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set() { this[ExtObjSymbol].set_member({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}); }{{/if}}, get() { this[ExtObjSymbol].get_member({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}); } },
+{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set() { this[ExtObjSymbol].set_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); }{{/if}}, get() { this[ExtObjSymbol].get_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
 {{/each}}
       });
   }
-{{#each prototypes}}  {{camelCase @key}}() { return this[ExtObjSymbol].call_method({{#if id}}{{id}}{{else}}"{{@key}}"{{/if}}, ...arguments); }
+{{#each prototypes}}  {{camelCase @key}}() { return this[ExtObjSymbol].call_method({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, ...arguments); }
 {{/each}}
 };
 
