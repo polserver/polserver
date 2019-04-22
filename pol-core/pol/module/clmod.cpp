@@ -18,19 +18,19 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<ClilocExecutorModule>::FunctionTable
-    TmplExecutorModule<ClilocExecutorModule>::function_table = {
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<ClilocExecutorModule>::FunctionTable
+//     TmplExecutorModule<ClilocExecutorModule>::function_table = {
 
-        {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL, UINT_MAX},
-        {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL, UINT_MAX},
-        {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<ClilocExecutorModule>::modname = "cliloc";
-}  // namespace Bscript
+//         {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL, UINT_MAX},
+//         {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL, UINT_MAX},
+//         {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<ClilocExecutorModule>::modname = "cliloc";
+// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

@@ -54,42 +54,42 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<OSExecutorModule>::FunctionTable
-    TmplExecutorModule<OSExecutorModule>::function_table = {
-        {"create_debug_context", &OSExecutorModule::create_debug_context, UINT_MAX},
-        {"getprocess", &OSExecutorModule::getprocess, UINT_MAX},
-        {"get_process", &OSExecutorModule::getprocess, UINT_MAX},
-        {"getpid", &OSExecutorModule::getpid, UINT_MAX},
-        {"sleep", &OSExecutorModule::sleep, UINT_MAX},
-        {"sleepms", &OSExecutorModule::sleepms, UINT_MAX},
-        {"wait_for_event", &OSExecutorModule::wait_for_event, UINT_MAX},
-        {"events_waiting", &OSExecutorModule::events_waiting, UINT_MAX},
-        {"start_script", &OSExecutorModule::start_script, UINT_MAX},
-        {"start_skill_script", &OSExecutorModule::start_skill_script, UINT_MAX},
-        {"set_critical", &OSExecutorModule::set_critical, UINT_MAX},
-        {"is_critical", &OSExecutorModule::is_critical, UINT_MAX},
-        {"run_script_to_completion", &OSExecutorModule::run_script_to_completion, UINT_MAX},
-        {"run_script", &OSExecutorModule::run_script, UINT_MAX},
-        {"set_debug", &OSExecutorModule::mf_set_debug, UINT_MAX},
-        {"syslog", &OSExecutorModule::mf_Log, UINT_MAX},
-        {"system_rpm", &OSExecutorModule::mf_system_rpm, UINT_MAX},
-        {"set_priority", &OSExecutorModule::mf_set_priority, UINT_MAX},
-        {"unload_scripts", &OSExecutorModule::mf_unload_scripts, UINT_MAX},
-        {"set_script_option", &OSExecutorModule::mf_set_script_option, UINT_MAX},
-        {"clear_event_queue", &OSExecutorModule::mf_clear_event_queue, UINT_MAX},
-        {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size, UINT_MAX},
-        {"OpenURL", &OSExecutorModule::mf_OpenURL, UINT_MAX},
-        {"OpenConnection", &OSExecutorModule::mf_OpenConnection, UINT_MAX},
-        {"Debugger", &OSExecutorModule::mf_debugger, UINT_MAX},
-        {"PerformanceMeasure", &OSExecutorModule::mf_performance_diff, UINT_MAX},
-        {"HTTPRequest", &OSExecutorModule::mf_HTTPRequest, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<OSExecutorModule>::modname = "OS";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<OSExecutorModule>::FunctionTable
+//     TmplExecutorModule<OSExecutorModule>::function_table = {
+//         {"create_debug_context", &OSExecutorModule::create_debug_context, UINT_MAX},
+//         {"getprocess", &OSExecutorModule::getprocess, UINT_MAX},
+//         {"get_process", &OSExecutorModule::getprocess, UINT_MAX},
+//         {"getpid", &OSExecutorModule::getpid, UINT_MAX},
+//         {"sleep", &OSExecutorModule::sleep, UINT_MAX},
+//         {"sleepms", &OSExecutorModule::sleepms, UINT_MAX},
+//         {"wait_for_event", &OSExecutorModule::wait_for_event, UINT_MAX},
+//         {"events_waiting", &OSExecutorModule::events_waiting, UINT_MAX},
+//         {"start_script", &OSExecutorModule::start_script, UINT_MAX},
+//         {"start_skill_script", &OSExecutorModule::start_skill_script, UINT_MAX},
+//         {"set_critical", &OSExecutorModule::set_critical, UINT_MAX},
+//         {"is_critical", &OSExecutorModule::is_critical, UINT_MAX},
+//         {"run_script_to_completion", &OSExecutorModule::run_script_to_completion, UINT_MAX},
+//         {"run_script", &OSExecutorModule::run_script, UINT_MAX},
+//         {"set_debug", &OSExecutorModule::mf_set_debug, UINT_MAX},
+//         {"syslog", &OSExecutorModule::mf_Log, UINT_MAX},
+//         {"system_rpm", &OSExecutorModule::mf_system_rpm, UINT_MAX},
+//         {"set_priority", &OSExecutorModule::mf_set_priority, UINT_MAX},
+//         {"unload_scripts", &OSExecutorModule::mf_unload_scripts, UINT_MAX},
+//         {"set_script_option", &OSExecutorModule::mf_set_script_option, UINT_MAX},
+//         {"clear_event_queue", &OSExecutorModule::mf_clear_event_queue, UINT_MAX},
+//         {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size, UINT_MAX},
+//         {"OpenURL", &OSExecutorModule::mf_OpenURL, UINT_MAX},
+//         {"OpenConnection", &OSExecutorModule::mf_OpenConnection, UINT_MAX},
+//         {"Debugger", &OSExecutorModule::mf_debugger, UINT_MAX},
+//         {"PerformanceMeasure", &OSExecutorModule::mf_performance_diff, UINT_MAX},
+//         {"HTTPRequest", &OSExecutorModule::mf_HTTPRequest, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<OSExecutorModule>::modname = "OS";
+// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

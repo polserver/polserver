@@ -21,24 +21,24 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<SQLExecutorModule>::FunctionTable
-    TmplExecutorModule<SQLExecutorModule>::function_table = {
-        {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB, UINT_MAX},
-        {"MySQL_Query", &SQLExecutorModule::mf_Query, UINT_MAX},
-        {"MySQL_Close", &SQLExecutorModule::mf_Close, UINT_MAX},
-        {"MySQL_Num_Fields", &SQLExecutorModule::mf_NumFields, UINT_MAX},
-        {"MySQL_Fetch_Row", &SQLExecutorModule::mf_FetchRow, UINT_MAX},
-        {"MySQL_Affected_Rows", &SQLExecutorModule::mf_AffectedRows, UINT_MAX},
-        {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows, UINT_MAX},
-        {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb, UINT_MAX},
-        {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<SQLExecutorModule>::modname = "sql";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<SQLExecutorModule>::FunctionTable
+//     TmplExecutorModule<SQLExecutorModule>::function_table = {
+//         {"MySQL_Connect", &SQLExecutorModule::mf_ConnectToDB, UINT_MAX},
+//         {"MySQL_Query", &SQLExecutorModule::mf_Query, UINT_MAX},
+//         {"MySQL_Close", &SQLExecutorModule::mf_Close, UINT_MAX},
+//         {"MySQL_Num_Fields", &SQLExecutorModule::mf_NumFields, UINT_MAX},
+//         {"MySQL_Fetch_Row", &SQLExecutorModule::mf_FetchRow, UINT_MAX},
+//         {"MySQL_Affected_Rows", &SQLExecutorModule::mf_AffectedRows, UINT_MAX},
+//         {"MySQL_Num_Rows", &SQLExecutorModule::mf_NumRows, UINT_MAX},
+//         {"MySQL_Select_Db", &SQLExecutorModule::mf_SelectDb, UINT_MAX},
+//         {"MySQL_Field_Name", &SQLExecutorModule::mf_FieldName, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<SQLExecutorModule>::modname = "sql";
+// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

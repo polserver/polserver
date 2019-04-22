@@ -27,20 +27,20 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<GuildExecutorModule>::FunctionTable
-    TmplExecutorModule<GuildExecutorModule>::function_table = {
-        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds, UINT_MAX},
-        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild, UINT_MAX},
-        {"FindGuild", &GuildExecutorModule::mf_FindGuild, UINT_MAX},
-        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild, UINT_MAX},
-};
-template <>
-const char* TmplExecutorModule<GuildExecutorModule>::modname = "Guilds";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<GuildExecutorModule>::FunctionTable
+//     TmplExecutorModule<GuildExecutorModule>::function_table = {
+//         {"ListGuilds", &GuildExecutorModule::mf_ListGuilds, UINT_MAX},
+//         {"CreateGuild", &GuildExecutorModule::mf_CreateGuild, UINT_MAX},
+//         {"FindGuild", &GuildExecutorModule::mf_FindGuild, UINT_MAX},
+//         {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild, UINT_MAX},
+// };
+// template <>
+// const char* TmplExecutorModule<GuildExecutorModule>::modname = "Guilds";
+// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

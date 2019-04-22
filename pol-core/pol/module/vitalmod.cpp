@@ -24,26 +24,26 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<VitalExecutorModule>::FunctionTable
-    TmplExecutorModule<VitalExecutorModule>::function_table = {
-        {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage, UINT_MAX},
-        {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage, UINT_MAX},
-        {"HealDamage", &VitalExecutorModule::mf_HealDamage, UINT_MAX},
-        {"ConsumeMana", &VitalExecutorModule::mf_ConsumeMana, UINT_MAX},
-        {"ConsumeVital", &VitalExecutorModule::mf_ConsumeVital, UINT_MAX},
-        {"RecalcVitals", &VitalExecutorModule::mf_RecalcVitals, UINT_MAX},
-        {"GetVitalName", &VitalExecutorModule::mf_GetVitalName, UINT_MAX},
-        {"GetVital", &VitalExecutorModule::mf_GetVital, UINT_MAX},
-        {"SetVital", &VitalExecutorModule::mf_SetVital, UINT_MAX},
-        {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate, UINT_MAX},
-        {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<VitalExecutorModule>::modname = "vitals";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<VitalExecutorModule>::FunctionTable
+//     TmplExecutorModule<VitalExecutorModule>::function_table = {
+//         {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage, UINT_MAX},
+//         {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage, UINT_MAX},
+//         {"HealDamage", &VitalExecutorModule::mf_HealDamage, UINT_MAX},
+//         {"ConsumeMana", &VitalExecutorModule::mf_ConsumeMana, UINT_MAX},
+//         {"ConsumeVital", &VitalExecutorModule::mf_ConsumeVital, UINT_MAX},
+//         {"RecalcVitals", &VitalExecutorModule::mf_RecalcVitals, UINT_MAX},
+//         {"GetVitalName", &VitalExecutorModule::mf_GetVitalName, UINT_MAX},
+//         {"GetVital", &VitalExecutorModule::mf_GetVital, UINT_MAX},
+//         {"SetVital", &VitalExecutorModule::mf_SetVital, UINT_MAX},
+//         {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate, UINT_MAX},
+//         {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<VitalExecutorModule>::modname = "vitals";
+// }  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;

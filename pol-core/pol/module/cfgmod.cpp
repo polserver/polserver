@@ -32,32 +32,32 @@ namespace Pol
 namespace Module
 {
 }
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
-    TmplExecutorModule<ConfigFileExecutorModule>::function_table = {
-        {"ReadConfigFile", &ConfigFileExecutorModule::mf_ConfigFile, UINT_MAX},
-        {"FindConfigElem", &ConfigFileExecutorModule::mf_FindConfigElement, UINT_MAX},
-        {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString, UINT_MAX},
-        {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString, UINT_MAX},
-        {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray, UINT_MAX},
-        {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary,
-         UINT_MAX},
-        {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt, UINT_MAX},
-        {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray, UINT_MAX},
-        {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal, UINT_MAX},
-        {"GetConfigMaxIntKey", &ConfigFileExecutorModule::mf_GetConfigMaxIntKey, UINT_MAX},
-        {"GetConfigStringKeys", &ConfigFileExecutorModule::mf_GetConfigStringKeys, UINT_MAX},
-        {"GetConfigIntKeys", &ConfigFileExecutorModule::mf_GetConfigIntKeys, UINT_MAX},
-        {"ListConfigElemProps", &ConfigFileExecutorModule::mf_ListConfigElemProps, UINT_MAX},
-        {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem, UINT_MAX},
-        {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile, UINT_MAX},
-        {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<ConfigFileExecutorModule>::modname = "cfgfile";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
+//     TmplExecutorModule<ConfigFileExecutorModule>::function_table = {
+//         {"ReadConfigFile", &ConfigFileExecutorModule::mf_ConfigFile, UINT_MAX},
+//         {"FindConfigElem", &ConfigFileExecutorModule::mf_FindConfigElement, UINT_MAX},
+//         {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString, UINT_MAX},
+//         {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString, UINT_MAX},
+//         {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray, UINT_MAX},
+//         {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary,
+//          UINT_MAX},
+//         {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt, UINT_MAX},
+//         {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray, UINT_MAX},
+//         {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal, UINT_MAX},
+//         {"GetConfigMaxIntKey", &ConfigFileExecutorModule::mf_GetConfigMaxIntKey, UINT_MAX},
+//         {"GetConfigStringKeys", &ConfigFileExecutorModule::mf_GetConfigStringKeys, UINT_MAX},
+//         {"GetConfigIntKeys", &ConfigFileExecutorModule::mf_GetConfigIntKeys, UINT_MAX},
+//         {"ListConfigElemProps", &ConfigFileExecutorModule::mf_ListConfigElemProps, UINT_MAX},
+//         {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem, UINT_MAX},
+//         {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile, UINT_MAX},
+//         {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<ConfigFileExecutorModule>::modname = "cfgfile";
+// }  // namespace Bscript
 namespace Module
 {
 Bscript::BApplicObjType cfgfile_type;

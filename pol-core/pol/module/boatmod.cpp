@@ -21,22 +21,22 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
-    TmplExecutorModule<Module::UBoatExecutorModule>::function_table = {
-        {"MoveBoat", &UBoatExecutorModule::mf_MoveBoat, UINT_MAX},
-        {"MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative, UINT_MAX},
-        {"MoveBoatXY", &UBoatExecutorModule::mf_MoveBoatXY, UINT_MAX},
-        {"TurnBoat", &UBoatExecutorModule::mf_TurnBoat, UINT_MAX},
-        {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat, UINT_MAX},
-        {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem, UINT_MAX},
-        {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<UBoatExecutorModule>::modname = "boat";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
+//     TmplExecutorModule<Module::UBoatExecutorModule>::function_table = {
+//         {"MoveBoat", &UBoatExecutorModule::mf_MoveBoat, UINT_MAX},
+//         {"MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative, UINT_MAX},
+//         {"MoveBoatXY", &UBoatExecutorModule::mf_MoveBoatXY, UINT_MAX},
+//         {"TurnBoat", &UBoatExecutorModule::mf_TurnBoat, UINT_MAX},
+//         {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat, UINT_MAX},
+//         {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem, UINT_MAX},
+//         {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<UBoatExecutorModule>::modname = "boat";
+// }  // namespace Bscript
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )

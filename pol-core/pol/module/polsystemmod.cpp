@@ -88,34 +88,34 @@ PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
 {
 }
 }
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<PolSystemExecutorModule>::FunctionTable
-    TmplExecutorModule<PolSystemExecutorModule>::function_table = {
-        {"IncRevision", &PolSystemExecutorModule::mf_IncRevision, UINT_MAX},
-        {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName, UINT_MAX},
-        {"GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber, UINT_MAX},
-        {"Packages", &PolSystemExecutorModule::mf_Packages, UINT_MAX},
-        {"GetPackageByName", &PolSystemExecutorModule::mf_GetPackageByName, UINT_MAX},
-        {"ListTextCommands", &PolSystemExecutorModule::mf_ListTextCommands, UINT_MAX},
-        {"Realms", &PolSystemExecutorModule::mf_Realms, UINT_MAX},
-        {"ReloadConfiguration", &PolSystemExecutorModule::mf_ReloadConfiguration, UINT_MAX},
-        {"ReadMillisecondClock", &PolSystemExecutorModule::mf_ReadMillisecondClock, UINT_MAX},
-        {"ListenPoints", &PolSystemExecutorModule::mf_ListenPoints, UINT_MAX},
-        {"SetSysTrayPopupText", &PolSystemExecutorModule::mf_SetSysTrayPopupText, UINT_MAX},
-        {"GetItemDescriptor", &PolSystemExecutorModule::mf_GetItemDescriptor, UINT_MAX},
-        {"FormatItemDescription", &PolSystemExecutorModule::mf_FormatItemDescription, UINT_MAX},
-        {"CreatePacket", &PolSystemExecutorModule::mf_CreatePacket, UINT_MAX},
-        {"AddRealm", &PolSystemExecutorModule::mf_AddRealm, UINT_MAX},
-        {"DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm, UINT_MAX},
-        {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt, UINT_MAX},
-        {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile, UINT_MAX},
-};
-template <>
-const char* TmplExecutorModule<PolSystemExecutorModule>::modname = "polsys";
-}
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<PolSystemExecutorModule>::FunctionTable
+//     TmplExecutorModule<PolSystemExecutorModule>::function_table = {
+//         {"IncRevision", &PolSystemExecutorModule::mf_IncRevision, UINT_MAX},
+//         {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName, UINT_MAX},
+//         {"GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber, UINT_MAX},
+//         {"Packages", &PolSystemExecutorModule::mf_Packages, UINT_MAX},
+//         {"GetPackageByName", &PolSystemExecutorModule::mf_GetPackageByName, UINT_MAX},
+//         {"ListTextCommands", &PolSystemExecutorModule::mf_ListTextCommands, UINT_MAX},
+//         {"Realms", &PolSystemExecutorModule::mf_Realms, UINT_MAX},
+//         {"ReloadConfiguration", &PolSystemExecutorModule::mf_ReloadConfiguration, UINT_MAX},
+//         {"ReadMillisecondClock", &PolSystemExecutorModule::mf_ReadMillisecondClock, UINT_MAX},
+//         {"ListenPoints", &PolSystemExecutorModule::mf_ListenPoints, UINT_MAX},
+//         {"SetSysTrayPopupText", &PolSystemExecutorModule::mf_SetSysTrayPopupText, UINT_MAX},
+//         {"GetItemDescriptor", &PolSystemExecutorModule::mf_GetItemDescriptor, UINT_MAX},
+//         {"FormatItemDescription", &PolSystemExecutorModule::mf_FormatItemDescription, UINT_MAX},
+//         {"CreatePacket", &PolSystemExecutorModule::mf_CreatePacket, UINT_MAX},
+//         {"AddRealm", &PolSystemExecutorModule::mf_AddRealm, UINT_MAX},
+//         {"DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm, UINT_MAX},
+//         {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt, UINT_MAX},
+//         {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile, UINT_MAX},
+// };
+// template <>
+// const char* TmplExecutorModule<PolSystemExecutorModule>::modname = "polsys";
+// }
 namespace Module
 {
 using namespace Bscript;

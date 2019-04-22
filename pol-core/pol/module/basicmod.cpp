@@ -830,42 +830,42 @@ Bscript::BObjectImp* BasicExecutorModule::mf_DecodeBase64()
 }
 }  // namespace Module
 
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<BasicExecutorModule>::FunctionTable
-    TmplExecutorModule<BasicExecutorModule>::function_table = {
-        {"find", &BasicExecutorModule::find, UINT_MAX},
-        {"len", &BasicExecutorModule::len, UINT_MAX},
-        {"upper", &BasicExecutorModule::upper, UINT_MAX},
-        {"lower", &BasicExecutorModule::lower, UINT_MAX},
-        {"Substr", &BasicExecutorModule::mf_substr, UINT_MAX},
-        {"Trim", &BasicExecutorModule::mf_Trim, UINT_MAX},
-        {"StrReplace", &BasicExecutorModule::mf_StrReplace, UINT_MAX},
-        {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace, UINT_MAX},
-        {"Compare", &BasicExecutorModule::mf_Compare, UINT_MAX},
-        {"CInt", &BasicExecutorModule::mf_CInt, UINT_MAX},
-        {"CStr", &BasicExecutorModule::mf_CStr, UINT_MAX},
-        {"CDbl", &BasicExecutorModule::mf_CDbl, UINT_MAX},
-        {"CAsc", &BasicExecutorModule::mf_CAsc, UINT_MAX},
-        {"CChr", &BasicExecutorModule::mf_CChr, UINT_MAX},
-        {"CAscZ", &BasicExecutorModule::mf_CAscZ, UINT_MAX},
-        {"CChrZ", &BasicExecutorModule::mf_CChrZ, UINT_MAX},
-        {"Bin", &BasicExecutorModule::mf_Bin, UINT_MAX},
-        {"Hex", &BasicExecutorModule::mf_Hex, UINT_MAX},
-        {"SplitWords", &BasicExecutorModule::mf_SplitWords, UINT_MAX},
-        {"Pack", &BasicExecutorModule::mf_Pack, UINT_MAX},
-        {"Unpack", &BasicExecutorModule::mf_Unpack, UINT_MAX},
-        {"TypeOf", &BasicExecutorModule::mf_TypeOf, UINT_MAX},
-        {"SizeOf", &BasicExecutorModule::mf_SizeOf, UINT_MAX},
-        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt, UINT_MAX},
-        {"Boolean", &BasicExecutorModule::mf_Boolean, UINT_MAX},
-        {"PackJSON", &BasicExecutorModule::mf_PackJSON, UINT_MAX},
-        {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON, UINT_MAX},
-        {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64, 1},
-        {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64, 1}};
-template <>
-const char* TmplExecutorModule<BasicExecutorModule>::modname = "Basic";
-}  // namespace Bscript
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<BasicExecutorModule>::FunctionTable
+//     TmplExecutorModule<BasicExecutorModule>::function_table = {
+//         {"find", &BasicExecutorModule::find, UINT_MAX},
+//         {"len", &BasicExecutorModule::len, UINT_MAX},
+//         {"upper", &BasicExecutorModule::upper, UINT_MAX},
+//         {"lower", &BasicExecutorModule::lower, UINT_MAX},
+//         {"Substr", &BasicExecutorModule::mf_substr, UINT_MAX},
+//         {"Trim", &BasicExecutorModule::mf_Trim, UINT_MAX},
+//         {"StrReplace", &BasicExecutorModule::mf_StrReplace, UINT_MAX},
+//         {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace, UINT_MAX},
+//         {"Compare", &BasicExecutorModule::mf_Compare, UINT_MAX},
+//         {"CInt", &BasicExecutorModule::mf_CInt, UINT_MAX},
+//         {"CStr", &BasicExecutorModule::mf_CStr, UINT_MAX},
+//         {"CDbl", &BasicExecutorModule::mf_CDbl, UINT_MAX},
+//         {"CAsc", &BasicExecutorModule::mf_CAsc, UINT_MAX},
+//         {"CChr", &BasicExecutorModule::mf_CChr, UINT_MAX},
+//         {"CAscZ", &BasicExecutorModule::mf_CAscZ, UINT_MAX},
+//         {"CChrZ", &BasicExecutorModule::mf_CChrZ, UINT_MAX},
+//         {"Bin", &BasicExecutorModule::mf_Bin, UINT_MAX},
+//         {"Hex", &BasicExecutorModule::mf_Hex, UINT_MAX},
+//         {"SplitWords", &BasicExecutorModule::mf_SplitWords, UINT_MAX},
+//         {"Pack", &BasicExecutorModule::mf_Pack, UINT_MAX},
+//         {"Unpack", &BasicExecutorModule::mf_Unpack, UINT_MAX},
+//         {"TypeOf", &BasicExecutorModule::mf_TypeOf, UINT_MAX},
+//         {"SizeOf", &BasicExecutorModule::mf_SizeOf, UINT_MAX},
+//         {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt, UINT_MAX},
+//         {"Boolean", &BasicExecutorModule::mf_Boolean, UINT_MAX},
+//         {"PackJSON", &BasicExecutorModule::mf_PackJSON, UINT_MAX},
+//         {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON, UINT_MAX},
+//         {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64, 1},
+//         {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64, 1}};
+// template <>
+// const char* TmplExecutorModule<BasicExecutorModule>::modname = "Basic";
+// }  // namespace Bscript
 }  // namespace Pol

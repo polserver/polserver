@@ -33,19 +33,19 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<DataFileExecutorModule>::FunctionTable
-    TmplExecutorModule<DataFileExecutorModule>::function_table = {
-        {"ListDataFiles", &DataFileExecutorModule::mf_ListDataFiles, UINT_MAX},
-        {"CreateDataFile", &DataFileExecutorModule::mf_CreateDataFile, UINT_MAX},
-        {"OpenDataFile", &DataFileExecutorModule::mf_OpenDataFile, UINT_MAX},
-        {"UnloadDataFile", &DataFileExecutorModule::mf_UnloadDataFile, UINT_MAX}};
-template <>
-const char* TmplExecutorModule<DataFileExecutorModule>::modname = "datafile";
-}
+// namespace Bscript
+// {
+// using namespace Module;
+// template <>
+// TmplExecutorModule<DataFileExecutorModule>::FunctionTable
+//     TmplExecutorModule<DataFileExecutorModule>::function_table = {
+//         {"ListDataFiles", &DataFileExecutorModule::mf_ListDataFiles, UINT_MAX},
+//         {"CreateDataFile", &DataFileExecutorModule::mf_CreateDataFile, UINT_MAX},
+//         {"OpenDataFile", &DataFileExecutorModule::mf_OpenDataFile, UINT_MAX},
+//         {"UnloadDataFile", &DataFileExecutorModule::mf_UnloadDataFile, UINT_MAX}};
+// template <>
+// const char* TmplExecutorModule<DataFileExecutorModule>::modname = "datafile";
+// }
 
 namespace Module
 {
