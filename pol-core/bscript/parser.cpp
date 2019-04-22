@@ -507,8 +507,17 @@ ObjMember* getObjMember( int id )
     return &( object_members[id] );
 }
 
-ModuleMethod* getModuleMethod( const char* mod, const char* funcName ) {
-  return nullptr;
+ModuleMethod* getKnownModuleMethod( const char* mod, const char* funcName )
+{
+  auto moduleIter = module_methods.find( mod );
+  if ( moduleIter == module_methods.end() )
+    return nullptr;
+
+  auto funcIter = moduleIter->second.find( funcName );
+  if ( funcIter == moduleIter->second.end() )
+    return nullptr;
+
+  return &( funcIter->second );
 }
 
 

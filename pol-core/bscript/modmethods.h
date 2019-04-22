@@ -18,8 +18,8 @@ typedef struct
 typedef std::map<std::string, std::map<std::string, ModuleMethod>> CoreModuleContainer;
 extern CoreModuleContainer module_methods;
 
+ModuleMethod* getKnownModuleMethod( const char* mod, const char* funcName );
 
-ModuleMethod* getKnownModuleMethod( const char* mod, const char* method );
 }  // namespace Bscript
 }  // namespace Pol
 #endif
