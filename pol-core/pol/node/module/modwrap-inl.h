@@ -76,7 +76,7 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
   }
 
   auto convertedFunctRet =
-      NodeObjectWrap::Wrap( env, uoexec->weakptr, Bscript::BObjectRef( funcRet ) );
+      NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
   return convertedFunctRet;
 }
 

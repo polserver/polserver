@@ -3,6 +3,7 @@
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
+#include "../bscript/executor.h"
 #include "../clib/weakptr.h"
 #include "../napi-wrap.h"
 
@@ -10,12 +11,17 @@ namespace Pol
 {
 namespace Core
 {
-class UOExecutor;
+// class UOExecutor;
 }
 namespace Node
 {
 using namespace Napi;
 
+class RefCountedExecutor : public Bscript::Executor, public ref_counted
+{
+public:
+  inline RefCountedExecutor() : ref_counted(), Executor() {}
+};
 class NodeObjectWrap : public Napi::ObjectWrap<NodeObjectWrap>
 {
 public:
@@ -28,8 +34,7 @@ public:
   /**
    * Return a Value corresponding to this impptr
    */
-  static Napi::Value Wrap( Napi::Env env, weak_ptr<Core::UOExecutor> uoexec,
-                           Bscript::BObjectRef objref, unsigned long reqId = 0 );
+  static Napi::Value Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId = 0 );
 
   /**
    * Return a BObjectImp* corresponding to this Napi Value
@@ -39,13 +44,11 @@ public:
 
   Napi::Value ToString( const CallbackInfo& cbinfo );
   Napi::Value TypeOfInt( const CallbackInfo& cbinfo );
-
-
-  Napi::Value GetMember( const CallbackInfo& cbinfo );
-  Napi::Value GetMethodFunction( const CallbackInfo& info );
-
+  Napi::Value IsTrue( const CallbackInfo& cbinfo );
 
   Napi::Value SetMember( const CallbackInfo& cbinfo );
+  Napi::Value GetMember( const CallbackInfo& cbinfo );
+  Napi::Value GetMethodFunction( const CallbackInfo& info );
 
   /** Can run outside Node env */
   static bool resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec,
@@ -55,9 +58,14 @@ private:
   static Napi::FunctionReference constructor;
   static std::map<u32, Napi::Promise::Deferred> delayedMap;
 
+  // We share a single executor for running functions.
+  // Otherwise, we could pass the uoexec from creation and store it.
+  // static Bscript::Executor methodExecutor;
+  // static std::unique_ptr<Bscript::Executor> SharedExecutorInstance;
+  static RefCountedExecutor* SharedInstance;
+  static ref_ptr<RefCountedExecutor> SharedInstanceOwner;
 
   Reference<External<Bscript::BObjectRef>> ref;
-  weak_ptr<Core::UOExecutor> uoexec;
 };
 
 }  // namespace Node

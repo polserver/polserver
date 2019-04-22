@@ -1,10 +1,11 @@
 const ExtObjSymbol = Symbol("ExtObj");
 
 {{#each .}}class {{$.name}}{{#if parent.[0]}} extends {{parent.[0]}}{{/if}} {
-  constructor(extObj) { 
-      Object.defineProperties(this, {
-            [ExtObjSymbol]: { writable: false, enumerable: false, value: extObj },
-{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set() { this[ExtObjSymbol].set_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); }{{/if}}, get() { this[ExtObjSymbol].get_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
+  constructor(extObj) {
+      {{#if parent.[0]}}super(extObj);
+      {{/if}}Object.defineProperties(this, { {{#unless parent.[0]}}
+            [ExtObjSymbol]: { writable: false, enumerable: false, value: extObj },{{/unless}}
+{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set(v) { this[ExtObjSymbol].set_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, v); }{{/if}}, get() { return this[ExtObjSymbol].get_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
 {{/each}}
       });
   }

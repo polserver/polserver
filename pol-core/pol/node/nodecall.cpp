@@ -72,7 +72,7 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
       eventName = ev->getStringRep();
     }
 
-    auto data = Node::NodeObjectWrap::Wrap( env, exec->weakptr, objref, request->reqId() );
+    auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
     auto iter = ( exec == nullptr ? execToModuleMap.begin() : execToModuleMap.find( exec ) );
     do
     {
@@ -233,7 +233,7 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
           ex->ValueStack.pop_back();
 
           Napi::Value convertedVal =
-              Node::NodeObjectWrap::Wrap( env, ex->weakptr, rightref, reqId );
+              Node::NodeObjectWrap::Wrap( env, rightref, reqId );
 
           argv[i] = convertedVal;
 
