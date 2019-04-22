@@ -9,6 +9,7 @@
 
 
 #include "vitalmod.h"
+#include "modules/vitals-tbl.h"
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"

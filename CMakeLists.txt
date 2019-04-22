@@ -195,3 +195,13 @@ if(CLANG_FORMAT_EXE AND GIT_EXECUTABLE)
 else()
   message("Git or clang-format not found for target 'clang_format'")
 endif()
+
+add_custom_target(parse_modules
+    COMMAND ${CMAKE_COMMAND}
+    -DEM_FOLDER=${CMAKE_CURRENT_LIST_DIR}/pol-core/support/scripts
+    #-DTMP_FILE=${PROJECT_BINARY_DIR}/pol_modules.h.tmp
+    -DOUT_FOLDER=${PROJECT_BINARY_DIR}/modules/
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/module_parse.cmake
+    BYPRODUCTS=${PROJECT_BINARY_DIR}/modules/modules.cpp
+  )
+  set_target_properties(parse_modules PROPERTIES FOLDER Misc)

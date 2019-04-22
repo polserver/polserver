@@ -6,6 +6,7 @@
 
 
 #include "storagemod.h"
+#include "modules/storage-tbl.h"
 
 #include <stddef.h>
 

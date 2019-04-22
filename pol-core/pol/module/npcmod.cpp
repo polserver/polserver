@@ -5,6 +5,7 @@
  */
 
 #include "npcmod.h"
+#include "modules/npc-tbl.h"
 
 #include <iostream>
 #include <stddef.h>

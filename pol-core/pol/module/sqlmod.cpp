@@ -6,6 +6,7 @@
 #include "pol_global_config.h"
 
 #include "sqlmod.h"
+#include "modules/sql-tbl.h"
 
 #include <stddef.h>
 

@@ -9,7 +9,7 @@
 
 
 #include "guildmod.h"
-
+#include "modules/guilds-tbl.h"
 #include <stddef.h>
 
 #include "../../bscript/berror.h"

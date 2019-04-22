@@ -31,6 +31,7 @@
 #include "../xmlfilescrobj.h"
 #include "fileaccess.h"
 #include "filemod.h"
+#include "modules/file-tbl.h"
 
 namespace Pol
 {
