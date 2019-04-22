@@ -8,6 +8,10 @@
 
 namespace Pol
 {
+namespace Core
+{
+class UOExecutor;
+}
 namespace Node
 {
 using namespace Napi;

@@ -1,8 +1,3 @@
-message("hello!")
-
-# MESSAGE(FATAL_ERROR "${modules} Could not find FOO_EXEC.")
-
-
 set(MODMAP_attributes AttributeExecutorModule attributemod)
 set(MODMAP_basic BasicExecutorModule basicmod)
 set(MODMAP_basicio BasicIoExecutorModule basiciomod)
@@ -197,7 +192,7 @@ function(createfunctable)
     LIST(GET MODMAP_${em_name} 0 modclass)
     LIST(GET MODMAP_${em_name} 1 modheader)
 
-    message("Creating function table definition for ${em} => ${em_name} => ${modclass}")
+    # message("Creating function table definition for ${em} => ${em_name} => ${modclass}")
 
     file(WRITE ${TMP_FILE} "#ifndef _${em_name}FUNCTBL\n#define _${em_name}FUNCTBL\n")
     file(APPEND ${TMP_FILE} "// #include \"module/${modheader}.h\"\nnamespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module;\n\n")
@@ -238,7 +233,7 @@ function(createmodlist)
     set(em "${EM_FOLDER}/${em_name}.em")
     FILE(READ ${em} contents)
     STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
-    message("Creating function table declaration for ${em_name}")
+    # message("Creating function table declaration for ${em_name}")
 
     read_decl(${em_name} ${contents})
     
