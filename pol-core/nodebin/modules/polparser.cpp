@@ -4,26 +4,6 @@
 #include "../bscript/execmodl.h"
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
-#include "../pol/module/attributemod.h"
-#include "../pol/module/basiciomod.h"
-#include "../pol/module/basicmod.h"
-#include "../pol/module/boatmod.h"
-#include "../pol/module/cfgmod.h"
-#include "../pol/module/clmod.h"
-#include "../pol/module/datastore.h"
-#include "../pol/module/filemod.h"
-#include "../pol/module/guildmod.h"
-#include "../pol/module/httpmod.h"
-#include "../pol/module/mathmod.h"
-#include "../pol/module/npcmod.h"
-#include "../pol/module/partymod.h"
-#include "../pol/module/polsystemmod.h"
-#include "../pol/module/sqlmod.h"
-#include "../pol/module/storagemod.h"
-#include "../pol/module/unimod.h"
-#include "../pol/module/uomod.h"
-#include "../pol/module/utilmod.h"
-#include "../pol/module/vitalmod.h"
 
 using namespace Pol;
 using namespace Napi;
@@ -32,9 +12,9 @@ namespace Pol
 {
 namespace Bscript
 {
-using namespace Module;
-
-extern template TmplExecutorModule<BasicIoExecutorModule>;
+//using namespace Module;
+//
+//extern template TmplExecutorModule<BasicIoExecutorModule>;
 }  // namespace Bscript
 
 namespace Node
@@ -84,26 +64,26 @@ Napi::Value GetModuleMethod( const Napi::CallbackInfo& cbinfo )
     funcIdx = GetModuleMethodTmpl<Module::##V##>( funcName );                     \
   }
 
-  ABC( AttributeExecutorModule )
-  ABC( BasicIoExecutorModule )
-  ABC( BasicExecutorModule )
-  ABC( UBoatExecutorModule )
-  ABC( ConfigFileExecutorModule )
-  ABC( ClilocExecutorModule )
-  ABC( DataFileExecutorModule )
-  ABC( FileAccessExecutorModule )
-  ABC( GuildExecutorModule )
-  ABC( HttpExecutorModule )
-  ABC( MathExecutorModule )
-  ABC( NPCExecutorModule )
-  ABC( PartyExecutorModule )
-  ABC( PolSystemExecutorModule )
-  ABC( SQLExecutorModule )
-  ABC( StorageExecutorModule )
-  ABC( UnicodeExecutorModule )
-  ABC( UOExecutorModule )
-  ABC( UtilExecutorModule )
-  ABC( VitalExecutorModule )
+  //ABC( AttributeExecutorModule )
+  //ABC( BasicIoExecutorModule )
+  //ABC( BasicExecutorModule )
+  //ABC( UBoatExecutorModule )
+  //ABC( ConfigFileExecutorModule )
+  //ABC( ClilocExecutorModule )
+  //ABC( DataFileExecutorModule )
+  //ABC( FileAccessExecutorModule )
+  //ABC( GuildExecutorModule )
+  //ABC( HttpExecutorModule )
+  //ABC( MathExecutorModule )
+  //ABC( NPCExecutorModule )
+  //ABC( PartyExecutorModule )
+  //ABC( PolSystemExecutorModule )
+  //ABC( SQLExecutorModule )
+  //ABC( StorageExecutorModule )
+  //ABC( UnicodeExecutorModule )
+  //ABC( UOExecutorModule )
+  //ABC( UtilExecutorModule )
+  //ABC( VitalExecutorModule )
 
 
   return funcIdx == -2 ? env.Undefined() : Number::New( env, funcIdx );
