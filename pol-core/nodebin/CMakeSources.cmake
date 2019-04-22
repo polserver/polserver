@@ -1,6 +1,34 @@
 set (nodebin_sources  # sorted !
   CMakeSources.cmake 
+  modules/polparser.cpp
+  napi-wrap.h
   NodeMain.cpp
   NodeMain.h
+  ../pol/binaryfilescrobj.cpp 
+  ../pol/cfgrepos.cpp 
+  ../pol/dice.cpp
+  ../pol/globals/ucfg.cpp
+  ../pol/proplist.cpp
+  ../pol/xmlfilescrobj.cpp
+  ../pol/module/attributemod.cpp
+  ../pol/module/basiciomod.cpp
+  ../pol/module/basicmod.cpp
+  ../pol/module/boatmod.cpp
+  ../pol/module/cfgmod.cpp
+  ../pol/module/clmod.cpp
+  ../pol/module/datastore.cpp
+  ../pol/module/filemod.cpp
+  ../pol/module/guildmod.cpp
+  ../pol/module/httpmod.cpp
+  ../pol/module/mathmod.cpp
+  ../pol/module/npcmod.cpp
+  ../pol/module/partymod.cpp
+  ../pol/module/polsystemmod.cpp
+  ../pol/module/sqlmod.cpp
+  ../pol/module/storagemod.cpp
+  ../pol/module/unimod.cpp
+  ../pol/module/uomod.cpp
+  ../pol/module/utilmod.cpp
+  ../pol/module/vitalmod.cpp
   StdAfx.h
 )

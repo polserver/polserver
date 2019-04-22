@@ -20,6 +20,11 @@
 #include "../clib/maputil.h"
 #include "executor.h"
 
+namespace Napi
+{
+class Value;
+class CallbackInfo;
+}
 namespace Pol
 {
 namespace Bscript
@@ -34,6 +39,9 @@ namespace Node
 {
 template <class PolModule>
 class NodeModuleWrap;
+
+template <typename PolModule>
+int GetModuleMethodTmpl( const std::string& name );
 }
 namespace Bscript
 {
@@ -121,6 +129,7 @@ private:
   };
   using FunctionTable = std::vector<FunctionDef>;
   friend class Node::NodeModuleWrap<T>;
+  friend int Node::GetModuleMethodTmpl<T>( const std::string& name );
 
   static FunctionTable function_table;
   static std::map<std::string, int, Clib::ci_cmp_pred> _func_idx_map;
