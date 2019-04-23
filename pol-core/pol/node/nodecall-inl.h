@@ -7,7 +7,6 @@ namespace Pol
 {
 namespace Node
 {
-
 template <typename ReturnType>
 NodeRequest<ReturnType>::NodeRequest( Core::UOExecutor* uoexec )
     : reqId_( nextRequestId++ ), timer_(), points_(), uoexec_( uoexec )
@@ -57,7 +56,13 @@ NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, b
         req->checkpoint( "enter js thread" );
         if ( blocking )
         {
-          req->ref( callable( env, req ) );
+          try
+          {
+            req->ref( callable( env, req ) );
+          }
+          catch ( std::exception& ex )
+          {
+          }
           promise2->set_value();
         }
         else

@@ -41,7 +41,7 @@ namespace Core
 class UOExecutor;
 
 void list_script( UOExecutor* uoexec );
-}
+}  // namespace Core
 namespace Bscript
 {
 class Executor;
@@ -402,6 +402,9 @@ private:
 
   BObjectImp* func_result_;
 
+public:
+  inline BObjectImp* getLastError() { return func_result_; }
+
 private:  // not implemented
   Executor( const Executor& exec );
   Executor& operator=( const Executor& exec );
@@ -473,6 +476,6 @@ inline void Executor::set_running_to_completion( bool to_completion )
 {
   runs_to_completion_ = to_completion;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

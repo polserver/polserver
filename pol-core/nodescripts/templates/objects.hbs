@@ -1,21 +1,22 @@
-const ExtObjSymbol = Symbol("ExtObj");
+// @ts-check
 
-{{#each .}}class {{$.name}}{{#if parent.[0]}} extends {{parent.[0]}}{{/if}} {
-  constructor(extObj) {
-      {{#if parent.[0]}}super(extObj);
-      {{/if}}Object.defineProperties(this, { {{#unless parent.[0]}}
-            [ExtObjSymbol]: { writable: false, enumerable: false, value: extObj },{{/unless}}
-{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set(v) { this[ExtObjSymbol].set_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, v); }{{/if}}, get() { return this[ExtObjSymbol].get_member({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
+const { PolObject } = process._linkedBinding("pol");
+
+{{#each .}}class {{$.name}}{{#if parent.[0]}} extends {{parent.[0]}}{{else}} extends PolObject{{/if}} {
+ constructor(extObj, { get_member, set_member, call_method }) {
+      super(...arguments);
+      Object.defineProperties(this, {
+{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set(v) { set_member(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, v); }{{/if}}, get() { return get_member(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
 {{/each}}
       });
-  }
-{{#each prototypes}}  {{camelCase @key}}() { return this[ExtObjSymbol].call_method({{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, ...arguments); }
+  {{#each prototypes}}    this.{{camelCase @key}} = function() { return call_method(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, ...arguments); };
 {{/each}}
+  }
+
 };
 
 {{/each}}
   
-
 module.exports = {
 {{#each .}}    {{$.name}},
 {{/each}} 

@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "../../bscript/bobject.h"
+#include "../../bscript/eprog.h"
 #include "../../clib/boostutils.h"
 #include "../../clib/clib_MD5.h"
 #include "../../clib/logfacility.h"
@@ -27,7 +28,6 @@
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../console.h"
-#include "../../bscript/eprog.h"
 #include "../guardrgn.h"
 #include "../guilds.h"
 #include "../item/equipmnt.h"
@@ -60,6 +60,10 @@
 #include "object_storage.h"
 #include "script_internals.h"
 #include "ucfg.h"
+
+#ifdef HAVE_NODEJS
+#include "../node/module/objwrap.h"
+#endif
 
 #ifdef _MSC_VER
 #pragma warning( \
@@ -221,6 +225,10 @@ void GameState::deinitialize()
 
   unload_npc_templates();  // quick and nasty fix until npcdesc usage is rewritten Turley
                            // 2012-08-27: moved before objecthash due to npc-method_script cleanup
+
+#ifdef HAVE_NODEJS
+  Node::NodeObjectWrap::ReleaseSharedInstance();
+#endif
 
   Bscript::UninitObject::ReleaseSharedInstance();
   objStorageManager.deinitialize();

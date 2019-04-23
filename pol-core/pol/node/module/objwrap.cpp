@@ -17,6 +17,7 @@ namespace Pol
 namespace Node
 {
 Napi::FunctionReference NodeObjectWrap::constructor;
+Napi::ObjectReference NodeObjectWrap::internalMethods;
 
 
 Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env env, Napi::Value value, unsigned long reqId )
@@ -49,8 +50,7 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env env, Napi::Value value, unsi
   }
   else if ( value.ToObject().InstanceOf( NodeObjectWrap::constructor.Value() ) )
   {
-    auto x =
-        Napi::ObjectWrap<NodeObjectWrap>::Unwrap( value.ToObject().Get( "_obj" ).As<Object>() );
+    auto x = Napi::ObjectWrap<NodeObjectWrap>::Unwrap( value.ToObject() );
     auto y = x->ref.Value();
     auto* z = y.Data();
     auto a = *z;
@@ -203,10 +203,14 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
             .As<Object>()
             .Get( "proxyObject" )
             .As<Function>()
-            .Call( {NodeObjectWrap::constructor.New( {Napi::External<Bscript::BObjectRef>::New(
+            .Call( {Napi::String::New( env, clazzName ),
+
+                    Napi::External<Bscript::BObjectRef>::New(
                         env, new Bscript::BObjectRef( impptr ),
-                        []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } )} ),
-                    Napi::String::New( env, clazzName )} );
+                        []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } ),
+                    internalMethods.Value()
+
+            } );
   }
   else
   {
@@ -220,21 +224,30 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
  * Initialize the NodeObjectWrap module. It does not add any exports to
  * the JavaScript world (eg. no script should use `new NodeObjectWrap`).
  */
-void NodeObjectWrap::Init( Napi::Env env, Napi::Object /*exports*/ )
+void NodeObjectWrap::Init( Napi::Env env, Napi::Object exports )
 {
   NODELOG << "[node] Initializing NodeObjectWrap\n";
   Napi::HandleScope scope( env );
 
   Napi::Function func =
       DefineClass( env, "NodeObjectWrap",
-                   {InstanceMethod( "get_member", &NodeObjectWrap::GetMember ),
-                    InstanceMethod( "set_member", &NodeObjectWrap::SetMember ),
-                    InstanceMethod( "call_method", &NodeObjectWrap::GetMethodFunction ),
+                   {/*InstanceMethod( "get_member", &NodeObjectWrap::GetMember ),
+                              InstanceMethod( "set_member", &NodeObjectWrap::SetMember ),
+                              InstanceMethod( "call_method", &NodeObjectWrap::CallMethod ),*/
                     InstanceMethod( "isTrue", &NodeObjectWrap::IsTrue ),
                     InstanceMethod( "toString", &NodeObjectWrap::ToString )} );
 
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
+
+  Napi::Object methods = Object::New( env );
+  methods["set_member"] = Function::New( env, &NodeObjectWrap::SetMember );
+  methods["get_member"] = Function::New( env, &NodeObjectWrap::GetMember );
+  methods["call_method"] = Function::New( env, &NodeObjectWrap::CallMethod );
+  internalMethods = Napi::Persistent( methods );
+  internalMethods.SuppressDestruct();
+
+  exports["PolObject"] = constructor.Value();
 }
 
 // returns a function that when called will run call_method, and
@@ -253,25 +266,32 @@ Napi::Value NodeObjectWrap::IsTrue( const CallbackInfo& info )
 Napi::Value NodeObjectWrap::SetMember( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
-  auto objref = *( ref.Value().Data() );
-  auto impptr = objref->impptr();
 
-  if ( info.Length() < 2 )
+  if ( info.Length() < 3 )
   {
-    return Napi::Error( env, String::New( env, "Invalid parameters, expected argc = 1" ) ).Value();
+    return Napi::Error( env, String::New( env, "Invalid parameters, expected argc = 3" ) ).Value();
   }
+  if ( !info[0].As<Object>().InstanceOf( NodeObjectWrap::constructor.Value() ) )
+  {
+    return Napi::Error(
+               env, String::New( env, "Invalid parameters, expected argv[0] = NodeObjectWrap" ) )
+        .Value();
+  }
+
+  auto intObj = NodeObjectWrap::Unwrap( info[0].ToObject() );
+  auto impptr = ( *intObj->ref.Value().Data() )->impptr();
 
   Bscript::BObjectRef retRef;
 
-  if ( info[0].IsNumber() )
+  if ( info[1].IsNumber() )
   {
-    retRef = impptr->set_member_id( info[0].ToNumber().Int32Value(), Wrap( env, info[1] )->impptr(),
+    retRef = impptr->set_member_id( info[1].ToNumber().Int32Value(), Wrap( env, info[2] )->impptr(),
                                     true /*unused*/ );
   }
-  else if ( info[0].IsString() )
+  else if ( info[1].IsString() )
   {
-    retRef = impptr->set_member( info[0].ToString().Utf8Value().c_str(),
-                                 Wrap( env, info[1] )->impptr(), true /*unused*/ );
+    retRef = impptr->set_member( info[1].ToString().Utf8Value().c_str(),
+                                 Wrap( env, info[2] )->impptr(), true /*unused*/ );
   }
   else
   {
@@ -285,23 +305,32 @@ Napi::Value NodeObjectWrap::SetMember( const CallbackInfo& info )
 Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
-  auto objref = *( ref.Value().Data() );
-  auto impptr = objref->impptr();
 
-  if ( info.Length() < 1 )
+  if ( info.Length() < 2 )
   {
-    return Napi::Error( env, String::New( env, "Invalid parameters, expected argc = 1" ) ).Value();
+    return Napi::Error( env, String::New( env, "Invalid parameters, expected argc = 2" ) ).Value();
   }
+  if ( !info[0].As<Object>().InstanceOf( NodeObjectWrap::constructor.Value() ) )
+  {
+    return Napi::Error(
+               env, String::New( env, "Invalid parameters, expected argv[0] = NodeObjectWrap" ) )
+        .Value();
+  }
+
+  Napi::Object obj;
+  auto intObj = NodeObjectWrap::Unwrap( info[0].ToObject() );
+
+
+  auto impptr = ( *intObj->ref.Value().Data() )->impptr();
 
   Bscript::BObjectRef retRef;
-
-  if ( info[0].IsNumber() )
+  if ( info[1].IsNumber() )
   {
-    retRef = impptr->get_member_id( info[0].ToNumber().Int32Value() );
+    retRef = impptr->get_member_id( info[1].ToNumber().Int32Value() );
   }
-  else if ( info[0].IsString() )
+  else if ( info[1].IsString() )
   {
-    retRef = impptr->get_member( info[0].ToString().Utf8Value().c_str() );
+    retRef = impptr->get_member( info[1].ToString().Utf8Value().c_str() );
   }
   else
   {
@@ -309,45 +338,54 @@ Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
                env, String::New( env, "Invalid parameters, expected argv[0] = string | number" ) )
         .Value();
   }
-  return Wrap( env, retRef );
+
+  return NodeObjectWrap::Wrap( env, retRef );
 }
 
 
 RefCountedExecutor* NodeObjectWrap::SharedInstance;
 ref_ptr<RefCountedExecutor> NodeObjectWrap::SharedInstanceOwner;
 
-Napi::Value NodeObjectWrap::GetMethodFunction( const CallbackInfo& cbinfo )
+
+Napi::Value NodeObjectWrap::CallMethod( const CallbackInfo& info )
 {
-  Napi::Env env = cbinfo.Env();
-  auto objref = *( ref.Value().Data() );
-  auto impptr = objref->impptr();
+  Napi::Env env = info.Env();
 
-
-  if ( cbinfo.Length() < 1 )
+  if ( info.Length() < 2 )
   {
-    return Napi::Error( env, String::New( env, "Invalid parameters, expected argc > 0" ) ).Value();
+    return Napi::Error( env, String::New( env, "Invalid parameters, expected argc > 1" ) ).Value();
+  }
+  if ( !info[0].As<Object>().InstanceOf( NodeObjectWrap::constructor.Value() ) )
+  {
+    return Napi::Error(
+               env, String::New( env, "Invalid parameters, expected argv[0] = NodeObjectWrap" ) )
+        .Value();
   }
 
-  // First arg is method name or index, Second+ args are method params
+  Napi::Object obj;
+  auto intObj = NodeObjectWrap::Unwrap( info[0].ToObject() );
+  auto impptr = ( *intObj->ref.Value().Data() )->impptr();
 
-  for ( size_t i = 1; i < cbinfo.Length(); ++i )
+  // arg0=object, arg1 = func id or string, arg2+ = method params
+
+  for ( size_t i = 2; i < info.Length(); ++i )
   {
-    SharedInstance->fparams.emplace_back( Wrap( env, cbinfo[i] ) );
+    SharedInstance->fparams.emplace_back( Wrap( env, info[i] ) );
   }
 
   Bscript::BObjectImp* retVal = nullptr;
-  if ( cbinfo[0].IsNumber() )
+  if ( info[1].IsNumber() )
   {
-    retVal = impptr->call_method_id( cbinfo[0].ToNumber().Int32Value() , *SharedInstance );
+    retVal = impptr->call_method_id( info[1].ToNumber().Int32Value(), *SharedInstance );
   }
-  else if ( cbinfo[0].IsString() )
+  else if ( info[1].IsString() )
   {
-    retVal = impptr->call_method( cbinfo[0].ToString().Utf8Value().c_str(), *SharedInstance );
+    retVal = impptr->call_method( info[1].ToString().Utf8Value().c_str(), *SharedInstance );
   }
 
   SharedInstance->fparams.clear();
-  
-  if (retVal == nullptr)
+
+  if ( retVal == nullptr )
   {
     return Napi::Error(
                env, String::New( env, "Invalid parameters, expected argv[0] = string | number" ) )

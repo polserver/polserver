@@ -75,8 +75,21 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
     polmod->exec.fparams.clear();
   }
 
-  auto convertedFunctRet =
-      NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
+  if ( funcRet == nullptr )
+  {
+    if ( polmod->exec.getLastError() != nullptr )
+    {
+      funcRet = polmod->exec.getLastError()->copy();
+    }
+    else
+    {
+      return Napi::Error(
+                 env, String::New( env, "Function did not return value, and no GetLastError set" ) )
+          .Value();
+    }
+  }
+
+  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
   return convertedFunctRet;
 }
 

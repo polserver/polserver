@@ -303,6 +303,12 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
       ex );
 
   auto impref = call.getRef();
+  if ( impref.get() == nullptr )
+  {
+    NODELOG.Format( "[{:04x}] [exec] errored!\n" )
+        << call.reqId();
+    return Bscript::BObjectRef( Bscript::UninitObject::SharedInstance );
+  }
   NODELOG.Format( "[{:04x}] [exec] returned to core {}\n" )
       << call.reqId() << impref->impptr()->getStringRep();
   return impref;

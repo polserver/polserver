@@ -441,14 +441,17 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor* ex, const ScriptDef
   ex->setProgram( program.get() );
 
   ex->setDebugLevel( Bscript::Executor::NONE );
-  ex->set_running_to_completion( true );
 
   Clib::scripts_thread_script = ex->scriptname();
 
   if ( ex->runnable() && program->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
+    // Node scripts don't really "run to completion", and mess up any async module functions
+    ex->set_running_to_completion( false );
     return Node::runExecutor( ex )->impptr()->copy();
   }
+
+  ex->set_running_to_completion( true );
 
   int i = 0;
   bool reported = false;

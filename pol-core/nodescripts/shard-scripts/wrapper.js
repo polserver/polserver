@@ -76,7 +76,7 @@ const scriptIsAToConstructorMap = [
 // class PolObject {
 //   constructor(
     
-   function PolObject(wrappedObj) {
+   function PolObject(wrappedObj, { set_member, get_member, call_method }) {
     Object.defineProperty(wrappedObj, "toString", {
       value: wrappedObj.toString.bind(wrappedObj)
     });
@@ -121,7 +121,7 @@ const scriptIsAToConstructorMap = [
           return wrappedObj;
         }
 
-        if (typeof p === "string") return wrappedObj.getMember(p);
+        if (typeof p === "string") return get_member(wrappedObj, p);
         return Reflect.get(target, p, recv);
       }
     });
@@ -153,11 +153,12 @@ debugger;
  * @property {function(): string} toString - Returns string value
  */
 
-function proxyObject(wrappedObj, clazzName = "PolObject") {
-  global.objs = global.objs || [];
+function proxyObject(clazzName = "PolObject", wrappedObj, interalMethods) {
   
-  const scriptObj = objects[clazzName] ? new objects[clazzName](wrappedObj) : PolObject(wrappedObj);
-  global.objs.push(scriptObj);
+  const scriptObj = objects[clazzName] ? 
+    new objects[clazzName](wrappedObj, interalMethods) : 
+    PolObject(wrappedObj, interalMethods);
+
   return scriptObj;
 }
 

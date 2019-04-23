@@ -46,16 +46,25 @@ public:
   Napi::Value TypeOfInt( const CallbackInfo& cbinfo );
   Napi::Value IsTrue( const CallbackInfo& cbinfo );
 
-  Napi::Value SetMember( const CallbackInfo& cbinfo );
-  Napi::Value GetMember( const CallbackInfo& cbinfo );
-  Napi::Value GetMethodFunction( const CallbackInfo& info );
+  static Napi::Value SetMember( const CallbackInfo& cbinfo );
+  static Napi::Value GetMember( const CallbackInfo& cbinfo );
+  static Napi::Value CallMethod( const CallbackInfo& info );
 
   /** Can run outside Node env */
   static bool resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec,
                                     Bscript::BObjectRef objref );
+  
+  Reference<External<Bscript::BObjectRef>> ref;
+
+  static void ReleaseSharedInstance()
+  {
+    SharedInstanceOwner.clear();
+    SharedInstance = nullptr;
+  }
 
 private:
   static Napi::FunctionReference constructor;
+  static Napi::ObjectReference internalMethods;
   static std::map<u32, Napi::Promise::Deferred> delayedMap;
 
   // We share a single executor for running functions.
@@ -65,7 +74,6 @@ private:
   static RefCountedExecutor* SharedInstance;
   static ref_ptr<RefCountedExecutor> SharedInstanceOwner;
 
-  Reference<External<Bscript::BObjectRef>> ref;
 };
 
 }  // namespace Node
