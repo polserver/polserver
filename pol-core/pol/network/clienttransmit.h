@@ -1,7 +1,6 @@
 #ifndef CLIENTSEND_H
 #define CLIENTSEND_H
 
-#include <boost/noncopyable.hpp>
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -31,11 +30,13 @@ struct TransmitData
 typedef std::unique_ptr<TransmitData> TransmitDataSPtr;
 typedef Clib::message_queue<TransmitDataSPtr> ClientTransmitQueue;
 
-class ClientTransmit : boost::noncopyable
+class ClientTransmit
 {
 public:
   ClientTransmit();
   ~ClientTransmit();
+  ClientTransmit( const ClientTransmit& ) = delete;
+  ClientTransmit& operator=( const ClientTransmit& ) = delete;
 
   void AddToQueue( Client* client, const void* data, int len );
   void QueueDisconnection( Client* client );
@@ -51,6 +52,6 @@ private:
 };
 
 void ClientTransmitThread();
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif

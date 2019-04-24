@@ -39,7 +39,7 @@ Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem )
     aliases.push_back( tmp );
 
   if ( elem.remove_prop( "DepletedFunction", &tmp ) )
-    depleted_func = FindExportedFunction( elem, pkg, tmp, 1 );
+    depleted_func = FindExportedFunction( elem, pkg, tmp, 2 );
 }
 
 Vital::~Vital()

@@ -8,7 +8,6 @@
 #ifndef UCFG_H
 #define UCFG_H
 
-#include <boost/noncopyable.hpp>
 #include <map>
 #include <string>
 #include <vector>
@@ -35,11 +34,13 @@ typedef std::vector<std::string> OldCfgFiles;  // we've multiple older instances
 typedef std::map<std::string, Module::DataStoreFile*, Clib::ci_cmp_pred> DataStore;
 // used for Pol and RunEcl
 
-class ConfigurationBuffer : boost::noncopyable
+class ConfigurationBuffer
 {
 public:
   ConfigurationBuffer();
   ~ConfigurationBuffer();
+  ConfigurationBuffer( const ConfigurationBuffer& ) = default;
+  ConfigurationBuffer& operator=( const ConfigurationBuffer& ) = default;
   struct Memory;
 
   Memory estimateSize() const;
@@ -64,7 +65,7 @@ private:
 };
 
 extern ConfigurationBuffer configurationbuffer;
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

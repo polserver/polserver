@@ -103,7 +103,8 @@ endmacro()
 
 macro(prepare_build)
   set(CMAKE_INCLUDE_CURRENT_DIR ON)
-  SET(SOURCE_GROUP_DELIMITER "/")
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # a few external tools need it
+  set(SOURCE_GROUP_DELIMITER "/")
 
   if(windows)
     set(HAVE_OPENSSL true)
@@ -119,6 +120,12 @@ macro(prepare_build)
     ${CMAKE_CURRENT_LIST_DIR}/cmake/env/pol_global_config.h.in 
     ${PROJECT_BINARY_DIR}/pol_global_config.h
   )
+  #building with ninja disables color without explicit forcing it
+  if(gcc)
+    add_compile_options(-fdiagnostics-color=always)
+  elseif(clang)
+    add_compile_options(-fcolor-diagnostics)
+  endif()
 endmacro()
 
 macro(hide_cotire)

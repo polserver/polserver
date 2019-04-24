@@ -7,7 +7,6 @@
 #ifndef POL_PACKETS_H
 #define POL_PACKETS_H
 
-#include <boost/noncopyable.hpp>
 #include <cstring>
 #include <limits>
 #include <map>
@@ -314,7 +313,8 @@ public:
   {
     memset( PacketWriter<_id, _size, _sub>::buffer, 0, _size );
     PacketWriter<_id, _size, _sub>::buffer[0] = _id;
-    ( *(u16*)(void*)&PacketWriter<_id, _size, _sub>::buffer[_suboff] ) = cfBEu16( _sub );
+    u16 sub = cfBEu16( _sub );
+    std::memcpy( &PacketWriter<_id, _size, _sub>::buffer[_suboff], &sub, sizeof( sub ) );
     PacketWriter<_id, _size, _sub>::offset = 1;
   };
   virtual inline u16 getSubID() const override { return _sub; };

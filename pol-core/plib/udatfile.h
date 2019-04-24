@@ -23,6 +23,7 @@ struct StaticRec
   char height;
 
   StaticRec( unsigned short graphic, signed char z )
+      // valid constructor only for pol! :(
       : flags( tile_uoflags( graphic ) ),
         graphic( graphic ),
         z( z ),

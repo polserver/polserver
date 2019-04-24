@@ -433,10 +433,12 @@ size_t TaskThreadPool::size() const
 }
 
 
-class DynTaskThreadPool::PoolWorker : boost::noncopyable
+class DynTaskThreadPool::PoolWorker
 {
 public:
   PoolWorker( DynTaskThreadPool* parent, const std::string& name );
+  PoolWorker( const PoolWorker& ) = delete;
+  PoolWorker& operator=( const PoolWorker& ) = delete;
   bool isbusy() const;
   void join();
   void run();
@@ -566,5 +568,5 @@ std::future<bool> DynTaskThreadPool::checked_push( const msg& msg )
   } );
   return ret;
 }
-}
-}
+}  // namespace threadhelp
+}  // namespace Pol

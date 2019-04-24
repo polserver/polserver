@@ -128,6 +128,14 @@ void NetworkManager::deinialize()
   uoclient_general.deinitialize();
 }
 
+size_t NetworkManager::getNumberOfLoginClients() const
+{
+  size_t no = 0;
+  for ( const auto& ls : uoclient_listeners )
+    no += ls.login_clients.size();
+  return no;
+}
+
 NetworkManager::Memory NetworkManager::estimateSize() const
 {
   Memory usage;

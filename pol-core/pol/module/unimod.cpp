@@ -27,7 +27,6 @@
 #include "../ufunc.h"
 #include "../unicode.h"
 #include "../uoexec.h"
-#include "osmod.h"
 
 namespace Pol
 {
@@ -114,7 +113,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
   }
 
   uniemod->exec.ValueStack.back().set( valstack );  // error or struct, regardless.
-  uniemod->uoexec.os_module->revive();
+  uniemod->uoexec.revive();
   uniemod->prompt_chr = nullptr;
   client->gd->prompt_uniemod = nullptr;
 }
@@ -339,6 +338,11 @@ BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()
   //            style := TE_STYLE_NORMAL, maximum := 40, uc_text2 := {} );
 
   return new BError( "Function not implimented" );
+}
+
+size_t UnicodeExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
 }
 }  // namespace Module
 }  // namespace Pol

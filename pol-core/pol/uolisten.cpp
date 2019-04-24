@@ -29,25 +29,14 @@ namespace Pol
 {
 namespace Core
 {
-class UoClientThread final : public Clib::SocketClientThread
+UoClientThread::UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
+    : Clib::SocketClientThread( SL ), _def( def ), client( nullptr )
 {
-public:
-  UoClientThread( UoClientListener* def, Clib::SocketListener& SL )
-      : Clib::SocketClientThread( SL ), _def( *def ), client( nullptr )
-  {
-  }
-  UoClientThread( UoClientThread& copy )
-      : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client ){};
-  virtual void run() override;
-  void create();
-  virtual ~UoClientThread(){};
-
-private:
-  UoClientListener _def;
-
-public:
-  Network::Client* client;
-};
+}
+UoClientThread::UoClientThread( UoClientThread& copy )
+    : Clib::SocketClientThread( copy._sck ), _def( copy._def ), client( copy.client )
+{
+}
 
 bool client_io_thread( Network::Client* client, bool login = false );
 
@@ -74,11 +63,11 @@ void UoClientThread::create()
 
     PolLock lck;
     client =
-        new Network::Client( *Core::networkManager.uo_client_interface.get(), _def.encryption );
+        new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
     client->csocket = _sck.release_handle();  // client cleans up its socket.
-    if ( _def.sticky )
-      client->listen_port = _def.port;
-    if ( _def.aosresist )
+    if ( _def->sticky )
+      client->listen_port = _def->port;
+    if ( _def->aosresist )
       client->aosresist = true;  // UOCLient.cfg Entry
     // Added null setting for pre-char selection checks using nullptr validation
     client->acct = nullptr;
@@ -88,9 +77,9 @@ void UoClientThread::create()
     CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
                            ToolTipPrioritySystem );
     fmt::Writer tmp;
-    tmp.Format( "Client#{} connected from {} ({} connections)" )
+    tmp.Format( "Client#{} connected from {} ({}/{} connections)" )
         << client->instance_ << Network::AddressToString( &client_addr )
-        << networkManager.clients.size();
+        << networkManager.clients.size() << networkManager.getNumberOfLoginClients();
     if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
     {
       tmp << " on interface " << Network::AddressToString( &host_addr );
@@ -110,17 +99,16 @@ void uo_client_listener_thread( void* arg )
 
   Clib::SocketListener SL(
       ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
-  std::list<std::unique_ptr<UoClientThread>> login_clients;
   while ( !Clib::exit_signalled )
   {
     unsigned int timeout = 2;
-    if ( !login_clients.empty() )
+    unsigned int utimeout = 0;
+    if ( !ls->login_clients.empty() )
     {
-      // waiting for a full second sounds wrong, but we need a sleep in this endless loop
       timeout = 0;
-      std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
+      utimeout = 200000;
     }
-    if ( SL.GetConnection( timeout ) )
+    if ( SL.GetConnection( timeout, utimeout ) )
     {
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )
@@ -128,7 +116,7 @@ void uo_client_listener_thread( void* arg )
         std::unique_ptr<UoClientThread> thread( new UoClientThread( ls, SL ) );
         thread->create();
         client_io_thread( thread->client, true );
-        login_clients.push_back( std::move( thread ) );
+        ls->login_clients.push_back( std::move( thread ) );
       }
       else
       {
@@ -137,21 +125,21 @@ void uo_client_listener_thread( void* arg )
       }
     }
 
-    auto itr = login_clients.begin();
-    while ( itr != login_clients.end() )
+    auto itr = ls->login_clients.begin();
+    while ( itr != ls->login_clients.end() )
     {
       if ( ( *itr )->client != nullptr && ( *itr )->client->isReallyConnected() )
       {
         if ( !client_io_thread( ( *itr )->client, true ) )
         {
-          itr = login_clients.erase( itr );
+          itr = ls->login_clients.erase( itr );
           continue;
         }
 
         if ( ( *itr )->client->isConnected() && ( *itr )->client->chr )
         {
           Clib::SocketClientThread::start_thread( itr->release() );
-          itr = login_clients.erase( itr );
+          itr = ls->login_clients.erase( itr );
         }
         else
         {
@@ -160,7 +148,7 @@ void uo_client_listener_thread( void* arg )
       }
       else
       {
-        itr = login_clients.erase( itr );
+        itr = ls->login_clients.erase( itr );
       }
     }
   }

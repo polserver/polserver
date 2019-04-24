@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>01/05/2018</datemodified>
+    <datemodified>01/01/2019</datemodified>
 </fileheader>
 
 
@@ -59,7 +59,7 @@ Vital (Vital_Name)
     RegenRateFunction   (string scriptname:exported_func_name)
     MaximumFunction     (string scriptname:exported_func_name)
     [Alias              (string Alias_Name)]...
-    [DepletedFunction  (string scriptname:exported_func_name)]
+    [DepletedFunction   (string scriptname:exported_func_name)]
     [RegenWhileDead     (integer 0/1 {default 0})]
 }
 [Vital...]
@@ -69,7 +69,7 @@ Vital (Vital_Name)
     <explain>At the LEAST, these attributes must be defined: 'Life', 'Stamina', 'Mana' for use in internal calculations.</explain>
     <explain>RegenRateFunction should return value from -30000 to 30000. Regen rates are in 'hundredths of points per minute.' A current regen rate of 100 (1 point per 5 seconds) would therefore be 1200 (12 points per minute)</explain>
     <explain>MaximumFunction should return the maximum value for this vital, an integer in 'hundreths' between 100 and 10000000 (1-100,000)</explain>
-    <explain>DepletedFunction gets called once the vital reaches zero, the given parameter is the character reference.</explain>
+    <explain>DepletedFunction gets called once the vital reaches zero, the given parameter is the character reference and the reason with the following values 0: Regenerate, 1: Damage, 2: Movement, 3: Death, 4: Resurrect, 5: Script</explain>
     <related>uoclient.cfg</related>
     <related>attributes.cfg</related>
 </cfgfile>
@@ -956,6 +956,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ReportAdminEmail=(string email {default ""})]
 [ReportServer=(string servername {default "polserver.com"})]
 [ReportURL=(string url {default "/pol/report_program_abort.php"})]
+[ShowWarningGump=(1/0 {default 1})]
+[ShowWarningItem=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
@@ -974,6 +976,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>EnforceMountObjtype: will enforce that only items with the mount objtype (as defined in extobj.cfg) can be mounted.</explain>
     <explain>AllowMultiClientsPerAccount: when true, will allow multiple characters from the same account to be logged in at the same time</explain>
     <explain>ProfileCProps: when true, will record CProp usage statistics. Helps detecting unused CProps, at the cost of some RAM and an unnoticeable performance impact. It should be enabled from startup, or the core will be unable to detect the type of some CProps.</explain>
+    <explain>ShowWarningGump: will show unexpected gump warning messages on the console.</explain>
+    <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
 </cfgfile>
 
 

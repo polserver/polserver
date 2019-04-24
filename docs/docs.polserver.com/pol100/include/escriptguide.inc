@@ -1,5 +1,5 @@
 <h1>Racalac's eScript Reference and Guide v096<br>
-<font size="2">(Last Updated: Sept 07, 2018)</font></h1>
+<font size="2">(Last Updated: Jan 11, 2019)</font></h1>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -220,7 +220,7 @@ var pies_left := number_of_trays * (pies_in_tray &#8211; pies_used);
 
 <h3>Logical <b>AND</b></h3>
 <p>
-The single &amp; (ampersand) symbol will perform a logical <b>AND</b> of the value on the left of the operator with the value on the right. 
+The single &amp; (ampersand) symbol will perform a logical <b>AND</b> of the value on the left of the operator with the value on the right.
 <p>If we have a statement
   var value := 10 &amp; 14;
 The result will equal 10. What is actually happening is that eScript will AND the binary value of 10, 1010, with the binary value of 14, 1110.
@@ -259,7 +259,7 @@ The result will equal 14. Escript will <b>OR</b> the binary value of 10, 1010, w
     	<td>1</td><td>0</td>
     </tr>
 </table>
-  
+
 <h3>Logical <b>XOR</b></h3>
 <p>
 The ^ (caret) will perform a logical <strong>XOR</strong>, or exclusive <strong>OR</strong>, of the value on the left of the operator with the value on the right. If we have a statement
@@ -296,7 +296,7 @@ If you invert the bits, ones’ complement, you end up with the result, in hexad
 1111 1111 1111 1111 1111 1111 1111 1110
 Quoting “The Book of Knowledge”, Wikipedia: <em>“The ones' complement of the number then behaves like the negative of the original number in some arithmetic operations. To within a constant (of −1), the ones' complement behaves like the negative of the original number with binary addition. However, unlike two's complement, these numbers have not seen widespread use because of issues such as the offset of −1, that negating zero results in a distinct negative zero bit pattern, less simplicity with arithmetic borrowing, etc.”</em>.
 
-  
+
 <h3>In Addition</h3>
 <p>I should mention something about variable types in arithmetic, especially
   division. If you divide two integers together such that the result would have a
@@ -432,7 +432,27 @@ endforeach</pre></div>
 
 <p>You can then use the array for whatever you need, such as passing more
 than one variable back to a function (functions explained later), or when a core
-function requires it. <br>
+function requires it. <br><br>
+
+<p>Suppose you want to find out if the value in the variable "name" exists in
+an array named "people". You can do something like the following to:<br>
+
+<div class="doc-guide-pre">
+<pre>
+foreach person in people
+  if(person == name)
+    return _person_iter;
+  endif</pre></div>
+
+or you can do something even simpler:<br>
+
+<div class="doc-guide-pre">
+<pre>
+var in_array := name in people;</pre></div>
+
+in_array will be set to the ordinal position where the value in name exists
+in the array or if it is not in the array in_array will be set to 0.<br><br>
+
 Also, there are a few array-specific functions that are
 explained later (such as array.Insert() and others).</p>
 
@@ -576,16 +596,16 @@ if (var1 != var2) //TRUE
 
 <div class="doc-guide-pre">
 <pre>
-if ( (var1 &gt; var2) || (var1 == 5) ) 
+if ( (var1 &gt; var2) || (var1 == 5) )
   // TRUE since at least one of the individual expressions is true. This is inclusive OR so all expressions may
   // be true and the whole statement is true.
-  
+
 if ( (var1 &gt; var2) or (var1 ==5) )
   //this is same as above, except using "or" in place of "||" for readability.
-  
+
 if ( (var1 &gt; var2) &amp;&amp; (var1 == 5) )
   //FALSE, since not ALL expressions are true.
-  
+
 if ( (var1 &gt; var2) and (var1 == 10) )
   //TRUE, since both expressions are true. Uses "and" in place of "&amp;&amp;"
 </pre></div>
@@ -709,7 +729,7 @@ value), and that comparison value is followed by code, then <i>both</i> of the
 cases will execute that code. </p>
 
 <p>For example:
-  
+
 <div class="doc-guide-pre">
 <pre>
 function FunctionThree()
@@ -948,7 +968,7 @@ program Main()
   var var3 := "boingo";
   var var4 := "let's";
   var var5 := 42;
-  
+
   MyFunction(var1, var4); // 1
   MyFunction(var2, var3); // 2
   MyFunction(var5, var1); // 3
@@ -998,7 +1018,7 @@ function SmellsLike()
   return smell;
 endfunction</pre></div>
 
-Prints: 
+Prints:
 <div class="doc-guide-pre">
 <pre>Teen Spirit</pre></div>
 
@@ -1129,7 +1149,7 @@ will broadcast a message to all players on the server. Here is the script
 /*1*/ use uo;
 /*2*/
 /*3*/ program MyBroadcast(speaker, text)
-/*4*/ 
+/*4*/
 /*4*/   foreach character in ( EnumerateOnlineCharacters() )
 /*5*/     SendSysmessage(character,text);
 /*6*/   endforeach
@@ -1175,7 +1195,7 @@ reference passed to the function by POL:</p>
 /*1*/ use uo;
 /*2*/
 /*3*/ program MyBroadcast(speaker, text)
-/*4*/ 
+/*4*/
 /*5*/   foreach character in ( EnumerateOnlineCharacters() )
 /*6*/     if ( character!= speaker )
 /*7*/       SendSysmessage(character,text);
@@ -1399,17 +1419,17 @@ program ReturnRing(player, ring)
 // remember this is a usescript, and the variables 'player' and 'ring'
 // are the parameters passed to the script by the POL core.
   var x,y,z;
-  
+
   x := GetObjProperty(player,"x_corpse");
   y := GetObjProperty(player, "y_corpse");
   z := GetObjProperty(player, "z_corpse");
-  
+
   if ( (x== error) or (y == error) or (z == error) )
     SendSysMessage(player,&quot;Could not find your corpse&quot;);
     return 0; //exits the script
   endif
-  
-  
+
+
   // Note: Since pol97 MoveCharacterToLocation is depreciated use MoveObjectToLocation instead
   MoveCharacterToLocation(player,x, y, z);
   EraseObjProperty(player, "x_corpse");
@@ -1615,32 +1635,32 @@ following format (note # denotes a comment):</p>
 
 Enabled 1
   #Enabled 0/1 Should this package be enabled?
-  
+
 Nam template
   # Name of package,should match directory name
-  
+
 Version 1.3
   # Version v0.v1..vn  Version number for this package
-    
+
 Requires spawner 1.2
   # Requires pkgname {version}
-  #   Other package(s) other than this one are required 
+  #   Other package(s) other than this one are required
   #   in order to function
   #   More than one of these can occur.
   #   Format: requires package-name {version)
-   
+
 Conflicts some-package
   # Conflicts pkgname
   # This package cannot co-exist with a specific package.
   # Note that version cannot be specified
-   
+
 ### Everything below this line is currently ignored, but are a very
 ### good idea to include in your pkg.cfg for imformation to users
-  
-  
+
+
 CoreRequired 96
   #CoreRequired ver note no leading '0', which would indicate octal
-  
+
 Maintainer John Q. Public
   # Your name
  Email johnq@public.com
@@ -1660,7 +1680,7 @@ ReadConfigFile(&quot;cfgname&quot;)
 
 ReadConfigFile(&quot;:*:cfgname&quot;)
   - Reads in every config file that matches that name.
-  
+
 ReadConfigFile(":pkgname:cfgname")
   - looks for [pkgdir]/[cfgname].cfg
 
@@ -1924,7 +1944,7 @@ because it's cool like that. So what do the variables look like as of line 6?</p
   colours[3] = <uninitialized object>    <--- this is one of those error types.
   colours[4] = <uninitialized object>
   colours[5] = "shiny"
-  csize = 5 
+  csize = 5
 </pre></div>
 
 <p>Note that when it counts how many things are in the array, it includes the
@@ -1951,7 +1971,7 @@ colours[3] = "bronze"
 colours[4] = <uninitialized object>
 colours[5] = <uninitialized object>
 colours[6] = "shiny"
-csize = 6 
+csize = 6
 </pre></div>
 
 <p>Note that an insert pushes the remaining elements down one slot, EVEN IF it
@@ -1977,7 +1997,7 @@ colours[1] = "green"
 colours[2] = "blue"
 colours[3] = <uninitialized object>
 colours[4] = "shiny"
-csize = 6 
+csize = 6
 </pre></div>
 
 <div class="doc-guide-pre">
@@ -1989,7 +2009,7 @@ csize = 6
 <pre>
 colours[1] = "green"
 colours[2] = "blue"
-colours[3] = <uninitialized object> 
+colours[3] = <uninitialized object>
 </pre></div>
 
 <div class="doc-guide-pre">
@@ -2497,4 +2517,7 @@ value, and then destroy it when the function is done.</p>
 Cleaned HTML code. - Bodom</p>
 <p>v0.7: 07/09/2018<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added additional information regarding AND, OR, XOR, Ones Compliment operators supplied by Yukiko<br>
+</p>
+<p>v0.8: 01/11/2019<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for finding the ordinal location of an element in an array by ThisIsMe<br>
 </p>

@@ -10,9 +10,12 @@
 #ifndef UOCLIENT_H
 #define UOCLIENT_H
 
+#include <list>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "../clib/socketsvc.h"
 #include "crypt/cryptkey.h"
 
 namespace Pol
@@ -20,6 +23,10 @@ namespace Pol
 namespace Clib
 {
 class ConfigElem;
+}
+namespace Network
+{
+class Client;
 }
 namespace Core
 {
@@ -52,8 +59,8 @@ public:
   Mapping hits;
   Mapping stamina;
   Mapping mana;
-  unsigned short maxskills;  // dave changed 3/15/03, support configurable max skillid
-  ExportScript* method_script; // TODO deprecated!
+  unsigned short maxskills;     // dave changed 3/15/03, support configurable max skillid
+  ExportScript* method_script;  // TODO deprecated!
 };
 
 class UoClientProtocol
@@ -64,17 +71,42 @@ public:
   bool EnableFlowControlPackets;
 };
 
+class UoClientListener;
+
+class UoClientThread final : public Clib::SocketClientThread
+{
+public:
+  UoClientThread( UoClientListener* def, Clib::SocketListener& SL );
+  UoClientThread( UoClientThread& copy );
+  virtual void run() override;
+  void create();
+  virtual ~UoClientThread() = default;
+
+private:
+  UoClientListener* _def;
+
+public:
+  Network::Client* client;
+};
+
 class UoClientListener
 {
 public:
   UoClientListener( Clib::ConfigElem& elem );
+  UoClientListener( const UoClientListener& ) = delete;
+  UoClientListener& operator=( const UoClientListener& ) = delete;
+  UoClientListener( UoClientListener&& ) = default;
+  UoClientListener& operator=( UoClientListener&& ) = default;
+  ~UoClientListener() = default;
+
   size_t estimateSize() const;
 
   Crypt::TCryptInfo encryption;
   unsigned short port;
   bool aosresist;
   bool sticky;
+  std::list<std::unique_ptr<UoClientThread>> login_clients;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

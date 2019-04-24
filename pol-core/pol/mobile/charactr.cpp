@@ -124,7 +124,6 @@
 #include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../movecost.h"
 #include "../multi/customhouses.h"
@@ -503,9 +502,9 @@ void Character::stop_skill_script()
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
     script_ex->seterror( true );
-    script_ex->os_module->revive();
-    if ( script_ex->os_module->in_debugger_holdlist() )
-      script_ex->os_module->revive_debugged();
+    script_ex->revive();
+    if ( script_ex->in_debugger_holdlist() )
+      script_ex->revive_debugged();
   }
 }
 
@@ -1549,7 +1548,8 @@ void Character::produce( const Core::Vital* pVital, VitalValue& vv, unsigned int
     Network::ClientInterface::tell_vital_changed( this, pVital );
 }
 
-bool Character::consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt )
+bool Character::consume( const Core::Vital* pVital, VitalValue& vv, unsigned int amt,
+                         VitalDepletedReason reason )
 {
   int start_ones = vv.current_ones();
   set_dirty();
@@ -1558,29 +1558,34 @@ bool Character::consume( const Core::Vital* pVital, VitalValue& vv, unsigned int
   {
     Network::ClientInterface::tell_vital_changed( this, pVital );
     if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
-      pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
+      pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ),
+                                   new Bscript::BLong( static_cast<int>( reason ) ) );
   }
   return res;
 }
 
-void Character::set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones )
+void Character::set_current_ones( const Core::Vital* pVital, VitalValue& vv, unsigned int ones,
+                                  VitalDepletedReason reason )
 {
   int start_ones = vv.current_ones();
   set_dirty();
   vv.current_ones( ones );
   Network::ClientInterface::tell_vital_changed( this, pVital );
   if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
-    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
+    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ),
+                                 new Bscript::BLong( static_cast<int>( reason ) ) );
 }
 
-void Character::set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones )
+void Character::set_current( const Core::Vital* pVital, VitalValue& vv, unsigned int ones,
+                             VitalDepletedReason reason )
 {
   int start_ones = vv.current_ones();
   set_dirty();
   vv.current( ones );
   Network::ClientInterface::tell_vital_changed( this, pVital );
   if ( start_ones != 0 && vv.current_ones() == 0 && pVital->depleted_func != nullptr )
-    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ) );
+    pVital->depleted_func->call( new Module::ECharacterRefObjImp( this ),
+                                 new Bscript::BLong( static_cast<int>( reason ) ) );
 }
 
 void Character::regen_vital( const Core::Vital* pVital )
@@ -1590,7 +1595,7 @@ void Character::regen_vital( const Core::Vital* pVital )
   if ( rr > 0 )
     produce( pVital, vv, rr / 12 );
   else if ( rr < 0 )
-    consume( pVital, vv, -rr / 12 );
+    consume( pVital, vv, -rr / 12, VitalDepletedReason::REGENERATE );
 }
 
 void Character::calc_vital_stuff( bool i_mod, bool v_mod )
@@ -1845,7 +1850,7 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
   VitalValue& vv = vital( Core::gamestate.pVitalLife->vitalid );
   if ( vv.current() - amount <= 99 )
     amount = vv.current();  // be greedy with that last point
-  consume( Core::gamestate.pVitalLife, vv, amount );
+  consume( Core::gamestate.pVitalLife, vv, amount, VitalDepletedReason::DAMAGE );
 
   if ( ( source ) && ( userepsys ) )
     source->repsys_on_damage( this );
@@ -1955,7 +1960,7 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
-  ex->os_module->priority = 100;
+  ex->priority(100);
 
   if ( ex->setProgram( prog.get() ) )
   {
@@ -2092,17 +2097,20 @@ void Character::resurrect()
   {
     VitalValue& vv = vital( Core::gamestate.pVitalLife->vitalid );
     if ( vv._current == 0 )  // set in die()
-      set_current_ones( Core::gamestate.pVitalLife, vv, 1 );
+      set_current_ones( Core::gamestate.pVitalLife, vv, 1, VitalDepletedReason::RESURRECT );
   }
   else
-    set_current_ones( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), 1 );
+    set_current_ones( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), 1,
+                      VitalDepletedReason::RESURRECT );
 
   if ( !Core::gamestate.pVitalMana->regen_while_dead )
-    set_current_ones( Core::gamestate.pVitalMana, vital( Core::gamestate.pVitalMana->vitalid ), 0 );
+    set_current_ones( Core::gamestate.pVitalMana, vital( Core::gamestate.pVitalMana->vitalid ), 0,
+                      VitalDepletedReason::RESURRECT );
 
   if ( !Core::gamestate.pVitalStamina->regen_while_dead )
     set_current_ones( Core::gamestate.pVitalStamina,
-                      vital( Core::gamestate.pVitalStamina->vitalid ), 1 );
+                      vital( Core::gamestate.pVitalStamina->vitalid ), 1,
+                      VitalDepletedReason::RESURRECT );
 
   // Replace the death shroud with a death robe
   bool equip_death_robe = true;
@@ -2214,7 +2222,8 @@ void Character::die()
       return;
   }
 
-  set_current_ones( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), 0 );
+  set_current_ones( Core::gamestate.pVitalLife, vital( Core::gamestate.pVitalLife->vitalid ), 0,
+                    VitalDepletedReason::DEATH );
   clear_my_aggressors();
   clear_my_lawful_damagers();
   commit_to_reportables();
@@ -3909,7 +3918,7 @@ bool Character::move( unsigned char i_dir )
       unsigned short tmv = movecost(
           this, carry_perc, ( i_dir & PKTIN_02_DIR_RUNNING_BIT ) ? true : false, on_mount() );
       VitalValue& stamina = vital( Core::gamestate.pVitalStamina->vitalid );
-      if ( !consume( Core::gamestate.pVitalStamina, stamina, tmv ) )
+      if ( !consume( Core::gamestate.pVitalStamina, stamina, tmv, VitalDepletedReason::MOVEMENT ) )
       {
         private_say_above( this, this, "You are too fatigued to move." );
         return false;

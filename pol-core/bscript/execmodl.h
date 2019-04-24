@@ -71,6 +71,8 @@ public:
   const std::string& scriptname() const;
   Executor& exec;
 
+  virtual size_t sizeEstimate() const;
+
 protected:
   ExecutorModule( const char* moduleName, Executor& iExec );
 
@@ -161,7 +163,7 @@ inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
 {
   return function_table[idx].funcname;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 
 #endif

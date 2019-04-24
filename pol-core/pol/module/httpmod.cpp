@@ -11,7 +11,6 @@
 #include "../../clib/wnsckt.h"
 #include "../../plib/systemstate.h"
 #include "../uoexec.h"
-#include "osmod.h"
 
 
 namespace Pol
@@ -31,7 +30,7 @@ TmplExecutorModule<HttpExecutorModule>::FunctionTable
         {"QueryParam", &HttpExecutorModule::mf_QueryParam},
         {"QueryIP", &HttpExecutorModule::mf_QueryIP},
 };
-}
+}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -72,7 +71,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     else
     {
       continuing_offset += nsent;
-      uoexec.os_module->SleepForMs( 500 );
+      uoexec.SleepForMs( 500 );
       --uoexec.PC;
       return uoexec.fparams[0]->impptr();
     }
@@ -110,7 +109,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     else
     {
       continuing_offset += nsent;
-      uoexec.os_module->SleepForMs( 500 );
+      uoexec.SleepForMs( 500 );
       --uoexec.PC;
       return uoexec.fparams[0]->impptr();
     }
@@ -201,5 +200,13 @@ void HttpExecutorModule::read_query_ip()
 {
   query_ip_ = sck_.getpeername();
 }
+
+size_t HttpExecutorModule::sizeEstimate() const
+{
+  size_t size = sizeof( *this );
+  for ( const auto& v : params_ )
+    size += v.first.capacity() + v.second.capacity() + ( sizeof( void* ) * 3 + 1 ) / 2;
+  return size;
 }
-}
+}  // namespace Module
+}  // namespace Pol

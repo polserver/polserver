@@ -108,5 +108,10 @@ const std::string& ExecutorModule::scriptname() const
 {
   return exec.prog_->name;
 }
+
+size_t ExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
 }
-}
+}  // namespace Bscript
+}  // namespace Pol

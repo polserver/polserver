@@ -8,7 +8,6 @@
 #define CLIB_THREADHELP_H
 
 #include <atomic>
-#include <boost/noncopyable.hpp>
 #include <functional>
 #include <future>
 #include <map>
@@ -71,7 +70,7 @@ public:
 };
 
 
-class TaskThreadPool : boost::noncopyable
+class TaskThreadPool
 {
   typedef std::function<void()> msg;
   typedef Clib::message_queue<msg> msg_queue;
@@ -80,6 +79,8 @@ public:
   TaskThreadPool();
   TaskThreadPool( const std::string& name );
   TaskThreadPool( unsigned int max_count, const std::string& name );
+  TaskThreadPool( const TaskThreadPool& ) = delete;
+  TaskThreadPool& operator=( const TaskThreadPool& ) = delete;
   ~TaskThreadPool();
   void push( const msg& msg );
   std::future<bool> checked_push( const msg& msg );
@@ -95,7 +96,7 @@ private:
   std::vector<std::thread> _threads;
 };
 
-class DynTaskThreadPool : boost::noncopyable
+class DynTaskThreadPool
 {
   class PoolWorker;
 
@@ -106,6 +107,8 @@ class DynTaskThreadPool : boost::noncopyable
 public:
   DynTaskThreadPool( const std::string& name );
   ~DynTaskThreadPool();
+  DynTaskThreadPool( const DynTaskThreadPool& ) = delete;
+  DynTaskThreadPool& operator=( const DynTaskThreadPool& ) = delete;
   void push( const msg& msg );
   std::future<bool> checked_push( const msg& msg );
   size_t threadpoolsize() const;
@@ -123,5 +126,5 @@ private:
 
 
 }  // namespace threadhelp
-}
+}  // namespace Pol
 #endif  // CLIB_THREADHELP_H

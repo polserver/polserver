@@ -454,11 +454,11 @@
 <method proto="disable()" returns="true" desc="disables the account" />
 <method proto="setpassword(string newpass)" returns="true/error" desc="sets the account password to newpass" />
 <method proto="checkpassword(string pass)" returns="boolean/error" desc="returns true if 'pass' is the account's password" />
-<method proto="setname(string newname, string newpass)" returns="true/error" desc="sets the account name to newname, newpass optional" />
+<method proto="setname(string newname, string newpass)" returns="true/error" desc="sets the account name to newname, password to newpass. The parameter newpass is only optional if you have clear text passwords (RetainCleartextPasswords) - which you shouldn't." />
 <method proto="getcharacter(integer slot)" returns="true/OfflineCharacterRef" desc="gets an OfflineCharacterRef for the character in slot 'slot'. returns error if not character in that slot (1..5)" />
 <method proto="deletecharacter(integer slot) " returns="true/error" desc="Deletes character in slot 'slot'. returns error if not character in that slot (1..5)" />
 <method proto="delete()" returns="true/error" desc="Delete this empty account." />
-<method proto="split(string newacctname, integer slot)" returns="true/error" desc="Create a new account and move character to it." />
+<method proto="split(string newacctname, integer slot)" returns="AccountRef/error" desc="Create a new account and move character to it. On success returns a reference to the new account." />
 <method proto="move_char(string destacctname, integer slot)" returns="true/error" desc="Move character from this account to destination account. You can use it to flip chars on same account too." />
 <method proto="getprop(string propname)" returns="true/error" desc="GetObjProperty for account objects." />
 <method proto="setprop(string propname, propval)" returns="true" desc="SetObjProperty for account objects." />

@@ -2,9 +2,53 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-30-2018</datemodified>
+		<datemodified>03-19-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>03-19-2019</date>
+			<author>Kevin:</author>
+			<change type="Changed">attributes::GetAttribute now accepts an optional parameter to specify the precision of the attribute<br/>
+value returned. Use ATTRIBUTE_PRECISION_NORMAL (default) to use the existing precision, or<br/>
+ATTRIBUTE_PRECISION_TENTHS to get the value in tenths.<br/>
+Since this is a change to the module function's number of arguments, you MUST recompile your scripts.</change>
+		</entry>
+		<entry>
+			<date>03-08-2019</date>
+			<author>Yukiko:</author>
+			<change type="Changed">pol.cfg settings HideWarningGump and HideWarningItem to ShowWarningGump and ShowWarningItem.<br/>
+This positive logic is consistent with all other console output settings.<br/>
+Default setting is one (1). The output be displayed by default. Set to zero (0) to suppress.</change>
+		</entry>
+		<entry>
+			<date>02-18-2019</date>
+			<author>Skinny:</author>
+			<change type="Added">pol.cfg HideWarningGump and HideWarningItem.<br/>
+Many players macros generate warnings messages on the console, causing flooding, especially if you have lots of players online.<br/>
+You can enable setting HideWarningGump=1 and HideWarningItem=1 in the pol.cfg. Default value is 0.</change>
+		</entry>
+		<entry>
+			<date>02-02-2019</date>
+			<author>Yukiko:</author>
+			<change type="Added">uoconvert.exe will now surface the AnimID for equippables to tiles.cfg. This can be used to look-up the gump pic for wearables that are displayed on the paper doll. Add this number to 50000 for male gumpart or 60000 for female gump art. The resulting number will be the gump art that is displayed in the paper doll.</change>
+		</entry>
+		<entry>
+			<date>01-21-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">account.split() will now return an AccountRef to the new account instead of &quot;true&quot;.</change>
+		</entry>
+		<entry>
+			<date>01-17-2019</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Vendor purchases could overflow</change>
+		</entry>
+		<entry>
+			<date>01-01-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">DepletedFunction hook now receives a second parameter: reason<br/>
+The values are:<br/>
+0: Regenerate, 1: Damage, 2: Movement, 3: Death, 4: Resurrect, 5: Script</change>
+		</entry>
 		<entry>
 			<date>12-30-2018</date>
 			<author>Turley:</author>

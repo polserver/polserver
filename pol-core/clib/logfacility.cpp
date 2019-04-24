@@ -72,7 +72,7 @@ void initLogging( LogFacility* logger )
 }
 
 // internal worker class which performs the work in a additional thread
-class LogFacility::LogWorker : boost::noncopyable
+class LogFacility::LogWorker
 {
   typedef std::function<void()> msg;
   typedef message_queue<msg> msg_queue;
@@ -80,6 +80,8 @@ class LogFacility::LogWorker : boost::noncopyable
 public:
   // run thread on construction
   LogWorker() : _done( false ), _queue(), _work_thread() { run(); }
+  LogWorker( const LogWorker& ) = delete;
+  LogWorker& operator=( const LogWorker& ) = delete;
   // on deconstruction send exit
   ~LogWorker()
   {

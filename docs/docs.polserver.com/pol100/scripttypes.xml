@@ -4,7 +4,7 @@
 <ESCRIPT>
 <fileheader name="POL Script Types">
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
-  <datemodified>08/13/2017</datemodified>
+  <datemodified>01/01/2019</datemodified>
 </fileheader>
 
 
@@ -955,10 +955,10 @@ endprogram</example>
     <return>return value ignored</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
-    <whencalled>When a new player character is created.</whencalled>
+    <whencalled>When a new player character is created by a client.</whencalled>
     <wherelives>The 'program' in oncreate.src file, only in /scripts/misc</wherelives>
     <todefine>If the compiled file exists it is automatically called.</todefine>
-    <explain>This script allows the scripter to run code when a new character is created. Useful for giving out starting equipment, etc.</explain>
+    <explain>This script allows the scripter to run code when a new character is created. Useful for giving out starting equipment, etc. Note that it doesn't run if the character was created via a script (for example, using account.addcharacter()).</explain>
     <example>
 use uo;
 include "include/startEqp";
@@ -979,7 +979,7 @@ endprogram</example>
     <whencalled>When a player character is deleted.</whencalled>
     <wherelives>The 'program' in ondelete.src file, in /scripts/misc or any package</wherelives>
     <todefine>If the compiled file exists it is automatically called.</todefine>
-    <explain>This script allows the scripter to run code when a character is deleted.</explain>
+    <explain>This script allows the scripter to run code when a character is deleted. (Note: differently from the oncreate script, the ondelete script is called also when a character is deleted in a script.)</explain>
     <example>
 use uo;
 program ondelete( character )
@@ -1112,15 +1112,18 @@ print("my package starting..");
 <scripttype name="ExportedVitalsFunction">
     <prototype>exported function vitalsfunc(character)</prototype>
     <parameter name="character" value="Character Ref" />
-    <return>Integer return used by core, see below</return>
+    <parameter name="reason" value="Integer, see below only for DepletedFunction" />
+    <return>Integer return used by core, see below, except for DepletedFunction</return>
     <schedtype>Run To Completion</schedtype>
     <def_prio>critical</def_prio>
-    <whencalled>Both exported functions on character create and when a script calls RecalcVitals()</whencalled>
+    <whencalled>Both exported functions on character create and when a script calls RecalcVitals(), or when vital reaches zero for DepletedFunction</whencalled>
     <wherelives>As exported functions in a .src, as defined in vitals.cfg.</wherelives>
     <todefine>Define vitals functions in vitals.cfg.</todefine>
     <explain>There exists 2 exported functions for vitals calculation: RegenRateFunction and MaximumFunction.</explain>
     <explain>Each vital defined should have both of these functions. RegenRateFunction should return the regeneration rate for that vital for that character (see vitals.cfg for format)</explain>
     <explain>MaximumFunction should return the maximum vital value for the character in hundreths of a point</explain>
+    <explain>DepletedFunction gets called when the vital reaches 0 the reason parameter can have the following values</explain>
+    <explain>0: Regenerate, 1: Damage, 2: Movement, 3: Death, 4: Resurrect, 5: Script</explain>
     <example>
 //In a .src file, like regen.src:
 //vitals.cfg defines MaximumFunction regen:GetLifeMaximumValueExported , etc.

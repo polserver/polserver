@@ -240,8 +240,8 @@ bool USpell::check_skill( Mobile::Character* chr )
 
 void USpell::consume_mana( Mobile::Character* chr )
 {
-  chr->consume( gamestate.pVitalMana, chr->vital( gamestate.pVitalMana->vitalid ),
-                manacost() * 100 );
+  chr->consume( gamestate.pVitalMana, chr->vital( gamestate.pVitalMana->vitalid ), manacost() * 100,
+                Mobile::Character::VitalDepletedReason::SCRIPT );
 }
 
 void USpell::speak_power_words( Mobile::Character* chr, unsigned short font, unsigned short color )

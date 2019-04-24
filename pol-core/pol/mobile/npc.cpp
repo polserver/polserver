@@ -47,7 +47,6 @@
 #include "../listenpt.h"
 #include "../mdelta.h"
 #include "../module/npcmod.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../multi/multi.h"
 #include "../npctmpl.h"
@@ -116,9 +115,9 @@ void NPC::stop_scripts()
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
     ex->seterror( true );
-    ex->os_module->revive();
-    if ( ex->os_module->in_debugger_holdlist() )
-      ex->os_module->revive_debugged();
+    ex->revive();
+    if ( ex->in_debugger_holdlist() )
+      ex->revive_debugged();
   }
 }
 
@@ -619,9 +618,9 @@ void NPC::restart_script()
   {
     ex->seterror( true );
     // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
-    ex->os_module->revive();
-    if ( ex->os_module->in_debugger_holdlist() )
-      ex->os_module->revive_debugged();
+    ex->revive();
+    if ( ex->in_debugger_holdlist() )
+      ex->revive_debugged();
     ex = nullptr;
     // when the NPC executor module destructs, it checks this NPC to see if it points
     // back at it.  If not, it leaves us alone.
@@ -645,9 +644,9 @@ void NPC::on_death( Items::Item* corpse )
   {
     // this will force the execution engine to stop running this script immediately
     ex->seterror( true );
-    ex->os_module->revive();
-    if ( ex->os_module->in_debugger_holdlist() )
-      ex->os_module->revive_debugged();
+    ex->revive();
+    if ( ex->in_debugger_holdlist() )
+      ex->revive_debugged();
   }
 
   destroy();

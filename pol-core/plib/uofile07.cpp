@@ -42,9 +42,10 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y )
 #endif
 
       if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) &&
-           ( tile_uoflags( srec->graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
+           ( tile_uoflags_read( srec->graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
       {
-        vec.push_back( StaticRec( srec->graphic, srec->z ) );
+        vec.push_back( StaticRec( srec->graphic, srec->z, tile_uoflags_read( srec->graphic ),
+                                  tileheight_read( srec->graphic ) ) );
       }
     }
   }
@@ -74,9 +75,10 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
 #endif
 
       if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) &&
-           ( tile_uoflags( srec->graphic ) & flags ) )
+           ( tile_uoflags_read( srec->graphic ) & flags ) )
       {
-        vec.push_back( StaticRec( srec->graphic, srec->z ) );
+        vec.push_back( StaticRec( srec->graphic, srec->z, tile_uoflags_read( srec->graphic ),
+                                  tileheight_read( srec->graphic ) ) );
       }
     }
   }
@@ -107,7 +109,8 @@ void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
 
       if ( ( srec->x_offset == x_offset ) && ( srec->y_offset == y_offset ) )
       {
-        vec.push_back( StaticRec( srec->graphic, srec->z ) );
+        vec.push_back( StaticRec( srec->graphic, srec->z, tile_uoflags_read( srec->graphic ),
+                                  tileheight_read( srec->graphic ) ) );
       }
     }
   }

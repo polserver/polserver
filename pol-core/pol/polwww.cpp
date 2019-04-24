@@ -887,7 +887,9 @@ void http_thread( void )
           [=]() { http_func( client_socket ); } );  // copy socket into queue to keep it valid
     }
   }
+
   gamestate.mime_types.clear();  // cleanup on exit
+
 #ifdef _WIN32
   closesocket( http_socket );
 #else

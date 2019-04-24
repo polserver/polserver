@@ -23,7 +23,6 @@
 #define __CLIENT_H
 
 #include <atomic>
-#include <boost/noncopyable.hpp>
 #include <cstring>
 #include <memory>
 #include <mutex>
@@ -129,10 +128,12 @@ typedef struct
   unsigned char pktbuffer[PKTIN_02_SIZE];
 } PacketThrottler;
 
-class Client : boost::noncopyable
+class Client
 {
 public:
   Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
+  Client( const Client& ) = delete;
+  Client& operator=( const Client& ) = delete;
   static void Delete( Client* client );
   size_t estimatedSize() const;
 

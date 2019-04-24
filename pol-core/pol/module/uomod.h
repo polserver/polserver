@@ -323,6 +323,8 @@ public:
   explicit UOExecutorModule( Core::UOExecutor& exec );
   ~UOExecutorModule();
 
+  virtual size_t sizeEstimate() const override;
+
 protected:
   // bool getStaticMenuParam( unsigned param, Menu*& menu );
   bool getDynamicMenuParam( unsigned param, Core::Menu*& menu );

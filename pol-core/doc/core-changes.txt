@@ -1,4 +1,28 @@
 ﻿-- POL100 --
+03-19-2019 Kevin:
+  Changed: attributes::GetAttribute now accepts an optional parameter to specify the precision of the attribute
+           value returned. Use ATTRIBUTE_PRECISION_NORMAL (default) to use the existing precision, or 
+           ATTRIBUTE_PRECISION_TENTHS to get the value in tenths.
+
+           Since this is a change to the module function's number of arguments, you MUST recompile your scripts.
+03-08-2019 Yukiko:
+  Changed: pol.cfg settings HideWarningGump and HideWarningItem to ShowWarningGump and ShowWarningItem.
+           This positive logic is consistent with all other console output settings.
+		   Default setting is one (1). The output be displayed by default. Set to zero (0) to suppress.
+02-18-2019 Skinny:
+  Added:   pol.cfg HideWarningGump and HideWarningItem.
+           Many players macros generate warnings messages on the console, causing flooding, especially if you have lots of players online.
+           You can enable setting HideWarningGump=1 and HideWarningItem=1 in the pol.cfg. Default value is 0.
+02-02-2019 Yukiko:
+  Added:   uoconvert.exe will now surface the AnimID for equippables to tiles.cfg. This can be used to look-up the gump pic for wearables that are displayed on the paper doll. Add this number to 50000 for male gumpart or 60000 for female gump art. The resulting number will be the gump art that is displayed in the paper doll.
+01-21-2019 Nando:
+  Changed: account.split() will now return an AccountRef to the new account instead of "true".
+01-17-2019 Kevin:
+    Fixed: Vendor purchases could overflow
+01-01-2019 Turley:
+  Changed: DepletedFunction hook now receives a second parameter: reason
+           The values are:
+           0: Regenerate, 1: Damage, 2: Movement, 3: Death, 4: Resurrect, 5: Script
 12-30-2018 Turley:
   Added:   vitals.cfg optional entry DepletedFunction
            gets called once the vital reaches 0.
