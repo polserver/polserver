@@ -298,6 +298,53 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( use_adjustments() != true )
     sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
+  if ( has_orig_fire_resist() )
+    sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
+  if ( has_orig_cold_resist() )
+    sw() << "\tColdResist\t" << orig_cold_resist() << pf_endl;
+  if ( has_orig_energy_resist() )
+    sw() << "\tEnergyResist\t" << orig_energy_resist() << pf_endl;
+  if ( has_orig_poison_resist() )
+    sw() << "\tPoisonResist\t" << orig_poison_resist() << pf_endl;
+  if ( has_orig_physical_resist() )
+    sw() << "\tPhysicalResist\t" << orig_physical_resist() << pf_endl;
+
+  if ( has_orig_fire_damage() )
+    sw() << "\tFireDamage\t" << orig_fire_damage() << pf_endl;
+  if ( has_orig_cold_damage() )
+    sw() << "\tColdDamage\t" << orig_cold_damage() << pf_endl;
+  if ( has_orig_energy_damage() )
+    sw() << "\tEnergyDamage\t" << orig_energy_damage() << pf_endl;
+  if ( has_orig_poison_damage() )
+    sw() << "\tPoisonDamage\t" << orig_poison_damage() << pf_endl;
+  if ( has_orig_physical_damage() )
+    sw() << "\tPhysicalDamage\t" << orig_physical_damage() << pf_endl;
+  if ( has_orig_lower_reagent_cost() )
+    sw() << "\tLowerReagentCost\t" << orig_lower_reagent_cost() << pf_endl;
+  if ( has_orig_spell_damage_increase() )
+    sw() << "\tSpellDamageIncrease\t" << orig_spell_damage_increase() << pf_endl;
+  if ( has_orig_faster_casting() )
+    sw() << "\tFasterCasting\t" << orig_faster_casting() << pf_endl;
+  if ( has_orig_faster_cast_recovery() )
+    sw() << "\tFasterCastRecovery\t" << orig_faster_cast_recovery() << pf_endl;
+  if ( has_orig_defence_increase() )
+    sw() << "\tDefenceIncrease\t" << orig_defence_increase() << pf_endl;
+  if ( has_orig_defence_increase_cap() )
+    sw() << "\tDefenceIncreaseCap\t" << orig_defence_increase_cap() << pf_endl;
+  if ( has_orig_lower_mana_cost() )
+    sw() << "\tLowerManaCost\t" << orig_lower_mana_cost() << pf_endl;
+  if ( has_orig_fire_resist_cap() )
+    sw() << "\tFireResistCap\t" << orig_fire_resist_cap() << pf_endl;
+  if ( has_orig_cold_resist_cap() )
+    sw() << "\tColdResistCap\t" << orig_cold_resist_cap() << pf_endl;
+  if ( has_orig_energy_resist_cap() )
+    sw() << "\tEnergyResistCap\t" << orig_energy_resist_cap() << pf_endl;
+  if ( has_orig_physical_resist_cap() )
+    sw() << "\tPhysicalResistCap\t" << orig_physical_resist_cap() << pf_endl;
+  if ( has_orig_poison_resist_cap() )
+    sw() << "\tPoisonResistCap\t" << orig_poison_resist_cap() << pf_endl;
+  if ( has_orig_luck() )
+    sw() << "\tLuck\t" << orig_luck() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
@@ -396,84 +443,105 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   if (elem.remove_prop("LOWERREAGENTCOST", &tmp) && diceValue(tmp, &value))
   {
       lower_reagent_cost(apply(lower_reagent_cost(), value));
+    INFO_PRINT << "LRC: " << lower_reagent_cost().value << "\n";
+        orig_lower_reagent_cost( static_cast<s16>( value ) );
+    INFO_PRINT << "OLRC: " << orig_lower_reagent_cost() << "\n";
   }
   if (has_lower_reagent_cost())
+      {
+      
+    INFO_PRINT << "SUCCESS HAS! " << lower_reagent_cost().value << "\n";
       lower_reagent_cost(refresh(lower_reagent_cost()));
+    INFO_PRINT << "LRC: " << lower_reagent_cost().value << "\n";
+    }
   if (elem.remove_prop("SPELLDAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
   {
       spell_damage_increase(apply(spell_damage_increase(), value));
+        orig_spell_damage_increase( static_cast<s16>( value ) );
   }
   if (has_spell_damage_increase())
       spell_damage_increase(refresh(spell_damage_increase()));
   if (elem.remove_prop("FASTERCASTING", &tmp) && diceValue(tmp, &value))
   {
       faster_casting(apply(faster_casting(), value));
+        orig_faster_casting( static_cast<s16>( value ) );
   }
   if (has_faster_casting())
       faster_casting(refresh(faster_casting()));
   if (elem.remove_prop("FASTERCASTRECOVERY", &tmp) && diceValue(tmp, &value))
   {
       faster_cast_recovery(apply(faster_cast_recovery(), value));
+        orig_faster_cast_recovery( static_cast<s16>( value ) );
   }
   if (has_faster_cast_recovery())
       faster_cast_recovery(refresh(faster_cast_recovery()));
   if (elem.remove_prop("DEFENCEINCREASE", &tmp) && diceValue(tmp, &value))
   {
       defence_increase(apply(defence_increase(), value));
+        orig_defence_increase( static_cast<s16>( value ) );
   }
   if (has_defence_increase())
       defence_increase(refresh(defence_increase()));
   if (elem.remove_prop("DEFENCEINCREASECAP", &tmp) && diceValue(tmp, &value))
   {
       defence_increase_cap(apply(defence_increase_cap(), value));
+        orig_defence_increase_cap( static_cast<s16>( value ) );
   }
   if (has_defence_increase_cap())
       defence_increase_cap(refresh(defence_increase_cap()));
   if (elem.remove_prop("LOWERMANACOST", &tmp) && diceValue(tmp, &value))
   {
       lower_mana_cost(apply(lower_mana_cost(), value));
+        orig_lower_mana_cost( static_cast<s16>( value ) );
   }
   if (has_lower_mana_cost())
       lower_mana_cost(refresh(lower_mana_cost()));
   if (elem.remove_prop("HITCHANCE", &tmp) && diceValue(tmp, &value))
   {
       hit_chance(apply(hit_chance(), value));
+        orig_hit_chance( static_cast<s16>( value ) );
   }
   if (has_hit_chance())
       hit_chance(refresh(hit_chance()));
   if (elem.remove_prop("FIRERESISTCAP", &tmp) && diceValue(tmp, &value))
   {
       fire_resist_cap(apply(fire_resist_cap(), value));
+        orig_fire_resist_cap( static_cast<s16>( value ) );
   }
   if (has_fire_resist_cap())
       fire_resist_cap(refresh(fire_resist_cap()));
   if (elem.remove_prop("COLDRESISTCAP", &tmp) && diceValue(tmp, &value))
   {
       cold_resist_cap(apply(cold_resist_cap(), value));
+        orig_cold_resist_cap( static_cast<s16>( value ) );
   }
   if (has_cold_resist_cap())
       cold_resist_cap(refresh(cold_resist_cap()));
   if (elem.remove_prop("ENERGYRESISTCAP", &tmp) && diceValue(tmp, &value))
   {
       energy_resist_cap(apply(energy_resist_cap(), value));
+        orig_energy_resist_cap( static_cast<s16>( value ) );
   }
   if (has_energy_resist_cap())
       energy_resist_cap(refresh(energy_resist_cap()));
   if (elem.remove_prop("PHYSICALRESISTCAP", &tmp) && diceValue(tmp, &value))
   {
       physical_resist_cap(apply(physical_resist_cap(), value));
+        orig_physical_resist_cap( static_cast<s16>( value ) );
   }
   if (has_physical_resist_cap())
       physical_resist_cap(refresh(physical_resist_cap()));
   if (elem.remove_prop("POISONRESISTCAP", &tmp) && diceValue(tmp, &value))
   {
       poison_resist_cap(apply(poison_resist_cap(), value));
+        orig_poison_resist_cap( static_cast<s16>( value ) );
   }
   if (has_poison_resist_cap())
       poison_resist_cap(refresh(poison_resist_cap()));
   if (elem.remove_prop("LUCK", &tmp) && diceValue(tmp, &value))
   {
       luck(apply(luck(), value));
+        orig_luck( static_cast<s16>( value ) );
   }
   if (has_luck())
       luck(refresh(luck()));
@@ -1089,38 +1157,38 @@ void NPC::resetEquipablePropertiesNPC()
   if ( has_physical_damage() || has_orig_physical_damage() )
     physical_damage( physical_damage().resetModAsValue().addToValue( orig_physical_damage() ) );
 
-  if (has_lower_reagent_cost())
-      lower_reagent_cost(lower_reagent_cost().resetModAsValue().addToValue(lower_reagent_cost()));
-  if (has_spell_damage_increase())
+  if (has_lower_reagent_cost() || has_orig_lower_reagent_cost() )
+      lower_reagent_cost(lower_reagent_cost().resetModAsValue().addToValue(orig_lower_reagent_cost()));
+  if (has_spell_damage_increase() || has_orig_spell_damage_increase())
       spell_damage_increase(
-          spell_damage_increase().resetModAsValue().addToValue(spell_damage_increase()));
-  if (has_faster_casting())
-      faster_casting(faster_casting().resetModAsValue().addToValue(faster_casting()));
-  if (has_faster_cast_recovery())
+          spell_damage_increase().resetModAsValue().addToValue(orig_spell_damage_increase()));
+  if (has_faster_casting() || has_orig_faster_casting() )
+      faster_casting(faster_casting().resetModAsValue().addToValue(orig_faster_casting()));
+  if (has_faster_cast_recovery() || has_orig_faster_cast_recovery() )
       faster_cast_recovery(
-          faster_cast_recovery().resetModAsValue().addToValue(faster_cast_recovery()));
-  if (has_defence_increase())
-      defence_increase(defence_increase().resetModAsValue().addToValue(defence_increase()));
-  if (has_defence_increase_cap())
+          faster_cast_recovery().resetModAsValue().addToValue(orig_faster_cast_recovery()));
+  if (has_defence_increase() || has_orig_defence_increase() )
+      defence_increase(defence_increase().resetModAsValue().addToValue(orig_defence_increase()));
+  if (has_defence_increase_cap() || has_orig_defence_increase_cap() )
       defence_increase_cap(
-          defence_increase_cap().resetModAsValue().addToValue(defence_increase_cap()));
-  if (has_lower_mana_cost())
-      lower_mana_cost(lower_mana_cost().resetModAsValue().addToValue(lower_mana_cost()));
-  if (has_hit_chance())
-      hit_chance(hit_chance().resetModAsValue().addToValue(hit_chance()));
-  if (has_fire_resist_cap())
-      fire_resist_cap(fire_resist_cap().resetModAsValue().addToValue(fire_resist_cap()));
-  if (has_cold_resist_cap())
-      cold_resist_cap(cold_resist_cap().resetModAsValue().addToValue(cold_resist_cap()));
-  if (has_energy_resist_cap())
-      energy_resist_cap(energy_resist_cap().resetModAsValue().addToValue(energy_resist_cap()));
-  if (has_physical_resist_cap())
+          defence_increase_cap().resetModAsValue().addToValue(orig_defence_increase_cap()));
+  if (has_lower_mana_cost() || has_orig_lower_mana_cost() )
+      lower_mana_cost(lower_mana_cost().resetModAsValue().addToValue(orig_lower_mana_cost()));
+  if (has_hit_chance() || has_orig_hit_chance() )
+      hit_chance(hit_chance().resetModAsValue().addToValue(orig_hit_chance()));
+  if (has_fire_resist_cap() || has_orig_fire_resist_cap() )
+      fire_resist_cap(fire_resist_cap().resetModAsValue().addToValue(orig_fire_resist_cap()));
+  if (has_cold_resist_cap() || has_orig_cold_resist_cap() )
+      cold_resist_cap(cold_resist_cap().resetModAsValue().addToValue(orig_energy_resist_cap()));
+  if (has_energy_resist_cap() || has_orig_energy_resist_cap() )
+      energy_resist_cap(energy_resist_cap().resetModAsValue().addToValue(orig_energy_resist_cap()));
+  if (has_physical_resist_cap() || has_orig_physical_resist_cap() )
       physical_resist_cap(
-          physical_resist_cap().resetModAsValue().addToValue(physical_resist_cap()));
-  if (has_poison_resist_cap())
-      poison_resist_cap(poison_resist_cap().resetModAsValue().addToValue(poison_resist_cap()));
-  if (has_luck())
-      luck(luck().resetModAsValue().addToValue(luck()));
+          physical_resist_cap().resetModAsValue().addToValue(orig_physical_resist_cap()));
+  if (has_poison_resist_cap() || has_orig_poison_resist_cap() )
+      poison_resist_cap(poison_resist_cap().resetModAsValue().addToValue(orig_poison_resist_cap()));
+  if (has_luck() || has_orig_luck() )
+      luck(luck().resetModAsValue().addToValue(orig_luck()));
 }
 
 size_t NPC::estimatedSize() const
