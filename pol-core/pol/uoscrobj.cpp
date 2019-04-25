@@ -2088,19 +2088,19 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( carrying_capacity() );
     break;
   case MBR_FIRE_RESIST:
-    return new BLong( fire_resist().value );
+    return new BLong( fire_resist().sum() );
     break;
   case MBR_COLD_RESIST:
-    return new BLong( cold_resist().value );
+    return new BLong( cold_resist().sum() );
     break;
   case MBR_ENERGY_RESIST:
-    return new BLong( energy_resist().value );
+    return new BLong( energy_resist().sum() );
     break;
   case MBR_POISON_RESIST:
-    return new BLong( poison_resist().value );
+    return new BLong( poison_resist().sum() );
     break;
   case MBR_PHYSICAL_RESIST:
-    return new BLong( physical_resist().value );
+    return new BLong( physical_resist().sum() );
     break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
@@ -2118,19 +2118,19 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_RESIST_CAP:
-      return new BLong(fire_resist_cap().value);
+      return new BLong(fire_resist_cap().sum());
       break;
   case MBR_COLD_RESIST_CAP:
-      return new BLong(cold_resist_cap().value);
+      return new BLong(cold_resist_cap().sum());
       break;
   case MBR_ENERGY_RESIST_CAP:
-      return new BLong(energy_resist_cap().value);
+      return new BLong(energy_resist_cap().sum());
       break;
   case MBR_POISON_RESIST_CAP:
-      return new BLong(poison_resist_cap().value);
+      return new BLong(poison_resist_cap().sum());
       break;
   case MBR_PHYSICAL_RESIST_CAP:
-      return new BLong(physical_resist_cap().value);
+      return new BLong(physical_resist_cap().sum());
       break;
   case MBR_FIRE_RESIST_CAP_MOD:
       return new BLong(fire_resist_cap().mod);
@@ -2148,16 +2148,16 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       return new BLong(physical_resist_cap().mod);
       break;
   case MBR_LOWER_REAG_COST:
-      return new BLong(lower_reagent_cost().value);
+      return new BLong(lower_reagent_cost().sum());
       break;
   case MBR_SPELL_DAMAGE_INCREASE:
-      return new BLong(spell_damage_increase().value);
+      return new BLong(spell_damage_increase().sum());
       break;
   case MBR_FASTER_CASTING:
-      return new BLong(faster_casting().value);
+      return new BLong(faster_casting().sum());
       break;
   case MBR_FASTER_CAST_RECOVERY:
-      return new BLong(faster_cast_recovery().value);
+      return new BLong(faster_cast_recovery().sum());
       break;
   case MBR_LOWER_REAG_COST_MOD:
       return new BLong(lower_reagent_cost().mod);
@@ -2184,16 +2184,16 @@ BObjectImp* Character::get_script_member_id( const int id ) const
       return new BLong(hit_chance().mod);
       break;
   case MBR_DEFENCE_CHANCE_INCREASE:
-      return new BLong(defence_increase().value);
+      return new BLong(defence_increase().sum());
       break;
   case MBR_DEFENCE_CHANCE_INCREASE_CAP:
-      return new BLong(defence_increase_cap().value);
+      return new BLong(defence_increase_cap().sum());
       break;
   case MBR_LOWER_MANA_COST:
-      return new BLong(lower_mana_cost().value);
+      return new BLong(lower_mana_cost().sum());
       break;
   case MBR_HIT_CHANCE:
-      return new BLong(hit_chance().value);
+      return new BLong(hit_chance().sum());
       break;
   case MBR_STATCAP:
     return new BLong( skillstatcap().statcap );
@@ -2202,7 +2202,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( skillstatcap().skillcap );
     break;
   case MBR_LUCK:
-      return new BLong(luck().value);
+      return new BLong(luck().sum());
       break;
   case MBR_LUCK_MOD:
       return new BLong(luck().mod);

@@ -343,8 +343,41 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if (value)
       sw() << "\tFasterCastRecovery\t" << static_cast<int>(value) << pf_endl;
   value = luck().value;
+  if ( value )
+  {
+    INFO_PRINT << "\nValue: " << luck().value << "\n Sum:" << luck().sum()
+               << "\n Mod:" << luck().mod << "\n";
+      sw() << "\tLuck\t" << static_cast<int>(value) << pf_endl;}
+  value = fire_resist().value;
   if (value)
-      sw() << "\tLuck\t" << static_cast<int>(value) << pf_endl;
+      sw() << "\tFireResist\t" << static_cast<int>(value) << pf_endl;
+  value = cold_resist().value;
+  if (value)
+      sw() << "\tColdResist\t" << static_cast<int>(value) << pf_endl;
+  value = energy_resist().value;
+  if (value)
+      sw() << "\tEnergyResist\t" << static_cast<int>(value) << pf_endl;
+  value = poison_resist().value;
+  if (value)
+      sw() << "\tPoisonResist\t" << static_cast<int>(value) << pf_endl;
+  value = physical_resist().value;
+  if (value)
+      sw() << "\tPhysicalResist\t" << static_cast<int>(value) << pf_endl;
+  value = fire_damage().value;
+  if (value)
+      sw() << "\tFireDamage\t" << static_cast<int>(value) << pf_endl;
+  value = cold_damage().value;
+  if (value)
+      sw() << "\tColdDamage\t" << static_cast<int>(value) << pf_endl;
+  value = energy_damage().value;
+  if (value)
+      sw() << "\tEnergyDamage\t" << static_cast<int>(value) << pf_endl;
+  value = poison_damage().value;
+  if (value)
+      sw() << "\tPoisonDamage\t" << static_cast<int>(value) << pf_endl;
+  value = physical_damage().value;
+  if (value)
+      sw() << "\tPhysicalDamage\t" << static_cast<int>(value) << pf_endl;
   // end new prop stuff
   // new mod stuff
   value = lower_reagent_cost().mod;

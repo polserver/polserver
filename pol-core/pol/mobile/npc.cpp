@@ -298,6 +298,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( use_adjustments() != true )
     sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
+  /*
   if ( has_orig_fire_resist() )
     sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
   if ( has_orig_cold_resist() )
@@ -344,7 +345,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( has_orig_poison_resist_cap() )
     sw() << "\tPoisonResistCap\t" << orig_poison_resist_cap() << pf_endl;
   if ( has_orig_luck() )
-    sw() << "\tLuck\t" << orig_luck() << pf_endl;
+    sw() << "\tLuck\t" << orig_luck() << pf_endl;*/
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
@@ -443,17 +444,10 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   if (elem.remove_prop("LOWERREAGENTCOST", &tmp) && diceValue(tmp, &value))
   {
       lower_reagent_cost(apply(lower_reagent_cost(), value));
-    INFO_PRINT << "LRC: " << lower_reagent_cost().value << "\n";
         orig_lower_reagent_cost( static_cast<s16>( value ) );
-    INFO_PRINT << "OLRC: " << orig_lower_reagent_cost() << "\n";
   }
   if (has_lower_reagent_cost())
-      {
-      
-    INFO_PRINT << "SUCCESS HAS! " << lower_reagent_cost().value << "\n";
       lower_reagent_cost(refresh(lower_reagent_cost()));
-    INFO_PRINT << "LRC: " << lower_reagent_cost().value << "\n";
-    }
   if (elem.remove_prop("SPELLDAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
   {
       spell_damage_increase(apply(spell_damage_increase(), value));

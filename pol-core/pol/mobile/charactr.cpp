@@ -658,8 +658,6 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
       sw() << "\tSkillcap\t" << static_cast<int>( cap_value.skillcap ) << pf_endl;
   }
 
-  if ( has_luck() )
-    sw() << "\tLuck\t" << static_cast<int>( luck().value ) << pf_endl;
   if ( has_followers() )
   {
     auto followers_value = followers();
@@ -2524,7 +2522,6 @@ void Character::refresh_ar()
       continue;
     // Let's check all items as base, and handle their element_resists.
     updateEquipableProperties( item );
-
     if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
@@ -2642,60 +2639,60 @@ void Character::resetEquipableProperties()
 {
   //reset resists
   if ( has_fire_resist() )
-    fire_resist( fire_resist().resetModAsValue() );
+    fire_resist( fire_resist() );
   if ( has_cold_resist() )
-    cold_resist( cold_resist().resetModAsValue() );
+    cold_resist( cold_resist() );
   if ( has_energy_resist() )
-    energy_resist( energy_resist().resetModAsValue() );
+    energy_resist( energy_resist() );
   if ( has_poison_resist() )
-    poison_resist( poison_resist().resetModAsValue() );
+    poison_resist( poison_resist() );
   if ( has_physical_resist() )
-    physical_resist( physical_resist().resetModAsValue() );
+    physical_resist( physical_resist() );
 
   //reset caps
   if (has_fire_resist_cap())
-      fire_resist_cap(fire_resist_cap().resetModAsValue());
+      fire_resist_cap(fire_resist_cap());
   if (has_cold_resist_cap())
-      cold_resist_cap(cold_resist_cap().resetModAsValue());
+      cold_resist_cap(cold_resist_cap());
   if (has_energy_resist_cap())
-      energy_resist_cap(energy_resist_cap().resetModAsValue());
+      energy_resist_cap(energy_resist_cap());
   if (has_poison_resist_cap())
-      poison_resist_cap(poison_resist_cap().resetModAsValue());
+      poison_resist_cap(poison_resist_cap());
   if (has_physical_resist_cap())
-      physical_resist_cap(physical_resist_cap().resetModAsValue());
+      physical_resist_cap(physical_resist_cap());
 
   //reset damages
   if ( has_fire_damage() )
-    fire_damage( fire_damage().resetModAsValue() );
+    fire_damage( fire_damage() );
   if ( has_cold_damage() )
-    cold_damage( cold_damage().resetModAsValue() );
+    cold_damage( cold_damage() );
   if ( has_energy_damage() )
-    energy_damage( energy_damage().resetModAsValue() );
+    energy_damage( energy_damage() );
   if ( has_poison_damage() )
-    poison_damage( poison_damage().resetModAsValue() );
+    poison_damage( poison_damage() );
   if ( has_physical_damage() )
-    physical_damage( physical_damage().resetModAsValue() );
+    physical_damage( physical_damage() );
 
   //reset others
   if (has_lower_reagent_cost())
-      lower_reagent_cost(lower_reagent_cost().resetModAsValue());
+      lower_reagent_cost(lower_reagent_cost());
   if (has_spell_damage_increase())
-      spell_damage_increase(spell_damage_increase().resetModAsValue());
+      spell_damage_increase(spell_damage_increase());
   if (has_faster_casting())
-      faster_casting(faster_casting().resetModAsValue());
+      faster_casting(faster_casting());
   if (has_faster_cast_recovery())
-      faster_cast_recovery(faster_cast_recovery().resetModAsValue());
+      faster_cast_recovery(faster_cast_recovery());
 
   if (has_defence_increase())
-      defence_increase(defence_increase().resetModAsValue());
+      defence_increase(defence_increase());
   if (has_defence_increase_cap())
-      defence_increase_cap(defence_increase_cap().resetModAsValue());
+      defence_increase_cap(defence_increase_cap());
   if (has_lower_mana_cost())
-      lower_mana_cost(lower_mana_cost().resetModAsValue());
+      lower_mana_cost(lower_mana_cost());
   if (has_hit_chance())
-      hit_chance(hit_chance().resetModAsValue());
+      hit_chance(hit_chance());
   if (has_luck())
-      luck(luck().resetModAsValue());
+      luck(luck());
 
 }
 
