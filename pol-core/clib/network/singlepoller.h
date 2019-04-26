@@ -1,15 +1,21 @@
 #pragma once
+#ifndef H_SINGLEPOLLER
+#define H_SINGLEPOLLER
 
 #include "sockets.h"
-#include "pollingwithselect.h"
+
+#include "singlepollers/pollingwithpoll.h"
+//#include "singlepollers/pollingwithselect.h"
 
 namespace Pol
 {
 namespace Clib
 {
-using DefaultPoller = PollingWithSelect;
+// This only works for Linux and Windows more recent than Windows Vista / Windows Server 2008. Let
+// us know if anyone still needs Windows XP support (PollingWithSelect). If no one complains, we
+// should remove pollingwithselect in the near future.
+using PollingStrategy = PollingWithPoll;
 
-template <class PollingStrategy = DefaultPoller>
 class SinglePoller
 {
 public:
@@ -46,3 +52,5 @@ private:
 };
 }  // namespace Clib
 }  // namespace Pol
+
+#endif

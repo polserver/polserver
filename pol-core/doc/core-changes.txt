@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+04-06-2019 Nando:
+  Changed: Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain. 
+     Note: POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.
 02-22-2019 Nando:
   Removed: pol.cfg option "ListenPort". It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.
   Removed: pol.cfg option "Multithread". It was deprecated since 2016 and unstable. Also removed the method OS::System_RPM(), which was only useful for singlethreaded POL.

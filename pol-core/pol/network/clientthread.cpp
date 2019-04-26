@@ -56,8 +56,7 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
 
 void report_weird_packet( Network::Client* client, const std::string& why );  // Defined below
 
-template <class T>
-void set_polling_timeouts( Clib::SinglePoller<T>& poller, bool single_threaded_login )
+void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_login )
 {
   if ( !single_threaded_login )
   {
@@ -84,7 +83,7 @@ bool client_io_thread( Network::Client* client, bool login )
   CLIENT_CHECKPOINT( 0 );
   try
   {
-    Clib::SinglePoller<Clib::DefaultPoller> clientpoller( client->csocket );
+    Clib::SinglePoller clientpoller( client->csocket );
     set_polling_timeouts( clientpoller, login );
 
     while ( !Clib::exit_signalled && client->isReallyConnected() )

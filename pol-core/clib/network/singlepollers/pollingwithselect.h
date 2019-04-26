@@ -1,6 +1,9 @@
 #pragma once
+#ifndef H_POLLINGWITHSELECT
+#define H_POLLINGWITHSELECT
 
-#include "sockets.h"
+#include "../../passert.h"
+#include "../sockets.h"
 
 namespace Pol
 {
@@ -76,3 +79,5 @@ private:
 };
 }  // namespace Clib
 }  // namespace Pol
+
+#endif

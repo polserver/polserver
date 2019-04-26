@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-22-2019</datemodified>
+		<datemodified>04-26-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>04-06-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain.</change>
+			<change type="Note">POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.</change>
+		</entry>
 		<entry>
 			<date>02-22-2019</date>
 			<author>Nando:</author>

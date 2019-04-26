@@ -52,10 +52,11 @@ set (clib_sources
   message_queue.h
   mlog.cpp 
   mlog.h
-  network/pollingwithselect.h
   network/sckutil.cpp 
   network/sckutil.h
   network/singlepoller.h
+  network/singlepollers/pollingwithpoll.h
+  network/singlepollers/pollingwithselect.h
   network/sockets.h
   network/socketsvc.cpp 
   network/socketsvc.h
