@@ -26,8 +26,7 @@ namespace Clib
 class PollingWithPoll
 {
 public:
-  explicit PollingWithPoll( SOCKET socket )
-      : default_timeout{0, 0}, processed( false )
+  explicit PollingWithPoll( SOCKET socket ) : default_timeout{0, 0}, processed( false )
   {
     fdList.fd = socket;
     reset();
@@ -42,11 +41,14 @@ public:
   }
 
   void notify_on_incoming() { fdList.events |= POLLIN; }
-  void notify_on_error() {} // do nothing, poll() always notifies on error
+  void notify_on_error() {}  // do nothing, poll() always notifies on error
   void notify_on_writable() { fdList.events |= POLLOUT; }
 
-  bool incoming() { return ( processed ) ? ( (fdList.revents & POLLIN) != 0 ) : false; }
-  bool error() { return ( processed ) ? ( ( fdList.revents & POLLERR ) != 0 ) : false; }
+  bool incoming() { return ( processed ) ? ( ( fdList.revents & POLLIN ) != 0 ) : false; }
+  bool error()
+  {
+    return ( processed ) ? ( ( fdList.revents & ( POLLHUP | POLLERR | POLLNVAL ) ) != 0 ) : false;
+  }
   bool writable() { return ( processed ) ? ( ( fdList.revents & POLLOUT ) != 0 ) : false; }
 
   void set_timeout( int timeout_sec, int timeout_usec )
@@ -78,7 +80,7 @@ public:
   bool valid_socket() { return fdList.fd != INVALID_SOCKET; }
 
 private:
-  pollfd fdList; // a list of 1, this is a single poller
+  pollfd fdList;  // a list of 1, this is a single poller
 
   timeval default_timeout;
   bool processed;
