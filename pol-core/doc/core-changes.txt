@@ -1,7 +1,12 @@
 ﻿-- POL100 --
-04-06-2019 Nando:
+04-26-2019 Nando:
   Changed: Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain. 
      Note: POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.
+  Removed: pol.cfg option "ListenPort". It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.
+  Removed: pol.cfg option "Multithread". It was deprecated since 2016 and unstable. Also removed the method OS::System_RPM(), which was only useful for singlethreaded POL.
+04-26-2019 Turley: 
+    Added: pol.cfg setting "LoginServerTimeout". Defines a timeout for new connections to the loginserver. 
+           Defaults to 10 minutes, should give enough time to select a character.
 03-19-2019 Kevin:
   Changed: attributes::GetAttribute now accepts an optional parameter to specify the precision of the attribute
            value returned. Use ATTRIBUTE_PRECISION_NORMAL (default) to use the existing precision, or 
@@ -12,11 +17,6 @@
   Changed: pol.cfg settings HideWarningGump and HideWarningItem to ShowWarningGump and ShowWarningItem.
            This positive logic is consistent with all other console output settings.
            Default setting is one (1). The output be displayed by default. Set to zero (0) to suppress.
-02-23-2019 Turley: 
-    Added: 10 minute timeout for the loginserver. Should give enough time to select a character.
-02-22-2019 Nando:
-  Removed: pol.cfg option "ListenPort". It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.
-  Removed: pol.cfg option "Multithread". It was deprecated since 2016 and unstable. Also removed the method OS::System_RPM(), which was only useful for singlethreaded POL.
 02-18-2019 Skinny:
   Added:   pol.cfg HideWarningGump and HideWarningItem.
            Many players macros generate warnings messages on the console, causing flooding, especially if you have lots of players online.
