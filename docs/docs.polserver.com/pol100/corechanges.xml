@@ -27,6 +27,11 @@ This positive logic is consistent with all other console output settings.<br/>
 Default setting is one (1). The output be displayed by default. Set to zero (0) to suppress.</change>
 		</entry>
 		<entry>
+			<date>02-23-2019</date>
+			<author>Turley:</author>
+			<change type="Added">10 minute timeout for the loginserver. Should give enough time to select a character.</change>
+		</entry>
+		<entry>
 			<date>02-22-2019</date>
 			<author>Nando:</author>
 			<change type="Removed">pol.cfg option &quot;ListenPort&quot;. It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.</change>
