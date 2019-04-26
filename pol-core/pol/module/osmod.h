@@ -45,7 +45,6 @@ class UOExecutor;
 void run_ready( void );
 void check_blocked( polclock_t* pclocksleft );
 void deschedule_executor( UOExecutor* ex );
-polclock_t calc_script_clocksleft( polclock_t now );
 }  // namespace Core
 namespace Module
 {
@@ -112,7 +111,6 @@ protected:
   Bscript::BObjectImp* mf_parameter();
   Bscript::BObjectImp* mf_set_debug();
   Bscript::BObjectImp* mf_Log();
-  Bscript::BObjectImp* mf_system_rpm();
   Bscript::BObjectImp* mf_set_priority();
   Bscript::BObjectImp* mf_unload_scripts();
   Bscript::BObjectImp* mf_set_script_option();
@@ -151,8 +149,6 @@ protected:
   friend void Core::check_blocked( Core::polclock_t* pclocksleft );
   friend void new_check_blocked( void );
   friend void Core::deschedule_executor( Core::UOExecutor* ex );
-  friend Core::polclock_t Core::calc_script_clocksleft( Core::polclock_t now );
-
 
   void event_occurred( Bscript::BObject event );
 };

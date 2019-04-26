@@ -71,6 +71,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
+#include "../clib/network/sockets.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
@@ -115,7 +116,6 @@
 #include "network/pktboth.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
-#include "network/sockets.h"
 #include "network/sockio.h"
 #include "party.h"
 #include "polcfg.h"
@@ -497,11 +497,6 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
   client->send_restart();  // dave removed force=true 5/10/3
 }
 
-void handle_keep_alive( Network::Client* client, PKTBI_73* msg )
-{
-  transmit( client, msg, sizeof *msg );
-}
-
 void restart_all_clients()
 {
   if ( !networkManager.uoclient_protocol.EnableFlowControlPackets )
@@ -628,39 +623,6 @@ void scripts_thread( void )
   }
 }
 
-void combined_thread( void )
-{
-  polclock_t sleeptime;
-  bool activity;
-  polclock_t script_clocksleft, scheduler_clocksleft;
-  polclock_t sleep_clocks;
-  polclock_t now;
-  while ( !Clib::exit_signalled )
-  {
-    ++stateManager.profilevars.script_passes;
-    do
-    {
-      PolLock lck;
-      step_scripts( &sleeptime, &activity );
-      check_scheduled_tasks( &sleeptime, &activity );
-      restart_all_clients();
-      now = polclock();
-      script_clocksleft = calc_script_clocksleft( now );
-      scheduler_clocksleft = calc_scheduler_clocksleft( now );
-      if ( script_clocksleft < scheduler_clocksleft )
-        sleep_clocks = script_clocksleft;
-      else
-        sleep_clocks = scheduler_clocksleft;
-    } while ( sleep_clocks <= 0 );
-
-    wait_for_pulse( clock_t_to_ms( sleep_clocks ) );
-  }
-}
-
-void decay_thread( void* );
-void decay_thread_shadow( void* );
-void decay_single_thread( void* );
-
 template <class T>
 inline void Delete( T* p )
 {
@@ -731,7 +693,7 @@ void threadstatus_thread( void )
           << stateManager.polsig.active_client_thread_checkpoint << "\n";
       tmp << "Number of clients: " << Core::networkManager.clients.size() << "\n";
       for ( const auto& client : Core::networkManager.clients )
-        tmp << " " << Network::AddressToString( &client->ipaddr ) << " "
+        tmp << " " << client->ipaddrAsString() << " "
             << ( client->acct == nullptr ? "prelogin " : client->acct->name() ) << " "
             << client->checkpoint << "\n";
       if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
@@ -811,18 +773,10 @@ void start_threads()
   if ( Plib::systemstate.config.web_server )
     start_http_server();
 
-  if ( Plib::systemstate.config.multithread == 1 )
-  {
-    checkpoint( "start tasks thread" );
-    threadhelp::start_thread( tasks_thread, "Tasks" );
-    checkpoint( "start scripts thread" );
-    threadhelp::start_thread( scripts_thread, "Scripts" );
-  }
-  else
-  {
-    checkpoint( "start combined scripts/tasks thread" );
-    threadhelp::start_thread( combined_thread, "Combined" );
-  }
+  checkpoint( "start tasks thread" );
+  threadhelp::start_thread( tasks_thread, "Tasks" );
+  checkpoint( "start scripts thread" );
+  threadhelp::start_thread( scripts_thread, "Scripts" );
 
   if ( settingsManager.ssopt.decay_items )
   {
@@ -868,104 +822,6 @@ void start_threads()
 #endif
 }
 
-void check_incoming_data( void )
-{
-  unsigned cli;
-  SOCKET nfds = 0;
-  FD_ZERO( &networkManager.polsocket.recv_fd );
-  FD_ZERO( &networkManager.polsocket.err_fd );
-  FD_ZERO( &networkManager.polsocket.send_fd );
-
-  FD_SET( networkManager.polsocket.listen_socket, &networkManager.polsocket.recv_fd );
-#ifndef _WIN32
-  nfds = networkManager.polsocket.listen_socket + 1;
-#endif
-
-  for ( cli = 0; cli < networkManager.clients.size(); cli++ )
-  {
-    Network::Client* client = networkManager.clients[cli];
-
-    FD_SET( client->csocket, &networkManager.polsocket.recv_fd );
-    FD_SET( client->csocket, &networkManager.polsocket.err_fd );
-    if ( client->have_queued_data() )
-      FD_SET( client->csocket, &networkManager.polsocket.send_fd );
-
-    if ( ( SOCKET )( client->csocket + 1 ) > nfds )
-      nfds = client->csocket + 1;
-  }
-
-  int res;
-  do
-  {
-    networkManager.polsocket.select_timeout.tv_sec = 0;
-    networkManager.polsocket.select_timeout.tv_usec = Plib::systemstate.config.select_timeout_usecs;
-    res = select( static_cast<int>( nfds ), &networkManager.polsocket.recv_fd,
-                  &networkManager.polsocket.send_fd, &networkManager.polsocket.err_fd,
-                  &networkManager.polsocket.select_timeout );
-  } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
-
-
-  if ( res <= 0 )
-    return;
-
-  for ( cli = 0; cli < networkManager.clients.size(); cli++ )
-  {
-    Network::Client* client = networkManager.clients[cli];
-
-    if ( !client->isReallyConnected() )
-      continue;
-
-    if ( FD_ISSET( client->csocket, &networkManager.polsocket.err_fd ) )
-    {
-      client->forceDisconnect();
-    }
-
-    if ( FD_ISSET( client->csocket, &networkManager.polsocket.recv_fd ) )
-    {
-      process_data( client );
-    }
-
-    if ( client->have_queued_data() &&
-         FD_ISSET( client->csocket, &networkManager.polsocket.send_fd ) )
-    {
-      client->send_queued_data();
-    }
-  }
-
-  networkManager.kill_disconnected_clients();
-
-  if ( FD_ISSET( networkManager.polsocket.listen_socket, &networkManager.polsocket.recv_fd ) )
-  {
-    struct sockaddr client_addr;  // inet_addr
-    socklen_t addrlen = sizeof client_addr;
-    SOCKET client_socket = accept( networkManager.polsocket.listen_socket, &client_addr, &addrlen );
-    if ( client_socket == INVALID_SOCKET )
-      return;
-
-    Network::apply_socket_options( client_socket );
-    if ( Plib::systemstate.config.disable_nagle )
-    {
-      Network::disable_nagle( client_socket );
-    }
-
-    fmt::Writer tmp;
-    tmp.Format( "Client connected from {}\n" ) << Network::AddressToString( &client_addr );
-    INFO_PRINT << tmp.str();
-    if ( Plib::systemstate.config.loglevel >= 2 )
-      POLLOG << tmp.str();
-
-    Network::Client* client =
-        new Network::Client( *Core::networkManager.uo_client_interface.get(),
-                             Plib::systemstate.config.client_encryption_version );
-    client->csocket = client_socket;
-    memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
-    // Added null setting for pre-char selection checks using nullptr validation
-    client->acct = nullptr;
-
-    networkManager.clients.push_back( client );
-    INFO_PRINT << "Client connected (Total: " << networkManager.clients.size() << ")\n";
-  }
-}
 #if REFPTR_DEBUG
 unsigned int ref_counted::_ctor_calls;
 #endif
@@ -1279,71 +1135,22 @@ int xmain_inner( bool testing )
 
   // PrintAllocationData();
 
-  // onetime_create_stubdata();
-
   Core::checkpoint( "running start scripts" );
   Core::run_start_scripts();
 
   Core::checkpoint( "starting client listeners" );
   Core::start_uo_client_listeners();
 
-  if ( Plib::systemstate.config.listen_port )
-  {
-    if ( Plib::systemstate.config.multithread )
-    {
-      // TODO: remove this warning after some releases...
+  POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
 
-      POLLOG_ERROR << "\n\n"
-                   << "+----------------------------------------------------------------------+\n"
-                   << "| Option ListenPort in pol.cfg is now only for non-multithreading      |\n"
-                   << "| systems. If you still haven't done it, please read the documentation |\n"
-                   << "| on how to create a uoclients.cfg.                                    |\n"
-                   << "+----------------------------------------------------------------------+\n"
-                   << "\n\n";
-
-      throw std::runtime_error(
-          "ListenPort is no longer used for multithreading programs (Multithread == 1)." );
-    }
-    Core::checkpoint( "opening listen socket" );
-    Core::networkManager.polsocket.listen_socket =
-        Network::open_listen_socket( Plib::systemstate.config.listen_port );
-    if ( Core::networkManager.polsocket.listen_socket == INVALID_SOCKET )
-    {
-      POLLOG_ERROR << "Unable to listen on socket " << Plib::systemstate.config.listen_port << "\n";
-      return 1;
-    }
-  }
-
-  //  if( 1 )
-  {
-    POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
-  }
-  // if( 1 )
-  {
-    DEINIT_STARTLOG();
-  }
+  DEINIT_STARTLOG();
   POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" )
       << POL_VERSION_ID << Clib::ProgramConfig::build_target()
       << Clib::ProgramConfig::build_datetime();
-  // if( 1 )
-  {
-    if ( Plib::systemstate.config.multithread == 0 )
-    {
-      POLLOG_INFO << "\n"
-                     "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-                     "WARNING: Threading is disabled (Multithread==0 in pol.cfg).    \n"
-                     "         This setting is deprecated and will be removed from   \n"
-                     "         the next version of POL. It may not even work now!    \n"
-                     "         Only use this option if you really know what you are  \n"
-                     "         doing. And you probably don't.                        \n"
-                     "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-                     "\n";
-    }
-    POLLOG_INFO << "Game is active.\n";
-  }
-  Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
-  // goto skip;
+  POLLOG_INFO << "Game is active.\n";
+
+  Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
   Core::restart_pol_clocks();
   Core::polclock_checkin();
@@ -1355,58 +1162,32 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting periodic tasks" );
   Core::start_tasks();
 
-  if ( Plib::systemstate.config.multithread )
-  {
-    Core::checkpoint( "starting threads" );
-    Core::start_threads();
-    Network::start_aux_services();
+  Core::checkpoint( "starting threads" );
+  Core::start_threads();
+  Network::start_aux_services();
 
 #ifdef _WIN32
-    Core::console_thread();
-    Core::checkpoint( "exit signal detected" );
-    Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
+  Core::console_thread();
+  Core::checkpoint( "exit signal detected" );
+  Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
 #else
-    // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
-    // supposed to.
-    // therefore, we have to do this signal checking in this thread.
-    threadhelp::start_thread( Core::console_thread, "Console" );
+  // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
+  // supposed to.
+  // therefore, we have to do this signal checking in this thread.
+  threadhelp::start_thread( Core::console_thread, "Console" );
 
-    Core::catch_signals_thread();
+  Core::catch_signals_thread();
 #endif
-    Core::checkpoint( "waiting for child threads to exit" );
-    // NOTE that it's possible that the thread_status thread not have exited yet..
-    // it signals the catch_signals_thread (this one) just before it exits.
-    // and on windows, we get here right after the console thread exits.
-    while ( threadhelp::child_threads )
-    {
-      Core::pol_sleep_ms( 1000 );
-    }
-    Core::checkpoint( "child threads have shut down" );
-  }
-  else
+  Core::checkpoint( "waiting for child threads to exit" );
+  // NOTE that it's possible that the thread_status thread not have exited yet..
+  // it signals the catch_signals_thread (this one) just before it exits.
+  // and on windows, we get here right after the console thread exits.
+  while ( threadhelp::child_threads )
   {
-    Core::polclock_t sleeptime;
-    bool activity;
-    while ( !Clib::exit_signalled )
-    {
-      Core::stateManager.last_checkpoint = "receiving TCP/IP data";
-      Core::check_incoming_data();
-      Core::stateManager.last_checkpoint = "running scheduled tasks";
-      Core::check_scheduled_tasks( &sleeptime, &activity );
-      Core::stateManager.last_checkpoint = "stepping scripts";
-      Core::step_scripts( &sleeptime, &activity );
-      Core::stateManager.last_checkpoint = "performing decay";
-      if ( Core::settingsManager.ssopt.decay_items )
-        Core::decay_items();
-      Core::stateManager.last_checkpoint = "reaping objects";
-      Core::objStorageManager.objecthash.Reap();
-      Core::stateManager.last_checkpoint = "restarting clients";
-
-      Core::restart_all_clients();
-
-      ++Core::stateManager.profilevars.rotations;
-    }
+    Core::pol_sleep_ms( 1000 );
   }
+  Core::checkpoint( "child threads have shut down" );
+
   Core::cancel_all_trades();
   Core::stop_gameclock();
   POLLOG_INFO << "Shutting down...\n";

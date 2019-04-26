@@ -110,36 +110,6 @@ void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
 }
 
 
-// this is used in single-thread mode only
-void decay_items()
-{
-  static unsigned wx = ~0u;
-  static unsigned wy = 0;
-
-  Realms::Realm* realm;
-  for ( auto itr = gamestate.Realms.begin(); itr != gamestate.Realms.end(); ++itr )
-  {
-    realm = *itr;
-    if ( !--stateManager.cycles_until_decay_worldzone )
-    {
-      stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;
-
-      unsigned gridwidth = realm->grid_width();
-      unsigned gridheight = realm->grid_height();
-
-      if ( ++wx >= gridwidth )
-      {
-        wx = 0;
-        if ( ++wy >= gridheight )
-        {
-          wy = 0;
-        }
-      }
-      decay_worldzone( wx, wy, realm );
-    }
-  }
-}
-
 ///
 /// [3] Decay Sweep
 ///     Each 64x64 tile World Zone is checked for decay approximately
@@ -310,5 +280,5 @@ void decay_single_thread( void* arg )
     pol_sleep_ms( sleeptime );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

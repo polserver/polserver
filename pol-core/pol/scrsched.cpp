@@ -107,28 +107,6 @@ void check_blocked( polclock_t* pclocksleft )
   *pclocksleft = clocksleft;
 }
 
-polclock_t calc_script_clocksleft( polclock_t now )
-{
-  if ( !scriptScheduler.getRunlist().empty() )
-  {
-    return 0;  // we want to run immediately
-  }
-  else if ( !scriptScheduler.getHoldlist().empty() )
-  {
-    auto itr = scriptScheduler.getHoldlist().cbegin();
-    UOExecutor* ex = ( *itr ).second;
-    polclock_t clocksleft = ex->sleep_until_clock() - now;
-    if ( clocksleft >= 0 )
-      return clocksleft;
-    else
-      return 0;
-  }
-  else
-  {
-    return -1;
-  }
-}
-
 void step_scripts( polclock_t* clocksleft, bool* pactivity )
 {
   THREAD_CHECKPOINT( scripts, 102 );

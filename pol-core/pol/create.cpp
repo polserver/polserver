@@ -201,7 +201,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 {
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
+    ERROR_PRINT << "Client from " << client->ipaddrAsString()
                 << " tried to create a character without an account!\n";
     client->forceDisconnect();
     return;
@@ -597,7 +597,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   int charslot = ctBEu32( msg->char_slot );
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
+    ERROR_PRINT << "Client from " << client->ipaddrAsString()
                 << " tried to create a character without an account!\n";
     client->Disconnect();
     return;
@@ -955,7 +955,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 {
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
+    ERROR_PRINT << "Client from " << client->ipaddrAsString()
                 << " tried to create a character without an account!\n";
     client->forceDisconnect();
     return;

@@ -117,7 +117,7 @@ Listener
     <explain>The right-hand-side "Life", "Mana", and "Stamina" are Vital names that MUST be defined in vitals.cfg.</explain>
     <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
     <explain>The Protocol and Listener sections are optional.</explain>
-    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section. If you use Listeners set ListenPort in pol.cfg to 0.</explain>
+    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section.</explain>
     <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
     <explain>MethodScript: General Methodscript for characters Deprecated!</explain>
@@ -474,7 +474,7 @@ GameServer
     <explain>IP address must match the address in the clients' login.cfg files. This means if your game server is on a LAN not accessable from the internet (doing port forwarding from a router), you must define this game server IP as your router's internet IP address.</explain>
     <explain>--ip-- attempts to find your non-LAN, non-localhost IP address. If you have a multihomed server, this may behave strangely.</explain>
     <explain>--lan-- attempts to find you non-routable LAN IP address, if any (i.e. '192.168.*.*' or '10.*.*.*').</explain>
-    <explain>Port is the listening port of the Game Server, not the login server (though they may be the same). See ListenPort in pol.cfg</explain>
+    <explain>Port is the listening port of the Game Server, not the login server (though they may be the same). It's often the listener's Port in uoclients.cfg</explain>
     <explain>Example IPMatch value: 192.168.0.0/255.255.255.0 would prevent anyone with an IP address other than 192.168.0.* from seeing the gameserver.</explain>
     <explain>AcctMatch lines have one account name per line, and are those accounts to show the given server to on login to the 'login server'.</explain>
     <related>movecost.cfg</related>
@@ -889,10 +889,8 @@ UoDataFileRoot=(path to UO MUL files)
 WorldDataPath=(path to POL Data files {default data/})
 RealmDataPath=(path to POL Realm files {default realm/})
 PidFilePath=(where POL will write its .pid file {default ./})
-[ListenPort=(integer TCP port)]
 [ClientEncryptionVersion=(string {default none})]
 [CountResourceTiles=(1/0 {default 1}]
-[Multithread=(1/0 {default 1})]
 [WebServer=(1/0 {default 0})]
 [WebServerPort=(int port {default 8080})]
 [IgnoreLoadErrors=(1/0 {default 0})]
@@ -963,7 +961,6 @@ PidFilePath=(where POL will write its .pid file {default ./})
             default for both is "none"
     <explain>Clarification: for ClientEncryptionVersion, the allowable values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'. Here, 'ignition', 'uorice', and 'none' all mean 'no encryption'.</explain>
     <explain>Due to autocalculation 'major.minor.build' means setting a listener for client 7.0.4.1 '7.0.4' (no patch)</explain>
-    <explain>ListenPort is now optional, use uoclient.cfg Listener sections to define listening ports.</explain>
     <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>

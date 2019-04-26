@@ -2,9 +2,23 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-19-2019</datemodified>
+		<datemodified>04-26-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>04-26-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain.</change>
+			<change type="Note">POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.</change>
+			<change type="Removed">pol.cfg option &quot;ListenPort&quot;. It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.</change>
+			<change type="Removed">pol.cfg option &quot;Multithread&quot;. It was deprecated since 2016 and unstable. Also removed the method OS::System_RPM(), which was only useful for singlethreaded POL.</change>
+		</entry>
+		<entry>
+			<date>04-26-2019</date>
+			<author>Turley:</author>
+			<change type="Added">pol.cfg setting &quot;LoginServerTimeout&quot;. Defines a timeout for new connections to the loginserver.<br/>
+Defaults to 10 minutes, should give enough time to select a character.</change>
+		</entry>
 		<entry>
 			<date>03-19-2019</date>
 			<author>Kevin:</author>

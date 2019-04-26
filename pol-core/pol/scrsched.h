@@ -19,7 +19,7 @@ namespace Bscript
 {
 class BObjectImp;
 class EScriptProgram;
-}
+}  // namespace Bscript
 namespace Module
 {
 class UOExecutorModule;
@@ -40,8 +40,6 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
                                         Bscript::BObjectImp* param3 = nullptr );
 Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
                                         Bscript::BObjectImp* param );
-
-polclock_t calc_script_clocksleft( polclock_t now );
 
 UOExecutor* create_script_executor();
 UOExecutor* create_full_script_executor();
@@ -98,6 +96,6 @@ bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1, Bscript:
                   Bscript::BObjectImp* param7 );
 
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

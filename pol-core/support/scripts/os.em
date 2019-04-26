@@ -80,14 +80,6 @@ Run_Script( script_name, param := 0 );
     //
 SysLog( text );
 
-
-    //
-    // system_rpm(): returns the system RPM, which is the number of
-    //               "game loop rotations" completed in the last minute.
-    //               This can be zero!
-    //
-System_RPM();
-
 	//
 	// clear_event_queue(): Empties the event queue of the current script.
 	//

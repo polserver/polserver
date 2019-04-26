@@ -6,7 +6,6 @@ set (clib_sources
   Debugging/LogSink.cpp
   Debugging/LogSink.h
   Header_Windows.h
-  Header_Windows.h                                
   Program/ProgramConfig.cpp
   Program/ProgramConfig.h
   Program/ProgramMain.cpp
@@ -53,6 +52,16 @@ set (clib_sources
   message_queue.h
   mlog.cpp 
   mlog.h
+  network/sckutil.cpp 
+  network/sckutil.h
+  network/singlepoller.h
+  network/singlepollers/pollingwithpoll.h
+  network/singlepollers/pollingwithselect.h
+  network/sockets.h
+  network/socketsvc.cpp 
+  network/socketsvc.h
+  network/wnsckt.cpp
+  network/wnsckt.h
   opnew.cpp
   opnew.h
   passert.cpp
@@ -61,10 +70,6 @@ set (clib_sources
   random.h
   rawtypes.h
   refptr.h
-  sckutil.cpp 
-  sckutil.h
-  socketsvc.cpp 
-  socketsvc.h
   spinlock.h
   stlutil.h
   stracpy.cpp
@@ -84,8 +89,6 @@ set (clib_sources
   wallclock.cpp
   wallclock.h
   weakptr.h
-  wnsckt.cpp
-  wnsckt.h
   xmain.cpp
   #pol_global_config_win.h
   #vld.h

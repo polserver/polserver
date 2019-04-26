@@ -47,9 +47,6 @@ struct ProfileVars
 
   CLOCK_PROFILEVAR( npc_search );
 
-  size_t rotations, last_rotations;
-  size_t last_rpm;
-
   // unsigned int instructions;
   u64 last_instructions;
   size_t last_sipm;

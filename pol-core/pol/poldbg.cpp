@@ -23,14 +23,14 @@
 #include "../bscript/impstr.h"
 #include "../clib/clib.h"
 #include "../clib/esignal.h"
+#include "../clib/network/sckutil.h"
+#include "../clib/network/socketsvc.h"
+#include "../clib/network/wnsckt.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
-#include "../clib/sckutil.h"
-#include "../clib/socketsvc.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/weakptr.h"
-#include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
 #include "module/uomod.h"
 #include "scrdef.h"
@@ -1279,7 +1279,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
 class DebugClientThread : public Clib::SocketClientThread
 {
 public:
-  DebugClientThread( Clib::SocketListener& SL ) : Clib::SocketClientThread( SL ) {}
+  DebugClientThread( Clib::Socket&& sock ) : Clib::SocketClientThread( std::move( sock ) ) {}
   virtual void run() override;
 };
 
@@ -1321,13 +1321,14 @@ void debug_listen_thread( void )
     Clib::SocketListener SL( Plib::systemstate.config.debug_port );
     while ( !Clib::exit_signalled )
     {
-      if ( SL.GetConnection( 5 ) )
+      Clib::Socket sock;
+      if ( SL.GetConnection( &sock, 5 ) && sock.connected() )
       {
-        Clib::SocketClientThread* p = new DebugClientThread( SL );
+        Clib::SocketClientThread* p = new DebugClientThread( std::move( sock ) );
         p->start();
       }
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

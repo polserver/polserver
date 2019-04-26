@@ -31,12 +31,12 @@
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 // TODO: get rid of the dependencies and move to plib
-#include "core.h" // todo save_full does not belong here
-#include "globals/state.h" // todo polsig dependency
-#include "globals/uvars.h" // todo split write task
+#include "core.h"           // todo save_full does not belong here
+#include "globals/state.h"  // todo polsig dependency
+#include "globals/uvars.h"  // todo split write task
 #include "objtype.h"
-#include "polsig.h" // thread_checkpoint
-#include "proplist.h" // todo like uvars
+#include "polsig.h"    // thread_checkpoint
+#include "proplist.h"  // todo like uvars
 
 namespace Pol
 {
@@ -72,10 +72,8 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.pidfile_path =
         Clib::normalized_dir_form( Plib::systemstate.config.pidfile_path );
 
-    Plib::systemstate.config.listen_port = elem.remove_ushort( "ListenPort", 0 );
     Plib::systemstate.config.check_integrity = true;  // elem.remove_bool( "CheckIntegrity", true );
     Plib::systemstate.config.count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
-    Plib::systemstate.config.multithread = elem.remove_ushort( "Multithread", 1 );
     Plib::systemstate.config.web_server = elem.remove_bool( "WebServer", false );
     Plib::systemstate.config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
 
@@ -107,6 +105,8 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.watch_mapcache = elem.remove_bool( "WatchMapCache", false );
   Plib::systemstate.config.loglevel = elem.remove_ushort( "LogLevel", 0 );
   Plib::systemstate.config.select_timeout_usecs = elem.remove_ushort( "SelectTimeout", 10 );
+  Plib::systemstate.config.loginserver_timeout_mins =
+      elem.remove_ushort( "LoginServerTimeout", 10 );
   Plib::systemstate.config.watch_rpm = elem.remove_bool( "WatchRpm", false );
   Plib::systemstate.config.watch_sysload = elem.remove_bool( "WatchSysLoad", false );
   Plib::systemstate.config.log_sysload = elem.remove_bool( "LogSysLoad", false );
@@ -311,5 +311,5 @@ bool PolConfig::report_program_aborts()
 {
   return Clib::ExceptionParser::programAbortReporting();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
