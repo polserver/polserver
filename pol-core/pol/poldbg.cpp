@@ -32,7 +32,6 @@
 #include "../clib/strutil.h"
 #include "../clib/weakptr.h"
 #include "../plib/systemstate.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "scrdef.h"
 #include "scrsched.h"
@@ -562,8 +561,8 @@ std::string DebugContext::cmd_detach()
     return "No script attached.";
 
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( uoexec->os_module->in_debugger_holdlist() )
-    uoexec->os_module->revive_debugged();
+  if ( uoexec->in_debugger_holdlist() )
+    uoexec->revive_debugged();
 
   uoexec->detach_debugger();
   uoexec_wptr.clear();
@@ -593,7 +592,7 @@ std::string DebugContext::cmd_start( const std::string& rest )
 
   UOExecutor* uoexec = static_cast<UOExecutor*>( &new_uoemod->exec );
 
-  return "PID " + Clib::tostring( uoexec->os_module->pid() );
+  return "PID " + Clib::tostring( uoexec->pid() );
 }
 
 BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script );
@@ -876,11 +875,11 @@ std::string DebugContext::cmd_instrace()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_ins_trace();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Tracing.";
 }
 
@@ -889,11 +888,11 @@ std::string DebugContext::cmd_stepinto()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_step_into();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Stepping In.";
 }
 
@@ -902,11 +901,11 @@ std::string DebugContext::cmd_stepover()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_step_over();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Stepping Over.";
 }
 
@@ -915,11 +914,11 @@ std::string DebugContext::cmd_run()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_run();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Running.";
 }
 std::string DebugContext::cmd_break()
@@ -927,7 +926,7 @@ std::string DebugContext::cmd_break()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  // if (!uoexec->os_module->in_debugger_holdlist())
+  // if (!uoexec->in_debugger_holdlist())
   //    return "Script not ready to trace.";
 
   uoexec->dbg_break();

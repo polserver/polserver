@@ -952,8 +952,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ReportAdminEmail=(string email {default ""})]
 [ReportServer=(string servername {default "polserver.com"})]
 [ReportURL=(string url {default "/pol/report_program_abort.php"})]
-[HideWarningGump=(1/0 {default 0})]
-[HideWarningItem=(1/0 {default 0})]
+[ShowWarningGump=(1/0 {default 1})]
+[ShowWarningItem=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
@@ -971,8 +971,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>EnforceMountObjtype: will enforce that only items with the mount objtype (as defined in extobj.cfg) can be mounted.</explain>
     <explain>AllowMultiClientsPerAccount: when true, will allow multiple characters from the same account to be logged in at the same time</explain>
     <explain>ProfileCProps: when true, will record CProp usage statistics. Helps detecting unused CProps, at the cost of some RAM and an unnoticeable performance impact. It should be enabled from startup, or the core will be unable to detect the type of some CProps.</explain>
-    <explain>HideWarningGump: will hide unexpected gump warning messages on the console.</explain>
-    <explain>HideWarningItem: will hide equip item and drop item warning messages on the console.</explain>
+    <explain>ShowWarningGump: will show unexpected gump warning messages on the console.</explain>
+    <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
 </cfgfile>
 
 

@@ -14,7 +14,6 @@
 #include "../../plib/systemstate.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
@@ -59,7 +58,7 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
     ex->pushArg( new Module::ECharacterRefObjImp( this ) );
   }
 
-  ex->os_module->priority = 100;
+  ex->priority(100);
 
   if ( ex->setProgram( prog ) )
   {
@@ -109,7 +108,7 @@ void Item::walk_on( Mobile::Character* chr )
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->os_module->priority = 100;
+      ex->priority(100);
 
       if ( ex->setProgram( prog.get() ) )
       {

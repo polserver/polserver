@@ -32,7 +32,6 @@
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "mobile/wornitems.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/client.h"
 #include "network/pktdef.h"
@@ -555,7 +554,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
@@ -939,7 +938,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
@@ -1358,7 +1357,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
