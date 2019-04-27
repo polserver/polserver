@@ -1297,25 +1297,72 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       break;
 
   case MBR_FIRE_DAMAGE_MOD:
-    fire_damage( fire_damage().setAsMod( static_cast<short>( value ) ) );
-    return new BLong( static_cast<short>( value ) );
-    break;
+      fire_damage(fire_damage().setAsMod(static_cast<short>(value)));
+      if (container != NULL)
+      {
+          if (Core::IsCharacter(container->serial))
+          {
+              Mobile::Character* chr = chr_from_wornitems(container);
+              if (chr != NULL)
+                  chr->refresh_ar();
+          }
+      }
+      return new BLong(fire_damage().mod);
+      break;
   case MBR_COLD_DAMAGE_MOD:
-    cold_damage( cold_damage().setAsMod( static_cast<short>( value ) ) );
-    return new BLong( static_cast<short>( value ) );
-    break;
+    cold_damage(cold_damage().setAsMod(static_cast<short>(value)));
+      if (container != NULL)
+      {
+          if (Core::IsCharacter(container->serial))
+          {
+              Mobile::Character* chr = chr_from_wornitems(container);
+              if (chr != NULL)
+                  chr->refresh_ar();
+          }
+      }
+      return new BLong(cold_damage().mod);
+      break;
   case MBR_ENERGY_DAMAGE_MOD:
-    energy_damage( energy_damage().setAsMod( static_cast<short>( value ) ) );
-    return new BLong( static_cast<short>( value ) );
-    break;
+    energy_damage(energy_damage().setAsMod(static_cast<short>(value)));
+      if (container != NULL)
+      {
+          if (Core::IsCharacter(container->serial))
+          {
+              Mobile::Character* chr = chr_from_wornitems(container);
+              if (chr != NULL)
+                  chr->refresh_ar();
+          }
+      }
+      return new BLong(energy_damage().mod);
+      break;
   case MBR_POISON_DAMAGE_MOD:
-    poison_damage( poison_damage().setAsMod( static_cast<short>( value ) ) );
-    return new BLong( static_cast<short>( value ) );
-    break;
+    poison_damage(poison_damage().setAsMod(static_cast<short>(value)));
+      if (container != NULL)
+      {
+          if (Core::IsCharacter(container->serial))
+          {
+              Mobile::Character* chr = chr_from_wornitems(container);
+              if (chr != NULL)
+                  chr->refresh_ar();
+          }
+      }
+      return new BLong(poison_damage().mod);
+      break;
+    
   case MBR_PHYSICAL_DAMAGE_MOD:
-    physical_damage( physical_damage().setAsMod( static_cast<short>( value ) ) );
-    return new BLong( static_cast<short>( value ) );
-    break;
+    physical_damage(physical_damage().setAsMod(static_cast<short>(value)));
+      if (container != NULL)
+      {
+          if (Core::IsCharacter(container->serial))
+          {
+              Mobile::Character* chr = chr_from_wornitems(container);
+              if (chr != NULL)
+                  chr->refresh_ar();
+          }
+      }
+      return new BLong(physical_damage().mod);
+      break;
+    
   case MBR_LOWER_REAG_COST_MOD:
       lower_reagent_cost(lower_reagent_cost().setAsMod(static_cast<short>(value)));
       if (container != NULL)
@@ -2217,19 +2264,19 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( followers().followers );
     break;
   case MBR_FIRE_DAMAGE:
-    return new BLong( fire_damage().value );
+    return new BLong( fire_damage().sum() );
     break;
   case MBR_COLD_DAMAGE:
-    return new BLong( cold_damage().value );
+    return new BLong( cold_damage().sum() );
     break;
   case MBR_ENERGY_DAMAGE:
-    return new BLong( energy_damage().value );
+    return new BLong( energy_damage().sum() );
     break;
   case MBR_POISON_DAMAGE:
-    return new BLong( poison_damage().value );
+    return new BLong( poison_damage().sum() );
     break;
   case MBR_PHYSICAL_DAMAGE:
-    return new BLong( physical_damage().value );
+    return new BLong( physical_damage().sum() );
     break;
   case MBR_FIRE_DAMAGE_MOD:
     return new BLong( fire_damage().mod );

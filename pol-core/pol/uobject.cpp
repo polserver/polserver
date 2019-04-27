@@ -344,10 +344,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
       sw() << "\tFasterCastRecovery\t" << static_cast<int>(value) << pf_endl;
   value = luck().value;
   if ( value )
-  {
-    INFO_PRINT << "\nValue: " << luck().value << "\n Sum:" << luck().sum()
-               << "\n Mod:" << luck().mod << "\n";
-      sw() << "\tLuck\t" << static_cast<int>(value) << pf_endl;}
+      sw() << "\tLuck\t" << static_cast<int>(value) << pf_endl;
   value = fire_resist().value;
   if (value)
       sw() << "\tFireResist\t" << static_cast<int>(value) << pf_endl;
