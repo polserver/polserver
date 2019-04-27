@@ -41,6 +41,8 @@
 #include "../uoexec.h"
 #include "npcmod.h"
 #include "uomod.h"
+#include "../uoasynchandler.h"
+
 
 
 #ifdef _WIN32
@@ -59,16 +61,16 @@ namespace Module
 {
 using namespace Bscript;
 
-unsigned int getnewpid( Core::UOExecutor* uoexec )
+unsigned int getnewpid( Core::UOExecutor* otherExec )
 {
-  return Core::scriptScheduler.get_new_pid( uoexec );
+  return Core::scriptScheduler.get_new_pid( otherExec );
 }
 void freepid( unsigned int pid )
 {
   Core::scriptScheduler.free_pid( pid );
 }
 
-OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
+OSExecutorModule::OSExecutorModule( Core::UOExecutor& exec )
     : TmplExecutorModule<OSExecutorModule>( exec ),
       critical_( false ),
       priority_( 1 ),
@@ -78,7 +80,10 @@ OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
       hold_itr_(),
       in_hold_list_( Core::HoldListType::NO_LIST ),
       wait_type( Core::WAIT_TYPE::WAIT_UNKNOWN ),
-      pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
+      sleepRequest_( nullptr ),
+      sleepReturnImp_( nullptr ),
+      uoexec( exec ),
+      pid_( getnewpid( &uoexec ) ),
       max_eventqueue_size( Core::MAX_EVENTQUEUE_SIZE ),
       events_()
 {
@@ -92,6 +97,15 @@ OSExecutorModule::~OSExecutorModule()
   {
     Bscript::BObject ob( events_.front() );
     events_.pop_front();
+  }
+  if ( sleepRequest_ != nullptr )
+  {
+    sleepRequest_->abort();
+  }
+  if ( sleepReturnImp_ != nullptr )
+  {
+    delete sleepReturnImp_;
+    sleepReturnImp_ = nullptr;
   }
 }
 
@@ -107,10 +121,10 @@ BObjectImp* OSExecutorModule::mf_Create_Debug_Context()
 
 BObjectImp* OSExecutorModule::mf_Debugger()
 {
-  Core::UOExecutor* uoexec;
-  if ( find_uoexec( pid_, &uoexec ) )
+  Core::UOExecutor* otherExec;
+  if ( find_uoexec( pid_, &otherExec ) )
   {
-    uoexec->attach_debugger();
+    otherExec->attach_debugger();
     return new BLong( 1 );
   }
   else
@@ -124,9 +138,9 @@ BObjectImp* OSExecutorModule::mf_GetProcess()
   {
     pid = pid_;
   }
-  Core::UOExecutor* uoexec;
-  if ( find_uoexec( pid, &uoexec ) )
-    return new Core::ScriptExObjImp( uoexec );
+  Core::UOExecutor* otherExec;
+  if ( find_uoexec( pid, &otherExec ) )
+    return new Core::ScriptExObjImp( otherExec );
   else
     return new BError( "Process not found" );
 }
@@ -154,10 +168,7 @@ BObjectImp* OSExecutorModule::mf_Sleep()
   int nsecs;
 
   nsecs = (int)exec.paramAsLong( 0 );
-
-  SleepFor( nsecs );
-
-  return new BLong( 0 );
+  return SleepForMs( nsecs * 1000, new BLong( 0 ) );
 }
 
 BObjectImp* OSExecutorModule::mf_Sleepms()
@@ -166,9 +177,7 @@ BObjectImp* OSExecutorModule::mf_Sleepms()
 
   msecs = (int)exec.paramAsLong( 0 );
 
-  SleepForMs( msecs );
-
-  return new BLong( 0 );
+  return SleepForMs( msecs, new BLong( 0 ) );
 }
 
 BObjectImp* OSExecutorModule::mf_Wait_For_Event()
@@ -225,8 +234,8 @@ BObjectImp* OSExecutorModule::mf_Start_Script()
     {
       new_uoemod->controller_ = this_uoemod->controller_;
     }
-    Core::UOExecutor* uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
-    return new Core::ScriptExObjImp( uoexec );
+    Core::UOExecutor* otherExec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
+    return new Core::ScriptExObjImp( otherExec );
   }
   else
   {
@@ -385,7 +394,7 @@ BObjectImp* OSExecutorModule::mf_Run_Script()
         new_uoemod->controller_ = this_uoemod->controller_;
       }
       Core::UOExecutor* new_uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
-      //      OSExecutorModule* osemod = uoexec->os_module;
+      //      OSExecutorModule* osemod = otherExec->os_module;
       new_uoexec->pParent = this_uoexec;
       this_uoexec->pChild = new_uoexec;
 
@@ -790,36 +799,45 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
   return true;  // Event was successfully sent (perhaps by discarding old events)
 }
 
-void OSExecutorModule::SleepFor( int nsecs )
+Bscript::BObjectImp* handle_sleep( Bscript::BObjectImp* returnValue )
 {
-  if ( nsecs )
-  {
-    blocked_ = true;
-    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-    sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
-  }
+  return returnValue == nullptr ? Bscript::UninitObject::SharedInstance : returnValue;
 }
 
-void OSExecutorModule::SleepForMs( int msecs )
+Bscript::BObjectImp* OSExecutorModule::SleepForMs( int msecs, Bscript::BObjectImp* returnValue )
 {
-  if ( msecs )
+  auto sleep_until = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
+
+  sleepRequest_ = Core::UOAsyncRequest::makeRequest(
+      uoexec, nullptr, Core::UOAsyncRequest::Type::SLEEP, handle_sleep, sleep_until );
+
+  if ( sleepRequest_ == nullptr )
   {
-    blocked_ = true;
-    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-    sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
+    return new Bscript::BError( "Script could not be suspended" );
+    if ( returnValue != nullptr )
+      delete returnValue;
   }
+  sleepReturnImp_ = returnValue;
+  return new Bscript::DelayedObject( sleepRequest_->reqId_ );
 }
 
-void OSExecutorModule::suspend()
+void OSExecutorModule::suspend( Core::polclock_t sleep_until )
 {
   blocked_ = true;
   wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-  sleep_until_clock_ = 0;  // wait forever
+  sleep_until_clock_ = sleep_until;  // wait forever
 }
 
 void OSExecutorModule::revive()
 {
   blocked_ = false;
+  if ( sleepRequest_ != nullptr )
+  {
+    auto req = static_cast<Core::UOAsyncRequest::Sleep*>( sleepRequest_.get() );
+    req->respond( sleepReturnImp_ );
+    sleepReturnImp_ = nullptr;
+    sleepRequest_.clear();
+  }
   if ( in_hold_list_ == Core::HoldListType::TIMEOUT_LIST )
   {
     in_hold_list_ = Core::HoldListType::NO_LIST;
@@ -876,7 +894,8 @@ Core::polclock_t OSExecutorModule::sleep_until_clock() const
 {
   return sleep_until_clock_;
 }
-void OSExecutorModule::sleep_until_clock(Core::polclock_t sleep_until_clock) {
+void OSExecutorModule::sleep_until_clock( Core::polclock_t sleep_until_clock )
+{
   sleep_until_clock_ = sleep_until_clock;
 }
 
@@ -884,7 +903,7 @@ Core::TimeoutHandle OSExecutorModule::hold_itr() const
 {
   return hold_itr_;
 }
-void OSExecutorModule::hold_itr(Core::TimeoutHandle hold_itr)
+void OSExecutorModule::hold_itr( Core::TimeoutHandle hold_itr )
 {
   hold_itr_ = hold_itr;
 }
@@ -893,7 +912,7 @@ Core::HoldListType OSExecutorModule::in_hold_list() const
 {
   return in_hold_list_;
 }
-void OSExecutorModule::in_hold_list(Core::HoldListType in_hold_list)
+void OSExecutorModule::in_hold_list( Core::HoldListType in_hold_list )
 {
   in_hold_list_ = in_hold_list;
 }
@@ -930,14 +949,12 @@ BObjectImp* OSExecutorModule::mf_Set_Script_Option()
       break;
     case SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES:
     {
-      Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
       oldval = uoexec.can_access_offline_mobiles ? 1 : 0;
       uoexec.can_access_offline_mobiles = optval ? true : false;
     }
     break;
     case SCRIPTOPT_AUXSVC_ASSUME_STRING:
     {
-      Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
       oldval = uoexec.auxsvc_assume_string ? 1 : 0;
       uoexec.auxsvc_assume_string = optval ? true : false;
     }

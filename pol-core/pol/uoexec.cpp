@@ -148,13 +148,13 @@ void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* 
   // auto iter = requests.find( req );
 }
 
-bool UOExecutor::suspend()
+bool UOExecutor::suspend(Core::polclock_t sleep_until)
 {
   // Run to completion scripts can't be suspended
   if ( running_to_completion() )
     return false;
 
-  threadint->suspend();
+  threadint->suspend(sleep_until);
   return true;
 }
 
@@ -213,13 +213,14 @@ void UOExecutor::priority( unsigned char priority )
   threadint->priority( priority );
 }
 
-void UOExecutor::SleepFor( int secs )
+Bscript::BObjectImp* UOExecutor::SleepFor( int secs, Bscript::BObjectImp* returnValue )
 {
-  threadint->SleepFor( secs );
+  return SleepForMs( secs * 1000, returnValue );
 }
-void UOExecutor::SleepForMs( int msecs )
+
+Bscript::BObjectImp* UOExecutor::SleepForMs( int msecs, Bscript::BObjectImp* returnValue )
 {
-  threadint->SleepForMs( msecs );
+  return threadint->SleepForMs( msecs, returnValue );
 }
 unsigned int UOExecutor::pid() const
 {

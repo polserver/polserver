@@ -34,7 +34,8 @@ UOAsyncRequest::~UOAsyncRequest()
     POLLOG_ERROR.Format(
         "Script Error! Request destroyed and unhandled! id = {}, chr = {}, script = {}, PC = "
         "{}\n" )
-        << reqId_ << chr_->name() << exec_.scriptname() << exec_.PC;
+        << reqId_ << ( chr_ == nullptr ? "<no chr>" : chr_->name() ) << exec_.scriptname()
+        << exec_.PC;
   }
 }
 
@@ -45,7 +46,8 @@ void UOAsyncRequest::resolved( Bscript::BObjectImp* resp )
     return;
   handled_ = true;
   exec_.handleRequest( this, resp );
-  chr_->client->gd->requests.removeRequest( this );
+  if ( chr_ )
+    chr_->client->gd->requests.removeRequest( this );
 }
 
 bool UOAsyncRequest::abort()

@@ -23,7 +23,7 @@ namespace Module
 class ThreadInterface
 {
 public:
-  virtual void suspend() = 0;
+  virtual void suspend( Core::polclock_t sleep_until ) = 0;
   virtual void revive() = 0;
   virtual bool signal_event( Bscript::BObjectImp* eventimp ) = 0;
   virtual bool critical() const = 0;
@@ -32,8 +32,7 @@ public:
   virtual void warn_on_runaway( bool warn_on_runaway ) = 0;
   virtual unsigned char priority() const = 0;
   virtual void priority( unsigned char priority ) = 0;
-  virtual void SleepFor( int secs ) = 0;
-  virtual void SleepForMs( int msecs ) = 0;
+  virtual Bscript::BObjectImp* SleepForMs( int msecs, Bscript::BObjectImp* returnValue ) = 0;
   virtual unsigned int pid() const = 0;
   virtual bool blocked() const = 0;
   virtual bool in_debugger_holdlist() const = 0;

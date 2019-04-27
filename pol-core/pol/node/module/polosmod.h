@@ -23,7 +23,7 @@ public:
   PolOsModule( Core::UOExecutor& uoexec );
   PolOsModule() = delete;
   ~PolOsModule();
-  virtual void suspend() override;
+  virtual void suspend( Core::polclock_t sleep_until ) override;
   virtual void revive() override;
   virtual bool signal_event( Bscript::BObjectImp* eventimp ) override;
   virtual bool critical() const override;
@@ -32,8 +32,7 @@ public:
   virtual void warn_on_runaway( bool warn_on_runaway ) override;
   virtual unsigned char priority() const override;
   virtual void priority( unsigned char priority ) override;
-  virtual void SleepFor( int secs ) override;
-  virtual void SleepForMs( int msecs ) override;
+  virtual Bscript::BObjectImp* SleepForMs( int msecs, Bscript::BObjectImp* returnValue ) override;
   virtual unsigned int pid() const override;
   virtual bool blocked() const override;
   virtual bool in_debugger_holdlist() const override;

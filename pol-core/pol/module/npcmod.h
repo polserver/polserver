@@ -51,7 +51,7 @@ public:
   Mobile::NPC& npc;
 
 protected:
-  OSExecutorModule* os_module;
+  Core::UOExecutor* uoexec;
 
   friend class Bscript::TmplExecutorModule<NPCExecutorModule>;
 

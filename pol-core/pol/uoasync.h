@@ -39,7 +39,8 @@ public:
     TARGET_OBJECT,
     TARGET_CURSOR,
     TEXTENTRY,
-    MENU_SELECTION
+    MENU_SELECTION,
+    SLEEP
   };
 
   UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type );
@@ -52,15 +53,11 @@ public:
    * The AsyncRequestHandler will become the owner of requestData, deleting it when the the the
    * request is responded to or aborted.
    */
-  template <typename Callback, typename RequestData>
+  template <typename Callback, typename RequestData = std::nullptr_t>
   static ref_ptr<Core::UOAsyncRequest> makeRequest( Core::UOExecutor& exec, Mobile::Character* chr,
                                                     Type type, Callback* callback,
-                                                    RequestData* data );
-
-  template <typename Callback>
-  static ref_ptr<Core::UOAsyncRequest> makeRequest( Core::UOExecutor& exec, Mobile::Character* chr,
-                                                    Type type, Callback* callback );
-
+                                                    Core::polclock_t sleep_until = 0,
+                                                    RequestData* data = nullptr );
 
   /**
    * Structure encapsulating data for requesting a target from a character.
@@ -100,12 +97,15 @@ private:
 
   using MenuSelectionCallback = Bscript::BObjectImp*( MenuItem* mi, PKTIN_7D* msg );
 
+  using SleepCallback = Bscript::BObjectImp*( Bscript::BObjectImp* returnValue );
+
 
 public:
   using TargetObject = Core::AsyncRequestHandler<TargetObjectCallback, TargetData>;
   using TargetCoords = Core::AsyncRequestHandler<TargetCoordsCallback, TargetData>;
   using Textentry = Core::AsyncRequestHandlerSansData<TextentryCallback>;
   using MenuSelection = Core::AsyncRequestHandlerSansData<MenuSelectionCallback>;
+  using Sleep = Core::AsyncRequestHandlerSansData<SleepCallback>;
 
 
   /**

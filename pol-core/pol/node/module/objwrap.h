@@ -20,7 +20,7 @@ using namespace Napi;
 class RefCountedExecutor : public Bscript::Executor, public ref_counted
 {
 public:
-  inline RefCountedExecutor() : ref_counted(), Executor() {}
+  inline RefCountedExecutor() : Executor(), ref_counted() {}
 };
 class NodeObjectWrap : public Napi::ObjectWrap<NodeObjectWrap>
 {

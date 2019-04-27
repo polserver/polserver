@@ -18,6 +18,7 @@
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
+#include "../uoasync.h"
 #include "../uoexhelp.h"
 #include "threadmod.h"
 
@@ -55,15 +56,14 @@ class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>,
 {
 public:
   virtual bool signal_event( Bscript::BObjectImp* eventimp ) override;
-  virtual void suspend() override;
+  virtual void suspend( Core::polclock_t sleep_until = 0 ) override;
   virtual void revive() override;
 
-  explicit OSExecutorModule( Bscript::Executor& exec );
+  explicit OSExecutorModule( Core::UOExecutor& exec );
   ~OSExecutorModule();
 
 
-  virtual void SleepFor( int secs ) override;
-  virtual void SleepForMs( int msecs ) override;
+  virtual Bscript::BObjectImp* SleepForMs( int msecs, Bscript::BObjectImp* returnValue ) override;
 
   virtual unsigned int pid() const override;
   virtual bool blocked() const override;
@@ -76,19 +76,19 @@ public:
 
   virtual bool critical() const override;
   virtual void critical( bool critical ) override;
- 
+
   virtual bool warn_on_runaway() const override;
   virtual void warn_on_runaway( bool warn_on_runaway ) override;
- 
+
   virtual unsigned char priority() const override;
   virtual void priority( unsigned char priority ) override;
- 
+
   virtual Core::polclock_t sleep_until_clock() const override;
   virtual void sleep_until_clock( Core::polclock_t sleep_until_clock ) override;
- 
+
   virtual Core::TimeoutHandle hold_itr() const override;
   virtual void hold_itr( Core::TimeoutHandle hold_itr ) override;
- 
+
   virtual Core::HoldListType in_hold_list() const override;
   virtual void in_hold_list( Core::HoldListType in_hold_list ) override;
 
@@ -137,6 +137,10 @@ protected:
   Core::HoldListType in_hold_list_;
   Core::WAIT_TYPE wait_type;
 
+
+  ref_ptr<Core::UOAsyncRequest> sleepRequest_;
+  Bscript::BObjectImp* sleepReturnImp_;
+  Core::UOExecutor& uoexec;
 
   unsigned int pid_;
 

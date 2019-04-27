@@ -59,7 +59,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     else
     {
       continuing_offset += nsent;
-      uoexec.SleepForMs( 500 );
+      uoexec.SleepForMs( 500, nullptr );
       --uoexec.PC;
       return uoexec.fparams[0]->impptr();
     }
@@ -97,7 +97,7 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     else
     {
       continuing_offset += nsent;
-      uoexec.SleepForMs( 500 );
+      uoexec.SleepForMs( 500, nullptr );
       --uoexec.PC;
       return uoexec.fparams[0]->impptr();
     }

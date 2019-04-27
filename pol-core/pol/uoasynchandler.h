@@ -58,12 +58,6 @@ bool AsyncRequestHandler<Callback, RequestData>::respond( Ts... args )
     return false;
   }
 
-  if ( chr_ == nullptr )
-  {
-    // No chr..???
-    return false;
-  }
-
   auto impptr = cb_( data_, args... );
   // deleting data will delete any stack-allocated memory as well
   if ( data_ != nullptr )
@@ -108,12 +102,6 @@ bool AsyncRequestHandlerSansData<Callback>::respond( Ts... args )
     return false;
   }
 
-  if ( chr_ == nullptr )
-  {
-    // No chr..???
-    return false;
-  }
-
   auto impptr = cb_( args... );
 
   this->resolved( impptr );
@@ -126,41 +114,33 @@ bool AsyncRequestHandlerSansData<Callback>::respond( Ts... args )
 template <typename Callback, typename RequestData>
 ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
                                                            Mobile::Character* chr, Type type,
-                                                           Callback* callback, RequestData* data )
+                                                           Callback* callback,
+                                                           Core::polclock_t sleep_until,
+                                                           RequestData* data )
 {
   using namespace Napi;
   using namespace Node;
 
-  if ( !exec.suspend() )
+  if ( !exec.suspend( sleep_until ) )
   {
     if ( data != nullptr )
       delete data;
     return ref_ptr<Core::UOAsyncRequest>( nullptr );
   }
 
-
-  ref_ptr<Core::UOAsyncRequest> req(
-      new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
-  exec.addRequest( req );
-  //.addRequest( type, req );
-  chr->client->gd->requests.addRequest( type, req );
-  return req;
-}
-
-// No data
-template <typename Callback>
-ref_ptr<Core::UOAsyncRequest> UOAsyncRequest::makeRequest( Core::UOExecutor& exec,
-                                                           Mobile::Character* chr, Type type,
-                                                           Callback* callback )
-{
-  if ( !exec.suspend() )
+  ref_ptr<Core::UOAsyncRequest> req;
+  if ( data )
   {
-    return ref_ptr<Core::UOAsyncRequest>( nullptr );
+    req.set( new AsyncRequestHandler<Callback, RequestData>( exec, chr, type, callback, data ) );
   }
-  ref_ptr<Core::UOAsyncRequest> req(
-      new AsyncRequestHandlerSansData<Callback>( exec, chr, type, callback ) );
+  else
+  {
+    req.set( new AsyncRequestHandlerSansData<Callback>( exec, chr, type, callback ) );
+  }
+
   exec.addRequest( req );
-  chr->client->gd->requests.addRequest( type, req );
+  if ( chr != nullptr )
+    chr->client->gd->requests.addRequest( type, req );
   return req;
 }
 

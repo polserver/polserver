@@ -813,7 +813,7 @@ BObjectImp* UOExecutorModule::mf_Target()
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
   ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
-      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_OBJECT, Module::handle_script_cursor2,
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_OBJECT, Module::handle_script_cursor2, 0,
       new Core::UOAsyncRequest::TargetData( {target_options} ) );
 
   if ( req == nullptr )
@@ -945,7 +945,7 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
   }
 
   ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
-      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, Module::handle_coord_cursor2,
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, Module::handle_coord_cursor2, 0,
       new Core::UOAsyncRequest::TargetData( {target_options} ) );
 
   if ( req == nullptr )
@@ -990,7 +990,7 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new BError( "Object Type is out of range for Multis" );
   }
   ref_ptr<Core::UOAsyncRequest> req = Core::UOAsyncRequest::makeRequest(
-      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, handle_coord_cursor2,
+      uoexec, chr, Core::UOAsyncRequest::Type::TARGET_CURSOR, handle_coord_cursor2, 0,
       new Core::UOAsyncRequest::TargetData( {flags} ) );
 
   if ( req == nullptr )

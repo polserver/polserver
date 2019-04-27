@@ -37,7 +37,7 @@ PolOsModule::~PolOsModule()
 }
 
 
-void PolOsModule::suspend() {}
+void PolOsModule::suspend( Core::polclock_t sleep_until ) {}
 
 void PolOsModule::revive() {}
 
@@ -67,9 +67,10 @@ unsigned char PolOsModule::priority() const
 
 void PolOsModule::priority( unsigned char priority ) {}
 
-void PolOsModule::SleepFor( int secs ) {}
-
-void PolOsModule::SleepForMs( int msecs ) {}
+Bscript::BObjectImp* PolOsModule::SleepForMs( int msecs, Bscript::BObjectImp* returnValue )
+{
+  return nullptr;
+}
 
 unsigned int PolOsModule::pid() const
 {

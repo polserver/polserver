@@ -54,7 +54,6 @@ private:
 
   ref_ptr<Bscript::Program> prog_;
 
-
 public:
   UOExecutor();
   virtual ~UOExecutor();
@@ -72,7 +71,7 @@ public:
 
   friend Bscript::BObjectRef Node::runExecutor( UOExecutor* ex );
 
-  bool suspend();
+  bool suspend(Core::polclock_t sleep_until = 0);
   bool revive();
 
   std::string state();
@@ -113,8 +112,8 @@ public:
   bool warn_on_runaway() const;
   void warn_on_runaway( bool warn_on_runaway );
 
-  void SleepFor( int secs );
-  void SleepForMs( int msecs );
+  Bscript::BObjectImp* SleepFor( int secs, Bscript::BObjectImp* returnValue );
+  Bscript::BObjectImp* SleepForMs( int msecs, Bscript::BObjectImp* returnValue );
   unsigned int pid() const;
   bool blocked() const;
   bool in_debugger_holdlist() const;
