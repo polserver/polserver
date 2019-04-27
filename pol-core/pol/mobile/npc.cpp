@@ -114,10 +114,7 @@ void NPC::stop_scripts()
   {
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
-    ex->seterror( true );
-    ex->revive();
-    if ( ex->in_debugger_holdlist() )
-      ex->revive_debugged();
+    ex->killScript();
   }
 }
 
@@ -553,11 +550,7 @@ void NPC::restart_script()
 {
   if ( ex != nullptr )
   {
-    ex->seterror( true );
-    // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
-    ex->revive();
-    if ( ex->in_debugger_holdlist() )
-      ex->revive_debugged();
+    ex->killScript();
     ex = nullptr;
     // when the NPC executor module destructs, it checks this NPC to see if it points
     // back at it.  If not, it leaves us alone.
@@ -579,11 +572,7 @@ void NPC::on_death( Items::Item* corpse )
   ClrCharacterWorldPosition( this, Realms::WorldChangeReason::NpcDeath );
   if ( ex != nullptr )
   {
-    // this will force the execution engine to stop running this script immediately
-    ex->seterror( true );
-    ex->revive();
-    if ( ex->in_debugger_holdlist() )
-      ex->revive_debugged();
+    ex->killScript();
   }
 
   destroy();

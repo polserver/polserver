@@ -63,6 +63,9 @@ public:
   bool runnable() const;
   // void execInstr();
   std::string scriptname() const;
+  void seterror( bool err ) = delete;
+
+  void killScript();
 
 
   bool setProgram( Bscript::Program* prog );

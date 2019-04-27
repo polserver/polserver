@@ -13,6 +13,7 @@
 #include "node/nodecall.h"
 #include "polcfg.h"
 #include "polclock.h"
+#include "./uoscrobj.h"
 
 namespace Pol
 {
@@ -77,6 +78,25 @@ bool is_ready( std::future<R> const& f )
 std::string UOExecutor::scriptname() const
 {
   return prog_->scriptname();
+}
+
+// For Node scripts, it is possible the executor will be deleted immediately
+// after this call returns! Do not reference the executor afterwards.
+// It is also possible that the script doesn't die at all :smile:
+void UOExecutor::killScript() {
+  if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
+  {
+    Executor::seterror( true );
+    // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
+    revive();
+    if ( in_debugger_holdlist() )
+      revive_debugged();
+  }
+  else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
+  {
+    threadint->signal_event( new Pol::Module::UnsourcedEvent( Core::EVID_KILL ) );
+  }
+
 }
 
 

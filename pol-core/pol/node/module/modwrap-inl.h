@@ -83,9 +83,7 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
     }
     else
     {
-      return Napi::Error(
-                 env, String::New( env, "Function did not return value, and no GetLastError set" ) )
-          .Value();
+      return Number::New( env, 0 );
     }
   }
 

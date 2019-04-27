@@ -54,23 +54,15 @@ NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, b
       tsfn.BlockingCall( [blocking, req, promise2, callable]( Napi::Env env, Function jsFunc ) {
         (void)jsFunc;  // we do not need to call into the tsfn's registered callback
         req->checkpoint( "enter js thread" );
-        if ( blocking )
+        try
         {
-          try
-          {
-            req->ref( callable( env, req ) );
-          }
-          catch ( std::exception& ex )
-          {
-          }
-          promise2->set_value();
-        }
-        else
-        {
-          promise2->set_value();
           req->ref( callable( env, req ) );
-          // FIXME lets get this value back too..? But the core would never _use_ it...
         }
+        catch ( std::exception& ex )
+        {
+        }
+        if ( blocking )
+          promise2->set_value();
       } );
 
   try
@@ -78,6 +70,8 @@ NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, b
     switch ( status )
     {
     case ThreadSafeFunction::OK:
+      if ( !blocking )
+        promise2->set_value();
       break;
 
     case ThreadSafeFunction::FULL:

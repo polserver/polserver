@@ -111,7 +111,7 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
   }
 
   case MTH_KILL:
-    uoexec->seterror( true );
+    uoexec->killScript();
 
     // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
     uoexec->revive();

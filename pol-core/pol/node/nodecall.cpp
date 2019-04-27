@@ -57,7 +57,7 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
 {
   passert( ev != nullptr );
 
-  auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* request ) {
+  auto call = Node::makeCall<bool>( [=]( Napi::Env env, NodeRequest<bool>* request ) {
     bool retVal = false, handled = false;
     std::string eventName;
     Bscript::BObjectRef objref( ev );
@@ -107,7 +107,7 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
       retVal = false;
     }
     return retVal;
-  } );
+  }, nullptr, false );
 
   return call.getRef();
 }

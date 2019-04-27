@@ -546,7 +546,7 @@ std::string DebugContext::cmd_kill( unsigned pid )
   UOExecutor* uoexec;
   if ( find_uoexec( pid, &uoexec ) )
   {
-    uoexec->seterror( true );
+    uoexec->killScript();
     return "Marked PID " + Clib::tostring( pid ) + " with an error.";
   }
   else

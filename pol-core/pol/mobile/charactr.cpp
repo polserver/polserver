@@ -503,10 +503,7 @@ void Character::stop_skill_script()
   {
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
-    script_ex->seterror( true );
-    script_ex->revive();
-    if ( script_ex->in_debugger_holdlist() )
-      script_ex->revive_debugged();
+    script_ex->killScript();
   }
 }
 
