@@ -44,6 +44,7 @@
 #include "mobile/npc.h"
 #include "multi/multi.h"
 #include "network/client.h"
+#include "network/clientio.h"
 #include "network/packetdefs.h"
 #include "network/packethelper.h"
 #include "network/packets.h"

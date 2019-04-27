@@ -8,7 +8,7 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/wnsckt.h"
+#include "../../clib/network/wnsckt.h"
 #include "../../plib/systemstate.h"
 #include "../uoexec.h"
 
@@ -35,9 +35,9 @@ namespace Module
 {
 using namespace Bscript;
 
-HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck )
+HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck )
     : Bscript::TmplExecutorModule<HttpExecutorModule>( "http", exec ),
-      sck_( isck ),
+      sck_( std::move( isck ) ),
       continuing_offset( 0 ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )
 {

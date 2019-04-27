@@ -101,10 +101,7 @@ public:
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 
   std::vector<Network::IPRule> banned_ips;
-
-  Network::PolSocket polsocket;
-
-
+   
   struct Memory
   {
     size_t client_size;

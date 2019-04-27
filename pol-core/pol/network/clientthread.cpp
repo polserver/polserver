@@ -9,11 +9,13 @@
 #include "../../clib/esignal.h"
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/network/singlepoller.h"
 #include "../../clib/passert.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "../accounts/account.h"
+#include "../clib/network/sockets.h"
 #include "../core.h"
 #include "../crypt/cryptbase.h"
 #include "../mobile/charactr.h"
@@ -35,7 +37,6 @@
 #include "pktbothid.h"
 #include "pktdef.h"
 #include "pktinid.h"
-#include "sockets.h"
 #include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
@@ -55,86 +56,55 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
 
 void report_weird_packet( Network::Client* client, const std::string& why );  // Defined below
 
+void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_login )
+{
+  if ( !single_threaded_login )
+  {
+    poller.set_timeout( 2, 0 );
+  }
+  else
+  {
+    poller.set_timeout( 0, Plib::systemstate.config.select_timeout_usecs );
+  }
+}
+
 bool client_io_thread( Network::Client* client, bool login )
 {
-  fd_set c_recv_fd;
-  fd_set c_err_fd;
-  fd_set c_send_fd;
-  struct timeval c_select_timeout = {0, 0};
   int checkpoint = 0;
   int nidle = 0;
   client->last_packet_at = polclock();
-  if ( !login )
+  client->last_activity_at = polclock();
+
+  if ( !login && Plib::systemstate.config.loglevel >= 11 )
   {
-    if ( Plib::systemstate.config.loglevel >= 11 )
-    {
-      POLLOG.Format( "Network::Client#{} i/o thread starting\n" ) << client->instance_;
-    }
+    POLLOG.Format( "Network::Client#{} i/o thread starting\n" ) << client->instance_;
   }
-  client->checkpoint = 60;  // CNXBUG
-  {
-    PolLock lck;
-    client->checkpoint = 61;  // CNXBUG
-    client->last_activity_at = polclock();
-  }
-  if ( !login )
-  {
-    if ( Plib::systemstate.config.loglevel >= 11 )
-    {
-      POLLOG.Format( "Client#{} i/o thread past initial lock\n" ) << client->instance_;
-    }
-  }
+
   CLIENT_CHECKPOINT( 0 );
   try
   {
+    Clib::SinglePoller clientpoller( client->csocket );
+    set_polling_timeouts( clientpoller, login );
+
     while ( !Clib::exit_signalled && client->isReallyConnected() )
     {
       CLIENT_CHECKPOINT( 1 );
-      int nfds = 0;
-      FD_ZERO( &c_recv_fd );
-      FD_ZERO( &c_err_fd );
-      FD_ZERO( &c_send_fd );
       checkpoint = 1;
-
-      SOCKET clientSocket = client->csocket;
-      if ( clientSocket == INVALID_SOCKET )
-        break;
-
-        // Non-Winsock implementations require nfds to be the largest socket value + 1
-#ifndef _WIN32
-      if ( clientSocket < FD_SETSIZE )
+      if ( !clientpoller.prepare( client->have_queued_data() ) )
       {
-        nfds = clientSocket + 1;
-      }
-      else
-      {
-        client->forceDisconnect();
+        if ( client->csocket != INVALID_SOCKET )
+          client->forceDisconnect();
+
         throw std::runtime_error(
-            "Select() implementation on Linux cant handle this many sockets at the same time." );
+            "couldn't prepare for polling client socket - limit is reached or invalid socket" );
       }
-#endif
-
-      FD_SET( clientSocket, &c_recv_fd );
-      FD_SET( clientSocket, &c_err_fd );
-      if ( client->have_queued_data() )
-        FD_SET( clientSocket, &c_send_fd );
       checkpoint = 2;
 
-      int res;
+      int res = 0;
       do
       {
-        if ( login )
-        {
-          c_select_timeout.tv_sec = 0;
-          c_select_timeout.tv_usec = Plib::systemstate.config.select_timeout_usecs;
-        }
-        else
-        {
-          c_select_timeout.tv_sec = 2;
-          c_select_timeout.tv_usec = 0;
-        }
         CLIENT_CHECKPOINT( 2 );
-        res = select( nfds, &c_recv_fd, &c_send_fd, &c_err_fd, &c_select_timeout );
+        res = clientpoller.wait_for_events();
         CLIENT_CHECKPOINT( 3 );
       } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
       checkpoint = 3;
@@ -177,7 +147,7 @@ bool client_io_thread( Network::Client* client, bool login )
       if ( !client->isReallyConnected() )
         break;
 
-      if ( FD_ISSET( clientSocket, &c_err_fd ) )
+      if ( clientpoller.error() )
       {
         client->forceDisconnect();
         break;
@@ -220,8 +190,7 @@ bool client_io_thread( Network::Client* client, bool login )
       }
       // endregion Speedhack
 
-
-      if ( FD_ISSET( clientSocket, &c_recv_fd ) )
+      if ( clientpoller.incoming() )
       {
         checkpoint = 4;
         CLIENT_CHECKPOINT( 6 );
@@ -254,7 +223,7 @@ bool client_io_thread( Network::Client* client, bool login )
         break;
       }
 
-      if ( client->have_queued_data() && FD_ISSET( clientSocket, &c_send_fd ) )
+      if ( client->have_queued_data() && clientpoller.writable() )
       {
         PolLock lck;
         CLIENT_CHECKPOINT( 8 );
@@ -286,7 +255,7 @@ bool client_io_thread( Network::Client* client, bool login )
   if ( login && client->isConnected() )
     return true;
   POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
-      << client->instance_ << Network::AddressToString( &client->ipaddr )
+      << client->instance_ << client->ipaddrAsString()
       << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" );
 
 
@@ -297,7 +266,7 @@ bool client_io_thread( Network::Client* client, bool login )
       CLIENT_CHECKPOINT( 9 );
       PolLock lck;
       client->unregister();
-      INFO_PRINT << "Client disconnected from " << Network::AddressToString( &client->ipaddr )
+      INFO_PRINT << "Client disconnected from " << client->ipaddrAsString()
                  << " (" << networkManager.clients.size() << "/"
                  << networkManager.getNumberOfLoginClients() << " connections)\n";
 
@@ -537,7 +506,7 @@ bool process_data( Network::Client* client )
         else
         {
           POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
-              << client->instance_ << Network::AddressToString( &client->ipaddr )
+              << client->instance_ << client->ipaddrAsString()
               << ( client->acct ? client->acct->name() : "unknown" ) << (int)msgtype;
         }
       }

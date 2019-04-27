@@ -255,64 +255,31 @@ void update_rpm( void )
   stateManager.profilevars.mapcache_hits = 0;
   stateManager.profilevars.mapcache_misses = 0;
 
-  if ( Plib::systemstate.config.multithread )
+  stateManager.profilevars.last_sppm = static_cast<unsigned int>(
+      stateManager.profilevars.script_passes - stateManager.profilevars.last_script_passes );
+  stateManager.profilevars.last_script_passes = stateManager.profilevars.script_passes;
+
+  TICK_PROFILEVAR( scheduler_passes );
+  TICK_PROFILEVAR( noactivity_scheduler_passes );
+
+  if ( Plib::systemstate.config.watch_rpm )
+    INFO_PRINT << "scpt: " << stateManager.profilevars.last_sppm
+               << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) ) << "("
+               << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
+               << "  scin: " << stateManager.profilevars.last_sipm
+               << "  scsl: " << stateManager.profilevars.last_scpm
+               << "  MOB: " << get_mobile_count() << "  TLI: " << get_toplevel_item_count() << "\n";
+
+  if ( Plib::systemstate.config.show_realm_info )
   {
-    stateManager.profilevars.last_sppm = static_cast<unsigned int>(
-        stateManager.profilevars.script_passes - stateManager.profilevars.last_script_passes );
-    stateManager.profilevars.last_script_passes = stateManager.profilevars.script_passes;
-
-    TICK_PROFILEVAR( scheduler_passes );
-    TICK_PROFILEVAR( noactivity_scheduler_passes );
-
-    if ( Plib::systemstate.config.watch_rpm )
-      INFO_PRINT << "scpt: " << stateManager.profilevars.last_sppm
-                 << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) ) << "("
-                 << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
-                 << "  scin: " << stateManager.profilevars.last_sipm
-                 << "  scsl: " << stateManager.profilevars.last_scpm
-                 << "  MOB: " << get_mobile_count() << "  TLI: " << get_toplevel_item_count()
-                 << "\n";
-
-    if ( Plib::systemstate.config.show_realm_info )
+    INFO_PRINT << "\nRealm info: \n";
+    for ( auto realm : gamestate.Realms )
     {
-      INFO_PRINT << "\nRealm info: \n";
-      for ( auto realm : gamestate.Realms )
-      {
-        INFO_PRINT << "    - " << realm->name() << " (mob: " << realm->mobile_count()
-                   << ", off: " << realm->offline_mobile_count()
-                   << ", tli: " << realm->toplevel_item_count() << ", mlt: " << realm->multi_count()
-                   << ")\n";
-      }
+      INFO_PRINT << "    - " << realm->name() << " (mob: " << realm->mobile_count()
+                 << ", off: " << realm->offline_mobile_count()
+                 << ", tli: " << realm->toplevel_item_count() << ", mlt: " << realm->multi_count()
+                 << ")\n";
     }
-  }
-  else
-  {
-    stateManager.profilevars.last_rpm =
-        stateManager.profilevars.rotations - stateManager.profilevars.last_rotations;
-    stateManager.profilevars.last_rotations = stateManager.profilevars.rotations;
-
-    // fixme realms
-    // fixme max realm size?
-    unsigned int grid_x = gamestate.main_realm->grid_width();
-    unsigned int grid_y = gamestate.main_realm->grid_height();
-    stateManager.cycles_per_decay_worldzone =
-        stateManager.profilevars.last_rpm / ( grid_x * grid_y / 10 );
-    if ( stateManager.cycles_per_decay_worldzone < 1 )
-      stateManager.cycles_per_decay_worldzone = 1;
-    stateManager.cycles_until_decay_worldzone = stateManager.cycles_per_decay_worldzone;
-
-    if ( Plib::systemstate.config.watch_rpm )
-      INFO_PRINT << "RPM: " << stateManager.profilevars.last_rpm
-                 << "   SIPM: " << stateManager.profilevars.last_sipm
-                 << "   SCPM: " << stateManager.profilevars.last_scpm << "   SI/R: "
-                 << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_sipm /
-                                                            stateManager.profilevars.last_rpm )
-                                                        : 0 )
-                 << "   SC/R: "
-                 << ( stateManager.profilevars.last_rpm ? ( stateManager.profilevars.last_scpm /
-                                                            stateManager.profilevars.last_rpm )
-                                                        : 0 )
-                 << "\n";
   }
   THREAD_CHECKPOINT( tasks, 399 );
 }
@@ -347,5 +314,5 @@ void start_tasks()
 // script starts
 // combat operations
 // skill checks
-}
-}
+}  // namespace Core
+}  // namespace Pol

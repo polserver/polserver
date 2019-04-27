@@ -46,6 +46,7 @@
 #include "multi/customhouses.h"
 #include "multi/multi.h"
 #include "network/client.h"
+#include "network/clientio.h"
 #include "network/packethelper.h"
 #include "network/packets.h"
 #include "network/pktboth.h"
@@ -102,6 +103,11 @@ void handle_mode_set( Client* client, PKTBI_72* msg )
   transmit( client, msg, sizeof *msg );
 
   client->chr->set_warmode( msg_warmode );
+}
+
+void handle_keep_alive( Network::Client* client, PKTBI_73* msg )
+{
+  transmit( client, msg, sizeof *msg );
 }
 
 void handle_rename_char( Client* client, PKTIN_75* msg )

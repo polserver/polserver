@@ -58,6 +58,11 @@ MaximumClients=300
 #
 MaximumClientsBypassCmdLevel=1
 
+#
+# LoginServerTimeout: maximum time in minutes allowed to connect with the login server
+#                     (until character is selected)
+#
+LoginServerTimeout 10
 #############################################################################
 ## System Profiling and Performance
 #############################################################################
@@ -232,7 +237,7 @@ ReportURL=/pol/report_program_abort.php
 #############################################################################
 
 #
-# WebServer: in multithread mode only, run the internal web server
+# WebServer: Run the internal web server
 #            This may be a security risk.  It's susceptible to DoS attacks.
 #            If someone knows a little about TCP/IP, they could cause you
 #            trouble if it's enabled.
@@ -343,12 +348,6 @@ DisableNagle=0
 #############################################################################
 ## Treading Settings - Do not modify unless necessary.
 #############################################################################
-
-#
-# Multithread: use multiple threads to lower CPU usage
-# If you are using Linux 2.4.*, set this to 1.
-#
-Multithread=1
 
 #
 # SelectTimeout: I/O sleep time

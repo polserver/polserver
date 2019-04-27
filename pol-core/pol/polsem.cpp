@@ -75,7 +75,6 @@ CRITICAL_SECTION cs;
 HANDLE hEvPulse;
 
 HANDLE hEvTasksThread;
-HANDLE hEvClientTransmit;
 
 CRITICAL_SECTION csThread;
 HANDLE hSemThread;
@@ -86,8 +85,6 @@ void init_ipc_vars()
   hEvPulse = CreateEvent( nullptr, TRUE, FALSE, nullptr );
 
   hEvTasksThread = CreateEvent( nullptr, FALSE, FALSE, nullptr );
-
-  hEvClientTransmit = CreateEvent( nullptr, TRUE, FALSE, nullptr );
 
   InitializeCriticalSection( &csThread );
   hSemThread = CreateSemaphore( nullptr, 0, 1, nullptr );
@@ -102,7 +99,6 @@ void deinit_ipc_vars()
   hEvTasksThread = nullptr;
 
   CloseHandle( hEvPulse );
-  CloseHandle( hEvClientTransmit );
   DeleteCriticalSection( &cs );
 }
 void send_pulse()
@@ -125,17 +121,6 @@ void tasks_thread_sleep( unsigned int millis )
 {
   WaitForSingleObject( hEvTasksThread, millis );
 }
-
-void send_ClientTransmit_pulse()
-{
-  TRACEBUF_ADDELEM( "ClientTransmitPulse", 1 );
-  PulseEvent( hEvClientTransmit );
-}
-
-void wait_for_ClientTransmit_pulse( unsigned int millis )
-{
-  WaitForSingleObject( hEvClientTransmit, millis );
-}
 #else
 
 pthread_mutexattr_t polsem_attr;
@@ -145,9 +130,6 @@ pthread_mutex_t polsem;
 
 pthread_mutex_t pulse_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t pulse_cond = PTHREAD_COND_INITIALIZER;
-
-pthread_mutex_t clienttransmit_pulse_mut = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t clienttransmit_pulse_cond = PTHREAD_COND_INITIALIZER;
 
 pthread_mutex_t task_pulse_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t task_pulse_cond = PTHREAD_COND_INITIALIZER;
@@ -247,26 +229,6 @@ void tasks_thread_sleep( unsigned int millis )
   pthread_mutex_unlock( &task_pulse_mut );
 }
 
-void send_ClientTransmit_pulse()
-{
-  pthread_mutex_lock( &clienttransmit_pulse_mut );
-  pthread_cond_broadcast( &clienttransmit_pulse_cond );
-  pthread_mutex_unlock( &clienttransmit_pulse_mut );
-}
-
-void wait_for_ClientTransmit_pulse( unsigned int millis )
-{
-  struct timespec timeout;
-
-  pthread_mutex_lock( &clienttransmit_pulse_mut );
-
-  calc_abs_timeout( &timeout, millis );
-
-  pthread_cond_timedwait( &clienttransmit_pulse_cond, &clienttransmit_pulse_mut, &timeout );
-
-  pthread_mutex_unlock( &clienttransmit_pulse_mut );
-}
-
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

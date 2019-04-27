@@ -13,6 +13,7 @@
 
 #include "uimport.h"
 
+#include <atomic>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -1043,10 +1044,10 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
   auto critical_promise = std::make_shared<std::promise<bool>>();
   auto critical_future = critical_promise->get_future();
   SaveContext::finished = std::async( std::launch::async, [&, critical_promise]() -> bool {
+    std::atomic<bool> result( true );
     try
     {
       SaveContext sc;
-      bool result = true;
       std::vector<std::future<bool>> critical_parts;
       critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
         try
@@ -1181,26 +1182,38 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
         task.wait();
 
       critical_promise->set_value( result );  // critical part end
+      // TODO: since promise can only be set one time move it into a method with a dedicated try
+      // block, now when in theory an upper part fails the promise gets never set
     }  // deconstructor of the SaveContext flushes and joins the queues
+    catch ( std::ios_base::failure& e )
+    {
+      POLLOG_ERROR << "failed to save datafiles! " << e.what() << ":" << std::strerror( errno )
+                   << "\n";
+      Clib::force_backtrace();
+      result = false;
+    }
     catch ( ... )
     {
       POLLOG_ERROR << "failed to save datafiles!\n";
       Clib::force_backtrace();
-      critical_promise->set_value( false );  // critical part end
+      result = false;
     }
-    commit( "pol" );
-    commit( "objects" );
-    commit( "pcs" );
-    commit( "pcequip" );
-    commit( "npcs" );
-    commit( "npcequip" );
-    commit( "items" );
-    commit( "multis" );
-    commit( "storage" );
-    commit( "resource" );
-    commit( "guilds" );
-    commit( "datastore" );
-    commit( "parties" );
+    if ( result )
+    {
+      commit( "pol" );
+      commit( "objects" );
+      commit( "pcs" );
+      commit( "pcequip" );
+      commit( "npcs" );
+      commit( "npcequip" );
+      commit( "items" );
+      commit( "multis" );
+      commit( "storage" );
+      commit( "resource" );
+      commit( "guilds" );
+      commit( "datastore" );
+      commit( "parties" );
+    }
     return true;
   } );
   critical_future.wait();  // wait for end of critical part

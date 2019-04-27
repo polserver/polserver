@@ -10,9 +10,9 @@
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/network/sckutil.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
-#include "../../clib/sckutil.h"
 #include "../../clib/threadhelp.h"
 #include "../../clib/weakptr.h"
 #include "../../plib/systemstate.h"
@@ -76,7 +76,6 @@ TmplExecutorModule<OSExecutorModule>::FunctionTable
         {"run_script", &OSExecutorModule::run_script},
         {"set_debug", &OSExecutorModule::mf_set_debug},
         {"syslog", &OSExecutorModule::mf_Log},
-        {"system_rpm", &OSExecutorModule::mf_system_rpm},
         {"set_priority", &OSExecutorModule::mf_set_priority},
         {"unload_scripts", &OSExecutorModule::mf_unload_scripts},
         {"set_script_option", &OSExecutorModule::mf_set_script_option},
@@ -487,11 +486,6 @@ BObjectImp* OSExecutorModule::mf_Log()
   }
 }
 
-BObjectImp* OSExecutorModule::mf_system_rpm()
-{
-  return new BLong( static_cast<int>( Core::stateManager.profilevars.last_rpm ) );
-}
-
 BObjectImp* OSExecutorModule::mf_set_priority()
 {
   int newpri;
@@ -641,8 +635,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               }
               uoexec_w.get_weakptr()->revive();
             }
-            std::unique_ptr<Network::AuxClientThread> client(
-                new Network::AuxClientThread( sd, s, scriptparam->copy(), assume_string ) );
+            std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
+                sd, std::move( s ), scriptparam->copy(), assume_string ) );
             client->run();
           } );
 
