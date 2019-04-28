@@ -42,7 +42,8 @@ public:
 
 private:
   T* polmod;
-  Core::UOExecutor* uoexec;
+  Core::UOExecutor* uoexec; //todo remove
+  ObjectReference scriptModule;
   static Napi::FunctionReference constructor;
 };
 

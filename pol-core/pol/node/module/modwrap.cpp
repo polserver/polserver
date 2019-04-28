@@ -99,15 +99,15 @@ NodeModuleWrap<Module::NPCExecutorModule>::NodeModuleWrap( const Napi::CallbackI
   Napi::Env env = info.Env();
   Napi::HandleScope scope( env );
 
-  size_t length = info.Length();
+   size_t length = info.Length();
 
-  if ( length <= 0 || !info[0].IsExternal() )
+  if ( length <= 0 || !info[0].IsObject() )
   {
-    Napi::TypeError::New( env, "arg1=External expected" ).ThrowAsJavaScriptException();
+    Napi::TypeError::New( env, "arg1=ScriptModule" ).ThrowAsJavaScriptException();
   }
 
-  uoexec = info[0].As<External<Core::UOExecutor>>().Data();
-
+  scriptModule = ObjectReference::New( info[0].ToObject(), 1 );
+  uoexec = scriptModule.Get( "extUoExec" ).As<External<Core::UOExecutor>>().Data();
   polmod = static_cast<Module::NPCExecutorModule*>(
       uoexec->findModule( Module::NPCExecutorModule::modname ) );
 

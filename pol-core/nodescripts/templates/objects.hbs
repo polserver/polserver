@@ -3,23 +3,27 @@
 const { PolObject } = process._linkedBinding("pol");
 const { EventEmitter } = require("events");
 
-{{#each .}}class {{$.name}}{{#if parent.[0]}} extends {{parent.[0]}}{{else}} extends PolObject{{/if}} {
- constructor(extObj, { get_member, set_member, call_method }) {
-      super(...arguments);
-      Object.defineProperties(this, {
-{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set(v) { set_member(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, v); }{{/if}}, get() { return get_member(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
-{{/each}}
-      });
-  {{#each prototypes}}    this.{{camelCase @key}} = function() { return call_method(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, ...arguments); };
-{{/each}}
-  }
 
-};
-
-{{/each}}
-  
-function PromiseEventEmitter() {
-  this._events = Object.create(null);
+function PromiseEventEmitter(mainModule) {
+  const _this = EventEmitter.call(this) || this;
+  Object.defineProperties(_this, {
+    "_events": {
+      value: undefined,
+      enumerable: false
+    },
+    "_events": {
+      value: undefined,
+      enumerable: false
+    },
+    "_mainModule": {
+      value: mainModule,
+      enumerable: false,
+      writable: false,
+      configurable: false
+    },
+  })
+  //_this._mainModule = mainModule;
+  return _this;
 };
 
 function wrapCallback(cb) {
@@ -40,7 +44,11 @@ function wrapCallback(cb) {
 Object.assign(PromiseEventEmitter.prototype,EventEmitter.prototype);
 
 PromiseEventEmitter.prototype.addListener = function addListener(event, listener)  {
-  return EventEmitter.prototype.addListener.call(this, event, wrapCallback(listener));
+  const returnVal = EventEmitter.prototype.addListener.call(this, event, wrapCallback(listener));
+  if (this._eventsCount > 0 && this._mainModule) {
+    this._mainModule.addReference(this);
+  }
+  return returnVal;
 }
 
 PromiseEventEmitter.prototype.on = PromiseEventEmitter.prototype.addListener;
@@ -52,10 +60,35 @@ PromiseEventEmitter.prototype.prependListener = function prependListener(event, 
 PromiseEventEmitter.prototype.removeListener = function removeListener(event, listener) {
   const listeners = (this._events && this._events[event]) || [];
   const original = listeners.find( lstn => lstn === listener || lstn.original === listener) || listener;;
-  return EventEmitter.prototype.off.call(this, event, original);
+  const returnVal = EventEmitter.prototype.off.call(this, event, original);
+  if (this._eventsCount === 0 && this._mainModule && this._mainModule.objrefs) {
+    this._mainModule.removeReference(this);
+  }
+  return returnVal;
 }
 
 PromiseEventEmitter.prototype.off = PromiseEventEmitter.prototype.removeListener;
+
+{{#each .}}class {{$.name}}{{#if parent.[0]}} extends {{parent.[0]}}{{else}} extends PolObject{{/if}} {
+ constructor(extObj, { get_member, set_member, call_method }{{#if hasEvents}}, scriptModule{{/if}}) {
+      super(...arguments);{{#if hasEvents}}
+      // We do not use the previously declared PromiseEventEmitter class, but instead one
+      // provided at construction time of UObject. This one has the first argument (mainModule)
+      // bound.
+      PromiseEventEmitter.call(this, scriptModule);{{/if}}
+      Object.defineProperties(this, {
+{{#each memberProps}}            "{{@key}}": { {{#if ro}}set() {}{{else}}set(v) { set_member(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, v); }{{/if}}, get() { return get_member(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}); } },
+{{/each}}
+      });
+  {{#each prototypes}}    this.{{camelCase @key}} = function() { return call_method(this, {{#exists id}}{{id}}{{else}}"{{@key}}"{{/exists}}, ...arguments); };
+{{/each}}
+  }
+
+};
+
+{{/each}}
+
+Object.assign(UObject.prototype, PromiseEventEmitter.prototype); 
 
 module.exports = {
 {{#each .}}    {{$.name}},

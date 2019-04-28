@@ -180,6 +180,10 @@ bool UOExecutor::signal_event( Bscript::BObjectImp* eventimp )
   return threadint->signal_event( eventimp );
 }
 
+bool UOExecutor::signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp ) {
+  return threadint->signal_event( target, eventimp );
+}
+
 size_t UOExecutor::sizeEstimate() const
 {
   return sizeof( UOExecutor ) + base::sizeEstimate();

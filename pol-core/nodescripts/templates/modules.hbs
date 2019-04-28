@@ -8,8 +8,8 @@
 const modwrap = process._linkedBinding("modwrap");
 
 {{#each .}}
-function {{@key}}(extUoExec) {
-    const extMod = new modwrap.{{@key}}(extUoExec);
+function {{@key}}(scriptModule) {
+    const extMod = new modwrap.{{@key}}(scriptModule);
 
 {{#each constants}}
     this.{{@key}} = {{{stringify .}}};

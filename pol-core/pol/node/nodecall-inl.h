@@ -60,6 +60,7 @@ NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, b
         }
         catch ( std::exception& ex )
         {
+          // NODELOG << "Exception in tsfn js call: " << ex.what() << "\n";
         }
         if ( blocking )
           promise2->set_value();

@@ -80,7 +80,7 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env env, Napi::Value value, unsi
   return Bscript::BObjectRef( convertedVal );
 }
 
-std::map<u32, Napi::Promise::Deferred> NodeObjectWrap::delayedMap;
+std::map<u32, std::pair<Napi::ObjectReference, Napi::Promise::Deferred>> NodeObjectWrap::delayedMap;
 
 
 bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref,
@@ -92,9 +92,10 @@ bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref
 
   if ( inNodeThread )
   {
-    auto& promise = iter->second;
+    auto& scriptModule = iter->second.first;
+    auto& promise = iter->second.second;
     Napi::Env env = promise.Env();
-    promise.Resolve( Wrap( env, objref, reqId ) );
+    promise.Resolve( Wrap( env, objref, scriptModule.Value(), reqId ) );
     delayedMap.erase( iter );
     return true;
   }
@@ -103,9 +104,10 @@ bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref
     // We really only resolve.. so if something errors, it will be a resolution of an error, just
     // like in Escript. eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an
     // Napi::Error), whih is falsey.
-    auto& promise = iter->second;
+    auto& scriptModule = iter->second.first;
+    auto& promise = iter->second.second;
     auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* /*request*/ ) {
-      promise.Resolve( Wrap( env, objref, reqId ) );
+      promise.Resolve( Wrap( env, objref, scriptModule.Value(), reqId ) );
       delayedMap.erase( iter );
       return true;
     } );
@@ -114,7 +116,8 @@ bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref
 }
 
 // FIXME Vulnerable to circular references.. for now!
-Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId )
+Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref,
+                                  Napi::Object scriptModule, unsigned long reqId )
 {
   EscapableHandleScope scope( env );
   Napi::Value convertedVal;
@@ -154,7 +157,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     // Create a new deferred, and return the promise to the script.
     // We store the deferred in our map, to be resolved later.
     Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New( env );
-    delayedMap.emplace( convt->reqId(), deferred );
+    delayedMap.emplace( convt->reqId(), std::make_pair( ObjectReference::New(scriptModule,1), deferred) );
     convertedVal = deferred.Promise();
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTArray ) )
@@ -167,7 +170,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     for ( size_t i = 0; i < convt->ref_arr.size(); i++ )
     {
       // Set the value
-      arr[i] = Wrap( env, convt->ref_arr.at( i ), reqId );
+      arr[i] = Wrap( env, convt->ref_arr.at( i ), scriptModule, reqId );
     }
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTStruct ) )
@@ -179,7 +182,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     auto obj = convertedVal.As<Object>();
     for ( auto key : convt->contents() )
     {
-      obj[key.first] = Wrap( env, key.second, reqId );
+      obj[key.first] = Wrap( env, key.second, scriptModule, reqId );
     }
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTUninit ) )
@@ -198,10 +201,11 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
 
       auto chr = chrref_imp->value().get();
 
-     if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+      if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
         clazzName = "NPC";
 
-      else clazzName = "Character";
+      else
+        clazzName = "Character";
     }
     else if ( convt->object_type() == &Module::eitemrefobjimp_type )
     {
@@ -226,7 +230,7 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
                     Napi::External<Bscript::BObjectRef>::New(
                         env, new Bscript::BObjectRef( impptr ),
                         []( Napi::Env /*env*/, Bscript::BObjectRef* data ) { delete data; } ),
-                    internalMethods.Value()
+                    internalMethods.Value(), scriptModule
 
             } );
   }
@@ -317,7 +321,7 @@ Napi::Value NodeObjectWrap::SetMember( const CallbackInfo& info )
                env, String::New( env, "Invalid parameters, expected argv[0] = string | number" ) )
         .Value();
   }
-  return Wrap( env, retRef );
+  return Wrap( env, retRef, intObj->scriptModule.Value() );
 }
 
 Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
@@ -357,7 +361,7 @@ Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
         .Value();
   }
 
-  return NodeObjectWrap::Wrap( env, retRef );
+  return NodeObjectWrap::Wrap( env, retRef, intObj->scriptModule.Value() );
 }
 
 
@@ -409,7 +413,7 @@ Napi::Value NodeObjectWrap::CallMethod( const CallbackInfo& info )
                env, String::New( env, "Invalid parameters, expected argv[0] = string | number" ) )
         .Value();
   }
-  return Wrap( env, Bscript::BObjectRef( retVal ) );
+  return Wrap( env, Bscript::BObjectRef( retVal ), intObj->scriptModule.Value() );
 }
 
 Napi::Value NodeObjectWrap::ToString( const CallbackInfo& info )
@@ -434,14 +438,24 @@ NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info )
 
   size_t length = info.Length();
 
-  if ( length <= 0 || !info[0].IsExternal() )
+  // arg0 = extobj, arg1 = internal methods, arg2 = main module
+  if ( length <= 2 )
   {
-    Napi::TypeError::New( env, "External expected" ).ThrowAsJavaScriptException();
+    Napi::TypeError::New( env, "Error: argc >= 2" ).ThrowAsJavaScriptException();
+  }
+  else if ( !info[0].IsExternal() )
+  {
+    Napi::TypeError::New( env, "arg[0]=External expected" ).ThrowAsJavaScriptException();
+  }
+  else if ( !info[2].IsObject() )  // todo better hcecking for type
+  {
+    Napi::TypeError::New( env, "arg[2]=ScriptModule expected" ).ThrowAsJavaScriptException();
   }
 
   this->ref = Reference<External<Bscript::BObjectRef>>::New(
       info[0].As<External<Bscript::BObjectRef>>(), 1 );
 
+  this->scriptModule = Napi::ObjectReference::New( info[2].As<Object>(), 1 );
 
   if ( !NodeObjectWrap::SharedInstance )
   {

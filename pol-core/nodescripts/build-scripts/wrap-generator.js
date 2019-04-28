@@ -107,6 +107,10 @@ async function generateObjects(outPath) {
   for (let clazz of result.ESCRIPT.class) {
       const prototypes = clazz.prototypes = {}, clazzName = clazz.$.name;
       clazzMap[clazzName] = clazz;
+
+      if (clazzName == "UObject") {
+        clazz.hasEvents = true;
+      }
       if (clazz.method) for (const method of clazz.method) {
           const index = method.$.proto.indexOf("(");
           let methodName = method.$.proto.substr(0, index);

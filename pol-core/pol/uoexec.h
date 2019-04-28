@@ -85,6 +85,8 @@ public:
 
   bool listens_to( unsigned int eventflag ) const;
   bool signal_event( Bscript::BObjectImp* eventimp );
+  bool signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp );
+
 
   unsigned int eventmask;
   unsigned short area_size;

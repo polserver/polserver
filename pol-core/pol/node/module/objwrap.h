@@ -34,7 +34,8 @@ public:
   /**
    * Return a Value corresponding to this impptr
    */
-  static Napi::Value Wrap( Napi::Env env, Bscript::BObjectRef objref, unsigned long reqId = 0 );
+  static Napi::Value Wrap( Napi::Env env, Bscript::BObjectRef objref, Napi::Object scriptModule,
+                           unsigned long reqId = 0 );
 
   /**
    * Return a BObjectImp* corresponding to this Napi Value
@@ -62,9 +63,12 @@ public:
   }
 
 private:
+  // the script module where this object was created
+  Napi::ObjectReference scriptModule;
+
   static Napi::FunctionReference constructor;
   static Napi::ObjectReference internalMethods;
-  static std::map<u32, Napi::Promise::Deferred> delayedMap;
+  static std::map<u32, std::pair<Napi::ObjectReference, Napi::Promise::Deferred>> delayedMap;
 
   // We share a single executor for running functions.
   // Otherwise, we could pass the uoexec from creation and store it.

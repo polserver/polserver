@@ -153,10 +153,10 @@ debugger;
  * @property {function(): string} toString - Returns string value
  */
 
-function proxyObject(clazzName = "PolObject", wrappedObj, interalMethods) {
+function proxyObject(clazzName = "PolObject", wrappedObj, interalMethods, scriptModule) {
   
   const scriptObj = objects[clazzName] ? 
-    new objects[clazzName](wrappedObj, interalMethods) : 
+    new objects[clazzName](wrappedObj, interalMethods, scriptModule) : 
     PolObject(wrappedObj, interalMethods);
 
   return scriptObj;

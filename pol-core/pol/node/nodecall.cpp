@@ -88,7 +88,8 @@ Napi::Value callFunc( Core::UOExecutor* exec, const std::string& funcName,
           {
             Bscript::BObjectRef argref = *arg;
 
-            Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, argref );
+            // FIXME THIS NEEDS TO BE SCRIPTMODULE
+            Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, argref, Object() );
 
             argv[i] = convertedVal;
 
@@ -138,8 +139,9 @@ bool emitEvent( ObjectReference target, Bscript::BObjectImp* ev )
         {
           eventName = ev->getStringRep();
         }
-
-        auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
+        
+        // FIXME should this also be a script module...? it is a core generated event,
+        auto data = Node::NodeObjectWrap::Wrap( env, objref, Object(), request->reqId() );
 
         NODELOG.Format( "[{:04x}] [exec] sending event to target {} {} {} \n" )
             << request->reqId() << Node::ToUtf8Value( target.Value() ) << eventName
@@ -189,12 +191,14 @@ bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
           eventName = ev->getStringRep();
         }
 
-        auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
         auto iter = ( exec == nullptr ? execToModuleMap.begin() : execToModuleMap.find( exec ) );
+
         do
         {
           if ( iter == execToModuleMap.end() )
             break;
+          auto data = Node::NodeObjectWrap::Wrap( env, objref, iter->second.Value(), request->reqId() );
+
           NODELOG.Format( "[{:04x}] [exec] sending event to script ({} {}) {} {} {} \n" )
               << request->reqId() << iter->first->pid() << iter->first->scriptname() << eventName
               << Node::ToUtf8Value( data ) << objref->impptr()->getStringRep();
@@ -251,6 +255,7 @@ Napi::Value OnScriptReturn( const CallbackInfo& cbinfo )
   auto iter = execToModuleMap.find( ex );
   if ( iter != execToModuleMap.end() )
   {
+    iter->second.Get( "clearReferences" ).As<Function>().Call( iter->second.Value(), {} );
     execToModuleMap.erase( iter );
   }
 
@@ -274,6 +279,7 @@ Napi::Value OnScriptCatch( const CallbackInfo& cbinfo )
   auto iter = execToModuleMap.find( ex );
   if ( iter != execToModuleMap.end() )
   {
+    iter->second.Get( "clearReferences" ).As<Function>().Call( iter->second.Value(), {} );
     execToModuleMap.erase( iter );
   }
 
@@ -344,19 +350,6 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
             << ex->ValueStack.size();
         // NODELOG.Clear();
 
-        Napi::Array argv = Array::New( env, ex->ValueStack.size() );
-        for ( size_t i = 0; !ex->ValueStack.empty(); ++i )
-        {
-          Bscript::BObjectRef rightref = ex->ValueStack.back();
-          ex->ValueStack.pop_back();
-
-          Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, reqId );
-
-          argv[i] = convertedVal;
-
-          NODELOG.Format( "[{:04x}] [exec] argv[{}] = {}\n" )
-              << reqId << i << Node::ToUtf8Value( convertedVal );
-        }
 
         try
         {
@@ -371,12 +364,28 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
                             .Get( "runScript" )
                             .As<Function>()
                             .Call( {extUoExec, Napi::String::New( env, prog->scriptname() ),
-                                    prog->obj.Value(), Number::New( env, ex->pid() ), argv} )
+                                    prog->obj.Value(), Number::New( env, ex->pid() )} )
                             .As<Object>();
 
-          auto jsRetVal = jsCall.Get( "value" );
-          auto jsRetObj = jsRetVal.As<Object>();
+          // auto jsRetVal = jsCall.Get( "value" );
+          // auto jsRetObj = jsRetVal.As<Object>();
           auto mod = jsCall.Get( "module" ).As<Object>();
+
+          Napi::Array argv = Array::New( env, ex->ValueStack.size() );
+          for ( size_t i = 0; !ex->ValueStack.empty(); ++i )
+          {
+            Bscript::BObjectRef rightref = ex->ValueStack.back();
+            ex->ValueStack.pop_back();
+
+            Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, mod, reqId );
+
+            argv[i] = convertedVal;
+
+            NODELOG.Format( "[{:04x}] [exec] argv[{}] = {}\n" )
+                << reqId << i << Node::ToUtf8Value( convertedVal );
+          }
+          auto jsRetVal = mod.Get( "run" ).As<Function>().Call( mod, {argv} );
+
           NODELOG.Format( "[{:04x}] [exec] returned value {}\n" )
               << request->reqId() << Node::ToUtf8Value( jsRetVal );
 
@@ -390,7 +399,8 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
 
           if ( jsRetVal.IsPromise() )
           {
-            auto thenVal = jsRetObj.Get( "then" ).As<Function>().Call( jsRetVal, {scriptRet} );
+            auto thenVal =
+                jsRetVal.As<Object>().Get( "then" ).As<Function>().Call( jsRetVal, {scriptRet} );
             thenVal.As<Object>()
                 .Get( "catch" )
                 .As<Function>()

@@ -26,6 +26,8 @@ public:
   virtual void suspend( Core::polclock_t sleep_until ) = 0;
   virtual void revive() = 0;
   virtual bool signal_event( Bscript::BObjectImp* eventimp ) = 0;
+  virtual bool signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp ) = 0;
+
   virtual bool critical() const = 0;
   virtual void critical( bool critical ) = 0;
   virtual bool warn_on_runaway() const = 0;

@@ -56,6 +56,8 @@ class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>,
 {
 public:
   virtual bool signal_event( Bscript::BObjectImp* eventimp ) override;
+  virtual bool signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp ) override;
+
   virtual void suspend( Core::polclock_t sleep_until = 0 ) override;
   virtual void revive() override;
 

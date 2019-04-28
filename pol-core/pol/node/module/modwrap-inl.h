@@ -87,7 +87,7 @@ Napi::Value NodeModuleWrap<PolModule>::ExecFunction( const CallbackInfo& cbinfo 
     }
   }
 
-  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ) );
+  auto convertedFunctRet = NodeObjectWrap::Wrap( env, Bscript::BObjectRef( funcRet ), scriptModule.Value() );
   return convertedFunctRet;
 }
 
@@ -101,15 +101,15 @@ NodeModuleWrap<PolModule>::NodeModuleWrap( const Napi::CallbackInfo& info )
 
   size_t length = info.Length();
 
-  if ( length <= 0 || !info[0].IsExternal() )
+  if ( length <= 0 || !info[0].IsObject() )
   {
-    Napi::TypeError::New( env, "arg1=External expected" ).ThrowAsJavaScriptException();
+    Napi::TypeError::New( env, "arg1=ScriptModule" ).ThrowAsJavaScriptException();
   }
-
-  uoexec = info[0].As<External<Core::UOExecutor>>().Data();
-
+  
+  scriptModule = ObjectReference::New( info[0].ToObject(), 1 );
+  uoexec = scriptModule.Get("extUoExec").As<External<Core::UOExecutor>>().Data();
   polmod = static_cast<PolModule*>( uoexec->findModule( PolModule::modname ) );
-
+ 
   if ( polmod == nullptr )
   {
     polmod = new PolModule( *uoexec );

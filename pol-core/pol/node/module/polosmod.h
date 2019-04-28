@@ -26,6 +26,8 @@ public:
   virtual void suspend( Core::polclock_t sleep_until ) override;
   virtual void revive() override;
   virtual bool signal_event( Bscript::BObjectImp* eventimp ) override;
+  virtual bool signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp ) override;
+
   virtual bool critical() const override;
   virtual void critical( bool critical ) override;
   virtual bool warn_on_runaway() const override;

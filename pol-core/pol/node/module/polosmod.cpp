@@ -52,6 +52,11 @@ bool PolOsModule::signal_event( Bscript::BObjectImp* eventimp )
   return Node::emitEvent( &exec, eventimp );
 }
 
+bool PolOsModule::signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp )
+{
+  return Node::emitEvent( &exec, eventimp );
+}
+
 bool PolOsModule::critical() const
 {
   return true;
