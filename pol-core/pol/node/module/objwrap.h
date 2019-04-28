@@ -51,9 +51,8 @@ public:
   static Napi::Value CallMethod( const CallbackInfo& info );
 
   /** Can run outside Node env */
-  static bool resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec,
-                                    Bscript::BObjectRef objref );
-  
+  static bool resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref, bool inNodeThread = false);
+
   Reference<External<Bscript::BObjectRef>> ref;
 
   static void ReleaseSharedInstance()
@@ -73,7 +72,6 @@ private:
   // static std::unique_ptr<Bscript::Executor> SharedExecutorInstance;
   static RefCountedExecutor* SharedInstance;
   static ref_ptr<RefCountedExecutor> SharedInstanceOwner;
-
 };
 
 }  // namespace Node

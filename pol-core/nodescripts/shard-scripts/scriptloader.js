@@ -142,6 +142,46 @@ if (typeof module.exports.default === "function") {
 
 const { EventEmitter } = require("events");
 
+
+function PromiseEventEmitter() {
+  this._events = Object.create(null);
+};
+
+function wrapCallback(cb) {
+  function wrappedCB() {
+    try {
+      const retVal = wrappedCB.original.call(undefined, ...arguments);
+      if (retVal instanceof Promise) {
+        return retVal.catch( (e) => { console.log("wrapped cb exception",e); });
+      }
+    } catch (e) {
+      console.log("wrapped CB exception",e);
+    }
+  }
+  wrappedCB.original = cb;
+  return wrappedCB;
+}
+
+Object.assign(PromiseEventEmitter.prototype,EventEmitter.prototype);
+
+PromiseEventEmitter.prototype.addListener = function addListener(event, listener)  {
+  return EventEmitter.prototype.addListener.call(this, event, wrapCallback(listener));
+}
+
+PromiseEventEmitter.prototype.on = PromiseEventEmitter.prototype.addListener;
+
+PromiseEventEmitter.prototype.prependListener = function prependListener(event, listener) {
+  return EventEmitter.prototype.prependListener.call(this, event, wrapCallback(listener));
+}
+
+PromiseEventEmitter.prototype.removeListener = function removeListener(event, listener) {
+  const listeners = (this._events && this._events[event]) || [];
+  const original = listeners.find( lstn => lstn === listener || lstn.original === listener) || listener;;
+  return EventEmitter.prototype.off.call(this, event, original);
+}
+
+PromiseEventEmitter.prototype.off = PromiseEventEmitter.prototype.removeListener;
+
 /**
  *
  * @param {*} paths
@@ -153,7 +193,7 @@ const { EventEmitter } = require("events");
  * string) or a NodeObjectWrap object.
  * @throws
  */
-function runScript(extUoExec, filename, script, args) {
+function runScript(extUoExec, filename, script, pid, args) {
   // debugger;
   try {
     // TODO read script _as well as_ contents from core because right now it will read the file for each call, uh oh
@@ -164,16 +204,17 @@ function runScript(extUoExec, filename, script, args) {
     let _module = new (require("module")).Module(this.filename, null);
 
     // We're going to pseudo-inherit EventEmitter, so we can do module.emit() / module.on()
-    for (const key in EventEmitter.prototype) {
+    for (const key in PromiseEventEmitter.prototype) {
       Object.defineProperty(_module, key, {
-        value: EventEmitter.prototype[key],
+        value: PromiseEventEmitter.prototype[key],
         writable: true
       });
     }
-    EventEmitter.call(_module);
+    PromiseEventEmitter.call(_module);
 
     _module.extUoExec = extUoExec;
     _module.require = _module.require.bind(_module);
+    Object.defineProperty(_module,"pid", {writable:false, value:pid, configurable: false});
 
     return {
         module: _module,

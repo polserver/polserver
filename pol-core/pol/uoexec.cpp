@@ -5,6 +5,7 @@
 #include "../bscript/executor.h"
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
+#include "./uoscrobj.h"
 #include "globals/settings.h"
 #include "module/osmod.h"
 #include "node/jsprog.h"
@@ -13,7 +14,6 @@
 #include "node/nodecall.h"
 #include "polcfg.h"
 #include "polclock.h"
-#include "./uoscrobj.h"
 
 namespace Pol
 {
@@ -83,7 +83,8 @@ std::string UOExecutor::scriptname() const
 // For Node scripts, it is possible the executor will be deleted immediately
 // after this call returns! Do not reference the executor afterwards.
 // It is also possible that the script doesn't die at all :smile:
-void UOExecutor::killScript() {
+void UOExecutor::killScript()
+{
   if ( prog_->type() == Bscript::Program::ProgramType::ESCRIPT )
   {
     Executor::seterror( true );
@@ -96,7 +97,6 @@ void UOExecutor::killScript() {
   {
     threadint->signal_event( new Pol::Module::UnsourcedEvent( Core::EVID_KILL ) );
   }
-
 }
 
 
@@ -141,20 +141,19 @@ void UOExecutor::handleRequest( Core::UOAsyncRequest* req, Bscript::BObjectImp* 
   }
   else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
-    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, this->weakptr,
-                                                Bscript::BObjectRef( resp ) );
+    Node::NodeObjectWrap::resolveDelayedObject( req->reqId_, Bscript::BObjectRef( resp ) );
   }
   revive();
   // auto iter = requests.find( req );
 }
 
-bool UOExecutor::suspend(Core::polclock_t sleep_until)
+bool UOExecutor::suspend( Core::polclock_t sleep_until )
 {
   // Run to completion scripts can't be suspended
   if ( running_to_completion() )
     return false;
 
-  threadint->suspend(sleep_until);
+  threadint->suspend( sleep_until );
   return true;
 }
 
@@ -218,6 +217,7 @@ Bscript::BObjectImp* UOExecutor::SleepFor( int secs, Bscript::BObjectImp* return
   return SleepForMs( secs * 1000, returnValue );
 }
 
+// Runs inside node thread! Because it is used only by module functions
 Bscript::BObjectImp* UOExecutor::SleepForMs( int msecs, Bscript::BObjectImp* returnValue )
 {
   return threadint->SleepForMs( msecs, returnValue );

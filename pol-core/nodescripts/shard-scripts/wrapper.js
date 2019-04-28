@@ -10,7 +10,7 @@
  * @property {function(): string} toString - Returns string value
  */
 
-const objects = require("./objects.js");
+const objects = require("./objects");
 
 const bojectTypeToClassMap = [
   null,

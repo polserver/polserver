@@ -42,8 +42,8 @@ namespace Pol
 namespace Module
 {
 using namespace Bscript;
-NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc )
+NPCExecutorModule::NPCExecutorModule( Core::UOExecutor& ex, Mobile::NPC& npc )
+    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc ), uoexec(ex)
 {
 }
 
@@ -232,7 +232,7 @@ BObjectImp* NPCExecutorModule::move_self( Plib::UFACING facing, bool run, bool a
   int base = 1000 - npc.run_speed * 3;
   if ( base < 250 )
     base = 250;
-  return uoexec->SleepForMs( run ? ( base / 2 ) : base,  new BLong( success ? 1 : 0 ));
+  return uoexec.SleepForMs( run ? ( base / 2 ) : base, new BLong( success ? 1 : 0 ) );
 }
 
 BObjectImp* NPCExecutorModule::mf_Wander()
@@ -346,7 +346,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
       {
         npc.move( static_cast<unsigned char>( facing ) );
         npc.tellmove();
-        return uoexec->SleepFor( 1, new String( Mobile::FacingStr( facing ) )  );
+        return uoexec.SleepFor( 1, new String( Mobile::FacingStr( facing ) ) );
       }
       else
       {

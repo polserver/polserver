@@ -17,14 +17,14 @@ class OSExecutorModule;
 namespace Core
 {
 /** Request number */
-u32 nextAsyncRequestId = 0;
+std::atomic<unsigned int> UOAsyncRequest::nextRequestId = 0;
 
 UOAsyncRequest::UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type )
     : ref_counted(),
       exec_( exec ),
       chr_( chr ),
       handled_( false ),
-      reqId_( nextAsyncRequestId++ ),
+      reqId_( UOAsyncRequest::nextRequestId++ ),
       type_( type ){};
 
 UOAsyncRequest::~UOAsyncRequest()

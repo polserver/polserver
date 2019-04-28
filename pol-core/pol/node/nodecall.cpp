@@ -31,8 +31,6 @@ std::atomic_uint nextRequestId( 0 );
 
 
 std::map<Core::UOExecutor*, Napi::ObjectReference> execToModuleMap;
-static Clib::SpinLock modmap_lock;
-
 
 // Only call this inside a Node environment!
 // We are guaranteed the ObjectReference will not have been removed by the OnScriptReturn
@@ -52,62 +50,182 @@ bool emitEvent( Core::UOExecutor* exec, Core::EVENTID eventId )
   return emitEvent( exec, new Pol::Module::UnsourcedEvent( eventId ) );
 }
 
+// FIXME finish
+// Call a function (non-blocking) on a UOExecutor's module
+Napi::Value callFunc( Core::UOExecutor* exec, const std::string& funcName,
+                      const std::initializer_list<Bscript::BObjectRef>& funcArgs,
+                      unsigned long reqId = 0 )
+{
+  auto call = Node::makeCall<bool>(
+      [=]( Napi::Env env, NodeRequest<bool>* request ) {
+        Napi::Value retVal;
+
+        Napi::Array argv = Array::New( env, funcArgs.size() );
+        size_t i = 0;
+
+        NODELOG.Format( "[{:04x}] [callFunc] calling {} on {}:{}\n" )
+            << reqId << funcName << exec->pid() << exec->scriptname();
+        auto iter = execToModuleMap.find( exec );
+
+        if ( iter == execToModuleMap.end() )
+        {
+          NODELOG.Format( "[{:04x}] [callFunc] no module script found ({} {})\n" )
+              << request->reqId() << iter->first->pid() << iter->first->scriptname();
+          return env.Undefined();
+        }
+
+        else if ( iter->second.Value().Has( funcName ) )
+        {
+          NODELOG.Format( "[{:04x}] [callFunc] script has no function {}\n" )
+              << request->reqId() << iter->first->pid() << iter->first->scriptname();
+          return env.Undefined();
+        }
+
+
+        try
+        {
+          for ( auto arg = funcArgs.begin(); arg != funcArgs.end(); ++arg, ++i )
+          {
+            Bscript::BObjectRef argref = *arg;
+
+            Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, argref );
+
+            argv[i] = convertedVal;
+
+            NODELOG.Format( "[{:04x}] [callFunc] argv[{}] = {}\n" )
+                << reqId << i << Node::ToUtf8Value( convertedVal );
+          }
+
+          retVal = iter->second.Get( funcName )
+                       .As<Object>()
+                       .Get( "apply" )
+                       .As<Function>()
+                       .Call( iter->second.Value(), {argv} );
+
+          NODELOG.Format( "[{:04x}] [callFunc] returned {}\n" )
+              << request->reqId() << Node::ToUtf8Value( retVal );
+        }
+        catch ( std::exception& exc )
+        {
+          NODELOG.Format( "[{:04x}] [callFunc]  returned exception {}\n" )
+              << request->reqId() << exc.what();
+        }
+
+        return retVal;
+      },
+      nullptr, false );
+
+  return Value();
+}
+
+// If exec is nullptr, it is a broadcast
+bool emitEvent( ObjectReference target, Bscript::BObjectImp* ev )
+{
+  passert( ev != nullptr );
+
+  auto call = Node::makeCall<bool>(
+      [ev, &target]( Napi::Env env, NodeRequest<bool>* request ) {
+        bool retVal = false, handled = false;
+        std::string eventName;
+        Bscript::BObjectRef objref( ev );
+
+        if ( ev->isa( Bscript::BObjectImp::OTStruct ) )
+        {
+          Bscript::BObjectRef type = ev->get_member( "type" );
+          eventName = type->impptr()->getStringRep();
+        }
+        else
+        {
+          eventName = ev->getStringRep();
+        }
+
+        auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
+
+        NODELOG.Format( "[{:04x}] [exec] sending event to target {} {} {} \n" )
+            << request->reqId() << Node::ToUtf8Value( target.Value() ) << eventName
+            << Node::ToUtf8Value( data );
+        try
+        {
+          retVal = target.Get( "emit" )
+                       .As<Function>()
+                       .Call( target.Value(), {Napi::String::New( env, eventName ), data} )
+                       .ToBoolean()
+                       .Value();
+          NODELOG.Format( "[{:04x}] [exec] emit returned {}\n" )
+              << request->reqId() << eventName << retVal;
+        }
+        catch ( std::exception& exc )
+        {
+          retVal = false;
+          NODELOG.Format( "[{:04x}] [exec] script.emit {} returned exception {}\n" )
+              << request->reqId() << eventName << exc.what();
+        }
+
+        return retVal;
+      },
+      nullptr, false );
+
+  return call.getRef();
+}  // namespace Node
+
 // If exec is nullptr, it is a broadcast
 bool emitEvent( Core::UOExecutor* exec, Bscript::BObjectImp* ev )
 {
   passert( ev != nullptr );
 
-  auto call = Node::makeCall<bool>( [=]( Napi::Env env, NodeRequest<bool>* request ) {
-    bool retVal = false, handled = false;
-    std::string eventName;
-    Bscript::BObjectRef objref( ev );
+  auto call = Node::makeCall<bool>(
+      [=]( Napi::Env env, NodeRequest<bool>* request ) {
+        bool retVal = false, handled = false;
+        std::string eventName;
+        Bscript::BObjectRef objref( ev );
 
-    if ( ev->isa( Bscript::BObjectImp::OTStruct ) )
-    {
-      Bscript::BObjectRef type = ev->get_member( "type" );
-      eventName = type->impptr()->getStringRep();
-    }
-    else
-    {
-      eventName = ev->getStringRep();
-    }
+        if ( ev->isa( Bscript::BObjectImp::OTStruct ) )
+        {
+          Bscript::BObjectRef type = ev->get_member( "type" );
+          eventName = type->impptr()->getStringRep();
+        }
+        else
+        {
+          eventName = ev->getStringRep();
+        }
 
-    auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
-    auto iter = ( exec == nullptr ? execToModuleMap.begin() : execToModuleMap.find( exec ) );
-    do
-    {
-      if ( iter == execToModuleMap.end() )
-        break;
-      NODELOG.Format( "[{:04x}] [exec] sending event to script ({} {}) {} {} {} \n" )
-          << request->reqId() << iter->first->pid() << iter->first->scriptname() << eventName
-          << Node::ToUtf8Value( data ) << objref->impptr()->getStringRep();
-      try
-      {
-        retVal = iter->second.Get( "emit" )
-                     .As<Function>()
-                     .Call( iter->second.Value(), {Napi::String::New( env, eventName ), data} )
-                     .ToBoolean()
-                     .Value();
-        NODELOG.Format( "[{:04x}] [exec] script.emit {} returned {}\n" )
-            << request->reqId() << eventName << retVal;
-      }
-      catch ( std::exception& exc )
-      {
-        retVal = false;
-        NODELOG.Format( "[{:04x}] [exec] script.emit {} returned exception {}\n" )
-            << request->reqId() << eventName << exc.what();
-      }
-      handled = true;
-    } while ( ( ++iter ), exec == nullptr );
+        auto data = Node::NodeObjectWrap::Wrap( env, objref, request->reqId() );
+        auto iter = ( exec == nullptr ? execToModuleMap.begin() : execToModuleMap.find( exec ) );
+        do
+        {
+          if ( iter == execToModuleMap.end() )
+            break;
+          NODELOG.Format( "[{:04x}] [exec] sending event to script ({} {}) {} {} {} \n" )
+              << request->reqId() << iter->first->pid() << iter->first->scriptname() << eventName
+              << Node::ToUtf8Value( data ) << objref->impptr()->getStringRep();
+          try
+          {
+            retVal = iter->second.Get( "emit" )
+                         .As<Function>()
+                         .Call( iter->second.Value(), {Napi::String::New( env, eventName ), data} )
+                         .ToBoolean()
+                         .Value();
+            NODELOG.Format( "[{:04x}] [exec] script.emit {} returned {}\n" )
+                << request->reqId() << eventName << retVal;
+          }
+          catch ( std::exception& exc )
+          {
+            retVal = false;
+            NODELOG.Format( "[{:04x}] [exec] script.emit {} returned exception {}\n" )
+                << request->reqId() << eventName << exc.what();
+          }
+          handled = true;
+        } while ( ( ++iter ), exec == nullptr );
 
-    if ( exec != nullptr && !handled )
-    {
-      NODELOG.Format( "[{:04x}] [exec] script.emit {} sending event to non-running script?\n" )
-          << request->reqId() << eventName;
-      retVal = false;
-    }
-    return retVal;
-  }, nullptr, false );
+        if ( exec != nullptr && !handled )
+        {
+          NODELOG.Format( "[{:04x}] [exec] script.emit {} sending event to non-running script?\n" )
+              << request->reqId() << eventName;
+          retVal = false;
+        }
+        return retVal;
+      },
+      nullptr, false );
 
   return call.getRef();
 }
@@ -232,8 +350,7 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
           Bscript::BObjectRef rightref = ex->ValueStack.back();
           ex->ValueStack.pop_back();
 
-          Napi::Value convertedVal =
-              Node::NodeObjectWrap::Wrap( env, rightref, reqId );
+          Napi::Value convertedVal = Node::NodeObjectWrap::Wrap( env, rightref, reqId );
 
           argv[i] = convertedVal;
 
@@ -254,7 +371,7 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
                             .Get( "runScript" )
                             .As<Function>()
                             .Call( {extUoExec, Napi::String::New( env, prog->scriptname() ),
-                                    prog->obj.Value(), argv} )
+                                    prog->obj.Value(), Number::New( env, ex->pid() ), argv} )
                             .As<Object>();
 
           auto jsRetVal = jsCall.Get( "value" );
@@ -305,8 +422,7 @@ Bscript::BObjectRef runExecutor( Core::UOExecutor* ex )
   auto impref = call.getRef();
   if ( impref.get() == nullptr )
   {
-    NODELOG.Format( "[{:04x}] [exec] errored!\n" )
-        << call.reqId();
+    NODELOG.Format( "[{:04x}] [exec] errored!\n" ) << call.reqId();
     return Bscript::BObjectRef( Bscript::UninitObject::SharedInstance );
   }
   NODELOG.Format( "[{:04x}] [exec] returned to core {}\n" )

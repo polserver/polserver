@@ -28,9 +28,6 @@ class AsyncRequestHandlerSansData;
 class UOExecutor;
 
 
-/** Request number */
-extern u32 nextAsyncRequestId;
-
 class UOAsyncRequest : public ref_counted
 {
 public:
@@ -46,6 +43,8 @@ public:
   UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type );
 
   ~UOAsyncRequest();
+
+    static std::atomic<unsigned int> nextRequestId;
 
   /**
    * Create a new request. Will return `nullptr` if a request cannot be made, eg.

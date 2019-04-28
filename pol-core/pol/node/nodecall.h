@@ -7,9 +7,9 @@
 #ifndef NODECALL_H
 #define NODECALL_H
 
-#include "../eventid.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/timer.h"
+#include "../eventid.h"
 #include "napi-wrap.h"
 #include "nodethread.h"
 #include <atomic>
@@ -24,7 +24,7 @@ namespace Bscript
 {
 class BObjectImp;
 class BObjectRef;
-}
+}  // namespace Bscript
 namespace Core
 {
 class UOExecutor;
@@ -118,8 +118,9 @@ template <typename ReturnType, typename Callable>
 NodeRequest<ReturnType> makeCall( Callable callback, Core::UOExecutor* uoexec = nullptr,
                                   bool blocking = true );
 
+Bscript::BObjectRef callFunc( Core::UOExecutor* uoexec );
 // extern std::map<Core::UOExecutor*, Napi::ObjectReference> execToModuleMap;
-// Napi::Object GetRunningScript( Core::UOExecutor* uoexec );
+Napi::Object GetRunningScript( Core::UOExecutor* uoexec );
 bool emitEvent( Core::UOExecutor* uoexec, Bscript::BObjectImp* data = nullptr );
 
 bool emitEvent( Core::UOExecutor* uoexec, Core::EVENTID eventName );

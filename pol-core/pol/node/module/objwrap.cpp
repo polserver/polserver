@@ -83,24 +83,34 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env env, Napi::Value value, unsi
 std::map<u32, Napi::Promise::Deferred> NodeObjectWrap::delayedMap;
 
 
-bool NodeObjectWrap::resolveDelayedObject( u32 reqId, weak_ptr<Core::UOExecutor> uoexec,
-                                           Bscript::BObjectRef objref )
+bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref,
+                                           bool inNodeThread )
 {
   auto iter = delayedMap.find( reqId );
   if ( iter == delayedMap.end() )
     return false;
 
-  // We really only resolve.. so if something errors, it will be a resolution of an error, just like
-  // in Escript. eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an
-  // Napi::Error), whih is falsey.
-  auto& promise = iter->second;
-  auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* /*request*/ ) {
+  if ( inNodeThread )
+  {
+    auto& promise = iter->second;
+    Napi::Env env = promise.Env();
     promise.Resolve( Wrap( env, objref, reqId ) );
     delayedMap.erase( iter );
     return true;
-  } );
-
-  return call.getRef();
+  }
+  else
+  {
+    // We really only resolve.. so if something errors, it will be a resolution of an error, just
+    // like in Escript. eg. `if (await Target(who)) {}` will resolve with a wrapped BError (ie. an
+    // Napi::Error), whih is falsey.
+    auto& promise = iter->second;
+    auto call = Node::makeCall<bool>( [&]( Napi::Env env, NodeRequest<bool>* /*request*/ ) {
+      promise.Resolve( Wrap( env, objref, reqId ) );
+      delayedMap.erase( iter );
+      return true;
+    } );
+    return call.getRef();
+  }
 }
 
 // FIXME Vulnerable to circular references.. for now!
@@ -183,7 +193,15 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref, uns
     std::string clazzName = "";
     if ( convt->object_type() == &Module::echaracterrefobjimp_type )
     {
-      clazzName = "Character";
+      Module::ECharacterRefObjImp* chrref_imp =
+          Clib::explicit_cast<Module::ECharacterRefObjImp*, Bscript::BApplicObjBase*>( convt );
+
+      auto chr = chrref_imp->value().get();
+
+     if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+        clazzName = "NPC";
+
+      else clazzName = "Character";
     }
     else if ( convt->object_type() == &Module::eitemrefobjimp_type )
     {

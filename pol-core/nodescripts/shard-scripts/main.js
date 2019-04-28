@@ -38,7 +38,7 @@ const basic = process._linkedBinding("basic");
 pol.configure({
   require,
   gc: global.gc,
-  wrapper: require("./wrapper.js"),
+  wrapper: require("./wrapper"),
   scriptloader: require("./scriptloader")
 });
 

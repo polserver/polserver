@@ -44,14 +44,14 @@ class OSExecutorModule;
 class NPCExecutorModule : public Bscript::TmplExecutorModule<NPCExecutorModule>
 {
 public:
-  NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
+  NPCExecutorModule( Core::UOExecutor& ex, Mobile::NPC& npc );
   virtual ~NPCExecutorModule();
 
   Core::NpcRef npcref;
   Mobile::NPC& npc;
 
 protected:
-  Core::UOExecutor* uoexec;
+  Core::UOExecutor& uoexec;
 
   friend class Bscript::TmplExecutorModule<NPCExecutorModule>;
 
