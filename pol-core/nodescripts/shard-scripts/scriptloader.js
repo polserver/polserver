@@ -8,6 +8,7 @@ const vm = require("vm"),
   { Module } = mod;
 
 const modules = require("./modules");
+const { PromiseEventEmitter } = require("./objects");
 
 /**
  * We create a hook into the Module instance method `require` to construct our modwrap objects
@@ -139,48 +140,6 @@ if (typeof module.exports.default === "function") {
     { filename }
   );
 }
-
-const { EventEmitter } = require("events");
-
-
-function PromiseEventEmitter() {
-  this._events = Object.create(null);
-};
-
-function wrapCallback(cb) {
-  function wrappedCB() {
-    try {
-      const retVal = wrappedCB.original.call(undefined, ...arguments);
-      if (retVal instanceof Promise) {
-        return retVal.catch( (e) => { console.log("wrapped cb exception",e); });
-      }
-    } catch (e) {
-      console.log("wrapped CB exception",e);
-    }
-  }
-  wrappedCB.original = cb;
-  return wrappedCB;
-}
-
-Object.assign(PromiseEventEmitter.prototype,EventEmitter.prototype);
-
-PromiseEventEmitter.prototype.addListener = function addListener(event, listener)  {
-  return EventEmitter.prototype.addListener.call(this, event, wrapCallback(listener));
-}
-
-PromiseEventEmitter.prototype.on = PromiseEventEmitter.prototype.addListener;
-
-PromiseEventEmitter.prototype.prependListener = function prependListener(event, listener) {
-  return EventEmitter.prototype.prependListener.call(this, event, wrapCallback(listener));
-}
-
-PromiseEventEmitter.prototype.removeListener = function removeListener(event, listener) {
-  const listeners = (this._events && this._events[event]) || [];
-  const original = listeners.find( lstn => lstn === listener || lstn.original === listener) || listener;;
-  return EventEmitter.prototype.off.call(this, event, original);
-}
-
-PromiseEventEmitter.prototype.off = PromiseEventEmitter.prototype.removeListener;
 
 /**
  *
