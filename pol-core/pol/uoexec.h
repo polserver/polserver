@@ -84,9 +84,10 @@ public:
   u64 runaway_cycles;
 
   bool listens_to( unsigned int eventflag ) const;
-  bool signal_event( Bscript::BObjectImp* eventimp );
-  bool signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp );
-
+  // Used on an executor that is currently running (eg. NPC script)
+  bool signal_event( Bscript::BObjectImp* eventimp, Core::ULWObject* target = nullptr );
+  // Used to trigger globally on every executor that has a listener on target.
+ // static bool signal_target( Bscript::BObjectImp* eventimp, Core::ULWObject* target );
 
   unsigned int eventmask;
   unsigned short area_size;

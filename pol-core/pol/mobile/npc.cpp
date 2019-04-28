@@ -675,8 +675,10 @@ void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, cons
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
       {
-        ex->signal_event( new Module::UnicodeSpeechEvent(
-            src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
+        ex->signal_event(
+            new Module::UnicodeSpeechEvent( src_chr, speech, Core::TextTypeToString( texttype ),
+                                            wspeech, lang, speechtokens ),
+            this );
       }
     }
   }
@@ -744,8 +746,7 @@ void NPC::inform_criminal( Character* thecriminal )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( thecriminal ) )
-        ex->signal_event(
-            new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
 }
@@ -776,8 +777,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }
   }
@@ -825,8 +825,7 @@ void NPC::inform_moved( Character* moved )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( moved ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
       }
     }
   }
@@ -1068,5 +1067,5 @@ bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
     return true;
   return base::get_method_hook( methodname, executor, hook, PC );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

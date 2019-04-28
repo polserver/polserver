@@ -47,14 +47,10 @@ void PolOsModule::suspend( Core::polclock_t sleep_until )
 
 void PolOsModule::revive() {}
 
-bool PolOsModule::signal_event( Bscript::BObjectImp* eventimp )
-{
-  return Node::emitEvent( &exec, eventimp );
-}
 
-bool PolOsModule::signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp )
+bool PolOsModule::signal_event( Bscript::BObjectImp* eventimp, Core::ULWObject* target )
 {
-  return Node::emitEvent( &exec, eventimp );
+  return Node::emitEvent( &exec, eventimp, target );
 }
 
 bool PolOsModule::critical() const

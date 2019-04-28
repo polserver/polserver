@@ -95,7 +95,7 @@ void UOExecutor::killScript()
   }
   else if ( prog_->type() == Bscript::Program::ProgramType::JAVASCRIPT )
   {
-    threadint->signal_event( new Pol::Module::UnsourcedEvent( Core::EVID_KILL ) );
+    threadint->signal_event( new Pol::Module::UnsourcedEvent( Core::EVID_KILL ) , nullptr);
   }
 }
 
@@ -173,15 +173,10 @@ std::string UOExecutor::state()
     return "Running";
 }
 
-
-bool UOExecutor::signal_event( Bscript::BObjectImp* eventimp )
+bool UOExecutor::signal_event( Bscript::BObjectImp* eventimp, Core::ULWObject* target )
 {
-  passert_r( os_module != nullptr, "Object cannot receive events but is receiving them!" );
-  return threadint->signal_event( eventimp );
-}
-
-bool UOExecutor::signal_event( Bscript::BObjectImp* target, Bscript::BObjectImp* eventimp ) {
-  return threadint->signal_event( target, eventimp );
+  passert_r( threadint != nullptr, "Object cannot receive events but is receiving them!" );
+  return threadint->signal_event( eventimp, target );
 }
 
 size_t UOExecutor::sizeEstimate() const
