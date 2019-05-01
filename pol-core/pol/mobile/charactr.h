@@ -466,7 +466,7 @@ private:
 public:
   void disable_regeneration_for( int seconds );
   void resetEquipableProperties();
-  void updateEquipableProperties( Items::Item* item );
+  void updateEquipableProperties( Items::Item* item, bool removal = false );
 
   u16 strength() const;
   u16 intelligence() const;

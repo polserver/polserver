@@ -187,6 +187,8 @@ struct ValueModPack
   bool operator!=(const ValueModPack& other) const;
   ValueModPack& addToValue( const ValueModPack& other );
   ValueModPack& addToValue( s16 other );
+  ValueModPack& removeFromValue( const ValueModPack& other );
+  ValueModPack& removeFromValue( s16 other );
   ValueModPack& addToMod( s16 other );
   ValueModPack& setAsMod( s16 other );
   ValueModPack& resetModAsValue();
@@ -375,6 +377,16 @@ inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
 inline ValueModPack& ValueModPack::addToValue( s16 other )
 {
   value += other;
+  return *this;
+}
+inline ValueModPack& ValueModPack::removeFromValue( const ValueModPack& other )
+{
+  value -= other.value + other.mod;
+  return *this;
+}
+inline ValueModPack& ValueModPack::removeFromValue( s16 other )
+{
+  value -= other;
   return *this;
 }
 inline ValueModPack& ValueModPack::addToMod( s16 other )
