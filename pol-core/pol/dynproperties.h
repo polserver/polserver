@@ -191,6 +191,7 @@ struct ValueModPack
   ValueModPack& removeFromValue( s16 other );
   ValueModPack& addToMod( s16 other );
   ValueModPack& setAsMod( s16 other );
+  ValueModPack& setAsValue( s16 other );
   ValueModPack& resetModAsValue();
   s16 sum() const;
 
@@ -397,6 +398,11 @@ inline ValueModPack& ValueModPack::addToMod( s16 other )
 inline ValueModPack& ValueModPack::setAsMod( s16 other )
 {
   mod = other;
+  return *this;
+}
+inline ValueModPack& ValueModPack::setAsValue( s16 other )
+{
+  value = other;
   return *this;
 }
 inline ValueModPack& ValueModPack::resetModAsValue()

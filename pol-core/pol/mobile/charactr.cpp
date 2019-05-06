@@ -1465,7 +1465,6 @@ void Character::equip( Items::Item* item )
     reset_swing_timer();
   }
   refresh_ar();
-  updateEquipableProperties( item );
 }
 
 Items::UWeapon* Character::intrinsic_weapon()
@@ -1497,7 +1496,6 @@ void Character::unequip( Items::Item* item )
     reset_swing_timer();
   }
   refresh_ar();
-  updateEquipableProperties( item, true );
 }
 
 bool Character::on_mount() const
@@ -2515,7 +2513,7 @@ void Character::refresh_ar()
   for ( unsigned zone = 0; zone < Core::gamestate.armorzones.size(); ++zone )
     armor_[zone] = nullptr;
   // we need to reset each resist to 0, then add the base back using calc.
-  //REMOVE// resetEquipableProperties();
+  resetEquipableProperties();
 
   for ( unsigned layer = Core::LAYER_EQUIP__LOWEST; layer <= Core::LAYER_EQUIP__HIGHEST; ++layer )
   {
@@ -2523,7 +2521,7 @@ void Character::refresh_ar()
     if ( item == nullptr )
       continue;
     // Let's check all items as base, and handle their element_resists.
-    //REMOVE// updateEquipableProperties( item );
+    updateEquipableProperties( item );
     if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
@@ -2575,10 +2573,9 @@ void Character::refresh_ar()
   }
 }
 
-void Character::updateEquipableProperties( Items::Item* item, bool removal )
+void Character::updateEquipableProperties( Items::Item* item )
 {
-  if (!removal)
-      {
+  
         // calc caps
         if ( item->has_defence_increase_cap() )
           defence_increase_cap( defence_increase_cap().addToValue( item->defence_increase_cap() ) );
@@ -2636,68 +2633,6 @@ void Character::updateEquipableProperties( Items::Item* item, bool removal )
       // calc defence increase if lower than cap
       if ( item->has_defence_increase() )
         defence_increase( defence_increase().addToValue( item->defence_increase() ) );
-      }
-  else
-    {
-      // calc caps
-        if ( item->has_defence_increase_cap() )
-          defence_increase_cap( defence_increase_cap().removeFromValue( item->defence_increase_cap() ) );
-      // calc resist caps
-      if ( item->has_fire_resist_cap() )
-        fire_resist_cap( fire_resist_cap().removeFromValue( item->fire_resist_cap() ) );
-      if ( item->has_cold_resist_cap() )
-        cold_resist_cap( cold_resist_cap().removeFromValue( item->cold_resist_cap() ) );
-      if ( item->has_energy_resist_cap() )
-        energy_resist_cap( energy_resist_cap().removeFromValue( item->energy_resist_cap() ) );
-      if ( item->has_poison_resist_cap() )
-        poison_resist_cap( poison_resist_cap().removeFromValue( item->poison_resist_cap() ) );
-      if ( item->has_physical_resist_cap() )
-        physical_resist_cap( physical_resist_cap().removeFromValue( item->physical_resist_cap() ) );
-      // calc resists
-      if ( item->has_fire_resist() )
-        fire_resist( fire_resist().removeFromValue( item->fire_resist() ) );
-      if ( item->has_cold_resist() )
-        cold_resist( cold_resist().removeFromValue( item->cold_resist() ) );
-      if ( item->has_energy_resist() )
-        energy_resist( energy_resist().removeFromValue( item->energy_resist() ) );
-      if ( item->has_poison_resist() )
-        poison_resist( poison_resist().removeFromValue( item->poison_resist() ) );
-      if ( item->has_physical_resist() )
-        physical_resist( physical_resist().removeFromValue( item->physical_resist() ) );
-
-      // calc damages
-      if ( item->has_fire_damage() )
-        fire_damage( fire_damage().removeFromValue( item->fire_damage() ) );
-      if ( item->has_cold_damage() )
-        cold_damage( cold_damage().removeFromValue( item->cold_damage() ) );
-      if ( item->has_energy_damage() )
-        energy_damage( energy_damage().removeFromValue( item->energy_damage() ) );
-      if ( item->has_poison_damage() )
-        poison_damage( poison_damage().removeFromValue( item->poison_damage() ) );
-      if ( item->has_physical_damage() )
-        physical_damage( physical_damage().removeFromValue( item->physical_damage() ) );
-
-      // calc others
-      if ( item->has_lower_reagent_cost() )
-        lower_reagent_cost( lower_reagent_cost().removeFromValue( item->lower_reagent_cost() ) );
-      if ( item->has_spell_damage_increase() )
-        spell_damage_increase( spell_damage_increase().removeFromValue( item->spell_damage_increase() ) );
-      if ( item->has_faster_casting() )
-        faster_casting( faster_casting().removeFromValue( item->faster_casting() ) );
-      if ( item->has_faster_cast_recovery() )
-        faster_cast_recovery( faster_cast_recovery().removeFromValue( item->faster_cast_recovery() ) );
-      if ( item->has_lower_mana_cost() )
-        lower_mana_cost( lower_mana_cost().removeFromValue( item->lower_mana_cost() ) );
-      if ( item->has_hit_chance() )
-        hit_chance( hit_chance().removeFromValue( item->hit_chance() ) );
-      if ( item->has_luck() )
-        luck( luck().removeFromValue( item->luck() ) );
-
-      // calc defence increase if lower than cap
-      if ( item->has_defence_increase() )
-        defence_increase( defence_increase().removeFromValue( item->defence_increase() ) );
-  }
-  
 
   if ( client != nullptr )
   {  // CHECKME consider sending less frequently
@@ -2707,41 +2642,41 @@ void Character::updateEquipableProperties( Items::Item* item, bool removal )
 
 void Character::resetEquipableProperties()
 {
-  /*// reset resists
+  // reset resists
   if ( has_fire_resist() )
-    fire_resist( fire_resist().setAsMod( 0 ) );
+    fire_resist( fire_resist().setAsValue( 0 )  );
   if ( has_cold_resist() )
-    cold_resist( cold_resist().setAsMod( 0 ) );
+    cold_resist( cold_resist().setAsValue( 0 ) );
   if ( has_energy_resist() )
-    energy_resist( energy_resist().setAsMod( 0 ) );
+    energy_resist( energy_resist().setAsValue( 0 ) );
   if ( has_poison_resist() )
-    poison_resist( poison_resist().setAsMod( 0 ) );
+    poison_resist( poison_resist().setAsValue( 0 ) );
   if ( has_physical_resist() )
-    physical_resist( physical_resist().setAsMod( 0 ) );
+    physical_resist( physical_resist().setAsValue( 0 ) );
 
   // reset caps
   if ( has_fire_resist_cap() )
-    fire_resist_cap( fire_resist_cap().setAsMod( 0 ) );
+    fire_resist_cap( fire_resist_cap().setAsValue( 0 ) );
   if ( has_cold_resist_cap() )
-    cold_resist_cap( cold_resist_cap().setAsMod( 0 ) );
+    cold_resist_cap( cold_resist_cap().setAsValue( 0 ) );
   if ( has_energy_resist_cap() )
-    energy_resist_cap( energy_resist_cap().setAsMod( 0 ) );
+    energy_resist_cap( energy_resist_cap().setAsValue( 0 ) );
   if ( has_poison_resist_cap() )
-    poison_resist_cap( poison_resist_cap().setAsMod( 0 ) );
+    poison_resist_cap( poison_resist_cap().setAsValue( 0 ) );
   if ( has_physical_resist_cap() )
-    physical_resist_cap( physical_resist_cap().setAsMod( 0 ) );
+    physical_resist_cap( physical_resist_cap().setAsValue( 0 ) );
 
   // reset damages
   if ( has_fire_damage() )
-    fire_damage( fire_damage().setAsMod( 0 ) );
+    fire_damage( fire_damage().setAsValue( 0 ) );
   if ( has_cold_damage() )
-    cold_damage( cold_damage().setAsMod( 0 ) );
+    cold_damage( cold_damage().setAsValue( 0 ) );
   if ( has_energy_damage() )
-    energy_damage( energy_damage().setAsMod( 0 ) );
+    energy_damage( energy_damage().setAsValue( 0 ) );
   if ( has_poison_damage() )
-    poison_damage( poison_damage().setAsMod( 0 ) );
+    poison_damage( poison_damage().setAsValue( 0 ) );
   if ( has_physical_damage() )
-    physical_damage( physical_damage().setAsMod( 0 ) );
+    physical_damage( physical_damage().setAsValue( 0 ) );
 
   // reset others
   if ( has_lower_reagent_cost() )
@@ -2749,25 +2684,25 @@ void Character::resetEquipableProperties()
     INFO_PRINT << "LRCV: " << lower_reagent_cost().value << pf_endl
                << " LRCM: " << lower_reagent_cost().mod << pf_endl
                << " LRCS: " << lower_reagent_cost().sum() << pf_endl;
-    lower_reagent_cost( lower_reagent_cost().setAsMod( 0 ) );
+    lower_reagent_cost( lower_reagent_cost().setAsValue( 0 ) );
   }
   if ( has_spell_damage_increase() )
-    spell_damage_increase( spell_damage_increase().setAsMod( 0 ) );
+    spell_damage_increase( spell_damage_increase().setAsValue( 0 ) );
   if ( has_faster_casting() )
-    faster_casting( faster_casting().setAsMod( 0 ) );
+    faster_casting( faster_casting().setAsValue( 0 ) );
   if ( has_faster_cast_recovery() )
-    faster_cast_recovery( faster_cast_recovery().setAsMod( 0 ) );
+    faster_cast_recovery( faster_cast_recovery().setAsValue( 0 ) );
 
   if ( has_defence_increase() )
-    defence_increase( defence_increase().setAsMod( 0 ) );
+    defence_increase( defence_increase().setAsValue( 0 ) );
   if ( has_defence_increase_cap() )
-    defence_increase_cap( defence_increase_cap().setAsMod( 0 ) );
+    defence_increase_cap( defence_increase_cap().setAsValue( 0 ) );
   if ( has_lower_mana_cost() )
-    lower_mana_cost( lower_mana_cost().setAsMod( 0 ) );
+    lower_mana_cost( lower_mana_cost().setAsValue( 0 ) );
   if ( has_hit_chance() )
-    hit_chance( hit_chance().setAsMod( 0 ) );
+    hit_chance( hit_chance().setAsValue( 0 ) );
   if ( has_luck() )
-    luck( luck().setAsMod( 0 ) );*/
+    luck( luck().setAsValue( 0 ) );
 }
 
 void Character::showarmor() const

@@ -298,7 +298,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( use_adjustments() != true )
     sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
-  /*
+  
   if ( has_orig_fire_resist() )
     sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
   if ( has_orig_cold_resist() )
@@ -345,7 +345,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( has_orig_poison_resist_cap() )
     sw() << "\tPoisonResistCap\t" << orig_poison_resist_cap() << pf_endl;
   if ( has_orig_luck() )
-    sw() << "\tLuck\t" << orig_luck() << pf_endl;*/
+    sw() << "\tLuck\t" << orig_luck() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
