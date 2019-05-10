@@ -80,7 +80,7 @@
 <method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
 <method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
 <method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
-<method desc="Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;u suck&quot;) is the same as obj.name := &quot;u suck&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error" />
+<method desc="Sets the built-in member 'membername' to 'value'. obj.set_member(&quot;name&quot;,&quot;Eric&quot;) is the same as obj.name := &quot;Eric&quot;" proto="set_member(string membername, obj value)" returns="object, new value of member or error" />
 <method desc="Gets the value of the built-in member 'membername'. var objname := obj.get_member(&quot;name&quot;) is the same as var objname := obj.name" proto="get_member(string membername)" returns="object, value of member or error" />
 </class>
 
