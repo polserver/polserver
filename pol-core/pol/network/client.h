@@ -29,6 +29,7 @@
 #include <queue>
 #include <string>
 
+#include "../../clib/network/sockets.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/spinlock.h"
 #include "../../clib/wallclock.h"
@@ -38,7 +39,6 @@
 #include "../polclock.h"
 #include "pktdef.h"
 #include "pktin.h"
-#include "sockets.h"
 
 namespace Pol
 {
@@ -153,8 +153,7 @@ public:
   void unregister();  // removes updater for vitals and takes client away from clientlist
   void closeConnection();
   void transmit( const void* data, int len,
-                 bool needslock = false );         // for entire message or header only
-  void transmitmore( const void* data, int len );  // for stuff after a header
+                 bool needslock = false );  // for entire message or header only
 
   void recv_remaining( int total_expected );
   void recv_remaining_nocrypt( int total_expected );
@@ -262,8 +261,8 @@ public:
   Clib::wallclock_t next_movement;
   u8 movementsequence;
   // Will be set by clientthread
-  Core::polclock_t last_activity_at;
-  Core::polclock_t last_packet_at;
+  std::atomic<Core::polclock_t> last_activity_at;
+  std::atomic<Core::polclock_t> last_packet_at;
 
 private:
   struct

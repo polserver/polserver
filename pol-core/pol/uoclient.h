@@ -15,8 +15,9 @@
 #include <string>
 #include <vector>
 
-#include "../clib/socketsvc.h"
+#include "../clib/network/socketsvc.h"
 #include "crypt/cryptkey.h"
+#include "polclock.h"
 
 namespace Pol
 {
@@ -76,10 +77,9 @@ class UoClientListener;
 class UoClientThread final : public Clib::SocketClientThread
 {
 public:
-  UoClientThread( UoClientListener* def, Clib::SocketListener& SL );
-  UoClientThread( UoClientThread& copy );
+  UoClientThread( UoClientListener* def, Clib::Socket&& newsck );
   virtual void run() override;
-  void create();
+  bool create();
   virtual ~UoClientThread() = default;
 
 private:
@@ -87,6 +87,7 @@ private:
 
 public:
   Network::Client* client;
+  poltime_t login_time;
 };
 
 class UoClientListener

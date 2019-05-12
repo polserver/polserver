@@ -196,19 +196,5 @@ void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
   }
 }
 
-polclock_t calc_scheduler_clocksleft( polclock_t now )
-{
-  ScheduledTask* task = gamestate.task_queue.top();
-  if ( !task->ready( now ) )
-  {
-    INFO_PRINT_TRACE( 20 ) << "Task " << (long long)( reinterpret_cast<const void*>( task ) )
-                           << ": " << task->clocksleft( now ) << " clocks left\n";
-    return task->clocksleft( now );
-  }
-  else
-  {
-    return 0;  // it's ready now!
-  }
-}
 }  // namespace Core
 }  // namespace Pol

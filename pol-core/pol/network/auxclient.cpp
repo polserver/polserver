@@ -20,10 +20,10 @@
 #include "../../clib/clib.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/sckutil.h"
-#include "../../clib/socketsvc.h"
+#include "../../clib/network/sckutil.h"
+#include "../../clib/network/socketsvc.h"
+#include "../../clib/network/wnsckt.h"
 #include "../../clib/threadhelp.h"
-#include "../../clib/wnsckt.h"
 #include "../../plib/pkg.h"
 #include "../globals/network.h"
 #include "../module/uomod.h"
@@ -94,8 +94,8 @@ void AuxConnection::disconnect()
   _auxclientthread = nullptr;
 }
 
-AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& listener )
-    : SocketClientThread( listener ),
+AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock )
+    : SocketClientThread( std::move( sock ) ),
       _auxservice( auxsvc ),
       _auxconnection(),
       _uoexec( nullptr ),
@@ -105,9 +105,9 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::SocketListener& list
       _transmit_counter( 0 )
 {
 }
-AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket& sock,
+AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock,
                                   Bscript::BObjectImp* params, bool assume_string )
-    : SocketClientThread( sock ),
+    : SocketClientThread( std::move( sock ) ),
       _auxservice( nullptr ),
       _auxconnection(),
       _uoexec( nullptr ),
@@ -273,10 +273,11 @@ void AuxService::run()
   Clib::SocketListener listener( _port );
   while ( !Clib::exit_signalled )
   {
-    if ( listener.GetConnection( 5 ) )
+    Clib::Socket sock;
+    if ( listener.GetConnection( &sock, 5 ) && sock.connected() )
     {
       Core::PolLock lock;
-      AuxClientThread* client( new AuxClientThread( this, listener ) );
+      AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );
       Core::networkManager.auxthreadpool->push( [client]() {
         std::unique_ptr<AuxClientThread> _clientptr( client );
         _clientptr->run();
@@ -318,5 +319,5 @@ void load_aux_services()
 {
   load_packaged_cfgs( "auxsvc.cfg", "AuxService", load_auxservice_entry );
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

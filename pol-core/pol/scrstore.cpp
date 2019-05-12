@@ -26,7 +26,7 @@ namespace Items
 {
 void preload_test_scripts();
 void preload_test_scripts( const std::string& );
-}
+}  // namespace Items
 namespace Core
 {
 bool script_loaded( ScriptDef& sd )
@@ -162,15 +162,8 @@ void log_all_script_cycle_counts( bool clear_counters )
     total_instr += scr.second->instr_cycles;
   }
 
-  if ( Plib::systemstate.config.multithread )
-  {
-    POLLOG.Format( "Scheduler passes: {}\nScript passes:    {}\n" )
-        << ( GET_PROFILEVAR( scheduler_passes ) ) << stateManager.profilevars.script_passes;
-  }
-  else
-  {
-    POLLOG.Format( "Total gameloop iterations: {}\n" ) << stateManager.profilevars.rotations;
-  }
+  POLLOG.Format( "Scheduler passes: {}\nScript passes:    {}\n" )
+      << ( GET_PROFILEVAR( scheduler_passes ) ) << stateManager.profilevars.script_passes;
 
   fmt::Writer tmp;
   tmp.Format( "{:<38} {:>12} {:>6} {:>12} {:>6}\n" ) << "Script"
@@ -210,5 +203,5 @@ void clear_script_profile_counters()
 
   POLLOG << "Profiling counters cleared.\n";
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

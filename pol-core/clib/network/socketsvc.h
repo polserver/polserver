@@ -18,9 +18,7 @@ class SocketListener
 public:
   explicit SocketListener( unsigned short port );
   SocketListener( unsigned short port, Socket::option opt );
-  bool GetConnection( unsigned int timeout_sec, unsigned int timeout_usec = 0 );
-
-  void accept( Socket& newsck );
+  bool GetConnection( Socket* newsck, unsigned int timeout_sec, unsigned int timeout_usec = 0 );
 
   friend class SocketClientThread;
 
@@ -31,9 +29,8 @@ private:
 class SocketClientThread
 {
 public:
-  explicit SocketClientThread( SocketListener& SL );
-  explicit SocketClientThread( Socket& S );
-  virtual ~SocketClientThread() {}
+  explicit SocketClientThread( Socket&& S );
+  virtual ~SocketClientThread() = default;
   void start();
   virtual void run() = 0;
   static void start_thread( SocketClientThread* instance );

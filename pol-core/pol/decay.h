@@ -10,8 +10,9 @@ namespace Pol
 {
 namespace Core
 {
-void decay_items();
-void decay_single_zone();
-}
-}
+void decay_thread( void* );
+void decay_thread_shadow( void* );
+void decay_single_thread( void* );
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -26,18 +26,18 @@
 #include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/network/sockets.h"
+#include "../clib/network/wnsckt.h"
 #include "../clib/passert.h"
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
-#include "../clib/wnsckt.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 #include "globals/uvars.h"
 #include "module/httpmod.h"
 #include "module/uomod.h"
-#include "network/sockets.h"
 #include "network/sockio.h"
 #include "polcfg.h"
 #include "polsem.h"
@@ -436,7 +436,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
     UOExecutor* ex = create_script_executor();
     Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
     ex->addModule( uoemod );
-    Module::HttpExecutorModule* hem = new Module::HttpExecutorModule( *ex, sck );
+    Module::HttpExecutorModule* hem = new Module::HttpExecutorModule( *ex, std::move( sck ) );
 
     hem->read_query_string( query_string );
     hem->read_query_ip();

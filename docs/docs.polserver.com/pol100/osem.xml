@@ -183,12 +183,6 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <return>1 on success</return>
 </function>
 
-<function name="System_RPM">
-    <prototype>System_RPM()</prototype>
-    <explain>returns the system RPM, which is the number of "game loop rotations" completed in the last minute. </explain>
-    <return>Last System RPM integer</return>
-</function>
-
 <function name="Clear_Event_Queue">
     <prototype>Clear_Event_Queue()</prototype>
     <explain>Empties the current script's event queue</explain>
