@@ -300,6 +300,6 @@ extern int n_objmembers;
 
 ObjMember* getKnownObjMember( const char* token );
 ObjMember* getObjMember( int id );
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

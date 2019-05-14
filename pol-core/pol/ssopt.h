@@ -100,6 +100,6 @@ struct ServSpecOpt
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

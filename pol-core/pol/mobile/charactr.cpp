@@ -929,11 +929,11 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
   INFO_PRINT << "mv: " << mod_value << pf_endl;
   if ( mod_value != 0 )
-      {
-  INFO_PRINT << "mv: " << mod_value << pf_endl;
+  {
+    INFO_PRINT << "mv: " << mod_value << pf_endl;
     luck( luck().setAsMod( mod_value ) );
-  INFO_PRINT << "lv: " << luck().mod << pf_endl;
-    }
+    INFO_PRINT << "lv: " << luck().mod << pf_endl;
+  }
 
 
   movement_cost( Core::MovementCostMod(
@@ -2579,64 +2579,63 @@ void Character::refresh_ar()
 
 void Character::updateEquipableProperties( Items::Item* item )
 {
-  
-        // calc caps
-        if ( item->has_defence_increase_cap() )
-          defence_increase_cap( defence_increase_cap().addToValue( item->defence_increase_cap() ) );
-      // calc resist caps
-      if ( item->has_fire_resist_cap() )
-        fire_resist_cap( fire_resist_cap().addToValue( item->fire_resist_cap() ) );
-      if ( item->has_cold_resist_cap() )
-        cold_resist_cap( cold_resist_cap().addToValue( item->cold_resist_cap() ) );
-      if ( item->has_energy_resist_cap() )
-        energy_resist_cap( energy_resist_cap().addToValue( item->energy_resist_cap() ) );
-      if ( item->has_poison_resist_cap() )
-        poison_resist_cap( poison_resist_cap().addToValue( item->poison_resist_cap() ) );
-      if ( item->has_physical_resist_cap() )
-        physical_resist_cap( physical_resist_cap().addToValue( item->physical_resist_cap() ) );
-      // calc resists
-      if ( item->has_fire_resist() )
-        fire_resist( fire_resist().addToValue( item->fire_resist() ) );
-      if ( item->has_cold_resist() )
-        cold_resist( cold_resist().addToValue( item->cold_resist() ) );
-      if ( item->has_energy_resist() )
-        energy_resist( energy_resist().addToValue( item->energy_resist() ) );
-      if ( item->has_poison_resist() )
-        poison_resist( poison_resist().addToValue( item->poison_resist() ) );
-      if ( item->has_physical_resist() )
-        physical_resist( physical_resist().addToValue( item->physical_resist() ) );
+  // calc caps
+  if ( item->has_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().addToValue( item->defence_increase_cap() ) );
+  // calc resist caps
+  if ( item->has_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().addToValue( item->fire_resist_cap() ) );
+  if ( item->has_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().addToValue( item->cold_resist_cap() ) );
+  if ( item->has_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().addToValue( item->energy_resist_cap() ) );
+  if ( item->has_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().addToValue( item->poison_resist_cap() ) );
+  if ( item->has_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().addToValue( item->physical_resist_cap() ) );
+  // calc resists
+  if ( item->has_fire_resist() )
+    fire_resist( fire_resist().addToValue( item->fire_resist() ) );
+  if ( item->has_cold_resist() )
+    cold_resist( cold_resist().addToValue( item->cold_resist() ) );
+  if ( item->has_energy_resist() )
+    energy_resist( energy_resist().addToValue( item->energy_resist() ) );
+  if ( item->has_poison_resist() )
+    poison_resist( poison_resist().addToValue( item->poison_resist() ) );
+  if ( item->has_physical_resist() )
+    physical_resist( physical_resist().addToValue( item->physical_resist() ) );
 
-      // calc damages
-      if ( item->has_fire_damage() )
-        fire_damage( fire_damage().addToValue( item->fire_damage() ) );
-      if ( item->has_cold_damage() )
-        cold_damage( cold_damage().addToValue( item->cold_damage() ) );
-      if ( item->has_energy_damage() )
-        energy_damage( energy_damage().addToValue( item->energy_damage() ) );
-      if ( item->has_poison_damage() )
-        poison_damage( poison_damage().addToValue( item->poison_damage() ) );
-      if ( item->has_physical_damage() )
-        physical_damage( physical_damage().addToValue( item->physical_damage() ) );
+  // calc damages
+  if ( item->has_fire_damage() )
+    fire_damage( fire_damage().addToValue( item->fire_damage() ) );
+  if ( item->has_cold_damage() )
+    cold_damage( cold_damage().addToValue( item->cold_damage() ) );
+  if ( item->has_energy_damage() )
+    energy_damage( energy_damage().addToValue( item->energy_damage() ) );
+  if ( item->has_poison_damage() )
+    poison_damage( poison_damage().addToValue( item->poison_damage() ) );
+  if ( item->has_physical_damage() )
+    physical_damage( physical_damage().addToValue( item->physical_damage() ) );
 
-      // calc others
-      if ( item->has_lower_reagent_cost() )
-        lower_reagent_cost( lower_reagent_cost().addToValue( item->lower_reagent_cost() ) );
-      if ( item->has_spell_damage_increase() )
-        spell_damage_increase( spell_damage_increase().addToValue( item->spell_damage_increase() ) );
-      if ( item->has_faster_casting() )
-        faster_casting( faster_casting().addToValue( item->faster_casting() ) );
-      if ( item->has_faster_cast_recovery() )
-        faster_cast_recovery( faster_cast_recovery().addToValue( item->faster_cast_recovery() ) );
-      if ( item->has_lower_mana_cost() )
-        lower_mana_cost( lower_mana_cost().addToValue( item->lower_mana_cost() ) );
-      if ( item->has_hit_chance() )
-        hit_chance( hit_chance().addToValue( item->hit_chance() ) );
-      if ( item->has_luck() )
-        luck( luck().addToValue( item->luck() ) );
+  // calc others
+  if ( item->has_lower_reagent_cost() )
+    lower_reagent_cost( lower_reagent_cost().addToValue( item->lower_reagent_cost() ) );
+  if ( item->has_spell_damage_increase() )
+    spell_damage_increase( spell_damage_increase().addToValue( item->spell_damage_increase() ) );
+  if ( item->has_faster_casting() )
+    faster_casting( faster_casting().addToValue( item->faster_casting() ) );
+  if ( item->has_faster_cast_recovery() )
+    faster_cast_recovery( faster_cast_recovery().addToValue( item->faster_cast_recovery() ) );
+  if ( item->has_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().addToValue( item->lower_mana_cost() ) );
+  if ( item->has_hit_chance() )
+    hit_chance( hit_chance().addToValue( item->hit_chance() ) );
+  if ( item->has_luck() )
+    luck( luck().addToValue( item->luck() ) );
 
-      // calc defence increase if lower than cap
-      if ( item->has_defence_increase() )
-        defence_increase( defence_increase().addToValue( item->defence_increase() ) );
+  // calc defence increase if lower than cap
+  if ( item->has_defence_increase() )
+    defence_increase( defence_increase().addToValue( item->defence_increase() ) );
 
   if ( client != nullptr )
   {  // CHECKME consider sending less frequently
@@ -2648,7 +2647,7 @@ void Character::resetEquipableProperties()
 {
   // reset resists
   if ( has_fire_resist() )
-    fire_resist( fire_resist().setAsValue( 0 )  );
+    fire_resist( fire_resist().setAsValue( 0 ) );
   if ( has_cold_resist() )
     cold_resist( cold_resist().setAsValue( 0 ) );
   if ( has_energy_resist() )

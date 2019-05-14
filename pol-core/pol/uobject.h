@@ -40,7 +40,7 @@ namespace Bscript
 {
 class BObjectImp;
 class Executor;
-}
+}  // namespace Bscript
 namespace Clib
 {
 class ConfigElem;
@@ -50,17 +50,17 @@ namespace Items
 class Item;
 class UArmor;
 class UWeapon;
-}
+}  // namespace Items
 namespace Mobile
 {
 class Character;
 class NPC;
-}
+}  // namespace Mobile
 namespace Multi
 {
 class UMulti;
 class UBoat;
-}
+}  // namespace Multi
 namespace Core
 {
 class UContainer;
@@ -268,26 +268,26 @@ public:
   DYN_PROPERTY( poison_damage, ValueModPack, PROP_DAMAGE_POISON, ValueModPack::DEFAULT );
   DYN_PROPERTY( physical_damage, ValueModPack, PROP_DAMAGE_PHYSICAL, ValueModPack::DEFAULT );
 
-  DYN_PROPERTY(fire_resist_cap, ValueModPack, PROP_RESIST_FIRE_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(cold_resist_cap, ValueModPack, PROP_RESIST_COLD_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(energy_resist_cap, ValueModPack, PROP_RESIST_ENERGY_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(poison_resist_cap, ValueModPack, PROP_RESIST_POISON_CAP, ValueModPack::DEFAULT);
-  DYN_PROPERTY(physical_resist_cap, ValueModPack, PROP_RESIST_PHYSICAL_CAP,
-      ValueModPack::DEFAULT);
+  DYN_PROPERTY( fire_resist_cap, ValueModPack, PROP_RESIST_FIRE_CAP, ValueModPack::DEFAULT );
+  DYN_PROPERTY( cold_resist_cap, ValueModPack, PROP_RESIST_COLD_CAP, ValueModPack::DEFAULT );
+  DYN_PROPERTY( energy_resist_cap, ValueModPack, PROP_RESIST_ENERGY_CAP, ValueModPack::DEFAULT );
+  DYN_PROPERTY( poison_resist_cap, ValueModPack, PROP_RESIST_POISON_CAP, ValueModPack::DEFAULT );
+  DYN_PROPERTY( physical_resist_cap, ValueModPack, PROP_RESIST_PHYSICAL_CAP,
+                ValueModPack::DEFAULT );
 
-  DYN_PROPERTY(lower_reagent_cost, ValueModPack, PROP_LOWER_REAG_COST, ValueModPack::DEFAULT);
-  DYN_PROPERTY(spell_damage_increase, ValueModPack, PROP_SPELL_DAMAGE_INCREASE,
-      ValueModPack::DEFAULT);
-  DYN_PROPERTY(faster_casting, ValueModPack, PROP_FASTER_CASTING, ValueModPack::DEFAULT);
-  DYN_PROPERTY(faster_cast_recovery, ValueModPack, PROP_FASTER_CAST_RECOVERY,
-      ValueModPack::DEFAULT);
+  DYN_PROPERTY( lower_reagent_cost, ValueModPack, PROP_LOWER_REAG_COST, ValueModPack::DEFAULT );
+  DYN_PROPERTY( spell_damage_increase, ValueModPack, PROP_SPELL_DAMAGE_INCREASE,
+                ValueModPack::DEFAULT );
+  DYN_PROPERTY( faster_casting, ValueModPack, PROP_FASTER_CASTING, ValueModPack::DEFAULT );
+  DYN_PROPERTY( faster_cast_recovery, ValueModPack, PROP_FASTER_CAST_RECOVERY,
+                ValueModPack::DEFAULT );
 
-  DYN_PROPERTY(defence_increase, ValueModPack, PROP_DEFENCE_INCREASE, ValueModPack::DEFAULT);
-  DYN_PROPERTY(defence_increase_cap, ValueModPack, PROP_DEFENCE_INCREASE_CAP,
-      ValueModPack::DEFAULT);
-  DYN_PROPERTY(lower_mana_cost, ValueModPack, PROP_LOWER_MANA_COST, ValueModPack::DEFAULT);
-  DYN_PROPERTY(hit_chance, ValueModPack, PROP_HIT_CHANCE, ValueModPack::DEFAULT);
-  DYN_PROPERTY(luck, ValueModPack, PROP_EXT_STATBAR_LUCK, ValueModPack::DEFAULT);
+  DYN_PROPERTY( defence_increase, ValueModPack, PROP_DEFENCE_INCREASE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( defence_increase_cap, ValueModPack, PROP_DEFENCE_INCREASE_CAP,
+                ValueModPack::DEFAULT );
+  DYN_PROPERTY( lower_mana_cost, ValueModPack, PROP_LOWER_MANA_COST, ValueModPack::DEFAULT );
+  DYN_PROPERTY( hit_chance, ValueModPack, PROP_HIT_CHANCE, ValueModPack::DEFAULT );
+  DYN_PROPERTY( luck, ValueModPack, PROP_EXT_STATBAR_LUCK, ValueModPack::DEFAULT );
 
 
 private:
@@ -342,7 +342,7 @@ inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

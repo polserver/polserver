@@ -1225,7 +1225,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( physical_resist().mod );
@@ -1238,7 +1238,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( fire_resist_cap().mod );
@@ -1251,7 +1251,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( cold_resist_cap().mod );
@@ -1264,7 +1264,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( energy_resist_cap().mod );
@@ -1277,7 +1277,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( poison_resist_cap().mod );
@@ -1290,7 +1290,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( physical_resist_cap().mod );
@@ -1304,7 +1304,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( fire_damage().mod );
@@ -1317,7 +1317,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( cold_damage().mod );
@@ -1330,7 +1330,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( energy_damage().mod );
@@ -1343,7 +1343,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( poison_damage().mod );
@@ -1357,7 +1357,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( physical_damage().mod );
@@ -1371,7 +1371,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( lower_reagent_cost().mod );
@@ -1384,7 +1384,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( spell_damage_increase().mod );
@@ -1397,7 +1397,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( faster_casting().mod );
@@ -1410,7 +1410,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( faster_cast_recovery().mod );
@@ -1423,7 +1423,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( defence_increase().mod );
@@ -1436,7 +1436,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( defence_increase_cap().mod );
@@ -1449,7 +1449,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( lower_mana_cost().mod );
@@ -1463,7 +1463,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( hit_chance().mod );
@@ -1476,7 +1476,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         Mobile::Character* chr = chr_from_wornitems( container );
         if ( chr != nullptr )
-                chr->refresh_ar();
+          chr->refresh_ar();
       }
     }
     return new BLong( luck().mod );

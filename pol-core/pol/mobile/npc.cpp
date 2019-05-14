@@ -298,7 +298,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( use_adjustments() != true )
     sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
-  
+
   if ( has_orig_fire_resist() )
     sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
   if ( has_orig_cold_resist() )
@@ -441,104 +441,104 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   int value;
   if ( elem.remove_prop( "AR", &tmp ) && diceValue( tmp, &value ) )
     npc_ar_ = static_cast<u16>( value );
-  if (elem.remove_prop("LOWERREAGENTCOST", &tmp) && diceValue(tmp, &value))
+  if ( elem.remove_prop( "LOWERREAGENTCOST", &tmp ) && diceValue( tmp, &value ) )
   {
-      lower_reagent_cost(apply(lower_reagent_cost(), value));
-        orig_lower_reagent_cost( static_cast<s16>( value ) );
+    lower_reagent_cost( apply( lower_reagent_cost(), value ) );
+    orig_lower_reagent_cost( static_cast<s16>( value ) );
   }
-  if (has_lower_reagent_cost())
-      lower_reagent_cost(refresh(lower_reagent_cost()));
-  if (elem.remove_prop("SPELLDAMAGEINCREASE", &tmp) && diceValue(tmp, &value))
+  if ( has_lower_reagent_cost() )
+    lower_reagent_cost( refresh( lower_reagent_cost() ) );
+  if ( elem.remove_prop( "SPELLDAMAGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
   {
-      spell_damage_increase(apply(spell_damage_increase(), value));
-        orig_spell_damage_increase( static_cast<s16>( value ) );
+    spell_damage_increase( apply( spell_damage_increase(), value ) );
+    orig_spell_damage_increase( static_cast<s16>( value ) );
   }
-  if (has_spell_damage_increase())
-      spell_damage_increase(refresh(spell_damage_increase()));
-  if (elem.remove_prop("FASTERCASTING", &tmp) && diceValue(tmp, &value))
+  if ( has_spell_damage_increase() )
+    spell_damage_increase( refresh( spell_damage_increase() ) );
+  if ( elem.remove_prop( "FASTERCASTING", &tmp ) && diceValue( tmp, &value ) )
   {
-      faster_casting(apply(faster_casting(), value));
-        orig_faster_casting( static_cast<s16>( value ) );
+    faster_casting( apply( faster_casting(), value ) );
+    orig_faster_casting( static_cast<s16>( value ) );
   }
-  if (has_faster_casting())
-      faster_casting(refresh(faster_casting()));
-  if (elem.remove_prop("FASTERCASTRECOVERY", &tmp) && diceValue(tmp, &value))
+  if ( has_faster_casting() )
+    faster_casting( refresh( faster_casting() ) );
+  if ( elem.remove_prop( "FASTERCASTRECOVERY", &tmp ) && diceValue( tmp, &value ) )
   {
-      faster_cast_recovery(apply(faster_cast_recovery(), value));
-        orig_faster_cast_recovery( static_cast<s16>( value ) );
+    faster_cast_recovery( apply( faster_cast_recovery(), value ) );
+    orig_faster_cast_recovery( static_cast<s16>( value ) );
   }
-  if (has_faster_cast_recovery())
-      faster_cast_recovery(refresh(faster_cast_recovery()));
-  if (elem.remove_prop("DEFENCEINCREASE", &tmp) && diceValue(tmp, &value))
+  if ( has_faster_cast_recovery() )
+    faster_cast_recovery( refresh( faster_cast_recovery() ) );
+  if ( elem.remove_prop( "DEFENCEINCREASE", &tmp ) && diceValue( tmp, &value ) )
   {
-      defence_increase(apply(defence_increase(), value));
-        orig_defence_increase( static_cast<s16>( value ) );
+    defence_increase( apply( defence_increase(), value ) );
+    orig_defence_increase( static_cast<s16>( value ) );
   }
-  if (has_defence_increase())
-      defence_increase(refresh(defence_increase()));
-  if (elem.remove_prop("DEFENCEINCREASECAP", &tmp) && diceValue(tmp, &value))
+  if ( has_defence_increase() )
+    defence_increase( refresh( defence_increase() ) );
+  if ( elem.remove_prop( "DEFENCEINCREASECAP", &tmp ) && diceValue( tmp, &value ) )
   {
-      defence_increase_cap(apply(defence_increase_cap(), value));
-        orig_defence_increase_cap( static_cast<s16>( value ) );
+    defence_increase_cap( apply( defence_increase_cap(), value ) );
+    orig_defence_increase_cap( static_cast<s16>( value ) );
   }
-  if (has_defence_increase_cap())
-      defence_increase_cap(refresh(defence_increase_cap()));
-  if (elem.remove_prop("LOWERMANACOST", &tmp) && diceValue(tmp, &value))
+  if ( has_defence_increase_cap() )
+    defence_increase_cap( refresh( defence_increase_cap() ) );
+  if ( elem.remove_prop( "LOWERMANACOST", &tmp ) && diceValue( tmp, &value ) )
   {
-      lower_mana_cost(apply(lower_mana_cost(), value));
-        orig_lower_mana_cost( static_cast<s16>( value ) );
+    lower_mana_cost( apply( lower_mana_cost(), value ) );
+    orig_lower_mana_cost( static_cast<s16>( value ) );
   }
-  if (has_lower_mana_cost())
-      lower_mana_cost(refresh(lower_mana_cost()));
-  if (elem.remove_prop("HITCHANCE", &tmp) && diceValue(tmp, &value))
+  if ( has_lower_mana_cost() )
+    lower_mana_cost( refresh( lower_mana_cost() ) );
+  if ( elem.remove_prop( "HITCHANCE", &tmp ) && diceValue( tmp, &value ) )
   {
-      hit_chance(apply(hit_chance(), value));
-        orig_hit_chance( static_cast<s16>( value ) );
+    hit_chance( apply( hit_chance(), value ) );
+    orig_hit_chance( static_cast<s16>( value ) );
   }
-  if (has_hit_chance())
-      hit_chance(refresh(hit_chance()));
-  if (elem.remove_prop("FIRERESISTCAP", &tmp) && diceValue(tmp, &value))
+  if ( has_hit_chance() )
+    hit_chance( refresh( hit_chance() ) );
+  if ( elem.remove_prop( "FIRERESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
-      fire_resist_cap(apply(fire_resist_cap(), value));
-        orig_fire_resist_cap( static_cast<s16>( value ) );
+    fire_resist_cap( apply( fire_resist_cap(), value ) );
+    orig_fire_resist_cap( static_cast<s16>( value ) );
   }
-  if (has_fire_resist_cap())
-      fire_resist_cap(refresh(fire_resist_cap()));
-  if (elem.remove_prop("COLDRESISTCAP", &tmp) && diceValue(tmp, &value))
+  if ( has_fire_resist_cap() )
+    fire_resist_cap( refresh( fire_resist_cap() ) );
+  if ( elem.remove_prop( "COLDRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
-      cold_resist_cap(apply(cold_resist_cap(), value));
-        orig_cold_resist_cap( static_cast<s16>( value ) );
+    cold_resist_cap( apply( cold_resist_cap(), value ) );
+    orig_cold_resist_cap( static_cast<s16>( value ) );
   }
-  if (has_cold_resist_cap())
-      cold_resist_cap(refresh(cold_resist_cap()));
-  if (elem.remove_prop("ENERGYRESISTCAP", &tmp) && diceValue(tmp, &value))
+  if ( has_cold_resist_cap() )
+    cold_resist_cap( refresh( cold_resist_cap() ) );
+  if ( elem.remove_prop( "ENERGYRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
-      energy_resist_cap(apply(energy_resist_cap(), value));
-        orig_energy_resist_cap( static_cast<s16>( value ) );
+    energy_resist_cap( apply( energy_resist_cap(), value ) );
+    orig_energy_resist_cap( static_cast<s16>( value ) );
   }
-  if (has_energy_resist_cap())
-      energy_resist_cap(refresh(energy_resist_cap()));
-  if (elem.remove_prop("PHYSICALRESISTCAP", &tmp) && diceValue(tmp, &value))
+  if ( has_energy_resist_cap() )
+    energy_resist_cap( refresh( energy_resist_cap() ) );
+  if ( elem.remove_prop( "PHYSICALRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
-      physical_resist_cap(apply(physical_resist_cap(), value));
-        orig_physical_resist_cap( static_cast<s16>( value ) );
+    physical_resist_cap( apply( physical_resist_cap(), value ) );
+    orig_physical_resist_cap( static_cast<s16>( value ) );
   }
-  if (has_physical_resist_cap())
-      physical_resist_cap(refresh(physical_resist_cap()));
-  if (elem.remove_prop("POISONRESISTCAP", &tmp) && diceValue(tmp, &value))
+  if ( has_physical_resist_cap() )
+    physical_resist_cap( refresh( physical_resist_cap() ) );
+  if ( elem.remove_prop( "POISONRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
-      poison_resist_cap(apply(poison_resist_cap(), value));
-        orig_poison_resist_cap( static_cast<s16>( value ) );
+    poison_resist_cap( apply( poison_resist_cap(), value ) );
+    orig_poison_resist_cap( static_cast<s16>( value ) );
   }
-  if (has_poison_resist_cap())
-      poison_resist_cap(refresh(poison_resist_cap()));
-  if (elem.remove_prop("LUCK", &tmp) && diceValue(tmp, &value))
+  if ( has_poison_resist_cap() )
+    poison_resist_cap( refresh( poison_resist_cap() ) );
+  if ( elem.remove_prop( "LUCK", &tmp ) && diceValue( tmp, &value ) )
   {
-      luck(apply(luck(), value));
-        orig_luck( static_cast<s16>( value ) );
+    luck( apply( luck(), value ) );
+    orig_luck( static_cast<s16>( value ) );
   }
-  if (has_luck())
-      luck(refresh(luck()));
+  if ( has_luck() )
+    luck( refresh( luck() ) );
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
@@ -880,8 +880,7 @@ void NPC::inform_criminal( Character* thecriminal )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( thecriminal ) )
-        ex->signal_event(
-            new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
 }
@@ -912,8 +911,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }
   }
@@ -961,8 +959,7 @@ void NPC::inform_moved( Character* moved )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( moved ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
       }
     }
   }
@@ -1151,38 +1148,34 @@ void NPC::resetEquipablePropertiesNPC()
   if ( has_physical_damage() || has_orig_physical_damage() )
     physical_damage( physical_damage().setAsValue( orig_physical_damage() ) );
 
-  if (has_lower_reagent_cost() || has_orig_lower_reagent_cost() )
-      lower_reagent_cost(lower_reagent_cost().setAsValue(orig_lower_reagent_cost()));
-  if (has_spell_damage_increase() || has_orig_spell_damage_increase())
-      spell_damage_increase(
-          spell_damage_increase().setAsValue(orig_spell_damage_increase()));
-  if (has_faster_casting() || has_orig_faster_casting() )
-      faster_casting(faster_casting().setAsValue(orig_faster_casting()));
-  if (has_faster_cast_recovery() || has_orig_faster_cast_recovery() )
-      faster_cast_recovery(
-          faster_cast_recovery().setAsValue(orig_faster_cast_recovery()));
-  if (has_defence_increase() || has_orig_defence_increase() )
-      defence_increase(defence_increase().setAsValue(orig_defence_increase()));
-  if (has_defence_increase_cap() || has_orig_defence_increase_cap() )
-      defence_increase_cap(
-          defence_increase_cap().setAsValue(orig_defence_increase_cap()));
-  if (has_lower_mana_cost() || has_orig_lower_mana_cost() )
-      lower_mana_cost(lower_mana_cost().setAsValue(orig_lower_mana_cost()));
-  if (has_hit_chance() || has_orig_hit_chance() )
-      hit_chance(hit_chance().setAsValue(orig_hit_chance()));
-  if (has_fire_resist_cap() || has_orig_fire_resist_cap() )
-      fire_resist_cap(fire_resist_cap().setAsValue(orig_fire_resist_cap()));
-  if (has_cold_resist_cap() || has_orig_cold_resist_cap() )
-      cold_resist_cap(cold_resist_cap().setAsValue(orig_energy_resist_cap()));
-  if (has_energy_resist_cap() || has_orig_energy_resist_cap() )
-      energy_resist_cap(energy_resist_cap().setAsValue(orig_energy_resist_cap()));
-  if (has_physical_resist_cap() || has_orig_physical_resist_cap() )
-      physical_resist_cap(
-          physical_resist_cap().setAsValue(orig_physical_resist_cap()));
-  if (has_poison_resist_cap() || has_orig_poison_resist_cap() )
-      poison_resist_cap(poison_resist_cap().setAsValue(orig_poison_resist_cap()));
-  if (has_luck() || has_orig_luck() )
-      luck(luck().setAsValue(orig_luck()));
+  if ( has_lower_reagent_cost() || has_orig_lower_reagent_cost() )
+    lower_reagent_cost( lower_reagent_cost().setAsValue( orig_lower_reagent_cost() ) );
+  if ( has_spell_damage_increase() || has_orig_spell_damage_increase() )
+    spell_damage_increase( spell_damage_increase().setAsValue( orig_spell_damage_increase() ) );
+  if ( has_faster_casting() || has_orig_faster_casting() )
+    faster_casting( faster_casting().setAsValue( orig_faster_casting() ) );
+  if ( has_faster_cast_recovery() || has_orig_faster_cast_recovery() )
+    faster_cast_recovery( faster_cast_recovery().setAsValue( orig_faster_cast_recovery() ) );
+  if ( has_defence_increase() || has_orig_defence_increase() )
+    defence_increase( defence_increase().setAsValue( orig_defence_increase() ) );
+  if ( has_defence_increase_cap() || has_orig_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().setAsValue( orig_defence_increase_cap() ) );
+  if ( has_lower_mana_cost() || has_orig_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().setAsValue( orig_lower_mana_cost() ) );
+  if ( has_hit_chance() || has_orig_hit_chance() )
+    hit_chance( hit_chance().setAsValue( orig_hit_chance() ) );
+  if ( has_fire_resist_cap() || has_orig_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().setAsValue( orig_fire_resist_cap() ) );
+  if ( has_cold_resist_cap() || has_orig_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().setAsValue( orig_energy_resist_cap() ) );
+  if ( has_energy_resist_cap() || has_orig_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().setAsValue( orig_energy_resist_cap() ) );
+  if ( has_physical_resist_cap() || has_orig_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().setAsValue( orig_physical_resist_cap() ) );
+  if ( has_poison_resist_cap() || has_orig_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().setAsValue( orig_poison_resist_cap() ) );
+  if ( has_luck() || has_orig_luck() )
+    luck( luck().setAsValue( orig_luck() ) );
 }
 
 size_t NPC::estimatedSize() const
@@ -1237,5 +1230,5 @@ bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
     return true;
   return base::get_method_hook( methodname, executor, hook, PC );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

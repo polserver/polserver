@@ -505,7 +505,7 @@ ObjMember object_members[] = {
     {MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false},
     {MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false},
     {MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false},
-    {MBR_LUCK_MOD, "luck_mod", false},   // 245
+    {MBR_LUCK_MOD, "luck_mod", false},  // 245
     {MBR_HIT_CHANCE_MOD, "hit_chance_mod", false},
 
 
@@ -523,7 +523,7 @@ ObjMember* getKnownObjMember( const char* token )
   }();
   std::string temp( token );
   std::transform( temp.begin(), temp.end(), temp.begin(),
-                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
   auto member = cache.find( temp );
   if ( member != cache.end() )
     return member->second;
@@ -707,7 +707,7 @@ ObjMethod* getKnownObjMethod( const char* token )
   }();
   std::string temp( token );
   std::transform( temp.begin(), temp.end(), temp.begin(),
-                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
   auto method = cache.find( temp );
   if ( method != cache.end() )
     return method->second;
@@ -1009,12 +1009,12 @@ void Parser::write_words( std::ostream& os )
   }
 #endif
 
-  /*
-    WTF is going on in this function?  It seems like it waits for a match, followed
-    by a nonmatch?  eh?
+/*
+  WTF is going on in this function?  It seems like it waits for a match, followed
+  by a nonmatch?  eh?
 
-    What does this mean for variables like "IfDone" etc?
-    */
+  What does this mean for variables like "IfDone" etc?
+  */
 
 #if 0
   int Parser::tryReservedWord(Token& tok, char *t, char **s)
@@ -2500,5 +2500,5 @@ int SmartParser::IP( Expression& expr, CompilerContext& ctx )
   reinit( expr );
   return IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

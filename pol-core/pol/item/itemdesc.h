@@ -40,7 +40,7 @@ namespace Core
 {
 class ExportScript;
 class ResourceDef;
-}
+}  // namespace Core
 namespace Items
 {
 struct ResourceComponent
@@ -305,6 +305,6 @@ bool objtype_is_lockable( u32 objtype );
 void load_itemdesc( Clib::ConfigElem& elem );
 
 const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct );
-}
-}
+}  // namespace Items
+}  // namespace Pol
 #endif

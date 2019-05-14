@@ -83,66 +83,66 @@ namespace Core
 // enum for the propertys
 enum DynPropTypes : u8
 {
-  PROP_AR_MOD = 0,                  // UArmor, Character
-  PROP_MAX_ITEMS_MOD = 1,           // UContainer
-  PROP_MAX_SLOTS_MOD = 2,           // UContainer
-  PROP_MAX_WEIGHT_MOD = 3,          // UContainer
-  PROP_SELLPRICE = 4,               // Item
-  PROP_BUYPRICE = 5,                // Item
-  PROP_MAXHP_MOD = 6,               // Item
-  PROP_NAME_SUFFIX = 7,             // Item
-  PROP_RESIST_FIRE = 8,             // UObject
-  PROP_RESIST_COLD = 9,             // UObject
-  PROP_RESIST_ENERGY = 10,          // UObject
-  PROP_RESIST_POISON = 11,          // UObject
-  PROP_RESIST_PHYSICAL = 12,        // UObject
-  PROP_DAMAGE_FIRE = 13,            // UObject
-  PROP_DAMAGE_COLD = 14,            // UObject
-  PROP_DAMAGE_ENERGY = 15,          // UObject
-  PROP_DAMAGE_POISON = 16,          // UObject
-  PROP_DAMAGE_PHYSICAL = 17,        // UObject
-  PROP_DMG_MOD = 18,                // UWeapon
-  PROP_SPEED_MOD = 19,              // UWeapon
-  PROP_ORIG_RESIST_FIRE = 20,       // Npc
-  PROP_ORIG_RESIST_COLD = 21,       // Npc
-  PROP_ORIG_RESIST_ENERGY = 22,     // Npc
-  PROP_ORIG_RESIST_POISON = 23,     // Npc
-  PROP_ORIG_RESIST_PHYSICAL = 24,   // Npc
-  PROP_ORIG_DAMAGE_FIRE = 25,       // Npc
-  PROP_ORIG_DAMAGE_COLD = 26,       // Npc
-  PROP_ORIG_DAMAGE_ENERGY = 27,     // Npc
-  PROP_ORIG_DAMAGE_POISON = 28,     // Npc
-  PROP_ORIG_DAMAGE_PHYSICAL = 29,   // Npc
-  PROP_STATCAP_SKILLCAP = 30,       // Character
-  PROP_EXT_STATBAR_LUCK = 31,       // Character
-  PROP_EXT_STATBAR_FOLLOWERS = 32,  // Character
-  PROP_EXT_STATBAR_TITHING = 33,    // Character
-  PROP_MOVEMENTCOST_MOD = 34,       // Character
-  PROP_QUALITY = 35,                // Item (Equipment has fixed member)
-  PROP_DOUBLECLICK_WAIT = 36,       // Character
-  PROP_DISABLE_SKILLS_UNTIL = 37,   // Character
-  PROP_SQUELCHED_UNTIL = 38,        // Character
-  PROP_DEAFENED_UNTIL = 39,         // Character
-  PROP_LIGHTOVERRIDE_UNTIL = 40,    // Character
-  PROP_LIGHTOVERRIDE = 41,          // Character
-  PROP_TITLE_PREFIX = 42,           // Character
-  PROP_TITLE_SUFFIX = 43,           // Character
-  PROP_TITLE_GUILD = 44,            // Character
-  PROP_TITLE_RACE = 45,             // Character
-  PROP_SPEECH_COLOR = 46,           // Npc
-  PROP_SPEECH_FONT = 47,            // Npc
-  PROP_CARRY_CAPACITY_MOD = 48,     // Character
-  PROP_DELAY_MOD = 49,              // Character
-  PROP_HIT_CHANCE_MOD = 50,         // Character
-  PROP_EVASIONCHANCE_MOD = 51,      // Character
-  PROP_PARTY = 52,                  // Character
-  PROP_PARTY_CANDIDATE = 53,        // Character
-  PROP_PARTY_OFFLINE = 54,          // Character
-  PROP_GUILD = 55,                  // Character
-  PROP_GOTTEN_BY = 56,              // Item
-  PROP_GOTTEN_ITEM = 57,            // Character
-  PROP_PROCESS = 58,                // Item
-  PROP_HOUSE = 59,                  // House
+  PROP_AR_MOD = 0,                       // UArmor, Character
+  PROP_MAX_ITEMS_MOD = 1,                // UContainer
+  PROP_MAX_SLOTS_MOD = 2,                // UContainer
+  PROP_MAX_WEIGHT_MOD = 3,               // UContainer
+  PROP_SELLPRICE = 4,                    // Item
+  PROP_BUYPRICE = 5,                     // Item
+  PROP_MAXHP_MOD = 6,                    // Item
+  PROP_NAME_SUFFIX = 7,                  // Item
+  PROP_RESIST_FIRE = 8,                  // UObject
+  PROP_RESIST_COLD = 9,                  // UObject
+  PROP_RESIST_ENERGY = 10,               // UObject
+  PROP_RESIST_POISON = 11,               // UObject
+  PROP_RESIST_PHYSICAL = 12,             // UObject
+  PROP_DAMAGE_FIRE = 13,                 // UObject
+  PROP_DAMAGE_COLD = 14,                 // UObject
+  PROP_DAMAGE_ENERGY = 15,               // UObject
+  PROP_DAMAGE_POISON = 16,               // UObject
+  PROP_DAMAGE_PHYSICAL = 17,             // UObject
+  PROP_DMG_MOD = 18,                     // UWeapon
+  PROP_SPEED_MOD = 19,                   // UWeapon
+  PROP_ORIG_RESIST_FIRE = 20,            // Npc
+  PROP_ORIG_RESIST_COLD = 21,            // Npc
+  PROP_ORIG_RESIST_ENERGY = 22,          // Npc
+  PROP_ORIG_RESIST_POISON = 23,          // Npc
+  PROP_ORIG_RESIST_PHYSICAL = 24,        // Npc
+  PROP_ORIG_DAMAGE_FIRE = 25,            // Npc
+  PROP_ORIG_DAMAGE_COLD = 26,            // Npc
+  PROP_ORIG_DAMAGE_ENERGY = 27,          // Npc
+  PROP_ORIG_DAMAGE_POISON = 28,          // Npc
+  PROP_ORIG_DAMAGE_PHYSICAL = 29,        // Npc
+  PROP_STATCAP_SKILLCAP = 30,            // Character
+  PROP_EXT_STATBAR_LUCK = 31,            // Character
+  PROP_EXT_STATBAR_FOLLOWERS = 32,       // Character
+  PROP_EXT_STATBAR_TITHING = 33,         // Character
+  PROP_MOVEMENTCOST_MOD = 34,            // Character
+  PROP_QUALITY = 35,                     // Item (Equipment has fixed member)
+  PROP_DOUBLECLICK_WAIT = 36,            // Character
+  PROP_DISABLE_SKILLS_UNTIL = 37,        // Character
+  PROP_SQUELCHED_UNTIL = 38,             // Character
+  PROP_DEAFENED_UNTIL = 39,              // Character
+  PROP_LIGHTOVERRIDE_UNTIL = 40,         // Character
+  PROP_LIGHTOVERRIDE = 41,               // Character
+  PROP_TITLE_PREFIX = 42,                // Character
+  PROP_TITLE_SUFFIX = 43,                // Character
+  PROP_TITLE_GUILD = 44,                 // Character
+  PROP_TITLE_RACE = 45,                  // Character
+  PROP_SPEECH_COLOR = 46,                // Npc
+  PROP_SPEECH_FONT = 47,                 // Npc
+  PROP_CARRY_CAPACITY_MOD = 48,          // Character
+  PROP_DELAY_MOD = 49,                   // Character
+  PROP_HIT_CHANCE_MOD = 50,              // Character
+  PROP_EVASIONCHANCE_MOD = 51,           // Character
+  PROP_PARTY = 52,                       // Character
+  PROP_PARTY_CANDIDATE = 53,             // Character
+  PROP_PARTY_OFFLINE = 54,               // Character
+  PROP_GUILD = 55,                       // Character
+  PROP_GOTTEN_BY = 56,                   // Item
+  PROP_GOTTEN_ITEM = 57,                 // Character
+  PROP_PROCESS = 58,                     // Item
+  PROP_HOUSE = 59,                       // House
   PROP_LOWER_REAG_COST = 60,             // UObject
   PROP_SPELL_DAMAGE_INCREASE = 61,       // UObject
   PROP_FASTER_CASTING = 62,              // UObject
@@ -184,7 +184,7 @@ struct ValueModPack
   ValueModPack( s16 value_ );
   ValueModPack();
   bool operator==( const ValueModPack& other ) const;
-  bool operator!=(const ValueModPack& other) const;
+  bool operator!=( const ValueModPack& other ) const;
   ValueModPack& addToValue( const ValueModPack& other );
   ValueModPack& addToValue( s16 other );
   ValueModPack& removeFromValue( const ValueModPack& other );
@@ -366,9 +366,9 @@ inline bool ValueModPack::operator==( const ValueModPack& other ) const
 {
   return value == other.value && mod == other.mod;
 }
-inline bool ValueModPack::operator!=(const ValueModPack& other) const
+inline bool ValueModPack::operator!=( const ValueModPack& other ) const
 {
-    return !operator==(other);
+  return !operator==( other );
 }
 inline ValueModPack& ValueModPack::addToValue( const ValueModPack& other )
 {
