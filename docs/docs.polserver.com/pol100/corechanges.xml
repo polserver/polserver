@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-26-2019</datemodified>
+		<datemodified>05-14-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>05-14-2018</date>
+			<author>DevGIB:</author>
+			<change type="Added">Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance,<br/>
+Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.</change>
+			<change type="Changed">Elevated Luck to UObject and added related LuckMod.</change>
+			<change type="Added">Support for new prop changes to the status bar packet.</change>
+			<change type="Added">Resistances will now be limited to caps by core, unless caps aren't set or are 0.</change>
+			<change type="Added">CoreHandlesDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will limit all resistances and defence increase cap to caps set on the mobile.</change>
+		</entry>
 		<entry>
 			<date>04-26-2019</date>
 			<author>Nando:</author>
