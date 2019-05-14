@@ -1130,59 +1130,59 @@ void NPC::refresh_ar()
 void NPC::resetEquipablePropertiesNPC()
 {
   if ( has_fire_resist() || has_orig_fire_resist() )
-    fire_resist( fire_resist().resetModAsValue().addToValue( orig_fire_resist() ) );
+    fire_resist( fire_resist().setAsValue( orig_fire_resist() ) );
   if ( has_cold_resist() || has_orig_cold_resist() )
-    cold_resist( cold_resist().resetModAsValue().addToValue( orig_cold_resist() ) );
+    cold_resist( cold_resist().setAsValue( orig_cold_resist() ) );
   if ( has_energy_resist() || has_orig_energy_resist() )
-    energy_resist( energy_resist().resetModAsValue().addToValue( orig_energy_resist() ) );
+    energy_resist( energy_resist().setAsValue( orig_energy_resist() ) );
   if ( has_poison_resist() || has_orig_poison_resist() )
-    poison_resist( poison_resist().resetModAsValue().addToValue( orig_poison_resist() ) );
+    poison_resist( poison_resist().setAsValue( orig_poison_resist() ) );
   if ( has_physical_resist() || has_orig_physical_resist() )
-    physical_resist( physical_resist().resetModAsValue().addToValue( orig_physical_resist() ) );
+    physical_resist( physical_resist().setAsValue( orig_physical_resist() ) );
 
   if ( has_fire_damage() || has_orig_fire_damage() )
-    fire_damage( fire_damage().resetModAsValue().addToValue( orig_fire_damage() ) );
+    fire_damage( fire_damage().setAsValue( orig_fire_damage() ) );
   if ( has_cold_damage() || has_orig_cold_damage() )
-    cold_damage( cold_damage().resetModAsValue().addToValue( orig_cold_damage() ) );
+    cold_damage( cold_damage().setAsValue( orig_cold_damage() ) );
   if ( has_energy_damage() || has_orig_energy_damage() )
-    energy_damage( energy_damage().resetModAsValue().addToValue( orig_energy_damage() ) );
+    energy_damage( energy_damage().setAsValue( orig_energy_damage() ) );
   if ( has_poison_damage() || has_orig_poison_damage() )
-    poison_damage( poison_damage().resetModAsValue().addToValue( orig_poison_damage() ) );
+    poison_damage( poison_damage().setAsValue( orig_poison_damage() ) );
   if ( has_physical_damage() || has_orig_physical_damage() )
-    physical_damage( physical_damage().resetModAsValue().addToValue( orig_physical_damage() ) );
+    physical_damage( physical_damage().setAsValue( orig_physical_damage() ) );
 
   if (has_lower_reagent_cost() || has_orig_lower_reagent_cost() )
-      lower_reagent_cost(lower_reagent_cost().resetModAsValue().addToValue(orig_lower_reagent_cost()));
+      lower_reagent_cost(lower_reagent_cost().setAsValue(orig_lower_reagent_cost()));
   if (has_spell_damage_increase() || has_orig_spell_damage_increase())
       spell_damage_increase(
-          spell_damage_increase().resetModAsValue().addToValue(orig_spell_damage_increase()));
+          spell_damage_increase().setAsValue(orig_spell_damage_increase()));
   if (has_faster_casting() || has_orig_faster_casting() )
-      faster_casting(faster_casting().resetModAsValue().addToValue(orig_faster_casting()));
+      faster_casting(faster_casting().setAsValue(orig_faster_casting()));
   if (has_faster_cast_recovery() || has_orig_faster_cast_recovery() )
       faster_cast_recovery(
-          faster_cast_recovery().resetModAsValue().addToValue(orig_faster_cast_recovery()));
+          faster_cast_recovery().setAsValue(orig_faster_cast_recovery()));
   if (has_defence_increase() || has_orig_defence_increase() )
-      defence_increase(defence_increase().resetModAsValue().addToValue(orig_defence_increase()));
+      defence_increase(defence_increase().setAsValue(orig_defence_increase()));
   if (has_defence_increase_cap() || has_orig_defence_increase_cap() )
       defence_increase_cap(
-          defence_increase_cap().resetModAsValue().addToValue(orig_defence_increase_cap()));
+          defence_increase_cap().setAsValue(orig_defence_increase_cap()));
   if (has_lower_mana_cost() || has_orig_lower_mana_cost() )
-      lower_mana_cost(lower_mana_cost().resetModAsValue().addToValue(orig_lower_mana_cost()));
+      lower_mana_cost(lower_mana_cost().setAsValue(orig_lower_mana_cost()));
   if (has_hit_chance() || has_orig_hit_chance() )
-      hit_chance(hit_chance().resetModAsValue().addToValue(orig_hit_chance()));
+      hit_chance(hit_chance().setAsValue(orig_hit_chance()));
   if (has_fire_resist_cap() || has_orig_fire_resist_cap() )
-      fire_resist_cap(fire_resist_cap().resetModAsValue().addToValue(orig_fire_resist_cap()));
+      fire_resist_cap(fire_resist_cap().setAsValue(orig_fire_resist_cap()));
   if (has_cold_resist_cap() || has_orig_cold_resist_cap() )
-      cold_resist_cap(cold_resist_cap().resetModAsValue().addToValue(orig_energy_resist_cap()));
+      cold_resist_cap(cold_resist_cap().setAsValue(orig_energy_resist_cap()));
   if (has_energy_resist_cap() || has_orig_energy_resist_cap() )
-      energy_resist_cap(energy_resist_cap().resetModAsValue().addToValue(orig_energy_resist_cap()));
+      energy_resist_cap(energy_resist_cap().setAsValue(orig_energy_resist_cap()));
   if (has_physical_resist_cap() || has_orig_physical_resist_cap() )
       physical_resist_cap(
-          physical_resist_cap().resetModAsValue().addToValue(orig_physical_resist_cap()));
+          physical_resist_cap().setAsValue(orig_physical_resist_cap()));
   if (has_poison_resist_cap() || has_orig_poison_resist_cap() )
-      poison_resist_cap(poison_resist_cap().resetModAsValue().addToValue(orig_poison_resist_cap()));
+      poison_resist_cap(poison_resist_cap().setAsValue(orig_poison_resist_cap()));
   if (has_luck() || has_orig_luck() )
-      luck(luck().resetModAsValue().addToValue(orig_luck()));
+      luck(luck().setAsValue(orig_luck()));
 }
 
 size_t NPC::estimatedSize() const

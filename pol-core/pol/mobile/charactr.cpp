@@ -927,8 +927,13 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( mod_value != 0 )
     physical_resist_cap( physical_resist_cap().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
+  INFO_PRINT << "mv: " << mod_value << pf_endl;
   if ( mod_value != 0 )
+      {
+  INFO_PRINT << "mv: " << mod_value << pf_endl;
     luck( luck().setAsMod( mod_value ) );
+  INFO_PRINT << "lv: " << luck().mod << pf_endl;
+    }
 
 
   movement_cost( Core::MovementCostMod(
@@ -2679,12 +2684,7 @@ void Character::resetEquipableProperties()
 
   // reset others
   if ( has_lower_reagent_cost() )
-  {
-    INFO_PRINT << "LRCV: " << lower_reagent_cost().value << pf_endl
-               << " LRCM: " << lower_reagent_cost().mod << pf_endl
-               << " LRCS: " << lower_reagent_cost().sum() << pf_endl;
     lower_reagent_cost( lower_reagent_cost().setAsValue( 0 ) );
-  }
   if ( has_spell_damage_increase() )
     spell_damage_increase( spell_damage_increase().setAsValue( 0 ) );
   if ( has_faster_casting() )
