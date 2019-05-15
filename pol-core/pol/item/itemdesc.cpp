@@ -232,36 +232,6 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   }
 
   maxhp = elem.remove_ushort( "MAXHP", 0 );
-  lower_reag_cost = elem.remove_ushort( "LOWERREAGENTCOST", 0 );
-  spell_damage_increase = elem.remove_ushort( "SPELLDAMAGEINCREASE", 0 );
-  faster_casting = elem.remove_ushort( "FASTERCASTING", 0 );
-  faster_cast_recovery = elem.remove_ushort( "FASTERCASTRECOVERY", 0 );
-  defence_increase = elem.remove_ushort( "DEFENCEINCREASE", 0 );
-  defence_increase_cap = elem.remove_ushort( "DEFENCEINCREASECAP", 0 );
-  lower_mana_cost = elem.remove_ushort( "LOWERMANACOST", 0 );
-  hit_chance = elem.remove_ushort( "HITCHANCE", 0 );
-  resist_fire_cap = elem.remove_ushort( "FIRERESISTCAP", 0 );
-  resist_cold_cap = elem.remove_ushort( "COLDRESISTCAP", 0 );
-  resist_energy_cap = elem.remove_ushort( "ENERGYRESISTCAP", 0 );
-  resist_physical_cap = elem.remove_ushort( "PHYSICALRESISTCAP", 0 );
-  resist_poison_cap = elem.remove_ushort( "POISONRESISTCAP", 0 );
-  luck = elem.remove_ushort( "LUCK", 0 );
-  // mods
-  defence_increase_mod = elem.remove_ushort( "DefenceIncreaseMod", 0 );
-  defence_increase_cap_mod = elem.remove_ushort( "DefenceIncreaseCapMod", 0 );
-  lower_mana_cost_mod = elem.remove_ushort( "LowerManaCostMod", 0 );
-  hit_chance_mod = elem.remove_ushort( "hitchance_mod", 0 );  // to be made redundant in the future
-  hit_chance_mod = elem.remove_ushort( "HitChanceMod", hit_chance_mod );
-  resist_fire_cap_mod = elem.remove_ushort( "FireResistCapMod", 0 );
-  resist_cold_cap_mod = elem.remove_ushort( "ColdResistCapMod", 0 );
-  resist_energy_cap_mod = elem.remove_ushort( "EnergyResistCapMod", 0 );
-  resist_physical_cap_mod = elem.remove_ushort( "PhysicalResistCapMod", 0 );
-  resist_poison_cap_mod = elem.remove_ushort( "PoisonResistCapMod", 0 );
-  lower_reagent_cost_mod = elem.remove_ushort( "LowerReagentCostMod", 0 );
-  spell_damage_increase_mod = elem.remove_ushort( "SpellDamageIncreaseMod", 0 );
-  faster_casting_mod = elem.remove_ushort( "FasterCastingMod", 0 );
-  faster_cast_recovery_mod = elem.remove_ushort( "FasterCastRecoveryMod", 0 );
-  luck_mod = elem.remove_ushort( "LUCKMOD", 0 );
 
 
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
