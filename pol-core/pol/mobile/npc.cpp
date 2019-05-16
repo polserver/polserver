@@ -435,7 +435,6 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
     return v.addToValue( static_cast<s16>( value ) );
   };
-  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack { return v.addToValue( v.mod ); };
 
   std::string tmp;
   int value;
@@ -446,99 +445,71 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     lower_reagent_cost( apply( lower_reagent_cost(), value ) );
     orig_lower_reagent_cost( static_cast<s16>( value ) );
   }
-  if ( has_lower_reagent_cost() )
-    lower_reagent_cost( refresh( lower_reagent_cost() ) );
   if ( elem.remove_prop( "SPELLDAMAGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
   {
     spell_damage_increase( apply( spell_damage_increase(), value ) );
     orig_spell_damage_increase( static_cast<s16>( value ) );
   }
-  if ( has_spell_damage_increase() )
-    spell_damage_increase( refresh( spell_damage_increase() ) );
   if ( elem.remove_prop( "FASTERCASTING", &tmp ) && diceValue( tmp, &value ) )
   {
     faster_casting( apply( faster_casting(), value ) );
     orig_faster_casting( static_cast<s16>( value ) );
   }
-  if ( has_faster_casting() )
-    faster_casting( refresh( faster_casting() ) );
   if ( elem.remove_prop( "FASTERCASTRECOVERY", &tmp ) && diceValue( tmp, &value ) )
   {
     faster_cast_recovery( apply( faster_cast_recovery(), value ) );
     orig_faster_cast_recovery( static_cast<s16>( value ) );
   }
-  if ( has_faster_cast_recovery() )
-    faster_cast_recovery( refresh( faster_cast_recovery() ) );
   if ( elem.remove_prop( "DEFENCEINCREASE", &tmp ) && diceValue( tmp, &value ) )
   {
     defence_increase( apply( defence_increase(), value ) );
     orig_defence_increase( static_cast<s16>( value ) );
   }
-  if ( has_defence_increase() )
-    defence_increase( refresh( defence_increase() ) );
   if ( elem.remove_prop( "DEFENCEINCREASECAP", &tmp ) && diceValue( tmp, &value ) )
   {
     defence_increase_cap( apply( defence_increase_cap(), value ) );
     orig_defence_increase_cap( static_cast<s16>( value ) );
   }
-  if ( has_defence_increase_cap() )
-    defence_increase_cap( refresh( defence_increase_cap() ) );
   if ( elem.remove_prop( "LOWERMANACOST", &tmp ) && diceValue( tmp, &value ) )
   {
     lower_mana_cost( apply( lower_mana_cost(), value ) );
     orig_lower_mana_cost( static_cast<s16>( value ) );
   }
-  if ( has_lower_mana_cost() )
-    lower_mana_cost( refresh( lower_mana_cost() ) );
   if ( elem.remove_prop( "HITCHANCE", &tmp ) && diceValue( tmp, &value ) )
   {
     hit_chance( apply( hit_chance(), value ) );
     orig_hit_chance( static_cast<s16>( value ) );
   }
-  if ( has_hit_chance() )
-    hit_chance( refresh( hit_chance() ) );
   if ( elem.remove_prop( "FIRERESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
     fire_resist_cap( apply( fire_resist_cap(), value ) );
     orig_fire_resist_cap( static_cast<s16>( value ) );
   }
-  if ( has_fire_resist_cap() )
-    fire_resist_cap( refresh( fire_resist_cap() ) );
   if ( elem.remove_prop( "COLDRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
     cold_resist_cap( apply( cold_resist_cap(), value ) );
     orig_cold_resist_cap( static_cast<s16>( value ) );
   }
-  if ( has_cold_resist_cap() )
-    cold_resist_cap( refresh( cold_resist_cap() ) );
   if ( elem.remove_prop( "ENERGYRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
     energy_resist_cap( apply( energy_resist_cap(), value ) );
     orig_energy_resist_cap( static_cast<s16>( value ) );
   }
-  if ( has_energy_resist_cap() )
-    energy_resist_cap( refresh( energy_resist_cap() ) );
   if ( elem.remove_prop( "PHYSICALRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
     physical_resist_cap( apply( physical_resist_cap(), value ) );
     orig_physical_resist_cap( static_cast<s16>( value ) );
   }
-  if ( has_physical_resist_cap() )
-    physical_resist_cap( refresh( physical_resist_cap() ) );
   if ( elem.remove_prop( "POISONRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
     poison_resist_cap( apply( poison_resist_cap(), value ) );
     orig_poison_resist_cap( static_cast<s16>( value ) );
   }
-  if ( has_poison_resist_cap() )
-    poison_resist_cap( refresh( poison_resist_cap() ) );
   if ( elem.remove_prop( "LUCK", &tmp ) && diceValue( tmp, &value ) )
   {
     luck( apply( luck(), value ) );
     orig_luck( static_cast<s16>( value ) );
   }
-  if ( has_luck() )
-    luck( refresh( luck() ) );
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
@@ -547,72 +518,52 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     fire_resist( apply( fire_resist(), value ) );
     orig_fire_resist( static_cast<s16>( value ) );
   }
-  if ( has_fire_resist() )
-    fire_resist( refresh( fire_resist() ) );
   if ( elem.remove_prop( "COLDRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     cold_resist( apply( cold_resist(), value ) );
     orig_cold_resist( static_cast<s16>( value ) );
   }
-  if ( has_cold_resist() )
-    cold_resist( refresh( cold_resist() ) );
   if ( elem.remove_prop( "ENERGYRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     energy_resist( apply( energy_resist(), value ) );
     orig_energy_resist( static_cast<s16>( value ) );
   }
-  if ( has_energy_resist() )
-    energy_resist( refresh( energy_resist() ) );
   if ( elem.remove_prop( "POISONRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     poison_resist( apply( poison_resist(), value ) );
     orig_poison_resist( static_cast<s16>( value ) );
   }
-  if ( has_poison_resist() )
-    poison_resist( refresh( poison_resist() ) );
   if ( elem.remove_prop( "PHYSICALRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     physical_resist( apply( physical_resist(), value ) );
     orig_physical_resist( static_cast<s16>( value ) );
   }
-  if ( has_physical_resist() )
-    physical_resist( refresh( physical_resist() ) );
 
   if ( elem.remove_prop( "FIREDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     fire_damage( apply( fire_damage(), value ) );
     orig_fire_damage( static_cast<s16>( value ) );
   }
-  if ( has_fire_damage() )
-    fire_damage( refresh( fire_damage() ) );
   if ( elem.remove_prop( "COLDDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     cold_damage( apply( cold_damage(), value ) );
     orig_cold_damage( static_cast<s16>( value ) );
   }
-  if ( has_cold_damage() )
-    cold_damage( refresh( cold_damage() ) );
   if ( elem.remove_prop( "ENERGYDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     energy_damage( apply( energy_damage(), value ) );
     orig_energy_damage( static_cast<s16>( value ) );
   }
-  if ( has_energy_damage() )
-    energy_damage( refresh( energy_damage() ) );
   if ( elem.remove_prop( "POISONDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     poison_damage( apply( poison_damage(), value ) );
     orig_poison_damage( static_cast<s16>( value ) );
   }
-  if ( has_poison_damage() )
-    poison_damage( refresh( poison_damage() ) );
   if ( elem.remove_prop( "PHYSICALDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     physical_damage( apply( physical_damage(), value ) );
     orig_physical_damage( static_cast<s16>( value ) );
   }
-  if ( has_physical_damage() )
-    physical_damage( refresh( physical_damage() ) );
 }
 
 void NPC::readProperties( Clib::ConfigElem& elem )

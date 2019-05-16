@@ -523,84 +523,61 @@ void Item::readProperties( Clib::ConfigElem& elem )
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
   setQuality( elem.remove_double( "QUALITY", itemdesc().quality ) );
 
-  s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_resist( fire_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_resist( cold_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_resist( energy_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_resist( poison_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_resist( physical_resist().setAsMod( mod_value ) );
-
-  mod_value = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_damage( fire_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_damage( cold_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_damage( energy_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_damage( poison_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_damage( physical_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASEMOD", 0 ) );
-  if ( mod_value != 0 )
-    defence_increase( defence_increase().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASECAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    defence_increase_cap( defence_increase_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "LOWERMANACOSTMOD", 0 ) );
-  if ( mod_value != 0 )
-    lower_mana_cost( lower_mana_cost().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
-  if ( mod_value != 0 )
-    hit_chance( hit_chance().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_resist_cap( fire_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_resist_cap( cold_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_resist_cap( energy_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_resist_cap( poison_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTCAPMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_resist_cap( physical_resist_cap().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "LOWERREAGENTCOSTMOD", 0 ) );
-  if ( mod_value != 0 )
-    lower_reagent_cost( lower_reagent_cost().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "SPELLDAMAGEINCREASEMOD", 0 ) );
-  if ( mod_value != 0 )
-    spell_damage_increase( spell_damage_increase().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTINGMOD", 0 ) );
-  if ( mod_value != 0 )
-    faster_casting( faster_casting().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTRECOVERYMOD", 0 ) );
-  if ( mod_value != 0 )
-    faster_cast_recovery( faster_cast_recovery().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
-  if ( mod_value != 0 )
-    luck( luck().setAsMod( mod_value ) );
-
-
   maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
   no_drop( elem.remove_bool( "NODROP", default_no_drop() ) );
+  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
+    return v.addToValue( static_cast<s16>( value ) );
+  };
+  int value;
+  if ( elem.remove_int( "LOWERREAGENTCOST", value ) )
+    lower_reagent_cost( apply( lower_reagent_cost(), value ) );
+  if ( elem.remove_int( "SPELLDAMAGEINCREASE", value ) )
+    spell_damage_increase( apply( spell_damage_increase(), value ) );
+  if ( elem.remove_int( "FASTERCASTING", value ) )
+    faster_casting( apply( faster_casting(), value ) );
+  if ( elem.remove_int( "FASTERCASTRECOVERY", value ) )
+    faster_cast_recovery( apply( faster_cast_recovery(), value ) );
+  if ( elem.remove_int( "DEFENCEINCREASE", value ) )
+    defence_increase( apply( defence_increase(), value ) );
+  if ( elem.remove_int( "DEFENCEINCREASECAP", value ) )
+    defence_increase_cap( apply( defence_increase_cap(), value ) );
+  if ( elem.remove_int( "LOWERMANACOST", value ) )
+    lower_mana_cost( apply( lower_mana_cost(), value ) );
+  if ( elem.remove_int( "HITCHANCE", value ) )
+    hit_chance( apply( hit_chance(), value ) );
+  if ( elem.remove_int( "FIRERESISTCAP", value ) )
+    fire_resist_cap( apply( fire_resist_cap(), value ) );
+  if ( elem.remove_int( "COLDRESISTCAP", value ) )
+    cold_resist_cap( apply( cold_resist_cap(), value ) );
+  if ( elem.remove_int( "ENERGYRESISTCAP", value ) )
+    energy_resist_cap( apply( energy_resist_cap(), value ) );
+  if ( elem.remove_int( "PHYSICALRESISTCAP", value ) )
+    physical_resist_cap( apply( physical_resist_cap(), value ) );
+  if ( elem.remove_int( "POISONRESISTCAP", value ) )
+    poison_resist_cap( apply( poison_resist_cap(), value ) );
+  if ( elem.remove_int( "LUCK", value ) )
+    luck( apply( luck(), value ) );
+  if ( elem.remove_int( "FIRERESIST", value ) )
+    fire_resist( apply( fire_resist(), value ) );
+  if ( elem.remove_int( "COLDRESIST", value ) )
+    cold_resist( apply( cold_resist(), value ) );
+  if ( elem.remove_int( "ENERGYRESIST", value ) )
+    energy_resist( apply( energy_resist(), value ) );
+  if ( elem.remove_int( "POISONRESIST", value ) )
+    poison_resist( apply( poison_resist(), value ) );
+  if ( elem.remove_int( "PHYSICALRESIST", value ) )
+    physical_resist( apply( physical_resist(), value ) );
+  if ( elem.remove_int( "FIREDAMAGE", value ) )
+    fire_damage( apply( fire_damage(), value ) );
+  if ( elem.remove_int( "COLDDAMAGE", value ) )
+    cold_damage( apply( cold_damage(), value ) );
+  if ( elem.remove_int( "ENERGYDAMAGE", value ) )
+    energy_damage( apply( energy_damage(), value ) );
+  if ( elem.remove_int( "POISONDAMAGE", value ) )
+    poison_damage( apply( poison_damage(), value ) );
+  if ( elem.remove_int( "PHYSICALDAMAGE", value ) )
+    physical_damage( apply( physical_damage(), value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )
