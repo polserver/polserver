@@ -526,58 +526,56 @@ void Item::readProperties( Clib::ConfigElem& elem )
   maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
   no_drop( elem.remove_bool( "NODROP", default_no_drop() ) );
-  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
-    return v.addToValue( static_cast<s16>( value ) );
-  };
+  
   int value;
   if ( elem.remove_int( "LOWERREAGENTCOST", value ) )
-    lower_reagent_cost( apply( lower_reagent_cost(), value ) );
+    lower_reagent_cost( lower_reagent_cost().setAsValue( value ) ) );
   if ( elem.remove_int( "SPELLDAMAGEINCREASE", value ) )
-    spell_damage_increase( apply( spell_damage_increase(), value ) );
+    spell_damage_increase( spell_damage_increase().setAsValue( value ) );
   if ( elem.remove_int( "FASTERCASTING", value ) )
-    faster_casting( apply( faster_casting(), value ) );
+    faster_casting( faster_casting().setAsValue( value ) );
   if ( elem.remove_int( "FASTERCASTRECOVERY", value ) )
-    faster_cast_recovery( apply( faster_cast_recovery(), value ) );
+    faster_cast_recovery( faster_cast_recovery().setAsValue( value ) );
   if ( elem.remove_int( "DEFENCEINCREASE", value ) )
-    defence_increase( apply( defence_increase(), value ) );
+    defence_increase( defence_increase().setAsValue( value ) );
   if ( elem.remove_int( "DEFENCEINCREASECAP", value ) )
-    defence_increase_cap( apply( defence_increase_cap(), value ) );
+    defence_increase_cap( defence_increase_cap().setAsValue( value ) );
   if ( elem.remove_int( "LOWERMANACOST", value ) )
-    lower_mana_cost( apply( lower_mana_cost(), value ) );
+    lower_mana_cost( lower_mana_cost().setAsValue( value ) );
   if ( elem.remove_int( "HITCHANCE", value ) )
-    hit_chance( apply( hit_chance(), value ) );
+    hit_chance( hit_chance().setAsValue( value ) );
   if ( elem.remove_int( "FIRERESISTCAP", value ) )
-    fire_resist_cap( apply( fire_resist_cap(), value ) );
+    fire_resist_cap( fire_resist_cap().setAsValue( value ) );
   if ( elem.remove_int( "COLDRESISTCAP", value ) )
-    cold_resist_cap( apply( cold_resist_cap(), value ) );
+    cold_resist_cap( cold_resist_cap().setAsValue( value ) );
   if ( elem.remove_int( "ENERGYRESISTCAP", value ) )
-    energy_resist_cap( apply( energy_resist_cap(), value ) );
+    energy_resist_cap( energy_resist_cap().setAsValue( value ) );
   if ( elem.remove_int( "PHYSICALRESISTCAP", value ) )
-    physical_resist_cap( apply( physical_resist_cap(), value ) );
+    physical_resist_cap( physical_resist_cap().setAsValue( value ) );
   if ( elem.remove_int( "POISONRESISTCAP", value ) )
-    poison_resist_cap( apply( poison_resist_cap(), value ) );
+    poison_resist_cap( poison_resist_cap().setAsValue( value ) );
   if ( elem.remove_int( "LUCK", value ) )
-    luck( apply( luck(), value ) );
+    luck( luck().setAsValue( value ) );
   if ( elem.remove_int( "FIRERESIST", value ) )
-    fire_resist( apply( fire_resist(), value ) );
+    fire_resist( fire_resist().setAsValue( value ) );
   if ( elem.remove_int( "COLDRESIST", value ) )
-    cold_resist( apply( cold_resist(), value ) );
+    cold_resist( cold_resist().setAsValue( value ) );
   if ( elem.remove_int( "ENERGYRESIST", value ) )
-    energy_resist( apply( energy_resist(), value ) );
+    energy_resist( energy_resist().setAsValue( value ) );
   if ( elem.remove_int( "POISONRESIST", value ) )
-    poison_resist( apply( poison_resist(), value ) );
+    poison_resist( poison_resist().setAsValue( value ) );
   if ( elem.remove_int( "PHYSICALRESIST", value ) )
-    physical_resist( apply( physical_resist(), value ) );
+    physical_resist( physical_resist().setAsValue( value ) );
   if ( elem.remove_int( "FIREDAMAGE", value ) )
-    fire_damage( apply( fire_damage(), value ) );
+    fire_damage( fire_damage().setAsValue( value ) );
   if ( elem.remove_int( "COLDDAMAGE", value ) )
-    cold_damage( apply( cold_damage(), value ) );
+    cold_damage( cold_damage().setAsValue( value ) );
   if ( elem.remove_int( "ENERGYDAMAGE", value ) )
-    energy_damage( apply( energy_damage(), value ) );
+    energy_damage( energy_damage().setAsValue( value ) );
   if ( elem.remove_int( "POISONDAMAGE", value ) )
-    poison_damage( apply( poison_damage(), value ) );
+    poison_damage( poison_damage().setAsValue( value ) );
   if ( elem.remove_int( "PHYSICALDAMAGE", value ) )
-    physical_damage( apply( physical_damage(), value ) );
+    physical_damage( physical_damage().setAsValue( value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )
