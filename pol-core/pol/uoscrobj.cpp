@@ -1893,7 +1893,16 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   if ( imp != nullptr )
     return imp;
 
-  bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
+
+  auto EnforceCaps = []( s16 baseValue, const s16 capValue ) -> s16 { 
+    const bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
+   
+
+      if ( !ignore_caps )
+        baseValue = std::min( baseValue, capValue );
+
+      return baseValue;
+  };
 
   switch ( id )
   {
@@ -2137,45 +2146,15 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( carrying_capacity() );
     break;
   case MBR_FIRE_RESIST:
-  {
-    s16 value = fire_resist().sum();
-    if ( !ignore_caps && ( fire_resist().sum() > fire_resist_cap().sum() ) )
-      value = fire_resist_cap().sum();
-    return new BLong( value );
-    break;
-  }
+    return new BLong( EnforceCaps( fire_resist().sum(), fire_resist_cap().sum() ) );
   case MBR_COLD_RESIST:
-  {
-    s16 value = cold_resist().sum();
-    if ( !ignore_caps && ( cold_resist().sum() > cold_resist_cap().sum() ) )
-      value = cold_resist_cap().sum();
-    return new BLong( value );
-    break;
-  }
+    return new BLong( EnforceCaps( cold_resist().sum(), cold_resist_cap().sum() ) );
   case MBR_ENERGY_RESIST:
-  {
-    s16 value = energy_resist().sum();
-    if ( !ignore_caps && ( energy_resist().sum() > energy_resist_cap().sum() ) )
-      value = energy_resist_cap().sum();
-    return new BLong( value );
-    break;
-  }
+    return new BLong( EnforceCaps( energy_resist().sum(), energy_resist_cap().sum() ) );
   case MBR_POISON_RESIST:
-  {
-    s16 value = poison_resist().sum();
-    if ( !ignore_caps && ( poison_resist().sum() > poison_resist_cap().sum() ) )
-      value = poison_resist_cap().sum();
-    return new BLong( value );
-    break;
-  }
+    return new BLong( EnforceCaps( poison_resist().sum(), poison_resist_cap().sum() ) );
   case MBR_PHYSICAL_RESIST:
-  {
-    s16 value = physical_resist().sum();
-    if ( !ignore_caps && ( physical_resist().sum() > physical_resist_cap().sum() ) )
-      value = physical_resist_cap().sum();
-    return new BLong( value );
-    break;
-  }
+    return new BLong( EnforceCaps( physical_resist().sum(), physical_resist_cap().sum() ) );
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
@@ -2258,7 +2237,7 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( hit_chance().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE:
-    return new BLong( defence_increase().sum() );
+    return new BLong( EnforceCaps( defence_increase().sum(), defence_increase_cap().sum() ) );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_CAP:
     return new BLong( defence_increase_cap().sum() );
