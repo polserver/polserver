@@ -222,33 +222,33 @@ Item* Item::create( const ItemDesc& id, u32 serial )
     }
   }
 
-  item->fire_resist( item->fire_resist().addToValue( id.element_resist.fire ) );
-  item->fire_damage( item->fire_damage().addToValue( id.element_damage.fire ) );
-  item->cold_resist( item->cold_resist().addToValue( id.element_resist.cold ) );
-  item->cold_damage( item->cold_damage().addToValue( id.element_damage.cold ) );
-  item->energy_resist( item->energy_resist().addToValue( id.element_resist.energy ) );
-  item->energy_damage( item->energy_damage().addToValue( id.element_damage.energy ) );
-  item->poison_resist( item->poison_resist().addToValue( id.element_resist.poison ) );
-  item->poison_damage( item->poison_damage().addToValue( id.element_damage.poison ) );
-  item->physical_resist( item->physical_resist().addToValue( id.element_resist.physical ) );
-  item->physical_damage( item->physical_damage().addToValue( id.element_damage.physical ) );
+  item->fire_resist( item->fire_resist().setAsValue( id.element_resist.fire ) );
+  item->fire_damage( item->fire_damage().setAsValue( id.element_damage.fire ) );
+  item->cold_resist( item->cold_resist().setAsValue( id.element_resist.cold ) );
+  item->cold_damage( item->cold_damage().setAsValue( id.element_damage.cold ) );
+  item->energy_resist( item->energy_resist().setAsValue( id.element_resist.energy ) );
+  item->energy_damage( item->energy_damage().setAsValue( id.element_damage.energy ) );
+  item->poison_resist( item->poison_resist().setAsValue( id.element_resist.poison ) );
+  item->poison_damage( item->poison_damage().setAsValue( id.element_damage.poison ) );
+  item->physical_resist( item->physical_resist().setAsValue( id.element_resist.physical ) );
+  item->physical_damage( item->physical_damage().setAsValue( id.element_damage.physical ) );
 
   // new props
-  item->lower_reagent_cost( item->lower_reagent_cost().addToValue( id.lower_reag_cost ) );
+  item->lower_reagent_cost( item->lower_reagent_cost().setAsValue( id.lower_reag_cost ) );
   item->spell_damage_increase(
-      item->spell_damage_increase().addToValue( id.spell_damage_increase ) );
-  item->faster_casting( item->faster_casting().addToValue( id.faster_casting ) );
-  item->faster_cast_recovery( item->faster_cast_recovery().addToValue( id.faster_cast_recovery ) );
-  item->defence_increase( item->defence_increase().addToValue( id.defence_increase ) );
-  item->defence_increase_cap( item->defence_increase_cap().addToValue( id.defence_increase_cap ) );
-  item->lower_mana_cost( item->lower_mana_cost().addToValue( id.lower_mana_cost ) );
-  item->hit_chance( item->hit_chance().addToValue( id.hit_chance ) );
-  item->fire_resist_cap( item->fire_resist_cap().addToValue( id.resist_fire_cap ) );
-  item->cold_resist_cap( item->cold_resist_cap().addToValue( id.resist_cold_cap ) );
-  item->energy_resist_cap( item->energy_resist_cap().addToValue( id.resist_energy_cap ) );
-  item->physical_resist_cap( item->physical_resist_cap().addToValue( id.resist_physical_cap ) );
-  item->poison_resist_cap( item->poison_resist_cap().addToValue( id.resist_poison_cap ) );
-  item->luck( item->luck().addToValue( id.luck ) );
+      item->spell_damage_increase().setAsValue( id.spell_damage_increase ) );
+  item->faster_casting( item->faster_casting().setAsValue( id.faster_casting ) );
+  item->faster_cast_recovery( item->faster_cast_recovery().setAsValue( id.faster_cast_recovery ) );
+  item->defence_increase( item->defence_increase().setAsValue( id.defence_increase ) );
+  item->defence_increase_cap( item->defence_increase_cap().setAsValue( id.defence_increase_cap ) );
+  item->lower_mana_cost( item->lower_mana_cost().setAsValue( id.lower_mana_cost ) );
+  item->hit_chance( item->hit_chance().setAsValue( id.hit_chance ) );
+  item->fire_resist_cap( item->fire_resist_cap().setAsValue( id.resist_fire_cap ) );
+  item->cold_resist_cap( item->cold_resist_cap().setAsValue( id.resist_cold_cap ) );
+  item->energy_resist_cap( item->energy_resist_cap().setAsValue( id.resist_energy_cap ) );
+  item->physical_resist_cap( item->physical_resist_cap().setAsValue( id.resist_physical_cap ) );
+  item->poison_resist_cap( item->poison_resist_cap().setAsValue( id.resist_poison_cap ) );
+  item->luck( item->luck().setAsValue( id.luck ) );
 
   // new mods
   item->defence_increase( item->defence_increase().setAsMod( id.defence_increase_mod ) );

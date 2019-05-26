@@ -359,7 +359,7 @@ Spell (int spellid)
 [CoreHandledLocks               (0/1 {default 0})]
 [DefaultAttributeCap            (int in tenths {default 1000})]
 [CoreSendsCaps                  (0/1 {default 0})]
-[CoreHandlesDefenceCaps         (0/1 {default 0})]
+[CoreIgnoresDefenceCaps         (0/1 {default 0})]
 [SendStatLocks                  (0/1 {default 0})]
 [MaxContainerSlots              (int {default 125})]
 [UseContainerSlots              (0/1 {default 0})]
@@ -401,7 +401,7 @@ Spell (int spellid)
   <explain><i>CoreHandledLocks:</i> If enabled, core will handle the change of skill locks and stat locks from the client (setting the attribute locks).</explain>
   <explain><i>DefaultAttributeCap:</i> defines which value POL should use as cap for attributes.</explain>
   <explain><i>CoreSendsCaps:</i> makes POL send attribute cap information in the Send Skills (0x3A) packet.</explain>
-  <explain><i>CoreHandlesDefenceCaps:</i> makes POL enforce the caps for elemental resists and damage increase properties.</explain>
+  <explain><i>CoreIgnoresDefenceCaps:</i> makes POL ignore the caps for elemental resists and damage increase properties when calculating the value.</explain>
   <explain><i>SendStatLocks:</i> makes POL send stat lock message (Client version &gt; 3)</explain>
   <explain><i>MaxContainerSlots:</i> This will allow setting the internal overall allowed item count for containers. This is introduced for future KR support.</explain>
   <explain><i>UseContainerSlots:</i> check to can add bulk code to ensure not going over max slot capacity of 255 and a container's max slot capacity.</explain>

@@ -398,7 +398,6 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     return dice.roll();
   };
 
-
   if ( elem.remove_prop( "SpellDamageIncrease", &temp ) )
     spell_damage_increase = diceValue( temp, "Spell Damage Increase" );
 

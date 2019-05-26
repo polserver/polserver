@@ -35,7 +35,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
   msg->Write( chr->name().c_str(), 30, false );
-  bool process_caps = Core::settingsManager.ssopt.core_handles_defence_caps;
+  bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
   if ( networkManager.uoclient_general.hits.any )
   {
     int v = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
@@ -139,7 +139,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
   {
     s16 value = chr->physical_resist().sum();
-    if ( chr->has_physical_resist_cap() && process_caps )
+    if ( chr->has_physical_resist_cap() && !ignore_caps )
     {
       auto cap = chr->physical_resist_cap().sum();
       value = std::min( cap, value );
@@ -170,28 +170,28 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->Write<s8>( follow_value.followers_max );
     // moreinfo 4 start
     s16 value = chr->fire_resist().sum();
-    if ( chr->has_fire_resist_cap() && process_caps )
+    if ( chr->has_fire_resist_cap() && !ignore_caps )
     {
       auto cap = chr->fire_resist_cap().sum();
       value = std::min( cap, value );
     }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->cold_resist().sum();
-    if ( chr->has_cold_resist_cap() && process_caps )
+    if ( chr->has_cold_resist_cap() && !ignore_caps )
     {
       auto cap = chr->cold_resist_cap().sum();
       value = std::min( cap, value );
     }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->poison_resist().sum();
-    if ( chr->has_poison_resist_cap() && process_caps )
+    if ( chr->has_poison_resist_cap() && !ignore_caps )
     {
       auto cap = chr->poison_resist_cap().sum();
       value = std::min( cap, value );
     }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
     value = chr->energy_resist().sum();
-    if ( chr->has_energy_resist_cap() && process_caps )
+    if ( chr->has_energy_resist_cap() && !ignore_caps )
     {
       auto cap = chr->energy_resist_cap().sum();
       value = std::min( cap, value );
@@ -218,7 +218,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->energy_resist_cap().sum() ) );  // Energy resist cap
     s16 value = chr->defence_increase().sum();
-    if ( chr->has_defence_increase_cap() && process_caps )
+    if ( chr->has_defence_increase_cap() && !ignore_caps )
     {
       auto cap = chr->defence_increase_cap().sum();
       value = std::min( cap, value );

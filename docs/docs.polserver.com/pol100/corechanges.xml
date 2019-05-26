@@ -13,7 +13,7 @@ Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and Pois
 			<change type="Changed">Elevated Luck to UObject and added related LuckMod.</change>
 			<change type="Added">Support for new prop changes to the status bar packet.</change>
 			<change type="Added">Resistances will now be limited to caps by core, unless caps aren't set or are 0.</change>
-			<change type="Added">CoreHandlesDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will limit all resistances and defence increase cap to caps set on the mobile.</change>
+			<change type="Added">CoreIgnoresDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will not calculate resistances and defence increase limits set on the mobile.</change>
 		</entry>
 		<entry>
 			<date>04-26-2019</date>

@@ -1893,6 +1893,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   if ( imp != nullptr )
     return imp;
 
+  bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
+
   switch ( id )
   {
   case MBR_WARMODE:
@@ -2135,20 +2137,45 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( carrying_capacity() );
     break;
   case MBR_FIRE_RESIST:
-    return new BLong( fire_resist().sum() );
+  {
+    s16 value = fire_resist().sum();
+    if ( !ignore_caps && ( fire_resist().sum() > fire_resist_cap().sum() ) )
+      value = fire_resist_cap().sum();
+    return new BLong( value );
     break;
+  }
   case MBR_COLD_RESIST:
-    return new BLong( cold_resist().sum() );
+  {
+    s16 value = cold_resist().sum();
+    if ( !ignore_caps && ( cold_resist().sum() > cold_resist_cap().sum() ) )
+      value = cold_resist_cap().sum();
+    return new BLong( value );
     break;
+  }
   case MBR_ENERGY_RESIST:
-    return new BLong( energy_resist().sum() );
+  {
+    s16 value = energy_resist().sum();
+    if ( !ignore_caps && ( energy_resist().sum() > energy_resist_cap().sum() ) )
+      value = energy_resist_cap().sum();
+    return new BLong( value );
     break;
+  }
   case MBR_POISON_RESIST:
-    return new BLong( poison_resist().sum() );
+  {
+    s16 value = poison_resist().sum();
+    if ( !ignore_caps && ( poison_resist().sum() > poison_resist_cap().sum() ) )
+      value = poison_resist_cap().sum();
+    return new BLong( value );
     break;
+  }
   case MBR_PHYSICAL_RESIST:
-    return new BLong( physical_resist().sum() );
+  {
+    s16 value = physical_resist().sum();
+    if ( !ignore_caps && ( physical_resist().sum() > physical_resist_cap().sum() ) )
+      value = physical_resist_cap().sum();
+    return new BLong( value );
     break;
+  }
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
