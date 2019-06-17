@@ -8,6 +8,11 @@
 		<entry>
 			<date>06-17-2018</date>
 			<author>DevGIB:</author>
+			<change type="Changed">Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.</change>
+		</entry>
+		<entry>
+			<date>06-17-2018</date>
+			<author>DevGIB:</author>
 			<change type="Added">Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance,<br/>
 Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.</change>
 			<change type="Changed">Elevated Luck to UObject and added related LuckMod.</change>
