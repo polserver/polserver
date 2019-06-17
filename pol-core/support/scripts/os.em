@@ -69,7 +69,7 @@ Set_Debug( debug );
 
 
 Start_Script( script_name, param := 0 );
-Start_Skill_Script( chr, attr_name, script_name := 0, param := 0 );
+Start_Skill_Script( chr, attr_name, script_name := "", param := 0 );
 Run_Script_To_Completion( script_name, param := 0 );
 Run_Script( script_name, param := 0 );
 

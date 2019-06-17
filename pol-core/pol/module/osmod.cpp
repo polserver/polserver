@@ -281,7 +281,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
       const String* script_name;
       Core::ScriptDef script;
 
-      if ( exec.getStringParam( 2, script_name ) )
+      if ( exec.getStringParam( 2, script_name ) && (script_name->length() > 0))
       {
         if ( !script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ) )
         {

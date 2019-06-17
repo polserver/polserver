@@ -1,5 +1,7 @@
 ﻿-- POL100 --
 06-17-2018 DevGIB:
+  Changed: Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.
+06-17-2018 DevGIB:
   Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, 
            Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
   Changed: Elevated Luck to UObject and added related LuckMod.
