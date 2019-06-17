@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-14-2019</datemodified>
+		<datemodified>06-17-2019</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>05-14-2018</date>
+			<date>06-17-2018</date>
 			<author>DevGIB:</author>
 			<change type="Added">Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance,<br/>
 Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.</change>
