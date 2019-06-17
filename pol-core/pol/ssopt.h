@@ -69,6 +69,7 @@ struct ServSpecOpt
 
   unsigned short default_attribute_cap;
   bool core_sends_caps;
+  bool core_ignores_defence_caps;
   bool send_stat_locks;
 
   unsigned short speech_range;
@@ -99,6 +100,6 @@ struct ServSpecOpt
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -271,6 +271,83 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   else
     sw() << "\tRealm\t" << realm->name() << pf_endl;
 
+  s16 value = fire_resist().mod;
+  if ( value != 0 )
+    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = cold_resist().mod;
+  if ( value != 0 )
+    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = energy_resist().mod;
+  if ( value != 0 )
+    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = poison_resist().mod;
+  if ( value != 0 )
+    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
+  value = physical_resist().mod;
+  if ( value != 0 )
+    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
+
+  value = fire_damage().mod;
+  if ( value != 0 )
+    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = cold_damage().mod;
+  if ( value != 0 )
+    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = energy_damage().mod;
+  if ( value != 0 )
+    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = poison_damage().mod;
+  if ( value != 0 )
+    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  value = physical_damage().mod;
+  if ( value != 0 )
+    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+  // new mod stuff
+  value = lower_reagent_cost().mod;
+  if ( value )
+    sw() << "\tLowerReagentCostMod\t" << static_cast<int>( value ) << pf_endl;
+  value = defence_increase().mod;
+  if ( value )
+    sw() << "\tDefenceIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+  value = defence_increase_cap().mod;
+  if ( value )
+    sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>( value ) << pf_endl;
+  value = lower_mana_cost().mod;
+  if ( value )
+    sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
+  value = hit_chance().mod;
+  if ( value )
+    sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
+  value = fire_resist_cap().mod;
+  if ( value )
+    sw() << "\tFireResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  value = cold_resist_cap().mod;
+  if ( value )
+    sw() << "\tColdResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  value = energy_resist_cap().mod;
+  if ( value )
+    sw() << "\tEnergyResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  value = physical_resist_cap().mod;
+  if ( value )
+    sw() << "\tPhysicalResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  value = poison_resist_cap().mod;
+  if ( value )
+    sw() << "\tPoisonResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+  value = spell_damage_increase().mod;
+  if ( value )
+    sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+  value = faster_casting().mod;
+  if ( value )
+    sw() << "\tFasterCastingMod\t" << static_cast<int>( value ) << pf_endl;
+  value = faster_cast_recovery().mod;
+  if ( value )
+    sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>( value ) << pf_endl;
+  value = luck().mod;
+  if ( value )
+    sw() << "\tLuckMod\t" << static_cast<int>( value ) << pf_endl;
+  // end new mod stuff
+
+
   proplist_.printProperties( sw );
 }
 
@@ -321,6 +398,80 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   setfacing( static_cast<unsigned char>( tmp ) );
 
   _rev = elem.remove_ulong( "Revision", 0 );
+
+  s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
+  if ( mod_value != 0 )
+    fire_resist( fire_resist().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
+  if ( mod_value != 0 )
+    cold_resist( cold_resist().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
+  if ( mod_value != 0 )
+    energy_resist( energy_resist().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
+  if ( mod_value != 0 )
+    poison_resist( poison_resist().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
+  if ( mod_value != 0 )
+    physical_resist( physical_resist().setAsMod( mod_value ) );
+
+  mod_value = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
+  if ( mod_value != 0 )
+    fire_damage( fire_damage().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
+  if ( mod_value != 0 )
+    cold_damage( cold_damage().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
+  if ( mod_value != 0 )
+    energy_damage( energy_damage().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
+  if ( mod_value != 0 )
+    poison_damage( poison_damage().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
+  if ( mod_value != 0 )
+    physical_damage( physical_damage().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    defence_increase( defence_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "DEFENCEINCREASECAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    defence_increase_cap( defence_increase_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "LOWERMANACOSTMOD", 0 ) );
+  if ( mod_value != 0 )
+    lower_mana_cost( lower_mana_cost().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
+  if ( mod_value != 0 )
+    hit_chance( hit_chance().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    fire_resist_cap( fire_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    cold_resist_cap( cold_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    energy_resist_cap( energy_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    poison_resist_cap( poison_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTCAPMOD", 0 ) );
+  if ( mod_value != 0 )
+    physical_resist_cap( physical_resist_cap().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "LOWERREAGENTCOSTMOD", 0 ) );
+  if ( mod_value != 0 )
+    lower_reagent_cost( lower_reagent_cost().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "SPELLDAMAGEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    spell_damage_increase( spell_damage_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTINGMOD", 0 ) );
+  if ( mod_value != 0 )
+    faster_casting( faster_casting().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "FASTERCASTRECOVERYMOD", 0 ) );
+  if ( mod_value != 0 )
+    faster_cast_recovery( faster_cast_recovery().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
+  if ( mod_value != 0 )
+    luck( luck().setAsMod( mod_value ) );
 
 
   proplist_.readProperties( elem );
