@@ -1894,14 +1894,14 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return imp;
 
 
-  auto EnforceCaps = []( s16 baseValue, const s16 capValue ) -> s16 { 
+  auto EnforceCaps = []( s16 baseValue, const s16 capValue ) -> s16 {
     const bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
-   
 
-      if ( !ignore_caps )
-        baseValue = std::min( baseValue, capValue );
 
-      return baseValue;
+    if ( !ignore_caps )
+      baseValue = std::min( baseValue, capValue );
+
+    return baseValue;
   };
 
   switch ( id )
