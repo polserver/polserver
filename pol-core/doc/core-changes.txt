@@ -1,5 +1,5 @@
 ﻿-- POL100 --
-05-14-2018 DevGIB:
+06-17-2018 DevGIB:
   Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, 
            Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
   Changed: Elevated Luck to UObject and added related LuckMod.
