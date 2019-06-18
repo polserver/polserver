@@ -4114,8 +4114,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
         if (arrow_id < 1)
             return new BError("ArrowID out of range");
         arrowid = (u32)arrow_id;
-        if (arrowid >= ScriptScheduler::PID_MIN)
-            return new BError("ArrowID out of range");
+  
     }
     else
     {
@@ -4132,7 +4131,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       {
           if (!arrow_id || arrow_id == 0 )
           {
-              msg->offset += 4;  // u32 serial
+             return new BError( "ArrowID must be supplied for cancelation." );
           }
           else
           {

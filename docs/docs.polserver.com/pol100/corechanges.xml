@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-17-2019</datemodified>
+		<datemodified>06-18-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>06-18-2018</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Fixed SendQuestArrow() function to use arrow id's rather than an actual object reference. This allows for multiple arrows to be sent to the client and cancelled individually by storing them in a cprop to be recalled later.<br/>
+When sending SendQuestArrow() the function will return the arrows id for further processing.</change>
+		</entry>
 		<entry>
 			<date>06-17-2018</date>
 			<author>DevGIB:</author>
