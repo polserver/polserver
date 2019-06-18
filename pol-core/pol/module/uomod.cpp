@@ -4130,7 +4130,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->offset += 4;  // u16 x_tgt,y_tgt
       if (usesNewPktSize)
       {
-          if (!arrow_id)
+          if (!arrow_id || arrow_id == 0 )
           {
               msg->offset += 4;  // u32 serial
           }
