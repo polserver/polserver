@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+06-18-2018 DevGIB:
+  Changed: Fixed SendQuestArrow() function to use arrow id's rather than an actual object reference. This allows for multiple arrows to be sent to the client and cancelled individually by storing them in a cprop to be recalled later.
+           When sending SendQuestArrow() the function will return the arrows id for further processing.
 06-17-2018 DevGIB:
   Changed: Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.
 06-17-2018 DevGIB:
