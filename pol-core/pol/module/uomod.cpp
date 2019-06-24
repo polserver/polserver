@@ -4100,9 +4100,11 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 {
   Character* chr;
-  int x, y, arrow_id;
+  int x, y;
+  int arrow_id = 0;
   u32 arrowid = 0;
   UObject* target = nullptr;
+  Bscript::BObjectImp* imp = getParamImp(3);
 
   if ( getCharacterParam( exec, 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
        getParam( 2, y, -1, 1000000 ) )  // max values checked below
@@ -4110,26 +4112,31 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
     
-    if (!getUObjectParam(exec, 3, target))
+    if (imp->isa(BObjectImp::OTApplicObj))
     {
-        exec.setFunctionResult(nullptr);
-        if (exec.getParam(3, arrow_id))
-        {
-            if (arrow_id < 1)
-                return new BError("ArrowID out of range");
-            arrowid = (u32)arrow_id;
+      getUObjectParam( exec, 3, target );
+      arrowid = target->serial;
 
+    }
+    else if (imp->isa(BObjectImp::OTLong))
+    {
+        arrow_id = static_cast<BLong*>(imp)->value();
+        if (arrow_id < 1)
+        {
+            if ( arrow_id == 0 )
+            {
+                arrowid = this->uoexec.pid();
+            }
+            else
+            {
+                return new BError("ArrowID out of range");
+            }
         }
         else
         {
-            arrowid = this->uoexec.pid();
+            arrowid = static_cast<u32>(arrow_id);
         }
     }
-    else
-    {
-        arrowid = target->serial_ext;
-    }
-        
 
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
@@ -4140,7 +4147,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->offset += 4;  // u16 x_tgt,y_tgt
       if (usesNewPktSize)
       {
-          if (!arrow_id || arrow_id == 0 )
+          if (!arrowid || arrowid == 0 )
           {
              return new BError( "ArrowID must be supplied for cancelation." );
           }
@@ -4169,6 +4176,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     return new BError( "Invalid parameter" );
   }
 }
+
 
 BObjectImp* UOExecutorModule::mf_ConsumeReagents()
 {
