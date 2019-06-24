@@ -4109,21 +4109,28 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
   {
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
-    if (getUObjectParam(exec, 3, target))
+    
+    if (!getUObjectParam(exec, 3, target))
     {
-        arrowid = target->serial_ext;
-    }
-    else if (exec.getParam(3, arrow_id))
-    {
-        if (arrow_id < 1)
-            return new BError("ArrowID out of range");
-        arrowid = (u32)arrow_id;
-  
+        exec.setFunctionResult(nullptr);
+        if (exec.getParam(3, arrow_id))
+        {
+            if (arrow_id < 1)
+                return new BError("ArrowID out of range");
+            arrowid = (u32)arrow_id;
+
+        }
+        else
+        {
+            arrowid = this->uoexec.pid();
+        }
     }
     else
     {
-        arrowid = this->uoexec.pid();
+        arrowid = target->serial_ext;
     }
+        
+
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
     Network::PktHelper::PacketOut<Network::PktOut_BA> msg;
