@@ -4102,14 +4102,18 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
   Character* chr;
   int x, y, arrow_id;
   u32 arrowid;
+  UObject* target = nullptr;
 
   if ( getCharacterParam( exec, 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
        getParam( 2, y, -1, 1000000 ) )  // max values checked below
   {
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
-
-    if (exec.getParam(3, arrow_id))
+    if (getUObjectParam(exec, 3, target))
+    {
+        arrowid = target->serial_ext;
+    }
+    else if (exec.getParam(3, arrow_id))
     {
         if (arrow_id < 1)
             return new BError("ArrowID out of range");
