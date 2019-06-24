@@ -4101,7 +4101,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 {
   Character* chr;
   int x, y, arrow_id;
-  u32 arrowid;
+  u32 arrowid = 0;
   UObject* target = nullptr;
 
   if ( getCharacterParam( exec, 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
