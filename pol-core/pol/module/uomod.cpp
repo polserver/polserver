@@ -4153,7 +4153,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
           }
           else
           {
-              msg->Write<u32>(static_cast<u32>(arrowid & 0xFFFFFFFF));
+              msg->WriteFlipped<u32>(static_cast<u32>(arrowid & 0xFFFFFFFF));
           }
       }
     }
@@ -4166,7 +4166,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->WriteFlipped<u16>( static_cast<u16>( x & 0xFFFF ) );
       msg->WriteFlipped<u16>( static_cast<u16>( y & 0xFFFF ) );
       if ( usesNewPktSize )
-        msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
+        msg->WriteFlipped<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
     }
     msg.Send( chr->client );
     return new BLong(arrowid);
