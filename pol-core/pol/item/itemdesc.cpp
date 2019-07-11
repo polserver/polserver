@@ -200,9 +200,6 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       no_drop( elem.remove_bool( "NoDrop", false ) ),
       base_str_req( elem.remove_ushort( "StrRequired", 0 ) * 10 ),
       quality( elem.remove_double( "QUALITY", 1.0 ) ),
-      props( Core::CPropProfiler::Type::ITEM ),
-      method_script( nullptr ),
-      save_on_exit( elem.remove_bool( "SaveOnExit", true ) ),
       lower_reag_cost(0),
       spell_damage_increase(0),
       faster_casting(0),
@@ -230,7 +227,11 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       faster_casting_mod(0),
       faster_cast_recovery_mod(0),
       luck(0),
-      luck_mod(0)
+      luck_mod(0),
+      props( Core::CPropProfiler::Type::ITEM ),
+      method_script( nullptr ),
+      save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
+      
 {
   if ( type == BOATDESC || type == HOUSEDESC )
   {
@@ -268,6 +269,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X}  has no MaxHP specified." ) << objtype;
     elem.throw_error( "Configuration error" );
   }
+
 
   unsigned short stacklimit = elem.remove_ushort( "StackLimit", MAX_STACK_ITEMS );
 
