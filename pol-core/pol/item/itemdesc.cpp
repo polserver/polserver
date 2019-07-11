@@ -668,9 +668,6 @@ ItemDesc::ItemDesc( Type type )
       quality( 1.0 ),
       multiid( 0xFFFF ),
       maxhp( 0 ),
-      props( Core::CPropProfiler::Type::ITEM ),
-      method_script( nullptr ),
-      save_on_exit( true ),
       lower_reag_cost( 0 ),
       spell_damage_increase( 0 ),
       faster_casting( 0 ),
@@ -698,7 +695,10 @@ ItemDesc::ItemDesc( Type type )
       faster_casting_mod( 0 ),
       faster_cast_recovery_mod( 0 ),
       luck( 0 ),
-      luck_mod( 0 )
+      luck_mod( 0 ),
+      props( Core::CPropProfiler::Type::ITEM ),
+      method_script( nullptr ),
+      save_on_exit( true )
 {
   memset( &element_resist, 0, sizeof( element_resist ) );
   memset( &element_damage, 0, sizeof( element_damage ) );
