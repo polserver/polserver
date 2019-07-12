@@ -1,10 +1,15 @@
 ﻿-- POL100 --
-06-18-2018 DevGIB:
+07-12-2019 DevGIB:
+  Fixed:   Initalization error with the new AOS props causing items with no props set to inject random numbers on server boot.
+  Changed: Fixed issue with moving a character to a shadow realm within the same screen, the core would not correctly send mobile serials to the characters client on relocation and you would still see inaccessible characters in the shadow realm.
+  Changed: Fixed some incorrect dates on the change log.
+  Changed: Enabled initalization order warning for CMake compilation.
+06-18-2019 DevGIB:
   Changed: Fixed SendQuestArrow() function to use arrow id's rather than an actual object reference. This allows for multiple arrows to be sent to the client and cancelled individually by storing them in a cprop to be recalled later.
            When sending SendQuestArrow() the function will return the arrows id for further processing.
-06-17-2018 DevGIB:
+06-17-2019 DevGIB:
   Changed: Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.
-06-17-2018 DevGIB:
+06-17-2019 DevGIB:
   Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, 
            Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
   Changed: Elevated Luck to UObject and added related LuckMod.
