@@ -373,6 +373,7 @@ void send_remove_character( Network::Client* client, const Mobile::Character* ch
   /* Don't remove myself */
   if ( client->chr == chr )
     return;
+  pkt.update(chr->serial_ext);
   pkt.Send( client );
 }
 
