@@ -1,4 +1,20 @@
 ﻿-- POL100 --
+07-12-2019 DevGIB:
+  Fixed:   Initalization error with the new AOS props causing items with no props set to inject random numbers on server boot.
+  Changed: Fixed issue with moving a character to a shadow realm within the same screen, the core would not correctly send mobile serials to the characters client on relocation and you would still see inaccessible characters in the shadow realm.
+  Changed: Fixed some incorrect dates on the change log.
+06-18-2019 DevGIB:
+  Changed: Fixed SendQuestArrow() function to use arrow id's rather than an actual object reference. This allows for multiple arrows to be sent to the client and cancelled individually by storing them in a cprop to be recalled later.
+           When sending SendQuestArrow() the function will return the arrows id for further processing.
+06-17-2019 DevGIB:
+  Changed: Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.
+06-17-2019 DevGIB:
+  Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, 
+           Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
+  Changed: Elevated Luck to UObject and added related LuckMod.
+  Added:   Support for new prop changes to the status bar packet.
+  Added:   Resistances will now be limited to caps by core, unless caps aren't set or are 0.
+  Added:   CoreIgnoresDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will not calculate resistances and defence increase limits set on the mobile.
 04-26-2019 Nando:
   Changed: Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain. 
      Note: POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.

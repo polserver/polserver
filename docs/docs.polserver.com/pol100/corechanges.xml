@@ -2,9 +2,37 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-26-2019</datemodified>
+		<datemodified>07-12-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>07-12-2019</date>
+			<author>DevGIB:</author>
+			<change type="Fixed">Initalization error with the new AOS props causing items with no props set to inject random numbers on server boot.</change>
+			<change type="Changed">Fixed issue with moving a character to a shadow realm within the same screen, the core would not correctly send mobile serials to the characters client on relocation and you would still see inaccessible characters in the shadow realm.</change>
+			<change type="Changed">Fixed some incorrect dates on the change log.</change>
+		</entry>
+		<entry>
+			<date>06-18-2019</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Fixed SendQuestArrow() function to use arrow id's rather than an actual object reference. This allows for multiple arrows to be sent to the client and cancelled individually by storing them in a cprop to be recalled later.<br/>
+When sending SendQuestArrow() the function will return the arrows id for further processing.</change>
+		</entry>
+		<entry>
+			<date>06-17-2019</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.</change>
+		</entry>
+		<entry>
+			<date>06-17-2019</date>
+			<author>DevGIB:</author>
+			<change type="Added">Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance,<br/>
+Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.</change>
+			<change type="Changed">Elevated Luck to UObject and added related LuckMod.</change>
+			<change type="Added">Support for new prop changes to the status bar packet.</change>
+			<change type="Added">Resistances will now be limited to caps by core, unless caps aren't set or are 0.</change>
+			<change type="Added">CoreIgnoresDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will not calculate resistances and defence increase limits set on the mobile.</change>
+		</entry>
 		<entry>
 			<date>04-26-2019</date>
 			<author>Nando:</author>

@@ -298,6 +298,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   if ( use_adjustments() != true )
     sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
 
+
   if ( has_orig_fire_resist() )
     sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
   if ( has_orig_cold_resist() )
@@ -319,6 +320,32 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPoisonDamage\t" << orig_poison_damage() << pf_endl;
   if ( has_orig_physical_damage() )
     sw() << "\tPhysicalDamage\t" << orig_physical_damage() << pf_endl;
+  if ( has_orig_lower_reagent_cost() )
+    sw() << "\tLowerReagentCost\t" << orig_lower_reagent_cost() << pf_endl;
+  if ( has_orig_spell_damage_increase() )
+    sw() << "\tSpellDamageIncrease\t" << orig_spell_damage_increase() << pf_endl;
+  if ( has_orig_faster_casting() )
+    sw() << "\tFasterCasting\t" << orig_faster_casting() << pf_endl;
+  if ( has_orig_faster_cast_recovery() )
+    sw() << "\tFasterCastRecovery\t" << orig_faster_cast_recovery() << pf_endl;
+  if ( has_orig_defence_increase() )
+    sw() << "\tDefenceIncrease\t" << orig_defence_increase() << pf_endl;
+  if ( has_orig_defence_increase_cap() )
+    sw() << "\tDefenceIncreaseCap\t" << orig_defence_increase_cap() << pf_endl;
+  if ( has_orig_lower_mana_cost() )
+    sw() << "\tLowerManaCost\t" << orig_lower_mana_cost() << pf_endl;
+  if ( has_orig_fire_resist_cap() )
+    sw() << "\tFireResistCap\t" << orig_fire_resist_cap() << pf_endl;
+  if ( has_orig_cold_resist_cap() )
+    sw() << "\tColdResistCap\t" << orig_cold_resist_cap() << pf_endl;
+  if ( has_orig_energy_resist_cap() )
+    sw() << "\tEnergyResistCap\t" << orig_energy_resist_cap() << pf_endl;
+  if ( has_orig_physical_resist_cap() )
+    sw() << "\tPhysicalResistCap\t" << orig_physical_resist_cap() << pf_endl;
+  if ( has_orig_poison_resist_cap() )
+    sw() << "\tPoisonResistCap\t" << orig_poison_resist_cap() << pf_endl;
+  if ( has_orig_luck() )
+    sw() << "\tLuck\t" << orig_luck() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
@@ -408,12 +435,81 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
     return v.addToValue( static_cast<s16>( value ) );
   };
-  auto refresh = []( Core::ValueModPack v ) -> Core::ValueModPack { return v.addToValue( v.mod ); };
 
   std::string tmp;
   int value;
   if ( elem.remove_prop( "AR", &tmp ) && diceValue( tmp, &value ) )
     npc_ar_ = static_cast<u16>( value );
+  if ( elem.remove_prop( "LOWERREAGENTCOST", &tmp ) && diceValue( tmp, &value ) )
+  {
+    lower_reagent_cost( apply( lower_reagent_cost(), value ) );
+    orig_lower_reagent_cost( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "SPELLDAMAGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    spell_damage_increase( apply( spell_damage_increase(), value ) );
+    orig_spell_damage_increase( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "FASTERCASTING", &tmp ) && diceValue( tmp, &value ) )
+  {
+    faster_casting( apply( faster_casting(), value ) );
+    orig_faster_casting( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "FASTERCASTRECOVERY", &tmp ) && diceValue( tmp, &value ) )
+  {
+    faster_cast_recovery( apply( faster_cast_recovery(), value ) );
+    orig_faster_cast_recovery( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "DEFENCEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    defence_increase( apply( defence_increase(), value ) );
+    orig_defence_increase( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "DEFENCEINCREASECAP", &tmp ) && diceValue( tmp, &value ) )
+  {
+    defence_increase_cap( apply( defence_increase_cap(), value ) );
+    orig_defence_increase_cap( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "LOWERMANACOST", &tmp ) && diceValue( tmp, &value ) )
+  {
+    lower_mana_cost( apply( lower_mana_cost(), value ) );
+    orig_lower_mana_cost( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "HITCHANCE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    hit_chance( apply( hit_chance(), value ) );
+    orig_hit_chance( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "FIRERESISTCAP", &tmp ) && diceValue( tmp, &value ) )
+  {
+    fire_resist_cap( apply( fire_resist_cap(), value ) );
+    orig_fire_resist_cap( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "COLDRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
+  {
+    cold_resist_cap( apply( cold_resist_cap(), value ) );
+    orig_cold_resist_cap( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "ENERGYRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
+  {
+    energy_resist_cap( apply( energy_resist_cap(), value ) );
+    orig_energy_resist_cap( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "PHYSICALRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
+  {
+    physical_resist_cap( apply( physical_resist_cap(), value ) );
+    orig_physical_resist_cap( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "POISONRESISTCAP", &tmp ) && diceValue( tmp, &value ) )
+  {
+    poison_resist_cap( apply( poison_resist_cap(), value ) );
+    orig_poison_resist_cap( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "LUCK", &tmp ) && diceValue( tmp, &value ) )
+  {
+    luck( apply( luck(), value ) );
+    orig_luck( static_cast<s16>( value ) );
+  }
 
   // elemental start
   // first apply template value as value and if mod or value exist sum them
@@ -422,72 +518,52 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     fire_resist( apply( fire_resist(), value ) );
     orig_fire_resist( static_cast<s16>( value ) );
   }
-  if ( has_fire_resist() )
-    fire_resist( refresh( fire_resist() ) );
   if ( elem.remove_prop( "COLDRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     cold_resist( apply( cold_resist(), value ) );
     orig_cold_resist( static_cast<s16>( value ) );
   }
-  if ( has_cold_resist() )
-    cold_resist( refresh( cold_resist() ) );
   if ( elem.remove_prop( "ENERGYRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     energy_resist( apply( energy_resist(), value ) );
     orig_energy_resist( static_cast<s16>( value ) );
   }
-  if ( has_energy_resist() )
-    energy_resist( refresh( energy_resist() ) );
   if ( elem.remove_prop( "POISONRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     poison_resist( apply( poison_resist(), value ) );
     orig_poison_resist( static_cast<s16>( value ) );
   }
-  if ( has_poison_resist() )
-    poison_resist( refresh( poison_resist() ) );
   if ( elem.remove_prop( "PHYSICALRESIST", &tmp ) && diceValue( tmp, &value ) )
   {
     physical_resist( apply( physical_resist(), value ) );
     orig_physical_resist( static_cast<s16>( value ) );
   }
-  if ( has_physical_resist() )
-    physical_resist( refresh( physical_resist() ) );
 
   if ( elem.remove_prop( "FIREDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     fire_damage( apply( fire_damage(), value ) );
     orig_fire_damage( static_cast<s16>( value ) );
   }
-  if ( has_fire_damage() )
-    fire_damage( refresh( fire_damage() ) );
   if ( elem.remove_prop( "COLDDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     cold_damage( apply( cold_damage(), value ) );
     orig_cold_damage( static_cast<s16>( value ) );
   }
-  if ( has_cold_damage() )
-    cold_damage( refresh( cold_damage() ) );
   if ( elem.remove_prop( "ENERGYDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     energy_damage( apply( energy_damage(), value ) );
     orig_energy_damage( static_cast<s16>( value ) );
   }
-  if ( has_energy_damage() )
-    energy_damage( refresh( energy_damage() ) );
   if ( elem.remove_prop( "POISONDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     poison_damage( apply( poison_damage(), value ) );
     orig_poison_damage( static_cast<s16>( value ) );
   }
-  if ( has_poison_damage() )
-    poison_damage( refresh( poison_damage() ) );
   if ( elem.remove_prop( "PHYSICALDAMAGE", &tmp ) && diceValue( tmp, &value ) )
   {
     physical_damage( apply( physical_damage(), value ) );
     orig_physical_damage( static_cast<s16>( value ) );
   }
-  if ( has_physical_damage() )
-    physical_damage( refresh( physical_damage() ) );
 }
 
 void NPC::readProperties( Clib::ConfigElem& elem )
@@ -755,8 +831,7 @@ void NPC::inform_criminal( Character* thecriminal )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( thecriminal ) )
-        ex->signal_event(
-            new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
+        ex->signal_event( new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
 }
@@ -787,8 +862,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }
   }
@@ -836,8 +910,7 @@ void NPC::inform_moved( Character* moved )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( moved ) )
-          ex->signal_event(
-              new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
+          ex->signal_event( new Module::SourcedEvent( Core::EVID_OPPONENT_MOVED, moved ) );
       }
     }
   }
@@ -1005,26 +1078,55 @@ void NPC::refresh_ar()
 void NPC::resetEquipablePropertiesNPC()
 {
   if ( has_fire_resist() || has_orig_fire_resist() )
-    fire_resist( fire_resist().resetModAsValue().addToValue( orig_fire_resist() ) );
+    fire_resist( fire_resist().setAsValue( orig_fire_resist() ) );
   if ( has_cold_resist() || has_orig_cold_resist() )
-    cold_resist( cold_resist().resetModAsValue().addToValue( orig_cold_resist() ) );
+    cold_resist( cold_resist().setAsValue( orig_cold_resist() ) );
   if ( has_energy_resist() || has_orig_energy_resist() )
-    energy_resist( energy_resist().resetModAsValue().addToValue( orig_energy_resist() ) );
+    energy_resist( energy_resist().setAsValue( orig_energy_resist() ) );
   if ( has_poison_resist() || has_orig_poison_resist() )
-    poison_resist( poison_resist().resetModAsValue().addToValue( orig_poison_resist() ) );
+    poison_resist( poison_resist().setAsValue( orig_poison_resist() ) );
   if ( has_physical_resist() || has_orig_physical_resist() )
-    physical_resist( physical_resist().resetModAsValue().addToValue( orig_physical_resist() ) );
+    physical_resist( physical_resist().setAsValue( orig_physical_resist() ) );
 
   if ( has_fire_damage() || has_orig_fire_damage() )
-    fire_damage( fire_damage().resetModAsValue().addToValue( orig_fire_damage() ) );
+    fire_damage( fire_damage().setAsValue( orig_fire_damage() ) );
   if ( has_cold_damage() || has_orig_cold_damage() )
-    cold_damage( cold_damage().resetModAsValue().addToValue( orig_cold_damage() ) );
+    cold_damage( cold_damage().setAsValue( orig_cold_damage() ) );
   if ( has_energy_damage() || has_orig_energy_damage() )
-    energy_damage( energy_damage().resetModAsValue().addToValue( orig_energy_damage() ) );
+    energy_damage( energy_damage().setAsValue( orig_energy_damage() ) );
   if ( has_poison_damage() || has_orig_poison_damage() )
-    poison_damage( poison_damage().resetModAsValue().addToValue( orig_poison_damage() ) );
+    poison_damage( poison_damage().setAsValue( orig_poison_damage() ) );
   if ( has_physical_damage() || has_orig_physical_damage() )
-    physical_damage( physical_damage().resetModAsValue().addToValue( orig_physical_damage() ) );
+    physical_damage( physical_damage().setAsValue( orig_physical_damage() ) );
+
+  if ( has_lower_reagent_cost() || has_orig_lower_reagent_cost() )
+    lower_reagent_cost( lower_reagent_cost().setAsValue( orig_lower_reagent_cost() ) );
+  if ( has_spell_damage_increase() || has_orig_spell_damage_increase() )
+    spell_damage_increase( spell_damage_increase().setAsValue( orig_spell_damage_increase() ) );
+  if ( has_faster_casting() || has_orig_faster_casting() )
+    faster_casting( faster_casting().setAsValue( orig_faster_casting() ) );
+  if ( has_faster_cast_recovery() || has_orig_faster_cast_recovery() )
+    faster_cast_recovery( faster_cast_recovery().setAsValue( orig_faster_cast_recovery() ) );
+  if ( has_defence_increase() || has_orig_defence_increase() )
+    defence_increase( defence_increase().setAsValue( orig_defence_increase() ) );
+  if ( has_defence_increase_cap() || has_orig_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().setAsValue( orig_defence_increase_cap() ) );
+  if ( has_lower_mana_cost() || has_orig_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().setAsValue( orig_lower_mana_cost() ) );
+  if ( has_hit_chance() || has_orig_hit_chance() )
+    hit_chance( hit_chance().setAsValue( orig_hit_chance() ) );
+  if ( has_fire_resist_cap() || has_orig_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().setAsValue( orig_fire_resist_cap() ) );
+  if ( has_cold_resist_cap() || has_orig_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().setAsValue( orig_energy_resist_cap() ) );
+  if ( has_energy_resist_cap() || has_orig_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().setAsValue( orig_energy_resist_cap() ) );
+  if ( has_physical_resist_cap() || has_orig_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().setAsValue( orig_physical_resist_cap() ) );
+  if ( has_poison_resist_cap() || has_orig_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().setAsValue( orig_poison_resist_cap() ) );
+  if ( has_luck() || has_orig_luck() )
+    luck( luck().setAsValue( orig_luck() ) );
 }
 
 size_t NPC::estimatedSize() const
@@ -1079,5 +1181,5 @@ bool NPC::get_method_hook( const char* methodname, Bscript::Executor* executor,
     return true;
   return base::get_method_hook( methodname, executor, hook, PC );
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol

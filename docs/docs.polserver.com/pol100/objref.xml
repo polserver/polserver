@@ -140,6 +140,35 @@
 <member mname="name_suffix" type="String" access="r/o" mdesc="For adding crafter marks or such, will be appended to desc" />
 <member mname="house" type="House" access="r/o" mdesc="Returns a reference to the House this item is component of, if any" />
 <member mname="no_drop" type="Boolean" access="r/w" mdesc="If set no drop of this item is allowed, except no_drop_exception is set for target" />
+<member mname="lower_reagent_cost" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="spell_damage_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="faster_casting" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="faster_cast_recovery" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="defence_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="defence_increase_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="lower_mana_cost" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="hit_chance" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="resist_fire_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="resist_cold_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="resist_energy_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="luck" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="hit_chance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="resist_fire_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="resist_cold_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="resist_energy_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="resist_physical_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="resist_poison_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="lower_reagent_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="spell_damage_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+
 
 <method proto="splitStackAt(x, y, z, realm, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates" />
 <method proto="splitStackInto(container, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container" />
@@ -238,7 +267,6 @@
 <member mname="skillcap" type="Integer" access="r/w" mdesc="This is for storage of overall skillcap, default 700" />
 <member mname="followers_max" type="Integer" access="r/w" mdesc="Max followers for statmsg packet, default 0 "/>
 <member mname="followers" type="Integer" access="r/w" mdesc="This is for storage for the Followers byte in statmsg packet, default 0 "/>
-<member mname="luck" type="Integer" access="r/w" mdesc="Luck for statmsg packet, default 0 "/>
 <member mname="tithing" type="Integer" access="r/w" mdesc="Tithing for statmsg packet, default 0 "/>
 <member mname="party" type="Party" access="r/o" mdesc="party object reference"/>
 <member mname="candidate_of_party" type="Party" access="r/o" mdesc="party object reference"/>
@@ -268,6 +296,34 @@
 <member mname="active_skill" type="Boolean" access="r/o" mdesc="1 if character has an active attached skill script"/>
 <member mname="casting_spell" type="Bool" access="r/o" mdesc="1 if character has an active attached spell script"/>
 <member mname="last_textcolor" type="Struct" access="r/o" mdesc="last text color used by the character. Values are between 2 and 1001. Returns 0 if not yet spoken. (will not be saved inside of the datafile)"/>
+<member mname="lower_reagent_cost" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="spell_damage_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="faster_casting" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="faster_cast_recovery" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="defence_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="defence_increase_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="lower_mana_cost" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="hit_chance" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="resist_fire_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="resist_cold_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="resist_energy_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="luck" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="hit_chance_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="resist_fire_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="resist_cold_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="resist_energy_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="resist_physical_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="resist_poison_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="lower_reagent_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="spell_damage_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 
 <method proto="setpoisoned(bool)" returns="true/error" desc="sets the character poisoned, controller of calling script is flagged as in repsystem" />
 <method proto="setparalyzed(bool)" returns="true/error" desc="sets the character paralyzed, controller of calling script is flagged as in repsystem" />
