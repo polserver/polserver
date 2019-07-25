@@ -121,9 +121,9 @@ NodeRequest<ReturnType> makeCall( Callable callback, Core::UOExecutor* uoexec = 
 Bscript::BObjectRef callFunc( Core::UOExecutor* uoexec );
 // extern std::map<Core::UOExecutor*, Napi::ObjectReference> execToModuleMap;
 Napi::Object GetRunningScript( Core::UOExecutor* uoexec );
-bool emitEvent( Core::UOExecutor* uoexec, Bscript::BObjectImp* data, Core::ULWObject* target = nullptr );
+bool emitEvent( Core::UOExecutor* uoexec, Bscript::BObjectImp* data, Core::ULWObject* target );
 
-bool emitEvent( Core::UOExecutor* uoexec, Core::EVENTID eventName, Core::ULWObject* target = nullptr );
+    bool emitEvent( Core::UOExecutor* uoexec, Core::EVENTID eventName );
 
 
 }  // namespace Node

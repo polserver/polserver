@@ -43,14 +43,17 @@ namespace Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Core::UOExecutor& ex, Mobile::NPC& npc )
-    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc ), uoexec(ex)
+    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc ), uoexec( ex )
 {
 }
 
 NPCExecutorModule::~NPCExecutorModule()
 {
   if ( npc.ex == &exec )
+  {
+    npc.removeListener( &uoexec );
     npc.ex = nullptr;
+  }
 }
 
 BApplicObjType bounding_box_type;

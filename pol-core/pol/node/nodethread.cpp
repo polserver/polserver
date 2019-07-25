@@ -181,7 +181,7 @@ bool cleanup()
     auto call = Node::makeCall<bool>( []( Napi::Env /*env*/, NodeRequest<bool>* request ) {
       NODELOG.Format( "[{:04x}] [release] releasing require reference {}\n" )
           << request->reqId() << Node::ToUtf8Value( requireRef.Get( "_refId" ) );
-      requireRef.Unref();
+      requireRef.Reset();
       return true;
     } );
     call.getRef();

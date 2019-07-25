@@ -15,7 +15,7 @@ else()
   set (NODE_LIBRARY_NAME ${NODE_DLL_NAME})
   if (${ARCH_BITS} EQUAL "64")
     set (NODE_PATHNAME_SUFFIX "linux-x64")
-    Set (NODE_URL_MD5 "2d505f557a667da29e3306a59cdef4a4")
+    Set (NODE_URL_MD5 "03461ede05c7272b4474250439293274")
   endif()
 endif()
 

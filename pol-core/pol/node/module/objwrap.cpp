@@ -9,6 +9,13 @@
 #include "../napi-wrap.h"
 #include "../nodecall.h"
 
+#define REFGUARD( X, Y )       \
+  if ( X.IsEmpty() )        \
+  {                         \
+    return Y; \
+  }
+
+
 using namespace Pol;
 using namespace Napi;
 
@@ -51,6 +58,7 @@ Bscript::BObjectRef NodeObjectWrap::Wrap( Napi::Env env, Napi::Value value, unsi
   else if ( value.ToObject().InstanceOf( NodeObjectWrap::constructor.Value() ) )
   {
     auto x = Napi::ObjectWrap<NodeObjectWrap>::Unwrap( value.ToObject() );
+    REFGUARD( x->ref, Bscript::BObjectRef(new Bscript::UninitObject) )
     auto y = x->ref.Value();
     auto* z = y.Data();
     auto a = *z;
@@ -115,6 +123,14 @@ bool NodeObjectWrap::resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref
   }
 }
 
+void NodeObjectWrap::cleanup()
+{
+  // Release the ScriptModule reference and the reference to the underlying BObjectRef.
+  //
+  scriptModule.Reset();
+  ref.Reset();
+}
+
 // FIXME Vulnerable to circular references.. for now!
 Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref,
                                   Napi::Object scriptModule, unsigned long reqId )
@@ -157,7 +173,8 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref,
     // Create a new deferred, and return the promise to the script.
     // We store the deferred in our map, to be resolved later.
     Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New( env );
-    delayedMap.emplace( convt->reqId(), std::make_pair( ObjectReference::New(scriptModule,1), deferred) );
+    delayedMap.emplace( convt->reqId(),
+                        std::make_pair( ObjectReference::New( scriptModule, 1 ), deferred ) );
     convertedVal = deferred.Promise();
   }
   else if ( impptr->isa( Bscript::BObjectImp::BObjectType::OTArray ) )
@@ -207,6 +224,14 @@ Napi::Value NodeObjectWrap::Wrap( Napi::Env env, Bscript::BObjectRef objref,
       else
         clazzName = "Character";
     }
+    else if ( convt->object_type() == &Module::euboatrefobjimp_type )
+    {
+      clazzName = "Boat";
+    }
+    else if ( convt->object_type() == &Module::emultirefobjimp_type )
+    {
+      clazzName = "Multi";
+    }
     else if ( convt->object_type() == &Module::eitemrefobjimp_type )
     {
       clazzName = "Item";
@@ -251,13 +276,13 @@ void NodeObjectWrap::Init( Napi::Env env, Napi::Object exports )
   NODELOG << "[node] Initializing NodeObjectWrap\n";
   Napi::HandleScope scope( env );
 
-  Napi::Function func =
-      DefineClass( env, "NodeObjectWrap",
-                   {/*InstanceMethod( "get_member", &NodeObjectWrap::GetMember ),
-                              InstanceMethod( "set_member", &NodeObjectWrap::SetMember ),
-                              InstanceMethod( "call_method", &NodeObjectWrap::CallMethod ),*/
-                    InstanceMethod( "isTrue", &NodeObjectWrap::IsTrue ),
-                    InstanceMethod( "toString", &NodeObjectWrap::ToString )} );
+  Napi::Function func = DefineClass(
+      env, "NodeObjectWrap",
+      {/*InstanceMethod( "get_member", &NodeObjectWrap::GetMember ),*/
+       InstanceMethod( "addListenerExtUoExec", &NodeObjectWrap::AddListenerExtUoExec ),
+       InstanceMethod( "removeListenerExtUoExec", &NodeObjectWrap::RemoveListenerExtUoExec ),
+       InstanceMethod( "isTrue", &NodeObjectWrap::IsTrue ),
+       InstanceMethod( "toString", &NodeObjectWrap::ToString )} );
 
   constructor = Napi::Persistent( func );
   constructor.SuppressDestruct();
@@ -279,9 +304,91 @@ void NodeObjectWrap::Init( Napi::Env env, Napi::Object exports )
 Napi::Value NodeObjectWrap::IsTrue( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
+  REFGUARD( ref, env.Undefined() )
+
   auto objref = *( ref.Value().Data() );
   auto impptr = objref->impptr();
   return Boolean::New( env, impptr->isTrue() );
+}
+
+Napi::Value NodeObjectWrap::AddListenerExtUoExec( const CallbackInfo& info )
+{
+  Napi::Env env = info.Env();
+  REFGUARD( ref, env.Undefined() )
+
+  Core::UOExecutor* exec = scriptModule.Get( "extUoExec" ).As<External<Core::UOExecutor>>().Data();
+  auto objref = *( ref.Value().Data() );
+  auto impptr = objref->impptr();
+  auto convt = Clib::explicit_cast<Bscript::BApplicObjBase*, Bscript::BObjectImp*>( impptr );
+  bool added = false;
+
+  int mask = info[1].As<Number>().Int32Value();
+  exec->eventmask |= mask;
+
+  if ( info.Length() >= 2 && info[2].IsObject() )
+  {
+    auto options = info[2].As<Object>();
+    if ( options.Get( "range" ).IsNumber() )
+    {
+      exec->speech_size = options.Get( "range" ).As<Number>().Int32Value();
+    }
+  }
+
+  if ( convt->object_type() == &Module::echaracterrefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::ECharacterRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    added = imp->value()->addListener( exec );
+  }
+  else if ( convt->object_type() == &Module::euboatrefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::EUBoatRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    added = imp->value()->addListener( exec );
+  }
+  else if ( convt->object_type() == &Module::emultirefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::EMultiRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    added = imp->value()->addListener( exec );
+  }
+  else if ( convt->object_type() == &Module::eitemrefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::EItemRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    added = imp->value()->addListener( exec );
+  }
+  return Boolean::New( env, added );
+}
+
+Napi::Value NodeObjectWrap::RemoveListenerExtUoExec( const CallbackInfo& info )
+{
+  Napi::Env env = info.Env();
+  REFGUARD( ref, env.Undefined() )
+
+  Core::UOExecutor* exec = scriptModule.Get( "extUoExec" ).As<External<Core::UOExecutor>>().Data();
+  auto objref = *( ref.Value().Data() );
+  auto impptr = objref->impptr();
+  auto convt = Clib::explicit_cast<Bscript::BApplicObjBase*, Bscript::BObjectImp*>( impptr );
+  bool removed = false;
+
+  if ( convt->object_type() == &Module::echaracterrefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::ECharacterRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    removed = imp->value()->removeListener( exec );
+  }
+  else if ( convt->object_type() == &Module::euboatrefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::EUBoatRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    removed = imp->value()->removeListener( exec );
+  }
+  else if ( convt->object_type() == &Module::emultirefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::EMultiRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    removed = imp->value()->removeListener( exec );
+  }
+  else if ( convt->object_type() == &Module::eitemrefobjimp_type )
+  {
+    auto imp = Clib::explicit_cast<Module::EItemRefObjImp*, Bscript::BApplicObjBase*>( convt );
+    removed = imp->value()->removeListener( exec );
+  }
+  return Boolean::New( env, removed );
 }
 
 
@@ -301,6 +408,8 @@ Napi::Value NodeObjectWrap::SetMember( const CallbackInfo& info )
   }
 
   auto intObj = NodeObjectWrap::Unwrap( info[0].ToObject() );
+  REFGUARD( intObj->ref, env.Undefined() )
+
   auto impptr = ( *intObj->ref.Value().Data() )->impptr();
 
   Bscript::BObjectRef retRef;
@@ -341,6 +450,7 @@ Napi::Value NodeObjectWrap::GetMember( const CallbackInfo& info )
 
   Napi::Object obj;
   auto intObj = NodeObjectWrap::Unwrap( info[0].ToObject() );
+  REFGUARD( intObj->ref, env.Undefined() )
 
 
   auto impptr = ( *intObj->ref.Value().Data() )->impptr();
@@ -386,6 +496,8 @@ Napi::Value NodeObjectWrap::CallMethod( const CallbackInfo& info )
 
   Napi::Object obj;
   auto intObj = NodeObjectWrap::Unwrap( info[0].ToObject() );
+  REFGUARD( intObj->ref, env.Undefined() )
+
   auto impptr = ( *intObj->ref.Value().Data() )->impptr();
 
   // arg0=object, arg1 = func id or string, arg2+ = method params
@@ -419,6 +531,8 @@ Napi::Value NodeObjectWrap::CallMethod( const CallbackInfo& info )
 Napi::Value NodeObjectWrap::ToString( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
+  REFGUARD( ref, env.Undefined() )
+
   auto objref = *( ref.Value().Data() );
   return String::New( env, objref->impptr()->getStringRep() );
 }
@@ -426,6 +540,7 @@ Napi::Value NodeObjectWrap::ToString( const CallbackInfo& info )
 Napi::Value NodeObjectWrap::TypeOfInt( const CallbackInfo& info )
 {
   Napi::Env env = info.Env();
+  REFGUARD( ref, env.Undefined() )
   auto objref = *( ref.Value().Data() );
   return Number::New( env, objref->impptr()->typeOfInt() );
 }
@@ -465,3 +580,5 @@ NodeObjectWrap::NodeObjectWrap( const Napi::CallbackInfo& info )
 }
 }  // namespace Node
 }  // namespace Pol
+
+#undef REFGUARD

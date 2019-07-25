@@ -109,7 +109,7 @@ JavascriptProgram::~JavascriptProgram()
           << request->reqId()
           << Node::ToUtf8Value( this->obj.Value().As<Object>().Get( "_refId" ) );
 
-      this->obj.Unref();
+      this->obj.Reset();
       return true;
     } );
     call.getRef();

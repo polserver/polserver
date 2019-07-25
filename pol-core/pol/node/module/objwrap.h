@@ -46,15 +46,20 @@ public:
   Napi::Value ToString( const CallbackInfo& cbinfo );
   Napi::Value TypeOfInt( const CallbackInfo& cbinfo );
   Napi::Value IsTrue( const CallbackInfo& cbinfo );
+  Napi::Value AddListenerExtUoExec( const CallbackInfo& cbinfo );
+  Napi::Value RemoveListenerExtUoExec( const CallbackInfo& cbinfo );
+
 
   static Napi::Value SetMember( const CallbackInfo& cbinfo );
   static Napi::Value GetMember( const CallbackInfo& cbinfo );
   static Napi::Value CallMethod( const CallbackInfo& info );
 
   /** Can run outside Node env */
-  static bool resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref, bool inNodeThread = false);
+  static bool resolveDelayedObject( u32 reqId, Bscript::BObjectRef objref,
+                                    bool inNodeThread = false );
 
-  Reference<External<Bscript::BObjectRef>> ref;
+  void cleanup();
+
 
   static void ReleaseSharedInstance()
   {
@@ -65,6 +70,7 @@ public:
 private:
   // the script module where this object was created
   Napi::ObjectReference scriptModule;
+  Reference<External<Bscript::BObjectRef>> ref;
 
   static Napi::FunctionReference constructor;
   static Napi::ObjectReference internalMethods;

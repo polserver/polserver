@@ -50,7 +50,7 @@ NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, b
   NodeRequest<ReturnType>* req = new NodeRequest<ReturnType>( uoexec );
 
 
-  ThreadSafeFunction::Status status =
+  napi_status status =
       tsfn.BlockingCall( [blocking, req, promise2, callable]( Napi::Env env, Function jsFunc ) {
         (void)jsFunc;  // we do not need to call into the tsfn's registered callback
         req->checkpoint( "enter js thread" );
@@ -70,15 +70,15 @@ NodeRequest<ReturnType> makeCall( Callable callable, Core::UOExecutor* uoexec, b
   {
     switch ( status )
     {
-    case ThreadSafeFunction::OK:
+    case napi_ok:
       if ( !blocking )
         promise2->set_value();
       break;
 
-    case ThreadSafeFunction::FULL:
+    case napi_queue_full:
       throw std::runtime_error( "Attempt to call node when thread is closed" );
 
-    case ThreadSafeFunction::CLOSE:
+    case napi_closing:
       throw std::runtime_error( "Attempt to call node when thread is closed" );
 
     default:

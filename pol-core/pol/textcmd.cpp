@@ -635,10 +635,10 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
 
         Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
         ex->addModule( uoemod );
-        ex->priority(100);
 
         if ( ex->setProgram( prog.get() ) )
         {
+          ex->priority( 100 );
           uoemod->controller_.set( client->chr );  // DAVE added 12/04, let character issuing
                                                    // textcmd be the script controller
           schedule_executor( ex.release() );

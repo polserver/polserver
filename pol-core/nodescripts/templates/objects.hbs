@@ -43,10 +43,10 @@ function wrapCallback(cb) {
 
 Object.assign(PromiseEventEmitter.prototype,EventEmitter.prototype);
 
-PromiseEventEmitter.prototype.addListener = function addListener(event, listener)  {
+PromiseEventEmitter.prototype.addListener = function addListener(event, listener, options)  {
   const returnVal = EventEmitter.prototype.addListener.call(this, event, wrapCallback(listener));
   if (this._eventsCount > 0 && this._mainModule) {
-    this._mainModule.addReference(this);
+    this._mainModule.addReference(this, event, options);
   }
   return returnVal;
 }
@@ -58,8 +58,7 @@ PromiseEventEmitter.prototype.prependListener = function prependListener(event, 
 }
 
 PromiseEventEmitter.prototype.removeListener = function removeListener(event, listener) {
-  const listeners = (this._events && this._events[event]) || [];
-  const original = listeners.find( lstn => lstn === listener || lstn.original === listener) || listener;;
+  const original = this.listeners(event).find( lstn => lstn === listener || lstn.original === listener) || listener;
   const returnVal = EventEmitter.prototype.off.call(this, event, original);
   if (this._eventsCount === 0 && this._mainModule && this._mainModule.objrefs) {
     this._mainModule.removeReference(this);

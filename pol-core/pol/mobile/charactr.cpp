@@ -1947,10 +1947,9 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
-  ex->priority( 100 );
-
   if ( ex->setProgram( prog.get() ) )
   {
+    ex->priority( 100 );
     uoemod->controller_.set( this );
     schedule_executor( ex.release() );
   }

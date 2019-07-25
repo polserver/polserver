@@ -115,6 +115,7 @@ void NPC::stop_scripts()
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
     ex->killScript();
+    ex = nullptr;
   }
 }
 
@@ -550,6 +551,9 @@ void NPC::restart_script()
 {
   if ( ex != nullptr )
   {
+    // the EVID_KILL event only goes to the executor (not targetted), so it's okay to remove
+    // the listener and then kill the script.
+    removeListener( ex );
     ex->killScript();
     ex = nullptr;
     // when the NPC executor module destructs, it checks this NPC to see if it points
@@ -606,6 +610,7 @@ void NPC::start_script()
                 << "(0x" << fmt::hexu( serial ) << ")\n";
     throw std::runtime_error( "Error loading NPCs" );
   }
+  addListener( ex );
 
   uoemod->attached_npc_ = this;
 
@@ -660,22 +665,25 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype
 void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
                        const char lang[4], Bscript::ObjArray* speechtokens )
 {
-  if ( ex != nullptr )
+  for ( auto iter = listeners.begin(); iter != listeners.end(); ++iter )
   {
+    Core::UOExecutor* listener = iter->second;
+
     if ( Core::settingsManager.ssopt.seperate_speechtoken )
     {
-      if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
+      if ( speechtokens != nullptr && ( ( listener->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
         return;
-      else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
+      else if ( speechtokens == nullptr && ( ( listener->eventmask & Core::EVID_SPOKE ) == 0 ) )
         return;
     }
-    if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
-         inrangex( this, src_chr, ex->speech_size ) && !deafened() )
+    if ( ( ( listener->eventmask & Core::EVID_SPOKE ) ||
+           ( listener->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
+         inrangex( this, src_chr, listener->speech_size ) && !deafened() )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( src_chr ) )
       {
-        ex->signal_event(
+        listener->signal_event(
             new Module::UnicodeSpeechEvent( src_chr, speech, Core::TextTypeToString( texttype ),
                                             wspeech, lang, speechtokens ),
             this );

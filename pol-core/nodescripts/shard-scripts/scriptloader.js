@@ -10,10 +10,12 @@ const vm = require("vm"),
 const modules = require("./modules");
 const { EventEmitter } = require("events");
 
+/** @typedef {EventEmitter & { serial: number, removeListenerExtUoExec: ( extUoExec )=>boolean, addListenerExtUoExec: ( extUoExec, eventId:number, options:any )=>boolean }} PolObject */
+
 /** @type {new () => EventEmitter} */
 const PromiseEventEmitter = require("./objects").PromiseEventEmitter;
 
-
+const REFDEBUG = false;
 
 // /**
 //  * We create a hook into the Module instance method `require` to construct our modwrap objects
@@ -146,7 +148,6 @@ if (typeof module.exports.default === "function") {
   );
 }
 
-/** @typedef {EventEmitter} PolObject */
 
 class ScriptModule extends Module {
 
@@ -159,7 +160,7 @@ class ScriptModule extends Module {
     // this.PromiseEventEmitter = PromiseEventEmitter.bind(undefined, this);
     this.script = script;
 
-    /** @type {Map<EventEmitter,number>} */
+    /** @type {Map<number,PolObject|PolObject[]>} */
     this.objrefs = undefined;
     this.contents = stripShebang(stripBOM(fs.readFileSync(this.filename, "utf-8")));
 
@@ -189,51 +190,96 @@ class ScriptModule extends Module {
   clearReferences() {
     if (this.objrefs) {
       for (const objref of this.objrefs) {
-        this.removeReference(objref[0]);
+        if (Array.isArray(objref[1])) {
+          objref[1].forEach(obj=> {
+            this.removeReference(obj);
+          });
+        } else {
+          this.removeReference(objref[1]);
+
+        }
       }
     }
   }
 
   /** @param {PolObject} obj */
   removeReference(obj) {
-    console.log("clearning refereecne",obj);
-    debugger;
-    obj.removeAllListeners();
-    if (this.objrefs) {
-      this.objrefs.delete(obj);
-    }
-    const currentScriptModules = ScriptModule.globalObjrefMap.get(obj);
-    if (Array.isArray(currentScriptModules)) {
-      let index = currentScriptModules.indexOf(this);
-      if (index === -1) {
-        console.log("Untracked reference", obj);
-        return;
+    if (obj.serial) {
+      if (REFDEBUG) debugger;
+      obj.removeAllListeners();
+      if (this.objrefs) {
+        const refs = this.objrefs.get(obj.serial);
+        if (Array.isArray(refs)) {
+          let index = refs.indexOf(obj);
+          if (index === -1) {
+            console.log("Untracked reference", obj);
+          } else {
+            for (; index + 1 < refs.length; index++)
+            refs[index] = refs[index + 1];
+            refs.pop();
+          }
+          if (!refs.length) {
+            obj.removeListenerExtUoExec(this.extUoExec);       // todo make internal...
+            this.objrefs.delete(obj.serial);
+          }
+        } else if (refs == obj) {
+          this.objrefs.delete(obj.serial);
+          obj.removeListenerExtUoExec(this.extUoExec);       // todo make internal...
+        } else {
+          console.log("Untracked reference",obj);
+        }
       }
 
-      for (; index + 1 < currentScriptModules.length; index++)
-        currentScriptModules[index] = currentScriptModules[index + 1];
-      currentScriptModules.pop();
 
-    } else if (typeof currentScriptModules !== "undefined") {
-      ScriptModule.globalObjrefMap.delete(obj);
-    } else {
-      console.log("Untracked reference",obj);
+      const currentScriptModules = ScriptModule.globalObjrefMap.get(obj.serial);
+      if (Array.isArray(currentScriptModules)) {
+        let index = currentScriptModules.indexOf(obj);
+        if (index === -1) {
+          console.log("Untracked reference", obj);
+          return;
+        }
+
+        for (; index + 1 < currentScriptModules.length; index++)
+          currentScriptModules[index] = currentScriptModules[index + 1];
+        currentScriptModules.pop();
+
+      } else if (currentScriptModules === obj) {
+        ScriptModule.globalObjrefMap.delete(obj.serial);
+      } else {
+        console.log("Untracked reference",obj);
+      }
     }
   }
 
   /** @param {PolObject} obj */
-  addReference(obj) {
-    debugger;
-    this.objrefs = this.objrefs || new Map();
-    this.objrefs.set(obj, obj._eventsCount);
-    
-    const currentScriptModules = ScriptModule.globalObjrefMap.get(obj);
-    if (Array.isArray(currentScriptModules)) {
-      currentScriptModules.push(this);
-    } else if (typeof currentScriptModules !== "undefined") {
-      ScriptModule.globalObjrefMap.set(obj, [ currentScriptModules, this ]);
-    } else {
-      ScriptModule.globalObjrefMap.set(obj, this );
+  addReference(obj, event, options) {
+    if (obj.serial) {
+      if (REFDEBUG) debugger;
+      this.objrefs = this.objrefs || new Map();
+      
+      const existing = this.objrefs.get(obj.serial);
+      if (Array.isArray(existing)) {
+        if (existing.indexOf(obj) == -1) {
+          existing.push(obj);
+        }
+      } else if (typeof existing !== "undefined" && existing != obj) {
+        this.objrefs.set(obj.serial, [existing, obj]);
+      } else if (!existing) {
+        this.objrefs.set(obj.serial, obj);
+      }
+
+      options = options ? options : (event == 1 ? { range: 32 } : undefined);
+      obj.addListenerExtUoExec(this.extUoExec, typeof event === "number" ? event : 0, options);
+      const currentScriptModules = ScriptModule.globalObjrefMap.get(obj.serial);
+      if (Array.isArray(currentScriptModules)) {
+        if (currentScriptModules.indexOf(obj) == -1) {
+          currentScriptModules.push(obj);
+        }
+      } else if (currentScriptModules && currentScriptModules !== obj) {
+        ScriptModule.globalObjrefMap.set(obj.serial, [ currentScriptModules, obj ]);
+      } else {
+        ScriptModule.globalObjrefMap.set(obj.serial, obj );
+      }
     }
   }
 
@@ -243,6 +289,7 @@ class ScriptModule extends Module {
  * We create a hook into the Module instance method `require` to construct our modwrap objects
  * if appropriate.
  */
+ // @ts-ignore
  require(id) {  
   if (
     this.extUoExec &&
@@ -263,7 +310,7 @@ class ScriptModule extends Module {
 
 /** 
  * Map an objref to a list of scripts that have at least one runtime event handler added
- * @type {Map<PolObject,ScriptModule|ScriptModule[]>}
+ * @type {Map<number,PolObject|PolObject[]>}
  */
 ScriptModule.globalObjrefMap = new Map();
 

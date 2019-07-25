@@ -66,6 +66,7 @@ namespace Core
 class UContainer;
 class WornItemsContainer;
 class ExportScript;
+class UOExecutor;
 
 #pragma pack( push, 1 )
 struct Resistances
@@ -181,6 +182,10 @@ public:
   bool saveonexit() const;
   void saveonexit( bool newvalue );
 
+  
+  bool addListener( Core::UOExecutor* listener );
+  bool removeListener( Core::UOExecutor* listener );
+
   virtual void printOn( Clib::StreamWriter& ) const;
   virtual void printSelfOn( Clib::StreamWriter& sw ) const;
 
@@ -275,9 +280,11 @@ protected:
   boost_utils::object_name_flystring name_;
   // mutable due to dirty flag
   mutable AttributeFlags<OBJ_FLAGS> flags_;
+  std::map<u32, Core::UOExecutor*> listeners;
 
 private:
   PropertyList proplist_;
+
 
 private:  // not implemented:
   UObject( const UObject& );

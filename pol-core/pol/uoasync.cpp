@@ -17,7 +17,7 @@ class OSExecutorModule;
 namespace Core
 {
 /** Request number */
-std::atomic<unsigned int> UOAsyncRequest::nextRequestId = 0;
+std::atomic<unsigned int> UOAsyncRequest::nextRequestId(0);
 
 UOAsyncRequest::UOAsyncRequest( UOExecutor& exec, Mobile::Character* chr, Type type )
     : ref_counted(),

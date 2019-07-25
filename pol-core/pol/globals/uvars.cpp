@@ -191,6 +191,8 @@ void display_leftover_objects();
 void GameState::deinitialize()
 {
   INFO_PRINT << "Initiating POL Cleanup....\n";
+  checkpoint( "cleaning up scripts" );
+  cleanup_scripts();
 
   networkManager.deinialize();
   deinit_ipc_vars();
@@ -200,8 +202,7 @@ void GameState::deinitialize()
 
   checkpoint( "cleaning up vars" );
   cleanup_vars();
-  checkpoint( "cleaning up scripts" );
-  cleanup_scripts();
+
 
   // scripts remove their listening points when they exit..
   // so there should be no listening points to clean up.

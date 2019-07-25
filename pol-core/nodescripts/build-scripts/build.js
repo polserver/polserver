@@ -7,6 +7,7 @@ async function run() {
   
   await generator.generateModules(outPath);
   await generator.generateObjects(outPath);
+  console.log(`Generated modules.js and objects.js to ${outPath}`);
 }
 
 if (require.main === module) {

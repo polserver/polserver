@@ -3,16 +3,14 @@ set(lib_name nodescripts)
 message("* ${lib_name}")
 
 add_custom_target(${lib_name} ALL
-  COMMAND nodebin install-deps.js ${CMAKE_COMMAND} 
-  COMMAND nodebin  build.js ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND nodebin ${YARN_LIB} install
+  COMMAND nodebin build.js ${CMAKE_CURRENT_BINARY_DIR}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build-scripts
-  DEPENDS nodebin
+  DEPENDS nodebin yarn
   SOURCES
   build-scripts/build.js
-  build-scripts/em-parser.js
-  build-scripts/install-deps.js
+  build-scripts/em-parser.jison
   build-scripts/wrap-generator.js
-  build-scripts/package-lock.json
   templates/modules.hbs
   templates/objects.hbs
   # Generated files

@@ -75,13 +75,11 @@ const scriptIsAToConstructorMap = [
 
 // class PolObject {
 //   constructor(
-    
-   function PolObject(wrappedObj, { set_member, get_member, call_method }) {
-    Object.defineProperty(wrappedObj, "toString", {
-      value: wrappedObj.toString.bind(wrappedObj)
-    });
+  const { PolObject } = process._linkedBinding("pol");
 
-    const scriptObj = new Proxy(wrappedObj, {
+   function ProxyPolObject(wrappedObj, { set_member, get_member, call_method }) {
+
+    const scriptObj = new Proxy(new PolObject(...arguments), {
       // Listing the properties here, so we know what we have to implement!
 
       // getPrototypeOf: function(target) {
@@ -111,17 +109,19 @@ const scriptIsAToConstructorMap = [
           return scriptObj;
         } //Reflect.get(target, p, recv);
 
-        if (p === "toString") {
-          return wrappedObj.toString;
-        } else if (p === Symbol.toPrimitive) {
-          return wrappedObj.toString;
+        // if (p === "toString") {
+        //   return wrappedObj.toString;
+        // } else 
+        if (p === Symbol.toPrimitive) {
+          return target.toString;
         } else if (p === Symbol.toStringTag) {
-          return wrappedObj.toString;
-        } else if (p === "_obj") {
-          return wrappedObj;
-        }
+          return target.toString;
+        } 
+        // else if (p === "_obj") {
+        //   return wrappedObj;
+        // }
 
-        if (typeof p === "string") return get_member(wrappedObj, p);
+        if (typeof p === "string") return get_member(target, p);
         return Reflect.get(target, p, recv);
       }
     });
@@ -143,7 +143,7 @@ const scriptIsAToConstructorMap = [
     return scriptObj;
   }
 // }
-debugger;
+
 /**
  * This corresponds to the {@link NodeObjectWrap} class in the core. The methods here
  * call those methods defined via Napi's ObjectWrap functionality.
@@ -157,7 +157,7 @@ function proxyObject(clazzName = "PolObject", wrappedObj, interalMethods, script
   
   const scriptObj = objects[clazzName] ? 
     new objects[clazzName](wrappedObj, interalMethods, scriptModule) : 
-    PolObject(wrappedObj, interalMethods);
+    ProxyPolObject(wrappedObj, interalMethods, scriptModule);
 
   return scriptObj;
 }

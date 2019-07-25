@@ -36,6 +36,7 @@
 #include "syshookscript.h"
 #include "tooltips.h"
 #include "uobjcnt.h"
+#include "uoexec.h"
 
 namespace Pol
 {
@@ -82,6 +83,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
       _rev( 0 ),
       name_( "" ),
       flags_(),
+      listeners(),
       proplist_( CPropProfiler::class_to_type( i_uobj_class ) )
 {
   graphic = Items::getgraphic( objtype );
@@ -392,6 +394,29 @@ bool UObject::saveonexit() const
 void UObject::saveonexit( bool newvalue )
 {
   flags_.change( OBJ_FLAGS::SAVE_ON_EXIT, newvalue );
+}
+
+
+bool UObject::addListener( Core::UOExecutor* exec )
+{
+  auto iter = listeners.find( exec->pid() );
+  if ( iter == listeners.end() )
+  {
+    listeners.emplace( exec->pid(), exec );
+    return true;
+  }
+  return false;
+}
+
+bool UObject::removeListener( Core::UOExecutor* exec )
+{
+  auto iter = listeners.find( exec->pid() );
+  if ( iter != listeners.end() )
+  {
+    listeners.erase( iter );
+    return true;
+  }
+  return false;
 }
 
 const char* UObject::target_tag() const

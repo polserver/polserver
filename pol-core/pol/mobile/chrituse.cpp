@@ -58,10 +58,9 @@ bool Character::start_script( Bscript::Program* prog, bool start_attached,
     ex->pushArg( new Module::ECharacterRefObjImp( this ) );
   }
 
-  ex->priority(100);
-
   if ( ex->setProgram( prog ) )
   {
+    ex->priority( 100 );
     if ( start_attached )
     {
       script_ex = ex.get();
@@ -108,10 +107,9 @@ void Item::walk_on( Mobile::Character* chr )
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->priority(100);
-
       if ( ex->setProgram( prog.get() ) )
       {
+        ex->priority( 100 );
         schedule_executor( ex.release() );
       }
     }
