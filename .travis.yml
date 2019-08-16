@@ -32,17 +32,17 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'kwstyle']
-      env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=0
+          sources: ['llvm-toolchain-trusty-7', 'ubuntu-toolchain-r-test']
+          packages: ['clang-7', 'libstdc++7', 'libstdc++-7-dev', 'kwstyle']
+      env: CXX_P=clang++-7 CC_P=clang-7 NOPCH=0
 
     - os: linux
       compiler: clang
       addons:
         apt:
-          sources: ['llvm-toolchain-trusty-6.0', 'ubuntu-toolchain-r-test']
-          packages: ['clang-6.0', 'libstdc++6', 'libstdc++-7-dev', 'doxygen']
-      env: CXX_P=clang++-6.0 CC_P=clang-6.0 NOPCH=1
+          sources: ['llvm-toolchain-trusty-7', 'ubuntu-toolchain-r-test']
+          packages: ['clang-7', 'libstdc++7', 'libstdc++-7-dev', 'doxygen']
+      env: CXX_P=clang++-7 CC_P=clang-7 NOPCH=1
 
 before_install:
   - cd bin-build
