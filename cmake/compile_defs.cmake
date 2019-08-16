@@ -1,10 +1,10 @@
 function(set_compile_flags target is_executable)
   message("* ${target}")
-  target_include_directories(${target}  PRIVATE 
+  target_include_directories(${target}  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
     ${PROJECT_BINARY_DIR} #global config
   )
-  target_include_directories(${target}  PRIVATE SYSTEM
+  target_include_directories(${target} SYSTEM PRIVATE
     ${BOOST_SOURCE_DIR} # boost
     "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
     "${CMAKE_CURRENT_LIST_DIR}/../../lib/picojson-1.3.0" #pico
@@ -66,7 +66,7 @@ function(set_compile_flags target is_executable)
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
       -m${ARCH_BITS}
     >
-    
+
     $<$<AND:${debug},${linux}>:
       -ggdb
     >
@@ -79,6 +79,7 @@ function(set_compile_flags target is_executable)
       /GF # string pooling
       /EHa # exception handling
       /W4
+      /w45038
     >
   )
 
@@ -113,7 +114,7 @@ function(set_compile_flags target is_executable)
       )
     endif()
   endif()
- 
+
   if (${is_executable})
     if (${release} AND ${linux})
       if (${ENABLE_ASAN} OR ${ENABLE_USAN} OR ${ENABLE_MSAN} OR ${ENABLE_TSAN})
@@ -217,7 +218,7 @@ function(use_curl target)
 endfunction()
 
 function(use_benchmark target)
-  if (ENABLE_BENCHMARK) 
+  if (ENABLE_BENCHMARK)
     target_link_libraries(${target} PUBLIC benchmark)
   endif()
 endfunction()

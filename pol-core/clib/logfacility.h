@@ -7,7 +7,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOGFACILITY_H
 #define CLIB_LOGFACILITY_H
 
-#include <boost/noncopyable.hpp>
 #include <format/format.h>
 #include <fstream>
 #include <future>
@@ -140,11 +139,13 @@ public:
 };
 
 // main class which starts the logging
-class LogFacility : boost::noncopyable
+class LogFacility
 {
 public:
   LogFacility();
   ~LogFacility();
+  LogFacility( const LogFacility& ) = delete;
+  LogFacility& operator=( const LogFacility& ) = delete;
   template <typename Sink>
   void save( fmt::Writer* message, const std::string& id );
   void registerSink( LogSink* sink );

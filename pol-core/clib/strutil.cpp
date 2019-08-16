@@ -238,7 +238,7 @@ void sanitizeUnicode( std::string* str )
       utf8::replace_invalid( str->begin(), str->end(), std::back_inserter( new_s ) );
       *str = new_s;
     }
-    catch ( utf8::exception )
+    catch ( utf8::exception& )
     {
       *str = "Invalid unicode";
     }

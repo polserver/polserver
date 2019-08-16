@@ -141,7 +141,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
     client->Disconnect();
     POLLOG.Format( "Incorrect password for account {} from {}\n" )
-        << acct->name() << Network::AddressToString( &client->ipaddr );
+        << acct->name() << client->ipaddrAsString();
     return;
   }
   else
@@ -161,7 +161,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
   }
 
   POLLOG_INFO.Format( "Account {} logged in from {}\n" )
-      << acct->name() << Network::AddressToString( &client->ipaddr );
+      << acct->name() << client->ipaddrAsString();
 
   client->acct = acct;
 
@@ -218,7 +218,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
   if ( servcount == 0 )
   {
     POLLOG.Format( "No applicable servers for client connecting from {}\n" )
-        << Network::AddressToString( &client->ipaddr );
+        << client->ipaddrAsString();
   }
 }
 
@@ -422,7 +422,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
     send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
     client->Disconnect();
     POLLOG.Format( "Incorrect password for account {} from {}\n" )
-        << acct->name() << Network::AddressToString( &client->ipaddr );
+        << acct->name() << client->ipaddrAsString();
     return;
   }
   else
@@ -447,7 +447,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   //
 
   POLLOG.Format( "Account {} logged in from {}\n" )
-      << acct->name() << Network::AddressToString( &client->ipaddr );
+      << acct->name() << client->ipaddrAsString();
 
   // ENHANCEMENT: could authenticate with real loginservers.
 

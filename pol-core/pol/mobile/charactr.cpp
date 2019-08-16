@@ -124,7 +124,6 @@
 #include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
-#include "../module/osmod.h"
 #include "../module/uomod.h"
 #include "../movecost.h"
 #include "../multi/customhouses.h"
@@ -503,9 +502,9 @@ void Character::stop_skill_script()
     // this will force the execution engine to stop running this script immediately
     // dont delete the executor here, since it could currently run
     script_ex->seterror( true );
-    script_ex->os_module->revive();
-    if ( script_ex->os_module->in_debugger_holdlist() )
-      script_ex->os_module->revive_debugged();
+    script_ex->revive();
+    if ( script_ex->in_debugger_holdlist() )
+      script_ex->revive_debugged();
   }
 }
 
@@ -589,38 +588,6 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   if ( frozen() )
     sw() << "\tFrozen\t" << static_cast<int>( frozen() ) << pf_endl;
 
-  s16 value = fire_resist().mod;
-  if ( value != 0 )
-    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_resist().mod;
-  if ( value != 0 )
-    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_resist().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_resist().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
-
-  value = fire_damage().mod;
-  if ( value != 0 )
-    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = cold_damage().mod;
-  if ( value != 0 )
-    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = energy_damage().mod;
-  if ( value != 0 )
-    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = poison_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
-  value = physical_damage().mod;
-  if ( value != 0 )
-    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
-
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
@@ -691,8 +658,6 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
       sw() << "\tSkillcap\t" << static_cast<int>( cap_value.skillcap ) << pf_endl;
   }
 
-  if ( has_luck() )
-    sw() << "\tLuck\t" << static_cast<int>( luck() ) << pf_endl;
   if ( has_followers() )
   {
     auto followers_value = followers();
@@ -890,38 +855,6 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   if ( elem.remove_bool( "FROZEN", false ) )
     mob_flags_.set( MOB_FLAGS::FROZEN );
 
-  s16 mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_resist( fire_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "COLDRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_resist( cold_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "ENERGYRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_resist( energy_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "POISONRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_resist( poison_resist().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALRESISTMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_resist( physical_resist().setAsMod( mod_value ) );
-
-  mod_value = static_cast<s16>( elem.remove_int( "FIREDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    fire_damage( fire_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "COLDDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    cold_damage( cold_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "ENERGYDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    energy_damage( energy_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "POISONDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    poison_damage( poison_damage().setAsMod( mod_value ) );
-  mod_value = static_cast<s16>( elem.remove_int( "PHYSICALDAMAGEMOD", 0 ) );
-  if ( mod_value != 0 )
-    physical_damage( physical_damage().setAsMod( mod_value ) );
-
   movement_cost( Core::MovementCostMod(
       elem.remove_double( "MovementWalkMod", Core::MovementCostMod::DEFAULT.walk ),
       elem.remove_double( "MovementRunMod", Core::MovementCostMod::DEFAULT.run ),
@@ -965,7 +898,6 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   skillstatcap( Core::SkillStatCap(
       static_cast<s16>( elem.remove_int( "STATCAP", Core::SkillStatCap::DEFAULT.statcap ) ),
       static_cast<u16>( elem.remove_int( "SKILLCAP", Core::SkillStatCap::DEFAULT.skillcap ) ) ) );
-  luck( static_cast<s16>( elem.remove_int( "LUCK", 0 ) ) );
   followers( Core::ExtStatBarFollowers(
       static_cast<s8>(
           elem.remove_int( "FOLLOWERS", Core::ExtStatBarFollowers::DEFAULT.followers ) ),
@@ -1949,7 +1881,7 @@ void Character::run_hit_script( Character* defender, double damage )
   ex->pushArg( new Module::ECharacterRefObjImp( defender ) );
   ex->pushArg( new Module::ECharacterRefObjImp( this ) );
 
-  ex->os_module->priority = 100;
+  ex->priority( 100 );
 
   if ( ex->setProgram( prog.get() ) )
   {
@@ -2513,7 +2445,6 @@ void Character::refresh_ar()
       continue;
     // Let's check all items as base, and handle their element_resists.
     updateEquipableProperties( item );
-
     if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
       Items::UArmor* armor = static_cast<Items::UArmor*>( item );
@@ -2567,6 +2498,21 @@ void Character::refresh_ar()
 
 void Character::updateEquipableProperties( Items::Item* item )
 {
+  // calc caps
+  if ( item->has_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().addToValue( item->defence_increase_cap() ) );
+  // calc resist caps
+  if ( item->has_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().addToValue( item->fire_resist_cap() ) );
+  if ( item->has_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().addToValue( item->cold_resist_cap() ) );
+  if ( item->has_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().addToValue( item->energy_resist_cap() ) );
+  if ( item->has_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().addToValue( item->poison_resist_cap() ) );
+  if ( item->has_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().addToValue( item->physical_resist_cap() ) );
+  // calc resists
   if ( item->has_fire_resist() )
     fire_resist( fire_resist().addToValue( item->fire_resist() ) );
   if ( item->has_cold_resist() )
@@ -2578,6 +2524,7 @@ void Character::updateEquipableProperties( Items::Item* item )
   if ( item->has_physical_resist() )
     physical_resist( physical_resist().addToValue( item->physical_resist() ) );
 
+  // calc damages
   if ( item->has_fire_damage() )
     fire_damage( fire_damage().addToValue( item->fire_damage() ) );
   if ( item->has_cold_damage() )
@@ -2588,31 +2535,91 @@ void Character::updateEquipableProperties( Items::Item* item )
     poison_damage( poison_damage().addToValue( item->poison_damage() ) );
   if ( item->has_physical_damage() )
     physical_damage( physical_damage().addToValue( item->physical_damage() ) );
+
+  // calc others
+  if ( item->has_lower_reagent_cost() )
+    lower_reagent_cost( lower_reagent_cost().addToValue( item->lower_reagent_cost() ) );
+  if ( item->has_spell_damage_increase() )
+    spell_damage_increase( spell_damage_increase().addToValue( item->spell_damage_increase() ) );
+  if ( item->has_faster_casting() )
+    faster_casting( faster_casting().addToValue( item->faster_casting() ) );
+  if ( item->has_faster_cast_recovery() )
+    faster_cast_recovery( faster_cast_recovery().addToValue( item->faster_cast_recovery() ) );
+  if ( item->has_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().addToValue( item->lower_mana_cost() ) );
+  if ( item->has_hit_chance() )
+    hit_chance( hit_chance().addToValue( item->hit_chance() ) );
+  if ( item->has_luck() )
+    luck( luck().addToValue( item->luck() ) );
+
+  // calc defence increase if lower than cap
+  if ( item->has_defence_increase() )
+    defence_increase( defence_increase().addToValue( item->defence_increase() ) );
+
+  if ( client != nullptr )
+  {  // CHECKME consider sending less frequently
+    send_full_statmsg( client, this );
+  }
 }
 
 void Character::resetEquipableProperties()
 {
+  // reset resists
   if ( has_fire_resist() )
-    fire_resist( fire_resist().resetModAsValue() );
+    fire_resist( fire_resist().setAsValue( 0 ) );
   if ( has_cold_resist() )
-    cold_resist( cold_resist().resetModAsValue() );
+    cold_resist( cold_resist().setAsValue( 0 ) );
   if ( has_energy_resist() )
-    energy_resist( energy_resist().resetModAsValue() );
+    energy_resist( energy_resist().setAsValue( 0 ) );
   if ( has_poison_resist() )
-    poison_resist( poison_resist().resetModAsValue() );
+    poison_resist( poison_resist().setAsValue( 0 ) );
   if ( has_physical_resist() )
-    physical_resist( physical_resist().resetModAsValue() );
+    physical_resist( physical_resist().setAsValue( 0 ) );
 
+  // reset caps
+  if ( has_fire_resist_cap() )
+    fire_resist_cap( fire_resist_cap().setAsValue( 0 ) );
+  if ( has_cold_resist_cap() )
+    cold_resist_cap( cold_resist_cap().setAsValue( 0 ) );
+  if ( has_energy_resist_cap() )
+    energy_resist_cap( energy_resist_cap().setAsValue( 0 ) );
+  if ( has_poison_resist_cap() )
+    poison_resist_cap( poison_resist_cap().setAsValue( 0 ) );
+  if ( has_physical_resist_cap() )
+    physical_resist_cap( physical_resist_cap().setAsValue( 0 ) );
+
+  // reset damages
   if ( has_fire_damage() )
-    fire_damage( fire_damage().resetModAsValue() );
+    fire_damage( fire_damage().setAsValue( 0 ) );
   if ( has_cold_damage() )
-    cold_damage( cold_damage().resetModAsValue() );
+    cold_damage( cold_damage().setAsValue( 0 ) );
   if ( has_energy_damage() )
-    energy_damage( energy_damage().resetModAsValue() );
+    energy_damage( energy_damage().setAsValue( 0 ) );
   if ( has_poison_damage() )
-    poison_damage( poison_damage().resetModAsValue() );
+    poison_damage( poison_damage().setAsValue( 0 ) );
   if ( has_physical_damage() )
-    physical_damage( physical_damage().resetModAsValue() );
+    physical_damage( physical_damage().setAsValue( 0 ) );
+
+  // reset others
+  if ( has_lower_reagent_cost() )
+    lower_reagent_cost( lower_reagent_cost().setAsValue( 0 ) );
+  if ( has_spell_damage_increase() )
+    spell_damage_increase( spell_damage_increase().setAsValue( 0 ) );
+  if ( has_faster_casting() )
+    faster_casting( faster_casting().setAsValue( 0 ) );
+  if ( has_faster_cast_recovery() )
+    faster_cast_recovery( faster_cast_recovery().setAsValue( 0 ) );
+
+  if ( has_defence_increase() )
+    defence_increase( defence_increase().setAsValue( 0 ) );
+  if ( has_defence_increase_cap() )
+    defence_increase_cap( defence_increase_cap().setAsValue( 0 ) );
+  if ( has_lower_mana_cost() )
+    lower_mana_cost( lower_mana_cost().setAsValue( 0 ) );
+  if ( has_hit_chance() )
+    hit_chance( hit_chance().setAsValue( 0 ) );
+  if ( has_luck() )
+    luck( luck().setAsValue( 0 ) );
 }
 
 void Character::showarmor() const

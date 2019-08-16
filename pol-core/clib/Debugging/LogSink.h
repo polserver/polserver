@@ -6,7 +6,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #ifndef CLIB_LOG_SINK_H
 #define CLIB_LOG_SINK_H
 
-#include <boost/noncopyable.hpp>
 #include <iosfwd>
 #include <string>
 
@@ -18,11 +17,14 @@ namespace Clib
 {
 namespace Logging
 {
-class LogSink : boost::noncopyable
+class LogSink
 {
 public:
-  LogSink();
-  virtual ~LogSink();
+  LogSink() = default;
+  virtual ~LogSink() = default;
+
+  LogSink( const LogSink& ) = delete;
+  LogSink& operator=( const LogSink& ) = delete;
 
   virtual void addMessage( fmt::Writer* msg ) = 0;
   virtual void addMessage( fmt::Writer* msg, const std::string& id ) = 0;
@@ -37,8 +39,8 @@ public:
    */
   static std::string getTimeStamp();
 };
-}
-}
-}  // namespaces
+}  // namespace Logging
+}  // namespace Clib
+}  // namespace Pol
 
 #endif

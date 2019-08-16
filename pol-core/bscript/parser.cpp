@@ -478,7 +478,38 @@ ObjMember object_members[] = {
     {MBR_CARRYINGCAPACITY, "carrying_capacity", true},
     {MBR_NO_DROP, "no_drop", false},
     {MBR_NO_DROP_EXCEPTION, "no_drop_exception", false},
-    {MBR_PORT, "port", false},
+    {MBR_PORT, "port", false},  // 220
+    // Additions for new properties
+    {MBR_LOWER_REAG_COST, "lower_reagent_cost", true},
+    {MBR_SPELL_DAMAGE_INCREASE, "spell_damage_increase", true},
+    {MBR_FASTER_CASTING, "faster_casting", true},
+    {MBR_FASTER_CAST_RECOVERY, "faster_cast_recovery", true},
+    {MBR_DEFENCE_CHANCE_INCREASE, "defence_increase", true},  // 225
+    {MBR_DEFENCE_CHANCE_INCREASE_CAP, "defence_increase_cap", true},
+    {MBR_LOWER_MANA_COST, "lower_mana_cost", true},
+    {MBR_FIRE_RESIST_CAP, "resist_fire_cap", true},
+    {MBR_COLD_RESIST_CAP, "resist_cold_cap", true},
+    {MBR_ENERGY_RESIST_CAP, "resist_energy_cap", true},  // 230
+    {MBR_POISON_RESIST_CAP, "resist_poison_cap", true},
+    {MBR_PHYSICAL_RESIST_CAP, "resist_physical_cap", true},
+    {MBR_HIT_CHANCE, "hit_chance", true},
+    // Additions for new properties mods
+    {MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false},
+    {MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false},
+    {MBR_FASTER_CASTING_MOD, "faster_casting_mod", false},  // 235
+    {MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod", false},
+    {MBR_DEFENCE_CHANCE_INCREASE_MOD, "defence_increase_mod", false},
+    {MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod", false},
+    {MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false},
+    {MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false},  // 240
+    {MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false},
+    {MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false},
+    {MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false},
+    {MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false},
+    {MBR_LUCK_MOD, "luck_mod", false},  // 245
+    {MBR_HIT_CHANCE_MOD, "hit_chance_mod", false},
+
+
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

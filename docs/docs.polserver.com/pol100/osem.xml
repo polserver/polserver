@@ -136,9 +136,9 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="Start_Skill_Script">
-    <prototype>Start_Skill_Script( chr, attr_name, script_name := 0, param := 0 )</prototype>
+    <prototype>Start_Skill_Script( chr, attr_name, script_name := "", param := 0 )</prototype>
     <parameter name="chr" value="Character to start the script for"/>
-    <parameter name="attr_name" value="AttributeID to start the script for"/>
+    <parameter name="attr_name" value="String of AttributeID to start the script for e.g. 'Anatomy'"/>
     <parameter name="script_name" value="If given, starts this script instead of the default one" />
     <parameter name="param" value="object to pass to the script. Only one param may be passed. (optional)"/>
     <explain>starts for given chr and attr_name definied script (overrideable with param script_name)</explain>
@@ -181,12 +181,6 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <parameter name="text" value="String"/>
     <explain>write text to the console, and to the log file includes context (calling script name)</explain>
     <return>1 on success</return>
-</function>
-
-<function name="System_RPM">
-    <prototype>System_RPM()</prototype>
-    <explain>returns the system RPM, which is the number of "game loop rotations" completed in the last minute. </explain>
-    <return>Last System RPM integer</return>
 </function>
 
 <function name="Clear_Event_Queue">

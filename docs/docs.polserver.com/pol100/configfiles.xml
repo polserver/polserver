@@ -117,7 +117,7 @@ Listener
     <explain>The right-hand-side "Life", "Mana", and "Stamina" are Vital names that MUST be defined in vitals.cfg.</explain>
     <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
     <explain>The Protocol and Listener sections are optional.</explain>
-    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section. If you use Listeners set ListenPort in pol.cfg to 0.</explain>
+    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section.</explain>
     <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
     <explain>MethodScript: General Methodscript for characters Deprecated!</explain>
@@ -359,6 +359,7 @@ Spell (int spellid)
 [CoreHandledLocks               (0/1 {default 0})]
 [DefaultAttributeCap            (int in tenths {default 1000})]
 [CoreSendsCaps                  (0/1 {default 0})]
+[CoreIgnoresDefenceCaps         (0/1 {default 0})]
 [SendStatLocks                  (0/1 {default 0})]
 [MaxContainerSlots              (int {default 125})]
 [UseContainerSlots              (0/1 {default 0})]
@@ -399,7 +400,8 @@ Spell (int spellid)
   <explain><i>AllowMovingTrade:</i>  0 Disables moving more than 4 tiles away with an open trade window, cancels trading window.</explain>
   <explain><i>CoreHandledLocks:</i> If enabled, core will handle the change of skill locks and stat locks from the client (setting the attribute locks).</explain>
   <explain><i>DefaultAttributeCap:</i> defines which value POL should use as cap for attributes.</explain>
-  <explain><i>CoreSendsCaps:</i> makes POL send attribute cap information in the Send Skills (0x3A) packet</explain>
+  <explain><i>CoreSendsCaps:</i> makes POL send attribute cap information in the Send Skills (0x3A) packet.</explain>
+  <explain><i>CoreIgnoresDefenceCaps:</i> makes POL ignore the caps for elemental resists and damage increase properties when calculating the value.</explain>
   <explain><i>SendStatLocks:</i> makes POL send stat lock message (Client version &gt; 3)</explain>
   <explain><i>MaxContainerSlots:</i> This will allow setting the internal overall allowed item count for containers. This is introduced for future KR support.</explain>
   <explain><i>UseContainerSlots:</i> check to can add bulk code to ensure not going over max slot capacity of 255 and a container's max slot capacity.</explain>
@@ -474,7 +476,7 @@ GameServer
     <explain>IP address must match the address in the clients' login.cfg files. This means if your game server is on a LAN not accessable from the internet (doing port forwarding from a router), you must define this game server IP as your router's internet IP address.</explain>
     <explain>--ip-- attempts to find your non-LAN, non-localhost IP address. If you have a multihomed server, this may behave strangely.</explain>
     <explain>--lan-- attempts to find you non-routable LAN IP address, if any (i.e. '192.168.*.*' or '10.*.*.*').</explain>
-    <explain>Port is the listening port of the Game Server, not the login server (though they may be the same). See ListenPort in pol.cfg</explain>
+    <explain>Port is the listening port of the Game Server, not the login server (though they may be the same). It's often the listener's Port in uoclients.cfg</explain>
     <explain>Example IPMatch value: 192.168.0.0/255.255.255.0 would prevent anyone with an IP address other than 192.168.0.* from seeing the gameserver.</explain>
     <explain>AcctMatch lines have one account name per line, and are those accounts to show the given server to on login to the 'login server'.</explain>
     <related>movecost.cfg</related>
@@ -889,10 +891,8 @@ UoDataFileRoot=(path to UO MUL files)
 WorldDataPath=(path to POL Data files {default data/})
 RealmDataPath=(path to POL Realm files {default realm/})
 PidFilePath=(where POL will write its .pid file {default ./})
-[ListenPort=(integer TCP port)]
 [ClientEncryptionVersion=(string {default none})]
 [CountResourceTiles=(1/0 {default 1}]
-[Multithread=(1/0 {default 1})]
 [WebServer=(1/0 {default 0})]
 [WebServerPort=(int port {default 8080})]
 [IgnoreLoadErrors=(1/0 {default 0})]
@@ -954,6 +954,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ReportAdminEmail=(string email {default ""})]
 [ReportServer=(string servername {default "polserver.com"})]
 [ReportURL=(string url {default "/pol/report_program_abort.php"})]
+[ShowWarningGump=(1/0 {default 1})]
+[ShowWarningItem=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
@@ -961,7 +963,6 @@ PidFilePath=(where POL will write its .pid file {default ./})
             default for both is "none"
     <explain>Clarification: for ClientEncryptionVersion, the allowable values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'. Here, 'ignition', 'uorice', and 'none' all mean 'no encryption'.</explain>
     <explain>Due to autocalculation 'major.minor.build' means setting a listener for client 7.0.4.1 '7.0.4' (no patch)</explain>
-    <explain>ListenPort is now optional, use uoclient.cfg Listener sections to define listening ports.</explain>
     <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>
@@ -972,6 +973,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>EnforceMountObjtype: will enforce that only items with the mount objtype (as defined in extobj.cfg) can be mounted.</explain>
     <explain>AllowMultiClientsPerAccount: when true, will allow multiple characters from the same account to be logged in at the same time</explain>
     <explain>ProfileCProps: when true, will record CProp usage statistics. Helps detecting unused CProps, at the cost of some RAM and an unnoticeable performance impact. It should be enabled from startup, or the core will be unable to detect the type of some CProps.</explain>
+    <explain>ShowWarningGump: will show unexpected gump warning messages on the console.</explain>
+    <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
 </cfgfile>
 
 
@@ -1336,6 +1339,36 @@ NpcTemplate (string unique templatename)
     [SaveOnExit            (0/1 {default 1})]
     [MethodScript          (string scriptname)]
     [NoDropException       (0/1 {default 0})]
+    
+    [LowerReagentCost       (int/(die-string value))]
+    [SpellDamageIncrease    (int/(die-string value))]
+    [FasterCasting          (int/(die-string value))]
+    [FasterCastRecovery     (int/(die-string value))]
+    [DefenceIncrease        (int/(die-string value))]
+    [DefenceIncreaseCap     (int/(die-string value))]
+    [LowerManaCost          (int/(die-string value))]
+    [HitChance              (int/(die-string value))]
+    [FireResistCap          (int/(die-string value))]
+    [ColdResistCap          (int/(die-string value))]
+    [EnergyResistCap        (int/(die-string value))]
+    [PhysicalResistCap      (int/(die-string value))]
+    [PoisonResistCap        (int/(die-string value))]
+    [Luck                   (int/(die-string value))]
+    
+    [LowerReagentCostMod    (int/(die-string value))]
+    [SpellDamageIncreaseMod (int/(die-string value))]
+    [FasterCastingMod       (int/(die-string value))]
+    [FasterCastRecoveryMod  (int/(die-string value))]
+    [DefenceIncreaseMod     (int/(die-string value))]
+    [DefenceIncreaseCapMod  (int/(die-string value))]
+    [LowerManaCostMod       (int/(die-string value))]
+    [HitChanceMod           (int/(die-string value))]
+    [FireResistCapMod       (int/(die-string value))]
+    [ColdResistCapMod       (int/(die-string value))]
+    [EnergyResistCapMod     (int/(die-string value))]
+    [PhysicalResistCapMod   (int/(die-string value))]
+    [PoisonResistCapMod     (int/(die-string value))]
+    [LuckMod                (int/(die-string value))]
 
     [CProp                  (string name, string value, will set a CProp on the npc at creation)]
     [Cprop                  (...)]
@@ -1422,6 +1455,38 @@ Item (objtype)
     [EnergyDamage           (int/(die-string value))]
     [PoisonDamage           (int/(die-string value))]
     [PhysicalDamage         (int/(die-string value))]
+        
+    [LowerReagentCost       (int/(die-string value))]
+    [SpellDamageIncrease    (int/(die-string value))]
+    [FasterCasting          (int/(die-string value))]
+    [FasterCastRecovery     (int/(die-string value))]
+    [DefenceIncrease        (int/(die-string value))]
+    [DefenceIncreaseCap     (int/(die-string value))]
+    [LowerManaCost          (int/(die-string value))]
+    [HitChance              (int/(die-string value))]
+    [FireResistCap          (int/(die-string value))]
+    [ColdResistCap          (int/(die-string value))]
+    [EnergyResistCap        (int/(die-string value))]
+    [PhysicalResistCap      (int/(die-string value))]
+    [PoisonResistCap        (int/(die-string value))]
+    [Luck                   (int/(die-string value))]
+    
+    [LowerReagentCostMod    (int/(die-string value))]
+    [SpellDamageIncreaseMod (int/(die-string value))]
+    [FasterCastingMod       (int/(die-string value))]
+    [FasterCastRecoveryMod  (int/(die-string value))]
+    [DefenceIncreaseMod     (int/(die-string value))]
+    [DefenceIncreaseCapMod  (int/(die-string value))]
+    [LowerManaCostMod       (int/(die-string value))]
+    [HitChanceMod           (int/(die-string value))]
+    [FireResistCapMod       (int/(die-string value))]
+    [ColdResistCapMod       (int/(die-string value))]
+    [EnergyResistCapMod     (int/(die-string value))]
+    [PhysicalResistCapMod   (int/(die-string value))]
+    [PoisonResistCapMod     (int/(die-string value))]
+    [LuckMod                (int/(die-string value))]
+
+    
     [StackLimit             (int {default 60000})]
     [NoDrop                 (0/1 {default 0})]
 

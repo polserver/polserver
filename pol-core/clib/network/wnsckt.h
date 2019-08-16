@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Header_Windows.h"
+#include "../Header_Windows.h"
 #ifndef WINDOWS
 #include <sys/socket.h>
 
@@ -29,8 +29,11 @@ public:
 
   Socket();
   explicit Socket( SOCKET sock );
-  Socket( Socket& sck );  // takes ownership
-  virtual ~Socket();
+  Socket( Socket&& sck );
+  Socket& operator=( Socket&& sck );
+  Socket( const Socket& ) = delete;
+  Socket& operator=( const Socket& ) = delete;
+  ~Socket();
 
   void write( const std::string& str );
 
@@ -38,7 +41,7 @@ public:
   bool listen( unsigned short port );
   bool select( unsigned int seconds, unsigned int useconds );
   bool accept( SOCKET* s, unsigned int mstimeout );
-  bool accept( Socket& newsocket );
+  bool accept( Socket* newsocket );
   bool recvbyte( unsigned char* byte, unsigned int waitms );
   bool recvdata( void* vdest, unsigned len, unsigned int waitms );
   unsigned peek( void* vdest, unsigned len, unsigned int waitms );
@@ -75,6 +78,6 @@ private:
   int _options;
   struct sockaddr _peer;
 };
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif  // CLIB_WNSCKT_H

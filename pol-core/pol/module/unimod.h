@@ -65,6 +65,8 @@ public:
 
   Mobile::Character* prompt_chr;
 
+  virtual size_t sizeEstimate() const override;
+
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
   bool getItemParam( unsigned param, Items::Item*& itemptr );

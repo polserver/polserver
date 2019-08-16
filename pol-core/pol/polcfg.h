@@ -28,10 +28,10 @@ struct PolConfig
   std::string world_data_path;
   std::string realm_data_path;
   std::string pidfile_path;
-  unsigned short listen_port;
   bool verbose;
   unsigned short loglevel;  // 0=nothing 10=lots
   unsigned short select_timeout_usecs;
+  unsigned short loginserver_timeout_mins;
   bool watch_rpm;
   bool watch_sysload;
   bool log_sysload;
@@ -41,7 +41,7 @@ struct PolConfig
   bool log_script_cycles;
   bool count_resource_tiles;
   Crypt::TCryptInfo client_encryption_version;
-  unsigned short multithread;
+
   bool web_server;
   unsigned short web_server_port;
   bool web_server_local_only;
@@ -96,6 +96,9 @@ struct PolConfig
   bool single_thread_decay;
   bool thread_decay_statistics;
 
+  bool show_warning_gump;
+  bool show_warning_item;
+
   /**
    * @brief Returns true if program aborts are reported
    */
@@ -111,6 +114,6 @@ struct PolConfig
   static struct stat pol_cfg_stat;
   static void reload_pol_cfg();
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

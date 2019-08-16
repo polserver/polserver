@@ -12,6 +12,7 @@
 
 #include "../../clib/fdump.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/network/sockets.h"
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
 #include "../../clib/spinlock.h"
@@ -27,7 +28,6 @@
 #include "packethelper.h"
 #include "packethooks.h"
 #include "packets.h"
-#include "sockets.h"
 #include <format/format.h>
 
 namespace Pol
@@ -36,7 +36,7 @@ namespace Network
 {
 std::string Client::ipaddrAsString() const
 {
-  return AddressToString( const_cast<struct sockaddr*>( &ipaddr ) );
+  return AddressToString( &this->ipaddr );
 }
 
 void Client::recv_remaining( int total_expected )
@@ -250,31 +250,6 @@ void Client::transmit( const void* data, int len, bool needslock )
   }
   Core::networkManager.iostats.sent[msgtype].count++;
   Core::networkManager.iostats.sent[msgtype].bytes += len;
-
-  if ( encrypt_server_stream )
-  {
-    pause();
-    transmit_encrypted( data, len );
-  }
-  else
-  {
-    xmit( data, static_cast<unsigned short>( len ) );
-    // _xmit( client->csocket, data, len );
-  }
-}
-
-void Client::transmitmore( const void* data, int len )
-{
-  {
-    Clib::SpinLockGuard guard( _fpLog_lock );
-    if ( !fpLog.empty() )
-    {
-      fmt::Writer tmp;
-      tmp << "Server -> Client (" << len << " bytes)\n";
-      Clib::fdump( tmp, data, len );
-      FLEXLOG( fpLog ) << tmp.str() << "\n";
-    }
-  }
 
   if ( encrypt_server_stream )
   {

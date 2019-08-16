@@ -72,6 +72,8 @@ public:
   const std::string& scriptname() const;
   Executor& exec;
 
+  virtual size_t sizeEstimate() const;
+
 protected:
   ExecutorModule( const char* moduleName, Executor& iExec );
 

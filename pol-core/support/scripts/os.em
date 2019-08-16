@@ -69,7 +69,7 @@ Set_Debug( debug );
 
 
 Start_Script( script_name, param := 0 );
-Start_Skill_Script( chr, attr_name, script_name := 0, param := 0 );
+Start_Skill_Script( chr, attr_name, script_name := "", param := 0 );
 Run_Script_To_Completion( script_name, param := 0 );
 Run_Script( script_name, param := 0 );
 
@@ -79,14 +79,6 @@ Run_Script( script_name, param := 0 );
     //               includes context (calling script name)
     //
 SysLog( text );
-
-
-    //
-    // system_rpm(): returns the system RPM, which is the number of
-    //               "game loop rotations" completed in the last minute.
-    //               This can be zero!
-    //
-System_RPM();
 
 	//
 	// clear_event_queue(): Empties the event queue of the current script.

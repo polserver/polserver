@@ -208,6 +208,22 @@ private:
   DYN_PROPERTY( orig_poison_damage, s16, Core::PROP_ORIG_DAMAGE_POISON, 0 );
   DYN_PROPERTY( orig_physical_damage, s16, Core::PROP_ORIG_DAMAGE_PHYSICAL, 0 );
 
+
+  DYN_PROPERTY( orig_lower_reagent_cost, s16, Core::PROP_ORIG_LOWER_REAG_COST, 0 );
+  DYN_PROPERTY( orig_spell_damage_increase, s16, Core::PROP_ORIG_SPELL_DAMAGE_INCREASE, 0 );
+  DYN_PROPERTY( orig_faster_casting, s16, Core::PROP_ORIG_FASTER_CASTING, 0 );
+  DYN_PROPERTY( orig_faster_cast_recovery, s16, Core::PROP_ORIG_FASTER_CAST_RECOVERY, 0 );
+  DYN_PROPERTY( orig_defence_increase, s16, Core::PROP_ORIG_DEFENCE_INCREASE, 0 );
+  DYN_PROPERTY( orig_defence_increase_cap, s16, Core::PROP_ORIG_DEFENCE_INCREASE_CAP, 0 );
+  DYN_PROPERTY( orig_lower_mana_cost, s16, Core::PROP_ORIG_LOWER_MANA_COST, 0 );
+  DYN_PROPERTY( orig_hit_chance, s16, Core::PROP_ORIG_HIT_CHANCE, 0 );
+  DYN_PROPERTY( orig_fire_resist_cap, s16, Core::PROP_ORIG_RESIST_FIRE_CAP, 0 );
+  DYN_PROPERTY( orig_cold_resist_cap, s16, Core::PROP_ORIG_RESIST_COLD_CAP, 0 );
+  DYN_PROPERTY( orig_energy_resist_cap, s16, Core::PROP_ORIG_RESIST_ENERGY_CAP, 0 );
+  DYN_PROPERTY( orig_poison_resist_cap, s16, Core::PROP_ORIG_RESIST_POISON_CAP, 0 );
+  DYN_PROPERTY( orig_physical_resist_cap, s16, Core::PROP_ORIG_RESIST_PHYSICAL_CAP, 0 );
+  DYN_PROPERTY( orig_luck, s16, Core::PROP_ORIG_LUCK, 0 );
+
   void resetEquipablePropertiesNPC();
 
   // MISC

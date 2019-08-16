@@ -35,22 +35,15 @@ SocketListener::SocketListener( unsigned short port, Socket::option opt ) : _lis
   }
 }
 
-bool SocketListener::GetConnection( unsigned int timeout_sec )
+bool SocketListener::GetConnection( Socket* newsck, unsigned int timeout_sec,
+                                    unsigned int timeout_usec )
 {
-  return _listen_sck.select( timeout_sec, 0 );
+  if ( _listen_sck.select( timeout_sec, timeout_usec ) )
+    return _listen_sck.accept( newsck );
+  return false;
 }
 
-void SocketListener::accept( Socket& newsck )
-{
-  _listen_sck.accept( newsck );  // FIXME return ignored
-}
-
-
-SocketClientThread::SocketClientThread( SocketListener& SL ) : _sck()
-{
-  SL.accept( _sck );
-}
-SocketClientThread::SocketClientThread( Socket& S ) : _sck( S ) {}
+SocketClientThread::SocketClientThread( Socket&& S ) : _sck( std::move( S ) ) {}
 
 static void _thread_stub2( void* arg )
 {
@@ -67,5 +60,5 @@ void SocketClientThread::start_thread( SocketClientThread* instance )
 {
   threadhelp::start_thread( _thread_stub2, "SocketClientThread", instance );
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

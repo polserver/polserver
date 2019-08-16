@@ -58,6 +58,11 @@ MaximumClients=300
 #
 MaximumClientsBypassCmdLevel=1
 
+#
+# LoginServerTimeout: maximum time in minutes allowed to connect with the login server
+#                     (until character is selected)
+#
+LoginServerTimeout 10
 #############################################################################
 ## System Profiling and Performance
 #############################################################################
@@ -118,6 +123,18 @@ MaxCallDepth=100
 #                 top-level items and multis to the console
 #
 ShowRealmInfo=0
+
+#
+# ShowWarningGump: will display unexpected gump warning messages on the console if set to 1.
+# ShowWarningGump= (0/1) Default is 1
+#
+ShowWarningGump=1
+
+#
+# ShowWarningItem: will display equip item and drop item warning messages on the console if set to 1.
+# ShowWarningItem= (0/1) Default is 1
+#
+ShowWarningItem=1
 
 #############################################################################
 ## Debugging
@@ -220,7 +237,7 @@ ReportURL=/pol/report_program_abort.php
 #############################################################################
 
 #
-# WebServer: in multithread mode only, run the internal web server
+# WebServer: Run the internal web server
 #            This may be a security risk.  It's susceptible to DoS attacks.
 #            If someone knows a little about TCP/IP, they could cause you
 #            trouble if it's enabled.
@@ -331,12 +348,6 @@ DisableNagle=0
 #############################################################################
 ## Treading Settings - Do not modify unless necessary.
 #############################################################################
-
-#
-# Multithread: use multiple threads to lower CPU usage
-# If you are using Linux 2.4.*, set this to 1.
-#
-Multithread=1
 
 #
 # SelectTimeout: I/O sleep time

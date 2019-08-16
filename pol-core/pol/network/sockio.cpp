@@ -21,9 +21,9 @@ struct utsname my_utsname;
 #include "../clib/clib.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
+#include "../clib/network/sockets.h"
 #include "../clib/strutil.h"
 #include "globals/network.h"
-#include "sockets.h"
 
 
 namespace Pol
@@ -209,44 +209,23 @@ SOCKET open_listen_socket( unsigned short port )
   return sck;
 }
 
-const char* AddressToString( struct sockaddr* addr )
+std::string AddressToString( const sockaddr* addr )
 {
-#if 0 && defined( _WIN32 )
-  // this requires Winsock 2! Ouch.
-  static char buf[ 80 ];
-  DWORD len = sizeof buf;
-  if (WSAAddressToString( addr, sizeof *addr,
-    nullptr, // protocol
-    buf, &len ) != SOCKET_ERROR)
-  {
-    return buf;
-  }
-  else
-  {
-    return "(display error)";
-  }
-#else
-  struct sockaddr_in* in_addr = (struct sockaddr_in*)addr;
-  if ( addr->sa_family == AF_INET )
-    return inet_ntoa( in_addr->sin_addr );
-  else
-    return "(display error)";
-#endif
+  if ( addr == nullptr )
+    return "(no address)";
+
+  if ( addr->sa_family != AF_INET )
+    return std::string( "(unknown address family " ) + std::to_string( addr->sa_family ) + ")";
+
+  const sockaddr_in* in_addr = reinterpret_cast<const sockaddr_in*>( addr );
+
+  char address[INET_ADDRSTRLEN] = {};
+  if ( inet_ntop( AF_INET, reinterpret_cast<const void*>( &in_addr->sin_addr ), address,
+                  sizeof( address ) ) == nullptr )
+    return std::string( "(error - " + std::to_string( socket_errno ) + ")" );
+
+  return address;
 }
 
-PolSocket::PolSocket()
-    : listen_socket( INVALID_SOCKET ),
-      listen_fd(),
-      listen_timeout( {0, 0} ),
-      recv_fd(),
-      err_fd(),
-      send_fd(),
-      select_timeout( {0, 0} )
-{
-  FD_ZERO( &listen_fd );
-  FD_ZERO( &recv_fd );
-  FD_ZERO( &err_fd );
-  FD_ZERO( &send_fd );
-}
 }  // namespace Network
 }  // namespace Pol

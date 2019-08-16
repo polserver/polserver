@@ -8,7 +8,6 @@
 #define __UVARS_H
 
 #include <array>
-#include <boost/noncopyable.hpp>
 #include <map>
 #include <memory>
 #include <queue>
@@ -124,11 +123,13 @@ typedef void ( *ParamTextCmdFunc )( Network::Client*, const std::string& );
 typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
 
 
-class GameState : boost::noncopyable
+class GameState
 {
 public:
   GameState();
   ~GameState();
+  GameState( const GameState& ) = delete;
+  GameState& operator=( const GameState& ) = delete;
 
   void deinitialize();
   struct Memory;

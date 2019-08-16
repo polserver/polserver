@@ -10,7 +10,7 @@
 #include <string>
 
 #include "../../bscript/execmodl.h"
-#include "../../clib/wnsckt.h"
+#include "../../clib/network/wnsckt.h"
 
 namespace Pol
 {
@@ -32,7 +32,7 @@ namespace Module
 class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
 {
 public:
-  HttpExecutorModule( Bscript::Executor& exec, Clib::Socket& isck );
+  HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );
 
   Bscript::BObjectImp* mf_WriteHtml();
   Bscript::BObjectImp* mf_WriteHtmlRaw();
@@ -41,6 +41,7 @@ public:
 
   void read_query_string( const std::string& query_string );
   void read_query_ip();
+  virtual size_t sizeEstimate() const override;
 
   // TODO: clean up the socket ownership thing so these can be private again
 public:
@@ -51,6 +52,6 @@ public:
   Core::UOExecutor& uoexec;
   std::string query_ip_;
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif  // HTTPMOD_H

@@ -18,7 +18,6 @@
 // unsigned int is z << 16 | objtype
 
 
-#include <boost/noncopyable.hpp>
 #include <cstdio>
 #include <map>
 #include <set>

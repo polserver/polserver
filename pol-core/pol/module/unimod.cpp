@@ -26,7 +26,6 @@
 #include "../network/pktdef.h"
 #include "../ufunc.h"
 #include "../uoexec.h"
-#include "osmod.h"
 #include "uomod.h"
 
 namespace Pol
@@ -83,7 +82,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
     retval->addMember( "text",
                        new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) );
     uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
-    uniemod->uoexec.os_module->revive();
+    uniemod->uoexec.revive();
   }
   else if ( uoemod != nullptr && uoemod->prompt_chr != nullptr )
   {
@@ -91,7 +90,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
     uoemod->exec.ValueStack.back().set( new Bscript::BObject(
         new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) ) );
 
-    uoemod->uoexec.os_module->revive();
+    uoemod->uoexec.revive();
   }
   if ( uniemod != nullptr )
     uniemod->prompt_chr = nullptr;
@@ -300,6 +299,11 @@ BObjectImp* UnicodeExecutorModule::mf_SendTextEntryGumpUC()
   //            style := TE_STYLE_NORMAL, maximum := 40, uc_text2 := {} );
 
   return new BError( "Function not implimented" );
+}
+
+size_t UnicodeExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
 }
 }  // namespace Module
 }  // namespace Pol

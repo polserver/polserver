@@ -197,7 +197,11 @@ bool UContainer::can_add_to_slot( u8& slotIndex )
 void UContainer::add( Items::Item* item )
 {
   // passert( can_add( *item ) );
-
+  if ( orphan() )
+  {
+    POLLOG_ERROR << "Trying to add item to orphan container!\n";
+    passert_always( 0 );  // TODO remove once found
+  }
   INC_PROFILEVAR( container_adds );
   item->realm = realm;
   item->container = this;
@@ -324,6 +328,11 @@ void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
 
 void UContainer::extract( Contents& cnt )
 {
+  if ( orphan() )
+  {
+    POLLOG_ERROR << "Trying to add item to orphan container!\n";
+    passert_always( 0 );  // TODO remove once found
+  }
   contents_.swap( cnt );
   add_bulk( -static_cast<int>( held_item_count_ ), -static_cast<int>( held_weight_ ) );
 }
@@ -350,6 +359,11 @@ void UContainer::swap( UContainer& cont )
   add_bulk( item_count_diff, weight_diff );
   cont.add_bulk( -item_count_diff, -weight_diff );
 
+  if ( orphan() )
+  {
+    POLLOG_ERROR << "Trying to add item to orphan container!\n";
+    passert_always( 0 );  // TODO remove once found
+  }
   contents_.swap( cont.contents_ );
 }
 

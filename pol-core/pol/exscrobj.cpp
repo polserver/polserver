@@ -26,7 +26,6 @@
 #include "../bscript/objmethods.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "polcfg.h"
 #include "uoexec.h"
@@ -69,7 +68,6 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
     return new BError( "Script has been destroyed" );
 
   Core::UOExecutor* uoexec = value().get_weakptr();
-  Module::OSExecutorModule* osemod = uoexec->os_module;
 
   switch ( id )
   {
@@ -106,7 +104,7 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     BObjectImp* param0 = ex.getParamImp( 0 );
-    if ( osemod->signal_event( param0->copy() ) )
+    if ( uoexec->signal_event( param0->copy() ) )
       return new BLong( 1 );
     else
       return new BError( "Event queue is full, discarding event" );
@@ -116,9 +114,9 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
     uoexec->seterror( true );
 
     // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
-    osemod->revive();
-    if ( osemod->in_debugger_holdlist() )
-      osemod->revive_debugged();
+    uoexec->revive();
+    if ( uoexec->in_debugger_holdlist() )
+      uoexec->revive_debugged();
 
     return new BLong( 1 );
 
@@ -129,7 +127,7 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
   }
 
   case MTH_CLEAR_EVENT_QUEUE:  // DAVE added this 11/20
-    return ( osemod->clear_event_queue() );
+    return ( uoexec->clear_event_queue() );
 
   default:
     return new BError( "undefined" );
@@ -169,14 +167,13 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
     return BObjectRef( new BError( "Script has been destroyed" ) );
 
   UOExecutor* uoexec = value().get_weakptr();
-  Module::OSExecutorModule* osemod = uoexec->os_module;
   Module::UOExecutorModule* uoemod =
       static_cast<Module::UOExecutorModule*>( uoexec->findModule( "UO" ) );
 
   switch ( id )
   {
   case MBR_PID:
-    return BObjectRef( new BLong( osemod->pid() ) );
+    return BObjectRef( new BLong( uoexec->pid() ) );
   case MBR_NAME:
     return BObjectRef( new String( uoexec->scriptname() ) );
   case MBR_STATE:

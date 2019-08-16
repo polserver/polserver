@@ -72,10 +72,8 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.pidfile_path =
         Clib::normalized_dir_form( Plib::systemstate.config.pidfile_path );
 
-    Plib::systemstate.config.listen_port = elem.remove_ushort( "ListenPort", 0 );
     Plib::systemstate.config.check_integrity = true;  // elem.remove_bool( "CheckIntegrity", true );
     Plib::systemstate.config.count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
-    Plib::systemstate.config.multithread = elem.remove_ushort( "Multithread", 1 );
     Plib::systemstate.config.web_server = elem.remove_bool( "WebServer", false );
     Plib::systemstate.config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
 
@@ -107,6 +105,8 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.watch_mapcache = elem.remove_bool( "WatchMapCache", false );
   Plib::systemstate.config.loglevel = elem.remove_ushort( "LogLevel", 0 );
   Plib::systemstate.config.select_timeout_usecs = elem.remove_ushort( "SelectTimeout", 10 );
+  Plib::systemstate.config.loginserver_timeout_mins =
+      elem.remove_ushort( "LoginServerTimeout", 10 );
   Plib::systemstate.config.watch_rpm = elem.remove_bool( "WatchRpm", false );
   Plib::systemstate.config.watch_sysload = elem.remove_bool( "WatchSysLoad", false );
   Plib::systemstate.config.log_sysload = elem.remove_bool( "LogSysLoad", false );
@@ -254,6 +254,9 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.single_thread_decay = elem.remove_bool( "SingleThreadDecay", false );
   Plib::systemstate.config.thread_decay_statistics =
       elem.remove_bool( "ThreadDecayStatistics", false );
+
+  Plib::systemstate.config.show_warning_gump = elem.remove_bool( "ShowWarningGump", true );
+  Plib::systemstate.config.show_warning_item = elem.remove_bool( "ShowWarningItem", true );
 
   // store the configuration for the reporting system in the ExceptionParser
   bool reportingActive = elem.remove_bool( "ReportCrashsAutomatically", false );

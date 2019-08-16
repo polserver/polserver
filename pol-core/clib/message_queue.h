@@ -11,18 +11,18 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <list>
 #include <mutex>
 
-#include <boost/noncopyable.hpp>
-
 namespace Pol
 {
 namespace Clib
 {
 template <typename Message>
-class message_queue : boost::noncopyable
+class message_queue
 {
 public:
   message_queue();
   ~message_queue();
+  message_queue( const message_queue& ) = delete;
+  message_queue& operator=( const message_queue& ) = delete;
 
   // push new message into queue and notify possible wait_pop
   void push( Message const& msg );
@@ -176,7 +176,7 @@ void message_queue<Message>::cancel()
   }
   _notifier.notify_all();
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 
 #endif

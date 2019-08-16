@@ -7,7 +7,7 @@
 #ifndef __CRYPT_H__
 #define __CRYPT_H__
 
-#include "../network/sockets.h"
+#include "../../clib/network/sockets.h"
 #include "blowfish.h"
 #include "cryptbase.h"
 #include "md5.h"

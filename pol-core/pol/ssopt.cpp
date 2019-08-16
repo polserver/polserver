@@ -95,6 +95,8 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.use_edit_server = elem.remove_bool( "EditServer", false );
   settingsManager.ssopt.carrying_capacity_mod = elem.remove_double( "CarryingCapacityMod", 1.0 );
   settingsManager.ssopt.core_sends_caps = elem.remove_bool( "CoreSendsCaps", false );
+  settingsManager.ssopt.core_ignores_defence_caps =
+      elem.remove_bool( "CoreIgnoresDefenceCaps", false );
   settingsManager.ssopt.send_stat_locks = elem.remove_bool( "SendStatLocks", false );
   settingsManager.ssopt.speech_range = elem.remove_ushort( "SpeechRange", 12 );
   settingsManager.ssopt.whisper_range = elem.remove_ushort( "WhisperRange", 2 );

@@ -149,12 +149,12 @@
 #include "../umanip.h"
 #include "../uobject.h"
 #include "../uoexec.h"
+#include "../uoexhelp.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "../wthrtype.h"
 #include "cfgmod.h"
-#include "osmod.h"
 
 namespace Pol
 {
@@ -797,7 +797,7 @@ void handle_script_cursor( Character* chr, UObject* obj )
           new BObject( obj->make_ref() ) );
     }
     // even on cancel, we wake the script up.
-    chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
+    chr->client->gd->target_cursor_uoemod->uoexec.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -932,7 +932,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
     }
 
-    chr->client->gd->target_cursor_uoemod->uoexec.os_module->revive();
+    chr->client->gd->target_cursor_uoemod->uoexec.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -1573,7 +1573,7 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
             new BObject( selection ) );
       }
       // 0 is already on the value stack, for the case of cancellation.
-      chr->client->gd->menu_selection_uoemod->uoexec.os_module->revive();
+      chr->client->gd->menu_selection_uoemod->uoexec.revive();
       chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
       chr->client->gd->menu_selection_uoemod = nullptr;
     }
@@ -4113,8 +4113,8 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 {
   Character* chr;
-  int x, y;
-  UObject* target = nullptr;
+  int x, y, arrow_id;
+  u32 arrowid;
 
   if ( getCharacterParam( exec, 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
        getParam( 2, y, -1, 1000000 ) )  // max values checked below
@@ -4122,6 +4122,17 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
 
+    if (exec.getParam(3, arrow_id))
+    {
+        if (arrow_id < 1)
+            return new BError("ArrowID out of range");
+        arrowid = (u32)arrow_id;
+  
+    }
+    else
+    {
+        arrowid = this->uoexec.pid();
+    }
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
     Network::PktHelper::PacketOut<Network::PktOut_BA> msg;
@@ -4129,8 +4140,17 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     {
       msg->Write<u8>( PKTOUT_BA_ARROW_OFF );
       msg->offset += 4;  // u16 x_tgt,y_tgt
-      if ( usesNewPktSize )
-        msg->offset += 4;  // u32 serial
+      if (usesNewPktSize)
+      {
+          if (!arrow_id || arrow_id == 0 )
+          {
+             return new BError( "ArrowID must be supplied for cancelation." );
+          }
+          else
+          {
+              msg->Write<u32>(static_cast<u32>(arrowid & 0xFFFFFFFF));
+          }
+      }
     }
     else
     {
@@ -4141,17 +4161,10 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->WriteFlipped<u16>( static_cast<u16>( x & 0xFFFF ) );
       msg->WriteFlipped<u16>( static_cast<u16>( y & 0xFFFF ) );
       if ( usesNewPktSize )
-      {
-        if ( !getUObjectParam( exec, 3, target ) )
-        {
-          exec.setFunctionResult( nullptr );
-          return new BError( "No valid target for HSA client" );
-        }
-        msg->Write<u32>( static_cast<u32>( target->serial_ext & 0xFFFFFFFF ) );
-      }
+        msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
     }
     msg.Send( chr->client );
-    return new BLong( 1 );
+    return new BLong(arrowid);
   }
   else
   {
@@ -5639,6 +5652,13 @@ BObjectImp* UOExecutorModule::mf_GetMidpointCircleCoords( /* xcenter, ycenter, r
     add_point( std::get<0>( p ), std::get<1>( p ) );
 
   return coords.release();
+}
+
+size_t UOExecutorModule::sizeEstimate() const
+{
+  size_t size = sizeof( *this );
+  size += 3 * sizeof( Core::ItemRef* ) + reserved_items_.capacity() * sizeof( Core::ItemRef );
+  return size;
 }
 }  // namespace Module
 

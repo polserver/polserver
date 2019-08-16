@@ -1002,5 +1002,10 @@ BObjectImp* NPCExecutorModule::mf_SetWarMode()
     return new BLong( 0 );
   }
 }
+
+size_t NPCExecutorModule::sizeEstimate() const
+{
+  return sizeof( *this );
+}
 }  // namespace Module
 }  // namespace Pol

@@ -4,7 +4,6 @@
 #include "pol_global_config.h"
 
 #include <array>
-#include <boost/noncopyable.hpp>
 #include <memory>
 #include <vector>
 
@@ -39,15 +38,18 @@ class ServerDescription;
 typedef std::vector<Network::Client*> Clients;
 typedef std::vector<ServerDescription*> Servers;
 
-class NetworkManager : boost::noncopyable
+class NetworkManager
 {
 public:
   NetworkManager();
   ~NetworkManager();
+  NetworkManager( const NetworkManager& ) = delete;
+  NetworkManager& operator=( const NetworkManager& ) = delete;
 
   void deinialize();
   void kill_disconnected_clients();
 
+  size_t getNumberOfLoginClients() const;
   struct Memory;
 
   Memory estimateSize() const;
@@ -99,10 +101,7 @@ public:
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 
   std::vector<Network::IPRule> banned_ips;
-
-  Network::PolSocket polsocket;
-
-
+   
   struct Memory
   {
     size_t client_size;

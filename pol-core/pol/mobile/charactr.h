@@ -775,7 +775,7 @@ protected:
   u16 ar_;
   DYN_PROPERTY( ar_mod, s16, Core::PROP_AR_MOD, 0 );
   DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
-  DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HITCHANCE_MOD, 0 );
+  DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HIT_CHANCE_MOD, 0 );
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
 
   Character* opponent_;
@@ -832,7 +832,6 @@ public:
 
   DYN_PROPERTY( skillstatcap, Core::SkillStatCap, Core::PROP_STATCAP_SKILLCAP,
                 Core::SkillStatCap::DEFAULT );
-  DYN_PROPERTY( luck, s16, Core::PROP_EXT_STATBAR_LUCK, 0 );
   DYN_PROPERTY( followers, Core::ExtStatBarFollowers, Core::PROP_EXT_STATBAR_FOLLOWERS,
                 Core::ExtStatBarFollowers::DEFAULT );
   DYN_PROPERTY( tithing, s32, Core::PROP_EXT_STATBAR_TITHING, 0 );

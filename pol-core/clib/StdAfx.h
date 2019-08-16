@@ -34,7 +34,6 @@
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/any.hpp>
 #include <boost/flyweight.hpp>
-#include <boost/noncopyable.hpp>
 
 // Project Includes (be really really carefull what to include!)
 

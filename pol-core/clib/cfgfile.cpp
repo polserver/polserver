@@ -614,7 +614,8 @@ void ConfigFile::open( const char* i_filename )
   fp = fopen( i_filename, "rt" );
   if ( !fp )
   {
-    ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
+    POLLOG_ERROR << "Unable to open configuration file " << _filename << " " << errno << ": "
+                 << std::strerror( errno ) << "\n";
     throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
   }
 #endif

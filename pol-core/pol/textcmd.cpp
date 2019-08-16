@@ -49,7 +49,6 @@
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/client.h"
 #include "network/pktboth.h"
@@ -599,7 +598,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
 
         Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
         ex->addModule( uoemod );
-        ex->os_module->priority = 100;
+        ex->priority(100);
 
         if ( ex->setProgram( prog.get() ) )
         {

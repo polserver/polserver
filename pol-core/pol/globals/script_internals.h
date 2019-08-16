@@ -1,7 +1,6 @@
 #ifndef GLOBALS_SCRIPT_INTERNALS_H
 #define GLOBALS_SCRIPT_INTERNALS_H
 
-#include <boost/noncopyable.hpp>
 #include <deque>
 #include <map>
 #include <set>
@@ -24,7 +23,28 @@ typedef std::map<std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pre
 typedef std::map<unsigned int, UOExecutor*> PidList;
 typedef HoldList::iterator TimeoutHandle;
 
-class ScriptScheduler : boost::noncopyable
+
+enum HoldListType
+{
+  NO_LIST,
+  TIMEOUT_LIST,
+  NOTIMEOUT_LIST,
+  DEBUGGER_LIST
+};
+
+enum WAIT_TYPE
+{
+  WAIT_SLEEP,
+  WAIT_EVENT,
+  WAIT_UNKNOWN
+};
+
+enum
+{
+  MAX_EVENTQUEUE_SIZE = 20
+};
+
+class ScriptScheduler
 {
 public:
   static const unsigned int PID_MIN;
@@ -37,6 +57,8 @@ public:
 
   ScriptScheduler();
   ~ScriptScheduler();
+  ScriptScheduler( const ScriptScheduler& ) = delete;
+  ScriptScheduler& operator=( const ScriptScheduler& ) = delete;
   void deinitialize();
 
   struct Memory

@@ -7,7 +7,6 @@
 #ifndef GLOBALS_MULTIDEFS_H
 #define GLOBALS_MULTIDEFS_H
 
-#include <boost/noncopyable.hpp>
 #include <cstddef>
 #include <map>
 
@@ -23,11 +22,13 @@ class MultiDef;
 typedef std::map<u16, MultiDef*> MultiDefs;
 
 // used for POL and uotool
-class MultiDefBuffer : boost::noncopyable
+class MultiDefBuffer
 {
 public:
   MultiDefBuffer();
   ~MultiDefBuffer();
+  MultiDefBuffer( const MultiDefBuffer& ) = delete;
+  MultiDefBuffer& operator=( const MultiDefBuffer& ) = delete;
 
   void deinitialize();
   size_t estimateSize() const;
@@ -38,6 +39,6 @@ private:
 };
 
 extern MultiDefBuffer multidef_buffer;
-}
-}
+}  // namespace Multi
+}  // namespace Pol
 #endif

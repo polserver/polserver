@@ -32,7 +32,6 @@
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "mobile/wornitems.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "network/client.h"
 #include "network/pktdef.h"
@@ -202,7 +201,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 {
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
+    ERROR_PRINT << "Client from " << client->ipaddrAsString()
                 << " tried to create a character without an account!\n";
     client->forceDisconnect();
     return;
@@ -555,7 +554,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
@@ -598,7 +597,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   int charslot = ctBEu32( msg->char_slot );
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
+    ERROR_PRINT << "Client from " << client->ipaddrAsString()
                 << " tried to create a character without an account!\n";
     client->Disconnect();
     return;
@@ -939,7 +938,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {
@@ -956,7 +955,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 {
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << Network::AddressToString( &client->ipaddr )
+    ERROR_PRINT << "Client from " << client->ipaddrAsString()
                 << " tried to create a character without an account!\n";
     client->forceDisconnect();
     return;
@@ -1358,7 +1357,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     ex->pushArg( make_mobileref( chr ) );
 
     ex->addModule( new Module::UOExecutorModule( *ex ) );
-    ex->os_module->critical = true;
+    ex->critical(true);
 
     if ( ex->setProgram( prog.get() ) )
     {

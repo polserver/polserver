@@ -3157,6 +3157,11 @@ size_t Executor::sizeEstimate() const
     if ( bojectref != nullptr )
       size += bojectref->sizeEstimate();
   }
+  for ( const auto& module : availmodules )
+  {
+    if ( module != nullptr )
+      size += module->sizeEstimate();
+  }
   size += 3 * sizeof( ExecutorModule** ) + execmodules.capacity() * sizeof( ExecutorModule* );
   size += 3 * sizeof( ExecutorModule** ) + availmodules.capacity() * sizeof( ExecutorModule* );
   size += 3 * sizeof( unsigned* ) + breakpoints_.size() * sizeof( unsigned );

@@ -237,6 +237,7 @@ set (pol_sources  # sorted !
   network/client.cpp
   network/client.h
   network/clientio.cpp
+  network/clientio.h
   network/clientthread.cpp
   network/clientthread.h
   network/clienttransmit.cpp
@@ -266,7 +267,6 @@ set (pol_sources  # sorted !
   network/pktniid.h
   network/pktout.h
   network/pktoutid.h
-  network/sockets.h
   network/sockio.cpp
   network/sockio.h
   network/xbuffer.h
@@ -358,7 +358,6 @@ set (pol_sources  # sorted !
   statmsg.h
   storage.cpp
   storage.h
-  stubdata.h
   syshook.cpp
   syshook.h
   syshookscript.cpp

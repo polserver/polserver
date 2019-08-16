@@ -23,16 +23,15 @@
 #include "../bscript/impstr.h"
 #include "../clib/clib.h"
 #include "../clib/esignal.h"
+#include "../clib/network/sckutil.h"
+#include "../clib/network/socketsvc.h"
+#include "../clib/network/wnsckt.h"
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
-#include "../clib/sckutil.h"
-#include "../clib/socketsvc.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/weakptr.h"
-#include "../clib/wnsckt.h"
 #include "../plib/systemstate.h"
-#include "module/osmod.h"
 #include "module/uomod.h"
 #include "scrdef.h"
 #include "scrsched.h"
@@ -76,8 +75,39 @@ const char* poldbg_itemref_members[] = {"amount",
                                         "resist_cold_mod",
                                         "resist_energy_mod",
                                         "resist_poison_mod",
-                                        "resist_physical_mod"};
-// 59 members
+                                        "resist_physical_mod",
+                                        "lower_reagent_cost",
+                                        "spell_damage_increase",
+                                        "faster_casting",
+                                        "faster_cast_recovery",
+                                        "lower_reagent_cost_mod",
+                                        "spell_damage_increase_mod",
+                                        "faster_casting_mod",
+                                        "faster_cast_recovery_mod",
+                                        "defence_increase_mod",
+                                        "defence_increase_cap_mod",
+                                        "lower_mana_cost_mod",
+                                        "hit_chance_mod",
+                                        "fire_resist_cap_mod",
+                                        "cold_resist_cap_mod",
+                                        "energy_resist_cap_mod",
+                                        "poison_resist_cap_mod",
+                                        "physical_resist_cap_mod",
+
+                                        "defence_increase",
+                                        "defence_increase_cap",
+                                        "lower_mana_cost",
+                                        "hit_chance",
+                                        "fire_resist_cap",
+                                        "cold_resist_cap",
+                                        "energy_resist_cap",
+                                        "poison_resist_cap",
+                                        "physical_resist_cap",
+                                        "luck_mod"
+
+};
+
+// 55 members
 const char* poldbg_mobileref_members[] = {"warmode",
                                           "gender",
                                           "race",
@@ -125,7 +155,7 @@ const char* poldbg_mobileref_members[] = {"warmode",
                                           "gump",
                                           "prompt",
                                           "movemode",
-                                          "hitchance_mod",
+                                          "hit_chance_mod",
                                           "evasionchance_mod",
                                           "resist_fire",
                                           "resist_cold",
@@ -136,7 +166,38 @@ const char* poldbg_mobileref_members[] = {"warmode",
                                           "resist_cold_mod",
                                           "resist_energy_mod",
                                           "resist_poison_mod",
-                                          "resist_physical_mod"};
+                                          "resist_physical_mod",
+                                          "lower_reagent_cost",
+                                          "spell_damage_increase",
+                                          "faster_casting",
+                                          "faster_cast_recovery",
+                                          "lower_reagent_cost_mod",
+                                          "spell_damage_increase_mod",
+                                          "faster_casting_mod",
+                                          "faster_cast_recovery_mod",
+                                          "defence_increase_mod",
+                                          "defence_increase_cap_mod",
+                                          "lower_mana_cost_mod",
+                                          "hit_chance_mod",
+                                          "fire_resist_cap_mod",
+                                          "cold_resist_cap_mod",
+                                          "energy_resist_cap_mod",
+                                          "poison_resist_cap_mod",
+                                          "physical_resist_cap_mod",
+
+                                          "defence_increase",
+                                          "defence_increase_cap",
+                                          "lower_mana_cost",
+                                          "hit_chance",
+                                          "fire_resist_cap",
+                                          "cold_resist_cap",
+                                          "energy_resist_cap",
+                                          "poison_resist_cap",
+                                          "physical_resist_cap",
+                                          "luck_mod"
+
+};
+
 
 class DebugContext : public ref_counted
 {
@@ -562,8 +623,8 @@ std::string DebugContext::cmd_detach()
     return "No script attached.";
 
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( uoexec->os_module->in_debugger_holdlist() )
-    uoexec->os_module->revive_debugged();
+  if ( uoexec->in_debugger_holdlist() )
+    uoexec->revive_debugged();
 
   uoexec->detach_debugger();
   uoexec_wptr.clear();
@@ -593,7 +654,7 @@ std::string DebugContext::cmd_start( const std::string& rest )
 
   UOExecutor* uoexec = static_cast<UOExecutor*>( &new_uoemod->exec );
 
-  return "PID " + Clib::tostring( uoexec->os_module->pid() );
+  return "PID " + Clib::tostring( uoexec->pid() );
 }
 
 BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script );
@@ -876,11 +937,11 @@ std::string DebugContext::cmd_instrace()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_ins_trace();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Tracing.";
 }
 
@@ -889,11 +950,11 @@ std::string DebugContext::cmd_stepinto()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_step_into();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Stepping In.";
 }
 
@@ -902,11 +963,11 @@ std::string DebugContext::cmd_stepover()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_step_over();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Stepping Over.";
 }
 
@@ -915,11 +976,11 @@ std::string DebugContext::cmd_run()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  if ( !uoexec->os_module->in_debugger_holdlist() )
+  if ( !uoexec->in_debugger_holdlist() )
     return "Script not ready to trace.";
 
   uoexec->dbg_run();
-  uoexec->os_module->revive_debugged();
+  uoexec->revive_debugged();
   return "Running.";
 }
 std::string DebugContext::cmd_break()
@@ -927,7 +988,7 @@ std::string DebugContext::cmd_break()
   if ( !uoexec_wptr.exists() )
     return "No script attached.";
   UOExecutor* uoexec = uoexec_wptr.get_weakptr();
-  // if (!uoexec->os_module->in_debugger_holdlist())
+  // if (!uoexec->in_debugger_holdlist())
   //    return "Script not ready to trace.";
 
   uoexec->dbg_break();
@@ -1280,7 +1341,7 @@ std::string DebugContext::cmd_setglobalpacked( const std::string& rest )
 class DebugClientThread : public Clib::SocketClientThread
 {
 public:
-  DebugClientThread( Clib::SocketListener& SL ) : Clib::SocketClientThread( SL ) {}
+  DebugClientThread( Clib::Socket&& sock ) : Clib::SocketClientThread( std::move( sock ) ) {}
   virtual void run() override;
 };
 
@@ -1322,9 +1383,10 @@ void debug_listen_thread( void )
     Clib::SocketListener SL( Plib::systemstate.config.debug_port );
     while ( !Clib::exit_signalled )
     {
-      if ( SL.GetConnection( 5 ) )
+      Clib::Socket sock;
+      if ( SL.GetConnection( &sock, 5 ) && sock.connected() )
       {
-        Clib::SocketClientThread* p = new DebugClientThread( SL );
+        Clib::SocketClientThread* p = new DebugClientThread( std::move( sock ) );
         p->start();
       }
     }

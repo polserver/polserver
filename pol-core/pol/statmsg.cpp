@@ -35,6 +35,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
   msg->Write( chr->name().c_str(), 30, false );
+  bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
   if ( networkManager.uoclient_general.hits.any )
   {
     int v = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
@@ -137,7 +138,12 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   // Adjusted to work with Physical Resist if AOS client, and AOS Resistances enabled.
   if ( ( client->UOExpansionFlag & Network::AOS ) && client->aosresist )
   {
-    s16 value = chr->physical_resist().value;
+    s16 value = chr->physical_resist().sum();
+    if ( chr->has_physical_resist_cap() && !ignore_caps )
+    {
+      auto cap = chr->physical_resist_cap().sum();
+      value = std::min( cap, value );
+    }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
   }
   else
@@ -163,15 +169,36 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->Write<s8>( follow_value.followers );
     msg->Write<s8>( follow_value.followers_max );
     // moreinfo 4 start
-    s16 value = chr->fire_resist().value;
+    s16 value = chr->fire_resist().sum();
+    if ( chr->has_fire_resist_cap() && !ignore_caps )
+    {
+      auto cap = chr->fire_resist_cap().sum();
+      value = std::min( cap, value );
+    }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
-    value = chr->cold_resist().value;
+    value = chr->cold_resist().sum();
+    if ( chr->has_cold_resist_cap() && !ignore_caps )
+    {
+      auto cap = chr->cold_resist_cap().sum();
+      value = std::min( cap, value );
+    }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
-    value = chr->poison_resist().value;
+    value = chr->poison_resist().sum();
+    if ( chr->has_poison_resist_cap() && !ignore_caps )
+    {
+      auto cap = chr->poison_resist_cap().sum();
+      value = std::min( cap, value );
+    }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
-    value = chr->energy_resist().value;
+    value = chr->energy_resist().sum();
+    if ( chr->has_energy_resist_cap() && !ignore_caps )
+    {
+      auto cap = chr->energy_resist_cap().sum();
+      value = std::min( cap, value );
+    }
     msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value ) : value ) );
-    msg->WriteFlipped<s16>( chr->luck() );
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->luck().sum() ) );
+
     msg->WriteFlipped<u16>( chr->min_weapon_damage() );
     msg->WriteFlipped<u16>( chr->max_weapon_damage() );
     msg->WriteFlipped<s32>( chr->tithing() );
@@ -180,24 +207,36 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   // Add the new entries as 0's for now
   if ( client->ClientType & Network::CLIENTTYPE_70300 )
   {
-    msg->offset += 30;
-    /*
-    msg->WriteFlipped<u16>( 0 ); // Physical resist cap
-    msg->WriteFlipped<u16>( 0 ); // Fire resist cap
-    msg->WriteFlipped<u16>( 0 ); // Cold resist cap
-    msg->WriteFlipped<u16>( 0 ); // Poison resist cap
-    msg->WriteFlipped<u16>( 0 ); // Energy resist cap
-    msg->WriteFlipped<u16>( 0 ); // Defense chance increase
-    msg->WriteFlipped<u16>( 0 ); // Defense chance cap increase
-    msg->WriteFlipped<u16>( 0 ); // Hit chance increase
-    msg->WriteFlipped<u16>( 0 ); // Swing speed increase
-    msg->WriteFlipped<u16>( 0 ); // Weapon damage increase
-    msg->WriteFlipped<u16>( 0 ); // Lower reagent cose
-    msg->WriteFlipped<u16>( 0 ); // Spell damage increase
-    msg->WriteFlipped<u16>( 0 ); // Faster cast recovery
-    msg->WriteFlipped<u16>( 0 ); // Faster casting
-    msg->WriteFlipped<u16>( 0 ); // Lower mana cost
-    */
+    // msg->offset += 30;
+
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->physical_resist_cap().sum() ) );  // Physical resist cap
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->fire_resist_cap().sum() ) );  // Fire resist cap
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->cold_resist_cap().sum() ) );  // Cold resist cap
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->poison_resist_cap().sum() ) );  // Poison resist cap
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->energy_resist_cap().sum() ) );  // Energy resist cap
+    s16 value = chr->defence_increase().sum();
+    if ( chr->has_defence_increase_cap() && !ignore_caps )
+    {
+      auto cap = chr->defence_increase_cap().sum();
+      value = std::min( cap, value );
+    }
+    msg->WriteFlipped<u16>( static_cast<u16>( ( value < 0 ) ? ( 0x10000 + value )
+                                                            : value ) );  // Defense chance increase
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->defence_increase_cap().sum() ) );  // Defense chance cap increase
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->hit_chance().sum() ) );  // Hit chance increase
+    msg->offset += 4;  // swing_speed_increase and damage_increase
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->lower_reagent_cost().sum() ) );  // Lower reagent cost
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->spell_damage_increase().sum() ) );  // Spell damage increase
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( chr->faster_cast_recovery().sum() ) );  // Faster cast recovery
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->faster_casting().sum() ) );   // Faster casting
+    msg->WriteFlipped<u16>( static_cast<u16>( chr->lower_mana_cost().sum() ) );  // Lower mana cost
   }
 
   u16 len = msg->offset;
@@ -295,5 +334,5 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
   // Exclude self... otherwise their status-window shows 1000 hp!! >_<
   transmit_to_others_inrange( chr, &msg->buffer, msg->offset );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
