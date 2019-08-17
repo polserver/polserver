@@ -1084,19 +1084,16 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
     BObjectImp* imp = bo->impptr();
     std::string s = imp->getStringRep();
 
-    const char* string = s.c_str();
     ++numlines;
-    size_t textlen = s.length();
+    auto utf16 = Bscript::String::toUTF16( s );
 
-    if ( msg->offset + 2 + textlen * 2 > sizeof msg->buffer )
+    if ( msg->offset + 2 + utf16.size() * 2 > sizeof msg->buffer )
     {
       return new BError( "Buffer length exceeded" );
     }
 
-    msg->WriteFlipped<u16>( textlen );
-
-    while ( *string )  // unicode
-      msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+    msg->WriteFlipped<u16>( utf16.size() );
+    msg->WriteFlipped( utf16 );
   }
 
   if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
@@ -1199,17 +1196,16 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
     BObjectImp* imp = bo->impptr();
     std::string s = imp->getStringRep();
 
-    const char* string = s.c_str();
+    auto utf16 = Bscript::String::toUTF16( s );
     ++numlines;
-    size_t addlen = ( s.length() + 1 ) * 2;
+    size_t addlen = ( s.size() + 1 ) * 2;
     if ( datadlen + addlen > sizeof bfr->buffer )
     {
       return new BError( "Buffer length exceeded" );
     }
     datadlen += static_cast<u32>( addlen );
-    bfr->WriteFlipped<u16>( s.length() );
-    while ( *string )  // unicode
-      bfr->Write<u16>( static_cast<u16>( static_cast<u16>( *string++ ) << 8 ) );
+    bfr->WriteFlipped<u16>( utf16.size() );
+    bfr->WriteFlipped( utf16 );
   }
   msg->WriteFlipped<u32>( numlines );
   if ( numlines != 0 )
@@ -1559,18 +1555,9 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
                       << ") Blech! B1 message strings overflow message buffer!\n";
           break;
         }
-        std::string str;
-        str = Clib::tostring( cfBEu16( strentry->tag ) ) + ": ";
-        str.reserve( length + str.size() );
-        u8 c;
-        for ( int si = 0; si < length; ++si )  // ENHANCE: Handle Unicode strings properly (add a
-                                               // "uc" member somewhere for each returned string
-                                               // that doesn't break existing code)
-        {
-          c = strentry->data[si * 2 + 1];
-          if ( c >= 0x20 )  // dave added 4/13/3, strip control characters
-            str.append( 1, c );
-        }
+
+        std::string str = Clib::tostring( cfBEu16( strentry->tag ) ) + ": " +
+                          Bscript::String::fromUTF16( strentry->data, length, true );
         // oops we're throwing away tag!
         hash->add( cfBEu16( strentry->tag ), new String( str ) );
       }

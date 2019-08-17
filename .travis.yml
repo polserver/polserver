@@ -46,7 +46,7 @@ matrix:
 
 before_install:
   - cd bin-build
-  - wget https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip
+  - wget https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
   - unzip ninja-linux.zip
   - chmod +x ninja
   - export PATH=$TRAVIS_BUILD_DIR/bin-build:$PATH

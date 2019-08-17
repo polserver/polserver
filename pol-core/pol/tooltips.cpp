@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <string>
 
+#include "../bscript/impstr.h"
 #include "../clib/clib_endian.h"
 #include "../clib/rawtypes.h"
 #include "item/item.h"
@@ -50,9 +51,7 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
         PacketOut<Network::PktOut_B7> msg;
         msg->offset += 2;
         msg->Write<u32>( item->serial_ext );
-        const char* string = id.tooltip.c_str();
-        while ( *string )  // unicode
-          msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+        msg->WriteFlipped( Bscript::String::toUTF16( id.tooltip ) );
         msg->offset += 2;  // nullterm
         u16 len = msg->offset;
         msg->offset = 1;
