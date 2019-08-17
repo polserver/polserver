@@ -176,15 +176,15 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 // just in case someone's code is bugged :(
 Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
 {
-  std::unique_ptr<String> str1( new String( exec.paramAsString( 0 ) ) );
-  std::unique_ptr<String> str2( new String( exec.paramAsString( 1 ) ) );
+  String str1( exec.paramAsString( 0 ) );
+  String str2( exec.paramAsString( 1 ) );
   int pos1_index = static_cast<int>( exec.paramAsLong( 2 ) );
   int pos1_len = static_cast<int>( exec.paramAsLong( 3 ) );
   int pos2_index = static_cast<int>( exec.paramAsLong( 4 ) );
   int pos2_len = static_cast<int>( exec.paramAsLong( 5 ) );
 
-  size_t str1length( str1->length() );
-  size_t str2length( str2->length() );
+  size_t str1length( str1.length() );
+  size_t str2length( str2.length() );
   if ( pos1_index != 0 )
   {
     if ( pos1_index < 0 )
@@ -213,21 +213,21 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
 
   if ( pos1_index == 0 )
   {
-    if ( !str1->compare( *str2 ) )
+    if ( !str1.compare( str2 ) )
       return new BLong( 0 );
     else
       return new BLong( 1 );
   }
   else if ( pos1_index > 0 && pos2_index == 0 )
   {
-    if ( !str1->compare( pos1_index - 1, pos1_len, *str2 ) )
+    if ( !str1.compare( pos1_index - 1, pos1_len, str2 ) )
       return new BLong( 0 );
     else
       return new BLong( 1 );
   }
   else
   {
-    if ( !str1->compare( pos1_index - 1, pos1_len, *str2, pos2_index - 1, pos2_len ) )
+    if ( !str1.compare( pos1_index - 1, pos1_len, str2, pos2_index - 1, pos2_len ) )
       return new BLong( 0 );
     else
       return new BLong( 1 );
