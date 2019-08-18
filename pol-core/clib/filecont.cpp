@@ -7,8 +7,8 @@
 #include "filecont.h"
 
 #include "logfacility.h"
+#include "strutil.h"
 #include <cstdio>
-#include <utf8/utf8.h>
 
 namespace Pol
 {
@@ -39,8 +39,7 @@ FileContents::FileContents( const char* filename )
     if ( !bom_handled && contents_.size() >= 3 )
     {
       bom_handled = true;
-      if ( utf8::starts_with_bom( contents_.cbegin(), contents_.cend() ) )
-        contents_.erase( 0, 3 );
+      remove_bom( &contents_ );
     }
   }
   fclose( fp );
@@ -61,5 +60,5 @@ void FileContents::set_contents( const std::string& str )
 {
   contents_ = str;
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

@@ -46,6 +46,8 @@ void mkupperASCII( std::string& str );
 std::string strlowerASCII( const std::string& str );
 std::string strupperASCII( const std::string& str );
 
+void remove_bom( std::string* strbuf );
+
 bool isValidUnicode( const std::string& str );
 // if invalid unicode is detected iso8859 is assumed
 void sanitizeUnicodeWithIso( std::string* str );

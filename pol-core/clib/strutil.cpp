@@ -265,5 +265,15 @@ void sanitizeUnicode( std::string* str )
     }
   }
 }
+
+void remove_bom( std::string* strbuf )
+{
+  if ( strbuf->size() >= 3 )
+  {
+    if ( utf8::starts_with_bom( strbuf->cbegin(), strbuf->cend() ) )
+      strbuf->erase( 0, 3 );
+  }
+}
+
 }  // namespace Clib
 }  // namespace Pol

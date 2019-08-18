@@ -21,7 +21,6 @@
 #include "stlutil.h"
 #include "strutil.h"
 #include <format/format.h>
-#include <utf8/utf8.h>
 
 
 namespace Pol
@@ -632,15 +631,6 @@ ConfigFile::~ConfigFile()
     fclose( fp );
   fp = nullptr;
 #endif
-}
-
-void ConfigFile::remove_bom( std::string* strbuf )
-{
-  if ( strbuf->size() >= 3 )
-  {
-    if ( utf8::starts_with_bom( strbuf->cbegin(), strbuf->cend() ) )
-      strbuf->erase( 0, 3 );
-  }
 }
 
 #if !CFGFILE_USES_IOSTREAMS

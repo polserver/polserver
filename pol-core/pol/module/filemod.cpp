@@ -13,7 +13,6 @@
 #include <ctime>
 #include <iosfwd>
 #include <string>
-#include <utf8/utf8.h>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
@@ -362,11 +361,7 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ReadFile()
     if ( first_line )
     {
       first_line = false;
-      if ( line.size() >= 3 )
-      {
-        if ( utf8::starts_with_bom( line.cbegin(), line.cend() ) )
-          line.erase( 0, 3 );
-      }
+      Clib::remove_bom( &line );
     }
     arr->addElement( new String( line, String::Tainted::YES ) );
   }
