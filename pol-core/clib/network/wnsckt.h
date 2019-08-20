@@ -39,7 +39,7 @@ public:
 
   bool open( const char* ipaddr, unsigned short port );
   bool listen( unsigned short port );
-  bool select( unsigned int seconds, unsigned int useconds );
+  bool select( unsigned int seconds, unsigned int useconds, int* result = nullptr );
   bool accept( SOCKET* s, unsigned int mstimeout );
   bool accept( Socket* newsocket );
   bool recvbyte( unsigned char* byte, unsigned int waitms );

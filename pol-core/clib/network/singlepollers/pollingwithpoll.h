@@ -8,7 +8,7 @@
 #ifdef _WIN32
 
 // compatibility wrapper for windows
-int poll( struct pollfd* fds, ULONG nfds, int timeout )
+inline int poll( struct pollfd* fds, ULONG nfds, int timeout )
 {
   return WSAPoll( fds, nfds, timeout );
 };

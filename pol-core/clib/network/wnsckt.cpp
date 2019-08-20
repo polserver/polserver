@@ -14,6 +14,8 @@
 #include "passert.h"
 #include "strutil.h"
 
+#include "singlepoller.h"
+
 #if defined( WINDOWS )
 #define SOCKET_ERRNO( x ) WSA##x
 #define socket_errno WSAGetLastError()
@@ -103,7 +105,7 @@ std::string Socket::getpeername() const
 {
   struct sockaddr client_addr;  // inet_addr
   socklen_t addrlen = sizeof client_addr;
-  if ( ::getpeername( _sck, &client_addr, &addrlen ) == 0 )
+  if (::getpeername( _sck, &client_addr, &addrlen ) == 0 )
   {
     struct sockaddr_in* in_addr = (struct sockaddr_in*)&client_addr;
     if ( client_addr.sa_family == AF_INET )
@@ -249,7 +251,7 @@ bool Socket::listen( unsigned short port )
     HandleError();
     return false;
   }
-  if ( ::listen( _sck, SOMAXCONN ) == -1 )
+  if (::listen( _sck, SOMAXCONN ) == -1 )
   {
     HandleError();
     return false;
@@ -257,29 +259,27 @@ bool Socket::listen( unsigned short port )
   return true;
 }
 
-bool Socket::select( unsigned int seconds, unsigned int useconds )
+bool Socket::select( unsigned int seconds, unsigned int useconds, int* result )
 {
-  fd_set fd;
-  struct timeval timeout = {0, 0};
-  int nfds = 0;
-  FD_ZERO( &fd );
-  FD_SET( _sck, &fd );
-#ifndef _WIN32
-  passert_r( _sck < FD_SETSIZE,
-             "Select() implementation in Linux cant handle this many sockets at the same time." )
-      nfds = _sck + 1;
-#endif
+  SinglePoller poller( _sck );
+  poller.set_timeout( seconds, useconds );
 
-  int res;
+  if ( !poller.prepare( false ) )
+  {
+    if ( result )
+      *result = -1;
+    throw std::runtime_error( "Unable to poll socket=" + tostring( _sck ) );
+  }
 
+  int res = -1;
   do
   {
-    timeout.tv_sec = seconds;
-    timeout.tv_usec = useconds;
-    res = ::select( nfds, &fd, nullptr, nullptr, &timeout );
+    res = poller.wait_for_events();
   } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
-  return ( res > 0 && FD_ISSET( _sck, &fd ) );
+  if ( result )
+    *result = res;
+  return poller.incoming();
 }
 
 bool Socket::accept( SOCKET* s, unsigned int /*mstimeout*/ )
@@ -360,42 +360,31 @@ void Socket::HandleError()
 
 bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 {
-  fd_set fd;
-
   if ( !connected() )
     return false;
 
 #if SCK_WATCH
   INFO_PRINT << "{L;1}\n";
 #endif
-  FD_ZERO( &fd );
-  FD_SET( _sck, &fd );
-  int nfds = 0;
-#ifndef _WIN32
-  nfds = _sck + 1;
-#endif
-  struct timeval tv;
+
   int res;
-
-  do
+  if ( !select( 0, waitms * 1000, &res ) )
   {
-    tv.tv_sec = 0;
-    tv.tv_usec = waitms * 1000;
-    res = ::select( nfds, &fd, nullptr, nullptr, &tv );
-  } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
-
-  if ( res == 0 )
-  {
+    if ( res == -1 )
+    {
+      HandleError();
+      close();
+    }
+    else if ( res == 0 )
+    {
 #if SCK_WATCH
-    INFO_PRINT << "{TO}\n";
+      INFO_PRINT << "{TO}\n";
 #endif
+    }
+
     return false;
   }
-  else if ( res == -1 )
-  {
-    HandleError();
-    close(); /* FIXME: very likely unrecoverable */
-  }
+
 
   res = recv( _sck, (char*)ch, 1, 0 );
   if ( res == 1 )
@@ -423,9 +412,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 
 bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 {
-  fd_set fd;
   char* pdest = (char*)vdest;
-  int nfds = 0;
 
   while ( len )
   {
@@ -435,32 +422,22 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 #if SCK_WATCH
     INFO_PRINT << "{L:" << len << "}\n";
 #endif
-    FD_ZERO( &fd );
-    FD_SET( _sck, &fd );
-#ifndef _WIN32
-    nfds = _sck + 1;
-#endif
-
-    struct timeval tv;
     int res;
-    do
+    if ( !select( 0, waitms * 1000, &res ) )
     {
-      tv.tv_sec = 0;
-      tv.tv_usec = waitms * 1000;
-      res = ::select( nfds, &fd, nullptr, nullptr, &tv );
-    } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
-
-    if ( res == 0 )
-    {
+      if ( res == -1 )
+      {
+        HandleError();
+        close();
+      }
+      else if ( res == 0 )
+      {
 #if SCK_WATCH
-      INFO_PRINT << "{TO}\n";
+        INFO_PRINT << "{TO}\n";
 #endif
+      }
+
       return false;
-    }
-    else if ( res == -1 )
-    {
-      HandleError();
-      close(); /* FIXME: very likely unrecoverable */
     }
 
 
@@ -499,39 +476,28 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 
 unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
 {
-  fd_set fd;
+  ;
   char* pdest = (char*)vdest;
-  int nfds = 0;
 
 #if SCK_WATCH
   INFO_PRINT << "{L:" << len << "}\n";
 #endif
-  FD_ZERO( &fd );
-  FD_SET( _sck, &fd );
-#ifndef _WIN32
-  nfds = _sck + 1;
-#endif
-  struct timeval tv;
+
   int res;
-
-  do
+  if ( !select( wait_sec, 0, &res ) )
   {
-    tv.tv_sec = wait_sec;
-    tv.tv_usec = 0;
-    res = ::select( nfds, &fd, nullptr, nullptr, &tv );
-  } while ( res < 0 && exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
-
-  if ( res == 0 )
-  {
+    if ( res == -1 )
+    {
+      HandleError();
+      close();
+    }
+    else if ( res == 0 )
+    {
 #if SCK_WATCH
-    INFO_PRINT << "{TO}\n";
+      INFO_PRINT << "{TO}\n";
 #endif
-    return 0;
-  }
-  else if ( res == -1 )
-  {
-    HandleError();
-    close(); /* FIXME: very likely unrecoverable */
+    }
+
     return 0;
   }
 
