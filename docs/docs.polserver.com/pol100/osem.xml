@@ -13,24 +13,24 @@
     <constant>const SCRIPTOPT_AUXSVC_ASSUME_STRING := 5;</constant>
   </fileheader>
 
-  <function name="GetProcess"> 
+  <function name="GetProcess">
     <prototype>GetProcess(pid := 0)</prototype>
     <parameter name="pid" value="Integer process ID of a script (optional)" />
     <explain>Gets a script process object for the given script's PID.</explain>
-    <explain>If no PID is supplied uses PID of parent script.</explain>
+    <explain>If no PID is supplied uses PID of the current script.</explain>
     <return>A Script object</return>
     <error>"Process not found"</error>
     <error>"Invalid parameter type"</error>
     <related>Script</related>
   </function>
 
-  <function name="GetPid"> 
+  <function name="GetPid">
     <prototype>GetPid()</prototype>
     <explain>Returns the Process ID for this script.</explain>
     <return>Integer Process ID</return>
   </function>
 
-  <function name="Unload_Scripts"> 
+  <function name="Unload_Scripts">
     <prototype>Unload_Scripts(scriptname := "")</prototype>
     <parameter name="scriptname" value="String filename of script without extension (optional)" />
     <explain>unload scripts from the script cache (they will be reloaded from disk on demand) currently running scripts will continue as normal.</explain>
@@ -263,8 +263,8 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 	<code>
 Example: create a POST request to a REST endpoint with custom header:
 
- HTTPRequest("http://localhost:3000/","POST", struct{ 
-  data := "{\"stuff1\":[1,2,35]}", 
+ HTTPRequest("http://localhost:3000/","POST", struct{
+  data := "{\"stuff1\":[1,2,35]}",
   headers := struct{
     "Content-Type" := "application/json"
   }
