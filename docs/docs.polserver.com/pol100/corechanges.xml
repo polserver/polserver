@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-12-2019</datemodified>
+		<datemodified>08-21-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-21-2019</date>
+			<author>DevGIB:</author>
+			<change type="Fixed">Missing default on GetProcess( pid ), this is now GetProcess( pid:= 0 ) to align with docs and functionallity. Please update your os.em file and recompile.</change>
+		</entry>
 		<entry>
 			<date>07-12-2019</date>
 			<author>DevGIB:</author>
