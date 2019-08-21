@@ -152,7 +152,8 @@ BObjectImp* OSExecutorModule::mf_debugger()
 BObjectImp* OSExecutorModule::getprocess()
 {
   unsigned int pid;
-  if ( !getParam( 0, pid ) )
+  getParam(0, pid);
+  if ( pid == 0 )
   {
     pid = pid_;
   }
