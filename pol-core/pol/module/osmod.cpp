@@ -152,7 +152,9 @@ BObjectImp* OSExecutorModule::mf_debugger()
 BObjectImp* OSExecutorModule::getprocess()
 {
   unsigned int pid;
-  getParam(0, pid);
+  if (!getParam(0, pid))
+      return new BError("Invalid parameter type");
+
   if ( pid == 0 )
   {
     pid = pid_;
