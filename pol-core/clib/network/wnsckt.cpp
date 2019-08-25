@@ -670,7 +670,6 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
   if ( pos_newline == std::string::npos )
   {
     std::array<char, 4096> buffer;
-    buffer.fill( '\0' );
 
     int res = -1;
     if ( !_socket.has_incoming_data( _waitms, &res ) )
@@ -690,17 +689,27 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
     auto buffer_end =
         std::remove_if( buffer.begin(), buffer.begin() + bytes_read, is_invalid_readline_char );
 
-    // append only the valid characters to the buffer
-    _currentLine.append( buffer.data(), std::distance( buffer.begin(), buffer_end ) );
-    if ( _maxLinelength > 0 && _currentLine.size() > _maxLinelength )
-    {
-      out = _currentLine;
-      _currentLine.clear();
+    auto valid_char_count = std::distance( buffer.begin(), buffer_end );
+
+    // nothing gained from these bytes
+    if ( !valid_char_count )
       return false;
-    }
+
+    // append only the valid characters to the buffer
+    _currentLine.append( buffer.data(), valid_char_count );
 
     // update position
     pos_newline = _currentLine.find_first_of( "\r\n", oldSize );
+  }
+
+  // note that std::string::npos is larger than any other number, so the conditon below will be
+  // false only if there is a newline before the maximum line length or if the current line is still
+  // small.
+  if ( _maxLinelength > 0 && pos_newline > _maxLinelength && _currentLine.size() > _maxLinelength )
+  {
+    out = _currentLine;
+    _currentLine.clear();
+    return false;
   }
 
   // Haven't found it yet
@@ -710,7 +719,6 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
   auto end_newline = pos_newline + 1;
   if ( _currentLine[pos_newline] == '\r' )
     end_newline++;
-
 
   out = _currentLine.substr( 0, pos_newline );
   _currentLine.erase( 0, end_newline );
@@ -722,9 +730,10 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
 bool SocketLineReader::readline( std::string& out, bool* timed_out )
 {
   out = "";
-
-  const int max_timeouts = (_timeout_secs*1000) / _waitms;
-
+  if ( timed_out )
+    *timed_out = false;
+    
+  const int max_timeouts = ( _timeout_secs * 1000 ) / _waitms;
   bool single_timed_out = false;
 
   int timeout_left = max_timeouts;
@@ -746,9 +755,14 @@ bool SocketLineReader::readline( std::string& out, bool* timed_out )
     {
       timeout_left--;
       if ( timeout_left <= 0 )
-      {     
-        _socket.close();
-        *timed_out = true;
+      {
+        if ( _disconnect_on_timeout || !timed_out )
+          _socket.close();
+
+        if ( timed_out )
+          *timed_out = true;
+
+        return false;
       }
     }
     else

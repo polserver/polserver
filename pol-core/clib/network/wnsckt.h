@@ -83,8 +83,12 @@ private:
 class SocketLineReader
 {
 public:
-  SocketLineReader( Socket& socket, unsigned int timeout_secs = 0, unsigned int max_linelength = 0 )
-      : _socket( socket ), _waitms(500), _timeout_secs(timeout_secs),_maxLinelength( max_linelength )
+  SocketLineReader( Socket& socket, unsigned int timeout_secs = 0, unsigned int max_linelength = 0, bool disconnect_on_timeout = true )
+      : _socket( socket ),
+        _waitms( 500 ),
+        _timeout_secs( timeout_secs ),
+        _maxLinelength( max_linelength ),
+        _disconnect_on_timeout(disconnect_on_timeout)
   {
   }
   bool try_readline( std::string& out, bool* timed_out = nullptr);
@@ -94,6 +98,8 @@ public:
   void set_wait( unsigned int waitms ) { _waitms = waitms; }
   void set_timeout( unsigned int timeout_secs ) { _timeout_secs = timeout_secs; }
 
+  bool set_disconnect_on_timeout(bool disconnect) { _disconnect_on_timeout = disconnect; }
+
 private:
   Socket& _socket;
   std::string _currentLine;
@@ -101,6 +107,8 @@ private:
   unsigned int _waitms;
   unsigned int _timeout_secs;
   unsigned int _maxLinelength;
+
+  bool _disconnect_on_timeout;
 };
 
 }  // namespace Clib

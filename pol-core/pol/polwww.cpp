@@ -601,7 +601,7 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
 void http_func( SOCKET client_socket )
 {
   Clib::Socket sck( client_socket );
-  Clib::SocketLineReader lineReader( sck, 5, 3000 );
+  Clib::SocketLineReader lineReader( sck, 5, 3000, false ); // we take care of disconnecting at timeout
 
   std::string get;
   std::string auth;
@@ -631,7 +631,10 @@ void http_func( SOCKET client_socket )
   }
 
   if ( timed_out )
-    INFO_PRINT << "HTTP connection timed out\n";
+  {
+    INFO_PRINT << "HTTP connection " << sck.getpeername() << " timed out\n";
+    sck.close();
+  }
 
   if ( !sck.connected() )
     return;
