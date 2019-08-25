@@ -1,14 +1,15 @@
 Create_Debug_Context();
-    
+
     // get a process scripting object by PID
-GetProcess( pid );
+    // If no PID is supplied will use parent script pid.
+GetProcess( pid := 0 );
 
     // getpid: get this script's pid
 GetPid();
 
     //
-    // unload_scripts: unload scripts from the script cache (they will be 
-    //                 reloaded from disk on demand) currently running 
+    // unload_scripts: unload scripts from the script cache (they will be
+    //                 reloaded from disk on demand) currently running
     //                 scripts will continue as normal.
     //                 Passing "" will unload all scripts.
     //
@@ -74,7 +75,7 @@ Run_Script_To_Completion( script_name, param := 0 );
 Run_Script( script_name, param := 0 );
 
 
-    // 
+    //
     // syslog(text): write text to the console, and to the log file
     //               includes context (calling script name)
     //
