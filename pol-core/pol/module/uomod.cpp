@@ -1730,7 +1730,7 @@ BObjectImp* UOExecutorModule::mf_CreateMenu()
   {
     Menu temp;
     temp.menu_id = 0;
-    strzcpy( temp.title, title->data(), sizeof temp.title );
+    Clib::stracpy( temp.title, title->data(), sizeof temp.title );
     return new EMenuObjImp( temp );
   }
   return new BLong( 0 );
@@ -1750,7 +1750,7 @@ BObjectImp* UOExecutorModule::mf_AddMenuItem()
     MenuItem* mi = &menu->menuitems_.back();
     mi->objtype_ = objtype;
     mi->graphic_ = getgraphic( objtype );
-    strzcpy( mi->title, text->data(), sizeof mi->title );
+    Clib::stracpy( mi->title, text->data(), sizeof mi->title );
     mi->color_ = color & settingsManager.ssopt.item_color_mask;
     return new BLong( 1 );
   }
@@ -4109,16 +4109,15 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
 
-    if (exec.getParam(3, arrow_id))
+    if ( exec.getParam( 3, arrow_id ) )
     {
-        if (arrow_id < 1)
-            return new BError("ArrowID out of range");
-        arrowid = (u32)arrow_id;
-  
+      if ( arrow_id < 1 )
+        return new BError( "ArrowID out of range" );
+      arrowid = (u32)arrow_id;
     }
     else
     {
-        arrowid = this->uoexec.pid();
+      arrowid = this->uoexec.pid();
     }
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
@@ -4127,16 +4126,16 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     {
       msg->Write<u8>( PKTOUT_BA_ARROW_OFF );
       msg->offset += 4;  // u16 x_tgt,y_tgt
-      if (usesNewPktSize)
+      if ( usesNewPktSize )
       {
-          if (!arrow_id || arrow_id == 0 )
-          {
-             return new BError( "ArrowID must be supplied for cancelation." );
-          }
-          else
-          {
-              msg->Write<u32>(static_cast<u32>(arrowid & 0xFFFFFFFF));
-          }
+        if ( !arrow_id || arrow_id == 0 )
+        {
+          return new BError( "ArrowID must be supplied for cancelation." );
+        }
+        else
+        {
+          msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
+        }
       }
     }
     else
@@ -4151,7 +4150,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
         msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
     }
     msg.Send( chr->client );
-    return new BLong(arrowid);
+    return new BLong( arrowid );
   }
   else
   {
