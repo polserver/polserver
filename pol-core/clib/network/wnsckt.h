@@ -83,27 +83,28 @@ private:
 class SocketLineReader
 {
 public:
-  SocketLineReader( Socket& socket, unsigned int timeout_secs = 0, unsigned int max_linelength = 0, bool disconnect_on_timeout = true )
+  SocketLineReader( Socket& socket, unsigned int timeout_secs = 0, unsigned int max_linelength = 0,
+                    bool disconnect_on_timeout = true )
       : _socket( socket ),
         _waitms( 500 ),
         _timeout_secs( timeout_secs ),
         _maxLinelength( max_linelength ),
-        _disconnect_on_timeout(disconnect_on_timeout)
+        _disconnect_on_timeout( disconnect_on_timeout )
   {
   }
-  bool try_readline( std::string& out, bool* timed_out = nullptr);
+  bool try_readline( std::string& out, bool* timed_out = nullptr );
   bool readline( std::string& out, bool* timed_out = nullptr );
 
   void set_max_linelength( unsigned int max_linelength ) { _maxLinelength = max_linelength; }
   void set_wait( unsigned int waitms ) { _waitms = waitms; }
   void set_timeout( unsigned int timeout_secs ) { _timeout_secs = timeout_secs; }
 
-  bool set_disconnect_on_timeout(bool disconnect) { _disconnect_on_timeout = disconnect; }
+  bool set_disconnect_on_timeout( bool disconnect ) { _disconnect_on_timeout = disconnect; }
 
 private:
   Socket& _socket;
   std::string _currentLine;
-  
+
   unsigned int _waitms;
   unsigned int _timeout_secs;
   unsigned int _maxLinelength;
