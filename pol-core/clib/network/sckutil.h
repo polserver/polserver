@@ -14,12 +14,10 @@ namespace Clib
 {
 class Socket;
 
-bool readline( Socket& sck, std::string& s, bool* timeout_exit = 0,
-               unsigned int interchar_timeout_secs = 0, unsigned maxlen = 0 );
-
+// TODO: move this function into the Socket class
+// TODO: get rid of http_writeline, it's doing exactly the same as this function
 void writeline( Socket& sck, const std::string& s );
 
-bool readstring( Socket& sck, std::string& s, unsigned int interchar_secs, unsigned length );
 }
 }
 #endif

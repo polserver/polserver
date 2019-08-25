@@ -33,8 +33,11 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../clib/threadhelp.h"
+#include "../clib/timer.h"
+
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+
 #include "globals/uvars.h"
 #include "module/httpmod.h"
 #include "module/uomod.h"
@@ -126,41 +129,10 @@ void config_web_server()
   load_mime_config();
 }
 
-// TODO: The http server is susceptible to DOS attacks
-// TODO: limit access to localhost by default, probably
-
-bool http_readline( Clib::Socket& sck, std::string& s )
-{
-  bool res = false;
-  s = "";
-  unsigned char ch;
-  while ( sck.connected() && sck.recvbyte( &ch, 10000 ) )
-  {
-    if ( isprint( ch ) )
-    {
-      s.append( 1, ch );
-      if ( s.length() > 3000 )
-      {
-        sck.close();
-        break;  // return false;
-      }
-    }
-    else
-    {
-      if ( ch == '\n' )
-      {
-        res = true;
-        break;
-        // return true;
-      }
-    }
-  }
-  return res;
-}
 void http_writeline( Clib::Socket& sck, const std::string& s )
 {
   sck.send( (void*)s.c_str(), static_cast<unsigned int>( s.length() ) );
-  sck.send( "\n", 1 );
+  sck.send( "\r\n", 2 );
 }
 
 void http_forbidden( Clib::Socket& sck )
@@ -194,6 +166,17 @@ void http_not_authorized( Clib::Socket& sck, const std::string& /*filename*/ )
   http_writeline( sck, "<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>" );
   http_writeline( sck, "<BODY><H1>Unauthorized</H1>" );
   http_writeline( sck, "You are not authorized to access that page." );
+  http_writeline( sck, "</BODY></HTML>" );
+}
+
+void http_internal_error( Clib::Socket& sck, const std::string& filename )
+{
+  http_writeline( sck, "HTTP/1.1 500 Internal Sever Error" );
+  http_writeline( sck, "Content-Type: text/html" );
+  http_writeline( sck, "" );
+  http_writeline( sck, "<HTML><HEAD><TITLE>500 Internal Server Error</TITLE></HEAD>" );
+  http_writeline( sck, "<BODY><H1>Internal Server Error</H1>" );
+  http_writeline( sck, "The requested URL " + filename + " caused an internal server error." );
   http_writeline( sck, "</BODY></HTML>" );
 }
 
@@ -618,21 +601,22 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
 void http_func( SOCKET client_socket )
 {
   Clib::Socket sck( client_socket );
+  Clib::SocketLineReader lineReader( sck, 5, 3000 );
+
   std::string get;
   std::string auth;
   std::string tmpstr;
   std::string host;
 
-  if ( Plib::systemstate.config.web_server_local_only )
+  if ( Plib::systemstate.config.web_server_local_only && !sck.is_local() )
   {
-    if ( !sck.is_local() )
-    {
-      http_forbidden( sck );
-      return;
-    }
+    http_forbidden( sck );
+    return;
   }
 
-  while ( sck.connected() && http_readline( sck, tmpstr ) )
+  bool timed_out = false;
+  Tools::HighPerfTimer requestTimer;
+  while ( sck.connected() && lineReader.readline( tmpstr, &timed_out ) )
   {
     if ( Plib::systemstate.config.web_server_debug )
       INFO_PRINT << "http(" << sck.handle() << "): '" << tmpstr << "'\n";
@@ -645,8 +629,18 @@ void http_func( SOCKET client_socket )
     if ( strncmp( tmpstr.c_str(), "Host: ", 5 ) == 0 )
       host = tmpstr.substr( 6 );
   }
+
+  if ( timed_out )
+    INFO_PRINT << "HTTP connection timed out\n";
+
   if ( !sck.connected() )
     return;
+
+  if ( Plib::systemstate.config.web_server_debug )
+  {
+    INFO_PRINT << "[" << double( requestTimer.ellapsed().count() / 1000.0 )
+               << " msec] finished reading header\n";
+  }
 
   ISTRINGSTREAM is( get );
 
@@ -761,6 +755,7 @@ void http_func( SOCKET client_socket )
     else
     {
       POLLOG_INFO << "HTTP server: I can't handle pagetype '" << pagetype << "'\n";
+      http_internal_error( sck, page );
     }
   }
 }

@@ -6,6 +6,7 @@
 
 #include "wnsckt.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 
@@ -259,10 +260,10 @@ bool Socket::listen( unsigned short port )
   return true;
 }
 
-bool Socket::select( unsigned int seconds, unsigned int useconds, int* result )
+bool Socket::has_incoming_data( unsigned int waitms, int* result )
 {
   SinglePoller poller( _sck );
-  poller.set_timeout( seconds, useconds );
+  poller.set_timeout( 0, waitms * 1000 );
 
   if ( !poller.prepare( false ) )
   {
@@ -279,6 +280,7 @@ bool Socket::select( unsigned int seconds, unsigned int useconds, int* result )
 
   if ( result )
     *result = res;
+
   return poller.incoming();
 }
 
@@ -368,7 +370,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
 #endif
 
   int res;
-  if ( !select( 0, waitms * 1000, &res ) )
+  if ( !has_incoming_data( waitms, &res ) )
   {
     if ( res == -1 )
     {
@@ -410,6 +412,43 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
   }
 }
 
+bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
+{
+  if ( bytes_read )
+    *bytes_read = -1;
+
+  if ( !connected() )
+    return false;
+
+#if SCK_WATCH
+  INFO_PRINT << "{L:" << len << "}\n";
+#endif
+
+  int res;
+  res = ::recv( _sck, pdest, len, 0 );
+
+  if ( bytes_read )
+    *bytes_read = res;
+
+  if ( res < 0 )
+  {
+    /* Can't time out here this is an ERROR! */
+    HandleError();
+    return false;
+  }
+
+  if ( res == 0 )
+  {
+#if SCK_WATCH
+    INFO_PRINT << "{CLOSE}\n";
+#endif
+    close();
+    return false;
+  }
+
+  return true;
+}
+
 bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
 {
   char* pdest = (char*)vdest;
@@ -423,7 +462,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     INFO_PRINT << "{L:" << len << "}\n";
 #endif
     int res;
-    if ( !select( 0, waitms * 1000, &res ) )
+    if ( !has_incoming_data( waitms, &res ) )
     {
       if ( res == -1 )
       {
@@ -484,7 +523,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
 #endif
 
   int res;
-  if ( !select( wait_sec, 0, &res ) )
+  if ( !has_incoming_data( 1000 * wait_sec, &res ) )
   {
     if ( res == -1 )
     {
@@ -613,5 +652,114 @@ bool Socket::is_local() const
   std::string s = getpeername();
   return ( s == "127.0.0.1" );
 }
+
+bool is_invalid_readline_char( unsigned char c )
+{
+  return !isprint( c ) && c != '\n' && c != '\r';
+}
+
+bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
+{
+  if ( timed_out )
+    *timed_out = false;
+
+  // check if there is already a line in the buffer
+  auto pos_newline = _currentLine.find_first_of( "\r\n" );
+
+  // If not, try to read more data
+  if ( pos_newline == std::string::npos )
+  {
+    std::array<char, 4096> buffer;
+    buffer.fill( '\0' );
+
+    int res = -1;
+    if ( !_socket.has_incoming_data( _waitms, &res ) )
+    {
+      if ( timed_out )
+        *timed_out = true;
+      return false;
+    }
+    int bytes_read = -1;
+    if ( !_socket.recvdata_nowait( buffer.data(), buffer.size(), &bytes_read ) )
+      return false;
+
+    // store current line size so we don't need to search from the beginning again
+    size_t oldSize = _currentLine.size();
+
+    // remove invalid characters from buffer
+    auto buffer_end =
+        std::remove_if( buffer.begin(), buffer.begin() + bytes_read, is_invalid_readline_char );
+
+    // append only the valid characters to the buffer
+    _currentLine.append( buffer.data(), std::distance( buffer.begin(), buffer_end ) );
+    if ( _maxLinelength > 0 && _currentLine.size() > _maxLinelength )
+    {
+      out = _currentLine;
+      _currentLine.clear();
+      return false;
+    }
+
+    // update position
+    pos_newline = _currentLine.find_first_of( "\r\n", oldSize );
+  }
+
+  // Haven't found it yet
+  if ( pos_newline == std::string::npos )
+    return false;
+
+  auto end_newline = pos_newline + 1;
+  if ( _currentLine[pos_newline] == '\r' )
+    end_newline++;
+
+
+  out = _currentLine.substr( 0, pos_newline );
+  _currentLine.erase( 0, end_newline );
+
+  return true;
+}
+
+// Blocks until a whole line is received, waitms are over or maxlen is reached
+bool SocketLineReader::readline( std::string& out, bool* timed_out )
+{
+  out = "";
+
+  const int max_timeouts = (_timeout_secs*1000) / _waitms;
+
+  bool single_timed_out = false;
+
+  int timeout_left = max_timeouts;
+  while ( !Clib::exit_signalled && _socket.connected() )
+  {
+    if ( try_readline( out, &single_timed_out ) )
+    {
+      return true;
+    }
+
+    // if try_readline() is false, string "out" should be empty unless the maxlen was reached.
+    if ( !out.empty() )
+    {
+      _socket.close();
+      return false;
+    }
+
+    if ( _timeout_secs > 0 && single_timed_out )
+    {
+      timeout_left--;
+      if ( timeout_left <= 0 )
+      {     
+        _socket.close();
+        *timed_out = true;
+      }
+    }
+    else
+    {
+      // refresh timeout counter
+      timeout_left = max_timeouts;
+    }
+  }
+  return false;
+}
+
+
 }  // namespace Clib
 }  // namespace Pol

@@ -18,7 +18,7 @@ class SocketListener
 public:
   explicit SocketListener( unsigned short port );
   SocketListener( unsigned short port, Socket::option opt );
-  bool GetConnection( Socket* newsck, unsigned int timeout_sec, unsigned int timeout_usec = 0 );
+  bool GetConnection( Socket* newsck, unsigned int timeout_sec, unsigned int timeout_msec = 0 );
 
   friend class SocketClientThread;
 

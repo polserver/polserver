@@ -39,10 +39,11 @@ public:
 
   bool open( const char* ipaddr, unsigned short port );
   bool listen( unsigned short port );
-  bool select( unsigned int seconds, unsigned int useconds, int* result = nullptr );
+  bool has_incoming_data( unsigned int waitms, int* result = nullptr );
   bool accept( SOCKET* s, unsigned int mstimeout );
   bool accept( Socket* newsocket );
   bool recvbyte( unsigned char* byte, unsigned int waitms );
+  bool recvdata_nowait( char* vdest, unsigned len, int* bytes_read );
   bool recvdata( void* vdest, unsigned len, unsigned int waitms );
   unsigned peek( void* vdest, unsigned len, unsigned int waitms );
   void send( const void* data, unsigned length );
@@ -78,6 +79,30 @@ private:
   int _options;
   struct sockaddr _peer;
 };
+
+class SocketLineReader
+{
+public:
+  SocketLineReader( Socket& socket, unsigned int timeout_secs = 0, unsigned int max_linelength = 0 )
+      : _socket( socket ), _waitms(500), _timeout_secs(timeout_secs),_maxLinelength( max_linelength )
+  {
+  }
+  bool try_readline( std::string& out, bool* timed_out = nullptr);
+  bool readline( std::string& out, bool* timed_out = nullptr );
+
+  void set_max_linelength( unsigned int max_linelength ) { _maxLinelength = max_linelength; }
+  void set_wait( unsigned int waitms ) { _waitms = waitms; }
+  void set_timeout( unsigned int timeout_secs ) { _timeout_secs = timeout_secs; }
+
+private:
+  Socket& _socket;
+  std::string _currentLine;
+  
+  unsigned int _waitms;
+  unsigned int _timeout_secs;
+  unsigned int _maxLinelength;
+};
+
 }  // namespace Clib
 }  // namespace Pol
 #endif  // CLIB_WNSCKT_H
