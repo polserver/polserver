@@ -21,7 +21,6 @@
  * Specify what you want to cast to, and
  * what you think you're casting from.
  */
-#define EXPLICIT_CAST( totype, fromtype ) ( totype )
 
 #define ms_to_clocks( ms ) ( ms * CLOCKS_PER_SEC / 1000 )
 namespace Pol
@@ -150,19 +149,7 @@ inline std::tm localtime( const std::time_t& t )
 #endif
   return result;
 }
-}
-#define strzcpy Clib::stracpy
-
-#define STRCPY( a, b ) strncpy( a, b, sizeof a )
-#define STRNCPY( a, b ) strncpy( a, b, sizeof a )
-#define STRPCPY( a, b ) \
-  Clib:                 \
-  strpcpy( a, b, sizeof a )
-#define STRACPY( a, b ) \
-  Clib:                 \
-  stracpy( a, b, sizeof a )
-#define MEMCLR( a ) memset( &a, 0, sizeof a )
-#define MEMCPY( a, b ) memcpy( &a, &b, sizeof a )
-}
+}  // namespace Clib
+}  // namespace Pol
 
 #endif  // CLIB_CLIB_H
