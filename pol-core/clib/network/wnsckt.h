@@ -99,7 +99,7 @@ public:
   void set_wait( unsigned int waitms ) { _waitms = waitms; }
   void set_timeout( unsigned int timeout_secs ) { _timeout_secs = timeout_secs; }
 
-  bool set_disconnect_on_timeout( bool disconnect ) { _disconnect_on_timeout = disconnect; }
+  void set_disconnect_on_timeout( bool disconnect ) { _disconnect_on_timeout = disconnect; }
 
 private:
   Socket& _socket;
