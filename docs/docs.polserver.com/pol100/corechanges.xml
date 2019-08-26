@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-21-2019</datemodified>
+		<datemodified>08-26-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-26-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Improved how the debug, www and aux servers handle connections. They should be faster and more stable now. Minor issues fixed.</change>
+		</entry>
 		<entry>
 			<date>08-21-2019</date>
 			<author>DevGIB:</author>
