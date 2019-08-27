@@ -679,7 +679,7 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
       return false;
     }
     int bytes_read = -1;
-    if ( !_socket.recvdata_nowait( buffer.data(), buffer.size(), &bytes_read ) )
+    if ( !_socket.recvdata_nowait( buffer.data(), static_cast<unsigned>(buffer.size()), &bytes_read ) )
       return false;
 
     // store current line size so we don't need to search from the beginning again
