@@ -679,7 +679,8 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
       return false;
     }
     int bytes_read = -1;
-    if ( !_socket.recvdata_nowait( buffer.data(), static_cast<unsigned>(buffer.size()), &bytes_read ) )
+    if ( !_socket.recvdata_nowait( buffer.data(), static_cast<unsigned>( buffer.size() ),
+                                   &bytes_read ) )
       return false;
 
     // store current line size so we don't need to search from the beginning again
@@ -732,7 +733,7 @@ bool SocketLineReader::readline( std::string& out, bool* timed_out )
   out = "";
   if ( timed_out )
     *timed_out = false;
-    
+
   const int max_timeouts = ( _timeout_secs * 1000 ) / _waitms;
   bool single_timed_out = false;
 
