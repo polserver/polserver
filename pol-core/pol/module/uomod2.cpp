@@ -1093,7 +1093,7 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
     }
 
     msg->WriteFlipped<u16>( utf16.size() );
-    msg->WriteFlipped( utf16 );
+    msg->WriteFlipped( utf16, false );
   }
 
   if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
@@ -1198,14 +1198,14 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
 
     auto utf16 = Bscript::String::toUTF16( s );
     ++numlines;
-    size_t addlen = ( s.size() + 1 ) * 2;
+    size_t addlen = ( utf16.size() + 1 ) * 2;
     if ( datadlen + addlen > sizeof bfr->buffer )
     {
       return new BError( "Buffer length exceeded" );
     }
     datadlen += static_cast<u32>( addlen );
     bfr->WriteFlipped<u16>( utf16.size() );
-    bfr->WriteFlipped( utf16 );
+    bfr->WriteFlipped( utf16, false );
   }
   msg->WriteFlipped<u32>( numlines );
   if ( numlines != 0 )
