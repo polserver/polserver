@@ -52,7 +52,6 @@ void handle_request_tooltip( Network::Client* client, PKTIN_B6* msgin )
         msg->offset += 2;
         msg->Write<u32>( item->serial_ext );
         msg->WriteFlipped( Bscript::String::toUTF16( id.tooltip ) );
-        msg->offset += 2;  // nullterm
         u16 len = msg->offset;
         msg->offset = 1;
         msg->WriteFlipped<u16>( len );
