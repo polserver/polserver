@@ -30,7 +30,7 @@ int forspec( const char* spec, void ( *func )( const char* pathname ) )
     do
     {
       ++nProc;
-      strzcpy( fname, find.cFileName, lenleft );
+      stracpy( fname, find.cFileName, lenleft );
       if ( func != nullptr )
         ( *func )( fullpath );
     } while ( FindNextFile( hFind, &find ) );
@@ -38,5 +38,5 @@ int forspec( const char* spec, void ( *func )( const char* pathname ) )
   }
   return nProc;
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

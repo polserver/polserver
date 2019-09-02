@@ -952,8 +952,7 @@ BObjectImp* NPCExecutorModule::CreateItem()
 
 BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
 {
-  String* arealist =
-      EXPLICIT_CAST( String*, BObjectImp* )( getParamImp( 0, BObjectImp::OTString ) );
+  auto arealist = static_cast<String*>( getParamImp( 0, BObjectImp::OTString ) );
   if ( arealist == nullptr )
     return new String( "" );
 

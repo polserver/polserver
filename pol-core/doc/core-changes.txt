@@ -1,5 +1,5 @@
 ﻿-- POL100 --
-XX-XX-XXXX Turley:
+02-09-2019 Turley:
   Changed: The core is now Unicode aware!
            A normal String object can hold unicode.
            Files can now be stored in utf8 with or without BOM.
@@ -34,6 +34,10 @@ XX-XX-XXXX Turley:
            RequestInput -> RequestInputUC
            Say -> SayUC
            SendSysMessage -> SendSysMessageUC
+08-26-2019 Nando:
+  Changed: Improved how the debug, www and aux servers handle connections. They should be faster and more stable now. Minor issues fixed.
+08-21-2019 DevGIB:
+  Fixed:   Missing default on GetProcess( pid ), this is now GetProcess( pid:= 0 ) to align with docs and functionallity. Please update your os.em file and recompile.
 07-12-2019 DevGIB:
   Fixed:   Initalization error with the new AOS props causing items with no props set to inject random numbers on server boot.
   Changed: Fixed issue with moving a character to a shadow realm within the same screen, the core would not correctly send mobile serials to the characters client on relocation and you would still see inaccessible characters in the shadow realm.
@@ -44,23 +48,23 @@ XX-XX-XXXX Turley:
 06-17-2019 DevGIB:
   Changed: Fixed default for OS::Start_Skill_Script on script_name attribute to be string like required.
 06-17-2019 DevGIB:
-  Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance, 
+  Added:   Support for LowerReagentCost, SpellDamageIncrease, FasterCasting, FasterCastRecovery, DefenceIncrease, DefenceIncreaseCap, LowerManaCost, Hitchance,
            Luck, FireResistCap, ColdResistCap, EnergyResistCap, PhysicalResistCap, and PoisonResistCap and their subsequent mods to UObject as dynaprops.
   Changed: Elevated Luck to UObject and added related LuckMod.
   Added:   Support for new prop changes to the status bar packet.
   Added:   Resistances will now be limited to caps by core, unless caps aren't set or are 0.
   Added:   CoreIgnoresDefenceCaps to servspecopt.cfg which defaults to 0. If set to 1 core will not calculate resistances and defence increase limits set on the mobile.
 04-26-2019 Nando:
-  Changed: Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain. 
+  Changed: Improved connection handling. Linux won't be limited to 1024 clients anymore, recent Windows shouldn't be affected besides some slight performance gain.
      Note: POL now requires at least Windows Vista / Server 2008. Let us know if Windows XP was important to you.
   Removed: pol.cfg option "ListenPort". It was deprecated since 2012 (and likely didn't work). You should use a Listener in uoclient.cfg.
   Removed: pol.cfg option "Multithread". It was deprecated since 2016 and unstable. Also removed the method OS::System_RPM(), which was only useful for singlethreaded POL.
-04-26-2019 Turley: 
-    Added: pol.cfg setting "LoginServerTimeout". Defines a timeout for new connections to the loginserver. 
+04-26-2019 Turley:
+    Added: pol.cfg setting "LoginServerTimeout". Defines a timeout for new connections to the loginserver.
            Defaults to 10 minutes, should give enough time to select a character.
 03-19-2019 Kevin:
   Changed: attributes::GetAttribute now accepts an optional parameter to specify the precision of the attribute
-           value returned. Use ATTRIBUTE_PRECISION_NORMAL (default) to use the existing precision, or 
+           value returned. Use ATTRIBUTE_PRECISION_NORMAL (default) to use the existing precision, or
            ATTRIBUTE_PRECISION_TENTHS to get the value in tenths.
 
            Since this is a change to the module function's number of arguments, you MUST recompile your scripts.
@@ -132,7 +136,7 @@ XX-XX-XXXX Turley:
            cmd param -T can now be optionally extended with a number to override the cfg setting
 07-19-2018 DevGIB:
   Added:   EncodeBase64(String) and DecodeBase64(String) to basic.em to enable people to encode and decode strings using base64 without requiring an escript function.
-  
+
 04-02-2018 Bodom:
   Removed: polcore().compiledate and polcore().compiletime
   Added:   polcore().compiledatetime
@@ -147,15 +151,15 @@ XX-XX-XXXX Turley:
            readuop=0.
 
 02-10-2018 Nando:
-  Changed: POL099 is officially released after almost 10 years. Starting the work on POL100. 
+  Changed: POL099 is officially released after almost 10 years. Starting the work on POL100.
 
 -- POL099.1 --
-02-11-2018 Nando:  
-  Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT). 
+02-11-2018 Nando:
+  Added:   range parameter to Accessible(chr, item, range := ACCESSIBLE_DEFAULT).
            Valid values: range >= 0, range == ACCESSIBLE_DEFAULT or range == ACCESSIBLE_IGNOREDISTANCE.
-		   The default range will be defined as the servspecopt entry "DefaultAccessibleRange". If that 
+		   The default range will be defined as the servspecopt entry "DefaultAccessibleRange". If that
 		   entry doesn't exist, the "DefaultDoubleclickRange" will be used instead (which defaults to 2).
-  Fixed:   Accessible(chr, item) now checks for the distance to the item. Differently from the distance 
+  Fixed:   Accessible(chr, item) now checks for the distance to the item. Differently from the distance
            of 2 tiles the docs stated, the allowed distance before was about 18 tiles. To recover the old behavior,
 		   use ACCESSIBLE_IGNOREDISTANCE as range.
 
@@ -186,9 +190,9 @@ XX-XX-XXXX Turley:
            look["blah"]:=@doSomethingElse
            ...
            look[mykey].call();
-          
+
   Changed: Version number of ecl files, recompilation needed.
-           
+
 01-07-2018 Kevin:
   Added:   basic::UnpackJSON(string)
            Given a string in JSON format, returns an eScript object representing that JSON value.
@@ -208,7 +212,7 @@ XX-XX-XXXX Turley:
 12-23-2017 Turley:
   Added:   os:PerformanceMeasure(delta_seconds, max_scripts)
            Monitors for given number of seconds the instructions of all scripts. Returns:
-           struct with the following members: 
+           struct with the following members:
            total_number_observed - number of scripts alive in the timespan
            total_instructions - sum of all instructions of the observed scripts
            scripts - array of structs (max number is given max_scripts param) sorted by instructions amount
@@ -239,14 +243,14 @@ XX-XX-XXXX Turley:
   Fixed:   Shutdown crash when using character method scripts.
 07-31-2017 Nando:
   Fixed:   Interactive commands could cause a crash when used inside a run-to-completion script
-           (e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The 
-           interactive commands	will now return an error if the script can't be blocked. 
+           (e.g., syshooks, scripts ran via OS::run_script_to_completion() and method scripts). The
+           interactive commands	will now return an error if the script can't be blocked.
 		   (Note: this does not apply to critical scripts, which *can* block).
-		   
-		   Affected commands: 
+
+		   Affected commands:
 		   UO::Target(), UO::TargetCoordinates(), UO::TargetMultiPlacement(), UO::SelectMenuItem(),
 		   UO::SendDialogGump(), UO::SendGumpMenu(), UO::SendTextEntryGump(), UO::SendInstaResDialog(),
-		   UO::SelectColor(), UO::SendPopupMenu(), UO::RequestInput(), Unicode::RequestInputUC()		   
+		   UO::SelectColor(), UO::SendPopupMenu(), UO::RequestInput(), Unicode::RequestInputUC()
 
 07-23-2017 DevGIB:
   Added:   _DEFAULT_TEXT_REQUIREDCMD := 0 to uo.em which allows to set a minimum cmd level that broadcasts will be sent to.
@@ -303,8 +307,8 @@ XX-XX-XXXX Turley:
   Changed: UO::SendQuestArrow(x := -1, y := -1, target := "")
            This function will now work for HSA clients (version > 7.0.9), which
            require a larger packet. Target is ignored for older clients, but is
-           required (and must be a valid Item or Character reference) for HSA 
-           clients.           
+           required (and must be a valid Item or Character reference) for HSA
+           clients.
   Added:   UO::SingleClick(who, what)
            This function will emulate a single-click from the client, sending
            the character name, guild and tags or the item description. Note
@@ -486,7 +490,7 @@ XX-XX-XXXX Turley:
   Added:   PolCore().memory_usage member, returns current process usage in KB
   Changed: 0xF1 Freeshard list pkt is now allowed during login state,
            thus its possible to create eg a UOGateway pkthook for this pkt
-  
+
 01-31-2015 Turley:
   Added:   uo::ListMobilesInBox( x1,y1,z1, x2,y2,z2, realm := _DEFAULT_REALM )
            like ListObjectsInBox but returns only mobiles.
@@ -494,39 +498,39 @@ XX-XX-XXXX Turley:
            Thx @ andenixa
   Added:   uo::GetMidpointCircleCoords( xcenter, ycenter, radius )
            based on given center coordinates and radius returns array of x,y structs which represent a circle
-           Thx @ andenixa 
+           Thx @ andenixa
            The array of coordinates is sorted, which means that its easily possible to only use every second point
 
 09-12-2014 Nando:
   Fixed:    Client crash with clients older than 7.0.9.0 but newer than 7.0.0.0, because of wrong size in
               boat movement packets.
-  
+
 07-12-2014 Nando:
   Fixed:    Items were not disappearing from the character's backpack after being moved to the corpse.
   Fixed:    Items were disappearing from the corpse when an equippable item was moved/inserted into it.
-  
+
 11-13-2014 Nando:
   Added:    EnforceMountObjtype property in pol.cfg. Will enforce that only items with the mount
             objtype (as defined in extobj.cfg, default 0x1F021) can be mounted.
   Fixed:    Inconsistency when handling mount objects that would trigger an assertion for equipping
             items with the mount objtype but a bad graphic.
-   Note:    To be equipped as a mount, the item must be in the mount tiles list of uoconvert.cfg. 
+   Note:    To be equipped as a mount, the item must be in the mount tiles list of uoconvert.cfg.
             This ensures that the item has layer 25 and the equippable flag, otherwise it won't
             be considered equippable.
-            
+
 11-05-2014 Nando:
   Added:    polsys::Realms() will now report how many offline mobiles and multis there are.
-  Added:    "ShowRealmInfo" option in pol.cfg (default to false). Will report every once in a while 
-            the number of items, mobiles and multis per realm. 
-  Added:    uo::ListOfflineMobilesInRealm(realm) method to return the list of offline mobiles in a 
-            specific realm. Useful for moving the offline mobiles out of a shadow realm before 
+  Added:    "ShowRealmInfo" option in pol.cfg (default to false). Will report every once in a while
+            the number of items, mobiles and multis per realm.
+  Added:    uo::ListOfflineMobilesInRealm(realm) method to return the list of offline mobiles in a
+            specific realm. Useful for moving the offline mobiles out of a shadow realm before
             deleting it.
   Fixed:    Crash bug when deleting shadow realms while an offline mobile or a multi were still in it.
   Fixed:    Top-level items were not properly counted when moved between realms.
- 
+
 10-29-2014 Nando:
   Fixed:    Crash bug when deleting item directly from a corpse.
-  
+
 10-19-2014 Turley:
   Added:    AnimXlate.cfg for newer clients
   Added:    example animxlate.cfg:
@@ -544,7 +548,7 @@ XX-XX-XXXX Turley:
 
 06-07-2014 Tomi:
   Fixed:    using DestroyItem or SubtractAmount on an item 'gotten' it will now first release the item and then destroy it
-  Fixed:    NPCs looks for players for enter/leftarea events when, these were only looking for npcs 
+  Fixed:    NPCs looks for players for enter/leftarea events when, these were only looking for npcs
             - moved with MoveObjectToLocation function
             - on every move
             - unhide
@@ -565,14 +569,14 @@ XX-XX-XXXX Turley:
 
 04-05-2014 Turley:
   Fixed:   multi.items returns now all toplevel items inside of the multi
-  
+
 03-15-2014 Turley:
   Changed: sql functions connect, select and query perform the communication part in background while script itself
            is stopped (like eg Target()). Which means that these time consuming functions do not block the complete shard.
 		   Removed sql module from runecl, since it no more compatible.
 
 03-01-2014 Nando:
-    Added: Character.temporally_criminal is true when a criminal timer is running on the character. 
+    Added: Character.temporally_criminal is true when a criminal timer is running on the character.
      Note: The old property chr.criminal stays the same: it is true when the character is temporally
            criminal or a murderer.
 
@@ -589,7 +593,7 @@ XX-XX-XXXX Turley:
               const BOAT_SPEED_MEDIUM 		:= 3;
               const BOAT_SPEED_FAST 		:= 4;
     Changed:  boat.em functions
-              MoveBoat( boat, facing ) to MoveBoat( boat, facing, speed := BOAT_SPEED_ONE_TILE ) 
+              MoveBoat( boat, facing ) to MoveBoat( boat, facing, speed := BOAT_SPEED_ONE_TILE )
               MoveBoatRelative( boat, direction ) to MoveBoatRelative( boat, direction, speed := BOAT_SPEED_ONE_TILE )
     Note:     The same functions are used to move boats for older and never clients, older clients ignore the speed parameter, but the speed paramter is required for smooth move.
               The clientversions are checked in core to determine what type of boat movement will be sent
@@ -623,7 +627,7 @@ XX-XX-XXXX Turley:
 
 10-04-2013 Turley:
 	Fixed:   \= operation
-	
+
 10-01-2013 Tomi:
     Fixed:   Container.locked works again
 
@@ -665,7 +669,7 @@ XX-XX-XXXX Turley:
     Added: Container RW members .max_items_mod( −32,768 to 32,767 ) .max_weight_mod( −32,768 to 32,767 ) and .max_slots_mod( −128 to 127 ) ( default values 0 )
 
 08-31-2013 Turley
-	Fixed: EScript memoryleak (eg myvar[blubb]:=othervar) 
+	Fixed: EScript memoryleak (eg myvar[blubb]:=othervar)
 
 08-28-2013 Tomi ( based on andenixas patch )
     Added: ssopt.MobilesBlockNpcMovement ( default true ) to determine if mobiles block the movement of npcs
@@ -677,36 +681,36 @@ XX-XX-XXXX Turley:
 				{:x} for hex representation
 				{:o} for octal
 				{:b} for binary
-	
+
 	          Add a # to get notation prefix:
 	          E.g. "{:x}".format(10) -> "a"
 			       "{:#x}".format(10) -> "0xa"
-				   
-			  Parameters can be simple:   
-			  
+
+			  Parameters can be simple:
+
 				"You have {} gold coins".format(120) -> "You have 120 gold coins"
-			
+
 			  and are unpacked implicitly by their order:
 
 				"{} hits {} for {} of damage".format("John", "Bob", 120) -> "John hits Bob for 120 of damage"
-			
+
 			  However you can specify parameters explicitly (first argument is at 1):
-			    
+
 				"You hit {2} for {1} damage".format(120, "John Doe") -> "You hit John Doe for 120 damage"
-				
+
 			  Format allows accessing object members:
 
-     			"Spell {1.spell_name} requires reagents: {1.reagents}".format(struct{spell_name:="Fire Wrath", "Ba, Bm, Ga"}) 
+     			"Spell {1.spell_name} requires reagents: {1.reagents}".format(struct{spell_name:="Fire Wrath", "Ba, Bm, Ga"})
 				       -> "Spell Fire Wrath requires reagents: Ba, Bm, Ga"
 
 			  Implicit members also work:
 
-			    "{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4}) 
+			    "{name} you hit level {level}".format(struct{name:="Jane Doe", level:=4})
 						-> "Jane Doe you hit level 4"
 
 			  Character or item members are accessed the same way:
 
-			    "{1.name}, your shield {2.desc} has {2.hp} hp".format(who, who.shield)" 
+			    "{1.name}, your shield {2.desc} has {2.hp} hp".format(who, who.shield)"
 						-> "Admin, your shield Buckler of Death has 150 hp"
 07-27-2013 Tomi:
   Changed:    UO::TargetMultiPlacement( character, objtype, flags := 0, xoffset := 0, yoffset := 0, hue := 0 );
@@ -715,8 +719,8 @@ XX-XX-XXXX Turley:
 
 06-17-2013 Kevin:
   Fixed:      adding missing mysql_close() entry to sql.em
-  Fixed:      OpenSellWindow() "Buyable" container wasn't actually restricting what entries showed. 
-              Pass flag VENDOR_BUYABLE_CONTAINER_FILTER to enable this filter. 
+  Fixed:      OpenSellWindow() "Buyable" container wasn't actually restricting what entries showed.
+              Pass flag VENDOR_BUYABLE_CONTAINER_FILTER to enable this filter.
 
 05-25-2013 Kevin:
   Fixed:      bug in mysql_select_db() returning error on successful calls
@@ -727,7 +731,7 @@ XX-XX-XXXX Turley:
               the add_to_existing_stack to 1/true if not present
   Fixed:	  item.SplitStackInto() with add_to_existing_stack == 1 will re-add the removed-portion of stack back to original item
               if it cannot add to the existing stack (ie, container's caninsert script returns false)
-  Changed:    item.SplitStackInto() with add_to_existing_stack == 1 will first attempt to add to an existing stack if found, and otherwise 
+  Changed:    item.SplitStackInto() with add_to_existing_stack == 1 will first attempt to add to an existing stack if found, and otherwise
               will create a new stack if no existing stack found. This is similar to how the existing CreateItemInContainer() works
 
 02-20-2013 Tomi:
@@ -777,7 +781,7 @@ XX-XX-XXXX Turley:
   Added:      ecompile its now possible to override through the cmdline
 			  GenerateDependencyInfo entry with "-D-"
               GenerateDebugInfo entry with "-x-"
-			  
+
 11-10-2012 Turley:
   Added:      uoclient.cfg Listener property "KeepClients" 1/0 default 0
 			  if set to 1 clients keep this listener port even after different gameserver select
@@ -785,7 +789,7 @@ XX-XX-XXXX Turley:
   Added:      pol.cfg "UseSingleThreadLogin" 1/0 default 0
               if set all prelogin clients are handled inside the listener thread and not inside an extra thread
 			  this will reduce the amount of thread creates and destroys
-			  
+
 10-14-2012 Tomi:
   Added:      SystemHook "WarmodeChange" called when a character changes warmode status either by member .warmode or by clicking the warmode button on the paperdoll
               Params CharRef and new_warmode_status
@@ -796,7 +800,7 @@ XX-XX-XXXX Turley:
 
 10-08-2012 Turley:
   Fixed:      secured Shadowrealm delete, it will now iterate through all StorageArea Items and check if old shadowrealm property exists
-  
+
 10-06-2012 Tomi:
   Changed:    setting an equipped item on NPC to movable 0 will make it visible on the corpse but invisible in the corpse, same as hair and beard have worked until now.
 
@@ -809,7 +813,7 @@ XX-XX-XXXX Turley:
   Added:      ecompile parameter -T
   Added:      ecompile.cfg entry ThreadedCompilation
   Note:       if set will use openmp for parallel compilation
-  
+
 09-25-2012 Kevin:
   Fixed:      Guild and alliance messages no longer send as regular speech messages. They are sent to all guild or alliance members online.
   Added:      servspecopt.cfg CoreGuildMessages=0/1 default 1 to determine if core should handle guild and alliance messages.
@@ -822,14 +826,14 @@ XX-XX-XXXX Turley:
   Changed:    item.SplitStackInto( container, amount ) to item.SplitStackInto( container, amount, add_to_existing_stack := 0 )
   Note:       The optional add_to_existing_stack parameter defines if the items moved to the container will look for an existing stack and add to it or just add as a new item ( old behaviour )
               If add_to_existing_stack == 1 and there is no stack in the container, it will return Error "There is no existing stack", so its up to scripts to check this.
-  Added:      item.HasExistingStack( container ) to allow scripts to check if there is an existing stack in a container or not, returns the ItemRef of the stack if it exists.           
+  Added:      item.HasExistingStack( container ) to allow scripts to check if there is an existing stack in a container or not, returns the ItemRef of the stack if it exists.
 
 08-26-2012 Nando:
   Removed:    Support for ListenPort in pol.cfg when Multithread is activated. Everyone should
-              be using uoclients.cfg by now! 
+              be using uoclients.cfg by now!
 
 08-01-2012 Kevin:
-    Added:    R/W member carrying_capacity_mod for mobiles to modify carrying capacity on a 
+    Added:    R/W member carrying_capacity_mod for mobiles to modify carrying capacity on a
               mobile-per-mobile basis. Is taken into account prior to global ssopt modifier.
 
 08-01-2012 Kevin:
@@ -844,7 +848,7 @@ XX-XX-XXXX Turley:
  					<number of local variables>
  					foreach local variable:
  						<variable name> <packed value>
- 					
+
 07-12-2012 Tomi:
     Added:    combat.cfg entry "SendAttackMsg" values 0/1 defaults to 1
               setting this to 0 stops the core repsys system sending "is attacking you" messages.
@@ -866,12 +870,12 @@ XX-XX-XXXX Turley:
      Added:    r/w member .facetid for Maps
               This has actually nothing to do with realms, the value is the same as in FacetXX.mul file
 04-06-2012 Tomi:
-     Fixed:   Roof problem at 4th floor on a custom house. 
+     Fixed:   Roof problem at 4th floor on a custom house.
               Patch submitted by Agata
      Added:   Packet 0xD6 to be ignored for activity ( fixes inactivity logout for ML+ )
               Patch submitted by OWHorus
 04-05-2012 Kevin:
-     Added:   ecompile.cfg directive "ErrorOnWarning" and ecompile switch -y to treat warnings 
+     Added:   ecompile.cfg directive "ErrorOnWarning" and ecompile switch -y to treat warnings
               on errors during ecompile. Default is 'false'
      Fixed:   various locations were showing warnings even without the -w switch provided.
 
@@ -879,7 +883,7 @@ XX-XX-XXXX Turley:
      Added:   character readonly member .lastcoord returns struct{.lastx, .lasty, .lastz}
 
 03-09-2012 Tomi:
-     Fixed:   uo::SendInstaResDialog() was sending wrong packet 
+     Fixed:   uo::SendInstaResDialog() was sending wrong packet
 
 03-07-2012 Tomi:
      Added:   scripts/misc/dblclickitem.ecl to run a script on every double click on items.
@@ -892,7 +896,7 @@ XX-XX-XXXX Turley:
               return ContainerRef if the char has an active trade and error if no active trade
 
 02-06-2012 MuadDib:
-     Fixed:   Added orphan checks in Character::get_from_ground for both passed serial and items it itr through. Proper logging, returns, and 
+     Fixed:   Added orphan checks in Character::get_from_ground for both passed serial and items it itr through. Proper logging, returns, and
 	              continue used to keep from attempting movement of orphaned items after log report.
 
 02-05-2012 Tomi:
@@ -961,7 +965,7 @@ XX-XX-XXXX Turley:
     Removed: INTRINSIC property from Weapon template in itemdesc.cfg. An error occurs
              if it's set. Some shards might have forgot to set it, which would cause
              damage to intrinsic wrestling weapon. This is now handled automatically.
-                                  
+
 12-17-2011 Nando:
     Changed: boats.cfg entries are now "Name Graphic X Y <Z>", where Z is optional and
              defaults to zero.
@@ -983,7 +987,7 @@ XX-XX-XXXX Turley:
 12-13-2011 Tomi:
     Added: Support for HSA boats ( no smooth move yet, but now all boats are usable )
     Changed: boat.cfg to support new entries "Rope", "Wheel", "Hull", "Tiller", "Rudder", "Sails", "Storage", "Weaponslot"
-             there can be more than 1 of each entry 
+             there can be more than 1 of each entry
              the old entries "Tillerman", "Hold", "PortGangplankExtended", "PortGangplankRetracted", "StarboarGangplankExtended", "StarboardGangplankRetracted" support just 1 entry each or the boat members get broken
     Added: ReadOnly members for boats
            .components returns an array of ItemRefs of all the components on the boat
@@ -1076,7 +1080,7 @@ XX-XX-XXXX Turley:
     Added:	pol/sqlscrobj.cpp pol/sqlscrobj.h
   Changed:	pol/module/sqlmod.cpp pol/module/sqlmod.h
             Add preliminary MySQL database support.
-            New eScript objects: BSQLConnection, BSQLResultSet, BSQLRow 
+            New eScript objects: BSQLConnection, BSQLResultSet, BSQLRow
             Added several new sql module functions:
                 mysql_connect(host,username,password);
                 mysql_query(connection,query);
@@ -1089,14 +1093,14 @@ XX-XX-XXXX Turley:
                 mysql_free_result(result);
                 mysql_close(connection);
             In order to build with MySQL support, define the HAVE_MYSQL preprocessor directive in your build configuration.
-            You must have the MySQL headers and libraries installed. 
+            You must have the MySQL headers and libraries installed.
             Only really tested with dynamically linking mysql libraries on Linux.
-            
+
     Added:	pol/network/auxclient.h
   Changed:	pol/network/auxclient.cpp pol/module/osmod.cpp pol/module/osmod.h clib/socketsvc.cpp clib/socketsvc.h
             Moved AuxClient-related classes to its own header file (shared between auxclient.cpp and osmod.cpp)
-            Implemented os::OpenConnection() to create outgoing TCP/IP connections. 
-            
+            Implemented os::OpenConnection() to create outgoing TCP/IP connections.
+
   Changed:	runecl/runecl.cpp
             Added the sql module to runecl to allow quick testing
 
@@ -1104,7 +1108,7 @@ XX-XX-XXXX Turley:
             Added read/write property "mountedsteps" for mobiles. Represents number of steps taken while character was mounted.
 
   Changed:	bscript/parser.cpp
-            Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary' 
+            Declaring an array only using "{}" will show a compiler warning; please explicitly state 'array', 'struct', or 'dictionary'
   Changed:	pol/pol.cpp
             If using Linux, remove pol.pid on shutdown of pol.
 
@@ -1117,7 +1121,7 @@ XX-XX-XXXX Turley:
   Changed:	bscript/object.cpp bscript/bobject.h
             Implemented array operation MultiSubscript. Will return a splice of an array, eg:
                 array{"a","b","c","d","e"}[2,4] will return array{"b","c","d"}
-                 
+
 
 11-12-2011 Tomi:
     Added:	 Pol/config/extobj.cfg
@@ -1151,7 +1155,7 @@ XX-XX-XXXX Turley:
                  }
     Note: 	 MapID is the same number as in mapX.mul files
                  Cliloc values are the description of the start locations
-                 Newest clients has max stats during char creation 90 
+                 Newest clients has max stats during char creation 90
 
 11-06-2011 Tomi:
     Added:  pol.cfg setting MaxObjtype <default 0x20000>
@@ -1180,23 +1184,23 @@ XX-XX-XXXX Turley:
             Change them on your own risk
 
 08-08-2011 Austin:
-     Added: servspecopt.cfg flag "ScriptedMerchantHandlers" default is 0 which results in no change in behavior. 
+     Added: servspecopt.cfg flag "ScriptedMerchantHandlers" default is 0 which results in no change in behavior.
            If enabled, the below change will come into effect:
      Changed: When a player buys something from a merchant the core will not longer handle taking gold from the player, and moving items to the players pack.
               When the event for EVID_MERCHANT_SOLD and EVID_MERCHANT_BOUGHT is sent it will be a struct containing the following struct:
               struct.type = EVID_MERCHANT_SOLD or EVID_MERCHANT_BOUGHT
-              struct.source = player buying 
+              struct.source = player buying
               struct.shoppinglist = array( struct.item, struct.amount )
-              
+
               The shopping list items will still be items in the merchant's container.
               It is up to the script to split the items from the stacks there and move them to the player's pack.
               It is also up to the script to handle gold checks and consumption.
-     
-    Added: item.SplitStackInto(container, amount) 
+
+    Added: item.SplitStackInto(container, amount)
               Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack into the container.
      Added: item.SplitStackAt(x, y, z, realm, amount)
               Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates.
-     
+
 05-19-2011 Turley:
      Added: CustomHousing Support (beta)
             officially added uo::SendHousingTool( who, house );
@@ -1205,7 +1209,7 @@ XX-XX-XXXX Turley:
             houseelem = struct{graphic,xoffset,yoffset,z}
             to get the real coords from an elem add house.x/y
             called after client presses the commit button
-            to accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit 
+            to accept the changes call new method house.acceptcommit(chr,1) or house.acceptcommit(chr,0) to drop the commit
             main purpose should be calculation of cost (with delta support for later changes),
             link establishing of houseteleporters (0x181D - 0x1828)
             and adding a signhanger/sign if you didnt added it during multifoundation buildup
@@ -1223,7 +1227,7 @@ XX-XX-XXXX Turley:
             (not invisible to give the chance to eg protect a house sign from been removed from the editing char)
             any item inside the house will be invisible for the chr
             any other mobiles get moved outside the house
-      Note: param houseelemarray in script call is the current list of houseparts, 
+      Note: param houseelemarray in script call is the current list of houseparts,
             multi.house_parts gives you the last stored list
       Note: until no house.acceptcommit() is called and start of commitscript no new SendHousingTool() for this house is allowed
 
@@ -1290,7 +1294,7 @@ XX-XX-XXXX Turley:
             XMLNode.attributes
              returns XMLAttributes object
             XMLNode.type
-             returns type string 
+             returns type string
              (XMLComment, XMLDeclaration, XMLDocument, XMLElement, XMLText, XMLTypeCount, XMLUnknown)
             XMLNode.firstxmlchild([string value])
              returns first child or first child of given name
@@ -1343,7 +1347,7 @@ XX-XX-XXXX Turley:
               syslog(i+cstr(ele)+" ("+_ele_iter+")");
              endforeach
             endfunction
-            
+
             one way how to create such an file:
             var file:=CreateXMLFile();
             file.setxmldeclaration("1.0","","");
@@ -1353,7 +1357,7 @@ XX-XX-XXXX Turley:
             file["root"].appendxmlcomment("Comment");
             file["root"].appendxmlnode("nodetwo",struct{i:=1});
             file.savexml("helloworld.xml");
-            
+
 08-20-2010 Turley:
      Fixed: util:StrFormatTime() checks if format string is correct and if not returns "Invalid Format String." error
             instead of server crash
@@ -1373,7 +1377,7 @@ XX-XX-XXXX Turley:
             param is any UObject given to skill script as second param (first is chr)
             performs the same checks like normal skillusage (death,frozen,skilldelay,...)
             (Tomi)
-     
+
 03-26-2010 Turley:
    Changed: uo::DisconnectClient() now accepts client or character object (Tomi)
 
@@ -1388,7 +1392,7 @@ XX-XX-XXXX Turley:
      Added: character.client
             returns ClientRef object or error
      Note:  This or next release duplicate members/methods get deleted from chr (except acctname)
-            
+
 03-17-2010 Turley:
      Fixed: Trim: left&right doesnt return empty string if complete string has to be trimmed
 
@@ -1405,7 +1409,7 @@ XX-XX-XXXX Turley:
      Added: (Tomi) Syshook UnHide(mobile)
             return values 0 stops the char from unhiding and 1 let the core process it.
      Added: (Tomi) "DisableCoreChecks" 0/1 (default 0) to each attribute entry in attribute.cfg
-            if true the core will not check during skill_use ( from skillwindow ) for active skills, 
+            if true the core will not check during skill_use ( from skillwindow ) for active skills,
             active spells, frozen, paralyzed or delay
             if false core will check everything as it does now.
    Changed: Increased Maximum UO SkillID to 57 (default value of uoclient::MaxSkillID)
@@ -1433,7 +1437,7 @@ XX-XX-XXXX Turley:
      Added: multi create additionally checks for valid realm coord of the corners
    Changed: uotool staticdefrag [britannia] (removed "realm=")
      Added: uotool formatdesc [desc] little helper prints singular & plural form of given desc
-     
+
 01-22-2010 Turley:
      Added: Speedhack Prevention System
      Added: ssopt::SpeedhackPrevention 0/1 (default 0)
@@ -1456,21 +1460,21 @@ XX-XX-XXXX Turley:
             Used to send the Season packet 0xBC to a single character.
             This method doesnt resend the lightlevel or weather after it sends season, that has to be done by scripts.
             (Tomi)
-   Changed: (Tomi) uo::SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR) 
+   Changed: (Tomi) uo::SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR)
             font, color like every speech function
 
 01-14-2010 Turley:
      Fixed: (Arkham) ip byteorder for gameserverlist if hostname is given
    Changed: (Tomi) gargoyle char create equips 0x1F03 robe
-     Added: (Tomi) ssopt.NewbieStartingEquipment 1/0 (default 1) to determine if equipped items 
+     Added: (Tomi) ssopt.NewbieStartingEquipment 1/0 (default 1) to determine if equipped items
             created during the character creation should be newbied or not.
-   Changed: misc/oncreate.src added third param profession 
-            some clients doesnt send skillvalues if profession is given now core doesnt stop char creation, 
+   Changed: misc/oncreate.src added third param profession
+            some clients doesnt send skillvalues if profession is given now core doesnt stop char creation,
             based on third param you can set the skillvalues in oncreate
      Added: more errorchecks to char create, it now checks if hair/beard/face can be equipped (fixes crash with latest OSI
             tiledata where facial horn has the same layer as "normal" horn)
      Added: Combatcfg:AttackWhileFrozen 1/0 (default 1) if set to false attack checks if chr is frozen or paralyzed
-     
+
 01-12-2010 Turley:
      Added: on Profile opening and update request "scripts/misc/charprofile.ecl" is called
             params are character, of_who, mode,uctext
@@ -1486,13 +1490,13 @@ XX-XX-XXXX Turley:
             const CHARPROFILE_NO_EDITABLE_TEXT := array;
             - Tomi
       Note: Only a script interface for making a fully working CharProfile without packethooks.
-            Not a fully working charprofile system controlled by the core, ALL text strings still have to be 
+            Not a fully working charprofile system controlled by the core, ALL text strings still have to be
             stored somewhere by scripts.
-            
+
 01-01-2010 Nando:
      Added: (Tomi) New itemdesc property "StackLimit", defines the maximum stack
             of that item (lower than 60k). If not defined, will default to 60000.
-      Note: Happy new year. :) 
+      Note: Happy new year. :)
 
 12-21-2009 Turley:
      Fixed: call of built-in method with ._methodname if overridden
@@ -1500,7 +1504,7 @@ XX-XX-XXXX Turley:
 
 12-18-2009 Turley:
      Added: file::CreateDirectory( dirname )
-            returns 1 on success else error 
+            returns 1 on success else error
             ("Error in dirname descriptor","No parent path traversal please.",
             "Directory already exists.","Could not create directory.")
      Added: file::ListDirectory( dirname, extension := LISTDIR_ALL_FILES, listdirs := LISTDIR_DONT_LIST_DIRS )
@@ -1530,7 +1534,7 @@ XX-XX-XXXX Turley:
             ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
             e.g. 7.0.4 for latest client 7.0.4.1
             default for both is "none"
-      Note: Till OSI changes the encryption type pol now supports every encrypted client without 
+      Note: Till OSI changes the encryption type pol now supports every encrypted client without
             updating the core (last change was 2.0.4)
 
 12-04-2009 Turley:
@@ -1551,12 +1555,12 @@ XX-XX-XXXX Turley:
             since client 7.0.0.0 item graphic can be definied up to 0x7FFF - Tomi
      Added: "SA" for expansion type. This includes sending 0x187DF with packet 0xB9. - Tomi
      Added: support of new map TerMur - Tomi
-      Note: uoconvert param: 
+      Note: uoconvert param:
             realm=termur mapid=5 width=1280 height=4096
             uoconvert.cfg new stairs since SA:
             0x1de0 0x1de1 0x1de2 0x1de3 0x1de4 0x1de5 0x1de6 0x1de7 0x1de8 0x1de9 0x1dea 0x1deb
      Added: Gargoyle support (race = uo:RACE_GARGOYLE)
-      Note: graphics are: 
+      Note: graphics are:
             UOBJ_GARGOYLE_MALE         0x029A
             UOBJ_GARGOYLE_FEMALE       0x029B
             UOBJ_GARGOYLE_MALE_GHOST   0x02B6
@@ -1599,19 +1603,19 @@ XX-XX-XXXX Turley:
             RECALC_NO_VITALS - skips the RegenRateFunction & MaximumFunction calls
             vital name string - only calls the RegenRateFunction & MaximumFunction for given vital
             - based on Tomi
-            
+
 11-19-2009 Turley:
    Changed: chr.setlightlevel() now supports endless duration (-1) return is the new gameclock value - Tomi
      Added: [paralyzed] & [deafened] @ singleclick packet - Tomi
      Added: ServSpecOpt CoreSendsSeason 1/0 (default 1)
-            Determines if the core should send season packet on char creation/logon/reconnect and realm 
+            Determines if the core should send season packet on char creation/logon/reconnect and realm
             change based on the season entry in realm.cfg. - Tomi
-   Removed: "You cannot insert that item into the container." sysmsg after container CanInsert script 
+   Removed: "You cannot insert that item into the container." sysmsg after container CanInsert script
             returns 0 - Tomi
    Changed: uo::UpdateMobile(who, flags:=UPDATEMOBILE_UPDATE)
             const UPDATEMOBILE_RECREATE := 1;
             const UPDATEMOBILE_UPDATE   := 0;
-            if flags is UPDATEMOBILE_UPDATE old behaviour it sends update Mobile packet 0x77, 
+            if flags is UPDATEMOBILE_UPDATE old behaviour it sends update Mobile packet 0x77,
             if set to UPDATEMOBILE_RECREATE it sends recreate packet 0x78 - Tomi
      Added: ServSpecOpt CoreHandledTags (default 0xffff)
             bitfield to determine which tags are displayed on singleclick, current used bits are:
@@ -1642,7 +1646,7 @@ XX-XX-XXXX Turley:
             if y2 is CANWALK_DIR x2 is considered as direction (0-7)
             if x2 and y2 is given it calculates the needed direction
             returns new z value or error
-            
+
 10-17-2009 Turley:
      Added: PrivUpdater for "invul","seeghosts","seehidden" and "seeinvisitems" updates/sends/removes objects
             in visual range on enable/disable - Tomi
@@ -1651,7 +1655,7 @@ XX-XX-XXXX Turley:
 
 10-14-2009 MuadDib:
    Changed: Methods Char.Squelch() and Char.Deaf() return the gameclock value they are in effect until.
-   
+
 10-14-2009 Turley:
      Added: char privilege "canbeheardasghost"
             With this privilege everybody can hear you even as a ghost (no 'oO' replacement) - Tomi
@@ -1683,7 +1687,7 @@ XX-XX-XXXX Turley:
      Added: SysHook::CanDecay(item). Return 0, core decay will ignore item and continue on the cycler. If it
             returns 1, core decay will handle the item as normal. - Patch submitted by Tomi
      Fixed: Useage of plural forms for more than 1 word in the itemdesc desc entry. - Patch by Tomi
-            
+
 09-22-2009 Turley:
      Added: Combatcfg:SendDamagePacket 1/0 default 0 if set sends packet 0xB (0xBF sub 0x22 for clients<4.0.7a)
             to attacker(ScriptController) and defender on ApplyDamage and ApplyRawDamage
@@ -1693,16 +1697,16 @@ XX-XX-XXXX Turley:
             const DAMAGE_USE_REPSYS := 1;
             const DAMAGE_NO_REPSYS := 0;
             If userepsys is set to DAMAGE_NO_REPSYS repsys system isnt called (on_attack & on_damage)
- 
+
 09-22-2009 MuadDib:
    Changed: NPC/Char ar/ar_mod internal handling rewrote.
      Fixed: NPC Elemental Resist/Damage storage issues.
      Fixed: Lightlevel resetting in client during Login.
-     
+
 09-20-2009 MuadDib:
    Changed: Spell casting no longer unhides. Be sure to update your scripts to unhide.
    Changed: SpeakPowerWords() will now check if mob is hidden. If so, it uses Private Say Above.
-            
+
 09-18-2009 MuadDib:
      Added: Multi Walk On Script support. Works for player and npc. Just add Walkon itemdesc entry to the house.
       Note: This is in early stages. While it is working, not all cases may register and deregister where a mob
@@ -1713,7 +1717,7 @@ XX-XX-XXXX Turley:
       Note: As spellbooks are loaded for the first time with newer cores and as added to books, scrolls are
             marked SaveOnExit 0. Newly inserted scrolls from then on, are destroyed during insertion after spell
             contents are updated on the book.
-            
+
 09-16-2009 Turley:
    Removed: char.isUOKR
    Added:   char.ClientType r/o bitfield
@@ -1736,7 +1740,7 @@ XX-XX-XXXX Turley:
             doors, decorations, etc, to ensure they are reloaded after a wipe, or loaded every time POL starts. These items
             are added to the real world, and saved to items.txt. However, if on load the same objtype is found at the same
             x y z as the item in IMPORT.TXT, it destroys that item, and loads the import one.
-            
+
 09-10-2009 Turley:
     Added:  CompressedGump support packet 0xdd
     Added:  flag param to SendDialogGump() SENDDIALOGMENU_FORCE_OLD/0 default 0
@@ -1748,16 +1752,16 @@ XX-XX-XXXX Turley:
     Note:   Formula is (40 + strength * 7 / 2) * ssopt.CarryingCapacityMod
     Note:   Since ML max weight is send for statusgump
     Note:   Patch submitted by Tomi
-    
+
 09-05-2009 MuadDib:
     Added:  POL Linux builds will now create a PID file when loading. Patch submitted by Crazyman
 
-09-05-2009 Turley: 
+09-05-2009 Turley:
     Added:  struct .? and .- as shortcut for .exists() and .erase()
 
 09-03-2009 MuadDib:
    Changed: CoreHitSounds, ScriptedAttackChecks, ResetSwingOnTurn, SendSwingPacket all moved from SSOPT to Combat CFG.
-   
+
 08-19-2009 Turley:
     Added:  r/o member character.uo_expansion_client client sends this flag at packet 0x5D charselect and 0x00 createchar
     Note:   values are:
@@ -1771,7 +1775,7 @@ XX-XX-XXXX Turley:
             FLAG_UO3D        = 0x40,  // ?
             FLAG_RESERVED    = 0x80,
             FLAG_3DCLIENT    = 0x100  // 3d Client
-            
+
 08-14-2009 Turley:
     Changed: Stopped spam of unknown packet for 0xBF.5 & 0xBF.C
 
@@ -1779,7 +1783,7 @@ XX-XX-XXXX Turley:
       Fixed: Better handling of sending poison updated to UO:KR Clients.
     Changed: UpdateCharacterWeight() now sends correct packets instead of calling on RefreshAR() to
              notify client of new weight. Reduces overhead.
-             
+
 08-07-2009 MuadDib:
       Fixed: New system in core for handling layers on items and corpses. On mobile death, only items equipped
              will be given the Layer prop in the corpse.
@@ -1787,7 +1791,7 @@ XX-XX-XXXX Turley:
              drop into by player. Dropping new items into a corpse will cause it to set the layer accordingly
              long as nothing else is already using that layer on the corpse.
     Changed: Very small optimization to equip item code for handling the setting of layer.
-    
+
 08-06-2009 MuadDib:
     Changed: PasswordOnlyHash removed from core. Now only ClearText and Hashed Passwords will be used.
              Default is now PasswordHash instead of ClearText.
@@ -1795,7 +1799,7 @@ XX-XX-XXXX Turley:
              the accounts.txt file is comprimised. You have been warned.
     Removed: Account.PasswordHash - This was for the PasswordOnlyHash.
       Added: Item.getgottenby Member. Returns CharRef of Player holding item, Error if not being held.
-      
+
 08-06-2009 Turley:
   Added:     new Methods
              Character.setAggressorTo(chr)
@@ -1804,17 +1808,17 @@ XX-XX-XXXX Turley:
              Character.clearAggressorTo(chr)
              Character.clearLawfullydamagedTo(chr)
              clears aggressor/lawfullydamaged entry for given chr
-             
+
 08-04-2009 MuadDib:
   Changed:   RecalcVitals() and other internal parts of core that share recalc_vital_stuff() will now check to see if
              each vital has changed, before resending it to client. Reduces overhead.
-             
+
 08-03-2009 MuadDib:
   Removed:   uopacket.cfg::is6017 has been removed.
     Added:   uopacket.cfg::Version (1 or 2) Default 1
              uopacket.cfg::Client (client version string) Default 1.25.25.0
              Read packethooks.txt for details.
-             
+
 07-31-2009 Turley:
     Added:   ServSpecOpts::ResetSwingOnTurn=true/false default false
              Should SwingTimer be reset with projectile weapon on facing change
@@ -1824,7 +1828,7 @@ XX-XX-XXXX Turley:
 
 07-25-2009 MuadDib:
     Fixed:   Bug blocking equipping when intrinsic weapon was marked as two handed.
-    
+
 07-17-2009 Turley:
     Added:   "ShadowRealms"
              polsys::AddRealm(realm_name,base_realm);
@@ -1851,7 +1855,7 @@ XX-XX-XXXX Turley:
              it will check MaxSlots. If MaxSlots is not reached, allows moving the item into container.
              This is being added to allow to turn grid support on and off based on the client versions (and types) that you will be
              supporting on your shard.
-    
+
 07-04-2009 Turley:
     Added:   new Object Class BinaryFile
              File::OpenBinaryFile( filename, mode := OPENMODE_IN, endian := LITTLE_ENDIAN );
@@ -1893,9 +1897,9 @@ XX-XX-XXXX Turley:
              .setSInt32() sets signed 32-bit (4 byte) 1 or error
              .setSInt16() sets signed 16-bit (2 byte) 1 or error
              .setSInt8() sets signed 8-bit (1 byte) 1 or error
-             .setString(string string, int nullterminate) sets a string 
+             .setString(string string, int nullterminate) sets a string
              set nullterminate to 1 to append a 0 terminator 1 or error
-             
+
 07-01-2009 Turley:
     Changed: UoConvert now also saves the color of static tiles
     Added:   ListStatics* return struct member "hue"
@@ -1907,7 +1911,7 @@ XX-XX-XXXX Turley:
                  This will allow setting the internal overall allowed item count for containers. This is introduced for future KR support.
                  KR client is only 125, but we are making this here so custom clients later can support more slots.
                  If you have containers with max item count over 125 and use ONLY 2D, and not KR, set this to your highest amount used!
-                 
+
 06-27-2009 Turley:
     Fixed:   Item creation with ItemDescriptor can now override .Desc
 
@@ -1919,7 +1923,7 @@ XX-XX-XXXX Turley:
 
 06-20-2009 Turley:
     Added:   new r/w Members (Double) default 1.0
-             Mobile.movecost_walk_mod 
+             Mobile.movecost_walk_mod
              Mobile.movecost_run_mod
              Mobile.movecost_walk_mounted_mod
              Mobile.movecost_run_mounted_mod
@@ -1944,7 +1948,7 @@ XX-XX-XXXX Turley:
     Added:   party General options:
              RemoveMemberOnLogoff 1/0 (default 0)
              RejoinPartyOnLogon 1/0 (default 0)
-    Note:    RejoinPartyOnLogon is only used if RemoveMemberOnLogoff is true, if partyleader logoffs 
+    Note:    RejoinPartyOnLogon is only used if RemoveMemberOnLogoff is true, if partyleader logoffs
              the next member becomes the leader
 
 -- POL098.2 --
@@ -1953,7 +1957,7 @@ XX-XX-XXXX Turley:
 
 07-31-2009 MuadDib:
     Fixed:   Cleanup crash in shutdown involving characters and combat. Now all clients and characters are disconnected by the
-             core before any cleanup is intiated. This will begin the cleanup for client and character alike. 
+             core before any cleanup is intiated. This will begin the cleanup for client and character alike.
 
 07-20-2009 MuadDib:
     Fixed:   Item::Facing updates were no longer updating surrounding clients.
@@ -1974,7 +1978,7 @@ XX-XX-XXXX Turley:
 06-20-2009 MuadDib:
     Fixed:   Reset now occurs for tile_layer internal property when graphic is changed on item class.
     Fixed:   SetOpponent() for npcs will now once again correctly set the warmode.
-    
+
 05-20-2009 Turley:
     Fixed:   TypeOf() return of Error
 
@@ -1996,7 +2000,7 @@ XX-XX-XXXX Turley:
 
 04-19-2009 MuadDib:
     Fixed:   Endian format for SendPartyMsg().
-    
+
 -- POL098 --
 04-06-2009 MuadDib:
     Changed: When adding ally/enemy guilds, removing ally/enemy guilds, adding/removing members, core now
@@ -2005,7 +2009,7 @@ XX-XX-XXXX Turley:
              and uses a Spellbook, console now reports this if UOFeatureEnable does not contain 0x20 bitflag for
              new spellbook system in client. This is due to client issues with books using old methods when still
              recieving the AOS flag for an account.
-                          
+
 04-05-2009 MuadDib:
     Changed: Keys/Seeds for packets 0x8C sent by LoginServer. 6.0.1.7 to 6.0.4.0, I don't recommend using at all.
                  0xFEFEFEFC = UOKR Client
@@ -2024,17 +2028,17 @@ XX-XX-XXXX Turley:
     Note:    NPC's eScript changing/quipping with Resistances/Damages will be rewritten in 099. We are
              putting this into 099 due to a Class Rewrite to NPCs that will resolve this issue and allow
              better expansions of the NPC class in the core.
-             
+
 04-02-2009 MuadDib:
     Fixed:   Crash in cleanup of character objects during Shutdown and deletion.
     Fixed:   Crash involving sending warmode information during disconnect/shutdown.
-    
+
 04-01-2009 Nando:
     Fixed:   When creating a new char, attributes' caps weren't being set to the default value and
              were just set to a random value.
 
 03-30-2009 Nando:
-    Fixed:   Sometimes when casting a spell, a race-condition would make POL end with a 
+    Fixed:   Sometimes when casting a spell, a race-condition would make POL end with a
              passert( !start_attached || (script_ex == NULL) ) error in chrituse.cpp.
     Fixed:   Bug in Packet::GetString(offset, len) where it would return a string of 'len' ascii chars,
              regardless of having a null-byte in there. Will now limit to len or the first null-byte
@@ -2043,7 +2047,7 @@ XX-XX-XXXX Turley:
 03-30-2009 MuadDib
     Fixed:   Equipment.quality will now convert plain integers to Double/Float for it when using
              item.quality:=2; instead of item.quality:=2.0;
- 
+
 03-28-2009 Turley:
     Fixed:   Resend party list if remove hooks dont allow it
 
@@ -2053,7 +2057,7 @@ XX-XX-XXXX Turley:
 03-27-2009 MuadDib:
     Fixed:   Crash in Basic::Trim(). Now checks explicitly for String as param 1. Errors out if not.
     Fixed:   Event LeftArea and EnteredArea both being able to be triggered when 1 is actually disabled.
-    
+
 03-25-2009 MuadDib:
     Changed: StrReplace() and SubStrReplace() will now accept Dict/Struct/Array/Error as param 1 and converts
              them to string format (like when using print() or syslog()) before comparing/converting.
@@ -2063,7 +2067,7 @@ XX-XX-XXXX Turley:
     Changed: StrReplace() will now allow the replace_with string to be empty, to remove the to_replace
              param from the string completely.
     Fixed:   Crash in onRemove system for removing objects on npc/offline mobiles.
-                 
+
 03-22-2009 Nando:
     Added:   New servspectopt::SendStatLocks (default false) to send the stat locks message.
              Beware that this message will only be sent to clients which have major version > 3
@@ -2072,13 +2076,13 @@ XX-XX-XXXX Turley:
              It will only send the status bar packet to the client for weight updates.
     Changed: Updates so refreshing of AR/Resistances/Damages is not called when dropping items unless
              to equip them etc as should be.
-             
+
 03-22-2009 MuadDib:
     Fixed:  Bug with items that use the Resource entry in ItemDesc.Cfg causing crashes on shutdown.
-    
+
 03-20-2009 MuadDib:
     Added:  Storage system will now ignore all root containers with SaveOnExit set to 0.
-    
+
 03-19-2009 Nando:
     Added:  UO::PlayMusic( chr, music_id := 0 ), plays the music with music_id
             on client. You can find the music id's this uses at your UO FOLDER/Music/Digital/Config.txt
@@ -2086,7 +2090,7 @@ XX-XX-XXXX Turley:
 03-19-2009 Turley:
     Added:  on Chatbutton pressing "scripts/misc/chatbutton.ecl" is called
     Note:   only simple implementation no Chatsystem!
-    
+
 03-18-2009 MuadDib:
     Added:   Basic::Compare(str1, str2, pos1_start:=0, pos1_end:=0, pos2_start:=0, pos2_end:=0);
              Can be used in 3 overloaded ways. Returns 1 on compare success.
@@ -2096,8 +2100,8 @@ XX-XX-XXXX Turley:
              Index is a starting position to begin the compare in the string, and length is the length to
              compare from the index. When using the 3rd method, you can compare substrings in both strings
              instead of just the substring of string1 to entire string2.
-    Fixed:   Bug with Player Color and their magic underwear in the Race Changer packet handling.             
-             
+    Fixed:   Bug with Player Color and their magic underwear in the Race Changer packet handling.
+
 03-18-2009 Nando:
     Added:   New ssopt option: CoreSendsCaps 0/1 (default 0), makes POL send
              attribute cap information in the Send Skills (0x3A) packet.
@@ -2109,9 +2113,9 @@ XX-XX-XXXX Turley:
              to set the default for each attribute.
     Added:   GetAttributeCap(who, attr), SetAttributeCap(who, attr, capvalue) and
              GetAttributeDefaultCap(attr). The names should explain it all.
-     Note:   Caps are defined in tenths (100.0 -> 1000, 55.2 -> 552), same as 
+     Note:   Caps are defined in tenths (100.0 -> 1000, 55.2 -> 552), same as
              base values.
-    
+
 03-17-2009 MuadDib:
     Added:   Concealed Updater now also run when changing command levels.
     Added:   Basic::Trim(string, type, set). Trims whitespaces from strings
@@ -2124,11 +2128,11 @@ XX-XX-XXXX Turley:
              beginning at start for length. If length passed is 0 or lower, it replaces from start to end of string.
              Error Returns: "Index must not be negative", "Index out of range", "Length out of range", "Length must not
              be negative"
-             
+
 03-12-2009 Turley:
     Added:   repsys.cfg General section "PartyHelpFullCountsAsCriminal 1/0" default 0 if 0 OnHelp does not set
              mobile to criminal if helped char is criminal/murderer when they are in the same party
-             
+
 03-11-2009 Turley:
     Added:   new systemhook script 'OnCast'
              function OnCast(who, spellid)
@@ -2139,11 +2143,11 @@ XX-XX-XXXX Turley:
     Added:   on Paperdoll Questbutton pressing "scripts/misc/questbutton.ecl" is called
     Added:   on Paperdoll Virtuebutton (pentagram doubleclick) pressing "scripts/misc/virtuebutton.ecl" is called
     Removed: "Client tried to drop item to X,Y,Z  but server is putting it at Z=" logmsg
-    
+
 03-09-2009 MuadDib:
     Changed: Console will no longer spam about invalid speech color. Instead it adjusts the
              color back to the default 1001 color and goes on.
-             
+
 03-08-2009 Turley:
     Added:   Partysystem
              new savefile parties.txt
@@ -2223,7 +2227,7 @@ XX-XX-XXXX Turley:
              1005437, 1005439, 1005440, 1005441, 1005442, 1005444, 1005445, 1005446, 1005447, 1005448,
              1005449, 1005450, 1005451, 1005452, 1005453, 1005455, 1008087, 1008089, 1008090, 1008091,
              1008092, 1008094, 1008095, 3000211, 3000222, 3000223
-            
+
 03-08-2009 MuadDib:
     Fixed:   Spacing for all titles and name for mobs in Tooltips and Paperdoll. Also added the
              mob.title_guild in the Tooltips string for names of mobiles.
@@ -2247,7 +2251,7 @@ XX-XX-XXXX Turley:
              Difference here, was client use to ALWAYS refresh the ar of character and statmsg. This
              will eliminate at the least, over 50 loops per pickup when it's not needed, and packets
              not being sent, when not needed.
-             
+
 03-06-2009 MuadDib:
     Added:   Elemental Damage properties added for items and mobiles. These follow the same
              rules as all the AOS Resistances. Same details for itemdesc, GetItemDescriptor(),
@@ -2259,7 +2263,7 @@ XX-XX-XXXX Turley:
              Itemdesc.cfg: FireDamage, ColdDamage, EnergyDamage, PoisonDamage, PhysicalDamage
                  ItemDesc entries accept Dice Strings just like resistances.
              NPCDesc.Cfg: FireDamage, etc just like ItemDesc.cfg
-             
+
 03-05-2009 Nando:
   Changed:   Core will no longer spam "out-of-sequence gump command" when closing.
   Changed:   CloseGump(who, pid, response := 0) will now accept any object to be returned,
@@ -2271,16 +2275,16 @@ XX-XX-XXXX Turley:
 03-04-2009 Nando:
     Added:   UO::CloseGump(who, pid, response := 0), closes gump by sending 0xBF's CLOSE_GUMP,
              and returns 'response' for the gump script. 'response' is a LONG. 'pid' is from
-             the script that issued the SendGumpDialog() command.           
+             the script that issued the SendGumpDialog() command.
 
 03-03-2009 MuadDib:
     Changed: Item and Character members for AOS Resistances now report the total of resist and
              resist_mod.
-             
+
 03-02-2009 MuadDib:
     Fixed:   eScript's Internal "move" command causing items to get misplaced in wrong realms
              on move failed MoveItem* Commands in eScript.
-             
+
 03-02-2009 Nando:
     Fixed:   When running out of memory, the creation of new threads is not possible. Core
              will now check if the thread was properly created to (probably) solve the symptom
@@ -2290,11 +2294,11 @@ XX-XX-XXXX Turley:
 03-01-2009 MuadDib:
     Fixed:   Issue with Mount Objtype 0xF021 and EquipItem() ignoring setting it's Layer.
     Added:   Complete packethook support with Clients 6.0.1.7 and higher. This is handled via
-             the earlier added Is6017 uopacket.cfg entry. This will allow you to specify a 
+             the earlier added Is6017 uopacket.cfg entry. This will allow you to specify a
              packethook to be triggered ONLY if the client involved is 6.0.1.7 and higher.
              It does not have to be a different packet size for this to work, only the client.
     Added:   "KR" for expansion type. This includes sending the 0x86DB with packet 0xB9.
-    
+
 02-28-2009 MuadDib:
     Changed: UO::DestroyItem(). Now sends a Destroy Item packet to the script controller for
              the item destroyed. This is in addition to sending in range of the item. Reason
@@ -2304,11 +2308,11 @@ XX-XX-XXXX Turley:
              for the same packet, that is different based on client version.
     Added:   Character.followers = int. This is for storage for the Followers byte in statmsg
              packet.
-    Added:   ML Expansion statmsg packet support. If Expansion for account is ML or higher, 
+    Added:   ML Expansion statmsg packet support. If Expansion for account is ML or higher,
              and client version is 5.0 or higher (or is KR), sends ML Info Flag and data.
     Added:   Special Verbose messages (with POL.CFG::Verbose=1) for 6.0.5.0+ crypt seed packets
              and the UOKR 0xFF Seed Packet.
-             
+
 02-27-2009 MuadDib:
     Fixed:   Clothing on corpses. COMPLETELY! This age old bug is now 100% fixed. If it was
              equipped at time of death, it will be on the corpse until the on remove script
@@ -2338,7 +2342,7 @@ XX-XX-XXXX Turley:
 02-25-2009 MuadDib:
     Added:   Support for UOKR Poisoned Status bar updates. Core will now update UOKR clients correctly
              when poisoned set to true or false for a character.
-          
+
 02-24-2009 MuadDib:
     Changed: SendPacket() now returns an error if packet string passed is not valid size (Divisible
              by 2).
@@ -2346,7 +2350,7 @@ XX-XX-XXXX Turley:
     Fixed:   Issue where equipped spellbooks would not open to the correct bookmarked page when opened.
     Added:   Support of 0x25 Packet (Send item in container) with Client version >= 6.0.1.7.
     Added:   Support for Grid Index with Trade Container Packet sending.
-                              
+
 02-22-2009 MuadDib:
     Changed: Updating of worn items will be handled by sending Delete Item packet to those
              in range, then sending the worn item packets. This is to address an issue with
@@ -2354,7 +2358,7 @@ XX-XX-XXXX Turley:
     Removed: Saving of base AOS Resistances to pcs.txt. This is not truly needed, as core will handle
              updating these live based on the armor etc. resist mods only thing needing saved now at
              this point. Just like AR. Same with Items.
-             
+
 02-22-2009 Nando:
     Added:   New servspecopt.cfg option: CoreHandledLocks, default to false. If enabled, core will
              handle the change of skill locks and stat locks from the client (setting the attribute
@@ -2378,7 +2382,7 @@ XX-XX-XXXX Turley:
              max of the dice roll for a weapon before any mods etc.
     Fixed:   Now cannot request stats for chars not visible to you, concealed from you, and over 20
              tiles away.
-             
+
 02-20-2009 MuadDib:
     Added:   Priv "plogany". Used with new startlog and stoplog commands to activate target cursor.
     Changed: Built-in textcommand .startlog and .stoplog for packet logging. If character has the
@@ -2386,27 +2390,27 @@ XX-XX-XXXX Turley:
 
 02-18-2009 MuadDib:
     Fixed:   Fixed Physical Resist not showing correctly with AOS Resistances in Statbar in place of AR.
-    
+
 02-18-2009 Turley:
     Fixed:   ..Boat Fix Drunken Coder syndrome?
-    
+
 02-17-2009 MuadDib:
     Fixed:   Instances where core uses UO::ClearGottenItem() type code caused ghosted item on client
              cursor. Will require more feedback from users after publish for remaining instances
              where this still occurs (outside of ClearGottenItem()).
-             
+
 02-16-2009 Turley:
     Fixed:   Hold again part of boat multi
-    
+
 02-07-2009 Turley:
     Removed: SystemFindObjectBySerial() flag SYSFIND_SEARCH_STORAGE_AREAS (was obsolete since years)
-    
+
 02-05-2009 MuadDib:
     Added:   UOClient::Listener::AOSResistances 0/1. This flag aids in deciding which version
              of Armor to send in the StatMsg packets. With this enabled, a client who uses
              an account with AOS Expansion enabled will see their Physical Resist instead
              of AR member.
-             
+
 02-03-2009 MuadDib:
     Added:   Character.resist_fire_mod/resist_cold_mod/resist_energy_mod/resist_poison_mod
              /resist_physical_mod as R/W.
@@ -2414,7 +2418,7 @@ XX-XX-XXXX Turley:
              /resist_physical_mod as R/W.
     Changed: GetItemDescriptor() Handles new AOS Resistance Entries.
     Added:   POL Debug Port has access to Mobile/Item resist members.
-             
+
 02-02-2009 MuadDib:
     Added:   Anytime AR will get refreshed (armor damaged, equip/unequip, etc), Resistances
              for Character will also get updated based on the items worn.
@@ -2425,7 +2429,7 @@ XX-XX-XXXX Turley:
              for combat, equip scripts, spells, etc. Eventually Core Combat will differentiate
              between these based on Expansion (on which to use for a client or npc). But as of
              right now, they will always use AR for combat, etc.
-             
+
 02-01-2009 MuadDib:
     Added:   Character.resist_fire/resist_cold/resist_energy/resist_poison/resist_physical members
              as R/O. All these are for is storage. No core implementation for resists is present.
@@ -2441,13 +2445,13 @@ XX-XX-XXXX Turley:
              number for it's amount.
     Note:    These are only written to file if the amount is != 0.
     Added:   Itemdesc FireResist/ColdResist/EnergyResist/PoisonResist/PhysicalResist.
-                 
+
 01-29-2009 MuadDib:
     Added:   NPC.saveonexit 0/1. Same as for Items. When set to 0 (1 default), the NPC and all
              items contained within it's wornitems container are IGNORED during save.
     Fixed:   Parry will now only refresh the AR if a shield is equipped, as was intended.
     Removed: Some ... Drunken Coder syndromes. :)
-             
+
 01-28-2009 MuadDib:
     Changed: Rewrote ObjCache Building. Now constructs the packet for uokr/aos once when sending
              to a group (send to in range). Previous method built this packet per client requiring
@@ -2457,9 +2461,9 @@ XX-XX-XXXX Turley:
              VERY common bug server-side. As a feature of this fix, you can now have the AOS
              features that do NOT require 0x20 (tooltips etc), AND the magery books work without
              packet hooks.
-             
+
 01-28-2009 Turley:
-    Changed: Optional parameter flags:=FACE_NORMAL/FACE_FORCE added to 
+    Changed: Optional parameter flags:=FACE_NORMAL/FACE_FORCE added to
              TurnToward(),TurnAwayFrom(), TurnTowardLocation(), TurnAwayFromLocation()
     Fixed:   servspecopt option HiddenTurnsCount check readded in facing change
     Fixed:   Privilege "freemove" can now also be used for NPCs
@@ -2479,7 +2483,7 @@ XX-XX-XXXX Turley:
              the UOFeatureEnable 0x20 bitflag to enable AOS style books. This was implemented to fix
              a CLIENT BUG. But, since so many people do not seem to realize you MUST have 0x20 on for
              AOS style book handling on AOS activated accounts, we must do this. Boo to you :(
-             
+
 01-27-2009 Turley:
     Changed: math::Min/Max now accepts Array as first parameter, if given returns the biggest/lowest
              Integer/Double entry (second parameter is ignored).
@@ -2495,13 +2499,13 @@ XX-XX-XXXX Turley:
     Added:   ReloadConfiguration() will cause the bannedips.cfg to get reloaded. YAY.
     Added:   Item.saveonexit member. Does what it says. All items default to 1. If you set this
              to 0 the item and (if container, it's contents) will NOT be saved to datafile.
-             
+
 01-23 Nando:
     Changed: polcore().bytes_sent and polcore().bytes_received are now Doubles. This will fix some
                  problems with negative values after some time... (internally they are now 64 bit integers).
     Note:    Lots of small leaks fixed, and more to come. Too much to list here, but you will feel the
                  difference.
- 
+
 01-16 Turley
         Fixed:   Filled PolCore().iostats.received with sense
 
@@ -2526,7 +2530,7 @@ XX-XX-XXXX Turley:
                  Variable via the commandline so no need to add/edit it via the System Properties of the machine.
                  Remember, you must be logged in with Admin rights to change Environment Variables and this won't
                  show in the System Properties until Reboot. But it IS accessible WITHOUT rebooting.
-                 
+
 01-03 MuadDib
         Added:   Ability to send two commands to the POL Service via SCM (Service Control Manager).
                  Command 1200 is a Beep (just for Nando), and 1201 will initial POL Shutdown just like
@@ -2536,7 +2540,7 @@ XX-XX-XXXX Turley:
         Removed: Logging/Reporting of empty Attack Request Packets. Useless information that is unreliable.
         Removed: References to unused portions of POL.cfg (things no longer supported that was still being
                  checked for).
-        
+
 01-02 Turley
         Changed: Scriptname & PC info in .setprop log entry "wtf, setprop w/ an error"
 
@@ -2545,7 +2549,7 @@ XX-XX-XXXX Turley:
         Added:   Ecompile.exe flag -Au added. This is same as -A but to only compile Updated Src.
         Added:   Ecompile.exe flag -s to Display Summary if -q is not set.
         Added:   Ecompile.exe flag -D to create .dep files (Dependency information).
-        
+
 12-20 Turley:
         Added:   new char member .clientver_detail returns struct of ints {major;minor;rev;patch}
                  new char method .compareversion(string) returns 1 if clientversion is >= then given version string
@@ -2554,14 +2558,14 @@ XX-XX-XXXX Turley:
         Added:   support for new ObjectCacheInfos introduced in 5.0.0
                  old behavior: Server sends 0xBF Sub 0x10 per object ->Client response also with 0xBF Sub 0x10 per item
                  new behavior: Server sends 0xDC per object -> Client response with 0xD6 (there can be more then one serial up to ~16)
-                 intern check is 
+                 intern check is
                  if ((ssopt.ForceNewObjCachePackets) || (isUOKR) || (clientversion.major>=5))
                  since the client sends his clientversion not instantly the first few ObjCacheInfos are sent
                  the old way (thats why the new ssopt is added)
                  Note: since client 6.0.5.0 the clientversion is instantly known (new seed packet)
         Added:   support of new seed packet (>=6.0.5.0)
                  Note: right now no new packet is implementend (some packetsizes have changed)
-                 
+
 12-19 Turley:
         Changed: Extended PerformAction() it is now:
                  PerformAction(character,action,framecount:=5,repeatcount:=1,
@@ -2598,7 +2602,7 @@ XX-XX-XXXX Turley:
                  number will now be set to Max(CharacterSlot, 5). The number of CharacterSlots shown will
                  depend on the acct expansion. (If it´s more than AOS, it'll send > 6, else 5).
         Added:   Flags in the Characters/Starting Location packet and the Enable Features (0xB9) are
-                 now being set according to the CharacterSlots option in pol.cfg. It only works now 
+                 now being set according to the CharacterSlots option in pol.cfg. It only works now
                  with 1, 5, 6 and 7 slots, as this is a client limitation. You can hook the 0xB9 packet
                  to change this in the future.
 
@@ -2620,7 +2624,7 @@ XX-XX-XXXX Turley:
 
 10-28 Luth:
         Changed: Set_Script_Option() now returns the previous value that was set for that option
-        
+
 09-28 Luth:
         Added:   npc::Face( direction );
         Added:   mobile.SetFacing( direction, flags := FACE_NORMAL );
@@ -2640,17 +2644,17 @@ XX-XX-XXXX Turley:
                  Sends to mobiles in visual range UpdatePlayer packet of mob, for example to
                  inform of notority changes
         Added:   Packet 0xC7 Functions:
-                 uo::PlayMovingEffectEx( source, target, effect, speed, duration := 0, 
-                                         hue := 0, render := 0, fixeddirection := 0, explode := 0, 
+                 uo::PlayMovingEffectEx( source, target, effect, speed, duration := 0,
+                                         hue := 0, render := 0, fixeddirection := 0, explode := 0,
                                          effect3d := 0, effect3dexplode := 0, effect3dsound := 0 );
-                 uo::PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM, 
-                                            effect, speed, duration := 0, hue := 0, render := 0, 
-                                            fixeddirection := 0, explode := 0, 
+                 uo::PlayMovingEffectXYZEx( srcx, srcy, srcz, dstx, dsty, dstz, realm := _DEFAULT_REALM,
+                                            effect, speed, duration := 0, hue := 0, render := 0,
+                                            fixeddirection := 0, explode := 0,
                                             effect3d := 0, effect3dexplode := 0, effect3dsound := 0 );
-                 uo::PlayObjectCenteredEffectEx( center, effect, speed, duration := 0, hue := 0, 
+                 uo::PlayObjectCenteredEffectEx( center, effect, speed, duration := 0, hue := 0,
                                                  render := 0, layer := 0, effect3d := 0 );
-                 uo::PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed, 
-                                             duration := 0, hue := 0, render := 0, 
+                 uo::PlayStationaryEffectEx( x, y, z, realm := _DEFAULT_REALM, effect, speed,
+                                             duration := 0, hue := 0, render := 0,
                                              layer := 0, effect3d := 0 );
                  layer,effect3d,effect3dexplode,effect3dsound are only interpreted by the 3D client
                  (current known) render values are:
@@ -2713,7 +2717,7 @@ XX-XX-XXXX Turley:
 -- POL097.4 --
 03-19-2009 MuadDib:
     Fixed:   Crash in reporting of leftover objects during Shutdown.
-    
+
 02-28-2009 VeNdOr:
     Fixed:   Crash involving Auxconnection.ip.
     Fixed:   NPC events ENTEREDAREA and LEFTAREA were both fired even when one of them was eanbled.
@@ -2743,7 +2747,7 @@ XX-XX-XXXX Turley:
 
 01-14 Nando
         Changed: Highest allowed mobile graphic is now 0x800 (2048). Was 1024 since POL070.. wow... :)
-                 
+
 -- POL097.2 --
 01-05 Turley
        Fixed  : URL percent decoding (like %2F= '/')
@@ -2761,15 +2765,15 @@ XX-XX-XXXX Turley:
        Changed: Weapons now have a Default Speed of 35 if no entry for Speed is in the itemdesc.cfg
                 file if Delay is used. If no Delay, then will still throw an error and fail to load.
        Fixed  : Typo on spellbook reports.
-                
+
 12-17 MuadDib:
         Fixed : Possible memory leak with AOS Tooltips.
-        
+
 12-16 MuadDib:
         Fixed : Memory leak in Packet Class using .Setxxxx Methods on Variable Length Packets.
         Added : Error Struct "Offset value out of range on a fixed length packet" when trying
                 to use packet.Setxxxx() whose value is out of range in a fixed length packet.
-                
+
 -- POL097.1 --
 09-17 Turley:
         Changed : To simplify usage util::RandonIntMinMax() now accepts
@@ -2779,7 +2783,7 @@ XX-XX-XXXX Turley:
         Fixed : Memoryleak in PathFind
         Fixed : If only PacketHook SendFunction is defined on receive default handler is called if exists
 
-09-09-2008 Austin: 
+09-09-2008 Austin:
         Fixed : Usernames and passwords will accept all characters except control characters
         '\t','\f','\v','\n','\r' the characters '{' '}' and spaces.
 
@@ -2807,7 +2811,7 @@ XX-XX-XXXX Turley:
         Added :   Accountname string struct member "account" added to
                   pre-character selection Packets
 
-08-15 Austin: 
+08-15 Austin:
         Added :   Setting for servspecopt.cfg 'ScriptedAttackChecks' Default is disabled.
                   If enabled, the combat hook must check distance, line of sight, visibility
                   and if both combatants are alive.
@@ -2828,22 +2832,22 @@ XX-XX-XXXX Turley:
 
 07-26 VeNdOr:
                 Added : ApplyDamage now returns the real damage applied to the mobile.
-        
+
 05-28 VeNdOr:
-                Fixed : In some conditions, when the AuxScript exited, the AuxConnection didn't close. 
+                Fixed : In some conditions, when the AuxScript exited, the AuxConnection didn't close.
 
 05-23 Austin:
         Fixed : If MinCmdlevelToLogin was used, characters could not be created.
                 POL will now check the account's default command level.
         Added : servspecopt.cfg CoreHitSounds    default: disabled
                 If disabled, scripts will handle sounds when a mobile is damaged.
-                If enabled, will work as it did before - but for npcs will use a DamagedSound 
+                If enabled, will work as it did before - but for npcs will use a DamagedSound
         property from its config file.
 
 02-9  Shinigami:
         Fixed : Bug in Unpack() with zero length Strings.
 
-02-8  Austin: 
+02-8  Austin:
         Added : CharacterSlots setting in pol.cfg. Defaults to 5. This is to set the maximum number
                 of slots an account can hold - to support clients that support 6 slots.
 
@@ -2851,7 +2855,7 @@ XX-XX-XXXX Turley:
         Changed : The freemove privilege will also allow targetting to be done when frozen / paralyzed.
 
 02-2  Madman:
-        Changed : Trying to move when Paralyzed will no longer spam your screen with 
+        Changed : Trying to move when Paralyzed will no longer spam your screen with
                   "You are frozen and cannot move."
 
 12-9  Shinigami:
@@ -2865,7 +2869,7 @@ XX-XX-XXXX Turley:
                 gumps.
                 Character.Prompt member. Returns 0/1 based on if character has any active
                 unicode and/or normal text prompt gumps open.
-                
+
 10-20 MuadDib
       Removed : Basic::Left and Basic::Mid. These functions reported not working since
                 095, and code was set to not use them anyway. Val[int, int] works anyway
@@ -2874,7 +2878,7 @@ XX-XX-XXXX Turley:
                 same way as virtual SubStrings in eScript (val[int, int]). This is for
                 those who like the func methods instead.
         Added : Math::Min and Math::Max functions.
-                
+
 10-11 MuadDib
         Fixed : Changing realms with Season info would reset light levels until next
                 light update in that realm. Send Season in core now sends light level
@@ -2884,7 +2888,7 @@ XX-XX-XXXX Turley:
                 setting for regions with no light level defined in regions cfg files.
                 Default is 10. Replaced arbitrary setting in core.
         Fixed : Exploit in Create Character system.
-                
+
 10-10 MuadDib
         Fixed : uo::CreateAccount() will no longer accept non-alphanumeric characters
                 for account name, will return error stating such if one is used. Also
@@ -2905,11 +2909,11 @@ XX-XX-XXXX Turley:
                 error. Still ignores Uninit stuff as before. Same reasoning for fix as
                 with Strings on 10-02. Dictionary will continue on and insert the error
                 returns in key/value entries.
-                
+
 10-02 MuadDib
-        Fixed : Exploit in unpacking Strings with length definition. Affected manual 
+        Fixed : Exploit in unpacking Strings with length definition. Affected manual
                 building of packed versions such as in use by Aux connections etc.
-                New error returns: 
+                New error returns:
                 "Unable to unpack string length. Invalid length!" = 0 or less Length
                 "Unable to unpack string length. Bad format. Colon not found!" = Duh.
                 "Unable to unpack string length. String length excessive." = Said it 3,
@@ -2927,13 +2931,13 @@ XX-XX-XXXX Turley:
                 't': Struct
                 'e': Escript Error
                 'x': Unitialized Object
-                
+
                 If you ever question the format for something packed, then just use
-                the Pack() function on your data, to see the end result. 
-                
+                the Pack() function on your data, to see the end result.
+
 9-05 VeNdOr
         Fixed : equipped items become invisible on realms different from britannia
-        
+
 9-04 VeNdOr
         Added : auxconnection.ip -- returns remote ip of connection as string
 
@@ -3332,7 +3336,7 @@ XX-XX-XXXX Turley:
 4-22 MuadDib
         Added : Changing of Invisible, Movable, and Newbie now reset the respective
                 decay timer.
-                               
+
 -- POL096.6 --
 3-30 MuadDib
         Notes : Due to questions involving this, here is a partial list of things passable

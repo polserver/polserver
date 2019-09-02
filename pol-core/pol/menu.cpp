@@ -41,8 +41,8 @@ Menu::Menu() : menu_id( 0 )
 
 Menu::Menu( const Menu& other ) : menu_id( other.menu_id ), menuitems_( other.menuitems_ )
 {
-  strzcpy( name, other.name, sizeof name );
-  strzcpy( title, other.title, sizeof title );
+  Clib::stracpy( name, other.name, sizeof name );
+  Clib::stracpy( title, other.title, sizeof title );
 
   weakptr.set( this );
 }
@@ -128,8 +128,8 @@ void Menu::read_menus()
     Menu* menu = &gamestate.menus.back();
 
     menu->menu_id = static_cast<unsigned short>( gamestate.menus.size() );
-    strzcpy( menu->name, menu_name.c_str(), sizeof menu->name );
-    strzcpy( menu->title, menu_title.c_str(), sizeof menu->title );
+    Clib::stracpy( menu->name, menu_name.c_str(), sizeof menu->name );
+    Clib::stracpy( menu->title, menu_title.c_str(), sizeof menu->title );
 
     while ( elem.remove_first_prop( &propname, &value ) )
     {
@@ -219,12 +219,12 @@ void Menu::read_menus()
         mi->color_ = Items::getcolor( objtype );
 
         if ( title != "" )
-          strzcpy( mi->title, title.c_str(), sizeof mi->title );
+          Clib::stracpy( mi->title, title.c_str(), sizeof mi->title );
         else
           mi->title[0] = '\0';
 
         if ( submenu_name != "" )
-          strzcpy( mi->submenu_name, submenu_name.c_str(), sizeof mi->submenu_name );
+          Clib::stracpy( mi->submenu_name, submenu_name.c_str(), sizeof mi->submenu_name );
         else
           mi->submenu_name[0] = '\0';
 
@@ -261,5 +261,5 @@ void Menu::read_menus()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

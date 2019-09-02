@@ -286,7 +286,7 @@ int EScriptProgram::write( const char* fname )
 
     BSCRIPT_MODULE_HDR modhdr;
     memset( &modhdr, 0, sizeof modhdr );
-    strzcpy( modhdr.modulename, module->modulename.get().c_str(), sizeof modhdr.modulename );
+    Clib::stracpy( modhdr.modulename, module->modulename.get().c_str(), sizeof modhdr.modulename );
     modhdr.nfuncs = static_cast<unsigned int>( module->used_functions.size() );
     fwrite( &modhdr, sizeof modhdr, 1, fp );
     for ( auto& module_func : module->used_functions )
@@ -295,7 +295,7 @@ int EScriptProgram::write( const char* fname )
       memset( &func, 0, sizeof func );
       passert( module_func->used );
 
-      strzcpy( func.funcname, module_func->name.get().c_str(), sizeof func.funcname );
+      Clib::stracpy( func.funcname, module_func->name.get().c_str(), sizeof func.funcname );
       func.nargs = static_cast<unsigned char>( module_func->nargs );
 
       fwrite( &func, sizeof func, 1, fp );
@@ -320,7 +320,7 @@ int EScriptProgram::write( const char* fname )
     fwrite( &sechdr, sizeof sechdr, 1, fp );
     for ( auto& elem : exported_functions )
     {
-      strzcpy( bef.funcname, elem.name.c_str(), sizeof bef.funcname );
+      Clib::stracpy( bef.funcname, elem.name.c_str(), sizeof bef.funcname );
       bef.nargs = elem.nargs;
       bef.PC = elem.PC;
       fwrite( &bef, sizeof bef, 1, fp );
@@ -600,5 +600,5 @@ size_t EScriptProgram::sizeEstimate() const
 
   return size;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

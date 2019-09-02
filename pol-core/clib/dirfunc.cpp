@@ -64,7 +64,7 @@ char* fullmerge( char* path )
 
 char* mergeFnExt( char* fname )
 {
-  strzcpy( fname, temp_fname, MAXFILE );
+  stracpy( fname, temp_fname, MAXFILE );
   strncat( fname, temp_ext, MAXEXT - 1 );
   return fname;
 }
@@ -290,5 +290,5 @@ int moveFileNoRep( const char* src, const char* dst )
   return inner_move( src, dst, replaceOk );
 }
 #endif
-}
-}
+}  // namespace Clib
+}  // namespace Pol

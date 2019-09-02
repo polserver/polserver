@@ -182,9 +182,10 @@ void AuxClientThread::run()
 
   std::string tmp;
   bool result, timeout_exit;
+  Clib::SocketLineReader linereader(_sck, 5);
   for ( ;; )
   {
-    result = readline( _sck, tmp, &timeout_exit, 5 );
+    result = linereader.readline( tmp, &timeout_exit );
     if ( !result && !timeout_exit )
       break;
 

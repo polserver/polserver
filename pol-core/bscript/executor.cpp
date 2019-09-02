@@ -463,8 +463,7 @@ bool Executor::getObjArrayParam( unsigned param, ObjArray*& pobjarr )
 
 void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type )
 {
-  BApplicPtr* ap =
-      EXPLICIT_CAST( BApplicPtr*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicPtr ) );
+  auto ap = static_cast<BApplicPtr*>( getParamImp( param, BObjectImp::OTApplicPtr ) );
   if ( ap == nullptr )
     return nullptr;
 
@@ -487,8 +486,7 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
 
 BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjType* object_type )
 {
-  BApplicObjBase* aob = EXPLICIT_CAST(
-      BApplicObjBase*, BObjectImp* )( getParamImp( param, BObjectImp::OTApplicObj ) );
+  auto aob = static_cast<BApplicObjBase*>( getParamImp( param, BObjectImp::OTApplicObj ) );
   if ( aob == nullptr )
     return nullptr;
 

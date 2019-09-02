@@ -2,9 +2,57 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-12-2019</datemodified>
+		<datemodified>09-02-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>02-09-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">The core is now Unicode aware!<br/>
+A normal String object can hold unicode.<br/>
+Files can now be stored in utf8 with or without BOM.<br/>
+For backward compatibility if invalid unicode is detected while compiling/file reading ISO8859 will be assumed.<br/>
+CAsc and CAscZ are normally no more needed, most incompatible changes are due to the fact that the old unicode array used for uctext is now replaced by an normal string object.</change>
+			<change type="Changed">The following incompatible changes where made:<br/>
+party.cfg<br/>
+OnPublicChat second parameter is now a string object<br/>
+OnPrivateChat third parameter is now a string object<br/>
+ChangePublicChat second parameter is now a string object<br/>
+ChangePrivateChat third parameter is now a string object<br/>
+unicode.em<br/>
+RequestInputUC return value no more contains member uc_text<br/>
+CharRef.clientinfo struct return value member video_description and langcode is now a string<br/>
+PacketObj.getunicodestring()/getunicodestringflipped() return a string<br/>
+TextCmd arguments are now (CharRef, String, [langcode=String])<br/>
+SpeechEvent no more contains uc_text member<br/>
+scripts/misc/charprofile.ecl fourth parameter is a string</change>
+			<change type="Changed">all places which currently accept an UnicodeArray can now also receive a String (UnicodeArray just for backward compatibility)<br/>
+cliloc.em SendSysMessageCL, PrintTextAboveCL, PrintTextAbovePrivateCL<br/>
+npc.em SayUC<br/>
+party.em SendPartyMsg, SendPrivatePartyMsg<br/>
+unicode.em BroadcastUC, PrintTextAbovePrivateUC, PrintTextAboveUC, RequestInputUC, SendSysMessageUC<br/>
+uo.em SendCharProfile<br/>
+PacketObj.setunicodestring()/setunicodestringflipped()<br/>
+CharRef.addbuff()</change>
+			<change type="Note">Item/Mobile names need still to be in ASCII format.</change>
+			<change type="Note">In the case of an unicode string as parameter for the following functions the unicode replacement will be automatically used, with ENU as langcode:<br/>
+Broadcast -&gt; BroadcastUC<br/>
+PrintTextAbovePrivate -&gt; PrintTextAbovePrivateUC<br/>
+PrintTextAbove -&gt; PrintTextAboveUC<br/>
+RequestInput -&gt; RequestInputUC<br/>
+Say -&gt; SayUC<br/>
+SendSysMessage -&gt; SendSysMessageUC</change>
+		</entry>
+		<entry>
+			<date>08-26-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Improved how the debug, www and aux servers handle connections. They should be faster and more stable now. Minor issues fixed.</change>
+		</entry>
+		<entry>
+			<date>08-21-2019</date>
+			<author>DevGIB:</author>
+			<change type="Fixed">Missing default on GetProcess( pid ), this is now GetProcess( pid:= 0 ) to align with docs and functionallity. Please update your os.em file and recompile.</change>
+		</entry>
 		<entry>
 			<date>07-12-2019</date>
 			<author>DevGIB:</author>
