@@ -146,7 +146,7 @@ protected:
                                       bool forcebuiltin = false ) override;
 
 private:
-  size_t getBytePosition( std::string::const_iterator& itr, size_t codeindex ) const;
+  size_t getBytePosition( std::string::const_iterator* itr, size_t codeindex ) const;
 
   std::string value_;
   friend class SubString;
@@ -155,7 +155,7 @@ private:
 class ConstString : public String
 {
 public:
-  explicit ConstString( const std::string& str ) : String( str, Tainted::YES ) {}
+  explicit ConstString( const std::string& str ) : String( str ) {}
 };
 }  // namespace Bscript
 }  // namespace Pol

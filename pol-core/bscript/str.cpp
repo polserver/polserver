@@ -65,8 +65,8 @@ String* String::StrStr( int begin, int len )
 {
   auto itr = value_.cbegin();
   --begin;
-  size_t startpos = getBytePosition( itr, begin );
-  size_t endpos = getBytePosition( itr, len );
+  size_t startpos = getBytePosition( &itr, begin );
+  size_t endpos = getBytePosition( &itr, len );
   if ( startpos != std::string::npos )
     return new String( value_.substr( startpos, endpos - startpos ) );
   return new String( value_ );
@@ -132,8 +132,8 @@ void String::EStrReplace( String* str1, String* str2 )
 void String::ESubStrReplace( String* replace_with, unsigned int index, unsigned int len )
 {
   auto itr = value_.cbegin();
-  size_t begin = getBytePosition( itr, index - 1 );
-  size_t end = getBytePosition( itr, len );
+  size_t begin = getBytePosition( &itr, index - 1 );
+  size_t end = getBytePosition( &itr, len );
   if ( begin != std::string::npos )
     value_.replace( begin, end - begin, replace_with->value_ );
 }
@@ -213,7 +213,7 @@ int String::find( int begin, const char* target )
 {
   // TODO: check what happens in string if begin position is out of range
   auto itr = value_.cbegin();
-  size_t pos = getBytePosition( itr, begin );
+  size_t pos = getBytePosition( &itr, begin );
   pos = value_.find( target, pos );
   if ( pos == std::string::npos )
     return -1;
@@ -408,7 +408,6 @@ void String::toUpper()
 {
 #ifndef WINDOWS
   std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
-  ;
   value_.clear();
   for ( const auto& c : codes )
   {
@@ -471,15 +470,15 @@ void String::toLower()
 #endif
 }
 
-size_t String::getBytePosition( std::string::const_iterator& itr, size_t codeindex ) const
+size_t String::getBytePosition( std::string::const_iterator* itr, size_t codeindex ) const
 {
   auto itr_end = value_.cend();
-  for ( size_t i = 0; i < codeindex && itr != itr_end; ++i )
-    utf8::unchecked::next( itr );
+  for ( size_t i = 0; i < codeindex && *itr != itr_end; ++i )
+    utf8::unchecked::next( *itr );
 
-  if ( itr != itr_end )
+  if ( *itr != itr_end )
   {
-    return std::distance( value_.cbegin(), itr );
+    return std::distance( value_.cbegin(), *itr );
   }
   return std::string::npos;
 }
@@ -501,7 +500,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     len = 1;
     pos = lng.value() - 1;
     auto itr = value_.cbegin();
-    pos = getBytePosition( itr, pos );
+    pos = getBytePosition( &itr, pos );
     if ( pos != std::string::npos )
     {
       utf8::unchecked::next( itr );
@@ -516,7 +515,7 @@ BObjectImp* String::array_assign( BObjectImp* idx, BObjectImp* target, bool /*co
     pos = static_cast<std::string::size_type>( dbl.value() ) - 1;
     len = 1;
     auto itr = value_.cbegin();
-    pos = getBytePosition( itr, pos );
+    pos = getBytePosition( &itr, pos );
     if ( pos != std::string::npos )
     {
       utf8::unchecked::next( itr );
@@ -568,7 +567,7 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
       return BObjectRef( new BError( "Subscript out of range" ) );
     --index;
     auto itr = value_.cbegin();
-    index = getBytePosition( itr, index );
+    index = getBytePosition( &itr, index );
     if ( index == std::string::npos )
       return BObjectRef( new BError( "Subscript out of range" ) );
   }
@@ -606,7 +605,7 @@ BObjectRef String::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices, BO
   }
   auto itr = value_.cbegin();
   std::advance( itr, index );
-  size_t index_len = getBytePosition( itr, len );
+  size_t index_len = getBytePosition( &itr, len );
 
   if ( index_len != std::string::npos )
     len = index_len - index;
@@ -650,7 +649,7 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
       return BObjectRef( new BError( "Subscript out of range" ) );
     --index;
     auto itr = value_.cbegin();
-    index = getBytePosition( itr, index );
+    index = getBytePosition( &itr, index );
     if ( index == std::string::npos )
       return BObjectRef( new BError( "Subscript out of range" ) );
   }
@@ -688,7 +687,7 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
   }
   auto itr = value_.cbegin();
   std::advance( itr, index );
-  size_t index_len = getBytePosition( itr, len );
+  size_t index_len = getBytePosition( &itr, len );
 
   if ( index_len != std::string::npos )
     len = index_len - index;
@@ -714,7 +713,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
 
     --index;
     auto itr = value_.cbegin();
-    index = getBytePosition( itr, index );
+    index = getBytePosition( &itr, index );
     if ( index != std::string::npos )
     {
       utf8::unchecked::next( itr );
@@ -736,7 +735,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
 
     --index;
     auto itr = value_.cbegin();
-    index = getBytePosition( itr, index );
+    index = getBytePosition( &itr, index );
     if ( index != std::string::npos )
     {
       utf8::unchecked::next( itr );
@@ -1216,19 +1215,19 @@ bool String::compare( const String& str ) const
 bool String::compare( size_t pos1, size_t len1, const String& str ) const
 {
   auto itr1 = value_.cbegin();
-  pos1 = getBytePosition( itr1, pos1 );
-  len1 = getBytePosition( itr1, len1 ) - pos1;
+  pos1 = getBytePosition( &itr1, pos1 );
+  len1 = getBytePosition( &itr1, len1 ) - pos1;
   return value_.compare( pos1, len1, str.value_ ) == 0;
 }
 
 bool String::compare( size_t pos1, size_t len1, const String& str, size_t pos2, size_t len2 ) const
 {
   auto itr1 = value_.cbegin();
-  pos1 = getBytePosition( itr1, pos1 );
-  len1 = getBytePosition( itr1, len1 ) - pos1;
+  pos1 = getBytePosition( &itr1, pos1 );
+  len1 = getBytePosition( &itr1, len1 ) - pos1;
   auto itr2 = str.value_.cbegin();
-  pos2 = str.getBytePosition( itr2, pos2 );
-  len2 = str.getBytePosition( itr2, len2 ) - pos2;
+  pos2 = str.getBytePosition( &itr2, pos2 );
+  len2 = str.getBytePosition( &itr2, len2 ) - pos2;
   return value_.compare( pos1, len1, str.value_, pos2, len2 ) == 0;
 }
 
