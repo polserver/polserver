@@ -178,13 +178,14 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
 {
   int intextlen = cfBEu16( mymsg->msglen ) - offsetof( PKTIN_03, text ) - 1;
 
-  // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
+  // Preprocess the text into a sanity-checked, printable form in text
   if ( intextlen < 0 )
     intextlen = 0;
   if ( intextlen > SPEECH_MAX_LEN )
     intextlen = SPEECH_MAX_LEN;  // ENHANCE: May want to log this
 
   std::string text;
+  text.reserve( intextlen );
   for ( int i = 0; i < intextlen; i++ )
   {
     char ch = mymsg->text[i];
