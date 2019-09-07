@@ -425,15 +425,16 @@ void String::toUpper()
   {
     LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
                   static_cast<int>( str.size() ), &str[0], static_cast<int>( str.size() ) );
+    value_ = converter.to_bytes( str );
   }
   else
   {
-    std::vector<wchar_t> buf( len );
+    std::wstring buf;
+    buf.reserve( len );
     LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                  static_cast<int>( str.size() ), &buf.front(), static_cast<int>( buf.size() ) );
-    str.assign( &buf.front(), buf.size() );
+                  static_cast<int>( str.size() ), &buf[0], static_cast<int>( buf.size() ) );
+    value_ = converter.to_bytes( buf );
   }
-  value_ = converter.to_bytes( str );
 #endif
 }
 
@@ -458,15 +459,16 @@ void String::toLower()
   {
     LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
                   static_cast<int>( str.size() ), &str[0], static_cast<int>( str.size() ) );
+    value_ = converter.to_bytes( str );
   }
   else
   {
-    std::vector<wchar_t> buf( len );
+    std::wstring buf;
+    buf.reserve( len );
     LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
-                  static_cast<int>( str.size() ), &buf.front(), static_cast<int>( buf.size() ) );
-    str.assign( &buf.front(), buf.size() );
+                  static_cast<int>( str.size() ), &buf[0], static_cast<int>( buf.size() ) );
+    value_ = converter.to_bytes( buf );
   }
-  value_ = converter.to_bytes( str );
 #endif
 }
 
