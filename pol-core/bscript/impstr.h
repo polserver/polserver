@@ -52,18 +52,18 @@ public:
 
   // FIXME: Possibly eliminate this later and have [ ] operator support?
   // Or stick to functions, overload them with other substring getting methods.
-  String* StrStr( int begin, int len );
+  String* StrStr( int begin, int len ) const;
   // FIXME: Possibly upgrade this later with overload functions in order to support different
   // trim methods, or add ELTrim, etc?
-  String* ETrim( const char* CRSet, int type );
+  String* ETrim( const char* CRSet, int type ) const;
   void EStrReplace( String* str1, String* str2 );
   void ESubStrReplace( String* replace_with, unsigned int index, unsigned int len );
 
   const char* data() const { return value_.c_str(); }
   const std::string& value() const { return value_; }
   size_t length() const;
-  void toUpper( void );
-  void toLower( void );
+  void toUpper();
+  void toLower();
 
   bool hasUTF8Characters() const;
   static bool hasUTF8Characters( const std::string& str );
@@ -87,7 +87,7 @@ public:
   void copyvalue( const String& str ) { value_ = str.value_; }
 
 private:
-  void remove( const char* s );
+  void remove( const std::string& s );
   virtual bool isTrue() const override { return !value_.empty(); }
 
 public:
@@ -122,12 +122,10 @@ public:
   virtual BObjectRef OperMultiSubscriptAssign( std::stack<BObjectRef>& indices,
                                                BObjectImp* target ) override;
 
-  int find( int begin, const char* target );
+  int find( int begin, const char* target ) const;
   unsigned int SafeCharAmt() const;
 
-
   virtual BObjectImp* array_assign( BObjectImp* idx, BObjectImp* target, bool copy ) override;
-  int find( char* s, int* posn );
 
   virtual std::string getStringRep() const override { return value_; }
   virtual std::string getFormattedStringRep() const override { return "\"" + value_ + "\""; }

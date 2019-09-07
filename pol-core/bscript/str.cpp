@@ -61,7 +61,7 @@ String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), 
   if ( san == Tainted::YES )
     Clib::sanitizeUnicodeWithIso( &value_ );
 }
-String* String::StrStr( int begin, int len )
+String* String::StrStr( int begin, int len ) const
 {
   auto itr = value_.cbegin();
   --begin;
@@ -77,7 +77,7 @@ size_t String::length() const
   return utf8::unchecked::distance( value_.begin(), value_.end() );
 }
 
-String* String::ETrim( const char* CRSet, int type )
+String* String::ETrim( const char* CRSet, int type ) const
 {
   std::string tmp = value_;
 
@@ -209,9 +209,9 @@ size_t String::sizeEstimate() const
     find( "str srch", 2, "srch"):
     01^-- start
     */
-int String::find( int begin, const char* target )
+int String::find( int begin, const char* target ) const
 {
-  // TODO: check what happens in string if begin position is out of range
+  // returns -1 when begin is out of range for string
   auto itr = value_.cbegin();
   size_t pos = getBytePosition( &itr, begin );
   pos = value_.find( target, pos );
@@ -299,13 +299,11 @@ void String::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 }
 
 
-void String::remove( const char* rm )
+void String::remove( const std::string& rm )
 {
-  size_t len = strlen( rm );
-
   auto pos = value_.find( rm );
   if ( pos != std::string::npos )
-    value_.erase( pos, len );
+    value_.erase( pos, rm.size() );
 }
 
 BObjectImp* String::selfMinusObjImp( const BObjectImp& objimp ) const
@@ -315,31 +313,31 @@ BObjectImp* String::selfMinusObjImp( const BObjectImp& objimp ) const
 BObjectImp* String::selfMinusObj( const BObjectImp& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const BLong& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const Double& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const String& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.value_.data() );
+  tmp->remove( objimp.value_ );
   return tmp;
 }
 BObjectImp* String::selfMinusObj( const ObjArray& objimp ) const
 {
   String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep().data() );
+  tmp->remove( objimp.getStringRep() );
   return tmp;
 }
 void String::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
@@ -348,23 +346,23 @@ void String::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 }
 void String::selfMinusObj( BObjectImp& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 void String::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 void String::selfMinusObj( Double& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 void String::selfMinusObj( String& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.value_.data() );
+  remove( objimp.value_ );
 }
 void String::selfMinusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
-  remove( objimp.getStringRep().data() );
+  remove( objimp.getStringRep() );
 }
 
 bool String::operator==( const BObjectImp& objimp ) const
@@ -786,15 +784,6 @@ bool s_parse_int( int& i, std::string const& s )
   }
 }
 
-// remove leading/trailing spaces
-void s_trim( std::string& s )
-{
-  std::stringstream trimmer;
-  trimmer << s;
-  s.clear();
-  trimmer >> s;
-}
-
 void int_to_binstr( int& value, std::stringstream& s )
 {
   int i;
@@ -984,8 +973,6 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
             tag_body = tag_body.substr( tag_start_pos );
           else if ( tag_stop_pos != std::string::npos )
             tag_body = tag_body.substr( 0, tag_stop_pos + 1 );
-
-          // s_trim( tag_body ); // trim the tag of whitespaces
 
           // cout << "' tag_body2: '" << tag_body << "'";
 
