@@ -2569,6 +2569,20 @@ void Executor::ins_unminus( const Instruction& /*ins*/ )
   ValueStack.push_back( BObjectRef( new BObject( newobj ) ) );
 }
 
+// case TOK_UNPLUSPLUS:
+void Executor::ins_unplusplus( const Instruction& /*ins*/ )
+{
+  BObjectRef ref = ValueStack.back();
+  ref->impref().selfPlusPlus();
+}
+
+// case TOK_UNMINUSMINUS:
+void Executor::ins_unminusminus( const Instruction& /*ins*/ )
+{
+  BObjectRef ref = ValueStack.back();
+  ref->impref().selfMinusMinus();
+}
+
 // case TOK_LOG_NOT:
 void Executor::ins_logical_not( const Instruction& /*ins*/ )
 {
@@ -2790,6 +2804,10 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_addmember_assign;
   case CTRL_PROGEND:
     return &Executor::ins_progend;
+  case TOK_UNPLUSPLUS:
+    return &Executor::ins_unplusplus;
+  case TOK_UNMINUSMINUS:
+    return &Executor::ins_unminusminus;
 
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );

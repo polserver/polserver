@@ -239,6 +239,8 @@ public:
   void ins_uninit( const Instruction& ins );
   void ins_ident( const Instruction& ins );
   void ins_unminus( const Instruction& ins );
+  void ins_unplusplus( const Instruction& ins );
+  void ins_unminusminus( const Instruction& ins );
 
   void ins_logical_and( const Instruction& ins );
   void ins_logical_or( const Instruction& ins );

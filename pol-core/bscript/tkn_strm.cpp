@@ -427,6 +427,12 @@ void Token::printOn( std::ostream& os ) const
   case TOK_FUNCREF:
     os << "Function Ref " << ( token ? token : "--function name not available--" ) << "@" << lval;
     break;
+  case TOK_UNPLUSPLUS:
+    os << "unary ++";
+    break;
+  case TOK_UNMINUSMINUS:
+    os << "unary --";
+    break;
   case RSV_COLON:
     os << "':'";
     break;

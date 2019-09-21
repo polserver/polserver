@@ -240,7 +240,12 @@ Operator binary_operators[] = {
     {".?", TOK_CHKMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false},
 
     {",", TOK_COMMA, PREC_COMMA, TYP_SEPARATOR, false, false},
-    {"", TOK_TERM, PREC_TERMINATOR, TYP_TERMINATOR, false, false}};
+    {"", TOK_TERM, PREC_TERMINATOR, TYP_TERMINATOR, false, false},
+    {"++", TOK_ADD, PREC_PLUS, TYP_UNARY_PLACEHOLDER, false,
+     false},  // fake entry will be converted to unary
+    {"--", TOK_SUBTRACT, PREC_PLUS, TYP_UNARY_PLACEHOLDER, false,
+     false},  // fake entry will be converted to unary
+};
 int n_operators = sizeof binary_operators / sizeof binary_operators[0];
 
 Operator unary_operators[] = {
@@ -248,7 +253,9 @@ Operator unary_operators[] = {
     {"-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
-    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false}
+    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false},
+    {"++", TOK_UNPLUSPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, true, false},
+    {"--", TOK_UNMINUSMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, true, false},
     //  { "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
     // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 };
@@ -1154,12 +1161,8 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
  */
 int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 {
-  int res;
   char opbuf[10];
-
-  res = tryOperator( tok, ctx.s, &ctx.s, binary_operators, n_operators, opbuf );
-
-  return res;
+  return tryOperator( tok, ctx.s, &ctx.s, binary_operators, n_operators, opbuf );
 }
 
 /**
@@ -1171,12 +1174,8 @@ int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
  */
 int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 {
-  int res;
   char opbuf[10];
-
-  res = tryOperator( tok, ctx.s, &ctx.s, unary_operators, n_unary, opbuf );
-
-  return res;
+  return tryOperator( tok, ctx.s, &ctx.s, unary_operators, n_unary, opbuf );
 }
 
 /**
@@ -1646,6 +1645,8 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
   if ( token.id == TOK_LBRACE )  // an array declared somewhere out there
     this_type = TYP_OPERAND;
 
+  if ( last_type == TYP_UNARY_PLACEHOLDER || this_type == TYP_UNARY_PLACEHOLDER )
+    return 0;  // always invalid
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
   if ( this_type > TYP_TESTMAX )
@@ -2229,8 +2230,10 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       --leftbracket_count;
 
     if ( !isOkay( token, last_type ) )
+
     {
-      if ( token.type == TYP_OPERATOR )  // check for a unary operator that looks the same.
+      if ( token.type == TYP_OPERATOR ||
+           token.type == TYP_UNARY_PLACEHOLDER )  // check for a unary operator that looks the same.
         recognize_unary( token, token.tokval() );
 
       if ( !isOkay( token, last_type ) )
