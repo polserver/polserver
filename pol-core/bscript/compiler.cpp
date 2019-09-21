@@ -4144,6 +4144,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       prog_tokens->atGet1( prog_tokens->count() - 2, tmptoken );
     }
 
+    // FIXME: wtf? this should atleast be rewritten to a switch
     if ( tmptoken.id == TOK_ASSIGN || tmptoken.id == TOK_PLUSEQUAL ||
          tmptoken.id == TOK_MINUSEQUAL || tmptoken.id == TOK_TIMESEQUAL ||
          tmptoken.id == TOK_DIVIDEEQUAL || tmptoken.id == TOK_MODULUSEQUAL ||
@@ -4159,7 +4160,8 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL ||
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL ||
          tmptoken.id == INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL )
+         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL || tmptoken.id == TOK_UNPLUSPLUS ||
+         tmptoken.id == TOK_UNMINUSMINUS )
     {
       // ok! These operators actually accomplish something.
     }
