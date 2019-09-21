@@ -42,3 +42,8 @@ print(b);
 
 var d:=1.5;
 print(++d);
+
+const c:=1;
+++c;
+print("should not change {}".format(c));
+print("should change {}".format(++c));

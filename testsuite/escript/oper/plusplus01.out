@@ -15,3 +15,5 @@ i after func call 3
 7
 6
 2.5
+should not change 1
+should change 2
