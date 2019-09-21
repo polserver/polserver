@@ -1077,7 +1077,6 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
     else if ( token.id == TOK_RPAREN )
     {
       return 0;
-      ;
     }
     else
     {
@@ -4144,49 +4143,60 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       prog_tokens->atGet1( prog_tokens->count() - 2, tmptoken );
     }
 
-    // FIXME: wtf? this should atleast be rewritten to a switch
-    if ( tmptoken.id == TOK_ASSIGN || tmptoken.id == TOK_PLUSEQUAL ||
-         tmptoken.id == TOK_MINUSEQUAL || tmptoken.id == TOK_TIMESEQUAL ||
-         tmptoken.id == TOK_DIVIDEEQUAL || tmptoken.id == TOK_MODULUSEQUAL ||
-         tmptoken.id == INS_SUBSCRIPT_ASSIGN || tmptoken.id == INS_SUBSCRIPT_ASSIGN_CONSUME ||
-         tmptoken.id == INS_MULTISUBSCRIPT_ASSIGN || tmptoken.id == INS_ASSIGN_CONSUME ||
-         tmptoken.id == TOK_ADDMEMBER || tmptoken.id == TOK_DELMEMBER || tmptoken.id == TOK_FUNC ||
-         tmptoken.id == INS_CALL_METHOD || tmptoken.id == TOK_USERFUNC ||
-         tmptoken.id == CTRL_JSR_USERFUNC || tmptoken.id == INS_ASSIGN_LOCALVAR ||
-         tmptoken.id == INS_ASSIGN_GLOBALVAR || tmptoken.id == INS_SET_MEMBER ||
-         tmptoken.id == INS_SET_MEMBER_CONSUME || tmptoken.id == INS_SET_MEMBER_ID ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME || tmptoken.id == INS_CALL_METHOD_ID ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL || tmptoken.id == TOK_UNPLUSPLUS ||
-         tmptoken.id == TOK_UNMINUSMINUS )
+    switch ( tmptoken.id )
     {
-      // ok! These operators actually accomplish something.
-    }
-    else if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
-    {
-      if ( tmptoken.id == TOK_EQUAL1 )
+    case TOK_ASSIGN:
+    case TOK_PLUSEQUAL:
+    case TOK_MINUSEQUAL:
+    case TOK_TIMESEQUAL:
+    case TOK_DIVIDEEQUAL:
+    case TOK_MODULUSEQUAL:
+    case INS_SUBSCRIPT_ASSIGN:
+    case INS_SUBSCRIPT_ASSIGN_CONSUME:
+    case INS_MULTISUBSCRIPT_ASSIGN:
+    case INS_ASSIGN_CONSUME:
+    case TOK_ADDMEMBER:
+    case TOK_DELMEMBER:
+    case TOK_FUNC:
+    case INS_CALL_METHOD:
+    case TOK_USERFUNC:
+    case CTRL_JSR_USERFUNC:
+    case INS_ASSIGN_LOCALVAR:
+    case INS_ASSIGN_GLOBALVAR:
+    case INS_SET_MEMBER:
+    case INS_SET_MEMBER_CONSUME:
+    case INS_SET_MEMBER_ID:
+    case INS_SET_MEMBER_ID_CONSUME:
+    case INS_CALL_METHOD_ID:
+    case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
+    case TOK_UNPLUSPLUS:
+    case TOK_UNMINUSMINUS:
+      // ok! These operators actually accomplish something
+      break;
+    default:
+      if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
       {
-        INFO_PRINT << "Warning: Equals test result ignored.  Did you mean := for assign?\n"
-                   << "near: " << curLine << "\n";
+        if ( tmptoken.id == TOK_EQUAL1 )
+        {
+          INFO_PRINT << "Warning: Equals test result ignored.  Did you mean := for assign?\n"
+                     << "near: " << curLine << "\n";
+        }
+        else
+        {
+          // warn code has no effect/value lost
+          INFO_PRINT << "Warning: Result of operation may have no effect.\n"
+                     << "Token ID: " << tmptoken.id << "\n"
+                     << "near: " << curLine << "\n";
+        }
         if ( compilercfg.ErrorOnWarning )
           throw std::runtime_error( "Warnings treated as errors." );
-        else
-          INFO_PRINT << ctx;
+        INFO_PRINT << ctx;
       }
-      else
-      {
-        // warn code has no effect/value lost
-        INFO_PRINT << "Warning: Result of operation may have no effect.\n"
-                   << "Token ID: " << tmptoken.id << "\n"
-                   << "near: " << curLine << "\n";
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
-        else
-          INFO_PRINT << ctx;
-      }
+      break;
     }
     //  cout << "Statement: " << Parser.CA << endl;
   }
