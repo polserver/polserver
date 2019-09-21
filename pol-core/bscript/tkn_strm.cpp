@@ -433,6 +433,9 @@ void Token::printOn( std::ostream& os ) const
   case TOK_UNMINUSMINUS:
     os << "unary --";
     break;
+  case TOK_UNPLUSPLUS_POST:
+    os << "unary ++ post";
+    break;
   case RSV_COLON:
     os << "':'";
     break;

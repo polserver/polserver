@@ -41,7 +41,8 @@ namespace Bscript
 {
 class CompilerContext;
 
-typedef enum {
+typedef enum
+{
   PERR_NONE,
   PERR_UNEXRPAREN,  // unexpected RIGHT Paren
   PERR_MISSLPAREN,
@@ -161,7 +162,7 @@ public:
   SmartParser() : Parser(), modfunc_( nullptr ), userfunc_( nullptr ) {}
   SmartParser& operator=( const SmartParser& ) { return *this; }
   virtual int isLegal( Token& tok );
-  virtual int isOkay( const Token& token, BTokenType last_type );
+  virtual int isOkay( const Token& token, const Token& last_token );
 
   virtual int isFunc( Token& tok, ModuleFunction** v ) = 0;
 
@@ -194,6 +195,6 @@ inline int SmartParser::isUserFunc( Token&, UserFunction** )
 {
   return 0;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

@@ -1631,8 +1631,9 @@ return 0;
 */
 
 
-int SmartParser::isOkay( const Token& token, BTokenType last_type )
+int SmartParser::isOkay( const Token& token, const Token& last_token )
 {
+  BTokenType last_type = last_token.type;
   BTokenType this_type = token.type;
   if ( !quiet )
     INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
@@ -1646,7 +1647,11 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
     this_type = TYP_OPERAND;
 
   if ( last_type == TYP_UNARY_PLACEHOLDER || this_type == TYP_UNARY_PLACEHOLDER )
-    return 0;  // always invalid
+    return 0;                             // always invalid
+  if ( token.id == TOK_UNPLUSPLUS_POST )  // valid when other direction is valid
+    std::swap( this_type, last_type );
+  if ( last_token.id == TOK_UNPLUSPLUS_POST )  // when valid before
+    return 1;//FIXME not true in all cases
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
   if ( this_type > TYP_TESTMAX )
@@ -2229,14 +2234,15 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
     else if ( token.id == TOK_RBRACKET )
       --leftbracket_count;
 
-    if ( !isOkay( token, last_type ) )
+    if ( !isOkay( token, last_token ) )
 
     {
       if ( token.type == TYP_OPERATOR ||
            token.type == TYP_UNARY_PLACEHOLDER )  // check for a unary operator that looks the same.
         recognize_unary( token, token.tokval() );
-
-      if ( !isOkay( token, last_type ) )
+      if ( token.id == TOK_UNPLUSPLUS && last_type == TYP_OPERAND )  // switching to post increment
+        token.id = TOK_UNPLUSPLUS_POST;
+      if ( !isOkay( token, last_token ) )
       {
         if ( auto_term_allowed )
         {
@@ -2459,6 +2465,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
         ptok2->copyStr( methodName.c_str() );
       }
       last_type = TYP_OPERAND;
+      last_token.type = TYP_OPERAND;  // FIXME: kind of a hack
     }
     else
     {
