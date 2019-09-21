@@ -47,3 +47,8 @@ const c:=1;
 ++c;
 print("should not change {}".format(c));
 print("should change {}".format(++c));
+
+var e:={1};
+print(++e);
+++e[1];
+print(e);
