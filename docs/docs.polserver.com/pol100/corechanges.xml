@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-02-2019</datemodified>
+		<datemodified>09-21-2019</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>02-09-2019</date>
+			<date>09-21-2019</date>
 			<author>Turley:</author>
 			<change type="Changed">The core is now Unicode aware!<br/>
 A normal String object can hold unicode.<br/>
