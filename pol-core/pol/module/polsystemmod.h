@@ -49,10 +49,7 @@ public:
                                             Bscript::Executor& ex ) override;
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
 };
-PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
-    : PackageObjImpBase( &packageobjimp_type, other )
-{
-}
+
 class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule>
 {
 public:

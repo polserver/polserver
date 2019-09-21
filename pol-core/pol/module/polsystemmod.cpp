@@ -55,6 +55,7 @@ void reload_configuration();
 namespace Module
 {
     Bscript::BApplicObjType packageobjimp_type;
+    PackageObjImp::PackageObjImp( const PackagePtrHolder& other ) : PackageObjImpBase( &packageobjimp_type, other ){}
 }
 namespace Bscript
 {
