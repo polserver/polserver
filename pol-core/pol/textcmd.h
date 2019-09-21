@@ -26,8 +26,8 @@ public:
   bool operator()( const std::string& lhs, const std::string& rhs ) const;
 };
 
-bool process_command( Network::Client* client, const char* text, const u16* wtext = nullptr,
-                      const char* lang = nullptr );
-}
-}
+bool process_command( Network::Client* client, const std::string& text,
+                      const std::string& lang = "" );
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -152,8 +152,8 @@ BObjectImp* OSExecutorModule::mf_debugger()
 BObjectImp* OSExecutorModule::getprocess()
 {
   unsigned int pid;
-  if (!getParam(0, pid))
-      return new BError("Invalid parameter type");
+  if ( !getParam( 0, pid ) )
+    return new BError( "Invalid parameter type" );
 
   if ( pid == 0 )
   {
@@ -284,7 +284,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
       const String* script_name;
       Core::ScriptDef script;
 
-      if ( exec.getStringParam( 2, script_name ) && (script_name->length() > 0))
+      if ( exec.getStringParam( 2, script_name ) && ( script_name->length() > 0 ) )
       {
         if ( !script.config_nodie( script_name->value(), exec.prog()->pkg, "scripts/skills/" ) )
         {
@@ -688,6 +688,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
         curl_easy_setopt( curl, CURLOPT_URL, url->data() );
         curl_easy_setopt( curl, CURLOPT_CUSTOMREQUEST, method->data() );
         curl_easy_setopt( curl, CURLOPT_WRITEFUNCTION, curlWriteCallback );
+        curl_easy_setopt( curl, CURLOPT_ACCEPT_ENCODING,
+                          "" );  // allow plaintext and compressed (with automatic deflate)
 
         struct curl_slist* chunk = nullptr;
         if ( options->isa( Bscript::BObjectImp::OTStruct ) )
@@ -735,11 +737,17 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
             }
             /* Check for errors */
             if ( res != CURLE_OK )
+            {
               uoexec_w.get_weakptr()->ValueStack.back().set(
                   new BObject( new BError( curl_easy_strerror( res ) ) ) );
+            }
             else
+            {
+              // TODO: no sanitize happens, optional function param iso/utf8 encoding, or parse the
+              // header of the http answer?
               uoexec_w.get_weakptr()->ValueStack.back().set(
                   new BObject( new String( readBuffer ) ) );
+            }
 
             uoexec_w.get_weakptr()->revive();
           }
@@ -906,7 +914,8 @@ Core::polclock_t OSExecutorModule::sleep_until_clock() const
 {
   return sleep_until_clock_;
 }
-void OSExecutorModule::sleep_until_clock(Core::polclock_t sleep_until_clock) {
+void OSExecutorModule::sleep_until_clock( Core::polclock_t sleep_until_clock )
+{
   sleep_until_clock_ = sleep_until_clock;
 }
 
@@ -914,7 +923,7 @@ Core::TimeoutHandle OSExecutorModule::hold_itr() const
 {
   return hold_itr_;
 }
-void OSExecutorModule::hold_itr(Core::TimeoutHandle hold_itr)
+void OSExecutorModule::hold_itr( Core::TimeoutHandle hold_itr )
 {
   hold_itr_ = hold_itr;
 }
@@ -923,7 +932,7 @@ Core::HoldListType OSExecutorModule::in_hold_list() const
 {
   return in_hold_list_;
 }
-void OSExecutorModule::in_hold_list(Core::HoldListType in_hold_list)
+void OSExecutorModule::in_hold_list( Core::HoldListType in_hold_list )
 {
   in_hold_list_ = in_hold_list;
 }

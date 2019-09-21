@@ -119,7 +119,7 @@ typedef std::set<std::string> PropSet;
 
 typedef void ( *TextCmdFunc )( Network::Client* );
 typedef std::map<std::string, TextCmdFunc, Clib::ci_cmp_pred> TextCmds;
-typedef void ( *ParamTextCmdFunc )( Network::Client*, const char* );
+typedef void ( *ParamTextCmdFunc )( Network::Client*, const std::string& );
 typedef std::map<std::string, ParamTextCmdFunc, wordicmp> ParamTextCmds;
 
 

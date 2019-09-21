@@ -13,6 +13,7 @@
 
 #include "../../bscript/berror.h"
 #include "../../bscript/executor.h"
+#include "../../bscript/impstr.h"
 #include "../../bscript/objmembers.h"
 #include "../../bscript/objmethods.h"
 #include "../../clib/rawtypes.h"
@@ -26,7 +27,6 @@
 #include "../party.h"
 #include "../party_cfg.h"
 #include "../syshook.h"
-#include "../unicode.h"
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
@@ -230,7 +230,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
       if ( chr->has_active_client() )
         Core::send_sysmessage_cl( chr->client,
                                   Core::CLP_Added );  // You have been added to the party.
-      obj_->send_msg_to_all( Core::CLP_Joined, chr->name().c_str(), chr );  //  : joined the party.
+      obj_->send_msg_to_all( Core::CLP_Joined, chr->name(), chr );  //  : joined the party.
       obj_->send_member_list( nullptr );
       obj_->send_stats_on_add( chr );
     }
@@ -344,8 +344,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
       if ( leader != nullptr )
       {
         if ( leader->has_active_client() )
-          Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline,
-                                          chr->name().c_str(),
+          Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Notify_Decline, chr->name(),
                                           true );  //: Does not wish to join the party.
       }
 
@@ -417,11 +416,10 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
         Core::settingsManager.party_cfg.Hooks.OnPartyCreate->call( CreatePartyRefObjImp( party ) );
       party->send_msg_to_all( Core::CLP_Added );  // You have been added to the party.
       if ( leader->has_active_client() )
-        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name().c_str(),
+        Core::send_sysmessage_cl_affix( leader->client, Core::CLP_Joined, firstmem->name(),
                                         true );  //  : joined the party.
       if ( firstmem->has_active_client() )
-        Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name().c_str(),
-                                        true );
+        Core::send_sysmessage_cl_affix( firstmem->client, Core::CLP_Joined, leader->name(), true );
       party->send_member_list( nullptr );
       party->send_stats_on_add( firstmem );
     }
@@ -451,21 +449,17 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
   BError* err;
   if ( getPartyParam( exec, 0, party, err ) )
   {
-    ObjArray* oText;
+    const String* text;
     Mobile::Character* chr;
-    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getObjArrayParam( 2, oText ) ) )
+    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getUnicodeStringParam( 2, text ) ) )
     {
-      size_t textlen = oText->ref_arr.size();
-      u16 gwtext[( SPEECH_MAX_LEN + 1 )];
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
-        return new BError( "Invalid value in Unicode array." );
-
+      if ( text->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
       if ( Core::settingsManager.party_cfg.Hooks.OnPublicChat )
-        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref(), oText );
+        Core::settingsManager.party_cfg.Hooks.OnPublicChat->call( chr->make_ref(),
+                                                                  new String( *text ) );
 
-      party->send_member_msg_public( chr, gwtext, textlen );
+      party->send_member_msg_public( chr, text->value() );
       return new BLong( 1 );
     }
     else
@@ -481,24 +475,19 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
   BError* err;
   if ( getPartyParam( exec, 0, party, err ) )
   {
-    ObjArray* oText;
+    const String* text;
     Mobile::Character* chr;
     Mobile::Character* tochr;
     if ( ( getCharacterParam( exec, 1, chr ) ) && ( getCharacterParam( exec, 2, tochr ) ) &&
-         ( getObjArrayParam( 3, oText ) ) )
+         ( getUnicodeStringParam( 3, text ) ) )
     {
-      size_t textlen = oText->ref_arr.size();
-      u16 gwtext[( SPEECH_MAX_LEN + 1 )];
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      if ( !Core::convertArrayToUC( oText, gwtext, textlen, true ) )
-        return new BError( "Invalid value in Unicode array." );
-
+      if ( text->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
       if ( Core::settingsManager.party_cfg.Hooks.OnPrivateChat )
-        Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call( chr->make_ref(),
-                                                                   tochr->make_ref(), oText );
+        Core::settingsManager.party_cfg.Hooks.OnPrivateChat->call(
+            chr->make_ref(), tochr->make_ref(), new String( *text ) );
 
-      party->send_member_msg_private( chr, tochr, gwtext, textlen );
+      party->send_member_msg_private( chr, tochr, text->value() );
       return new BLong( 1 );
     }
     else

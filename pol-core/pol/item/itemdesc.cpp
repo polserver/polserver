@@ -1240,9 +1240,10 @@ const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct )
       std::string value = val_imp->getStringRep();
       elem.set_rest( value.c_str() );
     }
-    else if ( Clib::strlower( key ) == "name" || Clib::strlower( key ) == "objtypename" ||
-              Clib::strlower( key ) == "oldobjtype" || Clib::strlower( key ) == "methodscript" ||
-              Clib::strlower( key ) == "weight" )
+    else if ( Clib::strlowerASCII( key ) == "name" || Clib::strlowerASCII( key ) == "objtypename" ||
+              Clib::strlowerASCII( key ) == "oldobjtype" ||
+              Clib::strlowerASCII( key ) == "methodscript" ||
+              Clib::strlowerASCII( key ) == "weight" )
     {
       // all of these only affect the main descriptor, so they're left out.
       //   name, objtypename, and oldobjtype would try to insert aliases

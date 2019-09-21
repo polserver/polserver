@@ -59,7 +59,6 @@
 #include "scrstore.h"
 #include "ufunc.h"
 #include "ufuncstd.h"
-#include "unicode.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 #include "utype.h"
@@ -77,16 +76,16 @@ bool wordicmp::operator()( const std::string& lhs, const std::string& rhs ) cons
 }
 
 
-void register_command( const char* cmd, TextCmdFunc f )
+void register_command( const std::string& cmd, TextCmdFunc f )
 {
   gamestate.textcmds.insert( TextCmds::value_type( cmd, f ) );
 }
-void register_command( const char* cmd, ParamTextCmdFunc f )
+void register_command( const std::string& cmd, ParamTextCmdFunc f )
 {
   gamestate.paramtextcmds.insert( ParamTextCmds::value_type( cmd, f ) );
 }
 
-bool FindEquipTemplate( const char* template_name, Clib::ConfigElem& elem )
+bool FindEquipTemplate( const std::string& template_name, Clib::ConfigElem& elem )
 {
   try
   {
@@ -98,7 +97,7 @@ bool FindEquipTemplate( const char* template_name, Clib::ConfigElem& elem )
       const char* rest = elem.rest();
       if ( rest == nullptr || *rest == '\0' )
         continue;
-      if ( stricmp( rest, template_name ) == 0 )
+      if ( stricmp( rest, template_name.c_str() ) == 0 )
         return true;
     }
     return false;
@@ -109,7 +108,7 @@ bool FindEquipTemplate( const char* template_name, Clib::ConfigElem& elem )
   }
 }
 
-Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name )
+Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const std::string& template_name )
 {
   Clib::ConfigElem elem;
   if ( !FindEquipTemplate( template_name, elem ) )
@@ -494,21 +493,21 @@ void textcmd_integ_chr( Network::Client* /*client*/ )
   check_character_integrity();
 }
 
-std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
+std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd )
 {
-  const char* t = cmd;
-  while ( *t )
-  {
-    if ( !isalpha( *t ) && ( *t != '_' ) )
-    {
-      // cout << "illegal command char: as int = " << int(*t) << ", as char = " << *t << endl;
-      return "";
-    }
-    ++t;
-  }
-
+  /* const char* t = cmd;
+   while ( *t )
+   {
+     if ( !isalpha( *t ) && ( *t != '_' ) )
+     {
+       // cout << "illegal command char: as int = " << int(*t) << ", as char = " << *t << endl;
+       return "";
+     }
+     ++t;
+   }
+ */
   std::string upp( cmd );
-  Clib::mkupper( upp );
+  Clib::mkupperASCII( upp );
   if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
     return "";
 
@@ -524,10 +523,8 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
       if ( pkg )
         filename = pkg->dir() + filename;
 
-      // cout << "Searching for " << filename << endl;
       if ( Clib::FileExists( filename.c_str() ) )
       {
-        // cout << "Found " << filename << endl;
         std::string result;
         std::ifstream ifs( filename.c_str(), std::ios::binary );
         char temp[64];
@@ -544,16 +541,16 @@ std::string get_textcmd_help( Mobile::Character* chr, const char* cmd )
   return "";
 }
 
-bool start_textcmd_script( Network::Client* client, const char* text, const u16* wtext = nullptr,
-                           const char* lang = nullptr )
+bool start_textcmd_script( Network::Client* client, const std::string& text,
+                           const std::string& lang )
 {
   std::string scriptname;
   std::string params;
-  const char* t = strchr( text, ' ' );
-  if ( t != nullptr )
+  size_t pos = text.find_first_of( ' ' );
+  if ( pos != std::string::npos )
   {
-    scriptname = std::string( text, t );
-    params = t + 1;
+    scriptname = std::string( text, 0, pos );
+    params = text.substr( pos + 1 );
   }
   else
   {
@@ -561,27 +558,17 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
     params = "";
   }
 
-  // cout << "scriptname='" << scriptname << "', params='" << params << "'" << endl;
+  // early out test for invalid scriptnames
+  if ( scriptname.find_first_of( "*\"':;!?#&-+()/\\=" ) != std::string::npos )
+    return false;
 
-  t = scriptname.c_str();
-  while ( *t )
-  {
-    if ( !isalnum( *t ) && ( *t != '_' ) )
-    {
-      // cout << "illegal command char: as int = " << int(*t) << ", as char = " << *t << endl;
-      return false;
-    }
-    ++t;
-  }
-
-  std::string upp( scriptname );
-  Clib::mkupper( upp );
+  std::string upp( scriptname, 0, 3 );
+  Clib::mkupperASCII( upp );
   if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
     return false;
 
   for ( int i = client->chr->cmdlevel(); i >= 0; --i )
   {
-    // cout << "checking cmdlevel " << i << endl;
     CmdLevel& cmdlevel = gamestate.cmdlevels[i];
     for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
     {
@@ -594,41 +581,17 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
       if ( !sd.exists() )
         continue;
 
-      // cout << "Searching for " << sd.name() << endl;
       ref_ptr<Bscript::EScriptProgram> prog =
           find_script2( sd,
                         false,  // don't complain if not found
                         Plib::systemstate.config.cache_interactive_scripts );
       if ( prog.get() != nullptr )
       {
-        // Unicode stuff
-
         std::unique_ptr<UOExecutor> ex( create_script_executor() );
         if ( prog->haveProgram )
         {
-          if ( wtext && lang )
-          {
-            Bscript::ObjArray* arr;
-            size_t woffset;
-            bool UCconv = false;
-            // calc offset to either the null after the
-            // scriptname (+1) or the start of the param (+2)
-            woffset = static_cast<size_t>( scriptname.length() + ( params == "" ? 1 : 2 ) );
-            unsigned wtlen = 0;  // wcslen(static_cast<const wchar_t*>(wtext+woffset))
-
-            // Need to calc length with a loop (coz linux is a PITA with 4-byte unicode!)
-            while ( *( wtext + woffset + wtlen ) )
-              ++wtlen;
-            UCconv = Core::convertUCtoArray( wtext + woffset, arr, wtlen,
-                                             true );  // convert back with ctBEu16()
-            if ( UCconv )
-            {
-              ex->pushArg( new Bscript::String( lang ) );
-              ex->pushArg( arr );
-            }
-            else
-              ex->pushArg( new Bscript::BError( "Invalid Unicode speech received." ) );
-          }
+          if ( !lang.empty() )
+            ex->pushArg( new Bscript::String( lang ) );
           ex->pushArg( new Bscript::String( params ) );
           ex->pushArg( new Module::ECharacterRefObjImp( client->chr ) );
         }
@@ -655,8 +618,8 @@ bool start_textcmd_script( Network::Client* client, const char* text, const u16*
   return false;
 }
 
-bool process_command( Network::Client* client, const char* text, const u16* wtext /*nullptr*/,
-                      const char* lang /*nullptr*/ )
+bool process_command( Network::Client* client, const std::string& text,
+                      const std::string& lang /*""*/ )
 {
   static int init;
   if ( !init )
@@ -683,15 +646,14 @@ bool process_command( Network::Client* client, const char* text, const u16* wtex
     register_command( "threads", &textcmd_threads );
   }
 
-  ++text;  // skip the "/" or "."
+  std::string cmd = text.substr( 1 );  // skip the "/" or "."
 
-  if ( start_textcmd_script( client, text, wtext, lang ) )
+  if ( start_textcmd_script( client, cmd, lang ) )
     return true;
 
-  // cout << "checking for builtin commands" << endl;
   if ( client->chr->cmdlevel() >= gamestate.cmdlevels.size() - 2 )
   {
-    TextCmds::iterator itr2 = gamestate.textcmds.find( text );
+    TextCmds::iterator itr2 = gamestate.textcmds.find( cmd );
     if ( itr2 != gamestate.textcmds.end() )
     {
       TextCmdFunc f = ( *itr2 ).second;
@@ -699,11 +661,12 @@ bool process_command( Network::Client* client, const char* text, const u16* wtex
       return true;
     }
 
-    ParamTextCmds::iterator itr1 = gamestate.paramtextcmds.find( text );
+    ParamTextCmds::iterator itr1 = gamestate.paramtextcmds.find( cmd );
     if ( itr1 != gamestate.paramtextcmds.end() )
     {
       ParamTextCmdFunc f = ( *itr1 ).second;
-      ( *f )( client, text + ( *itr1 ).first.size() );
+
+      ( *f )( client, cmd.substr( ( *itr1 ).first.size() + 1 ) );
       return true;
     }
   }

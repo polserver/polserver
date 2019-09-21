@@ -41,7 +41,7 @@ namespace Core
 class UOExecutor;
 
 void list_script( UOExecutor* uoexec );
-}
+}  // namespace Core
 namespace Bscript
 {
 class Executor;
@@ -152,6 +152,7 @@ public:
   const BLong* getLongParam( unsigned param );
 
   bool getStringParam( unsigned param, const String*& pstr );
+  bool getUnicodeStringParam( unsigned param, const String*& pstr );  // accepts also BLong array
   bool getParam( unsigned param, int& value );
   bool getParam( unsigned param, int& value, int maxval );
   bool getParam( unsigned param, int& value, int minval, int maxval );
@@ -473,6 +474,6 @@ inline void Executor::set_running_to_completion( bool to_completion )
 {
   runs_to_completion_ = to_completion;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

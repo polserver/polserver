@@ -429,14 +429,14 @@ struct PKTIN_B1
   {
     u16 tag;
     u16 length;
-    u8 data[1];  // !@#!# Unicode
+    u16 data[1];
   };
 };
 static_assert( sizeof( PKTIN_B1::HEADER ) == 15, "size missmatch" );
 static_assert( sizeof( PKTIN_B1::INTS_HEADER ) == 4, "size missmatch" );
 static_assert( sizeof( PKTIN_B1::INT_ENTRY ) == 4, "size missmatch" );
 static_assert( sizeof( PKTIN_B1::STRINGS_HEADER ) == 4, "size missmatch" );
-static_assert( sizeof( PKTIN_B1::STRING_ENTRY ) == 5, "size missmatch" );
+static_assert( sizeof( PKTIN_B1::STRING_ENTRY ) == 6, "size missmatch" );
 
 struct PKTIN_B5
 {

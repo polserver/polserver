@@ -88,7 +88,7 @@ static int print_ctable()
   {
     int nbits = keyid[i] & 0x0F;
     unsigned short inmask = 0x10;
-    const unsigned short val = static_cast<const unsigned short>( keyid[i] );
+    const unsigned short val = static_cast<unsigned short>( keyid[i] );
     unsigned short valout = 0;
     while ( nbits-- )
     {

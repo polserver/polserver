@@ -6,7 +6,7 @@
 #ifndef __TILECMD_H
 #define __TILECMD_H
 
-#include "../clib/rawtypes.h"
+#include <string>
 
 namespace Pol
 {
@@ -16,8 +16,7 @@ class Client;
 }
 namespace Core
 {
-bool process_tildecommand( Network::Client* client, const char* textbuf );
-bool process_tildecommand( Network::Client* client, const u16* wtextbuf );
-}
-}
+bool process_tildecommand( Network::Client* client, const std::string& textbuf );
+}  // namespace Core
+}  // namespace Pol
 #endif

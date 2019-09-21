@@ -47,6 +47,8 @@ void ProgramMain::start( int argc, char* argv[] )
   Clib::ExceptionParser::initGlobalExceptionCatching();
 
   std::setlocale( LC_TIME, "" );
+  std::setlocale( LC_CTYPE, "en_US.UTF-8" );  // unicode aware strings, unsure if english is enough,
+                                              // or if it needs to be a user defined value
 
   int exitcode = 0;
 

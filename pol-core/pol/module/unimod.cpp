@@ -25,8 +25,8 @@
 #include "../network/pktboth.h"
 #include "../network/pktdef.h"
 #include "../ufunc.h"
-#include "../unicode.h"
 #include "../uoexec.h"
+#include "uomod.h"
 
 namespace Pol
 {
@@ -46,8 +46,10 @@ void send_unicode_prompt( Client* client, u32 serial )
 
 void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 {
+  // TODO do we really need two of them, this can also be done differently
   Module::UnicodeExecutorModule* uniemod = client->gd->prompt_uniemod;
-  if ( uniemod == nullptr )
+  Module::UOExecutorModule* uoemod = client->gd->prompt_uoemod;
+  if ( uoemod == nullptr && uniemod == nullptr )
     return;  // log it?
 
   int textlen = ( ( cfBEu16( msg->msglen ) - offsetof( Core::PKTBI_C2, wtext ) ) /
@@ -60,64 +62,43 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
     msg->wtext[textlen] = 0x0000;
   }
 
-  bool ok = true;
-  Bscript::BObject* valstack = nullptr;
-
-#if ( 0 )
   // client version of the packet should always send this as a 1??
-  if ( cfBEu16( msg->unk ) != 0x01 )
+  /*if ( cfBEu16( msg->unk ) != 0x01 )
   {
     // ENHANCE: May want to log this, too?
     ok = false;
     valstack = new BObject( new BError( "Malformed return-packet from client" ) );
-  }
-#endif
+  }*/
 
   char lang[4];
   memcpy( lang, msg->lang, 4 );
 
-  if ( ok )
+  // String::fromUTF16 performs all the error checks
+  // "Invalid unicode" will be returned if completly broken, but do we really need to take care?
+  if ( uniemod != nullptr && uniemod->prompt_chr != nullptr )
   {
-    Bscript::ObjArray uc_text;
-    int i;
-    for ( i = 0; i < textlen; i++ )
-    {
-      u16 wc = msg->wtext[i];                   // its not flipped!! ...i hate osi...
-      if ( wc < (u16)0x20 || wc == (u16)0x7F )  // control character! >_<
-      {
-        ok = false;
-        valstack = new Bscript::BObject(
-            new Bscript::BError( "Invalid control characters in text entry" ) );
-
-        POLLOG_ERROR << "Client #" << static_cast<unsigned long>( client->instance_ )
-                     << " (account "
-                     << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" )
-                     << ") sent invalid unicode control characters (RequestInputUC)\n";
-        break;  // for
-      }
-      uc_text.addElement( new Bscript::BLong( wc ) );
-    }
-
-    if ( ok )
-    {
-      if ( uc_text.ref_arr.empty() )
-        valstack = new Bscript::BObject( new Bscript::BLong( 0 ) );
-      else
-      {
-        std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
-        retval->addMember( "lang", new Bscript::String( lang ) );
-        retval->addMember( "uc_text", uc_text.copy() );
-        valstack = new Bscript::BObject( retval.release() );
-      }
-    }
+    std::unique_ptr<Bscript::BStruct> retval( new Bscript::BStruct() );
+    retval->addMember( "lang", new Bscript::String( lang ) );
+    retval->addMember( "text",
+                       new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) );
+    uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
+    uniemod->uoexec.revive();
   }
+  else if ( uoemod != nullptr && uoemod->prompt_chr != nullptr )
+  {
+    // called from uo module, directly return string
+    uoemod->exec.ValueStack.back().set( new Bscript::BObject(
+        new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) ) );
 
-  uniemod->exec.ValueStack.back().set( valstack );  // error or struct, regardless.
-  uniemod->uoexec.revive();
-  uniemod->prompt_chr = nullptr;
+    uoemod->uoexec.revive();
+  }
+  if ( uniemod != nullptr )
+    uniemod->prompt_chr = nullptr;
+  if ( uoemod != nullptr )
+    uoemod->prompt_chr = nullptr;
   client->gd->prompt_uniemod = nullptr;
+  client->gd->prompt_uoemod = nullptr;
 }
-
 //////////////////////////////////////////////////////////////////////////
 }  // namespace Core
 namespace Bscript
@@ -136,7 +117,6 @@ TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
 namespace Module
 {
 using namespace Bscript;
-u16 gwtext[( SPEECH_MAX_LEN + 1 )];
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
     : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
@@ -156,28 +136,22 @@ UnicodeExecutorModule::~UnicodeExecutorModule()
 
 BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 {
-  using std::wcout;  // wcout rox :)
-
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
   unsigned short requiredCmdLevel;
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 1, lang ) &&
+  if ( getUnicodeStringParam( 0, text ) && getStringParam( 1, lang ) &&
        getParam( 2, font ) &&             // todo: getFontParam
        getParam( 3, color ) &&            // todo: getColorParam
        getParam( 4, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    size_t textlen = oText->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    // lang->toUpper(); // Language codes are in upper-case :)
-    if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
-    Core::broadcast( gwtext, Clib::strupper( lang->value() ).c_str(), font, color,
-                     requiredCmdLevel );
+    Core::broadcast_unicode( text->value(), Clib::strupperASCII( lang->value() ), font, color,
+                             requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -189,25 +163,22 @@ BObjectImp* UnicodeExecutorModule::mf_BroadcastUC()
 BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
 {
   Core::UObject* obj;
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( 0, obj ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getUObjectParam( 0, obj ) && getUnicodeStringParam( 1, text ) && getStringParam( 2, lang ) &&
        getParam( 3, font ) && getParam( 4, color ) && getParam( 5, journal_print ) )
   {
-    size_t textlen = oText->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( say_above( obj, gwtext, Clib::strupper( lang->value() ).c_str(), font, color,
-                                 journal_print ) );
+    return new BLong( say_above_unicode( obj, text->value(), Clib::strupperASCII( lang->value() ),
+                                         font, color, journal_print ) );
   }
   else
   {
@@ -219,25 +190,21 @@ BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
 {
   Mobile::Character* chr;
   Core::UObject* obj;
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
 
-  if ( getUObjectParam( 0, obj ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
+  if ( getUObjectParam( 0, obj ) && getUnicodeStringParam( 1, text ) && getStringParam( 2, lang ) &&
        getCharacterParam( 3, chr ) && getParam( 4, font ) && getParam( 5, color ) )
   {
-    size_t textlen = oText->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    // lang->toUpper(); // Language codes are in upper-case :)
-    if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
 
-    return new BLong( private_say_above( chr, obj, gwtext, Clib::strupper( lang->value() ).c_str(),
-                                         font, color ) );
+    return new BLong( private_say_above_unicode(
+        chr, obj, text->value(), Clib::strupperASCII( lang->value() ), font, color ) );
   }
   else
   {
@@ -249,10 +216,10 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 {
   Mobile::Character* chr;
   Items::Item* item;
-  ObjArray* oPrompt;
+  const String* prompt;
   const String* lang;
-  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getObjArrayParam( 2, oPrompt ) &&
-       getStringParam( 3, lang ) )
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) &&
+       getUnicodeStringParam( 2, prompt ) && getStringParam( 3, lang ) )
   {
     if ( !chr->has_active_client() )
     {
@@ -264,13 +231,10 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new BError( "Another script has an active prompt" );
     }
 
-    size_t textlen = oPrompt->ref_arr.size();
-    if ( textlen > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( prompt->length() > SPEECH_MAX_LEN )
+      return new BError( "Prompt exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oPrompt, gwtext, textlen ) )
-      return new BError( "Invalid value in Unicode array." );
 
     if ( !uoexec.suspend() )
     {
@@ -280,7 +244,8 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value() ).c_str() );
+    Core::send_sysmessage_unicode( chr->client, prompt->value(),
+                                   Clib::strupperASCII( lang->value() ) );
 
     chr->client->gd->prompt_uniemod = this;
     prompt_chr = chr;
@@ -298,27 +263,23 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
 BObjectImp* UnicodeExecutorModule::mf_SendSysMessageUC()
 {
   Mobile::Character* chr;
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   unsigned short font;
   unsigned short color;
 
-  if ( getCharacterParam( 0, chr ) && getObjArrayParam( 1, oText ) && getStringParam( 2, lang ) &&
-       getParam( 3, font ) && getParam( 4, color ) )
+  if ( getCharacterParam( 0, chr ) && getUnicodeStringParam( 1, text ) &&
+       getStringParam( 2, lang ) && getParam( 3, font ) && getParam( 4, color ) )
   {
     if ( chr->has_active_client() )
     {
-      size_t textlen = oText->ref_arr.size();
-      if ( textlen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
+      if ( text->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
       if ( lang->length() != 3 )
         return new BError( "langcode must be a 3-character code." );
-      // lang->toUpper(); // Language codes are in upper-case :)
-      if ( !Core::convertArrayToUC( oText, gwtext, textlen ) )
-        return new BError( "Invalid value in Unicode array." );
 
-      Core::send_sysmessage( chr->client, gwtext, Clib::strupper( lang->value() ).c_str(), font,
-                             color );
+      Core::send_sysmessage_unicode( chr->client, text->value(),
+                                     Clib::strupperASCII( lang->value() ), font, color );
       return new BLong( 1 );
     }
     else

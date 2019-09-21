@@ -37,6 +37,7 @@
 #include "syshook.h"
 #include "textcmd.h"
 #include "tildecmd.h"
+#include "ufunc.h"
 #include "ufuncstd.h"
 #include "uworld.h"
 
@@ -44,15 +45,14 @@ namespace Pol
 {
 namespace Core
 {
-void handle_processed_speech( Network::Client* client, char* textbuf, int textbuflen,
-                              char firstchar, u8 type, u16 color, u16 font )
+void handle_processed_speech( Network::Client* client, const std::string& text, u8 type, u16 color,
+                              u16 font )
 {
-  // ENHANCE: if (intextlen+1) != textbuflen, then the input line was 'dirty'.  May want to log this
-  // fact.
-
-  if ( textbuflen == 1 )
+  if ( text.empty() )
     return;
 
+  std::string s_text( text );
+  Clib::sanitizeUnicodeWithIso( &s_text );  // use original text for other clients
   Mobile::Character* chr = client->chr;
 
   // validate text color
@@ -63,16 +63,16 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   }
   chr->last_textcolor( textcol );
 
-  if ( textbuf[0] == '.' || textbuf[0] == '=' )
+  if ( s_text[0] == '.' || s_text[0] == '=' )
   {
-    if ( !process_command( client, textbuf ) )
-      send_sysmessage( client, std::string( "Unknown command: " ) + textbuf );
+    if ( !process_command( client, s_text ) )
+      send_sysmessage( client, std::string( "Unknown command: " ) + text );
     return;
   }
 
-  if ( firstchar == '~' )  // we strip tildes out
+  if ( s_text[0] == '~' )
   {
-    process_tildecommand( client, textbuf );
+    process_tildecommand( client, s_text );
     return;
   }
 
@@ -87,7 +87,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
     INFO_PRINT << chr->name() << " speaking w/ color 0x" << fmt::hexu( cfBEu16( color ) ) << "\n";
   }
 
-  u16 textlen = static_cast<u16>( textbuflen + 1 );
+  u16 textlen = static_cast<u16>( text.size() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -99,7 +99,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
   talkmsg->WriteFlipped<u16>( textcol );
   talkmsg->WriteFlipped<u16>( font );
   talkmsg->Write( chr->name().c_str(), 30 );
-  talkmsg->Write( textbuf, textlen );
+  talkmsg->Write( text.c_str(), textlen );
   u16 len = talkmsg->offset;
   talkmsg->offset = 1;
   talkmsg->WriteFlipped<u16>( len );
@@ -158,7 +158,7 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
     Core::WorldIterator<Core::NPCFilter>::InRange(
         chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-          npc->on_pc_spoke( chr, textbuf, type );
+          npc->on_pc_spoke( chr, s_text, type );
         } );
   }
   else
@@ -166,52 +166,44 @@ void handle_processed_speech( Network::Client* client, char* textbuf, int textbu
     Core::WorldIterator<Core::NPCFilter>::InRange(
         chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-          npc->on_ghost_pc_spoke( chr, textbuf, type );
+          npc->on_ghost_pc_spoke( chr, s_text, type );
         } );
   }
 
-  sayto_listening_points( client->chr, textbuf, textbuflen, type );
+  sayto_listening_points( client->chr, s_text, type );
 }
 
 
 void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
 {
-  int i;
-  int intextlen;
+  int intextlen = cfBEu16( mymsg->msglen ) - offsetof( PKTIN_03, text ) - 1;
 
-  char textbuf[SPEECH_MAX_LEN + 1];
-  int textbuflen;
-
-  intextlen = cfBEu16( mymsg->msglen ) - offsetof( PKTIN_03, text ) - 1;
-
-  // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
+  // Preprocess the text into a sanity-checked, printable form in text
   if ( intextlen < 0 )
     intextlen = 0;
   if ( intextlen > SPEECH_MAX_LEN )
     intextlen = SPEECH_MAX_LEN;  // ENHANCE: May want to log this
 
-  for ( i = 0, textbuflen = 0; i < intextlen; i++ )
+  std::string text;
+  text.reserve( intextlen );
+  for ( int i = 0; i < intextlen; i++ )
   {
     char ch = mymsg->text[i];
 
     if ( ch == 0 )
       break;
-    if ( ch == '~' )
-      continue;  // skip unprintable tildes.  Probably not a reportable offense.
-
     if ( isprint( ch ) )
-      textbuf[textbuflen++] = ch;
+      text += ch;
     // ENHANCE: else report client data error? Just log?
   }
-  textbuf[textbuflen++] = 0;
-
-  handle_processed_speech( client, textbuf, textbuflen, mymsg->text[0], mymsg->type, mymsg->color,
-                           mymsg->font );
+  handle_processed_speech( client, text, mymsg->type, mymsg->color, mymsg->font );
 }
 
-void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, size_t wtextlen,
-                        char* ntext, size_t ntextlen, Bscript::ObjArray* speechtokens )
+void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::string& text,
+                        Bscript::ObjArray* speechtokens )
 {
+  if ( text.empty() )
+    return;
   // validate text color
   u16 textcol = cfBEu16( msgin->color );
   if ( textcol < 2 || textcol > 1001 )
@@ -224,24 +216,20 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
 
   chr->last_textcolor( textcol );
 
-  using std::wstring;
-
-  if ( wtext[0] == ctBEu16( L'.' ) || wtext[0] == ctBEu16( L'=' ) )
+  if ( text[0] == '.' || text[0] == '=' )
   {
-    if ( !process_command( client, ntext, wtext, msgin->lang ) )
+    std::string lang( msgin->lang );
+    if ( !process_command( client, text, lang ) )
     {
-      wstring wtmp( L"Unknown command: " );
-      // Needs to be done char-by-char due to linux's 4-byte unicode!
-      for ( size_t i = 0; i < wtextlen; i++ )
-        wtmp += static_cast<wchar_t>( cfBEu16( wtext[i] ) );
-      send_sysmessage( client, wtmp, msgin->lang );
+      std::string tmp( "Unknown command: " );
+      send_sysmessage_unicode( client, tmp, lang );
     }
     return;
   }
 
-  if ( cfBEu16( msgin->wtext[0] ) == L'~' )  // we strip tildes out
+  if ( text[0] == '~' )
   {
-    process_tildecommand( client, wtext );
+    process_tildecommand( client, text );
     return;
   }
 
@@ -267,7 +255,11 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
   talkmsg->WriteFlipped<u16>( msgin->font );
   talkmsg->Write( msgin->lang, 4 );
   talkmsg->Write( chr->name().c_str(), 30 );
-  talkmsg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );  // nullterm already included
+
+  std::vector<u16> utf16 = Bscript::String::toUTF16( text );
+  if ( utf16.size() > SPEECH_MAX_LEN )
+    utf16.resize( SPEECH_MAX_LEN );
+  talkmsg->WriteFlipped( utf16, true );
   u16 len = talkmsg->offset;
   talkmsg->offset = 1;
   talkmsg->WriteFlipped<u16>( len );
@@ -365,7 +357,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       Core::WorldIterator<Core::NPCFilter>::InRange(
           chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+            npc->on_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
           } );
     }
     else
@@ -373,11 +365,10 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, u16* wtext, si
       Core::WorldIterator<Core::NPCFilter>::InRange(
           chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_ghost_pc_spoke( chr, ntext, msgin->type, wtext, msgin->lang, speechtokens );
+            npc->on_ghost_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
           } );
     }
-    sayto_listening_points( client->chr, ntext, static_cast<int>( ntextlen ), msgin->type, wtext,
-                            msgin->lang, static_cast<int>( wtextlen ), speechtokens );
+    sayto_listening_points( client->chr, text, msgin->type, msgin->lang, speechtokens );
   }
 }
 u16 Get12BitNumber( u8* thearray, u16 theindex )
@@ -392,131 +383,50 @@ u16 Get12BitNumber( u8* thearray, u16 theindex )
   return theresult;
 }
 
-int GetNextUTF8( u8* bytemsg, int i, u16& unicodeChar )
-{
-  u16 result = 0;
-
-  if ( ( bytemsg[i] & 0x80 ) == 0 )
-  {
-    unicodeChar = bytemsg[i];
-    return i + 1;
-  }
-
-  if ( ( bytemsg[i] & 0xE0 ) == 0xC0 )
-  {
-    // two byte sequence :
-    if ( ( bytemsg[i + 1] & 0xC0 ) == 0x80 )
-    {
-      result = ( ( bytemsg[i] & 0x1F ) << 6 ) | ( bytemsg[i + 1] & 0x3F );
-      unicodeChar = result;
-      return i + 2;
-    }
-  }
-  else if ( ( bytemsg[i] & 0xF0 ) == 0xE0 )
-  {
-    // three byte sequence
-    if ( ( ( bytemsg[i + 1] & 0xC0 ) == 0x80 ) && ( ( bytemsg[i + 2] & 0xC0 ) == 0x80 ) )
-    {
-      result = ( ( bytemsg[i] & 0x0F ) << 12 ) | ( ( bytemsg[i + 1] & 0x3F ) < 6 ) |
-               ( bytemsg[i + 2] & 0x3F );
-      unicodeChar = result;
-      return i + 3;
-    }
-  }
-
-  // An error occurred in the sequence(or sequence > 16 bits) :
-  unicodeChar = 0x20;  // Set unicode char to a "space" character instead"
-  return i + 1;
-}
-
 void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
 {
-  using std::wcout;  // wcout.narrow() function r0x! :-)
-
-  int intextlen;
   u16 numtokens = 0;
-  u16* themsg = msgin->wtext;
-  u8* bytemsg;
-  int wtextoffset = 0;
   std::unique_ptr<Bscript::ObjArray> speechtokens( nullptr );
-  int i;
-
-  u16 tempbuf[SPEECH_MAX_LEN + 1];
-
-  u16 wtextbuf[SPEECH_MAX_LEN + 1];
-  size_t wtextbuflen;
-
-  char ntextbuf[SPEECH_MAX_LEN + 1];
-  size_t ntextbuflen;
-
+  std::string text;
   if ( msgin->type & 0xc0 )
   {
     numtokens = Get12BitNumber( (u8*)( msgin->wtext ), 0 );
-    wtextoffset = ( ( ( ( numtokens + 1 ) * 3 ) / 2 ) + ( ( numtokens + 1 ) % 2 ) );
-    bytemsg = ( ( (u8*)themsg ) + wtextoffset );
-    int bytemsglen = cfBEu16( msgin->msglen ) - wtextoffset - offsetof( PKTIN_AD, wtext ) - 1;
-    intextlen = 0;
-
-    i = 0;
-    int j = 0;
-    u16 unicodeChar;
-    while ( ( i < bytemsglen ) && ( i < SPEECH_MAX_LEN ) )
-    {
-      i = GetNextUTF8( bytemsg, i, unicodeChar );
-      tempbuf[j++] = cfBEu16( unicodeChar );
-      intextlen++;
-    }
-
-    themsg = tempbuf;
+    int wtextoffset = ( ( ( ( numtokens + 1 ) * 3 ) / 2 ) + ( ( numtokens + 1 ) % 2 ) );
+    int bytemsglen = cfBEu16( msgin->msglen ) - wtextoffset - offsetof( Core::PKTIN_AD, wtext ) - 1;
+    if ( bytemsglen < 0 )
+      bytemsglen = 0;
+    text = Bscript::String::fromUTF8( reinterpret_cast<const char*>( msgin->wtext ) + wtextoffset,
+                                      bytemsglen );
   }
   else
-    intextlen =
-        ( cfBEu16( msgin->msglen ) - offsetof( PKTIN_AD, wtext ) ) / sizeof( msgin->wtext[0] ) - 1;
-
-  // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
-  if ( intextlen < 0 )
-    intextlen = 0;
-  if ( intextlen > SPEECH_MAX_LEN )
-    intextlen = SPEECH_MAX_LEN;  // ENHANCE: May want to log this
-
-  // Preprocess the text into a sanity-checked, printable, null-terminated form
-  // in 'wtextbuf' and 'ntextbuf'
-  ntextbuflen = 0;
-  wtextbuflen = 0;
-  for ( i = 0; i < intextlen; i++ )
   {
-    u16 wc = cfBEu16( themsg[i] );
-    if ( wc == 0 )
-      break;  // quit early on embedded nulls
-    if ( wc == L'~' )
-      continue;  // skip unprintable tildes.
-    wtextbuf[wtextbuflen++] = ctBEu16( wc );
-    ntextbuf[ntextbuflen++] = wcout.narrow( (wchar_t)wc, '?' );
+    int intextlen = ( cfBEu16( msgin->msglen ) - offsetof( Core::PKTIN_AD, wtext ) ) /
+                        sizeof( msgin->wtext[0] ) -
+                    1;
+    if ( intextlen < 0 )
+      intextlen = 0;
+    text = Bscript::String::fromUTF16( msgin->wtext, intextlen, true );
   }
-  wtextbuf[wtextbuflen++] = (u16)0;
-  ntextbuf[ntextbuflen++] = 0;
+  //  SPEECH_MAX_LEN needs to be checked later
 
   if ( msgin->type & 0xc0 )
   {
-    Bscript::BLong* atoken = nullptr;
-    if ( speechtokens.get() == nullptr )
-      speechtokens.reset( new Bscript::ObjArray() );
+    speechtokens.reset( new Bscript::ObjArray() );
     for ( u16 j = 0; j < numtokens; j++ )
     {
-      atoken = new Bscript::BLong( Get12BitNumber( (u8*)( msgin->wtext ), j + 1 ) );
-      speechtokens->addElement( atoken );
+      speechtokens->addElement(
+          new Bscript::BLong( Get12BitNumber( (u8*)( msgin->wtext ), j + 1 ) ) );
     }
     if ( gamestate.system_hooks.speechmul_hook )
     {
       gamestate.system_hooks.speechmul_hook->call( make_mobileref( client->chr ),
                                                    new Bscript::ObjArray( *speechtokens.get() ),
-                                                   new Bscript::String( ntextbuf ) );
+                                                   new Bscript::String( text ) );
     }
     msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
   }
 
-  SendUnicodeSpeech( client, msgin, wtextbuf, wtextbuflen, ntextbuf, ntextbuflen,
-                     speechtokens.release() );
+  SendUnicodeSpeech( client, msgin, text, speechtokens.release() );
 }
 }  // namespace Core
 }  // namespace Pol

@@ -11,6 +11,7 @@
 #include "strutil.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
+#include <utf8/utf8.h>
 
 #include "logfacility.h"
 #include "stlutil.h"
@@ -179,24 +180,100 @@ void test_convertquotedstring()
 UnitTest test_convertquotedstring_obj( test_convertquotedstring );
 
 // If we have boost, I think we should use it...
-void mklower( std::string& str )
+void mklowerASCII( std::string& str )
 {
   boost::to_lower( str );
 }
 
-void mkupper( std::string& str )
+void mkupperASCII( std::string& str )
 {
   boost::to_upper( str );
 }
 
-std::string strlower( const std::string& str )
+std::string strlowerASCII( const std::string& str )
 {
   return boost::to_lower_copy( str );
 }
 
-std::string strupper( const std::string& str )
+std::string strupperASCII( const std::string& str )
 {
   return boost::to_upper_copy( str );
 }
+
+bool isValidUnicode( const std::string& str )
+{
+  return utf8::find_invalid( str.begin(), str.end() ) == str.end();
+}
+
+void sanitizeUnicodeWithIso( std::string* str )
+{
+  if ( isValidUnicode( *str ) )
+    return;
+  // assume iso8859
+  std::string utf8( "" );
+  utf8.reserve( 2 * str->size() + 1 );
+
+  for ( const auto& s : *str )
+  {
+    if ( !( s & 0x80 ) )
+    {
+      utf8.push_back( s );
+    }
+    else
+    {
+      utf8.push_back( 0xc2 | ( (unsigned char)( s ) >> 6 ) );
+      utf8.push_back( 0xbf & s );
+    }
+  }
+  *str = utf8;
+}
+
+void sanitizeUnicode( std::string* str )
+{
+  if ( !isValidUnicode( *str ) )
+  {
+    try
+    {
+      std::string new_s;
+      utf8::replace_invalid( str->begin(), str->end(), std::back_inserter( new_s ) );
+      *str = new_s;
+    }
+    catch ( utf8::exception& )
+    {
+      *str = "Invalid unicode";
+    }
+  }
+  auto begin = str->begin();
+  auto end = str->end();
+  while ( begin != end )
+  {
+    auto c = utf8::unchecked::next( begin );
+    if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
+    {
+      // control character found build new string skipping them
+      std::string new_s;
+      begin = str->begin();
+      while ( begin != end )
+      {
+        c = utf8::unchecked::next( begin );
+        if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
+          continue;
+        utf8::unchecked::append( c, std::back_inserter( new_s ) );
+      }
+      *str = new_s;
+      break;
+    }
+  }
+}
+
+void remove_bom( std::string* strbuf )
+{
+  if ( strbuf->size() >= 3 )
+  {
+    if ( utf8::starts_with_bom( strbuf->cbegin(), strbuf->cend() ) )
+      strbuf->erase( 0, 3 );
+  }
+}
+
 }  // namespace Clib
 }  // namespace Pol

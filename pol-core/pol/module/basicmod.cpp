@@ -56,7 +56,8 @@ Bscript::BObjectImp* BasicExecutorModule::len()
   }
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
-    return new BLong( static_cast<int>( imp->getStringRep().length() ) );
+    Bscript::String* str = static_cast<Bscript::String*>( imp );
+    return new BLong( static_cast<int>( str->length() ) );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTError ) )
   {
@@ -175,59 +176,58 @@ Bscript::BObjectImp* BasicExecutorModule::mf_SubStrReplace()
 // just in case someone's code is bugged :(
 Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
 {
-  std::string str1 = exec.paramAsString( 0 );
-  std::string str2 = exec.paramAsString( 1 );
+  String str1( exec.paramAsString( 0 ) );
+  String str2( exec.paramAsString( 1 ) );
   int pos1_index = static_cast<int>( exec.paramAsLong( 2 ) );
   int pos1_len = static_cast<int>( exec.paramAsLong( 3 ) );
   int pos2_index = static_cast<int>( exec.paramAsLong( 4 ) );
   int pos2_len = static_cast<int>( exec.paramAsLong( 5 ) );
 
+  size_t str1length( str1.length() );
+  size_t str2length( str2.length() );
   if ( pos1_index != 0 )
   {
     if ( pos1_index < 0 )
       return new BError( "Index must not be negative for param 1" );
-    if ( static_cast<unsigned>( pos1_index - 1 ) > str1.length() )
+    if ( static_cast<unsigned>( pos1_index - 1 ) > str1length )
       return new BError( "Index out of range for param 1" );
   }
   if ( pos2_index != 0 )
   {
     if ( pos2_index < 0 )
       return new BError( "Index must not be negative for param 2" );
-    if ( static_cast<unsigned>( pos2_index - 1 ) > str2.length() )
+    if ( static_cast<unsigned>( pos2_index - 1 ) > str2length )
       return new BError( "Index out of range for param 2" );
   }
 
 
   if ( pos1_len < 0 )
     return new BError( "Length must not be negative for param 1" );
-  if ( static_cast<unsigned>( pos1_len ) > ( str1.length() - pos1_index ) )
+  if ( static_cast<unsigned>( pos1_len ) > ( str1length - pos1_index ) )
     return new BError( "Length out of range for param 1" );
   if ( pos2_len < 0 )
     return new BError( "Length must not be negative for param 2" );
-  if ( static_cast<unsigned>( pos2_len ) > ( str2.length() - pos2_index ) )
+  if ( static_cast<unsigned>( pos2_len ) > ( str2length - pos2_index ) )
     return new BError( "Length out of range for param 2" );
 
 
   if ( pos1_index == 0 )
   {
-    unsigned int result = str1.compare( str2 );
-    if ( result != 0 )
+    if ( !str1.compare( str2 ) )
       return new BLong( 0 );
     else
       return new BLong( 1 );
   }
   else if ( pos1_index > 0 && pos2_index == 0 )
   {
-    unsigned int result = str1.compare( pos1_index - 1, pos1_len, str2 );
-    if ( result != 0 )
+    if ( !str1.compare( pos1_index - 1, pos1_len, str2 ) )
       return new BLong( 0 );
     else
       return new BLong( 1 );
   }
   else
   {
-    unsigned int result = str1.compare( pos1_index - 1, pos1_len, str2, pos2_index - 1, pos2_len );
-    if ( result != 0 )
+    if ( !str1.compare( pos1_index - 1, pos1_len, str2, pos2_index - 1, pos2_len ) )
       return new BLong( 0 );
     else
       return new BLong( 1 );
@@ -306,7 +306,12 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    return new BLong( static_cast<unsigned char>( str->data()[0] ) );
+    const auto& utf16 = str->StrStr( 1, 1 )->toUTF16();
+    if ( utf16.empty() )
+      return new BLong( 0 );
+    else if ( utf16.size() > 1 )
+      return new BError( "Cannot be represented by a single number" );
+    return new BLong( utf16[0] );
   }
   else
   {
@@ -317,12 +322,13 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
 Bscript::BObjectImp* BasicExecutorModule::mf_CAscZ()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
-  std::string tmp = imp->getStringRep();
+  String tmp( imp->getStringRep() );
   int nullterm = static_cast<int>( exec.paramAsLong( 1 ) );
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( size_t i = 0; i < tmp.size(); ++i )
+  const auto& utf16 = tmp.toUTF16();
+  for ( const auto& code : utf16 )
   {
-    arr->addElement( new BLong( static_cast<unsigned char>( tmp[i] ) ) );
+    arr->addElement( new BLong( code ) );
   }
   if ( nullterm )
     arr->addElement( new BLong( 0 ) );
@@ -335,10 +341,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChr()
   int val;
   if ( getParam( 0, val ) )
   {
-    char s[2];
-    s[0] = static_cast<char>( val );
-    s[1] = '\0';
-    return new String( s );
+    return new String( String::fromUTF16( static_cast<u16>( val & 0xffff ) ) );
   }
   else
   {
@@ -354,28 +357,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CChrZ()
   int break_first_null = static_cast<int>( exec.paramAsLong( 1 ) );
   if ( !arr )
     return new BError( "Invalid parameter type" );
-  for ( Bscript::ObjArray::const_iterator itr = arr->ref_arr.begin(), itrend = arr->ref_arr.end();
-        itr != itrend; ++itr )
-  {
-    BObject* bo = ( itr->get() );
-    if ( bo == nullptr )
-      continue;
-    Bscript::BObjectImp* imp = bo->impptr();
-    if ( imp )
-    {
-      if ( imp->isa( Bscript::BObjectImp::OTLong ) )
-      {
-        BLong* blong = static_cast<BLong*>( imp );
-        if ( break_first_null && blong->value() == 0 )
-          break;
-        char s[2];
-        s[0] = static_cast<char>( blong->value() );
-        s[1] = '\0';
-        res += s;
-      }
-    }
-  }
-  return new String( res );
+  return String::fromUCArray( arr, break_first_null != 0 );
 }
 
 Bscript::BObjectImp* BasicExecutorModule::mf_Hex()

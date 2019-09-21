@@ -14,6 +14,7 @@
 #include "../clib/rawtypes.h"
 #include "item/item.h"
 #include "mobile/charactr.h"
+#include "module/unimod.h"
 #include "module/uomod.h"
 #include "network/cgdata.h"
 #include "network/client.h"
@@ -100,14 +101,24 @@ Bscript::BObjectImp* UOExecutorModule::mf_PromptInput()
              << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
   }
+  if ( !prompt->hasUTF8Characters() )
+  {
+    Core::send_sysmessage( chr->client, prompt->data() );
 
-  Core::send_sysmessage( chr->client, prompt->data() );
+    chr->client->gd->prompt_uoemod = this;
+    prompt_chr = chr;
 
-  chr->client->gd->prompt_uoemod = this;
-  prompt_chr = chr;
+    Core::send_prompt( chr->client, ctBEu32( item->serial ) );
+  }
+  else
+  {
+    Core::send_sysmessage_unicode( chr->client, prompt->value(), "ENU" );
 
-  Core::send_prompt( chr->client, ctBEu32( item->serial ) );
+    chr->client->gd->prompt_uoemod = this;
+    prompt_chr = chr;
 
+    Core::send_unicode_prompt( chr->client, ctBEu32( item->serial ) );
+  }
   return new Bscript::BLong( 0 );
 }
 }  // namespace Module

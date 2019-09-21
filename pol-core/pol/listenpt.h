@@ -9,6 +9,7 @@
 
 #include "../clib/rawtypes.h"
 #include "reftypes.h"
+#include <string>
 
 namespace Pol
 {
@@ -16,7 +17,7 @@ namespace Bscript
 {
 class BObjectImp;
 class ObjArray;
-}
+}  // namespace Bscript
 namespace Mobile
 {
 class Character;
@@ -38,12 +39,11 @@ public:
   int flags;
 };
 
-const char* TextTypeToString( u8 texttype );  // DAVE
+const char* TextTypeToString( u8 texttype );
 
-void sayto_listening_points( Mobile::Character* speaker, const char* p_text, int p_textlen,
-                             u8 texttype,  // DAVE
-                             const u16* p_wtext = nullptr, const char* p_lang = nullptr,
-                             int p_wtextlen = 0, Bscript::ObjArray* speechtokens = nullptr );
+void sayto_listening_points( Mobile::Character* speaker, const std::string& text, u8 texttype,
+                             const char* p_lang = nullptr,
+                             Bscript::ObjArray* speechtokens = nullptr );
 
 const int LISTENPT_HEAR_GHOSTS = 0x01;
 const int LISTENPT_HEAR_TOKENS = 0x02;
@@ -54,6 +54,6 @@ void deregister_from_speech_events( UOExecutor* uoexec );
 void clear_listen_points();
 
 Bscript::BObjectImp* GetListenPoints();
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

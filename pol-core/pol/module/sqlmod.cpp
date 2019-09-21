@@ -305,7 +305,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_FieldName()
   const char* name = result->field_name( index );
   if ( name == nullptr )
     return new BError( "Column does not exist" );
-  return new String( name );
+  return new String( name, String::Tainted::YES );
 }
 
 Bscript::BObjectImp* SQLExecutorModule::mf_AffectedRows()

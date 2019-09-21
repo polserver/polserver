@@ -169,14 +169,10 @@ public:
 
   // EVENTS
 public:
-  // Speech: ASCII versions
-  void on_pc_spoke( Character* src_chr, const char* speech, u8 texttype );
-  void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype );
-  // Speech: Unicode (and ASCII) versions
-  void on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
-                    const char lang[4], Bscript::ObjArray* speechtokens = nullptr );
-  void on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
-                          const char lang[4], Bscript::ObjArray* speechtokens = nullptr );
+  void on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttype,
+                    const std::string& lang = "", Bscript::ObjArray* speechtokens = nullptr );
+  void on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 texttype,
+                          const std::string& lang = "", Bscript::ObjArray* speechtokens = nullptr );
   bool can_accept_event( Core::EVENTID eventid );
   Bscript::BObjectImp* send_event_script( Bscript::BObjectImp* event );
   bool send_event( Bscript::BObjectImp* event );

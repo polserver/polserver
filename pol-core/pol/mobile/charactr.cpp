@@ -4207,7 +4207,7 @@ unsigned int Character::guildid() const
  * @author Bodom
  */
 void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
-                         const std::vector<u32>& arguments )
+                         const std::string& arguments )
 {
   // Icon is already present, must send a remove packet first or client will not update
   delBuff( icon );

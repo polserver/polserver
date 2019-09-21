@@ -59,6 +59,7 @@
 #include "compctx.h"
 #include "compilercfg.h"
 #include "fmodule.h"
+#include "impstr.h"
 #include "modules.h"
 #include "objmembers.h"
 #include "objmethods.h"
@@ -1314,6 +1315,17 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
             }
             */
     // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
+    if ( !Clib::isValidUnicode( lit ) )
+    {
+      if ( !ctx.silence_unicode_warnings &&
+           ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+      {
+        INFO_PRINT << "Warning: invalid unicode character detected. Assuming ISO8859\n" << ctx;
+        if ( compilercfg.ErrorOnWarning )
+          throw std::runtime_error( "Warnings treated as errors." );
+      }
+      Clib::sanitizeUnicodeWithIso( &lit );
+    }
     tok.id = TOK_STRING;  // this is a misnomer I think!
     tok.type = TYP_OPERAND;
     tok.copyStr( lit.c_str() );
@@ -1593,6 +1605,7 @@ int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not 
 int Parser::peekToken( const CompilerContext& ctx, Token& token, Expression* expr )
 {
   CompilerContext tctx( ctx );
+  tctx.silence_unicode_warnings = true;
   return getToken( tctx, token, expr );
 }
 /* Parser::parseToken deleted. */
@@ -2419,7 +2432,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       // grab the method name
       getToken( ctx, token, &expr );
       std::string methodName( token.tokval() );
-      Clib::mklower( methodName );
+      Clib::mklowerASCII( methodName );
       int nargs;
       res = getMethodArguments( expr, ctx, nargs );
       // our ptok2 is now sitting in TX.  Move it to CA.

@@ -6,9 +6,9 @@
 
 #include "filecont.h"
 
-#include <cstdio>
-
 #include "logfacility.h"
+#include "strutil.h"
+#include <cstdio>
 
 namespace Pol
 {
@@ -30,13 +30,18 @@ FileContents::FileContents( const char* filename )
   }
 
   char buf[1024];
+  bool bom_handled( false );
   while ( !ferror( fp ) && !feof( fp ) )
   {
     size_t nread = fread( buf, 1, sizeof buf, fp );
     if ( nread )
       contents_.append( buf, nread );
+    if ( !bom_handled && contents_.size() >= 3 )
+    {
+      bom_handled = true;
+      remove_bom( &contents_ );
+    }
   }
-
   fclose( fp );
 }
 
@@ -55,5 +60,5 @@ void FileContents::set_contents( const std::string& str )
 {
   contents_ = str;
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

@@ -46,6 +46,7 @@
 #include <string.h>
 #include <string>
 
+#include "../bscript/impstr.h"
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
@@ -1168,16 +1169,12 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
 }
 
 // Unicode System message -- message in lower left corner
-void send_sysmessage( Network::Client* client, const u16* wtext, const char lang[4],
-                      unsigned short font, unsigned short color )
+void send_sysmessage_unicode( Network::Client* client, const std::string& text,
+                              const std::string& lang, unsigned short font, unsigned short color )
 {
-  unsigned textlen = 0;
-  // textlen = wcslen((const wchar_t*)wtext) + 1;
-  while ( wtext[textlen] != L'\0' )
-    ++textlen;
-  if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
-    textlen = ( SPEECH_MAX_LEN );
-
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
   PktHelper::PacketOut<PktOut_AE> msg;
   msg->offset += 2;
   msg->Write<u32>( 0x01010101u );
@@ -1185,9 +1182,9 @@ void send_sysmessage( Network::Client* client, const u16* wtext, const char lang
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
-  msg->Write( lang, 4 );
+  msg->Write( lang.c_str(), 4 );
   msg->Write( "System", 30 );
-  msg->WriteFlipped( &wtext[0], static_cast<u16>( textlen ) );
+  msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1198,17 +1195,6 @@ void send_sysmessage( Network::Client* client, const std::string& text, unsigned
                       unsigned short color )
 {
   send_sysmessage( client, text.c_str(), font, color );
-}
-
-void send_sysmessage( Network::Client* client, const std::wstring& wtext, const char lang[4],
-                      unsigned short font, unsigned short color )
-{
-  using std::wstring;
-  u16 uctext[SPEECH_MAX_LEN + 1];
-  for ( size_t i = 0; i < wtext.length(); i++ )
-    uctext[i] = static_cast<u16>( wtext[i] );
-  uctext[wtext.length()] = 0x00;
-  send_sysmessage( client, uctext, lang, font, color );
 }
 
 void broadcast( const char* text, unsigned short font, unsigned short color,
@@ -1223,15 +1209,15 @@ void broadcast( const char* text, unsigned short font, unsigned short color,
   }
 }
 
-void broadcast( const u16* wtext, const char lang[4], unsigned short font, unsigned short color,
-                unsigned short requiredCmdLevel )
+void broadcast_unicode( const std::string& text, const std::string& lang, unsigned short font,
+                        unsigned short color, unsigned short requiredCmdLevel )
 {
   for ( auto& client : networkManager.clients )
   {
     if ( !client->ready || client->chr->cmdlevel_ < requiredCmdLevel )
       continue;
 
-    send_sysmessage( client, wtext, lang, font, color );
+    send_sysmessage_unicode( client, text, lang, font, color );
   }
 }
 
@@ -1289,16 +1275,12 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
   return true;
 }
 
-bool say_above( const UObject* obj, const u16* wtext, const char lang[4], unsigned short font,
-                unsigned short color, unsigned int journal_print )
+bool say_above_unicode( const UObject* obj, const std::string& text, const std::string& lang,
+                        unsigned short font, unsigned short color, unsigned int journal_print )
 {
-  unsigned textlen = 0;
-  // textlen = wcslen((const wchar_t*)wtext) + 1;
-  while ( wtext[textlen] != L'\0' )
-    ++textlen;
-  if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
-    textlen = ( SPEECH_MAX_LEN );
-
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
   PktHelper::PacketOut<PktOut_AE> msg;
   msg->offset += 2;
   msg->Write<u32>( obj->serial_ext );
@@ -1306,7 +1288,7 @@ bool say_above( const UObject* obj, const u16* wtext, const char lang[4], unsign
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
-  msg->Write( lang, 4 );
+  msg->Write( lang.c_str(), 4 );
   switch ( journal_print )
   {
   case JOURNAL_PRINT_YOU_SEE:
@@ -1317,7 +1299,7 @@ bool say_above( const UObject* obj, const u16* wtext, const char lang[4], unsign
     msg->Write( obj->description().c_str(), 30 );
     break;
   }
-  msg->WriteFlipped( &wtext[0], static_cast<u16>( textlen ) );
+  msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1360,15 +1342,13 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
   return true;
 }
 
-bool private_say_above( Character* chr, const UObject* obj, const u16* wtext, const char lang[4],
-                        unsigned short font, unsigned short color, unsigned int journal_print )
+bool private_say_above_unicode( Character* chr, const UObject* obj, const std::string& text,
+                                const std::string& lang, unsigned short font, unsigned short color,
+                                unsigned int journal_print )
 {
-  unsigned textlen = 0;
-  // textlen = wcslen((const wchar_t*)wtext) + 1;
-  while ( wtext[textlen] != L'\0' )
-    ++textlen;
-  if ( textlen > ( SPEECH_MAX_LEN ) )  // FIXME need to handle this better second msg?
-    textlen = ( SPEECH_MAX_LEN );
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
   if ( chr->client == nullptr )
     return false;
 
@@ -1379,7 +1359,7 @@ bool private_say_above( Character* chr, const UObject* obj, const u16* wtext, co
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
-  msg->Write( lang, 4 );
+  msg->Write( lang.c_str(), 4 );
   switch ( journal_print )
   {
   case JOURNAL_PRINT_YOU_SEE:
@@ -1390,7 +1370,7 @@ bool private_say_above( Character* chr, const UObject* obj, const u16* wtext, co
     msg->Write( obj->description().c_str(), 30 );
     break;
   }
-  msg->WriteFlipped( &wtext[0], static_cast<u16>( textlen ) );
+  msg->WriteFlipped( utf16text );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -2137,36 +2117,28 @@ void send_damage( Character* attacker, Character* defender, u16 damage )
     pkt.Send( defender->client );
 }
 
-void sendCharProfile( Character* chr, Character* of_who, const char* title, const u16* utext,
-                      const u16* etext )
+void sendCharProfile( Character* chr, Character* of_who, const std::string& title,
+                      const std::string& utext, const std::string& etext )
 {
   PktHelper::PacketOut<PktOut_B8> msg;
+  std::vector<u16> uwtext = Bscript::String::toUTF16( utext );
+  std::vector<u16> ewtext = Bscript::String::toUTF16( etext );
 
-  size_t newulen = 0, newelen = 0, titlelen;
-
-  while ( utext[newulen] != L'\0' )
-    ++newulen;
-
-  while ( etext[newelen] != L'\0' )
-    ++newelen;
-
-  titlelen = strlen( title );
-
+  size_t titlelen = title.size();
   // Check Lengths
-
   if ( titlelen > SPEECH_MAX_LEN )
     titlelen = SPEECH_MAX_LEN;
-  if ( newulen > SPEECH_MAX_LEN )
-    newulen = SPEECH_MAX_LEN;
-  if ( newelen > SPEECH_MAX_LEN )
-    newelen = SPEECH_MAX_LEN;
+  if ( uwtext.size() > SPEECH_MAX_LEN )
+    uwtext.resize( SPEECH_MAX_LEN );
+  if ( ewtext.size() > SPEECH_MAX_LEN )
+    ewtext.resize( SPEECH_MAX_LEN );
 
   // Build Packet
   msg->offset += 2;
   msg->Write<u32>( of_who->serial_ext );
-  msg->Write( title, static_cast<u16>( titlelen + 1 ) );
-  msg->WriteFlipped( utext, static_cast<u16>( newulen ) );
-  msg->WriteFlipped( etext, static_cast<u16>( newelen ) );
+  msg->Write( title.c_str(), static_cast<u16>( titlelen + 1 ) );
+  msg->WriteFlipped( uwtext );
+  msg->WriteFlipped( ewtext );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -2183,11 +2155,10 @@ void sendCharProfile( Character* chr, Character* of_who, const char* title, cons
  * @param duration duration in seconds, only for displaying [ignored if show is false]
  * @param cl_name name of the buff, cliloc id [ignored if show is false]
  * @param cl_descr description of the buff, cliloc id [ignored if show is false]
- * @param arguments arguments for cl_descr as unicode string, separated by spaces, without nullptr
- * terminator
+ * @param arguments arguments for cl_descr as string, separated by spaces
  */
 void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 cl_name,
-                        u32 cl_descr, std::vector<u32> arguments )
+                        u32 cl_descr, const std::string& arguments )
 {
   PktHelper::PacketOut<PktOut_DF> msg;
   msg->offset += 2;  // length will be written later
@@ -2212,9 +2183,7 @@ void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 c
     msg->Write<u8>( 1u );    // unknown, always 1
     msg->Write<u16>( 20u );  // a space character
     msg->Write<u16>( 20u );  // a space character
-    for ( auto it = arguments.begin(); it != arguments.end(); ++it )
-      msg->Write<u16>( *it );
-    msg->Write<u16>( 0u );  // nullptr terminator for unicode string
+    msg->Write( Bscript::String::toUTF16( arguments ) );
   }
 
   u16 len = msg->offset;

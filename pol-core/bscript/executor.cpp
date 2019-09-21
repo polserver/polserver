@@ -702,6 +702,28 @@ bool Executor::getParam( unsigned param, short& value, short minval, short maxva
   }
 }
 
+bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
+{
+  BObject* obj = getParam( param );
+  if ( !obj )
+    return false;
+  if ( obj->isa( BObjectImp::OTString ) )
+  {
+    pstr = static_cast<String*>( obj->impptr() );
+    return true;
+  }
+  else if ( obj->isa( BObjectImp::OTArray ) )
+  {
+    pstr = String::fromUCArray( static_cast<ObjArray*>( obj->impptr() ) );
+    return true;
+  }
+  std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
+                       " as " + BObjectImp::typestr( BObjectImp::OTString ) + " or " +
+                       BObjectImp::typestr( BObjectImp::OTArray ) + ", got " +
+                       BObjectImp::typestr( obj->impptr()->type() );
+  func_result_ = new BError( report );
+  return false;
+}
 
 BObjectRef& Executor::LocalVar( unsigned int varnum )
 {

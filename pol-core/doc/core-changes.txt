@@ -1,4 +1,39 @@
 ﻿-- POL100 --
+09-21-2019 Turley:
+  Changed: The core is now Unicode aware!
+           A normal String object can hold unicode.
+           Files can now be stored in utf8 with or without BOM.
+           For backward compatibility if invalid unicode is detected while compiling/file reading ISO8859 will be assumed.
+           CAsc and CAscZ are normally no more needed, most incompatible changes are due to the fact that the old unicode array used for uctext is now replaced by an normal string object.
+  Changed: The following incompatible changes where made:
+           party.cfg
+           OnPublicChat second parameter is now a string object
+           OnPrivateChat third parameter is now a string object
+           ChangePublicChat second parameter is now a string object
+           ChangePrivateChat third parameter is now a string object
+           unicode.em
+           RequestInputUC return value no more contains member uc_text
+           CharRef.clientinfo struct return value member video_description and langcode is now a string
+           PacketObj.getunicodestring()/getunicodestringflipped() return a string
+           TextCmd arguments are now (CharRef, String, [langcode=String])
+           SpeechEvent no more contains uc_text member
+           scripts/misc/charprofile.ecl fourth parameter is a string
+  Changed: all places which currently accept an UnicodeArray can now also receive a String (UnicodeArray just for backward compatibility)
+           cliloc.em SendSysMessageCL, PrintTextAboveCL, PrintTextAbovePrivateCL
+           npc.em SayUC
+           party.em SendPartyMsg, SendPrivatePartyMsg
+           unicode.em BroadcastUC, PrintTextAbovePrivateUC, PrintTextAboveUC, RequestInputUC, SendSysMessageUC
+           uo.em SendCharProfile
+           PacketObj.setunicodestring()/setunicodestringflipped()
+           CharRef.addbuff()
+  Note:    Item/Mobile names need still to be in ASCII format.
+  Note:    In the case of an unicode string as parameter for the following functions the unicode replacement will be automatically used, with ENU as langcode:
+           Broadcast -> BroadcastUC
+           PrintTextAbovePrivate -> PrintTextAbovePrivateUC
+           PrintTextAbove -> PrintTextAboveUC
+           RequestInput -> RequestInputUC
+           Say -> SayUC
+           SendSysMessage -> SendSysMessageUC
 08-26-2019 Nando:
   Changed: Improved how the debug, www and aux servers handle connections. They should be faster and more stable now. Minor issues fixed.
 08-21-2019 DevGIB:

@@ -32,7 +32,9 @@ BBinaryfile::BBinaryfile()
 }
 
 BBinaryfile::BBinaryfile( std::string filename, unsigned short mode, bool _bigendian )
-    : Bscript::BObjectImp( OTBinaryFile ), _filename( std::move(filename) ), bigendian( _bigendian )
+    : Bscript::BObjectImp( OTBinaryFile ),
+      _filename( std::move( filename ) ),
+      bigendian( _bigendian )
 {
   using std::ios;
 
@@ -193,7 +195,7 @@ Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executo
     // Returns maximum of len characters or up to the first null-byte
     while ( len < value && *( _str + len ) )
       len++;
-    return new String( _str, len );
+    return new String( _str, len, String::Tainted::YES );
   }
 
   case MTH_SETINT32:
@@ -442,5 +444,5 @@ void BinFile::Flush()
   if ( _file.is_open() )
     _file.flush();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

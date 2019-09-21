@@ -71,7 +71,7 @@ ref_ptr<Bscript::EScriptProgram> find_script( const std::string& name, bool comp
   if ( cache_script )
   {
     std::string tmpname = name;
-    Clib::mklower( tmpname );
+    Clib::mklowerASCII( tmpname );
     scriptScheduler.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
   }
 
@@ -102,7 +102,7 @@ ref_ptr<Bscript::EScriptProgram> find_script2( const ScriptDef& script, bool com
   if ( cache_script )
   {
     std::string tmpname = script.name();
-    Clib::mklower( tmpname );
+    Clib::mklowerASCII( tmpname );
     scriptScheduler.scrstore.insert( ScriptStorage::value_type( tmpname.c_str(), program ) );
   }
 

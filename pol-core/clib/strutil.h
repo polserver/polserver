@@ -39,11 +39,20 @@ void decodequotedstring( std::string& str );
 void encodequotedstring( std::string& str );
 std::string getencodedquotedstring( const std::string& in );
 
-void mklower( std::string& str );
-void mkupper( std::string& str );
+// ASCII versions perform a locale dependent conversion
+// they are cheaper then the unicode (locale independent) versions
+void mklowerASCII( std::string& str );
+void mkupperASCII( std::string& str );
+std::string strlowerASCII( const std::string& str );
+std::string strupperASCII( const std::string& str );
 
-std::string strlower( const std::string& str );
-std::string strupper( const std::string& str );
+void remove_bom( std::string* strbuf );
+
+bool isValidUnicode( const std::string& str );
+// if invalid unicode is detected iso8859 is assumed
+void sanitizeUnicodeWithIso( std::string* str );
+// if invalid unicode is detected characters get replaced
+void sanitizeUnicode( std::string* str );
 }  // namespace Clib
 }  // namespace Pol
 #endif  // CLIB_STRUTIL_H

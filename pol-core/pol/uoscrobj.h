@@ -248,18 +248,8 @@ public:
 class SpeechEvent final : public Bscript::BStruct
 {
 public:
-  SpeechEvent( Mobile::Character* speaker, const char* speech );
-  SpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype );  // DAVE
-};
-
-class UnicodeSpeechEvent final : public Bscript::BStruct
-{
-public:
-  UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech, const u16* wspeech,
-                      const char lang[4], Bscript::ObjArray* speechtokens = nullptr );
-  UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype,
-                      const u16* wspeech, const char lang[4],
-                      Bscript::ObjArray* speechtokens = nullptr );
+  SpeechEvent( Mobile::Character* speaker, const std::string& speech, const char* texttype,
+               std::string lang = "", Bscript::ObjArray* speechtokens = nullptr );
 };
 
 class DamageEvent final : public Bscript::BStruct
@@ -302,6 +292,6 @@ private:
   Core::CharacterRef given_by_;
   Core::gameclock_t given_time_;
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif  // UOSCROBJ_H
