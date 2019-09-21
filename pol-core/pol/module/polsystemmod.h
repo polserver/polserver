@@ -23,6 +23,37 @@ namespace Pol
 {
 namespace Module
 {
+class PackagePtrHolder
+{
+public:
+  const PackagePtrHolder( const Plib::Package* pkg ) : m_pPkg( pkg ) {}
+  const Plib::Package* operator->() const { return m_pPkg; }
+  const Plib::Package* Ptr() const { return m_pPkg; }
+
+private:
+  const Plib::Package* m_pPkg;
+};
+
+Bscript::BApplicObjType packageobjimp_type;
+// typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
+typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
+class PackageObjImp final : public PackageObjImpBase
+{
+  typedef PackageObjImpBase base;
+
+public:
+  explicit PackageObjImp( const PackagePtrHolder& other );
+  virtual const char* typeOf() const override;
+  virtual u8 typeOfInt() const override;
+  virtual Bscript::BObjectImp* copy() const override;
+  virtual Bscript::BObjectImp* call_method( const char* methodname,
+                                            Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectRef get_member( const char* membername ) override;
+};
+PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
+    : PackageObjImpBase( &packageobjimp_type, other )
+{
+}
 class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule>
 {
 public:
@@ -47,6 +78,6 @@ public:
   Bscript::BObjectImp* mf_FormatItemDescription( /*string,amount,suffix*/ );
   Bscript::BObjectImp* mf_LogCPropProfile();
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif
