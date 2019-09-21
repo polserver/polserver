@@ -26,7 +26,7 @@ namespace Module
 class PackagePtrHolder
 {
 public:
-  const PackagePtrHolder( const Plib::Package* pkg ) : m_pPkg( pkg ) {}
+  PackagePtrHolder( const Plib::Package* pkg ) : m_pPkg( pkg ) {}
   const Plib::Package* operator->() const { return m_pPkg; }
   const Plib::Package* Ptr() const { return m_pPkg; }
 
@@ -34,7 +34,6 @@ private:
   const Plib::Package* m_pPkg;
 };
 
-Bscript::BApplicObjType packageobjimp_type;
 // typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
 typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
 class PackageObjImp final : public PackageObjImpBase

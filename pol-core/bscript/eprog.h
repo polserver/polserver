@@ -120,7 +120,7 @@ public:
   unsigned short version;
   unsigned int invocations;
   u64 instr_cycles;  // FIXME need an enable-profiling flag
-  const Plib::Package const* pkg;
+  Plib::Package const* pkg;
   std::vector<Instruction> instr;
 
   // debug data:

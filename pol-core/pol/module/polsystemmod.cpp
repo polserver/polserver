@@ -52,6 +52,10 @@ namespace Core
 {
 void reload_configuration();
 }  // namespace Core
+namespace Module
+{
+    Bscript::BApplicObjType packageobjimp_type;
+}
 namespace Bscript
 {
 using namespace Module;
