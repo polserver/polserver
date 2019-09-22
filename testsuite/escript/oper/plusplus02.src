@@ -1,3 +1,10 @@
+//tokens do not consider spaces inbetween...
 var a:=1;
-var b:=1;
+var b:=2;
 print(a+++b);
+a:=1;
+b:=2;
+print((a++)+b);
+a:=1;
+b:=2;
+print(a+(++b));

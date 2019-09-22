@@ -1650,8 +1650,8 @@ int SmartParser::isOkay( const Token& token, const Token& last_token )
     return 0;                             // always invalid
   if ( token.id == TOK_UNPLUSPLUS_POST )  // valid when other direction is valid
     std::swap( this_type, last_type );
-  if ( last_token.id == TOK_UNPLUSPLUS_POST )  // when valid before
-    return 1;//FIXME not true in all cases
+  if ( last_token.id == TOK_UNPLUSPLUS_POST )  // behaves like the operand before
+    last_type = TYP_OPERAND;
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
   if ( this_type > TYP_TESTMAX )
