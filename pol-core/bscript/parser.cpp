@@ -1647,10 +1647,12 @@ int SmartParser::isOkay( const Token& token, const Token& last_token )
     this_type = TYP_OPERAND;
 
   if ( last_type == TYP_UNARY_PLACEHOLDER || this_type == TYP_UNARY_PLACEHOLDER )
-    return 0;                             // always invalid
-  if ( token.id == TOK_UNPLUSPLUS_POST )  // valid when other direction is valid
+    return 0;  // always invalid
+  if ( token.id == TOK_UNPLUSPLUS_POST ||
+       token.id == TOK_UNMINUSMINUS_POST )  // valid when other direction is valid
     std::swap( this_type, last_type );
-  if ( last_token.id == TOK_UNPLUSPLUS_POST )  // behaves like the operand before
+  if ( last_token.id == TOK_UNPLUSPLUS_POST ||
+       last_token.id == TOK_UNMINUSMINUS_POST )  // behaves like the operand before
     last_type = TYP_OPERAND;
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
@@ -2242,6 +2244,9 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
         recognize_unary( token, token.tokval() );
       if ( token.id == TOK_UNPLUSPLUS && last_type == TYP_OPERAND )  // switching to post increment
         token.id = TOK_UNPLUSPLUS_POST;
+      else if ( token.id == TOK_UNMINUSMINUS &&
+                last_type == TYP_OPERAND )  // switching to post decrement
+        token.id = TOK_UNMINUSMINUS_POST;
       if ( !isOkay( token, last_token ) )
       {
         if ( auto_term_allowed )

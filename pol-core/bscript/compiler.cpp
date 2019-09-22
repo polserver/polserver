@@ -4175,6 +4175,8 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
     case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
     case TOK_UNPLUSPLUS:
     case TOK_UNMINUSMINUS:
+    case TOK_UNPLUSPLUS_POST:
+    case TOK_UNMINUSMINUS_POST:
       // ok! These operators actually accomplish something
       break;
     default:

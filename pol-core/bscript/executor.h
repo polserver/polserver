@@ -242,6 +242,7 @@ public:
   void ins_unplusplus( const Instruction& ins );
   void ins_unminusminus( const Instruction& ins );
   void ins_unplusplus_post( const Instruction& ins );
+  void ins_unminusminus_post( const Instruction& ins );
 
   void ins_logical_and( const Instruction& ins );
   void ins_logical_or( const Instruction& ins );
