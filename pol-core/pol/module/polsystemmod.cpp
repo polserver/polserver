@@ -52,11 +52,6 @@ namespace Core
 {
 void reload_configuration();
 }  // namespace Core
-namespace Module
-{
-    Bscript::BApplicObjType packageobjimp_type;
-    PackageObjImp::PackageObjImp( const PackagePtrHolder& other ) : PackageObjImpBase( &packageobjimp_type, other ){}
-}
 namespace Bscript
 {
 using namespace Module;
@@ -87,6 +82,12 @@ namespace Module
 {
 using namespace Bscript;
 
+BApplicObjType packageobjimp_type;
+
+PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
+    : PackageObjImpBase( &packageobjimp_type, other )
+{
+}
 const char* PackageObjImp::typeOf() const
 {
   return "Package";
