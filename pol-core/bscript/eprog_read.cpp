@@ -290,6 +290,10 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
   case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
+  case INS_SET_MEMBER_ID_UNPLUSPLUS:
+  case INS_SET_MEMBER_ID_UNMINUSMINUS:
+  case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+  case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
     token.lval = st.offset;
     return 0;
   case TOK_FUNCREF:
@@ -613,5 +617,5 @@ int EScriptProgram::read_dbg_file()
   debug_loaded = true;
   return res;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

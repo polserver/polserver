@@ -1378,7 +1378,7 @@ void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
 
   if ( !obj.isa( BObjectImp::OTUninit ) &&
        !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -1401,7 +1401,8 @@ void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+
 
   if ( !obj.isa( BObjectImp::OTUninit ) &&
        !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -1424,7 +1425,8 @@ void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+
 
   if ( !obj.isa( BObjectImp::OTUninit ) &&
        !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -1447,7 +1449,8 @@ void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+
 
   if ( !obj.isa( BObjectImp::OTUninit ) &&
        !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -1470,7 +1473,8 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+
 
   if ( !obj.isa( BObjectImp::OTUninit ) &&
        !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
@@ -2603,6 +2607,69 @@ void Executor::ins_unminusminus_post( const Instruction& /*ins*/ )
   ValueStack.back().set( n );
 }
 
+void Executor::ins_set_member_id_unplusplus( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  // increase refcount of underlying BObjectImp
+  // for e.g. BStruct get_member returns not a copy of his member
+  // thus via set_member the own BObjectImp gets set.
+  // setting a new pointer in refptr releases first the owned one. When its the same one and
+  // refcount is 1 you end with an invalid one afterwards...
+  BObject obj( *tmp );
+  if ( !obj.isa( BObjectImp::OTUninit ) &&
+       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfPlusPlus();
+    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+  }
+  ValueStack.back().set( tmp->clone() );
+}
+
+void Executor::ins_set_member_id_unplusplus_post( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+  BObject* res = tmp->clone();
+  if ( !obj.isa( BObjectImp::OTUninit ) &&
+       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfPlusPlus();
+    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+  }
+  ValueStack.back().set( res );
+}
+
+void Executor::ins_set_member_id_unminusminus( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+  if ( !obj.isa( BObjectImp::OTUninit ) &&
+       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfMinusMinus();
+    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+  }
+  ValueStack.back().set( tmp->clone() );
+}
+
+void Executor::ins_set_member_id_unminusminus_post( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  BObject obj( *tmp );  // see ins_set_member_id_unplusplus why
+  BObject* res = tmp->clone();
+  if ( !obj.isa( BObjectImp::OTUninit ) &&
+       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfMinusMinus();
+    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+  }
+  ValueStack.back().set( res );
+}
+
 // case TOK_LOG_NOT:
 void Executor::ins_logical_not( const Instruction& /*ins*/ )
 {
@@ -2832,6 +2899,14 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_unplusplus_post;
   case TOK_UNMINUSMINUS_POST:
     return &Executor::ins_unminusminus_post;
+  case INS_SET_MEMBER_ID_UNPLUSPLUS:
+    return &Executor::ins_set_member_id_unplusplus;  // test id
+  case INS_SET_MEMBER_ID_UNMINUSMINUS:
+    return &Executor::ins_set_member_id_unminusminus;  // test id
+  case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+    return &Executor::ins_set_member_id_unplusplus_post;  // test id
+  case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+    return &Executor::ins_set_member_id_unminusminus_post;  // test id
 
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );

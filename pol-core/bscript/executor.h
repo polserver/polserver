@@ -261,6 +261,10 @@ public:
   void ins_set_member_id_consume_timesequal( const Instruction& ins );    // test id
   void ins_set_member_id_consume_divideequal( const Instruction& ins );   // test id
   void ins_set_member_id_consume_modulusequal( const Instruction& ins );  // test id
+  void ins_set_member_id_unplusplus( const Instruction& ins );            // test id
+  void ins_set_member_id_unminusminus( const Instruction& ins );          // test id
+  void ins_set_member_id_unplusplus_post( const Instruction& ins );       // test id
+  void ins_set_member_id_unminusminus_post( const Instruction& ins );     // test id
 
   void ins_assign_localvar( const Instruction& ins );
   void ins_assign_globalvar( const Instruction& ins );

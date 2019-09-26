@@ -647,6 +647,29 @@ bool Expression::optimize_token( int i )
       return true;
     }
   }
+  else if ( oper->id == TOK_UNPLUSPLUS || oper->id == TOK_UNPLUSPLUS_POST ||
+            oper->id == TOK_UNMINUSMINUS || oper->id == TOK_UNMINUSMINUS_POST )
+  {
+    if ( i > 0 )
+    {
+      Token* operand = tokens[i - 1];
+      if ( operand->id == INS_GET_MEMBER_ID )
+      {
+        // TODO: spezial consume instruction? no need to copy value obto valuestack?
+        if ( oper->id == TOK_UNPLUSPLUS )
+          operand->id = INS_SET_MEMBER_ID_UNPLUSPLUS;
+        else if ( oper->id == TOK_UNMINUSMINUS )
+          operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS;
+        else if ( oper->id == TOK_UNPLUSPLUS_POST )
+          operand->id = INS_SET_MEMBER_ID_UNPLUSPLUS_POST;
+        else if ( oper->id == TOK_UNMINUSMINUS_POST )
+          operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS_POST;
+        delete oper;
+        tokens.erase( tokens.begin() + i );
+      }
+    }
+    return true;
+  }
   else if ( oper->id == TOK_MEMBER )
   {
     Token* operand = tokens[i - 1];
@@ -713,7 +736,6 @@ bool Expression::optimize_token( int i )
         oper->id = INS_GET_MEMBER;
         oper->type = TYP_UNARY_OPERATOR;
         oper->copyStr( operand->tokval() );
-
         delete operand;
         tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );
         return true;
@@ -4177,6 +4199,10 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
     case TOK_UNMINUSMINUS:
     case TOK_UNPLUSPLUS_POST:
     case TOK_UNMINUSMINUS_POST:
+    case INS_SET_MEMBER_ID_UNPLUSPLUS:
+    case INS_SET_MEMBER_ID_UNMINUSMINUS:
+    case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+    case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
       // ok! These operators actually accomplish something
       break;
     default:
