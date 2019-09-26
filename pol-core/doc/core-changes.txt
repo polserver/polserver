@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+09-26-2019 DevGIB:
+  Added:   Script objects now have package member which returns a PackageRef. e.g. script.package.name = "GuildStone".
 09-21-2019 Turley:
   Changed: The core is now Unicode aware!
            A normal String object can hold unicode.

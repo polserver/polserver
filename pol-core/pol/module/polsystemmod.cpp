@@ -52,42 +52,6 @@ namespace Core
 {
 void reload_configuration();
 }  // namespace Core
-namespace Module
-{
-class PackagePtrHolder
-{
-public:
-  explicit PackagePtrHolder( Plib::Package* pkg ) : m_pPkg( pkg ) {}
-  Plib::Package* operator->() { return m_pPkg; }
-  const Plib::Package* operator->() const { return m_pPkg; }
-  Plib::Package* Ptr() { return m_pPkg; }
-  const Plib::Package* Ptr() const { return m_pPkg; }
-
-private:
-  Plib::Package* m_pPkg;
-};
-
-Bscript::BApplicObjType packageobjimp_type;
-// typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
-typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
-class PackageObjImp final : public PackageObjImpBase
-{
-  typedef PackageObjImpBase base;
-
-public:
-  explicit PackageObjImp( const PackagePtrHolder& other );
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
-};
-PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
-    : PackageObjImpBase( &packageobjimp_type, other )
-{
-}
-}  // namespace Module
 namespace Bscript
 {
 using namespace Module;
@@ -118,6 +82,12 @@ namespace Module
 {
 using namespace Bscript;
 
+BApplicObjType packageobjimp_type;
+
+PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
+    : PackageObjImpBase( &packageobjimp_type, other )
+{
+}
 const char* PackageObjImp::typeOf() const
 {
   return "Package";
@@ -151,7 +121,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   }
   else if ( stricmp( membername, "npcdesc" ) == 0 )
   {
-    Plib::Package* pkg = value().Ptr();
+    const Plib::Package* pkg = value().Ptr();
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
     return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );
   }
