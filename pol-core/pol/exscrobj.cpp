@@ -26,8 +26,8 @@
 #include "../bscript/objmethods.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
-#include "module/uomod.h"
 #include "module/polsystemmod.h"
+#include "module/uomod.h"
 #include "polcfg.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
@@ -179,7 +179,7 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
     return BObjectRef( new String( uoexec->scriptname() ) );
   case MBR_PACKAGE:
   {
-    const Pol::Plib::Package *pkg_ptr = uoexec->prog()->pkg;
+    const Pol::Plib::Package* pkg_ptr = uoexec->prog()->pkg;
     if ( pkg_ptr != nullptr )
     {
       return BObjectRef( new Pol::Module::PackageObjImp( pkg_ptr ) );
@@ -239,5 +239,5 @@ BObjectRef ScriptExObjImp::get_member( const char* membername )
   else
     return BObjectRef( UninitObject::create() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
