@@ -178,7 +178,15 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
   case MBR_NAME:
     return BObjectRef( new String( uoexec->scriptname() ) );
   case MBR_PACKAGE:
-    return BObjectRef( new Pol::Module::PackageObjImp( uoexec->prog()->pkg ) );
+  {
+    const Pol::Plib::Package *pkg_ptr = uoexec->prog()->pkg;
+    if ( pkg_ptr != nullptr )
+    {
+      return BObjectRef( new Pol::Module::PackageObjImp( pkg_ptr ) );
+    }
+    else
+      return BObjectRef( new BError( "Script has no package" ) );
+  }
   case MBR_STATE:
     return BObjectRef( new String( uoexec->state() ) );
   case MBR_INSTR_CYCLES:

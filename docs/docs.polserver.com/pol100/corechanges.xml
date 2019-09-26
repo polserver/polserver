@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-21-2019</datemodified>
+		<datemodified>09-26-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>09-26-2019</date>
+			<author>DevGIB:</author>
+			<change type="Added">Script objects now have package member which returns a PackageRef. e.g. script.package.name = &quot;GuildStone&quot;.</change>
+		</entry>
 		<entry>
 			<date>09-21-2019</date>
 			<author>Turley:</author>

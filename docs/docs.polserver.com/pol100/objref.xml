@@ -48,7 +48,7 @@
                          <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
                                                                <a href="#StorageArea">StorageArea</a>
 
-                                                               
+
 </pre>
 
 <datemodified>02/05/2018</datemodified>
@@ -614,6 +614,7 @@ If it's an AI-Script it will return the NPC.
 If it's a ControlScript it will return the Item.
 Checks are made in the order above." />
 <member mname="controller" type="MobileRef" access="r/o" mdesc="Mobile which is responsible for damage etc." />
+<member mname="package" type="PackageRef" access="r/o" mdesc="Reference to the package where this script exists, returns error &quot;Script has no package&quot; if script is from a system folder" />
 
 <method proto="sendevent(obj event)" returns="error/true" desc="sends a event to this script (usually a struct)" />
 <method proto="kill()" returns="true" desc="Kills this script" />
