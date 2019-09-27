@@ -32,12 +32,12 @@ namespace Network
 {
 void set_ip_address( const char* ip )
 {
-  strzcpy( Core::networkManager.ipaddr_str, ip, sizeof Core::networkManager.ipaddr_str );
+  Clib::stracpy( Core::networkManager.ipaddr_str, ip, sizeof Core::networkManager.ipaddr_str );
   POLLOG_INFO << "Internet IP address is " << Core::networkManager.ipaddr_str << "\n";
 }
 void set_lan_address( const char* ip )
 {
-  strzcpy( Core::networkManager.lanaddr_str, ip, sizeof Core::networkManager.lanaddr_str );
+  Clib::stracpy( Core::networkManager.lanaddr_str, ip, sizeof Core::networkManager.lanaddr_str );
   POLLOG_INFO << "LAN IP address is " << Core::networkManager.lanaddr_str << "\n";
 }
 

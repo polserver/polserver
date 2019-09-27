@@ -1358,10 +1358,13 @@ void DebugClientThread::run()
   DebugContext dctx;
   std::string cmdline;
   std::vector<std::string> results;
+
+  Clib::SocketLineReader linereader(_sck);
+
   while ( !dctx.done() )
   {
     Clib::writeline( _sck, dctx.prompt() );
-    if ( !readline( _sck, cmdline ) )
+    if ( !linereader.readline( cmdline ) )
       break;
 
     bool ret = dctx.process( cmdline, results );

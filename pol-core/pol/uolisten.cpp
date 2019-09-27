@@ -107,14 +107,14 @@ void uo_client_listener_thread( void* arg )
   while ( !Clib::exit_signalled )
   {
     unsigned int timeout = 2;
-    unsigned int utimeout = 0;
+    unsigned int mstimeout = 0;
     if ( !ls->login_clients.empty() )
     {
       timeout = 0;
-      utimeout = 200000;
+      mstimeout = 200;
     }
     Clib::Socket newsck;
-    if ( SL.GetConnection( &newsck, timeout, utimeout ) && newsck.connected() )
+    if ( SL.GetConnection( &newsck, timeout, mstimeout ) && newsck.connected() )
     {
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )
