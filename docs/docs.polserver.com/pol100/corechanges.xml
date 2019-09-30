@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-26-2019</datemodified>
+		<datemodified>09-30-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>09-30-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Changed default of GetProcess(pid) from 0 to -1 due to compatibility issues with scripts using CInt()'s result directly.<br/>
+PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts.</change>
+		</entry>
 		<entry>
 			<date>09-26-2019</date>
 			<author>DevGIB:</author>

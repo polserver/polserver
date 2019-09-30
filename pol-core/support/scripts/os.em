@@ -2,7 +2,7 @@ Create_Debug_Context();
 
     // get a process scripting object by PID
     // If no PID is supplied will use parent script pid.
-GetProcess( pid := 0 );
+GetProcess( pid := -1 );
 
     // getpid: get this script's pid
 GetPid();
