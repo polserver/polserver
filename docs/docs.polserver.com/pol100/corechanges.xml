@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-30-2019</datemodified>
+		<datemodified>10-03-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-03-2019</date>
+			<author>Turley:</author>
+			<change type="Fixed">min/max damage visualization in the statbar are now cropped between 0 and 65k like damage calculation.</change>
+		</entry>
 		<entry>
 			<date>09-30-2019</date>
 			<author>Nando:</author>

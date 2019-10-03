@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+10-03-2019 Turley:
+  Fixed:   min/max damage visualization in the statbar are now cropped between 0 and 65k like damage calculation.
 09-30-2019 Nando:
   Changed: Changed default of GetProcess(pid) from 0 to -1 due to compatibility issues with scripts using CInt()'s result directly.
            PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts. 

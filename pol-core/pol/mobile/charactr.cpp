@@ -3141,12 +3141,22 @@ unsigned short Character::random_weapon_damage() const
 
 unsigned short Character::min_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.min_value() + weapon->damage_mod();
+  int dmg = static_cast<int>( weapon->descriptor().damage_dice.min_value() ) + weapon->damage_mod();
+  if ( dmg < 0 )
+    return 0;
+  else if ( dmg <= USHRT_MAX )
+    return static_cast<unsigned short>( dmg );
+  return USHRT_MAX;
 }
 
 unsigned short Character::max_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.max_value() + weapon->damage_mod();
+  int dmg = static_cast<int>( weapon->descriptor().damage_dice.max_value() ) + weapon->damage_mod();
+  if ( dmg < 0 )
+    return 0;
+  else if ( dmg <= USHRT_MAX )
+    return static_cast<unsigned short>( dmg );
+  return USHRT_MAX;
 }
 
 void Character::damage_weapon()
