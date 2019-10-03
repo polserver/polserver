@@ -54,7 +54,7 @@ namespace Mobile
 {
 class Attribute;
 class Character;
-}
+}  // namespace Mobile
 namespace Items
 {
 class UWeapon;
@@ -73,12 +73,13 @@ public:
 
   const Mobile::Attribute& attribute() const;
   unsigned short get_random_damage() const;
+  unsigned short min_weapon_damage() const;
+  unsigned short max_weapon_damage() const;
   bool is_projectile() const;
   bool consume_projectile( Core::UContainer* cont ) const;
   bool in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const;
   unsigned short projectile_sound() const;
   unsigned short projectile_anim() const;
-  // UACTION projectile_action() const;
   Core::UACTION anim() const;
   Core::UACTION mounted_anim() const;
   unsigned short hit_sound() const;
@@ -148,6 +149,6 @@ bool isa_weapon( u32 objtype );
 UWeapon* create_intrinsic_weapon( Clib::ConfigElem& elem );
 UWeapon* create_intrinsic_weapon_from_npctemplate( Clib::ConfigElem& elem,
                                                    const Plib::Package* pkg );
-}
-}
+}  // namespace Items
+}  // namespace Pol
 #endif

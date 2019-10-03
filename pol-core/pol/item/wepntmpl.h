@@ -47,7 +47,6 @@ public:
   unsigned short projectile_type;
   unsigned short projectile_anim;
   unsigned short projectile_sound;
-  Core::UACTION projectile_action;
   Core::UACTION anim;
   Core::UACTION mounted_anim;
   unsigned short hit_sound;
@@ -58,6 +57,6 @@ public:
   unsigned short minrange;
   unsigned short maxrange;
 };
-}
-}
+}  // namespace Items
+}  // namespace Pol
 #endif
