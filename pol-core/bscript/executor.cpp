@@ -2607,9 +2607,9 @@ void Executor::ins_set_member_id_unplusplus( const Instruction& ins )
        !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
     tmp->impref().selfPlusPlus();
-    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
-  ValueStack.back().set( tmp->clone() );
+  ValueStack.back().set( tmp.get() );
 }
 
 // case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
@@ -2622,7 +2622,7 @@ void Executor::ins_set_member_id_unplusplus_post( const Instruction& ins )
        !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
     tmp->impref().selfPlusPlus();
-    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
   ValueStack.back().set( res );
 }
@@ -2636,9 +2636,9 @@ void Executor::ins_set_member_id_unminusminus( const Instruction& ins )
        !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
     tmp->impref().selfMinusMinus();
-    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
-  ValueStack.back().set( tmp->clone() );
+  ValueStack.back().set( tmp.get() );
 }
 
 // case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
@@ -2651,7 +2651,7 @@ void Executor::ins_set_member_id_unminusminus_post( const Instruction& ins )
        !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
     tmp->impref().selfMinusMinus();
-    ref->impref().set_member_id( ins.token.lval, &tmp->impref(), false );
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
   }
   ValueStack.back().set( res );
 }
