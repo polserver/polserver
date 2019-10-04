@@ -2,9 +2,25 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-21-2019</datemodified>
+		<datemodified>10-03-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-03-2019</date>
+			<author>Turley:</author>
+			<change type="Fixed">min/max damage visualization in the statbar are now cropped between 0 and 65k like damage calculation.</change>
+		</entry>
+		<entry>
+			<date>09-30-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Changed default of GetProcess(pid) from 0 to -1 due to compatibility issues with scripts using CInt()'s result directly.<br/>
+PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts.</change>
+		</entry>
+		<entry>
+			<date>09-26-2019</date>
+			<author>DevGIB:</author>
+			<change type="Added">Script objects now have package member which returns a PackageRef. e.g. script.package.name = &quot;GuildStone&quot;.</change>
+		</entry>
 		<entry>
 			<date>09-21-2019</date>
 			<author>Turley:</author>

@@ -14,7 +14,7 @@
   </fileheader>
 
   <function name="GetProcess">
-    <prototype>GetProcess(pid := 0)</prototype>
+    <prototype>GetProcess(pid := -1)</prototype>
     <parameter name="pid" value="Integer process ID of a script (optional)" />
     <explain>Gets a script process object for the given script's PID.</explain>
     <explain>If no PID is supplied uses PID of the current script.</explain>

@@ -151,14 +151,16 @@ BObjectImp* OSExecutorModule::mf_debugger()
 
 BObjectImp* OSExecutorModule::getprocess()
 {
-  unsigned int pid;
+  int pid;  // note that while pid's are unsigned, valid values are forced to fit within a signed
+            // range
   if ( !getParam( 0, pid ) )
     return new BError( "Invalid parameter type" );
 
-  if ( pid == 0 )
+  if ( pid == -1 )
   {
-    pid = pid_;
+    pid = pid_;  // get executor's own pid
   }
+
   Core::UOExecutor* uoexec;
   if ( find_uoexec( pid, &uoexec ) )
     return new Core::ScriptExObjImp( uoexec );

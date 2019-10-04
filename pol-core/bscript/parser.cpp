@@ -515,6 +515,7 @@ ObjMember object_members[] = {
     {MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false},
     {MBR_LUCK_MOD, "luck_mod", false},  // 245
     {MBR_HIT_CHANCE_MOD, "hit_chance_mod", false},
+    {MBR_PACKAGE, "package", true},
 
 
 };
