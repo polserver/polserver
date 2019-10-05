@@ -181,5 +181,5 @@ int ProgramMain::programArgsFindEquals( const std::string& filter, int defaultVa
     return defaultVal;
   return strtoul( val.c_str(), nullptr, hexVal ? 16 : 10 );
 }
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol

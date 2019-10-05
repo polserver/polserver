@@ -1317,12 +1317,9 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
     // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
     if ( !Clib::isValidUnicode( lit ) )
     {
-      if ( !ctx.silence_unicode_warnings &&
-           ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+      if ( !ctx.silence_unicode_warnings )
       {
-        INFO_PRINT << "Warning: invalid unicode character detected. Assuming ISO8859\n" << ctx;
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
+        compiler_warning( &ctx, "Warning: invalid unicode character detected. Assuming ISO8859\n" );
       }
       Clib::sanitizeUnicodeWithIso( &lit );
     }
@@ -1592,7 +1589,7 @@ int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not 
     return 0;
   }
 
-  INFO_PRINT << "Your syntax frightens and confuses me.\n";
+  compiler_error( "Your syntax frightens and confuses me.\n" );
   err = PERR_WAAH;
   return -1;
 }
@@ -1608,6 +1605,7 @@ int Parser::peekToken( const CompilerContext& ctx, Token& token, Expression* exp
   tctx.silence_unicode_warnings = true;
   return getToken( tctx, token, expr );
 }
+
 /* Parser::parseToken deleted. */
 /* not used? ens 12/10/1998
 int Parser::IP(Expression& expr, char *s)
@@ -1855,12 +1853,9 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
         expr.TX.pop();
         return 0;
       default:
-        INFO_PRINT << "Unmatched ')' in expression. (Trying to match against a '" << *last << "')\n"
-                   << ctx;
-
-        ERROR_PRINT << "parseToken(): Not sure what to do.\n"
-                    << "Token: " << *token << "\n"
-                    << "Last:  " << *last << "\n";
+        compiler_error( "Unmatched ')' in expression. (Trying to match against a '", *last, "')\n",
+                        ctx, "parseToken(): Not sure what to do.\n", "Token: ", *token, "\n",
+                        "Last:  ", *last, "\n" );
         throw std::runtime_error( "Error in parseToken() (1)" );
       }
       break;
@@ -1895,11 +1890,9 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
         expr.TX.pop();
         return 0;
       default:
-        INFO_PRINT << "Unmatched ']' in expression. (Trying to match against a '" << *last << "')\n"
-                   << ctx;
-        ERROR_PRINT << "parseToken(): Not sure what to do.\n"
-                    << "Token: " << *token << "\n"
-                    << "Last:  " << *last << "\n";
+        compiler_error( "Unmatched ']' in expression. (Trying to match against a '", *last, "')\n",
+                        ctx, "parseToken(): Not sure what to do.\n", "Token: ", *token, "\n",
+                        "Last:  ", *last, "\n" );
         throw std::runtime_error( "Error in parseToken() (2)" );
       }
       break;
@@ -1933,8 +1926,8 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
       }
 
     default:
-      INFO_PRINT << "Don't know what to do with '" << *token << "' in SmartParser::parseToken\n"
-                 << ctx;
+      compiler_error( "Don't know what to do with '", *token, "' in SmartParser::parseToken\n",
+                      ctx );
       err = PERR_WAAH;
       return -1;
     }
@@ -2259,24 +2252,20 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
         res = -1;
         err = PERR_ILLEGALCONS;
         ctx.s = t;  // FIXME operator=
-        INFO_PRINT << "Token '" << token << "' cannot follow token '" << last_token << "'\n";
+        compiler_error( "Token '", token, "' cannot follow token '", last_token, "'\n" );
         if ( last_token.type == TYP_OPERAND && token.id == TOK_LPAREN )
         {
-          INFO_PRINT << "Function " << last_token << "() is not defined.\n";
+          compiler_error( "Function ", last_token, "() is not defined.\n" );
         }
         break;
       }
     }
     else if ( last_type == TYP_TERMINATOR && token.type == TYP_LEFTBRACE &&
-              ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) &&
-                compilercfg.ParanoiaWarnings ) )
+              compilercfg.ParanoiaWarnings )
     {
-      INFO_PRINT
-          << "Warning: Using { } is inappropriate; please define array, struct or dictionary.\n";
-      if ( compilercfg.ErrorOnWarning )
-        throw std::runtime_error( "Warnings treated as errors." );
-      else
-        INFO_PRINT << ctx;
+      compiler_warning(
+          &ctx,
+          "Warning: Using { } is inappropriate; please define array, struct or dictionary.\n" );
     }
     last_type = token.type;
     last_token = token;
@@ -2319,8 +2308,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       res = getUserArgs( expr, ctx, false );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n"
-                   << ctx << "\n";
+        compiler_error( "Error getting arguments for function ", token.tokval(), "\n", ctx, "\n" );
         return res;
       }
       ptok2 = new Token( token );
@@ -2370,9 +2358,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
           res = getNewArrayElements( expr, ctx );
         }
         if ( res < 0 )
-        {
-          INFO_PRINT << "Error getting elements for array\n";
-        }
+          compiler_error( "Error getting elements for array\n" );
       }
     }
     else if ( token.id == TOK_LBRACE )  // a bare array declaration, like var x := { 2, 4 };
@@ -2380,9 +2366,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( new Token( TOK_ARRAY, TYP_OPERAND ) );
       res = getNewArrayElements( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error getting elements for array\n";
-      }
+        compiler_error( "Error getting elements for array\n" );
     }
     else if ( token.id == TOK_ERROR )
     {
@@ -2392,9 +2376,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( error_tkn );
       res = getStructMembers( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading members for error\n";
-      }
+        compiler_error( "Error reading members for error\n" );
     }
     else if ( token.id == TOK_STRUCT )
     {
@@ -2404,9 +2386,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( struct_tkn );
       res = getStructMembers( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading members for struct\n";
-      }
+        compiler_error( "Error reading members for struct\n" );
     }
     else if ( token.id == TOK_DICTIONARY )
     {
@@ -2416,18 +2396,14 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( dict_tkn );
       res = getDictionaryMembers( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading members for dictionary\n";
-      }
+        compiler_error( "Error reading members for dictionary\n" );
     }
     else if ( token.id == TOK_FUNCREF )
     {
       auto ref_tkn = new Token( token );
       res = getFunctionPArgument( expr, ctx, ref_tkn );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading function reference argument\n";
-      }
+        compiler_error( "Error reading function reference argument\n" );
       expr.CA.push( ref_tkn );
     }
     else if ( token.id == TOK_MEMBER && callingMethod( ctx ) )

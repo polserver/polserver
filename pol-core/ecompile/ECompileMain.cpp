@@ -48,48 +48,48 @@ ECompileMain::~ECompileMain() {}
 
 void ECompileMain::showHelp()
 {
-  ERROR_PRINT << "Usage:\n"
-              << "    \n"
-              << "  ECOMPILE [options] filespec [filespec ...]\n"
-              << "    \n"
-              << "  Output is : filespec.ecl\n"
-              << "  Options:\n"
-              << "   Options: \n"
-              << "       -a           compile *.asp pages also\n"
-              << "       -A           automatically compile scripts in main and enabled packages\n"
-              << "       -Au          (as '-A' but only compile updated files)\n"
-              << "       -b           keep building other scripts after errors\n"
-              << "       -C cfgpath   path to configuration (replaces ecompile.cfg)\n"
-              << "       -d           display confusing compiler parse information\n"
-              << "       -D           write dependency information\n"
-              << "       -e           report error on successful compilation (used for testing)\n"
+  INFO_PRINT << "Usage:\n"
+             << "    \n"
+             << "  ECOMPILE [options] filespec [filespec ...]\n"
+             << "    \n"
+             << "  Output is : filespec.ecl\n"
+             << "  Options:\n"
+             << "   Options: \n"
+             << "       -a           compile *.asp pages also\n"
+             << "       -A           automatically compile scripts in main and enabled packages\n"
+             << "       -Au          (as '-A' but only compile updated files)\n"
+             << "       -b           keep building other scripts after errors\n"
+             << "       -C cfgpath   path to configuration (replaces ecompile.cfg)\n"
+             << "       -d           display confusing compiler parse information\n"
+             << "       -D           write dependency information\n"
+             << "       -e           report error on successful compilation (used for testing)\n"
 #ifdef WIN32
-              << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
+             << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
 #endif
-              << "       -i           include intrusive debug info in .ecl file\n"
-              << "       -l           generate listfile\n"
-              << "       -m           don't optimize object members\n"
+             << "       -i           include intrusive debug info in .ecl file\n"
+             << "       -l           generate listfile\n"
+             << "       -m           don't optimize object members\n"
 #ifdef WIN32
-              << "       -Pdir        set or change the EM and INC files Environment Variables\n"
+             << "       -Pdir        set or change the EM and INC files Environment Variables\n"
 #endif
-              << "       -q           quiet mode (suppress normal output)\n"
-              << "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
-              << "       -ri [dir]      (as '-r' but only compile .inc files)\n"
-              << "         -t[v]      show timing/profiling information [override quiet mode]\n"
-              << "         -u         compile only updated scripts (.src newer than .ecl)\n"
-              << "           -f       force compile even if up-to-date\n"
-              << "       -s           display summary if -q is not set\n"
-              << "       -T[N]        use threaded compilation, force N threads to run\n"
-              << "       -vN          verbosity level\n"
-              << "       -w           display warnings\n"
-              << "       -W           generate wordfile\n"
-              << "       -y           treat warnings as errors\n"
-              << "       -x           write external .dbg file\n"
-              << "       -xt          write external .dbg.txt info file\n"
-              << "\n"
-              << " NOTE:\n"
-              << "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
-              << "   a literal [dir] of '.' (no quotes) or options will not parse correctly.\n";
+             << "       -q           quiet mode (suppress normal output)\n"
+             << "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
+             << "       -ri [dir]      (as '-r' but only compile .inc files)\n"
+             << "         -t[v]      show timing/profiling information [override quiet mode]\n"
+             << "         -u         compile only updated scripts (.src newer than .ecl)\n"
+             << "           -f       force compile even if up-to-date\n"
+             << "       -s           display summary if -q is not set\n"
+             << "       -T[N]        use threaded compilation, force N threads to run\n"
+             << "       -vN          verbosity level\n"
+             << "       -w           display warnings\n"
+             << "       -W           generate wordfile\n"
+             << "       -y           treat warnings as errors\n"
+             << "       -x           write external .dbg file\n"
+             << "       -xt          write external .dbg.txt info file\n"
+             << "\n"
+             << " NOTE:\n"
+             << "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
+             << "   a literal [dir] of '.' (no quotes) or options will not parse correctly.\n";
 }
 
 static int s_argc;
@@ -164,8 +164,8 @@ bool compile_file( const char* path )
 
   if ( ext.compare( ".src" ) != 0 && ext.compare( ".hsr" ) != 0 && ext.compare( ".asp" ) != 0 )
   {
-    INFO_PRINT << "Didn't find '.src', '.hsr', or '.asp' extension on source filename '" << path
-               << "'!\n";
+    compiler_error( "Didn't find '.src', '.hsr', or '.asp' extension on source filename '", path,
+                    "'!\n" );
     throw std::runtime_error( "Error in source filename" );
   }
   std::string filename_ecl = fname.replace( pos, 4, ".ecl" );
@@ -640,7 +640,7 @@ void parallel_compile( const std::vector<std::string>& files )
         {
           ++compiled_scripts;
           ++error_scripts;
-          ERROR_PRINT << "failed to compile " << file.c_str() << ": " << e.what() << "\n";
+          compiler_error( "failed to compile ", file.c_str(), ": ", e.what(), "\n" );
           if ( !keep_building )
           {
             par_keep_building = false;
@@ -691,7 +691,7 @@ void AutoCompile()
 /**
  * Takes decisions, runs, the compilation, prints summary and cleans after
  */
-bool run( int argc, char** argv )
+bool run( int argc, char** argv, int* res )
 {
   Clib::enable_exit_signaller();
   // Load and analyze the package structure
@@ -797,6 +797,10 @@ bool run( int argc, char** argv )
     INFO_PRINT << tmp.str();
   }
 
+  if ( summary.ScriptsWithCompileErrors )
+    *res = 1;
+  else
+    *res = 0;
   return any;
 }
 
@@ -873,13 +877,16 @@ int ECompileMain::main()
 
   int res = ECompile::readargs( s_argc, s_argv );
   if ( res )
+  {
+    showHelp();
     return res;
+  }
 
   if ( !ECompile::quiet )
   {
     // vX.YY
     double vernum = (double)1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    ERROR_PRINT << "EScript Compiler v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
+    INFO_PRINT << "EScript Compiler v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
   }
 
   if ( ECompile::opt_generate_wordlist )
@@ -887,18 +894,15 @@ int ECompileMain::main()
     ECompile::generate_wordlist();
     return 0;
   }
-
-  bool didanything = ECompile::run( s_argc, s_argv );
+  int prog_res = 1;
+  bool didanything = ECompile::run( s_argc, s_argv, &prog_res );
 
   if ( !didanything )
   {
     showHelp();
     return 1;
   }
-  else
-  {
-    return 0;
-  }
+  return prog_res;
 }
 }  // namespace ECompile
 }  // namespace Pol
