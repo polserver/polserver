@@ -32,7 +32,7 @@ UoDataFileRoot=MUL
 # by changing this back to 1 and successfully logging into the account (for each account)
 # Default 0
 #
-RetainCleartextPasswords=1
+#RetainCleartextPasswords=0
 
 #############################################################################
 ## Logon and Logoff
