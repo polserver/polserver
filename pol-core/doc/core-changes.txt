@@ -2,6 +2,11 @@
 10-05-2019 Turley:
   Changed: ECompile reports warnings and errors to cerr instead of printing everything to cout.
            Exit code of ECompile is 1 when at least one file fails to compile.
+  Added:   ecompile.cfg ErrorOnFileCaseMissmatch (default 0)
+           commandline flag -c
+           Leads to a compilation error if the capitalization of the include directive does not match the filename.
+           This has only a meaning on windows.
+           The existing warning is now an official warning meaning that the error on warning flag leads also to an abort.
   Added:   pre/post increment/decrement unary operator (++i, i++, --i, i--) for integer and doubles.
            ++i is the same as writing i+=1 or i:=i+1
            i++ returns the old value, thus its equal to j:=i; i+=1;

@@ -4921,17 +4921,20 @@ int Compiler::compile( CompilerContext& ctx )
 // rope getline
 int Compiler::getFileContents( const char* file, char** iv )
 {
+  // linux fails always in the call before
 #ifdef _WIN32
-  // unix does this automatically, duh
-  //   if (1 || check_filecase_)
+  std::string truename = Clib::GetTrueName( file );
+  std::string filepart = Clib::GetFilePart( file );
+  if ( truename != filepart && Clib::FileExists( file ) )
   {
-    std::string truename = Clib::GetTrueName( file );
-    std::string filepart = Clib::GetFilePart( file );
-    if ( truename != filepart && Clib::FileExists( file ) )
+    if ( compilercfg.ErrorOnFileCaseMissmatch )
     {
       compiler_error( "Case mismatch: \n", "  Specified:  ", filepart, "\n",
                       "  Filesystem: ", truename, "\n" );
+      return -1;
     }
+    compiler_warning( "Case mismatch: \n", "  Specified:  ", filepart, "\n",
+                      "  Filesystem: ", truename, "\n" );
   }
 #endif
 

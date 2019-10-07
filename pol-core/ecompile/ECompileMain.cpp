@@ -59,6 +59,7 @@ void ECompileMain::showHelp()
              << "       -A           automatically compile scripts in main and enabled packages\n"
              << "       -Au          (as '-A' but only compile updated files)\n"
              << "       -b           keep building other scripts after errors\n"
+             << "       -c           treat wrong capitalization in include directives as error\n"
              << "       -C cfgpath   path to configuration (replaces ecompile.cfg)\n"
              << "       -d           display confusing compiler parse information\n"
              << "       -D           write dependency information\n"
@@ -351,6 +352,10 @@ int readargs( int argc, char** argv )
       switch ( arg[1] )
       {
       case 'A':  // skip it at this point.
+        break;
+
+      case 'c':
+        compilercfg.ErrorOnFileCaseMissmatch = setting_value( arg );
         break;
 
       case 'C':  // skip it at this point.
