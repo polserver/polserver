@@ -4933,7 +4933,7 @@ int Compiler::getFileContents( const char* file, char** iv )
                       "  Filesystem: ", truename, "\n" );
       return -1;
     }
-    compiler_warning( "Case mismatch: \n", "  Specified:  ", filepart, "\n",
+    compiler_warning( nullptr, "Case mismatch: \n", "  Specified:  ", filepart, "\n",
                       "  Filesystem: ", truename, "\n" );
   }
 #endif
