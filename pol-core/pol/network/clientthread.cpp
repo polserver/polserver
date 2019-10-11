@@ -92,7 +92,7 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 1;
       if ( !clientpoller.prepare( client->have_queued_data() ) )
       {
-        POLLOG.Format( "Client#{}: ERROR - couldn't poll socket={}\n" )
+        POLLOG_INFO.Format( "Client#{}: ERROR - couldn't poll socket={}\n" )
             << client->instance_ << client->csocket;
 
         if ( client->csocket != INVALID_SOCKET )
