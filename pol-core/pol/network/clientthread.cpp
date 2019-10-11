@@ -92,11 +92,13 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 1;
       if ( !clientpoller.prepare( client->have_queued_data() ) )
       {
+        POLLOG.Format( "Client#{}: ERROR - couldn't poll socket={}\n" )
+            << client->instance_ << client->csocket;
+
         if ( client->csocket != INVALID_SOCKET )
           client->forceDisconnect();
 
-        throw std::runtime_error(
-            "couldn't prepare for polling client socket - limit is reached or invalid socket" );
+        break;
       }
       checkpoint = 2;
 
@@ -266,9 +268,9 @@ bool client_io_thread( Network::Client* client, bool login )
       CLIENT_CHECKPOINT( 9 );
       PolLock lck;
       client->unregister();
-      INFO_PRINT << "Client disconnected from " << client->ipaddrAsString()
-                 << " (" << networkManager.clients.size() << "/"
-                 << networkManager.getNumberOfLoginClients() << " connections)\n";
+      INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
+                 << networkManager.clients.size() << "/" << networkManager.getNumberOfLoginClients()
+                 << " connections)\n";
 
       CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
                              ToolTipPrioritySystem );
