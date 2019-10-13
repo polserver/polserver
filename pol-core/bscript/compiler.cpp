@@ -73,12 +73,10 @@ bool Scope::varexists( const std::string& varname, unsigned& idx ) const
   {
     if ( Clib::stringicmp( varname, variables_[i].name ) == 0 )
     {
-      if ( variables_[i].unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+      if ( variables_[i].unused )
       {
-        INFO_PRINT << "Warning: variable '" << variables_[i].name
-                   << "' declared as unused but used.\n";
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
+        compiler_warning( nullptr, "Warning: variable '", variables_[i].name,
+                          "' declared as unused but used.\n" );
       }
       variables_[i].used = true;
       idx = i;
@@ -113,13 +111,9 @@ void Scope::popblock( bool varsOnly = false )
   for ( ; bd.varcount; bd.varcount-- )  // To enable popping variables only
   {
     Variable& bk = variables_.back();
-    if ( !bk.used && !bk.unused && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+    if ( !bk.used && !bk.unused )
     {
-      INFO_PRINT << "Warning: local variable '" << bk.name << "' not used.\n";
-      if ( compilercfg.ErrorOnWarning )
-        throw std::runtime_error( "Warnings treated as errors." );
-      else
-        INFO_PRINT << bk.ctx;
+      compiler_warning( &bk.ctx, "Warning: local variable '", bk.name, "' not used.\n" );
     }
     variables_.pop_back();
   }
@@ -647,6 +641,29 @@ bool Expression::optimize_token( int i )
       return true;
     }
   }
+  else if ( oper->id == TOK_UNPLUSPLUS || oper->id == TOK_UNPLUSPLUS_POST ||
+            oper->id == TOK_UNMINUSMINUS || oper->id == TOK_UNMINUSMINUS_POST )
+  {
+    if ( i > 0 )
+    {
+      Token* operand = tokens[i - 1];
+      if ( operand->id == INS_GET_MEMBER_ID )
+      {
+        // TODO: spezial consume instruction? no need to copy value obto valuestack?
+        if ( oper->id == TOK_UNPLUSPLUS )
+          operand->id = INS_SET_MEMBER_ID_UNPLUSPLUS;
+        else if ( oper->id == TOK_UNMINUSMINUS )
+          operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS;
+        else if ( oper->id == TOK_UNPLUSPLUS_POST )
+          operand->id = INS_SET_MEMBER_ID_UNPLUSPLUS_POST;
+        else if ( oper->id == TOK_UNMINUSMINUS_POST )
+          operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS_POST;
+        delete oper;
+        tokens.erase( tokens.begin() + i );
+      }
+    }
+    return true;
+  }
   else if ( oper->id == TOK_MEMBER )
   {
     Token* operand = tokens[i - 1];
@@ -713,7 +730,6 @@ bool Expression::optimize_token( int i )
         oper->id = INS_GET_MEMBER;
         oper->type = TYP_UNARY_OPERATOR;
         oper->copyStr( operand->tokval() );
-
         delete operand;
         tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );
         return true;
@@ -905,12 +921,8 @@ int Compiler::isLegal( Token& token )
   if ( inExpr && ( token.id == TOK_ASSIGN ) )
   {
     if ( verbosity_level_ >= 5 )
-    {
-      INFO_PRINT << "Warning! possible incorrect assignment.\n"
-                 << "Near: " << curLine << "\n";
-      if ( compilercfg.ErrorOnWarning )
-        throw std::runtime_error( "Warnings treated as errors." );
-    }
+      compiler_warning( nullptr, "Warning! possible incorrect assignment.\n", "Near: ", curLine,
+                        "\n" );
   }
 
   return 1;  // assignments valid everywhere.  back to simple parser
@@ -936,7 +948,7 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
     std::string tmp( token.tokval(), colon );
     if ( tmp.length() >= 9 )
     {
-      INFO_PRINT << "'" << tmp << "' is too long to be a module name.\n";
+      compiler_error( "'", tmp, "' is too long to be a module name.\n" );
       return -1;
     }
     modulename = tmp;
@@ -979,11 +991,11 @@ int Compiler::isFunc( Token& token, ModuleFunction** pmf )
   }
   else
   {
-    INFO_PRINT << "Function '" << funcname
-               << "' exists in more than module.  It must be qualified.\n";
+    compiler_error( "Function '", funcname,
+                    "' exists in more than module.  It must be qualified.\n" );
     for ( Candidates::const_iterator itr = candidates.begin(); itr != candidates.end(); ++itr )
     {
-      INFO_PRINT << "\t" << program->modules[itr->module]->modulename.get() << "\n";
+      compiler_error( "\t", program->modules[itr->module]->modulename.get(), "\n" );
     }
 
     return -1;
@@ -1049,13 +1061,13 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
         */
     if ( token.id == TOK_RPAREN )
     {
-      INFO_PRINT
-          << "Expected expression following comma before right-brace in array initializer list\n";
+      compiler_error(
+          "Expected expression following comma before right-brace in array initializer list\n" );
       return -1;
     }
     if ( token.id == TOK_COMMA )
     {
-      INFO_PRINT << "Unexpected comma in array initializer list\n";
+      compiler_error( "Unexpected comma in array initializer list\n" );
       return -1;
     }
     Expression eex;
@@ -1077,11 +1089,10 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
     else if ( token.id == TOK_RPAREN )
     {
       return 0;
-      ;
     }
     else
     {
-      INFO_PRINT << "Token '" << token << "' unexpected in array initializer list\n";
+      compiler_error( "Token '", token, "' unexpected in array initializer list\n" );
       return -1;
     }
   }
@@ -1115,14 +1126,14 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
     // report this as an error.
     if ( token.id == TOK_RBRACE )
     {
-      INFO_PRINT
-          << "Expected expression following comma before right-brace in array initializer list\n";
+      compiler_error(
+          "Expected expression following comma before right-brace in array initializer list\n" );
       return -1;
     }
     // we're expecting an expression, not a comma, at this point
     if ( token.id == TOK_COMMA )
     {
-      INFO_PRINT << "Unexpected comma in array initializer list\n";
+      compiler_error( "Unexpected comma in array initializer list\n" );
       return -1;
     }
     Expression eex;
@@ -1148,7 +1159,7 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
     }
     else
     {
-      INFO_PRINT << "Token '" << token << "' unexpected in array initializer list\n";
+      compiler_error( "Token '", token, "' unexpected in array initializer list\n" );
       return -1;
     }
   }
@@ -1186,13 +1197,13 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
     // report this as an error.
     if ( token.id == TOK_RBRACE )
     {
-      INFO_PRINT
-          << "Expected expression following comma before right-brace in struct initializer list\n";
+      compiler_error(
+          "Expected expression following comma before right-brace in struct initializer list\n" );
       return -1;
     }
     if ( token.id == TOK_COMMA )
     {
-      INFO_PRINT << "Unexpected comma in struct element list\n";
+      compiler_error( "Unexpected comma in struct element list\n" );
       return -1;
     }
 
@@ -1220,7 +1231,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
       }
       else if ( token.id == TOK_EQUAL1 )
       {
-        INFO_PRINT << "Unexpected token: '" << token << "'. Did you mean := for assign?\n";
+        compiler_error( "Unexpected token: '", token, "'. Did you mean := for assign?\n" );
         return -1;
       }
       else
@@ -1232,7 +1243,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
     }
     else
     {
-      INFO_PRINT << "Unexpected token in struct initializer list: " << token << "\n";
+      compiler_error( "Unexpected token in struct initializer list: ", token, "\n" );
       return -1;
     }
 
@@ -1250,7 +1261,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
     }
     else
     {
-      INFO_PRINT << "Token '" << token << "' unexpected in struct initializer list\n";
+      compiler_error( "Token '", token, "' unexpected in struct initializer list\n" );
       return -1;
     }
   }
@@ -1289,13 +1300,14 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     // report this as an error.
     if ( token.id == TOK_RBRACE )
     {
-      INFO_PRINT << "Expected expression following comma before right-brace in dictionary "
-                    "initializer list\n";
+      compiler_error(
+          "Expected expression following comma before right-brace in dictionary initializer "
+          "list\n" );
       return -1;
     }
     if ( token.id == TOK_COMMA )
     {
-      INFO_PRINT << "Unexpected comma in dictionary element list\n";
+      compiler_error( "Unexpected comma in dictionary element list\n" );
       return -1;
     }
 
@@ -1349,7 +1361,7 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     }
     else
     {
-      INFO_PRINT << "Token '" << token << "' unexpected in struct element list\n";
+      compiler_error( "Token '", token, "' unexpected in struct element list\n" );
       return -1;
     }
   }
@@ -1376,7 +1388,7 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     }
     if ( token.id == TOK_COMMA )
     {
-      INFO_PRINT << "Unexpected comma in array element list\n";
+      compiler_error( "Unexpected comma in array element list\n" );
       return -1;
     }
     Expression eex;
@@ -1401,7 +1413,7 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     }
     else
     {
-      INFO_PRINT << "Token '" << token << "' unexpected in array element list\n";
+      compiler_error( "Token '", token, "' unexpected in array element list\n" );
       return -1;
     }
   }
@@ -1415,7 +1427,7 @@ int Compiler::getFunctionPArgument( Expression& /*expr*/, CompilerContext& ctx, 
   res = getToken( ctx, *ref_tkn );
   if ( res < 0 || ref_tkn->id != TOK_USERFUNC )
   {
-    INFO_PRINT << "Expected user function reference.\n";
+    compiler_error( "Expected user function reference.\n" );
     return -1;
   }
   ref_tkn->id = TOK_FUNCREF;
@@ -1462,7 +1474,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
   getToken( ctx, token );
   if ( token.id != TOK_LPAREN )
   {
-    INFO_PRINT << "Expected '(' after function name '" << userfunc->name << "'\n";
+    compiler_error( "Expected '(' after function name '", userfunc->name, "'\n" );
     res = -1;
     err = PERR_MISSLPAREN;
     return -1;
@@ -1486,14 +1498,14 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
       }
       else
       {
-        INFO_PRINT << "right paren not allowed here\n";
+        compiler_error( "right paren not allowed here\n" );
         return -1;
       }
     }
 
     if ( params_passed.size() >= userfunc->parameters.size() )
     {
-      INFO_PRINT << "Too many parameters passed to " << userfunc->name << "\n";
+      compiler_error( "Too many parameters passed to ", userfunc->name, "\n" );
       return -1;
     }
 
@@ -1511,7 +1523,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
       }
       else if ( tk2.id == TOK_EQUAL1 )
       {
-        INFO_PRINT << "Unexpected token: '" << tk2 << "'. Did you mean := for assign?\n";
+        compiler_error( "Unexpected token: '", tk2, "'. Did you mean := for assign?\n" );
         return -1;
       }
     }
@@ -1519,7 +1531,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     {
       if ( any_named )
       {
-        INFO_PRINT << "unnamed args cannot follow named args\n";
+        compiler_error( "unnamed args cannot follow named args\n" );
         return -1;
       }
       varname = userfunc->parameters[params_passed.size()].name;
@@ -1527,8 +1539,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     // FIXME case sensitivity!
     if ( params_passed.find( varname ) != params_passed.end() )
     {
-      INFO_PRINT << "Variable " << varname << " passed more than once to " << userfunc->name
-                 << "\n";
+      compiler_error( "Variable ", varname, " passed more than once to ", userfunc->name, "\n" );
       return -1;
     }
 
@@ -1552,7 +1563,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     }
     else
     {
-      INFO_PRINT << "Token '" << token << "' unexpected (expected comma or right-paren)\n";
+      compiler_error( "Token '", token, "' unexpected (expected comma or right-paren)\n" );
       return -1;
     }
   }
@@ -1568,8 +1579,8 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
       }
       else
       {
-        INFO_PRINT << "Function " << userfunc->name << ": Parameter " << itr->name
-                   << " was not passed, and there is no default.\n";
+        compiler_error( "Function ", userfunc->name, ": Parameter ", itr->name,
+                        " was not passed, and there is no default.\n" );
         return -1;
       }
     }
@@ -1585,8 +1596,8 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
   {
     for ( const auto& elem : params_passed )
     {
-      INFO_PRINT << "Parameter '" << elem.first << "' passed by name to " << userfunc->name
-                 << ", which takes no such parameter.\n";
+      compiler_error( "Parameter '", elem.first, "' passed by name to ", userfunc->name,
+                      ", which takes no such parameter.\n" );
     }
 
     return -1;
@@ -1653,27 +1664,23 @@ int Compiler::validate( const Expression& expr, CompilerContext& ctx ) const
     {
       if ( !varexists( tkn->tokval() ) )
       {
-        INFO_PRINT << "Variable " << tkn->tokval() << " has not been declared"
-                   << " on line " << ctx.line << ".\n";
+        compiler_error( "Variable ", tkn->tokval(), " has not been declared on line ", ctx.line,
+                        ".\n" );
         return -1;
       }
     }
     else if ( tkn->id == TOK_EQUAL1 )
     {
       // Single '=' sign? Special error statement (since it could be a typo?)
-      INFO_PRINT << "Deprecated '=' found: did you mean '==' or ':='?\n";
+      compiler_error( "Deprecated '=' found: did you mean '==' or ':='?\n" );
       return -1;
     }
 
-    if ( tkn->deprecated && ( compilercfg.ErrorOnWarning || compilercfg.DisplayWarnings ) )
+    if ( tkn->deprecated )
     {
-      INFO_PRINT << "Warning: Found deprecated "
-                 << ( tkn->type == TYP_OPERATOR ? "operator " : "token " ) << "'" << tkn->tokval()
-                 << "'"
-                 << " on line " << ctx.line << " of " << ctx.filename << "\n";
-      // warning only; doesn't bail out.
-      if ( compilercfg.ErrorOnWarning )
-        throw std::runtime_error( "Warnings treated as errors." );
+      compiler_warning( &ctx, "Warning: Found deprecated ",
+                        ( tkn->type == TYP_OPERATOR ? "operator " : "token " ), "'", tkn->tokval(),
+                        "' on line ", ctx.line, " of ", ctx.filename, "\n" );
     }
 
     if ( tkn->type == TYP_OPERATOR )
@@ -1848,8 +1855,8 @@ int Compiler::getSimpleExpr( CompilerContext& ctx )
   }
   else
   {
-    INFO_PRINT << "Expected variable, function or parenthesized expression, got '" << token
-               << "'\n";
+    compiler_error( "Expected variable, function or parenthesized expression, got '", token,
+                    "'\n" );
     return -1;
   }
   return 0;
@@ -1861,13 +1868,13 @@ int Compiler::eatToken( CompilerContext& ctx, BTokenId tokenid )
   int res = getToken( ctx, token );
   if ( res < 0 )
   {
-    INFO_PRINT << ctx << "Error reading token, expected " << Token( tokenid, TYP_RESERVED ) << "\n";
+    compiler_error( ctx, "Error reading token, expected ", Token( tokenid, TYP_RESERVED ), "\n" );
     return res;
   }
 
   if ( token.id != tokenid )
   {
-    INFO_PRINT << ctx << "Expected " << Token( tokenid, TYP_RESERVED ) << ", got " << token << "\n";
+    compiler_error( ctx, "Expected ", Token( tokenid, TYP_RESERVED ), ", got ", token, "\n" );
     return -1;
   }
   return 0;
@@ -1993,7 +2000,7 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
           getToken( ctx, token );
           if ( default_posn != 0 )
           {
-            INFO_PRINT << "CASE statement can have only one DEFAULT clause.\n";
+            compiler_error( "CASE statement can have only one DEFAULT clause.\n" );
             return -1;
           }
           default_posn = prog_tokens->next();
@@ -2051,9 +2058,8 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
         {
           if ( strlen( token.tokval() ) >= 254 )
           {
-            INFO_PRINT << "String expressions in CASE statements must be <= 253 characters.\n";
+            compiler_error( "String expressions in CASE statements must be <= 253 characters.\n" );
             return -1;
-            ;
           }
           unsigned short offset = static_cast<unsigned short>( prog_tokens->next() );
           unsigned char* tmppch = reinterpret_cast<unsigned char*>( &offset );
@@ -2121,10 +2127,9 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
       // we're about to grab code.  there needs to have been at least one OPTION, then.
       if ( !anycases )
       {
-        INFO_PRINT << "CASE statement with no options!\n"
-                   << "Found '" << token.tokval() << "'"
-                   << ( token.id == CTRL_LABEL ? " but no such constant is defined.\n"
-                                               : " prematurely.\n" );
+        compiler_error( "CASE statement with no options!\n", "Found '", token.tokval(), "'",
+                        ( token.id == CTRL_LABEL ? " but no such constant is defined.\n"
+                                                 : " prematurely.\n" ) );
         return -1;
       }
 
@@ -2152,14 +2157,10 @@ int Compiler::handleSwitch( CompilerContext& ctx, int level )
   // program->leaveblock();
 
   // if only a 'default' block was defined, print a warning
-  if ( onlydefault && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+  if ( onlydefault )
   {
-    INFO_PRINT << "Warning: CASE block only has a DEFAULT clause defined.\n"
-               << "near: " << curLine << "\n";
-    if ( compilercfg.ErrorOnWarning )
-      throw std::runtime_error( "Warnings treated as errors." );
-    else
-      INFO_PRINT << ctx;
+    compiler_warning( &ctx, "Warning: CASE block only has a DEFAULT clause defined.\n",
+                      "near: ", curLine, "\n" );
   }
 
   // if no default specified, pretend 'default' was specified at the end.
@@ -2206,7 +2207,7 @@ int Compiler::handleForEach( CompilerContext& ctx, int level )
     return res;
   if ( itrvar.id != TOK_IDENT )
   {
-    INFO_PRINT << "FOREACH iterator must be an identifier, got " << itrvar << "\n";
+    compiler_error( "FOREACH iterator must be an identifier, got ", itrvar, "\n" );
     return res;
   }
 
@@ -2309,7 +2310,7 @@ int Compiler::handleExit( CompilerContext& ctx )
   getToken( ctx, token );
   if ( token.id != TOK_SEMICOLON )
   {
-    INFO_PRINT << "Missing ';'\n";
+    compiler_error( "Missing ';'\n" );
     err = PERR_MISSINGDELIM;
     return -1;
   }
@@ -2369,16 +2370,14 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
     {
       if ( funcName.id == TOK_FUNC )
       {
-        INFO_PRINT << "'" << funcName.tokval() << "' is already defined as a function.\n"
-                   << "Near: " << curLine << "\n"
-                   << ctx;
+        compiler_error( "'", funcName.tokval(), "' is already defined as a function.\n",
+                        "Near: ", curLine, "\n", ctx );
         return -1;
       }
       else
       {
-        INFO_PRINT << "Expected an identifier, got " << funcName << " instead.\n"
-                   << "Near: " << curLine << "\n"
-                   << ctx;
+        compiler_error( "Expected an identifier, got ", funcName, " instead.\n", "Near: ", curLine,
+                        "\n", ctx );
         return -1;
       }
     }
@@ -2438,7 +2437,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
       // We have a default argument.
       if ( unused )
       {
-        INFO_PRINT << "Default arguments are not allowed in unused parameters\n";
+        compiler_error( "Default arguments are not allowed in unused parameters\n" );
         return -1;
       }
 
@@ -2449,29 +2448,29 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
       if ( readexpr( ex, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED ) !=
            1 )
       {
-        INFO_PRINT << "Error reading expression in const declaration\n";
+        compiler_error( "Error reading expression in const declaration\n" );
         return -1;
       }
 
       if ( ex.tokens.size() != 1 )
       {
-        INFO_PRINT << "Const expression must be optimizable\n";
+        compiler_error( "Const expression must be optimizable\n" );
         return -1;
       }
 
       param.dflt_value = *( ex.tokens.back() );
       if ( param.dflt_value.type != TYP_OPERAND )
       {
-        INFO_PRINT << "[" << funcName.tokval()
-                   << "]: Only simple operands are allowed as default arguments (" << token
-                   << " is not allowed)\n";
+        compiler_error( "[", funcName.tokval(),
+                        "]: Only simple operands are allowed as default arguments (", token,
+                        " is not allowed)\n" );
         return -1;
       }
       peekToken( ctx, token );
     }
     else if ( token.id == TOK_EQUAL1 )
     {
-      INFO_PRINT << "Unexpected token: '" << token << "'. Did you mean := for assign?\n";
+      compiler_error( "Unexpected token: '", token, "'. Did you mean := for assign?\n" );
       return -1;
     }
     else
@@ -2636,7 +2635,7 @@ bool mismatched_end( const Token& token, BTokenId correct )
             token.id == RSV_ENDPROGRAM || token.id == RSV_ENDENUM )
   {
     Token t( correct, TYP_RESERVED );
-    INFO_PRINT << "Expected " << t << " before " << token << "\n";
+    compiler_error( "Expected ", t, " before ", token, "\n" );
     return true;
   }
   else
@@ -2734,8 +2733,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       res = getStatement( ctx, level );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error in IF statement starting at " << save_ctx;
-
+        compiler_error( "Error in IF statement starting at ", save_ctx );
         return res;
       }
     }
@@ -2797,8 +2795,8 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   peekToken( ctx, token );
   if ( token.id != RSV_ENDIF && token.id != RSV_ELSE )
   {
-    INFO_PRINT << "Expected ELSE or ENDIF after IF statement starting at " << save_ctx
-               << "Did not expect: " << token << "\n";
+    compiler_error( "Expected ELSE or ENDIF after IF statement starting at ", save_ctx,
+                    "Did not expect: ", token, "\n" );
     return -1;
   }
 
@@ -2877,8 +2875,8 @@ int Compiler::readblock( CompilerContext& ctx, int level, BTokenId endtokenid,
     if ( res < 0 )
       return res;
   }
-  INFO_PRINT << "Error in block beginning at " << tctx << "End-of-File detected, expected '"
-             << Token( Mod_Basic, endtokenid, TYP_RESERVED ) << "'\n";
+  compiler_error( "Error in block beginning at ", tctx, "End-of-File detected, expected '",
+                  Token( Mod_Basic, endtokenid, TYP_RESERVED ), "'\n" );
   return -1;
 }
 
@@ -2942,12 +2940,12 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
   int done = 0;
   if ( save_id == RSV_GLOBAL && !inGlobalScope() )
   {
-    INFO_PRINT << "Globals can only be declared at global scope.\n";
+    compiler_error( "Globals can only be declared at global scope.\n" );
     return -1;
   }
   if ( save_id == RSV_LOCAL && inGlobalScope() )
   {
-    INFO_PRINT << "Locals can only be declared within a block or function.\n";
+    compiler_error( "Locals can only be declared within a block or function.\n" );
     return -1;
   }
 
@@ -2963,14 +2961,14 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
     getToken( ctx, tk_varname );
     if ( tk_varname.id != TOK_IDENT )
     {
-      INFO_PRINT << "Non-identifier declared as a variable: '" << tk_varname.tokval() << "'\n"
-                 << "Token: " << tk_varname << "\n";
+      compiler_error( "Non-identifier declared as a variable: '", tk_varname.tokval(), "'\n",
+                      "Token: ", tk_varname, "\n" );
       return -1;
     }
 
     if ( constants.find( tk_varname.tokval() ) != constants.end() )
     {
-      INFO_PRINT << tk_varname.tokval() << " is already a defined constant.\n";
+      compiler_error( tk_varname.tokval(), " is already a defined constant.\n" );
       return -1;
     }
 
@@ -2994,23 +2992,18 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
       }
       else
       {
-        INFO_PRINT << "Global Variable '" << tk_varname.tokval() << "' is already declared at "
-                   << gctx;
+        compiler_error( "Global Variable '", tk_varname.tokval(), "' is already declared at ",
+                        gctx );
         return -1;
       }
     }
     else
     {
       unsigned idx;
-      if ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) &&
-           globalexists( tk_varname.tokval(), idx ) )
+      if ( globalexists( tk_varname.tokval(), idx ) )
       {
-        INFO_PRINT << "Warning: Local variable '" << tk_varname.tokval()
-                   << "' hides Global variable of same name.\n";
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
-        else
-          INFO_PRINT << ctx;
+        compiler_warning( &ctx, "Warning: Local variable '", tk_varname.tokval(),
+                          "' hides Global variable of same name.\n" );
       }
       varindex = localscope.numVariables();
       program->addlocalvar( tk_varname.tokval() );
@@ -3028,14 +3021,7 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
     if ( tk_delim.id == TOK_ARRAY )
     {
       // declaring an array.
-      if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
-      {
-        INFO_PRINT << "Warning! Deprecated array-declaration syntax used.\n";
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
-        else
-          INFO_PRINT << ctx;
-      }
+      compiler_warning( &ctx, "Warning! Deprecated array-declaration syntax used.\n" );
       program->append( StoredToken( Mod_Basic, INS_DECLARE_ARRAY, TYP_RESERVED, 0 ) );
 
       getToken( ctx, tk_delim );
@@ -3062,12 +3048,12 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
     }
     else if ( tk_delim.id == TOK_EQUAL1 )
     {
-      INFO_PRINT << "Unexpected token: '" << tk_delim << "'. Did you mean := for assign?\n";
+      compiler_error( "Unexpected token: '", tk_delim, "'. Did you mean := for assign?\n" );
       return -1;
     }
     else
     {
-      INFO_PRINT << "Unexpected token: " << tk_delim << "\n";
+      compiler_error( "Unexpected token: ", tk_delim, "\n" );
       return -1;
     }
   } while ( !done );
@@ -3078,7 +3064,7 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
   //  // insert a consumer to eat the evaluated result from the expr.
   //  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
   //  return 0;
-}
+}  // namespace Bscript
 
 /*
 allowed formats for declaring const:
@@ -3098,13 +3084,13 @@ int Compiler::handleConstDeclare( CompilerContext& ctx )
   getToken( ctx, tk_varname );
   if ( tk_varname.id != TOK_IDENT )
   {
-    INFO_PRINT << "Expected identifier after const declaration\n";
+    compiler_error( "Expected identifier after const declaration\n" );
     return -1;
   }
 
   if ( constants.count( tk_varname.tokval() ) )
   {
-    INFO_PRINT << "Constant " << tk_varname << " has already been defined.\n";
+    compiler_error( "Constant ", tk_varname, " has already been defined.\n" );
     return -1;
   }
 
@@ -3112,20 +3098,20 @@ int Compiler::handleConstDeclare( CompilerContext& ctx )
   getToken( ctx, tk_assign );
   if ( tk_assign.id != TOK_ASSIGN )
   {
-    INFO_PRINT << "Expected := after identifier in const declaration\n";
+    compiler_error( "Expected := after identifier in const declaration\n" );
     return -1;
   }
 
   Expression ex;
   if ( readexpr( ex, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED ) != 1 )
   {
-    INFO_PRINT << "Error reading expression in const declaration\n";
+    compiler_error( "Error reading expression in const declaration\n" );
     return -1;
   }
 
   if ( ex.tokens.size() != 1 )
   {
-    INFO_PRINT << "Const expression must be optimizable\n";
+    compiler_error( "Const expression must be optimizable\n" );
     return -1;
   }
 
@@ -3150,13 +3136,13 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
 
   if ( getToken( ctx, tk_enum_tag ) < 0 )
   {
-    INFO_PRINT << "Error reading enum tag\n";
+    compiler_error( "Error reading enum tag\n" );
     return -1;
   }
 
   if ( tk_enum_tag.id != TOK_IDENT )
   {
-    INFO_PRINT << "Expected an enum tag after 'enum'\n";
+    compiler_error( "Expected an enum tag after 'enum'\n" );
     return -1;
   }
 
@@ -3167,7 +3153,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
     // int done = 0;
     if ( getToken( ctx, tk_varname ) < 0 )
     {
-      INFO_PRINT << "Error reading identifier in enum declaration\n";
+      compiler_error( "Error reading identifier in enum declaration\n" );
       return -1;
     }
 
@@ -3176,7 +3162,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
 
     if ( tk_varname.id != TOK_IDENT )
     {
-      INFO_PRINT << "Expected identifier in enum statement, got " << tk_varname << "\n";
+      compiler_error( "Expected identifier in enum statement, got ", tk_varname, "\n" );
       return -1;
     }
 
@@ -3184,7 +3170,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
     // now, the forms.  THis should be followed by a comma, an 'endenum', or a ':='
     if ( peekToken( ctx, tmp ) < 0 )
     {
-      INFO_PRINT << "Error reading token in enum statement\n";
+      compiler_error( "Error reading token in enum statement\n" );
       return -1;
     }
     if ( tmp.id == TOK_ASSIGN )
@@ -3195,7 +3181,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
       // FIXME doesn't work if expression is right before enum
       if ( readexpr( ex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_ENDENUM_TERM_ALLOWED ) != 1 )
       {
-        INFO_PRINT << "Error reading expression in enum declaration\n";
+        compiler_error( "Error reading expression in enum declaration\n" );
         return -1;
       }
       if ( !peekToken( ctx, _tmp ) )
@@ -3205,7 +3191,7 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
       }
       if ( ex.tokens.size() != 1 )
       {
-        INFO_PRINT << "Enum expression must be optimizable\n";
+        compiler_error( "Enum expression must be optimizable\n" );
         return -1;
       }
       Token* tkn = ex.tokens.back();
@@ -3233,12 +3219,12 @@ int Compiler::handleEnumDeclare( CompilerContext& ctx )
     }
     else if ( tmp.id == TOK_EQUAL1 )
     {
-      INFO_PRINT << "Unexpected token: '" << tmp << "'. Did you mean := for assign?\n";
+      compiler_error( "Unexpected token: '", tmp, "'. Did you mean := for assign?\n" );
       return -1;
     }
     else
     {
-      INFO_PRINT << "Unexpected token " << tmp << " in enum statement\n";
+      compiler_error( "Unexpected token ", tmp, " in enum statement\n" );
       return -1;
     }
   }
@@ -3287,8 +3273,8 @@ int Compiler::useModule( const char* modulename )
 
   if ( getFileContents( filename_full.c_str(), &orig_mt ) )
   {
-    INFO_PRINT << "Unable to find module " << modulename << "\n"
-               << "\t(Filename: " << filename_full << ")\n";
+    compiler_error( "Unable to find module ", modulename, "\n", "\t(Filename: ", filename_full,
+                    ")\n" );
     return -1;
   }
 
@@ -3305,7 +3291,7 @@ int Compiler::useModule( const char* modulename )
     res = peekToken( mod_ctx, tk_dummy );
     if ( res < 0 )
     {
-      INFO_PRINT << "Error reading token in module " << modulename << "\n";
+      compiler_error( "Error reading token in module ", modulename, "\n" );
       free( orig_mt );
       break;
     }
@@ -3328,7 +3314,7 @@ int Compiler::useModule( const char* modulename )
     std::unique_ptr<UserFunction> puserfunc( new UserFunction );
     if ( readFunctionDeclaration( mod_ctx, *puserfunc ) )
     {
-      INFO_PRINT << "Error reading function declaration in module " << modulename << "\n";
+      compiler_error( "Error reading function declaration in module ", modulename, "\n" );
       free( orig_mt );
       res = -1;
       break;
@@ -3337,8 +3323,8 @@ int Compiler::useModule( const char* modulename )
     Token tk_semicolon;
     if ( getToken( mod_ctx, tk_semicolon ) )
     {
-      INFO_PRINT << filename_full << ": Error in declaration for " << puserfunc->name << ":\n"
-                 << "  Expected a semicolon, got end-of-file or error\n";
+      compiler_error( filename_full, ": Error in declaration for ", puserfunc->name, ":\n",
+                      "  Expected a semicolon, got end-of-file or error\n" );
 
       free( orig_mt );
       res = -1;
@@ -3346,8 +3332,8 @@ int Compiler::useModule( const char* modulename )
     }
     if ( tk_semicolon.id != TOK_SEMICOLON )
     {
-      INFO_PRINT << filename_full << ": Error in declaration for " << puserfunc->name << ":\n"
-                 << "  Expected a semicolon, got '" << tk_semicolon << "'\n";
+      compiler_error( filename_full, ": Error in declaration for ", puserfunc->name, ":\n",
+                      "  Expected a semicolon, got '", tk_semicolon, "'\n" );
       free( orig_mt );
       res = -1;
       break;
@@ -3375,32 +3361,32 @@ int Compiler::handleUse( CompilerContext& ctx )
 
   if ( getToken( ctx, tk_module_name ) )
   {
-    INFO_PRINT << "Error in USE statement: USE should be followed by a module name.\n";
+    compiler_error( "Error in USE statement: USE should be followed by a module name.\n" );
     return -1;
   }
   if ( tk_module_name.id != TOK_IDENT )
   {
-    INFO_PRINT << "Error in USE statement: Expected identifier, got '" << tk_module_name << "'\n";
+    compiler_error( "Error in USE statement: Expected identifier, got '", tk_module_name, "'\n" );
     return -1;
   }
 
   if ( getToken( ctx, tk_semicolon ) )
   {
-    INFO_PRINT << "Error in USE statement (module " << tk_module_name << "): "
-               << "Expected ';', got end-of-file or error\n";
+    compiler_error( "Error in USE statement (module ", tk_module_name,
+                    "): Expected ';', got end-of-file or error\n" );
     return -1;
   }
   if ( tk_semicolon.id != TOK_SEMICOLON )
   {
-    INFO_PRINT << "Error in USE statement (module " << tk_module_name << "): "
-               << "Expected ';', got '" << tk_semicolon << "'\n";
+    compiler_error( "Error in USE statement (module ", tk_module_name, "): Expected ';', got '",
+                    tk_semicolon, "'\n" );
     return -1;
   }
 
   if ( strlen( tk_module_name.tokval() ) > 10 )
   {
-    INFO_PRINT << "Error in USE statement: Module names must be <= 10 characters\n"
-               << "Module specified was: '" << tk_module_name << "'\n";
+    compiler_error( "Error in USE statement: Module names must be <= 10 characters\n",
+                    "Module specified was: '", tk_module_name, "'\n" );
     return -1;
   }
 
@@ -3453,8 +3439,8 @@ int Compiler::includeModule( const std::string& modulename )
             INFO_PRINT << "Found " << filename_full << "\n";
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
-            INFO_PRINT << "Warning: Found '" << filename_full.c_str() << "' and '"
-                       << try_filename_full.c_str() << "'! Will use first file!\n";
+            compiler_error( "Warning: Found '", filename_full.c_str(), "' and '",
+                            try_filename_full.c_str(), "'! Will use first file!\n" );
         }
       }
       else
@@ -3471,7 +3457,7 @@ int Compiler::includeModule( const std::string& modulename )
     }
     else
     {
-      INFO_PRINT << "Unable to read include file '" << modulename << "'\n";
+      compiler_error( "Unable to read include file '", modulename, "'\n" );
       return -1;
     }
   }
@@ -3512,8 +3498,8 @@ int Compiler::includeModule( const std::string& modulename )
 
   if ( getFileContents( filename_full.c_str(), &orig_mt ) )
   {
-    INFO_PRINT << "Unable to find module " << modulename << "\n"
-               << "\t(Filename: " << filename_full << ")\n";
+    compiler_error( "Unable to find module ", modulename, "\n", "\t(Filename: ", filename_full,
+                    ")\n" );
     return -1;
   }
 
@@ -3539,26 +3525,26 @@ int Compiler::handleInclude( CompilerContext& ctx )
 
   if ( getToken( ctx, tk_module_name ) )
   {
-    INFO_PRINT << "Error in INCLUDE statement: INCLUDE should be followed by a module name.\n";
+    compiler_error( "Error in INCLUDE statement: INCLUDE should be followed by a module name.\n" );
     return -1;
   }
   if ( tk_module_name.id != TOK_IDENT && tk_module_name.id != TOK_STRING )
   {
-    INFO_PRINT << "Error in INCLUDE statement: Expected identifier, got '" << tk_module_name
-               << "'\n";
+    compiler_error( "Error in INCLUDE statement: Expected identifier, got '", tk_module_name,
+                    "'\n" );
     return -1;
   }
 
   if ( getToken( ctx, tk_semicolon ) )
   {
-    INFO_PRINT << "Error in INCLUDE statement (module " << tk_module_name << "): "
-               << "Expected ';', got end-of-file or error\n";
+    compiler_error( "Error in INCLUDE statement (module ", tk_module_name,
+                    "): Expected ';', got end-of-file or error\n" );
     return -1;
   }
   if ( tk_semicolon.id != TOK_SEMICOLON )
   {
-    INFO_PRINT << "Error in INCLUDE statement (module " << tk_module_name << "): "
-               << "Expected ';', got '" << tk_semicolon << "'\n";
+    compiler_error( "Error in INCLUDE statement (module ", tk_module_name, "): Expected ';', got '",
+                    tk_semicolon, "'\n" );
     return -1;
   }
 
@@ -3593,10 +3579,8 @@ int Compiler::insertBreak( const std::string& label )
       return 0;
     }
   }
-  INFO_PRINT << "Couldn't find an appropriate break point";
-  if ( label != "" )
-    INFO_PRINT << " for label " << label;
-  INFO_PRINT << ".\n";
+  compiler_error( "Couldn't find an appropriate break point", ( label != "" ? " for label " : "" ),
+                  label, ".\n" );
 
   return -1;
 }
@@ -3615,7 +3599,7 @@ int Compiler::handleBreak( CompilerContext& ctx )
 
   if ( getToken( ctx, tk ) || ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
   {
-    INFO_PRINT << "break statement: expected 'break;' or 'break label;'\n";
+    compiler_error( "break statement: expected 'break;' or 'break label;'\n" );
     return -1;
   }
 
@@ -3624,7 +3608,7 @@ int Compiler::handleBreak( CompilerContext& ctx )
     label = tk.tokval();
     if ( getToken( ctx, tk ) || tk.id != TOK_SEMICOLON )
     {
-      INFO_PRINT << "break statement: expected 'break;' or 'break label;'\n";
+      compiler_error( "break statement: expected 'break;' or 'break label;'\n" );
       return -1;
     }
   }
@@ -3648,7 +3632,7 @@ int Compiler::handleContinue( CompilerContext& ctx )
 
   if ( getToken( ctx, tk ) || ( ( tk.id != TOK_IDENT ) && ( tk.id != TOK_SEMICOLON ) ) )
   {
-    INFO_PRINT << "continue statement: expected 'continue;' or 'continue label;'\n";
+    compiler_error( "continue statement: expected 'continue;' or 'continue label;'\n" );
     return -1;
   }
 
@@ -3657,7 +3641,7 @@ int Compiler::handleContinue( CompilerContext& ctx )
     label = tk.tokval();
     if ( getToken( ctx, tk ) || tk.id != TOK_SEMICOLON )
     {
-      INFO_PRINT << "continue statement: expected 'continue;' or 'continue label;'\n";
+      compiler_error( "continue statement: expected 'continue;' or 'continue label;'\n" );
       return -1;
     }
   }
@@ -3690,10 +3674,8 @@ int Compiler::handleContinue( CompilerContext& ctx )
       return 0;
     }
   }
-  INFO_PRINT << "Couldn't find an appropriate continue point";
-  if ( label != "" )
-    INFO_PRINT << " for label " << label;
-  INFO_PRINT << ".\n";
+  compiler_error( "Couldn't find an appropriate continue point",
+                  ( label != "" ? " for label " : "" ), label, ".\n" );
 
   return -1;
 }
@@ -3724,13 +3706,13 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
     return res;
   if ( itrvar.id != TOK_IDENT )
   {
-    INFO_PRINT << "FOR iterator must be an identifier, got " << itrvar << "\n";
+    compiler_error( "FOR iterator must be an identifier, got ", itrvar, "\n" );
     return res;
   }
 
   if ( localscope.varexists( itrvar.tokval() ) )
   {
-    INFO_PRINT << "FOR iterator '" << itrvar << "' hides a local variable.\n";
+    compiler_error( "FOR iterator '", itrvar, "' hides a local variable.\n" );
     return -1;
   }
 
@@ -3799,7 +3781,7 @@ int Compiler::handleFor_c( CompilerContext& ctx )
     getToken( ctx, tkn );
     if ( tkn.id != TOK_LPAREN )
     {
-      INFO_PRINT << "FOR: expected '('\n";
+      compiler_error( "FOR: expected '('\n" );
       return -1;
     }
   }
@@ -3820,7 +3802,7 @@ int Compiler::handleFor_c( CompilerContext& ctx )
     Token tkn;
     if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
     {
-      INFO_PRINT << "FOR: expected '('\n";
+      compiler_error( "FOR: expected '('\n" );
       return -1;
     }
   }
@@ -3875,7 +3857,7 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
     getToken( ctx, tkn );
     if ( tkn.id != TOK_LPAREN )
     {
-      INFO_PRINT << "FOR: expected '('\n";
+      compiler_error( "FOR: expected '('\n" );
       return -1;
     }
   }
@@ -3896,7 +3878,7 @@ int Compiler::handleBracketedFor_c( CompilerContext& ctx )
     Token tkn;
     if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
     {
-      INFO_PRINT << "FOR: expected '('\n";
+      compiler_error( "FOR: expected '('\n" );
       return -1;
     }
   }
@@ -3955,7 +3937,7 @@ int Compiler::handleFor( CompilerContext& ctx )
   res = peekToken( ctx, tkn );
   if ( res )
   {
-    INFO_PRINT << "Error in FOR statement\n";
+    compiler_error( "Error in FOR statement\n" );
     return -1;
   }
 
@@ -4031,14 +4013,10 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
   else
     last_position = program->tokens.count();
 
-  if ( token.deprecated && ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+  if ( token.deprecated )
   {
-    INFO_PRINT << "Warning: Found deprecated token "
-               << "'" << token.tokval() << "'"
-               << " on line " << ctx.line << " of " << ctx.filename << "\n";
-    if ( compilercfg.ErrorOnWarning )
-      throw std::runtime_error( "Warnings treated as errors." );
-    // warning only; doesn't bail out.
+    compiler_warning( &ctx, "Warning: Found deprecated token '", token.tokval(), "' on line ",
+                      ctx.line, " of ", ctx.filename, "\n" );
   }
 
   if ( token.type == TYP_RESERVED )
@@ -4047,7 +4025,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
     switch ( token.id )
     {
     case RSV_OPTION_BRACKETED:
-      INFO_PRINT << "_OptionBracketed is obsolete.\n";
+      compiler_error( "_OptionBracketed is obsolete.\n" );
       // bracketed_if_ = true;
       return 0;
     case RSV_DECLARE:
@@ -4101,7 +4079,7 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       //  case RSV_BEGIN:     return handleBlock(ctx, level+1);
 
     default:
-      INFO_PRINT << "Unhandled reserved word: " << token << "\n";
+      compiler_error( "Unhandled reserved word: ", token, "\n" );
       return -1;
       //         assert(0);
       break;
@@ -4119,9 +4097,9 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
          ( precedes.id != RSV_SWITCH && precedes.id != RSV_FOREACH && precedes.id != RSV_REPEAT &&
            precedes.id != RSV_WHILE && precedes.id != RSV_DO && precedes.id != RSV_FOR ) )
     {
-      INFO_PRINT
-          << "Illegal location for label: " << token.tokval() << "\n"
-          << "Labels can only come before DO, WHILE, FOR, FOREACH, REPEAT, and CASE statements.\n";
+      compiler_error(
+          "Illegal location for label: ", token.tokval(), "\n",
+          "Labels can only come before DO, WHILE, FOR, FOREACH, REPEAT, and CASE statements.\n" );
       return -1;
     }
     latest_label = token.tokval();
@@ -4144,47 +4122,60 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       prog_tokens->atGet1( prog_tokens->count() - 2, tmptoken );
     }
 
-    if ( tmptoken.id == TOK_ASSIGN || tmptoken.id == TOK_PLUSEQUAL ||
-         tmptoken.id == TOK_MINUSEQUAL || tmptoken.id == TOK_TIMESEQUAL ||
-         tmptoken.id == TOK_DIVIDEEQUAL || tmptoken.id == TOK_MODULUSEQUAL ||
-         tmptoken.id == INS_SUBSCRIPT_ASSIGN || tmptoken.id == INS_SUBSCRIPT_ASSIGN_CONSUME ||
-         tmptoken.id == INS_MULTISUBSCRIPT_ASSIGN || tmptoken.id == INS_ASSIGN_CONSUME ||
-         tmptoken.id == TOK_ADDMEMBER || tmptoken.id == TOK_DELMEMBER || tmptoken.id == TOK_FUNC ||
-         tmptoken.id == INS_CALL_METHOD || tmptoken.id == TOK_USERFUNC ||
-         tmptoken.id == CTRL_JSR_USERFUNC || tmptoken.id == INS_ASSIGN_LOCALVAR ||
-         tmptoken.id == INS_ASSIGN_GLOBALVAR || tmptoken.id == INS_SET_MEMBER ||
-         tmptoken.id == INS_SET_MEMBER_CONSUME || tmptoken.id == INS_SET_MEMBER_ID ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME || tmptoken.id == INS_CALL_METHOD_ID ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL ||
-         tmptoken.id == INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL )
+    switch ( tmptoken.id )
     {
-      // ok! These operators actually accomplish something.
-    }
-    else if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
-    {
+    case TOK_ASSIGN:
+    case TOK_PLUSEQUAL:
+    case TOK_MINUSEQUAL:
+    case TOK_TIMESEQUAL:
+    case TOK_DIVIDEEQUAL:
+    case TOK_MODULUSEQUAL:
+    case INS_SUBSCRIPT_ASSIGN:
+    case INS_SUBSCRIPT_ASSIGN_CONSUME:
+    case INS_MULTISUBSCRIPT_ASSIGN:
+    case INS_ASSIGN_CONSUME:
+    case TOK_ADDMEMBER:
+    case TOK_DELMEMBER:
+    case TOK_FUNC:
+    case INS_CALL_METHOD:
+    case TOK_USERFUNC:
+    case CTRL_JSR_USERFUNC:
+    case INS_ASSIGN_LOCALVAR:
+    case INS_ASSIGN_GLOBALVAR:
+    case INS_SET_MEMBER:
+    case INS_SET_MEMBER_CONSUME:
+    case INS_SET_MEMBER_ID:
+    case INS_SET_MEMBER_ID_CONSUME:
+    case INS_CALL_METHOD_ID:
+    case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
+    case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
+    case TOK_UNPLUSPLUS:
+    case TOK_UNMINUSMINUS:
+    case TOK_UNPLUSPLUS_POST:
+    case TOK_UNMINUSMINUS_POST:
+    case INS_SET_MEMBER_ID_UNPLUSPLUS:
+    case INS_SET_MEMBER_ID_UNMINUSMINUS:
+    case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+    case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+      // ok! These operators actually accomplish something
+      break;
+    default:
       if ( tmptoken.id == TOK_EQUAL1 )
       {
-        INFO_PRINT << "Warning: Equals test result ignored.  Did you mean := for assign?\n"
-                   << "near: " << curLine << "\n";
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
-        else
-          INFO_PRINT << ctx;
+        compiler_warning( &ctx,
+                          "Warning: Equals test result ignored.  Did you mean := for assign?\n",
+                          "near: ", curLine, "\n" );
       }
       else
       {
         // warn code has no effect/value lost
-        INFO_PRINT << "Warning: Result of operation may have no effect.\n"
-                   << "Token ID: " << tmptoken.id << "\n"
-                   << "near: " << curLine << "\n";
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
-        else
-          INFO_PRINT << ctx;
+        compiler_warning( &ctx, "Warning: Result of operation may have no effect.\n",
+                          "Token ID: ", tmptoken.id, "\n", "near: ", curLine, "\n" );
       }
+      break;
     }
     //  cout << "Statement: " << Parser.CA << endl;
   }
@@ -4208,7 +4199,7 @@ int Compiler::getStatement( CompilerContext& ctx, int level )
       fmt::Writer _tmp;
       _tmp << "Error compiling statement at ";
       savectx.printOnShort( _tmp );
-      INFO_PRINT << _tmp.str();
+      compiler_error( _tmp.str() );
     }
   }
   catch ( std::exception& ex )
@@ -4217,7 +4208,7 @@ int Compiler::getStatement( CompilerContext& ctx, int level )
     _tmp << "Error compiling statement at ";
     savectx.printOnShort( _tmp );
     _tmp << ex.what() << "\n";
-    INFO_PRINT << _tmp.str();
+    compiler_error( _tmp.str() );
     res = -1;
   }
   return res;
@@ -4231,8 +4222,8 @@ int Compiler::handleFunction( CompilerContext& ctx )
 
   if ( inFunction )
   {
-    INFO_PRINT << "Can't declare a function inside another function.\n"
-               << "(attempt to declare " << funcName << ")\n";
+    compiler_error( "Can't declare a function inside another function.\n", "(attempt to declare ",
+                    funcName, ")\n" );
     return -1;
   }
   inFunction = 1;
@@ -4301,10 +4292,8 @@ int Compiler::handleFunction( CompilerContext& ctx )
     return res;
   if ( token.id != RSV_BEGIN )
   {
-    INFO_PRINT << "Error reading function definition for " << userfunc.name << "()\n"
-               << "Expected BEGIN .. END block, got token: '" << token << "'\n";
-
-    // cout << "Functions must contain a BEGIN .. END block." << endl;
+    compiler_error( "Error reading function definition for ", userfunc.name, "()\n",
+                    "Expected BEGIN .. END block, got token: '", token, "'\n" );
     return -1;
   }
 
@@ -4356,7 +4345,7 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
 
   if ( inFunction )
   {
-    INFO_PRINT << "Can't declare a function inside another function.\n";
+    compiler_error( "Can't declare a function inside another function.\n" );
     return -1;
   }
   inFunction = 1;
@@ -4439,8 +4428,8 @@ int Compiler::handleBracketedFunction( CompilerContext& ctx )
   res = readblock( ctx, 1, RSV_ENDFUNCTION, nullptr, &endblock_tkn );
   if ( res < 0 )
   {
-    INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
-               << "Function location: " << save_ctx << "Error location: \n";
+    compiler_error( "Error occurred reading function body for '", userfunc.name, "'\n",
+                    "Function location: ", save_ctx, "Error location: \n" );
     return res;
   }
 
@@ -4480,14 +4469,14 @@ int Compiler::handleBracketedFunction2( CompilerContext& ctx, int /*level*/, int
       return res;
     if ( tk_function.id != RSV_FUNCTION )
     {
-      INFO_PRINT << "Expected 'function' after 'exported'.\n";
+      compiler_error( "Expected 'function' after 'exported'.\n" );
       return -1;
     }
   }
 
   if ( inFunction )
   {
-    INFO_PRINT << "Can't declare a function inside another function.\n";
+    compiler_error( "Can't declare a function inside another function.\n" );
     return -1;
   }
   getToken( ctx, tk_funcname );
@@ -4505,14 +4494,14 @@ int Compiler::handleBracketedFunction2( CompilerContext& ctx, int /*level*/, int
   }
   if ( !ctx.s[0] )
   {
-    INFO_PRINT << "End-of-File detected, expected 'ENDFUNCTION'\n";
+    compiler_error( "End-of-File detected, expected 'ENDFUNCTION'\n" );
     return -1;
   }
 
   if ( res < 0 )
   {
-    INFO_PRINT << "Error occurred reading function body for '" << tk_funcname.tokval() << "'\n"
-               << "Function location: " << save_ctx << "Error location: \n";
+    compiler_error( "Error occurred reading function body for '", tk_funcname.tokval(), "'\n",
+                    "Function location: ", save_ctx, "Error location: \n" );
     return res;
   }
 
@@ -4526,7 +4515,7 @@ int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
 
   if ( haveProgram )
   {
-    INFO_PRINT << "'program' function has already been defined.\n";
+    compiler_error( "'program' function has already been defined.\n" );
     return -1;
   }
   haveProgram = true;
@@ -4552,7 +4541,7 @@ int Compiler::handleProgram( CompilerContext& ctx, int /*level*/ )
       return 0;
     }
   }
-  INFO_PRINT << "End of file detected, expected 'endprogram'\n";
+  compiler_error( "End of file detected, expected 'endprogram'\n" );
   return -1;
 }
 
@@ -4569,7 +4558,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
     return res;
   if ( tk_progname.id != TOK_IDENT )
   {
-    INFO_PRINT << "Error: expected identified after 'program', got '" << tk_progname << "'\n";
+    compiler_error( "Error: expected identified after 'program', got '", tk_progname, "'\n" );
     return -1;
   }
 
@@ -4588,7 +4577,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
       return res;
     if ( res > 0 )
     {
-      INFO_PRINT << "End-of-file reached reading program argument list\n";
+      compiler_error( "End-of-file reached reading program argument list\n" );
       return -1;
     }
     if ( token.id == TOK_UNUSED )
@@ -4607,7 +4596,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
       unsigned varpos;
       if ( localscope.varexists( token.tokval(), varpos ) )
       {
-        INFO_PRINT << "Program argument '" << token << "' multiply defined.\n";
+        compiler_error( "Program argument '", token, "' multiply defined.\n" );
         return -1;
       }
       unsigned posn;
@@ -4625,7 +4614,7 @@ int Compiler::handleProgram2( CompilerContext& ctx, int level )
     }
     else
     {
-      INFO_PRINT << "Expected arguments or right-paren in program arglist, got '" << token << "'\n";
+      compiler_error( "Expected arguments or right-paren in program arglist, got '", token, "'\n" );
       return -1;
     }
   }
@@ -4706,7 +4695,7 @@ int Compiler::handleBracketedFunction3( UserFunction& userfunc, CompilerContext&
   res = readblock( ctx, 1, RSV_ENDFUNCTION, &last_statement_id, &endblock_tkn );
   if ( res < 0 )
   {
-    INFO_PRINT << "Error in function '" << userfunc.name << "', " << ctx << "\n";
+    compiler_error( "Error in function '", userfunc.name, "', ", ctx, "\n" );
     return res;
   }
   program->update_dbg_pos( endblock_tkn );
@@ -4762,14 +4751,14 @@ int Compiler::forward_read_function( CompilerContext& ctx )
       return res;
     if ( token.id != RSV_FUNCTION )
     {
-      INFO_PRINT << "Expected 'function' after 'exported'\n";
+      compiler_error( "Expected 'function' after 'exported'\n" );
       return -1;
     }
   }
 
   if ( readFunctionDeclaration( ctx, userfunc ) )
   {
-    INFO_PRINT << save_ctx;
+    compiler_error( save_ctx );
     return -1;
   }
   userfunc.ctx = ctx;
@@ -4797,14 +4786,14 @@ int Compiler::forward_read_function( CompilerContext& ctx )
   }
   if ( !ctx.s[0] )
   {
-    INFO_PRINT << "End-of-File detected, expected 'ENDFUNCTION'\n" << save_ctx;
+    compiler_error( "End-of-File detected, expected 'ENDFUNCTION'\n", save_ctx );
     return -1;
   }
 
   if ( res < 0 )
   {
-    INFO_PRINT << "Error occurred reading function body for '" << userfunc.name << "'\n"
-               << "Function location: " << save_ctx << "Error location: \n";
+    compiler_error( "Error occurred reading function body for '", userfunc.name, "'\n",
+                    "Function location: ", save_ctx, "Error location: \n" );
     return res;
   }
   return res;
@@ -4838,7 +4827,7 @@ int Compiler::compileContext( CompilerContext& ctx )
   }
   catch ( std::exception& )
   {
-    INFO_PRINT << "Exception detected during compilation.\n" << ctx;
+    compiler_error( "Exception detected during compilation.\n", ctx );
     throw;
   }
 
@@ -4848,24 +4837,25 @@ int Compiler::compileContext( CompilerContext& ctx )
 
   if ( res == -1 )
   {
+    fmt::Writer w;
     if ( err || ext_err[0] )
     {
-      INFO_PRINT << "Parse Error: " << ParseErrorStr[err];
+      w << "Parse Error: " << ParseErrorStr[err];
       if ( ext_err[0] )
-        INFO_PRINT << " " << ext_err;
-      INFO_PRINT << "\n";
+        w << " " << ext_err;
+      w << "\n";
       err = PERR_NONE;
       ext_err[0] = '\0';
     }
     else
     {
-      INFO_PRINT << "Compilation Error:\n";
+      w << "Compilation Error:\n";
     }
     if ( curLine[0] )
     {
-      INFO_PRINT << "Near: " << curLine << "\n";
+      w << "Near: " << curLine << "\n";
     }
-    INFO_PRINT << ctx;
+    compiler_error( w.str(), ctx );
     return -1;
   }
   return 0;
@@ -4900,7 +4890,7 @@ int Compiler::compile( CompilerContext& ctx )
     }
     catch ( std::runtime_error& excep )
     {
-      INFO_PRINT << excep.what() << "\n";
+      compiler_error( excep.what(), "\n" );
       res = -1;
     }
     catch ( ... )
@@ -4913,8 +4903,7 @@ int Compiler::compile( CompilerContext& ctx )
       _tmp << "Error detected in program body.\n"
            << "Error occurred at ";
       program_ctx.printOnShort( _tmp );
-      INFO_PRINT << _tmp.str();
-      // << program_ctx;
+      compiler_error( _tmp.str() );
       return res;
     }
 
@@ -4932,18 +4921,20 @@ int Compiler::compile( CompilerContext& ctx )
 // rope getline
 int Compiler::getFileContents( const char* file, char** iv )
 {
+  // linux fails always in the call before
 #ifdef _WIN32
-  // unix does this automatically, duh
-  //   if (1 || check_filecase_)
+  std::string truename = Clib::GetTrueName( file );
+  std::string filepart = Clib::GetFilePart( file );
+  if ( truename != filepart && Clib::FileExists( file ) )
   {
-    std::string truename = Clib::GetTrueName( file );
-    std::string filepart = Clib::GetFilePart( file );
-    if ( truename != filepart && Clib::FileExists( file ) )
+    if ( compilercfg.ErrorOnFileCaseMissmatch )
     {
-      INFO_PRINT << "Case mismatch: \n"
-                 << "  Specified:  " << filepart << "\n"
-                 << "  Filesystem: " << truename << "\n";
+      compiler_error( "Case mismatch: \n", "  Specified:  ", filepart, "\n",
+                      "  Filesystem: ", truename, "\n" );
+      return -1;
     }
+    compiler_warning( nullptr, "Case mismatch: \n", "  Specified:  ", filepart, "\n",
+                      "  Filesystem: ", truename, "\n" );
   }
 #endif
 
@@ -5053,8 +5044,8 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
             INFO_PRINT << "Found " << filename_full << "\n";
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
-            INFO_PRINT << "Warning: Found '" << filename_full.c_str() << "' and '"
-                       << try_filename_full.c_str() << "'! Will use first file!\n";
+            compiler_error( "Warning: Found '", filename_full.c_str(), "' and '",
+                            try_filename_full.c_str(), "'! Will use first file!\n" );
         }
       }
       else
@@ -5071,7 +5062,7 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
     }
     else
     {
-      INFO_PRINT << "Unable to read include file '" << modulename << "'\n";
+      compiler_error( "Unable to read include file '", modulename, "'\n" );
       return false;
     }
   }
@@ -5109,7 +5100,7 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
 
   if ( getFileContents( filename_full.c_str(), &orig_mt ) )
   {
-    INFO_PRINT << "Unable to read include file '" << filename_full << "'\n";
+    compiler_error( "Unable to read include file '", filename_full, "'\n" );
     return false;
   }
 
@@ -5160,7 +5151,7 @@ bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
     {
       if ( handleConstDeclare( tctx ) )
       {
-        INFO_PRINT << "Error in const declaration\n" << tctx;
+        compiler_error( "Error in const declaration\n", tctx );
         return false;
       }
     }
@@ -5168,7 +5159,7 @@ bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
     {
       if ( handleEnumDeclare( tctx ) )
       {
-        INFO_PRINT << "Error in enum declaration\n" << tctx;
+        compiler_error( "Error in enum declaration\n", tctx );
         return false;
       }
     }
@@ -5177,7 +5168,7 @@ bool Compiler::inner_read_function_declarations( const CompilerContext& ctx )
       tctx = save_ctx;
       if ( forward_read_function( tctx ) )
       {
-        INFO_PRINT << "Error reading function\n" << tctx;
+        compiler_error( "Error reading function\n", tctx );
         return false;
       }
     }
@@ -5226,7 +5217,7 @@ int Compiler::emit_function( UserFunction& uf )
   int res = handleBracketedFunction3( uf, ctx );
   if ( res < 0 )
   {
-    INFO_PRINT << "Error in function '" << uf.name << "'.\n" << ctx;
+    compiler_error( "Error in function '", uf.name, "'.\n", ctx );
   }
   return res;
 }
@@ -5424,12 +5415,12 @@ int Compiler::compileFile( const char* in_file )
   }
   catch ( const char* s )
   {
-    INFO_PRINT << "Exception Detected:" << s << "\n";
+    compiler_error( "Exception Detected:", s, "\n" );
     res = -1;
   }
   catch ( std::exception& ex )
   {
-    INFO_PRINT << "Exception Detected:\n" << ex.what() << "\n";
+    compiler_error( "Exception Detected:\n", ex.what(), "\n" );
     res = -1;
   }
   //  catch(...)
@@ -5439,7 +5430,7 @@ int Compiler::compileFile( const char* in_file )
   //  }
 
   if ( res < 0 )
-    INFO_PRINT << "Compilation failed.\n";
+    compiler_error( "Compilation failed.\n" );
 
   // if (contains_tabs && Compiler.warnings_)
   //  cout << "Warning! Source contains TAB characters" << endl;

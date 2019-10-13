@@ -1,0 +1,11 @@
+var s:=struct{resist_fire_mod:=2}; // reserved name, converts to get_member_id
+var i:=++s.resist_fire_mod;
+print(i);
+print(++i); // no ref
+print(s);
+print(i);
+print(s.resist_fire_mod++);
+print(++s.resist_fire_mod);
+++s.resist_fire_mod;
+print(s);
+

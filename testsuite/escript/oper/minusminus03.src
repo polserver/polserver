@@ -1,0 +1,46 @@
+var i:=3;
+while (i-->0)
+ print("while");
+endwhile
+print(i);
+
+for (i:=3;i>0;i--)
+  print("for");
+endfor
+print(i);
+print(i--);
+
+i:=1;
+function p(i)
+  print("in func after --");
+  print(i);
+  i--;
+endfunction
+p(i--);
+print("i after func call "+cstr(i));
+
+i:=1;
+function pp(byref i)
+  print("in func after --");
+  print(i);
+  i--;
+endfunction
+pp(i--); // since its post dec, the original i isnt passed to the func
+print("i after func call "+cstr(i)); // in contrast to --i pp() does not change outer scope i
+
+var ii:=i--;
+print(ii);
+ii-=i--;
+print(ii);
+ii:=1-(i--);
+print(ii);
+
+var d:=1.5;
+d--;
+print(d);
+
+const c:=1;
+c--;
+print("should not change {}".format(c));
+print("should still not change {}".format(c--));
+

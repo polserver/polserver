@@ -897,6 +897,10 @@ BObjectImp* BObjectImp::inverse() const
   return UninitObject::create();
 }
 
+void BObjectImp::selfPlusPlus() {}
+
+void BObjectImp::selfMinusMinus() {}
+
 BObjectRef BObjectImp::OperSubscript( const BObject& /*obj*/ )
 {
   return BObjectRef( copy() );
@@ -2007,5 +2011,5 @@ BObjectImp* BFunctionRef::call_method_id( const int id, Executor& /*ex*/, bool /
     return nullptr;
   }
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

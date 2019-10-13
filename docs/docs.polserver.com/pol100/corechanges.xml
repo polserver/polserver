@@ -2,9 +2,33 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-03-2019</datemodified>
+		<datemodified>10-07-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-05-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">ECompile reports warnings and errors to cerr instead of printing everything to cout.<br/>
+Exit code of ECompile is 1 when at least one file fails to compile.</change>
+			<change type="Added">ecompile.cfg ErrorOnFileCaseMissmatch (default 0)<br/>
+commandline flag -c<br/>
+Leads to a compilation error if the capitalization of the include directive does not match the filename.<br/>
+This has only a meaning on windows.<br/>
+The existing warning is now an official warning meaning that the error on warning flag leads also to an abort.</change>
+			<change type="Added">pre/post increment/decrement unary operator (++i, i++, --i, i--) for integer and doubles.<br/>
+++i is the same as writing i+=1 or i:=i+1<br/>
+i++ returns the old value, thus its equal to j:=i; i+=1;<br/>
+Since it is an unary operator it can be directly used as function parameter or eg while loops.<br/>
+Instead of writing<br/>
+while (i&lt;5)<br/>
+  i+=1;<br/>
+  ...<br/>
+you can directly write<br/>
+while (++i&lt;5)<br/>
+  ...</change>
+			<change type="Note">The operators are only implemented for numbers but this includes also eg. arrays or members when it represents a number. So ++a[1], ++who.fire_resist_mod are also valid.<br/>
+Performance wise is i:=i+1 the slowest then i+=1 then i++ then ++i. (i++ is slower since it returns the old value).</change>
+		</entry>
 		<entry>
 			<date>10-03-2019</date>
 			<author>Turley:</author>

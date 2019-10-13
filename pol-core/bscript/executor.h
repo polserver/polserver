@@ -239,6 +239,10 @@ public:
   void ins_uninit( const Instruction& ins );
   void ins_ident( const Instruction& ins );
   void ins_unminus( const Instruction& ins );
+  void ins_unplusplus( const Instruction& ins );
+  void ins_unminusminus( const Instruction& ins );
+  void ins_unplusplus_post( const Instruction& ins );
+  void ins_unminusminus_post( const Instruction& ins );
 
   void ins_logical_and( const Instruction& ins );
   void ins_logical_or( const Instruction& ins );
@@ -257,6 +261,10 @@ public:
   void ins_set_member_id_consume_timesequal( const Instruction& ins );    // test id
   void ins_set_member_id_consume_divideequal( const Instruction& ins );   // test id
   void ins_set_member_id_consume_modulusequal( const Instruction& ins );  // test id
+  void ins_set_member_id_unplusplus( const Instruction& ins );            // test id
+  void ins_set_member_id_unminusminus( const Instruction& ins );          // test id
+  void ins_set_member_id_unplusplus_post( const Instruction& ins );       // test id
+  void ins_set_member_id_unminusminus_post( const Instruction& ins );     // test id
 
   void ins_assign_localvar( const Instruction& ins );
   void ins_assign_globalvar( const Instruction& ins );

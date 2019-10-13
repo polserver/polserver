@@ -273,6 +273,8 @@ ref_ptr<T>& ref_ptr<T>::operator=( ref_ptr<T>&& rptr )
 template <class T>
 void ref_ptr<T>::set( T* ptr )
 {
+  if ( *this == ptr )  // protection against self assignment
+    return;
   release();
   _ptr = ptr;
   add_ref();

@@ -1,0 +1,7 @@
+struct{ a = 0 }
+struct{ a = 1 }
+struct{ a = 2 }
+2
+4
+struct{ a = error{ errortext = "Object does not support members" } }
+struct{ a = 0, b = 2 }

@@ -1,0 +1,2 @@
+// ecompile.cfg has ErrorOnCaseMissmatch active, so this should fail on both linux and windows
+include "caseSensitivity";

@@ -240,7 +240,12 @@ Operator binary_operators[] = {
     {".?", TOK_CHKMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false},
 
     {",", TOK_COMMA, PREC_COMMA, TYP_SEPARATOR, false, false},
-    {"", TOK_TERM, PREC_TERMINATOR, TYP_TERMINATOR, false, false}};
+    {"", TOK_TERM, PREC_TERMINATOR, TYP_TERMINATOR, false, false},
+    {"++", TOK_ADD, PREC_PLUS, TYP_UNARY_PLACEHOLDER, false,
+     false},  // fake entry will be converted to unary
+    {"--", TOK_SUBTRACT, PREC_PLUS, TYP_UNARY_PLACEHOLDER, false,
+     false},  // fake entry will be converted to unary
+};
 int n_operators = sizeof binary_operators / sizeof binary_operators[0];
 
 Operator unary_operators[] = {
@@ -248,7 +253,9 @@ Operator unary_operators[] = {
     {"-", TOK_UNMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"!", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
     {"~", TOK_BITWISE_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false},
-    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false}
+    {"@", TOK_FUNCREF, PREC_UNARY_OPS, TYP_FUNCREF, false, false},
+    {"++", TOK_UNPLUSPLUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, true, false},
+    {"--", TOK_UNMINUSMINUS, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, true, false},
     //  { "not", TOK_LOG_NOT, PREC_UNARY_OPS, TYP_UNARY_OPERATOR, false, false }
     // "refto", TOK_REFTO, 12, TYP_UNARY_OPERATOR, false, false
 };
@@ -1155,12 +1162,8 @@ int Parser::tryOperator( Token& tok, const char* t, const char** s, Operator* op
  */
 int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
 {
-  int res;
   char opbuf[10];
-
-  res = tryOperator( tok, ctx.s, &ctx.s, binary_operators, n_operators, opbuf );
-
-  return res;
+  return tryOperator( tok, ctx.s, &ctx.s, binary_operators, n_operators, opbuf );
 }
 
 /**
@@ -1172,12 +1175,8 @@ int Parser::tryBinaryOperator( Token& tok, CompilerContext& ctx )
  */
 int Parser::tryUnaryOperator( Token& tok, CompilerContext& ctx )
 {
-  int res;
   char opbuf[10];
-
-  res = tryOperator( tok, ctx.s, &ctx.s, unary_operators, n_unary, opbuf );
-
-  return res;
+  return tryOperator( tok, ctx.s, &ctx.s, unary_operators, n_unary, opbuf );
 }
 
 /**
@@ -1318,12 +1317,9 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
     // int len = end - ctx.s;   //   "abd" len = 5-1 = 4
     if ( !Clib::isValidUnicode( lit ) )
     {
-      if ( !ctx.silence_unicode_warnings &&
-           ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) )
+      if ( !ctx.silence_unicode_warnings )
       {
-        INFO_PRINT << "Warning: invalid unicode character detected. Assuming ISO8859\n" << ctx;
-        if ( compilercfg.ErrorOnWarning )
-          throw std::runtime_error( "Warnings treated as errors." );
+        compiler_warning( &ctx, "Warning: invalid unicode character detected. Assuming ISO8859\n" );
       }
       Clib::sanitizeUnicodeWithIso( &lit );
     }
@@ -1593,7 +1589,7 @@ int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not 
     return 0;
   }
 
-  INFO_PRINT << "Your syntax frightens and confuses me.\n";
+  compiler_error( "Your syntax frightens and confuses me.\n" );
   err = PERR_WAAH;
   return -1;
 }
@@ -1609,6 +1605,7 @@ int Parser::peekToken( const CompilerContext& ctx, Token& token, Expression* exp
   tctx.silence_unicode_warnings = true;
   return getToken( tctx, token, expr );
 }
+
 /* Parser::parseToken deleted. */
 /* not used? ens 12/10/1998
 int Parser::IP(Expression& expr, char *s)
@@ -1633,8 +1630,9 @@ return 0;
 */
 
 
-int SmartParser::isOkay( const Token& token, BTokenType last_type )
+int SmartParser::isOkay( const Token& token, const Token& last_token )
 {
+  BTokenType last_type = last_token.type;
   BTokenType this_type = token.type;
   if ( !quiet )
     INFO_PRINT << "isOkay(" << this_type << "," << last_type << ")\n";
@@ -1647,6 +1645,14 @@ int SmartParser::isOkay( const Token& token, BTokenType last_type )
   if ( token.id == TOK_LBRACE )  // an array declared somewhere out there
     this_type = TYP_OPERAND;
 
+  if ( last_type == TYP_UNARY_PLACEHOLDER || this_type == TYP_UNARY_PLACEHOLDER )
+    return 0;  // always invalid
+  if ( token.id == TOK_UNPLUSPLUS_POST ||
+       token.id == TOK_UNMINUSMINUS_POST )  // valid when other direction is valid
+    std::swap( this_type, last_type );
+  if ( last_token.id == TOK_UNPLUSPLUS_POST ||
+       last_token.id == TOK_UNMINUSMINUS_POST )  // behaves like the operand before
+    last_type = TYP_OPERAND;
   if ( last_type > TYP_TESTMAX )
     return 1;  // assumed okay
   if ( this_type > TYP_TESTMAX )
@@ -1847,12 +1853,9 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
         expr.TX.pop();
         return 0;
       default:
-        INFO_PRINT << "Unmatched ')' in expression. (Trying to match against a '" << *last << "')\n"
-                   << ctx;
-
-        ERROR_PRINT << "parseToken(): Not sure what to do.\n"
-                    << "Token: " << *token << "\n"
-                    << "Last:  " << *last << "\n";
+        compiler_error( "Unmatched ')' in expression. (Trying to match against a '", *last, "')\n",
+                        ctx, "parseToken(): Not sure what to do.\n", "Token: ", *token, "\n",
+                        "Last:  ", *last, "\n" );
         throw std::runtime_error( "Error in parseToken() (1)" );
       }
       break;
@@ -1887,11 +1890,9 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
         expr.TX.pop();
         return 0;
       default:
-        INFO_PRINT << "Unmatched ']' in expression. (Trying to match against a '" << *last << "')\n"
-                   << ctx;
-        ERROR_PRINT << "parseToken(): Not sure what to do.\n"
-                    << "Token: " << *token << "\n"
-                    << "Last:  " << *last << "\n";
+        compiler_error( "Unmatched ']' in expression. (Trying to match against a '", *last, "')\n",
+                        ctx, "parseToken(): Not sure what to do.\n", "Token: ", *token, "\n",
+                        "Last:  ", *last, "\n" );
         throw std::runtime_error( "Error in parseToken() (2)" );
       }
       break;
@@ -1925,8 +1926,8 @@ int SmartParser::parseToken( CompilerContext& ctx, Expression& expr, Token* toke
       }
 
     default:
-      INFO_PRINT << "Don't know what to do with '" << *token << "' in SmartParser::parseToken\n"
-                 << ctx;
+      compiler_error( "Don't know what to do with '", *token, "' in SmartParser::parseToken\n",
+                      ctx );
       err = PERR_WAAH;
       return -1;
     }
@@ -2229,12 +2230,18 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
     else if ( token.id == TOK_RBRACKET )
       --leftbracket_count;
 
-    if ( !isOkay( token, last_type ) )
-    {
-      if ( token.type == TYP_OPERATOR )  // check for a unary operator that looks the same.
-        recognize_unary( token, token.tokval() );
+    if ( !isOkay( token, last_token ) )
 
-      if ( !isOkay( token, last_type ) )
+    {
+      if ( token.type == TYP_OPERATOR ||
+           token.type == TYP_UNARY_PLACEHOLDER )  // check for a unary operator that looks the same.
+        recognize_unary( token, token.tokval() );
+      if ( token.id == TOK_UNPLUSPLUS && last_type == TYP_OPERAND )  // switching to post increment
+        token.id = TOK_UNPLUSPLUS_POST;
+      else if ( token.id == TOK_UNMINUSMINUS &&
+                last_type == TYP_OPERAND )  // switching to post decrement
+        token.id = TOK_UNMINUSMINUS_POST;
+      if ( !isOkay( token, last_token ) )
       {
         if ( auto_term_allowed )
         {
@@ -2245,24 +2252,20 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
         res = -1;
         err = PERR_ILLEGALCONS;
         ctx.s = t;  // FIXME operator=
-        INFO_PRINT << "Token '" << token << "' cannot follow token '" << last_token << "'\n";
+        compiler_error( "Token '", token, "' cannot follow token '", last_token, "'\n" );
         if ( last_token.type == TYP_OPERAND && token.id == TOK_LPAREN )
         {
-          INFO_PRINT << "Function " << last_token << "() is not defined.\n";
+          compiler_error( "Function ", last_token, "() is not defined.\n" );
         }
         break;
       }
     }
     else if ( last_type == TYP_TERMINATOR && token.type == TYP_LEFTBRACE &&
-              ( ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning ) &&
-                compilercfg.ParanoiaWarnings ) )
+              compilercfg.ParanoiaWarnings )
     {
-      INFO_PRINT
-          << "Warning: Using { } is inappropriate; please define array, struct or dictionary.\n";
-      if ( compilercfg.ErrorOnWarning )
-        throw std::runtime_error( "Warnings treated as errors." );
-      else
-        INFO_PRINT << ctx;
+      compiler_warning(
+          &ctx,
+          "Warning: Using { } is inappropriate; please define array, struct or dictionary.\n" );
     }
     last_type = token.type;
     last_token = token;
@@ -2305,8 +2308,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       res = getUserArgs( expr, ctx, false );
       if ( res < 0 )
       {
-        INFO_PRINT << "Error getting arguments for function " << token.tokval() << "\n"
-                   << ctx << "\n";
+        compiler_error( "Error getting arguments for function ", token.tokval(), "\n", ctx, "\n" );
         return res;
       }
       ptok2 = new Token( token );
@@ -2356,9 +2358,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
           res = getNewArrayElements( expr, ctx );
         }
         if ( res < 0 )
-        {
-          INFO_PRINT << "Error getting elements for array\n";
-        }
+          compiler_error( "Error getting elements for array\n" );
       }
     }
     else if ( token.id == TOK_LBRACE )  // a bare array declaration, like var x := { 2, 4 };
@@ -2366,9 +2366,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( new Token( TOK_ARRAY, TYP_OPERAND ) );
       res = getNewArrayElements( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error getting elements for array\n";
-      }
+        compiler_error( "Error getting elements for array\n" );
     }
     else if ( token.id == TOK_ERROR )
     {
@@ -2378,9 +2376,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( error_tkn );
       res = getStructMembers( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading members for error\n";
-      }
+        compiler_error( "Error reading members for error\n" );
     }
     else if ( token.id == TOK_STRUCT )
     {
@@ -2390,9 +2386,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( struct_tkn );
       res = getStructMembers( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading members for struct\n";
-      }
+        compiler_error( "Error reading members for struct\n" );
     }
     else if ( token.id == TOK_DICTIONARY )
     {
@@ -2402,18 +2396,14 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( dict_tkn );
       res = getDictionaryMembers( expr, ctx );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading members for dictionary\n";
-      }
+        compiler_error( "Error reading members for dictionary\n" );
     }
     else if ( token.id == TOK_FUNCREF )
     {
       auto ref_tkn = new Token( token );
       res = getFunctionPArgument( expr, ctx, ref_tkn );
       if ( res < 0 )
-      {
-        INFO_PRINT << "Error reading function reference argument\n";
-      }
+        compiler_error( "Error reading function reference argument\n" );
       expr.CA.push( ref_tkn );
     }
     else if ( token.id == TOK_MEMBER && callingMethod( ctx ) )
@@ -2457,6 +2447,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
         ptok2->copyStr( methodName.c_str() );
       }
       last_type = TYP_OPERAND;
+      last_token.type = TYP_OPERAND;  // FIXME: kind of a hack
     }
     else
     {
