@@ -18,3 +18,4 @@ target_link_libraries(${ex_name} PUBLIC
 dist(${ex_name} .)
 
 use_tidy(${ex_name})
+enable_pch(${ex_name} REUSE)

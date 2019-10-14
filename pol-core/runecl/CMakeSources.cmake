@@ -15,5 +15,4 @@ set (runecl_sources  # sorted !
   CMakeSources.cmake 
   RunEclMain.cpp
   RunEclMain.h
-  StdAfx.h
 )
