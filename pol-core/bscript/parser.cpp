@@ -938,7 +938,9 @@ ReservedWord reserved_words[] = {
     {"struct", TOK_STRUCT, TYP_OPERAND, PREC_TERMINATOR, false},
     {"array", TOK_ARRAY, TYP_OPERAND, PREC_TERMINATOR, false},
     {"stack", TOK_STACK, TYP_OPERAND, PREC_TERMINATOR, false},
-    {"in", TOK_IN, TYP_OPERATOR, PREC_EQUALTO, false}
+    {"in", TOK_IN, TYP_OPERATOR, PREC_EQUALTO, false},
+    {"true", TOK_BOOLEAN, TYP_OPERAND, PREC_TERMINATOR, false},
+    {"false", TOK_BOOLEAN, TYP_OPERAND, PREC_TERMINATOR, false}
     //  { "bitand",   TOK_BITAND,   TYP_OPERATOR, PREC_BITAND },
     //  { "bitxor",   TOK_BITXOR,   TYP_OPERATOR, PREC_BITXOR },
     //  { "bitor",    TOK_BITOR,    TYP_OPERATOR, PREC_BITOR }
@@ -1549,6 +1551,14 @@ int Parser::getToken( CompilerContext& ctx, Token& tok, Expression* /* expr not 
   else if ( hit )
   {
     recognize_reserved_word( tok, tok.tokval() );
+    if ( tok.id == TOK_BOOLEAN )
+    {
+      if ( stricmp( tok.tokval(), "true" ) == 0 )
+        tok.lval = 1;
+      else
+        tok.lval = 0;
+      tok.nulStr();
+    }
     return 0;
   }
 

@@ -45,6 +45,8 @@
 #include "token.h"
 #include "tokens.h"
 #include "userfunc.h"
+#include <boost/variant.hpp>
+#include <boost/variant/multivisitors.hpp>
 #include <format/format.h>
 #include <utf8/utf8.h>
 
@@ -189,6 +191,164 @@ void Expression::eat2( Expression& expr )
     expr.tokens.erase( expr.tokens.begin() );
   }
 }
+namespace
+{
+// variant of potential token values, void* is just for errors signaled via nullptr
+typedef boost::variant<int, double, bool, std::string, void*> token_variant;
+// helpers for enable_if
+// arithmetic (int, double, bool) calculation possible
+// any_string (std::string) string addition/formating
+template <typename T1, typename T2>
+struct are_arithmetic_tokens
+{
+  static constexpr bool const value{
+      ( std::is_arithmetic<T1>::value && std::is_arithmetic<T2>::value )};
+};
+template <typename T1, typename T2>
+struct is_any_string
+{
+  static constexpr bool const value{
+      ( std::is_same<T1, std::string>::value || std::is_same<T2, std::string>::value )};
+};
+
+struct token_visitor : public boost::static_visitor<token_variant>
+{
+  // both are arithmetics call the calculation method
+  template <class T1, class T2>
+  typename std::enable_if<are_arithmetic_tokens<T1, T2>::value && !is_any_string<T1, T2>::value,
+                          token_variant>::type
+  operator()( T1 v1, T2 v2 ) const
+  {
+    return arithmetic_oper( v1, v2 );
+  }
+  // one of the two tokens is a string do string ops
+  template <class T1, class T2>
+  typename std::enable_if<is_any_string<T1, T2>::value, token_variant>::type operator()(
+      T1 v1, T2 v2 ) const
+  {
+    return string_oper( v1, v2 );
+  }
+  // the rest mainly needed for the compiler
+  template <class T1, class T2>
+  typename std::enable_if<!are_arithmetic_tokens<T1, T2>::value && !is_any_string<T1, T2>::value,
+                          token_variant>::type
+  operator()( T1, T2 ) const
+  {
+    return token_variant( nullptr );
+  }
+
+  BTokenId id;  // externally stored operation between both tokens
+
+  // perform the real calculation between 2 arithmetic tokens
+  // no special conversion do type conversion like c++
+  template <class T1, class T2>
+  token_variant arithmetic_oper( T1 v1, T2 v2 ) const
+  {
+    // todo double is not compatible with all operations
+    switch ( id )
+    {
+    case TOK_ADD:
+      return token_variant( v1 + v2 );
+    case TOK_SUBTRACT:
+      return token_variant( v1 - v2 );
+    default:
+      return token_variant( nullptr );
+    }
+  }
+  // perform the real calculation between one string and any other tokens
+  template <class T1, class T2>
+  token_variant string_oper( T1 v1, T2 v2 ) const
+  {
+    switch ( id )
+    {
+    case TOK_ADD:
+    {
+      OSTRINGSTREAM os;
+      os << v1 << v2;  // todo bool format
+      return token_variant( OSTRINGSTREAM_STR( os ) );
+    }
+    default:
+      return token_variant( nullptr );
+    }
+  }
+};
+// visitor struct to convert the variant to a new Token
+struct variant_to_token_visitor : public boost::static_visitor<Token*>
+{
+  template <class T>
+  Token* operator()( T ) const
+  {
+    return nullptr;
+  }
+  Token* operator()( int v ) const
+  {
+    Token* t = new Token( Mod_Basic, TOK_LONG, TYP_OPERAND );
+    t->lval = v;
+    return t;
+  }
+  Token* operator()( double v ) const
+  {
+    Token* t = new Token( Mod_Basic, TOK_DOUBLE, TYP_OPERAND );
+    t->dval = v;
+    return t;
+  }
+  Token* operator()( bool v ) const
+  {
+    Token* t = new Token( Mod_Basic, TOK_BOOLEAN, TYP_OPERAND );
+    t->lval = v ? 1 : 0;
+    return t;
+  }
+  Token* operator()( std::string& v ) const
+  {
+    Token* t = new Token( Mod_Basic, TOK_STRING, TYP_OPERAND );
+    t->copyStr( v.c_str() );
+    return t;
+  }
+};
+
+// create variant from Token
+token_variant getVariant( Token* t )
+{
+  token_variant v;
+  switch ( t->id )
+  {
+  case TOK_LONG:
+    v = t->lval;
+    break;
+  case TOK_DOUBLE:
+    v = t->dval;
+    break;
+  case TOK_BOOLEAN:
+    v = t->lval ? true : false;
+    break;
+  case TOK_STRING:
+    v = std::string( t->tokval() );
+    break;
+  default:
+    v = nullptr;
+  }
+  return v;
+}
+
+Token* optimize_any_operation( Token* left, Token* oper, Token* right )
+{
+  INFO_PRINT << "ANY TES\n";
+  INFO_PRINT << ( *left ) << " " << ( *right ) << "\n";
+  auto leftv = getVariant( left );
+  auto rightv = getVariant( right );
+
+  auto visitor = token_visitor();
+  visitor.id = oper->id;
+  auto res = boost::apply_visitor( visitor, leftv, rightv );
+  Token* ntoken = boost::apply_visitor( variant_to_token_visitor(), res );
+  if ( ntoken )
+    INFO_PRINT << "RESULT " << ( *ntoken ) << "\n";
+  else
+    INFO_PRINT << "No result\n";
+
+  return ntoken;
+}
+}  // namespace
 
 Token* optimize_long_operation( Token* left, Token* oper, Token* right )
 {
@@ -314,6 +474,89 @@ Token* optimize_string_operation( Token* left, Token* oper, Token* right )
   return ntoken;
 }
 
+Token* optimize_boolean_operation( Token* left, Token* oper, Token* right )
+{
+  int lval = 0;
+  BTokenId id = TOK_BOOLEAN;  // many operations change id to long
+  switch ( oper->id )
+  {
+  case TOK_ADD:
+    lval = left->lval + right->lval;
+    id = TOK_LONG;
+    break;
+  case TOK_SUBTRACT:
+    lval = left->lval - right->lval;
+    id = TOK_LONG;
+    break;
+  case TOK_MULT:
+    lval = left->lval * right->lval;
+    id = TOK_LONG;
+    break;
+  case TOK_DIV:
+    if ( right->lval == 0 )
+      throw std::runtime_error( "Program would divide by zero" );
+    lval = left->lval / right->lval;
+    id = TOK_LONG;
+    break;
+
+  case TOK_EQUAL:
+    lval = ( left->lval == right->lval );
+    break;
+  case TOK_NEQ:
+    lval = ( left->lval != right->lval );
+    break;
+  case TOK_LESSTHAN:
+    lval = ( left->lval < right->lval );
+    break;
+  case TOK_LESSEQ:
+    lval = ( left->lval <= right->lval );
+    break;
+  case TOK_GRTHAN:
+    lval = ( left->lval > right->lval );
+    break;
+  case TOK_GREQ:
+    lval = ( left->lval >= right->lval );
+    break;
+
+  case TOK_AND:
+    lval = ( left->lval && right->lval );
+    break;
+  case TOK_OR:
+    lval = ( left->lval || right->lval );
+    break;
+
+  case TOK_BSRIGHT:
+    lval = ( left->lval >> right->lval );
+    id = TOK_LONG;
+    break;
+  case TOK_BSLEFT:
+    lval = ( left->lval << right->lval );
+    id = TOK_LONG;
+    break;
+  case TOK_BITAND:
+    lval = ( left->lval & right->lval );
+    id = TOK_LONG;
+    break;
+  case TOK_BITOR:
+    lval = ( left->lval | right->lval );
+    id = TOK_LONG;
+    break;
+  case TOK_BITXOR:
+    lval = ( left->lval ^ right->lval );
+    id = TOK_LONG;
+    break;
+
+  default:
+    return nullptr;
+    break;
+  }
+
+  auto ntoken = new Token( *left );
+  ntoken->lval = lval;
+  ntoken->id = id;
+  return ntoken;
+}
+
 Token* optimize_long_operation( Token* oper, Token* value )
 {
   Token* ntoken = nullptr;
@@ -356,6 +599,20 @@ Token* optimize_string_operation( Token* /*oper*/, Token* /*value*/ )
 {
   return nullptr;
 }
+Token* optimize_boolean_operation( Token* oper, Token* value )
+{
+  Token* ntoken = nullptr;
+  switch ( oper->id )
+  {
+  case TOK_LOG_NOT:
+    ntoken = new Token( *value );
+    ntoken->lval = !value->lval;
+    break;
+  default:
+    break;
+  }
+  return ntoken;
+}
 
 void Expression::optimize_binary_operations()
 {
@@ -374,13 +631,9 @@ void Expression::optimize_binary_operations()
     if ( left->id != right->id )
     {
       // only optimize operations on like operands
+      optimize_any_operation( left, oper, right ); // TODO just a spot for testing
       continue;
     }
-    if ( left->id != TOK_LONG && left->id != TOK_STRING && left->id != TOK_DOUBLE )
-    {
-      continue;
-    }
-
     Token* ntoken = nullptr;
     switch ( left->id )
     {
@@ -393,8 +646,9 @@ void Expression::optimize_binary_operations()
     case TOK_STRING:
       ntoken = optimize_string_operation( left, oper, right );
       break;
-
-
+    case TOK_BOOLEAN:
+      ntoken = optimize_boolean_operation( left, oper, right );
+      break;
     default:
       break;
     }
@@ -430,10 +684,6 @@ void Expression::optimize_unary_operations()
       tokens.erase( tokens.begin() + i, tokens.begin() + i + 1 );
       continue;
     }
-    if ( value->id != TOK_LONG && value->id != TOK_STRING && value->id != TOK_DOUBLE )
-    {
-      continue;
-    }
     Token* ntoken = nullptr;
     switch ( value->id )
     {
@@ -445,6 +695,9 @@ void Expression::optimize_unary_operations()
       break;
     case TOK_STRING:
       ntoken = optimize_string_operation( oper, value );
+      break;
+    case TOK_BOOLEAN:
+      ntoken = optimize_boolean_operation( oper, value );
       break;
     default:
       break;
@@ -2690,7 +2943,8 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
 
     bool discard_this = discard_rest;
 
-    if ( !discard_rest && ex.tokens.size() == 1 && ex.tokens[0]->id == TOK_LONG )
+    if ( !discard_rest && ex.tokens.size() == 1 &&
+         ( ex.tokens[0]->id == TOK_LONG || ex.tokens[0]->id == TOK_BOOLEAN ) )
     {
       if ( ex.tokens[0]->lval )
       {

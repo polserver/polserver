@@ -124,6 +124,9 @@ void EScriptProgram::addToken( const Token& token )
     case TOK_DOUBLE:
       symbols.append( token.dval, sympos );
       break;
+    case TOK_BOOLEAN:
+      symbols.append( token.lval, sympos );
+      break;
     case TOK_STRING:  // string literal
       symbols.append( token.tokval(), sympos );
       break;

@@ -794,6 +794,8 @@ BObject* Executor::makeObj( const Token& token )
     return new BObject( new Double( token.dval ) );
   case TOK_ERROR:
     return new BObject( new BError( "unknown" ) );
+  case TOK_BOOLEAN:
+    return new BObject( new BBoolean( token.lval != 0 ) );
   default:
     passert( 0 );
     break;
@@ -1301,6 +1303,12 @@ void Executor::ins_globalvar( const Instruction& ins )
 void Executor::ins_long( const Instruction& ins )
 {
   ValueStack.push_back( BObjectRef( new BObject( new BLong( ins.token.lval ) ) ) );
+}
+
+// case TOK_BOOLEAN:
+void Executor::ins_boolean( const Instruction& ins )
+{
+  ValueStack.push_back( BObjectRef( new BObject( new BBoolean( ins.token.lval != 0 ) ) ) );
 }
 
 // case TOK_CONSUMER:
@@ -2722,6 +2730,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_dictionary;
   case TOK_FUNCREF:
     return &Executor::ins_funcref;
+  case TOK_BOOLEAN:
+    return &Executor::ins_boolean;
   case INS_UNINIT:
     return &Executor::ins_uninit;
   case TOK_IDENT:

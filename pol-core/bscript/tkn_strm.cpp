@@ -477,6 +477,9 @@ void Token::printOn( std::ostream& os ) const
       os << "<unknown>";
     return;
   }
+  case TOK_BOOLEAN:
+    os << ( lval ? "true" : "false" );
+    break;
 
   default:
     os << "Unknown Token: (" << int( id ) << "," << int( type );

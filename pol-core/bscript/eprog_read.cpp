@@ -239,6 +239,15 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
     }
     std::memcpy( &token.dval, symbols.array() + st.offset, sizeof( double ) );
     return 0;
+  case TOK_BOOLEAN:
+    if ( st.offset >= symbols.length() )
+    {
+      throw std::runtime_error(
+          "Symbol offset of " + Clib::tostring( st.offset ) + " exceeds symbol store length of " +
+          Clib::tostring( symbols.length() ) + " at PC=" + Clib::tostring( position ) );
+    }
+    std::memcpy( &token.lval, symbols.array() + st.offset, sizeof( int ) );
+    return 0;
 
   case CTRL_STATEMENTBEGIN:
     if ( st.offset )
