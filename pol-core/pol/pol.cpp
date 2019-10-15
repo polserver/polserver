@@ -138,6 +138,7 @@
 #include "uoclient.h"
 #include "uoscrobj.h"
 #include "uworld.h"
+#include "worldthread.h"
 #include <format/format.h>
 
 #ifndef NDEBUG
@@ -720,6 +721,7 @@ void threadstatus_thread( void )
         send_pulse();
         wake_tasks_thread();
         networkManager.clientTransmit->Cancel();
+        WorldThread::shutdown();
 #ifdef HAVE_MYSQL
         networkManager.sql_service->stop();
 #endif
@@ -816,6 +818,8 @@ void start_threads()
   checkpoint( "start clienttransmit thread" );
   start_thread( Network::ClientTransmitThread, "ClientTransmit" );
 
+  checkpoint( "start world thread" );
+  start_thread( WorldThread::ThreadEntry, "WorldThread" );
 #ifdef HAVE_MYSQL
   checkpoint( "start sql service thread" );
   start_sql_service();

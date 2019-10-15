@@ -24,6 +24,7 @@
 #include "network/cliface.h"
 #include "polsem.h"
 #include "uoclient.h"
+#include "worldthread.h"
 #include <format/format.h>
 
 namespace Pol
@@ -67,30 +68,34 @@ bool UoClientThread::create()
   struct sockaddr host_addr;
   socklen_t host_addrlen = sizeof host_addr;
 
-  PolLock lck;
-  client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
-  client->csocket = _sck.release_handle();  // client cleans up its socket.
-  if ( _def->sticky )
-    client->listen_port = _def->port;
-  if ( _def->aosresist )
-    client->aosresist = true;  // UOCLient.cfg Entry
-  // Added null setting for pre-char selection checks using nullptr validation
-  client->acct = nullptr;
-  memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
+  auto x = [&]() {
+    client =
+        new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
+    client->csocket = _sck.release_handle();  // client cleans up its socket.
+    if ( _def->sticky )
+      client->listen_port = _def->port;
+    if ( _def->aosresist )
+      client->aosresist = true;  // UOCLient.cfg Entry
+    // Added null setting for pre-char selection checks using nullptr validation
+    client->acct = nullptr;
+    memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
 
-  networkManager.clients.push_back( client );
-  CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
-                         ToolTipPrioritySystem );
-  fmt::Writer tmp;
-  tmp.Format( "Client#{} connected from {} ({}/{} connections)" )
-      << client->instance_ << Network::AddressToString( &client_addr )
-      << networkManager.clients.size() << networkManager.getNumberOfLoginClients();
-  if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
-  {
-    tmp << " on interface " << Network::AddressToString( &host_addr );
-  }
-  POLLOG << tmp.str() << "\n";
-  return true;
+    networkManager.clients.push_back( client );
+    CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
+                           ToolTipPrioritySystem );
+    fmt::Writer tmp;
+    tmp.Format( "Client#{} connected from {} ({}/{} connections)" )
+        << client->instance_ << Network::AddressToString( &client_addr )
+        << networkManager.clients.size() << networkManager.getNumberOfLoginClients();
+    if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
+    {
+      tmp << " on interface " << Network::AddressToString( &host_addr );
+    }
+    POLLOG << tmp.str() << "\n";
+    return true;
+  };
+  auto req = WorldThread::request( x );
+  return req.get();
 }
 
 

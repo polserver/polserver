@@ -417,6 +417,8 @@ set (pol_sources  # sorted !
   vital.cpp
   vital.h
   watch.h
+  worldthread.cpp
+  worldthread.h
   wthrtype.h
   xmlfilescrobj.cpp
   xmlfilescrobj.h
