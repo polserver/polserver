@@ -21,12 +21,12 @@
 #include "../plib/systemstate.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
+#include "globals/worldthread.h"
 #include "polsem.h"
 #include "polsig.h"
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
-#include "worldthread.h"
 #include <format/format.h>
 
 #ifdef _WIN32

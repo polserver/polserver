@@ -18,6 +18,7 @@
 #include "gameclck.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
+#include "globals/worldthread.h"
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "polcfg.h"
@@ -29,7 +30,6 @@
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "uworld.h"
-#include "worldthread.h"
 
 
 namespace Pol
@@ -143,7 +143,7 @@ void decay_thread( void* arg )  // Realm*
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
   while ( !Clib::exit_signalled )
   {
-    WorldThread::request([&]{
+    WorldThread::request( [&] {
       polclock_checkin();
       decay_single_zone( realm, gridwidth, gridheight, wx, wy );
       restart_all_clients();

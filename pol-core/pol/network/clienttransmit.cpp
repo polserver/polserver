@@ -3,8 +3,8 @@
 #include "../../clib/esignal.h"
 #include "../../clib/rawtypes.h"
 #include "../globals/network.h"
+#include "../globals/worldthread.h"
 #include "../polsem.h"
-#include "../worldthread.h"
 #include "client.h"
 
 namespace Pol

@@ -18,6 +18,7 @@
 #include "../clib/network/sockets.h"
 #include "../core.h"
 #include "../crypt/cryptbase.h"
+#include "../globals/worldthread.h"
 #include "../mobile/charactr.h"
 #include "../polcfg.h"
 #include "../polclock.h"
@@ -27,7 +28,6 @@
 #include "../scrsched.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
-#include "../worldthread.h"
 #include "cgdata.h"  // This might not be needed if the client has a clear_gd() method
 #include "client.h"
 #include "msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
@@ -138,7 +138,8 @@ bool client_io_thread( Network::Client* client, bool login )
               CLIENT_CHECKPOINT( 18 );
               if ( client->pause_count )
                 client->restart();
-            } ).get();
+            } )
+                .get();
           }
           else if ( nidle == 30 * Plib::systemstate.config.inactivity_disconnect_timeout )
           {
@@ -191,7 +192,8 @@ bool client_io_thread( Network::Client* client, bool login )
             }
             client->movementqueue.pop();
           }
-        } ).get();
+        } )
+            .get();
       }
       // endregion Speedhack
 

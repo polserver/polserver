@@ -39,6 +39,7 @@
 #include "../plib/systemstate.h"
 
 #include "globals/uvars.h"
+#include "globals/worldthread.h"
 #include "module/httpmod.h"
 #include "module/uomod.h"
 #include "network/sockio.h"
@@ -48,7 +49,6 @@
 #include "scrsched.h"
 #include "scrstore.h"
 #include "uoexec.h"
-#include "worldthread.h"
 
 #ifdef _WIN32
 #include <process.h>

@@ -19,12 +19,12 @@
 #include "../plib/systemstate.h"
 #include "core.h"
 #include "globals/network.h"
+#include "globals/worldthread.h"
 #include "network/client.h"
 #include "network/clienttransmit.h"
 #include "network/cliface.h"
 #include "polsem.h"
 #include "uoclient.h"
-#include "worldthread.h"
 #include <format/format.h>
 
 namespace Pol

@@ -15,10 +15,10 @@
 #include "../../clib/refptr.h"
 #include "../../clib/weakptr.h"
 #include "../globals/network.h"
+#include "../globals/worldthread.h"
 #include "../polsem.h"
 #include "../sqlscrobj.h"
 #include "../uoexec.h"
-#include "../worldthread.h"
 
 namespace Pol
 {

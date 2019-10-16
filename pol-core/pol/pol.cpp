@@ -94,6 +94,7 @@
 #include "globals/object_storage.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
+#include "globals/worldthread.h"
 #include "guardrgn.h"
 #include "item/armor.h"
 #include "item/equipmnt.h"
@@ -138,7 +139,6 @@
 #include "uoclient.h"
 #include "uoscrobj.h"
 #include "uworld.h"
-#include "worldthread.h"
 #include <format/format.h>
 
 #ifndef NDEBUG
@@ -772,7 +772,8 @@ void start_threads()
 
   checkpoint( "start world thread" );
   std::promise<void> worldThreadPromise;
-  start_thread( WorldThread::ThreadEntry, "WorldThread", static_cast<void*>(&worldThreadPromise) );
+  start_thread( WorldThread::ThreadEntry, "WorldThread",
+                static_cast<void*>( &worldThreadPromise ) );
   worldThreadPromise.get_future().get();
 
   if ( Plib::systemstate.config.web_server )

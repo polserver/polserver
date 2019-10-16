@@ -96,6 +96,8 @@ set (pol_sources  # sorted !
   globals/ucfg.h
   globals/uvars.cpp
   globals/uvars.h
+  globals/worldthread.cpp
+  globals/worldthread.h
   guardrgn.cpp
   guardrgn.h
   guilds.cpp
@@ -417,8 +419,6 @@ set (pol_sources  # sorted !
   vital.cpp
   vital.h
   watch.h
-  worldthread.cpp
-  worldthread.h
   wthrtype.h
   xmlfilescrobj.cpp
   xmlfilescrobj.h

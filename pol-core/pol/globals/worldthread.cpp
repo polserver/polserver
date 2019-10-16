@@ -1,4 +1,4 @@
-#include "worldthread.h"
+#include "globals/worldthread.h"
 #include "../clib/esignal.h"
 #include "../clib/make_unique.hpp"
 #include "polsem.h"
@@ -9,7 +9,7 @@ namespace Core
 {
 std::unique_ptr<WorldThread> WorldThread::worldThread;
 
-void WorldThread::ThreadEntry(void* worldThreadPromise)
+void WorldThread::ThreadEntry( void* worldThreadPromise )
 {
   auto p = static_cast<std::promise<void>*>( worldThreadPromise );
   passert_r( worldThread == nullptr, "WorldThread already started" );
@@ -54,7 +54,7 @@ bool WorldThread::process_wait()
       }
       catch ( std::exception& ex )
       {
-        task.prom.set_exception( std::make_exception_ptr(ex) );
+        task.prom.set_exception( std::make_exception_ptr( ex ) );
       }
     }
     return true;

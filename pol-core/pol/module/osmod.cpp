@@ -19,6 +19,7 @@
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
+#include "../globals/worldthread.h"
 #include "../item/item.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
@@ -38,7 +39,6 @@
 #include "../skills.h"
 #include "../ufunc.h"
 #include "../uoexec.h"
-#include "../worldthread.h"
 #include "npcmod.h"
 #include "uomod.h"
 
@@ -622,7 +622,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
           [uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
-            Core::WorldThread::request([&]{
+            Core::WorldThread::request( [&] {
               if ( !uoexec_w.exists() )
               {
                 DEBUGLOG << "OpenConnection Script has been destroyed\n";
@@ -729,9 +729,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           res = curl_easy_perform( curl );
           if ( chunk != nullptr )
             curl_slist_free_all( chunk );
-          Core::WorldThread::request([&]{
-            
-
+          Core::WorldThread::request( [&] {
             if ( !uoexec_w.exists() )
             {
               DEBUGLOG << "OpenConnection Script has been destroyed\n";

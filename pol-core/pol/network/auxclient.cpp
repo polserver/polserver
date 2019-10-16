@@ -26,12 +26,12 @@
 #include "../../clib/threadhelp.h"
 #include "../../plib/pkg.h"
 #include "../globals/network.h"
+#include "../globals/worldthread.h"
 #include "../module/uomod.h"
 #include "../polsem.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../uoexec.h"
-#include "../worldthread.h"
 
 namespace Pol
 {
