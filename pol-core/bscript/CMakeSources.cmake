@@ -11,6 +11,8 @@ set (bscript_sources    # sorted !
   compctx.h
   compiler.cpp
   compiler.h
+  compiler_optimizer.cpp
+  compiler_optimizer.h
   compilercfg.cpp 
   compilercfg.h
   compmodl.h
