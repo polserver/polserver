@@ -62,12 +62,12 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
 {
   auto msg = [uoexec, host, username, password]() {
     std::unique_ptr<Core::BSQLConnection> sql;
-    Core::WorldThread::request( [&] {
+    Core::worldThread.request( [&] {
       sql = std::unique_ptr<Core::BSQLConnection>( new Core::BSQLConnection() );
     } ).get();
 
     if ( sql->getLastErrNo() )
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -78,7 +78,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
         }
       } ).get();
     else if ( !sql->connect( host.data(), username.data(), password.data() ) )
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -89,7 +89,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
         }
       } ).get();
     else
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -119,7 +119,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
   auto msg = [uoexec, sqlRef, db]() {
     if ( sqlRef == nullptr )
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -130,7 +130,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
         }
       } ).get();
     else if ( !sqlRef->select_db( db.c_str() ) )
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -141,7 +141,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
         }
       } ).get();
     else
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -187,7 +187,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   auto msg = [uoexec, sqlRef, query, sharedParams]() {
     if ( sqlRef == nullptr )  // TODO: this doesn't make any sense and should be checked before the
                               // lambda. Same happens in background_select().
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -198,7 +198,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
         }
       } ).get();
     else if ( !sqlRef->query( query, sharedParams ) )
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else
@@ -209,7 +209,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
         }
       } ).get();
     else
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( !uoexec.exists() )
           INFO_PRINT << "Script has been destroyed\n";
         else

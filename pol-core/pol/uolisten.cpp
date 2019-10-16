@@ -94,7 +94,7 @@ bool UoClientThread::create()
     POLLOG << tmp.str() << "\n";
     return true;
   };
-  auto req = WorldThread::request( x );
+  auto req = worldThread.request( x );
   return req.get();
 }
 
@@ -159,7 +159,7 @@ void uo_client_listener_thread( void* arg )
                     Plib::systemstate.config.loginserver_timeout_mins * 60 ) < poltime() )
         {
           POLLOG << "Client#" << client->instance_ << " LoginServer timeout disconnect\n";
-          WorldThread::request( [&] {
+          worldThread.request( [&] {
             client->forceDisconnect();
             client->unregister();
             networkManager.clientTransmit->QueueDelete( client );

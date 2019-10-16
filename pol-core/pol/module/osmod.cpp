@@ -622,7 +622,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
           [uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
-            Core::WorldThread::request( [&] {
+            Core::worldThread.request( [&] {
               if ( !uoexec_w.exists() )
               {
                 DEBUGLOG << "OpenConnection Script has been destroyed\n";
@@ -729,7 +729,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           res = curl_easy_perform( curl );
           if ( chunk != nullptr )
             curl_slist_free_all( chunk );
-          Core::WorldThread::request( [&] {
+          Core::worldThread.request( [&] {
             if ( !uoexec_w.exists() )
             {
               DEBUGLOG << "OpenConnection Script has been destroyed\n";

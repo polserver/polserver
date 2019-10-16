@@ -27,6 +27,7 @@
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../console.h"
+#include "../globals/worldthread.h"
 #include "../guardrgn.h"
 #include "../guilds.h"
 #include "../item/equipmnt.h"
@@ -249,6 +250,7 @@ void GameState::deinitialize()
   tipfilenames.clear();
 
   task_thread_pool.deinit_pool();
+  worldThread.deinitialize();
 
   checkpoint( "end of xmain2" );
 

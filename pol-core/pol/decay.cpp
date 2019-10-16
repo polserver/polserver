@@ -143,7 +143,7 @@ void decay_thread( void* arg )  // Realm*
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
   while ( !Clib::exit_signalled )
   {
-    WorldThread::request( [&] {
+    worldThread.request( [&] {
       polclock_checkin();
       decay_single_zone( realm, gridwidth, gridheight, wx, wy );
       restart_all_clients();
@@ -169,7 +169,7 @@ void decay_thread_shadow( void* arg )  // Realm*
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
   while ( !Clib::exit_signalled )
   {
-    WorldThread::request( [&] {
+    worldThread.request( [&] {
       polclock_checkin();
       if ( gamestate.shadowrealms_by_id[id] == nullptr )  // is realm still there?
         return;
@@ -229,7 +229,7 @@ void decay_single_thread( void* arg )
   unsigned gridy = 0;
   while ( !Clib::exit_signalled )
   {
-    WorldThread::request( [&] {
+    worldThread.request( [&] {
       polclock_checkin();
       // check if realm_index is still valid and if y is still in valid range
       if ( should_switch_realm( realm_index, wx, wy, &gridx, &gridy ) )

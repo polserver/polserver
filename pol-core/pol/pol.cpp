@@ -530,7 +530,7 @@ void tasks_thread( void )
     {
       THREAD_CHECKPOINT( tasks, 1 );
       {
-        Core::WorldThread::request( [&] {
+        Core::worldThread.request( [&] {
           polclock_checkin();
           THREAD_CHECKPOINT( tasks, 2 );
           INC_PROFILEVAR( scheduler_passes );
@@ -582,7 +582,7 @@ void scripts_thread( void )
   while ( !Clib::exit_signalled )
   {
     THREAD_CHECKPOINT( scripts, 0 );
-    WorldThread::request( [&] {
+    worldThread.request( [&] {
       polclock_checkin();
       TRACEBUF_ADDELEM( "scripts thread now", polclock() );
       ++stateManager.profilevars.script_passes;
@@ -641,7 +641,7 @@ void reap_thread( void )
 {
   while ( !Clib::exit_signalled )
   {
-    WorldThread::request( [&] {
+    worldThread.request( [&] {
       polclock_checkin();
       objStorageManager.objecthash.Reap();
       for ( auto& item : gamestate.dynamic_item_descriptors )
@@ -720,7 +720,6 @@ void threadstatus_thread( void )
         send_pulse();
         wake_tasks_thread();
         networkManager.clientTransmit->Cancel();
-        WorldThread::shutdown();
 #ifdef HAVE_MYSQL
         networkManager.sql_service->stop();
 #endif
@@ -756,7 +755,7 @@ void console_thread( void )
 #else
     ConsoleCommand::check_console_commands( &kb );
     if ( stateManager.polsig.reload_configuration_signalled )
-      WorldThread::request( [&] {
+      worldThread.request( [&] {
         INFO_PRINT << "Reloading configuration...";
         stateManager.polsig.reload_configuration_signalled = false;
         reload_configuration();
@@ -769,12 +768,6 @@ void console_thread( void )
 void start_threads()
 {
   threadmap.Register( thread_pid(), "Main" );
-
-  checkpoint( "start world thread" );
-  std::promise<void> worldThreadPromise;
-  start_thread( WorldThread::ThreadEntry, "WorldThread",
-                static_cast<void*>( &worldThreadPromise ) );
-  worldThreadPromise.get_future().get();
 
   if ( Plib::systemstate.config.web_server )
     start_http_server();
@@ -990,6 +983,7 @@ int xmain_inner( bool testing )
 
   // problem with order of global construction, threads cannot be registered in the constructor of
   // gamestate :(
+  Core::worldThread.init();
   Core::gamestate.task_thread_pool.init_pool(
       std::max( 2u, std::thread::hardware_concurrency() / 2 ), "generic_task_thread" );
 
@@ -1204,7 +1198,7 @@ int xmain_inner( bool testing )
     Core::CoreSetSysTrayToolTip( "Writing data files", Core::ToolTipPriorityShutdown );
     POLLOG_INFO << "Writing data files...";
 
-    Core::WorldThread::request( [&] {
+    Core::worldThread.request( [&] {
       unsigned int dirty, clean;
       long long elapsed_ms;
       int savetype;

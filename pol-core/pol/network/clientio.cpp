@@ -204,7 +204,7 @@ void Client::transmit( const void* data, int len, bool needslock )
     if ( handled )
     {
       if ( needslock )
-        Core::WorldThread::request( [&] {
+        Core::worldThread.request( [&] {
           std::lock_guard<std::mutex> guard( _SocketMutex );
           CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
         } ).get();

@@ -64,7 +64,7 @@ void ClientTransmitThread()
       if ( data->client.exists() )
       {
         if ( data->remove )
-          Core::WorldThread::request( [&] { Client::Delete( data->client.get_weakptr() ); } ).get();
+          Core::worldThread.request( [&] { Client::Delete( data->client.get_weakptr() ); } ).get();
         else if ( data->disconnects )
         {
           data->client->forceDisconnect();

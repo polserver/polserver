@@ -205,7 +205,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
   }
 
   std::string filename = "scripts/console/" + cmd->script;
-  auto req = WorldThread::request( [&]() {
+  auto req = worldThread.request( [&]() {
     ScriptDef sd;
     sd.quickconfig( filename + ".ecl" );
     ref_ptr<Bscript::EScriptProgram> prog =

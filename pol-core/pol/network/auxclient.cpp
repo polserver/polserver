@@ -123,7 +123,7 @@ bool AuxClientThread::init()
 {
   bool retVal = false;
 
-  Core::WorldThread::request( [&] {
+  Core::worldThread.request( [&] {
     struct sockaddr ConnectingIP = _sck.peer_address();
     if ( ipAllowed( ConnectingIP ) )
     {
@@ -194,7 +194,7 @@ void AuxClientThread::run()
     if ( !result && !timeout_exit )
       break;
 
-    Core::WorldThread::request( [&] {
+    Core::worldThread.request( [&] {
       if ( _uoexec.exists() )
       {
         if ( result )
@@ -218,7 +218,7 @@ void AuxClientThread::run()
   while ( !Clib::exit_signalled && _transmit_counter > 0 )
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
-  Core::WorldThread::request( [&] {
+  Core::worldThread.request( [&] {
     _auxconnection->disconnect();
     // the auxconnection is probably referenced by another ref_ptr,
     // so its deletion must be protected by the lock.
@@ -279,7 +279,7 @@ void AuxService::run()
   {
     Clib::Socket sock;
     if ( listener.GetConnection( &sock, 5 ) && sock.connected() )
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );
         Core::networkManager.auxthreadpool->push( [client]() {
           std::unique_ptr<AuxClientThread> _clientptr( client );

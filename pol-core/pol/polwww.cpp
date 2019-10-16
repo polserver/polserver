@@ -404,7 +404,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
 
   UOExecutor* ex = nullptr;
   Clib::Socket* errSocket = nullptr;
-  Core::WorldThread::request( [&] {
+  Core::worldThread.request( [&] {
     ref_ptr<Bscript::EScriptProgram> program =
         find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
     if ( program.get() == nullptr )
@@ -450,11 +450,8 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
   }
   if ( ex != nullptr )
   {
-    WorldThread::request( [&] { delete ex; } ).get();
+    worldThread.request( [&] { delete ex; } ).get();
   }
-
-  // find_script( filename, true, config.cache_interactive_scripts );
-
 
   return res;
 }

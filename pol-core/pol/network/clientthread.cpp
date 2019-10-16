@@ -130,7 +130,7 @@ bool client_io_thread( Network::Client* client, bool login )
           if ( nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout )
           {
             CLIENT_CHECKPOINT( 4 );
-            Core::WorldThread::request( [&] {  // multithread
+            Core::worldThread.request( [&] {  // multithread
               Network::PktHelper::PacketOut<Network::PktOut_53> msg;
               msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
               CLIENT_CHECKPOINT( 5 );
@@ -161,7 +161,7 @@ bool client_io_thread( Network::Client* client, bool login )
       // region Speedhack
       if ( !client->movementqueue.empty() )  // not empty then process the first packet
       {
-        Core::WorldThread::request( [&] {  // multithread
+        Core::worldThread.request( [&] {  // multithread
           Network::PacketThrottler pkt = client->movementqueue.front();
           if ( client->SpeedHackPrevention( false ) )
           {
@@ -204,7 +204,7 @@ bool client_io_thread( Network::Client* client, bool login )
         if ( process_data( client ) )
         {
           CLIENT_CHECKPOINT( 17 );
-          Core::WorldThread::request( [&] {
+          Core::worldThread.request( [&] {
             // reset packet timer
             client->last_packet_at = polclock();
             if ( !check_inactivity( client ) )
@@ -231,7 +231,7 @@ bool client_io_thread( Network::Client* client, bool login )
       }
 
       if ( client->have_queued_data() && clientpoller.writable() )
-        Core::WorldThread::request( [&] {
+        Core::worldThread.request( [&] {
           CLIENT_CHECKPOINT( 8 );
           client->send_queued_data();
         } ).get();
@@ -270,7 +270,7 @@ bool client_io_thread( Network::Client* client, bool login )
     //    if (1)
     {
       CLIENT_CHECKPOINT( 9 );
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         client->unregister();
         INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
                    << networkManager.clients.size() << "/"
@@ -290,7 +290,7 @@ bool client_io_thread( Network::Client* client, bool login )
       int seconds_wait = 0;
       {
         CLIENT_CHECKPOINT( 11 );
-        Core::WorldThread::request( [&] {
+        Core::worldThread.request( [&] {
           if ( client->chr )
           {
             client->chr->disconnect_cleanup();
@@ -322,7 +322,7 @@ bool client_io_thread( Network::Client* client, bool login )
         CLIENT_CHECKPOINT( 14 );
         {
           bool shouldBreak = false;
-          Core::WorldThread::request( [&] { shouldBreak = polclock() >= when_logoff; } ).get();
+          Core::worldThread.request( [&] { shouldBreak = polclock() >= when_logoff; } ).get();
           if ( shouldBreak )
             break;
         }
@@ -332,7 +332,7 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 10;
       CLIENT_CHECKPOINT( 15 );
       //      if (1)
-      Core::WorldThread::request( [&] {
+      Core::worldThread.request( [&] {
         if ( client->chr )
         {
           Mobile::Character* chr = client->chr;
@@ -467,7 +467,7 @@ bool process_data( Network::Client* client )
         INFO_PRINT.Format( "Message Received: Type 0x{:X}, Length {} bytes\n" )
             << (int)msgtype << client->message_length;
 
-      auto req = Core::WorldThread::request( [&] {  // multithread
+      auto req = Core::worldThread.request( [&] {  // multithread
         // it can happen that a client gets disconnected while waiting for the lock.
         if ( client->isConnected() )
         {
