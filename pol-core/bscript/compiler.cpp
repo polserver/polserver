@@ -217,14 +217,14 @@ struct token_visitor : public boost::static_visitor<token_variant>
   template <class T1, class T2>
   typename std::enable_if<are_arithmetic_tokens<T1, T2>::value && !is_any_string<T1, T2>::value,
                           token_variant>::type
-  operator()( T1 v1, T2 v2 ) const
+  operator()( const T1& v1, const T2& v2 ) const
   {
     return arithmetic_oper( v1, v2 );
   }
   // one of the two tokens is a string do string ops
   template <class T1, class T2>
   typename std::enable_if<is_any_string<T1, T2>::value, token_variant>::type operator()(
-      T1 v1, T2 v2 ) const
+      const T1& v1, const T2& v2 ) const
   {
     return string_oper( v1, v2 );
   }
@@ -232,7 +232,7 @@ struct token_visitor : public boost::static_visitor<token_variant>
   template <class T1, class T2>
   typename std::enable_if<!are_arithmetic_tokens<T1, T2>::value && !is_any_string<T1, T2>::value,
                           token_variant>::type
-  operator()( T1, T2 ) const
+  operator()( const T1&, const T2& ) const
   {
     return token_variant( nullptr );
   }
@@ -242,22 +242,76 @@ struct token_visitor : public boost::static_visitor<token_variant>
   // perform the real calculation between 2 arithmetic tokens
   // no special conversion do type conversion like c++
   template <class T1, class T2>
-  token_variant arithmetic_oper( T1 v1, T2 v2 ) const
+  token_variant arithmetic_oper( const T1& v1, const T2& v2 ) const
   {
-    // todo double is not compatible with all operations
     switch ( id )
     {
     case TOK_ADD:
       return token_variant( v1 + v2 );
     case TOK_SUBTRACT:
       return token_variant( v1 - v2 );
+    case TOK_MULT:
+      return token_variant( v1 * v2 );
+    case TOK_DIV:
+      if ( v2 == 0.0 )
+        throw std::runtime_error( "Program would divide by zero" );
+      return token_variant( v1 / v2 );
+    case TOK_EQUAL:
+      return token_variant( v1 == v2 );
+    case TOK_NEQ:
+      return token_variant( v1 != v2 );
+    case TOK_LESSTHAN:
+      return token_variant( v1 < v2 );
+    case TOK_LESSEQ:
+      return token_variant( v1 <= v2 );
+    case TOK_GRTHAN:
+      return token_variant( v1 > v2 );
+    case TOK_GREQ:
+      return token_variant( v1 >= v2 );
+    case TOK_AND:
+      return token_variant( v1 && v2 );
+    case TOK_OR:
+      return token_variant( v1 || v2 );
+
+    default:
+      return bitoperand( v1, v2 );
+    }
+  }
+
+  // specific operations with no double involved
+  template <class T1, class T2>
+  typename std::enable_if<!std::is_floating_point<T1>::value && !std::is_floating_point<T2>::value,
+                          token_variant>::type
+  bitoperand( const T1& v1, const T2& v2 ) const
+  {
+    switch ( id )
+    {
+    case TOK_BSRIGHT:
+      return token_variant( v1 >> v2 );
+    case TOK_BSLEFT:
+      return token_variant( v1 << v2 );
+    case TOK_BITAND:
+      return token_variant( v1 & v2 );
+    case TOK_BITOR:
+      return token_variant( v1 | v2 );
+    case TOK_BITXOR:
+      return token_variant( v1 ^ v2 );
     default:
       return token_variant( nullptr );
     }
   }
+  // operations which are invalid for doubles
+  template <class T1, class T2>
+  typename std::enable_if<std::is_floating_point<T1>::value || std::is_floating_point<T2>::value,
+                          token_variant>::type
+  bitoperand( const T1&, const T2& ) const
+  {
+    return token_variant( nullptr );
+  }
+
   // perform the real calculation between one string and any other tokens
   template <class T1, class T2>
-  token_variant string_oper( T1 v1, T2 v2 ) const
+  token_variant string_oper( const T1& v1, const T2& v2 ) const
   {
     switch ( id )
     {
@@ -298,7 +352,7 @@ struct variant_to_token_visitor : public boost::static_visitor<Token*>
     t->lval = v ? 1 : 0;
     return t;
   }
-  Token* operator()( std::string& v ) const
+  Token* operator()( const std::string& v ) const
   {
     Token* t = new Token( Mod_Basic, TOK_STRING, TYP_OPERAND );
     t->copyStr( v.c_str() );
@@ -631,7 +685,7 @@ void Expression::optimize_binary_operations()
     if ( left->id != right->id )
     {
       // only optimize operations on like operands
-      optimize_any_operation( left, oper, right ); // TODO just a spot for testing
+      optimize_any_operation( left, oper, right );  // TODO just a spot for testing
       continue;
     }
     Token* ntoken = nullptr;
