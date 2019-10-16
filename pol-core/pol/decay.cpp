@@ -29,6 +29,7 @@
 #include "ufunc.h"
 #include "uoscrobj.h"
 #include "uworld.h"
+#include "worldthread.h"
 
 
 namespace Pol
@@ -142,12 +143,11 @@ void decay_thread( void* arg )  // Realm*
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
   while ( !Clib::exit_signalled )
   {
-    {
-      PolLock lck;
+    WorldThread::request([&]{
       polclock_checkin();
       decay_single_zone( realm, gridwidth, gridheight, wx, wy );
       restart_all_clients();
-    }
+    } ).get();
     // sweep entire world every 10 minutes
     // (60 * 10 * 1000) / (96 * 64) -> (600000 / 6144) -> 97 ms
 
@@ -169,14 +169,16 @@ void decay_thread_shadow( void* arg )  // Realm*
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
   while ( !Clib::exit_signalled )
   {
-    {
-      PolLock lck;
+    WorldThread::request( [&] {
       polclock_checkin();
       if ( gamestate.shadowrealms_by_id[id] == nullptr )  // is realm still there?
-        break;
+        return;
       decay_single_zone( gamestate.shadowrealms_by_id[id], gridwidth, gridheight, wx, wy );
       restart_all_clients();
-    }
+    } ).get();
+    if ( gamestate.shadowrealms_by_id[id] == nullptr )
+      break;
+
     // sweep entire world every 10 minutes
     // (60 * 10 * 1000) / (96 * 64) -> (600000 / 6144) -> 97 ms
 
@@ -227,8 +229,7 @@ void decay_single_thread( void* arg )
   unsigned gridy = 0;
   while ( !Clib::exit_signalled )
   {
-    {
-      PolLock lck;
+    WorldThread::request( [&] {
       polclock_checkin();
       // check if realm_index is still valid and if y is still in valid range
       if ( should_switch_realm( realm_index, wx, wy, &gridx, &gridy ) )
@@ -246,7 +247,8 @@ void decay_single_thread( void* arg )
             stateManager.decay_statistics.temp_count_decayed = 0;
             stateManager.decay_statistics.temp_count_active = 0;
             POLLOG_INFO.Format(
-                "DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean "
+                "DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} "
+                "mean "
                 "{} variance {} runs {}\n" )
                 << stateManager.decay_statistics.decayed.max()
                 << stateManager.decay_statistics.decayed.mean()
@@ -276,7 +278,8 @@ void decay_single_thread( void* arg )
       }
       decay_worldzone( wx, wy, gamestate.Realms[realm_index] );
       restart_all_clients();
-    }
+    } ).get();
+
     pol_sleep_ms( sleeptime );
   }
 }

@@ -530,14 +530,15 @@ void tasks_thread( void )
     {
       THREAD_CHECKPOINT( tasks, 1 );
       {
-        PolLock lck;
-        polclock_checkin();
-        THREAD_CHECKPOINT( tasks, 2 );
-        INC_PROFILEVAR( scheduler_passes );
-        check_scheduled_tasks( &sleeptime, &activity );
-        THREAD_CHECKPOINT( tasks, 3 );
-        restart_all_clients();
-        THREAD_CHECKPOINT( tasks, 5 );
+        Core::WorldThread::request( [&] {
+          polclock_checkin();
+          THREAD_CHECKPOINT( tasks, 2 );
+          INC_PROFILEVAR( scheduler_passes );
+          check_scheduled_tasks( &sleeptime, &activity );
+          THREAD_CHECKPOINT( tasks, 3 );
+          restart_all_clients();
+          THREAD_CHECKPOINT( tasks, 5 );
+        } ).get();
       }
 
       THREAD_CHECKPOINT( tasks, 6 );
@@ -581,8 +582,7 @@ void scripts_thread( void )
   while ( !Clib::exit_signalled )
   {
     THREAD_CHECKPOINT( scripts, 0 );
-    {
-      PolLock lck;
+    WorldThread::request( [&] {
       polclock_checkin();
       TRACEBUF_ADDELEM( "scripts thread now", polclock() );
       ++stateManager.profilevars.script_passes;
@@ -602,7 +602,7 @@ void scripts_thread( void )
 
         wake_tasks_thread();
       }
-    }
+    } ).get();
 
     if ( activity )
     {
@@ -641,8 +641,7 @@ void reap_thread( void )
 {
   while ( !Clib::exit_signalled )
   {
-    {
-      PolLock lck;
+    WorldThread::request( [&] {
       polclock_checkin();
       objStorageManager.objecthash.Reap();
       for ( auto& item : gamestate.dynamic_item_descriptors )
@@ -650,7 +649,7 @@ void reap_thread( void )
         delete item;
       }
       gamestate.dynamic_item_descriptors.clear();
-    }
+    } ).get();
 
     threadhelp::thread_sleep_ms( 2000 );
   }
@@ -757,13 +756,12 @@ void console_thread( void )
 #else
     ConsoleCommand::check_console_commands( &kb );
     if ( stateManager.polsig.reload_configuration_signalled )
-    {
-      PolLock lck;
-      INFO_PRINT << "Reloading configuration...";
-      stateManager.polsig.reload_configuration_signalled = false;
-      reload_configuration();
-      INFO_PRINT << "Done.\n";
-    }
+      WorldThread::request( [&] {
+        INFO_PRINT << "Reloading configuration...";
+        stateManager.polsig.reload_configuration_signalled = false;
+        reload_configuration();
+        INFO_PRINT << "Done.\n";
+      } ).get();
 #endif
   }
 }
@@ -771,6 +769,11 @@ void console_thread( void )
 void start_threads()
 {
   threadmap.Register( thread_pid(), "Main" );
+
+  checkpoint( "start world thread" );
+  std::promise<void> worldThreadPromise;
+  start_thread( WorldThread::ThreadEntry, "WorldThread", static_cast<void*>(&worldThreadPromise) );
+  worldThreadPromise.get_future().get();
 
   if ( Plib::systemstate.config.web_server )
     start_http_server();
@@ -818,8 +821,6 @@ void start_threads()
   checkpoint( "start clienttransmit thread" );
   start_thread( Network::ClientTransmitThread, "ClientTransmit" );
 
-  checkpoint( "start world thread" );
-  start_thread( WorldThread::ThreadEntry, "WorldThread" );
 #ifdef HAVE_MYSQL
   checkpoint( "start sql service thread" );
   start_sql_service();
@@ -1202,26 +1203,27 @@ int xmain_inner( bool testing )
     Core::CoreSetSysTrayToolTip( "Writing data files", Core::ToolTipPriorityShutdown );
     POLLOG_INFO << "Writing data files...";
 
-    Core::PolLock lck;
-    unsigned int dirty, clean;
-    long long elapsed_ms;
-    int savetype;
+    Core::WorldThread::request( [&] {
+      unsigned int dirty, clean;
+      long long elapsed_ms;
+      int savetype;
 
-    if ( Clib::passert_shutdown_due_to_assertion )
-      savetype = Plib::systemstate.config.assertion_shutdown_save_type;
-    else
-      savetype = Plib::systemstate.config.shutdown_save_type;
+      if ( Clib::passert_shutdown_due_to_assertion )
+        savetype = Plib::systemstate.config.assertion_shutdown_save_type;
+      else
+        savetype = Plib::systemstate.config.shutdown_save_type;
 
-    // TODO: full save if incremental_saves_disabled ?
-    // otherwise could have really, really bad timewarps
-    Tools::Timer<> timer;
-    if ( savetype == Core::SAVE_FULL )
-      Core::write_data( dirty, clean, elapsed_ms );
-    else
-      Core::save_incremental( dirty, clean, elapsed_ms );
-    Core::SaveContext::ready();
-    POLLOG_INFO << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed()
-                << " total.\n";
+      // TODO: full save if incremental_saves_disabled ?
+      // otherwise could have really, really bad timewarps
+      Tools::Timer<> timer;
+      if ( savetype == Core::SAVE_FULL )
+        Core::write_data( dirty, clean, elapsed_ms );
+      else
+        Core::save_incremental( dirty, clean, elapsed_ms );
+      Core::SaveContext::ready();
+      POLLOG_INFO << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed()
+                  << " total.\n";
+    } ).get();
   }
   else
   {

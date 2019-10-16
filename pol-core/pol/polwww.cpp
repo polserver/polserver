@@ -48,6 +48,7 @@
 #include "scrsched.h"
 #include "scrstore.h"
 #include "uoexec.h"
+#include "worldthread.h"
 
 #ifdef _WIN32
 #include <process.h>
@@ -401,50 +402,60 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
     return false;
   }
 
-  PolLock2 lck;
-
-  ref_ptr<Bscript::EScriptProgram> program =
-      find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
-  // find_script( filename, true, config.cache_interactive_scripts );
-  if ( program.get() == nullptr )
-  {
-    ERROR_PRINT << "Error reading script " << page_sd.name() << "\n";
-    res = false;
-    lck.unlock();
-    http_not_found( sck, page );
-    lck.lock();
-  }
-  else
-  {
-    UOExecutor* ex = create_script_executor();
-    Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
-    ex->addModule( uoemod );
-    Module::HttpExecutorModule* hem = new Module::HttpExecutorModule( *ex, std::move( sck ) );
-
-    hem->read_query_string( query_string );
-    hem->read_query_ip();
-
-    ex->addModule( hem );
-
-    if ( !ex->setProgram( program.get() ) )
+  UOExecutor* ex = nullptr;
+  Clib::Socket* errSocket = nullptr;
+  Core::WorldThread::request( [&] {
+    ref_ptr<Bscript::EScriptProgram> program =
+        find_script2( page_sd, true, Plib::systemstate.config.cache_interactive_scripts );
+    if ( program.get() == nullptr )
     {
-      lck.unlock();
-      http_not_found( hem->sck_, page );
-      lck.lock();
-      delete ex;
+      ERROR_PRINT << "Error reading script " << page_sd.name() << "\n";
+      errSocket = &sck;
       res = false;
+      return;
     }
     else
     {
-      http_writeline( hem->sck_, "HTTP/1.1 200 OK" );
-      http_writeline( hem->sck_, "Content-Type: text/html" );
-      http_writeline( hem->sck_, "" );
-      ex->setDebugLevel( Bscript::Executor::NONE );
-      schedule_executor( ex );
+      ex = create_script_executor();
+      Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
+      ex->addModule( uoemod );
+      Module::HttpExecutorModule* hem = new Module::HttpExecutorModule( *ex, std::move( sck ) );
+
+      hem->read_query_string( query_string );
+      hem->read_query_ip();
+
+      ex->addModule( hem );
+
+      if ( !ex->setProgram( program.get() ) )
+      {
+        errSocket = &hem->sck_;
+        res = false;
+        return;
+      }
+      else
+      {
+        http_writeline( hem->sck_, "HTTP/1.1 200 OK" );
+        http_writeline( hem->sck_, "Content-Type: text/html" );
+        http_writeline( hem->sck_, "" );
+        ex->setDebugLevel( Bscript::Executor::NONE );
+        schedule_executor( ex );
+      }
+      program.clear();  // do this so deletion happens while we're locked
     }
+  } ).get();
+
+  if ( errSocket != nullptr )
+  {
+    http_not_found( *errSocket, page );
   }
-  program.clear();  // do this so deletion happens while we're locked
-  lck.unlock();
+  if ( ex != nullptr )
+  {
+    WorldThread::request( [&] { delete ex; } ).get();
+  }
+
+  // find_script( filename, true, config.cache_interactive_scripts );
+
+
   return res;
 }
 
@@ -587,8 +598,8 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
       ifs.read( bfr, sizeof( bfr ) );
       cur_read += static_cast<unsigned int>( ifs.gcount() );
       sck.send( bfr, static_cast<unsigned int>( ifs.gcount() ) );  // This was sizeof bfr, which
-                                                                   // would send garbage... fixed --
-                                                                   // Nando, 2009-02-22
+                                                                   // would send garbage... fixed
+                                                                   // -- Nando, 2009-02-22
     }
     // -------------
   }

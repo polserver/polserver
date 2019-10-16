@@ -23,6 +23,7 @@
 #include "../packetscrobj.h"
 #include "../polsem.h"
 #include "../polsig.h"
+#include "../worldthread.h"
 #include "client.h"
 #include "clienttransmit.h"
 #include "packethelper.h"
@@ -203,11 +204,10 @@ void Client::transmit( const void* data, int len, bool needslock )
     if ( handled )
     {
       if ( needslock )
-      {
-        Core::PolLock lock;
-        std::lock_guard<std::mutex> guard( _SocketMutex );
-        CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
-      }
+        Core::WorldThread::request( [&] {
+          std::lock_guard<std::mutex> guard( _SocketMutex );
+          CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
+        } ).get();
       else
       {
         std::lock_guard<std::mutex> guard( _SocketMutex );

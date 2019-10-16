@@ -18,6 +18,7 @@
 #include "../polsem.h"
 #include "../sqlscrobj.h"
 #include "../uoexec.h"
+#include "../worldthread.h"
 
 namespace Pol
 {
@@ -61,45 +62,42 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
 {
   auto msg = [uoexec, host, username, password]() {
     std::unique_ptr<Core::BSQLConnection> sql;
-    {
-      Core::PolLock lck;
+    Core::WorldThread::request( [&] {
       sql = std::unique_ptr<Core::BSQLConnection>( new Core::BSQLConnection() );
-    }
+    } ).get();
+
     if ( sql->getLastErrNo() )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Insufficient memory" ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set(
+              new BObject( new BError( "Insufficient memory" ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
     else if ( !sql->connect( host.data(), username.data(), password.data() ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sql->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set(
+              new BObject( new BError( sql->getLastError() ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
     else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
   };
 
   if ( !uoexec->suspend() )
@@ -121,40 +119,37 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
   auto msg = [uoexec, sqlRef, db]() {
     if ( sqlRef == nullptr )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Invalid parameters" ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set(
+              new BObject( new BError( "Invalid parameters" ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
     else if ( !sqlRef->select_db( db.c_str() ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sqlRef->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set(
+              new BObject( new BError( sqlRef->getLastError() ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
     else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
   };
 
   if ( !uoexec->suspend() )
@@ -192,40 +187,37 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   auto msg = [uoexec, sqlRef, query, sharedParams]() {
     if ( sqlRef == nullptr )  // TODO: this doesn't make any sense and should be checked before the
                               // lambda. Same happens in background_select().
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( "Invalid parameters" ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set(
+              new BObject( new BError( "Invalid parameters" ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
     else if ( !sqlRef->query( query, sharedParams ) )
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set(
-            new BObject( new BError( sqlRef->getLastError() ) ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set(
+              new BObject( new BError( sqlRef->getLastError() ) ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
     else
-    {
-      Core::PolLock lck;
-      if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
-      else
-      {
-        uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
-        uoexec.get_weakptr()->revive();
-      }
-    }
+      Core::WorldThread::request( [&] {
+        if ( !uoexec.exists() )
+          INFO_PRINT << "Script has been destroyed\n";
+        else
+        {
+          uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
+          uoexec.get_weakptr()->revive();
+        }
+      } ).get();
   };
 
   if ( !uoexec->suspend() )

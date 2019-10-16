@@ -38,6 +38,7 @@
 #include "../skills.h"
 #include "../ufunc.h"
 #include "../uoexec.h"
+#include "../worldthread.h"
 #include "npcmod.h"
 #include "uomod.h"
 
@@ -621,8 +622,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
           [uoexec_w, sd, hostname, port, scriptparam, assume_string]() {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
-            {
-              Core::PolLock lck;
+            Core::WorldThread::request([&]{
               if ( !uoexec_w.exists() )
               {
                 DEBUGLOG << "OpenConnection Script has been destroyed\n";
@@ -639,7 +639,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
                 uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               }
               uoexec_w.get_weakptr()->revive();
-            }
+            } ).get();
             std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
                 sd, std::move( s ), scriptparam->copy(), assume_string ) );
             client->run();
@@ -729,8 +729,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           res = curl_easy_perform( curl );
           if ( chunk != nullptr )
             curl_slist_free_all( chunk );
-          {
-            Core::PolLock lck;
+          Core::WorldThread::request([&]{
+            
 
             if ( !uoexec_w.exists() )
             {
@@ -752,7 +752,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
             }
 
             uoexec_w.get_weakptr()->revive();
-          }
+          } ).get();
 
           /* always cleanup */
           // curl_easy_cleanup() is performed when the shared pointer deallocates

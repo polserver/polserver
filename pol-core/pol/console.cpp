@@ -9,7 +9,6 @@
 #include <ctype.h>
 #include <stddef.h>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
@@ -27,6 +26,8 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
+#include "worldthread.h"
+#include <format/format.h>
 
 #ifdef _WIN32
 #include <conio.h>
@@ -204,15 +205,17 @@ void ConsoleCommand::exec_console_cmd( char ch )
   }
 
   std::string filename = "scripts/console/" + cmd->script;
-  try
-  {
-    PolLock lck;
+  auto req = WorldThread::request( [&]() {
     ScriptDef sd;
     sd.quickconfig( filename + ".ecl" );
     ref_ptr<Bscript::EScriptProgram> prog =
         find_script2( sd, true, Plib::systemstate.config.cache_interactive_scripts );
     if ( prog.get() != nullptr )
       start_script( prog, new Bscript::String( getcmdstr( ch ) ) );
+  } );
+  try
+  {
+    req.get();
   }
   catch ( const char* msg )
   {
@@ -253,5 +256,5 @@ void ConsoleCommand::check_console_commands( Clib::KeyboardHook* kb )
   }
 }
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -31,6 +31,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../uoexec.h"
+#include "../worldthread.h"
 
 namespace Pol
 {
@@ -120,29 +121,33 @@ AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock
 
 bool AuxClientThread::init()
 {
-  Core::PolLock lock;
-  struct sockaddr ConnectingIP = _sck.peer_address();
-  if ( ipAllowed( ConnectingIP ) )
-  {
-    _auxconnection.set( new AuxConnection( this, _sck.getpeername() ) );
-    Module::UOExecutorModule* uoemod;
-    if ( _auxservice )
-      uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
-    else
-      uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params );
-    if ( uoemod == nullptr )
-      return false;
-    _uoexec = uoemod->uoexec.weakptr;
-    if ( _assume_string )
+  bool retVal = false;
+
+  Core::WorldThread::request( [&] {
+    struct sockaddr ConnectingIP = _sck.peer_address();
+    if ( ipAllowed( ConnectingIP ) )
     {
-      uoemod->uoexec.auxsvc_assume_string = _assume_string;
+      _auxconnection.set( new AuxConnection( this, _sck.getpeername() ) );
+      Module::UOExecutorModule* uoemod;
+      if ( _auxservice )
+        uoemod = Core::start_script( _auxservice->scriptdef(), _auxconnection.get() );
+      else
+        uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params );
+      if ( uoemod == nullptr )
+        return retVal = false;
+      _uoexec = uoemod->uoexec.weakptr;
+      if ( _assume_string )
+      {
+        uoemod->uoexec.auxsvc_assume_string = _assume_string;
+      }
+      return retVal = true;
     }
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+    else
+    {
+      return retVal = false;
+    }
+  } ).get();
+  return retVal;
 }
 
 bool AuxClientThread::ipAllowed( sockaddr MyPeer )
@@ -182,46 +187,44 @@ void AuxClientThread::run()
 
   std::string tmp;
   bool result, timeout_exit;
-  Clib::SocketLineReader linereader(_sck, 5);
+  Clib::SocketLineReader linereader( _sck, 5 );
   for ( ;; )
   {
     result = linereader.readline( tmp, &timeout_exit );
     if ( !result && !timeout_exit )
       break;
 
-    Core::PolLock lock;
-
-    if ( _uoexec.exists() )
-    {
-      if ( result )
+    Core::WorldThread::request( [&] {
+      if ( _uoexec.exists() )
       {
-        std::istringstream is( tmp );
-        std::unique_ptr<Bscript::BObjectImp> value( _uoexec->auxsvc_assume_string
-                                                        ? new Bscript::String( tmp )
-                                                        : Bscript::BObjectImp::unpack( is ) );
+        if ( result )
+        {
+          std::istringstream is( tmp );
+          std::unique_ptr<Bscript::BObjectImp> value( _uoexec->auxsvc_assume_string
+                                                          ? new Bscript::String( tmp )
+                                                          : Bscript::BObjectImp::unpack( is ) );
 
-        std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
-        event->addMember( "type", new Bscript::String( "recv" ) );
-        event->addMember( "value", value.release() );
-        _uoexec->signal_event( event.release() );
+          std::unique_ptr<Bscript::BStruct> event( new Bscript::BStruct );
+          event->addMember( "type", new Bscript::String( "recv" ) );
+          event->addMember( "value", value.release() );
+          _uoexec->signal_event( event.release() );
+        }
       }
-    }
-    else
-    {  // the controlling script dropped its last reference to the connection,
-      // by exiting or otherwise.
+    } ).get();
+    if ( !result )
       break;
-    }
   }
   // wait for all transmits to finish
   while ( !Clib::exit_signalled && _transmit_counter > 0 )
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
-  Core::PolLock lock;
-  _auxconnection->disconnect();
-  // the auxconnection is probably referenced by another ref_ptr,
-  // so its deletion must be protected by the lock.
-  // Clear our reference:
-  _auxconnection.clear();
+  Core::WorldThread::request( [&] {
+    _auxconnection->disconnect();
+    // the auxconnection is probably referenced by another ref_ptr,
+    // so its deletion must be protected by the lock.
+    // Clear our reference:
+    _auxconnection.clear();
+  } ).get();
 }
 
 void AuxClientThread::transmit( const Bscript::BObjectImp* value )
@@ -276,14 +279,13 @@ void AuxService::run()
   {
     Clib::Socket sock;
     if ( listener.GetConnection( &sock, 5 ) && sock.connected() )
-    {
-      Core::PolLock lock;
-      AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );
-      Core::networkManager.auxthreadpool->push( [client]() {
-        std::unique_ptr<AuxClientThread> _clientptr( client );
-        _clientptr->run();
-      } );
-    }
+      Core::WorldThread::request( [&] {
+        AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );
+        Core::networkManager.auxthreadpool->push( [client]() {
+          std::unique_ptr<AuxClientThread> _clientptr( client );
+          _clientptr->run();
+        } );
+      } ).get();
   }
 }
 

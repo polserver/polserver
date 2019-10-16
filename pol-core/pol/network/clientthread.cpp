@@ -27,6 +27,7 @@
 #include "../scrsched.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "../worldthread.h"
 #include "cgdata.h"  // This might not be needed if the client has a clear_gd() method
 #include "client.h"
 #include "msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
@@ -129,14 +130,15 @@ bool client_io_thread( Network::Client* client, bool login )
           if ( nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout )
           {
             CLIENT_CHECKPOINT( 4 );
-            PolLock lck;  // multithread
-            Network::PktHelper::PacketOut<Network::PktOut_53> msg;
-            msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
-            CLIENT_CHECKPOINT( 5 );
-            msg.Send( client );
-            CLIENT_CHECKPOINT( 18 );
-            if ( client->pause_count )
-              client->restart();
+            Core::WorldThread::request( [&] {  // multithread
+              Network::PktHelper::PacketOut<Network::PktOut_53> msg;
+              msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
+              CLIENT_CHECKPOINT( 5 );
+              msg.Send( client );
+              CLIENT_CHECKPOINT( 18 );
+              if ( client->pause_count )
+                client->restart();
+            } ).get();
           }
           else if ( nidle == 30 * Plib::systemstate.config.inactivity_disconnect_timeout )
           {
@@ -158,37 +160,38 @@ bool client_io_thread( Network::Client* client, bool login )
       // region Speedhack
       if ( !client->movementqueue.empty() )  // not empty then process the first packet
       {
-        PolLock lck;  // multithread
-        Network::PacketThrottler pkt = client->movementqueue.front();
-        if ( client->SpeedHackPrevention( false ) )
-        {
-          if ( client->isReallyConnected() )
+        Core::WorldThread::request( [&] {  // multithread
+          Network::PacketThrottler pkt = client->movementqueue.front();
+          if ( client->SpeedHackPrevention( false ) )
           {
-            unsigned char msgtype = pkt.pktbuffer[0];
-            Network::MSG_HANDLER packetHandler =
-                Network::PacketRegistry::find_handler( msgtype, client );
-            try
+            if ( client->isReallyConnected() )
             {
-              INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x"
-                                     << fmt::hexu( msgtype ) << "\n";
-              CLIENT_CHECKPOINT( 26 );
-              packetHandler.func( client, pkt.pktbuffer );
-              CLIENT_CHECKPOINT( 27 );
-              restart_all_clients();
+              unsigned char msgtype = pkt.pktbuffer[0];
+              Network::MSG_HANDLER packetHandler =
+                  Network::PacketRegistry::find_handler( msgtype, client );
+              try
+              {
+                INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x"
+                                       << fmt::hexu( msgtype ) << "\n";
+                CLIENT_CHECKPOINT( 26 );
+                packetHandler.func( client, pkt.pktbuffer );
+                CLIENT_CHECKPOINT( 27 );
+                restart_all_clients();
+              }
+              catch ( std::exception& ex )
+              {
+                POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+                    << client->instance_ << (int)msgtype << ex.what();
+                fmt::Writer tmp;
+                Clib::fdump( tmp, pkt.pktbuffer, 7 );
+                POLLOG << tmp.str() << "\n";
+                restart_all_clients();
+                throw;
+              }
             }
-            catch ( std::exception& ex )
-            {
-              POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                  << client->instance_ << (int)msgtype << ex.what();
-              fmt::Writer tmp;
-              Clib::fdump( tmp, pkt.pktbuffer, 7 );
-              POLLOG << tmp.str() << "\n";
-              restart_all_clients();
-              throw;
-            }
+            client->movementqueue.pop();
           }
-          client->movementqueue.pop();
-        }
+        } ).get();
       }
       // endregion Speedhack
 
@@ -199,21 +202,21 @@ bool client_io_thread( Network::Client* client, bool login )
         if ( process_data( client ) )
         {
           CLIENT_CHECKPOINT( 17 );
-          PolLock lck;
+          Core::WorldThread::request( [&] {
+            // reset packet timer
+            client->last_packet_at = polclock();
+            if ( !check_inactivity( client ) )
+            {
+              nidle = 0;
+              client->last_activity_at = polclock();
+            }
 
-          // reset packet timer
-          client->last_packet_at = polclock();
-          if ( !check_inactivity( client ) )
-          {
-            nidle = 0;
-            client->last_activity_at = polclock();
-          }
-
-          checkpoint = 5;
-          CLIENT_CHECKPOINT( 7 );
-          send_pulse();
-          if ( TaskScheduler::is_dirty() )
-            wake_tasks_thread();
+            checkpoint = 5;
+            CLIENT_CHECKPOINT( 7 );
+            send_pulse();
+            if ( TaskScheduler::is_dirty() )
+              wake_tasks_thread();
+          } ).get();
         }
       }
       checkpoint = 6;
@@ -226,11 +229,10 @@ bool client_io_thread( Network::Client* client, bool login )
       }
 
       if ( client->have_queued_data() && clientpoller.writable() )
-      {
-        PolLock lck;
-        CLIENT_CHECKPOINT( 8 );
-        client->send_queued_data();
-      }
+        Core::WorldThread::request( [&] {
+          CLIENT_CHECKPOINT( 8 );
+          client->send_queued_data();
+        } ).get();
       checkpoint = 7;
       CLIENT_CHECKPOINT( 21 );
       if ( login )
@@ -266,14 +268,16 @@ bool client_io_thread( Network::Client* client, bool login )
     //    if (1)
     {
       CLIENT_CHECKPOINT( 9 );
-      PolLock lck;
-      client->unregister();
-      INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
-                 << networkManager.clients.size() << "/" << networkManager.getNumberOfLoginClients()
-                 << " connections)\n";
+      Core::WorldThread::request( [&] {
+        client->unregister();
+        INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
+                   << networkManager.clients.size() << "/"
+                   << networkManager.getNumberOfLoginClients() << " connections)\n";
 
-      CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
-                             ToolTipPrioritySystem );
+        CoreSetSysTrayToolTip(
+            Clib::tostring( networkManager.clients.size() ) + " clients connected",
+            ToolTipPrioritySystem );
+      } ).get();
     }
 
     checkpoint = 8;
@@ -284,27 +288,27 @@ bool client_io_thread( Network::Client* client, bool login )
       int seconds_wait = 0;
       {
         CLIENT_CHECKPOINT( 11 );
-        PolLock lck;
-
-        if ( client->chr )
-        {
-          client->chr->disconnect_cleanup();
-          client->gd->clear();
-          client->chr->connected( false );
-          ScriptDef sd;
-          sd.quickconfig( "scripts/misc/logofftest.ecl" );
-          if ( sd.exists() )
+        Core::WorldThread::request( [&] {
+          if ( client->chr )
           {
-            CLIENT_CHECKPOINT( 12 );
-            Bscript::BObject bobj(
-                run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
-            if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
+            client->chr->disconnect_cleanup();
+            client->gd->clear();
+            client->chr->connected( false );
+            ScriptDef sd;
+            sd.quickconfig( "scripts/misc/logofftest.ecl" );
+            if ( sd.exists() )
             {
-              const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
-              seconds_wait = blong->value();
+              CLIENT_CHECKPOINT( 12 );
+              Bscript::BObject bobj(
+                  run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
+              if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
+              {
+                const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
+                seconds_wait = blong->value();
+              }
             }
           }
-        }
+        } ).get();
       }
 
       polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
@@ -315,8 +319,9 @@ bool client_io_thread( Network::Client* client, bool login )
       {
         CLIENT_CHECKPOINT( 14 );
         {
-          PolLock lck;
-          if ( polclock() >= when_logoff )
+          bool shouldBreak = false;
+          Core::WorldThread::request( [&] { shouldBreak = polclock() >= when_logoff; } ).get();
+          if ( shouldBreak )
             break;
         }
         pol_sleep_ms( 2000 );
@@ -325,8 +330,7 @@ bool client_io_thread( Network::Client* client, bool login )
       checkpoint = 10;
       CLIENT_CHECKPOINT( 15 );
       //      if (1)
-      {
-        PolLock lck;
+      Core::WorldThread::request( [&] {
         if ( client->chr )
         {
           Mobile::Character* chr = client->chr;
@@ -337,7 +341,7 @@ bool client_io_thread( Network::Client* client, bool login )
             chr->realm->notify_left( *chr );
           }
         }
-      }
+      } ).get();
     }
   }
   catch ( std::exception& ex )
@@ -461,59 +465,71 @@ bool process_data( Network::Client* client )
         INFO_PRINT.Format( "Message Received: Type 0x{:X}, Length {} bytes\n" )
             << (int)msgtype << client->message_length;
 
-      PolLock lck;  // multithread
-      // it can happen that a client gets disconnected while waiting for the lock.
-      if ( client->isConnected() )
-      {
-        if ( client->msgtype_filter->msgtype_allowed[msgtype] )
+      auto req = Core::WorldThread::request( [&] {  // multithread
+        // it can happen that a client gets disconnected while waiting for the lock.
+        if ( client->isConnected() )
         {
-          // region Speedhack
-          if ( ( settingsManager.ssopt.speedhack_prevention ) && ( msgtype == PKTIN_02_ID ) )
+          if ( client->msgtype_filter->msgtype_allowed[msgtype] )
           {
-            if ( !client->SpeedHackPrevention() )
+            // region Speedhack
+            if ( ( settingsManager.ssopt.speedhack_prevention ) && ( msgtype == PKTIN_02_ID ) )
             {
-              // client->SpeedHackPrevention() added packet to queue
-              client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
-              CLIENT_CHECKPOINT( 28 );
-              return true;
+              if ( !client->SpeedHackPrevention() )
+              {
+                // client->SpeedHackPrevention() added packet to queue
+                client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
+                CLIENT_CHECKPOINT( 28 );
+                return true;
+              }
+            }
+            // endregion Speedhack
+
+
+            Network::MSG_HANDLER packetHandler =
+                Network::PacketRegistry::find_handler( msgtype, client );
+            passert( packetHandler.msglen != 0 );
+
+            try
+            {
+              INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x"
+                                     << fmt::hexu( msgtype ) << "\n";
+              CLIENT_CHECKPOINT( 26 );
+              packetHandler.func( client, client->buffer );
+              CLIENT_CHECKPOINT( 27 );
+              restart_all_clients();
+            }
+            catch ( std::exception& ex )
+            {
+              POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+                  << client->instance_ << (int)msgtype << ex.what();
+              fmt::Writer tmp;
+              Clib::fdump( tmp, client->buffer, client->bytes_received );
+              POLLOG << tmp.str() << "\n";
+              restart_all_clients();
+              throw;
             }
           }
-          // endregion Speedhack
-
-
-          Network::MSG_HANDLER packetHandler =
-              Network::PacketRegistry::find_handler( msgtype, client );
-          passert( packetHandler.msglen != 0 );
-
-          try
+          else
           {
-            INFO_PRINT_TRACE( 10 )
-                << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-            CLIENT_CHECKPOINT( 26 );
-            packetHandler.func( client, client->buffer );
-            CLIENT_CHECKPOINT( 27 );
-            restart_all_clients();
-          }
-          catch ( std::exception& ex )
-          {
-            POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                << client->instance_ << (int)msgtype << ex.what();
-            fmt::Writer tmp;
-            Clib::fdump( tmp, client->buffer, client->bytes_received );
-            POLLOG << tmp.str() << "\n";
-            restart_all_clients();
-            throw;
+            POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
+                << client->instance_ << client->ipaddrAsString()
+                << ( client->acct ? client->acct->name() : "unknown" ) << (int)msgtype;
           }
         }
-        else
-        {
-          POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
-              << client->instance_ << client->ipaddrAsString()
-              << ( client->acct ? client->acct->name() : "unknown" ) << (int)msgtype;
-        }
+        client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
+        CLIENT_CHECKPOINT( 28 );
+        return true;
+      } );
+
+      // FIXME: uhmmm what? is this proper error handling?
+      try
+      {
+        req.get();
       }
-      client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
-      CLIENT_CHECKPOINT( 28 );
+      catch ( std::exception& )
+      {
+        throw;
+      }
       return true;
     }
     // else keep waiting

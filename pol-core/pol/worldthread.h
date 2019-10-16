@@ -24,21 +24,17 @@ public:
   ~WorldThread();
   typedef Clib::message_queue<WorldThreadMessage> msg_queue;
 
-  static void ThreadEntry();
+  static void ThreadEntry( void* worldThreadPromise );
+
   msg_queue _queue;
 
   bool process_wait();
 
-
-  /*template <typename... Args>
-  static void request(std::function<void(Args...)> callback, Args... args) {*/
-  template <typename Callback, typename... Args>
-  static std::future<bool> request( Callback callback, Args... args )
+  template <typename Callback>
+  static std::future<bool> request( Callback callback )
   {
     passert_r( worldThread != nullptr, "WorldThread instance not set" );
-    //_queue
-    auto x = std::bind( callback, args... );
-    auto y = WorldThreadMessage{x, std::promise<bool>()};
+    auto y = WorldThreadMessage{callback, std::promise<bool>()};
     auto fut = y.prom.get_future();
     // callback(args...);
     worldThread->_queue.push_move( std::move( y ) );

@@ -4,6 +4,7 @@
 #include "../../clib/rawtypes.h"
 #include "../globals/network.h"
 #include "../polsem.h"
+#include "../worldthread.h"
 #include "client.h"
 
 namespace Pol
@@ -63,10 +64,7 @@ void ClientTransmitThread()
       if ( data->client.exists() )
       {
         if ( data->remove )
-        {
-          Core::PolLock lock;
-          Client::Delete( data->client.get_weakptr() );
-        }
+          Core::WorldThread::request( [&] { Client::Delete( data->client.get_weakptr() ); } ).get();
         else if ( data->disconnects )
         {
           data->client->forceDisconnect();
@@ -81,5 +79,5 @@ void ClientTransmitThread()
     }
   }
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol
