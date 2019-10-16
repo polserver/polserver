@@ -8,11 +8,6 @@ namespace Pol
 {
 namespace Core
 {
-struct WorldThreadMessage
-{
-  std::function<void()> func;
-  std::promise<bool> prom;
-};
 class WorldThread
 {
 public:
