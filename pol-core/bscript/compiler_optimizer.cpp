@@ -145,14 +145,24 @@ struct token_visitor : public boost::static_visitor<token_variant>
     switch ( id )
     {
     case TOK_ADD:
-    {
-      OSTRINGSTREAM os;
-      os << v1 << v2;  // todo bool format
-      return token_variant( OSTRINGSTREAM_STR( os ) );
-    }
+      return token_variant( tok_to_string( v1 ) + tok_to_string( v2 ) );
     default:
       return token_variant( nullptr );
     }
+  }
+  template <class T>
+  typename std::enable_if<!std::is_same<T, bool>::value, std::string>::type tok_to_string(
+      const T& v ) const
+  {
+    OSTRINGSTREAM os;
+    os << v;
+    return OSTRINGSTREAM_STR( os );
+  }
+  template <class T>
+  typename std::enable_if<std::is_same<T, bool>::value, std::string>::type tok_to_string(
+      T v ) const
+  {
+    return std::string( v ? "true" : "false" );
   }
 };
 // visitor struct to convert the variant to a new Token
@@ -209,6 +219,7 @@ token_variant getVariant( Token* t )
     break;
   default:
     v = nullptr;
+    break;
   }
   return v;
 }
@@ -220,6 +231,9 @@ Token* CompilerOptimization::optimize( Token* left, Token* oper, Token* right )
   INFO_PRINT << ( *left ) << " " << ( *right ) << "\n";
   auto leftv = getVariant( left );
   auto rightv = getVariant( right );
+  const auto null_variant = token_variant( nullptr );
+  if ( leftv == null_variant || rightv == null_variant )
+    return nullptr;
 
   auto visitor = token_visitor();
   visitor.id = oper->id;
