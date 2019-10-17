@@ -55,39 +55,6 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<OSExecutorModule>::FunctionTable
-    TmplExecutorModule<OSExecutorModule>::function_table = {
-        {"create_debug_context", &OSExecutorModule::create_debug_context},
-        {"getprocess", &OSExecutorModule::getprocess},
-        {"get_process", &OSExecutorModule::getprocess},
-        {"getpid", &OSExecutorModule::getpid},
-        {"sleep", &OSExecutorModule::sleep},
-        {"sleepms", &OSExecutorModule::sleepms},
-        {"wait_for_event", &OSExecutorModule::wait_for_event},
-        {"events_waiting", &OSExecutorModule::events_waiting},
-        {"start_script", &OSExecutorModule::start_script},
-        {"start_skill_script", &OSExecutorModule::start_skill_script},
-        {"set_critical", &OSExecutorModule::set_critical},
-        {"is_critical", &OSExecutorModule::is_critical},
-        {"run_script_to_completion", &OSExecutorModule::run_script_to_completion},
-        {"run_script", &OSExecutorModule::run_script},
-        {"set_debug", &OSExecutorModule::mf_set_debug},
-        {"syslog", &OSExecutorModule::mf_Log},
-        {"set_priority", &OSExecutorModule::mf_set_priority},
-        {"unload_scripts", &OSExecutorModule::mf_unload_scripts},
-        {"set_script_option", &OSExecutorModule::mf_set_script_option},
-        {"clear_event_queue", &OSExecutorModule::mf_clear_event_queue},
-        {"set_event_queue_size", &OSExecutorModule::mf_set_event_queue_size},
-        {"OpenURL", &OSExecutorModule::mf_OpenURL},
-        {"OpenConnection", &OSExecutorModule::mf_OpenConnection},
-        {"Debugger", &OSExecutorModule::mf_debugger},
-        {"PerformanceMeasure", &OSExecutorModule::mf_performance_diff},
-        {"HTTPRequest", &OSExecutorModule::mf_HTTPRequest}};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -102,7 +69,7 @@ void freepid( unsigned int pid )
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<OSExecutorModule>( "OS", exec ),
+    : TmplExecutorModule<OSExecutorModule>( exec ),
       critical_( false ),
       priority_( 1 ),
       warn_on_runaway_( true ),
@@ -133,12 +100,12 @@ unsigned int OSExecutorModule::pid() const
   return pid_;
 }
 
-BObjectImp* OSExecutorModule::create_debug_context()
+BObjectImp* OSExecutorModule::mf_Create_Debug_Context()
 {
   return Core::create_debug_context();
 }
 
-BObjectImp* OSExecutorModule::mf_debugger()
+BObjectImp* OSExecutorModule::mf_Debugger()
 {
   Core::UOExecutor* uoexec;
   if ( find_uoexec( pid_, &uoexec ) )
@@ -150,7 +117,7 @@ BObjectImp* OSExecutorModule::mf_debugger()
     return new BError( "Could not find UOExecutor for current process." );
 }
 
-BObjectImp* OSExecutorModule::getprocess()
+BObjectImp* OSExecutorModule::mf_GetProcess()
 {
   int pid;  // note that while pid's are unsigned, valid values are forced to fit within a signed
             // range
@@ -169,7 +136,7 @@ BObjectImp* OSExecutorModule::getprocess()
     return new BError( "Process not found" );
 }
 
-BObjectImp* OSExecutorModule::getpid()
+BObjectImp* OSExecutorModule::mf_GetPid()
 {
   return new BLong( pid_ );
 }
@@ -187,7 +154,7 @@ the real result.
 
 Whew!
 */
-BObjectImp* OSExecutorModule::sleep()
+BObjectImp* OSExecutorModule::mf_Sleep()
 {
   int nsecs;
 
@@ -198,7 +165,7 @@ BObjectImp* OSExecutorModule::sleep()
   return new BLong( 0 );
 }
 
-BObjectImp* OSExecutorModule::sleepms()
+BObjectImp* OSExecutorModule::mf_Sleepms()
 {
   int msecs;
 
@@ -209,7 +176,7 @@ BObjectImp* OSExecutorModule::sleepms()
   return new BLong( 0 );
 }
 
-BObjectImp* OSExecutorModule::wait_for_event()
+BObjectImp* OSExecutorModule::mf_Wait_For_Event()
 {
   if ( !events_.empty() )
   {
@@ -231,12 +198,12 @@ BObjectImp* OSExecutorModule::wait_for_event()
   }
 }
 
-BObjectImp* OSExecutorModule::events_waiting()
+BObjectImp* OSExecutorModule::mf_Events_Waiting()
 {
   return new BLong( static_cast<int>( events_.size() ) );
 }
 
-BObjectImp* OSExecutorModule::start_script()
+BObjectImp* OSExecutorModule::mf_Start_Script()
 {
   const String* scriptname_str;
   if ( exec.getStringParam( 0, scriptname_str ) )
@@ -273,7 +240,7 @@ BObjectImp* OSExecutorModule::start_script()
 }
 
 
-BObjectImp* OSExecutorModule::start_skill_script()
+BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
 {
   Mobile::Character* chr;
   const Mobile::Attribute* attr;
@@ -351,7 +318,7 @@ BObjectImp* OSExecutorModule::start_skill_script()
   }
 }
 
-BObjectImp* OSExecutorModule::set_critical()
+BObjectImp* OSExecutorModule::mf_Set_Critical()
 {
   int crit;
   if ( exec.getParam( 0, crit ) )
@@ -365,7 +332,7 @@ BObjectImp* OSExecutorModule::set_critical()
   }
 }
 
-BObjectImp* OSExecutorModule::is_critical()
+BObjectImp* OSExecutorModule::mf_Is_Critical()
 {
   if ( critical_ )
     return new BLong( 1 );
@@ -373,7 +340,7 @@ BObjectImp* OSExecutorModule::is_critical()
     return new BLong( 0 );
 }
 
-BObjectImp* OSExecutorModule::run_script_to_completion()
+BObjectImp* OSExecutorModule::mf_Run_Script_To_Completion()
 {
   const char* scriptname = exec.paramAsString( 0 );
   if ( scriptname == nullptr )
@@ -391,7 +358,7 @@ BObjectImp* OSExecutorModule::run_script_to_completion()
   return Core::run_script_to_completion( script, getParamImp( 1 ) );
 }
 
-BObjectImp* OSExecutorModule::run_script()
+BObjectImp* OSExecutorModule::mf_Run_Script()
 {
   UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
   Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
@@ -458,7 +425,7 @@ BObjectImp* OSExecutorModule::run_script()
   return ret;
 }
 
-BObjectImp* OSExecutorModule::mf_set_debug()
+BObjectImp* OSExecutorModule::mf_Set_Debug()
 {
   int dbg;
   if ( getParam( 0, dbg ) )
@@ -473,7 +440,7 @@ BObjectImp* OSExecutorModule::mf_set_debug()
   }
 }
 
-BObjectImp* OSExecutorModule::mf_Log()
+BObjectImp* OSExecutorModule::mf_SysLog()
 {
   BObjectImp* imp = exec.getParamImp( 0 );
   if ( imp->isa( BObjectImp::OTString ) )
@@ -492,7 +459,7 @@ BObjectImp* OSExecutorModule::mf_Log()
   }
 }
 
-BObjectImp* OSExecutorModule::mf_set_priority()
+BObjectImp* OSExecutorModule::mf_Set_Priority()
 {
   int newpri;
   if ( getParam( 0, newpri, 1, 255 ) )
@@ -508,7 +475,7 @@ BObjectImp* OSExecutorModule::mf_set_priority()
 }
 
 
-BObjectImp* OSExecutorModule::mf_unload_scripts()
+BObjectImp* OSExecutorModule::mf_Unload_Scripts()
 {
   const String* str;
   if ( getStringParam( 0, str ) )
@@ -536,7 +503,7 @@ BObjectImp* OSExecutorModule::clear_event_queue()  // DAVE
   return new BLong( 1 );
 }
 
-BObjectImp* OSExecutorModule::mf_set_event_queue_size()  // DAVE 11/24
+BObjectImp* OSExecutorModule::mf_Set_Event_Queue_Size()  // DAVE 11/24
 {
   unsigned short param;
   if ( getParam( 0, param ) )
@@ -946,7 +913,7 @@ const int SCRIPTOPT_NO_RUNAWAY = 3;
 const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
 const int SCRIPTOPT_AUXSVC_ASSUME_STRING = 5;
 
-BObjectImp* OSExecutorModule::mf_set_script_option()
+BObjectImp* OSExecutorModule::mf_Set_Script_Option()
 {
   int optnum;
   int optval;
@@ -995,7 +962,7 @@ BObjectImp* OSExecutorModule::mf_set_script_option()
   }
 }
 
-BObjectImp* OSExecutorModule::mf_clear_event_queue()  // DAVE
+BObjectImp* OSExecutorModule::mf_Clear_Event_Queue()  // DAVE
 {
   return ( clear_event_queue() );
 }
@@ -1087,7 +1054,7 @@ struct PerfData
 
 }  // namespace
 
-BObjectImp* OSExecutorModule::mf_performance_diff()
+BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
 {
   int second_delta, max_scripts;
   if ( !getParam( 0, second_delta ) || !getParam( 1, max_scripts ) )

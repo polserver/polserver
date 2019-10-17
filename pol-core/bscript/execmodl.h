@@ -101,15 +101,18 @@ BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param,
 template <class T>
 class TmplExecutorModule : public ExecutorModule
 {
-protected:
-  TmplExecutorModule( const char* modname, Executor& exec );
+public:
+  static const char* modname;
 
+protected:
+  TmplExecutorModule( Executor& exec );
 
 private:
   struct FunctionDef
   {
     std::string funcname;
     BObjectImp* ( T::*fptr )();
+    unsigned argc;
   };
   using FunctionTable = std::vector<FunctionDef>;
 
@@ -130,8 +133,8 @@ template <class T>
 bool TmplExecutorModule<T>::_func_map_init = false;
 
 template <class T>
-TmplExecutorModule<T>::TmplExecutorModule( const char* modname, Executor& ex )
-    : ExecutorModule( modname, ex )
+TmplExecutorModule<T>::TmplExecutorModule( Executor& ex )
+    : ExecutorModule( TmplExecutorModule::modname, ex )
 {
   if ( !_func_map_init )
   {

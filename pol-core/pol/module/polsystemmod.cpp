@@ -53,32 +53,6 @@ namespace Core
 {
 void reload_configuration();
 }  // namespace Core
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<PolSystemExecutorModule>::FunctionTable
-    TmplExecutorModule<PolSystemExecutorModule>::function_table = {
-        {"IncRevision", &PolSystemExecutorModule::mf_IncRevision},
-        {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName},
-        {"GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber},
-        {"Packages", &PolSystemExecutorModule::mf_Packages},
-        {"GetPackageByName", &PolSystemExecutorModule::mf_GetPackageByName},
-        {"ListTextCommands", &PolSystemExecutorModule::mf_ListTextCommands},
-        {"Realms", &PolSystemExecutorModule::mf_Realms},
-        {"ReloadConfiguration", &PolSystemExecutorModule::mf_ReloadConfiguration},
-        {"ReadMillisecondClock", &PolSystemExecutorModule::mf_ReadMillisecondClock},
-        {"ListenPoints", &PolSystemExecutorModule::mf_ListenPoints},
-        {"SetSysTrayPopupText", &PolSystemExecutorModule::mf_SetSysTrayPopupText},
-        {"GetItemDescriptor", &PolSystemExecutorModule::mf_GetItemDescriptor},
-        {"FormatItemDescription", &PolSystemExecutorModule::mf_FormatItemDescription},
-        {"CreatePacket", &PolSystemExecutorModule::mf_CreatePacket},
-        {"AddRealm", &PolSystemExecutorModule::mf_AddRealm},
-        {"DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm},
-        {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt},
-        {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile},
-};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -133,7 +107,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec )
+    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( exec )
 {
 }
 

@@ -19,24 +19,12 @@ namespace Core
 {
 std::string http_decodestr( const std::string& s );
 }
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<HttpExecutorModule>::FunctionTable
-    TmplExecutorModule<HttpExecutorModule>::function_table = {
-        {"WriteHtml", &HttpExecutorModule::mf_WriteHtml},
-        {"WriteHtmlRaw", &HttpExecutorModule::mf_WriteHtmlRaw},
-        {"QueryParam", &HttpExecutorModule::mf_QueryParam},
-        {"QueryIP", &HttpExecutorModule::mf_QueryIP},
-};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck )
-    : Bscript::TmplExecutorModule<HttpExecutorModule>( "http", exec ),
+    : Bscript::TmplExecutorModule<HttpExecutorModule>( exec ),
       sck_( std::move( isck ) ),
       continuing_offset( 0 ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )

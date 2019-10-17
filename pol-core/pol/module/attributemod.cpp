@@ -20,36 +20,13 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<AttributeExecutorModule>::FunctionTable
-    TmplExecutorModule<AttributeExecutorModule>::function_table = {
-        {"CheckSkill", &AttributeExecutorModule::mf_CheckSkill},
-        {"GetAttributeName", &AttributeExecutorModule::mf_GetAttributeName},
-        {"GetAttributeDefaultCap", &AttributeExecutorModule::mf_GetAttributeDefaultCap},
-        {"GetAttribute", &AttributeExecutorModule::mf_GetAttribute},
-        {"GetAttributeBaseValue", &AttributeExecutorModule::mf_GetAttributeBaseValue},
-        {"GetAttributeTemporaryMod", &AttributeExecutorModule::mf_GetAttributeTemporaryMod},
-        {"GetAttributeIntrinsicMod", &AttributeExecutorModule::mf_GetAttributeIntrinsicMod},
-        {"GetAttributeLock", &AttributeExecutorModule::mf_GetAttributeLock},
-        {"GetAttributeCap", &AttributeExecutorModule::mf_GetAttributeCap},
-        {"SetAttributeCap", &AttributeExecutorModule::mf_SetAttributeCap},
-        {"SetAttributeLock", &AttributeExecutorModule::mf_SetAttributeLock},
-        {"SetAttributeBaseValue", &AttributeExecutorModule::mf_SetAttributeBaseValue},
-        {"SetAttributeTemporaryMod", &AttributeExecutorModule::mf_SetAttributeTemporaryMod},
-        {"AlterAttributeTemporaryMod", &AttributeExecutorModule::mf_AlterAttributeTemporaryMod},
-        {"RawSkillToBaseSkill", &AttributeExecutorModule::mf_RawSkillToBase},
-        {"BaseSkillToRawSkill", &AttributeExecutorModule::mf_BaseSkillToRaw}};
-}
 namespace Module
 {
 using namespace Bscript;
 using namespace Mobile;
 
 AttributeExecutorModule::AttributeExecutorModule( Executor& exec )
-    : TmplExecutorModule<AttributeExecutorModule>( "attributes", exec )
+    : TmplExecutorModule<AttributeExecutorModule>( exec )
 {
 }
 
@@ -354,7 +331,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
 }
 
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
+Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBaseSkill()
 {
   int rawskill;
   if ( getParam( 0, rawskill ) )
@@ -369,7 +346,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_RawSkillToBase()
   }
 }
 
-Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRaw()
+Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRawSkill()
 {
   unsigned short baseskill;
   if ( getParam( 0, baseskill ) )

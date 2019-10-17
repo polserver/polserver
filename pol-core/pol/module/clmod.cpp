@@ -19,23 +19,12 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<ClilocExecutorModule>::FunctionTable
-    TmplExecutorModule<ClilocExecutorModule>::function_table = {
-
-        {"SendSysMessageCL", &ClilocExecutorModule::mf_SendSysMessageCL},
-        {"PrintTextAboveCL", &ClilocExecutorModule::mf_PrintTextAboveCL},
-        {"PrintTextAbovePrivateCL", &ClilocExecutorModule::mf_PrintTextAbovePrivateCL}};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 ClilocExecutorModule::ClilocExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<ClilocExecutorModule>( "cliloc", exec )
+    : Bscript::TmplExecutorModule<ClilocExecutorModule>( exec )
 {
 }
 

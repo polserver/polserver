@@ -27,18 +27,6 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<GuildExecutorModule>::FunctionTable
-    TmplExecutorModule<GuildExecutorModule>::function_table = {
-        {"ListGuilds", &GuildExecutorModule::mf_ListGuilds},
-        {"CreateGuild", &GuildExecutorModule::mf_CreateGuild},
-        {"FindGuild", &GuildExecutorModule::mf_FindGuild},
-        {"DestroyGuild", &GuildExecutorModule::mf_DestroyGuild},
-};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
@@ -475,7 +463,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 
 
 GuildExecutorModule::GuildExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<GuildExecutorModule>( "Guilds", exec )
+    : TmplExecutorModule<GuildExecutorModule>( exec )
 {
 }
 

@@ -25,30 +25,12 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<VitalExecutorModule>::FunctionTable
-    TmplExecutorModule<VitalExecutorModule>::function_table = {
-        {"ApplyRawDamage", &VitalExecutorModule::mf_ApplyRawDamage},
-        {"ApplyDamage", &VitalExecutorModule::mf_ApplyDamage},
-        {"HealDamage", &VitalExecutorModule::mf_HealDamage},
-        {"ConsumeMana", &VitalExecutorModule::mf_ConsumeMana},
-        {"ConsumeVital", &VitalExecutorModule::mf_ConsumeVital},
-        {"RecalcVitals", &VitalExecutorModule::mf_RecalcVitals},
-        {"GetVitalName", &VitalExecutorModule::mf_GetVitalName},
-        {"GetVital", &VitalExecutorModule::mf_GetVital},
-        {"SetVital", &VitalExecutorModule::mf_SetVital},
-        {"GetVitalRegenRate", &VitalExecutorModule::mf_GetVitalRegenRate},
-        {"GetVitalMaximumValue", &VitalExecutorModule::mf_GetVitalMaximumValue}};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<VitalExecutorModule>( "vitals", exec )
+    : Bscript::TmplExecutorModule<VitalExecutorModule>( exec )
 {
 }
 
