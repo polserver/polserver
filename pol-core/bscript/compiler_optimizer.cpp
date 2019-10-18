@@ -40,7 +40,7 @@ struct is_any_string
       ( std::is_same<T1, std::string>::value || std::is_same<T2, std::string>::value )};
 };
 
-struct token_visitor : public boost::static_visitor<token_variant>
+struct binaryop_token_visitor : public boost::static_visitor<token_variant>
 {
   // both are arithmetics call the calculation method
   template <class T1, class T2>
@@ -165,6 +165,69 @@ struct token_visitor : public boost::static_visitor<token_variant>
     return std::string( v ? "true" : "false" );
   }
 };
+
+// visitor struct to apply unary operator
+// not really needed to use a variant, but performance doesnt really matter here and this way it behaves like the above binary operation
+struct unaryop_token_visitor : public boost::static_visitor<token_variant>
+{
+  BTokenId id;  // externally stored operation
+
+  template <class T>
+  token_variant operator()( T ) const
+  {
+    return token_variant( nullptr );
+  }
+  token_variant operator()( int v ) const
+  {
+    switch ( id )
+    {
+    case TOK_UNPLUS:
+      return token_variant( v );
+    case TOK_UNMINUS:
+      return token_variant( -v );
+    case TOK_LOG_NOT:
+      return token_variant( !v );
+    case TOK_BITWISE_NOT:
+      return token_variant( ~v );
+    default:
+      return token_variant( nullptr );
+    }
+  }
+  token_variant operator()( double v ) const
+  {
+    switch ( id )
+    {
+    case TOK_UNPLUS:
+      return token_variant( v );
+    case TOK_UNMINUS:
+      return token_variant( -v );
+    default:
+      return token_variant( nullptr );
+    }
+  }
+  token_variant operator()( bool v ) const
+  {
+    switch ( id )
+    {
+    case TOK_UNPLUS:
+      return token_variant( v );
+    case TOK_LOG_NOT:
+      return token_variant( !v );
+    default:
+      return token_variant( nullptr );
+    }
+  }
+  token_variant operator()( const std::string& v ) const
+  {
+    switch ( id )
+    {
+    case TOK_UNPLUS:
+      return token_variant( v );
+    default:
+      return token_variant( nullptr );
+    }
+  }
+};
 // visitor struct to convert the variant to a new Token
 struct variant_to_token_visitor : public boost::static_visitor<Token*>
 {
@@ -227,15 +290,17 @@ token_variant getVariant( Token* t )
 
 Token* CompilerOptimization::optimize( Token* left, Token* oper, Token* right )
 {
+  static const auto null_variant = token_variant( nullptr );
   INFO_PRINT << "ANY TES\n";
   INFO_PRINT << ( *left ) << " " << ( *right ) << "\n";
   auto leftv = getVariant( left );
+  if ( leftv == null_variant)
+    return nullptr;
   auto rightv = getVariant( right );
-  const auto null_variant = token_variant( nullptr );
-  if ( leftv == null_variant || rightv == null_variant )
+  if ( rightv == null_variant )
     return nullptr;
 
-  auto visitor = token_visitor();
+  auto visitor = binaryop_token_visitor();
   visitor.id = oper->id;
   auto res = boost::apply_visitor( visitor, leftv, rightv );
   Token* ntoken = boost::apply_visitor( variant_to_token_visitor(), res );
@@ -247,5 +312,25 @@ Token* CompilerOptimization::optimize( Token* left, Token* oper, Token* right )
   return ntoken;
 }
 
+Token* CompilerOptimization::optimize( Token* tok, Token* oper )
+{
+  INFO_PRINT << "UNARY TES\n";
+  INFO_PRINT << ( *oper ) << " " << ( *tok ) << "\n";
+  static const auto null_variant = token_variant( nullptr );
+  auto tokv = getVariant( tok );
+  if ( tokv == null_variant )
+    return nullptr;
+
+  auto visitor = unaryop_token_visitor();
+  visitor.id = oper->id;
+  auto res = boost::apply_visitor( visitor, tokv );
+  Token* ntoken = boost::apply_visitor( variant_to_token_visitor(), res );
+  if ( ntoken )
+    INFO_PRINT << "RESULT " << ( *ntoken ) << "\n";
+  else
+    INFO_PRINT << "No result\n";
+
+  return ntoken;
+}
 }  // namespace Bscript
 }  // namespace Pol

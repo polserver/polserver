@@ -191,63 +191,6 @@ void Expression::eat2( Expression& expr )
   }
 }
 
-Token* optimize_long_operation( Token* oper, Token* value )
-{
-  Token* ntoken = nullptr;
-  switch ( oper->id )
-  {
-  case TOK_UNMINUS:
-    ntoken = new Token( *value );
-    ntoken->lval = -value->lval;
-    break;
-  case TOK_LOG_NOT:
-    ntoken = new Token( *value );
-    ntoken->lval = !value->lval;
-    break;
-  case TOK_BITWISE_NOT:
-    ntoken = new Token( *value );
-    ntoken->lval = ~ntoken->lval;
-    break;
-
-  default:
-    break;
-  }
-  return ntoken;
-}
-Token* optimize_double_operation( Token* oper, Token* value )
-{
-  Token* ntoken = nullptr;
-  switch ( oper->id )
-  {
-  case TOK_UNMINUS:
-    ntoken = new Token( *value );
-    ntoken->dval = -value->dval;
-    break;
-
-  default:
-    break;
-  }
-  return ntoken;
-}
-Token* optimize_string_operation( Token* /*oper*/, Token* /*value*/ )
-{
-  return nullptr;
-}
-Token* optimize_boolean_operation( Token* oper, Token* value )
-{
-  Token* ntoken = nullptr;
-  switch ( oper->id )
-  {
-  case TOK_LOG_NOT:
-    ntoken = new Token( *value );
-    ntoken->lval = !value->lval;
-    break;
-  default:
-    break;
-  }
-  return ntoken;
-}
-
 void Expression::optimize_binary_operations()
 {
   for ( unsigned i = 0; i < tokens.size(); i++ )
@@ -288,31 +231,7 @@ void Expression::optimize_unary_operations()
 
     Token* value = tokens[i - 1];
 
-    if ( oper->id == TOK_UNPLUS )
-    {
-      // unary plus does nothing.
-      delete oper;
-      tokens.erase( tokens.begin() + i, tokens.begin() + i + 1 );
-      continue;
-    }
-    Token* ntoken = nullptr;
-    switch ( value->id )
-    {
-    case TOK_LONG:
-      ntoken = optimize_long_operation( oper, value );
-      break;
-    case TOK_DOUBLE:
-      ntoken = optimize_double_operation( oper, value );
-      break;
-    case TOK_STRING:
-      ntoken = optimize_string_operation( oper, value );
-      break;
-    case TOK_BOOLEAN:
-      ntoken = optimize_boolean_operation( oper, value );
-      break;
-    default:
-      break;
-    }
+    Token* ntoken = CompilerOptimization::optimize( value, oper );
     if ( ntoken )
     {
       delete value;

@@ -10,6 +10,7 @@ class Token;
 struct CompilerOptimization
 {
   static Token* optimize( Token* left, Token* oper, Token* right );
+  static Token* optimize( Token* tok, Token* oper);
 };
 
 }  // namespace Bscript
