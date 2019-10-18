@@ -60,7 +60,6 @@
 #include "compilercfg.h"
 #include "fmodule.h"
 #include "impstr.h"
-#include "modmethods.h"
 #include "modules.h"
 #include "objmembers.h"
 #include "objmethods.h"
@@ -546,11 +545,6 @@ ObjMember* getObjMember( int id )
   else
     return &( object_members[id] );
 }
-
-ModuleMethod* getModuleMethod( const char* mod, const char* funcName ) {
-  return nullptr;
-}
-
 
 ObjMethod object_methods[] = {
     {MTH_ISA, "isa", false},                // 0

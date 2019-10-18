@@ -6,7 +6,6 @@
 
 
 #include "attributemod.h"
-#include "modules/attributes-tbl.h"
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../globals/uvars.h"

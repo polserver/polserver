@@ -6,8 +6,6 @@
 
 
 #include "clmod.h"
-#include "modules/cliloc-tbl.h"
-
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/passert.h"

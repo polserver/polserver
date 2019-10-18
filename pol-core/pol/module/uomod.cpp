@@ -68,8 +68,6 @@
 #include "pol_global_config.h"
 
 #include "uomod.h"
-#include "modules/uo-tbl.h"
-
 #include <cmath>
 #include <cstddef>
 #include <exception>

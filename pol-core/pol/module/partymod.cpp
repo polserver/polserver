@@ -8,8 +8,6 @@
 #include "pol_global_config.h"
 
 #include "partymod.h"
-#include "modules/party-tbl.h"
-
 #include <stddef.h>
 
 #include "../../bscript/berror.h"

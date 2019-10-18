@@ -6,8 +6,6 @@
  */
 
 #include "unimod.h"
-#include "modules/unicode-tbl.h"
-
 #include <iostream>
 #include <string.h>
 

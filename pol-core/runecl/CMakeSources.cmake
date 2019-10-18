@@ -1,4 +1,5 @@
 set (runecl_sources  # sorted !
+  ${PROJECT_BINARY_DIR}/modtbl-runecl.cpp # Generated from 'parse_modules' custom target
   ../pol/binaryfilescrobj.cpp 
   ../pol/cfgrepos.cpp 
   ../pol/dice.cpp

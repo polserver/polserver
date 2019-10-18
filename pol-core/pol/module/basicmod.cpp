@@ -10,8 +10,6 @@
 
 
 #include "basicmod.h"
-#include "modules/basic-tbl.h"
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
