@@ -167,7 +167,8 @@ struct binaryop_token_visitor : public boost::static_visitor<token_variant>
 };
 
 // visitor struct to apply unary operator
-// not really needed to use a variant, but performance doesnt really matter here and this way it behaves like the above binary operation
+// not really needed to use a variant, but performance doesnt really matter here and this way it
+// behaves like the above binary operation
 struct unaryop_token_visitor : public boost::static_visitor<token_variant>
 {
   BTokenId id;  // externally stored operation
@@ -294,7 +295,7 @@ Token* CompilerOptimization::optimize( Token* left, Token* oper, Token* right )
   INFO_PRINT << "ANY TES\n";
   INFO_PRINT << ( *left ) << " " << ( *right ) << "\n";
   auto leftv = getVariant( left );
-  if ( leftv == null_variant)
+  if ( leftv == null_variant )
     return nullptr;
   auto rightv = getVariant( right );
   if ( rightv == null_variant )
