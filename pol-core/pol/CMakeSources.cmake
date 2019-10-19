@@ -1,5 +1,4 @@
 set (pol_sources  # sorted !
-  ${PROJECT_BINARY_DIR}/modtbl-pol.cpp # Generated from 'parse_modules' custom target
   CMakeSources.cmake 
   PolMain.cpp
   PolMain.h

@@ -262,3 +262,17 @@ function(use_tidy target)
     )
   endif()
 endfunction()
+
+function(add_modtbl_dependency ex_name)
+  target_sources(
+    ${ex_name} 
+    PUBLIC ${PROJECT_BINARY_DIR}/modtbl-${ex_name}.cpp
+  )
+
+  set_source_files_properties(
+    ${PROJECT_BINARY_DIR}/modtbl-${ex_name}.cpp
+    PROPERTIES GENERATED TRUE
+  )
+
+  add_dependencies(${ex_name} parse_modules)
+endfunction()
