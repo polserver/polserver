@@ -32,7 +32,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND}
     -DEM_FOLDER=${CMAKE_CURRENT_LIST_DIR}/support/scripts
     -DOUT_FOLDER=${PROJECT_BINARY_DIR}
-    -P ${PROJECT_SOURCE_DIR}/cmake/module_parse.cmake
+    -P ${PROJECT_SOURCE_DIR}/cmake/parse_modules.cmake
   DEPENDS ${EM_SOURCES}
 )
 

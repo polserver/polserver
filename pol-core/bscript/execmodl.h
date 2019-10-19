@@ -102,7 +102,7 @@ template <class T>
 class TmplExecutorModule : public ExecutorModule
 {
 public:
-  static const char* modname;
+  static const char* const modname;
 
 protected:
   TmplExecutorModule( Executor& exec );

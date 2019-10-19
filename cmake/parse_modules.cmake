@@ -124,7 +124,7 @@ function(createfunctable)
 
     # message("Creating function table definition for ${em} => ${em_name} => ${MODCLASS}")
     set(INCLUDE_POL "${INCLUDE_POL}#include \"module/${MODHEADER}.h\"\n")
-    set(MODDEF "template <>\nconst char* TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
+    set(MODDEF "template <>\nconst char* const TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
     FILE(READ ${em} contents)
     STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
     read_def(${MODCLASS} ${contents} FUNCTBL)
