@@ -125,6 +125,8 @@ struct binaryop_token_visitor : public boost::static_visitor<token_variant>
       return token_variant( v1 | v2 );
     case TOK_BITXOR:
       return token_variant( v1 ^ v2 );
+    case TOK_MODULUS:
+      return token_variant( v1 % v2 );
     default:
       return token_variant( nullptr );
     }
@@ -146,6 +148,15 @@ struct binaryop_token_visitor : public boost::static_visitor<token_variant>
     {
     case TOK_ADD:
       return token_variant( tok_to_string( v1 ) + tok_to_string( v2 ) );
+    case TOK_SUBTRACT:  // funny operation
+    {
+      auto v1s = tok_to_string( v1 );
+      auto v2s = tok_to_string( v2 );
+      auto pos = v1s.find( v2s );
+      if ( pos != std::string::npos )
+        v1s.erase( pos, v2s.size() );
+      return token_variant( v1s );
+    }
     default:
       return token_variant( nullptr );
     }
