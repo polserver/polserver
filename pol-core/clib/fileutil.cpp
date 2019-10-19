@@ -22,7 +22,7 @@ namespace Pol
 {
 namespace Clib
 {
-std::string normalized_dir_form( const std::string& istr )
+std::string normalized_dir_form( const std::string& istr, bool file )
 {
   std::string str = istr;
 
@@ -44,6 +44,8 @@ std::string normalized_dir_form( const std::string& istr )
   }
   else
   {
+    if ( file )
+      return str;
     return str + "/";
   }
 }
@@ -181,5 +183,24 @@ std::string GetFilePart( const char* filename )
   else
     return fn.substr( lastslash + 1 );
 }
+
+std::string common_base_dir( const std::string& dir1, const std::string& dir2 )
+{
+  std::string base;
+  std::size_t current = dir1.find( '/' );
+  std::size_t previous = 0;
+  if ( dir2.find( '/' ) != current )
+    return base;
+
+  while ( current != std::string::npos )
+  {
+    base += dir1.substr( previous, current - previous ) + '/';
+    previous = current + 1;
+    current = dir1.find( '/', previous );
+    if ( dir2.find( '/', previous ) != current )
+      break;
+  }
+  return base;
 }
-}
+}  // namespace Clib
+}  // namespace Pol

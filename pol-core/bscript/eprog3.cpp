@@ -7,6 +7,8 @@
 #include <cstring>
 #include <iomanip>
 
+#include "../clib/Program/ProgramConfig.h"
+#include "../clib/fileutil.h"
 #include "eprog.h"
 #include "symcont.h"
 #include "token.h"
@@ -31,6 +33,8 @@ void EScriptProgram::dump( std::ostream& os )
     }
   }
   unsigned nLines = tokens.length() / sizeof( StoredToken );
+  std::string ecompile_path =
+      Clib::normalized_dir_form( Clib::FullPath( Clib::ProgramConfig::programDir().c_str() ) );
   for ( PC = 0; PC < nLines; PC++ )
   {
     if ( _readToken( token, PC ) )
@@ -40,7 +44,15 @@ void EScriptProgram::dump( std::ostream& os )
     else
     {
       if ( fileline.size() > PC && !fileline[PC].empty() )
-        os << fileline[PC] << std::endl;
+      {
+        // write relative path to common base between ecompile and script (needed for testscripts
+        // and also in general to verbose otherwise)
+        std::string file = Clib::normalized_dir_form( fileline[PC], true );
+        std::string common = Clib::common_base_dir( file, ecompile_path );
+        if ( !common.empty() )
+          file.erase( 0, common.size() );
+        os << file << std::endl;
+      }
       if ( program_PC == PC && !program_decl.empty() )
         os << program_decl << std::endl;
       if ( function_decls.size() > PC && !function_decls[PC].empty() )
@@ -85,5 +97,5 @@ void EScriptProgram::dump_casejmp( std::ostream& os, const Token& token )
     }
   }
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
