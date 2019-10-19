@@ -1,0 +1,18 @@
+print(typeof(true));
+print(typeofint(true));
+print(typeof(false));
+print(typeofint(false));
+if (true)
+  print(true);
+else
+  print(false);
+endif
+if (false)
+  print(false);
+else
+  print(true);
+endif
+print(true==true);
+print(true==false);
+print(1==true);
+print(0==false);

@@ -1,0 +1,20 @@
+var t:=true;
+var f:=false;
+print(typeof(t));
+print(typeofint(t));
+print(typeof(f));
+print(typeofint(f));
+if (t)
+  print(true);
+else
+  print(false);
+endif
+if (f)
+  print(false);
+else
+  print(true);
+endif
+print(t==true);
+print(true==f);
+print(1==t);
+print(0==f);
