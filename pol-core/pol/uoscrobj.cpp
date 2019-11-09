@@ -107,7 +107,6 @@
 #include "tooltips.h"
 #include "ufunc.h"
 #include "umap.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoclient.h"
 #include "uoexec.h"
@@ -3269,32 +3268,20 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     u16 duration;
     u32 cl_name;
     u32 cl_descr;
-    ObjArray* oText;
+    const String* text;
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
     if ( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) &&
-         ex.getParam( 3, cl_descr ) && ex.getObjArrayParam( 4, oText ) )
+         ex.getParam( 3, cl_descr ) && ex.getUnicodeStringParam( 4, text ) )
     {
       if ( !( icon && cl_name && cl_descr ) )
         return new BError( "Invalid parameters" );
 
-      // Retrieve and validate the unicode text as an array of u16
-      if ( oText->ref_arr.size() > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-      u16 cltext[( SPEECH_MAX_LEN + 1 )];
-      size_t textlen = oText->ref_arr.size();
-      if ( !Core::convertArrayToUC( oText, cltext, textlen, false ) )
-        return new BError( "Invalid value in Unicode array." );
+      if ( text->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
 
-      // Now convert it into a vector of u32
-      // TODO: use a unicode string class or something bettwer when it will be ready
-      std::vector<u32> arguments;
-      arguments.reserve( textlen );
-      for ( size_t i = 0; i < textlen; i++ )
-        arguments.insert( arguments.end(), cltext[i] );
-
-      addBuff( icon, duration, cl_name, cl_descr, arguments );
+      addBuff( icon, duration, cl_name, cl_descr, text->value() );
       return new BLong( 1 );
     }
     break;
@@ -4728,62 +4715,17 @@ SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
   addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
 }
 
-SpeechEvent::SpeechEvent( Mobile::Character* speaker, const char* speech )
-{
-  addMember( "type", new BLong( Core::EVID_SPOKE ) );
-  addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
-  addMember( "text", new String( speech ) );
-}
-SpeechEvent::SpeechEvent( Mobile::Character* speaker, const char* speech, const char* texttype )
+SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
+                          const char* texttype, std::string lang, Bscript::ObjArray* speechtokens )
 {
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
   addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
   addMember( "text", new String( speech ) );
   addMember( "texttype", new String( texttype ) );
-}
-
-UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
-                                        const u16* wspeech, const char lang[4],
-                                        ObjArray* speechtokens )
-{
-  ObjArray* arr;
-  addMember( "type", new BLong( Core::EVID_SPOKE ) );
-  addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
-  addMember( "text", new String( speech ) );
-  unsigned wlen = 0;
-  while ( wspeech[wlen] != L'\0' )
-    ++wlen;
-  if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
-    addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
-  else
-  {
-    addMember( "uc_text", arr );
+  if ( !lang.empty() )
     addMember( "langcode", new String( lang ) );
-  }
   if ( speechtokens != nullptr )
     addMember( "tokens", speechtokens );
-}
-UnicodeSpeechEvent::UnicodeSpeechEvent( Mobile::Character* speaker, const char* speech,
-                                        const char* texttype, const u16* wspeech,
-                                        const char lang[4], ObjArray* speechtokens )
-{
-  ObjArray* arr;
-  addMember( "type", new BLong( Core::EVID_SPOKE ) );
-  addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
-  addMember( "text", new String( speech ) );
-  unsigned wlen = 0;
-  while ( wspeech[wlen] != L'\0' )
-    ++wlen;
-  if ( !Core::convertUCtoArray( wspeech, arr, wlen, true ) )
-    addMember( "uc_text", new BError( "Invalid Unicode speech received." ) );
-  else
-  {
-    addMember( "uc_text", arr );
-    addMember( "langcode", new String( lang ) );
-  }
-  addMember( "texttype", new String( texttype ) );
-  if ( speechtokens != nullptr )
-    addMember( "tokens", new ObjArray( *speechtokens ) );
 }
 
 DamageEvent::DamageEvent( Mobile::Character* source, unsigned short damage )

@@ -324,16 +324,18 @@ unsigned int ScriptScheduler::get_new_pid( UOExecutor* exec )
 {
   for ( ;; )
   {
-    unsigned int newpid = next_pid++;
-    if ( newpid < PID_MIN )
-      newpid = PID_MIN;
+    unsigned int newpid = next_pid;
+
+    // increase next_pid and wrap so it's always within the positive values that fit an int
+    if ( next_pid == INT_MAX )
+      next_pid = PID_MIN;
+    else
+      ++next_pid;
 
     // NOTE: The code below is pessimistic, is there a way to avoid checking the pidlist every time?
     // (Nando, 06-Nov-2016)
 
-    // newpid=0 should now never happen but leaving this
-    // check in place for extra code robustness
-    if ( newpid != 0 && ( pidlist.find( newpid ) == pidlist.end() ) )
+    if ( pidlist.find( newpid ) == pidlist.end() )
     {
       pidlist[newpid] = exec;
       return newpid;

@@ -202,8 +202,15 @@ void StoredConfigFile::load_tus_scp( const std::string& filename )
   elements_bynum_.insert( ElementsByNum::value_type( count++, elemref ) );
 
   std::string strbuf;
+  bool first_line = true;
   while ( getline( ifs, strbuf ) )
   {
+    if ( first_line )
+    {
+      Clib::remove_bom( &strbuf );
+      first_line = false;
+    }
+    Clib::sanitizeUnicodeWithIso( &strbuf );
     if ( strbuf[0] == '[' )
     {
       elemref.set( new StoredConfigElem() );
@@ -366,5 +373,5 @@ void ConfigFiles_log_stuff()
           << Core::configurationbuffer.oldcfgfiles.size() << ";";
 }
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

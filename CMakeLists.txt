@@ -99,9 +99,11 @@ include(ExternalProject)
 
 include(cmake/compile_defs.cmake)
 include(cmake/release.cmake)
-include(cmake/cotire.cmake)
-#hide the cotire settings
-hide_cotire()
+if (${CMAKE_VERSION} VERSION_LESS "3.16")
+  include(cmake/cotire.cmake)
+  #hide the cotire settings
+  hide_cotire()
+endif()
 
 fix_compiler_flags()
 detect_compiler()

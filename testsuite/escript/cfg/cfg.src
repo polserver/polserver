@@ -1,0 +1,15 @@
+use cfgfile;
+function get(cfg)
+  print(cfg);
+  foreach key in GetConfigStringKeys(cfg)
+    var e:= FindConfigElem(cfg,key);
+    print(key);
+    foreach entry in ListConfigElemProps(e)
+      print(entry+" "+GetConfigString(e,entry)+" "+GetConfigString(e, entry).find("ü"));
+  endforeach
+  endforeach
+endfunction
+
+get(ReadConfigFile(":cfgtests:cfg"));
+get(ReadConfigFile(":cfgtests:cfgbom"));
+get(ReadConfigFile(":cfgtests:cfgiso"));

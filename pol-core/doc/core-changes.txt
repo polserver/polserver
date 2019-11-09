@@ -1,4 +1,67 @@
 ﻿-- POL100 --
+10-05-2019 Turley:
+  Changed: ECompile reports warnings and errors to cerr instead of printing everything to cout.
+           Exit code of ECompile is 1 when at least one file fails to compile.
+  Added:   ecompile.cfg ErrorOnFileCaseMissmatch (default 0)
+           commandline flag -c
+           Leads to a compilation error if the capitalization of the include directive does not match the filename.
+           This has only a meaning on windows.
+           The existing warning is now an official warning meaning that the error on warning flag leads also to an abort.
+  Added:   pre/post increment/decrement unary operator (++i, i++, --i, i--) for integer and doubles.
+           ++i is the same as writing i+=1 or i:=i+1
+           i++ returns the old value, thus its equal to j:=i; i+=1;
+           Since it is an unary operator it can be directly used as function parameter or eg while loops.
+           Instead of writing
+           while (i<5)
+             i+=1;
+             ...
+           you can directly write
+           while (++i<5)
+             ...
+  Note:    The operators are only implemented for numbers but this includes also eg. arrays or members when it represents a number. So ++a[1], ++who.fire_resist_mod are also valid.
+           Performance wise is i:=i+1 the slowest then i+=1 then i++ then ++i. (i++ is slower since it returns the old value). 
+10-03-2019 Turley:
+  Fixed:   min/max damage visualization in the statbar are now cropped between 0 and 65k like damage calculation.
+09-30-2019 Nando:
+  Changed: Changed default of GetProcess(pid) from 0 to -1 due to compatibility issues with scripts using CInt()'s result directly.
+           PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts. 
+09-26-2019 DevGIB:
+  Added:   Script objects now have package member which returns a PackageRef. e.g. script.package.name = "GuildStone".
+09-21-2019 Turley:
+  Changed: The core is now Unicode aware!
+           A normal String object can hold unicode.
+           Files can now be stored in utf8 with or without BOM.
+           For backward compatibility if invalid unicode is detected while compiling/file reading ISO8859 will be assumed.
+           CAsc and CAscZ are normally no more needed, most incompatible changes are due to the fact that the old unicode array used for uctext is now replaced by an normal string object.
+  Changed: The following incompatible changes where made:
+           party.cfg
+           OnPublicChat second parameter is now a string object
+           OnPrivateChat third parameter is now a string object
+           ChangePublicChat second parameter is now a string object
+           ChangePrivateChat third parameter is now a string object
+           unicode.em
+           RequestInputUC return value no more contains member uc_text
+           CharRef.clientinfo struct return value member video_description and langcode is now a string
+           PacketObj.getunicodestring()/getunicodestringflipped() return a string
+           TextCmd arguments are now (CharRef, String, [langcode=String])
+           SpeechEvent no more contains uc_text member
+           scripts/misc/charprofile.ecl fourth parameter is a string
+  Changed: all places which currently accept an UnicodeArray can now also receive a String (UnicodeArray just for backward compatibility)
+           cliloc.em SendSysMessageCL, PrintTextAboveCL, PrintTextAbovePrivateCL
+           npc.em SayUC
+           party.em SendPartyMsg, SendPrivatePartyMsg
+           unicode.em BroadcastUC, PrintTextAbovePrivateUC, PrintTextAboveUC, RequestInputUC, SendSysMessageUC
+           uo.em SendCharProfile
+           PacketObj.setunicodestring()/setunicodestringflipped()
+           CharRef.addbuff()
+  Note:    Item/Mobile names need still to be in ASCII format.
+  Note:    In the case of an unicode string as parameter for the following functions the unicode replacement will be automatically used, with ENU as langcode:
+           Broadcast -> BroadcastUC
+           PrintTextAbovePrivate -> PrintTextAbovePrivateUC
+           PrintTextAbove -> PrintTextAboveUC
+           RequestInput -> RequestInputUC
+           Say -> SayUC
+           SendSysMessage -> SendSysMessageUC
 08-26-2019 Nando:
   Changed: Improved how the debug, www and aux servers handle connections. They should be faster and more stable now. Minor issues fixed.
 08-21-2019 DevGIB:

@@ -41,8 +41,7 @@ inline D explicit_cast( const S& s )
   return static_cast<D>( s );
 }
 
-template <class S1, class S2>
-inline int stringicmp( const S1& str1, const S2& str2 )
+inline int stringicmp( const std::string& str1, const std::string& str2 )
 {
 #ifdef _WIN32
   return _stricmp( str1.c_str(), str2.c_str() );
@@ -50,8 +49,7 @@ inline int stringicmp( const S1& str1, const S2& str2 )
   return strcasecmp( str1.c_str(), str2.c_str() );
 #endif
 }
-template <class S1, const char*>
-inline int stringicmp( const S1& str1, const char* str2 )
+inline int stringicmp( const std::string& str1, const char* str2 )
 {
 #ifdef _WIN32
   return _stricmp( str1.c_str(), str2 );
@@ -59,8 +57,7 @@ inline int stringicmp( const S1& str1, const char* str2 )
   return strcasecmp( str1.c_str(), str2 );
 #endif
 }
-template <const char*, class S2>
-inline int stringicmp( const char* str1, const S2& str2 )
+inline int stringicmp( const char* str1, const std::string& str2 )
 {
 #ifdef _WIN32
   return _stricmp( str1, str2.c_str() );

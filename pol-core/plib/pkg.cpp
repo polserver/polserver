@@ -7,6 +7,7 @@
 #include "pkg.h"
 
 #include "pol_global_config.h"
+#include <algorithm>
 #include <stdlib.h>
 
 #include "../clib/cfgelem.h"
@@ -45,21 +46,18 @@ Package* find_package( const std::string& pkgname )
 
 void remove_package( Package* pkg )
 {
-  auto last = std::remove_if( systemstate.packages.begin(), systemstate.packages.end(),
-                              std::bind2nd( std::equal_to<Package*>(), pkg ) );
+  auto last = std::remove( systemstate.packages.begin(), systemstate.packages.end(), pkg );
   systemstate.packages.erase( last, systemstate.packages.end() );
-
-  // TODO: Check this loop. It looks odd.
-  //       Should the loop stop after removing the package?
-  //       Is it possible to have more than one name for the same package?
 
   auto itr = systemstate.packages_byname.begin();
   while ( itr != systemstate.packages_byname.end() )
   {
-    auto tempitr = itr;
+    if ( itr->second == pkg )
+    {
+      systemstate.packages_byname.erase( itr );
+      break;
+    }
     ++itr;
-    if ( ( *tempitr ).second == pkg )
-      systemstate.packages_byname.erase( tempitr );
   }
 }
 
@@ -128,7 +126,7 @@ PackageList::PackageList( Clib::ConfigElem& elem, const char* tag )
   std::string tmp;
   while ( elem.remove_prop( tag, &tmp ) )
   {
-    Clib::mklower( tmp );
+    Clib::mklowerASCII( tmp );
     ISTRINGSTREAM is( tmp );
     Elem _elem;
     if ( is >> _elem.pkgname )
@@ -158,7 +156,7 @@ Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem )
       replaces_( elem, "Replaces" ),
       provides_system_home_page_( elem.remove_bool( "ProvidesSystemHomePage", false ) )
 {
-  Clib::mklower( name_ );
+  Clib::mklowerASCII( name_ );
   // CoreRequired can either be a number (94,,95 etc)
   // or a version string (POL095-2003-01-28)
   std::string tmp = elem.read_string( "CoreRequired", "0" );
@@ -406,6 +404,10 @@ void load_packages( bool quiet )
   replace_packages();
 
   check_package_deps();
+  // sort pkg vector by name, so e.g. startup order is in a defined and maybe also expected order.
+  std::sort(
+      systemstate.packages.begin(), systemstate.packages.end(),
+      []( const Package* pkg1, const Package* pkg2 ) { return pkg1->name() < pkg2->name(); } );
 }
 
 bool pkgdef_split( const std::string& spec, const Package* inpkg, const Package** outpkg,

@@ -705,93 +705,53 @@ bool NPC::can_be_renamed_by( const Character* chr ) const
   return ( master_.get() == chr );
 }
 
-
-void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
+void NPC::on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttype,
+                       const std::string& lang, Bscript::ObjArray* speechtokens )
 {
-  /*
-  cerr << "PC " << src_chr->name()
-  << " spoke in range of NPC " << name()
-  << ": '" << speech << "'" << endl;
-  */
+  if ( ex == nullptr )
+    return;
 
-  if ( ex != nullptr )
+  if ( Core::settingsManager.ssopt.seperate_speechtoken )
   {
-    if ( ( ex->eventmask & Core::EVID_SPOKE ) && inrangex( this, src_chr, ex->speech_size ) &&
-         !deafened() )
+    if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
+      return;
+    else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
+      return;
+  }
+  if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
+       inrangex( this, src_chr, ex->speech_size ) && !deafened() )
+  {
+    if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
+         is_visible_to_me( src_chr ) )
     {
-      if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( src_chr ) )
-        ex->signal_event(
-            new Module::SpeechEvent( src_chr, speech,
-                                     Core::TextTypeToString( texttype ) ) );  // DAVE added texttype
+      ex->signal_event( new Module::SpeechEvent(
+          src_chr, speech, Core::TextTypeToString( texttype ), lang, speechtokens ) );
     }
   }
 }
 
-void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype )
+void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 texttype,
+                             const std::string& lang, Bscript::ObjArray* speechtokens )
 {
-  if ( ex != nullptr )
-  {
-    if ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) &&
-         inrangex( this, src_chr, ex->speech_size ) && !deafened() )
-    {
-      if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( src_chr ) )
-        ex->signal_event(
-            new Module::SpeechEvent( src_chr, speech,
-                                     Core::TextTypeToString( texttype ) ) );  // DAVE added texttype
-    }
-  }
-}
+  if ( ex == nullptr )
+    return;
 
-void NPC::on_pc_spoke( Character* src_chr, const char* speech, u8 texttype, const u16* wspeech,
-                       const char lang[4], Bscript::ObjArray* speechtokens )
-{
-  if ( ex != nullptr )
+  if ( Core::settingsManager.ssopt.seperate_speechtoken )
   {
-    if ( Core::settingsManager.ssopt.seperate_speechtoken )
-    {
-      if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) == 0 ) )
-        return;
-      else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_SPOKE ) == 0 ) )
-        return;
-    }
-    if ( ( ( ex->eventmask & Core::EVID_SPOKE ) || ( ex->eventmask & Core::EVID_TOKEN_SPOKE ) ) &&
-         inrangex( this, src_chr, ex->speech_size ) && !deafened() )
-    {
-      if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( src_chr ) )
-      {
-        ex->signal_event( new Module::UnicodeSpeechEvent(
-            src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
-      }
-    }
+    if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
+      return;
+    else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
+      return;
   }
-}
-
-void NPC::on_ghost_pc_spoke( Character* src_chr, const char* speech, u8 texttype,
-                             const u16* wspeech, const char lang[4],
-                             Bscript::ObjArray* speechtokens )
-{
-  if ( ex != nullptr )
+  if ( ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) ||
+         ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) ) &&
+       inrangex( this, src_chr, ex->speech_size ) && !deafened() )
   {
-    if ( Core::settingsManager.ssopt.seperate_speechtoken )
+    if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
+         is_visible_to_me( src_chr ) )
     {
-      if ( speechtokens != nullptr && ( ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) == 0 ) )
-        return;
-      else if ( speechtokens == nullptr && ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) == 0 ) )
-        return;
-    }
-    if ( ( ( ex->eventmask & Core::EVID_GHOST_SPEECH ) ||
-           ( ex->eventmask & Core::EVID_TOKEN_GHOST_SPOKE ) ) &&
-         inrangex( this, src_chr, ex->speech_size ) && !deafened() )
-    {
-      if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( src_chr ) )
-      {
-        ex->signal_event( new Module::UnicodeSpeechEvent(
-            src_chr, speech, Core::TextTypeToString( texttype ), wspeech, lang, speechtokens ) );
-      }
+      ex->signal_event( new Module::SpeechEvent(
+          src_chr, speech, Core::TextTypeToString( texttype ), lang, speechtokens ) );
     }
   }
 }

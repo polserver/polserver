@@ -21,6 +21,7 @@
 #include <string>
 #include <time.h>
 
+#include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/cfgsect.h"
@@ -47,7 +48,6 @@
 #include "statmsg.h"
 #include "syshook.h"
 #include "ufunc.h"
-#include "unicode.h"
 #include "uobject.h"
 #include "uoclient.h"
 
@@ -102,25 +102,14 @@ void load_party_cfg_general( Clib::ConfigElem& elem )
   else
     settingsManager.party_cfg.General.RejoinPartyOnLogon = false;
   std::string tmp = elem.remove_string( "PrivateMsgPrefix", "" );
-  if ( tmp.size() == 0 )
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
-  else
+  if ( !tmp.empty() )
   {
-    std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
+    Clib::sanitizeUnicodeWithIso( &tmp );
     tmp += " ";
-    for ( unsigned i = 0; i < tmp.size(); ++i )
-    {
-      arr->addElement( new Bscript::BLong( static_cast<unsigned char>( tmp[i] ) ) );
-    }
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = (unsigned char)arr->ref_arr.size();
-    if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen > SPEECH_MAX_LEN )
-      settingsManager.party_cfg.General.PrivateMsgPrefixLen = SPEECH_MAX_LEN;
-
-    Bscript::ObjArray* arrPtr = arr.get();
-    if ( !Core::convertArrayToUC( arrPtr, settingsManager.party_cfg.General.PrivateMsgPrefix,
-                                  settingsManager.party_cfg.General.PrivateMsgPrefixLen, true ) )
-      settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
+    settingsManager.party_cfg.General.PrivateMsgPrefix = tmp;
   }
+  else
+    settingsManager.party_cfg.General.PrivateMsgPrefix = "";
 }
 
 void load_party_cfg_hooks( Clib::ConfigElem& elem )
@@ -164,9 +153,9 @@ void load_party_cfg( bool reload )
     settingsManager.party_cfg.General.MaxPartyMembers = 10;
     settingsManager.party_cfg.General.TreatNoAsPrivate = false;
     settingsManager.party_cfg.General.DeclineTimeout = 10;
-    settingsManager.party_cfg.General.PrivateMsgPrefixLen = 0;
     settingsManager.party_cfg.General.RemoveMemberOnLogoff = false;
     settingsManager.party_cfg.General.RejoinPartyOnLogon = false;
+    settingsManager.party_cfg.General.PrivateMsgPrefix = "";
   }
   else
   {
@@ -544,12 +533,12 @@ void Party::send_remove_member( Mobile::Character* remchr, bool* disband )
   }
 }
 
-void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
+void Party::send_msg_to_all( unsigned int clilocnr, const std::string& affix,
                              Mobile::Character* exeptchr ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_C1> msgc1;
   Network::PktHelper::PacketOut<Network::PktOut_CC> msgcc;
-  if ( affix != nullptr )
+  if ( !affix.empty() )
     build_sysmessage_cl_affix( msgcc.Get(), clilocnr, affix, true );
   else
     build_sysmessage_cl( msgc1.Get(), clilocnr );
@@ -563,7 +552,7 @@ void Party::send_msg_to_all( unsigned int clilocnr, const char* affix,
       {
         if ( chr->has_active_client() )
         {
-          if ( affix != nullptr )
+          if ( !affix.empty() )
             msgcc.Send( chr->client );
           else
             msgc1.Send( chr->client );
@@ -668,30 +657,28 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
   }
 }
 
-void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t wtextlen ) const
+void Party::send_member_msg_public( Mobile::Character* chr, const std::string& text ) const
 {
   Network::PktHelper::PacketOut<Network::PktOut_BF_Sub6> msg;
   msg->offset += 4;  // len+sub
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_PARTY_MSG );
   msg->Write<u32>( chr->serial_ext );
 
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( settingsManager.party_cfg.Hooks.ChangePublicChat )
   {
-    Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
-      return;
-    Bscript::BObject obj =
-        settingsManager.party_cfg.Hooks.ChangePublicChat->call_object( chr->make_ref(), arr );
-    if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+    Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePublicChat->call_object(
+        chr->make_ref(), new Bscript::String( text ) );
+
+    if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
-      unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
-      if ( len > SPEECH_MAX_LEN )
-        len = SPEECH_MAX_LEN;
-      if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
-        return;
-      wtextlen = len + 1;
+      if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        utf16text =
+            std::unique_ptr<Bscript::String>(
+                Bscript::String::fromUCArray( static_cast<Bscript::ObjArray*>( obj.impptr() ) ) )
+                ->toUTF16();
+      else
+        utf16text = static_cast<Bscript::String*>( obj.impptr() )->toUTF16();
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {
@@ -699,7 +686,9 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
         return;
     }
   }
-  msg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
+  msg->WriteFlipped( utf16text, true );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -715,8 +704,8 @@ void Party::send_member_msg_public( Mobile::Character* chr, u16* wtext, size_t w
   }
 }
 
-void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr, u16* wtext,
-                                     size_t wtextlen ) const
+void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* tochr,
+                                     const std::string& text ) const
 {
   if ( !tochr->has_active_client() )
     return;
@@ -725,23 +714,20 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
   msg->Write<u8>( PKTBI_BF_06::PARTYCMD_MEMBER_MSG );
   msg->Write<u32>( chr->serial_ext );
 
+  std::vector<u16> utf16text = Bscript::String::toUTF16( text );
   if ( settingsManager.party_cfg.Hooks.ChangePrivateChat )
   {
-    Bscript::ObjArray* arr;
-    if ( !Core::convertUCtoArray( wtext, arr, static_cast<unsigned int>( wtextlen ),
-                                  true ) )  // convert back with ctBEu16()
-      return;
     Bscript::BObject obj = settingsManager.party_cfg.Hooks.ChangePrivateChat->call_object(
-        chr->make_ref(), tochr->make_ref(), arr );
-    if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        chr->make_ref(), tochr->make_ref(), new Bscript::String( text ) );
+    if ( obj->isa( Bscript::BObjectImp::OTString ) || obj->isa( Bscript::BObjectImp::OTArray ) )
     {
-      arr = static_cast<Bscript::ObjArray*>( obj.impptr() );
-      unsigned len = static_cast<unsigned int>( arr->ref_arr.size() );
-      if ( len > SPEECH_MAX_LEN )
-        len = SPEECH_MAX_LEN;
-      if ( !Core::convertArrayToUC( arr, wtext, len, true ) )
-        return;
-      wtextlen = len + 1;
+      if ( obj->isa( Bscript::BObjectImp::OTArray ) )
+        utf16text =
+            std::unique_ptr<Bscript::String>(
+                Bscript::String::fromUCArray( static_cast<Bscript::ObjArray*>( obj.impptr() ) ) )
+                ->toUTF16();
+      else
+        utf16text = static_cast<Bscript::String*>( obj.impptr() )->toUTF16();
     }
     else if ( obj->isa( Bscript::BObjectImp::OTLong ) )  // break on return(0)
     {
@@ -749,13 +735,16 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
         return;
     }
   }
-  if ( ( wtextlen + settingsManager.party_cfg.General.PrivateMsgPrefixLen ) > SPEECH_MAX_LEN )
-    wtextlen = SPEECH_MAX_LEN - settingsManager.party_cfg.General.PrivateMsgPrefixLen;
-  if ( settingsManager.party_cfg.General.PrivateMsgPrefixLen )
-    msg->Write( &settingsManager.party_cfg.General.PrivateMsgPrefix[0],
-                settingsManager.party_cfg.General.PrivateMsgPrefixLen, false );
+  if ( !settingsManager.party_cfg.General.PrivateMsgPrefix.empty() )
+  {
+    std::vector<u16> ptext =
+        Bscript::String::toUTF16( settingsManager.party_cfg.General.PrivateMsgPrefix );
+    utf16text.insert( utf16text.begin(), ptext.begin(), ptext.end() );
+  }
 
-  msg->Write( &wtext[0], static_cast<u16>( wtextlen ), false );
+  if ( utf16text.size() > SPEECH_MAX_LEN )
+    utf16text.resize( SPEECH_MAX_LEN );
+  msg->WriteFlipped( utf16text, true );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -933,7 +922,7 @@ void on_loggon_party( Mobile::Character* chr )
         send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
         party->send_member_list( nullptr );
         party->send_stats_on_add( chr );
-        party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
+        party->send_msg_to_all( CLP_Player_Rejoined, chr->name(),
                                 chr );  //: rejoined the party.
       }
     }
@@ -947,7 +936,7 @@ void on_loggon_party( Mobile::Character* chr )
     send_sysmessage_cl( chr->client, CLP_Rejoined );  // You have rejoined the party.
     party->send_member_list( chr );
     party->send_stats_on_add( chr );
-    party->send_msg_to_all( CLP_Player_Rejoined, chr->name().c_str(),
+    party->send_msg_to_all( CLP_Player_Rejoined, chr->name(),
                             chr );  //: rejoined the party.
   }
 }
@@ -1123,48 +1112,23 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
 
     if ( ( party != nullptr ) && ( member->has_party() ) && ( party->is_member( member->serial ) ) )
     {
-      int intextlen;
       u16* themsg = msg->partydata.partymembermsg.wtext;
-      // u8 *  bytemsg = ((u8 *) themsg);
-      // int wtextoffset = 0;
-      int i;
-
-      u16 wtextbuf[SPEECH_MAX_LEN + 1];
-      size_t wtextbuflen;
-
-      intextlen =
+      int intextlen =
           ( cfBEu16( msg->msglen ) - 10 ) / sizeof( msg->partydata.partymembermsg.wtext[0] ) - 1;
 
-      //  intextlen does not include the null terminator.
-
-      // Preprocess the text into a sanity-checked, printable, null-terminated form in textbuf
       if ( intextlen < 0 )
         intextlen = 0;
       if ( intextlen > SPEECH_MAX_LEN )
         intextlen = SPEECH_MAX_LEN;
 
-      wtextbuflen = 0;
-      for ( i = 0; i < intextlen; i++ )
-      {
-        u16 wc = cfBEu16( themsg[i] );
-        if ( wc == 0 )
-          break;  // quit early on embedded nulls
-        if ( wc == L'~' )
-          continue;  // skip unprintable tildes.
-        wtextbuf[wtextbuflen++] = ctBEu16( wc );
-      }
-      wtextbuf[wtextbuflen++] = (u16)0;
-
+      std::string text = Bscript::String::fromUTF16( themsg, intextlen, true );
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        settingsManager.party_cfg.Hooks.OnPrivateChat->call(
+            client->chr->make_ref(), member->make_ref(), new Bscript::String( text ) );
       }
 
-      party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
+      party->send_member_msg_private( client->chr, member, text );
     }
     else
       send_sysmessage_cl( client, CLP_No_Party );  // You are not in a party.
@@ -1173,21 +1137,12 @@ void handle_member_msg( Network::Client* client, PKTBI_BF* msg )
 
 void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
 {
-  using std::wcout;  // wcout.narrow() function r0x! :-)
   Party* party = client->chr->party();
   if ( party != nullptr )
   {
-    int intextlen;
     u16* themsg = msg->partydata.partymsg.wtext;
-    // u8 *  bytemsg = ((u8 *) themsg);
-    // int wtextoffset = 0;
-    int i, starti;
     Mobile::Character* member = nullptr;
-
-    u16 wtextbuf[SPEECH_MAX_LEN + 1];
-    size_t wtextbuflen;
-
-    intextlen = ( cfBEu16( msg->msglen ) - 6 ) / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
+    int intextlen = ( cfBEu16( msg->msglen ) - 6 ) / sizeof( msg->partydata.partymsg.wtext[0] ) - 1;
 
     //  intextlen does not include the null terminator.
 
@@ -1196,15 +1151,13 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
       intextlen = 0;
     if ( intextlen > SPEECH_MAX_LEN )
       intextlen = SPEECH_MAX_LEN;
+    std::string text = Bscript::String::fromUTF16( themsg, intextlen, true );
 
-    wtextbuflen = 0;
-    starti = 0;
     if ( settingsManager.party_cfg.General.TreatNoAsPrivate )
     {
-      char no_c = wcout.narrow( (wchar_t)cfBEu16( themsg[0] ), '?' );
-      if ( ( isdigit( no_c ) ) && ( cfBEu16( themsg[1] ) == L' ' ) )
+      if ( text.size() > 2 && ( isdigit( text[0] ) ) && ( text[1] == ' ' ) )
       {
-        int no = atoi( &no_c );
+        int no = atoi( &text[0] );
         if ( no == 0 )
           no = 9;
         else
@@ -1214,45 +1167,29 @@ void handle_party_msg( Network::Client* client, PKTBI_BF* msg )
         {
           member = system_find_mobile( mem );
           if ( ( member != nullptr ) && ( member->has_active_client() ) )
-            starti = 2;
+            text = text.substr( 2 );
         }
       }
     }
 
-    for ( i = starti; i < intextlen; i++ )
-    {
-      u16 wc = cfBEu16( themsg[i] );
-      if ( wc == 0 )
-        break;  // quit early on embedded nulls
-      if ( wc == L'~' )
-        continue;  // skip unprintable tildes.
-      wtextbuf[wtextbuflen++] = ctBEu16( wc );
-    }
-    wtextbuf[wtextbuflen++] = (u16)0;
-
-    if ( starti == 2 )  // private chat
+    if ( member != nullptr )  // private chat
     {
       if ( settingsManager.party_cfg.Hooks.OnPrivateChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPrivateChat->call( client->chr->make_ref(),
-                                                               member->make_ref(), arr );
+        settingsManager.party_cfg.Hooks.OnPrivateChat->call(
+            client->chr->make_ref(), member->make_ref(), new Bscript::String( text ) );
       }
-      party->send_member_msg_private( client->chr, member, wtextbuf, wtextbuflen );
+      party->send_member_msg_private( client->chr, member, text );
     }
     else
     {
       if ( settingsManager.party_cfg.Hooks.OnPublicChat )
       {
-        Bscript::ObjArray* arr;
-        if ( Core::convertUCtoArray( wtextbuf, arr, wtextbuflen,
-                                     true ) )  // convert back with ctBEu16()
-          settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(), arr );
+        settingsManager.party_cfg.Hooks.OnPublicChat->call( client->chr->make_ref(),
+                                                            new Bscript::String( text ) );
       }
 
-      party->send_member_msg_public( client->chr, wtextbuf, wtextbuflen );
+      party->send_member_msg_public( client->chr, text );
     }
   }
   else
@@ -1295,7 +1232,7 @@ void handle_accept_invite( Network::Client* client, PKTBI_BF* msg )
             settingsManager.party_cfg.Hooks.OnAddToParty->call( client->chr->make_ref() );
           send_sysmessage_cl( client, CLP_Added );  // You have been added to the party.
 
-          party->send_msg_to_all( CLP_Joined, client->chr->name().c_str(),
+          party->send_msg_to_all( CLP_Joined, client->chr->name(),
                                   client->chr );  //  : joined the party.
           party->send_member_list( nullptr );
           party->send_stats_on_add( client->chr );
@@ -1323,7 +1260,7 @@ void handle_decline_invite( Network::Client* client, PKTBI_BF* msg )
         send_sysmessage_cl(
             client, CLP_Decline );  // You notify them that you do not wish to join the party.
         if ( leader->has_active_client() )
-          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name().c_str(),
+          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, client->chr->name(),
                                     true );  //: Does not wish to join the party.
         if ( settingsManager.party_cfg.Hooks.OnDecline )
           settingsManager.party_cfg.Hooks.OnDecline->call( client->chr->make_ref() );
@@ -1425,7 +1362,7 @@ void invite_timeout( Mobile::Character* mem )
       if ( leader != nullptr )
       {
         if ( leader->has_active_client() )
-          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name().c_str(),
+          send_sysmessage_cl_affix( leader->client, CLP_Notify_Decline, mem->name(),
                                     true );  //: Does not wish to join the party.
         if ( !party->test_size() )
           disband_party( leader->serial );
@@ -1445,7 +1382,7 @@ void send_invite( Mobile::Character* member, Mobile::Character* leader )
   msg.Send( member->client );
 
   // : You are invited to join the party. Type /accept to join or /decline to decline the offer.
-  send_sysmessage_cl_affix( member->client, CLP_Invite, leader->name().c_str(), true );
+  send_sysmessage_cl_affix( member->client, CLP_Invite, leader->name(), true );
   send_sysmessage_cl( leader->client, CLP_Invited );  // You have invited them to join the party.
 }
 

@@ -3141,12 +3141,12 @@ unsigned short Character::random_weapon_damage() const
 
 unsigned short Character::min_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.min_value() + weapon->damage_mod();
+  return weapon->min_weapon_damage();
 }
 
 unsigned short Character::max_weapon_damage() const
 {
-  return weapon->descriptor().damage_dice.max_value() + weapon->damage_mod();
+  return weapon->max_weapon_damage();
 }
 
 void Character::damage_weapon()
@@ -4207,7 +4207,7 @@ unsigned int Character::guildid() const
  * @author Bodom
  */
 void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
-                         const std::vector<u32>& arguments )
+                         const std::string& arguments )
 {
   // Icon is already present, must send a remove packet first or client will not update
   delBuff( icon );

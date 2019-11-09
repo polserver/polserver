@@ -22,8 +22,13 @@ namespace Bscript
 {
 class BObjectImp;
 }  // namespace Bscript
+namespace Network
+{
+class Client;
+}
 namespace Core
 {
+void send_unicode_prompt( Network::Client* client, u32 serial );
 class UOExecutor;
 class UObject;
 }  // namespace Core
@@ -41,8 +46,6 @@ namespace Pol
 {
 namespace Module
 {
-extern u16 gwtext[( SPEECH_MAX_LEN + 1 )];
-
 class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule>
 {
 public:

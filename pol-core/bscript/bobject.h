@@ -326,6 +326,9 @@ public:
 
   virtual BObjectImp* inverse() const;
 
+  virtual void selfPlusPlus();
+  virtual void selfMinusMinus();
+
   virtual ContIterator* createIterator( BObject* pIterVal );
 
   friend std::ostream& operator<<( std::ostream&, const BObjectImp& );
@@ -664,6 +667,9 @@ public:  // Class Machinery
 
   virtual BObjectImp* bitnot() const override;
 
+  virtual void selfPlusPlus() override { ++lval_; }
+  virtual void selfMinusMinus() override { --lval_; }
+
   virtual std::string getStringRep() const override;
   virtual void printOn( std::ostream& ) const override;
 
@@ -749,6 +755,8 @@ public:  // Class Machinery
   virtual void selfDividedByObjImp( BObjectImp& objimp, BObject& obj ) override;
   virtual void selfDividedByObj( BLong& objimp, BObject& obj ) override;
   virtual void selfDividedByObj( Double& objimp, BObject& obj ) override;
+  virtual void selfPlusPlus() override { ++dval_; }
+  virtual void selfMinusMinus() override { --dval_; }
 
   virtual BObjectImp* inverse() const override { return new Double( -dval_ ); }
   virtual std::string getStringRep() const override;

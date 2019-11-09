@@ -147,7 +147,6 @@
 #include "../ufunc.h"
 #include "../uimport.h"
 #include "../umanip.h"
-#include "../unicode.h"
 #include "../uobject.h"
 #include "../uoexec.h"
 #include "../uoexhelp.h"
@@ -167,10 +166,11 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
                                                            Items::Item* item );
 Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Character* dropon );
 void send_tip( Network::Client* client, const std::string& tiptext );
-std::string get_textcmd_help( Mobile::Character* chr, const char* cmd );
+std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );
-Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const char* template_name );
+Bscript::BObjectImp* equip_from_template( Mobile::Character* chr,
+                                          const std::string& template_name );
 }  // namespace Core
 namespace Module
 {
@@ -550,7 +550,10 @@ BObjectImp* UOExecutorModule::broadcast()
        getParam( 2, color ) &&            // todo: getColorParam
        getParam( 3, requiredCmdLevel ) )  // todo: getRequiredCmdLevelParam
   {
-    Core::broadcast( text, font, color, requiredCmdLevel );
+    if ( !Bscript::String::hasUTF8Characters( text ) )
+      Core::broadcast( text, font, color, requiredCmdLevel );
+    else
+      Core::broadcast_unicode( text, "ENU", font, color, requiredCmdLevel );
     return new BLong( 1 );
   }
   else
@@ -702,7 +705,10 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
   {
     if ( chr->has_active_client() )
     {
-      send_sysmessage( chr->client, ptext->data(), font, color );
+      if ( !ptext->hasUTF8Characters() )
+        send_sysmessage( chr->client, ptext->data(), font, color );
+      else
+        Core::send_sysmessage_unicode( chr->client, ptext->value(), "ENU", font, color );
       return new BLong( 1 );
     }
     else
@@ -727,7 +733,11 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
   if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, ptext ) && getParam( 2, font ) &&
        getParam( 3, color ) && getParam( 4, journal_print ) )
   {
-    return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
+    if ( !ptext->hasUTF8Characters() )
+      return new BLong( say_above( obj, ptext->data(), font, color, journal_print ) );
+    else
+      return new BLong(
+          say_above_unicode( obj, ptext->value(), "ENU", font, color, journal_print ) );
   }
   else
   {
@@ -747,7 +757,10 @@ BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
        getCharacterParam( exec, 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
        getParam( 5, journal_print ) )
   {
-    return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
+    if ( !ptext->hasUTF8Characters() )
+      return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
+    else
+      return new BLong( private_say_above_unicode( chr, obj, ptext->value(), "ENU", font, color ) );
   }
   else
   {
@@ -3982,7 +3995,7 @@ BObjectImp* UOExecutorModule::mf_EquipFromTemplate()
   const String* template_name;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, template_name ) )
   {
-    return equip_from_template( chr, template_name->data() );
+    return equip_from_template( chr, template_name->value() );
   }
   else
   {
@@ -4787,7 +4800,7 @@ BObjectImp* UOExecutorModule::mf_GetCommandHelp()
   const String* cmd;
   if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, cmd ) )
   {
-    std::string help = get_textcmd_help( chr, cmd->value().c_str() );
+    std::string help = get_textcmd_help( chr, cmd->value() );
     if ( !help.empty() )
     {
       return new String( help );
@@ -5536,33 +5549,19 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
 {
   Character *chr, *of_who;
   const String* title;
-  ObjArray* uText;
-  ObjArray* eText;
+  const String* uText;
+  const String* eText;
 
   if ( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, of_who ) &&
-       getStringParam( 2, title ) && getObjArrayParam( 3, uText ) && getObjArrayParam( 4, eText ) )
+       getStringParam( 2, title ) && getUnicodeStringParam( 3, uText ) &&
+       getUnicodeStringParam( 4, eText ) )
   {
     if ( chr->logged_in() && of_who->logged_in() )
     {
-      // Get The Unicode message lengths and convert the arrays to UC
-      u16 uwtext[( SPEECH_MAX_LEN + 1 )];
-      u16 ewtext[( SPEECH_MAX_LEN + 1 )];
+      if ( uText->length() > SPEECH_MAX_LEN || eText->length() > SPEECH_MAX_LEN )
+        return new BError( "Text exceeds maximum size." );
 
-      size_t ulen = uText->ref_arr.size();
-      if ( ulen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-
-      if ( !Core::convertArrayToUC( uText, uwtext, ulen ) )
-        return new BError( "Invalid parameter type" );
-
-      size_t elen = eText->ref_arr.size();
-      if ( elen > SPEECH_MAX_LEN )
-        return new BError( "Unicode array exceeds maximum size." );
-
-      if ( !Core::convertArrayToUC( eText, ewtext, elen ) )
-        return new BError( "Invalid parameter type" );
-
-      sendCharProfile( chr, of_who, title->data(), uwtext, ewtext );
+      sendCharProfile( chr, of_who, title->value(), uText->value(), eText->value() );
       return new BLong( 1 );
     }
     else

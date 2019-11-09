@@ -30,7 +30,6 @@
 #include "../network/packets.h"
 #include "../network/pktdef.h"
 #include "../objtype.h"
-#include "../unicode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "osmod.h"
@@ -681,7 +680,7 @@ BObjectImp* NPCExecutorModule::say()
     npc.unhide();
 
   const char* text = exec.paramAsString( 0 );
-  std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+  std::string texttype_str = Clib::strlowerASCII( exec.paramAsString( 1 ) );
   int doevent;
   exec.getParam( 2, doevent );
   u8 texttype;
@@ -696,19 +695,44 @@ BObjectImp* NPCExecutorModule::say()
 
 
   Network::PktHelper::PacketOut<Network::PktOut_1C> msg;
-  msg->offset += 2;
-  msg->Write<u32>( npc.serial_ext );
-  msg->WriteFlipped<u16>( npc.graphic );
-  msg->Write<u8>( texttype );
-  msg->WriteFlipped<u16>( npc.speech_color() );
-  msg->WriteFlipped<u16>( npc.speech_font() );
-  msg->Write( npc.name().c_str(), 30 );
-  msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
-                        ? SPEECH_MAX_LEN + 1
-                        : static_cast<u16>( strlen( text ) + 1 ) );
-  u16 len = msg->offset;
-  msg->offset = 1;
-  msg->WriteFlipped<u16>( len );
+  Network::PktHelper::PacketOut<Network::PktOut_AE> ucmsg;
+  u16 len = 0;
+  u16 uclen = 0;
+  // switch to other pkt if utf8 found
+  if ( !Bscript::String::hasUTF8Characters( text ) )
+  {
+    msg->offset += 2;
+    msg->Write<u32>( npc.serial_ext );
+    msg->WriteFlipped<u16>( npc.graphic );
+    msg->Write<u8>( texttype );
+    msg->WriteFlipped<u16>( npc.speech_color() );
+    msg->WriteFlipped<u16>( npc.speech_font() );
+    msg->Write( npc.name().c_str(), 30 );
+    msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
+                          ? SPEECH_MAX_LEN + 1
+                          : static_cast<u16>( strlen( text ) + 1 ) );
+    len = msg->offset;
+    msg->offset = 1;
+    msg->WriteFlipped<u16>( len );
+  }
+  else
+  {
+    std::vector<u16> utf16 = Bscript::String::toUTF16( text );
+    if ( utf16.size() > SPEECH_MAX_LEN )
+      utf16.resize( SPEECH_MAX_LEN );
+    ucmsg->offset += 2;
+    ucmsg->Write<u32>( npc.serial_ext );
+    ucmsg->WriteFlipped<u16>( npc.graphic );
+    ucmsg->Write<u8>( texttype );
+    ucmsg->WriteFlipped<u16>( npc.speech_color() );
+    ucmsg->WriteFlipped<u16>( npc.speech_font() );
+    ucmsg->Write( "ENU", 4 );
+    ucmsg->Write( npc.description().c_str(), 30 );
+    ucmsg->WriteFlipped( utf16, true );
+    uclen = ucmsg->offset;
+    ucmsg->offset = 1;
+    ucmsg->WriteFlipped<u16>( uclen );
+  }
 
   // send to those nearby
   u16 range;
@@ -722,7 +746,10 @@ BObjectImp* NPCExecutorModule::say()
                                                           [&]( Mobile::Character* chr ) {
                                                             if ( !chr->is_visible_to_me( &npc ) )
                                                               return;
-                                                            msg.Send( chr->client, len );
+                                                            if ( !uclen )
+                                                              msg.Send( chr->client, len );
+                                                            else
+                                                              ucmsg.Send( chr->client, uclen );
                                                           } );
 
   if ( doevent >= 1 )
@@ -745,34 +772,27 @@ BObjectImp* NPCExecutorModule::SayUC()
   else if ( npc.hidden() )
     npc.unhide();
 
-  ObjArray* oText;
+  const String* text;
   const String* lang;
   int doevent;
 
-  if ( getObjArrayParam( 0, oText ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
+  if ( getUnicodeStringParam( 0, text ) && getStringParam( 2, lang ) && getParam( 3, doevent ) )
   {
-    std::string texttype_str = Clib::strlower( exec.paramAsString( 1 ) );
+    std::string texttype_str = Clib::strlowerASCII( exec.paramAsString( 1 ) );
     if ( texttype_str != "default" && texttype_str != "whisper" && texttype_str != "yell" )
     {
       return new BError( "texttype string param must be either 'default', 'whisper', or 'yell'" );
     }
 
-    size_t textlenucc = oText->ref_arr.size();
-    if ( textlenucc > SPEECH_MAX_LEN )
-      return new BError( "Unicode array exceeds maximum size." );
+    if ( text->length() > SPEECH_MAX_LEN )
+      return new BError( "Text exceeds maximum size." );
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
-    if ( !Core::convertArrayToUC( oText, gwtext, textlenucc ) )
-      return new BError( "Invalid value in Unicode array." );
 
-    std::string languc = Clib::strupper( lang->value() );
-    unsigned textlen = 0;
-
-    // textlen = wcslen((const wchar_t*)wtext) + 1;
-    while ( gwtext[textlen] != L'\0' )
-      ++textlen;
-    if ( textlen > SPEECH_MAX_LEN )
-      textlen = SPEECH_MAX_LEN;
+    std::vector<u16> utf16 = text->toUTF16();
+    if ( utf16.size() > SPEECH_MAX_LEN )
+      utf16.resize( SPEECH_MAX_LEN );
+    std::string languc = Clib::strupperASCII( lang->value() );
 
     u8 texttype;
     if ( texttype_str == "whisper" )
@@ -791,7 +811,7 @@ BObjectImp* NPCExecutorModule::SayUC()
     talkmsg->WriteFlipped<u16>( npc.speech_font() );
     talkmsg->Write( languc.c_str(), 4 );
     talkmsg->Write( npc.description().c_str(), 30 );
-    talkmsg->WriteFlipped( &gwtext[0], static_cast<u16>( textlen ) );
+    talkmsg->WriteFlipped( utf16, true );
     u16 len = talkmsg->offset;
     talkmsg->offset = 1;
     talkmsg->WriteFlipped<u16>( len );
@@ -812,18 +832,11 @@ BObjectImp* NPCExecutorModule::SayUC()
 
     if ( doevent >= 1 )
     {
-      char ntextbuf[SPEECH_MAX_LEN + 1];
-      int ntextbuflen = 0;
-      for ( unsigned i = 0; i < textlen; ++i )
-      {
-        ntextbuf[ntextbuflen++] = std::wcout.narrow( (wchar_t)gwtext[i], '?' );
-      }
-      ntextbuf[ntextbuflen++] = 0;
       Core::WorldIterator<Core::NPCFilter>::InRange(
           npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
-              othernpc->on_pc_spoke( &npc, ntextbuf, texttype, gwtext, languc.c_str(), nullptr );
+              othernpc->on_pc_spoke( &npc, text->value(), texttype, languc );
           } );
     }
   }

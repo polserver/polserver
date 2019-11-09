@@ -355,8 +355,16 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ReadFile()
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray() );
 
   std::string line;
+  bool first_line( true );
   while ( getline( ifs, line ) )
-    arr->addElement( new String( line ) );
+  {
+    if ( first_line )
+    {
+      first_line = false;
+      Clib::remove_bom( &line );
+    }
+    arr->addElement( new String( line, String::Tainted::YES ) );
+  }
 
   return arr.release();
 }

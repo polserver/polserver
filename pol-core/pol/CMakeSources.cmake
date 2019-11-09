@@ -394,8 +394,6 @@ set (pol_sources  # sorted !
   umanip.h
   umap.cpp
   umap.h
-  unicode.cpp
-  unicode.h
   uobjcnt.cpp
   uobjcnt.h
   uobject.cpp

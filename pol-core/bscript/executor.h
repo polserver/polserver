@@ -41,7 +41,7 @@ namespace Core
 class UOExecutor;
 
 void list_script( UOExecutor* uoexec );
-}
+}  // namespace Core
 namespace Bscript
 {
 class Executor;
@@ -152,6 +152,7 @@ public:
   const BLong* getLongParam( unsigned param );
 
   bool getStringParam( unsigned param, const String*& pstr );
+  bool getUnicodeStringParam( unsigned param, const String*& pstr );  // accepts also BLong array
   bool getParam( unsigned param, int& value );
   bool getParam( unsigned param, int& value, int maxval );
   bool getParam( unsigned param, int& value, int minval, int maxval );
@@ -238,6 +239,10 @@ public:
   void ins_uninit( const Instruction& ins );
   void ins_ident( const Instruction& ins );
   void ins_unminus( const Instruction& ins );
+  void ins_unplusplus( const Instruction& ins );
+  void ins_unminusminus( const Instruction& ins );
+  void ins_unplusplus_post( const Instruction& ins );
+  void ins_unminusminus_post( const Instruction& ins );
 
   void ins_logical_and( const Instruction& ins );
   void ins_logical_or( const Instruction& ins );
@@ -256,6 +261,10 @@ public:
   void ins_set_member_id_consume_timesequal( const Instruction& ins );    // test id
   void ins_set_member_id_consume_divideequal( const Instruction& ins );   // test id
   void ins_set_member_id_consume_modulusequal( const Instruction& ins );  // test id
+  void ins_set_member_id_unplusplus( const Instruction& ins );            // test id
+  void ins_set_member_id_unminusminus( const Instruction& ins );          // test id
+  void ins_set_member_id_unplusplus_post( const Instruction& ins );       // test id
+  void ins_set_member_id_unminusminus_post( const Instruction& ins );     // test id
 
   void ins_assign_localvar( const Instruction& ins );
   void ins_assign_globalvar( const Instruction& ins );
@@ -473,6 +482,6 @@ inline void Executor::set_running_to_completion( bool to_completion )
 {
   runs_to_completion_ = to_completion;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

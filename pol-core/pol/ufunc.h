@@ -175,31 +175,34 @@ Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* ad
 void send_sysmessage( Network::Client* client, const char* text,
                       unsigned short font = Plib::DEFAULT_TEXT_FONT,
                       unsigned short color = Plib::DEFAULT_TEXT_COLOR );
-void send_sysmessage( Network::Client* client, const u16* wtext, const char lang[4],
-                      unsigned short font = Plib::DEFAULT_TEXT_FONT,
-                      unsigned short color = Plib::DEFAULT_TEXT_COLOR );
+void send_sysmessage_unicode( Network::Client* client, const std::string& text,
+                              const std::string& lang,
+                              unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                              unsigned short color = Plib::DEFAULT_TEXT_COLOR );
 void broadcast( const char* text, unsigned short font = Plib::DEFAULT_TEXT_FONT,
                 unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
-void broadcast( const u16* wtext, const char lang[4], unsigned short font = Plib::DEFAULT_TEXT_FONT,
-                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
-                unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
+void broadcast_unicode( const std::string& text, const std::string& lang,
+                        unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                        unsigned short color = Plib::DEFAULT_TEXT_COLOR,
+                        unsigned short requiredCmdLevel = Plib::DEFAULT_TEXT_REQUIREDCMD );
 bool say_above( const UObject* obj, const char* text, unsigned short font = Plib::DEFAULT_TEXT_FONT,
                 unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                 unsigned int journal_print = JOURNAL_PRINT_NAME );
-bool say_above( const UObject* obj, const u16* wtext, const char lang[4],
-                unsigned short font = Plib::DEFAULT_TEXT_FONT,
-                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
-                unsigned int journal_print = JOURNAL_PRINT_NAME );
+bool say_above_unicode( const UObject* obj, const std::string& text, const std::string& lang,
+                        unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                        unsigned short color = Plib::DEFAULT_TEXT_COLOR,
+                        unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 bool private_say_above( Mobile::Character* chr, const UObject* obj, const char* text,
                         unsigned short font = Plib::DEFAULT_TEXT_FONT,
                         unsigned short color = Plib::DEFAULT_TEXT_COLOR,
                         unsigned int journal_print = JOURNAL_PRINT_NAME );
-bool private_say_above( Mobile::Character* chr, const UObject* obj, const u16* wtext,
-                        const char lang[4], unsigned short font = Plib::DEFAULT_TEXT_FONT,
-                        unsigned short color = Plib::DEFAULT_TEXT_COLOR,
-                        unsigned int journal_print = JOURNAL_PRINT_NAME );
+bool private_say_above_unicode( Mobile::Character* chr, const UObject* obj, const std::string& text,
+                                const std::string& lang,
+                                unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                                unsigned short color = Plib::DEFAULT_TEXT_COLOR,
+                                unsigned int journal_print = JOURNAL_PRINT_NAME );
 
 Items::Item* copy_item( const Items::Item* src_item );
 void update_all_weatherregions();
@@ -252,12 +255,12 @@ void send_season_info( Network::Client* client );
 void send_new_subserver( Network::Client* client );
 void send_fight_occuring( Network::Client* client, Mobile::Character* opponent );
 void send_damage( Mobile::Character* attacker, Mobile::Character* defender, u16 damage );
-void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const char* title,
-                      const u16* utext, const u16* etext );
+void sendCharProfile( Mobile::Character* chr, Mobile::Character* of_who, const std::string& title,
+                      const std::string& utext, const std::string& etext );
 
 void send_buff_message( Mobile::Character* chr, u16 icon, bool show, u16 duration = 0,
                         u32 cl_name = 0, u32 cl_descr = 0,
-                        std::vector<u32> arguments = std::vector<u32>() );
+                        const std::string& arguments = std::string() );
 }  // namespace Core
 }  // namespace Pol
 #endif

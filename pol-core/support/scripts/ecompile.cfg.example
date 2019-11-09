@@ -133,9 +133,17 @@ ThreadedCompilation=1
 # Default is 0
 #
 NumberOfThreads=0
+
 #
 # ParanoiaWarnings
 # Forces eCompile to complain about {} syntax.
 # Default is 0
 #
 ParanoiaWarnings=0
+
+#
+# ErrorOnFileCaseMissmatch
+# Error when capitalization of include directives is wrong
+# On linux due to filename case sensitivity this is always the case
+# Default is 0
+ErrorOnFileCaseMissmatch=0

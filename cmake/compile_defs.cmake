@@ -183,9 +183,23 @@ function(source_group_by_folder target)
 endfunction()
 
 function (enable_pch target)
+  # optional argument REUSE or REUSE_COTIRE
+  # cmake starting with 3.16:
+  # REUSE and REUSE_COTIRE will use clib pch
+  # older cmake with cotire:
+  # REUSE_COTIRE will create new pch with clib stdafx
+  set(argn "${ARGN}")
   if (NOT NO_PCH)
     set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h")
-    if (EXISTS ${_pch_name})
+    if (${CMAKE_VERSION} VERSION_LESS "3.16")
+      if (NOT EXISTS ${_pch_name})
+        if ("REUSE_COTIRE" STREQUAL "${argn}")
+          set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/../clib/StdAfx.h")
+        else()
+          return()
+        endif()
+      endif()
+
       set_target_properties(${target} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${_pch_name})
       set_target_properties(${target} PROPERTIES COTIRE_ADD_UNITY_BUILD OFF)
       cotire(${target})
@@ -194,6 +208,12 @@ function (enable_pch target)
         if(TARGET ${target}_pch)
           add_dependencies(${target}_pch boost)
         endif()
+      endif()
+    else()
+      if ("${argn}" MATCHES "REUSE.*")
+        target_precompile_headers(${target} REUSE_FROM clib)
+      else()
+        target_precompile_headers(${target} PUBLIC ${_pch_name})
       endif()
     endif()
   endif()

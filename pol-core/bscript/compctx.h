@@ -6,6 +6,8 @@
 
 #ifndef BSCRIPT_COMPCTX_H
 #define BSCRIPT_COMPCTX_H
+#include "../clib/logfacility.h"
+#include "compilercfg.h"
 
 #include <iosfwd>
 #include <string>
@@ -49,6 +51,8 @@ public:
   const char* s_begin;
 
   int dbg_filenum;
+  bool silence_unicode_warnings;  // tryLiteral gets executed multiple times flag used to ensure
+                                  // that unicode warning gets only printed once
 };
 
 inline std::ostream& operator<<( std::ostream& os, const CompilerContext& ctx )
@@ -62,6 +66,44 @@ inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx 
   ctx.printOn( writer );
   return writer;
 }
+
+namespace
+{
+inline void rec_write( fmt::Writer& /*w*/ ) {}
+template <typename T, typename... Targs>
+inline void rec_write( fmt::Writer& w, T&& value, Targs&&... Fargs )
+{
+  w << value;
+  rec_write( w, std::forward<Targs>( Fargs )... );
 }
+}  // namespace
+
+template <typename... Args>
+inline void compiler_warning( CompilerContext* ctx, Args&&... args )
+{
+  if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
+  {
+    fmt::Writer w;
+    rec_write( w, std::forward<Args>( args )... );
+
+    if ( compilercfg.ErrorOnWarning )
+      throw std::runtime_error( w.str() );
+    else
+    {
+      if ( ctx != nullptr )
+        w << *ctx;
+      ERROR_PRINT << w.c_str();
+    }
+  }
 }
+
+template <typename... Args>
+inline void compiler_error( Args&&... args )
+{
+  fmt::Writer w;
+  rec_write( w, std::forward<Args>( args )... );
+  ERROR_PRINT << w.str();
+}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

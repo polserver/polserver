@@ -702,6 +702,28 @@ bool Executor::getParam( unsigned param, short& value, short minval, short maxva
   }
 }
 
+bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
+{
+  BObject* obj = getParam( param );
+  if ( !obj )
+    return false;
+  if ( obj->isa( BObjectImp::OTString ) )
+  {
+    pstr = static_cast<String*>( obj->impptr() );
+    return true;
+  }
+  else if ( obj->isa( BObjectImp::OTArray ) )
+  {
+    pstr = String::fromUCArray( static_cast<ObjArray*>( obj->impptr() ) );
+    return true;
+  }
+  std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
+                       " as " + BObjectImp::typestr( BObjectImp::OTString ) + " or " +
+                       BObjectImp::typestr( BObjectImp::OTArray ) + ", got " +
+                       BObjectImp::typestr( obj->impptr()->type() );
+  func_result_ = new BError( report );
+  return false;
+}
 
 BObjectRef& Executor::LocalVar( unsigned int varnum )
 {
@@ -1356,12 +1378,11 @@ void Executor::ins_set_member_id_consume_plusequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
 
-  if ( !obj.isa( BObjectImp::OTUninit ) &&
-       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
-    tmp->impref().operPlusEqual( obj, right.impref() );
+    tmp->impref().operPlusEqual( *tmp, right.impref() );
     leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
   }
   ValueStack.pop_back();
@@ -1379,12 +1400,11 @@ void Executor::ins_set_member_id_consume_minusequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
 
-  if ( !obj.isa( BObjectImp::OTUninit ) &&
-       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
-    tmp->impref().operMinusEqual( obj, right.impref() );
+    tmp->impref().operMinusEqual( *tmp, right.impref() );
     leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
   }
   ValueStack.pop_back();
@@ -1402,12 +1422,11 @@ void Executor::ins_set_member_id_consume_timesequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
 
-  if ( !obj.isa( BObjectImp::OTUninit ) &&
-       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
-    tmp->impref().operTimesEqual( obj, right.impref() );
+    tmp->impref().operTimesEqual( *tmp, right.impref() );
     leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
   }
   ValueStack.pop_back();
@@ -1425,12 +1444,11 @@ void Executor::ins_set_member_id_consume_divideequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
 
-  if ( !obj.isa( BObjectImp::OTUninit ) &&
-       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
-    tmp->impref().operDivideEqual( obj, right.impref() );
+    tmp->impref().operDivideEqual( *tmp, right.impref() );
     leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
   }
   ValueStack.pop_back();
@@ -1448,12 +1466,11 @@ void Executor::ins_set_member_id_consume_modulusequal( const Instruction& ins )
   BObjectImp& leftimpref = left.impref();
 
   BObjectRef tmp = leftimpref.get_member_id( ins.token.lval );
-  BObject obj( *tmp );
 
-  if ( !obj.isa( BObjectImp::OTUninit ) &&
-       !obj.isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
   {
-    tmp->impref().operModulusEqual( obj, right.impref() );
+    tmp->impref().operModulusEqual( *tmp, right.impref() );
     leftimpref.set_member_id( ins.token.lval, &tmp->impref(), false );
   }
   ValueStack.pop_back();
@@ -2547,12 +2564,103 @@ void Executor::ins_unminus( const Instruction& /*ins*/ )
   ValueStack.push_back( BObjectRef( new BObject( newobj ) ) );
 }
 
+// case TOK_UNPLUSPLUS:
+void Executor::ins_unplusplus( const Instruction& /*ins*/ )
+{
+  BObjectRef ref = ValueStack.back();
+  ref->impref().selfPlusPlus();
+}
+
+// case TOK_UNMINUSMINUS:
+void Executor::ins_unminusminus( const Instruction& /*ins*/ )
+{
+  BObjectRef ref = ValueStack.back();
+  ref->impref().selfMinusMinus();
+}
+
+// case TOK_UNPLUSPLUS_POST:
+void Executor::ins_unplusplus_post( const Instruction& /*ins*/ )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectImp* imp = ref->impptr();
+  BObject* n = ref->clone();
+  imp->selfPlusPlus();
+  ValueStack.back().set( n );
+}
+
+// case TOK_UNMINUSMINUS_POST:
+void Executor::ins_unminusminus_post( const Instruction& /*ins*/ )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectImp* imp = ref->impptr();
+  BObject* n = ref->clone();
+  imp->selfMinusMinus();
+  ValueStack.back().set( n );
+}
+
+// case INS_SET_MEMBER_ID_UNPLUSPLUS:
+void Executor::ins_set_member_id_unplusplus( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfPlusPlus();
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
+  }
+  ValueStack.back().set( tmp.get() );
+}
+
+// case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+void Executor::ins_set_member_id_unplusplus_post( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  BObject* res = tmp->clone();
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfPlusPlus();
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
+  }
+  ValueStack.back().set( res );
+}
+
+// case INS_SET_MEMBER_ID_UNMINUSMINUS:
+void Executor::ins_set_member_id_unminusminus( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfMinusMinus();
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
+  }
+  ValueStack.back().set( tmp.get() );
+}
+
+// case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+void Executor::ins_set_member_id_unminusminus_post( const Instruction& ins )
+{
+  BObjectRef ref = ValueStack.back();
+  BObjectRef tmp = ref->impref().get_member_id( ins.token.lval );
+  BObject* res = tmp->clone();
+  if ( !tmp->isa( BObjectImp::OTUninit ) &&
+       !tmp->isa( BObjectImp::OTError ) )  // do nothing if curval is uninit or error
+  {
+    tmp->impref().selfMinusMinus();
+    ref->impref().set_member_id( ins.token.lval, tmp->impptr(), false );
+  }
+  ValueStack.back().set( res );
+}
+
 // case TOK_LOG_NOT:
 void Executor::ins_logical_not( const Instruction& /*ins*/ )
 {
   BObjectRef ref = getObjRef();
   ValueStack.push_back( BObjectRef( new BObject( new BLong( (int)!ref->impptr()->isTrue() ) ) ) );
-  return;
 }
 
 // case TOK_BITWISE_NOT:
@@ -2560,9 +2668,9 @@ void Executor::ins_bitwise_not( const Instruction& /*ins*/ )
 {
   BObjectRef ref = getObjRef();
   ValueStack.push_back( BObjectRef( new BObject( ref->impptr()->bitnot() ) ) );
-  return;
 }
 
+// case TOK_FUNCREF:
 void Executor::ins_funcref( const Instruction& ins )
 {
   ValueStack.push_back( BObjectRef(
@@ -2768,6 +2876,22 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_addmember_assign;
   case CTRL_PROGEND:
     return &Executor::ins_progend;
+  case TOK_UNPLUSPLUS:
+    return &Executor::ins_unplusplus;
+  case TOK_UNMINUSMINUS:
+    return &Executor::ins_unminusminus;
+  case TOK_UNPLUSPLUS_POST:
+    return &Executor::ins_unplusplus_post;
+  case TOK_UNMINUSMINUS_POST:
+    return &Executor::ins_unminusminus_post;
+  case INS_SET_MEMBER_ID_UNPLUSPLUS:
+    return &Executor::ins_set_member_id_unplusplus;  // test id
+  case INS_SET_MEMBER_ID_UNMINUSMINUS:
+    return &Executor::ins_set_member_id_unminusminus;  // test id
+  case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+    return &Executor::ins_set_member_id_unplusplus_post;  // test id
+  case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+    return &Executor::ins_set_member_id_unminusminus_post;  // test id
 
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );

@@ -305,7 +305,7 @@ void load_system_hooks()
 
           while ( elem.remove_first_prop( &hookclass, &script ) )
           {
-            Clib::mklower( hookclass );
+            Clib::mklowerASCII( hookclass );
             if ( !hookclass.compare( "uobject" ) )
               setMethod( &gamestate.system_hooks.uobject_method_script, pkg, script );
             else if ( !hookclass.compare( "item" ) )
