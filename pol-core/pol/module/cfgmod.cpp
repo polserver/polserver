@@ -7,7 +7,6 @@
 
 
 #include "cfgmod.h"
-
 #include <ctype.h>
 #include <fstream>
 #include <string>
@@ -31,29 +30,6 @@ namespace Pol
 {
 namespace Module
 {
-}
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<ConfigFileExecutorModule>::FunctionTable
-    TmplExecutorModule<ConfigFileExecutorModule>::function_table = {
-        {"ReadConfigFile", &ConfigFileExecutorModule::mf_ConfigFile},
-        {"FindConfigElem", &ConfigFileExecutorModule::mf_FindConfigElement},
-        {"GetElemProperty", &ConfigFileExecutorModule::mf_GetConfigString},
-        {"GetConfigString", &ConfigFileExecutorModule::mf_GetConfigString},
-        {"GetConfigStringArray", &ConfigFileExecutorModule::mf_GetConfigStringArray},
-        {"GetConfigStringDictionary", &ConfigFileExecutorModule::mf_GetConfigStringDictionary},
-        {"GetConfigInt", &ConfigFileExecutorModule::mf_GetConfigInt},
-        {"GetConfigIntArray", &ConfigFileExecutorModule::mf_GetConfigIntArray},
-        {"GetConfigReal", &ConfigFileExecutorModule::mf_GetConfigReal},
-        {"GetConfigMaxIntKey", &ConfigFileExecutorModule::mf_GetConfigMaxIntKey},
-        {"GetConfigStringKeys", &ConfigFileExecutorModule::mf_GetConfigStringKeys},
-        {"GetConfigIntKeys", &ConfigFileExecutorModule::mf_GetConfigIntKeys},
-        {"ListConfigElemProps", &ConfigFileExecutorModule::mf_ListConfigElemProps},
-        {"AppendConfigFileElem", &ConfigFileExecutorModule::mf_AppendConfigFileElem},
-        {"UnloadConfigFile", &ConfigFileExecutorModule::mf_UnloadConfigFile},
-        {"LoadTusScpFile", &ConfigFileExecutorModule::mf_LoadTusScpFile}};
 }
 namespace Module
 {
@@ -139,7 +115,7 @@ Bscript::BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
 }
 
 ConfigFileExecutorModule::ConfigFileExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<ConfigFileExecutorModule>( "cfgfile", exec )
+    : TmplExecutorModule<ConfigFileExecutorModule>( exec )
 {
 }
 
@@ -227,7 +203,7 @@ bool ConfigFileExecutorModule::get_cfgfilename( const std::string& cfgdesc, std:
 }
 
 
-Bscript::BObjectImp* ConfigFileExecutorModule::mf_ConfigFile()
+Bscript::BObjectImp* ConfigFileExecutorModule::mf_ReadConfigFile()
 {
   const Bscript::String* cfgdesc_str;
   if ( exec.getStringParam( 0, cfgdesc_str ) )
@@ -347,7 +323,7 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigIntKeys()
   }
 }
 
-Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
+Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElem()
 {
   Core::StoredConfigFile* cfile;
 
@@ -385,6 +361,11 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_FindConfigElement()
   {
     return new Bscript::BError( "Parameter 0 must be a Config File" );
   }
+}
+
+Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetElemProperty()
+{
+  return mf_GetConfigString();
 }
 
 Bscript::BObjectImp* ConfigFileExecutorModule::mf_GetConfigString()
@@ -746,5 +727,5 @@ bool getStoredConfigElemParam( Bscript::ExecutorModule& exmod, unsigned param,
     return false;
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

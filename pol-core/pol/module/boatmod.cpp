@@ -8,7 +8,6 @@
 
 
 #include "boatmod.h"
-
 #include <stddef.h>
 
 #include "../../bscript/berror.h"
@@ -21,24 +20,10 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<Module::UBoatExecutorModule>::FunctionTable
-    TmplExecutorModule<Module::UBoatExecutorModule>::function_table = {
-        {"MoveBoat", &UBoatExecutorModule::mf_MoveBoat},
-        {"MoveBoatRelative", &UBoatExecutorModule::mf_MoveBoatRelative},
-        {"MoveBoatXY", &UBoatExecutorModule::mf_MoveBoatXY},
-        {"TurnBoat", &UBoatExecutorModule::mf_TurnBoat},
-        {"RegisterItemWithBoat", &UBoatExecutorModule::mf_RegisterItemWithBoat},
-        {"BoatFromItem", &UBoatExecutorModule::mf_BoatFromItem},
-        {"SystemFindBoatBySerial", &UBoatExecutorModule::mf_SystemFindBoatBySerial}};
-}  // namespace Bscript
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UBoatExecutorModule>( "boat", exec )
+    : Bscript::TmplExecutorModule<UBoatExecutorModule>( exec )
 {
 }
 

@@ -9,7 +9,6 @@
 
 
 #include "datastore.h"
-
 #include <exception>
 #include <fstream>
 #include <stddef.h>
@@ -33,18 +32,6 @@
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<DataFileExecutorModule>::FunctionTable
-    TmplExecutorModule<DataFileExecutorModule>::function_table = {
-        {"ListDataFiles", &DataFileExecutorModule::mf_ListDataFiles},
-        {"CreateDataFile", &DataFileExecutorModule::mf_CreateDataFile},
-        {"OpenDataFile", &DataFileExecutorModule::mf_OpenDataFile},
-        {"UnloadDataFile", &DataFileExecutorModule::mf_UnloadDataFile}};
-}
-
 namespace Module
 {
 ///
@@ -379,7 +366,7 @@ Bscript::BObjectImp* DataElemRefObjImp::call_method( const char* methodname, Bsc
 }
 
 DataFileExecutorModule::DataFileExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<DataFileExecutorModule>( "datafile", exec )
+    : Bscript::TmplExecutorModule<DataFileExecutorModule>( exec )
 {
 }
 

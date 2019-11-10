@@ -94,35 +94,35 @@ protected:
 
   friend class Bscript::TmplExecutorModule<OSExecutorModule>;
 
-  Bscript::BObjectImp* create_debug_context();
-  Bscript::BObjectImp* getpid();
-  Bscript::BObjectImp* getprocess();
-  Bscript::BObjectImp* sleep();
-  Bscript::BObjectImp* sleepms();
-  Bscript::BObjectImp* wait_for_event();
-  Bscript::BObjectImp* events_waiting();
-  Bscript::BObjectImp* set_critical();
-  Bscript::BObjectImp* is_critical();
+  Bscript::BObjectImp* mf_Create_Debug_Context();
+  Bscript::BObjectImp* mf_GetPid();
+  Bscript::BObjectImp* mf_GetProcess();
+  Bscript::BObjectImp* mf_Sleep();
+  Bscript::BObjectImp* mf_Sleepms();
+  Bscript::BObjectImp* mf_Wait_For_Event();
+  Bscript::BObjectImp* mf_Events_Waiting();
+  Bscript::BObjectImp* mf_Set_Critical();
+  Bscript::BObjectImp* mf_Is_Critical();
 
-  Bscript::BObjectImp* start_script();
-  Bscript::BObjectImp* start_skill_script();
-  Bscript::BObjectImp* run_script_to_completion();
-  Bscript::BObjectImp* run_script();
-  Bscript::BObjectImp* mf_parameter();
-  Bscript::BObjectImp* mf_set_debug();
-  Bscript::BObjectImp* mf_Log();
-  Bscript::BObjectImp* mf_set_priority();
-  Bscript::BObjectImp* mf_unload_scripts();
-  Bscript::BObjectImp* mf_set_script_option();
-  Bscript::BObjectImp* mf_set_event_queue_size();  // DAVE 11/24
+  Bscript::BObjectImp* mf_Start_Script();
+  Bscript::BObjectImp* mf_Start_Skill_Script();
+  Bscript::BObjectImp* mf_Run_Script_To_Completion();
+  Bscript::BObjectImp* mf_Run_Script();
+  Bscript::BObjectImp* mf_Set_Debug();
+  Bscript::BObjectImp* mf_SysLog();
+  Bscript::BObjectImp* mf_System_RPM();
+  Bscript::BObjectImp* mf_Set_Priority();
+  Bscript::BObjectImp* mf_Unload_Scripts();
+  Bscript::BObjectImp* mf_Set_Script_Option();
+  Bscript::BObjectImp* mf_Set_Event_Queue_Size();  // DAVE 11/24
   Bscript::BObjectImp* mf_OpenURL();
   Bscript::BObjectImp* mf_OpenConnection();
-  Bscript::BObjectImp* mf_debugger();
+  Bscript::BObjectImp* mf_Debugger();
   Bscript::BObjectImp* mf_HTTPRequest();
 
-  Bscript::BObjectImp* mf_clear_event_queue();  // DAVE
+  Bscript::BObjectImp* mf_Clear_Event_Queue();  // DAVE
 
-  Bscript::BObjectImp* mf_performance_diff();
+  Bscript::BObjectImp* mf_PerformanceMeasure();
 
   bool critical_;
   unsigned char priority_;

@@ -6,7 +6,6 @@
  */
 
 #include "unimod.h"
-
 #include <iostream>
 #include <string.h>
 
@@ -101,25 +100,12 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
 }
 //////////////////////////////////////////////////////////////////////////
 }  // namespace Core
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<UnicodeExecutorModule>::FunctionTable
-    TmplExecutorModule<UnicodeExecutorModule>::function_table = {
-        {"BroadcastUC", &UnicodeExecutorModule::mf_BroadcastUC},
-        {"PrintTextAboveUC", &UnicodeExecutorModule::mf_PrintTextAboveUC},
-        {"PrintTextAbovePrivateUC", &UnicodeExecutorModule::mf_PrivateTextAboveUC},
-        {"RequestInputUC", &UnicodeExecutorModule::mf_RequestInputUC},
-        {"SendSysMessageUC", &UnicodeExecutorModule::mf_SendSysMessageUC},
-        {"SendTextEntryGumpUC", &UnicodeExecutorModule::mf_SendTextEntryGumpUC}};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
-    : TmplExecutorModule<UnicodeExecutorModule>( "unicode", exec ),
+    : TmplExecutorModule<UnicodeExecutorModule>( exec ),
       uoexec( exec ),
       prompt_chr( nullptr )
 {
@@ -186,7 +172,7 @@ BObjectImp* UnicodeExecutorModule::mf_PrintTextAboveUC()
   }
 }
 
-BObjectImp* UnicodeExecutorModule::mf_PrivateTextAboveUC()
+BObjectImp* UnicodeExecutorModule::mf_PrintTextAbovePrivateUC()
 {
   Mobile::Character* chr;
   Core::UObject* obj;
