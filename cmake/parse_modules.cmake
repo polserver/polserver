@@ -124,7 +124,7 @@ function(createfunctable)
 
     # message("Creating function table definition for ${em} => ${em_name} => ${MODCLASS}")
     set(INCLUDE_POL "${INCLUDE_POL}#include \"module/${MODHEADER}.h\"\n")
-    set(MODDEF "template <>\nconst char* const TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
+    set(MODDEF "template <>\nconst char* TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
     FILE(READ ${em} contents)
     STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
     read_def(${MODCLASS} ${contents} FUNCTBL)
@@ -141,26 +141,11 @@ function(createfunctable)
   set(OUT_RUNECL "${INCLUDE_RUNECL}\n${OUT_RUNECL}${LINE_OUT}")
   set(OUT_POL "${INCLUDE_POL}\n${OUT_POL}${LINE_OUT}")
 
-  set(TMP_FILE_POL "${OUT_FOLDER}/modtbl-pol.cpp.tmp")
   set(OUT_FILE_POL "${OUT_FOLDER}/modtbl-pol.cpp")
-
-  set(TMP_FILE_RUNECL "${OUT_FOLDER}/modtbl-runecl.cpp.tmp")
   set(OUT_FILE_RUNECL "${OUT_FOLDER}/modtbl-runecl.cpp")
 
-  file(WRITE ${TMP_FILE_POL} ${OUT_POL})
-  file(WRITE ${TMP_FILE_RUNECL} ${OUT_RUNECL})
-
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${TMP_FILE_POL}
-    ${OUT_FILE_POL}
-  )
-
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${TMP_FILE_RUNECL}
-    ${OUT_FILE_RUNECL}
-  )
+  file(WRITE ${OUT_FILE_POL} ${OUT_POL})
+  file(WRITE ${OUT_FILE_RUNECL} ${OUT_RUNECL})
 endfunction()
 
 createfunctable()

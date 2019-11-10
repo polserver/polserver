@@ -24,3 +24,6 @@ curl
 Testing
 CTest*
 ipch
+modtbl-pol.cpp
+modtbl-runecl.cpp
+
