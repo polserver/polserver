@@ -16,6 +16,7 @@
 #include "../skillid.h"
 #include "../uoexhelp.h"
 
+#include <module_defs/attributes.h>
 
 namespace Pol
 {
@@ -353,5 +354,5 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_BaseSkillToRawSkill()
   else
     return new Bscript::BError( "Invalid parameter type" );
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

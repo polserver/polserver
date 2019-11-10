@@ -17,6 +17,8 @@
 #include "../../clib/random.h"
 #include "../dice.h"
 
+#include <module_defs/util.h>
+
 namespace Pol
 {
 namespace Module

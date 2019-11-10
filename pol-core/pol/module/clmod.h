@@ -31,7 +31,6 @@ public:
   Bscript::BObjectImp* mf_PrintTextAboveCL();
   Bscript::BObjectImp* mf_PrintTextAbovePrivateCL();
 };
-}
-}
-
+}  // namespace Module
+}  // namespace Pol
 #endif

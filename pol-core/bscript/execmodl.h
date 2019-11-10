@@ -102,7 +102,7 @@ template <class T>
 class TmplExecutorModule : public ExecutorModule
 {
 public:
-  static const char* modname;
+  static const char* const modname;
 
 protected:
   TmplExecutorModule( Executor& exec );
@@ -125,11 +125,6 @@ protected:
   virtual BObjectImp* execFunc( unsigned idx ) override;
   virtual std::string functionName( unsigned idx ) override;
 };
-template <class T>
-const char* TmplExecutorModule<T>::modname;
-
-template <class T>
-typename TmplExecutorModule<T>::FunctionTable TmplExecutorModule<T>::function_table;
 
 template <class T>
 std::map<std::string, int, Clib::ci_cmp_pred> TmplExecutorModule<T>::_func_idx_map;

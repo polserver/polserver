@@ -31,6 +31,9 @@
 #include "../xmlfilescrobj.h"
 #include "fileaccess.h"
 #include "filemod.h"
+
+#include <module_defs/file.h>
+
 namespace Pol
 {
 namespace Module

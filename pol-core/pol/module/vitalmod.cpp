@@ -21,6 +21,8 @@
 #include "../uoexhelp.h"
 #include "../vital.h"
 
+#include <module_defs/vitals.h>
+
 namespace Pol
 {
 namespace Module

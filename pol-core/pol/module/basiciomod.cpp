@@ -7,6 +7,7 @@
 #include "basiciomod.h"
 #include "../../clib/logfacility.h"
 
+#include <module_defs/basicio.h>
 
 namespace Pol
 {
@@ -22,5 +23,5 @@ Bscript::BObjectImp* BasicIoExecutorModule::mf_Print()
   INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
   return new Bscript::UninitObject;
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

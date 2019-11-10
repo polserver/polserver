@@ -27,6 +27,8 @@
 #include "../uoexec.h"
 #include "uomod.h"
 
+#include <module_defs/unicode.h>
+
 namespace Pol
 {
 namespace Core
@@ -105,9 +107,7 @@ namespace Module
 using namespace Bscript;
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
-    : TmplExecutorModule<UnicodeExecutorModule>( exec ),
-      uoexec( exec ),
-      prompt_chr( nullptr )
+    : TmplExecutorModule<UnicodeExecutorModule>( exec ), uoexec( exec ), prompt_chr( nullptr )
 {
 }
 

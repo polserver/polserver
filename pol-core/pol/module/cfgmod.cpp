@@ -26,6 +26,8 @@
 #include "../../plib/pkg.h"
 #include "../cfgrepos.h"
 
+#include <module_defs/cfgfile.h>
+
 namespace Pol
 {
 namespace Module

@@ -18,6 +18,7 @@
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
+#include <module_defs/storage.h>
 
 namespace Pol
 {

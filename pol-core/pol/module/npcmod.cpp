@@ -34,6 +34,8 @@
 #include "osmod.h"
 #include "unimod.h"
 
+#include <module_defs/npc.h>
+
 namespace Pol
 {
 namespace Module

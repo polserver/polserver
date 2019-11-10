@@ -40,6 +40,7 @@
 #include "npcmod.h"
 #include "uomod.h"
 
+#include <module_defs/os.h>
 
 #ifdef _WIN32
 #pragma comment( lib, "crypt32.lib" )

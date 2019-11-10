@@ -155,6 +155,8 @@
 #include "../wthrtype.h"
 #include "cfgmod.h"
 
+#include <module_defs/uo.h>
+
 namespace Pol
 {
 namespace Core

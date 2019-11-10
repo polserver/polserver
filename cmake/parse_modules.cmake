@@ -2,28 +2,27 @@
 # Maps a .em filename to a tuple of:
 # - C++ class name
 # - module name
-# - For runecl: TRUE if usable, FALSE otherwise
-set(MODMAP_attributes AttributeExecutorModule attributemod FALSE)
-set(MODMAP_basic BasicExecutorModule basicmod TRUE)
-set(MODMAP_basicio BasicIoExecutorModule basiciomod TRUE)
-set(MODMAP_boat UBoatExecutorModule boatmod FALSE)
-set(MODMAP_cfgfile ConfigFileExecutorModule cfgmod TRUE)
-set(MODMAP_cliloc ClilocExecutorModule clmod FALSE)
-set(MODMAP_datafile DataFileExecutorModule datastore TRUE)
-set(MODMAP_file FileAccessExecutorModule filemod TRUE)
-set(MODMAP_guilds GuildExecutorModule guildmod FALSE)
-set(MODMAP_http HttpExecutorModule httpmod FALSE)
-set(MODMAP_math MathExecutorModule mathmod TRUE)
-set(MODMAP_npc NPCExecutorModule npcmod FALSE)
-set(MODMAP_os OSExecutorModule osmod FALSE)
-set(MODMAP_party PartyExecutorModule partymod FALSE)
-set(MODMAP_polsys PolSystemExecutorModule polsystemmod FALSE)
-set(MODMAP_sql SQLExecutorModule sqlmod FALSE)
-set(MODMAP_storage StorageExecutorModule storagemod FALSE)
-set(MODMAP_unicode UnicodeExecutorModule unimod FALSE)
-set(MODMAP_uo UOExecutorModule uomod FALSE)
-set(MODMAP_util UtilExecutorModule utilmod TRUE)
-set(MODMAP_vitals VitalExecutorModule vitalmod FALSE)
+set(MODMAP_attributes AttributeExecutorModule attributemod)
+set(MODMAP_basic BasicExecutorModule basicmod)
+set(MODMAP_basicio BasicIoExecutorModule basiciomod)
+set(MODMAP_boat UBoatExecutorModule boatmod)
+set(MODMAP_cfgfile ConfigFileExecutorModule cfgmod)
+set(MODMAP_cliloc ClilocExecutorModule clmod)
+set(MODMAP_datafile DataFileExecutorModule datastore)
+set(MODMAP_file FileAccessExecutorModule filemod)
+set(MODMAP_guilds GuildExecutorModule guildmod)
+set(MODMAP_http HttpExecutorModule httpmod)
+set(MODMAP_math MathExecutorModule mathmod)
+set(MODMAP_npc NPCExecutorModule npcmod)
+set(MODMAP_os OSExecutorModule osmod)
+set(MODMAP_party PartyExecutorModule partymod)
+set(MODMAP_polsys PolSystemExecutorModule polsystemmod)
+set(MODMAP_sql SQLExecutorModule sqlmod)
+set(MODMAP_storage StorageExecutorModule storagemod)
+set(MODMAP_unicode UnicodeExecutorModule unimod)
+set(MODMAP_uo UOExecutorModule uomod)
+set(MODMAP_util UtilExecutorModule utilmod)
+set(MODMAP_vitals VitalExecutorModule vitalmod)
 
 if(NOT EM_FOLDER)
   message(FATAL_ERROR "No EM_FOLDER set")
@@ -101,51 +100,28 @@ endfunction()
 function(createfunctable)
   file(GLOB ems  "${EM_FOLDER}/*.em")
 
-  # Variables:
-  # - OUT_POL: Accumulation of C++ code for pol, written at end of function
-  # - OUT_RUNECL: Accumulation of C++ code for runecl, written at end of function
-  # - INCLUDE_POL: '#include' lines for pol
-  # - INCLUDE_RUNECL: '#include' lines for runecl
-  # - LINE_OUT: temporary C++ to append to OUT_POL/OUT_ECL
-  set(INCLUDE_POL "")
-  set(INCLUDE_RUNECL "")
-
-  set(LINE_OUT "namespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module\;\n\n")
-  set(OUT_RUNECL "${LINE_OUT}")
-  set(OUT_POL "${LINE_OUT}")
-
   foreach(em ${ems})
     get_filename_component(em_name ${em} NAME_WE)
     set(em "${EM_FOLDER}/${em_name}.em")
     # Get module settings from map
     LIST(GET MODMAP_${em_name} 0 MODCLASS)
     LIST(GET MODMAP_${em_name} 1 MODHEADER)
-    LIST(GET MODMAP_${em_name} 2 IS_RUNECL_USABLE)
 
+    set(HEADER "#ifndef ${MODCLASS}_EM_h\n#define ${MODCLASS}_EM_h\n")
+    set(HEADER "${HEADER}namespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module\;\n\n")
+  
     # message("Creating function table definition for ${em} => ${em_name} => ${MODCLASS}")
-    set(INCLUDE_POL "${INCLUDE_POL}#include \"module/${MODHEADER}.h\"\n")
-    set(MODDEF "template <>\nconst char* TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
+    set(MODDEF "template <>\nconst char* const TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
     FILE(READ ${em} contents)
     STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
     read_def(${MODCLASS} ${contents} FUNCTBL)
     set(MODDEF "${MODDEF}${FUNCTBL}}\;\n\n")
     
-    set(OUT_POL "${OUT_POL}${MODDEF}")
-    if(IS_RUNECL_USABLE)
-      set(INCLUDE_RUNECL "${INCLUDE_RUNECL}#include \"../pol/module/${MODHEADER}.h\"\n")
-      set(OUT_RUNECL "${OUT_RUNECL}${MODDEF}")
-    endif()
+    set(FOOTER "} // namespace Bscript\n} // namespace Pol\n#endif")
+    set(OUT_MOD "${HEADER}\n${MODDEF}${FOOTER}")
 
+    file(WRITE "${OUT_FOLDER}/${em_name}.h" ${OUT_MOD})
   endforeach()
-  set(LINE_OUT "} // namespace Bscript\n} // namespace Pol\n")
-  set(OUT_RUNECL "${INCLUDE_RUNECL}\n${OUT_RUNECL}${LINE_OUT}")
-  set(OUT_POL "${INCLUDE_POL}\n${OUT_POL}${LINE_OUT}")
-
-  set(OUT_FILE_POL "${OUT_FOLDER}/modtbl-pol.cpp")
-  set(OUT_FILE_RUNECL "${OUT_FOLDER}/modtbl-runecl.cpp")
-
-  file(WRITE ${OUT_FILE_POL} ${OUT_POL})
-  file(WRITE ${OUT_FILE_RUNECL} ${OUT_RUNECL})
 endfunction()
 
 createfunctable()

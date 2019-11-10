@@ -45,6 +45,8 @@
 #include "../uobject.h"
 #include "../uoexhelp.h"
 
+#include <module_defs/polsys.h>
+
 namespace Pol
 {
 namespace Core

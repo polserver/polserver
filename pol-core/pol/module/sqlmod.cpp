@@ -18,6 +18,8 @@
 #include "../sqlscrobj.h"
 #include "../uoexec.h"
 
+#include <module_defs/sql.h>
+
 namespace Pol
 {
 namespace Module

@@ -23,6 +23,8 @@
 #include "../../bscript/impstr.h"
 #include "../../clib/stlutil.h"
 
+#include <module_defs/basic.h>
+
 namespace Pol
 {
 namespace Module

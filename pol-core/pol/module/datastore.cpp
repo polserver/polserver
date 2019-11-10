@@ -30,6 +30,8 @@
 #include "../proplist.h"
 #include "datastoreimp.h"
 
+#include <module_defs/datafile.h>
+
 namespace Pol
 {
 namespace Module
@@ -753,5 +755,5 @@ void commit_datastore()
     }
   }
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

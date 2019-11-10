@@ -11,6 +11,7 @@
 #include "../../plib/systemstate.h"
 #include "../uoexec.h"
 
+#include <module_defs/http.h>
 
 namespace Pol
 {

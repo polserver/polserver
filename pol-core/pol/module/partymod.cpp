@@ -29,6 +29,8 @@
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
+#include <module_defs/party.h>
+
 namespace Pol
 {
 namespace Module

@@ -15,6 +15,8 @@
 #include "../network/pktdef.h"
 #include "../uoexhelp.h"
 
+#include <module_defs/cliloc.h>
+
 namespace Pol
 {
 namespace Module

@@ -18,6 +18,8 @@
 #include "../realms/realm.h"
 #include "../uoexhelp.h"
 
+#include <module_defs/boat.h>
+
 namespace Pol
 {
 namespace Module

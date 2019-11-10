@@ -15,6 +15,7 @@
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
 
+#include <module_defs/math.h>
 
 namespace Pol
 {
