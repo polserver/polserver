@@ -149,7 +149,17 @@ variables):</p>
 <p><b><a name="chap1b">Arithmetic</a></b></p>
 
 <p>This stuff is easy, the expression on the left of the assignment operator is
-evaluated and placed into the variable on the right side. The math operators in
+evaluated and placed into the variable on the right side.</p>
+
+<p>Arithmetic expressions are evaluated first inside parenthesis then from
+left-to-right. Such as:</p>
+
+<div class="doc-guide-pre">
+<pre>var pies_used := pies_used + 1; // Increment 'pies_used' by 1
+var pies_left := number_of_trays * (pies_in_tray &#8211; pies_used);
+</pre></div>
+
+<p>The math operators in
 eScript are:</p>
 
 <table border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" id="AutoNumber1">
@@ -176,6 +186,41 @@ eScript are:</p>
   <tr>
     <td align="center">%</td>
     <td align="center">Modulus</td>
+  </tr>
+
+  <tr>
+    <td align="center">+=</td>
+    <td align="center">Addition Assign</td>
+  </tr>
+
+  <tr>
+    <td align="center">-=</td>
+    <td align="center">Subtraction Assign</td>
+  </tr>
+
+  <tr>
+    <td align="center">*=</td>
+    <td align="center">Multiplication Assign</td>
+  </tr>
+
+  <tr>
+    <td align="center">/=</td>
+    <td align="center">Division Assign</td>
+  </tr>
+
+  <tr>
+    <td align="center">%=</td>
+    <td align="center">Modulus Assign</td>
+  </tr>
+
+  <tr>
+    <td align="center">++</td>
+    <td align="center">Unary Increment</td>
+  </tr>
+
+  <tr>
+    <td align="center">--</td>
+    <td align="center">Unary Decrement</td>
   </tr>
 
   <tr>
@@ -207,22 +252,72 @@ eScript are:</p>
     <td align="center">~</td>
     <td align="center">Ones Complement</td>
   </tr>
-
 </table>
 
-<p>The expressions are evaluated first inside parenthesis then from
-left-to-right. Such as:</p>
+<h3><b>Assign, Unary, and Logical Operators</b></h3>
+<h4><b>The Assign Operators:</b></h4>
 
+<p>These operators perform the mathematical operation and then assign the result to the variable
+on the left. Using these operators simplifies coding. Instead of writing:</P>
 <div class="doc-guide-pre">
-<pre>var pies_used := pies_used + 1; // Increment 'pies_used' by 1
-var pies_left := number_of_trays * (pies_in_tray &#8211; pies_used);
+<pre>
+x := x + 5
+</pre></div>
+you can write:
+<div class="doc-guide-pre">
+<pre>
+x += 5.
 </pre></div>
 
-<h3>Logical <b>AND</b></h3>
-<p>
+<h4><b>The Unary Operators:</b></h4>
+
+<p>For those unfamiliar with the unary operators, a brief explanation of their
+use is in order. Examples of unary operator syntax is, ++i, i++,--i, and i--.
+The 'i' can be any named variable.
+These function as another shorthand for incrementing and decrementing a variable.
+They do act differently though depending on whether the operator, ++ or -- precedes or
+follows the variable. If the operator precedes the variable, as in +=i, that
+is equivalent to i += 1. If the operator follows the variable, as in i++, then
+i is incremented after any assignment of the value of i might have taken place.</p>
+Example:
+<div class="doc-guide-pre">
+<pre>
+var i := 5;
+var j :=0;
+j := i++;
+...
+</pre></div>
+After executing that code snippet, j will be equal to 5 and i will be equal to 6.
+
+As these are unary operators they can be used directly as a function parameter
+or in loops, eg. the while loop example below.
+Instead of writing:
+<div class="doc-guide-pre">
+<pre>
+while (i<5)
+i+=1;
+...
+</pre></div>
+You can save a line of code by writing:
+<div class="doc-guide-pre">
+<pre>
+while (++i<5)
+...
+</pre></div>
+<p>I should note that the assign and unary operators were added after the majority of
+this guide was written. So most, if not all, of the example code in
+this guide will use the longer forms of expressions, for readability, but mostly because
+we are too lazy to edit the entire guide.</p>
+
+<h4><b>The Logical Operators:</b></h4>
+
+<h4>Logical <b>AND</b></h4>
 The single &amp; (ampersand) symbol will perform a logical <b>AND</b> of the value on the left of the operator with the value on the right.
 <p>If we have a statement
-  var value := 10 &amp; 14;
+<div class="doc-guide-pre">
+<pre>
+var value := 10 &amp; 14;
+</pre></div>
 The result will equal 10. What is actually happening is that eScript will AND the binary value of 10, 1010, with the binary value of 14, 1110.
 <p>Every 1 bit in the value on the left that corresponds to a 1 bit in the same position in the value on the right produces a 1 bit in that position in the result. You can see this visually in the table below.
 <table border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
@@ -237,10 +332,13 @@ The result will equal 10. What is actually happening is that eScript will AND th
     </tr>
 </table>
 
-<h3>Logical <b>OR</b></h3>
+<h4>Logical <b>OR</b></h4>
 <p>
 The single | (bar) symbol will perform a logical <b>OR</b> of the value on the left of the operator with the value on the right. If we have a statement
+<div class="doc-guide-pre">
+<pre>
 var value := 10 | 6;
+</pre></div>
 The result will equal 14. Escript will <b>OR</b> the binary value of 10, 1010, with the binary value of 6, 0110. Where there is a 1 bit in either the value on the left or the value on the right, or both bits are 1, produces a 1 bit in the result. The table below helps you visualize this.
 
 <table border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
@@ -260,10 +358,13 @@ The result will equal 14. Escript will <b>OR</b> the binary value of 10, 1010, w
     </tr>
 </table>
 
-<h3>Logical <b>XOR</b></h3>
+<h4>Logical <b>XOR</b></h4>
 <p>
-The ^ (caret) will perform a logical <strong>XOR</strong>, or exclusive <strong>OR</strong>, of the value on the left of the operator with the value on the right. If we have a statement
+The ^ (caret) will perform a logical <strong>XOR</strong>, or exclusive <strong>OR</strong>, of the value on the left of the operator with the value on the right. If we have a statement:
+<div class="doc-guide-pre">
+<pre>
 var value := 10 ^ 12;
+</pre></div>
 The result will equal 6. This time eScript will <strong>XOR</strong> the binary value of 10, 1010, with the binary value of 12, 1100. Where there is a 1 bit in either the value on the left or the value on the right produces a 1 bit in the result. Where there is a 0 or a 1 in both bits produces a 0. Again, see the table below.
 
 
@@ -286,15 +387,15 @@ The result will equal 6. This time eScript will <strong>XOR</strong> the binary 
     </tr>
 </table>
 
-<h3><strong id="docs-internal-guid-f9b28dc1-7fff-cec3-02c5-0ed74c4fce53">Ones&rsquo; complement</strong></h3>
+<h4><strong id="docs-internal-guid-f9b28dc1-7fff-cec3-02c5-0ed74c4fce53">Ones&rsquo; complement</strong></h4>
 <p>
-The ~ (tilde) symbol will perform a ones’ complement on the value to the right of the operator. A ones’ complement operation inverts all the bits in an integer. 1s are flipped to 0s and 0s are flipped to 1s. The following statement will return -2 or in hexadecimal 0xFFFFFFFE.
+The ~ (tilde) symbol will perform a onesâ€™ complement on the value to the right of the operator. A onesâ€™ complement operation inverts all the bits in an integer. 1s are flipped to 0s and 0s are flipped to 1s. The following statement will return -2 or in hexadecimal 0xFFFFFFFE.
 Var value := ~1;
 In a 32 bit hexadecimal representation the value 1 is 0x00000001 or, in binary
 0000 0000 0000 0000 0000 0000 0000 0001
-If you invert the bits, ones’ complement, you end up with the result, in hexadecimal, of 0xFFFFFFFE or in binary
+If you invert the bits, onesâ€™ complement, you end up with the result, in hexadecimal, of 0xFFFFFFFE or in binary
 1111 1111 1111 1111 1111 1111 1111 1110
-Quoting “The Book of Knowledge”, Wikipedia: <em>“The ones' complement of the number then behaves like the negative of the original number in some arithmetic operations. To within a constant (of −1), the ones' complement behaves like the negative of the original number with binary addition. However, unlike two's complement, these numbers have not seen widespread use because of issues such as the offset of −1, that negating zero results in a distinct negative zero bit pattern, less simplicity with arithmetic borrowing, etc.”</em>.
+Quoting â€œThe Book of Knowledgeâ€, Wikipedia: <em>â€œThe ones' complement of the number then behaves like the negative of the original number in some arithmetic operations. To within a constant (of âˆ’1), the ones' complement behaves like the negative of the original number with binary addition. However, unlike two's complement, these numbers have not seen widespread use because of issues such as the offset of âˆ’1, that negating zero results in a distinct negative zero bit pattern, less simplicity with arithmetic borrowing, etc.â€</em>.
 
 
 <h3>In Addition</h3>
