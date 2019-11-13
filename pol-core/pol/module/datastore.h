@@ -38,7 +38,6 @@ public:
 private:
   DataStoreFile* GetDataStoreFile( const std::string& inspec );
 };
-}
-}
-
+}  // namespace Module
+}  // namespace Pol
 #endif

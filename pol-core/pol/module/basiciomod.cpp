@@ -5,33 +5,23 @@
 
 
 #include "basiciomod.h"
-
 #include "../../clib/logfacility.h"
 
+#include <module_defs/basicio.h>
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<BasicIoExecutorModule>::FunctionTable
-    TmplExecutorModule<BasicIoExecutorModule>::function_table = {
-        {"print", &BasicIoExecutorModule::print}};
-
-}  // namespace Bscript
-
 namespace Module
 {
 BasicIoExecutorModule::BasicIoExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<BasicIoExecutorModule>( "BasicIo", exec )
+    : Bscript::TmplExecutorModule<BasicIoExecutorModule>( exec )
 {
 }
 
-Bscript::BObjectImp* BasicIoExecutorModule::print()
+Bscript::BObjectImp* BasicIoExecutorModule::mf_Print()
 {
   INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
   return new Bscript::UninitObject;
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol

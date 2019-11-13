@@ -967,7 +967,7 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 //
 //  "GUMP" Functions
 //
-BObjectImp* UOExecutorModule::mf_SendGumpMenu()
+BObjectImp* UOExecutorModule::mf_SendDialogGump()
 {
   /*
    Client* client,
@@ -2032,7 +2032,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-BObjectImp* UOExecutorModule::mf_PolCore()
+BObjectImp* UOExecutorModule::mf_POLCore()
 {
   return new PolCore;
 }

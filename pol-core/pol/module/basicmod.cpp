@@ -10,7 +10,6 @@
 
 
 #include "basicmod.h"
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -23,6 +22,8 @@
 #include "../../bscript/executor.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/stlutil.h"
+
+#include <module_defs/basic.h>
 
 namespace Pol
 {
@@ -42,11 +43,11 @@ static inline bool is_base64( unsigned char c )
 }
 
 BasicExecutorModule::BasicExecutorModule( Executor& exec )
-    : Bscript::TmplExecutorModule<BasicExecutorModule>( "Basic", exec )
+    : Bscript::TmplExecutorModule<BasicExecutorModule>( exec )
 {
 }
 
-Bscript::BObjectImp* BasicExecutorModule::len()
+Bscript::BObjectImp* BasicExecutorModule::mf_Len()
 {
   Bscript::BObjectImp* imp = exec.getParamImp( 0 );
   if ( imp->isa( Bscript::BObjectImp::OTArray ) )
@@ -70,7 +71,7 @@ Bscript::BObjectImp* BasicExecutorModule::len()
   }
 }
 
-Bscript::BObjectImp* BasicExecutorModule::find()
+Bscript::BObjectImp* BasicExecutorModule::mf_Find()
 {
   exec.makeString( 0 );
   String* str = static_cast<String*>( exec.getParamImp( 0 ) );
@@ -82,7 +83,7 @@ Bscript::BObjectImp* BasicExecutorModule::find()
   return new BLong( posn );
 }
 
-Bscript::BObjectImp* BasicExecutorModule::mf_substr()
+Bscript::BObjectImp* BasicExecutorModule::mf_SubStr()
 {
   exec.makeString( 0 );
   String* str = static_cast<String*>( exec.getParamImp( 0 ) );
@@ -234,14 +235,14 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Compare()
   }
 }
 
-Bscript::BObjectImp* BasicExecutorModule::lower()
+Bscript::BObjectImp* BasicExecutorModule::mf_Lower()
 {
   String* string = new String( exec.paramAsString( 0 ) );
   string->toLower();
   return string;
 }
 
-Bscript::BObjectImp* BasicExecutorModule::upper()
+Bscript::BObjectImp* BasicExecutorModule::mf_Upper()
 {
   String* string = new String( exec.paramAsString( 0 ) );
   string->toUpper();
@@ -810,41 +811,4 @@ Bscript::BObjectImp* BasicExecutorModule::mf_DecodeBase64()
   return new String( ret );
 }
 }  // namespace Module
-
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<BasicExecutorModule>::FunctionTable
-    TmplExecutorModule<BasicExecutorModule>::function_table = {
-        {"find", &BasicExecutorModule::find},
-        {"len", &BasicExecutorModule::len},
-        {"upper", &BasicExecutorModule::upper},
-        {"lower", &BasicExecutorModule::lower},
-        {"Substr", &BasicExecutorModule::mf_substr},
-        {"Trim", &BasicExecutorModule::mf_Trim},
-        {"StrReplace", &BasicExecutorModule::mf_StrReplace},
-        {"SubStrReplace", &BasicExecutorModule::mf_SubStrReplace},
-        {"Compare", &BasicExecutorModule::mf_Compare},
-        {"CInt", &BasicExecutorModule::mf_CInt},
-        {"CStr", &BasicExecutorModule::mf_CStr},
-        {"CDbl", &BasicExecutorModule::mf_CDbl},
-        {"CAsc", &BasicExecutorModule::mf_CAsc},
-        {"CChr", &BasicExecutorModule::mf_CChr},
-        {"CAscZ", &BasicExecutorModule::mf_CAscZ},
-        {"CChrZ", &BasicExecutorModule::mf_CChrZ},
-        {"Bin", &BasicExecutorModule::mf_Bin},
-        {"Hex", &BasicExecutorModule::mf_Hex},
-        {"SplitWords", &BasicExecutorModule::mf_SplitWords},
-        {"Pack", &BasicExecutorModule::mf_Pack},
-        {"Unpack", &BasicExecutorModule::mf_Unpack},
-        {"TypeOf", &BasicExecutorModule::mf_TypeOf},
-        {"SizeOf", &BasicExecutorModule::mf_SizeOf},
-        {"TypeOfInt", &BasicExecutorModule::mf_TypeOfInt},
-        {"Boolean", &BasicExecutorModule::mf_Boolean},
-        {"PackJSON", &BasicExecutorModule::mf_PackJSON},
-        {"UnpackJSON", &BasicExecutorModule::mf_UnpackJSON},
-        {"EncodeBase64", &BasicExecutorModule::mf_EncodeBase64},
-        {"DecodeBase64", &BasicExecutorModule::mf_DecodeBase64}};
-}  // namespace Bscript
 }  // namespace Pol

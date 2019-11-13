@@ -8,7 +8,6 @@
 
 
 #include "utilmod.h"
-
 #include <ctime>
 #include <string>
 
@@ -18,26 +17,16 @@
 #include "../../clib/random.h"
 #include "../dice.h"
 
+#include <module_defs/util.h>
+
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<UtilExecutorModule>::FunctionTable
-    TmplExecutorModule<UtilExecutorModule>::function_table = {
-        {"RandomInt", &UtilExecutorModule::mf_RandomInt},
-        {"RandomFloat", &UtilExecutorModule::mf_RandomFloat},
-        {"RandomDiceRoll", &UtilExecutorModule::mf_RandomDiceRoll},
-        {"StrFormatTime", &UtilExecutorModule::mf_StrFormatTime},
-        {"RandomIntMinMax", &UtilExecutorModule::mf_RandomIntMinMax}};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 UtilExecutorModule::UtilExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UtilExecutorModule>( "util", exec )
+    : Bscript::TmplExecutorModule<UtilExecutorModule>( exec )
 {
 }
 

@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="File.em">
     <filedesc>File Access functions</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>11/10/2019</datemodified>
     <constant>// LogToFile constants</constant>
     <constant>const LOG_DATETIME := 1; // log Core-Style DateTimeStr in front of log entry</constant>
     <constant>//BinaryFile constants</constant>
@@ -173,17 +173,17 @@ const LISTDIR_DONT_LIST_DIRS := 0x0;
 
   <function name="CreateXmlFile"> 
     <prototype>CreateXMLFile()</prototype>
-    <explain>TinyXML based xml reading/writing.</explain>
     <explain>creates an empty XMLFile object</explain>
     <return>XMLFile object or error</return>
+    <related>XMLFile</related>
   </function>
 
   <function name="OpenXmlFile"> 
     <prototype>OpenXMLFile( filename )</prototype>
     <parameter name="filename" value="string" />
-    <explain>TinyXML based xml reading/writing.</explain>
     <explain>opens given filename and returns XMLFile object, fileaccess.cfg is checked</explain>
     <return>XMLFile object or error</return>
+    <related>XMLFile</related>
     <relatedcfg>fileaccess.cfg</relatedcfg>
   </function>
 

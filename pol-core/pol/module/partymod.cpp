@@ -8,7 +8,6 @@
 #include "pol_global_config.h"
 
 #include "partymod.h"
-
 #include <stddef.h>
 
 #include "../../bscript/berror.h"
@@ -30,26 +29,16 @@
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
+#include <module_defs/party.h>
+
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<PartyExecutorModule>::FunctionTable
-    TmplExecutorModule<PartyExecutorModule>::function_table = {
-        {"CreateParty", &PartyExecutorModule::mf_CreateParty},
-        {"DisbandParty", &PartyExecutorModule::mf_DisbandParty},
-        {"SendPartyMsg", &PartyExecutorModule::mf_SendPartyMsg},
-        {"SendPrivatePartyMsg", &PartyExecutorModule::mf_SendPrivatePartyMsg},
-};
-}  // namespace Bscript
 namespace Module
 {
 using namespace Bscript;
 
 PartyExecutorModule::PartyExecutorModule( Executor& exec )
-    : TmplExecutorModule<PartyExecutorModule>( "Party", exec )
+    : TmplExecutorModule<PartyExecutorModule>( exec )
 {
 }
 

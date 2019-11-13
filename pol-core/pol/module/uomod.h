@@ -105,7 +105,7 @@ public:
   Bscript::BObjectImp* mf_SetRegionWeatherLevel();
   Bscript::BObjectImp* mf_CreateAccount();
   Bscript::BObjectImp* mf_SetScriptController();
-  Bscript::BObjectImp* mf_PolCore();
+  Bscript::BObjectImp* mf_POLCore();
   Bscript::BObjectImp* mf_GetWorldHeight();
   Bscript::BObjectImp* mf_StartSpellEffect();
   Bscript::BObjectImp* mf_GetSpellDifficulty();
@@ -114,11 +114,11 @@ public:
   Bscript::BObjectImp* mf_GetMultiDimensions();
   Bscript::BObjectImp* mf_DestroyMulti();
   Bscript::BObjectImp* mf_SendTextEntryGump();
-  Bscript::BObjectImp* mf_SendGumpMenu();
+  Bscript::BObjectImp* mf_SendDialogGump();
   Bscript::BObjectImp* mf_CloseGump();
   Bscript::BObjectImp* mf_CloseWindow( /* chr, type, who */ );
   Bscript::BObjectImp* mf_SendEvent();
-  Bscript::BObjectImp* mf_PlayMovingEffectXyz();
+  Bscript::BObjectImp* mf_PlayMovingEffectXYZ();
   Bscript::BObjectImp* mf_GetEquipmentByLayer();
   Bscript::BObjectImp* mf_GetObjtypeByName();
 
@@ -143,7 +143,7 @@ public:
   Bscript::BObjectImp* mf_SendPacket();
   Bscript::BObjectImp* mf_SendQuestArrow();
 
-  Bscript::BObjectImp* mf_PromptInput();
+  Bscript::BObjectImp* mf_RequestInput();
 
   Bscript::BObjectImp* mf_ReadGameClock();
 
@@ -197,12 +197,12 @@ public:
   Bscript::BObjectImp* mf_RegisterForSpeechEvents();
   Bscript::BObjectImp* mf_EnumerateOnlineCharacters();
   Bscript::BObjectImp* mf_PrintTextAbove();
-  Bscript::BObjectImp* mf_PrivateTextAbove();
+  Bscript::BObjectImp* mf_PrintTextAbovePrivate();
 
   Bscript::BObjectImp* mf_Attach( /* Character */ );
   Bscript::BObjectImp* mf_Detach();
 
-  Bscript::BObjectImp* broadcast();
+  Bscript::BObjectImp* mf_Broadcast();
 
   Bscript::BObjectImp* send_open_special_container();
   Bscript::BObjectImp* create_item_in_container();
@@ -244,11 +244,11 @@ public:
   Bscript::BObjectImp* mf_SetName();
   Bscript::BObjectImp* mf_SetObjProperty();
 
-  Bscript::BObjectImp* mf_SelectMenuItem();  // character, menuname
-  Bscript::BObjectImp* mf_SendSysMessage();  // Character, Text
-  Bscript::BObjectImp* mf_SubtractAmount();  // Item, Amount
-  Bscript::BObjectImp* mf_Target();          // Character to choose
-  Bscript::BObjectImp* mf_TargetCancel();    // Character to cancel for
+  Bscript::BObjectImp* mf_SelectMenuItem2();  // character, menuname
+  Bscript::BObjectImp* mf_SendSysMessage();   // Character, Text
+  Bscript::BObjectImp* mf_SubtractAmount();   // Item, Amount
+  Bscript::BObjectImp* mf_Target();           // Character to choose
+  Bscript::BObjectImp* mf_CancelTarget();     // Character to cancel for
 
   Bscript::BObjectImp* mf_ListItemsNearLocation();
   Bscript::BObjectImp* mf_EnumerateItemsInContainer();
@@ -261,13 +261,13 @@ public:
 
   Bscript::BObjectImp* mf_IsStackable();  // item1, item2
 
-  Bscript::BObjectImp* mf_PlayMovingEffect_Ex(
+  Bscript::BObjectImp* mf_PlayMovingEffectEx(
       /*src,dst,effect,speed,duration,hue,render,direction,explode,effect3d*/ );
-  Bscript::BObjectImp* mf_PlayMovingEffectXyz_Ex(
+  Bscript::BObjectImp* mf_PlayMovingEffectXYZEx(
       /*sx,sy,sz,dx,dy,dz,realm,effect,speed,duration,hue,render,direction,explode,effect3d*/ );
-  Bscript::BObjectImp* mf_PlayObjectCenteredEffect_Ex(
+  Bscript::BObjectImp* mf_PlayObjectCenteredEffectEx(
       /*src,effect,speed,duration,hue,render,layer,explode,effect3d*/ );
-  Bscript::BObjectImp* mf_PlayStationaryEffect_Ex(
+  Bscript::BObjectImp* mf_PlayStationaryEffectEx(
       /*x,y,z,realm,effect,speed,duration,hue,render,layer,explode,effect3d*/ );
 
   Bscript::BObjectImp* mf_UpdateMobile( /*mob*/ );
