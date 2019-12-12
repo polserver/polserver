@@ -860,7 +860,9 @@ void CustomHousesRestore( Core::PKTBI_D7* msg )
   if ( house == nullptr )
     return;
 
-  house->WorkingDesign = house->BackupDesign;
+  if( !house->BackupDesign.IsEmpty() )
+    house->WorkingDesign = house->BackupDesign;
+
   std::vector<u8> newvec;
   house->WorkingCompressed.swap( newvec );
   if ( chr != nullptr && chr->client != nullptr )
