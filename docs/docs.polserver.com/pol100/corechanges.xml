@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-07-2019</datemodified>
+		<datemodified>12-12-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-12-2019</date>
+			<author>Turley:</author>
+			<change type="Fixed">Poison/invul status for newer clients, when mobile didnt move</change>
+		</entry>
 		<entry>
 			<date>10-05-2019</date>
 			<author>Turley:</author>

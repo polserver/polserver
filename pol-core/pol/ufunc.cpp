@@ -41,6 +41,7 @@
 #include "ufunc.h"
 
 #include <cstddef>
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -374,7 +375,7 @@ void send_remove_character( Network::Client* client, const Mobile::Character* ch
   /* Don't remove myself */
   if ( client->chr == chr )
     return;
-  pkt.update(chr->serial_ext);
+  pkt.update( chr->serial_ext );
   pkt.Send( client );
 }
 
@@ -1886,11 +1887,25 @@ void send_create_mobile_to_nearby_cansee( const Character* chr )
 void send_move_mobile_to_nearby_cansee( const Character* chr )
 {
   MoveChrPkt msgmove( chr );
+  std::unique_ptr<HealthBarStatusUpdate> msgpoisoned;
+  std::unique_ptr<HealthBarStatusUpdate> msginvul;
+  if ( chr->poisoned() )
+    msgpoisoned.reset( new HealthBarStatusUpdate(
+        chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned() ) );
+  if ( chr->invul() )
+    msginvul.reset( new HealthBarStatusUpdate(
+        chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul() ) );
   WorldIterator<OnlinePlayerFilter>::InVisualRange( chr, [&]( Character* zonechr ) {
     if ( zonechr == chr )
       return;
     if ( zonechr->is_visible_to_me( chr ) )
+    {
       msgmove.Send( zonechr->client );
+      if ( msgpoisoned )
+        msgpoisoned->Send( zonechr->client );
+      if ( msginvul )
+        msginvul->Send( zonechr->client );
+    }
   } );
 }
 
