@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+12-12-2019 Turley:
+  Fixed:   Poison/invul status for newer clients, when mobile didnt move
 10-05-2019 Turley:
   Changed: ECompile reports warnings and errors to cerr instead of printing everything to cout.
            Exit code of ECompile is 1 when at least one file fails to compile.
