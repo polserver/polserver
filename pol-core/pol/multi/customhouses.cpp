@@ -1089,6 +1089,7 @@ void UHouse::CustomHouseSetInitialState()
 
   CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );
   WorkingDesign = CurrentDesign;
+  BackupDesign = CurrentDesign;
   std::vector<u8> newvec;
   WorkingCompressed.swap( newvec );
 
