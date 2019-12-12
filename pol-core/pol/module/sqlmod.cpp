@@ -345,15 +345,15 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_fetch_row()
   {                                                                  \
     return new BError( "POL was not compiled with MySQL support." ); \
   }
-MF_NO_MYSQL( mf_ConnectToDB )
-MF_NO_MYSQL( mf_SelectDb )
-MF_NO_MYSQL( mf_Query )
-MF_NO_MYSQL( mf_NumFields )
-MF_NO_MYSQL( mf_FieldName )
-MF_NO_MYSQL( mf_AffectedRows )
-MF_NO_MYSQL( mf_NumRows )
-MF_NO_MYSQL( mf_Close )
-MF_NO_MYSQL( mf_FetchRow )
+MF_NO_MYSQL( mf_mysql_connect )
+MF_NO_MYSQL( mf_mysql_select_db )
+MF_NO_MYSQL( mf_mysql_query )
+MF_NO_MYSQL( mf_mysql_num_fields )
+MF_NO_MYSQL( mf_mysql_field_names )
+MF_NO_MYSQL( mf_mysql_affected_rows )
+MF_NO_MYSQL( mf_mysql_num_rows )
+MF_NO_MYSQL( mf_mysql_close )
+MF_NO_MYSQL( mf_mysql_fetch_row )
 #endif
 }  // namespace Module
 }  // namespace Pol
