@@ -278,7 +278,7 @@ Bscript::BObjectImp* UHouse::get_script_member_id( const int id ) const  /// id 
     if ( !IsCustom() )
       return new BError( "House is not custom" );
     else if ( IsEditing() )
-      return new BError( "House is currently been edited" );
+      return WorkingDesign.list_parts();
     else
       return CurrentDesign.list_parts();
     break;
@@ -984,7 +984,7 @@ void UHouse::walk_on( Mobile::Character* chr )
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->priority(100);
+      ex->priority( 100 );
 
       if ( ex->setProgram( prog.get() ) )
       {

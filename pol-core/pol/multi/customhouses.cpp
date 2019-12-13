@@ -800,6 +800,9 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
   if ( house == nullptr || chr == nullptr )
     return;
 
+  if ( house->waiting_for_accept )  // dont allow multiple commits
+    return;
+
   // remove dynamic bits (teleporters, doors)
   house->WorkingDesign.FillComponents( house );
 
@@ -860,7 +863,7 @@ void CustomHousesRestore( Core::PKTBI_D7* msg )
   if ( house == nullptr )
     return;
 
-  if( !house->BackupDesign.IsEmpty() )
+  if ( !house->BackupDesign.IsEmpty() )
     house->WorkingDesign = house->BackupDesign;
 
   std::vector<u8> newvec;
