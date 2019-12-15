@@ -1518,7 +1518,8 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
         reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
     u32 strings_count = cfBEu32( strhdr->count );
     // even if this is ok, it could still overflow.  Have to check each string.
-    if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 1 ) * strings_count > msglen + 1u )
+    // -2 per entry to only count tag+length (data has size of 2 in struct)
+    if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
     {
       ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
                   << client->chr->name()
