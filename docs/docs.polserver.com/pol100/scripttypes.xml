@@ -1475,8 +1475,8 @@ endprogram</example>
         scripts/itemdesc entries</explain>
     <explain>The core does not perform any validity checks on the elements, it's up to the script
         ensure that all house elements and components are valid graphics/objtypes.</explain>
-		<explain>To get the current list of house parts use house.house_parts</explain>
-		<explain>Important: while this script runs the client buildtool is still open and the client can still modify the house. So if a eg a confirm dialog is shown calculate the price also after the gump!</explain>
+    <explain>To get the current list of house parts use house.house_parts</explain>
+    <explain>Important: while this script runs the client buildtool is still open and the client can still modify the house. So if a eg a confirm dialog is shown calculate the price also after the gump!</explain>
     <relatedobj>Character</relatedobj>
     <relatedobj>House</relatedobj>
     <relatedobj>Array</relatedobj>

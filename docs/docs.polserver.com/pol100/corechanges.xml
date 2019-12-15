@@ -9,11 +9,11 @@
 			<date>12-14-2019</date>
 			<author>Turley:</author>
 			<change type="Changed">house.house_parts member returns now when in edit mode the current (possible not yet confirmed)<br/>
- list of parts instead of an error.</change>
+list of parts instead of an error.</change>
 			<change type="Changed">misc/customhousecommit.src no more has a third parameter elements.<br/>
- Before this parameter was the only option to get the current working list,<br/>
-     but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.<br/>
-     Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!</change>
+Before this parameter was the only option to get the current working list,<br/>
+but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.<br/>
+Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!</change>
 		</entry>
 		<entry>
 			<date>12-13-2019</date>

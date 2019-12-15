@@ -1,11 +1,11 @@
 ﻿-- POL100 --
 12-14-2019 Turley:
   Changed: house.house_parts member returns now when in edit mode the current (possible not yet confirmed)
-	         list of parts instead of an error.
+           list of parts instead of an error.
   Changed: misc/customhousecommit.src no more has a third parameter elements.
-	         Before this parameter was the only option to get the current working list,
-					 but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.
-					 Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!
+           Before this parameter was the only option to get the current working list,
+           but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.
+           Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!
 12-13-2019 DevGIB:
   Fixed:   CustomHouses when no backup existed the foundation vanished on pressing revert.
 12-12-2019 Turley:
