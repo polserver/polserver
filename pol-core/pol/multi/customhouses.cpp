@@ -813,8 +813,9 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
     if ( sd.exists() )
     {
       house->waiting_for_accept = true;
-      if ( Core::start_script( sd, make_mobileref( chr ), new Module::EMultiRefObjImp( house ),
-                               house->WorkingDesign.list_parts() ) != nullptr )
+			//former part list as param is now possible via house member
+      if ( Core::start_script( sd, make_mobileref( chr ), new Module::EMultiRefObjImp( house ) ) !=
+           nullptr )
         return;
     }
   }

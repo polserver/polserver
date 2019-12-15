@@ -4,7 +4,7 @@
 <ESCRIPT>
 <fileheader name="POL Script Types">
   <desc>This is a list of all the different script types used in the POL system. Some only pertain to specific objects, and/or specifc events, as described.</desc>
-  <datemodified>01/01/2019</datemodified>
+  <datemodified>12/14/2019</datemodified>
 </fileheader>
 
 
@@ -1455,10 +1455,9 @@ endprogram</example>
 </scripttype>
 
 <scripttype name="CustomHouseCommitScript">
-    <prototype>program custom_house_commit( who, house, elements )</prototype>
+    <prototype>program custom_house_commit( who, house )</prototype>
     <parameter name="who" value="Character ref, who is committing the house design" />
     <parameter name="house" value="House ref, the house being committed" />
-    <parameter name="elements" value="Array of struct{graphic,xoffset,yoffset,z}, the custom house elements (excluding doors and teleporters)" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
     <def_prio>1</def_prio>
@@ -1476,6 +1475,8 @@ endprogram</example>
         scripts/itemdesc entries</explain>
     <explain>The core does not perform any validity checks on the elements, it's up to the script
         ensure that all house elements and components are valid graphics/objtypes.</explain>
+		<explain>To get the current list of house parts use house.house_parts</explain>
+		<explain>Important: while this script runs the client buildtool is still open and the client can still modify the house. So if a eg a confirm dialog is shown calculate the price also after the gump!</explain>
     <relatedobj>Character</relatedobj>
     <relatedobj>House</relatedobj>
     <relatedobj>Array</relatedobj>

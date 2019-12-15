@@ -51,7 +51,7 @@
 
 </pre>
 
-<datemodified>11/10/2019</datemodified>
+<datemodified>12/14/2019</datemodified>
 </fileheader>
 
 
@@ -415,7 +415,7 @@
 <member mname="custom" type="Boolean" access="r/o" mdesc="1 = custom house" />
 <member mname="house_editing" type="Boolean" access="r/o" mdesc="1 if the house is currently being edited" />
 <member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
-<member mname="house_parts" type="Integer" access="r/o" mdesc="returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house, or currently been edited. To get the real coords from an elem add house.x/y" />
+<member mname="house_parts" type="Integer" access="r/o" mdesc="returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house. When in edit mode returns the current working design. To get the real coords from an elem add house.x/y" />
 
 <method proto="setcustom(bool custom)" returns="true/error" desc="Sets the house as custom. Setting to 1 is needed before SendHousingTool() works." />
 <method proto="add_component(ItemRef)" returns="true/error" desc="Add item to House components" />
