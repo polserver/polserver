@@ -500,7 +500,7 @@ inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item 
   // Give scripters the chance to keep an item alive
   if ( item->invisible() )
   {
-    INFO_PRINT << "not editable invis: " << fmt::hexu( item->serial ) << " " << item->name
+    INFO_PRINT << "not editable invis: " << fmt::hexu( item->serial ) << " " << item->name()
                << "\n";  // xxx debug
     return false;
   }
@@ -509,7 +509,7 @@ inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item 
   // hide them to avoid an exception later, since this is not supported
   if ( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
   {
-    INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name
+    INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name()
                << "\n";  // xxx debug
     return false;
   }
@@ -530,7 +530,7 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
       INFO_PRINT << "Invalid\n";
       continue;
     }
-    INFO_PRINT << fmt::hexu( item->serial ) << " " << item->name << "\n";
+    INFO_PRINT << fmt::hexu( item->serial ) << " " << item->name() << "\n";
   }
 
   while ( itr != comp->end() )
@@ -556,7 +556,7 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
       INFO_PRINT << "Invalid\n";
       continue;
     }
-    INFO_PRINT << fmt::hexu( item->serial ) << " " << item->name << "\n";
+    INFO_PRINT << fmt::hexu( item->serial ) << " " << item->name() << "\n";
   }
 }
 
