@@ -63,6 +63,7 @@
 #else
 #include "../../../lib/zlib/zlib.h"
 #endif
+#include <format/format.h>  // xxx debug
 
 
 namespace Pol
@@ -498,12 +499,20 @@ inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item 
 {
   // Give scripters the chance to keep an item alive
   if ( item->invisible() )
+  {
+    INFO_PRINT << "not editable invis: " << fmt::hexu( item->serial ) < < <
+        " " << item->name << "\n";  // xxx debug
     return false;
+  }
 
   // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
   // hide them to avoid an exception later, since this is not supported
   if ( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
+  {
+    INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) < < <
+        " " << item->name << "\n";  // xxx debug
     return false;
+  }
 
   return true;
 }
@@ -512,6 +521,18 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
 {
   UHouse::Components* comp = house->get_components();
   UHouse::Components::iterator itr = comp->begin();
+  INFO_PRINT << "ClearComponents " << comp->size() << " elements\n";  // xxx debug
+  for ( auto c : *comp )
+  {
+    Items::Item* item = c.get();
+    if ( item == nullptr || item->orphan() )
+    {
+      INFO_PRINT << "Invalid\n";
+      continue;
+    }
+    INFO_PRINT << fmt::hexu( item->serial ) < < < " " << item->name << "\n";
+  }
+
   while ( itr != comp->end() )
   {
     Items::Item* item = ( *itr ).get();
@@ -525,6 +546,17 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
       }
     }
     ++itr;
+  }
+  INFO_PRINT << "ClearComponents after" << comp->size() << " elements\n";  // xxx debug
+  for ( auto c : *comp )
+  {
+    Items::Item* item = c.get();
+    if ( item == nullptr || item->orphan() )
+    {
+      INFO_PRINT << "Invalid\n";
+      continue;
+    }
+    INFO_PRINT << fmt::hexu( item->serial ) < < < " " << item->name << "\n";
   }
 }
 
