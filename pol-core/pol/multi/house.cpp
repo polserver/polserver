@@ -607,6 +607,27 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
       result = true;
     }
   }
+  // house teleporters are components and replace floors
+  for ( const auto& c : components_ )
+  {
+    Items::Item* item = c.get();
+    if ( item == nullptr || item->orphan() )
+      continue;
+    if ( item->graphic >= TELEPORTER_START && item->graphic <= TELEPORTER_END )
+    {
+      Plib::MapShape shape;
+      shape.z = item->z;
+      shape.height = Plib::tileheight( item->graphic );
+      shape.flags = Plib::tile_flags( item->graphic );
+      if ( !shape.height )
+      {
+        ++shape.height;
+        --shape.z;
+      }
+      vec.push_back( shape );
+      result = true;
+    }
+  }
   return result;
 }
 
