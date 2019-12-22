@@ -776,8 +776,12 @@ void CustomHousesErase( Core::PKTBI_D7* msg )
   u32 realx = x + house->WorkingDesign.xoff;
   u32 realy = y + house->WorkingDesign.yoff;
 
+  // foundation walls should not be deleted
   if ( z == 0 && realx < house->WorkingDesign.width && realy < ( house->WorkingDesign.height - 1 ) )
   {
+    Mobile::Character* chr = Core::find_character( serial );
+    if ( chr && chr->client )
+      CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
     return;
   }
 
