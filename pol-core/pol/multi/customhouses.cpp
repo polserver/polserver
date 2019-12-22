@@ -512,7 +512,7 @@ bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
   s32 shape_x = static_cast<s32>( item->x ) - house->x;
   s32 shape_y = static_cast<s32>( item->y ) - house->y;
   if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
-       shape_y + yoff >= static_cast<s32>( height ) )
+       shape_y + yoff >= static_cast<s32>( height - 1 ) )  // y is +1
   {
     INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name()
                << "\n";  // xxx debug
