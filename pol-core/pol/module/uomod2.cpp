@@ -2536,7 +2536,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 
   house->WorkingDesign.AddComponents( house );
   house->CurrentDesign.AddComponents( house );
-  Multi::CustomHouseDesign::ClearComponents( house );
+  house->WorkingDesign.ClearComponents( house );
   Multi::ItemList itemlist;
   Multi::MobileList moblist;
   Multi::UHouse::list_contents( house, itemlist, moblist );
