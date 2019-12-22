@@ -148,11 +148,11 @@ public:
 
   void AddComponents( UHouse* house );
   void FillComponents( UHouse* house, bool add_as_component = true );
-  static void ClearComponents( UHouse* house );
+  void ClearComponents( UHouse* house );
   Bscript::ObjArray* list_parts() const;
 
 private:
-  inline static bool isEditableItem( UHouse* house, Items::Item* item );
+  bool isEditableItem( UHouse* house, Items::Item* item );
   static char z_to_custom_house_table( char z );
 };
 

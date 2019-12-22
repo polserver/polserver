@@ -1017,7 +1017,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
   else
   {
     WorkingDesign.AddComponents( this );
-    CustomHouseDesign::ClearComponents( this );
+    WorkingDesign.ClearComponents( this );
     if ( chr && chr->client )
       CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_WORKING );
   }

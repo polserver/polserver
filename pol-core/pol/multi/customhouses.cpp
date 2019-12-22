@@ -495,7 +495,7 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
 }
 
 /// Tells wether an item should be show in custom house design or not
-inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
+bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
 {
   // Give scripters the chance to keep an item alive
   if ( item->invisible() )
@@ -507,12 +507,23 @@ inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item 
 
   // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
   // hide them to avoid an exception later, since this is not supported
-  if ( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
+  // only test foodprint: teleporters can replace floor tiles which means that
+  // find_supoorting_multis cannot find at this loc a multi part
+  s32 shape_x = static_cast<s32>( item->x ) - house->x;
+  s32 shape_y = static_cast<s32>( item->y ) - house->y;
+  if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
+       shape_y + yoff >= static_cast<s32>( height ) )
   {
     INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name()
                << "\n";  // xxx debug
     return false;
   }
+  /*if ( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
+  {
+    INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name()
+               << "\n";  // xxx debug
+    return false;
+  }*/
 
   return true;
 }
