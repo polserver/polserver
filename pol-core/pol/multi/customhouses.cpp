@@ -152,11 +152,6 @@ void CustomHouseDesign::Add( CUSTOM_HOUSE_ELEMENT& elem )
   floor_sizes[floor_num]++;
 }
 
-bool isTeleporter( u16 graphic )
-{
-  return graphic >= TELEPORTER_START && graphic <= TELEPORTER_END;
-}
-
 // fixme: low walls not being replaced
 // Replaces an existing object depending on the 2 tile heights
 void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
@@ -180,8 +175,6 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
          ( ( existing_height != 0 ) && ( adding_height != 0 ) ) )   // or nonfloor with nonfloor
 
     {
-      if ( isTeleporter( elem.graphic ) && !isTeleporter( itr->graphic ) )
-        continue;  // do not let a teleporter replace a floor element
       column->erase( itr );
       floor_sizes[floor_num]--;
       Add( elem );
@@ -263,8 +256,7 @@ void CustomHouseDesign::ReplaceDirtFloor( u32 x, u32 y )
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
-    if ( Plib::tileheight( itr->graphic ) == 0 &&
-         !isTeleporter( itr->graphic ) )  // a floor tile exists
+    if ( Plib::tileheight( itr->graphic ) == 0 )  // a floor tile exists
     {
       floor_exists = true;
       break;
@@ -515,7 +507,8 @@ bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
 
   // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
   // hide them to avoid an exception later, since this is not supported
-  // only test foodprint? is enough here
+  // only test foodprint: teleporters can replace floor tiles which means that
+  // find_supoorting_multis cannot find at this loc a multi part
   s32 shape_x = static_cast<s32>( item->x ) - house->x;
   s32 shape_y = static_cast<s32>( item->y ) - house->y;
   if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
