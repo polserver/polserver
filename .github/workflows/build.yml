@@ -101,6 +101,8 @@ jobs:
               COMMAND chmod +x ${cmake_dir}/cmake
             )
           endif()
+      - name: setenv
+        run: |
           echo "::add-path::$GITHUB_WORKSPACE/bin-build"
 
       - name: Build
