@@ -106,22 +106,23 @@ jobs:
       - name: setenv
         run: |
           echo "::add-path::$GITHUB_WORKSPACE/bin-build"
+          echo "::add-path::${{ steps.cmake_and_ninja.outputs.cmake_dir }}"
       - name: vcvars
         run: |
           call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+          echo "::set-env name=PATH::$env:PATH"
         shell: cmd
         if: matrix.config.os != 'ubuntu-latest'
       - name: Build
         run: |
           cd bin-build
           ./ninja --version
-          echo ${PATH}
-          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --version
+          cmake --version
 
-          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake .. -G Ninja
-          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build . --config ${{ matrix.config.build-type }}
+          cmake .. -G Ninja
+          cmake --build . --config ${{ matrix.config.build-type }}
 
       - name: Test
         run: |
           cd bin-build
-          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/ctest --output-on-failure -C ${{ matrix.config.build-type }}
+          ctest --output-on-failure -C ${{ matrix.config.build-type }}
