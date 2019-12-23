@@ -104,9 +104,12 @@ jobs:
       - name: Build
         run: |
           cd bin-build
+          set(ENV{CC} ${{ matrix.config.cc }})
+          set(ENV{CXX} ${{ matrix.config.cxx }})
+          set(ENV{CMAKE_MAKE_PROGRAM} ${{ steps.cmake_and_ninja.outputs.ninja_path }})
           ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --version
 
-          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake .. -GNinja -DCMAKE_MAKE_PROGRAM="${{ steps.cmake_and_ninja.outputs.ninja_path }}"
+          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake .. -GNinja
           ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build . --config ${{ matrix.config.build-type }}
 
       - name: Test
