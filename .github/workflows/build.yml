@@ -91,7 +91,7 @@ jobs:
           # Save the path for other steps
           file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
           message("::set-output name=cmake_dir::${cmake_dir}")
-          file(TO_NINJA_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_dir)
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_dir)
           message("::set-output name=ninja_path::${ninja_dir}")
 
           if (NOT "${{ runner.os }}" STREQUAL "Windows")
