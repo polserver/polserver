@@ -63,7 +63,7 @@ jobs:
 
       - name: Build
         run: |
-          cd build
+          cd bin-build
           which cmake
           cmake --version
 
@@ -72,5 +72,5 @@ jobs:
 
       - name: Test
         run: |
-          cd build
+          cd bin-build
           ctest --output-on-failure -C ${{ matrix.config.build-type }}
