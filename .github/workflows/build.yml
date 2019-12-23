@@ -101,10 +101,10 @@ jobs:
               COMMAND chmod +x ${cmake_dir}/cmake
             )
           endif()
+          echo "::add-path::$GITHUB_WORKSPACE/bin-build"
 
       - name: Build
         run: |
-          echo "::add-path::$GITHUB_WORKSPACE/bin-build"
           cd bin-build
           ls -lisa
           ./ninja --version
