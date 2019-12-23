@@ -65,7 +65,6 @@ jobs:
         id: cmake_and_ninja
         shell: cmake -P {0}
         run: |
-          cd bin-build
           set(ninja_version "1.9.0")
           set(cmake_version "3.16.2")
         
@@ -92,6 +91,8 @@ jobs:
           # Save the path for other steps
           file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
           message("::set-output name=cmake_dir::${cmake_dir}")
+          file(TO_NINJA_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_dir)
+          message("::set-output name=ninja_path::${ninja_dir}")
 
           if (NOT "${{ runner.os }}" STREQUAL "Windows")
             execute_process(
@@ -105,7 +106,7 @@ jobs:
           cd bin-build
           ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --version
 
-          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake .. -GNinja
+          ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake .. -GNinja -DCMAKE_MAKE_PROGRAM=${{steps.cmake_and_ninja.outputs.ninja_dir}}
           ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build . --config ${{ matrix.config.build-type }}
 
       - name: Test
