@@ -106,7 +106,7 @@ jobs:
         run: |
           echo "::add-path::${{steps.cmake_and_ninja.outputs.ninja_path}}"
           cd bin-build
-          ls
+          ls -lisa
           ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --version
 
           ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake .. -GNinja
