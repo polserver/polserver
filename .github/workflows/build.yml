@@ -1,19 +1,76 @@
-name: C/C++ CI
+name: Build
 
 on: [push]
 
 jobs:
   build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "windows-latest"
+            cxx-compiler: cl
+            c-compiler: cl
+            compiler-version: default
+            build-type: Release
 
-    runs-on: ubuntu-latest
-    
+          - os: "ubuntu-latest"
+            cxx-compiler: g++
+            c-compiler: gcc
+            compiler-version: 8
+            build-type: Release
+
+          - os: "ubuntu-latest"
+            cxx-compiler: clang++
+            c-compiler: clang
+            compiler-version: 8
+            build-type: Release
+
+    runs-on: ${{ matrix.config.os }}
+
     steps:
-    - uses: actions/checkout@v1
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - run: sudo apt-get update
+        if: matrix.config.os == 'ubuntu-latest'
+
+      - name: Install Compiler
+        shell: pwsh
+        run: |
+          $compiler = '${{ matrix.config.cxx-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            sudo apt-get install "$compiler-$version" -y
+            Invoke-Expression "$compiler-$version --version"
+          }
+        if: matrix.config.os == 'ubuntu-latest'
+
+      - name: Set CXX and CC
+        shell: pwsh
+        run: |
+          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
+          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            $cxx_compiler = "$cxx_compiler-$version"
+            $c_compiler = "$c_compiler-$version"
+          }
+
+          echo "::set-env name=CXX::$cxx_compiler"
+          echo "::set-env name=CC::$c_compiler"
+
+      - name: Build
+        run: |
+          cd build
+          which cmake
+          cmake --version
+
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE:STRING="${{ matrix.config.build-type }}
+          cmake --build . --config ${{ matrix.config.build-type }}
+
+      - name: Test
+        run: |
+          cd build
+          ctest --output-on-failure -C ${{ matrix.config.build-type }}
