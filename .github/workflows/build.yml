@@ -83,7 +83,7 @@ jobs:
           set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
           file(DOWNLOAD "${ninja_url}" ./bin-build/ninja.zip SHOW_PROGRESS)
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip
-            WORKING_DIRECTORY ./build)
+            WORKING_DIRECTORY ./bin-build)
 
           set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
           file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
