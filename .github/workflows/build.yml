@@ -67,7 +67,7 @@ jobs:
           which cmake
           cmake --version
 
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE:STRING="${{ matrix.config.build-type }}
+          cmake .. -GNinja
           cmake --build . --config ${{ matrix.config.build-type }}
 
       - name: Test
