@@ -109,7 +109,7 @@ jobs:
           echo "::add-path::${{ steps.cmake_and_ninja.outputs.cmake_dir }}"
       - name: vcvars
         run: |
- i         cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat`" && set > %temp%\vcvars.txt"
+ i        cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat`" && set > %temp%\vcvars.txt"
           Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
 
         if: matrix.config.os != 'ubuntu-latest'
