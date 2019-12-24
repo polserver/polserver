@@ -104,6 +104,7 @@ jobs:
               COMMAND chmod +x ${cmake_dir}/cmake
             )
           endif()
+        if: matrix.config.os == 'ubuntu-latest'
 #      - name: vcvars
 #        run: |
 #          cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat`" && set > %temp%\vcvars.txt"
@@ -115,10 +116,11 @@ jobs:
         run: |
           echo "::add-path::$GITHUB_WORKSPACE/bin-build"
           echo "::add-path::${{ steps.cmake_and_ninja.outputs.cmake_dir }}"
+        if: matrix.config.os == 'ubuntu-latest'
       - name: Build
         run: |
           cd bin-build
-          ./ninja --version
+#          ./ninja --version
           cmake --version
 
           cmake ..
