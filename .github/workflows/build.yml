@@ -104,6 +104,7 @@ jobs:
             )
           endif()
       - name: vcvars
+      - uses: ilammy/msvc-dev-cmd@v1
         run: |
           cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat`" && set > %temp%\vcvars.txt"
           Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
