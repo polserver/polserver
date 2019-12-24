@@ -120,7 +120,6 @@ jobs:
       - name: Build
         run: |
           cd bin-build
-#          ./ninja --version
           cmake --version
 
           cmake ..
