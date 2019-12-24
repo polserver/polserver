@@ -62,7 +62,7 @@ jobs:
 
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
-        if: matrix.config.os == 'ubuntu-latest'
+#        if: matrix.config.os == 'ubuntu-latest'
 
       - name: Download Ninja and CMake
         id: cmake_and_ninja
