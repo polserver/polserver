@@ -1563,13 +1563,11 @@ inline void FormatDec(char *&buffer, T value) {
   \endrst
 */
 inline Formatter<> Format(StringRef format) {
-  Formatter<> f(format);
-  return std::move(f);
+  return Formatter<> {format};
 }
 
 inline Formatter<NoAction, wchar_t> Format(WStringRef format) {
-  Formatter<NoAction, wchar_t> f(format);
-  return std::move(f);
+  return Formatter<NoAction, wchar_t> {format};
 }
 
 /** A formatting action that writes formatted output to stdout. */
