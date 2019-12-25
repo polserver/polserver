@@ -1594,7 +1594,7 @@ class Write {
 //   Print("Elapsed time: {0:.2f} seconds") << 1.23;
 inline Formatter<Write> Print(StringRef format) {
   Formatter<Write> f(format);
-  return std::move(f);
+  return f;
 }
 
 enum Color {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
