@@ -1297,6 +1297,9 @@ class BasicFormatter {
   BasicFormatter(BasicFormatter &f) : writer_(f.writer_), format_(f.format_) {
     f.format_ = 0;
   }
+  BasicFormatter(BasicFormatter &&f) : writer_(f.writer_), format_(f.format_) {
+    f.format_ = 0;
+  }
 
   // Feeds an argument to a formatter.
   BasicFormatter &operator<<(const Arg &arg) {
