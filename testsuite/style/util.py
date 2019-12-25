@@ -29,7 +29,7 @@ class SourceChecker(metaclass=abc.ABCMeta):
 		self.quiet = quiet
 
 		mydir = os.path.dirname(os.path.realpath(__file__))
-		self.polroot = os.path.realpath(os.path.join(mydir, '..', '..'))
+		self.polroot = os.path.realpath(os.path.join(mydir, '..', '..', 'pol-core'))
 
 	def isIgnored(self, full):
 		rel = os.path.relpath(full, self.polroot)

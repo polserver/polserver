@@ -42,12 +42,17 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
       - uses: seanmiddleditch/gha-setup-vsdevenv@master
-      - run: sudo apt-get update
-        if: matrix.config.os == 'ubuntu-latest'
+      - name: Cache curl
+        uses: actions/cache@v1
+        with:
+          path: lib/curl-7.57.0
+          key: ${{ runner.os }}-curl-7.57.0
 
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |
+          sudo apt-get update
+
           $compiler = '${{ matrix.config.cxx-compiler }}'
           $version = '${{ matrix.config.compiler-version }}'
 
