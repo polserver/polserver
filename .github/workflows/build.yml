@@ -122,10 +122,8 @@ jobs:
           cd bin-build
           cmake --version
 
-          cmake ..
-          #-G Ninja
-          cmake --build . --config ${{ matrix.config.build-type }} 
-          #-- -j 2
+          cmake .. -G Ninja
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
       - name: Test
         run: |
