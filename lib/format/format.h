@@ -1427,6 +1427,11 @@ class Formatter : private Action, public BasicFormatter<Char> {
     inactive_(false) {
     f.inactive_ = true;
   }
+  Formatter(Formatter &&f)
+  : Action(f), BasicFormatter<Char>(writer_, f.TakeFormatString()),
+    inactive_(false) {
+    f.inactive_ = true;
+  }
 
   /**
     Performs the actual formatting, invokes the action and destroys the object.
@@ -1563,11 +1568,13 @@ inline void FormatDec(char *&buffer, T value) {
   \endrst
 */
 inline Formatter<> Format(StringRef format) {
-  return Formatter<> {format};
+  Formatter<> f(format);
+  return f;
 }
 
 inline Formatter<NoAction, wchar_t> Format(WStringRef format) {
-  return Formatter<NoAction, wchar_t> {format};
+  Formatter<NoAction, wchar_t> f(format);
+  return f;
 }
 
 /** A formatting action that writes formatted output to stdout. */
