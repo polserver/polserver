@@ -1564,12 +1564,12 @@ inline void FormatDec(char *&buffer, T value) {
 */
 inline Formatter<> Format(StringRef format) {
   Formatter<> f(format);
-  return f;
+  return std::move(f);
 }
 
 inline Formatter<NoAction, wchar_t> Format(WStringRef format) {
   Formatter<NoAction, wchar_t> f(format);
-  return f;
+  return std::move(f);
 }
 
 /** A formatting action that writes formatted output to stdout. */
@@ -1586,7 +1586,7 @@ class Write {
 //   Print("Elapsed time: {0:.2f} seconds") << 1.23;
 inline Formatter<Write> Print(StringRef format) {
   Formatter<Write> f(format);
-  return f;
+  return std::move(f);
 }
 
 enum Color {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
