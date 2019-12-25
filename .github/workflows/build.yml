@@ -143,7 +143,7 @@ jobs:
         run: |
           cd testsuite/style
           ./checknl.py -q
-          ./checkstyle -q
+          ./checkstyle.py -q
         if: matrix.config.cxx-compiler == 'g++'
 
       - name: Create Artefact
