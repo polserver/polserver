@@ -55,7 +55,7 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             Invoke-Expression "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev -y
+          sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
         if: matrix.config.os == 'ubuntu-latest'
 
       - name: Set CXX and CC
@@ -132,5 +132,17 @@ jobs:
       - name: Test
         run: |
           cd bin-build
-          ctest --output-on-failure --repeat-until-fail 5 -C ${{ matrix.config.build-type }}
+          ctest --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
         if: matrix.config.nopch == 0
+      - name: Stylecheck
+        run: |
+          cd testsuite/style
+          ./checknl.py -q
+          ./checkstyle -q
+        if: matrix.config.cxx-compiler == 'g++'
+
+      - name: Create Artefact
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target package
+
