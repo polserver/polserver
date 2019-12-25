@@ -13,18 +13,28 @@ jobs:
             c-compiler: cl
             compiler-version: default
             build-type: Release
+            nopch: 0
 
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
             compiler-version: 8
             build-type: Release
+            nopch: 0
 
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 8
             build-type: Release
+            nopch: 0
+          
+          - os: "ubuntu-latest"
+            cxx-compiler: clang++
+            c-compiler: clang
+            compiler-version: 8
+            build-type: Release
+            nopch: 1
 
     runs-on: ${{ matrix.config.os }}
 
@@ -35,7 +45,7 @@ jobs:
       - run: sudo apt-get update
         if: matrix.config.os == 'ubuntu-latest'
 
-      - name: Install Compiler
+      - name: Install Compiler and Dependencies
         shell: pwsh
         run: |
           $compiler = '${{ matrix.config.cxx-compiler }}'
@@ -62,7 +72,6 @@ jobs:
 
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
-#        if: matrix.config.os == 'ubuntu-latest'
 
       - name: Download Ninja and CMake
         id: cmake_and_ninja
@@ -105,27 +114,23 @@ jobs:
             )
           endif()
         if: matrix.config.os == 'ubuntu-latest'
-#      - name: vcvars
-#        run: |
-#          cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\vcvars64.bat`" && set > %temp%\vcvars.txt"
-#          Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
-#          less "%temp%\vcvars.txt"
-
-#        if: matrix.config.os != 'ubuntu-latest'
       - name: setenv
         run: |
           echo "::add-path::$GITHUB_WORKSPACE/bin-build"
           echo "::add-path::${{ steps.cmake_and_ninja.outputs.cmake_dir }}"
         if: matrix.config.os == 'ubuntu-latest'
+
+      - name: Config
+        run: |
+          cd bin-build
+          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }}
       - name: Build
         run: |
           cd bin-build
-          cmake --version
-
-          cmake .. -G Ninja
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
       - name: Test
         run: |
           cd bin-build
-          ctest --output-on-failure -C ${{ matrix.config.build-type }}
+          ctest --output-on-failure --repeat-until-fail 5 -C ${{ matrix.config.build-type }}
+        if: matrix.config.nopch == 0
