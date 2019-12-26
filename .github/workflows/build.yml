@@ -49,6 +49,7 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
 
       - name: Install Compiler and Dependencies
+        if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
         run: |
           sudo apt-get update
@@ -61,7 +62,19 @@ jobs:
             Invoke-Expression "$compiler-$version --version"
           }
           sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
-        if: matrix.config.os == 'ubuntu-latest'
+          
+          ninja_version="1.9.0"
+          cmake_version="3.16.2"
+          cmake_archive="cmake-${cmake_version}-Linux-x86_64"
+          wget "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-linux.zip"
+          unzip ninja-linux.zip -d bin-build
+          wget "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/${cmake_archive}.tar.gz"
+          tar xvf ${cmake_archive}.tar.gz
+          
+          chmod +x bin-build/ninja
+          chmod +x ${cmake_archive}/bin/cmake
+          echo "::add-path::$GITHUB_WORKSPACE/bin-build"
+          echo "::add-path::${cmake_archive}/bin"
 
       - name: Set CXX and CC
         shell: pwsh
@@ -78,52 +91,6 @@ jobs:
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
 
-      - name: Download Ninja and CMake
-        id: cmake_and_ninja
-        shell: cmake -P {0}
-        run: |
-          set(ninja_version "1.9.0")
-          set(cmake_version "3.16.2")
-        
-          message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
-
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(ninja_suffix "win.zip")
-            set(cmake_suffix "win64-x64.zip")
-            set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
-          elseif ("${{ runner.os }}" STREQUAL "Linux")
-            set(ninja_suffix "linux.zip")
-            set(cmake_suffix "Linux-x86_64.tar.gz")
-            set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
-          endif()
-
-          set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
-          file(DOWNLOAD "${ninja_url}" ./bin-build/ninja.zip SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip
-            WORKING_DIRECTORY ./bin-build)
-
-          set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
-          file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
-          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
-
-          # Save the path for other steps
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
-          message("::set-output name=cmake_dir::${cmake_dir}")
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_dir)
-          message("::set-output name=ninja_path::${ninja_dir}")
-
-          if (NOT "${{ runner.os }}" STREQUAL "Windows")
-            execute_process(
-              COMMAND chmod +x bin-build/ninja
-              COMMAND chmod +x ${cmake_dir}/cmake
-            )
-          endif()
-        if: matrix.config.os == 'ubuntu-latest'
-      - name: setenv
-        run: |
-          echo "::add-path::$GITHUB_WORKSPACE/bin-build"
-          echo "::add-path::${{ steps.cmake_and_ninja.outputs.cmake_dir }}"
-        if: matrix.config.os == 'ubuntu-latest'
 
       - name: Config
         run: |
@@ -135,16 +102,16 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
       - name: Test
+        if: matrix.config.nopch == 0
         run: |
           cd bin-build
           ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
-        if: matrix.config.nopch == 0
       - name: Stylecheck
+        if: matrix.config.cxx-compiler == 'g++'
         run: |
           cd testsuite/style
           ./checknl.py -q
           ./checkstyle.py -q
-        if: matrix.config.cxx-compiler == 'g++'
 
       - name: Create Artefact
         run: |
@@ -154,16 +121,16 @@ jobs:
           mkdir release
           mv *.zip release
       - name: Create Artefact (dbg)
+        if: matrix.config.os == 'ubuntu-latest'
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
           cd ../bin
           mv *.zip release
-        if: matrix.config.os == 'ubuntu-latest'
       - name: Upload Artefact
+        if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v1
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
 
-        if: matrix.config.nopch == 0
