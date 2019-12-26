@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/polserver/polserver.svg?branch=master)](https://travis-ci.org/polserver/polserver)
 [![Build status](https://ci.appveyor.com/api/projects/status/trv2pbr1icve49sp/branch/master?svg=true)](https://ci.appveyor.com/project/turleypol/polserver/branch/master)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2862/badge.svg)](https://scan.coverity.com/projects/2862)
-![Build Status](https://github.com/turleypol/polserver/workflows/Build/badge.svg)
+[![Build Status](https://github.com/turleypol/polserver/workflows/Build/badge.svg)](https://github.com/turleypol/polserver/actions)
 
 POL
 =========
