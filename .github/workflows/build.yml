@@ -75,16 +75,10 @@ jobs:
           chmod +x "$cmake_archive/bin/cmake"
           echo "::add-path::$Env:GITHUB_WORKSPACE/bin-build"
           echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
-      - name: c
-        shell: cmake -P {0}
-        run: |
-          message("$ENV{PATH}")
-          message("$ENV{GITHUB_WORKSPACE}")
-
+      
       - name: Set CXX and CC
         shell: pwsh
         run: |
-          echo "$PATH"
           $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
           $c_compiler = '${{ matrix.config.c-compiler }}'
           $version = '${{ matrix.config.compiler-version }}'
@@ -96,7 +90,6 @@ jobs:
 
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
-
 
       - name: Config
         run: |
