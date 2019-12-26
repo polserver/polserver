@@ -1,6 +1,6 @@
 name: Build
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -51,7 +51,6 @@ jobs:
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
-        env:
         run: |
           sudo apt-get update
 
