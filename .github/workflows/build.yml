@@ -69,10 +69,10 @@ jobs:
           wget "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
           unzip ninja-linux.zip -d bin-build
           wget "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
-          tar -xvf $cmake_archive.tar.gz
+          tar -xvf "$cmake_archive.tar.gz"
           
           chmod +x bin-build/ninja
-          chmod +x $cmake_archive/bin/cmake
+          chmod +x "$cmake_archive/bin/cmake"
           echo "::add-path::$GITHUB_WORKSPACE/bin-build"
           echo "::add-path::$cmake_archive/bin"
 
