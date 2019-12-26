@@ -79,6 +79,7 @@ jobs:
         shell: cmake -P {0}
         run: |
           message("$ENV{PATH}")
+          message("$ENV{GITHUB_WORKSPACE}")
 
       - name: Set CXX and CC
         shell: pwsh
