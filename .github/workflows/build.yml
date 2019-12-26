@@ -150,4 +150,12 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target package
+          mkdir release
+          mv *.zip release
+      - name: Upload Artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          path: bin-build/release
 
+        if: matrix.config.nopch == 0
