@@ -73,8 +73,8 @@ jobs:
           
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
-          echo "::add-path::$GITHUB_WORKSPACE/bin-build"
-          echo "::add-path::$GITHUB_WORKSPACE/$cmake_archive/bin"
+          echo "::add-path::${GITHUB_WORKSPACE}/bin-build"
+          echo "::add-path::${GITHUB_WORKSPACE}/$cmake_archive/bin"
       - name: c
         shell: cmake -P {0}
         run: |
