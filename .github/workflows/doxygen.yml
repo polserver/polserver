@@ -19,12 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
-      - name: Cache curl
-        uses: actions/cache@v1
-        with:
-          path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
-
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |
@@ -57,7 +51,13 @@ jobs:
       - name: Build
         run: |
           cd lib
+          unzip curl-7.57.0.zip
           tar -xjf boost_1_67_0.tar.bz2
           cd ..
           doxygen doxygen.conf
+      - name: Upload Artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Nightly-DoxyGen
+          path: docs/doxygen
 
