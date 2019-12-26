@@ -137,7 +137,7 @@ jobs:
       - name: Test
         run: |
           cd bin-build
-          ctest --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
+          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
         if: matrix.config.nopch == 0
       - name: Stylecheck
         run: |
