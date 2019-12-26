@@ -46,4 +46,17 @@ function(add_polrelease_target)
   set_target_properties(PolRelease PROPERTIES EXCLUDE_FROM_ALL TRUE)
   set_target_properties(PolRelease PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
   set_target_properties(PolRelease PROPERTIES FOLDER !BuildTargets)
+
+  if (${linux})
+    add_custom_target(create_dbg_zip COMMAND
+      ${CMAKE_COMMAND} -E tar "cfv" "${CPACK_PACKAGE_FILE_NAME}_dbg.zip" --format=zip
+        "pol"
+        "ecompile"
+        "runecl"
+        "uoconvert"
+        "poltool"
+        "uotool"
+      WORKING_DIRECTORY ${output_bin_dir}
+    )
+  endif()
 endfunction()
