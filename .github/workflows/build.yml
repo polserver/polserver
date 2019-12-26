@@ -51,6 +51,10 @@ jobs:
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
+        env:
+          ninja_version: "1.9.0"
+          cmake_version: "3.16.2"
+          cmake_archive: "cmake-${cmake_version}-Linux-x86_64"
         run: |
           sudo apt-get update
 
@@ -63,18 +67,15 @@ jobs:
           }
           sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
           
-          ninja_version="1.9.0"
-          cmake_version="3.16.2"
-          cmake_archive="cmake-${cmake_version}-Linux-x86_64"
-          wget "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-linux.zip"
+          wget "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
           unzip ninja-linux.zip -d bin-build
-          wget "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/${cmake_archive}.tar.gz"
-          tar xvf ${cmake_archive}.tar.gz
+          wget "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
+          tar xvf $cmake_archive.tar.gz
           
           chmod +x bin-build/ninja
-          chmod +x ${cmake_archive}/bin/cmake
+          chmod +x $cmake_archive/bin/cmake
           echo "::add-path::$GITHUB_WORKSPACE/bin-build"
-          echo "::add-path::${cmake_archive}/bin"
+          echo "::add-path::$cmake_archive/bin"
 
       - name: Set CXX and CC
         shell: pwsh
