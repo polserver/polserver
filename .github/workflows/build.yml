@@ -52,9 +52,6 @@ jobs:
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
         env:
-          ninja_version: "1.9.0"
-          cmake_version: "3.16.2"
-          cmake_archive: "cmake-${cmake_version}-Linux-x86_64"
         run: |
           sudo apt-get update
 
@@ -67,6 +64,9 @@ jobs:
           }
           sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
           
+          $ninja_version = "1.9.0"
+          $cmake_version = "3.16.2"
+          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
           wget "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
           unzip ninja-linux.zip -d bin-build
           wget "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
