@@ -153,6 +153,13 @@ jobs:
           cd ../bin
           mkdir release
           mv *.zip release
+      - name: Create Artefact (dbg)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
+          cd ../bin
+          mv *.zip release
+        if: matrix.config.os == 'ubuntu-latest'
       - name: Upload Artefact
         uses: actions/upload-artifact@v1
         with:
