@@ -50,12 +50,12 @@ jobs:
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
-        shell: bash
+        shell: pwsh
         run: |
           sudo apt-get update
 
-          compiler="${{ matrix.config.cxx-compiler }}"
-          version="${{ matrix.config.compiler-version }}"
+          $compiler = "${{ matrix.config.cxx-compiler }}"
+          $version = "${{ matrix.config.compiler-version }}"
 
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
@@ -63,9 +63,9 @@ jobs:
           }
           sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
           
-          ninja_version="1.9.0"
-          cmake_version="3.16.2"
-          cmake_archive="cmake-$cmake_version-Linux-x86_64"
+          $ninja_version = "1.9.0"
+          $cmake_version = "3.16.2"
+          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
           wget -q "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
           unzip -q ninja-linux.zip -d bin-build
           wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
@@ -73,8 +73,8 @@ jobs:
           
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
-          echo "::add-path::${GITHUB_WORKSPACE}/bin-build"
-          echo "::add-path::${GITHUB_WORKSPACE}/$cmake_archive/bin"
+          echo "::add-path::$Env:GITHUB_WORKSPACE/bin-build"
+          echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
       - name: c
         shell: cmake -P {0}
         run: |
