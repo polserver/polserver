@@ -79,6 +79,7 @@ jobs:
       - name: Set CXX and CC
         shell: pwsh
         run: |
+          export
           echo $PATH
           $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
           $c_compiler = '${{ matrix.config.c-compiler }}'
