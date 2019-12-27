@@ -19,14 +19,14 @@ jobs:
             cxx-compiler: g++
             c-compiler: gcc
             compiler-version: 8
-            build-type: Release
+            build-type: RelWithDebInfo
             nopch: 0
 
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 8
-            build-type: Release
+            build-type: RelWithDebInfo
             nopch: 0
           
           - os: "ubuntu-latest"
