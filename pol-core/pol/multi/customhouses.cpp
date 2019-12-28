@@ -63,7 +63,6 @@
 #else
 #include "../../../lib/zlib/zlib.h"
 #endif
-#include <format/format.h>  // xxx debug
 
 
 namespace Pol
@@ -156,22 +155,15 @@ void CustomHouseDesign::Add( CUSTOM_HOUSE_ELEMENT& elem )
 // Replaces an existing object depending on the 2 tile heights
 void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
 {
-  INFO_PRINT << "AddOrReplace " << elem.graphic << "\n";
   int floor_num = z_to_custom_house_table( elem.z );
   if ( floor_num == -1 )
-  {
-    INFO_PRINT << "invalid floor\n";
     return;
-  }
   char adding_height = Plib::tileheight( elem.graphic );
 
   u32 xidx = elem.xoffset + xoff;
   u32 yidx = elem.yoffset + yoff;
   if ( !ValidLocation( xidx, yidx ) )
-  {
-    INFO_PRINT << "Invalid floor\n";
     return;
-  }
   HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
@@ -182,14 +174,12 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
          ( ( existing_height != 0 ) && ( adding_height != 0 ) ) )   // or nonfloor with nonfloor
 
     {
-      INFO_PRINT << "removing " << itr->graphic << "\n";
       column->erase( itr );
       floor_sizes[floor_num]--;
       Add( elem );
       return;
     }
   }
-  INFO_PRINT << "nothing to replace\n";
   // no replacement, just add
   Add( elem );
 }
@@ -507,31 +497,18 @@ bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
 {
   // Give scripters the chance to keep an item alive
   if ( item->invisible() )
-  {
-    INFO_PRINT << "not editable invis: " << fmt::hexu( item->serial ) << " " << item->name()
-               << "\n";  // xxx debug
     return false;
-  }
 
   // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
   // hide them to avoid an exception later, since this is not supported
-  // only test foodprint: teleporters can replace floor tiles which means that
-  // find_supoorting_multis cannot find at this loc a multi part
+  // only test foodprint: find_supporting_multis would also work, as long as readshapes includes the teleporter conponents
   s32 shape_x = static_cast<s32>( item->x ) - house->x;
   s32 shape_y = static_cast<s32>( item->y ) - house->y;
   if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
        shape_y + yoff >= static_cast<s32>( height - 1 ) )  // y is +1
   {
-    INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name()
-               << "\n";  // xxx debug
     return false;
   }
-  /*if ( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
-  {
-    INFO_PRINT << "not editable outside: " << fmt::hexu( item->serial ) << " " << item->name()
-               << "\n";  // xxx debug
-    return false;
-  }*/
 
   return true;
 }
@@ -540,17 +517,6 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
 {
   UHouse::Components* comp = house->get_components();
   UHouse::Components::iterator itr = comp->begin();
-  INFO_PRINT << "ClearComponents " << comp->size() << " elements\n";  // xxx debug
-  for ( auto c : *comp )
-  {
-    Items::Item* item = c.get();
-    if ( item == nullptr || item->orphan() )
-    {
-      INFO_PRINT << "Invalid\n";
-      continue;
-    }
-    INFO_PRINT << fmt::hexu( item->serial ) << " " << item->name() << "\n";
-  }
 
   while ( itr != comp->end() )
   {
@@ -566,22 +532,10 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
     }
     ++itr;
   }
-  INFO_PRINT << "ClearComponents after" << comp->size() << " elements\n";  // xxx debug
-  for ( auto c : *comp )
-  {
-    Items::Item* item = c.get();
-    if ( item == nullptr || item->orphan() )
-    {
-      INFO_PRINT << "Invalid\n";
-      continue;
-    }
-    INFO_PRINT << fmt::hexu( item->serial ) << " " << item->name() << "\n";
-  }
 }
 
 void CustomHouseDesign::AddComponents( UHouse* house )
 {
-  INFO_PRINT << "AddComponents\n";
   UHouse::Components* comp = house->get_components();
   for ( UHouse::Components::const_iterator itr = comp->begin(), end = comp->end(); itr != end;
         ++itr )
@@ -650,8 +604,6 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               }
               if ( !exists )
               {
-                INFO_PRINT << "FillComponents: new component " << zitr->graphic
-                           << "\n";  /// xxx debug
                 ++zitr;
                 continue;
               }
@@ -694,8 +646,6 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               }
               if ( !exists )
               {
-                INFO_PRINT << "FillComponents: new component " << zitr->graphic
-                           << "\n";  /// xxx debug
                 ++zitr;
                 continue;
               }

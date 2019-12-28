@@ -1017,7 +1017,6 @@ void UHouse::walk_on( Mobile::Character* chr )
 
 void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
 {
-  INFO_PRINT << "AcceptHouseCommit " << accept << "\n";  // xxx debug
   waiting_for_accept = false;
   if ( accept )
   {
