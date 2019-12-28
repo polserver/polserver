@@ -26,7 +26,7 @@ namespace Clib
 {
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Network
 {
 class Client;
@@ -148,11 +148,11 @@ public:
 
   void AddComponents( UHouse* house );
   void FillComponents( UHouse* house, bool add_as_component = true );
-  static void ClearComponents( UHouse* house );
+  void ClearComponents( UHouse* house );
   Bscript::ObjArray* list_parts() const;
 
 private:
-  inline static bool isEditableItem( UHouse* house, Items::Item* item );
+  bool isEditableItem( UHouse* house, Items::Item* item );
   static char z_to_custom_house_table( char z );
 };
 
@@ -174,7 +174,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client,
                            int design = HOUSE_DESIGN_CURRENT );
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
 void CustomHousesSendShort( UHouse* house, Network::Client* client );
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house );
-}
-}
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts = true );
+}  // namespace Multi
+}  // namespace Pol
 #endif

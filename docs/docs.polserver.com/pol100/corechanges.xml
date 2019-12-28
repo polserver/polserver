@@ -2,9 +2,27 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-12-2019</datemodified>
+		<datemodified>12-28-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-28-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">house.house_parts member returns now when in edit mode the current (possible not yet confirmed)<br/>
+list of parts instead of an error.</change>
+			<change type="Changed">misc/customhousecommit.src no more has a third parameter elements.<br/>
+Before this parameter was the only option to get the current working list,<br/>
+but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.<br/>
+Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!</change>
+			<change type="Changed">syshook CloseCustomHouse now gets also called when client disconnects</change>
+			<change type="Fixed">Several other bugs with custom houses<br/>
+Thx Pumpkins!</change>
+		</entry>
+		<entry>
+			<date>12-28-2019</date>
+			<author>DevGIB:</author>
+			<change type="Fixed">CustomHouses when no backup existed the foundation vanished on pressing revert.</change>
+		</entry>
 		<entry>
 			<date>12-12-2019</date>
 			<author>Turley:</author>

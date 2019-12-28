@@ -1,4 +1,16 @@
 ﻿-- POL100 --
+12-28-2019 Turley:
+  Changed: house.house_parts member returns now when in edit mode the current (possible not yet confirmed)
+           list of parts instead of an error.
+  Changed: misc/customhousecommit.src no more has a third parameter elements.
+           Before this parameter was the only option to get the current working list,
+           but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.
+           Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!
+  Changed: syshook CloseCustomHouse now gets also called when client disconnects
+  Fixed:   Several other bugs with custom houses
+           Thx Pumpkins!
+12-28-2019 DevGIB:
+  Fixed:   CustomHouses when no backup existed the foundation vanished on pressing revert.
 12-12-2019 Turley:
   Fixed:   Poison/invul status for newer clients, when mobile didnt move
 10-05-2019 Turley:
