@@ -641,7 +641,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               }
               if ( !exists )
               {
-                INFO_PRINT << "FillComponents: new component " << item->graphic
+                INFO_PRINT << "FillComponents: new component " << zitr->graphic
                            << "\n";  /// xxx debug
                 ++zitr;
                 continue;
@@ -685,7 +685,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               }
               if ( !exists )
               {
-                INFO_PRINT << "FillComponents: new component " << item->graphic
+                INFO_PRINT << "FillComponents: new component " << zitr->graphic
                            << "\n";  /// xxx debug
                 ++zitr;
                 continue;
@@ -730,31 +730,36 @@ Bscript::ObjArray* CustomHouseDesign::list_parts() const
   return arr.release();
 }
 
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house )
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts )
 {
-  Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
-  msg->WriteFlipped<u16>( 17u );
-  msg->offset += 2;  // sub
-  msg->Write<u32>( house->serial_ext );
-  msg->Write<u8>( 0x5u );          // end
-  msg->offset += 2;                // u16 unk2 FIXME what's the meaning
-  msg->Write<u32>( 0xFFFFFFFFu );  // fixme
-  msg->Write<u8>( 0xFFu );         // fixme
-  msg.Send( chr->client );
-
+  if ( send_pkts )
+  {
+    Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
+    msg->WriteFlipped<u16>( 17u );
+    msg->offset += 2;  // sub
+    msg->Write<u32>( house->serial_ext );
+    msg->Write<u8>( 0x5u );          // end
+    msg->offset += 2;                // u16 unk2 FIXME what's the meaning
+    msg->Write<u32>( 0xFFFFFFFFu );  // fixme
+    msg->Write<u8>( 0xFFu );         // fixme
+    msg.Send( chr->client );
+  }
   const MultiDef& def = house->multidef();
   move_character_to( chr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
                      Core::MOVEITEM_FORCELOCATION, nullptr );
   chr->client->gd->custom_house_serial = 0;
   house->editing = false;
-  ItemList itemlist;
-  MobileList moblist;
-  UHouse::list_contents( house, itemlist, moblist );
-  while ( !itemlist.empty() )
+  if ( send_pkts )
   {
-    Items::Item* item = itemlist.front();
-    send_item( chr->client, item );
-    itemlist.pop_front();
+    ItemList itemlist;
+    MobileList moblist;
+    UHouse::list_contents( house, itemlist, moblist );
+    while ( !itemlist.empty() )
+    {
+      Items::Item* item = itemlist.front();
+      send_item( chr->client, item );
+      itemlist.pop_front();
+    }
   }
 }
 
@@ -1203,7 +1208,7 @@ void UHouse::CustomHouseSetInitialState()
   CurrentCompressed.swap( newvec2 );
 }
 
-void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
+void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool send_pkts )
 {
   if ( drop_changes )
     WorkingDesign = CurrentDesign;
@@ -1218,11 +1223,11 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
 
   std::vector<u8> newvec2;
   CurrentCompressed.swap( newvec2 );
-
-  if ( chr && chr->client )
+  if ( chr )
   {
-    CustomHouseStopEditing( chr, this );
-    CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
+    CustomHouseStopEditing( chr, this, send_pkts );
+    if ( chr->client && send_pkts )
+      CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
     if ( Core::gamestate.system_hooks.close_customhouse_hook )
     {
       Core::gamestate.system_hooks.close_customhouse_hook->call(

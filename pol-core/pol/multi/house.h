@@ -102,9 +102,9 @@ public:
   bool add_component( Component component );
   static void list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in );
   void AcceptHouseCommit( Mobile::Character* chr, bool accept );
-  void CustomHousesQuit( Mobile::Character* chr, bool drop_changes );
+  void CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool send_pkts = true );
 
-  virtual ~UHouse(){};
+  virtual ~UHouse() = default;
   virtual size_t estimatedSize() const override;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;

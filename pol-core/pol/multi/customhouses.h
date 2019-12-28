@@ -26,7 +26,7 @@ namespace Clib
 {
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Network
 {
 class Client;
@@ -174,7 +174,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client,
                            int design = HOUSE_DESIGN_CURRENT );
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
 void CustomHousesSendShort( UHouse* house, Network::Client* client );
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house );
-}
-}
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts = true );
+}  // namespace Multi
+}  // namespace Pol
 #endif
