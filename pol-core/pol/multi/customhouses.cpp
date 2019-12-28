@@ -587,7 +587,7 @@ void CustomHouseDesign::AddComponents( UHouse* house )
         elem.xoffset = item->x - house->x;
         elem.yoffset = item->y - house->y;
         elem.z = item->z - house->z;
-        Add( elem );
+        AddOrReplace( elem ); // A teleporter could replace a floortile
       }
     }
   }
