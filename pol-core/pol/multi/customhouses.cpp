@@ -501,7 +501,8 @@ bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
 
   // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
   // hide them to avoid an exception later, since this is not supported
-  // only test foodprint: find_supporting_multis would also work, as long as readshapes includes the teleporter conponents
+  // only test foodprint: find_supporting_multis would also work, as long as readshapes includes the
+  // teleporter components
   s32 shape_x = static_cast<s32>( item->x ) - house->x;
   s32 shape_y = static_cast<s32>( item->y ) - house->y;
   if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
