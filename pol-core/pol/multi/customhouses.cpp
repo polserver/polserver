@@ -622,8 +622,8 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              u16 c_x = static_cast<u16>( house->x + zitr->xoff );
-              u16 c_y = static_cast<u16>( house->y + zitr->yoff );
+              u16 c_x = static_cast<u16>( house->x + zitr->xoffset );
+              u16 c_y = static_cast<u16>( house->y + zitr->yoffset );
               s8 c_z = static_cast<s8>( house->z + zitr->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
@@ -666,8 +666,8 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              u16 c_x = static_cast<u16>( house->x + zitr->xoff );
-              u16 c_y = static_cast<u16>( house->y + zitr->yoff );
+              u16 c_x = static_cast<u16>( house->x + zitr->xoffset );
+              u16 c_y = static_cast<u16>( house->y + zitr->yoffset );
               s8 c_z = static_cast<s8>( house->z + zitr->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
