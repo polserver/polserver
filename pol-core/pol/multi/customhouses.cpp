@@ -156,15 +156,22 @@ void CustomHouseDesign::Add( CUSTOM_HOUSE_ELEMENT& elem )
 // Replaces an existing object depending on the 2 tile heights
 void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
 {
+  INFO_PRINT << "AddOrReplace " << elem.graphic << "\n";
   int floor_num = z_to_custom_house_table( elem.z );
   if ( floor_num == -1 )
+  {
+    INFO_PRINT << "invalid floor\n";
     return;
+  }
   char adding_height = Plib::tileheight( elem.graphic );
 
   u32 xidx = elem.xoffset + xoff;
   u32 yidx = elem.yoffset + yoff;
   if ( !ValidLocation( xidx, yidx ) )
+  {
+    INFO_PRINT << "Invalid floor\n";
     return;
+  }
   HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
@@ -175,13 +182,14 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
          ( ( existing_height != 0 ) && ( adding_height != 0 ) ) )   // or nonfloor with nonfloor
 
     {
+      INFO_PRINT << "removing " << itr->graphic << "\n";
       column->erase( itr );
       floor_sizes[floor_num]--;
       Add( elem );
       return;
     }
   }
-
+  INFO_PRINT << "nothing to replace\n";
   // no replacement, just add
   Add( elem );
 }
@@ -573,6 +581,7 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
 
 void CustomHouseDesign::AddComponents( UHouse* house )
 {
+  INFO_PRINT << "AddComponents\n";
   UHouse::Components* comp = house->get_components();
   for ( UHouse::Components::const_iterator itr = comp->begin(), end = comp->end(); itr != end;
         ++itr )
@@ -587,7 +596,7 @@ void CustomHouseDesign::AddComponents( UHouse* house )
         elem.xoffset = item->x - house->x;
         elem.yoffset = item->y - house->y;
         elem.z = item->z - house->z;
-        AddOrReplace( elem ); // A teleporter could replace a floortile
+        AddOrReplace( elem );  // A teleporter could replace a floortile
       }
     }
   }
