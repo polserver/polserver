@@ -594,6 +594,7 @@ void CustomHouseDesign::AddComponents( UHouse* house )
 }
 void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 {
+  UHouse::Components* comp = house->get_components();
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
     for ( HouseFloor::iterator xitr = Elements[i].data.begin(), xitrend = Elements[i].data.end();
@@ -619,6 +620,33 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                                   "report this bug on the forums." );
               }
             }
+            else
+            {
+              u16 c_x = static_cast<u16>( house->x + zitr->x );
+              u16 c_y = static_cast<u16>( house->y + zitr->y );
+              s8 c_z = static_cast<s8>( house->z + zitr->z );
+              // if component already exists erase from design, otherwise keep it
+              bool exists = false;
+              for ( const auto& c : *comp )
+              {
+                Items::Item* item = c.get();
+                if ( item == nullptr || item->orphan() )
+                  continue;
+                if ( c_x == item->x && c_y == item->y && c_z == item->z &&
+                     zitr->graphic == item->graphic )
+                {
+                  exists = true;
+                  break;
+                }
+              }
+              if ( !exists )
+              {
+                INFO_PRINT << "FillComponents: new component " << item->graphic
+                           << "\n";  /// xxx debug
+                ++zitr;
+                continue;
+              }
+            }
             zitr = yitr->erase( zitr );
             floor_sizes[i]--;
           }
@@ -634,6 +662,33 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 passert_always_r( res,
                                   "Couldn't add newly created teleporter as house component. "
                                   "Please report this bug on the forums." );
+              }
+            }
+            else
+            {
+              u16 c_x = static_cast<u16>( house->x + zitr->x );
+              u16 c_y = static_cast<u16>( house->y + zitr->y );
+              s8 c_z = static_cast<s8>( house->z + zitr->z );
+              // if component already exists erase from design, otherwise keep it
+              bool exists = false;
+              for ( const auto& c : *comp )
+              {
+                Items::Item* item = c.get();
+                if ( item == nullptr || item->orphan() )
+                  continue;
+                if ( c_x == item->x && c_y == item->y && c_z == item->z &&
+                     zitr->graphic == item->graphic )
+                {
+                  exists = true;
+                  break;
+                }
+              }
+              if ( !exists )
+              {
+                INFO_PRINT << "FillComponents: new component " << item->graphic
+                           << "\n";  /// xxx debug
+                ++zitr;
+                continue;
               }
             }
             zitr = yitr->erase( zitr );
