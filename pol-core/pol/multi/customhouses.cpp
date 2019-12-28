@@ -747,7 +747,11 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
   const MultiDef& def = house->multidef();
   move_character_to( chr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
                      Core::MOVEITEM_FORCELOCATION, nullptr );
-  chr->client->gd->custom_house_serial = 0;
+  if ( chr->client )
+  {
+    chr->client->gd->custom_house_serial = 0;
+    chr->client->gd->custom_house_chrserial = 0;
+  }
   house->editing = false;
   if ( send_pkts )
   {
@@ -1231,7 +1235,8 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool s
     if ( Core::gamestate.system_hooks.close_customhouse_hook )
     {
       Core::gamestate.system_hooks.close_customhouse_hook->call(
-          make_mobileref( chr ), new Module::EMultiRefObjImp( this ) );
+          send_pkts ? make_mobileref( chr ) : new Module::EOfflineCharacterRefObjImp( chr ),
+          new Module::EMultiRefObjImp( this ) );
     }
   }
 }

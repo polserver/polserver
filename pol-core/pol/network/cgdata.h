@@ -74,6 +74,7 @@ public:
   Core::MusicRegion* music_region;
   Core::WeatherRegion* weather_region;
   u32 custom_house_serial;
+  u32 custom_house_chrserial;
 };
 }
 }

@@ -39,7 +39,8 @@ ClientGameData::ClientGameData()
       // light_region(nullptr),
       music_region( nullptr ),
       weather_region( nullptr ),
-      custom_house_serial( 0 )
+      custom_house_serial( 0 ),
+      custom_house_chrserial( 0 )
 {
 }
 
@@ -123,19 +124,13 @@ void ClientGameData::clear()
       Multi::UHouse* house = multi->as_house();
       if ( house != nullptr )
       {
-        house->CurrentDesign.FillComponents( house );
-        house->WorkingDesign.FillComponents( house, false );  // keep in sync
-        house->revision++;
-        std::vector<u8> newvec;
-        house->WorkingCompressed.swap( newvec );
-
-        std::vector<u8> newvec2;
-        house->CurrentCompressed.swap( newvec2 );
-        house->editing = false;
+        Mobile::Character* chr = Core::find_character( custom_house_chrserial );
+        house->CustomHousesQuit( chr, false /*drop_changes*/, false /*send_pkts*/ );
       }
     }
     custom_house_serial = 0;
   }
+  custom_house_chrserial = 0;
 }
 
 /// Registers a gumpid for the given module
@@ -170,5 +165,5 @@ size_t ClientGameData::estimatedSize() const
           gumpmods.size() * ( sizeof( Module::UOExecutorModule* ) + 3 * sizeof( void* ) );
   return size;
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

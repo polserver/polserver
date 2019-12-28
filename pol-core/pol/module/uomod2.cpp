@@ -2518,6 +2518,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     return new BError( "You must be inside the house to customize it." );
 
   chr->client->gd->custom_house_serial = house->serial;
+  chr->client->gd->custom_house_chrserial = chr->serial;
 
   {
     PktHelper::PacketOut<PktOut_BF_Sub20> msg;
