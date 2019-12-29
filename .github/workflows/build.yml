@@ -155,6 +155,7 @@ jobs:
 
       - name: Create Release zip
         run: |
+          echo "${{ github.ref }}"
           cmake -E tar "cfv" "Nightly.zip" --format=zip Nightly-Linux-g++ Nightly-Windows-cl Nightly-Linux-clang++
       - name: Create Release
         id: create_release
@@ -162,7 +163,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          release_name: Nightly Release ${{ github.ref }}
+          tag_name: NightlyRelease
+          release_name: Nightly Release
           body: |
             Latest nightly build
           draft: false
