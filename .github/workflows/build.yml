@@ -105,6 +105,7 @@ jobs:
         shell: pwsh
         if: matrix.config.arm == 1
         run: |
+          sudo apt-get install libssl-dev -y
           git clone https://github.com/raspberrypi/tools
           echo "::add-path::$Env:GITHUB_WORKSPACE/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/"
           echo "::set-env name=CC::arm-linux-gnueabihf-gcc"
