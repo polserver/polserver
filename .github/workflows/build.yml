@@ -121,7 +121,7 @@ jobs:
           mkdir release
           mv *.zip release
       - name: Create Artefact (dbg)
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.nopch == 1
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
@@ -129,8 +129,8 @@ jobs:
           mv *.zip release
       - name: Create Release zip
         run: |
-          cd bin-build/
-          zip Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip release/*
+          cd bin-build
+          cmake -E tar "cfv" "Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip" --format=zip release/*.*
 
       - name: Upload Artefact
         if: matrix.config.nopch == 0
