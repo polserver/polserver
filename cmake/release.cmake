@@ -48,8 +48,15 @@ function(add_polrelease_target)
   set_target_properties(PolRelease PROPERTIES FOLDER !BuildTargets)
 
   if (${linux})
+    string(TIMESTAMP curr_date "%Y-%m-%d")
+    if (${linux})
+      set(system LINUX)
+    else()
+      set(system WINDOWS)
+    endif()
+    set(pkgname "polserver${POL_VERSION_STR}-${system}-${curr_date}") 
     add_custom_target(create_dbg_zip COMMAND
-      ${CMAKE_COMMAND} -E tar "cfv" "${CPACK_PACKAGE_FILE_NAME}_dbg.zip" --format=zip
+      ${CMAKE_COMMAND} -E tar "cfv" "${pkgname}_dbg.zip" --format=zip
         "pol"
         "ecompile"
         "runecl"
