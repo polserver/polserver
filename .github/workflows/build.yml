@@ -155,11 +155,15 @@ jobs:
 
       - name: Create Release zip
         run: |
-          cmake -E tar "cfv" "Nightly-Windows.zip" --format=zip Nightly-Windows-cl
-          cmake -E tar "cfv" "Nightly-Linux-gcc.zip" --format=zip Nightly-Linux-g++
-          cmake -E tar "cfv" "Nightly-Linux-clang.zip" --format=zip Nightly-Linux-clang++
+          zip -j Nightly-Windows.zip Nightly-Windows-cl/*
+          zip -j Nightly-Linux-gcc.zip Nightly-Linux-g++/*
+          zip -j Nightly-Linux-clang.zip Nightly-Linux-clang++/*
+#          cmake -E tar "cfv" "Nightly-Windows.zip" --format=zip Nightly-Windows-cl
+#          cmake -E tar "cfv" "Nightly-Linux-gcc.zip" --format=zip Nightly-Linux-g++
+#          cmake -E tar "cfv" "Nightly-Linux-clang.zip" --format=zip Nightly-Linux-clang++
 
       - name: Create Release
+        # fork until official release can overwrite tag/release
         uses: turleypol/create-release@delete-old-release
         id: create_release
         env:
@@ -196,5 +200,4 @@ jobs:
           asset_path: Nightly-Linux-clang.zip
           asset_name: Nightly-Linux-clang.zip
           asset_content_type: application/
-
 
