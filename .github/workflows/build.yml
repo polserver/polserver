@@ -141,7 +141,6 @@ jobs:
 #    if: github.ref == "refs/heads/master"
 
     steps:
-      continue-on-error: true
       - name: Download artefacts
         uses: actions/download-artifact@v1
         with:
@@ -163,6 +162,7 @@ jobs:
 
       
       - name: Delete old release
+        continue-on-error: true
         uses: octokit/request-action@v2.x
         with:
           route: DELETE /repos/:repository/releases/NightlyRelease
