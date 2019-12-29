@@ -410,6 +410,16 @@ void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
   handle_unknown_packet( client );
 }
 
+void handle_open_uo_store( Client* client, PKTIN_FA* /*msg*/ )
+{
+  handle_unknown_packet( client );
+}
+
+void handle_update_view_public_house_content( Client* client, PKTIN_FB* /*msg*/ )
+{
+  handle_unknown_packet( client );
+}
+
 void handle_allnames( Client* client, PKTBI_98_IN* msg )
 {
   u32 serial = cfBEu32( msg->serial );

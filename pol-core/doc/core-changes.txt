@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+12-29-2019 Kevin:
+  Added:   Added definitions for packets 0xFA (Open UO Store) and 0xFB (Update View Public House Contents).
 12-28-2019 Turley:
   Changed: house.house_parts member returns now when in edit mode the current (possible not yet confirmed)
            list of parts instead of an error.

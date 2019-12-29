@@ -183,6 +183,8 @@ void PacketRegistry::initialize_msg_handlers()
   MESSAGE_HANDLER_VARLEN( PKTIN_E4, KR_Verifier_Response );
   MESSAGE_HANDLER( PKTIN_EF, handle_ef_seed );
   MESSAGE_HANDLER( PKTIN_F8, ClientCreateChar70160 );
+  MESSAGE_HANDLER( PKTIN_FA, handle_open_uo_store );
+  MESSAGE_HANDLER( PKTIN_FB, handle_update_view_public_house_content );
 
   initialize_extended_handlers();
 }
