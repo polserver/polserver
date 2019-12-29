@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-28-2019</datemodified>
+		<datemodified>12-29-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-29-2019</date>
+			<author>Kevin:</author>
+			<change type="Added">Added definitions for packets 0xFA (Open UO Store) and 0xFB (Update View Public House Contents).</change>
+		</entry>
 		<entry>
 			<date>12-28-2019</date>
 			<author>Turley:</author>

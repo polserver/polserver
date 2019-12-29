@@ -564,6 +564,18 @@ struct PKTIN_F8
 };
 static_assert( sizeof( PKTIN_F8 ) == 106, "size missmatch" );
 
+struct PKTIN_FA
+{
+  u8 msgtype;  // Byte 0
+};
+static_assert( sizeof( PKTIN_FA ) == 1, "size missmatch" );
+
+struct PKTIN_FB
+{
+  u8 msgtype;  // Byte 0
+  u8 show;  // Bytes 1
+};
+static_assert( sizeof( PKTIN_FB ) == 2, "size missmatch" );
 
 #pragma pack( pop )
 }  // namespace Core
