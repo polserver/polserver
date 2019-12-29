@@ -109,6 +109,7 @@ jobs:
           echo "::set-env name=CC::arm-linux-gnueabihf-gcc"
           echo "::set-env name=CXX::arm-linux-gnueabihf-g++"
           echo "::set-env name=CMAKE_STRIP::arm-linux-gnueabihf-strip"
+          ls tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/
 
       - name: Config
         run: |
