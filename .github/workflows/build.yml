@@ -155,7 +155,7 @@ jobs:
 
       - name: Create Release zip
         run: |
-          cmake -E tar "cfv" "Nightly.zip" --format=zip *.zip
+          cmake -E tar "cfv" "Nightly.zip" --format=zip Nightly-Linux-g++ Nightly-Windows-cl Nightly-Linux-clang++
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
