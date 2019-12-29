@@ -21,7 +21,6 @@ jobs:
             compiler-version: 8
             build-type: RelWithDebInfo
             nopch: 0
-            arm: 0
 
           - os: "ubuntu-latest"
             cxx-compiler: clang++
@@ -29,7 +28,6 @@ jobs:
             compiler-version: 8
             build-type: RelWithDebInfo
             nopch: 0
-            arm: 0
           
           - os: "ubuntu-latest"
             cxx-compiler: clang++
@@ -37,15 +35,6 @@ jobs:
             compiler-version: 8
             build-type: Release
             nopch: 1
-            arm: 0
-          
-          - os: "ubuntu-latest"
-            cxx-compiler: clang++
-            c-compiler: clang
-            compiler-version: 8
-            build-type: Release
-            nopch: 0
-            arm: 1
 
     runs-on: ${{ matrix.config.os }}
 
@@ -57,7 +46,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.arm}}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
@@ -101,16 +90,6 @@ jobs:
 
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
-      - name: Cross Compile
-        shell: pwsh
-        if: matrix.config.arm == 1
-        run: |
-          sudo apt-get install libssl-dev -y
-          git clone https://github.com/raspberrypi/tools
-          echo "::add-path::$Env:GITHUB_WORKSPACE/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/"
-          echo "::set-env name=CC::arm-linux-gnueabihf-gcc"
-          echo "::set-env name=CXX::arm-linux-gnueabihf-g++"
-          echo "::set-env name=CMAKE_STRIP::arm-linux-gnueabihf-strip"
 
       - name: Config
         run: |
@@ -134,6 +113,7 @@ jobs:
           ./checkstyle.py -q
 
       - name: Create Artefact
+        if: matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target package
@@ -141,16 +121,46 @@ jobs:
           mkdir release
           mv *.zip release
       - name: Create Artefact (dbg)
-        if: matrix.config.os == 'ubuntu-latest'
+        if: matrix.config.os == 'ubuntu-latest' && matrix.config.nopch == 1
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
           cd ../bin
           mv *.zip release
+      - name: Create Release zip
+        run: |
+          cd bin-build/
+          zip Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip release/*
+
       - name: Upload Artefact
         if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v1
         with:
-          name: Nightly-${{ runner.os }}-${{ matrix.config.arm }}-${{ matrix.config.cxx-compiler }}
+          name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Nightly Release ${{ github.ref }}
+          body: |
+            Latest nightly build
+          draft: false
+          prerelease: true
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bin/Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip
+
+          asset_name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip
+
+          asset_content_type: application/
 
