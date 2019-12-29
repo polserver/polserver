@@ -127,10 +127,6 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
           cd ../bin
           mv *.zip release
-      - name: Create Release zip
-        run: |
-          cd bin
-          cmake -E tar "cfv" "Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip" --format=zip release/*.*
 
       - name: Upload Artefact
         if: matrix.config.nopch == 0
@@ -139,6 +135,25 @@ jobs:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
 
+  release:
+    needs: build
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v1
+        with:
+          name: Nightly-Linux-g++
+        uses: actions/download-artifact@v1
+        with:
+          name: Nightly-Linux-clang++
+        uses: actions/download-artifact@v1
+        with:
+          name: Nightly-Windows-cl
+
+      - name: Create Release zip
+        run: |
+          cmake -E tar "cfv" "Nightly.zip" --format=zip *.zip
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -158,9 +173,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: bin/Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip
+          asset_path: Nightly.zip
 
-          asset_name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip
+          asset_name: Nightly.zip
 
           asset_content_type: application/
 
