@@ -102,6 +102,7 @@ jobs:
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
       - name: Cross Compile
+        shell: pwsh
         if: matrix.config.arm == 1
         run: |
           git clone https://github.com/raspberrypi/tools
@@ -109,7 +110,6 @@ jobs:
           echo "::set-env name=CC::arm-linux-gnueabihf-gcc"
           echo "::set-env name=CXX::arm-linux-gnueabihf-g++"
           echo "::set-env name=CMAKE_STRIP::arm-linux-gnueabihf-strip"
-          ls tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/
 
       - name: Config
         run: |
