@@ -138,6 +138,7 @@ jobs:
   release:
     needs: build
     runs-on: "ubuntu-latest"
+    if: github.ref == "refs/heads/master"
 
     steps:
       - name: Download artefacts
@@ -155,8 +156,18 @@ jobs:
 
       - name: Create Release zip
         run: |
-          echo "${{ github.ref }}"
-          cmake -E tar "cfv" "Nightly.zip" --format=zip Nightly-Linux-g++ Nightly-Windows-cl Nightly-Linux-clang++
+          cmake -E tar "cfv" "Nightly-Windows.zip" --format=zip Nightly-Windows-cl
+          cmake -E tar "cfv" "Nightly-Linux-gcc.zip" --format=zip Nightly-Linux-g++
+          cmake -E tar "cfv" "Nightly-Linux-clang.zip" --format=zip Nightly-Linux-clang++
+
+      
+      - name: Delete old release
+        uses: octokit/request-action@v2.x
+        with:
+          route: DELETE /repos/:repository/releases/NightlyRelease
+          repository: ${{ github.repository }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -164,21 +175,37 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: NightlyRelease
-          release_name: Nightly Release
+          release_name: NightlyRelease
           body: |
             Latest nightly build
           draft: false
           prerelease: true
       - name: Upload Release Asset
-        id: upload-release-asset
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Nightly.zip
-
-          asset_name: Nightly.zip
-
+          asset_path: Nightly-Windows.zip
+          asset_name: Nightly-Windows.zip
           asset_content_type: application/
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Nightly-Linux-gcc.zip
+          asset_name: Nightly-Linux-gcc.zip
+          asset_content_type: application/
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: Nightly-Linux-clang.zip
+          asset_name: Nightly-Linux-clang.zip
+          asset_content_type: application/
+
 
