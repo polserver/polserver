@@ -141,6 +141,7 @@ jobs:
 #    if: github.ref == "refs/heads/master"
 
     steps:
+      continue-on-error: true
       - name: Download artefacts
         uses: actions/download-artifact@v1
         with:
