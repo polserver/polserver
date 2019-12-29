@@ -129,7 +129,7 @@ jobs:
           mv *.zip release
       - name: Create Release zip
         run: |
-          cd bin-build
+          cd bin
           cmake -E tar "cfv" "Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}.zip" --format=zip release/*.*
 
       - name: Upload Artefact
