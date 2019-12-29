@@ -161,26 +161,36 @@ jobs:
           cmake -E tar "cfv" "Nightly-Linux-clang.zip" --format=zip Nightly-Linux-clang++
 
       
-      - name: Delete old release
-        continue-on-error: true
-        uses: octokit/request-action@v2.x
-        with:
-          route: DELETE /repos/:repository/releases/NightlyRelease
-          repository: ${{ github.repository }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Delete old release
+#        continue-on-error: true
+#        uses: octokit/request-action@v2.x
+#        with:
+#          route: DELETE /repos/:repository/releases/NightlyRelease
+#          repository: ${{ github.repository }}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
+        uses: turleypol/create-release@delete-old-release
         id: create_release
-        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: NightlyRelease
           release_name: NightlyRelease
-          body: |
-            Latest nightly build
-          draft: false
+          replace_old_tag: true
           prerelease: true
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: NightlyRelease
+#          release_name: NightlyRelease
+#          body: |
+#            Latest nightly build
+#          draft: false
+#          prerelease: true
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1.0.1
         env:
