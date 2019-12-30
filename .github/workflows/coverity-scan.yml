@@ -59,7 +59,6 @@ jobs:
           echo "::set-env name=CC::$c_compiler"
     
       - name: Download Coverity Build Tool
-        shell: pwsh
         run: |
           wget https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
           mkdir cov-analysis-linux64
