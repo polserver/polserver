@@ -1,0 +1,92 @@
+name: coverity-scan
+on: push
+
+jobs:
+  coverity:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+            cxx-compiler: g++
+            c-compiler: gcc
+            compiler-version: 8
+            build-type: Release
+    runs-on: ${{ matrix.config.os }}
+    steps:
+      - uses: actions/checkout@v1
+      - name: Cache curl
+        uses: actions/cache@v1
+        with:
+          path: lib/curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
+      
+      - name: Install Compiler and Dependencies
+        if: matrix.config.os == 'ubuntu-latest'
+        shell: pwsh
+        run: |
+          sudo apt-get update
+
+          $compiler = "${{ matrix.config.cxx-compiler }}"
+          $version = "${{ matrix.config.compiler-version }}"
+
+          if ($version -ne 'default') {
+            sudo apt-get install "$compiler-$version" -y
+            echo "$compiler-$version --version"
+          }
+          sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
+          
+          $cmake_version = "3.16.2"
+          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
+          wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
+          tar -xf "$cmake_archive.tar.gz"
+          
+          chmod +x "$cmake_archive/bin/cmake"
+          echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
+      
+      - name: Set CXX and CC
+        shell: pwsh
+        run: |
+          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
+          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            $cxx_compiler = "$cxx_compiler-$version"
+            $c_compiler = "$c_compiler-$version"
+          }
+
+          echo "::set-env name=CXX::$cxx_compiler"
+          echo "::set-env name=CC::$c_compiler"
+    
+      - name: Download Coverity Build Tool
+        run: |
+          wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
+          mkdir cov-analysis-linux64
+          tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+        env:
+          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+
+      - name: Config
+        run: |
+          cd bin-build
+          cmake ..
+
+      - name: Build with cov-build
+        run: |
+          export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
+          cd bin-build
+          cov-build --dir cov-int make -j 2
+
+      - name: Submit the result to Coverity Scan
+        run: |
+          tar czvf polserver.tgz cov-int
+#          curl \
+#            --form token=$TOKEN \
+#            --form email=poltean@polserver.com \
+#            --form file=@polserver.tgz \
+#            --form version=trunk \
+#            --form description="polcore100" \
+#            https://scan.coverity.com/builds?project=polserver%2Fpolserver
+        env:
+          TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
