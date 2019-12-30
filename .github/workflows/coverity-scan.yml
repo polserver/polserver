@@ -64,10 +64,13 @@ jobs:
           wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
           mkdir cov-analysis-linux64
           tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
-          echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
 
+      - name: Set env Coverity Build Tool
+        shell: pwsh
+        run: |
+          echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
       - name: Config
         run: |
           cd bin-build
