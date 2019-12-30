@@ -84,14 +84,14 @@ jobs:
           cd bin-build
           tar czvf polserver.tgz cov-int
           mkdir release
+          curl \
+            --form token=$TOKEN \
+            --form email=polteam@polserver.com \
+            --form file=@polserver.tgz \
+            --form version=master \
+            --form description="polcore100" \
+            https://scan.coverity.com/builds?project=polserver%2Fpolserver
           mv polserver.tgz release
-#          curl \
-#            --form token=$TOKEN \
-#            --form email=polteam@polserver.com \
-#            --form file=@polserver.tgz \
-#            --form version=trunk \
-#            --form description="polcore100" \
-#            https://scan.coverity.com/builds?project=polserver%2Fpolserver
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
       - name: Upload Artefact testing
