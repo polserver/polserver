@@ -76,6 +76,7 @@ jobs:
         run: |
           export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
           cd bin-build
+          cov-configure --comptype gcc --compiler /usr/bin/gcc-8
           cov-build --dir cov-int make -j 2
 
       - name: Submit the result to Coverity Scan
@@ -86,7 +87,7 @@ jobs:
           mv polserver.tgz release
 #          curl \
 #            --form token=$TOKEN \
-#            --form email=poltean@polserver.com \
+#            --form email=polteam@polserver.com \
 #            --form file=@polserver.tgz \
 #            --form version=trunk \
 #            --form description="polcore100" \
