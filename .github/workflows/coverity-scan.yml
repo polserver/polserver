@@ -22,7 +22,6 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
       
       - name: Install Compiler and Dependencies
-        if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
         run: |
           sudo apt-get update
@@ -60,10 +59,12 @@ jobs:
           echo "::set-env name=CC::$c_compiler"
     
       - name: Download Coverity Build Tool
+        shell: pwsh
         run: |
           wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
           mkdir cov-analysis-linux64
           tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+          echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
 
@@ -74,16 +75,14 @@ jobs:
 
       - name: Build with cov-build
         run: |
-          export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
           cd bin-build
-          cov-configure --comptype gcc --compiler /usr/bin/gcc-8
+          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.c-compiler }}-${{ matrix.config.compiler-version }}
           cov-build --dir cov-int make -j 2
 
       - name: Submit the result to Coverity Scan
         run: |
           cd bin-build
           tar czvf polserver.tgz cov-int
-          mkdir release
           curl \
             --form token=$TOKEN \
             --form email=polteam@polserver.com \
@@ -91,11 +90,5 @@ jobs:
             --form version=master \
             --form description="polcore100" \
             https://scan.coverity.com/builds?project=polserver%2Fpolserver
-          mv polserver.tgz release
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
-      - name: Upload Artefact testing
-        uses: actions/upload-artifact@v1
-        with:
-          name: covtest
-          path: bin-build/release
