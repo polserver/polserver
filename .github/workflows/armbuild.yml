@@ -28,6 +28,7 @@ jobs:
             sudo apt-get install g++-8 -y
             sudo apt-get install cmake libssl-dev -y
             sudo apt-get install zlib1g-dev -y
+            sudo apt-get install git -y
             export CXX=g++-8
             export CC=gcc-8
             cd bin-build

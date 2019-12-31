@@ -61,6 +61,7 @@ function(set_compile_flags target is_executable)
       -W
       -Wall
       -Wextra
+      -fsigned-char
     >
 
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
@@ -80,6 +81,7 @@ function(set_compile_flags target is_executable)
       /EHa # exception handling
       /W4
       /w45038
+      /nologo
     >
   )
 
