@@ -24,8 +24,7 @@ jobs:
           run: |
             uname -a
             sudo apt-get update
-            sudo apt install -y build-essential
-
+            sudo apt-get install build-essential -y
             sudo apt-get install g++-8 -y
             sudo apt-get install cmake mysql-client libmysqlclient-dev -y
             export CXX=g++-8
