@@ -26,14 +26,11 @@ jobs:
             sudo apt-get update
             sudo apt install -y build-essential
 
-            sudo apt-get install "$cxx-compiler" -y
-            echo "$cxx-compiler --version"
+            sudo apt-get install g++-8 -y
             sudo apt-get install cmake mysql-client libmysqlclient-dev -y
-
-            export CXX=$cxx-ompiler
-            export CC=$c-compiler
-      
+            export CXX=g++-8
+            export CC=gcc-8
             cd bin-build
             cmake ..
-            cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
-            ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
+            cmake --build . --config RelWithDebInfo -- -j 2
+            ctest -j2 --output-on-failure --repeat-until-fail 2 -C RelWithDebInfo
