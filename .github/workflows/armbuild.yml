@@ -1,4 +1,4 @@
-name: Build
+name: ARMbuild
 
 on: [push, pull_request]
 
@@ -16,7 +16,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-python@v1
       - uses: uraimo/run-on-arch-action@v1.0.5
         id: runcmd
         with:
@@ -29,24 +28,12 @@ jobs:
 
             sudo apt-get install "$cxx-compiler" -y
             echo "$cxx-compiler --version"
-            sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
-          
-            ninja_version=1.9.0
-            cmake_version="3.16.2"
-            cmake_archive="cmake-$cmake_version-Linux-x86_64"
-            wget -q "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
-            unzip -q ninja-linux.zip -d bin-build
-            wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
-            tar -xf "$cmake_archive.tar.gz"
-          
-            chmod +x bin-build/ninja
-            chmod +x "$cmake_archive/bin/cmake"
-            export PATH=`pwd`/bin-build:$PATH
-            export PATH=`pwd`/$cmake_archive/bin:$PATH
-            export CXX=$compiler-$version
-            export CC=$compiler-$version
+            sudo apt-get install cmake mysql-client libmysqlclient-dev -y
+
+            export CXX=$cxx-ompiler
+            export CC=$c-compiler
       
             cd bin-build
-            cmake .. -G Ninja
+            cmake ..
             cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
             ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
