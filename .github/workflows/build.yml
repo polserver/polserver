@@ -134,6 +134,16 @@ jobs:
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
+  notify:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: always()
+    steps:
+      name: test
+      runs: |
+        echo ${{ github.sha }}
+        echo ${{ github.ref }}
+        echo ${{ job.status }}
 
   release:
     needs: build
