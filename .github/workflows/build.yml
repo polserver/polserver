@@ -137,10 +137,33 @@ jobs:
   notify:
     needs: build
     runs-on: "ubuntu-latest"
+    if: failure()
+    steps:
+      - name: test
+        run: |
+          echo "failure"
+          echo ${{ github.sha }}
+          echo ${{ github.ref }}
+          echo ${{ job.status }}
+  notify:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: success()
+    steps:
+      - name: test
+        run: |
+          echo "success"
+          echo ${{ github.sha }}
+          echo ${{ github.ref }}
+          echo ${{ job.status }}
+  notify:
+    needs: build
+    runs-on: "ubuntu-latest"
     if: always()
     steps:
       - name: test
         run: |
+          echo "always ${{ success() }} ${{ failure() }} ${{ cancelled() }}"
           echo ${{ github.sha }}
           echo ${{ github.ref }}
           echo ${{ job.status }}
