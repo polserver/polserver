@@ -156,14 +156,14 @@ jobs:
           echo ${{ github.sha }}
           echo ${{ github.ref }}
           echo ${{ job.status }}
-  notifya:
+  notifys:
     needs: build
     runs-on: "ubuntu-latest"
     if: always()
     steps:
       - name: test
         run: |
-          echo "always ${{ success() }} ${{ failure() }} ${{ cancelled() }}"
+          echo "always"
           echo ${{ github.sha }}
           echo ${{ github.ref }}
           echo ${{ job.status }}
