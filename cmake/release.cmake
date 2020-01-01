@@ -46,4 +46,24 @@ function(add_polrelease_target)
   set_target_properties(PolRelease PROPERTIES EXCLUDE_FROM_ALL TRUE)
   set_target_properties(PolRelease PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
   set_target_properties(PolRelease PROPERTIES FOLDER !BuildTargets)
+
+  if (${linux})
+    string(TIMESTAMP curr_date "%Y-%m-%d")
+    if (${linux})
+      set(system LINUX)
+    else()
+      set(system WINDOWS)
+    endif()
+    set(pkgname "polserver${POL_VERSION_STR}-${system}-${curr_date}") 
+    add_custom_target(create_dbg_zip COMMAND
+      ${CMAKE_COMMAND} -E tar "cfv" "${pkgname}_dbg.zip" --format=zip
+        "pol"
+        "ecompile"
+        "runecl"
+        "uoconvert"
+        "poltool"
+        "uotool"
+      WORKING_DIRECTORY ${output_bin_dir}
+    )
+  endif()
 endfunction()
