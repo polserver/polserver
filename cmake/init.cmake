@@ -66,6 +66,38 @@ macro(detect_platform)
   elseif (WIN32)
     set (windows 1)
   endif()
+  include(TestBigEndian)
+  test_big_endian(bigendian)
+  if (bigendian)
+    message("Platform is Big Endian")
+  else()
+    message("Platform is Little Endian")
+  endif()
+
+  include(CheckCXXSourceCompiles)
+  check_cxx_source_compiles(
+    "#include <type_traits>
+    int main()
+    {
+      static_assert(std::is_signed<char>::value, \"char is unsigned\");
+      return 0;
+    }"
+    CHAR_IS_SIGNED
+  )
+  if (CHAR_IS_SIGNED)
+    message("Char is signed")
+  else()
+    message("char is unsigned!")
+  endif()
+
+
+  set(arm 0)
+  if (${linux})
+    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
+      set(arm 1)
+    endif()
+  endif()
+
 endmacro()
 
 macro(fix_compiler_flags)
@@ -109,12 +141,17 @@ macro(prepare_build)
   if(windows)
     set(HAVE_OPENSSL true)
     set(HAVE_MYSQL true)
+    set(HAVE_ZLIB true)
   else()
     check_include_files (openssl/md5.h HAVE_OPENSSL)
     check_include_files (mysql/mysql.h HAVE_MYSQL)
+    check_include_files (zlib.h HAVE_ZLIB)
   endif()
   if (NOT HAVE_OPENSSL)
     message(FATAL_ERROR "OpenSSL not found")
+  endif()
+  if (NOT HAVE_ZLIB)
+    message(FATAL_ERROR "ZLib not found")
   endif()
   if (NOT HAVE_MYSQL)
     message("MySQL not found")
