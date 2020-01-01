@@ -97,7 +97,6 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
       projectile_type( 0 ),
       projectile_anim( 0 ),
       projectile_sound( 0 ),
-      projectile_action( static_cast<Core::UACTION>( 0 ) ),
       anim( remove_action( elem, "Anim", Core::ACTION_HUMAN_ATTACK ) ),
       mounted_anim( remove_action( elem, "MountedAnim", anim ) ),
       hit_sound( elem.remove_ushort( "HITSOUND", 0 ) ),
@@ -212,7 +211,6 @@ size_t WeaponDesc::estimatedSize() const
          + sizeof( unsigned short )                                 /*projectile_type*/
          + sizeof( unsigned short )                                 /*projectile_anim*/
          + sizeof( unsigned short )                                 /*projectile_sound*/
-         + sizeof( Core::UACTION )                                  /*projectile_action*/
          + sizeof( Core::UACTION )                                  /*anim*/
          + sizeof( Core::UACTION )                                  /*mounted_anim*/
          + sizeof( unsigned short )                                 /*hit_sound*/
@@ -376,6 +374,26 @@ unsigned short UWeapon::get_random_damage() const
     return USHRT_MAX;
 }
 
+unsigned short UWeapon::min_weapon_damage() const
+{
+  int dmg = static_cast<int>( WEAPON_TMPL->damage_dice.min_value() ) + damage_mod();
+  if ( dmg < 0 )
+    return 0;
+  else if ( dmg <= USHRT_MAX )
+    return static_cast<unsigned short>( dmg );
+  return USHRT_MAX;
+}
+
+unsigned short UWeapon::max_weapon_damage() const
+{
+  int dmg = static_cast<int>( WEAPON_TMPL->damage_dice.max_value() ) + damage_mod();
+  if ( dmg < 0 )
+    return 0;
+  else if ( dmg <= USHRT_MAX )
+    return static_cast<unsigned short>( dmg );
+  return USHRT_MAX;
+}
+
 bool UWeapon::is_projectile() const
 {
   passert( tmpl != nullptr );
@@ -393,13 +411,6 @@ unsigned short UWeapon::projectile_anim() const
   passert( tmpl != nullptr );
   return WEAPON_TMPL->projectile_anim;
 }
-
-/*
-UACTION UWeapon::projectile_action() const
-{
-return tmpl->projectile_action;
-}
-*/
 
 Core::UACTION UWeapon::anim() const
 {
@@ -519,5 +530,5 @@ bool UWeapon::get_method_hook( const char* methodname, Bscript::Executor* ex,
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

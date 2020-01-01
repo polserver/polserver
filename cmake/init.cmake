@@ -116,6 +116,9 @@ macro(prepare_build)
   if (NOT HAVE_OPENSSL)
     message(FATAL_ERROR "OpenSSL not found")
   endif()
+  if (NOT HAVE_MYSQL)
+    message("MySQL not found")
+  endif()
   configure_file(
     ${CMAKE_CURRENT_LIST_DIR}/cmake/env/pol_global_config.h.in 
     ${PROJECT_BINARY_DIR}/pol_global_config.h

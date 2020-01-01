@@ -6,7 +6,6 @@
 
 
 #include "storagemod.h"
-
 #include <stddef.h>
 
 #include "../../bscript/berror.h"
@@ -19,22 +18,10 @@
 #include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
+#include <module_defs/storage.h>
 
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<StorageExecutorModule>::FunctionTable
-    TmplExecutorModule<StorageExecutorModule>::function_table = {
-        {"StorageAreas", &StorageExecutorModule::mf_StorageAreas},
-        {"FindStorageArea", &StorageExecutorModule::mf_FindStorageArea},
-        {"CreateStorageArea", &StorageExecutorModule::mf_CreateStorageArea},
-        {"FindRootItemInStorageArea", &StorageExecutorModule::mf_FindRootItemInStorageArea},
-        {"CreateRootItemInStorageArea", &StorageExecutorModule::mf_CreateRootItemInStorageArea},
-        {"DestroyRootItemInStorageArea", &StorageExecutorModule::mf_DestroyRootItemInStorageArea}};
-}  // namespace Bscript
 namespace Core
 {
 Bscript::BObjectImp* CreateStorageAreasImp();
@@ -44,7 +31,7 @@ namespace Module
 using namespace Bscript;
 
 StorageExecutorModule::StorageExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<StorageExecutorModule>( "Storage", exec )
+    : Bscript::TmplExecutorModule<StorageExecutorModule>( exec )
 {
 }
 

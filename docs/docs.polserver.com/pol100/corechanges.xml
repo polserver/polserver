@@ -2,9 +2,77 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-21-2019</datemodified>
+		<datemodified>12-29-2019</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-29-2019</date>
+			<author>Kevin:</author>
+			<change type="Added">Added definitions for packets 0xFA (Open UO Store) and 0xFB (Update View Public House Contents).</change>
+		</entry>
+		<entry>
+			<date>12-28-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">house.house_parts member returns now when in edit mode the current (possible not yet confirmed)<br/>
+list of parts instead of an error.</change>
+			<change type="Changed">misc/customhousecommit.src no more has a third parameter elements.<br/>
+Before this parameter was the only option to get the current working list,<br/>
+but since the client is able to modify the house further especially when the script shows a confirm dialog the given list is outdated.<br/>
+Its highly recommended in case of an confirm dialog to calculate the price again after gump confirmation!</change>
+			<change type="Changed">syshook CloseCustomHouse now gets also called when client disconnects</change>
+			<change type="Fixed">Several other bugs with custom houses<br/>
+Thx Pumpkins!</change>
+		</entry>
+		<entry>
+			<date>12-28-2019</date>
+			<author>DevGIB:</author>
+			<change type="Fixed">CustomHouses when no backup existed the foundation vanished on pressing revert.</change>
+		</entry>
+		<entry>
+			<date>12-12-2019</date>
+			<author>Turley:</author>
+			<change type="Fixed">Poison/invul status for newer clients, when mobile didnt move</change>
+		</entry>
+		<entry>
+			<date>10-05-2019</date>
+			<author>Turley:</author>
+			<change type="Changed">ECompile reports warnings and errors to cerr instead of printing everything to cout.<br/>
+Exit code of ECompile is 1 when at least one file fails to compile.</change>
+			<change type="Added">ecompile.cfg ErrorOnFileCaseMissmatch (default 0)<br/>
+commandline flag -c<br/>
+Leads to a compilation error if the capitalization of the include directive does not match the filename.<br/>
+This has only a meaning on windows.<br/>
+The existing warning is now an official warning meaning that the error on warning flag leads also to an abort.</change>
+			<change type="Added">pre/post increment/decrement unary operator (++i, i++, --i, i--) for integer and doubles.<br/>
+++i is the same as writing i+=1 or i:=i+1<br/>
+i++ returns the old value, thus its equal to j:=i; i+=1;<br/>
+Since it is an unary operator it can be directly used as function parameter or eg while loops.<br/>
+Instead of writing<br/>
+while (i&lt;5)<br/>
+  i+=1;<br/>
+  ...<br/>
+you can directly write<br/>
+while (++i&lt;5)<br/>
+  ...</change>
+			<change type="Note">The operators are only implemented for numbers but this includes also eg. arrays or members when it represents a number. So ++a[1], ++who.fire_resist_mod are also valid.<br/>
+Performance wise is i:=i+1 the slowest then i+=1 then i++ then ++i. (i++ is slower since it returns the old value).</change>
+		</entry>
+		<entry>
+			<date>10-03-2019</date>
+			<author>Turley:</author>
+			<change type="Fixed">min/max damage visualization in the statbar are now cropped between 0 and 65k like damage calculation.</change>
+		</entry>
+		<entry>
+			<date>09-30-2019</date>
+			<author>Nando:</author>
+			<change type="Changed">Changed default of GetProcess(pid) from 0 to -1 due to compatibility issues with scripts using CInt()'s result directly.<br/>
+PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts.</change>
+		</entry>
+		<entry>
+			<date>09-26-2019</date>
+			<author>DevGIB:</author>
+			<change type="Added">Script objects now have package member which returns a PackageRef. e.g. script.package.name = &quot;GuildStone&quot;.</change>
+		</entry>
 		<entry>
 			<date>09-21-2019</date>
 			<author>Turley:</author>

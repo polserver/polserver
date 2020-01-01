@@ -9,7 +9,7 @@ add_executable(${ex_name}
 
 set_compile_flags(${ex_name} 1)
 warning_suppression(${ex_name})
-enable_pch(${ex_name})
+enable_pch(${ex_name} REUSE_COTIRE)
 
 target_link_libraries(${ex_name} PUBLIC
   clib

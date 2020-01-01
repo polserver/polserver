@@ -34,14 +34,15 @@ struct CompilerConfig
   bool OptimizeObjectMembers;
   bool ErrorOnWarning;
   bool ThreadedCompilation;
-  int  NumberOfThreads;
+  int NumberOfThreads;
   bool ParanoiaWarnings;
+  bool ErrorOnFileCaseMissmatch;
 
   void Read( const std::string& path );
   void SetDefaults();
 };
 
 extern CompilerConfig compilercfg;
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

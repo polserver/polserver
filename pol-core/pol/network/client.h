@@ -293,13 +293,13 @@ inline void Client::forceDisconnect()
 // Checks whether the client is disconnected, and not only marked for disconnection
 inline bool Client::isReallyConnected() const
 {
-  return !( this->disconnect );
+  return !this->disconnect && this->csocket != INVALID_SOCKET;
 }
 
 // Checks for both planned and executed disconnections
 inline bool Client::isConnected() const
 {
-  return !( this->preDisconnect || this->disconnect );
+  return !this->preDisconnect && this->isReallyConnected();
 }
 
 inline bool Client::isActive() const

@@ -180,7 +180,6 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
       return;
     }
   }
-
   // no replacement, just add
   Add( elem );
 }
@@ -494,7 +493,7 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
 }
 
 /// Tells wether an item should be show in custom house design or not
-inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
+bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
 {
   // Give scripters the chance to keep an item alive
   if ( item->invisible() )
@@ -502,8 +501,15 @@ inline bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item 
 
   // Some items could be part of the house, but not inside the house (e.g. an exterior lamp post)
   // hide them to avoid an exception later, since this is not supported
-  if ( house->realm->find_supporting_multi( item->x, item->y, item->z ) != house )
+  // only test foodprint: find_supporting_multis would also work, as long as readshapes includes the
+  // teleporter components
+  s32 shape_x = static_cast<s32>( item->x ) - house->x;
+  s32 shape_y = static_cast<s32>( item->y ) - house->y;
+  if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
+       shape_y + yoff >= static_cast<s32>( height - 1 ) )  // y is +1
+  {
     return false;
+  }
 
   return true;
 }
@@ -512,6 +518,7 @@ void CustomHouseDesign::ClearComponents( UHouse* house )
 {
   UHouse::Components* comp = house->get_components();
   UHouse::Components::iterator itr = comp->begin();
+
   while ( itr != comp->end() )
   {
     Items::Item* item = ( *itr ).get();
@@ -544,13 +551,14 @@ void CustomHouseDesign::AddComponents( UHouse* house )
         elem.xoffset = item->x - house->x;
         elem.yoffset = item->y - house->y;
         elem.z = item->z - house->z;
-        Add( elem );
+        AddOrReplace( elem );  // A teleporter could replace a floortile
       }
     }
   }
 }
 void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
 {
+  UHouse::Components* comp = house->get_components();
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
     for ( HouseFloor::iterator xitr = Elements[i].data.begin(), xitrend = Elements[i].data.end();
@@ -576,6 +584,31 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                                   "report this bug on the forums." );
               }
             }
+            else
+            {
+              u16 c_x = static_cast<u16>( house->x + zitr->xoffset );
+              u16 c_y = static_cast<u16>( house->y + zitr->yoffset );
+              s8 c_z = static_cast<s8>( house->z + zitr->z );
+              // if component already exists erase from design, otherwise keep it
+              bool exists = false;
+              for ( const auto& c : *comp )
+              {
+                Items::Item* item = c.get();
+                if ( item == nullptr || item->orphan() )
+                  continue;
+                if ( c_x == item->x && c_y == item->y && c_z == item->z &&
+                     zitr->graphic == item->graphic )
+                {
+                  exists = true;
+                  break;
+                }
+              }
+              if ( !exists )
+              {
+                ++zitr;
+                continue;
+              }
+            }
             zitr = yitr->erase( zitr );
             floor_sizes[i]--;
           }
@@ -591,6 +624,31 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 passert_always_r( res,
                                   "Couldn't add newly created teleporter as house component. "
                                   "Please report this bug on the forums." );
+              }
+            }
+            else
+            {
+              u16 c_x = static_cast<u16>( house->x + zitr->xoffset );
+              u16 c_y = static_cast<u16>( house->y + zitr->yoffset );
+              s8 c_z = static_cast<s8>( house->z + zitr->z );
+              // if component already exists erase from design, otherwise keep it
+              bool exists = false;
+              for ( const auto& c : *comp )
+              {
+                Items::Item* item = c.get();
+                if ( item == nullptr || item->orphan() )
+                  continue;
+                if ( c_x == item->x && c_y == item->y && c_z == item->z &&
+                     zitr->graphic == item->graphic )
+                {
+                  exists = true;
+                  break;
+                }
+              }
+              if ( !exists )
+              {
+                ++zitr;
+                continue;
               }
             }
             zitr = yitr->erase( zitr );
@@ -632,31 +690,40 @@ Bscript::ObjArray* CustomHouseDesign::list_parts() const
   return arr.release();
 }
 
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house )
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts )
 {
-  Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
-  msg->WriteFlipped<u16>( 17u );
-  msg->offset += 2;  // sub
-  msg->Write<u32>( house->serial_ext );
-  msg->Write<u8>( 0x5u );          // end
-  msg->offset += 2;                // u16 unk2 FIXME what's the meaning
-  msg->Write<u32>( 0xFFFFFFFFu );  // fixme
-  msg->Write<u8>( 0xFFu );         // fixme
-  msg.Send( chr->client );
-
+  if ( send_pkts )
+  {
+    Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
+    msg->WriteFlipped<u16>( 17u );
+    msg->offset += 2;  // sub
+    msg->Write<u32>( house->serial_ext );
+    msg->Write<u8>( 0x5u );          // end
+    msg->offset += 2;                // u16 unk2 FIXME what's the meaning
+    msg->Write<u32>( 0xFFFFFFFFu );  // fixme
+    msg->Write<u8>( 0xFFu );         // fixme
+    msg.Send( chr->client );
+  }
   const MultiDef& def = house->multidef();
   move_character_to( chr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
                      Core::MOVEITEM_FORCELOCATION, nullptr );
-  chr->client->gd->custom_house_serial = 0;
-  house->editing = false;
-  ItemList itemlist;
-  MobileList moblist;
-  UHouse::list_contents( house, itemlist, moblist );
-  while ( !itemlist.empty() )
+  if ( chr->client )
   {
-    Items::Item* item = itemlist.front();
-    send_item( chr->client, item );
-    itemlist.pop_front();
+    chr->client->gd->custom_house_serial = 0;
+    chr->client->gd->custom_house_chrserial = 0;
+  }
+  house->editing = false;
+  if ( send_pkts )
+  {
+    ItemList itemlist;
+    MobileList moblist;
+    UHouse::list_contents( house, itemlist, moblist );
+    while ( !itemlist.empty() )
+    {
+      Items::Item* item = itemlist.front();
+      send_item( chr->client, item );
+      itemlist.pop_front();
+    }
   }
 }
 
@@ -733,8 +800,12 @@ void CustomHousesErase( Core::PKTBI_D7* msg )
   u32 realx = x + house->WorkingDesign.xoff;
   u32 realy = y + house->WorkingDesign.yoff;
 
+  // foundation walls should not be deleted
   if ( z == 0 && realx < house->WorkingDesign.width && realy < ( house->WorkingDesign.height - 1 ) )
   {
+    Mobile::Character* chr = Core::find_character( serial );
+    if ( chr && chr->client )
+      CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
     return;
   }
 
@@ -800,6 +871,9 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
   if ( house == nullptr || chr == nullptr )
     return;
 
+  if ( house->waiting_for_accept )  // dont allow multiple commits
+    return;
+
   // remove dynamic bits (teleporters, doors)
   house->WorkingDesign.FillComponents( house );
 
@@ -810,8 +884,9 @@ void CustomHousesCommit( Core::PKTBI_D7* msg )
     if ( sd.exists() )
     {
       house->waiting_for_accept = true;
-      if ( Core::start_script( sd, make_mobileref( chr ), new Module::EMultiRefObjImp( house ),
-                               house->WorkingDesign.list_parts() ) != nullptr )
+      // former part list as param is now possible via house member
+      if ( Core::start_script( sd, make_mobileref( chr ), new Module::EMultiRefObjImp( house ) ) !=
+           nullptr )
         return;
     }
   }
@@ -860,7 +935,9 @@ void CustomHousesRestore( Core::PKTBI_D7* msg )
   if ( house == nullptr )
     return;
 
-  house->WorkingDesign = house->BackupDesign;
+  if ( !house->BackupDesign.IsEmpty() )
+    house->WorkingDesign = house->BackupDesign;
+
   std::vector<u8> newvec;
   house->WorkingCompressed.swap( newvec );
   if ( chr != nullptr && chr->client != nullptr )
@@ -1087,6 +1164,7 @@ void UHouse::CustomHouseSetInitialState()
 
   CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );
   WorkingDesign = CurrentDesign;
+  BackupDesign = CurrentDesign;
   std::vector<u8> newvec;
   WorkingCompressed.swap( newvec );
 
@@ -1094,7 +1172,7 @@ void UHouse::CustomHouseSetInitialState()
   CurrentCompressed.swap( newvec2 );
 }
 
-void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
+void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool send_pkts )
 {
   if ( drop_changes )
     WorkingDesign = CurrentDesign;
@@ -1109,15 +1187,16 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes )
 
   std::vector<u8> newvec2;
   CurrentCompressed.swap( newvec2 );
-
-  if ( chr && chr->client )
+  if ( chr )
   {
-    CustomHouseStopEditing( chr, this );
-    CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
+    CustomHouseStopEditing( chr, this, send_pkts );
+    if ( chr->client && send_pkts )
+      CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
     if ( Core::gamestate.system_hooks.close_customhouse_hook )
     {
       Core::gamestate.system_hooks.close_customhouse_hook->call(
-          make_mobileref( chr ), new Module::EMultiRefObjImp( this ) );
+          send_pkts ? make_mobileref( chr ) : new Module::EOfflineCharacterRefObjImp( chr ),
+          new Module::EMultiRefObjImp( this ) );
     }
   }
 }

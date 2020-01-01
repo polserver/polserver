@@ -12,7 +12,6 @@
 
 
 #include "polsystemmod.h"
-
 #include <ctime>
 #include <fstream>
 #include <string>
@@ -46,6 +45,8 @@
 #include "../uobject.h"
 #include "../uoexhelp.h"
 
+#include <module_defs/polsys.h>
+
 namespace Pol
 {
 namespace Core
@@ -54,70 +55,14 @@ void reload_configuration();
 }  // namespace Core
 namespace Module
 {
-class PackagePtrHolder
-{
-public:
-  explicit PackagePtrHolder( Plib::Package* pkg ) : m_pPkg( pkg ) {}
-  Plib::Package* operator->() { return m_pPkg; }
-  const Plib::Package* operator->() const { return m_pPkg; }
-  Plib::Package* Ptr() { return m_pPkg; }
-  const Plib::Package* Ptr() const { return m_pPkg; }
+using namespace Bscript;
 
-private:
-  Plib::Package* m_pPkg;
-};
+BApplicObjType packageobjimp_type;
 
-Bscript::BApplicObjType packageobjimp_type;
-// typedef BApplicObj< ref_ptr<Package> > PackageObjImpBase;
-typedef Bscript::BApplicObj<PackagePtrHolder> PackageObjImpBase;
-class PackageObjImp final : public PackageObjImpBase
-{
-  typedef PackageObjImpBase base;
-
-public:
-  explicit PackageObjImp( const PackagePtrHolder& other );
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual Bscript::BObjectImp* copy() const override;
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectRef get_member( const char* membername ) override;
-};
 PackageObjImp::PackageObjImp( const PackagePtrHolder& other )
     : PackageObjImpBase( &packageobjimp_type, other )
 {
 }
-}  // namespace Module
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<PolSystemExecutorModule>::FunctionTable
-    TmplExecutorModule<PolSystemExecutorModule>::function_table = {
-        {"IncRevision", &PolSystemExecutorModule::mf_IncRevision},
-        {"GetCmdLevelName", &PolSystemExecutorModule::mf_GetCmdLevelName},
-        {"GetCmdLevelNumber", &PolSystemExecutorModule::mf_GetCmdLevelNumber},
-        {"Packages", &PolSystemExecutorModule::mf_Packages},
-        {"GetPackageByName", &PolSystemExecutorModule::mf_GetPackageByName},
-        {"ListTextCommands", &PolSystemExecutorModule::mf_ListTextCommands},
-        {"Realms", &PolSystemExecutorModule::mf_Realms},
-        {"ReloadConfiguration", &PolSystemExecutorModule::mf_ReloadConfiguration},
-        {"ReadMillisecondClock", &PolSystemExecutorModule::mf_ReadMillisecondClock},
-        {"ListenPoints", &PolSystemExecutorModule::mf_ListenPoints},
-        {"SetSysTrayPopupText", &PolSystemExecutorModule::mf_SetSysTrayPopupText},
-        {"GetItemDescriptor", &PolSystemExecutorModule::mf_GetItemDescriptor},
-        {"FormatItemDescription", &PolSystemExecutorModule::mf_FormatItemDescription},
-        {"CreatePacket", &PolSystemExecutorModule::mf_CreatePacket},
-        {"AddRealm", &PolSystemExecutorModule::mf_AddRealm},
-        {"DeleteRealm", &PolSystemExecutorModule::mf_DeleteRealm},
-        {"MD5Encrypt", &PolSystemExecutorModule::mf_MD5Encrypt},
-        {"LogCPropProfile", &PolSystemExecutorModule::mf_LogCPropProfile},
-};
-}  // namespace Bscript
-namespace Module
-{
-using namespace Bscript;
-
 const char* PackageObjImp::typeOf() const
 {
   return "Package";
@@ -151,7 +96,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   }
   else if ( stricmp( membername, "npcdesc" ) == 0 )
   {
-    Plib::Package* pkg = value().Ptr();
+    const Plib::Package* pkg = value().Ptr();
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
     return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );
   }
@@ -162,7 +107,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( "polsys", exec )
+    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( exec )
 {
 }
 

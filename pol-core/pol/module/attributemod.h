@@ -50,8 +50,8 @@ public:
   Bscript::BObjectImp* mf_AlterAttributeTemporaryMod( /* mob, attributeid, temporary_mod */ );
   Bscript::BObjectImp* mf_SetAttributeIntrinsicMod( /* mob, attributeid, intrinsic_mod */ );
 
-  Bscript::BObjectImp* mf_RawSkillToBase();
-  Bscript::BObjectImp* mf_BaseSkillToRaw();
+  Bscript::BObjectImp* mf_RawSkillToBaseSkill();
+  Bscript::BObjectImp* mf_BaseSkillToRawSkill();
 };
 }
 }

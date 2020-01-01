@@ -562,7 +562,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
   if ( scriptname.find_first_of( "*\"':;!?#&-+()/\\=" ) != std::string::npos )
     return false;
 
-  std::string upp( scriptname, 0, 3 );
+  std::string upp( scriptname );
   Clib::mkupperASCII( upp );
   if ( upp == "AUX" || upp == "CON" || upp == "PRN" || upp == "NUL" )
     return false;
@@ -598,7 +598,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
 
         Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
         ex->addModule( uoemod );
-        ex->priority(100);
+        ex->priority( 100 );
 
         if ( ex->setProgram( prog.get() ) )
         {

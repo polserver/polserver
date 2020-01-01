@@ -30,11 +30,11 @@
                |
                |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datafile">Datafile</a>          <a href="#Boolean">Boolean</a>
      +---------+--------+
-     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#BinaryFile">BinaryFile</a>
+     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#BinaryFile">BinaryFile</a>        <a href="#XMLFile">XMLFile</a>
    <a href="#Character">Character</a>           <a href="#Item">Item</a>
-     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#Package">Package</a>
+     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#Package">Package</a>           <a href="#XMLNode">XMLNode</a>
     <a href="#NPC">NPC</a>                 |
-                        |                                      <a href="#Struct">Struct</a>
+                        |                                      <a href="#Struct">Struct</a>            <a href="#XMLAttributes">XMLAttributes</a>
      +------------------+--------------+-----------+
      |                  |              |           |           <a href="#Array">Array</a>
  <a href="#Equipment">Equipment</a>           <a href="#Lockable">Lockable</a>         <a href="#Map">Map</a>        <a href="#Multi">Multi</a>
@@ -48,10 +48,10 @@
                          <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
                                                                <a href="#StorageArea">StorageArea</a>
 
-                                                               
+
 </pre>
 
-<datemodified>02/05/2018</datemodified>
+<datemodified>12/14/2019</datemodified>
 </fileheader>
 
 
@@ -415,7 +415,7 @@
 <member mname="custom" type="Boolean" access="r/o" mdesc="1 = custom house" />
 <member mname="house_editing" type="Boolean" access="r/o" mdesc="1 if the house is currently being edited" />
 <member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
-<member mname="house_parts" type="Integer" access="r/o" mdesc="returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house, or currently been edited. To get the real coords from an elem add house.x/y" />
+<member mname="house_parts" type="Integer" access="r/o" mdesc="returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house. When in edit mode returns the current working design. To get the real coords from an elem add house.x/y" />
 
 <method proto="setcustom(bool custom)" returns="true/error" desc="Sets the house as custom. Setting to 1 is needed before SendHousingTool() works." />
 <method proto="add_component(ItemRef)" returns="true/error" desc="Add item to House components" />
@@ -560,8 +560,7 @@
 <member mname="instr_per_min" type="Integer" access="r/o" mdesc="Script instructions per minute" />
 <member mname="priority_divide" type="Integer" access="r/o" mdesc="Priority Divide" />
 <member mname="verstr" type="String" access="r/o" mdesc="Version String" />
-<member mname="compiledate" type="String" access="r/o" mdesc="Compile Date" />
-<member mname="compiletime" type="String" access="r/o" mdesc="Compile Time" />
+<member mname="compiledatetime" type="String" access="r/o" mdesc="Compile Date and Time" />
 <member mname="packages" type="Array" access="r/o" mdesc="Array of enabled package names" />
 <member mname="running_scripts" type="Array" access="r/o" mdesc="Array of running script objects" />
 <member mname="all_scripts" type="Array" access="r/o" mdesc="Array of all cached script objects" />
@@ -574,7 +573,7 @@
 <method proto="log_profile(bool clear)" returns="true/false" desc="Writes the script profile to the log, optionally clearing it after." />
 <method proto="set_priority_divide(int divide)" returns="true/false" desc="Sets the priority divide to 'divide'" />
 <method proto="clear_script_profile_counters()" returns="true/false" desc="Clears the script profile counters"/>
-<!-- internal() method is useful for crashing the server... that's funny but it should probably be left undocumented ;) -->
+<method proto="internal(integer)" returns="unspecified" desc="developer methods, not officially published"/>
 </class>
 
 <class name="Datafile">
@@ -614,6 +613,7 @@ If it's an AI-Script it will return the NPC.
 If it's a ControlScript it will return the Item.
 Checks are made in the order above." />
 <member mname="controller" type="MobileRef" access="r/o" mdesc="Mobile which is responsible for damage etc." />
+<member mname="package" type="PackageRef" access="r/o" mdesc="Reference to the package where this script exists, returns error &quot;Script has no package&quot; if script is from a system folder" />
 
 <method proto="sendevent(obj event)" returns="error/true" desc="sends a event to this script (usually a struct)" />
 <method proto="kill()" returns="true" desc="Kills this script" />
@@ -851,6 +851,7 @@ Because the ClientRef contains most information that was in the Character before
 methods and properties in the Character and they will be removed in a future release.</explain>
 <member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
 <member mname="ip" type="String" access="r/o" mdesc="IP Address string" />
+<member mname="port" type="Integer" access="r/o" mdesc="connected listen port" />
 <member mname="clientversion" type="String" access="r/o" mdesc="UO Client version string" />
 <member mname="clientinfo" type="Struct" access="r/o" mdesc="UO Client information struct (check out core-changes.txt for an example)" />
 <member mname="clientver_detail" type="Struct" access="r/o" mdesc="UO Client version string as Struct of Ints {major;minor;rev;patch}" />
@@ -886,5 +887,40 @@ Object can be copied inside the same script, but cannot be stored in cprops or t
 
 <class name="Boolean">
 <explain>Object representing a boolean value, only comparison operators ==, !=, ! are implemented. Can be stored in cprops/datafiles.</explain>
+</class>
+
+<class name="XMLFile">
+<explain>Object representing a XML file.
+ForEach support: iterates over all child nodes, iterator is XMLNode object _iterator_iter is integer index.</explain>
+<method proto="removexmlnode(integer/string/XMLNode)" returns="1/0" desc="removes node by index, first node with given name or passed one." />
+<method proto="setxmldeclaration(string version, string encoding, string standalone)" returns="1" desc="Sets the xml declaration." />
+<method proto="appendxmlnode(string value, [struct{attributes}])" returns="1" desc="Appends node with name value and given attributes (key=name, value=value)." />
+<method proto="appendxmlcomment(string value)" returns="1" desc="Adds comment." />
+<method proto="savexml(string filename)" returns="1/0" desc="Saves to file." />
+<method proto="xmltostring([string ident])" returns="String" desc="Returns XML as string, identation is by default \t." />
+<method proto="[key]" returns="XMLNode" desc="If key is integer returns node of given index, if key is a string returns first node with key as name." />
+</class>
+
+<class name="XMLNode">
+<explain>Object representing a XML node.
+ForEach support: iterates over all child nodes, iterator is XMLNode object _iterator_iter is integer index.</explain>
+<member mname="attributes" type="XMLAttributes" access="r/o" mdesc="Returns attribute object of node." />
+<member mname="type" type="String" access="r/o" mdesc="Returns type string (XMLComment, XMLDeclaration, XMLDocument, XMLElement, XMLText, XMLTypeCount, XMLUnknown)." />
+<method proto="removexmlnode(integer/string/XMLNode)" returns="1/0" desc="removes node by index, first node with given name or passed one." />
+<method proto="clonenode()" returns="XMLNode" desc="Create a copy of node which is then valid longer then the file object." />
+<method proto="firstxmlchild([string value])" returns="XMLNode" desc="Returns first children or first with given name." />
+<method proto="nextxmlsibling([string value])" returns="XMLNode" desc="Returns next sibling or first with given name." />
+<method proto="appendxmlnode(string value, [struct{attributes}])" returns="1" desc="Appends node with name value and given attributes (key=name, value=value)." />
+<method proto="appendxmlcomment(string value)" returns="1" desc="Adds comment." />
+<method proto="setxmlattribute(struct{attributes})" returns="1" desc="Sets node attributes (key=name, value=value)." />
+<method proto="removexmlattribute(string key)" returns="1" desc="Removes attribute with given name." />
+<method proto="appendxmltext(string text)" returns="1" desc="Adds node text." />
+</class>
+
+<class name="XMLAttributes">
+<explain>Object representing XML attributes of a node.
+ForEach support: iterates over all attributes, iterator is a struct with key=attributename and value=attributevalue, _iterator_iter is integer index.</explain>
+<method proto="propnames()" returns="Array of Strings" desc="Returns array of all attribute names." />
+<method proto="[key]" returns="String/Error" desc="Returns attribute value." />
 </class>
 </ESCRIPT>

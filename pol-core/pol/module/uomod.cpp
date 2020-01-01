@@ -68,7 +68,6 @@
 #include "pol_global_config.h"
 
 #include "uomod.h"
-
 #include <cmath>
 #include <cstddef>
 #include <exception>
@@ -156,6 +155,8 @@
 #include "../wthrtype.h"
 #include "cfgmod.h"
 
+#include <module_defs/uo.h>
+
 namespace Pol
 {
 namespace Core
@@ -192,7 +193,7 @@ public:
 
 
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
-    : TmplExecutorModule<UOExecutorModule>( "UO", exec ),
+    : TmplExecutorModule<UOExecutorModule>( exec ),
       uoexec( exec ),
       target_cursor_chr( nullptr ),
       menu_selection_chr( nullptr ),
@@ -539,7 +540,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
 }
 
 
-BObjectImp* UOExecutorModule::broadcast()
+BObjectImp* UOExecutorModule::mf_Broadcast()
 {
   const char* text;
   unsigned short font;
@@ -744,7 +745,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
     return new BError( "A parameter was invalid" );
   }
 }
-BObjectImp* UOExecutorModule::mf_PrivateTextAbove()
+BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
 {
   Character* chr;
   UObject* obj;
@@ -860,7 +861,7 @@ BObjectImp* UOExecutorModule::mf_Target()
   return new BLong( 0 );
 }
 
-BObjectImp* UOExecutorModule::mf_TargetCancel()
+BObjectImp* UOExecutorModule::mf_CancelTarget()
 {
   Character* chr;
   if ( getCharacterParam( exec, 0, chr ) )
@@ -1618,7 +1619,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
   return false;
 }
 
-BObjectImp* UOExecutorModule::mf_SelectMenuItem()
+BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
 {
   Character* chr;
   Menu* menu;
@@ -1932,7 +1933,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz()
+BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZ()
 {
   unsigned short sx, sy;
   unsigned short dx, dy;
@@ -2016,7 +2017,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 }
 
 
-BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
+BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
 {
   UObject* src;
   UObject* dst;
@@ -2053,7 +2054,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect_Ex()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
+BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZEx()
 {
   unsigned short sx, sy;
   unsigned short dx, dy;
@@ -2098,7 +2099,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXyz_Ex()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
+BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
 {
   UObject* src;
   unsigned short effect;
@@ -2126,7 +2127,7 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect_Ex()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_PlayStationaryEffect_Ex()
+BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
 {
   unsigned short x, y;
   short z;
@@ -5660,190 +5661,4 @@ size_t UOExecutorModule::sizeEstimate() const
   return size;
 }
 }  // namespace Module
-
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<UOExecutorModule>::FunctionTable
-    TmplExecutorModule<UOExecutorModule>::function_table = {
-        {"SendStatus", &UOExecutorModule::mf_SendStatus},
-
-        {"SendCharacterRaceChanger", &UOExecutorModule::mf_SendCharacterRaceChanger},
-        {"SendHousingTool", &UOExecutorModule::mf_SendHousingTool},
-        {"MoveObjectToLocation", &UOExecutorModule::mf_MoveObjectToLocation},
-        {"SendOpenBook", &UOExecutorModule::mf_SendOpenBook},
-        {"SelectColor", &UOExecutorModule::mf_SelectColor},
-        {"AddAmount", &UOExecutorModule::mf_AddAmount},
-        {"SendViewContainer", &UOExecutorModule::mf_SendViewContainer},
-        {"SendInstaResDialog", &UOExecutorModule::mf_SendInstaResDialog},
-        {"SendStringAsTipWindow", &UOExecutorModule::mf_SendStringAsTipWindow},
-        {"GetCommandHelp", &UOExecutorModule::mf_GetCommandHelp},
-        {"PlaySoundEffectPrivate", &UOExecutorModule::mf_PlaySoundEffectPrivate},
-        {"ConsumeSubstance", &UOExecutorModule::mf_ConsumeSubstance},
-        {"FindSubstance", &UOExecutorModule::mf_FindSubstance},
-        {"Shutdown", &UOExecutorModule::mf_Shutdown},
-        {"OpenPaperdoll", &UOExecutorModule::mf_OpenPaperdoll},
-        {"SendSkillWindow", &UOExecutorModule::mf_SendSkillWindow},
-        {"ReserveItem", &UOExecutorModule::mf_ReserveItem},
-        {"ReleaseItem", &UOExecutorModule::mf_ReleaseItem},
-        {"GetStandingHeight", &UOExecutorModule::mf_GetStandingHeight},
-        {"GetStandingLayers", &UOExecutorModule::mf_GetStandingLayers},
-        {"AssignRectToWeatherRegion", &UOExecutorModule::mf_AssignRectToWeatherRegion},
-        {"CreateAccount", &UOExecutorModule::mf_CreateAccount},
-        {"FindAccount", &UOExecutorModule::mf_FindAccount},
-        {"ListAccounts", &UOExecutorModule::mf_ListAccounts},
-
-        // { "AssignMultiComponent",   &UOExecutorModule::mf_AssignMultiComponent },
-        {"SetScriptController", &UOExecutorModule::mf_SetScriptController},
-        {"PolCore", &UOExecutorModule::mf_PolCore},
-        {"GetWorldHeight", &UOExecutorModule::mf_GetWorldHeight},
-        {"StartSpellEffect", &UOExecutorModule::mf_StartSpellEffect},
-        {"GetSpellDifficulty", &UOExecutorModule::mf_GetSpellDifficulty},
-        {"SpeakPowerWords", &UOExecutorModule::mf_SpeakPowerWords},
-        {"GetMultiDimensions", &UOExecutorModule::mf_GetMultiDimensions},
-        {"DestroyMulti", &UOExecutorModule::mf_DestroyMulti},
-        {"SendTextEntryGump", &UOExecutorModule::mf_SendTextEntryGump},
-        {"SendDialogGump", &UOExecutorModule::mf_SendGumpMenu},
-        {"CloseGump", &UOExecutorModule::mf_CloseGump},
-        {"CloseWindow", &UOExecutorModule::mf_CloseWindow},
-        {"SendEvent", &UOExecutorModule::mf_SendEvent},
-        {"PlayMovingEffectXyz", &UOExecutorModule::mf_PlayMovingEffectXyz},
-        {"GetEquipmentByLayer", &UOExecutorModule::mf_GetEquipmentByLayer},
-        {"GetObjtypeByName", &UOExecutorModule::mf_GetObjtypeByName},
-        {"ListHostiles", &UOExecutorModule::mf_ListHostiles},
-        {"DisconnectClient", &UOExecutorModule::mf_DisconnectClient},
-        {"GetRegionName", &UOExecutorModule::mf_GetRegionName},
-        {"GetRegionNameAtLocation", &UOExecutorModule::mf_GetRegionNameAtLocation},
-        {"GetRegionLightLevelAtLocation", &UOExecutorModule::mf_GetRegionLightLevelAtLocation},
-        {"GetRegionString", &UOExecutorModule::mf_GetRegionString},
-        {"PlayStationaryEffect", &UOExecutorModule::mf_PlayStationaryEffect},
-        {"GetMapInfo", &UOExecutorModule::mf_GetMapInfo},
-        {"ListObjectsInBox", &UOExecutorModule::mf_ListObjectsInBox},
-        {"ListItemsInBoxOfObjType", &UOExecutorModule::mf_ListItemsInBoxOfObjType},
-        {"ListObjectsInBoxOfClass", &UOExecutorModule::mf_ListObjectsInBoxOfClass},
-        {"ListMultisInBox", &UOExecutorModule::mf_ListMultisInBox},
-        {"ListStaticsInBox", &UOExecutorModule::mf_ListStaticsInBox},
-        {"ListEquippedItems", &UOExecutorModule::mf_ListEquippedItems},
-        {"ConsumeReagents", &UOExecutorModule::mf_ConsumeReagents},
-        {"SendPacket", &UOExecutorModule::mf_SendPacket},
-        {"SendQuestArrow", &UOExecutorModule::mf_SendQuestArrow},
-        {"RequestInput", &UOExecutorModule::mf_PromptInput},
-        {"ReadGameClock", &UOExecutorModule::mf_ReadGameClock},
-        {"GrantPrivilege", &UOExecutorModule::mf_GrantPrivilege},
-        {"RevokePrivilege", &UOExecutorModule::mf_RevokePrivilege},
-        {"EquipFromTemplate", &UOExecutorModule::mf_EquipFromTemplate},
-        {"GetHarvestDifficulty", &UOExecutorModule::mf_GetHarvestDifficulty},
-        {"HarvestResource", &UOExecutorModule::mf_HarvestResource},
-        {"RestartScript", &UOExecutorModule::mf_RestartScript},
-        {"EnableEvents", &UOExecutorModule::mf_EnableEvents},
-        {"DisableEvents", &UOExecutorModule::mf_DisableEvents},
-        {"EquipItem", &UOExecutorModule::mf_EquipItem},
-        {"MoveItemToContainer", &UOExecutorModule::mf_MoveItemToContainer},
-        {"MoveItemToSecureTradeWin", &UOExecutorModule::mf_MoveItemToSecureTradeWin},
-        {"FindObjtypeInContainer", &UOExecutorModule::mf_FindObjtypeInContainer},
-        {"SendOpenSpecialContainer", &UOExecutorModule::mf_SendOpenSpecialContainer},
-        {"SecureTradeWin", &UOExecutorModule::mf_SecureTradeWin},
-        {"CloseTradeWindow", &UOExecutorModule::mf_CloseTradeWindow},
-        {"SendBuyWindow", &UOExecutorModule::mf_SendBuyWindow},
-        {"SendSellWindow", &UOExecutorModule::mf_SendSellWindow},
-        {"CreateItemInContainer", &UOExecutorModule::mf_CreateItemInContainer},
-        {"CreateItemInInventory", &UOExecutorModule::mf_CreateItemInInventory},
-        {"ListMobilesNearLocationEx", &UOExecutorModule::mf_ListMobilesNearLocationEx},
-        {"SystemFindObjectBySerial", &UOExecutorModule::mf_SystemFindObjectBySerial},
-        {"ListItemsNearLocationOfType", &UOExecutorModule::mf_ListItemsNearLocationOfType},
-        {"ListItemsNearLocationWithFlag", &UOExecutorModule::mf_ListItemsNearLocationWithFlag},
-        {"ListStaticsAtLocation", &UOExecutorModule::mf_ListStaticsAtLocation},
-        {"ListStaticsNearLocation", &UOExecutorModule::mf_ListStaticsNearLocation},
-        {"ListGhostsNearLocation", &UOExecutorModule::mf_ListGhostsNearLocation},
-        {"ListMobilesInLineOfSight", &UOExecutorModule::mf_ListMobilesInLineOfSight},
-        {"Distance", &UOExecutorModule::mf_Distance},
-        {"CoordinateDistance", &UOExecutorModule::mf_CoordinateDistance},
-        {"DistanceEuclidean", &UOExecutorModule::mf_DistanceEuclidean},
-        {"CoordinateDistanceEuclidean", &UOExecutorModule::mf_CoordinateDistanceEuclidean},
-        {"GetCoordsInLine", &UOExecutorModule::mf_GetCoordsInLine},
-        {"GetFacing", &UOExecutorModule::mf_GetFacing},
-        {"SetRegionLightLevel", &UOExecutorModule::mf_SetRegionLightLevel},
-        {"SetRegionWeatherLevel", &UOExecutorModule::mf_SetRegionWeatherLevel},
-        {"EraseObjProperty", &UOExecutorModule::mf_EraseObjProperty},
-        {"GetGlobalProperty", &UOExecutorModule::mf_GetGlobalProperty},
-        {"SetGlobalProperty", &UOExecutorModule::mf_SetGlobalProperty},
-        {"EraseGlobalProperty", &UOExecutorModule::mf_EraseGlobalProperty},
-        {"GetGlobalPropertyNames", &UOExecutorModule::mf_GetGlobalPropertyNames},
-        {"SaveWorldState", &UOExecutorModule::mf_SaveWorldState},
-        {"CreateMultiAtLocation", &UOExecutorModule::mf_CreateMultiAtLocation},
-        {"TargetMultiPlacement", &UOExecutorModule::mf_TargetMultiPlacement},
-        {"Resurrect", &UOExecutorModule::mf_Resurrect},
-        {"CreateNpcFromTemplate", &UOExecutorModule::mf_CreateNpcFromTemplate},
-        {"RegisterForSpeechEvents", &UOExecutorModule::mf_RegisterForSpeechEvents},
-        {"EnumerateOnlineCharacters", &UOExecutorModule::mf_EnumerateOnlineCharacters},
-        {"PrintTextAbove", &UOExecutorModule::mf_PrintTextAbove},
-        {"PrintTextAbovePrivate", &UOExecutorModule::mf_PrivateTextAbove},
-
-        {"Accessible", &UOExecutorModule::mf_Accessible},
-        {"ApplyConstraint", &UOExecutorModule::mf_ApplyConstraint},
-        {"Attach", &UOExecutorModule::mf_Attach},
-        {"broadcast", &UOExecutorModule::broadcast},
-        {"CheckLineOfSight", &UOExecutorModule::mf_CheckLineOfSight},
-        {"CheckLosAt", &UOExecutorModule::mf_CheckLosAt},
-
-        {"CreateItemInBackpack", &UOExecutorModule::mf_CreateItemInBackpack},
-        {"CreateItemAtLocation", &UOExecutorModule::mf_CreateItemAtLocation},
-
-        {"CreateItemCopyAtLocation", &UOExecutorModule::mf_CreateItemCopyAtLocation},
-
-        {"DestroyItem", &UOExecutorModule::mf_DestroyItem},
-        {"Detach", &UOExecutorModule::mf_Detach},
-        {"EnumerateItemsInContainer", &UOExecutorModule::mf_EnumerateItemsInContainer},
-        {"FindPath", &UOExecutorModule::mf_FindPath},
-        {"GetAmount", &UOExecutorModule::mf_GetAmount},
-        {"GetMenuObjTypes", &UOExecutorModule::mf_GetMenuObjTypes},
-        {"GetObjProperty", &UOExecutorModule::mf_GetObjProperty},
-        {"GetObjPropertyNames", &UOExecutorModule::mf_GetObjPropertyNames},
-        {"GetObjType", &UOExecutorModule::mf_GetObjType},
-        {"GetPosition", &UOExecutorModule::mf_GetPosition},
-        {"IsStackable", &UOExecutorModule::mf_IsStackable},
-        {"ListItemsAtLocation", &UOExecutorModule::mf_ListItemsAtLocation},
-        {"ListItemsNearLocation", &UOExecutorModule::mf_ListItemsNearLocation},
-        {"ListMobilesNearLocation", &UOExecutorModule::mf_ListMobilesNearLocation},
-        {"PerformAction", &UOExecutorModule::mf_PerformAction},
-        {"PlayLightningBoltEffect", &UOExecutorModule::mf_PlayLightningBoltEffect},
-        {"PlayMovingEffect", &UOExecutorModule::mf_PlayMovingEffect},
-        {"PlayObjectCenteredEffect", &UOExecutorModule::mf_PlayObjectCenteredEffect},
-        {"PlaySoundEffect", &UOExecutorModule::mf_PlaySoundEffect},
-        {"PlaySoundEffectXYZ", &UOExecutorModule::mf_PlaySoundEffectXYZ},
-        {"PlayMusic", &UOExecutorModule::mf_PlayMusic},
-        {"SelectMenuItem2", &UOExecutorModule::mf_SelectMenuItem},
-        {"SendSysMessage", &UOExecutorModule::mf_SendSysMessage},
-        {"SetObjProperty", &UOExecutorModule::mf_SetObjProperty},
-        {"SetName", &UOExecutorModule::mf_SetName},
-        {"SubtractAmount", &UOExecutorModule::mf_SubtractAmount},
-        {"Target", &UOExecutorModule::mf_Target},
-        {"TargetCoordinates", &UOExecutorModule::mf_TargetCoordinates},
-        {"CancelTarget", &UOExecutorModule::mf_TargetCancel},
-        {"UseItem", &UOExecutorModule::mf_UseItem},
-
-        {"CreateMenu", &UOExecutorModule::mf_CreateMenu},
-        {"AddMenuItem", &UOExecutorModule::mf_AddMenuItem},
-
-        {"PlayStationaryEffectEx", &UOExecutorModule::mf_PlayStationaryEffect_Ex},
-        {"PlayObjectCenteredEffectEx", &UOExecutorModule::mf_PlayObjectCenteredEffect_Ex},
-        {"PlayMovingEffectEx", &UOExecutorModule::mf_PlayMovingEffect_Ex},
-        {"PlayMovingEffectXyzEx", &UOExecutorModule::mf_PlayMovingEffectXyz_Ex},
-
-        {"UpdateItem", &UOExecutorModule::mf_UpdateItem},
-        {"UpdateMobile", &UOExecutorModule::mf_UpdateMobile},
-        {"CheckLosBetween", &UOExecutorModule::mf_CheckLosBetween},
-        {"CanWalk", &UOExecutorModule::mf_CanWalk},
-        {"SendCharProfile", &UOExecutorModule::mf_SendCharProfile},
-        {"SendOverallSeason", &UOExecutorModule::mf_SendOverallSeason},
-        {"ListOfflineMobilesInRealm", &UOExecutorModule::mf_ListOfflineMobilesInRealm},
-        {"ListMobilesInBox", &UOExecutorModule::mf_ListMobilesInBox},
-        {"GetMidpointCircleCoords", &UOExecutorModule::mf_GetMidpointCircleCoords},
-
-        {"SendPopUpMenu", &UOExecutorModule::mf_SendPopUpMenu},
-        {"SingleClick", &UOExecutorModule::mf_SingleClick},
-        {"ListStaticsNearLocationOfType", &UOExecutorModule::mf_ListStaticsNearLocationOfType},
-        {"ListStaticsNearLocationWithFlag", &UOExecutorModule::mf_ListStaticsNearLocationWithFlag}};
-}  // namespace Bscript
 }  // namespace Pol

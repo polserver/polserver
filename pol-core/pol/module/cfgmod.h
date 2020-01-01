@@ -40,9 +40,9 @@ class ConfigFileExecutorModule : public Bscript::TmplExecutorModule<ConfigFileEx
 public:
   ConfigFileExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_ConfigFile();
-  Bscript::BObjectImp* mf_FindConfigElement();
-  Bscript::BObjectImp* mf_GetElementProperty();
+  Bscript::BObjectImp* mf_ReadConfigFile();
+  Bscript::BObjectImp* mf_FindConfigElem();
+  Bscript::BObjectImp* mf_GetElemProperty();
   Bscript::BObjectImp* mf_GetConfigString();
   Bscript::BObjectImp* mf_GetConfigStringArray();
   Bscript::BObjectImp* mf_GetConfigStringDictionary();

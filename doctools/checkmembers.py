@@ -1,5 +1,7 @@
 ## lazy way to check member docs
 ## does so in a very primitive way
+
+from objnames import translate
 import os
 from pprint import pprint
 def parseMemberDec():
@@ -155,36 +157,6 @@ for r,d,files in os.walk('../pol-core/'):
 #pprint(members.keys())
 docs=checkDocs()
 #pprint(docs)
-translate={
-    'Struct': 'BStruct',
-    'Dictionary': 'BDictionary',
-    'Array': 'ObjArray',
-    'BinaryFile': 'BBinaryfile',
-    'Script': 'ScriptExObjImp',
-    'Packet': 'BPacket',
-    'Boat': 'UBoat',
-    'Door': 'UDoor',
-    'Client': 'EClientRefObjImp',
-    'Account': 'AccountObjImp',
-    'Datafile': 'DataFileRefObjImp',
-    'DataFileElement': 'DataElemRefObjImp',
-    'Guild': 'EGuildRefObjImp',
-    'Party': 'EPartyRefObjImp',
-    'House': 'UHouse',
-    'Lockable': 'ULockable',
-    'Container': 'UContainer',
-    'Corpse': 'UCorpse',
-    'Plank': 'UPlank',
-    'Weapon': 'UWeapon',
-    'Multi': 'UMulti',
-    'Armor': 'UArmor',
-    'StorageAreas': 'StorageAreasImp',
-    'StorageArea': 'StorageAreaImp',
-    'Package': 'PackageObjImp',
-    'Polcore': 'PolCore',
-    }
-for k,v in list(translate.items()):
-    translate[v]=k
 
 for dc,dm in docs.items():
     pc=translate.get(dc,dc)

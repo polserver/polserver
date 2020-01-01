@@ -439,6 +439,18 @@ void Token::printOn( std::ostream& os ) const
   case TOK_UNMINUSMINUS_POST:
     os << "unary -- post";
     break;
+  case INS_SET_MEMBER_ID_UNPLUSPLUS:
+    os << "set member id '" << getObjMember( lval )->code << "' unary ++";
+    break;
+  case INS_SET_MEMBER_ID_UNMINUSMINUS:
+    os << "set member id '" << getObjMember( lval )->code << "' unary --";
+    break;
+  case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+    os << "set member id '" << getObjMember( lval )->code << "' unary ++ post";
+    break;
+  case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+    os << "set member id '" << getObjMember( lval )->code << "' unary -- post";
+    break;
   case RSV_COLON:
     os << "':'";
     break;

@@ -26,6 +26,7 @@
 #include "../bscript/objmethods.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
+#include "module/polsystemmod.h"
 #include "module/uomod.h"
 #include "polcfg.h"
 #include "uoexec.h"
@@ -176,6 +177,16 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
     return BObjectRef( new BLong( uoexec->pid() ) );
   case MBR_NAME:
     return BObjectRef( new String( uoexec->scriptname() ) );
+  case MBR_PACKAGE:
+  {
+    const Pol::Plib::Package* pkg_ptr = uoexec->prog()->pkg;
+    if ( pkg_ptr != nullptr )
+    {
+      return BObjectRef( new Pol::Module::PackageObjImp( pkg_ptr ) );
+    }
+    else
+      return BObjectRef( new BError( "Script has no package" ) );
+  }
   case MBR_STATE:
     return BObjectRef( new String( uoexec->state() ) );
   case MBR_INSTR_CYCLES:
@@ -228,5 +239,5 @@ BObjectRef ScriptExObjImp::get_member( const char* membername )
   else
     return BObjectRef( UninitObject::create() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

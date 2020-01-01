@@ -32,6 +32,7 @@ public:
   SystemState& operator=( const SystemState& ) = delete;
   void deinitialize();
 
+  // TODO: why two containers? keep the map when often name is searched?
   Packages packages;
   PackagesByName packages_byname;
 

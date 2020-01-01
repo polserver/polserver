@@ -41,7 +41,6 @@ Mobile::Character* system_find_mobile( USERIAL serial /*, int sysfind_flags = 0 
 Mobile::Character* find_character( USERIAL serial );
 UObject* find_toplevel_object( USERIAL serial );
 Items::Item* find_toplevel_item( USERIAL serial );
-Mobile::Character* find_character( USERIAL serial );
 }
 }
 

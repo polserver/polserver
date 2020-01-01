@@ -278,7 +278,7 @@ Bscript::BObjectImp* UHouse::get_script_member_id( const int id ) const  /// id 
     if ( !IsCustom() )
       return new BError( "House is not custom" );
     else if ( IsEditing() )
-      return new BError( "House is currently been edited" );
+      return WorkingDesign.list_parts();
     else
       return CurrentDesign.list_parts();
     break;
@@ -598,6 +598,27 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
       shape.z = itr->z + zbase;
       shape.height = Plib::tileheight( itr->graphic );
       shape.flags = Plib::tile_flags( itr->graphic );
+      if ( !shape.height )
+      {
+        ++shape.height;
+        --shape.z;
+      }
+      vec.push_back( shape );
+      result = true;
+    }
+  }
+  // house teleporters are components and replace floors
+  for ( const auto& c : components_ )
+  {
+    Items::Item* item = c.get();
+    if ( item == nullptr || item->orphan() )
+      continue;
+    if ( item->graphic >= TELEPORTER_START && item->graphic <= TELEPORTER_END )
+    {
+      Plib::MapShape shape;
+      shape.z = item->z;
+      shape.height = Plib::tileheight( item->graphic );
+      shape.flags = Plib::tile_flags( item->graphic );
       if ( !shape.height )
       {
         ++shape.height;
@@ -984,7 +1005,7 @@ void UHouse::walk_on( Mobile::Character* chr )
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->priority(100);
+      ex->priority( 100 );
 
       if ( ex->setProgram( prog.get() ) )
       {
@@ -1016,7 +1037,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
   else
   {
     WorkingDesign.AddComponents( this );
-    CustomHouseDesign::ClearComponents( this );
+    WorkingDesign.ClearComponents( this );
     if ( chr && chr->client )
       CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_WORKING );
   }

@@ -9,20 +9,13 @@
 #define __PARSER_H
 
 #include <iosfwd>
+#include <queue>
+#include <stack>
 #include <stddef.h>
 #include <string>
+#include <vector>
 
 #include "tokens.h"
-
-namespace Pol
-{
-namespace Bscript
-{
-class ModuleFunction;
-class Token;
-class UserFunction;
-}  // namespace Bscript
-}  // namespace Pol
 
 #ifndef __TOKEN_H
 #include "token.h"
@@ -31,15 +24,14 @@ class UserFunction;
 #include "operator.h"
 #endif
 
-#include <queue>
-#include <stack>
-#include <vector>
-
 namespace Pol
 {
 namespace Bscript
 {
 class CompilerContext;
+class ModuleFunction;
+class Token;
+class UserFunction;
 
 typedef enum
 {
@@ -108,7 +100,7 @@ class Parser
 {
 public:
   Parser();
-  virtual ~Parser() {}
+  virtual ~Parser() = default;
   Parser& operator=( const Parser& ) { return *this; }
   int quiet;
   ParseError err;
@@ -118,8 +110,6 @@ public:
 
   bool contains_tabs;
 
-public:
-public:
   void reinit( Expression& ex );
 
   static void write_words( std::ostream& os );
@@ -150,7 +140,7 @@ public:
 class SmartParser : public Parser
 {
 public:
-  virtual ~SmartParser() {}
+  virtual ~SmartParser() = default;
 
 protected:
   virtual int tryLiteral( Token& tok, CompilerContext& ctx ) override;

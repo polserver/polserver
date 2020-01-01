@@ -967,7 +967,7 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 //
 //  "GUMP" Functions
 //
-BObjectImp* UOExecutorModule::mf_SendGumpMenu()
+BObjectImp* UOExecutorModule::mf_SendDialogGump()
 {
   /*
    Client* client,
@@ -1518,7 +1518,8 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
         reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
     u32 strings_count = cfBEu32( strhdr->count );
     // even if this is ok, it could still overflow.  Have to check each string.
-    if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 1 ) * strings_count > msglen + 1u )
+    // -2 per entry to only count tag+length (data has size of 2 in struct)
+    if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
     {
       ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
                   << client->chr->name()
@@ -2032,7 +2033,7 @@ BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-BObjectImp* UOExecutorModule::mf_PolCore()
+BObjectImp* UOExecutorModule::mf_POLCore()
 {
   return new PolCore;
 }
@@ -2518,6 +2519,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     return new BError( "You must be inside the house to customize it." );
 
   chr->client->gd->custom_house_serial = house->serial;
+  chr->client->gd->custom_house_chrserial = chr->serial;
 
   {
     PktHelper::PacketOut<PktOut_BF_Sub20> msg;
@@ -2536,7 +2538,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 
   house->WorkingDesign.AddComponents( house );
   house->CurrentDesign.AddComponents( house );
-  Multi::CustomHouseDesign::ClearComponents( house );
+  house->WorkingDesign.ClearComponents( house );
   Multi::ItemList itemlist;
   Multi::MobileList moblist;
   Multi::UHouse::list_contents( house, itemlist, moblist );

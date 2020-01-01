@@ -1,0 +1,7 @@
+3
+4
+struct{ resist_fire_mod = 3 }
+4
+3
+5
+struct{ resist_fire_mod = 6 }

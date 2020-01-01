@@ -5,7 +5,6 @@
  */
 
 #include "npcmod.h"
-
 #include <iostream>
 #include <stddef.h>
 #include <string>
@@ -35,54 +34,15 @@
 #include "osmod.h"
 #include "unimod.h"
 
+#include <module_defs/npc.h>
+
 namespace Pol
 {
-namespace Bscript
-{
-using namespace Module;
-template <>
-TmplExecutorModule<NPCExecutorModule>::FunctionTable
-    TmplExecutorModule<NPCExecutorModule>::function_table = {
-        {"Wander", &NPCExecutorModule::mf_Wander},
-        {"self", &NPCExecutorModule::mf_Self},
-        {"face", &NPCExecutorModule::face},
-        {"move", &NPCExecutorModule::move},
-        {"WalkToward", &NPCExecutorModule::mf_WalkToward},
-        {"RunToward", &NPCExecutorModule::mf_RunToward},
-        {"WalkAwayFrom", &NPCExecutorModule::mf_WalkAwayFrom},
-        {"RunAwayFrom", &NPCExecutorModule::mf_RunAwayFrom},
-        {"TurnToward", &NPCExecutorModule::mf_TurnToward},
-        {"TurnAwayFrom", &NPCExecutorModule::mf_TurnAwayFrom},
-
-        {"WalkTowardLocation", &NPCExecutorModule::mf_WalkTowardLocation},
-        {"RunTowardLocation", &NPCExecutorModule::mf_RunTowardLocation},
-        {"WalkAwayFromLocation", &NPCExecutorModule::mf_WalkAwayFromLocation},
-        {"RunAwayFromLocation", &NPCExecutorModule::mf_RunAwayFromLocation},
-        {"TurnTowardLocation", &NPCExecutorModule::mf_TurnTowardLocation},
-        {"TurnAwayFromLocation", &NPCExecutorModule::mf_TurnAwayFromLocation},
-
-        {"say", &NPCExecutorModule::say},
-        {"SayUC", &NPCExecutorModule::SayUC},
-        {"SetOpponent", &NPCExecutorModule::mf_SetOpponent},
-        {"SetWarMode", &NPCExecutorModule::mf_SetWarMode},
-        {"SetAnchor", &NPCExecutorModule::mf_SetAnchor},
-        {"position", &NPCExecutorModule::position},
-        {"facing", &NPCExecutorModule::facing},
-        {"IsLegalMove", &NPCExecutorModule::IsLegalMove},
-        {"CanMove", &NPCExecutorModule::CanMove},
-        {"getproperty", &NPCExecutorModule::getproperty},
-        {"setproperty", &NPCExecutorModule::setproperty},
-        {"makeboundingbox", &NPCExecutorModule::makeboundingbox}
-        // { "CreateBackpack", CreateBackpack },
-        // { "CreateItem", CreateItem }
-};
-}  // namespace Bscript
-
 namespace Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : TmplExecutorModule<NPCExecutorModule>( "NPC", ex ), npcref( &npc ), npc( npc )
+    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
   if ( os_module == nullptr )
@@ -111,7 +71,7 @@ public:
 };
 
 /* IsLegalMove: parameters (move, bounding box)*/
-BObjectImp* NPCExecutorModule::IsLegalMove()
+BObjectImp* NPCExecutorModule::mf_IsLegalMove()
 {
   String* facing_str = static_cast<String*>( exec.getParamImp( 0, BObjectImp::OTString ) );
   BApplicObjBase* appobj =
@@ -136,7 +96,7 @@ BObjectImp* NPCExecutorModule::IsLegalMove()
 }
 
 /* CanMove: parameters (facing)*/
-BObjectImp* NPCExecutorModule::CanMove()
+BObjectImp* NPCExecutorModule::mf_CanMove()
 {
   if ( exec.fparams.size() == 1 )
   {
@@ -306,7 +266,7 @@ BObjectImp* NPCExecutorModule::mf_Wander()
   return move_self( static_cast<Plib::UFACING>( newfacing ), false, adjust_ok );
 }
 
-BObjectImp* NPCExecutorModule::face()
+BObjectImp* NPCExecutorModule::mf_Face()
 {
   BObjectImp* param0 = exec.getParamImp( 0 );
   int flags;
@@ -350,7 +310,7 @@ BObjectImp* NPCExecutorModule::face()
   return new BLong( i_facing );
 }
 
-BObjectImp* NPCExecutorModule::move()
+BObjectImp* NPCExecutorModule::mf_Move()
 {
   BObjectImp* param0 = exec.getParamImp( 0 );
 
@@ -672,7 +632,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
 }
 
 
-BObjectImp* NPCExecutorModule::say()
+BObjectImp* NPCExecutorModule::mf_Say()
 {
   if ( npc.squelched() )
     return new BError( "NPC is squelched" );
@@ -765,7 +725,7 @@ BObjectImp* NPCExecutorModule::say()
   return nullptr;
 }
 
-BObjectImp* NPCExecutorModule::SayUC()
+BObjectImp* NPCExecutorModule::mf_SayUC()
 {
   if ( npc.squelched() )
     return new BError( "NPC is squelched" );
@@ -847,7 +807,7 @@ BObjectImp* NPCExecutorModule::SayUC()
   return nullptr;
 }
 
-BObjectImp* NPCExecutorModule::position()
+BObjectImp* NPCExecutorModule::mf_position()
 {
   std::unique_ptr<BStruct> oa( new BStruct );
 
@@ -858,12 +818,12 @@ BObjectImp* NPCExecutorModule::position()
   return oa.release();
 }
 
-BObjectImp* NPCExecutorModule::facing()
+BObjectImp* NPCExecutorModule::mf_Facing()
 {
   return new String( Mobile::FacingStr( static_cast<Plib::UFACING>( npc.facing ) ) );
 }
 
-BObjectImp* NPCExecutorModule::getproperty()
+BObjectImp* NPCExecutorModule::mf_GetProperty()
 {
   const String* propname_str;
   if ( exec.getStringParam( 0, propname_str ) )
@@ -884,7 +844,7 @@ BObjectImp* NPCExecutorModule::getproperty()
   }
 }
 
-BObjectImp* NPCExecutorModule::setproperty()
+BObjectImp* NPCExecutorModule::mf_SetProperty()
 {
   const String* propname_str;
   if ( exec.getStringParam( 0, propname_str ) )
@@ -899,7 +859,7 @@ BObjectImp* NPCExecutorModule::setproperty()
   }
 }
 
-BObjectImp* NPCExecutorModule::CreateBackpack()
+BObjectImp* NPCExecutorModule::mf_CreateBackpack()
 {
   // UNTESTED
   if ( !npc.layer_is_equipped( Core::LAYER_BACKPACK ) )
@@ -916,7 +876,7 @@ BObjectImp* NPCExecutorModule::CreateBackpack()
   return new BLong( 1 );
 }
 
-BObjectImp* NPCExecutorModule::CreateItem()
+BObjectImp* NPCExecutorModule::mf_CreateItem()
 {
   // UNTESTED
   const BLong* objtype = exec.getLongParam( 0 );
@@ -950,7 +910,7 @@ BObjectImp* NPCExecutorModule::CreateItem()
   return new BLong( serial );
 }
 
-BObjectImp* NPCExecutorModule::makeboundingbox( /* areastring */ )
+BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 {
   auto arealist = static_cast<String*>( getParamImp( 0, BObjectImp::OTString ) );
   if ( arealist == nullptr )

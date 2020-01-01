@@ -28,11 +28,11 @@ class BasicExecutorModule : public Bscript::TmplExecutorModule<BasicExecutorModu
 {
 public:
   /* These probably belong in a string module */
-  Bscript::BObjectImp* find();
-  Bscript::BObjectImp* len();
-  Bscript::BObjectImp* upper();
-  Bscript::BObjectImp* lower();
-  Bscript::BObjectImp* mf_substr();
+  Bscript::BObjectImp* mf_Find();
+  Bscript::BObjectImp* mf_Len();
+  Bscript::BObjectImp* mf_Upper();
+  Bscript::BObjectImp* mf_Lower();
+  Bscript::BObjectImp* mf_SubStr();
   Bscript::BObjectImp* mf_Trim();
   Bscript::BObjectImp* mf_StrReplace();
   Bscript::BObjectImp* mf_SubStrReplace();
