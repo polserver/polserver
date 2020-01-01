@@ -125,13 +125,15 @@ int RunEclMain::runeclScript( std::string fileName )
   Clib::strip_one( dir );
   dir = Clib::normalized_dir_form( dir );
   Plib::load_packages( true /*quiet*/ );
-
+  ERROR_PRINT << "current dir is " << dir << "\n";
   const auto& pkgs = Plib::systemstate.packages;
   auto pkg = std::find_if( pkgs.begin(), pkgs.end(), [&dir]( Plib::Package* p ) {
+    ERROR_PRINT << "pkg dir " << p->dir() << "\n";
     return Clib::stringicmp( p->dir(), dir ) == 0;
   } );
   if ( pkg != pkgs.end() )
   {
+    ERROR_PRINT << "found pkg\n";
     program->pkg = *pkg;
   }
   Module::load_fileaccess_cfg();  // after pkg load
