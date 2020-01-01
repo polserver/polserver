@@ -74,20 +74,22 @@ macro(detect_platform)
     message("Platform is Little Endian")
   endif()
 
-  include(CheckCXXSourceCompiles)
-  check_cxx_source_compiles(
-    "#include <type_traits>
-    int main()
-    {
-      static_assert(std::is_signed<char>::value, \"char is unsigned\");
-      return 0;
-    }"
-    CHAR_IS_SIGNED
-  )
-  if (CHAR_IS_SIGNED)
-    message("Char is signed")
-  else()
-    message("char is unsigned!")
+  if (NOT DEFINED FORCE_SIGNED_CHAR)
+    set(FORCE_SIGNED_CHAR 0)
+    include(CheckCXXSourceCompiles)
+    check_cxx_source_compiles(
+      "#include <type_traits>
+      int main()
+      {
+        static_assert(std::is_signed<char>::value, \"char is unsigned\");
+        return 0;
+      }"
+      CHAR_IS_SIGNED
+    )
+    if (NOT CHAR_IS_SIGNED)
+      message("char is unsigned, forcing as signed")
+      set(FORCE_SIGNED_CHAR 1)
+    endif()
   endif()
 
 
@@ -95,6 +97,7 @@ macro(detect_platform)
   if (${linux})
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
       set(arm 1)
+      message("Platform is ARM")
     endif()
   endif()
 
