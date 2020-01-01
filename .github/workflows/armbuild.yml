@@ -35,3 +35,14 @@ jobs:
             cmake ..
             cmake --build . --config RelWithDebInfo -- -j 2
             ctest -j2 --output-on-failure --repeat-until-fail 2 -C RelWithDebInfo
+            cmake --build . --config RelWithDebInfo --target package
+            cmake --build . --config RelWithDebInfo --target create_dbg_zip
+            cd ../bin
+            mkdir release
+            mv *.zip release
+
+      - name: Upload Artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Nightly-ARMv6-Buster-gcc-8
+          path: bin/release
