@@ -91,7 +91,11 @@ macro(detect_platform)
       set(FORCE_SIGNED_CHAR 1)
     endif()
   endif()
-
+  include(CheckTypeSize)
+  set(CMAKE_EXTRA_INCLUDE_FILES wchar.h)
+  check_type_size(wchar_t SIZEOF_WCHAR_T)
+  set(CMAKE_EXTRA_INCLUDE_FILES)
+  message("wchar size is ${SIZEOF_WCHAR_T}")
 
   set(arm 0)
   if (${linux})
