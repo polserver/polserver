@@ -655,7 +655,7 @@ bool Socket::is_local() const
 
 bool is_invalid_readline_char( unsigned char c )
 {
-  return !isprint( c ) && c != '\n' && c != '\r';
+  return !isprint( c ) && c != '\n';
 }
 
 bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
@@ -664,7 +664,7 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
     *timed_out = false;
 
   // check if there is already a line in the buffer
-  auto pos_newline = _currentLine.find_first_of( "\r\n" );
+  auto pos_newline = _currentLine.find_first_of( "\n" );
 
   // If not, try to read more data
   if ( pos_newline == std::string::npos )
@@ -700,7 +700,7 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
     _currentLine.append( buffer.data(), valid_char_count );
 
     // update position
-    pos_newline = _currentLine.find_first_of( "\r\n", oldSize );
+    pos_newline = _currentLine.find_first_of( "\n", oldSize );
   }
 
   // note that std::string::npos is larger than any other number, so the conditon below will be
@@ -718,8 +718,6 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
     return false;
 
   auto end_newline = pos_newline + 1;
-  if ( _currentLine[pos_newline] == '\r' )
-    end_newline++;
 
   out = _currentLine.substr( 0, pos_newline );
   _currentLine.erase( 0, end_newline );
