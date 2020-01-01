@@ -139,11 +139,11 @@ jobs:
     runs-on: "ubuntu-latest"
     if: always()
     steps:
-      name: test
-      runs: |
-        echo ${{ github.sha }}
-        echo ${{ github.ref }}
-        echo ${{ job.status }}
+      - name: test
+        run: |
+          echo ${{ github.sha }}
+          echo ${{ github.ref }}
+          echo ${{ job.status }}
 
   release:
     needs: build
