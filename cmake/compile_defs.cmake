@@ -87,7 +87,6 @@ function(set_compile_flags target is_executable)
       /nologo
     >
   )
-  if (NOT CHAR_IS_SIGNED)
 
   if(${gcc} OR ${clang})
     if(${ENABLE_ASAN})
