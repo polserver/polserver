@@ -134,7 +134,7 @@ jobs:
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
-  notify:
+  notifyf:
     needs: build
     runs-on: "ubuntu-latest"
     if: failure()
@@ -145,7 +145,7 @@ jobs:
           echo ${{ github.sha }}
           echo ${{ github.ref }}
           echo ${{ job.status }}
-  notify:
+  notifys:
     needs: build
     runs-on: "ubuntu-latest"
     if: success()
@@ -156,7 +156,7 @@ jobs:
           echo ${{ github.sha }}
           echo ${{ github.ref }}
           echo ${{ job.status }}
-  notify:
+  notifya:
     needs: build
     runs-on: "ubuntu-latest"
     if: always()
