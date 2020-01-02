@@ -198,4 +198,30 @@ jobs:
           asset_path: Nightly-Linux-clang.zip
           asset_name: Nightly-Linux-clang.zip
           asset_content_type: application/
-
+ 
+  notify_on_failure:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: failure()
+    steps:
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: failure
+          job: Building
+          nofail: false
+  notify_on_success:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: success()
+    steps:
+      - name: Discord notification success
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: success
+          job: Building
+          nofail: false
