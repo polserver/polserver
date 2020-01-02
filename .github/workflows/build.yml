@@ -212,6 +212,8 @@ jobs:
         with:
           status: failure
           job: Building
+          description: CI
+          nofail: false
   notify_on_success:
     needs: build
     runs-on: "ubuntu-latest"
@@ -224,3 +226,5 @@ jobs:
         with:
           status: success
           job: Building
+          description: CI
+          nofail: false
