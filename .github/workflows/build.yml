@@ -207,12 +207,10 @@ jobs:
       - name: Discord notification failure
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: sarisia/actions-status-discord@v1
-#        uses: turleypol/actions-status-discord@master
+        uses: turleypol/actions-status-discord@master
         with:
           status: failure
           job: Building
-          description: CI
           nofail: false
   notify_on_success:
     needs: build
@@ -222,9 +220,8 @@ jobs:
       - name: Discord notification success
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        uses: sarisia/actions-status-discord@v1
+        uses: turleypol/actions-status-discord@master
         with:
           status: success
           job: Building
-          description: CI
           nofail: false
