@@ -86,7 +86,8 @@ jobs:
         run: |
           cd bin-build
           tar czvf polserver.tgz cov-int
-          cov-manage-emit --dir cov-int --list
+          mkdir ../bin/cov-int
+          cp polserver.tgz ../bin/cov-int
 #          curl \
 #            --form token=$TOKEN \
 #            --form email=polteam@polserver.com \
@@ -96,3 +97,8 @@ jobs:
 #            https://scan.coverity.com/builds?project=polserver%2Fpolserver
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+      - name: Upload Artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: cov-int
+          path: bin/cov-int
