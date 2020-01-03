@@ -72,8 +72,8 @@ jobs:
           echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
       - name: Config
         run: |
-          #cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
-          cov-configure --gcc
+          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
+          #cov-configure --gcc
           cd bin-build
           cmake ..
 
