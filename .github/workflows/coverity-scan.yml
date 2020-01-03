@@ -60,7 +60,7 @@ jobs:
 
       - name: Download Coverity Build Tool
         run: |
-          wget https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
+          wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=polserver%2Fpolserver" -O cov-analysis-linux64.tar.gz
           mkdir cov-analysis-linux64
           tar xvzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
         env:
@@ -72,25 +72,27 @@ jobs:
           echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
       - name: Config
         run: |
+          #cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
+          cov-configure --gcc
           cd bin-build
           cmake ..
 
       - name: Build with cov-build
         run: |
           cd bin-build
-          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
           cov-build --dir cov-int make -j 2
 
       - name: Submit the result to Coverity Scan
         run: |
           cd bin-build
           tar czvf polserver.tgz cov-int
-          curl \
-            --form token=$TOKEN \
-            --form email=polteam@polserver.com \
-            --form file=@polserver.tgz \
-            --form version=master \
-            --form description="polcore100" \
-            https://scan.coverity.com/builds?project=polserver%2Fpolserver
+          cov-manage-emit --dir cov-int --list
+#          curl \
+#            --form token=$TOKEN \
+#            --form email=polteam@polserver.com \
+#            --form file=@polserver.tgz \
+#            --form version=master \
+#            --form description="polcore100" \
+#            https://scan.coverity.com/builds?project=polserver%2Fpolserver
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
