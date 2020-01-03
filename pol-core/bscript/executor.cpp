@@ -715,7 +715,7 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
   else if ( obj->isa( BObjectImp::OTArray ) )
   {
     pstr = String::fromUCArray( static_cast<ObjArray*>( obj->impptr() ) );
-    fparams[param].set( new BObject( pstr ); // store raw pointer
+    fparams[param].set( new BObject( pstr )); // store raw pointer
     return true;
   }
   std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
