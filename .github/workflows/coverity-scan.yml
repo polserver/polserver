@@ -1,8 +1,8 @@
 #runs every friday
 name: coverity-scan
-on: push
-#  schedule:
-#    - cron: '0 0 * * 5'
+on:
+  schedule:
+    - cron: '0 0 * * 5'
 
 jobs:
   coverity:
