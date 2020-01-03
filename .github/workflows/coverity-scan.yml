@@ -89,13 +89,13 @@ jobs:
           tar czvf polserver.tgz cov-int
           mkdir ../bin/cov-int
           cp polserver.tgz ../bin/cov-int
-#          curl \
-#            --form token=$TOKEN \
-#            --form email=polteam@polserver.com \
-#            --form file=@polserver.tgz \
-#            --form version=master \
-#            --form description="polcore100" \
-#            https://scan.coverity.com/builds?project=polserver%2Fpolserver
+          curl \
+            --form token=$TOKEN \
+            --form email=polteam@polserver.com \
+            --form file=@polserver.tgz \
+            --form version=master \
+            --form description="polcore100" \
+            https://scan.coverity.com/builds?project=polserver%2Fpolserver
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
       - name: Upload Artefact
