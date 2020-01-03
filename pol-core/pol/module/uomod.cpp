@@ -4114,24 +4114,24 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
 BObjectImp* UOExecutorModule::mf_SendQuestArrow()
 {
   Character* chr;
-  int x, y, arrow_id;
-  u32 arrowid;
+  int x, y;
+  u32 arrowid = 0;
 
   if ( getCharacterParam( exec, 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
        getParam( 2, y, -1, 1000000 ) )  // max values checked below
   {
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
-
-    if ( exec.getParam( 3, arrow_id ) )
     {
-      if ( arrow_id < 1 )
-        return new BError( "ArrowID out of range" );
-      arrowid = (u32)arrow_id;
-    }
-    else
-    {
-      arrowid = this->uoexec.pid();
+      int arrow_id;
+      if ( exec.getParam( 3, arrow_id ) )
+      {
+        if ( arrow_id < 1 )
+          return new BError( "ArrowID out of range" );
+        arrowid = static_cast<u32>( arrow_id );
+      }
+      else
+        arrowid = uoexec.pid();
     }
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
@@ -4142,7 +4142,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->offset += 4;  // u16 x_tgt,y_tgt
       if ( usesNewPktSize )
       {
-        if ( !arrow_id || arrow_id == 0 )
+        if ( !arrowid )
         {
           return new BError( "ArrowID must be supplied for cancelation." );
         }
