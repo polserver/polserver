@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-29-2019</datemodified>
+		<datemodified>01-03-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-03-2020</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Updated AddAmount() function to return the item reference on success instead of 1.</change>
+		</entry>
 		<entry>
 			<date>12-29-2019</date>
 			<author>Kevin:</author>
