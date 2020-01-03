@@ -225,3 +225,16 @@ jobs:
           status: success
           job: Building
           nofail: false
+  notify_on_cancel:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: cancelled()
+    steps:
+      - name: Discord notification cancelled
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: cancelled
+          job: Building
+          nofail: false
