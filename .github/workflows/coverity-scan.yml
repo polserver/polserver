@@ -80,7 +80,11 @@ jobs:
           cd bin-build
           cmake ..
           make -j 2
+          ls ../lib/curl-7.57.0/INSTALL/
+          ls ../lib/curl-7.57.0/INSTALL/lib
           ./build_tools.sh -p
+          ls ../lib/curl-7.57.0/INSTALL/
+          ls ../lib/curl-7.57.0/INSTALL/lib
 
       - name: Build with cov-build
         run: |
