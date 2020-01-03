@@ -345,8 +345,7 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
     *uncompr_length = 0;
     *compr_length = 0;
     delete[] compressed;
-    if ( ubuflen > 0 )
-      delete[] uncompressed;
+    delete[] uncompressed;
     return nullptr;
   }
 }

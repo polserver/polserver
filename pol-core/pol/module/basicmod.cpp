@@ -307,7 +307,8 @@ Bscript::BObjectImp* BasicExecutorModule::mf_CAsc()
   if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
-    const auto& utf16 = str->StrStr( 1, 1 )->toUTF16();
+    std::unique_ptr<String> substr( str->StrStr( 1, 1 ) );
+    const auto& utf16 = substr->toUTF16();
     if ( utf16.empty() )
       return new BLong( 0 );
     else if ( utf16.size() > 1 )
