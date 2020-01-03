@@ -45,7 +45,7 @@ jobs:
           
           chmod +x "$cmake_archive/bin/cmake"
           echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
-# I'm to dumb to get coverity to work with non default compiler
+          # I'm to dumb to get coverity to work with non default compiler
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
       
       - name: Set CXX and CC
