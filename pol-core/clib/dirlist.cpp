@@ -9,6 +9,8 @@
 #include <stddef.h>
 
 #ifdef __unix__
+#include "logfacility.h"
+#include <errno.h>
 #include <unistd.h>
 #endif
 
@@ -71,8 +73,8 @@ void DirList::next()
     }
   }
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #else  // non-brain dead places where we can use POSIX functions
 
 #include <dirent.h>
@@ -84,6 +86,14 @@ namespace Clib
 DirList::DirList( const char* dirname )
 {
   dir_ = opendir( dirname );
+  if ( !dir )
+  {
+    ERROR_PRINT << "FAILED TO OPEN DIR " << dirname << " " << errno << "\n";
+  }
+  else
+  {
+    ERROR_PRINT << "READ DIR " << dirname << "\n";
+  }
   next();
 }
 DirList::DirList() : dir_( nullptr ) {}
@@ -116,17 +126,22 @@ void DirList::next()
     struct dirent* de = readdir( dir_ );
     if ( de != nullptr )
     {
+      ERROR_PRINT << de->d_name << "\n";
       cur_name_ = de->d_name;
     }
     else
     {
+      if ( !de )
+      {
+        ERROR_PRINT << "FAILED TO read DIR  " << errno << "\n";
+      }
       closedir( dir_ );
       dir_ = nullptr;
     }
   }
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
 #endif
 
 #ifdef _WIN32
@@ -168,5 +183,5 @@ std::string curdir()
     return normalized_dir_form( cdir );
   return "";
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol
