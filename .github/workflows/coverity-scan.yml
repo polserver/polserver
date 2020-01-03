@@ -80,7 +80,7 @@ jobs:
           cd bin-build
           cmake ..
           make -j 2
-          ./build-tools.sh -p
+          ./build_tools.sh -p
 
       - name: Build with cov-build
         run: |
