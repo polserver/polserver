@@ -1,5 +1,8 @@
+#runs every friday
 name: coverity-scan
 on: push
+#  schedule:
+#    - cron: '0 0 * * 5'
 
 jobs:
   coverity:
@@ -33,7 +36,7 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             echo "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
+          sudo apt-get install mysql-client libmysqlclient-dev -y
           
           $cmake_version = "3.16.2"
           $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
@@ -42,6 +45,7 @@ jobs:
           
           chmod +x "$cmake_archive/bin/cmake"
           echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
+# I'm to dumb to get coverity to work with non default compiler
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
       
       - name: Set CXX and CC
@@ -71,24 +75,24 @@ jobs:
         shell: pwsh
         run: |
           echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
-      - name: Config
+      - name: Config Build Clean
         run: |
-          cov-configure --gcc
           cd bin-build
           cmake ..
+          make -j 2
+          ./build-tools.sh -p
 
-#          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
       - name: Build with cov-build
         run: |
           cd bin-build
+          cov-configure --gcc
+          cmake ..
           cov-build --dir cov-int make -j 2
 
       - name: Submit the result to Coverity Scan
         run: |
           cd bin-build
           tar czvf polserver.tgz cov-int
-          mkdir ../bin/cov-int
-          cp polserver.tgz ../bin/cov-int
           curl \
             --form token=$TOKEN \
             --form email=polteam@polserver.com \
@@ -98,8 +102,3 @@ jobs:
             https://scan.coverity.com/builds?project=polserver%2Fpolserver
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
-      - name: Upload Artefact
-        uses: actions/upload-artifact@v1
-        with:
-          name: cov-int
-          path: bin/cov-int
