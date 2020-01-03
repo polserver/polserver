@@ -78,7 +78,7 @@ jobs:
       - name: Build with cov-build
         run: |
           cd bin-build
-          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.c-compiler }}-${{ matrix.config.compiler-version }}
+          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
           cov-build --dir cov-int make -j 2
 
       - name: Submit the result to Coverity Scan
