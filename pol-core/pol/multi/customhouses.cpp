@@ -691,7 +691,7 @@ Bscript::ObjArray* CustomHouseDesign::list_parts() const
 
 void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts )
 {
-  if ( send_pkts )
+  if ( send_pkts && chr->client )
   {
     Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
     msg->WriteFlipped<u16>( 17u );
@@ -712,7 +712,7 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
     chr->client->gd->custom_house_chrserial = 0;
   }
   house->editing = false;
-  if ( send_pkts )
+  if ( send_pkts && chr->client )
   {
     ItemList itemlist;
     MobileList moblist;
