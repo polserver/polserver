@@ -42,6 +42,7 @@ jobs:
           
           chmod +x "$cmake_archive/bin/cmake"
           echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
       
       - name: Set CXX and CC
         shell: pwsh
@@ -55,8 +56,8 @@ jobs:
             $c_compiler = "$c_compiler-$version"
           }
 
-          echo "::set-env name=CXX::$cxx_compiler"
-          echo "::set-env name=CC::$c_compiler"
+          #echo "::set-env name=CXX::$cxx_compiler"
+          #echo "::set-env name=CC::$c_compiler"
 
       - name: Download Coverity Build Tool
         run: |
@@ -72,8 +73,8 @@ jobs:
           echo "::add-path::$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"
       - name: Config
         run: |
-          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
-          #cov-configure --gcc
+#          cov-configure --comptype gcc --compiler /usr/bin/${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
+          cov-configure --gcc
           cd bin-build
           cmake ..
 
