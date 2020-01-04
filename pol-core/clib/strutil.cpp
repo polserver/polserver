@@ -245,10 +245,15 @@ void sanitizeUnicode( std::string* str )
   }
   auto begin = str->begin();
   auto end = str->end();
+  auto invalid_chr = []( u32 c ) {
+    return ( c >= 0x1u && c < 0x9u ) /*0x9 \t 0x10 \n*/ ||
+           ( c >= 0x11u && c < 0x13u ) /*0x13 \r*/ || ( c >= 0x14c && c < 0x20u ) || c == 0x7Fu ||
+           ( c >= 0xC280u && c <= 0xC29Fu );
+  };
   while ( begin != end )
   {
     auto c = utf8::unchecked::next( begin );
-    if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
+    if ( invalid_chr( c ) )
     {
       // control character found build new string skipping them
       std::string new_s;
@@ -256,7 +261,7 @@ void sanitizeUnicode( std::string* str )
       while ( begin != end )
       {
         c = utf8::unchecked::next( begin );
-        if ( ( c >= 0x1u && c < 0x20u ) || c == 0x7Fu || ( c >= 0xC280u && c <= 0xC29Fu ) )
+        if ( invalid_chr( c ) )
           continue;
         utf8::unchecked::append( c, std::back_inserter( new_s ) );
       }

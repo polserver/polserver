@@ -120,16 +120,15 @@ void SendAOSTooltip( Network::Client* client, UObject* obj, bool vendor_content 
   else
     msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only
 
-  u16 textlen = static_cast<u16>( desc.size() );
+  std::vector<u16> utf16 = Bscript::String::toUTF16( desc );
+  u16 textlen = static_cast<u16>( utf16.size() );
   if ( ( textlen * 2 ) > ( 0xFFFF - 22 ) )
   {
     textlen = 0xFFFF / 2 - 22;
+    utf16.resize( textlen );
   }
   msg->WriteFlipped<u16>( textlen * 2u );
-  const char* string = desc.c_str();
-
-  while ( *string && textlen-- )  // unicode
-    msg->Write<u16>( static_cast<u16>( *string++ ) );
+  msg->Write( utf16, false );
   msg->offset += 4;  // indicates end of property list
   u16 len = msg->offset;
   msg->offset = 1;
