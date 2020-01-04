@@ -81,7 +81,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DONLY_RUNECL=1 -DONLY_ECOMPILE=1
+          cmake .. -G Ninja
       - name: Build
         run: |
           cd bin-build
