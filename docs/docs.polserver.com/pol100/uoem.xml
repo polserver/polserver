@@ -229,7 +229,7 @@
   <parameter name="item" value="Item reference"/>
   <parameter name="amount" value="An integer 1-60000" />
   <explain>Adds the specified amount to a stack of items. Amount is between 1 and 60000 </explain>
-  <return>1 or error</return> 
+  <return>ItemRef on success or error on failure</return> 
   <error>"That item is being used" (if inuse or reserved)</error>
   <error>"That item type is not stackable" </error>
   <error>"Can't add that much to that stack" (if resulting amount > 60000)</error>
