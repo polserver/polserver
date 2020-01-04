@@ -63,8 +63,8 @@
 #include "pol_global_config.h"
 
 #include "../bscript/bobject.h"
-#include "../bscript/impstr.h"
 #include "../bscript/escriptv.h"
+#include "../bscript/impstr.h"
 #include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/clib_endian.h"
@@ -1026,37 +1026,61 @@ int xmain_inner( bool testing )
 
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();
-{
-Network::PktHelper::PacketOut<Network::PktOut_B7> msg;
-        msg->offset += 2;
-        msg->Write<u32>( 123456u );
-        const char* string = "hallo";
-        while ( *string )  // unicode
-          msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
-        msg->offset += 2;  // nullterm
-        u16 len = msg->offset;
-        msg->offset = 1;
-        msg->WriteFlipped<u16>( len );
-        fmt::Writer tmp;
-        Clib::fdump( tmp, &msg->buffer, len+1);
-        INFO_PRINT<<tmp.c_str()<<"\n";
+  {
+    PacketOut<Network::PktOut_D6> msg;
+    msg->offset += 2;
+    msg->WriteFlipped<u16>( 1u );  // u16 unk1
+    msg->Write<u32>( 123345678u );
+    msg->offset += 2;  // u8 unk2,unk3
+    msg->WriteFlipped<u32>( 2u );
+    msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only
+    std::string desc = "hallo";
+    u16 textlen = static_cast<u16>( desc.size() );
+    if ( ( textlen * 2 ) > ( 0xFFFF - 22 ) )
+    {
+      textlen = 0xFFFF / 2 - 22;
+    }
+    msg->WriteFlipped<u16>( textlen * 2u );
+    const char* string = desc.c_str();
 
-}
-{
-Network::PktHelper::PacketOut<Network::PktOut_B7> msg;
-        msg->offset += 2;
-        msg->Write<u32>( 123456u );
-        const char* string = "hallo";
-        std::vector<u16> u=Bscript::String::toUTF16(string);
-        msg->WriteFlipped(u, true);
-        u16 len = msg->offset;
-        msg->offset = 1;
-        msg->WriteFlipped<u16>( len );
-        fmt::Writer tmp;
-        Clib::fdump( tmp, &msg->buffer,len+1);
-        INFO_PRINT<<tmp.c_str()<<"\n";
+    while ( *string && textlen-- )  // unicode
+      msg->Write<u16>( static_cast<u16>( *string++ ) );
+    msg->offset += 4;  // indicates end of property list
+    u16 len = msg->offset;
+    msg->offset = 1;
+    msg->WriteFlipped<u16>( len );
 
-}
+    fmt::Writer tmp;
+    Clib::fdump( tmp, &msg->buffer, len + 1 );
+    INFO_PRINT << tmp.c_str() << "\n";
+  }
+  {
+    PacketOut<Network::PktOut_D6> msg;
+    msg->offset += 2;
+    msg->WriteFlipped<u16>( 1u );  // u16 unk1
+    msg->Write<u32>( 123345678u );
+    msg->offset += 2;  // u8 unk2,unk3
+    msg->WriteFlipped<u32>( 2u );
+    msg->WriteFlipped<u32>( 1042971u );  // 1 text argument only
+    std::string desc = "hallo";
+    std::vector<u16> u = Bscript::String::toUTF16( desc );
+    u16 textlen = static_cast<u16>( u.size() );
+    if ( ( textlen * 2 ) > ( 0xFFFF - 22 ) )
+    {
+      textlen = 0xFFFF / 2 - 22;
+      u.resize( textlen );
+    }
+    msg->WriteFlipped<u16>( textlen * 2u );
+    msg->Write( u, false );
+    msg->offset += 4;  // indicates end of property list
+    u16 len = msg->offset;
+    msg->offset = 1;
+    msg->WriteFlipped<u16>( len );
+
+    fmt::Writer tmp;
+    Clib::fdump( tmp, &msg->buffer, len + 1 );
+    INFO_PRINT << tmp.c_str() << "\n";
+  }
   Core::checkpoint( "starting POL clocks" );
   Core::start_pol_clocks();
   Core::pause_pol_clocks();
