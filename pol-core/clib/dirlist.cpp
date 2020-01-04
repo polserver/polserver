@@ -86,7 +86,7 @@ namespace Clib
 DirList::DirList( const char* dirname )
 {
   dir_ = opendir( dirname );
-  if ( !dir )
+  if ( !dir_ )
   {
     ERROR_PRINT << "FAILED TO OPEN DIR " << dirname << " " << errno << "\n";
   }
