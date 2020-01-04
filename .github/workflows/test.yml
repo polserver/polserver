@@ -91,6 +91,8 @@ jobs:
           cd testsuite/escript
           ../../bin/ecompile test.src
           ../../bin/runecl test.ecl
+          cd ../../bin
+          ./pol
 
 
       - name: Test

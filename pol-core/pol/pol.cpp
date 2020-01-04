@@ -140,6 +140,9 @@
 #include "uworld.h"
 #include <format/format.h>
 
+#include "../clib/fdump.h"
+
+
 #ifndef NDEBUG
 #include "containr.h"
 #include "mobile/npc.h"
@@ -1022,7 +1025,22 @@ int xmain_inner( bool testing )
 
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();
+{
+Network::PktHelper::PacketOut<Network::PktOut_B7> msg;
+        msg->offset += 2;
+        msg->Write<u32>( 123456 );
+        const char* string = "hallo";
+        while ( *string )  // unicode
+          msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
+        msg->offset += 2;  // nullterm
+        u16 len = msg->offset;
+        msg->offset = 1;
+        msg->WriteFlipped<u16>( len );
+        fmt::Writer tmp;
+        Clib::fdump( tmp, &msg->buffer, msg->getSize());
+        INFO_PRINT<<tmp.c_str()<<"\n";
 
+}
   Core::checkpoint( "starting POL clocks" );
   Core::start_pol_clocks();
   Core::pause_pol_clocks();
