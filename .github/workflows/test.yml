@@ -91,8 +91,8 @@ jobs:
           cd testsuite/escript
           ../../bin/ecompile unicode06.src
           ../../bin/runecl -q unicode06.ecl > unicode06.out
-					mkdir dmp
-					mv unicode06.out dmp/
+          mkdir dmp
+          mv unicode06.out dmp/
           #cd ../../bin
           #./pol
 
