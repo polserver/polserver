@@ -1027,7 +1027,7 @@ int xmain_inner( bool testing )
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();
   {
-    PacketOut<Network::PktOut_D6> msg;
+    Network::PktHelper::PacketOut<Network::PktOut_D6> msg;
     msg->offset += 2;
     msg->WriteFlipped<u16>( 1u );  // u16 unk1
     msg->Write<u32>( 123345678u );
@@ -1055,7 +1055,7 @@ int xmain_inner( bool testing )
     INFO_PRINT << tmp.c_str() << "\n";
   }
   {
-    PacketOut<Network::PktOut_D6> msg;
+    Network::PktHelper::PacketOut<Network::PktOut_D6> msg;
     msg->offset += 2;
     msg->WriteFlipped<u16>( 1u );  // u16 unk1
     msg->Write<u32>( 123345678u );
