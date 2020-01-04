@@ -1453,7 +1453,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
     // DAVE added this 12/05: if in a Character's pack, update weight.
     UpdateCharacterWeight( item );
 
-    return new BLong( 1 );
+    return new EItemRefObjImp(item);
   }
   else
   {
