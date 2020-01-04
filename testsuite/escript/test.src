@@ -2,3 +2,4 @@
 var t:="geändert  tab
 newline";
 print(t);
+print(cchr(0x9)+"blubb");
