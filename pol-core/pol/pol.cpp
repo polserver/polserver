@@ -1028,7 +1028,7 @@ int xmain_inner( bool testing )
 {
 Network::PktHelper::PacketOut<Network::PktOut_B7> msg;
         msg->offset += 2;
-        msg->Write<u32>( 123456 );
+        msg->Write<u32>( 123456u );
         const char* string = "hallo";
         while ( *string )  // unicode
           msg->Write<u16>( static_cast<u16>( ( *string++ ) << 8 ) );
