@@ -63,6 +63,7 @@
 #include "pol_global_config.h"
 
 #include "../bscript/bobject.h"
+#include "../bscript/impstr.h"
 #include "../bscript/escriptv.h"
 #include "../clib/Debugging/ExceptionParser.h"
 #include "../clib/Program/ProgramConfig.h"
@@ -1037,7 +1038,22 @@ Network::PktHelper::PacketOut<Network::PktOut_B7> msg;
         msg->offset = 1;
         msg->WriteFlipped<u16>( len );
         fmt::Writer tmp;
-        Clib::fdump( tmp, &msg->buffer, msg->getSize());
+        Clib::fdump( tmp, &msg->buffer, len+1);
+        INFO_PRINT<<tmp.c_str()<<"\n";
+
+}
+{
+Network::PktHelper::PacketOut<Network::PktOut_B7> msg;
+        msg->offset += 2;
+        msg->Write<u32>( 123456u );
+        const char* string = "hallo";
+        std::vector<u16> u=Bscript::String::toUTF16(string);
+        msg->WriteFlipped(u, true);
+        u16 len = msg->offset;
+        msg->offset = 1;
+        msg->WriteFlipped<u16>( len );
+        fmt::Writer tmp;
+        Clib::fdump( tmp, &msg->buffer,len+1);
         INFO_PRINT<<tmp.c_str()<<"\n";
 
 }
