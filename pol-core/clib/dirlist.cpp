@@ -86,14 +86,14 @@ namespace Clib
 DirList::DirList( const char* dirname )
 {
   dir_ = opendir( dirname );
-  if ( !dir_ )
+/*  if ( !dir_ )
   {
     ERROR_PRINT << "FAILED TO OPEN DIR " << dirname << " " << errno << "\n";
   }
   else
   {
     ERROR_PRINT << "READ DIR " << dirname << "\n";
-  }
+  }*/
   next();
 }
 DirList::DirList() : dir_( nullptr ) {}
@@ -126,15 +126,15 @@ void DirList::next()
     struct dirent* de = readdir( dir_ );
     if ( de != nullptr )
     {
-      ERROR_PRINT << de->d_name << "\n";
+    //  ERROR_PRINT << de->d_name << "\n";
       cur_name_ = de->d_name;
     }
     else
     {
-      if ( !de )
+      /*if ( !de )
       {
         ERROR_PRINT << "FAILED TO read DIR  " << errno << "\n";
-      }
+      }*/
       closedir( dir_ );
       dir_ = nullptr;
     }
