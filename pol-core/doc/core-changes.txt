@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+01-04-2020 Turley:
+    Fixed: Tabulator and newline chars where disallowed in CChr and the sanitize step of strings. (introduced with unicode support)
 01-03-2020 DevGIB: 
   Changed: POTENTIAL BREAKING CHANGE! Updated AddAmount() function to return the item reference on success instead of 1.
            You'll need to check your scripts for AddAmount and make sure its not evaluated against 1 for success.
