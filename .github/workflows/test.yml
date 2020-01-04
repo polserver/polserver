@@ -94,6 +94,8 @@ jobs:
           ../../bin/runecl -q unicode06.ecl > unicode06.out
           mkdir dmp
           mv unicode06.out dmp/
+          ls
+          ls dmp
           #cd ../../bin
           #./pol
 
@@ -101,7 +103,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: dmp
-          path: testscript/escript/dmp
+          path: testsuite/escript/dmp
 
       - name: Test
         run: |
