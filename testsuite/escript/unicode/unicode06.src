@@ -1,0 +1,2 @@
+print("tab"+cchr(0x9)+"newline"+cchr(0x10)+"n"+cchr(0x13)+cchr(0x10)+"blubb");
+print("invalid"+cchr(0x7)+"b");

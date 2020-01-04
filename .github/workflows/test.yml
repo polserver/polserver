@@ -91,11 +91,11 @@ jobs:
           cd testsuite/escript
           ../../bin/ecompile test.src
           ../../bin/runecl test.ecl
-          cd ../../bin
-          ./pol
+          #cd ../../bin
+          #./pol
 
 
       - name: Test
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }}
