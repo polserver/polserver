@@ -1,6 +1,7 @@
 ﻿-- POL100 --
 01-03-2020 DevGIB: 
-  Changed: Updated AddAmount() function to return the item reference on success instead of 1.
+  Changed: POTENTIAL BREAKING CHANGE! Updated AddAmount() function to return the item reference on success instead of 1.
+           You'll need to check your scripts for AddAmount and make sure its not evaluated against 1 for success.
 12-29-2019 Kevin:
   Added:   Added definitions for packets 0xFA (Open UO Store) and 0xFB (Update View Public House Contents).
 12-28-2019 Turley:
