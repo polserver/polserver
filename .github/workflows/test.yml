@@ -90,6 +90,7 @@ jobs:
         run: |
           cd testsuite/escript
           ../../bin/ecompile unicode06.src
+          ../../bin/runecl unicode06.ecl
           ../../bin/runecl -q unicode06.ecl > unicode06.out
           mkdir dmp
           mv unicode06.out dmp/
