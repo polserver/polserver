@@ -312,7 +312,7 @@ void load_packages( const std::string& basedir, bool quiet )
   for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
   {
     std::string dirname = dl.name();
-    ERROR_PRINT << dirname << "\n";
+    //ERROR_PRINT << dirname << "\n";
     if ( dirname[0] == '.' )
       continue;
     if ( dirname == "template" )
@@ -323,7 +323,7 @@ void load_packages( const std::string& basedir, bool quiet )
 
     if ( Clib::FileExists( pkg_cfg.c_str() ) )
     {
-      ERROR_PRINT << "pkg.cfg exists\n";
+      //ERROR_PRINT << "pkg.cfg exists\n";
       Clib::ConfigFile cf( pkg_cfg.c_str() );
       Clib::ConfigElem elem;
 
@@ -336,7 +336,7 @@ void load_packages( const std::string& basedir, bool quiet )
       {
         if ( !quiet )
           INFO_PRINT << "Loading package in " << pkg_dir << "\n";
-        ERROR_PRINT << "Loading package in " << pkg_dir << "\n";
+        //ERROR_PRINT << "Loading package in " << pkg_dir << "\n";
         load_package( pkg_dir, elem, quiet );
 
         load_packages( pkg_dir, quiet );
@@ -384,7 +384,7 @@ void check_package_deps()
 void load_packages( bool quiet )
 {
   test_check_version();
-  ERROR_PRINT << "Searching for packages under pkg/ \n";
+//  ERROR_PRINT << "Searching for packages under pkg/ \n";
 
   load_packages( "pkg/", quiet );
 
@@ -400,7 +400,7 @@ void load_packages( bool quiet )
         dir = Clib::normalized_dir_form( dir );
         if ( !quiet )
           INFO_PRINT << "Searching for packages under " << dir << "\n";
-        ERROR_PRINT << "Searching for packages under " << dir << "\n";
+        //ERROR_PRINT << "Searching for packages under " << dir << "\n";
         load_packages( dir.c_str(), quiet );
       }
     }
