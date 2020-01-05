@@ -20,7 +20,8 @@ jobs:
         id: runcmd
         with:
           architecture: aarch64
-          distribution: buster
+          distribution: ubuntu18.04
+          #buster
           run: |
             export
             locale -a
