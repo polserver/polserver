@@ -40,6 +40,7 @@ function(set_compile_flags target is_executable)
       target_compile_definitions(${target} PRIVATE
         _FILE_OFFSET_BITS=64
       )
+    endif()
   endif()
 
   if (${windows})
