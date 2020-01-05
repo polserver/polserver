@@ -36,6 +36,10 @@ function(set_compile_flags target is_executable)
       _GNU_SOURCE
       LINUX
     )
+    if (${ARCH_BITS} EQUAL "32")  
+      target_compile_definitions(${target} PRIVATE
+        _FILE_OFFSET_BITS=64
+      )
   endif()
 
   if (${windows})

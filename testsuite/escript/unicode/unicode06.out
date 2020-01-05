@@ -1,2 +1,1 @@
-tab newline+cchr(0x13)+cchr(0x10)+"blubb");
-invalidb
+tab	bellbell
