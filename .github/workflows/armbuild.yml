@@ -27,7 +27,8 @@ jobs:
             uname -a
             sudo apt-get update
             sudo apt-get -y install locales
-            sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
+            sudo apt-get install language-pack-US
+            #sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
             sudo locale-gen en_US
             sudo locale-gen en_US.UTF-8
             sudo update-locale
