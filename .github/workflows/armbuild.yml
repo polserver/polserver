@@ -34,22 +34,22 @@ jobs:
             sudo update-locale LANG=LANG=en_US.UTF-8 LANGUAGE
             locale -a
             export
-            #sudo apt-get install build-essential -y
-            #sudo apt-get install g++-8 -y
-            #sudo apt-get install cmake libssl-dev -y
-            #sudo apt-get install zlib1g-dev -y
-            #sudo apt-get install git -y
-            #export CXX=g++-8
-            #export CC=gcc-8
-            #cd bin-build
-            #cmake ..
-            #cmake --build . --config RelWithDebInfo -- -j 2
-            #ctest -j2 --output-on-failure --repeat-until-fail 2 -C RelWithDebInfo
-            #cmake --build . --config RelWithDebInfo --target package
-            #cmake --build . --config RelWithDebInfo --target create_dbg_zip
-            #cd ../bin
-            #mkdir release
-            #mv *.zip release
+            sudo apt-get install build-essential -y
+            sudo apt-get install g++-8 -y
+            sudo apt-get install cmake libssl-dev -y
+            sudo apt-get install zlib1g-dev -y
+            sudo apt-get install git -y
+            export CXX=g++-8
+            export CC=gcc-8
+            cd bin-build
+            cmake ..
+            cmake --build . --config RelWithDebInfo -- -j 2
+            ctest -j2 --output-on-failure --repeat-until-fail 2 -C RelWithDebInfo
+            cmake --build . --config RelWithDebInfo --target package
+            cmake --build . --config RelWithDebInfo --target create_dbg_zip
+            cd ../bin
+            mkdir release
+            mv *.zip release
 
       - name: Upload Artefact
         uses: actions/upload-artifact@v1
