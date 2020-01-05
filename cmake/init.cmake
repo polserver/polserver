@@ -97,6 +97,7 @@ macro(detect_platform)
   set(CMAKE_EXTRA_INCLUDE_FILES)
   message("wchar size is ${SIZEOF_WCHAR_T}")
 
+  message("Compiling on processor ${CMAKE_SYSTEM_PROCESSOR}")
   set(arm 0)
   if (${linux})
     if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "arm")
@@ -104,6 +105,23 @@ macro(detect_platform)
       message("Platform is ARM")
     endif()
   endif()
+
+    check_cxx_source_compiles(
+      "#include <sys/types.h>
+#define KB ((off_t)1024)
+#define MB ((off_t)1024 * KB)
+#define GB ((off_t)1024 * MB)
+#define TB ((off_t)1024 * GB)
+int t2[(((64 * GB -1) % 671088649) == 268434537)
+       && (((TB - (64 * GB -1) + 255) % 1792151290) == 305159546)? 1: -1];
+
+int main()
+{
+  return 0;
+}"
+FILE_OFFSET_BITS_NEEDED
+    )
+    message("File offset flag ${FILE_OFFSET_BITS_NEEDED}")
 
 endmacro()
 

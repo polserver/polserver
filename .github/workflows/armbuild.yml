@@ -19,12 +19,9 @@ jobs:
       - uses: uraimo/run-on-arch-action@v1.0.5
         id: runcmd
         with:
-          architecture: aarch64
-          distribution: ubuntu18.04
-          #buster
+          architecture: armv7
+          distribution: buster
           run: |
-            export
-            locale -a
             uname -a
             apt-get update
             apt-get -y install locales
@@ -33,8 +30,6 @@ jobs:
             locale-gen en_US.UTF-8
             update-locale
             update-locale LANG=en_US.UTF-8 LANGUAGE
-            locale -a
-            export
             apt-get install build-essential -y
             apt-get install g++-8 -y
             apt-get install cmake libssl-dev -y
@@ -55,5 +50,5 @@ jobs:
       - name: Upload Artefact
         uses: actions/upload-artifact@v1
         with:
-          name: Nightly-ARMv6-Buster-gcc-8
+          name: Nightly-ARMv7-Buster-gcc-8
           path: bin/release
