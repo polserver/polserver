@@ -20,7 +20,7 @@ jobs:
         id: runcmd
         with:
           architecture: armv7
-          distribution: buster
+          distribution: stretch
           run: |
             uname -a
             apt-get update
@@ -31,12 +31,12 @@ jobs:
             update-locale
             update-locale LANG=en_US.UTF-8 LANGUAGE
             apt-get install build-essential -y
-            apt-get install g++-8 -y
+            #apt-get install g++-8 -y
             apt-get install cmake libssl-dev -y
             apt-get install zlib1g-dev -y
             apt-get install git -y
-            export CXX=g++-8
-            export CC=gcc-8
+            #export CXX=g++-8
+            #export CC=gcc-8
             cd bin-build
             cmake ..
             cmake --build . --config RelWithDebInfo -- -j 2
@@ -50,5 +50,5 @@ jobs:
       - name: Upload Artefact
         uses: actions/upload-artifact@v1
         with:
-          name: Nightly-ARMv7-Buster-gcc-8
+          name: Nightly-ARMv7-Stretch-gcc-6
           path: bin/release
