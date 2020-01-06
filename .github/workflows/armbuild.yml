@@ -31,12 +31,9 @@ jobs:
             update-locale
             update-locale LANG=en_US.UTF-8 LANGUAGE
             apt-get install build-essential -y
-            #apt-get install g++-8 -y
             apt-get install cmake libssl-dev -y
             apt-get install zlib1g-dev -y
             apt-get install git -y
-            #export CXX=g++-8
-            #export CC=gcc-8
             cd bin-build
             cmake ..
             cmake --build . --config RelWithDebInfo -- -j 2
