@@ -36,7 +36,7 @@ function(set_compile_flags target is_executable)
       _GNU_SOURCE
       LINUX
     )
-    if (${ARCH_BITS} EQUAL "32")  
+    if (${file_offset_bits})
       target_compile_definitions(${target} PRIVATE
         _FILE_OFFSET_BITS=64
       )
@@ -68,10 +68,6 @@ function(set_compile_flags target is_executable)
       -Wextra
     >
     
-    $<$<AND:${FORCE_SIGNED_CHAR},${linux}>:
-      -fsigned-char
-    >
-
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
       -m${ARCH_BITS}
     >
@@ -89,7 +85,6 @@ function(set_compile_flags target is_executable)
       /EHa # exception handling
       /W4
       /w45038
-      /nologo
     >
   )
 
