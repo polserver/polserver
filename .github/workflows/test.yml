@@ -8,13 +8,6 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "windows-latest"
-            cxx-compiler: cl
-            c-compiler: cl
-            compiler-version: default
-            build-type: Release
-            nopch: 0
-
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
@@ -112,3 +105,34 @@ jobs:
         run: |
           cd bin-build
           ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }}
+  release:
+    needs: build
+    runs-on: "ubuntu-latest" 
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Download artefacts
+        uses: actions/download-artifact@v1
+        with:
+          name: dmp
+
+      - name: Create Release
+        # fork until official release can overwrite tag/release
+        uses: turleypol/create-release@delete-old-release-asset
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: NightlyRelease
+          release_name: NightlyRelease
+          replace_old_tag: true
+          prerelease: true
+          draft: false
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dmp.zip
+          asset_name: dmp.zip
+          asset_content_type: application/
