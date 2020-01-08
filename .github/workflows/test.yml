@@ -27,10 +27,6 @@ jobs:
         with:
           path: lib/curl-7.57.0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
-      - name: locale
-        run: |
-          locale -a
-          export
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
