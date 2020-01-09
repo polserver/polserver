@@ -161,7 +161,7 @@ jobs:
 
       - name: Create Release
         # fork until official release can overwrite tag/release
-        uses: turleypol/create-release@delete-old-release
+        uses: turleypol/create-release@delete-old-release-asset
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
