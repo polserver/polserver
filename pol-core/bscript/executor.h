@@ -91,6 +91,7 @@ public:
   bool error_;
   bool halt_;
   bool run_ok_;
+  bool can_access_offline_mobiles_;
 
   enum DEBUG_LEVEL
   {

@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+01-09-2020 Kevin:
+    Fixed: Scripts that have Set_Script_Option(SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES) can correctly access offline mobiles.
 01-04-2020 Turley:
     Fixed: Tabulator and newline chars where disallowed in CChr and the sanitize step of strings. (introduced with unicode support)
 01-03-2020 DevGIB: 

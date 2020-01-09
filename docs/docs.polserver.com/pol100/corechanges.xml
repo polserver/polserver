@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-04-2020</datemodified>
+		<datemodified>01-09-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-09-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Scripts that have Set_Script_Option(SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES) can correctly access offline mobiles.</change>
+		</entry>
 		<entry>
 			<date>01-04-2020</date>
 			<author>Turley:</author>

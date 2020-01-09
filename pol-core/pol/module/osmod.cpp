@@ -938,9 +938,8 @@ BObjectImp* OSExecutorModule::mf_Set_Script_Option()
       break;
     case SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES:
     {
-      Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
-      oldval = uoexec.can_access_offline_mobiles ? 1 : 0;
-      uoexec.can_access_offline_mobiles = optval ? true : false;
+      oldval = exec.can_access_offline_mobiles_ ? 1 : 0;
+      exec.can_access_offline_mobiles_ = optval ? true : false;
     }
     break;
     case SCRIPTOPT_AUXSVC_ASSUME_STRING:

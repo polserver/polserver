@@ -60,7 +60,6 @@ public:
   unsigned short area_size;
   unsigned short speech_size;
 
-  bool can_access_offline_mobiles;
   bool auxsvc_assume_string;
   weak_ptr_owner<UOExecutor> weakptr;
 
