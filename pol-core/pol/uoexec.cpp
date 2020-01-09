@@ -26,6 +26,7 @@ UOExecutor::UOExecutor()
       area_size( 0 ),
       speech_size( 1 ),
       auxsvc_assume_string( false ),
+      survive_attached_disconnect( false ),
       pParent( nullptr ),
       pChild( nullptr )
 {

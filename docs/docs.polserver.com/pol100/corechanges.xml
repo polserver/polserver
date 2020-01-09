@@ -8,6 +8,9 @@
 		<entry>
 			<date>01-09-2020</date>
 			<author>Kevin:</author>
+			<change type="Added">New SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT will keep attached scripts (eg. skill scripts, item use scripts) alive if the<br/>
+character's client disconnects. Note that by default all references to the character will become invalidated; for example,<br/>
+GetObjProperty(chr, &quot;prop&quot;) will return an error. Enable SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES to bypass this.</change>
 			<change type="Fixed">Scripts that have Set_Script_Option(SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES) can correctly access offline mobiles.</change>
 		</entry>
 		<entry>

@@ -911,6 +911,7 @@ const int SCRIPTOPT_DEBUG = 2;
 const int SCRIPTOPT_NO_RUNAWAY = 3;
 const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
 const int SCRIPTOPT_AUXSVC_ASSUME_STRING = 5;
+const int SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT = 6;
 
 BObjectImp* OSExecutorModule::mf_Set_Script_Option()
 {
@@ -947,6 +948,13 @@ BObjectImp* OSExecutorModule::mf_Set_Script_Option()
       Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
       oldval = uoexec.auxsvc_assume_string ? 1 : 0;
       uoexec.auxsvc_assume_string = optval ? true : false;
+    }
+    break;
+    case SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT:
+    {
+      Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
+      oldval = uoexec.survive_attached_disconnect ? 1 : 0;
+      uoexec.survive_attached_disconnect = optval ? true : false;
     }
     break;
     default:

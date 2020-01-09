@@ -499,12 +499,27 @@ void Character::stop_skill_script()
 {
   if ( script_ex != nullptr )
   {
-    // this will force the execution engine to stop running this script immediately
-    // dont delete the executor here, since it could currently run
-    script_ex->seterror( true );
-    script_ex->revive();
-    if ( script_ex->in_debugger_holdlist() )
-      script_ex->revive_debugged();
+    if ( script_ex->survive_attached_disconnect )
+    {
+      /*
+      We only want to resume those scripts that are paused indefinitely (eg. Target()).
+      Scripts that will eventually resume (eg. Sleep()) or those that are in debugging
+      state remain untouched.
+      */
+      if ( script_ex->in_hold_list() == Core::HoldListType::NOTIMEOUT_LIST )
+      {
+        script_ex->revive();
+      }
+    }
+    else
+    {
+      // this will force the execution engine to stop running this script immediately
+      // dont delete the executor here, since it could currently run
+      script_ex->seterror( true );
+      script_ex->revive();
+      if ( script_ex->in_debugger_holdlist() )
+        script_ex->revive_debugged();
+    }
   }
 }
 

@@ -11,6 +11,7 @@
     <constant>const SCRIPTOPT_NO_RUNAWAY   := 3; // if 1, doesn't warn about runaway conditions</constant>
     <constant>const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</constant>
     <constant>const SCRIPTOPT_AUXSVC_ASSUME_STRING := 5;</constant>
+    <constant>const SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT := 6; // if 1, do not kill script if attached character's client disconnects</constant>
   </fileheader>
 
   <function name="GetProcess">

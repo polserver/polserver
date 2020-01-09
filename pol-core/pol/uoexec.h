@@ -61,6 +61,7 @@ public:
   unsigned short speech_size;
 
   bool auxsvc_assume_string;
+  bool survive_attached_disconnect;
   weak_ptr_owner<UOExecutor> weakptr;
 
   UOExecutor *pParent, *pChild;

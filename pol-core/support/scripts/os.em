@@ -24,6 +24,8 @@ const SCRIPTOPT_DEBUG        := 2;      // if 1, prints any debug info included
 const SCRIPTOPT_NO_RUNAWAY   := 3;      // if 1, doesn't warn about runaway conditions
 const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;
 const SCRIPTOPT_AUXSVC_ASSUME_STRING := 5;
+const SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT := 6; // if 1, do not kill script if attached character's client disconnects
+
     //
     // set_script_option(SCRIPTOPT_NO_INTERRUPT,1) is the same as set_critical(1)
     // set_script_option(SCRIPTOPT_DEBUG,1) is the same as set_debug(1)
