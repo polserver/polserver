@@ -1126,7 +1126,7 @@ bool String::hasUTF8Characters( const std::string& str )
 std::vector<unsigned short> String::toUTF16() const
 {
   std::vector<unsigned short> u16;
-  utf8::utf8to16( value_.begin(), value_.end(), std::back_inserter( u16 ) );
+  utf8::unchecked::utf8to16( value_.begin(), value_.end(), std::back_inserter( u16 ) );
   return u16;
 }
 
@@ -1192,7 +1192,7 @@ std::vector<unsigned short> String::toUTF16( const std::string& text )
   std::vector<unsigned short> utf16;
   if ( text.empty() )
     return utf16;
-  utf8::utf8to16( text.begin(), text.end(), std::back_inserter( utf16 ) );
+  utf8::unchecked::utf8to16( text.begin(), text.end(), std::back_inserter( utf16 ) );
   return utf16;
 }
 
