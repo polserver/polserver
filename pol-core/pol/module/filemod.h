@@ -28,7 +28,7 @@ class Executor;
 
 namespace Module
 {
-class FileAccessExecutorModule : public Bscript::TmplExecutorModule<FileAccessExecutorModule>
+class FileAccessExecutorModule : public Bscript::TmplExecutorModule<FileAccessExecutorModule, Bscript::ExecutorModule>
 {
 public:
   FileAccessExecutorModule( Bscript::Executor& exec );

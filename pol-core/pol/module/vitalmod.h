@@ -35,7 +35,7 @@ class Character;
 }
 namespace Module
 {
-class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
+class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule, Bscript::ExecutorModule>
 {
 public:
   VitalExecutorModule( Bscript::Executor& exec );

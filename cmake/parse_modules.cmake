@@ -111,7 +111,7 @@ function(createfunctable)
     set(HEADER "${HEADER}namespace Pol\n{\nnamespace Bscript\n{\nusing namespace Module\;\n\n")
   
     # message("Creating function table definition for ${em} => ${em_name} => ${MODCLASS}")
-    set(MODDEF "template <>\nconst char* const TmplExecutorModule<${MODCLASS}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}>::FunctionTable\n  TmplExecutorModule<${MODCLASS}>::function_table = {\n")
+    set(MODDEF "template <>\nconst char* const TmplExecutorModule<${MODCLASS}, Bscript::ExecutorModule>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<${MODCLASS}, Bscript::ExecutorModule>::FunctionTable\n  TmplExecutorModule<${MODCLASS}, Bscript::ExecutorModule>::function_table = {\n")
     FILE(READ ${em} contents)
     STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
     read_def(${MODCLASS} ${contents} FUNCTBL)

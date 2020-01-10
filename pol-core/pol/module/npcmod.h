@@ -21,7 +21,7 @@ namespace Pol
 namespace Bscript
 {
 class Executor;
-template <class T>
+template <class T, class T2>
 class TmplExecutorModule;
 }  // namespace Bscript
 }  // namespace Pol
@@ -41,7 +41,7 @@ namespace Module
 {
 class OSExecutorModule;
 
-class NPCExecutorModule : public Bscript::TmplExecutorModule<NPCExecutorModule>
+class NPCExecutorModule : public Bscript::TmplExecutorModule<NPCExecutorModule, Bscript::ExecutorModule>
 {
 public:
   NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
@@ -53,7 +53,7 @@ public:
 protected:
   OSExecutorModule* os_module;
 
-  friend class Bscript::TmplExecutorModule<NPCExecutorModule>;
+  friend class Bscript::TmplExecutorModule<NPCExecutorModule, Bscript::ExecutorModule>;
 
   Bscript::BObjectImp* mf_Wander();
   Bscript::BObjectImp* mf_Self();

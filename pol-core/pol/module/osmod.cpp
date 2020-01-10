@@ -68,7 +68,7 @@ void freepid( unsigned int pid )
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<OSExecutorModule>( exec ),
+    : TmplExecutorModule<OSExecutorModule, Bscript::ExecutorModule>( exec ),
       critical_( false ),
       priority_( 1 ),
       warn_on_runaway_( true ),

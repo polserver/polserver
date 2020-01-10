@@ -22,7 +22,7 @@ namespace Pol
 {
 namespace Module
 {
-class ClilocExecutorModule : public Bscript::TmplExecutorModule<ClilocExecutorModule>
+class ClilocExecutorModule : public Bscript::TmplExecutorModule<ClilocExecutorModule, Bscript::ExecutorModule>
 {
 public:
   ClilocExecutorModule( Bscript::Executor& exec );

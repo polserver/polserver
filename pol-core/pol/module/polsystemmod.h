@@ -50,7 +50,7 @@ public:
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
 };
 
-class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule>
+class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule, Bscript::ExecutorModule>
 {
 public:
   PolSystemExecutorModule( Bscript::Executor& exec );

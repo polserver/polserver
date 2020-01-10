@@ -46,7 +46,7 @@ namespace Pol
 {
 namespace Module
 {
-class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule>
+class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule, Bscript::ExecutorModule>
 {
 public:
   explicit UnicodeExecutorModule( Core::UOExecutor& exec );

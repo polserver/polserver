@@ -71,7 +71,7 @@ class UBoat;
 }
 namespace Module
 {
-class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule>
+class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule, Bscript::ExecutorModule>
 {
 public:
   Bscript::BObjectImp* mf_SendStatus( /* mob */ );

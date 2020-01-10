@@ -24,7 +24,7 @@ namespace Module
 using namespace Bscript;
 
 HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck )
-    : Bscript::TmplExecutorModule<HttpExecutorModule>( exec ),
+    : Bscript::TmplExecutorModule<HttpExecutorModule, Bscript::ExecutorModule>( exec ),
       sck_( std::move( isck ) ),
       continuing_offset( 0 ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )

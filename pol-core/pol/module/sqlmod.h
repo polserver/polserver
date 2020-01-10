@@ -36,7 +36,7 @@ class BSQLConnection;
 }
 namespace Module
 {
-class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule>
+class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule, Bscript::ExecutorModule>
 {
 public:
   SQLExecutorModule( Bscript::Executor& exec );

@@ -23,7 +23,7 @@ namespace Pol
 {
 namespace Module
 {
-class MathExecutorModule : public Bscript::TmplExecutorModule<MathExecutorModule>
+class MathExecutorModule : public Bscript::TmplExecutorModule<MathExecutorModule, Bscript::ExecutorModule>
 {
 public:
   MathExecutorModule( Bscript::Executor& exec );

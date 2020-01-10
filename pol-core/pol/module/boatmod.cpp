@@ -25,7 +25,7 @@ namespace Pol
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UBoatExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<UBoatExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

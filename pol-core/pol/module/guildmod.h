@@ -28,7 +28,7 @@ namespace Module
 {
 extern Bscript::BApplicObjType guild_type;
 
-class GuildExecutorModule : public Bscript::TmplExecutorModule<GuildExecutorModule>
+class GuildExecutorModule : public Bscript::TmplExecutorModule<GuildExecutorModule, Bscript::ExecutorModule>
 {
 public:
   GuildExecutorModule( Bscript::Executor& exec );

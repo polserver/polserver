@@ -23,7 +23,7 @@ namespace Pol
 {
 namespace Module
 {
-class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule>
+class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule, Bscript::ExecutorModule>
 {
 public:
   UtilExecutorModule( Bscript::Executor& exec );

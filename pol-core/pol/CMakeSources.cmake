@@ -291,6 +291,8 @@ set (pol_sources  # sorted !
   polclock.h
   poldbg.cpp
   poldbg.h
+  polmodl.cpp
+  polmodl.h
   polresource.h
   polsem.cpp
   polsem.h

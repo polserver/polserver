@@ -26,7 +26,7 @@ namespace Module
 {
 class DataStoreFile;
 
-class DataFileExecutorModule : public Bscript::TmplExecutorModule<DataFileExecutorModule>
+class DataFileExecutorModule : public Bscript::TmplExecutorModule<DataFileExecutorModule, Bscript::ExecutorModule>
 {
 public:
   DataFileExecutorModule( Bscript::Executor& exec );

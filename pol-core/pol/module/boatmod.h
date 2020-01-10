@@ -24,7 +24,7 @@ namespace Pol
 {
 namespace Module
 {
-class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule>
+class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule, Bscript::ExecutorModule>
 {
 public:
   UBoatExecutorModule( Bscript::Executor& exec );

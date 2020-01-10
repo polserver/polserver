@@ -10,7 +10,7 @@
 #ifndef ATTRIBUTEEMOD_H
 #define ATTRIBUTEEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -25,7 +25,7 @@ namespace Pol
 {
 namespace Module
 {
-class AttributeExecutorModule : public Bscript::TmplExecutorModule<AttributeExecutorModule>
+class AttributeExecutorModule : public Bscript::TmplExecutorModule<AttributeExecutorModule, Core::PolModule>
 {
 public:
   AttributeExecutorModule( Bscript::Executor& exec );

@@ -28,7 +28,7 @@ namespace Module
 {
 extern Bscript::BApplicObjType party_type;
 
-class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
+class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule, Bscript::ExecutorModule>
 {
 public:
   PartyExecutorModule( Bscript::Executor& exec );

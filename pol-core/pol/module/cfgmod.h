@@ -35,7 +35,7 @@ namespace Pol
 {
 namespace Module
 {
-class ConfigFileExecutorModule : public Bscript::TmplExecutorModule<ConfigFileExecutorModule>
+class ConfigFileExecutorModule : public Bscript::TmplExecutorModule<ConfigFileExecutorModule, Bscript::ExecutorModule>
 {
 public:
   ConfigFileExecutorModule( Bscript::Executor& exec );

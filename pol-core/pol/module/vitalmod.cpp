@@ -30,7 +30,7 @@ namespace Module
 using namespace Bscript;
 
 VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<VitalExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<VitalExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

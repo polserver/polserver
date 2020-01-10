@@ -16,6 +16,8 @@
 #include "../skillid.h"
 #include "../uoexhelp.h"
 
+#include "../polmodl.h"
+
 #include <module_defs/attributes.h>
 
 namespace Pol
@@ -26,7 +28,7 @@ using namespace Bscript;
 using namespace Mobile;
 
 AttributeExecutorModule::AttributeExecutorModule( Executor& exec )
-    : TmplExecutorModule<AttributeExecutorModule>( exec )
+    : TmplExecutorModule<AttributeExecutorModule, Core::PolModule>( exec )
 {
 }
 

@@ -39,7 +39,7 @@ initer::initer()
 initer _initer;
 
 MathExecutorModule::MathExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<MathExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<MathExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

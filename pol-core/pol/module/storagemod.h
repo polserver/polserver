@@ -25,7 +25,7 @@ namespace Pol
 {
 namespace Module
 {
-class StorageExecutorModule : public Bscript::TmplExecutorModule<StorageExecutorModule>
+class StorageExecutorModule : public Bscript::TmplExecutorModule<StorageExecutorModule, Bscript::ExecutorModule>
 {
 public:
   StorageExecutorModule( Bscript::Executor& exec );

@@ -464,7 +464,7 @@ BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
 
 
 GuildExecutorModule::GuildExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<GuildExecutorModule>( exec )
+    : TmplExecutorModule<GuildExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

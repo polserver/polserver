@@ -107,7 +107,7 @@ BObjectRef PackageObjImp::get_member( const char* membername )
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<PolSystemExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

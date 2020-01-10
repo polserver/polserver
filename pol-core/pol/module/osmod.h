@@ -27,7 +27,7 @@ namespace Bscript
 class BObject;
 class BObjectImp;
 class Executor;
-template <class T>
+template <class T, class T2>
 class TmplExecutorModule;
 }  // namespace Bscript
 namespace Mobile
@@ -48,7 +48,7 @@ void deschedule_executor( UOExecutor* ex );
 }  // namespace Core
 namespace Module
 {
-class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>
+class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule, Bscript::ExecutorModule>
 {
 public:
   bool signal_event( Bscript::BObjectImp* eventimp );
@@ -92,7 +92,7 @@ public:
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
 
-  friend class Bscript::TmplExecutorModule<OSExecutorModule>;
+  friend class Bscript::TmplExecutorModule<OSExecutorModule, Bscript::ExecutorModule>;
 
   Bscript::BObjectImp* mf_Create_Debug_Context();
   Bscript::BObjectImp* mf_GetPid();

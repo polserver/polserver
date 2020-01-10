@@ -29,7 +29,7 @@ class UOExecutor;
 }
 namespace Module
 {
-class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
+class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule, Bscript::ExecutorModule>
 {
 public:
   HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );
