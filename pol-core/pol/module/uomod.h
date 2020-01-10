@@ -30,7 +30,7 @@
 #ifndef H_UOMOD_H
 #define H_UOMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/poltype.h"
 #include "../reftypes.h"
@@ -71,7 +71,7 @@ class UBoat;
 }
 namespace Module
 {
-class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule, Bscript::ExecutorModule>
+class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule, Core::PolModule>
 {
 public:
   Bscript::BObjectImp* mf_SendStatus( /* mob */ );

@@ -193,7 +193,7 @@ public:
 
 
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
-    : TmplExecutorModule<UOExecutorModule, Bscript::ExecutorModule>( exec ),
+    : TmplExecutorModule<UOExecutorModule, Core::PolModule>( exec ),
       uoexec( exec ),
       target_cursor_chr( nullptr ),
       menu_selection_chr( nullptr ),

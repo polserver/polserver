@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 #include "../../clib/network/wnsckt.h"
 
 namespace Pol
@@ -29,7 +29,7 @@ class UOExecutor;
 }
 namespace Module
 {
-class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule, Bscript::ExecutorModule>
+class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule, Core::PolModule>
 {
 public:
   HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );

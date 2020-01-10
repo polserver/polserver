@@ -7,8 +7,8 @@
 #ifndef H_UNIEMOD_H
 #define H_UNIEMOD_H
 
-#ifndef BSCRIPT_EXECMODL_H
-#include "../../bscript/execmodl.h"
+#ifndef POL_POLMODL_H
+#include "../polmodl.h"
 #endif
 
 #include "../../clib/rawtypes.h"
@@ -46,7 +46,8 @@ namespace Pol
 {
 namespace Module
 {
-class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule, Bscript::ExecutorModule>
+class UnicodeExecutorModule
+    : public Bscript::TmplExecutorModule<UnicodeExecutorModule, Core::PolModule>
 {
 public:
   explicit UnicodeExecutorModule( Core::UOExecutor& exec );

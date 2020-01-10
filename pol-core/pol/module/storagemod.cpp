@@ -31,7 +31,7 @@ namespace Module
 using namespace Bscript;
 
 StorageExecutorModule::StorageExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<StorageExecutorModule, Bscript::ExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<StorageExecutorModule, Core::PolModule>( exec )
 {
 }
 

@@ -9,7 +9,7 @@
 #ifndef BOATEMOD_H
 #define BOATEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -24,7 +24,7 @@ namespace Pol
 {
 namespace Module
 {
-class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule, Bscript::ExecutorModule>
+class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModule, Core::PolModule>
 {
 public:
   UBoatExecutorModule( Bscript::Executor& exec );

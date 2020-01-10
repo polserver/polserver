@@ -10,7 +10,7 @@
 #ifndef STORAGEEMOD_H
 #define STORAGEEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -25,7 +25,8 @@ namespace Pol
 {
 namespace Module
 {
-class StorageExecutorModule : public Bscript::TmplExecutorModule<StorageExecutorModule, Bscript::ExecutorModule>
+class StorageExecutorModule
+    : public Bscript::TmplExecutorModule<StorageExecutorModule, Core::PolModule>
 {
 public:
   StorageExecutorModule( Bscript::Executor& exec );

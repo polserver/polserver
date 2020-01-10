@@ -7,7 +7,7 @@
 #ifndef CLILOCEMOD_H
 #define CLILOCEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -22,7 +22,8 @@ namespace Pol
 {
 namespace Module
 {
-class ClilocExecutorModule : public Bscript::TmplExecutorModule<ClilocExecutorModule, Bscript::ExecutorModule>
+class ClilocExecutorModule
+    : public Bscript::TmplExecutorModule<ClilocExecutorModule, Core::PolModule>
 {
 public:
   ClilocExecutorModule( Bscript::Executor& exec );

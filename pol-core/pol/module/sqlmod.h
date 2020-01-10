@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 #include "../uoexec.h"
 
 namespace Pol
@@ -36,7 +36,7 @@ class BSQLConnection;
 }
 namespace Module
 {
-class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule, Bscript::ExecutorModule>
+class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule, Core::PolModule>
 {
 public:
   SQLExecutorModule( Bscript::Executor& exec );

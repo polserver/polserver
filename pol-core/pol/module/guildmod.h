@@ -8,7 +8,7 @@
 #define GUILDSMOD_H
 
 #include "../../bscript/bobject.h"
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -28,7 +28,7 @@ namespace Module
 {
 extern Bscript::BApplicObjType guild_type;
 
-class GuildExecutorModule : public Bscript::TmplExecutorModule<GuildExecutorModule, Bscript::ExecutorModule>
+class GuildExecutorModule : public Bscript::TmplExecutorModule<GuildExecutorModule, Core::PolModule>
 {
 public:
   GuildExecutorModule( Bscript::Executor& exec );

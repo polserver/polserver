@@ -107,7 +107,9 @@ namespace Module
 using namespace Bscript;
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
-    : TmplExecutorModule<UnicodeExecutorModule, Bscript::ExecutorModule>( exec ), uoexec( exec ), prompt_chr( nullptr )
+    : TmplExecutorModule<UnicodeExecutorModule, Core::PolModule>( exec ),
+      uoexec( exec ),
+      prompt_chr( nullptr )
 {
 }
 

@@ -38,7 +38,7 @@ namespace Module
 using namespace Bscript;
 
 PartyExecutorModule::PartyExecutorModule( Executor& exec )
-    : TmplExecutorModule<PartyExecutorModule, Bscript::ExecutorModule>( exec )
+    : TmplExecutorModule<PartyExecutorModule, Core::PolModule>( exec )
 {
 }
 

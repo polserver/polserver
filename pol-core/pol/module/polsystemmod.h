@@ -8,7 +8,7 @@
 #ifndef POLSYSTEMEMOD_H
 #define POLSYSTEMEMOD_H
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -50,7 +50,8 @@ public:
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
 };
 
-class PolSystemExecutorModule : public Bscript::TmplExecutorModule<PolSystemExecutorModule, Bscript::ExecutorModule>
+class PolSystemExecutorModule
+    : public Bscript::TmplExecutorModule<PolSystemExecutorModule, Core::PolModule>
 {
 public:
   PolSystemExecutorModule( Bscript::Executor& exec );

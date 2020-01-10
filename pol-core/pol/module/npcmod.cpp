@@ -42,7 +42,7 @@ namespace Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : TmplExecutorModule<NPCExecutorModule, Bscript::ExecutorModule>( ex ), npcref( &npc ), npc( npc )
+    : TmplExecutorModule<NPCExecutorModule, Core::PolModule>( ex ), npcref( &npc ), npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
   if ( os_module == nullptr )

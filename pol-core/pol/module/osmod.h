@@ -8,8 +8,8 @@
 #ifndef BSCRIPT_OSEMOD_H
 #define BSCRIPT_OSEMOD_H
 
-#ifndef BSCRIPT_EXECMODL_H
-#include "../../bscript/execmodl.h"
+#ifndef POL_POLMODL_H
+#include "../polmodl.h"
 #endif
 
 #include <ctime>
@@ -48,7 +48,7 @@ void deschedule_executor( UOExecutor* ex );
 }  // namespace Core
 namespace Module
 {
-class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule, Bscript::ExecutorModule>
+class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>
 {
 public:
   bool signal_event( Bscript::BObjectImp* eventimp );
@@ -92,7 +92,7 @@ public:
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
 
-  friend class Bscript::TmplExecutorModule<OSExecutorModule, Bscript::ExecutorModule>;
+  friend class Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>;
 
   Bscript::BObjectImp* mf_Create_Debug_Context();
   Bscript::BObjectImp* mf_GetPid();

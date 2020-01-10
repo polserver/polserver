@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 #include "../../plib/uconst.h"
 #include "../reftypes.h"
 
@@ -41,7 +41,7 @@ namespace Module
 {
 class OSExecutorModule;
 
-class NPCExecutorModule : public Bscript::TmplExecutorModule<NPCExecutorModule, Bscript::ExecutorModule>
+class NPCExecutorModule : public Bscript::TmplExecutorModule<NPCExecutorModule, Core::PolModule>
 {
 public:
   NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
@@ -53,7 +53,7 @@ public:
 protected:
   OSExecutorModule* os_module;
 
-  friend class Bscript::TmplExecutorModule<NPCExecutorModule, Bscript::ExecutorModule>;
+  friend class Bscript::TmplExecutorModule<NPCExecutorModule, Core::PolModule>;
 
   Bscript::BObjectImp* mf_Wander();
   Bscript::BObjectImp* mf_Self();

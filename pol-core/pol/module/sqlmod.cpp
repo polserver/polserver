@@ -27,7 +27,7 @@ namespace Module
 using namespace Bscript;
 
 SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<SQLExecutorModule, Bscript::ExecutorModule>( exec ),
+    : Bscript::TmplExecutorModule<SQLExecutorModule, Core::PolModule>( exec ),
       uoexec( static_cast<Core::UOExecutor&>( exec ) )
 {
 }

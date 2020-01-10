@@ -24,7 +24,7 @@ namespace Module
 using namespace Bscript;
 
 ClilocExecutorModule::ClilocExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<ClilocExecutorModule, Bscript::ExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<ClilocExecutorModule, Core::PolModule>( exec )
 {
 }
 
