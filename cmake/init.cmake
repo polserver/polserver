@@ -58,13 +58,60 @@ macro(detect_arch)
   endif()
 endmacro()
 
+macro(test_file_offset)
+  check_cxx_source_compiles(
+    "#include <sys/types.h>
+#define KB ((off_t)1024)
+#define MB ((off_t)1024 * KB)
+#define GB ((off_t)1024 * MB)
+#define TB ((off_t)1024 * GB)
+int t2[(((64 * GB -1) % 671088649) == 268434537)
+       && (((TB - (64 * GB -1) + 255) % 1792151290) == 305159546)? 1: -1];
+
+int main()
+{
+  return 0;
+}"
+    file_offset_test
+  )
+endmacro()
+
 macro(detect_platform)
   set (linux 0)
   set (windows 0)
+  set (arm_proc 0)
   if (UNIX AND NOT WIN32)
     set (linux 1)
   elseif (WIN32)
     set (windows 1)
+  endif()
+
+  test_big_endian(bigendian)
+  if (bigendian)
+    #Error? I don't think that it really works
+    message("Platform is Big Endian")
+  else()
+    message("Platform is Little Endian")
+  endif()
+
+  message("Compiling on processor ${CMAKE_SYSTEM_PROCESSOR}")
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm.*|ARM.*)")
+    set(arm_proc 1)
+  endif()
+
+  #atleast a problem when arm (32bit) processor runs in a VM
+  set(file_offset_bits 0)
+  if (linux)
+    test_file_offset()
+    if (NOT file_offset_test)
+      set(CMAKE_REQUIRED_DEFINITIONS -D_FILE_OFFSET_BITS=64)
+      test_file_offset()
+      set(CMAKE_REQUIRED_DEFINITIONS )
+      if (file_offset_test)
+        set(file_offset_bits 1)
+        message("Using 64bit file interface")
+      endif()
+    endif()
   endif()
 endmacro()
 
@@ -109,15 +156,20 @@ macro(prepare_build)
   if(windows)
     set(HAVE_OPENSSL true)
     set(HAVE_MYSQL true)
+    set(HAVE_ZLIB true)
   else()
     check_include_files (openssl/md5.h HAVE_OPENSSL)
     check_include_files (mysql/mysql.h HAVE_MYSQL)
+    check_include_files (zlib.h HAVE_ZLIB)
   endif()
   if (NOT HAVE_OPENSSL)
     message(FATAL_ERROR "OpenSSL not found")
   endif()
+  if (NOT HAVE_ZLIB)
+    message(FATAL_ERROR "ZLib not found")
+  endif()
   if (NOT HAVE_MYSQL)
-    message("MySQL not found")
+    message(WARNING "MySQL not found")
   endif()
   configure_file(
     ${CMAKE_CURRENT_LIST_DIR}/cmake/env/pol_global_config.h.in 
@@ -191,6 +243,9 @@ endmacro()
 
 macro(git_revision_target)
   find_package(Git)
+  if (NOT GIT_EXECUTABLE)
+    message(WARNING "Git not found unable to store revision")
+  endif()
   add_custom_target(git_rev
     COMMAND ${CMAKE_COMMAND}
     -DGIT=${GIT_EXECUTABLE}
