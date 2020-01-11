@@ -18,6 +18,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 #include "./globals/script_internals.h"
+#include "skillid.h"
 
 namespace Pol
 {

@@ -66,7 +66,7 @@ public:
 };
 BApplicObjType party_type;
 EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref )
-    : BApplicObj<Core::PartyRef>( &party_type, pref ){};
+    : PolApplicObj<Core::PartyRef>( &party_type, pref ){};
 
 const char* EPartyRefObjImp::typeOf() const
 {
@@ -207,7 +207,7 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->has_party() )
       return new BError( "Character is already in a party" );
@@ -271,7 +271,7 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( !obj_->is_member( chr->serial ) )
       return new BError( "Character is not in this party" );
@@ -288,7 +288,7 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->has_party() )
       return new BError( "Character is already in a party" );
@@ -322,7 +322,7 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( !obj_->is_candidate( chr->serial ) )
       return new BError( "Character is not candidate of this party" );

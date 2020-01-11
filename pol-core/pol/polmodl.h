@@ -9,6 +9,7 @@
 #define POL_POLMODL_H
 
 #include "../bscript/execmodl.h"
+#include "skillid.h"
 
 namespace Pol
 {

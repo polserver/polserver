@@ -806,6 +806,3 @@ bool UOExecutor::getVitalParam( unsigned param, const Vital*& vital )
 
 }  // namespace Core
 }  // namespace Pol
-
-}  // namespace Core
-}  // namespace Pol

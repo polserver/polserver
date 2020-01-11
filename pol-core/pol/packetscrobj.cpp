@@ -43,14 +43,14 @@ namespace Core
 {
 using namespace Bscript;
 
-BPacket::BPacket() : BObjectImp( OTPacket ), is_variable_length( false ) {}
+BPacket::BPacket() : PolObjectImp( OTPacket ), is_variable_length( false ) {}
 BPacket::BPacket( const BPacket& copyfrom )
-    : BObjectImp( OTPacket ),
+    : PolObjectImp( OTPacket ),
       buffer( copyfrom.buffer ),
       is_variable_length( copyfrom.is_variable_length )
 {
 }
-BPacket::BPacket( u8 type, signed short length ) : BObjectImp( OTPacket )
+BPacket::BPacket( u8 type, signed short length ) : PolObjectImp( OTPacket )
 {
   if ( length == -1 )
   {
@@ -68,7 +68,7 @@ BPacket::BPacket( u8 type, signed short length ) : BObjectImp( OTPacket )
   }
 }
 BPacket::BPacket( const unsigned char* data, unsigned short length, bool variable_len )
-    : BObjectImp( OTPacket ), buffer( data, data + length )
+    : PolObjectImp( OTPacket ), buffer( data, data + length )
 {
   is_variable_length = variable_len;
 }

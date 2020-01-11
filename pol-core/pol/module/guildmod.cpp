@@ -21,8 +21,9 @@
 #include "../globals/uvars.h"
 #include "../guilds.h"
 #include "../mobile/charactr.h"
+#include "../uoexec.h"
 #include "../uoscrobj.h"
-
+#include "../polobject.h"
 #include <module_defs/guilds.h>
 
 namespace Pol
@@ -30,7 +31,7 @@ namespace Pol
 namespace Module
 {
 using namespace Bscript;
-
+using UOExecutor = Core::UOExecutor;
 /// Guild Object
 ///  Properties:
 ///   guild.guildid : integer
@@ -55,7 +56,7 @@ using namespace Bscript;
 ///   guild.setprop( propname, propvalue )
 ///   guild.eraseprop( propname )
 ///
-class EGuildRefObjImp final : public BApplicObj<Core::GuildRef>
+class EGuildRefObjImp final : public Core::PolApplicObj<Core::GuildRef>
 {
 public:
   EGuildRefObjImp( Core::GuildRef gref );
@@ -67,8 +68,8 @@ public:
 
   virtual BObjectRef get_member( const char* membername ) override;
   virtual BObjectRef get_member_id( const int id ) override;  // id test
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
+  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
+  virtual BObjectImp* call_polmethod_id( const int id, UOExecutor& ex,
                                       bool forcebuiltin = false ) override;
 };
 
@@ -76,7 +77,7 @@ BApplicObjType guild_type;
 
 
 EGuildRefObjImp::EGuildRefObjImp( Core::GuildRef gref )
-    : BApplicObj<Core::GuildRef>( &guild_type, gref ){};
+    : PolApplicObj<Core::GuildRef>( &guild_type, gref ){};
 
 const char* EGuildRefObjImp::typeOf() const
 {
@@ -249,7 +250,7 @@ BObjectRef EGuildRefObjImp::get_member( const char* membername )
     return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* EGuildRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool forcebuiltin )
 {
   if ( obj_->_disbanded )
     return new BError( "Guild has disbanded" );
@@ -268,7 +269,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     Mobile::Character* chr;
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
 
     return new BLong( static_cast<int>( obj_->_member_serials.count( chr->serial ) ) );
@@ -305,7 +306,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     Mobile::Character* chr;
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->guildid() )
       return new BError( "Character already belongs to a guild" );
@@ -376,7 +377,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     Mobile::Character* chr;
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->guildid() != obj_->_guildid )
       return new BError( "Character does not belong to this guild" );
@@ -445,7 +446,7 @@ BObjectImp* EGuildRefObjImp::call_method_id( const int id, Executor& ex, bool fo
   }
 }
 
-BObjectImp* EGuildRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* EGuildRefObjImp::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   if ( obj_->_disbanded )
     return new BError( "Guild has disbanded" );
