@@ -35,6 +35,7 @@
 #include "realms/realm.h"
 #include "uoexhelp.h"
 #include "uworld.h"
+#include "uoexec.h"
 
 namespace Pol
 {
@@ -86,7 +87,7 @@ BObjectRef BPacket::get_member( const char* membername )
     return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*forcebuiltin*/ )
 {
   switch ( id )
   {
@@ -515,11 +516,11 @@ BObjectImp* BPacket::call_method_id( const int id, Executor& ex, bool /*forcebui
 }
 
 
-BObjectImp* BPacket::call_method( const char* methodname, Executor& ex )
+BObjectImp* BPacket::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex );
+    return this->call_polmethod_id( objmethod->id, ex );
   else
     return nullptr;
 }

@@ -25,9 +25,10 @@
 #include "../network/pktdef.h"
 #include "../party.h"
 #include "../party_cfg.h"
+#include "../polobject.h"
 #include "../syshook.h"
+#include "../uoexec.h"
 #include "../uoscrobj.h"
-
 #include <module_defs/party.h>
 
 namespace Pol
@@ -40,13 +41,14 @@ class UOExecutor;
 namespace Module
 {
 using namespace Bscript;
+using UOExecutor = Core::UOExecutor;
 
 PartyExecutorModule::PartyExecutorModule( Executor& exec )
     : TmplExecutorModule<PartyExecutorModule, Core::PolModule>( exec )
 {
 }
 
-class EPartyRefObjImp final : public BApplicObj<Core::PartyRef>
+class EPartyRefObjImp final : public Core::PolApplicObj<Core::PartyRef>
 {
 public:
   EPartyRefObjImp( Core::PartyRef pref );
@@ -58,9 +60,9 @@ public:
 
   virtual BObjectRef get_member( const char* membername ) override;
   virtual BObjectRef get_member_id( const int id ) override;  // id test
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
-  virtual BObjectImp* call_method_id( const int id, Executor& ex,
-                                      bool forcebuiltin = false ) override;
+  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
+  virtual BObjectImp* call_polmethod_id( const int id, UOExecutor& ex,
+                                         bool forcebuiltin = false ) override;
 };
 BApplicObjType party_type;
 EPartyRefObjImp::EPartyRefObjImp( Core::PartyRef pref )
@@ -176,7 +178,7 @@ BObjectRef EPartyRefObjImp::get_member_id( const int id )  // id test
   }
 }
 
-BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* EPartyRefObjImp::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
@@ -189,9 +191,8 @@ BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
   return CallPropertyListMethod( obj_->_proplist, methodname, ex, changed );
 }
 
-BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool forcebuiltin )
 {
-  UOExecutor& uoex = static_cast<Core::UOExecutor&>( ex );
   ObjMethod* mth = getObjMethod( id );
   if ( mth->overridden && !forcebuiltin )
   {
@@ -206,7 +207,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !uoex.getCharacterParam( ex, 0, chr ) )
+    if ( !getCharacterParam( ex, 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->has_party() )
       return new BError( "Character is already in a party" );
@@ -237,7 +238,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( !obj_->is_member( chr->serial ) )
       return new BError( "Character is not in this party" );
