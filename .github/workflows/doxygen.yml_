@@ -1,0 +1,62 @@
+name: Doxygen
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+            cxx-compiler: g++
+            c-compiler: gcc
+            compiler-version: 8
+            build-type: Release
+
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - name: Install Compiler and Dependencies
+        shell: pwsh
+        run: |
+          sudo apt-get update
+
+          $compiler = '${{ matrix.config.cxx-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            sudo apt-get install "$compiler-$version" -y
+            Invoke-Expression "$compiler-$version --version"
+          }
+          sudo apt-get install mysql-client libmysqlclient-dev doxygen graphviz -y
+
+      - name: Set CXX and CC
+        shell: pwsh
+        run: |
+          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
+          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            $cxx_compiler = "$cxx_compiler-$version"
+            $c_compiler = "$c_compiler-$version"
+          }
+
+          echo "::set-env name=CXX::$cxx_compiler"
+          echo "::set-env name=CC::$c_compiler"
+
+      - name: Build
+        run: |
+          cd lib
+          unzip curl-7.57.0.zip
+          tar -xjf boost_1_67_0.tar.bz2
+          cd ..
+          doxygen doxygen.conf
+      - name: Upload Artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Nightly-DoxyGen
+          path: docs/doxygen
+
