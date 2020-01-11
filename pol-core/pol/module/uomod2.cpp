@@ -93,7 +93,6 @@
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
-#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "uomod.h"
@@ -213,8 +212,8 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   UContainer *for_sale, *bought;
   unsigned char save_layer_one, save_layer_two;
 
-  if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) &&
-       getCharacterParam( exec, 2, mrchnt ) && getItemParam( exec, 3, item2 ) &&
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) &&
+       getCharacterParam( 2, mrchnt ) && getItemParam( 3, item2 ) &&
        getParam( 4, flags ) )
   {
     if ( !chr->has_active_client() )
@@ -715,9 +714,9 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   UContainer* merchant_bought;
   UContainer* merchant_buyable = nullptr;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, mrchnt ) &&
-          getItemParam( exec, 2, wi1a ) && getItemParam( exec, 3, wi1b ) &&
-          getItemParam( exec, 4, wi1c ) && getParam( 5, flags ) ) )
+  if ( !( getCharacterParam( 0, chr ) && getCharacterParam( 1, mrchnt ) &&
+          getItemParam( 2, wi1a ) && getItemParam( 3, wi1b ) &&
+          getItemParam( 4, wi1c ) && getParam( 5, flags ) ) )
   {
     return new BError( "A parameter was invalid" );
   }
@@ -978,7 +977,7 @@ BObjectImp* UOExecutorModule::mf_SendDialogGump()
   Character* chr;
   ObjArray* layout_arr;
   ObjArray* data_arr;
-  if ( !( getCharacterParam( exec, 0, chr ) && exec.getObjArrayParam( 1, layout_arr ) &&
+  if ( !( getCharacterParam( 0, chr ) && exec.getObjArrayParam( 1, layout_arr ) &&
           exec.getObjArrayParam( 2, data_arr ) && exec.getParam( 3, x ) && exec.getParam( 4, y ) &&
           exec.getParam( 5, flags ) && exec.getParam( 6, gump_id ) ) )
   {
@@ -1361,7 +1360,7 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
   unsigned int pid;
   BObjectImp* resp;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && exec.getParam( 1, pid ) &&
+  if ( !( getCharacterParam( 0, chr ) && exec.getParam( 1, pid ) &&
           ( getParamImp( 2, resp ) ) ) )
   {
     return new BError( "Invalid parameter" );
@@ -1398,8 +1397,8 @@ BObjectImp* UOExecutorModule::mf_CloseWindow( /* chr, type, obj */ )
   unsigned int type;
   UObject* obj;
 
-  if ( !getCharacterParam( exec, 0, chr ) || !getParam( 1, type ) ||
-       !getUObjectParam( exec, 2, obj ) )
+  if ( !getCharacterParam( 0, chr ) || !getParam( 1, type ) ||
+       !getUObjectParam( 2, obj ) )
     return new BError( "Invalid parameter" );
 
   if ( !chr->has_active_client() )
@@ -1578,7 +1577,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   int maximum;
   const String* line2;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && exec.getStringParam( 1, line1 ) &&
+  if ( !( getCharacterParam( 0, chr ) && exec.getStringParam( 1, line1 ) &&
           exec.getParam( 2, cancel ) && exec.getParam( 3, style ) && exec.getParam( 4, maximum ) &&
           exec.getStringParam( 5, line2 ) ) )
   {
@@ -2132,7 +2131,7 @@ void handle_resurrect_menu( Client* client, PKTBI_2C* msg )
 BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 {
   Character* chr;
-  if ( !getCharacterParam( exec, 0, chr ) )
+  if ( !getCharacterParam( 0, chr ) )
     return new BError( "Invalid parameter type" );
   if ( !chr->has_active_client() )
     return new BError( "No client attached" );
@@ -2191,7 +2190,7 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 {
   Character* chr;
   Item* item;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) )
+  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -2225,7 +2224,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   Character* chr;
   Item* book;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, book ) ) )
+  if ( !( getCharacterParam( 0, chr ) && getItemParam( 1, book ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -2492,7 +2491,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   Character* chr;
   Multi::UMulti* multi;
 
-  if ( !( getCharacterParam( exec, 0, chr ) && getMultiParam( exec, 1, multi ) ) )
+  if ( !( getCharacterParam( 0, chr ) && getMultiParam( 1, multi ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -2569,7 +2568,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
 BObjectImp* UOExecutorModule::mf_SendCharacterRaceChanger( /* Character */ )
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     PktHelper::PacketOut<PktOut_BF_Sub2A> msg;
     msg->WriteFlipped<u16>( 7u );
@@ -2670,7 +2669,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   Character* chr;
   UObject* above;
   ObjArray* menu_arr;
-  if ( !( getCharacterParam( exec, 0, chr ) && getUObjectParam( exec, 1, above ) &&
+  if ( !( getCharacterParam( 0, chr ) && getUObjectParam( 1, above ) &&
           exec.getObjArrayParam( 2, menu_arr ) ) )
   {
     return new BError( "Invalid parameter" );
@@ -2803,7 +2802,7 @@ BObjectImp* UOExecutorModule::mf_SingleClick()
   Character* chr = nullptr;
   UObject* what = nullptr;
 
-  if ( !getCharacterParam( exec, 0, chr ) || !getUObjectParam( exec, 1, what ) )
+  if ( !getCharacterParam( 0, chr ) || !getUObjectParam( 1, what ) )
     return new BError( "Invalid parameter" );
 
   if ( !chr->has_active_client() )
@@ -2827,7 +2826,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
   Realms::Realm* realm;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getObjtypeParam( exec, 4, objtype ) && getParam( 5, flags ) &&
+       getObjtypeParam( 4, objtype ) && getParam( 5, flags ) &&
        getStringParam( 6, strrealm ) )
   {
     realm = find_realm( strrealm->value() );

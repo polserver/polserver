@@ -21,7 +21,6 @@
 #include "../globals/uvars.h"
 #include "../guilds.h"
 #include "../mobile/charactr.h"
-#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
 #include <module_defs/guilds.h>

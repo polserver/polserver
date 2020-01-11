@@ -78,8 +78,8 @@ Bscript::BObjectImp* UOExecutorModule::mf_RequestInput()
   Mobile::Character* chr;
   Items::Item* item;
   const Bscript::String* prompt;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) ||
-       !exec.getStringParam( 2, prompt ) )
+  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) ||
+       !getStringParam( 2, prompt ) )
   {
     return new Bscript::BError( "Invalid parameter" );
   }

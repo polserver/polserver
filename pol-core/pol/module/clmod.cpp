@@ -13,7 +13,6 @@
 #include "../clfunc.h"
 #include "../mobile/charactr.h"
 #include "../network/pktdef.h"
-#include "../uoexhelp.h"
 
 #include <module_defs/cliloc.h>
 
@@ -36,7 +35,7 @@ BObjectImp* ClilocExecutorModule::mf_SendSysMessageCL()
   unsigned short color;
   unsigned short font;
 
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, cliloc_num ) &&
+  if ( getCharacterParam( 0, chr ) && getParam( 1, cliloc_num ) &&
        getUnicodeStringParam( 2, text ) && getParam( 3, font ) && getParam( 4, color ) )
   {
     passert_paranoid( chr != nullptr && text != nullptr );
@@ -64,7 +63,7 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAboveCL()
   unsigned short color;
   unsigned short font;
 
-  if ( getUObjectParam( exec, 0, obj ) && getParam( 1, cliloc_num ) &&
+  if ( getUObjectParam( 0, obj ) && getParam( 1, cliloc_num ) &&
        getUnicodeStringParam( 2, text ) && getParam( 3, font ) && getParam( 4, color ) )
   {
     passert_paranoid( text != nullptr && obj != nullptr );
@@ -90,7 +89,7 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
   unsigned short color;
   unsigned short font;
 
-  if ( getCharacterParam( exec, 0, chr ) && getUObjectParam( exec, 1, obj ) &&
+  if ( getCharacterParam( 0, chr ) && getUObjectParam( 1, obj ) &&
        getParam( 2, cliloc_num ) && getUnicodeStringParam( 3, text ) && getParam( 4, font ) &&
        getParam( 5, color ) )
   {

@@ -43,7 +43,6 @@
 #include "../realms/realm.h"
 #include "../tooltips.h"
 #include "../uobject.h"
-#include "../uoexhelp.h"
 
 #include <module_defs/polsys.h>
 
@@ -114,7 +113,7 @@ PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
 BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
 {
   Core::UObject* uobj;
-  if ( getUObjectParam( exec, 0, uobj ) )
+  if ( getUObjectParam( 0, uobj ) )
   {
     uobj->increv();
     send_object_cache_to_inrange( uobj );
@@ -309,7 +308,7 @@ BObjectImp* PolSystemExecutorModule::mf_SetSysTrayPopupText()
 BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 {
   unsigned int objtype;
-  if ( Core::getObjtypeParam( exec, 0, objtype ) )
+  if ( getObjtypeParam( 0, objtype ) )
   {
     const Items::ItemDesc& id = Items::find_itemdesc( objtype );
     if ( id.objtype == 0 && id.graphic == 0 )

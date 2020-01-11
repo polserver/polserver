@@ -14,7 +14,6 @@
 #include "../../clib/rawtypes.h"
 #include "../network/pktdef.h"
 #include "../uoexec.h"
-#include "../uoexhelp.h"
 
 namespace Pol
 {
@@ -69,25 +68,10 @@ public:
   virtual size_t sizeEstimate() const override;
 
 protected:
-  bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
-  bool getItemParam( unsigned param, Items::Item*& itemptr );
-  bool getUObjectParam( unsigned param, Core::UObject*& objptr );
+  //bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
+  //bool getItemParam( unsigned param, Items::Item*& itemptr );
+  //bool getUObjectParam( unsigned param, Core::UObject*& objptr );
 };
-
-inline bool UnicodeExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
-{
-  return Core::getCharacterParam( exec, param, chrptr );
-}
-
-inline bool UnicodeExecutorModule::getItemParam( unsigned param, Items::Item*& itemptr )
-{
-  return Core::getItemParam( exec, param, itemptr );
-}
-
-inline bool UnicodeExecutorModule::getUObjectParam( unsigned param, Core::UObject*& objptr )
-{
-  return Core::getUObjectParam( exec, param, objptr );
-}
 }  // namespace Module
 }  // namespace Pol
 #endif

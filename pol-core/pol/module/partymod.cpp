@@ -26,13 +26,17 @@
 #include "../party.h"
 #include "../party_cfg.h"
 #include "../syshook.h"
-#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
 #include <module_defs/party.h>
 
 namespace Pol
 {
+namespace Core
+{
+class UOExecutor;
+
+}
 namespace Module
 {
 using namespace Bscript;
@@ -187,6 +191,7 @@ BObjectImp* EPartyRefObjImp::call_method( const char* methodname, Executor& ex )
 
 BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
 {
+  UOExecutor& uoex = static_cast<Core::UOExecutor&>( ex );
   ObjMethod* mth = getObjMethod( id );
   if ( mth->overridden && !forcebuiltin )
   {
@@ -201,7 +206,7 @@ BObjectImp* EPartyRefObjImp::call_method_id( const int id, Executor& ex, bool fo
     Mobile::Character* chr;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
-    if ( !getCharacterParam( ex, 0, chr ) )
+    if ( !uoex.getCharacterParam( ex, 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->has_party() )
       return new BError( "Character is already in a party" );
@@ -377,7 +382,7 @@ BObjectImp* PartyExecutorModule::mf_CreateParty()
 {
   Mobile::Character* leader;
   Mobile::Character* firstmem;
-  if ( ( getCharacterParam( exec, 0, leader ) ) && ( getCharacterParam( exec, 1, firstmem ) ) )
+  if ( ( getCharacterParam( 0, leader ) ) && ( getCharacterParam( 1, firstmem ) ) )
   {
     if ( leader->has_party() )
       return new BError( "Leader is already in a party" );
@@ -440,7 +445,7 @@ BObjectImp* PartyExecutorModule::mf_SendPartyMsg()
   {
     const String* text;
     Mobile::Character* chr;
-    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getUnicodeStringParam( 2, text ) ) )
+    if ( ( getCharacterParam( 1, chr ) ) && ( getUnicodeStringParam( 2, text ) ) )
     {
       if ( text->length() > SPEECH_MAX_LEN )
         return new BError( "Text exceeds maximum size." );
@@ -467,7 +472,7 @@ BObjectImp* PartyExecutorModule::mf_SendPrivatePartyMsg()
     const String* text;
     Mobile::Character* chr;
     Mobile::Character* tochr;
-    if ( ( getCharacterParam( exec, 1, chr ) ) && ( getCharacterParam( exec, 2, tochr ) ) &&
+    if ( ( getCharacterParam( 1, chr ) ) && ( getCharacterParam( 2, tochr ) ) &&
          ( getUnicodeStringParam( 3, text ) ) )
     {
       if ( text->length() > SPEECH_MAX_LEN )

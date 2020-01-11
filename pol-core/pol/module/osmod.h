@@ -18,7 +18,6 @@
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
-#include "../uoexhelp.h"
 
 namespace Pol
 {
@@ -155,7 +154,7 @@ protected:
 
 inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
 {
-  return Core::getCharacterParam( exec, param, chrptr );
+  return getCharacterParam( param, chrptr );
 }
 
 inline bool OSExecutorModule::blocked() const

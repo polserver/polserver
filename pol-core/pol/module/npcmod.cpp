@@ -382,7 +382,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
 BObjectImp* NPCExecutorModule::mf_WalkToward()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -403,7 +403,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
 BObjectImp* NPCExecutorModule::mf_RunToward()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -422,7 +422,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
 BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -441,7 +441,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
 BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -462,7 +462,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
   Core::UObject* obj;
   int flags;
 
-  if ( !getUObjectParam( exec, 0, obj ) || !exec.getParam( 1, flags ) )
+  if ( !getUObjectParam( 0, obj ) || !exec.getParam( 1, flags ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -490,7 +490,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
   Core::UObject* obj;
   int flags;
 
-  if ( !getUObjectParam( exec, 0, obj ) || !exec.getParam( 1, flags ) )
+  if ( !getUObjectParam( 0, obj ) || !exec.getParam( 1, flags ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -936,7 +936,7 @@ BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 BObjectImp* NPCExecutorModule::mf_SetOpponent()
 {
   Mobile::Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) && chr != &npc )
+  if ( getCharacterParam( 0, chr ) && chr != &npc )
   {
     npc.set_opponent( chr );
     return new BLong( 1 );

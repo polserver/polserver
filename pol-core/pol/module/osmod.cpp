@@ -244,7 +244,7 @@ BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
   Mobile::Character* chr;
   const Mobile::Attribute* attr;
 
-  if ( getCharacterParam( 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     if ( !attr->disable_core_checks && !Core::CanUseSkill( chr->client ) )
       return new BLong( 0 );
