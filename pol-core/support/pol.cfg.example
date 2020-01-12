@@ -10,8 +10,8 @@
 #  installation found in the Windows Registry. This setting MUST be set for servers that do not have
 #  Ultima Online installed through the operating system, and MAY be set to use custom a client data
 #  files directory.
-#
-UoDataFileRoot=MUL
+# On Linux, you MUST set this to the correct Ultima Online client files directory.
+UoDataFileRoot=
 
 #
 # Used to tell POL where to look for the realm data that was made by uoconvert.
