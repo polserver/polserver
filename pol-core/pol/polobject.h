@@ -24,26 +24,6 @@ public:
                                                   bool forcebuiltin ) = 0;
 };
 
-//
-//
-//class PolApplicObjBase : public PolObjectImp
-//{
-//public:
-//  explicit PolApplicObjBase( const BApplicObjType* object_type )
-//      : PolObjectImp
-//
-//  const BApplicObjType* object_type() const;
-//
-//public:  // Class Machinery
-//  virtual BObjectImp* copy() const override = 0;
-//
-//  virtual std::string getStringRep() const override;
-//  virtual void printOn( std::ostream& ) const override;
-//  virtual size_t sizeEstimate() const override = 0;
-//
-//private:
-//  const BApplicObjType* object_type_;
-//};
 template <class T>
 class PolApplicObj : public Bscript::BApplicObj<T>
 {
@@ -67,6 +47,8 @@ public:
 template <class T>
 Bscript::BObjectImp* PolApplicObj<T>::call_method( const char* methodname, Bscript::Executor& ex )
 {
+  passert( ex.type() == Bscript::ExecutorType::POL );
+
   auto& uoex = static_cast<Core::UOExecutor&>( ex );
   return this->call_polmethod( methodname, uoex );
 }
@@ -75,6 +57,7 @@ template <class T>
 Bscript::BObjectImp* PolApplicObj<T>::call_method_id( const int id, Bscript::Executor& ex,
                                                       bool forcebuiltin )
 {
+  passert( ex.type() == Bscript::ExecutorType::POL );
   auto& uoex = static_cast<Core::UOExecutor&>( ex );
   return this->call_polmethod_id( id, uoex, forcebuiltin );
 }

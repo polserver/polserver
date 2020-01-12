@@ -89,7 +89,6 @@ public:
   void in_hold_list( Core::HoldListType in_hold_list );
 
 protected:
-  bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
 
   friend class Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>;
 
@@ -152,10 +151,6 @@ protected:
   void event_occurred( Bscript::BObject event );
 };
 
-inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
-{
-  return getCharacterParam( param, chrptr );
-}
 
 inline bool OSExecutorModule::blocked() const
 {

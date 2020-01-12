@@ -81,6 +81,8 @@ public:
   u64 warn_runaway_on_cycle;
   u64 runaway_cycles;
 
+  virtual Bscript::ExecutorType type() override { return Bscript::ExecutorType::POL; }
+
   bool listens_to( unsigned int eventflag ) const;
   bool signal_event( Bscript::BObjectImp* eventimp );
 

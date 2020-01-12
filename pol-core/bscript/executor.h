@@ -78,6 +78,12 @@ struct BackupStruct
   unsigned PC;
 };
 
+enum class ExecutorType
+{
+EXECUTOR,
+POL
+};
+
 class Executor
 {
 public:
@@ -92,6 +98,8 @@ public:
   bool halt_;
   bool run_ok_;
   bool can_access_offline_mobiles_;
+
+  virtual ExecutorType type() { return ExecutorType::EXECUTOR;  }
 
   enum DEBUG_LEVEL
   {
