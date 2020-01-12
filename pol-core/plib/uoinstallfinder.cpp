@@ -88,9 +88,9 @@ std::string UOInstallFinder::getInstallDir()
   HKEY hKey;
   LONG lRes;
   std::string installPath;
-  for ( auto it = KNOWN_KEYS.begin(); it != KNOWN_KEYS.end(); ++it )
+  for ( const auto& keyItr : KNOWN_KEYS )
   {
-    auto keyPath = ( is64bit ? "SOFTWARE\\WOW6432Node\\" : "SOFTWARE\\" ) + *it;
+    auto keyPath = ( is64bit ? "SOFTWARE\\WOW6432Node\\" : "SOFTWARE\\" ) + keyItr;
     lRes = RegOpenKeyExA( HKEY_LOCAL_MACHINE, keyPath.c_str(), 0, KEY_READ, &hKey );
     if ( lRes != ERROR_SUCCESS )
     {
@@ -98,9 +98,9 @@ std::string UOInstallFinder::getInstallDir()
       if ( lRes != ERROR_SUCCESS )
         continue;
     }
-    for ( auto valueItr = KNOWN_VALUES.begin(); valueItr != KNOWN_VALUES.end(); ++valueItr )
+    for ( const auto& valueItr : KNOWN_VALUES )
     {
-      lRes = GetStringRegKey( hKey, *valueItr, installPath );
+      lRes = GetStringRegKey( hKey, valueItr, installPath );
       if ( lRes == ERROR_SUCCESS )
       {
         if ( Clib::IsDirectory( installPath.c_str() ) )
@@ -117,10 +117,16 @@ std::string UOInstallFinder::getInstallDir()
 
 #else
 
+namespace Pol
+{
+namespace Plib
+{
 std::string UOInstallFinder::getInstallDir()
 {
   return "";
 }
+}  // namespace Plib
+}  // namespace Pol
 
 #endif
 

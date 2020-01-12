@@ -1225,7 +1225,7 @@ void UoConvertMain::setup_uoconvert()
   std::string uodata_root = programArgsFindEquals( "uodata=", "" );
   unsigned short max_tile =
       static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
-
+  
   // if any of the two is missing, read from pol.cfg
   if ( uodata_root.empty() || !max_tile )
   {
@@ -1241,10 +1241,10 @@ void UoConvertMain::setup_uoconvert()
     if ( !max_tile )
       max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
   }
-
+  
   if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
     max_tile = UOBJ_DEFAULT_MAX;
-
+  
   // Save the parameters into this ugly global state we have
   Plib::systemstate.config.max_tile_id = max_tile;
   Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( uodata_root );
