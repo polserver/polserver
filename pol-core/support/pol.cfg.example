@@ -6,6 +6,11 @@
 # UoDataFileRoot: where the UO client files are located.
 # Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
 #
+# On Windows, the pol.cfg setting UoDataFileRoot will default to the directory of the Ultima Online
+#  installation found in the Windows Registry. This setting MUST be set for servers that do not have
+#  Ultima Online installed through the operating system, and MAY be set to use custom a client data
+#  files directory.
+#
 UoDataFileRoot=MUL
 
 #
