@@ -26,6 +26,7 @@
 #include "../plib/udatfile.h"
 #include "../plib/uofile.h"
 #include "../plib/uofilei.h"
+#include "../plib/uoinstallfinder.h"
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
@@ -1219,7 +1220,7 @@ int UoToolMain::main()
 
   cf.readraw( elem );
 
-  Plib::systemstate.config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
+  Plib::systemstate.config.uo_datafile_root = Plib::UOInstallFinder::remove_elem( elem );
   Plib::systemstate.config.uo_datafile_root =
       Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
 
