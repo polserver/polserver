@@ -6,7 +6,7 @@
 
 #include "wnsckt.h"
 
-#include <array:>
+#include <array>
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
