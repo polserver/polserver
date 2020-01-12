@@ -116,7 +116,6 @@ std::string UOInstallFinder::getInstallDir()
 }
 
 
-
 }  // namespace Plib
 }  // namespace Pol
 
