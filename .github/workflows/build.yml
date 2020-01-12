@@ -14,6 +14,12 @@ jobs:
             compiler-version: default
             build-type: Release
             nopch: 0
+          - os: "windows-latest"
+            cxx-compiler: cl
+            c-compiler: cl
+            compiler-version: default
+            build-type: Release
+            nopch: 1
 
           - os: "ubuntu-latest"
             cxx-compiler: g++
