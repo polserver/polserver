@@ -12,10 +12,10 @@ namespace Plib
 std::string UOInstallFinder::remove_elem( Clib::ConfigElem& elem )
 {
   std::string uodata_root = elem.remove_string( "UoDataFileRoot", "" );
-  if ( uodata_root == "" )
+  if ( uodata_root.empty() )
   {
     uodata_root = Plib::UOInstallFinder::getInstallDir();
-    if ( uodata_root == "" )
+    if ( uodata_root.empty() )
     {
       elem.throw_error(
           "Property 'UoDataFileRoot' was not found, and no Ultima Online installation could be "
@@ -115,6 +115,11 @@ std::string UOInstallFinder::getInstallDir()
   return "";
 }
 
+
+
+}  // namespace Plib
+}  // namespace Pol
+
 #else
 
 namespace Pol
@@ -129,6 +134,3 @@ std::string UOInstallFinder::getInstallDir()
 }  // namespace Pol
 
 #endif
-
-}  // namespace Plib
-}  // namespace Pol
