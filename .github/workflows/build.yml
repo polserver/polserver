@@ -82,6 +82,13 @@ jobs:
           echo "::add-path::$Env:GITHUB_WORKSPACE/bin-build"
           echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
       
+      - name: Install llvm
+        if: matrix.config.cxx-compiler == 'clang-cl'
+        shell: powershell
+        run: |
+          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+          scoop install llvm --global
+
       - name: Set CXX and CC
         shell: pwsh
         run: |
