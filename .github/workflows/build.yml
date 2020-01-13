@@ -14,12 +14,6 @@ jobs:
             compiler-version: default
             build-type: Release
             nopch: 0
-          - os: "windows-latest"
-            cxx-compiler: clang-cl
-            c-compiler: clang-cl
-            compiler-version: default
-            build-type: Release
-            nopch: 1
 
           - os: "ubuntu-latest"
             cxx-compiler: g++
@@ -81,14 +75,6 @@ jobs:
           chmod +x "$cmake_archive/bin/cmake"
           echo "::add-path::$Env:GITHUB_WORKSPACE/bin-build"
           echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
-      
-      - name: Install llvm
-        if: matrix.config.cxx-compiler == 'clang-cl'
-        shell: powershell
-        run: |
-          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-          scoop install llvm --global
-          echo "::set-env name=PATH::$env:PATH"
 
       - name: Set CXX and CC
         shell: pwsh
