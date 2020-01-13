@@ -15,6 +15,7 @@
 #include <ctime>
 #include <deque>
 #include <map>
+#include <boost/process.hpp>
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
@@ -89,6 +90,9 @@ public:
   Core::HoldListType in_hold_list() const;
   void in_hold_list( Core::HoldListType in_hold_list );
 
+  std::unique_ptr<boost::process::child> childProcess_;
+  static boost::asio::io_context ios;
+
 protected:
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
 
@@ -124,6 +128,9 @@ protected:
 
   Bscript::BObjectImp* mf_PerformanceMeasure();
 
+  Bscript::BObjectImp* mf_ExecuteProcess();
+
+
   bool critical_;
   unsigned char priority_;
   bool warn_on_runaway_;
@@ -151,6 +158,8 @@ protected:
   friend void Core::deschedule_executor( Core::UOExecutor* ex );
 
   void event_occurred( Bscript::BObject event );
+
+  void workQueued();
 };
 
 inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )

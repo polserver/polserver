@@ -13,6 +13,7 @@ set_compile_flags(${ex_name} 1)
 warning_suppression(${ex_name})
 enable_pch(${ex_name})
 use_curl(${ex_name})
+use_boost(${ex_name})
 use_benchmark(${ex_name})
 
 target_link_libraries(${ex_name} PUBLIC

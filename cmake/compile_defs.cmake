@@ -224,6 +224,18 @@ function (enable_pch target)
   endif()
 endfunction()
 
+function(use_boost target) 
+  target_link_libraries(${target} PUBLIC ${BOOST_FILESYSTEM_LIB} ${BOOST_SYSTEM_LIB})
+  if (NOT EXISTS ${BOOST_FILESYSTEM_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB})
+    add_dependencies(${target} boost)
+  endif()
+  # if(${windows})
+  #   target_compile_definitions(${target} PRIVATE
+  #     _WIN32_WINNT=0x0601
+  #   )
+  # endif()
+endfunction()
+
 function(use_curl target)
   target_include_directories(${target}
     PUBLIC ${CURL_INSTALL_DIR}/include

@@ -8,7 +8,9 @@
 #include "../../bscript/bobject.h"
 #include "../../bscript/bstruct.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
+#include "../../clib/make_unique.hpp"
 #include "../../clib/network/sckutil.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
@@ -52,6 +54,9 @@
 #include <string>
 #include <unordered_map>
 
+#include <boost/process.hpp>
+namespace bp = boost::process;
+
 namespace Pol
 {
 namespace Module
@@ -91,6 +96,10 @@ OSExecutorModule::~OSExecutorModule()
   {
     Bscript::BObject ob( events_.front() );
     events_.pop_front();
+  }
+  if ( childProcess_ )
+  {
+    childProcess_.reset();
   }
 }
 
@@ -1088,6 +1097,108 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
   new Core::OneShotTaskInst<PerfData*>( nullptr,
                                         Core::polclock() + second_delta * Core::POLCLOCKS_PER_SEC,
                                         PerfData::collect_perf, perf.release() );
+
+  return new BLong( 0 );  // dummy
+}
+
+boost::asio::io_context OSExecutorModule::ios;
+bool didWork = false;
+
+void eventLoopThreadEntry( void* context )
+{
+  boost::asio::io_context* ios = static_cast<boost::asio::io_context*>( context );
+  while ( !Clib::exit_signalled )
+  {
+    ios->run_for( std::chrono::seconds( 2 ) );
+    if ( ios->stopped() )
+      break;
+  }
+  if ( Clib::exit_signalled )
+    ios->stop();
+}
+
+void OSExecutorModule::workQueued()
+{
+  if ( !didWork || ios.stopped() )
+  {
+    didWork = true;
+    ios.restart();
+    threadhelp::start_thread( eventLoopThreadEntry, "io_context event loop", (void*)&ios );
+  }
+}
+
+BObjectImp* OSExecutorModule::mf_ExecuteProcess()
+{
+  const String* exe_name;
+  Bscript::ObjArray* args;
+  Bscript::BObjectImp* reserved;
+  std::vector<std::string> argsVec;
+
+  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &exec );
+
+  if ( childProcess_ )
+  {
+    return new BError( "Child process exists" );
+  }
+
+  if ( !getStringParam( 0, exe_name ) ||
+       !( args = static_cast<Bscript::ObjArray*>(
+              exec.getParamImp( 1, Bscript::BObjectImp::OTArray ) ) ) ||
+       !getParamImp( 2, reserved ) )
+    return new BError( "Invalid parameter type" );
+
+  for ( const auto& c : args->ref_arr )
+  {
+    if ( !c )
+      continue;
+    BObjectImp* imp = c.get()->impptr();
+    argsVec.push_back( imp->getStringRep() );
+  }
+
+  auto procStdout = std::make_shared<std::future<std::string>>(),
+       procStderr = std::make_shared<std::future<std::string>>();
+
+  if ( !this_uoexec->suspend() )
+  {
+    DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+             << ": \n"
+             << "\tThe execution of this script can't be blocked!\n";
+    return new Bscript::BError( "Script can't be blocked" );
+  }
+
+  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+  try
+  {
+    childProcess_ = Clib::make_unique<bp::child>(
+        bp::exe = exe_name->value(), bp::args = argsVec, ios, bp::std_out > *procStdout,
+        bp::std_err > *procStderr, bp::std_in.close(),
+        bp::on_exit = [uoexec_w, procStdout, procStderr]( int exit, const std::error_code& ec_in ) {
+          INFO_PRINT << "Process exited!\n";
+          auto os_module = static_cast<OSExecutorModule*>( uoexec_w->findModule( "OS" ) );
+          os_module->childProcess_.reset();
+          Core::PolLock lck;
+          INFO_PRINT << "Got lock!\n";
+          if ( !uoexec_w.exists() )
+          {
+            DEBUGLOG << "ExecuteProcess script has been destroyed\n";
+            return;
+          }
+
+          std::unique_ptr<BStruct> elem( new BStruct );
+          elem->addMember( "stdout", new String( procStdout->get() ) );
+          elem->addMember( "stderr", new String( procStderr->get() ) );
+          elem->addMember( "code", new BLong( exit ) );
+
+          uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( elem.release() ) );
+          INFO_PRINT << "Reviving!\n";
+          uoexec_w.get_weakptr()->revive();
+        } );
+  }
+  catch ( std::exception& ex )
+  {
+    return new BError( ex.what() );
+  }
+  workQueued();
 
   return new BLong( 0 );  // dummy
 }
