@@ -36,6 +36,7 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "uoexec.h"
+#include "polobject.h"
 
 namespace Pol
 {
@@ -264,7 +265,7 @@ private:
 };
 
 BApplicObjType debugcontextobjimp_type;
-typedef BApplicObj<ref_ptr<DebugContext>> DebugContextObjImpBase;
+typedef PolApplicObj<ref_ptr<DebugContext>> DebugContextObjImpBase;
 class DebugContextObjImp : public DebugContextObjImpBase
 {
 public:
@@ -272,7 +273,7 @@ public:
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
   virtual BObjectImp* copy() const override;
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
+  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
   virtual BObjectRef get_member( const char* membername ) override;
 };
 DebugContextObjImp::DebugContextObjImp( ref_ptr<DebugContext> rcdctx )
@@ -291,7 +292,7 @@ BObjectImp* DebugContextObjImp::copy() const
 {
   return new DebugContextObjImp( value() );
 }
-BObjectImp* DebugContextObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* DebugContextObjImp::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   if ( stricmp( methodname, "process" ) == 0 )
   {

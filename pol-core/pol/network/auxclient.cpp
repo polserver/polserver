@@ -65,7 +65,7 @@ Bscript::BObjectRef AuxConnection::get_member( const char* membername )
   return Bscript::BObjectRef( Bscript::UninitObject::create() );
 }
 
-Bscript::BObjectImp* AuxConnection::call_method( const char* methodname, Bscript::Executor& ex )
+Bscript::BObjectImp* AuxConnection::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   if ( stricmp( methodname, "transmit" ) == 0 )
   {

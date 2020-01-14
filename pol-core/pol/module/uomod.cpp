@@ -132,6 +132,7 @@
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
+#include "../polobject.h"
 #include "../polsig.h"
 #include "../profile.h"
 #include "../realms.h"
@@ -181,10 +182,10 @@ using namespace Core;
 
 #define CONST_DEFAULT_ZRANGE 19
 
-class EMenuObjImp final : public BApplicObj<Menu>
+class EMenuObjImp final : public PolApplicObj<Menu>
 {
 public:
-  EMenuObjImp( const Menu& m ) : BApplicObj<Menu>( &menu_type, m ) {}
+  EMenuObjImp( const Menu& m ) : PolApplicObj<Menu>( &menu_type, m ) {}
   virtual const char* typeOf() const override { return "MenuRef"; }
   virtual u8 typeOfInt() const override { return OTMenuRef; }
   virtual BObjectImp* copy() const override { return new EMenuObjImp( value() ); }

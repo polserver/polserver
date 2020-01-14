@@ -83,6 +83,7 @@
 #include "../network/pktin.h"
 #include "../objtype.h"
 #include "../polclass.h"
+#include "../polobject.h"
 #include "../profile.h"
 #include "../realms/realm.h"
 #include "../reftypes.h"
@@ -1664,12 +1665,12 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
   client->gd->textentry_uoemod = nullptr;
 }
 
-class PolCore final : public BObjectImp
+class PolCore final : public PolObjectImp
 {
 public:
   PolCore();
   virtual BObjectRef get_member( const char* membername ) override;
-  virtual BObjectImp* call_method( const char* methodname, Executor& ex ) override;
+  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
   virtual BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;
   virtual size_t sizeEstimate() const override { return sizeof( PolCore ); }
@@ -1681,7 +1682,7 @@ private:
   PolCore& operator=( const PolCore& );
 };
 
-PolCore::PolCore() : BObjectImp( OTPolCoreRef ) {}
+PolCore::PolCore() : PolObjectImp( OTPolCoreRef ) {}
 
 BObjectImp* PolCore::copy() const
 {
@@ -1929,7 +1930,7 @@ BObjectRef PolCore::get_member( const char* membername )
   return BObjectRef( GetCoreVariable( membername ) );
 }
 
-BObjectImp* PolCore::call_method( const char* methodname, Executor& ex )
+BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   if ( stricmp( methodname, "log_profile" ) == 0 )
   {

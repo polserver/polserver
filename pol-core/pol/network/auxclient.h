@@ -22,6 +22,7 @@
 #include "../../clib/weakptr.h"
 #include "../scrdef.h"
 #include "../uoexec.h"
+#include "../polobject.h"
 
 namespace Pol
 {
@@ -55,11 +56,11 @@ namespace Network
 {
 class AuxClientThread;
 
-class AuxConnection final : public Bscript::BObjectImp
+class AuxConnection final : public Core::PolObjectImp
 {
 public:
   AuxConnection( AuxClientThread* auxclientthread, std::string ip )
-      : Bscript::BObjectImp( Bscript::BObjectImp::OTUnknown ),
+      : PolObjectImp( Bscript::BObjectImp::OTUnknown ),
         _auxclientthread( auxclientthread ),
         _ip( ip )
   {
@@ -70,8 +71,8 @@ public:
   virtual std::string getStringRep() const override;
   virtual size_t sizeEstimate() const override;
 
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
+                                            Core::UOExecutor& ex ) override;
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
 
   void disconnect();

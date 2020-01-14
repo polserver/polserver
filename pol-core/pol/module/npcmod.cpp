@@ -29,6 +29,7 @@
 #include "../network/packets.h"
 #include "../network/pktdef.h"
 #include "../objtype.h"
+#include "../polobject.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "osmod.h"
@@ -57,12 +58,12 @@ NPCExecutorModule::~NPCExecutorModule()
 
 BApplicObjType bounding_box_type;
 
-class BoundingBoxObjImp final : public BApplicObj<Mobile::BoundingBox>
+class BoundingBoxObjImp final : public Core::PolApplicObj<Mobile::BoundingBox>
 {
 public:
-  BoundingBoxObjImp() : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
+  BoundingBoxObjImp() : PolApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
   explicit BoundingBoxObjImp( const Mobile::BoundingBox& b )
-      : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
+      : PolApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
   {
   }
   virtual const char* typeOf() const override { return "BoundingBox"; }

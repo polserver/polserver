@@ -5,6 +5,9 @@
 #include "../bscript/bobject.h"
 #endif
 
+#include "../bscript/executor.h"
+#include "uoexec.h"
+
 namespace Pol
 {
 namespace Core
@@ -18,11 +21,11 @@ public:
   virtual Bscript::BObjectImp* call_method( const char* methodname,
                                             Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin ) override;
+                                               bool forcebuiltin = false ) override;
 
-  virtual Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& ex ) = 0;
-  virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
-                                                  bool forcebuiltin ) = 0;
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& uoex );
+  virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& uoex,
+                                                  bool forcebuiltin = false );
 };
 
 template <class T>
@@ -38,11 +41,11 @@ public:
   virtual Bscript::BObjectImp* call_method( const char* methodname,
                                             Bscript::Executor& ex ) override;
   virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
-                                               bool forcebuiltin ) override;
+                                               bool forcebuiltin = false ) override;
 
-  virtual Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& ex ) = 0;
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname, Core::UOExecutor& ex );
   virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
-                                                  bool forcebuiltin ) = 0;
+                                                  bool forcebuiltin = false );
 };
 
 template <class T>
@@ -61,6 +64,20 @@ Bscript::BObjectImp* PolApplicObj<T>::call_method_id( const int id, Bscript::Exe
   passert( ex.type() == Bscript::ExecutorType::POL );
   auto& uoex = static_cast<Core::UOExecutor&>( ex );
   return this->call_polmethod_id( id, uoex, forcebuiltin );
+}
+
+template <class T>
+Bscript::BObjectImp* PolApplicObj<T>::call_polmethod( const char* methodname,
+                                                      Core::UOExecutor& uoex )
+{
+  return BObjectImp::call_method( methodname, uoex );  // this->call( methodname, uoex );
+}
+
+template <class T>
+Bscript::BObjectImp* PolApplicObj<T>::call_polmethod_id( const int id, Core::UOExecutor& uoex,
+                                                         bool forcebuiltin )
+{
+  return BObjectImp::call_method_id( id, uoex, forcebuiltin );
 }
 }  // namespace Core
 }  // namespace Pol

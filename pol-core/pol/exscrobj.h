@@ -15,6 +15,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
+#include "polobject.h"
 
 namespace Pol
 {
@@ -32,18 +33,18 @@ class UOExecutor;
 
 extern Bscript::BApplicObjType scriptexobjimp_type;
 typedef weak_ptr<UOExecutor> ScriptExPtr;
-class ScriptExObjImp final : public Bscript::BApplicObj<ScriptExPtr>
+class ScriptExObjImp final : public PolApplicObj<ScriptExPtr>
 {
-  typedef Bscript::BApplicObj<ScriptExPtr> base;
+  typedef PolApplicObj<ScriptExPtr> base;
 
 public:
   explicit ScriptExObjImp( UOExecutor* uoexec );
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
   virtual Bscript::BObjectImp* copy() const override;
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
+                                            Core::UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
                                                bool forcebuiltin = false ) override;
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;

@@ -43,6 +43,7 @@
 #include "../realms/realm.h"
 #include "../tooltips.h"
 #include "../uobject.h"
+#include "../uoexec.h"
 
 #include <module_defs/polsys.h>
 
@@ -74,7 +75,7 @@ BObjectImp* PackageObjImp::copy() const
 {
   return new PackageObjImp( obj_ );
 }
-BObjectImp* PackageObjImp::call_method( const char* /*methodname*/, Executor& /*ex*/ )
+BObjectImp* PackageObjImp::call_polmethod( const char* /*methodname*/, Core::UOExecutor& /*ex*/ )
 {
   return new BError( "undefined method" );
 }

@@ -453,7 +453,7 @@ BObjectImp* EGuildRefObjImp::call_polmethod( const char* methodname, UOExecutor&
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return call_method_id( objmethod->id, ex, forcebuiltin );
+    return call_polmethod_id( objmethod->id, ex, forcebuiltin );
   auto* res = Core::gamestate.system_hooks.call_script_method( methodname, &ex, this );
   if ( res )
     return res;
