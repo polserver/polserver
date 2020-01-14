@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-04-2020</datemodified>
+		<datemodified>01-12-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-12-2020</date>
+			<author>Kevin:</author>
+			<change type="Changed">On Windows, the pol.cfg setting UoDataFileRoot will now default to the directory of the Ultima Online installation found in<br/>
+the Windows Registry. This setting MUST be set for servers that do not have Ultima Online installed through the operating<br/>
+system, and MAY be set to use custom a client data files directory.</change>
+		</entry>
 		<entry>
 			<date>01-04-2020</date>
 			<author>Turley:</author>

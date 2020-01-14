@@ -887,7 +887,7 @@ ItemMenu
     <requiredby>Core</requiredby>
     <purpose>Configures many critical options for the POL server.</purpose>
     <structure>
-UoDataFileRoot=(path to UO MUL files)
+UoDataFileRoot=(path to UO MUL files {see Windows-specific notes})
 WorldDataPath=(path to POL Data files {default data/})
 RealmDataPath=(path to POL Realm files {default realm/})
 PidFilePath=(where POL will write its .pid file {default ./})
@@ -958,6 +958,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ShowWarningItem=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
+    <explain>UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
+    On Windows, the setting will default to the directory of the Ultima Online installation found in the Windows Registry.</explain>
     ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
             e.g. 7.0.4 for latest client 7.0.4.1
             default for both is "none"
