@@ -32,7 +32,7 @@ template <class T>
 class PolApplicObj : public Bscript::BApplicObj<T>
 {
 public:
-  explicit PolApplicObj( const Bscript::BApplicObjType* object_type ) : BApplicObj( object_type ) {}
+  explicit PolApplicObj( const Bscript::BApplicObjType* object_type ) : Bscript::BApplicObj( object_type ) {}
   explicit PolApplicObj( const Bscript::BApplicObjType* object_type, const T& value )
       : BApplicObj( object_type, value )
   {
