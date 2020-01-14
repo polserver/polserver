@@ -1,0 +1,51 @@
+name: ARMbuild
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+            cxx-compiler: g++-8
+            c-compiler: gcc-8
+            build-type: RelWithDebInfo
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: uraimo/run-on-arch-action@v1.0.5
+        id: runcmd
+        with:
+          architecture: armv7
+          distribution: stretch
+          run: |
+            uname -a
+            apt-get update
+            apt-get -y install locales
+            sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen
+            locale-gen en_US
+            locale-gen en_US.UTF-8
+            update-locale
+            update-locale LANG=en_US.UTF-8 LANGUAGE
+            apt-get install build-essential -y
+            apt-get install cmake libssl-dev -y
+            apt-get install zlib1g-dev -y
+            apt-get install git -y
+            cd bin-build
+            cmake ..
+            cmake --build . --config RelWithDebInfo -- -j 2
+            ctest -j2 --output-on-failure --repeat-until-fail 2 -C RelWithDebInfo
+            cmake --build . --config RelWithDebInfo --target package
+            cmake --build . --config RelWithDebInfo --target create_dbg_zip
+            cd ../bin
+            mkdir release
+            mv *.zip release
+
+      - name: Upload Artefact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Nightly-ARMv7-Stretch-gcc-6
+          path: bin/release

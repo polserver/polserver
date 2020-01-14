@@ -52,6 +52,11 @@ if(${ENABLE_TIDY})
 endif()
 
 
+include(CheckIncludeFiles)
+include(ExternalProject)
+include(CheckCXXSourceCompiles)
+include(TestBigEndian)
+
 include(cmake/init.cmake)
 
 set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
@@ -92,10 +97,6 @@ if(USE_CCACHE)
 endif()
 
 message("")
-
-include(CheckIncludeFiles)
-include(ExternalProject)
-
 
 include(cmake/compile_defs.cmake)
 include(cmake/release.cmake)

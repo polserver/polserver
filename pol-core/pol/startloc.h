@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include "../clib/rawtypes.h"
 
 namespace Pol
 {
@@ -21,11 +22,11 @@ namespace Core
 class Coordinate
 {
 public:
-  unsigned short x;
-  unsigned short y;
-  char z;
+  u16 x;
+  u16 y;
+  s8 z;
 
-  Coordinate( unsigned short i_x, unsigned short i_y, char i_z ) : x( i_x ), y( i_y ), z( i_z ) {}
+  Coordinate( u16 i_x, u16 i_y, s8 i_z ) : x( i_x ), y( i_y ), z( i_z ) {}
   /*Coordinate( const Coordinate& );
   const Coordinate& operator=( const Coordinate& );*/
 };

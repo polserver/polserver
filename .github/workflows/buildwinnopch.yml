@@ -1,0 +1,106 @@
+name: Build Windows no PCH
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "windows-latest"
+            cxx-compiler: cl
+            c-compiler: cl
+            compiler-version: default
+            build-type: Release
+            nopch: 1
+          - os: "windows-latest"
+            cxx-compiler: clang-cl
+            c-compiler: clang-cl
+            compiler-version: default
+            build-type: Release
+            nopch: 1
+
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - uses: seanmiddleditch/gha-setup-vsdevenv@master
+      - name: Cache curl
+        uses: actions/cache@v1
+        with:
+          path: lib/curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
+ 
+      - name: Install llvm
+        if: matrix.config.cxx-compiler == 'clang-cl'
+        shell: powershell
+        run: |
+          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+          scoop install llvm --global
+          echo "::set-env name=PATH::$env:PATH"
+
+      - name: Set CXX and CC
+        shell: pwsh
+        run: |
+          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
+          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            $cxx_compiler = "$cxx_compiler-$version"
+            $c_compiler = "$c_compiler-$version"
+          }
+
+          echo "::set-env name=CXX::$cxx_compiler"
+          echo "::set-env name=CC::$c_compiler"
+
+      - name: Config
+        run: |
+          cd bin-build
+          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+      - name: Build
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
+ 
+  notify_on_failure:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: failure()
+    steps:
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: failure
+          job: Building (Windows no PCH)
+          nofail: false
+  notify_on_success:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: success()
+    steps:
+      - name: Discord notification success
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: success
+          job: Building (Windows no PCH)
+          nofail: false
+  notify_on_cancel:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: cancelled()
+    steps:
+      - name: Discord notification cancelled
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: cancelled
+          job: Building (Windows no PCH)
+          nofail: false

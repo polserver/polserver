@@ -36,6 +36,11 @@ function(set_compile_flags target is_executable)
       _GNU_SOURCE
       LINUX
     )
+    if (${file_offset_bits})
+      target_compile_definitions(${target} PRIVATE
+        _FILE_OFFSET_BITS=64
+      )
+    endif()
   endif()
 
   if (${windows})
@@ -62,7 +67,7 @@ function(set_compile_flags target is_executable)
       -Wall
       -Wextra
     >
-
+    
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
       -m${ARCH_BITS}
     >
