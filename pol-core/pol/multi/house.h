@@ -33,6 +33,7 @@ class StreamWriter;
 namespace Core
 {
 class UObject;
+class UOExecutor;
 class ExportScript;
 }  // namespace Core
 namespace Items
@@ -116,8 +117,8 @@ protected:
   virtual void readProperties( Clib::ConfigElem& elem ) override;
   virtual void printProperties( Clib::StreamWriter& sw ) const override;
   virtual Bscript::BObjectImp* script_method( const char* membername,
-                                              Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
+                                              Core::UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
   virtual bool script_isa( unsigned isatype ) const override;

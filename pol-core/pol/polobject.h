@@ -9,6 +9,7 @@ namespace Pol
 {
 namespace Core
 {
+class UOExecutor;
 class PolObjectImp : public Bscript::BObjectImp
 {
 public:

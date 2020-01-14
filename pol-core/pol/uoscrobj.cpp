@@ -1555,7 +1555,7 @@ BObjectImp* Item::set_script_member_double( const char* membername, double value
   return nullptr;
 }
 
-BObjectImp* Item::script_method_id( const int id, Executor& ex )
+BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -1804,7 +1804,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
   }
 }
 
-BObjectImp* Item::script_method( const char* methodname, Executor& ex )
+BObjectImp* Item::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -1812,7 +1812,7 @@ BObjectImp* Item::script_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-BObjectImp* Item::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* Item::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   const ItemDesc& id = itemdesc();
   if ( id.method_script != nullptr )
@@ -2742,7 +2742,7 @@ BObjectImp* Character::set_script_member( const char* membername, int value )
   return nullptr;
 }
 
-BObjectImp* Character::script_method_id( const int id, Executor& ex )
+BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -3318,7 +3318,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 }
 
 
-BObjectImp* Character::script_method( const char* methodname, Executor& ex )
+BObjectImp* Character::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -3326,7 +3326,7 @@ BObjectImp* Character::script_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* Character::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   // TODO uoclient entry deprecated
   if ( Core::networkManager.uoclient_general.method_script != nullptr )
@@ -3544,7 +3544,7 @@ BObjectImp* NPC::set_script_member( const char* membername, int value )
   return nullptr;
 }
 
-BObjectImp* NPC::script_method_id( const int id, Executor& executor )
+BObjectImp* NPC::script_method_id( const int id, Core::UOExecutor& executor )
 {
   BObjectImp* imp = base::script_method_id( id, executor );
   if ( imp != nullptr )
@@ -3575,7 +3575,7 @@ BObjectImp* NPC::script_method_id( const int id, Executor& executor )
   }
 }
 
-BObjectImp* NPC::script_method( const char* methodname, Executor& executor )
+BObjectImp* NPC::script_method( const char* methodname, Core::UOExecutor& executor )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -3583,7 +3583,7 @@ BObjectImp* NPC::script_method( const char* methodname, Executor& executor )
   return nullptr;
 }
 
-BObjectImp* NPC::custom_script_method( const char* methodname, Executor& executor )
+BObjectImp* NPC::custom_script_method( const char* methodname, Core::UOExecutor& executor )
 {
   if ( template_.method_script != nullptr )
   {
@@ -3738,7 +3738,7 @@ BObjectImp* UCorpse::get_script_member( const char* membername ) const
   return nullptr;
 }
 
-BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
+BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -3820,7 +3820,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
   return new BError( "Invalid parameter type" );
 }
 
-BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
+BObjectImp* Spellbook::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -3934,7 +3934,7 @@ BObjectImp* UBoat::get_script_member( const char* membername ) const
   return nullptr;
 }
 
-BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
+BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -3996,7 +3996,7 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
   }
 }
 
-BObjectImp* UBoat::script_method( const char* methodname, Executor& ex )
+BObjectImp* UBoat::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4110,7 +4110,7 @@ BObjectImp* Map::set_script_member( const char* membername, int value )
   return nullptr;
 }
 
-BObjectImp* UObject::script_method_id( const int id, Executor& ex )
+BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
 {
   switch ( id )
   {
@@ -4194,7 +4194,7 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
 }
 
 
-BObjectImp* UObject::script_method( const char* methodname, Executor& ex )
+BObjectImp* UObject::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4210,7 +4210,7 @@ BObjectImp* UObject::script_method( const char* methodname, Executor& ex )
   }
 }
 
-BObjectImp* UObject::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* UObject::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4242,7 +4242,7 @@ BObjectImp* UDoor::get_script_member( const char* membername ) const
   return nullptr;
 }
 
-BObjectImp* UDoor::script_method_id( const int id, Executor& ex )
+BObjectImp* UDoor::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -4265,7 +4265,7 @@ BObjectImp* UDoor::script_method_id( const int id, Executor& ex )
   return new BLong( 1 );
 }
 
-BObjectImp* UDoor::script_method( const char* methodname, Executor& ex )
+BObjectImp* UDoor::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )

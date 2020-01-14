@@ -44,6 +44,7 @@ class SpellbookDesc;
 namespace Core
 {
 class ExportScript;
+class UOExecutor;
 
 class Spellbook final : public UContainer
 {
@@ -68,8 +69,8 @@ public:
   void send_book_old( Network::Client* client );
   virtual bool script_isa( unsigned isatype ) const override;
   virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex ) override;
+                                              UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex ) override;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
                                 unsigned int* PC ) const override;
 

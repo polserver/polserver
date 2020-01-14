@@ -296,7 +296,7 @@ Bscript::BObjectImp* UHouse::get_script_member( const char* membername ) const
     return nullptr;
 }
 
-Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& ex )
+Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& ex )
 {
   using namespace Bscript;
   BObjectImp* imp = base::script_method_id( id, ex );
@@ -468,7 +468,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
   return new BError( "Invalid parameter type" );
 }
 
-Bscript::BObjectImp* UHouse::script_method( const char* methodname, Bscript::Executor& ex )
+Bscript::BObjectImp* UHouse::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
