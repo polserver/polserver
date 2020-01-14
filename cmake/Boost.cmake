@@ -1,6 +1,6 @@
 message("* boost")
 set (BOOST_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_67_0")
-set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib/")
+set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 if (${windows})
   set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
   set (BOOST_BUILD_COMMAND "b2.exe")
