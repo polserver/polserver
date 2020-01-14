@@ -1,9 +1,13 @@
 ﻿-- POL100 --
-01-09-2020 Kevin:
+12-31-2999 Kevin:
     Added: New SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT will keep attached scripts (eg. skill scripts, item use scripts) alive if the 
            character's client disconnects. Note that by default all references to the character will become invalidated; for example, 
            GetObjProperty(chr, "prop") will return an error. Enable SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES to bypass this.
     Fixed: Scripts that have Set_Script_Option(SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES) can correctly access offline mobiles.
+01-12-2020 Kevin:
+  Changed: On Windows, the pol.cfg setting UoDataFileRoot will now default to the directory of the Ultima Online installation found in
+           the Windows Registry. This setting MUST be set for servers that do not have Ultima Online installed through the operating
+           system, and MAY be set to use custom a client data files directory.
 01-04-2020 Turley:
     Fixed: Tabulator and newline chars where disallowed in CChr and the sanitize step of strings. (introduced with unicode support)
 01-03-2020 DevGIB: 

@@ -30,6 +30,7 @@
 #include "../clib/passert.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
+#include "../plib/uoinstallfinder.h"
 // TODO: get rid of the dependencies and move to plib
 #include "core.h"           // todo save_full does not belong here
 #include "globals/state.h"  // todo polsig dependency
@@ -56,7 +57,7 @@ void PolConfig::read_pol_config( bool initial_load )
     stat( "pol.cfg", &pol_cfg_stat );
 
     // these config options can't change after startup.
-    Plib::systemstate.config.uo_datafile_root = elem.remove_string( "UoDataFileRoot" );
+    Plib::systemstate.config.uo_datafile_root = Plib::UOInstallFinder::remove_elem( elem );
     Plib::systemstate.config.uo_datafile_root =
         Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
 
