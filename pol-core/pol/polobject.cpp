@@ -4,28 +4,29 @@ namespace Pol
 {
 namespace Core
 {
-Bscript::BObjectImp* PolObjectImp::call_method( const char* methodname, Bscript::Executor& ex )
+using namespace Bscript;
+BObjectImp* PolObjectImp::call_method( const char* methodname, Executor& ex )
 {
-  passert( ex.type() == Bscript::ExecutorType::POL );
+  passert( ex.type() == ExecutorType::POL );
   auto& uoex = static_cast<Core::UOExecutor&>( ex );
   return this->call_polmethod( methodname, uoex );
 }
 
-Bscript::BObjectImp* PolObjectImp::call_method_id( const int id, Bscript::Executor& ex,
+BObjectImp* PolObjectImp::call_method_id( const int id, Executor& ex,
                                                    bool forcebuiltin )
 {
-  passert( ex.type() == Bscript::ExecutorType::POL );
+  passert( ex.type() == ExecutorType::POL );
   auto& uoex = static_cast<Core::UOExecutor&>( ex );
   return this->call_polmethod_id( id, uoex, forcebuiltin );
 }
 
-Bscript::BObjectImp* PolObjectImp::call_polmethod( const char* methodname,
+BObjectImp* PolObjectImp::call_polmethod( const char* methodname,
                                                       Core::UOExecutor& uoex )
 {
   return BObjectImp::call_method( methodname, uoex );  // this->call( methodname, uoex );
 }
 
-Bscript::BObjectImp* PolObjectImp::call_polmethod_id( const int id, Core::UOExecutor& uoex,
+BObjectImp* PolObjectImp::call_polmethod_id( const int id, Core::UOExecutor& uoex,
                                                          bool forcebuiltin )
 {
   return BObjectImp::call_method_id( id, uoex, forcebuiltin );

@@ -16,7 +16,7 @@ class UOExecutor;
 class PolObjectImp : public Bscript::BObjectImp
 {
 public:
-  explicit PolObjectImp( Bscript::BObjectImp::BObjectType type ) : BObjectImp( type ) {}
+  explicit PolObjectImp( Bscript::BObjectImp::BObjectType type ) : Bscript::BObjectImp( type ) {}
 
   virtual Bscript::BObjectImp* call_method( const char* methodname,
                                             Bscript::Executor& ex ) override;
@@ -32,9 +32,9 @@ template <class T>
 class PolApplicObj : public Bscript::BApplicObj<T>
 {
 public:
-  explicit PolApplicObj( const Bscript::BApplicObjType* object_type ) : Bscript::BApplicObj( object_type ) {}
+  explicit PolApplicObj( const Bscript::BApplicObjType* object_type ) : Bscript::BApplicObj<T>( object_type ) {}
   explicit PolApplicObj( const Bscript::BApplicObjType* object_type, const T& value )
-      : BApplicObj( object_type, value )
+      : Bscript::BApplicObj<T>( object_type, value )
   {
   }
 
@@ -70,14 +70,14 @@ template <class T>
 Bscript::BObjectImp* PolApplicObj<T>::call_polmethod( const char* methodname,
                                                       Core::UOExecutor& uoex )
 {
-  return BObjectImp::call_method( methodname, uoex );  // this->call( methodname, uoex );
+  return Bscript::BObjectImp::call_method( methodname, uoex );  // this->call( methodname, uoex );
 }
 
 template <class T>
 Bscript::BObjectImp* PolApplicObj<T>::call_polmethod_id( const int id, Core::UOExecutor& uoex,
                                                          bool forcebuiltin )
 {
-  return BObjectImp::call_method_id( id, uoex, forcebuiltin );
+  return Bscript::BObjectImp::call_method_id( id, uoex, forcebuiltin );
 }
 }  // namespace Core
 }  // namespace Pol
