@@ -10,11 +10,17 @@
 #endif
 
 #include "../clib/maputil.h"
+#include "../pol/console.h"
 #include "../pol/polcfg.h"
+#include <memory>
 
 
 namespace Pol
 {
+namespace Core
+{
+class UOExecutor;
+}
 namespace Plib
 {
 class Tile;
@@ -42,6 +48,8 @@ public:
   Core::PolConfig config;
   Tile* tile;
   bool tiles_loaded;
+
+  std::unique_ptr<Core::ConsoleReader> stdinReader;
 
   size_t estimatedSize() const;
 

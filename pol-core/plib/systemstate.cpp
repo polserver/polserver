@@ -19,7 +19,8 @@ SystemState::SystemState()
       accounts_txt_stat(),
       config(),
       tile( nullptr ),
-      tiles_loaded( false )
+      tiles_loaded( false ),
+      stdinReader( nullptr )
 {
 }
 

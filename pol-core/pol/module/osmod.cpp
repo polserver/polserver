@@ -17,6 +17,7 @@
 #include "../../clib/threadhelp.h"
 #include "../../clib/weakptr.h"
 #include "../../plib/systemstate.h"
+#include "../console.h"
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
@@ -1200,6 +1201,38 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
   }
   workQueued();
 
+  return new BLong( 0 );  // dummy
+}
+
+BObjectImp* OSExecutorModule::mf_ConsoleInput()
+{
+  const String* prompt;
+  auto this_uoexec = static_cast<Core::UOExecutor*>( &exec );
+  int echo;
+  if ( !getStringParam( 0, prompt ) || !getParam( 1, echo ) )
+  {
+    return new BError( "Invalid parameter type" );
+  }
+  {
+    // Core::PolLock lock;
+    if ( Plib::systemstate.stdinReader )
+    {
+      return new BError( "Another ConsoleInput script is running" );
+    }
+    if ( !this_uoexec->suspend() )
+    {
+      DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+               << ": \n"
+               << "\tThe execution of this script can't be blocked!\n";
+      return new Bscript::BError( "Script can't be blocked" );
+    }
+    Plib::systemstate.stdinReader =
+        Clib::make_unique<Core::ConsoleReader>( this_uoexec->weakptr, echo != 0 );
+  }
+  if ( prompt->length() )
+  {
+    INFO_PRINT << prompt->value();
+  }
   return new BLong( 0 );  // dummy
 }
 

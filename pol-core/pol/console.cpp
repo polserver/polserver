@@ -9,16 +9,17 @@
 #include <ctype.h>
 #include <stddef.h>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
+#include "../clib/esignal.h"
 #include "../clib/fileutil.h"
 #include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
 #include "../clib/refptr.h"
 #include "../clib/stlutil.h"
+#include "../clib/weakptr.h"
 #include "../plib/systemstate.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
@@ -27,6 +28,10 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
+#include "uoexec.h"
+#include <format/format.h>
+#include <iostream>
+#include <memory>
 
 #ifdef _WIN32
 #include <conio.h>
@@ -42,6 +47,91 @@ namespace Core
 {
 bool ConsoleCommand::console_locked = true;
 char ConsoleCommand::unlock_char;
+
+ConsoleReader::ConsoleReader( weak_ptr<UOExecutor> uoexec, bool echo )
+    : _uoexec( uoexec ), _echo( echo )
+{
+}
+
+void ConsoleReader::revive( const std::string& line, std::unique_ptr<ConsoleReader>& holder )
+{
+  if ( _uoexec.exists() )
+  {
+    PolLock lock;
+    Core::UOExecutor* uoexec = _uoexec.get_weakptr();
+    uoexec->ValueStack.back().set( new Bscript::BObject( new Bscript::String( line ) ) );
+    // Reset the holder first, because reviving the script could call ConsoleInput again,
+    // and we use `holder` to know if there is an active script waiting for console input
+    holder.reset();
+    uoexec->revive();
+  }
+  else
+  {
+    DEBUGLOG << "ConsoleInput Script has been destroyed\n";
+    holder.reset();
+  }
+}
+
+#ifdef WIN32
+void ConsoleReader::read( std::unique_ptr<ConsoleReader>& holder )
+{
+  std::string line;
+  while ( !Clib::exit_signalled )
+  {
+    Core::pol_sleep_ms( 100 );
+    if ( kbhit() )
+    {
+      char ch = static_cast<char>( getch() );
+
+      if ( static_cast<unsigned char>( ch ) == 0xE0 )
+      {
+        getch();
+        continue;
+      }
+
+      if ( ch == 13 || ch == 10 )
+      {
+        std::cout << std::endl;
+        revive( line, holder );
+        break;
+      }
+      else
+      {
+        if ( _echo )
+          std::cout << ch;
+        line += ch;
+      }
+    }
+  }
+}
+#else
+void ConsoleReader::read( Clib::KeyboardHook* kb, std::unique_ptr<ConsoleReader>& holder )
+{
+  std::string line;
+  while ( !Clib::exit_signalled )
+  {
+    Core::pol_sleep_ms( 100 );
+    if ( kb->kbhit() )
+    {
+      char ch = static_cast<char>( kb->getch() );
+
+      if ( ch == 13 || ch == 10 )
+      {
+        std::cout << std::endl;
+        revive( line, holder );
+        break;
+      }
+      else
+      {
+        if ( _echo )
+          std::cout << ch;
+        line += ch;
+      }
+    }
+  }
+}
+
+#endif
 
 ConsoleCommand::ConsoleCommand( Clib::ConfigElem& elem, const std::string& cmd )
 {
@@ -253,5 +343,5 @@ void ConsoleCommand::check_console_commands( Clib::KeyboardHook* kb )
   }
 }
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

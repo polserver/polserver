@@ -129,6 +129,7 @@ protected:
   Bscript::BObjectImp* mf_PerformanceMeasure();
 
   Bscript::BObjectImp* mf_ExecuteProcess();
+  Bscript::BObjectImp* mf_ConsoleInput();
 
 
   bool critical_;

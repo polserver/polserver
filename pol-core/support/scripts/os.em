@@ -104,3 +104,4 @@ PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
 HTTPRequest(url, method := "GET", options := struct{});
 
 ExecuteProcess(exe, args := array{}, reserved := 0);
+ConsoleInput(prompt := "", echo := 1);

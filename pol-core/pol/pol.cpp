@@ -751,6 +751,15 @@ void console_thread( void )
   {
     pol_sleep_ms( 1000 );
 #ifdef _WIN32
+    {
+      // PolLock2 lock;
+      if ( Plib::systemstate.stdinReader )
+      {
+        // lock.unlock();
+        Plib::systemstate.stdinReader->read( Plib::systemstate.stdinReader );
+        continue;
+      }
+    }
     ConsoleCommand::check_console_commands();
 #else
     ConsoleCommand::check_console_commands( &kb );

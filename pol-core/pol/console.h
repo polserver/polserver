@@ -2,8 +2,9 @@
 #ifndef POL_CONSOLE_H
 #define POL_CONSOLE_H
 
+#include "../clib/weakptr.h"
+#include <memory>
 #include <string>
-
 
 namespace Pol
 {
@@ -11,9 +12,28 @@ namespace Clib
 {
 class ConfigElem;
 class KeyboardHook;
-}
+}  // namespace Clib
 namespace Core
 {
+class UOExecutor;
+
+class ConsoleReader
+{
+public:
+  ConsoleReader( weak_ptr<Core::UOExecutor> uoexec, bool echo );
+
+#ifdef _WIN32
+  void read( std::unique_ptr<ConsoleReader>& holder );
+#else
+  void read( Clib::KeyboardHook* kb, std::unique_ptr<ConsoleReader>& holder );
+#endif
+
+private:
+  void revive( const std::string& line, std::unique_ptr<ConsoleReader>& holder );
+  weak_ptr<Core::UOExecutor> _uoexec;
+  bool _echo;
+};
+
 class ConsoleCommand
 {
 public:
@@ -37,7 +57,7 @@ public:
   static bool console_locked;
   static char unlock_char;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif
