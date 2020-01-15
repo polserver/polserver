@@ -35,7 +35,8 @@ namespace Pol
 {
 namespace Module
 {
-class ConfigFileExecutorModule : public Bscript::TmplExecutorModule<ConfigFileExecutorModule, Bscript::ExecutorModule>
+class ConfigFileExecutorModule
+    : public Bscript::TmplExecutorModule<ConfigFileExecutorModule, Bscript::ExecutorModule>
 {
 public:
   ConfigFileExecutorModule( Bscript::Executor& exec );
@@ -97,6 +98,6 @@ bool getStoredConfigFileParam( Bscript::ExecutorModule& exmod, unsigned param,
                                Core::StoredConfigFile*& cfile );
 bool getStoredConfigElemParam( Bscript::ExecutorModule& exmod, unsigned param,
                                Core::StoredConfigElem*& celem );
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

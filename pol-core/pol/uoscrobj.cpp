@@ -188,7 +188,8 @@ BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* 
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* ECharacterRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex, bool forcebuiltin )
+BObjectImp* ECharacterRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                    bool forcebuiltin )
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
@@ -349,7 +350,8 @@ BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EItemRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex, bool forcebuiltin )
+BObjectImp* EItemRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                               bool forcebuiltin )
 {
   if ( obj_->orphan() )
     return new BError( "That object no longer exists" );
@@ -488,7 +490,8 @@ BObjectRef EUBoatRefObjImp::set_member( const char* membername, BObjectImp* valu
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EUBoatRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex, bool forcebuiltin )
+BObjectImp* EUBoatRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                bool forcebuiltin )
 {
   if ( obj_->orphan() )
     return new BError( "That object no longer exists" );
@@ -554,7 +557,8 @@ BObjectImp* EMultiRefObjImp::call_polmethod( const char* methodname, Core::UOExe
   return base::call_polmethod( methodname, ex );
 }
 
-BObjectImp* EMultiRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex, bool forcebuiltin )
+BObjectImp* EMultiRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                bool forcebuiltin )
 {
   Multi::UMulti* multi = obj_.get();
   if ( multi->orphan() )
@@ -4680,7 +4684,8 @@ BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOEx
   return Core::gamestate.system_hooks.call_script_method( methodname, &ex, this );
 }
 
-BObjectImp* EClientRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex, bool forcebuiltin )
+BObjectImp* EClientRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                 bool forcebuiltin )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );

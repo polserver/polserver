@@ -37,10 +37,11 @@ namespace Pol
 {
 namespace Core
 {
-  using namespace Bscript;
+using namespace Bscript;
 using namespace Module;
 
-PolModule::PolModule( const char* moduleName, Bscript::Executor& iExec ) : Bscript::ExecutorModule(moduleName, iExec)
+PolModule::PolModule( const char* moduleName, Bscript::Executor& iExec )
+    : Bscript::ExecutorModule( moduleName, iExec )
 {
 }
 

@@ -23,7 +23,8 @@ namespace Pol
 {
 namespace Module
 {
-class MathExecutorModule : public Bscript::TmplExecutorModule<MathExecutorModule, Bscript::ExecutorModule>
+class MathExecutorModule
+    : public Bscript::TmplExecutorModule<MathExecutorModule, Bscript::ExecutorModule>
 {
 public:
   MathExecutorModule( Bscript::Executor& exec );
@@ -55,6 +56,6 @@ public:
   Bscript::BObjectImp* mf_Ceil();
   Bscript::BObjectImp* mf_Floor();
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif
