@@ -406,8 +406,6 @@ set (pol_sources  # sorted !
   uoclient.h
   uoexec.cpp
   uoexec.h
-  uoexhelp.cpp
-  uoexhelp.h
   uolisten.cpp
   uopathnode.h
   uoscrobj.cpp

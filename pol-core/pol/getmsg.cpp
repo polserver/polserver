@@ -23,7 +23,6 @@
 #include "network/pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"
-#include "uoexhelp.h"
 
 namespace Pol
 {

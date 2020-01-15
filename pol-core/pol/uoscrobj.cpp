@@ -110,7 +110,6 @@
 #include "uobject.h"
 #include "uoclient.h"
 #include "uoexec.h"
-#include "uoexhelp.h"
 #include "uworld.h"
 
 namespace Pol
@@ -1653,7 +1652,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
-    else if ( !getItemParam( ex, 0, cont_item ) )
+    else if ( !ex.getItemParam( 0, cont_item ) )
       return new BError( "No container specified" );
     else if ( !ex.getParam( 1, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1782,7 +1781,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough params" );
-    else if ( !getItemParam( ex, 0, cont ) )
+    else if ( !ex.getItemParam( 0, cont ) )
       return new BError( "No container specified" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
@@ -3090,7 +3089,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     Character* chr;
     if ( ex.hasParams( 1 ) )
     {
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         if ( dead() )
           return new BError( "Character is dead" );
@@ -3122,7 +3121,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
         chr->repsys_on_damage( this );
     }
     if ( dead() )
@@ -3177,7 +3176,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         // make_aggressor_to handles the updating
         this->make_aggressor_to( chr );
@@ -3191,7 +3190,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         // make_lawfullydamaged_to handled the updating
         this->make_lawfullydamaged_to( chr );
@@ -3205,7 +3204,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         this->remove_as_aggressor_to( chr );
         return new BLong( 1 );
@@ -3218,7 +3217,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         this->remove_as_lawful_damager( chr );
         return new BLong( 1 );
@@ -3558,7 +3557,7 @@ BObjectImp* NPC::script_method_id( const int id, Core::UOExecutor& executor )
       return new BError( "Not enough parameters" );
     Character* chr;
     set_dirty();
-    if ( getCharacterParam( executor, 0, chr ) )
+    if ( executor.getCharacterParam( 0, chr ) )
     {
       master_.set( chr );
       return new BLong( 1 );

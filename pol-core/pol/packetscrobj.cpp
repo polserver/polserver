@@ -33,7 +33,6 @@
 #include "network/clienttransmit.h"
 #include "realms.h"
 #include "realms/realm.h"
-#include "uoexhelp.h"
 #include "uworld.h"
 #include "uoexec.h"
 
@@ -98,7 +97,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
 
     Mobile::Character* chr = nullptr;
     Network::Client* client = nullptr;
-    if ( getCharacterOrClientParam( ex, 0, chr, client ) )
+    if ( ex.getCharacterOrClientParam( 0, chr, client ) )
     {
       if ( chr != nullptr )
       {
