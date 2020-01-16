@@ -15,6 +15,9 @@
 #include <ctime>
 #include <deque>
 #include <map>
+#ifdef WIN32
+#undef __MSVC_RUNTIME_CHECKS
+#endif
 #include <boost/process.hpp>
 
 #include "../globals/script_internals.h"

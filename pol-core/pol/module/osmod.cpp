@@ -55,6 +55,9 @@
 #include <string>
 #include <unordered_map>
 
+#ifdef WIN32
+#undef __MSVC_RUNTIME_CHECKS
+#endif
 #include <boost/process.hpp>
 namespace bp = boost::process;
 
