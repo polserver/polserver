@@ -7,6 +7,7 @@
 #ifndef __SCRSCHED_H
 #define __SCRSCHED_H
 
+#include <initializer_list>
 #include <list>
 #include <set>
 
@@ -30,72 +31,100 @@ class ScriptDef;
 class UOExecutor;
 
 void step_scripts( polclock_t* clocksleft, bool* pactivity );
-void start_script( const char* filename, Bscript::BObjectImp* param0,
-                   Bscript::BObjectImp* param1 = nullptr );
 
-Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param );
-Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param0,
-                                        Bscript::BObjectImp* param1,
-                                        Bscript::BObjectImp* param2 = nullptr,
-                                        Bscript::BObjectImp* param3 = nullptr );
-Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
-                                        Bscript::BObjectImp* param );
 
 UOExecutor* create_script_executor();
 UOExecutor* create_full_script_executor();
 
 void schedule_executor( UOExecutor* ex );
-void deschedule_executor( UOExecutor* ex );
 
 Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script );
 
-bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parameter );
-bool run_script_to_completion( const char* filename );
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script );
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
-                                               Bscript::BObjectImp* param1 );
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2 );
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3 );
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4 );
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4,
-                                               Bscript::BObjectImp* param5 );
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4,
-                                               Bscript::BObjectImp* param5,
-                                               Bscript::BObjectImp* param6 );
-
-bool call_script( const ScriptDef& script,  // throw()
-                  Bscript::BObjectImp* param1 );
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2 );  // throw()
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-                  Bscript::BObjectImp* param3 );  // throw()
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-                  Bscript::BObjectImp* param3, Bscript::BObjectImp* param4 );
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-                  Bscript::BObjectImp* param3, Bscript::BObjectImp* param4,
-                  Bscript::BObjectImp* param5 );
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-                  Bscript::BObjectImp* param3, Bscript::BObjectImp* param4,
-                  Bscript::BObjectImp* param5, Bscript::BObjectImp* param6 );
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-                  Bscript::BObjectImp* param3, Bscript::BObjectImp* param4,
-                  Bscript::BObjectImp* param5, Bscript::BObjectImp* param6,
-                  Bscript::BObjectImp* param7 );
-
 bool find_uoexec( unsigned int pid, UOExecutor** pp_uoexec );
+
+template <typename... Args>
+void start_script( const char* filename, Args... args );
+
+template <typename... Args>
+Module::UOExecutorModule* start_script( const ScriptDef& script, Args... args );
+
+template <typename... Args>
+Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program, Args... args );
+
+template <typename... Args>
+bool run_script_to_completion( const char* filename, Args... args );
+
+template <typename... Args>
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Args... args );
+
+template <typename... Args>
+bool call_script( const ScriptDef& script,
+                  Args... args );  // throw()
+
+void start_script2( const char* filename, const std::initializer_list<Bscript::BObjectImp*>& args );
+
+Module::UOExecutorModule* start_script2( const ScriptDef& script,
+                                         const std::initializer_list<Bscript::BObjectImp*>& args );
+
+Module::UOExecutorModule* start_script2( ref_ptr<Bscript::EScriptProgram> program,
+                                         const std::initializer_list<Bscript::BObjectImp*>& args );
+
+bool run_script_to_completion2( const char* filename,
+                                const std::initializer_list<Bscript::BObjectImp*>& args );
+
+Bscript::BObjectImp* run_script_to_completion2(
+    const ScriptDef& script, const std::initializer_list<Bscript::BObjectImp*>& args );
+
+bool call_script2( const ScriptDef& script,
+                   const std::initializer_list<Bscript::BObjectImp*>& args );  // throw()
+}  // namespace Core
+}  // namespace Pol
+
+namespace Pol
+{
+namespace Module
+{
+class UOExecutorModule;
+}
+namespace Core
+{
+template <typename... Args>
+void start_script( const char* filename, Args... args )
+{
+  start_script2( filename, std::initializer_list<Bscript::BObjectImp*>{args...} );
+}
+
+template <typename... Args>
+Module::UOExecutorModule* start_script( const ScriptDef& script, Args... args )
+{
+  return start_script2( script, std::initializer_list<Bscript::BObjectImp*>{args...} );
+}
+
+template <typename... Args>
+Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program, Args... args )
+{
+  return start_script2( program, std::initializer_list<Bscript::BObjectImp*>{args...} );
+}
+
+template <typename... Args>
+bool run_script_to_completion( const char* filename, Args... args )
+{
+  return run_script_to_completion2( filename,
+                                    std::initializer_list<Bscript::BObjectImp*>{args...} );
+}
+
+template <typename... Args>
+Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Args... args )
+{
+  return run_script_to_completion2( script, std::initializer_list<Bscript::BObjectImp*>{args...} );
+}
+
+template <typename... Args>
+bool call_script( const ScriptDef& script, Args... args )
+{
+  return call_script2( script, std::initializer_list<Bscript::BObjectImp*>{args...} );
+}
+
 }  // namespace Core
 }  // namespace Pol
 #endif

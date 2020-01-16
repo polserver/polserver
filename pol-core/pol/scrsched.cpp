@@ -18,7 +18,6 @@
 #include <ctime>
 #include <exception>
 
-#include <format/format.h>
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../clib/logfacility.h"
@@ -51,6 +50,8 @@
 #include "scrdef.h"
 #include "scrstore.h"
 #include "uoexec.h"
+#include <format/format.h>
+#include <initializer_list>
 
 namespace Pol
 {
@@ -124,138 +125,6 @@ void step_scripts( polclock_t* clocksleft, bool* pactivity )
   THREAD_CHECKPOINT( scripts, 106 );
 }
 
-void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1 )
-{
-  Bscript::BObject bobj0( param0 );  // just to delete if it doesn't go somewhere else
-  Bscript::BObject bobj1( param1 ? param1 : Bscript::UninitObject::create() );
-
-  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
-  if ( program.get() == nullptr )
-  {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
-    throw std::runtime_error( "Error starting script" );
-  }
-
-  UOExecutor* ex = create_script_executor();
-  if ( program->haveProgram )
-  {
-    if ( param1 )
-      ex->pushArg( param1 );
-    if ( param0 )
-      ex->pushArg( param0 );
-  }
-  // ex->addModule( new FileExecutorModule( *ex ) );
-  ex->addModule( new Module::UOExecutorModule( *ex ) );
-
-  if ( !ex->setProgram( program.get() ) )
-    throw std::runtime_error( "Error starting script." );
-
-  scriptScheduler.schedule( ex );
-}
-// EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param )
-{
-  Bscript::BObject bobj(
-      param ? param
-            : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
-  ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
-  if ( program.get() == nullptr )
-  {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
-    // throw runtime_error( "Error starting script" );
-    return nullptr;
-  }
-
-  std::unique_ptr<UOExecutor> ex( create_script_executor() );
-  if ( program->haveProgram && ( param != nullptr ) )
-  {
-    ex->pushArg( param );
-  }
-  // ex->addModule( new FileExecutorModule( *ex ) );
-  Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
-  ex->addModule( uoemod );
-
-  if ( !ex->setProgram( program.get() ) )
-  {
-    return nullptr;
-    // throw runtime_error( "Error starting script." );
-  }
-
-  scriptScheduler.schedule( ex.release() );
-
-  return uoemod;
-}
-
-Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjectImp* param0,
-                                        Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-                                        Bscript::BObjectImp* param3 )
-{
-  Bscript::BObject bobj0( param0 );  // just to delete if it doesn't go somewhere else
-  Bscript::BObject bobj1( param1 );
-  Bscript::BObject bobj2( param2 ? param2 : Bscript::UninitObject::create() );
-  Bscript::BObject bobj3( param3 ? param3 : Bscript::UninitObject::create() );
-
-  ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
-  if ( program.get() == nullptr )
-  {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
-    // throw runtime_error( "Error starting script" );
-    return nullptr;
-  }
-
-  std::unique_ptr<UOExecutor> ex( create_script_executor() );
-  if ( program->haveProgram )
-  {
-    if ( param3 != nullptr )
-      ex->pushArg( param3 );
-    if ( param2 != nullptr )
-      ex->pushArg( param2 );
-    if ( param1 != nullptr )
-      ex->pushArg( param1 );
-    if ( param0 != nullptr )
-      ex->pushArg( param0 );
-  }
-  // ex->addModule( new FileExecutorModule( *ex ) );
-  Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
-  ex->addModule( uoemod );
-
-  if ( !ex->setProgram( program.get() ) )
-  {
-    return nullptr;
-    // throw runtime_error( "Error starting script." );
-  }
-
-
-  scriptScheduler.schedule( ex.release() );
-
-  return uoemod;
-}
-
-// EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program,
-                                        Bscript::BObjectImp* param )
-{
-  Bscript::BObject bobj(
-      param ? param
-            : Bscript::UninitObject::create() );  // just to delete if it doesn't go somewhere else
-
-  UOExecutor* ex = create_script_executor();
-  if ( program->haveProgram && ( param != nullptr ) )
-  {
-    ex->pushArg( param );
-  }
-  // ex->addModule( new FileExecutorModule( *ex ) );
-  Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
-  ex->addModule( uoemod );
-
-  if ( !ex->setProgram( program.get() ) )
-    throw std::runtime_error( "Error starting script." );
-
-  scriptScheduler.schedule( ex );
-
-  return uoemod;
-}
-
 void add_common_exmods( Core::UOExecutor& ex )
 {
   using namespace Module;
@@ -306,40 +175,6 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
   INFO_PRINT << "\n";
   return ( ex.error_ == false );
 }
-
-bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parameter )
-{
-  passert_always( parameter );
-  Bscript::BObject bobj( parameter );
-  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
-  if ( program.get() == nullptr )
-  {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
-    return false;
-  }
-
-  UOExecutor ex;
-  if ( program->haveProgram )
-  {
-    ex.pushArg( parameter );
-  }
-  return run_script_to_completion_worker( ex, program.get() );
-}
-
-bool run_script_to_completion( const char* filename )
-{
-  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
-  if ( program.get() == nullptr )
-  {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
-    return false;
-  }
-
-  UOExecutor ex;
-
-  return run_script_to_completion_worker( ex, program.get() );
-}
-
 
 Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef& script )
 {
@@ -392,230 +227,6 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
     return new Bscript::BLong( 1 );
   else
     return ex.ValueStack.back().get()->impptr()->copy();
-}
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script )
-{
-  UOExecutor ex;
-
-  return run_executor_to_completion( ex, script );
-}
-
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script,
-                                               Bscript::BObjectImp* param1 )
-{
-  //??    BObject bobj1( param1 );
-
-  UOExecutor ex;
-
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2 )
-{
-  //?? BObject bobj1( param1 ), bobj2( param2 );
-
-  UOExecutor ex;
-
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3 )
-{
-  //??    BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 );
-
-  UOExecutor ex;
-
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4 )
-{
-  //??BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ), bobj4( param4 );
-
-  UOExecutor ex;
-
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4,
-                                               Bscript::BObjectImp* param5 )
-{
-  //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
-  //??   bobj4( param4 ), bobj5( param5 );
-
-  UOExecutor ex;
-
-  ex.pushArg( param5 );
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-Bscript::BObjectImp* run_script_to_completion( const ScriptDef& script, Bscript::BObjectImp* param1,
-                                               Bscript::BObjectImp* param2,
-                                               Bscript::BObjectImp* param3,
-                                               Bscript::BObjectImp* param4,
-                                               Bscript::BObjectImp* param5,
-                                               Bscript::BObjectImp* param6 )
-{
-  //?? BObject bobj1( param1 ), bobj2( param2 ), bobj3( param3 ),
-  //??   bobj4( param4 ), bobj5( param5 );
-
-  UOExecutor ex;
-
-  ex.pushArg( param6 );
-  ex.pushArg( param5 );
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-Bscript::BObjectImp* run_script_to_completion(
-    const ScriptDef& script, Bscript::BObjectImp* param1, Bscript::BObjectImp* param2,
-    Bscript::BObjectImp* param3, Bscript::BObjectImp* param4, Bscript::BObjectImp* param5,
-    Bscript::BObjectImp* param6, Bscript::BObjectImp* param7 )
-{
-  UOExecutor ex;
-
-  ex.pushArg( param7 );
-  ex.pushArg( param6 );
-  ex.pushArg( param5 );
-  ex.pushArg( param4 );
-  ex.pushArg( param3 );
-  ex.pushArg( param2 );
-  ex.pushArg( param1 );
-
-  return run_executor_to_completion( ex, script );
-}
-
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0 )
-{
-  try
-  {
-    Bscript::BObject ob( run_script_to_completion( script, param0 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
-}
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0,
-                  Bscript::BObjectImp* param1 )
-{
-  try
-  {
-    Bscript::BObject ob( run_script_to_completion( script, param0, param1 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
-}
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2 )
-{
-  try
-  {
-    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
-}
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3 )
-{
-  try
-  {
-    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
-}
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
-                  Bscript::BObjectImp* param4 )
-{
-  try
-  {
-    Bscript::BObject ob(
-        run_script_to_completion( script, param0, param1, param2, param3, param4 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
-}
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
-                  Bscript::BObjectImp* param4, Bscript::BObjectImp* param5 )
-{
-  try
-  {
-    Bscript::BObject ob(
-        run_script_to_completion( script, param0, param1, param2, param3, param4, param5 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
-}
-bool call_script( const ScriptDef& script, Bscript::BObjectImp* param0, Bscript::BObjectImp* param1,
-                  Bscript::BObjectImp* param2, Bscript::BObjectImp* param3,
-                  Bscript::BObjectImp* param4, Bscript::BObjectImp* param5,
-                  Bscript::BObjectImp* param6 )
-{
-  try
-  {
-    Bscript::BObject ob( run_script_to_completion( script, param0, param1, param2, param3, param4,
-                                                   param5, param6 ) );
-    return ob.isTrue();
-  }
-  catch ( std::exception& )  //...
-  {
-    return false;
-  }
 }
 
 UOExecutor* create_script_executor()
@@ -745,5 +356,162 @@ void list_crit_scripts()
   // list_crit_scripts( "holding", holdlist );
   list_crit_scripts( "ran", scriptScheduler.getRanlist() );
 }
+
+Bscript::BObjectImp* run_script_to_completion2(
+    const ScriptDef& script, const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  std::vector<Bscript::BObject> refArgs;
+  for ( auto& x : args )
+  {
+    refArgs.emplace_back( Bscript::BObject( x ) );
+  }
+
+  UOExecutor ex;
+
+  std::for_each( refArgs.rbegin(), refArgs.rend(), [&]( auto& x ) { ex.pushArg( x.impptr() ); } );
+
+  return run_executor_to_completion( ex, script );
 }
+
+bool run_script_to_completion2( const char* filename,
+                                const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  std::vector<Bscript::BObject> refArgs;
+  for ( auto& x : args )
+  {
+    refArgs.emplace_back( Bscript::BObject( x ) );
+  }
+
+  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
+  if ( program.get() == nullptr )
+  {
+    ERROR_PRINT << "Error reading script " << filename << "\n";
+    return false;
+  }
+
+  UOExecutor ex;
+  if ( program->haveProgram )
+  {
+    std::for_each( refArgs.rbegin(), refArgs.rend(), [&]( auto& x ) { ex.pushArg( x.impptr() ); } );
+  }
+  return run_script_to_completion_worker( ex, program.get() );
 }
+
+
+bool call_script2( const ScriptDef& script,
+                   const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  try
+  {
+    Bscript::BObject ob( run_script_to_completion2( script, args ) );
+    return ob.isTrue();
+  }
+  catch ( std::exception& )  //...
+  {
+    return false;
+  }
+}
+
+
+void start_script2( const char* filename, const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  // just to delete if it doesn't go somewhere else
+  std::vector<Bscript::BObject> refArgs;
+  for ( auto& x : args )
+  {
+    refArgs.emplace_back( Bscript::BObject( x ) );
+  }
+
+  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
+  if ( program.get() == nullptr )
+  {
+    ERROR_PRINT << "Error reading script " << filename << "\n";
+    throw std::runtime_error( "Error starting script" );
+  }
+
+  UOExecutor* ex = create_script_executor();
+  if ( program->haveProgram )
+  {
+    std::for_each( refArgs.rbegin(), refArgs.rend(),
+                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+  }
+  // ex->addModule( new FileExecutorModule( *ex ) );
+  ex->addModule( new Module::UOExecutorModule( *ex ) );
+
+  if ( !ex->setProgram( program.get() ) )
+    throw std::runtime_error( "Error starting script." );
+
+  scriptScheduler.schedule( ex );
+}
+
+// EXACTLY the same as start_script, except uses find_script2
+Module::UOExecutorModule* start_script2( const ScriptDef& script,
+                                         const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  // just to delete if it doesn't go somewhere else
+  std::vector<Bscript::BObject> refArgs;
+  for ( auto& x : args )
+  {
+    refArgs.emplace_back( Bscript::BObject( x ) );
+  }
+
+  ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
+  if ( program.get() == nullptr )
+  {
+    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    // throw runtime_error( "Error starting script" );
+    return nullptr;
+  }
+
+  std::unique_ptr<UOExecutor> ex( create_script_executor() );
+  if ( program->haveProgram )
+  {
+    std::for_each( refArgs.rbegin(), refArgs.rend(),
+                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+  }
+  // ex->addModule( new FileExecutorModule( *ex ) );
+  Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
+  ex->addModule( uoemod );
+
+  if ( !ex->setProgram( program.get() ) )
+  {
+    return nullptr;
+    // throw runtime_error( "Error starting script." );
+  }
+
+  scriptScheduler.schedule( ex.release() );
+
+  return uoemod;
+}
+
+// EXACTLY the same as start_script, except uses find_script2
+Module::UOExecutorModule* start_script2( ref_ptr<Bscript::EScriptProgram> program,
+                                         const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  // just to delete if it doesn't go somewhere else
+  std::vector<Bscript::BObject> refArgs;
+  for ( auto& x : args )
+  {
+    refArgs.emplace_back( Bscript::BObject( x ) );
+  }
+
+  UOExecutor* ex = create_script_executor();
+  if ( program->haveProgram )
+  {
+    std::for_each( refArgs.rbegin(), refArgs.rend(),
+                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+  }
+  // ex->addModule( new FileExecutorModule( *ex ) );
+  Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
+  ex->addModule( uoemod );
+
+  if ( !ex->setProgram( program.get() ) )
+    throw std::runtime_error( "Error starting script." );
+
+  scriptScheduler.schedule( ex );
+
+  return uoemod;
+}
+
+}  // namespace Core
+}  // namespace Pol
