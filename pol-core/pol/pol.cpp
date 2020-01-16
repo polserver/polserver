@@ -742,7 +742,7 @@ void threadstatus_thread( void )
 void catch_signals_thread( void );
 void reload_configuration();
 
-void console_thread( void )
+void console_thread( void* prom )
 {
 #ifndef _WIN32
   Clib::KeyboardHook kb;  // local to have a defined deconstruction to uninstall the hook
@@ -772,6 +772,11 @@ void console_thread( void )
       INFO_PRINT << "Done.\n";
     }
 #endif
+  }
+  if ( prom != nullptr )
+  {
+    auto promise = static_cast<std::promise<void>*>( prom );
+    promise->set_value();
   }
 }
 
@@ -1176,14 +1181,16 @@ int xmain_inner( bool testing )
   Network::start_aux_services();
 
 #ifdef _WIN32
-  Core::console_thread();
+  std::promise<void> finished;
+  threadhelp::start_thread( Core::console_thread, "Console", &finished );
+  finished.get_future().wait();
   Core::checkpoint( "exit signal detected" );
   Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
 #else
   // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
   // supposed to.
   // therefore, we have to do this signal checking in this thread.
-  threadhelp::start_thread( Core::console_thread, "Console" );
+  threadhelp::start_thread( Core::console_thread, "Console", nullptr );
 
   Core::catch_signals_thread();
 #endif
