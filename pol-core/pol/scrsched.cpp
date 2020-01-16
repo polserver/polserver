@@ -357,7 +357,7 @@ void list_crit_scripts()
   list_crit_scripts( "ran", scriptScheduler.getRanlist() );
 }
 
-Bscript::BObjectImp* run_script_to_completion2(
+Bscript::BObjectImp* RunScriptImpl::run_script_to_completion(
     const ScriptDef& script, const std::initializer_list<Bscript::BObjectImp*>& args )
 {
   std::vector<Bscript::BObject> refArgs;
@@ -373,8 +373,8 @@ Bscript::BObjectImp* run_script_to_completion2(
   return run_executor_to_completion( ex, script );
 }
 
-bool run_script_to_completion2( const char* filename,
-                                const std::initializer_list<Bscript::BObjectImp*>& args )
+bool RunScriptImpl::run_script_to_completion(
+    const char* filename, const std::initializer_list<Bscript::BObjectImp*>& args )
 {
   std::vector<Bscript::BObject> refArgs;
   for ( auto& x : args )
@@ -398,12 +398,12 @@ bool run_script_to_completion2( const char* filename,
 }
 
 
-bool call_script2( const ScriptDef& script,
-                   const std::initializer_list<Bscript::BObjectImp*>& args )
+bool RunScriptImpl::call_script( const ScriptDef& script,
+                                 const std::initializer_list<Bscript::BObjectImp*>& args )
 {
   try
   {
-    Bscript::BObject ob( run_script_to_completion2( script, args ) );
+    Bscript::BObject ob( run_script_to_completion( script, args ) );
     return ob.isTrue();
   }
   catch ( std::exception& )  //...
@@ -413,7 +413,8 @@ bool call_script2( const ScriptDef& script,
 }
 
 
-void start_script2( const char* filename, const std::initializer_list<Bscript::BObjectImp*>& args )
+void RunScriptImpl::start_script( const char* filename,
+                                  const std::initializer_list<Bscript::BObjectImp*>& args )
 {
   // just to delete if it doesn't go somewhere else
   std::vector<Bscript::BObject> refArgs;
@@ -445,8 +446,8 @@ void start_script2( const char* filename, const std::initializer_list<Bscript::B
 }
 
 // EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script2( const ScriptDef& script,
-                                         const std::initializer_list<Bscript::BObjectImp*>& args )
+Module::UOExecutorModule* RunScriptImpl::start_script(
+    const ScriptDef& script, const std::initializer_list<Bscript::BObjectImp*>& args )
 {
   // just to delete if it doesn't go somewhere else
   std::vector<Bscript::BObject> refArgs;
@@ -485,8 +486,9 @@ Module::UOExecutorModule* start_script2( const ScriptDef& script,
 }
 
 // EXACTLY the same as start_script, except uses find_script2
-Module::UOExecutorModule* start_script2( ref_ptr<Bscript::EScriptProgram> program,
-                                         const std::initializer_list<Bscript::BObjectImp*>& args )
+Module::UOExecutorModule* RunScriptImpl::start_script(
+    ref_ptr<Bscript::EScriptProgram> program,
+    const std::initializer_list<Bscript::BObjectImp*>& args )
 {
   // just to delete if it doesn't go somewhere else
   std::vector<Bscript::BObject> refArgs;
