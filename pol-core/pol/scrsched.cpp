@@ -412,6 +412,38 @@ bool RunScriptImpl::call_script( const ScriptDef& script,
   }
 }
 
+void RunScriptImpl::start_script_callback( const char* filename, StartScriptCallback callback,
+                                           const std::initializer_list<Bscript::BObjectImp*>& args )
+{
+  // just to delete if it doesn't go somewhere else
+  std::vector<Bscript::BObject> refArgs;
+  for ( auto& x : args )
+  {
+    refArgs.emplace_back( Bscript::BObject( x ) );
+  }
+
+  ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
+  if ( program.get() == nullptr )
+  {
+    ERROR_PRINT << "Error reading script " << filename << "\n";
+    throw std::runtime_error( "Error starting script" );
+  }
+
+  UOExecutor* ex = create_script_executor();
+  if ( program->haveProgram )
+  {
+    std::for_each( refArgs.rbegin(), refArgs.rend(),
+                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+  }
+  // ex->addModule( new FileExecutorModule( *ex ) );
+  ex->addModule( new Module::UOExecutorModule( *ex ) );
+
+  if ( !ex->setProgram( program.get() ) )
+    throw std::runtime_error( "Error starting script." );
+
+  scriptScheduler.schedule( ex, callback );
+}
+
 
 void RunScriptImpl::start_script( const char* filename,
                                   const std::initializer_list<Bscript::BObjectImp*>& args )

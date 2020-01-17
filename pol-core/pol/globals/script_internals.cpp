@@ -2,12 +2,15 @@
 
 #include <string.h>
 
+#include "../../bscript/berror.h"
+#include "../../bscript/bobject.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/stlutil.h"
 #include "../../plib/systemstate.h"
 #include "../polsig.h"
 #include "../uoexec.h"
+
 #include "state.h"
 
 namespace Pol
@@ -30,6 +33,7 @@ ScriptScheduler::ScriptScheduler()
       holdlist(),
       notimeoutholdlist(),
       debuggerholdlist(),
+      callbackmap(),
       pidlist(),
       next_pid( PID_MIN )
 {
@@ -266,6 +270,16 @@ void ScriptScheduler::run_ready()
           if ( ex->pChild != nullptr )
             ex->pChild->pParent = nullptr;
 
+          auto callback = callbackmap.find( ex );
+          if ( callback != callbackmap.end() )
+          {
+            if ( ex->error() )
+              callback->second( new Bscript::BError( "Script exited with an error condition" ) );
+            else if ( ex->ValueStack.empty() )
+              callback->second( new Bscript::BLong( 1 ) );
+            else
+              callback->second( ex->ValueStack.back().get()->impptr()->copy() );
+          }
           delete ex;
         }
         continue;
@@ -314,6 +328,13 @@ void ScriptScheduler::run_ready()
   THREAD_CHECKPOINT( scripts, 119 );
 }
 
+void ScriptScheduler::schedule( UOExecutor* exec,
+                                std::function<void( Bscript::BObjectImp* )> callback )
+{
+  passert( callbackmap.find( exec ) == callbackmap.end() );
+  callbackmap.insert( CallbackMap::value_type( exec, callback ) );
+  schedule( exec );
+}
 void ScriptScheduler::schedule( UOExecutor* exec )
 {
   exec->setDebugLevel( Bscript::Executor::NONE );

@@ -12,6 +12,10 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+class BObjectImp;
+}
 namespace Core
 {
 class UOExecutor;
@@ -22,7 +26,7 @@ typedef std::multimap<Core::polclock_t, Core::UOExecutor*> HoldList;
 typedef std::map<std::string, ref_ptr<Bscript::EScriptProgram>, Clib::ci_cmp_pred> ScriptStorage;
 typedef std::map<unsigned int, UOExecutor*> PidList;
 typedef HoldList::iterator TimeoutHandle;
-
+typedef std::map<Core::UOExecutor*, std::function<void( Bscript::BObjectImp* )>> CallbackMap;
 
 enum HoldListType
 {
@@ -91,6 +95,9 @@ public:
   // Sets up the executor before adding to the queue
   void schedule( UOExecutor* exec );
 
+  // Sets up the executor before adding to the queue.
+  // Calls provided callback when script finishes running
+  void schedule( UOExecutor* exec, std::function<void( Bscript::BObjectImp* )> callback );
 
   // The following methods should go to a different class,
   // together with the pidlist and new_pid.
@@ -110,6 +117,7 @@ private:
   HoldList holdlist;
   NoTimeoutHoldList notimeoutholdlist;
   NoTimeoutHoldList debuggerholdlist;
+  CallbackMap callbackmap;
 
   PidList pidlist;
   unsigned int next_pid;
