@@ -71,6 +71,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/kbhit.h"
 #include "../clib/logfacility.h"
+#include "../clib/make_unique.hpp"
 #include "../clib/network/sockets.h"
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
@@ -139,6 +140,7 @@
 #include "uoscrobj.h"
 #include "uworld.h"
 #include <format/format.h>
+#include <future>
 
 #ifndef NDEBUG
 #include "containr.h"
@@ -780,6 +782,36 @@ void console_thread( void* prom )
   }
 }
 
+bool run_bootstrap()
+{
+  try
+  {
+    auto promise = std::promise<bool>();
+    INFO_PRINT << "Running bootstrapping script...\n";
+    Core::start_script_callback( "bootstrap", [&]( Bscript::BObjectImp* _val ) {
+      Bscript::BObject val( _val );
+      promise.set_value( val.isTrue() );
+    } );
+    auto retVal = promise.get_future().get();
+    INFO_PRINT << "Bootstrap return value: " << ( retVal ? "OK" : "NOT OK" ) << "\n";
+    return retVal;
+  }
+  catch ( ... )
+  {
+    return false;
+  }
+}
+
+#ifdef _WIN32
+std::future<void> console_thread_future()
+{
+  auto finished = Clib::make_unique<std::promise<void>>();
+  auto fut = finished->get_future();
+  threadhelp::start_thread( Core::console_thread, "Console", (void*)finished.release() );
+  return fut;
+}
+#endif
+
 void start_threads()
 {
   threadmap.Register( thread_pid(), "Main" );
@@ -1045,6 +1077,12 @@ int xmain_inner( bool testing )
 
   Core::stateManager.gflag_in_system_startup = true;
 
+#ifdef _WIN32
+  auto console = Core::console_thread_future();
+#else
+  threadhelp::start_thread( Core::console_thread, "Console", nullptr );
+#endif
+
   Core::checkpoint( "reading pol.cfg" );
   Core::PolConfig::read_pol_config( true );
 
@@ -1180,20 +1218,19 @@ int xmain_inner( bool testing )
   Core::start_threads();
   Network::start_aux_services();
 
+  if ( Core::run_bootstrap() )
+  {
 #ifdef _WIN32
-  std::promise<void> finished;
-  threadhelp::start_thread( Core::console_thread, "Console", &finished );
-  finished.get_future().wait();
-  Core::checkpoint( "exit signal detected" );
-  Core::CoreSetSysTrayToolTip( "Shutting down", Core::ToolTipPriorityShutdown );
+    console.get();
 #else
-  // On Linux, signals are directed to a particular thread, if we use pthread_sigmask like we're
-  // supposed to.
-  // therefore, we have to do this signal checking in this thread.
-  threadhelp::start_thread( Core::console_thread, "Console", nullptr );
-
-  Core::catch_signals_thread();
+    Core::catch_signals_thread();
 #endif
+  }
+  else
+  {
+    Clib::exit_signalled = true;
+  }
+
   Core::checkpoint( "waiting for child threads to exit" );
   // NOTE that it's possible that the thread_status thread not have exited yet..
   // it signals the catch_signals_thread (this one) just before it exits.

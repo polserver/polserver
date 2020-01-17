@@ -99,7 +99,11 @@ void ConsoleReader::read( std::unique_ptr<ConsoleReader>& holder )
       {
         if ( _echo )
           std::cout << ch;
-        line += ch;
+        
+        if ( ch == '\b' )
+          line.pop_back();
+        else
+          line += ch;
       }
     }
   }
