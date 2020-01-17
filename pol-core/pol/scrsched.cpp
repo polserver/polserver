@@ -368,7 +368,8 @@ Bscript::BObjectImp* RunScriptImpl::run_script_to_completion(
 
   UOExecutor ex;
 
-  std::for_each( refArgs.rbegin(), refArgs.rend(), [&]( auto& x ) { ex.pushArg( x.impptr() ); } );
+  std::for_each( refArgs.rbegin(), refArgs.rend(),
+                 [&]( Bscript::BObject& x ) { ex.pushArg( x.impptr() ); } );
 
   return run_executor_to_completion( ex, script );
 }
@@ -392,7 +393,8 @@ bool RunScriptImpl::run_script_to_completion(
   UOExecutor ex;
   if ( program->haveProgram )
   {
-    std::for_each( refArgs.rbegin(), refArgs.rend(), [&]( auto& x ) { ex.pushArg( x.impptr() ); } );
+    std::for_each( refArgs.rbegin(), refArgs.rend(),
+                   [&]( Bscript::BObject& x ) { ex.pushArg( x.impptr() ); } );
   }
   return run_script_to_completion_worker( ex, program.get() );
 }
@@ -433,7 +435,7 @@ void RunScriptImpl::start_script_callback( const char* filename, StartScriptCall
   if ( program->haveProgram )
   {
     std::for_each( refArgs.rbegin(), refArgs.rend(),
-                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+                   [&]( Bscript::BObject& x ) { ex->pushArg( x.impptr() ); } );
   }
   // ex->addModule( new FileExecutorModule( *ex ) );
   ex->addModule( new Module::UOExecutorModule( *ex ) );
@@ -466,7 +468,7 @@ void RunScriptImpl::start_script( const char* filename,
   if ( program->haveProgram )
   {
     std::for_each( refArgs.rbegin(), refArgs.rend(),
-                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+                   [&]( Bscript::BObject& x ) { ex->pushArg( x.impptr() ); } );
   }
   // ex->addModule( new FileExecutorModule( *ex ) );
   ex->addModule( new Module::UOExecutorModule( *ex ) );
@@ -500,7 +502,7 @@ Module::UOExecutorModule* RunScriptImpl::start_script(
   if ( program->haveProgram )
   {
     std::for_each( refArgs.rbegin(), refArgs.rend(),
-                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+                   [&]( Bscript::BObject& x ) { ex->pushArg( x.impptr() ); } );
   }
   // ex->addModule( new FileExecutorModule( *ex ) );
   Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
@@ -533,7 +535,7 @@ Module::UOExecutorModule* RunScriptImpl::start_script(
   if ( program->haveProgram )
   {
     std::for_each( refArgs.rbegin(), refArgs.rend(),
-                   [&]( auto& x ) { ex->pushArg( x.impptr() ); } );
+                   [&]( Bscript::BObject& x ) { ex->pushArg( x.impptr() ); } );
   }
   // ex->addModule( new FileExecutorModule( *ex ) );
   Module::UOExecutorModule* uoemod = new Module::UOExecutorModule( *ex );
