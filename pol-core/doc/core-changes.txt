@@ -1,6 +1,6 @@
 ﻿-- POL100 --
-01-17-2020 Kevin:
-    Fixed: On Windows, add UTF8 checks to lowering/uppering of strings.
+01-18-2020 Kevin:
+    Fixed: Add UTF8 checks to lowering/uppering of strings.
 01-12-2020 Kevin:
   Changed: On Windows, the pol.cfg setting UoDataFileRoot will now default to the directory of the Ultima Online installation found in
            the Windows Registry. This setting MUST be set for servers that do not have Ultima Online installed through the operating
