@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-12-2020</datemodified>
+		<datemodified>01-17-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-17-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">On Windows, add UTF8 checks to lowering/uppering of strings.</change>
+		</entry>
 		<entry>
 			<date>01-12-2020</date>
 			<author>Kevin:</author>
