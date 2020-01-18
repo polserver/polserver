@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-12-2020</datemodified>
+		<datemodified>01-18-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-18-2020</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Return type of XMLFile method .appendxmlnode() now returns the created node on success.</change>
+			<change type="Changed">Return type of XMLNode method .appendxmlnode() now returns the created node on success.</change>
+			<change type="Changed">Return type of XMLNode methods .setxmlattribute() and .removexmlattribute() now returns parent node on success.</change>
+		</entry>
 		<entry>
 			<date>01-12-2020</date>
 			<author>Kevin:</author>
