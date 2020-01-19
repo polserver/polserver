@@ -1,4 +1,8 @@
 ﻿-- POL100 --
+01-18-2020 DevGIB:
+  Changed: Return type of XMLFile method .appendxmlnode() now returns the created node on success.
+  Changed: Return type of XMLNode method .appendxmlnode() now returns the created node on success.
+  Changed: Return type of XMLNode methods .setxmlattribute() and .removexmlattribute() now returns parent node on success.
 01-12-2020 Kevin:
   Changed: On Windows, the pol.cfg setting UoDataFileRoot will now default to the directory of the Ultima Online installation found in
            the Windows Registry. This setting MUST be set for servers that do not have Ultima Online installed through the operating
