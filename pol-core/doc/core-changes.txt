@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+01-20-2020 Kevin:
+    Fixed: Huge Performance loss in Lower/Upper String functions.
 01-18-2020 DevGIB:
   Changed: Return type of XMLFile method .appendxmlnode() now returns the created node on success.
   Changed: Return type of XMLNode method .appendxmlnode() now returns the created node on success.

@@ -404,6 +404,11 @@ std::vector<wchar_t> convertutf8( const std::string& value )
 
 void String::toUpper()
 {
+  if ( !hasUTF8Characters() )
+  {
+    Clib::mkupperASCII( value_ );
+    return;
+  }
 #ifndef WINDOWS
   std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
   value_.clear();
@@ -438,6 +443,11 @@ void String::toUpper()
 
 void String::toLower()
 {
+  if ( !hasUTF8Characters() )
+  {
+    Clib::mklowerASCII( value_ );
+    return;
+  }
 #ifndef WINDOWS
   std::vector<wchar_t> codes = convertutf8<wchar_t>( value_ );
   value_.clear();
