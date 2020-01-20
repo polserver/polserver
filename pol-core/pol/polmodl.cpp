@@ -45,6 +45,10 @@ PolModule::PolModule( const char* moduleName, Bscript::Executor& iExec )
 {
 }
 
+UOExecutor& PolModule::asUOExec()
+{
+  return static_cast<Core::UOExecutor&>( exec );
+}
 
 bool PolModule::getCharacterOrClientParam( unsigned param, Mobile::Character*& chrptr,
                                            Network::Client*& clientptr )

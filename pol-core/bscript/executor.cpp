@@ -75,7 +75,6 @@ Executor::Executor()
       error_( false ),
       halt_( false ),
       run_ok_( false ),
-      can_access_offline_mobiles_( false ),
       debug_level( NONE ),
       PC( 0 ),
       Locals2( new BObjectRefVec ),

@@ -100,6 +100,8 @@ set (pol_sources  # sorted !
   guardrgn.h
   guilds.cpp
   guilds.h
+  guildscrobj.cpp
+  guildscrobj.h
   help.cpp
   irequest.cpp
   item/armor.cpp
@@ -281,6 +283,8 @@ set (pol_sources  # sorted !
   party.cpp
   party.h
   party_cfg.h
+  partyscrobj.cpp
+  partyscrobj.h
   pol.cpp
   pol.h
   pol.rc

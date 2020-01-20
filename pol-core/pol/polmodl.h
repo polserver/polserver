@@ -41,12 +41,14 @@ namespace Core
 {
 class UObject;
 class Vital;
+class UOExecutor;
 class PolModule : public Bscript::ExecutorModule
 {
 public:
   PolModule( const char* moduleName, Bscript::Executor& iExec );
 
 protected:
+  UOExecutor& asUOExec();
   bool getCharacterOrClientParam( unsigned param, Mobile::Character*& chrptr,
                                   Network::Client*& clientptr );
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );

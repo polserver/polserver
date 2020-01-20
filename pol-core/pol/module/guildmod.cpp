@@ -20,10 +20,11 @@
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
 #include "../guilds.h"
+#include "../guildscrobj.h"
 #include "../mobile/charactr.h"
+#include "../polobject.h"
 #include "../uoexec.h"
 #include "../uoscrobj.h"
-#include "../polobject.h"
 #include <module_defs/guilds.h>
 
 namespace Pol
@@ -56,70 +57,6 @@ using UOExecutor = Core::UOExecutor;
 ///   guild.setprop( propname, propvalue )
 ///   guild.eraseprop( propname )
 ///
-class EGuildRefObjImp final : public Core::PolApplicObj<Core::GuildRef>
-{
-public:
-  EGuildRefObjImp( Core::GuildRef gref );
-  virtual const char* typeOf() const override;
-  virtual u8 typeOfInt() const override;
-  virtual BObjectImp* copy() const override;
-  virtual bool isTrue() const override;
-  virtual bool operator==( const BObjectImp& objimp ) const override;
-
-  virtual BObjectRef get_member( const char* membername ) override;
-  virtual BObjectRef get_member_id( const int id ) override;  // id test
-  virtual BObjectImp* call_polmethod( const char* methodname, UOExecutor& ex ) override;
-  virtual BObjectImp* call_polmethod_id( const int id, UOExecutor& ex,
-                                      bool forcebuiltin = false ) override;
-};
-
-BApplicObjType guild_type;
-
-
-EGuildRefObjImp::EGuildRefObjImp( Core::GuildRef gref )
-    : PolApplicObj<Core::GuildRef>( &guild_type, gref ){};
-
-const char* EGuildRefObjImp::typeOf() const
-{
-  return "GuildRef";
-}
-u8 EGuildRefObjImp::typeOfInt() const
-{
-  return OTGuildRef;
-}
-
-BObjectImp* EGuildRefObjImp::copy() const
-{
-  return new EGuildRefObjImp( obj_ );
-}
-
-bool EGuildRefObjImp::isTrue() const
-{
-  return ( !obj_->_disbanded );
-}
-
-bool EGuildRefObjImp::operator==( const BObjectImp& objimp ) const
-{
-  if ( objimp.isa( BObjectImp::OTApplicObj ) )
-  {
-    const BApplicObjBase* aob =
-        Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( &objimp );
-
-    if ( aob->object_type() == &guild_type )
-    {
-      const EGuildRefObjImp* guildref_imp =
-          Clib::explicit_cast<const EGuildRefObjImp*, const BApplicObjBase*>( aob );
-
-      return ( guildref_imp->obj_->_guildid == obj_->_guildid );
-    }
-    else
-      return false;
-  }
-  else if ( objimp.isa( BObjectImp::OTBoolean ) )
-    return isTrue() == static_cast<const BBoolean&>( objimp ).isTrue();
-  else
-    return false;
-}
 
 BObjectImp* GuildExecutorModule::CreateGuildRefObjImp( Core::Guild* guild )
 {

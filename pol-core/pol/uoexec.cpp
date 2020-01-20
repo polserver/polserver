@@ -2,15 +2,6 @@
 
 #include <stddef.h>
 
-#include "../bscript/executor.h"
-#include "../clib/logfacility.h"
-#include "../plib/systemstate.h"
-#include "globals/settings.h"
-#include "module/osmod.h"
-#include "polcfg.h"
-#include "polclock.h"
-
-
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../bscript/executor.h"
@@ -22,12 +13,20 @@
 #include "../plib/systemstate.h"
 #include "fnsearch.h"
 #include "globals/network.h"
+#include "globals/settings.h"
 #include "globals/uvars.h"
+#include "guilds.h"
+#include "guildscrobj.h"
 #include "item/itemdesc.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
+#include "module/osmod.h"
 #include "multi/multi.h"
 #include "network/client.h"
+#include "party.h"
+#include "partyscrobj.h"
+#include "polcfg.h"
+#include "polclock.h"
 #include "uobject.h"
 #include "uoscrobj.h"
 #include "vital.h"
@@ -47,6 +46,7 @@ UOExecutor::UOExecutor()
       eventmask( 0 ),
       area_size( 0 ),
       speech_size( 1 ),
+      can_access_offline_mobiles_( false ),
       auxsvc_assume_string( false ),
       survive_attached_disconnect( false ),
       pParent( nullptr ),
@@ -117,7 +117,7 @@ bool UOExecutor::critical() const
 }
 void UOExecutor::critical( bool critical )
 {
-  os_module->critical(critical);
+  os_module->critical( critical );
 }
 
 bool UOExecutor::warn_on_runaway() const
@@ -126,7 +126,7 @@ bool UOExecutor::warn_on_runaway() const
 }
 void UOExecutor::warn_on_runaway( bool warn_on_runaway )
 {
-  os_module->warn_on_runaway(warn_on_runaway);
+  os_module->warn_on_runaway( warn_on_runaway );
 }
 
 unsigned char UOExecutor::priority() const
@@ -135,7 +135,7 @@ unsigned char UOExecutor::priority() const
 }
 void UOExecutor::priority( unsigned char priority )
 {
-  os_module->priority(priority);
+  os_module->priority( priority );
 }
 
 void UOExecutor::SleepFor( int secs )
@@ -187,10 +187,9 @@ Core::HoldListType UOExecutor::in_hold_list() const
 {
   return os_module->in_hold_list();
 }
-void UOExecutor::in_hold_list(Core::HoldListType in_hold_list)
+void UOExecutor::in_hold_list( Core::HoldListType in_hold_list )
 {
   return os_module->in_hold_list( in_hold_list );
-
 }
 
 Bscript::BObjectImp* UOExecutor::clear_event_queue()
@@ -204,7 +203,6 @@ using namespace Module;
 bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& chrptr,
                                             Network::Client*& clientptr )
 {
-  
   BObjectImp* imp = getParamImp( param );
   if ( imp == nullptr )
   {
@@ -228,8 +226,7 @@ bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& 
         return false;
       }
 
-      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() ||
-           can_access_offline_mobiles_ )
+      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() || can_access_offline_mobiles_ )
       {
         return true;
       }
@@ -325,8 +322,7 @@ bool UOExecutor::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
         return false;
       }
 
-      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() ||
-           can_access_offline_mobiles_ )
+      if ( chrptr->logged_in() || chrref_imp->offline_access_ok() || can_access_offline_mobiles_ )
       {
         return true;
       }
@@ -589,8 +585,7 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
       }
       else
       {
-        setFunctionResult(
-            new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
+        setFunctionResult( new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }
@@ -637,8 +632,7 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
              << "\tParameter " << param << ": Value " << objtype_long
              << " is out of range for an objtype\n";
     setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " +
-                                        Clib::hexint( Plib::systemstate.config.max_objtype ) +
-                                        " )" ) );
+                                   Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
     return false;
   }
 }
@@ -672,8 +666,7 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
       }
       else
       {
-        setFunctionResult(
-            new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
+        setFunctionResult( new BError( std::string( "Objtype not defined: " ) + pstring->data() ) );
 
         return false;
       }
@@ -758,8 +751,7 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
 bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
 {
   int skillval;
-  if ( getParam( param, skillval, SKILLID__LOWEST,
-                      networkManager.uoclient_general.maxskills ) )
+  if ( getParam( param, skillval, SKILLID__LOWEST, networkManager.uoclient_general.maxskills ) )
   {
     skillid = static_cast<USKILLID>( skillval );
     return true;
@@ -801,6 +793,50 @@ bool UOExecutor::getVitalParam( unsigned param, const Vital*& vital )
     return false;
   }
 
+  return true;
+}
+
+bool UOExecutor::getGuildParam( unsigned param, Core::Guild*& guild, Bscript::BError*& err )
+{
+  BApplicObjBase* aob = nullptr;
+  if ( hasParams( param + 1 ) )
+    aob = getApplicObjParam( param, &guild_type );
+
+  if ( aob == nullptr )
+  {
+    err = new BError( "Invalid parameter type" );
+    return false;
+  }
+
+  EGuildRefObjImp* gr = static_cast<EGuildRefObjImp*>( aob );
+  guild = gr->value().get();
+  if ( guild->disbanded() )
+  {
+    err = new BError( "Guild has disbanded" );
+    return false;
+  }
+  return true;
+}
+
+bool UOExecutor::getPartyParam( unsigned param, Core::Party*& party, BError*& err )
+{
+  BApplicObjBase* aob = nullptr;
+  if ( hasParams( param + 1 ) )
+    aob = getApplicObjParam( param, &party_type );
+
+  if ( aob == nullptr )
+  {
+    err = new BError( "Invalid parameter type" );
+    return false;
+  }
+
+  EPartyRefObjImp* pr = static_cast<EPartyRefObjImp*>( aob );
+  party = pr->value().get();
+  if ( Core::system_find_mobile( party->leader() ) == nullptr )
+  {
+    err = new BError( "Party has no leader" );
+    return false;
+  }
   return true;
 }
 

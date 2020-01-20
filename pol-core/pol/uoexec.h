@@ -29,8 +29,9 @@ class OSExecutorModule;
 
 namespace Bscript
 {
+class BError;
 class Executor;
-}
+}  // namespace Bscript
 namespace Mobile
 {
 class Attribute;
@@ -55,6 +56,8 @@ namespace Core
 {
 class UObject;
 class Vital;
+class Guild;
+class Party;
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
 class UOExecutor final : public Bscript::Executor
@@ -90,6 +93,7 @@ public:
   unsigned short area_size;
   unsigned short speech_size;
 
+  bool can_access_offline_mobiles_;
   bool auxsvc_assume_string;
   bool survive_attached_disconnect;
   weak_ptr_owner<UOExecutor> weakptr;
@@ -139,6 +143,8 @@ public:
   bool getSkillIdParam( unsigned param, USKILLID& skillid );
   bool getAttributeParam( unsigned param, const Mobile::Attribute*& attr );
   bool getVitalParam( unsigned param, const Vital*& vital );
+  bool getGuildParam( unsigned param, Core::Guild*& guild, Bscript::BError*& err );
+  bool getPartyParam( unsigned param, Core::Party*& party, Bscript::BError*& err );
 };
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const

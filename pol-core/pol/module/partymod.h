@@ -26,7 +26,6 @@ class Party;
 }
 namespace Module
 {
-extern Bscript::BApplicObjType party_type;
 
 class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule, Core::PolModule>
 {
