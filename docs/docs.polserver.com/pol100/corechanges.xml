@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-18-2020</datemodified>
+		<datemodified>01-20-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-20-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Huge Performance loss in Lower/Upper String functions.</change>
+		</entry>
 		<entry>
 			<date>01-18-2020</date>
 			<author>DevGIB:</author>
