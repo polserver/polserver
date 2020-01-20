@@ -120,9 +120,8 @@ Bscript::BObjectImp* BXMLfile::call_method_id( const int id, Executor& ex, bool 
           }
         }
       }
-
       file.LinkEndChild( elem.release() );
-      return new BLong( 1 );
+      return new BXmlNode(file.LastChild());
     }
     break;
   }
@@ -418,7 +417,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
 
       TiXmlElement* nodeelem = node->ToElement();
       nodeelem->LinkEndChild( elem.release() );
-      return new BLong( 1 );
+      return new BXmlNode(nodeelem->LastChild());
     }
     break;
   }
@@ -456,7 +455,8 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
         else
           elem->SetAttribute( name, ref->getStringRep() );
       }
-      return new BLong( 1 );
+      return new BXmlNode(elem);
+     
     }
     break;
   }
@@ -469,7 +469,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     {
       TiXmlElement* elem = node->ToElement();
       elem->RemoveAttribute( pstr->value() );
-      return new BLong( 1 );
+      return new BXmlNode(elem);
     }
     break;
   }
@@ -516,7 +516,7 @@ Bscript::BObjectImp* BXmlNode::call_method_id( const int id, Executor& ex, bool 
     {
       TiXmlElement* elem = node->ToElement();
       elem->LinkEndChild( new TiXmlText( pstr->value() ) );
-      return new BLong( 1 );
+      return new BXmlNode(elem->LastChild());
     }
     break;
   }
