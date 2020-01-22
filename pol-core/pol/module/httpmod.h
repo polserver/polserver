@@ -49,7 +49,6 @@ public:
   typedef std::map<std::string, std::string, Clib::ci_cmp_pred> QueryParamMap;
   QueryParamMap params_;
   int continuing_offset;
-  Core::UOExecutor& uoexec;
   std::string query_ip_;
 };
 }  // namespace Module

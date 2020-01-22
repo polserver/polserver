@@ -30,9 +30,9 @@
 #ifndef H_UOMOD_H
 #define H_UOMOD_H
 
-#include "../polmodl.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/poltype.h"
+#include "../polmodl.h"
 #include "../reftypes.h"
 
 namespace Pol
@@ -289,8 +289,6 @@ public:
   Bscript::BObjectImp* mf_ListStaticsNearLocationOfType(
       /* x, y, z, range, objtype, flags, realm */ );
   Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag( /* x, y, z, range, flags, realm */ );
-
-  Core::UOExecutor& uoexec;
 
   /* If we're asking a character for a target, who is it?
      that character's target_cursor_ex points to us,

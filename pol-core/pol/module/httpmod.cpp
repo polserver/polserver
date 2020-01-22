@@ -26,8 +26,7 @@ using namespace Bscript;
 HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck )
     : Bscript::TmplExecutorModule<HttpExecutorModule, Core::PolModule>( exec ),
       sck_( std::move( isck ) ),
-      continuing_offset( 0 ),
-      uoexec( static_cast<Core::UOExecutor&>( exec ) )
+      continuing_offset( 0 )
 {
 }
 
@@ -59,9 +58,10 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
     else
     {
       continuing_offset += nsent;
-      uoexec.SleepForMs( 500 );
-      --uoexec.PC;
-      return uoexec.fparams[0]->impptr();
+      auto& uoex = uoexec();
+      uoex.SleepForMs( 500 );
+      --uoex.PC;
+      return uoex.fparams[0]->impptr();
     }
   }
   else
@@ -97,9 +97,10 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     else
     {
       continuing_offset += nsent;
-      uoexec.SleepForMs( 500 );
-      --uoexec.PC;
-      return uoexec.fparams[0]->impptr();
+      auto& uoex = uoexec();
+      uoex.SleepForMs( 500 );
+      --uoex.PC;
+      return uoex.fparams[0]->impptr();
     }
   }
   else

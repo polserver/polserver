@@ -132,10 +132,11 @@ bool AuxClientThread::init()
       uoemod = Core::start_script( _scriptdef, _auxconnection.get(), _params );
     if ( uoemod == nullptr )
       return false;
-    _uoexec = uoemod->uoexec.weakptr;
+    auto& uoex = uoemod->uoexec();
+    _uoexec = uoex.weakptr;
     if ( _assume_string )
     {
-      uoemod->uoexec.auxsvc_assume_string = _assume_string;
+      uoex.auxsvc_assume_string = _assume_string;
     }
     return true;
   }
@@ -182,7 +183,7 @@ void AuxClientThread::run()
 
   std::string tmp;
   bool result, timeout_exit;
-  Clib::SocketLineReader linereader(_sck, 5);
+  Clib::SocketLineReader linereader( _sck, 5 );
   for ( ;; )
   {
     result = linereader.readline( tmp, &timeout_exit );

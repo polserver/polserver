@@ -194,7 +194,6 @@ public:
 
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
     : TmplExecutorModule<UOExecutorModule, Core::PolModule>( exec ),
-      uoexec( exec ),
       target_cursor_chr( nullptr ),
       menu_selection_chr( nullptr ),
       popup_menu_selection_chr( nullptr ),
@@ -216,6 +215,7 @@ UOExecutorModule::UOExecutorModule( UOExecutor& exec )
 
 UOExecutorModule::~UOExecutorModule()
 {
+  auto& uoex = uoexec();
   while ( !reserved_items_.empty() )
   {
     Item* item = reserved_items_.back().get();
@@ -276,7 +276,7 @@ UOExecutorModule::~UOExecutorModule()
   }
   if ( attached_chr_ != nullptr )
   {
-    passert( attached_chr_->script_ex == &uoexec );
+    passert( attached_chr_->script_ex == &uoex );
     attached_chr_->script_ex = nullptr;
     attached_chr_ = nullptr;
   }
@@ -287,7 +287,7 @@ UOExecutorModule::~UOExecutorModule()
   }
   if ( registered_for_speech_events )
   {
-    deregister_from_speech_events( &uoexec );
+    deregister_from_speech_events( &uoex );
   }
 }
 
@@ -301,7 +301,7 @@ BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
       if ( chr->script_ex == nullptr )
       {
         attached_chr_ = chr;
-        attached_chr_->script_ex = &uoexec;
+        attached_chr_->script_ex = &uoexec();
 
         return new BLong( 1 );
       }
@@ -319,7 +319,7 @@ BObjectImp* UOExecutorModule::mf_Detach()
 {
   if ( attached_chr_ != nullptr )
   {
-    passert( attached_chr_->script_ex == &uoexec );
+    passert( attached_chr_->script_ex == &uoexec() );
     attached_chr_->script_ex = nullptr;
     attached_chr_ = nullptr;
     return new BLong( 1 );
@@ -779,6 +779,7 @@ void handle_script_cursor( Character* chr, UObject* obj )
 {
   if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
   {
+    auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( obj != nullptr )
     {
       if ( obj->ismobile() )
@@ -794,11 +795,10 @@ void handle_script_cursor( Character* chr, UObject* obj )
           chr->repsys_on_help( targetted_chr );
         }
       }
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set(
-          new BObject( obj->make_ref() ) );
+      uoex.ValueStack.back().set( new BObject( obj->make_ref() ) );
     }
     // even on cancel, we wake the script up.
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
+    uoex.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -833,7 +833,7 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::Target():\n"
@@ -898,6 +898,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
   if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
   {
+    auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( msg != nullptr )
     {
       BStruct* arr = new BStruct;
@@ -930,10 +931,10 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
+      uoex.ValueStack.back().set( new BObject( arr ) );
     }
 
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
+    uoex.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -955,7 +956,7 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new BError( "Client has an active target cursor" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetCoordinates():\n"
@@ -975,9 +976,8 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
   unsigned int objtype, hue;
   int flags;
   int xoffset, yoffset;
-  if ( !( getCharacterParam( 0, chr ) && getObjtypeParam( 1, objtype ) &&
-          getParam( 2, flags ) && getParam( 3, xoffset ) && getParam( 4, yoffset ) &&
-          getParam( 5, hue ) ) )
+  if ( !( getCharacterParam( 0, chr ) && getObjtypeParam( 1, objtype ) && getParam( 2, flags ) &&
+          getParam( 3, xoffset ) && getParam( 4, yoffset ) && getParam( 5, hue ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -999,7 +999,7 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new BError( "Object Type is out of range for Multis" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetMultiPlacement():\n"
@@ -1079,8 +1079,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
   const ItemDesc* descriptor;
   unsigned short amount;
 
-  if ( getCharacterParam( 0, chr ) && getObjtypeParam( 1, descriptor ) &&
-       getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
+  if ( getCharacterParam( 0, chr ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       item_create_params_ok( descriptor->objtype, amount ) )
   {
     UContainer* backpack = chr->backpack();
     if ( backpack != nullptr )
@@ -1453,7 +1453,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
     // DAVE added this 12/05: if in a Character's pack, update weight.
     UpdateCharacterWeight( item );
 
-    return new EItemRefObjImp(item);
+    return new EItemRefObjImp( item );
   }
   else
   {
@@ -1503,8 +1503,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
   UObject* center;
   int effect;
   Character* forchr;
-  if ( getUObjectParam( 0, center ) && getParam( 1, effect ) &&
-       getCharacterParam( 2, forchr ) )
+  if ( getUObjectParam( 0, center ) && getParam( 1, effect ) && getCharacterParam( 2, forchr ) )
   {
     play_sound_effect_private( center, static_cast<u16>( effect ), forchr );
     return new BLong( 1 );
@@ -1561,6 +1560,7 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
     Character* chr = client->chr;
     if ( chr != nullptr && chr->client->gd->menu_selection_uoemod != nullptr )
     {
+      auto& uoex = chr->client->gd->menu_selection_uoemod->uoexec();
       if ( mi != nullptr && msg != nullptr )
       {
         BStruct* selection = new BStruct;
@@ -1570,11 +1570,10 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
         selection->addMember( "index",
                               new BLong( cfBEu16( msg->choice ) ) );  // this has been validated
         selection->addMember( "color", new BLong( mi->color_ ) );
-        chr->client->gd->menu_selection_uoemod->uoexec.ValueStack.back().set(
-            new BObject( selection ) );
+        uoex.ValueStack.back().set( new BObject( selection ) );
       }
       // 0 is already on the value stack, for the case of cancellation.
-      chr->client->gd->menu_selection_uoemod->uoexec.revive();
+      uoex.revive();
       chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
       chr->client->gd->menu_selection_uoemod = nullptr;
     }
@@ -1640,7 +1639,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
     return new BError( "Menu too large" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SelectMenuItem():\n"
@@ -1917,8 +1916,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
   int speed;
   int loop;
   int explode;
-  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) &&
-       getParam( 2, effect ) && getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
+  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) && getParam( 2, effect ) &&
+       getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
        getParam( 5, explode, UCHAR_MAX ) )
   {
     if ( src->realm != dst->realm )
@@ -1975,8 +1974,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
   unsigned short effect;
   int speed;
   int loop;
-  if ( getUObjectParam( 0, src ) && getParam( 1, effect ) &&
-       getParam( 2, speed, UCHAR_MAX ) && getParam( 3, loop, UCHAR_MAX ) )
+  if ( getUObjectParam( 0, src ) && getParam( 1, effect ) && getParam( 2, speed, UCHAR_MAX ) &&
+       getParam( 3, loop, UCHAR_MAX ) )
   {
     play_object_centered_effect( src, effect, static_cast<unsigned char>( speed ),
                                  static_cast<unsigned char>( loop ) );
@@ -2032,12 +2031,11 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
   unsigned short effect3dexplode;
   unsigned short effect3dsound;
 
-  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) &&
-       getParam( 2, effect ) && getParam( 3, speed, UCHAR_MAX ) &&
-       getParam( 4, duration, UCHAR_MAX ) && getParam( 5, hue, INT_MAX ) &&
-       getParam( 6, render, INT_MAX ) && getParam( 7, direction, UCHAR_MAX ) &&
-       getParam( 8, explode, UCHAR_MAX ) && getParam( 9, effect3d ) &&
-       getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
+  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) && getParam( 2, effect ) &&
+       getParam( 3, speed, UCHAR_MAX ) && getParam( 4, duration, UCHAR_MAX ) &&
+       getParam( 5, hue, INT_MAX ) && getParam( 6, render, INT_MAX ) &&
+       getParam( 7, direction, UCHAR_MAX ) && getParam( 8, explode, UCHAR_MAX ) &&
+       getParam( 9, effect3d ) && getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
   {
     if ( src->realm != dst->realm )
       return new BError( "Realms must match" );
@@ -2110,10 +2108,10 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
   int layer;
   unsigned short effect3d;
 
-  if ( getUObjectParam( 0, src ) && getParam( 1, effect ) &&
-       getParam( 2, speed, UCHAR_MAX ) && getParam( 3, duration, UCHAR_MAX ) &&
-       getParam( 4, hue, INT_MAX ) && getParam( 5, render, INT_MAX ) &&
-       getParam( 6, layer, UCHAR_MAX ) && getParam( 7, effect3d ) )
+  if ( getUObjectParam( 0, src ) && getParam( 1, effect ) && getParam( 2, speed, UCHAR_MAX ) &&
+       getParam( 3, duration, UCHAR_MAX ) && getParam( 4, hue, INT_MAX ) &&
+       getParam( 5, render, INT_MAX ) && getParam( 6, layer, UCHAR_MAX ) &&
+       getParam( 7, effect3d ) )
   {
     play_object_centered_effect_ex(
         src, effect, static_cast<unsigned char>( speed ), static_cast<unsigned char>( duration ),
@@ -3093,7 +3091,7 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
     }
     if ( !registered_for_speech_events )
     {
-      register_for_speech_events( center, &uoexec, range, flags );
+      register_for_speech_events( center, &uoexec(), range, flags );
       registered_for_speech_events = true;
       return new BLong( 1 );
     }
@@ -3113,23 +3111,24 @@ BObjectImp* UOExecutorModule::mf_EnableEvents()
   int eventmask;
   if ( getParam( 0, eventmask ) )
   {
+    auto& uoex = uoexec();
     if ( eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA | EVID_SPOKE ) )
     {
       unsigned short range;
       if ( getParam( 1, range, 0, 32 ) )
       {
         if ( eventmask & ( EVID_SPOKE ) )
-          uoexec.speech_size = range;
+          uoex.speech_size = range;
         if ( eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
-          uoexec.area_size = range;
+          uoex.area_size = range;
       }
       else
       {
         return nullptr;
       }
     }
-    uoexec.eventmask |= eventmask;
-    return new BLong( uoexec.eventmask );
+    uoex.eventmask |= eventmask;
+    return new BLong( uoex.eventmask );
   }
   else
   {
@@ -3142,9 +3141,10 @@ BObjectImp* UOExecutorModule::mf_DisableEvents()
   int eventmask;
   if ( getParam( 0, eventmask ) )
   {
-    uoexec.eventmask &= ~eventmask;
+    auto& uoex = uoexec();
+    uoex.eventmask &= ~eventmask;
 
-    return new BLong( uoexec.eventmask );
+    return new BLong( uoex.eventmask );
   }
   else
   {
@@ -3540,9 +3540,8 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
   int px;
   int py;
   int add_to_existing_stack;
-  if ( !( getItemParam( 0, item ) && getItemParam( 1, cont_item ) &&
-          getParam( 2, px, -1, 65535 ) && getParam( 3, py, -1, 65535 ) &&
-          getParam( 4, add_to_existing_stack, 0, 2 ) ) )
+  if ( !( getItemParam( 0, item ) && getItemParam( 1, cont_item ) && getParam( 2, px, -1, 65535 ) &&
+          getParam( 3, py, -1, 65535 ) && getParam( 4, add_to_existing_stack, 0, 2 ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -4131,7 +4130,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
         arrowid = static_cast<u32>( arrow_id );
       }
       else
-        arrowid = uoexec.pid();
+        arrowid = uoexec().pid();
     }
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
@@ -4750,8 +4749,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
   Item* cont_item;
   unsigned int objtype;
   int amount;
-  if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) &&
-       getParam( 2, amount ) )
+  if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) && getParam( 2, amount ) )
   {
     if ( !cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "That is not a container" );
@@ -5363,8 +5361,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
   unsigned int objtype;
   int amount;
 
-  if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) &&
-       getParam( 2, amount ) )
+  if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) && getParam( 2, amount ) )
   {
     int makeInUseLong;
     bool makeInUse;

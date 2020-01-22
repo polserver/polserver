@@ -62,9 +62,6 @@ public:
                                                 const Bscript::ObjArray* params );
 
   virtual size_t sizeEstimate() const override;
-
-private:
-  Core::UOExecutor& uoexec;
 };
 }  // namespace Module
 }  // namespace Pol

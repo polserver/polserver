@@ -52,9 +52,7 @@ public:
   explicit UnicodeExecutorModule( Core::UOExecutor& exec );
   ~UnicodeExecutorModule();
 
-  Core::UOExecutor& uoexec;
-
-  Bscript::BObjectImp* mf_PrintTextAboveUC();    // OverObject, Text, Font, Color
+  Bscript::BObjectImp* mf_PrintTextAboveUC();         // OverObject, Text, Font, Color
   Bscript::BObjectImp* mf_PrintTextAbovePrivateUC();  // OverObject, Text, ToChar, Font, Color
 
   Bscript::BObjectImp* mf_BroadcastUC();       // Text
@@ -66,11 +64,6 @@ public:
   Mobile::Character* prompt_chr;
 
   virtual size_t sizeEstimate() const override;
-
-protected:
-  //bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
-  //bool getItemParam( unsigned param, Items::Item*& itemptr );
-  //bool getUObjectParam( unsigned param, Core::UObject*& objptr );
 };
 }  // namespace Module
 }  // namespace Pol

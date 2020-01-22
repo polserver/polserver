@@ -47,8 +47,10 @@ class PolModule : public Bscript::ExecutorModule
 public:
   PolModule( const char* moduleName, Bscript::Executor& iExec );
 
+public:
+  UOExecutor& uoexec();
+
 protected:
-  UOExecutor& asUOExec();
   bool getCharacterOrClientParam( unsigned param, Mobile::Character*& chrptr,
                                   Network::Client*& clientptr );
   bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
@@ -62,15 +64,6 @@ protected:
   bool getAttributeParam( unsigned param, const Mobile::Attribute*& attr );
   bool getVitalParam( unsigned param, const Vital*& vital );
 };
-
-
-template <class T>
-class TmplPolModule : public PolModule
-{
-  //protected:
-//  TmplPolModule( Executor& exec );
-};
-
 }  // namespace Core
 }  // namespace Pol
 
