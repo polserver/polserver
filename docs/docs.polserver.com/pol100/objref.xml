@@ -894,7 +894,7 @@ Object can be copied inside the same script, but cannot be stored in cprops or t
 ForEach support: iterates over all child nodes, iterator is XMLNode object _iterator_iter is integer index.</explain>
 <method proto="removexmlnode(integer/string/XMLNode)" returns="1/0" desc="removes node by index, first node with given name or passed one." />
 <method proto="setxmldeclaration(string version, string encoding, string standalone)" returns="1" desc="Sets the xml declaration." />
-<method proto="appendxmlnode(string value, [struct{attributes}])" returns="1" desc="Appends node with name value and given attributes (key=name, value=value)." />
+<method proto="appendxmlnode(string value, [struct{attributes}])" returns="Created node on success." desc="Appends node with name value and given attributes (key=name, value=value)." />
 <method proto="appendxmlcomment(string value)" returns="1" desc="Adds comment." />
 <method proto="savexml(string filename)" returns="1/0" desc="Saves to file." />
 <method proto="xmltostring([string ident])" returns="String" desc="Returns XML as string, identation is by default \t." />
@@ -910,10 +910,10 @@ ForEach support: iterates over all child nodes, iterator is XMLNode object _iter
 <method proto="clonenode()" returns="XMLNode" desc="Create a copy of node which is then valid longer then the file object." />
 <method proto="firstxmlchild([string value])" returns="XMLNode" desc="Returns first children or first with given name." />
 <method proto="nextxmlsibling([string value])" returns="XMLNode" desc="Returns next sibling or first with given name." />
-<method proto="appendxmlnode(string value, [struct{attributes}])" returns="1" desc="Appends node with name value and given attributes (key=name, value=value)." />
+<method proto="appendxmlnode(string value, [struct{attributes}])" returns="Created node on success." desc="Appends node with name value and given attributes (key=name, value=value)." />
 <method proto="appendxmlcomment(string value)" returns="1" desc="Adds comment." />
-<method proto="setxmlattribute(struct{attributes})" returns="1" desc="Sets node attributes (key=name, value=value)." />
-<method proto="removexmlattribute(string key)" returns="1" desc="Removes attribute with given name." />
+<method proto="setxmlattribute(struct{attributes})" returns="Parent node on success." desc="Sets node attributes (key=name, value=value)." />
+<method proto="removexmlattribute(string key)" returns="Parent node on success." desc="Removes attribute with given name." />
 <method proto="appendxmltext(string text)" returns="1" desc="Adds node text." />
 </class>
 

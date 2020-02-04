@@ -2,16 +2,28 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-15-2020</datemodified>
+		<datemodified>02-04-2020</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>12-31-2999</date>
+			<date>02-05-2020</date>
 			<author>Kevin:</author>
 			<change type="Added">New SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT will keep attached scripts (eg. skill scripts, item use scripts) alive if the<br/>
 character's client disconnects. Note that by default all references to the character will become invalidated; for example,<br/>
 GetObjProperty(chr, &quot;prop&quot;) will return an error. Enable SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES to bypass this.</change>
 			<change type="Fixed">Scripts that have Set_Script_Option(SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES) can correctly access offline mobiles.</change>
+		</entry>
+		<entry>
+			<date>01-20-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Huge Performance loss in Lower/Upper String functions.</change>
+		</entry>
+		<entry>
+			<date>01-18-2020</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Return type of XMLFile method .appendxmlnode() now returns the created node on success.</change>
+			<change type="Changed">Return type of XMLNode method .appendxmlnode() now returns the created node on success.</change>
+			<change type="Changed">Return type of XMLNode methods .setxmlattribute() and .removexmlattribute() now returns parent node on success.</change>
 		</entry>
 		<entry>
 			<date>01-12-2020</date>
