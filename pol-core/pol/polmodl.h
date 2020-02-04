@@ -1,10 +1,3 @@
-/** @file
- *
- * @par History
- * - 2006/10/28 Shinigami: GCC 4.1.1 fix - invalid use of constructor as a template
- */
-
-
 #ifndef POL_POLMODL_H
 #define POL_POLMODL_H
 

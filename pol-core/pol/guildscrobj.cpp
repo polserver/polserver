@@ -1,17 +1,3 @@
-/** @file
- *
- * @par History
- * - 2005/10/02 Shinigami: added Prop Script.attached_to and Script.controller
- * - 2005/11/25 Shinigami: MTH_GET_MEMBER/"get_member" - GCC fix
- * - 2005/11/26 Shinigami: changed "strcmp" into "stricmp" to suppress Script Errors
- * - 2006/01/18 Shinigami: added attached_npc_ - to get attached NPC from AI-Script-Process Obj
- * - 2006/09/17 Shinigami: Script.sendevent() will return error "Event queue is full, discarding
- * event"
- * - 2006/09/23 Shinigami: Script_Cycles, Sleep_Cycles and Script_passes uses 64bit now
- * - 2009/12/21 Turley:    ._method() call fix
- */
-
-
 #include "guildscrobj.h"
 
 #include "guilds.h"

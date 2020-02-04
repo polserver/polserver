@@ -73,7 +73,7 @@ template <class T>
 Bscript::BObjectImp* PolApplicObj<T>::call_polmethod( const char* methodname,
                                                       Core::UOExecutor& uoex )
 {
-  return Bscript::BObjectImp::call_method( methodname, uoex );  // this->call( methodname, uoex );
+  return Bscript::BObjectImp::call_method( methodname, uoex );
 }
 
 template <class T>

@@ -1,11 +1,4 @@
-/** @file
- *
- * @par History
- */
-
-
 #include "polmodl.h"
-
 
 #include <ctype.h>
 #include <exception>

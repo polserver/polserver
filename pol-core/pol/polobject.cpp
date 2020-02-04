@@ -23,7 +23,7 @@ BObjectImp* PolObjectImp::call_method_id( const int id, Executor& ex,
 BObjectImp* PolObjectImp::call_polmethod( const char* methodname,
                                                       Core::UOExecutor& uoex )
 {
-  return BObjectImp::call_method( methodname, uoex );  // this->call( methodname, uoex );
+  return BObjectImp::call_method( methodname, uoex );
 }
 
 BObjectImp* PolObjectImp::call_polmethod_id( const int id, Core::UOExecutor& uoex,
