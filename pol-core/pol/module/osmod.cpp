@@ -1171,7 +1171,16 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
 
   if ( isAsync )
   {
-    return new Core::ProcessObjImp( &uoexec(), ios, exe_name->value(), argsVec );
+    try
+    {
+      auto* proc = new Core::ProcessObjImp( &uoexec(), ios, exe_name->value(), argsVec );
+      workQueued();
+      return proc;
+    }
+    catch ( std::exception& ex )
+    {
+      return new BError( ex.what() );
+    }
   }
   else
   {
