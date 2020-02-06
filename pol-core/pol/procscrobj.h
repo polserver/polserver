@@ -41,8 +41,10 @@ public:
   ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
                         std::vector<std::string> args );
   weak_ptr<UOExecutor> script;
-  boost::asio::streambuf streamOut;
-  boost::asio::streambuf streamErr;
+  boost::process::async_pipe out;
+  boost::process::async_pipe err;
+  boost::asio::streambuf outBuf;
+  boost::asio::streambuf errBuf;
   boost::process::child process;
 };
 class ProcessObjImp final : public PolApplicObj<std::shared_ptr<ScriptProcessDetails>>
