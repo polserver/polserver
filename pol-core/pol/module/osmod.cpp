@@ -32,6 +32,7 @@
 #include "../polcfg.h"
 #include "../poldbg.h"
 #include "../polsem.h"
+#include "../procscrobj.h"
 #include "../profile.h"
 #include "../schedule.h"
 #include "../scrdef.h"
@@ -1141,21 +1142,24 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
 {
   const String* exe_name;
   Bscript::ObjArray* args;
-  Bscript::BObjectImp* reserved;
+  Bscript::BObjectImp* options;
   std::vector<std::string> argsVec;
 
   Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &exec );
 
-  if ( childProcess_ )
-  {
-    return new BError( "Child process exists" );
-  }
-
   if ( !getStringParam( 0, exe_name ) ||
        !( args = static_cast<Bscript::ObjArray*>(
               exec.getParamImp( 1, Bscript::BObjectImp::OTArray ) ) ) ||
-       !getParamImp( 2, reserved ) )
+       !getParamImp( 2, options ) )
     return new BError( "Invalid parameter type" );
+
+  bool isAsync = false;
+  if ( options->isa( Bscript::BObjectImp::OTStruct ) )
+  {
+    Bscript::BStruct* opts = static_cast<Bscript::BStruct*>( options );
+    const BObjectImp* data = opts->FindMember( "async" );
+    isAsync = data != nullptr && data->isTrue();
+  }
 
   for ( const auto& c : args->ref_arr )
   {
@@ -1165,52 +1169,65 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
     argsVec.push_back( imp->getStringRep() );
   }
 
-  auto procStdout = std::make_shared<std::future<std::string>>(),
-       procStderr = std::make_shared<std::future<std::string>>();
-
-  if ( !this_uoexec->suspend() )
+  if ( isAsync )
   {
-    DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
-             << ": \n"
-             << "\tThe execution of this script can't be blocked!\n";
-    return new Bscript::BError( "Script can't be blocked" );
+    return new Core::ProcessObjImp( &uoexec(), ios, exe_name->value(), argsVec );
   }
-
-  weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
-  try
+  else
   {
-    childProcess_ = Clib::make_unique<bp::child>(
-        bp::exe = exe_name->value(), bp::args = argsVec, ios, bp::std_out > *procStdout,
-        bp::std_err > *procStderr, bp::std_in.close(),
-        bp::on_exit = [uoexec_w, procStdout, procStderr]( int exit, const std::error_code& ec_in ) {
-          INFO_PRINT << "Process exited!\n";
-          auto os_module = static_cast<OSExecutorModule*>( uoexec_w->findModule( "OS" ) );
-          os_module->childProcess_.reset();
-          Core::PolLock lck;
-          INFO_PRINT << "Got lock!\n";
-          if ( !uoexec_w.exists() )
-          {
-            DEBUGLOG << "ExecuteProcess script has been destroyed\n";
-            return;
-          }
+    if ( childProcess_ )
+    {
+      return new BError( "Child process exists" );
+    }
 
-          std::unique_ptr<BStruct> elem( new BStruct );
-          elem->addMember( "stdout", new String( procStdout->get() ) );
-          elem->addMember( "stderr", new String( procStderr->get() ) );
-          elem->addMember( "code", new BLong( exit ) );
+    auto procStdout = std::make_shared<std::future<std::string>>(),
+         procStderr = std::make_shared<std::future<std::string>>();
 
-          uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( elem.release() ) );
-          INFO_PRINT << "Reviving!\n";
-          uoexec_w.get_weakptr()->revive();
-        } );
+    if ( !this_uoexec->suspend() )
+    {
+      DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+               << ": \n"
+               << "\tThe execution of this script can't be blocked!\n";
+      return new Bscript::BError( "Script can't be blocked" );
+    }
+
+    weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+    try
+    {
+      childProcess_ = Clib::make_unique<bp::child>(
+          bp::exe = exe_name->value(), bp::args = argsVec, ios, bp::std_out > *procStdout,
+          bp::std_err > *procStderr, bp::std_in.close(),
+          bp::on_exit = [uoexec_w, procStdout, procStderr]( int exit,
+                                                            const std::error_code& ec_in ) {
+            INFO_PRINT << "Process exited!\n";
+            auto os_module = static_cast<OSExecutorModule*>( uoexec_w->findModule( "OS" ) );
+            os_module->childProcess_.reset();
+            Core::PolLock lck;
+            INFO_PRINT << "Got lock!\n";
+            if ( !uoexec_w.exists() )
+            {
+              DEBUGLOG << "ExecuteProcess script has been destroyed\n";
+              return;
+            }
+
+            std::unique_ptr<BStruct> elem( new BStruct );
+            elem->addMember( "stdout", new String( procStdout->get() ) );
+            elem->addMember( "stderr", new String( procStderr->get() ) );
+            elem->addMember( "code", new BLong( exit ) );
+
+            uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( elem.release() ) );
+            INFO_PRINT << "Reviving!\n";
+            uoexec_w.get_weakptr()->revive();
+          } );
+    }
+    catch ( std::exception& ex )
+    {
+      return new BError( ex.what() );
+    }
+    workQueued();
+
+    return new BLong( 0 );  // dummy
   }
-  catch ( std::exception& ex )
-  {
-    return new BError( ex.what() );
-  }
-  workQueued();
-
-  return new BLong( 0 );  // dummy
 }
 
 BObjectImp* OSExecutorModule::mf_ConsoleInput()

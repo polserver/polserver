@@ -5,8 +5,8 @@
  */
 
 
-#ifndef EXSCROBJ_H
-#define EXSCROBJ_H
+#ifndef PROCSCROBJ_H
+#define PROCSCROBJ_H
 
 
 #ifndef BSCRIPT_BOBJECT_H
@@ -16,7 +16,9 @@
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 #include "polobject.h"
+#include <boost/asio/streambuf.hpp>
 #include <boost/process.hpp>
+
 
 namespace Pol
 {
@@ -33,18 +35,24 @@ namespace Core
 class UOExecutor;
 
 extern Bscript::BApplicObjType processobjimp_type;
-struct ScriptProcessDetails
+class ScriptProcessDetails
 {
+public:
+  ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
+                        std::vector<std::string> args );
   weak_ptr<UOExecutor> script;
-  std::shared_ptr<boost::process::child> process;
+  boost::asio::streambuf streamOut;
+  boost::asio::streambuf streamErr;
+  boost::process::child process;
 };
-class ProcessObjImp final : public PolApplicObj<ScriptProcessDetails>
+class ProcessObjImp final : public PolApplicObj<std::shared_ptr<ScriptProcessDetails>>
 {
-  typedef PolApplicObj<ScriptProcessDetails> base;
+  typedef PolApplicObj<std::shared_ptr<ScriptProcessDetails>> base;
 
 public:
-  explicit ProcessObjImp( UOExecutor* uoexec, boost::process::child&& process );
-  explicit ProcessObjImp( UOExecutor* uoexec, std::shared_ptr<boost::process::child> process );
+  explicit ProcessObjImp( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
+                          std::vector<std::string> args );
+  explicit ProcessObjImp( std::shared_ptr<ScriptProcessDetails> other );
 
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
@@ -56,10 +64,10 @@ public:
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;
 
-  boost::process::child& process() { return *value().process; };
+  boost::process::child& process() const { return value()->process; };
   UOExecutor* script() const
   {
-    return value().script.exists() ? value().script.get_weakptr() : nullptr;
+    return value()->script.exists() ? value()->script.get_weakptr() : nullptr;
   }
 };
 }  // namespace Core
