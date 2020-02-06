@@ -52,6 +52,8 @@ set (plib_sources  # sorted !
   uofile06.cpp
   uofile07.cpp
   uofile08.cpp
+  uoinstallfinder.cpp
+  uoinstallfinder.h
   uopreader/uop.cpp
   uopreader/uop.h
   uopreader/uopfile.ksy

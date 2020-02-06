@@ -26,6 +26,7 @@
 #include "../plib/udatfile.h"
 #include "../plib/uofile.h"
 #include "../plib/uofilei.h"
+#include "../plib/uoinstallfinder.h"
 #include "../plib/uopreader/uop.h"
 #include "../plib/uopreader/uophash.h"
 #include "../plib/ustruct.h"
@@ -1235,7 +1236,7 @@ void UoConvertMain::setup_uoconvert()
     cf.readraw( elem );
 
     if ( uodata_root.empty() )
-      uodata_root = elem.remove_string( "UoDataFileRoot" );
+      uodata_root = Plib::UOInstallFinder::remove_elem( elem );
 
     if ( !max_tile )
       max_tile = elem.remove_ushort( "MaxTileID", 0x0 );

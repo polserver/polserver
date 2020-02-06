@@ -2,9 +2,28 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-04-2020</datemodified>
+		<datemodified>01-20-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>01-20-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Huge Performance loss in Lower/Upper String functions.</change>
+		</entry>
+		<entry>
+			<date>01-18-2020</date>
+			<author>DevGIB:</author>
+			<change type="Changed">Return type of XMLFile method .appendxmlnode() now returns the created node on success.</change>
+			<change type="Changed">Return type of XMLNode method .appendxmlnode() now returns the created node on success.</change>
+			<change type="Changed">Return type of XMLNode methods .setxmlattribute() and .removexmlattribute() now returns parent node on success.</change>
+		</entry>
+		<entry>
+			<date>01-12-2020</date>
+			<author>Kevin:</author>
+			<change type="Changed">On Windows, the pol.cfg setting UoDataFileRoot will now default to the directory of the Ultima Online installation found in<br/>
+the Windows Registry. This setting MUST be set for servers that do not have Ultima Online installed through the operating<br/>
+system, and MAY be set to use custom a client data files directory.</change>
+		</entry>
 		<entry>
 			<date>01-04-2020</date>
 			<author>Turley:</author>
