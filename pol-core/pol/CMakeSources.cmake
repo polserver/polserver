@@ -311,6 +311,8 @@ set (pol_sources  # sorted !
   polvar.h
   polwww.cpp
   polwww.h
+  procscrobj.cpp
+  procscrobj.h
   profile.h
   property.h
   proplist.cpp

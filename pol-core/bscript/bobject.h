@@ -113,6 +113,7 @@ public:
     OTSQLRow = 37,
     OTBoolean = 38,
     OTFuncRef = 39,
+    OTProcessRef = 40,
   };
 
 #if INLINE_BOBJECTIMP_CTOR
