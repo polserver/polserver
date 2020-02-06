@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 #include "../../clib/network/wnsckt.h"
 
 namespace Pol
@@ -29,7 +29,7 @@ class UOExecutor;
 }
 namespace Module
 {
-class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule>
+class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule, Core::PolModule>
 {
 public:
   HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );
@@ -49,7 +49,6 @@ public:
   typedef std::map<std::string, std::string, Clib::ci_cmp_pred> QueryParamMap;
   QueryParamMap params_;
   int continuing_offset;
-  Core::UOExecutor& uoexec;
   std::string query_ip_;
 };
 }  // namespace Module

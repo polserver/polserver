@@ -16,7 +16,6 @@
 #include "../multi/boat.h"
 #include "../multi/multi.h"
 #include "../realms/realm.h"
-#include "../uoexhelp.h"
 
 #include <module_defs/boat.h>
 
@@ -25,7 +24,7 @@ namespace Pol
 namespace Module
 {
 UBoatExecutorModule::UBoatExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UBoatExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<UBoatExecutorModule, Core::PolModule>( exec )
 {
 }
 
@@ -33,7 +32,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 {
   Multi::UBoat* boat = nullptr;
   int direction, speed;
-  if ( getUBoatParam( exec, 0, boat ) && getParam( 1, direction, 0, 7 ) &&
+  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) &&
        getParam( 2, speed, 1, 4 ) )
   {
     Plib::UFACING move_dir = static_cast<Plib::UFACING>( direction & 7 );
@@ -47,7 +46,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
 {
   Multi::UBoat* boat = nullptr;
   unsigned short x, y;
-  if ( getUBoatParam( exec, 0, boat ) &&
+  if ( getUBoatParam( 0, boat ) &&
        getParam( 1, x, 0, static_cast<u16>( boat->realm->width() ) ) &&
        getParam( 2, y, 0, static_cast<u16>( boat->realm->height() ) ) )
   {
@@ -63,7 +62,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_TurnBoat()
 {
   Multi::UBoat* boat = nullptr;
   int relative_dir;
-  if ( getUBoatParam( exec, 0, boat ) && getParam( 1, relative_dir ) )
+  if ( getUBoatParam( 0, boat ) && getParam( 1, relative_dir ) )
   {
     relative_dir &= 3;
     return new Bscript::BLong(
@@ -79,7 +78,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative()
 {
   Multi::UBoat* boat = nullptr;
   int direction, speed;
-  if ( getUBoatParam( exec, 0, boat ) && getParam( 1, direction, 0, 7 ) &&
+  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) &&
        getParam( 2, speed, 1, 4 ) )
   {
     Plib::UFACING move_dir = static_cast<Plib::UFACING>( direction & 7 );
@@ -93,7 +92,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_RegisterItemWithBoat()
 {
   Multi::UBoat* boat = nullptr;
   Core::UObject* obj = nullptr;
-  if ( getUBoatParam( exec, 0, boat ) && getUObjectParam( exec, 1, obj ) )
+  if ( getUBoatParam( 0, boat ) && getUObjectParam( 1, obj ) )
   {
     boat->register_object( obj );
     return new Bscript::BLong( 1 );
@@ -104,7 +103,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_RegisterItemWithBoat()
 Bscript::BObjectImp* UBoatExecutorModule::mf_SystemFindBoatBySerial()
 {
   Multi::UBoat* boat = nullptr;
-  if ( getUBoatParam( exec, 0, boat ) )
+  if ( getUBoatParam( 0, boat ) )
   {
     return boat->make_ref();
   }
@@ -117,7 +116,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_SystemFindBoatBySerial()
 Bscript::BObjectImp* UBoatExecutorModule::mf_BoatFromItem()
 {
   Items::Item* item = nullptr;
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     if ( item->ismulti() )
     {

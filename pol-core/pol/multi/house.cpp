@@ -48,7 +48,6 @@
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uoexec.h"
-#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "customhouses.h"
@@ -296,7 +295,7 @@ Bscript::BObjectImp* UHouse::get_script_member( const char* membername ) const
     return nullptr;
 }
 
-Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& ex )
+Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& ex )
 {
   using namespace Bscript;
   BObjectImp* imp = base::script_method_id( id, ex );
@@ -434,7 +433,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
       return new BError( "Not enough parameters" );
     int accept;
     Mobile::Character* chr;
-    if ( ex.getParam( 1, accept ) && getCharacterParam( ex, 0, chr ) )
+    if ( ex.getParam( 1, accept ) && ex.getCharacterParam( 0, chr ) )
     {
       AcceptHouseCommit( chr, accept ? true : false );
       return new BLong( 1 );
@@ -451,7 +450,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
       return new BError( "Not enough parameters" );
     Mobile::Character* chr;
     int drop_changes;
-    if ( getCharacterParam( ex, 0, chr ) && ex.getParam( 1, drop_changes ) )
+    if ( ex.getCharacterParam( 0, chr ) && ex.getParam( 1, drop_changes ) )
     {
       if ( chr->client->gd->custom_house_serial == serial )
         CustomHousesQuit( chr, drop_changes ? true : false );
@@ -468,7 +467,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Bscript::Executor& 
   return new BError( "Invalid parameter type" );
 }
 
-Bscript::BObjectImp* UHouse::script_method( const char* methodname, Bscript::Executor& ex )
+Bscript::BObjectImp* UHouse::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
   if ( objmethod != nullptr )

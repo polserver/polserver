@@ -26,7 +26,7 @@ namespace Module
 using namespace Bscript;
 
 UtilExecutorModule::UtilExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<UtilExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<UtilExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

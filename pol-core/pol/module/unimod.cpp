@@ -83,7 +83,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
     retval->addMember( "text",
                        new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) );
     uniemod->exec.ValueStack.back().set( new Bscript::BObject( retval.release() ) );
-    uniemod->uoexec.revive();
+    uniemod->uoexec().revive();
   }
   else if ( uoemod != nullptr && uoemod->prompt_chr != nullptr )
   {
@@ -91,7 +91,7 @@ void handle_unicode_prompt( Client* client, Core::PKTBI_C2* msg )
     uoemod->exec.ValueStack.back().set( new Bscript::BObject(
         new Bscript::String( Bscript::String::fromUTF16( msg->wtext, textlen ) ) ) );
 
-    uoemod->uoexec.revive();
+    uoemod->uoexec().revive();
   }
   if ( uniemod != nullptr )
     uniemod->prompt_chr = nullptr;
@@ -107,7 +107,7 @@ namespace Module
 using namespace Bscript;
 
 UnicodeExecutorModule::UnicodeExecutorModule( Core::UOExecutor& exec )
-    : TmplExecutorModule<UnicodeExecutorModule>( exec ), uoexec( exec ), prompt_chr( nullptr )
+    : TmplExecutorModule<UnicodeExecutorModule, Core::PolModule>( exec ), prompt_chr( nullptr )
 {
 }
 
@@ -222,7 +222,7 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
     if ( lang->length() != 3 )
       return new BError( "langcode must be a 3-character code." );
 
-    if ( !uoexec.suspend() )
+    if ( !uoexec().suspend() )
     {
       DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
                << "\tCall to function Unicode::RequestInputUC():\n"

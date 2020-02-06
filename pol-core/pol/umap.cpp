@@ -31,6 +31,7 @@
 #include "syshookscript.h"
 #include "ufunc.h"
 #include "uobject.h"
+#include "uoexec.h"
 
 namespace Pol
 {
@@ -175,7 +176,7 @@ void Map::builtin_on_use( Network::Client* client )
   }
 }
 
-Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex )
+Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
 {
   using namespace Bscript;
   BObjectImp* imp = base::script_method_id( id, ex );
@@ -273,7 +274,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, Bscript::Executor& ex 
 }
 
 
-Bscript::BObjectImp* Map::script_method( const char* methodname, Bscript::Executor& ex )
+Bscript::BObjectImp* Map::script_method( const char* methodname, UOExecutor& ex )
 {
   Bscript::BObjectImp* imp = base::script_method( methodname, ex );
   if ( imp != nullptr )

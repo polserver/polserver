@@ -41,7 +41,7 @@ using namespace Bscript;
 BApplicObjType scriptexobjimp_type;
 
 ScriptExObjImp::ScriptExObjImp( UOExecutor* uoexec )
-    : BApplicObj<ScriptExPtr>( &scriptexobjimp_type, uoexec->weakptr )
+    : PolApplicObj<ScriptExPtr>( &scriptexobjimp_type, uoexec->weakptr )
 {
 }
 
@@ -63,7 +63,7 @@ BObjectImp* ScriptExObjImp::copy() const
 }
 
 
-BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*forcebuiltin*/ )
+BObjectImp* ScriptExObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool /*forcebuiltin*/ )
 {
   if ( !value().exists() )
     return new BError( "Script has been destroyed" );
@@ -135,11 +135,11 @@ BObjectImp* ScriptExObjImp::call_method_id( const int id, Executor& ex, bool /*f
   }
 }
 
-BObjectImp* ScriptExObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* ScriptExObjImp::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex );
+    return this->call_polmethod_id( objmethod->id, ex );
   else
     return new BError( "undefined" );
 }

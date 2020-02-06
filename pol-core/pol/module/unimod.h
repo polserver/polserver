@@ -7,14 +7,13 @@
 #ifndef H_UNIEMOD_H
 #define H_UNIEMOD_H
 
-#ifndef BSCRIPT_EXECMODL_H
-#include "../../bscript/execmodl.h"
+#ifndef POL_POLMODL_H
+#include "../polmodl.h"
 #endif
 
 #include "../../clib/rawtypes.h"
 #include "../network/pktdef.h"
 #include "../uoexec.h"
-#include "../uoexhelp.h"
 
 namespace Pol
 {
@@ -46,15 +45,14 @@ namespace Pol
 {
 namespace Module
 {
-class UnicodeExecutorModule : public Bscript::TmplExecutorModule<UnicodeExecutorModule>
+class UnicodeExecutorModule
+    : public Bscript::TmplExecutorModule<UnicodeExecutorModule, Core::PolModule>
 {
 public:
   explicit UnicodeExecutorModule( Core::UOExecutor& exec );
   ~UnicodeExecutorModule();
 
-  Core::UOExecutor& uoexec;
-
-  Bscript::BObjectImp* mf_PrintTextAboveUC();    // OverObject, Text, Font, Color
+  Bscript::BObjectImp* mf_PrintTextAboveUC();         // OverObject, Text, Font, Color
   Bscript::BObjectImp* mf_PrintTextAbovePrivateUC();  // OverObject, Text, ToChar, Font, Color
 
   Bscript::BObjectImp* mf_BroadcastUC();       // Text
@@ -66,27 +64,7 @@ public:
   Mobile::Character* prompt_chr;
 
   virtual size_t sizeEstimate() const override;
-
-protected:
-  bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
-  bool getItemParam( unsigned param, Items::Item*& itemptr );
-  bool getUObjectParam( unsigned param, Core::UObject*& objptr );
 };
-
-inline bool UnicodeExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
-{
-  return Core::getCharacterParam( exec, param, chrptr );
-}
-
-inline bool UnicodeExecutorModule::getItemParam( unsigned param, Items::Item*& itemptr )
-{
-  return Core::getItemParam( exec, param, itemptr );
-}
-
-inline bool UnicodeExecutorModule::getUObjectParam( unsigned param, Core::UObject*& objptr )
-{
-  return Core::getUObjectParam( exec, param, objptr );
-}
 }  // namespace Module
 }  // namespace Pol
 #endif

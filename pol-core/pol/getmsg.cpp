@@ -23,7 +23,6 @@
 #include "network/pktboth.h"
 #include "ufunc.h"
 #include "uoexec.h"
-#include "uoexhelp.h"
 
 namespace Pol
 {
@@ -44,6 +43,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
   Module::UOExecutorModule* uoemod = client->gd->prompt_uoemod;
   if ( uoemod == nullptr )
     return;
+  auto& uoex = uoemod->uoexec();
   int textlen = cfBEu16( msg->msglen ) - offsetof( PKTBI_9A, text );
   if ( msg->type )
   {
@@ -62,11 +62,11 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
       if ( ok )
       {
         Bscript::String* str = new Bscript::String( msg->text, textlen );
-        uoemod->uoexec.ValueStack.back().set( new Bscript::BObject( str ) );
+        uoex.ValueStack.back().set( new Bscript::BObject( str ) );
       }
     }
   }
-  uoemod->uoexec.revive();
+  uoex.revive();
   uoemod->prompt_chr = nullptr;
   client->gd->prompt_uoemod = nullptr;
 }
@@ -78,8 +78,8 @@ Bscript::BObjectImp* UOExecutorModule::mf_RequestInput()
   Mobile::Character* chr;
   Items::Item* item;
   const Bscript::String* prompt;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) ||
-       !exec.getStringParam( 2, prompt ) )
+  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) ||
+       !getStringParam( 2, prompt ) )
   {
     return new Bscript::BError( "Invalid parameter" );
   }
@@ -94,7 +94,7 @@ Bscript::BObjectImp* UOExecutorModule::mf_RequestInput()
     return new Bscript::BError( "Another script has an active prompt" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::RequestInput():\n"

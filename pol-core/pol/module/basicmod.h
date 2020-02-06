@@ -24,7 +24,8 @@ namespace Pol
 {
 namespace Module
 {
-class BasicExecutorModule : public Bscript::TmplExecutorModule<BasicExecutorModule>
+class BasicExecutorModule
+    : public Bscript::TmplExecutorModule<BasicExecutorModule, Bscript::ExecutorModule>
 {
 public:
   /* These probably belong in a string module */

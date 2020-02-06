@@ -22,13 +22,14 @@ namespace Pol
 {
 namespace Module
 {
-class BasicIoExecutorModule : public Bscript::TmplExecutorModule<BasicIoExecutorModule>
+class BasicIoExecutorModule
+    : public Bscript::TmplExecutorModule<BasicIoExecutorModule, Bscript::ExecutorModule>
 {
 public:
   Bscript::BObjectImp* mf_Print();
 
   BasicIoExecutorModule( Bscript::Executor& exec );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

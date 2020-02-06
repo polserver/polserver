@@ -117,7 +117,7 @@ Bscript::BObjectRef EConfigElemRefObjImp::get_member( const char* membername )
 }
 
 ConfigFileExecutorModule::ConfigFileExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<ConfigFileExecutorModule>( exec )
+    : TmplExecutorModule<ConfigFileExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

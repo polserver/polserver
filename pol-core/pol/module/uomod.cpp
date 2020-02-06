@@ -132,6 +132,7 @@
 #include "../polcfg.h"
 #include "../polclass.h"
 #include "../polclock.h"
+#include "../polobject.h"
 #include "../polsig.h"
 #include "../profile.h"
 #include "../realms.h"
@@ -148,7 +149,6 @@
 #include "../umanip.h"
 #include "../uobject.h"
 #include "../uoexec.h"
-#include "../uoexhelp.h"
 #include "../uopathnode.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
@@ -182,10 +182,10 @@ using namespace Core;
 
 #define CONST_DEFAULT_ZRANGE 19
 
-class EMenuObjImp final : public BApplicObj<Menu>
+class EMenuObjImp final : public PolApplicObj<Menu>
 {
 public:
-  EMenuObjImp( const Menu& m ) : BApplicObj<Menu>( &menu_type, m ) {}
+  EMenuObjImp( const Menu& m ) : PolApplicObj<Menu>( &menu_type, m ) {}
   virtual const char* typeOf() const override { return "MenuRef"; }
   virtual u8 typeOfInt() const override { return OTMenuRef; }
   virtual BObjectImp* copy() const override { return new EMenuObjImp( value() ); }
@@ -193,8 +193,7 @@ public:
 
 
 UOExecutorModule::UOExecutorModule( UOExecutor& exec )
-    : TmplExecutorModule<UOExecutorModule>( exec ),
-      uoexec( exec ),
+    : TmplExecutorModule<UOExecutorModule, Core::PolModule>( exec ),
       target_cursor_chr( nullptr ),
       menu_selection_chr( nullptr ),
       popup_menu_selection_chr( nullptr ),
@@ -216,6 +215,7 @@ UOExecutorModule::UOExecutorModule( UOExecutor& exec )
 
 UOExecutorModule::~UOExecutorModule()
 {
+  auto& uoex = uoexec();
   while ( !reserved_items_.empty() )
   {
     Item* item = reserved_items_.back().get();
@@ -276,7 +276,7 @@ UOExecutorModule::~UOExecutorModule()
   }
   if ( attached_chr_ != nullptr )
   {
-    passert( attached_chr_->script_ex == &uoexec );
+    passert( attached_chr_->script_ex == &uoex );
     attached_chr_->script_ex = nullptr;
     attached_chr_ = nullptr;
   }
@@ -287,21 +287,21 @@ UOExecutorModule::~UOExecutorModule()
   }
   if ( registered_for_speech_events )
   {
-    deregister_from_speech_events( &uoexec );
+    deregister_from_speech_events( &uoex );
   }
 }
 
 BObjectImp* UOExecutorModule::mf_Attach( /* Character */ )
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     if ( attached_chr_ == nullptr )
     {
       if ( chr->script_ex == nullptr )
       {
         attached_chr_ = chr;
-        attached_chr_->script_ex = &uoexec;
+        attached_chr_->script_ex = &uoexec();
 
         return new BLong( 1 );
       }
@@ -319,7 +319,7 @@ BObjectImp* UOExecutorModule::mf_Detach()
 {
   if ( attached_chr_ != nullptr )
   {
-    passert( attached_chr_->script_ex == &uoexec );
+    passert( attached_chr_->script_ex == &uoexec() );
     attached_chr_->script_ex = nullptr;
     attached_chr_ = nullptr;
     return new BLong( 1 );
@@ -495,7 +495,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   const ItemDesc* descriptor;
   int amount;
 
-  if ( getItemParam( exec, 0, item ) && getObjtypeParam( exec, 1, descriptor ) &&
+  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) &&
        getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
@@ -520,7 +520,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   const ItemDesc* descriptor;
   int amount;
 
-  if ( getItemParam( exec, 0, item ) && getObjtypeParam( exec, 1, descriptor ) &&
+  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) &&
        getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
@@ -576,7 +576,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
 {
   Character* chr;
   Item* item;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) )
+  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -608,7 +608,7 @@ BObjectImp* UOExecutorModule::mf_SecureTradeWin()
 {
   Character* chr;
   Character* chr2;
-  if ( !getCharacterParam( exec, 0, chr ) || !getCharacterParam( exec, 1, chr2 ) )
+  if ( !getCharacterParam( 0, chr ) || !getCharacterParam( 1, chr2 ) )
   {
     return new BError( "Invalid parameter type." );
   }
@@ -633,7 +633,7 @@ BObjectImp* UOExecutorModule::mf_SecureTradeWin()
 BObjectImp* UOExecutorModule::mf_CloseTradeWindow()
 {
   Character* chr;
-  if ( !getCharacterParam( exec, 0, chr ) )
+  if ( !getCharacterParam( 0, chr ) )
   {
     return new BError( "Invalid parameter type." );
   }
@@ -648,7 +648,7 @@ BObjectImp* UOExecutorModule::mf_SendViewContainer()
 {
   Character* chr;
   Item* item;
-  if ( !getCharacterParam( exec, 0, chr ) || !getItemParam( exec, 1, item ) )
+  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -674,7 +674,7 @@ BObjectImp* UOExecutorModule::mf_FindObjtypeInContainer()
   Item* item;
   unsigned int objtype;
   int flags;
-  if ( !getItemParam( exec, 0, item ) || !getObjtypeParam( exec, 1, objtype ) )
+  if ( !getItemParam( 0, item ) || !getObjtypeParam( 1, objtype ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -701,7 +701,7 @@ BObjectImp* UOExecutorModule::mf_SendSysMessage()
   unsigned short font;
   unsigned short color;
 
-  if ( getCharacterParam( exec, 0, chr ) && ( ( ptext = getStringParam( 1 ) ) != nullptr ) &&
+  if ( getCharacterParam( 0, chr ) && ( ( ptext = getStringParam( 1 ) ) != nullptr ) &&
        getParam( 2, font ) && getParam( 3, color ) )
   {
     if ( chr->has_active_client() )
@@ -731,7 +731,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbove()
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, ptext ) && getParam( 2, font ) &&
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, ptext ) && getParam( 2, font ) &&
        getParam( 3, color ) && getParam( 4, journal_print ) )
   {
     if ( !ptext->hasUTF8Characters() )
@@ -754,8 +754,8 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, ptext ) &&
-       getCharacterParam( exec, 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, ptext ) &&
+       getCharacterParam( 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
        getParam( 5, journal_print ) )
   {
     if ( !ptext->hasUTF8Characters() )
@@ -779,6 +779,7 @@ void handle_script_cursor( Character* chr, UObject* obj )
 {
   if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
   {
+    auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( obj != nullptr )
     {
       if ( obj->ismobile() )
@@ -794,11 +795,10 @@ void handle_script_cursor( Character* chr, UObject* obj )
           chr->repsys_on_help( targetted_chr );
         }
       }
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set(
-          new BObject( obj->make_ref() ) );
+      uoex.ValueStack.back().set( new BObject( obj->make_ref() ) );
     }
     // even on cancel, we wake the script up.
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
+    uoex.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -808,7 +808,7 @@ void handle_script_cursor( Character* chr, UObject* obj )
 BObjectImp* UOExecutorModule::mf_Target()
 {
   Character* chr;
-  if ( !getCharacterParam( exec, 0, chr ) )
+  if ( !getCharacterParam( 0, chr ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -833,7 +833,7 @@ BObjectImp* UOExecutorModule::mf_Target()
   else
     crstype = PKTBI_6C::CURSOR_TYPE_NEUTRAL;
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::Target():\n"
@@ -864,7 +864,7 @@ BObjectImp* UOExecutorModule::mf_Target()
 BObjectImp* UOExecutorModule::mf_CancelTarget()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     if ( chr->has_active_client() )
     {
@@ -898,6 +898,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 {
   if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
   {
+    auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( msg != nullptr )
     {
       BStruct* arr = new BStruct;
@@ -930,10 +931,10 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 
-      chr->client->gd->target_cursor_uoemod->uoexec.ValueStack.back().set( new BObject( arr ) );
+      uoex.ValueStack.back().set( new BObject( arr ) );
     }
 
-    chr->client->gd->target_cursor_uoemod->uoexec.revive();
+    uoex.revive();
     chr->client->gd->target_cursor_uoemod->target_cursor_chr = nullptr;
     chr->client->gd->target_cursor_uoemod = nullptr;
   }
@@ -942,7 +943,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 BObjectImp* UOExecutorModule::mf_TargetCoordinates()
 {
   Character* chr;
-  if ( !getCharacterParam( exec, 0, chr ) )
+  if ( !getCharacterParam( 0, chr ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -955,7 +956,7 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     return new BError( "Client has an active target cursor" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetCoordinates():\n"
@@ -975,9 +976,8 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
   unsigned int objtype, hue;
   int flags;
   int xoffset, yoffset;
-  if ( !( getCharacterParam( exec, 0, chr ) && getObjtypeParam( exec, 1, objtype ) &&
-          getParam( 2, flags ) && getParam( 3, xoffset ) && getParam( 4, yoffset ) &&
-          getParam( 5, hue ) ) )
+  if ( !( getCharacterParam( 0, chr ) && getObjtypeParam( 1, objtype ) && getParam( 2, flags ) &&
+          getParam( 3, xoffset ) && getParam( 4, yoffset ) && getParam( 5, hue ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -999,7 +999,7 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     return new BError( "Object Type is out of range for Multis" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::TargetMultiPlacement():\n"
@@ -1021,11 +1021,11 @@ BObjectImp* UOExecutorModule::mf_GetObjType()
   Item* item;
   Character* chr;
 
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     return new BLong( item->objtype_ );
   }
-  else if ( getCharacterParam( exec, 0, chr ) )
+  else if ( getCharacterParam( 0, chr ) )
   {
     return new BLong( chr->objtype_ );
   }
@@ -1042,7 +1042,7 @@ BObjectImp* UOExecutorModule::mf_Accessible()
   Item* item;
   int range;
 
-  if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) )
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) )
   {
     // Range defaults to -1 if it's not defined in the .em file (old scripts)
     // or the user provides a weird object.
@@ -1061,7 +1061,7 @@ BObjectImp* UOExecutorModule::mf_GetAmount()
 {
   Item* item;
 
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     return new BLong( item->getamount() );
   }
@@ -1079,8 +1079,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
   const ItemDesc* descriptor;
   unsigned short amount;
 
-  if ( getCharacterParam( exec, 0, chr ) && getObjtypeParam( exec, 1, descriptor ) &&
-       getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
+  if ( getCharacterParam( 0, chr ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       item_create_params_ok( descriptor->objtype, amount ) )
   {
     UContainer* backpack = chr->backpack();
     if ( backpack != nullptr )
@@ -1137,7 +1137,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemAtLocation( /* x,y,z,objtype,amount,r
   unsigned short amount;
   const String* strrealm;
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
-       getObjtypeParam( exec, 3, itemdesc ) && getParam( 4, amount, 1, 60000 ) &&
+       getObjtypeParam( 3, itemdesc ) && getParam( 4, amount, 1, 60000 ) &&
        getStringParam( 5, strrealm ) && item_create_params_ok( itemdesc->objtype, amount ) )
   {
     if ( !( Plib::tile_flags( itemdesc->graphic ) & Plib::FLAG::STACKABLE ) && ( amount != 1 ) )
@@ -1172,7 +1172,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation( /* x,y,z,item,realm *
   Item* origitem;
   const String* strrealm;
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
-       getItemParam( exec, 3, origitem ) && getStringParam( 4, strrealm ) )
+       getItemParam( 3, origitem ) && getStringParam( 4, strrealm ) )
   {
     if ( origitem->script_isa( POLCLASS_MULTI ) )
       return new BError( "This function does not work with Multi objects." );
@@ -1207,7 +1207,7 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,r
   int flags = 0;
   Realms::Realm* realm = find_realm( "britannia" );
   if ( !( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
-          getObjtypeParam( exec, 3, descriptor ) ) )
+          getObjtypeParam( 3, descriptor ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -1410,7 +1410,7 @@ BObjectImp* UOExecutorModule::mf_SubtractAmount()
   Item* item;
   unsigned short amount;
 
-  if ( getItemParam( exec, 0, item ) && getParam( 1, amount, 1, item->itemdesc().stack_limit ) )
+  if ( getItemParam( 0, item ) && getParam( 1, amount, 1, item->itemdesc().stack_limit ) )
   {
     if ( item->has_gotten_by() )
       item->gotten_by()->clear_gotten_item();
@@ -1430,7 +1430,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
   Item* item;
   unsigned short amount;
 
-  if ( getItemParam( exec, 0, item ) && getParam( 1, amount, 1, MAX_STACK_ITEMS ) )
+  if ( getItemParam( 0, item ) && getParam( 1, amount, 1, MAX_STACK_ITEMS ) )
   {
     if ( item->inuse() && !is_reserved_to_me( item ) )
     {
@@ -1453,7 +1453,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
     // DAVE added this 12/05: if in a Character's pack, update weight.
     UpdateCharacterWeight( item );
 
-    return new EItemRefObjImp(item);
+    return new EItemRefObjImp( item );
   }
   else
   {
@@ -1467,7 +1467,7 @@ BObjectImp* UOExecutorModule::mf_PerformAction()
   unsigned short actionval;
   unsigned short framecount, repeatcount;
   unsigned short backward, repeatflag, delay;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, actionval ) && getParam( 2, framecount ) &&
+  if ( getCharacterParam( 0, chr ) && getParam( 1, actionval ) && getParam( 2, framecount ) &&
        getParam( 3, repeatcount ) && getParam( 4, backward ) && getParam( 5, repeatflag ) &&
        getParam( 6, delay ) )
   {
@@ -1487,7 +1487,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffect()
 {
   UObject* chr;
   int effect;
-  if ( getUObjectParam( exec, 0, chr ) && getParam( 1, effect ) )
+  if ( getUObjectParam( 0, chr ) && getParam( 1, effect ) )
   {
     play_sound_effect( chr, static_cast<u16>( effect ) );
     return new BLong( 1 );
@@ -1503,8 +1503,7 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
   UObject* center;
   int effect;
   Character* forchr;
-  if ( getUObjectParam( exec, 0, center ) && getParam( 1, effect ) &&
-       getCharacterParam( exec, 2, forchr ) )
+  if ( getUObjectParam( 0, center ) && getParam( 1, effect ) && getCharacterParam( 2, forchr ) )
   {
     play_sound_effect_private( center, static_cast<u16>( effect ), forchr );
     return new BLong( 1 );
@@ -1543,7 +1542,7 @@ BObjectImp* UOExecutorModule::mf_PlayMusic( /* char, music_id */ )
 {
   Character* chr;
   int musicid;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, musicid ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, musicid ) )
   {
     send_midi( chr->client, static_cast<u16>( musicid ) );
     return new BLong( 1 );
@@ -1561,6 +1560,7 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
     Character* chr = client->chr;
     if ( chr != nullptr && chr->client->gd->menu_selection_uoemod != nullptr )
     {
+      auto& uoex = chr->client->gd->menu_selection_uoemod->uoexec();
       if ( mi != nullptr && msg != nullptr )
       {
         BStruct* selection = new BStruct;
@@ -1570,11 +1570,10 @@ void menu_selection_made( Network::Client* client, MenuItem* mi, PKTIN_7D* msg )
         selection->addMember( "index",
                               new BLong( cfBEu16( msg->choice ) ) );  // this has been validated
         selection->addMember( "color", new BLong( mi->color_ ) );
-        chr->client->gd->menu_selection_uoemod->uoexec.ValueStack.back().set(
-            new BObject( selection ) );
+        uoex.ValueStack.back().set( new BObject( selection ) );
       }
       // 0 is already on the value stack, for the case of cancellation.
-      chr->client->gd->menu_selection_uoemod->uoexec.revive();
+      uoex.revive();
       chr->client->gd->menu_selection_uoemod->menu_selection_chr = nullptr;
       chr->client->gd->menu_selection_uoemod = nullptr;
     }
@@ -1624,7 +1623,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
   Character* chr;
   Menu* menu;
 
-  if ( !getCharacterParam( exec, 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
+  if ( !getCharacterParam( 0, chr ) || !getStaticOrDynamicMenuParam( 1, menu ) ||
        ( chr->client->gd->menu_selection_uoemod != nullptr ) )
   {
     return new BError( "Invalid parameter" );
@@ -1640,7 +1639,7 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
     return new BError( "Menu too large" );
   }
 
-  if ( !uoexec.suspend() )
+  if ( !uoexec().suspend() )
   {
     DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
              << "\tCall to function UO::SelectMenuItem():\n"
@@ -1757,7 +1756,7 @@ BObjectImp* UOExecutorModule::mf_AddMenuItem()
   const String* text;
   unsigned short color;
 
-  if ( getDynamicMenuParam( 0, menu ) && getObjtypeParam( exec, 1, objtype ) &&
+  if ( getDynamicMenuParam( 0, menu ) && getObjtypeParam( 1, objtype ) &&
        getStringParam( 2, text ) && getParam( 3, color ) )
   {
     menu->menuitems_.push_back( MenuItem() );
@@ -1778,7 +1777,7 @@ BObjectImp* UOExecutorModule::mf_GetObjProperty()
 {
   UObject* uobj;
   const String* propname_str;
-  if ( getUObjectParam( exec, 0, uobj ) && getStringParam( 1, propname_str ) )
+  if ( getUObjectParam( 0, uobj ) && getStringParam( 1, propname_str ) )
   {
     std::string val;
     if ( uobj->getprop( propname_str->value(), val ) )
@@ -1800,7 +1799,7 @@ BObjectImp* UOExecutorModule::mf_SetObjProperty()
 {
   UObject* uobj;
   const String* propname_str;
-  if ( getUObjectParam( exec, 0, uobj ) && getStringParam( 1, propname_str ) )
+  if ( getUObjectParam( 0, uobj ) && getStringParam( 1, propname_str ) )
   {
     BObjectImp* propval = getParamImp( 2 );
     uobj->setprop( propname_str->value(), propval->pack() );
@@ -1816,7 +1815,7 @@ BObjectImp* UOExecutorModule::mf_EraseObjProperty()
 {
   UObject* uobj;
   const String* propname_str;
-  if ( getUObjectParam( exec, 0, uobj ) && getStringParam( 1, propname_str ) )
+  if ( getUObjectParam( 0, uobj ) && getStringParam( 1, propname_str ) )
   {
     uobj->eraseprop( propname_str->value() );
     return new BLong( 1 );
@@ -1829,7 +1828,7 @@ BObjectImp* UOExecutorModule::mf_EraseObjProperty()
 BObjectImp* UOExecutorModule::mf_GetObjPropertyNames()
 {
   UObject* uobj;
-  if ( getUObjectParam( exec, 0, uobj ) )
+  if ( getUObjectParam( 0, uobj ) )
   {
     std::vector<std::string> propnames;
     uobj->getpropnames( propnames );
@@ -1917,8 +1916,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
   int speed;
   int loop;
   int explode;
-  if ( getUObjectParam( exec, 0, src ) && getUObjectParam( exec, 1, dst ) &&
-       getParam( 2, effect ) && getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
+  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) && getParam( 2, effect ) &&
+       getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
        getParam( 5, explode, UCHAR_MAX ) )
   {
     if ( src->realm != dst->realm )
@@ -1975,8 +1974,8 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
   unsigned short effect;
   int speed;
   int loop;
-  if ( getUObjectParam( exec, 0, src ) && getParam( 1, effect ) &&
-       getParam( 2, speed, UCHAR_MAX ) && getParam( 3, loop, UCHAR_MAX ) )
+  if ( getUObjectParam( 0, src ) && getParam( 1, effect ) && getParam( 2, speed, UCHAR_MAX ) &&
+       getParam( 3, loop, UCHAR_MAX ) )
   {
     play_object_centered_effect( src, effect, static_cast<unsigned char>( speed ),
                                  static_cast<unsigned char>( loop ) );
@@ -2032,12 +2031,11 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
   unsigned short effect3dexplode;
   unsigned short effect3dsound;
 
-  if ( getUObjectParam( exec, 0, src ) && getUObjectParam( exec, 1, dst ) &&
-       getParam( 2, effect ) && getParam( 3, speed, UCHAR_MAX ) &&
-       getParam( 4, duration, UCHAR_MAX ) && getParam( 5, hue, INT_MAX ) &&
-       getParam( 6, render, INT_MAX ) && getParam( 7, direction, UCHAR_MAX ) &&
-       getParam( 8, explode, UCHAR_MAX ) && getParam( 9, effect3d ) &&
-       getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
+  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) && getParam( 2, effect ) &&
+       getParam( 3, speed, UCHAR_MAX ) && getParam( 4, duration, UCHAR_MAX ) &&
+       getParam( 5, hue, INT_MAX ) && getParam( 6, render, INT_MAX ) &&
+       getParam( 7, direction, UCHAR_MAX ) && getParam( 8, explode, UCHAR_MAX ) &&
+       getParam( 9, effect3d ) && getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
   {
     if ( src->realm != dst->realm )
       return new BError( "Realms must match" );
@@ -2110,10 +2108,10 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
   int layer;
   unsigned short effect3d;
 
-  if ( getUObjectParam( exec, 0, src ) && getParam( 1, effect ) &&
-       getParam( 2, speed, UCHAR_MAX ) && getParam( 3, duration, UCHAR_MAX ) &&
-       getParam( 4, hue, INT_MAX ) && getParam( 5, render, INT_MAX ) &&
-       getParam( 6, layer, UCHAR_MAX ) && getParam( 7, effect3d ) )
+  if ( getUObjectParam( 0, src ) && getParam( 1, effect ) && getParam( 2, speed, UCHAR_MAX ) &&
+       getParam( 3, duration, UCHAR_MAX ) && getParam( 4, hue, INT_MAX ) &&
+       getParam( 5, render, INT_MAX ) && getParam( 6, layer, UCHAR_MAX ) &&
+       getParam( 7, effect3d ) )
   {
     play_object_centered_effect_ex(
         src, effect, static_cast<unsigned char>( speed ), static_cast<unsigned char>( duration ),
@@ -2165,7 +2163,7 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
 BObjectImp* UOExecutorModule::mf_PlayLightningBoltEffect()
 {
   UObject* center;
-  if ( getUObjectParam( exec, 0, center ) )
+  if ( getUObjectParam( 0, center ) )
   {
     play_lightning_bolt_effect( center );
     return new BLong( 1 );
@@ -2592,7 +2590,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range,
   const String* strrealm;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getObjtypeParam( exec, 4, objtype ) && getStringParam( 5, strrealm ) )
+       getObjtypeParam( 4, objtype ) && getStringParam( 5, strrealm ) )
   {
     Realms::Realm* realm = find_realm( strrealm->value() );
     if ( !realm )
@@ -2813,7 +2811,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
 {
   UObject* obj;
   int range;
-  if ( getUObjectParam( exec, 0, obj ) && getParam( 1, range ) )
+  if ( getUObjectParam( 0, obj ) && getParam( 1, range ) )
   {
     obj = obj->toplevel_owner();
     std::unique_ptr<ObjArray> newarr( new ObjArray );
@@ -2881,7 +2879,7 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
   Character* chr;
   int range;
   int flags;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, range ) && getParam( 2, flags ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, range ) && getParam( 2, flags ) )
   {
     std::unique_ptr<ObjArray> arr( new ObjArray );
 
@@ -2913,7 +2911,7 @@ BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
 {
   UObject* src;
   UObject* dst;
-  if ( getUObjectParam( exec, 0, src ) && getUObjectParam( exec, 1, dst ) )
+  if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) )
   {
     return new BLong( src->realm->has_los( *src, *dst->toplevel_owner() ) );
   }
@@ -2928,7 +2926,7 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
   UObject* src;
   unsigned short x, y;
   short z;
-  if ( getUObjectParam( exec, 0, src ) && getParam( 1, x ) && getParam( 2, y ) && getParam( 3, z ) )
+  if ( getUObjectParam( 0, src ) && getParam( 1, x ) && getParam( 2, y ) && getParam( 3, z ) )
   {
     if ( !src->realm->valid( x, y, z ) )
       return new BError( "Invalid Coordinates for realm" );
@@ -2970,7 +2968,7 @@ BObjectImp* UOExecutorModule::mf_CheckLosBetween()
 BObjectImp* UOExecutorModule::mf_DestroyItem()
 {
   Item* item;
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     if ( item->has_gotten_by() )
       item->gotten_by()->clear_gotten_item();
@@ -3007,7 +3005,7 @@ BObjectImp* UOExecutorModule::mf_SetName()
   UObject* obj;
   const String* name_str;
 
-  if ( getUObjectParam( exec, 0, obj ) && getStringParam( 1, name_str ) )
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, name_str ) )
   {
     obj->setname( name_str->value() );
     return new BLong( 1 );
@@ -3021,7 +3019,7 @@ BObjectImp* UOExecutorModule::mf_SetName()
 BObjectImp* UOExecutorModule::mf_GetPosition()
 {
   UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     std::unique_ptr<BStruct> arr( new BStruct );
     arr->addMember( "x", new BLong( obj->x ) );
@@ -3038,7 +3036,7 @@ BObjectImp* UOExecutorModule::mf_GetPosition()
 BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 {
   Item* item;
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     int flags = 0;
     if ( exec.fparams.size() >= 2 )
@@ -3083,7 +3081,7 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
 {
   UObject* center;
   int range;
-  if ( getUObjectParam( exec, 0, center ) && getParam( 1, range ) )
+  if ( getUObjectParam( 0, center ) && getParam( 1, range ) )
   {
     int flags = 0;
     if ( exec.hasParams( 3 ) )
@@ -3093,7 +3091,7 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
     }
     if ( !registered_for_speech_events )
     {
-      register_for_speech_events( center, &uoexec, range, flags );
+      register_for_speech_events( center, &uoexec(), range, flags );
       registered_for_speech_events = true;
       return new BLong( 1 );
     }
@@ -3113,23 +3111,24 @@ BObjectImp* UOExecutorModule::mf_EnableEvents()
   int eventmask;
   if ( getParam( 0, eventmask ) )
   {
+    auto& uoex = uoexec();
     if ( eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA | EVID_SPOKE ) )
     {
       unsigned short range;
       if ( getParam( 1, range, 0, 32 ) )
       {
         if ( eventmask & ( EVID_SPOKE ) )
-          uoexec.speech_size = range;
+          uoex.speech_size = range;
         if ( eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
-          uoexec.area_size = range;
+          uoex.area_size = range;
       }
       else
       {
         return nullptr;
       }
     }
-    uoexec.eventmask |= eventmask;
-    return new BLong( uoexec.eventmask );
+    uoex.eventmask |= eventmask;
+    return new BLong( uoex.eventmask );
   }
   else
   {
@@ -3142,9 +3141,10 @@ BObjectImp* UOExecutorModule::mf_DisableEvents()
   int eventmask;
   if ( getParam( 0, eventmask ) )
   {
-    uoexec.eventmask &= ~eventmask;
+    auto& uoex = uoexec();
+    uoex.eventmask &= ~eventmask;
 
-    return new BLong( uoexec.eventmask );
+    return new BLong( uoex.eventmask );
   }
   else
   {
@@ -3155,7 +3155,7 @@ BObjectImp* UOExecutorModule::mf_DisableEvents()
 BObjectImp* UOExecutorModule::mf_Resurrect()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     if ( !chr->dead() )
       return new BError( "That is not dead" );
@@ -3363,7 +3363,7 @@ BObjectImp* UOExecutorModule::mf_Distance()
 {
   UObject* obj1;
   UObject* obj2;
-  if ( getUObjectParam( exec, 0, obj1 ) && getUObjectParam( exec, 1, obj2 ) )
+  if ( getUObjectParam( 0, obj1 ) && getUObjectParam( 1, obj2 ) )
   {
     const UObject* tobj1 = obj1->toplevel_owner();
     const UObject* tobj2 = obj2->toplevel_owner();
@@ -3388,7 +3388,7 @@ BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
 {
   UObject* obj1;
   UObject* obj2;
-  if ( getUObjectParam( exec, 0, obj1 ) && getUObjectParam( exec, 1, obj2 ) )
+  if ( getUObjectParam( 0, obj1 ) && getUObjectParam( 1, obj2 ) )
   {
     const UObject* tobj1 = obj1->toplevel_owner();
     const UObject* tobj2 = obj2->toplevel_owner();
@@ -3540,9 +3540,8 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
   int px;
   int py;
   int add_to_existing_stack;
-  if ( !( getItemParam( exec, 0, item ) && getItemParam( exec, 1, cont_item ) &&
-          getParam( 2, px, -1, 65535 ) && getParam( 3, py, -1, 65535 ) &&
-          getParam( 4, add_to_existing_stack, 0, 2 ) ) )
+  if ( !( getItemParam( 0, item ) && getItemParam( 1, cont_item ) && getParam( 2, px, -1, 65535 ) &&
+          getParam( 3, py, -1, 65535 ) && getParam( 4, add_to_existing_stack, 0, 2 ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -3698,7 +3697,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
 {
   Item* item;
   Character* chr;
-  if ( !( getItemParam( exec, 0, item ) && getCharacterParam( exec, 1, chr ) ) )
+  if ( !( getItemParam( 0, item ) && getCharacterParam( 1, chr ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -3759,7 +3758,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 {
   Character* chr;
   Item* item;
-  if ( getCharacterParam( exec, 0, chr ) && getItemParam( exec, 1, item ) )
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) )
   {
     ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
     if ( !item->movable() )
@@ -3812,7 +3811,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 BObjectImp* UOExecutorModule::mf_RestartScript()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
     {
@@ -3889,7 +3888,7 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
 {
   UObject* obj;
 
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     JusticeRegion* justice_region;
     if ( obj->isa( UOBJ_CLASS::CLASS_ITEM ) )
@@ -3994,7 +3993,7 @@ BObjectImp* UOExecutorModule::mf_EquipFromTemplate()
 {
   Character* chr;
   const String* template_name;
-  if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, template_name ) )
+  if ( getCharacterParam( 0, chr ) && getStringParam( 1, template_name ) )
   {
     return equip_from_template( chr, template_name->value() );
   }
@@ -4009,7 +4008,7 @@ BObjectImp* UOExecutorModule::mf_GrantPrivilege()
 {
   Character* chr;
   const String* privstr;
-  if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, privstr ) )
+  if ( getCharacterParam( 0, chr ) && getStringParam( 1, privstr ) )
   {
     chr->grant_privilege( privstr->data() );
     return new BLong( 1 );
@@ -4025,7 +4024,7 @@ BObjectImp* UOExecutorModule::mf_RevokePrivilege()
 {
   Character* chr;
   const String* privstr;
-  if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, privstr ) )
+  if ( getCharacterParam( 0, chr ) && getStringParam( 1, privstr ) )
   {
     chr->revoke_privilege( privstr->data() );
     return new BLong( 1 );
@@ -4058,7 +4057,7 @@ BObjectImp* UOExecutorModule::mf_SendPacket()
   Character* chr;
   Network::Client* client;
   const String* str;
-  if ( getCharacterOrClientParam( exec, 0, chr, client ) && getStringParam( 1, str ) )
+  if ( getCharacterOrClientParam( 0, chr, client ) && getStringParam( 1, str ) )
   {
     if ( str->length() % 2 > 0 )
     {
@@ -4117,7 +4116,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
   int x, y;
   u32 arrowid = 0;
 
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
+  if ( getCharacterParam( 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
        getParam( 2, y, -1, 1000000 ) )  // max values checked below
   {
     if ( !chr->has_active_client() )
@@ -4131,7 +4130,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
         arrowid = static_cast<u32>( arrow_id );
       }
       else
-        arrowid = uoexec.pid();
+        arrowid = uoexec().pid();
     }
     bool usesNewPktSize = ( chr->client->ClientType & Network::CLIENTTYPE_7090 ) > 0;
 
@@ -4176,7 +4175,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeReagents()
 {
   Character* chr;
   int spellid;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, spellid ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, spellid ) )
   {
     if ( !VALID_SPELL_ID( spellid ) )
     {
@@ -4200,7 +4199,7 @@ BObjectImp* UOExecutorModule::mf_StartSpellEffect()
 {
   Character* chr;
   int spellid;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, spellid ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, spellid ) )
   {
     if ( !VALID_SPELL_ID( spellid ) )
     {
@@ -4249,7 +4248,7 @@ BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
   unsigned short font;
   unsigned short color;
 
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, spellid ) && getParam( 2, font ) &&
+  if ( getCharacterParam( 0, chr ) && getParam( 1, spellid ) && getParam( 2, font ) &&
        getParam( 3, color ) )
   {
     if ( !VALID_SPELL_ID( spellid ) )
@@ -4275,7 +4274,7 @@ BObjectImp* UOExecutorModule::mf_SpeakPowerWords()
 BObjectImp* UOExecutorModule::mf_ListEquippedItems()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     std::unique_ptr<ObjArray> arr( new ObjArray );
     for ( int layer = LAYER_EQUIP__LOWEST; layer <= LAYER_EQUIP__HIGHEST; ++layer )
@@ -4298,7 +4297,7 @@ BObjectImp* UOExecutorModule::mf_GetEquipmentByLayer()
 {
   Character* chr;
   int layer;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, layer ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, layer ) )
   {
     if ( layer < LOWEST_LAYER || layer > HIGHEST_LAYER )
     {
@@ -4326,7 +4325,7 @@ BObjectImp* UOExecutorModule::mf_DisconnectClient()
   Character* chr;
   Network::Client* client;
 
-  if ( getCharacterOrClientParam( exec, 0, chr, client ) )
+  if ( getCharacterOrClientParam( 0, chr, client ) )
   {
     if ( chr != nullptr )
     {
@@ -4430,7 +4429,7 @@ BObjectImp* UOExecutorModule::mf_GetObjtypeByName()
 BObjectImp* UOExecutorModule::mf_SendEvent()
 {
   Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     BObjectImp* event = exec.getParamImp( 1 );
     if ( event != nullptr )
@@ -4460,7 +4459,7 @@ BObjectImp* UOExecutorModule::mf_SendEvent()
 BObjectImp* UOExecutorModule::mf_DestroyMulti()
 {
   Multi::UMulti* multi;
-  if ( getMultiParam( exec, 0, multi ) )
+  if ( getMultiParam( 0, multi ) )
   {
     const ItemDesc& id = find_itemdesc( multi->objtype_ );
     if ( !id.destroy_script.empty() )
@@ -4530,7 +4529,7 @@ BObjectImp* UOExecutorModule::mf_SetScriptController()
   if ( !handled )
   {
     Character* chr;
-    if ( getCharacterParam( exec, 0, chr ) )
+    if ( getCharacterParam( 0, chr ) )
       controller_.set( chr );
     else
       controller_.clear();
@@ -4648,7 +4647,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
 BObjectImp* UOExecutorModule::mf_ReserveItem()
 {
   Item* item;
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     if ( item->inuse() )
     {
@@ -4670,7 +4669,7 @@ BObjectImp* UOExecutorModule::mf_ReserveItem()
 BObjectImp* UOExecutorModule::mf_ReleaseItem()
 {
   Item* item;
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     if ( item->inuse() )
     {
@@ -4701,7 +4700,7 @@ BObjectImp* UOExecutorModule::mf_ReleaseItem()
 BObjectImp* UOExecutorModule::mf_SendSkillWindow()
 {
   Character *towhom, *forwhom;
-  if ( getCharacterParam( exec, 0, towhom ) && getCharacterParam( exec, 1, forwhom ) )
+  if ( getCharacterParam( 0, towhom ) && getCharacterParam( 1, forwhom ) )
   {
     if ( towhom->has_active_client() )
     {
@@ -4723,7 +4722,7 @@ BObjectImp* UOExecutorModule::mf_SendSkillWindow()
 BObjectImp* UOExecutorModule::mf_OpenPaperdoll()
 {
   Character *towhom, *forwhom;
-  if ( getCharacterParam( exec, 0, towhom ) && getCharacterParam( exec, 1, forwhom ) )
+  if ( getCharacterParam( 0, towhom ) && getCharacterParam( 1, forwhom ) )
   {
     if ( towhom->has_active_client() )
     {
@@ -4750,8 +4749,7 @@ BObjectImp* UOExecutorModule::mf_ConsumeSubstance()
   Item* cont_item;
   unsigned int objtype;
   int amount;
-  if ( getItemParam( exec, 0, cont_item ) && getObjtypeParam( exec, 1, objtype ) &&
-       getParam( 2, amount ) )
+  if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) && getParam( 2, amount ) )
   {
     if ( !cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       return new BError( "That is not a container" );
@@ -4799,7 +4797,7 @@ BObjectImp* UOExecutorModule::mf_GetCommandHelp()
 {
   Character* chr;
   const String* cmd;
-  if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, cmd ) )
+  if ( getCharacterParam( 0, chr ) && getStringParam( 1, cmd ) )
   {
     std::string help = get_textcmd_help( chr, cmd->value() );
     if ( !help.empty() )
@@ -4822,7 +4820,7 @@ BObjectImp* UOExecutorModule::mf_SendStringAsTipWindow()
 {
   Character* chr;
   const String* str;
-  if ( getCharacterParam( exec, 0, chr ) && getStringParam( 1, str ) )
+  if ( getCharacterParam( 0, chr ) && getStringParam( 1, str ) )
   {
     if ( chr->has_active_client() )
     {
@@ -5300,7 +5298,7 @@ BObjectImp* UOExecutorModule::mf_UseItem()
   Item* item;
   Character* chr;
 
-  if ( getItemParam( exec, 0, item ) && getCharacterParam( exec, 1, chr ) )
+  if ( getItemParam( 0, item ) && getCharacterParam( 1, chr ) )
   {
     const ItemDesc& itemdesc = find_itemdesc( item->objtype_ );
 
@@ -5363,8 +5361,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
   unsigned int objtype;
   int amount;
 
-  if ( getItemParam( exec, 0, cont_item ) && getObjtypeParam( exec, 1, objtype ) &&
-       getParam( 2, amount ) )
+  if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) && getParam( 2, amount ) )
   {
     int makeInUseLong;
     bool makeInUse;
@@ -5418,7 +5415,7 @@ BObjectImp* UOExecutorModule::mf_IsStackable()
   Item* item1;
   Item* item2;
 
-  if ( !( getItemParam( exec, 0, item1 ) && getItemParam( exec, 1, item2 ) ) )
+  if ( !( getItemParam( 0, item1 ) && getItemParam( 1, item2 ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -5439,7 +5436,7 @@ BObjectImp* UOExecutorModule::mf_UpdateMobile()
   Character* chr;
   int flags;
 
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, flags ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, flags ) )
   {
     if ( flags == 1 )
     {
@@ -5468,7 +5465,7 @@ BObjectImp* UOExecutorModule::mf_UpdateItem()
 {
   Item* item;
 
-  if ( getItemParam( exec, 0, item ) )
+  if ( getItemParam( 0, item ) )
   {
     send_item_to_inrange( item );
     return new BLong( 1 );
@@ -5553,7 +5550,7 @@ BObjectImp* UOExecutorModule::mf_SendCharProfile(
   const String* uText;
   const String* eText;
 
-  if ( getCharacterParam( exec, 0, chr ) && getCharacterParam( exec, 1, of_who ) &&
+  if ( getCharacterParam( 0, chr ) && getCharacterParam( 1, of_who ) &&
        getStringParam( 2, title ) && getUnicodeStringParam( 3, uText ) &&
        getUnicodeStringParam( 4, eText ) )
   {

@@ -15,7 +15,6 @@
 #include "../item/item.h"
 #include "../realms.h"
 #include "../storage.h"
-#include "../uoexhelp.h"
 #include "../uoscrobj.h"
 
 #include <module_defs/storage.h>
@@ -31,7 +30,7 @@ namespace Module
 using namespace Bscript;
 
 StorageExecutorModule::StorageExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<StorageExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<StorageExecutorModule, Core::PolModule>( exec )
 {
 }
 
@@ -101,7 +100,7 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
   const Items::ItemDesc* descriptor;
 
   if ( area == nullptr || !getStringParam( 1, name ) ||
-       !Core::getObjtypeParam( exec, 2, descriptor ) )
+       !getObjtypeParam( 2, descriptor ) )
     return new BError( "Invalid parameter type" );
 
   Items::Item* item = Items::Item::create( *descriptor );

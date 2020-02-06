@@ -98,8 +98,8 @@ BApplicObj<T>* getApplicObjParam( ExecutorModule& ex, unsigned param,
   return static_cast<BApplicObj<T>*>( ex.getApplicObjParam( param, object_type ) );
 }
 
-template <class T>
-class TmplExecutorModule : public ExecutorModule
+template <class T, class T2>
+class TmplExecutorModule : public T2
 {
 public:
   static const char* const modname;
@@ -126,15 +126,15 @@ protected:
   virtual std::string functionName( unsigned idx ) override;
 };
 
-template <class T>
-std::map<std::string, int, Clib::ci_cmp_pred> TmplExecutorModule<T>::_func_idx_map;
+template <class T, class T2>
+std::map<std::string, int, Clib::ci_cmp_pred> TmplExecutorModule<T, T2>::_func_idx_map;
 
-template <class T>
-bool TmplExecutorModule<T>::_func_map_init = false;
+template <class T, class T2>
+bool TmplExecutorModule<T, T2>::_func_map_init = false;
 
-template <class T>
-TmplExecutorModule<T>::TmplExecutorModule( Executor& ex )
-    : ExecutorModule( TmplExecutorModule::modname, ex )
+template <class T, class T2>
+TmplExecutorModule<T, T2>::TmplExecutorModule( Executor& ex )
+    : T2( TmplExecutorModule::modname, ex )
 {
   if ( !_func_map_init )
   {
@@ -146,8 +146,8 @@ TmplExecutorModule<T>::TmplExecutorModule( Executor& ex )
   }
 }
 
-template <class T>
-inline int TmplExecutorModule<T>::functionIndex( const std::string& name )
+template <class T, class T2>
+inline int TmplExecutorModule<T, T2>::functionIndex( const std::string& name )
 {
   auto itr = _func_idx_map.find( name );
   if ( itr != _func_idx_map.end() )
@@ -155,15 +155,15 @@ inline int TmplExecutorModule<T>::functionIndex( const std::string& name )
   return -1;
 }
 
-template <class T>
-inline BObjectImp* TmplExecutorModule<T>::execFunc( unsigned funcidx )
+template <class T, class T2>
+inline BObjectImp* TmplExecutorModule<T, T2>::execFunc( unsigned funcidx )
 {
   T* derived = static_cast<T*>( this );
   return ( ( *derived ).*( function_table[funcidx].fptr ) )();
 };
 
-template <class T>
-inline std::string TmplExecutorModule<T>::functionName( unsigned idx )
+template <class T, class T2>
+inline std::string TmplExecutorModule<T, T2>::functionName( unsigned idx )
 {
   return function_table[idx].funcname;
 }

@@ -43,7 +43,7 @@ static inline bool is_base64( unsigned char c )
 }
 
 BasicExecutorModule::BasicExecutorModule( Executor& exec )
-    : Bscript::TmplExecutorModule<BasicExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<BasicExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

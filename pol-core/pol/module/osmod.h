@@ -8,8 +8,8 @@
 #ifndef BSCRIPT_OSEMOD_H
 #define BSCRIPT_OSEMOD_H
 
-#ifndef BSCRIPT_EXECMODL_H
-#include "../../bscript/execmodl.h"
+#ifndef POL_POLMODL_H
+#include "../polmodl.h"
 #endif
 
 #include <ctime>
@@ -22,7 +22,6 @@
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
-#include "../uoexhelp.h"
 
 namespace Pol
 {
@@ -31,7 +30,7 @@ namespace Bscript
 class BObject;
 class BObjectImp;
 class Executor;
-template <class T>
+template <class T, class T2>
 class TmplExecutorModule;
 }  // namespace Bscript
 namespace Mobile
@@ -52,7 +51,7 @@ void deschedule_executor( UOExecutor* ex );
 }  // namespace Core
 namespace Module
 {
-class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule>
+class OSExecutorModule : public Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>
 {
 public:
   bool signal_event( Bscript::BObjectImp* eventimp );
@@ -97,9 +96,8 @@ public:
   static boost::asio::io_context ios;
 
 protected:
-  bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
 
-  friend class Bscript::TmplExecutorModule<OSExecutorModule>;
+  friend class Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>;
 
   Bscript::BObjectImp* mf_Create_Debug_Context();
   Bscript::BObjectImp* mf_GetPid();
@@ -166,10 +164,6 @@ protected:
   void workQueued();
 };
 
-inline bool OSExecutorModule::getCharacterParam( unsigned param, Mobile::Character*& chrptr )
-{
-  return Core::getCharacterParam( exec, param, chrptr );
-}
 
 inline bool OSExecutorModule::blocked() const
 {

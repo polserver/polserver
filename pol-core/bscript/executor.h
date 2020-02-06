@@ -78,6 +78,12 @@ struct BackupStruct
   unsigned PC;
 };
 
+enum class ExecutorType
+{
+EXECUTOR,
+POL
+};
+
 class Executor
 {
 public:
@@ -91,6 +97,8 @@ public:
   bool error_;
   bool halt_;
   bool run_ok_;
+
+  virtual ExecutorType type() { return ExecutorType::EXECUTOR;  }
 
   enum DEBUG_LEVEL
   {

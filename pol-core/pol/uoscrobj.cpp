@@ -110,7 +110,6 @@
 #include "uobject.h"
 #include "uoclient.h"
 #include "uoexec.h"
-#include "uoexhelp.h"
 #include "uworld.h"
 
 namespace Pol
@@ -189,7 +188,8 @@ BObjectRef ECharacterRefObjImp::set_member( const char* membername, BObjectImp* 
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* ECharacterRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                    bool forcebuiltin )
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
@@ -205,21 +205,21 @@ BObjectImp* ECharacterRefObjImp::call_method_id( const int id, Executor& ex, boo
   BObjectImp* imp = obj_->script_method_id( id, ex );
   if ( imp != nullptr )
     return imp;
-  return base::call_method_id( id, ex );
+  return base::call_polmethod_id( id, ex );
 }
 
-BObjectImp* ECharacterRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* ECharacterRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex, forcebuiltin );
+    return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
   BObjectImp* imp = obj_->custom_script_method( methodname, ex );
   if ( imp )
     return imp;
-  return base::call_method( methodname, ex );
+  return base::call_polmethod( methodname, ex );
 }
 
 bool ECharacterRefObjImp::isTrue() const
@@ -350,7 +350,8 @@ BObjectRef EItemRefObjImp::set_member( const char* membername, BObjectImp* value
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* EItemRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                               bool forcebuiltin )
 {
   if ( obj_->orphan() )
     return new BError( "That object no longer exists" );
@@ -365,21 +366,21 @@ BObjectImp* EItemRefObjImp::call_method_id( const int id, Executor& ex, bool for
   BObjectImp* imp = obj_->script_method_id( id, ex );
   if ( imp != nullptr )
     return imp;
-  return base::call_method_id( id, ex );
+  return base::call_polmethod_id( id, ex );
 }
 
-BObjectImp* EItemRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* EItemRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex, forcebuiltin );
+    return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
   Items::Item* item = obj_.get();
   BObjectImp* imp = item->custom_script_method( methodname, ex );
   if ( imp )
     return imp;
-  return base::call_method( methodname, ex );
+  return base::call_polmethod( methodname, ex );
 }
 
 bool EItemRefObjImp::isTrue() const
@@ -489,7 +490,8 @@ BObjectRef EUBoatRefObjImp::set_member( const char* membername, BObjectImp* valu
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* EUBoatRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                bool forcebuiltin )
 {
   if ( obj_->orphan() )
     return new BError( "That object no longer exists" );
@@ -504,16 +506,16 @@ BObjectImp* EUBoatRefObjImp::call_method_id( const int id, Executor& ex, bool fo
   BObjectImp* imp = obj_->script_method_id( id, ex );
   if ( imp != nullptr )
     return imp;
-  return base::call_method_id( id, ex );
+  return base::call_polmethod_id( id, ex );
 }
 
-BObjectImp* EUBoatRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* EUBoatRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex, forcebuiltin );
-  return base::call_method( methodname, ex );
+    return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
+  return base::call_polmethod( methodname, ex );
 }
 
 bool EUBoatRefObjImp::isTrue() const
@@ -542,20 +544,21 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
   return false;
 }
 
-BObjectImp* EMultiRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* EMultiRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex, forcebuiltin );
+    return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
   Multi::UMulti* multi = obj_.get();
   BObjectImp* imp = multi->custom_script_method( methodname, ex );
   if ( imp )
     return imp;
-  return base::call_method( methodname, ex );
+  return base::call_polmethod( methodname, ex );
 }
 
-BObjectImp* EMultiRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* EMultiRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                bool forcebuiltin )
 {
   Multi::UMulti* multi = obj_.get();
   if ( multi->orphan() )
@@ -572,7 +575,7 @@ BObjectImp* EMultiRefObjImp::call_method_id( const int id, Executor& ex, bool fo
   BObjectImp* imp = multi->script_method_id( id, ex );
   if ( imp != nullptr )
     return imp;
-  return base::call_method_id( id, ex, forcebuiltin );
+  return base::call_polmethod_id( id, ex, forcebuiltin );
 }
 
 const char* EMultiRefObjImp::typeOf() const
@@ -1555,7 +1558,7 @@ BObjectImp* Item::set_script_member_double( const char* membername, double value
   return nullptr;
 }
 
-BObjectImp* Item::script_method_id( const int id, Executor& ex )
+BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -1653,7 +1656,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
     if ( !ex.hasParams( 2 ) )
       return new BError( "Not enough parameters" );
-    else if ( !getItemParam( ex, 0, cont_item ) )
+    else if ( !ex.getItemParam( 0, cont_item ) )
       return new BError( "No container specified" );
     else if ( !ex.getParam( 1, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1782,7 +1785,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
 
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough params" );
-    else if ( !getItemParam( ex, 0, cont ) )
+    else if ( !ex.getItemParam( 0, cont ) )
       return new BError( "No container specified" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
@@ -1804,7 +1807,7 @@ BObjectImp* Item::script_method_id( const int id, Executor& ex )
   }
 }
 
-BObjectImp* Item::script_method( const char* methodname, Executor& ex )
+BObjectImp* Item::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -1812,7 +1815,7 @@ BObjectImp* Item::script_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-BObjectImp* Item::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* Item::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   const ItemDesc& id = itemdesc();
   if ( id.method_script != nullptr )
@@ -2742,7 +2745,7 @@ BObjectImp* Character::set_script_member( const char* membername, int value )
   return nullptr;
 }
 
-BObjectImp* Character::script_method_id( const int id, Executor& ex )
+BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -3090,7 +3093,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     Character* chr;
     if ( ex.hasParams( 1 ) )
     {
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         if ( dead() )
           return new BError( "Character is dead" );
@@ -3122,7 +3125,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
         chr->repsys_on_damage( this );
     }
     if ( dead() )
@@ -3177,7 +3180,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         // make_aggressor_to handles the updating
         this->make_aggressor_to( chr );
@@ -3191,7 +3194,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         // make_lawfullydamaged_to handled the updating
         this->make_lawfullydamaged_to( chr );
@@ -3205,7 +3208,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         this->remove_as_aggressor_to( chr );
         return new BLong( 1 );
@@ -3218,7 +3221,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
     if ( ex.hasParams( 1 ) )
     {
       Character* chr;
-      if ( getCharacterParam( ex, 0, chr ) )
+      if ( ex.getCharacterParam( 0, chr ) )
       {
         this->remove_as_lawful_damager( chr );
         return new BLong( 1 );
@@ -3318,7 +3321,7 @@ BObjectImp* Character::script_method_id( const int id, Executor& ex )
 }
 
 
-BObjectImp* Character::script_method( const char* methodname, Executor& ex )
+BObjectImp* Character::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -3326,7 +3329,7 @@ BObjectImp* Character::script_method( const char* methodname, Executor& ex )
   return nullptr;
 }
 
-BObjectImp* Character::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* Character::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   // TODO uoclient entry deprecated
   if ( Core::networkManager.uoclient_general.method_script != nullptr )
@@ -3544,7 +3547,7 @@ BObjectImp* NPC::set_script_member( const char* membername, int value )
   return nullptr;
 }
 
-BObjectImp* NPC::script_method_id( const int id, Executor& executor )
+BObjectImp* NPC::script_method_id( const int id, Core::UOExecutor& executor )
 {
   BObjectImp* imp = base::script_method_id( id, executor );
   if ( imp != nullptr )
@@ -3558,7 +3561,7 @@ BObjectImp* NPC::script_method_id( const int id, Executor& executor )
       return new BError( "Not enough parameters" );
     Character* chr;
     set_dirty();
-    if ( getCharacterParam( executor, 0, chr ) )
+    if ( executor.getCharacterParam( 0, chr ) )
     {
       master_.set( chr );
       return new BLong( 1 );
@@ -3575,7 +3578,7 @@ BObjectImp* NPC::script_method_id( const int id, Executor& executor )
   }
 }
 
-BObjectImp* NPC::script_method( const char* methodname, Executor& executor )
+BObjectImp* NPC::script_method( const char* methodname, Core::UOExecutor& executor )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -3583,7 +3586,7 @@ BObjectImp* NPC::script_method( const char* methodname, Executor& executor )
   return nullptr;
 }
 
-BObjectImp* NPC::custom_script_method( const char* methodname, Executor& executor )
+BObjectImp* NPC::custom_script_method( const char* methodname, Core::UOExecutor& executor )
 {
   if ( template_.method_script != nullptr )
   {
@@ -3738,7 +3741,7 @@ BObjectImp* UCorpse::get_script_member( const char* membername ) const
   return nullptr;
 }
 
-BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
+BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -3820,7 +3823,7 @@ BObjectImp* Spellbook::script_method_id( const int id, Executor& ex )
   return new BError( "Invalid parameter type" );
 }
 
-BObjectImp* Spellbook::script_method( const char* methodname, Executor& ex )
+BObjectImp* Spellbook::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -3934,7 +3937,7 @@ BObjectImp* UBoat::get_script_member( const char* membername ) const
   return nullptr;
 }
 
-BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
+BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -3996,7 +3999,7 @@ BObjectImp* UBoat::script_method_id( const int id, Executor& ex )
   }
 }
 
-BObjectImp* UBoat::script_method( const char* methodname, Executor& ex )
+BObjectImp* UBoat::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4110,7 +4113,7 @@ BObjectImp* Map::set_script_member( const char* membername, int value )
   return nullptr;
 }
 
-BObjectImp* UObject::script_method_id( const int id, Executor& ex )
+BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
 {
   switch ( id )
   {
@@ -4194,7 +4197,7 @@ BObjectImp* UObject::script_method_id( const int id, Executor& ex )
 }
 
 
-BObjectImp* UObject::script_method( const char* methodname, Executor& ex )
+BObjectImp* UObject::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4210,7 +4213,7 @@ BObjectImp* UObject::script_method( const char* methodname, Executor& ex )
   }
 }
 
-BObjectImp* UObject::custom_script_method( const char* methodname, Executor& ex )
+BObjectImp* UObject::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4242,7 +4245,7 @@ BObjectImp* UDoor::get_script_member( const char* membername ) const
   return nullptr;
 }
 
-BObjectImp* UDoor::script_method_id( const int id, Executor& ex )
+BObjectImp* UDoor::script_method_id( const int id, Core::UOExecutor& ex )
 {
   BObjectImp* imp = base::script_method_id( id, ex );
   if ( imp != nullptr )
@@ -4265,7 +4268,7 @@ BObjectImp* UDoor::script_method_id( const int id, Executor& ex )
   return new BLong( 1 );
 }
 
-BObjectImp* UDoor::script_method( const char* methodname, Executor& ex )
+BObjectImp* UDoor::script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -4670,18 +4673,19 @@ BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*valu
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectImp* EClientRefObjImp::call_method( const char* methodname, Executor& ex )
+BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );
   bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex, forcebuiltin );
+    return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
   return Core::gamestate.system_hooks.call_script_method( methodname, &ex, this );
 }
 
-BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool forcebuiltin )
+BObjectImp* EClientRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                 bool forcebuiltin )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );
@@ -4706,7 +4710,7 @@ BObjectImp* EClientRefObjImp::call_method_id( const int id, Executor& ex, bool f
   }
   }
 
-  return base::call_method_id( id, ex );
+  return base::call_polmethod_id( id, ex );
 }
 
 SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )

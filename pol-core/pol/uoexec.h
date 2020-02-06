@@ -18,6 +18,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 #include "./globals/script_internals.h"
+#include "skillid.h"
 
 namespace Pol
 {
@@ -25,8 +26,38 @@ namespace Module
 {
 class OSExecutorModule;
 }
+
+namespace Bscript
+{
+class BError;
+class Executor;
+}  // namespace Bscript
+namespace Mobile
+{
+class Attribute;
+class Character;
+}  // namespace Mobile
+namespace Items
+{
+class Item;
+class ItemDesc;
+}  // namespace Items
+namespace Multi
+{
+class UBoat;
+class UMulti;
+}  // namespace Multi
+namespace Network
+{
+class Client;
+}
+
 namespace Core
 {
+class UObject;
+class Vital;
+class Guild;
+class Party;
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
 
 class UOExecutor final : public Bscript::Executor
@@ -53,6 +84,8 @@ public:
   u64 warn_runaway_on_cycle;
   u64 runaway_cycles;
 
+  virtual Bscript::ExecutorType type() override { return Bscript::ExecutorType::POL; }
+
   bool listens_to( unsigned int eventflag ) const;
   bool signal_event( Bscript::BObjectImp* eventimp );
 
@@ -60,8 +93,9 @@ public:
   unsigned short area_size;
   unsigned short speech_size;
 
-  bool can_access_offline_mobiles;
+  bool can_access_offline_mobiles_;
   bool auxsvc_assume_string;
+  bool survive_attached_disconnect;
   weak_ptr_owner<UOExecutor> weakptr;
 
   UOExecutor *pParent, *pChild;
@@ -94,6 +128,23 @@ public:
 
 
   Bscript::BObjectImp* clear_event_queue();
+
+
+public:
+  bool getCharacterOrClientParam( unsigned param, Mobile::Character*& chrptr,
+                                  Network::Client*& clientptr );
+  bool getCharacterParam( unsigned param, Mobile::Character*& chrptr );
+  bool getItemParam( unsigned param, Items::Item*& itemptr );
+  bool getUBoatParam( unsigned param, Multi::UBoat*& boatptr );
+  bool getMultiParam( unsigned param, Multi::UMulti*& multiptr );
+  bool getUObjectParam( unsigned param, UObject*& objptr );
+  bool getObjtypeParam( unsigned param, unsigned int& objtype );
+  bool getObjtypeParam( unsigned param, const Items::ItemDesc*& itemdesc_out );
+  bool getSkillIdParam( unsigned param, USKILLID& skillid );
+  bool getAttributeParam( unsigned param, const Mobile::Attribute*& attr );
+  bool getVitalParam( unsigned param, const Vital*& vital );
+  bool getGuildParam( unsigned param, Core::Guild*& guild, Bscript::BError*& err );
+  bool getPartyParam( unsigned param, Core::Party*& party, Bscript::BError*& err );
 };
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const

@@ -77,7 +77,7 @@ void freepid( unsigned int pid )
 }
 
 OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<OSExecutorModule>( exec ),
+    : TmplExecutorModule<OSExecutorModule, Core::PolModule>( exec ),
       critical_( false ),
       priority_( 1 ),
       warn_on_runaway_( true ),
@@ -86,7 +86,7 @@ OSExecutorModule::OSExecutorModule( Bscript::Executor& exec )
       hold_itr_(),
       in_hold_list_( Core::HoldListType::NO_LIST ),
       wait_type( Core::WAIT_TYPE::WAIT_UNKNOWN ),
-      pid_( getnewpid( static_cast<Core::UOExecutor*>( &exec ) ) ),
+      pid_( getnewpid( &uoexec() ) ),
       max_eventqueue_size( Core::MAX_EVENTQUEUE_SIZE ),
       events_()
 {
@@ -242,8 +242,8 @@ BObjectImp* OSExecutorModule::mf_Start_Script()
     {
       new_uoemod->controller_ = this_uoemod->controller_;
     }
-    Core::UOExecutor* uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
-    return new Core::ScriptExObjImp( uoexec );
+
+    return new Core::ScriptExObjImp( &new_uoemod->uoexec() );
   }
   else
   {
@@ -257,7 +257,7 @@ BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
   Mobile::Character* chr;
   const Mobile::Attribute* attr;
 
-  if ( getCharacterParam( 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     if ( !attr->disable_core_checks && !Core::CanUseSkill( chr->client ) )
       return new BLong( 0 );
@@ -373,9 +373,10 @@ BObjectImp* OSExecutorModule::mf_Run_Script_To_Completion()
 BObjectImp* OSExecutorModule::mf_Run_Script()
 {
   UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+  Core::UOExecutor& this_uoexec = uoexec();
 
-  if ( this_uoexec->pChild == nullptr )
+
+  if ( this_uoexec.pChild == nullptr )
   {
     const String* scriptname_str;
     if ( exec.getStringParam( 0, scriptname_str ) )
@@ -401,14 +402,14 @@ BObjectImp* OSExecutorModule::mf_Run_Script()
       {
         new_uoemod->controller_ = this_uoemod->controller_;
       }
-      Core::UOExecutor* new_uoexec = static_cast<Core::UOExecutor*>( &new_uoemod->exec );
+      Core::UOExecutor& new_uoexec = new_uoemod->uoexec();
       //      OSExecutorModule* osemod = uoexec->os_module;
-      new_uoexec->pParent = this_uoexec;
-      this_uoexec->pChild = new_uoexec;
+      new_uoexec.pParent = &this_uoexec;
+      this_uoexec.pChild = &new_uoexec;
 
       // we want to forcefully do this instruction over again:
-      this_uoexec->PC--;  // run_script(
-      this_uoexec->ValueStack.push_back(
+      this_uoexec.PC--;  // run_script(
+      this_uoexec.ValueStack.push_back(
           BObjectRef( new BObject( UninitObject::create() ) ) );  //   script_name,
       // No need to push on "param" since the new BLong(0) below will take care of it.//   param )
 
@@ -426,13 +427,13 @@ BObjectImp* OSExecutorModule::mf_Run_Script()
   // else I am running a child script, and its ended
   BObjectImp* ret;
 
-  if ( this_uoexec->pChild->ValueStack.empty() )
+  if ( this_uoexec.pChild->ValueStack.empty() )
     ret = new BLong( 1 );
   else
-    ret = this_uoexec->pChild->ValueStack.back().get()->impptr()->copy();
+    ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
 
-  this_uoexec->pChild->pParent = nullptr;
-  this_uoexec->pChild = nullptr;
+  this_uoexec.pChild->pParent = nullptr;
+  this_uoexec.pChild = nullptr;
 
   return ret;
 }
@@ -563,10 +564,9 @@ BObjectImp* OSExecutorModule::mf_OpenURL()
 
 BObjectImp* OSExecutorModule::mf_OpenConnection()
 {
-  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+  Core::UOExecutor& this_uoexec = uoexec();
 
-  if ( this_uoexec->pChild == nullptr )
+  if ( this_uoexec.pChild == nullptr )
   {
     const String* host;
     const String* scriptname_str;
@@ -586,15 +586,15 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       {
         return new BError( "Script " + sd.name() + " does not exist." );
       }
-      if ( !this_uoexec->suspend() )
+      if ( !this_uoexec.suspend() )
       {
-        DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+        DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
                  << ": \n"
                  << "\tThe execution of this script can't be blocked!\n";
         return new Bscript::BError( "Script can't be blocked" );
       }
 
-      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
       std::string hostname( host->value() );
       bool assume_string = assume_string_int != 0;
       Core::networkManager.auxthreadpool->push(
@@ -644,24 +644,23 @@ size_t curlWriteCallback( void* contents, size_t size, size_t nmemb, void* userp
 
 BObjectImp* OSExecutorModule::mf_HTTPRequest()
 {
-  UOExecutorModule* this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+  Core::UOExecutor& this_uoexec = uoexec();
 
-  if ( this_uoexec->pChild == nullptr )
+  if ( this_uoexec.pChild == nullptr )
   {
     const String *url, *method;
     BObjectImp* options;
     if ( getStringParam( 0, url ) && getStringParam( 1, method ) && getParamImp( 2, options ) )
     {
-      if ( !this_uoexec->suspend() )
+      if ( !this_uoexec.suspend() )
       {
-        DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+        DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
                  << ": \n"
                  << "\tThe execution of this script can't be blocked!\n";
         return new Bscript::BError( "Script can't be blocked" );
       }
 
-      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+      weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec.weakptr;
 
       std::shared_ptr<CURL> curl_sp( curl_easy_init(), curl_easy_cleanup );
       CURL* curl = curl_sp.get();
@@ -843,12 +842,12 @@ void OSExecutorModule::revive()
   if ( in_hold_list_ == Core::HoldListType::TIMEOUT_LIST )
   {
     in_hold_list_ = Core::HoldListType::NO_LIST;
-    Core::scriptScheduler.revive_timeout( static_cast<Core::UOExecutor*>( &exec ), hold_itr_ );
+    Core::scriptScheduler.revive_timeout( &uoexec(), hold_itr_ );
   }
   else if ( in_hold_list_ == Core::HoldListType::NOTIMEOUT_LIST )
   {
     in_hold_list_ = Core::HoldListType::NO_LIST;
-    Core::scriptScheduler.revive_notimeout( static_cast<Core::UOExecutor*>( &exec ) );
+    Core::scriptScheduler.revive_notimeout( &uoexec() );
   }
   else if ( in_hold_list_ == Core::HoldListType::DEBUGGER_LIST )
   {
@@ -862,7 +861,7 @@ bool OSExecutorModule::in_debugger_holdlist() const
 void OSExecutorModule::revive_debugged()
 {
   in_hold_list_ = Core::HoldListType::NO_LIST;
-  Core::scriptScheduler.revive_debugged( static_cast<Core::UOExecutor*>( &exec ) );
+  Core::scriptScheduler.revive_debugged( &uoexec() );
 }
 
 bool OSExecutorModule::critical() const
@@ -924,6 +923,7 @@ const int SCRIPTOPT_DEBUG = 2;
 const int SCRIPTOPT_NO_RUNAWAY = 3;
 const int SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES = 4;
 const int SCRIPTOPT_AUXSVC_ASSUME_STRING = 5;
+const int SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT = 6;
 
 BObjectImp* OSExecutorModule::mf_Set_Script_Option()
 {
@@ -951,16 +951,23 @@ BObjectImp* OSExecutorModule::mf_Set_Script_Option()
       break;
     case SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES:
     {
-      Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
-      oldval = uoexec.can_access_offline_mobiles ? 1 : 0;
-      uoexec.can_access_offline_mobiles = optval ? true : false;
+      Core::UOExecutor& uoex = uoexec();
+      oldval = uoex.can_access_offline_mobiles_ ? 1 : 0;
+      uoex.can_access_offline_mobiles_ = optval ? true : false;
     }
     break;
     case SCRIPTOPT_AUXSVC_ASSUME_STRING:
     {
-      Core::UOExecutor& uoexec = static_cast<Core::UOExecutor&>( exec );
-      oldval = uoexec.auxsvc_assume_string ? 1 : 0;
-      uoexec.auxsvc_assume_string = optval ? true : false;
+      Core::UOExecutor& uoex = uoexec();
+      oldval = uoex.auxsvc_assume_string ? 1 : 0;
+      uoex.auxsvc_assume_string = optval ? true : false;
+    }
+    break;
+    case SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT:
+    {
+      Core::UOExecutor& uoex = uoexec();
+      oldval = uoex.survive_attached_disconnect ? 1 : 0;
+      uoex.survive_attached_disconnect = optval ? true : false;
     }
     break;
     default:
@@ -1072,12 +1079,11 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
   if ( !getParam( 0, second_delta ) || !getParam( 1, max_scripts ) )
     return new BError( "Invalid parameter type" );
 
-  auto this_uoemod = static_cast<UOExecutorModule*>( exec.findModule( "uo" ) );
-  auto this_uoexec = static_cast<Core::UOExecutor*>( &this_uoemod->exec );
+  auto& this_uoexec = uoexec();
 
-  if ( !this_uoexec->suspend() )
+  if ( !this_uoexec.suspend() )
   {
-    DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
+    DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
              << ": \n"
              << "\tThe execution of this script can't be blocked!\n";
     return new Bscript::BError( "Script can't be blocked" );
@@ -1088,7 +1094,7 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
   const auto& holdlist = Core::scriptScheduler.getHoldlist();
   const auto& notimeoutholdlist = Core::scriptScheduler.getNoTimeoutHoldlist();
 
-  std::unique_ptr<PerfData> perf( new PerfData( this_uoexec->weakptr, max_scripts ) );
+  std::unique_ptr<PerfData> perf( new PerfData( this_uoexec.weakptr, max_scripts ) );
   for ( const auto& scr : runlist )
     perf->data.insert( std::make_pair( scr->pid(), ScriptDiffData( scr ) ) );
   for ( const auto& scr : ranlist )

@@ -41,20 +41,20 @@ namespace Core
 {
 using namespace Bscript;
 
-BSQLRow::BSQLRow( BSQLResultSet* resultset ) : Bscript::BObjectImp( OTSQLRow )
+BSQLRow::BSQLRow( BSQLResultSet* resultset ) : PolObjectImp( OTSQLRow )
 {
   _result = resultset->_result;
   _row = mysql_fetch_row( _result->ptr() );
   _fields = mysql_fetch_fields( _result->ptr() );
 }
-BSQLRow::BSQLRow( RES_WRAPPER result ) : Bscript::BObjectImp( OTSQLRow )
+BSQLRow::BSQLRow( RES_WRAPPER result ) : PolObjectImp( OTSQLRow )
 {
   _result = result;
   _row = mysql_fetch_row( _result->ptr() );
   _fields = mysql_fetch_fields( _result->ptr() );
 }
 BSQLRow::BSQLRow( RES_WRAPPER result, MYSQL_ROW row, MYSQL_FIELD* fields )
-    : Bscript::BObjectImp( OTSQLRow ), _row( row ), _result( result ), _fields( fields )
+    : PolObjectImp( OTSQLRow ), _row( row ), _result( result ), _fields( fields )
 {
 }
 BObjectRef BSQLRow::OperSubscript( const BObject& obj )
@@ -220,7 +220,7 @@ Bscript::BObjectImp* BSQLConnection::getResultSet() const
   return new BError( "Unknown error getting ResultSet" );
 }
 BSQLConnection::BSQLConnection()
-    : Bscript::BObjectImp( OTSQLConnection ), _conn( new ConnectionWrapper ), _errno( 0 )
+    : PolObjectImp( OTSQLConnection ), _conn( new ConnectionWrapper ), _errno( 0 )
 {
   _conn->set( mysql_init( nullptr ) );
   if ( !_conn->ptr() )
@@ -231,7 +231,7 @@ BSQLConnection::BSQLConnection()
 }
 
 BSQLConnection::BSQLConnection( std::shared_ptr<ConnectionWrapper> conn )
-    : Bscript::BObjectImp( OTSQLConnection ), _conn( conn ), _errno( 0 )
+    : PolObjectImp( OTSQLConnection ), _conn( conn ), _errno( 0 )
 {
 }
 
@@ -388,16 +388,16 @@ BObjectRef BSQLConnection::get_member( const char* membername )
     return BObjectRef( UninitObject::create() );
 }
 
-Bscript::BObjectImp* BSQLConnection::call_method( const char* methodname, Executor& ex )
+Bscript::BObjectImp* BSQLConnection::call_polmethod( const char* methodname, UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
-    return this->call_method_id( objmethod->id, ex );
+    return this->call_polmethod_id( objmethod->id, ex );
   else
     return nullptr;
 }
 
-Bscript::BObjectImp* BSQLConnection::call_method_id( const int /*id*/, Executor& /*ex*/,
+Bscript::BObjectImp* BSQLConnection::call_polmethod_id( const int /*id*/, UOExecutor& /*ex*/,
                                                      bool /*forcebuiltin*/ )
 {
   return new BLong( 0 );

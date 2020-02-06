@@ -31,6 +31,8 @@
 #include "syshookscript.h"
 #include "uobject.h"
 #include "uoscrobj.h"
+#include "partyscrobj.h"
+#include "guildscrobj.h"
 
 namespace Pol
 {

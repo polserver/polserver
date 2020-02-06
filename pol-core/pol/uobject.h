@@ -66,6 +66,7 @@ namespace Core
 class UContainer;
 class WornItemsContainer;
 class ExportScript;
+class UOExecutor;
 
 #pragma pack( push, 1 )
 struct Resistances
@@ -201,11 +202,11 @@ public:
   virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value );
 
-  virtual Bscript::BObjectImp* script_method( const char* methodname, Bscript::Executor& ex );
-  virtual Bscript::BObjectImp* script_method_id( const int id, Bscript::Executor& ex );
+  virtual Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex );
+  virtual Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex );
 
   virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     Bscript::Executor& ex );
+                                                     UOExecutor& ex );
   virtual bool script_isa( unsigned isatype ) const;
   virtual const char* target_tag() const;
 

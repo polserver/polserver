@@ -8,7 +8,6 @@
 #include "../../bscript/berror.h"
 #include "../mobile/charactr.h"
 #include "../statmsg.h"
-#include "../uoexhelp.h"
 #include "uomod.h"
 
 
@@ -20,7 +19,7 @@ using namespace Bscript;
 BObjectImp* UOExecutorModule::mf_SendStatus( /* mob */ )
 {
   Mobile::Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) )
+  if ( getCharacterParam( 0, chr ) )
   {
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );

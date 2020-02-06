@@ -29,6 +29,7 @@
 #include "../network/packets.h"
 #include "../network/pktdef.h"
 #include "../objtype.h"
+#include "../polobject.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
 #include "osmod.h"
@@ -42,7 +43,7 @@ namespace Module
 {
 using namespace Bscript;
 NPCExecutorModule::NPCExecutorModule( Executor& ex, Mobile::NPC& npc )
-    : TmplExecutorModule<NPCExecutorModule>( ex ), npcref( &npc ), npc( npc )
+    : TmplExecutorModule<NPCExecutorModule, Core::PolModule>( ex ), npcref( &npc ), npc( npc )
 {
   os_module = static_cast<OSExecutorModule*>( exec.findModule( "OS" ) );
   if ( os_module == nullptr )
@@ -57,12 +58,12 @@ NPCExecutorModule::~NPCExecutorModule()
 
 BApplicObjType bounding_box_type;
 
-class BoundingBoxObjImp final : public BApplicObj<Mobile::BoundingBox>
+class BoundingBoxObjImp final : public Core::PolApplicObj<Mobile::BoundingBox>
 {
 public:
-  BoundingBoxObjImp() : BApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
+  BoundingBoxObjImp() : PolApplicObj<Mobile::BoundingBox>( &bounding_box_type ) {}
   explicit BoundingBoxObjImp( const Mobile::BoundingBox& b )
-      : BApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
+      : PolApplicObj<Mobile::BoundingBox>( &bounding_box_type, b )
   {
   }
   virtual const char* typeOf() const override { return "BoundingBox"; }
@@ -382,7 +383,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
 BObjectImp* NPCExecutorModule::mf_WalkToward()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -403,7 +404,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
 BObjectImp* NPCExecutorModule::mf_RunToward()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -422,7 +423,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
 BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -441,7 +442,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
 BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
 {
   Core::UObject* obj;
-  if ( getUObjectParam( exec, 0, obj ) )
+  if ( getUObjectParam( 0, obj ) )
   {
     if ( obj->ismobile() )
     {
@@ -462,7 +463,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
   Core::UObject* obj;
   int flags;
 
-  if ( !getUObjectParam( exec, 0, obj ) || !exec.getParam( 1, flags ) )
+  if ( !getUObjectParam( 0, obj ) || !exec.getParam( 1, flags ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -490,7 +491,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
   Core::UObject* obj;
   int flags;
 
-  if ( !getUObjectParam( exec, 0, obj ) || !exec.getParam( 1, flags ) )
+  if ( !getUObjectParam( 0, obj ) || !exec.getParam( 1, flags ) )
   {
     return new BError( "Invalid parameter type" );
   }
@@ -936,7 +937,7 @@ BObjectImp* NPCExecutorModule::mf_MakeBoundingBox( /* areastring */ )
 BObjectImp* NPCExecutorModule::mf_SetOpponent()
 {
   Mobile::Character* chr;
-  if ( getCharacterParam( exec, 0, chr ) && chr != &npc )
+  if ( getCharacterParam( 0, chr ) && chr != &npc )
   {
     npc.set_opponent( chr );
     return new BLong( 1 );

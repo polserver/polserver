@@ -14,7 +14,8 @@
 #include "../network/cliface.h"
 #include "../skilladv.h"
 #include "../skillid.h"
-#include "../uoexhelp.h"
+
+#include "../polmodl.h"
 
 #include <module_defs/attributes.h>
 
@@ -26,7 +27,7 @@ using namespace Bscript;
 using namespace Mobile;
 
 AttributeExecutorModule::AttributeExecutorModule( Executor& exec )
-    : TmplExecutorModule<AttributeExecutorModule>( exec )
+    : TmplExecutorModule<AttributeExecutorModule, Core::PolModule>( exec )
 {
 }
 
@@ -37,7 +38,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_CheckSkill()
   int difficulty;
   unsigned short points;
 
-  if ( Core::getCharacterParam( exec, 0, chr ) && getSkillIdParam( exec, 1, skillid ) &&
+  if ( getCharacterParam( 0, chr ) && getSkillIdParam( 1, skillid ) &&
        getParam( 2, difficulty ) && getParam( 3, points ) )
   {
     return new Bscript::BLong( chr->check_skill( skillid, difficulty, points ) );
@@ -52,7 +53,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeName( /* alias_name
 {
   const Attribute* attr;
 
-  if ( !Core::getAttributeParam( exec, 0, attr ) )
+  if ( !getAttributeParam( 0, attr ) )
   {
     return new Bscript::BError( "Invalid parameter type." );
   }
@@ -64,7 +65,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeDefaultCap( /* alia
 {
   const Attribute* attr;
 
-  if ( !Core::getAttributeParam( exec, 0, attr ) )
+  if ( !getAttributeParam( 0, attr ) )
   {
     return new Bscript::BError( "Invalid parameter type." );
   }
@@ -78,7 +79,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttribute( /* mob, attrname,
   const Attribute* attr;
   short precision;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
        getParam( 2, precision ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
@@ -95,7 +96,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeBaseValue( /* mob, 
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.base() );
@@ -111,7 +112,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeTemporaryMod( /* mo
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.temp_mod() );
@@ -127,7 +128,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeIntrinsicMod( /* mo
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.intrinsic_mod() );
@@ -143,7 +144,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeLock( /* mob, attrn
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.lock() );
@@ -158,7 +159,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_GetAttributeCap( /* mob, attrna
   Character* chr;
   const Attribute* attr;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) )
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
     const AttributeValue& av = chr->attribute( attr->attrid );
     return new Bscript::BLong( av.cap() );
@@ -177,7 +178,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeCap( /* mob, attrib
 
   // FIXME: SetAttributeCap(mob, attributeid) should reset cap to default value :)
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
        getParam( 2, capvalue, ATTRIBUTE_MIN_BASE, ATTRIBUTE_MAX_BASE ) )
   {
     chr->set_dirty();
@@ -205,7 +206,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeLock(
   const Attribute* attr;
   unsigned short lockstate;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
        getParam( 2, lockstate, 0,
                  2 ) )  // FIXME: hard-coded lock states min and max (0 and 2) -- Nando
   {
@@ -235,7 +236,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeBaseValue(
   const Attribute* attr;
   unsigned short basevalue;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
        getParam( 2, basevalue, ATTRIBUTE_MIN_BASE, ATTRIBUTE_MAX_BASE ) )
   {
     chr->set_dirty();
@@ -268,7 +269,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_SetAttributeTemporaryMod(
   const Attribute* attr;
   int tempmod;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
        getParam( 2, tempmod, ATTRIBUTE_MIN_TEMP_MOD, ATTRIBUTE_MAX_TEMP_MOD ) )
   {
     AttributeValue& av = chr->attribute( attr->attrid );
@@ -300,7 +301,7 @@ Bscript::BObjectImp* AttributeExecutorModule::mf_AlterAttributeTemporaryMod(
   const Attribute* attr;
   int delta;
 
-  if ( getCharacterParam( exec, 0, chr ) && Core::getAttributeParam( exec, 1, attr ) &&
+  if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) &&
        getParam( 2, delta ) )
   {
     AttributeValue& av = chr->attribute( attr->attrid );

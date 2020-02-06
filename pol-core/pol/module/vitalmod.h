@@ -11,7 +11,7 @@
 
 #include <stddef.h>
 
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 #include "uomod.h"
 
 namespace Pol
@@ -35,7 +35,7 @@ class Character;
 }
 namespace Module
 {
-class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule>
+class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModule, Core::PolModule>
 {
 public:
   VitalExecutorModule( Bscript::Executor& exec );
