@@ -72,7 +72,7 @@ public:
   virtual ~UOExecutor();
   virtual size_t sizeEstimate() const override;
 
-  bool suspend();
+  bool suspend( int msecs = 0 );
   bool revive();
 
   std::string state();

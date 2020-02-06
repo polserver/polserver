@@ -97,16 +97,17 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
       return new BError( "Process has terminated" );
 
     if ( ex.numParams() < 1 || !ex.getParam( 0, timeout ) )
-      timeout = -1;
+      timeout = 0;
 
-    if ( !ex.suspend() )
+    auto& streambuf = value()->outBuf;
+
+    if ( !ex.suspend( timeout ) )
     {
       DEBUGLOG << "Script Error in '" << ex.scriptname() << "' PC=" << ex.PC << ": \n"
                << "\tThe execution of this script can't be blocked!\n";
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    auto& streambuf = value()->outBuf;
     weak_ptr<Core::UOExecutor> uoexec_w = ex.weakptr;
     boost::asio::async_read_until(
         value()->out, streambuf, '\n',
@@ -147,10 +148,8 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
             uoexec_w.get_weakptr()->revive();
           }
         } );
-    return new String( "@TODO" );
 
-    // auto& details = value();
-    // details->outBuf.
+    return new BError( "Timeout" );
   }
   default:
     return new BError( "undefined" );

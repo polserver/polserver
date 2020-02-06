@@ -73,13 +73,17 @@ UOExecutor::~UOExecutor()
   pChild = nullptr;
 }
 
-bool UOExecutor::suspend()
+bool UOExecutor::suspend( int msecs )
 {
   // Run to completion scripts can't be suspended
   if ( running_to_completion() )
     return false;
 
-  os_module->suspend();
+  if ( !msecs )
+    os_module->suspend();
+  else
+    os_module->SleepForMs( msecs );
+
   return true;
 }
 
