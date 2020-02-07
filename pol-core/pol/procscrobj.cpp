@@ -42,7 +42,15 @@ ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_
           bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
           bp::std_in.close(), bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
             INFO_PRINT << "Process exited!\n";
+            boost::system::error_code ec;
+            boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
+            this->out.close();
+            this->out.async_close();
             this->out.cancel();
+            boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
+            this->err.close();
+            this->err.async_close();
+            this->err.cancel();
           } )
 {
 }
@@ -89,17 +97,31 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
   }
   case MTH_READLINE:
   {
-    // boost::asio::read_until value()->out;
-    // boost::asio::read_until()
     int timeout;
-
-    if ( !process().running() )
-      return new BError( "Process has terminated" );
+    short streamid;
 
     if ( ex.numParams() < 1 || !ex.getParam( 0, timeout ) )
       timeout = 0;
 
-    auto& streambuf = value()->outBuf;
+    if ( ex.numParams() < 2 || !ex.getParam( 0, streamid ) )
+      streamid = 1;  // stdout
+
+    auto& streambuf = streamid == 2 ? value()->errBuf : value()->outBuf;
+
+    if ( !process().running() )
+    {
+      if ( streambuf.in_avail() )
+      {
+        auto begin = boost::asio::buffers_begin( streambuf.data() );
+        auto end = boost::asio::buffers_end( streambuf.data() );
+        auto found = std::find( begin, end, '\n' );
+
+        std::string command{begin, found};  // use found, even if found == end (ie, a flush)
+        streambuf.consume( command.length() + 1 );
+        return new String( command );
+      }
+      return new BError( "Process has terminated" );
+    }
 
     if ( !ex.suspend( timeout ) )
     {
@@ -110,7 +132,7 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
 
     weak_ptr<Core::UOExecutor> uoexec_w = ex.weakptr;
     boost::asio::async_read_until(
-        value()->out, streambuf, '\n',
+        streamid == 2 ? value()->err : value()->out, streambuf, '\n',
         [&streambuf, uoexec_w]( const boost::system::error_code& error,  // Result of operation.
 
                                 std::size_t bytes_transferred  // Number of bytes copied into the
@@ -119,6 +141,8 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
                                                                // bytes successfully transferred
                                                                // prior to the error.
         ) {
+          // @TODO we have to find a way to ensure that we are attempting to revive a script that is
+          // actually suspended because of readline.
           if ( !uoexec_w.exists() )
           {
             DEBUGLOG << "ProcessRef.readline() script has been destroyed\n";
