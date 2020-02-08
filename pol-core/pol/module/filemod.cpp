@@ -278,7 +278,7 @@ bool HasAppendAccess( const Plib::Package* pkg, const Plib::Package* filepackage
 }
 
 FileAccessExecutorModule::FileAccessExecutorModule( Bscript::Executor& exec )
-    : TmplExecutorModule<FileAccessExecutorModule>( exec )
+    : TmplExecutorModule<FileAccessExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

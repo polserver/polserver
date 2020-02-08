@@ -25,6 +25,7 @@
 #include "../bscript/bobject.h"
 #include "../clib/message_queue.h"
 #include "../clib/rawtypes.h"
+#include "polobject.h"
 
 namespace Pol
 {
@@ -53,7 +54,7 @@ private:
 };
 typedef std::shared_ptr<ResultWrapper> RES_WRAPPER;
 
-class BSQLRow final : public Bscript::BObjectImp
+class BSQLRow final : public Core::PolObjectImp
 {
 public:
   BSQLRow( RES_WRAPPER resultset );
@@ -118,7 +119,7 @@ class SQLService;
 typedef std::vector<std::string> QueryParam;
 typedef std::shared_ptr<QueryParam> QueryParams;
 
-class BSQLConnection final : public Bscript::BObjectImp
+class BSQLConnection final : public Core::PolObjectImp
 {
   class ConnectionWrapper;
 
@@ -139,9 +140,9 @@ public:
 
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
+                                            UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* call_polmethod_id( const int id, UOExecutor& ex,
                                                bool forcebuiltin = false ) override;
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;

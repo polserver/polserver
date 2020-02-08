@@ -14,7 +14,7 @@ namespace Pol
 namespace Module
 {
 BasicIoExecutorModule::BasicIoExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<BasicIoExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<BasicIoExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

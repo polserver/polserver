@@ -1271,7 +1271,7 @@ double Item::getItemdescQuality() const
 Core::UOExecutor* Item::uoexec_control()
 {
   if ( process() != nullptr )
-    return &process()->uoexec;
+    return &process()->uoexec();
 
   return nullptr;
 }

@@ -43,7 +43,7 @@
 #include "../realms/realm.h"
 #include "../tooltips.h"
 #include "../uobject.h"
-#include "../uoexhelp.h"
+#include "../uoexec.h"
 
 #include <module_defs/polsys.h>
 
@@ -75,7 +75,7 @@ BObjectImp* PackageObjImp::copy() const
 {
   return new PackageObjImp( obj_ );
 }
-BObjectImp* PackageObjImp::call_method( const char* /*methodname*/, Executor& /*ex*/ )
+BObjectImp* PackageObjImp::call_polmethod( const char* /*methodname*/, Core::UOExecutor& /*ex*/ )
 {
   return new BError( "undefined method" );
 }
@@ -107,14 +107,14 @@ BObjectRef PackageObjImp::get_member( const char* membername )
 }
 
 PolSystemExecutorModule::PolSystemExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<PolSystemExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<PolSystemExecutorModule, Core::PolModule>( exec )
 {
 }
 
 BObjectImp* PolSystemExecutorModule::mf_IncRevision( /* uobject */ )
 {
   Core::UObject* uobj;
-  if ( getUObjectParam( exec, 0, uobj ) )
+  if ( getUObjectParam( 0, uobj ) )
   {
     uobj->increv();
     send_object_cache_to_inrange( uobj );
@@ -309,7 +309,7 @@ BObjectImp* PolSystemExecutorModule::mf_SetSysTrayPopupText()
 BObjectImp* PolSystemExecutorModule::mf_GetItemDescriptor()
 {
   unsigned int objtype;
-  if ( Core::getObjtypeParam( exec, 0, objtype ) )
+  if ( getObjtypeParam( 0, objtype ) )
   {
     const Items::ItemDesc& id = Items::find_itemdesc( objtype );
     if ( id.objtype == 0 && id.graphic == 0 )

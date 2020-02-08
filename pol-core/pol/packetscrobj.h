@@ -9,8 +9,8 @@
 #define PACKETSCROBJ_H
 
 
-#ifndef BSCRIPT_BOBJECT_H
-#include "../bscript/bobject.h"
+#ifndef POLOBJECT_H
+#include "polobject.h"
 #endif
 
 #include <string>
@@ -29,7 +29,7 @@ namespace Pol
 {
 namespace Core
 {
-class BPacket final : public Bscript::BObjectImp
+class BPacket final : public Core::PolObjectImp
 {
 public:
   BPacket();
@@ -41,9 +41,9 @@ public:
   std::vector<unsigned char> buffer;
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;  // id test
-  virtual Bscript::BObjectImp* call_method( const char* methodname,
-                                            Bscript::Executor& ex ) override;
-  virtual Bscript::BObjectImp* call_method_id( const int id, Bscript::Executor& ex,
+  virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
+                                            Core::UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* call_polmethod_id( const int id, Core::UOExecutor& ex,
                                                bool forcebuiltin = false ) override;
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;
@@ -57,6 +57,6 @@ public:
   virtual u8 typeOfInt() const override { return OTPacket; }
   bool is_variable_length;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -368,7 +368,7 @@ Bscript::BObjectImp* DataElemRefObjImp::call_method( const char* methodname, Bsc
 }
 
 DataFileExecutorModule::DataFileExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<DataFileExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<DataFileExecutorModule, Bscript::ExecutorModule>( exec )
 {
 }
 

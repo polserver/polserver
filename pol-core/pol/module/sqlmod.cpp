@@ -27,8 +27,7 @@ namespace Module
 using namespace Bscript;
 
 SQLExecutorModule::SQLExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<SQLExecutorModule>( exec ),
-      uoexec( static_cast<Core::UOExecutor&>( exec ) )
+    : Bscript::TmplExecutorModule<SQLExecutorModule, Core::PolModule>( exec )
 {
 }
 
@@ -233,7 +232,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_connect()
   {
     return new BError( "Invalid parameters" );
   }
-  return background_connect( uoexec.weakptr, host->getStringRep(), username->getStringRep(),
+  return background_connect( uoexec().weakptr, host->getStringRep(), username->getStringRep(),
                              password->getStringRep() );
 }
 Bscript::BObjectImp* SQLExecutorModule::mf_mysql_select_db()
@@ -245,7 +244,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_select_db()
   {
     return new BError( "Invalid parameters" );
   }
-  return background_select( uoexec.weakptr, sql, db->getStringRep() );
+  return background_select( uoexec().weakptr, sql, db->getStringRep() );
 }
 
 Bscript::BObjectImp* SQLExecutorModule::mf_mysql_query()
@@ -260,7 +259,7 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_query()
     return new BError( "Invalid parameters" );
   }
 
-  return background_query( uoexec.weakptr, sql, query->getStringRep(),
+  return background_query( uoexec().weakptr, sql, query->getStringRep(),
                            use_parameters ? params : nullptr );
 }
 

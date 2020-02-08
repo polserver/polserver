@@ -18,7 +18,6 @@
 #include "../mobile/charactr.h"
 #include "../spells.h"
 #include "../ufunc.h"
-#include "../uoexhelp.h"
 #include "../vital.h"
 
 #include <module_defs/vitals.h>
@@ -30,7 +29,7 @@ namespace Module
 using namespace Bscript;
 
 VitalExecutorModule::VitalExecutorModule( Bscript::Executor& exec )
-    : Bscript::TmplExecutorModule<VitalExecutorModule>( exec )
+    : Bscript::TmplExecutorModule<VitalExecutorModule, Core::PolModule>( exec )
 {
 }
 
@@ -40,7 +39,7 @@ BObjectImp* VitalExecutorModule::mf_ApplyRawDamage()
   int damage;
   int userepsys;
   int send_damage_packet;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, damage ) && getParam( 2, userepsys ) &&
+  if ( getCharacterParam( 0, chr ) && getParam( 1, damage ) && getParam( 2, userepsys ) &&
        getParam( 3, send_damage_packet ) && damage >= 0 && damage <= USHRT_MAX )
   {
     bool send_dmg = send_damage_packet == 2 ? Core::settingsManager.combat_config.send_damage_packet
@@ -59,7 +58,7 @@ BObjectImp* VitalExecutorModule::mf_ApplyDamage()
   double damage;
   int userepsys;
   int send_damage_packet;
-  if ( getCharacterParam( exec, 0, chr ) && getRealParam( 1, damage ) && getParam( 2, userepsys ) &&
+  if ( getCharacterParam( 0, chr ) && getRealParam( 1, damage ) && getParam( 2, userepsys ) &&
        getParam( 3, send_damage_packet ) )
   {
     if ( damage >= 0.0 && damage <= 30000.0 )
@@ -82,7 +81,7 @@ BObjectImp* VitalExecutorModule::mf_HealDamage()
 {
   Mobile::Character* chr;
   int amount;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, amount ) && amount >= 0 &&
+  if ( getCharacterParam( 0, chr ) && getParam( 1, amount ) && amount >= 0 &&
        amount <= USHRT_MAX )
   {
     Mobile::Character* controller = GetUOController();
@@ -102,7 +101,7 @@ BObjectImp* VitalExecutorModule::mf_ConsumeMana()
 {
   Mobile::Character* chr;
   int spellid;
-  if ( getCharacterParam( exec, 0, chr ) && getParam( 1, spellid ) )
+  if ( getCharacterParam( 0, chr ) && getParam( 1, spellid ) )
   {
     if ( !Core::VALID_SPELL_ID( spellid ) )
       return new BError( "Spell ID out of range" );
@@ -129,7 +128,7 @@ BObjectImp* VitalExecutorModule::mf_GetVitalName( /* alias_name */ )
 {
   const Core::Vital* vital;
 
-  if ( !getVitalParam( exec, 0, vital ) )
+  if ( !getVitalParam( 0, vital ) )
   {
     return new BError( "Invalid parameter type." );
   }
@@ -142,7 +141,7 @@ BObjectImp* VitalExecutorModule::mf_GetVital( /* mob, vitalid */ )
   Mobile::Character* chr;
   const Core::Vital* vital;
 
-  if ( getCharacterParam( exec, 0, chr ) && getVitalParam( exec, 1, vital ) )
+  if ( getCharacterParam( 0, chr ) && getVitalParam( 1, vital ) )
   {
     const Mobile::VitalValue& vv = chr->vital( vital->vitalid );
     return new BLong( vv.current() );
@@ -156,7 +155,7 @@ BObjectImp* VitalExecutorModule::mf_GetVitalMaximumValue( /* mob, vitalid */ )
   Mobile::Character* chr;
   const Core::Vital* vital;
 
-  if ( getCharacterParam( exec, 0, chr ) && getVitalParam( exec, 1, vital ) )
+  if ( getCharacterParam( 0, chr ) && getVitalParam( 1, vital ) )
   {
     const Mobile::VitalValue& vv = chr->vital( vital->vitalid );
     return new BLong( vv.maximum() );
@@ -170,7 +169,7 @@ BObjectImp* VitalExecutorModule::mf_GetVitalRegenRate( /* mob, vitalid */ )
   Mobile::Character* chr;
   const Core::Vital* vital;
 
-  if ( getCharacterParam( exec, 0, chr ) && getVitalParam( exec, 1, vital ) )
+  if ( getCharacterParam( 0, chr ) && getVitalParam( 1, vital ) )
   {
     const Mobile::VitalValue& vv = chr->vital( vital->vitalid );
     return new BLong( vv.regenrate() );
@@ -185,7 +184,7 @@ BObjectImp* VitalExecutorModule::mf_SetVital( /* mob, vitalid, hundredths */ )
   const Core::Vital* vital;
   int value;
 
-  if ( getCharacterParam( exec, 0, chr ) && getVitalParam( exec, 1, vital ) &&
+  if ( getCharacterParam( 0, chr ) && getVitalParam( 1, vital ) &&
        getParam( 2, value, Core::VITAL_MAX_HUNDREDTHS ) )
   {
     Mobile::VitalValue& vv = chr->vital( vital->vitalid );
@@ -202,7 +201,7 @@ BObjectImp* VitalExecutorModule::mf_ConsumeVital( /* mob, vital, hundredths */ )
   const Core::Vital* vital;
   int hundredths;
 
-  if ( getCharacterParam( exec, 0, chr ) && getVitalParam( exec, 1, vital ) &&
+  if ( getCharacterParam( 0, chr ) && getVitalParam( 1, vital ) &&
        getParam( 2, hundredths, Core::VITAL_MAX_HUNDREDTHS ) )
   {
     Mobile::VitalValue& vv = chr->vital( vital->vitalid );
@@ -220,7 +219,7 @@ BObjectImp* VitalExecutorModule::mf_RecalcVitals( /* mob, attributes, vitals */ 
   BObjectImp* param1 = getParamImp( 1 );
   BObjectImp* param2 = getParamImp( 2 );
 
-  if ( getCharacterParam( exec, 0, chr ) && param1 != nullptr && param2 != nullptr )
+  if ( getCharacterParam( 0, chr ) && param1 != nullptr && param2 != nullptr )
   {
     if ( chr->logged_in() )
     {

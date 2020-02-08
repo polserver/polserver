@@ -8,7 +8,7 @@
 #define PARTYMOD_H
 
 #include "../../bscript/bobject.h"
-#include "../../bscript/execmodl.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -26,9 +26,8 @@ class Party;
 }
 namespace Module
 {
-extern Bscript::BApplicObjType party_type;
 
-class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule>
+class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule, Core::PolModule>
 {
 public:
   PartyExecutorModule( Bscript::Executor& exec );

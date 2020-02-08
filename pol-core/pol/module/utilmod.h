@@ -23,7 +23,8 @@ namespace Pol
 {
 namespace Module
 {
-class UtilExecutorModule : public Bscript::TmplExecutorModule<UtilExecutorModule>
+class UtilExecutorModule
+    : public Bscript::TmplExecutorModule<UtilExecutorModule, Bscript::ExecutorModule>
 {
 public:
   UtilExecutorModule( Bscript::Executor& exec );
@@ -34,6 +35,6 @@ public:
   Bscript::BObjectImp* mf_StrFormatTime();
   Bscript::BObjectImp* mf_RandomIntMinMax();
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif  // UTILMOD_H

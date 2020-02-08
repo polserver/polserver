@@ -28,7 +28,6 @@
 #include "../realms/realm.h"
 #include "../ufunc.h"
 #include "../uobject.h"
-#include "../uoexhelp.h"
 #include "../uworld.h"
 #include "uomod.h"
 
@@ -49,7 +48,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
   const String* realm_name;
 
   // Initialize variables
-  if ( !( getUObjectParam( exec, 0, obj ) && getParam( 1, x ) && getParam( 2, y ) &&
+  if ( !( getUObjectParam( 0, obj ) && getParam( 1, x ) && getParam( 2, y ) &&
           getParam( 3, z, ZCOORD_MIN, ZCOORD_MAX ) && getStringParam( 4, realm_name ) &&
           getParam( 5, flags ) ) )
   {
