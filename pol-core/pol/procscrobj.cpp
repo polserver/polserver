@@ -31,40 +31,71 @@ namespace bp = boost::process;
 
 BApplicObjType processobjimp_type;
 
+
+ScriptProcessDetailsRef::ScriptProcessDetailsRef( ScriptProcessDetails* ptr )
+    : ref_ptr<ScriptProcessDetails>( ptr )
+{
+}
+
+
 ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios,
                                             std::string exeName, std::vector<std::string> args )
-    : script( uoexec->weakptr ),
+    : ref_counted(),
+      script( uoexec->weakptr ),
       out( ios ),
       err( ios ),
       outBuf(),
       errBuf(),
+      exeName( exeName ),
       process(
           bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
           bp::std_in.close(), bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
             INFO_PRINT << "Process exited!\n";
             boost::system::error_code ec;
             boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
-            this->out.close();
-            this->out.async_close();
+            //this->out.close();
+            //this->out.async_close();
             this->out.cancel();
             boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
-            this->err.close();
-            this->err.async_close();
+            //this->err.close();
+            //this->err.async_close();
             this->err.cancel();
           } )
 {
 }
 
+ScriptProcessDetails::~ScriptProcessDetails()
+{
+  if ( process.running() && process.joinable() )
+  {
+    UOExecutor* uoexec = script.exists() ? script.get_weakptr() : nullptr;
+
+    if ( uoexec )
+    {
+      DEBUGLOG << "Script Warning in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n";
+    }
+    else
+    {
+      DEBUGLOG << "Script Warning in [unknown] PC=0: \n";
+    }
+    DEBUGLOG << "\tProcess " << exeName << " (pid " << process.id()
+             << ") terminating due to destruction of script object.\n\tEnsure a call to "
+                "Process.wait() or "
+                "Process.detach() is called; see documentation for more details.";
+    process.terminate();
+  }
+}
+
 ProcessObjImp::ProcessObjImp( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
                               std::vector<std::string> args )
-    : PolApplicObj<std::shared_ptr<ScriptProcessDetails>>(
+    : PolApplicObj<ScriptProcessDetailsRef>(
           &processobjimp_type,
-          std::make_shared<ScriptProcessDetails>( uoexec, ios, exeName, args ) )
+          ScriptProcessDetailsRef( new ScriptProcessDetails( uoexec, ios, exeName, args ) ) )
 {
 }
 
-ProcessObjImp::ProcessObjImp( std::shared_ptr<ScriptProcessDetails> other )
-    : PolApplicObj<std::shared_ptr<ScriptProcessDetails>>( &processobjimp_type, other )
+ProcessObjImp::ProcessObjImp( ScriptProcessDetailsRef other )
+    : PolApplicObj<ScriptProcessDetailsRef>( &processobjimp_type, other )
 {
 }
 

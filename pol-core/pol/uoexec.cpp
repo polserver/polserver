@@ -27,6 +27,7 @@
 #include "partyscrobj.h"
 #include "polcfg.h"
 #include "polclock.h"
+#include "procscrobj.h"
 #include "uobject.h"
 #include "uoscrobj.h"
 #include "vital.h"
@@ -57,6 +58,8 @@ UOExecutor::UOExecutor()
   addModule( os_module );
 }
 
+using namespace Bscript;
+
 UOExecutor::~UOExecutor()
 {
   // note, the os_module isn't deleted here because
@@ -68,7 +71,31 @@ UOExecutor::~UOExecutor()
     POLLOG_ERROR.Format( "Script {}: {} instr cycles, {} sleep cycles, {} seconds\n" )
         << scriptname() << instr_cycles << sleep_cycles << elapsed;
   }
+  for ( auto const& glob : this->Globals2 )
+  {
+    auto* objimp = glob.get()->impptr();
+    if ( objimp->isa( BObjectImp::OTApplicObj ) )
+    {
+      const BApplicObjBase* aob =
+          Clib::explicit_cast<const BApplicObjBase*, const BObjectImp*>( objimp );
 
+      if ( aob->object_type() == &processobjimp_type )
+      {
+        const ProcessObjImp* process_imp =
+            Clib::explicit_cast<const ProcessObjImp*, const BApplicObjBase*>( aob );
+        auto& process = process_imp->process();
+        if ( process.running() && process.joinable() )
+        {
+          DEBUGLOG << "Script Warning in '" << scriptname() << "' PC=" << PC << ": \n\tProcess "
+                   << process_imp->exeName() << " (pid " << process.id()
+                   << ") terminating due to destruction of script object.\n\tEnsure a call to "
+                      "Process.wait() or "
+                      "Process.detach() is called; see documentation for more details.";
+          process.terminate();
+        }
+      }
+    }
+  }
   pParent = nullptr;
   pChild = nullptr;
 }

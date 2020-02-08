@@ -14,6 +14,7 @@
 #endif
 
 #include "../clib/rawtypes.h"
+#include "../clib/refptr.h"
 #include "../clib/weakptr.h"
 #include "polobject.h"
 #include <boost/asio/streambuf.hpp>
@@ -35,26 +36,34 @@ namespace Core
 class UOExecutor;
 
 extern Bscript::BApplicObjType processobjimp_type;
-class ScriptProcessDetails
+class ScriptProcessDetails : public ref_counted
 {
 public:
   ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
                         std::vector<std::string> args );
+  ~ScriptProcessDetails();
   weak_ptr<UOExecutor> script;
   boost::process::async_pipe out;
   boost::process::async_pipe err;
   boost::asio::streambuf outBuf;
   boost::asio::streambuf errBuf;
+  std::string exeName;
   boost::process::child process;
 };
-class ProcessObjImp final : public PolApplicObj<std::shared_ptr<ScriptProcessDetails>>
+
+class ScriptProcessDetailsRef : public ref_ptr<ScriptProcessDetails>
 {
-  typedef PolApplicObj<std::shared_ptr<ScriptProcessDetails>> base;
+public:
+  explicit ScriptProcessDetailsRef( ScriptProcessDetails* details );
+};
+class ProcessObjImp final : public PolApplicObj<ScriptProcessDetailsRef>
+{
+  typedef PolApplicObj<ScriptProcessDetailsRef> base;
 
 public:
   explicit ProcessObjImp( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
                           std::vector<std::string> args );
-  explicit ProcessObjImp( std::shared_ptr<ScriptProcessDetails> other );
+  explicit ProcessObjImp( ScriptProcessDetailsRef other );
 
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
@@ -71,6 +80,7 @@ public:
   {
     return value()->script.exists() ? value()->script.get_weakptr() : nullptr;
   }
+  const std::string& exeName() const { return value()->exeName; }
 };
 }  // namespace Core
 }  // namespace Pol
