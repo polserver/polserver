@@ -248,6 +248,7 @@ public:
     size_t misc;
   };
   threadhelp::TaskThreadPool task_thread_pool;
+  bool allowExecuteProcess;
 
 private:
   void cleanup_vars();

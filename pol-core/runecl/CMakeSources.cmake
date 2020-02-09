@@ -11,6 +11,7 @@ set (runecl_sources  # sorted !
   ../pol/module/mathmod.cpp
   ../pol/module/utilmod.cpp 
   ../pol/proplist.cpp
+  ../pol/scrdef.cpp
   ../pol/xmlfilescrobj.cpp
   CMakeSources.cmake 
   RunEclMain.cpp

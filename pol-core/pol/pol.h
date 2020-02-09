@@ -3,7 +3,7 @@
 
 namespace Pol
 {
-extern int xmain_outer( bool testing );
+extern int xmain_outer( bool testing, bool allowExecuteProcess );
 }
 
 #endif  // POL_H

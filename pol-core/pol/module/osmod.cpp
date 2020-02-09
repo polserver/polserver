@@ -21,6 +21,7 @@
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
+#include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../mobile/attribute.h"
 #include "../mobile/charactr.h"
@@ -29,6 +30,7 @@
 #include "../network/packethelper.h"
 #include "../network/packets.h"
 #include "../network/pktdef.h"
+#include "../plib/pkg.h"
 #include "../polcfg.h"
 #include "../poldbg.h"
 #include "../polsem.h"
@@ -41,6 +43,7 @@
 #include "../skills.h"
 #include "../ufunc.h"
 #include "../uoexec.h"
+#include "fileaccess.h"
 #include "npcmod.h"
 #include "uomod.h"
 
@@ -1145,7 +1148,15 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
   Bscript::BObjectImp* options;
   std::vector<std::string> argsVec;
 
-  Core::UOExecutor* this_uoexec = static_cast<Core::UOExecutor*>( &exec );
+  auto& uoex = uoexec();
+
+  if ( !Core::gamestate.allowExecuteProcess ||
+       !Module::HasExecuteAccess( uoex.prog()->pkg, uoex.scriptname() ) )
+  {
+    DEBUGLOG << "Script Error in '" << exec.scriptname() << "' PC=" << exec.PC
+             << ": \n\tScript denied access to ExecuteProcess\n";
+    return new BError( "Access denied" );
+  }
 
   if ( !getStringParam( 0, exe_name ) ||
        !( args = static_cast<Bscript::ObjArray*>(
@@ -1192,15 +1203,14 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
     auto procStdout = std::make_shared<std::future<std::string>>(),
          procStderr = std::make_shared<std::future<std::string>>();
 
-    if ( !this_uoexec->suspend() )
+    if ( !uoex.suspend() )
     {
-      DEBUGLOG << "Script Error in '" << this_uoexec->scriptname() << "' PC=" << this_uoexec->PC
-               << ": \n"
+      DEBUGLOG << "Script Error in '" << uoex.scriptname() << "' PC=" << uoex.PC << ": \n"
                << "\tThe execution of this script can't be blocked!\n";
       return new Bscript::BError( "Script can't be blocked" );
     }
 
-    weak_ptr<Core::UOExecutor> uoexec_w = this_uoexec->weakptr;
+    weak_ptr<Core::UOExecutor> uoexec_w = uoex.weakptr;
     try
     {
       childProcess_ = Clib::make_unique<bp::child>(
@@ -1208,11 +1218,9 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
           bp::std_err > *procStderr, bp::std_in.close(),
           bp::on_exit = [uoexec_w, procStdout, procStderr]( int exit,
                                                             const std::error_code& ec_in ) {
-            INFO_PRINT << "Process exited!\n";
             auto os_module = static_cast<OSExecutorModule*>( uoexec_w->findModule( "OS" ) );
             os_module->childProcess_.reset();
             Core::PolLock lck;
-            INFO_PRINT << "Got lock!\n";
             if ( !uoexec_w.exists() )
             {
               DEBUGLOG << "ExecuteProcess script has been destroyed\n";
@@ -1225,7 +1233,6 @@ BObjectImp* OSExecutorModule::mf_ExecuteProcess()
             elem->addMember( "code", new BLong( exit ) );
 
             uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( elem.release() ) );
-            INFO_PRINT << "Reviving!\n";
             uoexec_w.get_weakptr()->revive();
           } );
     }

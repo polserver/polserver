@@ -22,10 +22,10 @@ void PolMain::showHelp()
 int PolMain::main()
 {
   // TODO: merge the following with all the other xmain* functions
-  return Pol::xmain_outer( programArgsFind( "test" ) );
+  return Pol::xmain_outer( programArgsFind( "test" ), programArgsFind( "allow-executeprocess" ) );
 }
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

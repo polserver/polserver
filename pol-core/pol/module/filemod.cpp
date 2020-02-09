@@ -28,6 +28,7 @@
 #include "../binaryfilescrobj.h"
 #include "../core.h"
 #include "../globals/ucfg.h"
+#include "../scrdef.h"
 #include "../xmlfilescrobj.h"
 #include "fileaccess.h"
 #include "filemod.h"
@@ -100,11 +101,14 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
       AllowAppend( elem.remove_bool( "AllowAppend", false ) ),
       AllowRead( elem.remove_bool( "AllowRead", false ) ),
       AllowRemote( elem.remove_bool( "AllowRemote", false ) ),
+      AllowExecute( elem.remove_bool( "AllowExecute", false ) ),
       AllPackages( false ),
       AllDirectories( false ),
       AllExtensions( false )
 {
   std::string tmp;
+  Core::ScriptDef script;
+
   while ( elem.remove_prop( "Package", &tmp ) )
   {
     if ( tmp == "*" )
@@ -117,6 +121,18 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
       else
         Packages.insert( pkg );
     }
+  }
+
+  while ( elem.remove_prop( "Script", &tmp ) )
+  {
+    if ( !script.config_nodie( tmp, nullptr, "scripts/" ) || !script.exists() )
+      ERROR_PRINT << "Invalid fileaccess Script entry: " << tmp << "\n";
+    else
+      Scripts.emplace( script.name() );
+  }
+
+  if ( Scripts.size() || Packages.size() )
+  {
     while ( elem.remove_prop( "Directory", &tmp ) )
     {
       if ( tmp == "*" )
@@ -165,6 +181,12 @@ bool FileAccess::AppliesToPackage( const Plib::Package* pkg ) const
     return true;
 
   return false;
+}
+
+
+bool FileAccess::AppliesToScript( const std::string& scriptname ) const
+{
+  return Scripts.find( scriptname ) != Scripts.end();
 }
 
 bool FileAccess::AppliesToPath( const std::string& path, const Plib::Package* filepkg ) const
@@ -270,6 +292,18 @@ bool HasAppendAccess( const Plib::Package* pkg, const Plib::Package* filepackage
   {
     if ( fa.AllowAppend && fa.AllowsAccessTo( pkg, filepackage ) && fa.AppliesToPackage( pkg ) &&
          fa.AppliesToPath( path, filepackage ) )
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool HasExecuteAccess( const Plib::Package* pkg, const std::string& scriptname )
+{
+  for ( const auto& fa : Core::configurationbuffer.file_access_rules )
+  {
+    if ( fa.AllowExecute && ( fa.AppliesToPackage( pkg ) || fa.AppliesToScript( scriptname ) ) )
     {
       return true;
     }

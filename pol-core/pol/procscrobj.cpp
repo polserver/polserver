@@ -50,16 +50,19 @@ ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_
       process(
           bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
           bp::std_in.close(), bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
-            INFO_PRINT << "Process exited!\n";
+            /*INFO_PRINT << "Process exited! " << this->out.is_open() << " " << exit << " "
+                       << ec_in.message() << "\n";*/
             boost::system::error_code ec;
-            boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
-            //this->out.close();
-            //this->out.async_close();
-            this->out.cancel();
-            boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
-            //this->err.close();
-            //this->err.async_close();
-            this->err.cancel();
+            if ( this->out.is_open() )
+            {
+              boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
+              this->out.close();
+            }
+            if ( this->err.is_open() )
+            {
+              boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
+              this->err.close();
+            }
           } )
 {
 }
@@ -81,7 +84,7 @@ ScriptProcessDetails::~ScriptProcessDetails()
     DEBUGLOG << "\tProcess " << exeName << " (pid " << process.id()
              << ") terminating due to destruction of script object.\n\tEnsure a call to "
                 "Process.wait() or "
-                "Process.detach() is called; see documentation for more details.";
+                "Process.detach() is called; see documentation for more details.\n";
     process.terminate();
   }
 }

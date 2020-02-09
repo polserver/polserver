@@ -90,7 +90,7 @@ UOExecutor::~UOExecutor()
                    << process_imp->exeName() << " (pid " << process.id()
                    << ") terminating due to destruction of script object.\n\tEnsure a call to "
                       "Process.wait() or "
-                      "Process.detach() is called; see documentation for more details.";
+                      "Process.detach() is called; see documentation for more details.\n";
           process.terminate();
         }
       }

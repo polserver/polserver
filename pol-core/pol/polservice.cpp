@@ -13,8 +13,8 @@
 
 #include "polresource.h"
 
-#include "../clib/Program/ProgramConfig.h"
 #include "../clib/Header_Windows.h"
+#include "../clib/Program/ProgramConfig.h"
 #include "pol.h"
 // This needs to be after the windows includes, otherwise it'll complain about windows types.
 #include "../clib/NTService.h"
@@ -46,9 +46,7 @@ public:
   virtual void OnStop() override;
 };
 
-PolService::PolService() : Clib::CNTService( "POL" )
-{
-}
+PolService::PolService() : Clib::CNTService( "POL" ) {}
 
 void PolService::Run()
 {
@@ -63,7 +61,8 @@ void PolService::Run()
     LogEvent( EVENTLOG_INFORMATION_TYPE, EVMSG_DEBUG, PROG_CONFIG::programDir().c_str() );
     rc = SetCurrentDirectory( PROG_CONFIG::programDir().c_str() );
 
-    xmain_outer( false /*testing*/ );
+    // FIXME: properly handle allowExecuteProcess
+    xmain_outer( false /*testing*/, false /*allowExecuteProcess*/ );
   }
   catch ( std::exception& ex )
   {
@@ -85,7 +84,8 @@ int RunWindowsService( int argc, char** argv )
   if ( !MyService.ParseStandardArgs( argc, argv ) )
   {
     // no service-related parameters
-    return xmain_outer( false /*testing*/ );
+    // FIXME: properly handle allowExecuteProcess
+    return xmain_outer( false /*testing*/, false /*allowExecuteProcess*/ );
   }
   else
   {
@@ -308,5 +308,5 @@ void ShutdownSystemTrayHandling()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -170,7 +170,8 @@ GameState::GameState()
       textcmds(),
       paramtextcmds(),
       uo_skills(),
-      task_thread_pool()
+      task_thread_pool(),
+      allowExecuteProcess( false )
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
 }

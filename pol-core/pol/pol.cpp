@@ -1283,8 +1283,10 @@ int xmain_inner( bool testing )
   return 0;
 }
 
-int xmain_outer( bool testing )
+int xmain_outer( bool testing, bool allowExecuteProcess )
 {
+  Core::gamestate.allowExecuteProcess = allowExecuteProcess;
+
   try
   {
     return xmain_inner( testing );
