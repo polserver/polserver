@@ -16,6 +16,7 @@
 #include "module/polsystemmod.h"
 #include "module/uomod.h"
 #include "polcfg.h"
+#include "polsem.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 #undef BOOST_ASIO_HAS_BOOST_REGEX
@@ -50,8 +51,8 @@ ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_
       process(
           bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
           bp::std_in.close(), bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
-            /*INFO_PRINT << "Process exited! " << this->out.is_open() << " " << exit << " "
-                       << ec_in.message() << "\n";*/
+            // INFO_PRINT << "Process exited! " << this->out.is_open() << " " << exit << " "
+            //           << ec_in.message() << "\n";
             boost::system::error_code ec;
             if ( this->out.is_open() )
             {
@@ -165,49 +166,56 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
     }
 
     weak_ptr<Core::UOExecutor> uoexec_w = ex.weakptr;
+    auto res = BObjectRef( new BObject( new BError( "Timeout" ) ) );
     boost::asio::async_read_until(
         streamid == 2 ? value()->err : value()->out, streambuf, '\n',
-        [&streambuf, uoexec_w]( const boost::system::error_code& error,  // Result of operation.
+        [&streambuf, uoexec_w, res](
+            const boost::system::error_code& error,  // Result of operation.
 
-                                std::size_t bytes_transferred  // Number of bytes copied into the
-                                                               // buffers. If an error occurred,
-                                                               // this will be the  number of
-                                                               // bytes successfully transferred
-                                                               // prior to the error.
+            std::size_t bytes_transferred  // Number of bytes copied into the
+                                           // buffers. If an error occurred,
+                                           // this will be the  number of
+                                           // bytes successfully transferred
+                                           // prior to the error.
         ) {
-          // @TODO we have to find a way to ensure that we are attempting to revive a script that is
-          // actually suspended because of readline.
-          if ( !uoexec_w.exists() )
+          Core::PolLock lock;
+          auto* uoexec = uoexec_w.exists() ? uoexec_w.get_weakptr() : nullptr;
+          if ( !uoexec )
           {
             DEBUGLOG << "ProcessRef.readline() script has been destroyed\n";
             return;
           }
 
-          if ( !error )
-          {
-            assert( streambuf.size() > bytes_transferred );
-            // Extract up to the first delimiter.
-            std::string command{
-                boost::asio::buffers_begin( streambuf.data() ),
-                boost::asio::buffers_begin( streambuf.data() ) + bytes_transferred - 1};
-            // Consume through the first delimiter so that subsequent async_read_until
-            // will not reiterate over the same data.
+          bool shouldWake = uoexec->in_hold_list() == Core::HoldListType::TIMEOUT_LIST &&
+                            uoexec->ValueStack.back()->impptr() == res.get()->impptr();
 
-            streambuf.consume( bytes_transferred );
-            uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new String( command ) ) );
-            uoexec_w.get_weakptr()->revive();
-          }
-          else
+          if ( shouldWake )
           {
-            DEBUGLOG << "Error! " << error.message() << " transferred " << bytes_transferred
-                     << "\n";
-            uoexec_w.get_weakptr()->ValueStack.back().set(
-                new BObject( new BError( error.message() ) ) );
-            uoexec_w.get_weakptr()->revive();
+            if ( !error )
+            {
+              assert( streambuf.size() > bytes_transferred );
+              // Extract up to the first delimiter.
+              std::string command{
+                  boost::asio::buffers_begin( streambuf.data() ),
+                  boost::asio::buffers_begin( streambuf.data() ) + bytes_transferred - 1};
+              // Consume through the first delimiter so that subsequent async_read_until
+              // will not reiterate over the same data.
+
+              streambuf.consume( bytes_transferred );
+              uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new String( command ) ) );
+              uoexec_w.get_weakptr()->revive();
+            }
+            else
+            {
+              DEBUGLOG << "Error! " << error.message() << " transferred " << bytes_transferred
+                       << "\n";
+              uoexec_w.get_weakptr()->ValueStack.back().set(
+                  new BObject( new BError( error.message() ) ) );
+              uoexec_w.get_weakptr()->revive();
+            }
           }
         } );
-
-    return new BError( "Timeout" );
+    return res.get()->impptr();
   }
   default:
     return new BError( "undefined" );
