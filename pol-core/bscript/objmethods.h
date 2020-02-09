@@ -180,7 +180,11 @@ enum MethodID
   MTH_CLEAR_BUFFS,
   MTH_CALL,
   MTH_SORTEDINSERT,
-  MTH_READLINE
+  MTH_READLINE,
+  MTH_WRITE,  // 155
+  MTH_RUNNING,
+  MTH_WAIT,
+  MTH_DETACH
 };
 
 
@@ -196,6 +200,6 @@ extern int n_objmethods;
 
 ObjMethod* getKnownObjMethod( const char* token );
 ObjMethod* getObjMethod( int id );
-}
-}
+}  // namespace Bscript
+}  // namespace Pol
 #endif

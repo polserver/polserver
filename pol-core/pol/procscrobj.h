@@ -48,6 +48,8 @@ public:
   boost::asio::streambuf outBuf;
   boost::asio::streambuf errBuf;
   std::string exeName;
+  bool isWaiting;
+  int exitCode;
   boost::process::child process;
 };
 

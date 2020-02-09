@@ -48,22 +48,37 @@ ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_
       outBuf(),
       errBuf(),
       exeName( exeName ),
+      isWaiting( false ),
+      exitCode( 0 ),
       process(
           bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
           bp::std_in.close(), bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
             // INFO_PRINT << "Process exited! " << this->out.is_open() << " " << exit << " "
             //           << ec_in.message() << "\n";
             boost::system::error_code ec;
-            if ( this->out.is_open() )
+            auto* uoexec = script.exists() ? script.get_weakptr() : nullptr;
+            if ( uoexec )
             {
-              boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
-              this->out.close();
+              exitCode = exit;
+              if ( this->out.is_open() )
+              {
+                boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
+                this->out.close();
+              }
+              if ( this->err.is_open() )
+              {
+                boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
+                this->err.close();
+              }
+              if ( isWaiting )
+              {
+                PolLock lock;
+                uoexec->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
+                uoexec->revive();
+              }
             }
-            if ( this->err.is_open() )
-            {
-              boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
-              this->err.close();
-            }
+            else if ( isWaiting )
+              DEBUGLOG << "Process.wait() script has been destroyed\n";
           } )
 {
 }
@@ -217,6 +232,15 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
         } );
     return res.get()->impptr();
   }
+  case MTH_WAIT:
+    if ( !ex.suspend() )
+    {
+      DEBUGLOG << "Script Error in '" << ex.scriptname() << "' PC=" << ex.PC << ": \n"
+               << "\tThe execution of this script can't be blocked!\n";
+      return new Bscript::BError( "Script can't be blocked" );
+    }
+    value()->isWaiting = true;
+    return new BLong( 0 );  // dummy
   default:
     return new BError( "undefined" );
   }
@@ -237,6 +261,12 @@ BObjectRef ProcessObjImp::get_member_id( const int id )
   {
   case MBR_PID:
     return BObjectRef( new BLong( process().id() ) );
+  case MBR_EXITCODE:
+    if ( process().running() )
+      return BObjectRef( new BError( "Process is still running" ) );
+    else
+      return BObjectRef( new BLong( value()->exitCode ) );
+
   default:
     return BObjectRef( UninitObject::create() );
   }

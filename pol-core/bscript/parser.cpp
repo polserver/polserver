@@ -516,6 +516,7 @@ ObjMember object_members[] = {
     {MBR_LUCK_MOD, "luck_mod", false},  // 245
     {MBR_HIT_CHANCE_MOD, "hit_chance_mod", false},
     {MBR_PACKAGE, "package", true},
+    {MBR_EXITCODE, "exitcode", true},
 
 
 };
@@ -702,6 +703,10 @@ ObjMethod object_methods[] = {
     {MTH_CALL, "call", false},
     {MTH_SORTEDINSERT, "sorted_insert", false},
     {MTH_READLINE, "readline", false},
+    {MTH_WRITE, "write", false},  // 155
+    {MTH_RUNNING, "running", false},
+    {MTH_WAIT, "wait", false},
+    {MTH_DETACH, "detach", false},
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

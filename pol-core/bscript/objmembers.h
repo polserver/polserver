@@ -286,6 +286,7 @@ enum MemberID
   MBR_LUCK_MOD,
   MBR_HIT_CHANCE_MOD,
   MBR_PACKAGE,
+  MBR_EXITCODE,
 };
 
 
