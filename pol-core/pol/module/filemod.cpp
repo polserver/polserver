@@ -121,18 +121,6 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
       else
         Packages.insert( pkg );
     }
-  }
-
-  while ( elem.remove_prop( "Script", &tmp ) )
-  {
-    if ( !script.config_nodie( tmp, nullptr, "scripts/" ) || !script.exists() )
-      ERROR_PRINT << "Invalid fileaccess Script entry: " << tmp << "\n";
-    else
-      Scripts.emplace( script.name() );
-  }
-
-  if ( Scripts.size() || Packages.size() )
-  {
     while ( elem.remove_prop( "Directory", &tmp ) )
     {
       if ( tmp == "*" )
@@ -156,6 +144,13 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
       else
         Extensions.push_back( tmp );
     }
+  }
+  while ( elem.remove_prop( "Script", &tmp ) )
+  {
+    if ( !script.config_nodie( tmp, nullptr, "scripts/" ) || !script.exists() )
+      ERROR_PRINT << "Invalid fileaccess Script entry: " << tmp << "\n";
+    else
+      Scripts.emplace( script.name() );
   }
 }
 bool FileAccess::AllowsAccessTo( const Plib::Package* pkg, const Plib::Package* filepackage ) const
