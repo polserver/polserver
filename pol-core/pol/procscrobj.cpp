@@ -39,46 +39,45 @@ ScriptProcessDetailsRef::ScriptProcessDetailsRef( ScriptProcessDetails* ptr )
 }
 
 
-ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios,
-                                            std::string exeName, std::vector<std::string> args )
+ScriptProcessDetails::ScriptProcessDetails( boost::asio::io_context& ios, std::string exeName,
+                                            std::vector<std::string> args )
     : ref_counted(),
-      script( uoexec->weakptr ),
+      waitingScripts(),
+      in(),
       out( ios ),
       err( ios ),
       outBuf(),
       errBuf(),
       exeName( exeName ),
-      isWaiting( false ),
       exitCode( 0 ),
       process(
           bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
-          bp::std_in.close(), bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
+          bp::std_in < this->in, bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
             // INFO_PRINT << "Process exited! " << this->out.is_open() << " " << exit << " "
             //           << ec_in.message() << "\n";
             boost::system::error_code ec;
-            auto* uoexec = script.exists() ? script.get_weakptr() : nullptr;
-            if ( uoexec )
+            exitCode = exit;
+            if ( this->out.is_open() )
             {
-              exitCode = exit;
-              if ( this->out.is_open() )
-              {
-                boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
-                this->out.close();
-              }
-              if ( this->err.is_open() )
-              {
-                boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
-                this->err.close();
-              }
-              if ( isWaiting )
+              boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
+              this->out.close();
+            }
+            if ( this->err.is_open() )
+            {
+              boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
+              this->err.close();
+            }
+            for ( auto& uoex_w : waitingScripts )
+            {
+              auto* uoex = uoex_w.exists() ? uoex_w.get_weakptr() : nullptr;
+              if ( uoex )
               {
                 PolLock lock;
-                uoexec->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-                uoexec->revive();
+                uoex->ValueStack.back().set( ec_in ? new BObject( new BError( ec_in.message() ) )
+                                                   : new BObject( new BLong( 1 ) ) );
+                uoex->revive();
               }
             }
-            else if ( isWaiting )
-              DEBUGLOG << "Process.wait() script has been destroyed\n";
           } )
 {
 }
@@ -87,16 +86,6 @@ ScriptProcessDetails::~ScriptProcessDetails()
 {
   if ( process.running() && process.joinable() )
   {
-    UOExecutor* uoexec = script.exists() ? script.get_weakptr() : nullptr;
-
-    if ( uoexec )
-    {
-      DEBUGLOG << "Script Warning in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n";
-    }
-    else
-    {
-      DEBUGLOG << "Script Warning in [unknown] PC=0: \n";
-    }
     DEBUGLOG << "\tProcess " << exeName << " (pid " << process.id()
              << ") terminating due to destruction of script object.\n\tEnsure a call to "
                 "Process.wait() or "
@@ -109,7 +98,7 @@ ProcessObjImp::ProcessObjImp( UOExecutor* uoexec, boost::asio::io_context& ios, 
                               std::vector<std::string> args )
     : PolApplicObj<ScriptProcessDetailsRef>(
           &processobjimp_type,
-          ScriptProcessDetailsRef( new ScriptProcessDetails( uoexec, ios, exeName, args ) ) )
+          ScriptProcessDetailsRef( new ScriptProcessDetails( ios, exeName, args ) ) )
 {
 }
 
@@ -153,24 +142,23 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
     if ( ex.numParams() < 1 || !ex.getParam( 0, timeout ) )
       timeout = 0;
 
-    if ( ex.numParams() < 2 || !ex.getParam( 0, streamid ) )
+    if ( ex.numParams() < 2 || !ex.getParam( 1, streamid ) )
       streamid = 1;  // stdout
 
     auto& streambuf = streamid == 2 ? value()->errBuf : value()->outBuf;
 
     if ( !process().running() )
     {
-      if ( streambuf.in_avail() )
-      {
-        auto begin = boost::asio::buffers_begin( streambuf.data() );
-        auto end = boost::asio::buffers_end( streambuf.data() );
-        auto found = std::find( begin, end, '\n' );
+      auto begin = boost::asio::buffers_begin( streambuf.data() );
+      auto end = boost::asio::buffers_end( streambuf.data() );
 
-        std::string command{begin, found};  // use found, even if found == end (ie, a flush)
-        streambuf.consume( command.length() + 1 );
-        return new String( command );
-      }
-      return new BError( "Process has terminated" );
+      if ( begin == end )
+        return new BError( "Process has terminated" );
+
+      auto found = std::find( begin, end, '\n' );
+      std::string command{begin, found};  // use found, even if found == end (ie, a flush)
+      streambuf.consume( command.length() + 1 );
+      return new String( command );
     }
 
     if ( !ex.suspend( timeout ) )
@@ -239,8 +227,16 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
                << "\tThe execution of this script can't be blocked!\n";
       return new Bscript::BError( "Script can't be blocked" );
     }
-    value()->isWaiting = true;
+    value()->waitingScripts.push_back( ex.weakptr );
     return new BLong( 0 );  // dummy
+  case MTH_WRITE:
+  {
+    BObjectImp* toWrite;
+    if ( ex.numParams() < 1 || !( toWrite = ex.getParamImp( 0 ) ) )
+      return new BError( "Invalid parameter type" );
+    std::string toWriteStr = toWrite->getStringRep();
+    return new BLong( value()->in.write( toWriteStr.c_str(), toWriteStr.size() ) );
+  }
   default:
     return new BError( "undefined" );
   }

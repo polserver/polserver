@@ -39,16 +39,16 @@ extern Bscript::BApplicObjType processobjimp_type;
 class ScriptProcessDetails : public ref_counted
 {
 public:
-  ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
+  ScriptProcessDetails( boost::asio::io_context& ios, std::string exeName,
                         std::vector<std::string> args );
   ~ScriptProcessDetails();
-  weak_ptr<UOExecutor> script;
+  std::vector<weak_ptr<UOExecutor>> waitingScripts;
+  boost::process::pipe in;
   boost::process::async_pipe out;
   boost::process::async_pipe err;
   boost::asio::streambuf outBuf;
   boost::asio::streambuf errBuf;
   std::string exeName;
-  bool isWaiting;
   int exitCode;
   boost::process::child process;
 };
@@ -77,11 +77,7 @@ public:
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
   virtual Bscript::BObjectRef get_member_id( const int id ) override;
 
-  boost::process::child& process() const { return value()->process; };
-  UOExecutor* script() const
-  {
-    return value()->script.exists() ? value()->script.get_weakptr() : nullptr;
-  }
+  boost::process::child& process() const { return value()->process; }
   const std::string& exeName() const { return value()->exeName; }
 };
 }  // namespace Core
