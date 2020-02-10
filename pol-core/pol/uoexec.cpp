@@ -39,6 +39,7 @@ namespace Core
 UOExecutor::UOExecutor()
     : Executor(),
       os_module( nullptr ),
+      revive_callback(),
       instr_cycles( 0 ),
       sleep_cycles( 0 ),
       start_time( poltime() ),
@@ -100,11 +101,17 @@ UOExecutor::~UOExecutor()
   pChild = nullptr;
 }
 
-bool UOExecutor::suspend( int msecs )
+bool UOExecutor::suspend( int msecs, ReviveCallback callback )
 {
   // Run to completion scripts can't be suspended
   if ( running_to_completion() )
     return false;
+
+  if ( callback )
+  {
+    passert( !revive_callback );
+    revive_callback = callback;
+  }
 
   if ( !msecs )
     os_module->suspend();
@@ -116,6 +123,11 @@ bool UOExecutor::suspend( int msecs )
 
 bool UOExecutor::revive()
 {
+  if ( revive_callback )
+  {
+    revive_callback( this );
+    revive_callback = nullptr;
+  }
   os_module->revive();
   return true;
 }

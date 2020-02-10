@@ -39,9 +39,10 @@ extern Bscript::BApplicObjType processobjimp_type;
 class ScriptProcessDetails : public ref_counted
 {
 public:
-  ScriptProcessDetails( boost::asio::io_context& ios, std::string exeName,
+  ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
                         std::vector<std::string> args );
   ~ScriptProcessDetails();
+  weak_ptr<UOExecutor> initiator;
   std::vector<weak_ptr<UOExecutor>> waitingScripts;
   boost::process::pipe in;
   boost::process::async_pipe out;

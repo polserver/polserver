@@ -39,9 +39,10 @@ ScriptProcessDetailsRef::ScriptProcessDetailsRef( ScriptProcessDetails* ptr )
 }
 
 
-ScriptProcessDetails::ScriptProcessDetails( boost::asio::io_context& ios, std::string exeName,
-                                            std::vector<std::string> args )
+ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios,
+                                            std::string exeName, std::vector<std::string> args )
     : ref_counted(),
+      initiator( uoexec->weakptr ),
       waitingScripts(),
       in(),
       out( ios ),
@@ -98,7 +99,7 @@ ProcessObjImp::ProcessObjImp( UOExecutor* uoexec, boost::asio::io_context& ios, 
                               std::vector<std::string> args )
     : PolApplicObj<ScriptProcessDetailsRef>(
           &processobjimp_type,
-          ScriptProcessDetailsRef( new ScriptProcessDetails( ios, exeName, args ) ) )
+          ScriptProcessDetailsRef( new ScriptProcessDetails( uoexec, ios, exeName, args ) ) )
 {
 }
 
@@ -139,6 +140,12 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
     int timeout;
     short streamid;
 
+    auto uoexec = value()->initiator.exists() ? value()->initiator.get_weakptr() : nullptr;
+    if ( uoexec != &ex )
+    {
+      return new BError( "Only initiating script can use Process.readline()" );
+    }
+
     if ( ex.numParams() < 1 || !ex.getParam( 0, timeout ) )
       timeout = 0;
 
@@ -146,6 +153,7 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
       streamid = 1;  // stdout
 
     auto& streambuf = streamid == 2 ? value()->errBuf : value()->outBuf;
+    auto& pipe = streamid == 2 ? value()->err : value()->out;
 
     if ( !process().running() )
     {
@@ -161,7 +169,11 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
       return new String( command );
     }
 
-    if ( !ex.suspend( timeout ) )
+
+    if ( !ex.suspend( timeout, [this, &pipe]( UOExecutor* uoex ) {
+           if ( uoex->ValueStack.back()->isa( BObjectType::OTError ) )
+             pipe.cancel();
+         } ) )
     {
       DEBUGLOG << "Script Error in '" << ex.scriptname() << "' PC=" << ex.PC << ": \n"
                << "\tThe execution of this script can't be blocked!\n";
@@ -169,17 +181,16 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
     }
 
     weak_ptr<Core::UOExecutor> uoexec_w = ex.weakptr;
-    auto res = BObjectRef( new BObject( new BError( "Timeout" ) ) );
-    boost::asio::async_read_until(
-        streamid == 2 ? value()->err : value()->out, streambuf, '\n',
-        [&streambuf, uoexec_w, res](
-            const boost::system::error_code& error,  // Result of operation.
 
-            std::size_t bytes_transferred  // Number of bytes copied into the
-                                           // buffers. If an error occurred,
-                                           // this will be the  number of
-                                           // bytes successfully transferred
-                                           // prior to the error.
+    boost::asio::async_read_until(
+        pipe, streambuf, '\n',
+        [&streambuf, uoexec_w]( const boost::system::error_code& error,  // Result of operation.
+
+                                std::size_t bytes_transferred  // Number of bytes copied into the
+                                                               // buffers. If an error occurred,
+                                                               // this will be the  number of
+                                                               // bytes successfully transferred
+                                                               // prior to the error.
         ) {
           Core::PolLock lock;
           auto* uoexec = uoexec_w.exists() ? uoexec_w.get_weakptr() : nullptr;
@@ -189,36 +200,32 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
             return;
           }
 
-          bool shouldWake = uoexec->in_hold_list() == Core::HoldListType::TIMEOUT_LIST &&
-                            uoexec->ValueStack.back()->impptr() == res.get()->impptr();
-
-          if ( shouldWake )
+          if ( !error )
           {
-            if ( !error )
-            {
-              assert( streambuf.size() > bytes_transferred );
-              // Extract up to the first delimiter.
-              std::string command{
-                  boost::asio::buffers_begin( streambuf.data() ),
-                  boost::asio::buffers_begin( streambuf.data() ) + bytes_transferred - 1};
-              // Consume through the first delimiter so that subsequent async_read_until
-              // will not reiterate over the same data.
+            assert( streambuf.size() > bytes_transferred );
+            assert( uoexec->blocked() );
+            // Extract up to the first delimiter.
+            std::string command{
+                boost::asio::buffers_begin( streambuf.data() ),
+                boost::asio::buffers_begin( streambuf.data() ) + bytes_transferred - 1};
+            // Consume through the first delimiter so that subsequent async_read_until
+            // will not reiterate over the same data.
 
-              streambuf.consume( bytes_transferred );
-              uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new String( command ) ) );
-              uoexec_w.get_weakptr()->revive();
-            }
-            else
-            {
-              DEBUGLOG << "Error! " << error.message() << " transferred " << bytes_transferred
-                       << "\n";
-              uoexec_w.get_weakptr()->ValueStack.back().set(
-                  new BObject( new BError( error.message() ) ) );
-              uoexec_w.get_weakptr()->revive();
-            }
+            streambuf.consume( bytes_transferred );
+            uoexec->ValueStack.back().set( new BObject( new String( command ) ) );
+            uoexec->revive();
+          }
+          else if ( error != boost::asio::error::operation_aborted )
+          {
+            DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC
+                     << ": \n"
+                     << "\tProcess.readline() error: " << error.message() << "\n";
+            uoexec_w.get_weakptr()->ValueStack.back().set(
+                new BObject( new BError( error.message() ) ) );
+            uoexec_w.get_weakptr()->revive();
           }
         } );
-    return res.get()->impptr();
+    return new BError( "Timeout" );
   }
   case MTH_WAIT:
     if ( !ex.suspend() )
@@ -240,7 +247,7 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
   default:
     return new BError( "undefined" );
   }
-}
+}  // namespace Core
 
 BObjectImp* ProcessObjImp::call_polmethod( const char* methodname, UOExecutor& ex )
 {

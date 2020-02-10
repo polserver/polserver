@@ -58,7 +58,10 @@ class UObject;
 class Vital;
 class Guild;
 class Party;
+class UOExecutor;
 // const int SCRIPT_RUNAWAY_INTERVAL = 5000;
+
+using ReviveCallback = std::function<void( UOExecutor* )>;
 
 class UOExecutor final : public Bscript::Executor
 {
@@ -66,13 +69,14 @@ class UOExecutor final : public Bscript::Executor
 
 private:
   Module::OSExecutorModule* os_module;
+  ReviveCallback revive_callback;
 
 public:
   UOExecutor();
   virtual ~UOExecutor();
   virtual size_t sizeEstimate() const override;
 
-  bool suspend( int msecs = 0 );
+  bool suspend( int msecs = 0, ReviveCallback callback = nullptr );
   bool revive();
 
   std::string state();
