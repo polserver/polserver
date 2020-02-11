@@ -8,11 +8,9 @@ elseif (gcc)
   set (BOOST_TOOLSET "gcc")
 elseif (msvc)
   if (MSVC_TOOLSET_VERSION EQUAL 140)
-    set (BOOST_TOOLSET "msvc-14.0") # VS 2015 (14.0)
-    set (BOOST_LIB_TAG "vc140-mt")
+    set (BOOST_TOOLSET "msvc") # VS 2015 (14.0)
   elseif(MSVC_TOOLSET_VERSION GREATER_EQUAL 141)
     set(BOOST_TOOLSET "msvc-14.1") # VS 2017 (15.0) and VS 2019 (16.0)
-    set (BOOST_LIB_TAG "vc141-mt")
   endif()
 endif()
 
@@ -23,25 +21,13 @@ endif()
 if (${windows})
   set (BOOST_CONFIGURE_COMMAND "bootstrap.bat")
   set (BOOST_BUILD_COMMAND "b2.exe")
-  if (debug)
-    set (BOOST_LIB_TAG "${BOOST_LIB_TAG}-s") # The Debug configuration still links with this the non-'sgd' static build?
-  else()
-    set (BOOST_LIB_TAG "${BOOST_LIB_TAG}-s")
-  endif()
-  set (BOOST_FILESYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_filesystem-${BOOST_LIB_TAG}-${ARCH_STRING}-1_67.lib" )
-  set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system-${BOOST_LIB_TAG}-${ARCH_STRING}-1_67.lib" )
+  set (BOOST_FILESYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_filesystem.lib" )
+  set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.lib" )
 else()  
   set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
   set (BOOST_BUILD_COMMAND "./b2")
-  set (BOOST_TOOLSET "gcc")
   set (BOOST_FILESYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_filesystem.a" )
   set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.a" )
-endif()
-
-if(debug)
-  set (BOOST_BUILD_VARIANT "release") # Apparently our debug build still links with boost release libs
-else()
-  set (BOOST_BUILD_VARIANT "release")
 endif()
 
 if(NOT EXISTS ${BOOST_FILESYSTEM_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB})
@@ -51,7 +37,7 @@ if(NOT EXISTS ${BOOST_FILESYSTEM_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB})
     INSTALL_COMMAND ""
     CONFIGURE_COMMAND ""
     DOWNLOAD_COMMAND ""
-    BUILD_COMMAND ${BOOST_BUILD_COMMAND} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=${BOOST_BUILD_VARIANT} link=static runtime-link=static --with-filesystem stage
+    BUILD_COMMAND ${BOOST_BUILD_COMMAND} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=release  link=static runtime-link=static --layout=system --with-filesystem stage
     BUILD_BYPRODUCTS ${BOOST_FILESYSTEM_LIB} ${BOOST_SYSTEM_LIB}
     LOG_BUILD 1
     BUILD_IN_SOURCE 1

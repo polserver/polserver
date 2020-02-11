@@ -229,6 +229,7 @@ function(use_boost target)
   if (NOT EXISTS ${BOOST_FILESYSTEM_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB})
     add_dependencies(${target} boost)
   endif()
+  target_compile_definitions(${target} PRIVATE BOOST_ALL_NO_LIB)
   # if(${windows})
   #   target_compile_definitions(${target} PRIVATE
   #     _WIN32_WINNT=0x0601
