@@ -15,6 +15,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../clib/refptr.h"
+#include "../clib/spinlock.h"
 #include "../clib/weakptr.h"
 #include "polobject.h"
 #include <boost/asio/streambuf.hpp>
@@ -35,6 +36,29 @@ namespace Core
 {
 class UOExecutor;
 
+
+class BufferReader
+{
+public:
+  BufferReader( UOExecutor* uoexec, boost::asio::io_context& context );
+  ~BufferReader();
+  void bufferOne();
+  void readAll();
+  Bscript::BObjectImp* getline( UOExecutor* uoexec, int timeout );
+
+public:
+  boost::process::async_pipe pipe;
+
+private:
+  boost::asio::streambuf buffer;
+  std::istream stream;
+  std::unique_ptr<std::string> line;
+  weak_ptr<UOExecutor> uoexec_w;
+  bool isWaiting;
+  Clib::SpinLock lineLock;
+  Clib::SpinLock requestLock;
+};
+
 extern Bscript::BApplicObjType processobjimp_type;
 class ScriptProcessDetails : public ref_counted
 {
@@ -42,13 +66,11 @@ public:
   ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios, std::string exeName,
                         std::vector<std::string> args );
   ~ScriptProcessDetails();
-  weak_ptr<UOExecutor> initiator;
   std::vector<weak_ptr<UOExecutor>> waitingScripts;
+  weak_ptr_owner<ScriptProcessDetails> weakptr;
+  BufferReader readerOut;
+  BufferReader readerErr;
   boost::process::pipe in;
-  boost::process::async_pipe out;
-  boost::process::async_pipe err;
-  boost::asio::streambuf outBuf;
-  boost::asio::streambuf errBuf;
   std::string exeName;
   int exitCode;
   boost::process::child process;

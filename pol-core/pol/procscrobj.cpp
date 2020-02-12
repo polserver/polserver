@@ -11,6 +11,7 @@
 #include "../bscript/objmembers.h"
 #include "../bscript/objmethods.h"
 #include "../clib/logfacility.h"
+#include "../clib/make_unique.hpp"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
 #include "module/polsystemmod.h"
@@ -23,12 +24,15 @@
 #include <boost/asio/read_until.hpp>
 #include <boost/process.hpp>
 
+#define _INFO_PRINT_ DEBUGLOG
+
 namespace Pol
 {
 namespace Core
 {
 using namespace Bscript;
 namespace bp = boost::process;
+namespace ba = boost::asio;
 
 BApplicObjType processobjimp_type;
 
@@ -38,49 +42,51 @@ ScriptProcessDetailsRef::ScriptProcessDetailsRef( ScriptProcessDetails* ptr )
 {
 }
 
-
 ScriptProcessDetails::ScriptProcessDetails( UOExecutor* uoexec, boost::asio::io_context& ios,
                                             std::string exeName, std::vector<std::string> args )
     : ref_counted(),
-      initiator( uoexec->weakptr ),
       waitingScripts(),
+      weakptr(),
+      readerOut( uoexec, ios ),
+      readerErr( uoexec, ios ),
       in(),
-      out( ios ),
-      err( ios ),
-      outBuf(),
-      errBuf(),
       exeName( exeName ),
-      exitCode( 0 ),
-      process(
-          bp::exe = exeName, bp::args = args, ios, bp::std_out > this->out, bp::std_err > this->err,
-          bp::std_in < this->in, bp::on_exit = [this]( int exit, const std::error_code& ec_in ) {
-            // INFO_PRINT << "Process exited! " << this->out.is_open() << " " << exit << " "
-            //           << ec_in.message() << "\n";
-            boost::system::error_code ec;
-            exitCode = exit;
-            if ( this->out.is_open() )
-            {
-              boost::asio::read( this->out, this->outBuf, boost::asio::transfer_all(), ec );
-              this->out.close();
-            }
-            if ( this->err.is_open() )
-            {
-              boost::asio::read( this->err, this->errBuf, boost::asio::transfer_all(), ec );
-              this->err.close();
-            }
-            for ( auto& uoex_w : waitingScripts )
-            {
-              auto* uoex = uoex_w.exists() ? uoex_w.get_weakptr() : nullptr;
-              if ( uoex )
-              {
-                PolLock lock;
-                uoex->ValueStack.back().set( ec_in ? new BObject( new BError( ec_in.message() ) )
-                                                   : new BObject( new BLong( 1 ) ) );
-                uoex->revive();
-              }
-            }
-          } )
+      exitCode( 0 )
+
 {
+  weakptr.set( this );
+  auto this_w = weak_ptr<ScriptProcessDetails>( weakptr );
+  process = bp::child(
+      bp::exe = exeName, bp::args = args, ios, bp::std_out > readerOut.pipe,
+      bp::std_err > readerErr.pipe, bp::std_in < this->in,
+      bp::on_exit = [this_w]( int exit, const std::error_code& ec_in ) {
+        // If process exited due to ScriptProcessDetails destruction, the `this` reference
+        // is no longer valid.
+        auto* thiz = this_w.exists() ? this_w.get_weakptr() : nullptr;
+        if ( !thiz )
+          return;
+
+        // FIXME: better separate this lock
+        PolLock lock;
+        thiz->readerOut.readAll();
+        thiz->readerErr.readAll();
+
+        boost::system::error_code ec;
+        thiz->exitCode = exit;
+
+        for ( auto& uoex_w : thiz->waitingScripts )
+        {
+          auto* uoex = uoex_w.exists() ? uoex_w.get_weakptr() : nullptr;
+          if ( uoex )
+          {
+            uoex->ValueStack.back().set( ec_in ? new BObject( new BError( ec_in.message() ) )
+                                               : new BObject( new BLong( 1 ) ) );
+            uoex->revive();
+          }
+        }
+      } );
+  readerOut.bufferOne();
+  readerErr.bufferOne();
 }
 
 ScriptProcessDetails::~ScriptProcessDetails()
@@ -140,92 +146,15 @@ BObjectImp* ProcessObjImp::call_polmethod_id( const int id, UOExecutor& ex, bool
     int timeout;
     short streamid;
 
-    auto uoexec = value()->initiator.exists() ? value()->initiator.get_weakptr() : nullptr;
-    if ( uoexec != &ex )
-    {
-      return new BError( "Only initiating script can use Process.readline()" );
-    }
-
     if ( ex.numParams() < 1 || !ex.getParam( 0, timeout ) )
-      timeout = 0;
+      timeout = -1;  // forever
 
     if ( ex.numParams() < 2 || !ex.getParam( 1, streamid ) )
       streamid = 1;  // stdout
 
-    auto& streambuf = streamid == 2 ? value()->errBuf : value()->outBuf;
-    auto& pipe = streamid == 2 ? value()->err : value()->out;
+    auto& reader = streamid == 2 ? value()->readerErr : value()->readerOut;
 
-    if ( !process().running() )
-    {
-      auto begin = boost::asio::buffers_begin( streambuf.data() );
-      auto end = boost::asio::buffers_end( streambuf.data() );
-
-      if ( begin == end )
-        return new BError( "Process has terminated" );
-
-      auto found = std::find( begin, end, '\n' );
-      std::string command{begin, found};  // use found, even if found == end (ie, a flush)
-      streambuf.consume( command.length() + 1 );
-      return new String( command );
-    }
-
-
-    if ( !ex.suspend( timeout, [this, &pipe]( UOExecutor* uoex ) {
-           if ( uoex->ValueStack.back()->isa( BObjectType::OTError ) )
-             pipe.cancel();
-         } ) )
-    {
-      DEBUGLOG << "Script Error in '" << ex.scriptname() << "' PC=" << ex.PC << ": \n"
-               << "\tThe execution of this script can't be blocked!\n";
-      return new Bscript::BError( "Script can't be blocked" );
-    }
-
-    weak_ptr<Core::UOExecutor> uoexec_w = ex.weakptr;
-
-    boost::asio::async_read_until(
-        pipe, streambuf, '\n',
-        [&streambuf, uoexec_w]( const boost::system::error_code& error,  // Result of operation.
-
-                                std::size_t bytes_transferred  // Number of bytes copied into the
-                                                               // buffers. If an error occurred,
-                                                               // this will be the  number of
-                                                               // bytes successfully transferred
-                                                               // prior to the error.
-        ) {
-          Core::PolLock lock;
-          auto* uoexec = uoexec_w.exists() ? uoexec_w.get_weakptr() : nullptr;
-          if ( !uoexec )
-          {
-            DEBUGLOG << "ProcessRef.readline() script has been destroyed\n";
-            return;
-          }
-
-          if ( !error )
-          {
-            assert( streambuf.size() > bytes_transferred );
-            assert( uoexec->blocked() );
-            // Extract up to the first delimiter.
-            std::string command{
-                boost::asio::buffers_begin( streambuf.data() ),
-                boost::asio::buffers_begin( streambuf.data() ) + bytes_transferred - 1};
-            // Consume through the first delimiter so that subsequent async_read_until
-            // will not reiterate over the same data.
-
-            streambuf.consume( bytes_transferred );
-            uoexec->ValueStack.back().set( new BObject( new String( command ) ) );
-            uoexec->revive();
-          }
-          else if ( error != boost::asio::error::operation_aborted )
-          {
-            DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC
-                     << ": \n"
-                     << "\tProcess.readline() error: " << error.message() << "\n";
-            uoexec_w.get_weakptr()->ValueStack.back().set(
-                new BObject( new BError( error.message() ) ) );
-            uoexec_w.get_weakptr()->revive();
-          }
-        } );
-    return new BError( "Timeout" );
+    return reader.getline( &ex, timeout );
   }
   case MTH_WAIT:
     if ( !ex.suspend() )
@@ -282,6 +211,166 @@ BObjectRef ProcessObjImp::get_member( const char* membername )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
+}
+BufferReader::BufferReader( UOExecutor* uoexec, ba::io_context& context )
+    : buffer(),
+      stream( &buffer ),
+      pipe( context ),
+      uoexec_w( uoexec->weakptr ),
+      isWaiting( false ),
+      lineLock()
+{
+}
+
+BufferReader::~BufferReader()
+{
+  pipe.cancel();
+}
+
+void BufferReader::bufferOne()
+{
+  _INFO_PRINT_ << "Reading from buffer\n";
+  // FIXME: match all \n \r\n \r
+  boost::asio::async_read_until(
+      pipe, buffer, '\n',
+      [this]( const boost::system::error_code& error,  // Result of operation.
+
+              std::size_t bytes_transferred  // Number of bytes copied into the
+                                             // buffers. If an error occurred,
+                                             // this will be the  number of
+                                             // bytes successfully transferred
+                                             // prior to the error.
+      ) {
+        // The `this` reference is only valid iff no error occurred.
+        if ( !error )
+        {
+          Clib::SpinLockGuard guard( lineLock );
+          // Only read from buffer if our line buffer is empty.
+          // FIXME: Verify if line == nullptr is always true
+          if ( line == nullptr )
+          {
+            _INFO_PRINT_ << "buffer.size() = " << buffer.size()
+                         << ", bytes_transferred = " << bytes_transferred << "\n";
+            std::string readline;
+            std::getline( stream, readline );
+            if ( readline.back() == '\r' )
+            {
+              readline.pop_back();
+            }
+            _INFO_PRINT_ << "String: '" << readline << "'\n";
+            if ( !isWaiting )
+            {
+              _INFO_PRINT_ << "No pending request; store in line\n";
+              // line.swap( std::move( readline ) );
+              line = Clib::make_unique<std::string>( std::move( readline ) );
+              return;
+            }
+            else
+            {
+              Core::PolLock lock;
+              auto* uoexec = uoexec_w.exists() ? uoexec_w.get_weakptr() : nullptr;
+              // If calling script died, store in line buffer.
+              if ( !uoexec )
+              {
+                _INFO_PRINT_ << "Pending request script died; store in line\n";
+                isWaiting = false;
+                line = Clib::make_unique<std::string>( std::move( readline ) );
+                return;
+              }
+              // Respond to request
+              else
+              {
+                _INFO_PRINT_ << "Pending request valid; wake script\n";
+                passert( uoexec->blocked() );
+                uoexec->ValueStack.back().set( new BObject( new String( std::move( readline ) ) ) );
+                isWaiting = false;
+                uoexec->revive();
+                // Prefetch next line
+                bufferOne();
+                return;
+              }
+            }
+          }
+          else
+          {
+            // There already is a next line buffer
+            _INFO_PRINT_ << "Next line buffer exists; skipping read from buffer\n";
+            return;
+          }
+        }
+      } );
+}
+
+// BError or String
+// Ran inside PolLock (scripts thread)
+Bscript::BObjectImp* BufferReader::getline( UOExecutor* uoex, int timeout )
+{
+  if ( uoex != ( uoexec_w.exists() ? uoexec_w.get_weakptr() : nullptr ) )
+  {
+    return new BError( "Only initiating script can use Process.readline()" );
+  }
+
+  Clib::SpinLockGuard lock( lineLock );
+  // If no line buffer
+  if ( line == nullptr )
+  {
+    // If pipe is closed, read from streambuf filled at process exit
+    if ( !pipe.is_open() )
+    {
+      // If the streambuf is empty, return error
+      if ( buffer.size() == 0 )
+      {
+        _INFO_PRINT_ << "Empty buffer\n";
+        return new BError( "Process has terminated" );
+      }
+      // Get line from streambuf
+      std::string readline;
+      std::getline( stream, readline );
+      if ( readline.back() == '\r' )
+      {
+        readline.pop_back();
+      }
+      _INFO_PRINT_ << "Got str from buffer: " << readline << "\n";
+      return new String( readline );
+    }
+
+    // 0 timeout means synchronous check
+    if ( timeout == 0 )
+    {
+      return new BError( "Timeout" );
+    }
+
+    // Create a request
+    if ( !uoex->suspend( timeout == -1 ? 0 : timeout,
+                         [this]( UOExecutor* uoex ) { isWaiting = false; } ) )
+    {
+      DEBUGLOG << "Script Error in '" << uoex->scriptname() << "' PC=" << uoex->PC << ": \n"
+               << "\tThe execution of this script can't be blocked!\n";
+      return new Bscript::BError( "Script can't be blocked" );
+    }
+    passert_r( !isWaiting, "BufferReader already waiting for line" );
+    isWaiting = true;
+    return new BError( "Timeout" );
+  }
+  else  // The line buffer is already filled.
+  {
+    std::string readline = *line.release();
+    _INFO_PRINT_ << "Got str from line: " << readline << "\n";
+    // Prefetch next line
+    bufferOne();
+    return new String( readline );
+  }
+}
+
+void BufferReader::readAll()
+{
+  if ( pipe.is_open() )
+  {
+    _INFO_PRINT_ << "READ ALL\n";
+    boost::system::error_code ec;
+    boost::asio::read( pipe, buffer, boost::asio::transfer_all(), ec );
+    pipe.close();
+  }
 }
 }  // namespace Core
 }  // namespace Pol
