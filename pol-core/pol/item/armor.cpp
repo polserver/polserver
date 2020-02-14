@@ -62,7 +62,7 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
     catch ( std::runtime_error& )
     {
       fmt::Writer tmp;
-      tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
+      tmp.Format( "Error in Objtype 0x{:X} " ) << objtype;
       if ( pkg == nullptr )
         tmp << "config/itemdesc.cfg\n";
       else
@@ -88,7 +88,7 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
       catch ( std::runtime_error& )
       {
         fmt::Writer tmp;
-        tmp.Format( "Error in Objtype 0x{:X}" ) << objtype;
+        tmp.Format( "Error in Objtype 0x{:X} " ) << objtype;
         if ( pkg == nullptr )
           tmp << "config/itemdesc.cfg\n";
         else
