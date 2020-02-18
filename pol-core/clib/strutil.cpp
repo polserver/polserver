@@ -283,8 +283,8 @@ void remove_bom( std::string* strbuf )
 std::string convertToASCII( const std::string& str )
 {
   std::string ascii;
-  auto begin = str->begin();
-  auto end = str->end();
+  auto begin = str.begin();
+  auto end = str.end();
 
   while ( begin != end )
   {
