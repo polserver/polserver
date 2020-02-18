@@ -290,9 +290,9 @@ std::string convertToASCII( const std::string& str )
   {
     auto c = utf8::unchecked::next( begin );
     if ( c <= 255 )
-      ascii.append( static_cast<char>( c ) );
+      ascii.push_back( static_cast<char>( c ) );
     else
-      ascii.append( "?" );
+      ascii.push_back( "?" );
   }
   return ascii;
 }
