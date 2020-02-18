@@ -247,8 +247,20 @@ public:
   {
     if ( len < 1 )
       return;
-    passert_always_r( offset + len <= SIZE, "pkt " + Clib::hexint( ID ) );
-    strncpy( &buffer[offset], x, nullterm ? len - 1 : len );
+    if ( true )  // TODO cfg flag
+    {
+      std::string ascii = Clib::convertToASCII( x );
+      if ( strlen( x ) == len )
+        len = ascii.size(); // guessing game, need a method without length param
+
+      passert_always_r( offset + len <= SIZE, "pkt " + Clib::hexint( ID ) );
+      strncpy( &buffer[offset], ascii.c_str(), nullterm ? len - 1 : len );
+    }
+    else
+    {
+      passert_always_r( offset + len <= SIZE, "pkt " + Clib::hexint( ID ) );
+      strncpy( &buffer[offset], x, nullterm ? len - 1 : len );
+    }
     offset += len;
   };
   void Write( u8 x[], u16 len )

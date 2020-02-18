@@ -280,5 +280,21 @@ void remove_bom( std::string* strbuf )
   }
 }
 
+std::string convertToASCII( const std::string& str )
+{
+  std::string ascii;
+  auto begin = str->begin();
+  auto end = str->end();
+
+  while ( begin != end )
+  {
+    auto c = utf8::unchecked::next( begin );
+    if ( c <= 255 )
+      ascii.append( static_cast<char>( c ) );
+    else
+      ascii.append( "?" );
+  }
+  return ascii;
+}
 }  // namespace Clib
 }  // namespace Pol

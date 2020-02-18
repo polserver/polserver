@@ -53,6 +53,7 @@ bool isValidUnicode( const std::string& str );
 void sanitizeUnicodeWithIso( std::string* str );
 // if invalid unicode is detected characters get replaced
 void sanitizeUnicode( std::string* str );
+std::string convertToASCII( const std::string& str);
 }  // namespace Clib
 }  // namespace Pol
 #endif  // CLIB_STRUTIL_H
