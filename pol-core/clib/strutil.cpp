@@ -292,7 +292,7 @@ std::string convertToASCII( const std::string& str )
     if ( c <= 255 )
       ascii.push_back( static_cast<char>( c ) );
     else
-      ascii.push_back( "?" );
+      ascii.push_back( '?' );
   }
   return ascii;
 }
