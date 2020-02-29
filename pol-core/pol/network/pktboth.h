@@ -1122,6 +1122,51 @@ struct PKTBI_D7
   };
 };
 
+struct PKTBI_F0_00
+{
+  u32 serial;
+  u16 x;
+  u16 y;
+  u8 map;
+};
+
+struct PKTBI_F0_01_GUILD_MEMBER_LOCATION
+{
+  u16 x;
+  u16 y;
+  u8 map;
+};
+
+struct PKTBI_F0_01_GUILD_MEMBER
+{
+  u32 serial;
+  PKTBI_F0_01_GUILD_MEMBER_LOCATION location;
+};
+
+struct PKTBI_F0_01
+{
+  u8 include_locations;
+  PKTBI_F0_01_GUILD_MEMBER member;
+};
+
+struct PKTBI_F0
+{
+  u8 msgtype;
+  u16 msglen;
+  u8 subcmd;
+  union {
+    PKTBI_F0_00 query_party;
+    PKTBI_F0_01 query_guild;
+  };
+  enum
+  {
+    QUERY_PARTY = 0x00,
+    QUERY_GUILD = 0x01,
+  };
+};
+static_assert( sizeof( PKTBI_F0 ) == 14, "size missmatch" );
+
+
 #pragma pack( pop )
 }  // namespace Core
 }  // namespace Pol

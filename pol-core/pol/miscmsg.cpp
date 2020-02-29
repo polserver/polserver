@@ -42,6 +42,7 @@
 #include "gameclck.h"
 #include "globals/settings.h"
 #include "globals/uvars.h"
+#include "guilds.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
 #include "multi/customhouses.h"
@@ -54,6 +55,8 @@
 #include "network/pktdef.h"
 #include "network/pktin.h"
 #include "network/sockio.h"
+#include "party.h"
+#include "realms/realm.h"
 #include "scrstore.h"
 #include "spells.h"
 #include "tooltips.h"
@@ -408,6 +411,107 @@ void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
 void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
 {
   handle_unknown_packet( client );
+}
+
+void handle_krrios_packet( Client* client, PKTBI_F0* msg )
+{
+  auto* me = client->chr;
+  switch ( msg->subcmd )
+  {
+  case PKTBI_F0::QUERY_PARTY:
+  {
+    INFO_PRINT << "Got query for party from " << me->name() << "\n";
+    INFO_PRINT << "Has party: " << me->has_party() << "\n";
+
+    if ( me->has_party() )
+    {
+      Party* party = me->party();
+      Network::PktHelper::PacketOut<Network::PktOut_F0_Sub01> outMsg;
+      outMsg->offset += 2;  // len+sub
+      outMsg->Write<u8>( PKTBI_F0::QUERY_PARTY + 1U );
+      u32 serial = party->leader();
+      unsigned short index = 0;
+      do
+      {
+        if ( serial == me->serial )
+          continue;
+
+        auto* member = Core::find_character( serial );
+        if ( !member || ( Core::inrange( me, member ) && me->is_visible_to_me( member ) ) )
+          continue;
+
+        outMsg->Write<u32>( member->serial_ext );
+        outMsg->WriteFlipped<u16>( member->x );
+        outMsg->WriteFlipped<u16>( member->y );
+        outMsg->Write<u8>( member->realm->getUOMapID() );
+      } while ( serial = party->get_member_at( index++ ) );
+      if ( outMsg->offset != 4 )  // only send if there is an update
+      {
+        outMsg->Write<u32>( 0U );  // end of list marker
+        u16 len = outMsg->offset;
+        outMsg->offset = 1;
+        outMsg->WriteFlipped<u16>( len );
+        outMsg.Send( client, len );
+      }
+    }
+    break;
+  }
+  case PKTBI_F0::QUERY_GUILD:
+  {
+    Guild* guild = me->guild();
+    u8 locations = msg->query_guild.include_locations > 0 ? 1U : 0U;
+    if ( guild != nullptr )
+    {
+      Network::PktHelper::PacketOut<Network::PktOut_F0_Sub02> outMsg;
+      outMsg->offset += 2;  // len+sub
+      outMsg->Write<u8>( PKTBI_F0::QUERY_GUILD + 1U );
+      outMsg->Write<u8>( locations );
+      for ( Core::SerialSet::iterator itr = guild->_member_serials.begin();
+            itr != guild->_member_serials.end(); ++itr )
+      {
+        u32 serial = *itr;
+        if ( serial == me->serial )
+          continue;
+
+        Mobile::Character* member = Core::find_character( serial );
+        if ( !member ||
+             ( locations && Core::inrange( me, member ) && me->is_visible_to_me( member ) ) )
+          continue;
+
+        outMsg->Write<u32>( member->serial_ext );
+        if ( locations )
+        {
+          outMsg->WriteFlipped<u16>( member->x );
+          outMsg->WriteFlipped<u16>( member->y );
+          outMsg->Write<u8>( member->realm->getUOMapID() );
+
+          if ( member->dead() )
+            outMsg->Write<u8>( 0U );
+          else
+          {
+            int current = member->vital( networkManager.uoclient_general.hits.id ).current_ones();
+            int max = member->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
+            u8 ratio = static_cast<u8>( 100 * current / ( max < 1 ? 1 : max ) );
+            outMsg->Write<u8>( ratio );  // hits
+          }
+        }
+      }
+      if ( outMsg->offset != 5 )  // only send if there is an update
+      {
+        outMsg->Write<u32>( 0U );  // end of list marker
+        u16 len = outMsg->offset;
+        outMsg->offset = 1;
+        outMsg->WriteFlipped<u16>( len );
+        outMsg.Send( client, len );
+      }
+    }
+    break;
+  }
+  default:
+    handle_unknown_packet( client );
+    break;
+  }
+  //  handle_unknown_packet( client );
 }
 
 void handle_open_uo_store( Client* client, PKTIN_FA* /*msg*/ )

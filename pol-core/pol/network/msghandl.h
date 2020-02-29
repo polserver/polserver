@@ -169,6 +169,7 @@ void handle_action( Network::Client* client, PKTIN_12* cmd );
 void handle_cast_spell( Network::Client* client, PKTIN_12* msg );
 void handle_open_spellbook( Network::Client* client, PKTIN_12* msg );
 void handle_use_skill( Network::Client* client, PKTIN_12* msg );
+void handle_krrios_packet( Network::Client* client, PKTBI_F0* msg );
 void handle_open_uo_store( Network::Client* client, PKTIN_FA* msg );
 void handle_update_view_public_house_content( Network::Client* client, PKTIN_FB* msg );
 }  // namespace Core

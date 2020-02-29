@@ -57,6 +57,7 @@ enum PKTBOTHID : unsigned char
   PKTBI_D6_OUT_ID = 0xD6,  // Object Property List, Outgoing
   PKTBI_D6_IN_ID = 0xD6,   // Request Tooltips, Incoming
   PKTBI_D7_ID = 0xD7,      // Generic Commands (AOS Era)
+  PKTBI_F0_ID = 0xF0,      // Krrios Client Packets
 
 
 };

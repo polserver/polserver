@@ -3,6 +3,7 @@
 
 #include "../clib/refptr.h"
 #include "proplist.h"
+#include "network/msghandl.h"
 
 namespace Pol
 {
@@ -61,6 +62,7 @@ public:
   static Guild* FindOrCreateGuild( unsigned int guildid, unsigned int memberserial );
 
   friend class Module::EGuildRefObjImp;
+  friend void handle_krrios_packet( Network::Client* client, Core::PKTBI_F0* msg );
 
 private:
   unsigned int _guildid;
