@@ -383,6 +383,7 @@ Spell (int spellid)
 [CoreGuildMessages              (0/1 {default 1})]
 [MobilesBlockNpcMovement        (0/1 {default 1})]
 [DefaultCharacterHeight         (1-32 {default 15})]
+[EnableWorldMapPackets          (0/1 (default 0))]
 </structure>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
   <explain><i>MovementUsesStamina:</i> if enabled stamina costs are defined in movecost.cfg</explain>
@@ -451,6 +452,9 @@ Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   Even small changes will have a great impact on LOS calculations and, more in general, on the combat system.<br/>
   It is also used to calculate wether a Character can fit under a low passage (e.g. dungeon stairs).<br/>
   Keep in mind a Titan and a Slime will have the same height.</explain>
+  <explain><i>EnableWorldMapPackets:</i> Custom clients have implemented a packet that tracks the position of<br/>
+  party and guild members. This enables the client to overlay member positions on a world map<br/>
+  directly inside the client. Set to 1 to enable core handling of this packet.<br/>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>

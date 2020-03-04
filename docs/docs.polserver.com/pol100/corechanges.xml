@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-04-2020</datemodified>
+		<datemodified>03-04-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>03-05-2020</date>
+			<author>Kevin:</author>
+			<change type="Added">New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client<br/>
+requests for guild and party member locations. This option is disabled by default.</change>
+		</entry>
 		<entry>
 			<date>02-05-2020</date>
 			<author>Kevin:</author>
