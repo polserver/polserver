@@ -96,6 +96,7 @@ struct ServSpecOpt
   bool mobiles_block_npc_movement;
 
   unsigned char default_character_height;
+  bool enable_worldmap_packets;
 
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );

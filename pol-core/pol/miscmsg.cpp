@@ -420,8 +420,8 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
   {
   case PKTBI_F0::QUERY_PARTY:
   {
-    INFO_PRINT << "Got query for party from " << me->name() << "\n";
-    INFO_PRINT << "Has party: " << me->has_party() << "\n";
+    if ( !settingsManager.ssopt.enable_worldmap_packets )
+      break;
 
     if ( me->has_party() )
     {
@@ -458,6 +458,9 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
   }
   case PKTBI_F0::QUERY_GUILD:
   {
+    if ( !settingsManager.ssopt.enable_worldmap_packets )
+      break;
+
     Guild* guild = me->guild();
     u8 locations = msg->query_guild.include_locations > 0 ? 1U : 0U;
     if ( guild != nullptr )
@@ -511,7 +514,6 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
     handle_unknown_packet( client );
     break;
   }
-  //  handle_unknown_packet( client );
 }
 
 void handle_open_uo_store( Client* client, PKTIN_FA* /*msg*/ )

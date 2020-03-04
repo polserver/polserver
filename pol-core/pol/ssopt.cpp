@@ -134,6 +134,9 @@ void ServSpecOpt::read_servspecopt()
     default_character_height = 32;
   settingsManager.ssopt.default_character_height = default_character_height;
 
+  settingsManager.ssopt.enable_worldmap_packets =
+      elem.remove_bool( "EnableWorldMapPackets", false );
+
   ssopt_parse_totalstats( elem );
 
   // Turley 2009/11/06 u8 range...
