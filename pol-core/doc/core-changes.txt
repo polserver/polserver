@@ -1,5 +1,5 @@
 ﻿-- POL100 --
-03-05-2020 Kevin:
+03-19-2020 Kevin:
     Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client
            requests for guild and party member locations. This option is disabled by default.
 02-05-2020 Kevin:

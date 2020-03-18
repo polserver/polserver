@@ -427,8 +427,8 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
     {
       Party* party = me->party();
       Network::PktHelper::PacketOut<Network::PktOut_F0_Sub01> outMsg;
-      outMsg->offset += 2;  // len+sub
-      outMsg->Write<u8>( PKTBI_F0::QUERY_PARTY + 1U );
+      outMsg->offset += 2;                              // len
+      outMsg->Write<u8>( PKTBI_F0::QUERY_PARTY + 1U );  // sub, response is +1
       u32 serial = party->leader();
       unsigned short index = 0;
       do
@@ -444,7 +444,10 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         outMsg->WriteFlipped<u16>( member->x );
         outMsg->WriteFlipped<u16>( member->y );
         outMsg->Write<u8>( member->realm->getUOMapID() );
-      } while ( serial = party->get_member_at( index++ ) );
+
+        // on first call index is 0, as the first loop iteration is party leader
+      } while ( ( serial = party->get_member_at( index++ ) ) != 0 );
+
       if ( outMsg->offset != 4 )  // only send if there is an update
       {
         outMsg->Write<u32>( 0U );  // end of list marker
@@ -466,8 +469,8 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
     if ( guild != nullptr )
     {
       Network::PktHelper::PacketOut<Network::PktOut_F0_Sub02> outMsg;
-      outMsg->offset += 2;  // len+sub
-      outMsg->Write<u8>( PKTBI_F0::QUERY_GUILD + 1U );
+      outMsg->offset += 2;                              // len
+      outMsg->Write<u8>( PKTBI_F0::QUERY_GUILD + 1U );  // sub, response is +1
       outMsg->Write<u8>( locations );
       for ( Core::SerialSet::iterator itr = guild->_member_serials.begin();
             itr != guild->_member_serials.end(); ++itr )
