@@ -773,6 +773,23 @@ void Party::printOn( Clib::StreamWriter& sw ) const
   // sw.flush();
 }
 
+std::vector<Mobile::Character*> Party::get_members() const
+{
+  std::vector<Mobile::Character*> ret;
+  Mobile::Character* chr;
+
+  chr = Core::find_character( _leaderserial );
+  if ( chr )
+    ret.emplace_back( chr );
+  for ( auto& serial : _member_serials )
+  {
+    chr = Core::find_character( serial );
+    if ( chr )
+      ret.emplace_back( chr );
+  }
+  return ret;
+}
+
 size_t Party::estimateSize() const
 {
   return 3 * sizeof( u32* ) + _member_serials.capacity() * sizeof( u32 ) + 3 * sizeof( u32* ) +

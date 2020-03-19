@@ -87,6 +87,7 @@ public:
   void printOn( Clib::StreamWriter& sw ) const;
   u32 get_member_at( unsigned short pos ) const;
   void cleanup();
+  std::vector<Mobile::Character*> get_members() const;
   size_t estimateSize() const;
 
   friend class Module::EPartyRefObjImp;
