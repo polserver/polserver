@@ -776,16 +776,12 @@ void Party::printOn( Clib::StreamWriter& sw ) const
 std::vector<Mobile::Character*> Party::get_members() const
 {
   std::vector<Mobile::Character*> ret;
-  Mobile::Character* chr;
 
-  chr = Core::find_character( _leaderserial );
-  if ( chr )
-    ret.emplace_back( chr );
   for ( auto& serial : _member_serials )
   {
-    chr = Core::find_character( serial );
+    Mobile::Character* chr = Core::find_character( serial );
     if ( chr )
-      ret.emplace_back( chr );
+      ret.push_back( chr );
   }
   return ret;
 }
