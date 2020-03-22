@@ -2,7 +2,6 @@
 #define GUILDS_H
 
 #include "../clib/refptr.h"
-#include "network/msghandl.h"
 #include "proplist.h"
 
 namespace Pol
