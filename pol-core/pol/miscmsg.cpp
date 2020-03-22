@@ -429,8 +429,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
       Network::PktHelper::PacketOut<Network::PktOut_F0_Sub01> outMsg;
       outMsg->offset += 2;                              // len
       outMsg->Write<u8>( PKTBI_F0::QUERY_PARTY + 1U );  // sub, response is +1
-      auto members = party->get_members();
-      for ( auto member : members )
+      for ( auto member : party->get_members() )
       {
         if ( member->serial == me->serial )
           continue;
@@ -468,14 +467,12 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
       outMsg->offset += 2;                              // len
       outMsg->Write<u8>( PKTBI_F0::QUERY_GUILD + 1U );  // sub, response is +1
       outMsg->Write<u8>( locations );
-      for ( u32 serial : guild->_member_serials )
+      for ( auto member : guild->get_members() )
       {
-        if ( serial == me->serial )
+        if ( member->serial == me->serial )
           continue;
 
-        Mobile::Character* member = Core::find_character( serial );
-        if ( !member ||
-             ( locations && Core::inrange( me, member ) && me->is_visible_to_me( member ) ) )
+        if ( locations && Core::inrange( me, member ) && me->is_visible_to_me( member ) )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );

@@ -773,14 +773,14 @@ void Party::printOn( Clib::StreamWriter& sw ) const
   // sw.flush();
 }
 
-std::vector<Mobile::Character*> Party::get_members() const
+std::vector<Mobile::Character*> Party::get_members( bool include_offline ) const
 {
   std::vector<Mobile::Character*> ret;
 
   for ( auto& serial : _member_serials )
   {
-    Mobile::Character* chr = Core::find_character( serial );
-    if ( chr )
+    Mobile::Character* chr = Core::system_find_mobile( serial );
+    if ( chr && ( include_offline || chr->logged_in() ) )
       ret.push_back( chr );
   }
   return ret;

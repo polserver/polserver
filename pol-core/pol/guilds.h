@@ -2,8 +2,8 @@
 #define GUILDS_H
 
 #include "../clib/refptr.h"
-#include "proplist.h"
 #include "network/msghandl.h"
+#include "proplist.h"
 
 namespace Pol
 {
@@ -11,7 +11,7 @@ namespace Clib
 {
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Mobile
 {
 class Character;
@@ -52,6 +52,7 @@ public:
 
   void printOn( Clib::StreamWriter& sw ) const;
   void addMember( unsigned int serial );
+  std::vector<Mobile::Character*> get_members( bool include_offline = false ) const;
 
   void registerWithMembers();
   size_t estimateSize() const;
@@ -62,7 +63,6 @@ public:
   static Guild* FindOrCreateGuild( unsigned int guildid, unsigned int memberserial );
 
   friend class Module::EGuildRefObjImp;
-  friend void handle_krrios_packet( Network::Client* client, Core::PKTBI_F0* msg );
 
 private:
   unsigned int _guildid;
@@ -72,6 +72,6 @@ private:
   PropertyList _proplist;
   bool _disbanded;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
