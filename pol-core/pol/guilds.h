@@ -2,6 +2,7 @@
 #define GUILDS_H
 
 #include "../clib/refptr.h"
+#include "network/msghandl.h"
 #include "proplist.h"
 
 namespace Pol
@@ -10,7 +11,7 @@ namespace Clib
 {
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Mobile
 {
 class Character;
@@ -51,6 +52,7 @@ public:
 
   void printOn( Clib::StreamWriter& sw ) const;
   void addMember( unsigned int serial );
+  std::vector<Mobile::Character*> get_members( bool include_offline = false ) const;
 
   void registerWithMembers();
   size_t estimateSize() const;
@@ -70,6 +72,6 @@ private:
   PropertyList _proplist;
   bool _disbanded;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

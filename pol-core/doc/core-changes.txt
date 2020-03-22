@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+03-19-2020 Kevin:
+    Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client
+           requests for guild and party member locations. This option is disabled by default.
 02-05-2020 Kevin:
     Added: New SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT will keep attached scripts (eg. skill scripts, item use scripts) alive if the 
            character's client disconnects. Note that by default all references to the character will become invalidated; for example, 

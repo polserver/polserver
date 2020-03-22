@@ -117,6 +117,7 @@ PacketsSingleton::PacketsSingleton()
   packets.insert( PacketQueuePair( PKTOUT_DF_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_E2_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_E3_ID, new PacketQueueSingle() ) );
+  packets.insert( PacketQueuePair( PKTBI_F0_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F3_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F5_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F6_ID, new PacketQueueSingle() ) );
@@ -504,6 +505,17 @@ PacketInterface* GetPacket( u8 id, u16 sub )
     return new PktOut_F6();
   case PKTOUT_F7_ID:
     return new PktOut_F7();
+  case PKTBI_F0_ID:
+    switch ( sub )
+    {
+    case Core::PKTBI_F0::QUERY_PARTY:
+      return new PktOut_F0_Sub01();
+    case Core::PKTBI_F0::QUERY_GUILD:
+      return new PktOut_F0_Sub02();
+    default:
+      throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
+                                Clib::hexint( sub ) );
+    }
   default:
     throw std::runtime_error( "Request of undefined Packet: " + Clib::hexint( id ) + "-" +
                               Clib::hexint( sub ) );

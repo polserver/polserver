@@ -175,6 +175,19 @@ void Guild::addMember( unsigned int serial )
   _member_serials.insert( serial );
 }
 
+std::vector<Mobile::Character*> Guild::get_members( bool include_offline ) const
+{
+  std::vector<Mobile::Character*> ret;
+
+  for ( auto& serial : _member_serials )
+  {
+    Mobile::Character* chr = Core::system_find_mobile( serial );
+    if ( chr && ( include_offline || chr->logged_in() ) )
+      ret.push_back( chr );
+  }
+  return ret;
+}
+
 bool Guild::AreAllies( Guild* g1, Guild* g2 )
 {
   return ( g1 == g2 || g1->hasAlly( g2 ) );
@@ -273,5 +286,5 @@ size_t Guild::estimateSize() const
          _enemyguild_serials.size() * ( sizeof( unsigned int ) + 3 * sizeof( void* ) ) +
          _proplist.estimatedSize() + sizeof( bool ); /*_disbanded*/
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
