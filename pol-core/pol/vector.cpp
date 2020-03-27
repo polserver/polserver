@@ -37,6 +37,22 @@ Vec2d& Vec2d::operator+=( u16 range )
   _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
   return *this;
 }
+Vec2d& Vec2d::operator-=( const Vec2d& other )
+{
+  int x = static_cast<int>( _x ) - other._x;
+  int y = static_cast<int>( _y ) - other._y;
+  _x = static_cast<u16>( std::max( 0, x ) );
+  _y = static_cast<u16>( std::max( 0, y ) );
+  return *this;
+}
+Vec2d& Vec2d::operator+=( const Vec2d& other )
+{
+  int x = static_cast<int>( _x ) + other._x;
+  int y = static_cast<int>( _y ) + other._y;
+  _x = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) );
+  _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
+  return *this;
+}
 
 u16 Vec2d::pol_distance( const Vec2d& other ) const
 {
@@ -63,6 +79,30 @@ Vec3d& Vec3d::operator-=( u16 range )
 Vec3d& Vec3d::operator+=( u16 range )
 {
   _xy += range;
+  return *this;
+}
+Vec3d& Vec3d::operator-=( const Vec2d& other )
+{
+  _xy -= other;
+  return *this;
+}
+Vec3d& Vec3d::operator+=( const Vec2d& other )
+{
+  _xy += other;
+  return *this;
+}
+Vec3d& Vec3d::operator-=( const Vec3d& other )
+{
+  _xy -= other._xy;
+  int z = static_cast<int>( _z ) - other._z;
+  _z = static_cast<s8>( std::max( static_cast<int>( std::numeric_limits<s8>::min() ), z ) );
+  return *this;
+}
+Vec3d& Vec3d::operator+=( const Vec3d& other )
+{
+  _xy += other._xy;
+  int z = static_cast<int>( _z ) + other._z;
+  _z = static_cast<s8>( std::min( static_cast<int>( std::numeric_limits<s8>::max() ), z ) );
   return *this;
 }
 
@@ -106,6 +146,37 @@ Vec4d& Vec4d::operator+=( u16 range )
 {
   _xyz += range;
   crop();
+  return *this;
+}
+
+Vec4d& Vec4d::operator-=( const Vec2d& other )
+{
+  _xyz -= other;
+  return *this;
+}
+Vec4d& Vec4d::operator+=( const Vec2d& other )
+{
+  _xyz += other;
+  return *this;
+}
+Vec4d& Vec4d::operator-=( const Vec3d& other )
+{
+  _xyz -= other;
+  return *this;
+}
+Vec4d& Vec4d::operator+=( const Vec3d& other )
+{
+  _xyz += other;
+  return *this;
+}
+Vec4d& Vec4d::operator-=( const Vec4d& other )
+{
+  _xyz -= other._xyz;
+  return *this;
+}
+Vec4d& Vec4d::operator+=( const Vec4d& other )
+{
+  _xyz += other._xyz;
   return *this;
 }
 

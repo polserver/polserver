@@ -32,6 +32,8 @@ public:
 
   Vec2d& operator-=( u16 range );
   Vec2d& operator+=( u16 range );
+  Vec2d& operator-=( const Vec2d& other );
+  Vec2d& operator+=( const Vec2d& other );
 
   u16 getX() const;
   u16 getY() const;
@@ -62,6 +64,10 @@ public:
 
   Vec3d& operator-=( u16 range );
   Vec3d& operator+=( u16 range );
+  Vec3d& operator-=( const Vec2d& other );
+  Vec3d& operator+=( const Vec2d& other );
+  Vec3d& operator-=( const Vec3d& other );
+  Vec3d& operator+=( const Vec3d& other );
 
   u16 getX() const;
   u16 getY() const;
@@ -97,6 +103,12 @@ public:
 
   Vec4d& operator-=( u16 range );
   Vec4d& operator+=( u16 range );
+  Vec4d& operator-=( const Vec2d& other );
+  Vec4d& operator+=( const Vec2d& other );
+  Vec4d& operator-=( const Vec3d& other );
+  Vec4d& operator+=( const Vec3d& other );
+  Vec4d& operator-=( const Vec4d& other );
+  Vec4d& operator+=( const Vec4d& other );
 
   u16 getX() const;
   u16 getY() const;
