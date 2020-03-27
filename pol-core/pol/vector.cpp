@@ -21,6 +21,23 @@ bool Vec2d::operator!=( const Vec2d& other ) const
   return !( *this == other );
 }
 
+Vec2d& Vec2d::operator-=( u16 range )
+{
+  int x = static_cast<int>( _x ) - range;
+  int y = static_cast<int>( _y ) - range;
+  _x = static_cast<u16>( std::max( 0, x ) );
+  _y = static_cast<u16>( std::max( 0, y ) );
+  return *this;
+}
+Vec2d& Vec2d::operator+=( u16 range )
+{
+  int x = static_cast<int>( _x ) + range;
+  int y = static_cast<int>( _y ) + range;
+  _x = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) );
+  _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
+  return *this;
+}
+
 u16 Vec2d::pol_distance( const Vec2d& other ) const
 {
   int xd = std::abs( static_cast<int>( _x ) - other._x );
@@ -38,11 +55,30 @@ bool Vec3d::operator!=( const Vec3d& other ) const
   return !( *this == other );
 }
 
+Vec3d& Vec3d::operator-=( u16 range )
+{
+  _xy -= range;
+  return *this;
+}
+Vec3d& Vec3d::operator+=( u16 range )
+{
+  _xy += range;
+  return *this;
+}
+
 u16 Vec3d::pol_distance( const Vec3d& other ) const
 {
   return _xy.pol_distance( other._xy );
 }
 
+
+void Vec4d::crop()
+{
+  if ( getX() >= _realm->width() )
+    setX( _realm->width() - 1 );
+  if ( getY() >= _realm->height() )
+    setY( _realm->height() - 1 );
+}
 
 bool Vec4d::operator==( const Vec4d& other ) const
 {
@@ -61,6 +97,18 @@ bool Vec4d::operator!=( const Vec3d& other ) const
   return !( *this == other );
 }
 
+Vec4d& Vec4d::operator-=( u16 range )
+{
+  _xyz -= range;
+  return *this;
+}
+Vec4d& Vec4d::operator+=( u16 range )
+{
+  _xyz += range;
+  crop();
+  return *this;
+}
+
 void Vec4d::move( Plib::UFACING dir )
 {
   int x = _xyz.getX();
@@ -70,11 +118,11 @@ void Vec4d::move( Plib::UFACING dir )
   if ( x <= 0 )
     _xyz.setX( 0 );
   else
-    _xyz.setX( static_cast<u16>( std::min( x, static_cast<int>( _realm->width() ) ) ) );
+    _xyz.setX( static_cast<u16>( std::min( x, static_cast<int>( _realm->width() ) - 1 ) ) );
   if ( y <= 0 )
     _xyz.setY( 0 );
   else
-    _xyz.setY( static_cast<u16>( std::min( y, static_cast<int>( _realm->height() ) ) ) );
+    _xyz.setY( static_cast<u16>( std::min( y, static_cast<int>( _realm->height() ) - 1 ) ) );
 }
 
 u16 Vec4d::pol_distance( const Vec4d& other ) const

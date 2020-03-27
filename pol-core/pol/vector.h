@@ -30,6 +30,9 @@ public:
   bool operator==( const Vec2d& other ) const;
   bool operator!=( const Vec2d& other ) const;
 
+  Vec2d& operator-=( u16 range );
+  Vec2d& operator+=( u16 range );
+
   u16 getX() const;
   u16 getY() const;
 
@@ -56,6 +59,9 @@ public:
 
   bool operator==( const Vec3d& other ) const;
   bool operator!=( const Vec3d& other ) const;
+
+  Vec3d& operator-=( u16 range );
+  Vec3d& operator+=( u16 range );
 
   u16 getX() const;
   u16 getY() const;
@@ -89,6 +95,9 @@ public:
   bool operator!=( const Vec4d& other ) const;
   bool operator!=( const Vec3d& other ) const;
 
+  Vec4d& operator-=( u16 range );
+  Vec4d& operator+=( u16 range );
+
   u16 getX() const;
   u16 getY() const;
   u8 getZ() const;
@@ -106,6 +115,9 @@ public:
   bool inRange( const Vec3d& other, u16 range ) const;
 
   u16 pol_distance( const Vec4d& other ) const;
+
+private:
+  void crop();
 };
 
 inline Vec2d::Vec2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
@@ -165,9 +177,11 @@ inline Vec3d& Vec3d::setZ( u8 z )
 
 inline Vec4d::Vec4d( u16 x, u16 y, u8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )
 {
+  crop();
 }
 inline Vec4d::Vec4d( Vec3d xyz, Realms::Realm* realm ) : _xyz( std::move( xyz ) ), _realm( realm )
 {
+  crop();
 }
 
 inline u16 Vec4d::getX() const
@@ -194,11 +208,13 @@ inline const Vec3d& Vec4d::getCoords() const
 inline Vec4d& Vec4d::setX( u16 x )
 {
   _xyz.setX( x );
+  crop();
   return *this;
 }
 inline Vec4d& Vec4d::setY( u16 y )
 {
   _xyz.setY( y );
+  crop();
   return *this;
 }
 inline Vec4d& Vec4d::setZ( u8 z )
@@ -209,6 +225,7 @@ inline Vec4d& Vec4d::setZ( u8 z )
 inline Vec4d& Vec4d::setRealm( Realms::Realm* realm )
 {
   _realm = realm;
+  crop();
   return *this;
 }
 
