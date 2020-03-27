@@ -43,6 +43,10 @@ public:
 
   u16 pol_distance( const Vec2d& other ) const;
 };
+Vec2d operator-( Vec2d lhs, u16 rhs );
+Vec2d operator+( Vec2d lhs, u16 rhs );
+Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
+Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
 
 class Vec3d
 {
@@ -79,6 +83,12 @@ public:
 
   u16 pol_distance( const Vec3d& other ) const;
 };
+Vec3d operator-( Vec3d lhs, u16 rhs );
+Vec3d operator+( Vec3d lhs, u16 rhs );
+Vec3d operator-( Vec3d lhs, const Vec2d& rhs );
+Vec3d operator+( Vec3d lhs, const Vec2d& rhs );
+Vec3d operator-( Vec3d lhs, const Vec3d& rhs );
+Vec3d operator+( Vec3d lhs, const Vec3d& rhs );
 
 
 class Vec4d
@@ -131,6 +141,14 @@ public:
 private:
   void crop();
 };
+Vec4d operator-( Vec4d lhs, u16 rhs );
+Vec4d operator+( Vec4d lhs, u16 rhs );
+Vec4d operator-( Vec4d lhs, const Vec2d& rhs );
+Vec4d operator+( Vec4d lhs, const Vec2d& rhs );
+Vec4d operator-( Vec4d lhs, const Vec3d& rhs );
+Vec4d operator+( Vec4d lhs, const Vec3d& rhs );
+Vec4d operator-( Vec4d lhs, const Vec4d& rhs );
+Vec4d operator+( Vec4d lhs, const Vec4d& rhs );
 
 inline Vec2d::Vec2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
 

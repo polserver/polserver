@@ -53,6 +53,26 @@ Vec2d& Vec2d::operator+=( const Vec2d& other )
   _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
   return *this;
 }
+Vec2d operator-( Vec2d lhs, u16 rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec2d operator+( Vec2d lhs, u16 rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec2d operator-( Vec2d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec2d operator+( Vec2d lhs, const Vec2d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
 
 u16 Vec2d::pol_distance( const Vec2d& other ) const
 {
@@ -104,6 +124,37 @@ Vec3d& Vec3d::operator+=( const Vec3d& other )
   int z = static_cast<int>( _z ) + other._z;
   _z = static_cast<s8>( std::min( static_cast<int>( std::numeric_limits<s8>::max() ), z ) );
   return *this;
+}
+
+Vec3d operator-( Vec3d lhs, u16 rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec3d operator+( Vec3d lhs, u16 rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec3d operator-( Vec3d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec3d operator+( Vec3d lhs, const Vec2d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec3d operator-( Vec3d lhs, const Vec3d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec3d operator+( Vec3d lhs, const Vec3d& rhs )
+{
+  lhs += rhs;
+  return lhs;
 }
 
 u16 Vec3d::pol_distance( const Vec3d& other ) const
@@ -181,6 +232,47 @@ Vec4d& Vec4d::operator+=( const Vec4d& other )
   _xyz += other._xyz;
   crop();
   return *this;
+}
+
+Vec4d operator-( Vec4d lhs, u16 rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec4d operator+( Vec4d lhs, u16 rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec4d operator-( Vec4d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec4d operator+( Vec4d lhs, const Vec2d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec4d operator-( Vec4d lhs, const Vec3d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec4d operator+( Vec4d lhs, const Vec3d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec4d operator-( Vec4d lhs, const Vec4d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec4d operator+( Vec4d lhs, const Vec4d& rhs )
+{
+  lhs += rhs;
+  return lhs;
 }
 
 void Vec4d::move( Plib::UFACING dir )
