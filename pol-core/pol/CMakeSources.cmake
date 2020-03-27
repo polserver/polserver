@@ -420,6 +420,8 @@ set (pol_sources  # sorted !
   utype.h
   uworld.cpp
   uworld.h
+  vector.cpp
+  vector.h
   vital.cpp
   vital.h
   watch.h
