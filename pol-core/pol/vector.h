@@ -2,6 +2,7 @@
 #define PLIB_VECTOR_H
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include <utility>
 
 namespace Pol
@@ -22,6 +23,7 @@ public:
   Vec2d( u16 x, u16 y );
   Vec2d( const Vec2d& other ) = default;
   Vec2d( Vec2d&& other ) = default;
+  ~Vec2d() = default;
   Vec2d& operator=( const Vec2d& other ) = default;
   Vec2d& operator=( Vec2d&& other ) = default;
 
@@ -46,6 +48,7 @@ public:
   Vec3d() = default;
   Vec3d( Vec2d xy, u8 z );
   Vec3d( u16 x, u16 y, u8 z );
+  ~Vec3d() = default;
   Vec3d( const Vec3d& other ) = default;
   Vec3d( Vec3d&& other ) = default;
   Vec3d& operator=( const Vec3d& other ) = default;
@@ -75,6 +78,7 @@ public:
   Vec4d() = default;
   Vec4d( Vec3d xyz, Realms::Realm* realm );
   Vec4d( u16 x, u16 y, u8 z, Realms::Realm* realm );
+  ~Vec4d() = default;
   Vec4d( const Vec4d& other ) = default;
   Vec4d( Vec4d&& other ) = default;
   Vec4d& operator=( const Vec4d& other ) = default;
@@ -95,6 +99,8 @@ public:
   Vec4d& setY( u16 y );
   Vec4d& setZ( u8 z );
   Vec4d& setRealm( Realms::Realm* realm );
+
+  void move( Plib::UFACING dir );
 
   bool inRange( const Vec4d& other, u16 range ) const;
   bool inRange( const Vec3d& other, u16 range ) const;
