@@ -165,6 +165,10 @@ u16 Vec3d::pol_distance( const Vec3d& other ) const
 
 void Vec4d::crop()
 {
+  // TODO: inefficient
+  // maybe two methods u16 Vec4d::cropX cropY
+  // and if possible pass the return value directly to vec3d instead
+  // of cropping afterwards
   if ( getX() >= _realm->width() )
     setX( _realm->width() - 1 );
   if ( getY() >= _realm->height() )
