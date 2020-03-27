@@ -165,14 +165,22 @@ u16 Vec3d::pol_distance( const Vec3d& other ) const
 
 void Vec4d::crop()
 {
-  // TODO: inefficient
-  // maybe two methods u16 Vec4d::cropX cropY
-  // and if possible pass the return value directly to vec3d instead
-  // of cropping afterwards
   if ( getX() >= _realm->width() )
     setX( _realm->width() - 1 );
   if ( getY() >= _realm->height() )
     setY( _realm->height() - 1 );
+}
+u16 Vec4d::cropX( u16 x ) const
+{
+  if ( x >= _realm->width() )
+    return _realm->width() - 1;
+  return x;
+}
+u16 Vec4d::cropY( u16 y ) const
+{
+  if ( y >= _realm->height() )
+    return _realm->height() - 1;
+  return y;
 }
 
 bool Vec4d::operator==( const Vec4d& other ) const
@@ -281,18 +289,24 @@ Vec4d operator+( Vec4d lhs, const Vec4d& rhs )
 
 void Vec4d::move( Plib::UFACING dir )
 {
-  int x = _xyz.getX();
-  x += Core::move_delta[dir].xmove;
-  int y = _xyz.getY();
-  y += Core::move_delta[dir].ymove;
-  if ( x <= 0 )
-    _xyz.setX( 0 );
-  else
-    _xyz.setX( static_cast<u16>( std::min( x, static_cast<int>( _realm->width() ) - 1 ) ) );
-  if ( y <= 0 )
-    _xyz.setY( 0 );
-  else
-    _xyz.setY( static_cast<u16>( std::min( y, static_cast<int>( _realm->height() ) - 1 ) ) );
+  if ( Core::move_delta[dir].xmove != 0 )
+  {
+    int x = _xyz.getX();
+    x += Core::move_delta[dir].xmove;
+    if ( x <= 0 )
+      _xyz.setX( 0 );
+    else
+      _xyz.setX( static_cast<u16>( std::min( x, static_cast<int>( _realm->width() ) - 1 ) ) );
+  }
+  if ( Core::move_delta[dir].ymove != 0 )
+  {
+    int y = _xyz.getY();
+    y += Core::move_delta[dir].ymove;
+    if ( y <= 0 )
+      _xyz.setY( 0 );
+    else
+      _xyz.setY( static_cast<u16>( std::min( y, static_cast<int>( _realm->height() ) - 1 ) ) );
+  }
 }
 
 u16 Vec4d::pol_distance( const Vec4d& other ) const

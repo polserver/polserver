@@ -140,6 +140,8 @@ public:
 
 private:
   void crop();
+  u16 cropX( u16 x ) const;
+  u16 cropY( u16 y ) const;
 };
 Vec4d operator-( Vec4d lhs, u16 rhs );
 Vec4d operator+( Vec4d lhs, u16 rhs );
@@ -237,14 +239,12 @@ inline const Vec3d& Vec4d::getCoords() const
 
 inline Vec4d& Vec4d::setX( u16 x )
 {
-  _xyz.setX( x );
-  crop();
+  _xyz.setX( cropX( x ) );
   return *this;
 }
 inline Vec4d& Vec4d::setY( u16 y )
 {
-  _xyz.setY( y );
-  crop();
+  _xyz.setY( cropY( y ) );
   return *this;
 }
 inline Vec4d& Vec4d::setZ( u8 z )
