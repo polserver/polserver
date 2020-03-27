@@ -129,7 +129,7 @@ public:
   Vec4d& setX( u16 x );
   Vec4d& setY( u16 y );
   Vec4d& setZ( u8 z );
-  Vec4d& setRealm( Realms::Realm* realm );
+  //  Vec4d& setRealm( Realms::Realm* realm ); // removed on purpose
 
   void move( Plib::UFACING dir );
 
@@ -250,12 +250,6 @@ inline Vec4d& Vec4d::setY( u16 y )
 inline Vec4d& Vec4d::setZ( u8 z )
 {
   _xyz.setZ( z );
-  return *this;
-}
-inline Vec4d& Vec4d::setRealm( Realms::Realm* realm )
-{
-  _realm = realm;
-  crop();
   return *this;
 }
 
