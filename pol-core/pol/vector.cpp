@@ -157,6 +157,7 @@ Vec4d& Vec4d::operator-=( const Vec2d& other )
 Vec4d& Vec4d::operator+=( const Vec2d& other )
 {
   _xyz += other;
+  crop();
   return *this;
 }
 Vec4d& Vec4d::operator-=( const Vec3d& other )
@@ -167,6 +168,7 @@ Vec4d& Vec4d::operator-=( const Vec3d& other )
 Vec4d& Vec4d::operator+=( const Vec3d& other )
 {
   _xyz += other;
+  crop();
   return *this;
 }
 Vec4d& Vec4d::operator-=( const Vec4d& other )
@@ -177,6 +179,7 @@ Vec4d& Vec4d::operator-=( const Vec4d& other )
 Vec4d& Vec4d::operator+=( const Vec4d& other )
 {
   _xyz += other._xyz;
+  crop();
   return *this;
 }
 
