@@ -454,7 +454,7 @@ Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   Keep in mind a Titan and a Slime will have the same height.</explain>
   <explain><i>EnableWorldMapPackets:</i> Custom clients have implemented a packet that tracks the position of<br/>
   party and guild members. This enables the client to overlay member positions on a world map<br/>
-  directly inside the client. Set to 1 to enable core handling of this packet.<br/>
+  directly inside the client. Set to 1 to enable core handling of this packet.<br/></explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>
