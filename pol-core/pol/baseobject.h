@@ -2,6 +2,7 @@
 #define BASEOBJECT_H
 
 #include "../clib/rawtypes.h"
+#include "vector.h"
 
 namespace Pol
 {
@@ -42,6 +43,8 @@ protected:
   ULWObject& operator=( const ULWObject& ) = delete;
   ~ULWObject() = default;
 
+  void pos( Vec4d newpos );
+
 public:
   bool orphan() const;
 
@@ -52,13 +55,14 @@ public:
 
   u8 look_height() const;  // where you're looking from, or to
 
+  const Vec4d& pos() const;
+
+private:
+  Vec4d position;
+
 public:
-  Realms::Realm* realm;
   u32 serial;
   u16 graphic;
-  u16 x;
-  u16 y;
-  s8 z;
   u8 height;
 
 protected:
@@ -66,14 +70,7 @@ protected:
 };
 
 inline ULWObject::ULWObject( UOBJ_CLASS uobj_class )
-    : realm( nullptr ),
-      serial( 0 ),
-      graphic( 0 ),
-      x( 0 ),
-      y( 0 ),
-      z( 0 ),
-      height( 0 ),
-      uobj_class_( uobj_class )
+    : position(), serial( 0 ), graphic( 0 ), height( 0 ), uobj_class_( uobj_class )
 {
 }
 
@@ -121,7 +118,15 @@ inline bool ULWObject::orphan() const
   return ( serial == 0 );
 }
 
+inline const Vec4d& ULWObject::pos() const
+{
+  return position;
+}
 
+inline void ULWObject::pos( Vec4d newpos )
+{
+  position = std::move( newpos );
+}
 }  // namespace Core
 }  // namespace Pol
 
