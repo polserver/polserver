@@ -51,12 +51,12 @@ Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
 class Vec3d
 {
   Vec2d _xy;
-  u8 _z;
+  s8 _z;
 
 public:
   Vec3d() = default;
-  Vec3d( Vec2d xy, u8 z );
-  Vec3d( u16 x, u16 y, u8 z );
+  Vec3d( Vec2d xy, s8 z );
+  Vec3d( u16 x, u16 y, s8 z );
   ~Vec3d() = default;
   Vec3d( const Vec3d& other ) = default;
   Vec3d( Vec3d&& other ) = default;
@@ -75,11 +75,12 @@ public:
 
   u16 getX() const;
   u16 getY() const;
-  u8 getZ() const;
+  s8 getZ() const;
+  const Vec2d& getXYCoords() const;
 
   Vec3d& setX( u16 x );
   Vec3d& setY( u16 y );
-  Vec3d& setZ( u8 z );
+  Vec3d& setZ( s8 z );
 
   u16 pol_distance( const Vec3d& other ) const;
 };
@@ -99,7 +100,7 @@ class Vec4d
 public:
   Vec4d() = default;
   Vec4d( Vec3d xyz, Realms::Realm* realm );
-  Vec4d( u16 x, u16 y, u8 z, Realms::Realm* realm );
+  Vec4d( u16 x, u16 y, s8 z, Realms::Realm* realm );
   ~Vec4d() = default;
   Vec4d( const Vec4d& other ) = default;
   Vec4d( Vec4d&& other ) = default;
@@ -122,13 +123,14 @@ public:
 
   u16 getX() const;
   u16 getY() const;
-  u8 getZ() const;
+  s8 getZ() const;
   Realms::Realm* getRealm() const;
   const Vec3d& getCoords() const;
+  const Vec2d& getXYCoords() const;
 
   Vec4d& setX( u16 x );
   Vec4d& setY( u16 y );
-  Vec4d& setZ( u8 z );
+  Vec4d& setZ( s8 z );
   //  Vec4d& setRealm( Realms::Realm* realm ); // removed on purpose
 
   void move( Plib::UFACING dir );
@@ -174,8 +176,8 @@ inline Vec2d& Vec2d::setY( u16 y )
   return *this;
 }
 
-inline Vec3d::Vec3d( u16 x, u16 y, u8 z ) : _xy( x, y ), _z( z ) {}
-inline Vec3d::Vec3d( Vec2d xy, u8 z ) : _xy( std::move( xy ) ), _z( z ) {}
+inline Vec3d::Vec3d( u16 x, u16 y, s8 z ) : _xy( x, y ), _z( z ) {}
+inline Vec3d::Vec3d( Vec2d xy, s8 z ) : _xy( std::move( xy ) ), _z( z ) {}
 
 inline u16 Vec3d::getX() const
 {
@@ -185,9 +187,13 @@ inline u16 Vec3d::getY() const
 {
   return _xy.getY();
 }
-inline u8 Vec3d::getZ() const
+inline s8 Vec3d::getZ() const
 {
   return _z;
+}
+const Vec2d& Vec3d::getXYCoords() const
+{
+  return _xy;
 }
 
 inline Vec3d& Vec3d::setX( u16 x )
@@ -200,14 +206,14 @@ inline Vec3d& Vec3d::setY( u16 y )
   _xy.setY( y );
   return *this;
 }
-inline Vec3d& Vec3d::setZ( u8 z )
+inline Vec3d& Vec3d::setZ( s8 z )
 {
   _z = z;
   return *this;
 }
 
 
-inline Vec4d::Vec4d( u16 x, u16 y, u8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )
+inline Vec4d::Vec4d( u16 x, u16 y, s8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )
 {
   crop();
 }
@@ -224,7 +230,7 @@ inline u16 Vec4d::getY() const
 {
   return _xyz.getY();
 }
-inline u8 Vec4d::getZ() const
+inline s8 Vec4d::getZ() const
 {
   return _xyz.getZ();
 }
@@ -235,6 +241,10 @@ inline Realms::Realm* Vec4d::getRealm() const
 inline const Vec3d& Vec4d::getCoords() const
 {
   return _xyz;
+}
+inline const Vec2d& Vec4d::getXYCoords() const
+{
+  return _xyz.getXYCoords();
 }
 
 inline Vec4d& Vec4d::setX( u16 x )
@@ -247,7 +257,7 @@ inline Vec4d& Vec4d::setY( u16 y )
   _xyz.setY( cropY( y ) );
   return *this;
 }
-inline Vec4d& Vec4d::setZ( u8 z )
+inline Vec4d& Vec4d::setZ( s8 z )
 {
   _xyz.setZ( z );
   return *this;
