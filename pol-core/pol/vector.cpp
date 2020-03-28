@@ -12,16 +12,16 @@ namespace Pol
 {
 namespace Core
 {
-bool Vec2d::operator==( const Vec2d& other ) const
+bool Pos2d::operator==( const Pos2d& other ) const
 {
   return std::tie( _x, _y ) == std::tie( other._x, other._y );
 }
-bool Vec2d::operator!=( const Vec2d& other ) const
+bool Pos2d::operator!=( const Pos2d& other ) const
 {
   return !( *this == other );
 }
 
-Vec2d& Vec2d::operator-=( u16 range )
+Pos2d& Pos2d::operator-=( u16 range )
 {
   int x = static_cast<int>( _x ) - range;
   int y = static_cast<int>( _y ) - range;
@@ -29,7 +29,7 @@ Vec2d& Vec2d::operator-=( u16 range )
   _y = static_cast<u16>( std::max( 0, y ) );
   return *this;
 }
-Vec2d& Vec2d::operator+=( u16 range )
+Pos2d& Pos2d::operator+=( u16 range )
 {
   int x = static_cast<int>( _x ) + range;
   int y = static_cast<int>( _y ) + range;
@@ -37,7 +37,7 @@ Vec2d& Vec2d::operator+=( u16 range )
   _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
   return *this;
 }
-Vec2d& Vec2d::operator-=( const Vec2d& other )
+Pos2d& Pos2d::operator-=( const Pos2d& other )
 {
   int x = static_cast<int>( _x ) - other._x;
   int y = static_cast<int>( _y ) - other._y;
@@ -45,7 +45,7 @@ Vec2d& Vec2d::operator-=( const Vec2d& other )
   _y = static_cast<u16>( std::max( 0, y ) );
   return *this;
 }
-Vec2d& Vec2d::operator+=( const Vec2d& other )
+Pos2d& Pos2d::operator+=( const Pos2d& other )
 {
   int x = static_cast<int>( _x ) + other._x;
   int y = static_cast<int>( _y ) + other._y;
@@ -53,28 +53,35 @@ Vec2d& Vec2d::operator+=( const Vec2d& other )
   _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
   return *this;
 }
-Vec2d operator-( Vec2d lhs, u16 rhs )
+Pos2d operator-( Pos2d lhs, u16 rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec2d operator+( Vec2d lhs, u16 rhs )
+Pos2d operator+( Pos2d lhs, u16 rhs )
 {
   lhs += rhs;
   return lhs;
 }
-Vec2d operator-( Vec2d lhs, const Vec2d& rhs )
+Pos2d operator-( Pos2d lhs, const Pos2d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec2d operator+( Vec2d lhs, const Vec2d& rhs )
+Pos2d operator+( Pos2d lhs, const Pos2d& rhs )
 {
   lhs += rhs;
   return lhs;
 }
 
-u16 Vec2d::pol_distance( const Vec2d& other ) const
+Vec2d Pos2d::relative( const Pos2d& other ) const
+{
+  int xd = static_cast<int>( _x ) - other._x;
+  int yd = static_cast<int>( _y ) - other._y;
+  return Vec2d( static_cast<s16>( xd ), static_cast<s16>( yd ) );
+}
+
+u16 Pos2d::pol_distance( const Pos2d& other ) const
 {
   int xd = std::abs( static_cast<int>( _x ) - other._x );
   int yd = std::abs( static_cast<int>( _y ) - other._y );
@@ -82,43 +89,43 @@ u16 Vec2d::pol_distance( const Vec2d& other ) const
 }
 
 
-bool Vec3d::operator==( const Vec3d& other ) const
+bool Pos3d::operator==( const Pos3d& other ) const
 {
   return std::tie( _xy, _z ) == std::tie( other._xy, other._z );
 }
-bool Vec3d::operator!=( const Vec3d& other ) const
+bool Pos3d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
 }
 
-Vec3d& Vec3d::operator-=( u16 range )
+Pos3d& Pos3d::operator-=( u16 range )
 {
   _xy -= range;
   return *this;
 }
-Vec3d& Vec3d::operator+=( u16 range )
+Pos3d& Pos3d::operator+=( u16 range )
 {
   _xy += range;
   return *this;
 }
-Vec3d& Vec3d::operator-=( const Vec2d& other )
+Pos3d& Pos3d::operator-=( const Pos2d& other )
 {
   _xy -= other;
   return *this;
 }
-Vec3d& Vec3d::operator+=( const Vec2d& other )
+Pos3d& Pos3d::operator+=( const Pos2d& other )
 {
   _xy += other;
   return *this;
 }
-Vec3d& Vec3d::operator-=( const Vec3d& other )
+Pos3d& Pos3d::operator-=( const Pos3d& other )
 {
   _xy -= other._xy;
   int z = static_cast<int>( _z ) - other._z;
   _z = static_cast<s8>( std::max( static_cast<int>( std::numeric_limits<s8>::min() ), z ) );
   return *this;
 }
-Vec3d& Vec3d::operator+=( const Vec3d& other )
+Pos3d& Pos3d::operator+=( const Pos3d& other )
 {
   _xy += other._xy;
   int z = static_cast<int>( _z ) + other._z;
@@ -126,168 +133,168 @@ Vec3d& Vec3d::operator+=( const Vec3d& other )
   return *this;
 }
 
-Vec3d operator-( Vec3d lhs, u16 rhs )
+Pos3d operator-( Pos3d lhs, u16 rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec3d operator+( Vec3d lhs, u16 rhs )
+Pos3d operator+( Pos3d lhs, u16 rhs )
 {
   lhs += rhs;
   return lhs;
 }
-Vec3d operator-( Vec3d lhs, const Vec2d& rhs )
+Pos3d operator-( Pos3d lhs, const Pos2d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec3d operator+( Vec3d lhs, const Vec2d& rhs )
+Pos3d operator+( Pos3d lhs, const Pos2d& rhs )
 {
   lhs += rhs;
   return lhs;
 }
-Vec3d operator-( Vec3d lhs, const Vec3d& rhs )
+Pos3d operator-( Pos3d lhs, const Pos3d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec3d operator+( Vec3d lhs, const Vec3d& rhs )
+Pos3d operator+( Pos3d lhs, const Pos3d& rhs )
 {
   lhs += rhs;
   return lhs;
 }
 
-u16 Vec3d::pol_distance( const Vec3d& other ) const
+u16 Pos3d::pol_distance( const Pos3d& other ) const
 {
   return _xy.pol_distance( other._xy );
 }
 
 
-void Vec4d::crop()
+void Pos4d::crop()
 {
   if ( getX() >= _realm->width() )
     setX( _realm->width() - 1 );
   if ( getY() >= _realm->height() )
     setY( _realm->height() - 1 );
 }
-u16 Vec4d::cropX( u16 x ) const
+u16 Pos4d::cropX( u16 x ) const
 {
   if ( x >= _realm->width() )
     return _realm->width() - 1;
   return x;
 }
-u16 Vec4d::cropY( u16 y ) const
+u16 Pos4d::cropY( u16 y ) const
 {
   if ( y >= _realm->height() )
     return _realm->height() - 1;
   return y;
 }
 
-bool Vec4d::operator==( const Vec4d& other ) const
+bool Pos4d::operator==( const Pos4d& other ) const
 {
   return std::tie( _xyz, _realm ) == std::tie( other._xyz, other._realm );
 }
-bool Vec4d::operator==( const Vec3d& other ) const
+bool Pos4d::operator==( const Pos3d& other ) const
 {
   return _xyz == other;
 }
-bool Vec4d::operator!=( const Vec4d& other ) const
+bool Pos4d::operator!=( const Pos4d& other ) const
 {
   return !( *this == other );
 }
-bool Vec4d::operator!=( const Vec3d& other ) const
+bool Pos4d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
 }
 
-Vec4d& Vec4d::operator-=( u16 range )
+Pos4d& Pos4d::operator-=( u16 range )
 {
   _xyz -= range;
   return *this;
 }
-Vec4d& Vec4d::operator+=( u16 range )
+Pos4d& Pos4d::operator+=( u16 range )
 {
   _xyz += range;
   crop();
   return *this;
 }
 
-Vec4d& Vec4d::operator-=( const Vec2d& other )
+Pos4d& Pos4d::operator-=( const Pos2d& other )
 {
   _xyz -= other;
   return *this;
 }
-Vec4d& Vec4d::operator+=( const Vec2d& other )
+Pos4d& Pos4d::operator+=( const Pos2d& other )
 {
   _xyz += other;
   crop();
   return *this;
 }
-Vec4d& Vec4d::operator-=( const Vec3d& other )
+Pos4d& Pos4d::operator-=( const Pos3d& other )
 {
   _xyz -= other;
   return *this;
 }
-Vec4d& Vec4d::operator+=( const Vec3d& other )
+Pos4d& Pos4d::operator+=( const Pos3d& other )
 {
   _xyz += other;
   crop();
   return *this;
 }
-Vec4d& Vec4d::operator-=( const Vec4d& other )
+Pos4d& Pos4d::operator-=( const Pos4d& other )
 {
   _xyz -= other._xyz;
   return *this;
 }
-Vec4d& Vec4d::operator+=( const Vec4d& other )
+Pos4d& Pos4d::operator+=( const Pos4d& other )
 {
   _xyz += other._xyz;
   crop();
   return *this;
 }
 
-Vec4d operator-( Vec4d lhs, u16 rhs )
+Pos4d operator-( Pos4d lhs, u16 rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec4d operator+( Vec4d lhs, u16 rhs )
+Pos4d operator+( Pos4d lhs, u16 rhs )
 {
   lhs += rhs;
   return lhs;
 }
-Vec4d operator-( Vec4d lhs, const Vec2d& rhs )
+Pos4d operator-( Pos4d lhs, const Pos2d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec4d operator+( Vec4d lhs, const Vec2d& rhs )
+Pos4d operator+( Pos4d lhs, const Pos2d& rhs )
 {
   lhs += rhs;
   return lhs;
 }
-Vec4d operator-( Vec4d lhs, const Vec3d& rhs )
+Pos4d operator-( Pos4d lhs, const Pos3d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec4d operator+( Vec4d lhs, const Vec3d& rhs )
+Pos4d operator+( Pos4d lhs, const Pos3d& rhs )
 {
   lhs += rhs;
   return lhs;
 }
-Vec4d operator-( Vec4d lhs, const Vec4d& rhs )
+Pos4d operator-( Pos4d lhs, const Pos4d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
-Vec4d operator+( Vec4d lhs, const Vec4d& rhs )
+Pos4d operator+( Pos4d lhs, const Pos4d& rhs )
 {
   lhs += rhs;
   return lhs;
 }
 
-void Vec4d::move( Plib::UFACING dir )
+void Pos4d::move( Plib::UFACING dir )
 {
   if ( Core::move_delta[dir].xmove != 0 )
   {
@@ -309,17 +316,17 @@ void Vec4d::move( Plib::UFACING dir )
   }
 }
 
-u16 Vec4d::pol_distance( const Vec4d& other ) const
+u16 Pos4d::pol_distance( const Pos4d& other ) const
 {
   if ( _realm != other._realm )
     return std::numeric_limits<u16>::max();
   return _xyz.pol_distance( other._xyz );
 }
-bool Vec4d::inRange( const Vec4d& other, u16 range ) const
+bool Pos4d::inRange( const Pos4d& other, u16 range ) const
 {
   return _realm == other._realm && _xyz.pol_distance( other._xyz ) <= range;
 }
-bool Vec4d::inRange( const Vec3d& other, u16 range ) const
+bool Pos4d::inRange( const Pos3d& other, u16 range ) const
 {
   return _xyz.pol_distance( other ) <= range;
 }

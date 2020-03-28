@@ -43,7 +43,7 @@ protected:
   ULWObject& operator=( const ULWObject& ) = delete;
   ~ULWObject() = default;
 
-  void pos( Vec4d newpos );
+  void pos( Pos4d newpos );
 
 public:
   bool orphan() const;
@@ -55,10 +55,10 @@ public:
 
   u8 look_height() const;  // where you're looking from, or to
 
-  const Vec4d& pos() const;
+  const Pos4d& pos() const;
 
 private:
-  Vec4d position;
+  Pos4d position;
 
 public:
   u32 serial;
@@ -118,12 +118,12 @@ inline bool ULWObject::orphan() const
   return ( serial == 0 );
 }
 
-inline const Vec4d& ULWObject::pos() const
+inline const Pos4d& ULWObject::pos() const
 {
   return position;
 }
 
-inline void ULWObject::pos( Vec4d newpos )
+inline void ULWObject::pos( Pos4d newpos )
 {
   position = std::move( newpos );
 }
