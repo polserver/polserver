@@ -35,6 +35,22 @@ bool Vec2d::operator!=( const Vec2d& other ) const
 {
   return !( *this == other );
 }
+bool Vec2d::operator<( const Vec2d& other ) const
+{
+  return std::tie( _x, _y ) < std::tie( other._x, other._y );
+}
+bool Vec2d::operator>( const Vec2d& other ) const
+{
+  return std::tie( _x, _y ) > std::tie( other._x, other._y );
+}
+bool Vec2d::operator<=( const Vec2d& other ) const
+{
+  return std::tie( _x, _y ) <= std::tie( other._x, other._y );
+}
+bool Vec2d::operator>=( const Vec2d& other ) const
+{
+  return std::tie( _x, _y ) >= std::tie( other._x, other._y );
+}
 
 Vec2d& Vec2d::operator-=( const Vec2d& other )
 {
@@ -59,6 +75,22 @@ bool Pos2d::operator==( const Pos2d& other ) const
 bool Pos2d::operator!=( const Pos2d& other ) const
 {
   return !( *this == other );
+}
+bool Pos2d::operator<( const Pos2d& other ) const
+{
+  return std::tie( _x, _y ) < std::tie( other._x, other._y );
+}
+bool Pos2d::operator>( const Pos2d& other ) const
+{
+  return std::tie( _x, _y ) > std::tie( other._x, other._y );
+}
+bool Pos2d::operator<=( const Pos2d& other ) const
+{
+  return std::tie( _x, _y ) <= std::tie( other._x, other._y );
+}
+bool Pos2d::operator>=( const Pos2d& other ) const
+{
+  return std::tie( _x, _y ) >= std::tie( other._x, other._y );
 }
 
 Pos2d& Pos2d::operator-=( const Vec2d& other )
@@ -105,10 +137,10 @@ void Pos2d::crop( Realms::Realm* realm )
 {
   if ( realm == nullptr )
     return;
-  if ( _x >= _realm->width() )
-    _x = _realm->width() - 1;
-  if ( _y >= _realm->height() )
-    _y = _realm->height() - 1;
+  if ( _x >= realm->width() )
+    _x = realm->width() - 1;
+  if ( _y >= realm->height() )
+    _y = realm->height() - 1;
 }
 
 bool Pos3d::operator==( const Pos3d& other ) const
@@ -118,6 +150,46 @@ bool Pos3d::operator==( const Pos3d& other ) const
 bool Pos3d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
+}
+bool Pos3d::operator<( const Pos3d& other ) const
+{
+  return std::tie( _xy, _z ) < std::tie( other._xy, other._z );
+}
+bool Pos3d::operator>( const Pos3d& other ) const
+{
+  return std::tie( _xy, _z ) > std::tie( other._xy, other._z );
+}
+bool Pos3d::operator<=( const Pos3d& other ) const
+{
+  return std::tie( _xy, _z ) <= std::tie( other._xy, other._z );
+}
+bool Pos3d::operator>=( const Pos3d& other ) const
+{
+  return std::tie( _xy, _z ) >= std::tie( other._xy, other._z );
+}
+bool Pos3d::operator==( const Pos2d& other ) const
+{
+  return _xy == other;
+}
+bool Pos3d::operator!=( const Pos2d& other ) const
+{
+  return _xy != other;
+}
+bool Pos3d::operator<( const Pos2d& other ) const
+{
+  return _xy < other;
+}
+bool Pos3d::operator>( const Pos2d& other ) const
+{
+  return _xy > other;
+}
+bool Pos3d::operator<=( const Pos2d& other ) const
+{
+  return _xy <= other;
+}
+bool Pos3d::operator>=( const Pos2d& other ) const
+{
+  return _xy >= other;
 }
 
 Pos3d& Pos3d::operator-=( const Vec2d& other )
@@ -177,17 +249,81 @@ bool Pos4d::operator==( const Pos4d& other ) const
 {
   return std::tie( _xyz, _realm ) == std::tie( other._xyz, other._realm );
 }
-bool Pos4d::operator==( const Pos3d& other ) const
-{
-  return _xyz == other;
-}
 bool Pos4d::operator!=( const Pos4d& other ) const
 {
   return !( *this == other );
 }
+bool Pos4d::operator<( const Pos4d& other ) const
+{
+  if ( _realm != other._realm )
+    return false;
+  return _xyz < other._xyz;
+}
+bool Pos4d::operator>( const Pos4d& other ) const
+{
+  if ( _realm != other._realm )
+    return false;
+  return _xyz > other._xyz;
+}
+bool Pos4d::operator<=( const Pos4d& other ) const
+{
+  if ( _realm != other._realm )
+    return false;
+  return _xyz <= other._xyz;
+}
+bool Pos4d::operator>=( const Pos4d& other ) const
+{
+  if ( _realm != other._realm )
+    return false;
+  return _xyz >= other._xyz;
+}
+bool Pos4d::operator==( const Pos3d& other ) const
+{
+  return _xyz == other;
+}
 bool Pos4d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
+}
+bool Pos4d::operator<( const Pos3d& other ) const
+{
+  return _xyz < other;
+}
+bool Pos4d::operator>( const Pos3d& other ) const
+{
+  return _xyz > other;
+}
+bool Pos4d::operator<=( const Pos3d& other ) const
+{
+  return _xyz <= other;
+}
+bool Pos4d::operator>=( const Pos3d& other ) const
+{
+  return _xyz >= other;
+}
+bool Pos4d::operator==( const Pos2d& other ) const
+{
+  return _xyz.xy() == other;
+}
+bool Pos4d::operator!=( const Pos2d& other ) const
+{
+  return !( *this == other );
+}
+bool Pos4d::operator<( const Pos2d& other ) const
+{
+  return _xyz.xy() < other;
+}
+bool Pos4d::operator>( const Pos2d& other ) const
+{
+  return _xyz.xy() > other;
+}
+bool Pos4d::operator<=( const Pos2d& other ) const
+{
+  return _xyz.xy() <= other;
+}
+bool Pos4d::operator>=( const Pos2d& other ) const
+{
+  return _xyz.xy() >= other;
 }
 
 Pos4d& Pos4d::operator-=( const Vec2d& other )

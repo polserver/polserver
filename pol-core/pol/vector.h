@@ -29,6 +29,10 @@ public:
 
   bool operator==( const Vec2d& other ) const;
   bool operator!=( const Vec2d& other ) const;
+  bool operator<( const Vec2d& other ) const;
+  bool operator>( const Vec2d& other ) const;
+  bool operator<=( const Vec2d& other ) const;
+  bool operator>=( const Vec2d& other ) const;
 
   Vec2d& operator-=( const Vec2d& other );
   Vec2d& operator+=( const Vec2d& other );
@@ -58,6 +62,10 @@ public:
 
   bool operator==( const Pos2d& other ) const;
   bool operator!=( const Pos2d& other ) const;
+  bool operator<( const Pos2d& other ) const;
+  bool operator>( const Pos2d& other ) const;
+  bool operator<=( const Pos2d& other ) const;
+  bool operator>=( const Pos2d& other ) const;
 
   Pos2d& operator-=( const Vec2d& other );
   Pos2d& operator+=( const Vec2d& other );
@@ -92,6 +100,17 @@ public:
 
   bool operator==( const Pos3d& other ) const;
   bool operator!=( const Pos3d& other ) const;
+  bool operator<( const Pos3d& other ) const;
+  bool operator>( const Pos3d& other ) const;
+  bool operator<=( const Pos3d& other ) const;
+  bool operator>=( const Pos3d& other ) const;
+
+  bool operator==( const Pos2d& other ) const;
+  bool operator!=( const Pos2d& other ) const;
+  bool operator<( const Pos2d& other ) const;
+  bool operator>( const Pos2d& other ) const;
+  bool operator<=( const Pos2d& other ) const;
+  bool operator>=( const Pos2d& other ) const;
 
   Pos3d& operator-=( const Vec2d& other );
   Pos3d& operator+=( const Vec2d& other );
@@ -130,9 +149,25 @@ public:
   Pos4d& operator=( Pos4d&& other ) = default;
 
   bool operator==( const Pos4d& other ) const;
-  bool operator==( const Pos3d& other ) const;
   bool operator!=( const Pos4d& other ) const;
+  bool operator<( const Pos4d& other ) const;
+  bool operator>( const Pos4d& other ) const;
+  bool operator<=( const Pos4d& other ) const;
+  bool operator>=( const Pos4d& other ) const;
+
+  bool operator==( const Pos3d& other ) const;
   bool operator!=( const Pos3d& other ) const;
+  bool operator<( const Pos3d& other ) const;
+  bool operator>( const Pos3d& other ) const;
+  bool operator<=( const Pos3d& other ) const;
+  bool operator>=( const Pos3d& other ) const;
+
+  bool operator==( const Pos2d& other ) const;
+  bool operator!=( const Pos2d& other ) const;
+  bool operator<( const Pos2d& other ) const;
+  bool operator>( const Pos2d& other ) const;
+  bool operator<=( const Pos2d& other ) const;
+  bool operator>=( const Pos2d& other ) const;
 
   Pos4d& operator-=( const Vec2d& other );
   Pos4d& operator+=( const Vec2d& other );
