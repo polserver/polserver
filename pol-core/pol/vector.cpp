@@ -61,22 +61,6 @@ bool Pos2d::operator!=( const Pos2d& other ) const
   return !( *this == other );
 }
 
-Pos2d& Pos2d::operator-=( u16 range )
-{
-  int x = static_cast<int>( _x ) - range;
-  int y = static_cast<int>( _y ) - range;
-  _x = static_cast<u16>( std::max( 0, x ) );
-  _y = static_cast<u16>( std::max( 0, y ) );
-  return *this;
-}
-Pos2d& Pos2d::operator+=( u16 range )
-{
-  int x = static_cast<int>( _x ) + range;
-  int y = static_cast<int>( _y ) + range;
-  _x = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) );
-  _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
-  return *this;
-}
 Pos2d& Pos2d::operator-=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) - other.x();
@@ -92,16 +76,6 @@ Pos2d& Pos2d::operator+=( const Vec2d& other )
   _x = clip_u16( x );
   _y = clip_u16( y );
   return *this;
-}
-Pos2d operator-( Pos2d lhs, u16 rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos2d operator+( Pos2d lhs, u16 rhs )
-{
-  lhs += rhs;
-  return lhs;
 }
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs )
 {
@@ -127,6 +101,15 @@ u16 Pos2d::pol_distance( const Pos2d& other ) const
   return static_cast<u16>( std::max( xd, yd ) );
 }
 
+void Pos2d::crop( Realms::Realm* realm )
+{
+  if ( realm == nullptr )
+    return;
+  if ( _x >= _realm->width() )
+    _x = _realm->width() - 1;
+  if ( _y >= _realm->height() )
+    _y = _realm->height() - 1;
+}
 
 bool Pos3d::operator==( const Pos3d& other ) const
 {
@@ -137,16 +120,6 @@ bool Pos3d::operator!=( const Pos3d& other ) const
   return !( *this == other );
 }
 
-Pos3d& Pos3d::operator-=( u16 range )
-{
-  _xy -= range;
-  return *this;
-}
-Pos3d& Pos3d::operator+=( u16 range )
-{
-  _xy += range;
-  return *this;
-}
 Pos3d& Pos3d::operator-=( const Vec2d& other )
 {
   _xy -= other;
@@ -158,16 +131,6 @@ Pos3d& Pos3d::operator+=( const Vec2d& other )
   return *this;
 }
 
-Pos3d operator-( Pos3d lhs, u16 rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos3d operator+( Pos3d lhs, u16 rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs )
 {
   lhs -= rhs;
@@ -180,28 +143,23 @@ Pos3d operator+( Pos3d lhs, const Vec2d& rhs )
 }
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs )
 {
-  return lhs.pos2d() - rhs;
+  return lhs.xy() - rhs;
 }
 Vec2d operator-( const Pos3d& lhs, const Pos3d& rhs )
 {
-  return lhs.pos2d() - rhs.pos2d();
+  return lhs.xy() - rhs.xy();
 }
 
 u16 Pos3d::pol_distance( const Pos3d& other ) const
 {
   return _xy.pol_distance( other._xy );
 }
-
-
-void Pos4d::crop()
+void Pos3d::crop( Realms::Realm* realm )
 {
-  if ( _realm == nullptr )
-    return;
-  if ( x() >= _realm->width() )
-    x( _realm->width() - 1 );
-  if ( y() >= _realm->height() )
-    y( _realm->height() - 1 );
+  _xy.crop( realm );
 }
+
+
 u16 Pos4d::cropX( u16 x ) const
 {
   if ( _realm != nullptr && x >= _realm->width() )
@@ -232,41 +190,19 @@ bool Pos4d::operator!=( const Pos3d& other ) const
   return !( *this == other );
 }
 
-Pos4d& Pos4d::operator-=( u16 range )
-{
-  _xyz -= range;
-  return *this;
-}
-Pos4d& Pos4d::operator+=( u16 range )
-{
-  _xyz += range;
-  crop();
-  return *this;
-}
-
 Pos4d& Pos4d::operator-=( const Vec2d& other )
 {
   _xyz -= other;
-  crop();
+  _xyz.crop( _realm );
   return *this;
 }
 Pos4d& Pos4d::operator+=( const Vec2d& other )
 {
   _xyz += other;
-  crop();
+  _xyz.crop( _realm );
   return *this;
 }
 
-Pos4d operator-( Pos4d lhs, u16 rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos4d operator+( Pos4d lhs, u16 rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
 Pos4d operator-( Pos4d lhs, const Vec2d& rhs )
 {
   lhs -= rhs;
@@ -279,22 +215,22 @@ Pos4d operator+( Pos4d lhs, const Vec2d& rhs )
 }
 Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs )
 {
-  return lhs.pos3d() - rhs;
+  return lhs.xyz() - rhs;
 }
 Vec2d operator-( const Pos4d& lhs, const Pos3d& rhs )
 {
-  return lhs.pos3d() - rhs;
+  return lhs.xyz() - rhs;
 }
 Vec2d operator-( const Pos4d& lhs, const Pos4d& rhs )
 {
-  return lhs.pos3d() - rhs.pos3d();
+  return lhs.xyz() - rhs.xyz();
 }
 
 void Pos4d::move( Plib::UFACING dir )
 {
   // TODO: move_delta should be a Vec2d
   _xyz += Vec2d( Core::move_delta[dir].xmove, Core::move_delta[dir].ymove );
-  crop();
+  _xyz.crop( _realm );
 }
 
 u16 Pos4d::pol_distance( const Pos4d& other ) const

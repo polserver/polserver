@@ -1,5 +1,5 @@
-#ifndef PLIB_VECTOR_H
-#define PLIB_VECTOR_H
+#ifndef POL_VECTOR_H
+#define POL_VECTOR_H
 
 #include "../clib/rawtypes.h"
 #include "../plib/uconst.h"
@@ -59,8 +59,6 @@ public:
   bool operator==( const Pos2d& other ) const;
   bool operator!=( const Pos2d& other ) const;
 
-  Pos2d& operator-=( u16 range );
-  Pos2d& operator+=( u16 range );
   Pos2d& operator-=( const Vec2d& other );
   Pos2d& operator+=( const Vec2d& other );
 
@@ -71,9 +69,8 @@ public:
   Pos2d& y( u16 y );
 
   u16 pol_distance( const Pos2d& other ) const;
+  void crop( Realms::Realm* realm );
 };
-Pos2d operator-( Pos2d lhs, u16 rhs );
-Pos2d operator+( Pos2d lhs, u16 rhs );
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs );
@@ -96,24 +93,22 @@ public:
   bool operator==( const Pos3d& other ) const;
   bool operator!=( const Pos3d& other ) const;
 
-  Pos3d& operator-=( u16 range );
-  Pos3d& operator+=( u16 range );
   Pos3d& operator-=( const Vec2d& other );
   Pos3d& operator+=( const Vec2d& other );
 
   u16 x() const;
   u16 y() const;
   s8 z() const;
-  const Pos2d& pos2d() const;
+  const Pos2d& xy() const;
 
   Pos3d& x( u16 x );
   Pos3d& y( u16 y );
   Pos3d& z( s8 z );
+  Pos3d& xy( Pos2d xy );
 
   u16 pol_distance( const Pos3d& other ) const;
+  void crop( Realms::Realm* realm );
 };
-Pos3d operator-( Pos3d lhs, u16 rhs );
-Pos3d operator+( Pos3d lhs, u16 rhs );
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
@@ -139,8 +134,6 @@ public:
   bool operator!=( const Pos4d& other ) const;
   bool operator!=( const Pos3d& other ) const;
 
-  Pos4d& operator-=( u16 range );
-  Pos4d& operator+=( u16 range );
   Pos4d& operator-=( const Vec2d& other );
   Pos4d& operator+=( const Vec2d& other );
 
@@ -148,12 +141,14 @@ public:
   u16 y() const;
   s8 z() const;
   Realms::Realm* realm() const;
-  const Pos3d& pos3d() const;
-  const Pos2d& pos2d() const;
+  const Pos3d& xyz() const;
+  const Pos2d& xy() const;
 
   Pos4d& x( u16 x );
   Pos4d& y( u16 y );
   Pos4d& z( s8 z );
+  Pos4d& xy( Pos2d xy );
+  Pos4d& xyz( Pos3d xyz );
   //  Pos4d& realm( Realms::Realm* realm ); // removed on purpose
 
   void move( Plib::UFACING dir );
@@ -164,12 +159,9 @@ public:
   u16 pol_distance( const Pos4d& other ) const;
 
 private:
-  void crop();
   u16 cropX( u16 x ) const;
   u16 cropY( u16 y ) const;
 };
-Pos4d operator-( Pos4d lhs, u16 rhs );
-Pos4d operator+( Pos4d lhs, u16 rhs );
 Pos4d operator-( Pos4d lhs, const Vec2d& rhs );
 Pos4d operator+( Pos4d lhs, const Vec2d& rhs );
 Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs );
@@ -236,7 +228,7 @@ inline s8 Pos3d::z() const
 {
   return _z;
 }
-inline const Pos2d& Pos3d::pos2d() const
+inline const Pos2d& Pos3d::xy() const
 {
   return _xy;
 }
@@ -256,15 +248,20 @@ inline Pos3d& Pos3d::z( s8 z )
   _z = z;
   return *this;
 }
+inline Pos3d& Pos3d::xy( Pos2d xy )
+{
+  _xy = std::move( xy );
+  return *this;
+}
 
 
 inline Pos4d::Pos4d( u16 x, u16 y, s8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )
 {
-  crop();
+  _xyz.crop( realm );
 }
 inline Pos4d::Pos4d( Pos3d xyz, Realms::Realm* realm ) : _xyz( std::move( xyz ) ), _realm( realm )
 {
-  crop();
+  _xyz.crop( realm );
 }
 
 inline u16 Pos4d::x() const
@@ -283,13 +280,13 @@ inline Realms::Realm* Pos4d::realm() const
 {
   return _realm;
 }
-inline const Pos3d& Pos4d::pos3d() const
+inline const Pos3d& Pos4d::xyz() const
 {
   return _xyz;
 }
-inline const Pos2d& Pos4d::pos2d() const
+inline const Pos2d& Pos4d::xy() const
 {
-  return _xyz.pos2d();
+  return _xyz.xy();
 }
 
 inline Pos4d& Pos4d::x( u16 x )
@@ -305,6 +302,18 @@ inline Pos4d& Pos4d::y( u16 y )
 inline Pos4d& Pos4d::z( s8 z )
 {
   _xyz.z( z );
+  return *this;
+}
+inline Pos4d& Pos4d::xy( Pos2d xy )
+{
+  _xyz.xy( std::move( xy ) );
+  _xyz.crop( _realm );
+  return *this;
+}
+inline Pos4d& Pos4d::xyz( Pos3d xyz )
+{
+  _xyz = std::move( xyz );
+  _xyz.crop( _realm );
   return *this;
 }
 
