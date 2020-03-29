@@ -101,7 +101,7 @@ class UBoat final : public UMulti
     const MultiDef& mdef;
     Core::Pos2d xy;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), xy( ub.pos().getPos2d() ){};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), xy( ub.pos().pos2d() ){};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };

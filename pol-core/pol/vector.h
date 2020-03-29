@@ -33,11 +33,11 @@ public:
   Vec2d& operator-=( const Vec2d& other );
   Vec2d& operator+=( const Vec2d& other );
 
-  s16 getX() const;
-  s16 getY() const;
+  s16 x() const;
+  s16 y() const;
 
-  Vec2d& setX( s16 x );
-  Vec2d& setY( s16 y );
+  Vec2d& x( s16 x );
+  Vec2d& y( s16 y );
 };
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
 Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
@@ -64,11 +64,11 @@ public:
   Pos2d& operator-=( const Vec2d& other );
   Pos2d& operator+=( const Vec2d& other );
 
-  u16 getX() const;
-  u16 getY() const;
+  u16 x() const;
+  u16 y() const;
 
-  Pos2d& setX( u16 x );
-  Pos2d& setY( u16 y );
+  Pos2d& x( u16 x );
+  Pos2d& y( u16 y );
 
   u16 pol_distance( const Pos2d& other ) const;
 };
@@ -101,14 +101,14 @@ public:
   Pos3d& operator-=( const Vec2d& other );
   Pos3d& operator+=( const Vec2d& other );
 
-  u16 getX() const;
-  u16 getY() const;
-  s8 getZ() const;
-  const Pos2d& getPos2d() const;
+  u16 x() const;
+  u16 y() const;
+  s8 z() const;
+  const Pos2d& pos2d() const;
 
-  Pos3d& setX( u16 x );
-  Pos3d& setY( u16 y );
-  Pos3d& setZ( s8 z );
+  Pos3d& x( u16 x );
+  Pos3d& y( u16 y );
+  Pos3d& z( s8 z );
 
   u16 pol_distance( const Pos3d& other ) const;
 };
@@ -144,17 +144,17 @@ public:
   Pos4d& operator-=( const Vec2d& other );
   Pos4d& operator+=( const Vec2d& other );
 
-  u16 getX() const;
-  u16 getY() const;
-  s8 getZ() const;
-  Realms::Realm* getRealm() const;
-  const Pos3d& getPos3d() const;
-  const Pos2d& getPos2d() const;
+  u16 x() const;
+  u16 y() const;
+  s8 z() const;
+  Realms::Realm* realm() const;
+  const Pos3d& pos3d() const;
+  const Pos2d& pos2d() const;
 
-  Pos4d& setX( u16 x );
-  Pos4d& setY( u16 y );
-  Pos4d& setZ( s8 z );
-  //  Pos4d& setRealm( Realms::Realm* realm ); // removed on purpose
+  Pos4d& x( u16 x );
+  Pos4d& y( u16 y );
+  Pos4d& z( s8 z );
+  //  Pos4d& realm( Realms::Realm* realm ); // removed on purpose
 
   void move( Plib::UFACING dir );
 
@@ -178,21 +178,21 @@ Vec2d operator-( const Pos4d& lhs, const Pos4d& rhs );
 
 inline Vec2d::Vec2d( s16 x, s16 y ) : _x( x ), _y( y ) {}
 
-inline s16 Vec2d::getX() const
+inline s16 Vec2d::x() const
 {
   return _x;
 }
-inline s16 Vec2d::getY() const
+inline s16 Vec2d::y() const
 {
   return _y;
 }
 
-inline Vec2d& Vec2d::setX( s16 x )
+inline Vec2d& Vec2d::x( s16 x )
 {
   _x = x;
   return *this;
 }
-inline Vec2d& Vec2d::setY( s16 y )
+inline Vec2d& Vec2d::y( s16 y )
 {
   _y = y;
   return *this;
@@ -201,21 +201,21 @@ inline Vec2d& Vec2d::setY( s16 y )
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
 
-inline u16 Pos2d::getX() const
+inline u16 Pos2d::x() const
 {
   return _x;
 }
-inline u16 Pos2d::getY() const
+inline u16 Pos2d::y() const
 {
   return _y;
 }
 
-inline Pos2d& Pos2d::setX( u16 x )
+inline Pos2d& Pos2d::x( u16 x )
 {
   _x = x;
   return *this;
 }
-inline Pos2d& Pos2d::setY( u16 y )
+inline Pos2d& Pos2d::y( u16 y )
 {
   _y = y;
   return *this;
@@ -224,34 +224,34 @@ inline Pos2d& Pos2d::setY( u16 y )
 inline Pos3d::Pos3d( u16 x, u16 y, s8 z ) : _xy( x, y ), _z( z ) {}
 inline Pos3d::Pos3d( Pos2d xy, s8 z ) : _xy( std::move( xy ) ), _z( z ) {}
 
-inline u16 Pos3d::getX() const
+inline u16 Pos3d::x() const
 {
-  return _xy.getX();
+  return _xy.x();
 }
-inline u16 Pos3d::getY() const
+inline u16 Pos3d::y() const
 {
-  return _xy.getY();
+  return _xy.y();
 }
-inline s8 Pos3d::getZ() const
+inline s8 Pos3d::z() const
 {
   return _z;
 }
-const Pos2d& Pos3d::getPos2d() const
+inline const Pos2d& Pos3d::pos2d() const
 {
   return _xy;
 }
 
-inline Pos3d& Pos3d::setX( u16 x )
+inline Pos3d& Pos3d::x( u16 x )
 {
-  _xy.setX( x );
+  _xy.x( x );
   return *this;
 }
-inline Pos3d& Pos3d::setY( u16 y )
+inline Pos3d& Pos3d::y( u16 y )
 {
-  _xy.setY( y );
+  _xy.y( y );
   return *this;
 }
-inline Pos3d& Pos3d::setZ( s8 z )
+inline Pos3d& Pos3d::z( s8 z )
 {
   _z = z;
   return *this;
@@ -267,44 +267,44 @@ inline Pos4d::Pos4d( Pos3d xyz, Realms::Realm* realm ) : _xyz( std::move( xyz ) 
   crop();
 }
 
-inline u16 Pos4d::getX() const
+inline u16 Pos4d::x() const
 {
-  return _xyz.getX();
+  return _xyz.x();
 }
-inline u16 Pos4d::getY() const
+inline u16 Pos4d::y() const
 {
-  return _xyz.getY();
+  return _xyz.y();
 }
-inline s8 Pos4d::getZ() const
+inline s8 Pos4d::z() const
 {
-  return _xyz.getZ();
+  return _xyz.z();
 }
-inline Realms::Realm* Pos4d::getRealm() const
+inline Realms::Realm* Pos4d::realm() const
 {
   return _realm;
 }
-inline const Pos3d& Pos4d::getPos3d() const
+inline const Pos3d& Pos4d::pos3d() const
 {
   return _xyz;
 }
-inline const Pos2d& Pos4d::getPos2d() const
+inline const Pos2d& Pos4d::pos2d() const
 {
-  return _xyz.getPos2d();
+  return _xyz.pos2d();
 }
 
-inline Pos4d& Pos4d::setX( u16 x )
+inline Pos4d& Pos4d::x( u16 x )
 {
-  _xyz.setX( cropX( x ) );
+  _xyz.x( cropX( x ) );
   return *this;
 }
-inline Pos4d& Pos4d::setY( u16 y )
+inline Pos4d& Pos4d::y( u16 y )
 {
-  _xyz.setY( cropY( y ) );
+  _xyz.y( cropY( y ) );
   return *this;
 }
-inline Pos4d& Pos4d::setZ( s8 z )
+inline Pos4d& Pos4d::z( s8 z )
 {
-  _xyz.setZ( z );
+  _xyz.z( z );
   return *this;
 }
 

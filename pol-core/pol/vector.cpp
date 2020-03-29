@@ -17,7 +17,8 @@ namespace
 s16 clip_s16( int v )
 {
   return static_cast<s16>(
-      std::min( std::numeric_limits<s16>::max(), std::max( std::numeric_limits<s16>::min(), v ) ) );
+      std::min( static_cast<int>( std::numeric_limits<s16>::max() ),
+                std::max( static_cast<int>( std::numeric_limits<s16>::min() ), v ) ) );
 }
 u16 clip_u16( int v )
 {
@@ -78,16 +79,16 @@ Pos2d& Pos2d::operator+=( u16 range )
 }
 Pos2d& Pos2d::operator-=( const Vec2d& other )
 {
-  int x = static_cast<int>( _x ) - other._x;
-  int y = static_cast<int>( _y ) - other._y;
+  int x = static_cast<int>( _x ) - other.x();
+  int y = static_cast<int>( _y ) - other.y();
   _x = clip_u16( x );
   _y = clip_u16( y );
   return *this;
 }
 Pos2d& Pos2d::operator+=( const Vec2d& other )
 {
-  int x = static_cast<int>( _x ) + other._x;
-  int y = static_cast<int>( _y ) + other._y;
+  int x = static_cast<int>( _x ) + other.x();
+  int y = static_cast<int>( _y ) + other.y();
   _x = clip_u16( x );
   _y = clip_u16( y );
   return *this;
@@ -104,9 +105,9 @@ Pos2d operator+( Pos2d lhs, u16 rhs )
 }
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs )
 {
-  int x = static_cast<int>( lhs.getX() ) - rhs.getX();
-  int y = static_cast<int>( lhs.getX() ) - rhs.getY();
-  return Vec2d( clip_s16( x ), clip_s16( x ) );
+  int x = static_cast<int>( lhs.x() ) - rhs.x();
+  int y = static_cast<int>( lhs.y() ) - rhs.y();
+  return Vec2d( clip_s16( x ), clip_s16( y ) );
 }
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs )
 {
@@ -179,11 +180,11 @@ Pos3d operator+( Pos3d lhs, const Vec2d& rhs )
 }
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs )
 {
-  return lhs.getPos2d() - rhs;
+  return lhs.pos2d() - rhs;
 }
 Vec2d operator-( const Pos3d& lhs, const Pos3d& rhs )
 {
-  return lhs.getPos2d() - rhs.getPos2d();
+  return lhs.pos2d() - rhs.pos2d();
 }
 
 u16 Pos3d::pol_distance( const Pos3d& other ) const
@@ -194,20 +195,22 @@ u16 Pos3d::pol_distance( const Pos3d& other ) const
 
 void Pos4d::crop()
 {
-  if ( getX() >= _realm->width() )
-    setX( _realm->width() - 1 );
-  if ( getY() >= _realm->height() )
-    setY( _realm->height() - 1 );
+  if ( _realm == nullptr )
+    return;
+  if ( x() >= _realm->width() )
+    x( _realm->width() - 1 );
+  if ( y() >= _realm->height() )
+    y( _realm->height() - 1 );
 }
 u16 Pos4d::cropX( u16 x ) const
 {
-  if ( x >= _realm->width() )
+  if ( _realm != nullptr && x >= _realm->width() )
     return _realm->width() - 1;
   return x;
 }
 u16 Pos4d::cropY( u16 y ) const
 {
-  if ( y >= _realm->height() )
+  if ( _realm != nullptr && y >= _realm->height() )
     return _realm->height() - 1;
   return y;
 }
@@ -276,15 +279,15 @@ Pos4d operator+( Pos4d lhs, const Vec2d& rhs )
 }
 Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs )
 {
-  return lhs.getPos3d() - rhs;
+  return lhs.pos3d() - rhs;
 }
 Vec2d operator-( const Pos4d& lhs, const Pos3d& rhs )
 {
-  return lhs.getPos3d() - rhs;
+  return lhs.pos3d() - rhs;
 }
 Vec2d operator-( const Pos4d& lhs, const Pos4d& rhs )
 {
-  return lhs.getPos3d() - rhs.getPos3d();
+  return lhs.pos3d() - rhs.pos3d();
 }
 
 void Pos4d::move( Plib::UFACING dir )

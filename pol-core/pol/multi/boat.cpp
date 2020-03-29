@@ -719,7 +719,7 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
 
       if ( chr->logged_in() )
       {
-        chr->lastxyz = chr->pos().getPos3d();
+        chr->lastxyz = chr->pos().pos3d();
 
         if ( newx != USHRT_MAX &&
              newy != USHRT_MAX )  // dave added 3/27/3, if move_xy was used, dont use facing
