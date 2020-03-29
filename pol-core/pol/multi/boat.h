@@ -20,6 +20,7 @@
 #include "../../plib/poltype.h"
 #include "../../plib/uconst.h"
 #include "../reftypes.h"
+#include "../vector.h"
 #include "multi.h"
 
 namespace Pol
@@ -98,10 +99,9 @@ class UBoat final : public UMulti
   class BoatContext
   {
     const MultiDef& mdef;
-    unsigned short x;
-    unsigned short y;
+    Core::Pos2d xy;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), x( ub.x ), y( ub.y ){};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), xy( ub.pos().getPos2d() ){};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };

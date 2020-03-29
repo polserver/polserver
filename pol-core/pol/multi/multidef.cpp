@@ -111,9 +111,9 @@ bool MultiDef::findcomponents( Components::const_iterator& beg, Components::cons
   }
 }
 
-bool MultiDef::body_contains( short rx, short ry ) const
+bool MultiDef::body_contains( const Core::Vec2d& rxy ) const
 {
-  return ( components.count( getkey( rx, ry ) ) != 0 );
+  return ( components.count( getkey( rxy ) ) != 0 );
 }
 const MULTI_ELEM* MultiDef::find_component( short rx, short ry ) const
 {

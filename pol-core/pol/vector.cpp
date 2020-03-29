@@ -53,6 +53,26 @@ Pos2d& Pos2d::operator+=( const Pos2d& other )
   _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
   return *this;
 }
+Pos2d& Pos2d::operator-=( const Vec2d& other )
+{
+  int x = static_cast<int>( _x ) - other._x;
+  int y = static_cast<int>( _y ) - other._y;
+  _x = static_cast<u16>(
+      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) ) );
+  _y = static_cast<u16>(
+      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) ) );
+  return *this;
+}
+Pos2d& Pos2d::operator+=( const Vec2d& other )
+{
+  int x = static_cast<int>( _x ) + other._x;
+  int y = static_cast<int>( _y ) + other._y;
+  _x = static_cast<u16>(
+      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) ) );
+  _y = static_cast<u16>(
+      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) ) );
+  return *this;
+}
 Pos2d operator-( Pos2d lhs, u16 rhs )
 {
   lhs -= rhs;
@@ -69,6 +89,16 @@ Pos2d operator-( Pos2d lhs, const Pos2d& rhs )
   return lhs;
 }
 Pos2d operator+( Pos2d lhs, const Pos2d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Pos2d operator-( Pos2d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Pos2d operator+( Pos2d lhs, const Vec2d& rhs )
 {
   lhs += rhs;
   return lhs;
@@ -132,6 +162,16 @@ Pos3d& Pos3d::operator+=( const Pos3d& other )
   _z = static_cast<s8>( std::min( static_cast<int>( std::numeric_limits<s8>::max() ), z ) );
   return *this;
 }
+Pos3d& Pos3d::operator-=( const Vec2d& other )
+{
+  _xy -= other;
+  return *this;
+}
+Pos3d& Pos3d::operator+=( const Vec2d& other )
+{
+  _xy += other;
+  return *this;
+}
 
 Pos3d operator-( Pos3d lhs, u16 rhs )
 {
@@ -159,6 +199,16 @@ Pos3d operator-( Pos3d lhs, const Pos3d& rhs )
   return lhs;
 }
 Pos3d operator+( Pos3d lhs, const Pos3d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Pos3d operator-( Pos3d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Pos3d operator+( Pos3d lhs, const Vec2d& rhs )
 {
   lhs += rhs;
   return lhs;
@@ -252,6 +302,18 @@ Pos4d& Pos4d::operator+=( const Pos4d& other )
   crop();
   return *this;
 }
+Pos4d& Pos4d::operator-=( const Vec2d& other )
+{
+  _xyz -= other;
+  crop();
+  return *this;
+}
+Pos4d& Pos4d::operator+=( const Vec2d& other )
+{
+  _xyz += other;
+  crop();
+  return *this;
+}
 
 Pos4d operator-( Pos4d lhs, u16 rhs )
 {
@@ -289,6 +351,16 @@ Pos4d operator-( Pos4d lhs, const Pos4d& rhs )
   return lhs;
 }
 Pos4d operator+( Pos4d lhs, const Pos4d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Pos4d operator-( Pos4d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Pos4d operator+( Pos4d lhs, const Vec2d& rhs )
 {
   lhs += rhs;
   return lhs;

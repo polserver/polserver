@@ -692,10 +692,9 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
     if ( item->container != nullptr )
       return false;
   }
-  short rx = obj->x - bc.x;
-  short ry = obj->y - bc.y;
+  const auto& objpos = obj.pos().getPos2d();
 
-  return bc.mdef.body_contains( rx, ry );
+  return bc.mdef.body_contains( objpos.relative( bs.xy ) );
 }
 
 void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocation,
@@ -712,7 +711,6 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
     {
       any_orphans = true;
       travellerRef.clear();
-      ;
       continue;
     }
 
@@ -723,8 +721,7 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
 
       if ( chr->logged_in() )
       {
-        chr->lastx = chr->x;
-        chr->lasty = chr->y;
+        chr->lastxyz = chr->pos().getPos3d();
 
         if ( newx != USHRT_MAX &&
              newy != USHRT_MAX )  // dave added 3/27/3, if move_xy was used, dont use facing

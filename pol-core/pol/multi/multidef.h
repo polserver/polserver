@@ -25,6 +25,7 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../plib/udatfile.h"
+#include "../vector.h"
 
 namespace Pol
 {
@@ -97,14 +98,14 @@ public:
   bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,
                        short ry ) const;
 
-  static unsigned short getkey( short rx, short ry );
+  static unsigned short getkey( const Core::Vec2d& rxy );
 
   // returns true if it finds anything at this rx,ry
   bool readobjects( Plib::StaticList& vec, short rx, short ry, short zbase ) const;
   bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase,
                    unsigned int anyflags ) const;
 
-  bool body_contains( short rx, short ry ) const;
+  bool body_contains( const Core::Vec2d& rxy ) const;
   const MULTI_ELEM* find_component( short rx, short ry ) const;
 
   void add_to_hull( const MULTI_ELEM* elem );
@@ -124,10 +125,10 @@ public:
 bool MultiDefByMultiIDExists( u16 multiid );
 const MultiDef* MultiDefByMultiID( u16 multiid );
 
-inline unsigned short MultiDef::getkey( short rx, short ry )
+inline unsigned short MultiDef::getkey( const Core::Vec2d& rxy )
 {
-  unsigned char crx = static_cast<unsigned char>( rx );
-  unsigned char cry = static_cast<unsigned char>( ry );
+  unsigned char crx = static_cast<unsigned char>( rxy.getX() );
+  unsigned char cry = static_cast<unsigned char>( rxy.getY() );
 
   unsigned short key = ( crx << 8 ) | cry;
   return key;
