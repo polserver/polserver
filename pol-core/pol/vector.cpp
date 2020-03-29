@@ -12,6 +12,45 @@ namespace Pol
 {
 namespace Core
 {
+namespace
+{
+s16 clip_s16( int v )
+{
+  return static_cast<s16>(
+      std::min( std::numeric_limits<s16>::max(), std::max( std::numeric_limits<s16>::min(), v ) ) );
+}
+u16 clip_u16( int v )
+{
+  return static_cast<u16>(
+      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), v ) ) );
+}
+}  // namespace
+
+bool Vec2d::operator==( const Vec2d& other ) const
+{
+  return std::tie( _x, _y ) == std::tie( other._x, other._y );
+}
+bool Vec2d::operator!=( const Vec2d& other ) const
+{
+  return !( *this == other );
+}
+
+Vec2d& Vec2d::operator-=( const Vec2d& other )
+{
+  int x = static_cast<int>( _x ) - other._x;
+  int y = static_cast<int>( _y ) - other._y;
+  _x = clip_s16( x );
+  _y = clip_s16( y );
+  return *this;
+}
+Vec2d& Vec2d::operator+=( const Vec2d& other )
+{
+  int x = static_cast<int>( _x ) + other._x;
+  int y = static_cast<int>( _y ) + other._y;
+  _x = clip_s16( x );
+  _y = clip_s16( y );
+  return *this;
+}
 bool Pos2d::operator==( const Pos2d& other ) const
 {
   return std::tie( _x, _y ) == std::tie( other._x, other._y );
@@ -37,40 +76,20 @@ Pos2d& Pos2d::operator+=( u16 range )
   _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
   return *this;
 }
-Pos2d& Pos2d::operator-=( const Pos2d& other )
-{
-  int x = static_cast<int>( _x ) - other._x;
-  int y = static_cast<int>( _y ) - other._y;
-  _x = static_cast<u16>( std::max( 0, x ) );
-  _y = static_cast<u16>( std::max( 0, y ) );
-  return *this;
-}
-Pos2d& Pos2d::operator+=( const Pos2d& other )
-{
-  int x = static_cast<int>( _x ) + other._x;
-  int y = static_cast<int>( _y ) + other._y;
-  _x = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) );
-  _y = static_cast<u16>( std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) );
-  return *this;
-}
 Pos2d& Pos2d::operator-=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) - other._x;
   int y = static_cast<int>( _y ) - other._y;
-  _x = static_cast<u16>(
-      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) ) );
-  _y = static_cast<u16>(
-      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) ) );
+  _x = clip_u16( x );
+  _y = clip_u16( y );
   return *this;
 }
 Pos2d& Pos2d::operator+=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) + other._x;
   int y = static_cast<int>( _y ) + other._y;
-  _x = static_cast<u16>(
-      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), x ) ) );
-  _y = static_cast<u16>(
-      std::max( 0, std::min( static_cast<int>( std::numeric_limits<u16>::max() ), y ) ) );
+  _x = clip_u16( x );
+  _y = clip_u16( y );
   return *this;
 }
 Pos2d operator-( Pos2d lhs, u16 rhs )
@@ -83,15 +102,11 @@ Pos2d operator+( Pos2d lhs, u16 rhs )
   lhs += rhs;
   return lhs;
 }
-Pos2d operator-( Pos2d lhs, const Pos2d& rhs )
+Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs )
 {
-  lhs -= rhs;
-  return lhs;
-}
-Pos2d operator+( Pos2d lhs, const Pos2d& rhs )
-{
-  lhs += rhs;
-  return lhs;
+  int x = static_cast<int>( lhs.getX() ) - rhs.getX();
+  int y = static_cast<int>( lhs.getX() ) - rhs.getY();
+  return Vec2d( clip_s16( x ), clip_s16( x ) );
 }
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs )
 {
@@ -102,13 +117,6 @@ Pos2d operator+( Pos2d lhs, const Vec2d& rhs )
 {
   lhs += rhs;
   return lhs;
-}
-
-Vec2d Pos2d::relative( const Pos2d& other ) const
-{
-  int xd = static_cast<int>( _x ) - other._x;
-  int yd = static_cast<int>( _y ) - other._y;
-  return Vec2d( static_cast<s16>( xd ), static_cast<s16>( yd ) );
 }
 
 u16 Pos2d::pol_distance( const Pos2d& other ) const
@@ -138,30 +146,6 @@ Pos3d& Pos3d::operator+=( u16 range )
   _xy += range;
   return *this;
 }
-Pos3d& Pos3d::operator-=( const Pos2d& other )
-{
-  _xy -= other;
-  return *this;
-}
-Pos3d& Pos3d::operator+=( const Pos2d& other )
-{
-  _xy += other;
-  return *this;
-}
-Pos3d& Pos3d::operator-=( const Pos3d& other )
-{
-  _xy -= other._xy;
-  int z = static_cast<int>( _z ) - other._z;
-  _z = static_cast<s8>( std::max( static_cast<int>( std::numeric_limits<s8>::min() ), z ) );
-  return *this;
-}
-Pos3d& Pos3d::operator+=( const Pos3d& other )
-{
-  _xy += other._xy;
-  int z = static_cast<int>( _z ) + other._z;
-  _z = static_cast<s8>( std::min( static_cast<int>( std::numeric_limits<s8>::max() ), z ) );
-  return *this;
-}
 Pos3d& Pos3d::operator-=( const Vec2d& other )
 {
   _xy -= other;
@@ -183,26 +167,6 @@ Pos3d operator+( Pos3d lhs, u16 rhs )
   lhs += rhs;
   return lhs;
 }
-Pos3d operator-( Pos3d lhs, const Pos2d& rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos3d operator+( Pos3d lhs, const Pos2d& rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
-Pos3d operator-( Pos3d lhs, const Pos3d& rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos3d operator+( Pos3d lhs, const Pos3d& rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs )
 {
   lhs -= rhs;
@@ -212,6 +176,14 @@ Pos3d operator+( Pos3d lhs, const Vec2d& rhs )
 {
   lhs += rhs;
   return lhs;
+}
+Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs )
+{
+  return lhs.getPos2d() - rhs;
+}
+Vec2d operator-( const Pos3d& lhs, const Pos3d& rhs )
+{
+  return lhs.getPos2d() - rhs.getPos2d();
 }
 
 u16 Pos3d::pol_distance( const Pos3d& other ) const
@@ -269,39 +241,6 @@ Pos4d& Pos4d::operator+=( u16 range )
   return *this;
 }
 
-Pos4d& Pos4d::operator-=( const Pos2d& other )
-{
-  _xyz -= other;
-  return *this;
-}
-Pos4d& Pos4d::operator+=( const Pos2d& other )
-{
-  _xyz += other;
-  crop();
-  return *this;
-}
-Pos4d& Pos4d::operator-=( const Pos3d& other )
-{
-  _xyz -= other;
-  return *this;
-}
-Pos4d& Pos4d::operator+=( const Pos3d& other )
-{
-  _xyz += other;
-  crop();
-  return *this;
-}
-Pos4d& Pos4d::operator-=( const Pos4d& other )
-{
-  _xyz -= other._xyz;
-  return *this;
-}
-Pos4d& Pos4d::operator+=( const Pos4d& other )
-{
-  _xyz += other._xyz;
-  crop();
-  return *this;
-}
 Pos4d& Pos4d::operator-=( const Vec2d& other )
 {
   _xyz -= other;
@@ -325,36 +264,6 @@ Pos4d operator+( Pos4d lhs, u16 rhs )
   lhs += rhs;
   return lhs;
 }
-Pos4d operator-( Pos4d lhs, const Pos2d& rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos4d operator+( Pos4d lhs, const Pos2d& rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
-Pos4d operator-( Pos4d lhs, const Pos3d& rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos4d operator+( Pos4d lhs, const Pos3d& rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
-Pos4d operator-( Pos4d lhs, const Pos4d& rhs )
-{
-  lhs -= rhs;
-  return lhs;
-}
-Pos4d operator+( Pos4d lhs, const Pos4d& rhs )
-{
-  lhs += rhs;
-  return lhs;
-}
 Pos4d operator-( Pos4d lhs, const Vec2d& rhs )
 {
   lhs -= rhs;
@@ -365,27 +274,24 @@ Pos4d operator+( Pos4d lhs, const Vec2d& rhs )
   lhs += rhs;
   return lhs;
 }
+Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs )
+{
+  return lhs.getPos3d() - rhs;
+}
+Vec2d operator-( const Pos4d& lhs, const Pos3d& rhs )
+{
+  return lhs.getPos3d() - rhs;
+}
+Vec2d operator-( const Pos4d& lhs, const Pos4d& rhs )
+{
+  return lhs.getPos3d() - rhs.getPos3d();
+}
 
 void Pos4d::move( Plib::UFACING dir )
 {
-  if ( Core::move_delta[dir].xmove != 0 )
-  {
-    int x = _xyz.getX();
-    x += Core::move_delta[dir].xmove;
-    if ( x <= 0 )
-      _xyz.setX( 0 );
-    else
-      _xyz.setX( static_cast<u16>( std::min( x, static_cast<int>( _realm->width() ) - 1 ) ) );
-  }
-  if ( Core::move_delta[dir].ymove != 0 )
-  {
-    int y = _xyz.getY();
-    y += Core::move_delta[dir].ymove;
-    if ( y <= 0 )
-      _xyz.setY( 0 );
-    else
-      _xyz.setY( static_cast<u16>( std::min( y, static_cast<int>( _realm->height() ) - 1 ) ) );
-  }
+  // TODO: move_delta should be a Vec2d
+  _xyz += Vec2d( Core::move_delta[dir].xmove, Core::move_delta[dir].ymove );
+  crop();
 }
 
 u16 Pos4d::pol_distance( const Pos4d& other ) const

@@ -27,9 +27,20 @@ public:
   Vec2d& operator=( const Vec2d& other ) = default;
   Vec2d& operator=( Vec2d&& other ) = default;
 
+  bool operator==( const Vec2d& other ) const;
+  bool operator!=( const Vec2d& other ) const;
+
+  Vec2d& operator-=( const Vec2d& other );
+  Vec2d& operator+=( const Vec2d& other );
+
   s16 getX() const;
   s16 getY() const;
+
+  Vec2d& setX( s16 x );
+  Vec2d& setY( s16 y );
 };
+Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
+Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
 
 class Pos2d
 {
@@ -50,8 +61,6 @@ public:
 
   Pos2d& operator-=( u16 range );
   Pos2d& operator+=( u16 range );
-  Pos2d& operator-=( const Pos2d& other );
-  Pos2d& operator+=( const Pos2d& other );
   Pos2d& operator-=( const Vec2d& other );
   Pos2d& operator+=( const Vec2d& other );
 
@@ -61,15 +70,13 @@ public:
   Pos2d& setX( u16 x );
   Pos2d& setY( u16 y );
 
-  Vec2d relative( const Pos2d& other ) const;
   u16 pol_distance( const Pos2d& other ) const;
 };
 Pos2d operator-( Pos2d lhs, u16 rhs );
 Pos2d operator+( Pos2d lhs, u16 rhs );
-Pos2d operator-( Pos2d lhs, const Pos2d& rhs );
-Pos2d operator+( Pos2d lhs, const Pos2d& rhs );
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
+Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs );
 
 class Pos3d
 {
@@ -91,10 +98,6 @@ public:
 
   Pos3d& operator-=( u16 range );
   Pos3d& operator+=( u16 range );
-  Pos3d& operator-=( const Pos2d& other );
-  Pos3d& operator+=( const Pos2d& other );
-  Pos3d& operator-=( const Pos3d& other );
-  Pos3d& operator+=( const Pos3d& other );
   Pos3d& operator-=( const Vec2d& other );
   Pos3d& operator+=( const Vec2d& other );
 
@@ -111,13 +114,10 @@ public:
 };
 Pos3d operator-( Pos3d lhs, u16 rhs );
 Pos3d operator+( Pos3d lhs, u16 rhs );
-Pos3d operator-( Pos3d lhs, const Pos2d& rhs );
-Pos3d operator+( Pos3d lhs, const Pos2d& rhs );
-Pos3d operator-( Pos3d lhs, const Pos3d& rhs );
-Pos3d operator+( Pos3d lhs, const Pos3d& rhs );
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );
-
+Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
+Vec2d operator-( const Pos3d& lhs, const Pos3d& rhs );
 
 class Pos4d
 {
@@ -141,12 +141,6 @@ public:
 
   Pos4d& operator-=( u16 range );
   Pos4d& operator+=( u16 range );
-  Pos4d& operator-=( const Pos2d& other );
-  Pos4d& operator+=( const Pos2d& other );
-  Pos4d& operator-=( const Pos3d& other );
-  Pos4d& operator+=( const Pos3d& other );
-  Pos4d& operator-=( const Pos4d& other );
-  Pos4d& operator+=( const Pos4d& other );
   Pos4d& operator-=( const Vec2d& other );
   Pos4d& operator+=( const Vec2d& other );
 
@@ -176,14 +170,11 @@ private:
 };
 Pos4d operator-( Pos4d lhs, u16 rhs );
 Pos4d operator+( Pos4d lhs, u16 rhs );
-Pos4d operator-( Pos4d lhs, const Pos2d& rhs );
-Pos4d operator+( Pos4d lhs, const Pos2d& rhs );
-Pos4d operator-( Pos4d lhs, const Pos3d& rhs );
-Pos4d operator+( Pos4d lhs, const Pos3d& rhs );
-Pos4d operator-( Pos4d lhs, const Pos4d& rhs );
-Pos4d operator+( Pos4d lhs, const Pos4d& rhs );
 Pos4d operator-( Pos4d lhs, const Vec2d& rhs );
 Pos4d operator+( Pos4d lhs, const Vec2d& rhs );
+Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs );
+Vec2d operator-( const Pos4d& lhs, const Pos3d& rhs );
+Vec2d operator-( const Pos4d& lhs, const Pos4d& rhs );
 
 inline Vec2d::Vec2d( s16 x, s16 y ) : _x( x ), _y( y ) {}
 
@@ -194,6 +185,17 @@ inline s16 Vec2d::getX() const
 inline s16 Vec2d::getY() const
 {
   return _y;
+}
+
+inline Vec2d& Vec2d::setX( s16 x )
+{
+  _x = x;
+  return *this;
+}
+inline Vec2d& Vec2d::setY( s16 y )
+{
+  _y = y;
+  return *this;
 }
 
 

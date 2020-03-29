@@ -692,9 +692,7 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
     if ( item->container != nullptr )
       return false;
   }
-  const auto& objpos = obj.pos().getPos2d();
-
-  return bc.mdef.body_contains( objpos.relative( bs.xy ) );
+  return bc.mdef.body_contains( objpos.pos() - bs.xy );
 }
 
 void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocation,
