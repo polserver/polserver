@@ -1,8 +1,9 @@
-#ifndef POL_VECTOR_H
-#define POL_VECTOR_H
+#ifndef POL_BASE_POSITION_H
+#define POL_BASE_POSITION_H
 
-#include "../clib/rawtypes.h"
-#include "../plib/uconst.h"
+#include "../../clib/rawtypes.h"
+#include "../../plib/uconst.h"
+#include "vector.h"
 #include <utility>
 
 namespace Pol
@@ -13,39 +14,6 @@ class Realm;
 }
 namespace Core
 {
-class Vec2d
-{
-  s16 _x;
-  s16 _y;
-
-public:
-  Vec2d() = default;
-  Vec2d( s16 x, s16 y );
-  Vec2d( const Vec2d& other ) = default;
-  Vec2d( Vec2d&& other ) = default;
-  ~Vec2d() = default;
-  Vec2d& operator=( const Vec2d& other ) = default;
-  Vec2d& operator=( Vec2d&& other ) = default;
-
-  bool operator==( const Vec2d& other ) const;
-  bool operator!=( const Vec2d& other ) const;
-  bool operator<( const Vec2d& other ) const;
-  bool operator>( const Vec2d& other ) const;
-  bool operator<=( const Vec2d& other ) const;
-  bool operator>=( const Vec2d& other ) const;
-
-  Vec2d& operator-=( const Vec2d& other );
-  Vec2d& operator+=( const Vec2d& other );
-
-  s16 x() const;
-  s16 y() const;
-
-  Vec2d& x( s16 x );
-  Vec2d& y( s16 y );
-};
-Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
-Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
-
 class Pos2d
 {
   u16 _x;
@@ -114,6 +82,8 @@ public:
 
   Pos3d& operator-=( const Vec2d& other );
   Pos3d& operator+=( const Vec2d& other );
+  Pos3d& operator-=( const Vec3d& other );
+  Pos3d& operator+=( const Vec3d& other );
 
   u16 x() const;
   u16 y() const;
@@ -130,8 +100,10 @@ public:
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );
+Pos3d operator-( Pos3d lhs, const Vec3d& rhs );
+Pos3d operator+( Pos3d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
-Vec2d operator-( const Pos3d& lhs, const Pos3d& rhs );
+Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
 
 class Pos4d
 {
@@ -140,6 +112,7 @@ class Pos4d
 
 public:
   Pos4d() = default;
+  Pos4d( Pos2d xy, s8 z, Realms::Realm* realm );
   Pos4d( Pos3d xyz, Realms::Realm* realm );
   Pos4d( u16 x, u16 y, s8 z, Realms::Realm* realm );
   ~Pos4d() = default;
@@ -171,6 +144,8 @@ public:
 
   Pos4d& operator-=( const Vec2d& other );
   Pos4d& operator+=( const Vec2d& other );
+  Pos4d& operator-=( const Vec3d& other );
+  Pos4d& operator+=( const Vec3d& other );
 
   u16 x() const;
   u16 y() const;
@@ -199,31 +174,11 @@ private:
 };
 Pos4d operator-( Pos4d lhs, const Vec2d& rhs );
 Pos4d operator+( Pos4d lhs, const Vec2d& rhs );
+Pos4d operator-( Pos4d lhs, const Vec3d& rhs );
+Pos4d operator+( Pos4d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs );
-Vec2d operator-( const Pos4d& lhs, const Pos3d& rhs );
-Vec2d operator-( const Pos4d& lhs, const Pos4d& rhs );
-
-inline Vec2d::Vec2d( s16 x, s16 y ) : _x( x ), _y( y ) {}
-
-inline s16 Vec2d::x() const
-{
-  return _x;
-}
-inline s16 Vec2d::y() const
-{
-  return _y;
-}
-
-inline Vec2d& Vec2d::x( s16 x )
-{
-  _x = x;
-  return *this;
-}
-inline Vec2d& Vec2d::y( s16 y )
-{
-  _y = y;
-  return *this;
-}
+Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
+Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs );
 
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
@@ -295,6 +250,11 @@ inline Pos4d::Pos4d( u16 x, u16 y, s8 z, Realms::Realm* realm ) : _xyz( x, y, z 
   _xyz.crop( realm );
 }
 inline Pos4d::Pos4d( Pos3d xyz, Realms::Realm* realm ) : _xyz( std::move( xyz ) ), _realm( realm )
+{
+  _xyz.crop( realm );
+}
+inline Pos4d::Pos4d( Pos2d xy, s8 z, Realms::Realm* realm )
+    : _xyz( std::move( xy ), z ), _realm( realm )
 {
   _xyz.crop( realm );
 }

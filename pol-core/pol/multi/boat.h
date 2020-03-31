@@ -19,8 +19,8 @@
 #include "../../clib/rawtypes.h"
 #include "../../plib/poltype.h"
 #include "../../plib/uconst.h"
+#include "../base/position.h"
 #include "../reftypes.h"
-#include "../vector.h"
 #include "multi.h"
 
 namespace Pol

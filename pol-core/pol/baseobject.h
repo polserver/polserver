@@ -2,7 +2,7 @@
 #define BASEOBJECT_H
 
 #include "../clib/rawtypes.h"
-#include "vector.h"
+#include "base/position.h"
 
 namespace Pol
 {

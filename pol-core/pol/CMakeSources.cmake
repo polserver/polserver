@@ -14,6 +14,10 @@ set (pol_sources  # sorted !
   allocd.h
   anim.h
   baseobject.h
+  base/position.cpp
+  base/position.h
+  base/vector.cpp
+  base/vector.h
   binaryfilescrobj.cpp
   binaryfilescrobj.h
   bowsalut.cpp
@@ -420,8 +424,6 @@ set (pol_sources  # sorted !
   utype.h
   uworld.cpp
   uworld.h
-  vector.cpp
-  vector.h
   vital.cpp
   vital.h
   watch.h
