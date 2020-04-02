@@ -29,6 +29,7 @@
 #include "../clib/rawtypes.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/uconst.h"
+#include "base/position.h"
 #include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
 #include "zone.h"
@@ -42,19 +43,15 @@ void remove_item_from_world( Items::Item* item );
 
 void add_multi_to_world( Multi::UMulti* multi );
 void remove_multi_from_world( Multi::UMulti* multi );
-void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                          unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm );
+void move_multi_in_world( const Pos4d& oldpos, Multi::UMulti* multi );
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
-void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                                 unsigned short newy, Mobile::Character* chr,
-                                 Realms::Realm* oldrealm );
+void MoveCharacterWorldPosition( const Pos4d& oldpos, Mobile::Character* chr );
 
 void SetItemWorldPosition( Items::Item* item );
 void ClrItemWorldPosition( Items::Item* item );
-void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Item* item,
-                            Realms::Realm* oldrealm );
+void MoveItemWorldPosition( const Pos4d& oldpos, Items::Item* item );
 
 int get_toplevel_item_count();
 int get_mobile_count();
@@ -73,38 +70,15 @@ struct Zone
   ZoneMultis multis;
 };
 
-inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx,
-                          unsigned short* wy, const Realms::Realm* realm )
+inline Pos2d zone_convert( const Pos4d& p )
 {
-  passert( x < realm->width() );
-  passert( y < realm->height() );
-
-  ( *wx ) = x >> Plib::WGRID_SHIFT;
-  ( *wy ) = y >> Plib::WGRID_SHIFT;
+  return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
+                static_cast<unsigned short>( p.y() >> Plib::WGRID_SHIFT ) );
 }
 
-inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigned short* wx,
-                               unsigned short* wy )
+inline Zone& getzone( const Pos4d& p )
 {
-  if ( x < 0 )
-    x = 0;
-  if ( y < 0 )
-    y = 0;
-  if ( (unsigned)x >= realm->width() )
-    x = realm->width() - 1;
-  if ( (unsigned)y >= realm->height() )
-    y = realm->height() - 1;
-
-  ( *wx ) = static_cast<unsigned short>( x >> Plib::WGRID_SHIFT );
-  ( *wy ) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
-}
-
-inline Zone& getzone( unsigned short x, unsigned short y, Realms::Realm* realm )
-{
-  passert( x < realm->width() );
-  passert( y < realm->height() );
-
-  return realm->zone[x >> Plib::WGRID_SHIFT][y >> Plib::WGRID_SHIFT];
+  return p.realm()->zone[p.x() >> Plib::WGRID_SHIFT][p.y() >> Plib::WGRID_SHIFT];
 }
 
 namespace
@@ -123,15 +97,15 @@ template <class Filter>
 struct WorldIterator
 {
   template <typename F>
-  static void InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range, F&& f );
+  static void InRange( const Pos4d& p, unsigned range, F&& f );
   template <typename F>
   static void InVisualRange( const UObject* obj, F&& f );
   template <typename F>
-  static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F&& f );
+  static void InBox( const Pos4d& p1, const Pos4d& p2, F&& f );
 
 protected:
   template <typename F>
-  static void _forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f );
+  static void _forEach( const CoordsArea& coords, F&& f );
 };
 
 enum class FilterType
@@ -170,103 +144,97 @@ namespace
 struct CoordsArea
 {
   // structure to hold the world and shifted coords
-  CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range );    // create from range
-  CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm );  // create from box
+  CoordsArea( const Pos4d& p, unsigned range );    // create from range
+  CoordsArea( const Pos4d& p1, const Pos4d& p2 );  // create from box
   bool inRange( const UObject* obj ) const;
 
   // shifted coords
-  u16 wxL;
-  u16 wyL;
-  u16 wxH;
-  u16 wyH;
+  Pos2d wL;
+  Pos2d wH;
+  const Realms::Realm* realm;
 
 private:
-  void convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm );
+  static Pos2d convert( const Pos2d& p );
 
   // plain coords
-  int _xL;
-  int _yL;
-  int _xH;
-  int _yH;
+  Pos2d _posL;
+  Pos2d _posH;
 };
 }  // namespace
 ///////////////
 // imp
 namespace
 {
-inline CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range )
+inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
 {
-  convert( x - range, y - range, x + range, y + range, realm );
-  _xL = x - range;
-  if ( _xL < 0 )
-    _xL = 0;
-  _yL = y - range;
-  if ( _yL < 0 )
-    _yL = 0;
-  _xH = x + range;
-  _yH = y + range;
+  realm = p.realm();
+  Vec2d r( range, range );
+  _posL = ( p - r ).xy();
+  _posH = ( p + r ).xy();
+
+  wL = convert( _posL );
+  wH = convert( _posH );
+  passert( wL <= wH );
 }
 
-inline CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm )
+inline CoordsArea::CoordsArea( const Pos4d& p1, const Pos4d& p2 )
 {
-  convert( x1, y1, x2, y2, realm );
-  _xL = x1;
-  _yL = y1;
-  _xH = x2;
-  _yH = y2;
+  realm = p1.realm();
+  _posL = p1.xy();
+  _posH = p2.xy();
+  wL = convert( _posL );
+  wH = convert( _posH );
+  passert( wL <= wH );
 }
 
 inline bool CoordsArea::inRange( const UObject* obj ) const
 {
-  return ( obj->x >= _xL && obj->x <= _xH && obj->y >= _yL && obj->y <= _yH );
+  return ( obj->pos() >= _posL && obj->pos() <= _posH );
 }
 
-inline void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
+inline Pos2d CoordsArea::convert( const Pos2d& p )
 {
-  zone_convert_clip( xL, yL, realm, &wxL, &wyL );
-  zone_convert_clip( xH, yH, realm, &wxH, &wyH );
-  passert( wxL <= wxH );
-  passert( wyL <= wyH );
+  // zone_convert, but without Pos4d.
+  // the guarantee of Pos4d (realm size) isnt needed here
+  return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
+                static_cast<unsigned short>( p.y() >> Plib::WGRID_SHIFT ) );
 }
 }  // namespace
 
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range,
-                                     F&& f )
+void WorldIterator<Filter>::InRange( const Pos4d& p, unsigned range, F&& f )
 {
-  if ( realm == nullptr )
+  if ( p.realm() == nullptr )
     return;
-  CoordsArea coords( x, y, realm, range );
-  _forEach( coords, realm, std::forward<F>( f ) );
+  CoordsArea coords( p, range );
+  _forEach( coords, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
-  InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm,
-           RANGE_VISUAL, std::forward<F>( f ) );
+  InRange( obj->pos(), RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm,
-                                   F&& f )
+void WorldIterator<Filter>::InBox( const Pos4d& p1, const Pos4d& p2, F&& f )
 {
-  if ( realm == nullptr )
+  if ( p1.realm() == nullptr || p1.realm() != p2.realm() )
     return;
-  CoordsArea coords( x1, y1, x2, y2, realm );
-  _forEach( coords, realm, std::forward<F>( f ) );
+  CoordsArea coords( p1, p2 );
+  _forEach( coords, std::forward<F>( f ) );
 }
 
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::_forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f )
+void WorldIterator<Filter>::_forEach( const CoordsArea& coords, F&& f )
 {
-  for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
+  for ( u16 wx = coords.wL.x(); wx <= coords.wH.x(); ++wx )
   {
-    for ( u16 wy = coords.wyL; wy <= coords.wyH; ++wy )
+    for ( u16 wy = coords.wL.y(); wy <= coords.wH.y(); ++wy )
     {
-      Filter::call( realm->zone[wx][wy], coords, f );
+      Filter::call( coords.realm->zone[wx][wy], coords, f );
     }
   }
 }

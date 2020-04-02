@@ -928,8 +928,8 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
   // not in the backpack, or in a subpack.  check global items and subpacks.
   // FIXME doesn't check range?
   unsigned short wxL, wyL, wxH, wyH;
-  zone_convert_clip( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
-  zone_convert_clip( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
+  zone_convert( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
+  zone_convert( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
   for ( unsigned short wx = wxL; wx <= wxH; ++wx )
   {
     for ( unsigned short wy = wyL; wy <= wyH; ++wy )
@@ -985,8 +985,8 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
 
   // check items on the ground
   unsigned short wxL, wyL, wxH, wyH;
-  zone_convert_clip( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
-  zone_convert_clip( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
+  zone_convert( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
+  zone_convert( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
   for ( unsigned short wx = wxL; wx <= wxH; ++wx )
   {
     for ( unsigned short wy = wyL; wy <= wyH; ++wy )

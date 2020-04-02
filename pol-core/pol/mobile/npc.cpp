@@ -215,7 +215,7 @@ bool NPC::npc_path_blocked( Plib::UFACING fdir ) const
   unsigned short newy = y + Core::move_delta[fdir].ymove;
 
   unsigned short wx, wy;
-  Core::zone_convert_clip( newx, newy, realm, &wx, &wy );
+  Core::zone_convert( newx, newy, realm, &wx, &wy );
 
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
