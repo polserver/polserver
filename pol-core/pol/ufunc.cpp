@@ -335,7 +335,7 @@ void send_owncreate( Client* client, const Character* chr, PktOut_78* owncreate 
   owncreate->offset = 1;
   owncreate->WriteFlipped<u16>( len );
 
-  Core::networkManager.clientTransmit->AddToQueue( client, &owncreate->buffer, len );
+  networkManager.clientTransmit->AddToQueue( client, &owncreate->buffer, len );
 
   if ( client->UOExpansionFlag & AOS )
   {
@@ -431,7 +431,7 @@ void send_remove_object( Client* client, const UObject* object )
 void send_remove_object_to_inrange( const UObject* centerObject )
 {
   Network::RemoveObjectPkt msgremove( centerObject->serial_ext );
-  Core::WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
       centerObject, [&]( Character* chr ) { msgremove.Send( chr->client ); } );
 }
 
@@ -570,8 +570,8 @@ void send_put_in_container_to_inrange( const Item* item )
 bool can_see_on_corpse( const Client* client, const Item* item )
 {
   bool invisible =
-      ( item->invisible() && !client->chr->can_seeinvisitems() && item->layer != Core::LAYER_HAIR &&
-        item->layer != Core::LAYER_BEARD && item->layer != Core::LAYER_FACE );
+      ( item->invisible() && !client->chr->can_seeinvisitems() && item->layer != LAYER_HAIR &&
+        item->layer != LAYER_BEARD && item->layer != LAYER_FACE );
 
   return !invisible;
 }
@@ -584,7 +584,7 @@ void send_corpse_equip( Client* client, const UCorpse* corpse )
   msg->offset += 2;
   msg->Write<u32>( corpse->serial_ext );
 
-  for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
+  for ( unsigned layer = LOWEST_LAYER; layer <= HIGHEST_LAYER; ++layer )
   {
     Item* item2 = corpse->GetItemOnLayer( layer );
 
@@ -614,7 +614,7 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
   msg->offset += 4;  // msglen+count
   u16 count = 0;
 
-  for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
+  for ( unsigned layer = LOWEST_LAYER; layer <= HIGHEST_LAYER; ++layer )
   {
     const Items::Item* item = corpse->GetItemOnLayer( layer );
 
@@ -1493,7 +1493,7 @@ void send_death_message( Character* chr_died, Item* corpse )
 void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen )
 {
   WorldIterator<OnlinePlayerFilter>::InVisualRange( center, [&]( Character* zonechr ) {
-    Core::networkManager.clientTransmit->AddToQueue( zonechr->client, msg, msglen );
+    networkManager.clientTransmit->AddToQueue( zonechr->client, msg, msglen );
   } );
 }
 
@@ -1503,7 +1503,7 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
     Client* client = zonechr->client;
     if ( zonechr == center )
       return;
-    Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
+    networkManager.clientTransmit->AddToQueue( client, msg, msglen );
   } );
 }
 
@@ -1606,29 +1606,24 @@ void move_item( Item* item, Plib::UFACING facing )
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* oldrealm )
+void move_item( Item* item, Pos4d newpos )
 {
   item->set_dirty();
 
-  u16 oldx = item->x;
-  u16 oldy = item->y;
+  Pos4d oldpos = item->pos();
 
-  item->x = newx;
-  item->y = newy;
-  item->z = newz;
+  item->setposition( newpos );
 
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+  MoveItemWorldPosition( oldpos, item );
 
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
   Network::RemoveObjectPkt msgremove( item->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Character* zonechr ) {
-        if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
-          msgremove.Send( zonechr->client );
-      } );
+  WorldIterator<OnlinePlayerFilter>::InRange( oldpos, RANGE_VISUAL, [&]( Character* zonechr ) {
+    if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
+      msgremove.Send( zonechr->client );
+  } );
 }
 
 void send_multi( Client* client, const Multi::UMulti* multi )

@@ -203,7 +203,7 @@ void UContainer::add( Items::Item* item )
     passert_always( 0 );  // TODO remove once found
   }
   INC_PROFILEVAR( container_adds );
-  item->realm = realm;
+  item->setposition( Core::Pos4d( item->pos().xyz(), nullptr ) );
   item->container = this;
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
@@ -297,13 +297,9 @@ bool UContainer::find_empty_slot( u8& slotIndex )
 
 void UContainer::add_at_random_location( Items::Item* item )
 {
-  u16 rx, ry;
-  get_random_location( &rx, &ry );
+  Core::Pos2d pos = get_random_location();
 
-  item->x = rx;
-  item->y = ry;
-  item->z = 0;
-
+  item->setposition( Core::Pos4d( pos, 0, nullptr ) );
   add( item );
 }
 
@@ -726,30 +722,34 @@ u16 UContainer::gump() const
   return desc.gump;
 }
 
-void UContainer::get_random_location( u16* px, u16* py ) const
+Core::Pos2d UContainer::get_random_location() const
 {
+  Core::Pos2d pos;
   if ( desc.minx < desc.maxx )
   {
-    *px = desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx - 1 ) );
+    pos.x( desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx - 1 ) ) );
   }
   else
   {
-    *px = desc.minx;
+    pos.x( desc.minx );
   }
 
   if ( desc.miny < desc.maxy )
   {
-    *py = desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny - 1 ) );
+    pos.y( desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny - 1 ) ) );
   }
   else
   {
-    *py = desc.miny;
+    pos.y( desc.miny );
   }
+  return pos;
 }
 
-bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) const
+bool UContainer::is_legal_posn( const Items::Item* /*item*/, Core::Pos2d pos ) const
 {
-  return ( px >= desc.minx && px <= desc.maxx && py >= desc.miny && py <= desc.maxy );
+  // TODO: desc min/max should be Pos2d
+  return ( pos.x() >= desc.minx && pos.x() <= desc.maxx && pos.y() >= desc.miny &&
+           pos.y() <= desc.maxy );
 }
 
 void UContainer::spill_contents( Multi::UMulti* multi )
@@ -764,12 +764,10 @@ void UContainer::spill_contents( Multi::UMulti* multi )
       {
         contents_.pop_back();
         item->set_dirty();
-        item->x = x;
-        item->y = y;
-        item->z = z;
+        item->setposition( pos() );
         item->container = nullptr;
         add_item_to_world( item );
-        move_item( item, x, y, z, nullptr );
+        move_item( item, pos() );
         if ( multi )
           multi->register_object( item );
         item->layer = 0;

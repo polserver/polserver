@@ -17,6 +17,7 @@
 #include <stddef.h>
 
 #include "../clib/rawtypes.h"
+#include "base/position.h"
 #include "baseobject.h"
 #include "dynproperties.h"
 #ifndef ITEM_H
@@ -204,8 +205,8 @@ public:
   Items::Item* system_find( u32 serial ) const;
 
   u16 gump() const;
-  void get_random_location( u16* px, u16* py ) const;
-  bool is_legal_posn( const Items::Item* item, u16 x, u16 y ) const;
+  Core::Pos2d get_random_location() const;
+  bool is_legal_posn( const Items::Item* item, Core::Pos2d pos ) const;
   void enumerate_contents( Bscript::ObjArray* arr, int flags );
   void extract( Contents& cnt );
 

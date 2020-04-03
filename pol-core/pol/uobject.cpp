@@ -377,6 +377,10 @@ void UObject::readProperties( Clib::ConfigElem& elem )
 
 
   std::string realmstr = elem.remove_string( "Realm", "britannia" );
+  // TODO: container items shouldnt have a realm set to avoid clipping
+  // loading seems to be the problem, its outside in uimport. here the corrds get already clipped
+  // instead of remove_* use get_prop, so at a later spot the coords can be collected again when
+  // everything is clear
   Core::Pos4d newpos( 0, 0, 0, find_realm( realmstr ) );
   if ( !newpos.realm() )
   {
@@ -550,6 +554,10 @@ bool UObject::get_method_hook( const char* methodname, Bscript::Executor* ex, Ex
 {
   return gamestate.system_hooks.get_method_hook( gamestate.system_hooks.uobject_method_script.get(),
                                                  methodname, ex, hook, PC );
+}
+void UObject::setposition( Pos4d newpos )
+{
+  pos( std::move( newpos ) );
 }
 }  // namespace Core
 }  // namespace Pol

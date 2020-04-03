@@ -145,7 +145,10 @@ enum class OBJ_FLAGS : u16
 /**
  * @warning if you add fields, be sure to update Items::create().
  */
-class UObject : protected ref_counted, public ULWObject, public DynamicPropsHolder
+class UObject
+    : protected ref_counted
+    , public ULWObject
+    , public DynamicPropsHolder
 {
 public:
   virtual std::string name() const;
@@ -176,6 +179,12 @@ public:
   virtual bool setcolor( u16 newcolor );
   virtual void on_color_changed();
 
+  u16 x() const;                 // world coordinates potentially of toplevel owner
+  u16 y() const;                 // world coordinates potentially of toplevel owner
+  s8 z() const;                  // world coordinates potentially of toplevel owner
+  Realms::Realm* realm() const;  // world coordinates potentially of toplevel owner
+  void setposition( Pos4d newpos );
+
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
 
@@ -205,8 +214,7 @@ public:
   virtual Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex );
   virtual Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex );
 
-  virtual Bscript::BObjectImp* custom_script_method( const char* methodname,
-                                                     UOExecutor& ex );
+  virtual Bscript::BObjectImp* custom_script_method( const char* methodname, UOExecutor& ex );
   virtual bool script_isa( unsigned isatype ) const;
   virtual const char* target_tag() const;
 
@@ -342,6 +350,34 @@ inline bool IsCharacter( u32 serial )
 inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
+}
+inline u16 UObject::x() const
+{
+  auto top = toplevel_owner();
+  if ( top != nullptr && top != this )
+    return top->x();
+  return pos().x();
+}
+inline u16 UObject::y() const
+{
+  auto top = toplevel_owner();
+  if ( top != nullptr && top != this )
+    return top->y();
+  return pos().y();
+}
+inline s8 UObject::z() const
+{
+  auto top = toplevel_owner();
+  if ( top != nullptr && top != this )
+    return top->z();
+  return pos().z();
+}
+inline Realms::Realm* UObject::realm() const
+{
+  auto top = toplevel_owner();
+  if ( top != nullptr && top != this )
+    return top->realm();
+  return pos().realm();
 }
 }  // namespace Core
 }  // namespace Pol
