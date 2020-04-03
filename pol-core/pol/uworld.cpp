@@ -43,7 +43,7 @@ void remove_item_from_world( Items::Item* item )
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm->find_supporting_multi( item->pos() );
+    Multi::UMulti* multi = item->pos().realm()->find_supporting_multi( item->pos() );
 
     if ( multi != nullptr )
       multi->unregister_object( item );

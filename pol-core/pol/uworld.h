@@ -214,7 +214,7 @@ template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
-  InRange( obj->pos(), RANGE_VISUAL, std::forward<F>( f ) );
+  InRange( obj->toplevel_owner()->pos(), RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>

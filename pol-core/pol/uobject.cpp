@@ -258,18 +258,18 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( color != 0 )
     sw() << "\tColor\t0x" << hex( color ) << pf_endl;
 
-  sw() << "\tX\t" << x << pf_endl;
-  sw() << "\tY\t" << y << pf_endl;
-  sw() << "\tZ\t" << (int)z << pf_endl;
+  sw() << "\tX\t" << pos().x() << pf_endl;
+  sw() << "\tY\t" << pos().y() << pf_endl;
+  sw() << "\tZ\t" << (int)( pos().z() ) << pf_endl;
 
   if ( facing )
     sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
 
   sw() << "\tRevision\t" << rev() << pf_endl;
-  if ( realm == nullptr )
+  if ( pos().realm() == nullptr )
     sw() << "\tRealm\tbritannia" << pf_endl;
   else
-    sw() << "\tRealm\t" << realm->name() << pf_endl;
+    sw() << "\tRealm\t" << pos().realm()->name() << pf_endl;
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
@@ -377,22 +377,17 @@ void UObject::readProperties( Clib::ConfigElem& elem )
 
 
   std::string realmstr = elem.remove_string( "Realm", "britannia" );
-  realm = find_realm( realmstr );
-  if ( !realm )
+  Core::Pos4d newpos( 0, 0, 0, find_realm( realmstr ) );
+  if ( !newpos.realm() )
   {
     ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
         << classname() << name() << serial << realmstr;
     throw std::runtime_error( "Data integrity error" );
   }
-  x = elem.remove_ushort( "X" );
-  y = elem.remove_ushort( "Y" );
-  z = static_cast<s8>( elem.remove_int( "Z" ) );
-  if ( !realm->valid( x, y, z ) )
-  {
-    x = static_cast<u16>( realm->width() ) - 1;
-    y = static_cast<u16>( realm->height() ) - 1;
-    z = 0;
-  }
+  newpos.x( elem.remove_ushort( "X" ) )
+      .y( elem.remove_ushort( "Y" ) )
+      .z( static_cast<s8>( elem.remove_int( "Z" ) ) );
+  pos( newpos );
 
   unsigned short tmp = elem.remove_ushort( "FACING", 0 );
   setfacing( static_cast<unsigned char>( tmp ) );
