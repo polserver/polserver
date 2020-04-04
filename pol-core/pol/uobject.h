@@ -185,6 +185,8 @@ public:
   Realms::Realm* realm() const;  // world coordinates potentially of toplevel owner
   void setposition( Pos4d newpos );
 
+  Multi::UMulti* supporting_multi() const; // doesn't consider containers/etc
+
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
 

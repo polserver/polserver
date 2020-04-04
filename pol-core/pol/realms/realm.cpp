@@ -116,6 +116,11 @@ unsigned Realm::season() const
   return _descriptor.season;
 }
 
+bool Realm::valid( const Core::Pos3d& pos ) const 
+{
+  return Realm::valid( pos.x(), pos.y(), pos.z() ); // Yes, I'm lazy. Sorry.
+}
+
 bool Realm::valid( unsigned short x, unsigned short y, short z ) const
 {
   return ( x < width() && y < height() && z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );

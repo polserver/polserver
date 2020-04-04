@@ -74,6 +74,9 @@ public:
 
   unsigned season() const;
 
+  bool valid( const Core::Pos3d& pos ) const;
+
+  // TODO: slowly get rid of the method below in favor of the one above
   bool valid( unsigned short x, unsigned short y, short z ) const;
   const std::string name() const;
 
@@ -115,7 +118,7 @@ public:
 
   bool navigable( unsigned short x, unsigned short y, short z, short height ) const;
 
-  Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y, short z ) const;
+  Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 
   bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const;
   bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;

@@ -140,7 +140,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
+    Multi::UMulti* multi = item->supporting_multi();
 
     if ( multi != nullptr )
       multi->unregister_object( item );

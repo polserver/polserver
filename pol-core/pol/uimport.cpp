@@ -1267,7 +1267,7 @@ void read_starting_locations()
       if ( sscanf( coord.c_str(), "%d,%d,%d", &x, &y, &z ) == 3 )
       {
         loc->coords.push_back(
-            Coordinate( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
+            Pos3d( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
       }
       else
       {

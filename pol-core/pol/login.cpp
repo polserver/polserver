@@ -349,7 +349,7 @@ void send_start( Network::Client* client )
       msg->Write( gamestate.startlocations[i]->city.c_str(), 32, false );
       msg->Write( gamestate.startlocations[i]->desc.c_str(), 32, false );
 
-      Coordinate coord = gamestate.startlocations[i]->coords[0];
+      Pos3d coord = gamestate.startlocations[i]->coords[0];
 
       msg->WriteFlipped<u32>( coord.x );
       msg->WriteFlipped<u32>( coord.y );

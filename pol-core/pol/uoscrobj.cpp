@@ -676,13 +676,13 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_X:
-    return new BLong( x );
+    return new BLong( pos().x() );
     break;
   case MBR_Y:
-    return new BLong( y );
+    return new BLong( pos().y() );
     break;
   case MBR_Z:
-    return new BLong( z );
+    return new BLong( pos().z() );
     break;
   case MBR_NAME:
     return new String( name() );
@@ -712,10 +712,10 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     return new BLong( weight() );
     break;
   case MBR_MULTI:
-    if ( realm != nullptr )
+    if ( realm() != nullptr )
     {
-      Multi::UMulti* multi;
-      if ( nullptr != ( multi = realm->find_supporting_multi( x, y, z ) ) )
+      Multi::UMulti* multi = this->supporting_multi();
+      if ( multi != nullptr )
         return multi->make_ref();
       else
         return new BLong( 0 );
@@ -724,8 +724,8 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
       return new BLong( 0 );
     break;
   case MBR_REALM:
-    if ( realm != nullptr )
-      return new String( realm->name() );
+    if ( realm() != nullptr )
+      return new String( realm()->name() );
     else
       return new BError( "object does not belong to a realm." );
     break;

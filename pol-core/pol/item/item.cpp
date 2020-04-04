@@ -1300,7 +1300,7 @@ bool Item::is_visible_to_me( const Mobile::Character* chr ) const
 {
   if ( chr == nullptr )
     return false;
-  if ( chr->realm != this->realm )
+  if ( chr->pos().realm() != this->pos().realm() )
     return false;  // noone can see across different realms.
   if ( !chr->logged_in() )
     return false;

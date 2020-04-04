@@ -707,9 +707,9 @@ bool Realm::navigable( unsigned short x, unsigned short y, short z, short height
   return onwater;
 }
 
-Multi::UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y, short z ) const
+Multi::UMulti* Realm::find_supporting_multi( const Core::Pos3d& pos ) const
 {
-  if ( !valid( x, y, z ) )
+  if ( !valid( pos ) )
   {
     return nullptr;
   }
@@ -718,9 +718,9 @@ Multi::UMulti* Realm::find_supporting_multi( unsigned short x, unsigned short y,
   static MultiList mvec;
   vec.clear();
   mvec.clear();
-  readmultis( vec, x, y, Plib::FLAG::MOVE_FLAGS, mvec );
+  readmultis( vec, pos.xy(), Plib::FLAG::MOVE_FLAGS, mvec );
 
-  return find_supporting_multi( mvec, z );
+  return find_supporting_multi( mvec, pos.z() );
 }
 
 /* The supporting multi is the highest multi that is below or equal

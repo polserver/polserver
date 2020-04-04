@@ -63,18 +63,19 @@ namespace Multi
 void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in )
 {
   const MultiDef& md = house->multidef();
-  short x1 = house->x + md.minrx, y1 = house->y + md.minry;
-  short x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
+
+  Core::Pos4d p1 = house->pos() + Core::Vec2d( md.minrx, md.minry );
+  Core::Pos4d p2 = house->pos() + Core::Vec2d( md.maxrx, md.maxry );
 
   Core::WorldIterator<Core::MobileFilter>::InBox(
-      x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr ) {
-        UMulti* multi = house->realm->find_supporting_multi( chr->x, chr->y, chr->z );
+      p1, p2, [&]( Mobile::Character* chr ) {
+        UMulti* multi = chr->supporting_multi();
         if ( const_cast<const UMulti*>( multi ) == house )
           chrs_in.push_back( chr );
       } );
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      x1, y1, x2, y2, house->realm, [&]( Items::Item* item ) {
-        UMulti* multi = house->realm->find_supporting_multi( item->x, item->y, item->z );
+      p1, p2, [&]( Items::Item* item ) {
+        UMulti* multi = item->supporting_multi();
         if ( const_cast<const UMulti*>( multi ) == house )
         {
           if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )

@@ -495,8 +495,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   const ItemDesc* descriptor;
   int amount;
 
-  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) &&
-       getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
+  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
@@ -520,8 +520,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   const ItemDesc* descriptor;
   int amount;
 
-  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) &&
-       getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
+  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
@@ -754,9 +754,8 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( 0, obj ) && getStringParam( 1, ptext ) &&
-       getCharacterParam( 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
-       getParam( 5, journal_print ) )
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, ptext ) && getCharacterParam( 2, chr ) &&
+       getParam( 3, font ) && getParam( 4, color ) && getParam( 5, journal_print ) )
   {
     if ( !ptext->hasUTF8Characters() )
       return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
@@ -901,10 +900,17 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
     auto& uoex = chr->client->gd->target_cursor_uoemod->uoexec();
     if ( msg != nullptr )
     {
+      // NOTE: target realm is taken from the chr's realm and will be cropped to valid dimensions
+      Core::Pos4d tgt_coordinate( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z,
+                                  chr->pos().realm() );
+
       BStruct* arr = new BStruct;
-      arr->addMember( "x", new BLong( cfBEu16( msg->x ) ) );
-      arr->addMember( "y", new BLong( cfBEu16( msg->y ) ) );
-      arr->addMember( "z", new BLong( msg->z ) );
+      arr->addMember( "x", new BLong( tgt_coordinate.x() ) );
+      arr->addMember( "y", new BLong( tgt_coordinate.y() ) );
+      arr->addMember( "z", new BLong( tgt_coordinate.z() ) );
+
+      arr->addMember( "realm", new String( tgt_coordinate.realm()->name() ) );
+
       //      FIXME: Objtype CANNOT be trusted! Scripts must validate this, or, we must
       //      validate right here. Should we check map/static, or let that reside
       //      for scripts to run ListStatics? In theory, using Injection or similar,
@@ -922,12 +928,7 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
         }
       }
 
-      //      Never trust packet's objtype is the reason here. They should never
-      //      target on other realms. DUH!
-      arr->addMember( "realm", new String( chr->realm->name() ) );
-
-      Multi::UMulti* multi =
-          chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+      Multi::UMulti* multi = tgt_coordinate.realm()->find_supporting_multi( tgt_coordinate.xyz() );
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 

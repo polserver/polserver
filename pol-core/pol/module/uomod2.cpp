@@ -2514,7 +2514,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   if ( house->IsWaitingForAccept() )
     return new BError( "House currently being waiting for a commit" );
 
-  if ( chr->realm->find_supporting_multi( chr->x, chr->y, chr->z ) != house )
+  if ( chr->supporting_multi() != house )
     return new BError( "You must be inside the house to customize it." );
 
   chr->client->gd->custom_house_serial = house->serial;
