@@ -41,7 +41,8 @@ void UDoor::toggle()
 {
   const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
 
-  unsigned short oldx = x, oldy = y;
+  Pos4d oldpos = this->pos();
+  Pos4d newpos = oldpos;
 
   set_dirty();
   if ( is_open() )
@@ -50,17 +51,17 @@ void UDoor::toggle()
       graphic = dd->graphic;
     else
       graphic = static_cast<u16>( objtype_ );
-    x -= dd->xmod;
-    y -= dd->ymod;
+
+    newpos -= Vec2d( dd->xmod, dd->ymod );
   }
   else
   {
     graphic = dd->open_graphic;
-    x += dd->xmod;
-    y += dd->ymod;
+    newpos += Vec2d( dd->xmod, dd->ymod );
   }
 
-  MoveItemWorldPosition( oldx, oldy, this, nullptr );
+  this->setposition( newpos );
+  MoveItemWorldPosition( oldpos, this );
 
   send_item_to_inrange( this );
 }
@@ -99,5 +100,5 @@ bool UDoor::get_method_hook( const char* methodname, Bscript::Executor* ex, Expo
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

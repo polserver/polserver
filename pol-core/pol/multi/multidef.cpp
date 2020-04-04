@@ -96,9 +96,9 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
 MultiDef::~MultiDef() {}
 
 bool MultiDef::findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
-                               short rx, short ry ) const
+                               const Core::Vec2d& rxy ) const
 {
-  ItrPair pr = components.equal_range( getkey( rx, ry ) );
+  ItrPair pr = components.equal_range( getkey( rxy ) );
   if ( pr.first == components.end() )
   {
     return false;
@@ -115,17 +115,17 @@ bool MultiDef::body_contains( const Core::Vec2d& rxy ) const
 {
   return ( components.count( getkey( rxy ) ) != 0 );
 }
-const MULTI_ELEM* MultiDef::find_component( short rx, short ry ) const
+const MULTI_ELEM* MultiDef::find_component( const Core::Vec2d& rxy ) const
 {
-  if ( body_contains( rx, ry ) )
-    return ( *components.find( getkey( rx, ry ) ) ).second;
+  if ( body_contains( rxy ) )
+    return ( *components.find( getkey( rxy ) ) ).second;
   else
     return nullptr;
 }
 
 void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 {
-  unsigned short k = getkey( elem->x, elem->y );
+  unsigned short k = getkey( Core::Vec2d( elem->x, elem->y ) );
 
   if ( !hull2.count( k ) )
   {
@@ -133,7 +133,8 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
     hull2.insert( k );
   }
 
-
+  // TODO: Check this code, it smells. Maybe the evaluation of internal hull can be simplified with
+  // Vec2d or done somewhere else?
   if ( type == BOAT )
   {
     short int_rx = elem->x, int_ry = elem->y;
@@ -151,7 +152,8 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
       else if ( elem->y > 0 )
         int_ry = maxry - 1;
     }
-    elem = find_component( int_rx, int_ry );
+
+    elem = find_component( Core::Vec2d( int_rx, int_ry ) );
     if ( elem )
       add_to_internal_hull( elem );
   }
@@ -159,7 +161,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 
 void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
 {
-  unsigned short k = getkey( elem->x, elem->y );
+  unsigned short k = getkey( Core::Vec2d( elem->x, elem->y ) );
 
   if ( !internal_hull2.count( k ) )
   {
@@ -168,6 +170,7 @@ void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
   }
 }
 
+// TODO: Can't this function be simplified somehow? Maybe when components are loaded? Sorting component coordinates?
 void MultiDef::add_body_tohull()
 {
   short rx, ry;
@@ -175,7 +178,7 @@ void MultiDef::add_body_tohull()
   {
     for ( rx = minrx; rx <= maxrx; ++rx )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d(rx, ry) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -185,7 +188,7 @@ void MultiDef::add_body_tohull()
     }
     for ( rx = maxrx; rx >= minrx; --rx )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d(rx, ry) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -200,7 +203,7 @@ void MultiDef::add_body_tohull()
   {
     for ( ry = minry; ry <= maxry; ++ry )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d(rx, ry) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -209,7 +212,7 @@ void MultiDef::add_body_tohull()
     }
     for ( ry = maxry; ry >= minry; --ry )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -241,7 +244,7 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
   if ( elem->z > maxrz )
     maxrz = elem->z;
 
-  if ( elem->x < global_minrx )
+  /*if ( elem->x < global_minrx )
     global_minrx = elem->x;
   if ( elem->y < global_minry )
     global_minry = elem->y;
@@ -253,9 +256,9 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
   if ( elem->y > global_maxry )
     global_maxry = elem->y;
   if ( elem->z > global_maxrz )
-    global_maxrz = elem->z;
+    global_maxrz = elem->z;*/
 
-  components.insert( Components::value_type( getkey( elem->x, elem->y ), elem ) );
+  components.insert( Components::value_type( getkey( Core::Vec2d(elem->x, elem->y) ), elem ) );
 }
 
 void MultiDef::init()
@@ -283,12 +286,12 @@ size_t MultiDef::estimateSize() const
   return size;
 }
 
-short MultiDef::global_minrx;
+/*short MultiDef::global_minrx;
 short MultiDef::global_minry;
 short MultiDef::global_minrz;
 short MultiDef::global_maxrx;
 short MultiDef::global_maxry;
-short MultiDef::global_maxrz;
+short MultiDef::global_maxrz;*/
 
 bool MultiDefByMultiIDExists( u16 multiid )
 {
@@ -320,5 +323,5 @@ void read_multidefs()
     multidef_buffer.multidefs_by_multiid[mdef->multiid] = mdef;
   }
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

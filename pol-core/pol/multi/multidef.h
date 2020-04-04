@@ -25,7 +25,7 @@
 
 #include "../../clib/rawtypes.h"
 #include "../../plib/udatfile.h"
-#include "../vector.h"
+#include "../base/vector.h"
 
 namespace Pol
 {
@@ -85,7 +85,10 @@ public:
   short minrx, minry, minrz;  // minimum relative distances
   short maxrx, maxry, maxrz;
   Components components;
-
+    
+  /* 
+  // These seem to be unused
+  
   static short global_minrx;
   static short global_minry;
   static short global_minrz;
@@ -93,20 +96,23 @@ public:
   static short global_maxry;
   static short global_maxrz;
 
-  ItrPair findcomponents( short rx, short ry );
+  // this too
+  ItrPair findcomponents( const Core::Vec2d& rxy );
+  
+  */
 
-  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,
-                       short ry ) const;
+  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
+                       const Core::Vec2d& rxy ) const;
 
   static unsigned short getkey( const Core::Vec2d& rxy );
 
   // returns true if it finds anything at this rx,ry
-  bool readobjects( Plib::StaticList& vec, short rx, short ry, short zbase ) const;
-  bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase,
+  bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase ) const;
+  bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase,
                    unsigned int anyflags ) const;
 
   bool body_contains( const Core::Vec2d& rxy ) const;
-  const MULTI_ELEM* find_component( short rx, short ry ) const;
+  const MULTI_ELEM* find_component( const Core::Vec2d& rxy ) const;
 
   void add_to_hull( const MULTI_ELEM* elem );
   void add_to_internal_hull( const MULTI_ELEM* elem );
@@ -117,6 +123,8 @@ public:
   void addrec( const MULTI_ELEM* elem );
   void fill_hull2();
 
+  bool is_within_multi( const Core::Vec2d& rxy ) const;
+
   void init();
 
   size_t estimateSize() const;
@@ -125,10 +133,15 @@ public:
 bool MultiDefByMultiIDExists( u16 multiid );
 const MultiDef* MultiDefByMultiID( u16 multiid );
 
+inline bool MultiDef::is_within_multi( const Core::Vec2d& rxy ) const
+{
+  return rxy >= Core::Vec2d( minrx, minry ) && rxy <= Core::Vec2d( maxrx, maxry );
+}
+
 inline unsigned short MultiDef::getkey( const Core::Vec2d& rxy )
 {
-  unsigned char crx = static_cast<unsigned char>( rxy.getX() );
-  unsigned char cry = static_cast<unsigned char>( rxy.getY() );
+  unsigned char crx = static_cast<unsigned char>( rxy.x() );
+  unsigned char cry = static_cast<unsigned char>( rxy.y() );
 
   unsigned short key = ( crx << 8 ) | cry;
   return key;
