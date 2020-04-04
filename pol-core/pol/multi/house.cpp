@@ -913,7 +913,7 @@ void move_to_ground( Items::Item* item )
 
 void move_to_ground( Mobile::Character* chr )
 {
-  move_character_to( chr, chr->x, chr->y, chr->z, Core::MOVEITEM_FORCELOCATION, nullptr );
+  move_character_to( chr, chr->pos(), Core::MOVEITEM_FORCELOCATION );
 }
 
 // void send_remove_object_if_inrange( Client *client, const UObject *item );

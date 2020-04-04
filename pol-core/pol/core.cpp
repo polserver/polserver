@@ -47,53 +47,49 @@ void CoreSetSysTrayToolTip( const std::string& text, Priority priority )
 #endif
 }
 
-bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short y, short z,
-                        int flags, Realms::Realm* oldrealm )
+bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
 {
   // FIXME consider consolidating with similar code in CHARACTER.CPP
   short newz;
   Multi::UMulti* supporting_multi = nullptr;
   Items::Item* walkon_item = nullptr;
   short new_boost = 0;
+  Pos4d oldpos = chr->pos();
 
   if ( flags & MOVEITEM_FORCELOCATION )
   {
-    if ( x >= chr->realm->width() || y >= chr->realm->height() )
-    {
-      return false;
-    }
-
-    chr->realm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode,
-                            &new_boost );
-    newz = z;
+    newpos.realm()->walkheight( newpos.xyz(), &newz, &supporting_multi, &walkon_item, true,
+                                chr->movemode, &new_boost );
   }
   else
   {
-    if ( !chr->realm->walkheight( chr, x, y, z, &newz, &supporting_multi, &walkon_item,
-                                  &new_boost ) )
+    if ( !newpos.realm()->walkheight( chr, newpos.xyz(), &newz, &supporting_multi, &walkon_item,
+                                      &new_boost ) )
     {
       return false;
     }
+    newpos.z( static_cast<s8>( newz ) );
   }
   chr->set_dirty();
 
-  if ( ( oldrealm != nullptr ) && ( oldrealm != chr->realm ) )
+  if ( ( oldpos.realm() != nullptr ) && ( oldpos.realm() != newpos.realm() ) )
   {
-    chr->lastx = 0;
-    chr->lasty = 0;
-    chr->lastz = 0;
+    // Notify NPCs in the old realm that the player left the realm.
+    oldpos.realm()->notify_left( *chr );
+
+    send_remove_character_to_nearby( chr );
+    if ( chr->client != nullptr )
+      remove_objects_inrange( chr->client );
+    chr->setposition( newpos );
+    chr->realm_changed();
+    chr->lastxyz = Pos3d( 0, 0, 0 );
   }
   else
   {
-    chr->lastx = chr->x;
-    chr->lasty = chr->y;
-    chr->lastz = chr->z;
+    chr->setposition( newpos );
+    chr->lastxyz = oldpos.xyz();
   }
-
-  MoveCharacterWorldPosition( chr->x, chr->y, x, y, chr, oldrealm );
-  chr->x = x;
-  chr->y = y;
-  chr->z = static_cast<s8>( newz );
+  MoveCharacterWorldPosition( oldpos, chr );
 
   chr->gradual_boost = new_boost;
   chr->position_changed();
@@ -129,7 +125,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     passert_assume( chr->client !=
                     nullptr );  // tells compiler to assume this is true during static code analysis
 
-    if ( oldrealm != chr->realm )
+    if ( oldpos.realm() != chr->realm() )
     {
       send_new_subserver( chr->client );
       send_owncreate( chr->client, chr );
@@ -154,9 +150,7 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     walkon_item->walk_on( chr );
   }
 
-  chr->lastx = chr->x;
-  chr->lasty = chr->y;
-  chr->lastz = chr->z;
+  chr->lastxyz = chr->pos().xyz();
 
   return true;
 }
@@ -171,7 +165,7 @@ Items::Item* find_walkon_item( ItemsVector& ivec, short z )
   for ( ItemsVector::const_iterator itr = ivec.begin(), end = ivec.end(); itr != end; ++itr )
   {
     Items::Item* item = ( *itr );
-    if ( z == item->z || z == item->z + 1 )
+    if ( z == item->z() || z == item->z() + 1 )
     {
       if ( !item->itemdesc().walk_on_script.empty() )
       {

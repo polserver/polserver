@@ -45,7 +45,7 @@ public:
   Pos2d& y( u16 y );
 
   u16 pol_distance( const Pos2d& other ) const;
-  void crop( Realms::Realm* realm );
+  void crop( const Realms::Realm* realm );
 };
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
@@ -96,13 +96,14 @@ public:
   Pos3d& xy( Pos2d xy );
 
   u16 pol_distance( const Pos3d& other ) const;
-  void crop( Realms::Realm* realm );
+  void crop( const Realms::Realm* realm );
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator-( Pos3d lhs, const Vec3d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
+Vec2d operator-( const Pos2d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
 
 class Pos4d
@@ -177,7 +178,9 @@ Pos4d operator+( Pos4d lhs, const Vec2d& rhs );
 Pos4d operator-( Pos4d lhs, const Vec3d& rhs );
 Pos4d operator+( Pos4d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs );
+Vec2d operator-( const Pos2d& lhs, const Pos4d& rhs );
 Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
+Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs );
 Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs );
 
 

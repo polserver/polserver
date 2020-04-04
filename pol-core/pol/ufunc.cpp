@@ -1612,7 +1612,7 @@ void move_item( Item* item, Pos4d newpos )
 
   Pos4d oldpos = item->pos();
 
-  item->setposition( newpos );
+  item->setposition( std::move( newpos ) );
 
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );

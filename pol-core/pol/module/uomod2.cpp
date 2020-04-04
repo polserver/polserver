@@ -213,9 +213,8 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   UContainer *for_sale, *bought;
   unsigned char save_layer_one, save_layer_two;
 
-  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) &&
-       getCharacterParam( 2, mrchnt ) && getItemParam( 3, item2 ) &&
-       getParam( 4, flags ) )
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getCharacterParam( 2, mrchnt ) &&
+       getItemParam( 3, item2 ) && getParam( 4, flags ) )
   {
     if ( !chr->has_active_client() )
     {
@@ -716,8 +715,8 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   UContainer* merchant_buyable = nullptr;
 
   if ( !( getCharacterParam( 0, chr ) && getCharacterParam( 1, mrchnt ) &&
-          getItemParam( 2, wi1a ) && getItemParam( 3, wi1b ) &&
-          getItemParam( 4, wi1c ) && getParam( 5, flags ) ) )
+          getItemParam( 2, wi1a ) && getItemParam( 3, wi1b ) && getItemParam( 4, wi1c ) &&
+          getParam( 5, flags ) ) )
   {
     return new BError( "A parameter was invalid" );
   }
@@ -1361,8 +1360,7 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
   unsigned int pid;
   BObjectImp* resp;
 
-  if ( !( getCharacterParam( 0, chr ) && exec.getParam( 1, pid ) &&
-          ( getParamImp( 2, resp ) ) ) )
+  if ( !( getCharacterParam( 0, chr ) && exec.getParam( 1, pid ) && ( getParamImp( 2, resp ) ) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -1398,8 +1396,7 @@ BObjectImp* UOExecutorModule::mf_CloseWindow( /* chr, type, obj */ )
   unsigned int type;
   UObject* obj;
 
-  if ( !getCharacterParam( 0, chr ) || !getParam( 1, type ) ||
-       !getUObjectParam( 2, obj ) )
+  if ( !getCharacterParam( 0, chr ) || !getParam( 1, type ) || !getUObjectParam( 2, obj ) )
     return new BError( "Invalid parameter" );
 
   if ( !chr->has_active_client() )
@@ -2534,7 +2531,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     msg->Write<u8>( 0xFFu );         // fixme
     msg.Send( chr->client );
   }
-  move_character_to( chr, house->x, house->y, house->z + 7, MOVEITEM_FORCELOCATION, nullptr );
+  move_character_to( chr, house->pos() + Core::Vec3d( 0, 0, 7 ), MOVEITEM_FORCELOCATION );
   // chr->set_script_member("hidden",1);
   // chr->set_script_member("frozen",1);
 
@@ -2556,8 +2553,8 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     Character* multichr = moblist.back();
     if ( multichr != chr )
-      move_character_to( multichr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
-                         MOVEITEM_FORCELOCATION, nullptr );
+      move_character_to( multichr, house->pos() + Core::Vec2d( def.minrx, def.maxry + 1 ),
+                         MOVEITEM_FORCELOCATION );
     moblist.pop_back();
   }
 
@@ -2830,8 +2827,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
   Realms::Realm* realm;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getObjtypeParam( 4, objtype ) && getParam( 5, flags ) &&
-       getStringParam( 6, strrealm ) )
+       getObjtypeParam( 4, objtype ) && getParam( 5, flags ) && getStringParam( 6, strrealm ) )
   {
     realm = find_realm( strrealm->value() );
     if ( !realm )

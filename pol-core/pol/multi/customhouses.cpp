@@ -704,8 +704,8 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
     msg.Send( chr->client );
   }
   const MultiDef& def = house->multidef();
-  move_character_to( chr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
-                     Core::MOVEITEM_FORCELOCATION, nullptr );
+  Core::Pos4d newpos( house.pos() + Core::Vec2d( def.minrx, def.maxry + 1 ) );
+  move_character_to( chr, newpos, Core::MOVEITEM_FORCELOCATION );
   if ( chr->client )
   {
     chr->client->gd->custom_house_serial = 0;

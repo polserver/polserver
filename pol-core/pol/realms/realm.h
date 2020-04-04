@@ -20,6 +20,7 @@
 #include "../../plib/realmdescriptor.h"
 #include "../../plib/uconst.h"
 #include "../../plib/udatfile.h"
+#include "../base/position.h"
 #include "WorldChangeReasons.h"
 
 
@@ -30,7 +31,7 @@ namespace Core
 class ItemsVector;
 class ULWObject;
 struct Zone;
-}
+}  // namespace Core
 namespace Mobile
 {
 class Character;
@@ -50,7 +51,7 @@ class MapTileServer;
 class StaticEntryList;
 class StaticServer;
 struct MAPTILE_CELL;
-}
+}  // namespace Plib
 namespace Realms
 {
 typedef std::vector<Multi::UMulti*> MultiList;
@@ -97,12 +98,11 @@ public:
   unsigned int toplevel_item_count() const;
   unsigned int multi_count() const;
 
-  bool walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
-                   Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                   Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
-  bool walkheight( const Mobile::Character* chr, unsigned short x, unsigned short y, short oldz,
-                   short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
+  bool walkheight( const Core::Pos3d& pos, short* newz, Multi::UMulti** pmulti,
+                   Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                    short* gradual_boost = nullptr );
+  bool walkheight( const Mobile::Character* chr, const Core::Pos3d& pos, short* newz,
+                   Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost = nullptr );
 
   bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                           Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
@@ -124,9 +124,8 @@ public:
   Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
   void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y,
                      unsigned int anyflags ) const;
-  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
-                   unsigned int flags ) const;
-  void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags,
+  void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags ) const;
+  void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
                    MultiList& mvec ) const;
   void readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const;
 
@@ -246,6 +245,6 @@ inline unsigned short Realm::height() const
 {
   return _descriptor.height;
 }
-}
-}
+}  // namespace Realms
+}  // namespace Pol
 #endif

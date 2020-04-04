@@ -90,27 +90,9 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
         return new BError( "Can't go there" );
     }
   }
-  Realms::Realm* oldrealm = chr->realm;
 
-  bool ok;
-  if ( newrealm == nullptr || oldrealm == newrealm )
-  {  // Realm is staying the same, just changing X Y Z coordinates.
-    ok = move_character_to( chr, x, y, z, flags, nullptr );
-  }
-  else
-  {  // Realm and X Y Z change.
-
-    // Notify NPCs in the old realm that the player left the realm.
-    oldrealm->notify_left( *chr );
-
-    send_remove_character_to_nearby( chr );
-    if ( chr->client != nullptr )
-      remove_objects_inrange( chr->client );
-    chr->realm = newrealm;
-    chr->realm_changed();
-    ok = move_character_to( chr, x, y, z, flags, oldrealm );
-  }
-
+  Core::Pos4d newpos( x, y, z, newrealm ? newrealm : chr->realm() );
+  bool ok = move_character_to( chr, newpos, flags );
   if ( ok )
     return new BLong( 1 );
   else

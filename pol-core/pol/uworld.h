@@ -97,6 +97,8 @@ template <class Filter>
 struct WorldIterator
 {
   template <typename F>
+  static void InRange( const Pos2d& p, const Realms::Realm* realm, unsigned range, F&& f );
+  template <typename F>
   static void InRange( const Pos4d& p, unsigned range, F&& f );
   template <typename F>
   static void InVisualRange( const UObject* obj, F&& f );
@@ -144,8 +146,9 @@ namespace
 struct CoordsArea
 {
   // structure to hold the world and shifted coords
-  CoordsArea( const Pos4d& p, unsigned range );    // create from range
-  CoordsArea( const Pos4d& p1, const Pos4d& p2 );  // create from box
+  CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, unsigned range );  // create from range
+  CoordsArea( const Pos4d& p, unsigned range );                                 // create from range
+  CoordsArea( const Pos4d& p1, const Pos4d& p2 );                               // create from box
   bool inRange( const UObject* obj ) const;
 
   // shifted coords
@@ -165,6 +168,20 @@ private:
 // imp
 namespace
 {
+inline CoordsArea::CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, unsigned range )
+{
+  realm = posrealm;
+  Vec2d r( range, range );
+  _posL = p - r;
+  _posH = p + r;
+  _posL.crop( realm );
+  _posH.crop( realm );
+
+
+  wL = convert( _posL );
+  wH = convert( _posH );
+  passert( wL <= wH );
+}
 inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
 {
   realm = p.realm();
@@ -201,6 +218,16 @@ inline Pos2d CoordsArea::convert( const Pos2d& p )
 }
 }  // namespace
 
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InRange( const Pos2d& p, const Realms::Realm* realm, unsigned range,
+                                     F&& f )
+{
+  if ( realm == nullptr )
+    return;
+  CoordsArea coords( p, realm, range );
+  _forEach( coords, std::forward<F>( f ) );
+}
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InRange( const Pos4d& p, unsigned range, F&& f )

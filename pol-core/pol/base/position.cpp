@@ -98,7 +98,7 @@ u16 Pos2d::pol_distance( const Pos2d& other ) const
   return static_cast<u16>( std::max( xd, yd ) );
 }
 
-void Pos2d::crop( Realms::Realm* realm )
+void Pos2d::crop( const Realms::Realm* realm )
 {
   if ( realm == nullptr )
     return;
@@ -206,6 +206,10 @@ Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs )
 {
   return lhs.xy() - rhs;
 }
+Vec2d operator-( const Pos2d& lhs, const Pos3d& rhs )
+{
+  return lhs - rhs.xy();
+}
 Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs )
 {
   Vec2d xy = lhs.xy() - rhs.xy();
@@ -217,7 +221,7 @@ u16 Pos3d::pol_distance( const Pos3d& other ) const
 {
   return _xy.pol_distance( other._xy );
 }
-void Pos3d::crop( Realms::Realm* realm )
+void Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );
 }
@@ -366,9 +370,17 @@ Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs )
 {
   return lhs.xyz() - rhs;
 }
+Vec2d operator-( const Pos2d& lhs, const Pos4d& rhs )
+{
+  return lhs - rhs.xyz();
+}
 Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs )
 {
   return lhs.xyz() - rhs;
+}
+Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs )
+{
+  return lhs - rhs.xyz();
 }
 Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs )
 {
