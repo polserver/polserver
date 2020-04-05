@@ -712,17 +712,14 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     return new BLong( weight() );
     break;
   case MBR_MULTI:
-    if ( realm() != nullptr )
-    {
-      Multi::UMulti* multi = this->supporting_multi();
-      if ( multi != nullptr )
-        return multi->make_ref();
-      else
-        return new BLong( 0 );
-    }
+  {
+    Multi::UMulti* multi = this->supporting_multi();
+    if ( multi != nullptr )
+      return multi->make_ref();
     else
       return new BLong( 0 );
-    break;
+  }
+  break;
   case MBR_REALM:
     if ( realm() != nullptr )
       return new String( realm()->name() );
@@ -1607,12 +1604,10 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
         else
           new_stack = this->remove_part_of_stack( 1 );
 
-        new_stack->x = newx;
-        new_stack->y = newy;
-        new_stack->z = static_cast<s8>( newz );
-        new_stack->realm = newrealm;
+        Core::Pos4d newpos = Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm );
+        new_stack->setposition( newpos );
         add_item_to_world( new_stack );
-        move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
+        move_item( new_stack, newpos );
         update_item_to_inrange( new_stack );
       }
 
@@ -1631,13 +1626,12 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->x = newx;
-    new_stack->y = newy;
-    new_stack->z = static_cast<s8>( newz );
-    new_stack->realm = newrealm;
     new_stack->setamount( amt );
+
+    Core::Pos4d newpos = Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm );
+    new_stack->setposition( newpos );
     add_item_to_world( new_stack );
-    move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
+    move_item( new_stack, newpos );
     update_item_to_inrange( new_stack );
 
     if ( amt == item_amount )
@@ -2352,10 +2346,12 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_LASTCOORD:
     if ( client != nullptr )
     {
+      const Core::Pos3d last_pos = this->lastxyz;
+
       std::unique_ptr<BStruct> lastcoord( new BStruct );
-      lastcoord->addMember( "lastx", new BLong( lastx ) );
-      lastcoord->addMember( "lasty", new BLong( lasty ) );
-      lastcoord->addMember( "lastz", new BLong( lastz ) );
+      lastcoord->addMember( "lastx", new BLong( last_pos.x() ) );
+      lastcoord->addMember( "lasty", new BLong( last_pos.y() ) );
+      lastcoord->addMember( "lastz", new BLong( last_pos.z() ) );
       return lastcoord.release();
     }
     return new BError( "No client attached." );
@@ -3956,11 +3952,11 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
       if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
            ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
       {
-        if ( !realm->valid( newx, newy, newz ) )
+        if ( !realm()->valid( newx, newy, newz ) )
           return new BError( "Coordinates are out of range" );
 
         set_dirty();
-        move_offline_mobiles( newx, newy, newz, realm );
+        move_offline_mobiles( newx, newy, newz, realm() );
         return new BLong( 1 );
       }
       else
@@ -4794,12 +4790,11 @@ ItemGivenEvent::~ItemGivenEvent()
         u8 newSlot = 1;
         if ( !backpack->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
-          item->x = chr->x;
-          item->y = chr->y;
-          item->z = chr->z;
+          const Core::Pos4d newpos = chr->pos();
+          item->setposition( newpos );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, item->x, item->y, item->z, nullptr );
+          move_item( item, newpos );
           return;
         }
         backpack->add( item );
@@ -4808,12 +4803,12 @@ ItemGivenEvent::~ItemGivenEvent()
       }
     }
     cont->remove( item );
-    item->x = chr->x;
-    item->y = chr->y;
-    item->z = chr->z;
+
+    const Core::Pos4d newpos = chr->pos();
+    item->setposition( newpos );
     add_item_to_world( item );
     register_with_supporting_multi( item );
-    move_item( item, item->x, item->y, item->z, nullptr );
+    move_item( item, newpos );
   }
 }
 }  // namespace Module

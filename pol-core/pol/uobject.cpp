@@ -562,10 +562,10 @@ void UObject::setposition( Pos4d newpos )
 
 Multi::UMulti* UObject::supporting_multi() const
 {
-  if ( this->pos().realm() == nullptr )
+  if ( this->realm() == nullptr )
     return nullptr;
 
-  return this->pos().realm()->find_supporting_multi( this->pos().xyz() );
+  return this->realm()->find_supporting_multi( this->pos().xyz() );
 }
 }  // namespace Core
 }  // namespace Pol
