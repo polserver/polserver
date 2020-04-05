@@ -449,6 +449,7 @@ bool inrangex( const Character* c1, const Character* c2, int maxdist )
            ( abs( c1->y - c2->y ) <= maxdist ) );
 }
 
+// TODO: Change all those inrangex functions to pol_distance() or something similar
 bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdist )
 {
   return ( ( abs( c1->x - x ) <= maxdist ) && ( abs( c1->y - y ) <= maxdist ) );

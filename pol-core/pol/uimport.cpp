@@ -99,7 +99,7 @@ void read_character( Clib::ConfigElem& elem )
     chr->readProperties( elem );
 
     // Allows the realm to recognize this char as offline
-    chr->realm->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
 
     chr->clear_dirty();
 

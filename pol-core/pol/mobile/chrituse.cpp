@@ -101,9 +101,10 @@ void Item::walk_on( Mobile::Character* chr )
       ex->addModule( new Module::UOExecutorModule( *ex ) );
       if ( prog->haveProgram )
       {
-        ex->pushArg( new Bscript::BLong( chr->lastz ) );
-        ex->pushArg( new Bscript::BLong( chr->lasty ) );
-        ex->pushArg( new Bscript::BLong( chr->lastx ) );
+        Core::Pos3d last_pos = chr->lastxyz;
+        ex->pushArg( new Bscript::BLong( last_pos.z() ) );
+        ex->pushArg( new Bscript::BLong( last_pos.y() ) );
+        ex->pushArg( new Bscript::BLong( last_pos.x() ) );
         ex->pushArg( new Module::EItemRefObjImp( this ) );
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
