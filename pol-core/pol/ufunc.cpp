@@ -482,29 +482,6 @@ bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj )
            ( abs( c1->y - obj->y ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
 }
 
-unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2 )
-{
-  int xd = abs( x1 - x2 );
-  int yd = abs( y1 - y2 );
-  if ( xd > yd )
-    return static_cast<unsigned short>( xd );
-  else
-    return static_cast<unsigned short>( yd );
-}
-
-unsigned short pol_distance( const Mobile::Character* c1, const UObject* obj )
-{
-  obj = obj->toplevel_owner();
-
-  int xd = abs( c1->x - obj->x );
-  int yd = abs( c1->y - obj->y );
-  if ( xd > yd )
-    return static_cast<unsigned short>( xd );
-  else
-    return static_cast<unsigned short>( yd );
-}
-
 bool in_say_range( const Character* c1, const Character* c2 )
 {
   return inrangex( c1, c2, settingsManager.ssopt.speech_range );

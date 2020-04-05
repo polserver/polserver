@@ -1316,7 +1316,7 @@ void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
   if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
     return;
 
-  if ( pol_distance( wholeft, this ) > ex->area_size )
+  if ( !wholeft->pos().inRange( toplevel_pos(), ex->area_size ) )
     return;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( wholeft ) )
@@ -1331,7 +1331,7 @@ void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoentered )
   if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
     return;
 
-  if ( pol_distance( whoentered, this ) > ex->area_size )
+  if ( !whoentered->pos().inRange( toplevel_pos(), ex->area_size ) )
     return;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoentered ) )
@@ -1348,11 +1348,8 @@ void Pol::Items::Item::inform_moved( Mobile::Character* moved )
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
     return;
 
-  const bool are_inrange =
-      ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
-
-  const bool were_inrange =
-      ( abs( x - moved->lastx ) <= ex->area_size ) && ( abs( y - moved->lasty ) <= ex->area_size );
+  bool are_inrange = toplevel_pos().inRange( moved->pos(), ex->area_size );
+  bool were_inrange = toplevel_pos().inRange( moved->lastxyz, ex->area_size );
 
   if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
   {

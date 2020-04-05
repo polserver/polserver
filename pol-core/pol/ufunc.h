@@ -73,10 +73,6 @@ bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdis
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj );
 bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 );
 
-unsigned short pol_distance( const Mobile::Character* c1, const UObject* obj );
-unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2 );
-
 bool in_say_range( const Mobile::Character* c1, const Mobile::Character* c2 );
 bool in_yell_range( const Mobile::Character* c1, const Mobile::Character* c2 );
 bool in_whisper_range( const Mobile::Character* c1, const Mobile::Character* c2 );

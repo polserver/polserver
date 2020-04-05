@@ -460,7 +460,7 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 
 bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const
 {
-  unsigned short dist = pol_distance( wielder, target );
+  unsigned short dist = wielder->pos().pol_distance( target->pos() );
   INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu( wielder->serial ) << ",0x"
                          << fmt::hexu( target->serial ) << "):\n"
                          << "dist:   " << dist << "\n"

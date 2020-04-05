@@ -1155,7 +1155,8 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = ( range < -1 ) || pol_distance( this, item ) <= range;
+  const bool within_range =
+      ( range < -1 ) || pos().inRange( item->toplevel_pos(), static_cast<u16>( range ) );
   if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
@@ -2066,7 +2067,6 @@ void Character::resurrect()
   if ( equip_death_robe )
   {
     Items::Item* death_robe = create_death_robe();
-    death_robe->setposition( this->pos() );
     equip( death_robe );
   }
 
@@ -2094,7 +2094,6 @@ void Character::resurrect()
 void Character::on_death( Items::Item* corpse )
 {
   Items::Item* death_shroud = create_death_shroud();
-  death_shroud->setposition( this->pos() );
   if ( equippable( death_shroud ) )  // check it or passert will trigger
   {
     equip( death_shroud );
@@ -3622,7 +3621,7 @@ void Character::check_region_changes()
 
 void Character::position_changed()
 {
-  wornitems->setposition( this->pos() );
+  // wornitems->setposition( this->pos() ); // are we now in hell?
 }
 
 void Character::unhide()
@@ -4073,7 +4072,7 @@ bool Character::mightsee( const Items::Item* item ) const
       return true;
   }
 
-  return this->pos().pol_distance( item->pos() ) <= RANGE_VISUAL;
+  return this->pos().inRange( item->toplevel_pos(), RANGE_VISUAL );
 }
 
 bool Character::squelched() const
@@ -4171,7 +4170,7 @@ void Character::create_trade_container()
   if ( trading_cont.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
-    cont->setposition( this->pos() );
+    cont->setposition( this->pos() );  // TODO: unsure how this special container is handled..
     trading_cont.set( static_cast<Core::UContainer*>( cont ) );
   }
 }

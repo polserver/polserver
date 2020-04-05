@@ -3409,7 +3409,7 @@ BObjectImp* UOExecutorModule::mf_CoordinateDistance()
   {
     return new BError( "Invalid parameter type" );
   }
-  return new BLong( pol_distance( x1, y1, x2, y2 ) );
+  return new BLong( Core::Pos2d( x1, y1 ).pol_distance( Core::Pos2d( x2, y2 ) ) );
 }
 
 BObjectImp* UOExecutorModule::mf_CoordinateDistanceEuclidean()
@@ -5151,7 +5151,9 @@ BObjectImp* UOExecutorModule::mf_FindPath()
        getParam( 3, x2 ) && getParam( 4, y2 ) && getParam( 5, z2, ZCOORD_MIN, ZCOORD_MAX ) &&
        getStringParam( 6, strrealm ) )
   {
-    if ( pol_distance( x1, y1, x2, y2 ) > settingsManager.ssopt.max_pathfind_range )
+    Core::Pos3d p1( x1, y1, z1 );
+    Core::Pos3d p2( x2, y2, z2 );
+    if ( !p1.inRange( p2, settingsManager.ssopt.max_pathfind_range ) )
       return new BError( "Beyond Max Range." );
 
     short theSkirt;

@@ -143,20 +143,15 @@ const char* NPC::classname() const
 }
 
 
-// 8-25-05 Austin
-// Moved unsigned short pol_distance( unsigned short x1, unsigned short y1,
-//                  unsigned short x2, unsigned short y2 )
-// to ufunc.cpp
-
 bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
 {
-  unsigned short newx = x + Core::move_delta[fdir].xmove;
-  unsigned short newy = y + Core::move_delta[fdir].ymove;
+  Core::Pos4d newpos = pos();
+  newpos.move( fdir );
 
   if ( anchor.enabled && !warmode() )
   {
-    unsigned short curdist = Core::pol_distance( x, y, anchor.x, anchor.y );
-    unsigned short newdist = Core::pol_distance( newx, newy, anchor.x, anchor.y );
+    unsigned short curdist = pos().xy().pol_distance( anchor.pos );
+    unsigned short newdist = newpos().xy().pol_distance( anchor.pos );
     if ( newdist > curdist )  // if we're moving further away, see if we can
     {
       if ( newdist > anchor.dstart )
@@ -802,7 +797,7 @@ void NPC::inform_leftarea( Character* wholeft )
   {
     if ( ex->eventmask & ( Core::EVID_LEFTAREA ) )
     {
-      if ( pol_distance( this, wholeft ) <= ex->area_size )
+      if ( pos().inRange( wholeft->pos(), ex->area_size ) )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( wholeft ) )
@@ -818,7 +813,7 @@ void NPC::inform_enteredarea( Character* whoentered )
   {
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) )
     {
-      if ( pol_distance( this, whoentered ) <= ex->area_size )
+      if ( pos().inRange( whoentered->pos(), ex->area_size ) )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
              is_visible_to_me( whoentered ) )

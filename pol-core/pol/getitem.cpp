@@ -85,7 +85,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
 
   u8 oldSlot = item->slot_index();
 
-  if ( pol_distance( client->chr, item ) > 2 && !client->chr->can_moveanydist() )
+  if ( !client->chr->can_moveanydist() && !client->chr->pos().inRange( item->toplevel_pos(), 2 ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;

@@ -530,7 +530,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
     {
       return;
     }
-    if ( pol_distance( client->chr->x, client->chr->y, the_mob->x, the_mob->y ) > 20 )
+    if ( !client->chr->pos().inRange( the_mob->pos(), 20 ) )
     {
       return;
     }

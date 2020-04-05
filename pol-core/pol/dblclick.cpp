@@ -197,8 +197,8 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
         return;
       }
 
-      unsigned short dst = pol_distance( client->chr, item );
-      if ( dst > id.doubleclick_range && !client->chr->can_dblclickany() )
+      if ( !client->chr->can_dblclickany() &&
+           !client->chr->pos().inRange( item->toplevel_pos(), id.doubleclick_range ) )
       {
         private_say_above( client->chr, item, "That is too far away." );
         return;

@@ -52,7 +52,7 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
       return;
     }
 
-    if ( client->chr->pos().pol_distance( defender->pos() ) > 20 )
+    if ( !client->chr->pos().inRange( defender->pos(), 20 ) )
     {
       client->chr->send_highlight();
       return;

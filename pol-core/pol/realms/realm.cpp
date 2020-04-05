@@ -116,9 +116,9 @@ unsigned Realm::season() const
   return _descriptor.season;
 }
 
-bool Realm::valid( const Core::Pos3d& pos ) const 
+bool Realm::valid( const Core::Pos3d& pos ) const
 {
-  return Realm::valid( pos.x(), pos.y(), pos.z() ); // Yes, I'm lazy. Sorry.
+  return Realm::valid( pos.x(), pos.y(), pos.z() );  // Yes, I'm lazy. Sorry.
 }
 
 bool Realm::valid( unsigned short x, unsigned short y, short z ) const
@@ -136,7 +136,7 @@ const std::string Realm::name() const
 void Realm::notify_moved( Mobile::Character& whomoved )
 {
   // When the movement is larger than 32 tiles, notify mobiles and items in the old location
-  if ( Core::pol_distance( whomoved.lastx, whomoved.lasty, whomoved.x, whomoved.y ) > 32 )
+  if ( !whomoved.pos().inRange( whomoved.lastxyz, 32 ) )
   {
     Core::WorldIterator<Core::MobileFilter>::InRange(
         whomoved.lastx, whomoved.lasty, this, 32,

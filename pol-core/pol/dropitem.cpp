@@ -313,7 +313,8 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     return false;
   }
 
-  if ( ( pol_distance( client->chr, target_item ) > 2 ) && !client->chr->can_moveanydist() )
+  if ( !client->chr->can_moveanydist() &&
+       !client->chr->pos().inRange( target_item->toplevel_pos(), 2 ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
@@ -599,7 +600,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     return false;
   }
 
-  if ( pol_distance( client->chr, dropon ) > 2 && !client->chr->can_moveanydist() )
+  if ( !client->chr->can_moveanydist() && !client->chr->pos().inRange( dropon->toplevel_pos(), 2 ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
@@ -712,7 +713,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
   }
-  if ( pol_distance( client->chr, cont ) > 2 && !client->chr->can_moveanydist() )
+  if ( !client->chr->can_moveanydist() && !client->chr->pos().inRange( cont->toplevel_pos(), 2 ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;

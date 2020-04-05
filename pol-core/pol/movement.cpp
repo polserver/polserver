@@ -163,7 +163,7 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
         if ( chr->is_trading() )
         {
           if ( ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) ) &&
-               ( pol_distance( chr->x, chr->y, chr->trading_with->x, chr->trading_with->y ) > 3 ) )
+               ( !chr->pos().inRange( chr->trading_with->pos(), 3 ) ) )
           {
             cancel_trade( chr );
           }
