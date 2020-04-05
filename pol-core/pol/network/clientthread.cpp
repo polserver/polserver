@@ -332,9 +332,9 @@ bool client_io_thread( Network::Client* client, bool login )
           Mobile::Character* chr = client->chr;
           CLIENT_CHECKPOINT( 16 );
           call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          if ( chr->realm )
+          if ( chr->realm() )
           {
-            chr->realm->notify_left( *chr );
+            chr->realm()->notify_left( *chr );
           }
         }
       }

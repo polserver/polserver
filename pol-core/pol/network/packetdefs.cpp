@@ -60,18 +60,18 @@ void SendWorldItem::build1A()
   _p_old->WriteFlipped<u16>( _amount );
   if ( _facing == 0 )
   {
-    _p_old->WriteFlipped<u16>( _x );
+    _p_old->WriteFlipped<u16>( _pos.x() );
     // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-    _p_old->WriteFlipped<u16>( 0xC000u | _y );  // dyeable and moveable?
+    _p_old->WriteFlipped<u16>( 0xC000u | _pos.y() );  // dyeable and moveable?
   }
   else
   {
-    _p_old->WriteFlipped<u16>( 0x8000u | _x );
+    _p_old->WriteFlipped<u16>( 0x8000u | _pos.x() );
     // bits 0x80 and 0x40 are Dye and Move (dunno which is which)
-    _p_old->WriteFlipped<u16>( 0xC000u | _y );  // dyeable and moveable?
+    _p_old->WriteFlipped<u16>( 0xC000u | _pos.y() );  // dyeable and moveable?
     _p_old->Write<u8>( _facing );
   }
-  _p_old->Write<s8>( _z );
+  _p_old->Write<s8>( _pos.z() );
   _p_old->WriteFlipped<u16>( _color );
   _p_old->Write<u8>( _flags );
   _p_oldlen = _p_old->offset;
@@ -88,24 +88,22 @@ void SendWorldItem::buildF3()
   _p->Write<u8>( 0u );
   _p->WriteFlipped<u16>( _amount );
   _p->WriteFlipped<u16>( _amount );
-  _p->WriteFlipped<u16>( _x );
-  _p->WriteFlipped<u16>( _y );
-  _p->Write<s8>( _z );
+  _p->WriteFlipped<u16>( _pos.x() );
+  _p->WriteFlipped<u16>( _pos.y() );
+  _p->Write<s8>( _pos.z() );
   _p->Write<u8>( _facing );
   _p->WriteFlipped<u16>( _color );
   _p->Write<u8>( _flags );
 }
 
-SendWorldItem::SendWorldItem( u32 serial, u16 graphic, u16 amount, u16 x, u16 y, s8 z, u8 facing,
+SendWorldItem::SendWorldItem( u32 serial, u16 graphic, u16 amount, Core::Pos3d pos, u8 facing,
                               u16 color, u8 flags )
     : PktSender(),
       _p_oldlen( 0 ),
       _serial( serial ),
       _graphic( graphic ),
       _amount( amount ),
-      _x( x ),
-      _y( y ),
-      _z( z ),
+      _pos( std::move( pos ) ),
       _facing( facing ),
       _color( color ),
       _flags( flags ),
@@ -114,14 +112,12 @@ SendWorldItem::SendWorldItem( u32 serial, u16 graphic, u16 amount, u16 x, u16 y,
 {
 }
 
-SendWorldMulti::SendWorldMulti( u32 serial_ext, u16 graphic, u16 x, u16 y, s8 z, u16 color )
+SendWorldMulti::SendWorldMulti( u32 serial_ext, u16 graphic, Core::Pos3d pos, u16 color )
     : PktSender(),
       _p_oldlen( 0 ),
       _serial_ext( serial_ext ),
       _graphic( graphic ),
-      _x( x ),
-      _y( y ),
-      _z( z ),
+      _pos( std::move( pos ) ),
       _color( color ),
       _p_old(),
       _p()
@@ -134,9 +130,9 @@ void SendWorldMulti::build1A()
   _p_old->offset += 2;
   _p_old->Write<u32>( _serial_ext );
   _p_old->WriteFlipped<u16>( _graphic | 0x4000u );
-  _p_old->WriteFlipped<u16>( _x );
-  _p_old->WriteFlipped<u16>( _y );
-  _p_old->Write<s8>( _z );
+  _p_old->WriteFlipped<u16>( _pos.x() );
+  _p_old->WriteFlipped<u16>( _pos.y() );
+  _p_old->Write<s8>( _pos.z() );
   _p_oldlen = _p_old->offset;
   _p_old->offset = 1;
   _p_old->WriteFlipped<u16>( _p_oldlen );
@@ -152,9 +148,9 @@ void SendWorldMulti::buildF3()
   _p->Write<u8>( 0u );
   _p->WriteFlipped<u16>( 0x1u );  // amount
   _p->WriteFlipped<u16>( 0x1u );  // amount
-  _p->WriteFlipped<u16>( _x );
-  _p->WriteFlipped<u16>( _y );
-  _p->Write<s8>( _z );
+  _p->WriteFlipped<u16>( _pos.x() );
+  _p->WriteFlipped<u16>( _pos.y() );
+  _p->Write<s8>( _pos.z() );
   _p->Write<u8>( 0u );  // facing
   _p->WriteFlipped<u16>( _color );
   _p->Write<u8>( 0u );  // flags
@@ -180,14 +176,13 @@ void SendWorldMulti::Send( Client* client )
 }
 
 
-AddItemContainerMsg::AddItemContainerMsg( u32 serial_ext, u16 graphic, u16 amount, u16 x, u16 y,
+AddItemContainerMsg::AddItemContainerMsg( u32 serial_ext, u16 graphic, u16 amount, Core::Pos2d pos,
                                           u8 slotindex, u32 containerserial_ext, u16 color )
     : PktSender(),
       _serial_ext( serial_ext ),
       _graphic( graphic ),
       _amount( amount ),
-      _x( x ),
-      _y( y ),
+      _pos( std::move( pos ) ),
       _slotindex( slotindex ),
       _containerserial_ext( containerserial_ext ),
       _color( color ),
@@ -203,8 +198,8 @@ void AddItemContainerMsg::buildLegacy()
   _p_old->WriteFlipped<u16>( _graphic );
   _p_old->offset++;  // unk7 layer?
   _p_old->WriteFlipped<u16>( _amount );
-  _p_old->WriteFlipped<u16>( _x );
-  _p_old->WriteFlipped<u16>( _y );
+  _p_old->WriteFlipped<u16>( _pos.x() );
+  _p_old->WriteFlipped<u16>( _pos.y() );
   _p_old->Write<u32>( _containerserial_ext );
   _p_old->WriteFlipped<u16>( _color );
 }
@@ -215,8 +210,8 @@ void AddItemContainerMsg::build()
   _p->WriteFlipped<u16>( _graphic );
   _p->offset++;  // unk7 layer?
   _p->WriteFlipped<u16>( _amount );
-  _p->WriteFlipped<u16>( _x );
-  _p->WriteFlipped<u16>( _y );
+  _p->WriteFlipped<u16>( _pos.x() );
+  _p->WriteFlipped<u16>( _pos.y() );
   _p->Write<u8>( _slotindex );
   _p->Write<u32>( _containerserial_ext );
   _p->WriteFlipped<u16>( _color );
@@ -343,14 +338,8 @@ void MobileAnimationMsg::Send( Client* client )
 }
 
 
-PlaySoundPkt::PlaySoundPkt( u8 type, u16 effect, u16 xcenter, u16 ycenter, s16 zcenter )
-    : PktSender(),
-      _type( type ),
-      _effect( effect ),
-      _xcenter( xcenter ),
-      _ycenter( ycenter ),
-      _zcenter( zcenter ),
-      _p()
+PlaySoundPkt::PlaySoundPkt( u8 type, u16 effect, Core::Pos3d pos )
+    : PktSender(), _type( type ), _effect( effect ), _pos( std::move( pos ) ), _p()
 {
 }
 
@@ -367,9 +356,9 @@ void PlaySoundPkt::build()
   _p->Write<u8>( _type );
   _p->WriteFlipped<u16>( _effect );
   _p->offset += 2;  // volume
-  _p->WriteFlipped<u16>( _xcenter );
-  _p->WriteFlipped<u16>( _ycenter );
-  _p->WriteFlipped<s16>( _zcenter );
+  _p->WriteFlipped<u16>( _pos.x() );
+  _p->WriteFlipped<u16>( _pos.y() );
+  _p->WriteFlipped<s16>( _pos.z() );
 }
 
 RemoveObjectPkt::RemoveObjectPkt( u32 serial_ext ) : _serial( serial_ext ), _p() {}
@@ -483,12 +472,8 @@ GraphicEffectPkt::GraphicEffectPkt()
       _src_serial_ext( 0 ),
       _dst_serial_ext( 0 ),
       _effect( 0 ),
-      _xs( 0 ),
-      _ys( 0 ),
-      _zs( 0 ),
-      _xd( 0 ),
-      _yd( 0 ),
-      _zd( 0 ),
+      _src_pos(),
+      _dst_pos(),
       _speed( 0 ),
       _loop( 0 ),
       _explode( 0 ),
@@ -497,19 +482,15 @@ GraphicEffectPkt::GraphicEffectPkt()
 {
 }
 GraphicEffectPkt::GraphicEffectPkt( u8 effect_type, u32 src_serial_ext, u32 dst_serial_ext,
-                                    u16 effect, u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd,
-                                    u8 speed, u8 loop, u8 explode, u8 unk26 )
+                                    u16 effect, Core::Pos3d src_pos, Core::Pos3d dst_pos, u8 speed,
+                                    u8 loop, u8 explode, u8 unk26 )
     : PktSender(),
       _effect_type( effect_type ),
       _src_serial_ext( src_serial_ext ),
       _dst_serial_ext( dst_serial_ext ),
       _effect( effect ),
-      _xs( xs ),
-      _ys( ys ),
-      _zs( zs ),
-      _xd( xd ),
-      _yd( yd ),
-      _zd( zd ),
+      _src_pos( std::move( src_pos ) ),
+      _dst_pos( std::move( dst_pos ) ),
       _speed( speed ),
       _loop( loop ),
       _explode( explode ),
@@ -525,30 +506,24 @@ void GraphicEffectPkt::movingEffect( const Core::UObject* src, const Core::UObje
   _src_serial_ext = src->serial_ext;
   _dst_serial_ext = dst->serial_ext;
   _effect = effect;
-  _xs = src->x;
-  _ys = src->y;
-  _zs = src->z + src->height;
-  _xd = dst->x;
-  _yd = dst->y;
-  _zd = dst->z + dst->height;
+  _src_pos = src->pos().xyz();
+  _src_pos.z( _src_pos.z() + src->height );
+  _dst_pos = dst->pos().xyz();
+  _dst_pos.z( _dst_pos.z() + dst->height );
   _speed = speed;
   _loop = loop;
   _explode = explode;
   _unk26 = 0;
 }
-void GraphicEffectPkt::movingEffect( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect,
-                                     u8 speed, u8 loop, u8 explode )
+void GraphicEffectPkt::movingEffect( Core::Pos3d src_pos, Core::Pos3d dst_pos, u16 effect, u8 speed,
+                                     u8 loop, u8 explode )
 {
   _effect_type = Core::PKTOUT_C0::EFFECT_MOVING;
   _src_serial_ext = 0;
   _dst_serial_ext = 0;
   _effect = effect;
-  _xs = xs;
-  _ys = ys;
-  _zs = zs;
-  _xd = xd;
-  _yd = yd;
-  _zd = zd;
+  _src_pos = std::move( src_pos );
+  _dst_pos = std::move( dst_pos );
   _speed = speed;
   _loop = loop;
   _explode = explode;
@@ -560,12 +535,8 @@ void GraphicEffectPkt::lightningBold( const Core::UObject* center )
   _src_serial_ext = center->serial_ext;
   _dst_serial_ext = 0;
   _effect = 0;
-  _xs = center->x;
-  _ys = center->y;
-  _zs = center->z;
-  _xd = 0;
-  _yd = 0;
-  _zd = 0;
+  _src_pos = center->pos().xyz();
+  _dst_pos = Core::Pos3d( 0, 0, 0 );
   _speed = 0;
   _loop = 0;
   _explode = 0;
@@ -578,31 +549,23 @@ void GraphicEffectPkt::followEffect( const Core::UObject* center, u16 effect, u8
   _src_serial_ext = center->serial_ext;
   _dst_serial_ext = 0;
   _effect = effect;
-  _xs = center->x;
-  _ys = center->y;
-  _zs = center->z;
-  _xd = 0;
-  _yd = 0;
-  _zd = 0;
+  _src_pos = center->pos().xyz();
+  _dst_pos = Core::Pos3d( 0, 0, 0 );
   _speed = speed;
   _loop = loop;
   _explode = 0;
   _unk26 = 0;
 }
 
-void GraphicEffectPkt::stationaryEffect( u16 xs, u16 ys, s8 zs, u16 effect, u8 speed, u8 loop,
+void GraphicEffectPkt::stationaryEffect( Core::Pos3d pos, u16 effect, u8 speed, u8 loop,
                                          u8 explode )
 {
   _effect_type = Core::PKTOUT_C0::EFFECT_FIXEDXYZ;
   _src_serial_ext = 0;
   _dst_serial_ext = 0;
   _effect = effect;
-  _xs = xs;
-  _ys = ys;
-  _zs = zs;
-  _xd = 0;
-  _yd = 0;
-  _zd = 0;
+  _src_pos = std::move( pos );
+  _dst_pos = Core::Pos3d( 0, 0, 0 );
   _speed = speed;
   _loop = loop;
   _explode = explode;
@@ -616,12 +579,12 @@ void GraphicEffectPkt::build()
   _p->Write<u32>( _src_serial_ext );
   _p->Write<u32>( _dst_serial_ext );
   _p->WriteFlipped<u16>( _effect );
-  _p->WriteFlipped<u16>( _xs );
-  _p->WriteFlipped<u16>( _ys );
-  _p->Write<s8>( _zs );
-  _p->WriteFlipped<u16>( _xd );
-  _p->WriteFlipped<u16>( _yd );
-  _p->Write<s8>( _zd );
+  _p->WriteFlipped<u16>( _src_pos.x() );
+  _p->WriteFlipped<u16>( _src_pos.y() );
+  _p->Write<s8>( _src_pos.z() );
+  _p->WriteFlipped<u16>( _dst_pos.x() );
+  _p->WriteFlipped<u16>( _dst_pos.y() );
+  _p->Write<s8>( _dst_pos.z() );
   _p->Write<u8>( _speed );
   _p->Write<u8>( _loop );
   _p->offset += 2;  // unk24,unk25
@@ -643,12 +606,8 @@ GraphicEffectExPkt::GraphicEffectExPkt()
       _src_serial_ext( 0 ),
       _dst_serial_ext( 0 ),
       _effect( 0 ),
-      _xs( 0 ),
-      _ys( 0 ),
-      _zs( 0 ),
-      _xd( 0 ),
-      _yd( 0 ),
-      _zd( 0 ),
+      _src_pos( 0, 0, 0 ),
+      _dst_pos( 0, 0, 0 ),
       _speed( 0 ),
       _duration( 0 ),
       _direction( 0 ),
@@ -664,21 +623,17 @@ GraphicEffectExPkt::GraphicEffectExPkt()
 {
 }
 GraphicEffectExPkt::GraphicEffectExPkt( u8 effect_type, u32 src_serial_ext, u32 dst_serial_ext,
-                                        u16 srcx, u16 srcy, s8 srcz, u16 dstx, u16 dsty, s8 dstz,
-                                        u16 effect, u8 speed, u8 duration, u8 direction, u8 explode,
-                                        u32 hue, u32 render, u16 effect3d, u16 effect3dexplode,
+                                        Core::Pos3d src_pos, Core::Pos3d dst_pos, u16 effect,
+                                        u8 speed, u8 duration, u8 direction, u8 explode, u32 hue,
+                                        u32 render, u16 effect3d, u16 effect3dexplode,
                                         u16 effect3dsound, u32 itemid, u8 layer )
     : PktSender(),
       _effect_type( effect_type ),
       _src_serial_ext( src_serial_ext ),
       _dst_serial_ext( dst_serial_ext ),
       _effect( effect ),
-      _xs( srcx ),
-      _ys( srcy ),
-      _zs( srcz ),
-      _xd( dstx ),
-      _yd( dsty ),
-      _zd( dstz ),
+      _src_pos( std::move( src_pos ) ),
+      _dst_pos( std::move( dst_pos ) ),
       _speed( speed ),
       _duration( duration ),
       _direction( direction ),
@@ -703,12 +658,10 @@ void GraphicEffectExPkt::movingEffect( const Core::UObject* src, const Core::UOb
   _src_serial_ext = src->serial_ext;
   _dst_serial_ext = dst->serial_ext;
   _effect = effect;
-  _xs = src->x;
-  _ys = src->y;
-  _zs = src->z + src->height;
-  _xd = dst->x;
-  _yd = dst->y;
-  _zd = dst->z + dst->height;
+  _src_pos = src->pos().xyz();
+  _src_pos.z( _src_pos.z() + src->height );
+  _dst_pos = dst->pos().xyz();
+  _dst_pos.z( _dst_pos.z() + dst->height );
   _speed = speed;
   _duration = duration;
   _direction = direction;
@@ -721,7 +674,7 @@ void GraphicEffectExPkt::movingEffect( const Core::UObject* src, const Core::UOb
   _itemid = 0;
   _layer = 0xFF;
 }
-void GraphicEffectExPkt::movingEffect( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect,
+void GraphicEffectExPkt::movingEffect( Core::Pos3d src_pos, Core::Pos3d dst_pos, u16 effect,
                                        u8 speed, u8 duration, u32 hue, u32 render, u8 direction,
                                        u8 explode, u16 effect3d, u16 effect3dexplode,
                                        u16 effect3dsound )
@@ -730,12 +683,8 @@ void GraphicEffectExPkt::movingEffect( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8
   _src_serial_ext = 0;
   _dst_serial_ext = 0;
   _effect = effect;
-  _xs = xs;
-  _ys = ys;
-  _zs = zs;
-  _xd = xd;
-  _yd = yd;
-  _zd = zd;
+  _src_pos = std::move( src_pos );
+  _dst_pos = std::move( dst_pos );
   _speed = speed;
   _duration = duration;
   _direction = direction;
@@ -756,12 +705,8 @@ void GraphicEffectExPkt::followEffect( const Core::UObject* center, u16 effect, 
   _src_serial_ext = center->serial_ext;
   _dst_serial_ext = center->serial_ext;
   _effect = effect;
-  _xs = center->x;
-  _ys = center->y;
-  _zs = center->z;
-  _xd = center->x;
-  _yd = center->y;
-  _zd = center->z;
+  _src_pos = center->pos().xyz();
+  _dst_pos = center->pos().xyz();
   _speed = speed;
   _duration = duration;
   _direction = 1;
@@ -775,19 +720,15 @@ void GraphicEffectExPkt::followEffect( const Core::UObject* center, u16 effect, 
   _layer = layer;
 }
 
-void GraphicEffectExPkt::stationaryEffect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 duration,
+void GraphicEffectExPkt::stationaryEffect( Core::Pos3d pos, u16 effect, u8 speed, u8 duration,
                                            u32 hue, u32 render, u16 effect3d )
 {
   _effect_type = Core::PKTOUT_C0::EFFECT_FIXEDXYZ;
   _src_serial_ext = 0;
   _dst_serial_ext = 0;
   _effect = effect;
-  _xs = x;
-  _ys = y;
-  _zs = z;
-  _xd = x;
-  _yd = y;
-  _zd = z;
+  _src_pos = pos;
+  _dst_pos = pos;
   _speed = speed;
   _duration = duration;
   _direction = 1;
@@ -809,12 +750,12 @@ void GraphicEffectExPkt::build()
   _p->Write<u32>( _src_serial_ext );
   _p->Write<u32>( _dst_serial_ext );
   _p->WriteFlipped<u16>( _effect );
-  _p->WriteFlipped<u16>( _xs );
-  _p->WriteFlipped<u16>( _ys );
-  _p->Write<s8>( _zs );
-  _p->WriteFlipped<u16>( _xd );
-  _p->WriteFlipped<u16>( _yd );
-  _p->Write<s8>( _zd );
+  _p->WriteFlipped<u16>( _src_pos.x() );
+  _p->WriteFlipped<u16>( _src_pos.y() );
+  _p->Write<s8>( _src_pos.z() );
+  _p->WriteFlipped<u16>( _dst_pos.x() );
+  _p->WriteFlipped<u16>( _dst_pos.y() );
+  _p->Write<s8>( _dst_pos.z() );
   _p->Write<u8>( _speed );
   _p->Write<u8>( _duration );
   _p->offset += 2;  // u16 unk
@@ -871,9 +812,9 @@ void MoveChrPkt::build()
   _p->offset = 1;
   _p->Write<u32>( _chr->serial_ext );
   _p->WriteFlipped<u16>( _chr->graphic );
-  _p->WriteFlipped<u16>( _chr->x );
-  _p->WriteFlipped<u16>( _chr->y );
-  _p->Write<s8>( _chr->z );
+  _p->WriteFlipped<u16>( _chr->x() );
+  _p->WriteFlipped<u16>( _chr->y() );
+  _p->Write<s8>( _chr->z() );
   _p->Write<u8>( ( _chr->dir & 0x80u ) |
                  _chr->facing );  // NOTE, this only includes mask 0x07 of the last MOVE message
   _p->WriteFlipped<u16>( _chr->color );
