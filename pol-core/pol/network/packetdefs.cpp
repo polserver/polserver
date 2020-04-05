@@ -506,10 +506,8 @@ void GraphicEffectPkt::movingEffect( const Core::UObject* src, const Core::UObje
   _src_serial_ext = src->serial_ext;
   _dst_serial_ext = dst->serial_ext;
   _effect = effect;
-  _src_pos = src->pos().xyz();
-  _src_pos.z( _src_pos.z() + src->height );
-  _dst_pos = dst->pos().xyz();
-  _dst_pos.z( _dst_pos.z() + dst->height );
+  _src_pos = Core::Pos3d( src->pos().xy(), src->z() + src->height );
+  _dst_pos = Core::Pos3d( dst->pos().xy(), dst->z() + dst->height );
   _speed = speed;
   _loop = loop;
   _explode = explode;
@@ -658,10 +656,8 @@ void GraphicEffectExPkt::movingEffect( const Core::UObject* src, const Core::UOb
   _src_serial_ext = src->serial_ext;
   _dst_serial_ext = dst->serial_ext;
   _effect = effect;
-  _src_pos = src->pos().xyz();
-  _src_pos.z( _src_pos.z() + src->height );
-  _dst_pos = dst->pos().xyz();
-  _dst_pos.z( _dst_pos.z() + dst->height );
+  _src_pos = Core::Pos3d( src->pos().xy(), src->z() + src->height );
+  _dst_pos = Core::Pos3d( dst->pos().xy(), dst->z() + dst->height );
   _speed = speed;
   _duration = duration;
   _direction = direction;
