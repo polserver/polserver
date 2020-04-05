@@ -1075,7 +1075,7 @@ void play_lightning_bolt_effect( const UObject* center )
   Network::GraphicEffectPkt msg;
   msg.lightningBold( center );
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center->toplevel_owner(), [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
 void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u8 loop )
@@ -1083,7 +1083,7 @@ void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u
   Network::GraphicEffectPkt msg;
   msg.followEffect( center, effect, speed, loop );
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center->toplevel_owner(), [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
 void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode,

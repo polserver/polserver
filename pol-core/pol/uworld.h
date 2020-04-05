@@ -237,11 +237,13 @@ void WorldIterator<Filter>::InRange( const Pos4d& p, unsigned range, F&& f )
   CoordsArea coords( p, range );
   _forEach( coords, std::forward<F>( f ) );
 }
+
+// Iterates over the items within visual range of the top-level position of this object or its top-level container
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
-  InRange( obj->toplevel_owner()->pos(), RANGE_VISUAL, std::forward<F>( f ) );
+  InRange( obj->toplevel_pos(), RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
