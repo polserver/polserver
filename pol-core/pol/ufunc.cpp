@@ -1607,13 +1607,13 @@ void move_item( Item* item, Plib::UFACING facing )
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Item* item, Pos4d newpos )
+void move_item( Item* item, Pos4d newpos, Pos4d oldpos )
 {
   item->set_dirty();
 
-  Pos4d oldpos = item->pos();
+  //Pos4d oldpos = item->pos();
 
-  item->setposition( std::move( newpos ) );
+  //item->setposition( std::move( newpos ) );
 
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );

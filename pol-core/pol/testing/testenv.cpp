@@ -64,10 +64,7 @@ Item* add_item( unsigned int objtype, unsigned short x, unsigned short y, short 
   Item* item;
   item = Item::create( objtype );
   passert( item );
-  item->x = x;
-  item->y = y;
-  item->z = static_cast<s8>( z );
-  item->realm = Core::gamestate.main_realm;
+  item->setposition( Pol::Core::Pos4d( x, y, static_cast<s8>( z ), Core::gamestate.main_realm ) );
   add_item_to_world( item );
   return item;
 }
@@ -76,10 +73,7 @@ void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short 
 {
   Multi::UMulti* multi = Multi::UMulti::create( find_itemdesc( objtype ) );
   passert( multi );
-  multi->x = x;
-  multi->y = y;
-  multi->z = static_cast<s8>( z );
-  multi->realm = Core::gamestate.main_realm;
+  multi->setposition( Pol::Core::Pos4d( x, y, static_cast<s8>( z ), Core::gamestate.main_realm ) );
   add_multi_to_world( multi );
 }
 

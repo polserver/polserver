@@ -1605,9 +1605,10 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           new_stack = this->remove_part_of_stack( 1 );
 
         Core::Pos4d newpos = Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm );
+        Core::Pos4d oldpos = new_stack->pos();
         new_stack->setposition( newpos );
         add_item_to_world( new_stack );
-        move_item( new_stack, newpos );
+        move_item( new_stack, newpos, oldpos );
         update_item_to_inrange( new_stack );
       }
 
@@ -1629,9 +1630,10 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     new_stack->setamount( amt );
 
     Core::Pos4d newpos = Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm );
+    Core::Pos4d oldpos = new_stack->pos();
     new_stack->setposition( newpos );
     add_item_to_world( new_stack );
-    move_item( new_stack, newpos );
+    move_item( new_stack, newpos, oldpos );
     update_item_to_inrange( new_stack );
 
     if ( amt == item_amount )
@@ -4791,10 +4793,11 @@ ItemGivenEvent::~ItemGivenEvent()
         if ( !backpack->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
           const Core::Pos4d newpos = chr->pos();
+          const Core::Pos4d oldpos = item->pos();
           item->setposition( newpos );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, newpos );
+          move_item( item, newpos, oldpos );
           return;
         }
         backpack->add( item );
@@ -4805,10 +4808,11 @@ ItemGivenEvent::~ItemGivenEvent()
     cont->remove( item );
 
     const Core::Pos4d newpos = chr->pos();
+    const Core::Pos4d oldpos = item->pos();
     item->setposition( newpos );
     add_item_to_world( item );
     register_with_supporting_multi( item );
-    move_item( item, newpos );
+    move_item( item, newpos, oldpos );
   }
 }
 }  // namespace Module

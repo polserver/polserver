@@ -220,7 +220,7 @@ void transmit_to_others_inrange( Mobile::Character* center, const void* msg, uns
 void destroy_item( Items::Item* item );
 
 void move_item( Items::Item* item, Plib::UFACING facing );
-void move_item( Items::Item* item, Pos4d newpos );
+void move_item( Items::Item* item, Pos4d newpos, Pos4d oldpos );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client );

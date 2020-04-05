@@ -459,7 +459,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      move_item( tmpitem, tmpitem->pos(), tmpitem->pos() ); // TODO: Remove this, it's used only for sending a packet about new item.
     }
     else
       backpack->add( tmpitem );
@@ -825,7 +825,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      move_item( tmpitem, tmpitem->pos(), tmpitem->pos() );
     }
     else
       backpack->add( tmpitem );
@@ -1228,7 +1228,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      move_item( tmpitem, tmpitem->pos(), tmpitem->pos() ); // TODO: Remove this. Substitute with a better function.
     }
     else
       backpack->add( tmpitem );
