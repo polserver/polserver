@@ -11,6 +11,7 @@
 #include <string>
 
 #include "../plib/poltype.h"
+#include "base/position.h"
 #include "proplist.h"
 #include "zone.h"
 

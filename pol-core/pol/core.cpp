@@ -58,13 +58,13 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
 
   if ( flags & MOVEITEM_FORCELOCATION )
   {
-    newpos.realm()->walkheight( newpos.xyz(), &newz, &supporting_multi, &walkon_item, true,
-                                chr->movemode, &new_boost );
+    newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &supporting_multi, &walkon_item,
+                                true, chr->movemode, &new_boost );
   }
   else
   {
-    if ( !newpos.realm()->walkheight( chr, newpos.xyz(), &newz, &supporting_multi, &walkon_item,
-                                      &new_boost ) )
+    if ( !newpos.realm()->walkheight( chr, newpos.xy(), newpos.z(), &newz, &supporting_multi,
+                                      &walkon_item, &new_boost ) )
     {
       return false;
     }
