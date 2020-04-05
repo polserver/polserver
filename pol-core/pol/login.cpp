@@ -351,9 +351,9 @@ void send_start( Network::Client* client )
 
       Pos3d coord = gamestate.startlocations[i]->coords[0];
 
-      msg->WriteFlipped<u32>( coord.x );
-      msg->WriteFlipped<u32>( coord.y );
-      msg->WriteFlipped<s32>( coord.z );
+      msg->WriteFlipped<u32>( coord.x() );
+      msg->WriteFlipped<u32>( coord.y() );
+      msg->WriteFlipped<s32>( coord.z() );
       msg->WriteFlipped<u32>( gamestate.startlocations[i]->mapid );        // MapID
       msg->WriteFlipped<u32>( gamestate.startlocations[i]->cliloc_desc );  // Cliloc Description
       msg->offset += 4;
