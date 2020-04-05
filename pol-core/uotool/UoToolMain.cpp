@@ -30,6 +30,7 @@
 #include "../plib/ustruct.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
+#include "../pol/base/vector.h"
 #include "../pol/objtype.h"
 #include <format/format.h>
 
@@ -513,7 +514,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
   {
     for ( short x = multi->minrx; x <= multi->maxrx; ++x )
     {
-      unsigned short key = multi->getkey( x, y );
+      unsigned short key = multi->getkey( Core::Vec2d(x, y) );
       bool external = multi->hull2.count( key ) != 0;
       bool internal = multi->internal_hull2.count( key ) != 0;
       bool origin = ( x == 0 && y == 0 );
