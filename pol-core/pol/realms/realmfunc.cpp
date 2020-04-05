@@ -338,11 +338,11 @@ void Realm::readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned sh
 
 
 // new Z given new X, Y, and old Z.
-bool Realm::walkheight( const Core::Pos3d& pos, short* newz, Multi::UMulti** pmulti,
+bool Realm::walkheight( const Core::Pos2d& newpos, short oldz, short* newz, Multi::UMulti** pmulti,
                         Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                         short* gradual_boost )
 {
-  if ( pos.x() >= width() || pos.y() >= height() )
+  if ( new_pos.x() >= width() || new_pos.y() >= height() )
   {
     return false;
   }
@@ -354,15 +354,15 @@ bool Realm::walkheight( const Core::Pos3d& pos, short* newz, Multi::UMulti** pmu
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos.xy(), walkon_items, doors_block /* true */ );
+  readdynamics( shapes, newpos, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
-  readmultis( shapes, pos.xy(), flags, mvec );
-  getmapshapes( shapes, pos.xy(), flags );
+  readmultis( shapes, newpos, flags, mvec );
+  getmapshapes( shapes, newpos, flags );
 
   bool result;
-  standheight( movemode, shapes, pos.z(), &result, newz, gradual_boost );
+  standheight( movemode, shapes, oldz, &result, newz, gradual_boost );
 
   if ( result && ( pwalkon != nullptr ) )
   {
@@ -391,10 +391,10 @@ bool Realm::walkheight( const Core::Pos3d& pos, short* newz, Multi::UMulti** pmu
 // new Z given new X, Y, and old Z.
 // dave: todo: return false if walking onto a custom house and not in the list of editing players,
 // and no cmdlevel
-bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos3d& pos, short* newz,
+bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos, short oldz, short* newz,
                         Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost )
 {
-  if ( pos.x() >= width() || pos.y() >= height() )
+  if ( newpos.x() >= width() || newpos.y() >= height() )
   {
     return false;
   }
@@ -410,11 +410,11 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos3d& pos, sh
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( chr->movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
-  readmultis( shapes, pos.xy(), flags, mvec );
-  getmapshapes( shapes, pos.xy(), flags );
+  readmultis( shapes, newpos, flags, mvec );
+  getmapshapes( shapes, newpos, flags );
 
   bool result;
-  standheight( chr->movemode, shapes, pos.z(), &result, newz, gradual_boost );
+  standheight( chr->movemode, shapes, oldz, &result, newz, gradual_boost );
 
   if ( result && ( pwalkon != nullptr ) )
   {

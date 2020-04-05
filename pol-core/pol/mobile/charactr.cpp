@@ -271,9 +271,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // MOVEMENT
       dir( 0 ),
       gradual_boost( 0 ),
-      lastx( 0 ),
-      lasty( 0 ),
-      lastz( 0 ),
+      lastxyz( 0, 0, 0 ),
       move_reason( OTHER ),
       movemode( Plib::MOVEMODE_LAND ),
       // COMBAT
@@ -2068,7 +2066,7 @@ void Character::resurrect()
   if ( equip_death_robe )
   {
     Items::Item* death_robe = create_death_robe();
-    death_robe->realm = realm;
+    death_robe->setposition( this->pos() );
     equip( death_robe );
   }
 
@@ -2090,13 +2088,13 @@ void Character::resurrect()
   // Tell other connected players, if in range, about this character.
   send_remove_character_to_nearby_cansee( this );
   send_create_mobile_to_nearby_cansee( this );
-  realm->notify_resurrected( *this );
+  this->realm()->notify_resurrected( *this );
 }
 
 void Character::on_death( Items::Item* corpse )
 {
   Items::Item* death_shroud = create_death_shroud();
-  death_shroud->realm = realm;
+  death_shroud->setposition( this->pos() );
   if ( equippable( death_shroud ) )  // check it or passert will trigger
   {
     equip( death_shroud );
@@ -2221,10 +2219,7 @@ void Character::die()
   UPDATE_CHECKPOINT();
 
   corpse->color = truecolor;
-  corpse->x = x;
-  corpse->y = y;
-  corpse->z = z;
-  corpse->realm = realm;
+  corpse->setposition( this->pos() );
   corpse->facing = facing;
   corpse->corpsetype = save_graphic;
   // corpse->dir = dir;
@@ -2249,12 +2244,12 @@ void Character::die()
     corpse->add( copy );
   };
   auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
-    _item->x = corpse->x;
-    _item->y = corpse->y;
-    _item->z = corpse->z;
+    _item->setposition( corpse->pos() );
     add_item_to_world( _item );
     register_with_supporting_multi( _item );
-    move_item( _item, corpse->x, corpse->y, corpse->z, nullptr );
+    move_item( _item, _item->pos(),
+               corpse->pos() );  // TODO: Remove this. It needs to be a proper packet update to
+                                 // nearby. Items will never be somewhere else.
   };
 
   // WARNING: never ever touch or be 10000% sure what you are doing!!!!
@@ -2769,7 +2764,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
           msginvul.Send( client );
       }
     }
-    else if ( Core::inrange( zonechr->x, zonechr->y, chr->lastx, chr->lasty ) )
+    else if ( Core::inrange( zonechr->x(), zonechr->y(), chr->lastxyz.x(), chr->lastxyz.y() ) )
     {
       msgmove.Send( client );
       if ( chr->poisoned() )
@@ -2789,7 +2784,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
 
   // iter over all old in range players and send remove
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastx, chr->lasty, chr->realm, RANGE_VISUAL, [&]( Character* zonechr ) {
+      chr->lastxyz.xy(), chr->realm(), RANGE_VISUAL, [&]( Character* zonechr ) {
         Client* client = zonechr->client;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -2802,10 +2797,11 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 }
 
+// TODO: Remove this method once Pos4d knows how to move and cleanup the npcmod code.
 void Character::getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py )
 {
-  *px = x + Core::move_delta[i_facing].xmove;
-  *py = y + Core::move_delta[i_facing].ymove;
+  *px = this->x() + Core::move_delta[i_facing].xmove;
+  *py = this->y() + Core::move_delta[i_facing].ymove;
 }
 
 void Character::swing_task_func( Character* chr )
@@ -2938,7 +2934,7 @@ bool Character::is_attackable( Character* who ) const
       return false;
     else if ( is_concealed_from_me( who ) )
       return false;
-    else if ( !realm->has_los( *this, *who ) )
+    else if ( !this->realm()->has_los( *this, *who ) )
       return false;
     else
       return true;
@@ -3085,7 +3081,7 @@ void Character::select_opponent( u32 opp_serial )
     Character* new_opponent = Core::find_character( opp_serial );
     if ( new_opponent != nullptr )
     {
-      if ( realm != new_opponent->realm )
+      if ( this->realm() != new_opponent->realm() )
         return;
       set_opponent( new_opponent );
     }
@@ -3469,7 +3465,7 @@ void Character::check_light_region_change()
   else
   {
     // dave 12-22 check for no regions
-    Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( x, y, realm );
+    Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( this->pos() );
     if ( light_region != nullptr )
       newlightlevel = light_region->lightlevel;
     else
@@ -3486,8 +3482,7 @@ void Character::check_light_region_change()
 void Character::check_justice_region_change()
 {
   Core::JusticeRegion* cur_justice_region = client->gd->justice_region;
-  Core::JusticeRegion* new_justice_region =
-      Core::gamestate.justicedef->getregion( x, y, client->chr->realm );
+  Core::JusticeRegion* new_justice_region = Core::gamestate.justicedef->getregion( this->pos() );
 
   if ( cur_justice_region != new_justice_region )
   {
@@ -3553,7 +3548,7 @@ void Character::check_justice_region_change()
 void Character::check_music_region_change()
 {
   Core::MusicRegion* cur_music_region = client->gd->music_region;
-  Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( x, y, realm );
+  Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( this->pos() );
 
   // may want to consider changing every n minutes, too, even if region didn't change
   if ( cur_music_region != new_music_region )
@@ -3575,7 +3570,7 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
                                                            // changed type/intensity
 {
   Core::WeatherRegion* cur_weather_region = client->gd->weather_region;
-  Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( x, y, realm );
+  Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( this->pos() );
 
   // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has no
   // weather region,
@@ -3627,10 +3622,7 @@ void Character::check_region_changes()
 
 void Character::position_changed()
 {
-  wornitems->x = x;
-  wornitems->y = y;
-  wornitems->z = z;
-  wornitems->realm = realm;
+  wornitems->setposition( this->pos() );
 }
 
 void Character::unhide()
@@ -3655,7 +3647,7 @@ void Character::unhide()
       send_owncreate( chr->client, this );
     } );
 
-    realm->notify_unhid( *this );
+    this->realm()->notify_unhid( *this );
   }
 }
 
@@ -3761,18 +3753,21 @@ bool Character::CustomHousingMove( unsigned char i_dir )
       }
       else
       {
-        s8 newz = house->z +
-                  Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
-        u16 newx = x + Core::move_delta[facing].xmove;
-        u16 newy = y + Core::move_delta[facing].ymove;
+        const Core::Pos4d oldpos = this->pos();
+        Core::Pos4d newpos = oldpos;
+        newpos.z( house->z() +
+                  Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
+        newpos += Core::Vec2d( Core::move_delta[facing].xmove, Core::move_delta[facing].ymove );
+
         const Multi::MultiDef& def = house->multidef();
-        if ( newx > ( house->x + def.minrx ) && newx <= ( house->x + def.maxrx ) &&
-             newy > ( house->y + def.minry ) && newy <= ( house->y + def.maxry ) )
+        const Core::Vec2d rxy = ( newpos - house->pos() ).xy();
+        /*if ( newx > ( house->x + def.minrx ) && newx <= ( house->x + def.maxrx ) &&
+             newy > ( house->y + def.minry ) && newy <= ( house->y + def.maxry ) )*/
+        if ( def.is_within_multi( rxy ) )  // NOTE: This changes to newx >= (min...) and newy >=
+                                           // (min...) instead of ">". Recheck this.
         {
-          x = static_cast<u16>( newx );
-          y = static_cast<u16>( newy );
-          z = static_cast<s8>( newz );
-          MoveCharacterWorldPosition( lastx, lasty, x, y, this, nullptr );
+          this->setposition( newpos );
+          MoveCharacterWorldPosition( oldpos, this );
 
           position_changed();
           set_dirty();
@@ -3794,9 +3789,8 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
-  lastx = x;
-  lasty = y;
-  lastz = z;
+  const Core::Pos4d oldpos = this->pos();
+  this->lastxyz = oldpos.xyz();
 
   // if currently building a house chr can move free inside the multi
   if ( is_house_editing() )
@@ -3816,24 +3810,26 @@ bool Character::move( unsigned char i_dir )
     {
       short new_z;
       u8 tmp_facing = ( facing + 1 ) & 0x7;
-      unsigned short tmp_newx = x + Core::move_delta[tmp_facing].xmove;
-      unsigned short tmp_newy = y + Core::move_delta[tmp_facing].ymove;
+      Core::Pos2d tmp_pos = this->pos().xy() + Core::Vec2d( Core::move_delta[tmp_facing].xmove,
+                                                            Core::move_delta[tmp_facing].ymove );
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
       bool walk1 =
-          realm->walkheight( this, tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, nullptr );
+          this->realm()->walkheight( this, tmp_pos, this->z(), &new_z, nullptr, nullptr, nullptr );
 
       tmp_facing = ( facing - 1 ) & 0x7;
-      tmp_newx = x + Core::move_delta[tmp_facing].xmove;
-      tmp_newy = y + Core::move_delta[tmp_facing].ymove;
+      tmp_pos = this->pos().xy() + Core::Vec2d( Core::move_delta[tmp_facing].xmove,
+                                                Core::move_delta[tmp_facing].ymove );
 
-      if ( !walk1 &&
-           !realm->walkheight( this, tmp_newx, tmp_newy, z, &new_z, nullptr, nullptr, nullptr ) )
+      if ( !walk1 && !this->realm()->walkheight( this, tmp_pos, this->z(), &new_z, nullptr, nullptr,
+                                                 nullptr ) )
         return false;
     }
 
-    unsigned short newx = x + Core::move_delta[facing].xmove;
-    unsigned short newy = y + Core::move_delta[facing].ymove;
+    /*unsigned short newx = x + Core::move_delta[facing].xmove;
+    unsigned short newy = y + Core::move_delta[facing].ymove;*/
+    Core::Pos4d newpos =
+        this->pos() + Core::Vec2d( Core::move_delta[facing].xmove, Core::move_delta[facing].ymove );
 
     // FIXME consider consolidating with similar code in UOEMOD.CPP
     short newz;
@@ -3841,9 +3837,12 @@ bool Character::move( unsigned char i_dir )
     Items::Item* walkon_item;
 
     short current_boost = gradual_boost;
-    if ( !realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item,
-                             &current_boost ) )
+    if ( !this->realm()->walkheight( this, newpos.xy(), newpos.z(), &newz, &supporting_multi,
+                                     &walkon_item, &current_boost ) )
       return false;
+
+    // update z
+    newpos.z( newz );
 
     remote_containers_.clear();
 
@@ -3867,9 +3866,7 @@ bool Character::move( unsigned char i_dir )
     if ( !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
 
-    x = static_cast<u16>( newx );
-    y = static_cast<u16>( newy );
-    z = static_cast<s8>( newz );
+    this->setposition( newpos );
 
     if ( on_mount() && !script_isa( Core::POLCLASS_NPC ) )
     {
@@ -3902,7 +3899,7 @@ bool Character::move( unsigned char i_dir )
     }
 
     gradual_boost = current_boost;
-    MoveCharacterWorldPosition( lastx, lasty, x, y, this, nullptr );
+    MoveCharacterWorldPosition( oldpos, this );
 
     position_changed();
     if ( walkon_item != nullptr )
@@ -3922,10 +3919,10 @@ bool Character::move( unsigned char i_dir )
 
     if ( Core::gamestate.system_hooks.ouch_hook )
     {
-      if ( ( lastz - z ) > 21 )
+      if ( ( oldpos.z() - this->z() ) > 21 )
         Core::gamestate.system_hooks.ouch_hook->call(
-            make_mobileref( this ), new Bscript::BLong( lastx ), new Bscript::BLong( lasty ),
-            new Bscript::BLong( lastz ) );
+            make_mobileref( this ), new Bscript::BLong( oldpos.x() ),
+            new Bscript::BLong( oldpos.y() ), new Bscript::BLong( oldpos.z() ) );
     }
   }
 
@@ -3953,16 +3950,19 @@ void Character::realm_changed()
   // not be a worn item?  If this is the case, that will be broken.
   //  backpack()->realm = realm;
   //  backpack()->for_each_item(setrealm, (void*)realm);
-  wornitems->for_each_item( Core::setrealm, (void*)realm );
+
+  // NOTE: Items without a realm are in a special state (not really in the world). So we shouldn't
+  // update those here. I hope that is true.
+  /*wornitems->for_each_item( Core::setrealm, (void*)realm() );
   if ( has_gotten_item() )
-    gotten_item()->realm = realm;
+    gotten_item()->realm = realm();
   if ( trading_cont.get() )
-    trading_cont->realm = realm;
+    trading_cont->realm = realm();*/
 
   if ( has_active_client() )
   {
     // these are important to keep here in this order
-    Core::send_realm_change( client, realm );
+    Core::send_realm_change( client, this->realm() );
     Core::send_map_difs( client );
     if ( Core::settingsManager.ssopt.core_sends_season )
       Core::send_season_info( client );
@@ -3975,13 +3975,15 @@ bool Character::CheckPushthrough()
 {
   if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook )
   {
-    unsigned short newx = x + Core::move_delta[facing].xmove;
-    unsigned short newy = y + Core::move_delta[facing].ymove;
+    Core::Pos4d newpos =
+        this->pos() + Core::Vec2d( Core::move_delta[facing].xmove, Core::move_delta[facing].ymove );
+
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newx, newy, realm, 0, [&]( Mobile::Character* _chr ) {
-          if ( _chr->z >= z - 10 && _chr->z <= z + 10 && !_chr->dead() &&
+        newpos.xy(), this->realm(), 0, [&]( Mobile::Character* _chr ) {
+          if ( _chr->z() >= ( this->z() - 10 ) && _chr->z() <= ( this->z() + 10 ) &&
+               !_chr->dead() &&
                ( is_visible_to_me( _chr ) ||
                  _chr->hidden() ) )  // add hidden mobs even if they're not visible to me
           {
@@ -4008,7 +4010,7 @@ void Character::tellmove()
 
   // notify npcs and items (maybe the PropagateMove should also go there eventually? - Nando
   // 2018-06-16)
-  realm->notify_moved( *this );
+  this->realm()->notify_moved( *this );
 
   check_attack_after_move();
 
@@ -4071,9 +4073,7 @@ bool Character::mightsee( const Items::Item* item ) const
       return true;
   }
 
-
-  return ( ( item->realm == realm ) && ( abs( x - item->x ) <= RANGE_VISUAL ) &&
-           ( abs( y - item->y ) <= RANGE_VISUAL ) );
+  return this->pos().pol_distance( item->pos() ) <= RANGE_VISUAL;
 }
 
 bool Character::squelched() const
@@ -4171,7 +4171,7 @@ void Character::create_trade_container()
   if ( trading_cont.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
-    cont->realm = realm;
+    cont->setposition( this->pos() );
     trading_cont.set( static_cast<Core::UContainer*>( cont ) );
   }
 }
@@ -4356,8 +4356,8 @@ size_t Character::estimatedSize() const
 
 void Character::on_delete_from_account()
 {
-  if ( realm )
-    realm->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
+  if ( this->realm() )
+    this->realm()->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
 
 bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,

@@ -101,10 +101,10 @@ public:
   unsigned int toplevel_item_count() const;
   unsigned int multi_count() const;
 
-  bool walkheight( const Core::Pos3d& pos, short* newz, Multi::UMulti** pmulti,
+  bool walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::UMulti** pmulti,
                    Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                    short* gradual_boost = nullptr );
-  bool walkheight( const Mobile::Character* chr, const Core::Pos3d& pos, short* newz,
+  bool walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, short oldz, short* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost = nullptr );
 
   bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,

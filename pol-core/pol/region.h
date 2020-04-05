@@ -108,6 +108,7 @@ class RegionGroup : public RegionGroupBase
 public:
   explicit RegionGroup( const char* name );
 
+  virtual T* getregion( Pos4d pos );
   virtual T* getregion( xcoord x, ycoord y, Realms::Realm* realm );
   virtual T* getregion( const std::string& regionname );
 
@@ -118,6 +119,12 @@ protected:
 template <class T>
 RegionGroup<T>::RegionGroup( const char* name ) : RegionGroupBase( name )
 {
+}
+
+template <class T>
+inline T* RegionGroup<T>::getregion( Pos4d pos )
+{
+  return static_cast<T*>( getregion_byloc( pos.x(), pos.y(), pos.realm() ) );
 }
 
 template <class T>
