@@ -151,7 +151,7 @@ bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
   if ( anchor.enabled && !warmode() )
   {
     unsigned short curdist = pos().xy().pol_distance( anchor.pos );
-    unsigned short newdist = newpos().xy().pol_distance( anchor.pos );
+    unsigned short newdist = newpos.xy().pol_distance( anchor.pos );
     if ( newdist > curdist )  // if we're moving further away, see if we can
     {
       if ( newdist > anchor.dstart )

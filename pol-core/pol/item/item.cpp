@@ -61,10 +61,7 @@ Item* Item::clone() const
   Item* item = Item::create( objtype_ );
   item->color = color;
   item->graphic = graphic;
-  item->x = x;
-  item->y = y;
-  item->z = z;
-  item->realm = realm;
+  item->setposition( pos() );
   item->facing = facing;
   item->setamount( amount_ );
   item->layer = layer;

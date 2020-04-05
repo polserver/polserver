@@ -98,7 +98,7 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
     if ( !chr->has_active_client() )
       return new BError( "Mobile has no active client" );
 
-    if ( chr->realm != obj->realm )
+    if ( chr->realm() != obj->toplevel_realm() )
       return new BError( "Cannot print messages across realms!" );
 
     if ( text->length() > SPEECH_MAX_LEN )
