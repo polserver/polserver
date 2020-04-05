@@ -845,14 +845,11 @@ inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::St
   if ( item == nullptr || item->orphan() )
     return;
   // For now, it just saves the item in items.txt
-  item->x = chr->x;
-  item->y = chr->y;
-  item->z = chr->z;
-  item->realm = chr->realm;
 
+  Pos4d oldpos = item->pos();
+  item->setposition( chr->pos() );
   item->printOn( sw );
-
-  item->x = item->y = item->z = 0;
+  item->setposition( oldpos );
 }
 
 void write_characters( Core::SaveContext& sc )
