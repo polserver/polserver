@@ -391,8 +391,9 @@ bool Realm::walkheight( const Core::Pos2d& newpos, short oldz, short* newz, Mult
 // new Z given new X, Y, and old Z.
 // dave: todo: return false if walking onto a custom house and not in the list of editing players,
 // and no cmdlevel
-bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos, short oldz, short* newz,
-                        Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost )
+bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos, short oldz,
+                        short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
+                        short* gradual_boost )
 {
   if ( newpos.x() >= width() || newpos.y() >= height() )
   {
@@ -512,14 +513,8 @@ bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, s
 }
 
 
-bool Realm::dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz,
-                        short* newz, Multi::UMulti** pmulti )
+bool Realm::dropheight( const Core::Pos4d& pos, short chrz, short* newz, Multi::UMulti** pmulti )
 {
-  if ( dropx >= width() || dropy >= height() )
-  {
-    return false;
-  }
-
   static Plib::MapShapeList shapes;
   static MultiList mvec;
   static Core::ItemsVector ivec;

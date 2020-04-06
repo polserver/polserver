@@ -111,8 +111,7 @@ public:
                           Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
                           Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
 
-  bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
-                   Multi::UMulti** pmulti );
+  bool dropheight( const Core::Pos4d& pos, short chrz, short* newz, Multi::UMulti** pmulti );
 
   bool has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const;
 
