@@ -835,14 +835,8 @@ void NPC::inform_moved( Character* moved )
     passert( moved != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
-      // egcs may have a compiler bug when calling these as inlines
-      bool are_inrange =
-          ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
-
-      // inrangex_inline( this, moved, ex->area_size );
-      bool were_inrange = ( abs( x - moved->lastx ) <= ex->area_size ) &&
-                          ( abs( y - moved->lasty ) <= ex->area_size );
-
+      bool are_inrange = pos().inRange( moved->pos(), ex->area_size );
+      bool were_inrange = pos().inRange( moved->lastxyz, ex->area_size );
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( moved ) )
       {
@@ -883,13 +877,8 @@ void NPC::inform_imoved( Character* chr )
     passert( chr != nullptr );
     if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
     {
-      // egcs may have a compiler bug when calling these as inlines
-      bool are_inrange =
-          ( abs( x - chr->x ) <= ex->area_size ) && ( abs( y - chr->y ) <= ex->area_size );
-
-      // inrangex_inline( this, moved, ex->area_size );
-      bool were_inrange =
-          ( abs( lastx - chr->x ) <= ex->area_size ) && ( abs( lasty - chr->y ) <= ex->area_size );
+      bool are_inrange = pos().inRange( chr->pos(), ex->area_size );
+      bool were_inrange = pos().inRange( chr->lastxyz, ex->area_size );
 
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( chr ) )
