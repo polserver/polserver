@@ -162,7 +162,7 @@ public:
   Pos4d& xyz( Pos3d xyz );
   //  Pos4d& realm( Realms::Realm* realm ); // removed on purpose
 
-  void move( Plib::UFACING dir );
+  Pos4d move( Plib::UFACING dir ) const;
 
   bool inRange( const Pos4d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;

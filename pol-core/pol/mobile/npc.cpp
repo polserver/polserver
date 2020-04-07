@@ -145,8 +145,7 @@ const char* NPC::classname() const
 
 bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
 {
-  Core::Pos4d newpos = pos();
-  newpos.move( fdir );
+  Core::Pos4d newpos = pos().move( fdir );
 
   if ( anchor.enabled && !warmode() )
   {
@@ -175,28 +174,26 @@ bool NPC::could_move( Plib::UFACING fdir ) const
   // Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)
   if ( fdir & 1 )  // check if diagonal movement is allowed -- Nando (2009-02-26)
   {
-    u8 tmp_facing = ( fdir + 1 ) & 0x7;
-    unsigned short tmp_newx = x + Core::move_delta[tmp_facing].xmove;
-    unsigned short tmp_newy = y + Core::move_delta[tmp_facing].ymove;
+    auto tmp_facing = static_cast<Plib::UFACING>( ( fdir + 1 ) & 0x7 );
+    Core::Pos4d tmp_pos = pos().move( tmp_facing );
 
     // needs to save because if only one direction is blocked, it shouldn't block ;)
     short current_boost = gradual_boost;
-    bool walk1 = realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
-                                    &walkon_item, &current_boost );
+    bool walk1 = realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz, &supporting_multi,
+                                      &walkon_item, &current_boost );
 
-    tmp_facing = ( fdir - 1 ) & 0x7;
-    tmp_newx = x + Core::move_delta[tmp_facing].xmove;
-    tmp_newy = y + Core::move_delta[tmp_facing].ymove;
+    tmp_facing = static_cast<Plib::UFACING>( ( fdir - 1 ) & 0x7 );
+    tmp_pos = pos().move( tmp_facing );
     current_boost = gradual_boost;
-    if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
-                                       &walkon_item, &current_boost ) )
+    if ( !walk1 && !realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz, &supporting_multi,
+                                         &walkon_item, &current_boost ) )
       return false;
   }
-  unsigned short newx = x + Core::move_delta[fdir].xmove;
-  unsigned short newy = y + Core::move_delta[fdir].ymove;
+
+  Core::Pos4d new_pos = pos().move( fdir );
   short current_boost = gradual_boost;
-  return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item,
-                            &current_boost ) &&
+  return realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
+                              &walkon_item, &current_boost ) &&
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
@@ -206,28 +203,27 @@ bool NPC::npc_path_blocked( Plib::UFACING fdir ) const
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
     return false;
 
-  unsigned short newx = x + Core::move_delta[fdir].xmove;
-  unsigned short newy = y + Core::move_delta[fdir].ymove;
+  Core::Pos4d new_pos = pos().move( fdir );
 
-  unsigned short wx, wy;
-  Core::zone_convert( newx, newy, realm, &wx, &wy );
+  Core::Pos2d zone_pos = zone_convert( new_pos );
 
+  // TODO: this should be an WorldIteration variant with early out
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
-    for ( const auto& chr : realm->zone[wx][wy].characters )
+    for ( const auto& chr : realm()->zone[zone_pos.x()][zone_pos.y()].characters )
     {
       // First check if there really is a character blocking
-      if ( chr->x == newx && chr->y == newy && chr->z >= z - 10 && chr->z <= z + 10 )
+      if ( chr->pos().xy() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
       {
         if ( !chr->dead() && is_visible_to_me( chr ) )
           return true;
       }
     }
   }
-  for ( const auto& chr : realm->zone[wx][wy].npcs )
+  for ( const auto& chr : realm()->zone[zone_pos.x()][zone_pos.y()].npcs )
   {
     // First check if there really is a character blocking
-    if ( chr->x == newx && chr->y == newy && chr->z >= z - 10 && chr->z <= z + 10 )
+    if ( chr->pos().xy() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
     {
       // Check first with the ssopt false to now allow npcs of same master running on top of
       // each other
@@ -351,8 +347,8 @@ void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
   sw() << "# template: " << template_.name << pf_endl;
   if ( anchor.enabled )
   {
-    sw() << "# anchor: x=" << anchor.x << " y=" << anchor.y << " dstart=" << anchor.dstart
-         << " psub=" << anchor.psub << pf_endl;
+    sw() << "# anchor: x=" << anchor.pos.x() << " y=" << anchor.pos.y()
+         << " dstart=" << anchor.dstart << " psub=" << anchor.psub << pf_endl;
   }
 }
 

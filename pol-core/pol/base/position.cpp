@@ -387,11 +387,10 @@ Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs )
   return lhs.xyz() - rhs.xyz();
 }
 
-void Pos4d::move( Plib::UFACING dir )
+Pos4d Pos4d::move( Plib::UFACING dir ) const
 {
   // TODO: move_delta should be a Vec2d
-  _xyz += Vec2d( Core::move_delta[dir].xmove, Core::move_delta[dir].ymove );
-  _xyz.crop( _realm );
+  return *this + Vec2d( Core::move_delta[dir].xmove, Core::move_delta[dir].ymove );
 }
 
 u16 Pos4d::pol_distance( const Pos4d& other ) const
