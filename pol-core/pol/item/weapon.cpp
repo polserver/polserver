@@ -466,7 +466,7 @@ bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Characte
                          << "dist:   " << dist << "\n"
                          << "minrange: " << WEAPON_TMPL->minrange << "\n"
                          << "maxrange: " << WEAPON_TMPL->maxrange << "\n"
-                         << "has_los:  " << wielder->realm->has_los( *wielder, *target ) << "\n";
+                         << "has_los:  " << wielder->realm()->has_los( *wielder, *target ) << "\n";
   return ( dist >= WEAPON_TMPL->minrange && dist <= WEAPON_TMPL->maxrange &&
            wielder->realm()->has_los( *wielder, *target ) );
 }

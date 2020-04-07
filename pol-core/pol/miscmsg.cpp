@@ -438,9 +438,9 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );
-        outMsg->WriteFlipped<u16>( member->x );
-        outMsg->WriteFlipped<u16>( member->y );
-        outMsg->Write<u8>( member->realm->getUOMapID() );
+        outMsg->WriteFlipped<u16>( member->x() );
+        outMsg->WriteFlipped<u16>( member->y() );
+        outMsg->Write<u8>( member->realm()->getUOMapID() );
       }
 
       if ( outMsg->offset != 4 )  // only send if there is an update
@@ -478,9 +478,9 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         outMsg->Write<u32>( member->serial_ext );
         if ( locations )
         {
-          outMsg->WriteFlipped<u16>( member->x );
-          outMsg->WriteFlipped<u16>( member->y );
-          outMsg->Write<u8>( member->realm->getUOMapID() );
+          outMsg->WriteFlipped<u16>( member->x() );
+          outMsg->WriteFlipped<u16>( member->y() );
+          outMsg->Write<u8>( member->realm()->getUOMapID() );
 
           if ( member->dead() )
             outMsg->Write<u8>( 0U );
