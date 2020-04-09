@@ -12,8 +12,8 @@
 
 #include <string>
 
+#include "../base/position.h"
 #include "../polmodl.h"
-#include "../../plib/uconst.h"
 #include "../reftypes.h"
 
 namespace Pol
@@ -88,12 +88,12 @@ protected:
   Bscript::BObjectImp* mf_SetWarMode();
   Bscript::BObjectImp* mf_SetAnchor();
 
-  Bscript::BObjectImp* move_self( Plib::UFACING facing, bool run, bool adjust_ok = false );
+  Bscript::BObjectImp* move_self( Core::UFACING facing, bool run, bool adjust_ok = false );
 
   virtual size_t sizeEstimate() const override;
 
 private:
-  bool _internal_move( Plib::UFACING facing, int run );
+  bool _internal_move( Core::UFACING facing, int run );
 };
 }  // namespace Module
 }  // namespace Pol

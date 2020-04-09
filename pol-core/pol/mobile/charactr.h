@@ -400,10 +400,8 @@ public:
   bool on_mount() const;
   static Plib::MOVEMODE decode_movemode( const std::string& str );
   static std::string encode_movemode( Plib::MOVEMODE movemode );
-  // if a move were made, what would the new position be?
-  void getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py );
-  bool can_face( Plib::UFACING i_facing );
-  bool face( Plib::UFACING i_facing, int flags = 0 );
+  bool can_face( Core::UFACING i_facing );
+  bool face( Core::UFACING i_facing, int flags = 0 );
   bool move( unsigned char dir );
   bool CustomHousingMove( unsigned char i_dir );
   void tellmove( void );

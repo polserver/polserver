@@ -14,6 +14,25 @@ class Realm;
 }
 namespace Core
 {
+/* Character Facings:
+    N^
+    7 0 1
+    6 * 2
+    5 4 3
+*/
+
+enum UFACING : u8
+{
+  FACING_N = 0,
+  FACING_NE = 1,
+  FACING_E = 2,
+  FACING_SE = 3,
+  FACING_S = 4,
+  FACING_SW = 5,
+  FACING_W = 6,
+  FACING_NW = 7
+};
+
 class Pos2d
 {
   u16 _x;
@@ -162,12 +181,15 @@ public:
   Pos4d& xyz( Pos3d xyz );
   //  Pos4d& realm( Realms::Realm* realm ); // removed on purpose
 
-  Pos4d move( Plib::UFACING dir ) const;
+  Pos4d move( UFACING dir ) const;
 
   bool inRange( const Pos4d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;
 
   u16 pol_distance( const Pos4d& other ) const;
+
+  UFACING direction_toward( const Pos4d& other ) const;
+  UFACING direction_away( const Pos4d& other ) const;
 
 private:
   u16 cropX( u16 x ) const;

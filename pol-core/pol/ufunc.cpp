@@ -1558,7 +1558,7 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
 }
 
 
-void move_item( Item* item, Plib::UFACING facing )
+void move_item( Item* item, UFACING facing )
 {
   u16 oldx = item->x;
   u16 oldy = item->y;

@@ -45,7 +45,6 @@
 #include "../item/armor.h"
 #include "../item/weapon.h"
 #include "../listenpt.h"
-#include "../mdelta.h"
 #include "../module/npcmod.h"
 #include "../module/uomod.h"
 #include "../multi/multi.h"
@@ -143,7 +142,7 @@ const char* NPC::classname() const
 }
 
 
-bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
+bool NPC::anchor_allows_move( Core::UFACING fdir ) const
 {
   Core::Pos4d newpos = pos().move( fdir );
 
@@ -166,7 +165,7 @@ bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
   return true;
 }
 
-bool NPC::could_move( Plib::UFACING fdir ) const
+bool NPC::could_move( Core::UFACING fdir ) const
 {
   short newz;
   Multi::UMulti* supporting_multi;
@@ -174,7 +173,7 @@ bool NPC::could_move( Plib::UFACING fdir ) const
   // Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)
   if ( fdir & 1 )  // check if diagonal movement is allowed -- Nando (2009-02-26)
   {
-    auto tmp_facing = static_cast<Plib::UFACING>( ( fdir + 1 ) & 0x7 );
+    auto tmp_facing = static_cast<Core::UFACING>( ( fdir + 1 ) & 0x7 );
     Core::Pos4d tmp_pos = pos().move( tmp_facing );
 
     // needs to save because if only one direction is blocked, it shouldn't block ;)
@@ -182,7 +181,7 @@ bool NPC::could_move( Plib::UFACING fdir ) const
     bool walk1 = realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz, &supporting_multi,
                                       &walkon_item, &current_boost );
 
-    tmp_facing = static_cast<Plib::UFACING>( ( fdir - 1 ) & 0x7 );
+    tmp_facing = static_cast<Core::UFACING>( ( fdir - 1 ) & 0x7 );
     tmp_pos = pos().move( tmp_facing );
     current_boost = gradual_boost;
     if ( !walk1 && !realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz, &supporting_multi,
@@ -197,7 +196,7 @@ bool NPC::could_move( Plib::UFACING fdir ) const
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
-bool NPC::npc_path_blocked( Plib::UFACING fdir ) const
+bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 {
   if ( can_freemove() ||
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )

@@ -136,7 +136,6 @@ set (pol_sources  # sorted !
   lockable.h
   login.cpp
   los.h
-  mdelta.h
   menu.cpp
   menu.h
   menusel.cpp

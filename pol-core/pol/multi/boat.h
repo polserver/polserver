@@ -126,7 +126,7 @@ public:
   virtual ~UBoat(){};
   virtual size_t estimatedSize() const override;
 
-  bool move( Plib::UFACING dir, u8 speed, bool relative );
+  bool move( Core::UFACING dir, u8 speed, bool relative );
   bool move_xy( unsigned short x, unsigned short y, int flags, Realms::Realm* oldrealm );
 
   enum RELATIVE_DIR
@@ -140,11 +140,11 @@ public:
 
   virtual void register_object( Core::UObject* obj ) override;
   virtual void unregister_object( Core::UObject* obj ) override;
-  Plib::UFACING boat_facing() const;
+  Core::UFACING boat_facing() const;
 
-  void send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u8 speed, u16 newx,
+  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx,
                          u16 newy, bool relative );
-  void send_smooth_move_to_inrange( Plib::UFACING move_dir, u8 speed, u16 newx, u16 newy,
+  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy,
                                     bool relative );
   void send_display_boat( Network::Client* client );
   void send_display_boat_to_inrange( u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
@@ -183,7 +183,7 @@ public:
   Items::Item* hold;
 
 protected:
-  void move_travellers( enum Plib::UFACING move_dir, const BoatContext& oldlocation,
+  void move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation,
                         unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
                         Realms::Realm* oldrealm = nullptr );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );

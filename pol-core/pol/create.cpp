@@ -322,7 +322,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
 
   chr->setposition( Pos4d( coord, realm ) );
-  chr->facing = Plib::FACING_W;
+  chr->facing = Core::FACING_W;
   chr->position_changed();
 
   bool valid_stats = false;
@@ -459,7 +459,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos(), tmpitem->pos() ); // TODO: Remove this, it's used only for sending a packet about new item.
+      move_item( tmpitem, tmpitem->pos(), tmpitem->pos() );  // TODO: Remove this, it's used only
+                                                             // for sending a packet about new item.
     }
     else
       backpack->add( tmpitem );
@@ -667,7 +668,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   chr->setposition( Pos4d( coord, realm ) );
   chr->position_changed();
-  chr->facing = Plib::FACING_W;
+  chr->facing = Core::FACING_W;
 
   bool valid_stats = false;
   unsigned int stat_total = msg->strength + msg->intelligence + msg->dexterity;
@@ -1044,7 +1045,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   chr->setposition( Pos4d( coord, realm ) );
   chr->position_changed();
-  chr->facing = Plib::FACING_W;
+  chr->facing = Core::FACING_W;
 
   bool valid_stats = false;
   unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
@@ -1228,7 +1229,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos(), tmpitem->pos() ); // TODO: Remove this. Substitute with a better function.
+      move_item( tmpitem, tmpitem->pos(),
+                 tmpitem->pos() );  // TODO: Remove this. Substitute with a better function.
     }
     else
       backpack->add( tmpitem );

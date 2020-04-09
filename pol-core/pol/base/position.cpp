@@ -1,9 +1,9 @@
 #include "position.h"
 
-#include "../mdelta.h"
 #include "../realms/realm.h"
 
 #include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <limits>
 #include <tuple>
@@ -14,6 +14,17 @@ namespace Core
 {
 namespace
 {
+const std::array<Vec2d, 8> move_delta = {{{0, -1},   // 0 is N
+                                          {+1, -1},  // 1 is NE
+                                          {+1, 0},   // ...
+                                          {+1, +1},
+                                          {0, +1},
+                                          {-1, +1},
+                                          {-1, 0},
+                                          {-1, -1}}};
+const std::array<UFACING, 8> away_cvt = {FACING_S, FACING_SW, FACING_W, FACING_NW,
+                                         FACING_N, FACING_NE, FACING_E, FACING_SE};
+
 s8 clip_s8( int v )
 {
   return static_cast<s8>(
@@ -387,10 +398,9 @@ Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs )
   return lhs.xyz() - rhs.xyz();
 }
 
-Pos4d Pos4d::move( Plib::UFACING dir ) const
+Pos4d Pos4d::move( UFACING dir ) const
 {
-  // TODO: move_delta should be a Vec2d
-  return *this + Vec2d( Core::move_delta[dir].xmove, Core::move_delta[dir].ymove );
+  return *this + move_delta[dir];
 }
 
 u16 Pos4d::pol_distance( const Pos4d& other ) const
@@ -409,5 +419,40 @@ bool Pos4d::inRange( const Pos3d& other, u16 range ) const
 }
 
 
+UFACING Pos4d::direction_toward( const Pos4d& dst ) const
+{
+  if ( x() < dst.x() )  // East to target
+  {
+    if ( y() < dst.y() )
+      return FACING_SE;
+    else if ( y() == dst.y() )
+      return FACING_E;
+    else /* y() > dst.y() */
+      return FACING_NE;
+  }
+  else if ( x() == dst.x() )
+  {
+    if ( y() < dst.y() )
+      return FACING_S;
+    else if ( y() > dst.y() )
+      return FACING_N;
+  }
+  else /* x() > dst.x() */  // West to target
+  {
+    if ( y() < dst.y() )
+      return FACING_SW;
+    else if ( y() == dst.y() )
+      return FACING_W;
+    else /* y() > dst.y() */
+      return FACING_NW;
+  }
+  return FACING_N;
+}
+
+UFACING Pos4d::direction_away( const Pos4d& dst ) const
+{
+  UFACING toward = direction_toward( dst );
+  return away_cvt[static_cast<int>( toward )];
+}
 }  // namespace Core
 }  // namespace Pol

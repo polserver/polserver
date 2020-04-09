@@ -121,7 +121,6 @@
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
 #include "../layers.h"
-#include "../mdelta.h"
 #include "../miscrgn.h"
 #include "../mkscrobj.h"
 #include "../module/uomod.h"
@@ -2796,13 +2795,6 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 }
 
-// TODO: Remove this method once Pos4d knows how to move and cleanup the npcmod code.
-void Character::getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py )
-{
-  *px = this->x() + Core::move_delta[i_facing].xmove;
-  *py = this->y() + Core::move_delta[i_facing].ymove;
-}
-
 void Character::swing_task_func( Character* chr )
 {
   THREAD_CHECKPOINT( tasks, 800 );
@@ -3676,7 +3668,7 @@ bool Character::doors_block() const
     We're sending the "78 create" _before_ the move-approve.
     */
 
-bool Character::can_face( Plib::UFACING /*i_facing*/ )
+bool Character::can_face( Core::UFACING /*i_facing*/ )
 {
   if ( can_freemove() )
     return true;
@@ -3704,7 +3696,7 @@ bool Character::can_face( Plib::UFACING /*i_facing*/ )
 }
 
 
-bool Character::face( Plib::UFACING i_facing, int flags )
+bool Character::face( Core::UFACING i_facing, int flags )
 {
   if ( ( flags & 1 ) == 0 )
   {
@@ -3742,7 +3734,7 @@ bool Character::CustomHousingMove( unsigned char i_dir )
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr )
     {
-      Plib::UFACING i_facing = static_cast<Plib::UFACING>( i_dir & PKTIN_02_FACING_MASK );
+      auto i_facing = static_cast<Core::UFACING>( i_dir & PKTIN_02_FACING_MASK );
       if ( i_facing != facing )
       {
         setfacing( static_cast<u8>( i_facing ) );
@@ -3753,10 +3745,9 @@ bool Character::CustomHousingMove( unsigned char i_dir )
       else
       {
         const Core::Pos4d oldpos = this->pos();
-        Core::Pos4d newpos = oldpos;
+        Core::Pos4d newpos = oldpos.move( static_cast<Core::UFACING>( facing ) );
         newpos.z( house->z() +
                   Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
-        newpos += Core::Vec2d( Core::move_delta[facing].xmove, Core::move_delta[facing].ymove );
 
         const Multi::MultiDef& def = house->multidef();
         const Core::Vec2d rxy = ( newpos - house->pos() ).xy();
@@ -3797,7 +3788,7 @@ bool Character::move( unsigned char i_dir )
 
   u8 oldFacing = facing;
 
-  Plib::UFACING i_facing = static_cast<Plib::UFACING>( i_dir & PKTIN_02_FACING_MASK );
+  auto i_facing = static_cast<Core::UFACING>( i_dir & PKTIN_02_FACING_MASK );
   if ( !face( i_facing ) )
     return false;
 
@@ -3808,27 +3799,22 @@ bool Character::move( unsigned char i_dir )
     if ( facing & 1 )  // check if diagonal movement is allowed -- Nando (2009-02-26)
     {
       short new_z;
-      u8 tmp_facing = ( facing + 1 ) & 0x7;
-      Core::Pos2d tmp_pos = this->pos().xy() + Core::Vec2d( Core::move_delta[tmp_facing].xmove,
-                                                            Core::move_delta[tmp_facing].ymove );
+      auto tmp_facing = static_cast<Core::UFACING>( ( facing + 1 ) & 0x7 );
+      Core::Pos2d tmp_pos = this->pos().move( tmp_facing ).xy();
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
       bool walk1 =
           this->realm()->walkheight( this, tmp_pos, this->z(), &new_z, nullptr, nullptr, nullptr );
 
-      tmp_facing = ( facing - 1 ) & 0x7;
-      tmp_pos = this->pos().xy() + Core::Vec2d( Core::move_delta[tmp_facing].xmove,
-                                                Core::move_delta[tmp_facing].ymove );
+      tmp_facing = static_cast<Core::UFACING>( ( facing - 1 ) & 0x7 );
+      tmp_pos = this->pos().move( tmp_facing ).xy();
 
       if ( !walk1 && !this->realm()->walkheight( this, tmp_pos, this->z(), &new_z, nullptr, nullptr,
                                                  nullptr ) )
         return false;
     }
 
-    /*unsigned short newx = x + Core::move_delta[facing].xmove;
-    unsigned short newy = y + Core::move_delta[facing].ymove;*/
-    Core::Pos4d newpos =
-        this->pos() + Core::Vec2d( Core::move_delta[facing].xmove, Core::move_delta[facing].ymove );
+    Core::Pos4d newpos = this->pos().move( static_cast<Core::UFACING>( facing ) );
 
     // FIXME consider consolidating with similar code in UOEMOD.CPP
     short newz;
@@ -3974,8 +3960,7 @@ bool Character::CheckPushthrough()
 {
   if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook )
   {
-    Core::Pos4d newpos =
-        this->pos() + Core::Vec2d( Core::move_delta[facing].xmove, Core::move_delta[facing].ymove );
+    Core::Pos4d newpos = this->pos().move( static_cast<Core::UFACING>( facing ) );
 
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 

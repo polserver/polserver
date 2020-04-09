@@ -30,26 +30,6 @@ enum URACE : u8
   RACE_GARGOYLE = 2
 };
 
-/* Character Facings:
-    N^
-    7 0 1
-    6 * 2
-    5 4 3
-    */
-
-enum UFACING : u8
-{
-  FACING_N = 0,
-  FACING_NE = 1,
-  FACING_E = 2,
-  FACING_SE = 3,
-  FACING_S = 4,
-  FACING_SW = 5,
-  FACING_W = 6,
-  FACING_NW = 7
-};
-
-
 enum UTEXTTYPE : u8
 {
   TEXTTYPE_NORMAL = 0x00,
