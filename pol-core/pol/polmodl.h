@@ -62,8 +62,7 @@ protected:
   bool getAttributeParam( unsigned param, const Mobile::Attribute*& attr );
   bool getVitalParam( unsigned param, const Vital*& vital );
 
-  // TODO: optional realm pointer for error when not valid?
-  bool getRealmParam( unsigned param, const Realms::Realm** realm );
+  bool getRealmParam( unsigned param, Realms::Realm** realm );
   bool getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
                       const Realms::Realm* realm = nullptr );
   bool getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos,

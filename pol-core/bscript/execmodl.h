@@ -68,6 +68,8 @@ public:
   bool getParam( unsigned param, unsigned short& value, unsigned short maxval );
   bool getParam( unsigned param, unsigned short& value, unsigned short minval,
                  unsigned short maxval );
+  
+  bool getParam( unsigned param, signed char& value );
 
   const std::string& scriptname() const;
   Executor& exec;

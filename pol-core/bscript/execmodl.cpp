@@ -108,6 +108,11 @@ bool ExecutorModule::getParam( unsigned param, unsigned short& value, unsigned s
   return exec.getParam( param, value, minval, maxval );
 }
 
+bool ExecutorModule::getParam( unsigned param, signed char& value )
+{
+  return exec.getParam( param, value );
+}
+
 const std::string& ExecutorModule::scriptname() const
 {
   return exec.prog_->name;
