@@ -26,6 +26,10 @@ namespace Multi
 class UBoat;
 class UMulti;
 }  // namespace Multi
+namespace Realms
+{
+class Realm;
+}
 namespace Network
 {
 class Client;
@@ -59,12 +63,14 @@ protected:
   bool getVitalParam( unsigned param, const Vital*& vital );
 
   // TODO: optional realm pointer for error when not valid?
-  bool getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos );
-  bool getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos );
-  // TODO: Pos4d? some cmds check for valid coordinates other ignore it on purpose. and in case of 2
-  // coords we only have one realm param
+  bool getRealmParam( unsigned param, const Realms::Realm** realm );
+  bool getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
+                      const Realms::Realm* realm = nullptr );
+  bool getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos,
+                      const Realms::Realm* realm = nullptr );
+  bool getPos4dParam( unsigned xparam, unsigned yparam, unsigned zparam, unsigned realmparam,
+                      Pos4d* pos );
 };
 }  // namespace Core
 }  // namespace Pol
-
 #endif

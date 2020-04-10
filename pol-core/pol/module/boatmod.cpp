@@ -45,11 +45,10 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
 {
   Multi::UBoat* boat = nullptr;
   Core::Pos2d pos;
-  if ( getUBoatParam( 0, boat ) && getPos2dParam( 1, 2, &pos ) )
+  if ( getUBoatParam( 0, boat ) && getPos2dParam( 1, 2, &pos, boat->realm() ) )
   {
-    if ( !boat->realm()->valid( Core::Pos3d( pos, 0 ) ) )
-      return new Bscript::BError( "Invalid Coordinates for Realm" );
-    return new Bscript::BLong( boat->move_xy( pos, 0 ) );
+    return new Bscript::BLong(
+        boat->move_xy( Core::Pos4d( pos, boat->z(), boat->realm() ), boat->pos(), 0 ) );
   }
   else
   {

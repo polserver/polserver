@@ -22,6 +22,8 @@
 #include "mobile/charactr.h"
 #include "multi/multi.h"
 #include "network/client.h"
+#include "realms.h"
+#include "realms/realm.h"
 #include "uobject.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
@@ -100,19 +102,39 @@ bool PolModule::getVitalParam( unsigned param, const Vital*& vital )
 {
   return uoexec().getVitalParam( param, vital );
 }
+bool PolModule::getRealmParam( unsigned param, const Realms::Realm** realm )
+{
+  const Bscript::String* realm_name;
+  if ( !getStringParam( param, realm_name ) )
+    return false;
+  *realm = find_realm( realm_name->value() );
+  if ( !realm )
+  {
+    setFunctionResult( new Bscript::BError( "Realm not found." ) );
+    return false;
+  }
+  return true;
+}
 
-bool PolModule::getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos )
+bool PolModule::getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
+                               const Realms::Realm* realm )
 {
   u16 x;
   u16 y;
   if ( getParam( xparam, x ) && getParam( yparam, y ) )
   {
     *pos = Pos2d( x, y );
+    if ( realm && !realm->valid( Pos3d( *pos, 0 ) ) )
+    {
+      setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
+      return false;
+    }
     return true;
   }
   return false;
 }
-bool PolModule::getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos )
+bool PolModule::getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos,
+                               const Realms::Realm* realm )
 {
   u16 x;
   u16 y;
@@ -120,6 +142,31 @@ bool PolModule::getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam
   if ( getParam( xparam, x ) && getParam( yparam, y ) && getParam( zparam, z ) )
   {
     *pos = Pos3d( x, y, z );
+    if ( realm && !realm->valid( *pos ) )
+    {
+      setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+bool PolModule::getPos4dParam( unsigned xparam, unsigned yparam, unsigned zparam,
+                               unsigned realmparam, Pos4d* pos )
+{
+  u16 x;
+  u16 y;
+  s8 z;
+  Realms::Realm* realm;
+  if ( getParam( xparam, x ) && getParam( yparam, y ) && getParam( zparam, z ) && getRealmParam(realmparam, &realm)
+  {
+    Pos3d p( x, y, z );
+    if ( !realm->valid( p ) )
+    {
+      setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
+      return false;
+    }
+    *pos = Pos4d( p, realm );
     return true;
   }
   return false;

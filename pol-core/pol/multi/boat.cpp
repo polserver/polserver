@@ -1181,29 +1181,24 @@ void UBoat::do_tellmoves()
 }
 
 // dave 3/26/3 added
-bool UBoat::move_xy( const Core::Pos2d& pos, int flags)
+bool UBoat::move_xy( const Core::Pos4d& newpos, const Core::Pos4d& oldpos, int flags )
 {
-  //TODO: removed oldrealm it doesnt change here
   bool result;
   BoatMoveGuard registerguard( this );
 
-  if ( ( flags & Core::MOVEITEM_FORCELOCATION ) || navigable( multidef(), newx, newy, z, realm ) )
+  if ( ( flags & Core::MOVEITEM_FORCELOCATION ) || navigable( multidef(), newpos ) )
   {
     BoatContext bc( *this );
 
     set_dirty();
-    move_multi_in_world( x, y, newx, newy, this, oldrealm );
+    setposition( newpos );
+    move_multi_in_world( oldpos, this );
 
-    u16 oldx = x;
-    u16 oldy = y;
-    x = newx;
-    y = newy;
-
-    move_travellers( Plib::FACING_N, bc, newx, newy,
-                     oldrealm );  // facing is ignored if params 3 & 4 are not USHRT_MAX
-    move_components( oldrealm );
+    move_travellers( Plib::FACING_N, bc, newpos,
+                     oldpos );  // facing is ignored if params 3 & 4 are not USHRT_MAX
+    move_components( oldpos );
     // NOTE, send_boat_to_inrange pauses those it sends to.
-    send_display_boat_to_inrange( oldx, oldy );
+    send_display_boat_to_inrange( oldpos );
     // send_boat_to_inrange( this, oldx, oldy );
     do_tellmoves();
     unpause_paused();
