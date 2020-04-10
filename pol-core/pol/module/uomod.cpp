@@ -5501,9 +5501,9 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
       return new BError( "Realm not found." );
     else if ( !realm->valid( x, y, z ) )
       return new BError( "Invalid coordinates for realm." );
-    Plib::UFACING dir;
+    Core::UFACING dir;
     if ( y2_ == -1 )
-      dir = static_cast<Plib::UFACING>( x2_or_dir & 0x7 );
+      dir = static_cast<Core::UFACING>( x2_or_dir & 0x7 );
     else
     {
       if ( !realm->valid( static_cast<xcoord>( x2_or_dir ), static_cast<ycoord>( y2_ ), 0 ) )

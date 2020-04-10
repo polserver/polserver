@@ -2501,7 +2501,7 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     }
     return new BLong( carrying_capacity_mod() );
   case MBR_FACING:
-    if ( !face( static_cast<Plib::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
+    if ( !face( static_cast<Core::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
       return new BLong( 0 );
     on_facing_changed();
     return new BLong( 1 );
@@ -3135,7 +3135,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   case MTH_SETFACING:
   {
     int flags = 0;
-    Plib::UFACING i_facing;
+    Core::UFACING i_facing;
 
     if ( ex.hasParams( 2 ) && !ex.getParam( 1, flags, 0, 1 ) )
       return new BError( "Invalid flags for parameter 1" );
@@ -3150,7 +3150,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     else if ( param0->isa( BObjectImp::OTLong ) )
     {
       BLong* blong = static_cast<BLong*>( param0 );
-      i_facing = static_cast<Plib::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+      i_facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
     }
     else
       return new BError( "Invalid type for parameter 0" );
