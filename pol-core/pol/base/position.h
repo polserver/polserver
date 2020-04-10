@@ -63,6 +63,8 @@ public:
   Pos2d& x( u16 x );
   Pos2d& y( u16 y );
 
+  Vec2d from_origin() const;
+
   u16 pol_distance( const Pos2d& other ) const;
   void crop( const Realms::Realm* realm );
 };
@@ -113,6 +115,8 @@ public:
   Pos3d& y( u16 y );
   Pos3d& z( s8 z );
   Pos3d& xy( Pos2d xy );
+
+  Vec3d from_origin() const;
 
   u16 pol_distance( const Pos3d& other ) const;
   void crop( const Realms::Realm* realm );
@@ -203,8 +207,7 @@ Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos4d& rhs );
 Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs );
-//Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs ); // TODO: think if this one makes sense
-
+// Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs ); // TODO: think if this one makes sense
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
 
@@ -243,6 +246,12 @@ inline s8 Pos3d::z() const
 {
   return _z;
 }
+inline Vec2d Pos2d::from_origin() const
+{
+  return *this - Core::Pos2d( 0, 0 );
+}
+
+
 inline const Pos2d& Pos3d::xy() const
 {
   return _xy;
@@ -268,7 +277,10 @@ inline Pos3d& Pos3d::xy( Pos2d xy )
   _xy = std::move( xy );
   return *this;
 }
-
+inline Vec3d Pos3d::from_origin() const
+{
+  return *this - Core::Pos3d( 0, 0, 0 );
+}
 
 inline Pos4d::Pos4d( u16 x, u16 y, s8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )
 {
