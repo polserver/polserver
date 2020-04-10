@@ -127,7 +127,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
-  bool move_xy( unsigned short x, unsigned short y, int flags, Realms::Realm* oldrealm );
+  bool move_xy( const Core::Pos2d& pos, int flags );
 
   enum RELATIVE_DIR
   {

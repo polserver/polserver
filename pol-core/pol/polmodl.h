@@ -2,6 +2,7 @@
 #define POL_POLMODL_H
 
 #include "../bscript/execmodl.h"
+#include "base/position.h"
 #include "skillid.h"
 
 namespace Pol
@@ -56,6 +57,12 @@ protected:
   bool getSkillIdParam( unsigned param, USKILLID& skillid );
   bool getAttributeParam( unsigned param, const Mobile::Attribute*& attr );
   bool getVitalParam( unsigned param, const Vital*& vital );
+
+  // TODO: optional realm pointer for error when not valid?
+  bool getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos );
+  bool getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos );
+  // TODO: Pos4d? some cmds check for valid coordinates other ignore it on purpose. and in case of 2
+  // coords we only have one realm param
 };
 }  // namespace Core
 }  // namespace Pol

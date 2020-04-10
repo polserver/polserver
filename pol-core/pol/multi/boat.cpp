@@ -1181,8 +1181,9 @@ void UBoat::do_tellmoves()
 }
 
 // dave 3/26/3 added
-bool UBoat::move_xy( unsigned short newx, unsigned short newy, int flags, Realms::Realm* oldrealm )
+bool UBoat::move_xy( const Core::Pos2d& pos, int flags)
 {
+  //TODO: removed oldrealm it doesnt change here
   bool result;
   BoatMoveGuard registerguard( this );
 

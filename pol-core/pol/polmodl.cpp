@@ -101,5 +101,28 @@ bool PolModule::getVitalParam( unsigned param, const Vital*& vital )
   return uoexec().getVitalParam( param, vital );
 }
 
+bool PolModule::getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos )
+{
+  u16 x;
+  u16 y;
+  if ( getParam( xparam, x ) && getParam( yparam, y ) )
+  {
+    *pos = Pos2d( x, y );
+    return true;
+  }
+  return false;
+}
+bool PolModule::getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos )
+{
+  u16 x;
+  u16 y;
+  s8 z;
+  if ( getParam( xparam, x ) && getParam( yparam, y ) && getParam( zparam, z ) )
+  {
+    *pos = Pos3d( x, y, z );
+    return true;
+  }
+  return false;
+}
 }  // namespace Core
 }  // namespace Pol

@@ -32,10 +32,9 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 {
   Multi::UBoat* boat = nullptr;
   int direction, speed;
-  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) &&
-       getParam( 2, speed, 1, 4 ) )
+  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) && getParam( 2, speed, 1, 4 ) )
   {
-    Plib::UFACING move_dir = static_cast<Plib::UFACING>( direction & 7 );
+    Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
     boat->move( move_dir, static_cast<u8>( speed ), false );
     return new Bscript::BLong( 1 );
   }
@@ -45,12 +44,12 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
 {
   Multi::UBoat* boat = nullptr;
-  unsigned short x, y;
-  if ( getUBoatParam( 0, boat ) &&
-       getParam( 1, x, 0, static_cast<u16>( boat->realm->width() ) ) &&
-       getParam( 2, y, 0, static_cast<u16>( boat->realm->height() ) ) )
+  Core::Pos2d pos;
+  if ( getUBoatParam( 0, boat ) && getPos2dParam( 1, 2, &pos ) )
   {
-    return new Bscript::BLong( boat->move_xy( x, y, 0, boat->realm ) );
+    if ( !boat->realm()->valid( Core::Pos3d( pos, 0 ) ) )
+      return new Bscript::BError( "Invalid Coordinates for Realm" );
+    return new Bscript::BLong( boat->move_xy( pos, 0 ) );
   }
   else
   {
@@ -78,10 +77,9 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative()
 {
   Multi::UBoat* boat = nullptr;
   int direction, speed;
-  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) &&
-       getParam( 2, speed, 1, 4 ) )
+  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) && getParam( 2, speed, 1, 4 ) )
   {
-    Plib::UFACING move_dir = static_cast<Plib::UFACING>( direction & 7 );
+    Core::UFACING move_dir = static_cast<Core::UFACING>( direction & 7 );
     boat->move( move_dir, static_cast<u8>( speed ), true );
     return new Bscript::BLong( 1 );
   }
