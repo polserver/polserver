@@ -203,7 +203,7 @@ Vec2d operator-( const Pos4d& lhs, const Pos2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos4d& rhs );
 Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs );
-Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs );
+//Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs ); // TODO: think if this one makes sense
 
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}

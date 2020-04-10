@@ -393,10 +393,10 @@ Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs )
 {
   return lhs - rhs.xyz();
 }
-Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs )
+/*Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs )
 {
   return lhs.xyz() - rhs.xyz();
-}
+}*/
 
 Pos4d Pos4d::move( UFACING dir ) const
 {
