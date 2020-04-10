@@ -187,7 +187,7 @@ public:
   bool inRange( const Pos3d& other, u16 range ) const;
 
   u16 pol_distance( const Pos4d& other ) const;
-
+  // TODO: should take Pos2d since no realm check happens
   UFACING direction_toward( const Pos4d& other ) const;
   UFACING direction_away( const Pos4d& other ) const;
 
