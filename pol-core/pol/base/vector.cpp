@@ -21,7 +21,7 @@ s16 clip_s16( int v )
 
 bool Vec2d::operator==( const Vec2d& other ) const
 {
-  return std::tie( _x, _y ) == std::tie( other._x, other._y );
+  return _x == other._x && _y == other._y;
 }
 bool Vec2d::operator!=( const Vec2d& other ) const
 {
@@ -29,19 +29,19 @@ bool Vec2d::operator!=( const Vec2d& other ) const
 }
 bool Vec2d::operator<( const Vec2d& other ) const
 {
-  return std::tie( _x, _y ) < std::tie( other._x, other._y );
+  return _x < other._x && _y < other._y;
 }
 bool Vec2d::operator>( const Vec2d& other ) const
 {
-  return std::tie( _x, _y ) > std::tie( other._x, other._y );
+  return _x > other._x && _y > other._y;
 }
 bool Vec2d::operator<=( const Vec2d& other ) const
 {
-  return std::tie( _x, _y ) <= std::tie( other._x, other._y );
+  return _x <= other._x && _y <= other._y;
 }
 bool Vec2d::operator>=( const Vec2d& other ) const
 {
-  return std::tie( _x, _y ) >= std::tie( other._x, other._y );
+  return _x >= other._x && _y >= other._y;
 }
 
 Vec2d& Vec2d::operator-=( const Vec2d& other )
@@ -74,7 +74,7 @@ Vec2d operator+( Vec2d lhs, const Vec2d& rhs )
 
 bool Vec3d::operator==( const Vec3d& other ) const
 {
-  return std::tie( _xy, _z ) == std::tie( other._xy, other._z );
+  return _xy == other._xy && _z == other._z;
 }
 bool Vec3d::operator!=( const Vec3d& other ) const
 {
@@ -82,19 +82,19 @@ bool Vec3d::operator!=( const Vec3d& other ) const
 }
 bool Vec3d::operator<( const Vec3d& other ) const
 {
-  return std::tie( _xy, _z ) < std::tie( other._xy, other._z );
+  return _xy < other._xy && _z < other._z;
 }
 bool Vec3d::operator>( const Vec3d& other ) const
 {
-  return std::tie( _xy, _z ) > std::tie( other._xy, other._z );
+  return _xy > other._xy && _z > other._z;
 }
 bool Vec3d::operator<=( const Vec3d& other ) const
 {
-  return std::tie( _xy, _z ) <= std::tie( other._xy, other._z );
+  return _xy <= other._xy && _z <= other._z;
 }
 bool Vec3d::operator>=( const Vec3d& other ) const
 {
-  return std::tie( _xy, _z ) >= std::tie( other._xy, other._z );
+  return _xy >= other._xy && _z >= other._z;
 }
 bool Vec3d::operator==( const Vec2d& other ) const
 {

@@ -46,7 +46,7 @@ u16 clip_u16( int v )
 
 bool Pos2d::operator==( const Pos2d& other ) const
 {
-  return std::tie( _x, _y ) == std::tie( other._x, other._y );
+  return _x == other._x && _y == other._y;
 }
 bool Pos2d::operator!=( const Pos2d& other ) const
 {
@@ -54,19 +54,19 @@ bool Pos2d::operator!=( const Pos2d& other ) const
 }
 bool Pos2d::operator<( const Pos2d& other ) const
 {
-  return std::tie( _x, _y ) < std::tie( other._x, other._y );
+  return _x < other._x && _y < other._y;
 }
 bool Pos2d::operator>( const Pos2d& other ) const
 {
-  return std::tie( _x, _y ) > std::tie( other._x, other._y );
+  return _x > other._x && _y > other._y;
 }
 bool Pos2d::operator<=( const Pos2d& other ) const
 {
-  return std::tie( _x, _y ) <= std::tie( other._x, other._y );
+  return _x <= other._x && _y <= other._y;
 }
 bool Pos2d::operator>=( const Pos2d& other ) const
 {
-  return std::tie( _x, _y ) >= std::tie( other._x, other._y );
+  return _x >= other._x && _y >= other._y;
 }
 
 Pos2d& Pos2d::operator-=( const Vec2d& other )
@@ -121,7 +121,7 @@ void Pos2d::crop( const Realms::Realm* realm )
 
 bool Pos3d::operator==( const Pos3d& other ) const
 {
-  return std::tie( _xy, _z ) == std::tie( other._xy, other._z );
+  return _xy == other._xy && _z == other._z;
 }
 bool Pos3d::operator!=( const Pos3d& other ) const
 {
@@ -129,19 +129,19 @@ bool Pos3d::operator!=( const Pos3d& other ) const
 }
 bool Pos3d::operator<( const Pos3d& other ) const
 {
-  return std::tie( _xy, _z ) < std::tie( other._xy, other._z );
+  return _xy < other._xy && _z < other._z;
 }
 bool Pos3d::operator>( const Pos3d& other ) const
 {
-  return std::tie( _xy, _z ) > std::tie( other._xy, other._z );
+  return _xy > other._xy && _z > other._z;
 }
 bool Pos3d::operator<=( const Pos3d& other ) const
 {
-  return std::tie( _xy, _z ) <= std::tie( other._xy, other._z );
+  return _xy <= other._xy && _z <= other._z;
 }
 bool Pos3d::operator>=( const Pos3d& other ) const
 {
-  return std::tie( _xy, _z ) >= std::tie( other._xy, other._z );
+  return _xy >= other._xy && _z >= other._z;
 }
 bool Pos3d::operator==( const Pos2d& other ) const
 {
@@ -253,7 +253,7 @@ u16 Pos4d::cropY( u16 y ) const
 
 bool Pos4d::operator==( const Pos4d& other ) const
 {
-  return std::tie( _xyz, _realm ) == std::tie( other._xyz, other._realm );
+  return _xyz == other._xyz && _realm == other._realm;
 }
 bool Pos4d::operator!=( const Pos4d& other ) const
 {
