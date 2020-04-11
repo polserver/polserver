@@ -59,12 +59,12 @@ unsigned char flags_from_tileflags( unsigned int uoflags );
 
 namespace Realms
 {
-bool Realm::lowest_standheight( unsigned short x, unsigned short y, short* z ) const
+bool Realm::lowest_standheight( const Core::Pos2d& newpos, short* z ) const
 {
   static Plib::MapShapeList vec;
   vec.clear();
   getmapshapes(
-      vec, x, y,
+      vec, newpos,
       Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA | Plib::FLAG::BLOCKING | Plib::FLAG::GRADUAL );
 
   bool res = true;
@@ -407,7 +407,7 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos,
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos.xy(), walkon_items, chr->doors_block() );
+  readdynamics( shapes, newpos, walkon_items, chr->doors_block() );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( chr->movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -462,11 +462,11 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos,
 }
 
 
-bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
+bool Realm::lowest_walkheight( const Core::Pos2d& newpos, short oldz, short* newz,
                                Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
                                Plib::MOVEMODE movemode, short* gradual_boost )
 {
-  if ( x >= width() || y >= height() )
+  if ( newpos.x() >= width() || newpos.y() >= height() )
   {
     return false;
   }
@@ -478,12 +478,12 @@ bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, s
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, x, y, walkon_items, doors_block /* true */ );
+  readdynamics( shapes, newpos, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
-  readmultis( shapes, x, y, flags, mvec );
-  getmapshapes( shapes, x, y, flags );
+  readmultis( shapes, newpos, flags, mvec );
+  getmapshapes( shapes, newpos, flags );
 
   bool result;
   lowest_standheight( movemode, shapes, oldz, &result, newz, gradual_boost );
@@ -513,7 +513,8 @@ bool Realm::lowest_walkheight( unsigned short x, unsigned short y, short oldz, s
 }
 
 
-bool Realm::dropheight( const Core::Pos4d& pos, short chrz, short* newz, Multi::UMulti** pmulti )
+bool Realm::dropheight( const Core::Pos4d& drop_pos, short chrz, short* newz,
+                        Multi::UMulti** pmulti )
 {
   static Plib::MapShapeList shapes;
   static MultiList mvec;
@@ -522,11 +523,11 @@ bool Realm::dropheight( const Core::Pos4d& pos, short chrz, short* newz, Multi::
   mvec.clear();
   ivec.clear();
 
-  readdynamics( shapes, dropx, dropy, ivec, true /* doors_block */ );
-  readmultis( shapes, dropx, dropy, Plib::FLAG::DROP_FLAGS, mvec );
-  getmapshapes( shapes, dropx, dropy, Plib::FLAG::DROP_FLAGS );
+  readdynamics( shapes, drop_pos.xy(), ivec, true /* doors_block */ );
+  readmultis( shapes, drop_pos.xy(), Plib::FLAG::DROP_FLAGS, mvec );
+  getmapshapes( shapes, drop_pos.xy(), Plib::FLAG::DROP_FLAGS );
 
-  bool result = dropheight( shapes, dropz, chrz, newz );
+  bool result = dropheight( shapes, drop_pos.z(), chrz, newz );
   if ( result )
   {
     if ( !mvec.empty() )
@@ -670,9 +671,9 @@ void Realm::readmultis( Plib::StaticList& vec, unsigned short x, unsigned short 
   } );
 }
 
-bool Realm::navigable( unsigned short x, unsigned short y, short z, short height = 0 ) const
+bool Realm::navigable( const Core::Pos3d& pos, short height = 0 ) const
 {
-  if ( !valid( x, y, z ) )
+  if ( !valid( pos ) )
   {
     return false;
   }
@@ -683,7 +684,7 @@ bool Realm::navigable( unsigned short x, unsigned short y, short z, short height
   shapes.clear();
 
   // possible: readdynamic, readmultis
-  getmapshapes( shapes, x, y, static_cast<u32>( Plib::FLAG::ALL ) );
+  getmapshapes( shapes, pos.xy(), static_cast<u32>( Plib::FLAG::ALL ) );
 
   for ( const auto& shape : shapes )
   {
@@ -693,8 +694,8 @@ bool Realm::navigable( unsigned short x, unsigned short y, short z, short height
     }
     else
     {
-      if ( ( ( z + height ) >= ( shape.z - HULL_HEIGHT_BUFFER ) ) &&
-           ( z < ( shape.z + shape.height + HULL_HEIGHT_BUFFER ) ) )
+      if ( ( ( pos.z() + height ) >= ( shape.z - HULL_HEIGHT_BUFFER ) ) &&
+           ( pos.z() < ( shape.z + shape.height + HULL_HEIGHT_BUFFER ) ) )
         return false;
     }
   }
@@ -772,14 +773,13 @@ Plib::MAPTILE_CELL Realm::getmaptile( unsigned short x, unsigned short y ) const
   else
     return _maptileserver->GetMapTile( x, y );
 }
-
-void Realm::getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y,
+void Realm::getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                           unsigned int anyflags ) const
 {
   if ( is_shadowrealm )
-    baserealm->_mapserver->GetMapShapes( shapes, x, y, anyflags );
+    baserealm->_mapserver->GetMapShapes( shapes, pos.x(), pos.y(), anyflags );
   else
-    _mapserver->GetMapShapes( shapes, x, y, anyflags );
+    _mapserver->GetMapShapes( shapes, pos.x(), pos.y(), anyflags );
 }
 }  // namespace Realms
 }  // namespace Pol

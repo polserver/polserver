@@ -119,6 +119,20 @@ void Pos2d::crop( const Realms::Realm* realm )
     _y = realm->height() - 1;
 }
 
+bool Pos2d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const
+{
+  Vec2d vec_fromorigin = this->from_origin() + displacement;
+
+  if ( vec_fromorigin.x() < 0 && vec_fromorigin.y() < 0 )
+    return false;
+
+  if ( realm == nullptr ||
+       ( vec_fromorigin.x() < realm->width() && vec_fromorigin.y() < realm->height() ) )
+    return true;
+
+  return false;
+}
+
 bool Pos3d::operator==( const Pos3d& other ) const
 {
   return _xy == other._xy && _z == other._z;

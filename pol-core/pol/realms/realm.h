@@ -107,7 +107,7 @@ public:
   bool walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, short oldz, short* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost = nullptr );
 
-  bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
+  bool lowest_walkheight( const Core::Pos2d& newpos, short oldz, short* newz,
                           Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
                           Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
 
@@ -115,16 +115,16 @@ public:
 
   bool has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const;
 
-  bool navigable( unsigned short x, unsigned short y, short z, short height ) const;
+  bool navigable( const Core::Pos3d& pos, short height ) const;
 
   Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 
-  bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const;
+  bool lowest_standheight( const Core::Pos2d& newpos, short* z ) const;
   bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
   void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const;
   bool groundheight( unsigned short x, unsigned short y, short* z ) const;
   Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
-  void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y,
+  void getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                      unsigned int anyflags ) const;
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags ) const;
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
@@ -136,7 +136,7 @@ public:
   unsigned getUOMapID() const;
   unsigned getNumStaticPatches() const;
   unsigned getNumMapPatches() const;
-  static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );
+  static unsigned int encode_global_hull( const Core::Pos2d& pos );
 
 protected:
   struct LosCache
@@ -234,9 +234,9 @@ inline unsigned Realm::getNumMapPatches() const
 {
   return _descriptor.num_map_patches;
 };
-inline unsigned int Realm::encode_global_hull( unsigned short ax, unsigned short ay )
+inline unsigned int Realm::encode_global_hull( const Core::Pos2d& pos )
 {
-  return ( static_cast<unsigned int>( ax ) << 16 ) | ay;
+  return ( static_cast<unsigned int>( pos.x() ) << 16 ) | pos.y();
 }
 
 inline unsigned short Realm::width() const

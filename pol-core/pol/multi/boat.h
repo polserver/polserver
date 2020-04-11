@@ -77,7 +77,7 @@ struct BoatShape
     unsigned int objtype;
     unsigned short graphic;
     unsigned short altgraphic;
-    unsigned short xdelta;
+    unsigned short xdelta; // TODO: check this. Shouldn't it be signed?!
     unsigned short ydelta;
     signed short zdelta;
     ComponentShape( const std::string& str, const std::string& altstr, unsigned char type );
@@ -98,10 +98,10 @@ class UBoat final : public UMulti
 
   class BoatContext
   {
-    const MultiDef& mdef;
-    Core::Pos2d xy;
+    const MultiDef& stored_mdef;
+    const Core::Pos4d stored_pos;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), xy( ub.pos().xy() ){};
+    explicit BoatContext( const UBoat& ub ) : stored_mdef( ub.multidef() ), stored_pos( ub.pos() ){};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };
@@ -127,7 +127,8 @@ public:
   virtual size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
-  bool move_xy( const Core::Pos4d& newpos, const Core::Pos4d& oldpos, int flags );
+  bool move_xy( const Core::Pos2d& newpos_xy, const BoatContext& oldstate, int flags );
+  bool move_to( const Core::Pos4d& newpos, int flags );
 
   enum RELATIVE_DIR
   {
@@ -142,12 +143,12 @@ public:
   virtual void unregister_object( Core::UObject* obj ) override;
   Core::UFACING boat_facing() const;
 
-  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, u16 newx,
-                         u16 newy, bool relative );
-  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, u16 newx, u16 newy,
-                                    bool relative );
+  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, const Core::Pos2d& newpos,
+                         bool relative );
+  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, const Core::Pos2d& newpos,
+ bool relative );
   void send_display_boat( Network::Client* client );
-  void send_display_boat_to_inrange( u16 oldx = USHRT_MAX, u16 oldy = USHRT_MAX );
+  void send_display_boat_to_inrange( const Core::Pos4d& oldpos );
   void send_boat( Network::Client* client );
   void send_boat_old( Network::Client* client );
   void send_boat_newly_inrange( Network::Client* client );
@@ -168,10 +169,9 @@ public:
   virtual Bscript::BObjectImp* make_ref() override;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
-  static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z,
-                         Realms::Realm* realm );
-  void realm_changed();
-  void adjust_traveller_z( s8 delta_z );
+  static bool navigable( const MultiDef&, const Core::Pos4d& pos );
+  //void realm_changed();
+  //void adjust_traveller_z( s8 delta_z );
 
   virtual void on_color_changed() override;
 
@@ -183,9 +183,7 @@ public:
   Items::Item* hold;
 
 protected:
-  void move_travellers( Core::UFACING move_dir, const BoatContext& oldlocation,
-                        unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
-                        Realms::Realm* oldrealm = nullptr );
+  void move_travellers( const BoatContext& oldlocation );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
@@ -200,7 +198,7 @@ protected:
   void rescan_components();
   void reread_components();
   void transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm );
-  void move_components( Realms::Realm* oldrealm );
+  void move_components( const BoatContext& oldlocation );
 
   explicit UBoat( const Items::ItemDesc& descriptor );
   virtual void fixInvalidGraphic() override;

@@ -48,7 +48,12 @@ struct MULTI_ELEM
   s16 y;
   s16 z;
   bool is_static;
+
+  Core::Vec3d rel_pos() const;
 };
+inline Core::Vec3d MULTI_ELEM::rel_pos() const {
+  return Core::Vec3d( this->x, this->y, this->z );
+}
 
 class MultiDef
 {

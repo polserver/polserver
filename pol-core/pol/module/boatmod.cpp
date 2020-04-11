@@ -48,7 +48,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
   if ( getUBoatParam( 0, boat ) && getPos2dParam( 1, 2, &pos, boat->realm() ) )
   {
     return new Bscript::BLong(
-        boat->move_xy( Core::Pos4d( pos, boat->z(), boat->realm() ), boat->pos(), 0 ) );
+        boat->move_to( Core::Pos4d( pos, boat->z(), boat->realm() ), 0 ) );
   }
   else
   {

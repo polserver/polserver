@@ -64,6 +64,7 @@ public:
   Pos2d& y( u16 y );
 
   Vec2d from_origin() const;
+  bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos2d& other ) const;
   void crop( const Realms::Realm* realm );
@@ -117,6 +118,7 @@ public:
   Pos3d& xy( Pos2d xy );
 
   Vec3d from_origin() const;
+  bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos3d& other ) const;
   void crop( const Realms::Realm* realm );
@@ -186,6 +188,7 @@ public:
   //  Pos4d& realm( Realms::Realm* realm ); // removed on purpose
 
   Pos4d move( UFACING dir ) const;
+  bool can_move_to( const Vec2d& displacement ) const;
 
   bool inRange( const Pos4d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;
@@ -250,8 +253,6 @@ inline Vec2d Pos2d::from_origin() const
 {
   return *this - Core::Pos2d( 0, 0 );
 }
-
-
 inline const Pos2d& Pos3d::xy() const
 {
   return _xy;
@@ -280,6 +281,11 @@ inline Pos3d& Pos3d::xy( Pos2d xy )
 inline Vec3d Pos3d::from_origin() const
 {
   return *this - Core::Pos3d( 0, 0, 0 );
+}
+
+inline bool Pos3d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const
+{
+  return xy().can_move_to(displacement, realm);
 }
 
 inline Pos4d::Pos4d( u16 x, u16 y, s8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )
@@ -347,6 +353,11 @@ inline Pos4d& Pos4d::xyz( Pos3d xyz )
   _xyz = std::move( xyz );
   _xyz.crop( _realm );
   return *this;
+}
+
+inline bool Pol::Core::Pos4d::can_move_to( const Vec2d& displacement ) const
+{
+  return xy().can_move_to( displacement, realm() );
 }
 
 }  // namespace Core

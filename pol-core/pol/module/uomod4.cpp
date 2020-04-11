@@ -102,27 +102,17 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
 BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z,
                                                  int flags, Realms::Realm* newrealm )
 {
-  Realms::Realm* oldrealm = boat->realm;
+  Core::Pos4d newlocation( x, y, z, newrealm );
+
   {  // local scope for reg/unreg guard
     Multi::UBoat::BoatMoveGuard registerguard( boat );
-    if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
+    if ( !boat->navigable( boat->multidef(), newlocation ) )
     {
       return new BError( "Position indicated is impassable" );
     }
   }
-  if ( newrealm !=
-       boat->realm )  // boat->move_xy removes on xy change so only realm change check is needed
-  {
-    send_remove_object_to_inrange( boat );
-  }
-  boat->realm = newrealm;
 
-  s8 deltaz = static_cast<s8>( z - boat->z );
-  boat->z = (s8)z;
-  boat->adjust_traveller_z( deltaz );
-  boat->realm_changed();
-  bool ok = boat->move_xy( x, y, flags, oldrealm );
-  return new BLong( ok );
+  return new BLong( boat->move_to( newlocation, flags ) );
 }
 
 BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y,
