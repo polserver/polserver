@@ -384,7 +384,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    Core::UFACING fac = npc.pos().direction_toward( obj->toplevel_pos() );
+    Core::UFACING fac = npc.pos().xy().direction_toward( obj->toplevel_pos().xy() );
     return move_self( fac, false, true );
   }
   else
@@ -405,7 +405,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.pos().direction_toward( obj->toplevel_pos() ), true, true );
+    return move_self( npc.pos().xy().direction_toward( obj->toplevel_pos().xy() ), true, true );
   }
   else
   {
@@ -424,7 +424,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.pos().direction_away( obj->toplevel_pos() ), false, true );
+    return move_self( npc.pos().xy().direction_away( obj->toplevel_pos().xy() ), false, true );
   }
   else
   {
@@ -443,7 +443,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.pos().direction_away( obj->toplevel_pos() ), true, true );
+    return move_self( npc.pos().xy().direction_away( obj->toplevel_pos().xy() ), true, true );
   }
   else
   {
@@ -468,7 +468,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Core::UFACING facing = npc.pos().direction_toward( obj->toplevel_pos() );
+  Core::UFACING facing = npc.pos().xy().direction_toward( obj->toplevel_pos().xy() );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here, I'm already facing that direction
 
@@ -497,7 +497,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Core::UFACING facing = npc.pos().direction_away( obj->toplevel_pos() );
+  Core::UFACING facing = npc.pos().xy().direction_away( obj->toplevel_pos().xy() );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here
 
@@ -513,7 +513,7 @@ BObjectImp* NPCExecutorModule::mf_WalkTowardLocation()
   Core::Pos2d pos;
   if ( getPos2dParam( 0, 1, &pos, npc.realm() ) )
   {
-    Core::UFACING fac = npc.pos().direction_toward( Core::Pos4d( pos, 0, nullptr ) );
+    Core::UFACING fac = npc.pos().xy().direction_toward( pos );
     return move_self( fac, false, true );
   }
   else
@@ -527,7 +527,7 @@ BObjectImp* NPCExecutorModule::mf_RunTowardLocation()
   Core::Pos2d pos;
   if ( getPos2dParam( 0, 1, &pos, npc.realm() ) )
   {
-    Core::UFACING fac = npc.pos().direction_toward( Core::Pos4d( pos, 0, nullptr ) );
+    Core::UFACING fac = npc.pos().xy().direction_toward( pos );
     return move_self( fac, true, true );
   }
   else
@@ -541,7 +541,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFromLocation()
   Core::Pos2d pos;
   if ( getPos2dParam( 0, 1, &pos, npc.realm() ) )
   {
-    Core::UFACING fac = npc.pos().direction_away( Core::Pos4d( pos, 0, nullptr ) );
+    Core::UFACING fac = npc.pos().xy().direction_away( pos );
     return move_self( fac, false, true );
   }
   else
@@ -555,7 +555,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFromLocation()
   Core::Pos2d pos;
   if ( getPos2dParam( 0, 1, &pos, npc.realm() ) )
   {
-    Core::UFACING fac = npc.pos().direction_away( Core::Pos4d( pos, 0, nullptr ) );
+    Core::UFACING fac = npc.pos().xy().direction_away( pos );
     return move_self( fac, true, true );
   }
   else
@@ -574,7 +574,7 @@ BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
     return new BError( "Invalid parameter type" );
   }
 
-  Core::UFACING fac = npc.pos().direction_toward( Core::Pos4d( pos, 0, nullptr ) );
+  Core::UFACING fac = npc.pos().xy().direction_toward( pos );
 
   if ( npc.facing == fac )
     return new BLong( 0 );  // nothing to do here
@@ -596,7 +596,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
     return new BError( "Invalid parameter type" );
   }
 
-  Core::UFACING fac = npc.pos().direction_away( Core::Pos4d( pos, 0, nullptr ) );
+  Core::UFACING fac = npc.pos().xy().direction_away( pos );
   if ( npc.facing == fac )
     return new BLong( 0 );  // nothing to do here
 

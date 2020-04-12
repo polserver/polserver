@@ -79,9 +79,9 @@ void sayto_listening_points( Mobile::Character* speaker, const std::string& text
           }
         }
 
-        const Core::Pos4d listenpoint_pos = lp->object->toplevel_pos();
+        const Core::Pos4d& listenpoint_pos = lp->object->toplevel_pos();
         if ( ( speaker->realm() == listenpoint_pos.realm() ) &&
-             ( inrangex( speaker, listenpoint_pos.x(), listenpoint_pos.y(), lp->range ) ) )
+             ( inrangex( speaker, listenpoint_pos.xy(), lp->range ) ) )
         {
           if ( p_lang )
             lp->uoexec->signal_event( new Module::SpeechEvent(

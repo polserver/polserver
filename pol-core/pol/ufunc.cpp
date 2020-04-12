@@ -445,41 +445,33 @@ void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& p
 
 bool inrangex( const Character* c1, const Character* c2, int maxdist )
 {
-  return ( ( c1->realm == c2->realm ) && ( abs( c1->x - c2->x ) <= maxdist ) &&
-           ( abs( c1->y - c2->y ) <= maxdist ) );
+  return c1->toplevel_pos().inRange( c2->pos(), maxdist );
 }
 
 // TODO: Change all those inrangex functions to pol_distance() or something similar
-bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdist )
+bool inrangex( const UObject* c1, const Pos2d& p2, int maxdist )
 {
-  return ( ( abs( c1->x - x ) <= maxdist ) && ( abs( c1->y - y ) <= maxdist ) );
+  return c1->pos().inRange( p2, maxdist );
 }
 
-bool inrange( const UObject* c1, unsigned short x, unsigned short y )
+bool inrange( const UObject* c1, const Pos2d& p2 )
 {
-  return ( ( abs( c1->x - x ) <= RANGE_VISUAL ) && ( abs( c1->y - y ) <= RANGE_VISUAL ) );
+  return c1->toplevel_pos().inRange( p2, RANGE_VISUAL );
 }
 
 bool inrange( const Mobile::Character* c1, const Mobile::Character* c2 )
 {
-  // note, these are unsigned.  abs converts to signed, so everything _should_ be okay.
-  return ( ( c1->realm == c2->realm ) && ( abs( c1->x - c2->x ) <= RANGE_VISUAL ) &&
-           ( abs( c1->y - c2->y ) <= RANGE_VISUAL ) );
+  return c1->pos().inRange( c2->pos(), RANGE_VISUAL );
 }
 
 bool inrange( const Mobile::Character* c1, const UObject* obj )
 {
-  obj = obj->toplevel_owner();
-
-  return ( ( c1->realm == obj->realm ) && ( abs( c1->x - obj->x ) <= RANGE_VISUAL ) &&
-           ( abs( c1->y - obj->y ) <= RANGE_VISUAL ) );
+  return c1->pos().inRange( obj->toplevel_pos(), RANGE_VISUAL );
 }
 
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj )
 {
-  return ( ( c1->realm == obj->realm ) &&
-           ( abs( c1->x - obj->x ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( c1->y - obj->y ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
+  return c1->pos().inRange( ob->pos(), RANGE_VISUAL_LARGE_BUILDINGS );
 }
 
 bool in_say_range( const Character* c1, const Character* c2 )
@@ -495,15 +487,14 @@ bool in_whisper_range( const Character* c1, const Character* c2 )
   return inrangex( c1, c2, settingsManager.ssopt.whisper_range );
 }
 
-bool inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
+bool inrange( const Pos2d& p1, const Pos2d& p2 )
 {
-  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL ) && ( abs( y1 - y2 ) <= RANGE_VISUAL ) );
+  return p1.inRange( p2, RANGE_VISUAL );
 }
 
-bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
+bool multi_inrange( const Pos2d& p1, const Pos2d& p2 )
 {
-  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( y1 - y2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
+  return p1.inRange( p2, RANGE_VISUAL_LARGE_BUILDINGS );
 }
 
 void send_put_in_container( Client* client, const Item* item )

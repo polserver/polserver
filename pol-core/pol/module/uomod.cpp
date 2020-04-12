@@ -5021,10 +5021,10 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
       dir = static_cast<Core::UFACING>( x2_or_dir & 0x7 );
     else
     {
-      Core::Pos4d p2( x2_or_dir, y2_, 0, nullptr );
-      if ( !pos.realm()->valid( p2.xyz() ) )
+      Core::Pos3d p2( x2_or_dir, y2_, 0 );
+      if ( !pos.realm()->valid( p2 ) )
         return new BError( "Invalid coordinates for realm." );
-      dir = pos.direction_toward( p2 );
+      dir = pos.xy().direction_toward( p2.xy() );
     }
 
     if ( dir & 1 )  // check if diagonal movement is allowed

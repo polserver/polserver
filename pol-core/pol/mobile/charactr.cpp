@@ -2762,7 +2762,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
           msginvul.Send( client );
       }
     }
-    else if ( Core::inrange( zonechr->x(), zonechr->y(), chr->lastxyz.x(), chr->lastxyz.y() ) )
+    else if ( Core::inrange( zonechr->pos().xy(), chr->lastxyz.xy() ) )
     {
       msgmove.Send( client );
       if ( chr->poisoned() )

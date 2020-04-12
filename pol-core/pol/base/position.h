@@ -67,7 +67,11 @@ public:
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos2d& other ) const;
+  bool inRange( const Pos2d& other, u16 range ) const;
   void crop( const Realms::Realm* realm );
+
+  UFACING direction_toward( const Pos2d& other ) const;
+  UFACING direction_away( const Pos2d& other ) const;
 };
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
@@ -121,6 +125,7 @@ public:
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos3d& other ) const;
+  bool inRange( const Pos2d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;
   void crop( const Realms::Realm* realm );
 };
@@ -193,11 +198,9 @@ public:
 
   bool inRange( const Pos4d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;
+  bool inRange( const Pos2d& other, u16 range ) const;
 
   u16 pol_distance( const Pos4d& other ) const;
-  // TODO: should take Pos2d since no realm check happens
-  UFACING direction_toward( const Pos4d& other ) const;
-  UFACING direction_away( const Pos4d& other ) const;
 
 private:
   u16 cropX( u16 x ) const;
@@ -286,7 +289,7 @@ inline Vec3d Pos3d::from_origin() const
 
 inline bool Pos3d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const
 {
-  return xy().can_move_to(displacement, realm);
+  return xy().can_move_to( displacement, realm );
 }
 
 inline Pos4d::Pos4d( u16 x, u16 y, s8 z, Realms::Realm* realm ) : _xyz( x, y, z ), _realm( realm )

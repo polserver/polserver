@@ -108,6 +108,10 @@ u16 Pos2d::pol_distance( const Pos2d& other ) const
   int yd = std::abs( static_cast<int>( _y ) - other._y );
   return static_cast<u16>( std::max( xd, yd ) );
 }
+bool Pos2d::inRange( const Pos2d& other, u16 range ) const
+{
+  return pol_distance( other ) <= range;
+}
 
 void Pos2d::crop( const Realms::Realm* realm )
 {
@@ -131,6 +135,42 @@ bool Pos2d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm )
     return true;
 
   return false;
+}
+
+UFACING Pos2d::direction_toward( const Pos2d& dst ) const
+{
+  if ( x() < dst.x() )  // East to target
+  {
+    if ( y() < dst.y() )
+      return FACING_SE;
+    else if ( y() == dst.y() )
+      return FACING_E;
+    else /* y() > dst.y() */
+      return FACING_NE;
+  }
+  else if ( x() == dst.x() )
+  {
+    if ( y() < dst.y() )
+      return FACING_S;
+    else if ( y() > dst.y() )
+      return FACING_N;
+  }
+  else /* x() > dst.x() */  // West to target
+  {
+    if ( y() < dst.y() )
+      return FACING_SW;
+    else if ( y() == dst.y() )
+      return FACING_W;
+    else /* y() > dst.y() */
+      return FACING_NW;
+  }
+  return FACING_N;
+}
+
+UFACING Pos2d::direction_away( const Pos2d& dst ) const
+{
+  UFACING toward = direction_toward( dst );
+  return away_cvt[static_cast<int>( toward )];
 }
 
 bool Pos3d::operator==( const Pos3d& other ) const
@@ -248,7 +288,11 @@ u16 Pos3d::pol_distance( const Pos3d& other ) const
 }
 bool Pos3d::inRange( const Pos3d& other, u16 range ) const
 {
-  return pol_distance( other ) <= range;
+  return _xy.inRange( other._xy, range );
+}
+bool Pos3d::inRange( const Pos2d& other, u16 range ) const
+{
+  return _xy.inRange( other, range );
 }
 void Pos3d::crop( const Realms::Realm* realm )
 {
@@ -429,48 +473,16 @@ u16 Pos4d::pol_distance( const Pos4d& other ) const
 }
 bool Pos4d::inRange( const Pos4d& other, u16 range ) const
 {
-  return _realm == other._realm && _xyz.pol_distance( other._xyz ) <= range;
+  return _realm == other._realm && _xyz.inRange( other._xyz, range );
 }
 bool Pos4d::inRange( const Pos3d& other, u16 range ) const
 {
-  return _xyz.pol_distance( other ) <= range;
+  return _xyz.inRange( other, range );
 }
-
-
-UFACING Pos4d::direction_toward( const Pos4d& dst ) const
+bool Pos4d::inRange( const Pos2d& other, u16 range ) const
 {
-  if ( x() < dst.x() )  // East to target
-  {
-    if ( y() < dst.y() )
-      return FACING_SE;
-    else if ( y() == dst.y() )
-      return FACING_E;
-    else /* y() > dst.y() */
-      return FACING_NE;
-  }
-  else if ( x() == dst.x() )
-  {
-    if ( y() < dst.y() )
-      return FACING_S;
-    else if ( y() > dst.y() )
-      return FACING_N;
-  }
-  else /* x() > dst.x() */  // West to target
-  {
-    if ( y() < dst.y() )
-      return FACING_SW;
-    else if ( y() == dst.y() )
-      return FACING_W;
-    else /* y() > dst.y() */
-      return FACING_NW;
-  }
-  return FACING_N;
+  return _xyz.inRange( other, range );
 }
 
-UFACING Pos4d::direction_away( const Pos4d& dst ) const
-{
-  UFACING toward = direction_toward( dst );
-  return away_cvt[static_cast<int>( toward )];
-}
 }  // namespace Core
 }  // namespace Pol

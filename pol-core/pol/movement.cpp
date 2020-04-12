@@ -33,8 +33,10 @@ void cancel_trade( Mobile::Character* chr1 );
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client )
 {
   if ( inrange( chr, client->chr ) &&
-       !inrange( chr->x, chr->y, client->chr->lastx, client->chr->lasty ) &&
-       client->chr->is_visible_to_me( chr ) && client->chr != chr )
+       !inrange( chr->pos().xy(),
+                 client->chr->lastxyz.xy() ) &&  // TODO lastxyz should contain realm
+       client->chr->is_visible_to_me( chr ) &&
+       client->chr != chr )
   {
     send_owncreate( client, chr );
   }
@@ -43,7 +45,7 @@ void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 {
   if ( inrange( client->chr, item ) &&
-       !inrange( item->x, item->y, client->chr->lastx, client->chr->lasty ) )
+       !inrange( item->toplevel_pos().xy(), client->chr->lastxyz.xy() ) )
   {
     send_item( client, item );
   }
@@ -52,7 +54,7 @@ void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client )
 {
   if ( multi_inrange( client->chr, multi ) &&
-       !multi_inrange( multi->x, multi->y, client->chr->lastx, client->chr->lasty ) )
+       !multi_inrange( multi->pos().xy(), client->chr->lastxyz.xy() ) )
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
@@ -70,7 +72,7 @@ void send_objects_newly_inrange( Network::Client* client )
   WorldIterator<ItemFilter>::InVisualRange(
       chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
   WorldIterator<MultiFilter>::InRange(
-      chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+      chr->pos(), RANGE_VISUAL_LARGE_BUILDINGS,
       [&]( Multi::UMulti* zonemulti ) { send_multi_if_newly_inrange( zonemulti, client ); } );
 }
 
@@ -96,7 +98,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 
       send_item_if_newly_inrange( zoneitem, client );
     } );
-    WorldIterator<MultiFilter>::InRange( chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+    WorldIterator<MultiFilter>::InRange( chr->pos(), RANGE_VISUAL_LARGE_BUILDINGS,
                                          [&]( Multi::UMulti* zonemulti ) {
                                            if ( zonemulti->serial == serial )
                                              return;
@@ -111,7 +113,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
     WorldIterator<ItemFilter>::InVisualRange(
         chr, [&]( Items::Item* zoneitem ) { send_item_if_newly_inrange( zoneitem, client ); } );
     WorldIterator<MultiFilter>::InRange(
-        chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+        chr->pos(), RANGE_VISUAL_LARGE_BUILDINGS,
         [&]( Multi::UMulti* zonemulti ) { send_multi_if_newly_inrange( zonemulti, client ); } );
   }
 }
@@ -127,7 +129,7 @@ void remove_objects_inrange( Network::Client* client )
   WorldIterator<ItemFilter>::InVisualRange(
       chr, [&]( Items::Item* item ) { send_remove_object( client, item, msgremove ); } );
   WorldIterator<MultiFilter>::InRange(
-      chr->x, chr->y, chr->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+      chr->pos(), RANGE_VISUAL_LARGE_BUILDINGS,
       [&]( Multi::UMulti* multi ) { send_remove_object( client, multi, msgremove ); } );
 }
 
@@ -208,10 +210,10 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
     {
       Network::PktHelper::PacketOut<Network::PktOut_21> msg;
       msg->Write<u8>( msg02->movenum );
-      msg->WriteFlipped<u16>( chr->x );
-      msg->WriteFlipped<u16>( chr->y );
+      msg->WriteFlipped<u16>( chr->x() );
+      msg->WriteFlipped<u16>( chr->y() );
       msg->Write<u8>( chr->facing );
-      msg->Write<s8>( chr->z );
+      msg->Write<s8>( chr->z() );
       msg.Send( client );
       client->movementsequence = 0;
     }

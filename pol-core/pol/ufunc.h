@@ -65,13 +65,13 @@ void send_login_error( Network::Client* client, unsigned char reason );
 
 bool inrange( const Mobile::Character* c1, const Mobile::Character* c2 );
 bool inrange( const Mobile::Character* c1, const UObject* obj );
-bool inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 );
+bool inrange( const Pos2d& p1, const Pos2d& p2 );
 
 bool inrangex( const Mobile::Character* c1, const Mobile::Character* c2, int maxdist );
-bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdist );
+bool inrangex( const UObject* c1, const Pos2d& p2, int maxdist );
 
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj );
-bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 );
+bool multi_inrange( const Pos2d& p1, const Pos2d& p2 );
 
 bool in_say_range( const Mobile::Character* c1, const Mobile::Character* c2 );
 bool in_yell_range( const Mobile::Character* c1, const Mobile::Character* c2 );
