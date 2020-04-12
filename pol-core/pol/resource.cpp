@@ -53,11 +53,11 @@ void ResourceRegion::read_data( Clib::ConfigElem& elem )
 
 /// [1] Harvest Difficulty
 ///
-Bscript::BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y,
+Bscript::BObjectImp* ResourceRegion::get_harvest_difficulty( const Pos2d& pos,
                                                              Realms::Realm* realm )
 {
   (void)realm;
-  unsigned int xy = ( x << 16 ) | y;
+  unsigned int xy = ( pos.x() << 16 ) | pos.y();
   Depletions::iterator itr = depletions_.find( xy );
   int units = units_per_area_;
   if ( itr != depletions_.end() )
@@ -76,9 +76,9 @@ Bscript::BObjectImp* ResourceRegion::get_harvest_difficulty( xcoord x, ycoord y,
   return new Bscript::BLong( this_difficulty );
 }
 
-Bscript::BObjectImp* ResourceRegion::harvest_resource( xcoord x, ycoord y, int n, int m )
+Bscript::BObjectImp* ResourceRegion::harvest_resource( const Pos2d& pos, int n, int m )
 {
-  unsigned int xy = ( x << 16 ) | y;
+  unsigned int xy = ( pos.x() << 16 ) | pos.y();
   Depletions::iterator itr = depletions_.find( xy );
   int avail_units = units_per_area_;
   if ( itr != depletions_.end() )
@@ -167,20 +167,18 @@ void ResourceDef::read_data( Clib::ConfigElem& elem )
   current_units_ = static_cast<int>( elem.remove_ulong( "Units" ) );
 }
 
-bool ResourceDef::findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype )
+bool ResourceDef::findmarker( const Pos2d& pos, Realms::Realm* realm, unsigned int objtype )
 {
   if ( !landtiles_.count( Items::getgraphic( objtype ) ) &&
        !tiles_.count( Items::getgraphic( objtype ) ) )
     return false;
-  if ( realm->findstatic( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ),
-                          static_cast<unsigned short>( objtype ) ) )
+  if ( realm->findstatic( pos.x(), pos.y(), static_cast<unsigned short>( objtype ) ) )
   {
     return true;
   }
 
   // FIXME range can be bad
-  Plib::MAPTILE_CELL cell =
-      realm->getmaptile( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ) );
+  Plib::MAPTILE_CELL cell = realm->getmaptile( pos.x(), pos.y() );
   return ( cell.landtile == objtype );  // FIXME blech! objtype == landtile? eh? well broken anyway.
 }
 
@@ -257,7 +255,7 @@ void count_resource_tiles()
   }
 }
 
-Bscript::BObjectImp* get_harvest_difficulty( const char* resource, xcoord x, ycoord y,
+Bscript::BObjectImp* get_harvest_difficulty( const char* resource, const Pos2d& pos,
                                              Realms::Realm* realm, unsigned short marker )
 {
   ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
@@ -265,18 +263,18 @@ Bscript::BObjectImp* get_harvest_difficulty( const char* resource, xcoord x, yco
     return new Bscript::BError( "No resource by that name" );
 
   ResourceDef* rd = ( *itr ).second;
-  if ( !rd->findmarker( x, y, realm, marker ) )
+  if ( !rd->findmarker( pos, realm, marker ) )
     return new Bscript::BError( "No resource-bearing landmark there" );
 
-  ResourceRegion* rgn = rd->getregion( x, y, realm );
+  ResourceRegion* rgn = rd->getregion( pos, realm );
   if ( rgn == nullptr )
     return new Bscript::BError( "No resource region at that location" );
 
-  return rgn->get_harvest_difficulty( x, y, realm );
+  return rgn->get_harvest_difficulty( pos, realm );
 }
 
-Bscript::BObjectImp* harvest_resource( const char* resource, xcoord x, ycoord y,
-                                       Realms::Realm* realm, int b, int n )
+Bscript::BObjectImp* harvest_resource( const char* resource, const Pos2d& pos, Realms::Realm* realm,
+                                       int b, int n )
 {
   ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
   if ( itr == gamestate.resourcedefs.end() )
@@ -288,14 +286,14 @@ Bscript::BObjectImp* harvest_resource( const char* resource, xcoord x, ycoord y,
       if (!rd->findmarker(x,y,marker))
       return new BError( "No resource-bearing landmark there" );
       */
-  ResourceRegion* rgn = rd->getregion( x, y, realm );
+  ResourceRegion* rgn = rd->getregion( pos, realm );
   if ( rgn == nullptr )
     return new Bscript::BError( "No resource region at that location" );
 
-  return rgn->harvest_resource( x, y, b, n );
+  return rgn->harvest_resource( pos, b, n );
 }
 
-Bscript::BObjectImp* get_region_string( const char* resource, xcoord x, ycoord y,
+Bscript::BObjectImp* get_region_string( const char* resource, const Pos2d& pos,
                                         Realms::Realm* realm, const std::string& propname )
 {
   ResourceDefs::iterator itr = gamestate.resourcedefs.find( resource );
@@ -304,7 +302,7 @@ Bscript::BObjectImp* get_region_string( const char* resource, xcoord x, ycoord y
 
   ResourceDef* rd = ( *itr ).second;
 
-  ResourceRegion* rgn = rd->getregion( x, y, realm );
+  ResourceRegion* rgn = rd->getregion( pos, realm );
   if ( rgn == nullptr )
     return new Bscript::BError( "No resource region at that location" );
 
@@ -493,5 +491,5 @@ void clean_resources()
   }
   gamestate.resourcedefs.clear();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

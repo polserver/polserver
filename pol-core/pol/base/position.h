@@ -121,6 +121,7 @@ public:
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos3d& other ) const;
+  bool inRange( const Pos3d& other, u16 range ) const;
   void crop( const Realms::Realm* realm );
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );

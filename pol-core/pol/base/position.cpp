@@ -246,6 +246,10 @@ u16 Pos3d::pol_distance( const Pos3d& other ) const
 {
   return _xy.pol_distance( other._xy );
 }
+bool Pos3d::inRange( const Pos3d& other, u16 range ) const
+{
+  return pol_distance( other ) <= range;
+}
 void Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );

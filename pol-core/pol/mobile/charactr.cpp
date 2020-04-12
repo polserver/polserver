@@ -3750,7 +3750,7 @@ bool Character::CustomHousingMove( unsigned char i_dir )
                   Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
 
         const Multi::MultiDef& def = house->multidef();
-        const Core::Vec2d rxy = ( newpos - house->pos() ).xy();
+        const Core::Vec2d rxy = newpos.xy() - house->pos().xy();
         /*if ( newx > ( house->x + def.minrx ) && newx <= ( house->x + def.maxrx ) &&
              newy > ( house->y + def.minry ) && newy <= ( house->y + def.maxry ) )*/
         if ( def.is_within_multi( rxy ) )  // NOTE: This changes to newx >= (min...) and newy >=

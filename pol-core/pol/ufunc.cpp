@@ -995,24 +995,26 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
 
 void play_sound_effect( const UObject* center, u16 effect )
 {
-  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, center->x, center->y, 0 );
+  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u,
+                             Pos3d( center->pos().xy(), 0 ) );
   // FIXME hearing range check perhaps?
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
-void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm )
+void play_sound_effect_xyz( const Pos4d& pos, u16 effect )
 {
-  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, cx, cy, cz );
+  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, pos.xyz() );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      cx, cy, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      pos, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
 void play_sound_effect_private( const UObject* center, u16 effect, Character* forchr )
 {
   if ( forchr->client )
   {
-    Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, center->x, center->y, 0 );
+    Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u,
+                               Pos3d( center->pos().xy(), 0 ) );
     msg.Send( forchr->client );
   }
 }
@@ -1032,17 +1034,17 @@ void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 
       } );
 }
 
-void play_moving_effect2( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect, u8 speed,
-                          u8 loop, u8 explode, Realms::Realm* realm )
+void play_moving_effect2( const Pos4d& src, const Pos3d& dst, u16 effect, u8 speed, u8 loop,
+                          u8 explode )
 {
   Network::GraphicEffectPkt msg;
-  msg.movingEffect( xs, ys, zs, xd, yd, zd, effect, speed, loop, explode );
+  msg.movingEffect( src.xyz(), dst, effect, speed, loop, explode );
 
   WorldIterator<OnlinePlayerFilter>::InRange(
-      xs, ys, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      src, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      xd, yd, realm, RANGE_VISUAL, [&]( Character* zonechr ) {
-        if ( !inrange( zonechr, xs, ys ) )  // send to chrs only in range of dest
+      Pos4d( dst, src.realm() ), RANGE_VISUAL, [&]( Character* zonechr ) {
+        if ( !inrange( zonechr, src.x(), src.y() ) )  // send to chrs only in range of dest
           msg.Send( zonechr->client );
       } );
 }
@@ -1064,22 +1066,21 @@ void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u
       center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
-void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode,
-                             Realms::Realm* realm )
+void play_stationary_effect( const Pos4d& pos, u16 effect, u8 speed, u8 loop, u8 explode )
 {
   Network::GraphicEffectPkt msg;
-  msg.stationaryEffect( x, y, z, effect, speed, loop, explode );
+  msg.stationaryEffect( pos.xyz(), effect, speed, loop, explode );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      x, y, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      pos, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
-void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed,
-                                u8 duration, u32 hue, u32 render, u16 effect3d )
+void play_stationary_effect_ex( const Pos4d& pos, u16 effect, u8 speed, u8 duration, u32 hue,
+                                u32 render, u16 effect3d )
 {
   Network::GraphicEffectExPkt msg;
-  msg.stationaryEffect( x, y, z, effect, speed, duration, hue, render, effect3d );
+  msg.stationaryEffect( pos.xyz(), effect, speed, duration, hue, render, effect3d );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      x, y, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      pos, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration,
@@ -1107,19 +1108,19 @@ void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, 
   } );
 }
 
-void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
-                             u16 effect, u8 speed, u8 duration, u32 hue, u32 render, u8 direction,
-                             u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound )
+void play_moving_effect2_ex( const Pos4d& src, const Pos3d& dst, u16 effect, u8 speed, u8 duration,
+                             u32 hue, u32 render, u8 direction, u8 explode, u16 effect3d,
+                             u16 effect3dexplode, u16 effect3dsound )
 {
   Network::GraphicEffectExPkt msg;
-  msg.movingEffect( xs, ys, zs, xd, yd, zd, effect, speed, duration, hue, render, direction,
-                    explode, effect3d, effect3dexplode, effect3dsound );
+  msg.movingEffect( src.xyz(), dst, effect, speed, duration, hue, render, direction, explode,
+                    effect3d, effect3dexplode, effect3dsound );
 
   WorldIterator<OnlinePlayerFilter>::InRange(
-      xs, ys, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+      src, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      xd, yd, realm, RANGE_VISUAL, [&]( Character* zonechr ) {
-        if ( !inrange( zonechr, xs, ys ) )  // send to chrs only in range of dst
+      Pos4d( dst, src.realm() ), RANGE_VISUAL, [&]( Character* zonechr ) {
+        if ( !inrange( zonechr, src.x(), src.y() ) )  // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
 }
@@ -1588,9 +1589,9 @@ void move_item( Item* item, Pos4d newpos, Pos4d oldpos )
 {
   item->set_dirty();
 
-  //Pos4d oldpos = item->pos();
+  // Pos4d oldpos = item->pos();
 
-  //item->setposition( std::move( newpos ) );
+  // item->setposition( std::move( newpos ) );
 
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );

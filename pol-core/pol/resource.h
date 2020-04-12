@@ -15,6 +15,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../plib/poltype.h"
+#include "base/position.h"
 #include "region.h"
 #include "zone.h"
 
@@ -46,12 +47,12 @@ namespace Core
 {
 class ResourceDef;
 
-Bscript::BObjectImp* get_harvest_difficulty( const char* resource, xcoord x, ycoord y,
+Bscript::BObjectImp* get_harvest_difficulty( const char* resource, const Pos2d& pos,
                                              Realms::Realm* realm, unsigned short marker );
-Bscript::BObjectImp* harvest_resource( const char* resource, xcoord x, ycoord y,
-                                       Realms::Realm* realm, int b, int n );
+Bscript::BObjectImp* harvest_resource( const char* resource, const Pos2d& pos, Realms::Realm* realm,
+                                       int b, int n );
 
-Bscript::BObjectImp* get_region_string( const char* resource, xcoord x, ycoord y,
+Bscript::BObjectImp* get_region_string( const char* resource, const Pos2d& pos,
                                         Realms::Realm* realm, const std::string& propname );
 
 ResourceDef* find_resource_def( const std::string& rname );
@@ -68,8 +69,8 @@ public:
 
   void read_data( Clib::ConfigElem& elem );
 
-  Bscript::BObjectImp* get_harvest_difficulty( xcoord x, ycoord y, Realms::Realm* realm );
-  Bscript::BObjectImp* harvest_resource( xcoord x, ycoord y, int b, int n );
+  Bscript::BObjectImp* get_harvest_difficulty( const Pos2d& pos, Realms::Realm* realm );
+  Bscript::BObjectImp* harvest_resource( const Pos2d& pos, int b, int n );
 
   void regenerate( time_t now );
   void write( Clib::StreamWriter& sw, const std::string& resource_name ) const;
@@ -105,7 +106,7 @@ public:
   virtual size_t estimateSize() const override;
   // void read_region( ConfigElem& elem );
 
-  bool findmarker( xcoord x, ycoord y, Realms::Realm* realm, unsigned int objtype );
+  bool findmarker( const Pos2d& pos, Realms::Realm* realm, unsigned int objtype );
   void regenerate( time_t now );
   void consume( unsigned amount );
   void produce( unsigned amount );

@@ -141,27 +141,26 @@ UContainer* find_legal_container( const Mobile::Character* chr, u32 serial );
 bool is_a_parent( const Items::Item* item, u32 serial );
 void play_sound_effect( const UObject* center, u16 effect );
 void play_sound_effect_private( const UObject* center, u16 effect, Mobile::Character* forchr );
-void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm );
+void play_sound_effect_xyz( const Pos4d& pos, u16 effect );
 void play_lightning_bolt_effect( const UObject* center );
 void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 speed, u8 loop,
                          u8 explode );
-void play_moving_effect2( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect, u8 speed,
-                          u8 loop, u8 explode, Realms::Realm* realm );
+void play_moving_effect2( const Pos4d& src, const Pos3d& dst, u16 effect, u8 speed, u8 loop,
+                          u8 explode );
 void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u8 loop );
 
-void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode,
-                             Realms::Realm* realm );
+void play_stationary_effect( const Pos4d& pos, u16 effect, u8 speed, u8 loop, u8 explode );
 
-void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed,
-                                u8 duration, u32 hue, u32 render, u16 effect3d );
+void play_stationary_effect_ex( const Pos4d& pos, u16 effect, u8 speed, u8 duration, u32 hue,
+                                u32 render, u16 effect3d );
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration,
                                      u32 hue, u32 render, u8 layer, u16 effect3d );
 void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, u8 speed,
                             u8 duration, u32 hue, u32 render, u8 direction, u8 explode,
                             u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
-void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
-                             u16 effect, u8 speed, u8 duration, u32 hue, u32 render, u8 direction,
-                             u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
+void play_moving_effect2_ex( const Pos4d& src, const Pos3d& dst, u16 effect, u8 speed, u8 duration,
+                             u32 hue, u32 render, u8 direction, u8 explode, u16 effect3d,
+                             u16 effect3dexplode, u16 effect3dsound );
 
 
 // find_legal_item: search worn items, including backpack recursively, and

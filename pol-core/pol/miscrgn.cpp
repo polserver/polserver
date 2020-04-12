@@ -136,34 +136,22 @@ void WeatherDef::copy_default_regions()
   }
 }
 
-bool WeatherDef::assign_zones_to_region( const char* regionname, unsigned short xwest,
-                                         unsigned short ynorth, unsigned short xeast,
-                                         unsigned short ysouth, Realms::Realm* realm )
+bool WeatherDef::assign_zones_to_region( const char* regionname, Pos2d p1, Pos2d p2,
+                                         Realms::Realm* realm )
 {
-  if ( xwest >= realm->width() )
-    xwest = static_cast<unsigned short>( realm->width() ) - 1;
-  if ( xeast >= realm->width() )
-    xeast = static_cast<unsigned short>( realm->width() ) - 1;
-  if ( ynorth >= realm->height() )
-    ynorth = static_cast<unsigned short>( realm->height() ) - 1;
-  if ( ysouth >= realm->height() )
-    ysouth = static_cast<unsigned short>( realm->height() ) - 1;
-
-
+  p1.crop( realm );
+  p2.crop( realm );
+  Pos2d zone1 = XyToZone( p1 );
+  Pos2d zone2 = XyToZone( p2 );
   if ( regionname && regionname[0] )
   {
     Region* rgn = getregion_byname( regionname );
     if ( rgn == nullptr )
       return false;
 
-    unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-
-    std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
-    std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
-
-    for ( auto zx = zone_xwest; zx <= zone_xeast; ++zx )
+    for ( auto zx = zone1.x(); zx <= zone2.x(); ++zx )
     {
-      for ( auto zy = zone_ynorth; zy <= zone_ysouth; ++zy )
+      for ( auto zy = zone1.y(); zy <= zone2.y(); ++zy )
       {
         regionrealms[realm][zx][zy] = rgn->regionid();
       }
@@ -171,13 +159,9 @@ bool WeatherDef::assign_zones_to_region( const char* regionname, unsigned short 
   }
   else  // move 'em back to the default
   {
-    unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-    std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
-    std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
-
-    for ( auto zx = zone_xwest; zx <= zone_xeast; ++zx )
+    for ( auto zx = zone1.x(); zx <= zone2.x(); ++zx )
     {
-      for ( auto zy = zone_ynorth; zy <= zone_ysouth; ++zy )
+      for ( auto zy = zone1.y(); zy <= zone2.y(); ++zy )
       {
         regionrealms[realm][zx][zy] = default_regionrealms[realm][zx][zy];
       }

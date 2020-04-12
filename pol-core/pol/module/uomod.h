@@ -339,9 +339,8 @@ protected:
   Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x,
                                                Core::ycoord y, Core::zcoord z, int flags,
                                                Realms::Realm* newrealm );
-  static void internal_InBoxAreaChecks( unsigned short& x1, unsigned short& y1, int& z1,
-                                        unsigned short& x2, unsigned short& y2, int& z2,
-                                        Realms::Realm* realm );
+  static void internal_InBoxAreaChecks( const Core::Pos2d& p1, const Core::Pos2d& p2, int z1,
+                                        int z2, Core::Pos4d* pos1, Core::Pos4d* pos2 );
   Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr,
                                                           Bscript::ObjArray* layout_arr,
                                                           Bscript::ObjArray* data_arr, int x, int y,

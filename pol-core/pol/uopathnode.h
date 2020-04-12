@@ -9,9 +9,9 @@
 #define __UOPATHNODE_H
 // AStar search class
 #include "../plib/stlastar.h"
-#include "realms/realm.h"
-
+#include "base/position.h"
 #include "realms.h"
+#include "realms/realm.h"
 
 namespace Pol
 {
@@ -163,18 +163,18 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
            ( newy > ( (int)realm->height() ) ) )
         continue;
 
-      if ( realm->walkheight( newx, newy, z, &newz, &supporting_multi, &walkon_item, doors_block,
-                              Plib::MOVEMODE_LAND ) )
+      if ( realm->walkheight( Pos2d( newx, newy ), z, &newz, &supporting_multi, &walkon_item,
+                              doors_block, Plib::MOVEMODE_LAND ) )
       {
         // Forbid diagonal move, if between 2 blockers - OWHorus {2011-04-26)
         bool blocked = false;
         if ( ( i != 0 ) && ( j != 0 ) )  // do only for diagonal moves
         {
           // If both neighbouring tiles are blocked, the move is illegal (diagonal move)
-          if ( !realm->walkheight( x + i, y, z, &newz, &supporting_multi, &walkon_item, doors_block,
-                                   Plib::MOVEMODE_LAND ) )
-            blocked = !( realm->walkheight( x, y + j, z, &newz, &supporting_multi, &walkon_item,
-                                            doors_block, Plib::MOVEMODE_LAND ) );
+          if ( !realm->walkheight( Pos2d( x + i, y ), z, &newz, &supporting_multi, &walkon_item,
+                                   doors_block, Plib::MOVEMODE_LAND ) )
+            blocked = !( realm->walkheight( Pos2d( x, y + j ), z, &newz, &supporting_multi,
+                                            &walkon_item, doors_block, Plib::MOVEMODE_LAND ) );
         }
 
         if ( !blocked )
