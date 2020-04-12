@@ -261,18 +261,14 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   for_sale->layer = LAYER_VENDOR_FOR_SALE;
   send_wornitem( chr->client, merchant, for_sale );
   for_sale->layer = save_layer_one;
-  for_sale->x = merchant->x;
-  for_sale->y = merchant->y;
-  for_sale->z = merchant->z;
+  for_sale->setposition( merchant->pos() );
   // chr->add_additional_legal_item( for_sale );
 
   save_layer_two = bought->layer;
   bought->layer = LAYER_VENDOR_PLAYER_ITEMS;
   send_wornitem( chr->client, merchant, bought );
   bought->layer = save_layer_two;
-  bought->x = merchant->x;
-  bought->y = merchant->y;
-  bought->z = merchant->z;
+  bought->setposition( merchant->pos() );
   // chr->add_additional_legal_item( bought );
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
@@ -840,8 +836,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     if ( vendor_bought->can_add( *item ) )
     {
-      u16 tx, ty;
-      vendor_bought->get_random_location( &tx, &ty );
+      Core::Pos2d p = vendor_bought->get_random_location();
       backpack->remove( item );
       if ( remainder_not_sold != nullptr )
       {
@@ -851,9 +846,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
         update_item_to_inrange( remainder_not_sold );
         remainder_not_sold = nullptr;
       }
-      item->x = tx;
-      item->y = ty;
-      item->z = 0;
+      item->setposition( Core::Pos4d( p, 0, nullptr ) );
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
       vendor_bought->add( item );
@@ -2611,7 +2604,7 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.HairId ) );
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.HairHue );
-    tmpitem->realm = client->chr->realm;
+    tmpitem->setposition( client->chr->pos() );
     client->chr->equip( tmpitem );
     send_wornitem_to_inrange( client->chr, tmpitem );
   }
@@ -2625,7 +2618,7 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.BeardId ) );
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.BeardHue );
-    tmpitem->realm = client->chr->realm;
+    tmpitem->setposition( client->chr->pos() );
     client->chr->equip( tmpitem );
     send_wornitem_to_inrange( client->chr, tmpitem );
   }
@@ -2819,50 +2812,25 @@ BObjectImp* UOExecutorModule::mf_SingleClick()
 BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
     /* x, y, z, range, objtype, flags, realm */ )
 {
-  unsigned short x, y;
+  Core::Pos2d pos;
   int z, flags;
   short range;
   unsigned int objtype;
-  const String* strrealm;
   Realms::Realm* realm;
 
-  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getObjtypeParam( 4, objtype ) && getParam( 5, flags ) && getStringParam( 6, strrealm ) )
+  if ( getRealmParam( 6, &realm ) && getPos2dParam( 0, 1, &pos, realm ) && getParam( 2, z ) &&
+       getParam( 3, range ) && getObjtypeParam( 4, objtype ) && getParam( 5, flags ) )
   {
-    realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-
-    if ( z == LIST_IGNORE_Z )
-    {
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for realm" );
-    }
-    else
-    {
-      if ( !realm->valid( x, y, static_cast<short>( z ) ) )
-        return new BError( "Invalid Coordinates for realm" );
-    }
-
     std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-    short wxL, wyL, wxH, wyH;
-    wxL = x - range;
-    if ( wxL < 0 )
-      wxL = 0;
-    wyL = y - range;
-    if ( wyL < 0 )
-      wyL = 0;
-    wxH = x + range;
-    if ( wxH > realm->width() - 1 )
-      wxH = realm->width() - 1;
-    wyH = y + range;
-    if ( wyH > realm->height() - 1 )
-      wyH = realm->height() - 1;
+    Core::Pos2d posL = pos - Core::Vec2d( range, range );
+    Core::Pos2d posH = pos + Core::Vec2d( range, range );
+    posL.crop( realm );
+    posH.crop( realm );
 
-    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    for ( unsigned short wx = posL.x(); wx <= posH.x(); ++wx )
     {
-      for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+      for ( unsigned short wy = posL.y(); wy <= posH.y(); ++wy )
       {
         if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {
@@ -2918,49 +2886,24 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
 BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
     /* x, y, z, range, flags, realm */ )
 {
-  unsigned short x, y;
+  Core::Pos2d pos;
   int z, flags;
   short range;
-  const String* strrealm;
   Realms::Realm* realm;
 
-  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getParam( 4, flags ) && getStringParam( 5, strrealm ) )
+  if ( getRealmParam( 5, &realm ) && getPos2dParam( 0, 1, &pos, realm ) && getParam( 2, z ) &&
+       getParam( 3, range ) && getParam( 4, flags ) )
   {
-    realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-
-    if ( z == LIST_IGNORE_Z )
-    {
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for realm" );
-    }
-    else
-    {
-      if ( !realm->valid( x, y, static_cast<short>( z ) ) )
-        return new BError( "Invalid Coordinates for realm" );
-    }
-
     std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-    short wxL, wyL, wxH, wyH;
-    wxL = x - range;
-    if ( wxL < 0 )
-      wxL = 0;
-    wyL = y - range;
-    if ( wyL < 0 )
-      wyL = 0;
-    wxH = x + range;
-    if ( wxH > realm->width() - 1 )
-      wxH = realm->width() - 1;
-    wyH = y + range;
-    if ( wyH > realm->height() - 1 )
-      wyH = realm->height() - 1;
+    Core::Pos2d posL = pos - Core::Vec2d( range, range );
+    Core::Pos2d posH = pos + Core::Vec2d( range, range );
+    posL.crop( realm );
+    posH.crop( realm );
 
-    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    for ( unsigned short wx = posL.x(); wx <= posH.x(); ++wx )
     {
-      for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+      for ( unsigned short wy = posL.y(); wy <= posH.y(); ++wy )
       {
         if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {

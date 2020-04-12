@@ -1853,6 +1853,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
        getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
        getParam( 5, explode, UCHAR_MAX ) )
   {
+    src = src->toplevel_owner();
+    dst = dst->toplevel_owner();
     if ( src->realm() != dst->realm() )
       return new BError( "Realms must match" );
     play_moving_effect( src, dst, effect, static_cast<unsigned char>( speed ),
@@ -1952,6 +1954,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
        getParam( 7, direction, UCHAR_MAX ) && getParam( 8, explode, UCHAR_MAX ) &&
        getParam( 9, effect3d ) && getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
   {
+    src = src->toplevel_owner();
+    dst = dst->toplevel_owner();
     if ( src->realm() != dst->realm() )
       return new BError( "Realms must match" );
     play_moving_effect_ex(
@@ -2653,7 +2657,7 @@ BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
   UObject* dst;
   if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) )
   {
-    return new BLong( src->realm()->has_los( *src, *dst->toplevel_owner() ) );
+    return new BLong( src->toplevel_realm()->has_los( *src, *dst->toplevel_owner() ) );
   }
   else
   {

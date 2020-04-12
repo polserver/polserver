@@ -329,16 +329,10 @@ protected:
   bool getStaticOrDynamicMenuParam( unsigned param, Core::Menu*& menu );
 
 protected:
-  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y,
-                                          Core::zcoord z, int flags, Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x,
-                                               Core::ycoord y, Core::zcoord z, int flags,
-                                               Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y,
-                                          Core::zcoord z, int flags, Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x,
-                                               Core::ycoord y, Core::zcoord z, int flags,
-                                               Realms::Realm* newrealm );
+  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::Pos4d newpos, int flags );
+  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::Pos4d newpos,
+                                               int flags );
+  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::Pos4d newpos, int flags );
   static void internal_InBoxAreaChecks( const Core::Pos2d& p1, const Core::Pos2d& p2, int z1,
                                         int z2, Core::Pos4d* pos1, Core::Pos4d* pos2 );
   Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr,
