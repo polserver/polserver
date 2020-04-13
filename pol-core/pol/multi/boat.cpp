@@ -279,26 +279,20 @@ bool BoatShapeExists( u16 multiid )
   return Core::gamestate.boatshapes.count( multiid ) != 0;
 }
 
-// TODO: Change to use information on the absolute move_dir instead of recalculating it from
-// newpos and relative. This should simplify the update code. Updating the objects and components
-// before calling this function would help too!
-void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed,
-                              const Core::Pos2d& newpos, bool relative )
+// TODO: Updating the objects and components before calling this function would help!
+void UBoat::send_smooth_move( Network::Client* client, Core::UFACING bowrelative_dir, u8 speed,
+                              const Core::Pos2d& newpos )
 {
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
 
   const Core::Vec2d displacement = newpos - pos().xy();
-  Core::UFACING b_facing = boat_facing();
-
-  if ( relative == false )
-    move_dir = static_cast<Core::UFACING>( ( b_facing + move_dir ) * 7 );
 
   msg->offset += 2;  // Length
   msg->Write<u32>( serial_ext );
   msg->Write<u8>( speed );
 
-  msg->Write<u8>( move_dir );
-  msg->Write<u8>( b_facing );
+  msg->Write<u8>( bowrelative_dir );
+  msg->Write<u8>( boat_facing() );
 
   msg->WriteFlipped<u16>( newpos.x() );
   msg->WriteFlipped<u16>( newpos.y() );
@@ -348,8 +342,8 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
 }
 
 // TODO: This is building the whole smooth move packet again and again. Surely it can be optimized?
-void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed,
-                                         const Core::Pos2d& newpos, bool relative )
+void UBoat::send_smooth_move_to_inrange( Core::UFACING bowrelative_dir, u8 speed,
+                                         const Core::Pos2d& newpos )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
       newpos, this->realm(), RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
@@ -358,7 +352,7 @@ void UBoat::send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed,
         if ( inrange( client->chr, this ) &&
              client->ClientType & Network::CLIENTTYPE_7090 )  // send this only to those who see the
                                                               // old location aswell
-          send_smooth_move( client, move_dir, speed, newpos, relative );
+          send_smooth_move( client, bowrelative_dir, speed, newpos );
       } );
 }
 
@@ -524,8 +518,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
 void UBoat::send_display_boat_to_inrange( const Core::Pos4d& oldpos )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      this->pos().xy(), this->realm(), RANGE_VISUAL_LARGE_BUILDINGS,
-      [&]( Mobile::Character* zonechr ) {
+      this->pos(), RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
         Network::Client* client = zonechr->client;
 
         if ( client->ClientType & Network::CLIENTTYPE_7090 )
@@ -536,13 +529,16 @@ void UBoat::send_display_boat_to_inrange( const Core::Pos4d& oldpos )
           send_boat_old( client );
       } );
 
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      oldpos.xy(), oldpos.realm(), RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
-        Network::Client* client = zonechr->client;
+  if ( oldpos != this->pos() )
+  {
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+        oldpos, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+          Network::Client* client = zonechr->client;
 
-        if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
-          send_remove_boat( client );
-      } );
+          if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
+            send_remove_boat( client );
+        } );
+  }
 }
 
 void UBoat::send_boat( Network::Client* client )
@@ -692,18 +688,18 @@ bool UBoat::on_ship( const BoatContext& bc, const UObject* obj )
   return bc.stored_mdef.body_contains( obj->pos().xy() - bc.stored_pos.xy() );
 }
 
-
-// an alternative would be to do the calculation and setposition in the calling function,
-// and use oldpos as argument here
-void _move_boat_mobile( Mobile::Character* chr, const Core::Vec3d& boat_delta,
+// Helper function to move characters on boat. There's probably a better suited function somewhere
+// else.
+void _move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos,
                         const Multi::UBoat* boat )
 {
   const Core::Pos4d oldpos = chr->pos();
   chr->lastxyz = oldpos.xyz();
 
-  chr->setposition( Core::Pos4d( chr->pos().xyz() + boat_delta, boat->realm() ) );
+  chr->setposition( newpos );
   // inhibits PropagateMove() in do_tellmoves() from sending packets to HSA clients
   chr->move_reason = Mobile::Character::MULTIMOVE;
+  // needed also for offline chars because of the tracking of offline mobiles in realms
   MoveCharacterWorldPosition( oldpos, chr );
 
   // offline characters move with the boat but do nothing else, so we are done
@@ -717,7 +713,7 @@ void _move_boat_mobile( Mobile::Character* chr, const Core::Vec3d& boat_delta,
   if ( chr->client == nullptr )
     return;
 
-  if ( oldpos.realm() != chr->realm )
+  if ( oldpos.realm() != chr->realm() )
   {
     chr->realm_changed();  // moved here from uomod. Check why the two packets below are needed.
     Core::send_new_subserver( chr->client );
@@ -745,16 +741,19 @@ void _move_boat_mobile( Mobile::Character* chr, const Core::Vec3d& boat_delta,
   }
 }
 
-void _move_boat_item( Items::Item* item, const Core::Vec3d& boat_delta, const Multi::UBoat* boat )
+// Helper function to move items on boat. There's probably a better suited function somewhere
+// else.
+void _move_boat_item( Items::Item* item, const Core::Pos4d& newpos, const Multi::UBoat* /*boat*/ )
 {
   const Core::Pos4d oldpos = item->pos();
-  item->setposition( Core::Pos4d( item->pos().xyz() + boat_delta, boat->realm() ) );
+  item->setposition( newpos );
 
-  item->restart_decay_timer();
+  item->restart_decay_timer();  // Note: components don't decay, so I would expect this isn't a
+                                // problem
   MoveItemWorldPosition( oldpos, item );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      item->pos().xy(), item->realm(), RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+      item->pos(), RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
         Network::Client* client = zonechr->client;
 
         if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
@@ -762,11 +761,11 @@ void _move_boat_item( Items::Item* item, const Core::Vec3d& boat_delta, const Mu
       } );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      oldpos.xy(), oldpos.realm(), RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+      oldpos, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
         Network::Client* client = zonechr->client;
 
-        if ( !inrange( client->chr,
-                       item ) )  // not in range.  If old loc was in range, send a delete.
+        // not in range.  If old loc was in range, send a delete.
+        if ( !inrange( client->chr, item ) )
           send_remove_object( client, item );
       } );
 }
@@ -793,12 +792,12 @@ void UBoat::move_travellers( const BoatContext& oldlocation )
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      _move_boat_mobile( chr, boatDelta, this );
+      _move_boat_mobile( chr, Core::Pos4d( chr->pos().xyz() + boatDelta, this->realm() ), this );
     }
     else
     {
       Items::Item* item = static_cast<Items::Item*>( obj );
-      _move_boat_item( item, boatDelta, this );
+      _move_boat_item( item, Core::Pos4d( item->pos().xyz() + boatDelta, this->realm() ), this );
     }
   }
 
@@ -806,34 +805,38 @@ void UBoat::move_travellers( const BoatContext& oldlocation )
     remove_orphans();
 }
 
-void UBoat::turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir )
+// TODO: the new facing can be given by (oldfacing + dir*2) & 7. But the order of the enum would
+// then matter.
+// TODO: the next two functions could be better taken care in position.h/vector.h
+constexpr Core::UFACING _turn_towards( Core::UFACING oldfacing, UBoat::RELATIVE_DIR dir )
 {
-  chr->lastx = chr->x;
-  chr->lasty = chr->y;
-
-  s16 xd = chr->x - x;
-  s16 yd = chr->y - y;
-
+  return static_cast<Core::UFACING>( ( oldfacing + dir * 2 ) & 7 );
+}
+constexpr Core::Vec2d _turn_vector_around( const Core::Vec2d& delta, UBoat::RELATIVE_DIR dir )
+{
+  Core::Vec2d rotated_vec = delta;
   switch ( dir )
   {
-  case LEFT:
-    chr->x = x + yd;
-    chr->y = y - xd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 6 ) & 7 );
+  case UBoat::RELATIVE_DIR::LEFT:
+    rotated_vec = Core::Vec2d( delta.y(), -delta.x() );
     break;
-  case AROUND:
-    chr->x = x - xd;
-    chr->y = y - yd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 4 ) & 7 );
+  case UBoat::RELATIVE_DIR::AROUND:
+    rotated_vec = Core::Vec2d( -delta.x(), -delta.y() );
     break;
-  case RIGHT:
-    chr->x = x - yd;
-    chr->y = y + xd;
-    chr->facing = static_cast<Core::UFACING>( ( chr->facing + 2 ) & 7 );
+  case UBoat::RELATIVE_DIR::RIGHT:
+    rotated_vec = Core::Vec2d( -delta.y(), delta.x() );
     break;
-  case NO_TURN:
+  case UBoat::RELATIVE_DIR::NO_TURN:
     break;
   }
+  return rotated_vec;
+}
+
+Core::Pos4d UBoat::turn_traveller_coords( const Core::UObject* obj, RELATIVE_DIR dir ) const
+{
+  // rotate the relative distance of the object to the mast
+  Core::Vec2d obj_rpos = _turn_vector_around( obj->pos().xy() - this->pos().xy(), dir );
+  return this->pos() + obj_rpos;
 }
 
 void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
@@ -853,104 +856,17 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
     }
 
     obj->set_dirty();
+    Core::Pos4d traveller_newpos = turn_traveller_coords( obj, dir );
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->logged_in() )
-      {
-        // send_remove_character_to_nearby( chr );
-
-
-        turn_traveller_coords( chr, dir );
-
-
-        Core::MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x, chr->y, chr, nullptr );
-        chr->position_changed();
-        if ( chr->client != nullptr )
-        {
-          if ( chr->client->ClientType & Network::CLIENTTYPE_7090 )
-          {
-            if ( chr->poisoned() )  // if poisoned send 0x17 for newer clients
-              send_poisonhealthbar( chr->client, chr );
-
-            if ( chr->invul() )  // if invul send 0x17 for newer clients
-              send_invulhealthbar( chr->client, chr );
-
-            Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
-          }
-          else
-          {
-            Core::send_goxyz( chr->client, chr );
-            // lastx and lasty are set above so these two calls will work right.
-            // FIXME these are also called, in this order, in MOVEMENT.CPP.
-            // should be consolidated.
-            Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
-          }
-        }
-        chr->move_reason = Mobile::Character::MULTIMOVE;
-        // chr->lastx = ~ (unsigned short) 0; // force tellmove() to send "owncreate" and not send
-        // deletes.
-        // chr->lasty = ~ (unsigned short) 0;
-      }
-      else
-      {
-        turn_traveller_coords( chr, dir );
-      }
+      chr->facing = _turn_towards( static_cast<Core::UFACING>( chr->facing ), dir );
+      _move_boat_mobile( chr, traveller_newpos, this );
     }
     else
     {
       Items::Item* item = static_cast<Items::Item*>( obj );
-      s16 xd = item->x - x;
-      s16 yd = item->y - y;
-      u16 newx( 0 );
-      u16 newy( 0 );
-      switch ( dir )
-      {
-      case NO_TURN:
-        newx = item->x;
-        newy = item->y;
-        break;
-      case LEFT:
-        newx = x + yd;
-        newy = y - xd;
-        break;
-      case AROUND:
-        newx = x - xd;
-        newy = y - yd;
-        break;
-      case RIGHT:
-        newx = x - yd;
-        newy = y + xd;
-        break;
-      }
-      item->set_dirty();
-
-      u16 oldx = item->x;
-      u16 oldy = item->y;
-
-      item->x = newx;
-      item->y = newy;
-
-      item->restart_decay_timer();
-
-      MoveItemWorldPosition( oldx, oldy, item, nullptr );
-
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
-            Network::Client* client = zonechr->client;
-
-            if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
-              send_item( client, item );
-          } );
-
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
-            Network::Client* client = zonechr->client;
-
-            if ( !inrange( client->chr,
-                           item ) )  // not in range.  If old loc was in range, send a delete.
-              send_remove_object( client, item );
-          } );
+      _move_boat_item( item, traveller_newpos, this );
     }
   }
 
@@ -1018,8 +934,7 @@ bool UBoat::has_offline_mobiles() const
   return false;
 }
 
-void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
-                                  Realms::Realm* new_realm )
+void UBoat::move_offline_mobiles( const Core::Pos4d& newpos )
 {
   BoatContext bc( *this );
 
@@ -1034,11 +949,7 @@ void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::
       if ( !chr->logged_in() )
       {
         chr->set_dirty();
-        chr->x = new_x;
-        chr->y = new_y;
-        chr->z = static_cast<signed char>( new_z );
-        chr->realm = new_realm;
-        chr->realm_changed();  // not sure if neccessary...
+        _move_boat_mobile( chr, newpos, this );
         travellerRef.clear();
       }
     }
@@ -1046,20 +957,6 @@ void UBoat::move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::
   remove_orphans();
 }
 
-/*
-void UBoat::adjust_traveller_z( s8 delta_z )
-{
-  for ( auto& travellerRef : travellers_ )
-  {
-    UObject* obj = travellerRef.get();
-    obj->z += delta_z;
-  }
-  for ( auto& component : Components )
-  {
-    component->z += delta_z;
-  }
-}
-*/
 
 void UBoat::on_color_changed()
 {
@@ -1068,35 +965,6 @@ void UBoat::on_color_changed()
   // change colors.
   send_display_boat_to_inrange( this->pos() );
 }
-
-
-// this should be handled by move_travellers & move_components now - delete when sure
-/*
-void UBoat::realm_changed()
-{
-    for ( auto& travellerRef : travellers_ )
-    {
-      UObject* obj = travellerRef.get();
-
-      if ( !obj->orphan() && on_ship( oldstate, obj ) && obj->ismobile() )
-      {
-        Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-        Core::send_remove_character_to_nearby( chr );
-        chr->realm = realm;
-        chr->realm_changed();
-      }
-      if ( !obj->orphan() && on_ship( oldstate, obj ) && Core::IsItem( obj->serial ) )
-      {
-        Items::Item* item = static_cast<Items::Item*>( obj );
-        item->realm = realm;
-      }
-    }
-    for ( auto& component : Components )
-    {
-      component->realm = realm;
-    }
-}
-*/
 
 bool UBoat::deck_empty() const
 {
@@ -1128,8 +996,8 @@ void UBoat::do_tellmoves()
       if ( obj->ismobile() )
       {
         Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) ||
-             chr->has_active_client() )  // dave 3/27/3, dont tell moves of offline PCs
+        // dave 3/27/3, dont tell moves of offline PCs
+        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) || chr->has_active_client() )
           chr->tellmove();
       }
     }
@@ -1150,7 +1018,7 @@ bool UBoat::move_to( const Core::Pos4d& newpos, int flags )
     move_multi_in_world( oldstate.stored_pos, this );
 
     move_travellers( oldstate );
-    move_components( oldstate );
+    move_components();
     // NOTE, send_boat_to_inrange pauses those it sends to.
     send_display_boat_to_inrange( oldstate.stored_pos );
     // send_boat_to_inrange( this, oldx, oldy );
@@ -1169,46 +1037,44 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
   BoatMoveGuard registerguard( this );
 
-  Core::UFACING move_dir;
+  Core::UFACING world_move_dir;   // relative to cardinal directions (world coordinates)
+  Core::UFACING bowrelative_dir;  // relative to bow (0 means boat_facing() in world coordinates)
 
   if ( relative == false )
-    move_dir = dir;
+  {
+    world_move_dir = dir;
+    bowrelative_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
+  }
   else
-    move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
+  {
+    world_move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
+    bowrelative_dir = dir;
+  }
 
-  unsigned short newx, newy;
-  newx = x + Core::move_delta[move_dir].xmove;
-  newy = y + Core::move_delta[move_dir].ymove;
-
-  if ( navigable( multidef(), newx, newy, z, realm ) )
+  Core::Pos4d newpos = this->pos().move( world_move_dir );
+  if ( navigable( multidef(), newpos ) )
   {
     BoatContext oldstate( *this );
 
-    send_smooth_move_to_inrange( move_dir, speed, newx, newy, relative );
+    // TODO: update smooth_move to use the NEW positions of components and travellers
+    send_smooth_move_to_inrange( bowrelative_dir, speed, newpos.xy() );
 
     set_dirty();
 
-    move_multi_in_world( x, y, newx, newy, this, realm );
+    setposition( newpos );
+    move_multi_in_world( oldstate.stored_pos, this );
 
-    u16 oldx = x;
-    u16 oldy = y;
-    x = newx;
-    y = newy;
-
-    // NOTE, send_boat_to_inrange pauses those it sends to.
-    // send_boat_to_inrange( this, oldx, oldy );
     move_travellers( oldstate );
-    move_components( oldstate );
+    move_components();
 
+    // TODO: merge smooth move and the updates below with send_display_boat_to_inrange()
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+        newpos, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
           Network::Client* client = zonechr->client;
 
           if ( client->ClientType & Network::CLIENTTYPE_7090 )
           {
-            if ( Core::inrange( client->chr->x, client->chr->y, oldx, oldy ) )
-              return;
-            else
+            if ( !oldstate.stored_pos.inRange( client->chr->pos(), RANGE_VISUAL_LARGE_BUILDINGS ) )
               send_boat_newly_inrange( client );  // send HSA packet only for newly inrange
           }
           else
@@ -1221,10 +1087,12 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
         } );
 
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+        oldstate.stored_pos, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
           Network::Client* client = zonechr->client;
 
-          if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
+          if ( !newpos.inRange(
+                   client->chr->pos(),
+                   RANGE_VISUAL_LARGE_BUILDINGS ) )  // send remove to chrs only seeing the old loc
             send_remove_boat( client );
         } );
 
@@ -1262,137 +1130,98 @@ const BoatShape& UBoat::boatshape() const
   return *Core::gamestate.boatshapes[multiid];
 }
 
+void _log_badcomponent( const Items::Item* item )
+{
+  u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
+  POLLOG_ERROR.Format(
+      "Boat component is gotten or in a container and couldn't be moved together with the "
+      "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
+      << item->serial << item->graphic << containerSerial;
+}
 
-void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm )
+bool UBoat::is_plank( const Items::Item* item )
+{
+  return ( item->objtype_ == Core::settingsManager.extobj.port_plank ||
+           item->objtype_ == Core::settingsManager.extobj.starboard_plank );
+}
+
+void UBoat::transform_components( const BoatShape& old_boatshape )
 {
   const BoatShape& bshape = boatshape();
-  auto end = Components.end();
-  auto end2 = bshape.Componentshapes.end();
-  auto old_end = old_boatshape.Componentshapes.end();
 
   auto itr = Components.begin();
+  auto end = Components.end();
+
   auto itr2 = bshape.Componentshapes.begin();
+  auto end2 = bshape.Componentshapes.end();
+
   auto old_itr = old_boatshape.Componentshapes.begin();
+  auto old_end = old_boatshape.Componentshapes.end();
 
   for ( ; itr != end && itr2 != end2 && old_itr != old_end; ++itr, ++itr2, ++old_itr )
   {
     Items::Item* item = itr->get();
-    if ( item != nullptr )
+    if ( item == nullptr || item->orphan() )
+      continue;
+
+    // POL would crash if the component is no longer in the world.
+    // This can only happen if someone forces the item out of the boat, so log it.
+    if ( item->container != nullptr || item->has_gotten_by() )
     {
-      if ( item->orphan() )
-        continue;
-
-      // This should be rare enough for a simple log to be the solution. We don't want POL to crash
-      // in MoveItemWorldPosition() because the item was not in the world to start with, so we skip
-      // it.
-      if ( item->container != nullptr || item->has_gotten_by() )
-      {
-        u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
-        POLLOG_ERROR.Format(
-            "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
-            << item->serial << item->graphic << containerSerial;
-        continue;
-      }
-
-      item->set_dirty();
-      if ( item->objtype_ == Core::settingsManager.extobj.port_plank &&
-           item->graphic == old_itr->altgraphic )
-        item->graphic = itr2->altgraphic;
-      else if ( item->objtype_ == Core::settingsManager.extobj.starboard_plank &&
-                item->graphic == old_itr->altgraphic )
-        item->graphic = itr2->altgraphic;
-      else
-        item->graphic = itr2->graphic;
-
-      u16 oldx = item->x;
-      u16 oldy = item->y;
-
-      item->x = x + itr2->xdelta;
-      item->y = y + itr2->ydelta;
-      item->z = z + static_cast<s8>( itr2->zdelta );
-
-      MoveItemWorldPosition( oldx, oldy, item, oldrealm );
-
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
-            Network::Client* client = zonechr->client;
-
-            if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
-              send_item( client, item );
-          } );
-
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
-            Network::Client* client = zonechr->client;
-
-            if ( !inrange( client->chr,
-                           item ) )  // not in range.  If old loc was in range, send a delete.
-              send_remove_object( client, item );
-          } );
+      _log_badcomponent( item );
+      continue;
     }
+
+    item->set_dirty();
+    // keep planks open while turning
+    if ( is_plank( item ) && item->graphic == old_itr->altgraphic )
+      item->graphic = itr2->altgraphic;
+    else
+      item->graphic = itr2->graphic;
+
+    Core::Pos4d newpos = ( this->pos() + itr2->rel_pos() );
+    _move_boat_item( item, newpos, this );
   }
 }
 
-void UBoat::move_components( const BoatContext& oldlocation )
+void UBoat::move_components()
 {
   const BoatShape& bshape = boatshape();
+
   auto itr = Components.begin();
   auto end = Components.end();
+
   auto itr2 = bshape.Componentshapes.begin();
   auto end2 = bshape.Componentshapes.end();
+
   for ( ; itr != end && itr2 != end2; ++itr, ++itr2 )
   {
     Items::Item* item = itr->get();
     if ( item == nullptr || item->orphan() )
       continue;
 
-    // This should be rare enough for a simple log to be the solution. We don't want POL to crash
-    // in MoveItemWorldPosition() because the item was not in the world to start with, so we skip
-    // it.
+    // POL would crash if the component is no longer in the world.
+    // This can only happen if someone forces the item out of the boat, so log it.
     if ( item->container != nullptr || item->has_gotten_by() )
     {
-      u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
-      POLLOG_INFO.Format(
-          "Boat component is gotten or in a container and couldn't be moved together with the "
-          "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
-          << item->serial << item->graphic << containerSerial;
+      _log_badcomponent( item );
       continue;
     }
 
     item->set_dirty();
-    const Core::Pos4d oldpos = item->pos();
-    item->setposition( this->pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, itr2->zdelta ) );
-    MoveItemWorldPosition( oldpos, item );
-
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        item->pos().xy(), item->realm(), RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
-          Network::Client* client = zonechr->client;
-
-          // Smooth move will take care of updating newer clients
-          if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
-            send_item( client, item );
-        } );
-
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        oldpos.xy(), oldpos.realm(), RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
-          Network::Client* client = zonechr->client;
-
-          // not in range anymore, but was in range of the old location: send a delete.
-          if ( !inrange( client->chr, item ) )
-            send_remove_object( client, item );
-        } );
+    Core::Pos4d newpos = this->pos() + itr2->rel_pos();
+    _move_boat_item( item, newpos, this );
   }
 }
 
 bool UBoat::turn( RELATIVE_DIR dir )
 {
-  bool result;
+  bool result = false;
   BoatMoveGuard registerguard( this );
 
   const MultiDef& newmd = multi_ifturn( dir );
 
-  if ( navigable( newmd, x, y, z, realm ) )
+  if ( navigable( newmd, this->pos() ) )
   {
     BoatContext bc( *this );
     const BoatShape& old_boatshape = boatshape();
@@ -1400,13 +1229,13 @@ bool UBoat::turn( RELATIVE_DIR dir )
     set_dirty();
     multiid = multiid_ifturn( dir );
 
-    // send_boat_to_inrange( this, x ,y, false ); // pauses those it sends to
     turn_travellers( dir, bc );
-    transform_components( old_boatshape, nullptr );
-    send_display_boat_to_inrange( x, y );
+    transform_components( old_boatshape );
+    send_display_boat_to_inrange( this->pos() );
     do_tellmoves();
     unpause_paused();
-    facing = ( ( dir * 2 ) + facing ) & 7;
+    facing = _turn_towards( static_cast<Core::UFACING>( facing ), dir );
+
     result = true;
   }
   else
@@ -1569,9 +1398,12 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
   }
 }
 
+// TODO: make argument take a Pos4d
 Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
                                              Realms::Realm* realm, int flags )
 {
+  Core::Pos4d newpos = Core::Pos4d( x, y, z, realm );
+
   unsigned short multiid = descriptor.multiid;
   unsigned short multiid_offset =
       static_cast<unsigned short>( ( flags & CRMULTI_FACING_MASK ) >> CRMULTI_FACING_SHIFT );
@@ -1592,7 +1424,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
         ", multiid=" + Clib::hexint( multiid ) );
   }
 
-  if ( !navigable( *md, x, y, z, realm ) )
+  if ( !navigable( *md, newpos ) )
   {
     return new Bscript::BError( "Position indicated is impassable" );
   }
@@ -1601,16 +1433,16 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   boat->multiid = multiid;
   boat->serial = Core::GetNewItemSerialNumber();
   boat->serial_ext = ctBEu32( boat->serial );
-  boat->x = x;
-  boat->y = y;
-  boat->z = z;
-  boat->realm = realm;
+
   boat->facing = facing;
+
+  boat->setposition( newpos );
   add_multi_to_world( boat );
-  boat->send_display_boat_to_inrange( x, y );
-  // send_boat_to_inrange( boat, x, y, false );
+  boat->send_display_boat_to_inrange( boat->pos() );
+
   boat->create_components();
   boat->rescan_components();
+
   unpause_paused();
   boat->regself();
 
@@ -1646,12 +1478,11 @@ void UBoat::create_components()
     component->graphic = itr->graphic;
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
     component->height = Plib::tileheight( component->graphic );
-    component->x = x + itr->xdelta;
-    component->y = y + itr->ydelta;
-    component->z = z + static_cast<s8>( itr->zdelta );
+
     component->disable_decay();
+
+    component->setposition( this->pos() + itr->rel_pos() );
     component->movable( false );
-    component->realm = realm;
     add_item_to_world( component );
     update_item_to_inrange( component );
     Components.push_back( Component( component ) );

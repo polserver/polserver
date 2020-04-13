@@ -59,6 +59,9 @@ class Realm;
 
 namespace Core
 {
+class Pos2d;
+class Pos4d;
+
 class UObject;
 class Vital;
 class Guild;

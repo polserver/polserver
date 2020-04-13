@@ -77,11 +77,13 @@ struct BoatShape
     unsigned int objtype;
     unsigned short graphic;
     unsigned short altgraphic;
-    unsigned short xdelta; // TODO: check this. Shouldn't it be signed?!
+    unsigned short xdelta;  // TODO: check this. Shouldn't it be signed?!
     unsigned short ydelta;
     signed short zdelta;
     ComponentShape( const std::string& str, const std::string& altstr, unsigned char type );
     ComponentShape( const std::string& str, unsigned char type );
+
+    Core::Vec3d rel_pos() const;
   };
   std::vector<ComponentShape> Componentshapes;
 
@@ -91,6 +93,10 @@ struct BoatShape
   size_t estimateSize() const;
 };
 
+inline Core::Vec3d BoatShape::ComponentShape::rel_pos() const
+{
+  return Core::Vec3d( this->xdelta, this->ydelta, this->zdelta );
+} 
 
 class UBoat final : public UMulti
 {
@@ -101,7 +107,8 @@ class UBoat final : public UMulti
     const MultiDef& stored_mdef;
     const Core::Pos4d stored_pos;
 
-    explicit BoatContext( const UBoat& ub ) : stored_mdef( ub.multidef() ), stored_pos( ub.pos() ){};
+    explicit BoatContext( const UBoat& ub )
+        : stored_mdef( ub.multidef() ), stored_pos( ub.pos() ){};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };
@@ -127,15 +134,15 @@ public:
   virtual size_t estimatedSize() const override;
 
   bool move( Core::UFACING dir, u8 speed, bool relative );
-  bool move_xy( const Core::Pos2d& newpos_xy, const BoatContext& oldstate, int flags );
   bool move_to( const Core::Pos4d& newpos, int flags );
 
+  // the directions have meaning for calculations that happen later on
   enum RELATIVE_DIR
   {
-    NO_TURN,
-    RIGHT,
-    AROUND,
-    LEFT
+    NO_TURN = 0,
+    RIGHT = 1,
+    AROUND = 2,
+    LEFT = 3
   };
   bool turn( RELATIVE_DIR dir );
 
@@ -143,10 +150,10 @@ public:
   virtual void unregister_object( Core::UObject* obj ) override;
   Core::UFACING boat_facing() const;
 
-  void send_smooth_move( Network::Client* client, Core::UFACING move_dir, u8 speed, const Core::Pos2d& newpos,
-                         bool relative );
-  void send_smooth_move_to_inrange( Core::UFACING move_dir, u8 speed, const Core::Pos2d& newpos,
- bool relative );
+  void send_smooth_move( Network::Client* client, Core::UFACING bowrelative_dir, u8 speed,
+                         const Core::Pos2d& newpos );
+  void send_smooth_move_to_inrange( Core::UFACING bowrelative_dir, u8 speed,
+                                    const Core::Pos2d& newpos );
   void send_display_boat( Network::Client* client );
   void send_display_boat_to_inrange( const Core::Pos4d& oldpos );
   void send_boat( Network::Client* client );
@@ -170,8 +177,8 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
   static bool navigable( const MultiDef&, const Core::Pos4d& pos );
-  //void realm_changed();
-  //void adjust_traveller_z( s8 delta_z );
+  // void realm_changed();
+  // void adjust_traveller_z( s8 delta_z );
 
   virtual void on_color_changed() override;
 
@@ -185,20 +192,23 @@ public:
 protected:
   void move_travellers( const BoatContext& oldlocation );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
-  void turn_traveller_coords( Mobile::Character* chr, RELATIVE_DIR dir );
+  Core::Pos4d turn_traveller_coords( const Core::UObject* obj, RELATIVE_DIR dir ) const;
+  
+  void move_offline_mobiles( const Core::Pos4d& newpos );
+
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
-  void move_offline_mobiles( Core::xcoord new_x, Core::ycoord new_y, Core::zcoord new_z,
-                             Realms::Realm* new_realm );
+  static bool is_plank( const Items::Item* item );  
+
   const MultiDef& multi_ifturn( RELATIVE_DIR dir );
   unsigned short multiid_ifturn( RELATIVE_DIR dir );
-
-
+   
   void do_tellmoves();
+  
   const BoatShape& boatshape() const;
   void rescan_components();
   void reread_components();
-  void transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm );
-  void move_components( const BoatContext& oldlocation );
+  void transform_components( const BoatShape& old_boatshape );
+  void move_components();
 
   explicit UBoat( const Items::ItemDesc& descriptor );
   virtual void fixInvalidGraphic() override;

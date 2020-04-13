@@ -3949,47 +3949,34 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
     Core::ycoord newy;
     Core::zcoord newz;
 
+
     if ( ex.numParams() == 3 )
     {
-      if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
-           ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
+      Core::Pos3d newpos_xyz;
+      if ( ex.getPos3dParam( 0, 1, 2, &newpos_xyz, realm() ) )
       {
-        if ( !realm()->valid( newx, newy, newz ) )
-          return new BError( "Coordinates are out of range" );
-
         set_dirty();
-        move_offline_mobiles( newx, newy, newz, realm() );
+        move_offline_mobiles( Core::Pos4d( newpos_xyz, realm() ) );
+        return new BLong( 1 );
+      }
+      else
+        return new BError( "Invalid parameter type" );
+    }
+    else if ( ex.numParams() == 4 )
+    {
+      Core::Pos4d newpos;
+      if ( ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
+      {
+        set_dirty();
+        move_offline_mobiles( newpos );
         return new BLong( 1 );
       }
       else
         return new BError( "Invalid parameter type" );
     }
     else
-    {
-      if ( ex.numParams() == 4 )
-      {
-        const String* strrealm;
-        if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
-             ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) &&
-             ex.getStringParam( 3, strrealm ) )
-        {
-          Realms::Realm* newrealm = Core::find_realm( strrealm->value() );
-          if ( !newrealm )
-            return new BError( "Realm not found" );
+      return new BError( "Not enough parameters" );
 
-          if ( !newrealm->valid( newx, newy, newz ) )
-            return new BError( "Coordinates are out of range" );
-
-          set_dirty();
-          move_offline_mobiles( newx, newy, newz, newrealm );
-          return new BLong( 1 );
-        }
-        else
-          return new BError( "Invalid parameter type" );
-      }
-      else
-        return new BError( "Not enough parameters" );
-    }
     break;
   }
   default:
