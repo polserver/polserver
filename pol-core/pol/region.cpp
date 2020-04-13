@@ -121,8 +121,8 @@ void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
       {
         elem.throw_error( "Zone range is out of bounds for realm" );
       }
-      Pos2d zone1=XyToZone(Pos2d(xwest,ynorth);
-      Pos2d zone2=XyToZone(Pos2d(xeast,ysouth);
+      Pos2d zone1 = XyToZone( Pos2d( xwest, ynorth ) );
+      Pos2d zone2 = XyToZone( Pos2d( xeast, ysouth ) );
       unsigned zx, zy;
       for ( zx = zone1.x(); zx <= zone2.x(); ++zx )
       {

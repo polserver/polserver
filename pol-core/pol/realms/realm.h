@@ -76,8 +76,6 @@ public:
 
   bool valid( const Core::Pos3d& pos ) const;
 
-  // TODO: slowly get rid of the method below in favor of the one above
-  bool valid( unsigned short x, unsigned short y, short z ) const;
   const std::string name() const;
 
   // functions to broadcast entered- and leftarea events to items and npcs in the realm
@@ -120,16 +118,16 @@ public:
   Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 
   bool lowest_standheight( const Core::Pos2d& newpos, short* z ) const;
-  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
-  void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const;
-  bool groundheight( unsigned short x, unsigned short y, short* z ) const;
-  Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
+  bool findstatic( const Core::Pos2d& pos, unsigned short objtype ) const;
+  void getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const;
+  bool groundheight( const Core::Pos2d& pos, short* z ) const;
+  Plib::MAPTILE_CELL getmaptile( const Core::Pos2d& pos ) const;
   void getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                      unsigned int anyflags ) const;
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags ) const;
   void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
                    MultiList& mvec ) const;
-  void readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const;
+  void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const;
 
   Core::Zone** zone;
   std::set<unsigned int> global_hulls;  // xy-smashed together
@@ -141,9 +139,8 @@ public:
 protected:
   struct LosCache
   {
-    LosCache() : last_x( 0 ), last_y( 0 ), shapes(), dyn_items(){};
-    unsigned short last_x;
-    unsigned short last_y;
+    LosCache() : last_xy( 0, 0 ), shapes(), dyn_items(){};
+    Core::Pos2d last_xy;
     Plib::MapShapeList shapes;
     std::vector<Items::Item*> dyn_items;
   };
@@ -156,14 +153,13 @@ protected:
 
   static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
 
-  void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
+  void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
                      Core::ItemsVector& walkon_items, bool doors_block );
 
-  static bool dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
-                                       LosCache& cache );
-  bool static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const;
-  bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
-                    unsigned short y, short z, LosCache& cache ) const;
+  static bool dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache );
+  bool static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) const;
+  bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target,
+                    const Core::Pos3d& pos, LosCache& cache ) const;
 
   Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
 

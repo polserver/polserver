@@ -378,7 +378,6 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
 
   // Last resort - put it at the player's feet.
   item->set_dirty();
-  Pos4d oldpos = item->toplevel_pos();
   item->setposition( chr->pos() );
   item->container = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.

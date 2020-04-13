@@ -2359,7 +2359,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
         if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {
           Plib::StaticEntryList slist;
-          realm->getstatics( slist, wx, wy );
+          realm->getstatics( slist, Core::Pos2d( wx, wy ) );
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
@@ -2379,7 +2379,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
           Plib::StaticList mlist;
-          realm->readmultis( mlist, wx, wy );
+          realm->readmultis( mlist, Core::Pos2d( wx, wy ) );
 
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
@@ -4041,7 +4041,7 @@ BObjectImp* UOExecutorModule::mf_GetMapInfo()
 
   if ( getRealmParam( 2, &realm ) && getPos2dParam( 0, 1, &pos, realm ) )
   {
-    Plib::MAPTILE_CELL cell = realm->getmaptile( pos.x(), pos.y() );
+    Plib::MAPTILE_CELL cell = realm->getmaptile( pos );
 
     std::unique_ptr<BStruct> result( new BStruct );
     result->addMember( "z", new BLong( cell.z ) );
@@ -4502,7 +4502,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation( /* x, y, z, flags, realm
     if ( !( flags & ITEMS_IGNORE_STATICS ) )
     {
       Plib::StaticEntryList slist;
-      realm->getstatics( slist, pos.x(), pos.y() );
+      realm->getstatics( slist, pos );
 
       for ( unsigned i = 0; i < slist.size(); ++i )
       {
@@ -4522,7 +4522,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsAtLocation( /* x, y, z, flags, realm
     if ( !( flags & ITEMS_IGNORE_MULTIS ) )
     {
       Plib::StaticList mlist;
-      realm->readmultis( mlist, pos.x(), pos.y() );
+      realm->readmultis( mlist, pos );
 
       for ( unsigned i = 0; i < mlist.size(); ++i )
       {
@@ -4566,7 +4566,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
         if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {
           Plib::StaticEntryList slist;
-          realm->getstatics( slist, wx, wy );
+          realm->getstatics( slist, Core::Pos2d( wx, wy ) );
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
@@ -4586,7 +4586,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocation( /* x, y, z, range, fla
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
           Plib::StaticList mlist;
-          realm->readmultis( mlist, wx, wy );
+          realm->readmultis( mlist, Core::Pos2d( wx, wy ) );
 
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {

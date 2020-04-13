@@ -2835,7 +2835,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
         if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {
           Plib::StaticEntryList slist;
-          realm->getstatics( slist, wx, wy );
+          realm->getstatics( slist, Core::Pos2d( wx, wy ) );
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
@@ -2857,7 +2857,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
           Plib::StaticList mlist;
-          realm->readmultis( mlist, wx, wy );
+          realm->readmultis( mlist, Core::Pos2d( wx, wy ) );
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
             if ( mlist[i].graphic != objtype )
@@ -2908,7 +2908,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
         if ( !( flags & ITEMS_IGNORE_STATICS ) )
         {
           Plib::StaticEntryList slist;
-          realm->getstatics( slist, wx, wy );
+          realm->getstatics( slist, Core::Pos2d( wx, wy ) );
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
@@ -2931,7 +2931,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
         if ( !( flags & ITEMS_IGNORE_MULTIS ) )
         {
           Plib::StaticList mlist;
-          realm->readmultis( mlist, wx, wy );
+          realm->readmultis( mlist, Core::Pos2d( wx, wy ) );
           for ( unsigned i = 0; i < mlist.size(); ++i )
           {
             if ( ( Plib::tile_uoflags( mlist[i].graphic ) & flags ) )

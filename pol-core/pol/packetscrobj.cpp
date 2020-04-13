@@ -33,8 +33,8 @@
 #include "network/clienttransmit.h"
 #include "realms.h"
 #include "realms/realm.h"
-#include "uworld.h"
 #include "uoexec.h"
+#include "uworld.h"
 
 namespace Pol
 {
@@ -126,20 +126,15 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
   {
     if ( ex.numParams() != 4 )
       return new BError( "SendAreaPacket requires 4 parameters." );
-    unsigned short x, y, range;
-    const String* strrealm;
-    if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) && ex.getParam( 2, range ) &&
-         ex.getStringParam( 3, strrealm ) )
+    Pos2d pos;
+    unsigned short range;
+    Realms::Realm* realm;
+    if ( ex.getRealmParam( 3, &realm ) && ex.getPos2dParam( 0, 1, &pos, realm ) &&
+         ex.getParam( 2, range ) )
     {
-      Realms::Realm* realm = find_realm( strrealm->value() );
-      if ( !realm )
-        return new BError( "Realm not found" );
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for realm" );
-
       unsigned short num_sent_to = 0;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          x, y, realm, range, [&]( Mobile::Character* chr ) {
+          Pos4d( pos, 0, realm ), range, [&]( Mobile::Character* chr ) {
             Core::networkManager.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ),
                                                              static_cast<int>( buffer.size() ) );
             num_sent_to++;

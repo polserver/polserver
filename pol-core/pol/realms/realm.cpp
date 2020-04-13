@@ -118,12 +118,8 @@ unsigned Realm::season() const
 
 bool Realm::valid( const Core::Pos3d& pos ) const
 {
-  return Realm::valid( pos.x(), pos.y(), pos.z() );  // Yes, I'm lazy. Sorry.
-}
-
-bool Realm::valid( unsigned short x, unsigned short y, short z ) const
-{
-  return ( x < width() && y < height() && z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
+  // TODO: z cannot be checked its by definition in valid range. really a problem?
+  return pos.x() < width() && pos.y() < height();
 }
 
 const std::string Realm::name() const
@@ -139,22 +135,22 @@ void Realm::notify_moved( Mobile::Character& whomoved )
   if ( !whomoved.pos().inRange( whomoved.lastxyz, 32 ) )
   {
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        whomoved.lastx, whomoved.lasty, this, 32,
+        whomoved.lastxyz.xy(), this, 32,
         [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
 
     Core::WorldIterator<Core::ItemFilter>::InRange(
-        whomoved.lastx, whomoved.lasty, this, 32,
+        whomoved.lastxyz.xy(), this, 32,
         [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
   }
 
   // Inform nearby mobiles that a movement has been made.
   Core::WorldIterator<Core::MobileFilter>::InRange(
-      whomoved.x, whomoved.y, this, 33,
+      whomoved.pos().xy(), this, 33,
       [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
 
   // the same for top-level items
   Core::WorldIterator<Core::ItemFilter>::InRange(
-      whomoved.x, whomoved.y, this, 33,
+      whomoved.pos().xy(), this, 33,
       [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
 }
 
@@ -163,11 +159,11 @@ void Realm::notify_moved( Mobile::Character& whomoved )
 void Realm::notify_unhid( Mobile::Character& whounhid )
 {
   Core::WorldIterator<Core::NPCFilter>::InRange(
-      whounhid.x, whounhid.y, this, 32,
+      whounhid.pos().xy(), this, 32,
       [&]( Mobile::Character* chr ) { Mobile::NpcPropagateEnteredArea( chr, &whounhid ); } );
 
   Core::WorldIterator<Core::ItemFilter>::InRange(
-      whounhid.x, whounhid.y, this, 32,
+      whounhid.pos().xy(), this, 32,
       [&]( Items::Item* item ) { item->inform_enteredarea( &whounhid ); } );
 }
 
@@ -180,7 +176,7 @@ void Realm::notify_resurrected( Mobile::Character& whoressed )
 void Realm::notify_entered( Mobile::Character& whoentered )
 {
   Core::WorldIterator<Core::MobileFilter>::InRange(
-      whoentered.x, whoentered.y, this, 32, [&]( Mobile::Character* chr ) {
+      whoentered.pos().xy(), this, 32, [&]( Mobile::Character* chr ) {
         Mobile::NpcPropagateEnteredArea( chr, &whoentered );
         Mobile::NpcPropagateEnteredArea( &whoentered,
                                          chr );  // Notify the one who entered this area about
@@ -189,7 +185,7 @@ void Realm::notify_entered( Mobile::Character& whoentered )
 
   // and notify the top-level items too
   Core::WorldIterator<Core::ItemFilter>::InRange(
-      whoentered.x, whoentered.y, this, 32,
+      whoentered.pos().xy(), this, 32,
       [&]( Items::Item* item ) { item->inform_enteredarea( &whoentered ); } );
 }
 
@@ -197,11 +193,11 @@ void Realm::notify_entered( Mobile::Character& whoentered )
 void Realm::notify_left( Mobile::Character& wholeft )
 {
   Core::WorldIterator<Core::MobileFilter>::InRange(
-      wholeft.x, wholeft.y, this, 32,
+      wholeft.pos().xy(), this, 32,
       [&]( Mobile::Character* chr ) { Mobile::NpcPropagateLeftArea( chr, &wholeft ); } );
 
   Core::WorldIterator<Core::ItemFilter>::InRange(
-      wholeft.x, wholeft.y, this, 32,
+      wholeft.pos().xy(), this, 32,
       [&]( Items::Item* item ) { item->inform_leftarea( &wholeft ); } );
 }
 

@@ -308,20 +308,20 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
 }
 
 
-void Realm::readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
+void Realm::readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
                           Core::ItemsVector& walkon_items, bool doors_block )
 {
-  Core::ZoneItems& witems = Core::getzone( x, y, this ).items;
+  Core::ZoneItems& witems = Core::getzone( Core::Pos4d( pos, 0, this ) ).items;
   for ( const auto& item : witems )
   {
-    if ( ( item->x == x ) && ( item->y == y ) )
+    if ( item->pos().xy() == pos )
     {
       if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
       {
         if ( doors_block || item->itemdesc().type != Items::ItemDesc::DOORDESC )
         {
           Plib::MapShape shape;
-          shape.z = item->z;
+          shape.z = item->z();
           shape.height = item->height;
           shape.flags = Plib::systemstate.tile[item->graphic].flags;
           vec.push_back( shape );
@@ -342,7 +342,7 @@ bool Realm::walkheight( const Core::Pos2d& newpos, short oldz, short* newz, Mult
                         Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                         short* gradual_boost )
 {
-  if ( new_pos.x() >= width() || new_pos.y() >= height() )
+  if ( newpos.x() >= width() || newpos.y() >= height() )
   {
     return false;
   }
@@ -629,7 +629,7 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos,
     else
     {
       const Multi::MultiDef& def = multi->multidef();
-      def.readshapes( vec, pos - multi->pos(), multi->z, anyflags );
+      def.readshapes( vec, pos - multi->pos(), multi->z(), anyflags );
     }
   } );
 }
@@ -641,13 +641,13 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigne
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr && house->IsCustom() )
     {
-      if ( multi->readshapes( vec, pos - multi->pos(), multi->z ) )
+      if ( multi->readshapes( vec, pos - multi->pos(), multi->z() ) )
         mvec.push_back( multi );
     }
     else
     {
       const Multi::MultiDef& def = multi->multidef();
-      if ( def.readshapes( vec, pos - multi->pos(), multi->z, anyflags ) )
+      if ( def.readshapes( vec, pos - multi->pos(), multi->z(), anyflags ) )
       {
         mvec.push_back( multi );
       }
@@ -655,18 +655,18 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigne
   } );
 }
 
-void Realm::readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const
+void Realm::readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const
 {
-  Core::WorldIterator<Core::MultiFilter>::InRange( x, y, this, 64, [&]( Multi::UMulti* multi ) {
+  Core::WorldIterator<Core::MultiFilter>::InRange( pos, this, 64, [&]( Multi::UMulti* multi ) {
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if the
                                                   // house is being edited,
       // everyone in the house would use it for walking...
-      multi->readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
+      multi->readobjects( vec, pos - multi->pos(), multi->z() );
     else
     {
       const Multi::MultiDef& def = multi->multidef();
-      def.readobjects( vec, int( x ) - multi->x, int( y ) - multi->y, multi->z );
+      def.readobjects( vec, pos - multi->pos(), multi->z() );
     }
   } );
 }
@@ -727,9 +727,9 @@ Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z ) const
   Multi::UMulti* found = nullptr;
   for ( auto& multi : mvec )
   {
-    if ( multi->z <= z )
+    if ( multi->z() <= z )
     {
-      if ( ( found == nullptr ) || ( multi->z > found->z ) )
+      if ( ( found == nullptr ) || ( multi->z() > found->z() ) )
       {
         found = multi;
       }
@@ -738,25 +738,25 @@ Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z ) const
   return found;
 }
 
-bool Realm::findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const
+bool Realm::findstatic( const Core::Pos2d& pos, unsigned short objtype ) const
 {
   if ( is_shadowrealm )
-    return baserealm->_staticserver->findstatic( x, y, objtype );
+    return baserealm->_staticserver->findstatic( pos.x(), pos.y(), objtype );
   else
-    return _staticserver->findstatic( x, y, objtype );
+    return _staticserver->findstatic( pos.x(), pos.y(), objtype );
 }
 
-void Realm::getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const
+void Realm::getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const
 {
   if ( is_shadowrealm )
-    return baserealm->_staticserver->getstatics( statics, x, y );
+    return baserealm->_staticserver->getstatics( statics, pos.x(), pos.y() );
   else
-    _staticserver->getstatics( statics, x, y );
+    _staticserver->getstatics( statics, pos.x(), pos.y() );
 }
 
-bool Realm::groundheight( unsigned short x, unsigned short y, short* z ) const
+bool Realm::groundheight( const Core::Pos2d& pos, short* z ) const
 {
-  Plib::MAPTILE_CELL cell = _maptileserver->GetMapTile( x, y );
+  Plib::MAPTILE_CELL cell = _maptileserver->GetMapTile( pos.x(), pos.y() );
   *z = cell.z;
 
   if ( cell.landtile == GRAPHIC_NODRAW )  // it's a nodraw tile
@@ -766,12 +766,12 @@ bool Realm::groundheight( unsigned short x, unsigned short y, short* z ) const
            ( ( Core::landtile_flags( cell.landtile ) & Plib::FLAG::BLOCKING ) == 0 ) );
 }
 
-Plib::MAPTILE_CELL Realm::getmaptile( unsigned short x, unsigned short y ) const
+Plib::MAPTILE_CELL Realm::getmaptile( const Core::Pos2d& pos ) const
 {
   if ( is_shadowrealm )
-    return baserealm->_maptileserver->GetMapTile( x, y );
+    return baserealm->_maptileserver->GetMapTile( pos.x(), pos.y() );
   else
-    return _maptileserver->GetMapTile( x, y );
+    return _maptileserver->GetMapTile( pos.x(), pos.y() );
 }
 void Realm::getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                           unsigned int anyflags ) const
