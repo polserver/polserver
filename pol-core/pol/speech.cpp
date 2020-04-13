@@ -133,7 +133,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   else
     range = Core::settingsManager.ssopt.speech_range;
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* other_chr ) {
+      chr->pos(), range, [&]( Mobile::Character* other_chr ) {
         Network::Client* client2 = other_chr->client;
         if ( client == client2 )
           return;
@@ -156,7 +156,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   if ( !chr->dead() )
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
+        chr->pos(), range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
           npc->on_pc_spoke( chr, s_text, type );
         } );
@@ -164,7 +164,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   else
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
+        chr->pos(), range, [&]( Mobile::Character* otherchr ) {
           Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
           npc->on_ghost_pc_spoke( chr, s_text, type );
         } );
@@ -332,7 +332,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     else
       range = Core::settingsManager.ssopt.speech_range;
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
+        chr->pos(), range, [&]( Mobile::Character* otherchr ) {
           Network::Client* client2 = otherchr->client;
           if ( client == client2 )
             return;
@@ -355,7 +355,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     if ( !chr->dead() )
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
+          chr->pos(), range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
             npc->on_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
           } );
@@ -363,7 +363,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     else
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x, chr->y, chr->realm, range, [&]( Mobile::Character* otherchr ) {
+          chr->pos(), range, [&]( Mobile::Character* otherchr ) {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
             npc->on_ghost_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
           } );

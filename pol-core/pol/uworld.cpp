@@ -288,7 +288,7 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
 }
 // Dave added this for debugging a single zone
 
-bool check_single_zone_item_integrity( Pos2d grid_xy, Realms::Realm* realm )
+bool check_single_zone_item_integrity( const Pos2d& grid_xy, Realms::Realm* realm )
 {
   try
   {

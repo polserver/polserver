@@ -24,7 +24,7 @@ void dummy() {}
 
 void map_test()
 {
-  Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( 1453, 1794 );
+  Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( Core::Pos2d( 1453, 1794 ) );
   INFO_PRINT << cell.landtile << " " << cell.z << "\n";
 }
 
@@ -66,7 +66,6 @@ void packet_test()
     INFO_PRINT << w.str() << "\n";
   };
   auto test = []( const PacketOut<PktOut_2F>& p, const std::array<s8, 10>& a ) {
-
     if ( std::equal( std::begin( p->buffer ), std::end( p->buffer ), std::begin( a ) ) )
       INFO_PRINT << "success\n";
     else

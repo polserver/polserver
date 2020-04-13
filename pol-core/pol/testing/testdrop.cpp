@@ -3,11 +3,11 @@
  * @par History
  */
 
-#include <format/format.h>
 #include "../../clib/logfacility.h"
 #include "../globals/uvars.h"
 #include "../realms/realm.h"
 #include "testenv.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -26,7 +26,8 @@ void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned s
 
   short newz;
   Multi::UMulti* multi;
-  bool result = Core::gamestate.main_realm->dropheight( dropx, dropy, dropz, chrz, &newz, &multi );
+  bool result = Core::gamestate.main_realm->dropheight(
+      Core::Pos4d( dropx, dropy, dropz, Core::gamestate.main_realm ), chrz, &newz, &multi );
   tmp << "Got " << result << "," << newz << ": ";
   if ( exp_result != result )
   {

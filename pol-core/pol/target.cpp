@@ -261,7 +261,7 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
     return;
   }
 
-  if ( !additlegal && !chr->realm->has_los( *chr, *uobj->toplevel_owner() ) )
+  if ( !additlegal && !chr->realm()->has_los( *chr, *uobj->toplevel_owner() ) )
   {
     if ( chr->client != nullptr )
       send_sysmessage( chr->client, "That is not within your line of sight." );

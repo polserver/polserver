@@ -28,7 +28,8 @@ void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, un
              << "Expect " << exp_result << "," << exp_z << ": ";
   UMulti* multi;
   Item* itm;
-  bool res = gamestate.main_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true /*doors
+  bool res = gamestate.main_realm->walkheight( Core::Pos2d( newx, newy ), oldz, &newz, &multi, &itm,
+                                               true /*doors
 block*/, Plib::MOVEMODE_LAND );
 
   INFO_PRINT << "Got " << res << "," << newz << ": ";
@@ -62,8 +63,8 @@ void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, u
              << "Expect " << exp_result << "," << exp_z << ": ";
   UMulti* multi;
   Item* itm;
-  bool res = gamestate.main_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, doors_block,
-                                               movemode );
+  bool res = gamestate.main_realm->walkheight( Core::Pos2d( newx, newy ), oldz, &newz, &multi, &itm,
+                                               doors_block, movemode );
 
   INFO_PRINT << "Got " << res << "," << newz << ": ";
 

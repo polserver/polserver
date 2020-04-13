@@ -151,7 +151,6 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const std::str
         color &= Plib::VALID_ITEM_COLOR_MASK;
         it->color = color;
         it->layer = Plib::tilelayer( it->graphic );
-        it->realm = chr->realm;
         // FIXME equip scripts, equiptest scripts
         if ( chr->equippable( it ) )
         {
@@ -466,19 +465,16 @@ void textcmd_constat( Network::Client* client )
 }
 
 
-bool check_single_zone_item_integrity( int, int, Realms::Realm* );
 void textcmd_singlezone_integ_item( Network::Client* client )
 {
-  unsigned short wx, wy;
-  zone_convert( client->chr->x, client->chr->y, &wx, &wy, client->chr->realm );
-  bool ok = check_single_zone_item_integrity( wx, wy, client->chr->realm );
+  Pos2d wp = zone_convert( client->chr->pos() );
+  bool ok = check_single_zone_item_integrity( wp, client->chr->realm() );
   if ( ok )
     send_sysmessage( client, "Item integrity checks out OK!" );
   else
     send_sysmessage( client, "Item integrity problems detected. " );
 }
 
-bool check_item_integrity();
 void textcmd_integ_item( Network::Client* client )
 {
   bool ok = check_item_integrity();

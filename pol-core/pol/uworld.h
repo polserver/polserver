@@ -56,7 +56,9 @@ void MoveItemWorldPosition( const Pos4d& oldpos, Items::Item* item );
 int get_toplevel_item_count();
 int get_mobile_count();
 
+bool check_single_zone_item_integrity( const Pos2d& grid_xy, Realms::Realm* realm );
 void optimize_zones();
+bool check_item_integrity();
 
 typedef std::vector<Mobile::Character*> ZoneCharacters;
 typedef std::vector<Multi::UMulti*> ZoneMultis;
@@ -238,7 +240,8 @@ void WorldIterator<Filter>::InRange( const Pos4d& p, unsigned range, F&& f )
   _forEach( coords, std::forward<F>( f ) );
 }
 
-// Iterates over the items within visual range of the top-level position of this object or its top-level container
+// Iterates over the items within visual range of the top-level position of this object or its
+// top-level container
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
