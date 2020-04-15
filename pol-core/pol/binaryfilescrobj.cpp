@@ -51,7 +51,7 @@ BBinaryfile::BBinaryfile( std::string filename, unsigned short mode, bool _bigen
   if ( mode & 0x10 )
     openmode |= ios::trunc;
 
-  if ( !file.Open( filename, openmode ) )
+  if ( !file.Open( _filename, openmode ) )
     return;
 }
 
