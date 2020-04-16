@@ -67,23 +67,21 @@ void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList&
   Core::Pos4d p1 = house->pos() + Core::Vec2d( md.minrx, md.minry );
   Core::Pos4d p2 = house->pos() + Core::Vec2d( md.maxrx, md.maxry );
 
-  Core::WorldIterator<Core::MobileFilter>::InBox(
-      p1, p2, [&]( Mobile::Character* chr ) {
-        UMulti* multi = chr->supporting_multi();
-        if ( const_cast<const UMulti*>( multi ) == house )
-          chrs_in.push_back( chr );
-      } );
-  Core::WorldIterator<Core::ItemFilter>::InBox(
-      p1, p2, [&]( Items::Item* item ) {
-        UMulti* multi = item->supporting_multi();
-        if ( const_cast<const UMulti*>( multi ) == house )
-        {
-          if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
-            items_in.push_front( item );
-          else
-            items_in.push_back( item );
-        }
-      } );
+  Core::WorldIterator<Core::MobileFilter>::InBox( p1, p2, [&]( Mobile::Character* chr ) {
+    UMulti* multi = chr->supporting_multi();
+    if ( const_cast<const UMulti*>( multi ) == house )
+      chrs_in.push_back( chr );
+  } );
+  Core::WorldIterator<Core::ItemFilter>::InBox( p1, p2, [&]( Items::Item* item ) {
+    UMulti* multi = item->supporting_multi();
+    if ( const_cast<const UMulti*>( multi ) == house )
+    {
+      if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
+        items_in.push_front( item );
+      else
+        items_in.push_back( item );
+    }
+  } );
 }
 
 UHouse::UHouse( const Items::ItemDesc& itemdesc )
@@ -147,29 +145,11 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
   if ( !can_add_component( item ) )
     return false;
 
-  u16 newx, newy;
-  s8 newz;
-  try
-  {
-    // These casts should be safe, but better check them - 2015-01-25 Bodom
-    newx = boost::numeric_cast<u16>( x + xoff );
-    newy = boost::numeric_cast<u16>( y + yoff );
-    newz = boost::numeric_cast<s8>( z + zoff );
-  }
-  catch ( boost::bad_numeric_cast& )
-  {
-    // Printing an error because this is supposed to not happen,
-    // so it's probably a bug.
-    POLLOG_ERROR << "Out-of-range coordinates while trying to add Item "
-                 << fmt::hexu( item->serial ) << " to House " << fmt::hexu( serial ) << '\n';
-    return false;
-  }
-  item->x = newx;
-  item->y = newy;
-  item->z = newz;
+  item->setposition( Core::Pos4d(
+      item->pos().xyz() + Core::Vec3d( static_cast<s16>( xoff ), static_cast<s16>( yoff ), zoff ),
+      realm() ) );
   item->disable_decay();
   item->movable( false );
-  item->realm = realm;
   update_item_to_inrange( item );
   add_item_to_world( item );
   add_component_no_check( Component( item ) );
@@ -572,12 +552,13 @@ void UHouse::destroy_components()
   }
 }
 
-bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, short zbase )
+bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase )
 {
   if ( !custom )
     return false;
 
   bool result = false;
+  auto shape_x = rxy.x(), shape_y = rxy.y();
   HouseFloorZColumn* elems;
   HouseFloorZColumn::iterator itr;
   CustomHouseDesign* design;
@@ -616,7 +597,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
     if ( item->graphic >= TELEPORTER_START && item->graphic <= TELEPORTER_END )
     {
       Plib::MapShape shape;
-      shape.z = item->z;
+      shape.z = item->z();
       shape.height = Plib::tileheight( item->graphic );
       shape.flags = Plib::tile_flags( item->graphic );
       if ( !shape.height )
@@ -631,12 +612,13 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
   return result;
 }
 
-bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short zbase )
+bool UHouse::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase )
 {
   if ( !custom )
     return false;
 
   bool result = false;
+  auto obj_x = rxy.x(), obj_y = rxy.y();
   HouseFloorZColumn* elems;
   HouseFloorZColumn::iterator itr;
   CustomHouseDesign* design;
@@ -694,24 +676,26 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
 bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
                       unsigned short mysouth, Realms::Realm* realm )
 {
-  unsigned short wxL, wyL, wxH, wyH;
+  Core::Pos2d rL =
+      Core::zone_convert( Core::Pos4d( mywest, mynorth, 0, realm ) - Core::Vec2d( 100, 100 ) );
+  Core::Pos2d rH =
+      Core::zone_convert( Core::Pos4d( myeast, mysouth, 0, realm ) + Core::Vec2d( 100, 100 ) );
 
-  Core::zone_convert( mywest - 100, mynorth - 100, realm, &wxL, &wyL );
-  Core::zone_convert( myeast + 100, mysouth + 100, realm, &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( unsigned short wx = rL.x(); wx <= rH.x(); ++wx )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( unsigned short wy = rL.y(); wy <= rH.y(); ++wy )
     {
       for ( const auto& multi : realm->zone[wx][wy].multis )
       {
         const MultiDef& edef = multi->multidef();
         // find out if any of our walls would fall within its footprint.
-        unsigned short itswest, itseast, itsnorth, itssouth;
 
-        itswest = static_cast<unsigned short>( multi->x + edef.minrx );
-        itseast = static_cast<unsigned short>( multi->x + edef.maxrx );
-        itsnorth = static_cast<unsigned short>( multi->y + edef.minry );
-        itssouth = static_cast<unsigned short>( multi->y + edef.maxry );
+
+        const auto itsNW = multi->pos().xy() + Core::Vec2d( edef.minrx, edef.minry ),
+                   itsSE = multi->pos().xy() + Core::Vec2d( edef.maxrx, edef.maxry );
+
+        const auto itswest = itsNW.x(), itseast = itsSE.x(), itsnorth = itsNW.y(),
+                   itssouth = itsSE.y();
 
         if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
         {
@@ -755,11 +739,12 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
 bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
                        Realms::Realm* realm )
 {
-  unsigned short wxL, wyL, wxH, wyH;
-  Core::zone_convert( x1, y1, realm, &wxL, &wyL );
-  Core::zone_convert( x2, y2, realm, &wxH, &wyH );
+  Core::Pos2d rL = Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) );
+  Core::Pos2d rH = Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) );
+  auto wxL = rL.x(), wxH = rL.y(), wyL = rH.x(), wyH = rH.y();
+
   auto includes = [&]( const Core::UObject* obj ) {
-    if ( obj->x >= x1 && obj->x <= x2 && obj->y >= y1 && obj->y <= y2 )
+    if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
     {
       return true;
     }
@@ -799,7 +784,8 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned shor
       short newz;
       UMulti* multi;
       Items::Item* item;
-      if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
+      if ( !realm->walkheight( Core::Pos2d( x, y ), z, &newz, &multi, &item, true,
+                               Plib::MOVEMODE_LAND ) )
       {
         POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" ) << x << y << z;
         return true;
@@ -826,8 +812,8 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
         ", multiid=" + Clib::hexint( descriptor.multiid ) );
   }
 
-  if ( ( !realm->valid( x + md->minrx, y + md->minry, z + md->minrz ) ) ||
-       ( !realm->valid( x + md->maxrx, y + md->maxry, z + md->maxrz ) ) )
+  if ( !realm->valid( Core::Pos3d( x, y, z ) + Core::Vec3d( md->minrx, md->minry, md->minrz ) ) ||
+       !realm->valid( Core::Pos3d( x, y, z ) + Core::Vec3d( md->maxrx, md->maxry, md->maxrz ) ) )
     return new Bscript::BError( "That location is out of bounds" );
 
   if ( ~flags & CRMULTI_IGNORE_MULTIS )
@@ -858,10 +844,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   UHouse* house = new UHouse( descriptor );
   house->serial = Core::GetNewItemSerialNumber();
   house->serial_ext = ctBEu32( house->serial );
-  house->x = x;
-  house->y = y;
-  house->z = z;
-  house->realm = realm;
+  house->setposition( Core::Pos4d( x, y, z, realm ) );
   send_multi_to_inrange( house );
   // update_item_to_inrange( house );
   add_multi_to_world( house );
@@ -888,25 +871,32 @@ void move_to_ground( Items::Item* item )
       Items::Item* walkon;
       UMulti* multi;
       short newz;
-      unsigned short sx = item->x;
-      unsigned short sy = item->y;
-      item->x = 0;  // move 'self' a bit so it doesn't interfere with itself
-      item->y = 0;
-      bool res = item->realm->walkheight( sx + xd, sy + yd, item->z, &newz, &multi, &walkon, true,
-                                          Plib::MOVEMODE_LAND );
-      item->x = sx;
-      item->y = sy;
+      Core::Pos4d oldpos = item->pos();
+      // move 'self' a bit so it doesn't interfere with itself
+      item->setposition( Core::Pos4d( 0, 0, item->z(), item->realm() ) );
+
+      auto possiblePos = oldpos.xy() + Core::Vec2d( xd, yd );
+      bool res = item->realm()->walkheight( possiblePos, item->z(), &newz, &multi, &walkon, true,
+                                            Plib::MOVEMODE_LAND );
+
       if ( res )
       {
-        move_item( item, item->x + xd, item->y + yd, static_cast<signed char>( newz ), nullptr );
+        item->setposition( Core::Pos4d( possiblePos, static_cast<s8>( newz ), item->realm() ) );
+        move_item( item, item->pos(), oldpos );
         return;
+      }
+      else
+      {
+        item->setposition( oldpos );
       }
     }
   }
   short newz;
-  if ( item->realm->groundheight( item->x, item->y, &newz ) )
+  if ( item->realm()->groundheight( item->pos().xy(), &newz ) )
   {
-    move_item( item, item->x, item->y, static_cast<signed char>( newz ), nullptr );
+    Core::Pos4d oldpos = item->pos();
+    item->setposition( Core::Pos4d( oldpos.xy(), static_cast<s8>( newz ), item->realm() ) );
+    move_item( item, item->pos(), oldpos );
     return;
   }
 }
@@ -998,9 +988,10 @@ void UHouse::walk_on( Mobile::Character* chr )
       ex->addModule( new Module::UOExecutorModule( *ex ) );
       if ( prog->haveProgram )
       {
-        ex->pushArg( new Bscript::BLong( chr->lastz ) );
-        ex->pushArg( new Bscript::BLong( chr->lasty ) );
-        ex->pushArg( new Bscript::BLong( chr->lastx ) );
+        Core::Pos3d& last = chr->lastxyz;
+        ex->pushArg( new Bscript::BLong( last.x() ) );
+        ex->pushArg( new Bscript::BLong( last.y() ) );
+        ex->pushArg( new Bscript::BLong( last.z() ) );
         ex->pushArg( new Module::EItemRefObjImp( this ) );
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
