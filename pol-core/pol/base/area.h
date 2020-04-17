@@ -36,11 +36,10 @@ class Area2d
 private:
   Pos2d _pL;
   Pos2d _pH;
-  Realms::Realm* _realm;
 
 public:
   Area2d() = default;
-  Area2d( const Pos2d& p1, const Pos2d& p2, Realms::Realm* realm );
+  Area2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm );
   Area2d( const Area2d& other ) = default;
   Area2d( Area2d&& other ) = default;
   ~Area2d() = default;
@@ -49,7 +48,6 @@ public:
 
   const Pos2d& posL() const;
   const Pos2d& posH() const;
-  Realms::Realm* realm() const;
 
   Area2dItr begin() const;
   Area2dItr end() const;
@@ -70,10 +68,6 @@ inline const Pos2d& Area2d::posL() const
 inline const Pos2d& Area2d::posH() const
 {
   return _pH;
-}
-inline Realms::Realm* Area2d::realm() const
-{
-  return _realm;
 }
 }  // namespace Core
 }  // namespace Pol

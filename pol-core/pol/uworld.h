@@ -29,6 +29,7 @@
 #include "../clib/rawtypes.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/uconst.h"
+#include "base/area.h"
 #include "base/position.h"
 #include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
@@ -154,16 +155,14 @@ struct CoordsArea
   bool inRange( const UObject* obj ) const;
 
   // shifted coords
-  Pos2d wL;
-  Pos2d wH;
+  Area2d warea;
   const Realms::Realm* realm;
 
 private:
   static Pos2d convert( const Pos2d& p );
 
   // plain coords
-  Pos2d _posL;
-  Pos2d _posH;
+  Area2d area;
 };
 }  // namespace
 ///////////////
@@ -174,41 +173,27 @@ inline CoordsArea::CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, un
 {
   realm = posrealm;
   Vec2d r( range, range );
-  _posL = p - r;
-  _posH = p + r;
-  _posL.crop( realm );
-  _posH.crop( realm );
-
-
-  wL = convert( _posL );
-  wH = convert( _posH );
-  passert( wL <= wH );
+  area = Area2d( p - r, p + r, realm );
+  warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
 }
 inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
 {
   realm = p.realm();
   Vec2d r( range, range );
-  _posL = ( p - r ).xy();
-  _posH = ( p + r ).xy();
-
-  wL = convert( _posL );
-  wH = convert( _posH );
-  passert( wL <= wH );
+  area = Area2d( ( p - r ).xy(), ( p + r ).xy(), realm );
+  warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
 }
 
 inline CoordsArea::CoordsArea( const Pos4d& p1, const Pos4d& p2 )
 {
   realm = p1.realm();
-  _posL = p1.xy();
-  _posH = p2.xy();
-  wL = convert( _posL );
-  wH = convert( _posH );
-  passert( wL <= wH );
+  area = Area2d( p1.xy(), p2.xy(), realm );
+  warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
 }
 
 inline bool CoordsArea::inRange( const UObject* obj ) const
 {
-  return ( obj->pos() >= _posL && obj->pos() <= _posH );
+  return area.contains( obj->pos().xy() );
 }
 
 inline Pos2d CoordsArea::convert( const Pos2d& p )
@@ -262,12 +247,9 @@ template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::_forEach( const CoordsArea& coords, F&& f )
 {
-  for ( u16 wx = coords.wL.x(); wx <= coords.wH.x(); ++wx )
+  for ( const auto& p : coords.warea )
   {
-    for ( u16 wy = coords.wL.y(); wy <= coords.wH.y(); ++wy )
-    {
-      Filter::call( coords.realm->zone[wx][wy], coords, f );
-    }
+    Filter::call( coords.realm->zone[p.x()][p.y()], coords, f );
   }
 }
 

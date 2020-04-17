@@ -28,15 +28,14 @@ Area2dItr& Area2dItr::operator++()
   return *this;
 }
 
-Area2d::Area2d( const Pos2d& p1, const Pos2d& p2, Realms::Realm* realm )
+Area2d::Area2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm )
 {
   _pL = Pos2d( std::min( p1.x(), p2.x() ), std::min( p1.y(), p2.y() ) );
   _pH = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
-  _realm = realm;
-  if ( _realm != nullptr )
+  if ( realm != nullptr )
   {
-    _pL.crop( _realm );
-    _pH.crop( _realm );
+    _pL.crop( realm );
+    _pH.crop( realm );
   }
 }
 
