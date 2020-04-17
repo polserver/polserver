@@ -46,7 +46,6 @@
 #include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/make_unique.hpp"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
@@ -1759,7 +1758,7 @@ BObjectImp* GetAllScriptList()
 
 BObjectImp* GetScriptProfiles()
 {
-  std::unique_ptr<ObjArray> arr = Clib::make_unique<ObjArray>();
+  std::unique_ptr<ObjArray> arr = std::make_unique<ObjArray>();
 
   u64 total_instr = 0;
   for ( const auto& source : scriptScheduler.scrstore )
@@ -1773,7 +1772,7 @@ BObjectImp* GetScriptProfiles()
     EScriptProgram* eprog = ( ( src ).second ).get();
 
 
-    std::unique_ptr<BStruct> elem = Clib::make_unique<BStruct>();
+    std::unique_ptr<BStruct> elem = std::make_unique<BStruct>();
     elem->addMember( "name", new String( eprog->name ) );
     elem->addMember( "instr", new Double( static_cast<double>( eprog->instr_cycles ) ) );
     elem->addMember( "invocations", new BLong( eprog->invocations ) );
@@ -1800,7 +1799,7 @@ BObjectImp* GetIoStatsObj( const IOStats& stats )
 
   for ( unsigned i = 0; i < 256; ++i )
   {
-    std::unique_ptr<BStruct> elem = Clib::make_unique<BStruct>();
+    std::unique_ptr<BStruct> elem = std::make_unique<BStruct>();
     elem->addMember( "count", new BLong( stats.sent[i].count ) );
     elem->addMember( "bytes", new BLong( stats.sent[i].bytes ) );
     sent->addElement( elem.release() );
@@ -1830,7 +1829,7 @@ BObjectImp* GetQueuedIoStats()
 BObjectImp* GetPktStatusObj()
 {
   using namespace PacketWriterDefs;
-  std::unique_ptr<ObjArray> pkts = Clib::make_unique<ObjArray>();
+  std::unique_ptr<ObjArray> pkts = std::make_unique<ObjArray>();
   PacketQueueMap* map = networkManager.packetsSingleton->getPackets();
   for ( PacketQueueMap::iterator it = map->begin(); it != map->end(); ++it )
   {

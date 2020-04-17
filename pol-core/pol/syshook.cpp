@@ -17,22 +17,21 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
-#include "../clib/make_unique.hpp"
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 #include "accounts/account.h"
 #include "accounts/acscrobj.h"
 #include "globals/uvars.h"
+#include "guildscrobj.h"
 #include "module/guildmod.h"
 #include "module/partymod.h"
+#include "partyscrobj.h"
 #include "polclass.h"
 #include "scrdef.h"
 #include "syshookscript.h"
 #include "uobject.h"
 #include "uoscrobj.h"
-#include "partyscrobj.h"
-#include "guildscrobj.h"
 
 namespace Pol
 {
@@ -259,7 +258,7 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
     return;
   }
 
-  *pphook = Clib::make_unique<ExportedFunction>( shs, PC );
+  *pphook = std::make_unique<ExportedFunction>( shs, PC );
 }
 
 namespace
@@ -267,7 +266,7 @@ namespace
 void setMethod( std::unique_ptr<ExportScript>* script, Plib::Package* pkg,
                 const std::string& scriptname )
 {
-  auto shs = Clib::make_unique<ExportScript>( pkg, scriptname );
+  auto shs = std::make_unique<ExportScript>( pkg, scriptname );
   if ( shs->Initialize() )
     script->swap( shs );
 }
@@ -288,7 +287,7 @@ void load_system_hooks()
       {
         if ( !stricmp( elem.type(), "SystemHookScript" ) )
         {
-          auto shs = Clib::make_unique<ExportScript>( pkg, elem.rest() );
+          auto shs = std::make_unique<ExportScript>( pkg, elem.rest() );
           if ( shs->Initialize() )
           {
             std::string hookname, exfuncname;
@@ -455,7 +454,7 @@ ExportScript* FindExportScript( const ScriptDef& sd )
       return ps.get();
   }
 
-  auto ps = Clib::make_unique<ExportScript>( sd );
+  auto ps = std::make_unique<ExportScript>( sd );
   if ( ps->Initialize() )
   {
     gamestate.export_scripts.push_back( std::move( ps ) );
