@@ -61,7 +61,7 @@ function(set_compile_flags target is_executable)
 
   target_compile_options(${target} PRIVATE
     $<${linux}:
-      -std=c++11
+      -std=c++14
       -fPIC
       -W
       -Wall
