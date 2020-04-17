@@ -61,18 +61,6 @@ bool check_single_zone_item_integrity( const Pos2d& grid_xy, Realms::Realm* real
 void optimize_zones();
 bool check_item_integrity();
 
-typedef std::vector<Mobile::Character*> ZoneCharacters;
-typedef std::vector<Multi::UMulti*> ZoneMultis;
-typedef std::vector<Items::Item*> ZoneItems;
-
-struct Zone
-{
-  ZoneCharacters characters;
-  ZoneCharacters npcs;
-  ZoneItems items;
-  ZoneMultis multis;
-};
-
 inline Pos2d zone_convert( const Pos4d& p )
 {
   return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
@@ -81,7 +69,7 @@ inline Pos2d zone_convert( const Pos4d& p )
 
 inline Zone& getzone( const Pos4d& p )
 {
-  return p.realm()->zone[p.x() >> Plib::WGRID_SHIFT][p.y() >> Plib::WGRID_SHIFT];
+  return p.realm()->getzone( Pos2d( p.x() >> Plib::WGRID_SHIFT, p.y() >> Plib::WGRID_SHIFT ) );
 }
 
 namespace
@@ -249,7 +237,7 @@ void WorldIterator<Filter>::_forEach( const CoordsArea& coords, F&& f )
 {
   for ( const auto& p : coords.warea )
   {
-    Filter::call( coords.realm->zone[p.x()][p.y()], coords, f );
+    Filter::call( coords.realm->getzone( p ), coords, f );
   }
 }
 

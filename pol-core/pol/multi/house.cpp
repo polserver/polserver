@@ -676,59 +676,59 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
 bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
                       unsigned short mysouth, Realms::Realm* realm )
 {
+  // TODO: function params...
   Core::Pos2d rL =
       Core::zone_convert( Core::Pos4d( mywest, mynorth, 0, realm ) - Core::Vec2d( 100, 100 ) );
   Core::Pos2d rH =
       Core::zone_convert( Core::Pos4d( myeast, mysouth, 0, realm ) + Core::Vec2d( 100, 100 ) );
-
-  for ( unsigned short wx = rL.x(); wx <= rH.x(); ++wx )
+  Core::Area2d area( rL, rH, nullptr );
+  for ( const auto& p : area )
   {
-    for ( unsigned short wy = rL.y(); wy <= rH.y(); ++wy )
+    for ( const auto& multi : realm->getzone( p ).multis )
     {
-      for ( const auto& multi : realm->zone[wx][wy].multis )
+      const MultiDef& edef = multi->multidef();
+      // find out if any of our walls would fall within its footprint.
+
+
+      const auto itsNW = multi->pos().xy() + Core::Vec2d( edef.minrx, edef.minry ),
+                 itsSE = multi->pos().xy() + Core::Vec2d( edef.maxrx, edef.maxry );
+
+      const auto itswest = itsNW.x(), itseast = itsSE.x(), itsnorth = itsNW.y(),
+                 itssouth = itsSE.y();
+      // TODO: is this a simple rectangle intersects other rectangle?
+      // need to check then a method in area whould be less verbose and maybe at other spots also
+      // useful
+      if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
       {
-        const MultiDef& edef = multi->multidef();
-        // find out if any of our walls would fall within its footprint.
-
-
-        const auto itsNW = multi->pos().xy() + Core::Vec2d( edef.minrx, edef.minry ),
-                   itsSE = multi->pos().xy() + Core::Vec2d( edef.maxrx, edef.maxry );
-
-        const auto itswest = itsNW.x(), itseast = itsSE.x(), itsnorth = itsNW.y(),
-                   itssouth = itsSE.y();
-
-        if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
+        if ( ( mywest >= itswest && mywest <= itseast ) ||  // NW
+             ( myeast >= itswest && myeast <= itseast ) )   // NE
         {
-          if ( ( mywest >= itswest && mywest <= itseast ) ||  // NW
-               ( myeast >= itswest && myeast <= itseast ) )   // NE
-          {
-            return true;
-          }
+          return true;
         }
-        if ( mysouth >= itsnorth && mysouth <= itssouth )  // South
+      }
+      if ( mysouth >= itsnorth && mysouth <= itssouth )  // South
+      {
+        if ( ( mywest >= itswest && mywest <= itseast ) ||  // SW
+             ( myeast >= itswest && myeast <= itseast ) )   // SE
         {
-          if ( ( mywest >= itswest && mywest <= itseast ) ||  // SW
-               ( myeast >= itswest && myeast <= itseast ) )   // SE
-          {
-            return true;
-          }
+          return true;
         }
+      }
 
-        if ( itsnorth >= mynorth && itsnorth <= mysouth )  // North
+      if ( itsnorth >= mynorth && itsnorth <= mysouth )  // North
+      {
+        if ( ( itswest >= mywest && itswest <= myeast ) ||  // NW
+             ( itseast >= mywest && itseast <= myeast ) )   // NE
         {
-          if ( ( itswest >= mywest && itswest <= myeast ) ||  // NW
-               ( itseast >= mywest && itseast <= myeast ) )   // NE
-          {
-            return true;
-          }
+          return true;
         }
-        if ( itssouth >= mynorth && itssouth <= mysouth )  // South
+      }
+      if ( itssouth >= mynorth && itssouth <= mysouth )  // South
+      {
+        if ( ( itswest >= mywest && itswest <= myeast ) ||  // SW
+             ( itseast >= mywest && itseast <= myeast ) )   // SE
         {
-          if ( ( itswest >= mywest && itswest <= myeast ) ||  // SW
-               ( itseast >= mywest && itseast <= myeast ) )   // SE
-          {
-            return true;
-          }
+          return true;
         }
       }
     }
@@ -739,36 +739,28 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
 bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
                        Realms::Realm* realm )
 {
+  //TODO: function params..
   Core::Pos2d rL = Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) );
   Core::Pos2d rH = Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) );
-  auto wxL = rL.x(), wxH = rL.y(), wyL = rH.x(), wyH = rH.y();
+  Core::Area grid_area( rL, rH, nullptr );
+  Core::Area area( Core::Pos2d( x1, y1 ), Core::Pos2d( x2, y2 ) );
 
-  auto includes = [&]( const Core::UObject* obj ) {
-    if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
-    {
-      return true;
-    }
-    return false;
-  };
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( const auto& p : grid_area )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( const auto& chr : realm->getzone( p ).characters )
     {
-      for ( const auto& chr : realm->zone[wx][wy].characters )
-      {
-        if ( includes( chr ) )
-          return true;
-      }
-      for ( const auto& chr : realm->zone[wx][wy].npcs )
-      {
-        if ( includes( chr ) )
-          return true;
-      }
-      for ( const auto& item : realm->zone[wx][wy].items )
-      {
-        if ( includes( item ) )
-          return true;
-      }
+      if ( area.contains( chr->pos().xy() ) )
+        return true;
+    }
+    for ( const auto& chr : realm->getzone( p ).npcs )
+    {
+      if ( area.contains( chr->pos().xy() ) )
+        return true;
+    }
+    for ( const auto& item : realm->getzone( p ).items )
+    {
+      if ( area.contains( item->pos().xy() ) )
+        return true;
     }
   }
   return false;

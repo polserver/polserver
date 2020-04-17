@@ -107,29 +107,26 @@ void regen_stats()
 
   for ( auto& realm : gamestate.Realms )
   {
-    wgridx = realm->grid_width();
-    wgridy = realm->grid_height();
+    Area2d area( Pos2d( 0, 0 ), Pos2d( realm->grid_width(), realm->grid_height() ) - Vec2d( 1, 1 ),
+                 realm );
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : area )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      bool any = false;
+      for ( auto& chr : realm->getzone( p ).characters )
       {
-        bool any = false;
-        for ( auto& chr : realm->zone[wx][wy].characters )
-        {
-          any = true;
-          stat_regen( chr );
-        }
-        for ( auto& chr : realm->zone[wx][wy].npcs )
-        {
-          any = true;
-          stat_regen( chr );
-        }
-        if ( any )
-          ++nonempty_zones;
-        else
-          ++empty_zones;
+        any = true;
+        stat_regen( chr );
       }
+      for ( auto& chr : realm->getzone( p ).npcs )
+      {
+        any = true;
+        stat_regen( chr );
+      }
+      if ( any )
+        ++nonempty_zones;
+      else
+        ++empty_zones;
     }
   }
   THREAD_CHECKPOINT( tasks, 499 );

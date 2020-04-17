@@ -36,22 +36,20 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
   // search equipment of nearby mobiles
   Pos2d posL = zone_convert( chr->pos() - Vec2d( RANGE_VISUAL, RANGE_VISUAL ) );
   Pos2d posH = zone_convert( chr->pos() + Vec2d( RANGE_VISUAL, RANGE_VISUAL ) );
-  for ( unsigned short wx = posL.x(); wx <= posH.x(); ++wx )
+  Area2d area( posL, posH, nullptr );
+  for ( const auto& p : area )
   {
-    for ( unsigned short wy = posL.y(); wy <= posH.y(); ++wy )
+    for ( const auto& ochr : chr->realm()->getzone( p ).characters )
     {
-      for ( const auto& ochr : chr->realm()->zone[wx][wy].characters )
-      {
-        Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != nullptr )
-          return _item;
-      }
-      for ( const auto& ochr : chr->realm()->zone[wx][wy].npcs )
-      {
-        Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != nullptr )
-          return _item;
-      }
+      Items::Item* _item = ochr->find_wornitem( serial );
+      if ( _item != nullptr )
+        return _item;
+    }
+    for ( const auto& ochr : chr->realm()->getzone( p ).npcs )
+    {
+      Items::Item* _item = ochr->find_wornitem( serial );
+      if ( _item != nullptr )
+        return _item;
     }
   }
   if ( chr->trade_container() )
@@ -68,7 +66,7 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
   }
 
   return nullptr;
-}
+}  // namespace Core
 
 std::string create_nametags( Mobile::Character* chr )
 {

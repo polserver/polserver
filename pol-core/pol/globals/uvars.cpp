@@ -271,52 +271,44 @@ void GameState::cleanup_vars()
 
   for ( auto& realm : Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
+    Area2d area( Pos2d( 0, 0 ), Pos2d( realm->grid_width(), realm->grid_height() ) - Vec2d( 1, 1 ),
+                 realm );
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : area )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& item : realm->getzone( p ).items )
       {
-        for ( auto& item : realm->zone[wx][wy].items )
-        {
-          item->destroy();
-        }
-        realm->zone[wx][wy].items.clear();
+        item->destroy();
       }
+      realm->getzone( p ).items.clear();
     }
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : area )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& chr : realm->getzone( p ).characters )
       {
-        for ( auto& chr : realm->zone[wx][wy].characters )
-        {
-          chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          chr->destroy();
-        }
-        realm->zone[wx][wy].characters.clear();
-        for ( auto& chr : realm->zone[wx][wy].npcs )
-        {
-          chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          chr->destroy();
-        }
-        realm->zone[wx][wy].npcs.clear();
+        chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
+        chr->destroy();
       }
+      realm->getzone( p ).characters.clear();
+      for ( auto& chr : realm->getzone( p ).npcs )
+      {
+        chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
+        chr->destroy();
+      }
+      realm->getzone( p ).npcs.clear();
     }
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : area )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& multi : realm->getzone( p ).multis )
       {
-        for ( auto& multi : realm->zone[wx][wy].multis )
-        {
-          multi->destroy();
-        }
-        realm->zone[wx][wy].multis.clear();
+        multi->destroy();
       }
+      realm->getzone( p ).multis.clear();
     }
   }
+
 
   // dave renamed this 9/27/03, so we only have to traverse the objhash once, to clear out account
   // references and delete.
@@ -348,7 +340,7 @@ void GameState::cleanup_vars()
   cmdlevels.clear();
   clean_spells();
   clean_skills();
-}
+}  // namespace Core
 
 // Note, when the program exits, each executor in these queues
 // will be deleted by cleanup_scripts()

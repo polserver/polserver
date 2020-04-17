@@ -21,6 +21,7 @@
 #include "../../plib/uconst.h"
 #include "../../plib/udatfile.h"
 #include "../base/position.h"
+#include "../zone.h"
 #include "WorldChangeReasons.h"
 
 
@@ -129,7 +130,8 @@ public:
                    MultiList& mvec ) const;
   void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const;
 
-  Core::Zone** zone;
+  Core::Zone& getzone( const Core::Pos2d& p ) const;  // grid coords!
+
   std::set<unsigned int> global_hulls;  // xy-smashed together
   unsigned getUOMapID() const;
   unsigned getNumStaticPatches() const;
@@ -172,6 +174,7 @@ private:
   std::unique_ptr<Plib::MapServer> _mapserver;
   std::unique_ptr<Plib::StaticServer> _staticserver;
   std::unique_ptr<Plib::MapTileServer> _maptileserver;
+  Core::Zone** zone;  // y first!
 
 private:
   // not implemented:
@@ -242,6 +245,10 @@ inline unsigned short Realm::width() const
 inline unsigned short Realm::height() const
 {
   return _descriptor.height;
+}
+inline Core::Zone& Realm::getzone( const Core::Pos2d& p ) const
+{
+  return zone[p.y()][p.x()];
 }
 }  // namespace Realms
 }  // namespace Pol

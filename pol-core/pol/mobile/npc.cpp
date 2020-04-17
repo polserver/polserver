@@ -209,7 +209,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
   // TODO: this should be an WorldIteration variant with early out
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
-    for ( const auto& chr : realm()->zone[zone_pos.x()][zone_pos.y()].characters )
+    for ( const auto& chr : realm()->getzone( zone_pos ).characters )
     {
       // First check if there really is a character blocking
       if ( chr->pos().xy() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
@@ -219,7 +219,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
       }
     }
   }
-  for ( const auto& chr : realm()->zone[zone_pos.x()][zone_pos.y()].npcs )
+  for ( const auto& chr : realm()->getzone( zone_pos ).npcs )
   {
     // First check if there really is a character blocking
     if ( chr->pos().xy() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )

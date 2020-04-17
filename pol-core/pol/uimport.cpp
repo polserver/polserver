@@ -507,14 +507,13 @@ void read_storage_dat()
   }
 }
 
-Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm* realm )
+Items::Item* find_existing_item( u32 objtype, Pos4d pos )
 {
-  unsigned short wx, wy;
-  zone_convert( x, y, &wx, &wy, realm );
-  for ( auto& item : realm->zone[wx][wy].items )
+  Pos2d p = zone_convert( pos );
+  for ( auto& item : realm->getzone( p ).items )
   {
     // FIXME won't find doors which have been perturbed
-    if ( item->objtype_ == objtype && item->x == x && item->y == y && item->z == z )
+    if ( item->objtype_ == objtype && item->pos() == pos )
     {
       return item;
     }
@@ -545,7 +544,7 @@ void import( Clib::ConfigElem& elem )
 
   item->readProperties( elem );
 
-  if ( find_existing_item( item->objtype_, item->x, item->y, item->z, item->realm ) )
+  if ( find_existing_item( item->objtype_, item->pos() ) )
   {
     item->destroy();
     ++dupe_count;
@@ -895,20 +894,17 @@ void write_items( Clib::StreamWriter& sw_items )
 {
   for ( const auto& realm : gamestate.Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
+    Area2d area( Pos2d( 0, 0 ), Pos2d( realm->grid_width(), realm->grid_height() ) - Vec2d( 1, 1 ),
+                 realm );
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : area )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( const auto& item : realm->getzone( p ).items )
       {
-        for ( const auto& item : realm->zone[wx][wy].items )
+        if ( item->itemdesc().save_on_exit && item->saveonexit() )
         {
-          if ( item->itemdesc().save_on_exit && item->saveonexit() )
-          {
-            sw_items << *item;
-            item->clear_dirty();
-          }
+          sw_items << *item;
+          item->clear_dirty();
         }
       }
     }
@@ -934,34 +930,32 @@ void write_multis( Clib::StreamWriter& ofs )
 {
   for ( const auto& realm : gamestate.Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
+    Area2d area( Pos2d( 0, 0 ), Pos2d( realm->grid_width(), realm->grid_height() ) - Vec2d( 1, 1 ),
+                 realm );
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : area )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& multi : realm->getzone( p ).multis )
       {
-        for ( auto& multi : realm->zone[wx][wy].multis )
+        if ( Clib::exit_signalled )  // drop waiting commit on shutdown
         {
-          if ( Clib::exit_signalled )  // drop waiting commit on shutdown
+          Multi::UHouse* house = multi->as_house();
+          if ( house != nullptr )
           {
-            Multi::UHouse* house = multi->as_house();
-            if ( house != nullptr )
+            if ( house->IsCustom() )
             {
-              if ( house->IsCustom() )
-              {
-                if ( house->IsWaitingForAccept() )
-                  house->AcceptHouseCommit( nullptr, false );
-              }
+              if ( house->IsWaitingForAccept() )
+                house->AcceptHouseCommit( nullptr, false );
             }
           }
-          ofs << *multi;
-          multi->clear_dirty();
         }
+        ofs << *multi;
+        multi->clear_dirty();
       }
     }
   }
 }
+
 
 bool commit( const std::string& basename )
 {

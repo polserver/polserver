@@ -895,25 +895,20 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 
 
   // not in the backpack, or in a subpack.  check global items and subpacks.
-  // FIXME doesn't check range?
-  unsigned short wxL, wyL, wxH, wyH;
-  zone_convert( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
-  zone_convert( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  Area2d area( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
+               zone_convert( chr->pos() + Vec2d( 8, 8 ) ), chr->realm() );
+  for ( const auto& p : area )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( auto& item : chr->realm->getzone(p).items )
     {
-      for ( auto& item : chr->realm->zone[wx][wy].items )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
-        if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-        {
-          cont = (UContainer*)item;
-          if ( serial == cont->serial )
-            return cont;
-          cont = cont->find_container( serial );
-          if ( cont )
-            return cont;
-        }
+        cont = (UContainer*)item;
+        if ( serial == cont->serial )
+          return cont;
+        cont = cont->find_container( serial );
+        if ( cont )
+          return cont;
       }
     }
   }
@@ -953,28 +948,24 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
   }
 
   // check items on the ground
-  unsigned short wxL, wyL, wxH, wyH;
-  zone_convert( chr->x - 8, chr->y - 8, chr->realm, &wxL, &wyL );
-  zone_convert( chr->x + 8, chr->y + 8, chr->realm, &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  Area2d area( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
+               zone_convert( chr->pos() + Vec2d( 8, 8 ) ), chr->realm() );
+  for ( const auto& p : area )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( const auto& _item : chr->realm->getzone(p).items )
     {
-      for ( const auto& _item : chr->realm->zone[wx][wy].items )
+      if ( !inrange( chr, _item ) )
+        continue;
+      if ( _item->serial == serial )
       {
-        if ( !inrange( chr, _item ) )
-          continue;
-        if ( _item->serial == serial )
-        {
-          passert_always( _item->container == nullptr );
-          return _item;
-        }
-        if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-        {
-          item = ( (const UContainer*)_item )->find( serial );
-          if ( item != nullptr )
-            return item;
-        }
+        passert_always( _item->container == nullptr );
+        return _item;
+      }
+      if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+      {
+        item = ( (const UContainer*)_item )->find( serial );
+        if ( item != nullptr )
+          return item;
       }
     }
   }

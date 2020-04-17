@@ -7,6 +7,7 @@
  * decay_thread_shadow
  */
 
+//TODO: function params..
 
 #include "decay.h"
 
@@ -54,7 +55,7 @@ namespace Core
 
 void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
 {
-  Zone& zone = realm->zone[wx][wy];
+  Zone& zone = realm->getzone( Pos2d( wy, wx ) );
   gameclock_t now = read_gameclock();
   bool statistics = Plib::systemstate.config.thread_decay_statistics;
 

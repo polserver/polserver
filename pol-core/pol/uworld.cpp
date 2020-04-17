@@ -265,34 +265,33 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
       << msgreason << chr->serial << chr->serial_ext << chr->pos().x() << chr->pos().y();
 
   bool is_npc = chr->isa( Core::UOBJ_CLASS::CLASS_NPC );
-  for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
+  Area2d area( Pos2d( 0, 0 ), Pos2d( wgridx, wgridy ) - Vec2d( 1, 1 ), nullptr );
+  for ( const auto& p : area )
   {
-    for ( unsigned zoney = 0; zoney < wgridy; ++zoney )
+    bool found = false;
+    if ( is_npc )
     {
-      bool found = false;
-      if ( is_npc )
-      {
-        auto _z = chr->pos().realm()->zone[zonex][zoney].npcs;
-        found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
-      }
-      else
-      {
-        auto _z = chr->pos().realm()->zone[zonex][zoney].characters;
-        found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
-      }
-      if ( found )
-        POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" )
-            << zonex << zoney;
+      auto _z = chr->pos().realm()->getzone( p ).npcs;
+      found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
     }
+    else
+    {
+      auto _z = chr->pos().realm()->getzone( p ).characters;
+      found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
+    }
+    if ( found )
+      POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" )
+          << p.x() << p.y();
   }
 }
+}  // namespace Core
 // Dave added this for debugging a single zone
 
 bool check_single_zone_item_integrity( const Pos2d& grid_xy, Realms::Realm* realm )
 {
   try
   {
-    ZoneItems& witem = realm->zone[grid_xy.x()][grid_xy.y()].items;
+    ZoneItems& witem = realm->getzone( grid_xy ).items;
 
     for ( const auto& item : witem )
     {
@@ -323,17 +322,16 @@ bool check_item_integrity()
     unsigned int gridwidth = realm->grid_width();
     unsigned int gridheight = realm->grid_height();
 
-    for ( unsigned grid_x = 0; grid_x < gridwidth; ++grid_x )
+    Area2d area( Pos2d( 0, 0 ), Pos2d( wgridx, wgridy ) - Vec2d( 1, 1 ), nullptr );
+    for ( const auto& p : area )
     {
-      for ( unsigned grid_y = 0; grid_y < gridheight; ++grid_y )
-      {
-        if ( !check_single_zone_item_integrity( Pos2d( grid_x, grid_y ), realm ) )
-          ok = false;
-      }
+      if ( !check_single_zone_item_integrity( p, realm ) )
+        ok = false;
     }
   }
-  return ok;
 }
+return ok;
+}  // namespace Pol
 
 void check_character_integrity()
 {
@@ -360,17 +358,16 @@ void check_character_integrity()
         INFO_PRINT << "Character 0x" << fmt::hexu( chr->serial ) << " in a zone, but elsewhere\n";
     };
 
-    for ( unsigned x = 0; x < gridwidth; ++x )
+    Area2d area( Pos2d( 0, 0 ), Pos2d( gridwidth, gridheight ) - Vec2d( 1, 1 ), nullptr );
+    for ( const auto& p : area )
     {
-      for ( unsigned y = 0; y < gridheight; ++y )
-      {
-        for ( const auto& chr : realm->zone[x][y].characters )
-          check_zone( chr, Pos2d( y, x ) );
-        for ( const auto& chr : realm->zone[x][y].npcs )
-          check_zone( chr, Pos2d( y, x ) );
-      }
+      for ( const auto& chr : realm->getzone( p ).characters )
+        check_zone( chr, p );
+      for ( const auto& chr : realm->getzone( p ).npcs )
+        check_zone( chr, p );
     }
   }
+}
 }
 
 // reallocates all vectors to fit the current size
@@ -381,17 +378,16 @@ void optimize_zones()
     unsigned int gridwidth = realm->grid_width();
     unsigned int gridheight = realm->grid_height();
 
-    for ( unsigned x = 0; x < gridwidth; ++x )
+    Area2d area( Pos2d( 0, 0 ), Pos2d( gridwidth, gridheight ) - Vec2d( 1, 1 ), nullptr );
+    for ( const auto& p : area )
     {
-      for ( unsigned y = 0; y < gridheight; ++y )
-      {
-        realm->zone[x][y].characters.shrink_to_fit();
-        realm->zone[x][y].npcs.shrink_to_fit();
-        realm->zone[x][y].items.shrink_to_fit();
-        realm->zone[x][y].multis.shrink_to_fit();
-      }
+      realm->getzone( p ).characters.shrink_to_fit();
+      realm->getzone( p ).npcs.shrink_to_fit();
+      realm->getzone( p ).items.shrink_to_fit();
+      realm->getzone( p ).multis.shrink_to_fit();
     }
   }
 }
-}  // namespace Core
+}
+}  // namespace Pol
 }  // namespace Pol

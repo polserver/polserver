@@ -17,7 +17,6 @@
 #include "../../plib/staticserver.h"
 #include "../mobile/charactr.h"
 #include "../ufunc.h"
-#include "../uworld.h"
 #include "WorldChangeReasons.h"
 
 namespace Pol
@@ -40,10 +39,10 @@ Realm::Realm( const std::string& realm_name, const std::string& realm_path )
   size_t gridwidth = grid_width();
   size_t gridheight = grid_height();
 
-  zone = new Core::Zone*[gridwidth];
+  zone = new Core::Zone*[gridheight];
 
-  for ( size_t i = 0; i < gridwidth; i++ )
-    zone[i] = new Core::Zone[gridheight];
+  for ( size_t i = 0; i < gridheight; i++ )
+    zone[i] = new Core::Zone[gridwidth];
 }
 
 Realm::Realm( const std::string& realm_name, Realm* realm )
@@ -60,16 +59,16 @@ Realm::Realm( const std::string& realm_name, Realm* realm )
   size_t gridwidth = grid_width();
   size_t gridheight = grid_height();
 
-  zone = new Core::Zone*[gridwidth];
+  zone = new Core::Zone*[gridheight];
 
-  for ( size_t i = 0; i < gridwidth; i++ )
-    zone[i] = new Core::Zone[gridheight];
+  for ( size_t i = 0; i < gridheight; i++ )
+    zone[i] = new Core::Zone[gridwidth];
 }
 
 Realm::~Realm()
 {
-  size_t gridwidth = grid_width();
-  for ( size_t i = 0; i < gridwidth; i++ )
+  size_t gridheight = grid_height();
+  for ( size_t i = 0; i < gridheight; ++i )
     delete[] zone[i];
   delete[] zone;
 }
@@ -81,15 +80,14 @@ size_t Realm::sizeEstimate() const
   // zone **
   unsigned gridwidth = grid_width();
   unsigned gridheight = grid_height();
-
-  for ( unsigned x = 0; x < gridwidth; ++x )
+  for ( unsigned x = 0; x < gridheight; ++x )
   {
-    for ( unsigned y = 0; y < gridheight; ++y )
+    for ( unsigned y = 0; y < gridwidth; ++y )
     {
-      size += 3 * sizeof( void** ) + zone[x][y].characters.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].npcs.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].items.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].multis.capacity() * sizeof( void* );
+      size += 3 * sizeof( void** ) + zone[y][x].characters.capacity() * sizeof( void* );
+      size += 3 * sizeof( void** ) + zone[y][x].npcs.capacity() * sizeof( void* );
+      size += 3 * sizeof( void** ) + zone[y][x].items.capacity() * sizeof( void* );
+      size += 3 * sizeof( void** ) + zone[y][x].multis.capacity() * sizeof( void* );
     }
   }
 
