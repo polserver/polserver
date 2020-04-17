@@ -121,6 +121,10 @@ inline s16 Vec3d::y() const
 {
   return _xy.y();
 }
+inline s16 Vec3d::z() const
+{
+  return _z;
+}
 inline const Vec2d& Vec3d::xy() const
 {
   return _xy;

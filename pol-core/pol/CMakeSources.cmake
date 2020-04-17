@@ -14,6 +14,8 @@ set (pol_sources  # sorted !
   allocd.h
   anim.h
   baseobject.h
+  base/area.cpp
+  base/area.h
   base/position.cpp
   base/position.h
   base/vector.cpp
