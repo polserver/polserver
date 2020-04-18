@@ -12,6 +12,8 @@
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
+#include "base/area.h"
+#include "base/position.h"
 
 namespace Pol
 {
@@ -38,7 +40,7 @@ namespace Network
 class Client;
 }  // namespace Network
 }  // namespace Pol
-}
+}  // namespace Bscript
 namespace Items
 {
 class MapDesc;
@@ -49,12 +51,6 @@ struct PKTBI_56;
 class ExportScript;
 class UOExecutor;
 
-struct PinPoint
-{
-  unsigned short x;
-  unsigned short y;
-};
-
 class Map final : public Items::Item
 {
   typedef Items::Item base;
@@ -64,22 +60,18 @@ public:
   u16 gumpheight;
   bool editable;
   bool plotting;
-  typedef std::vector<PinPoint> PinPoints;
+  typedef std::vector<Pos2d> PinPoints;
   PinPoints pin_points;
   typedef PinPoints::iterator pin_points_itr;
 
-  inline u16 get_xwest() { return xwest; };
-  inline u16 get_xeast() { return xeast; };
-  inline u16 get_ynorth() { return ynorth; };
-  inline u16 get_ysouth() { return ysouth; };
-  bool msgCoordsInBounds( PKTBI_56* msg );
-  u16 gumpXtoWorldX( u16 gumpx );
-  u16 gumpYtoWorldY( u16 gumpy );
-  u16 worldXtoGumpX( u16 worldx );
-  u16 worldYtoGumpY( u16 worldy );
+  bool msgCoordsInBounds( PKTBI_56* msg ) const;
+  Pos2d gumpToWorld( const Pos2d& gump ) const;
+  Pos2d worldToGump( const Pos2d& world ) const;
 
   virtual Items::Item* clone() const override;  // dave 12-20
   virtual ~Map();
+  Map( const Map& map ) = delete;
+  Map& operator=( const Map& map ) = delete;
   virtual size_t estimatedSize() const override;
 
 protected:
@@ -87,8 +79,7 @@ protected:
   friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
 
   virtual void builtin_on_use( Network::Client* client ) override;
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
@@ -107,16 +98,9 @@ protected:
 
 
 private:
-  u16 xwest;
-  u16 xeast;
-  u16 ynorth;
-  u16 ysouth;
+  Area2d area;
   u16 facetid;
-
-private:  // not implemented
-  Map( const Map& map );
-  Map& operator=( const Map& map );
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

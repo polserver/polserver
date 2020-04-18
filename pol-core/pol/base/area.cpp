@@ -44,6 +44,22 @@ Area2d::Area2d( const Pos4d& p1, const Pos4d& p2 )
   _pH = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
 }
 
+Area2d& Area2d::posL( const Pos2d& p )
+{
+  if ( p.x() > _pH.x() )
+    _pH.x( p.x() );
+  else
+    _pL.x( p.x() );
+  if ( p.y() > _pH.y() )
+    _pH.y( p.y() );
+  else
+    _pL.y( p.y() );
+  return *this;
+}
+Area2d& Area2d::posH( const Pos2d& p )
+{
+  return posL( p );
+}
 Area2dItr Area2d::begin() const
 {
   return Area2dItr( _pL, _pH );

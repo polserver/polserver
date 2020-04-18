@@ -76,6 +76,7 @@ public:
   unsigned season() const;
 
   bool valid( const Core::Pos3d& pos ) const;
+  bool valid( const Core::Pos2d& pos ) const;
 
   const std::string name() const;
 

@@ -49,6 +49,8 @@ public:
 
   const Pos2d& posL() const;
   const Pos2d& posH() const;
+  Area2d& posL( const Pos2d& p );
+  Area2d& posH( const Pos2d& p );
 
   Area2dItr begin() const;
   Area2dItr end() const;

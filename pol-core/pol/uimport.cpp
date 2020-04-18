@@ -199,7 +199,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     else
       return nullptr;
   }
-  item->realm = find_realm( "britannia" );
+  item->setposition( Pos4d( 0, 0, 0, find_realm( "britannia" ) ) );  // TODO: not really needed?
 
   item->readProperties( elem );
 
@@ -510,7 +510,7 @@ void read_storage_dat()
 Items::Item* find_existing_item( u32 objtype, Pos4d pos )
 {
   Pos2d p = zone_convert( pos );
-  for ( auto& item : realm->getzone( p ).items )
+  for ( auto& item : pos.realm()->getzone( p ).items )
   {
     // FIXME won't find doors which have been perturbed
     if ( item->objtype_ == objtype && item->pos() == pos )

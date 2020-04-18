@@ -120,6 +120,10 @@ bool Realm::valid( const Core::Pos3d& pos ) const
   // TODO: z cannot be checked its by definition in valid range. really a problem?
   return pos.x() < width() && pos.y() < height();
 }
+bool Realm::valid( const Core::Pos2d& pos ) const
+{
+  return pos.x() < width() && pos.y() < height();
+}
 
 const std::string Realm::name() const
 {
