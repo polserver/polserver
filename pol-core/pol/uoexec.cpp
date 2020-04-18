@@ -27,6 +27,7 @@
 #include "partyscrobj.h"
 #include "polcfg.h"
 #include "polclock.h"
+#include "realms.h"
 #include "realms/realm.h"
 #include "uobject.h"
 #include "uoscrobj.h"
