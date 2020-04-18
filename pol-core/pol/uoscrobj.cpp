@@ -1565,16 +1565,13 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
   case MTH_SPLITSTACK_AT:
   {
     unsigned short amt;
-    unsigned short newx, newy;
-    short newz;
-    const String* realm_name;
+    Core::Pos4d newpos;
     Item* new_stack( nullptr );
     u16 item_amount = this->getamount();
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getParam( 0, newx ) || !ex.getParam( 1, newy ) || !ex.getParam( 2, newz ) ||
-              !ex.getStringParam( 3, realm_name ) )
+    else if ( !ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
       return new BError( "Invalid parameter type" );
     else if ( !ex.getParam( 4, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1584,13 +1581,6 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Amount was less than 1" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
-
-    // Validate where things are going
-    Realms::Realm* newrealm = Core::find_realm( realm_name->value() );
-    if ( !newrealm )
-      return new BError( "Realm not found" );
-    else if ( !newrealm->valid( newx, newy, newz ) )
-      return new BError( "Invalid coordinates for realm" );
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
     if ( !this->stackable() && amt > 1 )
@@ -1604,7 +1594,6 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
         else
           new_stack = this->remove_part_of_stack( 1 );
 
-        Core::Pos4d newpos = Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm );
         Core::Pos4d oldpos = new_stack->pos();
         new_stack->setposition( newpos );
         add_item_to_world( new_stack );
@@ -1629,7 +1618,6 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     new_stack->setamount( amt );
 
-    Core::Pos4d newpos = Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm );
     Core::Pos4d oldpos = new_stack->pos();
     new_stack->setposition( newpos );
     add_item_to_world( new_stack );
@@ -3945,11 +3933,6 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
   {
   case MTH_MOVE_OFFLINE_MOBILES:
   {
-    Core::xcoord newx;
-    Core::ycoord newy;
-    Core::zcoord newz;
-
-
     if ( ex.numParams() == 3 )
     {
       Core::Pos3d newpos_xyz;
@@ -4027,16 +4010,16 @@ BObjectImp* Map::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_XEAST:
-    return new BLong( xeast );
+    return new BLong( area.posL().x() );
     break;
   case MBR_XWEST:
-    return new BLong( xwest );
+    return new BLong( area.posH().x() );
     break;
   case MBR_YNORTH:
-    return new BLong( ynorth );
+    return new BLong( area.posL().y() );
     break;
   case MBR_YSOUTH:
-    return new BLong( ysouth );
+    return new BLong( area.posH().y() );
     break;
   case MBR_GUMPWIDTH:
     return new BLong( gumpwidth );
@@ -4071,13 +4054,17 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_XEAST:
-    return new BLong( xeast = static_cast<unsigned short>( value ) );
+    area.posL( Pos2d( area.posL() ).x( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.posL().x() );
   case MBR_XWEST:
-    return new BLong( xwest = static_cast<unsigned short>( value ) );
+    area.posH( Pos2d( area.posH() ).x( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.posH().x() );
   case MBR_YNORTH:
-    return new BLong( ynorth = static_cast<unsigned short>( value ) );
+    area.posL( Pos2d( area.posL() ).y( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.posL().y() );
   case MBR_YSOUTH:
-    return new BLong( ysouth = static_cast<unsigned short>( value ) );
+    area.posH( Pos2d( area.posH() ).y( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.posH().y() );
   case MBR_GUMPWIDTH:
     return new BLong( gumpwidth = static_cast<unsigned short>( value ) );
   case MBR_GUMPHEIGHT:

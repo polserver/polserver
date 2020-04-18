@@ -284,7 +284,6 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
           << p.x() << p.y();
   }
 }
-}  // namespace Core
 // Dave added this for debugging a single zone
 
 bool check_single_zone_item_integrity( const Pos2d& grid_xy, Realms::Realm* realm )
@@ -322,16 +321,15 @@ bool check_item_integrity()
     unsigned int gridwidth = realm->grid_width();
     unsigned int gridheight = realm->grid_height();
 
-    Area2d area( Pos2d( 0, 0 ), Pos2d( wgridx, wgridy ) - Vec2d( 1, 1 ), nullptr );
+    Area2d area( Pos2d( 0, 0 ), Pos2d( gridwidth, gridheight ) - Vec2d( 1, 1 ), nullptr );
     for ( const auto& p : area )
     {
       if ( !check_single_zone_item_integrity( p, realm ) )
         ok = false;
     }
   }
+  return ok;
 }
-return ok;
-}  // namespace Pol
 
 void check_character_integrity()
 {
@@ -368,7 +366,6 @@ void check_character_integrity()
     }
   }
 }
-}
 
 // reallocates all vectors to fit the current size
 void optimize_zones()
@@ -388,6 +385,5 @@ void optimize_zones()
     }
   }
 }
-}
-}  // namespace Pol
+}  // namespace Core
 }  // namespace Pol
