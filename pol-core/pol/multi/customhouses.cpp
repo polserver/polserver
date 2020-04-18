@@ -502,15 +502,12 @@ bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
   // hide them to avoid an exception later, since this is not supported
   // only test foodprint: find_supporting_multis would also work, as long as readshapes includes the
   // teleporter components
-  s32 shape_x = static_cast<s32>( item->x ) - house->x;
-  s32 shape_y = static_cast<s32>( item->y ) - house->y;
-  if ( shape_x + xoff < 0 || shape_x + xoff >= static_cast<s32>( width ) || shape_y + yoff < 0 ||
-       shape_y + yoff >= static_cast<s32>( height - 1 ) )  // y is +1
-  {
-    return false;
-  }
-
-  return true;
+  Core::Vec3d shape = item->pos().xyz() - house->pos().xyz();
+  shape += Core::Vec3d( xoff, yoff, 0 );
+  // y is +1
+  if ( shape >= Core::Vec2d( 0, 0 ) && shape < Core::Vec2d( width, height - 1 ) )
+    return true;
+  return false;
 }
 
 void CustomHouseDesign::ClearComponents( UHouse* house )
@@ -547,9 +544,10 @@ void CustomHouseDesign::AddComponents( UHouse* house )
       {
         CUSTOM_HOUSE_ELEMENT elem;
         elem.graphic = item->graphic;
-        elem.xoffset = item->x - house->x;
-        elem.yoffset = item->y - house->y;
-        elem.z = item->z - house->z;
+        Core::Vec3d offset = item->pos().xyz() - house->pos().xyz();
+        elem.xoffset = offset.x();
+        elem.yoffset = offset.y();
+        elem.z = offset.z();
         AddOrReplace( elem );  // A teleporter could replace a floortile
       }
     }
@@ -585,9 +583,8 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              u16 c_x = static_cast<u16>( house->x + zitr->xoffset );
-              u16 c_y = static_cast<u16>( house->y + zitr->yoffset );
-              s8 c_z = static_cast<s8>( house->z + zitr->z );
+              Core::Pos4d cpos =
+                  house->pos() + Core::Vec3d( zitr->xoffset, zitr->yoffset, zitr->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
               for ( const auto& c : *comp )
@@ -595,8 +592,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 Items::Item* item = c.get();
                 if ( item == nullptr || item->orphan() )
                   continue;
-                if ( c_x == item->x && c_y == item->y && c_z == item->z &&
-                     zitr->graphic == item->graphic )
+                if ( cpos == item->pos() && zitr->graphic == item->graphic )
                 {
                   exists = true;
                   break;
@@ -627,9 +623,8 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              u16 c_x = static_cast<u16>( house->x + zitr->xoffset );
-              u16 c_y = static_cast<u16>( house->y + zitr->yoffset );
-              s8 c_z = static_cast<s8>( house->z + zitr->z );
+              Core::Pos4d cpos =
+                  house->pos() + Core::Vec3d( zitr->xoffset, zitr->yoffset, zitr->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
               for ( const auto& c : *comp )
@@ -637,8 +632,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
                 Items::Item* item = c.get();
                 if ( item == nullptr || item->orphan() )
                   continue;
-                if ( c_x == item->x && c_y == item->y && c_z == item->z &&
-                     zitr->graphic == item->graphic )
+                if ( cpos == item->pos() && zitr->graphic == item->graphic )
                 {
                   exists = true;
                   break;
@@ -704,7 +698,7 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
     msg.Send( chr->client );
   }
   const MultiDef& def = house->multidef();
-  Core::Pos4d newpos( house.pos() + Core::Vec2d( def.minrx, def.maxry + 1 ) );
+  Core::Pos4d newpos( house->pos() + Core::Vec2d( def.minrx, def.maxry + 1 ) );
   move_character_to( chr, newpos, Core::MOVEITEM_FORCELOCATION );
   if ( chr->client )
   {
@@ -908,9 +902,10 @@ void CustomHousesSelectFloor( Core::PKTBI_D7* msg )
 
   if ( chr )
   {
-    move_character_to( chr, chr->x, chr->y,
-                       house->z + CustomHouseDesign::custom_house_z_xlate_table[floor],
-                       Core::MOVEITEM_FORCELOCATION, nullptr );
+    Core::Pos4d newp( chr->pos().xy(),
+                      house->z() + CustomHouseDesign::custom_house_z_xlate_table[floor],
+                      chr->realm() );
+    move_character_to( chr, newp, Core::MOVEITEM_FORCELOCATION );
     if ( chr->client )
       CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
   }
@@ -1122,7 +1117,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      house->x, house->y, house->realm, range,
+      house->pos(), range,
       [&]( Mobile::Character* chr ) { CustomHousesSendFull( house, chr->client, design ); } );
 }
 

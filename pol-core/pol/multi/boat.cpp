@@ -1398,12 +1398,9 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
   }
 }
 
-// TODO: make argument take a Pos4d
-Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                             Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor,
+                                             const Core::Pos4d& pos, int flags )
 {
-  Core::Pos4d newpos = Core::Pos4d( x, y, z, realm );
-
   unsigned short multiid = descriptor.multiid;
   unsigned short multiid_offset =
       static_cast<unsigned short>( ( flags & CRMULTI_FACING_MASK ) >> CRMULTI_FACING_SHIFT );
@@ -1424,7 +1421,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
         ", multiid=" + Clib::hexint( multiid ) );
   }
 
-  if ( !navigable( *md, newpos ) )
+  if ( !navigable( *md, pos ) )
   {
     return new Bscript::BError( "Position indicated is impassable" );
   }
@@ -1436,7 +1433,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
 
   boat->facing = facing;
 
-  boat->setposition( newpos );
+  boat->setposition( pos );
   add_multi_to_world( boat );
   boat->send_display_boat_to_inrange( boat->pos() );
 

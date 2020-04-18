@@ -50,8 +50,6 @@ void regen_stats()
   unsigned empty_zones = 0;
   unsigned nonempty_zones = 0;
 
-  unsigned wgridx, wgridy;
-
   auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr ) {
     THREAD_CHECKPOINT( tasks, 402 );
 

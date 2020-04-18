@@ -17,6 +17,7 @@
 #include "../../plib/staticserver.h"
 #include "../mobile/charactr.h"
 #include "../ufunc.h"
+#include "../uworld.h"
 #include "WorldChangeReasons.h"
 
 namespace Pol

@@ -5,6 +5,8 @@
  * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
  */
 
+//TODO: complete multi folder is only a minimal solution, more should be rewritten
+
 
 #ifndef MULTIDEF_H
 #define MULTIDEF_H

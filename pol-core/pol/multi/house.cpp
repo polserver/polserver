@@ -680,7 +680,7 @@ bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
   Core::Area2d area( rL, rH, nullptr );
   for ( const auto& p : area )
   {
-    for ( const auto& multi : realm->getzone( p ).multis )
+    for ( const auto& multi : minpos.realm()->getzone( p ).multis )
     {
       const MultiDef& edef = multi->multidef();
       // find out if any of our walls would fall within its footprint.
@@ -698,22 +698,22 @@ bool objects_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
 {
   Core::Pos2d rL = Core::zone_convert( minpos );
   Core::Pos2d rH = Core::zone_convert( maxpos );
-  Core::Area grid_area( rL, rH, nullptr );
-  Core::Area area( minpos, maxpos );
+  Core::Area2d grid_area( rL, rH, nullptr );
+  Core::Area2d area( minpos, maxpos );
 
   for ( const auto& p : grid_area )
   {
-    for ( const auto& chr : realm->getzone( p ).characters )
+    for ( const auto& chr : minpos.realm()->getzone( p ).characters )
     {
       if ( area.contains( chr->pos().xy() ) )
         return true;
     }
-    for ( const auto& chr : realm->getzone( p ).npcs )
+    for ( const auto& chr : minpos.realm()->getzone( p ).npcs )
     {
       if ( area.contains( chr->pos().xy() ) )
         return true;
     }
-    for ( const auto& item : realm->getzone( p ).items )
+    for ( const auto& item : minpos.realm()->getzone( p ).items )
     {
       if ( area.contains( item->pos().xy() ) )
         return true;
@@ -729,7 +729,7 @@ bool statics_cause_problems( const Core::Pos4d& minpos, const Core::Pos4d& maxpo
   for ( const auto& p : area )
   {
     short newz;
-    if ( !realm->walkheight( p, z, &newz, nullptr, nullptr, true, Plib::MOVEMODE_LAND ) )
+    if ( !minpos.realm()->walkheight( p, z, &newz, nullptr, nullptr, true, Plib::MOVEMODE_LAND ) )
     {
       POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" )
           << p.x() << p.y() << z;
@@ -758,7 +758,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   }
   Core::Vec3d minvec( md->minrx, md->minry, md->minrz );
   Core::Vec3d maxvec( md->maxrx, md->maxry, md->maxrz );
-  if ( !realm->valid( pos.xyz() + minvec ) || !realm->valid( pos.xyz() + maxvec ) )
+  if ( !pos.realm()->valid( pos.xyz() + minvec ) || !pos.realm()->valid( pos.xyz() + maxvec ) )
     return new Bscript::BError( "That location is out of bounds" );
 
   if ( ~flags & CRMULTI_IGNORE_MULTIS )

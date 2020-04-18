@@ -80,10 +80,12 @@ Bscript::BStruct* UMulti::footprint() const
 {
   const MultiDef& md = multidef();
   std::unique_ptr<Bscript::BStruct> ret( new Bscript::BStruct );
-  ret->addMember( "xmin", new Bscript::BLong( x + md.minrx ) );
-  ret->addMember( "xmax", new Bscript::BLong( x + md.maxrx ) );
-  ret->addMember( "ymin", new Bscript::BLong( y + md.minry ) );
-  ret->addMember( "ymax", new Bscript::BLong( y + md.maxry ) );
+  Core::Pos4d minp( pos() + Core::Vec2d( md.minrx, md.minry ) );
+  Core::Pos4d maxp( pos() + Core::Vec2d( md.maxrx, md.maxry ) );
+  ret->addMember( "xmin", new Bscript::BLong( minp.x() ) );
+  ret->addMember( "xmax", new Bscript::BLong( maxp.x() ) );
+  ret->addMember( "ymin", new Bscript::BLong( minp.y() ) );
+  ret->addMember( "ymax", new Bscript::BLong( maxp.y() ) );
   return ret.release();
 }
 
@@ -126,5 +128,5 @@ size_t UMulti::estimatedSize() const
   return base::estimatedSize() + sizeof( u16 ) /*multiid*/
       ;
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

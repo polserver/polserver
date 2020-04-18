@@ -1189,8 +1189,7 @@ BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,r
     return new BError( "That objtype is not a Multi" );
   }
 
-  return Multi::UMulti::scripted_create( *descriptor, pos.x(), pos.y(), pos.z(), pos.realm(),
-                                         flags );  // TODO
+  return Multi::UMulti::scripted_create( *descriptor, pos, flags );
 }
 
 void replace_properties( Clib::ConfigElem& elem, BStruct* custom )

@@ -69,15 +69,15 @@ UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
 }
 
 
-Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                              Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor,
+                                              const Core::Pos4d& pos, int flags )
 {
   if ( descriptor.type == Items::ItemDesc::BOATDESC )
-    return UBoat::scripted_create( descriptor, x, y, z, realm, flags );
+    return UBoat::scripted_create( descriptor, pos, flags );
   else if ( descriptor.type == Items::ItemDesc::HOUSEDESC )
-    return UHouse::scripted_create( descriptor, x, y, z, realm, flags );
+    return UHouse::scripted_create( descriptor, pos, flags );
   else
     return new Bscript::BError( "Don't know what kind of multi to make" );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

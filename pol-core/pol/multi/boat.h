@@ -96,7 +96,7 @@ struct BoatShape
 inline Core::Vec3d BoatShape::ComponentShape::rel_pos() const
 {
   return Core::Vec3d( this->xdelta, this->ydelta, this->zdelta );
-} 
+}
 
 class UBoat final : public UMulti
 {
@@ -170,8 +170,8 @@ public:
   void regself();
   void unregself();
 
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
+                                               const Core::Pos4d& pos, int flags );
 
   virtual Bscript::BObjectImp* make_ref() override;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
@@ -193,17 +193,17 @@ protected:
   void move_travellers( const BoatContext& oldlocation );
   void turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation );
   Core::Pos4d turn_traveller_coords( const Core::UObject* obj, RELATIVE_DIR dir ) const;
-  
+
   void move_offline_mobiles( const Core::Pos4d& newpos );
 
   static bool on_ship( const BoatContext& bc, const Core::UObject* obj );
-  static bool is_plank( const Items::Item* item );  
+  static bool is_plank( const Items::Item* item );
 
   const MultiDef& multi_ifturn( RELATIVE_DIR dir );
   unsigned short multiid_ifturn( RELATIVE_DIR dir );
-   
+
   void do_tellmoves();
-  
+
   const BoatShape& boatshape() const;
   void rescan_components();
   void reread_components();
