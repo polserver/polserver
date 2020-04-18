@@ -91,8 +91,8 @@ General
     Hits            (string Life)
     Mana            (string Mana)
     Stamina         (string Stamina)
-    MaxSkillID      (integer maximum UO client skill ID)  
-    [MethodScript   (string scriptname)]  
+    MaxSkillID      (integer maximum UO client skill ID)
+    [MethodScript   (string scriptname)]
 }
 Protocol
 {
@@ -179,9 +179,9 @@ TileOptions
 MultiTypes
 {
   Boats (int MultiID) [(int MultiID) ...]
-  
+
   Houses (int MultiID) [(int MultiID) ...]
-  
+
   Stairs (int MultiID) [(int MultiID) ...]
 }
 
@@ -308,7 +308,7 @@ Spell (int spellid)
     Animation   (int casting animation ID)
     [Circle     (int Circle number)]
     [Reagent    (string item name)]...
-  
+
     [Mana       (int manacost)]
     [Difficulty (int difficulty)]
     [PointValue (int skillbonus)]
@@ -960,6 +960,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ReportURL=(string url {default "/pol/report_program_abort.php"})]
 [ShowWarningGump=(1/0 {default 1})]
 [ShowWarningItem=(1/0 {default 1})]
+[ShowWarningCursorSequence=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     <explain>UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
@@ -981,6 +982,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>ProfileCProps: when true, will record CProp usage statistics. Helps detecting unused CProps, at the cost of some RAM and an unnoticeable performance impact. It should be enabled from startup, or the core will be unable to detect the type of some CProps.</explain>
     <explain>ShowWarningGump: will show unexpected gump warning messages on the console.</explain>
     <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
+    <explain>ShowWarningCursorSequence: will show a warning when a player sends click packets out of sequence, this is usually due to the player running some sort of macro or client injection program.</explain>
 </cfgfile>
 
 
@@ -1004,10 +1006,10 @@ PackageRoot (path to package root)
 [OnlyCompileUpdatedScripts (0/1 {default 0})] //same as -u flag
 [GenerateDependencyInfo (0/1 {default 0})]    //Generate .dep files whether or not updating
 [DisplayUpToDateScripts (0/1 {default 0})]    //Display the "xxx/script.ecl is up-to-date" message, or not.
-[AutoCompileByDefault (0/1 {default 0})]      //If set, and you don't pass any script names or -r or -A, 
+[AutoCompileByDefault (0/1 {default 0})]      //If set, and you don't pass any script names or -r or -A,
                                               //will perform an auto compile.
 [UpdateOnlyOnAutoCompile (0/1 {default 0})]   //If set, autocompile will only update modified scripts.
-[DisplaySummary (0/1 {default 0})]            //Displays overall totals after compilation, unless compilation 
+[DisplaySummary (0/1 {default 0})]            //Displays overall totals after compilation, unless compilation
                                               //aborted due to a compile error.
 [OptimizeObjectMembers (0/1 {default 1})]     //-m flag will set it to 0
 [ErrorOnWarning (0/1 {default 0})]            //same as -y flag
@@ -1193,7 +1195,7 @@ Region (region name)
     3 - brewing storm - ("A storm is brewing")<br/>
     255 - None (Turns sound effects off)<br/>
 
-    severity:is set on a 0-70 scale, 70=torrential rain, 0=light drizzle. <br/>    
+    severity:is set on a 0-70 scale, 70=torrential rain, 0=light drizzle. <br/>
     aux: nothing<br/>
     lightoverride: light level amount overrides current level. -1 means no override.</explain>
     <related>regions.cfg</related>
@@ -1345,7 +1347,7 @@ NpcTemplate (string unique templatename)
     [SaveOnExit            (0/1 {default 1})]
     [MethodScript          (string scriptname)]
     [NoDropException       (0/1 {default 0})]
-    
+
     [LowerReagentCost       (int/(die-string value))]
     [SpellDamageIncrease    (int/(die-string value))]
     [FasterCasting          (int/(die-string value))]
@@ -1360,7 +1362,7 @@ NpcTemplate (string unique templatename)
     [PhysicalResistCap      (int/(die-string value))]
     [PoisonResistCap        (int/(die-string value))]
     [Luck                   (int/(die-string value))]
-    
+
     [LowerReagentCostMod    (int/(die-string value))]
     [SpellDamageIncreaseMod (int/(die-string value))]
     [FasterCastingMod       (int/(die-string value))]
@@ -1461,7 +1463,7 @@ Item (objtype)
     [EnergyDamage           (int/(die-string value))]
     [PoisonDamage           (int/(die-string value))]
     [PhysicalDamage         (int/(die-string value))]
-        
+
     [LowerReagentCost       (int/(die-string value))]
     [SpellDamageIncrease    (int/(die-string value))]
     [FasterCasting          (int/(die-string value))]
@@ -1476,7 +1478,7 @@ Item (objtype)
     [PhysicalResistCap      (int/(die-string value))]
     [PoisonResistCap        (int/(die-string value))]
     [Luck                   (int/(die-string value))]
-    
+
     [LowerReagentCostMod    (int/(die-string value))]
     [SpellDamageIncreaseMod (int/(die-string value))]
     [FasterCastingMod       (int/(die-string value))]
@@ -1492,7 +1494,7 @@ Item (objtype)
     [PoisonResistCapMod     (int/(die-string value))]
     [LuckMod                (int/(die-string value))]
 
-    
+
     [StackLimit             (int {default 60000})]
     [NoDrop                 (0/1 {default 0})]
 
@@ -1633,7 +1635,7 @@ FileAccess
   [AllowRead (0/1 {default 0})]
   [AllowWrite (0/1 {default 0})]
   [AllowAppend (0/1 {default 0})]
-  [AllowRemote (0/1 {default 0})] 
+  [AllowRemote (0/1 {default 0})]
 }
 </structure>
   <explain>'*' above means it applies to all packages.</explain>
@@ -1778,7 +1780,7 @@ HookList
     // OnLootPermChange(who) return check none
     // called when a Char changes the LootPermission
     OnLootPermChange (string exported_func_name)
-} 
+}
 </structure>
   <explain>HookList section is only needed if you wish to define party hooks.</explain>
 </cfgfile>

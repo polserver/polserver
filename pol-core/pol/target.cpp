@@ -29,6 +29,7 @@
 #include "realms/realm.h"
 #include "ufunc.h"
 #include "uobject.h"
+#include "../plib/systemstate.h"
 
 namespace Pol
 {
@@ -49,6 +50,7 @@ void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
   TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial - 1];
   if ( tcursor != targetter->tcursor2 )
   {
+      if ( Plib::systemstate.config.show_warning_cursor_seq )
     POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
                  << " used out of sequence cursor.\n";
 
