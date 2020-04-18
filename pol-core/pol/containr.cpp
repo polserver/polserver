@@ -951,7 +951,8 @@ unsigned short UContainer::max_items() const
 {
   const auto max_items = desc.max_items + max_items_mod();
 
-  return std::max( 1, std::min<decltype( max_items )>( max_items, MAX_CONTAINER_ITEMS ) );
+  return static_cast<u16>(
+      std::max( 1, std::min<decltype( max_items )>( max_items, MAX_CONTAINER_ITEMS ) ) );
 }
 
 unsigned short UContainer::max_weight() const
@@ -970,7 +971,7 @@ u8 UContainer::max_slots() const
 {
   const auto max_slots = desc.max_slots + max_slots_mod();
 
-  return std::max( 0, std::min<decltype( max_slots )>( max_slots, MAX_SLOTS ) );
+  return static_cast<u8>( std::max( 0, std::min<decltype( max_slots )>( max_slots, MAX_SLOTS ) ) );
 }
 
 bool UContainer::no_drop_exception() const

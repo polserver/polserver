@@ -69,7 +69,7 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.default_light_level = elem.remove_ushort( "DefaultLightLevel", 10 );
   settingsManager.ssopt.event_visibility_core_checks =
       elem.remove_bool( "EventVisibilityCoreChecks", false );
-  settingsManager.ssopt.max_pathfind_range = elem.remove_ulong( "MaxPathFindRange", 50 );
+  settingsManager.ssopt.max_pathfind_range = elem.remove_ushort( "MaxPathFindRange", 50 );
   settingsManager.ssopt.movement_uses_stamina = elem.remove_bool( "MovementUsesStamina", false );
   settingsManager.ssopt.use_tile_flag_prefix = elem.remove_bool( "UseTileFlagPrefix", true );
   settingsManager.ssopt.default_container_max_items =

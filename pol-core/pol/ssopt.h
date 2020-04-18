@@ -47,7 +47,7 @@ struct ServSpecOpt
   int default_accessible_range;
   unsigned short default_light_level;
   bool event_visibility_core_checks;
-  unsigned int max_pathfind_range;
+  unsigned short max_pathfind_range;
   bool movement_uses_stamina;
   bool use_tile_flag_prefix;
   unsigned short default_container_max_items;

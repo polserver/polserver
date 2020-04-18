@@ -2128,11 +2128,11 @@ void UOExecutorModule::internal_InBoxAreaChecks( const Core::Pos2d& p1, const Co
   if ( z1 < ZCOORD_MIN || z1 == LIST_IGNORE_Z )
     pos1->z( ZCOORD_MIN );
   else
-    pos1->z( z1 );
+    pos1->z( static_cast<s8>( z1 ) );
   if ( z2 > ZCOORD_MAX || z2 == LIST_IGNORE_Z )
     pos2->z( ZCOORD_MAX );
   else
-    pos2->z( z2 );
+    pos2->z( static_cast<s8>( z2 ) );
 }
 
 BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ )
@@ -3365,7 +3365,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
       item->destroy();
       return new BError( "Couldn't set slot index on item" );
     }
-    Core::Pos2d p( px, py );
+    Core::Pos2d p( static_cast<u16>( px ), static_cast<u16>( py ) );
     if ( px < 0 || py < 0 || !cont->is_legal_posn( item, p ) )
     {
       p = cont->get_random_location();
@@ -3795,8 +3795,8 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
   int x, y;
   u32 arrowid = 0;
 
-  if ( getCharacterParam( 0, chr ) && getParam( 1, x, -1, 1000000 ) &&
-       getParam( 2, y, -1, 1000000 ) )  // max values checked below
+  if ( getCharacterParam( 0, chr ) && getParam( 1, x, -1, 65535 ) &&
+       getParam( 2, y, -1, 65535 ) )  // max values checked below
   {
     if ( !chr->has_active_client() )
       return new BError( "No client attached" );
@@ -3832,7 +3832,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     }
     else
     {
-      Core::Pos3d pos( x, y, 0 );
+      Core::Pos3d pos( static_cast<u16>( x ), static_cast<u16>( y ), 0 );
       if ( !chr->realm()->valid( pos ) )
         return new BError( "Invalid Coordinates for Realm" );
       msg->Write<u8>( PKTOUT_BA_ARROW_ON );
@@ -5011,7 +5011,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
   const String* movemode_name;
 
   if ( getStringParam( 0, movemode_name ) && getPos4dParam( 1, 2, 3, 6, &pos ) &&
-       getParam( 4, x2_or_dir ) && getParam( 5, y2_ ) )
+       getParam( 4, x2_or_dir, -1, 65535 ) && getParam( 5, y2_, -1, 65535 ) )
   {
     Plib::MOVEMODE movemode = Character::decode_movemode( movemode_name->value() );
 
@@ -5020,7 +5020,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
       dir = static_cast<Core::UFACING>( x2_or_dir & 0x7 );
     else
     {
-      Core::Pos3d p2( x2_or_dir, y2_, 0 );
+      Core::Pos3d p2( static_cast<u16>( x2_or_dir ), static_cast<u16>( y2_ ), 0 );
       if ( !pos.realm()->valid( p2 ) )
         return new BError( "Invalid coordinates for realm." );
       dir = pos.xy().direction_toward( p2.xy() );

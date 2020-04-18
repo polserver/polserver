@@ -243,8 +243,8 @@ void MoveItemWorldPosition( const Pos4d& oldpos, Items::Item* item )
 // TODO: check if this is really needed...
 void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  unsigned wgridx = chr->pos().realm()->grid_width();
-  unsigned wgridy = chr->pos().realm()->grid_height();
+  u16 wgridx = chr->pos().realm()->grid_width();
+  u16 wgridy = chr->pos().realm()->grid_height();
 
   std::string msgreason = "unknown reason";
   switch ( reason )
@@ -318,8 +318,8 @@ bool check_item_integrity()
   bool ok = true;
   for ( auto& realm : gamestate.Realms )
   {
-    unsigned int gridwidth = realm->grid_width();
-    unsigned int gridheight = realm->grid_height();
+    u16 gridwidth = realm->grid_width();
+    u16 gridheight = realm->grid_height();
 
     Area2d area( Pos2d( 0, 0 ), Pos2d( gridwidth, gridheight ) - Vec2d( 1, 1 ), nullptr );
     for ( const auto& p : area )
@@ -347,8 +347,8 @@ void check_character_integrity()
   //}
   for ( auto& realm : gamestate.Realms )
   {
-    unsigned int gridwidth = realm->grid_width();
-    unsigned int gridheight = realm->grid_height();
+    u16 gridwidth = realm->grid_width();
+    u16 gridheight = realm->grid_height();
 
     auto check_zone = []( Mobile::Character* chr, Pos2d xy ) {
       Pos2d wp = zone_convert( chr->pos() );
@@ -372,8 +372,8 @@ void optimize_zones()
 {
   for ( auto& realm : gamestate.Realms )
   {
-    unsigned int gridwidth = realm->grid_width();
-    unsigned int gridheight = realm->grid_height();
+    u16 gridwidth = realm->grid_width();
+    u16 gridheight = realm->grid_height();
 
     Area2d area( Pos2d( 0, 0 ), Pos2d( gridwidth, gridheight ) - Vec2d( 1, 1 ), nullptr );
     for ( const auto& p : area )
