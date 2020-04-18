@@ -1,6 +1,8 @@
 #include "area.h"
 #include "../realms/realm.h"
 
+#include <algorithm>
+
 namespace Pol
 {
 namespace Core
