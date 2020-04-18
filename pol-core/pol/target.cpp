@@ -49,8 +49,11 @@ void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
   TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial - 1];
   if ( tcursor != targetter->tcursor2 )
   {
-    POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
-                 << " used out of sequence cursor.\n";
+    if ( Plib::systemstate.config.show_warning_cursor )
+    {
+      POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
+                   << " used out of sequence cursor.\n";
+    }
 
     targetter->tcursor2 = nullptr;
     return;
