@@ -109,8 +109,6 @@ void send_midi( Network::Client* client, unsigned short midi );
 Mobile::Character* find_character( u32 serial );
 
 UObject* find_toplevel_object( u32 serial );
-void setrealm( Items::Item* item, void* arg );
-void setrealmif( Items::Item* item, void* arg );
 
 // TODO: 9 global functions for remove pkt???
 void send_remove_character( Network::Client* client, const Mobile::Character* chr,
@@ -214,7 +212,6 @@ void transmit_to_others_inrange( Mobile::Character* center, const void* msg, uns
 
 void destroy_item( Items::Item* item );
 
-void move_item( Items::Item* item, UFACING facing );
 void move_item( Items::Item* item, Pos4d newpos, Pos4d oldpos );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );

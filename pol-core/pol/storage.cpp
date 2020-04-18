@@ -31,6 +31,7 @@
 #include "loaddata.h"
 #include "mkscrobj.h"
 #include "polcfg.h"
+#include "realms/realm.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -187,12 +188,8 @@ void StorageArea::on_delete_realm( Realms::Realm* realm )
     Items::Item* item = ( *itr ).second;
     if ( item )
     {
-      setrealmif( item, (void*)realm );
-      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-      {
-        UContainer* cont = static_cast<UContainer*>( item );
-        cont->for_each_item( setrealmif, (void*)realm );
-      }
+      if ( item->realm() == realm )
+        item->setposition( Pos4d( item->pos().xyz(), realm->baserealm ) );
     }
   }
 }

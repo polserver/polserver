@@ -155,11 +155,11 @@ void send_goxyz( Client* client, const Character* chr )
   msg->offset++;  // unk7
   msg->WriteFlipped<u16>( chr->color );
   msg->Write<u8>( chr->get_flag1( client ) );
-  msg->WriteFlipped<u16>( chr->x );
-  msg->WriteFlipped<u16>( chr->y );
+  msg->WriteFlipped<u16>( chr->x() );
+  msg->WriteFlipped<u16>( chr->y() );
   msg->offset += 2;                       // unk15,16
   msg->Write<u8>( 0x80u | chr->facing );  // is it always right to set this flag?
-  msg->Write<s8>( chr->z );
+  msg->Write<s8>( chr->z() );
   msg.Send( client );
 
   if ( ( client->ClientType & CLIENTTYPE_UOKR ) &&
@@ -210,9 +210,9 @@ void send_owncreate( Client* client, const Character* chr )
   owncreate->offset += 2;
   owncreate->Write<u32>( chr->serial_ext );
   owncreate->WriteFlipped<u16>( chr->graphic );
-  owncreate->WriteFlipped<u16>( chr->x );
-  owncreate->WriteFlipped<u16>( chr->y );
-  owncreate->Write<s8>( chr->z );
+  owncreate->WriteFlipped<u16>( chr->x() );
+  owncreate->WriteFlipped<u16>( chr->y() );
+  owncreate->Write<s8>( chr->z() );
   owncreate->Write<u8>( chr->facing );
   owncreate->WriteFlipped<u16>( chr->color );
   owncreate->Write<u8>( chr->get_flag1( client ) );
@@ -285,9 +285,9 @@ void build_owncreate( const Character* chr, PktOut_78* owncreate )
   owncreate->offset += 2;
   owncreate->Write<u32>( chr->serial_ext );
   owncreate->WriteFlipped<u16>( chr->graphic );
-  owncreate->WriteFlipped<u16>( chr->x );
-  owncreate->WriteFlipped<u16>( chr->y );
-  owncreate->Write<s8>( chr->z );
+  owncreate->WriteFlipped<u16>( chr->x() );
+  owncreate->WriteFlipped<u16>( chr->y() );
+  owncreate->Write<s8>( chr->z() );
   owncreate->Write<u8>( chr->facing );
   owncreate->WriteFlipped<u16>( chr->color );  // 17
 }
@@ -470,7 +470,7 @@ bool inrange( const Mobile::Character* c1, const UObject* obj )
 
 bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj )
 {
-  return c1->pos().inRange( ob->pos(), RANGE_VISUAL_LARGE_BUILDINGS );
+  return c1->pos().inRange( obj->pos(), RANGE_VISUAL_LARGE_BUILDINGS );
 }
 
 bool in_say_range( const Character* c1, const Character* c2 )
@@ -499,7 +499,7 @@ bool multi_inrange( const Pos2d& p1, const Pos2d& p2 )
 void send_put_in_container( Client* client, const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->x, item->y,
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos().xy(),
       item->slot_index(), item->container->serial_ext, item->color );
   msg.Send( client );
 
@@ -510,7 +510,7 @@ void send_put_in_container( Client* client, const Item* item )
 void send_put_in_container_to_inrange( const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->x, item->y,
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos().xy(),
       item->slot_index(), item->container->serial_ext, item->color );
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
@@ -596,8 +596,8 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
     msg->WriteFlipped<u16>( item->graphic );
     msg->offset++;  // unk6
     msg->WriteFlipped<u16>( item->get_senditem_amount() );
-    msg->WriteFlipped<u16>( item->x );
-    msg->WriteFlipped<u16>( item->y );
+    msg->WriteFlipped<u16>( item->x() );
+    msg->WriteFlipped<u16>( item->y() );
     if ( client->ClientType & CLIENTTYPE_6017 )
       msg->Write<u8>( item->slot_index() );
     msg->Write<u32>( corpse->serial_ext );
@@ -656,8 +656,8 @@ void send_item( Client* client, const Item* item )
   if ( client->chr->can_move( item ) )
     flags |= ITEM_FLAG_FORCE_MOVABLE;
 
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->x,
-                            item->y, item->z, item->facing, item->color, flags );
+  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(),
+                            item->pos().xyz(), item->facing, item->color, flags );
   pkt.Send( client );
 
   // if the item is a corpse, transmit items contained by it
@@ -676,8 +676,8 @@ void send_item( Client* client, const Item* item )
 /* Tell all clients new information about an item */
 void send_item_to_inrange( const Item* item )
 {
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->x,
-                            item->y, item->z, item->facing, item->color, 0 );
+  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(),
+                            item->pos().xyz(), item->facing, item->color, 0 );
   auto pkt_remove = RemoveObjectPkt( item->serial_ext );
   auto pkt_rev = ObjRevisionPkt( item->serial_ext, item->rev() );
 
@@ -895,10 +895,10 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 
   // not in the backpack, or in a subpack.  check global items and subpacks.
   Area2d area( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
-               zone_convert( chr->pos() + Vec2d( 8, 8 ) ), chr->realm() );
+               zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& p : area )
   {
-    for ( auto& item : chr->realm->getzone(p).items )
+    for ( auto& item : chr->realm()->getzone( p ).items )
     {
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
@@ -948,10 +948,10 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
 
   // check items on the ground
   Area2d area( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
-               zone_convert( chr->pos() + Vec2d( 8, 8 ) ), chr->realm() );
+               zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& p : area )
   {
-    for ( const auto& _item : chr->realm->getzone(p).items )
+    for ( const auto& _item : chr->realm()->getzone( p ).items )
     {
       if ( !inrange( chr, _item ) )
         continue;
@@ -1023,11 +1023,12 @@ void play_moving_effect2( const Pos4d& src, const Pos3d& dst, u16 effect, u8 spe
 
   WorldIterator<OnlinePlayerFilter>::InRange(
       src, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      Pos4d( dst, src.realm() ), RANGE_VISUAL, [&]( Character* zonechr ) {
-        if ( !inrange( zonechr, src.x(), src.y() ) )  // send to chrs only in range of dest
-          msg.Send( zonechr->client );
-      } );
+  WorldIterator<OnlinePlayerFilter>::InRange( Pos4d( dst, src.realm() ), RANGE_VISUAL,
+                                              [&]( Character* zonechr ) {
+                                                if ( !inrange( zonechr, src.xy() ) )
+                                                  // send to chrs only in range of dest
+                                                  msg.Send( zonechr->client );
+                                              } );
 }
 
 
@@ -1101,7 +1102,7 @@ void play_moving_effect2_ex( const Pos4d& src, const Pos3d& dst, u16 effect, u8 
       src, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
   WorldIterator<OnlinePlayerFilter>::InRange(
       Pos4d( dst, src.realm() ), RANGE_VISUAL, [&]( Character* zonechr ) {
-        if ( !inrange( zonechr, src.x(), src.y() ) )  // send to chrs only in range of dst
+        if ( !inrange( zonechr, src.xy() ) )  // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
 }
@@ -1510,19 +1511,6 @@ void destroy_item( Item* item )
   }
 }
 
-void setrealm( Item* item, void* arg )
-{
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-  item->realm = realm;
-}
-
-void setrealmif( Item* item, void* arg )
-{
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-  if ( item->realm == realm )
-    item->realm = realm->baserealm;
-}
-
 void subtract_amount_from_item( Item* item, unsigned short amount )
 {
   if ( amount >= item->getamount() )
@@ -1537,28 +1525,6 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
   }
   // DAVE added this 11/17: if in a Character's pack, update weight.
   UpdateCharacterWeight( item );
-}
-
-
-void move_item( Item* item, UFACING facing )
-{
-  u16 oldx = item->x;
-  u16 oldy = item->y;
-
-  item->x += move_delta[facing].xmove;
-  item->y += move_delta[facing].ymove;
-
-  item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, nullptr );
-
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
-  Network::RemoveObjectPkt msgremove( item->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      oldx, oldy, item->realm, RANGE_VISUAL, [&]( Character* zonechr ) {
-        if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
-          msgremove.Send( zonechr->client );
-      } );
 }
 
 // FIXME: this is called from some places where the item didn't used
@@ -1588,15 +1554,15 @@ void move_item( Item* item, Pos4d newpos, Pos4d oldpos )
 
 void send_multi( Client* client, const Multi::UMulti* multi )
 {
-  auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->x, multi->y,
-                             multi->z, multi->color );
+  auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->pos().xyz(),
+                             multi->color );
   pkt.Send( client );
 }
 
 void send_multi_to_inrange( const Multi::UMulti* multi )
 {
-  auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->x, multi->y,
-                             multi->z, multi->color );
+  auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->pos().xyz(),
+                             multi->color );
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       multi, [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
 }
@@ -1639,8 +1605,7 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
     else
     {
       // dave 12-22 check for no regions
-      LightRegion* light_region =
-          gamestate.lightdef->getregion( client->chr->x, client->chr->y, client->chr->realm );
+      LightRegion* light_region = gamestate.lightdef->getregion( client->chr->pos() );
       if ( light_region != nullptr )
         newlightlevel = light_region->lightlevel;
       else
@@ -2043,7 +2008,7 @@ void send_season_info( Client* client )
   if ( client->getversiondetail().major >= 1 )
   {
     PktHelper::PacketOut<PktOut_BC> msg;
-    msg->Write<u8>( client->chr->realm->season() );
+    msg->Write<u8>( client->chr->realm()->season() );
     msg->Write<u8>( PKTOUT_BC::PLAYSOUND_YES );
     msg.Send( client );
 
@@ -2060,12 +2025,12 @@ void send_season_info( Client* client )
 void send_new_subserver( Client* client )
 {
   PktHelper::PacketOut<PktOut_76> msg;
-  msg->WriteFlipped<u16>( client->chr->x );
-  msg->WriteFlipped<u16>( client->chr->y );
-  msg->WriteFlipped<u16>( static_cast<u16>( client->chr->z ) );
+  msg->WriteFlipped<u16>( client->chr->x() );
+  msg->WriteFlipped<u16>( client->chr->y() );
+  msg->WriteFlipped<u16>( static_cast<u16>( client->chr->z() ) );
   msg->offset += 5;  // unk0,x1,y2
-  msg->WriteFlipped<u16>( client->chr->realm->width() );
-  msg->WriteFlipped<u16>( client->chr->realm->height() );
+  msg->WriteFlipped<u16>( client->chr->realm()->width() );
+  msg->WriteFlipped<u16>( client->chr->realm()->height() );
   msg.Send( client );
 }
 
