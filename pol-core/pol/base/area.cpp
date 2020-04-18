@@ -38,6 +38,11 @@ Area2d::Area2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm )
     _pH.crop( realm );
   }
 }
+Area2d::Area2d( const Pos4d& p1, const Pos4d& p2 )
+{
+  _pL = Pos2d( std::min( p1.x(), p2.x() ), std::min( p1.y(), p2.y() ) );
+  _pH = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
+}
 
 Area2dItr Area2d::begin() const
 {
@@ -53,6 +58,11 @@ bool Area2d::contains( const Pos2d& other ) const
   return _pL <= other && _pH >= other;
 }
 
+bool Area2d::intersect( const Area2d& other ) const
+{
+  return _pL.x() <= other._pH.x() && other._pL.x() <= _pH.x() && _pL.y() <= other._pH.y() &&
+         other._pL.y() <= _pH.y();
+}
 }  // namespace Core
 }  // namespace Pol
 

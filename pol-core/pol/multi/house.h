@@ -72,8 +72,8 @@ class UHouse final : public UMulti
   typedef std::vector<Component> Components;
 
 public:
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
+                                               const Core::Pos4d& pos, int flags );
   void destroy_components();
 
   CustomHouseDesign CurrentDesign;

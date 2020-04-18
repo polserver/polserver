@@ -672,15 +672,11 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
   return house;
 }
 
-// fixme realm
-bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
-                      unsigned short mysouth, Realms::Realm* realm )
+bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
 {
-  // TODO: function params...
-  Core::Pos2d rL =
-      Core::zone_convert( Core::Pos4d( mywest, mynorth, 0, realm ) - Core::Vec2d( 100, 100 ) );
-  Core::Pos2d rH =
-      Core::zone_convert( Core::Pos4d( myeast, mysouth, 0, realm ) + Core::Vec2d( 100, 100 ) );
+  Core::Area2d my_area( minpos, maxpos );
+  Core::Pos2d rL = Core::zone_convert( minpos - Core::Vec2d( 100, 100 ) );
+  Core::Pos2d rH = Core::zone_convert( maxpos + Core::Vec2d( 100, 100 ) );
   Core::Area2d area( rL, rH, nullptr );
   for ( const auto& p : area )
   {
@@ -688,62 +684,22 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
     {
       const MultiDef& edef = multi->multidef();
       // find out if any of our walls would fall within its footprint.
-
-
-      const auto itsNW = multi->pos().xy() + Core::Vec2d( edef.minrx, edef.minry ),
-                 itsSE = multi->pos().xy() + Core::Vec2d( edef.maxrx, edef.maxry );
-
-      const auto itswest = itsNW.x(), itseast = itsSE.x(), itsnorth = itsNW.y(),
-                 itssouth = itsSE.y();
-      // TODO: is this a simple rectangle intersects other rectangle?
-      // need to check then a method in area whould be less verbose and maybe at other spots also
-      // useful
-      if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
-      {
-        if ( ( mywest >= itswest && mywest <= itseast ) ||  // NW
-             ( myeast >= itswest && myeast <= itseast ) )   // NE
-        {
-          return true;
-        }
-      }
-      if ( mysouth >= itsnorth && mysouth <= itssouth )  // South
-      {
-        if ( ( mywest >= itswest && mywest <= itseast ) ||  // SW
-             ( myeast >= itswest && myeast <= itseast ) )   // SE
-        {
-          return true;
-        }
-      }
-
-      if ( itsnorth >= mynorth && itsnorth <= mysouth )  // North
-      {
-        if ( ( itswest >= mywest && itswest <= myeast ) ||  // NW
-             ( itseast >= mywest && itseast <= myeast ) )   // NE
-        {
-          return true;
-        }
-      }
-      if ( itssouth >= mynorth && itssouth <= mysouth )  // South
-      {
-        if ( ( itswest >= mywest && itswest <= myeast ) ||  // SW
-             ( itseast >= mywest && itseast <= myeast ) )   // SE
-        {
-          return true;
-        }
-      }
+      const auto itsNW = multi->pos() + Core::Vec2d( edef.minrx, edef.minry ),
+                 itsSE = multi->pos() + Core::Vec2d( edef.maxrx, edef.maxry );
+      Core::Area2d other_area( itsNW, itsSE );
+      if ( my_area.intersect( other_area ) )
+        return true;
     }
   }
   return false;
 }
 
-bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
-                       Realms::Realm* realm )
+bool objects_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
 {
-  //TODO: function params..
-  Core::Pos2d rL = Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) );
-  Core::Pos2d rH = Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) );
+  Core::Pos2d rL = Core::zone_convert( minpos );
+  Core::Pos2d rH = Core::zone_convert( maxpos );
   Core::Area grid_area( rL, rH, nullptr );
-  Core::Area area( Core::Pos2d( x1, y1 ), Core::Pos2d( x2, y2 ) );
+  Core::Area area( minpos, maxpos );
 
   for ( const auto& p : grid_area )
   {
@@ -766,35 +722,32 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
   return false;
 }
 
-bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2, s8 z, int /*flags*/, Realms::Realm* realm )
+bool statics_cause_problems( const Core::Pos4d& minpos, const Core::Pos4d& maxpos, s8 z,
+                             int /*flags*/ )
 {
-  for ( unsigned short x = x1; x <= x2; ++x )
+  Core::Area2d area( minpos, maxpos );
+  for ( const auto& p : area )
   {
-    for ( unsigned short y = y1; y <= y2; ++y )
+    short newz;
+    if ( !realm->walkheight( p, z, &newz, nullptr, nullptr, true, Plib::MOVEMODE_LAND ) )
     {
-      short newz;
-      UMulti* multi;
-      Items::Item* item;
-      if ( !realm->walkheight( Core::Pos2d( x, y ), z, &newz, &multi, &item, true,
-                               Plib::MOVEMODE_LAND ) )
-      {
-        POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" ) << x << y << z;
-        return true;
-      }
-      if ( labs( z - newz ) > 2 )
-      {
-        POLLOG.Format( "Refusing to place house at {},{},{}: result Z ({}) is too far afield\n" )
-            << x << y << z << newz;
-        return true;
-      }
+      POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" )
+          << p.x() << p.y() << z;
+      return true;
+    }
+    if ( labs( z - newz ) > 2 )
+    {
+      POLLOG.Format( "Refusing to place house at {},{},{}: result Z ({}) is too far afield\n" )
+          << p.x() << p.y() << z << newz;
+      return true;
     }
   }
+
   return false;
 }
 
-Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                              Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
+                                              const Core::Pos4d& pos, int flags )
 {
   const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
   if ( md == nullptr )
@@ -803,15 +756,14 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
         "Multi definition not found for House, objtype=" + Clib::hexint( descriptor.objtype ) +
         ", multiid=" + Clib::hexint( descriptor.multiid ) );
   }
-
-  if ( !realm->valid( Core::Pos3d( x, y, z ) + Core::Vec3d( md->minrx, md->minry, md->minrz ) ) ||
-       !realm->valid( Core::Pos3d( x, y, z ) + Core::Vec3d( md->maxrx, md->maxry, md->maxrz ) ) )
+  Core::Vec3d minvec( md->minrx, md->minry, md->minrz );
+  Core::Vec3d maxvec( md->maxrx, md->maxry, md->maxrz );
+  if ( !realm->valid( pos.xyz() + minvec ) || !realm->valid( pos.xyz() + maxvec ) )
     return new Bscript::BError( "That location is out of bounds" );
 
   if ( ~flags & CRMULTI_IGNORE_MULTIS )
   {
-    if ( multis_exist_in( x + md->minrx - 1, y + md->minry - 5, x + md->maxrx + 1,
-                          y + md->maxry + 5, realm ) )
+    if ( multis_exist_in( pos + minvec - Core::Vec2d( 1, 5 ), pos + maxvec + Core::Vec2d( 1, 5 ) ) )
     {
       return new Bscript::BError( "Location intersects with another structure" );
     }
@@ -819,15 +771,15 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
   if ( ~flags & CRMULTI_IGNORE_OBJECTS )
   {
-    if ( objects_exist_in( x + md->minrx, y + md->minry, x + md->maxrx, y + md->maxry, realm ) )
+    if ( objects_exist_in( pos + minvec, pos + maxvec ) )
     {
       return new Bscript::BError( "Something is blocking that location" );
     }
   }
   if ( ~flags & CRMULTI_IGNORE_FLATNESS )
   {
-    if ( statics_cause_problems( x + md->minrx - 1, y + md->minry - 1, x + md->maxrx + 1,
-                                 y + md->maxry + 1, z, flags, realm ) )
+    if ( statics_cause_problems( pos + minvec - Core::Vec2d( 1, 1 ),
+                                 pos + maxvec + Core::Vec2d( 1, 1 ), pos.z(), flags ) )
     {
       return new Bscript::BError( "That location is not suitable" );
     }
@@ -836,7 +788,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   UHouse* house = new UHouse( descriptor );
   house->serial = Core::GetNewItemSerialNumber();
   house->serial_ext = ctBEu32( house->serial );
-  house->setposition( Core::Pos4d( x, y, z, realm ) );
+  house->setposition( pos );
   send_multi_to_inrange( house );
   // update_item_to_inrange( house );
   add_multi_to_world( house );

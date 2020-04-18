@@ -40,6 +40,7 @@ private:
 public:
   Area2d() = default;
   Area2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm );
+  Area2d( const Pos4d& p1, const Pos4d& p2 );
   Area2d( const Area2d& other ) = default;
   Area2d( Area2d&& other ) = default;
   ~Area2d() = default;
@@ -53,6 +54,7 @@ public:
   Area2dItr end() const;
 
   bool contains( const Pos2d& other ) const;
+  bool intersect( const Area2d& other ) const;
 };
 
 
