@@ -23,6 +23,7 @@
 #include "mobile/charactr.h"
 #endif
 #include <algorithm>
+#include <limits>
 #include <vector>
 
 #include "../clib/passert.h"
@@ -160,14 +161,18 @@ namespace
 inline CoordsArea::CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, unsigned range )
 {
   realm = posrealm;
-  Vec2d r( range, range );
+  if ( range > std::numeric_limits<s16>::max() )
+    range = std::numeric_limits<s16>::max();
+  Vec2d r( static_cast<s16>( range ), static_cast<s16>( range ) );
   area = Area2d( p - r, p + r, realm );
   warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
 }
 inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
 {
   realm = p.realm();
-  Vec2d r( range, range );
+  if ( range > std::numeric_limits<s16>::max() )
+    range = std::numeric_limits<s16>::max();
+  Vec2d r( static_cast<s16>( range ), static_cast<s16>( range ) );
   area = Area2d( ( p - r ).xy(), ( p + r ).xy(), realm );
   warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
 }

@@ -101,6 +101,7 @@ public:
   unsigned int toplevel_item_count() const;
   unsigned int multi_count() const;
 
+  //TODO: new and old z should be s8 and not s16, results in warnings
   bool walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::UMulti** pmulti,
                    Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                    short* gradual_boost = nullptr );
