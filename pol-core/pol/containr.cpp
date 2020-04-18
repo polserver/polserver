@@ -768,7 +768,8 @@ void UContainer::spill_contents( Multi::UMulti* multi )
         item->setposition( pos() );
         item->container = nullptr;
         add_item_to_world( item );
-        move_item( item, pos(), pos() ); // TODO: Remove this. It's being used just to send a packet about the new item.
+        move_item( item, pos(), pos() );  // TODO: Remove this. It's being used just to send a
+                                          // packet about the new item.
         if ( multi )
           multi->register_object( item );
         item->layer = 0;

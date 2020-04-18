@@ -8,6 +8,7 @@
 #define ZONE_H
 
 #include <utility>
+#include <vector>
 
 #include "base/position.h"
 

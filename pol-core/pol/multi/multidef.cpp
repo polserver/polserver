@@ -170,7 +170,8 @@ void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
   }
 }
 
-// TODO: Can't this function be simplified somehow? Maybe when components are loaded? Sorting component coordinates?
+// TODO: Can't this function be simplified somehow? Maybe when components are loaded? Sorting
+// component coordinates?
 void MultiDef::add_body_tohull()
 {
   short rx, ry;
@@ -178,7 +179,7 @@ void MultiDef::add_body_tohull()
   {
     for ( rx = minrx; rx <= maxrx; ++rx )
     {
-      const MULTI_ELEM* elem = find_component( Core::Vec2d(rx, ry) );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -188,7 +189,7 @@ void MultiDef::add_body_tohull()
     }
     for ( rx = maxrx; rx >= minrx; --rx )
     {
-      const MULTI_ELEM* elem = find_component( Core::Vec2d(rx, ry) );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -203,7 +204,7 @@ void MultiDef::add_body_tohull()
   {
     for ( ry = minry; ry <= maxry; ++ry )
     {
-      const MULTI_ELEM* elem = find_component( Core::Vec2d(rx, ry) );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -258,7 +259,7 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
   if ( elem->z > global_maxrz )
     global_maxrz = elem->z;*/
 
-  components.insert( Components::value_type( getkey( Core::Vec2d(elem->x, elem->y) ), elem ) );
+  components.insert( Components::value_type( getkey( Core::Vec2d( elem->x, elem->y ) ), elem ) );
 }
 
 void MultiDef::init()

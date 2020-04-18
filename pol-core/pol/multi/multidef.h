@@ -5,7 +5,7 @@
  * - 2009/09/03 MuadDib:   Relocation of multi related cpp/h
  */
 
-//TODO: complete multi folder is only a minimal solution, more should be rewritten
+// TODO: complete multi folder is only a minimal solution, more should be rewritten
 
 
 #ifndef MULTIDEF_H
@@ -53,7 +53,8 @@ struct MULTI_ELEM
 
   Core::Vec3d rel_pos() const;
 };
-inline Core::Vec3d MULTI_ELEM::rel_pos() const {
+inline Core::Vec3d MULTI_ELEM::rel_pos() const
+{
   return Core::Vec3d( this->x, this->y, this->z );
 }
 
@@ -92,10 +93,10 @@ public:
   short minrx, minry, minrz;  // minimum relative distances
   short maxrx, maxry, maxrz;
   Components components;
-    
-  /* 
+
+  /*
   // These seem to be unused
-  
+
   static short global_minrx;
   static short global_minry;
   static short global_minrz;
@@ -105,7 +106,7 @@ public:
 
   // this too
   ItrPair findcomponents( const Core::Vec2d& rxy );
-  
+
   */
 
   bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
