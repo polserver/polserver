@@ -165,7 +165,7 @@ inline CoordsArea::CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, un
     range = std::numeric_limits<s16>::max();
   Vec2d r( static_cast<s16>( range ), static_cast<s16>( range ) );
   area = Area2d( p - r, p + r, realm );
-  warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
+  warea = Area2d( convert( area.nw() ), convert( area.se() ), nullptr );
 }
 inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
 {
@@ -174,14 +174,14 @@ inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
     range = std::numeric_limits<s16>::max();
   Vec2d r( static_cast<s16>( range ), static_cast<s16>( range ) );
   area = Area2d( ( p - r ).xy(), ( p + r ).xy(), realm );
-  warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
+  warea = Area2d( convert( area.nw() ), convert( area.se() ), nullptr );
 }
 
 inline CoordsArea::CoordsArea( const Pos4d& p1, const Pos4d& p2 )
 {
   realm = p1.realm();
   area = Area2d( p1.xy(), p2.xy(), realm );
-  warea = Area2d( convert( area.posL() ), convert( area.posH() ), nullptr );
+  warea = Area2d( convert( area.nw() ), convert( area.se() ), nullptr );
 }
 
 inline bool CoordsArea::inRange( const UObject* obj ) const

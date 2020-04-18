@@ -55,10 +55,10 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  sw() << "\txwest\t" << area.posL().x() << pf_endl;
-  sw() << "\tynorth\t" << area.posL().y() << pf_endl;
-  sw() << "\txeast\t" << area.posH().x() << pf_endl;
-  sw() << "\tysouth\t" << area.posH().y() << pf_endl;
+  sw() << "\txwest\t" << area.nw().x() << pf_endl;
+  sw() << "\tynorth\t" << area.nw().y() << pf_endl;
+  sw() << "\txeast\t" << area.se().x() << pf_endl;
+  sw() << "\tysouth\t" << area.se().y() << pf_endl;
   sw() << "\tgumpwidth\t" << gumpwidth << pf_endl;
   sw() << "\tgumpheight\t" << gumpheight << pf_endl;
   sw() << "\tfacetid\t" << facetid << pf_endl;
@@ -86,8 +86,8 @@ void Map::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
 
-  area.posL( Pos2d( elem.remove_ushort( "xwest", 0 ), elem.remove_ushort( "ynorth", 0 ) ) );
-  area.posH( Pos2d( elem.remove_ushort( "xeast", 0 ), elem.remove_ushort( "ysouth", 0 ) ) );
+  area.nw( Pos2d( elem.remove_ushort( "xwest", 0 ), elem.remove_ushort( "ynorth", 0 ) ) );
+  area.se( Pos2d( elem.remove_ushort( "xeast", 0 ), elem.remove_ushort( "ysouth", 0 ) ) );
   gumpwidth = elem.remove_ushort( "gumpwidth", 0 );
   gumpheight = elem.remove_ushort( "gumpheight", 0 );
   facetid = elem.remove_ushort( "facetid", 0 );
@@ -122,10 +122,10 @@ void Map::builtin_on_use( Network::Client* client )
       msgF5->Write<u32>( serial_ext );
       msgF5->Write<u8>( 0x13u );
       msgF5->Write<u8>( 0x9du );
-      msgF5->WriteFlipped<u16>( area.posL().x() );
-      msgF5->WriteFlipped<u16>( area.posL().y() );
-      msgF5->WriteFlipped<u16>( area.posH().x() );
-      msgF5->WriteFlipped<u16>( area.posH().y() );
+      msgF5->WriteFlipped<u16>( area.nw().x() );
+      msgF5->WriteFlipped<u16>( area.nw().y() );
+      msgF5->WriteFlipped<u16>( area.se().x() );
+      msgF5->WriteFlipped<u16>( area.se().y() );
       msgF5->WriteFlipped<u16>( gumpwidth );
       msgF5->WriteFlipped<u16>( gumpheight );
       msgF5->WriteFlipped<u16>( facetid );
@@ -137,10 +137,10 @@ void Map::builtin_on_use( Network::Client* client )
       msg90->Write<u32>( serial_ext );
       msg90->Write<u8>( 0x13u );
       msg90->Write<u8>( 0x9du );
-      msg90->WriteFlipped<u16>( area.posL().x() );
-      msg90->WriteFlipped<u16>( area.posL().y() );
-      msg90->WriteFlipped<u16>( area.posH().x() );
-      msg90->WriteFlipped<u16>( area.posH().y() );
+      msg90->WriteFlipped<u16>( area.nw().x() );
+      msg90->WriteFlipped<u16>( area.nw().y() );
+      msg90->WriteFlipped<u16>( area.se().x() );
+      msg90->WriteFlipped<u16>( area.se().y() );
       msg90->WriteFlipped<u16>( gumpwidth );
       msg90->WriteFlipped<u16>( gumpheight );
       msg90.Send( client );
@@ -280,25 +280,25 @@ Bscript::BObjectImp* Map::script_method( const char* methodname, UOExecutor& ex 
 bool Map::msgCoordsInBounds( PKTBI_56* msg ) const
 {
   Pos2d newp( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) );
-  newp += area.posL().from_origin();
+  newp += area.nw().from_origin();
   return area.contains( newp );
 }
 
 Pos2d Map::gumpToWorld( const Pos2d& gump ) const
 {
-  Vec2d size = area.posH() - area.posL();
+  Vec2d size = area.se() - area.nw();
   float world_xtiles_per_pixel = (float)( size.x() ) / (float)gumpwidth;
   float world_ytiles_per_pixel = (float)( size.y() ) / (float)gumpheight;
-  return Pos2d( ( u16 )( area.posL().x() + ( world_xtiles_per_pixel * gump.x() ) ),
-                ( u16 )( area.posL().y() + ( world_ytiles_per_pixel * gump.y() ) ) );
+  return Pos2d( ( u16 )( area.nw().x() + ( world_xtiles_per_pixel * gump.x() ) ),
+                ( u16 )( area.nw().y() + ( world_ytiles_per_pixel * gump.y() ) ) );
 }
 
 Pos2d Map::worldToGump( const Pos2d& world ) const
 {
-  Vec2d size = area.posH() - area.posL();
+  Vec2d size = area.se() - area.nw();
   float world_xtiles_per_pixel = (float)( size.x() ) / (float)gumpwidth;
   float world_ytiles_per_pixel = (float)( size.y() ) / (float)gumpheight;
-  Vec2d delta( world - area.posL() );
+  Vec2d delta( world - area.nw() );
   return Pos2d( ( u16 )( ( delta.x() ) / world_xtiles_per_pixel ),
                 ( u16 )( ( delta.y() ) / world_ytiles_per_pixel ) );
 }

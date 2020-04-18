@@ -32,54 +32,54 @@ Area2dItr& Area2dItr::operator++()
 
 Area2d::Area2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm )
 {
-  _pL = Pos2d( std::min( p1.x(), p2.x() ), std::min( p1.y(), p2.y() ) );
-  _pH = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
+  _nw = Pos2d( std::min( p1.x(), p2.x() ), std::min( p1.y(), p2.y() ) );
+  _se = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
   if ( realm != nullptr )
   {
-    _pL.crop( realm );
-    _pH.crop( realm );
+    _nw.crop( realm );
+    _se.crop( realm );
   }
 }
 Area2d::Area2d( const Pos4d& p1, const Pos4d& p2 )
 {
-  _pL = Pos2d( std::min( p1.x(), p2.x() ), std::min( p1.y(), p2.y() ) );
-  _pH = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
+  _nw = Pos2d( std::min( p1.x(), p2.x() ), std::min( p1.y(), p2.y() ) );
+  _se = Pos2d( std::max( p1.x(), p2.x() ), std::max( p1.y(), p2.y() ) );
 }
 
-Area2d& Area2d::posL( const Pos2d& p )
+Area2d& Area2d::nw( const Pos2d& p )
 {
-  if ( p.x() > _pH.x() )
-    _pH.x( p.x() );
+  if ( p.x() > _se.x() )
+    _se.x( p.x() );
   else
-    _pL.x( p.x() );
-  if ( p.y() > _pH.y() )
-    _pH.y( p.y() );
+    _nw.x( p.x() );
+  if ( p.y() > _se.y() )
+    _se.y( p.y() );
   else
-    _pL.y( p.y() );
+    _nw.y( p.y() );
   return *this;
 }
-Area2d& Area2d::posH( const Pos2d& p )
+Area2d& Area2d::se( const Pos2d& p )
 {
-  return posL( p );
+  return nw( p );
 }
 Area2dItr Area2d::begin() const
 {
-  return Area2dItr( _pL, _pH );
+  return Area2dItr( _nw, _se );
 }
 Area2dItr Area2d::end() const
 {
-  return Area2dItr( Pos2d( _pL.x(), _pH.y() ) + Vec2d( 0, 1 ), _pH );
+  return Area2dItr( Pos2d( _nw.x(), _se.y() ) + Vec2d( 0, 1 ), _se );
 }
 
 bool Area2d::contains( const Pos2d& other ) const
 {
-  return _pL <= other && _pH >= other;
+  return _nw <= other && _se >= other;
 }
 
 bool Area2d::intersect( const Area2d& other ) const
 {
-  return _pL.x() <= other._pH.x() && other._pL.x() <= _pH.x() && _pL.y() <= other._pH.y() &&
-         other._pL.y() <= _pH.y();
+  return _nw.x() <= other._se.x() && other._nw.x() <= _se.x() && _nw.y() <= other._se.y() &&
+         other._nw.y() <= _se.y();
 }
 }  // namespace Core
 }  // namespace Pol

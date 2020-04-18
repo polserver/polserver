@@ -34,8 +34,8 @@ public:
 class Area2d
 {
 private:
-  Pos2d _pL;
-  Pos2d _pH;
+  Pos2d _nw;
+  Pos2d _se;
 
 public:
   Area2d() = default;
@@ -47,10 +47,10 @@ public:
   Area2d& operator=( const Area2d& other ) = default;
   Area2d& operator=( Area2d&& other ) = default;
 
-  const Pos2d& posL() const;
-  const Pos2d& posH() const;
-  Area2d& posL( const Pos2d& p );
-  Area2d& posH( const Pos2d& p );
+  const Pos2d& nw() const;
+  const Pos2d& se() const;
+  Area2d& nw( const Pos2d& p );
+  Area2d& se( const Pos2d& p );
 
   Area2dItr begin() const;
   Area2dItr end() const;
@@ -65,13 +65,13 @@ inline Area2dItr::reference Area2dItr::operator*() const
   return _v;
 }
 
-inline const Pos2d& Area2d::posL() const
+inline const Pos2d& Area2d::nw() const
 {
-  return _pL;
+  return _nw;
 }
-inline const Pos2d& Area2d::posH() const
+inline const Pos2d& Area2d::se() const
 {
-  return _pH;
+  return _se;
 }
 }  // namespace Core
 }  // namespace Pol

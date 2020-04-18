@@ -4010,16 +4010,16 @@ BObjectImp* Map::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_XEAST:
-    return new BLong( area.posL().x() );
+    return new BLong( area.se().x() );
     break;
   case MBR_XWEST:
-    return new BLong( area.posH().x() );
+    return new BLong( area.nw().x() );
     break;
   case MBR_YNORTH:
-    return new BLong( area.posL().y() );
+    return new BLong( area.nw().y() );
     break;
   case MBR_YSOUTH:
-    return new BLong( area.posH().y() );
+    return new BLong( area.se().y() );
     break;
   case MBR_GUMPWIDTH:
     return new BLong( gumpwidth );
@@ -4054,17 +4054,17 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
   switch ( id )
   {
   case MBR_XEAST:
-    area.posL( Pos2d( area.posL() ).x( static_cast<unsigned short>( value ) ) );
-    return new BLong( area.posL().x() );
+    area.se( Pos2d( area.se() ).x( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.se().x() );
   case MBR_XWEST:
-    area.posH( Pos2d( area.posH() ).x( static_cast<unsigned short>( value ) ) );
-    return new BLong( area.posH().x() );
+    area.nw( Pos2d( area.nw() ).x( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.nw().x() );
   case MBR_YNORTH:
-    area.posL( Pos2d( area.posL() ).y( static_cast<unsigned short>( value ) ) );
-    return new BLong( area.posL().y() );
+    area.nw( Pos2d( area.nw() ).y( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.nw().y() );
   case MBR_YSOUTH:
-    area.posH( Pos2d( area.posH() ).y( static_cast<unsigned short>( value ) ) );
-    return new BLong( area.posH().y() );
+    area.se( Pos2d( area.se() ).y( static_cast<unsigned short>( value ) ) );
+    return new BLong( area.se().y() );
   case MBR_GUMPWIDTH:
     return new BLong( gumpwidth = static_cast<unsigned short>( value ) );
   case MBR_GUMPHEIGHT:
