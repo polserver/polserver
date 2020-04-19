@@ -7,6 +7,7 @@
 #include "sqlscrobj.h"
 
 #include <exception>
+#include <regex>
 #include <string.h>
 
 #include "../bscript/bobject.h"
@@ -22,18 +23,6 @@
 #include "../clib/logfacility.h"
 #include "../clib/threadhelp.h"
 #include "globals/network.h"
-
-// std::regex support is broken in GCC < 4.9. This define is a workaround for GCC 4.8.
-// TODO: remove this in future and just use std:: namespace
-#ifndef USE_BOOST_REGEX
-#include <regex>
-
-#define REGEX_NSPACE std
-#else
-#include <boost/regex.hpp>
-
-#define REGEX_NSPACE boost
-#endif
 
 namespace Pol
 {
@@ -317,10 +306,10 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
   }
 
   std::string replaced = query;
-  REGEX_NSPACE::regex re( "^((?:[^']|'[^']*')*?)(\\?)" );
+  std::regex re( "^((?:[^']|'[^']*')*?)(\\?)" );
   for ( auto it = params->begin(); it != params->end(); ++it )
   {
-    if ( !REGEX_NSPACE::regex_search( replaced, re ) )
+    if ( !std::regex_search( replaced, re ) )
     {
       _errno = -2;
       _error = "Could not replace parameters.";
@@ -349,8 +338,8 @@ bool BSQLConnection::query( const std::string query, QueryParams params )
     escptr[esclen - 1] = '\'';
     escptr[esclen] = '\0';
 
-    replaced = REGEX_NSPACE::regex_replace( replaced, re, escptr.get(),
-                                            REGEX_NSPACE::regex_constants::format_first_only );
+    replaced =
+        std::regex_replace( replaced, re, escptr.get(), std::regex_constants::format_first_only );
   }
 
   return this->query( replaced );
@@ -398,7 +387,7 @@ Bscript::BObjectImp* BSQLConnection::call_polmethod( const char* methodname, UOE
 }
 
 Bscript::BObjectImp* BSQLConnection::call_polmethod_id( const int /*id*/, UOExecutor& /*ex*/,
-                                                     bool /*forcebuiltin*/ )
+                                                        bool /*forcebuiltin*/ )
 {
   return new BLong( 0 );
 }
@@ -504,5 +493,4 @@ void start_sql_service()
 }
 }  // namespace Core
 }  // namespace Pol
-#undef REGEX_NSPACE
 #endif

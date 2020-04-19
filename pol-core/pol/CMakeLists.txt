@@ -61,11 +61,6 @@ if(HAVE_MYSQL)
     )
   endif()
 endif()
-if(DEFINED USE_BOOST_REGEX)
-  target_link_libraries(${ex_name} PUBLIC
-    boost_regex
-  )
-endif()
 
 dist(${ex_name} .)
 
