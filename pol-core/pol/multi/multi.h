@@ -84,8 +84,8 @@ public:
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
 
   Bscript::BStruct* footprint() const;
-  virtual bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s16 zbase );
-  virtual bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s16 zbase );
+  virtual bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 zbase );
+  virtual bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zbase );
 
   virtual ~UMulti();
   virtual size_t estimatedSize() const override;
@@ -102,12 +102,12 @@ private:
 
 /* Default implementations */
 inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, const Core::Vec2d& /*rxy*/,
-                                s16 /*zbase*/ )
+                                s8 /*zbase*/ )
 {
   return false;
 };
 inline bool UMulti::readobjects( Plib::StaticList& /*vec*/, const Core::Vec2d& /*rxy*/,
-                                 s16 /*zbase*/ )
+                                 s8 /*zbase*/ )
 {
   return false;
 };

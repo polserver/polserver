@@ -31,7 +31,6 @@ namespace Core
 {
 class ItemsVector;
 class ULWObject;
-struct Zone;
 }  // namespace Core
 namespace Mobile
 {
@@ -101,29 +100,28 @@ public:
   unsigned int toplevel_item_count() const;
   unsigned int multi_count() const;
 
-  //TODO: new and old z should be s8 and not s16, results in warnings
-  bool walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::UMulti** pmulti,
+  bool walkheight( const Core::Pos2d& pos, s8 oldz, s8* newz, Multi::UMulti** pmulti,
                    Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                    short* gradual_boost = nullptr );
-  bool walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, short oldz, short* newz,
+  bool walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, s8 oldz, s8* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost = nullptr );
 
-  bool lowest_walkheight( const Core::Pos2d& newpos, short oldz, short* newz,
-                          Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                          Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
+  bool lowest_walkheight( const Core::Pos2d& newpos, s8 oldz, s8* newz, Multi::UMulti** pmulti,
+                          Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
+                          short* gradual_boost = nullptr );
 
-  bool dropheight( const Core::Pos4d& pos, short chrz, short* newz, Multi::UMulti** pmulti );
+  bool dropheight( const Core::Pos4d& pos, s8 chrz, s8* newz, Multi::UMulti** pmulti );
 
   bool has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const;
 
-  bool navigable( const Core::Pos3d& pos, short height ) const;
+  bool navigable( const Core::Pos3d& pos, s8 height ) const;
 
   Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 
-  bool lowest_standheight( const Core::Pos2d& newpos, short* z ) const;
+  bool lowest_standheight( const Core::Pos2d& newpos, s8* z ) const;
   bool findstatic( const Core::Pos2d& pos, unsigned short objtype ) const;
   void getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const;
-  bool groundheight( const Core::Pos2d& pos, short* z ) const;
+  bool groundheight( const Core::Pos2d& pos, s8* z ) const;
   Plib::MAPTILE_CELL getmaptile( const Core::Pos2d& pos ) const;
   void getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                      unsigned int anyflags ) const;
@@ -149,13 +147,13 @@ protected:
     std::vector<Items::Item*> dyn_items;
   };
 
-  static void standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                           bool* result, short* newz, short* gradual_boost = nullptr );
+  static void standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, s8 oldz,
+                           bool* result, s8* newz, short* gradual_boost = nullptr );
 
-  static void lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                                  bool* result, short* newz, short* gradual_boost = nullptr );
+  static void lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, s8 oldz,
+                                  bool* result, s8* newz, short* gradual_boost = nullptr );
 
-  static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
+  static bool dropheight( Plib::MapShapeList& shapes, s8 dropz, s8 chrz, s8* newz );
 
   void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
                      Core::ItemsVector& walkon_items, bool doors_block );
@@ -165,7 +163,7 @@ protected:
   bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target,
                     const Core::Pos3d& pos, LosCache& cache ) const;
 
-  Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
+  Multi::UMulti* find_supporting_multi( MultiList& mvec, s8 z ) const;
 
 private:
   const Plib::RealmDescriptor _descriptor;
@@ -178,13 +176,10 @@ private:
   std::unique_ptr<Plib::MapTileServer> _maptileserver;
   Core::Zone** zone;  // y first!
 
-private:
-  // not implemented:
-  Realm& operator=( const Realm& );
-  Realm( const Realm& );
-
 public:
   size_t sizeEstimate() const;
+  Realm& operator=( const Realm& ) = delete;
+  Realm( const Realm& ) = delete;
 };
 
 

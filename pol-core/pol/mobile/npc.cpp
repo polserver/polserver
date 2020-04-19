@@ -167,7 +167,7 @@ bool NPC::anchor_allows_move( Core::UFACING fdir ) const
 
 bool NPC::could_move( Core::UFACING fdir ) const
 {
-  short newz;
+  s8 newz;
   Multi::UMulti* supporting_multi;
   Items::Item* walkon_item;
   // Check for diagonal move - use Nandos change from charactr.cpp -- OWHorus (2011-04-26)

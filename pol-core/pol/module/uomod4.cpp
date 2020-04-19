@@ -64,7 +64,7 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
 BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, Core::Pos4d newpos,
                                                       int flags )
 {
-  short newz;
+  s8 newz;
   if ( !( flags & MOVEITEM_FORCELOCATION ) )
   {
     if ( newpos.realm() != nullptr )
@@ -115,14 +115,14 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
   Multi::UMulti* multi = nullptr;
   if ( flags & MOVEITEM_FORCELOCATION )
   {
-    short newz;
+    s8 newz;
     newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, nullptr, true,
                                 Plib::MOVEMODE_LAND );
     // note that newz is ignored...
   }
   else
   {
-    short newz;
+    s8 newz;
     if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, nullptr, true,
                                       Plib::MOVEMODE_LAND ) )
     {

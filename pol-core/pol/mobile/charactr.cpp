@@ -3798,7 +3798,7 @@ bool Character::move( unsigned char i_dir )
   {
     if ( facing & 1 )  // check if diagonal movement is allowed -- Nando (2009-02-26)
     {
-      short new_z;
+      s8 new_z;
       auto tmp_facing = static_cast<Core::UFACING>( ( facing + 1 ) & 0x7 );
       Core::Pos2d tmp_pos = this->pos().move( tmp_facing ).xy();
 
@@ -3817,7 +3817,7 @@ bool Character::move( unsigned char i_dir )
     Core::Pos4d newpos = this->pos().move( static_cast<Core::UFACING>( facing ) );
 
     // FIXME consider consolidating with similar code in UOEMOD.CPP
-    short newz;
+    s8 newz;
     Multi::UMulti* supporting_multi;
     Items::Item* walkon_item;
 

@@ -246,12 +246,12 @@ void start_client_char( Network::Client* client )
 
   Multi::UMulti* supporting_multi;
   Items::Item* walkon;
-  short newz;
+  s8 newz;
   Pos4d pos = client->chr->pos();
   if ( pos.realm()->walkheight( client->chr, pos.xy(), pos.z(), &newz, &supporting_multi,
                                 &walkon ) )
   {
-    pos.z( static_cast<s8>( newz ) );
+    pos.z( newz );
     client->chr->setposition( pos );
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( supporting_multi != nullptr )

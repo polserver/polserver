@@ -1265,7 +1265,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   }
   Plib::MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
 
-  short newz;
+  s8 newz;
   Multi::UMulti* dummy_multi;
   Item* dummy_walkon;
   if ( !pos.realm()->walkheight( pos.xy(), pos.z(), &newz, &dummy_multi, &dummy_walkon, true,
@@ -2901,7 +2901,7 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
       // we want doors to block ghosts in this case.
       bool doors_block = !( chr->graphic == UOBJ_GAMEMASTER ||
                             chr->cached_settings.get( PRIV_FLAGS::IGNORE_DOORS ) );
-      short newz;
+      s8 newz;
       Multi::UMulti* supporting_multi;
       Item* walkon_item;
       if ( !chr->realm()->walkheight( chr->pos().xy(), chr->z(), &newz, &supporting_multi,
@@ -4060,7 +4060,7 @@ BObjectImp* UOExecutorModule::mf_GetWorldHeight()
 
   if ( getRealmParam( 2, &realm ) && getPos2dParam( 0, 1, &pos, realm ) )
   {
-    short z = -255;
+    s8 z = -128;
     if ( realm->lowest_standheight( pos, &z ) )
       return new BLong( z );
     else
@@ -4210,7 +4210,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
   Core::Pos4d p;
   if ( getPos4dParam( 0, 1, 2, 3, &p ) )
   {
-    short newz;
+    s8 newz;
     Multi::UMulti* multi;
     Item* walkon;
     if ( p.realm()->lowest_walkheight( p.xy(), p.z(), &newz, &multi, &walkon, true,
@@ -5028,7 +5028,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
 
     if ( dir & 1 )  // check if diagonal movement is allowed
     {
-      short new_z;
+      s8 new_z;
       u8 tmp_facing = ( dir + 1 ) & 0x7;
       Core::Pos4d tmp = pos.move( static_cast<Core::UFACING>( tmp_facing ) );
 
@@ -5045,7 +5045,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
     }
 
     Core::Pos4d newp = pos.move( dir );
-    short newz;
+    s8 newz;
 
     if ( !newp.realm()->walkheight( newp.xy(), newp.z(), &newz, nullptr, nullptr, true, movemode,
                                     nullptr ) )

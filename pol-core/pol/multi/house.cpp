@@ -552,7 +552,7 @@ void UHouse::destroy_components()
   }
 }
 
-bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase )
+bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 zbase )
 {
   if ( !custom )
     return false;
@@ -612,7 +612,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short 
   return result;
 }
 
-bool UHouse::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase )
+bool UHouse::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zbase )
 {
   if ( !custom )
     return false;
@@ -728,17 +728,17 @@ bool statics_cause_problems( const Core::Pos4d& minpos, const Core::Pos4d& maxpo
   Core::Area2d area( minpos, maxpos );
   for ( const auto& p : area )
   {
-    short newz;
+    s8 newz;
     if ( !minpos.realm()->walkheight( p, z, &newz, nullptr, nullptr, true, Plib::MOVEMODE_LAND ) )
     {
       POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" )
-          << p.x() << p.y() << z;
+          << p.x() << p.y() << (int)z;
       return true;
     }
     if ( labs( z - newz ) > 2 )
     {
       POLLOG.Format( "Refusing to place house at {},{},{}: result Z ({}) is too far afield\n" )
-          << p.x() << p.y() << z << newz;
+          << p.x() << p.y() << (int)z << (int)newz;
       return true;
     }
   }
@@ -808,13 +808,13 @@ void move_to_ground( Items::Item* item )
   item->movable( true );
   item->set_decay_after( 60 );  // just a dummy in case decay=0
   item->restart_decay_timer();
-  for ( unsigned short xd = 0; xd < 5; ++xd )
+  for ( unsigned short xd = 0; xd < 5; ++xd )  // TODO Area2d
   {
     for ( unsigned short yd = 0; yd < 5; ++yd )
     {
       Items::Item* walkon;
       UMulti* multi;
-      short newz;
+      s8 newz;
       Core::Pos4d oldpos = item->pos();
       // move 'self' a bit so it doesn't interfere with itself
       item->setposition( Core::Pos4d( 0, 0, item->z(), item->realm() ) );
@@ -825,7 +825,7 @@ void move_to_ground( Items::Item* item )
 
       if ( res )
       {
-        item->setposition( Core::Pos4d( possiblePos, static_cast<s8>( newz ), item->realm() ) );
+        item->setposition( Core::Pos4d( possiblePos, newz, item->realm() ) );
         move_item( item, item->pos(), oldpos );
         return;
       }
@@ -835,11 +835,11 @@ void move_to_ground( Items::Item* item )
       }
     }
   }
-  short newz;
+  s8 newz;
   if ( item->realm()->groundheight( item->pos().xy(), &newz ) )
   {
     Core::Pos4d oldpos = item->pos();
-    item->setposition( Core::Pos4d( oldpos.xy(), static_cast<s8>( newz ), item->realm() ) );
+    item->setposition( Core::Pos4d( oldpos.xy(), newz, item->realm() ) );
     move_item( item, item->pos(), oldpos );
     return;
   }

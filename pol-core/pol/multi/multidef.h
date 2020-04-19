@@ -115,8 +115,8 @@ public:
   static unsigned short getkey( const Core::Vec2d& rxy );
 
   // returns true if it finds anything at this rx,ry
-  bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase ) const;
-  bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase,
+  bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zbase ) const;
+  bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 zbase,
                    unsigned int anyflags ) const;
 
   bool body_contains( const Core::Vec2d& rxy ) const;

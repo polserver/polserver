@@ -29,6 +29,7 @@
 #include "../../plib/tiles.h"
 #include "../../plib/uconst.h"
 #include "../../plib/udatfile.h"
+#include "../core.h"
 #include "../fnsearch.h"
 #include "../globals/uvars.h"
 #include "../item/itemdesc.h"
@@ -45,21 +46,21 @@
 #include "realm.h"
 
 #define HULL_HEIGHT_BUFFER 2
+
+namespace
+{
+s8 clip_s8( s16 v )
+{
+  return static_cast<s8>(
+      std::min( static_cast<s16>( std::numeric_limits<s8>::max() ),
+                std::max( static_cast<s16>( std::numeric_limits<s8>::min() ), v ) ) );
+}
+}  // namespace
 namespace Pol
 {
-namespace Core
-{
-Items::Item* find_walkon_item( Core::ItemsVector& ivec, short z );
-unsigned char flags_from_tileflags( unsigned int uoflags );
-}  // namespace Core
-// namespace Multi {
-// class UMulti;
-// UMulti* find_supporting_multi( Realms::MultiList& mvec, short z );
-// }
-
 namespace Realms
 {
-bool Realm::lowest_standheight( const Core::Pos2d& newpos, short* z ) const
+bool Realm::lowest_standheight( const Core::Pos2d& newpos, s8* z ) const
 {
   static Plib::MapShapeList vec;
   vec.clear();
@@ -72,8 +73,8 @@ bool Realm::lowest_standheight( const Core::Pos2d& newpos, short* z ) const
   return res;
 }
 
-void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
-                         bool* result_out, short* newz_out, short* gradual_boost )
+void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, s8 oldz,
+                         bool* result_out, s8* newz_out, short* gradual_boost )
 {
   static std::vector<const Plib::MapShape*> possible_shapes;
   possible_shapes.clear();
@@ -184,7 +185,7 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
   }
 
   *result_out = ret_result;
-  *newz_out = ret_newz;
+  *newz_out = clip_s8( ret_newz );
   if ( ret_result && ( gradual_boost != nullptr ) )
   {
     if ( new_boost > 11 )
@@ -195,8 +196,8 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
 }
 
 
-void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short minz,
-                                bool* result_out, short* newz_out, short* gradual_boost )
+void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, s8 minz,
+                                bool* result_out, s8* newz_out, short* gradual_boost )
 {
   bool land_ok = ( movemode & Plib::MOVEMODE_LAND ) ? true : false;
   bool sea_ok = ( movemode & Plib::MOVEMODE_SEA ) ? true : false;
@@ -213,7 +214,7 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
     if ( land_ok && ( shape.flags & ( Plib::FLAG::MOVELAND ) ) )
     {
       *result_out = true;
-      *newz_out = shape.z + shape.height;
+      *newz_out = clip_s8( shape.z + shape.height );
       return;
     }
   }
@@ -297,7 +298,7 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
   }
 
   *result_out = result;
-  *newz_out = newz;
+  *newz_out = clip_s8( newz );
   if ( result && ( gradual_boost != nullptr ) )
   {
     if ( new_boost > 11 )
@@ -338,7 +339,7 @@ void Realm::readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
 
 
 // new Z given new X, Y, and old Z.
-bool Realm::walkheight( const Core::Pos2d& newpos, short oldz, short* newz, Multi::UMulti** pmulti,
+bool Realm::walkheight( const Core::Pos2d& newpos, s8 oldz, s8* newz, Multi::UMulti** pmulti,
                         Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                         short* gradual_boost )
 {
@@ -391,9 +392,8 @@ bool Realm::walkheight( const Core::Pos2d& newpos, short oldz, short* newz, Mult
 // new Z given new X, Y, and old Z.
 // dave: todo: return false if walking onto a custom house and not in the list of editing players,
 // and no cmdlevel
-bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos, short oldz,
-                        short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
-                        short* gradual_boost )
+bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos, s8 oldz, s8* newz,
+                        Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost )
 {
   if ( newpos.x() >= width() || newpos.y() >= height() )
   {
@@ -462,9 +462,9 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& newpos,
 }
 
 
-bool Realm::lowest_walkheight( const Core::Pos2d& newpos, short oldz, short* newz,
-                               Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                               Plib::MOVEMODE movemode, short* gradual_boost )
+bool Realm::lowest_walkheight( const Core::Pos2d& newpos, s8 oldz, s8* newz, Multi::UMulti** pmulti,
+                               Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
+                               short* gradual_boost )
 {
   if ( newpos.x() >= width() || newpos.y() >= height() )
   {
@@ -513,8 +513,7 @@ bool Realm::lowest_walkheight( const Core::Pos2d& newpos, short oldz, short* new
 }
 
 
-bool Realm::dropheight( const Core::Pos4d& drop_pos, short chrz, short* newz,
-                        Multi::UMulti** pmulti )
+bool Realm::dropheight( const Core::Pos4d& drop_pos, s8 chrz, s8* newz, Multi::UMulti** pmulti )
 {
   static Plib::MapShapeList shapes;
   static MultiList mvec;
@@ -543,7 +542,7 @@ bool Realm::dropheight( const Core::Pos4d& drop_pos, short chrz, short* newz,
 }
 
 // used to be statics_dropheight
-bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz )
+bool Realm::dropheight( Plib::MapShapeList& shapes, s8 dropz, s8 chrz, s8* newz )
 {
   short z = Core::ZCOORD_MIN;
   bool result = false;
@@ -578,7 +577,7 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
     }
   }
 
-  *newz = z;
+  *newz = clip_s8( z );
 
   if ( result )
   {
@@ -671,7 +670,7 @@ void Realm::readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const
   } );
 }
 
-bool Realm::navigable( const Core::Pos3d& pos, short height = 0 ) const
+bool Realm::navigable( const Core::Pos3d& pos, s8 height ) const
 {
   if ( !valid( pos ) )
   {
@@ -722,7 +721,7 @@ Multi::UMulti* Realm::find_supporting_multi( const Core::Pos3d& pos ) const
 /* The supporting multi is the highest multi that is below or equal
  * to the Z-coord of the supported object.
  */
-Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, short z ) const
+Multi::UMulti* Realm::find_supporting_multi( MultiList& mvec, s8 z ) const
 {
   Multi::UMulti* found = nullptr;
   for ( auto& multi : mvec )
@@ -754,7 +753,7 @@ void Realm::getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos )
     _staticserver->getstatics( statics, pos.x(), pos.y() );
 }
 
-bool Realm::groundheight( const Core::Pos2d& pos, short* z ) const
+bool Realm::groundheight( const Core::Pos2d& pos, s8* z ) const
 {
   Plib::MAPTILE_CELL cell = _maptileserver->GetMapTile( pos.x(), pos.y() );
   *z = cell.z;

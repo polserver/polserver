@@ -19,20 +19,20 @@ using namespace Items;
 using namespace Multi;
 using namespace Core;
 
-void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, unsigned short newx,
-                unsigned short newy, bool exp_result, short exp_z )
+void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, s8 oldz, unsigned short newx,
+                unsigned short newy, bool exp_result, s8 exp_z )
 {
-  short newz;
+  s8 newz;
 
-  INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
-             << "Expect " << exp_result << "," << exp_z << ": ";
+  INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << (int)oldz << "): "
+             << "Expect " << exp_result << "," << (int)exp_z << ": ";
   UMulti* multi;
   Item* itm;
   bool res = gamestate.main_realm->walkheight( Core::Pos2d( newx, newy ), oldz, &newz, &multi, &itm,
                                                true /*doors
 block*/, Plib::MOVEMODE_LAND );
 
-  INFO_PRINT << "Got " << res << "," << newz << ": ";
+  INFO_PRINT << "Got " << res << "," << (int)newz << ": ";
 
   if ( exp_result != res )
   {
@@ -53,20 +53,20 @@ block*/, Plib::MOVEMODE_LAND );
   INFO_PRINT << "Ok!\n";
 }
 
-void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, unsigned short newx,
+void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, s8 oldz, unsigned short newx,
                  unsigned short newy, bool doors_block, Plib::MOVEMODE movemode, bool exp_result,
-                 short exp_z )
+                 s8 exp_z )
 {
-  short newz;
+  s8 newz;
 
-  INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
-             << "Expect " << exp_result << "," << exp_z << ": ";
+  INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << (int)oldz << "): "
+             << "Expect " << exp_result << "," << (int)exp_z << ": ";
   UMulti* multi;
   Item* itm;
   bool res = gamestate.main_realm->walkheight( Core::Pos2d( newx, newy ), oldz, &newz, &multi, &itm,
                                                doors_block, movemode );
 
-  INFO_PRINT << "Got " << res << "," << newz << ": ";
+  INFO_PRINT << "Got " << res << "," << (int)newz << ": ";
 
   if ( exp_result != res )
   {

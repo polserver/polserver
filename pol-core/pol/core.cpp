@@ -50,7 +50,7 @@ void CoreSetSysTrayToolTip( const std::string& text, Priority priority )
 bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
 {
   // FIXME consider consolidating with similar code in CHARACTER.CPP
-  short newz;
+  s8 newz;
   Multi::UMulti* supporting_multi = nullptr;
   Items::Item* walkon_item = nullptr;
   short new_boost = 0;
@@ -68,7 +68,7 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
     {
       return false;
     }
-    newpos.z( static_cast<s8>( newz ) );
+    newpos.z( newz );
   }
   chr->set_dirty();
 
@@ -160,7 +160,7 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
    2) have a "walk on" script
    */
 
-Items::Item* find_walkon_item( ItemsVector& ivec, short z )
+Items::Item* find_walkon_item( ItemsVector& ivec, s8 z )
 {
   for ( ItemsVector::const_iterator itr = ivec.begin(), end = ivec.end(); itr != end; ++itr )
   {

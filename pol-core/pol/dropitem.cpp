@@ -365,7 +365,7 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos4
   Mobile::Character* chr = client->chr;
 
   Multi::UMulti* multi;
-  short newz;
+  s8 newz;
   if ( !client->chr->can_moveanydist() && !chr->pos().inRange( newpos, 2 ) )
   {
     POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" )
@@ -393,16 +393,6 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos4
   item->set_dirty();
   item->restart_decay_timer();
   item->setposition( newpos );
-  // TODO: setrealm should be completely removed. SubItems do not inherit realm
-  //  if ( item->realm != chr->realm )
-  //  {
-  //    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-  //    {
-  //      UContainer* cont = static_cast<UContainer*>( item );
-  //      cont->for_each_item( setrealm, (void*)chr->realm );
-  //    }
-  //    setrealm( item, (void*)chr->realm );
-  //  }
   item->container = nullptr;
   item->reset_slot();
   add_item_to_world( item );

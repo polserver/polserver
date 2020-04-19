@@ -22,7 +22,7 @@ namespace Pol
 namespace Multi
 {
 // 8/9/03 this seems to be used only by uofile03 -Syz
-bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase ) const
+bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zbase ) const
 {
   bool result = false;
 
@@ -49,7 +49,7 @@ bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short
   return result;
 }
 
-bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase,
+bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 zbase,
                            unsigned int anyflags ) const
 {
   bool result = false;

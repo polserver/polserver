@@ -21,13 +21,13 @@ namespace Core
 class AStarBlockers
 {
 public:
-  int xLow, xHigh, yLow, yHigh;
+  int xLow, xHigh, yLow, yHigh;  // TODO: Area2d
 
-  struct BlockNode
+  struct BlockNode  // TODO: Pos3d
   {
     short x;
     short y;
-    short z;
+    s8 z;
   };
 
   typedef std::vector<BlockNode*> BlockNodeVector;
@@ -41,7 +41,7 @@ public:
     yHigh = yH;
   }
 
-  void AddBlocker( short x, short y, short z )
+  void AddBlocker( short x, short y, s8 z )
   {
     BlockNode* theNode = new BlockNode;
 
@@ -60,7 +60,7 @@ public:
     }
   }
 
-  bool IsBlocking( short x, short y, short z )
+  bool IsBlocking( short x, short y, s8 z )
   {
     for ( const auto blockNode : m_List )
     {
@@ -77,9 +77,9 @@ class UOPathState
 {
 public:
   AStarBlockers* theBlockers;
-  short x;
+  short x;  // TODO: Pos4d?
   short y;
-  short z;
+  s8 z;
   Realms::Realm* realm;
 
   UOPathState()
@@ -88,8 +88,7 @@ public:
         y( 0 ),
         z( 0 ),
         realm( Core::find_realm( std::string( "britannia" ) ) ){};
-  UOPathState( short newx, short newy, short newz, Realms::Realm* newrealm,
-               AStarBlockers* blockers )
+  UOPathState( short newx, short newy, s8 newz, Realms::Realm* newrealm, AStarBlockers* blockers )
   {
     x = newx;
     y = newy;
@@ -131,7 +130,7 @@ float UOPathState::GetCost( UOPathState& successor )
 std::string UOPathState::Name()
 {
   fmt::Writer writer;
-  writer.Format( "({},{},{})" ) << x << y << z;
+  writer.Format( "({},{},{})" ) << x << y << (int)z;
   return writer.str();
 }
 bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
@@ -153,7 +152,7 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
 
       short newx = x + i;
       short newy = y + j;
-      short newz = z;
+      s8 newz = z;
 
       if ( ( newx < 0 ) || ( newx < ( theBlockers->xLow ) ) || ( newx > ( theBlockers->xHigh ) ) ||
            ( newx > ( (int)realm->width() ) ) )

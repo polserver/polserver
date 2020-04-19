@@ -16,19 +16,19 @@ namespace Testing
 namespace
 {
 // This code should mirror code in drop_item_on_ground
-void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned short dropx,
-                unsigned short dropy, short dropz, bool exp_result, short exp_z )
+void test_drop( unsigned short chrx, unsigned short chry, s8 chrz, unsigned short dropx,
+                unsigned short dropy, s8 dropz, bool exp_result, s8 exp_z )
 {
   fmt::Writer tmp;
-  tmp << "POL DropHeight(" << chrx << "," << chry << "," << chrz << "," << dropx << "," << dropy
-      << "," << dropz << "): "
-      << "Expect " << exp_result << "," << exp_z << ": ";
+  tmp << "POL DropHeight(" << chrx << "," << chry << "," << (int)chrz << "," << dropx << ","
+      << dropy << "," << (int)dropz << "): "
+      << "Expect " << exp_result << "," << (int)exp_z << ": ";
 
-  short newz;
+  s8 newz;
   Multi::UMulti* multi;
   bool result = Core::gamestate.main_realm->dropheight(
       Core::Pos4d( dropx, dropy, dropz, Core::gamestate.main_realm ), chrz, &newz, &multi );
-  tmp << "Got " << result << "," << newz << ": ";
+  tmp << "Got " << result << "," << (int)newz << ": ";
   if ( exp_result != result )
   {
     tmp << "Failure!\n";
