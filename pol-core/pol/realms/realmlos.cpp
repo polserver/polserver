@@ -2,6 +2,7 @@
  *
  * @par History
  */
+#include <limits>
 #include <stdlib.h>
 
 #include "../../clib/rawtypes.h"
@@ -12,6 +13,15 @@
 #include "../uworld.h"
 #include "realm.h"
 
+namespace
+{
+s8 clip_s8( s16 v )  // TODO: move it somewhere
+{
+  return static_cast<s8>(
+      std::min( static_cast<s16>( std::numeric_limits<s8>::max() ),
+                std::max( static_cast<s16>( std::numeric_limits<s8>::min() ), v ) ) );
+}
+}  // namespace
 namespace Pol
 {
 namespace Realms
@@ -255,7 +265,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, Core::Pos3d( x, y, z ), cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
         return false;
 
       if ( x == x2 )
@@ -287,7 +297,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, Core::Pos3d( x, y, z ), cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
         return false;
 
       if ( y == y2 )
@@ -319,7 +329,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, Core::Pos3d( x, y, z ), cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
         return false;
 
       if ( z == z2 )
