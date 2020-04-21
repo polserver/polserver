@@ -2442,7 +2442,7 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
       expr.CA.push( _t );
 
       ObjMethod* objmeth = getKnownObjMethod( methodName.c_str() );
-      if ( objmeth != nullptr && compilercfg.OptimizeObjectMembers )
+      if ( objmeth != nullptr )
       {
         ptok2->id = INS_CALL_METHOD_ID;
         ptok2->type = TYP_METHOD;

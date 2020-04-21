@@ -69,7 +69,6 @@ void ECompileMain::showHelp()
 #endif
              << "       -i           include intrusive debug info in .ecl file\n"
              << "       -l           generate listfile\n"
-             << "       -m           don't optimize object members\n"
 #ifdef WIN32
              << "       -Pdir        set or change the EM and INC files Environment Variables\n"
 #endif
@@ -440,10 +439,6 @@ int readargs( int argc, char** argv )
 
       case 'a':
         compilercfg.CompileAspPages = setting_value( arg );
-        break;
-
-      case 'm':
-        compilercfg.OptimizeObjectMembers = false;
         break;
 
       case 'b':

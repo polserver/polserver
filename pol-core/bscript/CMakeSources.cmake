@@ -11,8 +11,6 @@ set (bscript_sources    # sorted !
   compctx.h
   compiler.cpp
   compiler.h
-  compiler_optimizer.cpp
-  compiler_optimizer.h
   compilercfg.cpp 
   compilercfg.h
   compmodl.h
@@ -38,6 +36,8 @@ set (bscript_sources    # sorted !
   executor.cpp
   executor.h
   executortype.h
+  expression.cpp
+  expression.h
   filefmt.h
   fmodule.cpp
   fmodule.h

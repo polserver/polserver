@@ -154,7 +154,7 @@ for r,d,files in os.walk('../pol-core/'):
         if f.endswith('.cpp'):
             parseFile(os.path.join(r,f),defs,members)
 #pprint(members)
-#pprint(members.keys())
+pprint(members.keys())
 docs=checkDocs()
 #pprint(docs)
 

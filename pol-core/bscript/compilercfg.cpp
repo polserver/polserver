@@ -47,7 +47,6 @@ void CompilerConfig::Read( const std::string& path )
   UpdateOnlyOnAutoCompile = elem.remove_bool( "UpdateOnlyOnAutoCompile", false );
   OnlyCompileUpdatedScripts = elem.remove_bool( "OnlyCompileUpdatedScripts", false );
   DisplaySummary = elem.remove_bool( "DisplaySummary", false );
-  OptimizeObjectMembers = elem.remove_bool( "OptimizeObjectMembers", true );
   ErrorOnWarning = elem.remove_bool( "ErrorOnWarning", false );
   GenerateDependencyInfo = elem.remove_bool( "GenerateDependencyInfo", OnlyCompileUpdatedScripts );
 

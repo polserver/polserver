@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "expression.h"
 #include "tokens.h"
 
 #ifndef __TOKEN_H
@@ -59,30 +60,6 @@ typedef enum
 } ParseError;
 
 extern const char* ParseErrorStr[];
-
-
-class Expression
-{
-public:
-  ~Expression();
-
-  void eat( Expression& expr );
-  void eat2( Expression& expr );
-  void optimize();
-  void optimize_binary_operations();
-  void optimize_unary_operations();
-  void optimize_assignments();
-  int get_num_tokens( int idx ) const;
-  bool optimize_token( int i );
-
-  typedef std::vector<Token*> Tokens;
-  Tokens tokens;
-
-public:
-  std::stack<Token*> TX;
-  std::queue<Token*> CA;
-};
-
 
 const unsigned EXPR_FLAG_SEMICOLON_TERM_ALLOWED = 0x0001;
 const unsigned EXPR_FLAG_COMMA_TERM_ALLOWED = 0x0002;

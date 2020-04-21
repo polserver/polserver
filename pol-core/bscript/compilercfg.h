@@ -31,7 +31,6 @@ struct CompilerConfig
   bool OnlyCompileUpdatedScripts;
   bool DisplaySummary;
   bool DisplayUpToDateScripts;
-  bool OptimizeObjectMembers;
   bool ErrorOnWarning;
   bool ThreadedCompilation;
   int NumberOfThreads;
