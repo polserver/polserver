@@ -1,5 +1,5 @@
 ﻿-- POL100 --
-04-18-2020 DevGIB: Added ShowWarningCursorSequence to pol.cfg to allow players to silence cursor out of sequence errors.
+04-18-2020 DevGIB: Added ShowWarningCursorSequence to pol.cfg to silence "cursor out of sequence" errors.
 03-19-2020 Kevin:
     Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client
            requests for guild and party member locations. This option is disabled by default.

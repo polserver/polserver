@@ -2,12 +2,12 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-18-2020</datemodified>
+		<datemodified>04-23-2020</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
 			<date>04-18-2020</date>
-			<author>DevGIB: Added ShowWarningCursorSequence to pol.cfg to allow players to silence cursor out of sequence errors.</author>
+			<author>DevGIB: Added ShowWarningCursorSequence to pol.cfg to silence &quot;cursor out of sequence&quot; errors.</author>
 		</entry>
 		<entry>
 			<date>03-19-2020</date>
