@@ -164,10 +164,9 @@ public:
 
   virtual std::string name() const override;
 
-  virtual UObject* owner() override;
-  virtual const UObject* owner() const override;
   virtual UObject* toplevel_owner() override;
   virtual const UObject* toplevel_owner() const override;
+  Mobile::Character* toplevel_chr();
 
   bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
   bool can_add_to_self( const Item& item, bool force_stacking ) const;
@@ -205,12 +204,6 @@ public:
   bool check_unequiptest_scripts( Mobile::Character* chr );
   bool check_unequiptest_scripts();
 
-  /**
-   * Shortcut function to get a pointer to the owner character
-   *
-   * @author DAVE, 11/17
-   */
-  Mobile::Character* GetCharacterOwner();
   /**
    * I'm using the named constructor idiom for creation,
    * so that the right kind of object gets created
@@ -257,6 +250,9 @@ protected:  // only derived classes need the constructor
   Item( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class );
 
 private:
+  virtual UObject* owner() override;
+  virtual const UObject* owner() const override;
+
   double getItemdescQuality() const;
 
 public:

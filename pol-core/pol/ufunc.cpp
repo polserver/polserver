@@ -1468,16 +1468,6 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
   } );
 }
 
-// DAVE made heavy changes to this 11/17 for speed.
-Character* chr_from_wornitems( UContainer* wornitems )
-{
-  Character* owner = wornitems->get_chr_owner();
-  if ( owner != nullptr )
-    return owner;
-  else
-    return nullptr;  // fixed 3/8/3
-}
-
 void destroy_item( Item* item )
 {
   if ( item->serial == 0 )
@@ -1831,7 +1821,7 @@ void send_move_mobile_to_nearby_cansee( const Character* chr )
 
 Character* UpdateCharacterWeight( Item* item )
 {
-  Character* chr_owner = item->GetCharacterOwner();
+  Character* chr_owner = item->toplevel_chr();
   if ( chr_owner != nullptr && chr_owner->client != nullptr )
   {
     send_full_statmsg( chr_owner->client, chr_owner );
@@ -1842,7 +1832,7 @@ Character* UpdateCharacterWeight( Item* item )
 
 void UpdateCharacterOnDestroyItem( Item* item )
 {
-  Character* chr_owner = item->GetCharacterOwner();
+  Character* chr_owner = item->toplevel_chr();
   if ( chr_owner != nullptr )
   {
     if ( item->layer && chr_owner->is_equipped( item ) )

@@ -98,6 +98,9 @@ void read_character( Clib::ConfigElem& elem )
     // note chr->logged_in is true..
     chr->readProperties( elem );
 
+    if ( !chr->realm() )  // not guaranteed by loading
+      chr->setposition( Core::Pos4d( chr->pos().xyz(), find_realm( "britannia" ) ) );
+
     // Allows the realm to recognize this char as offline
     chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
 
@@ -130,6 +133,8 @@ void read_npc( Clib::ConfigElem& elem )
   {
     npc->readProperties( elem );
 
+    if ( !npc->realm() )  // not guaranteed by loading
+      npc->setposition( Core::Pos4d( npc->pos().xyz(), find_realm( "britannia" ) ) );
     SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
     npc->clear_dirty();
 
@@ -199,7 +204,6 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     else
       return nullptr;
   }
-  item->setposition( Pos4d( 0, 0, 0, find_realm( "britannia" ) ) );  // TODO: not really needed?
 
   item->readProperties( elem );
 
@@ -238,12 +242,18 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
   if ( container_serial == 0 )
   {
+    if ( !item->realm() )  // not guaranteed by loading
+      item->setposition( Core::Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
     add_item_to_world( item );
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       parent_conts.push( static_cast<UContainer*>( item ) );
   }
   else
   {
+    // read position again without realm to not clip the coords
+    item->setposition( Core::Pos4d( elem.read_ushort( "X" ), elem.read_ushort( "Y" ),
+                                    static_cast<s8>( elem.read_int( "Z" ) ), nullptr ) );
+
     if ( IsCharacter( container_serial ) )  // it's equipped on a character
     {
       Mobile::Character* chr = system_find_mobile( container_serial );
@@ -352,6 +362,8 @@ void read_multi( Clib::ConfigElem& elem )
   }
   multi->readProperties( elem );
 
+  if ( !multi->realm() )  // not guaranteed by loading
+    multi->setposition( Core::Pos4d( multi->pos().xyz(), find_realm( "britannia" ) ) );
   add_multi_to_world( multi );
 }
 
@@ -479,20 +491,6 @@ void read_items_dat()
 void read_multis_dat()
 {
   slurp( ( Plib::systemstate.config.world_data_path + "multis.txt" ).c_str(), "MULTI" );
-  //  string multisfile = config.world_data_path + "multis.txt";
-  //  if (FileExists( multisfile ))
-  //  {
-  //    cout << multisfile << ":";
-  //    ConfigFile cf( multisfile, "MULTI" );
-  //    ConfigElem elem;
-  //    while( cf.read( elem ))
-  //    {
-  //      UMulti* multi = read_multi( elem );
-  //      if (multi == nullptr) throw runtime_error( "multi creation returned nullptr!" );
-  //
-  //      add_multi_to_world( multi );
-  //    }
-  //  }
 }
 
 void read_storage_dat()
@@ -555,6 +553,8 @@ void import( Clib::ConfigElem& elem )
 
     item->serial_ext = ctBEu32( item->serial );
 
+    if ( !item->realm() )  // not guaranteed by loading
+      item->setposition( Core::Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
     add_item_to_world( item );
     register_with_supporting_multi( item );
     ++import_count;

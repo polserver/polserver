@@ -204,7 +204,6 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
         return;
       }
       UObject* obj = item->toplevel_owner();
-      obj = obj->self_as_owner();
       if ( id.use_requires_los && !client->chr->realm()->has_los( *client->chr, *obj ) )  // DAVE
                                                                                           // 11/24
       {

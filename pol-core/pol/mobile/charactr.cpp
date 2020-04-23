@@ -337,7 +337,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
 
   height = Core::settingsManager.ssopt
                .default_character_height;  // this gets overwritten in UObject::readProperties!
-  wornitems->chr_owner = this;             // FIXME, dangerous.
+  wornitems->set_chr_owner( this );        // FIXME, dangerous.
 
   set_caps_to_default();
 
@@ -3929,21 +3929,6 @@ bool Character::move( unsigned char i_dir )
 
 void Character::realm_changed()
 {
-  // Commented out the explicit backpack handling, should be handled
-  // automagically by wormitems realm handling.  There is a slim
-  // possibility that backpacks might be assigned to a character but
-  // not be a worn item?  If this is the case, that will be broken.
-  //  backpack()->realm = realm;
-  //  backpack()->for_each_item(setrealm, (void*)realm);
-
-  // NOTE: Items without a realm are in a special state (not really in the world). So we shouldn't
-  // update those here. I hope that is true.
-  /*wornitems->for_each_item( Core::setrealm, (void*)realm() );
-  if ( has_gotten_item() )
-    gotten_item()->realm = realm();
-  if ( trading_cont.get() )
-    trading_cont->realm = realm();*/
-
   if ( has_active_client() )
   {
     // these are important to keep here in this order

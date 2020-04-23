@@ -152,8 +152,6 @@ public:
   Items::Item* find_objtype_noninuse( u32 objtype ) const;
   Items::Item* find_objtype( u32 objtype, int flags ) const;
 
-  virtual void for_each_item( void ( *f )( Item* item, void* a ), void* arg );
-
   virtual bool script_isa( unsigned isatype ) const override;
   virtual Items::Item* clone() const override;
 
@@ -200,7 +198,6 @@ public:
                                  unsigned short amt_added );
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
-  virtual Mobile::Character* get_chr_owner() { return nullptr; };
   // system_find: bypasses all locks, etc.
   Items::Item* system_find( u32 serial ) const;
 

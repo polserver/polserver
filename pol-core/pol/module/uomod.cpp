@@ -359,7 +359,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
            item->can_add_to_self( amount, force_stacking ) )
       {
         // DAVE added this 11/17, call can/onInsert scripts for this container
-        Character* chr_owner = cont->GetCharacterOwner();
+        Character* chr_owner = cont->toplevel_chr();
         if ( chr_owner == nullptr )
           if ( uoemod != nullptr )
             chr_owner = uoemod->controller_.get();
@@ -450,7 +450,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
       }
 
       // DAVE added this 11/17, call can/onInsert scripts for this container
-      Character* chr_owner = cont->GetCharacterOwner();
+      Character* chr_owner = cont->toplevel_chr();
       if ( chr_owner == nullptr )
         if ( uoemod != nullptr )
           chr_owner = uoemod->controller_.get();
@@ -3295,7 +3295,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
     return new BError( "Container is too full to add that" );
   }
   // DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
-  Character* chr_owner = cont->GetCharacterOwner();
+  Character* chr_owner = cont->toplevel_chr();
   if ( chr_owner == nullptr )
     if ( controller_.get() != nullptr )
       chr_owner = controller_.get();
@@ -3430,7 +3430,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
   // DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
   Character* chr_owner = nullptr;
   if ( oldcont != nullptr )
-    chr_owner = oldcont->GetCharacterOwner();
+    chr_owner = oldcont->toplevel_chr();
   if ( chr_owner == nullptr )
     if ( controller_.get() != nullptr )
       chr_owner = controller_.get();

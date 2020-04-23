@@ -49,6 +49,30 @@ size_t ConfigElemBase::estimateSize() const
 {
   return type_.capacity() + rest_.capacity() + sizeof( _source );
 }
+void ConfigElemBase::throw_error( const std::string& errmsg ) const
+{
+  if ( _source != nullptr )
+    _source->display_error( errmsg, false, this );
+  throw std::runtime_error( "Configuration file error" );
+}
+unsigned short ConfigElemBase::string_to_u16( const char* prop, const std::string& str )
+{
+  // FIXME isdigit isxdigit - +
+  // or, use endptr
+  // FIXME check range within unsigned short
+
+  char* endptr = nullptr;
+  unsigned short val = (unsigned short)strtoul( str.c_str(), &endptr, 0 );
+  if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
+  {
+    std::string errmsg;
+    errmsg = "Poorly formed number in property '";
+    errmsg += prop;
+    errmsg += "': " + str;
+    throw_error( errmsg );
+  }
+  return val;
+}
 
 ConfigElem::ConfigElem() : ConfigElemBase() {}
 
@@ -231,20 +255,7 @@ bool ConfigElem::remove_prop( const char* propname, unsigned short* psval )
   std::string temp;
   if ( remove_prop( propname, &temp ) )
   {
-    // FIXME isdigit isxdigit - +
-    // or, use endptr
-
-    char* endptr = nullptr;
-    *psval = (unsigned short)strtoul( temp.c_str(), &endptr, 0 );
-    if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
-    {
-      std::string errmsg;
-      errmsg = "Poorly formed number in property '";
-      errmsg += propname;
-      errmsg += "': " + temp;
-      throw_error( errmsg );
-    }
-    // FIXME check range within unsigned short
+    *psval = string_to_u16( propname, temp );
     return true;
   }
   return false;
@@ -260,39 +271,13 @@ bool VectorConfigElem::remove_prop( const char* propname, unsigned short* psval 
     ConfigProperty* prop = *itr;
     if ( stricmp( prop->name_.c_str(), propname ) == 0 )
     {
-      // FIXME isdigit isxdigit - +
-      // or, use endptr
-
-      char* endptr = nullptr;
-      *psval = (unsigned short)strtoul( prop->value_.c_str(), &endptr, 0 );
-      if ( ( endptr != nullptr ) && ( *endptr != '\0' ) && !isspace( *endptr ) )
-      {
-        std::string errmsg;
-        errmsg = "Poorly formed number in property '";
-        errmsg += propname;
-        errmsg += "': " + prop->value_;
-        throw_error( errmsg );
-      }
-      // FIXME check range within unsigned short
+      *psval = string_to_u16( propname, prop->value_ );
       delete prop;
       properties.erase( itr );
       return true;
     }
   }
   return false;
-}
-
-void ConfigElem::throw_error( const std::string& errmsg ) const
-{
-  if ( _source != nullptr )
-    _source->display_error( errmsg, false, this );
-  throw std::runtime_error( "Configuration file error" );
-}
-void VectorConfigElem::throw_error( const std::string& errmsg ) const
-{
-  if ( _source != nullptr )
-    _source->display_error( errmsg, false, this );
-  throw std::runtime_error( "Configuration file error" );
 }
 
 void ConfigElem::warn( const std::string& errmsg ) const
@@ -337,6 +322,35 @@ unsigned short ConfigElem::remove_ushort( const char* propname, unsigned short d
     return dflt;
 }
 
+unsigned short ConfigElem::read_ushort( const char* propname, unsigned short dflt )
+{
+  std::string temp;
+  if ( read_prop( propname, &temp ) )
+    return string_to_u16( propname, temp );
+  return dflt;
+}
+unsigned short ConfigElem::read_ushort( const char* propname )
+{
+  std::string temp;
+  if ( read_prop( propname, &temp ) )
+    return string_to_u16( propname, temp );
+  prop_not_found( propname );  // prop_not_found throws
+}
+
+int ConfigElem::read_int( const char* propname, int dflt )
+{
+  std::string temp;
+  if ( read_prop( propname, &temp ) )
+    return atoi( temp.c_str() );
+  return dflt;
+}
+int ConfigElem::read_int( const char* propname )
+{
+  std::string temp;
+  if ( read_prop( propname, &temp ) )
+    return atoi( temp.c_str() );
+  prop_not_found( propname );  // prop_not_found throws
+}
 int ConfigElem::remove_int( const char* propname )
 {
   std::string temp = remove_string( propname );

@@ -1170,7 +1170,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1183,7 +1183,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1196,7 +1196,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1209,7 +1209,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1222,7 +1222,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1235,7 +1235,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1248,7 +1248,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1261,7 +1261,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1274,7 +1274,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1287,7 +1287,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1301,7 +1301,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1314,7 +1314,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1327,7 +1327,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1340,7 +1340,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1354,7 +1354,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1368,7 +1368,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1381,7 +1381,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1394,7 +1394,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1407,7 +1407,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1420,7 +1420,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1433,7 +1433,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1446,7 +1446,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1460,7 +1460,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1473,7 +1473,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1494,7 +1494,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         if ( Core::IsCharacter( container->serial ) )
         {
-          Mobile::Character* chr = chr_from_wornitems( container );
+          Mobile::Character* chr = container->toplevel_chr();
           if ( chr != nullptr )
             chr->refresh_ar();
         }
@@ -1509,7 +1509,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         if ( Core::IsCharacter( container->serial ) )
         {
-          Mobile::Character* chr = chr_from_wornitems( container );
+          Mobile::Character* chr = container->toplevel_chr();
           if ( chr != nullptr )
             chr->refresh_ar();
         }
@@ -4497,7 +4497,7 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           Mobile::ARUpdater::on_change( chr );
       }

@@ -102,7 +102,7 @@ void write_dirty_storage( Clib::StreamWriter& sw_data )
 void write_object_dirty_owners( Clib::StreamWriter& sw_data, const UObject* obj,
                                 bool& has_nonsaved_owner )
 {
-  const UObject* owner = obj->owner();
+  const UObject* owner = obj->toplevel_owner();
   if ( owner )
   {
     auto id = Items::find_itemdesc( owner->objtype_ );

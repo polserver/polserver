@@ -145,7 +145,10 @@ enum class OBJ_FLAGS : u16
 /**
  * @warning if you add fields, be sure to update Items::create().
  */
-class UObject : protected ref_counted, public ULWObject, public DynamicPropsHolder
+class UObject
+    : protected ref_counted
+    , public ULWObject
+    , public DynamicPropsHolder
 {
 public:
   virtual std::string name() const;
@@ -166,11 +169,7 @@ public:
 
   virtual unsigned int weight() const = 0;
 
-  virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
-  virtual UObject* owner();
-  virtual const UObject* owner() const;
-  virtual UObject* self_as_owner();
-  virtual const UObject* self_as_owner() const;
+  virtual UObject* toplevel_owner();  // considers wornitems and hold items
   virtual const UObject* toplevel_owner() const;
   virtual bool setgraphic( u16 newobjtype );
   virtual bool setcolor( u16 newcolor );
@@ -184,10 +183,10 @@ public:
   Multi::UMulti* supporting_multi() const;  // doesn't consider containers/etc
 
   const Pos4d& toplevel_pos() const { return toplevel_owner()->pos(); }
-  u16 toplevel_x() const;                                // world coordinates of toplevel owner
-  u16 toplevel_y() const;  // world coordinates of toplevel owner
-  s8 toplevel_z() const;   // world coordinates of toplevel owner
-  Realms::Realm* toplevel_realm() const;                 // world coordinates of toplevel owner
+  u16 toplevel_x() const;                 // world coordinates of toplevel owner
+  u16 toplevel_y() const;                 // world coordinates of toplevel owner
+  s8 toplevel_z() const;                  // world coordinates of toplevel owner
+  Realms::Realm* toplevel_realm() const;  // world coordinates of toplevel owner
 
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
@@ -239,6 +238,14 @@ public:
   void clear_dirty() const;
   static std::atomic<unsigned int> dirty_writes;
   static std::atomic<unsigned int> clean_writes;
+
+private:
+  // only almost clean way to get from WornItemsContainer to chr for toplevel_owner, I fear what
+  // falls apart when I change WornItemsContainer to link via the container member to the chr.
+  // since it exists I added the gotten_by logic there, but it could be moved also directly to
+  // toplevel_owner So never use these two methods and only use toplevel_owner (Turley)
+  virtual UObject* owner();
+  virtual const UObject* owner() const;
 
 protected:
   virtual void printProperties( Clib::StreamWriter& sw ) const;

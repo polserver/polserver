@@ -49,6 +49,7 @@
 #include "../baseobject.h"
 #include "../dynproperties.h"
 #include "../gameclck.h"
+#include "../getitem.h"
 #include "../polclock.h"
 #include "../reftypes.h"
 #include "../skillid.h"
@@ -127,7 +128,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
 void createchar2( Accounts::Account* acct, unsigned index );
-void undo_get_item( Mobile::Character* chr, Items::Item* item );
 void write_characters( SaveContext& sc );
 void write_npcs( SaveContext& sc );
 }  // namespace Core

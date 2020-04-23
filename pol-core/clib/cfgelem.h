@@ -39,8 +39,11 @@ public:
   const char* rest() const;
   virtual size_t estimateSize() const;
 
+  [[noreturn]] void throw_error( const std::string& errmsg ) const;
+
 protected:
   ConfigElemBase();
+  unsigned short string_to_u16( const char* prop, const std::string& str );
 
 protected:
   std::string type_;
@@ -94,6 +97,11 @@ public:
 
   std::string read_string( const char* propname ) const;
   std::string read_string( const char* propname, const char* dflt ) const;
+  unsigned short read_ushort( const char* propname, unsigned short dflt );
+  unsigned short read_ushort( const char* propname );
+
+  int read_int( const char* propname, int dflt );
+  int read_int( const char* propname );
 
 
   void add_prop( std::string propname, std::string propval );
@@ -101,7 +109,6 @@ public:
   void add_prop( std::string propname, unsigned short sval );
   void add_prop( std::string propname, short sval );
 
-  [[noreturn]] void throw_error( const std::string& errmsg ) const;
   void warn( const std::string& errmsg ) const;
   void warn_with_line( const std::string& errmsg ) const;
 
@@ -163,7 +170,6 @@ public:
   void add_prop( std::string propname, unsigned int lval );
   void add_prop( std::string propname, unsigned short sval );
 
-  [[noreturn]] void throw_error( const std::string& errmsg ) const;
   void warn( const std::string& errmsg ) const;
 
   void set_rest( const char* newrest );

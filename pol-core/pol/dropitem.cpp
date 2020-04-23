@@ -37,6 +37,7 @@
 #include "containr.h"
 #include "eventid.h"
 #include "fnsearch.h"
+#include "getitem.h"
 #include "globals/uvars.h"
 #include "item/item.h"
 #include "los.h"

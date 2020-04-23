@@ -551,7 +551,7 @@ void UContainer::remove( Items::Item* item )
   passert_always( itr != contents_.end() );
 
   // DAVE added this 11/17. refresh owner's weight on delete
-  Mobile::Character* chr_owner = item->GetCharacterOwner();
+  Mobile::Character* chr_owner = item->toplevel_chr();
 
   if ( chr_owner != nullptr && chr_owner->client != nullptr )
   {
@@ -667,19 +667,6 @@ Items::Item* UContainer::find_toplevel( u32 objserial ) const
     }
   }
   return nullptr;
-}
-
-void UContainer::for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg )
-{
-  for ( auto& item : contents_ )
-  {
-    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-    {
-      UContainer* cont = static_cast<UContainer*>( item );
-      cont->for_each_item( f, arg );
-    }
-    ( *f )( item, arg );
-  }
 }
 
 UContainer::const_iterator UContainer::begin() const

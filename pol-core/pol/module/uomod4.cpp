@@ -135,7 +135,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
   {
     // DAVE added this 12/04, call can/onRemove scripts for the old container
     UContainer* oldcont = item->container;
-    Character* chr_owner = oldcont->GetCharacterOwner();
+    Character* chr_owner = oldcont->toplevel_chr();
     if ( chr_owner == nullptr )
       if ( controller_.get() != nullptr )
         chr_owner = controller_.get();

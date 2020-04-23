@@ -29,21 +29,9 @@ size_t WornItemsContainer::estimatedSize() const
   return sizeof( Mobile::Character* ) /*chr_owner*/ + base::estimatedSize();
 }
 
-
-void WornItemsContainer::for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg )
+void WornItemsContainer::set_chr_owner( Mobile::Character* chr )
 {
-  for ( auto& item : contents_ )
-  {
-    if ( item != nullptr )
-    {
-      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-      {
-        UContainer* cont = static_cast<UContainer*>( item );
-        cont->for_each_item( f, arg );
-      }
-      ( *f )( item, arg );
-    }
-  }
+  chr_owner = chr;
 }
 
 void WornItemsContainer::PutItemOnLayer( Items::Item* item )
@@ -127,14 +115,5 @@ const UObject* WornItemsContainer::owner() const
   return chr_owner;
 }
 
-UObject* WornItemsContainer::self_as_owner()
-{
-  return chr_owner;
-}
-
-const UObject* WornItemsContainer::self_as_owner() const
-{
-  return chr_owner;
-}
 }  // namespace Core
 }  // namespace Pol

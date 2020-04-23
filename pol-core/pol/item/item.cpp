@@ -250,16 +250,20 @@ bool Item::getbuyprice( u32& bp ) const
 
 Core::UObject* Item::owner()
 {
+  if ( has_gotten_by() )
+    return gotten_by();
   if ( container != nullptr )
-    return container->self_as_owner();
+    return container->owner();
   else
     return nullptr;
 }
 
 const Core::UObject* Item::owner() const
 {
+  if ( has_gotten_by() )
+    return gotten_by();
   if ( container != nullptr )
-    return container->self_as_owner();
+    return container->owner();
   else
     return nullptr;
 }
@@ -269,7 +273,8 @@ Core::UObject* Item::toplevel_owner()
   Item* item = this;
   while ( item->container != nullptr )
     item = item->container;
-
+  if ( item->owner() )  // eg wornitemscontainer
+    return item->owner();
   return item;
 }
 
@@ -278,8 +283,17 @@ const Core::UObject* Item::toplevel_owner() const
   const Item* item = this;
   while ( item->container != nullptr )
     item = item->container;
-
+  if ( item->owner() )  // eg wornitemscontainer
+    return item->owner();
   return item;
+}
+
+Mobile::Character* Item::toplevel_chr()
+{
+  auto top = toplevel_owner();
+  if ( !top || !top->ismobile() )
+    return nullptr;
+  return static_cast<Mobile::Character*>( top );
 }
 
 const char* Item::classname() const
@@ -982,7 +996,7 @@ void Item::extricate()
     // hmm, a good place for a virtual?
     if ( Core::IsCharacter( container->serial ) )
     {
-      Mobile::Character* chr = chr_from_wornitems( container );
+      Mobile::Character* chr = container->toplevel_chr();
       passert_always( chr != nullptr );  // PRODFIXME linux-crash
       passert_always( chr->is_equipped( this ) );
 
@@ -1138,7 +1152,7 @@ bool Item::check_unequip_script()
   if ( !unequip_script_.get().empty() && container != nullptr &&
        Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = chr_from_wornitems( container );
+    Mobile::Character* chr = container->toplevel_chr();
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
@@ -1220,7 +1234,7 @@ bool Item::check_unequiptest_scripts()
 {
   if ( container != nullptr && Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = chr_from_wornitems( container );
+    Mobile::Character* chr = container->toplevel_chr();
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
@@ -1230,29 +1244,6 @@ bool Item::check_unequiptest_scripts()
   {
     return true;
   }
-}
-
-/**
- * Shortcut function to get a pointer to the owner character
- *
- * @author DAVE 11/17
- */
-Mobile::Character* Item::GetCharacterOwner()
-{
-  UObject* top_level_item = toplevel_owner();
-  if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-  {
-    Mobile::Character* chr_owner =
-        Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
-    if ( chr_owner != nullptr )
-    {
-      return chr_owner;
-    }
-    else
-      return nullptr;
-  }
-  else
-    return nullptr;
 }
 
 const char* Item::target_tag() const

@@ -159,8 +159,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   client->chr->gotten_item( item );
   item->inuse( true );
   item->gotten_by( client->chr );
-  // TODO: gottenby is not considered in toplevel_item
-  item->setposition( Pos4d( 0, 0, 0, client->chr->realm() ) );  // don't let a boat carry it around
+  item->setposition( Pos4d( 0, 0, 0, nullptr ) );  // don't let a boat carry it around
 
   if ( orig_container != nullptr )
   {
@@ -255,7 +254,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   is replaced in gotten_items, for a later EQUIP_ITEM message.
   */
 
-void undo_get_item( Mobile::Character* chr, Items::Item* item )
+void undo_get_item( Mobile::Character* chr, Items::Item* item)
 {
   // item needs to be returned to where it was..  either on
   // the ground, or equipped on the current character,
@@ -302,11 +301,10 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
         if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
           item->set_dirty();
-          Pos4d oldpos = item->toplevel_pos();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->pos(), oldpos );
+          move_item( item, chr->pos(), chr->pos() );
           return;
         }
         else
@@ -317,11 +315,10 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
         if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
           item->set_dirty();
-          Pos4d oldpos = item->toplevel_pos();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->pos(), oldpos );
+          move_item( item, chr->pos(), chr->pos() );
           return;
         }
         else
@@ -345,11 +342,10 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
         if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
           item->set_dirty();
-          Pos4d oldpos = item->toplevel_pos();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->pos(), oldpos );
+          move_item( item, chr->pos(), chr->pos() );
           return;
         }
         else
@@ -360,11 +356,10 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
         if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
           item->set_dirty();
-          Pos4d oldpos = item->toplevel_pos();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->pos(), oldpos );
+          move_item( item, chr->pos(), chr->pos() );
           return;
         }
         else

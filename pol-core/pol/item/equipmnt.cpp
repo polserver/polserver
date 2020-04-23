@@ -92,7 +92,7 @@ void Equipment::reduce_hp_from_hit()
     increv();
     if ( isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
-      Mobile::Character* chr = GetCharacterOwner();
+      Mobile::Character* chr = toplevel_chr();
       if ( chr != nullptr )
         chr->refresh_ar();
     }
@@ -220,5 +220,5 @@ void load_npc_intrinsic_equip()
     }
   }
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

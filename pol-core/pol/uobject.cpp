@@ -223,16 +223,6 @@ const UObject* UObject::owner() const
   return nullptr;
 }
 
-UObject* UObject::self_as_owner()
-{
-  return this;
-}
-
-const UObject* UObject::self_as_owner() const
-{
-  return this;
-}
-
 UObject* UObject::toplevel_owner()
 {
   return this;
@@ -266,9 +256,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
 
   sw() << "\tRevision\t" << rev() << pf_endl;
-  if ( pos().realm() == nullptr )
-    sw() << "\tRealm\tbritannia" << pf_endl;
-  else
+  if ( pos().realm() != nullptr )
     sw() << "\tRealm\t" << pos().realm()->name() << pf_endl;
 
   s16 value = fire_resist().mod;
@@ -375,23 +363,25 @@ void UObject::readProperties( Clib::ConfigElem& elem )
 
   color = elem.remove_ushort( "COLOR", 0 );
 
-
-  std::string realmstr = elem.remove_string( "Realm", "britannia" );
-  // TODO: container items shouldnt have a realm set to avoid clipping
-  // loading seems to be the problem, its outside in uimport. here the corrds get already clipped
-  // instead of remove_* use get_prop, so at a later spot the coords can be collected again when
-  // everything is clear
-  Core::Pos4d newpos( 0, 0, 0, find_realm( realmstr ) );
-  if ( !newpos.realm() )
+  // Not having a realm is not an error per se
+  // container items have no realm set
+  // for these items x,y,z are kept by read_* in the elem to be able to read them again right before
+  // insertion, this handles the case that they have wrongly a realm set
+  //
+  Realms::Realm* realm = nullptr;
+  if ( elem.has_prop( "Realm" ) )
   {
-    ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
-        << classname() << name() << serial << realmstr;
-    throw std::runtime_error( "Data integrity error" );
+    std::string realmstr = elem.remove_string( "Realm", "britannia" );
+    realm = find_realm( realmstr );
+    if ( !realm )
+    {
+      ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
+          << classname() << name() << serial << realmstr;
+      throw std::runtime_error( "Data integrity error" );
+    }
   }
-  newpos.x( elem.remove_ushort( "X" ) )
-      .y( elem.remove_ushort( "Y" ) )
-      .z( static_cast<s8>( elem.remove_int( "Z" ) ) );
-  pos( newpos );
+  pos( Core::Pos4d( elem.read_ushort( "X" ), elem.read_ushort( "Y" ),
+                    static_cast<s8>( elem.read_int( "Z" ) ), realm ) );
 
   unsigned short tmp = elem.remove_ushort( "FACING", 0 );
   setfacing( static_cast<unsigned char>( tmp ) );
