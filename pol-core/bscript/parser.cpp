@@ -58,6 +58,7 @@
 #include "../clib/unittest.h"
 #include "compctx.h"
 #include "compilercfg.h"
+#include "expression.h"
 #include "fmodule.h"
 #include "impstr.h"
 #include "modules.h"
