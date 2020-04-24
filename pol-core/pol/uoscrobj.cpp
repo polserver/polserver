@@ -721,8 +721,8 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
   }
   break;
   case MBR_REALM:
-    if ( realm() != nullptr )
-      return new String( realm()->name() );
+    if ( toplevel_pos().realm() != nullptr )
+      return new String( toplevel_pos().realm()->name() );
     else
       return new BError( "object does not belong to a realm." );
     break;
