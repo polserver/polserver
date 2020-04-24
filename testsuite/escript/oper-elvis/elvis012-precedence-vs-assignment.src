@@ -1,0 +1,12 @@
+var a := 3, b := 4, c := 0;
+var d;
+
+// The elvis operator should have higher precedence than assignment operators
+var x := a ?: b;
+print( x );
+
+x := c ?: b;
+print( x );
+
+x := d ?: c ?: a;
+print( x );

@@ -1,0 +1,4 @@
+var a;
+var b := 6;
+
+print( a ?: b );

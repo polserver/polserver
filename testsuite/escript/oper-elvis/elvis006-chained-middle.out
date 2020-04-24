@@ -1,0 +1,3 @@
+call foo(0)
+call bar(y)
+y

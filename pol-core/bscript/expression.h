@@ -25,7 +25,9 @@ public:
 
   void consume_tokens( Expression& expr );
   void optimize();
+  void replace_elvis();
   int get_num_tokens( int idx ) const;
+  void dump_tokens() const;
 
   typedef std::vector<Token*> Tokens;
   Tokens tokens;

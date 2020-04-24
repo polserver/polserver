@@ -233,6 +233,7 @@ public:
   void ins_nop( const Instruction& ins );
   void ins_jmpiftrue( const Instruction& ins );
   void ins_jmpiffalse( const Instruction& ins );
+  void ins_skipiftrue_else_consume( const Instruction& ins );
   void ins_globalvar( const Instruction& ins );
   void ins_localvar( const Instruction& ins );
   void ins_makeLocal( const Instruction& ins );

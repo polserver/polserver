@@ -245,7 +245,6 @@ void Token::copyStr( const char* s, int len )
   }
 }
 
-
 Token::~Token()
 {
   nulStr();

@@ -233,6 +233,13 @@ void EScriptProgram::addToken( const Token& token )
     }
     break;
 
+    case INS_SKIPIFTRUE_ELSE_CONSUME:
+    {
+      unsigned sympos = token.lval;
+      tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ) );
+    }
+    break;
+
     default:
       ERROR_PRINT << "AddToken: Can't handle TYP_CONTROL: " << token << "\n";
       throw std::runtime_error( "Unexpected token in AddToken() (1)" );
