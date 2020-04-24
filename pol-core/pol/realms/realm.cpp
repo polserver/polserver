@@ -61,7 +61,6 @@ Realm::Realm( const std::string& realm_name, Realm* realm )
   size_t gridheight = grid_height();
 
   zone = new Core::Zone*[gridheight];
-
   for ( size_t i = 0; i < gridheight; i++ )
     zone[i] = new Core::Zone[gridwidth];
 }
@@ -81,9 +80,9 @@ size_t Realm::sizeEstimate() const
   // zone **
   unsigned gridwidth = grid_width();
   unsigned gridheight = grid_height();
-  for ( unsigned x = 0; x < gridheight; ++x )
+  for ( unsigned x = 0; x < gridwidth; ++x )
   {
-    for ( unsigned y = 0; y < gridwidth; ++y )
+    for ( unsigned y = 0; y < gridheight; ++y )
     {
       size += 3 * sizeof( void** ) + zone[y][x].characters.capacity() * sizeof( void* );
       size += 3 * sizeof( void** ) + zone[y][x].npcs.capacity() * sizeof( void* );
