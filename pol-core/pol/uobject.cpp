@@ -28,6 +28,7 @@
 #include "globals/state.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
+#include "mobile/charactr.h"
 #include "objtype.h"
 #include "polcfg.h"
 #include "proplist.h"
@@ -231,6 +232,26 @@ UObject* UObject::toplevel_owner()
 const UObject* UObject::toplevel_owner() const
 {
   return this;
+}
+bool UObject::in_range( const UObject* other, u16 dist ) const
+{
+  return toplevel_pos().inRange( other->toplevel_pos(), dist );
+}
+bool UObject::in_range( const Mobile::Character* other, u16 dist ) const
+{
+  return other->in_range( this, dist );
+}
+bool UObject::in_range( const Core::Pos4d& pos, u16 dist ) const
+{
+  return toplevel_pos().inRange( pos, dist );
+}
+bool UObject::in_pickplace_range( const UObject* other ) const
+{
+  return in_range( other, 2 );
+}
+bool UObject::in_pickplace_range( const Core::Pos4d& pos ) const
+{
+  return in_range( pos, 2 );
 }
 
 

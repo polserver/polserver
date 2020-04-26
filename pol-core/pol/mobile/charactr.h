@@ -580,7 +580,7 @@ public:
 public:
   bool is_trading() const;
   void create_trade_container();
-  Core::UContainer* trade_container();
+  Core::UContainer* trade_container() const;
   bool trade_accepted() const;
   void trade_accepted( bool newvalue );
 
@@ -704,6 +704,9 @@ private:
 
   // MISC
 public:
+  virtual bool in_range( const Core::UObject* other, u16 dist ) const override;
+  virtual bool in_range( const Character* other, u16 dist ) const override;
+
   void removal_cleanup();
   void disconnect_cleanup();
   int charindex() const;  // find account character index, or -1 if not found.

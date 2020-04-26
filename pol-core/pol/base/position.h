@@ -35,8 +35,8 @@ enum UFACING : u8
 
 class Pos2d
 {
-  u16 _x;
-  u16 _y;
+  u16 _x = 0;
+  u16 _y = 0;
 
 public:
   Pos2d() = default;
@@ -80,7 +80,7 @@ Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs );
 class Pos3d
 {
   Pos2d _xy;
-  s8 _z;
+  s8 _z = 0;
 
 public:
   Pos3d() = default;
@@ -140,7 +140,7 @@ Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
 class Pos4d
 {
   Pos3d _xyz;
-  Realms::Realm* _realm;
+  Realms::Realm* _realm = nullptr;
 
 public:
   Pos4d() = default;

@@ -86,7 +86,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
 
   u8 oldSlot = item->slot_index();
 
-  if ( !client->chr->can_moveanydist() && !client->chr->pos().inRange( item->toplevel_pos(), 2 ) )
+  if ( !client->chr->can_moveanydist() && !client->chr->in_pickplace_range( item ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;
@@ -254,7 +254,7 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   is replaced in gotten_items, for a later EQUIP_ITEM message.
   */
 
-void undo_get_item( Mobile::Character* chr, Items::Item* item)
+void undo_get_item( Mobile::Character* chr, Items::Item* item )
 {
   // item needs to be returned to where it was..  either on
   // the ground, or equipped on the current character,

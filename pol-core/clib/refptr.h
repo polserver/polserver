@@ -82,12 +82,12 @@ public:
   bool operator>( const ref_ptr& rptr ) const;
   bool operator>=( const ref_ptr& rptr ) const;
 
-  bool operator==( T* ptr ) const;
-  bool operator!=( T* ptr ) const;
-  bool operator<( T* ptr ) const;
-  bool operator<=( T* ptr ) const;
-  bool operator>( T* ptr ) const;
-  bool operator>=( T* ptr ) const;
+  bool operator==( const T* ptr ) const;
+  bool operator!=( const T* ptr ) const;
+  bool operator<( const T* ptr ) const;
+  bool operator<=( const T* ptr ) const;
+  bool operator>( const T* ptr ) const;
+  bool operator>=( const T* ptr ) const;
 
   ref_ptr& operator=( const ref_ptr& rptr );
   ref_ptr& operator=( ref_ptr&& rptr );
@@ -223,32 +223,32 @@ bool ref_ptr<T>::operator>=( const ref_ptr<T>& rptr ) const
 }
 
 template <class T>
-bool ref_ptr<T>::operator==( T* ptr ) const
+bool ref_ptr<T>::operator==( const T* ptr ) const
 {
   return get() == ptr;
 }
 template <class T>
-bool ref_ptr<T>::operator!=( T* ptr ) const
+bool ref_ptr<T>::operator!=( const T* ptr ) const
 {
   return get() != ptr;
 }
 template <class T>
-bool ref_ptr<T>::operator<( T* ptr ) const
+bool ref_ptr<T>::operator<( const T* ptr ) const
 {
   return get() < ptr;
 }
 template <class T>
-bool ref_ptr<T>::operator<=( T* ptr ) const
+bool ref_ptr<T>::operator<=( const T* ptr ) const
 {
   return get() <= ptr;
 }
 template <class T>
-bool ref_ptr<T>::operator>( T* ptr ) const
+bool ref_ptr<T>::operator>( const T* ptr ) const
 {
   return get() > ptr;
 }
 template <class T>
-bool ref_ptr<T>::operator>=( T* ptr ) const
+bool ref_ptr<T>::operator>=( const T* ptr ) const
 {
   return get() >= ptr;
 }

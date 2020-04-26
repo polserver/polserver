@@ -4145,7 +4145,7 @@ void Character::create_trade_container()
   }
 }
 
-Core::UContainer* Character::trade_container()
+Core::UContainer* Character::trade_container() const
 {
   return trading_cont.get();
 }
@@ -4338,6 +4338,26 @@ bool Character::get_method_hook( const char* methodname, Bscript::Executor* ex,
   return base::get_method_hook( methodname, ex, hook, PC );
 }
 
+bool Character::in_range( const Core::UObject* other, u16 dist ) const
+{
+  const auto owner = other->toplevel_owner();
+  if ( owner == this )
+    return true;
+  if ( owner->isitem() )
+  {
+    if ( std::find( remote_containers_.begin(), remote_containers_.end(),
+                    static_cast<const Items::Item*>( owner ) ) != remote_containers_.end() )
+      return true;                     // SendOpenSpecialContainer case
+    if ( trade_container() == owner )  // trading case
+      return true;
+  }
+  return pos().inRange( owner->pos(), dist );
+}
+
+bool Character::in_range( const Character* other, u16 dist ) const
+{
+  return pos().inRange( other->pos(), dist );
+}
 
 AttributeValue::AttributeValue()
     : _base( 0 ), _temp( 0 ), _intrinsic( 0 ), _lockstate( 0 ), _cap( 0 )

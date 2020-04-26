@@ -10,8 +10,8 @@ namespace Core
 {
 class Vec2d
 {
-  s16 _x;
-  s16 _y;
+  s16 _x = 0;
+  s16 _y = 0;
 
 public:
   Vec2d() = default;
@@ -45,7 +45,7 @@ Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
 class Vec3d
 {
   Vec2d _xy;
-  s16 _z;
+  s16 _z = 0;
 
 public:
   Vec3d() = default;

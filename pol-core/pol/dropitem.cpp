@@ -311,8 +311,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     return false;
   }
 
-  if ( !client->chr->can_moveanydist() &&
-       !client->chr->pos().inRange( target_item->toplevel_pos(), 2 ) )
+  if ( !client->chr->can_moveanydist() && !client->chr->in_pickplace_range( target_item ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
@@ -367,7 +366,7 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos4
 
   Multi::UMulti* multi;
   s8 newz;
-  if ( !client->chr->can_moveanydist() && !chr->pos().inRange( newpos, 2 ) )
+  if ( !client->chr->can_moveanydist() && !chr->in_pickplace_range( newpos ) )
   {
     POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" )
         << client->chr->name();
@@ -590,7 +589,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     return false;
   }
 
-  if ( !client->chr->can_moveanydist() && !client->chr->pos().inRange( dropon->toplevel_pos(), 2 ) )
+  if ( !client->chr->can_moveanydist() && !client->chr->in_pickplace_range( dropon ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
@@ -695,7 +694,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
   }
-  if ( !client->chr->can_moveanydist() && !client->chr->pos().inRange( cont->toplevel_pos(), 2 ) )
+  if ( !client->chr->can_moveanydist() && !client->chr->in_pickplace_range( cont ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;

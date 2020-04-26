@@ -187,6 +187,11 @@ public:
   u16 toplevel_y() const;                 // world coordinates of toplevel owner
   s8 toplevel_z() const;                  // world coordinates of toplevel owner
   Realms::Realm* toplevel_realm() const;  // world coordinates of toplevel owner
+  virtual bool in_range( const UObject* other, u16 dist ) const;
+  virtual bool in_range( const Mobile::Character* other, u16 dist ) const;
+  bool in_range( const Core::Pos4d& pos, u16 dist ) const;
+  bool in_pickplace_range( const UObject* other ) const;
+  bool in_pickplace_range( const Core::Pos4d& pos ) const;
 
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
