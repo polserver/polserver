@@ -27,7 +27,7 @@ namespace Clib
 class ConfigFile;
 class ConfigElem;
 class StreamWriter;
-}
+}  // namespace Clib
 namespace Core
 {
 class StorageArea
@@ -39,7 +39,6 @@ public:
   Items::Item* find_root_item( const std::string& name );
   void insert_root_item( Items::Item* item );
   bool delete_root_item( const std::string& name );
-  void on_delete_realm( Realms::Realm* realm );
 
   void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
@@ -63,7 +62,6 @@ public:
   StorageArea* find_area( const std::string& name );
   StorageArea* create_area( const std::string& name );
   StorageArea* create_area( Clib::ConfigElem& elem );
-  void on_delete_realm( Realms::Realm* realm );
 
   void print( Clib::StreamWriter& sw ) const;
   void read( Clib::ConfigFile& cf );
@@ -80,6 +78,6 @@ private:
   friend class StorageAreasIterator;
   friend void write_dirty_storage( Clib::StreamWriter& );
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

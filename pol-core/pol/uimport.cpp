@@ -99,7 +99,7 @@ void read_character( Clib::ConfigElem& elem )
     chr->readProperties( elem );
 
     if ( !chr->realm() )  // not guaranteed by loading
-      chr->setposition( Core::Pos4d( chr->pos().xyz(), find_realm( "britannia" ) ) );
+      chr->setposition( Core::Pos4d( chr->pos().xyz(), gamestate.main_realm ) );
 
     // Allows the realm to recognize this char as offline
     chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
@@ -134,7 +134,7 @@ void read_npc( Clib::ConfigElem& elem )
     npc->readProperties( elem );
 
     if ( !npc->realm() )  // not guaranteed by loading
-      npc->setposition( Core::Pos4d( npc->pos().xyz(), find_realm( "britannia" ) ) );
+      npc->setposition( Core::Pos4d( npc->pos().xyz(), gamestate.main_realm ) );
     SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
     npc->clear_dirty();
 
@@ -243,7 +243,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   if ( container_serial == 0 )
   {
     if ( !item->realm() )  // not guaranteed by loading
-      item->setposition( Core::Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
+      item->setposition( Core::Pos4d( item->pos().xyz(), gamestate.main_realm ) );
     add_item_to_world( item );
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       parent_conts.push( static_cast<UContainer*>( item ) );
@@ -363,7 +363,7 @@ void read_multi( Clib::ConfigElem& elem )
   multi->readProperties( elem );
 
   if ( !multi->realm() )  // not guaranteed by loading
-    multi->setposition( Core::Pos4d( multi->pos().xyz(), find_realm( "britannia" ) ) );
+    multi->setposition( Core::Pos4d( multi->pos().xyz(), gamestate.main_realm ) );
   add_multi_to_world( multi );
 }
 
@@ -554,7 +554,7 @@ void import( Clib::ConfigElem& elem )
     item->serial_ext = ctBEu32( item->serial );
 
     if ( !item->realm() )  // not guaranteed by loading
-      item->setposition( Core::Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
+      item->setposition( Core::Pos4d( item->pos().xyz(), gamestate.main_realm ) );
     add_item_to_world( item );
     register_with_supporting_multi( item );
     ++import_count;
@@ -1238,7 +1238,6 @@ void read_starting_locations()
   Clib::ConfigElem elem;
   while ( cf.read( elem ) )
   {
-    if ( stricmp( elem.type(), "StartingLocation" ) != 0 )
     {
       ERROR_PRINT << "Unknown element type in startloc.cfg: " << elem.type() << "\n";
       throw std::runtime_error( "Error in configuration file." );

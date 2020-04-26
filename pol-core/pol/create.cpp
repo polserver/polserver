@@ -562,7 +562,7 @@ void createchar2( Accounts::Account* acct, unsigned index )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->setposition( Pos4d( 1, 1, 1, find_realm( std::string( "britannia" ) ) ) );
+  chr->setposition( Pos4d( 1, 1, 1, gamestate.main_realm ) );
   chr->facing = 1;
   chr->wornitems->serial = chr->serial;
   chr->wornitems->serial_ext = chr->serial_ext;

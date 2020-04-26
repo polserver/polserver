@@ -1154,8 +1154,7 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range =
-      ( range < -1 ) || pos().inRange( item->toplevel_pos(), static_cast<u16>( range ) );
+  const bool within_range = ( range < -1 ) || in_range( item, static_cast<u16>( range ) );
   if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
@@ -4140,7 +4139,6 @@ void Character::create_trade_container()
   if ( trading_cont.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
-    cont->setposition( this->pos() );  // TODO: unsure how this special container is handled..
     trading_cont.set( static_cast<Core::UContainer*>( cont ) );
   }
 }

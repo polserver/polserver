@@ -109,11 +109,6 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 
   item->setname( name->value() );
 
-  if ( item->realm() == nullptr )
-    item->setposition(
-        Core::Pos4d( item->pos().xyz(),
-                     Core::find_realm( std::string( "britannia" ) ) ) );  // TODO: or no realm?
-
   area->insert_root_item( item );
 
   return new EItemRefObjImp( item );

@@ -83,11 +83,7 @@ public:
   Realms::Realm* realm;
 
   UOPathState()
-      : theBlockers( nullptr ),
-        x( 0 ),
-        y( 0 ),
-        z( 0 ),
-        realm( Core::find_realm( std::string( "britannia" ) ) ){};
+      : theBlockers( nullptr ), x( 0 ), y( 0 ), z( 0 ), realm( Core::gamestate.main_realm ){};
   UOPathState( short newx, short newy, s8 newz, Realms::Realm* newrealm, AStarBlockers* blockers )
   {
     x = newx;

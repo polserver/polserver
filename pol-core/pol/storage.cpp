@@ -23,6 +23,7 @@
 #include "../clib/streamsaver.h"
 #include "../plib/poltype.h"
 #include "../plib/systemstate.h"
+#include "base/position.h"
 #include "containr.h"
 #include "fnsearch.h"
 #include "globals/object_storage.h"
@@ -89,6 +90,8 @@ bool StorageArea::delete_root_item( const std::string& name )
 void StorageArea::insert_root_item( Items::Item* item )
 {
   item->inuse( true );
+  if ( item->realm() != nullptr )
+    item->setposition( Pos4d( item->pos().xyz(), nullptr ) );
 
   _items.insert( make_pair( item->name(), item ) );
 }
@@ -178,27 +181,6 @@ void StorageArea::print( Clib::StreamWriter& sw ) const
     const Items::Item* item = cont_item.second;
     if ( item->saveonexit() )
       sw << *item;
-  }
-}
-
-void StorageArea::on_delete_realm( Realms::Realm* realm )
-{
-  for ( Cont::const_iterator itr = _items.begin(), itrend = _items.end(); itr != itrend; ++itr )
-  {
-    Items::Item* item = ( *itr ).second;
-    if ( item )
-    {
-      if ( item->realm() == realm )
-        item->setposition( Pos4d( item->pos().xyz(), realm->baserealm ) );
-    }
-  }
-}
-
-void Storage::on_delete_realm( Realms::Realm* realm )
-{
-  for ( AreaCont::const_iterator itr = areas.begin(), itrend = areas.end(); itr != itrend; ++itr )
-  {
-    itr->second->on_delete_realm( realm );
   }
 }
 

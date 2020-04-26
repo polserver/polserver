@@ -175,18 +175,19 @@ public:
   virtual bool setcolor( u16 newcolor );
   virtual void on_color_changed();
 
-  u16 x() const { return pos().x(); }                     // shortcut to pos().x()
-  u16 y() const { return pos().y(); }                     // shortcut to pos().y()
-  s8 z() const { return pos().z(); }                      // shortcut to pos().z()
-  Realms::Realm* realm() const { return pos().realm(); }  // shortcut to pos().realm()
+  u16 x() const;                 // shortcut to pos().x()
+  u16 y() const;                 // shortcut to pos().y()
+  s8 z() const;                  // shortcut to pos().z()
+  Realms::Realm* realm() const;  // shortcut to pos().realm() (is nullptr for container/worn items)
   void setposition( Pos4d newpos );
   Multi::UMulti* supporting_multi() const;  // doesn't consider containers/etc
 
-  const Pos4d& toplevel_pos() const { return toplevel_owner()->pos(); }
+  const Pos4d& toplevel_pos() const;
   u16 toplevel_x() const;                 // world coordinates of toplevel owner
   u16 toplevel_y() const;                 // world coordinates of toplevel owner
   s8 toplevel_z() const;                  // world coordinates of toplevel owner
-  Realms::Realm* toplevel_realm() const;  // world coordinates of toplevel owner
+  Realms::Realm* toplevel_realm() const;  // realm of toplevel owner (StorageArea has no realm!)
+
   virtual bool in_range( const UObject* other, u16 dist ) const;
   virtual bool in_range( const Mobile::Character* other, u16 dist ) const;
   bool in_range( const Core::Pos4d& pos, u16 dist ) const;
@@ -236,8 +237,8 @@ public:
   void ref_counted_release();
   unsigned ref_counted_count() const;
   ref_counted* as_ref_counted() { return this; }
-  inline void increv() { _rev++; };
-  inline u32 rev() const { return _rev; };
+  void increv() { ++_rev; };
+  u32 rev() const { return _rev; };
   bool dirty() const;
   void set_dirty();
   void clear_dirty() const;
@@ -326,9 +327,9 @@ protected:
 private:
   PropertyList proplist_;
 
-private:  // not implemented:
-  UObject( const UObject& );
-  UObject& operator=( const UObject& );
+public:  // not implemented:
+  UObject( const UObject& ) = delete;
+  UObject& operator=( const UObject& ) = delete;
 };
 
 extern Clib::StreamWriter& operator<<( Clib::StreamWriter&, const UObject& );
@@ -369,6 +370,26 @@ inline bool IsItem( u32 serial )
 }
 
 
+inline u16 UObject::x() const
+{
+  return pos().x();
+}
+inline u16 UObject::y() const
+{
+  return pos().y();
+}
+inline s8 UObject::z() const
+{
+  return pos().z();
+}
+inline Realms::Realm* UObject::realm() const
+{
+  return pos().realm();
+}
+inline const Pos4d& UObject::toplevel_pos() const
+{
+  return toplevel_owner()->pos();
+}
 inline u16 UObject::toplevel_x() const
 {
   return toplevel_pos().x();

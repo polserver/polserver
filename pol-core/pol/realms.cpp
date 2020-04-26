@@ -96,7 +96,6 @@ void remove_realm( const std::string& name )
   {
     if ( ( *itr )->name() == name )
     {
-      gamestate.storage.on_delete_realm( *itr );
       gamestate.shadowrealms_by_id[( *itr )->shadowid] = nullptr;  // used inside the decaythread
       delete *itr;
       gamestate.Realms.erase( itr );
@@ -104,5 +103,5 @@ void remove_realm( const std::string& name )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -419,10 +419,6 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
     {
       item = Items::Item::create( UOBJ_BACKPACK );
       item->setname( name );
-      item->setposition( Pos4d(
-          0, 0, 0,
-          find_realm(
-              std::string( "britannia" ) ) ) );  // TODO: where should storage area belong to?
       area->insert_root_item( item );
     }
     // Changed this from a passert to return null.
