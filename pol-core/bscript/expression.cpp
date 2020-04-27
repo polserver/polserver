@@ -46,15 +46,6 @@ Expression::~Expression()
   }
 }
 
-void Expression::eat( Expression& expr )
-{
-  while ( !expr.CA.empty() )
-  {
-    CA.push( expr.CA.front() );
-    expr.CA.pop();
-  }
-}
-
 void Expression::eat2( Expression& expr )
 {
   while ( !expr.tokens.empty() )
