@@ -148,7 +148,6 @@ void Scope::addvalue()
 }
 
 
-
 void Compiler::enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue )
 {
   program->enterblock();
@@ -900,7 +899,8 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
     Expression& arg_expr = params_passed[varname];
 
-    res = readexpr( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res =
+        readexpr( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
