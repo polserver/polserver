@@ -370,12 +370,6 @@ int Expression::get_num_tokens( int idx ) const
   {
     children = 1 + tkn->lval;
   }
-  else if ( tkn->type == TYP_USERFUNC )
-  {
-    // the CTRL_JSR_USERFUNC
-    // FIXME: TODO: what?
-    children = 1;
-  }
   else if ( tkn->id == CTRL_JSR_USERFUNC )
   {
     // the CTRL_MAKELOCAL + the parameters
@@ -647,6 +641,8 @@ void Expression::optimize_assignments()
     */
 void Expression::optimize()
 {
+  remove_non_emitting_tokens();
+
   size_t starting_size;
   do
   {
@@ -658,6 +654,17 @@ void Expression::optimize()
   } while ( tokens.size() != starting_size );
 }
 
+void Expression::remove_non_emitting_tokens() {
+  for( size_t i = 0; i < tokens.size(); ) {
+    auto token = tokens[i];
+    if (token->type == TYP_USERFUNC) {
+      tokens.erase( tokens.begin() + i );
+      delete token;
+    } else {
+      ++i;
+    }
+  }
+}
 
 }  // namespace Bscript
 }  // namespace Pol
