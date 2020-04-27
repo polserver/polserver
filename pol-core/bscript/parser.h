@@ -140,7 +140,6 @@ public:
 
   bool callingMethod( CompilerContext& ctx );
 
-  int getArgs( Expression& expr, CompilerContext& ctx );
   virtual int getUserArgs( Expression& expr, CompilerContext& ctx, bool inject_jsr = true ) = 0;
   virtual int getArrayElements( Expression& expr, CompilerContext& ctx ) = 0;
   virtual int getNewArrayElements( Expression& expr, CompilerContext& ctx ) = 0;
