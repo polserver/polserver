@@ -149,8 +149,6 @@ public:
   virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx, Token* tok ) = 0;
 
   int IIP( Expression& expr, CompilerContext& ctx, unsigned expr_flags );
-  int IP( Expression& expr, char* s );
-  int IP( Expression& expr, CompilerContext& ctx );
 };
 
 inline int SmartParser::isLegal( Token& )

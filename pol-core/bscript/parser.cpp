@@ -2382,26 +2382,5 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
   return res;
 }
 
-/* not used? 12/10/1998 ens
-int SmartParser::IP(Expression& expr, char *s)
-{
-//  return Parser::IP(s);
-reinit(expr);
-int res = IIP(expr, &s, EXPR_FLAG_SEMICOLON_TERM_ALLOWED);
-if (res < 0 && !quiet)
-{
-cout << "Parse Error: " << ParseErrorStr[err];
-if (ext_err[0]) cout << " " << ext_err;
-cout << endl;
-}
-return res;
-}
-*/
-
-int SmartParser::IP( Expression& expr, CompilerContext& ctx )
-{
-  reinit( expr );
-  return IIP( expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED );
-}
 }  // namespace Bscript
 }  // namespace Pol
