@@ -430,7 +430,7 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
     if ( res < 0 )
       return res;
 
-    expr.eat2( eex );
+    expr.consume_tokens( eex );
 
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
@@ -496,7 +496,7 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
     if ( res < 0 )
       return res;
 
-    expr.eat2( eex );
+    expr.consume_tokens( eex );
 
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
@@ -581,7 +581,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
         auto addmem = new Token( ident_tkn );
         addmem->id = INS_ADDMEMBER_ASSIGN;
 
-        expr.eat2( eex );
+        expr.consume_tokens( eex );
         expr.CA.push( addmem );
       }
       else if ( token.id == TOK_EQUAL1 )
@@ -676,7 +676,7 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
     if ( res < 0 )
       return res;
 
-    expr.eat2( key_expression );
+    expr.consume_tokens( key_expression );
 
     // if the key is followed by "->", then grab the value
     res = peekToken( ctx, token );
@@ -693,7 +693,7 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
       if ( res < 0 )
         return res;
 
-      expr.eat2( value_expression );
+      expr.consume_tokens( value_expression );
     }
     else
     {
@@ -751,7 +751,7 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
     if ( res < 0 )
       return res;
 
-    expr.eat2( eex );
+    expr.consume_tokens( eex );
 
     ++nargs;
 
@@ -942,7 +942,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     else
     {
       Expression& arg_expr = params_passed[itr->name];
-      ex.eat2( arg_expr );
+      ex.consume_tokens( arg_expr );
       params_passed.erase( itr->name );
     }
   }
