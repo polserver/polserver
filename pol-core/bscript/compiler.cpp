@@ -900,7 +900,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
     Expression& arg_expr = params_passed[varname];
 
-    res = IIP( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = readexpr( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -942,7 +942,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     else
     {
       Expression& arg_expr = params_passed[itr->name];
-      ex.eat( arg_expr );
+      ex.eat2( arg_expr );
       params_passed.erase( itr->name );
     }
   }
