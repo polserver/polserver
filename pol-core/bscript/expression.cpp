@@ -46,22 +46,12 @@ Expression::~Expression()
   }
 }
 
-void Expression::eat( Expression& expr )
+void Expression::consume_tokens( Expression& expr )
 {
-  while ( !expr.CA.empty() )
-  {
-    CA.push( expr.CA.front() );
-    expr.CA.pop();
+  for( auto& token : expr.tokens ) {
+    CA.push(token);
   }
-}
-
-void Expression::eat2( Expression& expr )
-{
-  while ( !expr.tokens.empty() )
-  {
-    CA.push( expr.tokens.front() );
-    expr.tokens.erase( expr.tokens.begin() );
-  }
+  expr.tokens.clear();
 }
 
 Token* optimize_long_operation( Token* left, Token* oper, Token* right )

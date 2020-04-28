@@ -23,8 +23,7 @@ class Expression
 public:
   ~Expression();
 
-  void eat( Expression& expr );
-  void eat2( Expression& expr );
+  void consume_tokens( Expression& expr );
   void optimize();
   void optimize_binary_operations();
   void optimize_unary_operations();
