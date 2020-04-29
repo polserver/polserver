@@ -24,7 +24,6 @@
                                                         targetsquare.x, targetsquare.y,
                                                         targetsquare.objtype ?: locinfo.landtile,
                                                         who.realm);
-
 04-18-2020 DevGIB:
     Added: ShowWarningCursorSequence to pol.cfg to silence "cursor out of sequence" errors.
 03-19-2020 Kevin:
