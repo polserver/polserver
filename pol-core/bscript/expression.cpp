@@ -48,8 +48,9 @@ Expression::~Expression()
 
 void Expression::consume_tokens( Expression& expr )
 {
-  for( auto& token : expr.tokens ) {
-    CA.push(token);
+  for ( auto& token : expr.tokens )
+  {
+    CA.push( token );
   }
   expr.tokens.clear();
 }
@@ -170,7 +171,7 @@ Token* optimize_string_operation( Token* left, Token* oper, Token* right )
     combined = std::string( left->tokval() ) + std::string( right->tokval() );
     ntoken->copyStr( combined.c_str() );
   }
-    break;
+  break;
 
   default:
     break;
@@ -654,13 +655,18 @@ void Expression::optimize()
   } while ( tokens.size() != starting_size );
 }
 
-void Expression::remove_non_emitting_tokens() {
-  for( size_t i = 0; i < tokens.size(); ) {
+void Expression::remove_non_emitting_tokens()
+{
+  for ( size_t i = 0; i < tokens.size(); )
+  {
     auto token = tokens[i];
-    if (token->type == TYP_USERFUNC) {
+    if ( token->type == TYP_USERFUNC )
+    {
       tokens.erase( tokens.begin() + i );
       delete token;
-    } else {
+    }
+    else
+    {
       ++i;
     }
   }
