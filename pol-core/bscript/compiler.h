@@ -197,6 +197,7 @@ private:
   void convert_variables( Expression& expr ) const;
   int validate( const Expression& expr, CompilerContext& ctx ) const;
   int readexpr( Expression& expr, CompilerContext& ctx, unsigned flags );
+  int read_subexpression( Expression& expr, CompilerContext& ctx, unsigned flags );
   void inject( Expression& expr );
   int insertBreak( const std::string& label );
 

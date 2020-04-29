@@ -424,12 +424,10 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
       compiler_error( "Unexpected comma in array initializer list\n" );
       return -1;
     }
-    Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.consume_tokens( eex );
 
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
@@ -490,12 +488,10 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
       compiler_error( "Unexpected comma in array initializer list\n" );
       return -1;
     }
-    Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.consume_tokens( eex );
 
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
@@ -571,16 +567,14 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
       {
         getToken( ctx, token );
         // something like struct { a := 5 };
-        Expression eex;
-        res =
-            readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+        res = read_subexpression(
+            expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
         if ( res < 0 )
           return res;
 
         auto addmem = new Token( ident_tkn );
         addmem->id = INS_ADDMEMBER_ASSIGN;
 
-        expr.consume_tokens( eex );
         expr.CA.push( addmem );
       }
       else if ( token.id == TOK_EQUAL1 )
@@ -667,15 +661,11 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
 
 
     // first get the key expression.
-
-    Expression key_expression;
-    res = readexpr( key_expression, ctx,
-                    EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_DICTKEY_TERM_ALLOWED |
-                        EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_DICTKEY_TERM_ALLOWED |
+                                  EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.consume_tokens( key_expression );
 
     // if the key is followed by "->", then grab the value
     res = peekToken( ctx, token );
@@ -686,13 +676,10 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
       getToken( ctx, token );
       // get the value expression
 
-      Expression value_expression;
-      res = readexpr( value_expression, ctx,
-                      EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+      res = read_subexpression( expr, ctx,
+                                EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
       if ( res < 0 )
         return res;
-
-      expr.consume_tokens( value_expression );
     }
     else
     {
@@ -745,12 +732,10 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
       compiler_error( "Unexpected comma in array element list\n" );
       return -1;
     }
-    Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.consume_tokens( eex );
 
     ++nargs;
 
@@ -1118,6 +1103,15 @@ int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
   if ( res != 0 )
     return -1;
   return 1;
+}
+
+int Compiler::read_subexpression( Expression& expr, CompilerContext& ctx, unsigned flags )
+{
+  Expression subexpression;
+  int res = readexpr( subexpression, ctx, flags );
+  if ( res >= 0 )
+    expr.consume_tokens( subexpression );
+  return res;
 }
 
 void Compiler::inject( Expression& expr )
