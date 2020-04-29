@@ -657,9 +657,19 @@ void Expression::optimize()
 
 void Expression::remove_non_emitting_tokens()
 {
-  tokens.erase( std::remove_if( tokens.begin(), tokens.end(),
-                                []( const Token* tkn ) { return tkn->type == TYP_USERFUNC; } ),
-                tokens.end() );
+  for ( size_t i = 0; i < tokens.size(); )
+  {
+    auto token = tokens[i];
+    if ( token->type == TYP_USERFUNC )
+    {
+      tokens.erase( tokens.begin() + i );
+      delete token;
+    }
+    else
+    {
+      ++i;
+    }
+  }
 }
 
 }  // namespace Bscript
