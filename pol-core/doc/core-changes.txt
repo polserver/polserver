@@ -1,4 +1,5 @@
 ﻿-- POL100 --
+04-28-2020 Syzygy: Added ?: (elvis) operator: short-circuit "a ?: b", evaluates to a if a is not false, otherwise to b.
 04-18-2020 DevGIB: Added ShowWarningCursorSequence to pol.cfg to silence "cursor out of sequence" errors.
 03-19-2020 Kevin:
     Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client

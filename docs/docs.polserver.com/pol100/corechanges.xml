@@ -2,9 +2,13 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-23-2020</datemodified>
+		<datemodified>04-29-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>04-28-2020</date>
+			<author>Syzygy: Added ?: (elvis) operator: short-circuit &quot;a ?: b&quot;, evaluates to a if a is not false, otherwise to b.</author>
+		</entry>
 		<entry>
 			<date>04-18-2020</date>
 			<author>DevGIB: Added ShowWarningCursorSequence to pol.cfg to silence &quot;cursor out of sequence&quot; errors.</author>
