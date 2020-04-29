@@ -25,11 +25,7 @@ public:
 
   void consume_tokens( Expression& expr );
   void optimize();
-  void optimize_binary_operations();
-  void optimize_unary_operations();
-  void optimize_assignments();
   int get_num_tokens( int idx ) const;
-  bool optimize_token( int i );
 
   typedef std::vector<Token*> Tokens;
   Tokens tokens;
@@ -37,6 +33,13 @@ public:
 public:
   std::stack<Token*> TX;
   std::queue<Token*> CA;
+
+private:
+  void optimize_binary_operations();
+  void optimize_unary_operations();
+  void optimize_assignments();
+  bool optimize_token( int i );
+  void remove_non_emitting_tokens();
 };
 
 }  // namespace Bscript

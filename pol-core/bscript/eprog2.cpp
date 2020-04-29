@@ -148,9 +148,6 @@ void EScriptProgram::addToken( const Token& token )
   }
   break;
 
-  case TYP_USERFUNC:  // these don't do anything.
-    return;
-
   case TYP_METHOD:
   {
     if ( token.id != INS_CALL_METHOD_ID )

@@ -48,8 +48,9 @@ Expression::~Expression()
 
 void Expression::consume_tokens( Expression& expr )
 {
-  for( auto& token : expr.tokens ) {
-    CA.push(token);
+  for ( auto& token : expr.tokens )
+  {
+    CA.push( token );
   }
   expr.tokens.clear();
 }
@@ -170,7 +171,7 @@ Token* optimize_string_operation( Token* left, Token* oper, Token* right )
     combined = std::string( left->tokval() ) + std::string( right->tokval() );
     ntoken->copyStr( combined.c_str() );
   }
-    break;
+  break;
 
   default:
     break;
@@ -369,12 +370,6 @@ int Expression::get_num_tokens( int idx ) const
   else if ( tkn->type == TYP_METHOD )
   {
     children = 1 + tkn->lval;
-  }
-  else if ( tkn->type == TYP_USERFUNC )
-  {
-    // the CTRL_JSR_USERFUNC
-    // FIXME: TODO: what?
-    children = 1;
   }
   else if ( tkn->id == CTRL_JSR_USERFUNC )
   {
@@ -647,6 +642,8 @@ void Expression::optimize_assignments()
     */
 void Expression::optimize()
 {
+  remove_non_emitting_tokens();
+
   size_t starting_size;
   do
   {
@@ -658,6 +655,22 @@ void Expression::optimize()
   } while ( tokens.size() != starting_size );
 }
 
+void Expression::remove_non_emitting_tokens()
+{
+  for ( size_t i = 0; i < tokens.size(); )
+  {
+    auto token = tokens[i];
+    if ( token->type == TYP_USERFUNC )
+    {
+      tokens.erase( tokens.begin() + i );
+      delete token;
+    }
+    else
+    {
+      ++i;
+    }
+  }
+}
 
 }  // namespace Bscript
 }  // namespace Pol
