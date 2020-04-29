@@ -7,11 +7,34 @@
 	<version name="POL100">
 		<entry>
 			<date>04-28-2020</date>
-			<author>Syzygy: Added ?: (elvis) operator: short-circuit &quot;a ?: b&quot;, evaluates to a if a is not false, otherwise to b.</author>
+			<author>Syzygy:</author>
+			<change type="Added">Elvis operator: short-circuit binary operator EXPR_LHS ?: EXPR_RHS<br/>
+This operator evaluates the left-hand-side operand and keeps its value if it is a true value.<br/>
+Otherwise, evaluates the right-hand side operand and uses its value instead.<br/>
+This is a short-circuit operator: if EXPR_LHS is true, the code for EXPR_RHS won't be executed.<br/>
+These can also be changed: A ?: B ?: C ?: D evaluates to the first true value from left to right.<br/>
+It has lower precedence than the binary additive operators (+ -), and higher precedence than the binary comparison operators (&gt; &gt;= &lt; &lt;=).<br/>
+These are equivalent with or without parenthesis:<br/>
+  a ?: b + c     a ?: ( b + c )   // lower precedence than addition<br/>
+  a ?: b &lt;= c    (a ?: b) &lt;= c    // higher precedence than comparison<br/>
+See also https://en.wikipedia.org/wiki/Elvis_operator<br/>
+For example, you could change this:<br/>
+      var difficulty;<br/>
+      if(targetsquare.objtype)<br/>
+        difficulty := GetHarvestDifficulty(&quot;fish&quot;, targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);<br/>
+      else<br/>
+        difficulty := GetHarvestDifficulty(&quot;fish&quot;, targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);<br/>
+      endif<br/>
+to this:<br/>
+      var difficulty := GetHarvestDifficulty(&quot;fish&quot;,<br/>
+                                             targetsquare.x, targetsquare.y,<br/>
+                                             targetsquare.objtype ?: locinfo.landtile,<br/>
+                                             who.realm);</change>
 		</entry>
 		<entry>
 			<date>04-18-2020</date>
-			<author>DevGIB: Added ShowWarningCursorSequence to pol.cfg to silence &quot;cursor out of sequence&quot; errors.</author>
+			<author>DevGIB:</author>
+			<change type="Added">ShowWarningCursorSequence to pol.cfg to silence &quot;cursor out of sequence&quot; errors.</change>
 		</entry>
 		<entry>
 			<date>03-19-2020</date>
