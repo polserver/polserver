@@ -1,5 +1,5 @@
 <h1>Racalac's eScript Reference and Guide v096<br>
-<font size="2">(Last Updated: Jan 11, 2019)</font></h1>
+<font size="2">(Last Updated: May 1, 2020)</font></h1>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -41,8 +41,9 @@ apologies if I explain some things in annoyingly simple terms.</p>
 <p><b><a href="#chap3">Chapter 3: Conditionals and Iteration</a></b>
 </p><ul>
   <li><a href="#chap3a">If-statements</a>
-  </li><li><a href="#chap3b">Case (switch) statements</a>
-  </li><li><a href="#chap3c">Iteration</a></li></ul>
+  </li><li><a href="#chap3b">Binary Operators</a>
+  </li><li><a href="#chap3c">Case (switch) statements</a>
+  </li><li><a href="#chap3d">Iteration</a></li></ul>
 <p></p>
 
 <p><b><a href="#chap4">Chapter 4:</a></b>
@@ -749,7 +750,35 @@ if ( !valid ) //same as "if valid is non-zero, then false"
   // do stuff
 endif</pre></div>
 <br/>
-<p><b><a name="chap3b">Case (switch) statements</a></b></p>
+<p><b><a name="chap3b">Binary Operators</a></b></p>
+<p><b>Elvis operator:</b></p>
+<p>Short-circuit binary operator EXPR_LHS ?: EXPR_RHS<br/>
+This operator evaluates the left-hand-side operand and keeps its value if it is a true value.<br/>
+Otherwise, evaluates the right-hand side operand and uses its value instead.<br/>
+This is a short-circuit operator: if EXPR_LHS is true, the code for EXPR_RHS won't be executed.<br/>
+These can also be changed: A ?: B ?: C ?: D evaluates to the first true value from left to right.<br/>
+It has lower precedence than the binary additive operators (+ -), and higher precedence than the binary comparison operators (&gt; &gt;= &lt; &lt;=).<br/>
+These are equivalent with or without parenthesis:<br/>
+<div class="doc-guide-pre">
+<pre>
+  a ?: b + c     a ?: ( b + c )   // lower precedence than addition<br/>
+  a ?: b &lt;= c    (a ?: b) &lt;= c    // higher precedence than comparison<br/></pre></div>
+See also https://en.wikipedia.org/wiki/Elvis_operator<br/>
+For example, you could change this:<br/>
+      <div class="doc-guide-pre">
+<pre>var difficulty;<br/>
+      if(targetsquare.objtype)<br/>
+        difficulty := GetHarvestDifficulty(&quot;fish&quot;, targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);<br/>
+      else<br/>
+        difficulty := GetHarvestDifficulty(&quot;fish&quot;, targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);<br/>
+      endif<br/></pre></div>
+to this:
+      <div class="doc-guide-pre">
+<pre>var difficulty := GetHarvestDifficulty(&quot;fish&quot;,<br/>
+                                             targetsquare.x, targetsquare.y,<br/>
+                                             targetsquare.objtype ?: locinfo.landtile,<br/>
+                                             who.realm);</pre></div></p>
+<p><b><a name="chap3c">Case (switch) statements</a></b></p>
 
 <p>It is a common occurance in scripting when you need to make a equality
 decision based on a large number of possibilities (and the possibilities are
@@ -859,7 +888,7 @@ program to skip to the end of the case block.</p>
 
 <br/>
 
-<p><b><a name="chap3c">Iteration</a></b></p>
+<p><b><a name="chap3d">Iteration</a></b></p>
 
 <p>I mentioned "looping through an array" in the previous chapter. This is a
 very common function is most scripts. There are two popular ways of doing this,
@@ -2621,4 +2650,7 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.8: 01/11/2019<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for finding the ordinal location of an element in an array by ThisIsMe<br>
+</p>
+<p>v0.9: 05/01/2020<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Elvis Operator by Syzygy<br>
 </p>
