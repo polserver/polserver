@@ -1,0 +1,11 @@
+var a := 3, b := 3;
+var c := 7, d := 7;
+var g := 0, h := 0;
+
+// The elvis operator should have higher precedence than equality operators
+
+print( a == g ?: b );      // 1 correct: a == ( g ?: b )        3 incorrect: ( a == g ) ?: b
+
+print( b ?: g == a );      // 1 correct: ( b ?: g ) == a        3 incorrect: b ?: ( g == a )
+
+print( a == g ?: h ?: b ); // 1 correct: a == ( g ?: h ?: b )   3 incorrect: ( a == g ) ?: h ?: b

@@ -1,0 +1,3 @@
+call foo(<uninitialized object>)
+call bar(b)
+b

@@ -1,0 +1,4 @@
+call foo(0)
+call bar(<uninitialized object>)
+call baz(z)
+z

@@ -147,7 +147,6 @@ void Scope::addvalue()
   blockdescs_.back().valcount++;
 }
 
-
 void Compiler::enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue )
 {
   program->enterblock();
@@ -1099,6 +1098,7 @@ int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
   substitute_constants( expr );
   convert_variables( expr );
   expr.optimize();
+  expr.replace_elvis();
   res = validate( expr, ctx );
   if ( res != 0 )
     return -1;

@@ -7,6 +7,7 @@
 
 #include "expression.h"
 
+#include "../clib/logfacility.h"
 #include "../clib/passert.h"
 #include "../clib/stlutil.h"
 #include "compilercfg.h"
@@ -380,6 +381,10 @@ int Expression::get_num_tokens( int idx ) const
   {
     children = 0;
   }
+  else if ( tkn->id == INS_SKIPIFTRUE_ELSE_CONSUME )
+  {
+    children = 0;
+  }
   else
   {
     passert_always( 0 );
@@ -655,6 +660,32 @@ void Expression::optimize()
   } while ( tokens.size() != starting_size );
 }
 
+void Expression::replace_elvis()
+{
+  // Given lhs ?: rhs
+  // Change
+  //   [lhs tokens] [rhs tokens] RSV_ELVIS
+  // To
+  //   [lhs tokens] INS_SKIPIFTRUE_ELSE_CONSUME [rhs tokens]
+  // This allows evaluation to short-circuit.
+  for ( unsigned i = 0; i < tokens.size(); i++ )
+  {
+    Token* oper = tokens[i];
+    if ( oper->id != RSV_ELVIS )
+    {
+      continue;
+    }
+
+    int rhs_length = get_num_tokens( i - 1 );
+
+    auto* ins = new Token( INS_SKIPIFTRUE_ELSE_CONSUME, TYP_CONTROL );
+    ins->lval = rhs_length;
+    tokens.erase( tokens.begin() + i );
+    tokens.insert( tokens.begin() + i - rhs_length, ins );
+    delete oper;
+  }
+}
+
 void Expression::remove_non_emitting_tokens()
 {
   for ( size_t i = 0; i < tokens.size(); )
@@ -669,6 +700,18 @@ void Expression::remove_non_emitting_tokens()
     {
       ++i;
     }
+  }
+}
+
+void Expression::dump_tokens() const
+{
+  INFO_PRINT << "Expression with " << tokens.size() << " tokens:\n";
+  for ( unsigned i = 0; i < tokens.size(); ++i )
+  {
+    Token* tk = tokens[i];
+    INFO_PRINT << fmt::pad( i, 4, ' ' )
+               << " (" << fmt::pad( get_num_tokens( i ), 2, ' ' ) << ")"
+               << ": " << *tk << "\n";
   }
 }
 

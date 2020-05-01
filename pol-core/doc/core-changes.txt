@@ -1,5 +1,31 @@
 ﻿-- POL100 --
-04-18-2020 DevGIB: Added ShowWarningCursorSequence to pol.cfg to silence "cursor out of sequence" errors.
+04-28-2020 Syzygy:
+    Added: Elvis operator: short-circuit binary operator EXPR_LHS ?: EXPR_RHS
+           This operator evaluates the left-hand-side operand and keeps its value if it is a true value.
+           Otherwise, evaluates the right-hand side operand and uses its value instead.
+           This is a short-circuit operator: if EXPR_LHS is true, the code for EXPR_RHS won't be executed.
+           These can also be changed: A ?: B ?: C ?: D evaluates to the first true value from left to right.
+           It has lower precedence than the binary additive operators (+ -), and higher precedence than the binary comparison operators (> >= < <=).
+           These are equivalent with or without parenthesis:
+             a ?: b + c     a ?: ( b + c )   // lower precedence than addition
+             a ?: b <= c    (a ?: b) <= c    // higher precedence than comparison
+           See also https://en.wikipedia.org/wiki/Elvis_operator
+
+           For example, you could change this:
+                 var difficulty;
+
+                 if(targetsquare.objtype)
+                   difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);
+                 else
+                   difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);
+                 endif
+           to this:
+                 var difficulty := GetHarvestDifficulty("fish",
+                                                        targetsquare.x, targetsquare.y,
+                                                        targetsquare.objtype ?: locinfo.landtile,
+                                                        who.realm);
+04-18-2020 DevGIB:
+    Added: ShowWarningCursorSequence to pol.cfg to silence "cursor out of sequence" errors.
 03-19-2020 Kevin:
     Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client
            requests for guild and party member locations. This option is disabled by default.

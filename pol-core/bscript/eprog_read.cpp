@@ -294,6 +294,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID_UNMINUSMINUS:
   case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+  case INS_SKIPIFTRUE_ELSE_CONSUME:
     token.lval = st.offset;
     return 0;
   case TOK_FUNCREF:

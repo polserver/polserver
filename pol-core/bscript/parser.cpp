@@ -235,6 +235,8 @@ Operator binary_operators[] = {
     //  { "or",  TOK_OR,     PREC_LOGOR,  TYP_OPERATOR, false, false },
     {"||", TOK_OR, PREC_LOGOR, TYP_OPERATOR, false, false},
 
+    {"?:", RSV_ELVIS, PREC_ELVIS, TYP_OPERATOR, false, false},
+
     {":=", TOK_ASSIGN, PREC_ASSIGN, TYP_OPERATOR, false, false},
     {".+", TOK_ADDMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false},
     {".-", TOK_DELMEMBER, PREC_ASSIGN, TYP_OPERATOR, false, false},
