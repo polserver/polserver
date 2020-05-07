@@ -877,8 +877,6 @@ ReservedWord reserved_words[] = {
 
     {"exit", RSV_EXIT, TYP_RESERVED, PREC_TERMINATOR, false},
 
-    {"declare", RSV_DECLARE, TYP_RESERVED, PREC_TERMINATOR, false},
-
     {"function", RSV_FUNCTION, TYP_RESERVED, PREC_TERMINATOR, false},
     {"endfunction", RSV_ENDFUNCTION, TYP_RESERVED, PREC_TERMINATOR, false},
     {"exported", RSV_EXPORTED, TYP_RESERVED, PREC_TERMINATOR, false},

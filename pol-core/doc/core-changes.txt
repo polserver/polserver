@@ -1,4 +1,9 @@
 ﻿-- POL100 --
+05-07-2020 Syzygy:
+  Changed: Removed the "declare" keyword, which used to forward-declare functions.
+           It's unlikely that anything still uses this keyword after 17 years, but if
+           any of your scripts still forward-declare functions this way,
+           just delete the line.
 04-28-2020 Syzygy:
     Added: Elvis operator: short-circuit binary operator EXPR_LHS ?: EXPR_RHS
            This operator evaluates the left-hand-side operand and keeps its value if it is a true value.

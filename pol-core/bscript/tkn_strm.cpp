@@ -324,9 +324,6 @@ void Token::printOn( std::ostream& os ) const
   case RSV_CONST:
     os << "const";
     break;
-  case RSV_DECLARE:
-    os << "declare";
-    break;
   case RSV_FUNCTION:
     os << "function";
     break;

@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-29-2020</datemodified>
+		<datemodified>05-07-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>05-07-2020</date>
+			<author>Syzygy:</author>
+			<change type="Changed">Removed the &quot;declare&quot; keyword, which used to forward-declare functions.<br/>
+It's unlikely that anything still uses this keyword after 17 years, but if<br/>
+any of your scripts still forward-declare functions this way,<br/>
+just delete the line.</change>
+		</entry>
 		<entry>
 			<date>04-28-2020</date>
 			<author>Syzygy:</author>
