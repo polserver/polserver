@@ -154,6 +154,8 @@ public:
   unsigned short faster_cast_recovery_mod;
   unsigned short luck;
   unsigned short luck_mod;
+  unsigned short swing_speed_increase;
+  unsigned short swing_speed_increase_mod;
 
 
   Core::Dice resist_dice;

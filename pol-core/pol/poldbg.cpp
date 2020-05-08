@@ -104,7 +104,9 @@ const char* poldbg_itemref_members[] = {"amount",
                                         "energy_resist_cap",
                                         "poison_resist_cap",
                                         "physical_resist_cap",
-                                        "luck_mod"
+                                        "luck_mod",
+                                        "swing_speed_increase",
+                                        "swing_speed_increase_mod"
 
 };
 
@@ -195,7 +197,9 @@ const char* poldbg_mobileref_members[] = {"warmode",
                                           "energy_resist_cap",
                                           "poison_resist_cap",
                                           "physical_resist_cap",
-                                          "luck_mod"
+                                          "luck_mod",
+                                          "swing_speed_increase",
+                                          "swing_speed_increase_mod"
 
 };
 
