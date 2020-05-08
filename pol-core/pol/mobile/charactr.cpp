@@ -2566,6 +2566,8 @@ void Character::updateEquipableProperties( Items::Item* item )
     hit_chance( hit_chance().addToValue( item->hit_chance() ) );
   if ( item->has_luck() )
     luck( luck().addToValue( item->luck() ) );
+  if (item->has_swing_speed_increase())
+      swing_speed_increase(swing_speed_increase().addToValue(item->swing_speed_increase()));
 
   // calc defence increase if lower than cap
   if ( item->has_defence_increase() )
@@ -2635,6 +2637,8 @@ void Character::resetEquipableProperties()
     hit_chance( hit_chance().setAsValue( 0 ) );
   if ( has_luck() )
     luck( luck().setAsValue( 0 ) );
+  if (has_swing_speed_increase())
+      swing_speed_increase(swing_speed_increase().setAsValue(0));
 }
 
 void Character::showarmor() const

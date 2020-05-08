@@ -228,7 +228,8 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->defence_increase_cap().sum() ) );  // Defense chance cap increase
     msg->WriteFlipped<u16>( static_cast<u16>( chr->hit_chance().sum() ) );  // Hit chance increase
-    msg->offset += 4;  // swing_speed_increase and damage_increase
+    msg->WriteFlipped<u16>(static_cast<u16>(chr->swing_speed_increase().sum())); //swing_speed_increase
+    msg->offset += 2;  // damage_increase
     msg->WriteFlipped<u16>(
         static_cast<u16>( chr->lower_reagent_cost().sum() ) );  // Lower reagent cost
     msg->WriteFlipped<u16>(
