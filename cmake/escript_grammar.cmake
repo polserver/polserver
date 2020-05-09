@@ -12,6 +12,8 @@ if(Java_JAVA_EXECUTABLE AND ANTLR_EXECUTABLE)
       -Dlanguage=Cpp -package EscriptGrammar
       ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.g4
       -o ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar
+    # You'll have to qualify the namespace antlr4::TokenStream
+    # in the EscriptParser constructor when regenerating.
     COMMAND ${Java_JAVA_EXECUTABLE} -jar ${ANTLR_EXECUTABLE}
       -Dlanguage=Cpp -visitor -package EscriptGrammar
       ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.g4
