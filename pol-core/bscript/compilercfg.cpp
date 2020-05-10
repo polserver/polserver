@@ -57,6 +57,8 @@ void CompilerConfig::Read( const std::string& path )
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
   ErrorOnFileCaseMissmatch = elem.remove_bool( "ErrorOnFileCaseMissmatch", false );
 
+  DualCompileWithAntlrGrammar = elem.remove_bool( "DualCompileWithAntlrGrammar", false );
+
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
 #ifdef WIN32

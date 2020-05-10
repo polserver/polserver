@@ -9,6 +9,7 @@
 
 #include "../bscript/compiler.h"
 #include "../bscript/compilercfg.h"
+#include "../bscript/EscriptCompiler.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
 #include "../bscript/executortype.h"
@@ -67,6 +68,7 @@ void ECompileMain::showHelp()
 #ifdef WIN32
              << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
 #endif
+             << "       -g           also run ANTLR-grammar-driven compiler\n"
              << "       -i           include intrusive debug info in .ecl file\n"
              << "       -l           generate listfile\n"
              << "       -m           don't optimize object members\n"
@@ -229,6 +231,14 @@ bool compile_file( const char* path )
     C.setQuiet( !debug );
     int res = C.compileFile( path );
 
+    if ( compilercfg.DualCompileWithAntlrGrammar )
+    {
+      EscriptCompiler compiler;
+      int res2 = compiler.compileFile( path );
+      INFO_PRINT << "ANTLR grammar compile result: " << res2 << "\n";
+    }
+
+
     if ( expect_compile_failure )
     {
       if ( res )  // good, it failed
@@ -383,6 +393,10 @@ int readargs( int argc, char** argv )
       }
       break;
 #endif
+
+      case 'g':
+        compilercfg.DualCompileWithAntlrGrammar = setting_value( arg );
+        break;
 
       case 'q':
         quiet = true;
