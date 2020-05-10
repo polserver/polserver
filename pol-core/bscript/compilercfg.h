@@ -37,6 +37,7 @@ struct CompilerConfig
   int NumberOfThreads;
   bool ParanoiaWarnings;
   bool ErrorOnFileCaseMissmatch;
+  bool DualCompileWithAntlrGrammar;
 
   void Read( const std::string& path );
   void SetDefaults();
