@@ -9,13 +9,13 @@ if(Java_JAVA_EXECUTABLE AND ANTLR_EXECUTABLE)
   message("adding target 'escriptgrammar'")
   add_custom_target(escriptgrammar
     COMMAND ${Java_JAVA_EXECUTABLE} -jar ${ANTLR_EXECUTABLE}
-      -Dlanguage=Cpp -visitor
-      ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.g4
-      -o ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar
+      -Dlanguage=Cpp -package EscriptGrammar
+      ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.g4
+      -o ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar
     COMMAND ${Java_JAVA_EXECUTABLE} -jar ${ANTLR_EXECUTABLE}
-      -Dlanguage=Cpp
-      ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.g4
-      -o ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar
+      -Dlanguage=Cpp -visitor -package EscriptGrammar
+      ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.g4
+      -o ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar
     COMMENT "Generating grammar files"
   )
 endif()
@@ -25,20 +25,20 @@ add_custom_target(escriptfiles
   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   VERBATIM
   SOURCES 
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.g4
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.h
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.g4
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.h
-    ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.g4
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.h
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.g4
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.h
+    ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.cpp
 )
 source_group(escriptgrammar FILES
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.g4
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptParser.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.g4
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/EScriptGrammar/EscriptLexer.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.g4
+  ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.h
+  ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptParser.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.g4
+  ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.h
+  ${CMAKE_CURRENT_LIST_DIR}/../lib/EscriptGrammar/EscriptLexer.cpp
 )
 set_target_properties(escriptfiles PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(escriptfiles PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
