@@ -449,6 +449,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPoisonResistCap\t" << poison_resist_cap().value << pf_endl;
   if ( has_luck() )
     sw() << "\tLuck\t" << luck().value << pf_endl;
+  if ( has_swing_speed_increase() )
+    sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
   // end new prop stuf
   if ( maxhp_mod_ )
     sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
