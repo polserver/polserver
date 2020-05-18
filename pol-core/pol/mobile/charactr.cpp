@@ -2852,6 +2852,7 @@ void Character::schedule_attack()
 
       clocks = ( delay_sum * Core::POLCLOCKS_PER_SEC ) / 1000;
     }
+    clocks/=1+( swing_speed_increase().sum() /100);
 
     if ( clocks < ( Core::POLCLOCKS_PER_SEC / 5 ) )
     {
@@ -3033,7 +3034,7 @@ void Character::inform_imoved( Character* /*chr*/ ) {}
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
   INFO_PRINT_TRACE( 12 ) << "set_opponent(0x" << fmt::hexu( this->serial ) << ",0x"
-                         << fmt::hex( new_opponent->serial ) << ")\n";
+                         << (new_opponent != nullptr ? fmt::hex(new_opponent->serial) : '0') << ")\n";
   if ( new_opponent != nullptr )
   {
     if ( new_opponent->dead() )
@@ -3426,7 +3427,7 @@ void Character::check_attack_after_move()
   Character* opponent = get_attackable_opponent();
   FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
   INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
-                         << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
+                         << "): opponent is 0x" << (opponent != nullptr ? fmt::hex(opponent->serial) : '0') << "\n";
   if ( opponent != nullptr &&  // and I have an opponent
        !dead() &&              // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
