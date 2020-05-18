@@ -116,7 +116,7 @@ Item* Item::clone() const
   item->poison_resist_cap( poison_resist_cap() );
   item->physical_resist_cap( physical_resist_cap() );
   item->luck( luck() );
-  item->swing_speed_increase(swing_speed_increase());
+  item->swing_speed_increase( swing_speed_increase() );
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -433,8 +433,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tDefenceIncrease\t" << defence_increase().value << pf_endl;
   if ( has_defence_increase_cap() )
     sw() << "\tDefenceIncreaseCap\t" << defence_increase_cap().value << pf_endl;
-  if (has_swing_speed_increase())
-      sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
+  if ( has_swing_speed_increase() )
+    sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
   if ( has_lower_mana_cost() )
     sw() << "\tLowerManaCost\t" << lower_mana_cost().value << pf_endl;
   if ( has_fire_resist_cap() )
@@ -580,9 +580,9 @@ void Item::readProperties( Clib::ConfigElem& elem )
   value = static_cast<s16>( elem.remove_int( "LUCK", 0 ) );
   if ( value != 0 )
     luck( luck().setAsValue( value ) );
-  value = static_cast<s16>(elem.remove_int("SWINGSPEEDINCREASE", 0));
-  if (value != 0)
-      swing_speed_increase(swing_speed_increase().setAsValue(value));
+  value = static_cast<s16>( elem.remove_int( "SWINGSPEEDINCREASE", 0 ) );
+  if ( value != 0 )
+    swing_speed_increase( swing_speed_increase().setAsValue( value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )
