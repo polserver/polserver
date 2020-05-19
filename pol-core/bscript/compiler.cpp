@@ -1842,75 +1842,6 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
   return 0;
 }
 
-int Compiler::handleDeclare( CompilerContext& ctx )
-{
-  int res;
-  Token token;
-  res = getToken( ctx, token );
-  if ( res )
-    return res;
-  if ( token.id != RSV_FUNCTION )
-  {
-    return -1;
-  }
-  Token funcName;
-  res = getToken( ctx, funcName );
-  if ( res )
-    return res;
-  if ( funcName.id != TOK_IDENT )
-  {
-    throw std::runtime_error( "Tried to declare a non-identifier" );
-  }
-  Token lparen;
-  res = getToken( ctx, lparen );
-  if ( res )
-    return res;
-  if ( lparen.id != TOK_LPAREN )
-  {
-    return -1;
-  }
-  int nParams = 0;
-  for ( ;; )
-  {
-    res = getToken( ctx, token );
-    if ( res )
-      return -1;
-    if ( token.id == TOK_RPAREN )
-    {
-      break;
-    }
-    if ( token.id != TOK_IDENT )
-    {
-      return -1;
-    }
-    nParams++;
-    peekToken( ctx, token );
-    if ( token.id == TOK_COMMA )
-    {
-      getToken( ctx, token );
-      continue;
-    }
-    else if ( token.id == TOK_RPAREN )
-    {
-      continue;
-    }
-    else
-    {
-      return -1;
-    }
-  }
-  getToken( ctx, token );
-  if ( token.id != TOK_SEMICOLON )
-  {
-    err = PERR_MISSINGDELIM;
-    return -1;
-  }
-  INFO_PRINT << "func decl: " << curLine << "\n"
-             << "nParams: " << nParams << "\n";
-  // addUserFunc(funcName.tokval(), nParams);
-  return 0;
-}
-
 bool mismatched_end( const Token& token, BTokenId correct )
 {
   if ( token.id == correct )
@@ -3241,8 +3172,6 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       compiler_error( "_OptionBracketed is obsolete.\n" );
       // bracketed_if_ = true;
       return 0;
-    case RSV_DECLARE:
-      return handleDeclare( ctx );
 
     case RSV_EXPORTED:
     case RSV_FUNCTION:

@@ -250,7 +250,6 @@ public:
   int handleVarDeclare( CompilerContext& ctx, unsigned save_id );
   int handleConstDeclare( CompilerContext& ctx );
   int handleEnumDeclare( CompilerContext& ctx );
-  int handleDeclare( CompilerContext& ctx );
   int handleUse( CompilerContext& ctx );
   int handleInclude( CompilerContext& ctx );
   int handleFor( CompilerContext& ctx );
