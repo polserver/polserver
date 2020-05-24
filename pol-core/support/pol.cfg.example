@@ -376,7 +376,7 @@ DisplayUnknownPackets=1
 # WebServer: Run the internal web server
 # Default 0
 #
-WebServer=1
+WebServer=0
 
 #
 # WebServerPort: What TCP/IP port to listen for web requests
@@ -388,7 +388,7 @@ WebServer=1
 # WebServerLocalOnly: Only allow access from localhost
 # Default 1
 #
-WebServerLocalOnly=0
+WebServerLocalOnly=1
 
 #
 # WebServerDebug: Print trace information about http requests
