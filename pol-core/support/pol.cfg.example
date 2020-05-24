@@ -397,7 +397,8 @@ WebServerLocalOnly=0
 #WebServerDebug=0
 
 #
-# WebServerPassword: username/password required for access to the web server.
+# WebServerPassword: username:password required for access to the web server.
+#                    username and password must be delimited using a colon ':'.
 #                    If not specified, no password is required.
 # WebServerPassword=username:password
 # Default empty
