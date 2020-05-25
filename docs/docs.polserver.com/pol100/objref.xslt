@@ -27,7 +27,7 @@
 		<div id="main">
 			<div class="container">
 				<div class="doc-mainbox">
-					<table class="doc-table" width="700px">
+					<table class="doc-table">
 						<tr align="center">
 							<td>
 								<strong>
@@ -35,10 +35,10 @@
 								</strong>
 							</td>
 						</tr>
-						<tr align="left" padding="50px">
+						<tr align="center">
 							<td>
 								<xsl:copy>
-									<xsl:copy-of select="ESCRIPT/fileheader/pre"/>
+									<xsl:copy-of select="document('objref.svg')"/>
 								</xsl:copy>
 							</td>
 						</tr>

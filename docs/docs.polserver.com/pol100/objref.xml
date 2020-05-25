@@ -24,33 +24,7 @@
 -->
 <fileheader>
 <header>Class Hierarchy</header>
-<pre xml:space="preserve">
-
-            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>   <a href="#FunctionObject">FunctionObject</a>
-               |
-               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datafile">Datafile</a>          <a href="#Boolean">Boolean</a>
-     +---------+--------+
-     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#BinaryFile">BinaryFile</a>        <a href="#XMLFile">XMLFile</a>
-   <a href="#Character">Character</a>           <a href="#Item">Item</a>
-     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#Package">Package</a>           <a href="#XMLNode">XMLNode</a>
-    <a href="#NPC">NPC</a>                 |
-                        |                                      <a href="#Struct">Struct</a>            <a href="#XMLAttributes">XMLAttributes</a>
-     +------------------+--------------+-----------+
-     |                  |              |           |           <a href="#Array">Array</a>
- <a href="#Equipment">Equipment</a>           <a href="#Lockable">Lockable</a>         <a href="#Map">Map</a>        <a href="#Multi">Multi</a>
-     |                  |                          |           <a href="#Dictionary">Dictionary</a>
- +---+----+        +----+--------+            +----+----+
- |        |        |             |            |         |      <a href="#String">String</a>
-<a href="#Armor">Armor</a>  <a href="#Weapon">Weapon</a>     <a href="#Door">Door</a>        <a href="#Container">Container</a>      <a href="#Boat">Boat</a>     <a href="#House">House</a>
-                                 |                             <a href="#Error">Error</a>
-                            +----+----+
-                            |         |                        <a href="#StorageAreas">StorageAreas</a>
-                         <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
-                                                               <a href="#StorageArea">StorageArea</a>
-
-
-</pre>
-
+<!-- objref.svg will be inserted here -->
 <datemodified>12/14/2019</datemodified>
 </fileheader>
 

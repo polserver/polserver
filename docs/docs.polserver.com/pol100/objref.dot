@@ -1,0 +1,107 @@
+//To generate:
+//  dot -Kneato -Tsvg -o objref.svg objref.dot
+//  and remove DOCTYPE line at the beginning!
+
+graph {
+bgcolor="transparent"
+node [shape=plain fontname="monospace" fontsize=12 fontcolor="blue" target="_top"]
+splines=line
+
+uobject   [label="UObject"   href="#UObject"   pos="2.05,10!"]
+char      [label="Character" href="#Character" pos="1.35,9.4!"]
+item      [label="Item"      href="#Item"      pos="2.75,9.4!"]
+
+npc       [label="NPC"       href="#NPC"       pos="1.35,8.8!"]
+
+equipment [label="Equipment" href="#Equipment" pos="0.65,8.2!"]
+lockable  [label="Lockable"  href="#Lockable"  pos="2.05,8.2!"]
+map       [label="Map"       href="#Map"       pos="3.45,8.2!"]
+multi     [label="Multi"     href="#Multi"     pos="4.85,8.2!"]
+
+armor     [label="Armor"     href="#Armor"     pos="0.3,7.6!"]
+weapon    [label="Weapon"    href="#Weapon"    pos="1.0,7.6!"]
+door      [label="Door"      href="#Door"      pos="1.7,7.6!"]
+container [label="Container" href="#Container" pos="2.4,7.6!"]
+boat      [label="Boat"      href="#Boat"      pos="4.5,7.6!"]
+house     [label="House"     href="#House"     pos="5.2,7.6!"]
+
+spellbook [label="Spellbook" href="#Spellbook" pos="2.00,7!"]
+corpse    [label="Corpse"    href="#Corpse"    pos="2.8,7!"]
+
+// standalone
+account         [label="Account"    href="#Account" pos="4.85,10!"]
+array           [label="Array"      href="#Array"   pos="4.85,9.7!"]
+auxconnection [label="AuxConnection" href="#AuxConnection" pos="4.85,9.4!"]
+binaryfile      [label="BinaryFile" href="#BinaryFile" pos="4.85,9.1!"]
+boolean         [label="Boolean"    href="#Boolean" pos="4.85,8.8!"]
+
+client          [label="Client"     href="#Client"  pos="6.35,10!"]
+datafile        [label="Datafile"   href="#Datafile" pos="6.35,9.7!"]
+datafileelement [label="DataFileElement" href="#DataFileElement" pos="6.35,9.4!"]
+dictionary      [label="Dictionary" href="#Dictionary" pos="6.35,9.1!"]
+error           [label="Error"      href="#Error"    pos="6.35,8.8!"]
+functionobject [label="FunctionObject" href="#FunctionObject" pos="6.35,8.5!"]
+guild           [label="Guild"      href="#Guild"    pos="6.35,8.2!"]
+package         [label="Package"    href="#Package"  pos="6.35,7.9!"]
+packet          [label="Packet"     href="#Packet"   pos="6.35,7.6!"]
+party           [label="Party"      href="#Party"    pos="6.35,7.3!"]
+polcore         [label="PolCore"    href="#Polcore"  pos="6.35,7!"]
+
+script          [label="Script"     href="#Script"   pos="7.85,10!"]
+struct          [label="Struct"     href="#Struct"   pos="7.85,9.7!"]
+string          [label="String"     href="#String"   pos="7.85,9.4!"]
+storageareas  [label="StorageAreas" href="#StorageAreas" pos="7.85,9.1!"]
+storagearea   [label="StorageArea"  href="#StorageArea"  pos="7.85,8.8!"]
+xmlfile         [label="XMLFile"    href="#XMLFile"  pos="7.85,8.5!"]
+xmlnode         [label="XMLNode"    href="#XMLNode"  pos="7.85,8.2!"]
+xmlattributes [label="XMLAttributes" href="#XMLAttributes" pos="7.85,7.9!"]
+
+{
+node [width=0, shape=point, style=invis];
+0  [pos="2.05,9.7!"] // uobject
+1  [pos="1.35,9.7!"]
+2  [pos="2.75,9.7!"]
+3  [pos="2.75,8.5!"] // item
+4  [pos="0.65,8.5!"]
+5  [pos="2.05,8.5!"]
+6  [pos="3.45,8.5!"]
+7  [pos="4.85,8.5!"]
+8  [pos="0.65,7.9!"] // equipment
+9  [pos="0.3,7.9!"]
+10 [pos="1,7.9!"]
+11 [pos="2.05,7.9!"] //lockable
+12 [pos="1.7,7.9!"]
+13 [pos="2.4,7.9!"]
+14 [pos="4.85,7.9!"] //multi
+15 [pos="4.5,7.9!"]
+16 [pos="5.2,7.9!"]
+17 [pos="2.4,7.3!"] //container
+18 [pos="2,7.3!"]
+19 [pos="2.8,7.3!"]
+}
+
+uobject:s -- 0 -- {1,2}
+1 -- char:n
+2 -- item:n
+char -- npc
+item -- 3
+3 -- {5,6}
+5 -- 4
+6 -- 7
+4 -- equipment
+5 -- lockable
+6 -- map
+7 -- multi
+equipment -- 8 -- {9,10}
+9 -- armor
+10 -- weapon
+lockable -- 11 -- {12,13}
+12 -- door
+13 -- container
+multi -- 14 -- {15,16}
+15 -- boat
+16 -- house
+container -- 17 -- {18,19}
+18 -- spellbook
+19 -- corpse
+}
