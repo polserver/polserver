@@ -49,7 +49,7 @@
 		<div class="main">
 			<xsl:for-each select="ESCRIPT/class">
 				<xsl:sort select="@name"/>
-				<div class="container">
+				<div class="container" id="{@name}">
 					<div class="doc-mainbox-big-gold">
 						<div class="doc-anchor">
 							<a href="#TOP">[^]</a>
@@ -64,9 +64,7 @@
 							<tbody>
 								<tr>
 									<th align="center" colspan="4">
-										<a name="{@name}">
-											<xsl:value-of select="@name"/>
-										</a>
+										<xsl:value-of select="@name"/>
 									</th>
 								</tr>
 							</tbody>
