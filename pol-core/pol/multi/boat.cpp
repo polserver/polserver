@@ -812,7 +812,8 @@ constexpr Core::UFACING _turn_towards( Core::UFACING oldfacing, UBoat::RELATIVE_
 {
   return static_cast<Core::UFACING>( ( oldfacing + dir * 2 ) & 7 );
 }
-constexpr Core::Vec2d _turn_vector_around( const Core::Vec2d& delta, UBoat::RELATIVE_DIR dir )
+
+Core::Vec2d _turn_vector_around( const Core::Vec2d& delta, UBoat::RELATIVE_DIR dir )
 {
   Core::Vec2d rotated_vec = delta;
   switch ( dir )
