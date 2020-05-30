@@ -1238,6 +1238,7 @@ void read_starting_locations()
   Clib::ConfigElem elem;
   while ( cf.read( elem ) )
   {
+    if ( stricmp( elem.type(), "StartingLocation" ) != 0 )
     {
       ERROR_PRINT << "Unknown element type in startloc.cfg: " << elem.type() << "\n";
       throw std::runtime_error( "Error in configuration file." );
