@@ -2910,13 +2910,13 @@ bool Character::is_attackable( Character* who ) const
     INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
                            << fmt::hexu( who->serial ) << "):\n"
                            << "  who->dead:  " << who->dead() << "\n"
-                           << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
+                           << "  wpn->inrange: " << weapon->in_attack_range( this, who ) << "\n"
                            << "  hidden:     " << hidden() << "\n"
                            << "  who->hidden:  " << who->hidden() << "\n"
                            << "  concealed:  " << is_concealed_from_me( who ) << "\n";
     if ( who->dead() )
       return false;
-    else if ( !weapon->in_range( this, who ) )
+    else if ( !weapon->in_attack_range( this, who ) )
       return false;
     else if ( hidden() && !cached_settings.get( PRIV_FLAGS::HIDDEN_ATTACK ) )
       return false;
