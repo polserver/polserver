@@ -78,15 +78,13 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, unsigned char
     graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), nullptr, 0 ) );
     if ( graphic )
     {
-      unsigned short xd, yd;
+      s16 xd, yd;
       if ( is >> xd >> yd )
       {
-        xdelta = xd;
-        ydelta = yd;
-        zdelta = 0;
-        signed short zd;
+        rel_pos = Core::Vec3d( xd, yd, 0 );
+        s16 zd;
         if ( is >> zd )
-          zdelta = zd;
+          rel_pos.z( zd );
         return;
       }
     }
@@ -109,15 +107,13 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, const std::st
     graphic = static_cast<unsigned short>( strtoul( tmp.c_str(), nullptr, 0 ) );
     if ( graphic )
     {
-      unsigned short xd, yd;
+      s16 xd, yd;
       if ( is >> xd >> yd )
       {
-        xdelta = xd;
-        ydelta = yd;
-        zdelta = 0;
-        signed short zd;
+        rel_pos = Core::Vec3d( xd, yd, 0 );
+        s16 zd;
         if ( is >> zd )
-          zdelta = zd;
+          rel_pos.z( zd );
         ok = true;
       }
     }
@@ -1180,7 +1176,7 @@ void UBoat::transform_components( const BoatShape& old_boatshape )
     else
       item->graphic = itr2->graphic;
 
-    Core::Pos4d newpos = ( this->pos() + itr2->rel_pos() );
+    Core::Pos4d newpos = ( this->pos() + itr2->rel_pos );
     _move_boat_item( item, newpos, this );
   }
 }
@@ -1210,7 +1206,7 @@ void UBoat::move_components()
     }
 
     item->set_dirty();
-    Core::Pos4d newpos = this->pos() + itr2->rel_pos();
+    Core::Pos4d newpos = this->pos() + itr2->rel_pos;
     _move_boat_item( item, newpos, this );
   }
 }
@@ -1479,7 +1475,7 @@ void UBoat::create_components()
 
     component->disable_decay();
 
-    component->setposition( this->pos() + itr->rel_pos() );
+    component->setposition( this->pos() + itr->rel_pos );
     component->movable( false );
     add_item_to_world( component );
     update_item_to_inrange( component );

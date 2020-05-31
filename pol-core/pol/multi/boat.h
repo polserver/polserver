@@ -77,13 +77,9 @@ struct BoatShape
     unsigned int objtype;
     unsigned short graphic;
     unsigned short altgraphic;
-    unsigned short xdelta;  // TODO: check this. Shouldn't it be signed?!
-    unsigned short ydelta;
-    signed short zdelta;
+    Core::Vec3d rel_pos;
     ComponentShape( const std::string& str, const std::string& altstr, unsigned char type );
     ComponentShape( const std::string& str, unsigned char type );
-
-    Core::Vec3d rel_pos() const;
   };
   std::vector<ComponentShape> Componentshapes;
 
@@ -92,11 +88,6 @@ struct BoatShape
   BoatShape();
   size_t estimateSize() const;
 };
-
-inline Core::Vec3d BoatShape::ComponentShape::rel_pos() const
-{
-  return Core::Vec3d( this->xdelta, this->ydelta, this->zdelta );
-}
 
 class UBoat final : public UMulti
 {
