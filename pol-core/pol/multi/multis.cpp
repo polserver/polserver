@@ -80,8 +80,8 @@ Bscript::BStruct* UMulti::footprint() const
 {
   const MultiDef& md = multidef();
   std::unique_ptr<Bscript::BStruct> ret( new Bscript::BStruct );
-  Core::Pos4d minp( pos() + Core::Vec2d( md.minrx, md.minry ) );
-  Core::Pos4d maxp( pos() + Core::Vec2d( md.maxrx, md.maxry ) );
+  Core::Pos4d minp( pos() + md.min_relp );
+  Core::Pos4d maxp( pos() + md.max_relp );
   ret->addMember( "xmin", new Bscript::BLong( minp.x() ) );
   ret->addMember( "xmax", new Bscript::BLong( maxp.x() ) );
   ret->addMember( "ymin", new Bscript::BLong( minp.y() ) );

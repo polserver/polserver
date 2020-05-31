@@ -702,7 +702,7 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
     msg.Send( chr->client );
   }
   const MultiDef& def = house->multidef();
-  Core::Pos4d newpos( house->pos() + Core::Vec2d( def.minrx, def.maxry + 1 ) );
+  Core::Pos4d newpos( house->pos() + Core::Vec2d( def.min_relp.x(), def.max_relp.y() + 1 ) );
   move_character_to( chr, newpos, Core::MOVEITEM_FORCELOCATION );
   if ( chr->client )
   {
@@ -741,7 +741,7 @@ void CustomHousesAdd( Core::PKTBI_D7* msg )
   // the south side of the house can have stairs at z=0
   // int ysize = house->multidef().maxry - house->multidef().minry;
 
-  if ( elem.yoffset == house->multidef().maxry + 1 )
+  if ( elem.yoffset == house->multidef().max_relp.y() + 1 )
     elem.z = 0;
 
   house->WorkingDesign.AddOrReplace( elem );
@@ -1144,20 +1144,20 @@ void UHouse::SetCustom( bool _custom )
 }
 void UHouse::CustomHouseSetInitialState()
 {
-  int ysize, xsize, xbase, ybase;
+  short xbase, ybase;
   const MultiDef& def = multidef();
-  ysize = def.maxry - def.minry + 1;  //+1 to include offset 0 in -3..3
-  xsize = def.maxrx - def.minrx + 1;  //+1 to include offset 0 in -3..3
-  xbase = abs( def.minrx );
-  ybase = abs( def.minry );
+  const auto size = def.max_relp - def.min_relp + Core::Vec2d( 1, 1 );
+  //+1 to include offset 0 in -3..3
+  xbase = (short)abs( def.min_relp.x() );
+  ybase = (short)abs( def.min_relp.y() );
   CurrentDesign.Clear();
-  CurrentDesign.InitDesign( ysize + 1, xsize, xbase,
+  CurrentDesign.InitDesign( size.y() + 1, size.x(), xbase,
                             ybase );  //+1 for front steps outside multidef footprint
   WorkingDesign.Clear();
-  WorkingDesign.InitDesign( ysize + 1, xsize, xbase,
+  WorkingDesign.InitDesign( size.y() + 1, size.x(), xbase,
                             ybase );  //+1 for front steps outside multidef footprint
   BackupDesign.Clear();
-  BackupDesign.InitDesign( ysize + 1, xsize, xbase,
+  BackupDesign.InitDesign( size.y() + 1, size.x(), xbase,
                            ybase );  //+1 for front steps outside multidef footprint
 
   CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );

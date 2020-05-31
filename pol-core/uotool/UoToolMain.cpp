@@ -510,9 +510,9 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
   INFO_PRINT << "Multi 0x" << fmt::hexu( i + i + ( Plib::systemstate.config.max_tile_id + 1 ) )
              << " -- " << tile.name << ":\n";
   fmt::Writer tmp;
-  for ( short y = multi->minry; y <= multi->maxry; ++y )
+  for ( short y = multi->min_relp.y(); y <= multi->max_relp.y(); ++y )
   {
-    for ( short x = multi->minrx; x <= multi->maxrx; ++x )
+    for ( short x = multi->min_relp.x(); x <= multi->max_relp.x(); ++x )
     {
       unsigned short key = multi->getkey( Core::Vec2d( x, y ) );
       bool external = multi->hull2.count( key ) != 0;

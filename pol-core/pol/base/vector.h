@@ -38,6 +38,9 @@ public:
   Vec2d& x( s16 x );
   Vec2d& y( s16 y );
 
+  void update_min( const Vec2d& v );
+  void update_max( const Vec2d& v );
+
   static s16 clip( int x );
 };
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
@@ -74,7 +77,9 @@ public:
   bool operator>=( const Vec2d& other ) const;
 
   Vec3d& operator-=( const Vec3d& other );
+  Vec3d& operator-=( const Vec2d& other );
   Vec3d& operator+=( const Vec3d& other );
+  Vec3d& operator+=( const Vec2d& other );
 
   s16 x() const;
   s16 y() const;
@@ -85,9 +90,14 @@ public:
   Vec3d& y( s16 y );
   Vec3d& z( s16 z );
   Vec3d& xy( Vec2d xy );
+
+  void update_min( const Vec3d& v );
+  void update_max( const Vec3d& v );
 };
 Vec3d operator-( Vec3d lhs, const Vec3d& rhs );
+Vec3d operator-( Vec3d lhs, const Vec2d& rhs );
 Vec3d operator+( Vec3d lhs, const Vec3d& rhs );
+Vec3d operator+( Vec3d lhs, const Vec2d& rhs );
 
 
 inline Vec2d::Vec2d( s16 x, s16 y ) : _x( x ), _y( y ) {}

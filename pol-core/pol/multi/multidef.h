@@ -77,8 +77,9 @@ public:
   typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
   typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
 
-  short minrx, minry, minrz;  // minimum relative distances
-  short maxrx, maxry, maxrz;
+  // TODO RelArea?
+  Core::Vec3d min_relp;  // minimum relative distances
+  Core::Vec3d max_relp;
   Components components;
 
   /*
@@ -130,7 +131,7 @@ const MultiDef* MultiDefByMultiID( u16 multiid );
 
 inline bool MultiDef::is_within_multi( const Core::Vec2d& rxy ) const
 {
-  return rxy >= Core::Vec2d( minrx, minry ) && rxy <= Core::Vec2d( maxrx, maxry );
+  return rxy >= min_relp.xy() && rxy <= max_relp.xy();
 }
 
 inline unsigned short MultiDef::getkey( const Core::Vec2d& rxy )

@@ -634,9 +634,8 @@ void UBoat::unregself()
 // navigable: Can the ship sit here?  ie is every point on the hull on water,and not blocked?
 bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
 {
-  const Core::Vec2d r_min( md.minrx, md.minry );
-  const Core::Vec2d r_max( md.maxrx, md.maxry );
-  if ( !desired_pos.can_move_to( r_min ) || !desired_pos.can_move_to( r_max ) )
+  if ( !desired_pos.can_move_to( md.min_relp.xy() ) ||
+       !desired_pos.can_move_to( md.max_relp.xy() ) )
   {
 #ifdef DEBUG_BOATS
     INFO_PRINT << "Location " << x << "," << y << " impassable, location is off the map\n";

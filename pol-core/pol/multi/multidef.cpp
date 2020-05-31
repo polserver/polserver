@@ -26,15 +26,7 @@ namespace Multi
 bool BoatShapeExists( u16 graphic );
 
 MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
-    : multiid( multiid ),
-      type( UNKNOWN ),
-      elems(),
-      minrx( 0 ),
-      minry( 0 ),
-      minrz( 0 ),
-      maxrx( 0 ),
-      maxry( 0 ),
-      maxrz( 0 )
+    : multiid( multiid ), type( UNKNOWN ), elems(), min_relp( 0, 0, 0 ), max_relp( 0, 0, 0 )
 {
   if ( elem.type_is( "BOAT" ) )
   {
@@ -140,17 +132,17 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
     Core::Vec2d rxy( elem->rel_pos.xy() );
     if ( ( multiid & 1 ) == 0 )  // N/S hull, so squeeze X
     {
-      if ( rxy.x() == minrx )
-        rxy.x( minrx + 1 );
-      else if ( rxy.x() == maxrx )
-        rxy.x( maxrx - 1 );
+      if ( rxy.x() == min_relp.x() )
+        rxy.x( min_relp.x() + 1 );
+      else if ( rxy.x() == max_relp.x() )
+        rxy.x( max_relp.x() - 1 );
     }
     else
     {
-      if ( rxy.y() == minry )
-        rxy.y( minry + 1 );
+      if ( rxy.y() == min_relp.y() )
+        rxy.y( min_relp.y() + 1 );
       else if ( rxy.y() > 0 )
-        rxy.y( maxry - 1 );
+        rxy.y( max_relp.y() - 1 );
     }
 
     elem = find_component( rxy );
@@ -175,9 +167,9 @@ void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
 void MultiDef::add_body_tohull()
 {
   short rx, ry;
-  for ( ry = minry; ry <= maxry; ++ry )
+  for ( ry = min_relp.y(); ry <= max_relp.y(); ++ry )
   {
-    for ( rx = minrx; rx <= maxrx; ++rx )
+    for ( rx = min_relp.x(); rx <= max_relp.x(); ++rx )
     {
       const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
@@ -187,7 +179,7 @@ void MultiDef::add_body_tohull()
         break;
       }
     }
-    for ( rx = maxrx; rx >= minrx; --rx )
+    for ( rx = max_relp.x(); rx >= min_relp.x(); --rx )
     {
       const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
@@ -200,9 +192,9 @@ void MultiDef::add_body_tohull()
   }
 
 
-  for ( rx = minrx; rx <= maxrx; ++rx )
+  for ( rx = min_relp.x(); rx <= max_relp.x(); ++rx )
   {
-    for ( ry = minry; ry <= maxry; ++ry )
+    for ( ry = min_relp.y(); ry <= max_relp.y(); ++ry )
     {
       const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
@@ -211,7 +203,7 @@ void MultiDef::add_body_tohull()
         break;
       }
     }
-    for ( ry = maxry; ry >= minry; --ry )
+    for ( ry = max_relp.y(); ry >= min_relp.y(); --ry )
     {
       const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
@@ -231,19 +223,8 @@ void MultiDef::computehull()
 
 void MultiDef::addrec( const MULTI_ELEM* elem )
 {
-  if ( elem->rel_pos.x() < minrx )
-    minrx = elem->rel_pos.x();
-  if ( elem->rel_pos.y() < minry )
-    minry = elem->rel_pos.y();
-  if ( elem->rel_pos.z() < minrz )
-    minrz = elem->rel_pos.z();
-
-  if ( elem->rel_pos.x() > maxrx )
-    maxrx = elem->rel_pos.x();
-  if ( elem->rel_pos.y() > maxry )
-    maxry = elem->rel_pos.y();
-  if ( elem->rel_pos.z() > maxrz )
-    maxrz = elem->rel_pos.z();
+  min_relp.update_min( elem->rel_pos );
+  max_relp.update_max( elem->rel_pos );
 
   /*if ( elem->x < global_minrx )
     global_minrx = elem->x;

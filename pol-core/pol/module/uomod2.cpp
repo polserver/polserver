@@ -2545,7 +2545,8 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     Character* multichr = moblist.back();
     if ( multichr != chr )
-      move_character_to( multichr, house->pos() + Core::Vec2d( def.minrx, def.maxry + 1 ),
+      move_character_to( multichr,
+                         house->pos() + Core::Vec2d( def.min_relp.x(), def.max_relp.y() + 1 ),
                          MOVEITEM_FORCELOCATION );
     moblist.pop_back();
   }

@@ -64,8 +64,8 @@ void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList&
 {
   const MultiDef& md = house->multidef();
 
-  Core::Pos4d p1 = house->pos() + Core::Vec2d( md.minrx, md.minry );
-  Core::Pos4d p2 = house->pos() + Core::Vec2d( md.maxrx, md.maxry );
+  Core::Pos4d p1 = house->pos() + md.min_relp;
+  Core::Pos4d p2 = house->pos() + md.max_relp;
 
   Core::WorldIterator<Core::MobileFilter>::InBox( p1, p2, [&]( Mobile::Character* chr ) {
     UMulti* multi = chr->supporting_multi();
@@ -489,17 +489,17 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
   custom = elem.remove_bool( "Custom", false );
   if ( custom )
   {
-    short ysize, xsize, xbase, ybase;
+    short xbase, ybase;
     const MultiDef& def = multidef();
-    ysize = def.maxry - def.minry + 1;  //+1 to include offset 0 in -3..3
-    xsize = def.maxrx - def.minrx + 1;  //+1 to include offset 0 in -3..3
-    xbase = (short)abs( def.minrx );
-    ybase = (short)abs( def.minry );
-    CurrentDesign.InitDesign( ysize + 1, xsize, xbase,
+    const auto size = def.max_relp - def.min_relp + Core::Vec2d( 1, 1 );
+    //+1 to include offset 0 in -3..3
+    xbase = (short)abs( def.min_relp.x() );
+    ybase = (short)abs( def.min_relp.y() );
+    CurrentDesign.InitDesign( size.y() + 1, size.x(), xbase,
                               ybase );  //+1 for front steps outside multidef footprint
-    WorkingDesign.InitDesign( ysize + 1, xsize, xbase,
+    WorkingDesign.InitDesign( size.y() + 1, size.x(), xbase,
                               ybase );  //+1 for front steps outside multidef footprint
-    BackupDesign.InitDesign( ysize + 1, xsize, xbase,
+    BackupDesign.InitDesign( size.y() + 1, size.x(), xbase,
                              ybase );  //+1 for front steps outside multidef footprint
     CurrentDesign.readProperties( elem, "Current" );
     WorkingDesign.readProperties( elem, "Working" );
@@ -682,8 +682,8 @@ bool multis_exist_in( const Core::Pos4d& minpos, const Core::Pos4d& maxpos )
     {
       const MultiDef& edef = multi->multidef();
       // find out if any of our walls would fall within its footprint.
-      const auto itsNW = multi->pos() + Core::Vec2d( edef.minrx, edef.minry ),
-                 itsSE = multi->pos() + Core::Vec2d( edef.maxrx, edef.maxry );
+      const auto itsNW = multi->pos() + edef.min_relp;
+      const auto itsSE = multi->pos() + edef.max_relp;
       Core::Area2d other_area( itsNW, itsSE );
       if ( my_area.intersect( other_area ) )
         return true;
@@ -754,14 +754,14 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
         "Multi definition not found for House, objtype=" + Clib::hexint( descriptor.objtype ) +
         ", multiid=" + Clib::hexint( descriptor.multiid ) );
   }
-  Core::Vec3d minvec( md->minrx, md->minry, md->minrz );
-  Core::Vec3d maxvec( md->maxrx, md->maxry, md->maxrz );
-  if ( !pos.realm()->valid( pos.xyz() + minvec ) || !pos.realm()->valid( pos.xyz() + maxvec ) )
+  if ( !pos.realm()->valid( pos.xyz() + md->min_relp ) ||
+       !pos.realm()->valid( pos.xyz() + md->max_relp ) )
     return new Bscript::BError( "That location is out of bounds" );
 
   if ( ~flags & CRMULTI_IGNORE_MULTIS )
   {
-    if ( multis_exist_in( pos + minvec - Core::Vec2d( 1, 5 ), pos + maxvec + Core::Vec2d( 1, 5 ) ) )
+    if ( multis_exist_in( pos + md->min_relp - Core::Vec2d( 1, 5 ),
+                          pos + md->max_relp + Core::Vec2d( 1, 5 ) ) )
     {
       return new Bscript::BError( "Location intersects with another structure" );
     }
@@ -769,15 +769,15 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
   if ( ~flags & CRMULTI_IGNORE_OBJECTS )
   {
-    if ( objects_exist_in( pos + minvec, pos + maxvec ) )
+    if ( objects_exist_in( pos + md->min_relp, pos + md->max_relp ) )
     {
       return new Bscript::BError( "Something is blocking that location" );
     }
   }
   if ( ~flags & CRMULTI_IGNORE_FLATNESS )
   {
-    if ( statics_cause_problems( pos + minvec - Core::Vec2d( 1, 1 ),
-                                 pos + maxvec + Core::Vec2d( 1, 1 ), pos.z(), flags ) )
+    if ( statics_cause_problems( pos + md->min_relp - Core::Vec2d( 1, 1 ),
+                                 pos + md->max_relp + Core::Vec2d( 1, 1 ), pos.z(), flags ) )
     {
       return new Bscript::BError( "That location is not suitable" );
     }

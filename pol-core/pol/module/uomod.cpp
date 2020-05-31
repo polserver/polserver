@@ -2296,13 +2296,15 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
   // search for multis.  this is tricky, since the center might lie outside the box
   WorldIterator<MultiFilter>::InBox( pos1range, pos2range, [&]( Multi::UMulti* multi ) {
     const Multi::MultiDef& md = multi->multidef();
-    // TODO: wait for multi cleanup
-    if ( multi->x() + md.minrx > pos2.x() ||  // east of the box
-         multi->x() + md.maxrx < pos1.x() ||  // west of the box
-         multi->y() + md.minry > pos2.y() ||  // south of the box
-         multi->y() + md.maxry < pos1.y() ||  // north of the box
-         multi->z() + md.minrz > pos2.z() ||  // above the box
-         multi->z() + md.maxrz < pos1.z() )   // below the box
+    // TODO: Area3d::intersect
+    const auto minp = multi->pos() + md.min_relp;
+    const auto maxp = multi->pos() + md.max_relp;
+    if ( minp.x() > pos2.x() ||  // east of the box
+         maxp.x() < pos1.x() ||  // west of the box
+         minp.y() > pos2.y() ||  // south of the box
+         maxp.y() < pos1.y() ||  // north of the box
+         minp.z() > pos2.z() ||  // above the box
+         maxp.z() < pos1.z() )   // below the box
     {
       return;
     }
@@ -4163,10 +4165,10 @@ BObjectImp* UOExecutorModule::mf_GetMultiDimensions()
 
     const Multi::MultiDef& md = *Multi::MultiDefByMultiID( multiid );
     std::unique_ptr<BStruct> ret( new BStruct );
-    ret->addMember( "xmin", new BLong( md.minrx ) );
-    ret->addMember( "xmax", new BLong( md.maxrx ) );
-    ret->addMember( "ymin", new BLong( md.minry ) );
-    ret->addMember( "ymax", new BLong( md.maxry ) );
+    ret->addMember( "xmin", new BLong( md.min_relp.x() ) );
+    ret->addMember( "xmax", new BLong( md.max_relp.x() ) );
+    ret->addMember( "ymin", new BLong( md.min_relp.y() ) );
+    ret->addMember( "ymax", new BLong( md.max_relp.y() ) );
     return ret.release();
   }
   else

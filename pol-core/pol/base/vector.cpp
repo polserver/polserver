@@ -58,6 +58,21 @@ Vec2d& Vec2d::operator+=( const Vec2d& other )
   return *this;
 }
 
+void Vec2d::update_min( const Vec2d& v )
+{
+  if ( v._x < _x )
+    _x = v._x;
+  if ( v._y < _y )
+    _y = v._y;
+}
+void Vec2d::update_max( const Vec2d& v )
+{
+  if ( v._x > _x )
+    _x = v._x;
+  if ( v._y > _y )
+    _y = v._y;
+}
+
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs )
 {
   lhs -= rhs;
@@ -132,12 +147,46 @@ Vec3d& Vec3d::operator+=( const Vec3d& other )
   _z = Vec2d::clip( z );
   return *this;
 }
+Vec3d& Vec3d::operator-=( const Vec2d& other )
+{
+  _xy -= other;
+  return *this;
+}
+Vec3d& Vec3d::operator+=( const Vec2d& other )
+{
+  _xy += other;
+  return *this;
+}
+
+void Vec3d::update_min( const Vec3d& v )
+{
+  _xy.update_min( v.xy() );
+  if ( v._z < _z )
+    _z = v._z;
+}
+void Vec3d::update_max( const Vec3d& v )
+{
+  _xy.update_max( v.xy() );
+  if ( v._z > _z )
+    _z = v._z;
+}
+
 Vec3d operator-( Vec3d lhs, const Vec3d& rhs )
 {
   lhs -= rhs;
   return lhs;
 }
 Vec3d operator+( Vec3d lhs, const Vec3d& rhs )
+{
+  lhs += rhs;
+  return lhs;
+}
+Vec3d operator-( Vec3d lhs, const Vec2d& rhs )
+{
+  lhs -= rhs;
+  return lhs;
+}
+Vec3d operator+( Vec3d lhs, const Vec2d& rhs )
 {
   lhs += rhs;
   return lhs;
