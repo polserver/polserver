@@ -37,6 +37,8 @@ public:
 
   Vec2d& x( s16 x );
   Vec2d& y( s16 y );
+
+  static s16 clip( int x );
 };
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
 Vec2d operator+( Vec2d lhs, const Vec2d& rhs );

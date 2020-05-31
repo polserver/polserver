@@ -31,12 +31,6 @@ s8 clip_s8( int v )
       std::min( static_cast<int>( std::numeric_limits<s8>::max() ),
                 std::max( static_cast<int>( std::numeric_limits<s8>::min() ), v ) ) );
 }
-s16 clip_s16( int v )
-{
-  return static_cast<s16>(
-      std::min( static_cast<int>( std::numeric_limits<s16>::max() ),
-                std::max( static_cast<int>( std::numeric_limits<s16>::min() ), v ) ) );
-}
 u16 clip_u16( int v )
 {
   return static_cast<u16>(
@@ -89,7 +83,7 @@ Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs )
 {
   int x = static_cast<int>( lhs.x() ) - rhs.x();
   int y = static_cast<int>( lhs.y() ) - rhs.y();
-  return Vec2d( clip_s16( x ), clip_s16( y ) );
+  return Vec2d( Vec2d::clip( x ), Vec2d::clip( y ) );
 }
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs )
 {
@@ -279,7 +273,7 @@ Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs )
 {
   Vec2d xy = lhs.xy() - rhs.xy();
   int z = static_cast<int>( lhs.z() ) - rhs.z();
-  return Vec3d( xy, clip_s16( z ) );
+  return Vec3d( xy, Vec2d::clip( z ) );
 }
 
 u16 Pos3d::pol_distance( const Pos3d& other ) const

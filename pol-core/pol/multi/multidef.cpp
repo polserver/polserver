@@ -29,12 +29,6 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     : multiid( multiid ),
       type( UNKNOWN ),
       elems(),
-
-      xbase( 0 ),
-      xsize( 0 ),
-      ybase( 0 ),
-      ysize( 0 ),
-
       minrx( 0 ),
       minry( 0 ),
       minrz( 0 ),

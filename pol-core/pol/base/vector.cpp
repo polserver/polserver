@@ -9,15 +9,12 @@ namespace Pol
 {
 namespace Core
 {
-namespace
-{
-s16 clip_s16( int v )
+s16 Vec2d::clip( int v )
 {
   return static_cast<s16>(
       std::min( static_cast<int>( std::numeric_limits<s16>::max() ),
                 std::max( static_cast<int>( std::numeric_limits<s16>::min() ), v ) ) );
 }
-}  // namespace
 
 bool Vec2d::operator==( const Vec2d& other ) const
 {
@@ -48,16 +45,16 @@ Vec2d& Vec2d::operator-=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) - other._x;
   int y = static_cast<int>( _y ) - other._y;
-  _x = clip_s16( x );
-  _y = clip_s16( y );
+  _x = clip( x );
+  _y = clip( y );
   return *this;
 }
 Vec2d& Vec2d::operator+=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) + other._x;
   int y = static_cast<int>( _y ) + other._y;
-  _x = clip_s16( x );
-  _y = clip_s16( y );
+  _x = clip( x );
+  _y = clip( y );
   return *this;
 }
 
@@ -125,14 +122,14 @@ Vec3d& Vec3d::operator-=( const Vec3d& other )
 {
   _xy -= other._xy;
   int z = static_cast<int>( _z ) - other._z;
-  _z = clip_s16( z );
+  _z = Vec2d::clip( z );
   return *this;
 }
 Vec3d& Vec3d::operator+=( const Vec3d& other )
 {
   _xy += other._xy;
   int z = static_cast<int>( _z ) + other._z;
-  _z = clip_s16( z );
+  _z = Vec2d::clip( z );
   return *this;
 }
 Vec3d operator-( Vec3d lhs, const Vec3d& rhs )
