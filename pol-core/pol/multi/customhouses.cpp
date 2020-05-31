@@ -406,9 +406,9 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
     //     << ":" << dec <<  m_elem->x << "," << m_elem->y << "," << m_elem->z << endl;
     CUSTOM_HOUSE_ELEMENT ch_elem;
     ch_elem.graphic = m_elem->objtype;
-    ch_elem.xoffset = m_elem->x + x;
-    ch_elem.yoffset = m_elem->y + y;
-    ch_elem.z = static_cast<u8>( m_elem->z + z );
+    ch_elem.xoffset = m_elem->rel_pos.x() + x;
+    ch_elem.yoffset = m_elem->rel_pos.y() + y;
+    ch_elem.z = static_cast<u8>( m_elem->rel_pos.z() + z );
     Add( ch_elem );
   }
 }
@@ -575,7 +575,9 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               Items::Item* component = Items::Item::create( id.objtype );
               if ( component != nullptr )
               {
-                bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                bool res = house->add_component(
+                    component, Core::Vec3d( static_cast<s16>( zitr->xoffset ),
+                                            static_cast<s16>( zitr->yoffset ), zitr->z ) );
                 passert_always_r( res,
                                   "Couldn't add newly created door as house component. Please "
                                   "report this bug on the forums." );
@@ -615,7 +617,9 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               Items::Item* component = Items::Item::create( zitr->graphic );
               if ( component != nullptr )
               {
-                bool res = house->add_component( component, zitr->xoffset, zitr->yoffset, zitr->z );
+                bool res = house->add_component(
+                    component, Core::Vec3d( static_cast<s16>( zitr->xoffset ),
+                                            static_cast<s16>( zitr->yoffset ), zitr->z ) );
                 passert_always_r( res,
                                   "Couldn't add newly created teleporter as house component. "
                                   "Please report this bug on the forums." );

@@ -618,7 +618,7 @@ void UBoat::regself()
   const MultiDef& md = multidef();
   for ( auto itr = md.hull.begin(), end = md.hull.end(); itr != end; ++itr )
   {
-    Core::Pos3d absolute_pos = this->pos().xyz() + ( *itr )->rel_pos();
+    Core::Pos3d absolute_pos = this->pos().xyz() + ( *itr )->rel_pos;
     unsigned int gh = this->realm()->encode_global_hull( absolute_pos.xy() );
     this->realm()->global_hulls.insert( gh );
   }
@@ -629,7 +629,7 @@ void UBoat::unregself()
   const MultiDef& md = multidef();
   for ( auto itr = md.hull.begin(), end = md.hull.end(); itr != end; ++itr )
   {
-    Core::Pos3d absolute_pos = this->pos().xyz() + ( *itr )->rel_pos();
+    Core::Pos3d absolute_pos = this->pos().xyz() + ( *itr )->rel_pos;
     unsigned int gh = this->realm()->encode_global_hull( absolute_pos.xy() );
     this->realm()->global_hulls.erase( gh );
   }
@@ -651,7 +651,7 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
   /* Test the external hull to make sure it's on water */
   for ( auto itr = md.hull.begin(), end = md.hull.end(); itr != end; ++itr )
   {
-    Core::Pos3d absolute_pos = desired_pos.xyz() + ( *itr )->rel_pos();
+    Core::Pos3d absolute_pos = desired_pos.xyz() + ( *itr )->rel_pos;
 #ifdef DEBUG_BOATS
     INFO_PRINT << "[" << ax << "," << ay << "]";
 #endif

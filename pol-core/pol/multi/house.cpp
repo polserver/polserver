@@ -122,7 +122,7 @@ void UHouse::create_components()
     if ( !elem.is_static )
     {
       Items::Item* item = Items::Item::create( elem.objtype );
-      bool res = add_component( item, elem.x, elem.y, elem.z );
+      bool res = add_component( item, elem.rel_pos );
       passert_always_r( res,
                         "Couldn't add newly created item as house component. Please report this "
                         "bug on the forums." );
@@ -140,14 +140,12 @@ void UHouse::create_components()
  * @param zoff The Z offset inside the house
  * @return true on success, false when the item can't be added
  */
-bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
+bool UHouse::add_component( Items::Item* item, const Core::Vec3d& rel_pos )
 {
   if ( !can_add_component( item ) )
     return false;
 
-  item->setposition( Core::Pos4d(
-      item->pos().xyz() + Core::Vec3d( static_cast<s16>( xoff ), static_cast<s16>( yoff ), zoff ),
-      realm() ) );
+  item->setposition( item->pos() + rel_pos );
   item->disable_decay();
   item->movable( false );
   update_item_to_inrange( item );

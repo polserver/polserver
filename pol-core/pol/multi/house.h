@@ -99,7 +99,7 @@ public:
   virtual void walk_on( Mobile::Character* chr ) override;
 
   void ClearSquatters();
-  bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
+  bool add_component( Items::Item* item, const Core::Vec3d& rel_pos );
   bool add_component( Component component );
   static void list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in );
   void AcceptHouseCommit( Mobile::Character* chr, bool accept );

@@ -28,9 +28,9 @@
 #include "../plib/uofilei.h"
 #include "../plib/uoinstallfinder.h"
 #include "../plib/ustruct.h"
+#include "../pol/base/vector.h"
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
-#include "../pol/base/vector.h"
 #include "../pol/objtype.h"
 #include <format/format.h>
 
@@ -514,7 +514,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
   {
     for ( short x = multi->minrx; x <= multi->maxrx; ++x )
     {
-      unsigned short key = multi->getkey( Core::Vec2d(x, y) );
+      unsigned short key = multi->getkey( Core::Vec2d( x, y ) );
       bool external = multi->hull2.count( key ) != 0;
       bool internal = multi->internal_hull2.count( key ) != 0;
       bool origin = ( x == 0 && y == 0 );
@@ -550,7 +550,7 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
   {
     const Multi::MULTI_ELEM* elem = _itr.second;
     tmp << "0x" << fmt::hexu( elem->objtype ) << " 0x" << fmt::hexu( (int)elem->is_static ) << ":"
-        << elem->x << "," << elem->y << "," << elem->z << "\n";
+        << elem->rel_pos.x() << "," << elem->rel_pos.y() << "," << elem->rel_pos.z() << "\n";
   }
   INFO_PRINT << tmp.str();
 }
@@ -1245,7 +1245,7 @@ int UoToolMain::main()
   }
 
   std::transform( argvalue.begin(), argvalue.end(), argvalue.begin(),
-                  []( char c ) { return static_cast<char>(::tolower( c ) ); } );
+                  []( char c ) { return static_cast<char>( ::tolower( c ) ); } );
 
   if ( argvalue == "tiledump" )
   {

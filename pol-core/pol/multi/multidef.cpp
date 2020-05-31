@@ -64,9 +64,12 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     std::istringstream is( tmp );
     MULTI_ELEM multielem;
     multielem.is_static = true;
-    if ( is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >>
-         multielem.z )
+    s16 x, y, z;
+    if ( is >> std::hex >> multielem.objtype >> std::dec >> x >> y >> z )
     {
+      multielem.rel_pos.x( x );
+      multielem.rel_pos.y( y );
+      multielem.rel_pos.z( z );
       elems.push_back( multielem );
     }
     else
@@ -80,9 +83,12 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     std::istringstream is( tmp );
     MULTI_ELEM multielem;
     multielem.is_static = false;
-    if ( is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >>
-         multielem.z )
+    s16 x, y, z;
+    if ( is >> std::hex >> multielem.objtype >> std::dec >> x >> y >> z )
     {
+      multielem.rel_pos.x( x );
+      multielem.rel_pos.y( y );
+      multielem.rel_pos.z( z );
       elems.push_back( multielem );
     }
     else
@@ -125,7 +131,7 @@ const MULTI_ELEM* MultiDef::find_component( const Core::Vec2d& rxy ) const
 
 void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 {
-  unsigned short k = getkey( Core::Vec2d( elem->x, elem->y ) );
+  unsigned short k = getkey( elem->rel_pos.xy() );
 
   if ( !hull2.count( k ) )
   {
@@ -137,23 +143,23 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
   // Vec2d or done somewhere else?
   if ( type == BOAT )
   {
-    short int_rx = elem->x, int_ry = elem->y;
+    Core::Vec2d rxy( elem->rel_pos.xy() );
     if ( ( multiid & 1 ) == 0 )  // N/S hull, so squeeze X
     {
-      if ( elem->x == minrx )
-        int_rx = minrx + 1;
-      else if ( elem->x == maxrx )
-        int_rx = maxrx - 1;
+      if ( rxy.x() == minrx )
+        rxy.x( minrx + 1 );
+      else if ( rxy.x() == maxrx )
+        rxy.x( maxrx - 1 );
     }
     else
     {
-      if ( elem->y == minry )
-        int_ry = minry + 1;
-      else if ( elem->y > 0 )
-        int_ry = maxry - 1;
+      if ( rxy.y() == minry )
+        rxy.y( minry + 1 );
+      else if ( rxy.y() > 0 )
+        rxy.y( maxry - 1 );
     }
 
-    elem = find_component( Core::Vec2d( int_rx, int_ry ) );
+    elem = find_component( rxy );
     if ( elem )
       add_to_internal_hull( elem );
   }
@@ -161,7 +167,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 
 void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
 {
-  unsigned short k = getkey( Core::Vec2d( elem->x, elem->y ) );
+  unsigned short k = getkey( elem->rel_pos.xy() );
 
   if ( !internal_hull2.count( k ) )
   {
@@ -231,19 +237,19 @@ void MultiDef::computehull()
 
 void MultiDef::addrec( const MULTI_ELEM* elem )
 {
-  if ( elem->x < minrx )
-    minrx = elem->x;
-  if ( elem->y < minry )
-    minry = elem->y;
-  if ( elem->z < minrz )
-    minrz = elem->z;
+  if ( elem->rel_pos.x() < minrx )
+    minrx = elem->rel_pos.x();
+  if ( elem->rel_pos.y() < minry )
+    minry = elem->rel_pos.y();
+  if ( elem->rel_pos.z() < minrz )
+    minrz = elem->rel_pos.z();
 
-  if ( elem->x > maxrx )
-    maxrx = elem->x;
-  if ( elem->y > maxry )
-    maxry = elem->y;
-  if ( elem->z > maxrz )
-    maxrz = elem->z;
+  if ( elem->rel_pos.x() > maxrx )
+    maxrx = elem->rel_pos.x();
+  if ( elem->rel_pos.y() > maxry )
+    maxry = elem->rel_pos.y();
+  if ( elem->rel_pos.z() > maxrz )
+    maxrz = elem->rel_pos.z();
 
   /*if ( elem->x < global_minrx )
     global_minrx = elem->x;
@@ -259,7 +265,7 @@ void MultiDef::addrec( const MULTI_ELEM* elem )
   if ( elem->z > global_maxrz )
     global_maxrz = elem->z;*/
 
-  components.insert( Components::value_type( getkey( Core::Vec2d( elem->x, elem->y ) ), elem ) );
+  components.insert( Components::value_type( getkey( elem->rel_pos.xy() ), elem ) );
 }
 
 void MultiDef::init()

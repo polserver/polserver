@@ -46,17 +46,9 @@ extern void read_multidefs();
 struct MULTI_ELEM
 {
   unsigned short objtype;
-  s16 x;
-  s16 y;
-  s16 z;
+  Core::Vec3d rel_pos;
   bool is_static;
-
-  Core::Vec3d rel_pos() const;
 };
-inline Core::Vec3d MULTI_ELEM::rel_pos() const
-{
-  return Core::Vec3d( this->x, this->y, this->z );
-}
 
 class MultiDef
 {

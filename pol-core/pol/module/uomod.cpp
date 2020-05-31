@@ -2312,9 +2312,9 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
     {
       const Multi::MULTI_ELEM* elem = citr.second;
       // TODO: wait for multi cleanup
-      int absx = multi->x() + elem->x;
-      int absy = multi->y() + elem->y;
-      int absz = multi->z() + elem->z;
+      int absx = multi->x() + elem->rel_pos.x();
+      int absy = multi->y() + elem->rel_pos.y();
+      int absz = multi->z() + elem->rel_pos.z();
       if ( pos1.x() <= absx && absx <= pos2.x() && pos1.y() <= absy && absy <= pos2.y() )
       {
         // do Z checking

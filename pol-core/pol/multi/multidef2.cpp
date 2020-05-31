@@ -40,7 +40,8 @@ bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zb
       {
         if ( elem->is_static )
         {
-          vec.push_back( Plib::StaticRec( graphic, static_cast<signed char>( elem->z + zbase ) ) );
+          vec.push_back(
+              Plib::StaticRec( graphic, static_cast<signed char>( elem->rel_pos.z() + zbase ) ) );
           result = true;
         }
       }
@@ -69,7 +70,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 z
         if ( elem->is_static )
         {
           Plib::MapShape shape;
-          shape.z = elem->z + zbase;
+          shape.z = elem->rel_pos.z() + zbase;
           shape.height = Plib::tileheight( graphic );
           shape.flags = Plib::systemstate.tile[graphic].flags;  // pol_flags_by_tile( graphic );
           if ( !shape.height )
@@ -86,7 +87,7 @@ bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 z
         else if ( type == BOAT )  // put a dummy floor there
         {
           Plib::MapShape shape;
-          shape.z = elem->z + zbase - 1;
+          shape.z = elem->rel_pos.z() + zbase - 1;
           shape.height = 1;
           shape.flags = Plib::FLAG::MOVELAND | Plib::FLAG::ALLOWDROPON | Plib::FLAG::BLOCKSIGHT |
                         Plib::FLAG::OVERFLIGHT;
