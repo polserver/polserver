@@ -41,6 +41,8 @@ namespace Bscript
 class EScriptProgram;
 class EScriptProgramCheckpoint;
 class FunctionalityModule;
+namespace Legacy
+{
 /*
     ack, this is a misnomer.
     "CanBeLabelled" means "break or continue can happen here."
@@ -224,8 +226,7 @@ public:
   virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) override;
   virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) override;
   virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) override;
-  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx,
-                                    Token* tok ) override;
+  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx, Token* tok ) override;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
   int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = nullptr,
@@ -294,6 +295,7 @@ public:
 private:
   std::vector<char*> delete_these_arrays;
 };
-}
-}
+}  // namespace Legacy
+}  // namespace Bscript
+}  // namespace Pol
 #endif  // H_COMPILER_H
