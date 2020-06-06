@@ -128,6 +128,7 @@
 <member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
 <member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
 <member mname="luck" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="swing_speed_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60." />
 <member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
@@ -142,6 +143,7 @@
 <member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 
 
 <method proto="splitStackAt(x, y, z, realm, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates" />
@@ -284,6 +286,7 @@
 <member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
 <member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
 <member mname="luck" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="swing_speed_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60." />
 <member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
@@ -298,6 +301,7 @@
 <member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="swing_seed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 
 <method proto="setpoisoned(bool)" returns="true/error" desc="sets the character poisoned, controller of calling script is flagged as in repsystem" />
 <method proto="setparalyzed(bool)" returns="true/error" desc="sets the character paralyzed, controller of calling script is flagged as in repsystem" />
