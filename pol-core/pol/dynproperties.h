@@ -173,7 +173,7 @@ enum DynPropTypes : u8
   PROP_ORIG_RESIST_PHYSICAL_CAP = 87,    // Npc
   PROP_ORIG_LUCK = 88,                   // Npc
   PROP_SWING_SPEED_INCREASE = 89,        // UObject
-  PROP_SWING_SPEED_INCREASE_MOD = 90,        // UObject
+  PROP_SWING_SPEED_INCREASE_MOD = 90,    // UObject
   PROP_ORIG_SWING_SPEED_INCREASE = 91,   // Npc
 
   PROP_FLAG_SIZE  // used for bitset size
