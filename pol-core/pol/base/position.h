@@ -72,6 +72,9 @@ public:
 
   UFACING direction_toward( const Pos2d& other ) const;
   UFACING direction_away( const Pos2d& other ) const;
+
+  void update_min( const Pos2d& v );
+  void update_max( const Pos2d& v );
 };
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
@@ -128,6 +131,9 @@ public:
   bool inRange( const Pos2d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;
   void crop( const Realms::Realm* realm );
+
+  void update_min( const Pos3d& v );
+  void update_max( const Pos3d& v );
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );

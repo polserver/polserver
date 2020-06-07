@@ -59,6 +59,37 @@ public:
   bool intersect( const Area2d& other ) const;
 };
 
+class Area3d
+{
+private:
+  Area2d _area;
+  s8 _z_bottom;
+  s8 _z_top;
+
+public:
+  Area3d() = default;
+  Area3d( const Pos3d& p1, const Pos3d& p2, const Realms::Realm* realm );
+  Area3d( const Pos4d& p1, const Pos4d& p2 );
+  Area3d( const Area3d& other ) = default;
+  Area3d( Area3d&& other ) = default;
+  ~Area3d() = default;
+  Area3d& operator=( const Area3d& other ) = default;
+  Area3d& operator=( Area3d&& other ) = default;
+
+  const Pos2d& nw() const;
+  const Pos2d& se() const;
+  Pos3d nw_b() const;
+  Pos3d se_t() const;
+  Area3d& nw_b( const Pos3d& p );
+  Area3d& se_t( const Pos3d& p );
+
+  const Area2d& area() const;
+
+  bool contains( const Pos2d& other ) const;
+  bool contains( const Pos3d& other ) const;
+  bool intersect( const Area2d& other ) const;
+  bool intersect( const Area3d& other ) const;
+};
 
 inline Area2dItr::reference Area2dItr::operator*() const
 {
@@ -72,6 +103,27 @@ inline const Pos2d& Area2d::nw() const
 inline const Pos2d& Area2d::se() const
 {
   return _se;
+}
+
+inline const Pos2d& Area3d::nw() const
+{
+  return _area.nw();
+}
+inline const Pos2d& Area3d::se() const
+{
+  return _area.se();
+}
+inline Pos3d Area3d::nw_b() const
+{
+  return Pos3d( _area.nw(), _z_bottom );
+}
+inline Pos3d Area3d::se_t() const
+{
+  return Pos3d( _area.se(), _z_top );
+}
+inline const Area2d& Area3d::area() const
+{
+  return _area;
 }
 }  // namespace Core
 }  // namespace Pol

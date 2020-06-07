@@ -167,6 +167,22 @@ UFACING Pos2d::direction_away( const Pos2d& dst ) const
   return away_cvt[static_cast<int>( toward )];
 }
 
+void Pos2d::update_min( const Pos2d& v )
+{
+  if ( v._x < _x )
+    _x = v._x;
+  if ( v._y < _y )
+    _y = v._y;
+}
+void Pos2d::update_max( const Pos2d& v )
+{
+  if ( v._x > _x )
+    _x = v._x;
+  if ( v._y > _y )
+    _y = v._y;
+}
+
+
 bool Pos3d::operator==( const Pos3d& other ) const
 {
   return _xy == other._xy && _z == other._z;
@@ -291,6 +307,19 @@ bool Pos3d::inRange( const Pos2d& other, u16 range ) const
 void Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );
+}
+
+void Pos3d::update_min( const Pos3d& v )
+{
+  _xy.update_min( v.xy() );
+  if ( v._z < _z )
+    _z = v._z;
+}
+void Pos3d::update_max( const Pos3d& v )
+{
+  _xy.update_max( v.xy() );
+  if ( v._z > _z )
+    _z = v._z;
 }
 
 
