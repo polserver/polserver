@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+06-10-2020 Syzygy:
+  Changed: It is now a compile error if a script requires a terminator (semicolon, etc)
+           at its end-of-file.  This fixes bug009 in the escript test suite.
 05-07-2020 Syzygy:
   Changed: Removed the "declare" keyword, which used to forward-declare functions.
            It's unlikely that anything still uses this keyword after 17 years, but if
