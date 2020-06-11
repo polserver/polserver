@@ -1,7 +1,7 @@
 Unexpected end of file while reading an expression.  Expected  ';'
-Error compiling statement at /vagrant/testsuite/escript/syntax/syntax12-unterminated-expression.src, Line 1
+Error compiling statement at {{WORKDIR}}/syntax/syntax12-unterminated-expression.src, Line 1
 Parse Error: EOF when expecting a terminator
 Near: 0
-File: /vagrant/testsuite/escript/syntax/syntax12-unterminated-expression.src, Line 1
+File: {{WORKDIR}}/syntax/syntax12-unterminated-expression.src, Line 1
 Execution aborted due to: Error compiling file
 
