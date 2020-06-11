@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-07-2020</datemodified>
+		<datemodified>06-10-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>06-10-2020</date>
+			<author>Syzygy:</author>
+			<change type="Changed">It is now a compile error if a script requires a terminator (semicolon, etc)<br/>
+at its end-of-file.  This fixes bug009 in the escript test suite.</change>
+		</entry>
 		<entry>
 			<date>05-07-2020</date>
 			<author>Syzygy:</author>
