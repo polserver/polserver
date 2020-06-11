@@ -1,6 +1,3 @@
-Unexpected end of file while reading an expression.  Expected  ';'
-Error compiling statement at {{WORKDIR}}/syntax/syntax11-final-semi-required.src, Line 1
 Parse Error: EOF when expecting a terminator
 Near: print("hi")
-File: {{WORKDIR}}/syntax/syntax11-final-semi-required.src, Line 1
 

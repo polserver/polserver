@@ -101,8 +101,7 @@ class ExtUtil:
 			compiled = True
 		except subprocess.CalledProcessError as e:
 			cmd = e.cmd
-			cwd = os.getcwd();
-			err = e.output.decode().replace(cwd, "{{WORKDIR}}")
+			err = e.output.decode()
 			compiled = False
 
 		if compiled:
