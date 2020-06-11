@@ -1,4 +1,4 @@
 function foo( a := 6 / 3, b := "blah" )
     print( a + " " + b );
 endfunction
-foo()
+foo();
