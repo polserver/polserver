@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+06-14-2020 Syzygy:
+    Fixed: A compiler optimization bug that could corrupt emitted instructions
+           if branches of an if statement were optimized out.
 06-10-2020 Syzygy:
   Changed: It is now a compile error if a script requires a terminator (semicolon, etc)
            at its end-of-file.  This fixes bug009 in the escript test suite.
