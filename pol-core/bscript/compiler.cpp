@@ -1882,7 +1882,6 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   bool discard_rest = false;
   // bool discarded_all = true;
   bool included_any_tests = false;
-  unsigned last_if_token_posn = static_cast<unsigned>( -1 );
   unsigned if_token_posn = static_cast<unsigned>( -1 );
   StoredTokenContainer* prog_tokens = &program->tokens;
   while ( token.id == RSV_ST_IF || token.id == RSV_ELSEIF )
@@ -1896,7 +1895,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       return res;
     // dump(cout);
     bool patch_if_token = true;
-    last_if_token_posn = if_token_posn;
+    const unsigned last_if_token_posn = if_token_posn;
     if ( ex.tokens.back()->id == TOK_LOG_NOT )
     {
       if_token_posn = prog_tokens->count() - 1;
@@ -1923,8 +1922,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       rollback( *program, checkpt_expr );  // don't need the expression or the jump,
       // even if we're keeping the block
       patch_if_token = false;
-      if_token_posn = -1;
-      last_if_token_posn = -1;
+      if_token_posn = last_if_token_posn;
     }
     else
     {
@@ -2009,10 +2007,6 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
         prog_tokens->atGet1( last_if_token_posn, tkn );
         tkn.offset = static_cast<unsigned short>( prog_tokens->next() );
         prog_tokens->atPut1( tkn, last_if_token_posn );
-      }
-      else
-      {
-        last_if_token_posn = -1;
       }
     }
     // dump(cout);
