@@ -559,7 +559,7 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
     if ( token.id == TOK_IDENT || token.id == TOK_STRING )
     {
       Token ident_tkn;
-      Parser::getToken( ctx, ident_tkn );
+      getTokenWithoutConversions( ctx, ident_tkn );
 
       res = peekToken( ctx, token );
       if ( token.id == TOK_ASSIGN )
@@ -825,7 +825,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
     CompilerContext tctx( ctx );
 
-    res = getToken( tctx, tk );
+    res = getTokenWithoutConversions( tctx, tk );
     if ( res < 0 )
       return res;
     if ( tk.id == TOK_RPAREN )
@@ -1747,8 +1747,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
   peekToken( ctx, token );
   for ( ;; )
   {
-    Token paramName;
-    res = getToken( ctx, token );
+    res = getTokenWithoutConversions( ctx, token );
     if ( res )
       return -1;
 
@@ -1760,7 +1759,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
     if ( token.id == TOK_REFTO )
     {
       pass_by_reference = true;
-      res = getToken( ctx, token );
+      res = getTokenWithoutConversions( ctx, token );
       if ( res )
         return -1;
     }

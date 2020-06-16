@@ -138,6 +138,7 @@ public:
 
   virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* ) override;
   virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = nullptr ) override;
+  int getTokenWithoutConversions( CompilerContext& ctx, Token& token );
 
   bool callingMethod( CompilerContext& ctx );
 
