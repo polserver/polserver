@@ -1,0 +1,20 @@
+// There was a bug where module function parameter name tokens would be
+// converted to be userfunction names, if there was a userfunction
+// with the same name as the parameter.
+//
+// In this test, the storage.em module has a few methods with
+// a parameter named "area", but we should still be able to
+// define a function named "area" too.
+//
+use storage;
+
+program display_area()
+    var h := 10;
+    var w := 20;
+    print("Area is " +CStr(area(h, w)));
+endprogram
+
+function area(ht, wd)
+    return ht * wd;
+endfunction
+

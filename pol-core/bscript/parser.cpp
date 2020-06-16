@@ -1996,6 +1996,16 @@ int SmartParser::getToken( CompilerContext& ctx, Token& token, Expression* pexpr
   return res;
 }
 
+/**
+ * Get a token, but bypass the conversions in SmartParser::getToken
+ * Primarily used when getting an identifier that may be the same as
+ * a userfunc name.
+ */
+int SmartParser::getTokenWithoutConversions( CompilerContext& ctx, Token& token )
+{
+  return Parser::getToken( ctx, token );
+}
+
 bool SmartParser::callingMethod( CompilerContext& ctx )
 {
   // if we have something like x.foo(), change to call-method

@@ -1,0 +1,17 @@
+// There was a bug where module function parameter name tokens would be
+// converted to be userfunction names, if there was a userfunction
+// with the same name as the parameter.
+//
+// In this test, "print" in the basicio module names
+// its parameter "anything", but we should still
+// be able to use that name for a function,
+// and still pass the argument by name.
+//
+function anything( s )
+   return "the argument value is " + s;
+endfunction
+
+program print_anything()
+    var s := anything("as expected");
+    print( anything := s );
+endprogram
