@@ -776,31 +776,6 @@ bool Executor::setProgram( EScriptProgram* i_prog )
   return true;
 }
 
-BObject* Executor::makeObj( const Token& token )
-{
-  switch ( token.id )
-  {
-  case TOK_IDENT:
-    return new BObject( new BError( "Please recompile this script!" ) );
-  case TOK_LOCALVAR:
-    return LocalVar( token.lval ).get();
-  case TOK_GLOBALVAR:
-    return GlobalVar( token.lval ).get();
-  case TOK_STRING:
-    return new BObject( new String( token.tokval() ) );
-  case TOK_LONG:
-    return new BObject( new BLong( token.lval ) );
-  case TOK_DOUBLE:
-    return new BObject( new Double( token.dval ) );
-  case TOK_ERROR:
-    return new BObject( new BError( "unknown" ) );
-  default:
-    passert( 0 );
-    break;
-  }
-  return nullptr;
-}
-
 BObjectRef Executor::getObjRef( void )
 {
   if ( ValueStack.empty() )
