@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "../../clib/rawtypes.h"
+#include "../base/position.h"
 #include "../base/vector.h"
 
 namespace Pol
