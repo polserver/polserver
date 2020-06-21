@@ -96,6 +96,8 @@ struct WorldIterator
   static void InVisualRange( const UObject* obj, F&& f );
   template <typename F>
   static void InBox( const Pos4d& p1, const Pos4d& p2, F&& f );
+  template <typename F>
+  static void InBox( Area2d box, const Realms::Realm* realm, F&& f );
 
 protected:
   template <typename F>
@@ -141,6 +143,7 @@ struct CoordsArea
   CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, unsigned range );  // create from range
   CoordsArea( const Pos4d& p, unsigned range );                                 // create from range
   CoordsArea( const Pos4d& p1, const Pos4d& p2 );                               // create from box
+  CoordsArea( Area2d box, const Realms::Realm* posrealm );                      // create from box
   bool inRange( const UObject* obj ) const;
 
   // shifted coords
@@ -181,6 +184,12 @@ inline CoordsArea::CoordsArea( const Pos4d& p1, const Pos4d& p2 )
 {
   realm = p1.realm();
   area = Area2d( p1.xy(), p2.xy(), realm );
+  warea = Area2d( convert( area.nw() ), convert( area.se() ), nullptr );
+}
+inline CoordsArea::CoordsArea( Area2d box, const Realms::Realm* posrealm )
+{
+  realm = posrealm;
+  area = std::move( box );
   warea = Area2d( convert( area.nw() ), convert( area.se() ), nullptr );
 }
 
@@ -233,6 +242,13 @@ void WorldIterator<Filter>::InBox( const Pos4d& p1, const Pos4d& p2, F&& f )
   if ( p1.realm() == nullptr || p1.realm() != p2.realm() )
     return;
   CoordsArea coords( p1, p2 );
+  _forEach( coords, std::forward<F>( f ) );
+}
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InBox( Area2d box, const Realms::Realm* realm, F&& f )
+{
+  CoordsArea coords( std::move( box ), realm );
   _forEach( coords, std::forward<F>( f ) );
 }
 

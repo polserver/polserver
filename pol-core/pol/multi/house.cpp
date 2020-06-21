@@ -354,8 +354,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     {
       CUSTOM_HOUSE_ELEMENT elem;
       elem.graphic = item_graphic;
-      elem.xoffset = xoff;
-      elem.yoffset = yoff;
+      elem.offset = Core::Vec2d( Core::Vec2d::clip( xoff ), Core::Vec2d::clip( yoff ) );
       elem.z = static_cast<u8>( item_z );
       CurrentDesign.Add( elem );
       // invalidate
@@ -383,9 +382,10 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     if ( ex.getParam( 0, item_graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
          ex.getParam( 3, item_z ) )
     {
-      bool ret =
-          CurrentDesign.EraseGraphicAt( static_cast<u16>( item_graphic ), static_cast<u32>( xoff ),
-                                        static_cast<u32>( yoff ), static_cast<u8>( item_z ) );
+      bool ret = CurrentDesign.EraseGraphicAt(
+          static_cast<u16>( item_graphic ),
+          Core::Vec2d( Core::Vec2d::clip( xoff ), Core::Vec2d::clip( yoff ) ),
+          static_cast<u8>( item_z ) );
       if ( ret )
       {
         // invalidate
@@ -489,18 +489,14 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
   custom = elem.remove_bool( "Custom", false );
   if ( custom )
   {
-    short xbase, ybase;
     const MultiDef& def = multidef();
-    const auto size = def.max_relp - def.min_relp + Core::Vec2d( 1, 1 );
+    auto size = Core::Pos2d( 0, 0 ) + ( def.max_relp - def.min_relp ).xy() + Core::Vec2d( 1, 1 );
     //+1 to include offset 0 in -3..3
-    xbase = (short)abs( def.min_relp.x() );
-    ybase = (short)abs( def.min_relp.y() );
-    CurrentDesign.InitDesign( size.y() + 1, size.x(), xbase,
-                              ybase );  //+1 for front steps outside multidef footprint
-    WorkingDesign.InitDesign( size.y() + 1, size.x(), xbase,
-                              ybase );  //+1 for front steps outside multidef footprint
-    BackupDesign.InitDesign( size.y() + 1, size.x(), xbase,
-                             ybase );  //+1 for front steps outside multidef footprint
+    size += Core::Vec2d( 0, 1 );  //+1 for front steps outside multidef footprint
+    Core::Vec2d xybase( (short)abs( def.min_relp.x() ), (short)abs( def.min_relp.y() ) );
+    CurrentDesign.InitDesign( size, xybase );
+    WorkingDesign.InitDesign( size, xybase );
+    BackupDesign.InitDesign( size, xybase );
     CurrentDesign.readProperties( elem, "Current" );
     WorkingDesign.readProperties( elem, "Working" );
     BackupDesign.readProperties( elem, "Backup" );
@@ -556,7 +552,6 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 zba
     return false;
 
   bool result = false;
-  auto shape_x = rxy.x(), shape_y = rxy.y();
   HouseFloorZColumn* elems;
   HouseFloorZColumn::iterator itr;
   CustomHouseDesign* design;
@@ -565,12 +560,13 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, s8 zba
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
 
-  if ( shape_x + design->xoff < 0 || shape_x + design->xoff >= static_cast<s32>( design->width ) ||
-       shape_y + design->yoff < 0 || shape_y + design->yoff >= static_cast<s32>( design->height ) )
+  auto off = rxy + design->offset;
+  if ( off.x() < 0 || off.x() >= static_cast<s32>( design->size.x() ) || off.y() < 0 ||
+       off.y() >= static_cast<s32>( design->size.y() ) )
     return false;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    elems = design->Elements[i].GetElementsAt( shape_x, shape_y );
+    elems = design->Elements[i].GetElementsAt( rxy );
     for ( itr = elems->begin(); itr != elems->end(); ++itr )
     {
       Plib::MapShape shape;
@@ -616,7 +612,6 @@ bool UHouse::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zbas
     return false;
 
   bool result = false;
-  auto obj_x = rxy.x(), obj_y = rxy.y();
   HouseFloorZColumn* elems;
   HouseFloorZColumn::iterator itr;
   CustomHouseDesign* design;
@@ -625,12 +620,13 @@ bool UHouse::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s8 zbas
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
 
-  if ( obj_x + design->xoff < 0 || obj_x + design->xoff >= static_cast<s32>( design->width ) ||
-       obj_y + design->yoff < 0 || obj_y + design->yoff >= static_cast<s32>( design->height ) )
+  auto off = rxy + design->offset;
+  if ( off.x() < 0 || off.x() >= static_cast<s32>( design->size.x() ) || off.y() < 0 ||
+       off.y() >= static_cast<s32>( design->size.y() ) )
     return false;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    elems = design->Elements[i].GetElementsAt( obj_x, obj_y );
+    elems = design->Elements[i].GetElementsAt( rxy );
     for ( itr = elems->begin(); itr != elems->end(); ++itr )
     {
       Plib::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),

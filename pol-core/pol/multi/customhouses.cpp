@@ -90,7 +90,7 @@ char CustomHouseDesign::z_to_custom_house_table( char z )
   return -1;
 }
 
-CustomHouseDesign::CustomHouseDesign() : height( 0 ), width( 0 ), xoff( 0 ), yoff( 0 )
+CustomHouseDesign::CustomHouseDesign() : size( 0, 0 ), offset( 0, 0 )
 {
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
     floor_sizes[i] = 0;
@@ -98,12 +98,10 @@ CustomHouseDesign::CustomHouseDesign() : height( 0 ), width( 0 ), xoff( 0 ), yof
 
 // fixme: need a copy ctor?
 
-CustomHouseDesign::CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset )
+CustomHouseDesign::CustomHouseDesign( Core::Pos2d width_height, Core::Vec2d xyoffset )
 {
-  InitDesign( _height, _width, xoffset, yoffset );
+  InitDesign( std::move( width_height ), std::move( xyoffset ) );
 }
-
-CustomHouseDesign::~CustomHouseDesign() {}
 
 size_t CustomHouseDesign::estimatedSize() const
 {
@@ -115,19 +113,15 @@ size_t CustomHouseDesign::estimatedSize() const
 
 // init the geometry of the design. the design cannot exist outside the multi foundation boundary
 // (exception: front steps)
-void CustomHouseDesign::InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset )
+void CustomHouseDesign::InitDesign( Core::Pos2d width_height, Core::Vec2d xyoffset )
 {
-  height = _height;
-  width = _width;
-  xoff = xoffset;
-  yoff = yoffset;
+  size = std::move( width_height );
+  offset = std::move( xyoffset );
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
     floor_sizes[i] = 0;
-    Elements[i].SetWidth( _width );
-    Elements[i].SetHeight( _height );
-    Elements[i].xoff = xoffset;
-    Elements[i].yoff = yoffset;
+    Elements[i].SetSize( size );
+    Elements[i].offset = offset;
   }
 }
 
@@ -160,11 +154,10 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
     return;
   char adding_height = Plib::tileheight( elem.graphic );
 
-  u32 xidx = elem.xoffset + xoff;
-  u32 yidx = elem.yoffset + yoff;
-  if ( !ValidLocation( xidx, yidx ) )
+  Core::Pos2d idx = Core::Pos2d( 0, 0 ) + ( elem.offset + offset );
+  if ( !ValidLocation( idx ) )
     return;
-  HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
+  HouseFloorZColumn* column = &Elements[floor_num].data.at( idx.x() ).at( idx.y() );
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
@@ -184,18 +177,17 @@ void CustomHouseDesign::AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem )
   Add( elem );
 }
 
-bool CustomHouseDesign::Erase( u32 xoffset, u32 yoffset, u8 z, int minheight )
+bool CustomHouseDesign::Erase( const Core::Vec2d& off, u8 z, int minheight )
 {
   int floor_num = z_to_custom_house_table( z );
   if ( floor_num == -1 )
     return false;
 
-  u32 xidx = xoffset + xoff;
-  u32 yidx = yoffset + yoff;
-  if ( !ValidLocation( xidx, yidx ) )
+  Core::Pos2d idx = Core::Pos2d( 0, 0 ) + ( off + offset );
+  if ( !ValidLocation( idx ) )
     return false;
 
-  HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
+  HouseFloorZColumn* column = &Elements[floor_num].data.at( idx.x() ).at( idx.y() );
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
@@ -211,17 +203,16 @@ bool CustomHouseDesign::Erase( u32 xoffset, u32 yoffset, u8 z, int minheight )
 }
 
 
-bool CustomHouseDesign::EraseGraphicAt( u16 graphic, u32 xoffset, u32 yoffset, u8 z )
+bool CustomHouseDesign::EraseGraphicAt( u16 graphic, const Core::Vec2d& off, u8 z )
 {
   int floor_num = z_to_custom_house_table( z );
   if ( floor_num == -1 )
     return false;
 
-  u32 xidx = xoffset + xoff;
-  u32 yidx = yoffset + yoff;
-  if ( !ValidLocation( xidx, yidx ) )
+  Core::Pos2d idx = Core::Pos2d( 0, 0 ) + ( off + offset );
+  if ( !ValidLocation( idx ) )
     return false;
-  HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
+  HouseFloorZColumn* column = &Elements[floor_num].data.at( idx.x() ).at( idx.y() );
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
@@ -235,22 +226,22 @@ bool CustomHouseDesign::EraseGraphicAt( u16 graphic, u32 xoffset, u32 yoffset, u
   return false;
 }
 
-void CustomHouseDesign::ReplaceDirtFloor( u32 x, u32 y )
+void CustomHouseDesign::ReplaceDirtFloor( const Core::Vec2d& off )
 {
   int floor_num = 1;  // dirt always goes on floor 1 (z=7)
 
-  if ( x + xoff == 0 || y + yoff == 0 ||
-       y + yoff ==
-           height )  // don't replace dirt at far-west and far-north sides, check height for y + 1
+  Core::Pos2d idx = Core::Pos2d( 0, 0 ) + ( off + offset );
+
+  if ( idx.x() == 0 || idx.y() == 0 ||
+       idx.y() ==
+           size.y() )  // don't replace dirt at far-west and far-north sides, check height for y + 1
     return;
 
   bool floor_exists = false;
 
-  u32 xidx = x + xoff;
-  u32 yidx = y + yoff;
-  if ( !ValidLocation( xidx, yidx ) )
+  if ( !ValidLocation( idx ) )
     return;
-  HouseFloorZColumn* column = &Elements[floor_num].data.at( xidx ).at( yidx );
+  HouseFloorZColumn* column = &Elements[floor_num].data.at( idx.x() ).at( idx.y() );
   for ( HouseFloorZColumn::iterator itr = column->begin(), itrend = column->end(); itr != itrend;
         ++itr )
   {
@@ -265,8 +256,7 @@ void CustomHouseDesign::ReplaceDirtFloor( u32 x, u32 y )
   {
     CUSTOM_HOUSE_ELEMENT elem;
     elem.graphic = DIRTY_TILE;
-    elem.xoffset = x;
-    elem.yoffset = y;
+    elem.offset = off;
     elem.z = 7;
 
     Add( elem );
@@ -324,8 +314,8 @@ unsigned char* CustomHouseDesign::Compress( int floor, u32* uncompr_length, u32*
           uncompressed[nextindex++] = ( u8 )( ( zitr->graphic >> 8 ) & 0xFF );
           uncompressed[nextindex++] = ( u8 )( zitr->graphic & 0xFF );
 
-          uncompressed[nextindex++] = (u8)zitr->xoffset;
-          uncompressed[nextindex++] = (u8)zitr->yoffset;
+          uncompressed[nextindex++] = (u8)zitr->offset.x();
+          uncompressed[nextindex++] = (u8)zitr->offset.y();
           uncompressed[nextindex++] = (u8)zitr->z;
         }
       }
@@ -383,7 +373,7 @@ unsigned char CustomHouseDesign::NumUsedPlanes() const
 // anything else.
 // I guess you could add a boat or something inside a house, but deleting would be impossible.
 // Deleting stairs is handled explicitly (CustomHouseDesign::DeleteStairs).
-void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
+void CustomHouseDesign::AddMultiAtOffset( u16 multiid, const Core::Vec3d& off )
 {
   const MultiDef* multidef = MultiDefByMultiID( multiid );
   if ( multidef == nullptr )
@@ -406,9 +396,8 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
     //     << ":" << dec <<  m_elem->x << "," << m_elem->y << "," << m_elem->z << endl;
     CUSTOM_HOUSE_ELEMENT ch_elem;
     ch_elem.graphic = m_elem->objtype;
-    ch_elem.xoffset = m_elem->rel_pos.x() + x;
-    ch_elem.yoffset = m_elem->rel_pos.y() + y;
-    ch_elem.z = static_cast<u8>( m_elem->rel_pos.z() + z );
+    ch_elem.offset = m_elem->rel_pos.xy() + off.xy();
+    ch_elem.z = static_cast<u8>( m_elem->rel_pos.z() + off.z() );
     Add( ch_elem );
   }
 }
@@ -430,8 +419,7 @@ void CustomHouseDesign::readProperties( Clib::ConfigElem& elem, const std::strin
 
     CUSTOM_HOUSE_ELEMENT _elem;
     _elem.graphic = graphic;
-    _elem.xoffset = x;
-    _elem.yoffset = y;
+    _elem.offset = Core::Vec2d( Core::Vec2d::clip( x ), Core::Vec2d::clip( y ) );
     _elem.z = (u8)z;
     Add( _elem );
   }
@@ -453,8 +441,8 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
           for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
                 zitr != zitrend; ++zitr )
           {
-            sw() << "\t" << prefix << "\t " << zitr->graphic << " " << zitr->xoffset << " "
-                 << zitr->yoffset << " " << (u16)zitr->z << '\n';
+            sw() << "\t" << prefix << "\t " << zitr->graphic << " " << zitr->offset.x() << " "
+                 << zitr->offset.y() << " " << (u16)zitr->z << '\n';
           }
         }
       }
@@ -482,8 +470,8 @@ void CustomHouseDesign::testprint( std::ostream& os ) const
           for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
                 zitr != zitrend; ++zitr )
           {
-            os << "\t\t" << zitr->graphic << " " << zitr->xoffset << " " << zitr->yoffset << " "
-               << (u16)zitr->z << std::endl;
+            os << "\t\t" << zitr->graphic << " " << zitr->offset.x() << " " << zitr->offset.y()
+               << " " << (u16)zitr->z << std::endl;
           }
         }
       }
@@ -502,10 +490,10 @@ bool CustomHouseDesign::isEditableItem( UHouse* house, Items::Item* item )
   // hide them to avoid an exception later, since this is not supported
   // only test foodprint: find_supporting_multis would also work, as long as readshapes includes the
   // teleporter components
-  Core::Vec3d shape = item->pos().xyz() - house->pos().xyz();
-  shape += Core::Vec3d( xoff, yoff, 0 );
+  Core::Vec2d shape = item->pos().xy() - house->pos().xy();
+  shape += offset;
   // y is +1
-  if ( shape >= Core::Vec2d( 0, 0 ) && shape < Core::Vec2d( width, height - 1 ) )
+  if ( shape >= Core::Vec2d( 0, 0 ) && shape < ( size - Core::Vec2d( 0, -1 ) ).from_origin() )
     return true;
   return false;
 }
@@ -545,8 +533,7 @@ void CustomHouseDesign::AddComponents( UHouse* house )
         CUSTOM_HOUSE_ELEMENT elem;
         elem.graphic = item->graphic;
         Core::Vec3d offset = item->pos().xyz() - house->pos().xyz();
-        elem.xoffset = offset.x();
-        elem.yoffset = offset.y();
+        elem.offset = offset.xy();
         elem.z = offset.z();
         AddOrReplace( elem );  // A teleporter could replace a floortile
       }
@@ -575,9 +562,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               Items::Item* component = Items::Item::create( id.objtype );
               if ( component != nullptr )
               {
-                bool res = house->add_component(
-                    component, Core::Vec3d( static_cast<s16>( zitr->xoffset ),
-                                            static_cast<s16>( zitr->yoffset ), zitr->z ) );
+                bool res = house->add_component( component, Core::Vec3d( zitr->offset, zitr->z ) );
                 passert_always_r( res,
                                   "Couldn't add newly created door as house component. Please "
                                   "report this bug on the forums." );
@@ -585,8 +570,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              Core::Pos4d cpos =
-                  house->pos() + Core::Vec3d( zitr->xoffset, zitr->yoffset, zitr->z );
+              Core::Pos4d cpos = house->pos() + Core::Vec3d( zitr->offset, zitr->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
               for ( const auto& c : *comp )
@@ -617,9 +601,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
               Items::Item* component = Items::Item::create( zitr->graphic );
               if ( component != nullptr )
               {
-                bool res = house->add_component(
-                    component, Core::Vec3d( static_cast<s16>( zitr->xoffset ),
-                                            static_cast<s16>( zitr->yoffset ), zitr->z ) );
+                bool res = house->add_component( component, Core::Vec3d( zitr->offset, zitr->z ) );
                 passert_always_r( res,
                                   "Couldn't add newly created teleporter as house component. "
                                   "Please report this bug on the forums." );
@@ -627,8 +609,7 @@ void CustomHouseDesign::FillComponents( UHouse* house, bool add_as_component )
             }
             else
             {
-              Core::Pos4d cpos =
-                  house->pos() + Core::Vec3d( zitr->xoffset, zitr->yoffset, zitr->z );
+              Core::Pos4d cpos = house->pos() + Core::Vec3d( zitr->offset, zitr->z );
               // if component already exists erase from design, otherwise keep it
               bool exists = false;
               for ( const auto& c : *comp )
@@ -676,8 +657,8 @@ Bscript::ObjArray* CustomHouseDesign::list_parts() const
         {
           std::unique_ptr<Bscript::BStruct> itemstruct( new Bscript::BStruct );
           itemstruct->addMember( "graphic", new Bscript::BLong( zitr->graphic ) );
-          itemstruct->addMember( "xoffset", new Bscript::BLong( zitr->xoffset ) );
-          itemstruct->addMember( "yoffset", new Bscript::BLong( zitr->yoffset ) );
+          itemstruct->addMember( "xoffset", new Bscript::BLong( zitr->offset.x() ) );
+          itemstruct->addMember( "yoffset", new Bscript::BLong( zitr->offset.y() ) );
           itemstruct->addMember( "z", new Bscript::BLong( zitr->z ) );
           arr->addElement( itemstruct.release() );
         }
@@ -734,14 +715,14 @@ void CustomHousesAdd( Core::PKTBI_D7* msg )
   Core::CH_ADD add = msg->ch_add;
   CUSTOM_HOUSE_ELEMENT elem;
   elem.graphic = cfBEu16( add.tileID );
-  elem.xoffset = cfBEu32( add.xoffset );
-  elem.yoffset = cfBEu32( add.yoffset );
+  elem.offset = Core::Vec2d( Core::Vec2d::clip( cfBEu32( add.xoffset ) ),
+                             Core::Vec2d::clip( cfBEu32( add.yoffset ) ) );
   elem.z = CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
 
   // the south side of the house can have stairs at z=0
   // int ysize = house->multidef().maxry - house->multidef().minry;
 
-  if ( elem.yoffset == house->multidef().max_relp.y() + 1 )
+  if ( elem.offset.y() == house->multidef().max_relp.y() + 1 )
     elem.z = 0;
 
   house->WorkingDesign.AddOrReplace( elem );
@@ -761,9 +742,9 @@ void CustomHousesAddMulti( Core::PKTBI_D7* msg )
     return;
 
   u16 itemID = cfBEu16( msg->ch_add_multi.multiID );
-  s8 x = static_cast<s8>( cfBEu32( msg->ch_add_multi.xoffset ) ),
-     y = static_cast<s8>( cfBEu32( msg->ch_add_multi.yoffset ) );
-  s8 z = CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
+  Core::Vec3d off( static_cast<s8>( cfBEu32( msg->ch_add_multi.xoffset ) ),
+                   static_cast<s8>( cfBEu32( msg->ch_add_multi.yoffset ) ),
+                   CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
 
   // only allow stairs IDs
   if ( itemID < STAIR_MULTIID_MIN || itemID > STAIR_MULTIID_MAX )
@@ -774,7 +755,7 @@ void CustomHousesAddMulti( Core::PKTBI_D7* msg )
     return;
   }
 
-  house->WorkingDesign.AddMultiAtOffset( itemID, x, y, z );
+  house->WorkingDesign.AddMultiAtOffset( itemID, off );
 
   // invalidate stored packet
   std::vector<u8> newvec;
@@ -790,15 +771,15 @@ void CustomHousesErase( Core::PKTBI_D7* msg )
   if ( house == nullptr )
     return;
 
-  u32 x = cfBEu32( msg->ch_erase.xoffset ), y = cfBEu32( msg->ch_erase.yoffset );
-  u8 z = static_cast<u8>( cfBEu32( msg->ch_erase.z ) );
+  Core::Vec3d off( Core::Vec2d::clip( cfBEu32( msg->ch_erase.xoffset ) ),
+                   Core::Vec2d::clip( cfBEu32( msg->ch_erase.yoffset ) ),
+                   static_cast<s8>( cfBEu32( msg->ch_erase.z ) ) );
   u16 graphic = cfBEu16( msg->ch_erase.tileID );
 
-  u32 realx = x + house->WorkingDesign.xoff;
-  u32 realy = y + house->WorkingDesign.yoff;
+  Core::Pos3d realpos = Core::Pos3d( 0, 0, 0 ) + off + house->WorkingDesign.offset;
 
   // foundation walls should not be deleted
-  if ( z == 0 && realx < house->WorkingDesign.width && realy < ( house->WorkingDesign.height - 1 ) )
+  if ( realpos.z() == 0 && realpos < ( house->WorkingDesign.size - Core::Vec2d( 0, 1 ) ) )
   {
     Mobile::Character* chr = Core::find_character( serial );
     if ( chr && chr->client )
@@ -808,12 +789,12 @@ void CustomHousesErase( Core::PKTBI_D7* msg )
 
   // check if not deleting a stairs piece (if we are, DeleteStairs will do it)
   // check z == 0 to make sure all exterior stairs are deleted with EraseGraphicAt
-  if ( z == 0 || !house->WorkingDesign.DeleteStairs( graphic, x, y, z ) )
+  if ( off.z() == 0 || !house->WorkingDesign.DeleteStairs( graphic, off ) )
   {
-    house->WorkingDesign.EraseGraphicAt( graphic, x, y, z );
+    house->WorkingDesign.EraseGraphicAt( graphic, off.xy(), off.z() );
     // maybe replace empty ground floor with dirt tile
-    if ( z == CustomHouseDesign::custom_house_z_xlate_table[1] )
-      house->WorkingDesign.ReplaceDirtFloor( x, y );
+    if ( off.z() == CustomHouseDesign::custom_house_z_xlate_table[1] )
+      house->WorkingDesign.ReplaceDirtFloor( off.xy() );
   }
 
   // invalidate stored packet
@@ -842,7 +823,7 @@ void CustomHousesClear( Core::PKTBI_D7* msg )
   house->WorkingCompressed.swap( newvec );
 
   // add foundation back to design
-  house->WorkingDesign.AddMultiAtOffset( house->multiid, 0, 0, 0 );
+  house->WorkingDesign.AddMultiAtOffset( house->multiid, Core::Vec3d( 0, 0, 0 ) );
   if ( chr != nullptr && chr->client != nullptr )
     CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
 
@@ -978,8 +959,8 @@ void CustomHousesRoofSelect( Core::PKTBI_D7* msg )
   Core::CH_SELECT_ROOF add = msg->ch_select_roof;
   CUSTOM_HOUSE_ELEMENT elem;
   elem.graphic = cfBEu16( add.tileID );
-  elem.xoffset = cfBEu32( add.xoffset );
-  elem.yoffset = cfBEu32( add.yoffset );
+  elem.offset = Core::Vec2d( Core::Vec2d::clip( cfBEu32( add.xoffset ) ),
+                             Core::Vec2d::clip( cfBEu32( add.yoffset ) ) );
   s8 z = static_cast<s8>( cfBEu32( add.zoffset ) );
   if ( z < -3 || z > 12 || z % 3 != 0 )
     z = -3;
@@ -1001,10 +982,11 @@ void CustomHousesRoofRemove( Core::PKTBI_D7* msg )
     return;
 
   Core::CH_DELETE_ROOF remove = msg->ch_delete_roof;
-  u32 x = cfBEu32( remove.xoffset ), y = cfBEu32( remove.yoffset );
+  Core::Vec2d off( Core::Vec2d::clip( cfBEu32( remove.xoffset ) ),
+                   Core::Vec2d::clip( cfBEu32( remove.yoffset ) ) );
   u8 z = static_cast<u8>( cfBEu32( remove.zoffset ) );
   u16 graphic = cfBEu16( remove.tileID );
-  if ( !house->WorkingDesign.EraseGraphicAt( graphic, x, y, z ) )
+  if ( !house->WorkingDesign.EraseGraphicAt( graphic, off, z ) )
   {
     Mobile::Character* chr = Core::find_character( serial );
     if ( chr != nullptr && chr->client != nullptr )
@@ -1144,23 +1126,19 @@ void UHouse::SetCustom( bool _custom )
 }
 void UHouse::CustomHouseSetInitialState()
 {
-  short xbase, ybase;
   const MultiDef& def = multidef();
-  const auto size = def.max_relp - def.min_relp + Core::Vec2d( 1, 1 );
+  auto size = Core::Pos2d( 0, 0 ) + ( def.max_relp - def.min_relp ).xy() + Core::Vec2d( 1, 1 );
   //+1 to include offset 0 in -3..3
-  xbase = (short)abs( def.min_relp.x() );
-  ybase = (short)abs( def.min_relp.y() );
+  size += Core::Vec2d( 0, 1 );  //+1 for front steps outside multidef footprint
+  Core::Vec2d xybase( (short)abs( def.min_relp.x() ), (short)abs( def.min_relp.y() ) );
   CurrentDesign.Clear();
-  CurrentDesign.InitDesign( size.y() + 1, size.x(), xbase,
-                            ybase );  //+1 for front steps outside multidef footprint
+  CurrentDesign.InitDesign( size, xybase );
   WorkingDesign.Clear();
-  WorkingDesign.InitDesign( size.y() + 1, size.x(), xbase,
-                            ybase );  //+1 for front steps outside multidef footprint
+  WorkingDesign.InitDesign( size, xybase );
   BackupDesign.Clear();
-  BackupDesign.InitDesign( size.y() + 1, size.x(), xbase,
-                           ybase );  //+1 for front steps outside multidef footprint
+  BackupDesign.InitDesign( size, xybase );
 
-  CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );
+  CurrentDesign.AddMultiAtOffset( multiid, Core::Vec3d( 0, 0, 0 ) );
   WorkingDesign = CurrentDesign;
   BackupDesign = CurrentDesign;
   std::vector<u8> newvec;

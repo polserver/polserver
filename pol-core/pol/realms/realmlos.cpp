@@ -182,10 +182,8 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   Core::Pos4d attp( att.pos() );
   Core::Pos4d tgtp( tgt.pos() );
   // pre filter dynitems
-  Core::Pos4d p1( std::min( attp.x(), tgtp.x() ), std::min( attp.y(), tgtp.y() ), 0, attp.realm() );
-  Core::Pos4d p2( std::max( attp.x(), tgtp.x() ), std::max( attp.y(), tgtp.y() ), 0, attp.realm() );
-
-  Core::WorldIterator<Core::ItemFilter>::InBox( p1, p2, [&]( Items::Item* item ) {
+  Core::Area2d area( attp, tgtp );
+  Core::WorldIterator<Core::ItemFilter>::InBox( area, att.pos().realm(), [&]( Items::Item* item ) {
     u32 flags = Plib::tile_flags( item->graphic );
     if ( flags & Plib::FLAG::BLOCKSIGHT )
     {
