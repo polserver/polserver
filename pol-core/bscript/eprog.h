@@ -173,6 +173,7 @@ public:
   void rollback( EScriptProgram& prog ) const;
 
   unsigned module_count;
+  std::vector<unsigned> module_used_functions;
   unsigned tokens_count;
   unsigned symbols_length;
   unsigned sourcelines_count;

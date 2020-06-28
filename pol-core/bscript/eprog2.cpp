@@ -344,6 +344,11 @@ EScriptProgramCheckpoint::EScriptProgramCheckpoint( const EScriptProgram& prog )
 void EScriptProgramCheckpoint::commit( const EScriptProgram& prog )
 {
   module_count = static_cast<unsigned int>( prog.modules.size() );
+  module_used_functions.clear();
+  for( auto mod : prog.modules )
+  {
+    module_used_functions.push_back( mod->used_functions.size() );
+  }
   tokens_count = prog.tokens.count();
   symbols_length = prog.symbols.length();
   sourcelines_count = static_cast<unsigned int>( prog.sourcelines.size() );

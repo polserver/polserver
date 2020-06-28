@@ -1,0 +1,12 @@
+// We can't tell from the output, but if we make it so certain
+// tests check against known .ecl output, this would be a good
+// candidate.
+//
+// The call to print() is optimized out, but the OG compiler
+// used to include basicio::print() in the .ecl file, while
+// the new compiler does not.
+
+if (0)
+    print("incorrect, and should not reference print() in the .ecl");
+endif
+

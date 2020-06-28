@@ -4172,6 +4172,16 @@ void Compiler::rollback( EScriptProgram& prog, const EScriptProgramCheckpoint& c
     delete prog.modules.back();
     prog.modules.pop_back();
   }
+  for ( unsigned i = 0; i < checkpoint.module_used_functions.size(); ++i )
+  {
+    FunctionalityModule* fm = prog.modules.at(i);
+    unsigned used_functions = checkpoint.module_used_functions[i];
+    while ( fm->used_functions.size() > used_functions )
+    {
+      fm->used_functions.back()->used = false;
+      fm->used_functions.pop_back();
+    }
+  }
   prog.tokens.setcount( checkpoint.tokens_count );
   prog.symbols.setlength( checkpoint.symbols_length );
   while ( prog.sourcelines.size() > checkpoint.sourcelines_count )
