@@ -14,7 +14,7 @@ using namespace antlrcpp;
 using namespace EscriptGrammar;
 using namespace antlr4;
 
-EscriptParser::EscriptParser(TokenStream *input) : Parser(input) {
+EscriptParser::EscriptParser(antlr4::TokenStream *input) : Parser(input) {
   _interpreter = new atn::ParserATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);
 }
 
