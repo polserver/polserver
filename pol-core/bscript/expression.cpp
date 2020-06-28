@@ -524,9 +524,9 @@ bool Expression::optimize_token( int i )
           operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS_POST;
         delete oper;
         tokens.erase( tokens.begin() + i );
+        return true;
       }
     }
-    return true;
   }
   else if ( oper->id == TOK_MEMBER )
   {

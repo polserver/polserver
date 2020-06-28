@@ -1,0 +1,9 @@
+var i := 3;
+var ii;
+
+// The OG optimizer had a bug where would exit early
+// after not optimizing (ii-), and so it would
+// not optimize the global assignment + consume.
+ii := 1 - (--i);
+print(i);
+print(ii);
