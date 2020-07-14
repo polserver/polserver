@@ -780,8 +780,21 @@ bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
     const Mobile::Attribute* attr;
     if ( !getAttributeParam( param, attr ) )
       return false;
-    skillid = static_cast<USKILLID>( attr->attrid );
-    return true;
+    for ( unsigned short i = 0; i <= networkManager.uoclient_general.maxskills; ++i )
+    {
+      const UOSkill& uoskill = GetUOSkill( i );
+      if ( uoskill.pAttr == attr )
+      {
+        skillid = static_cast<USKILLID>( uoskill.skillid );
+        return true;
+      }
+    }
+    const String* attrname;
+    getStringParam( param, attrname );  // no error check needed
+    std::string report = "Parameter " + Clib::tostring( param ) + " value " + attrname->value() +
+                         " has no skill id defined";
+    setFunctionResult( new BError( report ) );
+    return false;
   }
   std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
                        " as " + BObjectImp::typestr( BObjectImp::OTLong ) + " or " +
