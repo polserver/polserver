@@ -43,6 +43,12 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   inuse( false );
   invisible( id.invisible );
 
+  // quality is a dynprop in Items and defaults to the itemdesc value.
+  // However, if this item was created from an itemdescriptor, we need to set its quality.
+  // Unfortunately we need to use setQuality() because Equipment is somehow too special to use the dynprop "quality" directly...
+  // TODO: remove _quality member from equipment?
+  setQuality( id.quality ); 
+
   ++Core::stateManager.uobjcount.uitem_count;
 
   // hmm, doesn't quite work right with items created on startup..
@@ -69,5 +75,5 @@ size_t Item::estimatedSize() const
          + sizeof( boost_utils::script_name_flystring )      /*equip_script_*/
          + sizeof( boost_utils::script_name_flystring );     /*unequip_script_*/
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol
