@@ -1923,6 +1923,8 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       rollback( *program, checkpt_expr );  // don't need the expression or the jump,
       // even if we're keeping the block
       patch_if_token = false;
+      if_token_posn = -1;
+      last_if_token_posn = -1;
     }
     else
     {
@@ -2007,6 +2009,10 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
         prog_tokens->atGet1( last_if_token_posn, tkn );
         tkn.offset = static_cast<unsigned short>( prog_tokens->next() );
         prog_tokens->atPut1( tkn, last_if_token_posn );
+      }
+      else
+      {
+        last_if_token_posn = -1;
       }
     }
     // dump(cout);

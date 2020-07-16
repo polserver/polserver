@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-10-2020</datemodified>
+		<datemodified>06-14-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>06-14-2020</date>
+			<author>Syzygy:</author>
+			<change type="Fixed">A compiler optimization bug that could corrupt emitted instructions<br/>
+if branches of an if statement were optimized out.</change>
+		</entry>
 		<entry>
 			<date>06-10-2020</date>
 			<author>Syzygy:</author>
