@@ -100,7 +100,8 @@ const char* ParseErrorStr[PERR_NUM_ERRORS] = { "(No Error, or not specified)",
                                                "Unexpected Semicolon",
                                                "Expected 'while'",
                                                "Unexpected ']'",
-                                               "Missing ']'" };
+                                              "Missing ']'",
+                                              "EOF when expecting a terminator"};
 char operator_brk[] = "+-/*(),<=>,:;%";
 
 char ident_allowed[] =
@@ -2036,6 +2037,11 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
   int endenum_term_allowed = flags & EXPR_FLAG_ENDENUM_TERM_ALLOWED;
   int to_term_allowed = flags & EXPR_FLAG_TO_TERM_ALLOWED;
   int auto_term_allowed = flags & EXPR_FLAG_AUTO_TERM_ALLOWED;
+  int term_required =
+      flags & ( EXPR_FLAG_SEMICOLON_TERM_ALLOWED | EXPR_FLAG_COMMA_TERM_ALLOWED |
+                EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED |
+                EXPR_FLAG_DICTKEY_TERM_ALLOWED | EXPR_FLAG_ENDENUM_TERM_ALLOWED |
+                EXPR_FLAG_TO_TERM_ALLOWED | EXPR_FLAG_AUTO_TERM_ALLOWED );
   if ( !quiet )
   {
     char buf[80];
@@ -2053,6 +2059,17 @@ int SmartParser::IIP( Expression& expr, CompilerContext& ctx, unsigned flags )
 
     res = peekToken( ctx, token );
 
+    if ( res == 1 && term_required )
+    {
+      compiler_error( "Unexpected end of file while reading an expression.  Expected ",
+                      semicolon_term_allowed ? " ';'" : "", comma_term_allowed ? " ," : "",
+                      rightparen_term_allowed ? " ']'" : "", rightbrace_term_allowed ? " '}'" : "",
+                      dictkey_term_allowed ? " '->'" : "", endenum_term_allowed ? " 'endenum'" : "",
+                      to_term_allowed ? " 'to'" : "", "\n" );
+      err = PERR_EOFEXPECTINGTERM;
+      res = -1;
+      break;
+    }
     if ( res )
       break;
     if ( !isLegal( token ) )
