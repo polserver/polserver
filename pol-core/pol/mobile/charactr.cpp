@@ -2854,10 +2854,10 @@ void Character::schedule_attack()
     }
     // Swing speed modifier can't be less than -1 otherwise it would give a negitive swing speed and
     // thats not possible.
-    double speed_modifier = ( swing_speed_increase().sum() / 100.0 ); 
-    if ( speed_modifier < -0.99 ) 
-      speed_modifier = -0.99; 
-    clocks = static_cast<Core::polclock_t>(round(clocks / (1 + speed_modifier)));
+    double speed_modifier = ( swing_speed_increase().sum() / 100.0 );
+    if ( speed_modifier < -0.99 )
+      speed_modifier = -0.99;
+    clocks = static_cast<Core::polclock_t>( round( clocks / ( 1 + speed_modifier ) ) );
 
     if ( clocks < ( Core::POLCLOCKS_PER_SEC / 5 ) )
     {
