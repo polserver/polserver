@@ -520,7 +520,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     faster_cast_recovery_mod = diceValue( temp, "Faster Cast Recovery Mod" );
 
   if ( elem.remove_prop( "LUCKMOD", &temp ) )
-    luck = diceValue( temp, "Luck Mod" );
+    luck_mod = diceValue( temp, "Luck Mod" );
 
   if ( elem.remove_prop( "SWINGSPEEDINCREASEMOD", &temp ) )
     swing_speed_increase_mod = diceValue( temp, "Swing Speed Increase Mod" );

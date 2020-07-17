@@ -433,8 +433,6 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tDefenceIncrease\t" << defence_increase().value << pf_endl;
   if ( has_defence_increase_cap() )
     sw() << "\tDefenceIncreaseCap\t" << defence_increase_cap().value << pf_endl;
-  if ( has_swing_speed_increase() )
-    sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
   if ( has_lower_mana_cost() )
     sw() << "\tLowerManaCost\t" << lower_mana_cost().value << pf_endl;
   if ( has_fire_resist_cap() )

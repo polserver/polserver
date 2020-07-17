@@ -301,7 +301,7 @@
 <member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
-<member mname="swing_seed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 
 <method proto="setpoisoned(bool)" returns="true/error" desc="sets the character poisoned, controller of calling script is flagged as in repsystem" />
 <method proto="setparalyzed(bool)" returns="true/error" desc="sets the character paralyzed, controller of calling script is flagged as in repsystem" />
