@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+07-20-2020 Nando:
+    Fixed: Quality of any item can now be directly assigned from an ItemDescriptor. Before this only worked for Equipment (Armor & Weapons).
 07-16-2020 DevGIB:
     Added: SwingSpeedIncrease(swing_speed_increase) and SwingSpeedIncreaseMod(swing_speed_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the calculated swing speed.
            Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.
