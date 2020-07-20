@@ -346,6 +346,8 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPoisonResistCap\t" << orig_poison_resist_cap() << pf_endl;
   if ( has_orig_luck() )
     sw() << "\tLuck\t" << orig_luck() << pf_endl;
+  if ( has_swing_speed_increase() )
+    sw() << "\tSwingSpeedIncrease\t" << orig_swing_speed_increase() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
@@ -509,6 +511,11 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   {
     luck( apply( luck(), value ) );
     orig_luck( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "SWINGSPEEDINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    swing_speed_increase( apply( swing_speed_increase(), value ) );
+    orig_swing_speed_increase( static_cast<s16>( value ) );
   }
 
   // elemental start
@@ -1087,6 +1094,8 @@ void NPC::resetEquipablePropertiesNPC()
     poison_resist_cap( poison_resist_cap().setAsValue( orig_poison_resist_cap() ) );
   if ( has_luck() || has_orig_luck() )
     luck( luck().setAsValue( orig_luck() ) );
+  if ( has_swing_speed_increase() || has_orig_swing_speed_increase() )
+    swing_speed_increase( swing_speed_increase().setAsValue( orig_swing_speed_increase() ) );
 }
 
 size_t NPC::estimatedSize() const
