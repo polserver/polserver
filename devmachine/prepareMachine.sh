@@ -100,6 +100,13 @@ tar -xvzf cmake-3.17.1.tar.gz
 (cd cmake-3.17.1 && ./configure && make && sudo make install)
 rm -rf cmake-3.17.1 cmake-3.17.1.tar.gz
 
+echo
+echo -------------------------------------------------------------------------------
+echo needed for antlr
+echo -------------------------------------------------------------------------------
+echo
+sudo apt-get install pkg-config uuid-dev
+
 
 sudo apt-get upgrade
 

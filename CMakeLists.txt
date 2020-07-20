@@ -119,6 +119,7 @@ endif()
 prepare_build()
 cmake_fake_target()
 
+include(cmake/Antlr.cmake)
 include(cmake/Boost.cmake)
 include(cmake/Benchmark.cmake)
 include(cmake/Format.cmake)

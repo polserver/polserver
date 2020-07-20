@@ -200,8 +200,9 @@ macro(cmake_fake_target)
   add_custom_target("cmakefiles"
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     VERBATIM
-    SOURCES 
+    SOURCES
       cmake/init.cmake
+      cmake/Antlr.cmake
       cmake/Benchmark.cmake
       cmake/Boost.cmake
       cmake/Curl.cmake
@@ -220,6 +221,7 @@ macro(cmake_fake_target)
   )
   source_group(cmake FILES
     cmake/init.cmake
+    cmake/Antlr.cmake
     cmake/Benchmark.cmake
     cmake/Boost.cmake
     cmake/Curl.cmake
