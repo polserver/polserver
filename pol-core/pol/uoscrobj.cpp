@@ -212,7 +212,7 @@ BObjectImp* ECharacterRefObjImp::call_polmethod( const char* methodname, Core::U
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
@@ -371,7 +371,7 @@ BObjectImp* EItemRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& e
 
 BObjectImp* EItemRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -511,7 +511,7 @@ BObjectImp* EUBoatRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
 
 BObjectImp* EUBoatRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
@@ -546,7 +546,7 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
 
 BObjectImp* EMultiRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
@@ -942,6 +942,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_LUCK:
     return new BLong( luck().sum() );
     break;
+  case MBR_SWING_SPEED_INCREASE:
+    return new BLong( swing_speed_increase().sum() );
+    break;
   case MBR_FIRE_RESIST_MOD:
     return new BLong( fire_resist().mod );
     break;
@@ -1028,6 +1031,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_LUCK_MOD:
     return new BLong( luck().mod );
+    break;
+  case MBR_SWING_SPEED_INCREASE_MOD:
+    return new BLong( swing_speed_increase().mod );
     break;
 
   case MBR_GETGOTTENBY:
@@ -1482,6 +1488,19 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       }
     }
     return new BLong( luck().mod );
+    break;
+  case MBR_SWING_SPEED_INCREASE_MOD:
+    swing_speed_increase( swing_speed_increase().setAsMod( static_cast<short>( value ) ) );
+    if ( container != nullptr )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = chr_from_wornitems( container );
+        if ( chr != nullptr )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( swing_speed_increase().mod );
     break;
 
   case MBR_QUALITY:
@@ -2262,6 +2281,12 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_LUCK_MOD:
     return new BLong( luck().mod );
     break;
+  case MBR_SWING_SPEED_INCREASE:
+    return new BLong( swing_speed_increase().sum() );
+    break;
+  case MBR_SWING_SPEED_INCREASE_MOD:
+    return new BLong( swing_speed_increase().mod );
+    break;
   case MBR_FOLLOWERSMAX:
     return new BLong( followers().followers_max );
     break;
@@ -2601,6 +2626,11 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     luck( luck().setAsMod( static_cast<short>( value ) ) );
     refresh_ar();
     return new BLong( luck().mod );
+    break;
+  case MBR_SWING_SPEED_INCREASE_MOD:
+    swing_speed_increase( swing_speed_increase().setAsMod( static_cast<short>( value ) ) );
+    refresh_ar();
+    return new BLong( swing_speed_increase().mod );
     break;
   case MBR_STATCAP:
   {
@@ -4677,7 +4707,7 @@ BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOEx
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );
-  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
+  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );

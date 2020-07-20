@@ -116,6 +116,7 @@ Item* Item::clone() const
   item->poison_resist_cap( poison_resist_cap() );
   item->physical_resist_cap( physical_resist_cap() );
   item->luck( luck() );
+  item->swing_speed_increase( swing_speed_increase() );
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -446,6 +447,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPoisonResistCap\t" << poison_resist_cap().value << pf_endl;
   if ( has_luck() )
     sw() << "\tLuck\t" << luck().value << pf_endl;
+  if ( has_swing_speed_increase() )
+    sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
   // end new prop stuf
   if ( maxhp_mod_ )
     sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
@@ -575,6 +578,9 @@ void Item::readProperties( Clib::ConfigElem& elem )
   value = static_cast<s16>( elem.remove_int( "LUCK", 0 ) );
   if ( value != 0 )
     luck( luck().setAsValue( value ) );
+  value = static_cast<s16>( elem.remove_int( "SWINGSPEEDINCREASE", 0 ) );
+  if ( value != 0 )
+    swing_speed_increase( swing_speed_increase().setAsValue( value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )

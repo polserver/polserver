@@ -61,7 +61,7 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             echo "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
+          sudo apt-get install mysql-client libmysqlclient-dev kwstyle uuid-dev -y
           
           $ninja_version = "1.9.0"
           $cmake_version = "3.16.2"

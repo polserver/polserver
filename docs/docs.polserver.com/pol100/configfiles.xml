@@ -1362,6 +1362,7 @@ NpcTemplate (string unique templatename)
     [PhysicalResistCap      (int/(die-string value))]
     [PoisonResistCap        (int/(die-string value))]
     [Luck                   (int/(die-string value))]
+    [SwingSpeedIncrease     (int/(die-string value))]
 
     [LowerReagentCostMod    (int/(die-string value))]
     [SpellDamageIncreaseMod (int/(die-string value))]
@@ -1377,6 +1378,7 @@ NpcTemplate (string unique templatename)
     [PhysicalResistCapMod   (int/(die-string value))]
     [PoisonResistCapMod     (int/(die-string value))]
     [LuckMod                (int/(die-string value))]
+    [SwingSpeedIncreaseMod  (int/(die-string value))]
 
     [CProp                  (string name, string value, will set a CProp on the npc at creation)]
     [Cprop                  (...)]
@@ -1478,6 +1480,7 @@ Item (objtype)
     [PhysicalResistCap      (int/(die-string value))]
     [PoisonResistCap        (int/(die-string value))]
     [Luck                   (int/(die-string value))]
+    [SwingSpeedIncrease     (int/(die-string value))]
 
     [LowerReagentCostMod    (int/(die-string value))]
     [SpellDamageIncreaseMod (int/(die-string value))]
@@ -1493,6 +1496,7 @@ Item (objtype)
     [PhysicalResistCapMod   (int/(die-string value))]
     [PoisonResistCapMod     (int/(die-string value))]
     [LuckMod                (int/(die-string value))]
+    [SwingSpeedIncreaseMod  (int/(die-string value))]
 
 
     [StackLimit             (int {default 60000})]
