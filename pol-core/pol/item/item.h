@@ -286,15 +286,13 @@ public:
   DYN_PROPERTY_POINTER( process, Module::UOExecutorModule*, Core::PROP_PROCESS );
   /** Tells of which house this item is a component, if any */
   DYN_PROPERTY_POINTER( house, Multi::UHouse*, Core::PROP_HOUSE );
-  virtual double getQuality() const;
-  virtual void setQuality( double value );
+
+  DYN_PROPERTY( quality, double, Core::PROP_QUALITY, getItemdescQuality() );
 
 private:
   /// sell and buyprice generated functions only private! (additional logic needed)
   DYN_PROPERTY( sellprice_, u32, Core::PROP_SELLPRICE, SELLPRICE_DEFAULT );
   DYN_PROPERTY( buyprice_, u32, Core::PROP_BUYPRICE, BUYPRICE_DEFAULT );
-  /// equipment has a fixed member see get/setQuality
-  DYN_PROPERTY( quality, double, Core::PROP_QUALITY, getItemdescQuality() );
 
 protected:
   static const u32 SELLPRICE_DEFAULT;  // means use the itemdesc value

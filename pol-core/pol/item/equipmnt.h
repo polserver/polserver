@@ -57,9 +57,6 @@ public:
   void reduce_hp_from_hit();
   bool is_intrinsic() const;
 
-  virtual double getQuality() const override;
-  virtual void setQuality( double value ) override;
-
 protected:
   Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
              const Core::EquipDesc* permanent_descriptor );
@@ -85,9 +82,6 @@ protected:
   virtual size_t estimatedSize() const override;
 
   const Core::EquipDesc* tmpl;
-
-private:
-  double _quality;
 };
 
 Equipment* find_intrinsic_equipment( const std::string& name, u8 type );

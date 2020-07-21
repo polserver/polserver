@@ -78,7 +78,7 @@ Item* Item::clone() const
   item->invisible( invisible() );  // dave 12-20
   item->movable( movable() );      // dave 12-20
   item->hp_ = hp_;
-  item->setQuality( getQuality() );
+  item->quality( quality() );
 
   item->on_use_script_ = on_use_script_;    // dave 12-20
   item->equip_script_ = equip_script_;      // dave 12-20
@@ -454,7 +454,7 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
   if ( hp_ != itemdesc().maxhp )
     sw() << "\tHp\t" << hp_ << pf_endl;
-  double quali = getQuality();
+  double quali = quality();
   if ( quali != getItemdescQuality() )
     sw() << "\tQuality\t" << quali << pf_endl;
   if ( !suffix.empty() )
@@ -499,7 +499,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
   newbie( elem.remove_bool( "NEWBIE", default_newbie() ) );
   insured( elem.remove_bool( "INSURED", default_insured() ) );
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
-  setQuality( elem.remove_double( "QUALITY", itemdesc().quality ) );
+  quality( elem.remove_double( "QUALITY", itemdesc().quality ) );
 
   maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
@@ -1280,15 +1280,6 @@ Core::UOExecutor* Item::uoexec_control()
     return &process()->uoexec();
 
   return nullptr;
-}
-
-double Item::getQuality() const
-{
-  return quality();
-}
-void Item::setQuality( double value )
-{
-  quality( value );
 }
 
 bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,

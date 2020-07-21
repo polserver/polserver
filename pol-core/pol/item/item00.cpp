@@ -43,12 +43,10 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   inuse( false );
   invisible( id.invisible );
 
-  // quality is a dynprop in Items and defaults to the itemdesc value.
-  // However, if this item was created from an itemdescriptor, we need to set its quality.
-  // Unfortunately we need to use setQuality() because Equipment is somehow too special to use the
-  // dynprop "quality" directly...
-  // TODO: remove _quality member from equipment?
-  setQuality( id.quality );
+  // quality is a dynprop that defaults to the itemdesc value. It won't be stored unless it differs
+  // from that default. However, GetItemDescriptor() may be used to assign a new quality before the
+  // item is created and we need to consider that here.
+  quality( id.quality );
 
   ++Core::stateManager.uobjcount.uitem_count;
 

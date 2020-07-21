@@ -1059,7 +1059,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   }
   case MBR_QUALITY:
-    return new Double( getQuality() );
+    return new Double( quality() );
     break;
   case MBR_HP:
     return new BLong( hp_ );
@@ -1068,7 +1068,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( maxhp_mod() );
     break;
   case MBR_MAXHP:
-    return new BLong( static_cast<int>( maxhp() * getQuality() ) );
+    return new BLong( static_cast<int>( maxhp() * quality() ) );
     break;
   case MBR_NAME_SUFFIX:
     return new String( name_suffix() );
@@ -1504,7 +1504,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     break;
 
   case MBR_QUALITY:
-    setQuality( double( value ) );
+    quality( double( value ) );
     return new Double( double( value ) );
     break;
   case MBR_HP:
@@ -1562,7 +1562,7 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
   switch ( id )
   {
   case MBR_QUALITY:
-    setQuality( value );
+    quality( value );
     return new Double( value );
   default:
     return nullptr;
