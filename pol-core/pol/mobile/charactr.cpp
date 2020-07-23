@@ -462,6 +462,11 @@ bool Character::has_active_gump() const
   return ( client != nullptr && client->gd != nullptr && !client->gd->gumpmods.empty() );
 }
 
+bool Character::has_active_textentry() const
+{
+  return ( client != nullptr && client->gd != nullptr && client->gd->textentry_uoemod != nullptr );
+}
+
 bool Character::is_house_editing() const
 {
   return ( client != nullptr && client->gd != nullptr && client->gd->custom_house_serial != 0 );
