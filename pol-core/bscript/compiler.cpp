@@ -2229,7 +2229,6 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
       varindex = localscope.numVariables();
       program->addlocalvar( tk_varname.tokval() );
 
-      varindex = localscope.numVarsInBlock();
       localscope.addvar( tk_varname.tokval(), ctx );
     }
 
