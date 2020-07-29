@@ -41,6 +41,8 @@ void CompilerConfig::Read( const std::string& path )
   GenerateListing = elem.remove_bool( "GenerateListing", false );
   GenerateDebugInfo = elem.remove_bool( "GenerateDebugInfo", false );
   GenerateDebugTextInfo = elem.remove_bool( "GenerateDebugTextInfo", false );
+
+  VerbosityLevel = elem.remove_int( "VerbosityLevel", 0 );
   DisplayWarnings = elem.remove_bool( "DisplayWarnings", false );
   CompileAspPages = elem.remove_bool( "CompileAspPages", false );
   AutoCompileByDefault = elem.remove_bool( "AutoCompileByDefault", false );

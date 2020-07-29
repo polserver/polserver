@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-01-2020</datemodified>
+		<datemodified>08-03-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-03-2020</date>
+			<author>Syzygy:</author>
+			<change type="Added">ecompile.cfg &quot;VerbosityLevel&quot; option (still also controlled by ecompile -v N)</change>
+		</entry>
 		<entry>
 			<date>08-01-2020</date>
 			<author>Turley:</author>

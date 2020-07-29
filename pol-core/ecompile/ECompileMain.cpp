@@ -466,7 +466,7 @@ int readargs( int argc, char** argv )
         vlev = atoi( &argv[i][2] );
         if ( !vlev )
           vlev = 1;
-        Legacy::Compiler::setVerbosityLevel( vlev );
+        compilercfg.VerbosityLevel = vlev;
         break;
 
       case 'x':
