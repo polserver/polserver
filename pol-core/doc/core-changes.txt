@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+07-28-2020 Kevin:
+    Fixed: Multiple scripts should not be allowed to call uo::SendTextEntryGump on the same character.
 07-20-2020 Nando:
     Fixed: Quality of any item can now be directly assigned from an ItemDescriptor. Before this only worked for Equipment (Armor & Weapons).
 07-16-2020 DevGIB:

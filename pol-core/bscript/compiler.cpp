@@ -53,10 +53,12 @@ namespace Pol
 {
 namespace Bscript
 {
+extern int include_debug;
+namespace Legacy
+{
 bool Compiler::check_filecase_;
 int Compiler::verbosity_level_;
 
-extern int include_debug;
 
 std::string getpathof( const std::string& fname )
 {
@@ -4364,6 +4366,7 @@ void Compiler::dump( std::ostream& os )
 {
   program->dump( os );
 }
+}  // namespace Legacy
 }  // namespace Bscript
 }  // namespace Pol
    /*

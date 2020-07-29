@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-20-2020</datemodified>
+		<datemodified>07-28-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>07-28-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Multiple scripts should not be allowed to call uo::SendTextEntryGump on the same character.</change>
+		</entry>
 		<entry>
 			<date>07-20-2020</date>
 			<author>Nando:</author>
