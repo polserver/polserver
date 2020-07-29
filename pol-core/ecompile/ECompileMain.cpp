@@ -130,7 +130,7 @@ void compile_inc( const char* path )
   if ( !quiet )
     INFO_PRINT << "Compiling: " << path << "\n";
 
-  Compiler C;
+  Legacy::Compiler C;
 
   C.setQuiet( !debug );
   C.setIncludeCompileMode();
@@ -224,7 +224,7 @@ bool compile_file( const char* path )
     if ( !quiet )
       INFO_PRINT << "Compiling: " << path << "\n";
 
-    Compiler C;
+    Legacy::Compiler C;
 
     C.setQuiet( !debug );
     int res = C.compileFile( path );
@@ -466,7 +466,7 @@ int readargs( int argc, char** argv )
         vlev = atoi( &argv[i][2] );
         if ( !vlev )
           vlev = 1;
-        Compiler::setVerbosityLevel( vlev );
+        Legacy::Compiler::setVerbosityLevel( vlev );
         break;
 
       case 'x':
