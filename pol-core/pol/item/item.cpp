@@ -806,10 +806,10 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 bool Item::can_add_to_self( const Item& item, bool force_stacking )
     const  // dave 1/26/03 totally changed this function to handle the cprop comparisons.
 {
-  bool res =
-      ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
-        ( item.insured() == insured() ) && ( item.graphic == graphic ) && ( item.color == color ) &&
-        ( !inuse() ) && ( can_add_to_self( item.amount_, force_stacking ) ) );
+  bool res = ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
+               ( item.insured() == insured() ) && ( item.graphic == graphic ) &&
+               ( item.color == color ) && ( item.quality() == quality() ) && ( !inuse() ) &&
+               ( can_add_to_self( item.amount_, force_stacking ) ) );
   if ( res == true )
   {
     // NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes
