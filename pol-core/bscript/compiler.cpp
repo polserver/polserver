@@ -4215,7 +4215,7 @@ bool is_web_script( const char* file )
 /**
  * Transforms the raw html page into a script with a single WriteHtml() instruction
  */
-void preprocess_web_script( Clib::FileContents& fc )
+std::string preprocess_web_script( const std::string& input )
 {
   std::string output;
   output = "use http;";
@@ -4223,7 +4223,7 @@ void preprocess_web_script( Clib::FileContents& fc )
 
   bool reading_html = true;
   bool source_is_emit = false;
-  const char* s = fc.contents();
+  const char* s = input.c_str();
   std::string acc;
   while ( *s )
   {
@@ -4275,7 +4275,7 @@ void preprocess_web_script( Clib::FileContents& fc )
   }
   if ( !acc.empty() )
     output += "WriteHtmlRaw( \"" + acc + "\");\n";
-  fc.set_contents( output );
+  return output;
 }
 
 
@@ -4299,7 +4299,7 @@ int Compiler::compileFile( const char* in_file )
 
     if ( is_web_script( filepath.c_str() ) )
     {
-      preprocess_web_script( fc );
+      fc.set_contents( preprocess_web_script( fc.contents() ) );
     }
 
     CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents() );
