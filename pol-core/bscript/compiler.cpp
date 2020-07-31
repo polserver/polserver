@@ -36,6 +36,7 @@
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "compctx.h"
+#include "compiler/LegacyFunctionOrder.h"
 #include "compilercfg.h"
 #include "eprog.h"
 #include "expression.h"
@@ -4113,6 +4114,7 @@ bool Compiler::read_function_declarations( const CompilerContext& ctx )
 
 int Compiler::emit_function( UserFunction& uf )
 {
+  userfunc_emit_order.push_back( uf.name );
   CompilerContext ctx( uf.ctx );
   // cout << "emitting " << uf.name << ": " << program->tokens.next() << endl;
   int res = handleBracketedFunction3( uf, ctx );
@@ -4389,6 +4391,27 @@ void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
 void Compiler::write_included_filenames( const std::string& pathname )
 {
   writeIncludedFilenames( pathname.c_str() );
+}
+
+Pol::Bscript::Compiler::LegacyFunctionOrder Compiler::get_legacy_function_order() const
+{
+  std::vector<std::string> modulefunc_emit_order;
+
+  if ( program.get() )
+  {
+    for ( auto module : program->modules )
+    {
+      for ( auto function : module->used_functions )
+      {
+        std::string scoped_name =
+            std::string( module->modulename ) + "::" + std::string( function->name );
+
+        modulefunc_emit_order.push_back( scoped_name );
+      }
+    }
+  }
+
+  return Pol::Bscript::Compiler::LegacyFunctionOrder{ modulefunc_emit_order, userfunc_emit_order };
 }
 
 }  // namespace Legacy

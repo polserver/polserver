@@ -39,6 +39,7 @@ struct CompilerConfig
   bool ParanoiaWarnings;
   bool ErrorOnFileCaseMissmatch;
   bool UseCompiler2020;
+  bool CompareCompilerOutput;
 
   void Read( const std::string& path );
   void SetDefaults();
