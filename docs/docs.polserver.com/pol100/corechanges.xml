@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-28-2020</datemodified>
+		<datemodified>07-31-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>07-31-2020</date>
+			<author>Nando:</author>
+			<change type="Fixed">Quality of any item can now be directly assigned from an ItemDescriptor. Before this only worked for Equipment (Armor &amp; Weapons).</change>
+			<change type="Fixed">Stackable items with different values of 'quality' will no longer stack.</change>
+		</entry>
 		<entry>
 			<date>07-28-2020</date>
 			<author>Kevin:</author>
