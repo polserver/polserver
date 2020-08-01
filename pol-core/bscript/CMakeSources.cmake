@@ -1,6 +1,8 @@
 set (bscript_sources    # sorted !
   CMakeSources.cmake 
   StdAfx.h
+  StoredToken.cpp
+  StoredToken.h
   berror.cpp 
   berror.h
   blong.cpp 
