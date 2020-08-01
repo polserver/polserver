@@ -11,8 +11,7 @@ const ATTRIBUTE_PRECISION_TENTHS := 1;
 
 const ATTRIBUTE_MAX_BASE := 60000;
 
-// To-Fix: Uses a skillid - should take in an attribute name.
-CheckSkill( character, skillid, difficulty, points );
+CheckSkill( character, skillid_or_attrname, difficulty, points );
 
 AlterAttributeTemporaryMod( character, attrname, delta_tenths );
 

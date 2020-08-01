@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-31-2020</datemodified>
+		<datemodified>08-01-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-01-2020</date>
+			<author>Turley:</author>
+			<change type="Added">attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.</change>
+		</entry>
 		<entry>
 			<date>07-31-2020</date>
 			<author>Nando:</author>
