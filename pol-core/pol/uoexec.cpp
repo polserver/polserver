@@ -780,15 +780,8 @@ bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
     const Mobile::Attribute* attr;
     if ( !getAttributeParam( param, attr ) )
       return false;
-    for ( unsigned short i = 0; i <= networkManager.uoclient_general.maxskills; ++i )
-    {
-      const UOSkill& uoskill = GetUOSkill( i );
-      if ( uoskill.pAttr == attr )
-      {
-        skillid = static_cast<USKILLID>( uoskill.skillid );
-        return true;
-      }
-    }
+    if ( attr->skillid != -1 )
+      return attr->skillid;
     const String* attrname;
     getStringParam( param, attrname );  // no error check needed
     std::string report = "Parameter " + Clib::tostring( param ) + " value " + attrname->value() +
