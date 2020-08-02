@@ -29,20 +29,11 @@ Attribute* Attribute::FindAttribute( const std::string& str )
     return nullptr;
 }
 
-Attribute* Attribute::FindAttribute( unsigned attrid )
-{
-  if ( attrid < Core::gamestate.attributes.size() )
-    return Core::gamestate.attributes[attrid];
-  else
-    return nullptr;
-}
-
 Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )
     : pkg( pkg ),
       name( elem.rest() ),
       attrid( 0 ),
       aliases(),
-      next( nullptr ),
       getintrinsicmod_func( nullptr ),
       delay_seconds( elem.remove_ushort( "DELAY", 0 ) ),
       unhides( elem.remove_bool( "UNHIDES", true ) ),
@@ -89,8 +80,6 @@ void load_attribute_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
     elem.throw_error( "Attribute " + attr->name + " already defined by " + existing->pkg->desc() );
   }
   attr->attrid = static_cast<unsigned int>( Core::gamestate.attributes.size() );
-  if ( !Core::gamestate.attributes.empty() )
-    Core::gamestate.attributes.back()->next = attr;
   Core::gamestate.attributes.push_back( attr );
   for ( unsigned i = 0; i < attr->aliases.size(); ++i )
   {

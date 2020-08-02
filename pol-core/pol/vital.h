@@ -36,7 +36,6 @@ public:
   std::string name;
   std::vector<std::string> aliases;  // aliases[0] is always name
   unsigned vitalid;
-  Vital* next;
 
   ExportedFunction* get_regenrate_func;
   ExportedFunction* get_maximum_func;
@@ -45,7 +44,6 @@ public:
 };
 
 Vital* FindVital( const std::string& vitalname );
-Vital* FindVital( unsigned vitalid );
 void clean_vitals();
 
 const int VITAL_LOWEST_REGENRATE = -30000;
