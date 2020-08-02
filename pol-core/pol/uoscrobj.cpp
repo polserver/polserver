@@ -212,7 +212,7 @@ BObjectImp* ECharacterRefObjImp::call_polmethod( const char* methodname, Core::U
 {
   // MethodScript for npcs in npc->template_ (npctmpl.h) (aka templatebased)
   //             for chars in uoclient_general (uoclient.h) (aka one global definition)
-  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
@@ -371,7 +371,7 @@ BObjectImp* EItemRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& e
 
 BObjectImp* EItemRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
 
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
@@ -511,7 +511,7 @@ BObjectImp* EUBoatRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
 
 BObjectImp* EUBoatRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
@@ -546,7 +546,7 @@ bool EUBoatRefObjImp::operator==( const BObjectImp& objimp ) const
 
 BObjectImp* EMultiRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
-  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
@@ -1492,7 +1492,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->toplevel_chr();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -4679,7 +4679,7 @@ BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOEx
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return new BError( "Client not ready or disconnected" );
-  bool forcebuiltin{ Executor::builtinMethodForced( methodname ) };
+  bool forcebuiltin{Executor::builtinMethodForced( methodname )};
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
