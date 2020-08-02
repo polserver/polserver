@@ -614,6 +614,7 @@ public:
   bool has_active_client() const;
   bool has_active_prompt() const;
   bool has_active_gump() const;
+  bool has_active_textentry() const;
   bool is_house_editing() const;
   bool target_cursor_busy() const;
   u16 last_textcolor() const;

@@ -77,7 +77,6 @@ jobs:
         with:
           status: failure
           job: Building (Windows no PCH)
-          nofail: false
   notify_on_success:
     needs: build
     runs-on: "ubuntu-latest"
@@ -90,7 +89,6 @@ jobs:
         with:
           status: success
           job: Building (Windows no PCH)
-          nofail: false
   notify_on_cancel:
     needs: build
     runs-on: "ubuntu-latest"
@@ -103,4 +101,3 @@ jobs:
         with:
           status: cancelled
           job: Building (Windows no PCH)
-          nofail: false

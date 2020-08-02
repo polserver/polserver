@@ -200,7 +200,6 @@ public:
   int getToken( Token& token, unsigned position );
   BObjectRef& LocalVar( unsigned int varnum );
   BObjectRef& GlobalVar( unsigned int varnum );
-  BObject* makeObj( const Token& token );
   int makeGlobal( const Token& token );
   void popParam( const Token& token );
   void popParamByRef( const Token& token );
@@ -234,6 +233,7 @@ public:
   void ins_nop( const Instruction& ins );
   void ins_jmpiftrue( const Instruction& ins );
   void ins_jmpiffalse( const Instruction& ins );
+  void ins_skipiftrue_else_consume( const Instruction& ins );
   void ins_globalvar( const Instruction& ins );
   void ins_localvar( const Instruction& ins );
   void ins_makeLocal( const Instruction& ins );

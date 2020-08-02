@@ -148,9 +148,6 @@ void EScriptProgram::addToken( const Token& token )
   }
   break;
 
-  case TYP_USERFUNC:  // these don't do anything.
-    return;
-
   case TYP_METHOD:
   {
     if ( token.id != INS_CALL_METHOD_ID )
@@ -232,6 +229,13 @@ void EScriptProgram::addToken( const Token& token )
     {
       unsigned sympos = 0;
       symbols.append( token.tokval(), sympos );
+      tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ) );
+    }
+    break;
+
+    case INS_SKIPIFTRUE_ELSE_CONSUME:
+    {
+      unsigned sympos = token.lval;
       tokens.append_tok( StoredToken( token.module, token.id, token.type, sympos ) );
     }
     break;

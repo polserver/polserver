@@ -1,0 +1,7 @@
+var a := 3, b := 4, c := 6, h := 0;
+
+// The elvis operator should have higher precedence than comparison operators
+
+print( a > c ?: b ); // 0 correct: a > ( c ?: b )    4 incorrect: ( a > c ) ?: b
+
+print( c ?: b > a ); // 1 correct: ( c ?: b ) > a    3 incorrect: a ?: (b > a)

@@ -29,6 +29,7 @@ namespace Pol
 namespace Bscript
 {
 class CompilerContext;
+class Expression;
 class ModuleFunction;
 class Token;
 class UserFunction;
@@ -55,34 +56,11 @@ typedef enum
   PERR_EXPWHILE,
   PERR_UNEXRBRACKET,
   PERR_MISSRBRACKET,
+  PERR_EOFEXPECTINGTERM,
   PERR_NUM_ERRORS
 } ParseError;
 
 extern const char* ParseErrorStr[];
-
-
-class Expression
-{
-public:
-  ~Expression();
-
-  void eat( Expression& expr );
-  void eat2( Expression& expr );
-  void optimize();
-  void optimize_binary_operations();
-  void optimize_unary_operations();
-  void optimize_assignments();
-  int get_num_tokens( int idx ) const;
-  bool optimize_token( int i );
-
-  typedef std::vector<Token*> Tokens;
-  Tokens tokens;
-
-public:
-  std::stack<Token*> TX;
-  std::queue<Token*> CA;
-};
-
 
 const unsigned EXPR_FLAG_SEMICOLON_TERM_ALLOWED = 0x0001;
 const unsigned EXPR_FLAG_COMMA_TERM_ALLOWED = 0x0002;
@@ -160,10 +138,10 @@ public:
 
   virtual int parseToken( CompilerContext& ctx, Expression& expr, Token* ) override;
   virtual int getToken( CompilerContext& ctx, Token& token, Expression* expr = nullptr ) override;
+  int getTokenWithoutConversions( CompilerContext& ctx, Token& token );
 
   bool callingMethod( CompilerContext& ctx );
 
-  int getArgs( Expression& expr, CompilerContext& ctx );
   virtual int getUserArgs( Expression& expr, CompilerContext& ctx, bool inject_jsr = true ) = 0;
   virtual int getArrayElements( Expression& expr, CompilerContext& ctx ) = 0;
   virtual int getNewArrayElements( Expression& expr, CompilerContext& ctx ) = 0;
@@ -173,8 +151,6 @@ public:
   virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx, Token* tok ) = 0;
 
   int IIP( Expression& expr, CompilerContext& ctx, unsigned expr_flags );
-  int IP( Expression& expr, char* s );
-  int IP( Expression& expr, CompilerContext& ctx );
 };
 
 inline int SmartParser::isLegal( Token& )

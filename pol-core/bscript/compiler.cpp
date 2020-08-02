@@ -38,6 +38,7 @@
 #include "compctx.h"
 #include "compilercfg.h"
 #include "eprog.h"
+#include "expression.h"
 #include "fmodule.h"
 #include "modules.h"
 #include "objmembers.h"
@@ -52,10 +53,12 @@ namespace Pol
 {
 namespace Bscript
 {
+extern int include_debug;
+namespace Legacy
+{
 bool Compiler::check_filecase_;
 int Compiler::verbosity_level_;
 
-extern int include_debug;
 
 std::string getpathof( const std::string& fname )
 {
@@ -144,654 +147,6 @@ void Scope::addvar( const std::string& varname, const CompilerContext& ctx, bool
 void Scope::addvalue()
 {
   blockdescs_.back().valcount++;
-}
-
-Expression::~Expression()
-{
-  while ( !tokens.empty() )
-  {
-    Token* tkn = tokens.back();
-    tokens.pop_back();
-    delete tkn;
-  }
-
-
-  while ( !TX.empty() )
-  {
-    Token* tkn = TX.top();
-    TX.pop();
-    delete tkn;
-  }
-
-
-  while ( !CA.empty() )
-  {
-    Token* tkn = CA.front();
-    CA.pop();
-    delete tkn;
-  }
-}
-
-void Expression::eat( Expression& expr )
-{
-  while ( !expr.CA.empty() )
-  {
-    CA.push( expr.CA.front() );
-    expr.CA.pop();
-  }
-}
-
-void Expression::eat2( Expression& expr )
-{
-  while ( !expr.tokens.empty() )
-  {
-    CA.push( expr.tokens.front() );
-    expr.tokens.erase( expr.tokens.begin() );
-  }
-}
-
-Token* optimize_long_operation( Token* left, Token* oper, Token* right )
-{
-  int lval = 0;
-  switch ( oper->id )
-  {
-  case TOK_ADD:
-    lval = left->lval + right->lval;
-    break;
-  case TOK_SUBTRACT:
-    lval = left->lval - right->lval;
-    break;
-  case TOK_MULT:
-    lval = left->lval * right->lval;
-    break;
-  case TOK_DIV:
-    if ( right->lval == 0 )
-      throw std::runtime_error( "Program would divide by zero" );
-    lval = left->lval / right->lval;
-    break;
-
-  case TOK_EQUAL:
-    lval = ( left->lval == right->lval );
-    break;
-  case TOK_NEQ:
-    lval = ( left->lval != right->lval );
-    break;
-  case TOK_LESSTHAN:
-    lval = ( left->lval < right->lval );
-    break;
-  case TOK_LESSEQ:
-    lval = ( left->lval <= right->lval );
-    break;
-  case TOK_GRTHAN:
-    lval = ( left->lval > right->lval );
-    break;
-  case TOK_GREQ:
-    lval = ( left->lval >= right->lval );
-    break;
-
-  case TOK_AND:
-    lval = ( left->lval && right->lval );
-    break;
-  case TOK_OR:
-    lval = ( left->lval || right->lval );
-    break;
-
-  case TOK_BSRIGHT:
-    lval = ( left->lval >> right->lval );
-    break;
-  case TOK_BSLEFT:
-    lval = ( left->lval << right->lval );
-    break;
-  case TOK_BITAND:
-    lval = ( left->lval & right->lval );
-    break;
-  case TOK_BITOR:
-    lval = ( left->lval | right->lval );
-    break;
-  case TOK_BITXOR:
-    lval = ( left->lval ^ right->lval );
-    break;
-
-  default:
-    return nullptr;
-
-    break;
-  }
-
-  auto ntoken = new Token( *left );
-  ntoken->lval = lval;
-  return ntoken;
-}
-
-Token* optimize_double_operation( Token* left, Token* oper, Token* right )
-{
-  double dval = 0.0;
-
-  switch ( oper->id )
-  {
-  case TOK_ADD:
-    dval = left->dval + right->dval;
-    break;
-  case TOK_SUBTRACT:
-    dval = left->dval - right->dval;
-    break;
-  case TOK_MULT:
-    dval = left->dval * right->dval;
-    break;
-  case TOK_DIV:
-    if ( right->dval == 0.0 )
-      throw std::runtime_error( "Program would divide by zero" );
-    dval = left->dval / right->dval;
-    break;
-
-  default:
-    break;
-  }
-
-  auto ntoken = new Token( *left );
-  ntoken->dval = dval;
-  return ntoken;
-}
-
-
-Token* optimize_string_operation( Token* left, Token* oper, Token* right )
-{
-  Token* ntoken = nullptr;
-  switch ( oper->id )
-  {
-  case TOK_ADD:
-  {
-    ntoken = new Token( *left );
-    std::string combined;
-    combined = std::string( left->tokval() ) + std::string( right->tokval() );
-    ntoken->copyStr( combined.c_str() );
-  }
-  break;
-
-  default:
-    break;
-  }
-  return ntoken;
-}
-
-Token* optimize_long_operation( Token* oper, Token* value )
-{
-  Token* ntoken = nullptr;
-  switch ( oper->id )
-  {
-  case TOK_UNMINUS:
-    ntoken = new Token( *value );
-    ntoken->lval = -value->lval;
-    break;
-  case TOK_LOG_NOT:
-    ntoken = new Token( *value );
-    ntoken->lval = !value->lval;
-    break;
-  case TOK_BITWISE_NOT:
-    ntoken = new Token( *value );
-    ntoken->lval = ~ntoken->lval;
-    break;
-
-  default:
-    break;
-  }
-  return ntoken;
-}
-Token* optimize_double_operation( Token* oper, Token* value )
-{
-  Token* ntoken = nullptr;
-  switch ( oper->id )
-  {
-  case TOK_UNMINUS:
-    ntoken = new Token( *value );
-    ntoken->dval = -value->dval;
-    break;
-
-  default:
-    break;
-  }
-  return ntoken;
-}
-Token* optimize_string_operation( Token* /*oper*/, Token* /*value*/ )
-{
-  return nullptr;
-}
-
-void Expression::optimize_binary_operations()
-{
-  for ( unsigned i = 0; i < tokens.size(); i++ )
-  {
-    Token* oper = tokens[i];
-    if ( oper->type != TYP_OPERATOR )
-    {
-      continue;
-    }
-    if ( i < 2 )
-      throw std::runtime_error( "Unbalanced binary operator: " + Clib::tostring( *oper ) );
-
-    Token* left = tokens[i - 2];
-    Token* right = tokens[i - 1];
-    if ( left->id != right->id )
-    {
-      // only optimize operations on like operands
-      continue;
-    }
-    if ( left->id != TOK_LONG && left->id != TOK_STRING && left->id != TOK_DOUBLE )
-    {
-      continue;
-    }
-
-    Token* ntoken = nullptr;
-    switch ( left->id )
-    {
-    case TOK_LONG:
-      ntoken = optimize_long_operation( left, oper, right );
-      break;
-    case TOK_DOUBLE:
-      ntoken = optimize_double_operation( left, oper, right );
-      break;
-    case TOK_STRING:
-      ntoken = optimize_string_operation( left, oper, right );
-      break;
-
-
-    default:
-      break;
-    }
-    if ( ntoken )
-    {
-      delete left;
-      delete right;
-      delete oper;
-      tokens[i - 2] = ntoken;
-      tokens.erase( tokens.begin() + ( i - 1 ), tokens.begin() + ( i + 1 ) );
-    }
-  }
-}
-
-void Expression::optimize_unary_operations()
-{
-  for ( unsigned i = 0; i < tokens.size(); i++ )
-  {
-    Token* oper = tokens[i];
-    if ( oper->type != TYP_UNARY_OPERATOR )
-    {
-      continue;
-    }
-    if ( i < 1 )
-      throw std::runtime_error( "Unbalanced unary operator: " + Clib::tostring( *oper ) );
-
-    Token* value = tokens[i - 1];
-
-    if ( oper->id == TOK_UNPLUS )
-    {
-      // unary plus does nothing.
-      delete oper;
-      tokens.erase( tokens.begin() + i, tokens.begin() + i + 1 );
-      continue;
-    }
-    if ( value->id != TOK_LONG && value->id != TOK_STRING && value->id != TOK_DOUBLE )
-    {
-      continue;
-    }
-    Token* ntoken = nullptr;
-    switch ( value->id )
-    {
-    case TOK_LONG:
-      ntoken = optimize_long_operation( oper, value );
-      break;
-    case TOK_DOUBLE:
-      ntoken = optimize_double_operation( oper, value );
-      break;
-    case TOK_STRING:
-      ntoken = optimize_string_operation( oper, value );
-      break;
-    default:
-      break;
-    }
-    if ( ntoken )
-    {
-      delete value;
-      delete oper;
-      tokens[i - 1] = ntoken;
-      tokens.erase( tokens.begin() + i, tokens.begin() + ( i + 1 ) );
-    }
-  }
-}
-
-int Expression::get_num_tokens( int idx ) const
-{
-  Token* tkn = tokens[idx];
-  int children = 0;
-
-  if ( tkn->type == TYP_OPERAND )  // constant
-  {
-    // "anonymous" struct definitions inside array/dict/...
-    if ( tkn->id == INS_ADDMEMBER_ASSIGN )  // struct{a:=1}
-      children = 2;
-    else if ( tkn->id == INS_ADDMEMBER2 )  // struct{a}
-      children = 1;
-    else
-      children = 0;  // just myself
-  }
-  else if ( tkn->id == INS_ADDMEMBER_ASSIGN )
-  {
-    children = 2;
-  }
-  else if ( tkn->id == INS_DICTIONARY_ADDMEMBER )
-  {
-    children = 3;
-  }
-  else if ( tkn->id == INS_MULTISUBSCRIPT )
-  {
-    children = 1 + tkn->lval;
-  }
-  else if ( tkn->id == INS_MULTISUBSCRIPT_ASSIGN )
-  {
-    children = 1 + tkn->lval;
-  }
-  else if ( tkn->type == TYP_OPERATOR )  // binary operator
-  {
-    children = 2;
-  }
-  else if ( tkn->type == TYP_UNARY_OPERATOR )
-  {
-    children = 1;
-  }
-  else if ( tkn->type == TYP_FUNC )
-  {
-    children = static_cast<int>( tkn->userfunc->parameters.size() );
-  }
-  else if ( tkn->type == TYP_METHOD )
-  {
-    children = 1 + tkn->lval;
-  }
-  else if ( tkn->type == TYP_USERFUNC )
-  {
-    // the CTRL_JSR_USERFUNC
-    // FIXME: TODO: what?
-    children = 1;
-  }
-  else if ( tkn->id == CTRL_JSR_USERFUNC )
-  {
-    // the CTRL_MAKELOCAL + the parameters
-    children = static_cast<int>( 1 + tkn->userfunc->parameters.size() );
-  }
-  else if ( tkn->id == CTRL_MAKELOCAL )
-  {
-    children = 0;
-  }
-  else
-  {
-    passert_always( 0 );
-  }
-  int count = 1;
-  for ( int i = 0; i < children; ++i )
-  {
-    count += get_num_tokens( idx - count );
-  }
-  return count;
-}
-
-bool Expression::optimize_token( int i )
-{
-  Token* oper = tokens[i];
-  if ( oper->type == TYP_OPERATOR && oper->id == TOK_ASSIGN )
-  {
-    int right_idx = i - 1;
-    int left_idx = right_idx - get_num_tokens( i - 1 );
-    if ( right_idx < 0 || left_idx < 0 )
-    {
-      throw std::runtime_error( "Unbalanced operator: " + Clib::tostring( *oper ) );
-    }
-    // Token* right = tokens[ right_idx ];
-    Token* left = tokens[left_idx];
-    if ( left->id == TOK_ARRAY_SUBSCRIPT )
-    {
-      oper->id = INS_SUBSCRIPT_ASSIGN;
-      oper->type = TYP_UNARY_OPERATOR;
-      oper->lval = left->lval;
-      delete left;
-      tokens.erase( tokens.begin() + left_idx, tokens.begin() + ( left_idx + 1 ) );
-      return true;
-    }
-    else if ( left->id == INS_MULTISUBSCRIPT )
-    {
-      oper->id = INS_MULTISUBSCRIPT_ASSIGN;
-      oper->type = TYP_UNARY_OPERATOR;
-      oper->lval = left->lval;
-      delete left;
-      tokens.erase( tokens.begin() + left_idx, tokens.begin() + ( left_idx + 1 ) );
-      return true;
-    }
-    else if ( left->id == INS_GET_MEMBER )
-    {
-      oper->id = INS_SET_MEMBER;
-      oper->type = TYP_UNARY_OPERATOR;
-      oper->copyStr( left->tokval() );
-      delete left;
-      tokens.erase( tokens.begin() + left_idx, tokens.begin() + ( left_idx + 1 ) );
-      return true;
-    }
-    else if ( left->id == INS_GET_MEMBER_ID )
-    {
-      OSTRINGSTREAM os;
-      os << left->lval;
-
-      oper->id = INS_SET_MEMBER_ID;
-      oper->type = TYP_UNARY_OPERATOR;
-      oper->copyStr( OSTRINGSTREAM_STR( os ).c_str() );
-      oper->lval = left->lval;
-      delete left;
-      tokens.erase( tokens.begin() + left_idx, tokens.begin() + ( left_idx + 1 ) );
-      return true;
-    }
-  }
-  else if ( oper->id == INS_ASSIGN_CONSUME )
-  {
-    int right_idx = i - 1;
-    int left_idx = right_idx - get_num_tokens( i - 1 );
-    // Token* right = tokens[ right_idx ];
-    Token* left = tokens[left_idx];
-    if ( left->id == TOK_LOCALVAR || left->id == TOK_GLOBALVAR )
-    {
-      // FIXME: assigning to a global/local, then consuming. we can do better, for this special
-      // case.
-      if ( left->id == TOK_LOCALVAR )
-        oper->id = INS_ASSIGN_LOCALVAR;
-      else if ( left->id == TOK_GLOBALVAR )
-        oper->id = INS_ASSIGN_GLOBALVAR;
-      oper->type = TYP_UNARY_OPERATOR;
-      oper->lval = left->lval;
-      oper->copyStr( left->tokval() );
-      delete left;
-      tokens.erase( tokens.begin() + left_idx, tokens.begin() + left_idx + 1 );
-      return true;
-    }
-  }
-  else if ( oper->id == TOK_CONSUMER )
-  {
-    Token* operand = tokens[i - 1];
-    if ( operand->id == TOK_ASSIGN )
-    {
-      operand->id = INS_ASSIGN_CONSUME;
-      delete oper;
-      tokens.pop_back();
-      return true;
-    }
-    else if ( operand->id == INS_SUBSCRIPT_ASSIGN )
-    {
-      operand->id = INS_SUBSCRIPT_ASSIGN_CONSUME;
-      delete oper;
-      tokens.pop_back();
-      return true;
-    }
-    else if ( operand->id == INS_SET_MEMBER )
-    {
-      operand->id = INS_SET_MEMBER_CONSUME;
-      delete oper;
-      tokens.pop_back();
-      return true;
-    }
-    else if ( operand->id == INS_SET_MEMBER_ID )
-    {
-      operand->id = INS_SET_MEMBER_ID_CONSUME;
-      delete oper;
-      tokens.pop_back();
-      return true;
-    }
-  }
-  else if ( oper->id == TOK_UNPLUSPLUS || oper->id == TOK_UNPLUSPLUS_POST ||
-            oper->id == TOK_UNMINUSMINUS || oper->id == TOK_UNMINUSMINUS_POST )
-  {
-    if ( i > 0 )
-    {
-      Token* operand = tokens[i - 1];
-      if ( operand->id == INS_GET_MEMBER_ID )
-      {
-        // TODO: spezial consume instruction? no need to copy value obto valuestack?
-        if ( oper->id == TOK_UNPLUSPLUS )
-          operand->id = INS_SET_MEMBER_ID_UNPLUSPLUS;
-        else if ( oper->id == TOK_UNMINUSMINUS )
-          operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS;
-        else if ( oper->id == TOK_UNPLUSPLUS_POST )
-          operand->id = INS_SET_MEMBER_ID_UNPLUSPLUS_POST;
-        else if ( oper->id == TOK_UNMINUSMINUS_POST )
-          operand->id = INS_SET_MEMBER_ID_UNMINUSMINUS_POST;
-        delete oper;
-        tokens.erase( tokens.begin() + i );
-      }
-    }
-    return true;
-  }
-  else if ( oper->id == TOK_MEMBER )
-  {
-    Token* operand = tokens[i - 1];
-    if ( operand->id == TOK_STRING /*|| operand->id == INS_CALL_METHOD*/ )
-    {
-      ObjMember* objmemb = getKnownObjMember( operand->tokval() );
-      if ( objmemb != nullptr && compilercfg.OptimizeObjectMembers )
-      {
-        // merge the member name with the member operator.
-        oper->id = INS_GET_MEMBER_ID;
-        oper->type = TYP_UNARY_OPERATOR;
-        oper->lval = (int)objmemb->id;
-
-        delete operand;
-        tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );
-        // 1: local #0
-        // 2: get member id 'warmode' (27)
-        // 3: 1L
-        // 4: +=
-        // 5: #
-        if ( i < 3 )  // has to be the first op
-        {
-          if ( tokens[tokens.size() - 1]->id == TOK_CONSUMER )
-            operand = tokens[tokens.size() - 2];
-          else
-            operand = tokens[tokens.size() - 1];
-          if ( operand->id == TOK_PLUSEQUAL || operand->id == TOK_MINUSEQUAL ||
-               operand->id == TOK_TIMESEQUAL || operand->id == TOK_DIVIDEEQUAL ||
-               operand->id == TOK_MODULUSEQUAL )
-          {
-            // 12: local #0
-            // 13: 1L
-            // 14: set member id 'warmode' (27) += #
-            if ( tokens[tokens.size() - 1]->id == TOK_CONSUMER )
-            {
-              delete tokens.back();
-              tokens.pop_back();  // delete consumer
-            }
-
-            if ( operand->id == TOK_PLUSEQUAL )
-              oper->id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
-            else if ( operand->id == TOK_MINUSEQUAL )
-              oper->id = INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL;
-            else if ( operand->id == TOK_TIMESEQUAL )
-              oper->id = INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL;
-            else if ( operand->id == TOK_DIVIDEEQUAL )
-              oper->id = INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL;
-            else if ( operand->id == TOK_MODULUSEQUAL )
-              oper->id = INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL;
-            delete operand;
-            tokens.pop_back();                                           // delete +=
-            tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );  // remove setmember
-            tokens.insert( tokens.end(), oper );                         // and append it
-            OSTRINGSTREAM os;
-            os << oper->lval;
-            oper->copyStr( OSTRINGSTREAM_STR( os ).c_str() );
-          }
-        }
-        return true;
-      }
-      else
-      {
-        // merge the member name with the member operator.
-        oper->id = INS_GET_MEMBER;
-        oper->type = TYP_UNARY_OPERATOR;
-        oper->copyStr( operand->tokval() );
-        delete operand;
-        tokens.erase( tokens.begin() + i - 1, tokens.begin() + i );
-        return true;
-      }
-    }
-    else
-    {
-      throw std::runtime_error( "Expected an identifier to follow the member (.) operator." );
-    }
-  }
-
-  return false;
-}
-void Expression::optimize_assignments()
-{
-  for ( unsigned i = 1; i < tokens.size(); i++ )
-  {
-    if ( optimize_token( i ) )
-      return;
-  }
-}
-
-/*
-    TODO:
-    add options to:
-    a) disable all optimization
-    b) disable optimization on doubles
-    OPTIMIZATIONS PERFORMED:
-    Constant Long Arithmetic:  (+ - * /)
-    5 + 7   ->   5 7 +   ->  12
-    Constant Double Arithmetic: (+ - * /)
-    5.5 + 6.5  ->  5.5 6.5 +   -> 12.0
-    String Concatenation:    (+)
-    "hello" + " world" -> "hello" " world" + -> "hello world"
-    OPTIMIZATIONS TO BE CONSIDERED:
-    More efficient constructs: (+=, -=, *=, /=)
-    A := A + 5 -> A A 5 + := -> A 5 +=
-    Note, this is harder for things like:
-    A[5] := A[5] + 4;
-    which requires reversing your way up the expression
-    and searching for like operands.
-
-    Optimizations that must take place at a different level:
-    0  IFFALSE -> GOTO
-    1  IFFALSE -> NOP
-    0  IF    -> NOP
-    1  IF    -> GOTO
-    34: GOTO 56
-    56: GOTO 78    --> 34: GOTO 78  56: GOTO 78
-    NOP    -> (null) (compress NOPs)
-    */
-void Expression::optimize()
-{
-  size_t starting_size;
-  do
-  {
-    starting_size = tokens.size();
-    optimize_binary_operations();
-    optimize_unary_operations();
-    optimize_assignments();
-
-  } while ( tokens.size() != starting_size );
 }
 
 void Compiler::enterblock( eb_label_ok eblabel, eb_break_ok ebbreak, eb_continue_ok ebcontinue )
@@ -1070,12 +425,10 @@ int Compiler::getArrayElements( Expression& expr, CompilerContext& ctx )
       compiler_error( "Unexpected comma in array initializer list\n" );
       return -1;
     }
-    Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.eat2( eex );
 
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
@@ -1136,12 +489,10 @@ int Compiler::getNewArrayElements( Expression& expr, CompilerContext& ctx )
       compiler_error( "Unexpected comma in array initializer list\n" );
       return -1;
     }
-    Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.eat2( eex );
 
     expr.CA.push( new Token( TOK_INSERTINTO, TYP_OPERATOR ) );
 
@@ -1210,23 +561,21 @@ int Compiler::getStructMembers( Expression& expr, CompilerContext& ctx )
     if ( token.id == TOK_IDENT || token.id == TOK_STRING )
     {
       Token ident_tkn;
-      Parser::getToken( ctx, ident_tkn );
+      getTokenWithoutConversions( ctx, ident_tkn );
 
       res = peekToken( ctx, token );
       if ( token.id == TOK_ASSIGN )
       {
         getToken( ctx, token );
         // something like struct { a := 5 };
-        Expression eex;
-        res =
-            readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+        res = read_subexpression(
+            expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
         if ( res < 0 )
           return res;
 
         auto addmem = new Token( ident_tkn );
         addmem->id = INS_ADDMEMBER_ASSIGN;
 
-        expr.eat2( eex );
         expr.CA.push( addmem );
       }
       else if ( token.id == TOK_EQUAL1 )
@@ -1313,15 +662,11 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
 
 
     // first get the key expression.
-
-    Expression key_expression;
-    res = readexpr( key_expression, ctx,
-                    EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_DICTKEY_TERM_ALLOWED |
-                        EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_DICTKEY_TERM_ALLOWED |
+                                  EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.eat2( key_expression );
 
     // if the key is followed by "->", then grab the value
     res = peekToken( ctx, token );
@@ -1332,13 +677,10 @@ int Compiler::getDictionaryMembers( Expression& expr, CompilerContext& ctx )
       getToken( ctx, token );
       // get the value expression
 
-      Expression value_expression;
-      res = readexpr( value_expression, ctx,
-                      EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
+      res = read_subexpression( expr, ctx,
+                                EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTBRACE_TERM_ALLOWED );
       if ( res < 0 )
         return res;
-
-      expr.eat2( value_expression );
     }
     else
     {
@@ -1391,12 +733,10 @@ int Compiler::getMethodArguments( Expression& expr, CompilerContext& ctx, int& n
       compiler_error( "Unexpected comma in array element list\n" );
       return -1;
     }
-    Expression eex;
-    res = readexpr( eex, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res = read_subexpression( expr, ctx,
+                              EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
-
-    expr.eat2( eex );
 
     ++nargs;
 
@@ -1487,7 +827,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
     CompilerContext tctx( ctx );
 
-    res = getToken( tctx, tk );
+    res = getTokenWithoutConversions( tctx, tk );
     if ( res < 0 )
       return res;
     if ( tk.id == TOK_RPAREN )
@@ -1545,7 +885,8 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
 
     Expression& arg_expr = params_passed[varname];
 
-    res = IIP( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
+    res =
+        readexpr( arg_expr, ctx, EXPR_FLAG_COMMA_TERM_ALLOWED | EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED );
     if ( res < 0 )
       return res;
 
@@ -1587,7 +928,7 @@ int Compiler::getUserArgs( Expression& ex, CompilerContext& ctx, bool inject_jsr
     else
     {
       Expression& arg_expr = params_passed[itr->name];
-      ex.eat( arg_expr );
+      ex.consume_tokens( arg_expr );
       params_passed.erase( itr->name );
     }
   }
@@ -1759,10 +1100,20 @@ int Compiler::readexpr( Expression& expr, CompilerContext& ctx, unsigned flags )
   substitute_constants( expr );
   convert_variables( expr );
   expr.optimize();
+  expr.replace_elvis();
   res = validate( expr, ctx );
   if ( res != 0 )
     return -1;
   return 1;
+}
+
+int Compiler::read_subexpression( Expression& expr, CompilerContext& ctx, unsigned flags )
+{
+  Expression subexpression;
+  int res = readexpr( subexpression, ctx, flags );
+  if ( res >= 0 )
+    expr.consume_tokens( subexpression );
+  return res;
 }
 
 void Compiler::inject( Expression& expr )
@@ -2398,8 +1749,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
   peekToken( ctx, token );
   for ( ;; )
   {
-    Token paramName;
-    res = getToken( ctx, token );
+    res = getTokenWithoutConversions( ctx, token );
     if ( res )
       return -1;
 
@@ -2411,7 +1761,7 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
     if ( token.id == TOK_REFTO )
     {
       pass_by_reference = true;
-      res = getToken( ctx, token );
+      res = getTokenWithoutConversions( ctx, token );
       if ( res )
         return -1;
     }
@@ -2493,135 +1843,6 @@ int Compiler::readFunctionDeclaration( CompilerContext& ctx, UserFunction& userf
   return 0;
 }
 
-int Compiler::handleDeclare( CompilerContext& ctx )
-{
-  int res;
-  Token token;
-  res = getToken( ctx, token );
-  if ( res )
-    return res;
-  if ( token.id != RSV_FUNCTION )
-  {
-    return -1;
-  }
-  Token funcName;
-  res = getToken( ctx, funcName );
-  if ( res )
-    return res;
-  if ( funcName.id != TOK_IDENT )
-  {
-    throw std::runtime_error( "Tried to declare a non-identifier" );
-  }
-  Token lparen;
-  res = getToken( ctx, lparen );
-  if ( res )
-    return res;
-  if ( lparen.id != TOK_LPAREN )
-  {
-    return -1;
-  }
-  int nParams = 0;
-  for ( ;; )
-  {
-    res = getToken( ctx, token );
-    if ( res )
-      return -1;
-    if ( token.id == TOK_RPAREN )
-    {
-      break;
-    }
-    if ( token.id != TOK_IDENT )
-    {
-      return -1;
-    }
-    nParams++;
-    peekToken( ctx, token );
-    if ( token.id == TOK_COMMA )
-    {
-      getToken( ctx, token );
-      continue;
-    }
-    else if ( token.id == TOK_RPAREN )
-    {
-      continue;
-    }
-    else
-    {
-      return -1;
-    }
-  }
-  getToken( ctx, token );
-  if ( token.id != TOK_SEMICOLON )
-  {
-    err = PERR_MISSINGDELIM;
-    return -1;
-  }
-  INFO_PRINT << "func decl: " << curLine << "\n"
-             << "nParams: " << nParams << "\n";
-  // addUserFunc(funcName.tokval(), nParams);
-  return 0;
-}
-
-int Compiler::handleIf( CompilerContext& ctx, int level )
-{
-  // unsigned if_begin;
-  unsigned jump_false;
-  Token token;
-  // if_begin = program->tokens.next();
-  jump_false = 0;
-  if ( !quiet )
-    INFO_PRINT << "if clause..\n";
-
-
-  int res = getExprInParens( ctx );  // (expr) (parens required)
-  if ( res < 0 )
-    return res;
-
-  unsigned if_token_posn;
-  program->append( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, 0 ), &if_token_posn );
-
-  // THEN is optional, currently.
-  peekToken( ctx, token );
-  if ( token.id == RSV_THEN )
-    getToken( ctx, token );  // 'then'
-  if ( !quiet )
-    INFO_PRINT << "then clause..\n";
-
-  // get the part we do
-  res = getStatement( ctx, level );
-  if ( res < 0 )
-    return res;
-
-  // if an ELSE follows, grab the ELSE and following statement
-  peekToken( ctx, token );
-  StoredTokenContainer* prog_tokens = &program->tokens;
-  if ( token.id == RSV_ELSE )
-  {
-    unsigned else_token_posn;
-    // this GOTO makes execution skip the ELSE part if the IF was true
-    program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &else_token_posn );
-    jump_false = prog_tokens->next();
-    getToken( ctx, token );  // eat the else
-    if ( !quiet )
-      INFO_PRINT << "else clause..\n";
-    getStatement( ctx, level );
-    // now that we know where the ELSE part ends, patch in the address
-    // which skips past it.
-    prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, prog_tokens->next() ),
-                         else_token_posn );
-  }
-  else
-  {
-    jump_false = prog_tokens->next();
-  }
-
-
-  // patch up orig. IF token to skip past if false
-  prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_JMPIFFALSE, TYP_RESERVED, jump_false ),
-                       if_token_posn );
-  return 0;
-}
-
 bool mismatched_end( const Token& token, BTokenId correct )
 {
   if ( token.id == correct )
@@ -2662,7 +1883,6 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
   bool discard_rest = false;
   // bool discarded_all = true;
   bool included_any_tests = false;
-  unsigned last_if_token_posn = static_cast<unsigned>( -1 );
   unsigned if_token_posn = static_cast<unsigned>( -1 );
   StoredTokenContainer* prog_tokens = &program->tokens;
   while ( token.id == RSV_ST_IF || token.id == RSV_ELSEIF )
@@ -2676,7 +1896,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       return res;
     // dump(cout);
     bool patch_if_token = true;
-    last_if_token_posn = if_token_posn;
+    const unsigned last_if_token_posn = if_token_posn;
     if ( ex.tokens.back()->id == TOK_LOG_NOT )
     {
       if_token_posn = prog_tokens->count() - 1;
@@ -2703,6 +1923,7 @@ int Compiler::handleBracketedIf( CompilerContext& ctx, int level )
       rollback( *program, checkpt_expr );  // don't need the expression or the jump,
       // even if we're keeping the block
       patch_if_token = false;
+      if_token_posn = last_if_token_posn;
     }
     else
     {
@@ -3008,7 +2229,6 @@ int Compiler::handleVarDeclare( CompilerContext& ctx, unsigned save_id )
       varindex = localscope.numVariables();
       program->addlocalvar( tk_varname.tokval() );
 
-      varindex = localscope.numVarsInBlock();
       localscope.addvar( tk_varname.tokval(), ctx );
     }
 
@@ -3774,82 +2994,6 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
   return 0;
 }
 
-int Compiler::handleFor_c( CompilerContext& ctx )
-{
-  {
-    Token tkn;
-    getToken( ctx, tkn );
-    if ( tkn.id != TOK_LPAREN )
-    {
-      compiler_error( "FOR: expected '('\n" );
-      return -1;
-    }
-  }
-
-  enterblock( CanBeLabelled );
-
-  Expression initial_expr;
-  Expression predicate_expr;
-  Expression iterate_expr;
-  if ( readexpr( initial_expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED ) != 1 )
-    return -1;
-  if ( readexpr( predicate_expr, ctx, EXPR_FLAG_SEMICOLON_TERM_ALLOWED ) != 1 )
-    return -1;
-  if ( readexpr( iterate_expr, ctx, EXPR_FLAG_RIGHTPAREN_TERM_ALLOWED ) != 1 )
-    return -1;
-
-  {
-    Token tkn;
-    if ( getToken( ctx, tkn ) || tkn.id != TOK_RPAREN )
-    {
-      compiler_error( "FOR: expected '('\n" );
-      return -1;
-    }
-  }
-
-  /*
-      The c-style 'for' statement gets generated as follows:
-      given:
-      for( initial; predicate; iterate ) statement;
-      initial;
-      again:
-      predicate;
-      if true goto statement_part;
-      break;
-      statement_part:
-      statement;
-      iterate_part:
-      iterate;
-      goto again;
-      */
-
-
-  inject( initial_expr );
-  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
-  StoredTokenContainer* prog_tokens = &program->tokens;
-  unsigned againPC = prog_tokens->next();
-  inject( predicate_expr );
-
-  unsigned if_posn;
-  program->append( StoredToken( Mod_Basic, RSV_JMPIFTRUE, TYP_RESERVED, 0 ), &if_posn );
-
-  insertBreak( "" );
-  patchoffset( if_posn, prog_tokens->next() );
-
-  int res = getStatement( ctx, 1 );
-  if ( res < 0 )
-    return -1;
-  unsigned nextPC = prog_tokens->next();
-
-  inject( iterate_expr );
-  program->append( StoredToken( Mod_Basic, TOK_CONSUMER, TYP_UNARY_OPERATOR, 0 ) );
-
-  program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, againPC ), nullptr );
-
-  leaveblock( prog_tokens->next(), nextPC );
-
-  return 0;
-}
 int Compiler::handleBracketedFor_c( CompilerContext& ctx )
 {
   {
@@ -4028,8 +3172,6 @@ int Compiler::_getStatement( CompilerContext& ctx, int level )
       compiler_error( "_OptionBracketed is obsolete.\n" );
       // bracketed_if_ = true;
       return 0;
-    case RSV_DECLARE:
-      return handleDeclare( ctx );
 
     case RSV_EXPORTED:
     case RSV_FUNCTION:
@@ -4212,246 +3354,6 @@ int Compiler::getStatement( CompilerContext& ctx, int level )
     res = -1;
   }
   return res;
-}
-
-int Compiler::handleFunction( CompilerContext& ctx )
-{
-  int res;
-  Token token;
-  Token funcName;
-
-  if ( inFunction )
-  {
-    compiler_error( "Can't declare a function inside another function.\n", "(attempt to declare ",
-                    funcName, ")\n" );
-    return -1;
-  }
-  inFunction = 1;
-
-  UserFunction userfunc;
-
-  if ( readFunctionDeclaration( ctx, userfunc ) )
-  {
-    return -1;
-  }
-  userFunctions[userfunc.name] = userfunc;
-  /*
-      should be begin, then statements while peektoken != end, then eat end.
-
-      getToken(s, token);
-      if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
-      err = PERR_MISSINGDELIM;
-      return -1;
-      }
-      */
-  // woo-hoo! recursive calls should work.
-  // cout << "func decl: " << curLine << endl;
-  unsigned posn = 0;
-
-  unsigned skip_goto_posn;
-
-  StoredTokenContainer* prog_tokens = &program->tokens;
-  if ( include_debug )
-  {
-    /*
-        A bit of explanation:
-        We want to end up with this:
-        GOTO (skip)
-        STATEMENT BEGIN (function declaration) <-- user func address
-        User Function (Foo)
-        But right now we have:
-        STATEMENT_BEGIN (line info)
-        and adding the goto and function would end up adding:
-        GOTO (skip)
-        (User Function (Foo) will soon go here) <-- user func address
-        So, we append a copy of the statement_begin, then put a goto
-        in its original position.
-        */
-
-    // STATEMENT
-    StoredToken tmptoken;
-    prog_tokens->atGet1( prog_tokens->count() - 1, tmptoken );
-    program->append( tmptoken, &userfunc.position );  // STATEMENT, STATEMENT
-
-    // skip_goto_posn: a goto is inserted, so prog ctrl will skip over this function
-    skip_goto_posn = prog_tokens->count() - 2;
-    prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), skip_goto_posn );
-    /* GOTO, STATEMENT */
-
-    program->symbols.append( userfunc.name.c_str(), posn );
-    program->append( StoredToken( Mod_Basic, TOK_USERFUNC, TYP_USERFUNC, posn ) );
-  }
-  else
-  {
-    program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &skip_goto_posn );
-    userfunc.position = posn = prog_tokens->count();
-  }
-
-  res = getToken( ctx, token );
-  if ( res )
-    return res;
-  if ( token.id != RSV_BEGIN )
-  {
-    compiler_error( "Error reading function definition for ", userfunc.name, "()\n",
-                    "Expected BEGIN .. END block, got token: '", token, "'\n" );
-    return -1;
-  }
-
-  program->enterfunction();
-  enterblock( CanNotBeLabelled );
-
-  for ( int i = static_cast<unsigned int>( userfunc.parameters.size() - 1 ); i >= 0; --i )
-  {
-    UserParam* user_param = &userfunc.parameters[i];
-    program->symbols.append( user_param->name.c_str(), posn );
-    program->append(
-        StoredToken( Mod_Basic, user_param->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
-                     TYP_OPERATOR, posn ),
-        nullptr );
-    program->addlocalvar( user_param->name );
-
-    localscope.addvar( user_param->name, ctx, true, user_param->unused );
-  }
-
-  res = handleBlock( ctx, 1 /* level */ );
-  if ( res < 0 )
-    return res;
-
-  StoredToken tmp;
-  prog_tokens->atGet1( prog_tokens->count() - 1, tmp );
-  if ( tmp.id != RSV_RETURN )
-  {
-    program->symbols.append( "", posn );
-    program->append( StoredToken( Mod_Basic, TOK_STRING, TYP_OPERAND, posn ) );
-    program->append( StoredToken( Mod_Basic, RSV_RETURN, TYP_RESERVED, 0 ) );
-  }
-
-  leaveblock( 0, 0 );
-  program->leavefunction();
-
-  /* now, the skip goto must be patched up with the correct PC address*/
-  patchoffset( skip_goto_posn, prog_tokens->next() );
-
-
-  inFunction = 0;
-  return 0;
-}
-
-int Compiler::handleBracketedFunction( CompilerContext& ctx )
-{
-  CompilerContext save_ctx( ctx );
-  int res;
-  Token token;
-
-  if ( inFunction )
-  {
-    compiler_error( "Can't declare a function inside another function.\n" );
-    return -1;
-  }
-  inFunction = 1;
-
-  UserFunction userfunc;
-
-  if ( readFunctionDeclaration( ctx, userfunc ) )
-  {
-    return -1;
-  }
-  userFunctions[userfunc.name] = userfunc;
-  /*
-      should be begin, then statements while peektoken != end, then eat end.
-
-      getToken(s, token);
-      if (token.type != TYP_DELIMITER || token.id != DELIM_SEMICOLON) {
-      err = PERR_MISSINGDELIM;
-      return -1;
-      }
-      */
-  /* woo-hoo! recursive calls should work. */
-  // cout << "func decl: " << curLine << endl;
-  unsigned posn = 0;
-
-  unsigned skip_goto_posn;
-
-  StoredTokenContainer* prog_tokens = &program->tokens;
-  if ( include_debug )
-  {
-    /*
-        A bit of explanation:
-        We want to end up with this:
-        GOTO (skip)
-        STATEMENT BEGIN (function declaration) <-- user func address
-        User Function (Foo)
-        But right now we have:
-        STATEMENT_BEGIN (line info)
-        and adding the goto and function would end up adding:
-        GOTO (skip)
-        (User Function (Foo) will soon go here) <-- user func address
-        So, we append a copy of the statement_begin, then put a goto
-        in its original position.
-        */
-    /* STATEMENT */
-    StoredToken tmptoken;
-    prog_tokens->atGet1( prog_tokens->count() - 1, tmptoken );
-    program->append( tmptoken, &userfunc.position ); /* STATEMENT, STATEMENT */
-
-    /* skip_goto_posn: a goto is inserted, so prog ctrl will skip over this function */
-    skip_goto_posn = prog_tokens->count() - 2;
-    prog_tokens->atPut1( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), skip_goto_posn );
-    /* GOTO, STATEMENT */
-
-    program->symbols.append( userfunc.name.c_str(), posn );
-    program->append( StoredToken( Mod_Basic, TOK_USERFUNC, TYP_USERFUNC, posn ) );
-  }
-  else
-  {
-    program->append( StoredToken( Mod_Basic, RSV_GOTO, TYP_RESERVED, 0 ), &skip_goto_posn );
-    userfunc.position = posn = prog_tokens->count();
-  }
-
-  program->enterfunction();
-  enterblock( CanNotBeLabelled );
-
-  for ( int i = static_cast<unsigned int>( userfunc.parameters.size() - 1 ); i >= 0; --i )
-  {
-    UserParam* params = &userfunc.parameters[i];
-    program->symbols.append( params->name.c_str(), posn );
-    program->append(
-        StoredToken( Mod_Basic, params->pass_by_reference ? INS_POP_PARAM_BYREF : INS_POP_PARAM,
-                     TYP_OPERATOR, posn ),
-        nullptr );
-
-    program->addlocalvar( params->name );
-    localscope.addvar( params->name, ctx, true, params->unused );
-  }
-
-  Token endblock_tkn;
-  res = readblock( ctx, 1, RSV_ENDFUNCTION, nullptr, &endblock_tkn );
-  if ( res < 0 )
-  {
-    compiler_error( "Error occurred reading function body for '", userfunc.name, "'\n",
-                    "Function location: ", save_ctx, "Error location: \n" );
-    return res;
-  }
-
-  program->update_dbg_pos( endblock_tkn );
-  StoredToken tmp;
-  prog_tokens->atGet1( prog_tokens->count() - 1, tmp );
-  if ( tmp.id != RSV_RETURN )
-  {
-    program->symbols.append( "", posn );
-    program->append( StoredToken( Mod_Basic, TOK_STRING, TYP_OPERAND, posn ) );
-    program->append( StoredToken( Mod_Basic, RSV_RETURN, TYP_RESERVED, 0 ) );
-  }
-
-  leaveblock( 0, 0 );
-  program->leavefunction();
-
-  /* now, the skip goto must be patched up with the correct PC address*/
-  patchoffset( skip_goto_posn, prog_tokens->next() );
-
-
-  inFunction = 0;
-  return 0;
 }
 
 // pass 2 function: just skip past, to the ENDFUNCTION.
@@ -5313,7 +4215,7 @@ bool is_web_script( const char* file )
 /**
  * Transforms the raw html page into a script with a single WriteHtml() instruction
  */
-void preprocess_web_script( Clib::FileContents& fc )
+std::string preprocess_web_script( const std::string& input )
 {
   std::string output;
   output = "use http;";
@@ -5321,7 +4223,7 @@ void preprocess_web_script( Clib::FileContents& fc )
 
   bool reading_html = true;
   bool source_is_emit = false;
-  const char* s = fc.contents();
+  const char* s = input.c_str();
   std::string acc;
   while ( *s )
   {
@@ -5373,7 +4275,7 @@ void preprocess_web_script( Clib::FileContents& fc )
   }
   if ( !acc.empty() )
     output += "WriteHtmlRaw( \"" + acc + "\");\n";
-  fc.set_contents( output );
+  return output;
 }
 
 
@@ -5397,7 +4299,7 @@ int Compiler::compileFile( const char* in_file )
 
     if ( is_web_script( filepath.c_str() ) )
     {
-      preprocess_web_script( fc );
+      fc.set_contents( preprocess_web_script( fc.contents() ) );
     }
 
     CompilerContext ctx( filepath, program->add_dbg_filename( filepath ), fc.contents() );
@@ -5463,6 +4365,7 @@ void Compiler::dump( std::ostream& os )
 {
   program->dump( os );
 }
+}  // namespace Legacy
 }  // namespace Bscript
 }  // namespace Pol
    /*

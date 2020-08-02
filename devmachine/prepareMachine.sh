@@ -68,13 +68,6 @@ sudo wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
 
 echo
 echo -------------------------------------------------------------------------------
-echo add cmake repro
-echo -------------------------------------------------------------------------------
-echo
-sudo add-apt-repository ppa:george-edison55/cmake-3.x -y
-
-echo
-echo -------------------------------------------------------------------------------
 echo update
 echo -------------------------------------------------------------------------------
 echo
@@ -94,12 +87,26 @@ echo ---------------------------------------------------------------------------
 echo
 sudo apt-get install g++-5 cpp-5 gcc-5  gcc-5-locales g++-5-multilib gcc-5-doc libstdc++6-5-dbg gcc-5-multilib libcloog-isl4 libisl10 libgomp1-dbg libitm1-dbg libatomic1-dbg libasan0-dbg libtsan0-dbg libquadmath0-dbg binutils -y
 
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1 --force
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1 --force
+
 echo
 echo -------------------------------------------------------------------------------
 echo install cmake
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install cmake -y
+wget http://www.cmake.org/files/v3.17/cmake-3.17.1.tar.gz
+tar -xvzf cmake-3.17.1.tar.gz
+(cd cmake-3.17.1 && ./configure && make && sudo make install)
+rm -rf cmake-3.17.1 cmake-3.17.1.tar.gz
+
+echo
+echo -------------------------------------------------------------------------------
+echo needed for antlr
+echo -------------------------------------------------------------------------------
+echo
+sudo apt-get install pkg-config uuid-dev
+
 
 sudo apt-get upgrade
 

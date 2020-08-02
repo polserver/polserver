@@ -806,31 +806,6 @@ bool Executor::setProgram( EScriptProgram* i_prog )
   return true;
 }
 
-BObject* Executor::makeObj( const Token& token )
-{
-  switch ( token.id )
-  {
-  case TOK_IDENT:
-    return new BObject( new BError( "Please recompile this script!" ) );
-  case TOK_LOCALVAR:
-    return LocalVar( token.lval ).get();
-  case TOK_GLOBALVAR:
-    return GlobalVar( token.lval ).get();
-  case TOK_STRING:
-    return new BObject( new String( token.tokval() ) );
-  case TOK_LONG:
-    return new BObject( new BLong( token.lval ) );
-  case TOK_DOUBLE:
-    return new BObject( new Double( token.dval ) );
-  case TOK_ERROR:
-    return new BObject( new BError( "unknown" ) );
-  default:
-    passert( 0 );
-    break;
-  }
-  return nullptr;
-}
-
 BObjectRef Executor::getObjRef( void )
 {
   if ( ValueStack.empty() )
@@ -1311,6 +1286,30 @@ void Executor::ins_jmpiffalse( const Instruction& ins )
     PC = (unsigned)ins.token.lval;
 
   ValueStack.pop_back();
+}
+
+void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
+{
+  // This is for short-circuit evaluation of the elvis operator [expr_a] ?: [expr_b]
+  //
+  // Program instructions look like this:
+  //   [expr_a instructions] INS_SKIPIFTRUE_ELSE_CONSUME [expr_b instructions]
+  //
+  // The result value of expr_a is on the top of the value stack when this instruction executes.
+  //
+  // If [expr_a] evaluated to true, leave its result and skip over the expr_b instructions
+  // otherwise, consume the false value and continue so that expr_b can replace it.
+  //
+  BObjectRef& objref = ValueStack.back();
+
+  if ( objref->impptr()->isTrue() )
+  {
+    PC = PC + (unsigned)( ins.token.lval );
+  }
+  else
+  {
+    ValueStack.pop_back();
+  }
 }
 
 
@@ -2924,7 +2923,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_set_member_id_unplusplus_post;  // test id
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
     return &Executor::ins_set_member_id_unminusminus_post;  // test id
-
+  case INS_SKIPIFTRUE_ELSE_CONSUME:
+    return &Executor::ins_skipiftrue_else_consume;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }

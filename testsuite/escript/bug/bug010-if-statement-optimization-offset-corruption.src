@@ -1,0 +1,16 @@
+// The optimizer overwrites the offset of a token, under the assumption that the
+// token is a JMP_IF_FALSE instruction.
+//
+// However, due to rolling back an optimized block, the token is actually something else.
+//
+// In this script, the offset of the "!" string literal is overwritten with the address
+// of the instruction following the "if", in this case the PROGEND.
+
+var b := "correct: first path";
+
+if (1)
+    b := b + "!";
+    print(b);
+elseif (b)
+    print("incorrect: second path");
+endif

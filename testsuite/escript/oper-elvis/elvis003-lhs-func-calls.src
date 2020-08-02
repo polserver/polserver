@@ -1,0 +1,3 @@
+include "support";
+
+print( foo( "a" ) ?: bar( "b" ) );

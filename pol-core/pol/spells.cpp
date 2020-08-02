@@ -279,7 +279,7 @@ void do_cast( Network::Client* client, u16 spellid )
       return;
   }
   // CHECKME should this look at spellnum, instead? static_cast behavior undefined if out of range.
-  if ( spellid > gamestate.spells.size() )
+  if ( spellid >= gamestate.spells.size() )
     return;
 
   USpell* spell = gamestate.spells[spellid];

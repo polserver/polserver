@@ -75,7 +75,7 @@ Item* Item::clone() const
   item->invisible( invisible() );  // dave 12-20
   item->movable( movable() );      // dave 12-20
   item->hp_ = hp_;
-  item->setQuality( getQuality() );
+  item->quality( quality() );
 
   item->on_use_script_ = on_use_script_;    // dave 12-20
   item->equip_script_ = equip_script_;      // dave 12-20
@@ -113,6 +113,7 @@ Item* Item::clone() const
   item->poison_resist_cap( poison_resist_cap() );
   item->physical_resist_cap( physical_resist_cap() );
   item->luck( luck() );
+  item->swing_speed_increase( swing_speed_increase() );
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -457,12 +458,14 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tPoisonResistCap\t" << poison_resist_cap().value << pf_endl;
   if ( has_luck() )
     sw() << "\tLuck\t" << luck().value << pf_endl;
+  if ( has_swing_speed_increase() )
+    sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
   // end new prop stuf
   if ( maxhp_mod_ )
     sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
   if ( hp_ != itemdesc().maxhp )
     sw() << "\tHp\t" << hp_ << pf_endl;
-  double quali = getQuality();
+  double quali = quality();
   if ( quali != getItemdescQuality() )
     sw() << "\tQuality\t" << quali << pf_endl;
   if ( !suffix.empty() )
@@ -507,7 +510,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
   newbie( elem.remove_bool( "NEWBIE", default_newbie() ) );
   insured( elem.remove_bool( "INSURED", default_insured() ) );
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
-  setQuality( elem.remove_double( "QUALITY", itemdesc().quality ) );
+  quality( elem.remove_double( "QUALITY", itemdesc().quality ) );
 
   maxhp_mod( static_cast<s16>( elem.remove_int( "MAXHP_MOD", 0 ) ) );
   name_suffix( elem.remove_string( "NAMESUFFIX", "" ) );
@@ -586,6 +589,9 @@ void Item::readProperties( Clib::ConfigElem& elem )
   value = static_cast<s16>( elem.remove_int( "LUCK", 0 ) );
   if ( value != 0 )
     luck( luck().setAsValue( value ) );
+  value = static_cast<s16>( elem.remove_int( "SWINGSPEEDINCREASE", 0 ) );
+  if ( value != 0 )
+    swing_speed_increase( swing_speed_increase().setAsValue( value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )
@@ -811,10 +817,10 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 bool Item::can_add_to_self( const Item& item, bool force_stacking )
     const  // dave 1/26/03 totally changed this function to handle the cprop comparisons.
 {
-  bool res =
-      ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
-        ( item.insured() == insured() ) && ( item.graphic == graphic ) && ( item.color == color ) &&
-        ( !inuse() ) && ( can_add_to_self( item.amount_, force_stacking ) ) );
+  bool res = ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
+               ( item.insured() == insured() ) && ( item.graphic == graphic ) &&
+               ( item.color == color ) && ( item.quality() == quality() ) && ( !inuse() ) &&
+               ( can_add_to_self( item.amount_, force_stacking ) ) );
   if ( res == true )
   {
     // NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes
@@ -1262,15 +1268,6 @@ Core::UOExecutor* Item::uoexec_control()
     return &process()->uoexec();
 
   return nullptr;
-}
-
-double Item::getQuality() const
-{
-  return quality();
-}
-void Item::setQuality( double value )
-{
-  quality( value );
 }
 
 bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,

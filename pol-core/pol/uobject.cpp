@@ -354,6 +354,9 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   value = luck().mod;
   if ( value )
     sw() << "\tLuckMod\t" << static_cast<int>( value ) << pf_endl;
+  value = swing_speed_increase().mod;
+  if ( value )
+    sw() << "\tSwingSpeedIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
   // end new mod stuff
 
 
@@ -482,6 +485,9 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "LUCKMOD", 0 ) );
   if ( mod_value != 0 )
     luck( luck().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "SWINGSPEEDINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    swing_speed_increase( swing_speed_increase().setAsMod( mod_value ) );
 
 
   proplist_.readProperties( elem );

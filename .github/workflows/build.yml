@@ -61,7 +61,7 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             echo "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev kwstyle -y
+          sudo apt-get install mysql-client libmysqlclient-dev kwstyle uuid-dev -y
           
           $ninja_version = "1.9.0"
           $cmake_version = "3.16.2"
@@ -211,7 +211,6 @@ jobs:
         with:
           status: failure
           job: Building
-          nofail: false
   notify_on_success:
     needs: build
     runs-on: "ubuntu-latest"
@@ -224,7 +223,6 @@ jobs:
         with:
           status: success
           job: Building
-          nofail: false
   notify_on_cancel:
     needs: build
     runs-on: "ubuntu-latest"
@@ -237,4 +235,3 @@ jobs:
         with:
           status: cancelled
           job: Building
-          nofail: false

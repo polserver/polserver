@@ -1578,6 +1578,9 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
     return new BError( "No client attached" );
   }
 
+  if ( chr->has_active_textentry() )
+    return new BError( "Client busy with another textentry dialog" );
+
   PktHelper::PacketOut<PktOut_AB> msg;
   msg->offset += 2;
   msg->Write<u32>( chr->serial_ext );

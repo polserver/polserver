@@ -24,33 +24,7 @@
 -->
 <fileheader>
 <header>Class Hierarchy</header>
-<pre xml:space="preserve">
-
-            <a href="#UObject">UObject</a>             <a href="#Account">Account</a>         <a href="#Polcore">PolCore()</a>      <a href="#DataFileElement">DataFileElement</a>   <a href="#FunctionObject">FunctionObject</a>
-               |
-               |                <a href="#Client">Client</a>          <a href="#Script">Script</a>         <a href="#Datafile">Datafile</a>          <a href="#Boolean">Boolean</a>
-     +---------+--------+
-     |                  |       <a href="#Guild">Guild</a>           <a href="#Packet">Packet</a>         <a href="#BinaryFile">BinaryFile</a>        <a href="#XMLFile">XMLFile</a>
-   <a href="#Character">Character</a>           <a href="#Item">Item</a>
-     |                  |       <a href="#Party">Party</a>           <a href="#AuxConnection">AuxConnection</a>  <a href="#Package">Package</a>           <a href="#XMLNode">XMLNode</a>
-    <a href="#NPC">NPC</a>                 |
-                        |                                      <a href="#Struct">Struct</a>            <a href="#XMLAttributes">XMLAttributes</a>
-     +------------------+--------------+-----------+
-     |                  |              |           |           <a href="#Array">Array</a>
- <a href="#Equipment">Equipment</a>           <a href="#Lockable">Lockable</a>         <a href="#Map">Map</a>        <a href="#Multi">Multi</a>
-     |                  |                          |           <a href="#Dictionary">Dictionary</a>
- +---+----+        +----+--------+            +----+----+
- |        |        |             |            |         |      <a href="#String">String</a>
-<a href="#Armor">Armor</a>  <a href="#Weapon">Weapon</a>     <a href="#Door">Door</a>        <a href="#Container">Container</a>      <a href="#Boat">Boat</a>     <a href="#House">House</a>
-                                 |                             <a href="#Error">Error</a>
-                            +----+----+
-                            |         |                        <a href="#StorageAreas">StorageAreas</a>
-                         <a href="#Spellbook">Spellbook</a>   <a href="#Corpse">Corpse</a>
-                                                               <a href="#StorageArea">StorageArea</a>
-
-
-</pre>
-
+<!-- objref.svg will be inserted here -->
 <datemodified>12/14/2019</datemodified>
 </fileheader>
 
@@ -154,6 +128,7 @@
 <member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
 <member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
 <member mname="luck" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt." />
+<member mname="swing_speed_increase" type="Integer" access="r/o" mdesc="Total of base property plus mod, applied to characters when equipt. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60." />
 <member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
@@ -168,6 +143,7 @@
 <member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 
 
 <method proto="splitStackAt(x, y, z, realm, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates" />
@@ -310,6 +286,7 @@
 <member mname="resist_physical_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
 <member mname="resist_poison_cap" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
 <member mname="luck" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base." />
+<member mname="swing_speed_increase" type="Integer" access="r/o" mdesc="Total calculation of all modifiers from items equipt plus personal modifier and personal base. Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60." />
 <member mname="defence_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="defence_increase_cap_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="lower_mana_cost_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
@@ -324,6 +301,7 @@
 <member mname="faster_casting_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
+<member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base property." />
 
 <method proto="setpoisoned(bool)" returns="true/error" desc="sets the character poisoned, controller of calling script is flagged as in repsystem" />
 <method proto="setparalyzed(bool)" returns="true/error" desc="sets the character paralyzed, controller of calling script is flagged as in repsystem" />

@@ -41,6 +41,8 @@ namespace Bscript
 class EScriptProgram;
 class EScriptProgramCheckpoint;
 class FunctionalityModule;
+namespace Legacy
+{
 /*
     ack, this is a misnomer.
     "CanBeLabelled" means "break or continue can happen here."
@@ -197,6 +199,7 @@ private:
   void convert_variables( Expression& expr ) const;
   int validate( const Expression& expr, CompilerContext& ctx ) const;
   int readexpr( Expression& expr, CompilerContext& ctx, unsigned flags );
+  int read_subexpression( Expression& expr, CompilerContext& ctx, unsigned flags );
   void inject( Expression& expr );
   int insertBreak( const std::string& label );
 
@@ -223,8 +226,7 @@ public:
   virtual int getStructMembers( Expression& expr, CompilerContext& ctx ) override;
   virtual int getDictionaryMembers( Expression& expr, CompilerContext& ctx ) override;
   virtual int getMethodArguments( Expression& expr, CompilerContext& ctx, int& nargs ) override;
-  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx,
-                                    Token* tok ) override;
+  virtual int getFunctionPArgument( Expression& expr, CompilerContext& ctx, Token* tok ) override;
 
   int eatToken( CompilerContext& ctx, BTokenId tokenid );
   int getExpr( CompilerContext& ctx, unsigned expr_flags, size_t* exprlen = nullptr,
@@ -239,30 +241,21 @@ public:
   int handleDoClause( CompilerContext& ctx, int level );
   int handleRepeatUntil( CompilerContext& ctx, int level );
   int handleForEach( CompilerContext& ctx, int level );
-  int handleGotoGosub( CompilerContext& ctx, unsigned save_id );
   int handleReturn( CompilerContext& ctx );
   int handleExit( CompilerContext& ctx );
   int handleBreak( CompilerContext& ctx );
   int handleContinue( CompilerContext& ctx );
   int handleBlock( CompilerContext& ctx, int level );
-  int handleIf( CompilerContext& ctx, int level );
   int handleBracketedIf( CompilerContext& ctx, int level );
-  int handleWhile( CompilerContext& ctx, int level );
   int handleBracketedWhile( CompilerContext& ctx, int level );
   int handleVarDeclare( CompilerContext& ctx, unsigned save_id );
   int handleConstDeclare( CompilerContext& ctx );
   int handleEnumDeclare( CompilerContext& ctx );
-  int handleDeclare( CompilerContext& ctx );
-  int handleFunction( CompilerContext& ctx );
-  int handleBracketedFunction( CompilerContext& ctx );
   int handleUse( CompilerContext& ctx );
   int handleInclude( CompilerContext& ctx );
   int handleFor( CompilerContext& ctx );
-  int handleFor_c( CompilerContext& ctx );
-  int handleFor_basic( CompilerContext& ctx );
   int handleBracketedFor_c( CompilerContext& ctx );
   int handleBracketedFor_basic( CompilerContext& ctx );
-  int handleForEach( CompilerContext& ctx );
   int handleSwitch( CompilerContext& ctx, int level );
 
   void emitFileLine( CompilerContext& ctx );
@@ -302,6 +295,7 @@ public:
 private:
   std::vector<char*> delete_these_arrays;
 };
-}
-}
+}  // namespace Legacy
+}  // namespace Bscript
+}  // namespace Pol
 #endif  // H_COMPILER_H

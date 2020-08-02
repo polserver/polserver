@@ -1,0 +1,5 @@
+var a := struct { x := 4 };
+var b := struct { y := 6 };
+
+print ( a.x ?: b.y );
+print ( a.z ?: b.y );

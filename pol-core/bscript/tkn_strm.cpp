@@ -324,9 +324,6 @@ void Token::printOn( std::ostream& os ) const
   case RSV_CONST:
     os << "const";
     break;
-  case RSV_DECLARE:
-    os << "declare";
-    break;
   case RSV_FUNCTION:
     os << "function";
     break;
@@ -451,6 +448,9 @@ void Token::printOn( std::ostream& os ) const
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
     os << "set member id '" << getObjMember( lval )->code << "' unary -- post";
     break;
+  case INS_SKIPIFTRUE_ELSE_CONSUME:
+    os << "peek at top of stack; skip " << lval << " instructions if true, otherwise consume it";
+    break;
   case RSV_COLON:
     os << "':'";
     break;
@@ -465,6 +465,9 @@ void Token::printOn( std::ostream& os ) const
     break;
   case RSV_ENDENUM:
     os << "endenum";
+    break;
+  case RSV_ELVIS:
+    os << "?: (elvis)";
     break;
 
 

@@ -459,6 +459,11 @@ bool Character::has_active_gump() const
   return ( client != nullptr && client->gd != nullptr && !client->gd->gumpmods.empty() );
 }
 
+bool Character::has_active_textentry() const
+{
+  return ( client != nullptr && client->gd != nullptr && client->gd->textentry_uoemod != nullptr );
+}
+
 bool Character::is_house_editing() const
 {
   return ( client != nullptr && client->gd != nullptr && client->gd->custom_house_serial != 0 );
@@ -2558,6 +2563,8 @@ void Character::updateEquipableProperties( Items::Item* item )
     hit_chance( hit_chance().addToValue( item->hit_chance() ) );
   if ( item->has_luck() )
     luck( luck().addToValue( item->luck() ) );
+  if ( item->has_swing_speed_increase() )
+    swing_speed_increase( swing_speed_increase().addToValue( item->swing_speed_increase() ) );
 
   // calc defence increase if lower than cap
   if ( item->has_defence_increase() )
@@ -2627,6 +2634,8 @@ void Character::resetEquipableProperties()
     hit_chance( hit_chance().setAsValue( 0 ) );
   if ( has_luck() )
     luck( luck().setAsValue( 0 ) );
+  if ( has_swing_speed_increase() )
+    swing_speed_increase( swing_speed_increase().setAsValue( 0 ) );
 }
 
 void Character::showarmor() const
@@ -2834,6 +2843,12 @@ void Character::schedule_attack()
 
       clocks = ( delay_sum * Core::POLCLOCKS_PER_SEC ) / 1000;
     }
+    // Swing speed modifier can't be less than -1 otherwise it would give a negitive swing speed and
+    // thats not possible.
+    double speed_modifier = ( swing_speed_increase().sum() / 100.0 );
+    if ( speed_modifier < -0.99 )
+      speed_modifier = -0.99;
+    clocks = static_cast<Core::polclock_t>( round( clocks / ( 1 + speed_modifier ) ) );
 
     if ( clocks < ( Core::POLCLOCKS_PER_SEC / 5 ) )
     {
@@ -3015,7 +3030,8 @@ void Character::inform_imoved( Character* /*chr*/ ) {}
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
   INFO_PRINT_TRACE( 12 ) << "set_opponent(0x" << fmt::hexu( this->serial ) << ",0x"
-                         << fmt::hex( new_opponent->serial ) << ")\n";
+                         << ( new_opponent != nullptr ? fmt::hex( new_opponent->serial ) : '0' )
+                         << ")\n";
   if ( new_opponent != nullptr )
   {
     if ( new_opponent->dead() )
@@ -3408,7 +3424,8 @@ void Character::check_attack_after_move()
   Character* opponent = get_attackable_opponent();
   FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
   INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
-                         << "): opponent is 0x" << fmt::hexu( opponent->serial ) << "\n";
+                         << "): opponent is 0x"
+                         << ( opponent != nullptr ? fmt::hex( opponent->serial ) : '0' ) << "\n";
   if ( opponent != nullptr &&  // and I have an opponent
        !dead() &&              // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
@@ -4195,7 +4212,7 @@ void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
   delBuff( icon );
 
   Core::gameclock_t end = Core::read_gameclock() + duration;
-  buffs_[icon] = {end, cl_name, cl_descr, arguments};
+  buffs_[icon] = { end, cl_name, cl_descr, arguments };
 
   if ( client != nullptr )
     send_buff_message( this, icon, true, duration, cl_name, cl_descr, arguments );

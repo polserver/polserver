@@ -314,6 +314,8 @@ public:
   DYN_PROPERTY( lower_mana_cost, ValueModPack, PROP_LOWER_MANA_COST, ValueModPack::DEFAULT );
   DYN_PROPERTY( hit_chance, ValueModPack, PROP_HIT_CHANCE, ValueModPack::DEFAULT );
   DYN_PROPERTY( luck, ValueModPack, PROP_EXT_STATBAR_LUCK, ValueModPack::DEFAULT );
+  DYN_PROPERTY( swing_speed_increase, ValueModPack, PROP_SWING_SPEED_INCREASE,
+                ValueModPack::DEFAULT );
 
 
 private:

@@ -27,7 +27,7 @@
 		<div id="main">
 			<div class="container">
 				<div class="doc-mainbox">
-					<table class="doc-table" width="700px">
+					<table class="doc-table">
 						<tr align="center">
 							<td>
 								<strong>
@@ -35,10 +35,10 @@
 								</strong>
 							</td>
 						</tr>
-						<tr align="left" padding="50px">
+						<tr align="center">
 							<td>
 								<xsl:copy>
-									<xsl:copy-of select="ESCRIPT/fileheader/pre"/>
+									<xsl:copy-of select="document('objref.svg')"/>
 								</xsl:copy>
 							</td>
 						</tr>
@@ -49,7 +49,7 @@
 		<div class="main">
 			<xsl:for-each select="ESCRIPT/class">
 				<xsl:sort select="@name"/>
-				<div class="container">
+				<div class="container" id="{@name}">
 					<div class="doc-mainbox-big-gold">
 						<div class="doc-anchor">
 							<a href="#TOP">[^]</a>
@@ -64,9 +64,7 @@
 							<tbody>
 								<tr>
 									<th align="center" colspan="4">
-										<a name="{@name}">
-											<xsl:value-of select="@name"/>
-										</a>
+										<xsl:value-of select="@name"/>
 									</th>
 								</tr>
 							</tbody>

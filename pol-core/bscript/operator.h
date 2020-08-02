@@ -15,9 +15,10 @@ namespace Bscript
 enum Precedence
 {
   PREC_PAREN = 14,
-  PREC_UNARY_OPS = 12,
-  PREC_MULT = 11,
-  PREC_PLUS = 10,
+  PREC_UNARY_OPS = 13,
+  PREC_MULT = 12,
+  PREC_PLUS = 11,
+  PREC_ELVIS = 10,
   PREC_LESSTHAN = 9,
   PREC_BSLEFT = 8,
   PREC_BSRIGHT = 8,

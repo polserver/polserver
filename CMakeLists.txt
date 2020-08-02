@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.7)
 
 #protect the user for himself
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -119,8 +119,10 @@ endif()
 prepare_build()
 cmake_fake_target()
 
+include(cmake/Antlr.cmake)
 include(cmake/Boost.cmake)
 include(cmake/Benchmark.cmake)
+include(cmake/escript_grammar.cmake)
 include(cmake/Format.cmake)
 include(cmake/Kaitai.cmake)
 if (${windows})

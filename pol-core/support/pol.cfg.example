@@ -376,7 +376,7 @@ DisplayUnknownPackets=1
 # WebServer: Run the internal web server
 # Default 0
 #
-WebServer=1
+WebServer=0
 
 #
 # WebServerPort: What TCP/IP port to listen for web requests
@@ -388,7 +388,7 @@ WebServer=1
 # WebServerLocalOnly: Only allow access from localhost
 # Default 1
 #
-WebServerLocalOnly=0
+WebServerLocalOnly=1
 
 #
 # WebServerDebug: Print trace information about http requests
@@ -397,7 +397,8 @@ WebServerLocalOnly=0
 #WebServerDebug=0
 
 #
-# WebServerPassword: username/password required for access to the web server.
+# WebServerPassword: username:password required for access to the web server.
+#                    username and password must be delimited using a colon ':'.
 #                    If not specified, no password is required.
 # WebServerPassword=username:password
 # Default empty

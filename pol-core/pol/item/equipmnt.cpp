@@ -39,7 +39,7 @@ namespace Items
 {
 Equipment::Equipment( const ItemDesc& itemdesc, Core::UOBJ_CLASS uobj_class,
                       const Core::EquipDesc* permanent_descriptor )
-    : Item( itemdesc, uobj_class ), tmpl( permanent_descriptor ), _quality( itemdesc.quality )
+    : Item( itemdesc, uobj_class ), tmpl( permanent_descriptor )
 {
 }
 
@@ -110,20 +110,10 @@ bool Equipment::is_intrinsic() const
 
 size_t Equipment::estimatedSize() const
 {
-  size_t size = base::estimatedSize() + sizeof( double ) /*_quality*/
-                + sizeof( const Core::EquipDesc* );      /*tmpl*/
+  size_t size = base::estimatedSize() + sizeof( const Core::EquipDesc* ); /*tmpl*/
   if ( is_intrinsic() && !tmpl->is_pc_intrinsic )
     size += tmpl->estimatedSize();
   return size;
-}
-
-double Equipment::getQuality() const
-{
-  return _quality;
-}
-void Equipment::setQuality( double value )
-{
-  _quality = value;
 }
 
 bool Equipment::get_method_hook( const char* methodname, Bscript::Executor* ex,

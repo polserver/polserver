@@ -43,6 +43,11 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   inuse( false );
   invisible( id.invisible );
 
+  // quality is a dynprop that defaults to the itemdesc value. It won't be stored unless it differs
+  // from that default. However, GetItemDescriptor() may be used to assign a new quality before the
+  // item is created and we need to consider that here.
+  quality( id.quality );
+
   ++Core::stateManager.uobjcount.uitem_count;
 
   // hmm, doesn't quite work right with items created on startup..
@@ -69,5 +74,5 @@ size_t Item::estimatedSize() const
          + sizeof( boost_utils::script_name_flystring )      /*equip_script_*/
          + sizeof( boost_utils::script_name_flystring );     /*unequip_script_*/
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

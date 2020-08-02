@@ -1,4 +1,52 @@
 ﻿-- POL100 --
+08-01-2020 Turley:
+    Added: attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.
+07-31-2020 Nando:
+    Fixed: Quality of any item can now be directly assigned from an ItemDescriptor. Before this only worked for Equipment (Armor & Weapons).
+    Fixed: Stackable items with different values of 'quality' will no longer stack.
+07-28-2020 Kevin:
+    Fixed: Multiple scripts should not be allowed to call uo::SendTextEntryGump on the same character.
+07-16-2020 DevGIB:
+    Added: SwingSpeedIncrease(swing_speed_increase) and SwingSpeedIncreaseMod(swing_speed_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the calculated swing speed.
+           Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.
+06-14-2020 Syzygy:
+    Fixed: A compiler optimization bug that could corrupt emitted instructions
+           if branches of an if statement were optimized out.
+06-10-2020 Syzygy:
+  Changed: It is now a compile error if a script requires a terminator (semicolon, etc)
+           at its end-of-file.  This fixes bug009 in the escript test suite.
+05-07-2020 Syzygy:
+  Changed: Removed the "declare" keyword, which used to forward-declare functions.
+           It's unlikely that anything still uses this keyword after 17 years, but if
+           any of your scripts still forward-declare functions this way,
+           just delete the line.
+04-28-2020 Syzygy:
+    Added: Elvis operator: short-circuit binary operator EXPR_LHS ?: EXPR_RHS
+           This operator evaluates the left-hand-side operand and keeps its value if it is a true value.
+           Otherwise, evaluates the right-hand side operand and uses its value instead.
+           This is a short-circuit operator: if EXPR_LHS is true, the code for EXPR_RHS won't be executed.
+           These can also be changed: A ?: B ?: C ?: D evaluates to the first true value from left to right.
+           It has lower precedence than the binary additive operators (+ -), and higher precedence than the binary comparison operators (> >= < <=).
+           These are equivalent with or without parenthesis:
+             a ?: b + c     a ?: ( b + c )   // lower precedence than addition
+             a ?: b <= c    (a ?: b) <= c    // higher precedence than comparison
+           See also https://en.wikipedia.org/wiki/Elvis_operator
+
+           For example, you could change this:
+                 var difficulty;
+
+                 if(targetsquare.objtype)
+                   difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);
+                 else
+                   difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);
+                 endif
+           to this:
+                 var difficulty := GetHarvestDifficulty("fish",
+                                                        targetsquare.x, targetsquare.y,
+                                                        targetsquare.objtype ?: locinfo.landtile,
+                                                        who.realm);
+04-18-2020 DevGIB:
+    Added: ShowWarningCursorSequence to pol.cfg to silence "cursor out of sequence" errors.
 03-19-2020 Kevin:
     Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client
            requests for guild and party member locations. This option is disabled by default.

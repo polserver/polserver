@@ -2,9 +2,82 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-18-2020</datemodified>
+		<datemodified>08-01-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-01-2020</date>
+			<author>Turley:</author>
+			<change type="Added">attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.</change>
+		</entry>
+		<entry>
+			<date>07-31-2020</date>
+			<author>Nando:</author>
+			<change type="Fixed">Quality of any item can now be directly assigned from an ItemDescriptor. Before this only worked for Equipment (Armor &amp; Weapons).</change>
+			<change type="Fixed">Stackable items with different values of 'quality' will no longer stack.</change>
+		</entry>
+		<entry>
+			<date>07-28-2020</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Multiple scripts should not be allowed to call uo::SendTextEntryGump on the same character.</change>
+		</entry>
+		<entry>
+			<date>07-16-2020</date>
+			<author>DevGIB:</author>
+			<change type="Added">SwingSpeedIncrease(swing_speed_increase) and SwingSpeedIncreaseMod(swing_speed_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the calculated swing speed.<br/>
+Swing Speed Increase is used as a % modifier to the calculated speed of a weapon, e.g. Weapon speed of 30 * swing speed increase of 100% would make the swing speed 60.</change>
+		</entry>
+		<entry>
+			<date>06-14-2020</date>
+			<author>Syzygy:</author>
+			<change type="Fixed">A compiler optimization bug that could corrupt emitted instructions<br/>
+if branches of an if statement were optimized out.</change>
+		</entry>
+		<entry>
+			<date>06-10-2020</date>
+			<author>Syzygy:</author>
+			<change type="Changed">It is now a compile error if a script requires a terminator (semicolon, etc)<br/>
+at its end-of-file.  This fixes bug009 in the escript test suite.</change>
+		</entry>
+		<entry>
+			<date>05-07-2020</date>
+			<author>Syzygy:</author>
+			<change type="Changed">Removed the &quot;declare&quot; keyword, which used to forward-declare functions.<br/>
+It's unlikely that anything still uses this keyword after 17 years, but if<br/>
+any of your scripts still forward-declare functions this way,<br/>
+just delete the line.</change>
+		</entry>
+		<entry>
+			<date>04-28-2020</date>
+			<author>Syzygy:</author>
+			<change type="Added">Elvis operator: short-circuit binary operator EXPR_LHS ?: EXPR_RHS<br/>
+This operator evaluates the left-hand-side operand and keeps its value if it is a true value.<br/>
+Otherwise, evaluates the right-hand side operand and uses its value instead.<br/>
+This is a short-circuit operator: if EXPR_LHS is true, the code for EXPR_RHS won't be executed.<br/>
+These can also be changed: A ?: B ?: C ?: D evaluates to the first true value from left to right.<br/>
+It has lower precedence than the binary additive operators (+ -), and higher precedence than the binary comparison operators (&gt; &gt;= &lt; &lt;=).<br/>
+These are equivalent with or without parenthesis:<br/>
+  a ?: b + c     a ?: ( b + c )   // lower precedence than addition<br/>
+  a ?: b &lt;= c    (a ?: b) &lt;= c    // higher precedence than comparison<br/>
+See also https://en.wikipedia.org/wiki/Elvis_operator<br/>
+For example, you could change this:<br/>
+      var difficulty;<br/>
+      if(targetsquare.objtype)<br/>
+        difficulty := GetHarvestDifficulty(&quot;fish&quot;, targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);<br/>
+      else<br/>
+        difficulty := GetHarvestDifficulty(&quot;fish&quot;, targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);<br/>
+      endif<br/>
+to this:<br/>
+      var difficulty := GetHarvestDifficulty(&quot;fish&quot;,<br/>
+                                             targetsquare.x, targetsquare.y,<br/>
+                                             targetsquare.objtype ?: locinfo.landtile,<br/>
+                                             who.realm);</change>
+		</entry>
+		<entry>
+			<date>04-18-2020</date>
+			<author>DevGIB:</author>
+			<change type="Added">ShowWarningCursorSequence to pol.cfg to silence &quot;cursor out of sequence&quot; errors.</change>
+		</entry>
 		<entry>
 			<date>03-19-2020</date>
 			<author>Kevin:</author>

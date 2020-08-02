@@ -1,0 +1,10 @@
+var a := 3, b := 4, c := 6, d := 0, g := 9;
+
+// The elvis operator should have lower precedence than multiplicative operators
+print( a * d ?: c ); // 6 correct: ( a * b ) ?: c     18 incorrect: a * ( d ?: c )
+
+print( b ?: c * a ); // 4 correct: b ?: ( c * a )     12 incorrect: ( b ?: c ) * a
+
+print( d / a ?: b ); // 4 correct: ( d / a ) ?: b      0 incorrect: d / ( a ?: b )
+
+print( g ?: c / a ); // 9 correct: g ?: ( c / a )      3 incorrect: ( g ?: c ) / a

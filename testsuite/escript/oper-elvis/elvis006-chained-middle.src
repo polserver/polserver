@@ -1,0 +1,7 @@
+include "support";
+
+print(
+  foo( 0 )
+    ?: bar( "y" )
+    ?: baz( "z" ) // not called (short-circuit)
+);
