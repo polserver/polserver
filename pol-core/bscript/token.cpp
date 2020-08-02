@@ -46,7 +46,7 @@ void Token::register_instance()
 void Token::unregister_instance()
 {
 #if defined( _DEBUG ) && defined( _DBG_TRYING_TO_FIND_WIN32_SHUTDOWN_ASSERTION )
-  if ( exit_signalled )
+  if ( exit_signalled() )
   {
     cout << "TOK/unreginst: " << ( token ? token : "<unknown>" ) << endl;
     printOn( cout );
@@ -250,5 +250,5 @@ Token::~Token()
   nulStr();
   unregister_instance();
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

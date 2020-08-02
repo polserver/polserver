@@ -525,7 +525,7 @@ void recurse_compile( const std::string& basedir, std::vector<std::string>* file
   start = clock();
   for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
   {
-    if ( Clib::exit_signalled )
+    if ( Clib::exit_signalled() )
       return;
     std::string name = dl.name(), ext;
     if ( name[0] == '.' )
@@ -593,7 +593,7 @@ void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* 
 {
   for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
   {
-    if ( Clib::exit_signalled )
+    if ( Clib::exit_signalled() )
       return;
     std::string name = dl.name(), ext;
     if ( name[0] == '.' )
@@ -632,7 +632,7 @@ void parallel_compile( const std::vector<std::string>& files )
     for ( const auto& file : files )
     {
       pool.push( [&]() {
-        if ( !par_keep_building || Clib::exit_signalled )
+        if ( !par_keep_building || Clib::exit_signalled() )
           return;
         try
         {

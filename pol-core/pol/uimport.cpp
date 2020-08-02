@@ -946,7 +946,7 @@ void write_multis( Clib::StreamWriter& ofs )
       {
         for ( auto& multi : realm->zone[wx][wy].multis )
         {
-          if ( Clib::exit_signalled )  // drop waiting commit on shutdown
+          if ( Clib::exit_signalled() )  // drop waiting commit on shutdown
           {
             Multi::UHouse* house = multi->as_house();
             if ( house != nullptr )

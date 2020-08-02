@@ -495,8 +495,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   const ItemDesc* descriptor;
   int amount;
 
-  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) &&
-       getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
+  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
@@ -520,8 +520,8 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   const ItemDesc* descriptor;
   int amount;
 
-  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) &&
-       getParam( 2, amount ) && item_create_params_ok( descriptor->objtype, amount ) )
+  if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
@@ -754,9 +754,8 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
   unsigned short color;
   int journal_print;
 
-  if ( getUObjectParam( 0, obj ) && getStringParam( 1, ptext ) &&
-       getCharacterParam( 2, chr ) && getParam( 3, font ) && getParam( 4, color ) &&
-       getParam( 5, journal_print ) )
+  if ( getUObjectParam( 0, obj ) && getStringParam( 1, ptext ) && getCharacterParam( 2, chr ) &&
+       getParam( 3, font ) && getParam( 4, color ) && getParam( 5, journal_print ) )
   {
     if ( !ptext->hasUTF8Characters() )
       return new BLong( private_say_above( chr, obj, ptext->data(), font, color, journal_print ) );
@@ -4783,7 +4782,12 @@ bool UOExecutorModule::is_reserved_to_me( Item* item )
 
 BObjectImp* UOExecutorModule::mf_Shutdown()
 {
-  Clib::exit_signalled = true;
+  int exit_code;
+
+  if ( exec.hasParams( 0 ) )
+    getParam( 0, exit_code );
+
+  Clib::signal_exit( exit_code );
 #ifndef _WIN32
   // the catch_signals_thread (actually main) sits with sigwait(),
   // so it won't wake up except by being signalled.

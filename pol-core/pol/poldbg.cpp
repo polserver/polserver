@@ -1389,7 +1389,7 @@ void debug_listen_thread( void )
   if ( Plib::systemstate.config.debug_port )
   {
     Clib::SocketListener SL( Plib::systemstate.config.debug_port );
-    while ( !Clib::exit_signalled )
+    while ( !Clib::exit_signalled() )
     {
       Clib::Socket sock;
       if ( SL.GetConnection( &sock, 5 ) && sock.connected() )

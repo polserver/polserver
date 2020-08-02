@@ -477,7 +477,7 @@ void DynTaskThreadPool::PoolWorker::run()
     auto f = msg();
     try
     {
-      while ( !_parent->_done && !Clib::exit_signalled )
+      while ( !_parent->_done && !Clib::exit_signalled() )
       {
         _parent->_msg_queue.pop_wait( &f );
         {

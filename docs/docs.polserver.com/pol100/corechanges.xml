@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-01-2020</datemodified>
+		<datemodified>08-03-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-03-2020</date>
+			<author>Kevin:</author>
+			<change type="Added">Optional parameter exit_code to uo::Shutdown() to change the pol process' exit code.</change>
+		</entry>
 		<entry>
 			<date>08-01-2020</date>
 			<author>Turley:</author>

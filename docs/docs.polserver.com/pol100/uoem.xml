@@ -1192,9 +1192,10 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="Shutdown">
-  <prototype>Shutdown()</prototype>
+  <prototype>Shutdown( exit_code := 0 )</prototype>
+  <parameter name="exit_code" value="Integer" />
   <explain>Shuts down the server</explain>
-  <explain>Notes: Disconnects all clients and saves the world state.</explain>
+  <explain>Notes: Disconnects all clients and saves the world state. The POL process will exit with the provided exit_code.</explain>
   <return>1 always</return>
 </function>
 

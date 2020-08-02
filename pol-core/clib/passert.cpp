@@ -105,7 +105,7 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
   if ( passert_shutdown )
   {
     POLLOG_ERROR << "Shutting down due to assertion failure.\n";
-    exit_signalled = true;
+    Clib::signal_exit( 1 );
     passert_shutdown_due_to_assertion = true;
   }
   if ( passert_abort )
@@ -126,5 +126,5 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
                               std::string( file ) + ", line " + tostring( line ) );
   }
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

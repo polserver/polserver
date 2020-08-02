@@ -398,7 +398,7 @@ Bscript::BObjectImp* BSQLConnection::call_polmethod( const char* methodname, UOE
 }
 
 Bscript::BObjectImp* BSQLConnection::call_polmethod_id( const int /*id*/, UOExecutor& /*ex*/,
-                                                     bool /*forcebuiltin*/ )
+                                                        bool /*forcebuiltin*/ )
 {
   return new BLong( 0 );
 }
@@ -481,7 +481,7 @@ void SQLService::push( msg&& msg_ )
 }
 void SQLService::start()  // executed inside a extra thread
 {
-  while ( !Clib::exit_signalled )
+  while ( !Clib::exit_signalled() )
   {
     try
     {

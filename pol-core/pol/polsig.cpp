@@ -130,7 +130,7 @@ void catch_signals_thread( void )
   // this thread should be the second last out, so it can still respond to SIGUSR1
   // this is called from main(), so it can exit when there is one thread left
   // (that will be the thread_status thread)
-  while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
+  while ( !Clib::exit_signalled() || threadhelp::child_threads > 1 )
   {
     int caught = 0;
     sigwait( &expected_signals, &caught );
@@ -146,15 +146,15 @@ void catch_signals_thread( void )
       break;
     case SIGINT:
       ERROR_PRINT << "SIGINT: exit.\n";
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
       break;
     case SIGQUIT:
       ERROR_PRINT << "SIGQUIT: exit.\n";
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
       break;
     case SIGTERM:
       ERROR_PRINT << "SIGTERM: exit.\n";
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
       break;
     default:
       ERROR_PRINT << "Unexpected signal: " << caught << "\n";
@@ -165,5 +165,5 @@ void catch_signals_thread( void )
 }
 
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

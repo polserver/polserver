@@ -395,7 +395,7 @@ SetRegionLightLevel( regionname, lightlevel );
 SetRegionWeatherLevel( region, type, severity, aux := 0, lightoverride := -1);
 SetScriptController( who );
 SingleClick( who, what );
-Shutdown();
+Shutdown( exitCode := 0 );
 SpeakPowerWords( who, spellid, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
 StartSpellEffect( who, spellid );
 SubtractAmount( item, amount );

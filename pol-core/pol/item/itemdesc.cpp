@@ -1440,7 +1440,7 @@ void return_resources( u32 objtype, u16 /*amount*/ )
   // MuadDib Added 03/22/09. This can cause a crash in shutdown with orphaned/leaked items
   // after saving of data files, and clearing all objects. At this stage, there is no need
   // to free and replenish ore/wood/etc resources in the world. o_O
-  if ( !Clib::exit_signalled )
+  if ( !Clib::exit_signalled() )
   {
     const ItemDesc& id = find_itemdesc( objtype );
     for ( const auto& rc : id.resources )

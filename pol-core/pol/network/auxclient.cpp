@@ -214,7 +214,7 @@ void AuxClientThread::run()
     }
   }
   // wait for all transmits to finish
-  while ( !Clib::exit_signalled && _transmit_counter > 0 )
+  while ( !Clib::exit_signalled() && _transmit_counter > 0 )
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
   Core::PolLock lock;
@@ -273,7 +273,7 @@ void AuxService::run()
              << ")\n";
 
   Clib::SocketListener listener( _port );
-  while ( !Clib::exit_signalled )
+  while ( !Clib::exit_signalled() )
   {
     Clib::Socket sock;
     if ( listener.GetConnection( &sock, 5 ) && sock.connected() )

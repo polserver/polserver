@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+08-03-2020 Kevin:
+    Added: Optional parameter exit_code to uo::Shutdown() to change the pol process' exit code.
 08-01-2020 Turley:
     Added: attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.
 07-31-2020 Nando:
