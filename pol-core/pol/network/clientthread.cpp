@@ -86,7 +86,7 @@ bool client_io_thread( Network::Client* client, bool login )
     Clib::SinglePoller clientpoller( client->csocket );
     set_polling_timeouts( clientpoller, login );
 
-    while ( !Clib::exit_signalled() && client->isReallyConnected() )
+    while ( !Clib::exit_signalled && client->isReallyConnected() )
     {
       CLIENT_CHECKPOINT( 1 );
       checkpoint = 1;
@@ -108,7 +108,7 @@ bool client_io_thread( Network::Client* client, bool login )
         CLIENT_CHECKPOINT( 2 );
         res = clientpoller.wait_for_events();
         CLIENT_CHECKPOINT( 3 );
-      } while ( res < 0 && !Clib::exit_signalled() && socket_errno == SOCKET_ERRNO( EINTR ) );
+      } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
       checkpoint = 3;
 
       if ( res < 0 )
@@ -311,7 +311,7 @@ bool client_io_thread( Network::Client* client, bool login )
 
       checkpoint = 9;
       CLIENT_CHECKPOINT( 13 );
-      while ( !Clib::exit_signalled() )
+      while ( !Clib::exit_signalled )
       {
         CLIENT_CHECKPOINT( 14 );
         {

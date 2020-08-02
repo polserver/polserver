@@ -481,7 +481,7 @@ void SQLService::push( msg&& msg_ )
 }
 void SQLService::start()  // executed inside a extra thread
 {
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     try
     {

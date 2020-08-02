@@ -525,7 +525,7 @@ void tasks_thread( void )
   bool activity;
   try
   {
-    while ( !Clib::exit_signalled() )
+    while ( !Clib::exit_signalled )
     {
       THREAD_CHECKPOINT( tasks, 1 );
       {
@@ -577,7 +577,7 @@ void scripts_thread( void )
 {
   polclock_t sleeptime;
   bool activity;
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     THREAD_CHECKPOINT( scripts, 0 );
     {
@@ -638,7 +638,7 @@ public:
 
 void reap_thread( void )
 {
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;
@@ -661,7 +661,7 @@ void threadstatus_thread( void )
   int timeouts_remaining = 1;
   bool sent_wakeups = false;
   // we want this thread to be the last out, so that it can report stuff at shutdown.
-  while ( !Clib::exit_signalled() || threadhelp::child_threads > 1 )
+  while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
     if ( is_polclock_paused_at_zero() )
     {
@@ -713,7 +713,7 @@ void threadstatus_thread( void )
       stateManager.polsig.report_status_signalled = false;
       ERROR_PRINT << tmp.str();
     }
-    if ( Clib::exit_signalled() )
+    if ( Clib::exit_signalled )
     {
       if ( !sent_wakeups )
       {
@@ -747,7 +747,7 @@ void console_thread( void )
 #ifndef _WIN32
   Clib::KeyboardHook kb;  // local to have a defined deconstruction to uninstall the hook
 #endif
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     pol_sleep_ms( 1000 );
 #ifdef _WIN32
@@ -1227,7 +1227,7 @@ int xmain_inner( bool testing )
       POLLOG_INFO << "Not writing data due to pol.cfg InhibitSaves=1 setting.\n";
   }
   Core::gamestate.deinitialize();
-  return Clib::exit_code();
+  return Clib::exit_code;
 }
 
 int xmain_outer( bool testing )

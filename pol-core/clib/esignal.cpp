@@ -15,24 +15,14 @@ namespace Pol
 {
 namespace Clib
 {
-std::atomic<bool> signal( false );
-std::atomic<int> code( 0 );
+std::atomic<bool> exit_signalled( false );
+std::atomic<int> exit_code( 0 );
 
-void signal_exit( int exit_code )
+void signal_exit( int code )
 {
-  code = exit_code, signal = true;
+  exit_code = code;
+  exit_signalled = true;
 }
-
-bool exit_signalled()
-{
-  return signal;
-}
-
-int exit_code()
-{
-  return code;
-}
-
 
 #ifdef WINDOWS
 BOOL WINAPI control_handler( DWORD dwCtrlType )

@@ -3059,7 +3059,7 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
   {
     opponent_->opponent_of.erase( this );
     // Turley 05/26/09 no need to send disengaged event on shutdown
-    if ( !Clib::exit_signalled() )
+    if ( !Clib::exit_signalled )
     {
       if ( inform_old_opponent && opponent_ != nullptr )
         opponent_->inform_disengaged( this );
@@ -3071,7 +3071,7 @@ void Character::set_opponent( Character* new_opponent, bool inform_old_opponent 
 
   // Turley 05/26/09 possible shutdown crashfix during cleanup
   // (inside schedule_attack() the rest is also senseless on shutdowncleanup)
-  if ( !Clib::exit_signalled() )
+  if ( !Clib::exit_signalled )
   {
     reset_swing_timer();
 

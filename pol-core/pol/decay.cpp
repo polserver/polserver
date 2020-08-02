@@ -140,7 +140,7 @@ void decay_thread( void* arg )  // Realm*
   unsigned gridheight = realm->grid_height();
 
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;
@@ -167,7 +167,7 @@ void decay_thread_shadow( void* arg )  // Realm*
   unsigned gridheight = gamestate.shadowrealms_by_id[id]->grid_height();
 
   unsigned sleeptime = ( 60 * 10L * 1000 ) / ( gridwidth * gridheight );
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;
@@ -225,7 +225,7 @@ void decay_single_thread( void* arg )
   unsigned wy = 0;
   unsigned gridx = 0;
   unsigned gridy = 0;
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;

@@ -277,7 +277,7 @@ bool Socket::has_incoming_data( unsigned int waitms, int* result )
   do
   {
     res = poller.wait_for_events();
-  } while ( res < 0 && !exit_signalled() && socket_errno == SOCKET_ERRNO( EINTR ) );
+  } while ( res < 0 && !exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
   if ( result )
     *result = res;
@@ -737,7 +737,7 @@ bool SocketLineReader::readline( std::string& out, bool* timed_out )
   bool single_timed_out = false;
 
   int timeout_left = max_timeouts;
-  while ( !Clib::exit_signalled() && _socket.connected() )
+  while ( !Clib::exit_signalled && _socket.connected() )
   {
     if ( try_readline( out, &single_timed_out ) )
     {

@@ -104,7 +104,7 @@ void uo_client_listener_thread( void* arg )
 
   Clib::SocketListener SL(
       ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     unsigned int timeout = 2;
     unsigned int mstimeout = 0;

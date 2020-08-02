@@ -55,7 +55,7 @@ TransmitDataSPtr ClientTransmit::NextQueueEntry()
 void ClientTransmitThread()
 {
   ClientTransmit* transmit_instance = Core::networkManager.clientTransmit.get();
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     try
     {

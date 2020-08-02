@@ -842,7 +842,7 @@ void http_thread( void )
   struct timeval listen_timeout = { 0, 0 };
 
   Pol::threadhelp::TaskThreadPool worker_threads( 2, "http" );  // two threads should be enough
-  while ( !Clib::exit_signalled() )
+  while ( !Clib::exit_signalled )
   {
     int nfds = 0;
     FD_ZERO( &listen_fd );
@@ -858,7 +858,7 @@ void http_thread( void )
       listen_timeout.tv_sec = 5;
       listen_timeout.tv_usec = 0;
       res = select( nfds, &listen_fd, nullptr, nullptr, &listen_timeout );
-    } while ( res < 0 && !Clib::exit_signalled() && socket_errno == SOCKET_ERRNO( EINTR ) );
+    } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
 
     if ( res <= 0 )
     {
