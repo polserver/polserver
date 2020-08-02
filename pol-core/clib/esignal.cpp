@@ -16,7 +16,7 @@ namespace Pol
 namespace Clib
 {
 std::atomic<bool> signal( false );
-std::atomic<int> code = 0;
+std::atomic<int> code( 0 );
 
 void signal_exit( int exit_code )
 {
