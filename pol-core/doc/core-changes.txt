@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+08-01-2020 Turley:
+    Added: attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.
 07-31-2020 Nando:
     Fixed: Quality of any item can now be directly assigned from an ItemDescriptor. Before this only worked for Equipment (Armor & Weapons).
     Fixed: Stackable items with different values of 'quality' will no longer stack.

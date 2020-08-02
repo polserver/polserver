@@ -23,6 +23,7 @@
 #include "item/equipmnt.h"
 #include "item/itemdesc.h"
 #include "landtile.h"
+#include "mobile/attribute.h"
 #include "objtype.h"
 #include "polcfg.h"
 
@@ -38,7 +39,6 @@ namespace Mobile
 {
 void unload_armor_zones();
 void load_armor_zones();
-void load_attributes_cfg();
 }  // namespace Mobile
 namespace Multi
 {
@@ -204,6 +204,7 @@ void load_data()
 
   checkpoint( "load_uoskills_cfg" );
   load_uoskills_cfg();
+  Mobile::combine_attributes_skillid();
 
   checkpoint( "load_uoclient_cfg" );
   load_uoclient_cfg();

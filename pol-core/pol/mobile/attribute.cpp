@@ -14,6 +14,7 @@
 #include "../globals/settings.h"
 #include "../globals/uvars.h"
 #include "../syshook.h"
+#include "../uoskills.h"
 
 namespace Pol
 {
@@ -48,7 +49,8 @@ Attribute::Attribute( const Plib::Package* pkg, Clib::ConfigElem& elem )
       disable_core_checks( elem.remove_bool( "DisableCoreChecks", false ) ),
       default_cap(
           elem.remove_ushort( "DefaultCap", Core::settingsManager.ssopt.default_attribute_cap ) ),
-      script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" )
+      script_( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/skills/" ),
+      skillid( static_cast<Core::USKILLID>( -1 ) )
 {
   aliases.push_back( name );
   std::string tmp;
@@ -126,5 +128,20 @@ void clean_attributes()
   Core::gamestate.attributes.clear();
   Core::gamestate.attributes_byname.clear();
 }
+
+void combine_attributes_skillid()
+{
+  for ( auto& attr : Core::gamestate.attributes )
+  {
+    for ( const auto& skill : Core::gamestate.uo_skills )
+    {
+      if ( skill.pAttr == attr )
+      {
+        attr->skillid = static_cast<Core::USKILLID>( skill.skillid );
+        break;
+      }
+    }
+  }
 }
-}
+}  // namespace Mobile
+}  // namespace Pol

@@ -750,16 +750,51 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
 
 bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
 {
-  int skillval;
-  if ( getParam( param, skillval, SKILLID__LOWEST, networkManager.uoclient_general.maxskills ) )
+  BObjectImp* imp = getParamImp( param );
+  if ( imp == nullptr )
   {
-    skillid = static_cast<USKILLID>( skillval );
-    return true;
-  }
-  else
-  {
+    setFunctionResult( new BError( "Missing parameter " + Clib::tostring( param ) ) );
     return false;
   }
+  else if ( imp->isa( BObjectImp::OTLong ) )
+  {
+    BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+    int value = plong->value();
+    if ( value >= SKILLID__LOWEST && value <= networkManager.uoclient_general.maxskills )
+    {
+      skillid = static_cast<USKILLID>( value );
+      return true;
+    }
+    else
+    {
+      std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                           Clib::tostring( value ) + " out of expected range of [" +
+                           Clib::tostring( SKILLID__LOWEST ) + ".." +
+                           Clib::tostring( networkManager.uoclient_general.maxskills ) + "]";
+      setFunctionResult( new BError( report ) );
+      return false;
+    }
+  }
+  else if ( imp->isa( BObjectImp::OTString ) )
+  {
+    const Mobile::Attribute* attr;
+    if ( !getAttributeParam( param, attr ) )
+      return false;
+    if ( attr->skillid != -1 )
+      return attr->skillid;
+    const String* attrname;
+    getStringParam( param, attrname );  // no error check needed
+    std::string report = "Parameter " + Clib::tostring( param ) + " value " + attrname->value() +
+                         " has no skill id defined";
+    setFunctionResult( new BError( report ) );
+    return false;
+  }
+  std::string report = "Invalid parameter type.  Expected param " + Clib::tostring( param ) +
+                       " as " + BObjectImp::typestr( BObjectImp::OTLong ) + " or " +
+                       BObjectImp::typestr( BObjectImp::OTString ) + ", got " +
+                       BObjectImp::typestr( imp->type() );
+  setFunctionResult( new BError( report ) );
+  return false;
 }
 
 
@@ -773,7 +808,7 @@ bool UOExecutor::getAttributeParam( unsigned param, const Mobile::Attribute*& at
   if ( !attr )
   {
     setFunctionResult( new BError( "Attribute not defined: " + attrname->value() ) );
-    return false;  // new BError( "Attribute not found" );
+    return false;
   }
 
   return true;

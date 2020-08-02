@@ -14,9 +14,9 @@
   </fileheader>
   
 <function name="CheckSkill">
-	<prototype>CheckSkill( character, skillid, difficulty, points )</prototype>
+	<prototype>CheckSkill( character, skillid_or_attrname, difficulty, points )</prototype>
 	<parameter name="character" value="Character Ref" />
-	<parameter name="skillid" value="Integer skill/attribute ID" />
+	<parameter name="skillid_or_attrname" value="Integer (skill/attribute ID) or String (attribute name)" />
 	<parameter name="difficulty" value="Integer skill use difficulty" />
 	<parameter name="points" value="Integer skill gain on success" />
 	<explain>NOTE: Calls the Syshook script CheckSkill. If it doesn't exist, always returns false.</explain>
