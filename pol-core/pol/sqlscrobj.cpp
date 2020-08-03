@@ -398,7 +398,7 @@ Bscript::BObjectImp* BSQLConnection::call_polmethod( const char* methodname, UOE
 }
 
 Bscript::BObjectImp* BSQLConnection::call_polmethod_id( const int /*id*/, UOExecutor& /*ex*/,
-                                                     bool /*forcebuiltin*/ )
+                                                        bool /*forcebuiltin*/ )
 {
   return new BLong( 0 );
 }

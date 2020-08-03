@@ -1227,7 +1227,7 @@ int xmain_inner( bool testing )
       POLLOG_INFO << "Not writing data due to pol.cfg InhibitSaves=1 setting.\n";
   }
   Core::gamestate.deinitialize();
-  return 0;
+  return Clib::exit_code;
 }
 
 int xmain_outer( bool testing )

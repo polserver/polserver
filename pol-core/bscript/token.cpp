@@ -250,5 +250,5 @@ Token::~Token()
   nulStr();
   unregister_instance();
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

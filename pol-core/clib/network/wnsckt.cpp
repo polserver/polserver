@@ -6,8 +6,8 @@
 
 #include "wnsckt.h"
 
-#include <array>
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstring>
 
@@ -107,7 +107,7 @@ std::string Socket::getpeername() const
 {
   struct sockaddr client_addr;  // inet_addr
   socklen_t addrlen = sizeof client_addr;
-  if (::getpeername( _sck, &client_addr, &addrlen ) == 0 )
+  if ( ::getpeername( _sck, &client_addr, &addrlen ) == 0 )
   {
     struct sockaddr_in* in_addr = (struct sockaddr_in*)&client_addr;
     if ( client_addr.sa_family == AF_INET )
@@ -253,7 +253,7 @@ bool Socket::listen( unsigned short port )
     HandleError();
     return false;
   }
-  if (::listen( _sck, SOMAXCONN ) == -1 )
+  if ( ::listen( _sck, SOMAXCONN ) == -1 )
   {
     HandleError();
     return false;

@@ -16,6 +16,13 @@ namespace Pol
 namespace Clib
 {
 std::atomic<bool> exit_signalled( false );
+std::atomic<int> exit_code( 0 );
+
+void signal_exit( int code )
+{
+  exit_code = code;
+  exit_signalled = true;
+}
 
 #ifdef WINDOWS
 BOOL WINAPI control_handler( DWORD dwCtrlType )
@@ -25,24 +32,24 @@ BOOL WINAPI control_handler( DWORD dwCtrlType )
   case CTRL_BREAK_EVENT:  // use Ctrl+C or Ctrl+Break to simulate
   case CTRL_C_EVENT:      // SERVICE_CONTROL_STOP in debug mode
     ERROR_PRINT << "Ctrl-C detected.  Stopping...\n";
-    exit_signalled = true;
+    signal_exit();
     return TRUE;
 
 // Consider these three new signals?
 #if 0
     case CTRL_CLOSE_EVENT:    // console window closing
           ERROR_PRINT << "Console window closing. Stopping...\n";
-      exit_signalled = true;
+      signal_exit();
       return TRUE;
 
     case CTRL_LOGOFF_EVENT:    // User logging off system
           ERROR_PRINT << "User logging off system. Stopping...\n";
-      exit_signalled = true;
+      signal_exit();
       return TRUE;
 
     case CTRL_SHUTDOWN_EVENT:  // User shutting down system
           ERROR_PRINT << "System shutting down. Stopping...\n";
-      exit_signalled = true;
+      signal_exit();
       return TRUE;
 #endif
   }
@@ -60,7 +67,7 @@ void enable_exit_signaller()
 void ctrlc_handler( int x )
 {
   (void)x;
-  exit_signalled = true;
+  signal_exit();
 }
 void enable_exit_signaller()
 {
@@ -69,5 +76,5 @@ void enable_exit_signaller()
   signal( SIGTERM, ctrlc_handler );
 }
 #endif
-}
-}
+}  // namespace Clib
+}  // namespace Pol
