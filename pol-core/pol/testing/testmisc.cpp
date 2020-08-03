@@ -132,25 +132,6 @@ void packet_test()
     std::array<s8, 10> a{{0x2f, 0x31, 0x32, 0x33, 0x34, 0x12, 0x34, 0x43, 0x21, 0}};
     test( p, a );
   }
-  {
-    PacketOut<PktOut_2F> p;  // size 10
-    u16 b[] = {0x12, 0x34};
-    p->Write( &b[0], 2, false );
-    p->WriteFlipped( &b[0], 2, false );
-    p->Write<u8>( 0u );
-    debug( p );
-    std::array<s8, 10> a{{0x2f, 0x12, 0, 0x34, 0, 0, 0x12, 0, 0x34, 0}};
-    test( p, a );
-    u8* data = reinterpret_cast<u8*>( &( p->buffer[1] ) );
-    u8 d;
-    std::memcpy( &d, &( p->buffer[1] ), 1 );
-    INFO_PRINT << ( *data ) << " " << d << "\n";
-
-    u32* data1 = reinterpret_cast<u32*>( &( p->buffer[1] ) );
-    u32 d1;
-    std::memcpy( &d1, &( p->buffer[1] ), 4 );
-    INFO_PRINT << ( *data1 ) << " " << d1 << "\n";
-  }
 }
 
 }  // namespace Testing
