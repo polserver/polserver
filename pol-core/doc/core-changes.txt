@@ -1,6 +1,8 @@
 ﻿-- POL100 --
 08-03-2020 Kevin:
     Added: Optional parameter exit_code to uo::Shutdown() to change the pol process' exit code.
+08-03-2020 Syzygy:
+    Added: ecompile.cfg "VerbosityLevel" option (setting this is equivalent to ecompile -vN)
 08-01-2020 Turley:
     Added: attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.
 07-31-2020 Nando:
@@ -53,8 +55,8 @@
     Added: New Server Specific Option (servspecopt.cfg) EnableWorldMapPackets. If enabled, the server will respond to client
            requests for guild and party member locations. This option is disabled by default.
 02-05-2020 Kevin:
-    Added: New SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT will keep attached scripts (eg. skill scripts, item use scripts) alive if the 
-           character's client disconnects. Note that by default all references to the character will become invalidated; for example, 
+    Added: New SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT will keep attached scripts (eg. skill scripts, item use scripts) alive if the
+           character's client disconnects. Note that by default all references to the character will become invalidated; for example,
            GetObjProperty(chr, "prop") will return an error. Enable SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES to bypass this.
     Fixed: Scripts that have Set_Script_Option(SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES) can correctly access offline mobiles.
 01-20-2020 Kevin:
@@ -69,7 +71,7 @@
            system, and MAY be set to use custom a client data files directory.
 01-04-2020 Turley:
     Fixed: Tabulator and newline chars where disallowed in CChr and the sanitize step of strings. (introduced with unicode support)
-01-03-2020 DevGIB: 
+01-03-2020 DevGIB:
   Changed: POTENTIAL BREAKING CHANGE! Updated AddAmount() function to return the item reference on success instead of 1.
            You'll need to check your scripts for AddAmount and make sure its not evaluated against 1 for success.
 12-29-2019 Kevin:
@@ -108,12 +110,12 @@
            while (++i<5)
              ...
   Note:    The operators are only implemented for numbers but this includes also eg. arrays or members when it represents a number. So ++a[1], ++who.fire_resist_mod are also valid.
-           Performance wise is i:=i+1 the slowest then i+=1 then i++ then ++i. (i++ is slower since it returns the old value). 
+           Performance wise is i:=i+1 the slowest then i+=1 then i++ then ++i. (i++ is slower since it returns the old value).
 10-03-2019 Turley:
   Fixed:   min/max damage visualization in the statbar are now cropped between 0 and 65k like damage calculation.
 09-30-2019 Nando:
   Changed: Changed default of GetProcess(pid) from 0 to -1 due to compatibility issues with scripts using CInt()'s result directly.
-           PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts. 
+           PIDs are now enforced to never represent negative numbers. Please update your os.em and recompile your scripts.
 09-26-2019 DevGIB:
   Added:   Script objects now have package member which returns a PackageRef. e.g. script.package.name = "GuildStone".
 09-21-2019 Turley:

@@ -13,9 +13,10 @@ boost*
 *.sln
 docs
 x64*
+*.db
+antlr.dir/
 z.dir
 tinyxml.dir
-*.db
 format.dir
 stackwalk.dir
 *ninja*

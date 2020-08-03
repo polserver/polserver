@@ -122,9 +122,7 @@ class Compiler final : public SmartParser
 {
 public:
   static bool check_filecase_;
-  static int verbosity_level_;
   static void setCheckFileCase( bool check ) { check_filecase_ = check; }
-  static void setVerbosityLevel( int vlev ) { verbosity_level_ = vlev; }
 
 private:
   std::string current_file_path;

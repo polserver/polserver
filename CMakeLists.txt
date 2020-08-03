@@ -168,6 +168,7 @@ if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
           -Dsubtest=${child}
           -Decompile=${output_bin_dir}/ecompile
           -Drunecl=${output_bin_dir}/runecl
+          -Derrfilesuffix=1
           -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
         WORKING_DIRECTORY ${testdir}
       )

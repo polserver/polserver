@@ -11,6 +11,11 @@
 			<change type="Added">Optional parameter exit_code to uo::Shutdown() to change the pol process' exit code.</change>
 		</entry>
 		<entry>
+			<date>08-03-2020</date>
+			<author>Syzygy:</author>
+			<change type="Added">ecompile.cfg &quot;VerbosityLevel&quot; option (setting this is equivalent to ecompile -vN)</change>
+		</entry>
+		<entry>
 			<date>08-01-2020</date>
 			<author>Turley:</author>
 			<change type="Added">attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.</change>

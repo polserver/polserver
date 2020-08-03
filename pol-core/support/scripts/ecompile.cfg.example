@@ -52,6 +52,11 @@ GenerateDebugInfo=0
 GenerateDebugTextInfo=0
 
 #
+# VerbosityLevel
+# Enabled logging more information such as locations of include files.
+VerbosityLevel=0
+
+#
 # DisplayWarnings
 # Directs eCompile to display warnings such as 'unused variables'.
 # Default is 1

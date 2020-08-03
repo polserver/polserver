@@ -57,7 +57,6 @@ extern int include_debug;
 namespace Legacy
 {
 bool Compiler::check_filecase_;
-int Compiler::verbosity_level_;
 
 
 std::string getpathof( const std::string& fname )
@@ -275,7 +274,7 @@ int Compiler::isLegal( Token& token )
 {
   if ( inExpr && ( token.id == TOK_ASSIGN ) )
   {
-    if ( verbosity_level_ >= 5 )
+    if ( compilercfg.VerbosityLevel >= 5 )
       compiler_warning( nullptr, "Warning! possible incorrect assignment.\n", "Near: ", curLine,
                         "\n" );
   }
@@ -2466,17 +2465,17 @@ int Compiler::useModule( const char* modulename )
 
   std::string filename_full = current_file_path + filename_part;
 
-  if ( verbosity_level_ >= 10 )
+  if ( compilercfg.VerbosityLevel >= 10 )
     INFO_PRINT << "Searching for " << filename_full << "\n";
 
   if ( !Clib::FileExists( filename_full.c_str() ) )
   {
     std::string try_filename_full = compilercfg.ModuleDirectory + filename_part;
-    if ( verbosity_level_ >= 10 )
+    if ( compilercfg.VerbosityLevel >= 10 )
       INFO_PRINT << "Searching for " << try_filename_full << "\n";
     if ( Clib::FileExists( try_filename_full.c_str() ) )
     {
-      if ( verbosity_level_ >= 10 )
+      if ( compilercfg.VerbosityLevel >= 10 )
         INFO_PRINT << "Found " << try_filename_full << "\n";
       // cout << "Using " << try_filename << endl;
       filename_full = try_filename_full;
@@ -2484,7 +2483,7 @@ int Compiler::useModule( const char* modulename )
   }
   else
   {
-    if ( verbosity_level_ >= 10 )
+    if ( compilercfg.VerbosityLevel >= 10 )
       INFO_PRINT << "Found " << filename_full << "\n";
   }
 
@@ -2638,16 +2637,16 @@ int Compiler::includeModule( const std::string& modulename )
         filename_full = pkg->dir() + path;
         std::string try_filename_full = pkg->dir() + "include/" + path;
 
-        if ( verbosity_level_ >= 10 )
+        if ( compilercfg.VerbosityLevel >= 10 )
           INFO_PRINT << "Searching for " << filename_full << "\n";
 
         if ( !Clib::FileExists( filename_full.c_str() ) )
         {
-          if ( verbosity_level_ >= 10 )
+          if ( compilercfg.VerbosityLevel >= 10 )
             INFO_PRINT << "Searching for " << try_filename_full << "\n";
           if ( Clib::FileExists( try_filename_full.c_str() ) )
           {
-            if ( verbosity_level_ >= 10 )
+            if ( compilercfg.VerbosityLevel >= 10 )
               INFO_PRINT << "Found " << try_filename_full << "\n";
 
             filename_full = try_filename_full;
@@ -2655,7 +2654,7 @@ int Compiler::includeModule( const std::string& modulename )
         }
         else
         {
-          if ( verbosity_level_ >= 10 )
+          if ( compilercfg.VerbosityLevel >= 10 )
             INFO_PRINT << "Found " << filename_full << "\n";
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
@@ -2667,7 +2666,7 @@ int Compiler::includeModule( const std::string& modulename )
       {
         filename_full = compilercfg.PolScriptRoot + path;
 
-        if ( verbosity_level_ >= 10 )
+        if ( compilercfg.VerbosityLevel >= 10 )
         {
           INFO_PRINT << "Searching for " << filename_full << "\n";
           if ( Clib::FileExists( filename_full.c_str() ) )
@@ -2683,17 +2682,17 @@ int Compiler::includeModule( const std::string& modulename )
   }
   else
   {
-    if ( verbosity_level_ >= 10 )
+    if ( compilercfg.VerbosityLevel >= 10 )
       INFO_PRINT << "Searching for " << filename_full << "\n";
 
     if ( !Clib::FileExists( filename_full.c_str() ) )
     {
       std::string try_filename_full = compilercfg.IncludeDirectory + filename_part;
-      if ( verbosity_level_ >= 10 )
+      if ( compilercfg.VerbosityLevel >= 10 )
         INFO_PRINT << "Searching for " << try_filename_full << "\n";
       if ( Clib::FileExists( try_filename_full.c_str() ) )
       {
-        if ( verbosity_level_ >= 10 )
+        if ( compilercfg.VerbosityLevel >= 10 )
           INFO_PRINT << "Found " << try_filename_full << "\n";
 
         // cout << "Using " << try_filename << endl;
@@ -2702,7 +2701,7 @@ int Compiler::includeModule( const std::string& modulename )
     }
     else
     {
-      if ( verbosity_level_ >= 10 )
+      if ( compilercfg.VerbosityLevel >= 10 )
         INFO_PRINT << "Found " << filename_full << "\n";
     }
   }
@@ -2961,7 +2960,7 @@ int Compiler::handleBracketedFor_basic( CompilerContext& ctx )
       and end value.  Only the iterator can be accessed, for now.
       */
   program->addlocalvar( itrvar.tokval() );
-  if ( verbosity_level_ >= 5 )
+  if ( compilercfg.VerbosityLevel >= 5 )
     localscope.addvar( itrvar.tokval(), for_ctx );
   else
     localscope.addvar( itrvar.tokval(), for_ctx, false );
@@ -3925,16 +3924,16 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
         filename_full = pkg->dir() + path;
         std::string try_filename_full = pkg->dir() + "include/" + path;
 
-        if ( verbosity_level_ >= 10 )
+        if ( compilercfg.VerbosityLevel >= 10 )
           INFO_PRINT << "Searching for " << filename_full << "\n";
 
         if ( !Clib::FileExists( filename_full.c_str() ) )
         {
-          if ( verbosity_level_ >= 10 )
+          if ( compilercfg.VerbosityLevel >= 10 )
             INFO_PRINT << "Searching for " << try_filename_full << "\n";
           if ( Clib::FileExists( try_filename_full.c_str() ) )
           {
-            if ( verbosity_level_ >= 10 )
+            if ( compilercfg.VerbosityLevel >= 10 )
               INFO_PRINT << "Found " << try_filename_full << "\n";
 
             filename_full = try_filename_full;
@@ -3942,7 +3941,7 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
         }
         else
         {
-          if ( verbosity_level_ >= 10 )
+          if ( compilercfg.VerbosityLevel >= 10 )
             INFO_PRINT << "Found " << filename_full << "\n";
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
@@ -3954,7 +3953,7 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
       {
         filename_full = compilercfg.PolScriptRoot + path;
 
-        if ( verbosity_level_ >= 10 )
+        if ( compilercfg.VerbosityLevel >= 10 )
         {
           INFO_PRINT << "Searching for " << filename_full << "\n";
           if ( Clib::FileExists( filename_full.c_str() ) )
@@ -3970,17 +3969,17 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
   }
   else
   {
-    if ( verbosity_level_ >= 10 )
+    if ( compilercfg.VerbosityLevel >= 10 )
       INFO_PRINT << "Searching for " << filename_full << "\n";
 
     if ( !Clib::FileExists( filename_full.c_str() ) )
     {
       std::string try_filename_full = compilercfg.IncludeDirectory + filename_part;
-      if ( verbosity_level_ >= 10 )
+      if ( compilercfg.VerbosityLevel >= 10 )
         INFO_PRINT << "Searching for " << try_filename_full << "\n";
       if ( Clib::FileExists( try_filename_full.c_str() ) )
       {
-        if ( verbosity_level_ >= 10 )
+        if ( compilercfg.VerbosityLevel >= 10 )
           INFO_PRINT << "Found " << try_filename_full << "\n";
 
         filename_full = try_filename_full;
@@ -3988,7 +3987,7 @@ bool Compiler::read_function_declarations_in_included_file( const char* modulena
     }
     else
     {
-      if ( verbosity_level_ >= 10 )
+      if ( compilercfg.VerbosityLevel >= 10 )
         INFO_PRINT << "Found " << filename_full << "\n";
     }
   }
@@ -4293,7 +4292,7 @@ int Compiler::compileFile( const char* in_file )
     std::string filepath = Clib::FullPath( in_file );
     referencedPathnames.push_back( filepath );
     current_file_path = getpathof( filepath );
-    if ( verbosity_level_ >= 11 )
+    if ( compilercfg.VerbosityLevel >= 11 )
       INFO_PRINT << "cfp: " << current_file_path << "\n";
     Clib::FileContents fc( filepath.c_str() );
 
