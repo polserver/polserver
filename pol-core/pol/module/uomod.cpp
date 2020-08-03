@@ -4782,11 +4782,11 @@ bool UOExecutorModule::is_reserved_to_me( Item* item )
 
 BObjectImp* UOExecutorModule::mf_Shutdown()
 {
-  int exit_code;
+  int exit_code = 0;
 
-  if ( !exec.hasParams(1) || !getParam( 0, exit_code ) )
+  if ( exec.hasParams(1) )
   {
-    exit_code = 0;
+    getParam( 0, exit_code );
   }
 
   Clib::signal_exit( exit_code );
