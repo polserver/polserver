@@ -4784,8 +4784,10 @@ BObjectImp* UOExecutorModule::mf_Shutdown()
 {
   int exit_code;
 
-  if ( exec.hasParams( 0 ) )
-    getParam( 0, exit_code );
+  if ( !getParam( 0, exit_code ) )
+  {
+    exit_code = 0;
+  }
 
   Clib::signal_exit( exit_code );
 #ifndef _WIN32
