@@ -100,7 +100,6 @@ int debug = 0;
 bool quiet = false;
 bool opt_generate_wordlist = false;
 bool keep_building = false;
-bool verbose = false;
 bool force_update = false;
 bool show_timing_details = false;
 bool timing_quiet_override = false;
@@ -180,7 +179,7 @@ bool compile_file( const char* path )
     unsigned int ecl_timestamp = Clib::GetFileTimestamp( filename_ecl.c_str() );
     if ( Clib::GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp )
     {
-      if ( verbose )
+      if ( compilercfg.VerbosityLevel > 0 )
         INFO_PRINT << filename_src << " is newer than " << filename_ecl << "\n";
       all_old = false;
     }
@@ -196,7 +195,7 @@ bool compile_file( const char* path )
         {
           if ( Clib::GetFileTimestamp( depname.c_str() ) >= ecl_timestamp )
           {
-            if ( verbose )
+            if ( compilercfg.VerbosityLevel > 0 )
               INFO_PRINT << depname << " is newer than " << filename_ecl << "\n";
             all_old = false;
             break;
@@ -205,7 +204,7 @@ bool compile_file( const char* path )
       }
       else
       {
-        if ( verbose )
+        if ( compilercfg.VerbosityLevel > 0 )
           INFO_PRINT << filename_dep << " does not exist."
                      << "\n";
         all_old = false;
@@ -461,12 +460,11 @@ int readargs( int argc, char** argv )
         break;
 
       case 'v':
-        verbose = true;
         int vlev;
         vlev = atoi( &argv[i][2] );
         if ( !vlev )
           vlev = 1;
-        Legacy::Compiler::setVerbosityLevel( vlev );
+        compilercfg.VerbosityLevel = vlev;
         break;
 
       case 'x':
