@@ -8,7 +8,7 @@
 		<entry>
 			<date>08-03-2020</date>
 			<author>Syzygy:</author>
-			<change type="Added">ecompile.cfg &quot;VerbosityLevel&quot; option (still also controlled by ecompile -v N)</change>
+			<change type="Added">ecompile.cfg &quot;VerbosityLevel&quot; option (setting this is equivalent to ecompile -vN)</change>
 		</entry>
 		<entry>
 			<date>08-01-2020</date>

@@ -1,6 +1,6 @@
 ﻿-- POL100 --
 08-03-2020 Syzygy:
-    Added: ecompile.cfg "VerbosityLevel" option (still also controlled by ecompile -v N)
+    Added: ecompile.cfg "VerbosityLevel" option (setting this is equivalent to ecompile -vN)
 08-01-2020 Turley:
     Added: attribute.em CheckSkill() accepts now also the attribute name instead of the skill id.
 07-31-2020 Nando:
