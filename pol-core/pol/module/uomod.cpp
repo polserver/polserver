@@ -4784,7 +4784,7 @@ BObjectImp* UOExecutorModule::mf_Shutdown()
 {
   int exit_code;
 
-  if ( !getParam( 0, exit_code ) )
+  if ( !exec.hasParams(1) || !getParam( 0, exit_code ) )
   {
     exit_code = 0;
   }
