@@ -228,8 +228,8 @@ bool compile_file( const char* path )
 
     C.setQuiet( !debug );
 
-    Facility::Compiler* compiler = &C;
-    bool success = compiler->compile_file( path );
+    Facility::Compiler& compiler = C;
+    bool success = compiler.compile_file( path );
 
     if ( expect_compile_failure )
     {
@@ -253,7 +253,7 @@ bool compile_file( const char* path )
     if ( !quiet )
       INFO_PRINT << "Writing:   " << filename_ecl << "\n";
 
-    if ( !compiler->write_ecl( filename_ecl ) )
+    if ( !compiler.write_ecl( filename_ecl ) )
     {
       throw std::runtime_error( "Error writing output file" );
     }
@@ -262,7 +262,7 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_lst << "\n";
-      compiler->write_listing( filename_lst );
+      compiler.write_listing( filename_lst );
 
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
@@ -281,7 +281,7 @@ bool compile_file( const char* path )
           INFO_PRINT << "Writing:   " << filename_dbg << ".txt"
                      << "\n";
       }
-      compiler->write_dbg( filename_dbg, compilercfg.GenerateDebugTextInfo );
+      compiler.write_dbg( filename_dbg, compilercfg.GenerateDebugTextInfo );
     }
     else if ( Clib::FileExists( filename_dbg.c_str() ) )
     {
@@ -294,7 +294,7 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_dep << "\n";
-      compiler->write_included_filenames( filename_dep );
+      compiler.write_included_filenames( filename_dep );
     }
     else if ( Clib::FileExists( filename_dep.c_str() ) )
     {
