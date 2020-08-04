@@ -1134,7 +1134,7 @@ Region (region name)
 {
     Range        (x-west) (y-north) (x-east) (y-south)
     [Realm       (string realmname {default "britannia"})]
-    [Light       (int light level {default 0}]
+    [LightLevel       (int light level {default 0}]
 }
 [Region...]
 </structure>
