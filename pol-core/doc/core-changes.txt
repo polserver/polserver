@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+08-04-2020 AsYlum:
+    Added: polcore().last_character_serial returns last character serial assigned by core
+           polcore().last_item_serial returns last item serial assigned by core
 08-03-2020 Kevin:
     Added: Optional parameter exit_code to uo::Shutdown() to change the pol process' exit code.
 08-03-2020 Syzygy:

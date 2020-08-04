@@ -1896,6 +1896,9 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( combat_operations_per_min, GET_PROFILEVAR_PER_MIN( combat_operations ) );
   LONG_COREVAR( error_creations_per_min, GET_PROFILEVAR_PER_MIN( error_creations ) );
 
+  LONG_COREVAR( last_character_serial, GetCurrentCharSerialNumber() );
+  LONG_COREVAR( last_item_serial, GetCurrentItemSerialNumber() );
+
   LONG_COREVAR( tasks_ontime_per_min, GET_PROFILEVAR_PER_MIN( tasks_ontime ) );
   LONG_COREVAR( tasks_late_per_min, GET_PROFILEVAR_PER_MIN( tasks_late ) );
   LONG_COREVAR( tasks_late_ticks_per_min, GET_PROFILEVAR_PER_MIN( tasks_late_ticks ) );
