@@ -1,5 +1,13 @@
 set (bscript_sources    # sorted !
-  CMakeSources.cmake 
+  ../../lib/EscriptGrammar/EscriptLexer.cpp
+  ../../lib/EscriptGrammar/EscriptLexer.h
+  ../../lib/EscriptGrammar/EscriptParser.cpp
+  ../../lib/EscriptGrammar/EscriptParser.h
+  ../../lib/EscriptGrammar/EscriptParserBaseListener.cpp
+  ../../lib/EscriptGrammar/EscriptParserBaseListener.h
+  ../../lib/EscriptGrammar/EscriptParserListener.cpp
+  ../../lib/EscriptGrammar/EscriptParserListener.h
+  CMakeSources.cmake
   StdAfx.h
   StoredToken.cpp
   StoredToken.h
@@ -27,8 +35,8 @@ set (bscript_sources    # sorted !
   eprog3.cpp
   eprog_read.cpp
   escript.h
-  escript_config.cpp 
-  escriptv.cpp 
+  escript_config.cpp
+  escriptv.cpp
   escriptv.h
   escrutil.cpp
   escrutil.h
