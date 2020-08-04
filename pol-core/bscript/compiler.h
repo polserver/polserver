@@ -15,6 +15,8 @@
 #include "parser.h"
 #endif
 
+#include "facility/Compiler.h"
+
 #include <iosfwd>
 #include <map>
 #include <stddef.h>
@@ -118,7 +120,7 @@ private:
   friend class Compiler;
 };
 
-class Compiler final : public SmartParser
+class Compiler final : public SmartParser, public Facility::Compiler
 {
 public:
   static bool check_filecase_;
@@ -272,6 +274,13 @@ public:
   int write( const char* fname );
   int write_dbg( const char* fname, bool generate_txtfile );
   void writeIncludedFilenames( const char* fname ) const;
+
+  // Facility::Compiler
+  bool compile_file( const std::string& filename ) override;
+  bool write_ecl( const std::string& pathname ) override;
+  void write_listing( const std::string& pathname ) override;
+  void write_dbg( const std::string& pathname, bool include_debug_text ) override;
+  void write_included_filenames( const std::string& pathname ) override;
 
   // phase 0: determining bracket syntax
 
