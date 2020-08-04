@@ -12,6 +12,7 @@
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
 #include "../bscript/executortype.h"
+#include "../bscript/facility/Compiler.h"
 #include "../bscript/filefmt.h"
 #include "../bscript/parser.h"
 #include "../clib/Program/ProgramConfig.h"
@@ -226,11 +227,13 @@ bool compile_file( const char* path )
     Legacy::Compiler C;
 
     C.setQuiet( !debug );
-    int res = C.compileFile( path );
+
+    Facility::Compiler* compiler = &C;
+    bool success = compiler->compile_file( path );
 
     if ( expect_compile_failure )
     {
-      if ( res )  // good, it failed
+      if ( !success )  // good, it failed
       {
         if ( !quiet )
           INFO_PRINT << "Compilation failed as expected."
@@ -243,14 +246,14 @@ bool compile_file( const char* path )
       }
     }
 
-    if ( res )
+    if ( !success )
       throw std::runtime_error( "Error compiling file" );
 
 
     if ( !quiet )
       INFO_PRINT << "Writing:   " << filename_ecl << "\n";
 
-    if ( C.write( filename_ecl.c_str() ) )
+    if ( !compiler->write_ecl( filename_ecl ) )
     {
       throw std::runtime_error( "Error writing output file" );
     }
@@ -259,8 +262,8 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_lst << "\n";
-      std::ofstream ofs( filename_lst.c_str() );
-      C.dump( ofs );
+      compiler->write_listing( filename_lst );
+
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
     {
@@ -278,7 +281,7 @@ bool compile_file( const char* path )
           INFO_PRINT << "Writing:   " << filename_dbg << ".txt"
                      << "\n";
       }
-      C.write_dbg( filename_dbg.c_str(), compilercfg.GenerateDebugTextInfo );
+      compiler->write_dbg( filename_dbg, compilercfg.GenerateDebugTextInfo );
     }
     else if ( Clib::FileExists( filename_dbg.c_str() ) )
     {
@@ -291,7 +294,7 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_dep << "\n";
-      C.writeIncludedFilenames( filename_dep.c_str() );
+      compiler->write_included_filenames( filename_dep );
     }
     else if ( Clib::FileExists( filename_dep.c_str() ) )
     {

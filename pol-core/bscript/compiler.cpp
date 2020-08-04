@@ -4364,6 +4364,33 @@ void Compiler::dump( std::ostream& os )
 {
   program->dump( os );
 }
+
+bool Compiler::compile_file( const std::string& filename )
+{
+  return compileFile( filename.c_str() ) == 0;
+}
+
+bool Compiler::write_ecl( const std::string& pathname )
+{
+  return write( pathname.c_str() ) == 0;
+}
+
+void Compiler::write_listing( const std::string& pathname )
+{
+  std::ofstream ofs( pathname );
+  dump( ofs );
+}
+
+void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
+{
+  write_dbg( pathname.c_str(), include_debug_text );
+}
+
+void Compiler::write_included_filenames( const std::string& pathname )
+{
+  writeIncludedFilenames( pathname.c_str() );
+}
+
 }  // namespace Legacy
 }  // namespace Bscript
 }  // namespace Pol
