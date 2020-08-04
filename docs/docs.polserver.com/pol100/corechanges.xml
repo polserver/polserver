@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-03-2020</datemodified>
+		<datemodified>08-04-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-04-2020</date>
+			<author>AsYlum:</author>
+			<change type="Added">polcore().last_character_serial returns last character serial assigned by core<br/>
+polcore().last_item_serial returns last item serial assigned by core</change>
+		</entry>
 		<entry>
 			<date>08-03-2020</date>
 			<author>Kevin:</author>
