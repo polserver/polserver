@@ -10,6 +10,7 @@
 
 #include "../bscript/compiler.h"
 #include "../bscript/compiler/Compiler.h"
+#include "../bscript/compiler/LegacyFunctionOrder.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
@@ -71,6 +72,7 @@ void ECompileMain::showHelp()
              << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
 #endif
              << "       -g           Use ANTLR-grammar-driven compiler\n"
+             << "       -G           Compare OG versus new compiler output\n"
 
              << "       -i           include intrusive debug info in .ecl file\n"
              << "       -l           generate listfile\n"
@@ -122,6 +124,18 @@ struct Summary
   size_t ThreadCount = 0;
 } summary;
 
+struct Comparison
+{
+  std::atomic<long long> CompileTimeV1Micros {};
+  std::atomic<long long> CompileTimeV2Micros {};
+  std::atomic<long> MatchingResult {};
+  std::atomic<long> NonMatchingResult {};
+  std::atomic<long> MatchingOutput {};
+  std::atomic<long> NonMatchingOutput {};
+  std::atomic<long> MatchingDebugOutput {};
+  std::atomic<long> NonMatchingDebugOutput {};
+} comparison;
+
 void generate_wordlist()
 {
   INFO_PRINT << "Writing word list to wordlist.txt\n";
@@ -142,6 +156,98 @@ void compile_inc( const char* path )
 
   if ( res )
     throw std::runtime_error( "Error compiling file" );
+}
+
+std::vector<unsigned char> binary_contents( const std::string& pathname )
+{
+  std::ifstream input1( pathname, std::ios::binary );
+  std::vector<unsigned char> buffer( std::istreambuf_iterator<char>( input1 ), {} );
+  return buffer;
+}
+
+bool compare_compiler_output( const std::string& path )
+{
+  if ( compilercfg.ThreadedCompilation )
+    throw std::runtime_error( "Comparison mode does not work with threaded compilation." );
+
+  Legacy::Compiler og_compiler;
+  og_compiler.setQuiet( !debug );
+
+  Compiler::Compiler new_compiler;//( em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+
+  Pol::Tools::HighPerfTimer og_timer;
+  bool og_ok = og_compiler.compile_file( path );
+  comparison.CompileTimeV1Micros += og_timer.ellapsed().count();
+
+  auto hints = og_compiler.get_legacy_function_order();
+  Pol::Tools::HighPerfTimer new_timer;
+  bool new_ok = new_compiler.compile_file( std::string( path ), &hints );
+  comparison.CompileTimeV2Micros += new_timer.ellapsed().count();
+
+  if ( og_ok != new_ok )
+  {
+    ++comparison.NonMatchingResult;
+    ERROR_PRINT << "V1 " << (og_ok ? "succeeded" : "failed" )
+        << ", V2 " << (new_ok ? "succeeded" : "failed" )
+        << "\n";
+    throw std::runtime_error( "success/failure mismatch" );
+    return false;
+  }
+  ++comparison.MatchingResult;
+
+  if (!og_ok)
+    return true; // it's ok if they both failed
+
+  // this is why -T and -G conflict: using the same filenames for every script
+  std::string og_ecl( "og-compiler.ecl");
+  std::string og_lst( "og-compiler.lst");
+
+  std::string new_ecl( "new-compiler.ecl" );
+  std::string new_lst( "new-compiler.lst" );
+
+  og_compiler.write_ecl( og_ecl );
+  og_compiler.write_listing( og_lst );
+
+  new_compiler.write_ecl( new_ecl );
+  {
+    ref_ptr<EScriptProgram> program( new EScriptProgram );
+    program->read( new_ecl.c_str() );
+    std::ofstream ofs( new_lst.c_str() );
+    program->dump( ofs );
+  }
+
+  ref_ptr<EScriptProgram> og_program( new EScriptProgram );
+  og_program->read( og_ecl.c_str() );
+
+  ref_ptr<EScriptProgram> new_program( new EScriptProgram );
+  new_program->read( new_ecl.c_str() );
+
+  std::ostringstream os1;
+  og_program->dump( os1 );
+
+  std::ostringstream os2;
+  new_program->dump( os2 );
+
+  INFO_PRINT << "Listings match: " << ( os1.str() == os2.str() ) << "\n";
+
+  bool matches = binary_contents( og_ecl ) == binary_contents( new_ecl );
+  if ( matches )
+    ++comparison.MatchingOutput;
+  else
+    ++comparison.NonMatchingOutput;
+
+  INFO_PRINT << "Binary (.ecl) outputs match: " << matches << "\n";
+  if ( !keep_building )
+  {
+    if ( !matches )
+    {
+      INFO_PRINT << "Failing because output does not match.\n"
+                 << "  - " << og_ecl << "\n"
+                 << "  - " << new_ecl << "\n";
+      throw std::runtime_error( "Compiler output mismatch" );
+    }
+  }
+  return true;
 }
 
 /**
@@ -222,6 +328,15 @@ bool compile_file( const char* path )
                    << "\n";
       return false;
     }
+  }
+
+  if ( compilercfg.CompareCompilerOutput )
+  {
+    if ( !quiet )
+      INFO_PRINT << "Comparing compiler output: " << path << "\n";
+    bool same = compare_compiler_output( path );
+
+    return same;
   }
 
   {
@@ -401,6 +516,9 @@ int readargs( int argc, char** argv )
 
       case 'g':
         compilercfg.UseCompiler2020 = setting_value( arg );
+        break;
+      case 'G':
+        compilercfg.CompareCompilerOutput = setting_value( arg );
         break;
 
       case 'q':
@@ -817,6 +935,21 @@ bool run( int argc, char** argv, int* res )
     if ( summary.UpToDateScripts )
       tmp << "    " << summary.UpToDateScripts << " script"
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
+    INFO_PRINT << tmp.str();
+  }
+
+  if ( any && compilercfg.CompareCompilerOutput )
+  {
+    fmt::Writer tmp;
+    tmp << "Compilation Comparison:\n";
+    tmp << "    V1 compile time: " << (long)comparison.CompileTimeV1Micros / 1000 << "\n";
+    tmp << "    V2 compile time: " << (long)comparison.CompileTimeV2Micros / 1000 << "\n";
+    tmp << "     Result matches: " << comparison.MatchingResult << "\n";
+    tmp << "  Result mismatches: " << comparison.NonMatchingResult << "\n";
+    tmp << "     Output matches: " << comparison.MatchingOutput << "\n";
+    tmp << "  Output mismatches: " << comparison.NonMatchingOutput << "\n";
+    tmp << "      Debug matches: " << comparison.MatchingDebugOutput << "\n";
+    tmp << "   Debug mismatches: " << comparison.NonMatchingDebugOutput << "\n";
     INFO_PRINT << tmp.str();
   }
 

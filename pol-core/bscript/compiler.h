@@ -40,6 +40,10 @@ namespace Pol
 {
 namespace Bscript
 {
+namespace Compiler
+{
+  struct LegacyFunctionOrder;
+}
 class EScriptProgram;
 class EScriptProgramCheckpoint;
 class FunctionalityModule;
@@ -282,6 +286,8 @@ public:
   void write_dbg( const std::string& pathname, bool include_debug_text ) override;
   void write_included_filenames( const std::string& pathname ) override;
 
+  Pol::Bscript::Compiler::LegacyFunctionOrder get_legacy_function_order() const;
+
   // phase 0: determining bracket syntax
 
   // phase 1: read function declarations, constants (but clear constants)
@@ -298,6 +304,8 @@ public:
   int emit_function( UserFunction& uf );
   int emit_functions();
   void patch_callers( UserFunction& uf );
+
+  std::vector<std::string> userfunc_emit_order;
 
 private:
   std::vector<char*> delete_these_arrays;

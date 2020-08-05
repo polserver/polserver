@@ -60,6 +60,7 @@ void CompilerConfig::Read( const std::string& path )
   ErrorOnFileCaseMissmatch = elem.remove_bool( "ErrorOnFileCaseMissmatch", false );
 
   UseCompiler2020 = elem.remove_bool( "UseCompiler2020", false );
+  CompareCompilerOutput = elem.remove_bool( "CompareCompilerOutput", false );
 
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.

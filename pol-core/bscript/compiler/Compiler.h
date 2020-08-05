@@ -9,6 +9,7 @@ namespace Bscript
 {
 namespace Compiler
 {
+struct LegacyFunctionOrder;
 
 class Compiler : public Pol::Bscript::Facility::Compiler
 {
@@ -23,6 +24,8 @@ public:
   void write_listing( const std::string& pathname ) override;
   void write_dbg( const std::string& pathname, bool include_debug_text ) override;
   void write_included_filenames( const std::string& pathname ) override;
+
+  bool compile_file( const std::string& filename, const LegacyFunctionOrder* );
 };
 
 }  // namespace Compiler
