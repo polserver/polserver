@@ -47,7 +47,6 @@ set (clib_sources
   kbhit.h
   logfacility.cpp
   logfacility.h
-  make_unique.hpp
   maputil.h
   message_queue.h
   mlog.cpp 
