@@ -42,7 +42,7 @@ namespace Bscript
 {
 namespace Compiler
 {
-  class LegacyFunctionOrder;
+  struct LegacyFunctionOrder;
 }
 class EScriptProgram;
 class EScriptProgramCheckpoint;
