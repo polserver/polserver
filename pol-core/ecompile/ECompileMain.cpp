@@ -3,10 +3,10 @@
 #include <cstdio>
 #include <exception>
 #include <iosfwd>
+#include <memory>
 #include <stdlib.h>
 #include <string>
 #include <time.h>
-#include <boost/make_unique.hpp>
 
 #include "../bscript/compiler.h"
 #include "../bscript/compiler/Compiler.h"
@@ -347,11 +347,11 @@ bool compile_file( const char* path )
 
     if ( compilercfg.UseCompiler2020 )
     {
-      compiler = boost::make_unique<Compiler::Compiler>();
+      compiler = std::make_unique<Compiler::Compiler>();
     }
     else
     {
-      auto og_compiler = boost::make_unique<Legacy::Compiler>();
+      auto og_compiler = std::make_unique<Legacy::Compiler>();
       og_compiler->setQuiet( !debug );
       compiler = std::move( og_compiler );
     }
@@ -391,7 +391,6 @@ bool compile_file( const char* path )
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_lst << "\n";
       compiler->write_listing( filename_lst );
-
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
     {
