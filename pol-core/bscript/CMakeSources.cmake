@@ -7,6 +7,8 @@ set (bscript_sources    # sorted !
   ../../lib/EscriptGrammar/EscriptParserBaseListener.h
   ../../lib/EscriptGrammar/EscriptParserListener.cpp
   ../../lib/EscriptGrammar/EscriptParserListener.h
+  compiler/Compiler.cpp
+  compiler/Compiler.h
   CMakeSources.cmake
   StdAfx.h
   StoredToken.cpp

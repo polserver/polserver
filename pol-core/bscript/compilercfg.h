@@ -38,6 +38,7 @@ struct CompilerConfig
   int NumberOfThreads;
   bool ParanoiaWarnings;
   bool ErrorOnFileCaseMissmatch;
+  bool UseCompiler2020;
 
   void Read( const std::string& path );
   void SetDefaults();
