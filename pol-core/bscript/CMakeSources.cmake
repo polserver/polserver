@@ -7,14 +7,18 @@ set (bscript_sources    # sorted !
   ../../lib/EscriptGrammar/EscriptParserBaseListener.h
   ../../lib/EscriptGrammar/EscriptParserListener.cpp
   ../../lib/EscriptGrammar/EscriptParserListener.h
-  compiler/Compiler.cpp
-  compiler/Compiler.h
-  compiler/LegacyFunctionOrder.h
   CMakeSources.cmake
   StdAfx.h
   StoredToken.cpp
   StoredToken.h
-  berror.cpp 
+  compiler/Compiler.cpp
+  compiler/Compiler.h
+  compiler/LegacyFunctionOrder.h
+  compiler/file/SourceFileIdentifier.cpp
+  compiler/file/SourceFileIdentifier.h
+  compiler/file/SourceLocation.cpp
+  compiler/file/SourceLocation.h
+  berror.cpp
   berror.h
   blong.cpp 
   bobject.h

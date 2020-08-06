@@ -41,6 +41,7 @@ set (clib_sources
   fileutil.cpp 
   fileutil.h
   fixalloc.h
+  formatfwd.h
   iohelp.cpp
   iohelp.h
   kbhit.cpp
