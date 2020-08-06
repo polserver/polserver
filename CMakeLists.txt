@@ -149,31 +149,37 @@ endif()
 add_polrelease_target()
 
 #ctest integration
-#splitted into each escript testfolder to allow parallel execution
-if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
+if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL) OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
   message("activating test target")
   enable_testing()
-  set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
-  file(GLOB children RELATIVE ${testdir} ${testdir}/*)
 
-  foreach(child ${children})
-    if(IS_DIRECTORY ${testdir}/${child})
-      string(FIND "${child}" "_" out)
-      if(${out} EQUAL 0)
-        continue()
+  #splitted into each escript testfolder to allow parallel execution
+  if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
+    set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
+    file(GLOB children RELATIVE ${testdir} ${testdir}/*)
+
+    foreach(child ${children})
+      if(IS_DIRECTORY ${testdir}/${child})
+        string(FIND "${child}" "_" out)
+        if(${out} EQUAL 0)
+          continue()
+        endif()
+        add_test(NAME escript_${child}
+          COMMAND ${CMAKE_COMMAND}
+            -Dtestdir=${testdir}
+            -Dsubtest=${child}
+            -Decompile=${output_bin_dir}/ecompile
+            -Drunecl=${output_bin_dir}/runecl
+            -Derrfilesuffix=1
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
+          WORKING_DIRECTORY ${testdir}
+        )
       endif()
-      add_test(NAME escript_${child}
-        COMMAND ${CMAKE_COMMAND}
-          -Dtestdir=${testdir}
-          -Dsubtest=${child}
-          -Decompile=${output_bin_dir}/ecompile
-          -Drunecl=${output_bin_dir}/runecl
-          -Derrfilesuffix=1
-          -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
-        WORKING_DIRECTORY ${testdir}
-      )
-    endif()
-  endforeach()
+    endforeach()
+  endif()
+  if (BUILD_ALL OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
+    include(cmake/core_tests.cmake)
+  endif()
 endif()
 
 #clang-format target for modified and new files

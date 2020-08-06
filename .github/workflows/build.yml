@@ -100,11 +100,16 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
-      - name: Test
+      - name: Test (EScript)
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
+          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
+      - name: Test (UOConvert)
+        if: matrix.config.nopch == 0
+        run: |
+          cd bin-build
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -R uoconvert_
       - name: Stylecheck
         if: matrix.config.cxx-compiler == 'g++'
         run: |
