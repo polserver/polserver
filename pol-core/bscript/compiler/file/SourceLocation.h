@@ -1,0 +1,48 @@
+#ifndef POLSERVER_SOURCELOCATION_H
+#define POLSERVER_SOURCELOCATION_H
+
+#include "../clib/formatfwd.h"
+#include <string>
+
+namespace antlr4
+{
+class ParserRuleContext;
+namespace tree
+{
+class TerminalNode;
+}
+}
+
+namespace Pol
+{
+namespace Bscript
+{
+namespace Compiler
+{
+class SourceFileIdentifier;
+
+class SourceLocation
+{
+public:
+  SourceLocation( const SourceFileIdentifier*, unsigned short line_number,
+                  unsigned short character_column );
+  SourceLocation( const SourceFileIdentifier*, antlr4::ParserRuleContext& );
+  SourceLocation( const SourceFileIdentifier*, antlr4::tree::TerminalNode& );
+
+  void debug( const std::string& msg ) const;
+
+  [[noreturn]] void internal_error( const std::string& msg ) const;
+  [[noreturn]] void internal_error( const std::string& msg, const SourceLocation& related ) const;
+
+  const SourceFileIdentifier* const source_file_identifier;
+  const unsigned short line_number;
+  const unsigned short character_column; // 1-based on line, as seen in an editor
+};
+
+fmt::Writer& operator<<( fmt::Writer&, const SourceLocation& );  // pathname:line:column
+
+}  // namespace Compiler
+}  // namespace Bscript
+}  // namespace Pol
+
+#endif  // POLSERVER_SOURCELOCATION_H
