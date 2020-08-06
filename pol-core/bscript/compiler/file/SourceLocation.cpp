@@ -13,8 +13,8 @@ namespace Bscript
 namespace Compiler
 {
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                const unsigned short line_number,
-                                const unsigned short character_column )
+                                unsigned short line_number,
+                                unsigned short character_column )
   : source_file_identifier( source_file_identifier ),
     line_number( line_number ),
     character_column( character_column )
@@ -24,16 +24,16 @@ SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifi
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
                                 antlr4::ParserRuleContext& ctx )
   : source_file_identifier( source_file_identifier ),
-    line_number( ctx.getStart()->getLine() ),
-    character_column( ctx.getStart()->getCharPositionInLine()+1 )
+    line_number( static_cast<unsigned short>( ctx.getStart()->getLine() ) ),
+    character_column( static_cast<unsigned short>( ctx.getStart()->getCharPositionInLine()+1 ) )
 {
 }
 
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
                                 antlr4::tree::TerminalNode& ctx )
   : source_file_identifier( source_file_identifier ),
-    line_number( ctx.getSymbol()->getLine() ),
-    character_column( ctx.getSymbol()->getCharPositionInLine()+1 )
+    line_number( static_cast<unsigned short>( ctx.getSymbol()->getLine() ) ),
+    character_column( static_cast<unsigned short>( ctx.getSymbol()->getCharPositionInLine()+1 ) )
 {
 }
 
