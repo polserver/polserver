@@ -34,6 +34,10 @@ public:
   [[noreturn]] void internal_error( const std::string& msg ) const;
   [[noreturn]] void internal_error( const std::string& msg, const SourceLocation& related ) const;
 
+  // There is a vector of std::unique_ptr<SourceFileIdentifier> that owns
+  // the SourceFileIdentifier instances for a given script compilation.
+  // If you hold onto a SourceFileIdentifier after that vector goes
+  // out of scope, this will be a dangling pointer.
   const SourceFileIdentifier* const source_file_identifier;
   const unsigned short line_number;
   const unsigned short character_column; // 1-based on line, as seen in an editor
