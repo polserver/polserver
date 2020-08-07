@@ -45,6 +45,7 @@ class UnaryOperator;
 class UninitializedValue;
 class ValueConsumer;
 class VarStatement;
+class WhileLoop;
 
 class NodeVisitor
 {
@@ -92,6 +93,7 @@ public:
   virtual void visit_uninitialized_value( UninitializedValue& );
   virtual void visit_value_consumer( ValueConsumer& );
   virtual void visit_var_statement( VarStatement& );
+  virtual void visit_while_loop( WhileLoop& );
 
   virtual void visit_children( Node& parent );
 };

@@ -42,6 +42,7 @@
 #include "UninitializedValue.h"
 #include "ValueConsumer.h"
 #include "VarStatement.h"
+#include "WhileLoop.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -244,6 +245,11 @@ void NodeVisitor::visit_value_consumer( ValueConsumer& node )
 }
 
 void NodeVisitor::visit_var_statement( VarStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_while_loop( WhileLoop& node )
 {
   visit_children( node );
 }

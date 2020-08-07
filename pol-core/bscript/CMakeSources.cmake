@@ -118,6 +118,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ValueConsumer.h
   compiler/ast/VarStatement.cpp
   compiler/ast/VarStatement.h
+  compiler/ast/WhileLoop.cpp
+  compiler/ast/WhileLoop.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
