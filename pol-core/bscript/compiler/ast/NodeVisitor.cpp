@@ -5,6 +5,7 @@
 #include "ArrayElementIndexes.h"
 #include "ArrayInitializer.h"
 #include "BinaryOperator.h"
+#include "Block.h"
 #include "BreakStatement.h"
 #include "ConstDeclaration.h"
 #include "ContinueStatement.h"
@@ -60,6 +61,11 @@ void NodeVisitor::visit_array_initializer( ArrayInitializer& node )
 }
 
 void NodeVisitor::visit_binary_operator( BinaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_block( Block& node )
 {
   visit_children( node );
 }
