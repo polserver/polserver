@@ -76,6 +76,8 @@ set (bscript_sources    # sorted !
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp
   compiler/ast/UnaryOperator.h
+  compiler/ast/UninitializedValue.cpp
+  compiler/ast/UninitializedValue.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp

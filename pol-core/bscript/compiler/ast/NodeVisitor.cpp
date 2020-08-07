@@ -25,6 +25,7 @@
 #include "StructMemberInitializer.h"
 #include "TopLevelStatements.h"
 #include "UnaryOperator.h"
+#include "UninitializedValue.h"
 #include "ValueConsumer.h"
 #include "VarStatement.h"
 
@@ -144,6 +145,11 @@ void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 }
 
 void NodeVisitor::visit_unary_operator( UnaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_uninitialized_value( UninitializedValue& node )
 {
   visit_children( node );
 }
