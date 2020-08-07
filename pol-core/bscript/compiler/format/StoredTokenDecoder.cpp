@@ -14,6 +14,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 {
   switch ( tkn.id )
   {
+  case TOK_CONSUMER:
+    w << "# (consume)";
+    break;
+
   case CTRL_PROGEND:
     w << "progend";
     break;
