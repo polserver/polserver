@@ -1355,6 +1355,7 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
 
     tok.copyStr( ctx.s, len - 1 );
 
+    tok.module = Mod_Basic;
     tok.id = TOK_IDENT;
     tok.type = TYP_OPERAND;
 
