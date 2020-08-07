@@ -34,6 +34,8 @@ set (bscript_sources    # sorted !
   compiler/ast/DictionaryInitializer.h
   compiler/ast/ElvisOperator.cpp
   compiler/ast/ElvisOperator.h
+  compiler/ast/ErrorInitializer.cpp
+  compiler/ast/ErrorInitializer.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
