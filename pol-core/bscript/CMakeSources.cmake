@@ -164,6 +164,8 @@ set (bscript_sources    # sorted !
   compiler/format/StoredTokenDecoder.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
+  compiler/model/FlowControlLabel.cpp
+  compiler/model/FlowControlLabel.h
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
   compiler/optimizer/Optimizer.cpp
