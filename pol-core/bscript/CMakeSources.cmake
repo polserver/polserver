@@ -54,6 +54,10 @@ set (bscript_sources    # sorted !
   compiler/ast/Identifier.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
+  compiler/ast/MethodCall.cpp
+  compiler/ast/MethodCall.h
+  compiler/ast/MethodCallArgumentList.cpp
+  compiler/ast/MethodCallArgumentList.h
   compiler/ast/ModuleFunctionDeclaration.cpp
   compiler/ast/ModuleFunctionDeclaration.h
   compiler/ast/Node.cpp

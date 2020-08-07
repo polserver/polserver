@@ -16,6 +16,8 @@
 #include "GetMember.h"
 #include "Identifier.h"
 #include "IntegerValue.h"
+#include "MethodCall.h"
+#include "MethodCallArgumentList.h"
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
 #include "StringValue.h"
@@ -105,6 +107,16 @@ void NodeVisitor::visit_identifier( Identifier& node )
 }
 
 void NodeVisitor::visit_integer_value( IntegerValue& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_method_call( MethodCall& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_method_call_argument_list( MethodCallArgumentList& node )
 {
   visit_children( node );
 }

@@ -19,6 +19,8 @@ class FunctionParameterList;
 class Identifier;
 class IntegerValue;
 class GetMember;
+class MethodCall;
+class MethodCallArgumentList;
 class ModuleFunctionDeclaration;
 class Node;
 class StringValue;
@@ -50,6 +52,8 @@ public:
   virtual void visit_identifier( Identifier& );
   virtual void visit_get_member( GetMember& );
   virtual void visit_integer_value( IntegerValue& );
+  virtual void visit_method_call( MethodCall& );
+  virtual void visit_method_call_argument_list( MethodCallArgumentList& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_struct_initializer( StructInitializer& );
