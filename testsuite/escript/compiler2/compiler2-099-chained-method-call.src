@@ -1,0 +1,4 @@
+var a := { "a", "b", "c", "d", "e", "f" };
+var s;
+s := "-".join(a).find("c-d");
+print(s); // expect 5

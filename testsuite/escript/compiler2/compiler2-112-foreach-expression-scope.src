@@ -1,0 +1,10 @@
+// We need to make sure that any references to a variable with the
+// same name as the iterator refer to the _shadowed_ variable,
+// not the iterator itself.  Also, the iterator is
+// not valid in the expression!
+
+var thing := { "a", "b", "c", "d" };
+foreach thing in { thing[1], thing[2], thing[3], thing[4] }
+    print(thing);
+endforeach
+

@@ -1,0 +1,9 @@
+const X := 1;
+const Y := 2;
+
+var a := 1;
+case (a)
+    X: print("x!");
+    Y:
+endcase
+print("complete");

@@ -1,0 +1,3 @@
+const X := "abc";
+
+X := "oh no";

@@ -1,0 +1,9 @@
+
+var i := 4;
+while (i)
+    i := i - 1;
+    if ( i == 2 )
+        continue;
+    endif
+    print( "i: " + i );
+endwhile

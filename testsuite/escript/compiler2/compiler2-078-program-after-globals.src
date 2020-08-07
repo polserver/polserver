@@ -1,0 +1,7 @@
+// Don't count these 4 globals as locals to be cleaned up
+// at the end of the program block.
+var a, b, c, d;
+
+program foo(e)
+  var f, g;
+endprogram

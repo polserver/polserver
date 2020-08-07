@@ -1,0 +1,10 @@
+const a := 0;
+const b := 0;
+
+if (a)
+    print("incorrect - first path");
+elseif (b)
+    print("incorrect - second path");
+endif
+
+print("correct - neither");

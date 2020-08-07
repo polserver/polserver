@@ -1,0 +1,8 @@
+var a := 5;
+case (a)
+    4:
+        print( "four" );
+    5:
+        print( "five" );
+endcase
+print("done");

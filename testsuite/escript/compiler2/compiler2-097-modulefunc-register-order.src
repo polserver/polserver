@@ -1,0 +1,4 @@
+// OG compiler emits lower as function 0
+// there's no way to tell from the runtime output though.
+print(lower(upper("abc")));
+

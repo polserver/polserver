@@ -1,0 +1,8 @@
+program Install()
+    return 1;
+endprogram
+
+exported function foo()
+    print("hello");
+endfunction
+

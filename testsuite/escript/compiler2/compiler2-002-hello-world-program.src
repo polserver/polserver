@@ -1,0 +1,4 @@
+program hi()
+    print("hello, world");
+endprogram
+

@@ -1,0 +1,20 @@
+// The "outer:" label below begins as if it were a selector for the case group
+// (adjacent to 4:)
+// The semantic analyzer has to notice that it is not a known identifier,
+// and change it to be the label of the outer while-loop.
+
+var a := 5;
+case (a)
+    4:
+        outer:
+        while (1)
+            inner:
+            while(1)
+                break outer;
+            endwhile
+        endwhile
+
+    5:
+        print( "five" );
+endcase
+print("done");

@@ -1,0 +1,5 @@
+function display(s)
+    print(s);
+endfunction
+
+display("hi there");
