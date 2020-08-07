@@ -3,7 +3,9 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Argument;
 class FloatValue;
+class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
 class ModuleFunctionDeclaration;
@@ -16,8 +18,10 @@ class NodeVisitor
 {
 public:
   virtual ~NodeVisitor() = default;
-  
+
+  virtual void visit_argument( Argument& );
   virtual void visit_float_value( FloatValue& );
+  virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );

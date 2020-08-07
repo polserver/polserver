@@ -18,12 +18,16 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/ast/Argument.cpp
+  compiler/ast/Argument.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
   compiler/ast/FloatValue.h
   compiler/ast/Function.cpp
   compiler/ast/Function.h
+  compiler/ast/FunctionCall.cpp
+  compiler/ast/FunctionCall.h
   compiler/ast/FunctionParameterDeclaration.cpp
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp

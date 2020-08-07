@@ -1,6 +1,8 @@
 #include "NodeVisitor.h"
 
+#include "Argument.h"
 #include "FloatValue.h"
+#include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
 #include "FunctionParameterList.h"
 #include "ModuleFunctionDeclaration.h"
@@ -12,7 +14,17 @@
 namespace Pol::Bscript::Compiler
 {
 
+void NodeVisitor::visit_argument( Argument& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_float_value( FloatValue& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_function_call( FunctionCall& node )
 {
   visit_children( node );
 }
