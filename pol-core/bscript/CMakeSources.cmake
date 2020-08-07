@@ -20,6 +20,10 @@ set (bscript_sources    # sorted !
   compiler/analyzer/SemanticAnalyzer.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
+  compiler/ast/ArrayElementAccess.cpp
+  compiler/ast/ArrayElementAccess.h
+  compiler/ast/ArrayElementIndexes.cpp
+  compiler/ast/ArrayElementIndexes.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
   compiler/ast/DictionaryEntry.cpp

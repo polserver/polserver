@@ -4,6 +4,8 @@
 namespace Pol::Bscript::Compiler
 {
 class Argument;
+class ArrayElementAccess;
+class ArrayElementIndexes;
 class BinaryOperator;
 class DictionaryEntry;
 class DictionaryInitializer;
@@ -30,6 +32,8 @@ public:
   virtual ~NodeVisitor() = default;
 
   virtual void visit_argument( Argument& );
+  virtual void visit_array_element_access( ArrayElementAccess& );
+  virtual void visit_array_element_indexes( ArrayElementIndexes& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );

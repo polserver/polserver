@@ -1,6 +1,8 @@
 #include "NodeVisitor.h"
 
 #include "Argument.h"
+#include "ArrayElementAccess.h"
+#include "ArrayElementIndexes.h"
 #include "BinaryOperator.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
@@ -25,6 +27,16 @@ namespace Pol::Bscript::Compiler
 {
 
 void NodeVisitor::visit_argument( Argument& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_array_element_access( ArrayElementAccess& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_array_element_indexes( ArrayElementIndexes& node )
 {
   visit_children( node );
 }
