@@ -28,6 +28,10 @@ set (bscript_sources    # sorted !
   compiler/ast/ArrayInitializer.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
+  compiler/ast/BreakStatement.cpp
+  compiler/ast/BreakStatement.h
+  compiler/ast/ContinueStatement.cpp
+  compiler/ast/ContinueStatement.h
   compiler/ast/DictionaryEntry.cpp
   compiler/ast/DictionaryEntry.h
   compiler/ast/DictionaryInitializer.cpp
@@ -54,6 +58,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Identifier.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
+  compiler/ast/JumpStatement.cpp
+  compiler/ast/JumpStatement.h
   compiler/ast/MethodCall.cpp
   compiler/ast/MethodCall.h
   compiler/ast/MethodCallArgumentList.cpp

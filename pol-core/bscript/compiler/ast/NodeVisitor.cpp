@@ -5,6 +5,8 @@
 #include "ArrayElementIndexes.h"
 #include "ArrayInitializer.h"
 #include "BinaryOperator.h"
+#include "BreakStatement.h"
+#include "ContinueStatement.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
 #include "ElvisOperator.h"
@@ -53,6 +55,16 @@ void NodeVisitor::visit_array_initializer( ArrayInitializer& node )
 }
 
 void NodeVisitor::visit_binary_operator( BinaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_break_statement( BreakStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_continue_statement( ContinueStatement& node )
 {
   visit_children( node );
 }

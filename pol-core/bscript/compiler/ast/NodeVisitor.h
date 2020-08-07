@@ -8,6 +8,8 @@ class ArrayElementAccess;
 class ArrayElementIndexes;
 class ArrayInitializer;
 class BinaryOperator;
+class BreakStatement;
+class ContinueStatement;
 class DictionaryEntry;
 class DictionaryInitializer;
 class ElvisOperator;
@@ -42,6 +44,8 @@ public:
   virtual void visit_array_element_indexes( ArrayElementIndexes& );
   virtual void visit_array_initializer( ArrayInitializer& );
   virtual void visit_binary_operator( BinaryOperator& );
+  virtual void visit_break_statement( BreakStatement& );
+  virtual void visit_continue_statement( ContinueStatement& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
   virtual void visit_elvis_operator( ElvisOperator& );
