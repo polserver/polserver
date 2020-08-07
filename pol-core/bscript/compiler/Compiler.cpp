@@ -12,6 +12,7 @@
 #include "codegen/CodeGenerator.h"
 #include "compilercfg.h"
 #include "file/SourceFileCache.h"
+#include "file/SourceFileIdentifier.h"
 #include "format/CompiledScriptSerializer.h"
 #include "format/ListingWriter.h"
 #include "model/CompilerWorkspace.h"
@@ -60,8 +61,16 @@ void Compiler::write_dbg( const std::string& /*pathname*/, bool /*include_debug_
 {
 }
 
-void Compiler::write_included_filenames( const std::string& /*pathname*/ )
+void Compiler::write_included_filenames( const std::string& pathname )
 {
+  if ( output )
+  {
+    std::ofstream ofs( pathname );
+    for( auto& r : output->source_file_identifiers )
+    {
+      ofs << r->pathname << "\n";
+    }
+  }
 }
 
 bool Compiler::compile_file( const std::string& filename,
