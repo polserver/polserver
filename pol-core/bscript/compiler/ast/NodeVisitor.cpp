@@ -3,6 +3,7 @@
 #include "Argument.h"
 #include "ArrayElementAccess.h"
 #include "ArrayElementIndexes.h"
+#include "ArrayInitializer.h"
 #include "BinaryOperator.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
@@ -37,6 +38,11 @@ void NodeVisitor::visit_array_element_access( ArrayElementAccess& node )
 }
 
 void NodeVisitor::visit_array_element_indexes( ArrayElementIndexes& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_array_initializer( ArrayInitializer& node )
 {
   visit_children( node );
 }

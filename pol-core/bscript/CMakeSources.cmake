@@ -24,6 +24,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ArrayElementAccess.h
   compiler/ast/ArrayElementIndexes.cpp
   compiler/ast/ArrayElementIndexes.h
+  compiler/ast/ArrayInitializer.cpp
+  compiler/ast/ArrayInitializer.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
   compiler/ast/DictionaryEntry.cpp
