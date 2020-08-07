@@ -26,6 +26,7 @@
 #include "ExitStatement.h"
 #include "FloatValue.h"
 #include "ForeachLoop.h"
+#include "FunctionBody.h"
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
 #include "FunctionParameterList.h"
@@ -178,6 +179,11 @@ void NodeVisitor::visit_float_value( FloatValue& node )
 }
 
 void NodeVisitor::visit_foreach_loop( ForeachLoop& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_function_body( FunctionBody& node )
 {
   visit_children( node );
 }

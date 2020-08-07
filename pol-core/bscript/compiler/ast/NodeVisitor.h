@@ -29,6 +29,7 @@ class ExitStatement;
 class FloatValue;
 class EnumDeclaration;
 class ForeachLoop;
+class FunctionBody;
 class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
@@ -82,6 +83,7 @@ public:
   virtual void visit_error_initializer( ErrorInitializer& );
   virtual void visit_exit_statement( ExitStatement& );
   virtual void visit_float_value( FloatValue& );
+  virtual void visit_function_body( FunctionBody& );
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );

@@ -74,6 +74,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ForeachLoop.h
   compiler/ast/Function.cpp
   compiler/ast/Function.h
+  compiler/ast/FunctionBody.cpp
+  compiler/ast/FunctionBody.h
   compiler/ast/FunctionCall.cpp
   compiler/ast/FunctionCall.h
   compiler/ast/FunctionParameterDeclaration.cpp
