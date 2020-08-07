@@ -19,7 +19,7 @@ class BuilderWorkspace
 {
 public:
   BuilderWorkspace( CompilerWorkspace&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
-                             Profile& profile, Report& report );
+                    Profile& profile, Report& report );
   ~BuilderWorkspace();
 
   CompilerWorkspace& compiler_workspace;
