@@ -22,7 +22,7 @@ unsigned DataEmitter::append( int value )
 
 unsigned DataEmitter::store( const std::string& s )
 {
-  return store( reinterpret_cast<const std::byte*>( s.c_str() ), s.length() + 1 );
+    return store( reinterpret_cast<const std::byte*>( s.c_str() ), s.length() + 1 );
 }
 
 unsigned DataEmitter::store( const std::byte* data, unsigned len )
