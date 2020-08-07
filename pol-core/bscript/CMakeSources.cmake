@@ -74,6 +74,8 @@ set (bscript_sources    # sorted !
   compiler/ast/JumpStatement.h
   compiler/ast/LabelableStatement.cpp
   compiler/ast/LabelableStatement.h
+  compiler/ast/LoopStatement.cpp
+  compiler/ast/LoopStatement.h
   compiler/ast/MethodCall.cpp
   compiler/ast/MethodCall.h
   compiler/ast/MethodCallArgumentList.cpp
