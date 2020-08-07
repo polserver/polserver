@@ -33,6 +33,7 @@ public:
 
   void initialize_data();
 
+  void consume();
   void progend();
 
 private:
