@@ -5,6 +5,7 @@
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
 #include "FunctionParameterList.h"
+#include "Identifier.h"
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
 #include "StringValue.h"
@@ -36,6 +37,11 @@ void NodeVisitor::visit_function_parameter_declaration( FunctionParameterDeclara
 }
 
 void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_identifier( Identifier& node )
 {
   visit_children( node );
 }
