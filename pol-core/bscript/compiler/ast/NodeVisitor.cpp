@@ -10,6 +10,7 @@
 #include "StringValue.h"
 #include "TopLevelStatements.h"
 #include "ValueConsumer.h"
+#include "VarStatement.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -52,6 +53,11 @@ void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 }
 
 void NodeVisitor::visit_value_consumer( ValueConsumer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_var_statement( VarStatement& node )
 {
   visit_children( node );
 }
