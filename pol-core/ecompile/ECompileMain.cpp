@@ -226,17 +226,18 @@ bool compare_compiler_output( const std::string& path )
   std::string new_dbg_txt("new-compiler.dbg.txt");
 
   og_compiler.write_ecl( og_ecl );
-  og_compiler.write_listing( og_lst );
-  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
-
   new_compiler.write_ecl( new_ecl );
+
+  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
+  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
+
+  og_compiler.write_listing( og_lst );
   {
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     program->read( new_ecl.c_str() );
     std::ofstream ofs( new_lst.c_str() );
     program->dump( ofs );
   }
-  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
 
   ref_ptr<EScriptProgram> og_program( new EScriptProgram );
   og_program->read( og_ecl.c_str() );
@@ -1012,12 +1013,20 @@ bool run( int argc, char** argv, int* res )
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
 
     tmp << "        - load *.em: " << (long long)summary.profile.load_em_micros / 1000 << ")\n";
+    tmp << "       - parse *.em: " << (long long)summary.profile.parse_em_micros / 1000 << " ("
+        << (long)summary.profile.parse_em_count << ")\n";
+    tmp << "      - parse *.inc: " << (long long)summary.profile.parse_inc_us / 1000 << " ("
+        << (long)summary.profile.parse_inc_count << ")\n";
     tmp << "      - parse *.src: " << (long long)summary.profile.parse_src_micros / 1000 << " ("
         << (long)summary.profile.parse_src_count << ")\n";
     tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
     tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
     tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
+    tmp << "         - ast *.em: " << (long long)summary.profile.ast_em_micros / 1000 << "\n";
+    tmp << "        - ast *.inc: " << (long long)summary.profile.ast_inc_us / 1000 << "\n";
     tmp << "        - ast *.src: " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
+    tmp << "    - resolve funcs: " << (long long)summary.profile.ast_resolve_functions_us / 1000
+        << "\n";
     tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
         << "\n";
     tmp << " register constants: "
