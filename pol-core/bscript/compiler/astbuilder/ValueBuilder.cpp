@@ -1,5 +1,7 @@
 #include "ValueBuilder.h"
 
+#include "../clib/strutil.h"
+
 #include "compiler/Report.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/StringValue.h"
@@ -7,6 +9,10 @@
 #include "compiler/file/SourceLocation.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionReference.h"
+#include "compiler/ast/FunctionReference.h"
+#include "compiler/ast/FloatValue.h"
+#include "compiler/ast/FunctionReference.h"
+#include "compiler/ast/Identifier.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
@@ -29,6 +35,21 @@ std::unique_ptr<FloatValue> ValueBuilder::float_value(
   auto loc = location_for( *ctx );
   double value = std::stod( ctx->FLOAT_LITERAL()->getSymbol()->getText() );
   return std::make_unique<FloatValue>( loc, value );
+}
+
+std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  auto name = ctx->IDENTIFIER()->getSymbol()->getText();
+
+  auto function_link = std::make_shared<FunctionLink>( source_location );
+  auto function_reference =
+      std::make_unique<FunctionReference>( source_location, name, function_link );
+
+  workspace.function_resolver.register_function_link( name, function_link );
+
+  return function_reference;
 }
 
 std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
@@ -142,6 +163,10 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   if ( auto string_literal = ctx->STRING_LITERAL() )
   {
     return string_value( string_literal );
+  }
+  else if ( auto integer_literal = ctx->integerLiteral() )
+  {
+    return integer_value( integer_literal );
   }
   else if ( auto float_literal = ctx->floatLiteral() )
   {

@@ -6,9 +6,14 @@
 
 namespace Pol::Bscript::Compiler
 {
+class BuilderWorkspace;
+class Expression;
 class FloatValue;
 class FunctionReference;
+class Identifier;
 class IntegerValue;
+class Report;
+class SourceFileIdentifier;
 class StringValue;
 class Value;
 
@@ -19,6 +24,9 @@ public:
 
   std::unique_ptr<FloatValue> float_value(
       EscriptGrammar::EscriptParser::FloatLiteralContext* );
+
+  std::unique_ptr<FunctionReference> function_reference(
+      EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<FunctionReference> function_reference(
       EscriptGrammar::EscriptParser::FunctionReferenceContext* );
