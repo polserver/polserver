@@ -179,6 +179,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ModuleDeclarationBuilder.h
   compiler/astbuilder/FunctionResolver.cpp
   compiler/astbuilder/FunctionResolver.h
+  compiler/astbuilder/ModuleDeclarationBuilder.cpp
+  compiler/astbuilder/ModuleDeclarationBuilder.h
   compiler/astbuilder/ModuleProcessor.cpp
   compiler/astbuilder/ModuleProcessor.h
   compiler/astbuilder/ProgramBuilder.cpp
@@ -193,6 +195,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/TreeBuilder.h
   compiler/astbuilder/UserFunctionBuilder.cpp
   compiler/astbuilder/UserFunctionBuilder.h
+  compiler/astbuilder/UserFunctionVisitor.cpp
+  compiler/astbuilder/UserFunctionVisitor.h
   compiler/astbuilder/ValueBuilder.cpp
   compiler/astbuilder/ValueBuilder.h
   compiler/codegen/CaseDispatchGroupVisitor.cpp
