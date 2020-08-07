@@ -7,6 +7,7 @@
 #include "Report.h"
 #include "Profile.h"
 #include "Report.h"
+#include "analyzer/SemanticAnalyzer.h"
 #include "astbuilder/CompilerWorkspaceBuilder.h"
 #include "compilercfg.h"
 #include "format/CompiledScriptSerializer.h"
@@ -89,6 +90,13 @@ void Compiler::compile_file_steps( const std::string& pathname,
   if ( report.error_count() )
     return;
 
+  register_constants( *workspace );
+  if ( report.error_count() )
+    return;
+
+  analyze( *workspace, report);
+  if ( report.error_count() )
+    return;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
@@ -100,6 +108,21 @@ std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
   auto workspace = workspace_builder.build( pathname, legacy_function_order );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
+}
+
+void Compiler::register_constants( CompilerWorkspace& workspace )
+{
+  Pol::Tools::HighPerfTimer timer;
+  SemanticAnalyzer::register_const_declarations( workspace );
+  profile.register_const_declarations_micros += timer.ellapsed().count();
+}
+
+void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
+{
+  Pol::Tools::HighPerfTimer timer;
+  SemanticAnalyzer analyzer( report );
+  analyzer.analyze( workspace );
+  profile.analyze_micros += timer.ellapsed().count();
 }
 
 void Compiler::display_outcome( const std::string& filename, Report& report )
