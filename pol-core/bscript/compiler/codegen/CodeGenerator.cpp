@@ -4,6 +4,7 @@
 
 #include "InstructionEmitter.h"
 #include "InstructionGenerator.h"
+#include "ModuleDeclarationRegistrar.h"
 #include "StoredToken.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/file/SourceFileIdentifier.h"
@@ -24,12 +25,17 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   DataSection data;
 
   ExportedFunctions exported_functions;
-  std::vector<ModuleDescriptor> module_descriptors;
 
-  InstructionEmitter instruction_emitter( code, data );
-  CodeGenerator generator( instruction_emitter );
+  ModuleDeclarationRegistrar module_declaration_registrar;
+
+  InstructionEmitter instruction_emitter( code, data,// debug, exported_functions,
+                                          module_declaration_registrar );
+  CodeGenerator generator( instruction_emitter, module_declaration_registrar );
 
   generator.generate_instructions( *workspace );
+
+  std::vector<ModuleDescriptor> module_descriptors =
+      module_declaration_registrar.take_module_descriptors();
 
   return std::make_unique<CompiledScript>(
       std::move( code ), std::move( data ), std::move( exported_functions ),
@@ -37,8 +43,10 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
       std::move( program_info ), std::move( workspace->referenced_source_file_identifiers ) );
 }
 
-CodeGenerator::CodeGenerator( InstructionEmitter& emitter )
-  : emitter( emitter ),
+CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
+    ModuleDeclarationRegistrar& module_declaration_registrar )
+  : module_declaration_registrar( module_declaration_registrar ),
+    emitter( emitter ),
     emit( emitter )
 {
 }

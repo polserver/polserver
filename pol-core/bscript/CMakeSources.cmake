@@ -80,6 +80,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/InstructionEmitter.h
   compiler/codegen/InstructionGenerator.cpp
   compiler/codegen/InstructionGenerator.h
+  compiler/codegen/ModuleDeclarationRegistrar.cpp
+  compiler/codegen/ModuleDeclarationRegistrar.h
   compiler/file/ConformingCharStream.cpp
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp

@@ -6,9 +6,10 @@
 namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
+class CompilerWorkspace;
 class InstructionEmitter;
 struct LegacyFunctionOrder;
-class CompilerWorkspace;
+class ModuleDeclarationRegistrar;
 
 class CodeGenerator
 {
@@ -17,11 +18,13 @@ public:
                                                    const LegacyFunctionOrder* );
 
 private:
-  explicit CodeGenerator( InstructionEmitter& );
+  CodeGenerator( InstructionEmitter& , ModuleDeclarationRegistrar& );
 
   void generate_instructions( CompilerWorkspace& );
 
 private:
+  ModuleDeclarationRegistrar& module_declaration_registrar;
+
   // Verb vs noun - see InstructionGenerator for reasoning
   InstructionEmitter& emitter;
   InstructionEmitter& emit;

@@ -25,11 +25,12 @@ class StoredToken;
 
 namespace Pol::Bscript::Compiler
 {
+class ModuleDeclarationRegistrar;
 
 class InstructionEmitter
 {
 public:
-  InstructionEmitter( CodeSection& code, DataSection& data );
+  InstructionEmitter( CodeSection& code, DataSection& data, ModuleDeclarationRegistrar& );
 
   void initialize_data();
 
@@ -45,6 +46,7 @@ private:
 
   CodeEmitter code_emitter;
   DataEmitter data_emitter;
+  ModuleDeclarationRegistrar& module_declaration_registrar;
 };
 
 }  // namespace Pol::Bscript::Compiler

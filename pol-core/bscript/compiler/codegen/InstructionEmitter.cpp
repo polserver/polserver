@@ -6,9 +6,11 @@
 
 namespace Pol::Bscript::Compiler
 {
-InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data )
+InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data,
+                                        ModuleDeclarationRegistrar& module_declaration_registrar )
   : code_emitter( code ),
-    data_emitter( data )
+    data_emitter( data ),
+    module_declaration_registrar( module_declaration_registrar )
 {
   initialize_data();
 }
