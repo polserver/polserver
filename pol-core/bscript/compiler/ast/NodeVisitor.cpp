@@ -6,6 +6,7 @@
 #include "FunctionParameterDeclaration.h"
 #include "FunctionParameterList.h"
 #include "Identifier.h"
+#include "IntegerValue.h"
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
 #include "StringValue.h"
@@ -42,6 +43,11 @@ void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
 }
 
 void NodeVisitor::visit_identifier( Identifier& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_integer_value( IntegerValue& node )
 {
   visit_children( node );
 }
