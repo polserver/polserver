@@ -54,6 +54,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ExpressionBuilder.h
   compiler/astbuilder/ModuleDeclarationBuilder.cpp
   compiler/astbuilder/ModuleDeclarationBuilder.h
+  compiler/astbuilder/FunctionResolver.cpp
+  compiler/astbuilder/FunctionResolver.h
   compiler/astbuilder/ModuleProcessor.cpp
   compiler/astbuilder/ModuleProcessor.h
   compiler/astbuilder/ProgramBuilder.cpp

@@ -7,6 +7,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class ModuleFunctionDeclaration;
 class SourceFile;
 class SourceFileIdentifier;
 class TopLevelStatements;
@@ -18,6 +19,7 @@ public:
   ~CompilerWorkspace();
 
   std::unique_ptr<TopLevelStatements> top_level_statements;
+  std::vector<std::unique_ptr<ModuleFunctionDeclaration>> module_function_declarations;
 
   std::vector<std::unique_ptr<SourceFileIdentifier>> referenced_source_file_identifiers;
 

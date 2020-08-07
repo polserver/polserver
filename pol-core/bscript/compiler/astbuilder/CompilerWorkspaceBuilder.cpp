@@ -5,6 +5,7 @@
 #include "compiler/LegacyFunctionOrder.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/file/SourceFile.h"

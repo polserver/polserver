@@ -2,6 +2,7 @@
 
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileCache.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/file/SourceFileIdentifier.h"
 
@@ -14,7 +15,8 @@ BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace,
     em_cache( em_cache ),
     inc_cache( inc_cache ),
     profile( profile ),
-    report( report )
+    report( report ),
+    function_resolver( report )
 {
 }
 
