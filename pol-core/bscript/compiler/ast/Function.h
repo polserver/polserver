@@ -7,10 +7,13 @@ namespace Pol::Bscript::Compiler
 {
 class FunctionParameterDeclaration;
 class FunctionParameterList;
+class FunctionBody;
 
 class Function : public Node
 {
 public:
+  Function( const SourceLocation&, std::string name, std::unique_ptr<FunctionParameterList>,
+            std::unique_ptr<FunctionBody> );
   Function( const SourceLocation&, std::string name, std::unique_ptr<FunctionParameterList> );
 
   unsigned parameter_count() const;
