@@ -936,6 +936,10 @@ bool run( int argc, char** argv, int* res )
     if ( summary.UpToDateScripts )
       tmp << "    " << summary.UpToDateScripts << " script"
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
+
+    tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
+        << "\n";
+
     INFO_PRINT << tmp.str();
   }
 

@@ -2,10 +2,15 @@
 
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/timer.h"
 
 #include "Report.h"
+#include "Profile.h"
+#include "Report.h"
+#include "astbuilder/CompilerWorkspaceBuilder.h"
 #include "compilercfg.h"
 #include "format/CompiledScriptSerializer.h"
+#include "model/CompilerWorkspace.h"
 #include "representation/CompiledScript.h"
 
 namespace Pol
@@ -75,10 +80,26 @@ bool Compiler::compile_file( const std::string& filename,
   return success;
 }
 
-void Compiler::compile_file_steps( const std::string& /*pathname*/,
-                                   const LegacyFunctionOrder*,
-                                   Report& )
+void Compiler::compile_file_steps( const std::string& pathname,
+                                   const LegacyFunctionOrder* legacy_function_order,
+                                   Report& report )
 {
+  std::unique_ptr<CompilerWorkspace> workspace =
+      build_workspace( pathname, legacy_function_order, report );
+  if ( report.error_count() )
+    return;
+
+}
+
+std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
+    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order,
+    Report& report )
+{
+  Pol::Tools::HighPerfTimer timer;
+  CompilerWorkspaceBuilder workspace_builder( profile, report );
+  auto workspace = workspace_builder.build( pathname, legacy_function_order );
+  profile.build_workspace_micros += timer.ellapsed().count();
+  return workspace;
 }
 
 void Compiler::display_outcome( const std::string& filename, Report& report )

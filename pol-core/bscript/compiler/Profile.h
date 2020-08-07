@@ -12,7 +12,7 @@ namespace Compiler
 class Profile
 {
 public:
-  // there will be a number of std::atomic<> fields here.
+  std::atomic<long long> build_workspace_micros;
 };
 
 }  // namespace Compiler

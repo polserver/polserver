@@ -12,6 +12,7 @@ namespace Bscript
 namespace Compiler
 {
 class CompiledScript;
+class CompilerWorkspace;
 struct LegacyFunctionOrder;
 class Profile;
 class Report;
@@ -34,6 +35,9 @@ public:
   void compile_file_steps( const std::string& pathname, const LegacyFunctionOrder*, Report& );
 
 private:
+  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&,
+                                                      const LegacyFunctionOrder*,
+                                                      Report& );
   void display_outcome( const std::string& filename, Report& );
 
   Profile& profile;
