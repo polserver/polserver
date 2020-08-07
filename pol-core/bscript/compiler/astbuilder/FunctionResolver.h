@@ -16,7 +16,6 @@ class Function;
 class FunctionLink;
 class ModuleFunctionDeclaration;
 class Report;
-class UserFunction;
 
 class FunctionResolver
 {

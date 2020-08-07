@@ -5,6 +5,7 @@
 #include "compiler/ast/Function.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/file/SourceLocation.h"
+#include "compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {
