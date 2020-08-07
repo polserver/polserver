@@ -34,6 +34,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
   compiler/astbuilder/CompilerWorkspaceBuilder.h
+  compiler/astbuilder/CompoundStatementBuilder.cpp
+  compiler/astbuilder/CompoundStatementBuilder.h
   compiler/astbuilder/ExpressionBuilder.cpp
   compiler/astbuilder/ExpressionBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
