@@ -31,6 +31,9 @@ public:
   bool compile_file( const std::string& filename, const LegacyFunctionOrder* );
   void compile_file_steps( const std::string& pathname, const LegacyFunctionOrder*, Report& );
 
+  static void parse_file( const std::string& fname, SourceFileCache&, Profile& profile,
+                          Report& report );
+
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&,
                                                       const LegacyFunctionOrder*,

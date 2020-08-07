@@ -11,6 +11,7 @@
 #include "astbuilder/CompilerWorkspaceBuilder.h"
 #include "codegen/CodeGenerator.h"
 #include "compilercfg.h"
+#include "file/SourceFile.h"
 #include "file/SourceFileCache.h"
 #include "file/SourceFileIdentifier.h"
 #include "format/CompiledScriptSerializer.h"
@@ -132,6 +133,25 @@ void Compiler::compile_file_steps( const std::string& pathname,
     return;
 
   output = generate( std::move( workspace ), legacy_function_order );
+}
+
+void Compiler::parse_file( const std::string& fname, SourceFileCache& parse_tree_cache,
+                           Profile& profile, Report& report )
+{
+  SourceFileIdentifier ident( 0, fname );
+  auto psf = parse_tree_cache.load( ident, report );
+  long long initial_ambiguities = profile.ambiguities;
+  Pol::Tools::HighPerfTimer timer;
+  psf->get_compilation_unit( report, ident );
+  long long ambiguities = profile.ambiguities - initial_ambiguities;
+  auto elapsed_us = timer.ellapsed().count();
+  auto elapsed_ms = elapsed_us / 1000;
+  profile.parse_src_micros += elapsed_us;
+  if ( ambiguities >= 5 || elapsed_ms >= 500 )
+  {
+    INFO_PRINT << fname << " ambiguities: " << ambiguities << "\n";
+    INFO_PRINT << fname << " parse in: " << elapsed_ms << " ms\n";
+  }
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
