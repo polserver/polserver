@@ -1,0 +1,5 @@
+function foo( bar := "a" )
+    print( bar );
+endfunction
+
+foo( baz := "b" );

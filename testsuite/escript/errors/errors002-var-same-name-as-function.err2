@@ -1,0 +1,1 @@
+errors002-var-same-name-as-function.src:9:1: error: User Function 'force_compile_failure' not found.

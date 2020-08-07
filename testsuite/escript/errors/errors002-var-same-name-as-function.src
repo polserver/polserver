@@ -1,0 +1,9 @@
+// reported in https://forums.polserver.com/viewtopic.php?f=54&t=6140
+// variable with the same name as a system function:
+if (1)
+    var print := 3;
+    print( print );
+endif
+
+// the above is a syntax error for the OG compiler
+force_compile_failure();

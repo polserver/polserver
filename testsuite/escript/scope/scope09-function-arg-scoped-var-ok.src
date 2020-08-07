@@ -1,0 +1,10 @@
+// Scope06 - a variable with the same name as a function argument
+// cannot be declared at the top level of the function block.
+
+function foo(bar)
+    if ( 1 )
+        var bar; // this is ok
+    endif
+endfunction
+
+foo(4);

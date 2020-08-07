@@ -17,10 +17,10 @@ b:=2;
 print(a+ ++b);
 
 a:=1;
-++a++;
+++a; a++; // not keeping parity with ++a++
 print(a);
 a:=1;
-++a--;
+++a ; a--; // not keeping parity with ++a--
 print(a);
 a:=1;
 ++(++a);

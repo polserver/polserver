@@ -1,0 +1,12 @@
+// reported in https://forums.polserver.com/viewtopic.php?f=54&t=6140
+var testarray, targ, failstring;
+
+program foo()
+    Foreach prop in (testarray)
+	    tempreading := targ.get_memberprop);
+	    if( !tempreading )
+		    failstring := failstring + " r";
+	    else
+	    endif
+	endforeach
+endprogram
