@@ -35,6 +35,7 @@ class MethodCall;
 class MethodCallArgumentList;
 class ModuleFunctionDeclaration;
 class Node;
+class RepeatUntilLoop;
 class ReturnStatement;
 class StringValue;
 class StructInitializer;
@@ -81,6 +82,7 @@ public:
   virtual void visit_method_call( MethodCall& );
   virtual void visit_method_call_argument_list( MethodCallArgumentList& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
+  virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_struct_initializer( StructInitializer& );

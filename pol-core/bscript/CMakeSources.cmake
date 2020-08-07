@@ -94,6 +94,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
   compiler/ast/NodeVisitor.h
+  compiler/ast/RepeatUntilLoop.cpp
+  compiler/ast/RepeatUntilLoop.h
   compiler/ast/ReturnStatement.cpp
   compiler/ast/ReturnStatement.h
   compiler/ast/Statement.cpp

@@ -32,6 +32,7 @@
 #include "MethodCallArgumentList.h"
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
+#include "RepeatUntilLoop.h"
 #include "ReturnStatement.h"
 #include "StringValue.h"
 #include "StructInitializer.h"
@@ -196,6 +197,11 @@ void NodeVisitor::visit_method_call_argument_list( MethodCallArgumentList& node 
 }
 
 void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_repeat_until_loop( RepeatUntilLoop& node )
 {
   visit_children( node );
 }
