@@ -82,6 +82,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
   compiler/ast/FunctionParameterList.h
+  compiler/ast/FunctionReference.cpp
+  compiler/ast/FunctionReference.h
   compiler/ast/GetMember.cpp
   compiler/ast/GetMember.h
   compiler/ast/Identifier.cpp

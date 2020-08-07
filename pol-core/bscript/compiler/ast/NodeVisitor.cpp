@@ -30,6 +30,7 @@
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
 #include "FunctionParameterList.h"
+#include "FunctionReference.h"
 #include "GetMember.h"
 #include "Identifier.h"
 #include "IfThenElseStatement.h"
@@ -199,6 +200,11 @@ void NodeVisitor::visit_function_parameter_declaration( FunctionParameterDeclara
 }
 
 void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_function_reference( FunctionReference& node )
 {
   visit_children( node );
 }
