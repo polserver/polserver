@@ -42,6 +42,10 @@ antlrcpp::Any ModuleProcessor::visitUnambiguousModuleDeclarationStatement(
 {
   if ( auto moduleFunctionDeclaration = ctx->unambiguousModuleFunctionDeclaration() )
   {
+    auto ast =
+        tree_builder.module_function_declaration( moduleFunctionDeclaration, modulename );
+    workspace.function_resolver.register_module_function( ast.get() );
+    workspace.compiler_workspace.module_function_declarations.push_back( std::move( ast ) );
   }
   else if ( auto constStatement = ctx->unambiguousConstStatement() )
   {

@@ -161,6 +161,8 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
     return primary( prim );
   else if ( auto scoped_method_call = ctx->scopedMethodCall() )
     return scoped_function_call( scoped_method_call );
+  else if ( auto m_call = ctx->methodCall() )
+    return function_call( m_call, "" );
 
   location_for( *ctx ).internal_error( "unhandled expression" );
 }

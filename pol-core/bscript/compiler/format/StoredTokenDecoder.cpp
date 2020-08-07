@@ -1,6 +1,8 @@
 #include "StoredTokenDecoder.h"
 
 #include "StoredToken.h"
+#include "compiler/representation/ModuleDescriptor.h"
+#include "compiler/representation/ModuleFunctionDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -35,6 +37,16 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case CTRL_PROGEND:
     w << "progend";
     break;
+
+  case TOK_FUNC:
+  {
+    unsigned module_id = tkn.module;
+    unsigned function_index = tkn.type;
+    auto& module = module_descriptors.at( module_id );
+    auto& defn = module.functions.at( function_index );
+    w << "call module function (" << module_id << ", " << function_index << "): " << defn.name;
+    break;
+  }
 
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset
