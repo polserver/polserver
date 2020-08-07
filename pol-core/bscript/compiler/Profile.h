@@ -17,16 +17,21 @@ public:
 
   std::atomic<long> ambiguities;
 
-  std::atomic<long> parse_src_count;
   std::atomic<long> parse_em_count;
+  std::atomic<long> parse_inc_count;
+  std::atomic<long> parse_src_count;
 
   std::atomic<long long> load_em_micros;
 
-  std::atomic<long long> parse_src_micros;
   std::atomic<long long> parse_em_micros;
+  std::atomic<long long> parse_inc_us;
+  std::atomic<long long> parse_src_micros;
 
-  std::atomic<long long> ast_src_micros;
   std::atomic<long long> ast_em_micros;
+  std::atomic<long long> ast_src_micros;
+  std::atomic<long long> ast_inc_us;
+
+  std::atomic<long long> ast_resolve_functions_us;
 
   std::atomic<long> cache_hits;
   std::atomic<long> cache_misses;
