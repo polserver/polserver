@@ -32,6 +32,10 @@ set (bscript_sources    # sorted !
   compiler/file/SourceLocation.h
   compiler/format/CompiledScriptSerializer.cpp
   compiler/format/CompiledScriptSerializer.h
+  compiler/format/ListingWriter.cpp
+  compiler/format/ListingWriter.h
+  compiler/format/StoredTokenDecoder.cpp
+  compiler/format/StoredTokenDecoder.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
   compiler/optimizer/Optimizer.cpp
