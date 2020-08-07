@@ -1,6 +1,12 @@
 #include "ExpressionBuilder.h"
 
 #include "compiler/Report.h"
+#include <boost/range/adaptor/reversed.hpp>
+
+#include "BuilderWorkspace.h"
+#include "compiler/Report.h"
+#include "compiler/ast/Argument.h"
+#include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/Value.h"
 
 using EscriptGrammar::EscriptParser;
@@ -29,6 +35,14 @@ std::unique_ptr<Expression> ExpressionBuilder::atomic( EscriptParser::AtomicExpr
   if ( auto literal = ctx->literal() )
   {
     return value( literal );
+  }
+  else if ( auto fcall = ctx->unambiguousFunctionCall() )
+  {
+    return function_call( fcall, "" );
+  }
+  else if ( auto scoped = ctx->unambiguousScopedFunctionCall() )
+  {
+    return scoped_function_call( scoped );
   }
   else
   {
@@ -157,6 +171,48 @@ std::unique_ptr<Expression> ExpressionBuilder::expression(
     return membership( operands[0] );
 
   location_for( *ctx ).internal_error( "unhandled" );
+}
+
+std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
+    EscriptParser::MethodCallContext* ctx, const std::string& scope )
+{
+  auto method_name = text( ctx->IDENTIFIER() );
+
+  std::vector<std::unique_ptr<Argument>> arguments;
+
+  if ( auto argList = ctx->methodCallArgumentList() )
+  {
+    for ( auto argument_context : argList->methodCallArgument() )
+    {
+      std::string identifier =
+          argument_context->IDENTIFIER() ? text( argument_context->IDENTIFIER() ) : "";
+      auto value = expression( argument_context->expression() );
+      auto argument = std::make_unique<Argument>( location_for( *argument_context ),
+                                                    std::move( identifier ), std::move( value ) );
+      arguments.push_back( std::move( argument ) );
+    }
+  }
+  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, method_name,
+                                                         std::move( arguments ) );
+
+  std::string key = scope.empty() ? method_name : ( scope + "::" + method_name );
+  workspace.function_resolver.register_function_link( key, function_call->function_link );
+
+  return function_call;
+}
+
+std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
+    EscriptParser::UnambiguousFunctionCallContext* ctx, const std::string& scope )
+{
+  auto function_name = text( ctx->IDENTIFIER() );
+  auto arguments = value_arguments( ctx->valueArguments() );
+  auto function_call = std::make_unique<FunctionCall>( location_for( *ctx ), scope, function_name,
+                                                         std::move( arguments ) );
+
+  std::string key = scope.empty() ? function_name : ( scope + "::" + function_name );
+  workspace.function_resolver.register_function_link( key, function_call->function_link );
+
+  return function_call;
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::infix_operation(

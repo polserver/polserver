@@ -6,6 +6,9 @@
 namespace Pol::Bscript::Compiler
 {
 class Expression;
+class Argument;
+class Expression;
+class FunctionCall;
 
 class ExpressionBuilder : public ValueBuilder
 {
@@ -41,6 +44,11 @@ public:
   std::unique_ptr<Expression> expression(
       EscriptGrammar::EscriptParser::UnambiguousExpressionContext* );
 
+  std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::MethodCallContext*,
+                                               const std::string& scope );
+  std::unique_ptr<FunctionCall> function_call(
+      EscriptGrammar::EscriptParser::UnambiguousFunctionCallContext*, const std::string& scope );
+
   std::unique_ptr<Expression> infix_operation(
       EscriptGrammar::EscriptParser::InfixOperationContext* );
 
@@ -66,6 +74,13 @@ public:
 
   std::unique_ptr<Expression> primary( EscriptGrammar::EscriptParser::PrimaryContext* );
 
+  std::unique_ptr<FunctionCall> scoped_function_call(
+      EscriptGrammar::EscriptParser::ScopedMethodCallContext* );
+  std::unique_ptr<FunctionCall> scoped_function_call(
+      EscriptGrammar::EscriptParser::UnambiguousScopedFunctionCallContext* );
+
+  std::vector<std::unique_ptr<Argument>> value_arguments(
+      EscriptGrammar::EscriptParser::ValueArgumentsContext* ctx );
 };
 
 }  // namespace Pol::Bscript::Compiler
