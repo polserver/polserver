@@ -40,6 +40,8 @@ struct CompilerConfig
   bool ErrorOnFileCaseMissmatch;
   bool UseCompiler2020;
   bool CompareCompilerOutput;
+  int EmParseTreeCacheSize;
+  int IncParseTreeCacheSize;
 
   void Read( const std::string& path );
   void SetDefaults();

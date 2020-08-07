@@ -1,12 +1,19 @@
 #include "BuilderWorkspace.h"
 
 #include "compiler/file/SourceFile.h"
+#include "compiler/file/SourceFileCache.h"
+#include "compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {
-BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace, Profile& profile,
-                                    Report& report )
-  : compiler_workspace( compiler_workspace ), profile( profile ), report( report )
+BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace,
+                                    SourceFileCache& em_cache, SourceFileCache& inc_cache,
+                                    Profile& profile, Report& report )
+  : compiler_workspace( compiler_workspace ),
+    em_cache( em_cache ),
+    inc_cache( inc_cache ),
+    profile( profile ),
+    report( report )
 {
 }
 

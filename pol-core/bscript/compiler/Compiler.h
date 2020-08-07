@@ -10,13 +10,14 @@ namespace Pol::Bscript::Compiler
 class CompiledScript;
 class CompilerWorkspace;
 struct LegacyFunctionOrder;
+class SourceFileCache;
 class Profile;
 class Report;
 
 class Compiler : public Pol::Bscript::Facility::Compiler
 {
 public:
-  explicit Compiler( Profile& );
+  Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& );
   ~Compiler() override;
   Compiler( const Compiler& ) = delete;
   Compiler& operator=( const Compiler& ) = delete;
@@ -43,6 +44,8 @@ private:
 
   void display_outcome( const std::string& filename, Report& );
 
+  SourceFileCache& em_cache;
+  SourceFileCache& inc_cache;
   Profile& profile;
   std::unique_ptr<CompiledScript> output;
 };

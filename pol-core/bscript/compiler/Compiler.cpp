@@ -9,6 +9,7 @@
 #include "compiler/analyzer/SemanticAnalyzer.h"
 #include "compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "compiler/codegen/CodeGenerator.h"
+#include "compiler/file/SourceFileCache.h"
 #include "compiler/format/CompiledScriptSerializer.h"
 #include "compiler/format/ListingWriter.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -16,10 +17,13 @@
 #include "compiler/representation/CompiledScript.h"
 #include "compilercfg.h"
 
+
 namespace Pol::Bscript::Compiler
 {
-Compiler::Compiler( Profile& profile )
-  : profile( profile )
+Compiler::Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& profile )
+  : em_cache( em_cache ),
+    inc_cache( inc_cache ),
+    profile( profile )
 {
 }
 
@@ -117,7 +121,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
     Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  CompilerWorkspaceBuilder workspace_builder( profile, report );
+  CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
   auto workspace = workspace_builder.build( pathname, legacy_function_order );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
