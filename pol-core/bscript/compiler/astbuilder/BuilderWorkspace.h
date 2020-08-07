@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <set>
 
 namespace Pol::Bscript::Compiler
 {
@@ -29,6 +30,9 @@ public:
 
   Profile& profile;
   Report& report;
+
+
+  std::set<std::string> used_modules;
 
   std::map<std::string, std::shared_ptr<SourceFile>> source_files;
 };

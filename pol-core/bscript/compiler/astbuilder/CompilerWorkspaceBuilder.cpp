@@ -1,6 +1,7 @@
 #include "CompilerWorkspaceBuilder.h"
 
 #include "BuilderWorkspace.h"
+#include "SourceFileProcessor.h"
 #include "compiler/LegacyFunctionOrder.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
@@ -43,11 +44,15 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     return {};
   }
 
+  SourceFileProcessor src_processor( *ident, workspace, true );
+
   workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
   workspace.source_files[sf->pathname] = sf;
 
-  std::vector<std::unique_ptr<Statement>> empty {};
+  //src_processor.use_module( "basicio", source_location );
+  src_processor.process_source( *sf );
 
+  std::vector<std::unique_ptr<Statement>> empty {};
   compiler_workspace->top_level_statements = std::make_unique<TopLevelStatements>(
       source_location, std::move( empty ) );
 
