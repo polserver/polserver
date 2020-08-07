@@ -3,7 +3,7 @@
 
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
-#include "DeclarationBuilder.h"
+#include "UserFunctionBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -25,7 +25,7 @@ public:
 private:
   BuilderWorkspace& workspace;
 
-  DeclarationBuilder tree_builder;
+  UserFunctionBuilder tree_builder;
 };
 
 }  // namespace Pol::Bscript::Compiler
