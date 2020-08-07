@@ -5,6 +5,12 @@
 #include "compiler/ast/StringValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/file/SourceLocation.h"
+#include "compiler/ast/FloatValue.h"
+#include "compiler/ast/FunctionReference.h"
+#include "compiler/ast/StringValue.h"
+#include "compiler/astbuilder/BuilderWorkspace.h"
+#include "compiler/file/SourceLocation.h"
+#include "compiler/model/FunctionLink.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -22,6 +28,21 @@ std::unique_ptr<FloatValue> ValueBuilder::float_value(
   auto loc = location_for( *ctx );
   double value = std::stod( ctx->FLOAT_LITERAL()->getSymbol()->getText() );
   return std::make_unique<FloatValue>( loc, value );
+}
+
+std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
+    EscriptParser::FunctionReferenceContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  auto name = ctx->IDENTIFIER()->getSymbol()->getText();
+
+  auto function_link = std::make_shared<FunctionLink>( source_location );
+  auto function_reference =
+      std::make_unique<FunctionReference>( source_location, name, function_link );
+
+  workspace.function_resolver.register_function_link( name, function_link );
+
+  return function_reference;
 }
 
 std::unique_ptr<StringValue> ValueBuilder::string_value(

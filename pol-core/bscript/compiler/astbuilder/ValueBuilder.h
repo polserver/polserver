@@ -7,6 +7,7 @@
 namespace Pol::Bscript::Compiler
 {
 class FloatValue;
+class FunctionReference;
 class StringValue;
 class Value;
 
@@ -17,6 +18,10 @@ public:
 
   std::unique_ptr<FloatValue> float_value(
       EscriptGrammar::EscriptParser::FloatLiteralContext* );
+
+
+  std::unique_ptr<FunctionReference> function_reference(
+      EscriptGrammar::EscriptParser::FunctionReferenceContext* );
 
   std::unique_ptr<StringValue> string_value( antlr4::tree::TerminalNode* string_literal );
 
