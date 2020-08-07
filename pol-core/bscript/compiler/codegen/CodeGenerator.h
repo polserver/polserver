@@ -22,6 +22,8 @@ private:
 
   void generate_instructions( CompilerWorkspace& );
 
+  void register_module_functions( CompilerWorkspace&, const LegacyFunctionOrder* );
+  void register_module_functions_as_legacy( CompilerWorkspace& );
 private:
   ModuleDeclarationRegistrar& module_declaration_registrar;
 

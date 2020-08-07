@@ -59,4 +59,27 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
   emit.progend();
 }
 
+void CodeGenerator::register_module_functions( CompilerWorkspace& workspace,
+                                               const LegacyFunctionOrder* legacy_function_order )
+{
+  if ( legacy_function_order )
+  {
+    register_module_functions_as_legacy( workspace );
+  }
+}
+
+void CodeGenerator::register_module_functions_as_legacy( CompilerWorkspace& workspace )
+{
+  for ( auto& module_function : workspace.module_function_declarations )
+  {
+    // we might assign IDs to more modules that we actually use,
+    // but this will help us compare output with the original compiler.
+    module_declaration_registrar.register_module( *module_function );
+  }
+  for ( const auto& decl : workspace.module_functions_in_legacy_order )
+  {
+    module_declaration_registrar.register_modulefunc( *decl );
+  }
+}
+
 }  // namespace Pol::Bscript::Compiler
