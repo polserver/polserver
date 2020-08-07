@@ -1,9 +1,5 @@
-use math;
-
-// "Only simple operands..."
-
-function foo(x := ConstPi())
-    print(x);
+function foo(byref unused x)
+    print("not using");
 endfunction
 
-foo();
+foo(4);
