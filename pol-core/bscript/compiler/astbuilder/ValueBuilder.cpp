@@ -8,6 +8,7 @@
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionReference.h"
 #include "compiler/ast/StringValue.h"
+#include "compiler/ast/IntegerValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/file/SourceLocation.h"
 #include "compiler/model/FunctionLink.h"
@@ -43,6 +44,13 @@ std::unique_ptr<FunctionReference> ValueBuilder::function_reference(
   workspace.function_resolver.register_function_link( name, function_link );
 
   return function_reference;
+}
+
+std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
+    EscriptParser::IntegerLiteralContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  return std::make_unique<IntegerValue>( loc, to_int( ctx ) );
 }
 
 std::unique_ptr<StringValue> ValueBuilder::string_value(
@@ -143,6 +151,28 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   {
     location_for( *ctx ).internal_error( "unhandled literal" );
   }
+}
+
+int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
+{
+  if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
+  {
+    return std::stoi( decimal_literal->getSymbol()->getText() );
+  }
+  else if ( auto hex_literal = ctx->HEX_LITERAL() )
+  {
+    // 0x80000000 is a problem
+    return (int)std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 );
+  }
+  else if ( auto oct_literal = ctx->OCT_LITERAL() )
+  {
+    return std::stoi( oct_literal->getSymbol()->getText(), nullptr, 8 );
+  }
+  else if ( auto binary_literal = ctx->BINARY_LITERAL() )
+  {
+    return std::stoi( binary_literal->getSymbol()->getText(), nullptr, 2 );
+  }
+  location_for( *ctx ).internal_error( "unhandled integer literal" );
 }
 
 }  // namespace Pol::Bscript::Compiler
