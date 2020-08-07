@@ -40,6 +40,7 @@ struct CompilerConfig
   bool ErrorOnFileCaseMissmatch;
   bool UseCompiler2020;
   bool CompareCompilerOutput;
+  bool UseUnambiguousGrammar;
 
   void Read( const std::string& path );
   void SetDefaults();

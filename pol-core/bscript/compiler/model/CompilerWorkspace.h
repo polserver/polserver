@@ -7,6 +7,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class SourceFile;
 class SourceFileIdentifier;
 
 class CompilerWorkspace

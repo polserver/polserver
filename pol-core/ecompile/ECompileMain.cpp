@@ -90,6 +90,7 @@ void ECompileMain::showHelp()
              << "       -s           display summary if -q is not set\n"
              << "       -T[N]        use threaded compilation, force N threads to run\n"
              << "       -vN          verbosity level\n"
+             << "       -U           use Unambiguous ANTLR grammar\n"
              << "       -w           display warnings\n"
              << "       -W           generate wordfile\n"
              << "       -y           treat warnings as errors\n"
@@ -520,6 +521,9 @@ int readargs( int argc, char** argv )
         break;
       case 'G':
         compilercfg.CompareCompilerOutput = setting_value( arg );
+        break;
+      case 'U':
+        compilercfg.UseUnambiguousGrammar = setting_value( arg );
         break;
 
       case 'q':
