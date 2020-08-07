@@ -48,6 +48,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
   compiler/ast/FunctionParameterList.h
+  compiler/ast/GetMember.cpp
+  compiler/ast/GetMember.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
   compiler/ast/IntegerValue.cpp

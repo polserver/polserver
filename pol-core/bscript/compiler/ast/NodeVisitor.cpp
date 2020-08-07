@@ -13,6 +13,7 @@
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
 #include "FunctionParameterList.h"
+#include "GetMember.h"
 #include "Identifier.h"
 #include "IntegerValue.h"
 #include "ModuleFunctionDeclaration.h"
@@ -89,6 +90,11 @@ void NodeVisitor::visit_function_parameter_declaration( FunctionParameterDeclara
 }
 
 void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_get_member( GetMember& node )
 {
   visit_children( node );
 }
