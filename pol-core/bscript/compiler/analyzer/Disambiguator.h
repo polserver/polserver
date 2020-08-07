@@ -5,17 +5,22 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Constants;
 class CompilerWorkspace;
 class Report;
 
 class Disambiguator : public NodeVisitor
 {
 public:
-  explicit Disambiguator( Report& );
+  Disambiguator( Constants&, Report& );
 
   void disambiguate( CompilerWorkspace& ast );
 
+  void visit_case_dispatch_group( CaseDispatchGroup& dispatch_group ) override;
+  void visit_case_dispatch_groups( CaseDispatchGroups& dispatch_groups ) override;
+
 private:
+  Constants& constants;
   Report& report;
 };
 
