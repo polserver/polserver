@@ -9,6 +9,7 @@ class ArrayElementIndexes;
 class ArrayInitializer;
 class BinaryOperator;
 class BreakStatement;
+class ConstDeclaration;
 class ContinueStatement;
 class DictionaryEntry;
 class DictionaryInitializer;
@@ -45,6 +46,7 @@ public:
   virtual void visit_array_initializer( ArrayInitializer& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_break_statement( BreakStatement& );
+  virtual void visit_const_declaration( ConstDeclaration& );
   virtual void visit_continue_statement( ContinueStatement& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );

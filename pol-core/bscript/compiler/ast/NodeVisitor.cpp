@@ -6,6 +6,7 @@
 #include "ArrayInitializer.h"
 #include "BinaryOperator.h"
 #include "BreakStatement.h"
+#include "ConstDeclaration.h"
 #include "ContinueStatement.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
@@ -60,6 +61,11 @@ void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 }
 
 void NodeVisitor::visit_break_statement( BreakStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
 {
   visit_children( node );
 }
