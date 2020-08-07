@@ -36,6 +36,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/InstructionGenerator.h
   compiler/file/ConformingCharStream.cpp
   compiler/file/ConformingCharStream.h
+  compiler/file/ErrorListener.cpp
+  compiler/file/ErrorListener.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp

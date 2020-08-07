@@ -14,6 +14,8 @@ public:
   std::atomic<long long> disambiguate_micros;
   std::atomic<long long> analyze_micros;
   std::atomic<long long> codegen_micros;
+
+  std::atomic<long> ambiguities;
 };
 
 }  // namespace Pol::Bscript::Compiler

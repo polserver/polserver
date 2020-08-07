@@ -945,6 +945,9 @@ bool run( int argc, char** argv, int* res )
     tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
     tmp << "       disambiguate: " << (long long)summary.profile.disambiguate_micros / 1000 << "\n";
     tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
+    tmp << "\n";
+    tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
+
 
     INFO_PRINT << tmp.str();
   }
