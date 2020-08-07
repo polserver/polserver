@@ -1,0 +1,25 @@
+use util;
+
+const SKILLID_BLACKSMITHY       := 7;
+const SKILLID_TAILORING         := 34;
+
+print(GetItemTypeByJobType(SKILLID_TAILORING, 9));
+
+function GetItemTypeByJobType (jobtype, y)
+
+	case (jobtype)
+		SKILLID_TAILORING:
+		    print(0x153B);	// Half Apron
+
+        // If not properly handled, this is treated
+        // as a break label for the inner case statement,
+        // rather than a selector for the outer case statement.
+		SKILLID_BLACKSMITHY:
+			case( y )
+				8: return 0x1b73;	//Buckler
+				9: print(0x1b72);	//Bronze Shield
+			endcase
+	endcase
+
+endfunction
+

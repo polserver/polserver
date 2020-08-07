@@ -1,0 +1,22 @@
+// The parser attaches the FIVE: label to the while loop,
+// rather than as a selector for the case statement.
+// Notice that it is just a statement in the block; we have to
+// split the group into two.
+const FIVE := 5;
+var a := 5;
+case (a)
+    4:
+        print("4");
+    FIVE:
+        while (1)
+            while(1)
+                print( "five" );
+                break;
+            endwhile
+            break;
+        endwhile
+
+    6:
+        print( "six" );
+endcase
+print("done");

@@ -1,0 +1,3 @@
+var a := struct { b := "xyz" };
+print( a."b" );
+

@@ -1,0 +1,6 @@
+
+var i := 4;
+while (i)
+    print( "i: " + i );
+    i := i - 1;
+endwhile

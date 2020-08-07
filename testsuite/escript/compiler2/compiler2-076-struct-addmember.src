@@ -1,0 +1,3 @@
+var a := struct;
+a.+b := "added";
+print(a);

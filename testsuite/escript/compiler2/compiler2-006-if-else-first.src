@@ -1,0 +1,8 @@
+var a := 5;
+
+if (a)
+    print("correct - path taken");
+else
+    print("incorrect - should not take else");
+endif
+

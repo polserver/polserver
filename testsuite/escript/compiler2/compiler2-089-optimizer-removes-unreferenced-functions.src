@@ -1,0 +1,25 @@
+// There's no way to tell from the output, but the optimizer
+// should remove functions that are no longer referenced
+// after statement / expression optimization.
+
+const ZERO := 0;
+
+function caller(x)
+    if (!ZERO)
+       included();
+    else
+       optimized_out();
+    endif
+endfunction
+
+function included()
+    return "included";
+endfunction
+
+function optimized_out()
+    return "optimized out";
+endfunction
+
+program foo()
+    print(caller(2));
+endprogram
