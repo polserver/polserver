@@ -33,7 +33,11 @@ public:
 
   void initialize_data();
 
+  void progend();
+
 private:
+  unsigned emit_token( BTokenId id, BTokenType type, unsigned offset = 0 );
+  unsigned append_token( StoredToken& );
 
   CodeEmitter code_emitter;
   DataEmitter data_emitter;

@@ -21,6 +21,7 @@ private:
 
   void generate_instructions( CompilerWorkspace& );
 
+private:
   InstructionEmitter& emitter;
   InstructionEmitter& emit;
 };

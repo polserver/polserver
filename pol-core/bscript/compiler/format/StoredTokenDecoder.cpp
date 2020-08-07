@@ -14,6 +14,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 {
   switch ( tkn.id )
   {
+  case CTRL_PROGEND:
+    w << "progend";
+    break;
 
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset

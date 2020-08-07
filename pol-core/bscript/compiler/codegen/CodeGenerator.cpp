@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "InstructionEmitter.h"
+#include "InstructionGenerator.h"
 #include "StoredToken.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -43,6 +44,7 @@ CodeGenerator::CodeGenerator( InstructionEmitter& emitter )
 
 void CodeGenerator::generate_instructions( CompilerWorkspace& )
 {
+  emit.progend();
 }
 
 }  // namespace Pol::Bscript::Compiler
