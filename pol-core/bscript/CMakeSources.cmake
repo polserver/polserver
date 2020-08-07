@@ -18,10 +18,16 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/ast/Expression.cpp
+  compiler/ast/Expression.h
   compiler/ast/Node.cpp
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
   compiler/ast/NodeVisitor.h
+  compiler/ast/Statement.cpp
+  compiler/ast/Statement.h
+  compiler/ast/Value.cpp
+  compiler/ast/Value.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
