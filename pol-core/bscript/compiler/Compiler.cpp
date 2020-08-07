@@ -9,6 +9,7 @@
 #include "analyzer/Disambiguator.h"
 #include "analyzer/SemanticAnalyzer.h"
 #include "astbuilder/CompilerWorkspaceBuilder.h"
+#include "codegen/CodeGenerator.h"
 #include "compilercfg.h"
 #include "format/CompiledScriptSerializer.h"
 #include "model/CompilerWorkspace.h"
@@ -102,6 +103,8 @@ void Compiler::compile_file_steps( const std::string& pathname,
   analyze( *workspace, report);
   if ( report.error_count() )
     return;
+
+  output = generate( std::move( workspace ), legacy_function_order );
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
@@ -144,6 +147,15 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
   SemanticAnalyzer analyzer( report );
   analyzer.analyze( workspace );
   profile.analyze_micros += timer.ellapsed().count();
+}
+
+std::unique_ptr<CompiledScript> Compiler::generate(
+    std::unique_ptr<CompilerWorkspace> workspace, const LegacyFunctionOrder* legacy_function_order )
+{
+  Pol::Tools::HighPerfTimer codegen_timer;
+  auto compiled_script = CodeGenerator::generate( std::move( workspace ), legacy_function_order );
+  profile.codegen_micros += codegen_timer.ellapsed().count();
+  return compiled_script;
 }
 
 void Compiler::display_outcome( const std::string& filename, Report& report )
