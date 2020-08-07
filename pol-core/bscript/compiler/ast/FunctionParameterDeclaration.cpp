@@ -4,9 +4,20 @@
 #include <utility>
 
 #include "NodeVisitor.h"
+#include "Expression.h"
 
 namespace Pol::Bscript::Compiler
 {
+FunctionParameterDeclaration::FunctionParameterDeclaration(
+    const SourceLocation& source_location, std::string name, bool byref, bool unused,
+    std::unique_ptr<Expression> default_value )
+  : Node( source_location, std::move( default_value ) ),
+    name( std::move( name ) ),
+    byref( byref ),
+    unused( unused )
+{
+}
+
 FunctionParameterDeclaration::FunctionParameterDeclaration( const SourceLocation& source_location,
                                                             std::string name, bool byref,
                                                             bool unused )
@@ -27,6 +38,11 @@ void FunctionParameterDeclaration::describe_to( fmt::Writer& w ) const
   if ( unused )
     w << ", unused";
   w << ")";
+}
+
+Expression* FunctionParameterDeclaration::default_value()
+{
+  return children.empty() ? nullptr : &child<Expression>( 0 );
 }
 
 }  // namespace Pol::Bscript::Compiler
