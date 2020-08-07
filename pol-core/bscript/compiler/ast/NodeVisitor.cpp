@@ -4,6 +4,7 @@
 #include "BinaryOperator.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
+#include "ElvisOperator.h"
 #include "FloatValue.h"
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
@@ -39,6 +40,11 @@ void NodeVisitor::visit_dictionary_entry( DictionaryEntry& node )
 }
 
 void NodeVisitor::visit_dictionary_initializer( DictionaryInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_elvis_operator( ElvisOperator& node )
 {
   visit_children( node );
 }

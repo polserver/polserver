@@ -7,6 +7,7 @@ class Argument;
 class BinaryOperator;
 class DictionaryEntry;
 class DictionaryInitializer;
+class ElvisOperator;
 class FloatValue;
 class FunctionCall;
 class FunctionParameterDeclaration;
@@ -32,6 +33,7 @@ public:
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
+  virtual void visit_elvis_operator( ElvisOperator& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
