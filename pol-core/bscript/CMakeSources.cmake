@@ -32,6 +32,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/DataEmitter.h
   compiler/codegen/InstructionEmitter.cpp
   compiler/codegen/InstructionEmitter.h
+  compiler/codegen/InstructionGenerator.cpp
+  compiler/codegen/InstructionGenerator.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp
