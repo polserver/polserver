@@ -23,6 +23,7 @@ class ErrorInitializer;
 class ExitStatement;
 class FloatValue;
 class EnumDeclaration;
+class ForeachLoop;
 class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
@@ -72,8 +73,9 @@ public:
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );
-  virtual void visit_identifier( Identifier& );
+  virtual void visit_foreach_loop( ForeachLoop& );
   virtual void visit_get_member( GetMember& );
+  virtual void visit_identifier( Identifier& );
   virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
   virtual void visit_method_call( MethodCall& );
