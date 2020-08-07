@@ -10,6 +10,7 @@
 #include "BreakStatement.h"
 #include "ConstDeclaration.h"
 #include "ContinueStatement.h"
+#include "CstyleForLoop.h"
 #include "DebugStatementMarker.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
@@ -88,6 +89,11 @@ void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
 }
 
 void NodeVisitor::visit_continue_statement( ContinueStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_cstyle_for_loop( CstyleForLoop& node )
 {
   visit_children( node );
 }

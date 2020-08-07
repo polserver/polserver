@@ -38,6 +38,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ConstDeclaration.h
   compiler/ast/ContinueStatement.cpp
   compiler/ast/ContinueStatement.h
+  compiler/ast/CstyleForLoop.cpp
+  compiler/ast/CstyleForLoop.h
   compiler/ast/DebugStatementMarker.cpp
   compiler/ast/DebugStatementMarker.h
   compiler/ast/DictionaryEntry.cpp
