@@ -2,6 +2,8 @@
 
 #include "Argument.h"
 #include "BinaryOperator.h"
+#include "DictionaryEntry.h"
+#include "DictionaryInitializer.h"
 #include "FloatValue.h"
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
@@ -11,6 +13,8 @@
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
 #include "StringValue.h"
+#include "StructInitializer.h"
+#include "StructMemberInitializer.h"
 #include "TopLevelStatements.h"
 #include "UnaryOperator.h"
 #include "ValueConsumer.h"
@@ -25,6 +29,16 @@ void NodeVisitor::visit_argument( Argument& node )
 }
 
 void NodeVisitor::visit_binary_operator( BinaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_dictionary_entry( DictionaryEntry& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_dictionary_initializer( DictionaryInitializer& node )
 {
   visit_children( node );
 }
@@ -65,6 +79,16 @@ void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& 
 }
 
 void NodeVisitor::visit_string_value( StringValue& ) {}
+
+void NodeVisitor::visit_struct_initializer( StructInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_struct_member_initializer( StructMemberInitializer& node )
+{
+  visit_children( node );
+}
 
 void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 {

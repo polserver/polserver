@@ -5,6 +5,8 @@ namespace Pol::Bscript::Compiler
 {
 class Argument;
 class BinaryOperator;
+class DictionaryEntry;
+class DictionaryInitializer;
 class FloatValue;
 class FunctionCall;
 class FunctionParameterDeclaration;
@@ -14,6 +16,8 @@ class IntegerValue;
 class ModuleFunctionDeclaration;
 class Node;
 class StringValue;
+class StructInitializer;
+class StructMemberInitializer;
 class TopLevelStatements;
 class UnaryOperator;
 class ValueConsumer;
@@ -26,6 +30,8 @@ public:
 
   virtual void visit_argument( Argument& );
   virtual void visit_binary_operator( BinaryOperator& );
+  virtual void visit_dictionary_entry( DictionaryEntry& );
+  virtual void visit_dictionary_initializer( DictionaryInitializer& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
@@ -34,6 +40,8 @@ public:
   virtual void visit_integer_value( IntegerValue& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_string_value( StringValue& );
+  virtual void visit_struct_initializer( StructInitializer& );
+  virtual void visit_struct_member_initializer( StructMemberInitializer& );
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_unary_operator( UnaryOperator& );
   virtual void visit_value_consumer( ValueConsumer& );
