@@ -13,6 +13,7 @@
 #include "../bscript/compiler/LegacyFunctionOrder.h"
 #include "../bscript/compiler/Profile.h"
 #include "../bscript/compiler/file/SourceFileCache.h"
+#include "../bscript/compiler/format/SideBySideListingWriter.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
@@ -214,16 +215,19 @@ bool compare_compiler_output( const std::string& path )
   // this is why -T and -G conflict: using the same filenames for every script
   std::string og_ecl( "og-compiler.ecl");
   std::string og_lst( "og-compiler.lst");
+  std::string og_disassembly("og-compiler.ecl.txt");
   std::string og_dbg("og-compiler.dbg");
   std::string og_dbg_txt("og-compiler.dbg.txt");
 
   std::string new_ecl( "new-compiler.ecl" );
   std::string new_lst( "new-compiler.lst" );
+  std::string new_disassembly("new-compiler.ecl.txt");
   std::string new_dbg("new-compiler.dbg");
   std::string new_dbg_txt("new-compiler.dbg.txt");
 
   og_compiler.write_ecl( og_ecl );
   og_compiler.write_listing( og_lst );
+  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
 
   new_compiler.write_ecl( new_ecl );
   {
@@ -232,6 +236,7 @@ bool compare_compiler_output( const std::string& path )
     std::ofstream ofs( new_lst.c_str() );
     program->dump( ofs );
   }
+  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
 
   ref_ptr<EScriptProgram> og_program( new EScriptProgram );
   og_program->read( og_ecl.c_str() );
