@@ -11,6 +11,7 @@ namespace Compiler
 {
 struct LegacyFunctionOrder;
 class Profile;
+class Report;
 
 class Compiler : public Pol::Bscript::Facility::Compiler
 {
@@ -27,8 +28,11 @@ public:
   void write_included_filenames( const std::string& pathname ) override;
 
   bool compile_file( const std::string& filename, const LegacyFunctionOrder* );
+  void compile_file_steps( const std::string& pathname, const LegacyFunctionOrder*, Report& );
 
 private:
+  void display_outcome( const std::string& filename, Report& );
+
   Profile& profile;
 };
 
