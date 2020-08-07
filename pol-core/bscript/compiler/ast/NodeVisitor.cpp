@@ -4,6 +4,7 @@
 #include "ArrayElementAccess.h"
 #include "ArrayElementIndexes.h"
 #include "ArrayInitializer.h"
+#include "BasicForLoop.h"
 #include "BinaryOperator.h"
 #include "Block.h"
 #include "BreakStatement.h"
@@ -57,6 +58,11 @@ void NodeVisitor::visit_array_element_indexes( ArrayElementIndexes& node )
 }
 
 void NodeVisitor::visit_array_initializer( ArrayInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_basic_for_loop( BasicForLoop& node )
 {
   visit_children( node );
 }

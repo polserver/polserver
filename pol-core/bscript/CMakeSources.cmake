@@ -26,6 +26,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ArrayElementIndexes.h
   compiler/ast/ArrayInitializer.cpp
   compiler/ast/ArrayInitializer.h
+  compiler/ast/BasicForLoop.cpp
+  compiler/ast/BasicForLoop.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp

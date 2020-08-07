@@ -7,6 +7,7 @@ class Argument;
 class ArrayElementAccess;
 class ArrayElementIndexes;
 class ArrayInitializer;
+class BasicForLoop;
 class BinaryOperator;
 class Block;
 class BreakStatement;
@@ -50,6 +51,7 @@ public:
   virtual void visit_array_element_access( ArrayElementAccess& );
   virtual void visit_array_element_indexes( ArrayElementIndexes& );
   virtual void visit_array_initializer( ArrayInitializer& );
+  virtual void visit_basic_for_loop( BasicForLoop& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_block( Block& );
   virtual void visit_break_statement( BreakStatement& );
