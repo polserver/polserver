@@ -2,6 +2,7 @@
 
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileCache.h"
+#include "compiler/ast/Statement.h"
 #include "compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler

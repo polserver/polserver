@@ -4,6 +4,8 @@
 #include "compiler/LegacyFunctionOrder.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/ast/Statement.h"
+#include "compiler/ast/TopLevelStatements.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/file/SourceLocation.h"
@@ -43,6 +45,11 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 
   workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
   workspace.source_files[sf->pathname] = sf;
+
+  std::vector<std::unique_ptr<Statement>> empty {};
+
+  compiler_workspace->top_level_statements = std::make_unique<TopLevelStatements>(
+      source_location, std::move( empty ) );
 
   return compiler_workspace;
 }

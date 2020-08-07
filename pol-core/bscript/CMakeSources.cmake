@@ -26,6 +26,8 @@ set (bscript_sources    # sorted !
   compiler/ast/NodeVisitor.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
+  compiler/ast/TopLevelStatements.cpp
+  compiler/ast/TopLevelStatements.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/astbuilder/BuilderWorkspace.cpp
