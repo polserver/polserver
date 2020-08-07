@@ -10,11 +10,12 @@ namespace Bscript
 namespace Compiler
 {
 struct LegacyFunctionOrder;
+class Profile;
 
 class Compiler : public Pol::Bscript::Facility::Compiler
 {
 public:
-  Compiler();
+  explicit Compiler( Profile& );
   ~Compiler() override;
   Compiler( const Compiler& ) = delete;
   Compiler& operator=( const Compiler& ) = delete;
@@ -26,6 +27,9 @@ public:
   void write_included_filenames( const std::string& pathname ) override;
 
   bool compile_file( const std::string& filename, const LegacyFunctionOrder* );
+
+private:
+  Profile& profile;
 };
 
 }  // namespace Compiler

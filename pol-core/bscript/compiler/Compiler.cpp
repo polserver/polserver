@@ -6,7 +6,10 @@ namespace Bscript
 {
 namespace Compiler
 {
-Compiler::Compiler() = default;
+Compiler::Compiler( Profile& profile )
+  : profile( profile )
+{
+}
 
 Compiler::~Compiler() = default;
 
