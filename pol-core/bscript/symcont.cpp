@@ -122,6 +122,12 @@ void SymbolContainer::write( FILE* fp )
     throw std::runtime_error( "SymbolContainer::write failed" );
 }
 
+//void SymbolContainer::write( std::ofstream& os )
+//{
+//  os.write( reinterpret_cast<const char*>(&usedLen), sizeof usedLen );
+//  os.write( s, usedLen );
+//}
+
 unsigned int SymbolContainer::get_write_length() const
 {
   // we write the length, followed by the actual data.

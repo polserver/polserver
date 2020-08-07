@@ -8,6 +8,7 @@
 #define __SYMCONT_H
 
 #include <cstdio>
+//#include <iosfwd>
 
 #include "../clib/rawtypes.h"
 
@@ -52,6 +53,8 @@ public:
     return t;
   }
   virtual void write( FILE* fp );
+  //void write( std::ofstream& os );
+
   virtual void write( char* fname );
   unsigned int get_write_length() const;
   virtual void read( FILE* fp );
