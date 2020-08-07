@@ -46,6 +46,8 @@ set (bscript_sources    # sorted !
   compiler/ast/DictionaryEntry.h
   compiler/ast/DictionaryInitializer.cpp
   compiler/ast/DictionaryInitializer.h
+  compiler/ast/DoWhileLoop.cpp
+  compiler/ast/DoWhileLoop.h
   compiler/ast/ElvisOperator.cpp
   compiler/ast/ElvisOperator.h
   compiler/ast/EnumDeclaration.cpp

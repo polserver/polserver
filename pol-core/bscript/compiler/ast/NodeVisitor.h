@@ -17,6 +17,7 @@ class CstyleForLoop;
 class DebugStatementMarker;
 class DictionaryEntry;
 class DictionaryInitializer;
+class DoWhileLoop;
 class ElvisOperator;
 class ErrorInitializer;
 class ExitStatement;
@@ -62,6 +63,7 @@ public:
   virtual void visit_debug_statement_marker( DebugStatementMarker& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
+  virtual void visit_do_while_loop( DoWhileLoop& );
   virtual void visit_elvis_operator( ElvisOperator& );
   virtual void visit_enum_declaration( EnumDeclaration& );
   virtual void visit_error_initializer( ErrorInitializer& );

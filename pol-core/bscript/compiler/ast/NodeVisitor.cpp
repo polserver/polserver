@@ -14,6 +14,7 @@
 #include "DebugStatementMarker.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
+#include "DoWhileLoop.h"
 #include "ElvisOperator.h"
 #include "EnumDeclaration.h"
 #include "ErrorInitializer.h"
@@ -109,6 +110,11 @@ void NodeVisitor::visit_dictionary_entry( DictionaryEntry& node )
 }
 
 void NodeVisitor::visit_dictionary_initializer( DictionaryInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_do_while_loop( DoWhileLoop& node )
 {
   visit_children( node );
 }
