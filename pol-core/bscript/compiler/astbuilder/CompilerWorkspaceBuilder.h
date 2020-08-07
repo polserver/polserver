@@ -29,6 +29,7 @@ private:
   std::vector<const ModuleFunctionDeclaration*> get_module_functions_in_order(
       BuilderWorkspace& workspace, const LegacyFunctionOrder& h );
 
+  void build_referenced_user_functions( BuilderWorkspace& );
 
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
