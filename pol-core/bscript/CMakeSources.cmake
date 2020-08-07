@@ -66,6 +66,8 @@ set (bscript_sources    # sorted !
   compiler/ast/GetMember.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
+  compiler/ast/IfThenElseStatement.cpp
+  compiler/ast/IfThenElseStatement.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
   compiler/ast/JumpStatement.cpp

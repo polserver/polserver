@@ -22,6 +22,7 @@
 #include "FunctionParameterList.h"
 #include "GetMember.h"
 #include "Identifier.h"
+#include "IfThenElseStatement.h"
 #include "IntegerValue.h"
 #include "MethodCall.h"
 #include "MethodCallArgumentList.h"
@@ -146,6 +147,11 @@ void NodeVisitor::visit_get_member( GetMember& node )
 }
 
 void NodeVisitor::visit_identifier( Identifier& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
 {
   visit_children( node );
 }

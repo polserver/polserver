@@ -24,6 +24,7 @@ class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
 class Identifier;
+class IfThenElseStatement;
 class IntegerValue;
 class GetMember;
 class MethodCall;
@@ -67,6 +68,7 @@ public:
   virtual void visit_function_parameter_list( FunctionParameterList& );
   virtual void visit_identifier( Identifier& );
   virtual void visit_get_member( GetMember& );
+  virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
   virtual void visit_method_call( MethodCall& );
   virtual void visit_method_call_argument_list( MethodCallArgumentList& );
