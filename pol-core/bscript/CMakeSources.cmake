@@ -18,6 +18,14 @@ set (bscript_sources    # sorted !
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp
   compiler/file/SourceLocation.h
+  compiler/representation/CompiledScript.cpp
+  compiler/representation/CompiledScript.h
+  compiler/representation/ExportedFunction.cpp
+  compiler/representation/ExportedFunction.h
+  compiler/representation/ModuleDescriptor.cpp
+  compiler/representation/ModuleDescriptor.h
+  compiler/representation/ModuleFunctionDescriptor.cpp
+  compiler/representation/ModuleFunctionDescriptor.h
   compiler/Profile.h
   compiler/Report.cpp
   compiler/Report.h
