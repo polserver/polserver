@@ -13,6 +13,7 @@
 #include "ElvisOperator.h"
 #include "EnumDeclaration.h"
 #include "ErrorInitializer.h"
+#include "ExitStatement.h"
 #include "FloatValue.h"
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
@@ -97,6 +98,11 @@ void NodeVisitor::visit_enum_declaration( EnumDeclaration& node )
 }
 
 void NodeVisitor::visit_error_initializer( ErrorInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_exit_statement( ExitStatement& node )
 {
   visit_children( node );
 }

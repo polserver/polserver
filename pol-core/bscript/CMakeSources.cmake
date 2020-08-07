@@ -46,6 +46,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ErrorInitializer.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
+  compiler/ast/ExitStatement.cpp
+  compiler/ast/ExitStatement.h
   compiler/ast/FloatValue.cpp
   compiler/ast/FloatValue.h
   compiler/ast/Function.cpp
