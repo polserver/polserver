@@ -3,8 +3,11 @@
 #include "../clib/fileutil.h"
 
 #include "BuilderWorkspace.h"
+#include "ModuleProcessor.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/ast/Statement.h"
+#include "compiler/ast/TopLevelStatements.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileCache.h"
 #include "compiler/file/SourceFileIdentifier.h"
@@ -29,7 +32,36 @@ SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_fil
 {
 }
 
-void SourceFileProcessor::process_source( SourceFile& )
+long long SourceFileProcessor::use_module( const std::string& module_name,
+                                           SourceLocation& including_location )
+{
+  if ( workspace.used_modules.find( module_name ) != workspace.used_modules.end() )
+    return 0;
+
+  workspace.used_modules.insert( module_name );
+
+  std::string pathname = compilercfg.ModuleDirectory + module_name + ".em";
+
+  auto ident = std::make_unique<SourceFileIdentifier>(
+      workspace.compiler_workspace.referenced_source_file_identifiers.size(), pathname );
+
+  auto sf = workspace.em_cache.load( *ident, report );
+  if ( !sf )
+  {
+    // This is fatal because if we keep going, we'll likely report a bunch of errors
+    // that would just be noise, like missing module function declarations or constants.
+    report.fatal( including_location, "Unable to use module '", module_name, "'.\n" );
+  }
+
+  ModuleProcessor module_processor( *ident, workspace, module_name );
+  workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+
+  long long micros_counted = 0;
+  module_processor.process_module( &micros_counted, *sf );
+  return micros_counted;
+}
+
+void SourceFileProcessor::process_source( SourceFile& sf )
 {
   // INFO_PRINT << "Builder::process_source '" << sourcefile.pathname << "'\n";
 
@@ -57,8 +89,13 @@ antlrcpp::Any SourceFileProcessor::visitStatement( EscriptParser::StatementConte
   }
   else
   {
-    // INFO_PRINT << "top-level declaration: statement";
-    tree_builder.add_statements( ctx, workspace.compiler_workspace.top_level_statements );
+    std::vector<std::unique_ptr<Statement>> statements;
+    tree_builder.add_statements( ctx, statements );
+    for ( auto& statement : statements )
+    {
+      workspace.compiler_workspace.top_level_statements->children.push_back(
+          std::move( statement ) );
+    }
   }
   return antlrcpp::Any();
 }
@@ -71,8 +108,13 @@ antlrcpp::Any SourceFileProcessor::visitUnambiguousStatement(
   }
   else
   {
-    // INFO_PRINT << "top-level declaration: statement";
-    tree_builder.add_statements( ctx, workspace.top_level_statements );
+    std::vector<std::unique_ptr<Statement>> statements;
+    tree_builder.add_statements( ctx, statements );
+    for ( auto& statement : statements )
+    {
+      workspace.compiler_workspace.top_level_statements->children.push_back(
+          std::move( statement ) );
+    }
   }
   return antlrcpp::Any();
 }

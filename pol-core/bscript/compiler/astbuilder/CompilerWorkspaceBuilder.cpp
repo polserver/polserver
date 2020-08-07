@@ -49,7 +49,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
   workspace.source_files[sf->pathname] = sf;
 
-  //src_processor.use_module( "basicio", source_location );
+  src_processor.use_module( "basicio", source_location );
   src_processor.process_source( *sf );
 
   std::vector<std::unique_ptr<Statement>> empty {};

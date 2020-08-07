@@ -20,6 +20,7 @@ public:
   SourceFileProcessor( const SourceFileIdentifier&, BuilderWorkspace&, bool is_src );
 
 public:
+  long long use_module( const std::string& name, SourceLocation& including_location );
   void process_source( SourceFile& );
 
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ) override;
