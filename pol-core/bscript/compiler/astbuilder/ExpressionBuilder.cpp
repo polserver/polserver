@@ -159,6 +159,8 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
 {
   if ( auto prim = ctx->primary() )
     return primary( prim );
+  else if ( auto scoped_method_call = ctx->scopedMethodCall() )
+    return scoped_function_call( scoped_method_call );
 
   location_for( *ctx ).internal_error( "unhandled expression" );
 }
@@ -276,6 +278,42 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
     return value( literal );
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );
+}
+
+std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
+    EscriptParser::ScopedMethodCallContext* ctx )
+{
+  return function_call( ctx->methodCall(), text( ctx->IDENTIFIER() ) );
+}
+
+std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
+    EscriptParser::UnambiguousScopedFunctionCallContext* ctx )
+{
+  return function_call( ctx->unambiguousFunctionCall(), text( ctx->IDENTIFIER() ) );
+}
+
+std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
+    EscriptParser::ValueArgumentsContext* ctx )
+{
+  std::vector<std::unique_ptr<Argument>> arguments;
+
+  if ( ctx )
+  {
+    if ( auto argList = ctx->unambiguousFunctionCallArgumentList() )
+    {
+      for ( auto argument_context : argList->unambiguousFunctionCallArgument() )
+      {
+        auto loc = location_for( *argument_context );
+
+        std::string name;
+        auto value = expression( argument_context->unambiguousExpression() );
+
+        auto argument = std::make_unique<Argument>( loc, std::move( name ), std::move( value ) );
+        arguments.push_back( std::move( argument ) );
+      }
+    }
+  }
+  return arguments;
 }
 
 }  // namespace Pol::Bscript::Compiler
