@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "InstructionEmitter.h"
 #include "StoredToken.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -23,7 +24,8 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   ExportedFunctions exported_functions;
   std::vector<ModuleDescriptor> module_descriptors;
 
-  CodeGenerator generator;
+  InstructionEmitter instruction_emitter( code, data );
+  CodeGenerator generator( instruction_emitter );
 
   generator.generate_instructions( *workspace );
 
@@ -33,7 +35,9 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
       std::move( program_info ), std::move( workspace->referenced_source_file_identifiers ) );
 }
 
-CodeGenerator::CodeGenerator()
+CodeGenerator::CodeGenerator( InstructionEmitter& emitter )
+  : emitter( emitter ),
+    emit( emitter )
 {
 }
 
