@@ -10,7 +10,10 @@
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
+class ConstDeclaration;
+class ModuleFunctionDeclaration;
 class Profile;
+class Program;
 class Report;
 class SourceFile;
 class SourceFileCache;
