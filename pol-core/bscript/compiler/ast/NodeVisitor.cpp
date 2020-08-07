@@ -8,6 +8,11 @@
 #include "BinaryOperator.h"
 #include "Block.h"
 #include "BreakStatement.h"
+#include "CaseDispatchDefaultSelector.h"
+#include "CaseDispatchGroup.h"
+#include "CaseDispatchGroups.h"
+#include "CaseDispatchSelectors.h"
+#include "CaseStatement.h"
 #include "ConstDeclaration.h"
 #include "ContinueStatement.h"
 #include "CstyleForLoop.h"
@@ -83,6 +88,31 @@ void NodeVisitor::visit_block( Block& node )
 }
 
 void NodeVisitor::visit_break_statement( BreakStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_statement( CaseStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_group( CaseDispatchGroup& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_groups( CaseDispatchGroups& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_selectors( CaseDispatchSelectors& node )
 {
   visit_children( node );
 }

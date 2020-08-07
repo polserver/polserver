@@ -34,6 +34,16 @@ set (bscript_sources    # sorted !
   compiler/ast/Block.h
   compiler/ast/BreakStatement.cpp
   compiler/ast/BreakStatement.h
+  compiler/ast/CaseStatement.cpp
+  compiler/ast/CaseStatement.h
+  compiler/ast/CaseDispatchDefaultSelector.cpp
+  compiler/ast/CaseDispatchDefaultSelector.h
+  compiler/ast/CaseDispatchGroup.cpp
+  compiler/ast/CaseDispatchGroup.h
+  compiler/ast/CaseDispatchGroups.cpp
+  compiler/ast/CaseDispatchGroups.h
+  compiler/ast/CaseDispatchSelectors.cpp
+  compiler/ast/CaseDispatchSelectors.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
   compiler/ast/ContinueStatement.cpp
