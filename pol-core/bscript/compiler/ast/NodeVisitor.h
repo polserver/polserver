@@ -16,6 +16,7 @@ class DictionaryInitializer;
 class ElvisOperator;
 class ErrorInitializer;
 class FloatValue;
+class EnumDeclaration;
 class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
@@ -51,6 +52,7 @@ public:
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
   virtual void visit_elvis_operator( ElvisOperator& );
+  virtual void visit_enum_declaration( EnumDeclaration& );
   virtual void visit_error_initializer( ErrorInitializer& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_function_call( FunctionCall& );

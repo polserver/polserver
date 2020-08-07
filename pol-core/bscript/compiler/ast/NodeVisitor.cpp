@@ -11,6 +11,7 @@
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
 #include "ElvisOperator.h"
+#include "EnumDeclaration.h"
 #include "ErrorInitializer.h"
 #include "FloatValue.h"
 #include "FunctionCall.h"
@@ -86,6 +87,11 @@ void NodeVisitor::visit_dictionary_initializer( DictionaryInitializer& node )
 }
 
 void NodeVisitor::visit_elvis_operator( ElvisOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_enum_declaration( EnumDeclaration& node )
 {
   visit_children( node );
 }

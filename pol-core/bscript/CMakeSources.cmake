@@ -40,6 +40,8 @@ set (bscript_sources    # sorted !
   compiler/ast/DictionaryInitializer.h
   compiler/ast/ElvisOperator.cpp
   compiler/ast/ElvisOperator.h
+  compiler/ast/EnumDeclaration.cpp
+  compiler/ast/EnumDeclaration.h
   compiler/ast/ErrorInitializer.cpp
   compiler/ast/ErrorInitializer.h
   compiler/ast/Expression.cpp
