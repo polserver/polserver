@@ -14,6 +14,7 @@
 #include "file/SourceFileCache.h"
 #include "file/SourceFileIdentifier.h"
 #include "format/CompiledScriptSerializer.h"
+#include "format/DebugStoreSerializer.h"
 #include "format/ListingWriter.h"
 #include "model/CompilerWorkspace.h"
 #include "optimizer/Optimizer.h"
@@ -57,8 +58,16 @@ void Compiler::write_listing( const std::string& pathname )
   }
 }
 
-void Compiler::write_dbg( const std::string& /*pathname*/, bool /*include_debug_text*/ )
+void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
 {
+  if ( output )
+  {
+    std::ofstream ofs( pathname, std::ofstream::binary );
+    auto text_ofs = include_debug_text ? std::make_unique<std::ofstream>( pathname + ".txt" )
+                                       : std::unique_ptr<std::ofstream>();
+
+    DebugStoreSerializer(*output).write( ofs, text_ofs.get() );
+  }
 }
 
 void Compiler::write_included_filenames( const std::string& pathname )
