@@ -22,6 +22,14 @@ set (bscript_sources    # sorted !
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
   compiler/ast/FloatValue.h
+  compiler/ast/Function.cpp
+  compiler/ast/Function.h
+  compiler/ast/FunctionParameterDeclaration.cpp
+  compiler/ast/FunctionParameterDeclaration.h
+  compiler/ast/FunctionParameterList.cpp
+  compiler/ast/FunctionParameterList.h
+  compiler/ast/ModuleFunctionDeclaration.cpp
+  compiler/ast/ModuleFunctionDeclaration.h
   compiler/ast/Node.cpp
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
