@@ -3,12 +3,15 @@
 
 #include "../facility/Compiler.h"
 
+#include <memory>
+
 namespace Pol
 {
 namespace Bscript
 {
 namespace Compiler
 {
+class CompiledScript;
 struct LegacyFunctionOrder;
 class Profile;
 class Report;
@@ -34,6 +37,7 @@ private:
   void display_outcome( const std::string& filename, Report& );
 
   Profile& profile;
+  std::unique_ptr<CompiledScript> output;
 };
 
 }  // namespace Compiler
