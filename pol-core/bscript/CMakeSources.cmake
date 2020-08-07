@@ -76,6 +76,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
   compiler/ast/NodeVisitor.h
+  compiler/ast/ReturnStatement.cpp
+  compiler/ast/ReturnStatement.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp

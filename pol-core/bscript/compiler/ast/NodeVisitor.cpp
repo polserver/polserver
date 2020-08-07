@@ -25,6 +25,7 @@
 #include "MethodCallArgumentList.h"
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
+#include "ReturnStatement.h"
 #include "StringValue.h"
 #include "StructInitializer.h"
 #include "StructMemberInitializer.h"
@@ -153,6 +154,11 @@ void NodeVisitor::visit_method_call_argument_list( MethodCallArgumentList& node 
 }
 
 void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_return_statement( ReturnStatement& node )
 {
   visit_children( node );
 }
