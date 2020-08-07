@@ -8,6 +8,7 @@
 #include "BreakStatement.h"
 #include "ConstDeclaration.h"
 #include "ContinueStatement.h"
+#include "DebugStatementMarker.h"
 #include "DictionaryEntry.h"
 #include "DictionaryInitializer.h"
 #include "ElvisOperator.h"
@@ -74,6 +75,11 @@ void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
 }
 
 void NodeVisitor::visit_continue_statement( ContinueStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_debug_statement_marker( DebugStatementMarker& node )
 {
   visit_children( node );
 }

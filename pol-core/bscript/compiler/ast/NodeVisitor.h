@@ -11,6 +11,7 @@ class BinaryOperator;
 class BreakStatement;
 class ConstDeclaration;
 class ContinueStatement;
+class DebugStatementMarker;
 class DictionaryEntry;
 class DictionaryInitializer;
 class ElvisOperator;
@@ -51,6 +52,7 @@ public:
   virtual void visit_break_statement( BreakStatement& );
   virtual void visit_const_declaration( ConstDeclaration& );
   virtual void visit_continue_statement( ContinueStatement& );
+  virtual void visit_debug_statement_marker( DebugStatementMarker& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
   virtual void visit_elvis_operator( ElvisOperator& );
