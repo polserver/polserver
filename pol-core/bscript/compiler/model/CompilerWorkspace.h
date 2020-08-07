@@ -5,21 +5,37 @@
 #include <string>
 #include <vector>
 
+#include "compiler/analyzer/Constants.h"
+#include "compiler/ast/Node.h"
+
 namespace Pol::Bscript::Compiler
 {
+class Block;
+class ConstDeclaration;
 class ModuleFunctionDeclaration;
 class SourceFile;
 class SourceFileIdentifier;
+class Program;
+class Report;
+class Statement;
 class TopLevelStatements;
+class UserFunction;
 
 class CompilerWorkspace
 {
 public:
-  CompilerWorkspace();
+  explicit CompilerWorkspace( Report& );
   ~CompilerWorkspace();
+
+  void accept( NodeVisitor& );
+
+  std::vector<std::unique_ptr<ConstDeclaration>> const_declarations;
+  Constants constants;
 
   std::unique_ptr<TopLevelStatements> top_level_statements;
   std::vector<std::unique_ptr<ModuleFunctionDeclaration>> module_function_declarations;
+  std::vector<std::unique_ptr<UserFunction>> user_functions;
+  std::unique_ptr<Program> program;
 
   // These reference ModuleFunctionDeclaration objects that are in module_functions
   std::vector<ModuleFunctionDeclaration*> referenced_module_function_declarations;
