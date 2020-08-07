@@ -7,6 +7,7 @@
 #include "compiler/Report.h"
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/FunctionCall.h"
+#include "compiler/ast/Identifier.h"
 #include "compiler/ast/Value.h"
 
 using EscriptGrammar::EscriptParser;
@@ -32,7 +33,11 @@ std::unique_ptr<Expression> ExpressionBuilder::additive_expression(
 
 std::unique_ptr<Expression> ExpressionBuilder::atomic( EscriptParser::AtomicExpressionContext* ctx )
 {
-  if ( auto literal = ctx->literal() )
+  if ( auto id = ctx->IDENTIFIER() )
+  {
+    return std::make_unique<Identifier>( location_for( *ctx ), text( id ) );
+  }
+  else if ( auto literal = ctx->literal() )
   {
     return value( literal );
   }

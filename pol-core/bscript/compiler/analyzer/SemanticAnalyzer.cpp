@@ -22,4 +22,16 @@ void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
   workspace.top_level_statements->accept( *this );
 }
 
+void SemanticAnalyzer::visit_var_statement( VarStatement& node )
+{
+  if ( auto existing = globals.find( node.name ) )
+  {
+    report.error( node, "Global variable '", node.name, "' already defined.\n" );
+    return;
+  }
+
+  node.variable = globals.create( node.name, 0, false, false, node.source_location );
+  visit_children( node );
+}
+
 }  // namespace Pol::Bscript::Compiler
