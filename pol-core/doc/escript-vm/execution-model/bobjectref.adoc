@@ -1,0 +1,3 @@
+= BObjectRef
+
+A BObjectRef is a reference counting pointer to a BObject.

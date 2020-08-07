@@ -1,0 +1,4 @@
+= TOK_GLOBALVAR
+
+- I think this is the one to use, but RSV_GLOBAL seems to be the value
+used in ecl?

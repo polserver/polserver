@@ -1,0 +1,11 @@
+= INS_NEXTFOR
+
+offset: an instruction address
+
+expects two locals:
+- the iterator (must be integer or long)
+- the end
+
+== operation
+- increments the iterator
+- if the iterator <= the end, jump to the offset

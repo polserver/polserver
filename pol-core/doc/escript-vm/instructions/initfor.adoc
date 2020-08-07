@@ -1,0 +1,16 @@
+= INS_INITFOR
+
+offset: PC to jump to skip the whole thing
+
+pop value off top of stack: this is the end
+pop value off top of stack: this is the start (must be integer or float)
+
+if the start is > the end, jump to the skip PC
+
+otherwise:
+
+add two local variables:
+ - the start (the iterator)
+ - the end ref
+
+execution continues

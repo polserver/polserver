@@ -1,0 +1,14 @@
+= TOK_ARRAY_SUBSCRIPT
+
+offset: 1
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+| index
+|
+
+| entity
+| entity[index]
+|===

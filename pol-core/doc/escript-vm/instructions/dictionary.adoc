@@ -1,0 +1,13 @@
+= TOK_DICTIONARY
+
+* Creates an empty dictionary.
+* Pushes a reference to it onto the Value Stack.
+
+.Stack State
+|===
+| Before Execution | After Execution
+
+|
+| new dictionary
+
+|===

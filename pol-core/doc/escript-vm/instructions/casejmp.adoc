@@ -1,0 +1,30 @@
+# CASEJMP
+
+## Overview
+
+## Instruction
+- id: INS_CASEJMP
+- offset: offset in data block
+
+## Details
+
+INS_CASEJMP (@casejump data block)
+
+(code for first group)
+GOTO @caseend
+
+(code for second group)
+GOTO @caseend
+
+...
+
+## Data block
+
+### a LONG value match
+[2 byte instruction counter] [0xff] [4 bytes long value]
+
+### a DEFAULT value match
+[2 byte instruction counter] [0xfe]
+
+### a STRING value match
+[2 byte instruction counter] [len: 0-0xfd] [len bytes: string data, no null terminator]

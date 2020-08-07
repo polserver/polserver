@@ -1,0 +1,35 @@
+= BObject
+
+A `BObject` is a ref-counted holder of a reference counting pointer to a BObjectImp.
+
+I'd like to describe here an example of a use case where there would be multiple references
+to the same BObject, and compare with a use case where there would be multiple
+BObjects that point to the same BObjectImp.
+
+My main goal here is to explain (and convince myself, if possible)
+why there are two levels of indirection.
+
+We now have specialized instructions for this, but assignments to
+array elements used to use this mechanism.
+
+[source,escript]
+----
+var arr := { "a", "b", "c" };
+arr[2] := "B";
+print(arr)
+----
+
+Example:
+
+Suppose we want to pass a variable by reference to a function:
+
+[source,escript]
+----
+function foo(byref a)
+    a := 7;
+endfunction
+
+var x := 6;
+foo(x);
+print(x); // expected output: 7
+----

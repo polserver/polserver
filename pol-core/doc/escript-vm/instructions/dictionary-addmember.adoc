@@ -1,0 +1,18 @@
+= TOK_DICTIONARY_ADDMEMBER
+
+* Adds an element to a dictionary.
+* Leaves the dictionary at the top of the value stack.
+
+.Stack State
+|===
+| Before Execution | After Execution
+
+| value
+|
+
+| key
+|
+
+| dictionary
+| dictionary
+|===
