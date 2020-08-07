@@ -24,6 +24,15 @@ private:
 
   void register_module_functions( CompilerWorkspace&, const LegacyFunctionOrder* );
   void register_module_functions_as_legacy( CompilerWorkspace& );
+  void register_module_functions_alphabetically( CompilerWorkspace& );
+
+  static void sort_module_functions_by_module_name( CompilerWorkspace& );
+  static void sort_module_functions_alphabetically( CompilerWorkspace& );
+
+  static void sort_user_functions( CompilerWorkspace&, const LegacyFunctionOrder* );
+  static void sort_user_functions_as_legacy( CompilerWorkspace&, const LegacyFunctionOrder& );
+  static void sort_user_functions_alphabetically( CompilerWorkspace& );
+
 private:
   ModuleDeclarationRegistrar& module_declaration_registrar;
 
