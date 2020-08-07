@@ -4,6 +4,8 @@
 #include "ArrayElementAccess.h"
 #include "ArrayElementIndexes.h"
 #include "ArrayInitializer.h"
+#include "AssignSubscript.h"
+#include "AssignVariableConsume.h"
 #include "BasicForLoop.h"
 #include "BinaryOperator.h"
 #include "Block.h"
@@ -39,14 +41,20 @@
 #include "MethodCallArgumentList.h"
 #include "ModuleFunctionDeclaration.h"
 #include "Node.h"
+#include "Program.h"
+#include "ProgramParameterDeclaration.h"
+#include "ProgramParameterList.h"
 #include "RepeatUntilLoop.h"
 #include "ReturnStatement.h"
+#include "SetMember.h"
+#include "SetMemberByOperator.h"
 #include "StringValue.h"
 #include "StructInitializer.h"
 #include "StructMemberInitializer.h"
 #include "TopLevelStatements.h"
 #include "UnaryOperator.h"
 #include "UninitializedValue.h"
+#include "UserFunction.h"
 #include "ValueConsumer.h"
 #include "VarStatement.h"
 #include "WhileLoop.h"
@@ -70,6 +78,16 @@ void NodeVisitor::visit_array_element_indexes( ArrayElementIndexes& node )
 }
 
 void NodeVisitor::visit_array_initializer( ArrayInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_assign_subscript( AssignSubscript& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_assign_variable_consume( AssignVariableConsume& node )
 {
   visit_children( node );
 }
@@ -244,12 +262,38 @@ void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& 
   visit_children( node );
 }
 
+void NodeVisitor::visit_program( Program& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_program_parameter_declaration( ProgramParameterDeclaration& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_program_parameter_list( ProgramParameterList& node )
+{
+  visit_children( node );
+}
+
+
 void NodeVisitor::visit_repeat_until_loop( RepeatUntilLoop& node )
 {
   visit_children( node );
 }
 
 void NodeVisitor::visit_return_statement( ReturnStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_set_member( SetMember& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_set_member_by_operator( SetMemberByOperator& node )
 {
   visit_children( node );
 }
@@ -277,6 +321,11 @@ void NodeVisitor::visit_unary_operator( UnaryOperator& node )
 }
 
 void NodeVisitor::visit_uninitialized_value( UninitializedValue& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_user_function( UserFunction& node )
 {
   visit_children( node );
 }
