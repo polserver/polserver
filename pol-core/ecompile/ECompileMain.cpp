@@ -12,6 +12,7 @@
 #include "../bscript/compiler/Compiler.h"
 #include "../bscript/compiler/LegacyFunctionOrder.h"
 #include "../bscript/compiler/Profile.h"
+#include "../bscript/compiler/file/SourceFileCache.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
@@ -139,6 +140,9 @@ struct Comparison
   std::atomic<long> NonMatchingDebugOutput {};
 } comparison;
 
+Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
+Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
+
 void generate_wordlist()
 {
   INFO_PRINT << "Writing word list to wordlist.txt\n";
@@ -176,7 +180,7 @@ bool compare_compiler_output( const std::string& path )
   Legacy::Compiler og_compiler;
   og_compiler.setQuiet( !debug );
 
-  Compiler::Compiler new_compiler( summary.profile );
+  Compiler::Compiler new_compiler( em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
 
   Pol::Tools::HighPerfTimer og_timer;
   bool og_ok = og_compiler.compile_file( path );
@@ -339,6 +343,9 @@ bool compile_file( const char* path )
       INFO_PRINT << "Comparing compiler output: " << path << "\n";
     bool same = compare_compiler_output( path );
 
+    em_parse_tree_cache.keep_some();
+    inc_parse_tree_cache.keep_some();
+
     return same;
   }
 
@@ -350,7 +357,8 @@ bool compile_file( const char* path )
 
     if ( compilercfg.UseCompiler2020 )
     {
-      compiler = std::make_unique<Compiler::Compiler>( summary.profile );
+      compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
+                                                         summary.profile );
     }
     else
     {
@@ -361,6 +369,9 @@ bool compile_file( const char* path )
 
 
     bool success = compiler->compile_file( path );
+
+    em_parse_tree_cache.keep_some();
+    inc_parse_tree_cache.keep_some();
 
     if ( expect_compile_failure )
     {
@@ -646,6 +657,12 @@ int readargs( int argc, char** argv )
     }
   }
   return 0;
+}
+
+void apply_configuration()
+{
+  em_parse_tree_cache.configure( compilercfg.EmParseTreeCacheSize );
+  inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
 /**
@@ -951,7 +968,8 @@ bool run( int argc, char** argv, int* res )
     tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
     tmp << "\n";
     tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
-
+    tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
+    tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
 
     INFO_PRINT << tmp.str();
   }
@@ -1055,6 +1073,8 @@ int ECompileMain::main()
     showHelp();
     return res;
   }
+
+  ECompile::apply_configuration();
 
   if ( !ECompile::quiet )
   {

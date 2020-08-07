@@ -11,6 +11,7 @@
 #include "astbuilder/CompilerWorkspaceBuilder.h"
 #include "codegen/CodeGenerator.h"
 #include "compilercfg.h"
+#include "file/SourceFileCache.h"
 #include "format/CompiledScriptSerializer.h"
 #include "format/ListingWriter.h"
 #include "model/CompilerWorkspace.h"
@@ -19,8 +20,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-Compiler::Compiler( Profile& profile )
-  : profile( profile )
+Compiler::Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& profile )
+  : em_cache( em_cache ),
+    inc_cache( inc_cache ),
+    profile( profile )
 {
 }
 
@@ -118,7 +121,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
     Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  CompilerWorkspaceBuilder workspace_builder( profile, report );
+  CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
   auto workspace = workspace_builder.build( pathname, legacy_function_order );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;

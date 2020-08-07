@@ -62,6 +62,8 @@ void CompilerConfig::Read( const std::string& path )
   UseCompiler2020 = elem.remove_bool( "UseCompiler2020", false );
   CompareCompilerOutput = elem.remove_bool( "CompareCompilerOutput", false );
   UseUnambiguousGrammar = elem.remove_bool( "UseUnambiguousGrammar", true );
+  EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
+  IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
@@ -131,6 +133,9 @@ void CompilerConfig::SetDefaults()
   DisplayUpToDateScripts = true;
 
   UseUnambiguousGrammar = true;
+
+  EmParseTreeCacheSize = 25;
+  IncParseTreeCacheSize = 50;
 }
 
 CompilerConfig compilercfg;

@@ -11,8 +11,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( Profile& profile, Report& report )
-    : profile( profile ), report( report )
+CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
+                                                    SourceFileCache& inc_cache,
+                                                    Profile& profile, Report& report )
+    : em_cache( em_cache ), inc_cache( inc_cache ), profile( profile ), report( report )
 {
 }
 
@@ -20,7 +22,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     const std::string& pathname, const LegacyFunctionOrder* /*legacy_function_order*/ )
 {
   auto compiler_workspace = std::make_unique<CompilerWorkspace>();
-  BuilderWorkspace workspace( *compiler_workspace, profile, report );
+  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
 

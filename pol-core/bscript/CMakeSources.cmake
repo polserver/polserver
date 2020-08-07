@@ -40,6 +40,8 @@ set (bscript_sources    # sorted !
   compiler/file/ErrorListener.h
   compiler/file/SourceFile.cpp
   compiler/file/SourceFile.h
+  compiler/file/SourceFileCache.cpp
+  compiler/file/SourceFileCache.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp

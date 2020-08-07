@@ -41,6 +41,8 @@ struct CompilerConfig
   bool UseCompiler2020;
   bool CompareCompilerOutput;
   bool UseUnambiguousGrammar;
+  int EmParseTreeCacheSize;
+  int IncParseTreeCacheSize;
 
   void Read( const std::string& path );
   void SetDefaults();
