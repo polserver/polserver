@@ -942,6 +942,7 @@ bool run( int argc, char** argv, int* res )
     tmp << " register constants: "
         << (long long)summary.profile.register_const_declarations_micros / 1000 << "\n";
     tmp << "            analyze: " << (long long)summary.profile.analyze_micros / 1000 << "\n";
+    tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
 
     INFO_PRINT << tmp.str();
   }

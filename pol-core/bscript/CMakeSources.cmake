@@ -30,6 +30,8 @@ set (bscript_sources    # sorted !
   compiler/format/CompiledScriptSerializer.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
+  compiler/optimizer/Optimizer.cpp
+  compiler/optimizer/Optimizer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp
