@@ -44,6 +44,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
   compiler/astbuilder/SimpleStatementBuilder.h
+  compiler/astbuilder/SourceFileProcessor.cpp
+  compiler/astbuilder/SourceFileProcessor.h
   compiler/astbuilder/TreeBuilder.cpp
   compiler/astbuilder/TreeBuilder.h
   compiler/astbuilder/UserFunctionBuilder.cpp
