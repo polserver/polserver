@@ -14,6 +14,8 @@ set (bscript_sources    # sorted !
   compiler/Compiler.cpp
   compiler/Compiler.h
   compiler/LegacyFunctionOrder.h
+  compiler/analyzer/Disambiguator.cpp
+  compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
   compiler/ast/NodeVisitor.cpp

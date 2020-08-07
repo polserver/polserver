@@ -36,6 +36,7 @@ private:
                                                       Report& );
   void register_constants( CompilerWorkspace& );
   void optimize( CompilerWorkspace&, Report& );
+  void disambiguate( CompilerWorkspace&, Report& );
   void analyze( CompilerWorkspace&, Report& );
 
   void display_outcome( const std::string& filename, Report& );
