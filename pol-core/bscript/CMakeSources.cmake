@@ -22,10 +22,10 @@ set (bscript_sources    # sorted !
   compiler/ast/Argument.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
-  #compiler/ast/DictionaryEntry.cpp
-  #compiler/ast/DictionaryEntry.h
-  #compiler/ast/DictionaryInitializer.cpp
-  #compiler/ast/DictionaryInitializer.h
+  compiler/ast/DictionaryEntry.cpp
+  compiler/ast/DictionaryEntry.h
+  compiler/ast/DictionaryInitializer.cpp
+  compiler/ast/DictionaryInitializer.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
@@ -38,8 +38,6 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
   compiler/ast/FunctionParameterList.h
-  #compiler/ast/GetMember.cpp
-  #compiler/ast/GetMember.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
   compiler/ast/IntegerValue.cpp
