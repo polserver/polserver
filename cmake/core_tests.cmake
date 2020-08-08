@@ -61,7 +61,7 @@ add_test(NAME shard_empty_cfg
   COMMAND ${CMAKE_COMMAND} -E touch config/boats.cfg data/accounts.txt
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
-set_tests_properties(shard_empty_cfg PROPERTIES DEPENDS poltool_baredistro)
+set_tests_properties(shard_empty_cfg PROPERTIES DEPENDS "poltool_baredistro;testdir_data")
 set_tests_properties(shard_empty_cfg PROPERTIES FIXTURES_SETUP shard)
 
 # uoconvert part
