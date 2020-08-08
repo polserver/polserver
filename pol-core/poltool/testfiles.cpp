@@ -192,7 +192,7 @@ void FileGenerator::generateStatics()
         for ( auto& s : statics[y][x] )
           writeFile( file, s );
 
-        idx.length = sizeof( Plib::USTRUCT_STATIC ) * statics[y][x].size();
+        idx.length = static_cast<u32>( sizeof( Plib::USTRUCT_STATIC ) * statics[y][x].size() );
         writeFile( fileidx, idx );
         idx.offset += idx.length;
       }
