@@ -4,9 +4,7 @@
 #include "../clib/logfacility.h"
 
 #include <fstream>
-#include <map>
 #include <utility>
-#include <vector>
 
 namespace Pol
 {

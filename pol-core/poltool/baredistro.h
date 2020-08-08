@@ -2,6 +2,7 @@
 #define POLTOOL_BAREDISTRO_H
 
 
+#include <map>
 #include <string>
 #include <vector>
 
