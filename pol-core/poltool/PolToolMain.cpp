@@ -15,6 +15,7 @@
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
 #include "../plib/realmdescriptor.h"
+#include "baredistro.h"
 #include "testfiles.h"
 #include <format/format.h>
 #ifdef USE_SYSTEM_ZLIB
@@ -291,6 +292,17 @@ int PolToolMain::main()
     g.generateMap();
     g.generateStatics();
     g.generateMultis();
+    return 0;
+  }
+  else if ( binArgs[1] == "baredistro" )
+  {
+    std::string outdir = programArgsFindEquals( "outdir=", "." );
+    bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;
+    int maxtiles = programArgsFindEquals( "maxtiles=", 0x3fff, true );
+    int width = programArgsFindEquals( "width=", 6144, false );
+    int height = programArgsFindEquals( "height=", 4096, false );
+    PolTool::BareDistro distro( outdir, hsa, maxtiles, width, height );
+    distro.generate();
     return 0;
   }
   else
