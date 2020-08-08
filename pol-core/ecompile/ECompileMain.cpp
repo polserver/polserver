@@ -11,6 +11,7 @@
 #include "../bscript/compiler.h"
 #include "../bscript/compiler/Compiler.h"
 #include "../bscript/compiler/LegacyFunctionOrder.h"
+#include "../bscript/compiler/Profile.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
@@ -122,6 +123,7 @@ struct Summary
   unsigned CompiledScripts = 0;
   unsigned ScriptsWithCompileErrors = 0;
   size_t ThreadCount = 0;
+  Compiler::Profile profile;
 } summary;
 
 struct Comparison
@@ -173,7 +175,7 @@ bool compare_compiler_output( const std::string& path )
   Legacy::Compiler og_compiler;
   og_compiler.setQuiet( !debug );
 
-  Compiler::Compiler new_compiler;//( em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+  Compiler::Compiler new_compiler( summary.profile );
 
   Pol::Tools::HighPerfTimer og_timer;
   bool og_ok = og_compiler.compile_file( path );
@@ -347,7 +349,7 @@ bool compile_file( const char* path )
 
     if ( compilercfg.UseCompiler2020 )
     {
-      compiler = std::make_unique<Compiler::Compiler>();
+      compiler = std::make_unique<Compiler::Compiler>( summary.profile );
     }
     else
     {

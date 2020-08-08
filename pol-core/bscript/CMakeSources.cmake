@@ -18,6 +18,9 @@ set (bscript_sources    # sorted !
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp
   compiler/file/SourceLocation.h
+  compiler/Profile.h
+  compiler/Report.cpp
+  compiler/Report.h
   berror.cpp
   berror.h
   blong.cpp 
