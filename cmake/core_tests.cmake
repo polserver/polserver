@@ -18,6 +18,12 @@ add_test(NAME testdir
 )
 set_tests_properties(testdir PROPERTIES DEPENDS cleantestdir)
 
+add_test(NAME testdir_data
+  COMMAND ${CMAKE_COMMAND} -E make_directory coretest/data
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties(testdir_data PROPERTIES DEPENDS testdir)
+
 set_tests_properties(testdir PROPERTIES FIXTURES_SETUP client)
 add_test(NAME testfiles
   COMMAND ../../bin/poltool testfiles
@@ -30,7 +36,35 @@ add_test(NAME testfiles
 set_tests_properties(testfiles PROPERTIES DEPENDS testdir)
 set_tests_properties(testfiles PROPERTIES FIXTURES_SETUP client)
 
-# start of real tests
+add_test(NAME poltool_baredistro
+  COMMAND ../../bin/poltool baredistro
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties(poltool_baredistro PROPERTIES DEPENDS testdir)
+set_tests_properties(poltool_baredistro PROPERTIES FIXTURES_SETUP shard)
+
+add_test(NAME shard_cfgfiles
+  COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/pol.cfg ../testsuite/pol/ecompile.cfg coretest
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS poltool_baredistro)
+set_tests_properties(shard_cfgfiles PROPERTIES FIXTURES_SETUP shard)
+
+add_test(NAME shard_testscript
+  COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/start.src ../testsuite/pol/tests.src coretest/scripts
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties(shard_testscript PROPERTIES DEPENDS poltool_baredistro)
+set_tests_properties(shard_testscript PROPERTIES FIXTURES_SETUP shard)
+
+add_test(NAME shard_empty_cfg
+  COMMAND ${CMAKE_COMMAND} -E touch config/boats.cfg data/accounts.txt
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties(shard_empty_cfg PROPERTIES DEPENDS poltool_baredistro)
+set_tests_properties(shard_empty_cfg PROPERTIES FIXTURES_SETUP shard)
+
+# uoconvert part
 
 add_test(NAME uoconvert_map
   COMMAND ../../bin/uoconvert map britannia 
@@ -40,6 +74,7 @@ add_test(NAME uoconvert_map
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_map PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_map PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_statics
   COMMAND ../../bin/uoconvert statics britannia 
@@ -49,6 +84,7 @@ add_test(NAME uoconvert_statics
 )
 set_tests_properties( uoconvert_statics PROPERTIES DEPENDS uoconvert_map)
 set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_maptile
   COMMAND ../../bin/uoconvert maptile britannia 
@@ -58,28 +94,49 @@ add_test(NAME uoconvert_maptile
 )
 set_tests_properties( uoconvert_maptile PROPERTIES FIXTURES_REQUIRED client)
 set_tests_properties( uoconvert_maptile PROPERTIES DEPENDS uoconvert_map)
+set_tests_properties( uoconvert_maptile PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_tiles
   COMMAND ../../bin/uoconvert tiles
     uodata=client
     maxtileid=0x3fff
+    outdir=config
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
-set_tests_properties( uoconvert_tiles PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_tiles PROPERTIES FIXTURES_REQUIRED "client;shard")
+set_tests_properties( uoconvert_tiles PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_landtiles
   COMMAND ../../bin/uoconvert landtiles
     uodata=client
     maxtileid=0x3fff
+    outdir=config
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
-set_tests_properties( uoconvert_landtiles PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_landtiles PROPERTIES FIXTURES_REQUIRED "client;shard")
+set_tests_properties( uoconvert_landtiles PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_multis
   COMMAND ../../bin/uoconvert multis
     uodata=client
     maxtileid=0x3fff
+    outdir=config
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
-set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_REQUIRED "client;shard")
+set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_SETUP uoconvert)
+
+
+add_test(NAME shard_ecompile
+  COMMAND ../../bin/ecompile -A
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
+set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
+
+add_test(NAME shard_test
+  COMMAND ../../bin/pol
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties( shard_test PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 

@@ -1,0 +1,14 @@
+use uo;
+use os;
+program tests()
+  print("starting testscripts");
+  var exitcode:=0;
+  
+  for x:=0 to 191
+    for y:=0 to 191
+     var info:=GetMapInfo(x,y);
+     syslog(info);
+    endfor
+  endfor
+  shutdown(exitcode);
+endprogram

@@ -293,7 +293,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 
 void read_system_vars( Clib::ConfigElem& elem )
 {
-  settingsManager.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
+  settingsManager.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion", POL_VERSION );
   stateManager.stored_last_item_serial =
       elem.remove_ulong( "LastItemSerialNumber", UINT_MAX );  // dave 3/9/3
   stateManager.stored_last_char_serial =
@@ -428,17 +428,7 @@ void read_pol_dat()
   slurp( polfile.c_str(), "GLOBALPROPERTIES SYSTEM REALM" );
 
   if ( settingsManager.polvar.DataWrittenBy == 0 )
-  {
-    ERROR_PRINT
-        << "CoreVersion not found in " << polfile << "\n\n"
-        << polfile << " must contain a section similar to: \n"
-        << "System\n"
-        << "{\n"
-        << "\tCoreVersion 99\n"
-        << "}\n\n"
-        << "Ensure that the CoreVersion matches the version that created your data files!\n";
-    throw std::runtime_error( "Data file error" );
-  }
+    settingsManager.polvar.DataWrittenBy = POL_VERSION;
 }
 
 void read_objects_dat()
