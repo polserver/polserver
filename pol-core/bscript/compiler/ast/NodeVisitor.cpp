@@ -1,6 +1,7 @@
 #include "NodeVisitor.h"
 
 #include "Argument.h"
+#include "BinaryOperator.h"
 #include "FloatValue.h"
 #include "FunctionCall.h"
 #include "FunctionParameterDeclaration.h"
@@ -11,6 +12,7 @@
 #include "Node.h"
 #include "StringValue.h"
 #include "TopLevelStatements.h"
+#include "UnaryOperator.h"
 #include "ValueConsumer.h"
 #include "VarStatement.h"
 
@@ -18,6 +20,11 @@ namespace Pol::Bscript::Compiler
 {
 
 void NodeVisitor::visit_argument( Argument& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 {
   visit_children( node );
 }
@@ -60,6 +67,11 @@ void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& 
 void NodeVisitor::visit_string_value( StringValue& ) {}
 
 void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_unary_operator( UnaryOperator& node )
 {
   visit_children( node );
 }

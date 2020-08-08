@@ -20,6 +20,12 @@ set (bscript_sources    # sorted !
   compiler/analyzer/SemanticAnalyzer.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
+  compiler/ast/BinaryOperator.cpp
+  compiler/ast/BinaryOperator.h
+  #compiler/ast/DictionaryEntry.cpp
+  #compiler/ast/DictionaryEntry.h
+  #compiler/ast/DictionaryInitializer.cpp
+  #compiler/ast/DictionaryInitializer.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
@@ -50,6 +56,8 @@ set (bscript_sources    # sorted !
   compiler/ast/StringValue.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
+  compiler/ast/UnaryOperator.cpp
+  compiler/ast/UnaryOperator.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
