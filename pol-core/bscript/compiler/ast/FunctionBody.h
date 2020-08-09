@@ -1,6 +1,4 @@
-
-\
-\#ifndef POLSERVER_FUNCTIONBODY_H
+#ifndef POLSERVER_FUNCTIONBODY_H
 #define POLSERVER_FUNCTIONBODY_H
 
 #include "Node.h"
