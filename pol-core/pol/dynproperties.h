@@ -42,6 +42,7 @@
 #ifndef __POL_DYNPROPS_H
 #define __POL_DYNPROPS_H
 
+#include <algorithm>
 #include <any>
 #include <bitset>
 #include <memory>

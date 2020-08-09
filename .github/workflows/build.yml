@@ -98,7 +98,7 @@ jobs:
       - name: Build
         run: |
           cd bin-build
-          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2 -v
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
       - name: Test (EScript)
         if: matrix.config.nopch == 0
