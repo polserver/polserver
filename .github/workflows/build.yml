@@ -18,7 +18,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 8
+            compiler-version: 9
             build-type: RelWithDebInfo
             nopch: 0
 
