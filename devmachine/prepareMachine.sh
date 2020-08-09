@@ -63,7 +63,7 @@ echo ---------------------------------------------------------------------------
 echo add llvm repro
 echo -------------------------------------------------------------------------------
 echo
-sudo add-apt-repository 'deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.7 main'
+sudo add-apt-repository 'deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-7 main'
 sudo wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
 
 echo
@@ -78,17 +78,17 @@ echo ---------------------------------------------------------------------------
 echo install clang
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install clang-3.7 clang-3.7-doc libclang-common-3.7-dev libclang-3.7-dev libclang1-3.7 libllvm-3.7-ocaml-dev libllvm3.7 lldb-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-doc llvm-3.7-examples llvm-3.7-runtime clang-tidy-3.7 clang-format-3.7 llvm-toolchain-3.7 -y
+sudo apt-get install clang-7 clang-7-doc libclang-common-7-dev libclang-7-dev libclang1-7 libllvm-7-ocaml-dev libllvm7 lldb-7 llvm-7 llvm-7-dev llvm-7-doc llvm-7-examples llvm-7-runtime clang-tidy-7 clang-format-7 llvm-toolchain-7 -y
 #sudo apt-get install libiomp5 -y
 echo
 echo -------------------------------------------------------------------------------
-echo install gcc 5
+echo install gcc 8
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install g++-5 cpp-5 gcc-5  gcc-5-locales g++-5-multilib gcc-5-doc libstdc++6-5-dbg gcc-5-multilib libcloog-isl4 libisl10 libgomp1-dbg libitm1-dbg libatomic1-dbg libasan0-dbg libtsan0-dbg libquadmath0-dbg binutils -y
+sudo apt-get install g++-8 cpp-8 gcc-8  gcc-8-locales g++-8-multilib gcc-8-doc libstdc++6-8-dbg gcc-8-multilib libcloog-isl4 libisl10 libgomp1-dbg libitm1-dbg libatomic1-dbg libasan0-dbg libtsan0-dbg libquadmath0-dbg binutils -y
 
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 1 --force
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 1 --force
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 1 --force
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 1 --force
 
 echo
 echo -------------------------------------------------------------------------------
