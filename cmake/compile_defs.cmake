@@ -58,10 +58,11 @@ function(set_compile_flags target is_executable)
       )
     endif()
   endif()
+  
+  target_compile_features(${target} PUBLIC cxx_std_17)
 
   target_compile_options(${target} PRIVATE
     $<${linux}:
-      -std=c++14
       -fPIC
       -W
       -Wall

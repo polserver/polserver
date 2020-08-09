@@ -42,12 +42,12 @@
 #ifndef __POL_DYNPROPS_H
 #define __POL_DYNPROPS_H
 
+#include <any>
 #include <bitset>
-#include <boost/any.hpp>
-#include <boost/variant.hpp>
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <variant>
 #include <vector>
 
 #include "../clib/passert.h"
@@ -246,8 +246,7 @@ template <typename Storage>
 class PropHolderContainer;
 
 // small property type no types above size 4, for bigger types boost::any will be used
-typedef boost::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap, ExtStatBarFollowers,
-                       gameclock_t>
+typedef std::variant<u8, u16, u32, s8, s16, s32, ValueModPack, SkillStatCap, ExtStatBarFollowers>
     variant_storage;
 template <typename T>
 struct can_be_used_in_variant
@@ -327,7 +326,7 @@ public:
 private:
   std::bitset<PROP_FLAG_SIZE> _prop_bits;
   PropHolderContainer<variant_storage> _props;
-  std::unique_ptr<PropHolderContainer<boost::any>> _any_props;
+  std::unique_ptr<PropHolderContainer<std::any>> _any_props;
 };
 
 // Base class for dynamic properties, should be derived from
@@ -473,15 +472,15 @@ inline PropHolder<Storage>::PropHolder( DynPropTypes type, const Storage& value 
 
 template <>
 template <typename V>
-inline V PropHolder<boost::any>::getValue() const
+inline V PropHolder<std::any>::getValue() const
 {
-  return boost::any_cast<V>( _value );
+  return std::any_cast<V>( _value );
 }
 template <>
 template <typename V>
 inline V PropHolder<variant_storage>::getValue() const
 {
-  return boost::get<V>( _value );
+  return std::get<V>( _value );
 }
 
 ////////////////
@@ -573,7 +572,7 @@ namespace
 template <typename V>
 static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type getPropertyHelper(
     const PropHolderContainer<variant_storage>& variant_props,
-    const std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type, V* value )
+    const std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, V* value )
 {
   (void)any_props;
   return variant_props.getValue( type, value );
@@ -581,7 +580,7 @@ static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type get
 template <typename V>
 static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type getPropertyHelper(
     const PropHolderContainer<variant_storage>& variant_props,
-    const std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type, V* value )
+    const std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, V* value )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -591,7 +590,7 @@ static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type ge
 template <typename V>
 static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type updatePropertyHelper(
     PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type, const V& value )
+    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
 {
   (void)any_props;
   return variant_props.updateValue( type, value );
@@ -599,7 +598,7 @@ static typename std::enable_if<can_be_used_in_variant<V>::value, bool>::type upd
 template <typename V>
 static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type updatePropertyHelper(
     PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type, const V& value )
+    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -608,7 +607,7 @@ static typename std::enable_if<!can_be_used_in_variant<V>::value, bool>::type up
 template <typename V>
 static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type addPropertyHelper(
     PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type, const V& value )
+    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
 {
   (void)any_props;
   variant_props.addValue( type, value );
@@ -616,18 +615,18 @@ static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type add
 template <typename V>
 static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type addPropertyHelper(
     PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type, const V& value )
+    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type, const V& value )
 {
   (void)variant_props;
   if ( !any_props )
-    any_props.reset( new PropHolderContainer<boost::any>() );
+    any_props.reset( new PropHolderContainer<std::any>() );
   any_props->addValue( type, value );
 }
 
 template <typename V>
 static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type removePropertyHelper(
     PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type )
+    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type )
 {
   (void)any_props;
   variant_props.removeValue( type );
@@ -635,7 +634,7 @@ static typename std::enable_if<can_be_used_in_variant<V>::value, void>::type rem
 template <typename V>
 static typename std::enable_if<!can_be_used_in_variant<V>::value, void>::type removePropertyHelper(
     PropHolderContainer<variant_storage>& variant_props,
-    std::unique_ptr<PropHolderContainer<boost::any>>& any_props, DynPropTypes type )
+    std::unique_ptr<PropHolderContainer<std::any>>& any_props, DynPropTypes type )
 {
   (void)variant_props;
   passert_always( any_props.get() );
@@ -684,7 +683,7 @@ inline void DynProps::setPropertyPointer( DynPropTypes type, V value )
   }
   _prop_bits.set( type, true );
   if ( !_any_props )
-    _any_props.reset( new PropHolderContainer<boost::any>() );
+    _any_props.reset( new PropHolderContainer<std::any>() );
   _any_props->addValue( type, value );
 }
 

@@ -12,8 +12,6 @@
 #include <array>
 #include <unordered_map>
 
-#include <boost/variant.hpp>
-
 // include default pch
 #include "../clib/StdAfx.h"
 
