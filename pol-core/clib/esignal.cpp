@@ -20,7 +20,8 @@ std::atomic<int> exit_code( 0 );
 
 void signal_exit( int code )
 {
-  exit_code = code;
+  if ( exit_code == 0 )  // do not allow to "fix" the error code
+    exit_code = code;
   exit_signalled = true;
 }
 

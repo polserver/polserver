@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+08-09-2020 Turley:
+    Added: new argument "outdir" for uoconvert tiles/landtiles/multis this allows to define a different directory then the current workdirectory for the produced cfgs
+  Changed: pol can now start without an existing pol.txt savefile
 08-04-2020 AsYlum:
     Added: polcore().last_character_serial returns last character serial assigned by core
            polcore().last_item_serial returns last item serial assigned by core
