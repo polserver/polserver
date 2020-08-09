@@ -1,8 +1,8 @@
 #include "SourceFileProcessor.h"
 
 #include "../clib/fileutil.h"
+#include "../clib/logfacility.h"
 #include "../clib/timer.h"
-
 
 #include "BuilderWorkspace.h"
 #include "ModuleProcessor.h"
