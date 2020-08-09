@@ -65,9 +65,9 @@ void UoConvertMain::showHelp()
               << "        {height=Height} {mapid=0} {readuop=1} {x=X} {y=Y}\n"
               << "    statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
               << "    maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-              << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
-              << "    tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n"
-              << "    landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF}\n";
+              << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n"
+              << "    tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n"
+              << "    landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n";
 }
 
 using namespace Core;
@@ -877,7 +877,8 @@ void UoConvertMain::create_multis_cfg()
   FILE* multi_idx = open_uo_file( "multi.idx" );
   FILE* multi_mul = open_uo_file( "multi.mul" );
 
-  FILE* multis_cfg = fopen( "multis.cfg", "wt" );
+  std::string outdir = programArgsFindEquals( "outdir=", "." );
+  FILE* multis_cfg = fopen( ( outdir + "/multis.cfg" ).c_str(), "wt" );
 
   create_multis_cfg( multi_idx, multi_mul, multis_cfg );
 
@@ -916,7 +917,8 @@ void UoConvertMain::write_flags( FILE* fp, unsigned int flags )
 
 void UoConvertMain::create_tiles_cfg()
 {
-  FILE* fp = fopen( "tiles.cfg", "wt" );
+  std::string outdir = programArgsFindEquals( "outdir=", "." );
+  FILE* fp = fopen( ( outdir + "/tiles.cfg" ).c_str(), "wt" );
   int mountCount;
   char name[21];
 
@@ -984,7 +986,8 @@ void UoConvertMain::create_tiles_cfg()
 
 void UoConvertMain::create_landtiles_cfg()
 {
-  FILE* fp = fopen( "landtiles.cfg", "wt" );
+  std::string outdir = programArgsFindEquals( "outdir=", "." );
+  FILE* fp = fopen( ( outdir + "/landtiles.cfg" ).c_str(), "wt" );
   unsigned count = 0;
 
   for ( u16 i = 0; i <= 0x3FFF; ++i )
@@ -1225,7 +1228,7 @@ void UoConvertMain::setup_uoconvert()
   std::string uodata_root = programArgsFindEquals( "uodata=", "" );
   unsigned short max_tile =
       static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
-  
+
   // if any of the two is missing, read from pol.cfg
   if ( uodata_root.empty() || !max_tile )
   {
@@ -1241,10 +1244,10 @@ void UoConvertMain::setup_uoconvert()
     if ( !max_tile )
       max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
   }
-  
+
   if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
     max_tile = UOBJ_DEFAULT_MAX;
-  
+
   // Save the parameters into this ugly global state we have
   Plib::systemstate.config.max_tile_id = max_tile;
   Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( uodata_root );

@@ -218,7 +218,7 @@ void decay_single_thread( void* arg )
   }
   // sweep every realm ~10minutes -> 36ms for 6 realms
   unsigned sleeptime = ( 60 * 10L * 1000 ) / total_grid_count;
-  sleeptime = std::max( sleeptime, 30u );  // limit to 30ms
+  sleeptime = std::min( std::max( sleeptime, 30u ), 500u );  // limit to 30ms-500ms
   bool init = true;
   size_t realm_index = ~0u;
   unsigned wx = 0;
