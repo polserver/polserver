@@ -2,6 +2,7 @@
 
 #include "../clib/logfacility.h"
 
+#include "ReferencedFunctionGatherer.h"
 #include "compiler/Report.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/model/CompilerWorkspace.h"
