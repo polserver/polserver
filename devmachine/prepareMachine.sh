@@ -82,13 +82,13 @@ sudo apt-get install clang-7 clang-7-doc libclang-common-7-dev libclang-7-dev li
 #sudo apt-get install libiomp5 -y
 echo
 echo -------------------------------------------------------------------------------
-echo install gcc 8
+echo install gcc 9
 echo -------------------------------------------------------------------------------
 echo
-sudo apt-get install g++-8 cpp-8 gcc-8  gcc-8-locales g++-8-multilib gcc-8-doc libstdc++6-8-dbg gcc-8-multilib libcloog-isl4 libisl10 libgomp1-dbg libitm1-dbg libatomic1-dbg libasan0-dbg libtsan0-dbg libquadmath0-dbg binutils -y
+sudo apt-get install g++-9 cpp-9 gcc-9  gcc-9-locales g++-9-multilib gcc-9-doc libstdc++6-9-dbg gcc-9-multilib libcloog-isl4 libisl10 libgomp1-dbg libitm1-dbg libatomic1-dbg libasan0-dbg libtsan0-dbg libquadmath0-dbg binutils -y
 
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 1 --force
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 1 --force
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 1 --force
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 1 --force
 
 echo
 echo -------------------------------------------------------------------------------
