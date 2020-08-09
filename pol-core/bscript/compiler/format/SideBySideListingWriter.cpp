@@ -33,15 +33,17 @@ void SideBySideListingWriter::disassemble_section( InputBuffer& input, InputBuff
     auto module_hdr = input.read<BSCRIPT_MODULE_HDR>();
     tmp << "  Name: " << module_hdr.modulename << "\n";
     tmp << "  Functions: " << module_hdr.nfuncs << "\n";
-    ModuleDeclarationRegistrar registrar( module_descriptors );
-    unsigned module_idx = registrar.add_module( module_hdr.modulename );
+    std::vector<ModuleFunctionDescriptor> function_descriptors;
+
     for ( unsigned i = 0; i < module_hdr.nfuncs; ++i )
     {
       tmp << fmt::pad( fmt::hex( input.offset() ), 5, '0' ) << "  : ";
       auto module_function = input.read<BSCRIPT_MODULE_FUNCTION>();
       tmp << module_function.funcname << "(" << module_function.nargs << " arguments)\n";
-      registrar.add_module_function(module_idx,module_function.funcname, module_function.nargs );
+      function_descriptors.emplace_back( module_function.funcname, module_function.nargs );
     }
+
+    module_descriptors.emplace_back( module_hdr.modulename, std::move( function_descriptors ) );
   }
   break;
   case BSCRIPT_SECTION_PROGDEF:

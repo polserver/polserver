@@ -35,7 +35,7 @@ private:
   unsigned code_offset = 0;
   std::vector<StoredToken> code;
   unsigned data_offset = 0;
-  std::vector<uint8_t> data;
+  std::vector<std::byte> data;
 
 };
 
