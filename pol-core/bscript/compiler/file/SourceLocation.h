@@ -13,11 +13,7 @@ class TerminalNode;
 }
 }
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class SourceFileIdentifier;
 
@@ -45,8 +41,6 @@ public:
 
 fmt::Writer& operator<<( fmt::Writer&, const SourceLocation& );  // pathname:line:column
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_SOURCELOCATION_H

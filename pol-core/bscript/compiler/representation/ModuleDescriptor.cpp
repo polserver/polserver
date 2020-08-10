@@ -2,11 +2,7 @@
 
 #include "ModuleFunctionDescriptor.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 ModuleDescriptor::ModuleDescriptor( std::string name,
                                     std::vector<ModuleFunctionDescriptor> functions )
@@ -14,6 +10,4 @@ ModuleDescriptor::ModuleDescriptor( std::string name,
 {
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

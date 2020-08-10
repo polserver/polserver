@@ -14,11 +14,7 @@
 #include "model/CompilerWorkspace.h"
 #include "representation/CompiledScript.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 Compiler::Compiler( Profile& profile )
   : profile( profile )
@@ -133,6 +129,4 @@ void Compiler::display_outcome( const std::string& filename, Report& report )
   INFO_PRINT << ".\n";
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

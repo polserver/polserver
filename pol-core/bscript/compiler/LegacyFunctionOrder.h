@@ -4,11 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 struct LegacyFunctionOrder
 {
@@ -16,8 +12,6 @@ struct LegacyFunctionOrder
   std::vector<std::string> userfunc_emit_order;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_LEGACYFUNCTIONORDER_H

@@ -8,11 +8,7 @@
 
 #include "../clib/maputil.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
 class Report;
@@ -31,8 +27,6 @@ private:
   Report& report;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_SEMANTICANALYZER_H

@@ -4,11 +4,7 @@
 #include <memory>
 #include <vector>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class SourceFileIdentifier;
 
@@ -21,8 +17,6 @@ public:
   std::vector<std::unique_ptr<SourceFileIdentifier>> referenced_source_file_identifiers;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_COMPILERWORKSPACE_H

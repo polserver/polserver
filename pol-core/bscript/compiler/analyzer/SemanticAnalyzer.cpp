@@ -3,11 +3,7 @@
 #include "compiler/Report.h"
 #include "compiler/model/CompilerWorkspace.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 SemanticAnalyzer::SemanticAnalyzer( Report& report )
   : report( report )
@@ -24,6 +20,4 @@ void SemanticAnalyzer::analyze( CompilerWorkspace& /*workspace*/ )
 {
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

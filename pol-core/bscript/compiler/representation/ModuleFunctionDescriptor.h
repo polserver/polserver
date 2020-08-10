@@ -3,11 +3,7 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class ModuleFunctionDescriptor;
 
@@ -20,8 +16,6 @@ public:
   const size_t parameter_count;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_MODULEFUNCTIONDESCRIPTOR_H

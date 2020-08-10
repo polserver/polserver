@@ -4,11 +4,7 @@
 
 #include "compiler/file/SourceLocation.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 Report::Report( bool display_warnings )
   : display_warnings( display_warnings ), errors( 0 ), warnings( 0 )
@@ -37,6 +33,4 @@ unsigned Report::warning_count() const
   return warnings;
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

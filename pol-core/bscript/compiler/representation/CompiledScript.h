@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 
-namespace Pol
-{
-namespace Bscript
+namespace Pol::Bscript
 {
 class StoredToken;
-namespace Compiler
+}
+
+namespace Pol::Bscript::Compiler
 {
 class ExportedFunction;
 class SourceFileIdentifier;
@@ -51,8 +51,6 @@ public:
   const SourceFileIdentifiers source_file_identifiers;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_COMPILEDSCRIPT_H

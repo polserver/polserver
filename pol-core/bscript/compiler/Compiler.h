@@ -5,11 +5,7 @@
 
 #include <memory>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
 class CompilerWorkspace;
@@ -47,8 +43,6 @@ private:
   std::unique_ptr<CompiledScript> output;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_COMPILER_H

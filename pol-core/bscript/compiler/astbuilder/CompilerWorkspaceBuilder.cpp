@@ -8,11 +8,7 @@
 #include "compiler/file/SourceLocation.h"
 #include "compiler/model/CompilerWorkspace.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( Profile& profile, Report& report )
     : profile( profile ), report( report )
@@ -33,6 +29,4 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   return compiler_workspace;
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

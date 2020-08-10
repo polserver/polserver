@@ -3,11 +3,7 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
 
@@ -22,8 +18,6 @@ private:
   const CompiledScript& compiled_script;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_COMPILEDSCRIPTSERIALIZER_H
