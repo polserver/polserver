@@ -6,7 +6,7 @@ set(ANTLR_INCLUDE_DIR "${ANTLR_INSTALL_DIR}/include/antlr4-runtime")
 if (${linux})
   set(ANTLR_LIB "${ANTLR_SOURCE_DIR}/dist/libantlr4-runtime.a")
 else()
-  set(ANTLR_LIB "${ANTLR_SOURCE_DIR}/dist/Release/libantlr4-runtime-static.lib")
+  set(ANTLR_LIB "${ANTLR_SOURCE_DIR}/dist/antlr4-runtime-static.lib")
 endif()
 if (NOT EXISTS ${ANTLR_LIB})
   ExternalProject_Add(libantlr_ex
