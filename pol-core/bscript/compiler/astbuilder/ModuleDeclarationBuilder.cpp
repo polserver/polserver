@@ -30,18 +30,18 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
       bool byref = false;
       bool unused = false;
 
-//      if ( auto expr_ctx = param->expression() )
-//      {
-//        auto default_value = expression( expr_ctx );
-//        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-//            location_for( *param ), std::move( parameter_name ), byref, unused,
-//            std::move( default_value ) );
-//      }
-//      else
-//      {
-      parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-          location_for( *param ), std::move( parameter_name ), byref, unused );
-//      }
+      if ( auto expr_ctx = param->expression() )
+      {
+        auto default_value = expression( expr_ctx );
+        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+            location_for( *param ), std::move( parameter_name ), byref, unused,
+            std::move( default_value ) );
+      }
+      else
+      {
+        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+            location_for( *param ), std::move( parameter_name ), byref, unused );
+      }
       parameters.push_back( std::move( parameter_declaration ) );
     }
   }
@@ -68,18 +68,18 @@ std::unique_ptr<ModuleFunctionDeclaration> ModuleDeclarationBuilder::module_func
       bool byref = false;
       bool unused = false;
 
-//      if ( auto expr_ctx = param->unambiguousExpression() )
-//      {
-//        auto default_value = expression( expr_ctx );
-//        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-//            location_for( *param ), std::move( parameter_name ), byref, unused,
-//            std::move( default_value ) );
-//      }
-//      else
-//      {
-      parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
-          location_for( *param ), std::move( parameter_name ), byref, unused );
-//      }
+      if ( auto expr_ctx = param->unambiguousExpression() )
+      {
+        auto default_value = expression( expr_ctx );
+        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+            location_for( *param ), std::move( parameter_name ), byref, unused,
+            std::move( default_value ) );
+      }
+      else
+      {
+        parameter_declaration = std::make_unique<FunctionParameterDeclaration>(
+            location_for( *param ), std::move( parameter_name ), byref, unused );
+      }
       parameters.push_back( std::move( parameter_declaration ) );
     }
   }
