@@ -29,6 +29,13 @@ void InstructionEmitter::progend()
   emit_token( CTRL_PROGEND, TYP_CONTROL );
 }
 
+void InstructionEmitter::value( double v )
+{
+  unsigned offset = data_emitter.append( v );
+  emit_token( TOK_DOUBLE, TYP_OPERAND, offset );
+}
+
+
 unsigned InstructionEmitter::emit_token( BTokenId id, BTokenType type, unsigned offset )
 {
   StoredToken token( Mod_Basic, id, type, offset );

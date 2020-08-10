@@ -5,11 +5,16 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Expression;
 
 class ExpressionBuilder : public ValueBuilder
 {
 public:
   ExpressionBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
+
+  std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
+
+  std::unique_ptr<Expression> primary( EscriptGrammar::EscriptParser::PrimaryContext* );
 
 };
 

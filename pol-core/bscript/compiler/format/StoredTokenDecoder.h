@@ -21,6 +21,7 @@ public:
   void decode_to( const StoredToken&, fmt::Writer& );
 
 private:
+  double double_at( unsigned offset ) const;
 
   const std::vector<ModuleDescriptor>& module_descriptors;
   const std::vector<std::byte>& data;

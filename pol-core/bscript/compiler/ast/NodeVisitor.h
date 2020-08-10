@@ -3,6 +3,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class FloatValue;
 class Node;
 class TopLevelStatements;
 class ValueConsumer;
@@ -11,7 +12,8 @@ class NodeVisitor
 {
 public:
   virtual ~NodeVisitor() = default;
-
+  
+  virtual void visit_float_value( FloatValue& );
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_value_consumer( ValueConsumer& );
 

@@ -1,11 +1,17 @@
 #include "NodeVisitor.h"
 
+#include "FloatValue.h"
 #include "Node.h"
 #include "TopLevelStatements.h"
 #include "ValueConsumer.h"
 
 namespace Pol::Bscript::Compiler
 {
+
+void NodeVisitor::visit_float_value( FloatValue& node )
+{
+  visit_children( node );
+}
 
 void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 {

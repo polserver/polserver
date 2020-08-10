@@ -11,6 +11,9 @@ class CompoundStatementBuilder : public SimpleStatementBuilder
 public:
   CompoundStatementBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
+  void add_statements( EscriptGrammar::EscriptParser::StatementContext*,
+                       std::vector<std::unique_ptr<Statement>>& );
+
 };
 
 }  // namespace Pol::Bscript::Compiler
