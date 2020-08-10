@@ -25,4 +25,19 @@ void CompoundStatementBuilder::add_statements(
   }
 }
 
+void CompoundStatementBuilder::add_statements(
+    EscriptParser::UnambiguousStatementContext* ctx,
+    std::vector<std::unique_ptr<Statement>>& statements )
+{
+  if ( auto expr_ctx = ctx->unambiguousExpression() )
+  {
+    statements.push_back( consume_statement_result( expression( expr_ctx ) ) );
+  }
+  else
+  {
+    auto source_location = location_for( *ctx );
+    source_location.internal_error( "unhandled statement.\n" );
+  }
+}
+
 }  // namespace Pol::Bscript::Compiler

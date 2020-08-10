@@ -58,6 +58,20 @@ antlrcpp::Any SourceFileProcessor::visitStatement( EscriptParser::StatementConte
   else
   {
     // INFO_PRINT << "top-level declaration: statement";
+    tree_builder.add_statements( ctx, workspace.compiler_workspace.top_level_statements );
+  }
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SourceFileProcessor::visitUnambiguousStatement(
+    EscriptParser::UnambiguousStatementContext* ctx )
+{
+  if ( auto constStatement = ctx->unambiguousConstStatement() )
+  {
+  }
+  else
+  {
+    // INFO_PRINT << "top-level declaration: statement";
     tree_builder.add_statements( ctx, workspace.top_level_statements );
   }
   return antlrcpp::Any();

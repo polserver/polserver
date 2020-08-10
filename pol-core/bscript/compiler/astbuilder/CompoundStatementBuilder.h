@@ -13,6 +13,8 @@ public:
 
   void add_statements( EscriptGrammar::EscriptParser::StatementContext*,
                        std::vector<std::unique_ptr<Statement>>& );
+  void add_statements( EscriptGrammar::EscriptParser::UnambiguousStatementContext*,
+                       std::vector<std::unique_ptr<Statement>>& );
 
 };
 

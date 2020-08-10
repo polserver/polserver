@@ -23,6 +23,8 @@ public:
   void process_source( SourceFile& );
 
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ) override;
+  antlrcpp::Any visitUnambiguousStatement(
+      EscriptGrammar::EscriptParser::UnambiguousStatementContext* ) override;
 
   SourceLocation location_for( antlr4::ParserRuleContext& ) const;
 
