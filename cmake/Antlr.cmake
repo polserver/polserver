@@ -1,3 +1,11 @@
+# To update the ANTLR library:
+# 1. Download an archive from the GitHub Releases page: https://github.com/antlr/antlr4/releases
+#    - Example URL: https://github.com/antlr/antlr4/archive/4.8.tar.gz
+# 2. Copy the contents of runtime/Cpp into lib/antlr
+# 3. Replace all instances of ERROR with ANTLR_ERROR
+#    - This is because windows headers define a macro named ERROR,
+#      and precompiled headers pull that macro in.
+# 4. Remove in runtime/CMakeList.txt the build of "antlr4_shared"
 
 message("* antlr")
 set(ANTLR_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/antlr")
