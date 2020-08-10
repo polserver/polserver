@@ -20,8 +20,6 @@ public:
   const std::vector<std::string> local_variable_names;
 };
 
-}
-}
-}
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_DEBUGBLOCK_H
