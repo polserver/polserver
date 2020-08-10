@@ -5,14 +5,17 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Program;
 
 class ProgramBuilder : public CompoundStatementBuilder
 {
 public:
   ProgramBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
+  std::unique_ptr<Program> program( EscriptGrammar::EscriptParser::ProgramDeclarationContext* );
+  std::unique_ptr<Program> program(
+      EscriptGrammar::EscriptParser::UnambiguousProgramDeclarationContext* );
 };
-
 
 }  // namespace Pol::Bscript::Compiler
 
