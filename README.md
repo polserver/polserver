@@ -32,7 +32,7 @@ The best way to get used to the code is to search for eScript functions in the c
 Compiling in Windows
 ---------
 
-You need at least cmake version 3.7.
+You need at least cmake version 3.9.
 
 **Recommended:**
 Open the *CMake GUI* select the the root folder as source code folder, select
@@ -57,11 +57,11 @@ Compiling in Linux
 
 Make sure you have the required libraries installed: zlib, openssl and the mysql client (if SQL supported is desired).
 
-Then run the following commands (you need at least CMake 3.7):
+Then run the following commands (you need at least CMake 3.9):
 * `cd bin-build`
 * `./build_linux.sh`
 
-Minimum compiler version: GCC 5 or LLVM/Clang 3.5.
+Minimum compiler version: GCC 8 or LLVM/Clang 7.
 
 The command will generate binaries and dynamicaly linked libraries in the `bin/` folder. You need them all for your binaries to work. Debug symbols are included by default.
 
