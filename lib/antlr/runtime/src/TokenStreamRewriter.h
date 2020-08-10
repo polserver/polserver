@@ -227,8 +227,8 @@ namespace antlr4 {
     ///
     ///  R.i-j.u R.x-y.v    | i-j in x-y            delete first R
     ///  R.i-j.u R.i-j.v                            delete first R
-    ///  R.i-j.u R.x-y.v    | x-y in i-j            ERROR
-    ///  R.i-j.u R.x-y.v    | boundaries overlap    ERROR
+    ///  R.i-j.u R.x-y.v    | x-y in i-j            ANTLR_ERROR
+    ///  R.i-j.u R.x-y.v    | boundaries overlap    ANTLR_ERROR
     ///
     ///  Delete special case of replace (text==null):
     ///  D.i-j.u D.x-y.v    | boundaries overlap    combine to max(min)..max(right)
@@ -236,7 +236,7 @@ namespace antlr4 {
     ///  I.i.u R.x-y.v | i in (x+1)-y           delete I (since insert before
     ///                                         we're not deleting i)
     ///  I.i.u R.x-y.v | i not in (x+1)-y       leave alone, nonoverlapping
-    ///  R.x-y.v I.i.u | i in x-y               ERROR
+    ///  R.x-y.v I.i.u | i in x-y               ANTLR_ERROR
     ///  R.x-y.v I.x.u                          R.x-y.uv (combine, delete I)
     ///  R.x-y.v I.i.u | i not in x-y           leave alone, nonoverlapping
     ///

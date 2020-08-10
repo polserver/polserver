@@ -70,7 +70,7 @@ DFAState* ProfilingATNSimulator::getExistingTargetState(DFAState *previousD, siz
   DFAState *existingTargetState = ParserATNSimulator::getExistingTargetState(previousD, t);
   if (existingTargetState != nullptr) {
     _decisions[_currentDecision].SLL_DFATransitions++; // count only if we transition over a DFA state
-    if (existingTargetState == ERROR.get()) {
+    if (existingTargetState == ANTLR_ERROR.get()) {
       _decisions[_currentDecision].errors.push_back(
         ErrorInfo(_currentDecision, previousD->configs.get(), _input, _startIndex, _sllStopIndex, false)
       );
@@ -98,14 +98,14 @@ std::unique_ptr<ATNConfigSet> ProfilingATNSimulator::computeReachSet(ATNConfigSe
   if (fullCtx) {
     _decisions[_currentDecision].LL_ATNTransitions++; // count computation even if error
     if (reachConfigs != nullptr) {
-    } else { // no reach on current lookahead symbol. ERROR.
+    } else { // no reach on current lookahead symbol. ANTLR_ERROR.
       // TODO: does not handle delayed errors per getSynValidOrSemInvalidAltThatFinishedDecisionEntryRule()
       _decisions[_currentDecision].errors.push_back(ErrorInfo(_currentDecision, closure, _input, _startIndex, _llStopIndex, true));
     }
   } else {
     ++_decisions[_currentDecision].SLL_ATNTransitions;
     if (reachConfigs != nullptr) {
-    } else { // no reach on current lookahead symbol. ERROR.
+    } else { // no reach on current lookahead symbol. ANTLR_ERROR.
       _decisions[_currentDecision].errors.push_back(ErrorInfo(_currentDecision, closure, _input, _startIndex, _sllStopIndex, false));
     }
   }
