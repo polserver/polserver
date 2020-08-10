@@ -9,10 +9,14 @@ add_library(${lib_name} STATIC
 set_compile_flags(${lib_name} 0)
 warning_suppression(${lib_name})
 enable_pch(${lib_name})
-include_directories("${CMAKE_CURRENT_LIST_DIR}/../../lib/antlr")
 
+target_include_directories(${lib_name} PUBLIC ${ANTLR_INCLUDE_DIR})
+if (NOT EXISTS ${ANTLR_LIB})
+  add_dependencies(${lib_name} libantlr_ex)
+endif()
+          
 target_link_libraries(${lib_name} PUBLIC
-  antlr
+  ${ANTLR_LIB}
   clib
 )
 if (${linux})
