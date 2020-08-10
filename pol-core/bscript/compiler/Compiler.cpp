@@ -12,6 +12,7 @@
 #include "compilercfg.h"
 #include "format/CompiledScriptSerializer.h"
 #include "model/CompilerWorkspace.h"
+#include "optimizer/Optimizer.h"
 #include "representation/CompiledScript.h"
 
 namespace Pol::Bscript::Compiler
@@ -90,6 +91,10 @@ void Compiler::compile_file_steps( const std::string& pathname,
   if ( report.error_count() )
     return;
 
+  optimize( *workspace, report );
+  if ( report.error_count() )
+    return;
+
   analyze( *workspace, report);
   if ( report.error_count() )
     return;
@@ -111,6 +116,14 @@ void Compiler::register_constants( CompilerWorkspace& workspace )
   Pol::Tools::HighPerfTimer timer;
   SemanticAnalyzer::register_const_declarations( workspace );
   profile.register_const_declarations_micros += timer.ellapsed().count();
+}
+
+void Compiler::optimize( CompilerWorkspace& workspace, Report& report )
+{
+  Pol::Tools::HighPerfTimer timer;
+  Optimizer optimizer( report );
+  optimizer.optimize( workspace );
+  profile.optimize_micros += timer.ellapsed().count();
 }
 
 void Compiler::analyze( CompilerWorkspace& workspace, Report& report )

@@ -10,6 +10,7 @@ class Profile
 public:
   std::atomic<long long> build_workspace_micros;
   std::atomic<long long> register_const_declarations_micros;
+  std::atomic<long long> optimize_micros;
   std::atomic<long long> analyze_micros;
 };
 
