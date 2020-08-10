@@ -24,7 +24,7 @@ void ModuleDeclarationRegistrar::register_module( const ModuleFunctionDeclaratio
   {
     unsigned module_index = registered_modules.size();
 
-    registered_modules[module_name] = std::make_unique<EmittedModule>(module_index);
+    registered_modules[module_name] = std::make_unique<EmittedModule>( module_index );
     module_names_in_order.push_back( module_name );
   }
 }
@@ -39,7 +39,7 @@ void ModuleDeclarationRegistrar::lookup_or_register_module_function(
   auto module_itr = registered_modules.find( module_name );
   if ( module_itr != registered_modules.end() )
   {
-    EmittedModule& em = *(( *module_itr ).second);
+    EmittedModule& em = *( ( *module_itr ).second );
     module_index = em.module_index;
 
     auto function_itr = em.function_name_to_index.find( function_name );
@@ -70,16 +70,17 @@ void ModuleDeclarationRegistrar::lookup_or_register_module_function(
 std::vector<ModuleDescriptor> ModuleDeclarationRegistrar::take_module_descriptors()
 {
   std::vector<ModuleDescriptor> module_descriptors;
-  for( auto& module_name : module_names_in_order )
+  for ( auto& module_name : module_names_in_order )
   {
-    EmittedModule& emitted_module = *registered_modules[ module_name ];
-    module_descriptors.emplace_back( module_name, std::move( emitted_module.function_declarations ) );
+    EmittedModule& emitted_module = *registered_modules[module_name];
+    module_descriptors.emplace_back( module_name,
+                                     std::move( emitted_module.function_declarations ) );
   }
   return module_descriptors;
 }
 
 ModuleDeclarationRegistrar::EmittedModule::EmittedModule( unsigned module_index )
-  : module_index( module_index )
+    : module_index( module_index )
 {
 }
 ModuleDeclarationRegistrar::EmittedModule::~EmittedModule() = default;
