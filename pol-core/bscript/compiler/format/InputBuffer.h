@@ -11,7 +11,7 @@ namespace Pol::Bscript::Compiler
 class InputBuffer
 {
 public:
-  InputBuffer( std::vector<uint8_t> contents, unsigned start_offset = 0 )
+  InputBuffer( std::vector<std::byte> contents, unsigned start_offset = 0 )
       : start_offset( start_offset ), position( 0 ), buffer( std::move( contents ) )
   {
   }
@@ -37,12 +37,12 @@ public:
 
   InputBuffer read_buffer( unsigned length );
 
-  std::vector<uint8_t> get_buffer() const { return buffer; }
+  std::vector<std::byte> get_buffer() const { return buffer; }
 
 private:
   unsigned start_offset = 0;
   unsigned position = 0;
-  std::vector<uint8_t> buffer;
+  std::vector<std::byte> buffer;
 };
 
 }  // namespace Pol::Bscript::Compiler
