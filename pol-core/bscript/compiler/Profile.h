@@ -19,6 +19,11 @@ public:
 
   std::atomic<long> ambiguities;
 
+  std::atomic<long> parse_src_count;
+
+  std::atomic<long long> parse_src_micros;
+  std::atomic<long long> ast_src_micros;
+
   std::atomic<long> cache_hits;
   std::atomic<long> cache_misses;
 };

@@ -14,6 +14,8 @@ class InstructionGenerator : public NodeVisitor
 {
 public:
   explicit InstructionGenerator( InstructionEmitter& );
+
+  void visit_float_value( FloatValue& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
 
 private:

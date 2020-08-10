@@ -35,6 +35,7 @@ public:
 
   void consume();
   void progend();
+  void value( double );
 
 private:
   unsigned emit_token( BTokenId id, BTokenType type, unsigned offset = 0 );

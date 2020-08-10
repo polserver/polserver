@@ -20,6 +20,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/SemanticAnalyzer.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
+  compiler/ast/FloatValue.cpp
+  compiler/ast/FloatValue.h
   compiler/ast/Node.cpp
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
