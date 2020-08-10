@@ -1,11 +1,11 @@
 #include "testfiles.h"
 
-#include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 #include "../plib/mapblock.h"
 
 #include <cstring>
+#include <filesystem>
 #include <format/format.h>
 #include <fstream>
 #include <vector>
@@ -30,7 +30,7 @@ FileGenerator::FileGenerator( std::string basedir, bool hsa, int maxtiles, int w
              << "  height: " << _height << "\n";
 
   if ( _basedir != "." )
-    Clib::MakeDirectory( _basedir.c_str() );
+    std::filesystem::create_directories( _basedir );
 }
 
 template <typename T>
