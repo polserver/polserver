@@ -1,10 +1,6 @@
 #include "ExportedFunction.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 ExportedFunction::ExportedFunction( std::string name, unsigned parameter_count,
                                     unsigned entrypoint_program_counter )
@@ -14,6 +10,4 @@ ExportedFunction::ExportedFunction( std::string name, unsigned parameter_count,
 {
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

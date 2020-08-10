@@ -3,11 +3,7 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class ExportedFunction
 {
@@ -19,8 +15,6 @@ public:
   const unsigned entrypoint_program_counter;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_EXPORTEDFUNCTION_H

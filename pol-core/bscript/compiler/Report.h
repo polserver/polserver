@@ -6,11 +6,7 @@
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/file/SourceLocation.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class SourceLocation;
 
@@ -82,8 +78,6 @@ private:
   unsigned warnings;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_REPORT_H

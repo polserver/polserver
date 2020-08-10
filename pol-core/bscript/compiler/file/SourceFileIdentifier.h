@@ -3,11 +3,7 @@
 
 #include <string>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class SourceFileIdentifier
 {
@@ -22,8 +18,6 @@ public:
   SourceFileIdentifier& operator=( const SourceFileIdentifier& ) = delete;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_SOURCEFILEIDENTIFIER_H

@@ -13,11 +13,7 @@
 #include "StoredToken.h"
 #include "filefmt.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 CompiledScriptSerializer::CompiledScriptSerializer( const CompiledScript& compiled_script )
     : compiled_script( compiled_script )
@@ -106,6 +102,4 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
   }
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

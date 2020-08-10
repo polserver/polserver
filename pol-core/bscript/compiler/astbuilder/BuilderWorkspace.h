@@ -1,11 +1,7 @@
 #ifndef POLSERVER_BUILDERWORKSPACE_H
 #define POLSERVER_BUILDERWORKSPACE_H
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
 class Profile;
@@ -23,8 +19,6 @@ public:
   Report& report;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_BUILDERWORKSPACE_H

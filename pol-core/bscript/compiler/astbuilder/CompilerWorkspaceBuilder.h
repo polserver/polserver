@@ -4,11 +4,7 @@
 #include <memory>
 #include <string>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 struct LegacyFunctionOrder;
 class Profile;
@@ -30,8 +26,6 @@ private:
   Report& report;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_COMPILERWORKSPACEBUILDER_H

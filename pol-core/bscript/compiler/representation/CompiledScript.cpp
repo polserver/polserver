@@ -8,11 +8,7 @@
 #include "ModuleFunctionDescriptor.h"
 #include "StoredToken.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 CompiledScript::CompiledScript( CodeSection code,
                                 DataSection data,
@@ -33,6 +29,4 @@ CompiledScript::CompiledScript( CodeSection code,
 
 CompiledScript::~CompiledScript() = default;
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

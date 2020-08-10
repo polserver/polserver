@@ -3,11 +3,7 @@
 
 #include <atomic>
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 class Profile
 {
@@ -17,8 +13,6 @@ public:
   std::atomic<long long> analyze_micros;
 };
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_PROFILE_H

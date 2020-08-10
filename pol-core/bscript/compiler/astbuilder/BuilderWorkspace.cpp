@@ -1,10 +1,6 @@
 #include "BuilderWorkspace.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace, Profile& profile,
                                     Report& report )
@@ -14,6 +10,4 @@ BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace, Profi
 
 BuilderWorkspace::~BuilderWorkspace() = default;
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

@@ -4,16 +4,10 @@
 
 #include "compiler/file/SourceFileIdentifier.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 CompilerWorkspace::CompilerWorkspace() = default;
 
 CompilerWorkspace::~CompilerWorkspace() = default;
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler

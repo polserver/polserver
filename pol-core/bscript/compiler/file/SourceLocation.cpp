@@ -6,11 +6,7 @@
 
 #include "compiler/file/SourceFileIdentifier.h"
 
-namespace Pol
-{
-namespace Bscript
-{
-namespace Compiler
+namespace Pol::Bscript::Compiler
 {
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
                                 unsigned short line_number,
@@ -63,6 +59,4 @@ fmt::Writer& operator<<( fmt::Writer& w, const SourceLocation& location )
   return w;
 }
 
-}  // namespace Compiler
-}  // namespace Bscript
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
