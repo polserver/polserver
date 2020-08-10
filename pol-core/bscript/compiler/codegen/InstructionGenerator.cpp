@@ -2,6 +2,7 @@
 
 #include "InstructionEmitter.h"
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/StringValue.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/file/SourceFileIdentifier.h"
 
@@ -16,6 +17,11 @@ InstructionGenerator::InstructionGenerator( InstructionEmitter& emitter )
 void InstructionGenerator::visit_float_value( FloatValue& node )
 {
   emit.value( node.value );
+}
+
+void InstructionGenerator::visit_string_value( StringValue& lit )
+{
+  emit.value( lit.value );
 }
 
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )

@@ -36,8 +36,10 @@ public:
   void consume();
   void progend();
   void value( double );
+  void value( const std::string& );
 
 private:
+  unsigned emit_data( const std::string& );
   unsigned emit_token( BTokenId id, BTokenType type, unsigned offset = 0 );
   unsigned append_token( StoredToken& );
 

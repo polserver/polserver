@@ -2,6 +2,7 @@
 
 #include "FloatValue.h"
 #include "Node.h"
+#include "StringValue.h"
 #include "TopLevelStatements.h"
 #include "ValueConsumer.h"
 
@@ -12,6 +13,8 @@ void NodeVisitor::visit_float_value( FloatValue& node )
 {
   visit_children( node );
 }
+
+void NodeVisitor::visit_string_value( StringValue& ) {}
 
 void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 {

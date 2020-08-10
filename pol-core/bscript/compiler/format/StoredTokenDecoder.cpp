@@ -19,6 +19,14 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
       << " offset=0x" << fmt::hex( tkn.offset );
     //<< " file=0x" << fmt::hex( tkn.offset + data_offset );
     break;
+  case TOK_STRING:
+  {
+    auto s = string_at( tkn.offset );
+    w << Clib::getencodedquotedstring( s ) << " (string)"
+      << " len=" << s.length() << " offset=0x" << fmt::hex( tkn.offset );
+    //<< " file=0x" << fmt::hex( tkn.offset + data_offset );
+    break;
+  }
 
   case TOK_CONSUMER:
     w << "# (consume)";
@@ -41,6 +49,21 @@ double StoredTokenDecoder::double_at( unsigned offset ) const
                               ".  Data size is " + std::to_string( data.size() ) );
 
   return *reinterpret_cast<const double*>( &data[offset] );
+}
+
+std::string StoredTokenDecoder::string_at( unsigned offset ) const
+{
+  if ( offset > data.size() )
+    throw std::runtime_error( "data overflow reading string starting at offset " +
+                              std::to_string( offset ) + ".  Data size is " +
+                              std::to_string( data.size() ) );
+
+  auto itr = std::find( data.begin() + offset, data.end(), '\0' );
+  if ( itr == data.end() )
+    throw std::runtime_error( "No null terminator for string at offset " +
+                              std::to_string( offset ) );
+
+  return std::string( data.begin() + offset, itr );
 }
 
 }  // namespace Pol::Bscript::Compiler

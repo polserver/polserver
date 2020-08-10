@@ -6,6 +6,7 @@
 namespace Pol::Bscript::Compiler
 {
 class FloatValue;
+class StringValue;
 class Value;
 
 class ValueBuilder : public TreeBuilder
@@ -15,6 +16,10 @@ public:
 
   std::unique_ptr<FloatValue> float_value(
       EscriptGrammar::EscriptParser::FloatLiteralContext* );
+
+  std::unique_ptr<StringValue> string_value( antlr4::tree::TerminalNode* string_literal );
+
+  std::string unquote( antlr4::tree::TerminalNode* string_literal );
 
   std::unique_ptr<Value> value( EscriptGrammar::EscriptParser::LiteralContext* );
 
