@@ -14,6 +14,7 @@ target_include_directories(${lib_name} PUBLIC ${ANTLR_INCLUDE_DIR})
 if (NOT EXISTS ${ANTLR_LIB})
   add_dependencies(${lib_name} libantlr_ex)
 endif()
+target_compile_definitions(${lib_name} PUBLIC -DANTLR4CPP_STATIC)
           
 target_link_libraries(${lib_name} PUBLIC
   ${ANTLR_LIB}
