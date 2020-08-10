@@ -12,36 +12,18 @@ else()
   )
 endif()
 set_tests_properties(cleantestdir PROPERTIES FIXTURES_SETUP client)
-add_test(NAME testdir
-  COMMAND ${CMAKE_COMMAND} -E make_directory coretest
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_tests_properties(testdir PROPERTIES DEPENDS cleantestdir)
 
-add_test(NAME testdir_data
-  COMMAND ${CMAKE_COMMAND} -E make_directory coretest/data
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-set_tests_properties(testdir_data PROPERTIES DEPENDS testdir)
-
-set_tests_properties(testdir PROPERTIES FIXTURES_SETUP client)
-add_test(NAME testfiles
-  COMMAND ../../bin/poltool testfiles
-    outdir=client
+# generate client files, minimal distro and needed core cfgs
+add_test(NAME testenv
+  COMMAND ../bin/poltool testenv
+    outdir=coretest
     width=192
     height=192
     hsa=0
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set_tests_properties(testfiles PROPERTIES DEPENDS testdir)
-set_tests_properties(testfiles PROPERTIES FIXTURES_SETUP client)
-
-add_test(NAME poltool_baredistro
-  COMMAND ../../bin/poltool baredistro
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
-)
-set_tests_properties(poltool_baredistro PROPERTIES DEPENDS testdir)
-set_tests_properties(poltool_baredistro PROPERTIES FIXTURES_SETUP shard)
+set_tests_properties(testenv PROPERTIES DEPENDS cleantestdir)
+set_tests_properties(testenv PROPERTIES FIXTURES_SETUP client)
 
 add_test(NAME shard_cfgfiles
   COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/pol.cfg ../testsuite/pol/ecompile.cfg coretest
@@ -57,12 +39,6 @@ add_test(NAME shard_testscript
 set_tests_properties(shard_testscript PROPERTIES DEPENDS poltool_baredistro)
 set_tests_properties(shard_testscript PROPERTIES FIXTURES_SETUP shard)
 
-add_test(NAME shard_empty_cfg
-  COMMAND ${CMAKE_COMMAND} -E touch config/boats.cfg data/accounts.txt
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
-)
-set_tests_properties(shard_empty_cfg PROPERTIES DEPENDS "poltool_baredistro;testdir_data")
-set_tests_properties(shard_empty_cfg PROPERTIES FIXTURES_SETUP shard)
 
 # uoconvert part
 

@@ -16,6 +16,7 @@ BareDistro::BareDistro( std::string basedir, bool hsa, int maxtiles, int width, 
 }
 void BareDistro::generate()
 {
+  INFO_PRINT << "Generating minimal distro files\n";
   std::map<std::string, std::vector<std::string>> distro;
   distro_files( distro );
 

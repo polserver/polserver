@@ -5,6 +5,8 @@ set (poltool_sources  # sorted !
   baredistro.cpp
   baredistro.h
   baredistrofiles.cpp
+  testenv.cpp
+  testenv.h
   testfiles.cpp
   testfiles.h
 )
