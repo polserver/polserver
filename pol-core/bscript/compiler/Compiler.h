@@ -38,6 +38,9 @@ private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&,
                                                       const LegacyFunctionOrder*,
                                                       Report& );
+  void register_constants( CompilerWorkspace& );
+  void analyze( CompilerWorkspace&, Report& );
+
   void display_outcome( const std::string& filename, Report& );
 
   Profile& profile;
