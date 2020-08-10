@@ -40,6 +40,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ExpressionBuilder.h
   compiler/astbuilder/ModuleDeclarationBuilder.cpp
   compiler/astbuilder/ModuleDeclarationBuilder.h
+  compiler/astbuilder/ProgramBuilder.cpp
+  compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
   compiler/astbuilder/SimpleStatementBuilder.h
   compiler/astbuilder/TreeBuilder.cpp
