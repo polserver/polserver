@@ -77,7 +77,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
   sechdr.length = sizeof code_len + code_len;
   ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
   ofs.write( reinterpret_cast<const char*>( &code_len ), sizeof code_len );
-  ofs.write( reinterpret_cast<const char*>( &( *compiled_script.code.begin() ) ), code_len );
+  ofs.write( reinterpret_cast<const char*>( compiled_script.code.data() ), code_len );
 
   INFO_PRINT << "data section: offset " << ofs.tellp() << "\n";
 
@@ -87,7 +87,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
   sechdr.length = sizeof data_len + data_len;
   ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
   ofs.write( reinterpret_cast<const char*>( &data_len ), sizeof data_len );
-  ofs.write( reinterpret_cast<const char*>( &( *data.begin() ) ), data_len );
+  ofs.write( reinterpret_cast<const char*>( data.data() ), data_len );
 
   if ( !compiled_script.exported_functions.empty() )
   {
