@@ -14,12 +14,18 @@ set (bscript_sources    # sorted !
   compiler/Compiler.cpp
   compiler/Compiler.h
   compiler/LegacyFunctionOrder.h
+  compiler/astbuilder/BuilderWorkspace.cpp
+  compiler/astbuilder/BuilderWorkspace.h
+  compiler/astbuilder/CompilerWorkspaceBuilder.cpp
+  compiler/astbuilder/CompilerWorkspaceBuilder.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp
   compiler/file/SourceLocation.h
   compiler/format/CompiledScriptSerializer.cpp
   compiler/format/CompiledScriptSerializer.h
+  compiler/model/CompilerWorkspace.cpp
+  compiler/model/CompilerWorkspace.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp
