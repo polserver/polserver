@@ -18,6 +18,8 @@ set (bscript_sources    # sorted !
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp
   compiler/file/SourceLocation.h
+  compiler/format/CompiledScriptSerializer.cpp
+  compiler/format/CompiledScriptSerializer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp

@@ -5,6 +5,8 @@
 
 #include "Report.h"
 #include "compilercfg.h"
+#include "format/CompiledScriptSerializer.h"
+#include "representation/CompiledScript.h"
 
 namespace Pol
 {
@@ -24,9 +26,17 @@ bool Compiler::compile_file( const std::string& filename )
   return compile_file( filename, nullptr );
 }
 
-bool Compiler::write_ecl( const std::string& /*pathname*/ )
+bool Compiler::write_ecl( const std::string& pathname )
 {
-  return false;
+  if ( output )
+  {
+    CompiledScriptSerializer( *output ).write( pathname );
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 void Compiler::write_listing( const std::string& /*pathname*/ )
