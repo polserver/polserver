@@ -29,14 +29,14 @@ add_test(NAME shard_cfgfiles
   COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/pol.cfg ../testsuite/pol/ecompile.cfg coretest
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS poltool_baredistro)
+set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS testenv)
 set_tests_properties(shard_cfgfiles PROPERTIES FIXTURES_SETUP shard)
 
 add_test(NAME shard_testscript
   COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/start.src ../testsuite/pol/tests.src coretest/scripts
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set_tests_properties(shard_testscript PROPERTIES DEPENDS poltool_baredistro)
+set_tests_properties(shard_testscript PROPERTIES DEPENDS testenv)
 set_tests_properties(shard_testscript PROPERTIES FIXTURES_SETUP shard)
 
 

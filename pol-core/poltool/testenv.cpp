@@ -5,6 +5,8 @@
 #include "baredistro.h"
 #include "testfiles.h"
 
+#include "pol_global_config.h"
+
 #include <fstream>
 #include <utility>
 
