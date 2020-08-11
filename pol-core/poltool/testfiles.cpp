@@ -8,14 +8,19 @@
 #include <filesystem>
 #include <format/format.h>
 #include <fstream>
+#include <utility>
 #include <vector>
 
 namespace Pol
 {
 namespace PolTool
 {
-FileGenerator::FileGenerator( std::string basedir, bool hsa, int maxtiles, int width, int height )
-    : _basedir( basedir ), _hsa( hsa ), _maxtiles( maxtiles ), _width( width ), _height( height )
+FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int width, int height )
+    : _basedir( std::move( basedir ) ),
+      _hsa( hsa ),
+      _maxtiles( maxtiles ),
+      _width( width ),
+      _height( height )
 {
   if ( _width % Plib::MAPBLOCK_CHUNK != 0 || _height % Plib::MAPBLOCK_CHUNK != 0 )
     throw std::runtime_error( std::string( "height and width need to be divisible by " ) +
@@ -23,14 +28,14 @@ FileGenerator::FileGenerator( std::string basedir, bool hsa, int maxtiles, int w
   if ( _basedir.empty() )
     _basedir = ".";
   INFO_PRINT << "Generating testfiles\n"
-             << "  basedir: " << _basedir << "\n"
+             << "  basedir: " << _basedir.string() << "\n"
              << "  HSA: " << _hsa << "\n"
              << "  maxtiles: 0x" << fmt::hex( _maxtiles ) << "\n"
              << "  width: " << _width << "\n"
              << "  height: " << _height << "\n";
 
-  if ( _basedir != "." )
-    std::filesystem::create_directories( _basedir );
+  if ( _basedir != "." && !fs::exists( _basedir ) )
+    fs::create_directories( _basedir );
 }
 
 template <typename T>
@@ -68,7 +73,7 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
 template <typename T, typename U>
 void FileGenerator::writeTiledata( std::vector<T>& land, std::vector<U>& item )
 {
-  std::ofstream file( _basedir + "/tiledata.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / "tiledata.mul", std::ofstream::binary | std::ofstream::out );
   int header = 1;
   for ( size_t i = 0; i < land.size(); ++i )
   {
@@ -121,7 +126,7 @@ void FileGenerator::generateMap()
   modifyMap( map );
 
   int header = 0;
-  std::ofstream file( _basedir + "/map0.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / "map0.mul", std::ofstream::binary | std::ofstream::out );
   for ( int x = 0; x < _width / 8; ++x )
   {
     for ( int y = 0; y < _height / 8; ++y )
@@ -166,8 +171,8 @@ void FileGenerator::generateStatics()
 {
   INFO_PRINT << "Generating statics0.mul\n";
   Plib::USTRUCT_IDX idxempty{0xFFffFFff, 0xFFffFFff, 0xFFffFFff};
-  std::ofstream file( _basedir + "/statics0.mul", std::ofstream::binary | std::ofstream::out );
-  std::ofstream fileidx( _basedir + "/staidx0.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / "statics0.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream fileidx( _basedir / "staidx0.mul", std::ofstream::binary | std::ofstream::out );
 
   // init statics: [y][x][...]
   std::vector<std::vector<std::vector<Plib::USTRUCT_STATIC>>> statics;
@@ -233,8 +238,8 @@ void FileGenerator::writeMultis( std::vector<std::vector<T>>& multis )
 {
   Plib::USTRUCT_IDX idx{0, 0, 0xFFffFFff};
   Plib::USTRUCT_IDX idxempty{0xFFffFFff, 0xFFffFFff, 0xFFffFFff};
-  std::ofstream file( _basedir + "/multi.mul", std::ofstream::binary | std::ofstream::out );
-  std::ofstream fileidx( _basedir + "/multi.idx", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / "multi.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream fileidx( _basedir / "multi.idx", std::ofstream::binary | std::ofstream::out );
   idx.offset = 0;
   for ( auto& multi : multis )
   {

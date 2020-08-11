@@ -2,23 +2,22 @@
 #define POLTOOL_TESTENV_H
 
 
-#include <map>
-#include <string>
-#include <vector>
+#include <filesystem>
 
 namespace Pol
 {
 namespace PolTool
 {
+namespace fs = std::filesystem;
+
 class TestEnv
 {
 public:
-  TestEnv( std::string basedir, bool hsa, int maxtiles, int width, int height );
+  TestEnv( fs::path basedir, bool hsa, int maxtiles, int width, int height );
   void generate();
 
 private:
-
-  std::string _basedir;
+  fs::path _basedir;
   bool _hsa;
   int _maxtiles;
   int _width;

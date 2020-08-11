@@ -1,6 +1,5 @@
 #include "baredistro.h"
 
-#include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 
 #include <fstream>
@@ -10,22 +9,28 @@ namespace Pol
 {
 namespace PolTool
 {
-BareDistro::BareDistro( std::string basedir, bool hsa, int maxtiles, int width, int height )
-    : _basedir( basedir ), _hsa( hsa ), _maxtiles( maxtiles ), _width( width ), _height( height )
+BareDistro::BareDistro( fs::path basedir, bool hsa, int maxtiles, int width, int height )
+    : _basedir( std::move( basedir ) ),
+      _hsa( hsa ),
+      _maxtiles( maxtiles ),
+      _width( width ),
+      _height( height )
 {
 }
 void BareDistro::generate()
 {
   INFO_PRINT << "Generating minimal distro files\n";
-  std::map<std::string, std::vector<std::string>> distro;
+  std::map<fs::path, std::vector<std::string>> distro;
   distro_files( distro );
 
   for ( const auto& file : distro )
   {
-    std::string relpath = _basedir + "/" + file.first;
-    std::string basedir = relpath;
-    Clib::strip_one( basedir );
-    Clib::make_dir( basedir.c_str() );
+    fs::path relpath = _basedir / file.first;
+    fs::path basedir = relpath;
+    if ( basedir.has_filename() )
+      basedir.remove_filename();
+    if ( !fs::exists( basedir ) )
+      fs::create_directories( basedir );
     std::ofstream ofile( relpath, std::ofstream::out );
     for ( const auto& line : file.second )
     {

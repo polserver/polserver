@@ -2,6 +2,7 @@
 #define POLTOOL_BAREDISTRO_H
 
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
@@ -10,16 +11,18 @@ namespace Pol
 {
 namespace PolTool
 {
+namespace fs = std::filesystem;
+
 class BareDistro
 {
 public:
-  BareDistro( std::string basedir, bool hsa, int maxtiles, int width, int height );
+  BareDistro( fs::path basedir, bool hsa, int maxtiles, int width, int height );
   void generate();
 
 private:
-  void distro_files( std::map<std::string, std::vector<std::string>>& distro );
+  void distro_files( std::map<fs::path, std::vector<std::string>>& distro );
 
-  std::string _basedir;
+  fs::path _basedir;
   bool _hsa;
   int _maxtiles;
   int _width;

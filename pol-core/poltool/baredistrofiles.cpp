@@ -8,7 +8,7 @@ namespace Pol
 {
 namespace PolTool
 {
-void BareDistro::distro_files( std::map<std::string, std::vector<std::string>>& distro )
+void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& distro )
 {
   distro.emplace( "scripts/start.src",
                   std::initializer_list<std::string>( {

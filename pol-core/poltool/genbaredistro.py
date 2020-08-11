@@ -6,7 +6,9 @@ import shutil
 
 url = 'https://github.com/polserver/BareDistro/archive/master.zip'
 r = urllib.request.urlopen(url)
-os.chdir(os.path.dirname(__file__))
+filedir=os.path.dirname(__file__)
+if filedir:
+    os.chdir(filedir)
 with zipfile.ZipFile(io.BytesIO(r.read())) as zipObj:
       zipObj.extractall()
 
@@ -22,7 +24,7 @@ namespace Pol
 {
 namespace PolTool
 {
-void BareDistro::distro_files( std::map<std::string, std::vector<std::string>>& distro )
+void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& distro )
 {
 ''')
     for root, dirs, files in os.walk(archivedir):
