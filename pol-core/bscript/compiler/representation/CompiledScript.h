@@ -18,7 +18,7 @@ class SourceFileIdentifier;
 class ModuleDescriptor;
 
 using CodeSection = std::vector<StoredToken>;
-using DataSection = std::vector<uint8_t>;
+using DataSection = std::vector<std::byte>;
 using ExportedFunctions = std::vector<ExportedFunction>;
 using ModuleDescriptors = std::vector<ModuleDescriptor>;
 using SourceFileIdentifiers = std::vector<std::unique_ptr<SourceFileIdentifier>>;

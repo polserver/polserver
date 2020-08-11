@@ -77,7 +77,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
 
   INFO_PRINT << "data section: offset " << ofs.tellp() << "\n";
 
-  const std::vector<uint8_t>& data = compiled_script.data;
+  const std::vector<std::byte>& data = compiled_script.data;
   u32 data_len = data.size();
   sechdr.type = BSCRIPT_SECTION_SYMBOLS;
   sechdr.length = sizeof data_len + data_len;

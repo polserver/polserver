@@ -7,6 +7,4 @@ SourceFileIdentifier::SourceFileIdentifier( unsigned index, std::string pathname
 {
 }
 
-SourceFileIdentifier::~SourceFileIdentifier() = default;
-
 }  // namespace Pol::Bscript::Compiler
