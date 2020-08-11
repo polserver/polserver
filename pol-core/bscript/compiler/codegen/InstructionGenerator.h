@@ -16,6 +16,9 @@ public:
   explicit InstructionGenerator( InstructionEmitter& );
 
 private:
+  // There are two of these because sometimes when calling a method
+  // on InstructionEmitter, the variable name reads better as a noun,
+  // and sometimes it reads better as a verb.
   InstructionEmitter& emitter;
   InstructionEmitter& emit;
 };
