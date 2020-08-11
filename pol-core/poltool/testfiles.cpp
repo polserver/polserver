@@ -67,6 +67,7 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
    */
   addland( &land[0x3], 0x04000000, "grass" );
   addland( &land[0xa8], 0x000000c0, "water" );
+  additem( &item[0xe75], 0x00600002, 3, 21,1, "backpack");
   additem( &item.back(), 1, 2, 3, 4, "test" );
 }
 
