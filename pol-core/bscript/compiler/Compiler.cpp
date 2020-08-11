@@ -12,6 +12,7 @@
 #include "codegen/CodeGenerator.h"
 #include "compilercfg.h"
 #include "format/CompiledScriptSerializer.h"
+#include "format/ListingWriter.h"
 #include "model/CompilerWorkspace.h"
 #include "optimizer/Optimizer.h"
 #include "representation/CompiledScript.h"
@@ -43,8 +44,13 @@ bool Compiler::write_ecl( const std::string& pathname )
   }
 }
 
-void Compiler::write_listing( const std::string& /*pathname*/ )
+void Compiler::write_listing( const std::string& pathname )
 {
+  if ( output )
+  {
+    std::ofstream ofs( pathname );
+    ListingWriter( *output ).write( ofs );
+  }
 }
 
 void Compiler::write_dbg( const std::string& /*pathname*/, bool /*include_debug_text*/ )
