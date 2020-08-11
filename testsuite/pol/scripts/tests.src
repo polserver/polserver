@@ -2,6 +2,7 @@ use uo;
 use os;
 include "maptests";
 include "chartests";
+include "npctests";
 
 program tests()
   syslog(
@@ -15,6 +16,8 @@ program tests()
 
   if (!account_test()) exitcode:=1; endif
   if (!char_test()) exitcode:=1; endif
+  
+  if (!npc_test()) exitcode:=1; endif
 
   
   var result:="success";
