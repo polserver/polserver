@@ -24,6 +24,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
   compiler/astbuilder/CompilerWorkspaceBuilder.h
+  compiler/codegen/CodeGenerator.cpp
+  compiler/codegen/CodeGenerator.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp
