@@ -9,7 +9,6 @@ class SourceFileIdentifier
 {
 public:
   SourceFileIdentifier( unsigned index, std::string pathname );
-  ~SourceFileIdentifier();
 
   const unsigned index;
   const std::string pathname;
