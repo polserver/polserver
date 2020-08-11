@@ -4,9 +4,9 @@
 #include "../clib/logfacility.h"
 #include "../clib/timer.h"
 
-#include "Report.h"
 #include "Profile.h"
 #include "Report.h"
+#include "analyzer/Disambiguator.h"
 #include "analyzer/SemanticAnalyzer.h"
 #include "astbuilder/CompilerWorkspaceBuilder.h"
 #include "compilercfg.h"
@@ -95,6 +95,10 @@ void Compiler::compile_file_steps( const std::string& pathname,
   if ( report.error_count() )
     return;
 
+  disambiguate( *workspace, report );
+  if ( report.error_count() )
+    return;
+
   analyze( *workspace, report);
   if ( report.error_count() )
     return;
@@ -124,6 +128,14 @@ void Compiler::optimize( CompilerWorkspace& workspace, Report& report )
   Optimizer optimizer( report );
   optimizer.optimize( workspace );
   profile.optimize_micros += timer.ellapsed().count();
+}
+
+void Compiler::disambiguate( CompilerWorkspace& workspace, Report& report )
+{
+  Pol::Tools::HighPerfTimer timer;
+  Disambiguator disambiguator( report );
+  disambiguator.disambiguate( workspace );
+  profile.disambiguate_micros += timer.ellapsed().count();
 }
 
 void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
