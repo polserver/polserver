@@ -37,8 +37,6 @@ CodeGenerator::CodeGenerator()
 {
 }
 
-CodeGenerator::~CodeGenerator() = default;
-
 void CodeGenerator::generate_instructions( CompilerWorkspace& )
 {
 }

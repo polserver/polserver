@@ -19,7 +19,6 @@ public:
 
 private:
   CodeGenerator();
-  ~CodeGenerator();
 
   void generate_instructions( CompilerWorkspace& );
 };
