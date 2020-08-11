@@ -33,7 +33,7 @@ set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS testenv)
 set_tests_properties(shard_cfgfiles PROPERTIES FIXTURES_SETUP shard)
 
 add_test(NAME shard_testscript
-  COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/start.src ../testsuite/pol/tests.src coretest/scripts
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ../testsuite/pol/scripts coretest/scripts
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_tests_properties(shard_testscript PROPERTIES DEPENDS testenv)
