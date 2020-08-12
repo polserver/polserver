@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "DeclarationBuilder.h"
+#include "ProgramBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -20,7 +20,8 @@ public:
   SourceFileProcessor( const SourceFileIdentifier&, BuilderWorkspace&, bool is_src );
 
 public:
-  long long use_module( const std::string& name, SourceLocation& including_location );
+  void use_module( const std::string& name, SourceLocation& including_location,
+                   long long* micros_counted = nullptr );
   void process_source( SourceFile& );
 
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ) override;
@@ -35,7 +36,7 @@ protected:
   const SourceFileIdentifier& source_file_identifier;
   BuilderWorkspace& workspace;
 
-  DeclarationBuilder tree_builder;
+  ProgramBuilder tree_builder;
 
 private:
   const bool is_src;

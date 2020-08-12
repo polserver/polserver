@@ -6,7 +6,7 @@
 #include <memory>
 #include <string>
 
-#include "DeclarationBuilder.h"
+#include "ModuleDeclarationBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -21,8 +21,6 @@ class ModuleProcessor : public EscriptGrammar::EscriptParserBaseVisitor
 public:
   ModuleProcessor( const SourceFileIdentifier&, BuilderWorkspace&, std::string modulename );
 
-  void process_module( long long* us_counted, SourceFile& sf );
-
   antlrcpp::Any visitModuleDeclarationStatement(
       EscriptGrammar::EscriptParser::ModuleDeclarationStatementContext* ) override;
   antlrcpp::Any visitUnambiguousModuleDeclarationStatement(
@@ -34,7 +32,7 @@ private:
   const SourceFileIdentifier& source_file_identifier;
   BuilderWorkspace& workspace;
 
-  DeclarationBuilder tree_builder;
+  ModuleDeclarationBuilder tree_builder;
   const std::string modulename;
 };
 

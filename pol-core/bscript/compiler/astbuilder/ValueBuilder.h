@@ -2,6 +2,7 @@
 #define POLSERVER_VALUEBUILDER_H
 
 #include "TreeBuilder.h"
+#include "EscriptGrammar/EscriptParser.h"
 
 namespace Pol::Bscript::Compiler
 {

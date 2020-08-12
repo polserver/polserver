@@ -20,6 +20,8 @@ public:
   std::atomic<long> parse_src_count;
   std::atomic<long> parse_em_count;
 
+  std::atomic<long long> load_em_micros;
+
   std::atomic<long long> parse_src_micros;
   std::atomic<long long> parse_em_micros;
 

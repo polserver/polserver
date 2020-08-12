@@ -958,6 +958,7 @@ bool run( int argc, char** argv, int* res )
       tmp << "    " << summary.UpToDateScripts << " script"
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
 
+    tmp << "        - load *.em: " << (long long)summary.profile.load_em_micros / 1000 << ")\n";
     tmp << "      - parse *.src: " << (long long)summary.profile.parse_src_micros / 1000 << " ("
         << (long)summary.profile.parse_src_count << ")\n";
     tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";

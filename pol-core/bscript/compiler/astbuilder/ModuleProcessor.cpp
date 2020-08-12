@@ -1,9 +1,6 @@
 #include "ModuleProcessor.h"
 
-#include "../clib/timer.h"
-
 #include "BuilderWorkspace.h"
-#include "DeclarationBuilder.h"
 #include "compiler/Profile.h"
 #include "compiler/file/SourceFile.h"
 
@@ -18,22 +15,6 @@ ModuleProcessor::ModuleProcessor( const SourceFileIdentifier& source_file_identi
     tree_builder( source_file_identifier, workspace ),
     modulename( std::move( modulename ) )
 {
-}
-
-void ModuleProcessor::process_module( long long* micros_counted, SourceFile& sf )
-{
-  Pol::Tools::HighPerfTimer get_module_unit_timer;
-  auto module_unit_context = sf.get_module_unit( report, source_file_identifier );
-  long long parse_elapsed = get_module_unit_timer.ellapsed().count();
-  profile.parse_em_micros += parse_elapsed;
-  profile.parse_em_count++;
-
-  Pol::Tools::HighPerfTimer load_module_unit_timer;
-  module_unit_context->accept( this );
-  long long ast_elapsed = load_module_unit_timer.ellapsed().count();
-  profile.ast_em_micros.fetch_add( ast_elapsed );
-
-  *micros_counted = parse_elapsed + ast_elapsed;
 }
 
 antlrcpp::Any ModuleProcessor::visitModuleDeclarationStatement(
