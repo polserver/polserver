@@ -51,7 +51,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
