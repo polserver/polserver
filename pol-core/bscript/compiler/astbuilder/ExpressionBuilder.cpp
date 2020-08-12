@@ -991,14 +991,10 @@ std::unique_ptr<BinaryOperator> ExpressionBuilder::membership_operator(
   // On the right-hand side, any of the following are valid:
   //   - an identifier: treat as the field name
   //   - an expression: evaluate and use as the field name
-  std::unique_ptr<Expression> rhs;
-  if ( auto identifier = ctx->IDENTIFIER() )
+  std::unique_ptr<Expression> rhs = expression( ctx->expression( 1 ) );
+  if ( auto identifier = dynamic_cast<Identifier*>( rhs.get() ) )
   {
-    rhs = std::make_unique<StringValue>( loc, text( identifier ) );
-  }
-  else
-  {
-    rhs = expression( ctx->expression( 1 ) );
+    rhs = std::make_unique<StringValue>( loc, identifier->name );
   }
 
   return std::make_unique<BinaryOperator>( loc, std::move( lhs ), std::move( op ), token_id,
