@@ -110,11 +110,17 @@ jobs:
         run: |
           cd bin-build
           ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
-      - name: Test (UOConvert)
+      - name: Test (Shard)
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -R uoconvert_
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+      - name: Upload shard test log
+        if: matrix.config.nopch == 0
+        uses: actions/upload-artifact@v1
+        with:
+          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          path: bin-build/coretest/log/pol.log
       - name: Stylecheck
         if: matrix.config.cxx-compiler == 'g++'
         run: |

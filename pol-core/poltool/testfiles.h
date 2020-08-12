@@ -3,6 +3,7 @@
 
 #include "../plib/ustruct.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -10,10 +11,11 @@ namespace Pol
 {
 namespace PolTool
 {
+namespace fs = std::filesystem;
 class FileGenerator
 {
 public:
-  FileGenerator( std::string basedir, bool hsa, int maxtiles, int width, int height );
+  FileGenerator( fs::path basedir, bool hsa, int maxtiles, int width, int height );
   void generateTiledata();
   void generateMap();
   void generateStatics();
@@ -39,7 +41,7 @@ private:
   template <typename T>
   static void writeFile( std::ofstream& stream, T& data );
 
-  std::string _basedir;
+  fs::path _basedir;
   bool _hsa;
   int _maxtiles;
   int _width;
