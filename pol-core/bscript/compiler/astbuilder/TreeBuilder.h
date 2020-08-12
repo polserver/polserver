@@ -2,6 +2,7 @@
 #define POLSERVER_TREEBUILDER_H
 
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace antlr4
