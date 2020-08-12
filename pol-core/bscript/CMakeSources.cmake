@@ -38,6 +38,8 @@ set (bscript_sources    # sorted !
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp
   compiler/file/ErrorListener.h
+  compiler/file/SourceFile.cpp
+  compiler/file/SourceFile.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
   compiler/file/SourceLocation.cpp

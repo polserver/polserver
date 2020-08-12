@@ -1,5 +1,7 @@
 #include "BuilderWorkspace.h"
 
+#include "compiler/file/SourceFile.h"
+
 namespace Pol::Bscript::Compiler
 {
 BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace, Profile& profile,
