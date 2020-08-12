@@ -22,6 +22,7 @@ private:
   void generate_instructions( CompilerWorkspace& );
 
 private:
+  // Verb vs noun - see InstructionGenerator for reasoning
   InstructionEmitter& emitter;
   InstructionEmitter& emit;
 };
