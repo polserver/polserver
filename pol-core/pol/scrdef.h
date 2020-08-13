@@ -46,17 +46,26 @@ public:
   const Plib::Package* pkg() const { return pkg_; }
   bool exists() const;
 
+  // Script path that can be used from any package ("::scriptname", ":pkg:scriptname"). Empty if
+  // script is not defined.
+  std::string qualifiedname() const;
+  // Script path relative to a given package. Empty if script is not defined.
   std::string relativename( const Plib::Package* pkg = nullptr ) const;
   size_t estimatedSize() const;
 
 private:
+  // localname_ is "scriptname" (whatever is left after ":pkgname:" or "::" is removed, may contain
+  // slashes)
   boost_utils::script_name_flystring localname_;
+  // name_ is the physical location on disk relative to the core (always ends in .ecl).
   boost_utils::script_name_flystring name_;
+  // pkg_ points to the package where the script exists. May be a nullptr (e.g., if the script is in
+  // "scripts/").
   const Plib::Package* pkg_;
 
 private:  // not implemented
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

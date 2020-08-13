@@ -4,6 +4,7 @@ message("* (${lib_name})")
 
 #custom target to show it in IDEs
 add_custom_target(${lib_name} SOURCES
+  breaking-changes.txt
   core-changes.txt
   packets.zip
   uoconvert.txt
@@ -11,6 +12,7 @@ add_custom_target(${lib_name} SOURCES
 )
 
 install(FILES
+  breaking-changes.txt
   core-changes.txt
   packets.zip
   uoconvert.txt

@@ -1,4 +1,9 @@
 ﻿-- POL100 --
+08-13-2020 Nando:
+  Changed: item.hitscript and item.onhitscript now always return the full path to the script (":pkgname:scriptname").
+           Before, if the item was defined on the same package as the script, only "scriptname" was returned.
+           POTENTIAL BREAKING CHANGE!
+           
 08-09-2020 Turley:
     Added: new argument "outdir" for uoconvert tiles/landtiles/multis this allows to define a different directory then the current workdirectory for the produced cfgs
 08-04-2020 AsYlum:
