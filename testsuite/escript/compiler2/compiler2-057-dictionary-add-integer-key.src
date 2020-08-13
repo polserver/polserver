@@ -1,0 +1,3 @@
+var d := dictionary{};
+d[11] := "an element";
+print(d);

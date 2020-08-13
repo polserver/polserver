@@ -1,0 +1,11 @@
+// We need to make sure that any references to a variable with the
+// same name as the iterator refer to the _shadowed_ variable,
+// not the iterator itself.  Also, the iterator is
+// not valid in the expression!
+
+var a := 1;
+var b := 8;
+
+for a := a to b
+   print(a);
+endfor;

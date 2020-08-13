@@ -1,0 +1,4 @@
+const VALUE := 4 + 7;
+
+print(VALUE);
+

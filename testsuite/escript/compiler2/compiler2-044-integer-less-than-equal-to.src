@@ -1,0 +1,11 @@
+var a := 6;
+
+if ( a <= 5 )
+    print("incorrect");
+endif
+if ( a <= 6 )
+    print("correct");
+endif
+if ( a <= 7 )
+    print("correct");
+endif

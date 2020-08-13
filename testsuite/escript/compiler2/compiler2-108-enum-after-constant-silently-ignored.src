@@ -1,0 +1,7 @@
+const A := 52;
+
+enum B
+    A := 37   // really, expect a compiler error but..
+endenum
+
+print(A); // expect 52

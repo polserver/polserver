@@ -1,0 +1,10 @@
+const a := 8;
+var b := 7;
+
+if (a)
+    print("correct - first path");
+elseif (b)
+    print("incorrect - second path");
+else
+    print("incorrect - third path");
+endif

@@ -1,0 +1,5 @@
+var i := 6;
+repeat
+    print(i);
+    i := i + 1;
+until (i == 11);

@@ -1,0 +1,10 @@
+function foo( byref elem )
+    elem := 12;
+endfunction
+
+program array12()
+    var a := { 82, 43, 56, 23, 51 };
+    print(a);
+    foo( a[2] );
+    print(a);
+endprogram
