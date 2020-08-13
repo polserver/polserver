@@ -14,12 +14,28 @@ jobs:
             compiler-version: default
             build-type: Release
             nopch: 1
+            ninja: 1
           - os: "windows-latest"
             cxx-compiler: clang-cl
             c-compiler: clang-cl
             compiler-version: default
             build-type: Release
             nopch: 1
+            ninja: 1
+          - os: "windows-latest"
+            cxx-compiler: cl
+            c-compiler: cl
+            compiler-version: default
+            build-type: Debug
+            nopch: 1
+            ninja: 0
+          - os: "windows-latest"
+            cxx-compiler: clang-cl
+            c-compiler: clang-cl
+            compiler-version: default
+            build-type: Debug
+            nopch: 1
+            ninja: 0
 
     runs-on: ${{ matrix.config.os }}
 
@@ -31,12 +47,12 @@ jobs:
         uses: actions/cache@v1
         with:
           path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-curl-7.57.0
       - name: Cache antlr
         uses: actions/cache@v1
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-antlr-buildtypefix
  
       - name: Install llvm
         if: matrix.config.cxx-compiler == 'clang-cl'
@@ -61,14 +77,26 @@ jobs:
           echo "::set-env name=CXX::$cxx_compiler"
           echo "::set-env name=CC::$c_compiler"
 
-      - name: Config
+      - name: Config (Ninja)
+        if: matrix.config.ninja == 1
         run: |
           cd bin-build
-          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
-      - name: Build
+          cmake .. -GNinja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+      - name: Config (msbuild)
+        if: matrix.config.ninja == 0
+        run: |
+          cd bin-build
+          cmake .. -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+      - name: Build (Ninja)
+        if: matrix.config.ninja == 1
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
+      - name: Build (msbuild)
+        if: matrix.config.ninja == 0
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }}  -- /nologo /verbosity:minimal /maxcpucount
  
   notify_on_failure:
     needs: build
