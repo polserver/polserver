@@ -34,5 +34,11 @@
     - Removed: pol.cfg option "Multithread". POL is now always multithreaded. 
     - Removed: method os::System_RPM(). It was only useful for singlethreaded POL.
 
+# >> Older breaking changes in POL100 might be missing here. Let us know if you find any. <<
+    
+2018-02-11:
+    - UO::Accessible(chr, item, range := ACCESSIBLE_DEFAULT) now checks for the item distance to chr. 
+      The default was always documented as 2 tiles. But due to a bug, it could be up to 18 tiles.
+
 -- POL099 --
 # For 099 and older please read core-changes.txt.
