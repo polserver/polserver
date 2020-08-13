@@ -1,8 +1,7 @@
 use uo;
 use os;
-include "maptests";
-include "chartests";
-include "npctests";
+use polsys;
+use file;
 
 program tests()
   syslog(
@@ -10,16 +9,44 @@ program tests()
     + "#  starting testscripts  #\n"
     + "##########################\n");
   var exitcode:=0;
-
-  if (!mapinfo_test()) exitcode:=1; endif
-  if (!statics_test()) exitcode:=1; endif
-
-  if (!account_test()) exitcode:=1; endif
-  if (!char_test()) exitcode:=1; endif
+  var testpkgs:={};
+  foreach pkg in Packages()
+    if (pkg.dir.find("testpkgs")==1)
+      testpkgs.append({pkg.name,pkg.desc});
+    endif
+  endforeach
+  testpkgs.sort(1);
   
-  if (!npc_test()) exitcode:=1; endif
+  foreach pkg in testpkgs
+    syslog(pkg[2]);
+    var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
+    if ("setup.ecl" in scripts)
+      syslog("  Calling setup.ecl..");
+      var res:=run_script(":{}:setup.ecl".format(pkg[1]));
+      if (res != 1)
+        syslog("    failed: "+res);
+        exitcode:=1;
+        continue;
+      endif
+    endif
+    foreach file in scripts
+      if (file.find("test") != 1)
+        continue;
+      endif
+      syslog("  Calling {}..".format(file));
+      var res:=run_script(":{}:{}".format(pkg[1], file));
+      if (res != 1)
+        syslog("    failed: "+res);
+        exitcode:=1;
+        continue;
+      endif
+    endforeach
+    if ("cleanup.ecl" in scripts)
+      syslog("  Calling cleanup.ecl..");
+      run_script(":{}:cleanup.ecl".format(pkg[1]));
+    endif
+  endforeach
 
-  
   var result:="success";
   if (exitcode)
     result:="failed ";

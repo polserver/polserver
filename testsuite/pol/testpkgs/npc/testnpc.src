@@ -1,0 +1,18 @@
+use uo;
+use os;
+
+var npc:=CreateNPCFromTemplate(":testnpc:test",100,100,0);
+if (!npc)
+  return error{errortext:="Could not create NPC: "+npc};
+endif
+
+while(1)
+  sleepms(10);
+  if (!npc)
+    break;
+  elseif (!npc.process)
+    return error{errortext:=npc.getprop("testerror")};
+  endif
+endwhile
+
+return 1;

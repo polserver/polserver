@@ -1,0 +1,23 @@
+use os;
+use uo;
+  
+var a:=FindAccount("test");
+var char:=a.getcharacter(1);
+if (!char)
+  return error{errortext := "Could not find char at slot 1"};
+endif
+
+var backpack:=CreateItemAtLocation(0,0,0,0xE75);
+var res:=EquipItem(char,backpack);
+if (!res)
+  return error{errortext := "Failed to equip backpack "+backpack+" "+res};
+endif
+  
+backpack.damage_cold_mod:=10;
+if (char.damage_cold != 10)
+  return error{errortext := "failed to apply equipped aos prop"};
+endif
+char.damage_cold_mod+=10;
+if (char.damage_cold != 20)
+  return error{errortext := "failed to apply aos prop mod"};
+endif
