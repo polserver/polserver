@@ -4396,7 +4396,8 @@ BObjectImp* UWeapon::get_script_member_id( const int id ) const
     return new String( attribute().name );
     break;
   case MBR_HITSCRIPT:
-    return new String( hit_script_.relativename( tmpl->pkg ) );
+    // bad method name? nullptr makes it return the fullpath
+    return new String( hit_script_.relativename( nullptr ) );
     break;
   default:
     return nullptr;
@@ -4503,7 +4504,8 @@ BObjectImp* UArmor::get_script_member_id( const int id ) const
     return new BLong( ar_base() );
     break;
   case MBR_ONHIT_SCRIPT:
-    return new String( onhitscript_.relativename( tmpl->pkg ) );
+    // bad method name? nullptr makes it return the fullpath
+    return new String( onhitscript_.relativename( nullptr ) );
     break;
   default:
     return nullptr;
