@@ -1,0 +1,9 @@
+use os;
+use uo;
+var a:=FindAccount("test");
+if (a)
+  a.deletecharacter(0);
+  a.delete();
+endif
+
+return 1;

@@ -46,6 +46,12 @@ add_test(NAME shard_testconfig
 set_tests_properties(shard_testconfig PROPERTIES DEPENDS testenv)
 set_tests_properties(shard_testconfig PROPERTIES FIXTURES_SETUP shard)
 
+add_test(NAME shard_testpkgs
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ../testsuite/pol/testpkgs coretest/testpkgs
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties(shard_testpkgs PROPERTIES DEPENDS testenv)
+set_tests_properties(shard_testpkgs PROPERTIES FIXTURES_SETUP shard)
 
 # uoconvert part
 

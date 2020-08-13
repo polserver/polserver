@@ -1,0 +1,10 @@
+use os;
+use uo;
+
+var a:=FindAccount("test");
+if (!a)
+  a:=CreateAccount("test","pass",1);
+endif
+a.addcharacter(0);
+
+return 1;
