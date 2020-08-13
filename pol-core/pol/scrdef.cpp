@@ -99,9 +99,14 @@ bool ScriptDef::config_nodie( const std::string& iname, const Plib::Package* ipk
   return true;
 }
 
+std::string ScriptDef::qualifiedname() const
+{
+  return relativename( nullptr );
+}
+
 std::string ScriptDef::relativename( const Plib::Package* pkg ) const
 {
-  if ( name_ == "" )
+  if ( empty() )
     return "";
   else if ( pkg == pkg_ )
     return localname_;
