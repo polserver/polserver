@@ -16,11 +16,12 @@
 #include <string>
 #include <vector>
 
-#include "../../plib/mapshape.h"
-#include "../../plib/realmdescriptor.h"
-#include "../../plib/uconst.h"
-#include "../../plib/udatfile.h"
-#include "WorldChangeReasons.h"
+#include "plib/mapshape.h"
+#include "plib/realmdescriptor.h"
+#include "plib/uconst.h"
+#include "plib/udatfile.h"
+
+#include "realms/WorldChangeReasons.h"
 
 
 namespace Pol

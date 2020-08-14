@@ -8,9 +8,10 @@
 #include <stdlib.h>
 #include <string>
 
-#include "../bscript/eprog.h"
-#include "../clib/refptr.h"
-#include "../plib/systemstate.h"
+#include "bscript/eprog.h"
+#include "clib/refptr.h"
+#include "plib/systemstate.h"
+
 #include "globals/network.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
