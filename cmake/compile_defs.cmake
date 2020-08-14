@@ -4,6 +4,14 @@ function(set_compile_flags target is_executable)
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
     ${PROJECT_BINARY_DIR} #global config
   )
+  
+  # Add 'pol-core' to the include search path of all the projects in it
+  if (${INCLUDE_POLCORE_DIR})    
+    target_include_directories(${target} PRIVATE
+    ${POLCORE_DIR} # path to pol-core
+    )
+  endif()
+
   target_include_directories(${target} SYSTEM PRIVATE
     ${BOOST_SOURCE_DIR} # boost
     "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
