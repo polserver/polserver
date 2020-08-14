@@ -59,6 +59,7 @@ include(TestBigEndian)
 
 include(cmake/init.cmake)
 
+set(POL_EXT_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
 
 message("####################################")

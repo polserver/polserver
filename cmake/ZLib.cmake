@@ -1,25 +1,25 @@
 # windows only: build zlib
 set(z_sources 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/adler32.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/compress.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/crc32.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/crc32.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/deflate.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/deflate.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inffast.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inffast.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inffixed.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inflate.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inflate.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inftrees.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/inftrees.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/trees.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/trees.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/uncompr.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/zconf.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/zlib.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/zutil.c
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/zlib/zutil.h
+  ${POL_EXT_LIB_DIR}/zlib/adler32.c
+  ${POL_EXT_LIB_DIR}/zlib/compress.c
+  ${POL_EXT_LIB_DIR}/zlib/crc32.c
+  ${POL_EXT_LIB_DIR}/zlib/crc32.h
+  ${POL_EXT_LIB_DIR}/zlib/deflate.c
+  ${POL_EXT_LIB_DIR}/zlib/deflate.h
+  ${POL_EXT_LIB_DIR}/zlib/inffast.c
+  ${POL_EXT_LIB_DIR}/zlib/inffast.h
+  ${POL_EXT_LIB_DIR}/zlib/inffixed.h
+  ${POL_EXT_LIB_DIR}/zlib/inflate.c
+  ${POL_EXT_LIB_DIR}/zlib/inflate.h
+  ${POL_EXT_LIB_DIR}/zlib/inftrees.c
+  ${POL_EXT_LIB_DIR}/zlib/inftrees.h
+  ${POL_EXT_LIB_DIR}/zlib/trees.c
+  ${POL_EXT_LIB_DIR}/zlib/trees.h
+  ${POL_EXT_LIB_DIR}/zlib/uncompr.c
+  ${POL_EXT_LIB_DIR}/zlib/zconf.h
+  ${POL_EXT_LIB_DIR}/zlib/zlib.h
+  ${POL_EXT_LIB_DIR}/zlib/zutil.c
+  ${POL_EXT_LIB_DIR}/zlib/zutil.h
 )
 
 set(lib_name z)

@@ -1,5 +1,5 @@
 message("* boost")
-set (BOOST_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_67_0")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_67_0")
 
 if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   # build disabled no need currenty
