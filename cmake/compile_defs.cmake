@@ -14,9 +14,9 @@ function(set_compile_flags target is_executable)
 
   target_include_directories(${target} SYSTEM PRIVATE
     ${BOOST_SOURCE_DIR} # boost
-    "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
-    "${CMAKE_CURRENT_LIST_DIR}/../../lib/picojson-1.3.0" #pico
-    "${CMAKE_CURRENT_LIST_DIR}/../../lib/kaitai-runtime" #kaitai
+    "${POL_EXT_LIB_DIR}" #format/, antlr/, tinyxml/, etc
+    "${POL_EXT_LIB_DIR}/picojson-1.3.0" #pico
+    "${POL_EXT_LIB_DIR}/kaitai-runtime" #kaitai
   )
 
   target_compile_definitions(${target} PRIVATE
@@ -255,6 +255,17 @@ function(use_benchmark target)
   if (ENABLE_BENCHMARK)
     target_link_libraries(${target} PUBLIC benchmark)
   endif()
+endfunction()
+
+function(use_zlib target)
+    if(${windows})
+      target_include_directories(${target}  PRIVATE
+        "${POL_EXT_LIB_DIR}/zlib"
+      )
+    endif()
+    target_link_libraries(${target} PRIVATE
+      z
+    )
 endfunction()
 
 function(warning_suppression target)

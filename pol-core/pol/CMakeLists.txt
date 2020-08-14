@@ -14,13 +14,13 @@ warning_suppression(${ex_name})
 enable_pch(${ex_name})
 use_curl(${ex_name})
 use_benchmark(${ex_name})
+use_zlib(${ex_name})
 
 target_link_libraries(${ex_name} PUBLIC
   bscript
   clib
   plib
   tinyxml
-  z
 )
 if (${linux})
   target_link_libraries(${ex_name} PUBLIC
@@ -32,9 +32,9 @@ endif()
 if(HAVE_MYSQL)
   if(${windows})
     if (${ARCH_BITS} EQUAL "64")
-      set(mysql_path ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-winx64)
+      set(mysql_path ${POL_EXT_LIB_DIR}/mysql-connector-c-6.0.2-winx64)
     else()
-      set(mysql_path ${CMAKE_CURRENT_LIST_DIR}/../../lib/mysql-connector-c-6.0.2-win32)
+      set(mysql_path ${POL_EXT_LIB_DIR}/mysql-connector-c-6.0.2-win32)
     endif()
 
     target_include_directories(${ex_name} PUBLIC
