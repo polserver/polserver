@@ -312,7 +312,6 @@ set (pol_sources  # sorted !
   polwww.cpp
   polwww.h
   profile.h
-  property.h
   proplist.cpp
   proplist.h
   realms.cpp
