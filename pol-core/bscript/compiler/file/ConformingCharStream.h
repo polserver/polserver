@@ -1,7 +1,7 @@
 #ifndef POLSERVER_CONFORMINGCHARSTREAM_H
 #define POLSERVER_CONFORMINGCHARSTREAM_H
 
-#include "antlr4-runtime.h"
+#include <antlr4-runtime.h>
 
 namespace Pol::Bscript::Compiler
 {
