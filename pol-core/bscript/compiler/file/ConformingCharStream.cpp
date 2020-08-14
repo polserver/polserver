@@ -6,14 +6,14 @@ namespace Pol::Bscript::Compiler
 {
 size_t ConformingCharStream::LA( ssize_t i )
 {
-  int c = stream->LA( i );
-  if ( c <= 0 )
+  size_t c = stream->LA( i );
+  if ( c == CharStream::EOF )
   {
     return c;
   }
 
-  if ( std::isupper( c ) )
-    return std::tolower( c );
+  if ( std::isupper( static_cast<unsigned char>( c ) ) )
+    return std::tolower( static_cast<unsigned char>( c ) );
 
   return c;
 }
