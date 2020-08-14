@@ -19,11 +19,8 @@
 #include "testfiles.h"
 #include "testenv.h"
 #include <format/format.h>
-#ifdef USE_SYSTEM_ZLIB
+
 #include <zlib.h>
-#else
-#include "../../lib/zlib/zlib.h"
-#endif
 
 namespace Pol
 {
