@@ -31,7 +31,7 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             echo "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev -y
+          sudo apt-get install mysql-client libmysqlclient-dev uuid-dev -y
           
           $cmake_version = "3.16.2"
           $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
