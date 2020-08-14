@@ -5,6 +5,7 @@
 
 #include "compiler/Report.h"
 #include "compiler/file/SourceFileIdentifier.h"
+#include "compilercfg.h"
 
 using EscriptGrammar::EscriptLexer;
 using EscriptGrammar::EscriptParser;
