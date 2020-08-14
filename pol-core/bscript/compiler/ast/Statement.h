@@ -17,10 +17,6 @@ public:
       : Node( source_location, std::move( children ) )
   {
   }
-
-  //  template<typename... Args>
-  //  explicit Statement( const SourceContext& source_location, Args&&... args) :
-  //    Node( source_location, std::forward<Args>(args)...) {}
 };
 
 }  // namespace Pol::Bscript::Compiler

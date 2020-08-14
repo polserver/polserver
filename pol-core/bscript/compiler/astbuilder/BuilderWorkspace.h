@@ -13,6 +13,7 @@ class Report;
 class SourceFile;
 class SourceFileCache;
 class SourceFileIdentifier;
+class Statement;
 
 class BuilderWorkspace
 {
