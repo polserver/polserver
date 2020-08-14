@@ -1,8 +1,9 @@
 #runs every friday
 name: coverity-scan
-on:
-  schedule:
-    - cron: '0 0 * * 5'
+#on:
+#  schedule:
+#    - cron: '0 0 * * 5'
+on: [push, pull_request]
 
 jobs:
   coverity:
@@ -59,6 +60,7 @@ jobs:
           cd bin-build
           cmake ..
           cmake --build . --target libcurl
+          cmake --build . --target libantlr_ex
           cmake --build . --target boost
 
       - name: Build with cov-build
