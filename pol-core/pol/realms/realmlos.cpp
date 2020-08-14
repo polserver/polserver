@@ -4,13 +4,15 @@
  */
 #include <stdlib.h>
 
-#include "../../clib/rawtypes.h"
-#include "../../plib/mapcell.h"
-#include "../baseobject.h"
-#include "../item/item.h"
-#include "../mobile/charactr.h"
-#include "../uworld.h"
-#include "realm.h"
+#include "clib/rawtypes.h"
+#include "plib/mapcell.h"
+
+#include "baseobject.h"
+#include "item/item.h"
+#include "mobile/charactr.h"
+#include "realms/realm.h"
+#include "uworld.h"
+
 
 namespace Pol
 {
