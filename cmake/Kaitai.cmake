@@ -1,8 +1,8 @@
 set(kaitai_sources 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/kaitai-runtime/kaitai/custom_decoder.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/kaitai-runtime/kaitai/kaitaistream.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/kaitai-runtime/kaitai/kaitaistream.h
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/kaitai-runtime/kaitai/kaitaistruct.h
+  ${POL_EXT_LIB_DIR}/kaitai-runtime/kaitai/custom_decoder.h
+  ${POL_EXT_LIB_DIR}/kaitai-runtime/kaitai/kaitaistream.cpp
+  ${POL_EXT_LIB_DIR}/kaitai-runtime/kaitai/kaitaistream.h
+  ${POL_EXT_LIB_DIR}/kaitai-runtime/kaitai/kaitaistruct.h
 )
  
 set(lib_name kaitai)
@@ -13,17 +13,12 @@ add_library(${lib_name} STATIC
 set_compile_flags(${lib_name} 0)
 
 target_include_directories(${lib_name}  PRIVATE
-  "${CMAKE_CURRENT_LIST_DIR}/../lib/kaitai-runtime"
+  "${POL_EXT_LIB_DIR}/kaitai-runtime"
 )
-if(${windows})
-  target_include_directories(${lib_name}  PRIVATE
-    "${CMAKE_CURRENT_LIST_DIR}/../lib/zlib"
-  )
-endif()
-target_link_libraries(${lib_name} PRIVATE
-  z
-)
+
+use_zlib(${lib_name})
 warning_suppression(${lib_name})
+
 target_compile_definitions(${lib_name} PRIVATE
   KS_STR_ENCODING_NONE
 )

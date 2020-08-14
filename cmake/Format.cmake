@@ -3,8 +3,8 @@
 #but better then having the cpp added to clib, like its was before
 
 set(format_sources 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/format/format.cc 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/format/format.h)
+  ${POL_EXT_LIB_DIR}/format/format.cc 
+  ${POL_EXT_LIB_DIR}/format/format.h)
 
 set(lib_name format)
 

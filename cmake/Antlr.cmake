@@ -12,7 +12,7 @@
 #    target_compile_options(antlr4_static PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 
 message("* antlr")
-set(ANTLR_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/antlr")
+set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr")
 set(ANTLR_INSTALL_DIR "${ANTLR_SOURCE_DIR}/install")
 set(ANTLR_INCLUDE_DIR "${ANTLR_INSTALL_DIR}/include/antlr4-runtime")
 if (${linux})
