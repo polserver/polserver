@@ -3,9 +3,8 @@
 #include <cstring>
 #include <fstream>
 
-#include "../clib/clib.h"
-#include "../clib/logfacility.h"
-
+#include "clib/clib.h"
+#include "clib/logfacility.h"
 #include "compiler/representation/CompiledScript.h"
 #include "compiler/representation/ExportedFunction.h"
 #include "compiler/representation/ModuleDescriptor.h"

@@ -2,7 +2,8 @@
 #define POLSERVER_STOREDTOKENDECODER_H
 
 #include <vector>
-#include "../clib/formatfwd.h"
+
+#include "clib/formatfwd.h"
 
 namespace Pol::Bscript
 {

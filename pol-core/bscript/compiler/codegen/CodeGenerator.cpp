@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "InstructionEmitter.h"
-#include "InstructionGenerator.h"
 #include "StoredToken.h"
+#include "compiler/codegen/InstructionEmitter.h"
+#include "compiler/codegen/InstructionGenerator.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/CompilerWorkspace.h"
 #include "compiler/representation/CompiledScript.h"

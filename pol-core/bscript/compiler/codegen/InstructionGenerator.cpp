@@ -1,6 +1,6 @@
 #include "InstructionGenerator.h"
 
-#include "InstructionEmitter.h"
+#include "compiler/codegen/InstructionEmitter.h"
 
 namespace Pol::Bscript::Compiler
 {
