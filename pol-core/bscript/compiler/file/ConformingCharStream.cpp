@@ -12,7 +12,7 @@ size_t ConformingCharStream::LA( ssize_t i )
     return c;
   }
 
-  if ( std::isupper( static_cast<unsigned char>( c ) ) )
+  if ( c < 128 ) // to avoid std::tolower "undefined behavior"
     return std::tolower( static_cast<unsigned char>( c ) );
 
   return c;
