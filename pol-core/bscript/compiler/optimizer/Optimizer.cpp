@@ -1,7 +1,6 @@
 #include "Optimizer.h"
 
-#include "../clib/logfacility.h"
-
+#include "clib/logfacility.h"
 #include "compiler/Report.h"
 #include "compiler/model/CompilerWorkspace.h"
 

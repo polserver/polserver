@@ -1,9 +1,9 @@
 #include "CompilerWorkspaceBuilder.h"
 
-#include "BuilderWorkspace.h"
 #include "compiler/LegacyFunctionOrder.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/file/SourceLocation.h"

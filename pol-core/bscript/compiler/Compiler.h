@@ -1,7 +1,7 @@
 #ifndef POLSERVER_COMPILER_H
 #define POLSERVER_COMPILER_H
 
-#include "../facility/Compiler.h"
+#include "bscript/facility/Compiler.h"
 
 #include <memory>
 

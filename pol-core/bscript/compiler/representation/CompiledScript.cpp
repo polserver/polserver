@@ -2,11 +2,11 @@
 
 #include <utility>
 
-#include "compiler/file/SourceFileIdentifier.h"
-#include "ExportedFunction.h"
-#include "ModuleDescriptor.h"
-#include "ModuleFunctionDescriptor.h"
 #include "StoredToken.h"
+#include "compiler/file/SourceFileIdentifier.h"
+#include "compiler/representation/ExportedFunction.h"
+#include "compiler/representation/ModuleDescriptor.h"
+#include "compiler/representation/ModuleFunctionDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -14,8 +14,8 @@
 #ifndef __TOKENS_H
 #include "tokens.h"
 #endif
-#include "CodeEmitter.h"
-#include "DataEmitter.h"
+#include "compiler/codegen/CodeEmitter.h"
+#include "compiler/codegen/DataEmitter.h"
 #include "compiler/representation/CompiledScript.h"
 
 namespace Pol::Bscript

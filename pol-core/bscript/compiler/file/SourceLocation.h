@@ -1,8 +1,9 @@
 #ifndef POLSERVER_SOURCELOCATION_H
 #define POLSERVER_SOURCELOCATION_H
 
-#include "../clib/formatfwd.h"
 #include <string>
+
+#include "clib/formatfwd.h"
 
 namespace antlr4
 {

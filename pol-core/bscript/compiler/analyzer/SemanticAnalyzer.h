@@ -6,7 +6,7 @@
 #include <map>
 #include <memory>
 
-#include "../clib/maputil.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {

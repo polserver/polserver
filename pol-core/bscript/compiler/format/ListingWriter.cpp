@@ -2,9 +2,9 @@
 
 #include <fstream>
 
-#include "compiler/representation/CompiledScript.h"
 #include "StoredToken.h"
-#include "StoredTokenDecoder.h"
+#include "compiler/format/StoredTokenDecoder.h"
+#include "compiler/representation/CompiledScript.h"
 
 namespace Pol::Bscript::Compiler
 {
