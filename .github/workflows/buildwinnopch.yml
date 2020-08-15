@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
-      - uses: seanmiddleditch/gha-setup-vsdevenv@master
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v1
       - name: Cache curl
         uses: actions/cache@v1
         with:
