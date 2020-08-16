@@ -71,6 +71,7 @@ void SourceFileCache::keep_some()
     return;
 
   std::vector<SourceFileAndFrequency> pathname_frequencies;
+  pathname_frequencies.reserve(files.size());
   for ( auto& kv : files )
   {
     pathname_frequencies.push_back( SourceFileAndFrequency{ kv.second, frequency[kv.first] } );
