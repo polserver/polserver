@@ -20,7 +20,7 @@
 #include "../plib/poltype.h"
 #include "globals/uvars.h"
 #include "proplist.h"
-#include "realms.h"
+#include "realms/realms.h"
 #include "realms/realm.h"
 #include "zone.h"
 

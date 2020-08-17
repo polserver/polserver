@@ -314,8 +314,8 @@ set (pol_sources  # sorted !
   profile.h
   proplist.cpp
   proplist.h
-  realms.cpp
-  realms.h
+  realms/realms.cpp
+  realms/realms.h
   realms/WorldChangeReasons.h
   realms/realm.cpp
   realms/realm.h

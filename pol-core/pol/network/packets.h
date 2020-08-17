@@ -24,7 +24,7 @@
 #include "../../clib/strutil.h"
 #include "../../plib/uconst.h"
 #include "../layers.h"
-#include "../realms.h"
+#include "realms/realms.h"
 #include "packetinterface.h"
 #include "pktboth.h"
 #include "pktbothid.h"

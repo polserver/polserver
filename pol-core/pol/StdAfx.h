@@ -29,7 +29,7 @@
 #include "network/pktbothid.h"        // network/packets include
 #include "network/pktdef.h"           // network/packets include
 #include "network/pktoutid.h"         // network/packets include
-#include "realms.h"                   // network/packets include
+#include "realms/realms.h"            // network/packets include
 
 #include "network/packets.h"
 

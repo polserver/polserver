@@ -99,7 +99,7 @@
 #include "polclass.h"
 #include "polclock.h"
 #include "proplist.h"
-#include "realms.h"
+#include "realms/realms.h"
 #include "realms/realm.h"
 #include "spelbook.h"
 #include "statmsg.h"

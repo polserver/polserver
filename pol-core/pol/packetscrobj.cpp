@@ -31,7 +31,7 @@
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/clienttransmit.h"
-#include "realms.h"
+#include "realms/realms.h"
 #include "realms/realm.h"
 #include "uworld.h"
 #include "uoexec.h"
