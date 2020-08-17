@@ -29,7 +29,7 @@
 #include "network/pktbothid.h"        // network/packets include
 #include "network/pktdef.h"           // network/packets include
 #include "network/pktoutid.h"         // network/packets include
-#include "realms.h"                   // network/packets include
+#include "realms/realms.h"            // network/packets include
 
 #include "network/packets.h"
 
@@ -39,7 +39,7 @@
 #include "../plib/poltype.h"  // region include
 #include "zone.h"             // region include
 
-#include "region.h"
+#include "regions/region.h"
 
 #include "../plib/clidata.h"
 #include "../plib/udatfile.h"

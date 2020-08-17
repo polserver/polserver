@@ -44,7 +44,7 @@
 #include "../multi/multidef.h"
 #include "../network/pktdef.h"
 #include "../proplist.h"
-#include "../resource.h"
+#include "regions/resource.h"
 #include "../syshookscript.h"
 #include "../uobject.h"
 #include "armrtmpl.h"

@@ -11,7 +11,7 @@
 #include "../plib/stlastar.h"
 #include "realms/realm.h"
 
-#include "realms.h"
+#include "realms/realms.h"
 
 namespace Pol
 {

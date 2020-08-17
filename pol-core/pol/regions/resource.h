@@ -15,7 +15,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../plib/poltype.h"
-#include "region.h"
+#include "regions/region.h"
 #include "zone.h"
 
 namespace Pol

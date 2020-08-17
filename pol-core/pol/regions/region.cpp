@@ -11,16 +11,17 @@
 #include <string>
 #include <tuple>
 
-#include "../bscript/berror.h"
-#include "../bscript/impstr.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/stlutil.h"
-#include "../plib/poltype.h"
+#include "bscript/berror.h"
+#include "bscript/impstr.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/stlutil.h"
+#include "plib/poltype.h"
+
 #include "globals/uvars.h"
 #include "proplist.h"
-#include "realms.h"
+#include "realms/realms.h"
 #include "realms/realm.h"
 #include "zone.h"
 

@@ -64,7 +64,7 @@
 #include "layers.h"
 #include "lightlvl.h"
 #include "mdelta.h"
-#include "miscrgn.h"
+#include "regions/miscrgn.h"
 #include "mobile/charactr.h"
 #include "mobile/corpse.h"
 #include "multi/multi.h"

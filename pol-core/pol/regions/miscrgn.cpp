@@ -11,8 +11,9 @@
 #include <stddef.h>
 #include <tuple>
 
-#include "../clib/cfgelem.h"
-#include "../clib/rawtypes.h"
+#include "clib/cfgelem.h"
+#include "clib/rawtypes.h"
+
 #include "globals/uvars.h"
 #include "realms/realm.h"
 #include "ufunc.h"

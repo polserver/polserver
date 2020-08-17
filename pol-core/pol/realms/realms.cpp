@@ -12,12 +12,13 @@
 
 #include <stddef.h>
 
-#include "../clib/dirlist.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/strutil.h"
-#include "../clib/timer.h"
-#include "../plib/systemstate.h"
+#include "clib/dirlist.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/strutil.h"
+#include "clib/timer.h"
+#include "plib/systemstate.h"
+
 #include "globals/uvars.h"
 #include "realms/realm.h"
 
