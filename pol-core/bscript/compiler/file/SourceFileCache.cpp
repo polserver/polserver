@@ -53,12 +53,6 @@ std::shared_ptr<SourceFile> SourceFileCache::load( const SourceFileIdentifier& i
   return sf;
 }
 
-struct SourceFileAndFrequency
-{
-  std::shared_ptr<SourceFile> source_file;
-  unsigned frequency;
-};
-
 void SourceFileCache::keep_some()
 {
   if ( keep == 0 )
@@ -73,34 +67,34 @@ void SourceFileCache::keep_some()
 
   Pol::Tools::HighPerfTimer select_timer;
 
-  std::vector<SourceFileAndFrequency> pathname_frequencies;
-  pathname_frequencies.reserve(files.size());
+  std::vector<std::pair<unsigned, const std::string*>> pathname_frequencies;
+  pathname_frequencies.reserve( files.size() );
   for ( auto& kv : files )
   {
-    pathname_frequencies.push_back( SourceFileAndFrequency{ kv.second, frequency[kv.first] } );
+    pathname_frequencies.emplace_back( frequency[kv.first], &kv.second->pathname );
   }
-  std::sort( pathname_frequencies.begin(), pathname_frequencies.end(),
-             []( const SourceFileAndFrequency& lhs, const SourceFileAndFrequency& rhs ) {
-               return lhs.frequency > rhs.frequency;
-             } );
+  unsigned remove = files.size() - keep;
+  std::nth_element( pathname_frequencies.begin(), pathname_frequencies.begin() + remove,
+                    pathname_frequencies.end() );
 
   profile.prune_cache_select_micros += select_timer.ellapsed().count();
 
   Pol::Tools::HighPerfTimer delete_timer;
-  for ( auto itr = pathname_frequencies.begin() + keep; itr != pathname_frequencies.end(); ++itr )
+  for ( auto itr = pathname_frequencies.begin(), end = itr + remove; itr != end; ++itr )
   {
-    // INFO_PRINT << "Remove from cache: " << ( *itr ).source_file->pathname
-    //                                            << "(" << ( *itr ).frequency << ")\n";
-    files.erase( ( *itr ).source_file->pathname );
-    (*itr).source_file.reset();
+    const std::string& pathname = *( ( *itr ).second );
+    // INFO_PRINT << "Remove from cache: " << *( *itr ).second
+    //                                            << "(" << ( *itr ).first << ")\n";
+    ( *itr ).second = nullptr;
+    files.erase( pathname );
   }
   profile.prune_cache_delete_micros += delete_timer.ellapsed().count();
 
-  // INFO_PRINT << "Cache kept:\n";
-  // for( auto& kv : files )
-  // {
-  //   INFO_PRINT << "  - " << kv.first << " (" << frequency[kv.first] << ")\n";
-  // }
+  //  INFO_PRINT << "Cache kept:\n";
+  //  for( auto& kv : files )
+  //  {
+  //    INFO_PRINT << "  - " << kv.first << " (" << frequency[kv.first] << ")\n";
+  //  }
 }
 
 }  // namespace Pol::Bscript::Compiler
