@@ -10,11 +10,13 @@ struct LegacyFunctionOrder;
 class Profile;
 class Report;
 class CompilerWorkspace;
+class SourceFileCache;
 
 class CompilerWorkspaceBuilder
 {
 public:
-  CompilerWorkspaceBuilder( Profile&, Report& );
+  CompilerWorkspaceBuilder( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile&,
+                            Report& );
 
   std::unique_ptr<CompilerWorkspace> build(
       const std::string& pathname,
@@ -22,6 +24,8 @@ public:
 
 private:
 
+  SourceFileCache& em_cache;
+  SourceFileCache& inc_cache;
   Profile& profile;
   Report& report;
 };

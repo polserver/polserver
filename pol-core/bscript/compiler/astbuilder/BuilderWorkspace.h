@@ -11,15 +11,20 @@ class CompilerWorkspace;
 class Profile;
 class Report;
 class SourceFile;
+class SourceFileCache;
 class SourceFileIdentifier;
 
 class BuilderWorkspace
 {
 public:
-  BuilderWorkspace( CompilerWorkspace&, Profile& profile, Report& report );
+  BuilderWorkspace( CompilerWorkspace&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
+                    Profile& profile, Report& report );
   ~BuilderWorkspace();
 
   CompilerWorkspace& compiler_workspace;
+
+  SourceFileCache& em_cache;
+  SourceFileCache& inc_cache;
 
   Profile& profile;
   Report& report;

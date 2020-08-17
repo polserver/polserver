@@ -16,6 +16,9 @@ public:
   std::atomic<long long> codegen_micros;
 
   std::atomic<long> ambiguities;
+
+  std::atomic<long> cache_hits;
+  std::atomic<long> cache_misses;
 };
 
 }  // namespace Pol::Bscript::Compiler
