@@ -962,6 +962,10 @@ bool run( int argc, char** argv, int* res )
     tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
     tmp << "       disambiguate: " << (long long)summary.profile.disambiguate_micros / 1000 << "\n";
     tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
+    tmp << "  prune cache (sel): " << (long long)summary.profile.prune_cache_select_micros / 1000
+        << "\n";
+    tmp << "  prune cache (del): " << (long long)summary.profile.prune_cache_delete_micros / 1000
+        << "\n";
     tmp << "\n";
     tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
     tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";

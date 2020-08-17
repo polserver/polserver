@@ -1,6 +1,7 @@
 #include "SourceFileCache.h"
 
 #include "clib/logfacility.h"
+#include "clib/timer.h"
 #include "compiler/Profile.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileIdentifier.h"
@@ -52,12 +53,6 @@ std::shared_ptr<SourceFile> SourceFileCache::load( const SourceFileIdentifier& i
   return sf;
 }
 
-struct SourceFileAndFrequency
-{
-  std::shared_ptr<SourceFile> source_file;
-  unsigned frequency;
-};
-
 void SourceFileCache::keep_some()
 {
   if ( keep == 0 )
@@ -70,21 +65,30 @@ void SourceFileCache::keep_some()
   if ( files.size() <= keep )
     return;
 
-  std::vector<SourceFileAndFrequency> pathname_frequencies;
-  pathname_frequencies.reserve(files.size());
+  Pol::Tools::HighPerfTimer select_timer;
+
+  std::vector<std::pair<unsigned, const std::string*>> pathname_frequencies;
+  pathname_frequencies.reserve( files.size() );
   for ( auto& kv : files )
   {
-    pathname_frequencies.push_back( SourceFileAndFrequency{ kv.second, frequency[kv.first] } );
+    pathname_frequencies.emplace_back( frequency[kv.first], &kv.second->pathname );
   }
-  std::sort( pathname_frequencies.begin(), pathname_frequencies.end(),
-             []( const SourceFileAndFrequency& lhs, const SourceFileAndFrequency& rhs ) {
-               return lhs.frequency > rhs.frequency;
-             } );
+  unsigned remove = files.size() - keep;
+  std::nth_element( pathname_frequencies.begin(), pathname_frequencies.begin() + remove,
+                    pathname_frequencies.end() );
 
-  for ( auto itr = pathname_frequencies.begin() + keep; itr != pathname_frequencies.end(); ++itr )
+  profile.prune_cache_select_micros += select_timer.ellapsed().count();
+
+  Pol::Tools::HighPerfTimer delete_timer;
+  for ( auto itr = pathname_frequencies.begin(), end = itr + remove; itr != end; ++itr )
   {
-    files.erase( ( *itr ).source_file->pathname );
+    const std::string& pathname = *( ( *itr ).second );
+    // INFO_PRINT << "Remove from cache: " << *( *itr ).second
+    //                                            << "(" << ( *itr ).first << ")\n";
+    ( *itr ).second = nullptr;
+    files.erase( pathname );
   }
+  profile.prune_cache_delete_micros += delete_timer.ellapsed().count();
 
   //  INFO_PRINT << "Cache kept:\n";
   //  for( auto& kv : files )
