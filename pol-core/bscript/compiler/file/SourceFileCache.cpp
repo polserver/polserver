@@ -1,6 +1,7 @@
 #include "SourceFileCache.h"
 
 #include "clib/logfacility.h"
+#include "clib/timer.h"
 #include "compiler/Profile.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileIdentifier.h"
@@ -70,6 +71,8 @@ void SourceFileCache::keep_some()
   if ( files.size() <= keep )
     return;
 
+  Pol::Tools::HighPerfTimer select_timer;
+
   std::vector<SourceFileAndFrequency> pathname_frequencies;
   pathname_frequencies.reserve(files.size());
   for ( auto& kv : files )
@@ -81,16 +84,23 @@ void SourceFileCache::keep_some()
                return lhs.frequency > rhs.frequency;
              } );
 
+  profile.prune_cache_select_micros += select_timer.ellapsed().count();
+
+  Pol::Tools::HighPerfTimer delete_timer;
   for ( auto itr = pathname_frequencies.begin() + keep; itr != pathname_frequencies.end(); ++itr )
   {
+    // INFO_PRINT << "Remove from cache: " << ( *itr ).source_file->pathname
+    //                                            << "(" << ( *itr ).frequency << ")\n";
     files.erase( ( *itr ).source_file->pathname );
+    (*itr).source_file.reset();
   }
+  profile.prune_cache_delete_micros += delete_timer.ellapsed().count();
 
-  //  INFO_PRINT << "Cache kept:\n";
-  //  for( auto& kv : files )
-  //  {
-  //    INFO_PRINT << "  - " << kv.first << " (" << frequency[kv.first] << ")\n";
-  //  }
+  // INFO_PRINT << "Cache kept:\n";
+  // for( auto& kv : files )
+  // {
+  //   INFO_PRINT << "  - " << kv.first << " (" << frequency[kv.first] << ")\n";
+  // }
 }
 
 }  // namespace Pol::Bscript::Compiler
