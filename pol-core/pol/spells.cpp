@@ -25,7 +25,7 @@
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "layers.h"
-#include "miscrgn.h"
+#include "regions/miscrgn.h"
 #include "mkscrobj.h"
 #include "mobile/charactr.h"
 #include "network/client.h"

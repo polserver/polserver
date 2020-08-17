@@ -18,7 +18,7 @@
 #include "accounts/account.h"
 #include "fnsearch.h"
 #include "globals/uvars.h"
-#include "guardrgn.h"
+#include "regions/guardrgn.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "multi/multi.h"

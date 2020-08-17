@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-#include "region.h"
+#include "regions/region.h"
 #include "zone.h"
 
 namespace Pol

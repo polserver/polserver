@@ -39,7 +39,7 @@
 #include "../plib/poltype.h"  // region include
 #include "zone.h"             // region include
 
-#include "region.h"
+#include "regions/region.h"
 
 #include "../plib/clidata.h"
 #include "../plib/udatfile.h"

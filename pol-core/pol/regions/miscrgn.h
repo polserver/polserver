@@ -8,7 +8,7 @@
 #define MISCRGN_H
 
 
-#include "region.h"
+#include "regions/region.h"
 #include "zone.h"
 
 namespace Pol
