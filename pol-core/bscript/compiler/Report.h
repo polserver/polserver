@@ -3,8 +3,7 @@
 
 #include <format/format.h>
 
-#include "compiler/file/SourceFileIdentifier.h"
-#include "compiler/file/SourceLocation.h"
+#include "compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -34,6 +33,13 @@ public:
     error( loc, args... );
   }
 
+  // Always put a newline at the end of the message.
+  template <typename... Args>
+  inline void error( const Node& node, Args&&... args )
+  {
+    error( node.source_location, args... );
+  }
+
   // Report.fatal: use this when it's not possible to continue after a user-facing error.
   //
   // Always put a newline at the end of the message.
@@ -58,8 +64,15 @@ public:
     }
   }
 
-  unsigned error_count() const;
-  unsigned warning_count() const;
+  // Always put a newline at the end of the message.
+  template <typename... Args>
+  inline void warning( const Node& node, Args&&... args )
+  {
+    warning( node.source_location, args... );
+  }
+
+  [[nodiscard]] unsigned error_count() const;
+  [[nodiscard]] unsigned warning_count() const;
 
 private:
   void report_error( const SourceLocation&, const char* msg );
