@@ -34,6 +34,22 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
   compiler/astbuilder/CompilerWorkspaceBuilder.h
+  compiler/astbuilder/CompoundStatementBuilder.cpp
+  compiler/astbuilder/CompoundStatementBuilder.h
+  compiler/astbuilder/ExpressionBuilder.cpp
+  compiler/astbuilder/ExpressionBuilder.h
+  compiler/astbuilder/ModuleDeclarationBuilder.cpp
+  compiler/astbuilder/ModuleDeclarationBuilder.h
+  compiler/astbuilder/ProgramBuilder.cpp
+  compiler/astbuilder/ProgramBuilder.h
+  compiler/astbuilder/SimpleStatementBuilder.cpp
+  compiler/astbuilder/SimpleStatementBuilder.h
+  compiler/astbuilder/TreeBuilder.cpp
+  compiler/astbuilder/TreeBuilder.h
+  compiler/astbuilder/UserFunctionBuilder.cpp
+  compiler/astbuilder/UserFunctionBuilder.h
+  compiler/astbuilder/ValueBuilder.cpp
+  compiler/astbuilder/ValueBuilder.h
   compiler/codegen/CodeEmitter.cpp
   compiler/codegen/CodeEmitter.h
   compiler/codegen/CodeGenerator.cpp
