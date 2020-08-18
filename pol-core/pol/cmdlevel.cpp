@@ -123,7 +123,8 @@ std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m
 }
 
 
-std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Package* m_pkg, int cmdlvl_num )
+std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Package* m_pkg,
+                                                                    int cmdlvl_num )
 {
   auto script_names = std::make_unique<Bscript::ObjArray>();
 

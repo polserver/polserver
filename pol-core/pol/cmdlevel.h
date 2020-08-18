@@ -6,9 +6,9 @@
 #ifndef __CMDLEVEL_H
 #define __CMDLEVEL_H
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace Pol
 {
@@ -16,7 +16,7 @@ namespace Bscript
 {
 class ObjArray;
 class BDictionary;
-}
+}  // namespace Bscript
 namespace Clib
 {
 class ConfigElem;
@@ -56,8 +56,10 @@ public:
 CmdLevel* find_cmdlevel( const char* name );
 CmdLevel* FindCmdLevelByAlias( const std::string& str );
 
-std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m_pkg, int max_cmdlevel = -1 );
-std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Package* m_pkg, int cmdlvl_num );
+std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m_pkg,
+                                                                int max_cmdlevel = -1 );
+std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Package* m_pkg,
+                                                                    int cmdlvl_num );
 
 }  // namespace Core
 }  // namespace Pol
