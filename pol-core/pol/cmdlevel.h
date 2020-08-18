@@ -8,12 +8,14 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace Pol
 {
 namespace Bscript
 {
 class ObjArray;
+class BDictionary;
 }
 namespace Clib
 {
@@ -54,7 +56,9 @@ public:
 CmdLevel* find_cmdlevel( const char* name );
 CmdLevel* FindCmdLevelByAlias( const std::string& str );
 
-Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num );
-}
-}
+std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m_pkg, int max_cmdlevel = -1 );
+std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Package* m_pkg, int cmdlvl_num );
+
+}  // namespace Core
+}  // namespace Pol
 #endif
