@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "StoredToken.h"
+#include "compiler/ast/TopLevelStatements.h"
 #include "compiler/codegen/InstructionEmitter.h"
 #include "compiler/codegen/InstructionGenerator.h"
 #include "compiler/file/SourceFileIdentifier.h"
@@ -42,8 +43,11 @@ CodeGenerator::CodeGenerator( InstructionEmitter& emitter )
 {
 }
 
-void CodeGenerator::generate_instructions( CompilerWorkspace& )
+void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
 {
+  InstructionGenerator top_level_instruction_generator( emitter );
+  workspace.top_level_statements->accept( top_level_instruction_generator );
+
   emit.progend();
 }
 
