@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-13-2020</datemodified>
+		<datemodified>08-18-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-18-2020</date>
+			<author>Nando:</author>
+			<change type="Added">Parameter &quot;max_cmdlevel&quot; to polsys::ListTextCommands(). Indicates the maximum cmdlevel to include in the list.</change>
+		</entry>
 		<entry>
 			<date>08-13-2020</date>
 			<author>Nando:</author>

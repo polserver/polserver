@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+08-18-2020 Nando:
+    Added: Parameter "max_cmdlevel" to polsys::ListTextCommands(). Indicates the maximum cmdlevel to include in the list.
+           
 08-13-2020 Nando:
   Changed: item.hitscript and item.onhitscript now always return the full path to the script (":pkgname:scriptname").
            Before, if the item was defined on the same package as the script, only "scriptname" was returned.
