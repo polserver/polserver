@@ -1113,14 +1113,14 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
       return new BError( "Error in script name" );
     if ( !sd.exists() )
       return new BError( "Script " + sd.name() + " does not exist." );
-    Core::UOExecutor* uoexec = Core::create_script_executor();
-    uoexec->keep_alive_ = true;
     ref_ptr<Bscript::EScriptProgram> program = find_script2( sd );
     if ( program.get() == nullptr )
     {
       ERROR_PRINT << "Error reading script " << sd.name() << "\n";
       return new Bscript::BError( "Unable to read script" );
     }
+    Core::UOExecutor* uoexec = Core::create_script_executor();
+    uoexec->keep_alive( true );
     Core::add_common_exmods( *uoexec );
     uoexec->addModule( new Module::UOExecutorModule( *uoexec ) );
 

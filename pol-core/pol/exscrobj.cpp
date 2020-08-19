@@ -241,12 +241,14 @@ BObjectRef ScriptExObjImp::get_member( const char* membername )
     return BObjectRef( UninitObject::create() );
 }
 
-PIDWrapper::PIDWrapper( u32 pid ) : _pid( pid ) {}
-PIDWrapper::~PIDWrapper()
+ScriptWrapper::ScriptWrapper( ScriptExPtr script ) : _script( script ) {}
+ScriptWrapper::~ScriptWrapper()
 {
-  UOExecutor* uoexec;
-  if ( _pid && find_uoexec( _pid, &uoexec ) )
+  if ( !_script.exists() )
+    return;
+  try
   {
+    UOExecutor* uoexec = _script.get_weakptr();
     if ( uoexec->in_hold_list() ==
          Core::NO_LIST )  // not part of the scheduler, delete it directly (eg critical)
     {
@@ -254,7 +256,7 @@ PIDWrapper::~PIDWrapper()
     }
     else
     {
-      uoexec->keep_alive_ = false;
+      uoexec->keep_alive( false );
       uoexec->seterror( true );
 
       uoexec->revive();
@@ -262,13 +264,16 @@ PIDWrapper::~PIDWrapper()
         uoexec->revive_debugged();
     }
   }
+  catch ( ... )
+  {
+  }
 }
 ExportScriptObjImp::ExportScriptObjImp( UOExecutor* uoexec )
-    : PolObjectImp( OTExportScript ), _ex( new PIDWrapper( uoexec->pid() ) ), _delayed( false )
+    : PolObjectImp( OTExportScript ), _ex( new ScriptWrapper( uoexec->weakptr ) ), _delayed( false )
 {
 }
-ExportScriptObjImp::ExportScriptObjImp( std::shared_ptr<PIDWrapper> pid, bool delayed )
-    : PolObjectImp( OTExportScript ), _ex( pid ), _delayed( delayed )
+ExportScriptObjImp::ExportScriptObjImp( std::shared_ptr<ScriptWrapper> script, bool delayed )
+    : PolObjectImp( OTExportScript ), _ex( script ), _delayed( delayed )
 {
 }
 
@@ -282,7 +287,7 @@ std::string ExportScriptObjImp::getStringRep() const
 }
 size_t ExportScriptObjImp::sizeEstimate() const
 {
-  return sizeof( *this ) + sizeof( PIDWrapper );
+  return sizeof( *this ) + sizeof( ScriptWrapper );
 }
 u8 ExportScriptObjImp::typeOfInt() const
 {
@@ -303,9 +308,9 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod( const char* methodname,
 Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
                                                             bool /*forcebuiltin*/ )
 {
-  UOExecutor* uoexec;
-  if ( !find_uoexec( _ex->_pid, &uoexec ) )
+  if ( !_ex->_script.exists() )
     return new BError( "Script destroyed" );
+  UOExecutor* uoexec = _ex->_script.get_weakptr();
   switch ( id )
   {
   case MTH_CALL:
@@ -374,9 +379,9 @@ Bscript::BObjectRef ExportScriptObjImp::get_member( const char* membername )
 }
 Bscript::BObjectRef ExportScriptObjImp::get_member_id( const int id )
 {
-  UOExecutor* uoexec;
-  if ( !find_uoexec( _ex->_pid, &uoexec ) )
+  if ( !_ex->_script.exists() )
     return BObjectRef( new BError( "Script destroyed" ) );
+  UOExecutor* uoexec = _ex->_script.get_weakptr();
   switch ( id )
   {
   case MBR_EXPORTED_FUNCTIONS:

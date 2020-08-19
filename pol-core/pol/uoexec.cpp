@@ -38,6 +38,7 @@ namespace Core
 UOExecutor::UOExecutor()
     : Executor(),
       os_module( nullptr ),
+      keep_alive_( false ),
       instr_cycles( 0 ),
       sleep_cycles( 0 ),
       start_time( poltime() ),
@@ -127,6 +128,15 @@ bool UOExecutor::warn_on_runaway() const
 void UOExecutor::warn_on_runaway( bool warn_on_runaway )
 {
   os_module->warn_on_runaway( warn_on_runaway );
+}
+
+bool UOExecutor::keep_alive() const
+{
+  return keep_alive_;
+}
+void UOExecutor::keep_alive( bool status )
+{
+  keep_alive_ = status;
 }
 
 unsigned char UOExecutor::priority() const

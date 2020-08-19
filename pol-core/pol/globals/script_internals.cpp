@@ -263,8 +263,10 @@ void ScriptScheduler::run_ready()
           // parent script
           if ( ex->pChild != nullptr )
             ex->pChild->pParent = nullptr;
-          if ( !ex->keep_alive_ )
+          if ( !ex->keep_alive() )
+          {
             delete ex;
+          }
           else
           {
             ex->in_hold_list( Core::HoldListType::NOTIMEOUT_LIST );

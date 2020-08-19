@@ -53,17 +53,17 @@ public:
   virtual Bscript::BObjectRef get_member_id( const int id ) override;
 };
 
-struct PIDWrapper
+struct ScriptWrapper
 {
-  PIDWrapper( u32 pid );
-  ~PIDWrapper();
-  u32 _pid;
+  ScriptWrapper( ScriptExPtr script );
+  ~ScriptWrapper();
+  ScriptExPtr _script;
 };
 class ExportScriptObjImp final : public PolObjectImp
 {
 public:
   explicit ExportScriptObjImp( UOExecutor* exec );
-  explicit ExportScriptObjImp( std::shared_ptr<PIDWrapper> pid, bool delayed );
+  explicit ExportScriptObjImp( std::shared_ptr<ScriptWrapper> pid, bool delayed );
 
   virtual const char* typeOf() const override;
   virtual u8 typeOfInt() const override;
@@ -79,7 +79,7 @@ public:
   virtual size_t sizeEstimate() const override;
 
 private:
-  std::shared_ptr<PIDWrapper> _ex;
+  std::shared_ptr<ScriptWrapper> _ex;
   bool _delayed;
 };
 }  // namespace Core
