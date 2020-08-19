@@ -247,11 +247,20 @@ PIDWrapper::~PIDWrapper()
   UOExecutor* uoexec;
   if ( _pid && find_uoexec( _pid, &uoexec ) )
   {
-    uoexec->seterror( true );
+    if ( uoexec->in_hold_list() ==
+         Core::NO_LIST )  // not part of the scheduler, delete it directly (eg critical)
+    {
+      delete uoexec;
+    }
+    else
+    {
+      uoexec->keep_alive_ = false;
+      uoexec->seterror( true );
 
-    uoexec->revive();
-    if ( uoexec->in_debugger_holdlist() )
-      uoexec->revive_debugged();
+      uoexec->revive();
+      if ( uoexec->in_debugger_holdlist() )
+        uoexec->revive_debugged();
+    }
   }
 }
 ExportScriptObjImp::ExportScriptObjImp( UOExecutor* uoexec )
@@ -306,7 +315,9 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
       ex.pChild = nullptr;
       uoexec->pParent = nullptr;
       _delayed = false;
-      if ( uoexec->ValueStack.empty() )
+      if ( uoexec->error() )
+        return new BLong( 0 );
+      else if ( uoexec->ValueStack.empty() )
         return new BLong( 1 );
       return uoexec->ValueStack.back().get()->impptr()->copy();
     }
@@ -330,13 +341,25 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     if ( !found_func )
       return new BError( "Exported function name not found" );
     uoexec->initForFnCall( func_call_pc );
-    ex.pChild = uoexec;
-    uoexec->pParent = &ex;
-    ex.PC--;
-    ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
-    ex.suspend();
-    Core::scriptScheduler.schedule( uoexec );
-    return new ExportScriptObjImp( _ex, true );
+    if ( ex.critical() )
+    {
+      uoexec->exec();
+      if ( uoexec->error() )
+        return new BLong( 0 );
+      else if ( uoexec->ValueStack.empty() )
+        return new BLong( 1 );
+      return uoexec->ValueStack.back().get()->impptr()->copy();
+    }
+    else
+    {
+      ex.pChild = uoexec;
+      uoexec->pParent = &ex;
+      ex.PC--;
+      ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+      ex.suspend();
+      Core::scriptScheduler.schedule( uoexec );
+      return new ExportScriptObjImp( _ex, true );
+    }
   }
   default:
     return new BError( "undefined" );

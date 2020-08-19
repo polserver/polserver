@@ -1125,21 +1125,43 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     uoexec->addModule( new Module::UOExecutorModule( *uoexec ) );
 
     uoexec->setProgram( program.get() );
-    Core::scriptScheduler.schedule( uoexec );
+    if ( this_uoexec.critical() )  // execute directy
+    {
+      uoexec->exec();
+      BObjectImp* ret;
+      if ( uoexec->error() )
+        ret = new BLong( 0 );
+      else if ( uoexec->ValueStack.empty() )
+        ret = new BLong( 1 );
+      else
+        ret = uoexec->ValueStack.back().get()->impptr()->copy();
 
-    uoexec->pParent = &this_uoexec;
-    this_uoexec.pChild = uoexec;
+      auto array = std::make_unique<Bscript::ObjArray>();
+      array->addElement( new Core::ExportScriptObjImp( uoexec ) );
+      array->addElement( ret );
 
-    this_uoexec.PC--;
-    // no valuesstack push_back, since currently only one param exists
-    suspend();
+      return array.release();
+    }
+    else
+    {
+      Core::scriptScheduler.schedule( uoexec );
 
-    return UninitObject::create();
+      uoexec->pParent = &this_uoexec;
+      this_uoexec.pChild = uoexec;
+
+      this_uoexec.PC--;
+      // no valuesstack push_back, since currently only one param exists
+      suspend();
+
+      return UninitObject::create();
+    }
   }
   else  // reentry
   {
     BObjectImp* ret;
-    if ( this_uoexec.pChild->ValueStack.empty() )
+    if ( this_uoexec.pChild->error() )
+      ret = new BLong( 0 );
+    else if ( this_uoexec.pChild->ValueStack.empty() )
       ret = new BLong( 1 );
     else
       ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
