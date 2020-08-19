@@ -97,7 +97,6 @@ public:
   bool error_;
   bool halt_;
   bool run_ok_;
-  bool keep_alive_;  // special flag scheduler will not delete the executor on progend
 
   virtual ExecutorType type() { return ExecutorType::EXECUTOR; }
 
