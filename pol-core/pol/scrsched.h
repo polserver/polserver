@@ -43,6 +43,7 @@ Module::UOExecutorModule* start_script( ref_ptr<Bscript::EScriptProgram> program
 
 UOExecutor* create_script_executor();
 UOExecutor* create_full_script_executor();
+void add_common_exmods( UOExecutor& ex );
 
 void schedule_executor( UOExecutor* ex );
 void deschedule_executor( UOExecutor* ex );
