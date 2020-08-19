@@ -30,6 +30,8 @@ set (bscript_sources    # sorted !
   compiler/ast/TopLevelStatements.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
+  compiler/ast/ValueConsumer.cpp
+  compiler/ast/ValueConsumer.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
@@ -44,6 +46,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
   compiler/astbuilder/SimpleStatementBuilder.h
+  compiler/astbuilder/SourceFileProcessor.cpp
+  compiler/astbuilder/SourceFileProcessor.h
   compiler/astbuilder/TreeBuilder.cpp
   compiler/astbuilder/TreeBuilder.h
   compiler/astbuilder/UserFunctionBuilder.cpp

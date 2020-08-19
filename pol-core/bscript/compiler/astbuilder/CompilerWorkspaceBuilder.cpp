@@ -6,6 +6,7 @@
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
+#include "compiler/astbuilder/SourceFileProcessor.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/file/SourceLocation.h"
@@ -44,11 +45,15 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     return {};
   }
 
+  SourceFileProcessor src_processor( *ident, workspace, true );
+
   workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
   workspace.source_files[sf->pathname] = sf;
 
   compiler_workspace->top_level_statements =
       std::make_unique<TopLevelStatements>( source_location );
+
+  src_processor.process_source( *sf );
 
   return compiler_workspace;
 }

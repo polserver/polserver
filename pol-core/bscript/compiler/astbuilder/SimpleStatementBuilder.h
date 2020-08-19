@@ -5,11 +5,15 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Statement;
 
 class SimpleStatementBuilder : public ExpressionBuilder
 {
 public:
   SimpleStatementBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
+
+  static std::unique_ptr<Statement> consume_statement_result(
+      std::unique_ptr<Statement> statement );
 
 };
 

@@ -19,6 +19,11 @@ void InstructionEmitter::initialize_data()
   data_emitter.store( &nul, sizeof nul );
 }
 
+void InstructionEmitter::consume()
+{
+  emit_token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
+}
+
 void InstructionEmitter::progend()
 {
   emit_token( CTRL_PROGEND, TYP_CONTROL );
