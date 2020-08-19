@@ -44,6 +44,8 @@ option(ENABLE_TIDY "Enables clang tidy check" OFF)
 #e.g "-fix;-checks=modernize-use-nullptr"
 set(TIDY_ARGS "" CACHE STRING "clang tidy arguments")
 
+option(REUSE_PCH "Reuse clib pch if needed (windows only)" OFF)
+
 if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
   set(BUILD_ALL OFF)
 endif()
@@ -115,6 +117,8 @@ git_revision_target()
 
 if (${linux})
   option(STRIP_BINARIES "Strip binaries directly, instead of only in package target" OFF)
+  
+  set(REUSE_PCH ON)
 endif()
 
 prepare_build()
