@@ -197,38 +197,28 @@ BObjectImp* PolSystemExecutorModule::mf_GetPackageByName()
 BObjectImp* PolSystemExecutorModule::mf_ListTextCommands()
 {
   std::unique_ptr<BDictionary> pkg_list( new BDictionary );
+
+  int max_cmdlevel;
+  if ( exec.numParams() < 1 || !getParam( 0, max_cmdlevel ) )
+    max_cmdlevel = -1;
+
   // Sets up text commands not in a package.
   {
-    std::unique_ptr<BDictionary> cmd_lvl_list( new BDictionary );
-    for ( unsigned num = 0; num < Core::gamestate.cmdlevels.size(); ++num )
-    {
-      ObjArray* script_list = Core::GetCommandsInPackage( nullptr, num );
-      if ( script_list == nullptr )
-        continue;
-      else if ( !script_list->ref_arr.empty() )
-        cmd_lvl_list->addMember( new BLong( num ), script_list );
-    }
+    auto cmd_lvl_list = Core::ListAllCommandsInPackage( nullptr, max_cmdlevel );
     if ( cmd_lvl_list->contents().size() > 0 )
       pkg_list->addMember( new String( "" ), cmd_lvl_list.release() );
   }
-  //
+
   // Sets up packaged text commands.
   for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
         itr != Plib::systemstate.packages.end(); ++itr )
   {
     Plib::Package* pkg = ( *itr );
-    std::unique_ptr<BDictionary> cmd_lvl_list( new BDictionary );
-    for ( unsigned num = 0; num < Core::gamestate.cmdlevels.size(); ++num )
-    {
-      ObjArray* script_list = Core::GetCommandsInPackage( pkg, num );
-      if ( script_list == nullptr )
-        continue;
-      else if ( !script_list->ref_arr.empty() )
-        cmd_lvl_list->addMember( new BLong( num ), script_list );
-    }
+    auto cmd_lvl_list = Core::ListAllCommandsInPackage( pkg, max_cmdlevel );
     if ( cmd_lvl_list->contents().size() > 0 )
       pkg_list->addMember( new String( pkg->name().c_str() ), cmd_lvl_list.release() );
   }
+
   return pkg_list.release();
 }
 
