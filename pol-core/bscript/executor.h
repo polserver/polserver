@@ -80,8 +80,8 @@ struct BackupStruct
 
 enum class ExecutorType
 {
-EXECUTOR,
-POL
+  EXECUTOR,
+  POL
 };
 
 class Executor
@@ -97,8 +97,9 @@ public:
   bool error_;
   bool halt_;
   bool run_ok_;
+  bool keep_alive_;  // special flag scheduler will not delete the executor on progend
 
-  virtual ExecutorType type() { return ExecutorType::EXECUTOR;  }
+  virtual ExecutorType type() { return ExecutorType::EXECUTOR; }
 
   enum DEBUG_LEVEL
   {

@@ -1,0 +1,12 @@
+var calls:=0;
+program exportedscript()
+  return ++calls;
+endprogram
+
+exported function func1()
+  return ++calls;
+endfunction
+
+exported function func2()
+  return ++calls;
+endfunction

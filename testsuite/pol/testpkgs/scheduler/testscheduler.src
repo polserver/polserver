@@ -1,0 +1,48 @@
+use os;
+
+program testscheduler()
+  return 1;
+endprogram
+
+exported function test_loadexported()
+  var script:=LoadExportedScript("exported.ecl");
+  if (script[2]!=1)
+    return error{errortext:="Program did not load"};
+  endif
+  if (len(script[1].exported_functions)!=2)
+    return error{errortext:="didnt found 2 functions"};
+  endif
+  var res:=script[1].call("func1");
+  if (res !=2)
+    return error{errortext:="func1 failed {}".format(res)};
+  endif
+  res:=script[1].call("func2");
+  if (res !=3)
+    return error{errortext:="func2 failed {}".format(res)};
+  endif
+  return 1;
+endfunction
+
+function copy_exported(script)
+  var res:=script[1].call("func1");
+  if (res !=2)
+    return error{errortext:="func1 failed {}".format(res)};
+  endif
+  return res;
+endfunction
+
+exported function test_loadexported_copy()
+  var script:=LoadExportedScript("exported.ecl");
+  if (script[2]!=1)
+    return error{errortext:="Program did not load"};
+  endif
+  var res:=copy_exported(script[1]);
+  if (!res)
+    return res;
+  endif
+  res:=script[1].call("func2");
+  if (res !=3)
+    return error{errortext:="func2 failed {}".format(res)};
+  endif
+  return 1; 
+endfunction

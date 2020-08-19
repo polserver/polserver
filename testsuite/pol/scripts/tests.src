@@ -16,7 +16,6 @@ program tests()
     endif
   endforeach
   testpkgs.sort(1);
-  
   foreach pkg in testpkgs
     syslog(pkg[2]);
     var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
@@ -34,19 +33,28 @@ program tests()
         continue;
       endif
       syslog("  Calling {}..".format(file));
-      var res:=run_script(":{}:{}".format(pkg[1], file));
-      if (res != 1)
-        syslog("    failed: "+res);
+      var script:=LoadExportedScript(":{}:{}".format(pkg[1], file));
+      if (!script[2])
+        syslog("    failed: "+script[2]);
         exitcode:=1;
         continue;
       endif
+      foreach func in (script[1].exported_functions)
+        syslog("    Calling {}..".format(func));
+        var res:=script[1].call(func);  
+        if (res != 1)
+          syslog("      failed: "+res);
+          exitcode:=1;
+          continue;
+        endif
+      endforeach
     endforeach
     if ("cleanup.ecl" in scripts)
       syslog("  Calling cleanup.ecl..");
       run_script(":{}:cleanup.ecl".format(pkg[1]));
     endif
   endforeach
-
+  
   var result:="success";
   if (exitcode)
     result:="failed ";

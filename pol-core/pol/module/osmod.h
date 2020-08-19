@@ -88,7 +88,6 @@ public:
   Core::HoldListType in_hold_list() const;
   void in_hold_list( Core::HoldListType in_hold_list );
 
-
   [[nodiscard]] Bscript::BObjectImp* mf_Create_Debug_Context();
   [[nodiscard]] Bscript::BObjectImp* mf_GetPid();
   [[nodiscard]] Bscript::BObjectImp* mf_GetProcess();
@@ -117,6 +116,7 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_Clear_Event_Queue();  // DAVE
 
   [[nodiscard]] Bscript::BObjectImp* mf_PerformanceMeasure();
+  [[nodiscard]] Bscript::BObjectImp* mf_LoadExportedScript();
 
 protected:
   bool critical_;

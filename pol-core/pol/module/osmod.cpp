@@ -1099,6 +1099,62 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
   return new BLong( 0 );  // dummy
 }
 
+BObjectImp* OSExecutorModule::mf_LoadExportedScript()
+{
+  Core::UOExecutor& this_uoexec = uoexec();
+  if ( this_uoexec.pChild == nullptr )
+  {
+    const String* scriptname_str;
+    if ( !exec.getStringParam( 0, scriptname_str ) )
+      return new BError( "Invalid parameter type" );
+
+    Core::ScriptDef sd;
+    if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+      return new BError( "Error in script name" );
+    if ( !sd.exists() )
+      return new BError( "Script " + sd.name() + " does not exist." );
+    Core::UOExecutor* uoexec = Core::create_script_executor();
+    uoexec->keep_alive_ = true;
+    ref_ptr<Bscript::EScriptProgram> program = find_script2( sd );
+    if ( program.get() == nullptr )
+    {
+      ERROR_PRINT << "Error reading script " << sd.name() << "\n";
+      return new Bscript::BError( "Unable to read script" );
+    }
+    Core::add_common_exmods( *uoexec );
+    uoexec->addModule( new Module::UOExecutorModule( *uoexec ) );
+
+    uoexec->setProgram( program.get() );
+    Core::scriptScheduler.schedule( uoexec );
+
+    uoexec->pParent = &this_uoexec;
+    this_uoexec.pChild = uoexec;
+
+    this_uoexec.PC--;
+    // no valuesstack push_back, since currently only one param exists
+    suspend();
+
+    return UninitObject::create();
+  }
+  else  // reentry
+  {
+    BObjectImp* ret;
+    if ( this_uoexec.pChild->ValueStack.empty() )
+      ret = new BLong( 1 );
+    else
+      ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
+
+    auto array = std::make_unique<Bscript::ObjArray>();
+    array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
+    array->addElement( ret );
+
+    this_uoexec.pChild->pParent = nullptr;
+    this_uoexec.pChild = nullptr;
+
+    return array.release();
+  }
+}
+
 size_t OSExecutorModule::sizeEstimate() const
 {
   size_t size = sizeof( *this );

@@ -254,19 +254,22 @@ void ScriptScheduler::run_ready()
         if ( ( ex->pParent != nullptr ) && ex->pParent->runnable() )
         {
           ranlist.push_back( ex );
-          // ranlist.splice( ranlist.end(), runlist, itr );
           ex->pParent->revive();
         }
         else
         {
-          // runlist.erase( itr );
           // Check if the script has a child script running
           // Set the parent of the child script nullptr to stop crashing when trying to return to
           // parent script
           if ( ex->pChild != nullptr )
             ex->pChild->pParent = nullptr;
-
-          delete ex;
+          if ( !ex->keep_alive_ )
+            delete ex;
+          else
+          {
+            ex->in_hold_list( Core::HoldListType::NOTIMEOUT_LIST );
+            notimeoutholdlist.insert( ex );
+          }
         }
         continue;
       }
@@ -274,7 +277,6 @@ void ScriptScheduler::run_ready()
       {
         THREAD_CHECKPOINT( scripts, 115 );
 
-        // runlist.erase( itr );
         ex->in_hold_list( Core::HoldListType::DEBUGGER_LIST );
         debuggerholdlist.insert( ex );
         continue;
@@ -296,7 +298,6 @@ void ScriptScheduler::run_ready()
         notimeoutholdlist.insert( ex );
       }
 
-      // runlist.erase( itr );
       --ex->sleep_cycles;  // it'd get counted twice otherwise
       --stateManager.profilevars.sleep_cycles;
 
@@ -305,7 +306,6 @@ void ScriptScheduler::run_ready()
     else
     {
       ranlist.push_back( ex );
-      // ranlist.splice( ranlist.end(), runlist, itr );
     }
   }
   THREAD_CHECKPOINT( scripts, 118 );
