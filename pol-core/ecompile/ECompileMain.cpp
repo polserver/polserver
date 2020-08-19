@@ -956,6 +956,9 @@ bool run( int argc, char** argv, int* res )
 
     tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
         << "\n";
+    tmp << "      - parse *.src:   " << (long long)summary.profile.parse_src_micros / 1000 << " ("
+        << (long)summary.profile.parse_src_count << ")\n";
+    tmp << "        - ast *.src:   " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
     tmp << " register constants: "
         << (long long)summary.profile.register_const_declarations_micros / 1000 << "\n";
     tmp << "            analyze: " << (long long)summary.profile.analyze_micros / 1000 << "\n";
