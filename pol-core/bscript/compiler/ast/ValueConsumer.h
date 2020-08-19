@@ -1,7 +1,7 @@
 #ifndef POLSERVER_VALUECONSUMER_H
 #define POLSERVER_VALUECONSUMER_H
 
-#include "Statement.h"
+#include "compiler/ast/Statement.h"
 
 namespace Pol::Bscript::Compiler
 {

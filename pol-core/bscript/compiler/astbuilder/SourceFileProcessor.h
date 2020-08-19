@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-#include "ProgramBuilder.h"
+#include "compiler/astbuilder/ProgramBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -2,7 +2,7 @@
 
 #include "../clib/fileutil.h"
 
-#include "BuilderWorkspace.h"
+#include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
 #include "compiler/file/SourceFile.h"

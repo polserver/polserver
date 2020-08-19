@@ -2,7 +2,7 @@
 
 #include <format/format.h>
 
-#include "NodeVisitor.h"
+#include "compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {
