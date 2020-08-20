@@ -132,7 +132,7 @@ BITOR:              '|';
 NOTEQUAL_A:         '<>';
 NOTEQUAL_B:         '!=';
 fragment NOTEQUAL:  '<>' | '!=';
-// EQUAL1:             '=';
+EQUAL_DEPRECATED:   '=';
 EQUAL:              '==';
 // && covered above
 // || covered above
@@ -151,6 +151,7 @@ COLON:              ':';
 INC:                '++';
 DEC:                '--';
 
+ELVIS:              '?:';
 // Whitespace and comments
 
 WS:                 [ \t\r\n\u000C]+ -> channel(HIDDEN);
