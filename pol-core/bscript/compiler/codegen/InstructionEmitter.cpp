@@ -35,6 +35,16 @@ void InstructionEmitter::value( double v )
   emit_token( TOK_DOUBLE, TYP_OPERAND, offset );
 }
 
+void InstructionEmitter::value( const std::string& v )
+{
+  unsigned data_offset = emit_data( v );
+  emit_token( TOK_STRING, TYP_OPERAND, data_offset );
+}
+
+unsigned InstructionEmitter::emit_data( const std::string& s )
+{
+  return data_emitter.store( s );
+}
 
 unsigned InstructionEmitter::emit_token( BTokenId id, BTokenType type, unsigned offset )
 {
