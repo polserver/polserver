@@ -60,6 +60,7 @@ echo install clang
 echo -------------------------------------------------------------------------------
 echo
 sudo apt-get install clang-7 libclang-7-dev libllvm-7-ocaml-dev lldb-7 llvm-7-examples clang-tidy-7 clang-format-7 -y
+sudo apt-get install clang -y
 echo
 
 echo
@@ -81,6 +82,12 @@ echo ---------------------------------------------------------------------------
 echo ninja
 echo -------------------------------------------------------------------------------
 sudo apt-get install ninja-build -y
+
+echo
+echo -------------------------------------------------------------------------------
+echo formatting
+echo -------------------------------------------------------------------------------
+sudo apt-get install clang-format -y
 
 echo
 echo -------------------------------------------------------------------------------
