@@ -36,9 +36,6 @@ public:
   virtual void enterModuleFunctionParameter(EscriptParser::ModuleFunctionParameterContext *ctx) = 0;
   virtual void exitModuleFunctionParameter(EscriptParser::ModuleFunctionParameterContext *ctx) = 0;
 
-  virtual void enterUnitExpression(EscriptParser::UnitExpressionContext *ctx) = 0;
-  virtual void exitUnitExpression(EscriptParser::UnitExpressionContext *ctx) = 0;
-
   virtual void enterTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) = 0;
   virtual void exitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) = 0;
 
@@ -98,6 +95,9 @@ public:
 
   virtual void enterForStatement(EscriptParser::ForStatementContext *ctx) = 0;
   virtual void exitForStatement(EscriptParser::ForStatementContext *ctx) = 0;
+
+  virtual void enterForeachIterableExpression(EscriptParser::ForeachIterableExpressionContext *ctx) = 0;
+  virtual void exitForeachIterableExpression(EscriptParser::ForeachIterableExpressionContext *ctx) = 0;
 
   virtual void enterForeachStatement(EscriptParser::ForeachStatementContext *ctx) = 0;
   virtual void exitForeachStatement(EscriptParser::ForeachStatementContext *ctx) = 0;
@@ -165,8 +165,11 @@ public:
   virtual void enterFunctionParameter(EscriptParser::FunctionParameterContext *ctx) = 0;
   virtual void exitFunctionParameter(EscriptParser::FunctionParameterContext *ctx) = 0;
 
-  virtual void enterScopedMethodCall(EscriptParser::ScopedMethodCallContext *ctx) = 0;
-  virtual void exitScopedMethodCall(EscriptParser::ScopedMethodCallContext *ctx) = 0;
+  virtual void enterScopedFunctionCall(EscriptParser::ScopedFunctionCallContext *ctx) = 0;
+  virtual void exitScopedFunctionCall(EscriptParser::ScopedFunctionCallContext *ctx) = 0;
+
+  virtual void enterFunctionReference(EscriptParser::FunctionReferenceContext *ctx) = 0;
+  virtual void exitFunctionReference(EscriptParser::FunctionReferenceContext *ctx) = 0;
 
   virtual void enterExpression(EscriptParser::ExpressionContext *ctx) = 0;
   virtual void exitExpression(EscriptParser::ExpressionContext *ctx) = 0;
@@ -174,23 +177,41 @@ public:
   virtual void enterPrimary(EscriptParser::PrimaryContext *ctx) = 0;
   virtual void exitPrimary(EscriptParser::PrimaryContext *ctx) = 0;
 
+  virtual void enterExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) = 0;
+  virtual void exitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) = 0;
+
+  virtual void enterExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *ctx) = 0;
+  virtual void exitExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *ctx) = 0;
+
+  virtual void enterExplicitDictInitializer(EscriptParser::ExplicitDictInitializerContext *ctx) = 0;
+  virtual void exitExplicitDictInitializer(EscriptParser::ExplicitDictInitializerContext *ctx) = 0;
+
+  virtual void enterExplicitErrorInitializer(EscriptParser::ExplicitErrorInitializerContext *ctx) = 0;
+  virtual void exitExplicitErrorInitializer(EscriptParser::ExplicitErrorInitializerContext *ctx) = 0;
+
+  virtual void enterBareArrayInitializer(EscriptParser::BareArrayInitializerContext *ctx) = 0;
+  virtual void exitBareArrayInitializer(EscriptParser::BareArrayInitializerContext *ctx) = 0;
+
   virtual void enterParExpression(EscriptParser::ParExpressionContext *ctx) = 0;
   virtual void exitParExpression(EscriptParser::ParExpressionContext *ctx) = 0;
 
   virtual void enterExpressionList(EscriptParser::ExpressionListContext *ctx) = 0;
   virtual void exitExpressionList(EscriptParser::ExpressionListContext *ctx) = 0;
 
-  virtual void enterMethodCallArgument(EscriptParser::MethodCallArgumentContext *ctx) = 0;
-  virtual void exitMethodCallArgument(EscriptParser::MethodCallArgumentContext *ctx) = 0;
+  virtual void enterExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) = 0;
+  virtual void exitExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) = 0;
 
-  virtual void enterMethodCallArgumentList(EscriptParser::MethodCallArgumentListContext *ctx) = 0;
-  virtual void exitMethodCallArgumentList(EscriptParser::MethodCallArgumentListContext *ctx) = 0;
+  virtual void enterIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) = 0;
+  virtual void exitIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) = 0;
 
-  virtual void enterMethodCall(EscriptParser::MethodCallContext *ctx) = 0;
-  virtual void exitMethodCall(EscriptParser::MethodCallContext *ctx) = 0;
+  virtual void enterNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) = 0;
+  virtual void exitNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) = 0;
 
-  virtual void enterMemberCall(EscriptParser::MemberCallContext *ctx) = 0;
-  virtual void exitMemberCall(EscriptParser::MemberCallContext *ctx) = 0;
+  virtual void enterMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) = 0;
+  virtual void exitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) = 0;
+
+  virtual void enterFunctionCall(EscriptParser::FunctionCallContext *ctx) = 0;
+  virtual void exitFunctionCall(EscriptParser::FunctionCallContext *ctx) = 0;
 
   virtual void enterStructInitializerExpression(EscriptParser::StructInitializerExpressionContext *ctx) = 0;
   virtual void exitStructInitializerExpression(EscriptParser::StructInitializerExpressionContext *ctx) = 0;
