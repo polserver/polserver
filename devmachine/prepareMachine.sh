@@ -95,8 +95,7 @@ echo debugging
 echo -------------------------------------------------------------------------------
 sudo apt-get install gdb valgrind -y
 
-# Creates a link to /vagrant (which, if you run this file, will contain the SVN repository)
+# Creates a link to /vagrant (which, if you run this file, will contain the git repository)
 if [ ! -d "/home/vagrant/polserver" ]; then
 	ln -s /vagrant /home/vagrant/polserver
 fi
-
