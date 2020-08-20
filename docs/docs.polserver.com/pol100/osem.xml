@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>12/23/2017</datemodified>
+    <datemodified>08/20/2020</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -272,5 +272,14 @@ Example: create a POST request to a REST endpoint with custom header:
 });
 </code>
   <return>Response data as a string.</return>
+</function>
+
+<function name="LoadExportedScript">
+  <prototype>LoadExportedScript( script_name, params := {} )</prototype>
+    <parameter name="script_name" value="String name and path of script to run" />
+    <parameter name="params" value="array of objects to pass to the script. Array will be unpacked and as single arguments passed (optional)"/>
+    <return>Array{ExportedScript,return value} The value returned is the return value of the started script, or 1 if no value was returned</return>
+    <explain>Starts a new script, to be able to later call exported functions. Non-critical or critical depending on the current state of the calling script. Blocks until the program part of the script is finished. See ExportedScript documentation how to call exported functions.</explain>
+    <related>ExportedScript</related>
 </function>
 </ESCRIPT>
