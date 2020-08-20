@@ -2,6 +2,7 @@
 
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/Node.h"
+#include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/ValueConsumer.h"
 
@@ -9,6 +10,11 @@ namespace Pol::Bscript::Compiler
 {
 
 void NodeVisitor::visit_float_value( FloatValue& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_string_value( StringValue& node )
 {
   visit_children( node );
 }

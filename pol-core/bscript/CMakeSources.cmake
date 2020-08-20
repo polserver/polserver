@@ -28,6 +28,8 @@ set (bscript_sources    # sorted !
   compiler/ast/NodeVisitor.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
+  compiler/ast/StringValue.cpp
+  compiler/ast/StringValue.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
   compiler/ast/Value.cpp
