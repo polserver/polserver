@@ -1,12 +1,18 @@
 ﻿-- POL100 --
 12-9-2020 Turley:
     Added: os::LoadExportedScript(scriptname, args:={})
-           Load and start program part of given script. The optional args array will be unpacked and passed as single arguments to the program. Script will be started non-critical or critical depending on the calling state. Blocks until the program part ends. Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.
+           Load and start program part of given script.
+           The optional args array will be unpacked and passed as single arguments to the program.
+           Script will be started non-critical or critical depending on the caller's state.
+           Blocks until the program part ends.
+           Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.
     Added: ExportScript object
            the script will remain loaded as long as the object exists.
            member: .exported_functions array of exported function names
            method .call(functionname, args:={})
-           calls and blocks current scriot a exported function and returns the return value or 1 if no return value was given. Like LoadExportedScript critical state depends on the calling script. Args see LoadExportedScript.
+           Calls and blocks current script a exported function and returns the return value or 1 if no return value was given.
+           Like LoadExportedScript critical state depends on the caller's script.
+           Args see LoadExportedScript.
     Added: packageref.dir member returns directory path
            packageref.desc member returns description "pkg.name (pkg.dir)"
 10-25-2020 Turley:
