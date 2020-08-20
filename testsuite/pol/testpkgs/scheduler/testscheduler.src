@@ -71,3 +71,30 @@ exported function test_loadexported_critical()
   set_critical(0);
   return 1;
 endfunction
+
+exported function test_loadexported_args()
+  var args:={"te","st"};
+  var script:=LoadExportedScript("exportedargs.ecl",args);
+  if (script[2]!="te_st_")
+    return error{errortext:="Program did not accepted args: {}".format(script[2])};
+  endif
+  if (args[1]!="te" || args[2]!="st")
+    return error{errortext:="program modified args {}".format(args)};
+  endif
+  var res:=script[1].call("func",args);
+  if (res !="te_st_")
+    return error{errortext:="func failed {}".format(res)};
+  endif
+  if (args[1]!="te" || args[2]!="st")
+    return error{errortext:="func modified args {}".format(args)};
+  endif
+  res:=script[1].call("funcbyref",args);
+  if (res !="te_st_")
+    return error{errortext:="funcbyref failed {}".format(res)};
+  endif
+  if (args[1]!="te_" || args[2]!="st")
+    return error{errortext:="funcbyref did not modified args {}".format(args)};
+  endif
+  return 1;
+endfunction
+
