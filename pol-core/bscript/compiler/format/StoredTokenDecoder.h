@@ -1,6 +1,7 @@
 #ifndef POLSERVER_STOREDTOKENDECODER_H
 #define POLSERVER_STOREDTOKENDECODER_H
 
+#include <string>
 #include <vector>
 
 #include "clib/formatfwd.h"
