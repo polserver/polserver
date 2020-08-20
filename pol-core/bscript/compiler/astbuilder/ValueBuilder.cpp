@@ -1,5 +1,7 @@
 #include "ValueBuilder.h"
 
+#include <cstring>
+
 #include "clib/strutil.h"
 #include "compiler/Report.h"
 #include "compiler/ast/FloatValue.h"
