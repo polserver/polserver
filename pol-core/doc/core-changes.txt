@@ -7,6 +7,8 @@
            member: .exported_functions array of exported function names
            method .call(functionname, args:={})
            calls and blocks current scriot a exported function and returns the return value or 1 if no return value was given. Like LoadExportedScript critical state depends on the calling script. Args see LoadExportedScript.
+    Added: packageref.dir member returns directory path
+           packageref.desc member returns description "pkg.name (pkg.dir)"
 10-25-2020 Turley:
   Changed: updated StrFormatTime to allow all format specifiers see http://www.cppreference.com/stddate/strftime.html for full list.
            Removed restriction of 100 characters.

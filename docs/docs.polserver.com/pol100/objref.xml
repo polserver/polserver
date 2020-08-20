@@ -741,6 +741,8 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <member mname="version" type="String" access="r/o" mdesc="Package version" />
 <member mname="supports_http" type="Boolean" access="r/o" mdesc="Does the Package supports www?" />
 <member mname="npcdesc" type="Boolean" access="r/o" mdesc="Does the Package hold an own npcdesc.cfg?" />
+<member mname="dir" type="String" access="r/o" mdesc="Package directory path" />
+<member mname="desc" type="String" access="r/o" mdesc="name + directory" />
 </class>
 
 
