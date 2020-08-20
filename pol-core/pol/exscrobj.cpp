@@ -279,11 +279,11 @@ ExportScriptObjImp::ExportScriptObjImp( std::shared_ptr<ScriptWrapper> script, b
 
 const char* ExportScriptObjImp::typeOf() const
 {
-  return "ExportScript";
+  return "ExportedScript";
 }
 std::string ExportScriptObjImp::getStringRep() const
 {
-  return "ExportScript";
+  return "ExportedScript";
 }
 size_t ExportScriptObjImp::sizeEstimate() const
 {
@@ -324,13 +324,21 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
         return new BLong( 0 );
       else if ( uoexec->ValueStack.empty() )
         return new BLong( 1 );
-      return uoexec->ValueStack.back().get()->impptr()->copy();
+      auto ret = uoexec->ValueStack.back().get()->impptr()->copy();
+      uoexec->ValueStack.pop_back();
+      return ret;
     }
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     const String* name;
     if ( !ex.getStringParam( 0, name ) )
       return new BError( "Invalid argument type" );
+    ObjArray* arr = nullptr;
+    if ( ex.hasParams( 2 ) )
+    {
+      if ( !ex.getObjArrayParam( 1, arr ) )
+        return new BError( "Invalid argument type" );
+    }
     const EScriptProgram* prog = uoexec->prog();
     bool found_func = false;
     u32 func_call_pc;
@@ -346,6 +354,11 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     if ( !found_func )
       return new BError( "Exported function name not found" );
     uoexec->initForFnCall( func_call_pc );
+    if ( arr != nullptr )
+    {
+      for ( size_t i = 0; i < arr->ref_arr.size(); ++i )
+        uoexec->pushArg( arr->ref_arr[i].get()->impptr() );
+    }
     if ( ex.critical() )
     {
       uoexec->exec();
@@ -353,7 +366,9 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
         return new BLong( 0 );
       else if ( uoexec->ValueStack.empty() )
         return new BLong( 1 );
-      return uoexec->ValueStack.back().get()->impptr()->copy();
+      auto ret = uoexec->ValueStack.back().get()->impptr()->copy();
+      uoexec->ValueStack.pop_back();
+      return ret;
     }
     else
     {
@@ -361,6 +376,8 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
       uoexec->pParent = &ex;
       ex.PC--;
       ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+      if ( arr != nullptr )
+        ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
       ex.suspend();
       Core::scriptScheduler.schedule( uoexec );
       return new ExportScriptObjImp( _ex, true );

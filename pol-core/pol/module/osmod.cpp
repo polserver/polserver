@@ -1105,9 +1105,9 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
   if ( this_uoexec.pChild == nullptr )
   {
     const String* scriptname_str;
-    if ( !exec.getStringParam( 0, scriptname_str ) )
+    ObjArray* arr;
+    if ( !exec.getStringParam( 0, scriptname_str ) || !getObjArrayParam( 1, arr ) )
       return new BError( "Invalid parameter type" );
-
     Core::ScriptDef sd;
     if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
       return new BError( "Error in script name" );
@@ -1125,6 +1125,11 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     uoexec->addModule( new Module::UOExecutorModule( *uoexec ) );
 
     uoexec->setProgram( program.get() );
+    if ( program->haveProgram )
+    {
+      for ( int i = (int)( arr->ref_arr.size() ) - 1; i >= 0; --i )
+        uoexec->pushArg( arr->ref_arr[i].get()->impptr() );
+    }
     if ( this_uoexec.critical() )  // execute directy
     {
       uoexec->exec();
@@ -1150,7 +1155,8 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
       this_uoexec.pChild = uoexec;
 
       this_uoexec.PC--;
-      // no valuesstack push_back, since currently only one param exists
+      // need to fill the valuestack equal to param count (-the return value)
+      this_uoexec.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
       suspend();
 
       return UninitObject::create();
@@ -1164,8 +1170,10 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     else if ( this_uoexec.pChild->ValueStack.empty() )
       ret = new BLong( 1 );
     else
+    {
       ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
-
+      this_uoexec.pChild->ValueStack.pop_back();
+    }
     auto array = std::make_unique<Bscript::ObjArray>();
     array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
     array->addElement( ret );

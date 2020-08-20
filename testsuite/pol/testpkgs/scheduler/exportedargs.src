@@ -1,0 +1,17 @@
+program exportedscript(a1, a2)
+  a1+="_";
+  a2+="_";
+  return a1+a2;
+endprogram
+
+exported function func(a1,a2)
+  a1+="_";
+  a2+="_";
+  return a1+a2;
+endfunction
+
+exported function funcbyref(byref a1,a2)
+  a1+="_";
+  a2+="_";
+  return a1+a2;
+endfunction
