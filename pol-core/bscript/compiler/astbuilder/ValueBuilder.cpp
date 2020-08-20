@@ -43,6 +43,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
 
   const char* end = s + 1;
   std::string lit;
+  lit.reserve(input.length());
   bool escnext = false;  // true when waiting for 2nd char in an escape sequence
   u8 hexnext = 0;        // tells how many more chars in a \xNN escape sequence
   char hexstr[3];        // will contain the \x escape chars to be processed
