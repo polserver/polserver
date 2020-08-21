@@ -98,3 +98,33 @@ exported function test_loadexported_args()
   return 1;
 endfunction
 
+exported function test_loadexported_critical_load()
+  set_critical(1);
+  var script:=LoadExportedScript("exported.ecl");
+  if (script[2]!=1)
+    set_critical(0);
+    return error{errortext:="Program did not load"};
+  endif
+  set_critical(0);
+  var res:=script[1].call("func1");
+  if (res !=2)
+    return error{errortext:="func1 failed {}".format(res)};
+  endif
+  return 1;
+endfunction
+
+exported function test_loadexported_critical_call()
+  var script:=LoadExportedScript("exported.ecl");
+  if (script[2]!=1)
+    return error{errortext:="Program did not load"};
+  endif
+  set_critical(1);
+  var res:=script[1].call("func1");
+  if (res !=2)
+    set_critical(0);
+    return error{errortext:="func1 failed {}".format(res)};
+  endif
+  script:=0; // gc script
+  set_critical(0);
+  return 1;
+endfunction
