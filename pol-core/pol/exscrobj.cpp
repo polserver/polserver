@@ -249,8 +249,10 @@ ScriptWrapper::~ScriptWrapper()
   try
   {
     UOExecutor* uoexec = _script.get_weakptr();
-    if ( uoexec->in_hold_list() ==
-         Core::NO_LIST )  // not part of the scheduler, delete it directly (eg critical)
+    if ( uoexec->in_hold_list() == Core::NO_LIST &&
+         uoexec->done )  // not part of the scheduler, delete it directly (eg critical), if its not
+                         // done it could be a very weird cornercase that somehow someone managed to
+                         // kill the scriptobj while a function is still running
     {
       delete uoexec;
     }
