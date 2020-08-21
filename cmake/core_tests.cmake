@@ -26,7 +26,7 @@ set_tests_properties(testenv PROPERTIES DEPENDS cleantestdir)
 set_tests_properties(testenv PROPERTIES FIXTURES_SETUP client)
 
 add_test(NAME shard_cfgfiles
-  COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/pol.cfg ../testsuite/pol/ecompile.cfg coretest
+  COMMAND ${CMAKE_COMMAND} -E copy ../testsuite/pol/pol.cfg ../testsuite/pol/ecompile.cfg ../testsuite/pol/uoconvert.cfg coretest
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS testenv)
