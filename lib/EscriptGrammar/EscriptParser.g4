@@ -11,7 +11,7 @@ options { tokenVocab=EscriptLexer; }
 }
 
 compilationUnit
-    : topLevelDeclaration* unitExpression? EOF
+    : topLevelDeclaration* EOF
     ;
 
 moduleUnit
@@ -33,10 +33,6 @@ moduleFunctionParameterList
 
 moduleFunctionParameter
     : IDENTIFIER (':=' expression)?
-    ;
-
-unitExpression
-    : expression ';'?
     ;
 
 topLevelDeclaration
@@ -147,8 +143,17 @@ forStatement
     : statementLabel? FOR forGroup ENDFOR
     ;
 
+foreachIterableExpression
+    : functionCall
+    | scopedFunctionCall
+    | IDENTIFIER
+    | parExpression
+    | bareArrayInitializer
+    | explicitArrayInitializer
+    ;
+
 foreachStatement
-    : statementLabel? FOREACH IDENTIFIER TOK_IN expression block ENDFOREACH
+    : statementLabel? FOREACH IDENTIFIER TOK_IN foreachIterableExpression block ENDFOREACH
     ;
 
 repeatStatement
@@ -235,39 +240,31 @@ functionParameterList
     ;
 
 functionParameter
-    : BYREF? IDENTIFIER (':=' expression)?
-    | UNUSED IDENTIFIER
+    : BYREF? UNUSED? IDENTIFIER (':=' expression)?
     ;
 
 // EXPRESSIONS
 
-scopedMethodCall
-    : IDENTIFIER '::' methodCall
+scopedFunctionCall
+    : IDENTIFIER '::' functionCall
+    ;
+
+functionReference
+    : '@' IDENTIFIER
     ;
 
 expression
     : primary
-    | expression bop='.'
-      ( IDENTIFIER
-      | STRING_LITERAL
-      | memberCall
-      )
-    | expression '[' expressionList ']'
-    | methodCall
-    | scopedMethodCall
-    | ARRAY arrayInitializer?
-    | STRUCT structInitializer?
-    | DICTIONARY dictInitializer?
-    | TOK_ERROR structInitializer?
-    | '{' expressionList? '}'
-    | '@' IDENTIFIER
+    | expression expressionSuffix
     | expression postfix=('++' | '--')
     | prefix=('+'|'-'|'++'|'--') expression
     | prefix=('~'|'!'|'not') expression
     | expression bop=('*'|'/'|'%') expression
     | expression bop=('+'|'-') expression
     | expression bop=('<<' | '>>') expression
+    | expression bop='?:' expression
     | expression bop=('<=' | '>=' | '>' | '<') expression
+    | expression bop='=' { notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); } expression
     | expression bop=('==' | '!=' | '<>') expression
     | expression bop='&' expression
     | expression bop='^' expression
@@ -282,9 +279,38 @@ expression
     ;
 
 primary
-    : '(' expression ')'
-    | literal
+    : literal
+    | parExpression
+    | functionCall
+    | scopedFunctionCall
     | IDENTIFIER
+    | functionReference
+    | explicitArrayInitializer
+    | explicitStructInitializer
+    | explicitDictInitializer
+    | explicitErrorInitializer
+    | bareArrayInitializer
+    ;
+
+explicitArrayInitializer
+    : ARRAY arrayInitializer?
+    ;
+
+explicitStructInitializer
+    : STRUCT structInitializer?
+    ;
+
+explicitDictInitializer
+    : DICTIONARY dictInitializer?
+    ;
+
+explicitErrorInitializer
+    : TOK_ERROR structInitializer?
+    ;
+
+bareArrayInitializer
+    : LBRACE expressionList? RBRACE
+    | LBRACE expressionList? ',' RBRACE {notifyErrorListeners("Expected expression following comma before right-brace in array initializer list");}
     ;
 
 parExpression
@@ -295,19 +321,25 @@ expressionList
     : expression (',' expression)*
     ;
 
-methodCallArgument
-    : (parameter=IDENTIFIER ':=')? expression
+expressionSuffix
+    : indexingSuffix
+    | methodCallSuffix
+    | navigationSuffix
     ;
 
-methodCallArgumentList
-    : methodCallArgument (',' methodCallArgument)*
+indexingSuffix
+    : LBRACK expressionList RBRACK
     ;
 
-methodCall
-    : IDENTIFIER '(' methodCallArgumentList? ')'
+navigationSuffix
+    : '.' ( IDENTIFIER | STRING_LITERAL )
     ;
 
-memberCall
+methodCallSuffix
+    : '.' IDENTIFIER LPAREN expressionList? RPAREN
+    ;
+
+functionCall
     : IDENTIFIER '(' expressionList? ')'
     ;
 

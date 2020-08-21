@@ -43,10 +43,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitUnitExpression(EscriptParser::UnitExpressionContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -124,6 +120,10 @@ public:
   }
 
   virtual antlrcpp::Any visitForStatement(EscriptParser::ForStatementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitForeachIterableExpression(EscriptParser::ForeachIterableExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -215,7 +215,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitScopedMethodCall(EscriptParser::ScopedMethodCallContext *ctx) override {
+  virtual antlrcpp::Any visitScopedFunctionCall(EscriptParser::ScopedFunctionCallContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunctionReference(EscriptParser::FunctionReferenceContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -227,6 +231,26 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitExplicitDictInitializer(EscriptParser::ExplicitDictInitializerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitExplicitErrorInitializer(EscriptParser::ExplicitErrorInitializerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitBareArrayInitializer(EscriptParser::BareArrayInitializerContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitParExpression(EscriptParser::ParExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -235,19 +259,23 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMethodCallArgument(EscriptParser::MethodCallArgumentContext *ctx) override {
+  virtual antlrcpp::Any visitExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMethodCallArgumentList(EscriptParser::MethodCallArgumentListContext *ctx) override {
+  virtual antlrcpp::Any visitIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMethodCall(EscriptParser::MethodCallContext *ctx) override {
+  virtual antlrcpp::Any visitNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMemberCall(EscriptParser::MemberCallContext *ctx) override {
+  virtual antlrcpp::Any visitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunctionCall(EscriptParser::FunctionCallContext *ctx) override {
     return visitChildren(ctx);
   }
 
