@@ -1,10 +1,10 @@
 use os;
 
-program testscheduler()
+program testloadexported()
   return 1;
 endprogram
 
-exported function test_loadexported()
+exported function loadexported_basic()
   var script:=LoadExportedScript("exported.ecl");
   if (script[2]!=1)
     return error{errortext:="Program did not load"};
@@ -31,7 +31,7 @@ function copy_exported(script)
   return res;
 endfunction
 
-exported function test_loadexported_copy()
+exported function loadexported_copy()
   var script:=LoadExportedScript("exported.ecl");
   if (script[2]!=1)
     return error{errortext:="Program did not load"};
@@ -47,7 +47,7 @@ exported function test_loadexported_copy()
   return 1; 
 endfunction
 
-exported function test_loadexported_critical()
+exported function loadexported_critical()
   set_critical(1);
   var script:=LoadExportedScript("exported.ecl");
   if (script[2]!=1)
@@ -72,7 +72,7 @@ exported function test_loadexported_critical()
   return 1;
 endfunction
 
-exported function test_loadexported_args()
+exported function loadexported_args()
   var args:={"te","st"};
   var script:=LoadExportedScript("exportedargs.ecl",args);
   if (script[2]!="te_st_")
@@ -98,7 +98,7 @@ exported function test_loadexported_args()
   return 1;
 endfunction
 
-exported function test_loadexported_critical_load()
+exported function loadexported_critical_load()
   set_critical(1);
   var script:=LoadExportedScript("exported.ecl");
   if (script[2]!=1)
@@ -113,7 +113,7 @@ exported function test_loadexported_critical_load()
   return 1;
 endfunction
 
-exported function test_loadexported_critical_call()
+exported function loadexported_critical_call()
   var script:=LoadExportedScript("exported.ecl");
   if (script[2]!=1)
     return error{errortext:="Program did not load"};
