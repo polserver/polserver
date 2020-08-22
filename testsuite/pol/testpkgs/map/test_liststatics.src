@@ -1,6 +1,8 @@
 use uo;
 use os;
 
+include "testutil";
+
 program liststatics()
   return 1;
 endprogram
@@ -8,10 +10,10 @@ endprogram
 exported function inbox()
   var info:=ListStaticsInBox(10,5,-128,11,5,128);
   if (info[1].objtype !=0x3fff || info[1].x !=10 || info[1].y!=5 || info[1].z!=-5)
-    return error{errortext:="Wrong static found at pos 1 :"+info[1]};
+    return ret_error("Wrong static found at pos 1 :"+info[1]);
   endif
   if (info[2].objtype !=0x3fff || info[2].x !=11 || info[2].y!=5 || info[2].z!=10)
-    return error{errortext:="Wrong static found at pos 2 :"+info[2]};
+    return ret_error("Wrong static found at pos 2 :"+info[2]);
   endif
   return 1;
 endfunction

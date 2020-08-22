@@ -1,6 +1,8 @@
 use uo;
 use os;
 
+include "testutil";
+
 program map_info()
   return 1;
 endprogram
@@ -26,7 +28,7 @@ exported function mapinfo()
     endfor
   endfor
   if (len(errortext))
-    return error{errortext:=errortext};
+    return ret_error(errortext);
   endif
   return 1;
 endfunction
