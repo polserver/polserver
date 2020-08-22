@@ -1,5 +1,6 @@
 #include "CompilerWorkspace.h"
 
+#include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/file/SourceFileIdentifier.h"
 

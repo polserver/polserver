@@ -2,15 +2,17 @@
 
 #include "clib/fileutil.h"
 #include "clib/timer.h"
-#include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
+#include "compiler/astbuilder/BuilderWorkspace.h"
+#include "compiler/astbuilder/ModuleProcessor.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileCache.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/CompilerWorkspace.h"
+#include "compilercfg.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -25,6 +27,50 @@ SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_fil
     tree_builder( source_file_identifier, workspace ),
     is_src( is_src )
 {
+}
+
+void SourceFileProcessor::use_module( const std::string& module_name,
+                                      SourceLocation& including_location,
+                                      long long* micros_counted )
+{
+  std::string pathname = compilercfg.ModuleDirectory + module_name + ".em";
+
+  if ( workspace.source_files.find( pathname ) != workspace.source_files.end() )
+    return;
+
+
+
+  auto ident = std::make_unique<SourceFileIdentifier>(
+      workspace.compiler_workspace.referenced_source_file_identifiers.size(), pathname );
+
+  Pol::Tools::HighPerfTimer load_timer;
+  auto sf = workspace.em_cache.load( *ident, report );
+  long long load_elapsed = load_timer.ellapsed().count();
+  profile.load_em_micros += load_elapsed;
+  if ( !sf )
+  {
+    // This is fatal because if we keep going, we'll likely report a bunch of errors
+    // that would just be noise, like missing module function declarations or constants.
+    report.fatal( including_location, "Unable to use module '", module_name, "'.\n" );
+  }
+  workspace.source_files[ pathname ] = sf;
+
+  ModuleProcessor module_processor( *ident, workspace, module_name );
+  workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+
+  Pol::Tools::HighPerfTimer get_module_unit_timer;
+  auto module_unit_context = sf->get_module_unit( report, source_file_identifier );
+  long long parse_elapsed = get_module_unit_timer.ellapsed().count();
+  profile.parse_em_micros += parse_elapsed;
+  profile.parse_em_count++;
+
+  Pol::Tools::HighPerfTimer visit_module_unit_timer;
+  module_unit_context->accept( &module_processor );
+  long long ast_elapsed = visit_module_unit_timer.ellapsed().count();
+  profile.ast_em_micros.fetch_add( ast_elapsed );
+
+  if ( micros_counted )
+    *micros_counted = load_elapsed + parse_elapsed + ast_elapsed;
 }
 
 void SourceFileProcessor::process_source( SourceFile& sf )
