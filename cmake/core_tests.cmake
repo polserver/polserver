@@ -115,11 +115,18 @@ add_test(NAME uoconvert_multis
 set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_REQUIRED "client;shard")
 set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_SETUP uoconvert)
 
+#TODO: on windows the binary path gets added to the cfg path entries
+add_test(NAME shard_ecompile_copy
+  COMMAND ${CMAKE_COMMAND} -E copy ../bin/ecompile coretest
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties( shard_ecompile_copy PROPERTIES FIXTURES_SETUP ecompile)
 
 add_test(NAME shard_ecompile
-  COMMAND ../../bin/ecompile -A
+  COMMAND ../coretest/ecompile -A
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
+set_tests_properties( shard_ecompile PROPERTIES DEPENDS shard_ecompile_copy)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
