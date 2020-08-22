@@ -1141,6 +1141,10 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
       else
         ret = uoexec->ValueStack.back().get()->impptr()->copy();
 
+      uoexec->suspend();
+      uoexec->set_running_to_completion( false );
+      Core::scriptScheduler.schedule( uoexec );
+
       auto array = std::make_unique<Bscript::ObjArray>();
       array->addElement( new Core::ExportScriptObjImp( uoexec ) );
       array->addElement( ret );

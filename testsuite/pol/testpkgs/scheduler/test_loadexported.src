@@ -1,4 +1,5 @@
 use os;
+use uo;
 
 program testloadexported()
   return 1;
@@ -9,7 +10,7 @@ exported function loadexported_basic()
   if (script[2]!=1)
     return error{errortext:="Program did not load"};
   endif
-  if (len(script[1].exported_functions)!=2)
+  if (len(script[1].exported_functions)!=3)
     return error{errortext:="didnt found 2 functions"};
   endif
   var res:=script[1].call("func1");
@@ -54,7 +55,7 @@ exported function loadexported_critical()
     set_critical(0);
     return error{errortext:="Program did not load"};
   endif
-  if (len(script[1].exported_functions)!=2)
+  if (len(script[1].exported_functions)!=3)
     set_critical(0);
     return error{errortext:="didnt found 2 functions"};
   endif
@@ -126,5 +127,25 @@ exported function loadexported_critical_call()
   endif
   script:=0; // gc script
   set_critical(0);
+  return 1;
+endfunction
+
+exported function loadexported_simultaneous()
+  // one of the scripts should fail to call the function, crashes otherwise
+  var script:=LoadExportedScript("exported.ecl");
+  if (script[2]!=1)
+    return error{errortext:="Program did not load"};
+  endif
+  for i := 1 to 2
+    start_script("simultaneous_loadexported", { script[1], i });
+  endfor
+  while (!getglobalproperty("#sim_loadexported1")
+      || !getglobalproperty("#sim_loadexported2"))
+    sleepms(10);
+  endwhile
+  if (getglobalproperty("#sim_loadexported1") +
+      getglobalproperty("#sim_loadexported2")!=3)
+    return error{errortext:="one call did not fail, or both failed"};
+  endif
   return 1;
 endfunction

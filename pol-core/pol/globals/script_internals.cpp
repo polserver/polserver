@@ -318,7 +318,22 @@ void ScriptScheduler::run_ready()
 
 void ScriptScheduler::schedule( UOExecutor* exec )
 {
+  passert_always( exec->in_hold_list() == NO_LIST );
   exec->setDebugLevel( Bscript::Executor::NONE );
+  if ( exec->blocked() )  // when scheduled blocked do not put it in the runlist
+  {
+    if ( exec->sleep_until_clock() )
+    {
+      exec->in_hold_list( Core::HoldListType::TIMEOUT_LIST );
+      exec->hold_itr( holdlist.insert( HoldList::value_type( exec->sleep_until_clock(), exec ) ) );
+    }
+    else
+    {
+      exec->in_hold_list( Core::HoldListType::NOTIMEOUT_LIST );
+      notimeoutholdlist.insert( exec );
+    }
+    return;
+  }
   enqueue( exec );
 }
 
@@ -438,6 +453,34 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
   FLEXLOG( logf ) << log.str();
   CLOSE_FLEXLOG( logf );
   return true;
+}
+
+void ScriptScheduler::revive_debugged( UOExecutor* exec )
+{
+  debuggerholdlist.erase( exec );
+  enqueue( exec );
+}
+
+void ScriptScheduler::revive_timeout( UOExecutor* exec, TimeoutHandle hold_itr )
+{
+  holdlist.erase( hold_itr );
+  enqueue( exec );
+}
+
+void ScriptScheduler::revive_notimeout( UOExecutor* exec )
+{
+  notimeoutholdlist.erase( exec );
+  enqueue( exec );
+}
+
+void ScriptScheduler::enqueue( UOExecutor* exec )
+{
+  runlist.push_back( exec );
+}
+
+void ScriptScheduler::free_pid( unsigned int pid )
+{
+  pidlist.erase( pid );
 }
 }  // namespace Core
 }  // namespace Pol

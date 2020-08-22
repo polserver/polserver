@@ -249,22 +249,12 @@ ScriptWrapper::~ScriptWrapper()
   try
   {
     UOExecutor* uoexec = _script.get_weakptr();
-    if ( uoexec->in_hold_list() == Core::NO_LIST &&
-         uoexec->done )  // not part of the scheduler, delete it directly (eg critical), if its not
-                         // done it could be a very weird cornercase that somehow someone managed to
-                         // kill the scriptobj while a function is still running
-    {
-      delete uoexec;
-    }
-    else
-    {
-      uoexec->keep_alive( false );
-      uoexec->seterror( true );
+    uoexec->keep_alive( false );
+    uoexec->seterror( true );
 
-      uoexec->revive();
-      if ( uoexec->in_debugger_holdlist() )
-        uoexec->revive_debugged();
-    }
+    uoexec->revive();
+    if ( uoexec->in_debugger_holdlist() )
+      uoexec->revive_debugged();
   }
   catch ( ... )
   {
@@ -355,6 +345,9 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     }
     if ( !found_func )
       return new BError( "Exported function name not found" );
+    if ( !uoexec->done )
+      return new BError( "Executor is still running" );
+
     uoexec->initForFnCall( func_call_pc );
     if ( arr != nullptr )
     {
@@ -364,12 +357,18 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     if ( ex.critical() )
     {
       uoexec->exec();
+      Bscript::BObjectImp* ret;
       if ( uoexec->error() )
-        return new BLong( 0 );
+        ret = new BLong( 0 );
       else if ( uoexec->ValueStack.empty() )
-        return new BLong( 1 );
-      auto ret = uoexec->ValueStack.back().get()->impptr()->copy();
-      uoexec->ValueStack.pop_back();
+        ret = new BLong( 1 );
+      else
+      {
+        ret = uoexec->ValueStack.back().get()->impptr()->copy();
+        uoexec->ValueStack.pop_back();
+      }
+      uoexec->set_running_to_completion( false );
+      uoexec->suspend();
       return ret;
     }
     else
@@ -381,7 +380,7 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
       if ( arr != nullptr )
         ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
       ex.suspend();
-      Core::scriptScheduler.schedule( uoexec );
+      uoexec->revive();
       return new ExportScriptObjImp( _ex, true );
     }
   }
