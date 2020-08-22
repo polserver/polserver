@@ -136,34 +136,6 @@ const inline PidList& ScriptScheduler::getPidlist()
   return pidlist;
 }
 
-inline void ScriptScheduler::revive_debugged( UOExecutor* exec )
-{
-  debuggerholdlist.erase( exec );
-  enqueue( exec );
-}
-
-inline void ScriptScheduler::revive_timeout( UOExecutor* exec, TimeoutHandle hold_itr )
-{
-  holdlist.erase( hold_itr );
-  enqueue( exec );
-}
-
-inline void ScriptScheduler::revive_notimeout( UOExecutor* exec )
-{
-  notimeoutholdlist.erase( exec );
-  enqueue( exec );
-}
-
-inline void ScriptScheduler::enqueue( UOExecutor* exec )
-{
-  runlist.push_back( exec );
-}
-
-inline void ScriptScheduler::free_pid( unsigned int pid )
-{
-  pidlist.erase( pid );
-}
-
 extern ScriptScheduler scriptScheduler;
 }  // namespace Core
 }  // namespace Pol

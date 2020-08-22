@@ -1,3 +1,4 @@
+use os;
 var calls:=0;
 program exportedscript()
   return ++calls;
@@ -9,4 +10,11 @@ endfunction
 
 exported function func2()
   return ++calls;
+endfunction
+
+exported function longrunning()
+  for i := 1 to 4
+    Sleepms(10);
+  endfor
+  return 1;
 endfunction
