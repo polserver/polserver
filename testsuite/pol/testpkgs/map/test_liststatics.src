@@ -6,7 +6,7 @@ program liststatics()
 endprogram
 
 exported function inbox()
-  var info:=ListStaticsInBox(0,0,-128,10000,10000,128);
+  var info:=ListStaticsInBox(10,5,-128,11,5,128);
   if (info[1].objtype !=0x3fff || info[1].x !=10 || info[1].y!=5 || info[1].z!=-5)
     return error{errortext:="Wrong static found at pos 1 :"+info[1]};
   endif
