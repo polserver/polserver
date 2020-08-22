@@ -1,0 +1,5 @@
+use os;
+program start_boat( param )
+  start_script( ":testboat:boat", param );
+endprogram
+
