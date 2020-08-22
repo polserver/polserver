@@ -120,6 +120,7 @@ add_test(NAME shard_ecompile_copy
   COMMAND ${CMAKE_COMMAND} -E copy ../bin/ecompile coretest
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+set_tests_properties( shard_ecompile_copy PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile_copy PROPERTIES FIXTURES_SETUP ecompile)
 
 add_test(NAME shard_ecompile
