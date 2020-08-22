@@ -2,6 +2,8 @@ use uo;
 use os;
 use boat;
 
+include "testutil";
+
 program test_boat()
   return 1;
 endprogram
@@ -9,12 +11,12 @@ endprogram
 exported function create()
   var res:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
   if (!res)
-    return error{errortext:="Failed to create boat "+res};
+    return ret_error("Failed to create boat "+res);
   endif
   if (res.x !=10 || res.y != 50 || res.z != -4 || res.graphic !=0x0)
     var er:="Wrong pos or graphic: {},{},{} {}".format(res.x, res.y, res.z, res.graphic);
     DestroyMulti(res);
-    return error{errortext:=er};
+    return ret_error(er);
   endif
   for i:=1 to 5
     sleepms(10);
@@ -24,14 +26,14 @@ exported function create()
     endif
   endfor
   DestroyMulti(res);
-  return error{errortext:="Failed to start boat script"};
+  return ret_error("Failed to start boat script");
 endfunction
 
 exported function create_fail()
   var res:=CreateMultiAtLocation(50,50,-4,0x11000, CRMULTI_FACING_EAST);
   if (res)
     DestroyMulti(res);
-    return error{errortext:="Created boat on ground"};
+    return ret_error("Created boat on ground");
   endif
   return 1;
 endfunction
@@ -39,13 +41,13 @@ endfunction
 exported function move()
   var res:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
   if (!res)
-    return error{errortext:="Failed to create boat "+res};
+    return ret_error("Failed to create boat "+res);
   endif
   moveboat(res, 0);
   if (res.x !=10 || res.y != 49 || res.z != -4)
     var er:="Wrong pos: {},{},{}".format(res.x, res.y, res.z);
     DestroyMulti(res);
-    return error{errortext:=er};
+    return ret_error(er);
   endif
   DestroyMulti(res);
   return 1;

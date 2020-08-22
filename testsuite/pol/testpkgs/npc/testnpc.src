@@ -1,5 +1,6 @@
 use uo;
 use os;
+include "testutil";
 
 program npc_ai()
   return 1;
@@ -8,7 +9,7 @@ endprogram
 exported function npc_ai_movement()
   var npc:=CreateNPCFromTemplate(":testnpc:test_movement",100,100,0);
   if (!npc)
-    return error{errortext:="Could not create NPC: "+npc};
+    return ret_error("Could not create NPC: "+npc);
   endif
 
   while(1)
@@ -16,7 +17,7 @@ exported function npc_ai_movement()
     if (!npc)
       break;
     elseif (!npc.process)
-      return error{errortext:=npc.getprop("testerror")};
+      return ret_error(npc.getprop("testerror"));
     endif
   endwhile
 
