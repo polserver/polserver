@@ -45,7 +45,7 @@ void Client::recv_remaining( int total_expected )
   int max_expected = total_expected - bytes_received;
 
   {
-    std::lock_guard<std::mutex> lock( _SocketMutex );
+    std::lock_guard<std::mutex> lock( client_socket_mutex ); // unnecessary?
     count = cryptengine->Receive( &buffer[bytes_received], max_expected, csocket );
   }
 
@@ -74,7 +74,7 @@ void Client::recv_remaining_nocrypt( int total_expected )
   int count;
 
   {
-    std::lock_guard<std::mutex> lock( _SocketMutex );
+    std::lock_guard<std::mutex> lock( client_socket_mutex ); // unnecessary?
     count = recv( csocket, (char*)&buffer[bytes_received], total_expected - bytes_received, 0 );
   }
   if ( count > 0 )
@@ -186,7 +186,7 @@ void Client::transmit_encrypted( const void* data, int len )
   THREAD_CHECKPOINT( active_client, 116 );
 }
 
-void Client::transmit( const void* data, int len, bool needslock )
+void Client::transmit( const void* data, int len)
 {
   ref_ptr<Core::BPacket> p;
   bool handled = false;
@@ -202,17 +202,9 @@ void Client::transmit( const void* data, int len, bool needslock )
     handled = GetAndCheckPacketHooked( this, data, phd );
     if ( handled )
     {
-      if ( needslock )
-      {
-        Core::PolLock lock;
-        std::lock_guard<std::mutex> guard( _SocketMutex );
-        CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
-      }
-      else
-      {
-        std::lock_guard<std::mutex> guard( _SocketMutex );
-        CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
-      }
+      Core::PolLock lock;
+      std::lock_guard<std::mutex> guard( client_socket_mutex );
+      CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
     }
   }
 
@@ -232,7 +224,7 @@ void Client::transmit( const void* data, int len, bool needslock )
     }
   }
 
-  std::lock_guard<std::mutex> guard( _SocketMutex );
+  std::lock_guard<std::mutex> guard( client_socket_mutex );
   if ( disconnect )
   {
     POLLOG_INFO << "Warning: Trying to send to a disconnected client! \n";
