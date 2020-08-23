@@ -1,7 +1,10 @@
 #include "InstructionEmitter.h"
 
 #include "StoredToken.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/codegen/ModuleDeclarationRegistrar.h"
 #include "compiler/representation/CompiledScript.h"
+#include "escriptv.h"
 #include "modules.h"
 
 namespace Pol::Bscript::Compiler
@@ -19,6 +22,21 @@ void InstructionEmitter::initialize_data()
 {
   std::byte nul{};
   data_emitter.store( &nul, sizeof nul );
+}
+
+void InstructionEmitter::call_modulefunc(
+    const ModuleFunctionDeclaration& module_function_declaration )
+{
+  unsigned module_id, function_index;
+  module_declaration_registrar.lookup_or_register_module_function( module_function_declaration,
+                                                                   module_id, function_index );
+  unsigned sympos = include_debug ? emit_data( module_function_declaration.name ) : 0;
+  StoredToken token(
+      module_id, TOK_FUNC,
+      static_cast<BTokenType>(
+          function_index ),  // function index, stored in Token.lval, saved in StoredToken.type
+      sympos );
+  append_token( token );
 }
 
 void InstructionEmitter::consume()

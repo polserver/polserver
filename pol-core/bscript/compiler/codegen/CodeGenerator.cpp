@@ -57,8 +57,8 @@ CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
 
 void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
 {
-   InstructionGenerator top_level_instruction_generator( emitter );
-   workspace.top_level_statements->accept( top_level_instruction_generator );
+  InstructionGenerator top_level_instruction_generator( emitter );
+  workspace.top_level_statements->accept( top_level_instruction_generator );
 
   emit.progend();
 }

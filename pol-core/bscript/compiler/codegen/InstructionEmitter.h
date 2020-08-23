@@ -26,6 +26,7 @@ class StoredToken;
 namespace Pol::Bscript::Compiler
 {
 class ModuleDeclarationRegistrar;
+class ModuleFunctionDeclaration;
 
 class InstructionEmitter
 {
@@ -35,6 +36,7 @@ public:
 
   void initialize_data();
 
+  void call_modulefunc( const ModuleFunctionDeclaration& );
   void consume();
   void progend();
   void value( double );
