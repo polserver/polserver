@@ -152,8 +152,7 @@ public:
 
   void unregister();  // removes updater for vitals and takes client away from clientlist
   void closeConnection();
-  void transmit( const void* data, int len,
-                 bool needslock = false );  // for entire message or header only
+  void transmit( const void* data, int len );  // for entire message or header only
 
   void recv_remaining( int total_expected );
   void recv_remaining_nocrypt( int total_expected );
@@ -189,7 +188,9 @@ public:
   void send_queued_data();
 
   SOCKET csocket;  // socket to client ACK  - requires header inclusion.
-  static std::mutex _SocketMutex;
+
+  std::mutex client_socket_mutex;
+
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
 

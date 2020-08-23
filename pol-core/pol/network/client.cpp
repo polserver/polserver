@@ -68,7 +68,6 @@ void cancel_trade( Mobile::Character* chr1 );
 namespace Network
 {
 unsigned int Client::instance_counter_;
-std::mutex Client::_SocketMutex;
 
 Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
     : preDisconnect( false ),
@@ -128,10 +127,13 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
 
 void Client::Delete( Client* client )
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );  // TODO: check if this is necessary
-  client->PreDelete();
-  delete client->cryptengine;  // TODO: move this into a unique_ptr<> or at least ~Client()
-  client->cryptengine = nullptr;
+  {
+    // TODO: check if this guard is necessary
+    std::lock_guard<std::mutex> lock( client->client_socket_mutex );
+    client->PreDelete();
+    delete client->cryptengine;  // TODO: move this into a unique_ptr<> or at least ~Client()
+    client->cryptengine = nullptr;
+  }
   delete client;
 }
 
@@ -147,7 +149,7 @@ void Client::unregister()
 
 void Client::closeConnection()
 {
-  // std::lock_guard<std::mutex> lock (_SocketMutex);
+  // std::lock_guard<std::mutex> lock( client_socket_mutex );
   if ( csocket != INVALID_SOCKET )  //>= 0)
   {
 #ifdef _WIN32
@@ -539,9 +541,9 @@ void Client::xmit( const void* data, unsigned short datalen )
 
 void Client::send_queued_data()
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );
+  std::lock_guard<std::mutex> lock( client_socket_mutex );
   Core::XmitBuffer* xbuffer;
-  // hand off data to the sockets layer until it won't take any more.
+  // hand off data to the sockets layer until it won't take any more.`
   // note if a buffer is sent in full, we try to send the next one, ad infinitum
   while ( nullptr != ( xbuffer = first_xmit_buffer ) )
   {
