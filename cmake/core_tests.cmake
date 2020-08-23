@@ -27,11 +27,22 @@ set_tests_properties(testenv PROPERTIES DEPENDS cleantestdir)
 set_tests_properties(testenv PROPERTIES FIXTURES_SETUP client)
 
 add_test(NAME shard_cfgfiles
-  COMMAND ${CMAKE_COMMAND} -E copy ${testsuite}/pol.cfg ${testsuite}/ecompile.cfg ${testsuite}/uoconvert.cfg coretest
+  COMMAND ${CMAKE_COMMAND} -E copy ${testsuite}/pol.cfg ${testsuite}/uoconvert.cfg coretest
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 set_tests_properties(shard_cfgfiles PROPERTIES DEPENDS testenv)
 set_tests_properties(shard_cfgfiles PROPERTIES FIXTURES_SETUP shard)
+
+add_test(NAME shard_ecompile_cfg
+  COMMAND ${CMAKE_COMMAND}
+    -Dtestdir=${CMAKE_BINARY_DIR}/coretest
+    -Decompile_cfg=${testsuite}/ecompile.cfg
+    -Dmodules=${CMAKE_SOURCE_DIR}/pol-core/support/scripts
+    -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_ecompile_cfg.cmake
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties(shard_ecompile_cfg PROPERTIES DEPENDS testenv)
+set_tests_properties(shard_ecompile_cfg PROPERTIES FIXTURES_SETUP shard)
 
 add_test(NAME shard_testscript
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${testsuite}/scripts coretest/scripts
@@ -116,19 +127,10 @@ add_test(NAME uoconvert_multis
 set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_REQUIRED "client;shard")
 set_tests_properties( uoconvert_multis PROPERTIES FIXTURES_SETUP uoconvert)
 
-#TODO: on windows the binary path gets added to the cfg path entries
-#add_test(NAME shard_ecompile_copy
-#  COMMAND ${CMAKE_COMMAND} -E copy ecompile coretest
-#  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#)
-#set_tests_properties( shard_ecompile_copy PROPERTIES FIXTURES_REQUIRED shard)
-#set_tests_properties( shard_ecompile_copy PROPERTIES FIXTURES_SETUP ecompile)
-
 add_test(NAME shard_ecompile
   COMMAND ecompile -A
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
-#set_tests_properties( shard_ecompile PROPERTIES DEPENDS shard_ecompile_copy)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
