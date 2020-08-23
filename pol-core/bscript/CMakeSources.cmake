@@ -110,6 +110,8 @@ set (bscript_sources    # sorted !
   compiler/model/FunctionLink.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
+  compiler/optimizer/ReferencedFunctionGatherer.cpp
+  compiler/optimizer/ReferencedFunctionGatherer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp
