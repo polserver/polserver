@@ -56,6 +56,12 @@ struct EPDbgBlock
   unsigned parentblockidx;
   unsigned parentvariables;
   std::vector<std::string> localvarnames;
+
+  bool operator==( const EPDbgBlock& other ) const
+  {
+    return parentblockidx == other.parentblockidx && parentvariables == other.parentvariables &&
+           localvarnames == other.localvarnames;
+  }
 };
 
 struct EPExportedFunction
@@ -63,6 +69,11 @@ struct EPExportedFunction
   std::string name;
   unsigned nargs;
   unsigned PC;
+
+  bool operator==( const EPExportedFunction& other ) const
+  {
+    return name == other.name && nargs == other.nargs && PC == other.PC;
+  }
 };
 
 struct EPDbgFunction
@@ -70,6 +81,11 @@ struct EPDbgFunction
   std::string name;
   unsigned firstPC;
   unsigned lastPC;
+
+  bool operator==( const EPDbgFunction& other ) const
+  {
+    return name == other.name && firstPC == other.firstPC && lastPC == other.lastPC;
+  }
 };
 
 struct BSCRIPT_SECTION_HDR;
