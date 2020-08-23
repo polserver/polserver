@@ -30,13 +30,6 @@ private:
 
   Report& report;
 
-  //// what about this? (ci_map in Clib)
-  // template<typename T>
-  // using ci_map = std::map<std::string, T, Clib::ci_cmp_pred>;
-  //
-  // using AmbiguousUserFunctionMap =
-  //    ci_map<EscriptGrammar::EscriptParser::FunctionDeclarationContext*>;
-
   using FunctionMap = std::map<std::string, Function*, Clib::ci_cmp_pred>;
 
   FunctionMap resolved_functions_by_name;
