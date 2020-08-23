@@ -5,12 +5,15 @@
 
 namespace Pol::Bscript::Compiler
 {
+class ModuleFunctionDeclaration;
 
 class ModuleDeclarationBuilder : public SimpleStatementBuilder
 {
 public:
   ModuleDeclarationBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
+  std::unique_ptr<ModuleFunctionDeclaration> module_function_declaration(
+      EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext*, std::string module_name );
 };
 
 }  // namespace Pol::Bscript::Compiler

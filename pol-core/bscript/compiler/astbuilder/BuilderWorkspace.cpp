@@ -14,7 +14,8 @@ BuilderWorkspace::BuilderWorkspace( CompilerWorkspace& compiler_workspace,
     em_cache( em_cache ),
     inc_cache( inc_cache ),
     profile( profile ),
-    report( report )
+    report( report ),
+    function_resolver( report )
 {
 }
 

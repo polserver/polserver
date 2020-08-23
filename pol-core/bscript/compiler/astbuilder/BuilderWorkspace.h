@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+#include "compiler/astbuilder/FunctionResolver.h"
+
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
@@ -31,6 +33,7 @@ public:
   Report& report;
 
   std::map<std::string, std::shared_ptr<SourceFile>> source_files;
+  FunctionResolver function_resolver;
 };
 
 }  // namespace Pol::Bscript::Compiler
