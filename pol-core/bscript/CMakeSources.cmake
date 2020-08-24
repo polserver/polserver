@@ -18,12 +18,16 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/ast/Argument.cpp
+  compiler/ast/Argument.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
   compiler/ast/FloatValue.h
   compiler/ast/Function.cpp
   compiler/ast/Function.h
+  compiler/ast/FunctionCall.cpp
+  compiler/ast/FunctionCall.h
   compiler/ast/FunctionParameterDeclaration.cpp
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
@@ -80,6 +84,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/InstructionEmitter.h
   compiler/codegen/InstructionGenerator.cpp
   compiler/codegen/InstructionGenerator.h
+  compiler/codegen/ModuleDeclarationRegistrar.cpp
+  compiler/codegen/ModuleDeclarationRegistrar.h
   compiler/file/ConformingCharStream.cpp
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp
@@ -100,8 +106,12 @@ set (bscript_sources    # sorted !
   compiler/format/StoredTokenDecoder.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
+  compiler/model/FunctionLink.cpp
+  compiler/model/FunctionLink.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
+  compiler/optimizer/ReferencedFunctionGatherer.cpp
+  compiler/optimizer/ReferencedFunctionGatherer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp
