@@ -5,6 +5,7 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/ValueConsumer.h"
@@ -36,6 +37,11 @@ void InstructionGenerator::visit_identifier( Identifier& node )
 }
 
 void InstructionGenerator::visit_float_value( FloatValue& node )
+{
+  emit.value( node.value );
+}
+
+void InstructionGenerator::visit_integer_value( IntegerValue& node )
 {
   emit.value( node.value );
 }

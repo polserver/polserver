@@ -43,6 +43,10 @@ void NodeVisitor::visit_identifier( Identifier& )
 {
 }
 
+void NodeVisitor::visit_integer_value( IntegerValue& )
+{
+}
+
 void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& node )
 {
   visit_children( node );

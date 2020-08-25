@@ -5,6 +5,7 @@
 #include "clib/strutil.h"
 #include "compiler/Report.h"
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/file/SourceLocation.h"
@@ -25,6 +26,13 @@ std::unique_ptr<FloatValue> ValueBuilder::float_value(
   auto loc = location_for( *ctx );
   double value = std::stod( text( ctx->FLOAT_LITERAL() ) );
   return std::make_unique<FloatValue>( loc, value );
+}
+
+std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
+    EscriptParser::IntegerLiteralContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  return std::make_unique<IntegerValue>( loc, to_int( ctx ) );
 }
 
 std::unique_ptr<StringValue> ValueBuilder::string_value(
@@ -118,6 +126,10 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   {
     return string_value( string_literal );
   }
+  else if ( auto integer_literal = ctx->integerLiteral() )
+  {
+    return integer_value( integer_literal );
+  }
   else if ( auto float_literal = ctx->floatLiteral() )
   {
     return float_value( float_literal );
@@ -126,6 +138,27 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   {
     location_for( *ctx ).internal_error( "unhandled literal" );
   }
+}
+
+int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
+{
+  if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
+  {
+    return std::stoi( decimal_literal->getSymbol()->getText() );
+  }
+  else if ( auto hex_literal = ctx->HEX_LITERAL() )
+  {
+    return (int)std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 );
+  }
+  else if ( auto oct_literal = ctx->OCT_LITERAL() )
+  {
+    return std::stoi( oct_literal->getSymbol()->getText(), nullptr, 8 );
+  }
+  else if ( auto binary_literal = ctx->BINARY_LITERAL() )
+  {
+    return std::stoi( binary_literal->getSymbol()->getText(), nullptr, 2 );
+  }
+  location_for( *ctx ).internal_error( "unhandled integer literal" );
 }
 
 }  // namespace Pol::Bscript::Compiler

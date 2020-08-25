@@ -49,6 +49,7 @@ public:
   void declare_variable( const Variable& );
   void progend();
   void value( double );
+  void value( int );
   void value( const std::string& );
 
 private:

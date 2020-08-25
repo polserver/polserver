@@ -91,6 +91,12 @@ void InstructionEmitter::value( double v )
   emit_token( TOK_DOUBLE, TYP_OPERAND, offset );
 }
 
+void InstructionEmitter::value( int v )
+{
+  unsigned offset = data_emitter.append( v );
+  emit_token( TOK_LONG, TYP_OPERAND, offset );
+}
+
 void InstructionEmitter::value( const std::string& v )
 {
   unsigned data_offset = emit_data( v );

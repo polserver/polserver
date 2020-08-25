@@ -9,6 +9,7 @@ class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
 class Identifier;
+class IntegerValue;
 class ModuleFunctionDeclaration;
 class Node;
 class StringValue;
@@ -27,6 +28,7 @@ public:
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );
   virtual void visit_identifier( Identifier& );
+  virtual void visit_integer_value( IntegerValue& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_top_level_statements( TopLevelStatements& );

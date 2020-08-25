@@ -16,6 +16,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 {
   switch ( tkn.id )
   {
+  case TOK_LONG:
+    w << integer_at( tkn.offset ) << " (integer)"
+      << " offset=0x" << fmt::hex( tkn.offset );
+    break;
   case TOK_DOUBLE:
     w << double_at( tkn.offset ) << " (float)"
       << " offset=0x" << fmt::hex( tkn.offset );
@@ -85,6 +89,16 @@ double StoredTokenDecoder::double_at( unsigned offset ) const
                               ".  Data size is " + std::to_string( data.size() ) );
 
   return *reinterpret_cast<const double*>( &data[offset] );
+}
+
+int StoredTokenDecoder::integer_at( unsigned offset ) const
+{
+  if ( offset > data.size() - sizeof( int ) )
+    throw std::runtime_error( "data overflow reading integer at offset " +
+                              std::to_string( offset ) + ".  Data size is " +
+                              std::to_string( data.size() ) );
+
+  return *reinterpret_cast<const int*>( &data[offset] );
 }
 
 std::string StoredTokenDecoder::string_at( unsigned offset ) const

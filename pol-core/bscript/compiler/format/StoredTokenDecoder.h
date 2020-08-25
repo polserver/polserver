@@ -24,6 +24,7 @@ public:
 
 private:
   double double_at( unsigned offset ) const;
+  int integer_at( unsigned offset ) const;
   std::string string_at( unsigned offset ) const;
 
   const std::vector<ModuleDescriptor>& module_descriptors;
