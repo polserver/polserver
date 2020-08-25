@@ -12,6 +12,7 @@
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
+class Identifier;
 class Report;
 class VarStatement;
 
@@ -25,6 +26,7 @@ public:
   static void register_const_declarations( CompilerWorkspace& );
   void analyze( CompilerWorkspace& );
 
+  void visit_identifier( Identifier& ) override;
   void visit_var_statement( VarStatement& ) override;
 
 private:

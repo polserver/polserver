@@ -6,7 +6,9 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
-#include "compiler/ast/Value.h"
+#include "compiler/ast/Identifier.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/StringValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 
 using EscriptGrammar::EscriptParser;
@@ -52,6 +54,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto par_expression = ctx->parExpression() )
   {
     return expression( par_expression->expression() );
+  }
+  else if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    return std::make_unique<Identifier>( location_for( *ctx ), text( identifier ) );
   }
   else if ( auto f_call = ctx->functionCall() )
   {

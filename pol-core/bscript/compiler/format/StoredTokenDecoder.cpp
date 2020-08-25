@@ -68,6 +68,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     break;
   }
 
+  case TOK_GLOBALVAR:
+    w << "global variable #" << tkn.offset;
+    break;
+
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset
       << " module=" << tkn.module;

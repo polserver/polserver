@@ -2,6 +2,10 @@
 
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionCall.h"
+#include "compiler/ast/FunctionParameterDeclaration.h"
+#include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/Identifier.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
@@ -17,6 +21,18 @@ InstructionGenerator::InstructionGenerator( InstructionEmitter& emitter )
   : emitter( emitter ),
     emit( emitter )
 {
+}
+
+void InstructionGenerator::visit_identifier( Identifier& node )
+{
+  if ( auto var = node.variable )
+  {
+    emit.access_variable( *var );
+  }
+  else
+  {
+    node.internal_error( "variable is not set" );
+  }
 }
 
 void InstructionGenerator::visit_float_value( FloatValue& node )

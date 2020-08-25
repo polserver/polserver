@@ -27,6 +27,11 @@ void InstructionEmitter::initialize_data()
   data_emitter.store( &nul, sizeof nul );
 }
 
+void InstructionEmitter::access_variable( const Variable& v )
+{
+  emit_token( v.scope == Global ? TOK_GLOBALVAR : TOK_LOCALVAR, TYP_OPERAND, v.index );
+}
+
 void InstructionEmitter::array_declare()
 {
   emit_token( INS_DECLARE_ARRAY, TYP_RESERVED );

@@ -34,6 +34,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
   compiler/ast/FunctionParameterList.h
+  compiler/ast/Identifier.cpp
+  compiler/ast/Identifier.h
   compiler/ast/ModuleFunctionDeclaration.cpp
   compiler/ast/ModuleFunctionDeclaration.h
   compiler/ast/Node.cpp

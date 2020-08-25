@@ -39,6 +39,7 @@ public:
 
   void initialize_data();
 
+  void access_variable( const Variable& );
   void array_declare();
   void assign();
   void call_method( const std::string& name, unsigned argument_count );

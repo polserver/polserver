@@ -39,6 +39,10 @@ void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_identifier( Identifier& )
+{
+}
+
 void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& node )
 {
   visit_children( node );
