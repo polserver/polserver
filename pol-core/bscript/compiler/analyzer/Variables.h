@@ -8,6 +8,7 @@
 
 #include "clib/maputil.h"
 #include "compiler/model/VariableScope.h"
+#include "compiler/model/WarnOn.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -21,7 +22,7 @@ public:
   Variables( VariableScope, Report& );
 
   std::shared_ptr<Variable> create( const std::string& name, unsigned block_depth,
-                                    bool warn_if_used, bool warn_if_unused, const SourceLocation& );
+                                    WarnOn, const SourceLocation& );
 
   std::shared_ptr<Variable> find( const std::string& name ) const;
 

@@ -1,8 +1,9 @@
 #ifndef POLSERVER_VARIABLE_H
 #define POLSERVER_VARIABLE_H
 
-#include <string>
 #include "compiler/model/VariableScope.h"
+#include "compiler/model/WarnOn.h"
+#include <string>
 
 namespace Pol::Bscript::Compiler
 {
@@ -11,18 +12,17 @@ class SourceLocation;
 class Variable
 {
 public:
-  Variable( VariableScope, std::string name, unsigned block_depth, size_t index, bool warn_if_used,
-            bool warn_if_unused, const SourceLocation& source_location );
+  Variable( VariableScope, std::string name, unsigned block_depth, size_t index, WarnOn,
+            const SourceLocation& source_location );
 
   void mark_used();
-  bool was_used() const;
+  [[nodiscard]] bool was_used() const;
 
   const VariableScope scope;
   const std::string name;
   const unsigned block_depth;
   const size_t index;
-  const bool warn_if_used;
-  const bool warn_if_unused;
+  const WarnOn warn_on;
   const SourceLocation& source_location;
 
 private:

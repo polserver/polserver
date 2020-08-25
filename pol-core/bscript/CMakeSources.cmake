@@ -117,6 +117,7 @@ set (bscript_sources    # sorted !
   compiler/model/Variable.cpp
   compiler/model/Variable.h
   compiler/model/VariableScope.h
+  compiler/model/WarnOn.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp

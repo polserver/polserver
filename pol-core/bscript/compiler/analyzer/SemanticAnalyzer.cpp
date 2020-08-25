@@ -56,7 +56,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
     return;
   }
 
-  node.variable = globals.create( node.name, 0, false, false, node.source_location );
+  node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
 
   visit_children( node );
 }

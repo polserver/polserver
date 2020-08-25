@@ -9,12 +9,11 @@ namespace Pol::Bscript::Compiler
 Variables::Variables( VariableScope scope, Report& report ) : scope( scope ), report( report ) {}
 
 std::shared_ptr<Variable> Variables::create( const std::string& name, unsigned block_depth,
-                                             bool warn_if_used, bool warn_if_unused,
-                                             const SourceLocation& source_location )
+                                             WarnOn warn_on, const SourceLocation& source_location )
 {
   auto index = names_by_index.size();
-  auto variable = std::make_shared<Variable>( scope, name, block_depth, index, warn_if_used,
-                                              warn_if_unused, source_location );
+  auto variable =
+      std::make_shared<Variable>( scope, name, block_depth, index, warn_on, source_location );
   variables_by_name[name] = variable;
   names_by_index.push_back( name );
   return variable;
