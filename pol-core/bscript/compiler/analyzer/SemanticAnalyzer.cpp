@@ -53,7 +53,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
   if ( auto existing = globals.find( node.name ) )
   {
     report.error( node, "Global variable '", node.name, "' already defined.\n",
-                  "  See also: ", existing->source_location );
+                  "  See also: ", existing->source_location, "\n" );
     return;
   }
 
