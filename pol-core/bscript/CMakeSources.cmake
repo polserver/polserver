@@ -18,6 +18,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/analyzer/Variables.cpp
+  compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
   compiler/ast/Expression.cpp
@@ -110,6 +112,9 @@ set (bscript_sources    # sorted !
   compiler/model/CompilerWorkspace.h
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
+  compiler/model/Variable.cpp
+  compiler/model/Variable.h
+  compiler/model/VariableScope.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp
