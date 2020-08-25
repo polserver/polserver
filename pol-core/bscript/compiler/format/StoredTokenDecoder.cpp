@@ -29,12 +29,20 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     break;
   }
 
+  case TOK_ASSIGN:
+    w << ":=";
+    break;
+
   case TOK_CONSUMER:
     w << "# (consume)";
     break;
 
   case CTRL_PROGEND:
     w << "progend";
+    break;
+
+  case RSV_GLOBAL:
+    w << "declare global #" << tkn.offset;
     break;
 
   case TOK_FUNC:
@@ -59,6 +67,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << defn.name;
     break;
   }
+
+  case TOK_GLOBALVAR:
+    w << "global variable #" << tkn.offset;
+    break;
 
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset

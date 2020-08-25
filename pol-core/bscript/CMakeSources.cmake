@@ -18,6 +18,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/analyzer/Variables.cpp
+  compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
   compiler/ast/Expression.cpp
@@ -32,6 +34,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
   compiler/ast/FunctionParameterList.h
+  compiler/ast/Identifier.cpp
+  compiler/ast/Identifier.h
   compiler/ast/ModuleFunctionDeclaration.cpp
   compiler/ast/ModuleFunctionDeclaration.h
   compiler/ast/Node.cpp
@@ -48,6 +52,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
   compiler/ast/ValueConsumer.h
+  compiler/ast/VarStatement.cpp
+  compiler/ast/VarStatement.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
@@ -108,6 +114,10 @@ set (bscript_sources    # sorted !
   compiler/model/CompilerWorkspace.h
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
+  compiler/model/Variable.cpp
+  compiler/model/Variable.h
+  compiler/model/VariableScope.h
+  compiler/model/WarnOn.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp

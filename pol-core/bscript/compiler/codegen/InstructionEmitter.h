@@ -27,6 +27,9 @@ namespace Pol::Bscript::Compiler
 {
 class ModuleDeclarationRegistrar;
 class ModuleFunctionDeclaration;
+class Node;
+class Variable;
+class SourceLocation;
 
 class InstructionEmitter
 {
@@ -36,8 +39,14 @@ public:
 
   void initialize_data();
 
+  void access_variable( const Variable& );
+  void array_declare();
+  void assign();
+  void call_method( const std::string& name, unsigned argument_count );
+  void call_method_id( MethodID method_id, unsigned argument_count );
   void call_modulefunc( const ModuleFunctionDeclaration& );
   void consume();
+  void declare_variable( const Variable& );
   void progend();
   void value( double );
   void value( const std::string& );

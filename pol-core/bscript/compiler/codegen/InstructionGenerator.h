@@ -17,8 +17,10 @@ public:
 
   void visit_float_value( FloatValue& ) override;
   void visit_function_call( FunctionCall& ) override;
+  void visit_identifier( Identifier& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
+  void visit_var_statement( VarStatement& ) override;
 
 private:
   // There are two of these because sometimes when calling a method
