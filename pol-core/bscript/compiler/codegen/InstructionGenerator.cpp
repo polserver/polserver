@@ -4,9 +4,12 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/ValueConsumer.h"
+#include "compiler/ast/VarStatement.h"
 #include "compiler/codegen/InstructionEmitter.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/FunctionLink.h"
+#include "compiler/model/Variable.h"
+#include "symcont.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -45,6 +48,24 @@ void InstructionGenerator::visit_value_consumer( ValueConsumer& node )
   visit_children( node );
 
   emit.consume();
+}
+
+void InstructionGenerator::visit_var_statement( VarStatement& node )
+{
+  if ( !node.variable )
+    node.internal_error( "variable is not defined" );
+  emit.declare_variable( *node.variable );
+
+  if ( node.initialize_as_empty_array )
+  {
+    emit.array_declare();
+  }
+  else if ( !node.children.empty() )
+  {
+    visit_children( node );
+
+    emit.assign();
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

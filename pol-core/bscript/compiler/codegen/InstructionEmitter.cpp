@@ -3,9 +3,12 @@
 #include "StoredToken.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/codegen/ModuleDeclarationRegistrar.h"
+#include "compiler/model/Variable.h"
 #include "compiler/representation/CompiledScript.h"
 #include "escriptv.h"
 #include "modules.h"
+#include "token.h"
+#include "tokens.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -22,6 +25,27 @@ void InstructionEmitter::initialize_data()
 {
   std::byte nul{};
   data_emitter.store( &nul, sizeof nul );
+}
+
+void InstructionEmitter::array_declare()
+{
+  emit_token( INS_DECLARE_ARRAY, TYP_RESERVED );
+}
+
+void InstructionEmitter::assign()
+{
+  emit_token( TOK_ASSIGN, TYP_OPERATOR );
+}
+
+void InstructionEmitter::call_method_id( MethodID method_id, unsigned argument_count )
+{
+  emit_token( INS_CALL_METHOD_ID, (BTokenType)argument_count, method_id );
+}
+
+void InstructionEmitter::call_method( const std::string& name, unsigned argument_count )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_CALL_METHOD, (BTokenType)argument_count, offset );
 }
 
 void InstructionEmitter::call_modulefunc(
@@ -42,6 +66,11 @@ void InstructionEmitter::call_modulefunc(
 void InstructionEmitter::consume()
 {
   emit_token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
+}
+
+void InstructionEmitter::declare_variable( const Variable& v )
+{
+  emit_token( v.scope == Global ? RSV_GLOBAL : RSV_LOCAL, TYP_RESERVED, v.index );
 }
 
 void InstructionEmitter::progend()
