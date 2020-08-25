@@ -13,6 +13,7 @@ class Node;
 class StringValue;
 class TopLevelStatements;
 class ValueConsumer;
+class VarStatement;
 
 class NodeVisitor
 {
@@ -28,6 +29,7 @@ public:
   virtual void visit_string_value( StringValue& );
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_value_consumer( ValueConsumer& );
+  virtual void visit_var_statement( VarStatement& );
 
   virtual void visit_children( Node& parent );
 };
