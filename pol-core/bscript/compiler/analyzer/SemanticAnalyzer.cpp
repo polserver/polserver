@@ -45,7 +45,6 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     report.error( node, "Unknown identifier '", node.name, "'.\n" );
     return;
   }
-  visit_children( node );
 }
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
