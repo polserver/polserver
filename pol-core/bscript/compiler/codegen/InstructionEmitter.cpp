@@ -29,7 +29,8 @@ void InstructionEmitter::initialize_data()
 
 void InstructionEmitter::access_variable( const Variable& v )
 {
-  emit_token( v.scope == Global ? TOK_GLOBALVAR : TOK_LOCALVAR, TYP_OPERAND, v.index );
+  BTokenId token_id = v.scope == VariableScope::Global ? TOK_GLOBALVAR : TOK_LOCALVAR;
+  emit_token( token_id, TYP_OPERAND, v.index );
 }
 
 void InstructionEmitter::array_declare()
@@ -75,7 +76,8 @@ void InstructionEmitter::consume()
 
 void InstructionEmitter::declare_variable( const Variable& v )
 {
-  emit_token( v.scope == Global ? RSV_GLOBAL : RSV_LOCAL, TYP_RESERVED, v.index );
+  BTokenId token_id = v.scope == VariableScope::Global ? RSV_GLOBAL : RSV_LOCAL;
+  emit_token( token_id, TYP_RESERVED, v.index );
 }
 
 void InstructionEmitter::progend()

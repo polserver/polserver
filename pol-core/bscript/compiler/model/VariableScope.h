@@ -3,7 +3,7 @@
 
 namespace Pol::Bscript::Compiler
 {
-enum VariableScope
+enum class VariableScope
 {
   Local,
   Global

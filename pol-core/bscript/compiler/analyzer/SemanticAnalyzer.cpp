@@ -17,7 +17,7 @@ namespace Pol::Bscript::Compiler
 {
 SemanticAnalyzer::SemanticAnalyzer( Report& report )
   : report( report ),
-    globals( Global, report )
+    globals( VariableScope::Global, report )
 {
 }
 
