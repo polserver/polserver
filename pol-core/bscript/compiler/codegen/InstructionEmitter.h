@@ -48,6 +48,7 @@ public:
   void consume();
   void declare_variable( const Variable& );
   void progend();
+  void unary_operator( BTokenId );
   void value( double );
   void value( int );
   void value( const std::string& );

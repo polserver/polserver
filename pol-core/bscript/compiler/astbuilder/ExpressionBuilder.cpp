@@ -9,6 +9,7 @@
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
+#include "compiler/ast/UnaryOperator.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 
 using EscriptGrammar::EscriptParser;
@@ -21,10 +22,21 @@ ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_id
 {
 }
 
+[[noreturn]] BTokenId ExpressionBuilder::unhandled_operator( const SourceLocation& source_location )
+{
+  // This indicates a log error in the compiler: likely a disconnect between the grammar
+  // and the code building the AST from the parsed file.
+  source_location.internal_error( "unhandled operator.\n" );
+}
+
 std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::ExpressionContext* ctx )
 {
   if ( auto prim = ctx->primary() )
     return primary( prim );
+  else if ( ctx->prefix )
+    return prefix_unary_operator( ctx );
+  else if ( ctx->postfix )
+    return postfix_unary_operator( ctx );
 
   location_for( *ctx ).internal_error( "unhandled expression" );
 }
@@ -43,6 +55,47 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   workspace.function_resolver.register_function_link( key, function_call->function_link );
 
   return function_call;
+}
+
+std::unique_ptr<Expression> ExpressionBuilder::prefix_unary_operator(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto expression_ctx = ctx->expression( 0 );
+  auto source_location = location_for( *expression_ctx );
+  auto expression_ast = expression( expression_ctx );
+
+  BTokenId token_id =
+      ctx->ADD()
+          ? TOK_UNPLUS
+          : ctx->SUB()
+                ? TOK_UNMINUS
+                : ctx->INC()
+                      ? TOK_UNPLUSPLUS
+                      : ctx->DEC() ? TOK_UNMINUSMINUS
+                                   : ctx->TILDE() ? TOK_BITWISE_NOT
+                                                  : ( ctx->BANG_A() || ctx->BANG_B() )
+                                                        ? TOK_LOG_NOT
+                                                        : unhandled_operator( source_location );
+
+  if ( token_id == TOK_UNPLUS )
+    return expression_ast;
+
+  return std::make_unique<UnaryOperator>( source_location, ctx->prefix->getText(), token_id,
+                                          std::move( expression_ast ) );
+}
+
+std::unique_ptr<Expression> ExpressionBuilder::postfix_unary_operator(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  auto expression_ctx = ctx->expression( 0 );
+  auto expression_ast = expression( expression_ctx );
+
+  BTokenId token_id = ctx->INC() ? TOK_UNPLUSPLUS_POST
+                                 : ctx->DEC() ? TOK_UNMINUSMINUS_POST : unhandled_operator( loc );
+
+  return std::make_unique<UnaryOperator>( loc, ctx->postfix->getText(), token_id,
+                                          std::move( expression_ast ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryContext* ctx )

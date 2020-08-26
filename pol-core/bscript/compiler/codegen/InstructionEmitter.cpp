@@ -85,6 +85,11 @@ void InstructionEmitter::progend()
   emit_token( CTRL_PROGEND, TYP_CONTROL );
 }
 
+void InstructionEmitter::unary_operator( BTokenId token_id )
+{
+  emit_token( token_id, TYP_UNARY_OPERATOR );
+}
+
 void InstructionEmitter::value( double v )
 {
   unsigned offset = data_emitter.append( v );

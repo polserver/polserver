@@ -50,6 +50,8 @@ set (bscript_sources    # sorted !
   compiler/ast/StringValue.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
+  compiler/ast/UnaryOperator.cpp
+  compiler/ast/UnaryOperator.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
