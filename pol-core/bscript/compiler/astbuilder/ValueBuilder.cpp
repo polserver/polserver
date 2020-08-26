@@ -148,7 +148,7 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
   }
   else if ( auto hex_literal = ctx->HEX_LITERAL() )
   {
-    return (int)std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 );
+    return static_cast<int>( std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 ) );
   }
   else if ( auto oct_literal = ctx->OCT_LITERAL() )
   {
