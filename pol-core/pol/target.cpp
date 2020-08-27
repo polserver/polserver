@@ -15,10 +15,8 @@
 #include "../clib/logfacility.h"
 #include "../clib/rawtypes.h"
 #include "../plib/systemstate.h"
-#include "accounts/account.h"
 #include "fnsearch.h"
 #include "globals/uvars.h"
-#include "regions/guardrgn.h"
 #include "item/itemdesc.h"
 #include "mobile/charactr.h"
 #include "multi/multi.h"
@@ -28,6 +26,8 @@
 #include "network/pktboth.h"
 #include "polclass.h"
 #include "realms/realm.h"
+#include "regions/guardrgn.h"
+#include "systems/suspiciousacts.h"
 #include "ufunc.h"
 #include "uobject.h"
 
@@ -50,10 +50,7 @@ void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
   TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial - 1];
   if ( tcursor != targetter->tcursor2 )
   {
-    if ( Plib::systemstate.config.show_warning_cursor_seq )
-      POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
-                   << " used out of sequence cursor.\n";
-
+    SuspiciousActs::OutOfSequenceCursor( client );
     targetter->tcursor2 = nullptr;
     return;
   }
