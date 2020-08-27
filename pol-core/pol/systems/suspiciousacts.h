@@ -11,13 +11,19 @@ class Client;
 // For now the reporting is done with static functions, so a namespace is fine. We can make this a class later if needed.
 namespace Pol::SuspiciousActs
 {
-void UnexpectedGumpResponse( Pol::Network::Client* client, u32 gumpid, u32 buttonid );
+void GumpResponseWasUnexpected( Pol::Network::Client* client, u32 gumpid, u32 buttonid );
+void GumpResponseHasTooManyInts( Network::Client* client );
+void GumpResponseHasTooManyIntsOrStrings( Network::Client* client );
+void GumpResponseOverflows( Network::Client* client );
+
 void DropItemButNoneGotten( Network::Client* client, u32 item_serial );
 void DropItemOtherThanGotten( Network::Client* client, u32 dropped_item_serial,
                                 u32 gotten_item_serial );
+
 void EquipItemButNoneGotten( Network::Client* client, u32 equipped_item_serial );
 void EquipItemOtherThanGotten( Network::Client* client, u32 equipped_item_serial,
                                u32 gotten_item_serial );
+
 void OutOfSequenceCursor( Network::Client* client );
 }
 

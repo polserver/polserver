@@ -1463,7 +1463,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
   if ( uoemod == nullptr )
   {
-    SuspiciousActs::UnexpectedGumpResponse( client, gumpid, buttonid );
+    SuspiciousActs::GumpResponseWasUnexpected( client, gumpid, buttonid );
     return;
   }
 
@@ -1496,7 +1496,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
                       sizeof( PKTIN_B1::STRINGS_HEADER );
     if ( stridx > msglen )
     {
-      ERROR_PRINT << "Blech! B1 message specified too many ints!\n";
+      SuspiciousActs::GumpResponseHasTooManyInts( client );
       clear_gumphandler( client, uoemod );
       return;
     }
@@ -1508,9 +1508,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
     // -2 per entry to only count tag+length (data has size of 2 in struct)
     if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
     {
-      ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                  << client->chr->name()
-                  << ") Blech! B1 message specified too many ints and/or strings!\n";
+      SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( client );
       uoex.ValueStack.back().set(
           new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
       clear_gumphandler( client, uoemod );
@@ -1538,9 +1536,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
         stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
         if ( stridx > msglen )
         {
-          ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                      << client->chr->name()
-                      << ") Blech! B1 message strings overflow message buffer!\n";
+          SuspiciousActs::GumpResponseOverflows( client );
           break;
         }
 

@@ -10,7 +10,7 @@
 
 using namespace Pol;
 
-void SuspiciousActs::UnexpectedGumpResponse( Network::Client* client, u32 gumpid, u32 buttonid )
+void SuspiciousActs::GumpResponseWasUnexpected( Network::Client* client, u32 gumpid, u32 buttonid )
 {
   if ( Plib::systemstate.config.show_warning_gump )
   {
@@ -19,6 +19,27 @@ void SuspiciousActs::UnexpectedGumpResponse( Network::Client* client, u32 gumpid
         "button ID 0x{:X}\n" )
         << client->chr->serial << gumpid << buttonid;
   }
+}
+
+void SuspiciousActs::GumpResponseHasTooManyInts( Network::Client* client )
+{
+  // TODO: report the extra ints?
+  ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name()
+              << ") Blech! B1 message specified too many ints!\n";
+}
+
+void SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( Network::Client* client )
+{
+  // TODO: report the extra ints/strings?
+  ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name()
+              << ") Blech! B1 message specified too many ints and/or strings!\n";
+}
+
+void SuspiciousActs::GumpResponseOverflows( Network::Client* client )
+{
+  // TODO: report by how much?
+  ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character " << client->chr->name()
+              << ") Blech! B1 message strings overflow message buffer!\n";
 }
 
 void SuspiciousActs::DropItemButNoneGotten( Network::Client* client, u32 dropped_item_serial )
@@ -68,7 +89,7 @@ void SuspiciousActs::OutOfSequenceCursor( Network::Client* client )
   Mobile::Character* targetter = client->chr;
 
   if ( Plib::systemstate.config.show_warning_cursor_seq )
-  {  
+  {
     POLLOG_ERROR << targetter->acct->name() << "/" << targetter->name()
                  << " used out of sequence cursor.\n";
   }
