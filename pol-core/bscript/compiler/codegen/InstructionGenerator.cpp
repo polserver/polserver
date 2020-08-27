@@ -8,6 +8,7 @@
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
+#include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/codegen/InstructionEmitter.h"
@@ -63,6 +64,12 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
 void InstructionGenerator::visit_string_value( StringValue& lit )
 {
   emit.value( lit.value );
+}
+
+void InstructionGenerator::visit_unary_operator( UnaryOperator& unary_operator )
+{
+  visit_children( unary_operator );
+  emit.unary_operator( unary_operator.token_id );
 }
 
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )

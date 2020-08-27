@@ -9,6 +9,7 @@
 #include "compiler/ast/Node.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
+#include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
 
@@ -58,6 +59,11 @@ void NodeVisitor::visit_string_value( StringValue& node )
 }
 
 void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_unary_operator( UnaryOperator& node )
 {
   visit_children( node );
 }

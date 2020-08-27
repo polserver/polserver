@@ -20,6 +20,7 @@ public:
   void visit_identifier( Identifier& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_string_value( StringValue& ) override;
+  void visit_unary_operator( UnaryOperator& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_var_statement( VarStatement& ) override;
 

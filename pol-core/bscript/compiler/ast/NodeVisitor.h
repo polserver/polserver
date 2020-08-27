@@ -14,6 +14,7 @@ class ModuleFunctionDeclaration;
 class Node;
 class StringValue;
 class TopLevelStatements;
+class UnaryOperator;
 class ValueConsumer;
 class VarStatement;
 
@@ -32,6 +33,7 @@ public:
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_top_level_statements( TopLevelStatements& );
+  virtual void visit_unary_operator( UnaryOperator& );
   virtual void visit_value_consumer( ValueConsumer& );
   virtual void visit_var_statement( VarStatement& );
 

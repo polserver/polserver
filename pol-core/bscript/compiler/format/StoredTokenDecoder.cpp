@@ -37,6 +37,19 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << ":=";
     break;
 
+  case TOK_UNPLUS:
+    w << "unary +";
+    break;
+  case TOK_UNMINUS:
+    w << "unary -";
+    break;
+  case TOK_LOG_NOT:
+    w << "! (logical inversion)";
+    break;
+  case TOK_BITWISE_NOT:
+    w << "~ (bitwise inversion)";
+    break;
+
   case TOK_CONSUMER:
     w << "# (consume)";
     break;
@@ -47,6 +60,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 
   case RSV_GLOBAL:
     w << "declare global #" << tkn.offset;
+    break;
+
+  case INS_DECLARE_ARRAY:
+    w << "declare array";
     break;
 
   case TOK_FUNC:
@@ -74,6 +91,19 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 
   case TOK_GLOBALVAR:
     w << "global variable #" << tkn.offset;
+    break;
+
+  case TOK_UNPLUSPLUS:
+    w << "prefix unary ++";
+    break;
+  case TOK_UNMINUSMINUS:
+    w << "prefix unary --";
+    break;
+  case TOK_UNPLUSPLUS_POST:
+    w << "postfix unary ++";
+    break;
+  case TOK_UNMINUSMINUS_POST:
+    w << "postfix unary --";
     break;
 
   default:

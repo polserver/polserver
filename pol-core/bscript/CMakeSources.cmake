@@ -50,6 +50,8 @@ set (bscript_sources    # sorted !
   compiler/ast/StringValue.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
+  compiler/ast/UnaryOperator.cpp
+  compiler/ast/UnaryOperator.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
@@ -124,6 +126,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp
   compiler/optimizer/ReferencedFunctionGatherer.h
+  compiler/optimizer/UnaryOperatorOptimizer.cpp
+  compiler/optimizer/UnaryOperatorOptimizer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp

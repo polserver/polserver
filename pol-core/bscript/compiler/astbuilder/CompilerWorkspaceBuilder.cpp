@@ -53,6 +53,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   compiler_workspace->top_level_statements =
       std::make_unique<TopLevelStatements>( source_location );
 
+  src_processor.use_module( "basic", source_location );
   src_processor.use_module( "basicio", source_location );
   src_processor.process_source( *sf );
 
