@@ -118,7 +118,7 @@ function(createfunctable)
     endif()
 
     set(HEADER "#ifndef ${MODCLASS}_EM_h\n#define ${MODCLASS}_EM_h\n")
-    set(HEADER "${HEADER}namespace Pol\n{\nnamespace Bscript\n{\n\n\n")
+    set(HEADER "${HEADER}namespace Pol::Bscript\n{\n\n\n")
   
     # message("Creating function table definition for ${em} => ${em_name} => ${MODCLASS}")
     set(MODDEF "template <>\nconst char* const TmplExecutorModule<Pol::Module::${MODCLASS}, ${MODPARENT}>::modname = \"${em_name}\"\;\n\ntemplate <>\nTmplExecutorModule<Pol::Module::${MODCLASS}, ${MODPARENT}>::FunctionTable\n  TmplExecutorModule<Pol::Module::${MODCLASS}, ${MODPARENT}>::function_table = {\n")
@@ -127,7 +127,7 @@ function(createfunctable)
     read_def(${MODCLASS} ${contents} FUNCTBL)
     set(MODDEF "${MODDEF}${FUNCTBL}}\;\n\n")
     
-    set(FOOTER "} // namespace Bscript\n} // namespace Pol\n#endif")
+    set(FOOTER "} // namespace Pol::Bscript\n#endif")
     set(OUT_MOD "${HEADER}\n${MODDEF}${FOOTER}")
 
     file(WRITE "${OUT_FOLDER}/${em_name}.h" ${OUT_MOD})
