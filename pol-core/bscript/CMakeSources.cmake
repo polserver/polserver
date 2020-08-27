@@ -28,6 +28,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FloatValue.h
   compiler/ast/Function.cpp
   compiler/ast/Function.h
+  compiler/ast/FunctionBody.cpp
+  compiler/ast/FunctionBody.h
   compiler/ast/FunctionCall.cpp
   compiler/ast/FunctionCall.h
   compiler/ast/FunctionParameterDeclaration.cpp
@@ -44,6 +46,12 @@ set (bscript_sources    # sorted !
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
   compiler/ast/NodeVisitor.h
+  compiler/ast/Program.cpp
+  compiler/ast/Program.h
+  compiler/ast/ProgramParameterDeclaration.cpp
+  compiler/ast/ProgramParameterDeclaration.h
+  compiler/ast/ProgramParameterList.cpp
+  compiler/ast/ProgramParameterList.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp
