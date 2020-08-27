@@ -9,6 +9,7 @@ namespace Pol::Bscript::Compiler
 {
 class Block;
 class ModuleFunctionDeclaration;
+class Program;
 class SourceFile;
 class SourceFileIdentifier;
 class TopLevelStatements;
@@ -21,6 +22,7 @@ public:
 
   std::unique_ptr<TopLevelStatements> top_level_statements;
   std::vector<std::unique_ptr<ModuleFunctionDeclaration>> module_function_declarations;
+  std::unique_ptr<Program> program;
 
   // These reference ModuleFunctionDeclaration objects that are in module_functions
   std::vector<ModuleFunctionDeclaration*> referenced_module_function_declarations;

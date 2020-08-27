@@ -5,6 +5,8 @@
 #include "StoredToken.h"
 #include "compiler/LegacyFunctionOrder.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/Program.h"
+#include "compiler/ast/ProgramParameterList.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/codegen/InstructionEmitter.h"
 #include "compiler/codegen/InstructionGenerator.h"
@@ -21,7 +23,11 @@ namespace Pol::Bscript::Compiler
 std::unique_ptr<CompiledScript> CodeGenerator::generate(
     std::unique_ptr<CompilerWorkspace> workspace, const LegacyFunctionOrder* legacy_function_order )
 {
-  auto program_info = std::unique_ptr<CompiledScript::ProgramInfo>();
+  auto program_info =
+      workspace->program
+          ? std::unique_ptr<CompiledScript::ProgramInfo>( new CompiledScript::ProgramInfo{
+                static_cast<unsigned>( workspace->program->parameter_list().children.size() ) } )
+          : std::unique_ptr<CompiledScript::ProgramInfo>();
 
   CodeSection code;
   DataSection data;
@@ -57,8 +63,13 @@ CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
 
 void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
 {
-  InstructionGenerator top_level_instruction_generator( emitter );
-  workspace.top_level_statements->accept( top_level_instruction_generator );
+  InstructionGenerator outer_instruction_generator( emitter );
+  workspace.top_level_statements->accept( outer_instruction_generator );
+
+  if ( auto& program = workspace.program )
+  {
+    program->accept( outer_instruction_generator );
+  }
 
   emit.progend();
 }

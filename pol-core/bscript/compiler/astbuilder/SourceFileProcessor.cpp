@@ -4,6 +4,7 @@
 #include "clib/timer.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/ast/Program.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
@@ -90,6 +91,22 @@ void SourceFileProcessor::process_source( SourceFile& sf )
 
     profile.ast_src_micros.fetch_add( ast_us_elapsed );
   }
+}
+
+antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
+    EscriptParser::ProgramDeclarationContext* ctx )
+{
+  if ( workspace.compiler_workspace.program )
+  {
+    report.error( location_for( *ctx ), "Multiple program statements.\n",
+                  "  Other declaration: ", workspace.compiler_workspace.program->source_location,
+                  "\n" );
+  }
+  else
+  {
+    workspace.compiler_workspace.program = tree_builder.program( ctx );
+  }
+  return antlrcpp::Any();
 }
 
 antlrcpp::Any SourceFileProcessor::visitStatement( EscriptParser::StatementContext* ctx )
