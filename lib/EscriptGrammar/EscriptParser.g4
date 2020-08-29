@@ -174,6 +174,7 @@ block
 
 variableDeclarationInitializer
     : ':=' expression
+    | '=' expression { notifyErrorListeners("Unexpected token: '='. Did you mean := for assign?\n"); }
     | ARRAY
     ;
 
@@ -354,6 +355,7 @@ structInitializerExpressionList
 
 structInitializer
     : '{' structInitializerExpressionList? '}'
+    | '{' structInitializerExpressionList? ',' '}' {notifyErrorListeners("Expected expression following comma before right-brace in struct initializer list");}
     ;
 
 dictInitializerExpression
@@ -366,11 +368,14 @@ dictInitializerExpressionList
 
 dictInitializer
     : '{' dictInitializerExpressionList? '}'
+    | '{' dictInitializerExpressionList? ',' '}' {notifyErrorListeners("Expected expression following comma before right-brace in dictionary initializer list");}
     ;
 
 arrayInitializer
     : '{' expressionList? '}'
+    | '{' expressionList? ',' '}' {notifyErrorListeners("Expected expression following comma before right-brace in array initializer list");}
     | '(' expressionList? ')'
+    | '(' expressionList? ',' ')' {notifyErrorListeners("Expected expression following comma before right-paren in array initializer list");}
     ;
 
 // Literals
