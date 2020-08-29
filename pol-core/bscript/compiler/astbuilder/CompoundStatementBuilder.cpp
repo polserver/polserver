@@ -29,4 +29,17 @@ void CompoundStatementBuilder::add_statements(
   }
 }
 
+std::vector<std::unique_ptr<Statement>> CompoundStatementBuilder::block_statements(
+        EscriptParser::BlockContext* ctx )
+{
+  std::vector<std::unique_ptr<Statement>> statements;
+
+  for ( auto statement_context : ctx->statement() )
+  {
+    add_statements( statement_context, statements );
+  }
+
+  return statements;
+}
+
 }  // namespace Pol::Bscript::Compiler

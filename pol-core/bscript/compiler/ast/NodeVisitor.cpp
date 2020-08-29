@@ -2,11 +2,15 @@
 
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Node.h"
+#include "compiler/ast/Program.h"
+#include "compiler/ast/ProgramParameterDeclaration.h"
+#include "compiler/ast/ProgramParameterList.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
@@ -21,6 +25,11 @@ void NodeVisitor::visit_argument( Argument& node )
 }
 
 void NodeVisitor::visit_float_value( FloatValue& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_function_body( FunctionBody& node )
 {
   visit_children( node );
 }
@@ -49,6 +58,21 @@ void NodeVisitor::visit_integer_value( IntegerValue& )
 }
 
 void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_program( Program& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_program_parameter_declaration( ProgramParameterDeclaration& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_program_parameter_list( ProgramParameterList& node )
 {
   visit_children( node );
 }

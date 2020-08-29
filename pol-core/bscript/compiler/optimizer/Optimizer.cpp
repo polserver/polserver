@@ -2,6 +2,7 @@
 
 #include "clib/logfacility.h"
 #include "compiler/Report.h"
+#include "compiler/ast/Program.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/ValueConsumer.h"
@@ -20,6 +21,10 @@ void Optimizer::optimize( CompilerWorkspace& workspace )
 {
   ReferencedFunctionGatherer gatherer( workspace.module_function_declarations );
   workspace.top_level_statements->accept( gatherer );
+  if ( auto program = workspace.program.get() )
+  {
+    program->accept( gatherer );
+  }
   workspace.referenced_module_function_declarations =
       gatherer.take_referenced_module_function_declarations();
 }

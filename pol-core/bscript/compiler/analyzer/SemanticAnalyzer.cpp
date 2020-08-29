@@ -7,6 +7,7 @@
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/Program.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -30,6 +31,10 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& /*workspa
 void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
 {
   workspace.top_level_statements->accept( *this );
+  if ( auto& program = workspace.program )
+  {
+    program->accept( *this );
+  }
 
   workspace.global_variable_names = globals.get_names();
 }
