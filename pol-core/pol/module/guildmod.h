@@ -33,13 +33,13 @@ class GuildExecutorModule : public Bscript::TmplExecutorModule<GuildExecutorModu
 public:
   GuildExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_ListGuilds();
-  Bscript::BObjectImp* mf_CreateGuild();
-  Bscript::BObjectImp* mf_FindGuild();
-  Bscript::BObjectImp* mf_DestroyGuild();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListGuilds();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateGuild();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindGuild();
+  [[nodiscard]] Bscript::BObjectImp* mf_DestroyGuild();
 
   static Bscript::BObjectImp* CreateGuildRefObjImp( Core::Guild* guild );
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

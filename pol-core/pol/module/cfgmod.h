@@ -41,24 +41,24 @@ class ConfigFileExecutorModule
 public:
   ConfigFileExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_ReadConfigFile();
-  Bscript::BObjectImp* mf_FindConfigElem();
-  Bscript::BObjectImp* mf_GetElemProperty();
-  Bscript::BObjectImp* mf_GetConfigString();
-  Bscript::BObjectImp* mf_GetConfigStringArray();
-  Bscript::BObjectImp* mf_GetConfigStringDictionary();
-  Bscript::BObjectImp* mf_GetConfigInt();
-  Bscript::BObjectImp* mf_GetConfigIntArray();
-  Bscript::BObjectImp* mf_GetConfigReal();
-  Bscript::BObjectImp* mf_GetConfigMaxIntKey();
-  Bscript::BObjectImp* mf_GetConfigStringKeys();
-  Bscript::BObjectImp* mf_GetConfigIntKeys();
-  Bscript::BObjectImp* mf_ListConfigElemProps();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReadConfigFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindConfigElem();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetElemProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigString();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigStringArray();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigStringDictionary();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigInt();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigIntArray();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigReal();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigMaxIntKey();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigStringKeys();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetConfigIntKeys();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListConfigElemProps();
 
-  Bscript::BObjectImp* mf_AppendConfigFileElem();
-  Bscript::BObjectImp* mf_UnloadConfigFile();
-
-  Bscript::BObjectImp* mf_LoadTusScpFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_AppendConfigFileElem();
+  [[nodiscard]] Bscript::BObjectImp* mf_UnloadConfigFile();
+  
+  [[nodiscard]] Bscript::BObjectImp* mf_LoadTusScpFile();
 
 
 protected:

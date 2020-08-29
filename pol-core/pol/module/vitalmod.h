@@ -40,25 +40,23 @@ class VitalExecutorModule : public Bscript::TmplExecutorModule<VitalExecutorModu
 public:
   VitalExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_ApplyRawDamage();
-  Bscript::BObjectImp* mf_ApplyDamage();
+  [[nodiscard]] Bscript::BObjectImp* mf_ApplyRawDamage();
+  [[nodiscard]] Bscript::BObjectImp* mf_ApplyDamage();
 
-  Bscript::BObjectImp* mf_HealDamage();
+  [[nodiscard]] Bscript::BObjectImp* mf_HealDamage();
 
-  Bscript::BObjectImp* mf_ConsumeMana();
+  [[nodiscard]] Bscript::BObjectImp* mf_ConsumeMana();
 
-  Bscript::BObjectImp* mf_ConsumeVital( /* mob, vital, hundredths */ );
-  Bscript::BObjectImp* mf_RecalcVitals( /* mob, attributes, vitals */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ConsumeVital( /* mob, vital, hundredths */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_RecalcVitals( /* mob, attributes, vitals */ );
 
-  Bscript::BObjectImp* mf_GetVitalName( /*alias_name*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetVitalName( /*alias_name*/ );
 
-  Bscript::BObjectImp* mf_GetVital( /* mob, vitalid */ );
-  Bscript::BObjectImp* mf_GetVitalMaximumValue( /* mob, vitalid */ );
-  Bscript::BObjectImp* mf_GetVitalRegenRate( /* mob, vitalid */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetVital( /* mob, vitalid */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetVitalMaximumValue( /* mob, vitalid */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetVitalRegenRate( /* mob, vitalid */ );
 
-  Bscript::BObjectImp* mf_SetVitalMaximumValue( /* mob, vitalid, value */ );
-  Bscript::BObjectImp* mf_SetVital( /* mob, vitalid, value */ );
-  Bscript::BObjectImp* mf_SetVitalRegenRate( /* mob, vitalid, rate */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetVital( /* mob, vitalid, value */ );
 
 private:
   Mobile::Character* GetUOController();
@@ -73,6 +71,6 @@ inline Mobile::Character* VitalExecutorModule::GetUOController()
   else
     return nullptr;
 }
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

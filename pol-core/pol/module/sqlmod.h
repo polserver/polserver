@@ -41,15 +41,15 @@ class SQLExecutorModule : public Bscript::TmplExecutorModule<SQLExecutorModule, 
 public:
   SQLExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_mysql_connect();
-  Bscript::BObjectImp* mf_mysql_query();
-  Bscript::BObjectImp* mf_mysql_close();
-  Bscript::BObjectImp* mf_mysql_num_fields();
-  Bscript::BObjectImp* mf_mysql_affected_rows();
-  Bscript::BObjectImp* mf_mysql_fetch_row();
-  Bscript::BObjectImp* mf_mysql_num_rows();
-  Bscript::BObjectImp* mf_mysql_select_db();
-  Bscript::BObjectImp* mf_mysql_field_name();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_connect();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_query();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_close();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_num_fields();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_affected_rows();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_fetch_row();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_num_rows();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_select_db();
+  [[nodiscard]] Bscript::BObjectImp* mf_mysql_field_name();
 
   static Bscript::BObjectImp* background_connect( weak_ptr<Core::UOExecutor> uoexec,
                                                   const std::string host,
