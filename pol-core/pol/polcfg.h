@@ -59,7 +59,7 @@ struct PolConfig
   unsigned short inactivity_warning_timeout;
   unsigned short inactivity_disconnect_timeout;
   unsigned short min_cmdlevel_to_login;
-  unsigned int max_tile_id;
+  size_t max_tile_id;
   unsigned int max_objtype;
 
   unsigned short max_clients;

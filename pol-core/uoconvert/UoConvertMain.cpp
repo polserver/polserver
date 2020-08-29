@@ -1050,16 +1050,17 @@ int UoConvertMain::main()
   else if ( command == "map" )
   {
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
-    UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 0, false );
+    UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 1, false );
     UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
-    int default_width = 6144;
-    int default_height = 4096;
+    int default_width = 0;
+    int default_height = 0;
     switch ( UoConvert::uo_mapid )
     {
     case 0:
     case 1:
+      // calculate this value later in open_map()
       break;
     case 2:  // ilshenar:
       default_width = 2304;
@@ -1078,13 +1079,14 @@ int UoConvertMain::main()
       default_height = 4096;
       break;
     }
-    int width = programArgsFindEquals( "width=", default_width, false );
-    int height = programArgsFindEquals( "height=", default_height, false );
-    UoConvert::uo_map_width = static_cast<unsigned short>( width );
-    UoConvert::uo_map_height = static_cast<unsigned short>( height );
 
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
+
+    uo_map_width =
+        programArgsFindEquals( "width=", default_width == 0 ? uo_map_width : default_width, false );
+    uo_map_height = programArgsFindEquals(
+        "height=", default_height == 0 ? uo_map_height : default_height, false );
 
     int x = programArgsFindEquals( "x=", -1, false );
     int y = programArgsFindEquals( "y=", -1, false );
@@ -1101,8 +1103,8 @@ int UoConvertMain::main()
     }
     else
     {
-      UoConvertMain::create_map( realm, static_cast<unsigned short>( width ),
-                                 static_cast<unsigned short>( height ) );
+      UoConvertMain::create_map( realm, static_cast<unsigned short>( uo_map_width ),
+                                 static_cast<unsigned short>( uo_map_height ) );
     }
   }
   else if ( command == "statics" )
@@ -1229,6 +1231,11 @@ void UoConvertMain::setup_uoconvert()
   unsigned short max_tile =
       static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
 
+  if ( max_tile )
+  {
+    INFO_PRINT << "Warning: maxtileid has been removed from uoconvert options.\n";
+  }
+
   // if any of the two is missing, read from pol.cfg
   if ( uodata_root.empty() || !max_tile )
   {
@@ -1241,15 +1248,13 @@ void UoConvertMain::setup_uoconvert()
     if ( uodata_root.empty() )
       uodata_root = Plib::UOInstallFinder::remove_elem( elem );
 
-    if ( !max_tile )
-      max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
+    if ( elem.has_prop( "MaxTileID" ) )
+    {
+      INFO_PRINT << "Warning: MaxTileID has been removed from pol.cfg.\n";
+    }
   }
 
-  if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
-    max_tile = UOBJ_DEFAULT_MAX;
-
   // Save the parameters into this ugly global state we have
-  Plib::systemstate.config.max_tile_id = max_tile;
   Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( uodata_root );
 
   // Load parameters from uoconvert.cfg (multi types, mounts, etc)
@@ -1344,7 +1349,7 @@ void UoConvertMain::load_uoconvert_cfg()
       else if ( elem.type_is( "ClientOptions" ) )
       {
         if ( elem.has_prop( "UseNewHSAFormat" ) )
-          UoConvert::cfg_use_new_hsa_format = elem.remove_bool( "UseNewHSAFormat" );
+          INFO_PRINT << "Warning: UseNewHSAFormat has been removed from uoconvert.cfg.\n";
       }
     }
   }

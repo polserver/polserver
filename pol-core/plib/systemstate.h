@@ -40,8 +40,8 @@ public:
   struct stat accounts_txt_stat;
 
   Core::PolConfig config;
-  Tile* tile;
-  bool tiles_loaded;
+  std::vector<Tile> tile;
+  u16 max_graphic;
 
   size_t estimatedSize() const;
 
