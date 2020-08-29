@@ -88,9 +88,6 @@ public:
   Core::HoldListType in_hold_list() const;
   void in_hold_list( Core::HoldListType in_hold_list );
 
-protected:
-
-  friend class Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>;
 
   Bscript::BObjectImp* mf_Create_Debug_Context();
   Bscript::BObjectImp* mf_GetPid();
@@ -121,6 +118,8 @@ protected:
   Bscript::BObjectImp* mf_Clear_Event_Queue();  // DAVE
 
   Bscript::BObjectImp* mf_PerformanceMeasure();
+
+protected:
 
   bool critical_;
   unsigned char priority_;
