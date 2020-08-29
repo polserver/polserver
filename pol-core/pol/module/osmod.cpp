@@ -814,6 +814,8 @@ void OSExecutorModule::SleepForMs( int msecs )
     blocked_ = true;
     wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
     sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
+    if ( !sleep_until_clock_ )
+      sleep_until_clock_ = 1;
   }
 }
 
