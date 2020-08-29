@@ -29,41 +29,41 @@ class BasicExecutorModule
 {
 public:
   /* These probably belong in a string module */
-  Bscript::BObjectImp* mf_Find();
-  Bscript::BObjectImp* mf_Len();
-  Bscript::BObjectImp* mf_Upper();
-  Bscript::BObjectImp* mf_Lower();
-  Bscript::BObjectImp* mf_SubStr();
-  Bscript::BObjectImp* mf_Trim();
-  Bscript::BObjectImp* mf_StrReplace();
-  Bscript::BObjectImp* mf_SubStrReplace();
-  Bscript::BObjectImp* mf_Compare();
-  Bscript::BObjectImp* mf_CInt();
-  Bscript::BObjectImp* mf_CStr();
-  Bscript::BObjectImp* mf_CDbl();
-  Bscript::BObjectImp* mf_CAsc();
-  Bscript::BObjectImp* mf_CAscZ();
-  Bscript::BObjectImp* mf_CChr();
-  Bscript::BObjectImp* mf_CChrZ();
+  [[nodiscard]] Bscript::BObjectImp* mf_Find();
+  [[nodiscard]] Bscript::BObjectImp* mf_Len();
+  [[nodiscard]] Bscript::BObjectImp* mf_Upper();
+  [[nodiscard]] Bscript::BObjectImp* mf_Lower();
+  [[nodiscard]] Bscript::BObjectImp* mf_SubStr();
+  [[nodiscard]] Bscript::BObjectImp* mf_Trim();
+  [[nodiscard]] Bscript::BObjectImp* mf_StrReplace();
+  [[nodiscard]] Bscript::BObjectImp* mf_SubStrReplace();
+  [[nodiscard]] Bscript::BObjectImp* mf_Compare();
+  [[nodiscard]] Bscript::BObjectImp* mf_CInt();
+  [[nodiscard]] Bscript::BObjectImp* mf_CStr();
+  [[nodiscard]] Bscript::BObjectImp* mf_CDbl();
+  [[nodiscard]] Bscript::BObjectImp* mf_CAsc();
+  [[nodiscard]] Bscript::BObjectImp* mf_CAscZ();
+  [[nodiscard]] Bscript::BObjectImp* mf_CChr();
+  [[nodiscard]] Bscript::BObjectImp* mf_CChrZ();
 
-  Bscript::BObjectImp* mf_Bin();
-  Bscript::BObjectImp* mf_Hex();
-  Bscript::BObjectImp* mf_SplitWords();
+  [[nodiscard]] Bscript::BObjectImp* mf_Bin();
+  [[nodiscard]] Bscript::BObjectImp* mf_Hex();
+  [[nodiscard]] Bscript::BObjectImp* mf_SplitWords();
 
-  Bscript::BObjectImp* mf_Pack();
-  Bscript::BObjectImp* mf_Unpack();
+  [[nodiscard]] Bscript::BObjectImp* mf_Pack();
+  [[nodiscard]] Bscript::BObjectImp* mf_Unpack();
 
-  Bscript::BObjectImp* mf_TypeOf();
-  Bscript::BObjectImp* mf_SizeOf();
-  Bscript::BObjectImp* mf_TypeOfInt();
+  [[nodiscard]] Bscript::BObjectImp* mf_TypeOf();
+  [[nodiscard]] Bscript::BObjectImp* mf_SizeOf();
+  [[nodiscard]] Bscript::BObjectImp* mf_TypeOfInt();
 
-  Bscript::BObjectImp* mf_PackJSON();
-  Bscript::BObjectImp* mf_UnpackJSON();
+  [[nodiscard]] Bscript::BObjectImp* mf_PackJSON();
+  [[nodiscard]] Bscript::BObjectImp* mf_UnpackJSON();
 
-  Bscript::BObjectImp* mf_Boolean();
+  [[nodiscard]] Bscript::BObjectImp* mf_Boolean();
 
-  Bscript::BObjectImp* mf_EncodeBase64();
-  Bscript::BObjectImp* mf_DecodeBase64();
+  [[nodiscard]] Bscript::BObjectImp* mf_EncodeBase64();
+  [[nodiscard]] Bscript::BObjectImp* mf_DecodeBase64();
 
   BasicExecutorModule( Bscript::Executor& exec );
 };

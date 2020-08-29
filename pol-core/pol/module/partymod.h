@@ -26,19 +26,18 @@ class Party;
 }
 namespace Module
 {
-
 class PartyExecutorModule : public Bscript::TmplExecutorModule<PartyExecutorModule, Core::PolModule>
 {
 public:
   PartyExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_CreateParty();
-  Bscript::BObjectImp* mf_DisbandParty();
-  Bscript::BObjectImp* mf_SendPartyMsg();
-  Bscript::BObjectImp* mf_SendPrivatePartyMsg();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateParty();
+  [[nodiscard]] Bscript::BObjectImp* mf_DisbandParty();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendPartyMsg();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendPrivatePartyMsg();
 };
 
 Bscript::BObjectImp* CreatePartyRefObjImp( Core::Party* party );
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

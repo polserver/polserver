@@ -28,9 +28,9 @@ class ClilocExecutorModule
 public:
   ClilocExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_SendSysMessageCL();
-  Bscript::BObjectImp* mf_PrintTextAboveCL();
-  Bscript::BObjectImp* mf_PrintTextAbovePrivateCL();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendSysMessageCL();
+  [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAboveCL();
+  [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAbovePrivateCL();
 };
 }  // namespace Module
 }  // namespace Pol

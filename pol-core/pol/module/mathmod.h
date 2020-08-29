@@ -29,32 +29,32 @@ class MathExecutorModule
 public:
   MathExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_Sin();
-  Bscript::BObjectImp* mf_ASin();
-  Bscript::BObjectImp* mf_Cos();
-  Bscript::BObjectImp* mf_ACos();
-  Bscript::BObjectImp* mf_Tan();
-  Bscript::BObjectImp* mf_ATan();
+  [[nodiscard]] Bscript::BObjectImp* mf_Sin();
+  [[nodiscard]] Bscript::BObjectImp* mf_ASin();
+  [[nodiscard]] Bscript::BObjectImp* mf_Cos();
+  [[nodiscard]] Bscript::BObjectImp* mf_ACos();
+  [[nodiscard]] Bscript::BObjectImp* mf_Tan();
+  [[nodiscard]] Bscript::BObjectImp* mf_ATan();
 
-  Bscript::BObjectImp* mf_Min();
-  Bscript::BObjectImp* mf_Max();
-  Bscript::BObjectImp* mf_Pow();
-  Bscript::BObjectImp* mf_Sqrt();
-  Bscript::BObjectImp* mf_Root();
-  Bscript::BObjectImp* mf_Abs();
-  Bscript::BObjectImp* mf_Log10();
-  Bscript::BObjectImp* mf_LogE();
+  [[nodiscard]] Bscript::BObjectImp* mf_Min();
+  [[nodiscard]] Bscript::BObjectImp* mf_Max();
+  [[nodiscard]] Bscript::BObjectImp* mf_Pow();
+  [[nodiscard]] Bscript::BObjectImp* mf_Sqrt();
+  [[nodiscard]] Bscript::BObjectImp* mf_Root();
+  [[nodiscard]] Bscript::BObjectImp* mf_Abs();
+  [[nodiscard]] Bscript::BObjectImp* mf_Log10();
+  [[nodiscard]] Bscript::BObjectImp* mf_LogE();
 
-  Bscript::BObjectImp* mf_ConstPi();
-  Bscript::BObjectImp* mf_ConstE();
+  [[nodiscard]] Bscript::BObjectImp* mf_ConstPi();
+  [[nodiscard]] Bscript::BObjectImp* mf_ConstE();
 
-  Bscript::BObjectImp* mf_FormatRealToString();
+  [[nodiscard]] Bscript::BObjectImp* mf_FormatRealToString();
 
-  Bscript::BObjectImp* mf_RadToDeg();
-  Bscript::BObjectImp* mf_DegToRad();
+  [[nodiscard]] Bscript::BObjectImp* mf_RadToDeg();
+  [[nodiscard]] Bscript::BObjectImp* mf_DegToRad();
 
-  Bscript::BObjectImp* mf_Ceil();
-  Bscript::BObjectImp* mf_Floor();
+  [[nodiscard]] Bscript::BObjectImp* mf_Ceil();
+  [[nodiscard]] Bscript::BObjectImp* mf_Floor();
 };
 }  // namespace Module
 }  // namespace Pol
