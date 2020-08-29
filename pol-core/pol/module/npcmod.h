@@ -50,11 +50,6 @@ public:
   Core::NpcRef npcref;
   Mobile::NPC& npc;
 
-protected:
-  OSExecutorModule* os_module;
-
-  friend class Bscript::TmplExecutorModule<NPCExecutorModule, Core::PolModule>;
-
   Bscript::BObjectImp* mf_Wander();
   Bscript::BObjectImp* mf_Self();
   Bscript::BObjectImp* mf_Face();
@@ -87,6 +82,9 @@ protected:
   Bscript::BObjectImp* mf_SetOpponent();
   Bscript::BObjectImp* mf_SetWarMode();
   Bscript::BObjectImp* mf_SetAnchor();
+
+protected:
+  OSExecutorModule* os_module;
 
   Bscript::BObjectImp* move_self( Plib::UFACING facing, bool run, bool adjust_ok = false );
 
