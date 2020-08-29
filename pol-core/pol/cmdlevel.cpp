@@ -111,7 +111,7 @@ std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m
   if ( max_cmdlevel < 0 )
     max_cmdlevel = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
 
-  for ( unsigned num = 0; num <= max_cmdlevel; ++num )
+  for ( int num = 0; num <= max_cmdlevel; ++num )
   {
     auto script_list = Core::ListCommandsInPackageAtCmdlevel( m_pkg, num );
     if ( script_list->ref_arr.empty() )
@@ -119,7 +119,7 @@ std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m
     else
       cmd_lvl_list->addMember( new Bscript::BLong( num ), script_list.release() );
   }
-  return std::move( cmd_lvl_list );
+  return cmd_lvl_list;
 }
 
 
@@ -167,7 +167,7 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
     }
   }
 
-  return std::move( script_names );
+  return script_names;
 }
 
 void load_cmdlevels()
