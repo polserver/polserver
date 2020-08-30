@@ -1,5 +1,7 @@
 #include "FlowControlLabel.h"
 
+#include <stdexcept>
+
 namespace Pol::Bscript::Compiler
 {
 FlowControlLabel::FlowControlLabel() : maybe_address(), referencing_instruction_addresses() {}
