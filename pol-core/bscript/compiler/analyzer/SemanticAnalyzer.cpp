@@ -3,6 +3,7 @@
 #include "compiler/Report.h"
 #include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/Block.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -42,6 +43,15 @@ void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
   }
 
   workspace.global_variable_names = globals.get_names();
+}
+
+void SemanticAnalyzer::visit_block( Block& block )
+{
+  LocalVariableScope scope( local_scopes, block.debug_variables );
+
+  visit_children( block );
+
+  block.locals_in_block = scope.get_block_locals();
 }
 
 void SemanticAnalyzer::visit_identifier( Identifier& node )

@@ -5,6 +5,8 @@
 
 namespace Pol::Bscript::Compiler
 {
+class Block;
+class Statement;
 
 class CompoundStatementBuilder : public SimpleStatementBuilder
 {
@@ -14,8 +16,12 @@ public:
   void add_statements( EscriptGrammar::EscriptParser::StatementContext*,
                        std::vector<std::unique_ptr<Statement>>& );
 
+  std::unique_ptr<Block> block( EscriptGrammar::EscriptParser::BlockContext* );
+
   std::vector<std::unique_ptr<Statement>> block_statements(
       EscriptGrammar::EscriptParser::BlockContext* );
+
+  std::unique_ptr<Statement> if_statement( EscriptGrammar::EscriptParser::IfStatementContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler

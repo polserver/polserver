@@ -4,12 +4,14 @@
 namespace Pol::Bscript::Compiler
 {
 class Argument;
+class Block;
 class FloatValue;
 class FunctionBody;
 class FunctionCall;
 class FunctionParameterDeclaration;
 class FunctionParameterList;
 class Identifier;
+class IfThenElseStatement;
 class IntegerValue;
 class ModuleFunctionDeclaration;
 class Node;
@@ -28,12 +30,14 @@ public:
   virtual ~NodeVisitor() = default;
 
   virtual void visit_argument( Argument& );
+  virtual void visit_block( Block& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_function_body( FunctionBody& );
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );
   virtual void visit_identifier( Identifier& );
+  virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_program( Program& );

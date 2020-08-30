@@ -62,6 +62,16 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "leave block (remove " + std::to_string( tkn.offset ) + " locals)";
     break;
 
+   case RSV_JMPIFFALSE:
+     w << "if false goto " + std::to_string( tkn.offset );
+     break;
+   case RSV_JMPIFTRUE:
+     w << "if true goto " + std::to_string( tkn.offset );
+     break;
+   case RSV_GOTO:
+     w << "goto " << tkn.offset;
+     break;
+
   case RSV_GLOBAL:
     w << "declare global #" << tkn.offset;
     break;

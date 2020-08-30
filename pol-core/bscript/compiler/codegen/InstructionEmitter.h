@@ -25,6 +25,9 @@ class StoredToken;
 
 namespace Pol::Bscript::Compiler
 {
+class CaseJumpDataBlock;
+class CompiledScript;
+class FlowControlLabel;
 class ModuleDeclarationRegistrar;
 class ModuleFunctionDeclaration;
 class Node;
@@ -48,6 +51,10 @@ public:
   void consume();
   void declare_variable( const Variable& );
   void get_arg( const std::string& name );
+  void jmp_always( FlowControlLabel& );
+  void jmp_if_false( FlowControlLabel& );
+  void jmp_if_true( FlowControlLabel& );
+  void label( FlowControlLabel& );
   void leaveblock( unsigned local_vars_to_remove );
   void progend();
   void unary_operator( BTokenId );
@@ -55,10 +62,13 @@ public:
   void value( int );
   void value( const std::string& );
 
+  void patch_offset( unsigned index, unsigned offset );
+
 private:
   unsigned emit_data( const std::string& );
   unsigned emit_token( BTokenId id, BTokenType type, unsigned offset = 0 );
   unsigned append_token( StoredToken& );
+  void register_with_label( FlowControlLabel&, unsigned offset );
 
   CodeEmitter code_emitter;
   DataEmitter data_emitter;

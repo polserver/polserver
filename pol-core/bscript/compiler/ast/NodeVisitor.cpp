@@ -1,11 +1,13 @@
 #include "NodeVisitor.h"
 
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/Block.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Node.h"
 #include "compiler/ast/Program.h"
@@ -20,6 +22,11 @@
 namespace Pol::Bscript::Compiler
 {
 void NodeVisitor::visit_argument( Argument& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_block( Block& node )
 {
   visit_children( node );
 }
@@ -55,6 +62,11 @@ void NodeVisitor::visit_identifier( Identifier& )
 
 void NodeVisitor::visit_integer_value( IntegerValue& )
 {
+}
+
+void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement & node )
+{
+  visit_children( node );
 }
 
 void NodeVisitor::visit_module_function_declaration( ModuleFunctionDeclaration& node )

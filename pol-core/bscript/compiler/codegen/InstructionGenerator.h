@@ -15,9 +15,13 @@ class InstructionGenerator : public NodeVisitor
 public:
   explicit InstructionGenerator( InstructionEmitter& );
 
+  void generate( Node& );
+
+  void visit_block( Block& ) override;
   void visit_float_value( FloatValue& ) override;
   void visit_function_call( FunctionCall& ) override;
   void visit_identifier( Identifier& ) override;
+  void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& );
