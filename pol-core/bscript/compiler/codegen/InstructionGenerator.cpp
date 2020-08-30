@@ -7,6 +7,8 @@
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/Program.h"
+#include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/ValueConsumer.h"
@@ -59,6 +61,21 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
   {
     call.internal_error( "neither a module function nor a user function?" );
   }
+}
+
+void InstructionGenerator::visit_program( Program& program )
+{
+  visit_children( program );
+
+  if ( program.locals_in_block )
+  {
+    emit.leaveblock( program.locals_in_block );
+  }
+}
+
+void InstructionGenerator::visit_program_parameter_declaration( ProgramParameterDeclaration& param )
+{
+  emit.get_arg( param.name );
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )

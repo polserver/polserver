@@ -58,6 +58,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "progend";
     break;
 
+  case CTRL_LEAVE_BLOCK:
+    w << "leave block (remove " + std::to_string( tkn.offset ) + " locals)";
+    break;
+
   case RSV_GLOBAL:
     w << "declare global #" << tkn.offset;
     break;
@@ -91,6 +95,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 
   case TOK_GLOBALVAR:
     w << "global variable #" << tkn.offset;
+    break;
+
+  case INS_GET_ARG:
+    w << "get arg '" << string_at( tkn.offset ) << "'";
     break;
 
   case TOK_UNPLUSPLUS:

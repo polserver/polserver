@@ -11,7 +11,8 @@ namespace Pol::Bscript::Compiler
 Program::Program( const SourceLocation& source_location,
                   std::unique_ptr<ProgramParameterList> parameter_list,
                   std::unique_ptr<FunctionBody> body )
-  : Node( source_location )
+  : Node( source_location ),
+    locals_in_block( 0 )
 {
   children.reserve( 2 );
   children.push_back( std::move( parameter_list ) );

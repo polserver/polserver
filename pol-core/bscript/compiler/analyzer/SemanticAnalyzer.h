@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "clib/maputil.h"
+#include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/analyzer/Variables.h"
 
 namespace Pol::Bscript::Compiler
@@ -27,12 +28,16 @@ public:
   void analyze( CompilerWorkspace& );
 
   void visit_identifier( Identifier& ) override;
+  void visit_program( Program& program ) override;
+  void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
   void visit_var_statement( VarStatement& ) override;
 
 private:
   Report& report;
 
   Variables globals;
+  Variables locals;
+  LocalVariableScopes local_scopes;
 };
 
 }  // namespace Pol::Bscript::Compiler

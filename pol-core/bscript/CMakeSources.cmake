@@ -16,6 +16,10 @@ set (bscript_sources    # sorted !
   compiler/LegacyFunctionOrder.h
   compiler/analyzer/Disambiguator.cpp
   compiler/analyzer/Disambiguator.h
+  compiler/analyzer/LocalVariableScope.cpp
+  compiler/analyzer/LocalVariableScope.h
+  compiler/analyzer/LocalVariableScopes.cpp
+  compiler/analyzer/LocalVariableScopes.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
   compiler/analyzer/Variables.cpp
