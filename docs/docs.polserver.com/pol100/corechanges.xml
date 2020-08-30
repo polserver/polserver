@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-18-2020</datemodified>
+		<datemodified>08-27-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-27-2020</date>
+			<author>Nando:</author>
+			<change type="Changed">If &quot;ShowGumpWarnings&quot; in pol.cfg is disabled, it will also disable warnings about<br/>
+overflow in the gump responses (B1 packet). Those messages may indicates the use of macro<br/>
+tools or custom clients.</change>
+		</entry>
 		<entry>
 			<date>08-18-2020</date>
 			<author>Nando:</author>

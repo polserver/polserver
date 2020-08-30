@@ -247,8 +247,8 @@ void sanitizeUnicode( std::string* str )
   auto end = str->end();
   auto invalid_chr = []( u32 c ) {
     return ( c >= 0x1u && c < 0x9u ) /*0x9 \t 0x10 \n*/ ||
-           ( c >= 0x11u && c < 0x13u ) /*0x13 \r*/ || ( c >= 0x14c && c < 0x20u ) || c == 0x7Fu ||
-           ( c >= 0xC280u && c <= 0xC29Fu );
+           ( c >= 0x11u && c < 0x13u ) /*0x13 \r*/ || ( c >= 0x14u && c < 0x20u ) || c == 0x7Fu ||
+           ( c >= 0x80u && c <= 0x9Fu );
   };
   while ( begin != end )
   {

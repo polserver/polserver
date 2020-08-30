@@ -18,24 +18,54 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/analyzer/Variables.cpp
+  compiler/analyzer/Variables.h
+  compiler/ast/Argument.cpp
+  compiler/ast/Argument.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
   compiler/ast/FloatValue.h
+  compiler/ast/Function.cpp
+  compiler/ast/Function.h
+  compiler/ast/FunctionBody.cpp
+  compiler/ast/FunctionBody.h
+  compiler/ast/FunctionCall.cpp
+  compiler/ast/FunctionCall.h
+  compiler/ast/FunctionParameterDeclaration.cpp
+  compiler/ast/FunctionParameterDeclaration.h
+  compiler/ast/FunctionParameterList.cpp
+  compiler/ast/FunctionParameterList.h
+  compiler/ast/Identifier.cpp
+  compiler/ast/Identifier.h
+  compiler/ast/IntegerValue.cpp
+  compiler/ast/IntegerValue.h
+  compiler/ast/ModuleFunctionDeclaration.cpp
+  compiler/ast/ModuleFunctionDeclaration.h
   compiler/ast/Node.cpp
   compiler/ast/Node.h
   compiler/ast/NodeVisitor.cpp
   compiler/ast/NodeVisitor.h
+  compiler/ast/Program.cpp
+  compiler/ast/Program.h
+  compiler/ast/ProgramParameterDeclaration.cpp
+  compiler/ast/ProgramParameterDeclaration.h
+  compiler/ast/ProgramParameterList.cpp
+  compiler/ast/ProgramParameterList.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp
   compiler/ast/StringValue.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
+  compiler/ast/UnaryOperator.cpp
+  compiler/ast/UnaryOperator.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
   compiler/ast/ValueConsumer.h
+  compiler/ast/VarStatement.cpp
+  compiler/ast/VarStatement.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
@@ -44,8 +74,12 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/CompoundStatementBuilder.h
   compiler/astbuilder/ExpressionBuilder.cpp
   compiler/astbuilder/ExpressionBuilder.h
+  compiler/astbuilder/FunctionResolver.cpp
+  compiler/astbuilder/FunctionResolver.h
   compiler/astbuilder/ModuleDeclarationBuilder.cpp
   compiler/astbuilder/ModuleDeclarationBuilder.h
+  compiler/astbuilder/ModuleProcessor.cpp
+  compiler/astbuilder/ModuleProcessor.h
   compiler/astbuilder/ProgramBuilder.cpp
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
@@ -68,6 +102,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/InstructionEmitter.h
   compiler/codegen/InstructionGenerator.cpp
   compiler/codegen/InstructionGenerator.h
+  compiler/codegen/ModuleDeclarationRegistrar.cpp
+  compiler/codegen/ModuleDeclarationRegistrar.h
   compiler/file/ConformingCharStream.cpp
   compiler/file/ConformingCharStream.h
   compiler/file/ErrorListener.cpp
@@ -88,8 +124,18 @@ set (bscript_sources    # sorted !
   compiler/format/StoredTokenDecoder.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
+  compiler/model/FunctionLink.cpp
+  compiler/model/FunctionLink.h
+  compiler/model/Variable.cpp
+  compiler/model/Variable.h
+  compiler/model/VariableScope.h
+  compiler/model/WarnOn.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
+  compiler/optimizer/ReferencedFunctionGatherer.cpp
+  compiler/optimizer/ReferencedFunctionGatherer.h
+  compiler/optimizer/UnaryOperatorOptimizer.cpp
+  compiler/optimizer/UnaryOperatorOptimizer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp

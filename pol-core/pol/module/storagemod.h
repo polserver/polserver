@@ -31,13 +31,13 @@ class StorageExecutorModule
 public:
   StorageExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_StorageAreas();
-  Bscript::BObjectImp* mf_DestroyRootItemInStorageArea();
-  Bscript::BObjectImp* mf_FindStorageArea();
-  Bscript::BObjectImp* mf_CreateStorageArea();
-  Bscript::BObjectImp* mf_FindRootItemInStorageArea();
-  Bscript::BObjectImp* mf_CreateRootItemInStorageArea();
+  [[nodiscard]] Bscript::BObjectImp* mf_StorageAreas();
+  [[nodiscard]] Bscript::BObjectImp* mf_DestroyRootItemInStorageArea();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindStorageArea();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateStorageArea();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindRootItemInStorageArea();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateRootItemInStorageArea();
 };
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

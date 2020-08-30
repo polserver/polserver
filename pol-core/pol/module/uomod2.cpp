@@ -95,12 +95,12 @@
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "systems/suspiciousacts.h"
 #include "uomod.h"
 
 #ifdef MEMORYLEAK
 #include "../../clib/opnew.h"
 #endif
-
 
 
 #include <zlib.h>
@@ -209,9 +209,8 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   UContainer *for_sale, *bought;
   unsigned char save_layer_one, save_layer_two;
 
-  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) &&
-       getCharacterParam( 2, mrchnt ) && getItemParam( 3, item2 ) &&
-       getParam( 4, flags ) )
+  if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getCharacterParam( 2, mrchnt ) &&
+       getItemParam( 3, item2 ) && getParam( 4, flags ) )
   {
     if ( !chr->has_active_client() )
     {
@@ -712,8 +711,8 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   UContainer* merchant_buyable = nullptr;
 
   if ( !( getCharacterParam( 0, chr ) && getCharacterParam( 1, mrchnt ) &&
-          getItemParam( 2, wi1a ) && getItemParam( 3, wi1b ) &&
-          getItemParam( 4, wi1c ) && getParam( 5, flags ) ) )
+          getItemParam( 2, wi1a ) && getItemParam( 3, wi1b ) && getItemParam( 4, wi1c ) &&
+          getParam( 5, flags ) ) )
   {
     return new BError( "A parameter was invalid" );
   }
@@ -1357,8 +1356,7 @@ BObjectImp* UOExecutorModule::mf_CloseGump( /* who, pid, response := 0 */ )
   unsigned int pid;
   BObjectImp* resp;
 
-  if ( !( getCharacterParam( 0, chr ) && exec.getParam( 1, pid ) &&
-          ( getParamImp( 2, resp ) ) ) )
+  if ( !( getCharacterParam( 0, chr ) && exec.getParam( 1, pid ) && ( getParamImp( 2, resp ) ) ) )
   {
     return new BError( "Invalid parameter" );
   }
@@ -1394,8 +1392,7 @@ BObjectImp* UOExecutorModule::mf_CloseWindow( /* chr, type, obj */ )
   unsigned int type;
   UObject* obj;
 
-  if ( !getCharacterParam( 0, chr ) || !getParam( 1, type ) ||
-       !getUObjectParam( 2, obj ) )
+  if ( !getCharacterParam( 0, chr ) || !getParam( 1, type ) || !getUObjectParam( 2, obj ) )
     return new BError( "Invalid parameter" );
 
   if ( !chr->has_active_client() )
@@ -1466,13 +1463,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
   if ( uoemod == nullptr )
   {
-    if ( Plib::systemstate.config.show_warning_gump )
-    {
-      POLLOG_INFO.Format(
-          "\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, "
-          "button ID 0x{:X}\n" )
-          << client->chr->serial << gumpid << buttonid;
-    }
+    SuspiciousActs::GumpResponseWasUnexpected( client, gumpid, buttonid );
     return;
   }
 
@@ -1505,7 +1496,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
                       sizeof( PKTIN_B1::STRINGS_HEADER );
     if ( stridx > msglen )
     {
-      ERROR_PRINT << "Blech! B1 message specified too many ints!\n";
+      SuspiciousActs::GumpResponseHasTooManyInts( client );
       clear_gumphandler( client, uoemod );
       return;
     }
@@ -1517,9 +1508,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
     // -2 per entry to only count tag+length (data has size of 2 in struct)
     if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
     {
-      ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                  << client->chr->name()
-                  << ") Blech! B1 message specified too many ints and/or strings!\n";
+      SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( client );
       uoex.ValueStack.back().set(
           new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
       clear_gumphandler( client, uoemod );
@@ -1547,9 +1536,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
         stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
         if ( stridx > msglen )
         {
-          ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                      << client->chr->name()
-                      << ") Blech! B1 message strings overflow message buffer!\n";
+          SuspiciousActs::GumpResponseOverflows( client );
           break;
         }
 
@@ -2832,8 +2819,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationOfType(
   Realms::Realm* realm;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, range ) &&
-       getObjtypeParam( 4, objtype ) && getParam( 5, flags ) &&
-       getStringParam( 6, strrealm ) )
+       getObjtypeParam( 4, objtype ) && getParam( 5, flags ) && getStringParam( 6, strrealm ) )
   {
     realm = find_realm( strrealm->value() );
     if ( !realm )

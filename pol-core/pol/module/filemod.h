@@ -34,16 +34,16 @@ class FileAccessExecutorModule
 public:
   FileAccessExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_FileExists();
-  Bscript::BObjectImp* mf_ReadFile();
-  Bscript::BObjectImp* mf_WriteFile();
-  Bscript::BObjectImp* mf_AppendToFile();
-  Bscript::BObjectImp* mf_LogToFile();
-  Bscript::BObjectImp* mf_OpenBinaryFile();
-  Bscript::BObjectImp* mf_CreateDirectory();
-  Bscript::BObjectImp* mf_ListDirectory();
-  Bscript::BObjectImp* mf_OpenXMLFile();
-  Bscript::BObjectImp* mf_CreateXMLFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_FileExists();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReadFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_WriteFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_AppendToFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_LogToFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_OpenBinaryFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateDirectory();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListDirectory();
+  [[nodiscard]] Bscript::BObjectImp* mf_OpenXMLFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateXMLFile();
 };
 
 Bscript::ExecutorModule* CreateFileAccessExecutorModule( Bscript::Executor& exec );

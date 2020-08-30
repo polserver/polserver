@@ -25,17 +25,32 @@ class StoredToken;
 
 namespace Pol::Bscript::Compiler
 {
+class ModuleDeclarationRegistrar;
+class ModuleFunctionDeclaration;
+class Node;
+class Variable;
+class SourceLocation;
 
 class InstructionEmitter
 {
 public:
-  InstructionEmitter( CodeSection& code, DataSection& data );
+  InstructionEmitter( CodeSection& code, DataSection& data,
+                      ModuleDeclarationRegistrar& );
 
   void initialize_data();
 
+  void access_variable( const Variable& );
+  void array_declare();
+  void assign();
+  void call_method( const std::string& name, unsigned argument_count );
+  void call_method_id( MethodID method_id, unsigned argument_count );
+  void call_modulefunc( const ModuleFunctionDeclaration& );
   void consume();
+  void declare_variable( const Variable& );
   void progend();
+  void unary_operator( BTokenId );
   void value( double );
+  void value( int );
   void value( const std::string& );
 
 private:
@@ -45,6 +60,7 @@ private:
 
   CodeEmitter code_emitter;
   DataEmitter data_emitter;
+  ModuleDeclarationRegistrar& module_declaration_registrar;
 };
 
 }  // namespace Pol::Bscript::Compiler

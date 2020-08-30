@@ -256,6 +256,7 @@ void PolConfig::read_pol_config( bool initial_load )
   Plib::systemstate.config.thread_decay_statistics =
       elem.remove_bool( "ThreadDecayStatistics", false );
 
+  // These warnings disable the logging of suspicious acts
   Plib::systemstate.config.show_warning_gump = elem.remove_bool( "ShowWarningGump", true );
   Plib::systemstate.config.show_warning_item = elem.remove_bool( "ShowWarningItem", true );
   Plib::systemstate.config.show_warning_cursor_seq =

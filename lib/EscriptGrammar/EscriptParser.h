@@ -758,6 +758,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *ASSIGN();
     ExpressionContext *expression();
+    antlr4::tree::TerminalNode *EQUAL_DEPRECATED();
     antlr4::tree::TerminalNode *ARRAY();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1420,6 +1421,7 @@ public:
     antlr4::tree::TerminalNode *LBRACE();
     antlr4::tree::TerminalNode *RBRACE();
     StructInitializerExpressionListContext *structInitializerExpressionList();
+    antlr4::tree::TerminalNode *COMMA();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1472,6 +1474,7 @@ public:
     antlr4::tree::TerminalNode *LBRACE();
     antlr4::tree::TerminalNode *RBRACE();
     DictInitializerExpressionListContext *dictInitializerExpressionList();
+    antlr4::tree::TerminalNode *COMMA();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1489,6 +1492,7 @@ public:
     antlr4::tree::TerminalNode *LBRACE();
     antlr4::tree::TerminalNode *RBRACE();
     ExpressionListContext *expressionList();
+    antlr4::tree::TerminalNode *COMMA();
     antlr4::tree::TerminalNode *LPAREN();
     antlr4::tree::TerminalNode *RPAREN();
 

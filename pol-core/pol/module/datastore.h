@@ -31,10 +31,10 @@ class DataFileExecutorModule
 {
 public:
   DataFileExecutorModule( Bscript::Executor& exec );
-  Bscript::BObjectImp* mf_ListDataFiles();
-  Bscript::BObjectImp* mf_CreateDataFile();
-  Bscript::BObjectImp* mf_OpenDataFile();
-  Bscript::BObjectImp* mf_UnloadDataFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListDataFiles();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateDataFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_OpenDataFile();
+  [[nodiscard]] Bscript::BObjectImp* mf_UnloadDataFile();
 
 private:
   DataStoreFile* GetDataStoreFile( const std::string& inspec );

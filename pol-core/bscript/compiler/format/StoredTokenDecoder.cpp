@@ -1,6 +1,8 @@
 #include "StoredTokenDecoder.h"
 
 #include "StoredToken.h"
+#include "compiler/representation/ModuleDescriptor.h"
+#include "compiler/representation/ModuleFunctionDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -14,6 +16,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
 {
   switch ( tkn.id )
   {
+  case TOK_LONG:
+    w << integer_at( tkn.offset ) << " (integer)"
+      << " offset=0x" << fmt::hex( tkn.offset );
+    break;
   case TOK_DOUBLE:
     w << double_at( tkn.offset ) << " (float)"
       << " offset=0x" << fmt::hex( tkn.offset );
@@ -27,12 +33,77 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     break;
   }
 
+  case TOK_ASSIGN:
+    w << ":=";
+    break;
+
+  case TOK_UNPLUS:
+    w << "unary +";
+    break;
+  case TOK_UNMINUS:
+    w << "unary -";
+    break;
+  case TOK_LOG_NOT:
+    w << "! (logical inversion)";
+    break;
+  case TOK_BITWISE_NOT:
+    w << "~ (bitwise inversion)";
+    break;
+
   case TOK_CONSUMER:
     w << "# (consume)";
     break;
 
   case CTRL_PROGEND:
     w << "progend";
+    break;
+
+  case RSV_GLOBAL:
+    w << "declare global #" << tkn.offset;
+    break;
+
+  case INS_DECLARE_ARRAY:
+    w << "declare array";
+    break;
+
+  case TOK_FUNC:
+  {
+    unsigned module_id = tkn.module;
+    unsigned function_index = tkn.type;
+    w << "call module function (" << module_id << ", " << function_index << "): ";
+    if ( module_id >= module_descriptors.size() )
+    {
+      w << "module index " << module_id << " exceeds module_descriptors size "
+        << module_descriptors.size();
+      break;
+    }
+    auto& module = module_descriptors.at( module_id );
+    if ( function_index >= module.functions.size() )
+    {
+      w << "function index " << function_index << " exceeds module.functions size "
+        << module.functions.size();
+      break;
+    }
+    auto& defn = module.functions.at( function_index );
+    w << defn.name;
+    break;
+  }
+
+  case TOK_GLOBALVAR:
+    w << "global variable #" << tkn.offset;
+    break;
+
+  case TOK_UNPLUSPLUS:
+    w << "prefix unary ++";
+    break;
+  case TOK_UNMINUSMINUS:
+    w << "prefix unary --";
+    break;
+  case TOK_UNPLUSPLUS_POST:
+    w << "postfix unary ++";
+    break;
+  case TOK_UNMINUSMINUS_POST:
+    w << "postfix unary --";
     break;
 
   default:
@@ -48,6 +119,16 @@ double StoredTokenDecoder::double_at( unsigned offset ) const
                               ".  Data size is " + std::to_string( data.size() ) );
 
   return *reinterpret_cast<const double*>( &data[offset] );
+}
+
+int StoredTokenDecoder::integer_at( unsigned offset ) const
+{
+  if ( offset > data.size() - sizeof( int ) )
+    throw std::runtime_error( "data overflow reading integer at offset " +
+                              std::to_string( offset ) + ".  Data size is " +
+                              std::to_string( data.size() ) );
+
+  return *reinterpret_cast<const int*>( &data[offset] );
 }
 
 std::string StoredTokenDecoder::string_at( unsigned offset ) const

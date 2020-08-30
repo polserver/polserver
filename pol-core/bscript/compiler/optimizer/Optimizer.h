@@ -16,6 +16,11 @@ public:
   explicit Optimizer( Report& );
 
   void optimize( CompilerWorkspace& );
+  void visit_children( Node& ) override;
+
+  void visit_unary_operator( UnaryOperator& ) override;
+
+  std::unique_ptr<Node> optimized_replacement;
 
 private:
   Report& report;

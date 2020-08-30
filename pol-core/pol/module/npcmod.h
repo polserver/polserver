@@ -12,8 +12,8 @@
 
 #include <string>
 
-#include "../polmodl.h"
 #include "../../plib/uconst.h"
+#include "../polmodl.h"
 #include "../reftypes.h"
 
 namespace Pol
@@ -47,46 +47,47 @@ public:
   NPCExecutorModule( Bscript::Executor& ex, Mobile::NPC& npc );
   virtual ~NPCExecutorModule();
 
-  Core::NpcRef npcref;
-  Mobile::NPC& npc;
+  const Mobile::NPC& controlled_npc() const;
+
+public:
+  [[nodiscard]] Bscript::BObjectImp* mf_Wander();
+  [[nodiscard]] Bscript::BObjectImp* mf_Self();
+  [[nodiscard]] Bscript::BObjectImp* mf_Face();
+  [[nodiscard]] Bscript::BObjectImp* mf_Move();
+  [[nodiscard]] Bscript::BObjectImp* mf_WalkToward();
+  [[nodiscard]] Bscript::BObjectImp* mf_RunToward();
+  [[nodiscard]] Bscript::BObjectImp* mf_WalkAwayFrom();
+  [[nodiscard]] Bscript::BObjectImp* mf_RunAwayFrom();
+  [[nodiscard]] Bscript::BObjectImp* mf_TurnToward();
+  [[nodiscard]] Bscript::BObjectImp* mf_TurnAwayFrom();
+  
+  [[nodiscard]] Bscript::BObjectImp* mf_WalkTowardLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_RunTowardLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_WalkAwayFromLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_RunAwayFromLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_TurnTowardLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_TurnAwayFromLocation();
+  
+  [[nodiscard]] Bscript::BObjectImp* mf_Say();
+  [[nodiscard]] Bscript::BObjectImp* mf_SayUC();
+  [[nodiscard]] Bscript::BObjectImp* mf_position();
+  [[nodiscard]] Bscript::BObjectImp* mf_Facing();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetProperty( /* propertyname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetProperty( /* propertyname propertyvalue */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_MakeBoundingBox( /* areastring */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_IsLegalMove();
+  [[nodiscard]] Bscript::BObjectImp* mf_CanMove();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateBackpack();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetOpponent();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetWarMode();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetAnchor();
 
 protected:
   OSExecutorModule* os_module;
 
-  friend class Bscript::TmplExecutorModule<NPCExecutorModule, Core::PolModule>;
-
-  Bscript::BObjectImp* mf_Wander();
-  Bscript::BObjectImp* mf_Self();
-  Bscript::BObjectImp* mf_Face();
-  Bscript::BObjectImp* mf_Move();
-  Bscript::BObjectImp* mf_WalkToward();
-  Bscript::BObjectImp* mf_RunToward();
-  Bscript::BObjectImp* mf_WalkAwayFrom();
-  Bscript::BObjectImp* mf_RunAwayFrom();
-  Bscript::BObjectImp* mf_TurnToward();
-  Bscript::BObjectImp* mf_TurnAwayFrom();
-
-  Bscript::BObjectImp* mf_WalkTowardLocation();
-  Bscript::BObjectImp* mf_RunTowardLocation();
-  Bscript::BObjectImp* mf_WalkAwayFromLocation();
-  Bscript::BObjectImp* mf_RunAwayFromLocation();
-  Bscript::BObjectImp* mf_TurnTowardLocation();
-  Bscript::BObjectImp* mf_TurnAwayFromLocation();
-
-  Bscript::BObjectImp* mf_Say();
-  Bscript::BObjectImp* mf_SayUC();
-  Bscript::BObjectImp* mf_position();
-  Bscript::BObjectImp* mf_Facing();
-  Bscript::BObjectImp* mf_GetProperty( /* propertyname */ );
-  Bscript::BObjectImp* mf_SetProperty( /* propertyname propertyvalue */ );
-  Bscript::BObjectImp* mf_MakeBoundingBox( /* areastring */ );
-  Bscript::BObjectImp* mf_IsLegalMove();
-  Bscript::BObjectImp* mf_CanMove();
-  Bscript::BObjectImp* mf_CreateBackpack();
-  Bscript::BObjectImp* mf_CreateItem();
-  Bscript::BObjectImp* mf_SetOpponent();
-  Bscript::BObjectImp* mf_SetWarMode();
-  Bscript::BObjectImp* mf_SetAnchor();
+  Core::NpcRef npcref;
+  Mobile::NPC& npc;
 
   Bscript::BObjectImp* move_self( Plib::UFACING facing, bool run, bool adjust_ok = false );
 
@@ -95,6 +96,12 @@ protected:
 private:
   bool _internal_move( Plib::UFACING facing, int run );
 };
+
+inline const Mobile::NPC& NPCExecutorModule::controlled_npc() const
+{
+  return const_cast<const Mobile::NPC&>( this->npc );
+}
+
 }  // namespace Module
 }  // namespace Pol
 #endif

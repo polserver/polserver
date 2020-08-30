@@ -369,6 +369,8 @@ set (pol_sources  # sorted !
   syshook.h
   syshookscript.cpp
   syshookscript.h
+  systems/suspiciousacts.cpp
+  systems/suspiciousacts.h
   target.cpp
   target.h
   tasks.cpp
