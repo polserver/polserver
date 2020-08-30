@@ -30,6 +30,7 @@ option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 option(ENABLE_FLYWEIGHT_REPORT "Enables flyweight memory report in memoryusage.log" OFF)
+option(GCOV "Build for coverage" OFF)
 
 option(BUILD_ALL "Build everything" ON)
 option(ONLY_ECOMPILE "Build only ecompile" OFF)
@@ -218,3 +219,4 @@ if(CLANG_FORMAT_EXE AND GIT_EXECUTABLE)
 else()
   message("Git or clang-format not found for target 'clang_format'")
 endif()
+

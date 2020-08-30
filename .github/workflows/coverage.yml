@@ -1,0 +1,144 @@
+name: Coverage
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+            cxx-compiler: g++
+            c-compiler: gcc
+            compiler-version: 9
+            build-type: RelWithDebInfo
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v1
+      - name: Cache curl
+        uses: actions/cache@v1
+        with:
+          path: lib/curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
+      - name: Cache antlr
+        uses: actions/cache@v1
+        with:
+          path: lib/antlr
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
+
+      - name: Install Compiler and Dependencies
+        shell: pwsh
+        run: |
+          sudo apt-get update
+
+          $compiler = "${{ matrix.config.cxx-compiler }}"
+          $version = "${{ matrix.config.compiler-version }}"
+
+          if ($version -ne 'default') {
+            sudo apt-get install "$compiler-$version" -y
+            echo "$compiler-$version --version"
+          }
+          sudo apt-get install mysql-client libmysqlclient-dev kwstyle uuid-dev lcov -y
+          
+          $ninja_version = "1.9.0"
+          $cmake_version = "3.16.2"
+          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
+          wget -q "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
+          unzip -q ninja-linux.zip -d bin-build
+          wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
+          tar -xf "$cmake_archive.tar.gz"
+          
+          chmod +x bin-build/ninja
+          chmod +x "$cmake_archive/bin/cmake"
+          pip install fastcov
+          echo "::add-path::$Env:GITHUB_WORKSPACE/bin-build"
+          echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
+
+      - name: Set CXX and CC
+        shell: pwsh
+        run: |
+          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
+          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            $cxx_compiler = "$cxx_compiler-$version"
+            $c_compiler = "$c_compiler-$version"
+          }
+
+          echo "::set-env name=CXX::$cxx_compiler"
+          echo "::set-env name=CC::$c_compiler"
+
+      - name: Config
+        run: |
+          cd bin-build
+          cmake .. -G Ninja -DGCOV=1 -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+      - name: Build
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
+
+      - name: Test (EScript)
+        run: |
+          cd bin-build
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -R escript_
+      - name: Test (Shard)
+        run: |
+          cd bin-build
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+      - name: Coverage
+        run: |
+          cd bin-build
+          fastcov -g gcov-${{ matrix.config.compiler-version }} -t PolCore --lcov -i pol-core -o pol-core.info
+          genhtml --demangle-cpp pol-core.info -o coverage
+      - name: Upload shard test log
+        uses: actions/upload-artifact@v1
+        with:
+          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          path: bin-build/coretest/log/pol.log
+      - name: Uploap coverage report
+        uses: actions/upload-artifact@v1
+        with:
+          name: Coveragelog
+          path: bin-build/coverage
+ 
+  notify_on_failure:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: failure()
+    steps:
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: failure
+          job: Building
+  notify_on_success:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: success()
+    steps:
+      - name: Discord notification success
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: success
+          job: Building
+  notify_on_cancel:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: cancelled()
+    steps:
+      - name: Discord notification cancelled
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: cancelled
+          job: Building
