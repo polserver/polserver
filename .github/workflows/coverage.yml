@@ -93,7 +93,7 @@ jobs:
       - name: Coverage
         run: |
           cd bin-build
-          fastcov -t PolCore --lcov -i pol-core -o pol-core.info
+          fastcov -g gcov-${{ matrix.config.compiler-version }} -t PolCore --lcov -i pol-core -o pol-core.info
           genhtml pol-core.info -o coverage
       - name: Upload shard test log
         uses: actions/upload-artifact@v1

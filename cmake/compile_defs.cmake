@@ -95,7 +95,7 @@ function(set_compile_flags target is_executable)
       /W4
       /w45038
     >
-    $<$<AND:${GCOV},${linux}>:
+    $<$<AND:$<BOOL:${GCOV}>,${linux}>:
       -g
       -O0
       -fprofile-arcs
