@@ -334,7 +334,7 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     const EScriptProgram* prog = uoexec->prog();
     bool found_func = false;
     u32 func_call_pc;
-    for ( const auto func : prog->exported_functions )
+    for ( const auto& func : prog->exported_functions )
     {
       if ( stricmp( func.name.c_str(), name->value().c_str() ) == 0 )
       {
@@ -406,7 +406,7 @@ Bscript::BObjectRef ExportScriptObjImp::get_member_id( const int id )
   {
     auto array = std::make_unique<Bscript::ObjArray>();
     const EScriptProgram* prog = uoexec->prog();
-    for ( const auto func : prog->exported_functions )
+    for ( const auto& func : prog->exported_functions )
       array->addElement( new String( func.name ) );
     return BObjectRef( array.release() );
   }
