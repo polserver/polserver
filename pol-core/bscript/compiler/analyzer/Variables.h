@@ -26,6 +26,10 @@ public:
 
   std::shared_ptr<Variable> find( const std::string& name ) const;
 
+  void restore_shadowed( std::shared_ptr<Variable> );
+
+  void remove_all_but( unsigned count );
+
   const std::vector<std::string>& get_names() const;
   unsigned count() const;
 

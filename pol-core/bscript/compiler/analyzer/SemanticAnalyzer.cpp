@@ -1,13 +1,16 @@
 #include "SemanticAnalyzer.h"
 
 #include "compiler/Report.h"
+#include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
+#include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -18,7 +21,9 @@ namespace Pol::Bscript::Compiler
 {
 SemanticAnalyzer::SemanticAnalyzer( Report& report )
   : report( report ),
-    globals( VariableScope::Global, report )
+    globals( VariableScope::Global, report ),
+    locals( VariableScope::Local, report ),
+    local_scopes( locals, report )
 {
 }
 
@@ -41,7 +46,12 @@ void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
 
 void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
-  if ( auto global = globals.find( node.name ) )
+  if ( auto local = locals.find( node.name ) )
+  {
+    local->mark_used();
+    node.variable = local;
+  }
+  else if ( auto global = globals.find( node.name ) )
   {
     node.variable = global;
   }
@@ -52,17 +62,44 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   }
 }
 
-void SemanticAnalyzer::visit_var_statement( VarStatement& node )
+void SemanticAnalyzer::visit_program( Program& program )
 {
-  if ( auto existing = globals.find( node.name ) )
+  LocalVariableScope scope( local_scopes, program.debug_variables );
+
+  visit_children( program );
+
+  program.locals_in_block = scope.get_block_locals();
+}
+
+void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDeclaration& node )
+{
+  if ( auto existing = locals.find( node.name ) )
   {
-    report.error( node, "Global variable '", node.name, "' already defined.\n",
-                  "  See also: ", existing->source_location, "\n" );
+    report.error( node, "Parameter '", node.name, "' already defined.\n" );
     return;
   }
 
-  node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
+  WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
+  local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
+}
 
+void SemanticAnalyzer::visit_var_statement( VarStatement& node )
+{
+  if ( auto local_scope = local_scopes.current_local_scope() )
+  {
+    node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location );
+  }
+  else
+  {
+    if ( auto existing = globals.find( node.name ) )
+    {
+      report.error( node, "Global variable '", node.name, "' already defined.\n",
+                    "  See also: ", existing->source_location, "\n" );
+      return;
+    }
+
+    node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
+  }
   visit_children( node );
 }
 

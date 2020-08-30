@@ -47,6 +47,8 @@ public:
   void call_modulefunc( const ModuleFunctionDeclaration& );
   void consume();
   void declare_variable( const Variable& );
+  void get_arg( const std::string& name );
+  void leaveblock( unsigned local_vars_to_remove );
   void progend();
   void unary_operator( BTokenId );
   void value( double );

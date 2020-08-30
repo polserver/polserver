@@ -80,6 +80,17 @@ void InstructionEmitter::declare_variable( const Variable& v )
   emit_token( token_id, TYP_RESERVED, v.index );
 }
 
+void InstructionEmitter::get_arg( const std::string& name )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_GET_ARG, TYP_OPERATOR, offset );
+}
+
+void InstructionEmitter::leaveblock( unsigned local_vars_to_remove )
+{
+  emit_token( CTRL_LEAVE_BLOCK, TYP_CONTROL, local_vars_to_remove );
+}
+
 void InstructionEmitter::progend()
 {
   emit_token( CTRL_PROGEND, TYP_CONTROL );
