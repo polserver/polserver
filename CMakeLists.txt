@@ -212,4 +212,3 @@ else()
   message("Git or clang-format not found for target 'clang_format'")
 endif()
 
-message(${PROJECT_BINARY_DIR})
