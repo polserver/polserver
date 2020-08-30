@@ -26,7 +26,7 @@ option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 option(ENABLE_FLYWEIGHT_REPORT "Enables flyweight memory report in memoryusage.log" OFF)
-option(GCOV "Build for coverage" OFF)
+option(GCOV "Build for coverage" 0)
 
 option(BUILD_ALL "Build everything" ON)
 option(ONLY_ECOMPILE "Build only ecompile" OFF)
