@@ -3,8 +3,10 @@
 #include "StoredToken.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/codegen/ModuleDeclarationRegistrar.h"
+#include "compiler/model/FlowControlLabel.h"
 #include "compiler/model/Variable.h"
 #include "compiler/representation/CompiledScript.h"
+#include "compiler/representation/ExportedFunction.h"
 #include "escriptv.h"
 #include "modules.h"
 #include "token.h"
@@ -86,6 +88,31 @@ void InstructionEmitter::get_arg( const std::string& name )
   emit_token( INS_GET_ARG, TYP_OPERATOR, offset );
 }
 
+void InstructionEmitter::jmp_always( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( RSV_GOTO, TYP_RESERVED ) );
+}
+
+void InstructionEmitter::jmp_if_false( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( RSV_JMPIFFALSE, TYP_RESERVED ) );
+}
+
+void InstructionEmitter::jmp_if_true( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( RSV_JMPIFTRUE, TYP_RESERVED ) );
+}
+
+void InstructionEmitter::label( FlowControlLabel& label )
+{
+  label.assign_address( code_emitter.next_address() );
+
+  for ( auto referencing_address : label.get_referencing_instruction_addresses() )
+  {
+    patch_offset( referencing_address, label.address() );
+  }
+}
+
 void InstructionEmitter::leaveblock( unsigned local_vars_to_remove )
 {
   emit_token( CTRL_LEAVE_BLOCK, TYP_CONTROL, local_vars_to_remove );
@@ -133,6 +160,23 @@ unsigned InstructionEmitter::emit_token( BTokenId id, BTokenType type, unsigned 
 unsigned InstructionEmitter::append_token( StoredToken& token )
 {
   return code_emitter.append( token );
+}
+
+void InstructionEmitter::patch_offset( unsigned index, unsigned offset )
+{
+  code_emitter.update_offset( index, offset );
+}
+
+void InstructionEmitter::register_with_label( FlowControlLabel& label, unsigned offset )
+{
+  if ( label.has_address() )
+  {
+    patch_offset( offset, label.address() );
+  }
+  else
+  {
+    label.add_referencing_instruction_address( offset );
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

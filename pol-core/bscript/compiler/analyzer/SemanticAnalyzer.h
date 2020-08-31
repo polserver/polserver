@@ -27,6 +27,7 @@ public:
   static void register_const_declarations( CompilerWorkspace& );
   void analyze( CompilerWorkspace& );
 
+  void visit_block( Block& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_program( Program& program ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;

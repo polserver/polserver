@@ -26,6 +26,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
+  compiler/ast/Block.cpp
+  compiler/ast/Block.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
@@ -42,6 +44,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterList.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
+  compiler/ast/IfThenElseStatement.cpp
+  compiler/ast/IfThenElseStatement.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
   compiler/ast/ModuleFunctionDeclaration.cpp
@@ -128,6 +132,8 @@ set (bscript_sources    # sorted !
   compiler/format/StoredTokenDecoder.h
   compiler/model/CompilerWorkspace.cpp
   compiler/model/CompilerWorkspace.h
+  compiler/model/FlowControlLabel.cpp
+  compiler/model/FlowControlLabel.h
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
   compiler/model/Variable.cpp
