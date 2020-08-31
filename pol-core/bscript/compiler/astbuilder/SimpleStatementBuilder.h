@@ -6,6 +6,7 @@
 namespace Pol::Bscript::Compiler
 {
 class Statement;
+class ReturnStatement;
 
 class SimpleStatementBuilder : public ExpressionBuilder
 {
@@ -20,6 +21,9 @@ public:
 
   std::unique_ptr<Expression> variable_initializer(
       EscriptGrammar::EscriptParser::VariableDeclarationInitializerContext* );
+
+  std::unique_ptr<ReturnStatement> return_statement(
+      EscriptGrammar::EscriptParser::ReturnStatementContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler

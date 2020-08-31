@@ -11,6 +11,7 @@
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
+#include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/ValueConsumer.h"
@@ -132,6 +133,13 @@ void InstructionGenerator::visit_program( Program& program )
 void InstructionGenerator::visit_program_parameter_declaration( ProgramParameterDeclaration& param )
 {
   emit.get_arg( param.name );
+}
+
+void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
+{
+  visit_children( ret );
+
+  emit.progend();
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )

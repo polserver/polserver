@@ -3,6 +3,7 @@
 #include "compiler/ast/Block.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/ReturnStatement.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -28,6 +29,10 @@ void CompoundStatementBuilder::add_statements(
   else if ( auto var_statement = ctx->varStatement() )
   {
     add_var_statements( var_statement, statements );
+  }
+  else if ( auto return_st = ctx->returnStatement() )
+  {
+    statements.push_back( return_statement( return_st ) );
   }
   else
   {

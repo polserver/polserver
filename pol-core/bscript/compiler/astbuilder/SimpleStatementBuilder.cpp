@@ -2,6 +2,9 @@
 
 #include "compiler/Report.h"
 #include "compiler/ast/Expression.h"
+#include "compiler/ast/Identifier.h"
+#include "compiler/ast/IntegerValue.h"
+#include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
@@ -65,6 +68,20 @@ std::unique_ptr<Expression> SimpleStatementBuilder::variable_initializer(
     return expression( expr );
   else
     return std::unique_ptr<Expression>( new StringValue( location_for( *ctx ), "" ) );
+}
+
+std::unique_ptr<ReturnStatement> SimpleStatementBuilder::return_statement(
+    EscriptParser::ReturnStatementContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+
+  std::unique_ptr<Expression> result;
+  if ( auto expression_ctx = ctx->expression() )
+    result = expression( expression_ctx );
+  else
+    result = std::unique_ptr<Expression>( new StringValue( source_location, "" ) );
+
+  return std::make_unique<ReturnStatement>( source_location, std::move( result ) );
 }
 
 }  // namespace Pol::Bscript::Compiler

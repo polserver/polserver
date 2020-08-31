@@ -60,6 +60,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ProgramParameterDeclaration.h
   compiler/ast/ProgramParameterList.cpp
   compiler/ast/ProgramParameterList.h
+  compiler/ast/ReturnStatement.cpp
+  compiler/ast/ReturnStatement.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp
