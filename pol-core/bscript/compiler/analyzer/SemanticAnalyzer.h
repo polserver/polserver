@@ -33,7 +33,7 @@ public:
   void visit_identifier( Identifier& ) override;
   void visit_program( Program& program ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
-  void  visit_user_function( UserFunction& ) override;
+  void visit_user_function( UserFunction& ) override;
   void visit_var_statement( VarStatement& ) override;
 
 private:
