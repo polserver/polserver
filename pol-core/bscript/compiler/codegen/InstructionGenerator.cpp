@@ -93,7 +93,8 @@ void InstructionGenerator::visit_function_parameter_list( FunctionParameterList&
   }
 }
 
-void InstructionGenerator::visit_function_parameter_declaration( FunctionParameterDeclaration& node )
+void InstructionGenerator::visit_function_parameter_declaration(
+    FunctionParameterDeclaration& node )
 {
   if ( node.byref )
     emit.pop_param_byref( node.name );
