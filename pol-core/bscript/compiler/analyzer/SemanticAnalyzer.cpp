@@ -1,5 +1,7 @@
 #include "SemanticAnalyzer.h"
 
+#include <boost/range/adaptor/reversed.hpp>
+
 #include "compiler/Report.h"
 #include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/ast/Argument.h"
@@ -13,6 +15,7 @@
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/TopLevelStatements.h"
+#include "compiler/ast/UserFunction.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/model/CompilerWorkspace.h"
 #include "compiler/model/FunctionLink.h"
@@ -42,6 +45,11 @@ void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
     program->accept( *this );
   }
 
+  for ( auto& user_function : workspace.user_functions )
+  {
+    user_function->accept( *this );
+  }
+
   workspace.global_variable_names = globals.get_names();
 }
 
@@ -52,6 +60,26 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 
   block.locals_in_block = scope.get_block_locals();
+}
+
+void SemanticAnalyzer::visit_function_parameter_list( FunctionParameterList& node )
+{
+  for ( auto& child : boost::adaptors::reverse( node.children ) )
+  {
+    child->accept( *this );
+  }
+}
+
+void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDeclaration& node )
+{
+  if ( auto existing = locals.find( node.name ) )
+  {
+    report.error( node, "Parameter '", node.name, "' already defined.\n" );
+    return;
+  }
+
+  WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
+  local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
 }
 
 void SemanticAnalyzer::visit_identifier( Identifier& node )
@@ -91,6 +119,13 @@ void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDecl
 
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
   local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
+}
+
+void SemanticAnalyzer::visit_user_function( UserFunction& node )
+{
+  LocalVariableScope scope( local_scopes, node.debug_variables );
+
+  visit_children( node );
 }
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )

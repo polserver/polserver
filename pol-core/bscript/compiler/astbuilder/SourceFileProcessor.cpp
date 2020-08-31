@@ -93,6 +93,13 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   }
 }
 
+antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
+    EscriptParser::FunctionDeclarationContext* ctx )
+{
+  workspace.function_resolver.register_available_user_function( location_for( *ctx ), ctx );
+  return antlrcpp::Any();
+}
+
 antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
     EscriptParser::ProgramDeclarationContext* ctx )
 {

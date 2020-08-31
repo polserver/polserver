@@ -6,6 +6,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class BuilderWorkspace;
 struct LegacyFunctionOrder;
 class Profile;
 class Report;
@@ -23,6 +24,7 @@ public:
       const LegacyFunctionOrder* legacy_function_order );
 
 private:
+  void build_referenced_user_functions( BuilderWorkspace& );
 
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;

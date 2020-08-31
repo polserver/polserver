@@ -1,12 +1,18 @@
 #include "CompilerWorkspaceBuilder.h"
 
+#include "clib/timer.h"
 #include "compiler/LegacyFunctionOrder.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/Program.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
+#include "compiler/ast/UserFunction.h"
+#include "compiler/astbuilder/AvailableUserFunction.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/astbuilder/SourceFileProcessor.h"
+#include "compiler/astbuilder/UserFunctionVisitor.h"
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/file/SourceLocation.h"
@@ -57,7 +63,30 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   src_processor.use_module( "basicio", source_location );
   src_processor.process_source( *sf );
 
+  if ( report.error_count() == 0 )
+    build_referenced_user_functions( workspace );
+
   return compiler_workspace;
+}
+
+void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace& workspace )
+{
+  Pol::Tools::HighPerfTimer timer;
+
+  std::vector<AvailableUserFunction> to_build;
+  while ( workspace.function_resolver.resolve( to_build ) )
+  {
+    for ( auto& auf : to_build )
+    {
+      UserFunctionVisitor user_function_visitor( *auf.source_location.source_file_identifier,
+                                                 workspace );
+
+      auf.parse_rule_context->accept( &user_function_visitor );
+    }
+    to_build.clear();
+  }
+
+  workspace.profile.ast_resolve_functions_micros += timer.ellapsed().count();
 }
 
 }  // namespace Pol::Bscript::Compiler

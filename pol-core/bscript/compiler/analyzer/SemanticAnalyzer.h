@@ -28,9 +28,12 @@ public:
   void analyze( CompilerWorkspace& );
 
   void visit_block( Block& ) override;
+  void visit_function_parameter_list( FunctionParameterList& ) override;
+  void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_program( Program& program ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
+  void  visit_user_function( UserFunction& ) override;
   void visit_var_statement( VarStatement& ) override;
 
 private:

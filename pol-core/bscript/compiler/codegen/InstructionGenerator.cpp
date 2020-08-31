@@ -1,7 +1,10 @@
 #include "InstructionGenerator.h"
 
+#include <boost/range/adaptor/reversed.hpp>
+
 #include "compiler/ast/Block.h"
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
@@ -14,6 +17,7 @@
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/UnaryOperator.h"
+#include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/codegen/InstructionEmitter.h"
@@ -25,9 +29,13 @@
 
 namespace Pol::Bscript::Compiler
 {
-InstructionGenerator::InstructionGenerator( InstructionEmitter& emitter )
+InstructionGenerator::InstructionGenerator(
+    InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels,
+    bool in_function )
   : emitter( emitter ),
-    emit( emitter )
+    emit( emitter ),
+    user_function_labels( user_function_labels ),
+    in_function( in_function )
 {
 }
 
@@ -65,10 +73,32 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
   {
     emit.call_modulefunc( *mf );
   }
+  else if ( auto uf = call.function_link->user_function() )
+  {
+    FlowControlLabel& label = user_function_labels[uf->name];
+    emit.makelocal();
+    emit.call_userfunc( label );
+  }
   else
   {
     call.internal_error( "neither a module function nor a user function?" );
   }
+}
+
+void InstructionGenerator::visit_function_parameter_list( FunctionParameterList& node )
+{
+  for ( auto& child : boost::adaptors::reverse( node.children ) )
+  {
+    child->accept( *this );
+  }
+}
+
+void InstructionGenerator::visit_function_parameter_declaration( FunctionParameterDeclaration& node )
+{
+  if ( node.byref )
+    emit.pop_param_byref( node.name );
+  else
+    emit.pop_param( node.name );
 }
 
 void InstructionGenerator::visit_identifier( Identifier& node )
@@ -156,6 +186,19 @@ void InstructionGenerator::visit_unary_operator( UnaryOperator& unary_operator )
 {
   visit_children( unary_operator );
   emit.unary_operator( unary_operator.token_id );
+}
+
+void InstructionGenerator::visit_user_function( UserFunction& user_function )
+{
+  FlowControlLabel& label = user_function_labels[user_function.name];
+  emit.label( label );
+  visit_children( user_function );
+
+  if ( !dynamic_cast<ReturnStatement*>( user_function.body().last_statement() ) )
+  {
+    emit.value( 0 );
+    emit.return_from_user_function();
+  }
 }
 
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )

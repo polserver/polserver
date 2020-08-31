@@ -17,6 +17,7 @@
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
+#include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
 
@@ -110,6 +111,11 @@ void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 }
 
 void NodeVisitor::visit_unary_operator( UnaryOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_user_function( UserFunction& node )
 {
   visit_children( node );
 }
