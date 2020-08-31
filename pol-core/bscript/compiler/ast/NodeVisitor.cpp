@@ -13,6 +13,7 @@
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/ProgramParameterList.h"
+#include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
@@ -29,6 +30,10 @@ void NodeVisitor::visit_argument( Argument& node )
 void NodeVisitor::visit_block( Block& node )
 {
   visit_children( node );
+}
+
+void NodeVisitor::visit_exit_statement( ExitStatement& )
+{
 }
 
 void NodeVisitor::visit_float_value( FloatValue& node )
@@ -85,6 +90,11 @@ void NodeVisitor::visit_program_parameter_declaration( ProgramParameterDeclarati
 }
 
 void NodeVisitor::visit_program_parameter_list( ProgramParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_return_statement( ReturnStatement& node )
 {
   visit_children( node );
 }

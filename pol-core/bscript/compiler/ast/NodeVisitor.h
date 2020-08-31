@@ -5,6 +5,7 @@ namespace Pol::Bscript::Compiler
 {
 class Argument;
 class Block;
+class ExitStatement;
 class FloatValue;
 class FunctionBody;
 class FunctionCall;
@@ -18,6 +19,7 @@ class Node;
 class Program;
 class ProgramParameterDeclaration;
 class ProgramParameterList;
+class ReturnStatement;
 class StringValue;
 class TopLevelStatements;
 class UnaryOperator;
@@ -31,6 +33,7 @@ public:
 
   virtual void visit_argument( Argument& );
   virtual void visit_block( Block& );
+  virtual void visit_exit_statement( ExitStatement& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_function_body( FunctionBody& );
   virtual void visit_function_call( FunctionCall& );
@@ -43,6 +46,7 @@ public:
   virtual void visit_program( Program& );
   virtual void visit_program_parameter_declaration( ProgramParameterDeclaration& );
   virtual void visit_program_parameter_list( ProgramParameterList& );
+  virtual void visit_return_statement( ReturnStatement& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_top_level_statements( TopLevelStatements& );
   virtual void visit_unary_operator( UnaryOperator& );

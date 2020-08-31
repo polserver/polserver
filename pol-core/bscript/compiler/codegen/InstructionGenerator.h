@@ -18,13 +18,15 @@ public:
   void generate( Node& );
 
   void visit_block( Block& ) override;
+  void visit_exit_statement( ExitStatement& ) override;
   void visit_float_value( FloatValue& ) override;
   void visit_function_call( FunctionCall& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_program( Program& ) override;
-  void visit_program_parameter_declaration( ProgramParameterDeclaration& );
+  void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
+  void visit_return_statement( ReturnStatement& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_value_consumer( ValueConsumer& ) override;

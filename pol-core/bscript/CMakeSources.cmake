@@ -28,6 +28,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Argument.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
+  compiler/ast/ExitStatement.cpp
+  compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp
@@ -60,6 +62,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ProgramParameterDeclaration.h
   compiler/ast/ProgramParameterList.cpp
   compiler/ast/ProgramParameterList.h
+  compiler/ast/ReturnStatement.cpp
+  compiler/ast/ReturnStatement.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp
