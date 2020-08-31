@@ -32,6 +32,10 @@ void NodeVisitor::visit_block( Block& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_exit_statement( ExitStatement& )
+{
+}
+
 void NodeVisitor::visit_float_value( FloatValue& node )
 {
   visit_children( node );

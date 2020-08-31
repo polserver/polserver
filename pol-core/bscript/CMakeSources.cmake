@@ -28,6 +28,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Argument.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
+  compiler/ast/ExitStatement.cpp
+  compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
   compiler/ast/FloatValue.cpp

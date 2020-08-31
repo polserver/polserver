@@ -50,6 +50,7 @@ public:
   void call_modulefunc( const ModuleFunctionDeclaration& );
   void consume();
   void declare_variable( const Variable& );
+  void exit();
   void get_arg( const std::string& name );
   void jmp_always( FlowControlLabel& );
   void jmp_if_false( FlowControlLabel& );

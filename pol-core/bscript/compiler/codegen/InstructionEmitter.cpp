@@ -82,6 +82,11 @@ void InstructionEmitter::declare_variable( const Variable& v )
   emit_token( token_id, TYP_RESERVED, v.index );
 }
 
+void InstructionEmitter::exit()
+{
+  emit_token( RSV_EXIT, TYP_RESERVED );
+}
+
 void InstructionEmitter::get_arg( const std::string& name )
 {
   unsigned offset = emit_data( name );

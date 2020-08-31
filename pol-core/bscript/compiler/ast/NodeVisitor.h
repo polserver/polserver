@@ -5,6 +5,7 @@ namespace Pol::Bscript::Compiler
 {
 class Argument;
 class Block;
+class ExitStatement;
 class FloatValue;
 class FunctionBody;
 class FunctionCall;
@@ -32,6 +33,7 @@ public:
 
   virtual void visit_argument( Argument& );
   virtual void visit_block( Block& );
+  virtual void visit_exit_statement( ExitStatement& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_function_body( FunctionBody& );
   virtual void visit_function_call( FunctionCall& );

@@ -71,6 +71,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
    case RSV_GOTO:
      w << "goto " << tkn.offset;
      break;
+   case RSV_EXIT:
+     w << "exit";
+     break;
 
   case RSV_GLOBAL:
     w << "declare global #" << tkn.offset;

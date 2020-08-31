@@ -47,6 +47,11 @@ void InstructionGenerator::visit_block( Block& node )
   }
 }
 
+void InstructionGenerator::visit_exit_statement( ExitStatement& )
+{
+  emit.exit();
+}
+
 void InstructionGenerator::visit_float_value( FloatValue& node )
 {
   emit.value( node.value );
