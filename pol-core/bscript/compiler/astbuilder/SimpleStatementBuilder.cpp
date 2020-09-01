@@ -1,6 +1,7 @@
 #include "SimpleStatementBuilder.h"
 
 #include "compiler/Report.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IntegerValue.h"
@@ -53,6 +54,18 @@ void SimpleStatementBuilder::add_var_statements(
       statements.push_back( std::move( consumed ) );
     }
   }
+}
+
+std::unique_ptr<ConstDeclaration> SimpleStatementBuilder::const_declaration(
+    EscriptParser::ConstStatementContext* ctx )
+{
+  auto variable_declaration = ctx->variableDeclaration();
+  auto identifier = text( variable_declaration->IDENTIFIER() );
+  auto expression_context = variable_declaration->variableDeclarationInitializer()->expression();
+  auto value = expression( expression_context );
+
+  return std::make_unique<ConstDeclaration>( location_for( *ctx ), std::move( identifier ),
+                                               std::move( value ) );
 }
 
 std::unique_ptr<Statement> SimpleStatementBuilder::consume_statement_result(

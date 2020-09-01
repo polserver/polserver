@@ -3,9 +3,11 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 #include "compiler/Report.h"
+#include "compiler/analyzer/Constants.h"
 #include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -24,8 +26,9 @@
 
 namespace Pol::Bscript::Compiler
 {
-SemanticAnalyzer::SemanticAnalyzer( Report& report )
-  : report( report ),
+SemanticAnalyzer::SemanticAnalyzer( Constants& constants, Report& report )
+  : constants( constants ),
+    report( report ),
     globals( VariableScope::Global, report ),
     locals( VariableScope::Local, report ),
     local_scopes( locals, report )
@@ -34,8 +37,12 @@ SemanticAnalyzer::SemanticAnalyzer( Report& report )
 
 SemanticAnalyzer::~SemanticAnalyzer() = default;
 
-void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& /*workspace*/ )
+void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace )
 {
+  for ( auto& constant : workspace.const_declarations )
+  {
+    workspace.constants.create( *constant );
+  }
 }
 
 void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
@@ -228,6 +235,13 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
+  if ( auto constant = constants.find( node.name ) )
+  {
+    report.error( node, "Cannot define a variable with the same name as constant '", node.name,
+                  "'.\n", "  See also: ", constant->source_location, "\n" );
+    return;
+  }
+
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
     node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location );

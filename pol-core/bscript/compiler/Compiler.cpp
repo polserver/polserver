@@ -137,7 +137,7 @@ void Compiler::register_constants( CompilerWorkspace& workspace )
 void Compiler::optimize( CompilerWorkspace& workspace, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  Optimizer optimizer( report );
+  Optimizer optimizer( workspace.constants, report );
   optimizer.optimize( workspace );
   profile.optimize_micros += timer.ellapsed().count();
 }
@@ -153,7 +153,7 @@ void Compiler::disambiguate( CompilerWorkspace& workspace, Report& report )
 void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  SemanticAnalyzer analyzer( report );
+  SemanticAnalyzer analyzer( workspace.constants, report );
   analyzer.analyze( workspace );
   profile.analyze_micros += timer.ellapsed().count();
 }

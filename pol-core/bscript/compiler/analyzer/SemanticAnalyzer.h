@@ -13,6 +13,7 @@
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
+class Constants;
 class Identifier;
 class Report;
 class VarStatement;
@@ -20,7 +21,7 @@ class VarStatement;
 class SemanticAnalyzer : public NodeVisitor
 {
 public:
-  explicit SemanticAnalyzer( Report& );
+  SemanticAnalyzer( Constants&, Report& );
 
   ~SemanticAnalyzer() override;
 
@@ -38,6 +39,7 @@ public:
   void visit_var_statement( VarStatement& ) override;
 
 private:
+  Constants& constants;
   Report& report;
 
   Variables globals;

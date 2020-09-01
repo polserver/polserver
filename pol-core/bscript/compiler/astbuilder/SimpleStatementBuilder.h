@@ -5,6 +5,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class ConstDeclaration;
 class Statement;
 class ReturnStatement;
 
@@ -15,6 +16,9 @@ public:
 
   void add_var_statements( EscriptGrammar::EscriptParser::VarStatementContext*,
                            std::vector<std::unique_ptr<Statement>>& );
+
+  std::unique_ptr<ConstDeclaration> const_declaration(
+      EscriptGrammar::EscriptParser::ConstStatementContext* );
 
   static std::unique_ptr<Statement> consume_statement_result(
       std::unique_ptr<Statement> statement );

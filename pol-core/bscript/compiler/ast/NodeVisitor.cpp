@@ -2,6 +2,7 @@
 
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
@@ -29,6 +30,11 @@ void NodeVisitor::visit_argument( Argument& node )
 }
 
 void NodeVisitor::visit_block( Block& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
 {
   visit_children( node );
 }

@@ -1,6 +1,7 @@
 #include "ModuleProcessor.h"
 
 #include "compiler/Profile.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/file/SourceFile.h"
@@ -30,6 +31,11 @@ antlrcpp::Any ModuleProcessor::visitModuleDeclarationStatement(
     workspace.function_resolver.register_module_function( ast.get() );
 
     workspace.compiler_workspace.module_function_declarations.push_back( std::move( ast ) );
+  }
+  else if ( auto constStatement = ctx->constStatement() )
+  {
+    workspace.compiler_workspace.const_declarations.push_back(
+        tree_builder.const_declaration( constStatement ) );
   }
   return antlrcpp::Any();
 }
