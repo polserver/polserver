@@ -17,6 +17,7 @@
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/astbuilder/SimpleValueCloner.h"
 #include "compiler/model/CompilerWorkspace.h"
 #include "compiler/model/FunctionLink.h"
 #include "compiler/model/Variable.h"
@@ -60,6 +61,103 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 
   block.locals_in_block = scope.get_block_locals();
+}
+
+void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
+{
+  // here we turn the arguments passed (which can be named or positional)
+  // into the final_arguments vector, which is just one parameter per
+  // argument, in the correct order.
+
+  typedef std::map<std::string, std::unique_ptr<Expression>> ArgumentList;
+  ArgumentList arguments_passed;
+
+  bool any_named = false;
+
+  std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
+  auto parameters = fc.parameters();
+
+  for ( auto& arg_unique_ptr : arguments )
+  {
+    auto& arg = *arg_unique_ptr;
+    std::string arg_name = arg.identifier;
+    if ( arg_name.empty() )
+    {
+      if ( any_named )
+      {
+        report.error( arg, "Unnamed args cannot follow named args.\n" );
+        return;
+      }
+      arg_name = parameters[arguments_passed.size()].get().name;
+    }
+    else
+    {
+      any_named = true;
+    }
+    if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
+    {
+      report.error( arg, "Parameter '", arg_name, "' passed more than once.\n" );
+      return;
+    }
+
+    arguments_passed[arg_name] = arg.take_expression();
+  }
+
+  std::vector<std::unique_ptr<Node>> final_arguments;
+
+  for ( auto& param_ref : parameters )
+  {
+    FunctionParameterDeclaration& param = param_ref.get();
+    auto itr = arguments_passed.find( param.name );
+    if ( itr == arguments_passed.end() )
+    {
+      if ( auto default_value = param.default_value() )
+      {
+        SimpleValueCloner cloner( report, default_value->source_location );
+        auto final_argument = cloner.clone( *default_value );
+
+        if ( final_argument )
+        {
+          final_arguments.push_back( std::move( final_argument ) );
+        }
+        else
+        {
+          report.error( param, "Unable to create argument from default parameter.\n" );
+          return;
+        }
+      }
+      else
+      {
+        report.error( fc, "Parameter ", param.name, " was not passed, and there is no default.\n" );
+        return;
+      }
+    }
+    else
+    {
+      final_arguments.push_back( std::move( ( *itr ).second ) );
+      arguments_passed.erase( itr );
+    }
+  }
+
+  for ( auto& unused_argument : arguments_passed )
+  {
+    report.error( fc, "Parameter '", unused_argument.first, "' passed by name to '",
+                  fc.method_name, "', which takes no such parameter.");
+  }
+  if ( !arguments_passed.empty() )
+    return;
+
+  if ( arguments.size() > parameters.size() )
+  {
+    report.error( fc, "Too many arguments.  Expected ", parameters.size(), ", got ",
+                  arguments.size(), ".\n" );
+    return;
+  }
+
+  fc.children = std::move( final_arguments );
+
+  // do this afterwards, so that named parameters will not be looked up as identifiers.
+  visit_children( fc );
 }
 
 void SemanticAnalyzer::visit_function_parameter_list( FunctionParameterList& node )
