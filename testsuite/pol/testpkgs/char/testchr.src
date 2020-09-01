@@ -20,6 +20,13 @@ program chartests()
   return 1;
 endprogram
 
+function clean_backpack()
+  var items:=EnumerateItemsInContainer(char.backpack, ENUMERATE_ROOT_ONLY);
+  foreach item in items
+    DestroyItem(item);
+  endforeach
+endfunction
+
 exported function apply_aos_mod()
   backpack.damage_cold_mod:=10;
   if (char.damage_cold != 10)
@@ -36,6 +43,45 @@ exported function set_name()
   setname(char, "test");
   if(char.name != "test")
     return ret_error("failed to rename char: "+char.name);
+  endif
+  return 1;
+endfunction
+
+exported function place_item_backpack()
+  clean_backpack();
+  var item:=CreateItemAtLocation(char.x,char.y,char.z, 0x3e3f, 1, char.realm);
+  item.movable:=1;
+  var res:=MoveItemToContainer(item, char.backpack);
+  if (!res)
+    return ret_error("failed to move item: "+res);
+  endif
+  if (item.realm != char.realm)
+    return ret_error("item realm is not the same as char realm: "+item.realm);
+  endif
+  return 1;
+endfunction
+
+exported function create_in_backpack()
+  clean_backpack();
+  var old_weight:=char.weight;
+  var item:=CreateItemInContainer(char.backpack, 0xf3f, 1);
+  var item_weight:=item.weight;
+  if (!item)
+    return ret_error("failed to create item: "+item);
+  endif
+  var item2:=CreateItemInContainer(char.backpack, 0xf3f, 1);
+  if (!item2)
+    return ret_error("failed to create item2: "+item2);
+  endif
+  if (item.serial != item2.serial)
+    return ret_error("items did not stack");
+  endif
+  if (item.amount != 2)
+    return ret_error("item amount not 2: "+item.amount);
+  endif 
+  var exp_weight:=item_weight*2+ old_weight;
+  if (char.weight != exp_weight)
+    return ret_error("char weight {} != {}".format(char.weight, exp_weight));
   endif
   return 1;
 endfunction
