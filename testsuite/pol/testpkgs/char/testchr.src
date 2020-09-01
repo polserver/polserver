@@ -31,3 +31,11 @@ exported function apply_aos_mod()
   endif
   return 1;
 endfunction 
+
+exported function set_name()
+  setname(char, "test");
+  if(char.name != "test")
+    return ret_error("failed to rename char: "+char.name);
+  endif
+  return 1;
+endfunction

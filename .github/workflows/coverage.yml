@@ -105,6 +105,11 @@ jobs:
         with:
           name: Coveragelog
           path: bin-build/coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          path-to-lcov: bin-build/pol-core.info
+          github-token: ${{ secrets.GITHUB_TOKEN }}
  
   notify_on_failure:
     needs: build
