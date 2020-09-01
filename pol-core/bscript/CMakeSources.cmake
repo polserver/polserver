@@ -99,6 +99,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/ProgramBuilder.h
   compiler/astbuilder/SimpleStatementBuilder.cpp
   compiler/astbuilder/SimpleStatementBuilder.h
+  compiler/astbuilder/SimpleValueCloner.cpp
+  compiler/astbuilder/SimpleValueCloner.h
   compiler/astbuilder/SourceFileProcessor.cpp
   compiler/astbuilder/SourceFileProcessor.h
   compiler/astbuilder/TreeBuilder.cpp

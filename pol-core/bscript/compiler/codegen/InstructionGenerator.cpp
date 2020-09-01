@@ -175,7 +175,14 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
 {
   visit_children( ret );
 
-  emit.progend();
+  if ( in_function )
+  {
+    emit.return_from_user_function();
+  }
+  else
+  {
+    emit.progend();
+  }
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )
