@@ -30,7 +30,7 @@ CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     const std::string& pathname, const LegacyFunctionOrder* /*legacy_function_order*/ )
 {
-  auto compiler_workspace = std::make_unique<CompilerWorkspace>();
+  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
   BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );

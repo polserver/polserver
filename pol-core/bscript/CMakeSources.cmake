@@ -14,6 +14,8 @@ set (bscript_sources    # sorted !
   compiler/Compiler.cpp
   compiler/Compiler.h
   compiler/LegacyFunctionOrder.h
+  compiler/analyzer/Constants.cpp
+  compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/LocalVariableScope.cpp
@@ -28,6 +30,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Argument.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
+  compiler/ast/ConstDeclaration.cpp
+  compiler/ast/ConstDeclaration.h
   compiler/ast/ExitStatement.cpp
   compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp
@@ -151,6 +155,8 @@ set (bscript_sources    # sorted !
   compiler/model/Variable.h
   compiler/model/VariableScope.h
   compiler/model/WarnOn.h
+  compiler/optimizer/ConstantValidator.cpp
+  compiler/optimizer/ConstantValidator.h
   compiler/optimizer/Optimizer.cpp
   compiler/optimizer/Optimizer.h
   compiler/optimizer/ReferencedFunctionGatherer.cpp

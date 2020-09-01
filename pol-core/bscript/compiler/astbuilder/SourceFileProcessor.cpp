@@ -4,6 +4,7 @@
 #include "clib/timer.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
@@ -120,6 +121,8 @@ antlrcpp::Any SourceFileProcessor::visitStatement( EscriptParser::StatementConte
 {
   if ( auto constStatement = ctx->constStatement() )
   {
+    workspace.compiler_workspace.const_declarations.push_back(
+        tree_builder.const_declaration( constStatement ) );
   }
   else
   {
