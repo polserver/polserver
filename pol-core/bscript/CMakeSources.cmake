@@ -72,12 +72,15 @@ set (bscript_sources    # sorted !
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp
   compiler/ast/UnaryOperator.h
+  compiler/ast/UserFunction.cpp
+  compiler/ast/UserFunction.h
   compiler/ast/Value.cpp
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
   compiler/ast/ValueConsumer.h
   compiler/ast/VarStatement.cpp
   compiler/ast/VarStatement.h
+  compiler/astbuilder/AvailableUserFunction.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
   compiler/astbuilder/CompilerWorkspaceBuilder.cpp
@@ -102,6 +105,8 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/TreeBuilder.h
   compiler/astbuilder/UserFunctionBuilder.cpp
   compiler/astbuilder/UserFunctionBuilder.h
+  compiler/astbuilder/UserFunctionVisitor.cpp
+  compiler/astbuilder/UserFunctionVisitor.h
   compiler/astbuilder/ValueBuilder.cpp
   compiler/astbuilder/ValueBuilder.h
   compiler/codegen/CodeEmitter.cpp

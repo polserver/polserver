@@ -24,6 +24,8 @@ public:
                    long long* micros_counted = nullptr );
   void process_source( SourceFile& );
 
+  antlrcpp::Any visitFunctionDeclaration(
+      EscriptGrammar::EscriptParser::FunctionDeclarationContext* ) override;
   antlrcpp::Any visitProgramDeclaration(
       EscriptGrammar::EscriptParser::ProgramDeclarationContext* ) override;
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ) override;

@@ -13,6 +13,7 @@ class Program;
 class SourceFile;
 class SourceFileIdentifier;
 class TopLevelStatements;
+class UserFunction;
 
 class CompilerWorkspace
 {
@@ -22,6 +23,7 @@ public:
 
   std::unique_ptr<TopLevelStatements> top_level_statements;
   std::vector<std::unique_ptr<ModuleFunctionDeclaration>> module_function_declarations;
+  std::vector<std::unique_ptr<UserFunction>> user_functions;
   std::unique_ptr<Program> program;
 
   // These reference ModuleFunctionDeclaration objects that are in module_functions

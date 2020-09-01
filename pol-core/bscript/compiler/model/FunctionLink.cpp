@@ -1,6 +1,7 @@
 #include "FunctionLink.h"
 
 #include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/UserFunction.h"
 #include "compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
@@ -18,6 +19,11 @@ Function* FunctionLink::function() const
 ModuleFunctionDeclaration* FunctionLink::module_function_declaration() const
 {
   return dynamic_cast<ModuleFunctionDeclaration*>( linked_function );
+}
+
+UserFunction* FunctionLink::user_function() const
+{
+  return dynamic_cast<UserFunction*>( linked_function );
 }
 
 void FunctionLink::link_to( Function* f )

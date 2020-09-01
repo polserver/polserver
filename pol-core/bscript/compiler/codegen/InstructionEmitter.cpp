@@ -71,6 +71,12 @@ void InstructionEmitter::call_modulefunc(
   append_token( token );
 }
 
+void InstructionEmitter::call_userfunc( FlowControlLabel& label )
+{
+  unsigned addr = emit_token( CTRL_JSR_USERFUNC, TYP_CONTROL );
+  register_with_label( label, addr );
+}
+
 void InstructionEmitter::consume()
 {
   emit_token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
@@ -123,9 +129,31 @@ void InstructionEmitter::leaveblock( unsigned local_vars_to_remove )
   emit_token( CTRL_LEAVE_BLOCK, TYP_CONTROL, local_vars_to_remove );
 }
 
+void InstructionEmitter::makelocal()
+{
+  emit_token( CTRL_MAKELOCAL, TYP_CONTROL );
+}
+
+void InstructionEmitter::pop_param( const std::string& name )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_POP_PARAM, TYP_OPERATOR, offset );
+}
+
+void InstructionEmitter::pop_param_byref( const std::string& name )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_POP_PARAM_BYREF, TYP_OPERATOR, offset );
+}
+
 void InstructionEmitter::progend()
 {
   emit_token( CTRL_PROGEND, TYP_CONTROL );
+}
+
+void InstructionEmitter::return_from_user_function()
+{
+  emit_token( RSV_RETURN, TYP_RESERVED );
 }
 
 void InstructionEmitter::unary_operator( BTokenId token_id )

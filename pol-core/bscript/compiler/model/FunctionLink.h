@@ -7,6 +7,7 @@ namespace Pol::Bscript::Compiler
 {
 class Function;
 class ModuleFunctionDeclaration;
+class UserFunction;
 
 class FunctionLink
 {
@@ -17,6 +18,7 @@ public:
 
   [[nodiscard]] Function* function() const;
   [[nodiscard]] ModuleFunctionDeclaration* module_function_declaration() const;
+  [[nodiscard]] UserFunction* user_function() const;
 
   void link_to( Function* );
 
