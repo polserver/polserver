@@ -19,6 +19,7 @@ public:
   void optimize( CompilerWorkspace& );
   void visit_children( Node& ) override;
 
+  void visit_binary_operator( BinaryOperator& ) override;
   void visit_const_declaration( ConstDeclaration& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_unary_operator( UnaryOperator& ) override;

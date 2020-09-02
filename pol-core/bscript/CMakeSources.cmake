@@ -157,6 +157,14 @@ set (bscript_sources    # sorted !
   compiler/model/Variable.h
   compiler/model/VariableScope.h
   compiler/model/WarnOn.h
+  compiler/optimizer/BinaryOperatorOptimizer.cpp
+  compiler/optimizer/BinaryOperatorOptimizer.h
+  compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp
+  compiler/optimizer/BinaryOperatorWithFloatOptimizer.h
+  compiler/optimizer/BinaryOperatorWithIntegerOptimizer.cpp
+  compiler/optimizer/BinaryOperatorWithIntegerOptimizer.h
+  compiler/optimizer/BinaryOperatorWithStringOptimizer.cpp
+  compiler/optimizer/BinaryOperatorWithStringOptimizer.h
   compiler/optimizer/ConstantValidator.cpp
   compiler/optimizer/ConstantValidator.h
   compiler/optimizer/Optimizer.cpp
