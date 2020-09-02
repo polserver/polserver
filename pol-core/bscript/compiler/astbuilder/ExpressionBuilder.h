@@ -10,10 +10,9 @@
 namespace Pol::Bscript::Compiler
 {
 class Argument;
+class BinaryOperator;
 class Expression;
 class FunctionCall;
-class GetMember;
-class MethodCall;
 class UnaryOperator;
 
 class ExpressionBuilder : public ValueBuilder
@@ -22,6 +21,9 @@ public:
   ExpressionBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
   [[noreturn]] static BTokenId unhandled_operator( const SourceLocation& );
+
+  std::unique_ptr<BinaryOperator> binary_operator(
+      EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
 

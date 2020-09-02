@@ -24,7 +24,6 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << double_at( tkn.offset ) << " (float)"
       << " offset=0x" << fmt::hex( tkn.offset );
     break;
-
   case TOK_STRING:
   {
     auto s = string_at( tkn.offset );
@@ -33,8 +32,65 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     break;
   }
 
+  case TOK_ADD:
+    w << "+";
+    break;
+  case TOK_SUBTRACT:
+    w << "-";
+    break;
+  case TOK_MULT:
+    w << "*";
+    break;
+  case TOK_DIV:
+    w << "/";
+    break;
+
   case TOK_ASSIGN:
     w << ":=";
+    break;
+
+  case TOK_PLUSEQUAL:
+    w << "+=";
+    break;
+  case TOK_MINUSEQUAL:
+    w << "-=";
+    break;
+  case TOK_TIMESEQUAL:
+    w << "*=";
+    break;
+  case TOK_DIVIDEEQUAL:
+    w << "/=";
+    break;
+  case TOK_MODULUSEQUAL:
+    w << "%=";
+    break;
+
+  case TOK_LESSTHAN:
+    w << "<";
+    break;
+  case TOK_LESSEQ:
+    w << "<=";
+    break;
+  case TOK_GRTHAN:
+    w << ">";
+    break;
+  case TOK_GREQ:
+    w << ">=";
+    break;
+
+  case TOK_AND:
+    w << "&& (logical and)";
+    break;
+  case TOK_OR:
+    w << "|| (logical or)";
+    break;
+
+    // equalite/inequality operators */
+  case TOK_EQUAL:
+    w << "==";
+    break;
+  case TOK_NEQ:
+    w << "!=";
     break;
 
   case TOK_UNPLUS:
@@ -54,10 +110,19 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "# (consume)";
     break;
 
+  case TOK_ADDMEMBER:
+    w << ".+ (add-member)";
+    break;
+  case TOK_DELMEMBER:
+    w << ".- (delete-member)";
+    break;
+  case TOK_CHKMEMBER:
+    w << ".? (check-member)";
+    break;
+
   case CTRL_PROGEND:
     w << "progend";
     break;
-
   case CTRL_MAKELOCAL:
     w << "makelocal";
     break;
@@ -71,22 +136,25 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "leave block (remove " + std::to_string( tkn.offset ) + " locals)";
     break;
 
-   case RSV_JMPIFFALSE:
-     w << "if false goto " + std::to_string( tkn.offset );
-     break;
-   case RSV_JMPIFTRUE:
-     w << "if true goto " + std::to_string( tkn.offset );
-     break;
-   case RSV_GOTO:
-     w << "goto " << tkn.offset;
-     break;
-   case RSV_RETURN:
-     w << "return";
-     break;
-   case RSV_EXIT:
-     w << "exit";
-     break;
+  case RSV_JMPIFFALSE:
+    w << "if false goto " + std::to_string( tkn.offset );
+    break;
+  case RSV_JMPIFTRUE:
+    w << "if true goto " + std::to_string( tkn.offset );
+    break;
+  case RSV_GOTO:
+    w << "goto " << tkn.offset;
+    break;
+  case RSV_RETURN:
+    w << "return";
+    break;
+  case RSV_EXIT:
+    w << "exit";
+    break;
 
+  case RSV_LOCAL:
+    w << "declare local #" << tkn.offset;
+    break;
   case RSV_GLOBAL:
     w << "declare global #" << tkn.offset;
     break;
@@ -118,6 +186,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     break;
   }
 
+  case TOK_LOCALVAR:
+    w << "local variable #" << tkn.offset;
+    break;
   case TOK_GLOBALVAR:
     w << "global variable #" << tkn.offset;
     break;
@@ -125,9 +196,27 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case INS_GET_ARG:
     w << "get arg '" << string_at( tkn.offset ) << "'";
     break;
-
   case INS_POP_PARAM_BYREF:
     w << "pop param byref '" << string_at( tkn.offset ) << "'";
+    break;
+  case TOK_MODULUS:
+    w << "modulus";
+    break;
+
+  case TOK_BSLEFT:
+    w << "<<";  // bitshift-left-sift";
+    break;
+  case TOK_BSRIGHT:
+    w << ">>";  // bitshift-right-shift";
+    break;
+  case TOK_BITAND:
+    w << "&";  // bitwise-and";
+    break;
+  case TOK_BITOR:
+    w << "|";  // bitwise-or";
+    break;
+  case TOK_BITXOR:
+    w << "^";  // bitwise-xor";
     break;
 
   case TOK_UNPLUSPLUS:
@@ -185,6 +274,5 @@ std::string StoredTokenDecoder::string_at( unsigned offset ) const
 
   return std::string( s_begin, s_end );
 }
-
 
 }  // namespace Pol::Bscript::Compiler

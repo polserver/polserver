@@ -28,6 +28,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
+  compiler/ast/BinaryOperator.cpp
+  compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
   compiler/ast/ConstDeclaration.cpp

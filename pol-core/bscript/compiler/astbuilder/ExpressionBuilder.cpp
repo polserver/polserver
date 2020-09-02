@@ -3,6 +3,7 @@
 #include "compiler/Report.h"
 
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
@@ -29,6 +30,75 @@ ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_id
   source_location.internal_error( "unhandled operator.\n" );
 }
 
+std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto lhs = expression( ctx->expression( 0 ) );
+  auto rhs = expression( ctx->expression( 1 ) );
+
+  BTokenId token_id;
+  if ( ctx->ADD() )
+    token_id = TOK_ADD;
+  else if ( ctx->SUB() )
+    token_id = TOK_SUBTRACT;
+  else if ( ctx->MUL() )
+    token_id = TOK_MULT;
+  else if ( ctx->DIV() )
+    token_id = TOK_DIV;
+  else if ( ctx->ASSIGN() )
+    token_id = TOK_ASSIGN;
+  else if ( ctx->EQUAL() )
+    token_id = TOK_EQUAL;
+  else if ( ctx->NOTEQUAL_A() || ctx->NOTEQUAL_B() )
+    token_id = TOK_NEQ;
+  else if ( ctx->LT() )
+    token_id = TOK_LESSTHAN;
+  else if ( ctx->LE() )
+    token_id = TOK_LESSEQ;
+  else if ( ctx->GT() )
+    token_id = TOK_GRTHAN;
+  else if ( ctx->GE() )
+    token_id = TOK_GREQ;
+  else if ( ctx->AND_A() || ctx->AND_B() )
+    token_id = TOK_AND;
+  else if ( ctx->OR_A() || ctx->OR_B() )
+    token_id = TOK_OR;
+  else if ( ctx->ADD_ASSIGN() )
+    token_id = TOK_PLUSEQUAL;
+  else if ( ctx->SUB_ASSIGN() )
+    token_id = TOK_MINUSEQUAL;
+  else if ( ctx->MUL_ASSIGN() )
+    token_id = TOK_TIMESEQUAL;
+  else if ( ctx->DIV_ASSIGN() )
+    token_id = TOK_DIVIDEEQUAL;
+  else if ( ctx->MOD() )
+    token_id = TOK_MODULUS;
+  else if ( ctx->MOD_ASSIGN() )
+    token_id = TOK_MODULUSEQUAL;
+  else if ( ctx->ADDMEMBER() )
+    token_id = TOK_ADDMEMBER;
+  else if ( ctx->DELMEMBER() )
+    token_id = TOK_DELMEMBER;
+  else if ( ctx->CHKMEMBER() )
+    token_id = TOK_CHKMEMBER;
+  else if ( ctx->BITAND() )
+    token_id = TOK_BITAND;
+  else if ( ctx->BITOR() )
+    token_id = TOK_BITOR;
+  else if ( ctx->CARET() )
+    token_id = TOK_BITXOR;
+  else if ( ctx->TOK_IN() )
+    token_id = TOK_IN;
+  else if ( ctx->LSHIFT() )
+    token_id = TOK_BSLEFT;
+  else if ( ctx->RSHIFT() )
+    token_id = TOK_BSRIGHT;
+  else
+    location_for( *ctx ).internal_error( "unrecognized binary operator" );
+  return std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
+                                           ctx->bop->getText(), token_id, std::move( rhs ) );
+}
+
 std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::ExpressionContext* ctx )
 {
   if ( auto prim = ctx->primary() )
@@ -37,6 +107,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
     return prefix_unary_operator( ctx );
   else if ( ctx->postfix )
     return postfix_unary_operator( ctx );
+  else if ( ctx->bop && ctx->expression().size() == 2 )
+  {
+    return binary_operator( ctx );
+  }
 
   location_for( *ctx ).internal_error( "unhandled expression" );
 }
@@ -144,6 +218,17 @@ std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(
       std::string name;
       auto value = expression( argument_context );
 
+      if ( auto binary_operator = dynamic_cast<BinaryOperator*>( value.get() ) )
+      {
+        if ( binary_operator->token_id == TOK_ASSIGN )
+        {
+          if ( auto identifier = dynamic_cast<Identifier*>( &binary_operator->lhs() ) )
+          {
+            name = identifier->name;
+            value = binary_operator->take_rhs();
+          }
+        }
+      }
       auto argument = std::make_unique<Argument>( loc, std::move( name ), std::move( value ) );
       arguments.push_back( std::move( argument ) );
     }
