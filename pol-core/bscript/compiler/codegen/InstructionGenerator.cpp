@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
@@ -43,6 +44,13 @@ void InstructionGenerator::generate( Node& node )
 {
   // alternative: two identical methods 'evaluate' and 'execute', for readability
   node.accept( *this );
+}
+
+void InstructionGenerator::visit_binary_operator( BinaryOperator& node )
+{
+  visit_children( node );
+
+  emit.binary_operator( node.token_id );
 }
 
 void InstructionGenerator::visit_block( Block& node )

@@ -20,6 +20,7 @@ public:
 
   void generate( Node& );
 
+  void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
   void visit_exit_statement( ExitStatement& ) override;
   void visit_float_value( FloatValue& ) override;

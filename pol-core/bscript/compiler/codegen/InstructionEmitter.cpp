@@ -45,6 +45,11 @@ void InstructionEmitter::assign()
   emit_token( TOK_ASSIGN, TYP_OPERATOR );
 }
 
+void InstructionEmitter::binary_operator( BTokenId token_id )
+{
+  emit_token( token_id, TYP_OPERATOR );
+}
+
 void InstructionEmitter::call_method_id( MethodID method_id, unsigned argument_count )
 {
   emit_token( INS_CALL_METHOD_ID, (BTokenType)argument_count, method_id );

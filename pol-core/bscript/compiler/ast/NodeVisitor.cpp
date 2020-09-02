@@ -1,6 +1,7 @@
 #include "NodeVisitor.h"
 
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/FloatValue.h"
@@ -25,6 +26,11 @@
 namespace Pol::Bscript::Compiler
 {
 void NodeVisitor::visit_argument( Argument& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 {
   visit_children( node );
 }
