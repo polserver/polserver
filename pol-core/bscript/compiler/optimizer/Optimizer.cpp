@@ -1,8 +1,8 @@
 #include "Optimizer.h"
 
-#include "clib/logfacility.h"
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
+#include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/Program.h"
@@ -11,6 +11,7 @@
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/astbuilder/SimpleValueCloner.h"
 #include "compiler/model/CompilerWorkspace.h"
+#include "compiler/optimizer/BinaryOperatorOptimizer.h"
 #include "compiler/optimizer/ConstantValidator.h"
 #include "compiler/optimizer/ReferencedFunctionGatherer.h"
 #include "compiler/optimizer/UnaryOperatorOptimizer.h"
@@ -50,6 +51,20 @@ void Optimizer::visit_children( Node& node )
     }
 
     ++i;
+  }
+}
+
+void Optimizer::visit_binary_operator( BinaryOperator& binary_operator )
+{
+  visit_children( binary_operator );
+
+  switch ( binary_operator.token_id )
+  {
+  case TOK_ASSIGN:
+    break;
+  default:
+    optimized_replacement = BinaryOperatorOptimizer( binary_operator, report ).optimize();
+    break;
   }
 }
 
