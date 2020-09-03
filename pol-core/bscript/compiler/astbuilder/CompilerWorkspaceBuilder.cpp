@@ -28,7 +28,7 @@ CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
 }
 
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
-    const std::string& pathname, const LegacyFunctionOrder* /*legacy_function_order*/ )
+    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order )
 {
   auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
   BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
@@ -66,7 +66,35 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   if ( report.error_count() == 0 )
     build_referenced_user_functions( workspace );
 
+  if ( legacy_function_order )
+  {
+    compiler_workspace->module_functions_in_legacy_order =
+        get_module_functions_in_order( workspace, *legacy_function_order );
+  }
+
   return compiler_workspace;
+}
+
+std::vector<const ModuleFunctionDeclaration*>
+CompilerWorkspaceBuilder::get_module_functions_in_order( BuilderWorkspace& workspace,
+                                                         const LegacyFunctionOrder& h )
+{
+  std::vector<const ModuleFunctionDeclaration*> ordered;
+
+  for ( auto& scoped_name : h.modulefunc_emit_order )
+  {
+    auto func = workspace.function_resolver.find( scoped_name );
+    if ( !func )
+      throw std::runtime_error( "No modulefunc '" + scoped_name + "' for parity." );
+
+    auto decl = dynamic_cast<const ModuleFunctionDeclaration*>( func );
+    if ( !decl )
+      throw std::runtime_error( "No ModuleFunctionDeclaration for '" + scoped_name +
+                                "' for parity." );
+
+    ordered.push_back( decl );
+  }
+  return ordered;
 }
 
 void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace& workspace )

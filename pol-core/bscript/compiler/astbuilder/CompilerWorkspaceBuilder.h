@@ -3,14 +3,16 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace Pol::Bscript::Compiler
 {
 class BuilderWorkspace;
+class CompilerWorkspace;
 struct LegacyFunctionOrder;
+class ModuleFunctionDeclaration;
 class Profile;
 class Report;
-class CompilerWorkspace;
 class SourceFileCache;
 
 class CompilerWorkspaceBuilder
@@ -24,6 +26,8 @@ public:
       const LegacyFunctionOrder* legacy_function_order );
 
 private:
+  std::vector<const ModuleFunctionDeclaration*> get_module_functions_in_order(
+      BuilderWorkspace&, const LegacyFunctionOrder& );
   void build_referenced_user_functions( BuilderWorkspace& );
 
   SourceFileCache& em_cache;
