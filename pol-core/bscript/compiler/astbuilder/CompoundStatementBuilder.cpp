@@ -1,10 +1,15 @@
 #include "CompoundStatementBuilder.h"
 
 #include "compiler/ast/Block.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/ReturnStatement.h"
+#include "compiler/ast/StringValue.h"
+#include "compiler/ast/WhileLoop.h"
+#include "compiler/astbuilder/BuilderWorkspace.h"
+#include "compiler/model/CompilerWorkspace.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -35,9 +40,18 @@ void CompoundStatementBuilder::add_statements(
   {
     statements.push_back( return_statement( return_st ) );
   }
+  else if ( auto while_statement = ctx->whileStatement() )
+  {
+    statements.push_back( while_loop( while_statement ) );
+  }
   else if ( auto exit = ctx->exitStatement() )
   {
     statements.push_back( std::make_unique<ExitStatement>( location_for( *exit ) ) );
+  }
+  else if ( auto const_statement = ctx->constStatement() )
+  {
+    workspace.compiler_workspace.const_declarations.push_back(
+        const_declaration( const_statement ) );
   }
   else
   {
@@ -104,6 +118,19 @@ std::unique_ptr<Statement> CompoundStatementBuilder::if_statement(
   }
 
   return if_statement_ast;
+}
+
+std::unique_ptr<WhileLoop> CompoundStatementBuilder::while_loop(
+    EscriptParser::WhileStatementContext* ctx )
+{
+  std::string label;
+  if ( auto statement_label = ctx->statementLabel() )
+    label = text( statement_label->IDENTIFIER() );
+  auto source_location = location_for( *ctx );
+  auto predicate = expression( ctx->parExpression()->expression() );
+  auto body = block( ctx->block() );
+  return std::make_unique<WhileLoop>( source_location, std::move( label ), std::move( predicate ),
+                                        std::move( body ) );
 }
 
 }  // namespace Pol::Bscript::Compiler

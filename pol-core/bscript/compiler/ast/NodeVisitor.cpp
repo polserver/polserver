@@ -22,6 +22,7 @@
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/ast/WhileLoop.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -138,6 +139,11 @@ void NodeVisitor::visit_value_consumer( ValueConsumer& node )
 }
 
 void NodeVisitor::visit_var_statement( VarStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_while_loop( WhileLoop& node )
 {
   visit_children( node );
 }

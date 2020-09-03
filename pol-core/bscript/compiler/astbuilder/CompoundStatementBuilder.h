@@ -7,6 +7,10 @@ namespace Pol::Bscript::Compiler
 {
 class Block;
 class Statement;
+class ConstDeclaration;
+class RepeatUntilLoop;
+class ReturnStatement;
+class WhileLoop;
 
 class CompoundStatementBuilder : public SimpleStatementBuilder
 {
@@ -22,6 +26,8 @@ public:
       EscriptGrammar::EscriptParser::BlockContext* );
 
   std::unique_ptr<Statement> if_statement( EscriptGrammar::EscriptParser::IfStatementContext* );
+
+  std::unique_ptr<WhileLoop> while_loop( EscriptGrammar::EscriptParser::WhileStatementContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -38,6 +38,7 @@ public:
   void visit_user_function( UserFunction& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_var_statement( VarStatement& ) override;
+  void visit_while_loop( WhileLoop& ) override;
 
 private:
   // There are two of these because sometimes when calling a method

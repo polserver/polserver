@@ -5,6 +5,8 @@
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
 #include "compiler/analyzer/LocalVariableScope.h"
+#include "compiler/analyzer/FlowControlScope.h"
+#include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/ConstDeclaration.h"
@@ -19,6 +21,7 @@
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/ast/WhileLoop.h"
 #include "compiler/astbuilder/SimpleValueCloner.h"
 #include "compiler/model/CompilerWorkspace.h"
 #include "compiler/model/FunctionLink.h"
@@ -31,6 +34,8 @@ SemanticAnalyzer::SemanticAnalyzer( Constants& constants, Report& report )
     report( report ),
     globals( VariableScope::Global, report ),
     locals( VariableScope::Local, report ),
+    break_scopes( locals, report ),
+    continue_scopes( locals, report ),
     local_scopes( locals, report )
 {
 }
@@ -205,6 +210,16 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   }
 }
 
+void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
+{
+  FlowControlScope continue_scope( continue_scopes, loop.source_location, loop.get_label(),
+                                   loop.continue_label );
+  FlowControlScope break_scope( break_scopes, loop.source_location, loop.get_label(),
+                                loop.break_label );
+
+  visit_children( loop );
+}
+
 void SemanticAnalyzer::visit_program( Program& program )
 {
   LocalVariableScope scope( local_scopes, program.debug_variables );
@@ -258,6 +273,11 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
     node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
   }
   visit_children( node );
+}
+
+void SemanticAnalyzer::visit_while_loop( WhileLoop& node )
+{
+  visit_loop_statement( node );
 }
 
 }  // namespace Pol::Bscript::Compiler
