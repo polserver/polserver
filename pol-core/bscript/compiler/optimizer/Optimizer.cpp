@@ -3,8 +3,11 @@
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
 #include "compiler/ast/BinaryOperator.h"
+#include "compiler/ast/Block.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
@@ -83,6 +86,41 @@ void Optimizer::visit_identifier( Identifier& identifier )
   {
     SimpleValueCloner cloner( report, identifier.source_location );
     optimized_replacement = cloner.clone( constant->expression() );
+  }
+}
+
+void Optimizer::visit_if_then_else_statement( IfThenElseStatement& if_then_else )
+{
+  visit_children( if_then_else );
+
+  if ( auto else_block = dynamic_cast<Block*>( if_then_else.alternative() ) )
+  {
+    if ( else_block->children.empty() )
+      if_then_else.children.erase( if_then_else.children.begin() + 2 );
+  }
+
+  auto& predicate = if_then_else.predicate();
+  auto predicate_as_long = dynamic_cast<IntegerValue*>( &predicate );
+  if ( predicate_as_long )
+  {
+    if ( predicate_as_long->value )
+    {
+      optimized_replacement = if_then_else.take_consequent();
+    }
+    else
+    {
+      auto alternative = if_then_else.take_alternative();
+      if ( alternative )
+      {
+        optimized_replacement = std::move( alternative );
+      }
+      else
+      {
+        std::vector<std::unique_ptr<Statement>> empty;
+        optimized_replacement =
+            std::make_unique<Block>( if_then_else.source_location, std::move( empty ) );
+      }
+    }
   }
 }
 
