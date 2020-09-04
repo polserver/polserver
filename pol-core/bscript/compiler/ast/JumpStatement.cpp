@@ -6,7 +6,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-JumpStatement::JumpStatement( const SourceLocation& source_location, JumpType jump_type, std::string label )
+JumpStatement::JumpStatement( const SourceLocation& source_location, JumpType jump_type,
+                              std::string label )
   : Statement( source_location ),
     jump_type( jump_type ),
     label( std::move( label ) ),
