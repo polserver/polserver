@@ -32,6 +32,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
+  compiler/ast/AssignVariableConsume.cpp
+  compiler/ast/AssignVariableConsume.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp
@@ -183,6 +185,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/ReferencedFunctionGatherer.h
   compiler/optimizer/UnaryOperatorOptimizer.cpp
   compiler/optimizer/UnaryOperatorOptimizer.h
+  compiler/optimizer/ValueConsumerOptimizer.cpp
+  compiler/optimizer/ValueConsumerOptimizer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
   compiler/representation/ExportedFunction.cpp

@@ -1,6 +1,7 @@
 #include "NodeVisitor.h"
 
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/ConstDeclaration.h"
@@ -27,6 +28,11 @@
 namespace Pol::Bscript::Compiler
 {
 void NodeVisitor::visit_argument( Argument& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_assign_variable_consume( AssignVariableConsume& node )
 {
   visit_children( node );
 }

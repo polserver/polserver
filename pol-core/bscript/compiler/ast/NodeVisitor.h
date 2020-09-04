@@ -4,6 +4,7 @@
 namespace Pol::Bscript::Compiler
 {
 class Argument;
+class AssignVariableConsume;
 class BinaryOperator;
 class Block;
 class ConstDeclaration;
@@ -36,6 +37,7 @@ public:
   virtual ~NodeVisitor() = default;
 
   virtual void visit_argument( Argument& );
+  virtual void visit_assign_variable_consume( AssignVariableConsume& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_block( Block& );
   virtual void visit_const_declaration( ConstDeclaration& );

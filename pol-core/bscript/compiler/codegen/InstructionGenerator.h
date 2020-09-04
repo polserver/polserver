@@ -20,6 +20,7 @@ public:
 
   void generate( Node& );
 
+  void visit_assign_variable_consume( AssignVariableConsume& );
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
   void visit_exit_statement( ExitStatement& ) override;

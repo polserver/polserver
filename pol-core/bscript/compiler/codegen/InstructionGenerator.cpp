@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/FloatValue.h"
@@ -45,6 +46,15 @@ void InstructionGenerator::generate( Node& node )
 {
   // alternative: two identical methods 'evaluate' and 'execute', for readability
   node.accept( *this );
+}
+
+void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume& node )
+{
+  generate( node.rhs() );
+  auto& identifier = node.identifier();
+  auto& variable = identifier.variable;
+
+  emit.assign_variable( *variable );
 }
 
 void InstructionGenerator::visit_binary_operator( BinaryOperator& node )

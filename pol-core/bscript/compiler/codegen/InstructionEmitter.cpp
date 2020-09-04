@@ -45,6 +45,12 @@ void InstructionEmitter::assign()
   emit_token( TOK_ASSIGN, TYP_OPERATOR );
 }
 
+void InstructionEmitter::assign_variable( const Variable& v )
+{
+  auto token_id = v.scope == VariableScope::Global ? INS_ASSIGN_GLOBALVAR : INS_ASSIGN_LOCALVAR;
+  emit_token( token_id, TYP_UNARY_OPERATOR, v.index );
+}
+
 void InstructionEmitter::binary_operator( BTokenId token_id )
 {
   emit_token( token_id, TYP_OPERATOR );
