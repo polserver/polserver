@@ -5,9 +5,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-class BreakStatement;
 class ConstDeclaration;
-class ContinueStatement;
+class JumpStatement;
 class Statement;
 class ReturnStatement;
 
@@ -19,7 +18,7 @@ public:
   void add_var_statements( EscriptGrammar::EscriptParser::VarStatementContext*,
                            std::vector<std::unique_ptr<Statement>>& );
 
-  std::unique_ptr<BreakStatement> break_statement(
+  std::unique_ptr<JumpStatement> break_statement(
       EscriptGrammar::EscriptParser::BreakStatementContext* );
 
   std::unique_ptr<ConstDeclaration> const_declaration(
@@ -28,7 +27,7 @@ public:
   static std::unique_ptr<Statement> consume_statement_result(
       std::unique_ptr<Statement> statement );
 
-  std::unique_ptr<ContinueStatement> continue_statement(
+  std::unique_ptr<JumpStatement> continue_statement(
       EscriptGrammar::EscriptParser::ContinueStatementContext* ctx );
 
   std::unique_ptr<Expression> variable_initializer(

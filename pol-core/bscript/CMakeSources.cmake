@@ -38,12 +38,8 @@ set (bscript_sources    # sorted !
   compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
-  compiler/ast/BreakStatement.cpp
-  compiler/ast/BreakStatement.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
-  compiler/ast/ContinueStatement.cpp
-  compiler/ast/ContinueStatement.h
   compiler/ast/ExitStatement.cpp
   compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp

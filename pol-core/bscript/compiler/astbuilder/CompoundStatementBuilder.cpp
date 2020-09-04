@@ -1,12 +1,11 @@
 #include "CompoundStatementBuilder.h"
 
 #include "compiler/ast/Block.h"
-#include "compiler/ast/BreakStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
-#include "compiler/ast/ContinueStatement.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/WhileLoop.h"

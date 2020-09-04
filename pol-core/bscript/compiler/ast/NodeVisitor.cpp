@@ -4,15 +4,14 @@
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
-#include "compiler/ast/BreakStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
-#include "compiler/ast/ContinueStatement.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Node.h"
 #include "compiler/ast/Program.h"
@@ -49,17 +48,7 @@ void NodeVisitor::visit_block( Block& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_break_statement( BreakStatement& node )
-{
-  visit_children( node );
-}
-
 void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
-{
-  visit_children( node );
-}
-
-void NodeVisitor::visit_continue_statement( ContinueStatement& node )
 {
   visit_children( node );
 }
@@ -102,6 +91,11 @@ void NodeVisitor::visit_integer_value( IntegerValue& )
 }
 
 void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement & node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_jump_statement( JumpStatement& node )
 {
   visit_children( node );
 }
