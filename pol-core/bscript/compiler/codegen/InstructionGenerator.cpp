@@ -21,6 +21,7 @@
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/ast/WhileLoop.h"
 #include "compiler/codegen/InstructionEmitter.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/FlowControlLabel.h"
@@ -240,6 +241,16 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
 
     emit.assign();
   }
+}
+
+void InstructionGenerator::visit_while_loop( WhileLoop& loop )
+{
+  emit.label( *loop.continue_label );
+  generate( loop.predicate() );
+  emit.jmp_if_false( *loop.break_label );
+  generate( loop.block() );
+  emit.jmp_always( *loop.continue_label );
+  emit.label( *loop.break_label );
 }
 
 }  // namespace Pol::Bscript::Compiler

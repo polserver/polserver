@@ -18,6 +18,10 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp
   compiler/analyzer/Disambiguator.h
+  compiler/analyzer/FlowControlScope.cpp
+  compiler/analyzer/FlowControlScope.cpp
+  compiler/analyzer/FlowControlScopes.cpp
+  compiler/analyzer/FlowControlScopes.cpp
   compiler/analyzer/LocalVariableScope.cpp
   compiler/analyzer/LocalVariableScope.h
   compiler/analyzer/LocalVariableScopes.cpp
@@ -56,6 +60,10 @@ set (bscript_sources    # sorted !
   compiler/ast/IfThenElseStatement.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
+  compiler/ast/LabelableStatement.cpp
+  compiler/ast/LabelableStatement.h
+  compiler/ast/LoopStatement.cpp
+  compiler/ast/LoopStatement.cpp
   compiler/ast/ModuleFunctionDeclaration.cpp
   compiler/ast/ModuleFunctionDeclaration.h
   compiler/ast/Node.cpp
@@ -86,6 +94,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ValueConsumer.h
   compiler/ast/VarStatement.cpp
   compiler/ast/VarStatement.h
+  compiler/ast/WhileLoop.cpp
+  compiler/ast/WhileLoop.h
   compiler/astbuilder/AvailableUserFunction.h
   compiler/astbuilder/BuilderWorkspace.cpp
   compiler/astbuilder/BuilderWorkspace.h
