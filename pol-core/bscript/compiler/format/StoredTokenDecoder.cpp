@@ -219,6 +219,15 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "^";  // bitwise-xor";
     break;
 
+  case INS_ASSIGN_LOCALVAR:
+    w << "local #" << tkn.offset;
+    w << " :=";
+    break;
+  case INS_ASSIGN_GLOBALVAR:
+    w << "global #" << tkn.offset;
+    w << " :=";
+    break;
+
   case TOK_UNPLUSPLUS:
     w << "prefix unary ++";
     break;

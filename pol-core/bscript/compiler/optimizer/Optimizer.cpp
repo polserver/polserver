@@ -18,6 +18,7 @@
 #include "compiler/optimizer/ConstantValidator.h"
 #include "compiler/optimizer/ReferencedFunctionGatherer.h"
 #include "compiler/optimizer/UnaryOperatorOptimizer.h"
+#include "compiler/optimizer/ValueConsumerOptimizer.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -129,6 +130,13 @@ void Optimizer::visit_unary_operator( UnaryOperator& unary_operator )
   visit_children( unary_operator );
 
   optimized_replacement = UnaryOperatorOptimizer( unary_operator ).optimize();
+}
+
+void Optimizer::visit_value_consumer( ValueConsumer& consume_value )
+{
+  visit_children( consume_value );
+
+  optimized_replacement = ValueConsumerOptimizer().optimize( consume_value );
 }
 
 }  // namespace Pol::Bscript::Compiler
