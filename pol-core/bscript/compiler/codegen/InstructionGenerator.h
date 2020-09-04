@@ -21,9 +21,6 @@ public:
 
   void generate( Node& );
 
-  void generate_jump_for_statement( JumpStatement& );
-
-
   void visit_assign_variable_consume( AssignVariableConsume& ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
