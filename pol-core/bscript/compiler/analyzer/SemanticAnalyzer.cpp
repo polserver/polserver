@@ -9,7 +9,9 @@
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BreakStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/ContinueStatement.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -73,6 +75,38 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 
   block.locals_in_block = scope.get_block_locals();
+}
+
+void SemanticAnalyzer::visit_break_statement( BreakStatement& node )
+{
+  if ( auto scope = break_scopes.find( node.label ) )
+  {
+    node.flow_control_label = scope->flow_control_label;
+    node.local_variables_to_remove = locals.count() - scope->local_variables_size;
+  }
+  else
+  {
+    if ( !node.label.empty() && break_scopes.any() )
+      report.error( node, "Label '", node.label, "' not found for break.\n" );
+    else
+      report.error( node, "Cannot break here.\n" );
+  }
+}
+
+void SemanticAnalyzer::visit_continue_statement( ContinueStatement& node )
+{
+  if ( auto scope = continue_scopes.find( node.label ) )
+  {
+    node.flow_control_label = scope->flow_control_label;
+    node.local_variables_to_remove = locals.count() - scope->local_variables_size;
+  }
+  else
+  {
+    if ( !node.label.empty() && break_scopes.any() )
+      report.error( node, "Label '", node.label, "' not found for continue.\n" );
+    else
+      report.error( node, "Cannot continue here.\n" );
+  }
 }
 
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )

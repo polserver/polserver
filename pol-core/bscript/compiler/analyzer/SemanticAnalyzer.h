@@ -30,6 +30,8 @@ public:
   void analyze( CompilerWorkspace& );
 
   void visit_block( Block& ) override;
+  void visit_break_statement( BreakStatement& ) override;
+  void visit_continue_statement( ContinueStatement& ) override;
   void visit_function_call( FunctionCall& ) override;
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;

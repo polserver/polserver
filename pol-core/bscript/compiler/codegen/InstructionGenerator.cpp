@@ -5,6 +5,8 @@
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BreakStatement.h"
+#include "compiler/ast/ContinueStatement.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
@@ -13,6 +15,7 @@
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
@@ -48,6 +51,13 @@ void InstructionGenerator::generate( Node& node )
   node.accept( *this );
 }
 
+void InstructionGenerator::generate_jump_for_statement( JumpStatement& jump )
+{
+  if ( jump.local_variables_to_remove )
+    emit.leaveblock( jump.local_variables_to_remove );
+  emit.jmp_always( *jump.flow_control_label );
+}
+
 void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume& node )
 {
   generate( node.rhs() );
@@ -72,6 +82,16 @@ void InstructionGenerator::visit_block( Block& node )
   {
     emit.leaveblock( node.locals_in_block );
   }
+}
+
+void InstructionGenerator::visit_break_statement( BreakStatement& node )
+{
+  generate_jump_for_statement( node );
+}
+
+void InstructionGenerator::visit_continue_statement( ContinueStatement& node )
+{
+  generate_jump_for_statement( node );
 }
 
 void InstructionGenerator::visit_exit_statement( ExitStatement& )

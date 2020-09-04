@@ -1,7 +1,10 @@
 #include "SimpleStatementBuilder.h"
 
 #include "compiler/Report.h"
+#include "compiler/ast/BinaryOperator.h"
+#include "compiler/ast/BreakStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/ContinueStatement.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IntegerValue.h"
@@ -56,6 +59,15 @@ void SimpleStatementBuilder::add_var_statements(
   }
 }
 
+std::unique_ptr<BreakStatement> SimpleStatementBuilder::break_statement(
+    EscriptParser::BreakStatementContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  std::string label = ctx->IDENTIFIER() ? text( ctx->IDENTIFIER() ) : "";
+
+  return std::make_unique<BreakStatement>( source_location, std::move( label ) );
+}
+
 std::unique_ptr<ConstDeclaration> SimpleStatementBuilder::const_declaration(
     EscriptParser::ConstStatementContext* ctx )
 {
@@ -72,6 +84,15 @@ std::unique_ptr<Statement> SimpleStatementBuilder::consume_statement_result(
     std::unique_ptr<Statement> statement )
 {
   return std::make_unique<ValueConsumer>( statement->source_location, std::move( statement ) );
+}
+
+std::unique_ptr<ContinueStatement> SimpleStatementBuilder::continue_statement(
+    EscriptParser::ContinueStatementContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  std::string label = ctx->IDENTIFIER() ? text( ctx->IDENTIFIER() ) : "";
+
+  return std::make_unique<ContinueStatement>( source_location, std::move( label ) );
 }
 
 std::unique_ptr<Expression> SimpleStatementBuilder::variable_initializer(
