@@ -145,7 +145,7 @@ void Compiler::optimize( CompilerWorkspace& workspace, Report& report )
 void Compiler::disambiguate( CompilerWorkspace& workspace, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  Disambiguator disambiguator( report );
+  Disambiguator disambiguator( workspace.constants, report );
   disambiguator.disambiguate( workspace );
   profile.disambiguate_micros += timer.ellapsed().count();
 }
