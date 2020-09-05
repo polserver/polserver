@@ -255,7 +255,7 @@ eScript are:</p>
   </tr>
 </table>
 
-<h3><b>Assign, Unary, Binary and Bitwise Operators</b></h3>
+<h3><b>Assign, Unary, and Bitwise Operators</b></h3>
 <h4><b>The Assign Operators:</b></h4>
 
 <p>These operators perform the mathematical operation and then assign the result to the variable
