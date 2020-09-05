@@ -13,13 +13,23 @@ Report::Report( bool display_warnings )
 void Report::report_error( const SourceLocation& source_location, const char* msg )
 {
   ++errors;
-  ERROR_PRINT << source_location << ": error: " << msg;
+  try
+  {
+    ERROR_PRINT << source_location << ": error: " << msg;
+  } catch (...)
+  {
+  }
 }
 
 void Report::report_warning( const SourceLocation& source_location, const char* msg )
 {
   ++warnings;
-  ERROR_PRINT << source_location << ": warning: " << msg;
+  try
+  {
+    ERROR_PRINT << source_location << ": warning: " << msg;
+  } catch (...)
+  {
+  }
 }
 
 unsigned Report::error_count() const
