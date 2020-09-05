@@ -10,7 +10,6 @@ namespace Pol::Bscript::Compiler
 {
 class FlowControlLabel;
 class InstructionEmitter;
-class JumpStatement;
 
 class InstructionGenerator : public NodeVisitor
 {
@@ -22,6 +21,7 @@ public:
   void generate( Node& );
 
   void visit_assign_variable_consume( AssignVariableConsume& ) override;
+  void visit_case_statement( CaseStatement& ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
   void visit_exit_statement( ExitStatement& ) override;

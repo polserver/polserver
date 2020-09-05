@@ -1,10 +1,17 @@
 #include "CompoundStatementBuilder.h"
 
 #include "compiler/ast/Block.h"
+#include "compiler/ast/CaseDispatchDefaultSelector.h"
+#include "compiler/ast/CaseDispatchGroup.h"
+#include "compiler/ast/CaseDispatchGroups.h"
+#include "compiler/ast/CaseDispatchSelectors.h"
+#include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
+#include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
@@ -53,6 +60,10 @@ void CompoundStatementBuilder::add_statements(
   {
     statements.push_back( continue_statement( continue_st ) );
   }
+  else if ( auto case_st = ctx->caseStatement() )
+  {
+    statements.push_back( case_statement( case_st ) );
+  }
   else if ( auto exit = ctx->exitStatement() )
   {
     statements.push_back( std::make_unique<ExitStatement>( location_for( *exit ) ) );
@@ -85,6 +96,62 @@ std::unique_ptr<Block> CompoundStatementBuilder::block( EscriptParser::BlockCont
 {
   auto statements = block_statements( ctx );
   return std::make_unique<Block>( location_for( *ctx ), std::move( statements ) );
+}
+
+std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
+    EscriptParser::CaseStatementContext* ctx )
+{
+  // possibilities:
+  // case (expr)
+  //  4:
+  //  "xz":
+  //  CONSTANT:
+  //  default:
+  auto loc = location_for( *ctx );
+  std::string case_label;
+  if ( auto statement_label = ctx->statementLabel() )
+    case_label = text( statement_label->IDENTIFIER() );
+
+  auto determinant = expression( ctx->expression() );
+
+  std::vector<std::unique_ptr<CaseDispatchGroup>> dispatch_groups;
+
+  for ( auto group : ctx->switchBlockStatementGroup() )
+  {
+    std::vector<std::unique_ptr<Node>> selectors;
+
+    for ( auto group_label : group->switchLabel() )
+    {
+      if ( auto integer_literal = group_label->integerLiteral() )
+      {
+        selectors.push_back( integer_value( integer_literal ) );
+      }
+      else if ( auto identifier = group_label->IDENTIFIER() )
+      {
+        selectors.push_back(
+            std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) ) );
+      }
+      else if ( auto string_literal = group_label->STRING_LITERAL() )
+      {
+        selectors.push_back( string_value( string_literal ) );
+      }
+      else if ( auto dflt = group_label->DEFAULT() )
+      {
+        selectors.push_back(
+            std::make_unique<CaseDispatchDefaultSelector>( location_for( *dflt ) ) );
+      }
+    }
+    auto dispatch_selectors =
+        std::make_unique<CaseDispatchSelectors>( location_for( *group ), std::move( selectors ) );
+    auto body = block( group->block() );
+    auto dispatch_group = std::make_unique<CaseDispatchGroup>(
+        location_for( *group ), std::move( dispatch_selectors ), std::move( body ) );
+    dispatch_groups.push_back( std::move( dispatch_group ) );
+  }
+  auto holder = std::make_unique<CaseDispatchGroups>( loc, std::move( dispatch_groups ) );
+
+  return std::make_unique<CaseStatement>( loc, std::move( case_label ), std::move( determinant ),
+                                          std::move( holder ) );
 }
 
 std::unique_ptr<Statement> CompoundStatementBuilder::if_statement(

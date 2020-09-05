@@ -2,6 +2,7 @@
 
 #include "StoredToken.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/codegen/CaseJumpDataBlock.h"
 #include "compiler/codegen/ModuleDeclarationRegistrar.h"
 #include "compiler/model/FlowControlLabel.h"
 #include "compiler/model/Variable.h"
@@ -86,6 +87,17 @@ void InstructionEmitter::call_userfunc( FlowControlLabel& label )
 {
   unsigned addr = emit_token( CTRL_JSR_USERFUNC, TYP_CONTROL );
   register_with_label( label, addr );
+}
+
+unsigned InstructionEmitter::casejmp()
+{
+  return emit_token( INS_CASEJMP, TYP_RESERVED );
+}
+
+unsigned InstructionEmitter::case_dispatch_table( const CaseJumpDataBlock& dispatch_table )
+{
+  auto& bytes = dispatch_table.get_data();
+  return data_emitter.append( bytes.data(), bytes.size() );
 }
 
 void InstructionEmitter::consume()

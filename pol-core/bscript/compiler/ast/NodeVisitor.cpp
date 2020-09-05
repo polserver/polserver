@@ -4,6 +4,11 @@
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/CaseDispatchDefaultSelector.h"
+#include "compiler/ast/CaseDispatchGroup.h"
+#include "compiler/ast/CaseDispatchGroups.h"
+#include "compiler/ast/CaseDispatchSelectors.h"
+#include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
@@ -44,6 +49,31 @@ void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 }
 
 void NodeVisitor::visit_block( Block& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_statement( CaseStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_group( CaseDispatchGroup& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_groups( CaseDispatchGroups& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_case_dispatch_selectors( CaseDispatchSelectors& node )
 {
   visit_children( node );
 }

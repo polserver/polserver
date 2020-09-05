@@ -10,6 +10,10 @@
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/CaseDispatchGroup.h"
+#include "compiler/ast/CaseDispatchGroups.h"
+#include "compiler/ast/CaseDispatchSelectors.h"
+#include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -19,6 +23,7 @@
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
+#include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/VarStatement.h"
@@ -74,6 +79,52 @@ void SemanticAnalyzer::visit_block( Block& block )
   visit_children( block );
 
   block.locals_in_block = scope.get_block_locals();
+}
+
+void SemanticAnalyzer::visit_case_statement( CaseStatement& case_ast )
+{
+  FlowControlScope break_scope( break_scopes, case_ast.source_location, case_ast.get_label(),
+                                case_ast.break_label );
+
+  visit_children( case_ast );
+}
+
+void SemanticAnalyzer::visit_case_dispatch_group( CaseDispatchGroup& dispatch_group )
+{
+  FlowControlScope break_scope( break_scopes, dispatch_group.source_location, "",
+                                dispatch_group.break_label );
+
+  visit_children( dispatch_group );
+}
+
+class CaseDispatchSelectorAnalyzer : public NodeVisitor
+{
+public:
+  explicit CaseDispatchSelectorAnalyzer( Report& report ) : report( report ) {}
+
+  void visit_identifier( Identifier& identifier ) override
+  {
+    report.error( identifier, "Case selector '", identifier.name, "' is not a constant.\n" );
+  }
+
+  void visit_string_value( StringValue& sv ) override
+  {
+    if ( sv.value.size() >= 254 )
+    {
+      report.error( sv, "String expressions in CASE statements must be <= 253 characters." );
+    }
+  }
+
+private:
+  Report& report;
+};
+
+void SemanticAnalyzer::visit_case_dispatch_selectors( CaseDispatchSelectors& selectors )
+{
+  visit_children( selectors );
+
+  CaseDispatchSelectorAnalyzer selector_analyzer( report );
+  selectors.accept( selector_analyzer );
 }
 
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )

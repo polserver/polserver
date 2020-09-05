@@ -7,8 +7,8 @@ namespace Pol::Bscript::Compiler
 {
 class Block;
 class Statement;
+class CaseStatement;
 class ConstDeclaration;
-class RepeatUntilLoop;
 class ReturnStatement;
 class WhileLoop;
 
@@ -24,6 +24,9 @@ public:
 
   std::vector<std::unique_ptr<Statement>> block_statements(
       EscriptGrammar::EscriptParser::BlockContext* );
+
+  std::unique_ptr<CaseStatement> case_statement(
+      EscriptGrammar::EscriptParser::CaseStatementContext* );
 
   std::unique_ptr<Statement> if_statement( EscriptGrammar::EscriptParser::IfStatementContext* );
 
