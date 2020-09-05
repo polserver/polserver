@@ -15,6 +15,7 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
@@ -209,6 +210,27 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     return;
   }
 }
+
+void SemanticAnalyzer::visit_jump_statement( JumpStatement& node )
+{
+  auto& scopes = node.jump_type == JumpStatement::Break ? break_scopes : continue_scopes;
+
+  if ( auto scope = scopes.find( node.label ) )
+  {
+    node.flow_control_label = scope->flow_control_label;
+    node.local_variables_to_remove = locals.count() - scope->local_variables_size;
+  }
+  else
+  {
+    auto type_str = node.jump_type == JumpStatement::Break ? "break" : "continue";
+
+    if ( !node.label.empty() && break_scopes.any() )
+      report.error( node, "Label '", node.label, "' not found for ", type_str, "\n" );
+    else
+      report.error( node, "Cannot ", type_str, " here.\n" );
+  }
+}
+
 
 void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
 {

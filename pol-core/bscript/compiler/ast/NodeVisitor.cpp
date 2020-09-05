@@ -11,6 +11,7 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Node.h"
 #include "compiler/ast/Program.h"
@@ -90,6 +91,11 @@ void NodeVisitor::visit_integer_value( IntegerValue& )
 }
 
 void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement & node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_jump_statement( JumpStatement& node )
 {
   visit_children( node );
 }

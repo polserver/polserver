@@ -13,6 +13,7 @@
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
@@ -173,6 +174,13 @@ void InstructionGenerator::visit_if_then_else_statement( IfThenElseStatement& no
 void InstructionGenerator::visit_integer_value( IntegerValue& node )
 {
   emit.value( node.value );
+}
+
+void InstructionGenerator::visit_jump_statement( JumpStatement& jump )
+{
+  if ( jump.local_variables_to_remove )
+    emit.leaveblock( jump.local_variables_to_remove );
+  emit.jmp_always( *jump.flow_control_label );
 }
 
 void InstructionGenerator::visit_program( Program& program )

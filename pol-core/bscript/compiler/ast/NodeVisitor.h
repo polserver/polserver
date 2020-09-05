@@ -17,6 +17,7 @@ class FunctionParameterList;
 class Identifier;
 class IfThenElseStatement;
 class IntegerValue;
+class JumpStatement;
 class ModuleFunctionDeclaration;
 class Node;
 class Program;
@@ -50,6 +51,7 @@ public:
   virtual void visit_identifier( Identifier& );
   virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
+  virtual void visit_jump_statement( JumpStatement& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_program( Program& );
   virtual void visit_program_parameter_declaration( ProgramParameterDeclaration& );

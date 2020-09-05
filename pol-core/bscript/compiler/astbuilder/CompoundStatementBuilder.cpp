@@ -5,6 +5,7 @@
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/WhileLoop.h"
@@ -43,6 +44,14 @@ void CompoundStatementBuilder::add_statements(
   else if ( auto while_statement = ctx->whileStatement() )
   {
     statements.push_back( while_loop( while_statement ) );
+  }
+  else if ( auto break_st = ctx->breakStatement() )
+  {
+    statements.push_back( break_statement( break_st ) );
+  }
+  else if ( auto continue_st = ctx->continueStatement() )
+  {
+    statements.push_back( continue_statement( continue_st ) );
   }
   else if ( auto exit = ctx->exitStatement() )
   {
