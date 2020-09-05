@@ -3,6 +3,7 @@
 #include "compiler/Report.h"
 
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -28,6 +29,27 @@ ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_id
   // This indicates a log error in the compiler: likely a disconnect between the grammar
   // and the code building the AST from the parsed file.
   source_location.internal_error( "unhandled operator.\n" );
+}
+
+std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
+    EscriptParser::ArrayInitializerContext* ctx )
+{
+  auto values = expressions( ctx->expressionList() );
+  return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
+}
+
+std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
+    EscriptParser::BareArrayInitializerContext* ctx )
+{
+  auto values = expressions( ctx->expressionList() );
+  return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
+}
+
+std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
+    EscriptParser::ExplicitArrayInitializerContext* ctx )
+{
+  auto values = expressions( ctx->arrayInitializer() );
+  return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
 }
 
 std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
@@ -97,6 +119,33 @@ std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
     location_for( *ctx ).internal_error( "unrecognized binary operator" );
   return std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
                                            ctx->bop->getText(), token_id, std::move( rhs ) );
+}
+
+std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
+    EscriptParser::ExpressionListContext* ctx )
+{
+  std::vector<std::unique_ptr<Expression>> expressions;
+  if ( ctx )
+  {
+    for ( auto expression_ctx : ctx->expression() )
+    {
+      expressions.push_back( expression( expression_ctx ) );
+    }
+  }
+  return expressions;
+}
+
+std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
+    EscriptParser::ArrayInitializerContext* ctx )
+{
+  if ( ctx )
+  {
+    if ( auto expression_list = ctx->expressionList() )
+    {
+      return expressions( expression_list );
+    }
+  }
+  return {};
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::ExpressionContext* ctx )
@@ -193,6 +242,14 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto scoped_f_call = ctx->scopedFunctionCall() )
   {
     return scoped_function_call( scoped_f_call );
+  }
+  else if ( auto array_init = ctx->explicitArrayInitializer() )
+  {
+    return array_initializer( array_init );
+  }
+  else if ( auto bare_array = ctx->bareArrayInitializer() )
+  {
+    return array_initializer( bare_array );
   }
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );

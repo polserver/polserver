@@ -64,6 +64,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case TOK_MODULUSEQUAL:
     w << "%=";
     break;
+  case TOK_INSERTINTO:
+    w << "append-array-element (TOK_INSERTINTO)";
+    break;
 
   case TOK_LESSTHAN:
     w << "<";
@@ -202,6 +205,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case INS_GET_ARG:
     w << "get arg '" << string_at( tkn.offset ) << "'";
     break;
+  case TOK_ARRAY:
+    w << "create-array (TOK_ARRAY)";
+    break;
+
   case INS_POP_PARAM_BYREF:
     w << "pop param byref '" << string_at( tkn.offset ) << "'";
     break;
