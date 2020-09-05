@@ -31,7 +31,10 @@ void BinaryOperatorWithIntegerOptimizer::visit_integer_value( IntegerValue& rhs 
     break;
   case TOK_DIV:
     if ( rhs.value == 0 )
+    {
       report.error( op, "Program would divide by zero" );
+      return;
+    }
     value = lhs.value / rhs.value;
     break;
 

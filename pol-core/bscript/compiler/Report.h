@@ -82,7 +82,12 @@ private:
   template <typename T, typename... Targs>
   inline void rec_write( fmt::Writer& w, T&& value, Targs&&... Fargs )
   {
-    w << value;
+    try
+    {
+      w << value;
+    } catch(...)
+    {
+    }
     rec_write( w, std::forward<Targs>( Fargs )... );
   }
 
