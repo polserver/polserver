@@ -99,8 +99,8 @@ public:
     auto seen = already_seen_integers.find( node.value );
     if ( seen != already_seen_integers.end() )
     {
-      report.error( node, "case statement already has a selector for integer value ", node.value, ".\n",
-                    "  See also: ", (*seen).second->source_location, "\n" );
+      report.error( node, "case statement already has a selector for integer value ", node.value,
+                    ".\n", "  See also: ", ( *seen ).second->source_location, "\n" );
     }
     else
     {
@@ -113,8 +113,9 @@ public:
     auto seen = already_seen_strings.find( node.value );
     if ( seen != already_seen_strings.end() )
     {
-      report.error( node, "case statement already has a selector for string value ", Clib::getencodedquotedstring(node.value), ".\n",
-                    "  See also: ", (*seen).second->source_location, "\n" );
+      report.error( node, "case statement already has a selector for string value ",
+                    Clib::getencodedquotedstring( node.value ), ".\n",
+                    "  See also: ", ( *seen ).second->source_location, "\n" );
     }
     else
     {
