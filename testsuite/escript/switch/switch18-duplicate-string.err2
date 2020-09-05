@@ -1,0 +1,1 @@
+switch18-duplicate-string.src:5:5: error: case statement already has a selector for string value "abc".

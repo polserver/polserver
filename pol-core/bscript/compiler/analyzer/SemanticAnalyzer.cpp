@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include "clib/strutil.h"
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
 #include "compiler/analyzer/LocalVariableScope.h"
@@ -10,6 +11,7 @@
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
 #include "compiler/ast/CaseDispatchGroups.h"
 #include "compiler/ast/CaseDispatchSelectors.h"
@@ -19,6 +21,7 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
@@ -81,8 +84,68 @@ void SemanticAnalyzer::visit_block( Block& block )
   block.locals_in_block = scope.get_block_locals();
 }
 
+class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
+{
+public:
+  explicit CaseDispatchDuplicateSelectorAnalyzer( Report& report ) : report( report ) {}
+
+  void visit_block( Block& ) override
+  {
+    // just don't recurse into children
+  }
+
+  void visit_integer_value( IntegerValue& node ) override
+  {
+    auto seen = already_seen_integers.find( node.value );
+    if ( seen != already_seen_integers.end() )
+    {
+      report.error( node, "case statement already has a selector for integer value ", node.value, ".\n",
+                    "  See also: ", (*seen).second->source_location, "\n" );
+    }
+    else
+    {
+      already_seen_integers[ node.value ] = &node;
+    }
+  }
+
+  void visit_string_value( StringValue& node ) override
+  {
+    auto seen = already_seen_strings.find( node.value );
+    if ( seen != already_seen_strings.end() )
+    {
+      report.error( node, "case statement already has a selector for string value ", Clib::getencodedquotedstring(node.value), ".\n",
+                    "  See also: ", (*seen).second->source_location, "\n" );
+    }
+    else
+    {
+      already_seen_strings[ node.value ] = &node;
+    }
+  }
+
+  void visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& node ) override
+  {
+    if ( already_seen_default ) {
+      report.error( node, "case statement already has a default clause.\n",
+                    "  See also: ", already_seen_default->source_location, "\n" );
+    } else {
+      already_seen_default = &node;
+    }
+  }
+
+private:
+  Report& report;
+
+  CaseDispatchDefaultSelector* already_seen_default = nullptr;
+  std::map<int, IntegerValue*> already_seen_integers;
+  std::map<std::string, StringValue*> already_seen_strings;
+};
+
+
 void SemanticAnalyzer::visit_case_statement( CaseStatement& case_ast )
 {
+  CaseDispatchDuplicateSelectorAnalyzer duplicate_detector( report );
+  case_ast.dispatch_groups().accept( duplicate_detector );
+
   FlowControlScope break_scope( break_scopes, case_ast.source_location, case_ast.get_label(),
                                 case_ast.break_label );
 
