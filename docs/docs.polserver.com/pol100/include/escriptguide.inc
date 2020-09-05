@@ -236,17 +236,17 @@ eScript are:</p>
 
   <tr>
     <td align="center">&amp;</td>
-    <td align="center">Logical <b>AND</b></td>
+    <td align="center">Bitwise <b>AND</b></td>
   </tr>
 
   <tr>
     <td align="center">|</td>
-    <td align="center">Logical <b>OR</b></td>
+    <td align="center">Bitwise <b>OR</b></td>
   </tr>
 
   <tr>
     <td align="center">^</td>
-    <td align="center">Logical <b>XOR</b></td>
+    <td align="center">Bitwise <b>XOR</b></td>
   </tr>
 
   <tr>
@@ -255,7 +255,7 @@ eScript are:</p>
   </tr>
 </table>
 
-<h3><b>Assign, Unary, and Logical Operators</b></h3>
+<h3><b>Assign, Unary, and Bitwise Operators</b></h3>
 <h4><b>The Assign Operators:</b></h4>
 
 <p>These operators perform the mathematical operation and then assign the result to the variable
@@ -310,9 +310,9 @@ this guide was written. So most, if not all, of the example code in
 this guide will use the longer forms of expressions, for readability, but mostly because
 we are too lazy to edit the entire guide.</p>
 
-<h4><b>The Logical Operators:</b></h4>
+<h4><b>The Bitwise (sometimes called Logical) Operators:</b></h4>
 
-<h4>Logical <b>AND</b></h4>
+<h4>Bitwise <b>AND</b></h4>
 The single &amp; (ampersand) symbol will perform a logical <b>AND</b> of the value on the left of the operator with the value on the right.
 If we have a statement
 <div class="doc-guide-pre">
@@ -333,7 +333,7 @@ The result will equal 10. What is actually happening is that eScript will AND th
     </tr>
 </table>
 <br>
-<h4>Logical <b>OR</b></h4>
+<h4>Bitwise <b>OR</b></h4>
 
 <p>The single | (bar) symbol will perform a logical <b>OR</b> of the value on the left of the operator with the value on the right. If we have a statement</P>
 <div class="doc-guide-pre">
@@ -359,7 +359,7 @@ var value := 10 | 6;
     </tr>
 </table>
 <br>
-<h4>Logical <b>XOR</b></h4>
+<h4>Bitwise <b>XOR</b></h4>
 <p>
 The ^ (caret) will perform a logical <strong>XOR</strong>, or exclusive <strong>OR</strong>, of the value on the left of the operator with the value on the right. If we have a statement:
 <div class="doc-guide-pre">
