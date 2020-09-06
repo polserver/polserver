@@ -1,0 +1,108 @@
+use uo;
+use os;
+use storage;
+
+include "testutil";
+
+var storage;
+program teststorage()
+  storage:=CreateStorageArea("teststorage");
+  CreateStorageArea("teststorage2");
+  if (!storage)
+    return ret_error("Failed to create storage: "+storage);
+  endif
+  // TODO docs say it should be storagename
+  var root:=CreateRootItemInStorageArea(storage,"cnt",0xe75);
+  if (!root) 
+    return ret_error("Failed to create root cnt: "+root);
+  endif
+  return 1;
+endprogram
+
+exported function list_storage()
+  var r:=StorageAreas();
+  if (r.count != 2)
+    return ret_error("Didnt found 2 storage "+r.count);
+  endif
+  return 1;
+endfunction
+
+exported function find_storage()
+  var r:=FindStorageArea("teststorage");
+  if (!r)
+    return ret_error("Didnt found storage "+r);
+  endif
+  return 1;
+endfunction
+
+exported function find_root()
+  var r:=FindRootItemInStorageArea(storage, "cnt");
+  if (!r)
+    return ret_error("Didnt found root "+r);
+  endif
+  return 1;
+endfunction
+
+exported function destroy_root()
+  var s:=findstoragearea("teststorage2");
+  var root:=CreateRootItemInStorageArea(s,"cnt",0xe75);
+  if (!root) 
+    return ret_error("Failed to create root cnt: "+root);
+  endif
+  var r:=DestroyRootItemInStorageArea(s,"cnt");
+  // TODO: StorageAreaImp is broken, it doesnt get created!
+  //if (s.count !=0)
+  //  return ret_error("Storage count not 0 after destroy root: "+r+" "+s.count);
+  //endif
+  return 1;
+endfunction
+
+exported function add_item()
+  var r:=FindRootItemInStorageArea(storage, "cnt");
+  if (!r)
+    return ret_error("Didnt found root "+r);
+  endif
+  var oldc:=storage.totalcount;
+  var item:=CreateItemInContainer(r, 0x3e3f);
+  // TODO: StorageAreaImp is broken, it doesnt get created!
+  //if (storage.totalcount!=oldc+1)
+  //  return ret_error("total count did not increase "+item);
+  //endif
+  return 1;
+endfunction
+  
+exported function move_item()
+  var r:=FindRootItemInStorageArea(storage, "cnt");
+  if (!r)
+    return ret_error("Didnt found root "+r);
+  endif
+  var oldc:=storage.totalcount;
+  var item:=CreateItemAtLocation(0,0,0, 0x3e3f);
+  var res:=MoveItemToContainer(item,r);
+  // TODO: StorageAreaImp is broken, it doesnt get created!
+  //if (storage.totalcount!=oldc+1)
+  //  return ret_error("total count did not increase "+res);
+  //endif
+  return 1;
+endfunction
+
+exported function move_item_realm()
+  var r:=FindRootItemInStorageArea(storage, "cnt");
+  if (!r)
+    return ret_error("Didnt found root "+r);
+  endif
+  var item:=CreateItemAtLocation(0,0,0, 0x3e3f);
+  if (item.realm != "britannia")
+    return ret_error("wrong realm "+item.realm);
+  endif
+  var res:=MoveItemToContainer(item,r);
+  if (item.realm != "britannia")  // TODO vector_classes will fail here on purpose
+    return ret_error("wrong realm in storage "+item.realm);
+  endif
+  // TODO vector_classes: check some list*Location with this realm nullptr
+  res:=MoveObjectToLocation(item,0,0,0);
+  if (item.realm != "britannia")
+    return ret_error("wrong realm back in world "+item.realm);
+  endif
+  return 1;
+endfunction
