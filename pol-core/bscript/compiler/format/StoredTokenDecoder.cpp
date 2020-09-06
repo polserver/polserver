@@ -193,6 +193,12 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "global variable #" << tkn.offset;
     break;
 
+  case INS_CASEJMP:
+  {
+    w << "casejmp";
+    decode_casejmp_table( w, tkn.offset );
+    break;
+  }
   case INS_GET_ARG:
     w << "get arg '" << string_at( tkn.offset ) << "'";
     break;
@@ -266,6 +272,16 @@ int StoredTokenDecoder::integer_at( unsigned offset ) const
   return *reinterpret_cast<const int*>( &data[offset] );
 }
 
+uint16_t StoredTokenDecoder::uint16_t_at( unsigned offset ) const
+{
+  if ( offset > data.size() - sizeof( uint16_t ) )
+    throw std::runtime_error( "data overflow reading uint16_t at offset " +
+                              std::to_string( offset ) + ".  Data size is " +
+                              std::to_string( data.size() ) );
+
+  return *reinterpret_cast<const uint16_t*>( &data[offset] );
+}
+
 std::string StoredTokenDecoder::string_at( unsigned offset ) const
 {
   if ( offset > data.size() )
@@ -282,6 +298,44 @@ std::string StoredTokenDecoder::string_at( unsigned offset ) const
                               std::to_string( offset ) );
 
   return std::string( s_begin, s_end );
+}
+
+void StoredTokenDecoder::decode_casejmp_table( fmt::Writer& w, unsigned offset ) const
+{
+  std::string indent( 24, ' ' );
+  for ( ;; )
+  {
+    unsigned short jump_address = uint16_t_at( offset );
+    offset += 2;
+    auto type = static_cast<ESCRIPT_CASE_TYPES>( data.at( offset ) );
+    offset++;
+
+    if ( type == CASE_TYPE_LONG )
+    {
+      int value = integer_at( offset );
+      offset += 4;
+      w << "\n" << indent << value << ": @" << jump_address;
+    }
+    else if ( type == CASE_TYPE_DEFAULT )
+    {
+      w << "\n" << indent << "default: @" << jump_address;
+      break;
+    }
+    else
+    {
+      unsigned string_length = type;  // type is the length of the string, otherwise
+      if ( offset + string_length > data.size() )
+        throw std::runtime_error( "casejmp string at offset " + std::to_string( offset ) + " of " +
+                                  std::to_string( string_length ) +
+                                  " characters exceeds data size of " +
+                                  std::to_string( data.size() ) );
+
+      const char* s_begin = reinterpret_cast<const char*>( data.data() + offset );
+      std::string contents( s_begin, s_begin + string_length );
+      w << "\n" << indent << Clib::getencodedquotedstring( contents ) << ": @" << jump_address;
+      offset += string_length;
+    }
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

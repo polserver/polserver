@@ -5,6 +5,10 @@
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/CaseDispatchGroup.h"
+#include "compiler/ast/CaseDispatchGroups.h"
+#include "compiler/ast/CaseDispatchSelectors.h"
+#include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
@@ -24,6 +28,8 @@
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/ast/WhileLoop.h"
+#include "compiler/codegen/CaseDispatchGroupVisitor.h"
+#include "compiler/codegen/CaseJumpDataBlock.h"
 #include "compiler/codegen/InstructionEmitter.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/FlowControlLabel.h"
@@ -56,6 +62,43 @@ void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume&
   auto& variable = identifier.variable;
 
   emit.assign_variable( *variable );
+}
+
+void InstructionGenerator::visit_case_statement( CaseStatement& node )
+{
+  generate( node.expression() );
+  const unsigned casejmp = emit.casejmp();
+
+  CaseJumpDataBlock data_block;
+
+  FlowControlLabel default_label;
+
+  auto& groups = node.dispatch_groups();
+  for ( int i = 0, c = groups.children.size(); i < c; ++i )
+  {
+    CaseDispatchGroup& group = groups.dispatch_group( i );
+    FlowControlLabel group_label;
+    emit.label( group_label );
+    generate( group.block() );
+
+    emit.label( *group.break_label );
+    bool last = i == c - 1;
+    if ( !last )
+      emit.jmp_always( *node.break_label );
+
+    CaseDispatchGroupVisitor visitor( data_block, group_label, default_label );
+    group.selectors().accept( visitor );
+  }
+
+  if ( !default_label.has_address() )
+    emit.label( default_label );
+
+  data_block.on_default_jump_to( default_label.address() );
+
+  emit.label( *node.break_label );
+
+  unsigned dispatch_table_data_offset = emit.case_dispatch_table( data_block );
+  emitter.patch_offset( casejmp, dispatch_table_data_offset );
 }
 
 void InstructionGenerator::visit_binary_operator( BinaryOperator& node )

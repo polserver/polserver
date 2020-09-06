@@ -25,7 +25,9 @@ public:
 private:
   double double_at( unsigned offset ) const;
   int integer_at( unsigned offset ) const;
+  [[nodiscard]] uint16_t uint16_t_at( unsigned offset ) const;
   std::string string_at( unsigned offset ) const;
+  void decode_casejmp_table( fmt::Writer&, unsigned offset ) const;
 
   const std::vector<ModuleDescriptor>& module_descriptors;
   const std::vector<std::byte>& data;

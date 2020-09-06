@@ -38,6 +38,16 @@ set (bscript_sources    # sorted !
   compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
+  compiler/ast/CaseDispatchDefaultSelector.cpp
+  compiler/ast/CaseDispatchDefaultSelector.h
+  compiler/ast/CaseDispatchGroup.cpp
+  compiler/ast/CaseDispatchGroup.h
+  compiler/ast/CaseDispatchGroups.cpp
+  compiler/ast/CaseDispatchGroups.h
+  compiler/ast/CaseDispatchSelectors.cpp
+  compiler/ast/CaseDispatchSelectors.h
+  compiler/ast/CaseStatement.cpp
+  compiler/ast/CaseStatement.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
   compiler/ast/ExitStatement.cpp
@@ -131,6 +141,10 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/UserFunctionVisitor.h
   compiler/astbuilder/ValueBuilder.cpp
   compiler/astbuilder/ValueBuilder.h
+  compiler/codegen/CaseJumpDataBlock.cpp
+  compiler/codegen/CaseJumpDataBlock.h
+  compiler/codegen/CaseDispatchGroupVisitor.cpp
+  compiler/codegen/CaseDispatchGroupVisitor.h
   compiler/codegen/CodeEmitter.cpp
   compiler/codegen/CodeEmitter.h
   compiler/codegen/CodeGenerator.cpp

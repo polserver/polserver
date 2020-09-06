@@ -1,0 +1,13 @@
+var x;
+case (x)
+    7:
+        print("first");
+    7:
+        print("second");
+endcase
+
+// The OG compiler does not detect the above as an error.
+function foo()
+    a;
+endfunction
+foo();
