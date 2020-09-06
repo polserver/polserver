@@ -76,6 +76,9 @@ public:
   void pop_param_byref( const std::string& name );
   void progend();
   void return_from_user_function();
+  void struct_create();
+  void struct_add_uninit_member( const std::string& name );
+  void struct_add_member( const std::string& name );
   void subscript_single();
   void subscript_multiple( int indexes );
   void unary_operator( BTokenId );

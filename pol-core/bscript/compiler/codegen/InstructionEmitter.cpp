@@ -226,6 +226,23 @@ void InstructionEmitter::return_from_user_function()
   emit_token( RSV_RETURN, TYP_RESERVED );
 }
 
+void InstructionEmitter::struct_create()
+{
+  emit_token( TOK_STRUCT, TYP_OPERAND );
+}
+
+void InstructionEmitter::struct_add_member( const std::string& name )
+{
+  auto offset = emit_data( name );
+  emit_token( INS_ADDMEMBER_ASSIGN, TYP_OPERAND, offset );
+}
+
+void InstructionEmitter::struct_add_uninit_member( const std::string& name )
+{
+  auto offset = emit_data( name );
+  emit_token( INS_ADDMEMBER2, TYP_OPERAND, offset );
+}
+
 void InstructionEmitter::subscript_single()
 {
   emit_token( TOK_ARRAY_SUBSCRIPT, TYP_OPERATOR, 1 );

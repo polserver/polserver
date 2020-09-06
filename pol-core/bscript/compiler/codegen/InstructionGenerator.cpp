@@ -33,6 +33,8 @@
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
+#include "compiler/ast/StructInitializer.h"
+#include "compiler/ast/StructMemberInitializer.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/UninitializedValue.h"
 #include "compiler/ast/UserFunction.h"
@@ -347,6 +349,22 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
 void InstructionGenerator::visit_string_value( StringValue& lit )
 {
   emit.value( lit.value );
+}
+
+void InstructionGenerator::visit_struct_initializer( StructInitializer& node )
+{
+  emit.struct_create();
+  visit_children( node );
+}
+
+void InstructionGenerator::visit_struct_member_initializer( StructMemberInitializer& node )
+{
+  visit_children( node );
+
+  if ( node.children.empty() )
+    emit.struct_add_uninit_member( node.name );
+  else
+    emit.struct_add_member( node.name );
 }
 
 void InstructionGenerator::visit_unary_operator( UnaryOperator& unary_operator )

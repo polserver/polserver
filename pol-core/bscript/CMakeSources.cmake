@@ -112,6 +112,10 @@ set (bscript_sources    # sorted !
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp
   compiler/ast/StringValue.h
+  compiler/ast/StructInitializer.cpp
+  compiler/ast/StructInitializer.h
+  compiler/ast/StructMemberInitializer.cpp
+  compiler/ast/StructMemberInitializer.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp

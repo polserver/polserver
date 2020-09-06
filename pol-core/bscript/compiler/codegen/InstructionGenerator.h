@@ -46,6 +46,8 @@ public:
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
   void visit_return_statement( ReturnStatement& ) override;
   void visit_string_value( StringValue& ) override;
+  void visit_struct_initializer( StructInitializer& ) override;
+  void visit_struct_member_initializer( StructMemberInitializer& ) override;
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_uninitialized_value( UninitializedValue& ) override;
   void visit_user_function( UserFunction& ) override;

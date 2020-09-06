@@ -66,6 +66,9 @@ public:
   std::unique_ptr<FunctionCall> scoped_function_call(
       EscriptGrammar::EscriptParser::ScopedFunctionCallContext* );
 
+  std::unique_ptr<Expression> struct_initializer(
+      EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* );
+
   std::vector<std::unique_ptr<Argument>> value_arguments(
       EscriptGrammar::EscriptParser::ExpressionListContext* );
 };
