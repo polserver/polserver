@@ -7,6 +7,11 @@ add_executable(${ex_name}
   ${${ex_name}_sources}
 )    
 
+#TODO that looks wrong
+target_include_directories(${ex_name} PRIVATE
+  ../pol
+)
+
 set_compile_flags(${ex_name} 1)
 warning_suppression(${ex_name})
 enable_pch(${ex_name} REUSE_COTIRE)
