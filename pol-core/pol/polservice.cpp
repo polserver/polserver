@@ -13,8 +13,8 @@
 
 #include "polresource.h"
 
-#include "../clib/Program/ProgramConfig.h"
 #include "../clib/Header_Windows.h"
+#include "../clib/Program/ProgramConfig.h"
 #include "pol.h"
 // This needs to be after the windows includes, otherwise it'll complain about windows types.
 #include "../clib/NTService.h"
@@ -46,9 +46,7 @@ public:
   virtual void OnStop() override;
 };
 
-PolService::PolService() : Clib::CNTService( "POL" )
-{
-}
+PolService::PolService() : Clib::CNTService( "POL" ) {}
 
 void PolService::Run()
 {
@@ -72,7 +70,7 @@ void PolService::Run()
 }
 void PolService::OnStop()
 {
-  Clib::exit_signalled = true;
+  Clib::signal_exit();
 }
 
 
@@ -139,7 +137,7 @@ BOOL CALLBACK DialogProc( HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam 
     break;
   case WM_COMMAND:
     if ( LOWORD( wParam ) == ID_POPUP_STOP )
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
     else if ( LOWORD( wParam ) == ID_POPUP_SHOWCONSOLE )
     {
       /*
@@ -308,5 +306,5 @@ void ShutdownSystemTrayHandling()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -9,11 +9,11 @@ add_executable(${ex_name}
 
 set_compile_flags(${ex_name} 1)
 warning_suppression(${ex_name})
+use_zlib(${ex_name})
 
 target_link_libraries(${ex_name} PUBLIC
   clib
   plib
-  z
 )
 dist(${ex_name} .)
 

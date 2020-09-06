@@ -18,7 +18,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 8
+            compiler-version: 9
             build-type: RelWithDebInfo
             nopch: 0
 
@@ -41,12 +41,17 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
-      - uses: seanmiddleditch/gha-setup-vsdevenv@master
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v1
       - name: Cache curl
         uses: actions/cache@v1
         with:
           path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
+      - name: Cache antlr
+        uses: actions/cache@v1
+        with:
+          path: lib/antlr
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
@@ -94,17 +99,28 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DREUSE_PCH=1 -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
       - name: Build
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
-      - name: Test
+      - name: Test (EScript)
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }}
+          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
+      - name: Test (Shard)
+        if: matrix.config.nopch == 0
+        run: |
+          cd bin-build
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+      - name: Upload shard test log
+        if: matrix.config.nopch == 0
+        uses: actions/upload-artifact@v1
+        with:
+          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          path: bin-build/coretest/log/pol.log
       - name: Stylecheck
         if: matrix.config.cxx-compiler == 'g++'
         run: |

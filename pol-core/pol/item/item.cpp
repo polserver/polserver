@@ -33,7 +33,7 @@
 #include "../objtype.h"
 #include "../polcfg.h"
 #include "../proplist.h"
-#include "../resource.h"
+#include "regions/resource.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"

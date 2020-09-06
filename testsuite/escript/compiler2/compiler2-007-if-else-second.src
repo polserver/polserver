@@ -1,0 +1,8 @@
+var a := 0;
+
+if (a)
+    print("incorrect - first path taken");
+else
+    print("correct - else path taken");
+endif
+

@@ -32,7 +32,6 @@
 // 3rd Party Includes
 #include <format/format.h>
 #include <boost/algorithm/string/case_conv.hpp>
-#include <boost/any.hpp>
 #include <boost/flyweight.hpp>
 
 // Project Includes (be really really carefull what to include!)

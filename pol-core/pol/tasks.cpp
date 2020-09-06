@@ -86,7 +86,7 @@ void regen_stats()
     }
 
     THREAD_CHECKPOINT( tasks, 405 );
-    for ( const Vital* pVital = FindVital( 0 ); pVital; pVital = pVital->next )
+    for ( const Vital* pVital : gamestate.vitals )
     {
       THREAD_CHECKPOINT( tasks, 406 );
       if ( !chr->dead() || pVital->regen_while_dead )

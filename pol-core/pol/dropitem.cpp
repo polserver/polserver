@@ -59,6 +59,7 @@
 #include "statmsg.h"
 #include "storage.h"
 #include "syshook.h"
+#include "systems/suspiciousacts.h"
 #include "ufunc.h"
 #include "uobject.h"
 #include "uoscrobj.h"
@@ -775,23 +776,13 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   Items::Item* item = client->chr->gotten_item();
   if ( item == nullptr )
   {
-    if ( Plib::systemstate.config.show_warning_item )
-    {
-      POLLOG_ERROR.Format(
-          "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
-          << client->chr->serial << item_serial;
-    }
+    SuspiciousActs::DropItemButNoneGotten( client, item_serial );
     return;
   }
   if ( item->serial != item_serial )
   {
-    if ( Plib::systemstate.config.show_warning_item )
-    {
-      POLLOG_ERROR.Format(
-          "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
-          << client->chr->serial << item_serial << item->serial;
-    }
-    item->gotten_by( nullptr );
+    SuspiciousActs::DropItemOtherThanGotten( client, item_serial, item->serial );
+    item->gotten_by( nullptr ); // TODO: shouldn't we clear_gotten_item() here?
     return;
   }
   item->inuse( false );
@@ -853,22 +844,12 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   Items::Item* item = client->chr->gotten_item();
   if ( item == nullptr )
   {
-    if ( Plib::systemstate.config.show_warning_item )
-    {
-      POLLOG_ERROR.Format(
-          "Character 0x{:X} tried to drop item 0x{:X}, but had not gotten an item.\n" )
-          << client->chr->serial << item_serial;
-    }
+    SuspiciousActs::DropItemButNoneGotten( client, item_serial );
     return;
   }
   if ( item->serial != item_serial )
   {
-    if ( Plib::systemstate.config.show_warning_item )
-    {
-      POLLOG_ERROR.Format(
-          "Character 0x{:X} tried to drop item 0x{:X}, but instead had gotten item 0x{:X}.\n" )
-          << client->chr->serial << item_serial << item->serial;
-    }
+    SuspiciousActs::DropItemOtherThanGotten( client, item_serial, item->serial );
     item->gotten_by( nullptr );
     return;
   }

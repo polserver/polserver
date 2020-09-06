@@ -60,24 +60,24 @@ class PolSystemExecutorModule
 public:
   PolSystemExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_IncRevision( /* uobject */ );
-  Bscript::BObjectImp* mf_Packages();
-  Bscript::BObjectImp* mf_GetCmdLevelName();
-  Bscript::BObjectImp* mf_GetCmdLevelNumber();
-  Bscript::BObjectImp* mf_GetPackageByName();
-  Bscript::BObjectImp* mf_ListTextCommands();
-  Bscript::BObjectImp* mf_Realms();
-  Bscript::BObjectImp* mf_ReloadConfiguration();
-  Bscript::BObjectImp* mf_ReadMillisecondClock();
-  Bscript::BObjectImp* mf_ListenPoints();
-  Bscript::BObjectImp* mf_SetSysTrayPopupText();
-  Bscript::BObjectImp* mf_GetItemDescriptor();
-  Bscript::BObjectImp* mf_CreatePacket();
-  Bscript::BObjectImp* mf_AddRealm( /*name,base*/ );
-  Bscript::BObjectImp* mf_DeleteRealm( /*name*/ );
-  Bscript::BObjectImp* mf_MD5Encrypt( /*string*/ );
-  Bscript::BObjectImp* mf_FormatItemDescription( /*string,amount,suffix*/ );
-  Bscript::BObjectImp* mf_LogCPropProfile();
+  [[nodiscard]] Bscript::BObjectImp* mf_IncRevision( /* uobject */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_Packages();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetCmdLevelName();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetCmdLevelNumber();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetPackageByName();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListTextCommands();
+  [[nodiscard]] Bscript::BObjectImp* mf_Realms();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReloadConfiguration();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReadMillisecondClock();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListenPoints();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetSysTrayPopupText();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetItemDescriptor();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreatePacket();
+  [[nodiscard]] Bscript::BObjectImp* mf_AddRealm( /*name,base*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_DeleteRealm( /*name*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_MD5Encrypt( /*string*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_FormatItemDescription( /*string,amount,suffix*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_LogCPropProfile();
 };
 }  // namespace Module
 }  // namespace Pol

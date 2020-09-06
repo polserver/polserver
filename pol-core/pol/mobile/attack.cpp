@@ -15,7 +15,7 @@
 #include "../../clib/rawtypes.h"
 #include "../cmbtcfg.h"
 #include "../globals/settings.h"
-#include "../guardrgn.h"
+#include "regions/guardrgn.h"
 #include "../network/client.h"
 #include "../network/pktin.h"
 #include "../ufunc.h"

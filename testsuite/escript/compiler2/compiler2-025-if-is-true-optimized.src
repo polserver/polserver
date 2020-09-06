@@ -1,0 +1,4 @@
+if (5)
+    print("correct - path taken");
+endif
+

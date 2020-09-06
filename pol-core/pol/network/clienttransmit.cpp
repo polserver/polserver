@@ -81,5 +81,5 @@ void ClientTransmitThread()
     }
   }
 }
-}
-}
+}  // namespace Network
+}  // namespace Pol

@@ -9,8 +9,8 @@
 
 #include <string>
 
-#include "../polmodl.h"
 #include "../../clib/network/wnsckt.h"
+#include "../polmodl.h"
 
 namespace Pol
 {
@@ -34,10 +34,10 @@ class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule
 public:
   HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );
 
-  Bscript::BObjectImp* mf_WriteHtml();
-  Bscript::BObjectImp* mf_WriteHtmlRaw();
-  Bscript::BObjectImp* mf_QueryParam();
-  Bscript::BObjectImp* mf_QueryIP();
+  [[nodiscard]] Bscript::BObjectImp* mf_WriteHtml();
+  [[nodiscard]] Bscript::BObjectImp* mf_WriteHtmlRaw();
+  [[nodiscard]] Bscript::BObjectImp* mf_QueryParam();
+  [[nodiscard]] Bscript::BObjectImp* mf_QueryIP();
 
   void read_query_string( const std::string& query_string );
   void read_query_ip();

@@ -1,0 +1,7 @@
+var a := 6;
+if (a == 6)
+    print("correct");
+else
+    print("incorrect");
+endif
+

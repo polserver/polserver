@@ -95,6 +95,7 @@
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "systems/suspiciousacts.h"
 #include "uomod.h"
 
 #ifdef MEMORYLEAK
@@ -102,11 +103,7 @@
 #endif
 
 
-#ifdef USE_SYSTEM_ZLIB
 #include <zlib.h>
-#else
-#include "../../../lib/zlib/zlib.h"
-#endif
 
 namespace Pol
 {
@@ -1459,13 +1456,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   UOExecutorModule* uoemod = client->gd->find_gumpmod( gumpid );
   if ( uoemod == nullptr )
   {
-    if ( Plib::systemstate.config.show_warning_gump )
-    {
-      POLLOG_INFO.Format(
-          "\nWarning: Character 0x{:X} sent an unexpected gump menu selection. Gump ID 0x{:X}, "
-          "button ID 0x{:X}\n" )
-          << client->chr->serial << gumpid << buttonid;
-    }
+    SuspiciousActs::GumpResponseWasUnexpected( client, gumpid, buttonid );
     return;
   }
 
@@ -1498,7 +1489,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
                       sizeof( PKTIN_B1::STRINGS_HEADER );
     if ( stridx > msglen )
     {
-      ERROR_PRINT << "Blech! B1 message specified too many ints!\n";
+      SuspiciousActs::GumpResponseHasTooManyInts( client );
       clear_gumphandler( client, uoemod );
       return;
     }
@@ -1510,9 +1501,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
     // -2 per entry to only count tag+length (data has size of 2 in struct)
     if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
     {
-      ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                  << client->chr->name()
-                  << ") Blech! B1 message specified too many ints and/or strings!\n";
+      SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( client );
       uoex.ValueStack.back().set(
           new BObject( new BError( "B1 message specified too many ints and/or strings." ) ) );
       clear_gumphandler( client, uoemod );
@@ -1540,9 +1529,7 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
         stridx += offsetof( PKTIN_B1::STRING_ENTRY, data ) + length * 2;
         if ( stridx > msglen )
         {
-          ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                      << client->chr->name()
-                      << ") Blech! B1 message strings overflow message buffer!\n";
+          SuspiciousActs::GumpResponseOverflows( client );
           break;
         }
 
@@ -1884,6 +1871,9 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( skill_checks_per_min, GET_PROFILEVAR_PER_MIN( skill_checks ) );
   LONG_COREVAR( combat_operations_per_min, GET_PROFILEVAR_PER_MIN( combat_operations ) );
   LONG_COREVAR( error_creations_per_min, GET_PROFILEVAR_PER_MIN( error_creations ) );
+
+  LONG_COREVAR( last_character_serial, GetCurrentCharSerialNumber() );
+  LONG_COREVAR( last_item_serial, GetCurrentItemSerialNumber() );
 
   LONG_COREVAR( tasks_ontime_per_min, GET_PROFILEVAR_PER_MIN( tasks_ontime ) );
   LONG_COREVAR( tasks_late_per_min, GET_PROFILEVAR_PER_MIN( tasks_late ) );

@@ -105,7 +105,9 @@
 #include "../gameclck.h"
 #include "../globals/object_storage.h"
 #include "../globals/uvars.h"
-#include "../guardrgn.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/resource.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../layers.h"
@@ -113,7 +115,6 @@
 #include "../listenpt.h"
 #include "../los.h"
 #include "../menu.h"
-#include "../miscrgn.h"
 #include "../mobile/charactr.h"
 #include "../mobile/npc.h"
 #include "../mobile/ufacing.h"
@@ -135,9 +136,8 @@
 #include "../polobject.h"
 #include "../polsig.h"
 #include "../profile.h"
-#include "../realms.h"
-#include "../realms/realm.h"
-#include "../resource.h"
+#include "realms/realms.h"
+#include "realms/realm.h"
 #include "../savedata.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
@@ -4408,7 +4408,14 @@ bool UOExecutorModule::is_reserved_to_me( Item* item )
 
 BObjectImp* UOExecutorModule::mf_Shutdown()
 {
-  Clib::exit_signalled = true;
+  int exit_code = 0;
+
+  if ( exec.hasParams(1) )
+  {
+    getParam( 0, exit_code );
+  }
+
+  Clib::signal_exit( exit_code );
 #ifndef _WIN32
   // the catch_signals_thread (actually main) sits with sigwait(),
   // so it won't wake up except by being signalled.

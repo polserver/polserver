@@ -2,9 +2,49 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-01-2020</datemodified>
+		<datemodified>08-27-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>08-27-2020</date>
+			<author>Nando:</author>
+			<change type="Changed">If &quot;ShowGumpWarnings&quot; in pol.cfg is disabled, it will also disable warnings about<br/>
+overflow in the gump responses (B1 packet). Those messages may indicates the use of macro<br/>
+tools or custom clients.</change>
+		</entry>
+		<entry>
+			<date>08-18-2020</date>
+			<author>Nando:</author>
+			<change type="Added">Parameter &quot;max_cmdlevel&quot; to polsys::ListTextCommands(). Indicates the maximum cmdlevel to include in the list.</change>
+		</entry>
+		<entry>
+			<date>08-13-2020</date>
+			<author>Nando:</author>
+			<change type="Changed">item.hitscript and item.onhitscript now always return the full path to the script (&quot;:pkgname:scriptname&quot;).<br/>
+Before, if the item was defined on the same package as the script, only &quot;scriptname&quot; was returned.<br/>
+POTENTIAL BREAKING CHANGE!</change>
+		</entry>
+		<entry>
+			<date>08-09-2020</date>
+			<author>Turley:</author>
+			<change type="Added">new argument &quot;outdir&quot; for uoconvert tiles/landtiles/multis this allows to define a different directory then the current workdirectory for the produced cfgs</change>
+		</entry>
+		<entry>
+			<date>08-04-2020</date>
+			<author>AsYlum:</author>
+			<change type="Added">polcore().last_character_serial returns last character serial assigned by core<br/>
+polcore().last_item_serial returns last item serial assigned by core</change>
+		</entry>
+		<entry>
+			<date>08-03-2020</date>
+			<author>Kevin:</author>
+			<change type="Added">Optional parameter exit_code to uo::Shutdown() to change the pol process' exit code.</change>
+		</entry>
+		<entry>
+			<date>08-03-2020</date>
+			<author>Syzygy:</author>
+			<change type="Added">ecompile.cfg &quot;VerbosityLevel&quot; option (setting this is equivalent to ecompile -vN)</change>
+		</entry>
 		<entry>
 			<date>08-01-2020</date>
 			<author>Turley:</author>

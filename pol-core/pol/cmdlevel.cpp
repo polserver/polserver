@@ -7,6 +7,7 @@
 
 #include "cmdlevel.h"
 
+#include <memory>
 #include <stddef.h>
 #include <string>
 
@@ -21,6 +22,7 @@
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "bscript/dict.h"
 #include "globals/uvars.h"
 namespace Pol
 {
@@ -101,14 +103,35 @@ CmdLevel* FindCmdLevelByAlias( const std::string& str )
   return nullptr;
 }
 
-Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
+std::unique_ptr<Bscript::BDictionary> ListAllCommandsInPackage( Plib::Package* m_pkg,
+                                                                int max_cmdlevel /*= -1*/ )
 {
+  auto cmd_lvl_list = std::make_unique<Bscript::BDictionary>();
+
+  if ( max_cmdlevel < 0 )
+    max_cmdlevel = static_cast<int>( Core::gamestate.cmdlevels.size() - 1 );
+
+  for ( int num = 0; num <= max_cmdlevel; ++num )
+  {
+    auto script_list = Core::ListCommandsInPackageAtCmdlevel( m_pkg, num );
+    if ( script_list->ref_arr.empty() )
+      continue;
+    else
+      cmd_lvl_list->addMember( new Bscript::BLong( num ), script_list.release() );
+  }
+  return cmd_lvl_list;
+}
+
+
+std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Package* m_pkg,
+                                                                    int cmdlvl_num )
+{
+  auto script_names = std::make_unique<Bscript::ObjArray>();
+
   if ( cmdlvl_num >= static_cast<int>( gamestate.cmdlevels.size() ) )
     cmdlvl_num = static_cast<int>( gamestate.cmdlevels.size() - 1 );
 
   CmdLevel& cmdlevel = gamestate.cmdlevels[cmdlvl_num];
-
-  std::unique_ptr<Bscript::ObjArray> script_names( new Bscript::ObjArray );
 
   for ( unsigned diridx = 0; diridx < cmdlevel.searchlist.size(); ++diridx )
   {
@@ -143,10 +166,8 @@ Bscript::ObjArray* GetCommandsInPackage( Plib::Package* m_pkg, int cmdlvl_num )
       }
     }
   }
-  if ( script_names->ref_arr.size() > 0 )
-    return script_names.release();
-  else
-    return nullptr;
+
+  return script_names;
 }
 
 void load_cmdlevels()

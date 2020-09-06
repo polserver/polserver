@@ -88,40 +88,37 @@ public:
   Core::HoldListType in_hold_list() const;
   void in_hold_list( Core::HoldListType in_hold_list );
 
+
+  [[nodiscard]] Bscript::BObjectImp* mf_Create_Debug_Context();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetPid();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetProcess();
+  [[nodiscard]] Bscript::BObjectImp* mf_Sleep();
+  [[nodiscard]] Bscript::BObjectImp* mf_Sleepms();
+  [[nodiscard]] Bscript::BObjectImp* mf_Wait_For_Event();
+  [[nodiscard]] Bscript::BObjectImp* mf_Events_Waiting();
+  [[nodiscard]] Bscript::BObjectImp* mf_Set_Critical();
+  [[nodiscard]] Bscript::BObjectImp* mf_Is_Critical();
+
+  [[nodiscard]] Bscript::BObjectImp* mf_Start_Script();
+  [[nodiscard]] Bscript::BObjectImp* mf_Start_Skill_Script();
+  [[nodiscard]] Bscript::BObjectImp* mf_Run_Script_To_Completion();
+  [[nodiscard]] Bscript::BObjectImp* mf_Run_Script();
+  [[nodiscard]] Bscript::BObjectImp* mf_Set_Debug();
+  [[nodiscard]] Bscript::BObjectImp* mf_SysLog();
+  [[nodiscard]] Bscript::BObjectImp* mf_Set_Priority();
+  [[nodiscard]] Bscript::BObjectImp* mf_Unload_Scripts();
+  [[nodiscard]] Bscript::BObjectImp* mf_Set_Script_Option();
+  [[nodiscard]] Bscript::BObjectImp* mf_Set_Event_Queue_Size();  // DAVE 11/24
+  [[nodiscard]] Bscript::BObjectImp* mf_OpenURL();
+  [[nodiscard]] Bscript::BObjectImp* mf_OpenConnection();
+  [[nodiscard]] Bscript::BObjectImp* mf_Debugger();
+  [[nodiscard]] Bscript::BObjectImp* mf_HTTPRequest();
+
+  [[nodiscard]] Bscript::BObjectImp* mf_Clear_Event_Queue();  // DAVE
+
+  [[nodiscard]] Bscript::BObjectImp* mf_PerformanceMeasure();
+
 protected:
-
-  friend class Bscript::TmplExecutorModule<OSExecutorModule, Core::PolModule>;
-
-  Bscript::BObjectImp* mf_Create_Debug_Context();
-  Bscript::BObjectImp* mf_GetPid();
-  Bscript::BObjectImp* mf_GetProcess();
-  Bscript::BObjectImp* mf_Sleep();
-  Bscript::BObjectImp* mf_Sleepms();
-  Bscript::BObjectImp* mf_Wait_For_Event();
-  Bscript::BObjectImp* mf_Events_Waiting();
-  Bscript::BObjectImp* mf_Set_Critical();
-  Bscript::BObjectImp* mf_Is_Critical();
-
-  Bscript::BObjectImp* mf_Start_Script();
-  Bscript::BObjectImp* mf_Start_Skill_Script();
-  Bscript::BObjectImp* mf_Run_Script_To_Completion();
-  Bscript::BObjectImp* mf_Run_Script();
-  Bscript::BObjectImp* mf_Set_Debug();
-  Bscript::BObjectImp* mf_SysLog();
-  Bscript::BObjectImp* mf_System_RPM();
-  Bscript::BObjectImp* mf_Set_Priority();
-  Bscript::BObjectImp* mf_Unload_Scripts();
-  Bscript::BObjectImp* mf_Set_Script_Option();
-  Bscript::BObjectImp* mf_Set_Event_Queue_Size();  // DAVE 11/24
-  Bscript::BObjectImp* mf_OpenURL();
-  Bscript::BObjectImp* mf_OpenConnection();
-  Bscript::BObjectImp* mf_Debugger();
-  Bscript::BObjectImp* mf_HTTPRequest();
-
-  Bscript::BObjectImp* mf_Clear_Event_Queue();  // DAVE
-
-  Bscript::BObjectImp* mf_PerformanceMeasure();
-
   bool critical_;
   unsigned char priority_;
   bool warn_on_runaway_;
@@ -131,7 +128,6 @@ protected:
   Core::TimeoutHandle hold_itr_;
   Core::HoldListType in_hold_list_;
   Core::WAIT_TYPE wait_type;
-
 
 
   unsigned int pid_;

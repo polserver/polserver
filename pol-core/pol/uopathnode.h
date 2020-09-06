@@ -8,10 +8,11 @@
 #ifndef __UOPATHNODE_H
 #define __UOPATHNODE_H
 // AStar search class
-#include "../plib/stlastar.h"
+#include "plib/stlastar.h"
+
 #include "base/position.h"
-#include "realms.h"
 #include "realms/realm.h"
+#include "realms/realms.h"
 
 namespace Pol
 {

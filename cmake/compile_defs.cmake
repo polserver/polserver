@@ -4,11 +4,19 @@ function(set_compile_flags target is_executable)
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
     ${PROJECT_BINARY_DIR} #global config
   )
+  
+  # Add 'pol-core' to the include search path of all the projects in it
+  if (${INCLUDE_POLCORE_DIR})    
+    target_include_directories(${target} PRIVATE
+    ${POLCORE_DIR} # path to pol-core
+    )
+  endif()
+
   target_include_directories(${target} SYSTEM PRIVATE
     ${BOOST_SOURCE_DIR} # boost
-    "${CMAKE_CURRENT_LIST_DIR}/../../lib" #format/..
-    "${CMAKE_CURRENT_LIST_DIR}/../../lib/picojson-1.3.0" #pico
-    "${CMAKE_CURRENT_LIST_DIR}/../../lib/kaitai-runtime" #kaitai
+    "${POL_EXT_LIB_DIR}" #format/, antlr/, tinyxml/, etc
+    "${POL_EXT_LIB_DIR}/picojson-1.3.0" #pico
+    "${POL_EXT_LIB_DIR}/kaitai-runtime" #kaitai
   )
 
   target_compile_definitions(${target} PRIVATE
@@ -58,10 +66,11 @@ function(set_compile_flags target is_executable)
       )
     endif()
   endif()
+  
+  target_compile_features(${target} PUBLIC cxx_std_17)
 
   target_compile_options(${target} PRIVATE
     $<${linux}:
-      -std=c++14
       -fPIC
       -W
       -Wall
@@ -215,10 +224,13 @@ function (enable_pch target)
         endif()
       endif()
     else()
-      if ("${argn}" MATCHES "REUSE.*")
+      if ("${argn}" MATCHES "REUSE.*" AND REUSE_PCH)
         target_precompile_headers(${target} REUSE_FROM clib)
       else()
-        target_precompile_headers(${target} PUBLIC ${_pch_name})
+        if (NOT REUSE_PCH AND NOT EXISTS ${_pch_name})
+          set(_pch_name "${CMAKE_CURRENT_SOURCE_DIR}/../clib/StdAfx.h")
+        endif()
+        target_precompile_headers(${target} PRIVATE ${_pch_name})
       endif()
     endif()
   endif()
@@ -246,6 +258,17 @@ function(use_benchmark target)
   if (ENABLE_BENCHMARK)
     target_link_libraries(${target} PUBLIC benchmark)
   endif()
+endfunction()
+
+function(use_zlib target)
+    if(${windows})
+      target_include_directories(${target}  PRIVATE
+        "${POL_EXT_LIB_DIR}/zlib"
+      )
+    endif()
+    target_link_libraries(${target} PRIVATE
+      z
+    )
 endfunction()
 
 function(warning_suppression target)

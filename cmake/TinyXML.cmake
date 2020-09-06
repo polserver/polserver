@@ -2,10 +2,10 @@ set(lib_name tinyxml)
 
 add_library(${lib_name} STATIC
   # sorted !
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/tinyxml/tinystr.cpp 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/tinyxml/tinyxml.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/tinyxml/tinyxmlerror.cpp 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/tinyxml/tinyxmlparser.cpp 
+  ${POL_EXT_LIB_DIR}/tinyxml/tinystr.cpp 
+  ${POL_EXT_LIB_DIR}/tinyxml/tinyxml.cpp
+  ${POL_EXT_LIB_DIR}/tinyxml/tinyxmlerror.cpp 
+  ${POL_EXT_LIB_DIR}/tinyxml/tinyxmlparser.cpp 
 )
 
 set_compile_flags(${lib_name} 0)

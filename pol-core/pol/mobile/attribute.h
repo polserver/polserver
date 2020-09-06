@@ -43,8 +43,6 @@ public:
 
   std::vector<std::string> aliases;  // aliases[0] is always name
 
-  Attribute* next;
-
   Core::ExportedFunction* getintrinsicmod_func;
 
   // UseSkill information
@@ -60,7 +58,6 @@ public:
   Core::USKILLID skillid;
 
   static Attribute* FindAttribute( const std::string& str );
-  static Attribute* FindAttribute( unsigned attrid );
 };
 
 

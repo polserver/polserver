@@ -41,6 +41,8 @@ void CompilerConfig::Read( const std::string& path )
   GenerateListing = elem.remove_bool( "GenerateListing", false );
   GenerateDebugInfo = elem.remove_bool( "GenerateDebugInfo", false );
   GenerateDebugTextInfo = elem.remove_bool( "GenerateDebugTextInfo", false );
+
+  VerbosityLevel = elem.remove_int( "VerbosityLevel", 0 );
   DisplayWarnings = elem.remove_bool( "DisplayWarnings", false );
   CompileAspPages = elem.remove_bool( "CompileAspPages", false );
   AutoCompileByDefault = elem.remove_bool( "AutoCompileByDefault", false );
@@ -56,6 +58,11 @@ void CompilerConfig::Read( const std::string& path )
   NumberOfThreads = elem.remove_int( "NumberOfThreads", 0 );
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
   ErrorOnFileCaseMissmatch = elem.remove_bool( "ErrorOnFileCaseMissmatch", false );
+
+  UseCompiler2020 = elem.remove_bool( "UseCompiler2020", false );
+  CompareCompilerOutput = elem.remove_bool( "CompareCompilerOutput", false );
+  EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
+  IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 
 // This is where we TRY to validate full paths from what was provided in the
 // ecompile.cfg. Maybe Turley or Shini can find the best way to do this in *nix.
@@ -123,6 +130,9 @@ void CompilerConfig::SetDefaults()
   PolScriptRoot = IncludeDirectory;
 
   DisplayUpToDateScripts = true;
+
+  EmParseTreeCacheSize = 25;
+  IncParseTreeCacheSize = 50;
 }
 
 CompilerConfig compilercfg;

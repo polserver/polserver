@@ -588,7 +588,7 @@ void NPC::readNewNpcAttributes( Clib::ConfigElem& elem )
   Core::Dice dice;
   std::string errmsg;
 
-  for ( Attribute* pAttr = Attribute::FindAttribute( 0 ); pAttr; pAttr = pAttr->next )
+  for ( Attribute* pAttr : Core::gamestate.attributes )
   {
     AttributeValue& av = attribute( pAttr->attrid );
     for ( unsigned i = 0; i < pAttr->aliases.size(); ++i )

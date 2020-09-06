@@ -1,0 +1,3 @@
+var a := "abcdef";
+a[2,3] := "zyx";
+print(a);

@@ -3,15 +3,21 @@
 #include <cstdio>
 #include <exception>
 #include <iosfwd>
+#include <memory>
 #include <stdlib.h>
 #include <string>
 #include <time.h>
 
 #include "../bscript/compiler.h"
+#include "../bscript/compiler/Compiler.h"
+#include "../bscript/compiler/LegacyFunctionOrder.h"
+#include "../bscript/compiler/Profile.h"
+#include "../bscript/compiler/file/SourceFileCache.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
 #include "../bscript/executortype.h"
+#include "../bscript/facility/Compiler.h"
 #include "../bscript/filefmt.h"
 #include "../bscript/parser.h"
 #include "../clib/Program/ProgramConfig.h"
@@ -67,6 +73,9 @@ void ECompileMain::showHelp()
 #ifdef WIN32
              << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
 #endif
+             << "       -g           Use ANTLR-grammar-driven compiler\n"
+             << "       -G           Compare OG versus new compiler output\n"
+
              << "       -i           include intrusive debug info in .ecl file\n"
              << "       -l           generate listfile\n"
              << "       -m           don't optimize object members\n"
@@ -100,7 +109,6 @@ int debug = 0;
 bool quiet = false;
 bool opt_generate_wordlist = false;
 bool keep_building = false;
-bool verbose = false;
 bool force_update = false;
 bool show_timing_details = false;
 bool timing_quiet_override = false;
@@ -116,7 +124,23 @@ struct Summary
   unsigned CompiledScripts = 0;
   unsigned ScriptsWithCompileErrors = 0;
   size_t ThreadCount = 0;
+  Compiler::Profile profile;
 } summary;
+
+struct Comparison
+{
+  std::atomic<long long> CompileTimeV1Micros {};
+  std::atomic<long long> CompileTimeV2Micros {};
+  std::atomic<long> MatchingResult {};
+  std::atomic<long> NonMatchingResult {};
+  std::atomic<long> MatchingOutput {};
+  std::atomic<long> NonMatchingOutput {};
+  std::atomic<long> MatchingDebugOutput {};
+  std::atomic<long> NonMatchingDebugOutput {};
+} comparison;
+
+Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
+Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
 
 void generate_wordlist()
 {
@@ -138,6 +162,98 @@ void compile_inc( const char* path )
 
   if ( res )
     throw std::runtime_error( "Error compiling file" );
+}
+
+std::vector<unsigned char> binary_contents( const std::string& pathname )
+{
+  std::ifstream input1( pathname, std::ios::binary );
+  std::vector<unsigned char> buffer( std::istreambuf_iterator<char>( input1 ), {} );
+  return buffer;
+}
+
+bool compare_compiler_output( const std::string& path )
+{
+  if ( compilercfg.ThreadedCompilation )
+    throw std::runtime_error( "Comparison mode does not work with threaded compilation." );
+
+  Legacy::Compiler og_compiler;
+  og_compiler.setQuiet( !debug );
+
+  Compiler::Compiler new_compiler( em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+
+  Pol::Tools::HighPerfTimer og_timer;
+  bool og_ok = og_compiler.compile_file( path );
+  comparison.CompileTimeV1Micros += og_timer.ellapsed().count();
+
+  auto hints = og_compiler.get_legacy_function_order();
+  Pol::Tools::HighPerfTimer new_timer;
+  bool new_ok = new_compiler.compile_file( std::string( path ), &hints );
+  comparison.CompileTimeV2Micros += new_timer.ellapsed().count();
+
+  if ( og_ok != new_ok )
+  {
+    ++comparison.NonMatchingResult;
+    ERROR_PRINT << "V1 " << (og_ok ? "succeeded" : "failed" )
+        << ", V2 " << (new_ok ? "succeeded" : "failed" )
+        << "\n";
+    throw std::runtime_error( "success/failure mismatch" );
+    return false;
+  }
+  ++comparison.MatchingResult;
+
+  if (!og_ok)
+    return true; // it's ok if they both failed
+
+  // this is why -T and -G conflict: using the same filenames for every script
+  std::string og_ecl( "og-compiler.ecl");
+  std::string og_lst( "og-compiler.lst");
+
+  std::string new_ecl( "new-compiler.ecl" );
+  std::string new_lst( "new-compiler.lst" );
+
+  og_compiler.write_ecl( og_ecl );
+  og_compiler.write_listing( og_lst );
+
+  new_compiler.write_ecl( new_ecl );
+  {
+    ref_ptr<EScriptProgram> program( new EScriptProgram );
+    program->read( new_ecl.c_str() );
+    std::ofstream ofs( new_lst.c_str() );
+    program->dump( ofs );
+  }
+
+  ref_ptr<EScriptProgram> og_program( new EScriptProgram );
+  og_program->read( og_ecl.c_str() );
+
+  ref_ptr<EScriptProgram> new_program( new EScriptProgram );
+  new_program->read( new_ecl.c_str() );
+
+  std::ostringstream os1;
+  og_program->dump( os1 );
+
+  std::ostringstream os2;
+  new_program->dump( os2 );
+
+  INFO_PRINT << "Listings match: " << ( os1.str() == os2.str() ) << "\n";
+
+  bool matches = binary_contents( og_ecl ) == binary_contents( new_ecl );
+  if ( matches )
+    ++comparison.MatchingOutput;
+  else
+    ++comparison.NonMatchingOutput;
+
+  INFO_PRINT << "Binary (.ecl) outputs match: " << matches << "\n";
+  if ( !keep_building )
+  {
+    if ( !matches )
+    {
+      INFO_PRINT << "Failing because output does not match.\n"
+                 << "  - " << og_ecl << "\n"
+                 << "  - " << new_ecl << "\n";
+      throw std::runtime_error( "Compiler output mismatch" );
+    }
+  }
+  return true;
 }
 
 /**
@@ -180,7 +296,7 @@ bool compile_file( const char* path )
     unsigned int ecl_timestamp = Clib::GetFileTimestamp( filename_ecl.c_str() );
     if ( Clib::GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp )
     {
-      if ( verbose )
+      if ( compilercfg.VerbosityLevel > 0 )
         INFO_PRINT << filename_src << " is newer than " << filename_ecl << "\n";
       all_old = false;
     }
@@ -196,7 +312,7 @@ bool compile_file( const char* path )
         {
           if ( Clib::GetFileTimestamp( depname.c_str() ) >= ecl_timestamp )
           {
-            if ( verbose )
+            if ( compilercfg.VerbosityLevel > 0 )
               INFO_PRINT << depname << " is newer than " << filename_ecl << "\n";
             all_old = false;
             break;
@@ -205,7 +321,7 @@ bool compile_file( const char* path )
       }
       else
       {
-        if ( verbose )
+        if ( compilercfg.VerbosityLevel > 0 )
           INFO_PRINT << filename_dep << " does not exist."
                      << "\n";
         all_old = false;
@@ -220,18 +336,45 @@ bool compile_file( const char* path )
     }
   }
 
+  if ( compilercfg.CompareCompilerOutput )
+  {
+    if ( !quiet )
+      INFO_PRINT << "Comparing compiler output: " << path << "\n";
+    bool same = compare_compiler_output( path );
+
+    em_parse_tree_cache.keep_some();
+    inc_parse_tree_cache.keep_some();
+
+    return same;
+  }
+
   {
     if ( !quiet )
       INFO_PRINT << "Compiling: " << path << "\n";
 
-    Legacy::Compiler C;
+    std::unique_ptr<Facility::Compiler> compiler;
 
-    C.setQuiet( !debug );
-    int res = C.compileFile( path );
+    if ( compilercfg.UseCompiler2020 )
+    {
+      compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
+                                                       summary.profile );
+    }
+    else
+    {
+      auto og_compiler = std::make_unique<Legacy::Compiler>();
+      og_compiler->setQuiet( !debug );
+      compiler = std::move( og_compiler );
+    }
+
+
+    bool success = compiler->compile_file( path );
+
+    em_parse_tree_cache.keep_some();
+    inc_parse_tree_cache.keep_some();
 
     if ( expect_compile_failure )
     {
-      if ( res )  // good, it failed
+      if ( !success )  // good, it failed
       {
         if ( !quiet )
           INFO_PRINT << "Compilation failed as expected."
@@ -244,14 +387,14 @@ bool compile_file( const char* path )
       }
     }
 
-    if ( res )
+    if ( !success )
       throw std::runtime_error( "Error compiling file" );
 
 
     if ( !quiet )
       INFO_PRINT << "Writing:   " << filename_ecl << "\n";
 
-    if ( C.write( filename_ecl.c_str() ) )
+    if ( !compiler->write_ecl( filename_ecl ) )
     {
       throw std::runtime_error( "Error writing output file" );
     }
@@ -260,8 +403,7 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_lst << "\n";
-      std::ofstream ofs( filename_lst.c_str() );
-      C.dump( ofs );
+      compiler->write_listing( filename_lst );
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
     {
@@ -279,7 +421,7 @@ bool compile_file( const char* path )
           INFO_PRINT << "Writing:   " << filename_dbg << ".txt"
                      << "\n";
       }
-      C.write_dbg( filename_dbg.c_str(), compilercfg.GenerateDebugTextInfo );
+      compiler->write_dbg( filename_dbg, compilercfg.GenerateDebugTextInfo );
     }
     else if ( Clib::FileExists( filename_dbg.c_str() ) )
     {
@@ -292,7 +434,7 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
         INFO_PRINT << "Writing:   " << filename_dep << "\n";
-      C.writeIncludedFilenames( filename_dep.c_str() );
+      compiler->write_included_filenames( filename_dep );
     }
     else if ( Clib::FileExists( filename_dep.c_str() ) )
     {
@@ -384,6 +526,13 @@ int readargs( int argc, char** argv )
       break;
 #endif
 
+      case 'g':
+        compilercfg.UseCompiler2020 = setting_value( arg );
+        break;
+      case 'G':
+        compilercfg.CompareCompilerOutput = setting_value( arg );
+        break;
+
       case 'q':
         quiet = true;
         break;
@@ -461,12 +610,11 @@ int readargs( int argc, char** argv )
         break;
 
       case 'v':
-        verbose = true;
         int vlev;
         vlev = atoi( &argv[i][2] );
         if ( !vlev )
           vlev = 1;
-        Legacy::Compiler::setVerbosityLevel( vlev );
+        compilercfg.VerbosityLevel = vlev;
         break;
 
       case 'x':
@@ -505,6 +653,12 @@ int readargs( int argc, char** argv )
     }
   }
   return 0;
+}
+
+void apply_configuration()
+{
+  em_parse_tree_cache.configure( compilercfg.EmParseTreeCacheSize );
+  inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
 /**
@@ -799,6 +953,48 @@ bool run( int argc, char** argv, int* res )
     if ( summary.UpToDateScripts )
       tmp << "    " << summary.UpToDateScripts << " script"
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
+
+    tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
+        << "\n";
+    tmp << "        - load *.em:   " << (long long)summary.profile.load_em_micros / 1000 << "\n";
+    tmp << "       - parse *.em:   " << (long long)summary.profile.parse_em_micros / 1000 << " ("
+        << (long)summary.profile.parse_em_count << ")\n";
+    tmp << "         - ast *.em:   " << (long long)summary.profile.ast_em_micros / 1000 << "\n";
+    tmp << "      - parse *.src:   " << (long long)summary.profile.parse_src_micros / 1000 << " ("
+        << (long)summary.profile.parse_src_count << ")\n";
+    tmp << "        - ast *.src:   " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
+    tmp << "  resolve functions:   "
+        << (long long)summary.profile.ast_resolve_functions_micros / 1000 << "\n";
+    tmp << " register constants: "
+        << (long long)summary.profile.register_const_declarations_micros / 1000 << "\n";
+    tmp << "            analyze: " << (long long)summary.profile.analyze_micros / 1000 << "\n";
+    tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
+    tmp << "       disambiguate: " << (long long)summary.profile.disambiguate_micros / 1000 << "\n";
+    tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
+    tmp << "  prune cache (sel): " << (long long)summary.profile.prune_cache_select_micros / 1000
+        << "\n";
+    tmp << "  prune cache (del): " << (long long)summary.profile.prune_cache_delete_micros / 1000
+        << "\n";
+    tmp << "\n";
+    tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
+    tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
+    tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
+
+    INFO_PRINT << tmp.str();
+  }
+
+  if ( any && compilercfg.CompareCompilerOutput )
+  {
+    fmt::Writer tmp;
+    tmp << "Compilation Comparison:\n";
+    tmp << "    V1 compile time: " << (long)comparison.CompileTimeV1Micros / 1000 << "\n";
+    tmp << "    V2 compile time: " << (long)comparison.CompileTimeV2Micros / 1000 << "\n";
+    tmp << "     Result matches: " << comparison.MatchingResult << "\n";
+    tmp << "  Result mismatches: " << comparison.NonMatchingResult << "\n";
+    tmp << "     Output matches: " << comparison.MatchingOutput << "\n";
+    tmp << "  Output mismatches: " << comparison.NonMatchingOutput << "\n";
+    tmp << "      Debug matches: " << comparison.MatchingDebugOutput << "\n";
+    tmp << "   Debug mismatches: " << comparison.NonMatchingDebugOutput << "\n";
     INFO_PRINT << tmp.str();
   }
 
@@ -886,6 +1082,8 @@ int ECompileMain::main()
     showHelp();
     return res;
   }
+
+  ECompile::apply_configuration();
 
   if ( !ECompile::quiet )
   {

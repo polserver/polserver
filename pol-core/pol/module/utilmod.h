@@ -29,11 +29,11 @@ class UtilExecutorModule
 public:
   UtilExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_RandomInt();
-  Bscript::BObjectImp* mf_RandomFloat();
-  Bscript::BObjectImp* mf_RandomDiceRoll();
-  Bscript::BObjectImp* mf_StrFormatTime();
-  Bscript::BObjectImp* mf_RandomIntMinMax();
+  [[nodiscard]] Bscript::BObjectImp* mf_RandomInt();
+  [[nodiscard]] Bscript::BObjectImp* mf_RandomFloat();
+  [[nodiscard]] Bscript::BObjectImp* mf_RandomDiceRoll();
+  [[nodiscard]] Bscript::BObjectImp* mf_StrFormatTime();
+  [[nodiscard]] Bscript::BObjectImp* mf_RandomIntMinMax();
 };
 }  // namespace Module
 }  // namespace Pol

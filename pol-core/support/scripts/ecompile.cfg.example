@@ -52,6 +52,11 @@ GenerateDebugInfo=0
 GenerateDebugTextInfo=0
 
 #
+# VerbosityLevel
+# Enabled logging more information such as locations of include files.
+VerbosityLevel=0
+
+#
 # DisplayWarnings
 # Directs eCompile to display warnings such as 'unused variables'.
 # Default is 1
@@ -147,3 +152,16 @@ ParanoiaWarnings=0
 # On linux due to filename case sensitivity this is always the case
 # Default is 0
 ErrorOnFileCaseMissmatch=0
+
+#
+# EmParseTreeCacheSize
+# Number of *.em files to cache (new compiler only)
+# Typically this should be high enough to cache all *.em files
+# Default is 25
+#EmParseTreeCacheSize=25
+
+#
+# IncParseTreeCacheSize
+# Number of *.inc files to cache (new compiler only)
+# Default is 50
+#IncParseTreeCacheSize=50

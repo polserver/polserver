@@ -782,7 +782,7 @@ bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
     const Mobile::Attribute* attr;
     if ( !getAttributeParam( param, attr ) )
       return false;
-    if ( attr->skillid != -1 )
+    if ( attr->skillid != static_cast<USKILLID>( -1 ) )
       return attr->skillid;
     const String* attrname;
     getStringParam( param, attrname );  // no error check needed

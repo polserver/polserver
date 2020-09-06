@@ -31,7 +31,7 @@
 #include "../multi/boatcomp.h"
 #include "../objtype.h"
 #include "../polcfg.h"
-#include "../resource.h"
+#include "regions/resource.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../spelbook.h"

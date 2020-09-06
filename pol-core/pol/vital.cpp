@@ -25,7 +25,6 @@ Vital::Vital( const Plib::Package* pkg, Clib::ConfigElem& elem )
       name( elem.rest() ),
       aliases(),
       vitalid( 0 ),
-      next( nullptr ),
       get_regenrate_func(
           FindExportedFunction( elem, pkg, elem.remove_string( "RegenRateFunction" ), 1 ) ),
       get_maximum_func(
@@ -87,14 +86,6 @@ Vital* FindVital( const std::string& str )
     return nullptr;
 }
 
-Vital* FindVital( unsigned vitalid )
-{
-  if ( vitalid < gamestate.vitals.size() )
-    return gamestate.vitals[vitalid];
-  else
-    return nullptr;
-}
-
 void load_vital_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 {
   Vital* vital = new Vital( pkg, elem );
@@ -105,8 +96,6 @@ void load_vital_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
     elem.throw_error( "Vital " + vital->name + " already defined by " + existing->pkg->desc() );
   }
   vital->vitalid = static_cast<unsigned int>( gamestate.vitals.size() );
-  if ( !gamestate.vitals.empty() )
-    gamestate.vitals.back()->next = vital;
   gamestate.vitals.push_back( vital );
 
   for ( unsigned i = 0; i < vital->aliases.size(); ++i )

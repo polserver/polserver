@@ -29,17 +29,17 @@ class UBoatExecutorModule : public Bscript::TmplExecutorModule<UBoatExecutorModu
 public:
   UBoatExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_MoveBoat();
-  Bscript::BObjectImp* mf_MoveBoatRelative();
-
-  Bscript::BObjectImp* mf_TurnBoat();
-
-  Bscript::BObjectImp* mf_RegisterItemWithBoat();
-  Bscript::BObjectImp* mf_BoatFromItem();
-
-  Bscript::BObjectImp* mf_SystemFindBoatBySerial();
-
-  Bscript::BObjectImp* mf_MoveBoatXY();
+  [[nodiscard]] Bscript::BObjectImp* mf_MoveBoat();
+  [[nodiscard]] Bscript::BObjectImp* mf_MoveBoatRelative();
+   
+  [[nodiscard]] Bscript::BObjectImp* mf_TurnBoat();
+  
+  [[nodiscard]] Bscript::BObjectImp* mf_RegisterItemWithBoat();
+  [[nodiscard]] Bscript::BObjectImp* mf_BoatFromItem();
+  
+  [[nodiscard]] Bscript::BObjectImp* mf_SystemFindBoatBySerial();
+  
+  [[nodiscard]] Bscript::BObjectImp* mf_MoveBoatXY();
 };
 }
 }

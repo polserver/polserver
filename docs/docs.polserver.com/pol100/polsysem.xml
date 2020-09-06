@@ -127,9 +127,10 @@ endforeach</code></explain>
   </function>
 
   <function name="ListTextCommands">
-    <prototype>ListTextCommands( )</prototype>
+    <prototype>ListTextCommands(max_cmdlevel:=-1)</prototype>
+    <parameter name="max_cmdlevel" value="Integer" />
     <explain>Returns a dict of a dict of structs.</explain>
-    <explain>Dict 1 - Package names Dict 2 - Command levels Struct - .dir .script</explain>
+    <explain>Dict 1 - Package names; Dict 2 - Command levels; Struct - .dir .script</explain>
     <explain>
     <code>
 	Example:
@@ -147,8 +148,7 @@ endforeach</code></explain>
 	endforeach
     </code>
     </explain>
-    <return>1 on success</return>
-    <error>"Invalid parameter type."</error>
+    <return>Dict of a dict of structs</return>
   </function>
 
   <function name="GetPackageByName">

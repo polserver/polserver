@@ -31,28 +31,29 @@ class AttributeExecutorModule
 public:
   AttributeExecutorModule( Bscript::Executor& exec );
 
-  Bscript::BObjectImp* mf_CheckSkill();  // Character, SkillId, Difficulty, Points
+  [[nodiscard]] Bscript::BObjectImp* mf_CheckSkill();  // Character, SkillId, Difficulty, Points
 
-  Bscript::BObjectImp* mf_GetAttributeName( /* alias name */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeName( /* alias name */ );
 
-  Bscript::BObjectImp* mf_GetAttributeDefaultCap( /* alias name */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeDefaultCap( /* alias name */ );
 
-  Bscript::BObjectImp* mf_GetAttribute( /* mob, attrname */ );
-  Bscript::BObjectImp* mf_GetAttributeBaseValue( /* mob, attrname */ );
-  Bscript::BObjectImp* mf_GetAttributeTemporaryMod( /* mob, attrname */ );
-  Bscript::BObjectImp* mf_GetAttributeIntrinsicMod( /* mob, attrname */ );
-  Bscript::BObjectImp* mf_GetAttributeLock( /* mob, attrname */ );
-  Bscript::BObjectImp* mf_GetAttributeCap( /* mob, attrname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttribute( /* mob, attrname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeBaseValue( /* mob, attrname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeTemporaryMod( /* mob, attrname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeIntrinsicMod( /* mob, attrname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeLock( /* mob, attrname */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAttributeCap( /* mob, attrname */ );
 
-  Bscript::BObjectImp* mf_SetAttributeCap( /* mob, attrname, value */ );
-  Bscript::BObjectImp* mf_SetAttributeLock( /* mob, attrname, lockstate */ );
-  Bscript::BObjectImp* mf_SetAttributeBaseValue( /* mob, attributeid, basevalue */ );
-  Bscript::BObjectImp* mf_SetAttributeTemporaryMod( /* mob, attributeid, temporary_mod */ );
-  Bscript::BObjectImp* mf_AlterAttributeTemporaryMod( /* mob, attributeid, temporary_mod */ );
-  Bscript::BObjectImp* mf_SetAttributeIntrinsicMod( /* mob, attributeid, intrinsic_mod */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetAttributeCap( /* mob, attrname, value */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetAttributeLock( /* mob, attrname, lockstate */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetAttributeBaseValue( /* mob, attributeid, basevalue */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SetAttributeTemporaryMod(
+      /* mob, attributeid, temporary_mod */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_AlterAttributeTemporaryMod(
+      /* mob, attributeid, temporary_mod */ );
 
-  Bscript::BObjectImp* mf_RawSkillToBaseSkill();
-  Bscript::BObjectImp* mf_BaseSkillToRawSkill();
+  [[nodiscard]] Bscript::BObjectImp* mf_RawSkillToBaseSkill();
+  [[nodiscard]] Bscript::BObjectImp* mf_BaseSkillToRawSkill();
 };
 }  // namespace Module
 }  // namespace Pol

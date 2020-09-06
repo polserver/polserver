@@ -1,0 +1,21 @@
+use npc;
+use os;
+
+program ai()
+  var me:=Self();
+  syslog("ai started "+me.name);
+
+  var x:=100;
+  var y:=100;
+  if (me.x != x || me.y != y)
+    me.setprop("testerror","wrong start coords");
+    return;
+  endif
+  var res:=Move("N");
+  if (!res || me.x!=100 || me.y != 99)
+    me.setprop("testerror","Failed to move N: {}: {},{}".format(res,me.x,me.y));
+    return;
+  endif
+  
+  me.kill();
+endprogram

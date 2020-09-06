@@ -13,9 +13,10 @@ boost*
 *.sln
 docs
 x64*
+*.db
+antlr.dir/
 z.dir
 tinyxml.dir
-*.db
 format.dir
 stackwalk.dir
 *ninja*
@@ -25,4 +26,4 @@ Testing
 CTest*
 ipch
 module_defs
-
+coretest

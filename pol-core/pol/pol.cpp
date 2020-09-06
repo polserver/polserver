@@ -94,17 +94,17 @@
 #include "globals/object_storage.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
-#include "guardrgn.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/musicrgn.h"
 #include "item/armor.h"
 #include "item/equipmnt.h"
 #include "item/itemdesc.h"
 #include "loadunld.h"
 #include "menu.h"
-#include "miscrgn.h"
 #include "mobile/charactr.h"
 #include "multi/house.h"
 #include "multi/multi.h"
-#include "musicrgn.h"
 #include "network/cgdata.h"
 #include "network/client.h"
 #include "network/clientthread.h"
@@ -1230,7 +1230,7 @@ int xmain_inner( bool testing )
       POLLOG_INFO << "Not writing data due to pol.cfg InhibitSaves=1 setting.\n";
   }
   Core::gamestate.deinitialize();
-  return 0;
+  return Clib::exit_code;
 }
 
 int xmain_outer( bool testing )

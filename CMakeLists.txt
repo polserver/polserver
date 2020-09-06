@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.9)
 
 #protect the user for himself
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
@@ -44,6 +44,8 @@ option(ENABLE_TIDY "Enables clang tidy check" OFF)
 #e.g "-fix;-checks=modernize-use-nullptr"
 set(TIDY_ARGS "" CACHE STRING "clang tidy arguments")
 
+option(REUSE_PCH "Reuse clib pch if needed (windows only)" OFF)
+
 if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
   set(BUILD_ALL OFF)
 endif()
@@ -59,6 +61,7 @@ include(TestBigEndian)
 
 include(cmake/init.cmake)
 
+set(POL_EXT_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
 
 message("####################################")
@@ -114,6 +117,8 @@ git_revision_target()
 
 if (${linux})
   option(STRIP_BINARIES "Strip binaries directly, instead of only in package target" OFF)
+  
+  set(REUSE_PCH ON)
 endif()
 
 prepare_build()
@@ -149,30 +154,37 @@ endif()
 add_polrelease_target()
 
 #ctest integration
-#splitted into each escript testfolder to allow parallel execution
-if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
+if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL) OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
   message("activating test target")
   enable_testing()
-  set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
-  file(GLOB children RELATIVE ${testdir} ${testdir}/*)
 
-  foreach(child ${children})
-    if(IS_DIRECTORY ${testdir}/${child})
-      string(FIND "${child}" "_" out)
-      if(${out} EQUAL 0)
-        continue()
+  #splitted into each escript testfolder to allow parallel execution
+  if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL))
+    set(testdir ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/escript)
+    file(GLOB children RELATIVE ${testdir} ${testdir}/*)
+
+    foreach(child ${children})
+      if(IS_DIRECTORY ${testdir}/${child})
+        string(FIND "${child}" "_" out)
+        if(${out} EQUAL 0)
+          continue()
+        endif()
+        add_test(NAME escript_${child}
+          COMMAND ${CMAKE_COMMAND}
+            -Dtestdir=${testdir}
+            -Dsubtest=${child}
+            -Decompile=${output_bin_dir}/ecompile
+            -Drunecl=${output_bin_dir}/runecl
+            -Derrfilesuffix=1
+            -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
+          WORKING_DIRECTORY ${testdir}
+        )
       endif()
-      add_test(NAME escript_${child}
-        COMMAND ${CMAKE_COMMAND}
-          -Dtestdir=${testdir}
-          -Dsubtest=${child}
-          -Decompile=${output_bin_dir}/ecompile
-          -Drunecl=${output_bin_dir}/runecl
-          -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/escripttest.cmake
-        WORKING_DIRECTORY ${testdir}
-      )
-    endif()
-  endforeach()
+    endforeach()
+  endif()
+  if (BUILD_ALL OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
+    include(cmake/core_tests.cmake)
+  endif()
 endif()
 
 #clang-format target for modified and new files

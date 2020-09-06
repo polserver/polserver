@@ -14,7 +14,7 @@
 #include "../base/position.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
-#include "../realms.h"
+#include "realms/realms.h"
 #include "../storage.h"
 #include "../uoscrobj.h"
 

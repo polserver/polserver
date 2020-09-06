@@ -15,6 +15,8 @@
 #include "parser.h"
 #endif
 
+#include "facility/Compiler.h"
+
 #include <iosfwd>
 #include <map>
 #include <stddef.h>
@@ -38,6 +40,10 @@ namespace Pol
 {
 namespace Bscript
 {
+namespace Compiler
+{
+  struct LegacyFunctionOrder;
+}
 class EScriptProgram;
 class EScriptProgramCheckpoint;
 class FunctionalityModule;
@@ -118,13 +124,11 @@ private:
   friend class Compiler;
 };
 
-class Compiler final : public SmartParser
+class Compiler final : public SmartParser, public Facility::Compiler
 {
 public:
   static bool check_filecase_;
-  static int verbosity_level_;
   static void setCheckFileCase( bool check ) { check_filecase_ = check; }
-  static void setVerbosityLevel( int vlev ) { verbosity_level_ = vlev; }
 
 private:
   std::string current_file_path;
@@ -275,6 +279,15 @@ public:
   int write_dbg( const char* fname, bool generate_txtfile );
   void writeIncludedFilenames( const char* fname ) const;
 
+  // Facility::Compiler
+  bool compile_file( const std::string& filename ) override;
+  bool write_ecl( const std::string& pathname ) override;
+  void write_listing( const std::string& pathname ) override;
+  void write_dbg( const std::string& pathname, bool include_debug_text ) override;
+  void write_included_filenames( const std::string& pathname ) override;
+
+  Pol::Bscript::Compiler::LegacyFunctionOrder get_legacy_function_order() const;
+
   // phase 0: determining bracket syntax
 
   // phase 1: read function declarations, constants (but clear constants)
@@ -291,6 +304,8 @@ public:
   int emit_function( UserFunction& uf );
   int emit_functions();
   void patch_callers( UserFunction& uf );
+
+  std::vector<std::string> userfunc_emit_order;
 
 private:
   std::vector<char*> delete_these_arrays;

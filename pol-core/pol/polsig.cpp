@@ -146,15 +146,15 @@ void catch_signals_thread( void )
       break;
     case SIGINT:
       ERROR_PRINT << "SIGINT: exit.\n";
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
       break;
     case SIGQUIT:
       ERROR_PRINT << "SIGQUIT: exit.\n";
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
       break;
     case SIGTERM:
       ERROR_PRINT << "SIGTERM: exit.\n";
-      Clib::exit_signalled = true;
+      Clib::signal_exit();
       break;
     default:
       ERROR_PRINT << "Unexpected signal: " << caught << "\n";
@@ -165,5 +165,5 @@ void catch_signals_thread( void )
 }
 
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

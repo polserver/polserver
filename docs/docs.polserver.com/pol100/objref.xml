@@ -547,6 +547,8 @@
 <member mname="queued_iostats" type="Array" access="r/o" mdesc="structure same as iostats, but for queued I/O stats" />
 <member mname="pkt_status" type="Array" access="r/o" mdesc="returns and array of info structures about packets currently in the queue" />
 <member mname="memory_usage" type="Integer" access="r/o" mdesc="current process usage in KB" />
+<member mname="last_character_serial" type="Integer" access="r/o" mdesc="Last character serial number assigned by core" />
+<member mname="last_item_serial" type="Integer" access="r/o" mdesc="Last item serial number assigned by core" />
 
 <method proto="log_profile(bool clear)" returns="true/false" desc="Writes the script profile to the log, optionally clearing it after." />
 <method proto="set_priority_divide(int divide)" returns="true/false" desc="Sets the priority divide to 'divide'" />

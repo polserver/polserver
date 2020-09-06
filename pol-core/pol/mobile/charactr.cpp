@@ -113,7 +113,6 @@
 #include "../globals/settings.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
-#include "../guardrgn.h"
 #include "../guilds.h"
 #include "../item/armor.h"
 #include "../item/item.h"
@@ -121,7 +120,6 @@
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
 #include "../layers.h"
-#include "../miscrgn.h"
 #include "../mkscrobj.h"
 #include "../module/uomod.h"
 #include "../movecost.h"
@@ -129,7 +127,6 @@
 #include "../multi/house.h"
 #include "../multi/multi.h"
 #include "../multi/multidef.h"
-#include "../musicrgn.h"
 #include "../network/cgdata.h"
 #include "../network/client.h"
 #include "../network/cliface.h"
@@ -165,6 +162,9 @@
 #include "attribute.h"
 #include "corpse.h"
 #include "privupdater.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/musicrgn.h"
 #include "wornitems.h"
 
 #ifdef _MSC_VER
@@ -624,7 +624,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
 
 
   // output Attributes
-  for ( Attribute* pAttr = Attribute::FindAttribute( 0 ); pAttr != nullptr; pAttr = pAttr->next )
+  for ( Attribute* pAttr : Core::gamestate.attributes )
   {
     const AttributeValue& av = attribute( pAttr->attrid );
     short lock = av.lock();
@@ -657,7 +657,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   }
 
   // output Vitals
-  for ( Core::Vital* pVital = Core::FindVital( 0 ); pVital != nullptr; pVital = pVital->next )
+  for ( Core::Vital* pVital : Core::gamestate.vitals )
   {
     const VitalValue& vv = vital( pVital->vitalid );
     if ( vv.current_ones() )
@@ -931,7 +931,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 void Character::readAttributesAndVitals( Clib::ConfigElem& elem )
 {
   // read Attributes
-  for ( Attribute* pAttr = Attribute::FindAttribute( 0 ); pAttr != nullptr; pAttr = pAttr->next )
+  for ( Attribute* pAttr : Core::gamestate.attributes )
   {
     AttributeValue& av = attribute( pAttr->attrid );
 
@@ -1009,7 +1009,7 @@ void Character::readAttributesAndVitals( Clib::ConfigElem& elem )
   calc_vital_stuff();
 
   // read Vitals
-  for ( Core::Vital* pVital = Core::FindVital( 0 ); pVital != nullptr; pVital = pVital->next )
+  for ( Core::Vital* pVital : Core::gamestate.vitals )
   {
     VitalValue& vv = vital( pVital->vitalid );
     for ( const auto& _i : pVital->aliases )
@@ -4212,7 +4212,7 @@ void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
   delBuff( icon );
 
   Core::gameclock_t end = Core::read_gameclock() + duration;
-  buffs_[icon] = { end, cl_name, cl_descr, arguments };
+  buffs_[icon] = {end, cl_name, cl_descr, arguments};
 
   if ( client != nullptr )
     send_buff_message( this, icon, true, duration, cl_name, cl_descr, arguments );

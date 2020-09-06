@@ -7,18 +7,18 @@
  * shadowname
  */
 
-
 #include "realm.h"
 
-#include "../../plib/mapserver.h"
-#include "../../plib/maptileserver.h"
-#include "../../plib/poltype.h"
-#include "../../plib/realmdescriptor.h"
-#include "../../plib/staticserver.h"
-#include "../mobile/charactr.h"
-#include "../ufunc.h"
-#include "../uworld.h"
-#include "WorldChangeReasons.h"
+#include "plib/mapserver.h"
+#include "plib/maptileserver.h"
+#include "plib/poltype.h"
+#include "plib/realmdescriptor.h"
+#include "plib/staticserver.h"
+
+#include "mobile/charactr.h"
+#include "realms/WorldChangeReasons.h"
+#include "ufunc.h"
+#include "uworld.h"
 
 namespace Pol
 {

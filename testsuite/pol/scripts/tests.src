@@ -1,0 +1,32 @@
+use uo;
+use os;
+include "maptests";
+include "chartests";
+include "npctests";
+
+program tests()
+  syslog(
+    "\n##########################\n"
+    + "#  starting testscripts  #\n"
+    + "##########################\n");
+  var exitcode:=0;
+
+  if (!mapinfo_test()) exitcode:=1; endif
+  if (!statics_test()) exitcode:=1; endif
+
+  if (!account_test()) exitcode:=1; endif
+  if (!char_test()) exitcode:=1; endif
+  
+  if (!npc_test()) exitcode:=1; endif
+
+  
+  var result:="success";
+  if (exitcode)
+    result:="failed ";
+  endif
+  syslog(
+    "\n###########################\n"
+    + "# finished tests: {} #\n".format(result)
+    + "###########################\n");
+  shutdown(exitcode);
+endprogram

@@ -1,0 +1,9 @@
+var a := 5;
+var b := 7;
+
+if (a)
+    print("correct - first path");
+elseif (b)
+    print("incorrect - second path");
+endif
+

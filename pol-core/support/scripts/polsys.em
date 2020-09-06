@@ -11,7 +11,7 @@ GetItemDescriptor(objtype);
 FormatItemDescription(desc, amount := 1, suffix := "");
 GetPackageByName(name);
 IncRevision(object);
-ListTextCommands();
+ListTextCommands(max_cmdlevel := -1); // the default (-1) returns all
 ListenPoints();
 MD5Encrypt(str);
 Packages();

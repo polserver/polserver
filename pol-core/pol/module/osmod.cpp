@@ -782,9 +782,9 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
           if ( em )
           {
             NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->npc.serial ) << " ("
-                       << npcemod->npc.x() << " " << npcemod->npc.y() << " " << npcemod->npc.z()
-                       << ")\n";
+            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->controlled_npc().serial ) << " ("
+                       << npcemod->controlled_npc().x() << " " << npcemod->controlled_npc().y()
+                       << " " << npcemod->controlled_npc().z() << ")\n";
           }
 
           INFO_PRINT << "Event: " << ob->getStringRep() << "\n";

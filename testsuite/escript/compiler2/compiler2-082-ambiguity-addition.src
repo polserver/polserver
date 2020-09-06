@@ -1,0 +1,14 @@
+var a := 2, b := 3, c := 5, d := 7, e := 11, f := 13;
+var x := a + b + c + d + e + f;
+print(x);
+
+var y := a + b * c + d * e + f;
+print(y);
+
+//var y := a + c.b + d.e +
+
+//a.d
+//a.+d
+//a.-f
+//a.?f
+//++a.b

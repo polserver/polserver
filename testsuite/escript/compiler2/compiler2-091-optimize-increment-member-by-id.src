@@ -1,0 +1,3 @@
+var s:=struct{resist_fire_mod};
+s.resist_fire_mod += 1;
+print(s);

@@ -102,8 +102,6 @@ set (pol_sources  # sorted !
   globals/ucfg.h
   globals/uvars.cpp
   globals/uvars.h
-  guardrgn.cpp
-  guardrgn.h
   guilds.cpp
   guilds.h
   guildscrobj.cpp
@@ -142,8 +140,6 @@ set (pol_sources  # sorted !
   menu.h
   menusel.cpp
   miscmsg.cpp
-  miscrgn.cpp
-  miscrgn.h
   mkscrobj.cpp
   mkscrobj.h
   mobile/attack.cpp
@@ -233,8 +229,6 @@ set (pol_sources  # sorted !
   multi/multidef.h
   multi/multidef2.cpp
   multi/multis.cpp
-  musicrgn.cpp
-  musicrgn.h
   network/auxclient.cpp
   network/auxclient.h
   network/bannedips.cpp
@@ -317,11 +311,10 @@ set (pol_sources  # sorted !
   polwww.cpp
   polwww.h
   profile.h
-  property.h
   proplist.cpp
   proplist.h
-  realms.cpp
-  realms.h
+  realms/realms.cpp
+  realms/realms.h
   realms/WorldChangeReasons.h
   realms/realm.cpp
   realms/realm.h
@@ -329,13 +322,19 @@ set (pol_sources  # sorted !
   realms/realmlos.cpp
   reftypes.cpp
   reftypes.h
-  region.cpp
-  region.h
+  regions/region.cpp
+  regions/region.h
+  regions/guardrgn.cpp
+  regions/guardrgn.h
+  regions/miscrgn.cpp
+  regions/miscrgn.h
+  regions/musicrgn.cpp
+  regions/musicrgn.h
+  regions/resource.cpp
+  regions/resource.h
   repsys.cpp
   repsys.h
   repsys_cfg.h
-  resource.cpp
-  resource.h
   savedata.cpp
   savedata.h
   schedule.cpp
@@ -375,6 +374,8 @@ set (pol_sources  # sorted !
   syshook.h
   syshookscript.cpp
   syshookscript.h
+  systems/suspiciousacts.cpp
+  systems/suspiciousacts.h
   target.cpp
   target.h
   tasks.cpp

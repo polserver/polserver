@@ -1,0 +1,8 @@
+var i := 0;
+
+do
+	  print(i);
+	  i := i + 1;
+dowhile (i < 10);
+
+print("done");

@@ -26,7 +26,7 @@
 #include "../layers.h"
 #include "../menu.h"
 #include "../reftypes.h"
-#include "../region.h"
+#include "regions/region.h"
 #include "../schedule.h"
 #include "../storage.h"
 #include "../syshook.h"

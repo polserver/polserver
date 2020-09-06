@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 
-#include <format/format.h>
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/clib_endian.h"
 #include "../clib/fileutil.h"
@@ -16,11 +15,12 @@
 #include "../plib/maptile.h"
 #include "../plib/maptileserver.h"
 #include "../plib/realmdescriptor.h"
-#ifdef USE_SYSTEM_ZLIB
+#include "baredistro.h"
+#include "testfiles.h"
+#include "testenv.h"
+#include <format/format.h>
+
 #include <zlib.h>
-#else
-#include "../../lib/zlib/zlib.h"
-#endif
 
 namespace Pol
 {
@@ -42,18 +42,25 @@ void PolToolMain::showHelp()
               << "            x1 y1 [x2 y2 realm]       writes polmap info to polmap.html\n"
               << "  POLTOOL uncompressgump FileName\n"
               << "        unpacks and prints 0xDD gump from given packet log\n"
-              << "        file needs to contain a single 0xDD packetlog\n";
+              << "        file needs to contain a single 0xDD packetlog\n"
+
+              << "  POLTOOL testfiles [options]\n"
+              << "        Options:\n"
+              << "          outdir=.\n"
+              << "          hsa=0\n"
+              << "          maxtiles=0x3fff\n"
+              << "          width=6144\n"
+              << "          height=4096\n";
 }
 
 int PolToolMain::mapdump()
 {
   short wxl = 5485, wxh = 5500, wyl = 0, wyh = 30;
   const std::vector<std::string>& binArgs = programArgs();
-
   std::string realmname = "britannia";
-  if ( binArgs.size() >= 6 )
+  if ( binArgs.size() >= 7 )
   {
-    realmname = binArgs[5];
+    realmname = binArgs[6];
   }
   Plib::RealmDescriptor descriptor = Plib::RealmDescriptor::Load(
       realmname.c_str() );  // TODO: use a string in the signature of Load()
@@ -61,15 +68,15 @@ int PolToolMain::mapdump()
   std::unique_ptr<Plib::MapServer> _owner( mapserver );
 
   std::unique_ptr<Plib::MapTileServer> mts( new Plib::MapTileServer( descriptor ) );
-  if ( binArgs.size() >= 3 )
+  if ( binArgs.size() >= 4 )
   {
-    wxl = wxh = static_cast<short>( atoi( binArgs[1].c_str() ) );
-    wyl = wyh = static_cast<short>( atoi( binArgs[2].c_str() ) );
+    wxl = wxh = static_cast<short>( atoi( binArgs[2].c_str() ) );
+    wyl = wyh = static_cast<short>( atoi( binArgs[3].c_str() ) );
   }
-  if ( binArgs.size() >= 5 )
+  if ( binArgs.size() >= 6 )
   {
-    wxh = static_cast<short>( atoi( binArgs[3].c_str() ) );
-    wyh = static_cast<short>( atoi( binArgs[4].c_str() ) );
+    wxh = static_cast<short>( atoi( binArgs[4].c_str() ) );
+    wyh = static_cast<short>( atoi( binArgs[5].c_str() ) );
   }
 
   std::ofstream ofs( "polmap.html" );
@@ -271,14 +278,50 @@ int PolToolMain::main()
   {
     return unpackCompressedGump();
   }
+  else if ( binArgs[1] == "testfiles" )
+  {
+    std::string outdir = programArgsFindEquals( "outdir=", "." );
+    bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;
+    int maxtiles = programArgsFindEquals( "maxtiles=", 0x3fff, true );
+    int width = programArgsFindEquals( "width=", 6144, false );
+    int height = programArgsFindEquals( "height=", 4096, false );
+    PolTool::FileGenerator g( outdir, hsa, maxtiles, width, height );
+    g.generateTiledata();
+    g.generateMap();
+    g.generateStatics();
+    g.generateMultis();
+    return 0;
+  }
+  else if ( binArgs[1] == "baredistro" )
+  {
+    std::string outdir = programArgsFindEquals( "outdir=", "." );
+    bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;
+    int maxtiles = programArgsFindEquals( "maxtiles=", 0x3fff, true );
+    int width = programArgsFindEquals( "width=", 6144, false );
+    int height = programArgsFindEquals( "height=", 4096, false );
+    PolTool::BareDistro distro( outdir, hsa, maxtiles, width, height );
+    distro.generate();
+    return 0;
+  }
+  else if ( binArgs[1] == "testenv" )
+  {
+    std::string outdir = programArgsFindEquals( "outdir=", "." );
+    bool hsa = programArgsFindEquals( "hsa=", 0, false ) != 0 ? true : false;
+    int maxtiles = programArgsFindEquals( "maxtiles=", 0x3fff, true );
+    int width = programArgsFindEquals( "width=", 6144, false );
+    int height = programArgsFindEquals( "height=", 4096, false );
+    PolTool::TestEnv testenv( outdir, hsa, maxtiles, width, height );
+    testenv.generate();
+    return 0;
+  }
   else
   {
     ERROR_PRINT << "Unknown command " << binArgs[1] << "\n";
     return 1;  // return "error"
   }
 }
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////

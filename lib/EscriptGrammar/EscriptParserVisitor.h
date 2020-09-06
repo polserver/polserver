@@ -34,8 +34,6 @@ public:
 
     virtual antlrcpp::Any visitModuleFunctionParameter(EscriptParser::ModuleFunctionParameterContext *context) = 0;
 
-    virtual antlrcpp::Any visitUnitExpression(EscriptParser::UnitExpressionContext *context) = 0;
-
     virtual antlrcpp::Any visitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *context) = 0;
 
     virtual antlrcpp::Any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *context) = 0;
@@ -75,6 +73,8 @@ public:
     virtual antlrcpp::Any visitContinueStatement(EscriptParser::ContinueStatementContext *context) = 0;
 
     virtual antlrcpp::Any visitForStatement(EscriptParser::ForStatementContext *context) = 0;
+
+    virtual antlrcpp::Any visitForeachIterableExpression(EscriptParser::ForeachIterableExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitForeachStatement(EscriptParser::ForeachStatementContext *context) = 0;
 
@@ -120,23 +120,37 @@ public:
 
     virtual antlrcpp::Any visitFunctionParameter(EscriptParser::FunctionParameterContext *context) = 0;
 
-    virtual antlrcpp::Any visitScopedMethodCall(EscriptParser::ScopedMethodCallContext *context) = 0;
+    virtual antlrcpp::Any visitScopedFunctionCall(EscriptParser::ScopedFunctionCallContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionReference(EscriptParser::FunctionReferenceContext *context) = 0;
 
     virtual antlrcpp::Any visitExpression(EscriptParser::ExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitPrimary(EscriptParser::PrimaryContext *context) = 0;
 
+    virtual antlrcpp::Any visitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *context) = 0;
+
+    virtual antlrcpp::Any visitExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *context) = 0;
+
+    virtual antlrcpp::Any visitExplicitDictInitializer(EscriptParser::ExplicitDictInitializerContext *context) = 0;
+
+    virtual antlrcpp::Any visitExplicitErrorInitializer(EscriptParser::ExplicitErrorInitializerContext *context) = 0;
+
+    virtual antlrcpp::Any visitBareArrayInitializer(EscriptParser::BareArrayInitializerContext *context) = 0;
+
     virtual antlrcpp::Any visitParExpression(EscriptParser::ParExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitExpressionList(EscriptParser::ExpressionListContext *context) = 0;
 
-    virtual antlrcpp::Any visitMethodCallArgument(EscriptParser::MethodCallArgumentContext *context) = 0;
+    virtual antlrcpp::Any visitExpressionSuffix(EscriptParser::ExpressionSuffixContext *context) = 0;
 
-    virtual antlrcpp::Any visitMethodCallArgumentList(EscriptParser::MethodCallArgumentListContext *context) = 0;
+    virtual antlrcpp::Any visitIndexingSuffix(EscriptParser::IndexingSuffixContext *context) = 0;
 
-    virtual antlrcpp::Any visitMethodCall(EscriptParser::MethodCallContext *context) = 0;
+    virtual antlrcpp::Any visitNavigationSuffix(EscriptParser::NavigationSuffixContext *context) = 0;
 
-    virtual antlrcpp::Any visitMemberCall(EscriptParser::MemberCallContext *context) = 0;
+    virtual antlrcpp::Any visitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunctionCall(EscriptParser::FunctionCallContext *context) = 0;
 
     virtual antlrcpp::Any visitStructInitializerExpression(EscriptParser::StructInitializerExpressionContext *context) = 0;
 

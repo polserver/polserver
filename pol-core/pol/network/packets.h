@@ -24,7 +24,7 @@
 #include "../../clib/strutil.h"
 #include "../../plib/uconst.h"
 #include "../layers.h"
-#include "../realms.h"
+#include "realms/realms.h"
 #include "packetinterface.h"
 #include "pktboth.h"
 #include "pktbothid.h"
@@ -258,34 +258,6 @@ public:
     passert_always_r( offset + len <= SIZE, "pkt " + Clib::hexint( ID ) );
     memcpy( &buffer[offset], x, len );
     offset += len;
-  };
-  void Write( const u16* x, u16 len, bool nullterm = true )
-  {
-    passert_always_r( offset + len * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
-    std::memcpy( &buffer[offset], x, 2 * len );
-    offset += len * 2;
-    if ( nullterm )
-    {
-      passert_always_r( offset + 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
-      offset += 2;
-    }
-  };
-  void WriteFlipped( const u16* x, u16 len, bool nullterm = true )
-  {
-    passert_always_r( offset + len * 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
-    s32 signedlen = static_cast<s32>( len );
-    while ( signedlen-- > 0 )
-    {
-      u16 tmp = ctBEu16( *x );
-      std::memcpy( &buffer[offset], &tmp, 2 );
-      ++x;
-      offset += 2;
-    }
-    if ( nullterm )
-    {
-      passert_always_r( offset + 2 <= SIZE, "pkt " + Clib::hexint( ID ) );
-      offset += 2;
-    }
   };
   void Write( const std::vector<u16>& x, bool nullterm = true )
   {

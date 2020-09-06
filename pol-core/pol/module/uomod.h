@@ -74,221 +74,231 @@ namespace Module
 class UOExecutorModule : public Bscript::TmplExecutorModule<UOExecutorModule, Core::PolModule>
 {
 public:
-  Bscript::BObjectImp* mf_SendStatus( /* mob */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendStatus( /* mob */ );
 
-  Bscript::BObjectImp* mf_MoveObjectToLocation();
-  Bscript::BObjectImp* mf_SendCharacterRaceChanger( /* Character */ );
-  Bscript::BObjectImp* mf_SendHousingTool();
-  Bscript::BObjectImp* mf_SendOpenBook();
-  Bscript::BObjectImp* mf_SelectColor();
-  Bscript::BObjectImp* mf_AddAmount();
+  [[nodiscard]] Bscript::BObjectImp* mf_MoveObjectToLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendCharacterRaceChanger( /* Character */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendHousingTool();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendOpenBook();
+  [[nodiscard]] Bscript::BObjectImp* mf_SelectColor();
+  [[nodiscard]] Bscript::BObjectImp* mf_AddAmount();
 
-  Bscript::BObjectImp* mf_SendViewContainer();
-  Bscript::BObjectImp* mf_GetObjPropertyNames();
-  Bscript::BObjectImp* mf_CreateItemCopyAtLocation( /* x,y,z,item */ );
-  Bscript::BObjectImp* mf_SendInstaResDialog();
-  Bscript::BObjectImp* mf_FindAccount();
-  Bscript::BObjectImp* mf_ListAccounts();
-  Bscript::BObjectImp* mf_SendStringAsTipWindow();
-  Bscript::BObjectImp* mf_GetCommandHelp();
-  Bscript::BObjectImp* mf_PlaySoundEffectPrivate();
-  Bscript::BObjectImp* mf_ConsumeSubstance();
-  Bscript::BObjectImp* mf_FindSubstance();
-  Bscript::BObjectImp* mf_Shutdown();
-  Bscript::BObjectImp* mf_OpenPaperdoll();
-  Bscript::BObjectImp* mf_SendSkillWindow();
-  Bscript::BObjectImp* mf_ReserveItem();
-  Bscript::BObjectImp* mf_ReleaseItem();
-  Bscript::BObjectImp* mf_GetStandingHeight();
-  Bscript::BObjectImp* mf_GetStandingLayers( /* x, y, flags, realm */ );
-  Bscript::BObjectImp* mf_AssignRectToWeatherRegion();
-  Bscript::BObjectImp* mf_SetRegionWeatherLevel();
-  Bscript::BObjectImp* mf_CreateAccount();
-  Bscript::BObjectImp* mf_SetScriptController();
-  Bscript::BObjectImp* mf_POLCore();
-  Bscript::BObjectImp* mf_GetWorldHeight();
-  Bscript::BObjectImp* mf_StartSpellEffect();
-  Bscript::BObjectImp* mf_GetSpellDifficulty();
-  Bscript::BObjectImp* mf_SpeakPowerWords();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendViewContainer();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetObjPropertyNames();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateItemCopyAtLocation( /* x,y,z,item */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendInstaResDialog();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindAccount();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListAccounts();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendStringAsTipWindow();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetCommandHelp();
+  [[nodiscard]] Bscript::BObjectImp* mf_PlaySoundEffectPrivate();
+  [[nodiscard]] Bscript::BObjectImp* mf_ConsumeSubstance();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindSubstance();
+  [[nodiscard]] Bscript::BObjectImp* mf_Shutdown();
+  [[nodiscard]] Bscript::BObjectImp* mf_OpenPaperdoll();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendSkillWindow();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReserveItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReleaseItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetStandingHeight();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetStandingLayers( /* x, y, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_AssignRectToWeatherRegion();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetRegionWeatherLevel();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateAccount();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetScriptController();
+  [[nodiscard]] Bscript::BObjectImp* mf_POLCore();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetWorldHeight();
+  [[nodiscard]] Bscript::BObjectImp* mf_StartSpellEffect();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetSpellDifficulty();
+  [[nodiscard]] Bscript::BObjectImp* mf_SpeakPowerWords();
 
-  Bscript::BObjectImp* mf_GetMultiDimensions();
-  Bscript::BObjectImp* mf_DestroyMulti();
-  Bscript::BObjectImp* mf_SendTextEntryGump();
-  Bscript::BObjectImp* mf_SendDialogGump();
-  Bscript::BObjectImp* mf_CloseGump();
-  Bscript::BObjectImp* mf_CloseWindow( /* chr, type, who */ );
-  Bscript::BObjectImp* mf_SendEvent();
-  Bscript::BObjectImp* mf_PlayMovingEffectXYZ();
-  Bscript::BObjectImp* mf_GetEquipmentByLayer();
-  Bscript::BObjectImp* mf_GetObjtypeByName();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetMultiDimensions();
+  [[nodiscard]] Bscript::BObjectImp* mf_DestroyMulti();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendTextEntryGump();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendDialogGump();
+  [[nodiscard]] Bscript::BObjectImp* mf_CloseGump();
+  [[nodiscard]] Bscript::BObjectImp* mf_CloseWindow( /* chr, type, who */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendEvent();
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayMovingEffectXYZ();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetEquipmentByLayer();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetObjtypeByName();
 
-  Bscript::BObjectImp* mf_ListHostiles();
-  Bscript::BObjectImp* mf_DisconnectClient();
-  Bscript::BObjectImp* mf_GetRegionName( /* objref */ );
-  Bscript::BObjectImp* mf_GetRegionNameAtLocation( /* x, y, realm */ );
-  Bscript::BObjectImp* mf_GetRegionString();
-  Bscript::BObjectImp* mf_GetRegionLightLevelAtLocation( /* x, y, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListHostiles();
+  [[nodiscard]] Bscript::BObjectImp* mf_DisconnectClient();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetRegionName( /* objref */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetRegionNameAtLocation( /* x, y, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetRegionString();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetRegionLightLevelAtLocation( /* x, y, realm */ );
 
-  Bscript::BObjectImp* mf_PlayStationaryEffect();
-  Bscript::BObjectImp* mf_GetMapInfo();
-  Bscript::BObjectImp* mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
-  Bscript::BObjectImp* mf_ListItemsInBoxOfObjType( /* objtype, x1, y1, z1, x2, y2, z2, realm */ );
-  Bscript::BObjectImp* mf_ListObjectsInBoxOfClass( /* POL_Class, x1, y1, z1, x2, y2, z2, realm */ );
-  Bscript::BObjectImp* mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
-  Bscript::BObjectImp* mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
-  Bscript::BObjectImp* mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, flags, realm */ );
-  Bscript::BObjectImp* mf_ListEquippedItems();
-  Bscript::BObjectImp* mf_ConsumeReagents();
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayStationaryEffect();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetMapInfo();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListItemsInBoxOfObjType(
+      /* objtype, x1, y1, z1, x2, y2, z2, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListObjectsInBoxOfClass(
+      /* POL_Class, x1, y1, z1, x2, y2, z2, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsInBox(
+      /* x1, y1, z1, x2, y2, z2, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListEquippedItems();
+  [[nodiscard]] Bscript::BObjectImp* mf_ConsumeReagents();
 
-  Bscript::BObjectImp* mf_SendPacket();
-  Bscript::BObjectImp* mf_SendQuestArrow();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendPacket();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendQuestArrow();
 
-  Bscript::BObjectImp* mf_RequestInput();
+  [[nodiscard]] Bscript::BObjectImp* mf_RequestInput();
 
-  Bscript::BObjectImp* mf_ReadGameClock();
+  [[nodiscard]] Bscript::BObjectImp* mf_ReadGameClock();
 
-  Bscript::BObjectImp* mf_GrantPrivilege();
-  Bscript::BObjectImp* mf_RevokePrivilege();
+  [[nodiscard]] Bscript::BObjectImp* mf_GrantPrivilege();
+  [[nodiscard]] Bscript::BObjectImp* mf_RevokePrivilege();
 
-  Bscript::BObjectImp* mf_EquipFromTemplate();
+  [[nodiscard]] Bscript::BObjectImp* mf_EquipFromTemplate();
 
-  Bscript::BObjectImp* mf_GetHarvestDifficulty();
-  Bscript::BObjectImp* mf_HarvestResource();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetHarvestDifficulty();
+  [[nodiscard]] Bscript::BObjectImp* mf_HarvestResource();
 
-  Bscript::BObjectImp* mf_RestartScript();
-  Bscript::BObjectImp* mf_EnableEvents();
-  Bscript::BObjectImp* mf_DisableEvents();
-  Bscript::BObjectImp* mf_EquipItem();
-  Bscript::BObjectImp* mf_MoveItemToContainer();
-  Bscript::BObjectImp* mf_MoveItemToSecureTradeWin( /* item, character */ );
-  Bscript::BObjectImp* mf_FindObjtypeInContainer();
-  Bscript::BObjectImp* mf_SendOpenSpecialContainer();
-  Bscript::BObjectImp* mf_SecureTradeWin( /* who, who2 */ );
-  Bscript::BObjectImp* mf_CloseTradeWindow();
+  [[nodiscard]] Bscript::BObjectImp* mf_RestartScript();
+  [[nodiscard]] Bscript::BObjectImp* mf_EnableEvents();
+  [[nodiscard]] Bscript::BObjectImp* mf_DisableEvents();
+  [[nodiscard]] Bscript::BObjectImp* mf_EquipItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_MoveItemToContainer();
+  [[nodiscard]] Bscript::BObjectImp* mf_MoveItemToSecureTradeWin( /* item, character */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_FindObjtypeInContainer();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendOpenSpecialContainer();
+  [[nodiscard]] Bscript::BObjectImp* mf_SecureTradeWin( /* who, who2 */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_CloseTradeWindow();
 
 
-  Bscript::BObjectImp* mf_SendBuyWindow( /* character, container, vendor, items, flags */ );
-  Bscript::BObjectImp* mf_SendSellWindow( /* character, vendor, i1, i2, i3, flags */ );
-  Bscript::BObjectImp* mf_ListMobilesNearLocationEx( /* x, y, z, range, flags, realm */ );
-  Bscript::BObjectImp* mf_CreateItemInContainer();
-  Bscript::BObjectImp* mf_CreateItemInInventory();
-  Bscript::BObjectImp* mf_SystemFindObjectBySerial();
-  Bscript::BObjectImp* mf_ListItemsNearLocationOfType();
-  Bscript::BObjectImp* mf_ListGhostsNearLocation();
-  Bscript::BObjectImp* mf_ListMobilesInLineOfSight();
-  Bscript::BObjectImp* mf_Distance();
-  Bscript::BObjectImp* mf_DistanceEuclidean();
-  Bscript::BObjectImp* mf_CoordinateDistance();
-  Bscript::BObjectImp* mf_CoordinateDistanceEuclidean();
-  Bscript::BObjectImp* mf_GetCoordsInLine();
-  Bscript::BObjectImp* mf_GetFacing();
-  Bscript::BObjectImp* mf_SetRegionLightLevel();
-  Bscript::BObjectImp* mf_EraseObjProperty();
-  Bscript::BObjectImp* mf_GetGlobalProperty();
-  Bscript::BObjectImp* mf_SetGlobalProperty();
-  Bscript::BObjectImp* mf_EraseGlobalProperty();
-  Bscript::BObjectImp* mf_GetGlobalPropertyNames();
-  Bscript::BObjectImp* mf_SaveWorldState();
-  Bscript::BObjectImp* mf_CreateMultiAtLocation();
-  Bscript::BObjectImp* mf_TargetMultiPlacement();
+  [[nodiscard]] Bscript::BObjectImp* mf_SendBuyWindow(
+      /* character, container, vendor, items, flags */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendSellWindow(
+      /* character, vendor, i1, i2, i3, flags */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListMobilesNearLocationEx(
+      /* x, y, z, range, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateItemInContainer();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateItemInInventory();
+  [[nodiscard]] Bscript::BObjectImp* mf_SystemFindObjectBySerial();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListItemsNearLocationOfType();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListGhostsNearLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListMobilesInLineOfSight();
+  [[nodiscard]] Bscript::BObjectImp* mf_Distance();
+  [[nodiscard]] Bscript::BObjectImp* mf_DistanceEuclidean();
+  [[nodiscard]] Bscript::BObjectImp* mf_CoordinateDistance();
+  [[nodiscard]] Bscript::BObjectImp* mf_CoordinateDistanceEuclidean();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetCoordsInLine();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetFacing();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetRegionLightLevel();
+  [[nodiscard]] Bscript::BObjectImp* mf_EraseObjProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetGlobalProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetGlobalProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_EraseGlobalProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetGlobalPropertyNames();
+  [[nodiscard]] Bscript::BObjectImp* mf_SaveWorldState();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateMultiAtLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_TargetMultiPlacement();
 
-  Bscript::BObjectImp* mf_Resurrect();
-  Bscript::BObjectImp* mf_CreateNpcFromTemplate();
-  Bscript::BObjectImp* mf_RegisterForSpeechEvents();
-  Bscript::BObjectImp* mf_EnumerateOnlineCharacters();
-  Bscript::BObjectImp* mf_PrintTextAbove();
-  Bscript::BObjectImp* mf_PrintTextAbovePrivate();
+  [[nodiscard]] Bscript::BObjectImp* mf_Resurrect();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateNpcFromTemplate();
+  [[nodiscard]] Bscript::BObjectImp* mf_RegisterForSpeechEvents();
+  [[nodiscard]] Bscript::BObjectImp* mf_EnumerateOnlineCharacters();
+  [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAbove();
+  [[nodiscard]] Bscript::BObjectImp* mf_PrintTextAbovePrivate();
 
-  Bscript::BObjectImp* mf_Attach( /* Character */ );
-  Bscript::BObjectImp* mf_Detach();
+  [[nodiscard]] Bscript::BObjectImp* mf_Attach( /* Character */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_Detach();
 
-  Bscript::BObjectImp* mf_Broadcast();
+  [[nodiscard]] Bscript::BObjectImp* mf_Broadcast();
 
   Bscript::BObjectImp* send_open_special_container();
   Bscript::BObjectImp* create_item_in_container();
   Bscript::BObjectImp* find_objtype_in_container();
 
-  Bscript::BObjectImp* mf_Accessible();       // Character, Item
-  Bscript::BObjectImp* mf_ApplyConstraint();  // ObjArray, ConfigFile, propname, minvalue
+  [[nodiscard]] Bscript::BObjectImp* mf_Accessible();  // Character, Item
+  [[nodiscard]] Bscript::BObjectImp*
+  mf_ApplyConstraint();  // ObjArray, ConfigFile, propname, minvalue
 
-  Bscript::BObjectImp* mf_CheckLineOfSight();  // Character, Object
-  Bscript::BObjectImp* mf_CheckLosAt();
-  Bscript::BObjectImp* mf_CreateItemInBackpack();  // Character, ObjectType, Amount
+  [[nodiscard]] Bscript::BObjectImp* mf_CheckLineOfSight();  // Character, Object
+  [[nodiscard]] Bscript::BObjectImp* mf_CheckLosAt();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateItemInBackpack();  // Character, ObjectType, Amount
 
-  Bscript::BObjectImp* mf_CreateItemAtLocation( /* x,y,z,objtype,amount */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateItemAtLocation( /* x,y,z,objtype,amount */ );
 
-  Bscript::BObjectImp* mf_DestroyItem();
-  Bscript::BObjectImp* mf_FindPath();         // x1, y1, z1, x2, y2, z2
-  Bscript::BObjectImp* mf_GetAmount();        // Item
-  Bscript::BObjectImp* mf_GetMenuObjTypes();  // MenuName
-  Bscript::BObjectImp* mf_GetObjProperty();
-  Bscript::BObjectImp* mf_GetObjType();  // Item
-  Bscript::BObjectImp* mf_GetPosition();
-  Bscript::BObjectImp* mf_GetStats();
-  Bscript::BObjectImp* mf_GetStatus();
+  [[nodiscard]] Bscript::BObjectImp* mf_DestroyItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_FindPath();         // x1, y1, z1, x2, y2, z2
+  [[nodiscard]] Bscript::BObjectImp* mf_GetAmount();        // Item
+  [[nodiscard]] Bscript::BObjectImp* mf_GetMenuObjTypes();  // MenuName
+  [[nodiscard]] Bscript::BObjectImp* mf_GetObjProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetObjType();  // Item
+  [[nodiscard]] Bscript::BObjectImp* mf_GetPosition();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetStats();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetStatus();
 
-  Bscript::BObjectImp* mf_ListItemsAtLocation();  // x,y,z
-  Bscript::BObjectImp* mf_ListMobilesNearLocation( /* x, y, z, range, realm */ );
-  Bscript::BObjectImp* mf_ListItemsNearLocationWithFlag();  // DAVE - flag is a tiledata.mul flag
-  Bscript::BObjectImp* mf_ListStaticsAtLocation( /* x, y, flags, realm */ );
-  Bscript::BObjectImp* mf_ListStaticsNearLocation( /* x, y, range, flags, realm */ );
-  Bscript::BObjectImp* mf_ListOfflineMobilesInRealm( /*realm*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListItemsAtLocation();  // x,y,z
+  [[nodiscard]] Bscript::BObjectImp* mf_ListMobilesNearLocation( /* x, y, z, range, realm */ );
+  [[nodiscard]] Bscript::BObjectImp*
+  mf_ListItemsNearLocationWithFlag();  // DAVE - flag is a tiledata.mul flag
+  [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsAtLocation( /* x, y, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsNearLocation( /* x, y, range, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListOfflineMobilesInRealm( /*realm*/ );
 
-  Bscript::BObjectImp* mf_PerformAction();  // character, action
-  Bscript::BObjectImp* mf_PlayAnimation();
-  Bscript::BObjectImp* mf_PlayLightningBoltEffect();  // center
-  Bscript::BObjectImp* mf_PlayMovingEffect();         // src dst effect speed loop explode
-  Bscript::BObjectImp* mf_PlayObjectCenteredEffect();
-  Bscript::BObjectImp* mf_PlaySoundEffect();
-  Bscript::BObjectImp* mf_Range();  // Object, Object
-  Bscript::BObjectImp* mf_SetName();
-  Bscript::BObjectImp* mf_SetObjProperty();
+  [[nodiscard]] Bscript::BObjectImp* mf_PerformAction();  // character, action
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayAnimation();
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayLightningBoltEffect();  // center
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayMovingEffect();  // src dst effect speed loop explode
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayObjectCenteredEffect();
+  [[nodiscard]] Bscript::BObjectImp* mf_PlaySoundEffect();
+  [[nodiscard]] Bscript::BObjectImp* mf_Range();  // Object, Object
+  [[nodiscard]] Bscript::BObjectImp* mf_SetName();
+  [[nodiscard]] Bscript::BObjectImp* mf_SetObjProperty();
 
-  Bscript::BObjectImp* mf_SelectMenuItem2();  // character, menuname
-  Bscript::BObjectImp* mf_SendSysMessage();   // Character, Text
-  Bscript::BObjectImp* mf_SubtractAmount();   // Item, Amount
-  Bscript::BObjectImp* mf_Target();           // Character to choose
-  Bscript::BObjectImp* mf_CancelTarget();     // Character to cancel for
+  [[nodiscard]] Bscript::BObjectImp* mf_SelectMenuItem2();  // character, menuname
+  [[nodiscard]] Bscript::BObjectImp* mf_SendSysMessage();   // Character, Text
+  [[nodiscard]] Bscript::BObjectImp* mf_SubtractAmount();   // Item, Amount
+  [[nodiscard]] Bscript::BObjectImp* mf_Target();           // Character to choose
+  [[nodiscard]] Bscript::BObjectImp* mf_CancelTarget();     // Character to cancel for
 
-  Bscript::BObjectImp* mf_ListItemsNearLocation();
-  Bscript::BObjectImp* mf_EnumerateItemsInContainer();
-  Bscript::BObjectImp* mf_TargetCoordinates();
+  [[nodiscard]] Bscript::BObjectImp* mf_ListItemsNearLocation();
+  [[nodiscard]] Bscript::BObjectImp* mf_EnumerateItemsInContainer();
+  [[nodiscard]] Bscript::BObjectImp* mf_TargetCoordinates();
 
-  Bscript::BObjectImp* mf_CreateMenu();
-  Bscript::BObjectImp* mf_AddMenuItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_CreateMenu();
+  [[nodiscard]] Bscript::BObjectImp* mf_AddMenuItem();
 
-  Bscript::BObjectImp* mf_UseItem();
+  [[nodiscard]] Bscript::BObjectImp* mf_UseItem();
 
-  Bscript::BObjectImp* mf_IsStackable();  // item1, item2
+  [[nodiscard]] Bscript::BObjectImp* mf_IsStackable();  // item1, item2
 
-  Bscript::BObjectImp* mf_PlayMovingEffectEx(
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayMovingEffectEx(
       /*src,dst,effect,speed,duration,hue,render,direction,explode,effect3d*/ );
-  Bscript::BObjectImp* mf_PlayMovingEffectXYZEx(
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayMovingEffectXYZEx(
       /*sx,sy,sz,dx,dy,dz,realm,effect,speed,duration,hue,render,direction,explode,effect3d*/ );
-  Bscript::BObjectImp* mf_PlayObjectCenteredEffectEx(
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayObjectCenteredEffectEx(
       /*src,effect,speed,duration,hue,render,layer,explode,effect3d*/ );
-  Bscript::BObjectImp* mf_PlayStationaryEffectEx(
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayStationaryEffectEx(
       /*x,y,z,realm,effect,speed,duration,hue,render,layer,explode,effect3d*/ );
 
-  Bscript::BObjectImp* mf_UpdateMobile( /*mob*/ );
-  Bscript::BObjectImp* mf_UpdateItem( /*item*/ );
-  Bscript::BObjectImp* mf_CheckLosBetween( /*x1,y1,z1,x2,y2,z2,realm*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_UpdateMobile( /*mob*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_UpdateItem( /*item*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_CheckLosBetween( /*x1,y1,z1,x2,y2,z2,realm*/ );
 
-  Bscript::BObjectImp* mf_PlaySoundEffectXYZ( /*x,y,z,effect,realm*/ );
-  Bscript::BObjectImp* mf_PlayMusic( /*char, musicid*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_PlaySoundEffectXYZ( /*x,y,z,effect,realm*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_PlayMusic( /*char, musicid*/ );
 
-  Bscript::BObjectImp* mf_CanWalk( /*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/ );
-  Bscript::BObjectImp* mf_SendCharProfile(
+  [[nodiscard]] Bscript::BObjectImp* mf_CanWalk(
+      /*movemode, x1, y1, z1, x2_or_dir, y2 := -1, realm := DEF*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendCharProfile(
       /*chr, of_who, title, uneditable_text := array, editable_text := array*/ );
-  Bscript::BObjectImp* mf_SendOverallSeason( /*season_id, playsound := 1*/ );
-  Bscript::BObjectImp* mf_GetMidpointCircleCoords( /* xcenter, ycenter, radius */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendOverallSeason( /*season_id, playsound := 1*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetMidpointCircleCoords( /* xcenter, ycenter, radius */ );
 
-  Bscript::BObjectImp* mf_SendPopUpMenu( /* to_whom, above, menu */ );
-  Bscript::BObjectImp* mf_SingleClick( /*who, what*/ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SendPopUpMenu( /* to_whom, above, menu */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_SingleClick( /*who, what*/ );
 
-  Bscript::BObjectImp* mf_ListStaticsNearLocationOfType(
+  [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsNearLocationOfType(
       /* x, y, z, range, objtype, flags, realm */ );
-  Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag( /* x, y, z, range, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag(
+      /* x, y, z, range, flags, realm */ );
 
   /* If we're asking a character for a target, who is it?
      that character's target_cursor_ex points to us,

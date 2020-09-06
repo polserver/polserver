@@ -1,8 +1,8 @@
 # windows only: build stackwalker
 
 set(stackwalk_sources 
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/StackWalker/StackWalker.cpp
-  ${CMAKE_CURRENT_LIST_DIR}/../lib/StackWalker/StackWalker.h
+  ${POL_EXT_LIB_DIR}/StackWalker/StackWalker.cpp
+  ${POL_EXT_LIB_DIR}/StackWalker/StackWalker.h
 )
 set(lib_name stackwalk)
 

@@ -12,7 +12,7 @@
 #include "../baseobject.h"
 #include "../gameclck.h"
 #include "../globals/state.h"
-#include "../resource.h"
+#include "regions/resource.h"
 #include "../uobjcnt.h"
 #include "../uobject.h"
 #include "item.h"
