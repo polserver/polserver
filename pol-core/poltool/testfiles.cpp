@@ -68,7 +68,41 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   addland( &land[0x3], 0x04000000, "grass" );
   addland( &land[0xa8], 0x000000c0, "water" );
   additem( &item[0xe75], 0x00600002, 3, 21, 1, "backpack" );
-  additem( &item[0xf3f], 0x04000800, 0, 0, 1, "arrow");
+  additem( &item[0xf3f], 0x04000800, 0, 0, 1, "arrow" );
+  // house 0x6b
+  additem( &item[0x6], 0x00002050, 255, 0, 20, "wooden wall" );
+  additem( &item[0x7], 0x00002050, 255, 0, 20, "wooden wall" );
+  additem( &item[0x8], 0x00002050, 255, 0, 20, "wooden wall" );
+  additem( &item[0x9], 0x00002050, 255, 0, 20, "wooden post" );
+  additem( &item[0xa], 0x00002050, 255, 0, 20, "wooden wall" );
+  additem( &item[0xc], 0x04002050, 255, 0, 20, "wooden wall" );
+  additem( &item[0xf], 0x00801050, 255, 40, 20, "window" );
+  additem( &item[0x18], 0x04002050, 255, 0, 3, "wooden wall" );
+  additem( &item[0x63], 0x00002050, 255, 0, 5, "stone wall" );
+  additem( &item[0x64], 0x00002050, 255, 0, 5, "stone wall" );
+  additem( &item[0x65], 0x00002050, 255, 0, 5, "stone wall Shirt2_M" );
+  additem( &item[0x66], 0x04002050, 255, 0, 5, "stone wall n booksh" );
+  additem( &item[0x4a9], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4aa], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4ab], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4ac], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4ad], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4ae], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4af], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4b0], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4b1], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4b2], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4b3], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x4b4], 0x00002201, 255, 0, 0, "wooden boards" );
+  additem( &item[0x5c2], 0x10002000, 255, 0, 3, "wooden shingle" );
+  additem( &item[0x5c3], 0x14002000, 255, 0, 3, "wooden shingles" );
+  additem( &item[0x5c4], 0x14002000, 255, 0, 3, "wooden shingles" );
+  additem( &item[0x6a5], 0x20002050, 255, 0, 20, "wooden door" );
+  additem( &item[0x751], 0x00002600, 255, 0, 5, "stone stairs" );
+  additem( &item[0x756], 0x00002600, 255, 0, 5, "stone stairs" );
+  additem( &item[0x758], 0x00002600, 255, 0, 5, "stone stairs" );
+  additem( &item[0xb98], 0x00000004, 255, 0, 0, "wooden signpost" );
+  additem( &item[0xbd2], 0x00000004, 255, 0, 0, "brass sign" );
   // first boat
   additem( &item[0x3e3f], 0x00000040, 255, 0, 3, "ship" );
   additem( &item[0x3e41], 0x00000040, 255, 0, 3, "ship" );
@@ -306,65 +340,118 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
     e.flags = flags;
     return e;
   };
-  multis.resize( 0x18, std::vector<T>() );
+  multis.resize( 0x3fff, std::vector<T>() );
   // first boat
   multis[0x0] = std::vector<T>{
-      elem( 0x3edd, 0, 0, 0, 0 ),   elem( 0x3e4e, 1, 4, 0, 1 ),   elem( 0x3eae, 0, -4, 0, 1 ),
-      elem( 0x3eb2, 2, 0, 0, 1 ),   elem( 0x3eb1, -2, 0, 0, 1 ),  elem( 0x3eac, 0, -2, 0, 0 ),
-      elem( 0x3e9e, 1, -3, 0, 0 ),  elem( 0x3ead, 0, -3, 0, 0 ),  elem( 0x3e9d, -1, -3, 0, 0 ),
-      elem( 0x3eac, 1, -1, 0, 0 ),  elem( 0x3ea1, -1, -1, 0, 0 ), elem( 0x3ea0, 1, -2, 0, 0 ),
-      elem( 0x3e9f, -1, -2, 0, 0 ), elem( 0x3eac, 0, -1, 0, 0 ),  elem( 0x3ea1, -1, 0, 0, 0 ),
-      elem( 0x3eac, 1, 0, 0, 0 ),   elem( 0x3e9c, 1, -4, 0, 0 ),  elem( 0x3e9b, -1, -4, 0, 0 ),
-      elem( 0x3ee4, 2, -1, 0, 0 ),  elem( 0x3eb1, -2, -1, 0, 0 ), elem( 0x3e9a, 0, -5, 0, 0 ),
-      elem( 0x3ede, 2, 0, 0, 0 ),   elem( 0x3edc, -1, 1, 0, 0 ),  elem( 0x3ea1, -1, 1, 0, 0 ),
-      elem( 0x3eac, 0, 1, 0, 0 ),   elem( 0x3eac, 1, 1, 0, 0 ),   elem( 0x3ea5, -1, 2, 0, 0 ),
-      elem( 0x3eac, 0, 2, 0, 0 ),   elem( 0x3ea6, 1, 2, 0, 0 ),   elem( 0x3eb2, 2, 1, 0, 0 ),
-      elem( 0x3eb1, -2, 1, 0, 0 ),  elem( 0x3ece, -2, 2, 0, 0 ),  elem( 0x3ea7, -1, 3, 0, 0 ),
-      elem( 0x3eac, 0, 3, 0, 0 ),   elem( 0x3ea8, 1, 3, 0, 0 ),   elem( 0x3eb6, -1, 4, 0, 0 ),
-      elem( 0x3eaa, 0, 4, 0, 0 ),   elem( 0x3ebc, 0, 5, 0, 0 )};
+      elem( 0x3edd, 0, 0, 0, 1 ),   elem( 0x3e4e, 1, 4, 0, 0 ),   elem( 0x3eae, 0, -4, 0, 0 ),
+      elem( 0x3eb2, 2, 0, 0, 0 ),   elem( 0x3eb1, -2, 0, 0, 0 ),  elem( 0x3eac, 0, -2, 0, 1 ),
+      elem( 0x3e9e, 1, -3, 0, 1 ),  elem( 0x3ead, 0, -3, 0, 1 ),  elem( 0x3e9d, -1, -3, 0, 1 ),
+      elem( 0x3eac, 1, -1, 0, 1 ),  elem( 0x3ea1, -1, -1, 0, 1 ), elem( 0x3ea0, 1, -2, 0, 1 ),
+      elem( 0x3e9f, -1, -2, 0, 1 ), elem( 0x3eac, 0, -1, 0, 1 ),  elem( 0x3ea1, -1, 0, 0, 1 ),
+      elem( 0x3eac, 1, 0, 0, 1 ),   elem( 0x3e9c, 1, -4, 0, 1 ),  elem( 0x3e9b, -1, -4, 0, 1 ),
+      elem( 0x3ee4, 2, -1, 0, 1 ),  elem( 0x3eb1, -2, -1, 0, 1 ), elem( 0x3e9a, 0, -5, 0, 1 ),
+      elem( 0x3ede, 2, 0, 0, 1 ),   elem( 0x3edc, -1, 1, 0, 1 ),  elem( 0x3ea1, -1, 1, 0, 1 ),
+      elem( 0x3eac, 0, 1, 0, 1 ),   elem( 0x3eac, 1, 1, 0, 1 ),   elem( 0x3ea5, -1, 2, 0, 1 ),
+      elem( 0x3eac, 0, 2, 0, 1 ),   elem( 0x3ea6, 1, 2, 0, 1 ),   elem( 0x3eb2, 2, 1, 0, 1 ),
+      elem( 0x3eb1, -2, 1, 0, 1 ),  elem( 0x3ece, -2, 2, 0, 1 ),  elem( 0x3ea7, -1, 3, 0, 1 ),
+      elem( 0x3eac, 0, 3, 0, 1 ),   elem( 0x3ea8, 1, 3, 0, 1 ),   elem( 0x3eb6, -1, 4, 0, 1 ),
+      elem( 0x3eaa, 0, 4, 0, 1 ),   elem( 0x3ebc, 0, 5, 0, 1 ),
+  };
   multis[0x1] = std::vector<T>{
-      elem( 0x3e5a, 0, 0, 0, 0 ),   elem( 0x3e55, -4, 0, 0, 1 ),  elem( 0x3e65, 4, 0, 0, 1 ),
-      elem( 0x3e85, 0, 2, 0, 1 ),   elem( 0x3e8a, 0, -2, 0, 1 ),  elem( 0x3e88, 0, -1, 0, 0 ),
-      elem( 0x3e8b, 1, 1, 0, 0 ),   elem( 0x3e8b, -1, 1, 0, 0 ),  elem( 0x3e8b, 0, 1, 0, 0 ),
-      elem( 0x3e8b, 1, 0, 0, 0 ),   elem( 0x3e5b, 1, -1, 0, 0 ),  elem( 0x3e88, 1, -1, 0, 0 ),
-      elem( 0x3e8b, -1, 0, 0, 0 ),  elem( 0x3e88, -1, -1, 0, 0 ), elem( 0x3e8a, -1, -2, 0, 0 ),
-      elem( 0x3e8b, -2, 0, 0, 0 ),  elem( 0x3e8d, -2, -1, 0, 0 ), elem( 0x3e59, 0, 2, 0, 0 ),
-      elem( 0x3e3f, -1, 2, 0, 0 ),  elem( 0x3e7e, 2, 1, 0, 0 ),   elem( 0x3e8a, 1, -2, 0, 0 ),
-      elem( 0x3e7f, 2, -1, 0, 0 ),  elem( 0x3e8b, 2, 0, 0, 0 ),   elem( 0x3e85, 1, 2, 0, 0 ),
-      elem( 0x3e8c, -2, 1, 0, 0 ),  elem( 0x3e8b, 3, 0, 0, 0 ),   elem( 0x3e7d, 3, -1, 0, 0 ),
-      elem( 0x3e90, -3, -1, 0, 0 ), elem( 0x3e8f, -3, 0, 0, 0 ),  elem( 0x3e5c, 2, -2, 0, 0 ),
-      elem( 0x3e7c, 3, 1, 0, 0 ),   elem( 0x3e8e, -3, 1, 0, 0 ),  elem( 0x3e66, 4, 1, 0, 0 ),
-      elem( 0x3e67, 4, -1, 0, 0 ),  elem( 0x3e91, -4, 1, 0, 0 ),  elem( 0x3e94, -4, -1, 0, 0 ),
-      elem( 0x3e63, -5, 0, 0, 0 ),  elem( 0x3e69, 5, 0, 0, 0 )};
+      elem( 0x3e5a, 0, 0, 0, 1 ),   elem( 0x3e55, -4, 0, 0, 0 ),  elem( 0x3e65, 4, 0, 0, 0 ),
+      elem( 0x3e85, 0, 2, 0, 0 ),   elem( 0x3e8a, 0, -2, 0, 0 ),  elem( 0x3e88, 0, -1, 0, 1 ),
+      elem( 0x3e8b, 1, 1, 0, 1 ),   elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),
+      elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e5b, 1, -1, 0, 1 ),  elem( 0x3e88, 1, -1, 0, 1 ),
+      elem( 0x3e8b, -1, 0, 0, 1 ),  elem( 0x3e88, -1, -1, 0, 1 ), elem( 0x3e8a, -1, -2, 0, 1 ),
+      elem( 0x3e8b, -2, 0, 0, 1 ),  elem( 0x3e8d, -2, -1, 0, 1 ), elem( 0x3e59, 0, 2, 0, 1 ),
+      elem( 0x3e3f, -1, 2, 0, 1 ),  elem( 0x3e7e, 2, 1, 0, 1 ),   elem( 0x3e8a, 1, -2, 0, 1 ),
+      elem( 0x3e7f, 2, -1, 0, 1 ),  elem( 0x3e8b, 2, 0, 0, 1 ),   elem( 0x3e85, 1, 2, 0, 1 ),
+      elem( 0x3e8c, -2, 1, 0, 1 ),  elem( 0x3e8b, 3, 0, 0, 1 ),   elem( 0x3e7d, 3, -1, 0, 1 ),
+      elem( 0x3e90, -3, -1, 0, 1 ), elem( 0x3e8f, -3, 0, 0, 1 ),  elem( 0x3e5c, 2, -2, 0, 1 ),
+      elem( 0x3e7c, 3, 1, 0, 1 ),   elem( 0x3e8e, -3, 1, 0, 1 ),  elem( 0x3e66, 4, 1, 0, 1 ),
+      elem( 0x3e67, 4, -1, 0, 1 ),  elem( 0x3e91, -4, 1, 0, 1 ),  elem( 0x3e94, -4, -1, 0, 1 ),
+      elem( 0x3e63, -5, 0, 0, 1 ),  elem( 0x3e69, 5, 0, 0, 1 ),
+  };
   multis[0x2] = std::vector<T>{
-      elem( 0x3ee2, 0, 0, 0, 0 ),   elem( 0x3e4b, 0, -4, 0, 1 ),  elem( 0x3eb9, 0, 4, 0, 1 ),
-      elem( 0x3eb1, -2, 0, 0, 1 ),  elem( 0x3eb2, 2, 0, 0, 1 ),   elem( 0x3eac, 1, 0, 0, 0 ),
-      elem( 0x3eac, 1, -1, 0, 0 ),  elem( 0x3eac, 1, 1, 0, 0 ),   elem( 0x3eac, 0, 1, 0, 0 ),
-      elem( 0x3eac, 0, -1, 0, 0 ),  elem( 0x3ee1, -1, 1, 0, 0 ),  elem( 0x3ea1, -1, -1, 0, 0 ),
-      elem( 0x3ea1, -1, 0, 0, 0 ),  elem( 0x3ea1, -1, 1, 0, 0 ),  elem( 0x3eb1, -2, 1, 0, 0 ),
-      elem( 0x3eb1, -2, -1, 0, 0 ), elem( 0x3ea0, 1, -2, 0, 0 ),  elem( 0x3e9f, -1, -2, 0, 0 ),
-      elem( 0x3eac, 0, -2, 0, 0 ),  elem( 0x3ee3, 2, 0, 0, 0 ),   elem( 0x3ee6, 2, -1, 0, 0 ),
-      elem( 0x3eb2, 2, 1, 0, 0 ),   elem( 0x3ea6, 1, 2, 0, 0 ),   elem( 0x3eac, 0, 2, 0, 0 ),
-      elem( 0x3ea5, -1, 2, 0, 0 ),  elem( 0x3ead, 0, -3, 0, 0 ),  elem( 0x3e9d, -1, -3, 0, 0 ),
-      elem( 0x3e9e, 1, -3, 0, 0 ),  elem( 0x3ee0, -2, 2, 0, 0 ),  elem( 0x3ea8, 1, 3, 0, 0 ),
-      elem( 0x3ea7, -1, 3, 0, 0 ),  elem( 0x3eac, 0, 3, 0, 0 ),   elem( 0x3eb6, -1, 4, 0, 0 ),
-      elem( 0x3eb5, 1, 4, 0, 0 ),   elem( 0x3e9b, -1, -4, 0, 0 ), elem( 0x3e9c, 1, -4, 0, 0 ),
-      elem( 0x3eb4, 0, 5, 0, 0 ),   elem( 0x3ec4, 0, -5, 0, 0 )};
+      elem( 0x3ee2, 0, 0, 0, 1 ),   elem( 0x3e4b, 0, -4, 0, 0 ),  elem( 0x3eb9, 0, 4, 0, 0 ),
+      elem( 0x3eb1, -2, 0, 0, 0 ),  elem( 0x3eb2, 2, 0, 0, 0 ),   elem( 0x3eac, 1, 0, 0, 1 ),
+      elem( 0x3eac, 1, -1, 0, 1 ),  elem( 0x3eac, 1, 1, 0, 1 ),   elem( 0x3eac, 0, 1, 0, 1 ),
+      elem( 0x3eac, 0, -1, 0, 1 ),  elem( 0x3ee1, -1, 1, 0, 1 ),  elem( 0x3ea1, -1, -1, 0, 1 ),
+      elem( 0x3ea1, -1, 0, 0, 1 ),  elem( 0x3ea1, -1, 1, 0, 1 ),  elem( 0x3eb1, -2, 1, 0, 1 ),
+      elem( 0x3eb1, -2, -1, 0, 1 ), elem( 0x3ea0, 1, -2, 0, 1 ),  elem( 0x3e9f, -1, -2, 0, 1 ),
+      elem( 0x3eac, 0, -2, 0, 1 ),  elem( 0x3ee3, 2, 0, 0, 1 ),   elem( 0x3ee6, 2, -1, 0, 1 ),
+      elem( 0x3eb2, 2, 1, 0, 1 ),   elem( 0x3ea6, 1, 2, 0, 1 ),   elem( 0x3eac, 0, 2, 0, 1 ),
+      elem( 0x3ea5, -1, 2, 0, 1 ),  elem( 0x3ead, 0, -3, 0, 1 ),  elem( 0x3e9d, -1, -3, 0, 1 ),
+      elem( 0x3e9e, 1, -3, 0, 1 ),  elem( 0x3ee0, -2, 2, 0, 1 ),  elem( 0x3ea8, 1, 3, 0, 1 ),
+      elem( 0x3ea7, -1, 3, 0, 1 ),  elem( 0x3eac, 0, 3, 0, 1 ),   elem( 0x3eb6, -1, 4, 0, 1 ),
+      elem( 0x3eb5, 1, 4, 0, 1 ),   elem( 0x3e9b, -1, -4, 0, 1 ), elem( 0x3e9c, 1, -4, 0, 1 ),
+      elem( 0x3eb4, 0, 5, 0, 1 ),   elem( 0x3ec4, 0, -5, 0, 1 ),
+  };
   multis[0x3] = std::vector<T>{
-      elem( 0x3e6c, 0, 0, 0, 0 ),   elem( 0x3e50, 4, 0, 0, 1 ),   elem( 0x3e93, -4, 0, 0, 1 ),
-      elem( 0x3e8a, 0, -2, 0, 1 ),  elem( 0x3e85, 0, 2, 0, 1 ),   elem( 0x3e8b, 1, 1, 0, 0 ),
-      elem( 0x3e8b, -1, 1, 0, 0 ),  elem( 0x3e8b, -1, 0, 0, 0 ),  elem( 0x3e88, -1, -1, 0, 0 ),
-      elem( 0x3e6d, 1, -1, 0, 0 ),  elem( 0x3e8b, 0, 1, 0, 0 ),   elem( 0x3e88, 1, -1, 0, 0 ),
-      elem( 0x3e88, 0, -1, 0, 0 ),  elem( 0x3e8b, 1, 0, 0, 0 ),   elem( 0x3e8b, 2, 0, 0, 0 ),
-      elem( 0x3e7e, 2, 1, 0, 0 ),   elem( 0x3e85, 1, 2, 0, 0 ),   elem( 0x3e8a, 1, -2, 0, 0 ),
-      elem( 0x3e8a, -1, -2, 0, 0 ), elem( 0x3e8c, -2, 1, 0, 0 ),  elem( 0x3e8b, -2, 0, 0, 0 ),
-      elem( 0x3e8d, -2, -1, 0, 0 ), elem( 0x3e6b, 0, 2, 0, 0 ),   elem( 0x3e41, -1, 2, 0, 0 ),
-      elem( 0x3e7f, 2, -1, 0, 0 ),  elem( 0x3e7d, 3, -1, 0, 0 ),  elem( 0x3e8b, 3, 0, 0, 0 ),
-      elem( 0x3e7c, 3, 1, 0, 0 ),   elem( 0x3e6e, 2, -2, 0, 0 ),  elem( 0x3e8e, -3, 1, 0, 0 ),
-      elem( 0x3e8f, -3, 0, 0, 0 ),  elem( 0x3e90, -3, -1, 0, 0 ), elem( 0x3e79, 4, 1, 0, 0 ),
-      elem( 0x3e7b, 4, -1, 0, 0 ),  elem( 0x3e94, -4, -1, 0, 0 ), elem( 0x3e91, -4, 1, 0, 0 ),
-      elem( 0x3e76, 5, 0, 0, 0 ),   elem( 0x3e95, -5, 0, 0, 0 )};
+      elem( 0x3e6c, 0, 0, 0, 1 ),   elem( 0x3e50, 4, 0, 0, 0 ),   elem( 0x3e93, -4, 0, 0, 0 ),
+      elem( 0x3e8a, 0, -2, 0, 0 ),  elem( 0x3e85, 0, 2, 0, 0 ),   elem( 0x3e8b, 1, 1, 0, 1 ),
+      elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, -1, 0, 0, 1 ),  elem( 0x3e88, -1, -1, 0, 1 ),
+      elem( 0x3e6d, 1, -1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),   elem( 0x3e88, 1, -1, 0, 1 ),
+      elem( 0x3e88, 0, -1, 0, 1 ),  elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e8b, 2, 0, 0, 1 ),
+      elem( 0x3e7e, 2, 1, 0, 1 ),   elem( 0x3e85, 1, 2, 0, 1 ),   elem( 0x3e8a, 1, -2, 0, 1 ),
+      elem( 0x3e8a, -1, -2, 0, 1 ), elem( 0x3e8c, -2, 1, 0, 1 ),  elem( 0x3e8b, -2, 0, 0, 1 ),
+      elem( 0x3e8d, -2, -1, 0, 1 ), elem( 0x3e6b, 0, 2, 0, 1 ),   elem( 0x3e41, -1, 2, 0, 1 ),
+      elem( 0x3e7f, 2, -1, 0, 1 ),  elem( 0x3e7d, 3, -1, 0, 1 ),  elem( 0x3e8b, 3, 0, 0, 1 ),
+      elem( 0x3e7c, 3, 1, 0, 1 ),   elem( 0x3e6e, 2, -2, 0, 1 ),  elem( 0x3e8e, -3, 1, 0, 1 ),
+      elem( 0x3e8f, -3, 0, 0, 1 ),  elem( 0x3e90, -3, -1, 0, 1 ), elem( 0x3e79, 4, 1, 0, 1 ),
+      elem( 0x3e7b, 4, -1, 0, 1 ),  elem( 0x3e94, -4, -1, 0, 1 ), elem( 0x3e91, -4, 1, 0, 1 ),
+      elem( 0x3e76, 5, 0, 0, 1 ),   elem( 0x3e95, -5, 0, 0, 1 ),
+  };
   // end first boat
+  multis[0x6b] = std::vector<T>{
+      elem( 0x0066, -3, -3, 0, 1 ),  elem( 0x0009, -3, -3, 7, 1 ),  elem( 0x0064, -3, -2, 0, 1 ),
+      elem( 0x0008, -3, -2, 7, 1 ),  elem( 0x0064, -3, -1, 0, 1 ),  elem( 0x0008, -3, -1, 7, 1 ),
+      elem( 0x0064, -3, 0, 0, 1 ),   elem( 0x0008, -3, 0, 7, 1 ),   elem( 0x0064, -3, 1, 0, 1 ),
+      elem( 0x000f, -3, 1, 7, 1 ),   elem( 0x0064, -3, 2, 0, 1 ),   elem( 0x0008, -3, 2, 7, 1 ),
+      elem( 0x0064, -3, 3, 0, 1 ),   elem( 0x0008, -3, 3, 7, 1 ),   elem( 0x0063, -2, -3, 0, 1 ),
+      elem( 0x0007, -2, -3, 7, 1 ),  elem( 0x04b4, -2, -2, 7, 1 ),  elem( 0x05c4, -2, -2, 27, 1 ),
+      elem( 0x04ad, -2, -1, 7, 1 ),  elem( 0x05c4, -2, -1, 27, 1 ), elem( 0x04ad, -2, 0, 7, 1 ),
+      elem( 0x05c4, -2, 0, 27, 1 ),  elem( 0x04ad, -2, 1, 7, 1 ),   elem( 0x05c4, -2, 1, 27, 1 ),
+      elem( 0x04ad, -2, 2, 7, 1 ),   elem( 0x05c4, -2, 2, 27, 1 ),  elem( 0x0063, -2, 3, 0, 1 ),
+      elem( 0x04b2, -2, 3, 7, 1 ),   elem( 0x0007, -2, 3, 7, 1 ),   elem( 0x05c4, -2, 3, 27, 1 ),
+      elem( 0x05c4, -2, 4, 27, 1 ),  elem( 0x0063, -1, -3, 0, 1 ),  elem( 0x0007, -1, -3, 7, 1 ),
+      elem( 0x04b0, -1, -2, 7, 1 ),  elem( 0x05c4, -1, -2, 30, 1 ), elem( 0x04ab, -1, -1, 7, 1 ),
+      elem( 0x05c4, -1, -1, 30, 1 ), elem( 0x04aa, -1, 0, 7, 1 ),   elem( 0x05c4, -1, 0, 30, 1 ),
+      elem( 0x04ac, -1, 1, 7, 1 ),   elem( 0x05c4, -1, 1, 30, 1 ),  elem( 0x04a9, -1, 2, 7, 1 ),
+      elem( 0x05c4, -1, 2, 30, 1 ),  elem( 0x0063, -1, 3, 0, 1 ),   elem( 0x04ae, -1, 3, 7, 1 ),
+      elem( 0x000c, -1, 3, 7, 1 ),   elem( 0x0018, -1, 3, 27, 1 ),  elem( 0x05c4, -1, 3, 30, 1 ),
+      elem( 0x0758, -1, 4, 2, 1 ),   elem( 0x05c4, -1, 4, 30, 1 ),  elem( 0x0063, 0, -3, 0, 1 ),
+      elem( 0x0007, 0, -3, 7, 1 ),   elem( 0x04b0, 0, -2, 7, 1 ),   elem( 0x05c4, 0, -2, 33, 1 ),
+      elem( 0x04a9, 0, -1, 7, 1 ),   elem( 0x05c4, 0, -1, 33, 1 ),  elem( 0x04ac, 0, 0, 7, 1 ),
+      elem( 0x05c4, 0, 0, 33, 1 ),   elem( 0x04ab, 0, 1, 7, 1 ),    elem( 0x05c4, 0, 1, 33, 1 ),
+      elem( 0x04aa, 0, 2, 7, 1 ),    elem( 0x05c4, 0, 2, 33, 1 ),   elem( 0x04ae, 0, 3, 7, 1 ),
+      elem( 0x06a5, 0, 3, 7, 0 ),    elem( 0x0018, 0, 3, 27, 1 ),   elem( 0x05c4, 0, 3, 33, 1 ),
+      elem( 0x0751, 0, 4, 2, 1 ),    elem( 0x05c4, 0, 4, 33, 1 ),   elem( 0x0063, 1, -3, 0, 1 ),
+      elem( 0x0007, 1, -3, 7, 1 ),   elem( 0x04b0, 1, -2, 7, 1 ),   elem( 0x05c2, 1, -2, 36, 1 ),
+      elem( 0x04aa, 1, -1, 7, 1 ),   elem( 0x05c2, 1, -1, 36, 1 ),  elem( 0x04a9, 1, 0, 7, 1 ),
+      elem( 0x05c2, 1, 0, 36, 1 ),   elem( 0x04a9, 1, 1, 7, 1 ),    elem( 0x05c2, 1, 1, 36, 1 ),
+      elem( 0x04ab, 1, 2, 7, 1 ),    elem( 0x05c2, 1, 2, 36, 1 ),   elem( 0x0063, 1, 3, 0, 1 ),
+      elem( 0x04ae, 1, 3, 7, 1 ),    elem( 0x000a, 1, 3, 7, 1 ),    elem( 0x0018, 1, 3, 27, 1 ),
+      elem( 0x05c2, 1, 3, 36, 1 ),   elem( 0x0756, 1, 4, 2, 1 ),    elem( 0x05c2, 1, 4, 36, 1 ),
+      elem( 0x0063, 2, -3, 0, 1 ),   elem( 0x0007, 2, -3, 7, 1 ),   elem( 0x04b0, 2, -2, 7, 1 ),
+      elem( 0x05c3, 2, -2, 33, 1 ),  elem( 0x04ac, 2, -1, 7, 1 ),   elem( 0x05c3, 2, -1, 33, 1 ),
+      elem( 0x04ab, 2, 0, 7, 1 ),    elem( 0x05c3, 2, 0, 33, 1 ),   elem( 0x04aa, 2, 1, 7, 1 ),
+      elem( 0x05c3, 2, 1, 33, 1 ),   elem( 0x04ac, 2, 2, 7, 1 ),    elem( 0x05c3, 2, 2, 33, 1 ),
+      elem( 0x0063, 2, 3, 0, 1 ),    elem( 0x04ae, 2, 3, 7, 1 ),    elem( 0x0007, 2, 3, 7, 1 ),
+      elem( 0x05c3, 2, 3, 33, 1 ),   elem( 0x0bd2, 2, 4, 5, 0 ),    elem( 0x0b98, 2, 4, 5, 1 ),
+      elem( 0x05c3, 2, 4, 33, 1 ),   elem( 0x0063, 3, -3, 0, 1 ),   elem( 0x0007, 3, -3, 7, 1 ),
+      elem( 0x0064, 3, -2, 0, 1 ),   elem( 0x04b3, 3, -2, 7, 1 ),   elem( 0x0008, 3, -2, 7, 1 ),
+      elem( 0x05c3, 3, -2, 30, 1 ),  elem( 0x0064, 3, -1, 0, 1 ),   elem( 0x04af, 3, -1, 7, 1 ),
+      elem( 0x0008, 3, -1, 7, 1 ),   elem( 0x05c3, 3, -1, 30, 1 ),  elem( 0x0064, 3, 0, 0, 1 ),
+      elem( 0x04af, 3, 0, 7, 1 ),    elem( 0x0008, 3, 0, 7, 1 ),    elem( 0x05c3, 3, 0, 30, 1 ),
+      elem( 0x0064, 3, 1, 0, 1 ),    elem( 0x04af, 3, 1, 7, 1 ),    elem( 0x000f, 3, 1, 7, 1 ),
+      elem( 0x05c3, 3, 1, 30, 1 ),   elem( 0x0064, 3, 2, 0, 1 ),    elem( 0x04af, 3, 2, 7, 1 ),
+      elem( 0x0008, 3, 2, 7, 1 ),    elem( 0x05c3, 3, 2, 30, 1 ),   elem( 0x0065, 3, 3, 0, 1 ),
+      elem( 0x04b1, 3, 3, 7, 1 ),    elem( 0x0006, 3, 3, 7, 1 ),    elem( 0x05c3, 3, 3, 30, 1 ),
+      elem( 0x05c3, 3, 4, 30, 1 ),   elem( 0x05c3, 4, -2, 27, 1 ),  elem( 0x05c3, 4, -1, 27, 1 ),
+      elem( 0x05c3, 4, 0, 27, 1 ),   elem( 0x05c3, 4, 1, 27, 1 ),   elem( 0x05c3, 4, 2, 27, 1 ),
+      elem( 0x05c3, 4, 3, 27, 1 ),   elem( 0x05c3, 4, 4, 27, 1 ),
+  };
 }
 
 template <typename T>

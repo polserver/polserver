@@ -1,0 +1,5 @@
+use uo;
+
+foreach multi in (ListMultisInBox(0,0,-200,10000,10000,200))
+  DestroyMulti(multi);
+endforeach

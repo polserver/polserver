@@ -20,4 +20,4 @@ with open(multi_file,"r") as f:
       if len(l)<5:
           continue
       print('elem( {}, {}, {}, {}, {}),'.format(
-          l[1],l[2],l[3],l[4],0 if l[0]=='static' else 1))
+          l[1],l[2],l[3],l[4],1 if l[0]=='static' else 0))
