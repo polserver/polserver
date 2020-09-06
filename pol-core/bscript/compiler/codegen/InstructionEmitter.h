@@ -57,6 +57,8 @@ public:
   unsigned case_dispatch_table( const CaseJumpDataBlock& );
   void consume();
   void declare_variable( const Variable& );
+  void dictionary_create();
+  void dictionary_add_member();
   void exit();
   void foreach_init( FlowControlLabel& );
   void foreach_step( FlowControlLabel& );
@@ -72,6 +74,7 @@ public:
   void progend();
   void return_from_user_function();
   void unary_operator( BTokenId );
+  void uninit();
   void value( double );
   void value( int );
   void value( const std::string& );

@@ -5,6 +5,8 @@
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/BinaryOperator.h"
+#include "compiler/ast/DictionaryEntry.h"
+#include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
@@ -12,6 +14,7 @@
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/UnaryOperator.h"
+#include "compiler/ast/UninitializedValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 
 using EscriptGrammar::EscriptParser;
@@ -119,6 +122,33 @@ std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
     location_for( *ctx ).internal_error( "unrecognized binary operator" );
   return std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
                                            ctx->bop->getText(), token_id, std::move( rhs ) );
+}
+
+
+std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer(
+    EscriptParser::ExplicitDictInitializerContext* ctx )
+{
+  std::vector<std::unique_ptr<DictionaryEntry>> entries;
+  if ( auto initializer_ctx = ctx->dictInitializer() )
+  {
+    if ( auto list_ctx = initializer_ctx->dictInitializerExpressionList() )
+    {
+      for ( auto entry_ctx : list_ctx->dictInitializerExpression() )
+      {
+        auto loc = location_for( *entry_ctx );
+        auto expressions = entry_ctx->expression();
+
+        auto key = expression( expressions.at( 0 ) );
+        auto value = ( expressions.size() >= 2 ) ? expression( expressions.at( 1 ) )
+                                                 : std::make_unique<UninitializedValue>( loc );
+        auto entry = std::make_unique<DictionaryEntry>( loc, std::move( key ), std::move( value ) );
+        entries.push_back( std::move( entry ) );
+      }
+    }
+  }
+  auto loc = location_for( *ctx );
+
+  return std::make_unique<DictionaryInitializer>( loc, std::move( entries ) );
 }
 
 std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
@@ -242,6 +272,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto scoped_f_call = ctx->scopedFunctionCall() )
   {
     return scoped_function_call( scoped_f_call );
+  }
+  else if ( auto dict_init = ctx->explicitDictInitializer() )
+  {
+    return dictionary_initializer( dict_init );
   }
   else if ( auto array_init = ctx->explicitArrayInitializer() )
   {

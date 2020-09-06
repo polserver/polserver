@@ -11,6 +11,8 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DictionaryEntry.h"
+#include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/FloatValue.h"
@@ -29,6 +31,7 @@
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/UnaryOperator.h"
+#include "compiler/ast/UninitializedValue.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
@@ -131,6 +134,18 @@ void InstructionGenerator::visit_block( Block& node )
   {
     emit.leaveblock( node.locals_in_block );
   }
+}
+
+void InstructionGenerator::visit_dictionary_initializer( DictionaryInitializer& node )
+{
+  emit.dictionary_create();
+  visit_children( node );
+}
+
+void InstructionGenerator::visit_dictionary_entry( DictionaryEntry& entry )
+{
+  visit_children( entry );
+  emit.dictionary_add_member();
 }
 
 void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
@@ -308,6 +323,11 @@ void InstructionGenerator::visit_unary_operator( UnaryOperator& unary_operator )
 {
   visit_children( unary_operator );
   emit.unary_operator( unary_operator.token_id );
+}
+
+void InstructionGenerator::visit_uninitialized_value( UninitializedValue& )
+{
+  emit.uninit();
 }
 
 void InstructionGenerator::visit_user_function( UserFunction& user_function )

@@ -215,6 +215,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "create-array (TOK_ARRAY)";
     break;
 
+  case TOK_DICTIONARY:
+    w << "TOK_DICTIONARY";
+    break;
   case INS_POP_PARAM_BYREF:
     w << "pop param byref '" << string_at( tkn.offset ) << "'";
     break;
@@ -245,6 +248,14 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case INS_ASSIGN_GLOBALVAR:
     w << "global #" << tkn.offset;
     w << " :=";
+    break;
+
+  case INS_UNINIT:
+    w << "push-uninit";
+    break;
+
+  case INS_DICTIONARY_ADDMEMBER:
+    w << "add member to dictionary";
     break;
 
   case TOK_UNPLUSPLUS:

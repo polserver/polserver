@@ -52,6 +52,10 @@ set (bscript_sources    # sorted !
   compiler/ast/CaseStatement.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
+  compiler/ast/DictionaryEntry.cpp
+  compiler/ast/DictionaryEntry.h
+  compiler/ast/DictionaryInitializer.cpp
+  compiler/ast/DictionaryInitializer.h
   compiler/ast/DoWhileLoop.cpp
   compiler/ast/DoWhileLoop.h
   compiler/ast/ExitStatement.cpp
@@ -106,6 +110,8 @@ set (bscript_sources    # sorted !
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp
   compiler/ast/UnaryOperator.h
+  compiler/ast/UninitializedValue.cpp
+  compiler/ast/UninitializedValue.h
   compiler/ast/UserFunction.cpp
   compiler/ast/UserFunction.h
   compiler/ast/Value.cpp

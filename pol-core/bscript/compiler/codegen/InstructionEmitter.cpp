@@ -121,6 +121,16 @@ void InstructionEmitter::declare_variable( const Variable& v )
   emit_token( token_id, TYP_RESERVED, v.index );
 }
 
+void InstructionEmitter::dictionary_create()
+{
+  emit_token( TOK_DICTIONARY, TYP_OPERAND );
+}
+
+void InstructionEmitter::dictionary_add_member()
+{
+  emit_token( INS_DICTIONARY_ADDMEMBER, TYP_OPERATOR );
+}
+
 void InstructionEmitter::exit()
 {
   emit_token( RSV_EXIT, TYP_RESERVED );
@@ -202,6 +212,11 @@ void InstructionEmitter::return_from_user_function()
 void InstructionEmitter::unary_operator( BTokenId token_id )
 {
   emit_token( token_id, TYP_UNARY_OPERATOR );
+}
+
+void InstructionEmitter::uninit()
+{
+  emit_token( INS_UNINIT, TYP_OPERAND );
 }
 
 void InstructionEmitter::value( double v )
