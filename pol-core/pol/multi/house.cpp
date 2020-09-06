@@ -145,7 +145,7 @@ bool UHouse::add_component( Items::Item* item, const Core::Vec3d& rel_pos )
   if ( !can_add_component( item ) )
     return false;
 
-  item->setposition( item->pos() + rel_pos );
+  item->setposition( pos() + rel_pos );
   item->disable_decay();
   item->movable( false );
   update_item_to_inrange( item );

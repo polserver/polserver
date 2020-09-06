@@ -176,6 +176,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     add_item_to_world( item );  // TODO: we have to add it first....
   }
 
+  item->setposition( newpos );
   move_item( item, newpos, oldpos );
 
   if ( multi != nullptr )
