@@ -78,7 +78,11 @@ exported function move_item()
   endif
   var oldc:=storage.totalcount;
   var item:=CreateItemAtLocation(0,0,0, 0x3e3f);
+  item.movable:=1;
   var res:=MoveItemToContainer(item,r);
+  if (!res)
+    return ret_error("failed to move "+res);
+  endif
   // TODO: StorageAreaImp is broken, it doesnt get created!
   //if (storage.totalcount!=oldc+1)
   //  return ret_error("total count did not increase "+res);
@@ -92,15 +96,22 @@ exported function move_item_realm()
     return ret_error("Didnt found root "+r);
   endif
   var item:=CreateItemAtLocation(0,0,0, 0x3e3f);
+  item.movable:=1;
   if (item.realm != "britannia")
     return ret_error("wrong realm "+item.realm);
   endif
   var res:=MoveItemToContainer(item,r);
+  if (!res)
+    return ret_error("failed to move "+res);
+  endif
   if (item.realm != "britannia")  // TODO vector_classes will fail here on purpose
     return ret_error("wrong realm in storage "+item.realm);
   endif
   // TODO vector_classes: check some list*Location with this realm nullptr
-  res:=MoveObjectToLocation(item,0,0,0);
+  res:=MoveObjectToLocation(item,0,0,0,flags:=MOVEOBJECT_FORCELOCATION);
+  if (!res)
+    return ret_error("failed to move back to world: "+res);
+  endif
   if (item.realm != "britannia")
     return ret_error("wrong realm back in world "+item.realm);
   endif
