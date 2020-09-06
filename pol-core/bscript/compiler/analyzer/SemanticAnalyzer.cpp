@@ -10,12 +10,13 @@
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/Block.h"
-#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
 #include "compiler/ast/CaseDispatchGroups.h"
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
+#include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
@@ -190,6 +191,11 @@ void SemanticAnalyzer::visit_case_dispatch_selectors( CaseDispatchSelectors& sel
 
   CaseDispatchSelectorAnalyzer selector_analyzer( report );
   selectors.accept( selector_analyzer );
+}
+
+void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )
+{
+  visit_loop_statement( do_while );
 }
 
 void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )

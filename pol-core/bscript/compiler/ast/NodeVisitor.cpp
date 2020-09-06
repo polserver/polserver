@@ -11,6 +11,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
@@ -90,11 +91,16 @@ void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_do_while_loop( DoWhileLoop& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_exit_statement( ExitStatement& )
 {
 }
 
-void NodeVisitor::visit_float_value( FloatValue& node )
+void NodeVisitor::visit_float_value( FloatValue& )
 {
 }
 
