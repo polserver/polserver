@@ -12,6 +12,9 @@ namespace Pol::Bscript::Compiler
 class Argument;
 class ArrayInitializer;
 class BinaryOperator;
+class DictionaryInitializer;
+class ElvisOperator;
+class ErrorInitializer;
 class Expression;
 class FunctionCall;
 class UnaryOperator;
@@ -32,6 +35,9 @@ public:
 
   std::unique_ptr<BinaryOperator> binary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
+
+  std::unique_ptr<DictionaryInitializer> dictionary_initializer(
+      EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* );
 
   std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
 

@@ -11,6 +11,8 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DictionaryEntry.h"
+#include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/ForeachLoop.h"
@@ -87,6 +89,17 @@ void NodeVisitor::visit_case_dispatch_selectors( CaseDispatchSelectors& node )
 }
 
 void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
+{
+  visit_children( node );
+}
+
+
+void NodeVisitor::visit_dictionary_entry( DictionaryEntry& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_dictionary_initializer( DictionaryInitializer& node )
 {
   visit_children( node );
 }
@@ -185,6 +198,10 @@ void NodeVisitor::visit_top_level_statements( TopLevelStatements& node )
 void NodeVisitor::visit_unary_operator( UnaryOperator& node )
 {
   visit_children( node );
+}
+
+void NodeVisitor::visit_uninitialized_value( UninitializedValue& )
+{
 }
 
 void NodeVisitor::visit_user_function( UserFunction& node )

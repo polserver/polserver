@@ -25,6 +25,8 @@ public:
   void visit_case_statement( CaseStatement& ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
+  void visit_dictionary_entry( DictionaryEntry& ) override;
+  void visit_dictionary_initializer( DictionaryInitializer& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;
   void visit_exit_statement( ExitStatement& ) override;
   void visit_float_value( FloatValue& ) override;
@@ -41,6 +43,7 @@ public:
   void visit_return_statement( ReturnStatement& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_unary_operator( UnaryOperator& ) override;
+  void visit_uninitialized_value( UninitializedValue& ) override;
   void visit_user_function( UserFunction& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_var_statement( VarStatement& ) override;
