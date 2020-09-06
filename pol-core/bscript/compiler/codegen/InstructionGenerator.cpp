@@ -11,6 +11,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -137,6 +138,24 @@ void InstructionGenerator::visit_exit_statement( ExitStatement& )
 void InstructionGenerator::visit_float_value( FloatValue& node )
 {
   emit.value( node.value );
+}
+
+void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
+{
+  generate( loop.expression() );
+
+  emit.foreach_init( *loop.continue_label );
+
+  FlowControlLabel next;
+  emit.label( next );
+
+  generate( loop.block() );
+
+  emit.label( *loop.continue_label );
+  emit.foreach_step( next );
+
+  emit.label( *loop.break_label );
+  emit.leaveblock( 3 );
 }
 
 void InstructionGenerator::visit_function_call( FunctionCall& call )

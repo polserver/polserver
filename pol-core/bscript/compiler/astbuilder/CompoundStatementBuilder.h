@@ -9,6 +9,7 @@ class Block;
 class Statement;
 class CaseStatement;
 class ConstDeclaration;
+class ForeachLoop;
 class ReturnStatement;
 class WhileLoop;
 
@@ -27,6 +28,12 @@ public:
 
   std::unique_ptr<CaseStatement> case_statement(
       EscriptGrammar::EscriptParser::CaseStatementContext* );
+
+  std::unique_ptr<Expression> foreach_iterable_expression(
+      EscriptGrammar::EscriptParser::ForeachIterableExpressionContext* );
+
+  std::unique_ptr<ForeachLoop> foreach_loop(
+      EscriptGrammar::EscriptParser::ForeachStatementContext* );
 
   std::unique_ptr<Statement> if_statement( EscriptGrammar::EscriptParser::IfStatementContext* );
 

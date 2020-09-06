@@ -58,6 +58,8 @@ public:
   void consume();
   void declare_variable( const Variable& );
   void exit();
+  void foreach_init( FlowControlLabel& );
+  void foreach_step( FlowControlLabel& );
   void get_arg( const std::string& name );
   void jmp_always( FlowControlLabel& );
   void jmp_if_false( FlowControlLabel& );

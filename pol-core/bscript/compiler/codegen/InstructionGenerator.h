@@ -27,6 +27,7 @@ public:
   void visit_block( Block& ) override;
   void visit_exit_statement( ExitStatement& ) override;
   void visit_float_value( FloatValue& ) override;
+  void visit_foreach_loop( ForeachLoop& ) override;
   void visit_function_call( FunctionCall& ) override;
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;

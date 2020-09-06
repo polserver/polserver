@@ -1,5 +1,6 @@
 #include "CompoundStatementBuilder.h"
 
+#include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
@@ -9,6 +10,8 @@
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
+#include "compiler/ast/ForeachLoop.h"
+#include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
@@ -47,6 +50,10 @@ void CompoundStatementBuilder::add_statements(
   else if ( auto return_st = ctx->returnStatement() )
   {
     statements.push_back( return_statement( return_st ) );
+  }
+  else if ( auto foreach_statement = ctx->foreachStatement() )
+  {
+    statements.push_back( foreach_loop( foreach_statement ) );
   }
   else if ( auto while_statement = ctx->whileStatement() )
   {
@@ -152,6 +159,54 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
 
   return std::make_unique<CaseStatement>( loc, std::move( case_label ), std::move( determinant ),
                                           std::move( holder ) );
+}
+
+std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expression(
+    EscriptParser::ForeachIterableExpressionContext* ctx )
+{
+  if ( auto identifier = ctx->IDENTIFIER() )
+  {
+    return std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) );
+  }
+  else if ( auto m_call = ctx->functionCall() )
+  {
+    return function_call( m_call, "" );
+  }
+  else if ( auto scoped_call = ctx->scopedFunctionCall() )
+  {
+    return scoped_function_call( scoped_call );
+  }
+  else if ( auto array_init = ctx->explicitArrayInitializer() )
+  {
+    return array_initializer( array_init );
+  }
+  else if ( auto bare_array = ctx->bareArrayInitializer() )
+  {
+    return array_initializer( bare_array );
+  }
+  else if ( auto par_ex = ctx->parExpression() )
+  {
+    return expression( par_ex->expression() );
+  }
+  else
+  {
+    location_for( *ctx ).internal_error( "unhandled foreach iterable expression" );
+  }
+}
+
+std::unique_ptr<ForeachLoop> CompoundStatementBuilder::foreach_loop(
+    EscriptParser::ForeachStatementContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  std::string label;
+  if ( auto statement_label = ctx->statementLabel() )
+    label = text( statement_label->IDENTIFIER() );
+  std::string iterator_name = text( ctx->IDENTIFIER() );
+  auto iterable = foreach_iterable_expression( ctx->foreachIterableExpression() );
+  auto body = block( ctx->block() );
+  return std::make_unique<ForeachLoop>( source_location, std::move( label ),
+                                        std::move( iterator_name ), std::move( iterable ),
+                                        std::move( body ) );
 }
 
 std::unique_ptr<Statement> CompoundStatementBuilder::if_statement(
