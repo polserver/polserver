@@ -101,6 +101,8 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
 {
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
   Core::Pos4d oldpos( item->toplevel_pos() );
+  if ( oldpos.realm() == nullptr )  // see below setposition
+    oldpos = Core::Pos4d( oldpos.xyz(), newpos.realm() );
   if ( !( flags & MOVEITEM_IGNOREMOVABLE ) && !item->movable() )
   {
     Character* chr = controller_.get();

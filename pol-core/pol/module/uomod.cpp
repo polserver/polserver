@@ -2364,7 +2364,7 @@ BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, fl
 
           for ( unsigned i = 0; i < slist.size(); ++i )
           {
-            if ( ( pos1.x() <= slist[i].z ) && ( slist[i].z <= pos2.z() ) )
+            if ( ( pos1.z() <= slist[i].z ) && ( slist[i].z <= pos2.z() ) )
             {
               std::unique_ptr<BStruct> arr( new BStruct );
               arr->addMember( "x", new BLong( wx ) );
