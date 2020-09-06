@@ -113,6 +113,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "# (consume)";
     break;
 
+  case TOK_ARRAY_SUBSCRIPT:
+    w << "TOK_ARRAY_SUBSCRIPT";
+    break;
+
   case TOK_ADDMEMBER:
     w << ".+ (add-member)";
     break;
@@ -241,6 +245,18 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "^";  // bitwise-xor";
     break;
 
+  case INS_SUBSCRIPT_ASSIGN:
+    w << "subscript assign";
+    break;
+  case INS_SUBSCRIPT_ASSIGN_CONSUME:
+    w << "subscript assign and consume";
+    break;
+  case INS_MULTISUBSCRIPT:
+    w << "multi subscript get (" << tkn.offset << " indexes)";
+    break;
+  case INS_MULTISUBSCRIPT_ASSIGN:
+    w << "multi subscript assign (" << tkn.offset << " indexes)";
+    break;
   case INS_ASSIGN_LOCALVAR:
     w << "local #" << tkn.offset;
     w << " :=";

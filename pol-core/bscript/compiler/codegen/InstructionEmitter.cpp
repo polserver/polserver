@@ -56,6 +56,23 @@ void InstructionEmitter::assign()
   emit_token( TOK_ASSIGN, TYP_OPERATOR );
 }
 
+void InstructionEmitter::assign_subscript_consume()
+{
+  unsigned indexes = 1;
+  emit_token( INS_SUBSCRIPT_ASSIGN_CONSUME, TYP_UNARY_OPERATOR, indexes );
+}
+
+void InstructionEmitter::assign_subscript()
+{
+  unsigned indexes = 1;
+  emit_token( INS_SUBSCRIPT_ASSIGN, TYP_UNARY_OPERATOR, indexes );
+}
+
+void InstructionEmitter::assign_multisubscript( unsigned indexes )
+{
+  emit_token( INS_MULTISUBSCRIPT_ASSIGN, TYP_UNARY_OPERATOR, indexes );
+}
+
 void InstructionEmitter::assign_variable( const Variable& v )
 {
   auto token_id = v.scope == VariableScope::Global ? INS_ASSIGN_GLOBALVAR : INS_ASSIGN_LOCALVAR;
@@ -207,6 +224,16 @@ void InstructionEmitter::progend()
 void InstructionEmitter::return_from_user_function()
 {
   emit_token( RSV_RETURN, TYP_RESERVED );
+}
+
+void InstructionEmitter::subscript_single()
+{
+  emit_token( TOK_ARRAY_SUBSCRIPT, TYP_OPERATOR, 1 );
+}
+
+void InstructionEmitter::subscript_multiple( int indexes )
+{
+  emit_token( INS_MULTISUBSCRIPT, TYP_OPERATOR, indexes );
 }
 
 void InstructionEmitter::unary_operator( BTokenId token_id )

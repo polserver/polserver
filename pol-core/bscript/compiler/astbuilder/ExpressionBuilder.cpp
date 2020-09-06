@@ -1,12 +1,13 @@
 #include "ExpressionBuilder.h"
 
 #include "compiler/Report.h"
-
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
+#include "compiler/ast/ElementAccess.h"
+#include "compiler/ast/ElementIndexes.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
@@ -151,6 +152,23 @@ std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer
   return std::make_unique<DictionaryInitializer>( loc, std::move( entries ) );
 }
 
+std::unique_ptr<ElementAccess> ExpressionBuilder::element_access(
+    std::unique_ptr<Expression> lhs, EscriptParser::ExpressionListContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+
+  std::vector<std::unique_ptr<Expression>> indexes;
+  for ( auto expression_ctx : ctx->expression() )
+  {
+    indexes.push_back( expression( expression_ctx ) );
+  }
+
+  auto xx = std::make_unique<ElementIndexes>( location_for( *ctx ),
+                                              std::move( indexes ) );
+
+  return std::make_unique<ElementAccess>( source_location, std::move( lhs ), std::move( xx ) );
+}
+
 std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     EscriptParser::ExpressionListContext* ctx )
 {
@@ -190,6 +208,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
   {
     return binary_operator( ctx );
   }
+  else if ( auto suffix = ctx->expressionSuffix() )
+  {
+    return expression_suffix( expression( ctx->expression()[0] ), suffix );
+  }
 
   location_for( *ctx ).internal_error( "unhandled expression" );
 }
@@ -208,6 +230,19 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   workspace.function_resolver.register_function_link( key, function_call->function_link );
 
   return function_call;
+}
+
+std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
+    std::unique_ptr<Expression> lhs, EscriptParser::ExpressionSuffixContext* ctx )
+{
+  if ( auto indexing = ctx->indexingSuffix() )
+  {
+    return element_access( std::move( lhs ), indexing->expressionList() );
+  }
+  else
+  {
+    location_for( *ctx ).internal_error( "unhandled navigation suffix" );
+  }
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::prefix_unary_operator(

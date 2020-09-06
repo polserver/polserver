@@ -58,6 +58,12 @@ set (bscript_sources    # sorted !
   compiler/ast/DictionaryInitializer.h
   compiler/ast/DoWhileLoop.cpp
   compiler/ast/DoWhileLoop.h
+  compiler/ast/ElementAccess.cpp
+  compiler/ast/ElementAccess.h
+  compiler/ast/ElementAssignment.cpp
+  compiler/ast/ElementAssignment.h
+  compiler/ast/ElementIndexes.cpp
+  compiler/ast/ElementIndexes.h
   compiler/ast/ExitStatement.cpp
   compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp
@@ -197,6 +203,8 @@ set (bscript_sources    # sorted !
   compiler/model/Variable.h
   compiler/model/VariableScope.h
   compiler/model/WarnOn.h
+  compiler/optimizer/AssignmentOptimizer.cpp
+  compiler/optimizer/AssignmentOptimizer.h
   compiler/optimizer/BinaryOperatorOptimizer.cpp
   compiler/optimizer/BinaryOperatorOptimizer.h
   compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp

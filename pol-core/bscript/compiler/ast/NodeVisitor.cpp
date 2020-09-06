@@ -14,6 +14,9 @@
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
+#include "compiler/ast/ElementAccess.h"
+#include "compiler/ast/ElementAssignment.h"
+#include "compiler/ast/ElementIndexes.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
@@ -105,6 +108,21 @@ void NodeVisitor::visit_dictionary_initializer( DictionaryInitializer& node )
 }
 
 void NodeVisitor::visit_do_while_loop( DoWhileLoop& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_element_access( ElementAccess& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_element_assignment( ElementAssignment& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_element_indexes( ElementIndexes& node )
 {
   visit_children( node );
 }
