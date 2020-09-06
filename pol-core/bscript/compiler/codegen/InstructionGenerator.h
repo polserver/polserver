@@ -25,6 +25,7 @@ public:
   void visit_case_statement( CaseStatement& ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
+  void visit_do_while_loop( DoWhileLoop& ) override;
   void visit_exit_statement( ExitStatement& ) override;
   void visit_float_value( FloatValue& ) override;
   void visit_foreach_loop( ForeachLoop& ) override;

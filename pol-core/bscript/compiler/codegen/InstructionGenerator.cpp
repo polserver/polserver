@@ -10,6 +10,9 @@
 #include "compiler/ast/CaseDispatchGroups.h"
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
+#include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DoWhileLoop.h"
+#include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
@@ -128,6 +131,17 @@ void InstructionGenerator::visit_block( Block& node )
   {
     emit.leaveblock( node.locals_in_block );
   }
+}
+
+void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
+{
+  FlowControlLabel next;
+  emit.label( next );
+  generate( node.block() );
+  emit.label( *node.continue_label );
+  generate( node.predicate() );
+  emit.jmp_if_true( next );
+  emit.label( *node.break_label );
 }
 
 void InstructionGenerator::visit_exit_statement( ExitStatement& )

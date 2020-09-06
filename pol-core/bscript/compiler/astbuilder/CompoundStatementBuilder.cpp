@@ -8,6 +8,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/ForeachLoop.h"
@@ -79,6 +80,10 @@ void CompoundStatementBuilder::add_statements(
   {
     workspace.compiler_workspace.const_declarations.push_back(
         const_declaration( const_statement ) );
+  }
+  else if ( auto do_statement = ctx->doStatement() )
+  {
+    statements.push_back( do_while_loop( do_statement ) );
   }
   else
   {
@@ -159,6 +164,19 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
 
   return std::make_unique<CaseStatement>( loc, std::move( case_label ), std::move( determinant ),
                                           std::move( holder ) );
+}
+
+std::unique_ptr<DoWhileLoop> CompoundStatementBuilder::do_while_loop(
+    EscriptParser::DoStatementContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  std::string label;
+  if ( auto statement_label = ctx->statementLabel() )
+    label = text( statement_label->IDENTIFIER() );
+  auto body = block( ctx->block() );
+  auto predicate = expression( ctx->parExpression()->expression() );
+  return std::make_unique<DoWhileLoop>( source_location, std::move( label ), std::move( body ),
+                                        std::move( predicate ) );
 }
 
 std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expression(

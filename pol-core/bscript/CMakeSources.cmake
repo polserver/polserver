@@ -52,6 +52,8 @@ set (bscript_sources    # sorted !
   compiler/ast/CaseStatement.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
+  compiler/ast/DoWhileLoop.cpp
+  compiler/ast/DoWhileLoop.h
   compiler/ast/ExitStatement.cpp
   compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp

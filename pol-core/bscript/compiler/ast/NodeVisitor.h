@@ -14,6 +14,7 @@ class CaseDispatchGroup;
 class CaseDispatchGroups;
 class CaseDispatchSelectors;
 class ConstDeclaration;
+class DoWhileLoop;
 class ExitStatement;
 class FloatValue;
 class ForeachLoop;
@@ -55,6 +56,7 @@ public:
   virtual void visit_case_dispatch_groups( CaseDispatchGroups& );
   virtual void visit_case_dispatch_selectors( CaseDispatchSelectors& );
   virtual void visit_const_declaration( ConstDeclaration& );
+  virtual void visit_do_while_loop( DoWhileLoop& );
   virtual void visit_exit_statement( ExitStatement& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_foreach_loop( ForeachLoop& );
