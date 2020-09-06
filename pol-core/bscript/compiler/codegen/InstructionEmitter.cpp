@@ -126,6 +126,16 @@ void InstructionEmitter::exit()
   emit_token( RSV_EXIT, TYP_RESERVED );
 }
 
+void InstructionEmitter::foreach_init( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( INS_INITFOREACH, TYP_RESERVED ) );
+}
+
+void InstructionEmitter::foreach_step( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( INS_STEPFOREACH, TYP_RESERVED ) );
+}
+
 void InstructionEmitter::get_arg( const std::string& name )
 {
   unsigned offset = emit_data( name );

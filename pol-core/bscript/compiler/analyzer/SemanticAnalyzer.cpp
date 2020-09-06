@@ -16,6 +16,7 @@
 #include "compiler/ast/CaseDispatchGroups.h"
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
+#include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -189,6 +190,23 @@ void SemanticAnalyzer::visit_case_dispatch_selectors( CaseDispatchSelectors& sel
 
   CaseDispatchSelectorAnalyzer selector_analyzer( report );
   selectors.accept( selector_analyzer );
+}
+
+void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
+{
+  node.expression().accept( *this );
+
+  LocalVariableScope scope( local_scopes, node.debug_variables );
+  scope.create( node.iterator_name, WarnOn::Never, node.source_location );
+  scope.create( "_" + node.iterator_name + "_expr", WarnOn::Never, node.source_location );
+  scope.create( "_" + node.iterator_name + "_iter", WarnOn::Never, node.source_location );
+
+  FlowControlScope break_scope( break_scopes, node.source_location, node.get_label(),
+                                node.break_label );
+  FlowControlScope continue_scope( continue_scopes, node.source_location, node.get_label(),
+                                   node.continue_label );
+
+  node.block().accept( *this );
 }
 
 void SemanticAnalyzer::visit_function_call( FunctionCall& fc )

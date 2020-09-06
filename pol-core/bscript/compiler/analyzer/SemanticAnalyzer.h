@@ -17,7 +17,6 @@ class CompilerWorkspace;
 class Constants;
 class LoopStatement;
 class Report;
-class VarStatement;
 
 class SemanticAnalyzer : public NodeVisitor
 {
@@ -33,6 +32,7 @@ public:
   void visit_case_statement( CaseStatement& ) override;
   void visit_case_dispatch_group( CaseDispatchGroup& ) override;
   void visit_case_dispatch_selectors( CaseDispatchSelectors& ) override;
+  void visit_foreach_loop( ForeachLoop& ) override;
   void visit_function_call( FunctionCall& ) override;
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;

@@ -12,6 +12,7 @@
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -94,6 +95,10 @@ void NodeVisitor::visit_exit_statement( ExitStatement& )
 }
 
 void NodeVisitor::visit_float_value( FloatValue& node )
+{
+}
+
+void NodeVisitor::visit_foreach_loop( ForeachLoop& node )
 {
   visit_children( node );
 }

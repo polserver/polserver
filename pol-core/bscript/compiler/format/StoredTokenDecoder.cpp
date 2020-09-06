@@ -196,6 +196,12 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "global variable #" << tkn.offset;
     break;
 
+  case INS_INITFOREACH:
+    w << "initforeach @" << tkn.offset;
+    break;
+  case INS_STEPFOREACH:
+    w << "stepforeach @" << tkn.offset;
+    break;
   case INS_CASEJMP:
   {
     w << "casejmp";

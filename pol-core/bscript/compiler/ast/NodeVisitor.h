@@ -16,6 +16,7 @@ class CaseDispatchSelectors;
 class ConstDeclaration;
 class ExitStatement;
 class FloatValue;
+class ForeachLoop;
 class FunctionBody;
 class FunctionCall;
 class FunctionParameterDeclaration;
@@ -56,6 +57,7 @@ public:
   virtual void visit_const_declaration( ConstDeclaration& );
   virtual void visit_exit_statement( ExitStatement& );
   virtual void visit_float_value( FloatValue& );
+  virtual void visit_foreach_loop( ForeachLoop& );
   virtual void visit_function_body( FunctionBody& );
   virtual void visit_function_call( FunctionCall& );
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
