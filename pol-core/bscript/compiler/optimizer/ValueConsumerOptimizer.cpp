@@ -4,6 +4,8 @@
 
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
+#include "compiler/ast/ElementAssignment.h"
+#include "compiler/ast/ElementIndexes.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/ValueConsumer.h"
 
@@ -31,6 +33,18 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
           std::make_unique<BinaryOperator>( binary_operator.source_location, std::move( lhs ),
                                             ":= #", INS_ASSIGN_CONSUME, std::move( rhs ) );
     }
+  }
+}
+
+void ValueConsumerOptimizer::visit_element_assignment( ElementAssignment& node )
+{
+  if ( node.indexes().children.size() == 1 )
+  {
+    auto indexes = node.take_indexes();
+    auto entity = node.take_entity();
+    auto rhs = node.take_rhs();
+    optimized_result = std::make_unique<ElementAssignment>(
+        node.source_location, true, std::move( entity ), std::move( indexes ), std::move( rhs ) );
   }
 }
 

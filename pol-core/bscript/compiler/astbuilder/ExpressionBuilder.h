@@ -13,8 +13,7 @@ class Argument;
 class ArrayInitializer;
 class BinaryOperator;
 class DictionaryInitializer;
-class ElvisOperator;
-class ErrorInitializer;
+class ElementAccess;
 class Expression;
 class FunctionCall;
 class UnaryOperator;
@@ -39,6 +38,9 @@ public:
   std::unique_ptr<DictionaryInitializer> dictionary_initializer(
       EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* );
 
+  std::unique_ptr<ElementAccess> element_access(
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionListContext* );
+
   std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::vector<std::unique_ptr<Expression>> expressions(
@@ -48,6 +50,10 @@ public:
 
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );
+
+  std::unique_ptr<Expression> expression_suffix(
+      std::unique_ptr<Expression> lhs,
+      EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
 
   std::unique_ptr<Expression> prefix_unary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );

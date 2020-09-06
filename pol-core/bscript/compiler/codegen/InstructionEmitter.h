@@ -47,6 +47,9 @@ public:
   void array_create();
   void array_declare();
   void assign();
+  void assign_subscript_consume();
+  void assign_suscript();
+  void assign_multisubscript( unsigned indexes );
   void assign_variable( const Variable& );
   void binary_operator( BTokenId token_id );
   void call_method( const std::string& name, unsigned argument_count );
@@ -73,6 +76,8 @@ public:
   void pop_param_byref( const std::string& name );
   void progend();
   void return_from_user_function();
+  void subscript_single();
+  void subscript_multiple( int indexes );
   void unary_operator( BTokenId );
   void uninit();
   void value( double );

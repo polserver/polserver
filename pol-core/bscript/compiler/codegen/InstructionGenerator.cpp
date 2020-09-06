@@ -14,6 +14,9 @@
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
+#include "compiler/ast/ElementAccess.h"
+#include "compiler/ast/ElementAssignment.h"
+#include "compiler/ast/ElementIndexes.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/ForeachLoop.h"
@@ -157,6 +160,33 @@ void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
   generate( node.predicate() );
   emit.jmp_if_true( next );
   emit.label( *node.break_label );
+}
+
+void InstructionGenerator::visit_element_access( ElementAccess& acc )
+{
+  visit_children( acc );
+  int indexes = acc.indexes().children.size();
+  if ( indexes == 1 )
+    emit.subscript_single();
+  else
+    emit.subscript_multiple( indexes );
+}
+
+void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
+{
+  visit_children( node );
+  if ( node.consume )
+  {
+    emit.assign_subscript_consume();
+  }
+  else
+  {
+    auto num_indexes = node.indexes().children.size();
+    if ( num_indexes == 1 )
+      emit.assign_suscript();
+    else
+      emit.assign_multisubscript( num_indexes );
+  }
 }
 
 void InstructionGenerator::visit_exit_statement( ExitStatement& )
