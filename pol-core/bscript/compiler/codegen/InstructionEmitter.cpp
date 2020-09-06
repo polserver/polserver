@@ -36,6 +36,16 @@ void InstructionEmitter::access_variable( const Variable& v )
   emit_token( token_id, TYP_OPERAND, v.index );
 }
 
+void InstructionEmitter::array_append()
+{
+  emit_token( TOK_INSERTINTO, TYP_OPERATOR );
+}
+
+void InstructionEmitter::array_create()
+{
+  emit_token( TOK_ARRAY, TYP_OPERAND );
+}
+
 void InstructionEmitter::array_declare()
 {
   emit_token( INS_DECLARE_ARRAY, TYP_RESERVED );

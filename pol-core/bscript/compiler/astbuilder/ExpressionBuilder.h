@@ -10,6 +10,7 @@
 namespace Pol::Bscript::Compiler
 {
 class Argument;
+class ArrayInitializer;
 class BinaryOperator;
 class Expression;
 class FunctionCall;
@@ -22,10 +23,22 @@ public:
 
   [[noreturn]] static BTokenId unhandled_operator( const SourceLocation& );
 
+  std::unique_ptr<ArrayInitializer> array_initializer(
+      EscriptGrammar::EscriptParser::ArrayInitializerContext* );
+  std::unique_ptr<ArrayInitializer> array_initializer(
+      EscriptGrammar::EscriptParser::BareArrayInitializerContext* );
+  std::unique_ptr<ArrayInitializer> array_initializer(
+      EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* );
+
   std::unique_ptr<BinaryOperator> binary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
+
+  std::vector<std::unique_ptr<Expression>> expressions(
+      EscriptGrammar::EscriptParser::ArrayInitializerContext* );
+  std::vector<std::unique_ptr<Expression>> expressions(
+      EscriptGrammar::EscriptParser::ExpressionListContext* );
 
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );

@@ -20,6 +20,7 @@ public:
 
   void generate( Node& );
 
+  void visit_array_initializer( ArrayInitializer& ) override;
   void visit_assign_variable_consume( AssignVariableConsume& ) override;
   void visit_case_statement( CaseStatement& ) override;
   void visit_binary_operator( BinaryOperator& ) override;

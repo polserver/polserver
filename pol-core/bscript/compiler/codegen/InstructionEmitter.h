@@ -43,6 +43,8 @@ public:
   void initialize_data();
 
   void access_variable( const Variable& );
+  void array_append();
+  void array_create();
   void array_declare();
   void assign();
   void assign_variable( const Variable& );

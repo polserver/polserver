@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
@@ -53,6 +54,16 @@ void InstructionGenerator::generate( Node& node )
 {
   // alternative: two identical methods 'evaluate' and 'execute', for readability
   node.accept( *this );
+}
+
+void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
+{
+  emit.array_create();
+  for ( const auto& child : node.children )
+  {
+    child->accept( *this );
+    emit.array_append();
+  }
 }
 
 void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume& node )

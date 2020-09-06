@@ -32,6 +32,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
   compiler/ast/Argument.h
+  compiler/ast/ArrayInitializer.cpp
+  compiler/ast/ArrayInitializer.h
   compiler/ast/AssignVariableConsume.cpp
   compiler/ast/AssignVariableConsume.h
   compiler/ast/BinaryOperator.cpp
