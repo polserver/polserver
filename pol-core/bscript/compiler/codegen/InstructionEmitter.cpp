@@ -62,7 +62,7 @@ void InstructionEmitter::assign_subscript_consume()
   emit_token( INS_SUBSCRIPT_ASSIGN_CONSUME, TYP_UNARY_OPERATOR, indexes );
 }
 
-void InstructionEmitter::assign_suscript()
+void InstructionEmitter::assign_subscript()
 {
   unsigned indexes = 1;
   emit_token( INS_SUBSCRIPT_ASSIGN, TYP_UNARY_OPERATOR, indexes );

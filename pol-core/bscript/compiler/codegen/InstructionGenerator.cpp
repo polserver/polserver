@@ -183,7 +183,7 @@ void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
   {
     auto num_indexes = node.indexes().children.size();
     if ( num_indexes == 1 )
-      emit.assign_suscript();
+      emit.assign_subscript();
     else
       emit.assign_multisubscript( num_indexes );
   }

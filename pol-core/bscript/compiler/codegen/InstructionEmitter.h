@@ -48,7 +48,7 @@ public:
   void array_declare();
   void assign();
   void assign_subscript_consume();
-  void assign_suscript();
+  void assign_subscript();
   void assign_multisubscript( unsigned indexes );
   void assign_variable( const Variable& );
   void binary_operator( BTokenId token_id );
