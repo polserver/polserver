@@ -23,9 +23,6 @@ public:
 
   [[noreturn]] static BTokenId unhandled_operator( const SourceLocation& );
 
-  std::unique_ptr<ArrayElementAccess> array_access(
-      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionListContext* );
-
   std::unique_ptr<ArrayInitializer> array_initializer(
       EscriptGrammar::EscriptParser::ArrayInitializerContext* );
   std::unique_ptr<ArrayInitializer> array_initializer(
