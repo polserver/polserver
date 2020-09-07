@@ -42,6 +42,7 @@ public:
   void visit_loop_statement( LoopStatement& );
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
+  void visit_repeat_until_loop( RepeatUntilLoop& ) override;
   void visit_user_function( UserFunction& ) override;
   void visit_var_statement( VarStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;

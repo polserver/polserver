@@ -11,6 +11,7 @@ class CaseStatement;
 class ConstDeclaration;
 class DoWhileLoop;
 class ForeachLoop;
+class RepeatUntilLoop;
 class ReturnStatement;
 class WhileLoop;
 
@@ -39,6 +40,9 @@ public:
       EscriptGrammar::EscriptParser::ForeachStatementContext* );
 
   std::unique_ptr<Statement> if_statement( EscriptGrammar::EscriptParser::IfStatementContext* );
+
+  std::unique_ptr<RepeatUntilLoop> repeat_until_loop(
+      EscriptGrammar::EscriptParser::RepeatStatementContext* );
 
   std::unique_ptr<WhileLoop> while_loop( EscriptGrammar::EscriptParser::WhileStatementContext* );
 };

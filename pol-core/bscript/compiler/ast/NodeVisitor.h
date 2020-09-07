@@ -39,6 +39,7 @@ class Node;
 class Program;
 class ProgramParameterDeclaration;
 class ProgramParameterList;
+class RepeatUntilLoop;
 class ReturnStatement;
 class SetMember;
 class StringValue;
@@ -92,6 +93,7 @@ public:
   virtual void visit_program( Program& );
   virtual void visit_program_parameter_declaration( ProgramParameterDeclaration& );
   virtual void visit_program_parameter_list( ProgramParameterList& );
+  virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
   virtual void visit_set_member( SetMember& );
   virtual void visit_string_value( StringValue& );

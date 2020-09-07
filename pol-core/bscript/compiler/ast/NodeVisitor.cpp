@@ -34,6 +34,7 @@
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/ProgramParameterList.h"
+#include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/SetMember.h"
 #include "compiler/ast/StringValue.h"
@@ -216,6 +217,11 @@ void NodeVisitor::visit_program_parameter_declaration( ProgramParameterDeclarati
 }
 
 void NodeVisitor::visit_program_parameter_list( ProgramParameterList& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_repeat_until_loop( RepeatUntilLoop& node )
 {
   visit_children( node );
 }

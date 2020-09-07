@@ -18,6 +18,7 @@
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
+#include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/WhileLoop.h"
@@ -72,6 +73,10 @@ void CompoundStatementBuilder::add_statements(
   else if ( auto case_st = ctx->caseStatement() )
   {
     statements.push_back( case_statement( case_st ) );
+  }
+  else if ( auto repeat_statement = ctx->repeatStatement() )
+  {
+    statements.push_back( repeat_until_loop( repeat_statement ) );
   }
   else if ( auto exit = ctx->exitStatement() )
   {
@@ -271,6 +276,19 @@ std::unique_ptr<Statement> CompoundStatementBuilder::if_statement(
   }
 
   return if_statement_ast;
+}
+
+std::unique_ptr<RepeatUntilLoop> CompoundStatementBuilder::repeat_until_loop(
+    EscriptParser::RepeatStatementContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  std::string label;
+  if ( auto statement_label = ctx->statementLabel() )
+    label = text( statement_label->IDENTIFIER() );
+  auto body = block( ctx->block() );
+  auto predicate = expression( ctx->expression() );
+  return std::make_unique<RepeatUntilLoop>( source_location, std::move( label ), std::move( body ),
+                                            std::move( predicate ) );
 }
 
 std::unique_ptr<WhileLoop> CompoundStatementBuilder::while_loop(
