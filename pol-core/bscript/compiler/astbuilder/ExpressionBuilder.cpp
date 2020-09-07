@@ -14,6 +14,8 @@
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
+#include "compiler/ast/StructInitializer.h"
+#include "compiler/ast/StructMemberInitializer.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/UninitializedValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
@@ -312,6 +314,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return dictionary_initializer( dict_init );
   }
+  else if ( auto struct_init = ctx->explicitStructInitializer() )
+  {
+    return struct_initializer( struct_init );
+  }
   else if ( auto array_init = ctx->explicitArrayInitializer() )
   {
     return array_initializer( array_init );
@@ -328,6 +334,43 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::scoped_function_call(
     EscriptParser::ScopedFunctionCallContext* ctx )
 {
   return function_call( ctx->functionCall(), text( ctx->IDENTIFIER() ) );
+}
+
+std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
+    EscriptParser::ExplicitStructInitializerContext* ctx )
+{
+  std::vector<std::unique_ptr<StructMemberInitializer>> initializers;
+
+  if ( auto struct_init = ctx->structInitializer() )
+  {
+    if ( auto expression_list_ctx = struct_init->structInitializerExpressionList() )
+    {
+      for ( auto initializer_expression_ctx : expression_list_ctx->structInitializerExpression() )
+      {
+        auto loc = location_for( *initializer_expression_ctx );
+        std::string identifier;
+        if ( auto x = initializer_expression_ctx->IDENTIFIER() )
+          identifier = text( x );
+        else if ( auto string_literal = initializer_expression_ctx->STRING_LITERAL() )
+          identifier = unquote( string_literal );
+        else
+          loc.internal_error( "Unable to determine identifier for struct initializer" );
+
+        if ( auto expression_ctx = initializer_expression_ctx->expression() )
+        {
+          auto initializer = expression( expression_ctx );
+          initializers.push_back( std::make_unique<StructMemberInitializer>(
+              loc, std::move( identifier ), std::move( initializer ) ) );
+        }
+        else
+        {
+          initializers.push_back(
+              std::make_unique<StructMemberInitializer>( loc, std::move( identifier ) ) );
+        }
+      }
+    }
+  }
+  return std::make_unique<StructInitializer>( location_for( *ctx ), std::move( initializers ) );
 }
 
 std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(

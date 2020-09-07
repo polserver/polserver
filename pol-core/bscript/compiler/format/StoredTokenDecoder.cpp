@@ -245,6 +245,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "^";  // bitwise-xor";
     break;
 
+  case TOK_STRUCT:
+    w << "create empty struct";
+    break;
   case INS_SUBSCRIPT_ASSIGN:
     w << "subscript assign";
     break;
@@ -266,6 +269,12 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << " :=";
     break;
 
+  case INS_ADDMEMBER2:
+    w << "add uninitialized member (" << string_at( tkn.offset ) << " to struct";
+    break;
+  case INS_ADDMEMBER_ASSIGN:
+    w << "add member (" << string_at( tkn.offset ) << " to struct";
+    break;
   case INS_UNINIT:
     w << "push-uninit";
     break;
