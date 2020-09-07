@@ -9,6 +9,7 @@
 #include "compiler/analyzer/FlowControlScope.h"
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
@@ -16,6 +17,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/CstyleForLoop.h"
 #include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/ForeachLoop.h"
 #include "compiler/ast/FunctionBody.h"
@@ -77,6 +79,29 @@ void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
   }
 
   workspace.global_variable_names = globals.get_names();
+}
+
+void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
+{
+  if ( locals.find( node.identifier ) )
+  {
+    report.error( node, "FOR iterator '", node.identifier, "' hides a local variable.\n" );
+    return;
+  }
+
+  node.first().accept( *this );
+  node.last().accept( *this );
+
+  LocalVariableScope scope( local_scopes, node.debug_variables );
+  scope.create( node.identifier, WarnOn::Never, node.source_location );
+  scope.create( "_" + node.identifier + "_end", WarnOn::Never, node.source_location );
+
+  FlowControlScope break_scope( break_scopes, node.source_location, node.get_label(),
+                                node.break_label );
+  FlowControlScope continue_scope( continue_scopes, node.source_location, node.get_label(),
+                                   node.continue_label );
+
+  node.block().accept( *this );
 }
 
 void SemanticAnalyzer::visit_block( Block& block )
@@ -193,6 +218,11 @@ void SemanticAnalyzer::visit_case_dispatch_selectors( CaseDispatchSelectors& sel
 
   CaseDispatchSelectorAnalyzer selector_analyzer( report );
   selectors.accept( selector_analyzer );
+}
+
+void SemanticAnalyzer::visit_cstyle_for_loop( CstyleForLoop& loop )
+{
+  visit_loop_statement( loop );
 }
 
 void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )

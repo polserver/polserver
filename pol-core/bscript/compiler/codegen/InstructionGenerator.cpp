@@ -4,6 +4,7 @@
 
 #include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/AssignVariableConsume.h"
+#include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/BranchSelector.h"
@@ -12,6 +13,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/CstyleForLoop.h"
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
@@ -93,6 +95,27 @@ void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume&
   emit.assign_variable( *variable );
 }
 
+void InstructionGenerator::visit_basic_for_loop( BasicForLoop& loop )
+{
+  FlowControlLabel skip, next;
+
+  generate( loop.first() );
+  generate( loop.last() );
+
+  emit.basic_for_init( skip );
+
+  emit.label( next );
+  generate( loop.block() );
+
+  emit.label( *loop.continue_label );
+  emit.basic_for_next( next );
+
+  emit.label( *loop.break_label );
+  emit.leaveblock( 2 );
+
+  emit.label( skip );
+}
+
 void InstructionGenerator::visit_case_statement( CaseStatement& node )
 {
   generate( node.expression() );
@@ -128,6 +151,28 @@ void InstructionGenerator::visit_case_statement( CaseStatement& node )
 
   unsigned dispatch_table_data_offset = emit.case_dispatch_table( data_block );
   emitter.patch_offset( casejmp, dispatch_table_data_offset );
+}
+
+void InstructionGenerator::visit_cstyle_for_loop( CstyleForLoop& loop )
+{
+  generate( loop.initializer() );
+  emit.consume();
+
+  FlowControlLabel check_predicate;
+  emit.label( check_predicate );
+  generate( loop.predicate() );
+
+  emit.jmp_if_false( *loop.break_label );
+
+  generate( loop.block() );
+
+  emit.label( *loop.continue_label );
+  generate( loop.advancer() );
+  emit.consume();
+
+  emit.jmp_always( check_predicate );
+
+  emit.label( *loop.break_label );
 }
 
 void InstructionGenerator::visit_binary_operator( BinaryOperator& node )

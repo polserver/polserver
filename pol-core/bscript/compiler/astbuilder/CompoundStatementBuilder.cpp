@@ -1,6 +1,7 @@
 #include "CompoundStatementBuilder.h"
 
 #include "compiler/ast/ArrayInitializer.h"
+#include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/BranchSelector.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
@@ -9,6 +10,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/CstyleForLoop.h"
 #include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
@@ -58,6 +60,13 @@ void CompoundStatementBuilder::add_statements(
   {
     statements.push_back( foreach_loop( foreach_statement ) );
   }
+  else if ( auto for_st = ctx->forStatement() )
+  {
+    std::string label;
+    if ( auto statement_label = for_st->statementLabel() )
+      label = text( statement_label->IDENTIFIER() );
+    statements.push_back( for_loop( for_st->forGroup(), std::move( label ) ) );
+  }
   else if ( auto while_statement = ctx->whileStatement() )
   {
     statements.push_back( while_loop( while_statement ) );
@@ -95,6 +104,19 @@ void CompoundStatementBuilder::add_statements(
   {
     location_for( *ctx ).internal_error( "unhandled statement" );
   }
+}
+
+std::unique_ptr<BasicForLoop> CompoundStatementBuilder::basic_for_loop(
+    EscriptParser::BasicForStatementContext* ctx, std::string label )
+{
+  auto identifier = text( ctx->IDENTIFIER() );
+  auto first = expression( ctx->expression( 0 ) );
+  auto last = expression( ctx->expression( 1 ) );
+  auto body = block( ctx->block() );
+
+  return std::make_unique<BasicForLoop>( location_for( *ctx ), std::move( label ),
+                                         std::move( identifier ), std::move( first ),
+                                         std::move( last ), std::move( body ) );
 }
 
 std::vector<std::unique_ptr<Statement>> CompoundStatementBuilder::block_statements(
@@ -172,6 +194,18 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
                                           std::move( holder ) );
 }
 
+std::unique_ptr<CstyleForLoop> CompoundStatementBuilder::cstyle_for_loop(
+    EscriptParser::CstyleForStatementContext* ctx, std::string label )
+{
+  auto initializer = expression( ctx->expression( 0 ) );
+  auto predicate = expression( ctx->expression( 1 ) );
+  auto advancer = expression( ctx->expression( 2 ) );
+  auto body = block( ctx->block() );
+  return std::make_unique<CstyleForLoop>( location_for( *ctx ), std::move( label ),
+                                          std::move( initializer ), std::move( predicate ),
+                                          std::move( advancer ), std::move( body ) );
+}
+
 std::unique_ptr<DoWhileLoop> CompoundStatementBuilder::do_while_loop(
     EscriptParser::DoStatementContext* ctx )
 {
@@ -183,6 +217,24 @@ std::unique_ptr<DoWhileLoop> CompoundStatementBuilder::do_while_loop(
   auto predicate = expression( ctx->parExpression()->expression() );
   return std::make_unique<DoWhileLoop>( source_location, std::move( label ), std::move( body ),
                                         std::move( predicate ) );
+}
+
+std::unique_ptr<Statement> CompoundStatementBuilder::for_loop( EscriptParser::ForGroupContext* ctx,
+                                                               std::string label )
+{
+  if ( auto cstyle = ctx->cstyleForStatement() )
+  {
+    return cstyle_for_loop( cstyle, std::move( label ) );
+  }
+  else if ( auto basic = ctx->basicForStatement() )
+  {
+    return basic_for_loop( basic, std::move( label ) );
+  }
+  else
+  {
+    location_for( *ctx ).internal_error(
+        "neither c-style nor basic-style for statement in for group" );
+  }
 }
 
 std::unique_ptr<Expression> CompoundStatementBuilder::foreach_iterable_expression(

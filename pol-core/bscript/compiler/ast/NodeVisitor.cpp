@@ -3,6 +3,7 @@
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/AssignVariableConsume.h"
+#include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/BranchSelector.h"
@@ -12,6 +13,7 @@
 #include "compiler/ast/CaseDispatchSelectors.h"
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/CstyleForLoop.h"
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
@@ -66,6 +68,11 @@ void NodeVisitor::visit_assign_variable_consume( AssignVariableConsume& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_basic_for_loop( BasicForLoop& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 {
   visit_children( node );
@@ -111,6 +118,10 @@ void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_cstyle_for_loop( CstyleForLoop& node )
+{
+  visit_children( node );
+}
 
 void NodeVisitor::visit_dictionary_entry( DictionaryEntry& node )
 {

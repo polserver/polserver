@@ -6,6 +6,7 @@ namespace Pol::Bscript::Compiler
 class Argument;
 class ArrayInitializer;
 class AssignVariableConsume;
+class BasicForLoop;
 class BinaryOperator;
 class Block;
 class BranchSelector;
@@ -15,6 +16,7 @@ class CaseDispatchGroup;
 class CaseDispatchGroups;
 class CaseDispatchSelectors;
 class ConstDeclaration;
+class CstyleForLoop;
 class DictionaryEntry;
 class DictionaryInitializer;
 class DoWhileLoop;
@@ -63,6 +65,7 @@ public:
   virtual void visit_argument( Argument& );
   virtual void visit_array_initializer( ArrayInitializer& );
   virtual void visit_assign_variable_consume( AssignVariableConsume& );
+  virtual void visit_basic_for_loop( BasicForLoop& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_block( Block& );
   virtual void visit_branch_selector( BranchSelector& );
@@ -72,6 +75,7 @@ public:
   virtual void visit_case_dispatch_groups( CaseDispatchGroups& );
   virtual void visit_case_dispatch_selectors( CaseDispatchSelectors& );
   virtual void visit_const_declaration( ConstDeclaration& );
+  virtual void visit_cstyle_for_loop( CstyleForLoop& );
   virtual void visit_dictionary_entry( DictionaryEntry& );
   virtual void visit_dictionary_initializer( DictionaryInitializer& );
   virtual void visit_do_while_loop( DoWhileLoop& );
