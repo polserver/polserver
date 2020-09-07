@@ -28,6 +28,7 @@
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
+#include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UserFunction.h"
@@ -400,6 +401,11 @@ void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDecl
 
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
   local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
+}
+
+void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
+{
+  visit_loop_statement( node );
 }
 
 void SemanticAnalyzer::visit_user_function( UserFunction& node )

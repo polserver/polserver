@@ -34,6 +34,7 @@
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
+#include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/SetMember.h"
 #include "compiler/ast/StringValue.h"
@@ -361,6 +362,18 @@ void InstructionGenerator::visit_program( Program& program )
 void InstructionGenerator::visit_program_parameter_declaration( ProgramParameterDeclaration& param )
 {
   emit.get_arg( param.name );
+}
+
+void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )
+{
+  FlowControlLabel top;
+
+  emit.label( top );
+  generate( loop.block() );
+  emit.label( *loop.continue_label );
+  generate( loop.expression() );
+  emit.jmp_if_false( top );
+  emit.label( *loop.break_label );
 }
 
 void InstructionGenerator::visit_return_statement( ReturnStatement& ret )

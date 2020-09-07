@@ -45,6 +45,7 @@ public:
   void visit_jump_statement( JumpStatement& ) override;
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
+  void visit_repeat_until_loop( RepeatUntilLoop& repeat_until ) override;
   void visit_return_statement( ReturnStatement& ) override;
   void visit_set_member( SetMember& ) override;
   void visit_string_value( StringValue& ) override;
