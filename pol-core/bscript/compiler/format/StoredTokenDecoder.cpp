@@ -321,6 +321,22 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
       << tkn.type << " arguments)";
     break;
 
+  case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' (" << tkn.offset << ")  += #";
+    break;
+  case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' (" << tkn.offset << ")  -= #";
+    break;
+  case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' (" << tkn.offset << ")  *= #";
+    break;
+  case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' (" << tkn.offset << ")  /= #";
+    break;
+  case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' (" << tkn.offset << ")  %= #";
+    break;
+
   case TOK_UNPLUSPLUS:
     w << "prefix unary ++";
     break;

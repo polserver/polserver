@@ -46,6 +46,7 @@ class ProgramParameterList;
 class RepeatUntilLoop;
 class ReturnStatement;
 class SetMember;
+class SetMemberByOperator;
 class StringValue;
 class StructInitializer;
 class StructMemberInitializer;
@@ -104,6 +105,7 @@ public:
   virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
   virtual void visit_set_member( SetMember& );
+  virtual void visit_set_member_by_operator( SetMemberByOperator& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_struct_initializer( StructInitializer& );
   virtual void visit_struct_member_initializer( StructMemberInitializer& );

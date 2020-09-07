@@ -41,6 +41,7 @@
 #include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/SetMember.h"
+#include "compiler/ast/SetMemberByOperator.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -255,6 +256,11 @@ void NodeVisitor::visit_return_statement( ReturnStatement& node )
 }
 
 void NodeVisitor::visit_set_member( SetMember& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_set_member_by_operator( SetMemberByOperator& node )
 {
   visit_children( node );
 }

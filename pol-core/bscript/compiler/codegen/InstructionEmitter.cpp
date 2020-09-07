@@ -282,6 +282,11 @@ void InstructionEmitter::set_member( const std::string& name )
   emit_token( INS_SET_MEMBER, TYP_UNARY_OPERATOR, offset );
 }
 
+void InstructionEmitter::set_member_by_operator( BTokenId token_id, MemberID member_id )
+{
+  emit_token( token_id, TYP_UNARY_OPERATOR, member_id );
+}
+
 void InstructionEmitter::struct_create()
 {
   emit_token( TOK_STRUCT, TYP_OPERAND );

@@ -51,6 +51,7 @@ public:
   void visit_repeat_until_loop( RepeatUntilLoop& repeat_until ) override;
   void visit_return_statement( ReturnStatement& ) override;
   void visit_set_member( SetMember& ) override;
+  void visit_set_member_by_operator( SetMemberByOperator& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_struct_initializer( StructInitializer& ) override;
   void visit_struct_member_initializer( StructMemberInitializer& ) override;

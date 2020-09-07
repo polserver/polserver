@@ -88,6 +88,7 @@ public:
   void set_member_id( MemberID member_id );
   void set_member_id_consume( MemberID member_id );
   void set_member_consume( const std::string& name );
+  void set_member_by_operator( BTokenId, MemberID );
   void struct_create();
   void struct_add_uninit_member( const std::string& name );
   void struct_add_member( const std::string& name );
