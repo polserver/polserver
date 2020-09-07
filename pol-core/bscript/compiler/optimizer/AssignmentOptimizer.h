@@ -19,6 +19,7 @@ public:
 
   void visit_children( Node& ) override;
   void visit_element_access( ElementAccess& lhs ) override;
+  void visit_get_member( GetMember& lhs ) override;
 
 private:
   std::unique_ptr<Expression> optimized_result;

@@ -4,6 +4,8 @@
 #include "compiler/ast/ElementAccess.h"
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/GetMember.h"
+#include "compiler/ast/SetMember.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -28,4 +30,11 @@ void AssignmentOptimizer::visit_element_access( ElementAccess& lhs )
                                            std::move( indexes ), std::move( rhs ) );
 }
 
+void AssignmentOptimizer::visit_get_member( GetMember& lhs )
+{
+  auto entity = lhs.take_entity();
+  auto rhs = assignment.take_rhs();
+  optimized_result = std::make_unique<SetMember>( lhs.source_location, false, std::move( entity ),
+                                                  lhs.name, std::move( rhs ), lhs.known_member );
+}
 }  // namespace Pol::Bscript::Compiler
