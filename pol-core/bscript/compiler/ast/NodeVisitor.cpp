@@ -5,6 +5,7 @@
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BranchSelector.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
 #include "compiler/ast/CaseDispatchGroups.h"
@@ -68,6 +69,11 @@ void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 }
 
 void NodeVisitor::visit_block( Block& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_branch_selector( BranchSelector& node )
 {
   visit_children( node );
 }

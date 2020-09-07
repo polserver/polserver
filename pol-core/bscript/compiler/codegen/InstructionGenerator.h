@@ -25,6 +25,7 @@ public:
   void visit_case_statement( CaseStatement& ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
+  void visit_branch_selector( BranchSelector& ) override;
   void visit_dictionary_entry( DictionaryEntry& ) override;
   void visit_dictionary_initializer( DictionaryInitializer& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;
