@@ -38,6 +38,7 @@
 #include "compiler/model/CompilerWorkspace.h"
 #include "compiler/model/FunctionLink.h"
 #include "compiler/model/Variable.h"
+#include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -410,6 +411,16 @@ void SemanticAnalyzer::visit_repeat_until_loop( RepeatUntilLoop& node )
 
 void SemanticAnalyzer::visit_user_function( UserFunction& node )
 {
+  if ( node.exported )
+  {
+    unsigned max_name_length = sizeof( Pol::Bscript::BSCRIPT_EXPORTED_FUNCTION::funcname ) - 1;
+    if ( node.name.length() > max_name_length )
+    {
+      report.error( node, "Exported function name '", node.name, "' is too long at ",
+                    node.name.length(), " characters.  Max length: ",
+                    max_name_length, "\n" );
+    }
+  }
   LocalVariableScope scope( local_scopes, node.debug_variables );
 
   visit_children( node );

@@ -37,10 +37,13 @@ class SourceLocation;
 class InstructionEmitter
 {
 public:
-  InstructionEmitter( CodeSection& code, DataSection& data,
+  InstructionEmitter( CodeSection& code, DataSection& data, ExportedFunctions& exported_functions,
                       ModuleDeclarationRegistrar& );
 
   void initialize_data();
+
+  void register_exported_function( FlowControlLabel& label, const std::string& name,
+                                   unsigned arguments );
 
   void access_variable( const Variable& );
   void array_append();
@@ -104,6 +107,7 @@ private:
 
   CodeEmitter code_emitter;
   DataEmitter data_emitter;
+  ExportedFunctions& exported_functions;
   ModuleDeclarationRegistrar& module_declaration_registrar;
 };
 

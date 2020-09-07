@@ -1,0 +1,7 @@
+exported function foo456789012345678901234567890123()
+    print("this is exported");
+
+    // OG compiler does not flag the function name length as an error
+    b;
+endfunction
+

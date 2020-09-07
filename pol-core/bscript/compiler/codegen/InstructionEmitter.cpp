@@ -16,9 +16,11 @@
 namespace Pol::Bscript::Compiler
 {
 InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data,
+                                        ExportedFunctions& exported_functions,
                                         ModuleDeclarationRegistrar& module_declaration_registrar )
   : code_emitter( code ),
     data_emitter( data ),
+    exported_functions( exported_functions ),
     module_declaration_registrar( module_declaration_registrar )
 {
   initialize_data();
@@ -28,6 +30,12 @@ void InstructionEmitter::initialize_data()
 {
   std::byte nul{};
   data_emitter.store( &nul, sizeof nul );
+}
+
+void InstructionEmitter::register_exported_function( FlowControlLabel& label,
+                                                     const std::string& name, unsigned parameters )
+{
+  exported_functions.emplace_back( name, parameters, label.address() );
 }
 
 void InstructionEmitter::access_variable( const Variable& v )
