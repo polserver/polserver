@@ -34,6 +34,8 @@ class IfThenElseStatement;
 class IntegerValue;
 class JumpStatement;
 class GetMember;
+class MethodCall;
+class MethodCallArgumentList;
 class ModuleFunctionDeclaration;
 class Node;
 class Program;
@@ -89,6 +91,8 @@ public:
   virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
   virtual void visit_jump_statement( JumpStatement& );
+  virtual void visit_method_call( MethodCall& );
+  virtual void visit_method_call_argument_list( MethodCallArgumentList& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
   virtual void visit_program( Program& );
   virtual void visit_program_parameter_declaration( ProgramParameterDeclaration& );

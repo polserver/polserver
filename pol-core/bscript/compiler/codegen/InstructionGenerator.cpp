@@ -31,6 +31,7 @@
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
+#include "compiler/ast/MethodCall.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
@@ -347,6 +348,23 @@ void InstructionGenerator::visit_get_member( GetMember& member_access )
     emit.get_member_id( km->id );
   else
     emit.get_member( member_access.name );
+}
+
+void InstructionGenerator::visit_method_call( MethodCall& method_call )
+{
+  visit_children( method_call );
+
+  auto argument_count = method_call.argument_count();
+  if ( auto km = method_call.known_method )
+  {
+    emit.call_method_id( km->id, argument_count );
+  }
+  else
+  {
+    std::string method_name = method_call.methodname;
+    Clib::mklowerASCII( method_name );
+    emit.call_method( method_name, argument_count );
+  }
 }
 
 void InstructionGenerator::visit_program( Program& program )

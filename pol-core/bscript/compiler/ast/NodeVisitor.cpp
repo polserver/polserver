@@ -29,6 +29,8 @@
 #include "compiler/ast/GetMember.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/JumpStatement.h"
+#include "compiler/ast/MethodCall.h"
+#include "compiler/ast/MethodCallArgumentList.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Node.h"
 #include "compiler/ast/Program.h"
@@ -194,6 +196,16 @@ void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
 
 void NodeVisitor::visit_integer_value( IntegerValue& )
 {
+}
+
+void NodeVisitor::visit_method_call( MethodCall& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_method_call_argument_list( MethodCallArgumentList& node )
+{
+  visit_children( node );
 }
 
 void NodeVisitor::visit_jump_statement( JumpStatement& node )

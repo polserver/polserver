@@ -4,6 +4,7 @@
 #include "compiler/representation/ModuleDescriptor.h"
 #include "compiler/representation/ModuleFunctionDescriptor.h"
 #include "objmembers.h"
+#include "objmethods.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -223,6 +224,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "create-array (TOK_ARRAY)";
     break;
 
+  case INS_CALL_METHOD:
+    w << "call method '" << string_at( tkn.offset ) << "'";
+    break;
+
   case TOK_DICTIONARY:
     w << "TOK_DICTIONARY";
     break;
@@ -304,6 +309,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     break;
   case INS_SET_MEMBER_ID_CONSUME:
     w << "set-member-id-consume '" << getObjMember( tkn.type )->code << "' (" << tkn.type << ")";
+    break;
+  case INS_CALL_METHOD_ID:
+    w << "call-method-id '" << getObjMethod( tkn.offset )->code << "' (#" << tkn.offset << ", "
+      << tkn.type << " arguments)";
     break;
 
   case TOK_UNPLUSPLUS:

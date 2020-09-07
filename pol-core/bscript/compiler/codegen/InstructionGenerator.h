@@ -43,6 +43,7 @@ public:
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_jump_statement( JumpStatement& ) override;
+  void visit_method_call( MethodCall& member_call ) override;
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
   void visit_repeat_until_loop( RepeatUntilLoop& repeat_until ) override;

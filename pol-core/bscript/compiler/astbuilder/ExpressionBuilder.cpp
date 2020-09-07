@@ -14,6 +14,8 @@
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/MethodCall.h"
+#include "compiler/ast/MethodCallArgumentList.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
@@ -275,6 +277,27 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   return function_call;
 }
 
+std::unique_ptr<MethodCall> ExpressionBuilder::method_call(
+    std::unique_ptr<Expression> lhs, EscriptParser::MethodCallSuffixContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  auto methodname = text( ctx->IDENTIFIER() );
+  auto expression_lst = ctx->expressionList();
+
+  std::vector<std::unique_ptr<Expression>> arguments;
+  if ( expression_lst )
+  {
+    for ( auto expression_ctx : expression_lst->expression() )
+    {
+      arguments.push_back( expression( expression_ctx ) );
+    }
+  }
+
+  auto argument_list = std::make_unique<MethodCallArgumentList>( loc, std::move( arguments ) );
+  return std::make_unique<MethodCall>( loc, std::move( lhs ), std::move( methodname ),
+                                       std::move( argument_list ) );
+}
+
 std::unique_ptr<BinaryOperator> ExpressionBuilder::membership_operator(
     EscriptParser::ExpressionContext* ctx )
 {
@@ -326,6 +349,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
   else if ( auto member = ctx->navigationSuffix() )
   {
     return navigation( std::move( lhs ), member );
+  }
+  else if ( auto method = ctx->methodCallSuffix() )
+  {
+    return method_call( std::move( lhs ), method );
   }
   else
   {
