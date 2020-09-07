@@ -6,6 +6,7 @@
 #include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BranchSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
 #include "compiler/ast/CaseDispatchGroups.h"
 #include "compiler/ast/CaseDispatchSelectors.h"
@@ -141,6 +142,26 @@ void InstructionGenerator::visit_block( Block& node )
   if ( node.locals_in_block )
   {
     emit.leaveblock( node.locals_in_block );
+  }
+}
+
+void InstructionGenerator::visit_branch_selector( BranchSelector& node )
+{
+  visit_children( node );
+
+  switch ( node.branch_type )
+  {
+  case BranchSelector::IfTrue:
+    emit.jmp_if_true( *node.flow_control_label );
+    break;
+  case BranchSelector::IfFalse:
+    emit.jmp_if_false( *node.flow_control_label );
+    break;
+  case BranchSelector::Always:
+    emit.jmp_always( *node.flow_control_label );
+    break;
+  case BranchSelector::Never:
+    break;
   }
 }
 
@@ -284,24 +305,10 @@ void InstructionGenerator::visit_identifier( Identifier& node )
 
 void InstructionGenerator::visit_if_then_else_statement( IfThenElseStatement& node )
 {
-  bool invert_jump = false;
-  auto predicate = &node.predicate();
-  if ( auto unary_operator = dynamic_cast<UnaryOperator*>( predicate ) )
-  {
-    if ( unary_operator->token_id == TOK_LOG_NOT )
-    {
-      invert_jump = true;
-      predicate = &unary_operator->operand();
-    }
-  }
-  generate( *predicate );
+  auto branch_selector = &node.branch_selector();
+  generate( *branch_selector );
 
-  FlowControlLabel skip_consequent;
-
-  if ( invert_jump )
-    emit.jmp_if_true( skip_consequent );
-  else
-    emit.jmp_if_false( skip_consequent );
+  std::shared_ptr<FlowControlLabel> skip_consequent = branch_selector->flow_control_label;
 
   generate( node.consequent() );
 
@@ -309,13 +316,13 @@ void InstructionGenerator::visit_if_then_else_statement( IfThenElseStatement& no
   {
     FlowControlLabel skip_alternative;
     emit.jmp_always( skip_alternative );
-    emit.label( skip_consequent );
+    emit.label( *skip_consequent );
     generate( *alternative );
     emit.label( skip_alternative );
   }
   else
   {
-    emit.label( skip_consequent );
+    emit.label( *skip_consequent );
   }
 }
 

@@ -8,6 +8,7 @@ class ArrayInitializer;
 class AssignVariableConsume;
 class BinaryOperator;
 class Block;
+class BranchSelector;
 class CaseStatement;
 class CaseDispatchDefaultSelector;
 class CaseDispatchGroup;
@@ -61,6 +62,7 @@ public:
   virtual void visit_assign_variable_consume( AssignVariableConsume& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_block( Block& );
+  virtual void visit_branch_selector( BranchSelector& );
   virtual void visit_case_statement( CaseStatement& );
   virtual void visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& );
   virtual void visit_case_dispatch_group( CaseDispatchGroup& );

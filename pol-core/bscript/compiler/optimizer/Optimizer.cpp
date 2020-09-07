@@ -4,6 +4,7 @@
 #include "compiler/analyzer/Constants.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BranchSelector.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
@@ -74,6 +75,50 @@ void Optimizer::visit_binary_operator( BinaryOperator& binary_operator )
   }
 }
 
+void Optimizer::visit_branch_selector( BranchSelector& selector )
+{
+  visit_children( selector );
+
+  auto predicate = selector.predicate();
+  if ( auto unary_operator = dynamic_cast<UnaryOperator*>( predicate ) )
+  {
+    if ( unary_operator->token_id == TOK_LOG_NOT )
+    {
+      BranchSelector::BranchType branch_type;
+      switch ( selector.branch_type )
+      {
+      case BranchSelector::IfTrue:
+        branch_type = BranchSelector::IfFalse;
+        break;
+      case BranchSelector::IfFalse:
+        branch_type = BranchSelector::IfTrue;
+        break;
+      default:
+        selector.internal_error("Expected conditional branch with predicate");
+      }
+      optimized_replacement = std::make_unique<BranchSelector>(
+          selector.source_location, branch_type, unary_operator->take_operand() );
+    }
+  }
+  else if ( auto iv = dynamic_cast<IntegerValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = iv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    default:
+      selector.internal_error("Expected conditional branch with predicate");
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
+}
+
 void Optimizer::visit_const_declaration( ConstDeclaration& constant )
 {
   visit_children( constant );
@@ -102,27 +147,22 @@ void Optimizer::visit_if_then_else_statement( IfThenElseStatement& if_then_else 
       if_then_else.children.erase( if_then_else.children.begin() + 2 );
   }
 
-  auto& predicate = if_then_else.predicate();
-  auto predicate_as_long = dynamic_cast<IntegerValue*>( &predicate );
-  if ( predicate_as_long )
+  auto& branch_selector = if_then_else.branch_selector();
+  if ( branch_selector.branch_type == BranchSelector::Never )
   {
-    if ( predicate_as_long->value )
+    optimized_replacement = if_then_else.take_consequent();
+  }
+  else if ( branch_selector.branch_type == BranchSelector::Always )
+  {
+    if ( auto alternative = if_then_else.take_alternative() )
     {
-      optimized_replacement = if_then_else.take_consequent();
+      optimized_replacement = std::move( alternative );
     }
     else
     {
-      auto alternative = if_then_else.take_alternative();
-      if ( alternative )
-      {
-        optimized_replacement = std::move( alternative );
-      }
-      else
-      {
-        std::vector<std::unique_ptr<Statement>> empty;
-        optimized_replacement =
-            std::make_unique<Block>( if_then_else.source_location, std::move( empty ) );
-      }
+      std::vector<std::unique_ptr<Statement>> empty;
+      optimized_replacement =
+          std::make_unique<Block>( if_then_else.source_location, std::move( empty ) );
     }
   }
 }

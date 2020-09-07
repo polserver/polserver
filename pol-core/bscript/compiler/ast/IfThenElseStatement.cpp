@@ -3,30 +3,31 @@
 #include <format/format.h>
 
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BranchSelector.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {
 IfThenElseStatement::IfThenElseStatement( const SourceLocation& source_location,
-                                          std::unique_ptr<Expression> predicate,
+                                          std::unique_ptr<BranchSelector> branch_selector,
                                           std::unique_ptr<Block> consequent,
                                           std::unique_ptr<Node> alternative )
     : Statement( source_location )
 {
   children.reserve( 3 );
-  children.push_back( std::move( predicate ) );
+  children.push_back( std::move( branch_selector ) );
   children.push_back( std::move( consequent ) );
   children.push_back( std::move( alternative ) );
 }
 
 IfThenElseStatement::IfThenElseStatement( const SourceLocation& source_location,
-                                          std::unique_ptr<Expression> predicate,
+                                          std::unique_ptr<BranchSelector> branch_selector,
                                           std::unique_ptr<Block> consequent )
     : Statement( source_location )
 {
   children.reserve( 2 );
-  children.push_back( std::move( predicate ) );
+  children.push_back( std::move( branch_selector ) );
   children.push_back( std::move( consequent ) );
 }
 
@@ -40,9 +41,9 @@ void IfThenElseStatement::describe_to( fmt::Writer& w ) const
   w << "if-then-else-statement";
 }
 
-Expression& IfThenElseStatement::predicate()
+BranchSelector& IfThenElseStatement::branch_selector()
 {
-  return child<Expression>( 0 );
+  return child<BranchSelector>( 0 );
 }
 
 Block& IfThenElseStatement::consequent()
@@ -53,11 +54,6 @@ Block& IfThenElseStatement::consequent()
 Node* IfThenElseStatement::alternative()
 {
   return ( children.size() >= 3 ) ? children.at( 2 ).get() : nullptr;
-}
-
-std::unique_ptr<Expression> IfThenElseStatement::take_predicate()
-{
-  return take_child<Expression>( 0 );
 }
 
 std::unique_ptr<Block> IfThenElseStatement::take_consequent()

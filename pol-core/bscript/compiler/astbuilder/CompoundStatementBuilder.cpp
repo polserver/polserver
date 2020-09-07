@@ -2,6 +2,7 @@
 
 #include "compiler/ast/ArrayInitializer.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/BranchSelector.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
 #include "compiler/ast/CaseDispatchGroups.h"
@@ -253,16 +254,19 @@ std::unique_ptr<Statement> CompoundStatementBuilder::if_statement(
         if_statement_ast ? std::move( if_statement_ast ) : std::move( else_clause );
     auto source_location = location_for( *expression_ctx );
 
+    auto branch_selector = std::make_unique<BranchSelector>(
+        source_location, BranchSelector::IfFalse, std::move( expression_ast ) );
+
     if ( alternative_ast )
     {
       if_statement_ast = std::make_unique<IfThenElseStatement>(
-          source_location, std::move( expression_ast ), std::move( consequent_ast ),
+          source_location, std::move( branch_selector ), std::move( consequent_ast ),
           std::move( alternative_ast ) );
     }
     else
     {
       if_statement_ast = std::make_unique<IfThenElseStatement>(
-          source_location, std::move( expression_ast ), std::move( consequent_ast ) );
+          source_location, std::move( branch_selector ), std::move( consequent_ast ) );
     }
   }
 
