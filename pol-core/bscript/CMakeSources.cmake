@@ -82,6 +82,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterDeclaration.h
   compiler/ast/FunctionParameterList.cpp
   compiler/ast/FunctionParameterList.h
+  compiler/ast/GetMember.cpp
+  compiler/ast/GetMember.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
   compiler/ast/IfThenElseStatement.cpp
@@ -108,6 +110,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ProgramParameterList.h
   compiler/ast/ReturnStatement.cpp
   compiler/ast/ReturnStatement.h
+  compiler/ast/SetMember.cpp
+  compiler/ast/SetMember.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp

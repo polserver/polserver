@@ -38,6 +38,7 @@ public:
   void visit_function_call( FunctionCall& ) override;
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;
+  void visit_get_member( GetMember& member_access ) override;
   void visit_identifier( Identifier& ) override;
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_integer_value( IntegerValue& ) override;
@@ -45,6 +46,7 @@ public:
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
   void visit_return_statement( ReturnStatement& ) override;
+  void visit_set_member( SetMember& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_struct_initializer( StructInitializer& ) override;
   void visit_struct_member_initializer( StructMemberInitializer& ) override;

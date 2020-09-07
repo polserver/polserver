@@ -6,7 +6,9 @@
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/SetMember.h"
 #include "compiler/ast/ValueConsumer.h"
 
 namespace Pol::Bscript::Compiler
@@ -34,6 +36,18 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
                                             ":= #", INS_ASSIGN_CONSUME, std::move( rhs ) );
     }
   }
+}
+
+void ValueConsumerOptimizer::visit_set_member( SetMember& node )
+{
+  if ( node.consume )
+    node.internal_error(
+        "ValueConsumerOptimizer did not expect an already-consumed SetMember node" );
+  auto entity = node.take_entity();
+  auto rhs = node.take_rhs();
+  optimized_result =
+      std::make_unique<SetMember>( node.source_location, true, std::move( entity ), node.name,
+                                     std::move( rhs ), node.known_member );
 }
 
 void ValueConsumerOptimizer::visit_element_assignment( ElementAssignment& node )

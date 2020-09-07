@@ -23,6 +23,7 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/GetMember.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
@@ -31,6 +32,7 @@
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/ProgramParameterList.h"
 #include "compiler/ast/ReturnStatement.h"
+#include "compiler/ast/SetMember.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -162,17 +164,22 @@ void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_get_member( GetMember& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_identifier( Identifier& )
 {
 }
 
-void NodeVisitor::visit_integer_value( IntegerValue& )
-{
-}
-
-void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement & node )
+void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
 {
   visit_children( node );
+}
+
+void NodeVisitor::visit_integer_value( IntegerValue& )
+{
 }
 
 void NodeVisitor::visit_jump_statement( JumpStatement& node )
@@ -201,6 +208,11 @@ void NodeVisitor::visit_program_parameter_list( ProgramParameterList& node )
 }
 
 void NodeVisitor::visit_return_statement( ReturnStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_set_member( SetMember& node )
 {
   visit_children( node );
 }

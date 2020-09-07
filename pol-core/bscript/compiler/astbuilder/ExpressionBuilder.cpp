@@ -11,6 +11,7 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/StringValue.h"
@@ -234,12 +235,31 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   return function_call;
 }
 
+std::unique_ptr<GetMember> ExpressionBuilder::navigation(
+    std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* ctx )
+{
+  auto loc = location_for( *ctx );
+
+  std::string name;
+  if ( auto identifier = ctx->IDENTIFIER() )
+    name = text( identifier );
+  else if ( auto string_literal = ctx->STRING_LITERAL() )
+    name = unquote( string_literal );
+  else
+    loc.internal_error( "member_access: need string literal or identifier" );
+  return std::make_unique<GetMember>( loc, std::move( lhs ), std::move( name ) );
+}
+
 std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(
     std::unique_ptr<Expression> lhs, EscriptParser::ExpressionSuffixContext* ctx )
 {
   if ( auto indexing = ctx->indexingSuffix() )
   {
     return element_access( std::move( lhs ), indexing->expressionList() );
+  }
+  else if ( auto member = ctx->navigationSuffix() )
+  {
+    return navigation( std::move( lhs ), member );
   }
   else
   {

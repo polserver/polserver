@@ -169,6 +169,17 @@ void InstructionEmitter::get_arg( const std::string& name )
   emit_token( INS_GET_ARG, TYP_OPERATOR, offset );
 }
 
+void InstructionEmitter::get_member( const std::string& name )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_GET_MEMBER, TYP_UNARY_OPERATOR, offset );
+}
+
+void InstructionEmitter::get_member_id( MemberID member_id )
+{
+  emit_token( INS_GET_MEMBER_ID, TYP_UNARY_OPERATOR, member_id );
+}
+
 void InstructionEmitter::jmp_always( FlowControlLabel& label )
 {
   register_with_label( label, emit_token( RSV_GOTO, TYP_RESERVED ) );
@@ -224,6 +235,28 @@ void InstructionEmitter::progend()
 void InstructionEmitter::return_from_user_function()
 {
   emit_token( RSV_RETURN, TYP_RESERVED );
+}
+
+void InstructionEmitter::set_member_id_consume( MemberID member_id )
+{
+  emit_token( INS_SET_MEMBER_ID_CONSUME, TYP_UNARY_OPERATOR, member_id );
+}
+
+void InstructionEmitter::set_member_id( MemberID member_id )
+{
+  emit_token( INS_SET_MEMBER_ID, TYP_UNARY_OPERATOR, member_id );
+}
+
+void InstructionEmitter::set_member_consume( const std::string& name )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_SET_MEMBER_CONSUME, TYP_UNARY_OPERATOR, offset );
+}
+
+void InstructionEmitter::set_member( const std::string& name )
+{
+  unsigned offset = emit_data( name );
+  emit_token( INS_SET_MEMBER, TYP_UNARY_OPERATOR, offset );
 }
 
 void InstructionEmitter::struct_create()

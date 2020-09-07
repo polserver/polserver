@@ -24,6 +24,7 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
@@ -32,6 +33,7 @@
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/ReturnStatement.h"
+#include "compiler/ast/SetMember.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -317,6 +319,16 @@ void InstructionGenerator::visit_jump_statement( JumpStatement& jump )
   emit.jmp_always( *jump.flow_control_label );
 }
 
+void InstructionGenerator::visit_get_member( GetMember& member_access )
+{
+  visit_children( member_access );
+
+  if ( auto km = member_access.known_member )
+    emit.get_member_id( km->id );
+  else
+    emit.get_member( member_access.name );
+}
+
 void InstructionGenerator::visit_program( Program& program )
 {
   visit_children( program );
@@ -343,6 +355,26 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
   else
   {
     emit.progend();
+  }
+}
+
+void InstructionGenerator::visit_set_member( SetMember& node )
+{
+  visit_children( node );
+
+  if ( auto known_member = node.known_member )
+  {
+    if ( node.consume )
+      emit.set_member_id_consume( known_member->id );
+    else
+      emit.set_member_id( known_member->id );
+  }
+  else
+  {
+    if ( node.consume )
+      emit.set_member_consume( node.name );
+    else
+      emit.set_member( node.name );
   }
 }
 

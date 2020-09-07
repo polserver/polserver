@@ -16,6 +16,7 @@ class DictionaryInitializer;
 class ElementAccess;
 class Expression;
 class FunctionCall;
+class GetMember;
 class UnaryOperator;
 
 class ExpressionBuilder : public ValueBuilder
@@ -51,6 +52,8 @@ public:
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );
 
+  std::unique_ptr<GetMember> navigation(
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* );
   std::unique_ptr<Expression> expression_suffix(
       std::unique_ptr<Expression> lhs,
       EscriptGrammar::EscriptParser::ExpressionSuffixContext* );

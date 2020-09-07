@@ -3,6 +3,7 @@
 #include "StoredToken.h"
 #include "compiler/representation/ModuleDescriptor.h"
 #include "compiler/representation/ModuleFunctionDescriptor.h"
+#include "objmembers.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -269,6 +270,16 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << " :=";
     break;
 
+  case INS_GET_MEMBER:
+    w << "get-member " << string_at( tkn.offset ) << "(offset " << tkn.offset << ")";
+    break;
+  case INS_SET_MEMBER:
+    w << "set-member " << string_at( tkn.offset ) << "(offset " << tkn.offset << ")";
+    break;
+  case INS_SET_MEMBER_CONSUME:
+    w << "set-member-consume " << string_at( tkn.offset ) << "(offset " << tkn.offset << ")";
+    break;
+
   case INS_ADDMEMBER2:
     w << "add uninitialized member (" << string_at( tkn.offset ) << " to struct";
     break;
@@ -278,9 +289,18 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case INS_UNINIT:
     w << "push-uninit";
     break;
-
   case INS_DICTIONARY_ADDMEMBER:
     w << "add member to dictionary";
+    break;
+
+  case INS_GET_MEMBER_ID:
+    w << "get-member-id '" << getObjMember( tkn.type )->code << "' (" << tkn.type << ")";
+    break;
+  case INS_SET_MEMBER_ID:
+    w << "set-member-id '" << getObjMember( tkn.type )->code << "' (" << tkn.type << ")";
+    break;
+  case INS_SET_MEMBER_ID_CONSUME:
+    w << "set-member-id-consume '" << getObjMember( tkn.type )->code << "' (" << tkn.type << ")";
     break;
 
   case TOK_UNPLUSPLUS:

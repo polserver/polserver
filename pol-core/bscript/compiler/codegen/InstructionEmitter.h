@@ -66,6 +66,8 @@ public:
   void foreach_init( FlowControlLabel& );
   void foreach_step( FlowControlLabel& );
   void get_arg( const std::string& name );
+  void get_member( const std::string& name );
+  void get_member_id( MemberID );
   void jmp_always( FlowControlLabel& );
   void jmp_if_false( FlowControlLabel& );
   void jmp_if_true( FlowControlLabel& );
@@ -76,6 +78,10 @@ public:
   void pop_param_byref( const std::string& name );
   void progend();
   void return_from_user_function();
+  void set_member( const std::string& name );
+  void set_member_id( MemberID member_id );
+  void set_member_id_consume( MemberID member_id );
+  void set_member_consume( const std::string& name );
   void struct_create();
   void struct_add_uninit_member( const std::string& name );
   void struct_add_member( const std::string& name );
