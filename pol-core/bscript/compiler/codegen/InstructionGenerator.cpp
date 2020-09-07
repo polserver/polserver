@@ -444,6 +444,21 @@ void InstructionGenerator::visit_uninitialized_value( UninitializedValue& )
 
 void InstructionGenerator::visit_user_function( UserFunction& user_function )
 {
+  if ( user_function.exported )
+  {
+    // emit the exported entry stub
+    FlowControlLabel exported_entrypoint, internal_entrypoint;
+
+    emit.label( exported_entrypoint );
+    emit.makelocal();
+    emit.call_userfunc( internal_entrypoint );
+    emit.progend();
+
+    emit.label( internal_entrypoint );
+    emitter.register_exported_function( exported_entrypoint, user_function.name,
+                                        user_function.parameter_count() );
+  }
+
   FlowControlLabel& label = user_function_labels[user_function.name];
   emit.label( label );
   visit_children( user_function );

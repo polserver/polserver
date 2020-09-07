@@ -38,7 +38,7 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
 
   ModuleDeclarationRegistrar module_declaration_registrar;
 
-  InstructionEmitter instruction_emitter( code, data,
+  InstructionEmitter instruction_emitter( code, data, exported_functions,
                                           module_declaration_registrar );
   CodeGenerator generator( instruction_emitter, module_declaration_registrar );
 

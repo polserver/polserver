@@ -1,5 +1,7 @@
 #include "Optimizer.h"
 
+#include <utility>
+
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
 #include "compiler/ast/BinaryOperator.h"
@@ -10,8 +12,10 @@
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/Program.h"
+#include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
+#include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/astbuilder/SimpleValueCloner.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -25,8 +29,7 @@
 namespace Pol::Bscript::Compiler
 {
 Optimizer::Optimizer( Constants& constants, Report& report )
-  : constants( constants ),
-    report( report )
+  : constants( constants ), report( report )
 {
 }
 
@@ -34,14 +37,26 @@ void Optimizer::optimize( CompilerWorkspace& workspace )
 {
   workspace.accept( *this );
 
-  ReferencedFunctionGatherer gatherer( workspace.module_function_declarations );
+  std::vector<UserFunction*> exported_functions;
+  for ( auto& user_function : workspace.user_functions )
+  {
+    if ( user_function->exported )
+      exported_functions.push_back( user_function.get() );
+  }
+  ReferencedFunctionGatherer gatherer( workspace.module_function_declarations,
+                                       std::move( workspace.user_functions ) );
   workspace.top_level_statements->accept( gatherer );
   if ( auto program = workspace.program.get() )
   {
     program->accept( gatherer );
   }
+  for ( auto uf : exported_functions )
+  {
+    gatherer.reference( uf );
+  }
   workspace.referenced_module_function_declarations =
       gatherer.take_referenced_module_function_declarations();
+  workspace.user_functions = gatherer.take_referenced_user_functions();
 }
 
 void Optimizer::visit_children( Node& node )

@@ -100,7 +100,7 @@ bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast
 
 void FunctionResolver::register_available_user_function_parse_tree(
     const SourceLocation& source_location, antlr4::ParserRuleContext* ctx,
-    antlr4::tree::TerminalNode* identifier, antlr4::tree::TerminalNode* /*exported*/ )
+    antlr4::tree::TerminalNode* identifier, antlr4::tree::TerminalNode* exported )
 {
   std::string name = identifier->getSymbol()->getText();
   auto itr = available_user_function_parse_trees.find( name );
@@ -114,6 +114,14 @@ void FunctionResolver::register_available_user_function_parse_tree(
 
   auto auf = AvailableUserFunction{ source_location, ctx };
   available_user_function_parse_trees.insert( { name, auf } );
+
+  if ( exported )
+  {
+    auto function_name = identifier->getSymbol()->getText();
+
+    // just make sure there is an entry, so that we build an AST for it
+    unresolved_function_links_by_name[function_name];
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler
