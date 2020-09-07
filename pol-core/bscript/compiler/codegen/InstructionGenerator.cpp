@@ -17,6 +17,7 @@
 #include "compiler/ast/ElementAccess.h"
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/ErrorInitializer.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/ForeachLoop.h"
@@ -190,6 +191,17 @@ void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
       emit.assign_subscript();
     else
       emit.assign_multisubscript( num_indexes );
+  }
+}
+
+void InstructionGenerator::visit_error_initializer( ErrorInitializer& node )
+{
+  emit.error_create();
+  int i = 0;
+  for ( auto& child : node.children )
+  {
+    child->accept( *this );
+    emit.struct_add_member( node.names[i++] );
   }
 }
 

@@ -8,6 +8,7 @@
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/ElementAccess.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/ErrorInitializer.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
@@ -166,10 +167,46 @@ std::unique_ptr<ElementAccess> ExpressionBuilder::element_access(
     indexes.push_back( expression( expression_ctx ) );
   }
 
-  auto xx = std::make_unique<ElementIndexes>( location_for( *ctx ),
-                                              std::move( indexes ) );
+  auto xx = std::make_unique<ElementIndexes>( location_for( *ctx ), std::move( indexes ) );
 
   return std::make_unique<ElementAccess>( source_location, std::move( lhs ), std::move( xx ) );
+}
+
+std::unique_ptr<ErrorInitializer> ExpressionBuilder::error(
+    EscriptParser::ExplicitErrorInitializerContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+
+  std::vector<std::string> identifiers;
+  std::vector<std::unique_ptr<Expression>> expressions;
+
+  if ( auto struct_initializer = ctx->structInitializer() )
+  {
+    if ( auto expression_list_ctx = struct_initializer->structInitializerExpressionList() )
+    {
+      for ( auto expression_ctx : expression_list_ctx->structInitializerExpression() )
+      {
+        auto expression_source_ctx = location_for( *expression_ctx );
+        std::string identifier;
+        if ( auto x = expression_ctx->IDENTIFIER() )
+          identifier = text( x );
+        else if ( auto string_literal = expression_ctx->STRING_LITERAL() )
+          identifier = unquote( string_literal );
+        else
+          expression_source_ctx.internal_error(
+              "Unable to determine identifier for struct initializer" );
+
+        auto value = expression_ctx->expression() ? expression( expression_ctx->expression() )
+                                                  : std::unique_ptr<Expression>();
+
+        identifiers.push_back( std::move( identifier ) );
+        expressions.push_back( std::move( value ) );
+      }
+    }
+  }
+
+  return std::make_unique<ErrorInitializer>( source_location, std::move( identifiers ),
+                                             std::move( expressions ) );
 }
 
 std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
@@ -337,6 +374,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto struct_init = ctx->explicitStructInitializer() )
   {
     return struct_initializer( struct_init );
+  }
+  else if ( auto error_init = ctx->explicitErrorInitializer() )
+  {
+    return error( error_init );
   }
   else if ( auto array_init = ctx->explicitArrayInitializer() )
   {

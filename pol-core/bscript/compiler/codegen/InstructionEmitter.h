@@ -62,6 +62,7 @@ public:
   void declare_variable( const Variable& );
   void dictionary_create();
   void dictionary_add_member();
+  void error_create();
   void exit();
   void foreach_init( FlowControlLabel& );
   void foreach_step( FlowControlLabel& );

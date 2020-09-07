@@ -148,6 +148,11 @@ void InstructionEmitter::dictionary_add_member()
   emit_token( INS_DICTIONARY_ADDMEMBER, TYP_OPERATOR );
 }
 
+void InstructionEmitter::error_create()
+{
+  emit_token( TOK_ERROR, TYP_OPERAND );
+}
+
 void InstructionEmitter::exit()
 {
   emit_token( RSV_EXIT, TYP_RESERVED );

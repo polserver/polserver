@@ -20,6 +20,7 @@ class DoWhileLoop;
 class ElementAccess;
 class ElementAssignment;
 class ElementIndexes;
+class ErrorInitializer;
 class ExitStatement;
 class FloatValue;
 class ForeachLoop;
@@ -72,6 +73,7 @@ public:
   virtual void visit_element_access( ElementAccess& );
   virtual void visit_element_assignment( ElementAssignment& );
   virtual void visit_element_indexes( ElementIndexes& );
+  virtual void visit_error_initializer( ErrorInitializer& );
   virtual void visit_exit_statement( ExitStatement& );
   virtual void visit_float_value( FloatValue& );
   virtual void visit_foreach_loop( ForeachLoop& );

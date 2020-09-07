@@ -14,6 +14,7 @@ class ArrayInitializer;
 class BinaryOperator;
 class DictionaryInitializer;
 class ElementAccess;
+class ErrorInitializer;
 class Expression;
 class FunctionCall;
 class GetMember;
@@ -41,6 +42,9 @@ public:
 
   std::unique_ptr<ElementAccess> element_access(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionListContext* );
+
+  std::unique_ptr<ErrorInitializer> error(
+      EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* );
 
   std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
 

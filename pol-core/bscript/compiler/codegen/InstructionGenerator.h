@@ -8,8 +8,6 @@
 
 namespace Pol::Bscript::Compiler
 {
-class AssignVariableConsume;
-class ElementAssignment;
 class FlowControlLabel;
 class InstructionEmitter;
 
@@ -32,6 +30,7 @@ public:
   void visit_do_while_loop( DoWhileLoop& ) override;
   void visit_element_access( ElementAccess& ) override;
   void visit_element_assignment( ElementAssignment& ) override;
+  void visit_error_initializer( ErrorInitializer& ) override;
   void visit_exit_statement( ExitStatement& ) override;
   void visit_float_value( FloatValue& ) override;
   void visit_foreach_loop( ForeachLoop& ) override;
