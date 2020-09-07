@@ -64,6 +64,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ElementAssignment.h
   compiler/ast/ElementIndexes.cpp
   compiler/ast/ElementIndexes.h
+  compiler/ast/ErrorInitializer.cpp
+  compiler/ast/ErrorInitializer.h
   compiler/ast/ExitStatement.cpp
   compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp

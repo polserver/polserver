@@ -193,6 +193,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << defn.name;
     break;
   }
+  case TOK_ERROR:
+    w << "error";
+    break;
 
   case TOK_LOCALVAR:
     w << "local variable #" << tkn.offset;
