@@ -246,7 +246,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
     return postfix_unary_operator( ctx );
   else if ( ctx->bop && ctx->expression().size() == 2 )
   {
-    return binary_operator( ctx );
+    if ( ctx->ADDMEMBER() || ctx->DELMEMBER() || ctx->CHKMEMBER() )
+      return membership_operator( ctx );
+    else
+      return binary_operator( ctx );
   }
   else if ( auto suffix = ctx->expressionSuffix() )
   {
@@ -270,6 +273,32 @@ std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(
   workspace.function_resolver.register_function_link( key, function_call->function_link );
 
   return function_call;
+}
+
+std::unique_ptr<BinaryOperator> ExpressionBuilder::membership_operator(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto loc = location_for( *ctx );
+  std::unique_ptr<Expression> lhs = expression( ctx->expression( 0 ) );
+  std::string op = ctx->bop->getText();
+
+  BTokenId token_id = ctx->ADDMEMBER()
+                          ? TOK_ADDMEMBER
+                          : ctx->DELMEMBER()
+                                ? TOK_DELMEMBER
+                                : ctx->CHKMEMBER() ? TOK_CHKMEMBER : unhandled_operator( loc );
+
+  // On the right-hand side, any of the following are valid:
+  //   - an identifier: treat as the field name
+  //   - an expression: evaluate and use as the field name
+  std::unique_ptr<Expression> rhs = expression( ctx->expression( 1 ) );
+  if ( auto identifier = dynamic_cast<Identifier*>( rhs.get() ) )
+  {
+    rhs = std::make_unique<StringValue>( rhs->source_location, identifier->name );
+  }
+
+  return std::make_unique<BinaryOperator>( loc, std::move( lhs ), std::move( op ), token_id,
+                                           std::move( rhs ) );
 }
 
 std::unique_ptr<GetMember> ExpressionBuilder::navigation(

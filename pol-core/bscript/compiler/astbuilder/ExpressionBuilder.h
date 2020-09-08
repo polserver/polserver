@@ -56,6 +56,9 @@ public:
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );
 
+  std::unique_ptr<BinaryOperator> membership_operator(
+      EscriptGrammar::EscriptParser::ExpressionContext* );
+
   std::unique_ptr<GetMember> navigation(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* );
   std::unique_ptr<Expression> expression_suffix(
