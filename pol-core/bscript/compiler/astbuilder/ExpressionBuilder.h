@@ -18,6 +18,7 @@ class ErrorInitializer;
 class Expression;
 class FunctionCall;
 class GetMember;
+class MethodCall;
 class UnaryOperator;
 
 class ExpressionBuilder : public ValueBuilder
@@ -55,6 +56,9 @@ public:
 
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );
+
+  std::unique_ptr<MethodCall> method_call(
+      std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::MethodCallSuffixContext* );
 
   std::unique_ptr<BinaryOperator> membership_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
