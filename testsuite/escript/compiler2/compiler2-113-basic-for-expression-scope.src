@@ -8,4 +8,4 @@ var b := 8;
 
 for a := a to b
    print(a);
-endfor;
+endfor

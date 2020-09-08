@@ -54,6 +54,8 @@ public:
   void assign_subscript();
   void assign_multisubscript( unsigned indexes );
   void assign_variable( const Variable& );
+  void basic_for_init( FlowControlLabel& );
+  void basic_for_next( FlowControlLabel& );
   void binary_operator( BTokenId token_id );
   void call_method( const std::string& name, unsigned argument_count );
   void call_method_id( MethodID method_id, unsigned argument_count );

@@ -5,10 +5,12 @@
 
 namespace Pol::Bscript::Compiler
 {
+class BasicForLoop;
 class Block;
 class Statement;
 class CaseStatement;
 class ConstDeclaration;
+class CstyleForLoop;
 class DoWhileLoop;
 class ForeachLoop;
 class RepeatUntilLoop;
@@ -23,6 +25,9 @@ public:
   void add_statements( EscriptGrammar::EscriptParser::StatementContext*,
                        std::vector<std::unique_ptr<Statement>>& );
 
+  std::unique_ptr<BasicForLoop> basic_for_loop(
+      EscriptGrammar::EscriptParser::BasicForStatementContext*, std::string label );
+
   std::unique_ptr<Block> block( EscriptGrammar::EscriptParser::BlockContext* );
 
   std::vector<std::unique_ptr<Statement>> block_statements(
@@ -31,7 +36,13 @@ public:
   std::unique_ptr<CaseStatement> case_statement(
       EscriptGrammar::EscriptParser::CaseStatementContext* );
 
+  std::unique_ptr<CstyleForLoop> cstyle_for_loop(
+      EscriptGrammar::EscriptParser::CstyleForStatementContext*, std::string label );
+
   std::unique_ptr<DoWhileLoop> do_while_loop( EscriptGrammar::EscriptParser::DoStatementContext* );
+
+  std::unique_ptr<Statement> for_loop( EscriptGrammar::EscriptParser::ForGroupContext*,
+                                       std::string label );
 
   std::unique_ptr<Expression> foreach_iterable_expression(
       EscriptGrammar::EscriptParser::ForeachIterableExpressionContext* );

@@ -22,7 +22,9 @@ public:
 
   void visit_array_initializer( ArrayInitializer& ) override;
   void visit_assign_variable_consume( AssignVariableConsume& ) override;
+  void visit_basic_for_loop( BasicForLoop& loop ) override;
   void visit_case_statement( CaseStatement& ) override;
+  void visit_cstyle_for_loop( CstyleForLoop& loop ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
   void visit_branch_selector( BranchSelector& ) override;

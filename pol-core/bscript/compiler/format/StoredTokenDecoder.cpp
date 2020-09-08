@@ -231,6 +231,12 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case TOK_DICTIONARY:
     w << "TOK_DICTIONARY";
     break;
+  case INS_INITFOR:
+    w << "initfor @" << tkn.offset;
+    break;
+  case INS_NEXTFOR:
+    w << "nextfor @" << tkn.offset;
+    break;
   case INS_POP_PARAM_BYREF:
     w << "pop param byref '" << string_at( tkn.offset ) << "'";
     break;

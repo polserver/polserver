@@ -87,6 +87,16 @@ void InstructionEmitter::assign_variable( const Variable& v )
   emit_token( token_id, TYP_UNARY_OPERATOR, v.index );
 }
 
+void InstructionEmitter::basic_for_init( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( INS_INITFOR, TYP_RESERVED ) );
+}
+
+void InstructionEmitter::basic_for_next( FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( INS_NEXTFOR, TYP_RESERVED ) );
+}
+
 void InstructionEmitter::binary_operator( BTokenId token_id )
 {
   emit_token( token_id, TYP_OPERATOR );

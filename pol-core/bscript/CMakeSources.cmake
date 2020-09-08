@@ -36,6 +36,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ArrayInitializer.h
   compiler/ast/AssignVariableConsume.cpp
   compiler/ast/AssignVariableConsume.h
+  compiler/ast/BasicForLoop.cpp
+  compiler/ast/BasicForLoop.h
   compiler/ast/BinaryOperator.cpp
   compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp
@@ -54,6 +56,8 @@ set (bscript_sources    # sorted !
   compiler/ast/CaseStatement.h
   compiler/ast/ConstDeclaration.cpp
   compiler/ast/ConstDeclaration.h
+  compiler/ast/CstyleForLoop.cpp
+  compiler/ast/CstyleForLoop.h
   compiler/ast/DictionaryEntry.cpp
   compiler/ast/DictionaryEntry.h
   compiler/ast/DictionaryInitializer.cpp
