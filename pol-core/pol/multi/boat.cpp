@@ -276,7 +276,7 @@ bool BoatShapeExists( u16 multiid )
 }
 
 // TODO: Updating the objects and components before calling this function would help!
-void UBoat::send_smooth_move( Network::Client* client, Core::UFACING bowrelative_dir, u8 speed,
+void UBoat::send_smooth_move( Network::Client* client, Core::UFACING world_dir, u8 speed,
                               const Core::Pos2d& newpos )
 {
   Network::PktHelper::PacketOut<Network::PktOut_F6> msg;
@@ -287,7 +287,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING bowrelative
   msg->Write<u32>( serial_ext );
   msg->Write<u8>( speed );
 
-  msg->Write<u8>( bowrelative_dir );
+  msg->Write<u8>( world_dir );
   msg->Write<u8>( boat_facing() );
 
   msg->WriteFlipped<u16>( newpos.x() );
@@ -338,7 +338,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING bowrelative
 }
 
 // TODO: This is building the whole smooth move packet again and again. Surely it can be optimized?
-void UBoat::send_smooth_move_to_inrange( Core::UFACING bowrelative_dir, u8 speed,
+void UBoat::send_smooth_move_to_inrange( Core::UFACING world_dir, u8 speed,
                                          const Core::Pos2d& newpos )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
@@ -348,7 +348,7 @@ void UBoat::send_smooth_move_to_inrange( Core::UFACING bowrelative_dir, u8 speed
         if ( inrange( client->chr, this ) &&
              client->ClientType & Network::CLIENTTYPE_7090 )  // send this only to those who see the
                                                               // old location aswell
-          send_smooth_move( client, bowrelative_dir, speed, newpos );
+          send_smooth_move( client, world_dir, speed, newpos );
       } );
 }
 
@@ -1033,19 +1033,9 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
 
   BoatMoveGuard registerguard( this );
 
-  Core::UFACING world_move_dir;   // relative to cardinal directions (world coordinates)
-  Core::UFACING bowrelative_dir;  // relative to bow (0 means boat_facing() in world coordinates)
-
-  if ( relative == false )
-  {
-    world_move_dir = dir;
-    bowrelative_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
-  }
-  else
-  {
+  Core::UFACING world_move_dir = dir;  // relative to cardinal directions (world coordinates)
+  if ( relative )
     world_move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
-    bowrelative_dir = dir;
-  }
 
   Core::Pos4d newpos = this->pos().move( world_move_dir );
   if ( navigable( multidef(), newpos ) )
@@ -1053,7 +1043,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
     BoatContext oldstate( *this );
 
     // TODO: update smooth_move to use the NEW positions of components and travellers
-    send_smooth_move_to_inrange( bowrelative_dir, speed, newpos.xy() );
+    send_smooth_move_to_inrange( world_move_dir, speed, newpos.xy() );
 
     set_dirty();
 

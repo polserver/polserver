@@ -141,10 +141,9 @@ public:
   virtual void unregister_object( Core::UObject* obj ) override;
   Core::UFACING boat_facing() const;
 
-  void send_smooth_move( Network::Client* client, Core::UFACING bowrelative_dir, u8 speed,
+  void send_smooth_move( Network::Client* client, Core::UFACING world_dir, u8 speed,
                          const Core::Pos2d& newpos );
-  void send_smooth_move_to_inrange( Core::UFACING bowrelative_dir, u8 speed,
-                                    const Core::Pos2d& newpos );
+  void send_smooth_move_to_inrange( Core::UFACING world_dir, u8 speed, const Core::Pos2d& newpos );
   void send_display_boat( Network::Client* client );
   void send_display_boat_to_inrange( const Core::Pos4d& oldpos );
   void send_boat( Network::Client* client );
