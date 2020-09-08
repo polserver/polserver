@@ -349,6 +349,18 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case TOK_UNMINUSMINUS_POST:
     w << "postfix unary --";
     break;
+  case INS_SET_MEMBER_ID_UNPLUSPLUS:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' unary ++";
+    break;
+  case INS_SET_MEMBER_ID_UNMINUSMINUS:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' unary --";
+    break;
+  case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' unary ++ post";
+    break;
+  case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
+    w << "set member id '" << getObjMember( tkn.offset )->code << "' unary -- post";
+    break;
 
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset

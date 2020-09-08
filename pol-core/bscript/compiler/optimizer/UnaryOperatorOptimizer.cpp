@@ -1,7 +1,9 @@
 #include "UnaryOperatorOptimizer.h"
 
 #include "compiler/ast/FloatValue.h"
+#include "compiler/ast/GetMember.h"
 #include "compiler/ast/IntegerValue.h"
+#include "compiler/ast/SetMemberByOperator.h"
 #include "compiler/ast/UnaryOperator.h"
 
 namespace Pol::Bscript::Compiler
@@ -57,6 +59,36 @@ void UnaryOperatorOptimizer::visit_integer_value( IntegerValue& iv )
   }
 
   optimized_result = std::make_unique<IntegerValue>( iv.source_location, value );
+}
+
+void UnaryOperatorOptimizer::visit_get_member( GetMember& gm )
+{
+  if ( !gm.known_member )
+    return;
+
+  BTokenId new_token_id;
+  switch ( unary_operator.token_id )
+  {
+  case TOK_UNPLUSPLUS:
+    new_token_id = INS_SET_MEMBER_ID_UNPLUSPLUS;
+    break;
+  case TOK_UNMINUSMINUS:
+    new_token_id = INS_SET_MEMBER_ID_UNMINUSMINUS;
+    break;
+  case TOK_UNPLUSPLUS_POST:
+    new_token_id = INS_SET_MEMBER_ID_UNPLUSPLUS_POST;
+    break;
+  case TOK_UNMINUSMINUS_POST:
+    new_token_id = INS_SET_MEMBER_ID_UNMINUSMINUS_POST;
+    break;
+  default:
+    return;
+  }
+
+  bool consume = false;
+  auto entity = gm.take_entity();
+  optimized_result = std::make_unique<SetMemberByOperator>(
+      gm.source_location, consume, std::move( entity ), gm.name, new_token_id, *gm.known_member );
 }
 
 }  // namespace Pol::Bscript::Compiler
