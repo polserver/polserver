@@ -1,6 +1,7 @@
 #include "SourceFileProcessor.h"
 
 #include "clib/fileutil.h"
+#include "clib/logfacility.h"
 #include "clib/timer.h"
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
@@ -16,9 +17,14 @@
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/CompilerWorkspace.h"
 #include "compilercfg.h"
+#include "plib/pkg.h"
 
 using EscriptGrammar::EscriptParser;
 
+namespace Pol::Bscript::Legacy
+{
+std::string getpathof( const std::string& fname );
+}
 namespace Pol::Bscript::Compiler
 {
 SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_file_identifier,
@@ -93,6 +99,171 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   }
 }
 
+void SourceFileProcessor::process_include( SourceFile& sf, long long* micros_counted )
+{
+  Pol::Tools::HighPerfTimer parse_timer;
+  auto compilation_unit = sf.get_compilation_unit( report, source_file_identifier );
+  profile.parse_inc_count++;
+  long long parse_micros_elapsed = parse_timer.ellapsed().count();
+  profile.parse_inc_micros.fetch_add( parse_micros_elapsed );
+  *micros_counted += parse_micros_elapsed;
+
+  if ( report.error_count() == 0 )
+  {
+    Pol::Tools::HighPerfTimer ast_timer;
+    compilation_unit->accept( this );
+    long long ast_micros_elapsed = ast_timer.ellapsed().count();
+    profile.ast_inc_micros.fetch_add( ast_micros_elapsed );
+    *micros_counted += ast_micros_elapsed;
+  }
+}
+
+void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDeclarationContext* ctx,
+                                                      long long* micros_counted )
+{
+  auto source_location = location_for( *ctx );
+
+  std::string include_name;
+  if ( auto string_literal = ctx->stringIdentifier()->STRING_LITERAL() )
+    include_name = tree_builder.unquote( string_literal );
+  else if ( auto identifier = ctx->stringIdentifier()->IDENTIFIER() )
+    include_name = identifier->getSymbol()->getText();
+  else
+    source_location.internal_error(
+        "Unable to include module: expected a string literal or identifier.\n" );
+
+  boost::optional<std::string> maybe_canonical_include_pathname =
+      locate_include_file( source_location, include_name );
+
+  if ( !maybe_canonical_include_pathname )
+  {
+    report.error( source_location,
+                  "Unable to include file '" + include_name + "': failed to locate.\n" );
+    return;
+  }
+
+  std::string canonical_include_pathname = maybe_canonical_include_pathname.value();
+
+  if ( workspace.source_files.count( canonical_include_pathname ) == 0 )
+  {
+    auto ident = std::make_unique<SourceFileIdentifier>(
+        workspace.compiler_workspace.referenced_source_file_identifiers.size(),
+        canonical_include_pathname );
+    auto sf = workspace.inc_cache.load( *ident, report );
+    if ( !sf )
+    {
+      report.error( source_location, "Unable to include file '", canonical_include_pathname,
+                    "': failed to load.\n" );
+      return;
+    }
+
+    SourceFileProcessor include_processor( *ident, workspace, false );
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+    workspace.source_files[sf->pathname] = sf;
+
+    include_processor.process_include( *sf, micros_counted );
+  }
+}
+
+boost::optional<std::string> SourceFileProcessor::locate_include_file(
+    const SourceLocation& source_location, const std::string& include_name )
+{
+  std::string filename_part = include_name + ".inc";
+
+  std::string current_file_path =
+      Pol::Bscript::Legacy::getpathof( source_location.source_file_identifier->pathname );
+  std::string filename_full = current_file_path + filename_part;
+
+  if ( filename_part[0] == ':' )
+  {
+    const Plib::Package* pkg = nullptr;
+    std::string path;
+    if ( Plib::pkgdef_split( filename_part, nullptr, &pkg, &path ) )
+    {
+      if ( pkg != nullptr )
+      {
+        filename_full = pkg->dir() + path;
+        std::string try_filename_full = pkg->dir() + "include/" + path;
+
+        if ( compilercfg.VerbosityLevel >= 10 )
+          INFO_PRINT << "Searching for " << filename_full << "\n";
+
+        if ( !Clib::FileExists( filename_full.c_str() ) )
+        {
+          if ( compilercfg.VerbosityLevel >= 10 )
+            INFO_PRINT << "Searching for " << try_filename_full << "\n";
+          if ( Clib::FileExists( try_filename_full.c_str() ) )
+          {
+            if ( compilercfg.VerbosityLevel >= 10 )
+              INFO_PRINT << "Found " << try_filename_full << "\n";
+
+            filename_full = try_filename_full;
+          }
+        }
+        else
+        {
+          if ( compilercfg.VerbosityLevel >= 10 )
+            INFO_PRINT << "Found " << filename_full << "\n";
+
+          if ( Clib::FileExists( try_filename_full.c_str() ) )
+            report.warning( source_location, "Found '", filename_full, "' and '", try_filename_full,
+                            "'! Will use first file!\n" );
+        }
+      }
+      else
+      {
+        filename_full = compilercfg.PolScriptRoot + path;
+
+        if ( compilercfg.VerbosityLevel >= 10 )
+        {
+          INFO_PRINT << "Searching for " << filename_full << "\n";
+          if ( Clib::FileExists( filename_full.c_str() ) )
+            INFO_PRINT << "Found " << filename_full << "\n";
+        }
+      }
+    }
+    else
+    {
+      // This is fatal because if we keep going, we'll likely report a bunch of errors
+      // that would just be noise, like missing functions or constants.
+      report.fatal( source_location, "Unable to read include file '" + include_name + "'\n" );
+    }
+  }
+  else
+  {
+    if ( compilercfg.VerbosityLevel >= 10 )
+      INFO_PRINT << "Searching for " << filename_full << "\n";
+
+    if ( !Clib::FileExists( filename_full.c_str() ) )
+    {
+      std::string try_filename_full = compilercfg.IncludeDirectory + filename_part;
+      if ( compilercfg.VerbosityLevel >= 10 )
+        INFO_PRINT << "Searching for " << try_filename_full << "\n";
+      if ( Clib::FileExists( try_filename_full.c_str() ) )
+      {
+        if ( compilercfg.VerbosityLevel >= 10 )
+          INFO_PRINT << "Found " << try_filename_full << "\n";
+
+        // cout << "Using " << try_filename << endl;
+        filename_full = try_filename_full;
+      }
+    }
+    else
+    {
+      if ( compilercfg.VerbosityLevel >= 10 )
+        INFO_PRINT << "Found " << filename_full << "\n";
+    }
+  }
+  if ( SourceFile::enforced_case_sensitivity_mismatch( source_location, filename_full, report ) )
+  {
+    return {};
+  }
+
+  filename_full = Clib::FullPath( filename_full.c_str() );
+
+  return boost::optional<std::string>( !filename_full.empty(), filename_full );
+}
+
 void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationContext* ctx,
                                                   long long* micros_used )
 {
@@ -108,6 +279,18 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
   workspace.function_resolver.register_available_user_function( location_for( *ctx ), ctx );
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SourceFileProcessor::visitIncludeDeclaration(
+    EscriptParser::IncludeDeclarationContext* ctx )
+{
+  long long micros_counted = 0;
+  handle_include_declaration( ctx, &micros_counted );
+  if ( is_src )
+    profile.ast_src_micros.fetch_sub( micros_counted );
+  else
+    profile.ast_inc_micros.fetch_sub( micros_counted );
   return antlrcpp::Any();
 }
 
