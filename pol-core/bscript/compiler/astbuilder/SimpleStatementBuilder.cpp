@@ -3,6 +3,7 @@
 #include "compiler/Report.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/EnumDeclaration.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IntegerValue.h"
@@ -94,6 +95,51 @@ std::unique_ptr<JumpStatement> SimpleStatementBuilder::continue_statement(
 
   return std::make_unique<JumpStatement>( source_location, JumpStatement::Continue,
                                           std::move( label ) );
+}
+
+std::unique_ptr<EnumDeclaration> SimpleStatementBuilder::enum_declaration(
+    EscriptParser::EnumStatementContext* ctx )
+{
+  std::vector<std::string> names;
+  std::vector<std::unique_ptr<Expression>> expressions;
+  if ( auto enum_list = ctx->enumList() )
+  {
+    std::string last_identifier;
+    for ( auto entry : enum_list->enumListEntry() )
+    {
+      auto source_location = location_for( *entry );
+      std::string identifier = text( entry->IDENTIFIER() );
+      std::unique_ptr<Expression> value;
+      if ( auto expr_ctx = entry->expression() )
+      {
+        value = expression( expr_ctx );
+      }
+      else if ( !last_identifier.empty() )
+      {
+        // The optimizer runs later, so we don't necessarily know the value of
+        // the previous enum value.  The optimizer will sort it out.
+        auto lhs = std::make_unique<Identifier>( source_location, last_identifier );
+        auto one = std::make_unique<IntegerValue>( source_location, 1 );
+        value = std::make_unique<BinaryOperator>( source_location, std::move( lhs ), "+", TOK_ADD,
+                                                    std::move( one ) );
+      }
+      else
+      {
+        value = std::make_unique<IntegerValue>( source_location, 0 );
+      }
+      bool allow_overwrite = true;
+      auto constant = std::make_unique<ConstDeclaration>( location_for( *entry ), identifier,
+                                                            std::move( value ), allow_overwrite );
+      workspace.compiler_workspace.const_declarations.push_back( std::move( constant ) );
+
+      last_identifier = identifier;
+    }
+  }
+
+  auto source_location = location_for( *ctx );
+  std::string identifier = text( ctx->IDENTIFIER() );
+  return std::make_unique<EnumDeclaration>( source_location, std::move( identifier ),
+                                              std::move( names ), std::move( expressions ) );
 }
 
 std::unique_ptr<Expression> SimpleStatementBuilder::variable_initializer(
