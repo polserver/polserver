@@ -135,8 +135,6 @@ struct Comparison
   std::atomic<long> NonMatchingResult {};
   std::atomic<long> MatchingOutput {};
   std::atomic<long> NonMatchingOutput {};
-  std::atomic<long> MatchingDebugOutput {};
-  std::atomic<long> NonMatchingDebugOutput {};
 } comparison;
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
@@ -230,21 +228,21 @@ bool compare_compiler_output( const std::string& path )
 
   std::string og_ecl = filename_with_option( "og-compiler.ecl");
   std::string og_lst = filename_with_option( "og-compiler.lst");
-  std::string og_disassembly = filename_with_option("og-compiler.ecl.txt");
+//  std::string og_disassembly = filename_with_option("og-compiler.ecl.txt");
   std::string og_dbg = filename_with_option("og-compiler.dbg");
   std::string og_dbg_txt = filename_with_option("og-compiler.dbg.txt");
 
   std::string new_ecl = filename_with_option( "new-compiler.ecl" );
   std::string new_lst = filename_with_option( "new-compiler.lst" );
-  std::string new_disassembly = filename_with_option("new-compiler.ecl.txt");
+//  std::string new_disassembly = filename_with_option("new-compiler.ecl.txt");
   std::string new_dbg = filename_with_option("new-compiler.dbg");
   std::string new_dbg_txt = filename_with_option("new-compiler.dbg.txt");
 
   og_compiler.write_ecl( og_ecl );
   new_compiler.write_ecl( new_ecl );
 
-  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
-  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
+//  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
+//  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
 
   og_compiler.write_listing( og_lst );
   {
@@ -309,26 +307,16 @@ bool compare_compiler_output( const std::string& path )
 
     INFO_PRINT << "Not expected to match exactly:\n";
     INFO_PRINT << "  Debug Info matches:\n";
-    INFO_PRINT << "              all: " << dbg_matches << " (not expected to match)\n";
+    INFO_PRINT << "              all: " << dbg_matches << "\n";
     INFO_PRINT << "    ins filenames: " << ins_filenames_match << "\n";
-    INFO_PRINT << "        filenames: " << filenames_match << " (not expected to match)\n";
-    INFO_PRINT << "     file numbers: " << filenum_match << " (not expected to match)\n";
-    INFO_PRINT << "       ins_blocks: " << ins_blocks_match << " (not expected to match)\n";
+    INFO_PRINT << "        filenames: " << filenames_match << "\n";
+    INFO_PRINT << "     file numbers: " << filenum_match << "\n";
+    INFO_PRINT << "       ins_blocks: " << ins_blocks_match << "\n";
     INFO_PRINT << "           blocks: " << blocks_match << "\n";
     INFO_PRINT << "        functions: " << functions_match << "\n";
     INFO_PRINT << "  Debug Info (text) matches: " << dbg_txt_matches << "\n";
-    INFO_PRINT << "    - " << og_dbg_txt << " (not expected to match)\n";
-    INFO_PRINT << "    - " << new_dbg_txt << " (not expected to match)\n";
-    // ins_blocks_match: OG compiler lists the wrong block for loops
-    // filenum_match: OG compiler numbers files in order of use by an instruction
-    // filenames_match: OG compiler numbers files in order of use by an instruction
-    bool enough_dbg_matches = ins_filenames_match && blocks_match;
-    if ( enough_dbg_matches )
-      ++comparison.MatchingDebugOutput;
-    else
-      ++comparison.NonMatchingDebugOutput;
-    if ( !enough_dbg_matches )
-      throw std::runtime_error( "Debug info mismatch" );
+    INFO_PRINT << "    - " << og_dbg_txt << "\n";
+    INFO_PRINT << "    - " << new_dbg_txt << "\n";
   }
 
   return true;
@@ -1074,8 +1062,6 @@ bool run( int argc, char** argv, int* res )
     tmp << "  Result mismatches: " << comparison.NonMatchingResult << "\n";
     tmp << "     Output matches: " << comparison.MatchingOutput << "\n";
     tmp << "  Output mismatches: " << comparison.NonMatchingOutput << "\n";
-    tmp << "      Debug matches: " << comparison.MatchingDebugOutput << "\n";
-    tmp << "   Debug mismatches: " << comparison.NonMatchingDebugOutput << "\n";
     INFO_PRINT << tmp.str();
   }
 

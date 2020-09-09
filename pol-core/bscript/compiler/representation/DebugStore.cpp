@@ -1,6 +1,8 @@
 #include "DebugStore.h"
 
-#include "DebugBlock.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
+#include "compiler/model/Variable.h"
+#include "compiler/representation/DebugBlock.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -14,14 +16,16 @@ DebugStore::DebugStore( DebugStore&& ) noexcept = default;
 DebugStore::~DebugStore() = default;
 
 unsigned DebugStore::add_block( unsigned parent_block_id,
-                                std::vector<std::string> local_variable_names )
+                                const LocalVariableScopeInfo& local_variable_scope_info )
 {
-  unsigned base_index = 0;
-  if ( parent_block_id )
+  unsigned base_index = local_variable_scope_info.base_index;
+  std::vector<std::string> local_variable_names;
+  local_variable_names.reserve( local_variable_scope_info.variables.size() );
+  for ( auto& var : local_variable_scope_info.variables )
   {
-    auto& parent_block = blocks.at( parent_block_id );
-    base_index = parent_block.base_index + parent_block.local_variable_names.size();
+    local_variable_names.push_back( var->name );
   }
+
   blocks.emplace_back( parent_block_id, base_index, std::move( local_variable_names ) );
   return blocks.size() - 1;
 }

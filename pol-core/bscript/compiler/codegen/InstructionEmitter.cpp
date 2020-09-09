@@ -5,6 +5,7 @@
 #include "compiler/codegen/CaseJumpDataBlock.h"
 #include "compiler/codegen/ModuleDeclarationRegistrar.h"
 #include "compiler/model/FlowControlLabel.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 #include "compiler/model/Variable.h"
 #include "compiler/representation/CompiledScript.h"
 #include "compiler/representation/ExportedFunction.h"
@@ -40,23 +41,17 @@ void InstructionEmitter::register_exported_function( FlowControlLabel& label,
 }
 
 unsigned InstructionEmitter::enter_debug_block(
-    const std::vector<std::shared_ptr<Variable>>& block_local_variables )
+    const LocalVariableScopeInfo& local_variable_scope_info )
 {
-  if ( block_local_variables.empty() )
+  if ( local_variable_scope_info.variables.empty() )
   {
     return debug_instruction_info.block_index;
   }
 
   unsigned previous_debug_block_id = debug_instruction_info.block_index;
 
-  std::vector<std::string> local_variable_names;
-  local_variable_names.reserve( block_local_variables.size() );
-  for ( auto& var : block_local_variables )
-  {
-    local_variable_names.push_back( var->name );
-  }
   debug_instruction_info.block_index =
-      debug.add_block( debug_instruction_info.block_index, std::move( local_variable_names ) );
+      debug.add_block( debug_instruction_info.block_index, local_variable_scope_info );
 
   return previous_debug_block_id;
 }

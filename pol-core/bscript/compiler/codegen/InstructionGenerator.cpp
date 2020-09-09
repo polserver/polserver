@@ -122,7 +122,7 @@ void InstructionGenerator::visit_basic_for_loop( BasicForLoop& loop )
   generate( loop.first() );
   generate( loop.last() );
 
-  DebugBlockGuard debug_block_guard( emitter, loop.debug_variables );
+  DebugBlockGuard debug_block_guard( emitter, loop.local_variable_scope_info );
 
   emit.basic_for_init( skip );
 
@@ -211,7 +211,7 @@ void InstructionGenerator::visit_binary_operator( BinaryOperator& node )
 
 void InstructionGenerator::visit_block( Block& node )
 {
-  DebugBlockGuard debug_block_guard( emitter, node.debug_variables );
+  DebugBlockGuard debug_block_guard( emitter, node.local_variable_scope_info );
 
   visit_children( node );
 
@@ -356,7 +356,7 @@ void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
 {
   generate( loop.expression() );
 
-  DebugBlockGuard debug_block_guard( emitter, loop.debug_variables );
+  DebugBlockGuard debug_block_guard( emitter, loop.local_variable_scope_info );
 
   emit.foreach_init( *loop.continue_label );
 
@@ -509,7 +509,7 @@ void InstructionGenerator::visit_method_call( MethodCall& method_call )
 
 void InstructionGenerator::visit_program( Program& program )
 {
-  DebugBlockGuard debug_block_guard( emitter, program.debug_variables );
+  DebugBlockGuard debug_block_guard( emitter, program.local_variable_scope_info );
 
   update_debug_location( program );
 
@@ -625,7 +625,7 @@ void InstructionGenerator::visit_uninitialized_value( UninitializedValue& node )
 void InstructionGenerator::visit_user_function( UserFunction& user_function )
 {
   unsigned first_instruction_address = emitter.next_instruction_address();
-  DebugBlockGuard debug_block_guard( emitter, user_function.debug_variables );
+  DebugBlockGuard debug_block_guard( emitter, user_function.local_variable_scope_info );
 
   emit.debug_statementbegin();
   update_debug_location( user_function );

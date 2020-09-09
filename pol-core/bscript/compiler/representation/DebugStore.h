@@ -7,6 +7,7 @@
 namespace Pol::Bscript::Compiler
 {
 class DebugBlock;
+class LocalVariableScopeInfo;
 
 class DebugStore
 {
@@ -15,7 +16,7 @@ public:
   DebugStore( DebugStore&& ) noexcept;
   ~DebugStore();
 
-  unsigned add_block( unsigned parent_block_index, std::vector<std::string> local_variable_names );
+  unsigned add_block( unsigned parent_block_index, const LocalVariableScopeInfo& );
 
   struct InstructionInfo {
     unsigned file_index;

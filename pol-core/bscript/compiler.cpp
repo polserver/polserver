@@ -1592,7 +1592,7 @@ int Compiler::handleForEach( CompilerContext& ctx, int level )
   localscope.addvar( itrvar.tokval(), foreach_ctx );
   program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_expr" );
   localscope.addvar( "_" + std::string( itrvar.tokval() ) + "_expr", foreach_ctx, false );
-  program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_counter" );
+  program->addlocalvar( "_" + std::string( itrvar.tokval() ) + "_iter" );
   localscope.addvar( "_" + std::string( itrvar.tokval() ) + "_iter", foreach_ctx, false );
 
 

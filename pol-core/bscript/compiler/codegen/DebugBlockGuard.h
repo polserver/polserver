@@ -7,13 +7,14 @@
 namespace Pol::Bscript::Compiler
 {
 class InstructionEmitter;
+class LocalVariableScopeInfo;
 class Variable;
 
 class DebugBlockGuard
 {
 public:
   DebugBlockGuard( InstructionEmitter&,
-                   const std::vector<std::shared_ptr<Variable>>& debug_variables );
+                   LocalVariableScopeInfo& );
   ~DebugBlockGuard();
 
 private:

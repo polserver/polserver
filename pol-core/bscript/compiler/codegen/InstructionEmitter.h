@@ -29,6 +29,7 @@ namespace Pol::Bscript::Compiler
 class CaseJumpDataBlock;
 class CompiledScript;
 class FlowControlLabel;
+class LocalVariableScopeInfo;
 class ModuleDeclarationRegistrar;
 class ModuleFunctionDeclaration;
 class Node;
@@ -46,7 +47,7 @@ public:
   void register_exported_function( FlowControlLabel& label, const std::string& name,
                                    unsigned arguments );
 
-  unsigned enter_debug_block( const std::vector<std::shared_ptr<Variable>>& );
+  unsigned enter_debug_block( const LocalVariableScopeInfo& );
   void set_debug_block( unsigned );
 
   void access_variable( const Variable& );
