@@ -6,6 +6,7 @@
 namespace Pol::Bscript::Compiler
 {
 class ConstDeclaration;
+class EnumDeclaration;
 class JumpStatement;
 class Statement;
 class ReturnStatement;
@@ -29,6 +30,9 @@ public:
 
   std::unique_ptr<JumpStatement> continue_statement(
       EscriptGrammar::EscriptParser::ContinueStatementContext* ctx );
+
+  std::unique_ptr<EnumDeclaration> enum_declaration(
+      EscriptGrammar::EscriptParser::EnumStatementContext* );
 
   std::unique_ptr<Expression> variable_initializer(
       EscriptGrammar::EscriptParser::VariableDeclarationInitializerContext* );

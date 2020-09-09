@@ -20,6 +20,7 @@
 #include "compiler/ast/ElementAccess.h"
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/EnumDeclaration.h"
 #include "compiler/ast/ErrorInitializer.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/FloatValue.h"
@@ -150,6 +151,11 @@ void NodeVisitor::visit_element_assignment( ElementAssignment& node )
 }
 
 void NodeVisitor::visit_element_indexes( ElementIndexes& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_enum_declaration( EnumDeclaration& node )
 {
   visit_children( node );
 }

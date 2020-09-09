@@ -70,6 +70,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ElementAssignment.h
   compiler/ast/ElementIndexes.cpp
   compiler/ast/ElementIndexes.h
+  compiler/ast/EnumDeclaration.cpp
+  compiler/ast/EnumDeclaration.h
   compiler/ast/ErrorInitializer.cpp
   compiler/ast/ErrorInitializer.h
   compiler/ast/ExitStatement.cpp

@@ -12,6 +12,7 @@
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CstyleForLoop.h"
 #include "compiler/ast/DoWhileLoop.h"
+#include "compiler/ast/EnumDeclaration.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/ForeachLoop.h"
@@ -78,6 +79,10 @@ void CompoundStatementBuilder::add_statements(
   else if ( auto continue_st = ctx->continueStatement() )
   {
     statements.push_back( continue_statement( continue_st ) );
+  }
+  else if ( auto enum_statement = ctx->enumStatement() )
+  {
+    statements.push_back( enum_declaration( enum_statement ) );
   }
   else if ( auto case_st = ctx->caseStatement() )
   {
