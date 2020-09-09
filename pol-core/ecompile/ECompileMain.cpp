@@ -963,6 +963,7 @@ bool run( int argc, char** argv, int* res )
     tmp << "      - parse *.src:   " << (long long)summary.profile.parse_src_micros / 1000 << " ("
         << (long)summary.profile.parse_src_count << ")\n";
     tmp << "        - ast *.src:   " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
+    tmp << "        - ast *.inc:   " << (long long)summary.profile.ast_inc_micros / 1000 << "\n";
     tmp << "  resolve functions:   "
         << (long long)summary.profile.ast_resolve_functions_micros / 1000 << "\n";
     tmp << " register constants: "

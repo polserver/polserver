@@ -8,6 +8,7 @@
 #include "compiler/ast/Program.h"
 #include "compiler/ast/Statement.h"
 #include "compiler/ast/TopLevelStatements.h"
+#include "compiler/astbuilder/AvailableUserFunction.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/astbuilder/ModuleProcessor.h"
 #include "compiler/file/SourceFile.h"
@@ -18,6 +19,10 @@
 
 using EscriptGrammar::EscriptParser;
 
+namespace Pol::Bscript::Legacy
+{
+std::string getpathof( const std::string& fname );
+}
 namespace Pol::Bscript::Compiler
 {
 SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_file_identifier,
@@ -39,8 +44,6 @@ void SourceFileProcessor::use_module( const std::string& module_name,
 
   if ( workspace.source_files.find( pathname ) != workspace.source_files.end() )
     return;
-
-
 
   auto ident = std::make_unique<SourceFileIdentifier>(
       workspace.compiler_workspace.referenced_source_file_identifiers.size(), pathname );
@@ -94,6 +97,17 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   }
 }
 
+void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationContext* ctx,
+                                                  long long* micros_used )
+{
+  EscriptParser::StringIdentifierContext* stringId = ctx->stringIdentifier();
+  std::string modulename = stringId->STRING_LITERAL()
+                               ? tree_builder.unquote( stringId->STRING_LITERAL() )
+                               : tree_builder.text( stringId->IDENTIFIER() );
+  auto source_location = location_for( *ctx );
+  use_module( modulename, source_location, micros_used );
+}
+
 antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
@@ -134,6 +148,17 @@ antlrcpp::Any SourceFileProcessor::visitStatement( EscriptParser::StatementConte
           std::move( statement ) );
     }
   }
+  return antlrcpp::Any();
+}
+
+antlrcpp::Any SourceFileProcessor::visitUseDeclaration( EscriptParser::UseDeclarationContext* ctx )
+{
+  long long elapsed_micros = 0;
+  handle_use_declaration( ctx, &elapsed_micros );
+  if ( is_src )
+    profile.ast_src_micros.fetch_sub( elapsed_micros );
+  else
+    profile.ast_inc_micros.fetch_sub( elapsed_micros );
   return antlrcpp::Any();
 }
 
