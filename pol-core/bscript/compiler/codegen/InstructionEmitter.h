@@ -71,6 +71,7 @@ public:
   void exit();
   void foreach_init( FlowControlLabel& );
   void foreach_step( FlowControlLabel& );
+  void function_reference( unsigned parameter_count, FlowControlLabel& );
   void get_arg( const std::string& name );
   void get_member( const std::string& name );
   void get_member_id( MemberID );

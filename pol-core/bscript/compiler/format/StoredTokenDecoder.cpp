@@ -337,6 +337,14 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "set member id '" << getObjMember( tkn.offset )->code << "' (" << tkn.offset << ")  %= #";
     break;
 
+  case TOK_FUNCREF:
+  {
+    w << "Function Ref "
+      << "--function name not available--"
+      << " @" << tkn.offset;
+    break;
+  }
+
   case TOK_UNPLUSPLUS:
     w << "prefix unary ++";
     break;

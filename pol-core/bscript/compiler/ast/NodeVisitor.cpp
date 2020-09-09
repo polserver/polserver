@@ -192,6 +192,10 @@ void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
   visit_children( node );
 }
 
+void NodeVisitor::visit_function_reference( FunctionReference& )
+{
+}
+
 void NodeVisitor::visit_get_member( GetMember& node )
 {
   visit_children( node );

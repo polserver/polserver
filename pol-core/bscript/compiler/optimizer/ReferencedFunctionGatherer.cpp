@@ -1,6 +1,7 @@
 #include "ReferencedFunctionGatherer.h"
 
 #include "compiler/ast/FunctionCall.h"
+#include "compiler/ast/FunctionReference.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/model/FunctionLink.h"
 
@@ -26,6 +27,11 @@ void ReferencedFunctionGatherer::visit_function_call( FunctionCall& fc )
   visit_children( fc );
 
   reference( *fc.function_link );
+}
+
+void ReferencedFunctionGatherer::visit_function_reference( FunctionReference& fr )
+{
+  reference( *fr.function_link );
 }
 
 void ReferencedFunctionGatherer::reference( FunctionLink& link )
