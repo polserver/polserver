@@ -9,6 +9,7 @@
 #include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/SetMember.h"
+#include "compiler/ast/SetMemberByOperator.h"
 #include "compiler/ast/ValueConsumer.h"
 
 namespace Pol::Bscript::Compiler
@@ -34,6 +35,44 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
       optimized_result =
           std::make_unique<BinaryOperator>( binary_operator.source_location, std::move( lhs ),
                                             ":= #", INS_ASSIGN_CONSUME, std::move( rhs ) );
+    }
+  }
+  else if ( operator_id == TOK_PLUSEQUAL || operator_id == TOK_MINUSEQUAL ||
+            operator_id == TOK_TIMESEQUAL || operator_id == TOK_DIVIDEEQUAL ||
+            operator_id == TOK_MODULUSEQUAL )
+  {
+    if ( auto get_member = dynamic_cast<GetMember*>( &binary_operator.lhs() ) )
+    {
+      if ( get_member->known_member )
+      {
+        BTokenId token_id;
+        switch ( operator_id )
+        {
+        case TOK_PLUSEQUAL:
+          token_id = INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL;
+          break;
+        case TOK_MINUSEQUAL:
+          token_id = INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL;
+          break;
+        case TOK_TIMESEQUAL:
+          token_id = INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL;
+          break;
+        case TOK_DIVIDEEQUAL:
+          token_id = INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL;
+          break;
+        case TOK_MODULUSEQUAL:
+          token_id = INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL;
+          break;
+        default:
+          get_member->internal_error( "cannot optimize (table entry missing)" );
+        }
+        bool consume = true;
+        auto entity = get_member->take_entity();
+        auto rhs = binary_operator.take_rhs();
+        optimized_result = std::make_unique<SetMemberByOperator>(
+            get_member->source_location, consume, std::move( entity ), get_member->name, token_id,
+            std::move( rhs ), *get_member->known_member );
+      }
     }
   }
 }

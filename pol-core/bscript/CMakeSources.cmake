@@ -126,6 +126,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ReturnStatement.h
   compiler/ast/SetMember.cpp
   compiler/ast/SetMember.h
+  compiler/ast/SetMemberByOperator.cpp
+  compiler/ast/SetMemberByOperator.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp

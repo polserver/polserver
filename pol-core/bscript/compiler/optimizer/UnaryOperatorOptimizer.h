@@ -22,6 +22,7 @@ public:
 
   void visit_children( Node& ) override;
   void visit_float_value( FloatValue& literal ) override;
+  void visit_get_member( GetMember& ) override;
   void visit_integer_value( IntegerValue& literal ) override;
 
 private:

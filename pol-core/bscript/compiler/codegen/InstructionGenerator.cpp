@@ -40,6 +40,7 @@
 #include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/SetMember.h"
+#include "compiler/ast/SetMemberByOperator.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -471,6 +472,13 @@ void InstructionGenerator::visit_set_member( SetMember& node )
     else
       emit.set_member( node.name );
   }
+}
+
+void InstructionGenerator::visit_set_member_by_operator( SetMemberByOperator& node )
+{
+  visit_children( node );
+
+  emit.set_member_by_operator( node.token_id, node.known_member.id );
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )
