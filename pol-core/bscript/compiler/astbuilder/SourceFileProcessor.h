@@ -24,11 +24,16 @@ public:
                    long long* micros_counted = nullptr );
   void process_source( SourceFile& );
 
+  void handle_use_declaration( EscriptGrammar::EscriptParser::UseDeclarationContext*,
+                               long long* micros_counted );
+
   antlrcpp::Any visitFunctionDeclaration(
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* ) override;
   antlrcpp::Any visitProgramDeclaration(
       EscriptGrammar::EscriptParser::ProgramDeclarationContext* ) override;
   antlrcpp::Any visitStatement( EscriptGrammar::EscriptParser::StatementContext* ) override;
+  antlrcpp::Any visitUseDeclaration(
+      EscriptGrammar::EscriptParser::UseDeclarationContext* ) override;
 
   SourceLocation location_for( antlr4::ParserRuleContext& ) const;
 
