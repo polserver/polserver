@@ -186,6 +186,11 @@ void InstructionEmitter::foreach_step( FlowControlLabel& label )
   register_with_label( label, emit_token( INS_STEPFOREACH, TYP_RESERVED ) );
 }
 
+void InstructionEmitter::function_reference( unsigned parameter_count, FlowControlLabel& label )
+{
+  register_with_label( label, emit_token( TOK_FUNCREF, (BTokenType)parameter_count ) );
+}
+
 void InstructionEmitter::get_arg( const std::string& name )
 {
   unsigned offset = emit_data( name );

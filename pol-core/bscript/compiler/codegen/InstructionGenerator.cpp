@@ -28,6 +28,7 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/FunctionReference.h"
 #include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
@@ -337,6 +338,19 @@ void InstructionGenerator::visit_function_parameter_declaration(
     emit.pop_param_byref( node.name );
   else
     emit.pop_param( node.name );
+}
+
+void InstructionGenerator::visit_function_reference( FunctionReference& function_reference )
+{
+  if ( auto uf = function_reference.function_link->user_function() )
+  {
+    FlowControlLabel& label = user_function_labels[uf->name];
+    emit.function_reference( uf->parameter_count(), label );
+  }
+  else
+  {
+    function_reference.internal_error( "user function not found" );
+  }
 }
 
 void InstructionGenerator::visit_identifier( Identifier& node )

@@ -12,6 +12,7 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/FunctionReference.h"
 #include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/MethodCall.h"
@@ -430,6 +431,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto struct_init = ctx->explicitStructInitializer() )
   {
     return struct_initializer( struct_init );
+  }
+  else if ( auto fr = ctx->functionReference() )
+  {
+    return function_reference( fr );
   }
   else if ( auto error_init = ctx->explicitErrorInitializer() )
   {

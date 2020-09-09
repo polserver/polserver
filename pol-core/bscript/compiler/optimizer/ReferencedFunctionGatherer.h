@@ -25,6 +25,7 @@ public:
       std::vector<std::unique_ptr<UserFunction>> all_user_functions );
 
   void visit_function_call( FunctionCall& ) override;
+  void visit_function_reference( FunctionReference& ) override;
 
   void reference( FunctionLink& link );
   void reference( ModuleFunctionDeclaration* );

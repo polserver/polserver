@@ -24,6 +24,8 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
+#include "compiler/ast/FunctionReference.h"
+#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
@@ -362,6 +364,19 @@ void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDe
 
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
   local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
+}
+
+void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
+{
+  if ( !node.function_link->function() )
+  {
+    report.error( node, "User function '", node.name, "' not found" );
+  }
+}
+
+void SemanticAnalyzer::visit_get_member( GetMember& node )
+{
+  visit_children( node );
 }
 
 void SemanticAnalyzer::visit_identifier( Identifier& node )
