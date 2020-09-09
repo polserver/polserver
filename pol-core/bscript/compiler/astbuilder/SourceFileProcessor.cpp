@@ -19,10 +19,6 @@
 
 using EscriptGrammar::EscriptParser;
 
-namespace Pol::Bscript::Legacy
-{
-std::string getpathof( const std::string& fname );
-}
 namespace Pol::Bscript::Compiler
 {
 SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_file_identifier,
