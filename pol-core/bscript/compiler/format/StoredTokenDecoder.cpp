@@ -369,6 +369,10 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
     w << "set member id '" << getObjMember( tkn.offset )->code << "' unary -- post";
     break;
+  case INS_SKIPIFTRUE_ELSE_CONSUME:
+    w << "peek at top of stack; skip " << tkn.offset
+      << " instructions if true, otherwise consume it";
+    break;
 
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset

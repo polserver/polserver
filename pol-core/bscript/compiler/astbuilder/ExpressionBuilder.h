@@ -14,6 +14,7 @@ class ArrayInitializer;
 class BinaryOperator;
 class DictionaryInitializer;
 class ElementAccess;
+class ElvisOperator;
 class ErrorInitializer;
 class Expression;
 class FunctionCall;
@@ -43,6 +44,9 @@ public:
 
   std::unique_ptr<ElementAccess> element_access(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::ExpressionListContext* );
+
+  std::unique_ptr<ElvisOperator> elvis_operator(
+      EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<ErrorInitializer> error(
       EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* );

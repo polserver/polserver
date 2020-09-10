@@ -8,6 +8,7 @@
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/ElementAccess.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/ElvisOperator.h"
 #include "compiler/ast/ErrorInitializer.h"
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
@@ -175,6 +176,16 @@ std::unique_ptr<ElementAccess> ExpressionBuilder::element_access(
   return std::make_unique<ElementAccess>( source_location, std::move( lhs ), std::move( xx ) );
 }
 
+std::unique_ptr<ElvisOperator> ExpressionBuilder::elvis_operator(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  auto expressions = ctx->expression();
+  auto lhs = expression( expressions[0] );
+  auto rhs = expression( expressions[1] );
+  return std::make_unique<ElvisOperator>( source_location, std::move( lhs ), std::move( rhs ) );
+}
+
 std::unique_ptr<ErrorInitializer> ExpressionBuilder::error(
     EscriptParser::ExplicitErrorInitializerContext* ctx )
 {
@@ -249,7 +260,9 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
     return postfix_unary_operator( ctx );
   else if ( ctx->bop && ctx->expression().size() == 2 )
   {
-    if ( ctx->ADDMEMBER() || ctx->DELMEMBER() || ctx->CHKMEMBER() )
+    if ( ctx->ELVIS() )
+      return elvis_operator( ctx );
+    else if ( ctx->ADDMEMBER() || ctx->DELMEMBER() || ctx->CHKMEMBER() )
       return membership_operator( ctx );
     else
       return binary_operator( ctx );

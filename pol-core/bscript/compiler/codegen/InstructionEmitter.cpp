@@ -292,6 +292,11 @@ void InstructionEmitter::set_member_by_operator( BTokenId token_id, MemberID mem
   emit_token( token_id, TYP_UNARY_OPERATOR, member_id );
 }
 
+unsigned InstructionEmitter::skip_if_true_else_consume()
+{
+  return emit_token( INS_SKIPIFTRUE_ELSE_CONSUME, TYP_CONTROL );
+}
+
 void InstructionEmitter::struct_create()
 {
   emit_token( TOK_STRUCT, TYP_OPERAND );
@@ -361,6 +366,11 @@ unsigned InstructionEmitter::emit_token( BTokenId id, BTokenType type, unsigned 
 unsigned InstructionEmitter::append_token( StoredToken& token )
 {
   return code_emitter.append( token );
+}
+
+unsigned InstructionEmitter::next_instruction_address()
+{
+  return code_emitter.next_address();
 }
 
 void InstructionEmitter::patch_offset( unsigned index, unsigned offset )

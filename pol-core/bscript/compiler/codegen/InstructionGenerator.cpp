@@ -20,6 +20,7 @@
 #include "compiler/ast/ElementAccess.h"
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
+#include "compiler/ast/ElvisOperator.h"
 #include "compiler/ast/ErrorInitializer.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/FloatValue.h"
@@ -262,6 +263,23 @@ void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
     else
       emit.assign_multisubscript( num_indexes );
   }
+}
+
+void InstructionGenerator::visit_elvis_operator( ElvisOperator& elvis )
+{
+  FlowControlLabel skip_instruction, after_rhs;
+
+  generate( elvis.lhs() );
+
+  unsigned address = emit.skip_if_true_else_consume();
+
+  unsigned skip_start_address = emitter.next_instruction_address();
+
+  generate( elvis.rhs() );
+
+  unsigned distance = emitter.next_instruction_address() - skip_start_address;
+
+  emitter.patch_offset( address, distance );
 }
 
 void InstructionGenerator::visit_error_initializer( ErrorInitializer& node )
