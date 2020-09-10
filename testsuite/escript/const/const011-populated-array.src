@@ -1,0 +1,2 @@
+const X := { 6 };
+print(X);

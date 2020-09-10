@@ -1,0 +1,2 @@
+const X := error { errortext := "abc" };
+print(X);

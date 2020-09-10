@@ -18,11 +18,15 @@ public:
 
   std::unique_ptr<Node> clone( Node& );
 
+  void visit_array_initializer( ArrayInitializer& ) override;
+  void visit_dictionary_initializer( DictionaryInitializer& ) override;
+  void visit_error_initializer( ErrorInitializer& ) override;
   void visit_float_value( FloatValue& ) override;
   void visit_function_call( FunctionCall& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_string_value( StringValue& ) override;
+  void visit_struct_initializer( StructInitializer& ) override;
 
   void visit_children( Node& parent ) override;
 

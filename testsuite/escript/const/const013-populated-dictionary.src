@@ -1,0 +1,2 @@
+const X := dictionary { "a" -> "b" };
+print(X);

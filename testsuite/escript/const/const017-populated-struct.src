@@ -1,0 +1,2 @@
+const X := struct { a := 5 };
+print(X);
