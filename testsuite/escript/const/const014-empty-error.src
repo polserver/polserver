@@ -1,0 +1,2 @@
+const X := error {};
+print(X);
