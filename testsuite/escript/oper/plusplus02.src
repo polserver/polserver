@@ -17,10 +17,10 @@ b:=2;
 print(a+ ++b);
 
 a:=1;
-++a++;
+// postfix operators are now highest precedence: ++a++;
 print(a);
 a:=1;
-++a--;
+// postfix operators are now highest precedence: ++a--;
 print(a);
 a:=1;
 ++(++a);
