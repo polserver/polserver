@@ -85,6 +85,7 @@ public:
   void pop_param_byref( const std::string& name );
   void progend();
   void return_from_user_function();
+  unsigned skip_if_true_else_consume();
   void set_member( const std::string& name );
   void set_member_id( MemberID member_id );
   void set_member_id_consume( MemberID member_id );
@@ -101,6 +102,7 @@ public:
   void value( int );
   void value( const std::string& );
 
+  unsigned next_instruction_address();
   void patch_offset( unsigned index, unsigned offset );
 
 private:

@@ -23,6 +23,7 @@ class DoWhileLoop;
 class ElementAccess;
 class ElementAssignment;
 class ElementIndexes;
+class ElvisOperator;
 class EnumDeclaration;
 class ErrorInitializer;
 class ExitStatement;
@@ -85,6 +86,7 @@ public:
   virtual void visit_element_access( ElementAccess& );
   virtual void visit_element_assignment( ElementAssignment& );
   virtual void visit_element_indexes( ElementIndexes& );
+  virtual void visit_elvis_operator( ElvisOperator& );
   virtual void visit_enum_declaration( EnumDeclaration& );
   virtual void visit_error_initializer( ErrorInitializer& );
   virtual void visit_exit_statement( ExitStatement& );
