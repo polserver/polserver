@@ -21,6 +21,7 @@
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
 #include "compiler/ast/ElvisOperator.h"
+#include "compiler/ast/EmptyStatement.h"
 #include "compiler/ast/EnumDeclaration.h"
 #include "compiler/ast/ErrorInitializer.h"
 #include "compiler/ast/ExitStatement.h"
@@ -157,6 +158,11 @@ void NodeVisitor::visit_element_indexes( ElementIndexes& node )
 }
 
 void NodeVisitor::visit_elvis_operator( ElvisOperator& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_empty_statement( EmptyStatement& node )
 {
   visit_children( node );
 }
