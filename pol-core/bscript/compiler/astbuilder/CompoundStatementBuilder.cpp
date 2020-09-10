@@ -12,6 +12,7 @@
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CstyleForLoop.h"
 #include "compiler/ast/DoWhileLoop.h"
+#include "compiler/ast/EmptyStatement.h"
 #include "compiler/ast/EnumDeclaration.h"
 #include "compiler/ast/ExitStatement.h"
 #include "compiler/ast/Expression.h"
@@ -104,6 +105,10 @@ void CompoundStatementBuilder::add_statements(
   else if ( auto do_statement = ctx->doStatement() )
   {
     statements.push_back( do_while_loop( do_statement ) );
+  }
+  else if ( ctx->SEMI() )
+  {
+    statements.push_back( std::make_unique<EmptyStatement>( location_for( *ctx ) ) );
   }
   else
   {

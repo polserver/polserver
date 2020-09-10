@@ -72,6 +72,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ElementIndexes.h
   compiler/ast/ElvisOperator.cpp
   compiler/ast/ElvisOperator.h
+  compiler/ast/EmptyStatement.cpp
+  compiler/ast/EmptyStatement.h
   compiler/ast/EnumDeclaration.cpp
   compiler/ast/EnumDeclaration.h
   compiler/ast/ErrorInitializer.cpp
