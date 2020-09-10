@@ -1,0 +1,1 @@
+func011-default-parameter-bare-function-call.src:5:14: error: Parameter 'x' has a disallowed default.  Only simple operands are allowed as default arguments.

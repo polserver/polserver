@@ -1,0 +1,1 @@
+[foo]: Only simple operands are allowed as default arguments (:= is not allowed)

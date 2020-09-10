@@ -42,6 +42,7 @@
 #include "compiler/model/CompilerWorkspace.h"
 #include "compiler/model/FunctionLink.h"
 #include "compiler/model/Variable.h"
+#include "compiler/optimizer/ConstantValidator.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
@@ -356,6 +357,19 @@ void SemanticAnalyzer::visit_function_parameter_list( FunctionParameterList& nod
 
 void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDeclaration& node )
 {
+  if ( auto default_value = node.default_value() )
+  {
+    ConstantValidator validator;
+    // By accident, 0-parameter system function calls are allowed as constant values.
+    // They are not allowed as default parameters, though.
+    if ( !validator.validate( *default_value ) || dynamic_cast<FunctionCall*>( default_value ) )
+    {
+      report.error(
+          node, "Parameter '", node.name,
+          "' has a disallowed default.  Only simple operands are allowed as default arguments.\n" );
+      // but continue, to avoid unknown identifier errors
+    }
+  }
   if ( auto existing = locals.find( node.name ) )
   {
     report.error( node, "Parameter '", node.name, "' already defined.\n" );

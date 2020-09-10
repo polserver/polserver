@@ -1,0 +1,9 @@
+use math;
+
+// "Only simple operands..."
+
+function foo(x := ConstPi())
+    print(x);
+endfunction
+
+foo();
