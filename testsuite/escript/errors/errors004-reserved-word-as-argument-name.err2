@@ -1,0 +1,1 @@
+errors004-reserved-word-as-argument-name.src:3:13: error: extraneous input 'downto' expecting {'unused', ')', IDENTIFIER}

@@ -1,0 +1,1 @@
+syntax12-unterminated-expression.src:1:2: error: missing ';' at '<EOF>'

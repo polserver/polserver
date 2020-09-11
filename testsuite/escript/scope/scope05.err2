@@ -1,0 +1,2 @@
+scope05.src:8:9: error: Variable 'a' is already in scope.
+  See previous definition at:

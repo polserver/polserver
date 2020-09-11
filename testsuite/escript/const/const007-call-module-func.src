@@ -1,0 +1,17 @@
+use math;
+
+// This isn't supposed to compile, but it does.  It works because the emitted
+// code to call a module function (with 0 parameters) is a single instruction.
+//
+// This is more commonly seen in NPC control scripts, which often do
+// something like this:
+// const me := self();
+//
+// The intent is likely brevity and efficiency, but this will result in
+// repeated calls to the module function, rather than storage and reuse
+// of the result of a single call.
+
+const PI := ConstPI();
+
+print( PI );
+

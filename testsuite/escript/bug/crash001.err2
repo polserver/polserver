@@ -1,0 +1,1 @@
+crash001.inc:3:34: error: extraneous input ',' expecting {'!', 'not', 'error', 'dictionary', 'struct', 'array', DECIMAL_LITERAL, HEX_LITERAL, OCT_LITERAL, BINARY_LITERAL, FLOAT_LITERAL, HEX_FLOAT_LITERAL, CHAR_LITERAL, STRING_LITERAL, 'null', '(', '{', '+', '-', '~', '@', '++', '--', IDENTIFIER}

@@ -1,0 +1,4 @@
+const FOO := "xyz";
+
+print( FOO );
+

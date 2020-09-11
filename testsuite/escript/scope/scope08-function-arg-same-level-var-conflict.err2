@@ -1,0 +1,2 @@
+scope08-function-arg-same-level-var-conflict.src:5:9: error: Variable 'bar' is already in scope.
+  See previous definition at:

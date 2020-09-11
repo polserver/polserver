@@ -1,0 +1,1 @@
+foreach19-over-method-call-result-disallowed.src:5:15: error: mismatched input '.' expecting 'endforeach'
