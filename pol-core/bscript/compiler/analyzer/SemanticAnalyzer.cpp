@@ -241,7 +241,8 @@ void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )
 
 void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 {
-  if ( report_function_name_conflict( node.source_location, node.iterator_name, "foreach iterator" ) )
+  if ( report_function_name_conflict( node.source_location, node.iterator_name,
+                                      "foreach iterator" ) )
   {
     return;
   }
