@@ -1,0 +1,1 @@
+errors003-function_parameter-same-name-as-function.src:2:14: error: Cannot define a function parameter with the same name as function 'print'.

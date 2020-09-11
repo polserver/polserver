@@ -35,7 +35,7 @@ private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&,
                                                       const LegacyFunctionOrder*,
                                                       Report& );
-  void register_constants( CompilerWorkspace& );
+  void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );
   void analyze( CompilerWorkspace&, Report& );

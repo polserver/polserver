@@ -1,0 +1,1 @@
+errors006-for-loop-iterator-same-name-as-function.src:1:5: error: Cannot define a for loop iterator with the same name as function 'len'.

@@ -26,6 +26,11 @@ public:
   SourceLocation( const SourceFileIdentifier*, antlr4::ParserRuleContext& );
   SourceLocation( const SourceFileIdentifier*, antlr4::tree::TerminalNode& );
 
+  SourceLocation( const SourceLocation& ) = default;
+  SourceLocation( SourceLocation&& ) = default;
+  SourceLocation& operator=( const SourceLocation& ) = delete;
+  ~SourceLocation() = default;
+
   void debug( const std::string& msg ) const;
 
   [[noreturn]] void internal_error( const std::string& msg ) const;

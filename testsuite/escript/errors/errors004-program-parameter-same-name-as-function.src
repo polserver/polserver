@@ -1,0 +1,4 @@
+// reported in https://forums.polserver.com/viewtopic.php?f=54&t=6140
+program foo(print)
+
+endprogram

@@ -1,10 +1,12 @@
 #ifndef POLSERVER_COMPILERWORKSPACE_H
 #define POLSERVER_COMPILERWORKSPACE_H
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include "clib/maputil.h"
 #include "compiler/analyzer/Constants.h"
 #include "compiler/ast/Node.h"
 
@@ -41,6 +43,8 @@ public:
   std::vector<const ModuleFunctionDeclaration*> module_functions_in_legacy_order;
 
   std::vector<std::unique_ptr<SourceFileIdentifier>> referenced_source_file_identifiers;
+
+  std::map<std::string, SourceLocation, Clib::ci_cmp_pred> all_function_locations;
 
   std::vector<std::string> global_variable_names;
 };

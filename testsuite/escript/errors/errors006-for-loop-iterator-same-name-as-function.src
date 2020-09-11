@@ -1,0 +1,3 @@
+for len := 1 to 5
+    print(len);
+endfor

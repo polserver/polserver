@@ -97,7 +97,7 @@ void Compiler::compile_file_steps( const std::string& pathname,
   if ( report.error_count() )
     return;
 
-  register_constants( *workspace );
+  register_constants( *workspace, report );
   if ( report.error_count() )
     return;
 
@@ -127,10 +127,10 @@ std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
   return workspace;
 }
 
-void Compiler::register_constants( CompilerWorkspace& workspace )
+void Compiler::register_constants( CompilerWorkspace& workspace, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  SemanticAnalyzer::register_const_declarations( workspace );
+  SemanticAnalyzer::register_const_declarations( workspace, report );
   profile.register_const_declarations_micros += timer.ellapsed().count();
 }
 
@@ -153,8 +153,8 @@ void Compiler::disambiguate( CompilerWorkspace& workspace, Report& report )
 void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  SemanticAnalyzer analyzer( workspace.constants, report );
-  analyzer.analyze( workspace );
+  SemanticAnalyzer analyzer( workspace, report );
+  analyzer.analyze();
   profile.analyze_micros += timer.ellapsed().count();
 }
 

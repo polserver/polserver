@@ -1,0 +1,1 @@
+errors002-var-same-name-as-function.src:4:9: error: Cannot define a variable with the same name as function 'print'

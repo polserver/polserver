@@ -47,8 +47,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-SemanticAnalyzer::SemanticAnalyzer( Constants& constants, Report& report )
-  : constants( constants ),
+SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report )
+  : workspace( workspace ),
     report( report ),
     globals( VariableScope::Global, report ),
     locals( VariableScope::Local, report ),
@@ -60,15 +60,17 @@ SemanticAnalyzer::SemanticAnalyzer( Constants& constants, Report& report )
 
 SemanticAnalyzer::~SemanticAnalyzer() = default;
 
-void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace )
+void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace, Report& report )
 {
   for ( auto& constant : workspace.const_declarations )
   {
+    report_function_name_conflict( workspace, report, constant->source_location,
+                                   constant->identifier, "constant" );
     workspace.constants.create( *constant );
   }
 }
 
-void SemanticAnalyzer::analyze( CompilerWorkspace& workspace )
+void SemanticAnalyzer::analyze()
 {
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
@@ -89,6 +91,10 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
   if ( locals.find( node.identifier ) )
   {
     report.error( node, "FOR iterator '", node.identifier, "' hides a local variable.\n" );
+    return;
+  }
+  if ( report_function_name_conflict( node.source_location, node.identifier, "for loop iterator" ) )
+  {
     return;
   }
 
@@ -235,6 +241,11 @@ void SemanticAnalyzer::visit_do_while_loop( DoWhileLoop& do_while )
 
 void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 {
+  if ( report_function_name_conflict( node.source_location, node.iterator_name, "foreach iterator" ) )
+  {
+    return;
+  }
+
   node.expression().accept( *this );
 
   LocalVariableScope scope( local_scopes, node.debug_variables );
@@ -375,8 +386,13 @@ void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDe
     report.error( node, "Parameter '", node.name, "' already defined.\n" );
     return;
   }
-
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
+
+  if ( report_function_name_conflict( node.source_location, node.name, "function parameter" ) )
+  {
+    warn_on = WarnOn::Never;
+  }
+
   local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
 }
 
@@ -458,8 +474,13 @@ void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDecl
     report.error( node, "Parameter '", node.name, "' already defined.\n" );
     return;
   }
-
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
+
+  if ( report_function_name_conflict( node.source_location, node.name, "program parameter" ) )
+  {
+    warn_on = WarnOn::Never;
+  }
+
   local_scopes.current_local_scope()->create( node.name, warn_on, node.source_location );
 }
 
@@ -487,12 +508,14 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
-  if ( auto constant = constants.find( node.name ) )
+  if ( auto constant = workspace.constants.find( node.name ) )
   {
     report.error( node, "Cannot define a variable with the same name as constant '", node.name,
                   "'.\n", "  See also: ", constant->source_location, "\n" );
     return;
   }
+
+  report_function_name_conflict(node.source_location, node.name, "variable");
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
@@ -515,6 +538,32 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 void SemanticAnalyzer::visit_while_loop( WhileLoop& node )
 {
   visit_loop_statement( node );
+}
+
+bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& referencing_loc,
+                                                      const std::string& function_name,
+                                                      const std::string& element_description )
+{
+  return report_function_name_conflict( workspace, report, referencing_loc, function_name,
+                                        element_description );
+}
+
+bool SemanticAnalyzer::report_function_name_conflict( const CompilerWorkspace& workspace,
+                                                      Report& report,
+                                                      const SourceLocation& referencing_loc,
+                                                      const std::string& function_name,
+                                                      const std::string& element_description )
+{
+  auto func_itr = workspace.all_function_locations.find( function_name );
+  if ( func_itr != workspace.all_function_locations.end() )
+  {
+    const SourceLocation& function_loc = ( *func_itr ).second;
+    report.error( referencing_loc, "Cannot define a ", element_description,
+                  " with the same name as function '", function_name, "'.\n",
+                  "  Defined here: ", function_loc, "\n" );
+    return true;
+  }
+  return false;
 }
 
 }  // namespace Pol::Bscript::Compiler
