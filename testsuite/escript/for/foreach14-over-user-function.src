@@ -1,0 +1,7 @@
+function foo(unused x)
+    return { 5, 4, 3 };
+endfunction
+
+foreach a in foo(5)
+    print(a);
+endforeach

@@ -1,0 +1,12 @@
+//
+// The EmptyStatement AST node exists for this: since the compiler
+// sees something other than 'return' as the last statement,
+// it adds another return
+//
+
+function foo()
+    return "bar";;
+endfunction
+
+print(foo());
+

@@ -1,0 +1,7 @@
+// The original compiler does not allow the result of a method call
+// in a foreach iteration expression
+var x := struct { a := "1", b := "2", c := "z" };
+
+foreach a in x.keys()
+    print(a);
+endforeach

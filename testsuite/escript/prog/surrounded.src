@@ -1,0 +1,7 @@
+print( "before" );
+
+program foo()
+	print( "body" );
+endprogram
+
+print( "after" );

@@ -1,0 +1,5 @@
+const FOO := "xyz";
+const BAR := FOO;
+
+print( BAR );
+

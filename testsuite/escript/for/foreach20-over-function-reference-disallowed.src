@@ -1,0 +1,8 @@
+function foo()
+    return { 7, 4, 2 };
+endfunction
+
+var f := @foo;
+foreach a in f.call()
+    print(a);
+endforeach

@@ -1,0 +1,12 @@
+
+
+function foo()
+var a;
+// This used to report a syntax error here:
+//var x := TargetCoordinates(a);
+var x := a["d"]."range";
+print(x);
+
+endfunction
+
+foo();

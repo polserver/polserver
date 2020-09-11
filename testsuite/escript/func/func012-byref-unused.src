@@ -1,0 +1,5 @@
+function foo(byref unused x)
+    print("not using");
+endfunction
+
+foo(4);

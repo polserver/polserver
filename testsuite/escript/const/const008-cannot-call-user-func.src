@@ -1,0 +1,12 @@
+use math;
+
+function foo()
+    return "hi";
+endfunction
+
+// this is not allowed:
+const A := foo();
+
+print(foo());
+print(A);
+

@@ -1,0 +1,4 @@
+// reported in https://forums.polserver.com/viewtopic.php?f=54&t=6140
+// I'm not sure what more we can do about this error
+program foo(downto)
+endprogram

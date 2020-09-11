@@ -1,0 +1,4 @@
+const FOO := 1.4;
+
+print( FOO );
+
