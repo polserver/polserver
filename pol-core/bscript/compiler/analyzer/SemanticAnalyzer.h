@@ -21,12 +21,12 @@ class Report;
 class SemanticAnalyzer : public NodeVisitor
 {
 public:
-  SemanticAnalyzer( Constants&, Report& );
+  SemanticAnalyzer( CompilerWorkspace&, Report& );
 
   ~SemanticAnalyzer() override;
 
-  static void register_const_declarations( CompilerWorkspace& );
-  void analyze( CompilerWorkspace& );
+  static void register_const_declarations( CompilerWorkspace&, Report& );
+  void analyze();
 
   void visit_basic_for_loop( BasicForLoop& ) override;
   void visit_block( Block& ) override;
@@ -52,7 +52,14 @@ public:
   void visit_while_loop( WhileLoop& ) override;
 
 private:
-  Constants& constants;
+  bool report_function_name_conflict( const SourceLocation&, const std::string& function_name,
+                                      const std::string& element_description );
+  static bool report_function_name_conflict( const CompilerWorkspace&, Report&,
+                                             const SourceLocation&,
+                                             const std::string& function_name,
+                                             const std::string& element_description );
+
+  CompilerWorkspace& workspace;
   Report& report;
 
   Variables globals;

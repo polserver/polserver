@@ -16,6 +16,7 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
 {
   auto uf = tree_builder.function_declaration( ctx );
   workspace.function_resolver.register_user_function( uf.get() );
+  workspace.compiler_workspace.all_function_locations.emplace(uf->name, uf->source_location);
   workspace.compiler_workspace.user_functions.push_back( std::move( uf ) );
   return antlrcpp::Any();
 }
