@@ -278,7 +278,10 @@ void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationC
 antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
-  workspace.function_resolver.register_available_user_function( location_for( *ctx ), ctx );
+  auto loc = location_for( *ctx );
+  workspace.function_resolver.register_available_user_function( loc, ctx );
+  workspace.compiler_workspace.all_function_locations.emplace(
+      tree_builder.text( ctx->IDENTIFIER() ), loc );
   return antlrcpp::Any();
 }
 
