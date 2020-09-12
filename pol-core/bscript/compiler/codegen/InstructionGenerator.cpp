@@ -14,6 +14,7 @@
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CstyleForLoop.h"
+#include "compiler/ast/DebugStatementMarker.h"
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
@@ -54,6 +55,7 @@
 #include "compiler/ast/WhileLoop.h"
 #include "compiler/codegen/CaseDispatchGroupVisitor.h"
 #include "compiler/codegen/CaseJumpDataBlock.h"
+#include "compiler/codegen/DebugBlockGuard.h"
 #include "compiler/codegen/InstructionEmitter.h"
 #include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/model/FlowControlLabel.h"
@@ -76,11 +78,23 @@ InstructionGenerator::InstructionGenerator(
 void InstructionGenerator::generate( Node& node )
 {
   // alternative: two identical methods 'evaluate' and 'execute', for readability
+  update_debug_location( node );
   node.accept( *this );
+}
+
+void InstructionGenerator::update_debug_location( const Node& node )
+{
+  update_debug_location( node.source_location );
+}
+
+void InstructionGenerator::update_debug_location( const SourceLocation& loc )
+{
+  emit.debug_file_line( loc.source_file_identifier->index, loc.line_number );
 }
 
 void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
 {
+  update_debug_location( node );
   emit.array_create();
   for ( const auto& child : node.children )
   {
@@ -91,7 +105,9 @@ void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
 
 void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume& node )
 {
+  emitter.debug_statementbegin();
   generate( node.rhs() );
+  update_debug_location( node );
   auto& identifier = node.identifier();
   auto& variable = identifier.variable;
 
@@ -100,10 +116,14 @@ void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume&
 
 void InstructionGenerator::visit_basic_for_loop( BasicForLoop& loop )
 {
+  emit.debug_statementbegin();
+  update_debug_location( loop );
   FlowControlLabel skip, next;
 
   generate( loop.first() );
   generate( loop.last() );
+
+  DebugBlockGuard debug_block_guard( emitter, loop.local_variable_scope_info );
 
   emit.basic_for_init( skip );
 
@@ -121,7 +141,9 @@ void InstructionGenerator::visit_basic_for_loop( BasicForLoop& loop )
 
 void InstructionGenerator::visit_case_statement( CaseStatement& node )
 {
+  emit.debug_statementbegin();
   generate( node.expression() );
+  update_debug_location( node );
   const unsigned casejmp = emit.casejmp();
 
   CaseJumpDataBlock data_block;
@@ -158,6 +180,8 @@ void InstructionGenerator::visit_case_statement( CaseStatement& node )
 
 void InstructionGenerator::visit_cstyle_for_loop( CstyleForLoop& loop )
 {
+  emit.debug_statementbegin();
+  update_debug_location( loop );
   generate( loop.initializer() );
   emit.consume();
 
@@ -182,11 +206,14 @@ void InstructionGenerator::visit_binary_operator( BinaryOperator& node )
 {
   visit_children( node );
 
+  update_debug_location( node );
   emit.binary_operator( node.token_id );
 }
 
 void InstructionGenerator::visit_block( Block& node )
 {
+  DebugBlockGuard debug_block_guard( emitter, node.local_variable_scope_info );
+
   visit_children( node );
 
   if ( !node.local_variable_scope_info.variables.empty() )
@@ -215,20 +242,35 @@ void InstructionGenerator::visit_branch_selector( BranchSelector& node )
   }
 }
 
+void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& marker )
+{
+  emit.debug_statementbegin();
+  update_debug_location( marker );
+
+  unsigned source_file = marker.source_location.source_file_identifier->index;
+  emit.ctrl_statementbegin( source_file, marker.start_index, marker.text );
+
+  visit_children( marker );
+}
+
 void InstructionGenerator::visit_dictionary_initializer( DictionaryInitializer& node )
 {
+  update_debug_location( node );
   emit.dictionary_create();
   visit_children( node );
 }
 
 void InstructionGenerator::visit_dictionary_entry( DictionaryEntry& entry )
 {
+  update_debug_location( entry );
   visit_children( entry );
   emit.dictionary_add_member();
 }
 
 void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
 {
+  emit.debug_statementbegin();
+  update_debug_location( node );
   FlowControlLabel next;
   emit.label( next );
   generate( node.block() );
@@ -241,6 +283,7 @@ void InstructionGenerator::visit_do_while_loop( DoWhileLoop& node )
 void InstructionGenerator::visit_element_access( ElementAccess& acc )
 {
   visit_children( acc );
+  update_debug_location( acc );
   int indexes = acc.indexes().children.size();
   if ( indexes == 1 )
     emit.subscript_single();
@@ -251,6 +294,7 @@ void InstructionGenerator::visit_element_access( ElementAccess& acc )
 void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
 {
   visit_children( node );
+  update_debug_location( node );
   if ( node.consume )
   {
     emit.assign_subscript_consume();
@@ -269,6 +313,7 @@ void InstructionGenerator::visit_elvis_operator( ElvisOperator& elvis )
 {
   FlowControlLabel skip_instruction, after_rhs;
 
+  update_debug_location( elvis );
   generate( elvis.lhs() );
 
   unsigned address = emit.skip_if_true_else_consume();
@@ -284,6 +329,7 @@ void InstructionGenerator::visit_elvis_operator( ElvisOperator& elvis )
 
 void InstructionGenerator::visit_error_initializer( ErrorInitializer& node )
 {
+  update_debug_location( node );
   emit.error_create();
   int i = 0;
   for ( auto& child : node.children )
@@ -293,19 +339,27 @@ void InstructionGenerator::visit_error_initializer( ErrorInitializer& node )
   }
 }
 
-void InstructionGenerator::visit_exit_statement( ExitStatement& )
+void InstructionGenerator::visit_exit_statement( ExitStatement& node )
 {
+  emit.debug_statementbegin();
+  update_debug_location( node );
   emit.exit();
 }
 
 void InstructionGenerator::visit_float_value( FloatValue& node )
 {
+  update_debug_location( node );
   emit.value( node.value );
 }
 
 void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
 {
+  emit.debug_statementbegin();
+  update_debug_location( loop );
+
   generate( loop.expression() );
+
+  DebugBlockGuard debug_block_guard( emitter, loop.local_variable_scope_info );
 
   emit.foreach_init( *loop.continue_label );
 
@@ -325,6 +379,7 @@ void InstructionGenerator::visit_function_call( FunctionCall& call )
 {
   visit_children( call );
 
+  update_debug_location( call );
   if ( auto mf = call.function_link->module_function_declaration() )
   {
     emit.call_modulefunc( *mf );
@@ -352,6 +407,7 @@ void InstructionGenerator::visit_function_parameter_list( FunctionParameterList&
 void InstructionGenerator::visit_function_parameter_declaration(
     FunctionParameterDeclaration& node )
 {
+  update_debug_location( node );
   if ( node.byref )
     emit.pop_param_byref( node.name );
   else
@@ -362,6 +418,7 @@ void InstructionGenerator::visit_function_reference( FunctionReference& function
 {
   if ( auto uf = function_reference.function_link->user_function() )
   {
+    update_debug_location( function_reference );
     FlowControlLabel& label = user_function_labels[uf->name];
     emit.function_reference( uf->parameter_count(), label );
   }
@@ -373,6 +430,7 @@ void InstructionGenerator::visit_function_reference( FunctionReference& function
 
 void InstructionGenerator::visit_identifier( Identifier& node )
 {
+  update_debug_location( node );
   if ( auto var = node.variable )
   {
     emit.access_variable( *var );
@@ -385,6 +443,9 @@ void InstructionGenerator::visit_identifier( Identifier& node )
 
 void InstructionGenerator::visit_if_then_else_statement( IfThenElseStatement& node )
 {
+  emit.debug_statementbegin();
+  update_debug_location( node );
+
   auto branch_selector = &node.branch_selector();
   generate( *branch_selector );
 
@@ -408,11 +469,14 @@ void InstructionGenerator::visit_if_then_else_statement( IfThenElseStatement& no
 
 void InstructionGenerator::visit_integer_value( IntegerValue& node )
 {
+  update_debug_location( node );
   emit.value( node.value );
 }
 
 void InstructionGenerator::visit_jump_statement( JumpStatement& jump )
 {
+  emit.debug_statementbegin();
+  update_debug_location( jump );
   if ( jump.local_variables_to_remove )
     emit.leaveblock( jump.local_variables_to_remove );
   emit.jmp_always( *jump.flow_control_label );
@@ -422,6 +486,7 @@ void InstructionGenerator::visit_get_member( GetMember& member_access )
 {
   visit_children( member_access );
 
+  update_debug_location( member_access );
   if ( auto km = member_access.known_member )
     emit.get_member_id( km->id );
   else
@@ -432,6 +497,7 @@ void InstructionGenerator::visit_method_call( MethodCall& method_call )
 {
   visit_children( method_call );
 
+  update_debug_location( method_call );
   auto argument_count = method_call.argument_count();
   if ( auto km = method_call.known_method )
   {
@@ -447,6 +513,11 @@ void InstructionGenerator::visit_method_call( MethodCall& method_call )
 
 void InstructionGenerator::visit_program( Program& program )
 {
+  DebugBlockGuard debug_block_guard( emitter, program.local_variable_scope_info );
+
+  emit.debug_statementbegin();
+  update_debug_location( program );
+
   visit_children( program );
 
   if ( !program.local_variable_scope_info.variables.empty() )
@@ -457,11 +528,15 @@ void InstructionGenerator::visit_program( Program& program )
 
 void InstructionGenerator::visit_program_parameter_declaration( ProgramParameterDeclaration& param )
 {
+  update_debug_location( param );
   emit.get_arg( param.name );
 }
 
 void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )
 {
+  emit.debug_statementbegin();
+  update_debug_location( loop );
+
   FlowControlLabel top;
 
   emit.label( top );
@@ -474,8 +549,11 @@ void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )
 
 void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
 {
+  emit.debug_statementbegin();
+
   visit_children( ret );
 
+  update_debug_location( ret );
   if ( in_function )
   {
     emit.return_from_user_function();
@@ -490,6 +568,7 @@ void InstructionGenerator::visit_set_member( SetMember& node )
 {
   visit_children( node );
 
+  update_debug_location( node );
   if ( auto known_member = node.known_member )
   {
     if ( node.consume )
@@ -510,16 +589,19 @@ void InstructionGenerator::visit_set_member_by_operator( SetMemberByOperator& no
 {
   visit_children( node );
 
+  update_debug_location( node );
   emit.set_member_by_operator( node.token_id, node.known_member.id );
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )
 {
+  update_debug_location( lit );
   emit.value( lit.value );
 }
 
 void InstructionGenerator::visit_struct_initializer( StructInitializer& node )
 {
+  update_debug_location( node );
   emit.struct_create();
   visit_children( node );
 }
@@ -528,6 +610,7 @@ void InstructionGenerator::visit_struct_member_initializer( StructMemberInitiali
 {
   visit_children( node );
 
+  update_debug_location( node );
   if ( node.children.empty() )
     emit.struct_add_uninit_member( node.name );
   else
@@ -540,13 +623,19 @@ void InstructionGenerator::visit_unary_operator( UnaryOperator& unary_operator )
   emit.unary_operator( unary_operator.token_id );
 }
 
-void InstructionGenerator::visit_uninitialized_value( UninitializedValue& )
+void InstructionGenerator::visit_uninitialized_value( UninitializedValue& node )
 {
+  update_debug_location( node );
   emit.uninit();
 }
 
 void InstructionGenerator::visit_user_function( UserFunction& user_function )
 {
+  unsigned first_instruction_address = emitter.next_instruction_address();
+  DebugBlockGuard debug_block_guard( emitter, user_function.local_variable_scope_info );
+
+  emit.debug_statementbegin();
+  update_debug_location( user_function );
   if ( user_function.exported )
   {
     // emit the exported entry stub
@@ -568,13 +657,20 @@ void InstructionGenerator::visit_user_function( UserFunction& user_function )
 
   if ( !dynamic_cast<ReturnStatement*>( user_function.body().last_statement() ) )
   {
+    emit.debug_statementbegin();
+    update_debug_location( user_function.endfunction_location );
     emit.value( 0 );
     emit.return_from_user_function();
   }
+  unsigned last_instruction_address = emitter.next_instruction_address() - 1;
+  emitter.debug_user_function( user_function.name, first_instruction_address,
+                               last_instruction_address );
 }
 
 void InstructionGenerator::visit_value_consumer( ValueConsumer& node )
 {
+  emitter.debug_statementbegin();
+  update_debug_location( node );
   visit_children( node );
 
   emit.consume();
@@ -582,6 +678,8 @@ void InstructionGenerator::visit_value_consumer( ValueConsumer& node )
 
 void InstructionGenerator::visit_var_statement( VarStatement& node )
 {
+  emit.debug_statementbegin();
+  update_debug_location( node );
   if ( !node.variable )
     node.internal_error( "variable is not defined" );
   emit.declare_variable( *node.variable );
@@ -600,6 +698,8 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
 
 void InstructionGenerator::visit_while_loop( WhileLoop& loop )
 {
+  emit.debug_statementbegin();
+  update_debug_location( loop );
   emit.label( *loop.continue_label );
   generate( loop.predicate() );
   emit.jmp_if_false( *loop.break_label );

@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "compiler/representation/DebugStore.h"
+
 namespace Pol::Bscript
 {
 class StoredToken;
@@ -33,6 +35,7 @@ public:
 
   CompiledScript( CodeSection code_section,
                   DataSection data_section,
+                  DebugStore debug,
                   ExportedFunctions exported_functions,
                   std::vector<std::string> global_variable_names,
                   ModuleDescriptors modules,
@@ -44,6 +47,7 @@ public:
 
   const CodeSection code;
   const DataSection data;
+  const DebugStore debug;
   const ExportedFunctions exported_functions;
   const std::vector<std::string> global_variable_names;
   const ModuleDescriptors module_descriptors;

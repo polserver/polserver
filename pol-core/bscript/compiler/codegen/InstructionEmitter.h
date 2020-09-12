@@ -17,6 +17,7 @@
 #include "compiler/codegen/CodeEmitter.h"
 #include "compiler/codegen/DataEmitter.h"
 #include "compiler/representation/CompiledScript.h"
+#include "compiler/representation/DebugStore.h"
 
 namespace Pol::Bscript
 {
@@ -28,6 +29,7 @@ namespace Pol::Bscript::Compiler
 class CaseJumpDataBlock;
 class CompiledScript;
 class FlowControlLabel;
+class LocalVariableScopeInfo;
 class ModuleDeclarationRegistrar;
 class ModuleFunctionDeclaration;
 class Node;
@@ -37,13 +39,16 @@ class SourceLocation;
 class InstructionEmitter
 {
 public:
-  InstructionEmitter( CodeSection& code, DataSection& data, ExportedFunctions& exported_functions,
-                      ModuleDeclarationRegistrar& );
+  InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
+                      ExportedFunctions& exported_functions, ModuleDeclarationRegistrar& );
 
   void initialize_data();
 
   void register_exported_function( FlowControlLabel& label, const std::string& name,
                                    unsigned arguments );
+
+  unsigned enter_debug_block( const LocalVariableScopeInfo& );
+  void set_debug_block( unsigned );
 
   void access_variable( const Variable& );
   void array_append();
@@ -64,6 +69,8 @@ public:
   unsigned casejmp();
   unsigned case_dispatch_table( const CaseJumpDataBlock& );
   void consume();
+  void ctrl_statementbegin( unsigned file_index, unsigned file_offset,
+                            const std::string& source_text );
   void declare_variable( const Variable& );
   void dictionary_create();
   void dictionary_add_member();
@@ -102,7 +109,12 @@ public:
   void value( int );
   void value( const std::string& );
 
+  void debug_file_line( unsigned file_index, unsigned line_number );
+  void debug_statementbegin();
   unsigned next_instruction_address();
+  void debug_user_function( const std::string& name, unsigned first_address,
+                            unsigned last_address );
+
   void patch_offset( unsigned index, unsigned offset );
 
 private:
@@ -113,8 +125,11 @@ private:
 
   CodeEmitter code_emitter;
   DataEmitter data_emitter;
+  DebugStore& debug;
   ExportedFunctions& exported_functions;
   ModuleDeclarationRegistrar& module_declaration_registrar;
+
+  DebugStore::InstructionInfo debug_instruction_info{};
 };
 
 }  // namespace Pol::Bscript::Compiler

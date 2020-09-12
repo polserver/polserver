@@ -135,8 +135,6 @@ struct Comparison
   std::atomic<long> NonMatchingResult {};
   std::atomic<long> MatchingOutput {};
   std::atomic<long> NonMatchingOutput {};
-  std::atomic<long> MatchingDebugOutput {};
-  std::atomic<long> NonMatchingDebugOutput {};
 } comparison;
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
@@ -164,11 +162,29 @@ void compile_inc( const char* path )
     throw std::runtime_error( "Error compiling file" );
 }
 
+std::vector<unsigned char> file_contents( const std::string& pathname, std::ios::openmode openmode )
+{
+  std::ifstream ifs( pathname, openmode );
+  return std::vector<unsigned char>(std::istreambuf_iterator<char>( ifs ), {} );
+}
+
 std::vector<unsigned char> binary_contents( const std::string& pathname )
 {
   std::ifstream input1( pathname, std::ios::binary );
   std::vector<unsigned char> buffer( std::istreambuf_iterator<char>( input1 ), {} );
   return buffer;
+}
+
+std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins_filenums, const std::vector<std::string>& filenames)
+{
+  std::vector<std::string> result;
+  result.reserve( ins_filenums.size() );
+
+  for(auto& ins_filenum : ins_filenums)
+  {
+    result.push_back( filenames.at(ins_filenum));
+  }
+  return result;
 }
 
 bool compare_compiler_output( const std::string& path )
@@ -205,8 +221,9 @@ bool compare_compiler_output( const std::string& path )
     return true; // it's ok if they both failed
 
   // this is why -T and -G conflict: using the same filenames for every script
-  std::string og_ecl( "og-compiler.ecl");
-  std::string og_lst( "og-compiler.lst");
+
+  std::string og_ecl( "og-compiler.ecl" );
+  std::string og_lst( "og-compiler.lst" );
 
   std::string new_ecl( "new-compiler.ecl" );
   std::string new_lst( "new-compiler.lst" );
@@ -253,6 +270,48 @@ bool compare_compiler_output( const std::string& path )
       throw std::runtime_error( "Compiler output mismatch" );
     }
   }
+
+  if ( compilercfg.GenerateDebugInfo )
+  {
+    std::string og_dbg( "og-compiler.dbg" );
+    std::string og_dbg_txt( "og-compiler.dbg.txt" );
+
+    std::string new_dbg( "new-compiler.dbg" );
+    std::string new_dbg_txt( "new-compiler.dbg.txt" );
+
+    og_compiler.write_dbg( og_dbg, compilercfg.GenerateDebugTextInfo );
+    new_compiler.write_dbg( new_dbg, compilercfg.GenerateDebugTextInfo );
+
+    og_program->read_dbg_file();
+    new_program->read_dbg_file();
+
+    auto og_instruction_filenames = instruction_filenames( og_program->dbg_filenum, og_program->dbg_filenames );
+    auto new_instruction_filenames = instruction_filenames( new_program->dbg_filenum, new_program->dbg_filenames );
+
+    bool ins_filenames_match = og_instruction_filenames == new_instruction_filenames;
+    bool filenames_match = og_program->dbg_filenames == new_program->dbg_filenames;
+    bool filenum_match = og_program->dbg_filenum == new_program->dbg_filenum;
+    bool ins_blocks_match = og_program->dbg_ins_blocks == new_program->dbg_ins_blocks;
+    bool blocks_match = og_program->blocks == new_program->blocks;
+    bool functions_match = og_program->dbg_functions == new_program->dbg_functions;
+
+    bool dbg_matches = file_contents( og_dbg, std::ios::binary) == file_contents( new_dbg, std::ios::binary );
+    bool dbg_txt_matches = file_contents( og_dbg_txt, std::ios::in) == file_contents( new_dbg_txt, std::ios::in );
+
+    INFO_PRINT << "Not expected to match exactly:\n";
+    INFO_PRINT << "  Debug Info matches:\n";
+    INFO_PRINT << "              all: " << dbg_matches << "\n";
+    INFO_PRINT << "    ins filenames: " << ins_filenames_match << "\n";
+    INFO_PRINT << "        filenames: " << filenames_match << "\n";
+    INFO_PRINT << "     file numbers: " << filenum_match << "\n";
+    INFO_PRINT << "       ins_blocks: " << ins_blocks_match << "\n";
+    INFO_PRINT << "           blocks: " << blocks_match << "\n";
+    INFO_PRINT << "        functions: " << functions_match << "\n";
+    INFO_PRINT << "  Debug Info (text) matches: " << dbg_txt_matches << "\n";
+    INFO_PRINT << "    - " << og_dbg_txt << "\n";
+    INFO_PRINT << "    - " << new_dbg_txt << "\n";
+  }
+
   return true;
 }
 
@@ -996,8 +1055,6 @@ bool run( int argc, char** argv, int* res )
     tmp << "  Result mismatches: " << comparison.NonMatchingResult << "\n";
     tmp << "     Output matches: " << comparison.MatchingOutput << "\n";
     tmp << "  Output mismatches: " << comparison.NonMatchingOutput << "\n";
-    tmp << "      Debug matches: " << comparison.MatchingDebugOutput << "\n";
-    tmp << "   Debug mismatches: " << comparison.NonMatchingDebugOutput << "\n";
     INFO_PRINT << tmp.str();
   }
 

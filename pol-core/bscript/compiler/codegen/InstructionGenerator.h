@@ -10,15 +10,19 @@ namespace Pol::Bscript::Compiler
 {
 class FlowControlLabel;
 class InstructionEmitter;
+class SourceLocation;
 
 class InstructionGenerator : public NodeVisitor
 {
 public:
-  explicit InstructionGenerator( InstructionEmitter&,
-                                 std::map<std::string, FlowControlLabel>& user_function_labels,
-                                 bool in_function );
+  InstructionGenerator( InstructionEmitter&,
+                        std::map<std::string, FlowControlLabel>& user_function_labels,
+                        bool in_function);
 
   void generate( Node& );
+
+  void update_debug_location( const Node& );
+  void update_debug_location( const SourceLocation& );
 
   void visit_array_initializer( ArrayInitializer& ) override;
   void visit_assign_variable_consume( AssignVariableConsume& ) override;
@@ -28,6 +32,7 @@ public:
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
   void visit_branch_selector( BranchSelector& ) override;
+  void visit_debug_statement_marker( DebugStatementMarker& ) override;
   void visit_dictionary_entry( DictionaryEntry& ) override;
   void visit_dictionary_initializer( DictionaryInitializer& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;

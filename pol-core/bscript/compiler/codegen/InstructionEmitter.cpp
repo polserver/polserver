@@ -5,6 +5,7 @@
 #include "compiler/codegen/CaseJumpDataBlock.h"
 #include "compiler/codegen/ModuleDeclarationRegistrar.h"
 #include "compiler/model/FlowControlLabel.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 #include "compiler/model/Variable.h"
 #include "compiler/representation/CompiledScript.h"
 #include "compiler/representation/ExportedFunction.h"
@@ -15,11 +16,12 @@
 
 namespace Pol::Bscript::Compiler
 {
-InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data,
+InstructionEmitter::InstructionEmitter( CodeSection& code, DataSection& data, DebugStore& debug,
                                         ExportedFunctions& exported_functions,
                                         ModuleDeclarationRegistrar& module_declaration_registrar )
   : code_emitter( code ),
     data_emitter( data ),
+    debug( debug ),
     exported_functions( exported_functions ),
     module_declaration_registrar( module_declaration_registrar )
 {
@@ -36,6 +38,25 @@ void InstructionEmitter::register_exported_function( FlowControlLabel& label,
                                                      const std::string& name, unsigned parameters )
 {
   exported_functions.emplace_back( name, parameters, label.address() );
+}
+
+unsigned InstructionEmitter::enter_debug_block(
+    const LocalVariableScopeInfo& local_variable_scope_info )
+{
+  unsigned previous_debug_block_index = debug_instruction_info.block_index;
+
+  if ( !local_variable_scope_info.variables.empty() )
+  {
+    debug_instruction_info.block_index =
+        debug.add_block( debug_instruction_info.block_index, local_variable_scope_info );
+  }
+
+  return previous_debug_block_index;
+}
+
+void InstructionEmitter::set_debug_block( unsigned block_index )
+{
+  debug_instruction_info.block_index = block_index;
 }
 
 void InstructionEmitter::access_variable( const Variable& v )
@@ -148,6 +169,19 @@ unsigned InstructionEmitter::case_dispatch_table( const CaseJumpDataBlock& dispa
 void InstructionEmitter::consume()
 {
   emit_token( TOK_CONSUMER, TYP_UNARY_OPERATOR );
+}
+
+void InstructionEmitter::ctrl_statementbegin( unsigned file_index, unsigned file_offset,
+                                              const std::string& source_text )
+{
+  unsigned source_offset = emit_data( source_text );
+  Pol::Bscript::DebugToken debug_token;
+  debug_token.sourceFile = file_index + 1;
+  debug_token.offset = file_offset;
+  debug_token.strOffset = source_offset;
+  unsigned offset =
+      data_emitter.store( reinterpret_cast<std::byte*>( &debug_token ), sizeof debug_token );
+  emit_token( CTRL_STATEMENTBEGIN, TYP_CONTROL, offset );
 }
 
 void InstructionEmitter::declare_variable( const Variable& v )
@@ -365,12 +399,33 @@ unsigned InstructionEmitter::emit_token( BTokenId id, BTokenType type, unsigned 
 
 unsigned InstructionEmitter::append_token( StoredToken& token )
 {
+  debug.add_instruction( debug_instruction_info );
+  debug_instruction_info.statement_begin = false;
   return code_emitter.append( token );
+}
+
+void InstructionEmitter::debug_file_line( unsigned file, unsigned line )
+{
+  // debug info always has file #0 = empty (keeping for parity, for now)
+  debug_instruction_info.file_index = file + 1;
+  debug_instruction_info.line_number = line;
+}
+
+void InstructionEmitter::debug_statementbegin()
+{
+  debug_instruction_info.statement_begin = true;
 }
 
 unsigned InstructionEmitter::next_instruction_address()
 {
   return code_emitter.next_address();
+}
+
+void InstructionEmitter::debug_user_function( const std::string& name, unsigned first_pc,
+                                              unsigned last_pc )
+{
+  DebugStore::UserFunctionInfo ufi{ name, first_pc, last_pc };
+  debug.add_user_function( std::move( ufi ) );
 }
 
 void InstructionEmitter::patch_offset( unsigned index, unsigned offset )

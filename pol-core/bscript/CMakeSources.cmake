@@ -58,6 +58,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ConstDeclaration.h
   compiler/ast/CstyleForLoop.cpp
   compiler/ast/CstyleForLoop.h
+  compiler/ast/DebugStatementMarker.cpp
+  compiler/ast/DebugStatementMarker.h
   compiler/ast/DictionaryEntry.cpp
   compiler/ast/DictionaryEntry.h
   compiler/ast/DictionaryInitializer.cpp
@@ -201,6 +203,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/CodeGenerator.h
   compiler/codegen/DataEmitter.cpp
   compiler/codegen/DataEmitter.h
+  compiler/codegen/DebugBlockGuard.cpp
+  compiler/codegen/DebugBlockGuard.h
   compiler/codegen/InstructionEmitter.cpp
   compiler/codegen/InstructionEmitter.h
   compiler/codegen/InstructionGenerator.cpp
@@ -221,6 +225,8 @@ set (bscript_sources    # sorted !
   compiler/file/SourceLocation.h
   compiler/format/CompiledScriptSerializer.cpp
   compiler/format/CompiledScriptSerializer.h
+  compiler/format/DebugStoreSerializer.cpp
+  compiler/format/DebugStoreSerializer.h
   compiler/format/ListingWriter.cpp
   compiler/format/ListingWriter.h
   compiler/format/StoredTokenDecoder.cpp
@@ -258,6 +264,10 @@ set (bscript_sources    # sorted !
   compiler/optimizer/ValueConsumerOptimizer.h
   compiler/representation/CompiledScript.cpp
   compiler/representation/CompiledScript.h
+  compiler/representation/DebugBlock.cpp
+  compiler/representation/DebugBlock.h
+  compiler/representation/DebugStore.cpp
+  compiler/representation/DebugStore.h
   compiler/representation/ExportedFunction.cpp
   compiler/representation/ExportedFunction.h
   compiler/representation/ModuleDescriptor.cpp

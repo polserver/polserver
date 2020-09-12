@@ -34,11 +34,20 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
   CodeSection code;
   DataSection data;
 
+  std::vector<std::string> debug_filenames;
+  // For parity with OG compiler, debug file #0 is always empty.
+  debug_filenames.emplace_back( "" );
+  for ( auto& ident : workspace->referenced_source_file_identifiers )
+  {
+    debug_filenames.push_back( ident->pathname );
+  }
+  DebugStore debug( std::move( debug_filenames ) );
+
   ExportedFunctions exported_functions;
 
   ModuleDeclarationRegistrar module_declaration_registrar;
 
-  InstructionEmitter instruction_emitter( code, data, exported_functions,
+  InstructionEmitter instruction_emitter( code, data, debug, exported_functions,
                                           module_declaration_registrar );
   CodeGenerator generator( instruction_emitter, module_declaration_registrar );
 
@@ -52,7 +61,7 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
       module_declaration_registrar.take_module_descriptors();
 
   return std::make_unique<CompiledScript>(
-      std::move( code ), std::move( data ), std::move( exported_functions ),
+      std::move( code ), std::move( data ), std::move( debug ), std::move( exported_functions ),
       std::move( workspace->global_variable_names ), std::move( module_descriptors ),
       std::move( program_info ), std::move( workspace->referenced_source_file_identifiers ) );
 }
@@ -67,6 +76,9 @@ CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
 
 void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
 {
+  emitter.debug_statementbegin();
+  emitter.debug_file_line( 0, 1 );
+
   std::map<std::string, FlowControlLabel> user_function_labels;
   InstructionGenerator outer_instruction_generator( emitter, user_function_labels, false );
   InstructionGenerator function_instruction_generator( emitter, user_function_labels, true );
