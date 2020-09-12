@@ -14,6 +14,7 @@
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CstyleForLoop.h"
+#include "compiler/ast/DebugStatementMarker.h"
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/DoWhileLoop.h"
@@ -123,6 +124,11 @@ void NodeVisitor::visit_const_declaration( ConstDeclaration& node )
 }
 
 void NodeVisitor::visit_cstyle_for_loop( CstyleForLoop& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_debug_statement_marker( DebugStatementMarker& node )
 {
   visit_children( node );
 }

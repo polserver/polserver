@@ -3,6 +3,7 @@
 #include "compiler/Report.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/DebugStatementMarker.h"
 #include "compiler/ast/EnumDeclaration.h"
 #include "compiler/ast/Expression.h"
 #include "compiler/ast/Identifier.h"
@@ -23,6 +24,13 @@ SimpleStatementBuilder::SimpleStatementBuilder( const SourceFileIdentifier& sour
                                     BuilderWorkspace& workspace )
   : ExpressionBuilder( source_file_identifier, workspace )
 {
+}
+
+void SimpleStatementBuilder::add_intrusive_debug_marker(
+    antlr4::ParserRuleContext* ctx, std::vector<std::unique_ptr<Statement>>& statements )
+{
+  statements.push_back( std::make_unique<DebugStatementMarker>(
+      location_for( *ctx ), ctx->getText(), ctx->start->getStartIndex() ) );
 }
 
 void SimpleStatementBuilder::add_var_statements(

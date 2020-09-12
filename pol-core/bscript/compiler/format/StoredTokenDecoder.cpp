@@ -1,6 +1,7 @@
 #include "StoredTokenDecoder.h"
 
 #include "StoredToken.h"
+#include "compiler/representation/DebugStore.h"
 #include "compiler/representation/ModuleDescriptor.h"
 #include "compiler/representation/ModuleFunctionDescriptor.h"
 #include "objmembers.h"
@@ -9,8 +10,9 @@
 namespace Pol::Bscript::Compiler
 {
 StoredTokenDecoder::StoredTokenDecoder( const std::vector<ModuleDescriptor>& module_descriptors,
-                                        const std::vector<std::byte>& data )
-  : module_descriptors( module_descriptors ), data( data )
+                                        const std::vector<std::byte>& data,
+                                        const DebugStore* debug_store )
+  : module_descriptors( module_descriptors ), data( data ), debug_store( debug_store )
 {
 }
 
@@ -129,6 +131,15 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << ".? (check-member)";
     break;
 
+  case CTRL_STATEMENTBEGIN:
+  {
+    const Pol::Bscript::DebugToken& debug_token = debug_token_at( tkn.offset );
+
+    w << "CTRL_STATEMENTBEGIN"
+      << " sourceFile=" << debug_token.sourceFile << " x=" << debug_token.offset
+      << " y=" << string_at( debug_token.strOffset );
+    break;
+  }
   case CTRL_PROGEND:
     w << "progend";
     break;
@@ -425,6 +436,16 @@ std::string StoredTokenDecoder::string_at( unsigned offset ) const
                               std::to_string( offset ) );
 
   return std::string( s_begin, s_end );
+}
+
+const Pol::Bscript::DebugToken& StoredTokenDecoder::debug_token_at( unsigned offset ) const
+{
+  if ( offset > data.size() - sizeof( Pol::Bscript::DebugToken ) )
+    throw std::runtime_error( "data overflow reading DebugToken at offset " +
+                              std::to_string( offset ) + ".  Data size is " +
+                              std::to_string( data.size() ) );
+
+  return *reinterpret_cast<const Pol::Bscript::DebugToken*>( &data[offset] );
 }
 
 void StoredTokenDecoder::decode_casejmp_table( fmt::Writer& w, unsigned offset ) const

@@ -16,6 +16,9 @@ class SimpleStatementBuilder : public ExpressionBuilder
 public:
   SimpleStatementBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
+  void add_intrusive_debug_marker( antlr4::ParserRuleContext*,
+                                   std::vector<std::unique_ptr<Statement>>& );
+
   void add_var_statements( EscriptGrammar::EscriptParser::VarStatementContext*,
                            std::vector<std::unique_ptr<Statement>>& );
 

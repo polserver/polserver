@@ -11,6 +11,7 @@
 #include "compiler/ast/CaseStatement.h"
 #include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CstyleForLoop.h"
+#include "compiler/ast/DebugStatementMarker.h"
 #include "compiler/ast/DoWhileLoop.h"
 #include "compiler/ast/EmptyStatement.h"
 #include "compiler/ast/EnumDeclaration.h"
@@ -31,6 +32,11 @@
 
 using EscriptGrammar::EscriptParser;
 
+namespace Pol::Bscript
+{
+extern int include_debug;
+}
+
 namespace Pol::Bscript::Compiler
 {
 CompoundStatementBuilder::CompoundStatementBuilder(
@@ -39,9 +45,14 @@ CompoundStatementBuilder::CompoundStatementBuilder(
 {
 }
 
-void CompoundStatementBuilder::add_statements(
-    EscriptParser::StatementContext* ctx, std::vector<std::unique_ptr<Statement>>& statements )
+void CompoundStatementBuilder::add_statements( EscriptParser::StatementContext* ctx,
+                                               std::vector<std::unique_ptr<Statement>>& statements )
 {
+  if ( include_debug )
+  {
+    add_intrusive_debug_marker( ctx, statements );
+  }
+
   if ( auto expr_ctx = ctx->expression() )
   {
     statements.push_back( consume_statement_result( expression( expr_ctx ) ) );
