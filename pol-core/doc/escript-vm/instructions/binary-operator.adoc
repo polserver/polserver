@@ -1,0 +1,14 @@
+= Binary Operators
+
+(You already knew how this worked)
+
+.Stack State
+|===
+| Before Execution | After Execution
+
+| right-hand side
+|
+
+| left-hand side
+| result of operation
+|===

@@ -1,0 +1,98 @@
+= Compiler Docs
+
+== Overview
+
+.Cast of Characters
+|===
+| Class | Role
+
+| ANTLR Parser
+| Creates Parse Tree
+
+| ast/Builder
+| Creates AST; Also looks up and links functions
+
+| Disambiguator
+| Resolves ambiguous labels based on context.
+
+| Optimizer
+a|
+* Simplifies constant expressions
+* Maps sequences of operators to more efficient ones based on patterns
+* Simplifies statements, such as if-then-else with a constant predicate
+
+| SemanticAnalyzer
+a|
+* Assigns variable/label scopes.
+* Validates ... semantics
+
+| CodeGenerator
+| Converts expressions and statements into sequences of instructions
+
+| InstructionGenerator
+| Knows which instructions to generate
+
+| InstructionEmitter
+| Knows how to generate instructions
+
+| CompiledScriptSerializer
+| Writes .ecl file
+|===
+
+.Directory Layout
+|===
+| Directory | Role
+
+| analyzer/
+| The semantic analyzer
+
+| ast/
+| The AST nodes
+
+| astbuilder/
+| Code that builds the AST nodes from the parse tree.
+
+| codegen/
+| The code generator
+
+| file/
+| source files and caching
+
+| model/
+a| things that are shared between the AST builder, the semantic analyzer, and the code generator,
+but don't exactly belong to any one of them.
+
+* workspace
+* intermediate
+
+| output/
+a|
+The compiled output, and code to serialize (and maybe deserialize) it.
+Other directory name ideas?
+
+* product
+* compiled
+* representation
+
+| need a directory for
+a| listing generators / token display
+
+* listing
+* inspection
+
+
+| ./
+| Ideally just Compiler.cpp/h, but also a few others that didn't fit elsewhere.
+
+|===
+
+== Error Handling
+
+Let's try:
+
+* script errors (syntax, semantics, etc) are not exceptions
+** we keep compiling after these errors, and report several
+
+* compiler logic errors are exceptions
+** these throw immediately because we just can't continue (often)
+

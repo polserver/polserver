@@ -28,10 +28,8 @@ public:
 
   void propagate_errors_to( Report&, const SourceFileIdentifier& );
 
-  EscriptGrammar::EscriptParser::CompilationUnitContext* get_compilation_unit(
-      Report&, const SourceFileIdentifier& );
-  EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit(
-      Report&, const SourceFileIdentifier& );
+  antlr4::ParserRuleContext* get_compilation_unit( Report&, const SourceFileIdentifier& );
+  antlr4::ParserRuleContext* get_module_unit( Report&, const SourceFileIdentifier& );
 
   const std::string pathname;
 

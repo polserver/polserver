@@ -1,0 +1,56 @@
+= eScript Roadmap
+
+. New compiler
+* ongoing:
+** identical .ecl output
+** no remaining TODOs
+* tentative PR submit order:
+.. ConformingCharStream (all)
+.. ErrorListener (all)
+.. SourceFile (no unambiguous grammar)
+.. SourceFileCache (ctors: Compiler, CompilerWorkspaceBuilder, BuilderWorkspace)
+... Profile: cache hits, misses
+... compilercfg
+.. ast/Node
+... also Report/warn/error by node
+.. Expression, Statement, Value
+.. TopLevelStatements
+... Disambiguator.disambiguate
+... SemanticAnalyzer analyze
+... Add to CompilerWorkspace
+... CompilerWorkspaceBuilder sets in CompilerWorkspace
+... CodeGenerator.generate_instructions
+.. TreeBuilder
+.. ValueBuilder, ExpressionBuilder, SimpleStatementBuilder, CompoundStatementBuilder stubs
+.. ModuleDeclarationBuilder, ProgramBuilder, UserFunctionBuilder stubs
+.. SourceFileProcessor stub
+.. ValueConsumer
+.. FloatValue
+... SourceFileProcessor::process_source
+.. Hello World checkpoint
+.. var statements
+.. identifiers
+.. global variables
+.. if statements
+.. program .. endprogram
+.. rest TBD
+* document instructions
+. Future releases:
+.. Improve organization of testsuite/escript (smaller, targeted scripts)
+.. detect non-optimized divide-by-zero (from constants..ever happens?)
+.. Remove old compiler
+.. Remove old-compiler-specific stuff from Token, EScriptProgram
+.. Remove Module from StoredToken
+.. Remove BTokenType
+.. Streamline ecl command bytecode link:ecl2.adoc[See Ideas]
+.. Change Elvis operator to be an absolute jump, and so use labels like everything else
+.. Optimizations:
+... More *-consume (call-function-consume, in particular)
+... predicate checks when first is unary operator!
+* Known Issues
+** the error message for something like this is worse, because the parser doesn't know that "print" is a function (ex: func/func2.src, func/func2b.src)
+----
+print "foo1";
+----
+** https://forums.polserver.com/viewtopic.php?f=7&t=6333
+*** can't fix without breaking parity with the old compiler (which fails to compile it)

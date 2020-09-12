@@ -141,7 +141,7 @@ std::unique_ptr<BasicForLoop> CompoundStatementBuilder::basic_for_loop(
 }
 
 std::vector<std::unique_ptr<Statement>> CompoundStatementBuilder::block_statements(
-        EscriptParser::BlockContext* ctx )
+    EscriptParser::BlockContext* ctx )
 {
   std::vector<std::unique_ptr<Statement>> statements;
 
@@ -374,7 +374,7 @@ std::unique_ptr<WhileLoop> CompoundStatementBuilder::while_loop(
   auto predicate = expression( ctx->parExpression()->expression() );
   auto body = block( ctx->block() );
   return std::make_unique<WhileLoop>( source_location, std::move( label ), std::move( predicate ),
-                                        std::move( body ) );
+                                      std::move( body ) );
 }
 
 }  // namespace Pol::Bscript::Compiler

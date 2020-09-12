@@ -1,0 +1,17 @@
+= TOK_ASSIGN
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+| destination (LHS)
+|
+
+| source (RHS)
+| destination (LHS)
+
+|===
+
+== Operation
+. Pops one value from the value stack
+. Assigns

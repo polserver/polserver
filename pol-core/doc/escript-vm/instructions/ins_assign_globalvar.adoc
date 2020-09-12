@@ -1,0 +1,23 @@
+= INS_ASSIGN_GLOBALVAR
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+| value to be assigned (rhs)
+|
+
+|===
+
+.Stored Token
+|===
+|Id | Type | Offset
+
+| INS_ASSIGN_GLOBALVAR 0x4f
+| TYP_UNARY_OPERATOR
+| global # index
+|===
+
+== Operation
+. Pop one value off of the value stack
+. Assign that value to global #<index>

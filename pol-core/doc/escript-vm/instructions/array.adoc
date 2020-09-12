@@ -1,0 +1,14 @@
+= TOK_ARRAY
+
+Creates a new, empty array and pushes a reference to it onto the Value Stack.
+
+See also: link:declare-array.adoc[declare-array]
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+|
+
+| empty array
+|===

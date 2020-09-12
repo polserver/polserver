@@ -4,13 +4,13 @@
 
 #include "clib/strutil.h"
 #include "compiler/Report.h"
-#include "compiler/analyzer/Constants.h"
 #include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/analyzer/FlowControlScope.h"
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/Block.h"
+#include "compiler/ast/ConstDeclaration.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
 #include "compiler/ast/CaseDispatchGroups.h"
@@ -31,6 +31,7 @@
 #include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
+#include "compiler/ast/ProgramParameterList.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/StringValue.h"
@@ -77,7 +78,6 @@ void SemanticAnalyzer::analyze()
   {
     program->accept( *this );
   }
-
   for ( auto& user_function : workspace.user_functions )
   {
     user_function->accept( *this );

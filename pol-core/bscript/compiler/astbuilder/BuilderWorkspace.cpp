@@ -2,7 +2,14 @@
 
 #include "compiler/file/SourceFile.h"
 #include "compiler/file/SourceFileCache.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Statement.h"
+#include "compiler/ast/ConstDeclaration.h"
+#include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/Program.h"
+#include "compiler/ast/Statement.h"
+#include "compiler/ast/UserFunction.h"
+#include "compiler/astbuilder/AvailableUserFunction.h"
 #include "compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler

@@ -30,6 +30,8 @@ private:
   const std::string pathname;
   Profile& profile;
 
+  int ambiguities = 0;
+
   struct ErrorMessage {
     const std::string message;
     const size_t line_number;

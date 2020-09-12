@@ -1,0 +1,9 @@
+== INS_CALL_METHOD
+
+Calls an object method by name, or calls a function by reference
+
+id: INS_CALL_METHOD
+
+"type": the number of arguments.
+
+offset: offset in data of the method name.

@@ -1,0 +1,18 @@
+= INS_DECLARE_ARRAY
+
+This instruction is only used for declarations of this form:
+----
+var x array;
+----
+
+It sets the value of the newly declared local or global variable
+to a new, empty array.
+
+.Stack State
+|===
+| Before Execution | After Execution
+
+| uninitialized variable
+| same variable, initialized to an empty array
+
+|===

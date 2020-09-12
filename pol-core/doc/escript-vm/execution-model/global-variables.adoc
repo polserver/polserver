@@ -1,0 +1,9 @@
+= Global Variables
+
+The globals array holds one BObjectRef per global variable.
+
+It has a fixed length for the duration of a script's execution.
+
+Script startup initializes this array with one link:../types/uninitialized-value.adoc[Uninitialized Value]
+per global variable.
+

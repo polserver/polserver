@@ -1,0 +1,4 @@
+= The Value Stack
+
+The Value Stack holds values of expressions as they are being evaluated.
+

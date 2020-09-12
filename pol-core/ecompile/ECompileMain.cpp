@@ -13,6 +13,7 @@
 #include "../bscript/compiler/LegacyFunctionOrder.h"
 #include "../bscript/compiler/Profile.h"
 #include "../bscript/compiler/file/SourceFileCache.h"
+#include "../bscript/compiler/format/SideBySideListingWriter.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
@@ -242,14 +243,19 @@ bool compare_compiler_output( const std::string& path )
 
   std::string og_ecl( "og-compiler.ecl" );
   std::string og_lst( "og-compiler.lst" );
+  std::string og_disassembly( "og-compiler.ecl.txt" );
 
   std::string new_ecl( "new-compiler.ecl" );
   std::string new_lst( "new-compiler.lst" );
+  std::string new_disassembly( "new-compiler.ecl.txt" );
 
   og_compiler.write_ecl( og_ecl );
-  og_compiler.write_listing( og_lst );
-
   new_compiler.write_ecl( new_ecl );
+
+  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
+  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
+
+  og_compiler.write_listing( og_lst );
   {
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     program->read( new_ecl.c_str() );
@@ -1018,6 +1024,9 @@ bool run( int argc, char** argv, int* res )
       tmp << "    " << summary.UpToDateScripts << " script"
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
 
+    tmp << "        - load *.em: " << (long long)summary.profile.load_em_micros / 1000 << ")\n";
+    tmp << "       - parse *.em: " << (long long)summary.profile.parse_em_micros / 1000 << " ("
+        << (long)summary.profile.parse_em_count << ")\n";
     tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
         << "\n";
     tmp << "        - load *.em:   " << (long long)summary.profile.load_em_micros / 1000 << "\n";

@@ -84,6 +84,8 @@ set (bscript_sources    # sorted !
   compiler/ast/ExitStatement.h
   compiler/ast/Expression.cpp
   compiler/ast/Expression.h
+  compiler/ast/ExitStatement.cpp
+  compiler/ast/ExitStatement.h
   compiler/ast/FloatValue.cpp
   compiler/ast/FloatValue.h
   compiler/ast/ForeachLoop.cpp
@@ -227,8 +229,12 @@ set (bscript_sources    # sorted !
   compiler/format/CompiledScriptSerializer.h
   compiler/format/DebugStoreSerializer.cpp
   compiler/format/DebugStoreSerializer.h
+  compiler/format/InputBuffer.cpp
+  compiler/format/InputBuffer.h
   compiler/format/ListingWriter.cpp
   compiler/format/ListingWriter.h
+  compiler/format/SideBySideListingWriter.cpp
+  compiler/format/SideBySideListingWriter.h
   compiler/format/StoredTokenDecoder.cpp
   compiler/format/StoredTokenDecoder.h
   compiler/model/CompilerWorkspace.cpp
@@ -275,6 +281,9 @@ set (bscript_sources    # sorted !
   compiler/representation/ModuleDescriptor.h
   compiler/representation/ModuleFunctionDescriptor.cpp
   compiler/representation/ModuleFunctionDescriptor.h
+  compiler/Compiler.cpp
+  compiler/Compiler.h
+  compiler/LegacyFunctionOrder.h
   compiler/Profile.h
   compiler/Report.cpp
   compiler/Report.h
