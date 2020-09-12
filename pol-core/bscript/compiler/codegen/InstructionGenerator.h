@@ -33,8 +33,8 @@ public:
   void visit_block( Block& ) override;
   void visit_branch_selector( BranchSelector& ) override;
   void visit_debug_statement_marker( DebugStatementMarker& ) override;
-  void visit_dictionary_initializer( DictionaryInitializer& ) override;
   void visit_dictionary_entry( DictionaryEntry& ) override;
+  void visit_dictionary_initializer( DictionaryInitializer& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;
   void visit_element_access( ElementAccess& ) override;
   void visit_element_assignment( ElementAssignment& ) override;

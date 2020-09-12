@@ -109,7 +109,7 @@ public:
   void value( int );
   void value( const std::string& );
 
-  void debug_file_line( unsigned, unsigned );
+  void debug_file_line( unsigned file_index, unsigned line_number );
   void debug_statementbegin();
   unsigned next_instruction_address();
   void debug_user_function( const std::string& name, unsigned first_address,

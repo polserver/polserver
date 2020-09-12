@@ -105,6 +105,7 @@ void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
 
 void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume& node )
 {
+  emitter.debug_statementbegin();
   generate( node.rhs() );
   update_debug_location( node );
   auto& identifier = node.identifier();
@@ -246,8 +247,7 @@ void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& m
   emit.debug_statementbegin();
   update_debug_location( marker );
 
-  // OG always puts 0.. marker.source_location.source_file_identifier->index
-  unsigned source_file = 0;
+  unsigned source_file = marker.source_location.source_file_identifier->index;
   emit.ctrl_statementbegin( source_file, marker.start_index, marker.text );
 
   visit_children( marker );
@@ -354,6 +354,9 @@ void InstructionGenerator::visit_float_value( FloatValue& node )
 
 void InstructionGenerator::visit_foreach_loop( ForeachLoop& loop )
 {
+  emit.debug_statementbegin();
+  update_debug_location( loop );
+
   generate( loop.expression() );
 
   DebugBlockGuard debug_block_guard( emitter, loop.local_variable_scope_info );
@@ -472,6 +475,7 @@ void InstructionGenerator::visit_integer_value( IntegerValue& node )
 
 void InstructionGenerator::visit_jump_statement( JumpStatement& jump )
 {
+  emit.debug_statementbegin();
   update_debug_location( jump );
   if ( jump.local_variables_to_remove )
     emit.leaveblock( jump.local_variables_to_remove );
@@ -511,6 +515,7 @@ void InstructionGenerator::visit_program( Program& program )
 {
   DebugBlockGuard debug_block_guard( emitter, program.local_variable_scope_info );
 
+  emit.debug_statementbegin();
   update_debug_location( program );
 
   visit_children( program );
@@ -544,6 +549,8 @@ void InstructionGenerator::visit_repeat_until_loop( RepeatUntilLoop& loop )
 
 void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
 {
+  emit.debug_statementbegin();
+
   visit_children( ret );
 
   update_debug_location( ret );

@@ -224,23 +224,14 @@ bool compare_compiler_output( const std::string& path )
 
   std::string og_ecl( "og-compiler.ecl" );
   std::string og_lst( "og-compiler.lst" );
-//  std::string og_disassembly = filename_with_option("og-compiler.ecl.txt");
-  std::string og_dbg( "og-compiler.dbg" );
-  std::string og_dbg_txt( "og-compiler.dbg.txt" );
 
   std::string new_ecl( "new-compiler.ecl" );
   std::string new_lst( "new-compiler.lst" );
-//  std::string new_disassembly = filename_with_option("new-compiler.ecl.txt");
-  std::string new_dbg( "new-compiler.dbg" );
-  std::string new_dbg_txt( "new-compiler.dbg.txt" );
 
   og_compiler.write_ecl( og_ecl );
-  new_compiler.write_ecl( new_ecl );
-
-//  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( og_ecl, og_disassembly );
-//  Pol::Bscript::Compiler::SideBySideListingWriter().disassemble_file( new_ecl, new_disassembly );
-
   og_compiler.write_listing( og_lst );
+
+  new_compiler.write_ecl( new_ecl );
   {
     ref_ptr<EScriptProgram> program( new EScriptProgram );
     program->read( new_ecl.c_str() );
@@ -282,6 +273,12 @@ bool compare_compiler_output( const std::string& path )
 
   if ( compilercfg.GenerateDebugInfo )
   {
+    std::string og_dbg( "og-compiler.dbg" );
+    std::string og_dbg_txt( "og-compiler.dbg.txt" );
+
+    std::string new_dbg( "new-compiler.dbg" );
+    std::string new_dbg_txt( "new-compiler.dbg.txt" );
+
     og_compiler.write_dbg( og_dbg, compilercfg.GenerateDebugTextInfo );
     new_compiler.write_dbg( new_dbg, compilercfg.GenerateDebugTextInfo );
 

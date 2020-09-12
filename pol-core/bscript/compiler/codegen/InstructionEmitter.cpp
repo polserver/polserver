@@ -43,7 +43,7 @@ void InstructionEmitter::register_exported_function( FlowControlLabel& label,
 unsigned InstructionEmitter::enter_debug_block(
     const LocalVariableScopeInfo& local_variable_scope_info )
 {
-  unsigned previous_debug_block_id = debug_instruction_info.block_index;
+  unsigned previous_debug_block_index = debug_instruction_info.block_index;
 
   if ( !local_variable_scope_info.variables.empty() )
   {
@@ -51,12 +51,12 @@ unsigned InstructionEmitter::enter_debug_block(
         debug.add_block( debug_instruction_info.block_index, local_variable_scope_info );
   }
 
-  return previous_debug_block_id;
+  return previous_debug_block_index;
 }
 
-void InstructionEmitter::set_debug_block( unsigned block_id )
+void InstructionEmitter::set_debug_block( unsigned block_index )
 {
-  debug_instruction_info.block_index = block_id;
+  debug_instruction_info.block_index = block_index;
 }
 
 void InstructionEmitter::access_variable( const Variable& v )
@@ -176,7 +176,7 @@ void InstructionEmitter::ctrl_statementbegin( unsigned file_index, unsigned file
 {
   unsigned source_offset = emit_data( source_text );
   Pol::Bscript::DebugToken debug_token;
-  debug_token.sourceFile = file_index;
+  debug_token.sourceFile = file_index + 1;
   debug_token.offset = file_offset;
   debug_token.strOffset = source_offset;
   unsigned offset =

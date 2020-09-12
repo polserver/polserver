@@ -14,7 +14,8 @@ ListingWriter::ListingWriter( CompiledScript& compiled_script ) : compiled_scrip
 
 void ListingWriter::write( std::ofstream& ofs )
 {
-  StoredTokenDecoder decoder( compiled_script.module_descriptors, compiled_script.data, nullptr );
+  StoredTokenDecoder decoder( compiled_script.module_descriptors, compiled_script.data,
+                              &compiled_script.debug );
   int i = 0;
   for ( auto& tkn : compiled_script.code )
   {

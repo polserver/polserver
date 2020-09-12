@@ -77,7 +77,7 @@ CodeGenerator::CodeGenerator( InstructionEmitter& emitter,
 void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
 {
   emitter.debug_statementbegin();
-  emitter.debug_file_line( 1, 1 );
+  emitter.debug_file_line( 0, 1 );
 
   std::map<std::string, FlowControlLabel> user_function_labels;
   InstructionGenerator outer_instruction_generator( emitter, user_function_labels, false );

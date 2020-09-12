@@ -15,7 +15,7 @@ DebugStore::DebugStore( std::vector<std::string> filenames ) : filenames( std::m
 DebugStore::DebugStore( DebugStore&& ) noexcept = default;
 DebugStore::~DebugStore() = default;
 
-unsigned DebugStore::add_block( unsigned parent_block_id,
+unsigned DebugStore::add_block( unsigned parent_block_index,
                                 const LocalVariableScopeInfo& local_variable_scope_info )
 {
   unsigned base_index = local_variable_scope_info.base_index;
@@ -26,7 +26,7 @@ unsigned DebugStore::add_block( unsigned parent_block_id,
     local_variable_names.push_back( var->name );
   }
 
-  blocks.emplace_back( parent_block_id, base_index, std::move( local_variable_names ) );
+  blocks.emplace_back( parent_block_index, base_index, std::move( local_variable_names ) );
   return blocks.size() - 1;
 }
 
