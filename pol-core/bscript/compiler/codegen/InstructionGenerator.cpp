@@ -246,7 +246,7 @@ void InstructionGenerator::visit_debug_statement_marker( DebugStatementMarker& m
   emit.debug_statementbegin();
   update_debug_location( marker );
 
-  // OG always puts 0.. wrapper.source_location.source_file_identifier->index
+  // OG always puts 0.. marker.source_location.source_file_identifier->index
   unsigned source_file = 0;
   emit.ctrl_statementbegin( source_file, marker.start_index, marker.text );
 

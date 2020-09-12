@@ -8,7 +8,8 @@ namespace Pol::Bscript::Compiler
 {
 DebugBlockGuard::DebugBlockGuard( InstructionEmitter& emitter,
                                   LocalVariableScopeInfo& local_variable_scope_info )
-    : emitter( emitter ), previous_block_id( emitter.enter_debug_block( local_variable_scope_info ) )
+    : emitter( emitter ),
+      previous_block_id( emitter.enter_debug_block( local_variable_scope_info ) )
 {
 }
 DebugBlockGuard::~DebugBlockGuard()

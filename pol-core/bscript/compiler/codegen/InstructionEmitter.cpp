@@ -43,15 +43,13 @@ void InstructionEmitter::register_exported_function( FlowControlLabel& label,
 unsigned InstructionEmitter::enter_debug_block(
     const LocalVariableScopeInfo& local_variable_scope_info )
 {
-  if ( local_variable_scope_info.variables.empty() )
-  {
-    return debug_instruction_info.block_index;
-  }
-
   unsigned previous_debug_block_id = debug_instruction_info.block_index;
 
-  debug_instruction_info.block_index =
-      debug.add_block( debug_instruction_info.block_index, local_variable_scope_info );
+  if ( !local_variable_scope_info.variables.empty() )
+  {
+    debug_instruction_info.block_index =
+        debug.add_block( debug_instruction_info.block_index, local_variable_scope_info );
+  }
 
   return previous_debug_block_id;
 }

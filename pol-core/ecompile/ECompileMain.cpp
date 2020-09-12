@@ -175,10 +175,6 @@ std::vector<unsigned char> binary_contents( const std::string& pathname )
   return buffer;
 }
 
-std::string filename_with_option(const std::string& filename) {
-  return filename;
-}
-
 std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins_filenums, const std::vector<std::string>& filenames)
 {
   std::vector<std::string> result;
@@ -226,17 +222,17 @@ bool compare_compiler_output( const std::string& path )
 
   // this is why -T and -G conflict: using the same filenames for every script
 
-  std::string og_ecl = filename_with_option( "og-compiler.ecl");
-  std::string og_lst = filename_with_option( "og-compiler.lst");
+  std::string og_ecl( "og-compiler.ecl" );
+  std::string og_lst( "og-compiler.lst" );
 //  std::string og_disassembly = filename_with_option("og-compiler.ecl.txt");
-  std::string og_dbg = filename_with_option("og-compiler.dbg");
-  std::string og_dbg_txt = filename_with_option("og-compiler.dbg.txt");
+  std::string og_dbg( "og-compiler.dbg" );
+  std::string og_dbg_txt( "og-compiler.dbg.txt" );
 
-  std::string new_ecl = filename_with_option( "new-compiler.ecl" );
-  std::string new_lst = filename_with_option( "new-compiler.lst" );
+  std::string new_ecl( "new-compiler.ecl" );
+  std::string new_lst( "new-compiler.lst" );
 //  std::string new_disassembly = filename_with_option("new-compiler.ecl.txt");
-  std::string new_dbg = filename_with_option("new-compiler.dbg");
-  std::string new_dbg_txt = filename_with_option("new-compiler.dbg.txt");
+  std::string new_dbg( "new-compiler.dbg" );
+  std::string new_dbg_txt( "new-compiler.dbg.txt" );
 
   og_compiler.write_ecl( og_ecl );
   new_compiler.write_ecl( new_ecl );

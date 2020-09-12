@@ -13,8 +13,7 @@ class Variable;
 class DebugBlockGuard
 {
 public:
-  DebugBlockGuard( InstructionEmitter&,
-                   LocalVariableScopeInfo& );
+  DebugBlockGuard( InstructionEmitter&, LocalVariableScopeInfo& );
   ~DebugBlockGuard();
 
 private:

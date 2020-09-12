@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "DebugStore.h"
+#include "compiler/representation/DebugStore.h"
 
 namespace Pol::Bscript
 {

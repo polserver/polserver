@@ -8,8 +8,7 @@ namespace Pol::Bscript::Compiler
 class DebugStatementMarker : public Statement
 {
 public:
-  DebugStatementMarker( const SourceLocation&, std::string text,
-                         unsigned start_index );
+  DebugStatementMarker( const SourceLocation&, std::string text, unsigned start_index );
 
   void accept( NodeVisitor& visitor ) override;
   void describe_to( fmt::Writer& ) const override;

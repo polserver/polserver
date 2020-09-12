@@ -19,7 +19,7 @@ public:
                         std::map<std::string, FlowControlLabel>& user_function_labels,
                         bool in_function);
 
-  void generate( Node& node );
+  void generate( Node& );
 
   void update_debug_location( const Node& );
   void update_debug_location( const SourceLocation& );
@@ -34,7 +34,7 @@ public:
   void visit_branch_selector( BranchSelector& ) override;
   void visit_debug_statement_marker( DebugStatementMarker& ) override;
   void visit_dictionary_initializer( DictionaryInitializer& ) override;
-  void visit_dictionary_entry( DictionaryEntry& entry ) override;
+  void visit_dictionary_entry( DictionaryEntry& ) override;
   void visit_do_while_loop( DoWhileLoop& ) override;
   void visit_element_access( ElementAccess& ) override;
   void visit_element_assignment( ElementAssignment& ) override;
