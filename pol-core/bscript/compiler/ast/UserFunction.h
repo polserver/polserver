@@ -2,6 +2,7 @@
 #define POLSERVER_USERFUNCTION_H
 
 #include "compiler/ast/Function.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -22,7 +23,7 @@ public:
   const bool exported;
   const SourceLocation endfunction_location;
 
-  std::vector<std::shared_ptr<Variable>> debug_variables;
+  LocalVariableScopeInfo local_variable_scope_info;
 
   FunctionBody& body();
 };

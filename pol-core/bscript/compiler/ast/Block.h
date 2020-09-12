@@ -2,10 +2,10 @@
 #define POLSERVER_BLOCK_H
 
 #include "compiler/ast/Statement.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {
-class DebugBlock;
 class NodeVisitor;
 class Statement;
 class Variable;
@@ -19,8 +19,7 @@ public:
   void describe_to( fmt::Writer& ) const override;
 
   // set by semantic analyzer:
-  unsigned locals_in_block;
-  std::vector<std::shared_ptr<Variable>> debug_variables;
+  LocalVariableScopeInfo local_variable_scope_info;
 };
 
 }  // namespace Pol::Bscript::Compiler

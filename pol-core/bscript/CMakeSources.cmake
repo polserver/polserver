@@ -231,6 +231,7 @@ set (bscript_sources    # sorted !
   compiler/model/FlowControlLabel.h
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
+  compiler/model/LocalVariableScopeInfo.h
   compiler/model/Variable.cpp
   compiler/model/Variable.h
   compiler/model/VariableScope.h
