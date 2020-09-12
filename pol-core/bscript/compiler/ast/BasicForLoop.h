@@ -2,6 +2,7 @@
 #define POLSERVER_BASICFORLOOP_H
 
 #include "compiler/ast/LoopStatement.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -24,7 +25,7 @@ public:
   Block& block();
 
   const std::string identifier;
-  std::vector<std::shared_ptr<Variable>> debug_variables;
+  LocalVariableScopeInfo local_variable_scope_info;
 };
 
 }  // namespace Pol::Bscript::Compiler

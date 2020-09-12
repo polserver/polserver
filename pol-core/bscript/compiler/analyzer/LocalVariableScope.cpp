@@ -4,18 +4,20 @@
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/analyzer/Variables.h"
 #include "compiler/file/SourceLocation.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 #include "compiler/model/Variable.h"
 
 namespace Pol::Bscript::Compiler
 {
 LocalVariableScope::LocalVariableScope( LocalVariableScopes& scopes,
-std::vector<std::shared_ptr<Variable>>& debug_variables )
+                                        LocalVariableScopeInfo& local_variable_scope_info )
     : scopes( scopes ),
       report( scopes.report ),
       block_depth( scopes.local_variable_scopes.size() ),
       prev_locals( scopes.local_variables.count() ),
-      debug_variables( debug_variables )
+      local_variable_scope_info( local_variable_scope_info )
 {
+  local_variable_scope_info.base_index = prev_locals;
   scopes.local_variable_scopes.push_back( this );
 }
 
@@ -48,14 +50,9 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
   auto local = scopes.local_variables.create( name, block_depth, warn_on,
                                               source_location );
 
-  debug_variables.push_back( local );
+  local_variable_scope_info.variables.push_back( local );
 
   return local;
-}
-
-unsigned LocalVariableScope::get_block_locals() const
-{
-  return scopes.local_variables.count() - prev_locals;
 }
 
 }  // namespace Pol::Bscript::Compiler

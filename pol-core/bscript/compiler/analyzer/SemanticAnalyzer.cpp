@@ -101,7 +101,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
   node.first().accept( *this );
   node.last().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.debug_variables );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   scope.create( node.identifier, WarnOn::Never, node.source_location );
   scope.create( "_" + node.identifier + "_end", WarnOn::Never, node.source_location );
 
@@ -115,11 +115,9 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
 
 void SemanticAnalyzer::visit_block( Block& block )
 {
-  LocalVariableScope scope( local_scopes, block.debug_variables );
+  LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
-
-  block.locals_in_block = scope.get_block_locals();
 }
 
 class CaseDispatchDuplicateSelectorAnalyzer : public NodeVisitor
@@ -249,7 +247,7 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
   node.expression().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.debug_variables );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
   scope.create( node.iterator_name, WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_expr", WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_iter", WarnOn::Never, node.source_location );
@@ -461,11 +459,9 @@ void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
 
 void SemanticAnalyzer::visit_program( Program& program )
 {
-  LocalVariableScope scope( local_scopes, program.debug_variables );
+  LocalVariableScope scope( local_scopes, program.local_variable_scope_info );
 
   visit_children( program );
-
-  program.locals_in_block = scope.get_block_locals();
 }
 
 void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDeclaration& node )
@@ -502,7 +498,7 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
                     max_name_length, "\n" );
     }
   }
-  LocalVariableScope scope( local_scopes, node.debug_variables );
+  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
 }

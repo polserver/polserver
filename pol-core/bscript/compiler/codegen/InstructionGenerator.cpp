@@ -189,9 +189,9 @@ void InstructionGenerator::visit_block( Block& node )
 {
   visit_children( node );
 
-  if ( node.locals_in_block )
+  if ( !node.local_variable_scope_info.variables.empty() )
   {
-    emit.leaveblock( node.locals_in_block );
+    emit.leaveblock( node.local_variable_scope_info.variables.size() );
   }
 }
 
@@ -449,9 +449,9 @@ void InstructionGenerator::visit_program( Program& program )
 {
   visit_children( program );
 
-  if ( program.locals_in_block )
+  if ( !program.local_variable_scope_info.variables.empty() )
   {
-    emit.leaveblock( program.locals_in_block );
+    emit.leaveblock( program.local_variable_scope_info.variables.size() );
   }
 }
 

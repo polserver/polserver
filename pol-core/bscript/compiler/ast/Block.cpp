@@ -8,7 +8,7 @@ namespace Pol::Bscript::Compiler
 {
 Block::Block( const SourceLocation& source_location,
               std::vector<std::unique_ptr<Statement>> statements )
-    : Statement( source_location ), locals_in_block( 0 )
+    : Statement( source_location )
 {
   children.reserve( statements.size() );
   for ( auto& statement : statements )

@@ -10,6 +10,7 @@
 namespace Pol::Bscript::Compiler
 {
 class Report;
+class LocalVariableScopeInfo;
 class LocalVariableScopes;
 class SourceLocation;
 class Variable;
@@ -18,19 +19,18 @@ class LocalVariableScope
 {
 public:
   explicit LocalVariableScope( LocalVariableScopes&,
-                               std::vector<std::shared_ptr<Variable>>& debug_variables );
+                               LocalVariableScopeInfo& );
   ~LocalVariableScope();
 
   std::shared_ptr<Variable> create( const std::string& name, WarnOn, const SourceLocation& );
 
-  [[nodiscard]] unsigned get_block_locals() const;
 private:
   LocalVariableScopes& scopes;
   Report& report;
   const unsigned block_depth;
   const unsigned prev_locals;
   std::vector<std::shared_ptr<Variable>> shadowing;
-  std::vector<std::shared_ptr<Variable>>& debug_variables;
+  LocalVariableScopeInfo& local_variable_scope_info;
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -2,6 +2,7 @@
 #define POLSERVER_PROGRAM_H
 
 #include "compiler/ast/Node.h"
+#include "compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -22,8 +23,7 @@ public:
   ProgramParameterList& parameter_list();
   FunctionBody& body();
 
-  std::vector<std::shared_ptr<Variable>> debug_variables;
-  unsigned locals_in_block;
+  LocalVariableScopeInfo local_variable_scope_info;
 };
 
 }  // namespace Pol::Bscript::Compiler
