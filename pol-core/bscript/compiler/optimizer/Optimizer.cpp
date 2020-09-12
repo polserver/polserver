@@ -33,9 +33,19 @@ Optimizer::Optimizer( Constants& constants, Report& report )
 {
 }
 
-void Optimizer::optimize( CompilerWorkspace& workspace )
+void Optimizer::optimize( CompilerWorkspace& workspace,
+                          UserFunctionInclusion user_function_inclusion )
 {
   workspace.accept( *this );
+
+  std::vector<UserFunction*> all_user_functions;
+  if ( user_function_inclusion == UserFunctionInclusion::All )
+  {
+    for ( auto& user_function : workspace.user_functions )
+    {
+      all_user_functions.push_back( user_function.get() );
+    }
+  }
 
   std::vector<UserFunction*> exported_functions;
   for ( auto& user_function : workspace.user_functions )
@@ -54,8 +64,17 @@ void Optimizer::optimize( CompilerWorkspace& workspace )
   {
     gatherer.reference( uf );
   }
+  if ( user_function_inclusion == UserFunctionInclusion::All )
+  {
+    for ( auto& uf : all_user_functions )
+    {
+      gatherer.reference( uf );
+    }
+  }
+
   workspace.referenced_module_function_declarations =
       gatherer.take_referenced_module_function_declarations();
+
   workspace.user_functions = gatherer.take_referenced_user_functions();
 }
 

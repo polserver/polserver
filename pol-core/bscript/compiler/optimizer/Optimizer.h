@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include "compiler/model/UserFunctionInclusion.h"
+
 namespace Pol::Bscript::Compiler
 {
 class CompilerWorkspace;
@@ -16,7 +18,7 @@ class Optimizer : public NodeVisitor
 public:
   Optimizer( Constants&, Report& );
 
-  void optimize( CompilerWorkspace& );
+  void optimize( CompilerWorkspace&, UserFunctionInclusion );
   void visit_children( Node& ) override;
 
   void visit_binary_operator( BinaryOperator& ) override;

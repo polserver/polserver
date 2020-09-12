@@ -28,7 +28,8 @@ CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
 }
 
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
-    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order )
+    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order,
+    UserFunctionInclusion user_function_inclusion )
 {
   auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
   BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
@@ -51,7 +52,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     return {};
   }
 
-  SourceFileProcessor src_processor( *ident, workspace, true );
+  SourceFileProcessor src_processor( *ident, workspace, true, user_function_inclusion );
 
   workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
   workspace.source_files[sf->pathname] = sf;

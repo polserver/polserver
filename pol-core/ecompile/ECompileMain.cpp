@@ -147,18 +147,36 @@ void generate_wordlist()
   Parser::write_words( ofs );
 }
 
+std::unique_ptr<Facility::Compiler> create_compiler()
+{
+  std::unique_ptr<Facility::Compiler> compiler;
+
+  if ( compilercfg.UseCompiler2020 )
+  {
+    compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
+                                                     summary.profile );
+  }
+  else
+  {
+    auto og_compiler = std::make_unique<Legacy::Compiler>();
+    og_compiler->setQuiet( !debug );
+    compiler = std::move( og_compiler );
+  }
+
+  return compiler;
+}
+
 void compile_inc( const char* path )
 {
   if ( !quiet )
     INFO_PRINT << "Compiling: " << path << "\n";
 
-  Legacy::Compiler C;
+  std::unique_ptr<Facility::Compiler> compiler = create_compiler();
 
-  C.setQuiet( !debug );
-  C.setIncludeCompileMode();
-  int res = C.compileFile( path );
+  compiler->set_include_compile_mode();
+  bool res = compiler->compile_file( path );
 
-  if ( res )
+  if ( !res )
     throw std::runtime_error( "Error compiling file" );
 }
 
@@ -411,20 +429,7 @@ bool compile_file( const char* path )
     if ( !quiet )
       INFO_PRINT << "Compiling: " << path << "\n";
 
-    std::unique_ptr<Facility::Compiler> compiler;
-
-    if ( compilercfg.UseCompiler2020 )
-    {
-      compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
-                                                       summary.profile );
-    }
-    else
-    {
-      auto og_compiler = std::make_unique<Legacy::Compiler>();
-      og_compiler->setQuiet( !debug );
-      compiler = std::move( og_compiler );
-    }
-
+    std::unique_ptr<Facility::Compiler> compiler = create_compiler();
 
     bool success = compiler->compile_file( path );
 

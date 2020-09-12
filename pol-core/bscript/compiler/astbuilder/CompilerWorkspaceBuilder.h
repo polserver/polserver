@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "compiler/model/UserFunctionInclusion.h"
+
 namespace Pol::Bscript::Compiler
 {
 class BuilderWorkspace;
@@ -23,7 +25,8 @@ public:
 
   std::unique_ptr<CompilerWorkspace> build(
       const std::string& pathname,
-      const LegacyFunctionOrder* legacy_function_order );
+      const LegacyFunctionOrder* legacy_function_order,
+      UserFunctionInclusion );
 
 private:
   std::vector<const ModuleFunctionDeclaration*> get_module_functions_in_order(

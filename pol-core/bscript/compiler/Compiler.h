@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include "bscript/compiler/model/UserFunctionInclusion.h"
+
 namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
@@ -27,6 +29,7 @@ public:
   void write_listing( const std::string& pathname ) override;
   void write_dbg( const std::string& pathname, bool include_debug_text ) override;
   void write_included_filenames( const std::string& pathname ) override;
+  void set_include_compile_mode() override;
 
   bool compile_file( const std::string& filename, const LegacyFunctionOrder* );
   void compile_file_steps( const std::string& pathname, const LegacyFunctionOrder*, Report& );
@@ -48,6 +51,7 @@ private:
   SourceFileCache& inc_cache;
   Profile& profile;
   std::unique_ptr<CompiledScript> output;
+  UserFunctionInclusion user_function_inclusion = UserFunctionInclusion::ReferencedOnly;
 };
 
 }  // namespace Pol::Bscript::Compiler
