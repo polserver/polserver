@@ -10,6 +10,7 @@
 #include "compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "compiler/codegen/CodeGenerator.h"
 #include "compiler/file/SourceFileCache.h"
+#include "compiler/file/SourceFileIdentifier.h"
 #include "compiler/format/CompiledScriptSerializer.h"
 #include "compiler/format/DebugStoreSerializer.h"
 #include "compiler/format/ListingWriter.h"
@@ -17,7 +18,6 @@
 #include "compiler/optimizer/Optimizer.h"
 #include "compiler/representation/CompiledScript.h"
 #include "compilercfg.h"
-
 
 namespace Pol::Bscript::Compiler
 {
@@ -69,8 +69,16 @@ void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
   }
 }
 
-void Compiler::write_included_filenames( const std::string& /*pathname*/ )
+void Compiler::write_included_filenames( const std::string& pathname )
 {
+  if ( output )
+  {
+    std::ofstream ofs( pathname );
+    for( auto& r : output->source_file_identifiers )
+    {
+      ofs << r->pathname << "\n";
+    }
+  }
 }
 
 void Compiler::set_include_compile_mode()

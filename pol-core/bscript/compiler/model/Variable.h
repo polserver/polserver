@@ -1,9 +1,10 @@
 #ifndef POLSERVER_VARIABLE_H
 #define POLSERVER_VARIABLE_H
 
+#include <string>
+
 #include "compiler/model/VariableScope.h"
 #include "compiler/model/WarnOn.h"
-#include <string>
 
 namespace Pol::Bscript::Compiler
 {
