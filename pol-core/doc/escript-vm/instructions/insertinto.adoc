@@ -1,0 +1,14 @@
+= TOK_INSERTINTO
+
+Appends an element to an array
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+| element to append
+|
+
+| array
+| array
+|===

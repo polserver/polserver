@@ -1,0 +1,56 @@
+== INS_MULTISUBSCRIPT
+
+----
+id: INS_MULTISUBSCRIPT
+type: TYP_OPERATOR
+offset: number of "subscripts"
+----
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+| Xn
+|
+
+| Xn-1
+|
+
+| ...
+|
+
+| X1
+|
+
+| X0
+|
+
+| entity
+| entity[X0,X1,...,Xn-1,Xn]
+|===
+
+
+Example
+
+----
+var s := "abcdf";
+var x := s[2,3];
+instruction: INS_MULTISUBSCRIPT(2)
+----
+
+.Stack State
+|===
+|Before Execution | After Execution
+
+| 3
+|
+
+| 2
+|
+
+| s
+| "bcd"
+
+| assign to x
+| assign to x
+|===

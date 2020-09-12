@@ -1,0 +1,12 @@
+= RSV_GLOBAL
+
+== Overview
+This used to be for the "global" reserved word, but seems to
+noe be written to .ecl?
+
+== Instruction
+- offset: index of global variable
+
+== Details
+
+- todo: differentiate from TOK_GLOBALVAR (?)

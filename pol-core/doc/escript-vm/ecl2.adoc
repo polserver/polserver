@@ -1,0 +1,56 @@
+= Proposal to Normalize ECL bytecode
+
+.Current: 5 bytes per StoredToken
+|===
+| Length | Description
+
+| 1 byte | Module
+| 1 byte | Token ID
+| 1 byte | Token Type
+| 2 bytes | Offset (usually)
+
+|===
+
+
+.Proposed: 4 bytes per StoredToken
+|===
+| Length | Description
+
+| 23 bits | data: 23 bits data signed data
+| 1 bit |
+* 0=data is direct (23-bit signed data)
+* 1=data is 7 bits 0 + 16 bits offset into data block
+| 8 bits | token id
+|===
+
+.Data Type (direct/indirect)
+|===
+| Value | Meaning of remaining 23 bits
+
+| 0 | 23 bit signed integer value
+| 1 | 15 bits RFU=0, 16 bit offset in data block
+|===
+* For TOK_FUNC: direct 5 bits Module ID, 8 bits Function Id
+* For TOK_USERFUNC: this token is not written
+* For CTRL_JSR_USERFUNC: direct=PC
+* For INS_CALL_METHOD: 8 bits # params, 16-bit function name offset
+* INS_CASEJMP: data offset always
+* CTRL_STATEMENTBEGIN: data offset always
+
+.Data Type (split by data type)
+|===
+| Value | Meaning of remaining 21 bits
+
+| 0 | 21 bit signed integer value
+| 1 | 16 bit offset of 4-byte integer
+| 2 | 16 bit offset of null-terminated string
+| 3 | 16 bit offset of double in data
+| 4 | 16 bit offset of case jump dispatch table
+| 5 | 16 bit offset of DebugToken
+| 6 | RFU
+| 7 | RFU
+|===
+* For TOK_FUNC, data type=0.  Data = 8 bits Module ID, 8 bits Function Index
+* For TOK_USERFUNC, data type=0.  Data = 8
+* For INS_CALL_METHOD, data type=0.  Data = # params
+?? and INS_CALL_METHOD, find out what is happening with type, lval, dval

@@ -1,0 +1,8 @@
+= BObjectImp
+
+A ref-counted mutable object of a particular type.
+
+The type will never change, but the value can change.
+
+
+

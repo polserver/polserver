@@ -6,6 +6,7 @@
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/astbuilder/AvailableUserFunction.h"
+#include "compiler/astbuilder/SourceFileProcessor.h"
 #include "compiler/file/SourceLocation.h"
 #include "compiler/model/FunctionLink.h"
 

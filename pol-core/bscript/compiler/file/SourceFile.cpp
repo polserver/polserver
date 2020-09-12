@@ -1,7 +1,9 @@
 #include "SourceFile.h"
 
 #include "clib/fileutil.h"
+#include "clib/logfacility.h"
 #include "clib/strutil.h"
+#include "clib/timer.h"
 
 #include "compiler/Report.h"
 #include "compiler/file/SourceFileIdentifier.h"
@@ -103,22 +105,28 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
   return std::make_shared<SourceFile>( pathname, contents, profile );
 }
 
-EscriptGrammar::EscriptParser::CompilationUnitContext* SourceFile::get_compilation_unit(
-    Report& report, const SourceFileIdentifier& ident )
+antlr4::ParserRuleContext* SourceFile::get_compilation_unit( Report& report,
+                                                             const SourceFileIdentifier& ident )
 {
   if ( !compilation_unit )
   {
     std::lock_guard<std::mutex> guard( mutex );
     if ( !compilation_unit )
+    {
+      Pol::Tools::HighPerfTimer timer;
       compilation_unit = parser.compilationUnit();
+      long long elapsed_ms = timer.ellapsed().count() / 1000;
+      if ( elapsed_ms > 150 )
+        INFO_PRINT << pathname << " parse time: " << elapsed_ms << " ms\n";
+    }
   }
   ++access_count;
   propagate_errors_to( report, ident );
   return compilation_unit;
 }
 
-EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
-    Report& report, const SourceFileIdentifier& ident )
+antlr4::ParserRuleContext* SourceFile::get_module_unit( Report& report,
+                                                        const SourceFileIdentifier& ident )
 {
   if ( !module_unit )
   {

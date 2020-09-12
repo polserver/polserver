@@ -1,5 +1,7 @@
 #include "ErrorListener.h"
 
+#include "clib/logfacility.h"
+
 #include "compiler/Profile.h"
 #include "compiler/Report.h"
 
@@ -17,6 +19,8 @@ void ErrorListener::propagate_errors_to( Report& report, const SourceFileIdentif
     SourceLocation location( &ident, msg.line_number, msg.char_column );
     report.error( location, msg.message, "\n" );
   }
+  if ( ambiguities )
+    INFO_PRINT << pathname << " ambiguities: " << ambiguities << "\n";
 }
 
 void ErrorListener::syntaxError( antlr4::Recognizer*, antlr4::Token* /*offendingSymbol*/,
@@ -32,6 +36,7 @@ void ErrorListener::reportAmbiguity( antlr4::Parser* /*recognizer*/, const antlr
                                      antlr4::atn::ATNConfigSet* /*configs*/ )
 {
   ++profile.ambiguities;
+  ++ambiguities;
 }
 
 }  // namespace Pol::Bscript::Compiler

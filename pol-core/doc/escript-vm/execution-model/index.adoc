@@ -1,0 +1,75 @@
+= eScript Execution Model
+
+== Overview
+.Components
+|===
+| Component | Description
+
+| link:value-stack.adoc[value stack]
+| holds values of expressions being evaluated
+
+| instructions
+| An array of ..instructions
+
+| program counter
+| the index of the next instruction to execute
+
+| global variables
+| An array of references to global variable values
+
+| local variables
+| An array of references to local variables for the current stack frame.
+
+| control stack
+| holds return addresses of callers
+
+| "upper locals" stack
+| holds local variables of callers
+
+|===
+
+Also, and crucially, what is _not_ part of the state: anything on
+an OS thread stack.
+
+This means that one OS thread can handle more than one script executor.
+
+== Operation
+
+=== Instructions
+
+=== Program Counter
+
+=== Global Variables
+
+
+=== Local Variables
+
+The Local Variables array holds the values of the local variables.
+
+It grows and shrinks as code executes.  For example, here is some code and the size of the array at each instruction.
+
+----
+                         // number of local variables
+function foo(a, b)       // 2
+    var c := 5;          // 3
+    if ( a == 1 )
+        var d := c + 4;  // 4
+        if ( b )
+            var e := 2;  // 5
+        endif
+        print(d);        // 4
+    endif
+    print(c);            // 3
+----
+
+=== Control Stack
+
+=== "Upper Locals"
+
+
+== More
+=== * BObjectRef vs BObject vs BObjectImp what and why
+
+== Conventions
+"Top" of stack is the last element added (pushed)
+
