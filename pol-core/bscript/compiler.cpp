@@ -4393,6 +4393,11 @@ void Compiler::write_included_filenames( const std::string& pathname )
   writeIncludedFilenames( pathname.c_str() );
 }
 
+void Compiler::set_include_compile_mode()
+{
+  setIncludeCompileMode();
+}
+
 Pol::Bscript::Compiler::LegacyFunctionOrder Compiler::get_legacy_function_order() const
 {
   std::vector<std::string> modulefunc_emit_order;

@@ -8,6 +8,7 @@
 #include <string>
 
 #include "compiler/astbuilder/ProgramBuilder.h"
+#include "compiler/model/UserFunctionInclusion.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -17,7 +18,8 @@ class SourceFile;
 class SourceFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
 {
 public:
-  SourceFileProcessor( const SourceFileIdentifier&, BuilderWorkspace&, bool is_src );
+  SourceFileProcessor( const SourceFileIdentifier&, BuilderWorkspace&, bool is_src,
+                       UserFunctionInclusion );
 
 public:
   void use_module( const std::string& name, SourceLocation& including_location,
@@ -55,6 +57,7 @@ protected:
 
 private:
   const bool is_src;
+  const UserFunctionInclusion user_function_inclusion;
 };
 
 }  // namespace Pol::Bscript::Compiler

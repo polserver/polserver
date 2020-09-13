@@ -73,6 +73,11 @@ void Compiler::write_included_filenames( const std::string& /*pathname*/ )
 {
 }
 
+void Compiler::set_include_compile_mode()
+{
+  user_function_inclusion = UserFunctionInclusion::All;
+}
+
 bool Compiler::compile_file( const std::string& filename,
                              const LegacyFunctionOrder* legacy_function_order )
 {
@@ -131,7 +136,8 @@ std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
 {
   Pol::Tools::HighPerfTimer timer;
   CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
-  auto workspace = workspace_builder.build( pathname, legacy_function_order );
+  auto workspace =
+      workspace_builder.build( pathname, legacy_function_order, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
 }
@@ -147,7 +153,7 @@ void Compiler::optimize( CompilerWorkspace& workspace, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
   Optimizer optimizer( workspace.constants, report );
-  optimizer.optimize( workspace );
+  optimizer.optimize( workspace, user_function_inclusion );
   profile.optimize_micros += timer.ellapsed().count();
 }
 

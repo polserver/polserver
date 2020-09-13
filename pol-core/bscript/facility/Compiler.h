@@ -18,6 +18,7 @@ public:
   virtual void write_listing( const std::string& pathname ) = 0;
   virtual void write_dbg( const std::string& pathname, bool include_debug_text ) = 0;
   virtual void write_included_filenames( const std::string& pathname ) = 0;
+  virtual void set_include_compile_mode() = 0;
 };
 
 }  // namespace Facility

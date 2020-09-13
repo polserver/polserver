@@ -23,6 +23,12 @@ const Function* FunctionResolver::find( const std::string& scoped_name )
     return nullptr;
 }
 
+void FunctionResolver::force_reference( const std::string& function_name,
+                                        const SourceLocation& loc )
+{
+  register_function_link( function_name, std::make_shared<FunctionLink>( loc ) );
+}
+
 void FunctionResolver::register_available_user_function(
     const SourceLocation& source_location,
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )

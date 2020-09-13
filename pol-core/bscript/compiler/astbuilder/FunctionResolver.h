@@ -27,6 +27,8 @@ public:
 
   const Function* find( const std::string& scoped_name );
 
+  void force_reference( const std::string& name, const SourceLocation& );
+
   void register_available_user_function(
       const SourceLocation&, EscriptGrammar::EscriptParser::FunctionDeclarationContext* );
   void register_function_link( const std::string& name,

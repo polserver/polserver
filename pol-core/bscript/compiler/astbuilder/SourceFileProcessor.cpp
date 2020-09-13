@@ -28,13 +28,15 @@ std::string getpathof( const std::string& fname );
 namespace Pol::Bscript::Compiler
 {
 SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_file_identifier,
-                                          BuilderWorkspace& workspace, bool is_src )
+                                          BuilderWorkspace& workspace, bool is_src,
+                                          UserFunctionInclusion user_function_inclusion )
   : profile( workspace.profile ),
     report( workspace.report ),
     source_file_identifier( source_file_identifier ),
     workspace( workspace ),
     tree_builder( source_file_identifier, workspace ),
-    is_src( is_src )
+    is_src( is_src ),
+    user_function_inclusion( user_function_inclusion )
 {
 }
 
@@ -157,7 +159,7 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
       return;
     }
 
-    SourceFileProcessor include_processor( *ident, workspace, false );
+    SourceFileProcessor include_processor( *ident, workspace, false, user_function_inclusion );
     workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
     workspace.source_files[sf->pathname] = sf;
 
@@ -280,8 +282,10 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
 {
   auto loc = location_for( *ctx );
   workspace.function_resolver.register_available_user_function( loc, ctx );
-  workspace.compiler_workspace.all_function_locations.emplace(
-      tree_builder.text( ctx->IDENTIFIER() ), loc );
+  const std::string& function_name = tree_builder.text( ctx->IDENTIFIER() );
+  workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
+  if ( user_function_inclusion == UserFunctionInclusion::All )
+    workspace.function_resolver.force_reference( function_name, loc );
   return antlrcpp::Any();
 }
 

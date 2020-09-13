@@ -238,6 +238,7 @@ set (bscript_sources    # sorted !
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
   compiler/model/LocalVariableScopeInfo.h
+  compiler/model/UserFunctionInclusion.h
   compiler/model/Variable.cpp
   compiler/model/Variable.h
   compiler/model/VariableScope.h
