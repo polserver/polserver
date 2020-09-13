@@ -60,7 +60,7 @@ void CompilerConfig::Read( const std::string& path )
   ErrorOnFileCaseMissmatch = elem.remove_bool( "ErrorOnFileCaseMissmatch", false );
 
   UseCompiler2020 = elem.remove_bool( "UseCompiler2020", true );
-  CompareCompilerOutput = elem.remove_bool( "CompareCompilerOutput", false );
+  CompareCompilerOutput = false; // only makes sense to change temporarily on command line
   EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
   IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 
