@@ -66,15 +66,12 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
     }
   }
 
-  INFO_PRINT << "code section: offset " << ofs.tellp() << "\n";
   u32 code_len = compiled_script.code.size() * sizeof( StoredToken );
   sechdr.type = BSCRIPT_SECTION_CODE;
   sechdr.length = sizeof code_len + code_len;
   ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
   ofs.write( reinterpret_cast<const char*>( &code_len ), sizeof code_len );
   ofs.write( reinterpret_cast<const char*>( compiled_script.code.data() ), code_len );
-
-  INFO_PRINT << "data section: offset " << ofs.tellp() << "\n";
 
   const std::vector<std::byte>& data = compiled_script.data;
   u32 data_len = data.size();
