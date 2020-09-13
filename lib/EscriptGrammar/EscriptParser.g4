@@ -260,12 +260,8 @@ expression
     | expression postfix=('++' | '--')
     | prefix=('+'|'-'|'++'|'--') expression
     | prefix=('~'|'!'|'not') expression
-    | expression bop=('*'|'/'|'%') expression
-    | expression bop=('+'|'-') expression
-    | expression bop=('<<' | '>>') expression
-    | expression bop='&' expression
-    | expression bop='^' expression
-    | expression bop='|' expression
+    | expression bop=('*'|'/'|'%'|'<<'|'>>'|'&') expression
+    | expression bop=( '+' | '-' | '|' | '^' ) expression
     | expression bop='?:' expression
     | expression bop='in' expression
     | expression bop=('<=' | '>=' | '>' | '<') expression

@@ -1,0 +1,9 @@
+var a := 0xC3;
+var b := 0xc7;
+
+if (a & 0xF0 == b & 0xF0)
+    print("pass");
+else
+    print("fail");
+endif
+

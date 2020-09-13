@@ -1,0 +1,8 @@
+// no parity: OG fails, new compiler succeeds
+
+var a := 0x3, b := 0x4, c := 0x6, h := 0;
+
+// The elvis operator should have lower precedence than bitwise operators
+
+print ( a ?: b | c );  // 3 correct: a ?: (b | c)    7 incorrect: (a ?: b) | c
+

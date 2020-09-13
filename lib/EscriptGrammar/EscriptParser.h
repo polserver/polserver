@@ -1112,8 +1112,8 @@ public:
     antlr4::tree::TerminalNode *LSHIFT();
     antlr4::tree::TerminalNode *RSHIFT();
     antlr4::tree::TerminalNode *BITAND();
-    antlr4::tree::TerminalNode *CARET();
     antlr4::tree::TerminalNode *BITOR();
+    antlr4::tree::TerminalNode *CARET();
     antlr4::tree::TerminalNode *ELVIS();
     antlr4::tree::TerminalNode *TOK_IN();
     antlr4::tree::TerminalNode *LE();
