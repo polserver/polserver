@@ -2,11 +2,9 @@
 # Please consult core-changes.txt for more information.
 
 -- POL100 [work-in-progress] --
-2020-09-12:
-    The new compiler has some behavior that differs from the old compiler
-      - It will report syntax errors in any included function, even if not referenced.
-      - It is now an error for a "case" statement to specify the same value more than once when selecting which block to execute.
-      - Operator precedence for postfix operators and bitwise operators are now the same as C++ operator precedence.
+2020-09-13:
+    The new compiler could change script behavior.
+    Be sure to run the compiler in "comparison mode" and update any scripts that have differences so that this doesn't happen.
 
 2020-08-13:
     item.hitscript and item.onhitscript now *always* return the full path of their scripts (":pkgname:script")
