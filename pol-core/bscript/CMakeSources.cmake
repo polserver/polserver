@@ -19,9 +19,9 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Disambiguator.cpp
   compiler/analyzer/Disambiguator.h
   compiler/analyzer/FlowControlScope.cpp
-  compiler/analyzer/FlowControlScope.cpp
+  compiler/analyzer/FlowControlScope.h
   compiler/analyzer/FlowControlScopes.cpp
-  compiler/analyzer/FlowControlScopes.cpp
+  compiler/analyzer/FlowControlScopes.h
   compiler/analyzer/LocalVariableScope.cpp
   compiler/analyzer/LocalVariableScope.h
   compiler/analyzer/LocalVariableScopes.cpp
@@ -113,7 +113,7 @@ set (bscript_sources    # sorted !
   compiler/ast/LabelableStatement.cpp
   compiler/ast/LabelableStatement.h
   compiler/ast/LoopStatement.cpp
-  compiler/ast/LoopStatement.cpp
+  compiler/ast/LoopStatement.h
   compiler/ast/MethodCall.cpp
   compiler/ast/MethodCall.h
   compiler/ast/MethodCallArgumentList.cpp
@@ -193,10 +193,10 @@ set (bscript_sources    # sorted !
   compiler/astbuilder/UserFunctionVisitor.h
   compiler/astbuilder/ValueBuilder.cpp
   compiler/astbuilder/ValueBuilder.h
-  compiler/codegen/CaseJumpDataBlock.cpp
-  compiler/codegen/CaseJumpDataBlock.h
   compiler/codegen/CaseDispatchGroupVisitor.cpp
   compiler/codegen/CaseDispatchGroupVisitor.h
+  compiler/codegen/CaseJumpDataBlock.cpp
+  compiler/codegen/CaseJumpDataBlock.h
   compiler/codegen/CodeEmitter.cpp
   compiler/codegen/CodeEmitter.h
   compiler/codegen/CodeGenerator.cpp
@@ -315,6 +315,7 @@ set (bscript_sources    # sorted !
   executortype.h
   expression.cpp
   expression.h
+  facility/Compiler.h
   filefmt.h
   fmodule.cpp
   fmodule.h

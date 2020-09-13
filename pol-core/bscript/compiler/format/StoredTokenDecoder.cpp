@@ -52,6 +52,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case TOK_ASSIGN:
     w << ":=";
     break;
+  case INS_ASSIGN_CONSUME:
+    w << ":= #";
+    break;
 
   case TOK_PLUSEQUAL:
     w << "+=";
