@@ -36,8 +36,8 @@ public:
     BITOR = 103, NOTEQUAL_A = 104, NOTEQUAL_B = 105, EQUAL_DEPRECATED = 106, 
     EQUAL = 107, ASSIGN = 108, ADDMEMBER = 109, DELMEMBER = 110, CHKMEMBER = 111, 
     SEMI = 112, COMMA = 113, TILDE = 114, AT = 115, COLONCOLON = 116, COLON = 117, 
-    INC = 118, DEC = 119, ELVIS = 120, WS = 121, COMMENT = 122, LINE_COMMENT = 123, 
-    IDENTIFIER = 124
+    QUESTION = 118, INC = 119, DEC = 120, ELVIS = 121, WS = 122, COMMENT = 123, 
+    LINE_COMMENT = 124, IDENTIFIER = 125
   };
 
   enum {
@@ -1128,6 +1128,8 @@ public:
     antlr4::tree::TerminalNode *AND_B();
     antlr4::tree::TerminalNode *OR_A();
     antlr4::tree::TerminalNode *OR_B();
+    antlr4::tree::TerminalNode *QUESTION();
+    antlr4::tree::TerminalNode *COLON();
     antlr4::tree::TerminalNode *ADDMEMBER();
     antlr4::tree::TerminalNode *DELMEMBER();
     antlr4::tree::TerminalNode *CHKMEMBER();
