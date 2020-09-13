@@ -1,4 +1,39 @@
 ﻿-- POL100 --
+09-13-2020 Syzygy:
+  Changed: Replaced the eScript compiler.  (Added the new compiler, which is used by default)
+           The intent is that the new compiler will compile every script that used to compile,
+           and will compile to identical instructions in the .ecl files.
+           There are a few cases where the old compiler (or "OG compiler") and the new compiler differ:
+             - Functions that are included but not referenced now have to have valid syntax.
+             - It is now an error for a "case" statement to specify the same value more than once when selecting which block to execute.
+             - Operator precedence now matches C++ operator precedence:
+               - postfix operators now have highest precedence.
+               - bit-shift operators are now higher precedence than comparison (and elvis) and lower precedence than addition.
+               - bitwise operators are now higher precedence than "logical and" and and lower precedence than equality.
+                 - For example, "x & 0xFF == y & 0xFF" would need to change to  "(x & 0xff) == (y & 0xFF)"
+             - The ordering of module function declarations (from .em files) and user function definitions:
+               - the OG compiler orders these in order of use
+               - the new compiler orders them alphabetically
+           In order to ensure that the behavior of your scripts does not change, please perform the following steps:
+             - Run "ecompile -f -a -s -l -G" to run both compilers in "comparison mode" against all of your scripts.
+             - Fix any syntax errors.
+             - Remove duplicate "case" statement dispatch selector values.
+             - Add parentheses as needed to bitwise expressions.
+             - Repeat until both compilers produce the same output.
+           Here are some examples of changes that I had to make:
+             - https://github.com/polserver/ModernDistro/pull/28/files
+             - https://github.com/polserver/ModernDistro/pull/36/files
+             - https://github.com/polserver/ClassicDistro/pull/6/files
+
+           The OG compiler is still available.  I'll remove it in a later version.  If needed, you can use it by doing either of the following:
+             - pass "-g-" to ecompile
+             - set "UseCompiler2020 0" in ecompile.cfg
+
+           New ecompile.cfg options:
+             EmParseTreeCacheSize (default 25): The number of .em files to cache.  This value is intended to be high enough to cache every .em file.
+             IncParseTreeCacheSize (default 50): The number of .inc files to cache.  You might see a tiny speed boost by increasing this.
+             UseCompiler2020 (default 1): Whether or not to use the new compiler.
+
 08-27-2020 Nando:
   Changed: If "ShowGumpWarnings" in pol.cfg is disabled, it will also disable warnings about
            overflow in the gump responses (B1 packet). Those messages may indicates the use of macro
