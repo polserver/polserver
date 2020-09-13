@@ -1111,7 +1111,11 @@ public:
     antlr4::tree::TerminalNode *MOD();
     antlr4::tree::TerminalNode *LSHIFT();
     antlr4::tree::TerminalNode *RSHIFT();
+    antlr4::tree::TerminalNode *BITAND();
+    antlr4::tree::TerminalNode *CARET();
+    antlr4::tree::TerminalNode *BITOR();
     antlr4::tree::TerminalNode *ELVIS();
+    antlr4::tree::TerminalNode *TOK_IN();
     antlr4::tree::TerminalNode *LE();
     antlr4::tree::TerminalNode *GE();
     antlr4::tree::TerminalNode *GT();
@@ -1120,10 +1124,6 @@ public:
     antlr4::tree::TerminalNode *EQUAL();
     antlr4::tree::TerminalNode *NOTEQUAL_B();
     antlr4::tree::TerminalNode *NOTEQUAL_A();
-    antlr4::tree::TerminalNode *BITAND();
-    antlr4::tree::TerminalNode *CARET();
-    antlr4::tree::TerminalNode *BITOR();
-    antlr4::tree::TerminalNode *TOK_IN();
     antlr4::tree::TerminalNode *AND_A();
     antlr4::tree::TerminalNode *AND_B();
     antlr4::tree::TerminalNode *OR_A();

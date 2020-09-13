@@ -4671,8 +4671,24 @@ tree::TerminalNode* EscriptParser::ExpressionContext::RSHIFT() {
   return getToken(EscriptParser::RSHIFT, 0);
 }
 
+tree::TerminalNode* EscriptParser::ExpressionContext::BITAND() {
+  return getToken(EscriptParser::BITAND, 0);
+}
+
+tree::TerminalNode* EscriptParser::ExpressionContext::CARET() {
+  return getToken(EscriptParser::CARET, 0);
+}
+
+tree::TerminalNode* EscriptParser::ExpressionContext::BITOR() {
+  return getToken(EscriptParser::BITOR, 0);
+}
+
 tree::TerminalNode* EscriptParser::ExpressionContext::ELVIS() {
   return getToken(EscriptParser::ELVIS, 0);
+}
+
+tree::TerminalNode* EscriptParser::ExpressionContext::TOK_IN() {
+  return getToken(EscriptParser::TOK_IN, 0);
 }
 
 tree::TerminalNode* EscriptParser::ExpressionContext::LE() {
@@ -4705,22 +4721,6 @@ tree::TerminalNode* EscriptParser::ExpressionContext::NOTEQUAL_B() {
 
 tree::TerminalNode* EscriptParser::ExpressionContext::NOTEQUAL_A() {
   return getToken(EscriptParser::NOTEQUAL_A, 0);
-}
-
-tree::TerminalNode* EscriptParser::ExpressionContext::BITAND() {
-  return getToken(EscriptParser::BITAND, 0);
-}
-
-tree::TerminalNode* EscriptParser::ExpressionContext::CARET() {
-  return getToken(EscriptParser::CARET, 0);
-}
-
-tree::TerminalNode* EscriptParser::ExpressionContext::BITOR() {
-  return getToken(EscriptParser::BITOR, 0);
-}
-
-tree::TerminalNode* EscriptParser::ExpressionContext::TOK_IN() {
-  return getToken(EscriptParser::TOK_IN, 0);
 }
 
 tree::TerminalNode* EscriptParser::ExpressionContext::AND_A() {
@@ -4987,7 +4987,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 12))) throw FailedPredicateException(this, "precpred(_ctx, 12)");
           setState(537);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::ELVIS);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::BITAND);
           setState(538);
           expression(13);
           break;
@@ -5000,6 +5000,58 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 11))) throw FailedPredicateException(this, "precpred(_ctx, 11)");
           setState(540);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::CARET);
+          setState(541);
+          expression(12);
+          break;
+        }
+
+        case 6: {
+          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
+          pushNewRecursionContext(_localctx, startState, RuleExpression);
+          setState(542);
+
+          if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
+          setState(543);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::BITOR);
+          setState(544);
+          expression(11);
+          break;
+        }
+
+        case 7: {
+          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
+          pushNewRecursionContext(_localctx, startState, RuleExpression);
+          setState(545);
+
+          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
+          setState(546);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::ELVIS);
+          setState(547);
+          expression(10);
+          break;
+        }
+
+        case 8: {
+          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
+          pushNewRecursionContext(_localctx, startState, RuleExpression);
+          setState(548);
+
+          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
+          setState(549);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::TOK_IN);
+          setState(550);
+          expression(9);
+          break;
+        }
+
+        case 9: {
+          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
+          pushNewRecursionContext(_localctx, startState, RuleExpression);
+          setState(551);
+
+          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
+          setState(552);
           dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 95) & ~ 0x3fULL) == 0) &&
@@ -5013,71 +5065,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
             _errHandler->reportMatch(this);
             consume();
           }
-          setState(541);
-          expression(12);
-          break;
-        }
-
-        case 6: {
-          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
-          pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(542);
-
-          if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
-          setState(543);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::EQUAL_DEPRECATED);
-           notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); 
-          setState(545);
-          expression(11);
-          break;
-        }
-
-        case 7: {
-          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
-          pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(546);
-
-          if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
-          setState(547);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
-          _la = _input->LA(1);
-          if (!(((((_la - 104) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 104)) & ((1ULL << (EscriptParser::NOTEQUAL_A - 104))
-            | (1ULL << (EscriptParser::NOTEQUAL_B - 104))
-            | (1ULL << (EscriptParser::EQUAL - 104)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
-          }
-          else {
-            _errHandler->reportMatch(this);
-            consume();
-          }
-          setState(548);
-          expression(10);
-          break;
-        }
-
-        case 8: {
-          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
-          pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(549);
-
-          if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
-          setState(550);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::BITAND);
-          setState(551);
-          expression(9);
-          break;
-        }
-
-        case 9: {
-          _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
-          pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(552);
-
-          if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
           setState(553);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::CARET);
-          setState(554);
           expression(8);
           break;
         }
@@ -5085,11 +5073,12 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
         case 10: {
           _localctx = _tracker.createInstance<ExpressionContext>(parentContext, parentState);
           pushNewRecursionContext(_localctx, startState, RuleExpression);
-          setState(555);
+          setState(554);
 
           if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
-          setState(556);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::BITOR);
+          setState(555);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::EQUAL_DEPRECATED);
+           notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); 
           setState(557);
           expression(7);
           break;
@@ -5102,7 +5091,18 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
           setState(559);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::TOK_IN);
+          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          _la = _input->LA(1);
+          if (!(((((_la - 104) & ~ 0x3fULL) == 0) &&
+            ((1ULL << (_la - 104)) & ((1ULL << (EscriptParser::NOTEQUAL_A - 104))
+            | (1ULL << (EscriptParser::NOTEQUAL_B - 104))
+            | (1ULL << (EscriptParser::EQUAL - 104)))) != 0))) {
+            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+          }
+          else {
+            _errHandler->reportMatch(this);
+            consume();
+          }
           setState(560);
           expression(6);
           break;
@@ -8131,18 +8131,18 @@ EscriptParser::Initializer::Initializer() {
     0x215, 0x216, 0x9, 0x6, 0x2, 0x2, 0x216, 0x244, 0x5, 0x68, 0x35, 0x11, 
     0x217, 0x218, 0xc, 0xf, 0x2, 0x2, 0x218, 0x219, 0x9, 0x7, 0x2, 0x2, 
     0x219, 0x244, 0x5, 0x68, 0x35, 0x10, 0x21a, 0x21b, 0xc, 0xe, 0x2, 0x2, 
-    0x21b, 0x21c, 0x7, 0x7a, 0x2, 0x2, 0x21c, 0x244, 0x5, 0x68, 0x35, 0xf, 
-    0x21d, 0x21e, 0xc, 0xd, 0x2, 0x2, 0x21e, 0x21f, 0x9, 0x8, 0x2, 0x2, 
+    0x21b, 0x21c, 0x7, 0x67, 0x2, 0x2, 0x21c, 0x244, 0x5, 0x68, 0x35, 0xf, 
+    0x21d, 0x21e, 0xc, 0xd, 0x2, 0x2, 0x21e, 0x21f, 0x7, 0x68, 0x2, 0x2, 
     0x21f, 0x244, 0x5, 0x68, 0x35, 0xe, 0x220, 0x221, 0xc, 0xc, 0x2, 0x2, 
-    0x221, 0x222, 0x7, 0x6c, 0x2, 0x2, 0x222, 0x223, 0x8, 0x35, 0x1, 0x2, 
-    0x223, 0x244, 0x5, 0x68, 0x35, 0xd, 0x224, 0x225, 0xc, 0xb, 0x2, 0x2, 
-    0x225, 0x226, 0x9, 0x9, 0x2, 0x2, 0x226, 0x244, 0x5, 0x68, 0x35, 0xc, 
-    0x227, 0x228, 0xc, 0xa, 0x2, 0x2, 0x228, 0x229, 0x7, 0x67, 0x2, 0x2, 
-    0x229, 0x244, 0x5, 0x68, 0x35, 0xb, 0x22a, 0x22b, 0xc, 0x9, 0x2, 0x2, 
-    0x22b, 0x22c, 0x7, 0x68, 0x2, 0x2, 0x22c, 0x244, 0x5, 0x68, 0x35, 0xa, 
-    0x22d, 0x22e, 0xc, 0x8, 0x2, 0x2, 0x22e, 0x22f, 0x7, 0x69, 0x2, 0x2, 
+    0x221, 0x222, 0x7, 0x69, 0x2, 0x2, 0x222, 0x244, 0x5, 0x68, 0x35, 0xd, 
+    0x223, 0x224, 0xc, 0xb, 0x2, 0x2, 0x224, 0x225, 0x7, 0x7a, 0x2, 0x2, 
+    0x225, 0x244, 0x5, 0x68, 0x35, 0xc, 0x226, 0x227, 0xc, 0xa, 0x2, 0x2, 
+    0x227, 0x228, 0x7, 0x45, 0x2, 0x2, 0x228, 0x244, 0x5, 0x68, 0x35, 0xb, 
+    0x229, 0x22a, 0xc, 0x9, 0x2, 0x2, 0x22a, 0x22b, 0x9, 0x8, 0x2, 0x2, 
+    0x22b, 0x244, 0x5, 0x68, 0x35, 0xa, 0x22c, 0x22d, 0xc, 0x8, 0x2, 0x2, 
+    0x22d, 0x22e, 0x7, 0x6c, 0x2, 0x2, 0x22e, 0x22f, 0x8, 0x35, 0x1, 0x2, 
     0x22f, 0x244, 0x5, 0x68, 0x35, 0x9, 0x230, 0x231, 0xc, 0x7, 0x2, 0x2, 
-    0x231, 0x232, 0x7, 0x45, 0x2, 0x2, 0x232, 0x244, 0x5, 0x68, 0x35, 0x8, 
+    0x231, 0x232, 0x9, 0x9, 0x2, 0x2, 0x232, 0x244, 0x5, 0x68, 0x35, 0x8, 
     0x233, 0x234, 0xc, 0x6, 0x2, 0x2, 0x234, 0x235, 0x9, 0xa, 0x2, 0x2, 
     0x235, 0x244, 0x5, 0x68, 0x35, 0x7, 0x236, 0x237, 0xc, 0x5, 0x2, 0x2, 
     0x237, 0x238, 0x9, 0xb, 0x2, 0x2, 0x238, 0x244, 0x5, 0x68, 0x35, 0x6, 
@@ -8154,8 +8154,8 @@ EscriptParser::Initializer::Initializer() {
     0x243, 0x211, 0x3, 0x2, 0x2, 0x2, 0x243, 0x214, 0x3, 0x2, 0x2, 0x2, 
     0x243, 0x217, 0x3, 0x2, 0x2, 0x2, 0x243, 0x21a, 0x3, 0x2, 0x2, 0x2, 
     0x243, 0x21d, 0x3, 0x2, 0x2, 0x2, 0x243, 0x220, 0x3, 0x2, 0x2, 0x2, 
-    0x243, 0x224, 0x3, 0x2, 0x2, 0x2, 0x243, 0x227, 0x3, 0x2, 0x2, 0x2, 
-    0x243, 0x22a, 0x3, 0x2, 0x2, 0x2, 0x243, 0x22d, 0x3, 0x2, 0x2, 0x2, 
+    0x243, 0x223, 0x3, 0x2, 0x2, 0x2, 0x243, 0x226, 0x3, 0x2, 0x2, 0x2, 
+    0x243, 0x229, 0x3, 0x2, 0x2, 0x2, 0x243, 0x22c, 0x3, 0x2, 0x2, 0x2, 
     0x243, 0x230, 0x3, 0x2, 0x2, 0x2, 0x243, 0x233, 0x3, 0x2, 0x2, 0x2, 
     0x243, 0x236, 0x3, 0x2, 0x2, 0x2, 0x243, 0x239, 0x3, 0x2, 0x2, 0x2, 
     0x243, 0x23c, 0x3, 0x2, 0x2, 0x2, 0x243, 0x23f, 0x3, 0x2, 0x2, 0x2, 
