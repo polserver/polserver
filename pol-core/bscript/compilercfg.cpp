@@ -59,7 +59,7 @@ void CompilerConfig::Read( const std::string& path )
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
   ErrorOnFileCaseMissmatch = elem.remove_bool( "ErrorOnFileCaseMissmatch", false );
 
-  UseCompiler2020 = elem.remove_bool( "UseCompiler2020", false );
+  UseCompiler2020 = elem.remove_bool( "UseCompiler2020", true );
   CompareCompilerOutput = elem.remove_bool( "CompareCompilerOutput", false );
   EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
   IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
