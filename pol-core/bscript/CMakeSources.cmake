@@ -148,6 +148,8 @@ set (bscript_sources    # sorted !
   compiler/ast/StructInitializer.h
   compiler/ast/StructMemberInitializer.cpp
   compiler/ast/StructMemberInitializer.h
+  compiler/ast/TernaryOperator.cpp
+  compiler/ast/TernaryOperator.h
   compiler/ast/TopLevelStatements.cpp
   compiler/ast/TopLevelStatements.h
   compiler/ast/UnaryOperator.cpp

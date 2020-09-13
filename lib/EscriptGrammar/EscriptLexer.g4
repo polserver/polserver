@@ -148,6 +148,7 @@ AT:                 '@';
 
 COLONCOLON:         '::';
 COLON:              ':';
+QUESTION:           '?';
 INC:                '++';
 DEC:                '--';
 

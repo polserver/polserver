@@ -49,6 +49,7 @@
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
+#include "compiler/ast/TernaryOperator.h"
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/UserFunction.h"
@@ -303,6 +304,11 @@ void NodeVisitor::visit_struct_initializer( StructInitializer& node )
 }
 
 void NodeVisitor::visit_struct_member_initializer( StructMemberInitializer& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_ternary_operator( TernaryOperator& node )
 {
   visit_children( node );
 }

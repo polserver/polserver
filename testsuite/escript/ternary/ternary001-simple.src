@@ -1,0 +1,3 @@
+var a := 1, b := "pass", c := "fail";
+
+print( a ? b : c );

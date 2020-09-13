@@ -22,6 +22,7 @@
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
+#include "compiler/ast/TernaryOperator.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/UninitializedValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
@@ -271,6 +272,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
   {
     return expression_suffix( expression( ctx->expression()[0] ), suffix );
   }
+  else if ( ctx->expression().size() == 3 )
+  {
+    return ternary_operator( ctx );
+  }
 
   location_for( *ctx ).internal_error( "unhandled expression" );
 }
@@ -506,6 +511,17 @@ std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
     }
   }
   return std::make_unique<StructInitializer>( location_for( *ctx ), std::move( initializers ) );
+}
+
+std::unique_ptr<TernaryOperator> ExpressionBuilder::ternary_operator(
+    EscriptGrammar::EscriptParser::ExpressionContext* ctx )
+{
+  auto expressions = ctx->expression();
+  auto predicate = expression( expressions[0] );
+  auto consequent = expression( expressions[1] );
+  auto alternative = expression( expressions[2] );
+  return std::make_unique<TernaryOperator>( location_for( *ctx ), std::move( predicate ),
+                                            std::move( consequent ), std::move( alternative ) );
 }
 
 std::vector<std::unique_ptr<Argument>> ExpressionBuilder::value_arguments(

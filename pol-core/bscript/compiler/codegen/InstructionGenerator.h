@@ -62,6 +62,7 @@ public:
   void visit_string_value( StringValue& ) override;
   void visit_struct_initializer( StructInitializer& ) override;
   void visit_struct_member_initializer( StructMemberInitializer& ) override;
+  void visit_ternary_operator( TernaryOperator& ) override;
   void visit_unary_operator( UnaryOperator& ) override;
   void visit_uninitialized_value( UninitializedValue& ) override;
   void visit_user_function( UserFunction& ) override;
