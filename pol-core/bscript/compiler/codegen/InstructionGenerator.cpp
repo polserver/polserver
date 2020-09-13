@@ -47,6 +47,7 @@
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
+#include "compiler/ast/TernaryOperator.h"
 #include "compiler/ast/UnaryOperator.h"
 #include "compiler/ast/UninitializedValue.h"
 #include "compiler/ast/UserFunction.h"
@@ -615,6 +616,25 @@ void InstructionGenerator::visit_struct_member_initializer( StructMemberInitiali
     emit.struct_add_uninit_member( node.name );
   else
     emit.struct_add_member( node.name );
+}
+
+void InstructionGenerator::visit_ternary_operator( TernaryOperator& node )
+{
+  FlowControlLabel evaluate_alternative, skip_alternative;
+
+  generate( node.predicate() );
+
+  update_debug_location( node );
+  emit.jmp_if_false( evaluate_alternative );
+
+  generate( node.consequent() );
+  update_debug_location( node );
+  emit.jmp_always(skip_alternative );
+
+  emit.label( evaluate_alternative );
+  generate( node.alternative() );
+
+  emit.label( skip_alternative );
 }
 
 void InstructionGenerator::visit_unary_operator( UnaryOperator& unary_operator )

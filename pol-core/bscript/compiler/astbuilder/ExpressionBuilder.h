@@ -20,6 +20,7 @@ class Expression;
 class FunctionCall;
 class GetMember;
 class MethodCall;
+class TernaryOperator;
 class UnaryOperator;
 
 class ExpressionBuilder : public ValueBuilder
@@ -86,6 +87,9 @@ public:
 
   std::unique_ptr<Expression> struct_initializer(
       EscriptGrammar::EscriptParser::ExplicitStructInitializerContext* );
+
+  std::unique_ptr<TernaryOperator> ternary_operator(
+      EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::vector<std::unique_ptr<Argument>> value_arguments(
       EscriptGrammar::EscriptParser::ExpressionListContext* );
