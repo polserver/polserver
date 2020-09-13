@@ -1044,8 +1044,7 @@ BObjectImp* String::call_method_id( const int id, Executor& ex, bool /*forcebuil
           // -- end of property parsing
 
           // cout << "prop_name: '" << prop_name << "' tag_body: '" << tag_body << "'";
-
-          if ( (int)ex.numParams() <= tag_param_idx )
+          if ( tag_param_idx < 0 || (int)ex.numParams() <= tag_param_idx )
           {
             result << "<invalid index: #" << ( tag_param_idx + 1 ) << ">";
             continue;
