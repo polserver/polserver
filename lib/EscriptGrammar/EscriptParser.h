@@ -1114,7 +1114,6 @@ public:
     antlr4::tree::TerminalNode *BITAND();
     antlr4::tree::TerminalNode *BITOR();
     antlr4::tree::TerminalNode *CARET();
-    antlr4::tree::TerminalNode *ELVIS();
     antlr4::tree::TerminalNode *TOK_IN();
     antlr4::tree::TerminalNode *LE();
     antlr4::tree::TerminalNode *GE();
@@ -1128,6 +1127,7 @@ public:
     antlr4::tree::TerminalNode *AND_B();
     antlr4::tree::TerminalNode *OR_A();
     antlr4::tree::TerminalNode *OR_B();
+    antlr4::tree::TerminalNode *ELVIS();
     antlr4::tree::TerminalNode *ADDMEMBER();
     antlr4::tree::TerminalNode *DELMEMBER();
     antlr4::tree::TerminalNode *CHKMEMBER();
