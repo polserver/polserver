@@ -1,7 +1,12 @@
 var a := 3, b := 4, c := 6, h := 0;
 
-// The elvis operator should have higher precedence than comparison operators
+// This test can't pass both the OG compiler and the new compiler,
+// if the elvis precedence is different in both
 
-print( a > c ?: b ); // 0 correct: a > ( c ?: b )    4 incorrect: ( a > c ) ?: b
+// (If) The elvis operator has HIGHER precedence than comparison operators
+//print( a > c ?: b ); // 0 correct: a > ( c ?: b )    4 incorrect: ( a > c ) ?: b
+//print( c ?: b > a ); // 1 correct: ( c ?: b ) > a    6 incorrect: c ?: (b > a)
 
-print( c ?: b > a ); // 1 correct: ( c ?: b ) > a    3 incorrect: a ?: (b > a)
+// (If) The elvis operator has LOWER precedence than comparison operators
+print( a > c ?: b ); // 4 correct: ( a > c ) ?: b      0 incorrect: a > ( c ?: b )
+print( c ?: b > a ); // 6 correct: a ?: (b > a)        1 incorrect: ( c ?: b ) > a

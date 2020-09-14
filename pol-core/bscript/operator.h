@@ -18,7 +18,6 @@ enum Precedence
   PREC_UNARY_OPS = 13,
   PREC_MULT = 12,
   PREC_PLUS = 11,
-  PREC_ELVIS = 10,
   PREC_LESSTHAN = 9,
   PREC_BSLEFT = 8,
   PREC_BSRIGHT = 8,
@@ -29,6 +28,7 @@ enum Precedence
   PREC_LOGAND = 4,
   PREC_LOGOR = 3,
   PREC_ASSIGN = 1,
+  PREC_ELVIS = 2,
   PREC_COMMA = 0,
   PREC_DEPRECATED = 0,
   PREC_TERMINATOR = -1
