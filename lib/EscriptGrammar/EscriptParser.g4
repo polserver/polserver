@@ -268,7 +268,7 @@ expression
     | expression bop=('==' | '!=' | '<>') expression
     | expression bop=('&&' | 'and') expression
     | expression bop=('||' | 'or') expression
-    | expression '?' expression ':' expression
+    | <assoc=right> expression '?' expression ':' expression
     | expression bop='?:' expression
     | <assoc=right> expression bop=('.+' | '.-' | '.?') expression
     | <assoc=right> expression

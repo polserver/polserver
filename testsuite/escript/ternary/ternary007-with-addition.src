@@ -1,0 +1,6 @@
+var a := 2, b := 4, c := 3, d := 5;
+
+// If ternary operator precedence is ______ than addition
+                         //   LOWER (correct)             HIGHER (incorrect)
+print( a + b ? c : d );  //   3   (a + b) ? c : d         5   a + (b ? c : d)
+print( a ? b : c + d );  //   4   a ? b : (c + d)         9   (a ? b : c) + d

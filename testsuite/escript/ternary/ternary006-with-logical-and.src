@@ -1,0 +1,6 @@
+var a := 2, b := 4, c := 3, d := 5;
+
+// If ternary operator precedence is ______ than logical-and
+                         //   LOWER (correct)              HIGHER (incorrect)
+print( a && b ? c : d ); //   3   (a && b) ? c : d         1   a && (b ? c : d)
+print( a ? b : c && d ); //   4   a ? b : (c && d)         1   (a ? b : c) && d
