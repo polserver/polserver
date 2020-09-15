@@ -309,10 +309,20 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     {
       if ( any_named )
       {
-        report.error( arg, "Unnamed args cannot follow named args.\n" );
+        report.error( arg, "In call to '", fc.method_name,
+                      "': Unnamed args cannot follow named args.\n" );
         return;
       }
-      arg_name = parameters[arguments_passed.size()].get().name;
+
+      if ( arguments_passed.size() >= parameters.size() )
+      {
+        report.error( arg, "In call to '", fc.method_name,
+                      "': Too many arguments passed.  Expected ", parameters.size(), ", got ",
+                      arguments.size(), ".\n" );
+        continue;
+      }
+
+      arg_name = parameters.at( arguments_passed.size() ).get().name;
     }
     else
     {
@@ -320,7 +330,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     }
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
     {
-      report.error( arg, "Parameter '", arg_name, "' passed more than once.\n" );
+      report.error( arg, "In call to '", fc.method_name, "': Parameter '", arg_name,
+                    "' passed more than once.\n" );
       return;
     }
 
@@ -346,13 +357,16 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         }
         else
         {
-          report.error( param, "Unable to create argument from default parameter.\n" );
+          report.error( param, "In call to '", fc.method_name,
+                        "': Unable to create argument from default for parameter '", param.name,
+                        "'.\n" );
           return;
         }
       }
       else
       {
-        report.error( fc, "Parameter ", param.name, " was not passed, and there is no default.\n" );
+        report.error( fc, "In call to '", fc.method_name, "': Parameter '", param.name,
+                      "' was not passed, and there is no default.\n" );
         return;
       }
     }
@@ -365,18 +379,12 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   for ( auto& unused_argument : arguments_passed )
   {
-    report.error( fc, "Parameter '", unused_argument.first, "' passed by name to '",
-                  fc.method_name, "', which takes no such parameter.");
+    report.error( *unused_argument.second, "In call to '", fc.method_name, "': Parameter '",
+                  unused_argument.first,
+                  "' passed by name, but the function has no such parameter.\n" );
   }
-  if ( !arguments_passed.empty() )
+  if ( !arguments_passed.empty() || arguments.size() > parameters.size())
     return;
-
-  if ( arguments.size() > parameters.size() )
-  {
-    report.error( fc, "Too many arguments.  Expected ", parameters.size(), ", got ",
-                  arguments.size(), ".\n" );
-    return;
-  }
 
   fc.children = std::move( final_arguments );
 
