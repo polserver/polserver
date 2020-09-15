@@ -2,6 +2,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
+#include "clib/logfacility.h"
 #include "clib/strutil.h"
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
@@ -9,7 +10,9 @@
 #include "compiler/analyzer/FlowControlScope.h"
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BasicForLoop.h"
+#include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
@@ -72,6 +75,8 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
+  INFO_PRINT << workspace.top_level_statements->to_string_tree() << "\n";
+
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -84,6 +89,28 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+}
+
+void SemanticAnalyzer::visit_assign_variable_consume( AssignVariableConsume& node )
+{
+  visit_children( node );
+
+  if ( auto bop = dynamic_cast<BinaryOperator*>( &node.rhs() ) )
+  {
+    if ( bop->token_id == TOK_ASSIGN )
+    {
+      if ( auto second_ident = dynamic_cast<Identifier*>( &bop->lhs() ) )
+      {
+        if ( node.identifier().variable == second_ident->variable )
+        {
+          // we have something like
+          //      a := a := expr;
+          report.warning( node, "Double-assignment to the same variable '",
+                          node.identifier().name, "'." );
+        }
+      }
+    }
+  }
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
