@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-13-2020</datemodified>
+		<datemodified>09-15-2020</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>09-13-2020</date>
+			<date>09-15-2020</date>
 			<author>Syzygy:</author>
 			<change type="Changed">Replaced the eScript compiler.  (Added the new compiler, which is used by default)<br/>
 The intent is that the new compiler will compile every script that used to compile,<br/>
@@ -14,11 +14,14 @@ and will compile to identical instructions in the .ecl files.<br/>
 There are a few cases where the old compiler (or &quot;OG compiler&quot;) and the new compiler differ:<br/>
   - Functions that are included but not referenced now have to have valid syntax.<br/>
   - It is now an error for a &quot;case&quot; statement to specify the same value more than once when selecting which block to execute.<br/>
-  - Operator precedence now matches C++ operator precedence:<br/>
-    - postfix operators now have highest precedence.<br/>
-    - bit-shift operators are now higher precedence than comparison (and elvis) and lower precedence than addition.<br/>
-    - bitwise operators are now higher precedence than &quot;logical and&quot; and and lower precedence than equality.<br/>
-      - For example, &quot;x &amp; 0xFF == y &amp; 0xFF&quot; would need to change to  &quot;(x &amp; 0xff) == (y &amp; 0xFF)&quot;<br/>
+  - Some operator precedence levels have changed:<br/>
+    - postfix operators: now have highest precedence.<br/>
+    - bit shift, bitwise or, bitwise and: now have the same precedence as multiplication<br/>
+    - bitwise or, bitwise xor: now have the same precedence as addition<br/>
+    - &quot;in&quot;: now has higher precedence than the comparison (&lt; &lt;= &gt;= &gt;) operators<br/>
+    - elvis: now has precedence just below addition, and above &quot;in&quot;, and above comparison<br/>
+    - As an example, this means &quot;x &amp; 0xFF == y &amp; 0xFF&quot; no longer needs parentheses to mean &quot;(x &amp; 0xff) == (y &amp; 0xFF)&quot;<br/>
+    - All operator precedence levels are here: https://github.com/polserver/polserver/blob/master/lib/EscriptGrammar/EscriptParser.g4#L252<br/>
   - The ordering of module function declarations (from .em files) and user function definitions:<br/>
     - the OG compiler orders these in order of use<br/>
     - the new compiler orders them alphabetically<br/>
@@ -26,7 +29,7 @@ In order to ensure that the behavior of your scripts does not change, please per
   - Run &quot;ecompile -f -a -s -l -G&quot; to run both compilers in &quot;comparison mode&quot; against all of your scripts.<br/>
   - Fix any syntax errors.<br/>
   - Remove duplicate &quot;case&quot; statement dispatch selector values.<br/>
-  - Add parentheses as needed to bitwise expressions.<br/>
+  - Add parentheses as needed to account for operator precedence.<br/>
   - Repeat until both compilers produce the same output.<br/>
 Here are some examples of changes that I had to make:<br/>
   - https://github.com/polserver/ModernDistro/pull/28/files<br/>

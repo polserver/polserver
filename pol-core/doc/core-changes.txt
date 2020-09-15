@@ -1,16 +1,19 @@
 ﻿-- POL100 --
-09-13-2020 Syzygy:
+09-15-2020 Syzygy:
   Changed: Replaced the eScript compiler.  (Added the new compiler, which is used by default)
            The intent is that the new compiler will compile every script that used to compile,
            and will compile to identical instructions in the .ecl files.
            There are a few cases where the old compiler (or "OG compiler") and the new compiler differ:
              - Functions that are included but not referenced now have to have valid syntax.
              - It is now an error for a "case" statement to specify the same value more than once when selecting which block to execute.
-             - Operator precedence now matches C++ operator precedence:
-               - postfix operators now have highest precedence.
-               - bit-shift operators are now higher precedence than comparison (and elvis) and lower precedence than addition.
-               - bitwise operators are now higher precedence than "logical and" and and lower precedence than equality.
-                 - For example, "x & 0xFF == y & 0xFF" would need to change to  "(x & 0xff) == (y & 0xFF)"
+             - Some operator precedence levels have changed:
+               - postfix operators: now have highest precedence.
+               - bit shift, bitwise or, bitwise and: now have the same precedence as multiplication
+               - bitwise or, bitwise xor: now have the same precedence as addition
+               - "in": now has higher precedence than the comparison (< <= >= >) operators
+               - elvis: now has precedence just below addition, and above "in", and above comparison
+               - As an example, this means "x & 0xFF == y & 0xFF" no longer needs parentheses to mean "(x & 0xff) == (y & 0xFF)"
+               - All operator precedence levels are here: https://github.com/polserver/polserver/blob/master/lib/EscriptGrammar/EscriptParser.g4#L252
              - The ordering of module function declarations (from .em files) and user function definitions:
                - the OG compiler orders these in order of use
                - the new compiler orders them alphabetically
@@ -18,7 +21,7 @@
              - Run "ecompile -f -a -s -l -G" to run both compilers in "comparison mode" against all of your scripts.
              - Fix any syntax errors.
              - Remove duplicate "case" statement dispatch selector values.
-             - Add parentheses as needed to bitwise expressions.
+             - Add parentheses as needed to account for operator precedence.
              - Repeat until both compilers produce the same output.
            Here are some examples of changes that I had to make:
              - https://github.com/polserver/ModernDistro/pull/28/files
