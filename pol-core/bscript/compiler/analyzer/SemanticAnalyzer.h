@@ -28,6 +28,7 @@ public:
   static void register_const_declarations( CompilerWorkspace&, Report& );
   void analyze();
 
+  void visit_assign_variable_consume( AssignVariableConsume& ) override;
   void visit_basic_for_loop( BasicForLoop& ) override;
   void visit_block( Block& ) override;
   void visit_case_statement( CaseStatement& ) override;
