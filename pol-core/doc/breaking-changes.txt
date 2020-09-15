@@ -2,6 +2,10 @@
 # Please consult core-changes.txt for more information.
 
 -- POL100 [work-in-progress] --
+2020-09-15:
+    The new compiler could change script behavior.
+    Be sure to run the compiler in "comparison mode" and update any scripts that have differences so that this doesn't happen.
+
 2020-08-13:
     item.hitscript and item.onhitscript now *always* return the full path of their scripts (":pkgname:script")
     
