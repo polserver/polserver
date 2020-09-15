@@ -2,7 +2,6 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
-#include "clib/logfacility.h"
 #include "clib/strutil.h"
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
@@ -75,8 +74,6 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
-  INFO_PRINT << workspace.top_level_statements->to_string_tree() << "\n";
-
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
