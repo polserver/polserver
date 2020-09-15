@@ -84,9 +84,6 @@ public:
   virtual void enterExitStatement(EscriptParser::ExitStatementContext *ctx) = 0;
   virtual void exitExitStatement(EscriptParser::ExitStatementContext *ctx) = 0;
 
-  virtual void enterDeclareStatement(EscriptParser::DeclareStatementContext *ctx) = 0;
-  virtual void exitDeclareStatement(EscriptParser::DeclareStatementContext *ctx) = 0;
-
   virtual void enterBreakStatement(EscriptParser::BreakStatementContext *ctx) = 0;
   virtual void exitBreakStatement(EscriptParser::BreakStatementContext *ctx) = 0;
 

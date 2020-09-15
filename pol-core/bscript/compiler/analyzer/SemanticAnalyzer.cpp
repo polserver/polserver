@@ -9,7 +9,9 @@
 #include "compiler/analyzer/FlowControlScope.h"
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
+#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BasicForLoop.h"
+#include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
 #include "compiler/ast/CaseDispatchDefaultSelector.h"
 #include "compiler/ast/CaseDispatchGroup.h"
@@ -84,6 +86,28 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+}
+
+void SemanticAnalyzer::visit_assign_variable_consume( AssignVariableConsume& node )
+{
+  visit_children( node );
+
+  if ( auto bop = dynamic_cast<BinaryOperator*>( &node.rhs() ) )
+  {
+    if ( bop->token_id == TOK_ASSIGN )
+    {
+      if ( auto second_ident = dynamic_cast<Identifier*>( &bop->lhs() ) )
+      {
+        if ( node.identifier().variable == second_ident->variable )
+        {
+          // we have something like
+          //      a := a := expr;
+          report.warning( node, "Double-assignment to the same variable '",
+                          node.identifier().name, "'.\n" );
+        }
+      }
+    }
+  }
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -282,10 +306,20 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     {
       if ( any_named )
       {
-        report.error( arg, "Unnamed args cannot follow named args.\n" );
+        report.error( arg, "In call to '", fc.method_name,
+                      "': Unnamed args cannot follow named args.\n" );
         return;
       }
-      arg_name = parameters[arguments_passed.size()].get().name;
+
+      if ( arguments_passed.size() >= parameters.size() )
+      {
+        report.error( arg, "In call to '", fc.method_name,
+                      "': Too many arguments passed.  Expected ", parameters.size(), ", got ",
+                      arguments.size(), ".\n" );
+        continue;
+      }
+
+      arg_name = parameters.at( arguments_passed.size() ).get().name;
     }
     else
     {
@@ -293,7 +327,8 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     }
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
     {
-      report.error( arg, "Parameter '", arg_name, "' passed more than once.\n" );
+      report.error( arg, "In call to '", fc.method_name, "': Parameter '", arg_name,
+                    "' passed more than once.\n" );
       return;
     }
 
@@ -319,13 +354,16 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         }
         else
         {
-          report.error( param, "Unable to create argument from default parameter.\n" );
+          report.error( param, "In call to '", fc.method_name,
+                        "': Unable to create argument from default for parameter '", param.name,
+                        "'.\n" );
           return;
         }
       }
       else
       {
-        report.error( fc, "Parameter ", param.name, " was not passed, and there is no default.\n" );
+        report.error( fc, "In call to '", fc.method_name, "': Parameter '", param.name,
+                      "' was not passed, and there is no default.\n" );
         return;
       }
     }
@@ -338,18 +376,12 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
 
   for ( auto& unused_argument : arguments_passed )
   {
-    report.error( fc, "Parameter '", unused_argument.first, "' passed by name to '",
-                  fc.method_name, "', which takes no such parameter.");
+    report.error( *unused_argument.second, "In call to '", fc.method_name, "': Parameter '",
+                  unused_argument.first,
+                  "' passed by name, but the function has no such parameter.\n" );
   }
-  if ( !arguments_passed.empty() )
+  if ( !arguments_passed.empty() || arguments.size() > parameters.size())
     return;
-
-  if ( arguments.size() > parameters.size() )
-  {
-    report.error( fc, "Too many arguments.  Expected ", parameters.size(), ", got ",
-                  arguments.size(), ".\n" );
-    return;
-  }
 
   fc.children = std::move( final_arguments );
 

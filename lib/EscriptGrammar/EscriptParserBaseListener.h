@@ -86,9 +86,6 @@ public:
   virtual void enterExitStatement(EscriptParser::ExitStatementContext * /*ctx*/) override { }
   virtual void exitExitStatement(EscriptParser::ExitStatementContext * /*ctx*/) override { }
 
-  virtual void enterDeclareStatement(EscriptParser::DeclareStatementContext * /*ctx*/) override { }
-  virtual void exitDeclareStatement(EscriptParser::DeclareStatementContext * /*ctx*/) override { }
-
   virtual void enterBreakStatement(EscriptParser::BreakStatementContext * /*ctx*/) override { }
   virtual void exitBreakStatement(EscriptParser::BreakStatementContext * /*ctx*/) override { }
 

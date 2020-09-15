@@ -79,7 +79,6 @@ statement
     | doStatement
     | whileStatement
     | exitStatement
-    | declareStatement
     | breakStatement
     | continueStatement
     | forStatement
@@ -125,10 +124,6 @@ whileStatement
 
 exitStatement
     : EXIT ';'
-    ;
-
-declareStatement
-    : DECLARE FUNCTION identifierList ';' 
     ;
 
 breakStatement
@@ -260,17 +255,13 @@ expression
     | expression postfix=('++' | '--')
     | prefix=('+'|'-'|'++'|'--') expression
     | prefix=('~'|'!'|'not') expression
-    | expression bop=('*'|'/'|'%') expression
-    | expression bop=('+'|'-') expression
-    | expression bop=('<<' | '>>') expression
+    | expression bop=('*' | '/' | '%' | '<<' | '>>' | '&') expression
+    | expression bop=('+' | '-' | '|' | '^') expression
     | expression bop='?:' expression
+    | expression bop='in' expression
     | expression bop=('<=' | '>=' | '>' | '<') expression
     | expression bop='=' { notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); } expression
     | expression bop=('==' | '!=' | '<>') expression
-    | expression bop='&' expression
-    | expression bop='^' expression
-    | expression bop='|' expression
-    | expression bop='in' expression
     | expression bop=('&&' | 'and') expression
     | expression bop=('||' | 'or') expression
     | <assoc=right> expression bop=('.+' | '.-' | '.?') expression
@@ -385,7 +376,6 @@ literal
     | floatLiteral
     | CHAR_LITERAL
     | STRING_LITERAL
-    | NULL_LITERAL
     ;
 
 integerLiteral
