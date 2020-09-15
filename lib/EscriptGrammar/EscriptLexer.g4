@@ -19,7 +19,6 @@ DOWHILE:            'dowhile';
 WHILE:              'while';
 ENDWHILE:           'endwhile';
 EXIT:               'exit';
-DECLARE:            'declare';
 FUNCTION:           'function';
 ENDFUNCTION:        'endfunction';
 EXPORTED:           'exported';
@@ -97,8 +96,6 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
 STRING_LITERAL:     '"' (~["] | EscapeSequence)* '"';
-
-NULL_LITERAL:       'null';
 
 // Separators
 

@@ -79,7 +79,6 @@ statement
     | doStatement
     | whileStatement
     | exitStatement
-    | declareStatement
     | breakStatement
     | continueStatement
     | forStatement
@@ -125,10 +124,6 @@ whileStatement
 
 exitStatement
     : EXIT ';'
-    ;
-
-declareStatement
-    : DECLARE FUNCTION identifierList ';' 
     ;
 
 breakStatement
@@ -385,7 +380,6 @@ literal
     | floatLiteral
     | CHAR_LITERAL
     | STRING_LITERAL
-    | NULL_LITERAL
     ;
 
 integerLiteral
