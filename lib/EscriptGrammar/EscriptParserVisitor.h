@@ -66,8 +66,6 @@ public:
 
     virtual antlrcpp::Any visitExitStatement(EscriptParser::ExitStatementContext *context) = 0;
 
-    virtual antlrcpp::Any visitDeclareStatement(EscriptParser::DeclareStatementContext *context) = 0;
-
     virtual antlrcpp::Any visitBreakStatement(EscriptParser::BreakStatementContext *context) = 0;
 
     virtual antlrcpp::Any visitContinueStatement(EscriptParser::ContinueStatementContext *context) = 0;

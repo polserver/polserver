@@ -107,10 +107,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDeclareStatement(EscriptParser::DeclareStatementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitBreakStatement(EscriptParser::BreakStatementContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -17,27 +17,26 @@ public:
   enum {
     IF = 1, THEN = 2, ELSEIF = 3, ENDIF = 4, ELSE = 5, GOTO = 6, RETURN = 7, 
     TOK_CONST = 8, VAR = 9, DO = 10, DOWHILE = 11, WHILE = 12, ENDWHILE = 13, 
-    EXIT = 14, DECLARE = 15, FUNCTION = 16, ENDFUNCTION = 17, EXPORTED = 18, 
-    USE = 19, INCLUDE = 20, BREAK = 21, CONTINUE = 22, FOR = 23, ENDFOR = 24, 
-    TO = 25, FOREACH = 26, ENDFOREACH = 27, REPEAT = 28, UNTIL = 29, PROGRAM = 30, 
-    ENDPROGRAM = 31, CASE = 32, DEFAULT = 33, ENDCASE = 34, ENUM = 35, ENDENUM = 36, 
-    DOWNTO = 37, STEP = 38, REFERENCE = 39, TOK_OUT = 40, INOUT = 41, BYVAL = 42, 
-    STRING = 43, TOK_LONG = 44, INTEGER = 45, UNSIGNED = 46, SIGNED = 47, 
-    REAL = 48, FLOAT = 49, DOUBLE = 50, AS = 51, IS = 52, AND_A = 53, AND_B = 54, 
-    OR_A = 55, OR_B = 56, BANG_A = 57, BANG_B = 58, BYREF = 59, UNUSED = 60, 
-    TOK_ERROR = 61, HASH = 62, DICTIONARY = 63, STRUCT = 64, ARRAY = 65, 
-    STACK = 66, TOK_IN = 67, DECIMAL_LITERAL = 68, HEX_LITERAL = 69, OCT_LITERAL = 70, 
-    BINARY_LITERAL = 71, FLOAT_LITERAL = 72, HEX_FLOAT_LITERAL = 73, CHAR_LITERAL = 74, 
-    STRING_LITERAL = 75, NULL_LITERAL = 76, LPAREN = 77, RPAREN = 78, LBRACK = 79, 
-    RBRACK = 80, LBRACE = 81, RBRACE = 82, DOT = 83, ARROW = 84, MUL = 85, 
-    DIV = 86, MOD = 87, ADD = 88, SUB = 89, ADD_ASSIGN = 90, SUB_ASSIGN = 91, 
-    MUL_ASSIGN = 92, DIV_ASSIGN = 93, MOD_ASSIGN = 94, LE = 95, LT = 96, 
-    GE = 97, GT = 98, RSHIFT = 99, LSHIFT = 100, BITAND = 101, CARET = 102, 
-    BITOR = 103, NOTEQUAL_A = 104, NOTEQUAL_B = 105, EQUAL_DEPRECATED = 106, 
-    EQUAL = 107, ASSIGN = 108, ADDMEMBER = 109, DELMEMBER = 110, CHKMEMBER = 111, 
-    SEMI = 112, COMMA = 113, TILDE = 114, AT = 115, COLONCOLON = 116, COLON = 117, 
-    INC = 118, DEC = 119, ELVIS = 120, WS = 121, COMMENT = 122, LINE_COMMENT = 123, 
-    IDENTIFIER = 124
+    EXIT = 14, FUNCTION = 15, ENDFUNCTION = 16, EXPORTED = 17, USE = 18, 
+    INCLUDE = 19, BREAK = 20, CONTINUE = 21, FOR = 22, ENDFOR = 23, TO = 24, 
+    FOREACH = 25, ENDFOREACH = 26, REPEAT = 27, UNTIL = 28, PROGRAM = 29, 
+    ENDPROGRAM = 30, CASE = 31, DEFAULT = 32, ENDCASE = 33, ENUM = 34, ENDENUM = 35, 
+    DOWNTO = 36, STEP = 37, REFERENCE = 38, TOK_OUT = 39, INOUT = 40, BYVAL = 41, 
+    STRING = 42, TOK_LONG = 43, INTEGER = 44, UNSIGNED = 45, SIGNED = 46, 
+    REAL = 47, FLOAT = 48, DOUBLE = 49, AS = 50, IS = 51, AND_A = 52, AND_B = 53, 
+    OR_A = 54, OR_B = 55, BANG_A = 56, BANG_B = 57, BYREF = 58, UNUSED = 59, 
+    TOK_ERROR = 60, HASH = 61, DICTIONARY = 62, STRUCT = 63, ARRAY = 64, 
+    STACK = 65, TOK_IN = 66, DECIMAL_LITERAL = 67, HEX_LITERAL = 68, OCT_LITERAL = 69, 
+    BINARY_LITERAL = 70, FLOAT_LITERAL = 71, HEX_FLOAT_LITERAL = 72, CHAR_LITERAL = 73, 
+    STRING_LITERAL = 74, LPAREN = 75, RPAREN = 76, LBRACK = 77, RBRACK = 78, 
+    LBRACE = 79, RBRACE = 80, DOT = 81, ARROW = 82, MUL = 83, DIV = 84, 
+    MOD = 85, ADD = 86, SUB = 87, ADD_ASSIGN = 88, SUB_ASSIGN = 89, MUL_ASSIGN = 90, 
+    DIV_ASSIGN = 91, MOD_ASSIGN = 92, LE = 93, LT = 94, GE = 95, GT = 96, 
+    RSHIFT = 97, LSHIFT = 98, BITAND = 99, CARET = 100, BITOR = 101, NOTEQUAL_A = 102, 
+    NOTEQUAL_B = 103, EQUAL_DEPRECATED = 104, EQUAL = 105, ASSIGN = 106, 
+    ADDMEMBER = 107, DELMEMBER = 108, CHKMEMBER = 109, SEMI = 110, COMMA = 111, 
+    TILDE = 112, AT = 113, COLONCOLON = 114, COLON = 115, INC = 116, DEC = 117, 
+    ELVIS = 118, WS = 119, COMMENT = 120, LINE_COMMENT = 121, IDENTIFIER = 122
   };
 
   enum {
@@ -48,25 +47,25 @@ public:
     RuleProgramDeclaration = 11, RuleStatement = 12, RuleStatementLabel = 13, 
     RuleIfStatement = 14, RuleGotoStatement = 15, RuleReturnStatement = 16, 
     RuleConstStatement = 17, RuleVarStatement = 18, RuleDoStatement = 19, 
-    RuleWhileStatement = 20, RuleExitStatement = 21, RuleDeclareStatement = 22, 
-    RuleBreakStatement = 23, RuleContinueStatement = 24, RuleForStatement = 25, 
-    RuleForeachIterableExpression = 26, RuleForeachStatement = 27, RuleRepeatStatement = 28, 
-    RuleCaseStatement = 29, RuleEnumStatement = 30, RuleBlock = 31, RuleVariableDeclarationInitializer = 32, 
-    RuleEnumList = 33, RuleEnumListEntry = 34, RuleSwitchBlockStatementGroup = 35, 
-    RuleSwitchLabel = 36, RuleForGroup = 37, RuleBasicForStatement = 38, 
-    RuleCstyleForStatement = 39, RuleIdentifierList = 40, RuleVariableDeclarationList = 41, 
-    RuleVariableDeclaration = 42, RuleProgramParameters = 43, RuleProgramParameterList = 44, 
-    RuleProgramParameter = 45, RuleFunctionParameters = 46, RuleFunctionParameterList = 47, 
-    RuleFunctionParameter = 48, RuleScopedFunctionCall = 49, RuleFunctionReference = 50, 
-    RuleExpression = 51, RulePrimary = 52, RuleExplicitArrayInitializer = 53, 
-    RuleExplicitStructInitializer = 54, RuleExplicitDictInitializer = 55, 
-    RuleExplicitErrorInitializer = 56, RuleBareArrayInitializer = 57, RuleParExpression = 58, 
-    RuleExpressionList = 59, RuleExpressionSuffix = 60, RuleIndexingSuffix = 61, 
-    RuleNavigationSuffix = 62, RuleMethodCallSuffix = 63, RuleFunctionCall = 64, 
-    RuleStructInitializerExpression = 65, RuleStructInitializerExpressionList = 66, 
-    RuleStructInitializer = 67, RuleDictInitializerExpression = 68, RuleDictInitializerExpressionList = 69, 
-    RuleDictInitializer = 70, RuleArrayInitializer = 71, RuleLiteral = 72, 
-    RuleIntegerLiteral = 73, RuleFloatLiteral = 74
+    RuleWhileStatement = 20, RuleExitStatement = 21, RuleBreakStatement = 22, 
+    RuleContinueStatement = 23, RuleForStatement = 24, RuleForeachIterableExpression = 25, 
+    RuleForeachStatement = 26, RuleRepeatStatement = 27, RuleCaseStatement = 28, 
+    RuleEnumStatement = 29, RuleBlock = 30, RuleVariableDeclarationInitializer = 31, 
+    RuleEnumList = 32, RuleEnumListEntry = 33, RuleSwitchBlockStatementGroup = 34, 
+    RuleSwitchLabel = 35, RuleForGroup = 36, RuleBasicForStatement = 37, 
+    RuleCstyleForStatement = 38, RuleIdentifierList = 39, RuleVariableDeclarationList = 40, 
+    RuleVariableDeclaration = 41, RuleProgramParameters = 42, RuleProgramParameterList = 43, 
+    RuleProgramParameter = 44, RuleFunctionParameters = 45, RuleFunctionParameterList = 46, 
+    RuleFunctionParameter = 47, RuleScopedFunctionCall = 48, RuleFunctionReference = 49, 
+    RuleExpression = 50, RulePrimary = 51, RuleExplicitArrayInitializer = 52, 
+    RuleExplicitStructInitializer = 53, RuleExplicitDictInitializer = 54, 
+    RuleExplicitErrorInitializer = 55, RuleBareArrayInitializer = 56, RuleParExpression = 57, 
+    RuleExpressionList = 58, RuleExpressionSuffix = 59, RuleIndexingSuffix = 60, 
+    RuleNavigationSuffix = 61, RuleMethodCallSuffix = 62, RuleFunctionCall = 63, 
+    RuleStructInitializerExpression = 64, RuleStructInitializerExpressionList = 65, 
+    RuleStructInitializer = 66, RuleDictInitializerExpression = 67, RuleDictInitializerExpressionList = 68, 
+    RuleDictInitializer = 69, RuleArrayInitializer = 70, RuleLiteral = 71, 
+    RuleIntegerLiteral = 72, RuleFloatLiteral = 73
   };
 
   EscriptParser(antlr4::TokenStream *input);
@@ -103,7 +102,6 @@ public:
   class DoStatementContext;
   class WhileStatementContext;
   class ExitStatementContext;
-  class DeclareStatementContext;
   class BreakStatementContext;
   class ContinueStatementContext;
   class ForStatementContext;
@@ -382,7 +380,6 @@ public:
     DoStatementContext *doStatement();
     WhileStatementContext *whileStatement();
     ExitStatementContext *exitStatement();
-    DeclareStatementContext *declareStatement();
     BreakStatementContext *breakStatement();
     ContinueStatementContext *continueStatement();
     ForStatementContext *forStatement();
@@ -564,24 +561,6 @@ public:
   };
 
   ExitStatementContext* exitStatement();
-
-  class  DeclareStatementContext : public antlr4::ParserRuleContext {
-  public:
-    DeclareStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *DECLARE();
-    antlr4::tree::TerminalNode *FUNCTION();
-    IdentifierListContext *identifierList();
-    antlr4::tree::TerminalNode *SEMI();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  DeclareStatementContext* declareStatement();
 
   class  BreakStatementContext : public antlr4::ParserRuleContext {
   public:
@@ -1513,7 +1492,6 @@ public:
     FloatLiteralContext *floatLiteral();
     antlr4::tree::TerminalNode *CHAR_LITERAL();
     antlr4::tree::TerminalNode *STRING_LITERAL();
-    antlr4::tree::TerminalNode *NULL_LITERAL();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
