@@ -17,7 +17,8 @@
              - The ordering of module function declarations (from .em files) and user function definitions:
                - the OG compiler orders these in order of use
                - the new compiler orders them alphabetically
-             - On 64-bit windows, the old compiler generates the wrong constant (-1) for hex values with the high bit set, like 0x90000000.
+             - On 64-bit windows, the old compiler generates the wrong constant (-1) for hex values with the high bit set.
+               - Example: const EVENT_PEACEMADE := 0x90000000;
            In order to ensure that the behavior of your scripts does not change, please perform the following steps:
              - Run "ecompile -f -a -s -l -G" to run both compilers in "comparison mode" against all of your scripts.
              - Fix any syntax errors.
