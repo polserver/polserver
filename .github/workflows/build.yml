@@ -36,6 +36,20 @@ jobs:
             build-type: Release
             nopch: 1
 
+          - os: "macos-latest"
+            cxx-compiler: clang++
+            c-compiler: clang
+            compiler-version: default
+            build-type: Release
+            nopch: 1
+
+          - os: "macos-latest"
+            cxx-compiler: g++
+            c-compiler: gcc
+            compiler-version: 9
+            build-type: RelWithDebInfo
+            nopch: 1
+
     runs-on: ${{ matrix.config.os }}
 
     steps:
@@ -52,6 +66,18 @@ jobs:
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
+
+      - name: Install Dependencies (macos)
+        if: matrix.config.os == 'macos-latest'
+        shell: pwsh
+        run: |
+          brew reinstall openssl@1.1
+          brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++
+          brew list
+          echo "::set-env name=LDFLAGS::-L/usr/local/opt/openssl@1.1/lib -L/usr/local/opt/mysql-client/lib $LDFLAGS"
+          echo "::set-env name=CPPFLAGS::-I/usr/local/opt/openssl@1.1/include -I/usr/local/opt/mysql-client/include $CPPFLAGS"
+          echo "::set-env name=CXXFLAGS::-I/usr/local/opt/openssl@1.1/include -I/usr/local/opt/mysql-client/include $CXXFLAGS"
+          echo "::set-env name=PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$PKG_CONFIG_PATH"
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
