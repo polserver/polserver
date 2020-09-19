@@ -1,10 +1,10 @@
 message("* boost")
-set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_67_0")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_69_0")
 
 if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   # build disabled no need currenty
   ExternalProject_Add(boost
-	URL "${BOOST_SOURCE_DIR}/../boost_1_67_0.tar.bz2"
+	URL "${BOOST_SOURCE_DIR}/../boost_1_69_0.tar.bz2"
     SOURCE_DIR "${BOOST_SOURCE_DIR}" 
 #	CONFIGURE_COMMAND ./bootstrap.sh
 #       --prefix=build
