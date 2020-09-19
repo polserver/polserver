@@ -429,8 +429,13 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Bin()
   {
     BLong* plong = static_cast<BLong*>( imp );
     int number = plong->value();
+#ifdef __APPLE__
+    std::string bits = std::bitset<2>(number).to_string();
+    return new String( bits );
+#else
     char buffer[sizeof( int ) * 8 + 1];
     return new String( itoa( number, buffer, 2 ) );
+#endif
   }
   else
   {

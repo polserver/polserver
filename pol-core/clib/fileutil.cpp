@@ -61,7 +61,7 @@ bool IsDirectory( const char* dir )
 
 void MakeDirectory( const char* dir )
 {
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
   mkdir( dir, 0777 );
 #else
   mkdir( dir );
@@ -147,7 +147,7 @@ void RemoveFile( const std::string& fname )
 
 std::string FullPath( const char* filename )
 {
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
   char tmp[PATH_MAX];
   if ( realpath( filename, tmp ) )
     return tmp;

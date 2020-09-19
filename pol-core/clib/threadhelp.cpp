@@ -106,7 +106,8 @@ void thread_sleep_ms( unsigned millis )
 }
 size_t thread_pid()
 {
-  return pthread_self();
+  // todo
+  return reinterpret_cast<size_t>(pthread_self());
 }
 #endif
 
