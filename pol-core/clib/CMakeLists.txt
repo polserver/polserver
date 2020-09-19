@@ -28,7 +28,7 @@ if (${linux})
   target_link_libraries(${lib_name} PUBLIC
     crypto
     pthread
-    atomic
+    #atomic
   )
 elseif(${windows})
   target_link_libraries(${lib_name} PUBLIC

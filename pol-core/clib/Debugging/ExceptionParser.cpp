@@ -280,7 +280,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
 /**
  * send the request
  */
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
   send( socketFD, request, strlen( request ), MSG_NOSIGNAL );
 #else
   send( socketFD, request, (int)strlen( request ), 0 );
@@ -293,7 +293,7 @@ void doHttpPOST( const string& host, const string& url, const string& content )
   ssize_t readBytes;
   char answer[MAXLINE + 1];
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__APPLE__)
   while ( ( readBytes = recv( socketFD, answer, MAXLINE, MSG_NOSIGNAL ) ) > 0 )
   {
 #else
@@ -399,7 +399,7 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf( "Compile time: %s\n", ProgramConfig::build_datetime().c_str() );
     printf( "Build target: %s\n", ProgramConfig::build_target().c_str() );
     printf( "Build revision: %s\n", POL_VERSION_ID );
-#ifndef _WIN32
+#if defined(__GLIBC__)
     printf( "GNU C library (compile time): %d.%d\n", __GLIBC__, __GLIBC_MINOR__ );
 #endif
     printf( "\n" );
@@ -438,7 +438,7 @@ ExceptionParser::~ExceptionParser() {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef _WIN32
+#if!defined(_WIN32) && !defined(__APPLE__)
 string ExceptionParser::getTrace()
 {
   string result;
