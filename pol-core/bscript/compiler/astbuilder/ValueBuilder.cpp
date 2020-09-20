@@ -159,22 +159,37 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
 
 int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
 {
-  if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
+  try
   {
-    return std::stoi( decimal_literal->getSymbol()->getText() );
+    if ( auto decimal_literal = ctx->DECIMAL_LITERAL() )
+    {
+      return std::stoi( decimal_literal->getSymbol()->getText() );
+    }
+    else if ( auto hex_literal = ctx->HEX_LITERAL() )
+    {
+      return static_cast<int>( std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 ) );
+    }
+    else if ( auto oct_literal = ctx->OCT_LITERAL() )
+    {
+      return std::stoi( oct_literal->getSymbol()->getText(), nullptr, 8 );
+    }
+    else if ( auto binary_literal = ctx->BINARY_LITERAL() )
+    {
+      return std::stoi( binary_literal->getSymbol()->getText(), nullptr, 2 );
+    }
   }
-  else if ( auto hex_literal = ctx->HEX_LITERAL() )
+  catch ( std::invalid_argument& )
   {
-    return static_cast<int>( std::stoul( hex_literal->getSymbol()->getText(), nullptr, 16 ) );
+    report.error( location_for( *ctx ), "unable to convert integer value '", ctx->getText(),
+                  "'.\n" );
+    throw;
   }
-  else if ( auto oct_literal = ctx->OCT_LITERAL() )
+  catch ( std::out_of_range& )
   {
-    return std::stoi( oct_literal->getSymbol()->getText(), nullptr, 8 );
+    report.error( location_for( *ctx ), "integer value '", ctx->getText(), "' out of range.\n" );
+    throw;
   }
-  else if ( auto binary_literal = ctx->BINARY_LITERAL() )
-  {
-    return std::stoi( binary_literal->getSymbol()->getText(), nullptr, 2 );
-  }
+
   location_for( *ctx ).internal_error( "unhandled integer literal" );
 }
 
