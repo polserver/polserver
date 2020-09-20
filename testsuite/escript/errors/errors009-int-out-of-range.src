@@ -1,0 +1,5 @@
+var x := 123456789123456789;
+print(x);
+
+// OG compiler does not notice this error.
+force_compile_error();
