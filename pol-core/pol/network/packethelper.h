@@ -38,9 +38,6 @@ public:
   ~PacketOut();
   void Release();
   void Send( Client* client, int len = -1 ) const;
-  // be really really careful with this function
-  // needs PolLock
-  void SendDirect( Client* client, int len = -1 ) const;
   T* operator->(void)const;
   T* Get();
 };
@@ -73,16 +70,6 @@ void PacketOut<T>::Send( Client* client, int len ) const
   if ( len == -1 )
     len = pkt->offset;
   Core::networkManager.clientTransmit->AddToQueue( client, &pkt->buffer, len );
-}
-
-template <class T>
-void PacketOut<T>::SendDirect( Client* client, int len ) const
-{
-  if ( pkt == 0 )
-    return;
-  if ( len == -1 )
-    len = pkt->offset;
-  client->transmit( &pkt->buffer, len );
 }
 
 template <class T>

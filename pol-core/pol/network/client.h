@@ -153,7 +153,7 @@ public:
   void unregister();  // removes updater for vitals and takes client away from clientlist
   void closeConnection();
   void transmit( const void* data, int len,
-                 bool needslock = false );  // for entire message or header only
+                 bool needslock );  // for entire message or header only
 
   void recv_remaining( int total_expected );
   void recv_remaining_nocrypt( int total_expected );
