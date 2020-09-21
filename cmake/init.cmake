@@ -156,6 +156,7 @@ macro(prepare_build)
   find_package(openssl)
   if (${OPENSSL_FOUND})
     include_directories(${OPENSSL_INCLUDE_DIR})
+    link_directories(${OPENSSL_INCLUDE_DIR}/../lib)
   endif()
 
   if(windows)
