@@ -152,8 +152,7 @@ public:
 
   void unregister();  // removes updater for vitals and takes client away from clientlist
   void closeConnection();
-  void transmit( const void* data, int len,
-                 bool needslock );  // for entire message or header only
+  void transmit( const void* data, int len ); // always obtains PolLock when calling a SendFunction
 
   void recv_remaining( int total_expected );
   void recv_remaining_nocrypt( int total_expected );
