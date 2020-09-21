@@ -71,13 +71,11 @@ jobs:
         if: matrix.config.os == 'macos-latest'
         shell: pwsh
         run: |
+          brew install pkg-config
           brew reinstall openssl@1.1
           brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++
           brew list
-          echo "::set-env name=LDFLAGS::-L/usr/local/opt/openssl@1.1/lib -L/usr/local/opt/mysql-client/lib $LDFLAGS"
-          echo "::set-env name=CPPFLAGS::-I/usr/local/opt/openssl@1.1/include -I/usr/local/opt/mysql-client/include $CPPFLAGS"
-          echo "::set-env name=CXXFLAGS::-I/usr/local/opt/openssl@1.1/include -I/usr/local/opt/mysql-client/include $CXXFLAGS"
-          echo "::set-env name=PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$PKG_CONFIG_PATH"
+          echo "::set-env name=PKG_CONFIG_PATH::/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$PKG_CONFIG_PATH"
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
