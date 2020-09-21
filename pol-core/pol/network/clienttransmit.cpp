@@ -72,7 +72,7 @@ void ClientTransmitThread()
           data->client->forceDisconnect();
         }
         else if ( data->client->isReallyConnected() )
-          data->client->transmit( static_cast<void*>( &data->data[0] ), data->len, true );
+          data->client->transmit( static_cast<void*>( &data->data[0] ), data->len );
       }
     }
     catch ( ClientTransmitQueue::Canceled& )

@@ -186,7 +186,7 @@ void Client::transmit_encrypted( const void* data, int len )
   THREAD_CHECKPOINT( active_client, 116 );
 }
 
-void Client::transmit( const void* data, int len, bool needslock )
+void Client::transmit( const void* data, int len )
 {
   ref_ptr<Core::BPacket> p;
   bool handled = false;
@@ -202,17 +202,9 @@ void Client::transmit( const void* data, int len, bool needslock )
     handled = GetAndCheckPacketHooked( this, data, phd );
     if ( handled )
     {
-      if ( needslock )
-      {
-        Core::PolLock lock;
-        std::lock_guard<std::mutex> guard( _SocketMutex );
-        CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
-      }
-      else
-      {
-        std::lock_guard<std::mutex> guard( _SocketMutex );
-        CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
-      }
+      Core::PolLock lock;
+      std::lock_guard<std::mutex> guard( _SocketMutex );
+      CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
     }
   }
 
