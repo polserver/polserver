@@ -266,6 +266,22 @@ function(use_benchmark target)
   endif()
 endfunction()
 
+function(use_boost target)
+  if (${linux})
+    target_link_libraries(${target} PUBLIC
+            ${BOOST_LIBRARY_DIR}/libboost_regex.a
+            ${BOOST_LIBRARY_DIR}/libboost_system.a
+            ${BOOST_LIBRARY_DIR}/libboost_thread.a
+            )
+  else()
+    if ("${CMAKE_GENERATOR}" MATCHES "Ninja" AND ${clang})
+      set(BOOST_LIBRARY "${BOOST_LIBRARY_DIR}/i-dont-know.lib")
+    else()
+      set(BOOST_LIBRARY "${BOOST_LIBRARY_DIR}/i-dont-know.lib")
+    endif()
+  endif()
+endfunction()
+
 function(use_zlib target)
     if(${windows})
       target_include_directories(${target}  PRIVATE
