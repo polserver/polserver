@@ -153,6 +153,11 @@ macro(prepare_build)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # a few external tools need it
   set(SOURCE_GROUP_DELIMITER "/")
 
+  find_package(openssl required)
+  if (${OPENSSL_FOUND})
+    include_directories(${OPENSSL_INCLUDE_DIR})
+  endif()
+
   if(windows)
     set(HAVE_OPENSSL true)
     set(HAVE_MYSQL true)
