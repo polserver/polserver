@@ -1,1 +1,1 @@
-errors004-reserved-word-as-argument-name.src:3:13: error: extraneous input 'downto' expecting {'unused', ')', IDENTIFIER}
+errors004-reserved-word-as-argument-name.src:3:13: error: Did not expect reserved word 'downto' in this context.
