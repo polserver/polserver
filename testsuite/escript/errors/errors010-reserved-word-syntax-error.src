@@ -1,0 +1,2 @@
+var is := 1;
+print("the value is " + is);
