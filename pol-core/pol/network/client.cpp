@@ -68,7 +68,7 @@ void cancel_trade( Mobile::Character* chr1 );
 namespace Network
 {
 unsigned int Client::instance_counter_;
-std::mutex Client::_SocketMutex;
+std::mutex ThreadedClient::_SocketMutex;
 
 ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient )
     : myClient( myClient ),
