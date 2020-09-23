@@ -137,7 +137,6 @@ public:
   bool isReallyConnected() const;
   bool isConnected() const;
 
-  // void Disconnect();
   void forceDisconnect();
   void closeConnection();
 
