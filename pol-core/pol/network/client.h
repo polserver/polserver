@@ -128,7 +128,92 @@ typedef struct
   unsigned char pktbuffer[PKTIN_02_SIZE];
 } PacketThrottler;
 
-class Client
+
+class Client;
+
+class ThreadedClient
+{
+public:
+  bool isReallyConnected() const;
+  bool isConnected() const;
+
+  void forceDisconnect();
+  void closeConnection();
+
+  std::string ipaddrAsString() const;
+  
+  // methods below should be protected?
+  bool have_queued_data() const;
+  void send_queued_data();
+
+  void recv_remaining( int total_expected );
+  void recv_remaining_nocrypt( int total_expected );
+
+protected:
+  ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient );
+
+public:
+  // this reference is only needed because we have diagnostic messages that need the client
+  // "instance" number
+  const Client& myClient;
+  size_t thread_pid;
+  SOCKET csocket;  // socket to client ACK  - requires header inclusion.
+
+  bool preDisconnect;
+  bool disconnect;  // if 1, disconnect this client
+
+  Crypt::CCryptBase* cryptengine;
+  bool encrypt_server_stream;  // encrypt the server stream (data sent to client)?
+
+  // Will be set by clientthread
+  std::atomic<Core::polclock_t> last_activity_at;
+  std::atomic<Core::polclock_t> last_packet_at;
+
+  static std::mutex _SocketMutex;
+
+  enum e_recv_states
+  {
+    RECV_STATE_CRYPTSEED_WAIT,
+    RECV_STATE_MSGTYPE_WAIT,
+    RECV_STATE_MSGLEN_WAIT,
+    RECV_STATE_MSGDATA_WAIT,
+    RECV_STATE_CLIENTVERSION_WAIT
+  } recv_state;
+
+  unsigned char bufcheck1_AA;
+  unsigned char buffer[MAXBUFFER];
+  unsigned char bufcheck2_55;
+  unsigned int bytes_received;  // how many bytes have been received into the buffer.
+  unsigned int message_length;  // how many bytes are expected for this message
+    
+  unsigned char last_msgtype;
+    
+  const Core::MessageTypeFilter* msgtype_filter;
+
+  sockaddr ipaddr;
+
+protected:
+  Core::XmitBuffer* first_xmit_buffer;
+  Core::XmitBuffer* last_xmit_buffer;
+  int n_queued;
+  int queued_bytes_counter;  // only used for monitoring
+
+  // we may want to track how many bytes total are outstanding,
+  // and boot clients that are too far behind.
+  void queue_data( const void* data, unsigned short datalen );
+  void transmit_encrypted( const void* data, int len );
+  void xmit( const void* data, unsigned short datalen );
+
+private:
+  struct
+  {
+    unsigned int bytes_transmitted;
+    unsigned int bytes_received;
+  } counters;
+};
+
+
+class Client : public ThreadedClient
 {
 public:
   Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
@@ -137,25 +222,17 @@ public:
   static void Delete( Client* client );
   size_t estimatedSize() const;
 
-private:
+protected:
   void PreDelete();
   ~Client();
-  bool preDisconnect;
-  bool disconnect;  // if 1, disconnect this client
 
 public:
-  void Disconnect();
-  void forceDisconnect();
   bool isActive() const;
-  bool isReallyConnected() const;
-  bool isConnected() const;
+  void Disconnect();
 
   void unregister();  // removes updater for vitals and takes client away from clientlist
-  void closeConnection();
-  void transmit( const void* data, int len ); // always obtains PolLock when calling a SendFunction
 
-  void recv_remaining( int total_expected );
-  void recv_remaining_nocrypt( int total_expected );
+  void transmit( const void* data, int len );  // always obtains PolLock when calling a SendFunction
 
   void setversion( const std::string& ver ) { version_ = ver; }
   const std::string& getversion() const { return version_; }
@@ -184,38 +261,9 @@ public:
 
 
   //
-  bool have_queued_data() const;
-  void send_queued_data();
-
-  SOCKET csocket;  // socket to client ACK  - requires header inclusion.
-  static std::mutex _SocketMutex;
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
-
-
-  enum e_recv_states
-  {
-    RECV_STATE_CRYPTSEED_WAIT,
-    RECV_STATE_MSGTYPE_WAIT,
-    RECV_STATE_MSGLEN_WAIT,
-    RECV_STATE_MSGDATA_WAIT,
-    RECV_STATE_CLIENTVERSION_WAIT
-  } recv_state;
-
-  unsigned char bufcheck1_AA;
-  unsigned char buffer[MAXBUFFER];
-  unsigned char bufcheck2_55;
-  unsigned int bytes_received;  // how many bytes have been received into the buffer.
-  unsigned int message_length;  // how many bytes are expected for this message
-
-  sockaddr ipaddr;
-
-  Crypt::CCryptBase* cryptengine;
-
-  bool encrypt_server_stream;  // encrypt the server stream (data sent to client)?
-
-  const Core::MessageTypeFilter* msgtype_filter;
-
+  
   mutable Clib::SpinLock _fpLog_lock;
   std::string fpLog;
 
@@ -228,47 +276,25 @@ public:
   void restart();
   std::atomic<int> pause_count;
 
-  std::string ipaddrAsString() const;
-
   bool SpeedHackPrevention( bool add = true );
   Bscript::BObjectImp* make_ref();
   weak_ptr<Client> getWeakPtr() const;
 
-protected:
-  Core::XmitBuffer* first_xmit_buffer;
-  Core::XmitBuffer* last_xmit_buffer;
-  int n_queued;
-  int queued_bytes_counter;  // only used for monitoring
-
-  // we may want to track how many bytes total are outstanding,
-  // and boot clients that are too far behind.
-  void queue_data( const void* data, unsigned short datalen );
-  void transmit_encrypted( const void* data, int len );
-  void xmit( const void* data, unsigned short datalen );
 
 public:
   ClientGameData* gd;
   unsigned int instance_;
   static unsigned int instance_counter_;
   int checkpoint;  // CNXBUG
-  unsigned char last_msgtype;
-  size_t thread_pid;
+  
   u16 UOExpansionFlag;
   u32 UOExpansionFlagClient;
   u16 ClientType;
   std::queue<PacketThrottler> movementqueue;
   Clib::wallclock_t next_movement;
   u8 movementsequence;
-  // Will be set by clientthread
-  std::atomic<Core::polclock_t> last_activity_at;
-  std::atomic<Core::polclock_t> last_packet_at;
-
+  
 private:
-  struct
-  {
-    unsigned int bytes_transmitted;
-    unsigned int bytes_received;
-  } counters;
   std::string version_;
   Core::PKTIN_D9 clientinfo_;
   bool paused_;
@@ -276,27 +302,27 @@ private:
   weak_ptr_owner<Client> weakptr;
 };
 
-inline bool Client::have_queued_data() const
+inline bool ThreadedClient::have_queued_data() const
 {
   return ( first_xmit_buffer != nullptr );
 }
 
 
 // Disconnects client. Might lose packets that were not sent by packetqueue.
-inline void Client::forceDisconnect()
+inline void ThreadedClient::forceDisconnect()
 {
   this->disconnect = true;
   closeConnection();
 }
 
 // Checks whether the client is disconnected, and not only marked for disconnection
-inline bool Client::isReallyConnected() const
+inline bool ThreadedClient::isReallyConnected() const
 {
   return !this->disconnect && this->csocket != INVALID_SOCKET;
 }
 
 // Checks for both planned and executed disconnections
-inline bool Client::isConnected() const
+inline bool ThreadedClient::isConnected() const
 {
   return !this->preDisconnect && this->isReallyConnected();
 }
