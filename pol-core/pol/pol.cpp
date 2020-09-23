@@ -197,8 +197,6 @@ void start_tasks();
 
 using namespace threadhelp;
 
-#define CLIENT_CHECKPOINT( x ) client->checkpoint = x
-
 void send_startup( Network::Client* client )
 {
   Mobile::Character* chr = client->chr;

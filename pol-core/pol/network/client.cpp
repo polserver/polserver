@@ -88,6 +88,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myC
       message_length( 0 ),
       last_msgtype( 255 ),
       msgtype_filter( Core::networkManager.login_filter.get() ),
+      checkpoint( -1 ),  // CNXBUG
       first_xmit_buffer( nullptr ),
       last_xmit_buffer( nullptr ),
       n_queued( 0 ),
@@ -110,7 +111,6 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
       pause_count( 0 ),
       gd( new ClientGameData ),
       instance_( ++instance_counter_ ),
-      checkpoint( -1 ),  // CNXBUG
       UOExpansionFlag( 0 ),
       UOExpansionFlagClient( 0 ),
       ClientType( 0 ),

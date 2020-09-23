@@ -40,6 +40,7 @@
 #include <format/format.h>
 
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
+#define SESSION_CHECKPOINT( x ) session->checkpoint = x
 
 #ifdef _MSC_VER
 #pragma warning( disable : 4127 )  // conditional expression is constant, because of FD_SET
@@ -68,13 +69,248 @@ void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_logi
   }
 }
 
+// Taking a reference to SinglePoller is ugly here. But io_step, io_loop and clientpoller will
+// eventually move into the same class.
+bool threadedclient_io_step( Network::Client* session, Clib::SinglePoller& clientpoller,
+                             int& nidle )
+{
+  SESSION_CHECKPOINT( 1 );
+  if ( !clientpoller.prepare( session->have_queued_data() ) )
+  {
+    POLLOG_INFO.Format( "Client#{}: ERROR - couldn't poll socket={}\n" )
+        << session->myClient.instance_ << session->csocket;
+
+    if ( session->csocket != INVALID_SOCKET )
+      session->forceDisconnect();
+
+    return false;
+  }
+
+  int res = 0;
+  do
+  {
+    SESSION_CHECKPOINT( 2 );
+    res = clientpoller.wait_for_events();
+    SESSION_CHECKPOINT( 3 );
+  } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
+
+  if ( res < 0 )
+  {
+    int sckerr = socket_errno;
+    POLLOG.Format( "Client#{}: select res={}, sckerr={}\n" )
+        << session->myClient.instance_ << res << sckerr;
+    return false;
+  }
+  else if ( res == 0 )
+  {
+    if ( ( !session->chr ||
+           session->chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity ) &&
+         Plib::systemstate.config.inactivity_warning_timeout &&
+         Plib::systemstate.config.inactivity_disconnect_timeout )
+    {
+      ++nidle;
+      if ( nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout )
+      {
+        SESSION_CHECKPOINT( 4 );
+        PolLock lck;  // multithread
+        Network::PktHelper::PacketOut<Network::PktOut_53> msg;
+        msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
+        SESSION_CHECKPOINT( 5 );
+        msg.Send( session );
+        SESSION_CHECKPOINT( 18 );
+        if ( session->pause_count )
+          session->restart();
+      }
+      else if ( nidle == 30 * Plib::systemstate.config.inactivity_disconnect_timeout )
+      {
+        session->forceDisconnect();
+      }
+    }
+  }
+
+  SESSION_CHECKPOINT( 19 );
+  if ( !session->isReallyConnected() )
+    return false;
+
+  if ( clientpoller.error() )
+  {
+    session->forceDisconnect();
+    return false;
+  }
+
+  // region Speedhack
+  if ( !session->movementqueue.empty() )  // not empty then process the first packet
+  {
+    PolLock lck;  // multithread
+    Network::PacketThrottler pkt = session->movementqueue.front();
+    if ( session->SpeedHackPrevention( false ) )
+    {
+      if ( session->isReallyConnected() )
+      {
+        unsigned char msgtype = pkt.pktbuffer[0];
+        Network::MSG_HANDLER packetHandler =
+            Network::PacketRegistry::find_handler( msgtype, session );
+        try
+        {
+          INFO_PRINT_TRACE( 10 ) << "Client#" << session->instance_ << ": message 0x"
+                                 << fmt::hexu( msgtype ) << "\n";
+          SESSION_CHECKPOINT( 26 );
+          packetHandler.func( session, pkt.pktbuffer );
+          SESSION_CHECKPOINT( 27 );
+          restart_all_clients();
+        }
+        catch ( std::exception& ex )
+        {
+          POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+              << session->instance_ << (int)msgtype << ex.what();
+          fmt::Writer tmp;
+          Clib::fdump( tmp, pkt.pktbuffer, 7 );
+          POLLOG << tmp.str() << "\n";
+          restart_all_clients();
+          throw;
+        }
+      }
+      session->movementqueue.pop();
+    }
+  }
+  // endregion Speedhack
+
+  if ( clientpoller.incoming() )
+  {
+    SESSION_CHECKPOINT( 6 );
+    if ( process_data( session ) )
+    {
+      SESSION_CHECKPOINT( 17 );
+      PolLock lck;
+
+      // reset packet timer
+      session->last_packet_at = polclock();
+      if ( !check_inactivity( session ) )
+      {
+        nidle = 0;
+        session->last_activity_at = polclock();
+      }
+
+      SESSION_CHECKPOINT( 7 );
+      send_pulse();
+      if ( TaskScheduler::is_dirty() )
+        wake_tasks_thread();
+    }
+  }
+
+  polclock_t polclock_now = polclock();
+  if ( ( ( polclock_now - session->last_packet_at ) / POLCLOCKS_PER_SEC ) >= 120 )  // 2 mins
+  {
+    session->forceDisconnect();
+    return false;
+  }
+
+  if ( session->have_queued_data() && clientpoller.writable() )
+  {
+    PolLock lck;
+    SESSION_CHECKPOINT( 8 );
+    session->send_queued_data();
+  }
+  SESSION_CHECKPOINT( 21 );
+
+  return true;
+}
+
+void threadedclient_io_loop( Network::Client* session, bool login )
+{
+  int nidle = 0;
+  session->last_packet_at = polclock();
+  session->last_activity_at = polclock();
+
+  Clib::SinglePoller clientpoller( session->csocket );
+  set_polling_timeouts( clientpoller, login );
+
+  while ( !Clib::exit_signalled && session->isReallyConnected() )
+  {
+    if ( !threadedclient_io_step( session, clientpoller, nidle ) || login )
+      break;
+  }
+}
+
+void threadedclient_io_finalize( Network::Client* client )
+{
+  //    if (1)
+  {
+    CLIENT_CHECKPOINT( 9 );
+    PolLock lck;
+    client->unregister();
+    INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
+               << networkManager.clients.size() << "/" << networkManager.getNumberOfLoginClients()
+               << " connections)\n";
+
+    CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
+                           ToolTipPrioritySystem );
+  }
+
+  CLIENT_CHECKPOINT( 10 );
+  if ( client->chr )
+  {
+    //      if (1)
+    int seconds_wait = 0;
+    {
+      CLIENT_CHECKPOINT( 11 );
+      PolLock lck;
+
+      if ( client->chr )
+      {
+        client->chr->disconnect_cleanup();
+        client->gd->clear();
+        client->chr->connected( false );
+        ScriptDef sd;
+        sd.quickconfig( "scripts/misc/logofftest.ecl" );
+        if ( sd.exists() )
+        {
+          CLIENT_CHECKPOINT( 12 );
+          Bscript::BObject bobj(
+              run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
+          if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
+          {
+            const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
+            seconds_wait = blong->value();
+          }
+        }
+      }
+    }
+
+    polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
+
+    CLIENT_CHECKPOINT( 13 );
+    while ( !Clib::exit_signalled )
+    {
+      CLIENT_CHECKPOINT( 14 );
+      {
+        PolLock lck;
+        if ( polclock() >= when_logoff )
+          break;
+      }
+      pol_sleep_ms( 2000 );
+    }
+
+    CLIENT_CHECKPOINT( 15 );
+    //      if (1)
+    {
+      PolLock lck;
+      if ( client->chr )
+      {
+        Mobile::Character* chr = client->chr;
+        CLIENT_CHECKPOINT( 16 );
+        call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
+        if ( chr->realm )
+        {
+          chr->realm->notify_left( *chr );
+        }
+      }
+    }
+  }
+}
+
 bool client_io_thread( Network::Client* client, bool login )
 {
-  int checkpoint = 0;
-  int nidle = 0;
-  client->last_packet_at = polclock();
-  client->last_activity_at = polclock();
-
   if ( !login && Plib::systemstate.config.loglevel >= 11 )
   {
     POLLOG.Format( "Network::Client#{} i/o thread starting\n" ) << client->instance_;
@@ -83,267 +319,40 @@ bool client_io_thread( Network::Client* client, bool login )
   CLIENT_CHECKPOINT( 0 );
   try
   {
-    Clib::SinglePoller clientpoller( client->csocket );
-    set_polling_timeouts( clientpoller, login );
-
-    while ( !Clib::exit_signalled && client->isReallyConnected() )
-    {
-      CLIENT_CHECKPOINT( 1 );
-      checkpoint = 1;
-      if ( !clientpoller.prepare( client->have_queued_data() ) )
-      {
-        POLLOG_INFO.Format( "Client#{}: ERROR - couldn't poll socket={}\n" )
-            << client->instance_ << client->csocket;
-
-        if ( client->csocket != INVALID_SOCKET )
-          client->forceDisconnect();
-
-        break;
-      }
-      checkpoint = 2;
-
-      int res = 0;
-      do
-      {
-        CLIENT_CHECKPOINT( 2 );
-        res = clientpoller.wait_for_events();
-        CLIENT_CHECKPOINT( 3 );
-      } while ( res < 0 && !Clib::exit_signalled && socket_errno == SOCKET_ERRNO( EINTR ) );
-      checkpoint = 3;
-
-      if ( res < 0 )
-      {
-        int sckerr = socket_errno;
-        POLLOG.Format( "Client#{}: select res={}, sckerr={}\n" )
-            << client->instance_ << res << sckerr;
-        break;
-      }
-      else if ( res == 0 )
-      {
-        if ( ( !client->chr ||
-               client->chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity ) &&
-             Plib::systemstate.config.inactivity_warning_timeout &&
-             Plib::systemstate.config.inactivity_disconnect_timeout )
-        {
-          ++nidle;
-          if ( nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout )
-          {
-            CLIENT_CHECKPOINT( 4 );
-            PolLock lck;  // multithread
-            Network::PktHelper::PacketOut<Network::PktOut_53> msg;
-            msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
-            CLIENT_CHECKPOINT( 5 );
-            msg.Send( client );
-            CLIENT_CHECKPOINT( 18 );
-            if ( client->pause_count )
-              client->restart();
-          }
-          else if ( nidle == 30 * Plib::systemstate.config.inactivity_disconnect_timeout )
-          {
-            client->forceDisconnect();
-          }
-        }
-      }
-
-      CLIENT_CHECKPOINT( 19 );
-      if ( !client->isReallyConnected() )
-        break;
-
-      if ( clientpoller.error() )
-      {
-        client->forceDisconnect();
-        break;
-      }
-
-      // region Speedhack
-      if ( !client->movementqueue.empty() )  // not empty then process the first packet
-      {
-        PolLock lck;  // multithread
-        Network::PacketThrottler pkt = client->movementqueue.front();
-        if ( client->SpeedHackPrevention( false ) )
-        {
-          if ( client->isReallyConnected() )
-          {
-            unsigned char msgtype = pkt.pktbuffer[0];
-            Network::MSG_HANDLER packetHandler =
-                Network::PacketRegistry::find_handler( msgtype, client );
-            try
-            {
-              INFO_PRINT_TRACE( 10 ) << "Client#" << client->instance_ << ": message 0x"
-                                     << fmt::hexu( msgtype ) << "\n";
-              CLIENT_CHECKPOINT( 26 );
-              packetHandler.func( client, pkt.pktbuffer );
-              CLIENT_CHECKPOINT( 27 );
-              restart_all_clients();
-            }
-            catch ( std::exception& ex )
-            {
-              POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                  << client->instance_ << (int)msgtype << ex.what();
-              fmt::Writer tmp;
-              Clib::fdump( tmp, pkt.pktbuffer, 7 );
-              POLLOG << tmp.str() << "\n";
-              restart_all_clients();
-              throw;
-            }
-          }
-          client->movementqueue.pop();
-        }
-      }
-      // endregion Speedhack
-
-      if ( clientpoller.incoming() )
-      {
-        checkpoint = 4;
-        CLIENT_CHECKPOINT( 6 );
-        if ( process_data( client ) )
-        {
-          CLIENT_CHECKPOINT( 17 );
-          PolLock lck;
-
-          // reset packet timer
-          client->last_packet_at = polclock();
-          if ( !check_inactivity( client ) )
-          {
-            nidle = 0;
-            client->last_activity_at = polclock();
-          }
-
-          checkpoint = 5;
-          CLIENT_CHECKPOINT( 7 );
-          send_pulse();
-          if ( TaskScheduler::is_dirty() )
-            wake_tasks_thread();
-        }
-      }
-      checkpoint = 6;
-
-      polclock_t polclock_now = polclock();
-      if ( ( ( polclock_now - client->last_packet_at ) / POLCLOCKS_PER_SEC ) >= 120 )  // 2 mins
-      {
-        client->forceDisconnect();
-        break;
-      }
-
-      if ( client->have_queued_data() && clientpoller.writable() )
-      {
-        PolLock lck;
-        CLIENT_CHECKPOINT( 8 );
-        client->send_queued_data();
-      }
-      checkpoint = 7;
-      CLIENT_CHECKPOINT( 21 );
-      if ( login )
-        break;
-    }
+    threadedclient_io_loop( client, login );
   }
   catch ( std::string& str )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << str << checkpoint;
+        << client->instance_ << str << client->checkpoint;
   }
   catch ( const char* msg )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << msg << checkpoint;
+        << client->instance_ << msg << client->checkpoint;
   }
   catch ( std::exception& ex )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << ex.what() << checkpoint;
+        << client->instance_ << ex.what() << client->checkpoint;
   }
   CLIENT_CHECKPOINT( 20 );
 
   if ( login && client->isConnected() )
     return true;
+
   POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
       << client->instance_ << client->ipaddrAsString()
       << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" );
 
-
   try
   {
-    //    if (1)
-    {
-      CLIENT_CHECKPOINT( 9 );
-      PolLock lck;
-      client->unregister();
-      INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
-                 << networkManager.clients.size() << "/" << networkManager.getNumberOfLoginClients()
-                 << " connections)\n";
-
-      CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
-                             ToolTipPrioritySystem );
-    }
-
-    checkpoint = 8;
-    CLIENT_CHECKPOINT( 10 );
-    if ( client->chr )
-    {
-      //      if (1)
-      int seconds_wait = 0;
-      {
-        CLIENT_CHECKPOINT( 11 );
-        PolLock lck;
-
-        if ( client->chr )
-        {
-          client->chr->disconnect_cleanup();
-          client->gd->clear();
-          client->chr->connected( false );
-          ScriptDef sd;
-          sd.quickconfig( "scripts/misc/logofftest.ecl" );
-          if ( sd.exists() )
-          {
-            CLIENT_CHECKPOINT( 12 );
-            Bscript::BObject bobj(
-                run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
-            if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
-            {
-              const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
-              seconds_wait = blong->value();
-            }
-          }
-        }
-      }
-
-      polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
-
-      checkpoint = 9;
-      CLIENT_CHECKPOINT( 13 );
-      while ( !Clib::exit_signalled )
-      {
-        CLIENT_CHECKPOINT( 14 );
-        {
-          PolLock lck;
-          if ( polclock() >= when_logoff )
-            break;
-        }
-        pol_sleep_ms( 2000 );
-      }
-
-      checkpoint = 10;
-      CLIENT_CHECKPOINT( 15 );
-      //      if (1)
-      {
-        PolLock lck;
-        if ( client->chr )
-        {
-          Mobile::Character* chr = client->chr;
-          CLIENT_CHECKPOINT( 16 );
-          call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-          if ( chr->realm )
-          {
-            chr->realm->notify_left( *chr );
-          }
-        }
-      }
-    }
+    threadedclient_io_finalize( client );
   }
   catch ( std::exception& ex )
   {
     POLLOG.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})\n" )
-        << client->instance_ << checkpoint << ex.what();
+        << client->instance_ << client->checkpoint << ex.what();
   }
 
   // queue delete of client ptr see method doc for reason
