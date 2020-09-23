@@ -70,44 +70,52 @@ namespace Network
 unsigned int Client::instance_counter_;
 std::mutex Client::_SocketMutex;
 
-Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
-    : preDisconnect( false ),
+ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient )
+    : myClient( myClient ),
+      thread_pid( static_cast<size_t>(-1) ),
+      csocket( INVALID_SOCKET ),
+      preDisconnect( false ),
       disconnect( false ),
+      cryptengine( create_crypt_engine( encryption ) ),
+      encrypt_server_stream( false ),
+      last_activity_at( 0 ),
+      last_packet_at( 0 ),
+      recv_state( RECV_STATE_CRYPTSEED_WAIT ),
+      bufcheck1_AA( 0xAA ),
+      buffer(), // zero-initializes the buffer
+      bufcheck2_55( 0x55 ),
+      bytes_received( 0 ),
+      message_length( 0 ),
+      last_msgtype( 255 ),
+      msgtype_filter( Core::networkManager.login_filter.get() ),
+      first_xmit_buffer( nullptr ),
+      last_xmit_buffer( nullptr ),
+      n_queued( 0 ),
+      queued_bytes_counter( 0 )
+{
+  memset( &counters, 0, sizeof counters );
+  memset( &ipaddr, 0, sizeof( ipaddr ) );
+};
+
+Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
+    : ThreadedClient( encryption, *this ),
       acct( nullptr ),
       chr( nullptr ),
       Interface( aInterface ),
       ready( false ),
-      csocket( INVALID_SOCKET ),
       listen_port( 0 ),
       aosresist( false ),
-      recv_state( RECV_STATE_CRYPTSEED_WAIT ),
-      bufcheck1_AA( 0xAA ),
-      buffer(),
-      bufcheck2_55( 0x55 ),
-      bytes_received( 0 ),
-      message_length( 0 ),
-      cryptengine( create_crypt_engine( encryption ) ),
-      encrypt_server_stream( false ),
-      msgtype_filter( Core::networkManager.login_filter.get() ),
       _fpLog_lock(),
       fpLog( "" ),
       pause_count( 0 ),
-      first_xmit_buffer( nullptr ),
-      last_xmit_buffer( nullptr ),
-      n_queued( 0 ),
-      queued_bytes_counter( 0 ),
       gd( new ClientGameData ),
       instance_( ++instance_counter_ ),
       checkpoint( -1 ),  // CNXBUG
-      last_msgtype( 255 ),
-      thread_pid( (size_t)-1 ),
       UOExpansionFlag( 0 ),
       UOExpansionFlagClient( 0 ),
       ClientType( 0 ),
       next_movement( 0 ),
       movementsequence( 0 ),
-      last_activity_at( 0 ),
-      last_packet_at( 0 ),
       paused_( false )
 {
   weakptr.set( this );  // store weakptr for usage in scripts (see EClientRefObjImp)
@@ -119,11 +127,9 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
   }
 
   Interface.register_client( this );
-  memset( buffer, 0, sizeof buffer );
-  memset( &counters, 0, sizeof counters );
+
   memset( &clientinfo_, 0, sizeof( clientinfo_ ) );
   memset( &versiondetail_, 0, sizeof( versiondetail_ ) );
-  memset( &ipaddr, 0, sizeof( ipaddr ) );
 }
 
 void Client::Delete( Client* client )
@@ -143,22 +149,6 @@ void Client::unregister()
       std::find( Core::networkManager.clients.begin(), Core::networkManager.clients.end(), this );
   Core::networkManager.clients.erase( findClient );  // TODO: Make networkManager more OO
   Interface.deregister_client( this );
-}
-
-void Client::closeConnection()
-{
-  // std::lock_guard<std::mutex> lock (_SocketMutex);
-  if ( csocket != INVALID_SOCKET )  //>= 0)
-  {
-#ifdef _WIN32
-    shutdown( csocket, 2 );  // 2 is both sides, defined in winsock2.h ...
-    closesocket( csocket );
-#else
-    shutdown( csocket, SHUT_RDWR );
-    close( csocket );
-#endif
-  }
-  csocket = INVALID_SOCKET;
 }
 
 void Client::PreDelete()
@@ -431,7 +421,7 @@ std::string Client::status() const
   return st;
 }
 
-void Client::queue_data( const void* data, unsigned short datalen )
+void ThreadedClient::queue_data( const void* data, unsigned short datalen )
 {
   THREAD_CHECKPOINT( active_client, 300 );
   Core::XmitBuffer* xbuffer = (Core::XmitBuffer*)malloc( sizeof( Core::XmitBuffer ) - 1 + datalen );
@@ -463,13 +453,13 @@ void Client::queue_data( const void* data, unsigned short datalen )
   {
     THREAD_CHECKPOINT( active_client, 307 );
     POLLOG.Format( "Client#{}: Unable to allocate {} bytes for queued data.  Disconnecting.\n" )
-        << instance_ << ( sizeof( Core::XmitBuffer ) - 1 + datalen );
+        << myClient.instance_ << ( sizeof( Core::XmitBuffer ) - 1 + datalen );
     disconnect = true;
   }
   THREAD_CHECKPOINT( active_client, 309 );
 }
 
-void Client::xmit( const void* data, unsigned short datalen )
+void ThreadedClient::xmit( const void* data, unsigned short datalen )
 {
   if ( csocket == INVALID_SOCKET )
     return;
@@ -502,7 +492,7 @@ void Client::xmit( const void* data, unsigned short datalen )
     {
       THREAD_CHECKPOINT( active_client, 205 );
       POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (1, {} bytes)\n" )
-          << instance_ << datalen;
+          << myClient.instance_ << datalen;
       THREAD_CHECKPOINT( active_client, 206 );
       queue_data( data, datalen );
       THREAD_CHECKPOINT( active_client, 207 );
@@ -513,7 +503,7 @@ void Client::xmit( const void* data, unsigned short datalen )
       THREAD_CHECKPOINT( active_client, 208 );
       if ( !disconnect )
         POLLOG_ERROR.Format( "Client#{}: Disconnecting client due to send() error (1): {}\n" )
-            << instance_ << sckerr;
+            << myClient.instance_ << sckerr;
       disconnect = true;
       THREAD_CHECKPOINT( active_client, 209 );
       return;
@@ -528,7 +518,8 @@ void Client::xmit( const void* data, unsigned short datalen )
     if ( datalen )  // anything left? if so, queue for later.
     {
       THREAD_CHECKPOINT( active_client, 211 );
-      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (2)\n" ) << instance_;
+      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (2)\n" )
+          << myClient.instance_;
       THREAD_CHECKPOINT( active_client, 212 );
       queue_data( cdata + nsent, datalen );
       THREAD_CHECKPOINT( active_client, 213 );
@@ -537,7 +528,7 @@ void Client::xmit( const void* data, unsigned short datalen )
   THREAD_CHECKPOINT( active_client, 214 );
 }
 
-void Client::send_queued_data()
+void ThreadedClient::send_queued_data()
 {
   std::lock_guard<std::mutex> lock( _SocketMutex );
   Core::XmitBuffer* xbuffer;
@@ -563,7 +554,7 @@ void Client::send_queued_data()
       {
         if ( !disconnect )
           POLLOG.Format( "Client#{}: Disconnecting client due to send() error (2): {}\n" )
-              << instance_ << sckerr;
+              << myClient.instance_ << sckerr;
         disconnect = true;
         return;
       }
@@ -581,7 +572,7 @@ void Client::send_queued_data()
         {
           last_xmit_buffer = nullptr;
           POLLOG.Format( "Client#{}: Leaving queued mode ({} bytes xmitted)\n" )
-              << instance_ << queued_bytes_counter;
+              << myClient.instance_ << queued_bytes_counter;
           queued_bytes_counter = 0;
         }
         free( xbuffer );
@@ -716,5 +707,25 @@ size_t Client::estimatedSize() const
     size += gd->estimatedSize();
   return size;
 }
+
+// Threaded client stuff
+
+void ThreadedClient::closeConnection()
+{
+  // std::lock_guard<std::mutex> lock (_SocketMutex);
+  if ( csocket != INVALID_SOCKET )  //>= 0)
+  {
+#ifdef _WIN32
+    shutdown( csocket, 2 );  // 2 is both sides, defined in winsock2.h ...
+    closesocket( csocket );
+#else
+    shutdown( csocket, SHUT_RDWR );
+    close( csocket );
+#endif
+  }
+  csocket = INVALID_SOCKET;
+}
+
+
 }  // namespace Network
 }  // namespace Pol
