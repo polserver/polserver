@@ -153,7 +153,8 @@ protected:
   ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient );
 
 public:
-  // this reference is only needed because we have diagnostic messages that need the client "instance" number
+  // this reference is only needed because we have diagnostic messages that need the client
+  // "instance" number
   const Client& myClient;
   size_t thread_pid;
   SOCKET csocket;  // socket to client ACK  - requires header inclusion.
