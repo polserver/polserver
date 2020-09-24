@@ -236,6 +236,10 @@ public:
 
   void transmit( const void* data, int len );  // always obtains PolLock when calling a SendFunction
 
+  int on_close();     // Called after the connection is closed (returns how long until on_logoff)
+  int test_logoff();  // Calls logofftest.ecl to determine how many seconds for the logoff timer
+  void on_logoff();   // Called when chr can finally logoff
+
   void setversion( const std::string& ver ) { version_ = ver; }
   const std::string& getversion() const { return version_; }
   VersionDetailStruct getversiondetail() const { return versiondetail_; }

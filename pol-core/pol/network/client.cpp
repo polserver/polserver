@@ -72,7 +72,7 @@ std::mutex ThreadedClient::_SocketMutex;
 
 ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient )
     : myClient( myClient ),
-      thread_pid( static_cast<size_t>(-1) ),
+      thread_pid( static_cast<size_t>( -1 ) ),
       csocket( INVALID_SOCKET ),
       preDisconnect( false ),
       disconnect( false ),
@@ -82,7 +82,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myC
       last_packet_at( 0 ),
       recv_state( RECV_STATE_CRYPTSEED_WAIT ),
       bufcheck1_AA( 0xAA ),
-      buffer(), // zero-initializes the buffer
+      buffer(),  // zero-initializes the buffer
       bufcheck2_55( 0x55 ),
       bytes_received( 0 ),
       message_length( 0 ),
@@ -518,8 +518,7 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
     if ( datalen )  // anything left? if so, queue for later.
     {
       THREAD_CHECKPOINT( active_client, 211 );
-      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (2)\n" )
-          << myClient.instance_;
+      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (2)\n" ) << myClient.instance_;
       THREAD_CHECKPOINT( active_client, 212 );
       queue_data( cdata + nsent, datalen );
       THREAD_CHECKPOINT( active_client, 213 );
