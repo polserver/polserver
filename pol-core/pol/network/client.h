@@ -141,7 +141,7 @@ public:
   void closeConnection();
 
   std::string ipaddrAsString() const;
-  
+
   // methods below should be protected?
   bool have_queued_data() const;
   void send_queued_data();
@@ -185,10 +185,12 @@ public:
   unsigned char bufcheck2_55;
   unsigned int bytes_received;  // how many bytes have been received into the buffer.
   unsigned int message_length;  // how many bytes are expected for this message
-    
+
   unsigned char last_msgtype;
-    
+
   const Core::MessageTypeFilter* msgtype_filter;
+
+  int checkpoint;  // CNXBUG
 
   sockaddr ipaddr;
 
@@ -263,7 +265,7 @@ public:
   //
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
-  
+
   mutable Clib::SpinLock _fpLog_lock;
   std::string fpLog;
 
@@ -285,15 +287,14 @@ public:
   ClientGameData* gd;
   unsigned int instance_;
   static unsigned int instance_counter_;
-  int checkpoint;  // CNXBUG
-  
+
   u16 UOExpansionFlag;
   u32 UOExpansionFlagClient;
   u16 ClientType;
   std::queue<PacketThrottler> movementqueue;
   Clib::wallclock_t next_movement;
   u8 movementsequence;
-  
+
 private:
   std::string version_;
   Core::PKTIN_D9 clientinfo_;
