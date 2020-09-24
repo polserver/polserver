@@ -46,9 +46,7 @@
 #pragma warning( disable : 4127 )  // conditional expression is constant, because of FD_SET
 #endif
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 // This function below is defined (for now) in pol.cpp. That's ugly.
 void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ecl,
@@ -683,12 +681,12 @@ void handle_humongous_packet( Network::Client* client, unsigned int reported_siz
   tmp.Format( "Humongous packet (length {})", reported_size );
   report_weird_packet( client, tmp.str() );
 }
-}  // namespace Core
+}  // namespace Pol::Core
 
-namespace Network
+namespace Pol::Network
 {
-// on_close determines how long to wait until on_logoff is called. An alternative would be to call test_logoff
-// directly in the threadedclient_io_finalize.
+// on_close determines how long to wait until on_logoff is called. An alternative would be to call
+// test_logoff directly in the threadedclient_io_finalize.
 int Client::on_close()
 {
   unregister();
@@ -742,6 +740,4 @@ void Client::on_logoff()
   }
 }
 
-}  // namespace Network
-
-}  // namespace Pol
+}  // namespace Pol::Network
