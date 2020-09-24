@@ -56,9 +56,15 @@ if(HAVE_MYSQL)
       COMPONENT bin
     )
   else()
-    target_link_libraries(${ex_name} PUBLIC
-      mysqlclient
-    )
+    if (APPLE)
+      pkg_search_module(MYSQL QUIET IMPORTED_TARGET mysqlclient)
+      target_include_directories(${ex_name} PUBLIC ${MYSQL_INCLUDEDIR}/..)
+      target_link_libraries(${ex_name} PUBLIC PkgConfig::MYSQL)
+    else()
+      target_link_libraries(${ex_name} PUBLIC
+        mysqlclient
+      )
+    endif()
   endif()
 endif()
 

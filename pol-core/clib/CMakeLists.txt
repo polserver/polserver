@@ -25,18 +25,24 @@ target_link_libraries(${lib_name} PUBLIC
 )
 
 if (${linux})
+  if (APPLE)
+    pkg_search_module(OPENSSL QUIET openssl)
+    target_include_directories(${lib_name} PUBLIC ${OPENSSL_INCLUDEDIR})
+    target_link_directories(${lib_name} PUBLIC ${OPENSSL_LIBDIR})
+  endif()
   target_link_libraries(${lib_name} PUBLIC
     crypto
     pthread
-    #atomic
   )
+  if (arm_proc)
+    target_link_libraries(${lib_name} PUBLIC atomic)
+  endif()
 elseif(${windows})
   target_link_libraries(${lib_name} PUBLIC
-	stackwalk
-	ws2_32
-	Psapi
-	DbgHelp
-#	crypto
+    stackwalk
+    ws2_32
+    Psapi
+    DbgHelp
   )
 endif()
 
