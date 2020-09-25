@@ -145,7 +145,7 @@ jobs:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
       - name: Stylecheck
-        if: matrix.config.cxx-compiler == 'g++' and matrix.config.os != 'macos-latest'
+        if: matrix.config.cxx-compiler == 'g++' && matrix.config.os != 'macos-latest'
         run: |
           cd testsuite/style
           ./checknl.py -q
