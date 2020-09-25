@@ -1,0 +1,6 @@
+Testing Pack for: { 7.6, error{ errortext = "oh no" } }
+Expected representation: a2:r7.6e1:S9:errortextS5:oh no
+Result representation:   a2:r7.6e1:S9:errortextS5:oh no
+Successful!
+Unpacked: { 7.6, error{ errortext = "oh no" } }
+Unpack matches!

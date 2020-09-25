@@ -1,0 +1,5 @@
+include "packtst";
+
+var ob := { 7.6, error { errortext := "oh no" } };
+var rep := "a2:r7.6e1:S9:errortextS5:oh no";
+test_pack( ob, rep );

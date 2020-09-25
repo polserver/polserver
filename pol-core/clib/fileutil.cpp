@@ -168,12 +168,12 @@ std::string GetTrueName( const char* filename )
   if ( ec )
     return filename;
   else
-    return canonical.filename();
+    return canonical.filename().string();
 }
 
 std::string GetFilePart( const char* filename )
 {
-  return std::filesystem::path( filename ).filename();
+  return std::filesystem::path( filename ).filename().string();
 }
 }
 }
