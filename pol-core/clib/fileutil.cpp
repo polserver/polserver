@@ -6,6 +6,7 @@
 
 #include "fileutil.h"
 
+#include <filesystem>
 #include <limits.h>
 #include <sys/stat.h>
 
@@ -162,24 +163,17 @@ std::string FullPath( const char* filename )
 
 std::string GetTrueName( const char* filename )
 {
-  DirList dl;
-  dl.open( filename );
-  if ( !dl.at_end() )
-  {
-    return dl.name();
-  }
-  else
+  std::error_code ec;
+  auto canonical = std::filesystem::canonical( filename, ec );
+  if ( ec )
     return filename;
+  else
+    return canonical.filename();
 }
 
 std::string GetFilePart( const char* filename )
 {
-  std::string fn( filename );
-  std::string::size_type lastslash = fn.find_last_of( "\\/" );
-  if ( lastslash == std::string::npos )
-    return filename;
-  else
-    return fn.substr( lastslash + 1 );
+  return std::filesystem::path( filename ).filename();
 }
 }
 }

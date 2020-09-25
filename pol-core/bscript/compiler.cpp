@@ -3824,7 +3824,7 @@ int Compiler::compile( CompilerContext& ctx )
 int Compiler::getFileContents( const char* file, char** iv )
 {
   // linux fails always in the call before
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
   std::string truename = Clib::GetTrueName( file );
   std::string filepart = Clib::GetFilePart( file );
   if ( truename != filepart && Clib::FileExists( file ) )
