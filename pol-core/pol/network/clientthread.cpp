@@ -46,9 +46,7 @@
 #pragma warning( disable : 4127 )  // conditional expression is constant, because of FD_SET
 #endif
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 // This function below is defined (for now) in pol.cpp. That's ugly.
 void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ecl,
@@ -232,80 +230,38 @@ void threadedclient_io_loop( Network::Client* session, bool login )
   }
 }
 
+// Sleeps taking exit_signalled into account
+void threadedclient_sleep_until( polclock_t when_logoff )
+{
+  while ( !Clib::exit_signalled )
+  {
+    if ( polclock() >= when_logoff )
+      break;
+    pol_sleep_ms( 2000 );  // min(2000, when_logoff - polclock()) ?
+  }
+}
+
 void threadedclient_io_finalize( Network::Client* client )
 {
-  //    if (1)
+  int seconds_wait = 0;
   {
     CLIENT_CHECKPOINT( 9 );
     PolLock lck;
-    client->unregister();
-    INFO_PRINT << "Client disconnected from " << client->ipaddrAsString() << " ("
-               << networkManager.clients.size() << "/" << networkManager.getNumberOfLoginClients()
-               << " connections)\n";
-
-    CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
-                           ToolTipPrioritySystem );
+    seconds_wait = client->on_close();
   }
 
   CLIENT_CHECKPOINT( 10 );
+  if ( seconds_wait > 0 )
+  {
+    polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
+    threadedclient_sleep_until( when_logoff );
+  }
+
+  CLIENT_CHECKPOINT( 15 );
   if ( client->chr )
   {
-    //      if (1)
-    int seconds_wait = 0;
-    {
-      CLIENT_CHECKPOINT( 11 );
-      PolLock lck;
-
-      if ( client->chr )
-      {
-        client->chr->disconnect_cleanup();
-        client->gd->clear();
-        client->chr->connected( false );
-        ScriptDef sd;
-        sd.quickconfig( "scripts/misc/logofftest.ecl" );
-        if ( sd.exists() )
-        {
-          CLIENT_CHECKPOINT( 12 );
-          Bscript::BObject bobj(
-              run_script_to_completion( sd, new Module::ECharacterRefObjImp( client->chr ) ) );
-          if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
-          {
-            const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
-            seconds_wait = blong->value();
-          }
-        }
-      }
-    }
-
-    polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
-
-    CLIENT_CHECKPOINT( 13 );
-    while ( !Clib::exit_signalled )
-    {
-      CLIENT_CHECKPOINT( 14 );
-      {
-        PolLock lck;
-        if ( polclock() >= when_logoff )
-          break;
-      }
-      pol_sleep_ms( 2000 );
-    }
-
-    CLIENT_CHECKPOINT( 15 );
-    //      if (1)
-    {
-      PolLock lck;
-      if ( client->chr )
-      {
-        Mobile::Character* chr = client->chr;
-        CLIENT_CHECKPOINT( 16 );
-        call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-        if ( chr->realm )
-        {
-          chr->realm->notify_left( *chr );
-        }
-      }
-    }
+    PolLock lck;
+    client->on_logoff();
   }
 }
 
@@ -725,5 +681,63 @@ void handle_humongous_packet( Network::Client* client, unsigned int reported_siz
   tmp.Format( "Humongous packet (length {})", reported_size );
   report_weird_packet( client, tmp.str() );
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
+
+namespace Pol::Network
+{
+// on_close determines how long to wait until on_logoff is called. An alternative would be to call
+// test_logoff directly in the threadedclient_io_finalize.
+int Client::on_close()
+{
+  unregister();
+  INFO_PRINT << "Client disconnected from " << ipaddrAsString() << " ("
+             << Core::networkManager.clients.size() << "/"
+             << Core::networkManager.getNumberOfLoginClients() << " connections)\n";
+
+  Core::CoreSetSysTrayToolTip(
+      Clib::tostring( Core::networkManager.clients.size() ) + " clients connected",
+      Core::ToolTipPrioritySystem );
+
+  if ( chr )
+  {
+    chr->disconnect_cleanup();
+    gd->clear();
+    chr->connected( false );
+  }
+
+  return test_logoff();
+}
+
+int Client::test_logoff()
+{
+  if ( !chr )
+    return 0;
+
+  int seconds_wait = 0;
+  Core::ScriptDef sd;
+  sd.quickconfig( "scripts/misc/logofftest.ecl" );
+  if ( sd.exists() )
+  {
+    Bscript::BObject bobj( run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ) ) );
+    if ( bobj.isa( Bscript::BObjectImp::OTLong ) )
+    {
+      const Bscript::BLong* blong = static_cast<const Bscript::BLong*>( bobj.impptr() );
+      seconds_wait = blong->value();
+    }
+  }
+  return seconds_wait;
+}
+
+void Client::on_logoff()
+{
+  if ( chr )
+  {
+    call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
+    if ( chr->realm )
+    {
+      chr->realm->notify_left( *chr );
+    }
+  }
+}
+
+}  // namespace Pol::Network
