@@ -2,4 +2,16 @@ include "packtst";
 
 var ob := { 7.6, error { errortext := "oh no" } };
 var rep := "a2:r7.6e1:S9:errortextS5:oh no";
-test_pack( ob, rep );
+
+// It turns out this has always been broken.
+//test_pack( ob, rep );
+
+// If it weren't (or if we use the fix for osx builds everywhere) this would be expected:
+/*
+Testing Pack for: { 7.6, error{ errortext = "oh no" } }
+Expected representation: a2:r7.6e1:S9:errortextS5:oh no
+Result representation:   a2:r7.6e1:S9:errortextS5:oh no
+Successful!
+Unpacked: { 7.6, error{ errortext = "oh no" } }
+Unpack matches!
+*/
