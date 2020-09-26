@@ -34,7 +34,11 @@
 #endif
 
 #if defined( LINUX )
-#define POL_ARCH "Linux"
+  #if defined(__APPLE__)
+    #define POL_ARCH "Apple"
+  #else
+    #define POL_ARCH "Linux"
+  #endif
 #else
 #define POL_ARCH "Windows"
 #endif

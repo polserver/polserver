@@ -45,7 +45,7 @@ void SourceFile::propagate_errors_to( Report& report, const SourceFileIdentifier
   error_listener.propagate_errors_to( report, ident );
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__APPLE__)
 bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation& referencing_location,
                                                      const std::string& pathname, Report& report )
 {

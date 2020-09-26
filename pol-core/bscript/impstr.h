@@ -41,7 +41,6 @@ private:
   explicit String( const std::string& str, std::string::size_type pos, std::string::size_type n );
 
 public:
-  static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
   static BObjectImp* unpackWithLen( std::istream& is );
   virtual std::string pack() const override;

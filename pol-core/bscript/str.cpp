@@ -152,11 +152,6 @@ void String::packonto( std::ostream& os, const std::string& value )
   os << "S" << value.size() << ":" << value;
 }
 
-BObjectImp* String::unpack( const char* pstr )
-{
-  return new String( pstr );
-}
-
 BObjectImp* String::unpack( std::istream& is )
 {
   std::string tmp;

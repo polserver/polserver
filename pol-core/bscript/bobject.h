@@ -583,7 +583,6 @@ public:
   void operator delete( void* );
   void operator delete( void*, size_t );
 
-  static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
   virtual std::string pack() const override;
   static std::string pack( int val );
@@ -708,7 +707,6 @@ public:
   void* operator new( std::size_t len );
   void operator delete( void* );
 
-  static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
   virtual std::string pack() const override;
   virtual void packonto( std::ostream& os ) const override;

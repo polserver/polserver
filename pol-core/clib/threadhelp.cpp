@@ -106,7 +106,11 @@ void thread_sleep_ms( unsigned millis )
 }
 size_t thread_pid()
 {
+#ifdef __APPLE__
+  return reinterpret_cast<size_t>(pthread_self());
+#else
   return pthread_self();
+#endif
 }
 #endif
 

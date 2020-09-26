@@ -43,20 +43,6 @@ void BLong::packonto( std::ostream& os ) const
   os << "i" << lval_;
 }
 
-BObjectImp* BLong::unpack( const char* pstr )
-{
-  int lv;
-  ISTRINGSTREAM is( pstr );
-  if ( is >> lv )
-  {
-    return new BLong( lv );
-  }
-  else
-  {
-    return new BError( "Error extracting Integer value" );
-  }
-}
-
 BObjectImp* BLong::unpack( std::istream& is )
 {
   int lv;

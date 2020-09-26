@@ -29,24 +29,61 @@ void Double::packonto( std::ostream& os ) const
   os << "r" << dval_;
 }
 
-BObjectImp* Double::unpack( const char* pstr )
-{
-  double dv;
-  ISTRINGSTREAM is( pstr );
-  if ( is >> dv )
-  {
-    return new Double( dv );
-  }
-  else
-  {
-    return new BError( "Error extracting Real value" );
-  }
-}
-
 BObjectImp* Double::unpack( std::istream& is )
 {
   double dv;
+#ifndef __APPLE__
   if ( is >> dv )
+#else
+  // well this (and the pack format) is terrible:
+  // 1) the pack format depends on operator>>(double) magically reading a whole double,
+  //    but stopping without an error if it's followed by something else
+  // 2) on osx, operator>>(double) reports an error if the double is followed
+  //    by something else
+  // 3) the pack format is ambiguous, mostly, if an error follows a double
+  // 4) fortunately, nobody will probably ever really run a server on osx
+  // 5) our options are a bit limited in peeking at an iostream, I think
+  // so:
+  //    4.5e-16   a double
+  //    4.5e+16   a double
+  //    4.5e62...  a double, followed by an error with 62 elements
+  //                 - note that technically, this could be a double, but it seems
+  //                   that the double formatter is being nice and always including - or +
+  std::string tmp;
+  tmp.reserve( 16 );
+  while ( !is.eof() )
+  {
+    char ch = is.peek();
+    if ( std::isdigit( ch ) || ch == '.' || ch == '-' || ch == '+' )
+    {
+      tmp.push_back( is.get() );
+    }
+    else
+    {
+      if ( ch == 'e' ) // might be an exponent, or an error struct following the double (sadface)
+      {
+        is.get(); // the 'e'
+
+        if ( std::isdigit( is.peek() ) ) // assume it's followed by an error struct
+        {
+          is.unget();
+        }
+        else // assume it's an exponent
+        {
+          tmp.push_back( ch );        // the e
+          tmp.push_back( is.get() );  // the '+' or '-'
+          while ( !is.eof() && std::isdigit( is.peek() ) )
+          {
+            tmp.push_back( is.get() );
+          }
+        }
+      }
+      break;
+    }
+  }
+  ISTRINGSTREAM is2(tmp);
+  if ( is2 >> dv )
+#endif
   {
     return new Double( dv );
   }
