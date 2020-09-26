@@ -208,6 +208,11 @@ void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int&
       data = static_cast<void*>( &outpacket->buffer[0] );
       // pass the new size back to client::transmit
       inlength = cfBEu16( *sizeptr );
+      
+      // This shouldn't trigger unless something is wrong with BPacket.
+      passert_r( inlength <= outpacket->buffer.size(),
+                 "Specified packet length is greater than packet buffer!" );
+
       handled = false;
     }
     else
