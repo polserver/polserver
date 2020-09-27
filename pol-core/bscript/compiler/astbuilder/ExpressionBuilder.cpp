@@ -76,7 +76,8 @@ std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
                                            ctx->bop->getText(), token_id, std::move( rhs ) );
 }
 
-BTokenId ExpressionBuilder::binary_operator_token( EscriptGrammar::EscriptParser::ExpressionContext* ctx )
+BTokenId ExpressionBuilder::binary_operator_token(
+    EscriptGrammar::EscriptParser::ExpressionContext* ctx )
 {
   if ( ctx->ADD() )
     return TOK_ADD;
