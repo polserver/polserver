@@ -3,8 +3,8 @@
 
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
-#include <boost/optional.hpp>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "compiler/astbuilder/ProgramBuilder.h"
@@ -29,7 +29,7 @@ public:
 
   void handle_include_declaration( EscriptGrammar::EscriptParser::IncludeDeclarationContext*,
                                    long long* micros_counted );
-  boost::optional<std::string> locate_include_file( const SourceLocation& source_location,
+  std::optional<std::string> locate_include_file( const SourceLocation& source_location,
                                                     const std::string& include_name );
 
   void handle_use_declaration( EscriptGrammar::EscriptParser::UseDeclarationContext*,
