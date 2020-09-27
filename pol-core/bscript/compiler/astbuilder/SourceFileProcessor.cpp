@@ -134,7 +134,7 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     source_location.internal_error(
         "Unable to include module: expected a string literal or identifier.\n" );
 
-  boost::optional<std::string> maybe_canonical_include_pathname =
+  std::optional<std::string> maybe_canonical_include_pathname =
       locate_include_file( source_location, include_name );
 
   if ( !maybe_canonical_include_pathname )
@@ -167,7 +167,7 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
   }
 }
 
-boost::optional<std::string> SourceFileProcessor::locate_include_file(
+std::optional<std::string> SourceFileProcessor::locate_include_file(
     const SourceLocation& source_location, const std::string& include_name )
 {
   std::string filename_part = include_name + ".inc";
@@ -263,7 +263,10 @@ boost::optional<std::string> SourceFileProcessor::locate_include_file(
 
   filename_full = Clib::FullPath( filename_full.c_str() );
 
-  return boost::optional<std::string>( !filename_full.empty(), filename_full );
+  if ( !filename_full.empty() )
+    return std::optional<std::string>( filename_full );
+  else
+    return {};
 }
 
 void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationContext* ctx,
