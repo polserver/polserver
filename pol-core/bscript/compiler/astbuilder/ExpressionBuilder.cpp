@@ -44,13 +44,6 @@ ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_id
 }
 
 std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
-    EscriptParser::ArrayInitializerContext* ctx )
-{
-  auto values = expressions( ctx->expressionList() );
-  return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
-}
-
-std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
     EscriptParser::BareArrayInitializerContext* ctx )
 {
   auto values = expressions( ctx->expressionList() );
@@ -316,16 +309,7 @@ std::unique_ptr<MethodCall> ExpressionBuilder::method_call(
 {
   auto loc = location_for( *ctx );
   auto methodname = text( ctx->IDENTIFIER() );
-  auto expression_lst = ctx->expressionList();
-
-  std::vector<std::unique_ptr<Expression>> arguments;
-  if ( expression_lst )
-  {
-    for ( auto expression_ctx : expression_lst->expression() )
-    {
-      arguments.push_back( expression( expression_ctx ) );
-    }
-  }
+  auto arguments = expressions( ctx->expressionList() );
 
   auto argument_list = std::make_unique<MethodCallArgumentList>( loc, std::move( arguments ) );
   return std::make_unique<MethodCall>( loc, std::move( lhs ), std::move( methodname ),
