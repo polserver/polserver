@@ -72,6 +72,17 @@ std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
 
   BTokenId token_id = binary_operator_token( ctx );
 
+  if ( token_id == TOK_ADDMEMBER || token_id == TOK_CHKMEMBER || token_id == TOK_DELMEMBER )
+  {
+    // On the right-hand side, any of the following are valid:
+    //   - an identifier: treat as the field name
+    //   - an expression: evaluate and use as the field name
+    if ( auto identifier = dynamic_cast<Identifier*>( rhs.get() ) )
+    {
+      rhs = std::make_unique<StringValue>( rhs->source_location, identifier->name );
+    }
+  }
+
   return std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
                                            ctx->bop->getText(), token_id, std::move( rhs ) );
 }
@@ -135,6 +146,12 @@ BTokenId ExpressionBuilder::binary_operator_token(
     return TOK_BSLEFT;
   else if ( ctx->RSHIFT() )
     return TOK_BSRIGHT;
+  else if ( ctx->ADDMEMBER() )
+    return TOK_ADDMEMBER;
+  else if ( ctx->CHKMEMBER() )
+    return TOK_CHKMEMBER;
+  else if ( ctx->DELMEMBER() )
+    return TOK_DELMEMBER;
   else
     location_for( *ctx ).internal_error( "unrecognized binary operator" );
 }
@@ -267,8 +284,6 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
   {
     if ( ctx->ELVIS() )
       return elvis_operator( ctx );
-    else if ( ctx->ADDMEMBER() || ctx->DELMEMBER() || ctx->CHKMEMBER() )
-      return membership_operator( ctx );
     else
       return binary_operator( ctx );
   }
@@ -315,32 +330,6 @@ std::unique_ptr<MethodCall> ExpressionBuilder::method_call(
   auto argument_list = std::make_unique<MethodCallArgumentList>( loc, std::move( arguments ) );
   return std::make_unique<MethodCall>( loc, std::move( lhs ), std::move( methodname ),
                                        std::move( argument_list ) );
-}
-
-std::unique_ptr<BinaryOperator> ExpressionBuilder::membership_operator(
-    EscriptParser::ExpressionContext* ctx )
-{
-  auto loc = location_for( *ctx );
-  std::unique_ptr<Expression> lhs = expression( ctx->expression( 0 ) );
-  std::string op = ctx->bop->getText();
-
-  BTokenId token_id = ctx->ADDMEMBER()
-                          ? TOK_ADDMEMBER
-                          : ctx->DELMEMBER()
-                                ? TOK_DELMEMBER
-                                : ctx->CHKMEMBER() ? TOK_CHKMEMBER : unhandled_operator( loc );
-
-  // On the right-hand side, any of the following are valid:
-  //   - an identifier: treat as the field name
-  //   - an expression: evaluate and use as the field name
-  std::unique_ptr<Expression> rhs = expression( ctx->expression( 1 ) );
-  if ( auto identifier = dynamic_cast<Identifier*>( rhs.get() ) )
-  {
-    rhs = std::make_unique<StringValue>( rhs->source_location, identifier->name );
-  }
-
-  return std::make_unique<BinaryOperator>( loc, std::move( lhs ), std::move( op ), token_id,
-                                           std::move( rhs ) );
 }
 
 std::unique_ptr<GetMember> ExpressionBuilder::navigation(
