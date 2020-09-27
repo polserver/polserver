@@ -34,7 +34,7 @@ public:
   std::unique_ptr<ArrayInitializer> array_initializer(
       EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* );
 
-  std::unique_ptr<BinaryOperator> binary_operator(
+  std::unique_ptr<Expression> binary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
 
   BTokenId binary_operator_token( EscriptGrammar::EscriptParser::ExpressionContext* );

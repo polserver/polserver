@@ -243,8 +243,6 @@ set (bscript_sources    # sorted !
   compiler/model/Variable.h
   compiler/model/VariableScope.h
   compiler/model/WarnOn.h
-  compiler/optimizer/AssignmentOptimizer.cpp
-  compiler/optimizer/AssignmentOptimizer.h
   compiler/optimizer/BinaryOperatorOptimizer.cpp
   compiler/optimizer/BinaryOperatorOptimizer.h
   compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp

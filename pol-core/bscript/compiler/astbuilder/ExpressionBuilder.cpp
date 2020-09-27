@@ -7,6 +7,7 @@
 #include "compiler/ast/DictionaryEntry.h"
 #include "compiler/ast/DictionaryInitializer.h"
 #include "compiler/ast/ElementAccess.h"
+#include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
 #include "compiler/ast/ElvisOperator.h"
 #include "compiler/ast/ErrorInitializer.h"
@@ -19,6 +20,7 @@
 #include "compiler/ast/MethodCall.h"
 #include "compiler/ast/MethodCallArgumentList.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "compiler/ast/SetMember.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -57,13 +59,29 @@ std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
   return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
 }
 
-std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
+std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
     EscriptParser::ExpressionContext* ctx )
 {
   auto lhs = expression( ctx->expression( 0 ) );
   auto rhs = expression( ctx->expression( 1 ) );
 
   BTokenId token_id = binary_operator_token( ctx );
+
+  if ( token_id == TOK_ASSIGN)
+  {
+    if ( auto element_access = dynamic_cast<ElementAccess*>( lhs.get() ) )
+    {
+      return std::make_unique<ElementAssignment>(
+          location_for( *ctx ), false, element_access->take_entity(),
+          element_access->take_indexes(), std::move( rhs ) );
+    }
+    else if ( auto get_member = dynamic_cast<GetMember*>( lhs.get() ) )
+    {
+      return std::make_unique<SetMember>( location_for( *ctx ), false, get_member->take_entity(),
+                                          get_member->name, std::move( rhs ),
+                                          get_member->known_member );
+    }
+  }
 
   if ( token_id == TOK_ADDMEMBER || token_id == TOK_CHKMEMBER || token_id == TOK_DELMEMBER )
   {
