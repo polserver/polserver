@@ -39,6 +39,8 @@ public:
   std::unique_ptr<BinaryOperator> binary_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
 
+  BTokenId binary_operator_token( EscriptGrammar::EscriptParser::ExpressionContext* );
+
   std::unique_ptr<DictionaryInitializer> dictionary_initializer(
       EscriptGrammar::EscriptParser::ExplicitDictInitializerContext* );
 

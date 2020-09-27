@@ -70,69 +70,74 @@ std::unique_ptr<BinaryOperator> ExpressionBuilder::binary_operator(
   auto lhs = expression( ctx->expression( 0 ) );
   auto rhs = expression( ctx->expression( 1 ) );
 
-  BTokenId token_id;
-  if ( ctx->ADD() )
-    token_id = TOK_ADD;
-  else if ( ctx->SUB() )
-    token_id = TOK_SUBTRACT;
-  else if ( ctx->MUL() )
-    token_id = TOK_MULT;
-  else if ( ctx->DIV() )
-    token_id = TOK_DIV;
-  else if ( ctx->ASSIGN() )
-    token_id = TOK_ASSIGN;
-  else if ( ctx->EQUAL() )
-    token_id = TOK_EQUAL;
-  else if ( ctx->NOTEQUAL_A() || ctx->NOTEQUAL_B() )
-    token_id = TOK_NEQ;
-  else if ( ctx->LT() )
-    token_id = TOK_LESSTHAN;
-  else if ( ctx->LE() )
-    token_id = TOK_LESSEQ;
-  else if ( ctx->GT() )
-    token_id = TOK_GRTHAN;
-  else if ( ctx->GE() )
-    token_id = TOK_GREQ;
-  else if ( ctx->AND_A() || ctx->AND_B() )
-    token_id = TOK_AND;
-  else if ( ctx->OR_A() || ctx->OR_B() )
-    token_id = TOK_OR;
-  else if ( ctx->ADD_ASSIGN() )
-    token_id = TOK_PLUSEQUAL;
-  else if ( ctx->SUB_ASSIGN() )
-    token_id = TOK_MINUSEQUAL;
-  else if ( ctx->MUL_ASSIGN() )
-    token_id = TOK_TIMESEQUAL;
-  else if ( ctx->DIV_ASSIGN() )
-    token_id = TOK_DIVIDEEQUAL;
-  else if ( ctx->MOD() )
-    token_id = TOK_MODULUS;
-  else if ( ctx->MOD_ASSIGN() )
-    token_id = TOK_MODULUSEQUAL;
-  else if ( ctx->ADDMEMBER() )
-    token_id = TOK_ADDMEMBER;
-  else if ( ctx->DELMEMBER() )
-    token_id = TOK_DELMEMBER;
-  else if ( ctx->CHKMEMBER() )
-    token_id = TOK_CHKMEMBER;
-  else if ( ctx->BITAND() )
-    token_id = TOK_BITAND;
-  else if ( ctx->BITOR() )
-    token_id = TOK_BITOR;
-  else if ( ctx->CARET() )
-    token_id = TOK_BITXOR;
-  else if ( ctx->TOK_IN() )
-    token_id = TOK_IN;
-  else if ( ctx->LSHIFT() )
-    token_id = TOK_BSLEFT;
-  else if ( ctx->RSHIFT() )
-    token_id = TOK_BSRIGHT;
-  else
-    location_for( *ctx ).internal_error( "unrecognized binary operator" );
+  BTokenId token_id = binary_operator_token( ctx );
+
   return std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
                                            ctx->bop->getText(), token_id, std::move( rhs ) );
 }
 
+BTokenId ExpressionBuilder::binary_operator_token(
+    EscriptGrammar::EscriptParser::ExpressionContext* ctx )
+{
+  if ( ctx->ADD() )
+    return TOK_ADD;
+  else if ( ctx->SUB() )
+    return TOK_SUBTRACT;
+  else if ( ctx->MUL() )
+    return TOK_MULT;
+  else if ( ctx->DIV() )
+    return TOK_DIV;
+  else if ( ctx->ASSIGN() )
+    return TOK_ASSIGN;
+  else if ( ctx->EQUAL() )
+    return TOK_EQUAL;
+  else if ( ctx->NOTEQUAL_A() || ctx->NOTEQUAL_B() )
+    return TOK_NEQ;
+  else if ( ctx->LT() )
+    return TOK_LESSTHAN;
+  else if ( ctx->LE() )
+    return TOK_LESSEQ;
+  else if ( ctx->GT() )
+    return TOK_GRTHAN;
+  else if ( ctx->GE() )
+    return TOK_GREQ;
+  else if ( ctx->AND_A() || ctx->AND_B() )
+    return TOK_AND;
+  else if ( ctx->OR_A() || ctx->OR_B() )
+    return TOK_OR;
+  else if ( ctx->ADD_ASSIGN() )
+    return TOK_PLUSEQUAL;
+  else if ( ctx->SUB_ASSIGN() )
+    return TOK_MINUSEQUAL;
+  else if ( ctx->MUL_ASSIGN() )
+    return TOK_TIMESEQUAL;
+  else if ( ctx->DIV_ASSIGN() )
+    return TOK_DIVIDEEQUAL;
+  else if ( ctx->MOD() )
+    return TOK_MODULUS;
+  else if ( ctx->MOD_ASSIGN() )
+    return TOK_MODULUSEQUAL;
+  else if ( ctx->ADDMEMBER() )
+    return TOK_ADDMEMBER;
+  else if ( ctx->DELMEMBER() )
+    return TOK_DELMEMBER;
+  else if ( ctx->CHKMEMBER() )
+    return TOK_CHKMEMBER;
+  else if ( ctx->BITAND() )
+    return TOK_BITAND;
+  else if ( ctx->BITOR() )
+    return TOK_BITOR;
+  else if ( ctx->CARET() )
+    return TOK_BITXOR;
+  else if ( ctx->TOK_IN() )
+    return TOK_IN;
+  else if ( ctx->LSHIFT() )
+    return TOK_BSLEFT;
+  else if ( ctx->RSHIFT() )
+    return TOK_BSRIGHT;
+  else
+    location_for( *ctx ).internal_error( "unrecognized binary operator" );
+}
 
 std::unique_ptr<DictionaryInitializer> ExpressionBuilder::dictionary_initializer(
     EscriptParser::ExplicitDictInitializerContext* ctx )
