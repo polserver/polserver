@@ -28,7 +28,6 @@ public:
   static void register_const_declarations( CompilerWorkspace&, Report& );
   void analyze();
 
-  void visit_assign_variable_consume( AssignVariableConsume& ) override;
   void visit_basic_for_loop( BasicForLoop& ) override;
   void visit_block( Block& ) override;
   void visit_case_statement( CaseStatement& ) override;
@@ -41,7 +40,6 @@ public:
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;
   void visit_function_reference( FunctionReference& ) override;
-  void visit_get_member( GetMember& ) override;
   void visit_identifier( Identifier& ) override;
   void visit_jump_statement( JumpStatement& ) override;
   void visit_loop_statement( LoopStatement& );
@@ -50,6 +48,7 @@ public:
   void visit_repeat_until_loop( RepeatUntilLoop& ) override;
   void visit_user_function( UserFunction& ) override;
   void visit_var_statement( VarStatement& ) override;
+  void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;
 
 private:

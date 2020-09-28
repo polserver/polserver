@@ -1,4 +1,4 @@
-#include "GetMember.h"
+#include "MemberAccess.h"
 
 #include <format/format.h>
 
@@ -7,8 +7,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-GetMember::GetMember( const SourceLocation& source_location, std::unique_ptr<Expression> lhs,
-                      std::string name )
+MemberAccess::MemberAccess( const SourceLocation& source_location, std::unique_ptr<Expression> lhs,
+                            std::string name )
     : Expression( source_location, std::move( lhs ) ),
       name( std::move( name ) ),
       known_member( compilercfg.OptimizeObjectMembers
@@ -17,17 +17,17 @@ GetMember::GetMember( const SourceLocation& source_location, std::unique_ptr<Exp
 {
 }
 
-void GetMember::accept( NodeVisitor& visitor )
+void MemberAccess::accept( NodeVisitor& visitor )
 {
-  visitor.visit_get_member( *this );
+  visitor.visit_member_access( *this );
 }
 
-void GetMember::describe_to( fmt::Writer& w ) const
+void MemberAccess::describe_to( fmt::Writer& w ) const
 {
-  w << "get-member(" << name << ")";
+  w << "member-access(" << name << ")";
 }
 
-std::unique_ptr<Expression> GetMember::take_entity()
+std::unique_ptr<Expression> MemberAccess::take_entity()
 {
   return take_child<Expression>( 0 );
 }

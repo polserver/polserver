@@ -5,11 +5,10 @@
 #include "clib/strutil.h"
 #include "compiler/Report.h"
 #include "compiler/analyzer/Constants.h"
-#include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/analyzer/FlowControlScope.h"
+#include "compiler/analyzer/LocalVariableScope.h"
 #include "compiler/analyzer/LocalVariableScopes.h"
 #include "compiler/ast/Argument.h"
-#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
@@ -27,10 +26,10 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/FunctionReference.h"
-#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
+#include "compiler/ast/MemberAccess.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
@@ -39,6 +38,7 @@
 #include "compiler/ast/TopLevelStatements.h"
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/ast/VariableAssignmentStatement.h"
 #include "compiler/ast/WhileLoop.h"
 #include "compiler/astbuilder/SimpleValueCloner.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -86,28 +86,6 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
-}
-
-void SemanticAnalyzer::visit_assign_variable_consume( AssignVariableConsume& node )
-{
-  visit_children( node );
-
-  if ( auto bop = dynamic_cast<BinaryOperator*>( &node.rhs() ) )
-  {
-    if ( bop->token_id == TOK_ASSIGN )
-    {
-      if ( auto second_ident = dynamic_cast<Identifier*>( &bop->lhs() ) )
-      {
-        if ( node.identifier().variable == second_ident->variable )
-        {
-          // we have something like
-          //      a := a := expr;
-          report.warning( node, "Double-assignment to the same variable '",
-                          node.identifier().name, "'.\n" );
-        }
-      }
-    }
-  }
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -435,11 +413,6 @@ void SemanticAnalyzer::visit_function_reference( FunctionReference& node )
   }
 }
 
-void SemanticAnalyzer::visit_get_member( GetMember& node )
-{
-  visit_children( node );
-}
-
 void SemanticAnalyzer::visit_identifier( Identifier& node )
 {
   if ( auto local = locals.find( node.name ) )
@@ -562,6 +535,28 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
     node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
   }
   visit_children( node );
+}
+
+void SemanticAnalyzer::visit_variable_assignment_statement( VariableAssignmentStatement& node )
+{
+  visit_children( node );
+
+  if ( auto bop = dynamic_cast<BinaryOperator*>( &node.rhs() ) )
+  {
+    if ( bop->token_id == TOK_ASSIGN )
+    {
+      if ( auto second_ident = dynamic_cast<Identifier*>( &bop->lhs() ) )
+      {
+        if ( node.identifier().variable == second_ident->variable )
+        {
+          // we have something like
+          //      a := a := expr;
+          report.warning( node, "Double-assignment to the same variable '",
+                          node.identifier().name, "'.\n" );
+        }
+      }
+    }
+  }
 }
 
 void SemanticAnalyzer::visit_while_loop( WhileLoop& node )

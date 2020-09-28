@@ -18,7 +18,7 @@ class ElvisOperator;
 class ErrorInitializer;
 class Expression;
 class FunctionCall;
-class GetMember;
+class MemberAccess;
 class MethodCall;
 class UnaryOperator;
 
@@ -64,7 +64,7 @@ public:
   std::unique_ptr<MethodCall> method_call(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::MethodCallSuffixContext* );
 
-  std::unique_ptr<GetMember> navigation(
+  std::unique_ptr<MemberAccess> navigation(
       std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* );
   std::unique_ptr<Expression> expression_suffix(
       std::unique_ptr<Expression> lhs,
