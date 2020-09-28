@@ -97,8 +97,8 @@ void ValueConsumerOptimizer::visit_member_assignment( MemberAssignment& node )
   auto entity = node.take_entity();
   auto rhs = node.take_rhs();
   optimized_result =
-      std::make_unique<MemberAssignment>( node.source_location, true, std::move( entity ), node.name,
-                                          std::move( rhs ), node.known_member );
+      std::make_unique<MemberAssignment>( node.source_location, true, std::move( entity ),
+                                          node.name, std::move( rhs ), node.known_member );
 }
 
 std::unique_ptr<Statement> ValueConsumerOptimizer::optimize( ValueConsumer& consume_value )

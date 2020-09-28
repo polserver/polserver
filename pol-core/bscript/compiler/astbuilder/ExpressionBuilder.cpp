@@ -77,9 +77,9 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
     }
     else if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
     {
-      return std::make_unique<MemberAssignment>( location_for( *ctx ), false, get_member->take_entity(),
-                                          get_member->name, std::move( rhs ),
-                                          get_member->known_member );
+      return std::make_unique<MemberAssignment>( location_for( *ctx ), false,
+                                                 get_member->take_entity(), get_member->name,
+                                                 std::move( rhs ), get_member->known_member );
     }
   }
 
