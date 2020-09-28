@@ -19,7 +19,6 @@
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/astbuilder/SimpleValueCloner.h"
 #include "compiler/model/CompilerWorkspace.h"
-#include "compiler/optimizer/AssignmentOptimizer.h"
 #include "compiler/optimizer/BinaryOperatorOptimizer.h"
 #include "compiler/optimizer/ConstantValidator.h"
 #include "compiler/optimizer/ReferencedFunctionGatherer.h"
@@ -98,15 +97,7 @@ void Optimizer::visit_binary_operator( BinaryOperator& binary_operator )
 {
   visit_children( binary_operator );
 
-  switch ( binary_operator.token_id )
-  {
-  case TOK_ASSIGN:
-    optimized_replacement = AssignmentOptimizer( binary_operator ).optimize();
-    break;
-  default:
-    optimized_replacement = BinaryOperatorOptimizer( binary_operator, report ).optimize();
-    break;
-  }
+  optimized_replacement = BinaryOperatorOptimizer( binary_operator, report ).optimize();
 }
 
 void Optimizer::visit_branch_selector( BranchSelector& selector )
