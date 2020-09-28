@@ -15,12 +15,12 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/FunctionReference.h"
-#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/MemberAccess.h"
+#include "compiler/ast/MemberAssignment.h"
 #include "compiler/ast/MethodCall.h"
 #include "compiler/ast/MethodCallArgumentList.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/ast/SetMember.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -75,9 +75,9 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
           location_for( *ctx ), false, element_access->take_entity(),
           element_access->take_indexes(), std::move( rhs ) );
     }
-    else if ( auto get_member = dynamic_cast<GetMember*>( lhs.get() ) )
+    else if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
     {
-      return std::make_unique<SetMember>( location_for( *ctx ), false, get_member->take_entity(),
+      return std::make_unique<MemberAssignment>( location_for( *ctx ), false, get_member->take_entity(),
                                           get_member->name, std::move( rhs ),
                                           get_member->known_member );
     }
@@ -334,7 +334,7 @@ std::unique_ptr<MethodCall> ExpressionBuilder::method_call(
                                        std::move( argument_list ) );
 }
 
-std::unique_ptr<GetMember> ExpressionBuilder::navigation(
+std::unique_ptr<MemberAccess> ExpressionBuilder::navigation(
     std::unique_ptr<Expression> lhs, EscriptGrammar::EscriptParser::NavigationSuffixContext* ctx )
 {
   auto loc = location_for( *ctx );
@@ -346,7 +346,7 @@ std::unique_ptr<GetMember> ExpressionBuilder::navigation(
     name = unquote( string_literal );
   else
     loc.internal_error( "member_access: need string literal or identifier" );
-  return std::make_unique<GetMember>( loc, std::move( lhs ), std::move( name ) );
+  return std::make_unique<MemberAccess>( loc, std::move( lhs ), std::move( name ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::expression_suffix(

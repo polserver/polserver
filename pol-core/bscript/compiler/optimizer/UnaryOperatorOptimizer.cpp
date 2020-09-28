@@ -1,9 +1,9 @@
 #include "UnaryOperatorOptimizer.h"
 
 #include "compiler/ast/FloatValue.h"
-#include "compiler/ast/GetMember.h"
 #include "compiler/ast/IntegerValue.h"
-#include "compiler/ast/SetMemberByOperator.h"
+#include "compiler/ast/MemberAccess.h"
+#include "compiler/ast/MemberAssignmentByOperator.h"
 #include "compiler/ast/UnaryOperator.h"
 
 namespace Pol::Bscript::Compiler
@@ -61,7 +61,7 @@ void UnaryOperatorOptimizer::visit_integer_value( IntegerValue& iv )
   optimized_result = std::make_unique<IntegerValue>( iv.source_location, value );
 }
 
-void UnaryOperatorOptimizer::visit_get_member( GetMember& gm )
+void UnaryOperatorOptimizer::visit_member_access( MemberAccess& gm )
 {
   if ( !gm.known_member )
     return;
@@ -87,7 +87,7 @@ void UnaryOperatorOptimizer::visit_get_member( GetMember& gm )
 
   bool consume = false;
   auto entity = gm.take_entity();
-  optimized_result = std::make_unique<SetMemberByOperator>(
+  optimized_result = std::make_unique<MemberAssignmentByOperator>(
       gm.source_location, consume, std::move( entity ), gm.name, new_token_id, *gm.known_member );
 }
 

@@ -2,15 +2,15 @@
 
 #include "tokens.h"
 
-#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/ElementAssignment.h"
 #include "compiler/ast/ElementIndexes.h"
-#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
-#include "compiler/ast/SetMember.h"
-#include "compiler/ast/SetMemberByOperator.h"
+#include "compiler/ast/MemberAccess.h"
+#include "compiler/ast/MemberAssignment.h"
+#include "compiler/ast/MemberAssignmentByOperator.h"
 #include "compiler/ast/ValueConsumer.h"
+#include "compiler/ast/VariableAssignmentStatement.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -25,7 +25,7 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
     {
       auto lhs = static_unique_pointer_cast<Identifier>( binary_operator.take_lhs() );
       auto rhs = binary_operator.take_rhs();
-      optimized_result = std::make_unique<AssignVariableConsume>(
+      optimized_result = std::make_unique<VariableAssignmentStatement>(
           binary_operator.source_location, std::move( lhs ), std::move( rhs ) );
     }
     else
@@ -41,7 +41,7 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
             operator_id == TOK_TIMESEQUAL || operator_id == TOK_DIVIDEEQUAL ||
             operator_id == TOK_MODULUSEQUAL )
   {
-    if ( auto get_member = dynamic_cast<GetMember*>( &binary_operator.lhs() ) )
+    if ( auto get_member = dynamic_cast<MemberAccess*>( &binary_operator.lhs() ) )
     {
       if ( get_member->known_member )
       {
@@ -69,24 +69,12 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
         bool consume = true;
         auto entity = get_member->take_entity();
         auto rhs = binary_operator.take_rhs();
-        optimized_result = std::make_unique<SetMemberByOperator>(
+        optimized_result = std::make_unique<MemberAssignmentByOperator>(
             get_member->source_location, consume, std::move( entity ), get_member->name, token_id,
             std::move( rhs ), *get_member->known_member );
       }
     }
   }
-}
-
-void ValueConsumerOptimizer::visit_set_member( SetMember& node )
-{
-  if ( node.consume )
-    node.internal_error(
-        "ValueConsumerOptimizer did not expect an already-consumed SetMember node" );
-  auto entity = node.take_entity();
-  auto rhs = node.take_rhs();
-  optimized_result =
-      std::make_unique<SetMember>( node.source_location, true, std::move( entity ), node.name,
-                                     std::move( rhs ), node.known_member );
 }
 
 void ValueConsumerOptimizer::visit_element_assignment( ElementAssignment& node )
@@ -99,6 +87,18 @@ void ValueConsumerOptimizer::visit_element_assignment( ElementAssignment& node )
     optimized_result = std::make_unique<ElementAssignment>(
         node.source_location, true, std::move( entity ), std::move( indexes ), std::move( rhs ) );
   }
+}
+
+void ValueConsumerOptimizer::visit_member_assignment( MemberAssignment& node )
+{
+  if ( node.consume )
+    node.internal_error(
+        "ValueConsumerOptimizer did not expect an already-consumed SetMember node" );
+  auto entity = node.take_entity();
+  auto rhs = node.take_rhs();
+  optimized_result =
+      std::make_unique<MemberAssignment>( node.source_location, true, std::move( entity ), node.name,
+                                          std::move( rhs ), node.known_member );
 }
 
 std::unique_ptr<Statement> ValueConsumerOptimizer::optimize( ValueConsumer& consume_value )

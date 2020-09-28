@@ -2,7 +2,6 @@
 
 #include "compiler/ast/Argument.h"
 #include "compiler/ast/ArrayInitializer.h"
-#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
@@ -32,9 +31,11 @@
 #include "compiler/ast/FunctionCall.h"
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
-#include "compiler/ast/GetMember.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/JumpStatement.h"
+#include "compiler/ast/MemberAccess.h"
+#include "compiler/ast/MemberAssignment.h"
+#include "compiler/ast/MemberAssignmentByOperator.h"
 #include "compiler/ast/MethodCall.h"
 #include "compiler/ast/MethodCallArgumentList.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
@@ -44,8 +45,6 @@
 #include "compiler/ast/ProgramParameterList.h"
 #include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
-#include "compiler/ast/SetMember.h"
-#include "compiler/ast/SetMemberByOperator.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -54,6 +53,7 @@
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/ast/VariableAssignmentStatement.h"
 #include "compiler/ast/WhileLoop.h"
 
 namespace Pol::Bscript::Compiler
@@ -64,11 +64,6 @@ void NodeVisitor::visit_argument( Argument& node )
 }
 
 void NodeVisitor::visit_array_initializer( ArrayInitializer& node )
-{
-  visit_children( node );
-}
-
-void NodeVisitor::visit_assign_variable_consume( AssignVariableConsume& node )
 {
   visit_children( node );
 }
@@ -220,11 +215,6 @@ void NodeVisitor::visit_function_reference( FunctionReference& )
 {
 }
 
-void NodeVisitor::visit_get_member( GetMember& node )
-{
-  visit_children( node );
-}
-
 void NodeVisitor::visit_identifier( Identifier& )
 {
 }
@@ -238,17 +228,32 @@ void NodeVisitor::visit_integer_value( IntegerValue& )
 {
 }
 
+void NodeVisitor::visit_jump_statement( JumpStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_member_access( MemberAccess& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_member_assignment( MemberAssignment& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_member_assignment_by_operator( MemberAssignmentByOperator& node )
+{
+  visit_children( node );
+}
+
 void NodeVisitor::visit_method_call( MethodCall& node )
 {
   visit_children( node );
 }
 
 void NodeVisitor::visit_method_call_argument_list( MethodCallArgumentList& node )
-{
-  visit_children( node );
-}
-
-void NodeVisitor::visit_jump_statement( JumpStatement& node )
 {
   visit_children( node );
 }
@@ -279,16 +284,6 @@ void NodeVisitor::visit_repeat_until_loop( RepeatUntilLoop& node )
 }
 
 void NodeVisitor::visit_return_statement( ReturnStatement& node )
-{
-  visit_children( node );
-}
-
-void NodeVisitor::visit_set_member( SetMember& node )
-{
-  visit_children( node );
-}
-
-void NodeVisitor::visit_set_member_by_operator( SetMemberByOperator& node )
 {
   visit_children( node );
 }
@@ -332,6 +327,11 @@ void NodeVisitor::visit_value_consumer( ValueConsumer& node )
 }
 
 void NodeVisitor::visit_var_statement( VarStatement& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_variable_assignment_statement( VariableAssignmentStatement& node )
 {
   visit_children( node );
 }

@@ -34,8 +34,6 @@ set (bscript_sources    # sorted !
   compiler/ast/Argument.h
   compiler/ast/ArrayInitializer.cpp
   compiler/ast/ArrayInitializer.h
-  compiler/ast/AssignVariableConsume.cpp
-  compiler/ast/AssignVariableConsume.h
   compiler/ast/BasicForLoop.cpp
   compiler/ast/BasicForLoop.h
   compiler/ast/BinaryOperator.cpp
@@ -100,8 +98,6 @@ set (bscript_sources    # sorted !
   compiler/ast/FunctionParameterList.h
   compiler/ast/FunctionReference.cpp
   compiler/ast/FunctionReference.h
-  compiler/ast/GetMember.cpp
-  compiler/ast/GetMember.h
   compiler/ast/Identifier.cpp
   compiler/ast/Identifier.h
   compiler/ast/IfThenElseStatement.cpp
@@ -114,6 +110,12 @@ set (bscript_sources    # sorted !
   compiler/ast/LabelableStatement.h
   compiler/ast/LoopStatement.cpp
   compiler/ast/LoopStatement.h
+  compiler/ast/MemberAccess.cpp
+  compiler/ast/MemberAccess.h
+  compiler/ast/MemberAssignment.cpp
+  compiler/ast/MemberAssignment.h
+  compiler/ast/MemberAssignmentByOperator.cpp
+  compiler/ast/MemberAssignmentByOperator.h
   compiler/ast/MethodCall.cpp
   compiler/ast/MethodCall.h
   compiler/ast/MethodCallArgumentList.cpp
@@ -134,10 +136,6 @@ set (bscript_sources    # sorted !
   compiler/ast/RepeatUntilLoop.h
   compiler/ast/ReturnStatement.cpp
   compiler/ast/ReturnStatement.h
-  compiler/ast/SetMember.cpp
-  compiler/ast/SetMember.h
-  compiler/ast/SetMemberByOperator.cpp
-  compiler/ast/SetMemberByOperator.h
   compiler/ast/Statement.cpp
   compiler/ast/Statement.h
   compiler/ast/StringValue.cpp
@@ -158,6 +156,8 @@ set (bscript_sources    # sorted !
   compiler/ast/Value.h
   compiler/ast/ValueConsumer.cpp
   compiler/ast/ValueConsumer.h
+  compiler/ast/VariableAssignmentStatement.cpp
+  compiler/ast/VariableAssignmentStatement.h
   compiler/ast/VarStatement.cpp
   compiler/ast/VarStatement.h
   compiler/ast/WhileLoop.cpp

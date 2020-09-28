@@ -1,5 +1,5 @@
-#ifndef POLSERVER_GETMEMBER_H
-#define POLSERVER_GETMEMBER_H
+#ifndef POLSERVER_MEMBERACCESS_H
+#define POLSERVER_MEMBERACCESS_H
 
 #include "compiler/ast/Expression.h"
 
@@ -9,10 +9,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-class GetMember : public Expression
+class MemberAccess : public Expression
 {
 public:
-  GetMember( const SourceLocation&, std::unique_ptr<Expression> lhs, std::string name );
+  MemberAccess( const SourceLocation&, std::unique_ptr<Expression> lhs, std::string name );
 
   void accept( NodeVisitor& ) override;
   void describe_to( fmt::Writer& ) const override;
@@ -27,4 +27,4 @@ public:
 }  // namespace Pol::Bscript::Compiler
 
 
-#endif  // POLSERVER_GETMEMBER_H
+#endif  // POLSERVER_MEMBERACCESS_H

@@ -5,7 +5,7 @@ namespace Pol::Bscript::Compiler
 {
 class Argument;
 class ArrayInitializer;
-class AssignVariableConsume;
+class VariableAssignmentStatement;
 class BasicForLoop;
 class BinaryOperator;
 class Block;
@@ -40,7 +40,7 @@ class Identifier;
 class IfThenElseStatement;
 class IntegerValue;
 class JumpStatement;
-class GetMember;
+class MemberAccess;
 class MethodCall;
 class MethodCallArgumentList;
 class ModuleFunctionDeclaration;
@@ -50,8 +50,8 @@ class ProgramParameterDeclaration;
 class ProgramParameterList;
 class RepeatUntilLoop;
 class ReturnStatement;
-class SetMember;
-class SetMemberByOperator;
+class MemberAssignment;
+class MemberAssignmentByOperator;
 class StringValue;
 class StructInitializer;
 class StructMemberInitializer;
@@ -70,7 +70,6 @@ public:
 
   virtual void visit_argument( Argument& );
   virtual void visit_array_initializer( ArrayInitializer& );
-  virtual void visit_assign_variable_consume( AssignVariableConsume& );
   virtual void visit_basic_for_loop( BasicForLoop& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_block( Block& );
@@ -101,11 +100,13 @@ public:
   virtual void visit_function_parameter_declaration( FunctionParameterDeclaration& );
   virtual void visit_function_parameter_list( FunctionParameterList& );
   virtual void visit_function_reference( FunctionReference& );
-  virtual void visit_get_member( GetMember& );
   virtual void visit_identifier( Identifier& );
   virtual void visit_if_then_else_statement( IfThenElseStatement& );
   virtual void visit_integer_value( IntegerValue& );
   virtual void visit_jump_statement( JumpStatement& );
+  virtual void visit_member_access( MemberAccess& );
+  virtual void visit_member_assignment( MemberAssignment& );
+  virtual void visit_member_assignment_by_operator( MemberAssignmentByOperator& );
   virtual void visit_method_call( MethodCall& );
   virtual void visit_method_call_argument_list( MethodCallArgumentList& );
   virtual void visit_module_function_declaration( ModuleFunctionDeclaration& );
@@ -114,8 +115,6 @@ public:
   virtual void visit_program_parameter_list( ProgramParameterList& );
   virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
-  virtual void visit_set_member( SetMember& );
-  virtual void visit_set_member_by_operator( SetMemberByOperator& );
   virtual void visit_string_value( StringValue& );
   virtual void visit_struct_initializer( StructInitializer& );
   virtual void visit_struct_member_initializer( StructMemberInitializer& );
@@ -125,6 +124,7 @@ public:
   virtual void visit_user_function( UserFunction& );
   virtual void visit_value_consumer( ValueConsumer& );
   virtual void visit_var_statement( VarStatement& );
+  virtual void visit_variable_assignment_statement( VariableAssignmentStatement& );
   virtual void visit_while_loop( WhileLoop& );
 
   virtual void visit_children( Node& parent );

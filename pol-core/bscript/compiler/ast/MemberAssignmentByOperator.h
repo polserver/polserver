@@ -1,5 +1,5 @@
-#ifndef POLSERVER_SETMEMBERBYOPERATOR_H
-#define POLSERVER_SETMEMBERBYOPERATOR_H
+#ifndef POLSERVER_MEMBERASSIGNMENTBYOPERATOR_H
+#define POLSERVER_MEMBERASSIGNMENTBYOPERATOR_H
 
 #include "compiler/ast/Expression.h"
 
@@ -13,13 +13,13 @@
 
 namespace Pol::Bscript::Compiler
 {
-class SetMemberByOperator : public Expression
+class MemberAssignmentByOperator : public Expression
 {
 public:
-  SetMemberByOperator( const SourceLocation&, bool consume, std::unique_ptr<Expression> entity,
+  MemberAssignmentByOperator( const SourceLocation&, bool consume, std::unique_ptr<Expression> entity,
                        std::string name, BTokenId, std::unique_ptr<Expression> rhs,
                        const Pol::Bscript::ObjMember& );
-  SetMemberByOperator( const SourceLocation&, bool consume, std::unique_ptr<Expression> entity,
+  MemberAssignmentByOperator( const SourceLocation&, bool consume, std::unique_ptr<Expression> entity,
                        std::string name, BTokenId, const Pol::Bscript::ObjMember& );
 
   void accept( NodeVisitor& ) override;
@@ -34,4 +34,4 @@ public:
 
 }  // namespace Pol::Bscript::Compiler
 
-#endif  // POLSERVER_SETMEMBERBYOPERATOR_H
+#endif  // POLSERVER_MEMBERASSIGNMENTBYOPERATOR_H

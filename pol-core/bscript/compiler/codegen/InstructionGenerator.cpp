@@ -3,7 +3,6 @@
 #include <boost/range/adaptor/reversed.hpp>
 
 #include "compiler/ast/ArrayInitializer.h"
-#include "compiler/ast/AssignVariableConsume.h"
 #include "compiler/ast/BasicForLoop.h"
 #include "compiler/ast/BinaryOperator.h"
 #include "compiler/ast/Block.h"
@@ -31,19 +30,19 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/FunctionReference.h"
-#include "compiler/ast/GetMember.h"
 #include "compiler/ast/Identifier.h"
 #include "compiler/ast/IfThenElseStatement.h"
 #include "compiler/ast/IntegerValue.h"
 #include "compiler/ast/JumpStatement.h"
+#include "compiler/ast/MemberAccess.h"
+#include "compiler/ast/MemberAssignment.h"
+#include "compiler/ast/MemberAssignmentByOperator.h"
 #include "compiler/ast/MethodCall.h"
 #include "compiler/ast/ModuleFunctionDeclaration.h"
 #include "compiler/ast/Program.h"
 #include "compiler/ast/ProgramParameterDeclaration.h"
 #include "compiler/ast/RepeatUntilLoop.h"
 #include "compiler/ast/ReturnStatement.h"
-#include "compiler/ast/SetMember.h"
-#include "compiler/ast/SetMemberByOperator.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/ast/StructInitializer.h"
 #include "compiler/ast/StructMemberInitializer.h"
@@ -52,6 +51,7 @@
 #include "compiler/ast/UserFunction.h"
 #include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
+#include "compiler/ast/VariableAssignmentStatement.h"
 #include "compiler/ast/WhileLoop.h"
 #include "compiler/codegen/CaseDispatchGroupVisitor.h"
 #include "compiler/codegen/CaseJumpDataBlock.h"
@@ -101,17 +101,6 @@ void InstructionGenerator::visit_array_initializer( ArrayInitializer& node )
     child->accept( *this );
     emit.array_append();
   }
-}
-
-void InstructionGenerator::visit_assign_variable_consume( AssignVariableConsume& node )
-{
-  emitter.debug_statementbegin();
-  generate( node.rhs() );
-  update_debug_location( node );
-  auto& identifier = node.identifier();
-  auto& variable = identifier.variable;
-
-  emit.assign_variable( *variable );
 }
 
 void InstructionGenerator::visit_basic_for_loop( BasicForLoop& loop )
@@ -482,7 +471,7 @@ void InstructionGenerator::visit_jump_statement( JumpStatement& jump )
   emit.jmp_always( *jump.flow_control_label );
 }
 
-void InstructionGenerator::visit_get_member( GetMember& member_access )
+void InstructionGenerator::visit_member_access( MemberAccess& member_access )
 {
   visit_children( member_access );
 
@@ -491,6 +480,35 @@ void InstructionGenerator::visit_get_member( GetMember& member_access )
     emit.get_member_id( km->id );
   else
     emit.get_member( member_access.name );
+}
+
+void InstructionGenerator::visit_member_assignment( MemberAssignment& node )
+{
+  visit_children( node );
+
+  update_debug_location( node );
+  if ( auto known_member = node.known_member )
+  {
+    if ( node.consume )
+      emit.set_member_id_consume( known_member->id );
+    else
+      emit.set_member_id( known_member->id );
+  }
+  else
+  {
+    if ( node.consume )
+      emit.set_member_consume( node.name );
+    else
+      emit.set_member( node.name );
+  }
+}
+
+void InstructionGenerator::visit_member_assignment_by_operator( MemberAssignmentByOperator& node )
+{
+  visit_children( node );
+
+  update_debug_location( node );
+  emit.set_member_by_operator( node.token_id, node.known_member.id );
 }
 
 void InstructionGenerator::visit_method_call( MethodCall& method_call )
@@ -562,35 +580,6 @@ void InstructionGenerator::visit_return_statement( ReturnStatement& ret )
   {
     emit.progend();
   }
-}
-
-void InstructionGenerator::visit_set_member( SetMember& node )
-{
-  visit_children( node );
-
-  update_debug_location( node );
-  if ( auto known_member = node.known_member )
-  {
-    if ( node.consume )
-      emit.set_member_id_consume( known_member->id );
-    else
-      emit.set_member_id( known_member->id );
-  }
-  else
-  {
-    if ( node.consume )
-      emit.set_member_consume( node.name );
-    else
-      emit.set_member( node.name );
-  }
-}
-
-void InstructionGenerator::visit_set_member_by_operator( SetMemberByOperator& node )
-{
-  visit_children( node );
-
-  update_debug_location( node );
-  emit.set_member_by_operator( node.token_id, node.known_member.id );
 }
 
 void InstructionGenerator::visit_string_value( StringValue& lit )
@@ -694,6 +683,17 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
 
     emit.assign();
   }
+}
+
+void InstructionGenerator::visit_variable_assignment_statement( VariableAssignmentStatement& node )
+{
+  emitter.debug_statementbegin();
+  generate( node.rhs() );
+  update_debug_location( node );
+  auto& identifier = node.identifier();
+  auto& variable = identifier.variable;
+
+  emit.assign_variable( *variable );
 }
 
 void InstructionGenerator::visit_while_loop( WhileLoop& loop )

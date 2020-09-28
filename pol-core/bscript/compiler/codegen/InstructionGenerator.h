@@ -25,7 +25,6 @@ public:
   void update_debug_location( const SourceLocation& );
 
   void visit_array_initializer( ArrayInitializer& ) override;
-  void visit_assign_variable_consume( AssignVariableConsume& ) override;
   void visit_basic_for_loop( BasicForLoop& loop ) override;
   void visit_case_statement( CaseStatement& ) override;
   void visit_cstyle_for_loop( CstyleForLoop& loop ) override;
@@ -47,18 +46,18 @@ public:
   void visit_function_parameter_list( FunctionParameterList& ) override;
   void visit_function_parameter_declaration( FunctionParameterDeclaration& ) override;
   void visit_function_reference( FunctionReference& ) override;
-  void visit_get_member( GetMember& member_access ) override;
   void visit_identifier( Identifier& ) override;
   void visit_if_then_else_statement( IfThenElseStatement& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_jump_statement( JumpStatement& ) override;
+  void visit_member_access( MemberAccess& member_access ) override;
+  void visit_member_assignment( MemberAssignment& ) override;
+  void visit_member_assignment_by_operator( MemberAssignmentByOperator& ) override;
   void visit_method_call( MethodCall& member_call ) override;
   void visit_program( Program& ) override;
   void visit_program_parameter_declaration( ProgramParameterDeclaration& ) override;
   void visit_repeat_until_loop( RepeatUntilLoop& repeat_until ) override;
   void visit_return_statement( ReturnStatement& ) override;
-  void visit_set_member( SetMember& ) override;
-  void visit_set_member_by_operator( SetMemberByOperator& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_struct_initializer( StructInitializer& ) override;
   void visit_struct_member_initializer( StructMemberInitializer& ) override;
@@ -67,6 +66,7 @@ public:
   void visit_user_function( UserFunction& ) override;
   void visit_value_consumer( ValueConsumer& ) override;
   void visit_var_statement( VarStatement& ) override;
+  void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;
 
 private:
