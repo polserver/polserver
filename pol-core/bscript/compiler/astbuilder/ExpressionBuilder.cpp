@@ -71,18 +71,9 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
   {
     if ( auto element_access = dynamic_cast<ElementAccess*>( lhs.get() ) )
     {
-      if ( element_access->indexes().children.size() > 1 && consume )
-      {
-        return consume_expression_result( std::make_unique<ElementAssignment>(
-            location_for( *ctx ), false, element_access->take_entity(),
-            element_access->take_indexes(), std::move( rhs ) ) );
-      }
-      else
-      {
-        return std::make_unique<ElementAssignment>(
-            location_for( *ctx ), consume, element_access->take_entity(),
-            element_access->take_indexes(), std::move( rhs ) );
-      }
+      return std::make_unique<ElementAssignment>(
+          location_for( *ctx ), consume, element_access->take_entity(),
+          element_access->take_indexes(), std::move( rhs ) );
     }
     else if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
     {
