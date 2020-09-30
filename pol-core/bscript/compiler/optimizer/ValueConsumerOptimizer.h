@@ -17,8 +17,6 @@ public:
   void visit_children( Node& ) override;
 
   void visit_binary_operator( BinaryOperator& ) override;
-  void visit_element_assignment( ElementAssignment& ) override;
-  void visit_member_assignment( MemberAssignment& ) override;
 
   std::unique_ptr<Statement> optimize( ValueConsumer& );
 };

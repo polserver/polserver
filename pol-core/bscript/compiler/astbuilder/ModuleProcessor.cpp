@@ -11,10 +11,7 @@ namespace Pol::Bscript::Compiler
 {
 ModuleProcessor::ModuleProcessor( const SourceFileIdentifier& source_file_identifier,
                                   BuilderWorkspace& workspace, std::string modulename )
-  : profile( workspace.profile ),
-    report( workspace.report ),
-    source_file_identifier( source_file_identifier ),
-    workspace( workspace ),
+  : workspace( workspace ),
     tree_builder( source_file_identifier, workspace ),
     modulename( std::move( modulename ) )
 {

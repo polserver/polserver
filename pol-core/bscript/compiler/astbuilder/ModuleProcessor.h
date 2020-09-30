@@ -25,9 +25,6 @@ public:
       EscriptGrammar::EscriptParser::ModuleDeclarationStatementContext* ) override;
 
 private:
-  Profile& profile;
-  Report& report;
-  const SourceFileIdentifier& source_file_identifier;
   BuilderWorkspace& workspace;
 
   ModuleDeclarationBuilder tree_builder;

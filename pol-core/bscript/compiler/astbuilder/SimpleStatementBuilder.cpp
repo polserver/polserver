@@ -11,7 +11,6 @@
 #include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/ReturnStatement.h"
 #include "compiler/ast/StringValue.h"
-#include "compiler/ast/ValueConsumer.h"
 #include "compiler/ast/VarStatement.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/model/CompilerWorkspace.h"
@@ -61,8 +60,7 @@ void SimpleStatementBuilder::add_var_statements(
       {
         var_ast = std::make_unique<VarStatement>( loc, std::move( name ) );
       }
-      auto consumed = consume_statement_result( std::move( var_ast ) );
-      statements.push_back( std::move( consumed ) );
+      statements.push_back( std::move( var_ast ) );
     }
   }
 }
@@ -87,12 +85,6 @@ std::unique_ptr<ConstDeclaration> SimpleStatementBuilder::const_declaration(
 
   return std::make_unique<ConstDeclaration>( location_for( *ctx ), std::move( identifier ),
                                                std::move( value ) );
-}
-
-std::unique_ptr<Statement> SimpleStatementBuilder::consume_statement_result(
-    std::unique_ptr<Statement> statement )
-{
-  return std::make_unique<ValueConsumer>( statement->source_location, std::move( statement ) );
 }
 
 std::unique_ptr<JumpStatement> SimpleStatementBuilder::continue_statement(

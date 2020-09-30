@@ -8,8 +8,8 @@ namespace Pol::Bscript::Compiler
 class ConstDeclaration;
 class EnumDeclaration;
 class JumpStatement;
-class Statement;
 class ReturnStatement;
+class Statement;
 
 class SimpleStatementBuilder : public ExpressionBuilder
 {
@@ -27,9 +27,6 @@ public:
 
   std::unique_ptr<ConstDeclaration> const_declaration(
       EscriptGrammar::EscriptParser::ConstStatementContext* );
-
-  static std::unique_ptr<Statement> consume_statement_result(
-      std::unique_ptr<Statement> statement );
 
   std::unique_ptr<JumpStatement> continue_statement(
       EscriptGrammar::EscriptParser::ContinueStatementContext* ctx );

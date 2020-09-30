@@ -1,18 +1,18 @@
 #ifndef POLSERVER_VALUECONSUMER_H
 #define POLSERVER_VALUECONSUMER_H
 
-#include "compiler/ast/Statement.h"
+#include "compiler/ast/Expression.h"
 
 namespace Pol::Bscript::Compiler
 {
 class NodeVisitor;
 
-class ValueConsumer : public Statement
+class ValueConsumer : public Expression
 {
 public:
-  ValueConsumer( const SourceLocation&, std::unique_ptr<Statement> child );
+  ValueConsumer( const SourceLocation&, std::unique_ptr<Expression> child );
 
-  void accept( NodeVisitor& visitor ) override;
+  void accept( NodeVisitor& ) override;
   void describe_to( fmt::Writer& ) const override;
 };
 

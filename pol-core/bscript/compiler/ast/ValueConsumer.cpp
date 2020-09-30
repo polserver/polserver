@@ -7,8 +7,8 @@
 namespace Pol::Bscript::Compiler
 {
 ValueConsumer::ValueConsumer( const SourceLocation& source_location,
-                              std::unique_ptr<Statement> child )
-    : Statement( source_location, std::move( child ) )
+                              std::unique_ptr<Expression> child )
+    : Expression( source_location, std::move( child ) )
 {
 }
 

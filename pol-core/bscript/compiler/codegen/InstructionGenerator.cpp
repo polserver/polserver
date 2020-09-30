@@ -284,13 +284,22 @@ void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
 {
   visit_children( node );
   update_debug_location( node );
+  auto num_indexes = node.indexes().children.size();
   if ( node.consume )
   {
-    emit.assign_subscript_consume();
+    if ( num_indexes == 1 )
+    {
+      emit.assign_subscript_consume();
+    }
+    else
+    {
+      // there is no assign-multisubscript-consume instruction
+      emit.assign_multisubscript( num_indexes );
+      emit.consume();
+    }
   }
   else
   {
-    auto num_indexes = node.indexes().children.size();
     if ( num_indexes == 1 )
       emit.assign_subscript();
     else
@@ -683,6 +692,8 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
 
     emit.assign();
   }
+
+  emit.consume();
 }
 
 void InstructionGenerator::visit_variable_assignment_statement( VariableAssignmentStatement& node )

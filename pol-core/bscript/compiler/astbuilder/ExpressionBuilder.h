@@ -35,7 +35,7 @@ public:
       EscriptGrammar::EscriptParser::ExplicitArrayInitializerContext* );
 
   std::unique_ptr<Expression> binary_operator(
-      EscriptGrammar::EscriptParser::ExpressionContext* );
+      EscriptGrammar::EscriptParser::ExpressionContext*, bool consume );
 
   BTokenId binary_operator_token( EscriptGrammar::EscriptParser::ExpressionContext* );
 
@@ -51,7 +51,8 @@ public:
   std::unique_ptr<ErrorInitializer> error(
       EscriptGrammar::EscriptParser::ExplicitErrorInitializerContext* );
 
-  std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext* );
+  std::unique_ptr<Expression> expression( EscriptGrammar::EscriptParser::ExpressionContext*,
+                                          bool consume = false );
 
   std::vector<std::unique_ptr<Expression>> expressions(
       EscriptGrammar::EscriptParser::ArrayInitializerContext* );
