@@ -15,15 +15,18 @@ namespace antlr4
 }
 namespace Pol::Bscript::Compiler
 {
+class BuilderWorkspace;
+class Expression;
 class Report;
 class SourceLocation;
 class SourceFileIdentifier;
-class BuilderWorkspace;
 
 class TreeBuilder
 {
 public:
   TreeBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
+
+  static std::unique_ptr<Expression> consume_expression_result( std::unique_ptr<Expression> );
 
   SourceLocation location_for( antlr4::ParserRuleContext& ) const;
   SourceLocation location_for( antlr4::tree::TerminalNode& ) const;

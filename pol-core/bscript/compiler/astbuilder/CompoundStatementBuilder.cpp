@@ -55,7 +55,7 @@ void CompoundStatementBuilder::add_statements( EscriptParser::StatementContext* 
 
   if ( auto expr_ctx = ctx->expression() )
   {
-    statements.push_back( consume_statement_result( expression( expr_ctx ) ) );
+    statements.push_back( expression( expr_ctx, true ) );
   }
   else if ( auto if_st = ctx->ifStatement() )
   {

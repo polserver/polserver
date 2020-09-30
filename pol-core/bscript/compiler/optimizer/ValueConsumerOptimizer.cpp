@@ -77,30 +77,6 @@ void ValueConsumerOptimizer::visit_binary_operator( BinaryOperator& binary_opera
   }
 }
 
-void ValueConsumerOptimizer::visit_element_assignment( ElementAssignment& node )
-{
-  if ( node.indexes().children.size() == 1 )
-  {
-    auto indexes = node.take_indexes();
-    auto entity = node.take_entity();
-    auto rhs = node.take_rhs();
-    optimized_result = std::make_unique<ElementAssignment>(
-        node.source_location, true, std::move( entity ), std::move( indexes ), std::move( rhs ) );
-  }
-}
-
-void ValueConsumerOptimizer::visit_member_assignment( MemberAssignment& node )
-{
-  if ( node.consume )
-    node.internal_error(
-        "ValueConsumerOptimizer did not expect an already-consumed SetMember node" );
-  auto entity = node.take_entity();
-  auto rhs = node.take_rhs();
-  optimized_result =
-      std::make_unique<MemberAssignment>( node.source_location, true, std::move( entity ),
-                                          node.name, std::move( rhs ), node.known_member );
-}
-
 std::unique_ptr<Statement> ValueConsumerOptimizer::optimize( ValueConsumer& consume_value )
 {
   consume_value.children.at( 0 )->accept( *this );

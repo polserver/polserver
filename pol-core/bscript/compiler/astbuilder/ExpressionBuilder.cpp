@@ -60,7 +60,7 @@ std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
-    EscriptParser::ExpressionContext* ctx )
+    EscriptParser::ExpressionContext* ctx, bool consume )
 {
   auto lhs = expression( ctx->expression( 0 ) );
   auto rhs = expression( ctx->expression( 1 ) );
@@ -71,13 +71,22 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
   {
     if ( auto element_access = dynamic_cast<ElementAccess*>( lhs.get() ) )
     {
-      return std::make_unique<ElementAssignment>(
-          location_for( *ctx ), false, element_access->take_entity(),
-          element_access->take_indexes(), std::move( rhs ) );
+      if ( element_access->indexes().children.size() > 1 && consume )
+      {
+        return consume_expression_result( std::make_unique<ElementAssignment>(
+            location_for( *ctx ), false, element_access->take_entity(),
+            element_access->take_indexes(), std::move( rhs ) ) );
+      }
+      else
+      {
+        return std::make_unique<ElementAssignment>(
+            location_for( *ctx ), consume, element_access->take_entity(),
+            element_access->take_indexes(), std::move( rhs ) );
+      }
     }
     else if ( auto get_member = dynamic_cast<MemberAccess*>( lhs.get() ) )
     {
-      return std::make_unique<MemberAssignment>( location_for( *ctx ), false,
+      return std::make_unique<MemberAssignment>( location_for( *ctx ), consume,
                                                  get_member->take_entity(), get_member->name,
                                                  std::move( rhs ), get_member->known_member );
     }
@@ -94,8 +103,12 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
     }
   }
 
-  return std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
-                                           ctx->bop->getText(), token_id, std::move( rhs ) );
+  auto op = std::make_unique<BinaryOperator>( location_for( *ctx ), std::move( lhs ),
+                                              ctx->bop->getText(), token_id, std::move( rhs ) );
+  if ( consume )
+    return consume_expression_result( std::move( op ) );
+  else
+    return op;
 }
 
 BTokenId ExpressionBuilder::binary_operator_token(
@@ -283,27 +296,38 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
   return {};
 }
 
-std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::ExpressionContext* ctx )
+std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::ExpressionContext* ctx,
+                                                           bool consume )
 {
+  std::unique_ptr<Expression> result;
   if ( auto prim = ctx->primary() )
-    return primary( prim );
+    result = primary( prim );
   else if ( ctx->prefix )
-    return prefix_unary_operator( ctx );
+    result = prefix_unary_operator( ctx );
   else if ( ctx->postfix )
-    return postfix_unary_operator( ctx );
+    result = postfix_unary_operator( ctx );
   else if ( ctx->bop && ctx->expression().size() == 2 )
   {
     if ( ctx->ELVIS() )
-      return elvis_operator( ctx );
+      result = elvis_operator( ctx );
     else
-      return binary_operator( ctx );
+      return binary_operator( ctx, consume );
   }
   else if ( auto suffix = ctx->expressionSuffix() )
   {
-    return expression_suffix( expression( ctx->expression()[0] ), suffix );
+    result = expression_suffix( expression( ctx->expression()[0] ), suffix );
+  }
+  else
+  {
+    location_for( *ctx ).internal_error( "unhandled expression" );
   }
 
-  location_for( *ctx ).internal_error( "unhandled expression" );
+  if (consume)
+  {
+    result = consume_expression_result( std::move( result ) );
+  }
+
+  return result;
 }
 
 std::unique_ptr<FunctionCall> ExpressionBuilder::function_call(

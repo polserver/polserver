@@ -683,6 +683,8 @@ void InstructionGenerator::visit_var_statement( VarStatement& node )
 
     emit.assign();
   }
+
+  emit.consume();
 }
 
 void InstructionGenerator::visit_variable_assignment_statement( VariableAssignmentStatement& node )
