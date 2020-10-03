@@ -70,7 +70,7 @@ namespace Network
 unsigned int Client::instance_counter_;
 std::mutex ThreadedClient::_SocketMutex;
 
-ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient )
+ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient )
     : myClient( myClient ),
       thread_pid( static_cast<size_t>( -1 ) ),
       csocket( INVALID_SOCKET ),
