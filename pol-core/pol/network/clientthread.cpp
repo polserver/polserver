@@ -699,7 +699,7 @@ void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
   {
     INFO_PRINT_TRACE( 10 ) << "Client#" << instance_ << ": message 0x" << fmt::hexu( msgtype )
                            << "\n";
-    
+
     // TODO: use PacketRegistry::handle_msg(...) ?
     MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler( msgtype, this );
     passert( packetHandler.msglen != 0 );
@@ -719,34 +719,6 @@ void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
     throw;
   }
 }
-
-/*
-Network::MSG_HANDLER packetHandler =
-              Network::PacketRegistry::find_handler( msgtype, client );
-          passert( packetHandler.msglen != 0 );
-
-          try
-          {
-            INFO_PRINT_TRACE( 10 )
-                << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-            
-            packetHandler.func( client, client->buffer );
-            restart_all_clients();
-          }
-          catch ( std::exception& ex )
-          {
-            POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                << client->instance_ << (int)msgtype << ex.what();
-
-            fmt::Writer tmp;
-            Clib::fdump( tmp, client->buffer, client->bytes_received );
-            POLLOG << tmp.str() << "\n";
-
-            restart_all_clients();
-            throw;
-          }
-*/
-
 
 // ThreadedClient stuff
 void ThreadedClient::process_delayed_packets()
