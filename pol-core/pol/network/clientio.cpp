@@ -95,7 +95,6 @@ void ThreadedClient::recv_remaining_nocrypt( int total_expected )
   }
 }
 
-
 /* NOTE: If this changes, code in client.cpp must change - pause() and restart() use
    pre-encrypted values of 33 00 and 33 01.
    */

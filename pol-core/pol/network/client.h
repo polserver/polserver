@@ -149,13 +149,16 @@ public:
   void recv_remaining( int total_expected );
   void recv_remaining_nocrypt( int total_expected );
 
+  bool has_delayed_packets() const;
+  void process_delayed_packets();
+
 protected:
-  ThreadedClient( Crypt::TCryptInfo& encryption, const Client& myClient );
+  ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient );
 
 public:
   // this reference is only needed because we have diagnostic messages that need the client
   // "instance" number
-  const Client& myClient;
+  Client& myClient;
   size_t thread_pid;
   SOCKET csocket;  // socket to client ACK  - requires header inclusion.
 
@@ -239,6 +242,11 @@ public:
   int on_close();     // Called after the connection is closed (returns how long until on_logoff)
   int test_logoff();  // Calls logofftest.ecl to determine how many seconds for the logoff timer
   void on_logoff();   // Called when chr can finally logoff
+
+  void warn_idle();
+  bool should_check_idle();
+
+  void handle_msg( unsigned char* pktbuffer, int pktlen );
 
   void setversion( const std::string& ver ) { version_ = ver; }
   const std::string& getversion() const { return version_; }
@@ -330,6 +338,10 @@ inline bool ThreadedClient::isReallyConnected() const
 inline bool ThreadedClient::isConnected() const
 {
   return !this->preDisconnect && this->isReallyConnected();
+}
+inline bool ThreadedClient::has_delayed_packets() const
+{
+    return !myClient.movementqueue.empty();
 }
 
 inline bool Client::isActive() const

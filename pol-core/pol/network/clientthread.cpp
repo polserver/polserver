@@ -42,10 +42,6 @@
 #define CLIENT_CHECKPOINT( x ) client->checkpoint = x
 #define SESSION_CHECKPOINT( x ) session->checkpoint = x
 
-#ifdef _MSC_VER
-#pragma warning( disable : 4127 )  // conditional expression is constant, because of FD_SET
-#endif
-
 namespace Pol::Core
 {
 // This function below is defined (for now) in pol.cpp. That's ugly.
@@ -101,23 +97,14 @@ bool threadedclient_io_step( Network::Client* session, Clib::SinglePoller& clien
   }
   else if ( res == 0 )
   {
-    if ( ( !session->chr ||
-           session->chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity ) &&
-         Plib::systemstate.config.inactivity_warning_timeout &&
-         Plib::systemstate.config.inactivity_disconnect_timeout )
+    if ( session->myClient.should_check_idle() )
     {
       ++nidle;
       if ( nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout )
       {
         SESSION_CHECKPOINT( 4 );
         PolLock lck;  // multithread
-        Network::PktHelper::PacketOut<Network::PktOut_53> msg;
-        msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
-        SESSION_CHECKPOINT( 5 );
-        msg.Send( session );
-        SESSION_CHECKPOINT( 18 );
-        if ( session->pause_count )
-          session->restart();
+        session->myClient.warn_idle();
       }
       else if ( nidle == 30 * Plib::systemstate.config.inactivity_disconnect_timeout )
       {
@@ -137,39 +124,10 @@ bool threadedclient_io_step( Network::Client* session, Clib::SinglePoller& clien
   }
 
   // region Speedhack
-  if ( !session->movementqueue.empty() )  // not empty then process the first packet
+  if ( session->has_delayed_packets() )  // not empty then process the first packet
   {
     PolLock lck;  // multithread
-    Network::PacketThrottler pkt = session->movementqueue.front();
-    if ( session->SpeedHackPrevention( false ) )
-    {
-      if ( session->isReallyConnected() )
-      {
-        unsigned char msgtype = pkt.pktbuffer[0];
-        Network::MSG_HANDLER packetHandler =
-            Network::PacketRegistry::find_handler( msgtype, session );
-        try
-        {
-          INFO_PRINT_TRACE( 10 ) << "Client#" << session->instance_ << ": message 0x"
-                                 << fmt::hexu( msgtype ) << "\n";
-          SESSION_CHECKPOINT( 26 );
-          packetHandler.func( session, pkt.pktbuffer );
-          SESSION_CHECKPOINT( 27 );
-          restart_all_clients();
-        }
-        catch ( std::exception& ex )
-        {
-          POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-              << session->instance_ << (int)msgtype << ex.what();
-          fmt::Writer tmp;
-          Clib::fdump( tmp, pkt.pktbuffer, 7 );
-          POLLOG << tmp.str() << "\n";
-          restart_all_clients();
-          throw;
-        }
-      }
-      session->movementqueue.pop();
-    }
+    session->process_delayed_packets();
   }
   // endregion Speedhack
 
@@ -212,7 +170,7 @@ bool threadedclient_io_step( Network::Client* session, Clib::SinglePoller& clien
   SESSION_CHECKPOINT( 21 );
 
   return true;
-}
+}  // namespace Pol::Core
 
 void threadedclient_io_loop( Network::Client* session, bool login )
 {
@@ -445,30 +403,7 @@ bool process_data( Network::Client* client )
           }
           // endregion Speedhack
 
-
-          Network::MSG_HANDLER packetHandler =
-              Network::PacketRegistry::find_handler( msgtype, client );
-          passert( packetHandler.msglen != 0 );
-
-          try
-          {
-            INFO_PRINT_TRACE( 10 )
-                << "Client#" << client->instance_ << ": message 0x" << fmt::hexu( msgtype ) << "\n";
-            CLIENT_CHECKPOINT( 26 );
-            packetHandler.func( client, client->buffer );
-            CLIENT_CHECKPOINT( 27 );
-            restart_all_clients();
-          }
-          catch ( std::exception& ex )
-          {
-            POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-                << client->instance_ << (int)msgtype << ex.what();
-            fmt::Writer tmp;
-            Clib::fdump( tmp, client->buffer, client->bytes_received );
-            POLLOG << tmp.str() << "\n";
-            restart_all_clients();
-            throw;
-          }
+          client->handle_msg( client->buffer, client->bytes_received );
         }
         else
         {
@@ -737,6 +672,66 @@ void Client::on_logoff()
     {
       chr->realm->notify_left( *chr );
     }
+  }
+}
+
+void Client::warn_idle()
+{
+  Network::PktHelper::PacketOut<Network::PktOut_53> msg;
+  msg->Write<u8>( PKTOUT_53_WARN_CHARACTER_IDLE );
+  msg.Send( this );
+
+  if ( pause_count )
+    restart();
+}
+
+bool Client::should_check_idle()
+{
+  return ( !chr || chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity ) &&
+         Plib::systemstate.config.inactivity_warning_timeout &&
+         Plib::systemstate.config.inactivity_disconnect_timeout;
+}
+
+void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
+{
+  const unsigned char msgtype = pktbuffer[0];
+  try
+  {
+    INFO_PRINT_TRACE( 10 ) << "Client#" << instance_ << ": message 0x" << fmt::hexu( msgtype )
+                           << "\n";
+
+    // TODO: use PacketRegistry::handle_msg(...) ?
+    MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler( msgtype, this );
+    passert( packetHandler.msglen != 0 );
+    packetHandler.func( this, pktbuffer );
+    Core::restart_all_clients();
+  }
+  catch ( std::exception& ex )
+  {
+    POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
+        << instance_ << (int)msgtype << ex.what();
+
+    fmt::Writer tmp;
+    Clib::fdump( tmp, pktbuffer, pktlen );
+    POLLOG << tmp.str() << "\n";
+
+    Core::restart_all_clients();
+    throw;
+  }
+}
+
+// ThreadedClient stuff
+void ThreadedClient::process_delayed_packets()
+{
+  PacketThrottler pkt = myClient.movementqueue.front();
+
+  if ( myClient.SpeedHackPrevention( false ) )
+  {
+    if ( isReallyConnected() )
+    {
+      myClient.handle_msg( pkt.pktbuffer, sizeof pkt.pktbuffer );
+    }
+    myClient.movementqueue.pop();
   }
 }
 
