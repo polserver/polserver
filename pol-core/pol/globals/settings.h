@@ -23,7 +23,7 @@ public:
   SettingsManager& operator=( const SettingsManager& ) = delete;
 
   void deinitialize();
-  size_t estimateSize() const;
+  [[nodiscard]] size_t estimateSize() const;
 
   CombatConfig combat_config;
   Watch watch;

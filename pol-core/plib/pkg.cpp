@@ -257,7 +257,6 @@ void Package::check_conflicts() const
 size_t Package::estimateSize() const
 {
   size_t size = dir_.capacity() + name_.capacity() + version_.capacity() +
-                sizeof( unsigned short ) /*core_required*/
                 + core_required_.capacity() + requires_.sizeEstimate() +
                 conflicts_.sizeEstimate() + replaces_.sizeEstimate() +
                 sizeof( bool ) /*provides_system_home_page_*/

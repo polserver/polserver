@@ -35,7 +35,7 @@ void SettingsManager::deinitialize() {}
 
 size_t SettingsManager::estimateSize() const
 {
-  size_t size = sizeof( SettingsManager );
+  size_t size = sizeof( SettingsManager ) - sizeof( PolVar ) + polvar.estimateSize();
   return size;
 }
 
