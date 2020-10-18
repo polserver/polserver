@@ -13,7 +13,9 @@ namespace Core
 class PolVar
 {
 public:
-  unsigned short DataWrittenBy;
+  std::string DataWrittenBy;
+  bool DataWrittenBy99OrLater;
+  bool DataWrittenBy93;
 };
 }
 }
