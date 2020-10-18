@@ -993,8 +993,8 @@ int xmain_inner( bool testing )
 
   Clib::MakeDirectory( "log" );
 
-  POLLOG_INFO << "POL " << POL_VERSION_ID << " - " << Clib::ProgramConfig::build_target() << "\ncompiled on "
-              << Clib::ProgramConfig::build_datetime() << "\n"
+  POLLOG_INFO << "POL " << POL_VERSION_ID << " - " << Clib::ProgramConfig::build_target()
+              << "\nCompiled on " << Clib::ProgramConfig::build_datetime() << "\n"
               << POL_COPYRIGHT << "\n\n";
   if ( testing )
     POLLOG_INFO << "TESTING MODE\n\n";
