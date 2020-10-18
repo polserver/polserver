@@ -18,8 +18,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_fla
 
 project(polserver CXX C)
 
-set(POL_VERSION_STR "100")
-set(POL_VERSION 100)
+set(POL_VERSION_STR "100.0.0")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)

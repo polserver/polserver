@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-15-2020</datemodified>
+		<datemodified>10-17-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-17-2020</date>
+			<author>Syzygy:</author>
+			<change type="Changed">Now using semantic versions for core versions.<br/>
+polcore().version now returns a string like 100.0.0 rather than an integer like 100</change>
+		</entry>
 		<entry>
 			<date>09-15-2020</date>
 			<author>Syzygy:</author>

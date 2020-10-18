@@ -1872,7 +1872,6 @@ BObjectImp* GetCoreVariable( const char* corevar )
   LONG_COREVAR( sysload_severity, stateManager.profilevars.last_sysload_nprocs );
   //  LONG_COREVAR( bytes_sent, polstats.bytes_sent );
   //  LONG_COREVAR( bytes_received, polstats.bytes_received );
-  LONG_COREVAR( version, POL_VERSION );
   LONG_COREVAR( systime, time( nullptr ) );
   LONG_COREVAR( events_per_min, GET_PROFILEVAR_PER_MIN( events ) );
   LONG_COREVAR( skill_checks_per_min, GET_PROFILEVAR_PER_MIN( skill_checks ) );
@@ -1891,6 +1890,8 @@ BObjectImp* GetCoreVariable( const char* corevar )
 
   LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
   LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
+  if ( stricmp( corevar, "version" ) == 0 )
+    return new String( POL_VERSION_STR );
   if ( stricmp( corevar, "verstr" ) == 0 )
     return new String( POL_VERSION_ID );
   if ( stricmp( corevar, "compiledatetime" ) == 0 )
