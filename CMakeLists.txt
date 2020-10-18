@@ -16,9 +16,13 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_over
 set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
 
-project(polserver CXX C)
+project(polserver 
+	LANGUAGES CXX C
+	VERSION 100.0.0
+	DESCRIPTION "Penultima Online"
+	HOMEPAGE_URL "polserver.com")
 
-set(POL_VERSION_STR "100.0.0")
+set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
