@@ -13,7 +13,13 @@ namespace Core
 class PolVar
 {
 public:
-  unsigned short DataWrittenBy;
+  std::string DataWrittenBy;
+  bool DataWrittenBy99OrLater;
+  bool DataWrittenBy93;
+
+  [[nodiscard]] size_t estimateSize() const {
+    return sizeof( PolVar ) + DataWrittenBy.capacity();
+  }
 };
 }
 }

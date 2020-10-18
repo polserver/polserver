@@ -947,7 +947,7 @@ void Character::readAttributesAndVitals( Clib::ConfigElem& elem )
         unsigned int base;
         unsigned int cap = pAttr->default_cap;
         unsigned char lock = 0;
-        if ( Core::settingsManager.polvar.DataWrittenBy == 93 &&
+        if ( Core::settingsManager.polvar.DataWrittenBy93 &&
              Core::stateManager.gflag_in_system_load )
         {
           unsigned int raw = strtoul( temp.c_str(), nullptr, 10 );
@@ -955,7 +955,7 @@ void Character::readAttributesAndVitals( Clib::ConfigElem& elem )
         }
         else
         {
-          if ( !Core::settingsManager.polvar.DataWrittenBy &&
+          if ( Core::settingsManager.polvar.DataWrittenBy.empty() &&
                Core::stateManager.gflag_in_system_load )
           {
             elem.throw_error( "Pol.txt 'System' element needs to specify CoreVersion" );

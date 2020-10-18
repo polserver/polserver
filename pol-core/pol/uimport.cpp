@@ -71,6 +71,11 @@ void commit_datastore();
 void read_datastore_dat();
 void write_datastore( Clib::StreamWriter& sw );
 }  // namespace Module
+namespace Plib
+{
+bool version_greater_or_equal( const std::string& version_have, const std::string& version_need );
+bool version_equal( const std::string& version_have, const std::string& version_need );
+}  // namespace Plib
 namespace Core
 {
 void read_party_dat();
@@ -293,7 +298,11 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 
 void read_system_vars( Clib::ConfigElem& elem )
 {
-  settingsManager.polvar.DataWrittenBy = elem.remove_ushort( "CoreVersion" );
+  settingsManager.polvar.DataWrittenBy = elem.remove_string( "CoreVersion" );
+  settingsManager.polvar.DataWrittenBy99OrLater =
+      Plib::version_greater_or_equal( settingsManager.polvar.DataWrittenBy, "99.0.0" );
+  settingsManager.polvar.DataWrittenBy93 =
+      Plib::version_equal( settingsManager.polvar.DataWrittenBy, "93.0.0" );
   stateManager.stored_last_item_serial =
       elem.remove_ulong( "LastItemSerialNumber", UINT_MAX );  // dave 3/9/3
   stateManager.stored_last_char_serial =
@@ -427,7 +436,7 @@ void read_pol_dat()
 
   slurp( polfile.c_str(), "GLOBALPROPERTIES SYSTEM REALM" );
 
-  if ( settingsManager.polvar.DataWrittenBy == 0 )
+  if ( settingsManager.polvar.DataWrittenBy.empty() )
   {
     ERROR_PRINT
         << "CoreVersion not found in " << polfile << "\n\n"
@@ -816,7 +825,7 @@ void write_global_properties( Clib::StreamWriter& sw )
 
 void write_system_data( Clib::StreamWriter& sw )
 {
-  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION << pf_endl
+  sw() << "System" << pf_endl << "{" << pf_endl << "\tCoreVersion\t" << POL_VERSION_STR << pf_endl
        << "\tCoreVersionString\t" << POL_VERSION_ID << pf_endl << "\tCompileDateTime\t"
        << Clib::ProgramConfig::build_datetime() << pf_endl << "\tLastItemSerialNumber\t"
        << GetCurrentItemSerialNumber() << pf_endl                                // dave 3/9/3

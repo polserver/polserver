@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 
-#protect the user for himself
+#protect the user from himself
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR "
     FATAL: In-source builds are not allowed.
@@ -16,11 +16,15 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_over
 set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
 
-project(polserver CXX C)
+project(polserver 
+	LANGUAGES CXX C
+	VERSION 100.0.0
+	DESCRIPTION "Penultima Online"
+	HOMEPAGE_URL "polserver.com")
 
-set(POL_VERSION_STR "100")
-set(POL_VERSION 100)
+set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
+set(POL_COPYRIGHT "Copyright (C) 1993-2020 Eric N. Swanson")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
@@ -65,8 +69,8 @@ set(POL_EXT_LIB_DIR "${CMAKE_SOURCE_DIR}/lib")
 set(output_bin_dir "${CMAKE_SOURCE_DIR}/bin")
 
 message("####################################")
-message("#          ${PROJECT_NAME} - ${POL_VERSION_STR}         #")
-message("# -   ${POL_VERSION_NAME}    - #")
+message("## ${PROJECT_NAME} - ${POL_VERSION_STR}")
+message("## ${POL_VERSION_NAME}")
 message("####################################")
 message("## CMake Version ${CMAKE_VERSION}")
 message("## Generator ${CMAKE_GENERATOR} ${CMAKE_EXTRA_GENERATOR}")

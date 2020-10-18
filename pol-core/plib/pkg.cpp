@@ -99,7 +99,7 @@ void compare_versions( const std::string& verleft, const std::string& verright, 
   isequal = true;
 }
 
-bool check_version2( const std::string& version_have, const std::string& version_need )
+bool version_greater_or_equal( const std::string& version_have, const std::string& version_need )
 {
   bool isgreater;
   bool isequal;
@@ -107,18 +107,29 @@ bool check_version2( const std::string& version_have, const std::string& version
   return ( isequal || isgreater );
 }
 
+bool version_equal( const std::string& version_have, const std::string& version_need )
+{
+  bool isgreater;
+  bool isequal;
+  compare_versions( version_have, version_need, isgreater, isequal );
+  return isequal;
+}
+
 void test_check_version()
 {  // have // need
-  passert( check_version2( "0", "0" ) == true );
-  passert( check_version2( "1", "0" ) == true );
-  passert( check_version2( "0", "1" ) == false );
-  passert( check_version2( "0.5", "1" ) == false );
-  passert( check_version2( "0.5", "0" ) == true );
-  passert( check_version2( "1.2", "1.12" ) == false );
-  passert( check_version2( "1.12", "1.2" ) == true );
-  passert( check_version2( "1.2.3", "1" ) == true );
-  passert( check_version2( "1.1", "1.2.3" ) == false );
-  passert( check_version2( "1.3", "1.2.3" ) == true );
+  passert( version_greater_or_equal( "0", "0" ) == true );
+  passert( version_greater_or_equal( "1", "0" ) == true );
+  passert( version_greater_or_equal( "0", "1" ) == false );
+  passert( version_greater_or_equal( "0.5", "1" ) == false );
+  passert( version_greater_or_equal( "0.5", "0" ) == true );
+  passert( version_greater_or_equal( "1.2", "1.12" ) == false );
+  passert( version_greater_or_equal( "1.12", "1.2" ) == true );
+  passert( version_greater_or_equal( "1.2.3", "1" ) == true );
+  passert( version_greater_or_equal( "1.1", "1.2.3" ) == false );
+  passert( version_greater_or_equal( "1.3", "1.2.3" ) == true );
+
+  passert( version_equal( "93", "93.0.0" ) == true );
+  passert( version_equal( "93.0.0", "93" ) == true );
 }
 
 PackageList::PackageList( Clib::ConfigElem& elem, const char* tag )
@@ -150,24 +161,25 @@ Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem )
     : dir_( pkg_dir ),
       name_( elem.remove_string( "Name" ) ),
       version_( elem.remove_string( "Version", "0" ) ),
-      core_required_( 0 ),
+      core_required_( "" ),
       requires_( elem, "Requires" ),
       conflicts_( elem, "Conflicts" ),
       replaces_( elem, "Replaces" ),
       provides_system_home_page_( elem.remove_bool( "ProvidesSystemHomePage", false ) )
 {
   Clib::mklowerASCII( name_ );
-  // CoreRequired can either be a number (94,,95 etc)
-  // or a version string (POL095-2003-01-28)
   std::string tmp = elem.read_string( "CoreRequired", "0" );
   if ( isdigit( tmp[0] ) )
   {
-    // the first kind - a number.
-    core_required_ = elem.remove_ushort( "CoreRequired", 0 );
+    core_required_ = elem.remove_string( "CoreRequired", "" );
   }
   else
   {
-    core_versionstring_required_ = elem.remove_string( "CoreRequired" );
+    // Forms like CoreRequired POL095-2003-01-28 are no longer allowed.
+    ERROR_PRINT << "Error in package " << name_ << "(" << dir_ << ")" << ":\n"
+                << "  Core version must be a semantic version (n.n.n), but got \""
+                << core_required_ << "\".\n";
+    throw std::runtime_error( "Malformed CoreRequired package field" );
   }
 }
 
@@ -196,24 +208,13 @@ bool Package::check_replacements() const
 
 void Package::check_dependencies() const
 {
-  if ( core_required_ )
+  if ( !core_required_.empty() )
   {
-    if ( core_required_ > POL_VERSION )  // TODO: use a more fine grained check here
+    if ( !(version_greater_or_equal(POL_VERSION_STR, core_required_) ) )
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
                   << "  Core version " << core_required_ << " is required, but version "
-                  << POL_VERSION << " is running.\n";
-      throw std::runtime_error( "Package requires a newer core version" );
-    }
-  }
-  else if ( !core_versionstring_required_.empty() )
-  {
-    int cmp = stricmp( POL_VERSION_ID, core_versionstring_required_.c_str() );
-    if ( cmp < 0 )
-    {
-      ERROR_PRINT << "Error in package " << desc() << ":\n"
-                  << "  Core version " << core_versionstring_required_
-                  << " is required, but version " << POL_VERSION_ID << " is running.\n";
+                  << POL_VERSION_STR << " is running.\n";
       throw std::runtime_error( "Package requires a newer core version" );
     }
   }
@@ -228,7 +229,7 @@ void Package::check_dependencies() const
     }
     else
     {
-      if ( !check_version2( found->version_, elem.version ) )
+      if ( !version_greater_or_equal( found->version_, elem.version ) )
       {
         ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
                     << "  Package '" << elem.pkgname << "' version " << elem.version
@@ -256,8 +257,7 @@ void Package::check_conflicts() const
 size_t Package::estimateSize() const
 {
   size_t size = dir_.capacity() + name_.capacity() + version_.capacity() +
-                sizeof( unsigned short ) /*core_required*/
-                + core_versionstring_required_.capacity() + requires_.sizeEstimate() +
+                + core_required_.capacity() + requires_.sizeEstimate() +
                 conflicts_.sizeEstimate() + replaces_.sizeEstimate() +
                 sizeof( bool ) /*provides_system_home_page_*/
       ;

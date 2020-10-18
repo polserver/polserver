@@ -2,6 +2,12 @@
 # Please consult core-changes.txt for more information.
 
 -- POL100 [work-in-progress] --
+2020-10-17:
+    polcore().version now returns a string like "100.0.0"
+    Package `CoreRequired` fields must use a semantic version such as 99.0.0
+      - Numbers like 98 will be understood as 98.0.0
+      - Numbers like 98.1 will be understood as 98.1.0
+
 2020-09-15:
     The new compiler could change script behavior.
     Be sure to run the compiler in "comparison mode" and update any scripts that have differences so that this doesn't happen.

@@ -60,9 +60,7 @@ private:
   std::string name_;
   std::string version_;
 
-  // only one of these two will be set.
-  unsigned short core_required_;
-  std::string core_versionstring_required_;
+  std::string core_required_;
 
   PackageList requires_;
   PackageList conflicts_;

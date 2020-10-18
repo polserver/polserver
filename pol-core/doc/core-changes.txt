@@ -1,4 +1,8 @@
 ﻿-- POL100 --
+10-17-2020 Syzygy:
+  Changed: Now using semantic versions for core versions.
+           polcore().version now returns a string like 100.0.0 rather than an integer like 100
+
 09-15-2020 Syzygy:
   Changed: Replaced the eScript compiler.  (Added the new compiler, which is used by default)
            The intent is that the new compiler will compile every script that used to compile,
