@@ -44,7 +44,7 @@ void TestEnv::generate()
   std::ofstream afile( datadir / "accounts.txt", std::ofstream::out );
   afile.close();
   std::ofstream pfile( datadir / "pol.txt", std::ofstream::out );
-  pfile << "System\n{\n\tCoreVersion " << POL_VERSION << "\n}";
+  pfile << "System\n{\n\tCoreVersion " << POL_VERSION_STR << "\n}";
   pfile.close();
   std::ofstream bfile( _basedir / "config" / "boats.cfg", std::ofstream::out );
   bfile.close();
