@@ -8,7 +8,7 @@ if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
     CONFIGURE_COMMAND ./bootstrap.sh
         --prefix=build --with-toolset=gcc
     INSTALL_COMMAND ""
-    BUILD_COMMAND ./bjam
+    BUILD_COMMAND ./b2
         toolset=gcc
         link=static
         runtime-link=static
