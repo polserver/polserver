@@ -49,7 +49,8 @@ void call_chr_scripts( Mobile::Character* chr, const std::string& root_script_ec
                        const std::string& pkg_script_ecl, bool offline = false );
 
 
-void report_weird_packet( Network::Client* client, const std::string& why );  // Defined below
+void report_weird_packet( Network::ThreadedClient* session,
+                          const std::string& why );  // Defined below
 
 void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_login )
 {
@@ -274,16 +275,16 @@ bool client_io_thread( Network::Client* client, bool login )
   return false;
 }
 
-bool valid_message_length( Network::Client* client, unsigned int length )
+bool valid_message_length( Network::ThreadedClient* session, unsigned int length )
 {
-  if ( length > sizeof client->buffer )
+  if ( length > sizeof session->buffer )
   {
-    handle_humongous_packet( client, client->message_length );
+    handle_humongous_packet( session, session->message_length );
     return false;
   }
   if ( length < 3 )
   {
-    report_weird_packet( client, "Too-short message" );
+    report_weird_packet( session, "Too-short message" );
     return false;
   }
   return true;
@@ -559,62 +560,64 @@ bool check_inactivity( Network::Client* client )
   return false;
 }
 
-void report_weird_packet( Network::Client* client, const std::string& why )
+// Something to consider: this could become Client::report_weird_packet(char* buffer, int
+// bytes_received, const std::string& why)
+void report_weird_packet( Network::ThreadedClient* session, const std::string& why )
 {
   fmt::Writer tmp;
   tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
-      << client->instance_ << why << (int)client->buffer[0] << client->bytes_received
-      << client->ipaddrAsString()
-      << ( ( client->acct != nullptr ) ? client->acct->name() : "None" );
+      << session->myClient.instance_ << why << (int)session->buffer[0] << session->bytes_received
+      << session->ipaddrAsString()
+      << ( ( session->myClient.acct != nullptr ) ? session->myClient.acct->name() : "None" );
 
-  if ( client->bytes_received <= 64 )
+  if ( session->bytes_received <= 64 )
   {
-    Clib::fdump( tmp, client->buffer, client->bytes_received );
+    Clib::fdump( tmp, session->buffer, session->bytes_received );
     POLLOG_INFO << tmp.str() << "\n";
   }
   else
   {
     INFO_PRINT << tmp.str();
-    Clib::fdump( tmp, client->buffer, client->bytes_received );
+    Clib::fdump( tmp, session->buffer, session->bytes_received );
     POLLOG << tmp.str() << "\n";
   }
 }
 
 // Called when a packet size is registered but the
 // packet has no handler in the core
-void handle_unknown_packet( Network::Client* client )
+void handle_unknown_packet( Network::ThreadedClient* session )
 {
   if ( Plib::systemstate.config.display_unknown_packets )
-    report_weird_packet( client, "Unknown packet" );
+    report_weird_packet( session, "Unknown packet" );
 }
 
 // Called when POL receives an undefined packet.
 // Those have no registered size, so we must guess.
-void handle_undefined_packet( Network::Client* client )
+void handle_undefined_packet( Network::ThreadedClient* session )
 {
-  int msgtype = (int)client->buffer[0];
+  int msgtype = (int)session->buffer[0];
   INFO_PRINT.Format( "Undefined message type 0x{:X}\n" ) << msgtype;
 
   // Tries to read as much of it out as possible
-  client->recv_remaining( sizeof client->buffer / 2 );
+  session->recv_remaining( sizeof session->buffer / 2 );
 
-  report_weird_packet( client, "Unexpected message" );
+  report_weird_packet( session, "Unexpected message" );
 }
 
 // Handles variable-sized packets whose declared size is much larger than
 // the receive buffer. This packet is most likely a client error, because
 // the buffer should be big enough to handle anything sent by the known
 // clients.
-void handle_humongous_packet( Network::Client* client, unsigned int reported_size )
+void handle_humongous_packet( Network::ThreadedClient* session, unsigned int reported_size )
 {
   // Tries to read as much of it out as possible
   // (the client will be disconnected, but this may
   // be useful for debugging)
-  client->recv_remaining( sizeof client->buffer / 2 );
+  session->recv_remaining( sizeof session->buffer / 2 );
 
   fmt::Writer tmp;
   tmp.Format( "Humongous packet (length {})", reported_size );
-  report_weird_packet( client, tmp.str() );
+  report_weird_packet( session, tmp.str() );
 }
 }  // namespace Pol::Core
 

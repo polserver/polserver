@@ -60,7 +60,7 @@ namespace Pol
 {
 namespace Core
 {
-void handle_unknown_packet( Network::Client* client );
+void handle_unknown_packet( Network::ThreadedClient* session );
 
 Party::Party( u32 serial )
     : _member_serials(),

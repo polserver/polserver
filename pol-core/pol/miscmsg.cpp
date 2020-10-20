@@ -75,7 +75,7 @@ namespace Core
 {
 using namespace Network;
 
-void handle_unknown_packet( Client* client );
+void handle_unknown_packet( Network::ThreadedClient* session );
 
 void party_cmd_handler( Client* client, PKTBI_BF* msg );
 
