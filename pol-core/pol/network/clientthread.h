@@ -10,7 +10,7 @@ class ThreadedClient;
 namespace Pol::Core
 {
 bool client_io_thread( Network::Client* client, bool login );
-bool process_data( Network::Client* client );
+bool process_data( Network::ThreadedClient* client );
 bool check_inactivity( Network::Client* client );
 
 void handle_unknown_packet( Network::ThreadedClient* session );

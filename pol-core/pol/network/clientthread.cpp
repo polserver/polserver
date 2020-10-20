@@ -291,248 +291,193 @@ bool valid_message_length( Network::ThreadedClient* session, unsigned int length
 }
 
 // bool - return true when a message was processed.
-bool process_data( Network::Client* client )
+bool process_data( Network::ThreadedClient* session )
 {
   // NOTE: This is coded such that for normal messages, which are completely available,
   // this function will get the type, then the length, then the data, without having
   // to wait for a second or third call.
   // Also, the abnormal state, RECV_STATE_CRYPTSEED_WAIT, is handled at the end, so in
   // normal processing its code doesn't see the code path.
-  passert( client->bufcheck1_AA == 0xAA );
-  passert( client->bufcheck2_55 == 0x55 );
-  if ( client->recv_state == Network::Client::RECV_STATE_MSGTYPE_WAIT )
+  passert( session->bufcheck1_AA == 0xAA );
+  passert( session->bufcheck2_55 == 0x55 );
+  if ( session->recv_state == Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT )
   {
-    client->bytes_received = 0;
-    client->recv_remaining( 1 );
-    CLIENT_CHECKPOINT( 22 );
-    if ( client->bytes_received < 1 )  // this really should never happen.
+    session->bytes_received = 0;
+    session->recv_remaining( 1 );
+    SESSION_CHECKPOINT( 22 );
+    if ( session->bytes_received < 1 )  // this really should never happen.
     {
-      client->forceDisconnect();
+      session->forceDisconnect();
       return false;
     }
 
-    unsigned char msgtype = client->buffer[0];
-    client->last_msgtype = msgtype;  // CNXBUG
+    unsigned char msgtype = session->buffer[0];
+    session->last_msgtype = msgtype;  // CNXBUG
     if ( Plib::systemstate.config.verbose )
       INFO_PRINT.Format( "Incoming msg type: 0x{:X}\n" ) << (int)msgtype;
 
     if ( !Network::PacketRegistry::is_defined( msgtype ) )
     {
-      handle_undefined_packet( client );
+      handle_undefined_packet( session );
       return false;  // remain in RECV_STATE_MSGTYPE_WAIT
     }
 
-    Network::MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler( msgtype, client );
+    Network::MSG_HANDLER packetHandler =
+        Network::PacketRegistry::find_handler( msgtype, &session->myClient );
     if ( packetHandler.msglen == MSGLEN_2BYTELEN_DATA )
     {
-      client->recv_state = Network::Client::RECV_STATE_MSGLEN_WAIT;
+      session->recv_state = Network::ThreadedClient::RECV_STATE_MSGLEN_WAIT;
     }
     else
     {
       passert( packetHandler.msglen > 0 );
 
-      client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
-      client->message_length = packetHandler.msglen;
+      session->recv_state = Network::ThreadedClient::RECV_STATE_MSGDATA_WAIT;
+      session->message_length = packetHandler.msglen;
     }
 
   } /* endif of RECV_STATE_MSGTYPE_WAIT */
 
-  if ( client->recv_state == Network::Client::RECV_STATE_MSGLEN_WAIT )
+  if ( session->recv_state == Network::ThreadedClient::RECV_STATE_MSGLEN_WAIT )
   {
-    client->recv_remaining( 3 );
-    CLIENT_CHECKPOINT( 23 );
-    if ( client->bytes_received == 3 )  // the length bytes were available.
+    session->recv_remaining( 3 );
+    SESSION_CHECKPOINT( 23 );
+    if ( session->bytes_received == 3 )  // the length bytes were available.
     {
       // MSG is [MSGTYPE] [LENHI] [LENLO] [DATA ... ]
-      client->message_length = ( client->buffer[1] << 8 ) + client->buffer[2];
+      session->message_length = ( session->buffer[1] << 8 ) + session->buffer[2];
 
-      if ( !valid_message_length( client, client->message_length ) )
+      if ( !valid_message_length( session, session->message_length ) )
       {
         // If the reported length is too short (less than 3 bytes) or
         // too big (larger than the client buffer), something very odd
         // happened.
-        client->forceDisconnect();
+        session->forceDisconnect();
         return false;
       }
-      client->recv_state = Network::Client::RECV_STATE_MSGDATA_WAIT;
+      session->recv_state = Network::ThreadedClient::RECV_STATE_MSGDATA_WAIT;
     }
     // else keep waiting.
   } /* endif of RECV_STATE_MSGLEN_WAIT */
 
-  if ( client->recv_state == Network::Client::RECV_STATE_MSGDATA_WAIT )
+  if ( session->recv_state == Network::ThreadedClient::RECV_STATE_MSGDATA_WAIT )
   {
-    CLIENT_CHECKPOINT( 24 );
-    client->recv_remaining( client->message_length );
-    CLIENT_CHECKPOINT( 25 );
-    if ( client->bytes_received == client->message_length )  // we have the whole message
+    SESSION_CHECKPOINT( 24 );
+    session->recv_remaining( session->message_length );
+    SESSION_CHECKPOINT( 25 );
+    if ( session->bytes_received == session->message_length )  // we have the whole message
     {
-      unsigned char msgtype = client->buffer[0];
+      unsigned char msgtype = session->buffer[0];
       networkManager.iostats.received[msgtype].count++;
-      networkManager.iostats.received[msgtype].bytes += client->message_length;
+      networkManager.iostats.received[msgtype].bytes += session->message_length;
       {
-        Clib::SpinLockGuard guard( client->_fpLog_lock );
-        if ( !client->fpLog.empty() )
+        // Consider if the client should do the logging via client->log_incoming(...) instead. Also,
+        // can we avoid the SpinLock here?
+        Clib::SpinLockGuard guard( session->_fpLog_lock );
+        if ( !session->fpLog.empty() )
         {
           fmt::Writer tmp;
-          tmp << "Client -> Server: 0x" << fmt::hexu( msgtype ) << ", " << client->message_length
+          tmp << "Client -> Server: 0x" << fmt::hexu( msgtype ) << ", " << session->message_length
               << " bytes\n";
-          Clib::fdump( tmp, &client->buffer, client->message_length );
-          FLEXLOG( client->fpLog ) << tmp.str() << "\n";
+          Clib::fdump( tmp, &session->buffer, session->message_length );
+          FLEXLOG( session->fpLog ) << tmp.str() << "\n";
         }
       }
 
       if ( Plib::systemstate.config.verbose )
         INFO_PRINT.Format( "Message Received: Type 0x{:X}, Length {} bytes\n" )
-            << (int)msgtype << client->message_length;
+            << (int)msgtype << session->message_length;
 
       PolLock lck;  // multithread
       // it can happen that a client gets disconnected while waiting for the lock.
-      if ( client->isConnected() )
+      if ( session->isConnected() )
       {
-        if ( client->msgtype_filter->msgtype_allowed[msgtype] )
+        if ( session->msgtype_filter->msgtype_allowed[msgtype] )
         {
           // region Speedhack
           if ( ( settingsManager.ssopt.speedhack_prevention ) && ( msgtype == PKTIN_02_ID ) )
           {
-            if ( !client->SpeedHackPrevention() )
+            if ( !session->myClient.SpeedHackPrevention() )
             {
               // client->SpeedHackPrevention() added packet to queue
-              client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
-              CLIENT_CHECKPOINT( 28 );
+              session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
+              SESSION_CHECKPOINT( 28 );
               return true;
             }
           }
           // endregion Speedhack
 
-          client->handle_msg( client->buffer, client->bytes_received );
+          session->myClient.handle_msg( session->buffer, session->bytes_received );
         }
         else
         {
+          // Such combinations of instance and acct happen quite often. Maybe this should become
+          // Client->full_id() or something.
           POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
-              << client->instance_ << client->ipaddrAsString()
-              << ( client->acct ? client->acct->name() : "unknown" ) << (int)msgtype;
+              << session->myClient.instance_ << session->ipaddrAsString()
+              << ( session->myClient.acct ? session->myClient.acct->name() : "unknown" )
+              << (int)msgtype;
         }
       }
-      client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
-      CLIENT_CHECKPOINT( 28 );
+      session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
+      SESSION_CHECKPOINT( 28 );
       return true;
     }
     // else keep waiting
   } /* endif RECV_STATE_MSGDATA_WAIT */
-  else if ( client->recv_state == Network::Client::RECV_STATE_CRYPTSEED_WAIT )
+  else if ( session->recv_state == Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT )
   {  // The abnormal case.
     // The first four bytes after connection are the
     // crypto seed
-    client->recv_remaining_nocrypt( 4 );
+    session->recv_remaining_nocrypt( 4 );
 
-    if ( client->bytes_received == 4 )
+    if ( session->bytes_received == 4 )
     {
       /* The first four bytes transmitted are the encryption seed */
-      unsigned char cstype = client->buffer[0];
+      unsigned char cstype = session->buffer[0];
 
-      if ( ( client->buffer[0] == 0xff ) && ( client->buffer[1] == 0xff ) &&
-           ( client->buffer[2] == 0xff ) && ( client->buffer[3] == 0xff ) )
+      if ( ( session->buffer[0] == 0xff ) && ( session->buffer[1] == 0xff ) &&
+           ( session->buffer[2] == 0xff ) && ( session->buffer[3] == 0xff ) )
       {
         if ( Plib::systemstate.config.verbose )
         {
           INFO_PRINT.Format( "UOKR Seed Message Received: Type 0x{:X}\n" ) << (int)cstype;
         }
-        Network::PktHelper::PacketOut<Network::PktOut_E3> msg;
-        msg->WriteFlipped<u16>( 77u );
-        msg->WriteFlipped<u32>( 0x03u );
-        msg->Write<u8>( 0x02u );
-        msg->Write<u8>( 0x01u );
-        msg->Write<u8>( 0x03u );
-        msg->WriteFlipped<u32>( 0x13u );
-        msg->Write<u8>( 0x02u );
-        msg->Write<u8>( 0x11u );
-        msg->Write<u8>( 0x00u );
-        msg->Write<u8>( 0xfcu );
-        msg->Write<u8>( 0x2fu );
-        msg->Write<u8>( 0xe3u );
-        msg->Write<u8>( 0x81u );
-        msg->Write<u8>( 0x93u );
-        msg->Write<u8>( 0xcbu );
-        msg->Write<u8>( 0xafu );
-        msg->Write<u8>( 0x98u );
-        msg->Write<u8>( 0xddu );
-        msg->Write<u8>( 0x83u );
-        msg->Write<u8>( 0x13u );
-        msg->Write<u8>( 0xd2u );
-        msg->Write<u8>( 0x9eu );
-        msg->Write<u8>( 0xeau );
-        msg->Write<u8>( 0xe4u );
-        msg->Write<u8>( 0x13u );
-        msg->WriteFlipped<u32>( 0x10u );
-        msg->Write<u8>( 0x78u );
-        msg->Write<u8>( 0x13u );
-        msg->Write<u8>( 0xb7u );
-        msg->Write<u8>( 0x7bu );
-        msg->Write<u8>( 0xceu );
-        msg->Write<u8>( 0xa8u );
-        msg->Write<u8>( 0xd7u );
-        msg->Write<u8>( 0xbcu );
-        msg->Write<u8>( 0x52u );
-        msg->Write<u8>( 0xdeu );
-        msg->Write<u8>( 0x38u );
-        msg->Write<u8>( 0x30u );
-        msg->Write<u8>( 0xeau );
-        msg->Write<u8>( 0xe9u );
-        msg->Write<u8>( 0x1eu );
-        msg->Write<u8>( 0xa3u );
-        msg->WriteFlipped<u32>( 0x20u );
-        msg->WriteFlipped<u32>( 0x10u );
-        msg->Write<u8>( 0x5au );
-        msg->Write<u8>( 0xceu );
-        msg->Write<u8>( 0x3eu );
-        msg->Write<u8>( 0xe3u );
-        msg->Write<u8>( 0x97u );
-        msg->Write<u8>( 0x92u );
-        msg->Write<u8>( 0xe4u );
-        msg->Write<u8>( 0x8au );
-        msg->Write<u8>( 0xf1u );
-        msg->Write<u8>( 0x9au );
-        msg->Write<u8>( 0xd3u );
-        msg->Write<u8>( 0x04u );
-        msg->Write<u8>( 0x41u );
-        msg->Write<u8>( 0x03u );
-        msg->Write<u8>( 0xcbu );
-        msg->Write<u8>( 0x53u );
-        client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
-        client->setClientType( Network::CLIENTTYPE_UOKR );  // UO:KR logging in
-        msg.Send( client );
+        session->myClient.send_KR_encryption_response();
+        session->myClient.setClientType( Network::CLIENTTYPE_UOKR );  // UO:KR logging in
+        session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
       }
-      else if ( client->buffer[0] ==
-                PKTIN_EF_ID )  // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
+      else if ( session->buffer[0] == PKTIN_EF_ID )
       {
+        // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
         if ( Plib::systemstate.config.verbose )
         {
           INFO_PRINT.Format( "6.0.5.0+ Crypt Seed Message Received: Type 0x{:X}\n" ) << (int)cstype;
         }
-        client->recv_state = Network::Client::RECV_STATE_CLIENTVERSION_WAIT;
+        session->recv_state = Network::ThreadedClient::RECV_STATE_CLIENTVERSION_WAIT;
       }
       else
       {
-        client->cryptengine->Init( client->buffer, Crypt::CCryptBase::typeAuto );
-        client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
+        session->cryptengine->Init( session->buffer, Crypt::CCryptBase::typeAuto );
+        session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
       }
     }
     // Else keep waiting for IP address.
   }
-  if ( client->recv_state == Network::Client::RECV_STATE_CLIENTVERSION_WAIT )
+  if ( session->recv_state == Network::ThreadedClient::RECV_STATE_CLIENTVERSION_WAIT )
   {
-    client->recv_remaining_nocrypt(
-        21 );  // receive and send to handler to get directly the version
-    if ( client->bytes_received == 21 )
+    // receive and send to handler to get directly the version
+    session->recv_remaining_nocrypt( 21 );
+    if ( session->bytes_received == 21 )
     {
-      client->recv_state = Network::Client::RECV_STATE_MSGTYPE_WAIT;
+      session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
       unsigned char tempseed[4];
-      tempseed[0] = client->buffer[1];
-      tempseed[1] = client->buffer[2];
-      tempseed[2] = client->buffer[3];
-      tempseed[3] = client->buffer[4];
-      client->cryptengine->Init( tempseed, Crypt::CCryptBase::typeLogin );
-      Network::PacketRegistry::handle_msg( PKTIN_EF_ID, client, client->buffer );
+      tempseed[0] = session->buffer[1];
+      tempseed[1] = session->buffer[2];
+      tempseed[2] = session->buffer[3];
+      tempseed[3] = session->buffer[4];
+      session->cryptengine->Init( tempseed, Crypt::CCryptBase::typeLogin );
+      Network::PacketRegistry::handle_msg( PKTIN_EF_ID, &session->myClient, session->buffer );
     }
   }
 
