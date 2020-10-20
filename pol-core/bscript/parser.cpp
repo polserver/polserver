@@ -101,6 +101,7 @@ const char* ParseErrorStr[PERR_NUM_ERRORS] = { "(No Error, or not specified)",
                                                "Expected 'while'",
                                                "Unexpected ']'",
                                                "Missing ']'",
+                                               "Newline in string",
                                                "EOF when expecting a terminator"};
 char operator_brk[] = "+-/*(),<=>,:;%";
 
@@ -1301,7 +1302,12 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
       }
       else
       {
-        if ( *end == '\\' )
+        if ( *end == '\r' || *end == '\n') {
+          compiler_error( "String literal contains a newline.\n" );
+          err = PERR_MULTILINESTRING;
+          return -1;
+        }
+        else if ( *end == '\\' )
           escnext = true;
         else if ( *end == '\"' )
           break;

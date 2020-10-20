@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-17-2020</datemodified>
+		<datemodified>10-20-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-20-2020</date>
+			<author>Syzygy:</author>
+			<change type="Changed">It is now a syntax error to have a string literal that spans multiple lines.<br/>
+If you have code like this:<br/>
+      var a := &quot;first line<br/>
+          second line&quot;;<br/>
+change it to something like this (adjust padding as needed):<br/>
+      var a := &quot;first line\n&quot;<br/>
+         + &quot;    second line&quot;;</change>
+		</entry>
 		<entry>
 			<date>10-17-2020</date>
 			<author>Syzygy:</author>

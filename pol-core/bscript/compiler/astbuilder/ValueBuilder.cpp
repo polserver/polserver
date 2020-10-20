@@ -118,7 +118,11 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
     }
     else
     {
-      if ( *end == '\\' )
+      if ( *end == '\n' || *end == '\r' ) {
+        report.error( location_for( *string_literal ), "String literal contains a newline.\n" );
+        return lit;
+      }
+      else if ( *end == '\\' )
         escnext = true;
       else if ( *end == '\"' )
         break;
