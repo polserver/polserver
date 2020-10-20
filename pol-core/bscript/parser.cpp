@@ -101,8 +101,8 @@ const char* ParseErrorStr[PERR_NUM_ERRORS] = { "(No Error, or not specified)",
                                                "Expected 'while'",
                                                "Unexpected ']'",
                                                "Missing ']'",
-                                               "Newline in string",
-                                               "EOF when expecting a terminator"};
+                                               "EOF when expecting a terminator",
+                                               "Newline in string" };
 char operator_brk[] = "+-/*(),<=>,:;%";
 
 char ident_allowed[] =
