@@ -720,6 +720,76 @@ void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
   }
 }
 
+void Client::send_KR_encryption_response()
+{
+  Network::PktHelper::PacketOut<Network::PktOut_E3> msg;
+  msg->WriteFlipped<u16>( 77u );
+  msg->WriteFlipped<u32>( 0x03u );
+  msg->Write<u8>( 0x02u );
+  msg->Write<u8>( 0x01u );
+  msg->Write<u8>( 0x03u );
+  msg->WriteFlipped<u32>( 0x13u );
+  msg->Write<u8>( 0x02u );
+  msg->Write<u8>( 0x11u );
+  msg->Write<u8>( 0x00u );
+  msg->Write<u8>( 0xfcu );
+  msg->Write<u8>( 0x2fu );
+  msg->Write<u8>( 0xe3u );
+  msg->Write<u8>( 0x81u );
+  msg->Write<u8>( 0x93u );
+  msg->Write<u8>( 0xcbu );
+  msg->Write<u8>( 0xafu );
+  msg->Write<u8>( 0x98u );
+  msg->Write<u8>( 0xddu );
+  msg->Write<u8>( 0x83u );
+  msg->Write<u8>( 0x13u );
+  msg->Write<u8>( 0xd2u );
+  msg->Write<u8>( 0x9eu );
+  msg->Write<u8>( 0xeau );
+  msg->Write<u8>( 0xe4u );
+  msg->Write<u8>( 0x13u );
+  msg->WriteFlipped<u32>( 0x10u );
+  msg->Write<u8>( 0x78u );
+  msg->Write<u8>( 0x13u );
+  msg->Write<u8>( 0xb7u );
+  msg->Write<u8>( 0x7bu );
+  msg->Write<u8>( 0xceu );
+  msg->Write<u8>( 0xa8u );
+  msg->Write<u8>( 0xd7u );
+  msg->Write<u8>( 0xbcu );
+  msg->Write<u8>( 0x52u );
+  msg->Write<u8>( 0xdeu );
+  msg->Write<u8>( 0x38u );
+  msg->Write<u8>( 0x30u );
+  msg->Write<u8>( 0xeau );
+  msg->Write<u8>( 0xe9u );
+  msg->Write<u8>( 0x1eu );
+  msg->Write<u8>( 0xa3u );
+  msg->WriteFlipped<u32>( 0x20u );
+  msg->WriteFlipped<u32>( 0x10u );
+  msg->Write<u8>( 0x5au );
+  msg->Write<u8>( 0xceu );
+  msg->Write<u8>( 0x3eu );
+  msg->Write<u8>( 0xe3u );
+  msg->Write<u8>( 0x97u );
+  msg->Write<u8>( 0x92u );
+  msg->Write<u8>( 0xe4u );
+  msg->Write<u8>( 0x8au );
+  msg->Write<u8>( 0xf1u );
+  msg->Write<u8>( 0x9au );
+  msg->Write<u8>( 0xd3u );
+  msg->Write<u8>( 0x04u );
+  msg->Write<u8>( 0x41u );
+  msg->Write<u8>( 0x03u );
+  msg->Write<u8>( 0xcbu );
+  msg->Write<u8>( 0x53u );
+  msg.Send( this );
+}
+
+
+//
+
+
 // ThreadedClient stuff
 void ThreadedClient::process_delayed_packets()
 {

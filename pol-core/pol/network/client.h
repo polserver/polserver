@@ -251,6 +251,8 @@ public:
 
   void handle_msg( unsigned char* pktbuffer, int pktlen );
 
+  void send_KR_encryption_response();
+
   void setversion( const std::string& ver ) { version_ = ver; }
   const std::string& getversion() const { return version_; }
   VersionDetailStruct getversiondetail() const { return versiondetail_; }
