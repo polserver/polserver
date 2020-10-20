@@ -89,6 +89,8 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient 
       last_msgtype( 255 ),
       msgtype_filter( Core::networkManager.login_filter.get() ),
       checkpoint( -1 ),  // CNXBUG
+      _fpLog_lock(),
+      fpLog( "" ),
       first_xmit_buffer( nullptr ),
       last_xmit_buffer( nullptr ),
       n_queued( 0 ),
@@ -106,8 +108,6 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
       ready( false ),
       listen_port( 0 ),
       aosresist( false ),
-      _fpLog_lock(),
-      fpLog( "" ),
       pause_count( 0 ),
       gd( new ClientGameData ),
       instance_( ++instance_counter_ ),

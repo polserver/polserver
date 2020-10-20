@@ -194,6 +194,9 @@ public:
   const Core::MessageTypeFilter* msgtype_filter;
 
   int checkpoint;  // CNXBUG
+  
+  mutable Clib::SpinLock _fpLog_lock;
+  std::string fpLog;
 
   sockaddr ipaddr;
 
@@ -277,10 +280,7 @@ public:
   //
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
-
-  mutable Clib::SpinLock _fpLog_lock;
-  std::string fpLog;
-
+  
   std::string status() const;
 
   void send_pause();
