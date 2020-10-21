@@ -81,6 +81,10 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
       // parser should catch this.
       location_for( *string_literal ).internal_error( "unterminated string" );
     }
+    if ( *end == '\n' || *end == '\r' ) {
+      report.error( location_for( *string_literal ), "String literal contains a newline.\n" );
+      return lit;
+    }
 
     if ( escnext && hexnext )
       location_for( *string_literal )
@@ -118,11 +122,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
     }
     else
     {
-      if ( *end == '\n' || *end == '\r' ) {
-        report.error( location_for( *string_literal ), "String literal contains a newline.\n" );
-        return lit;
-      }
-      else if ( *end == '\\' )
+      if ( *end == '\\' )
         escnext = true;
       else if ( *end == '\"' )
         break;
