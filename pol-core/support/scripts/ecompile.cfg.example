@@ -23,6 +23,7 @@ PolScriptRoot=D:\DistroDev\scripts
 #              This can be specified multiple times.
 #
 PackageRoot=D:\DistroDev\pkg
+PackageRoot=D:\DistroDev\pkgopt
 PackageRoot=D:\DistroDev\devpkg
 
 #
