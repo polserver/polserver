@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-20-2020</datemodified>
+		<datemodified>10-25-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>10-25-2020</date>
+			<author>Turley:</author>
+			<change type="Changed">updated StrFormatTime to allow all format specifiers see http://www.cppreference.com/stddate/strftime.html for full list.<br/>
+Removed restriction of 100 characters.</change>
+		</entry>
 		<entry>
 			<date>10-20-2020</date>
 			<author>Syzygy:</author>

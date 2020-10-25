@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="Util.em">
     <filedesc>Utility functions</filedesc>
-    <datemodified>02/02/2019</datemodified>
+    <datemodified>10/25/2020</datemodified>
   </fileheader>
 
   <function name="RandomInt"> 
@@ -58,7 +58,6 @@ d6-2
     <explain>For format_string information, please go to http://www.cppreference.com/stddate/strftime.html</explain>
     <return>String</return>
     <error>"No time string passed."</error>
-    <error>"Format string exceeded 100 characters."</error>
   </function>
 
 </ESCRIPT>
