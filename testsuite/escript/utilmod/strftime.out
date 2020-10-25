@@ -2,7 +2,7 @@ error{ errortext = "Invalid Format string." }
 error{ errortext = "Invalid Format string." }
 error{ errortext = "Invalid Format string." }
 error{ errortext = "Invalid Format string." }
-1970
 String
 String
-ancient 1970-01-01 time 01:00:01
+String
+ancient 01 time
