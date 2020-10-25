@@ -131,6 +131,8 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
         return new BError( "Invalid Format string." );
       switch ( *str++ )
       {
+        // vs2019 does not support 0 and E formats
+        /*
       case ( '0' ):
       {
         if ( len-- <= 0 )
@@ -174,6 +176,7 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
         }
         continue;
       }
+      */
       case ( '%' ):
       case ( 'a' ):
       case ( 'A' ):

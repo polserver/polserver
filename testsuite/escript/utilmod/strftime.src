@@ -1,10 +1,6 @@
 use util;
 print(strformattime("%"));
 print(strformattime("%-"));
-print(strformattime("%0"));
-print(strformattime("%E"));
 print(typeof(strformattime("%Y",1)));
-print(typeof(strformattime("%EY",1)));
-print(typeof(strformattime("%0y",1)));
 print(strformattime("ancient %S time",1));
 
