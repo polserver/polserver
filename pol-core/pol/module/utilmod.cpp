@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <ctime>
 #include <string>
+#include <vector>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
@@ -224,13 +225,13 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
     }
   }
 
-  std::string buffer;
+  std::vector<char> buffer;
   buffer.reserve( std::max( format_string->length() * 2, (size_t)50u ) );
   while ( strftime( buffer.data(), buffer.capacity(), format_string->data(), &time_struct ) == 0 )
   {
     buffer.reserve( buffer.capacity() * 2 );
   }
-  return new String( buffer.c_str() );
+  return new String( buffer.data() );
 }
 }  // namespace Module
 }  // namespace Pol
