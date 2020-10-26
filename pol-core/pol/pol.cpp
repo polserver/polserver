@@ -693,7 +693,7 @@ void threadstatus_thread( void )
       for ( const auto& client : Core::networkManager.clients )
         tmp << " " << client->ipaddrAsString() << " "
             << ( client->acct == nullptr ? "prelogin " : client->acct->name() ) << " "
-            << client->checkpoint << "\n";
+            << client->session()->checkpoint << "\n";
       if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
         tmp << "check_attack_after_move() Checkpoint: "
             << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";

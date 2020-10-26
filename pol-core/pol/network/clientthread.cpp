@@ -39,7 +39,7 @@
 #include "pktinid.h"
 #include <format/format.h>
 
-#define CLIENT_CHECKPOINT( x ) client->checkpoint = x
+#define CLIENT_CHECKPOINT( x ) client->session()->checkpoint = x
 #define SESSION_CHECKPOINT( x ) session->checkpoint = x
 
 namespace Pol::Core
@@ -239,17 +239,17 @@ bool client_io_thread( Network::Client* client, bool login )
   catch ( std::string& str )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << str << client->checkpoint;
+        << client->instance_ << str << client->session()->checkpoint;
   }
   catch ( const char* msg )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << msg << client->checkpoint;
+        << client->instance_ << msg << client->session()->checkpoint;
   }
   catch ( std::exception& ex )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << ex.what() << client->checkpoint;
+        << client->instance_ << ex.what() << client->session()->checkpoint;
   }
   CLIENT_CHECKPOINT( 20 );
 
@@ -267,7 +267,7 @@ bool client_io_thread( Network::Client* client, bool login )
   catch ( std::exception& ex )
   {
     POLLOG.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})\n" )
-        << client->instance_ << client->checkpoint << ex.what();
+        << client->instance_ << client->session()->checkpoint << ex.what();
   }
 
   // queue delete of client ptr see method doc for reason
