@@ -131,6 +131,13 @@ typedef struct
 
 class Client;
 
+enum class PacketLog
+{
+  Error,
+  Success,
+  Unchanged
+};
+
 class ThreadedClient
 {
 public:
@@ -151,6 +158,9 @@ public:
 
   bool has_delayed_packets() const;
   void process_delayed_packets();
+
+  PacketLog start_log( std::string filename );
+  PacketLog stop_log();
 
 protected:
   ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient );
@@ -233,6 +243,10 @@ public:
   // later these will return a member "session" instead of casting
   ThreadedClient* session() { return static_cast<ThreadedClient*>( this ); }
   const ThreadedClient* session() const { return static_cast<const ThreadedClient*>( this ); }
+
+  // wrappers for ThreadedClient members
+  PacketLog start_log();
+  PacketLog stop_log();
 
   void start_encrypted_server_stream() { session()->encrypt_server_stream = true; }
 

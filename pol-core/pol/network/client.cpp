@@ -188,17 +188,8 @@ void Client::PreDelete()
     chr = nullptr;
   }
 
-  {
-    Clib::SpinLockGuard guard( _fpLog_lock );
-    if ( !fpLog.empty() )
-    {
-      time_t now = time( nullptr );
-      auto time = Clib::localtime( now );
-      FLEXLOG( fpLog ) << "Log closed at " << asctime( &time ) << "\n";
-      CLOSE_FLEXLOG( fpLog );
-      fpLog.clear();
-    }
-  }
+  // stop packet-logging
+  stop_log();
 
   delete gd;
   gd = nullptr;
