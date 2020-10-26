@@ -291,7 +291,7 @@ void select_server( Network::Client* client, PKTIN_A0* msg )  // Relay player to
 
   rsp.Send( client );
 
-  client->cryptengine->Init( &nseed, Crypt::CCryptBase::typeGame );
+  client->init_crypto( &nseed, Crypt::CCryptBase::typeGame );
 }
 
 void send_start( Network::Client* client )

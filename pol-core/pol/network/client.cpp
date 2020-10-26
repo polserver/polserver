@@ -143,6 +143,10 @@ void Client::Delete( Client* client )
 
 Client::~Client() {}
 
+void Client::init_crypto(void* nseed, int type) {
+    session()->cryptengine->Init( nseed, type );
+}
+
 void Client::unregister()
 {
   auto findClient =

@@ -249,6 +249,7 @@ public:
   PacketLog stop_log();
 
   void start_encrypted_server_stream() { session()->encrypt_server_stream = true; }
+  void init_crypto( void* nseed, int type );
 
   std::string ipaddrAsString() const { return session()->ipaddrAsString(); }
 
