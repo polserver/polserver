@@ -194,7 +194,7 @@ public:
   const Core::MessageTypeFilter* msgtype_filter;
 
   int checkpoint;  // CNXBUG
-  
+
   mutable Clib::SpinLock _fpLog_lock;
   std::string fpLog;
 
@@ -229,6 +229,10 @@ public:
   Client& operator=( const Client& ) = delete;
   static void Delete( Client* client );
   size_t estimatedSize() const;
+
+  // later these will return a member "session" instead of casting
+  ThreadedClient* session() { return static_cast<ThreadedClient*>( this ); }
+  const ThreadedClient* session() const { return static_cast<const ThreadedClient*>( this ); }
 
 protected:
   void PreDelete();
@@ -282,7 +286,7 @@ public:
   //
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
-  
+
   std::string status() const;
 
   void send_pause();
@@ -343,7 +347,7 @@ inline bool ThreadedClient::isConnected() const
 }
 inline bool ThreadedClient::has_delayed_packets() const
 {
-    return !myClient.movementqueue.empty();
+  return !myClient.movementqueue.empty();
 }
 
 inline bool Client::isActive() const
