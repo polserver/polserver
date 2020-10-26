@@ -231,7 +231,7 @@ private:
 };
 
 
-class Client : public ThreadedClient
+class Client : private ThreadedClient
 {
 public:
   Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
@@ -243,6 +243,11 @@ public:
   // later these will return a member "session" instead of casting
   ThreadedClient* session() { return static_cast<ThreadedClient*>( this ); }
   const ThreadedClient* session() const { return static_cast<const ThreadedClient*>( this ); }
+
+  // these remaining three members are ok to be public for now and will be wrapped later
+  using ThreadedClient::csocket;
+  using ThreadedClient::ipaddr;
+  using ThreadedClient::msgtype_filter;
 
   // wrappers for ThreadedClient members
   PacketLog start_log();

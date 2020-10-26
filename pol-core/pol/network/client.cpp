@@ -686,6 +686,7 @@ weak_ptr<Client> Client::getWeakPtr() const
   return weakptr;
 }
 
+// TODO: Add estimatedSize() to ThreadedClient and move the corresponding members
 size_t Client::estimatedSize() const
 {
   Clib::SpinLockGuard guard( _fpLog_lock );
