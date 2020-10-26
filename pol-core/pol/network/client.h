@@ -194,6 +194,9 @@ public:
   const Core::MessageTypeFilter* msgtype_filter;
 
   int checkpoint;  // CNXBUG
+  
+  mutable Clib::SpinLock _fpLog_lock;
+  std::string fpLog;
 
   sockaddr ipaddr;
 
@@ -248,6 +251,8 @@ public:
 
   void handle_msg( unsigned char* pktbuffer, int pktlen );
 
+  void send_KR_encryption_response();
+
   void setversion( const std::string& ver ) { version_ = ver; }
   const std::string& getversion() const { return version_; }
   VersionDetailStruct getversiondetail() const { return versiondetail_; }
@@ -277,10 +282,7 @@ public:
   //
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
-
-  mutable Clib::SpinLock _fpLog_lock;
-  std::string fpLog;
-
+  
   std::string status() const;
 
   void send_pause();
