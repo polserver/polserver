@@ -47,7 +47,7 @@ void UoClientThread::run()
     if ( !create() )
       return;
   }
-  client->thread_pid = threadhelp::thread_pid();
+  client->session()->thread_pid = threadhelp::thread_pid();
   client_io_thread( client );
 }
 

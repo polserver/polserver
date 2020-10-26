@@ -387,7 +387,7 @@ void send_start( Network::Client* client )
 
 void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and character listing
 {
-  client->encrypt_server_stream = true;
+  client->start_encrypted_server_stream();
 
   if ( Network::is_banned_ip( client ) )
   {

@@ -234,6 +234,17 @@ public:
   ThreadedClient* session() { return static_cast<ThreadedClient*>( this ); }
   const ThreadedClient* session() const { return static_cast<const ThreadedClient*>( this ); }
 
+  void start_encrypted_server_stream() { session()->encrypt_server_stream = true; }
+
+  std::string ipaddrAsString() const { return session()->ipaddrAsString(); }
+
+  bool isConnected() const { return session()->isConnected(); }
+  bool isReallyConnected() const { return session()->isReallyConnected(); }
+  void forceDisconnect() { session()->forceDisconnect(); }
+
+  Core::polclock_t last_activity_at() { return session()->last_activity_at; }
+  Core::polclock_t last_packet_at() { return session()->last_packet_at; }
+
 protected:
   void PreDelete();
   ~Client();
