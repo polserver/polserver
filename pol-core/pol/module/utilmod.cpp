@@ -226,10 +226,10 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   }
 
   std::vector<char> buffer;
-  buffer.reserve( std::max( format_string->length() * 2, (size_t)50u ) );
+  buffer.resize( std::max( format_string->length() * 2, (size_t)50u ) );
   while ( strftime( buffer.data(), buffer.capacity(), format_string->data(), &time_struct ) == 0 )
   {
-    buffer.reserve( buffer.capacity() * 2 );
+    buffer.resize( buffer.capacity() * 2 );
   }
   return new String( buffer.data() );
 }
