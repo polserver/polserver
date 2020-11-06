@@ -1,4 +1,7 @@
 ﻿-- POL100 --
+10-25-2020 Turley:
+  Changed: updated StrFormatTime to allow all format specifiers see http://www.cppreference.com/stddate/strftime.html for full list.
+           Removed restriction of 100 characters.
 10-20-2020 Syzygy:
   Changed: It is now a syntax error to have a string literal that spans multiple lines.
            If you have code like this:

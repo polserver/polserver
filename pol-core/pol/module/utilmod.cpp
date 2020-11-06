@@ -8,8 +8,10 @@
 
 
 #include "utilmod.h"
+#include <algorithm>
 #include <ctime>
 #include <string>
+#include <vector>
 
 #include "../../bscript/berror.h"
 #include "../../bscript/impstr.h"
@@ -104,8 +106,6 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
   const String* format_string;
   if ( !getStringParam( 0, format_string ) )
     return new BError( "No time string passed." );
-  else if ( format_string->length() > 100 )
-    return new BError( "Format string exceeded 100 characters." );
 
   int time_stamp;
   if ( !getParam( 1, time_stamp, 0, INT_MAX ) )
@@ -132,27 +132,88 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
         return new BError( "Invalid Format string." );
       switch ( *str++ )
       {
+        // vs2019 does not support 0 and E formats
+        /*
+      case ( '0' ):
+      {
+        if ( len-- <= 0 )
+          return new BError( "Invalid Format string." );
+        switch ( *str++ )
+        {
+        case ( 'd' ):
+        case ( 'e' ):
+        case ( 'H' ):
+        case ( 'I' ):
+        case ( 'm' ):
+        case ( 'M' ):
+        case ( 'S' ):
+        case ( 'u' ):
+        case ( 'U' ):
+        case ( 'V' ):
+        case ( 'w' ):
+        case ( 'W' ):
+        case ( 'y' ):
+          continue;
+        default:
+          return new BError( "Invalid Format string." );
+        }
+        continue;
+      }
+      case ( 'E' ):
+      {
+        if ( len-- <= 0 )
+          return new BError( "Invalid Format string." );
+        switch ( *str++ )
+        {
+        case ( 'c' ):
+        case ( 'C' ):
+        case ( 'x' ):
+        case ( 'X' ):
+        case ( 'y' ):
+        case ( 'Y' ):
+          continue;
+        default:
+          return new BError( "Invalid Format string." );
+        }
+        continue;
+      }
+      */
       case ( '%' ):
       case ( 'a' ):
       case ( 'A' ):
       case ( 'b' ):
       case ( 'B' ):
       case ( 'c' ):
+      case ( 'C' ):
       case ( 'd' ):
+      case ( 'D' ):
+      case ( 'e' ):
+      case ( 'F' ):
+      case ( 'g' ):
+      case ( 'G' ):
+      case ( 'h' ):
       case ( 'H' ):
       case ( 'I' ):
       case ( 'j' ):
+      case ( 'n' ):
       case ( 'm' ):
       case ( 'M' ):
       case ( 'p' ):
+      case ( 'r' ):
+      case ( 'R' ):
       case ( 'S' ):
+      case ( 't' ):
+      case ( 'T' ):
+      case ( 'u' ):
       case ( 'U' ):
+      case ( 'V' ):
       case ( 'w' ):
       case ( 'W' ):
       case ( 'x' ):
       case ( 'X' ):
       case ( 'y' ):
       case ( 'Y' ):
+      case ( 'z' ):
       case ( 'Z' ):
         continue;
       case ( '\0' ):
@@ -164,11 +225,13 @@ Bscript::BObjectImp* UtilExecutorModule::mf_StrFormatTime()
     }
   }
 
-  char buffer[102];  // +2 for the \0 termination.
-  if ( strftime( buffer, sizeof buffer, format_string->data(), &time_struct ) > 0 )
-    return new String( buffer );
-  else
-    return new BError( "Format string too long." );
+  std::vector<char> buffer;
+  buffer.resize( std::max( format_string->length() * 2, (size_t)50u ) );
+  while ( strftime( buffer.data(), buffer.capacity(), format_string->data(), &time_struct ) == 0 )
+  {
+    buffer.resize( buffer.capacity() * 2 );
+  }
+  return new String( buffer.data() );
 }
 }  // namespace Module
 }  // namespace Pol
