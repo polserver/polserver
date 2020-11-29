@@ -78,14 +78,12 @@ jobs:
           
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
-          env
           echo "$Env:GITHUB_WORKSPACE/bin-build" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Set CXX and CC
         shell: pwsh
         run: |
-          env
           $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
           $c_compiler = '${{ matrix.config.c-compiler }}'
           $version = '${{ matrix.config.compiler-version }}'
@@ -95,8 +93,10 @@ jobs:
             $c_compiler = "$c_compiler-$version"
           }
           echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append 
+          echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+      - name: Register problem matcher
+        run: echo "::add-matcher::.github/problem-matchers/${{ matrix.config.c-compiler }}.json"
       - name: Config
         run: |
           cd bin-build
