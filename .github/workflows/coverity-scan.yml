@@ -38,7 +38,7 @@ jobs:
           tar -xf "$cmake_archive.tar.gz"
           
           chmod +x "$cmake_archive/bin/cmake"
-          echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" >> $GITHUB_PATH
+          echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin"  | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           # I'm to dumb to get coverity to work with non default compiler
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
       
@@ -53,7 +53,7 @@ jobs:
       - name: Set env Coverity Build Tool
         shell: pwsh
         run: |
-          echo "$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin" >> $GITHUB_PATH
+          echo "$Env:GITHUB_WORKSPACE/cov-analysis-linux64/bin"  | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Build 3rd party libs
         run: |
           cd bin-build

@@ -100,7 +100,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DREUSE_PCH=1 -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
       - name: Build
         run: |
           cd bin-build
