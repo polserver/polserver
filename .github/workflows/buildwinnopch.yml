@@ -60,7 +60,7 @@ jobs:
         run: |
           Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
           scoop install llvm --global
-          echo "::set-env name=PATH::$env:PATH"
+          #echo "::set-env name=PATH::$env:PATH"
 
       - name: Set CXX and CC
         shell: pwsh
@@ -74,8 +74,8 @@ jobs:
             $c_compiler = "$c_compiler-$version"
           }
 
-          echo "::set-env name=CXX::$cxx_compiler"
-          echo "::set-env name=CC::$c_compiler"
+          echo "CXX=$cxx_compiler" >> $GITHUB_ENV
+          echo "CC=$c_compiler" >> $GITHUB_ENV
 
       - name: Config (Ninja)
         if: matrix.config.ninja == 1
