@@ -78,12 +78,14 @@ jobs:
           
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
+          env
           echo "$Env:GITHUB_WORKSPACE/bin-build" >> $GITHUB_PATH
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" >> $GITHUB_PATH
 
       - name: Set CXX and CC
         shell: pwsh
         run: |
+          env
           $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
           $c_compiler = '${{ matrix.config.c-compiler }}'
           $version = '${{ matrix.config.compiler-version }}'
