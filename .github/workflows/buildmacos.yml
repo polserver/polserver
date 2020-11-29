@@ -36,7 +36,7 @@ jobs:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
 
-      - name: Install Dependencies (macos)
+      - name: Install Dependencies
         shell: pwsh
         run: |
           brew install pkg-config
@@ -106,7 +106,7 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: failure
-          job: Building
+          job: Building (MacOS)
   notify_on_success:
     needs: build
     runs-on: "ubuntu-latest"
@@ -118,7 +118,7 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: success
-          job: Building
+          job: Building (MacOS)
   notify_on_cancel:
     needs: build
     runs-on: "ubuntu-latest"
@@ -130,4 +130,4 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: cancelled
-          job: Building
+          job: Building (MacOS)
