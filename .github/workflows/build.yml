@@ -36,26 +36,12 @@ jobs:
             build-type: Release
             nopch: 1
 
-          - os: "macos-latest"
-            cxx-compiler: clang++
-            c-compiler: clang
-            compiler-version: default
-            build-type: Release
-            nopch: 0
-
-          - os: "macos-latest"
-            cxx-compiler: g++
-            c-compiler: gcc
-            compiler-version: 9
-            build-type: RelWithDebInfo
-            nopch: 0
-
     runs-on: ${{ matrix.config.os }}
 
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
-      - uses: seanmiddleditch/gha-setup-vsdevenv@v1
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v3
       - name: Cache curl
         uses: actions/cache@v1
         with:
@@ -66,15 +52,6 @@ jobs:
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
-
-      - name: Install Dependencies (macos)
-        if: matrix.config.os == 'macos-latest'
-        shell: pwsh
-        run: |
-          brew install pkg-config
-          brew reinstall openssl@1.1
-          brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++
-          echo "::set-env name=PKG_CONFIG_PATH::/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$PKG_CONFIG_PATH"
 
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
@@ -101,8 +78,8 @@ jobs:
           
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
-          echo "::add-path::$Env:GITHUB_WORKSPACE/bin-build"
-          echo "::add-path::$Env:GITHUB_WORKSPACE/$cmake_archive/bin"
+          echo "$Env:GITHUB_WORKSPACE/bin-build" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Set CXX and CC
         shell: pwsh
@@ -115,14 +92,15 @@ jobs:
             $cxx_compiler = "$cxx_compiler-$version"
             $c_compiler = "$c_compiler-$version"
           }
+          echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-          echo "::set-env name=CXX::$cxx_compiler"
-          echo "::set-env name=CC::$c_compiler"
-
+      - name: Register problem matcher
+        run: echo "::add-matcher::.github/problem-matchers/${{ matrix.config.c-compiler }}.json"
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DREUSE_PCH=1 -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
       - name: Build
         run: |
           cd bin-build
