@@ -43,7 +43,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
     ofs.write( global_name.c_str(), count );
   }
-  count = debug_store.instructions.size();
+  count = static_cast<unsigned>( debug_store.instructions.size() );
   ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
   unsigned instruction_index = 0;
   for ( auto& instruction_info : debug_store.instructions )

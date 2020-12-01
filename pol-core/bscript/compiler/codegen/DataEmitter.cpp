@@ -22,7 +22,8 @@ unsigned DataEmitter::append( int value )
 
 unsigned DataEmitter::store( const std::string& s )
 {
-  return store( reinterpret_cast<const std::byte*>( s.c_str() ), s.length() + 1 );
+  return store( reinterpret_cast<const std::byte*>( s.c_str() ),
+                static_cast<unsigned>( s.length() + 1 ) );
 }
 
 unsigned DataEmitter::store( const std::byte* data, unsigned len )
@@ -35,10 +36,13 @@ unsigned DataEmitter::store( const std::byte* data, unsigned len )
 
 unsigned DataEmitter::append( const std::byte* data, unsigned len )
 {
-  unsigned position = data_section.size();
+  size_t position = data_section.size();
+  if ( position > std::numeric_limits<unsigned>::max() ) {
+    throw std::runtime_error( "Data offset overflow" );
+  }
   data_section.insert( data_section.end(), data, data + len );
 
-  return position;
+  return static_cast<unsigned>( position );
 }
 
 unsigned DataEmitter::find( const std::byte* data, unsigned len )
