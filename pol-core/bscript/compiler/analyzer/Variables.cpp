@@ -8,7 +8,7 @@ namespace Pol::Bscript::Compiler
 {
 Variables::Variables( VariableScope scope, Report& report ) : scope( scope ), report( report ) {}
 
-std::shared_ptr<Variable> Variables::create( const std::string& name, unsigned block_depth,
+std::shared_ptr<Variable> Variables::create( const std::string& name, BlockDepth block_depth,
                                              WarnOn warn_on, const SourceLocation& source_location )
 {
   auto index = names_by_index.size();
