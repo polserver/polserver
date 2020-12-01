@@ -38,7 +38,7 @@ ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_id
 {
 }
 
-[[noreturn]] BTokenId ExpressionBuilder::unhandled_operator( const SourceLocation& source_location )
+BTokenId ExpressionBuilder::unhandled_operator( const SourceLocation& source_location )
 {
   // This indicates a log error in the compiler: likely a disconnect between the grammar
   // and the code building the AST from the parsed file.
