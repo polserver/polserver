@@ -67,7 +67,7 @@ const std::vector<std::string>& Variables::get_names() const
 
 unsigned Variables::count() const
 {
-  return names_by_index.size();
+  return static_cast<unsigned>( names_by_index.size() );
 }
 
 }  // namespace Pol::Bscript::Compiler

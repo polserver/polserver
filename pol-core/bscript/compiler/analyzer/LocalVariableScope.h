@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "compiler/model/SimpleTypes.h"
 #include "compiler/model/WarnOn.h"
 
 namespace Pol::Bscript::Compiler
@@ -27,7 +28,7 @@ public:
 private:
   LocalVariableScopes& scopes;
   Report& report;
-  const unsigned block_depth;
+  const BlockDepth block_depth;
   const unsigned prev_locals;
   std::vector<std::shared_ptr<Variable>> shadowing;
   LocalVariableScopeInfo& local_variable_scope_info;
