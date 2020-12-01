@@ -1,6 +1,7 @@
 #include "DataEmitter.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace Pol::Bscript::Compiler
 {
