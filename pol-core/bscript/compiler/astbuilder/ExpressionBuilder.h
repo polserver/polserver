@@ -27,7 +27,7 @@ class ExpressionBuilder : public ValueBuilder
 public:
   ExpressionBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
-  static BTokenId unhandled_operator( const SourceLocation& );
+  [[noreturn]] static void unhandled_operator( const SourceLocation& );
 
   std::unique_ptr<ArrayInitializer> array_initializer(
       EscriptGrammar::EscriptParser::BareArrayInitializerContext* );

@@ -163,7 +163,7 @@ unsigned InstructionEmitter::casejmp()
 unsigned InstructionEmitter::case_dispatch_table( const CaseJumpDataBlock& dispatch_table )
 {
   auto& bytes = dispatch_table.get_data();
-  return data_emitter.append( bytes.data(), static_cast<unsigned>( bytes.size() ) );
+  return data_emitter.append( bytes.data(), bytes.size() );
 }
 
 void InstructionEmitter::consume()

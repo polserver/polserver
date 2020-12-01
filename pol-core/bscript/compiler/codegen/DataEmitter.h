@@ -18,9 +18,9 @@ public:
   unsigned append( int );
   unsigned store( const std::string& );
 
-  unsigned append( const std::byte* data, unsigned len );
-  unsigned find( const std::byte* data, unsigned len );
-  unsigned store( const std::byte* data, unsigned len ); // find or append
+  unsigned append( const std::byte* data, size_t len );
+  unsigned find( const std::byte* data, size_t len );
+  unsigned store( const std::byte* data, size_t len ); // find or append
 
 private:
   DataSection& data_section;

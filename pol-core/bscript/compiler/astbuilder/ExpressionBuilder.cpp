@@ -38,7 +38,7 @@ ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_id
 {
 }
 
-BTokenId ExpressionBuilder::unhandled_operator( const SourceLocation& source_location )
+void ExpressionBuilder::unhandled_operator( const SourceLocation& source_location )
 {
   // This indicates a log error in the compiler: likely a disconnect between the grammar
   // and the code building the AST from the parsed file.
@@ -392,18 +392,21 @@ std::unique_ptr<Expression> ExpressionBuilder::prefix_unary_operator(
   auto source_location = location_for( *expression_ctx );
   auto expression_ast = expression( expression_ctx );
 
-  BTokenId token_id =
-      ctx->ADD()
-          ? TOK_UNPLUS
-          : ctx->SUB()
-                ? TOK_UNMINUS
-                : ctx->INC()
-                      ? TOK_UNPLUSPLUS
-                      : ctx->DEC() ? TOK_UNMINUSMINUS
-                                   : ctx->TILDE() ? TOK_BITWISE_NOT
-                                                  : ( ctx->BANG_A() || ctx->BANG_B() )
-                                                        ? TOK_LOG_NOT
-                                                        : unhandled_operator( source_location );
+  BTokenId token_id;
+  if ( ctx->ADD() )
+    token_id = TOK_UNPLUS;
+  else if ( ctx->SUB() )
+    token_id = TOK_UNMINUS;
+  else if ( ctx->INC() )
+    token_id = TOK_UNPLUSPLUS;
+  else if ( ctx->DEC() )
+    token_id = TOK_UNMINUSMINUS;
+  else if ( ctx->TILDE() )
+    token_id = TOK_BITWISE_NOT;
+  else if ( ctx->BANG_A() || ctx->BANG_B() )
+    token_id = TOK_LOG_NOT;
+  else
+    unhandled_operator( source_location );
 
   if ( token_id == TOK_UNPLUS )
     return expression_ast;
@@ -419,8 +422,13 @@ std::unique_ptr<Expression> ExpressionBuilder::postfix_unary_operator(
   auto expression_ctx = ctx->expression( 0 );
   auto expression_ast = expression( expression_ctx );
 
-  BTokenId token_id = ctx->INC() ? TOK_UNPLUSPLUS_POST
-                                 : ctx->DEC() ? TOK_UNMINUSMINUS_POST : unhandled_operator( loc );
+  BTokenId token_id;
+  if ( ctx->INC() )
+    token_id = TOK_UNPLUSPLUS_POST;
+  else if ( ctx->DEC() )
+    token_id = TOK_UNMINUSMINUS_POST;
+  else
+    unhandled_operator( loc );
 
   return std::make_unique<UnaryOperator>( loc, ctx->postfix->getText(), token_id,
                                           std::move( expression_ast ) );
