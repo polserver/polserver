@@ -8,12 +8,15 @@ namespace Pol::Bscript::Compiler
 {
 Variables::Variables( VariableScope scope, Report& report ) : scope( scope ), report( report ) {}
 
-std::shared_ptr<Variable> Variables::create( const std::string& name, unsigned block_depth,
+std::shared_ptr<Variable> Variables::create( const std::string& name, BlockDepth block_depth,
                                              WarnOn warn_on, const SourceLocation& source_location )
 {
   auto index = names_by_index.size();
-  auto variable =
-      std::make_shared<Variable>( scope, name, block_depth, index, warn_on, source_location );
+  if ( index > std::numeric_limits<VariableIndex>::max() ) {
+    report.error(source_location, "Too many variables");
+  }
+  auto variable = std::make_shared<Variable>(
+      scope, name, block_depth, static_cast<VariableIndex>( index ), warn_on, source_location );
   variables_by_name[name] = variable;
   names_by_index.push_back( name );
   return variable;
@@ -64,7 +67,7 @@ const std::vector<std::string>& Variables::get_names() const
 
 unsigned Variables::count() const
 {
-  return names_by_index.size();
+  return static_cast<unsigned>( names_by_index.size() );
 }
 
 }  // namespace Pol::Bscript::Compiler

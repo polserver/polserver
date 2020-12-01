@@ -23,7 +23,8 @@ void ErrorListener::propagate_errors_to( Report& report, const SourceFileIdentif
 {
   for ( auto& msg : error_messages )
   {
-    SourceLocation location( &ident, msg.line_number, msg.char_column );
+    SourceLocation location( &ident, static_cast<unsigned>( msg.line_number ),
+                             static_cast<unsigned>( msg.char_column ) );
     report.error( location, msg.message, "\n" );
   }
 }

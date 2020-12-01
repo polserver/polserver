@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "clib/maputil.h"
+#include "compiler/model/SimpleTypes.h"
 #include "compiler/model/VariableScope.h"
 #include "compiler/model/WarnOn.h"
 
@@ -21,17 +22,17 @@ class Variables
 public:
   Variables( VariableScope, Report& );
 
-  std::shared_ptr<Variable> create( const std::string& name, unsigned block_depth,
-                                    WarnOn, const SourceLocation& );
+  std::shared_ptr<Variable> create( const std::string& name, BlockDepth, WarnOn,
+                                    const SourceLocation& );
 
-  std::shared_ptr<Variable> find( const std::string& name ) const;
+  [[nodiscard]] std::shared_ptr<Variable> find( const std::string& name ) const;
 
   void restore_shadowed( std::shared_ptr<Variable> );
 
   void remove_all_but( unsigned count );
 
-  const std::vector<std::string>& get_names() const;
-  unsigned count() const;
+  [[nodiscard]] const std::vector<std::string>& get_names() const;
+  [[nodiscard]] unsigned count() const;
 
 private:
   const VariableScope scope;

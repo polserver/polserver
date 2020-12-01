@@ -353,7 +353,7 @@ void InstructionEmitter::subscript_single()
   emit_token( TOK_ARRAY_SUBSCRIPT, TYP_OPERATOR, 1 );
 }
 
-void InstructionEmitter::subscript_multiple( int indexes )
+void InstructionEmitter::subscript_multiple( unsigned indexes )
 {
   emit_token( INS_MULTISUBSCRIPT, TYP_OPERATOR, indexes );
 }

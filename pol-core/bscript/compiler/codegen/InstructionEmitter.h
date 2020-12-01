@@ -102,7 +102,7 @@ public:
   void struct_add_uninit_member( const std::string& name );
   void struct_add_member( const std::string& name );
   void subscript_single();
-  void subscript_multiple( int indexes );
+  void subscript_multiple( unsigned indexes );
   void unary_operator( BTokenId );
   void uninit();
   void value( double );

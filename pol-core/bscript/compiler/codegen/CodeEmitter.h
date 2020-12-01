@@ -20,7 +20,7 @@ public:
   unsigned append( const StoredToken& );
   void update_offset( unsigned index, unsigned offset );
 
-  unsigned next_address() const;
+  [[nodiscard]] unsigned next_address() const;
 
 private:
   CodeSection& code;

@@ -66,7 +66,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
     }
   }
 
-  u32 code_len = compiled_script.code.size() * sizeof( StoredToken );
+  auto code_len = static_cast<u32>( compiled_script.code.size() * sizeof( StoredToken ) );
   sechdr.type = BSCRIPT_SECTION_CODE;
   sechdr.length = sizeof code_len + code_len;
   ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );
@@ -74,7 +74,7 @@ void CompiledScriptSerializer::write( const std::string& pathname ) const
   ofs.write( reinterpret_cast<const char*>( compiled_script.code.data() ), code_len );
 
   const std::vector<std::byte>& data = compiled_script.data;
-  u32 data_len = data.size();
+  auto data_len = static_cast<u32>( data.size() );
   sechdr.type = BSCRIPT_SECTION_SYMBOLS;
   sechdr.length = sizeof data_len + data_len;
   ofs.write( reinterpret_cast<const char*>( &sechdr ), sizeof sechdr );

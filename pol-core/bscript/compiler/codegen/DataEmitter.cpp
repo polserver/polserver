@@ -1,6 +1,7 @@
 #include "DataEmitter.h"
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace Pol::Bscript::Compiler
 {
@@ -22,10 +23,11 @@ unsigned DataEmitter::append( int value )
 
 unsigned DataEmitter::store( const std::string& s )
 {
-  return store( reinterpret_cast<const std::byte*>( s.c_str() ), s.length() + 1 );
+  return store( reinterpret_cast<const std::byte*>( s.c_str() ),
+                static_cast<unsigned>( s.length() + 1 ) );
 }
 
-unsigned DataEmitter::store( const std::byte* data, unsigned len )
+unsigned DataEmitter::store( const std::byte* data, size_t len )
 {
   if ( auto existing = find( data, len ) )
     return existing;
@@ -33,15 +35,18 @@ unsigned DataEmitter::store( const std::byte* data, unsigned len )
     return append( data, len );
 }
 
-unsigned DataEmitter::append( const std::byte* data, unsigned len )
+unsigned DataEmitter::append( const std::byte* data, size_t len )
 {
-  unsigned position = data_section.size();
+  size_t position = data_section.size();
+  if ( position + len > std::numeric_limits<unsigned>::max() ) {
+    throw std::runtime_error( "Data offset overflow" );
+  }
   data_section.insert( data_section.end(), data, data + len );
 
-  return position;
+  return static_cast<unsigned>( position );
 }
 
-unsigned DataEmitter::find( const std::byte* data, unsigned len )
+unsigned DataEmitter::find( const std::byte* data, size_t len )
 {
   if ( data_section.empty() )
     return 0;

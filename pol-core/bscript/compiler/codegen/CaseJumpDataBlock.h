@@ -14,7 +14,7 @@ public:
   void on_string_value_jump_to( const std::string& value, uint16_t address );
   void on_default_jump_to( uint16_t address );
 
-  const std::vector<std::byte>& get_data() const;
+  [[nodiscard]] const std::vector<std::byte>& get_data() const;
 
 private:
   std::vector<std::byte> data;

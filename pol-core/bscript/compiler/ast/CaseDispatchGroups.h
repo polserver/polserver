@@ -16,7 +16,7 @@ public:
   void accept( NodeVisitor& ) override;
   void describe_to( fmt::Writer& ) const override;
 
-  CaseDispatchGroup& dispatch_group( int );
+  CaseDispatchGroup& dispatch_group( size_t );
 };
 
 }  // namespace Pol::Bscript::Compiler

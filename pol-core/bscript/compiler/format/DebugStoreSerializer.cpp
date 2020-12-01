@@ -21,7 +21,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
 
   uint32_t count;
 
-  count = static_cast<unsigned int>( debug_store.filenames.size() );
+  count = static_cast<uint32_t>( debug_store.filenames.size() );
   ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
   unsigned filenum = 0;
   for ( auto& filename : debug_store.filenames )
@@ -32,7 +32,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
     ofs.write( filename.c_str(), count );
   }
-  count = static_cast<unsigned int>( compiled_script.global_variable_names.size() );
+  count = static_cast<uint32_t>( compiled_script.global_variable_names.size() );
   ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
   unsigned globalnum = 0;
   for ( auto& global_name : compiled_script.global_variable_names )
@@ -43,7 +43,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
     ofs.write( global_name.c_str(), count );
   }
-  count = debug_store.instructions.size();
+  count = static_cast<uint32_t>( debug_store.instructions.size() );
   ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
   unsigned instruction_index = 0;
   for ( auto& instruction_info : debug_store.instructions )
@@ -64,7 +64,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
     ofs.write( reinterpret_cast<char*>( &ins ), sizeof ins );
   }
 
-  count = debug_store.blocks.size();
+  count = static_cast<uint32_t>( debug_store.blocks.size() );
   ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
   unsigned blocknum = 0;
   for ( auto& block : debug_store.blocks )
@@ -103,7 +103,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
       }
     }
   }
-  count = static_cast<unsigned int>( debug_store.user_functions.size() );
+  count = static_cast<uint32_t>( debug_store.user_functions.size() );
   ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
   unsigned funcnum = 0;
   for ( auto& user_function : debug_store.user_functions )
@@ -114,7 +114,7 @@ void DebugStoreSerializer::write( std::ofstream& ofs, std::ofstream* text_ofs )
       *text_ofs << "  FirstPC=" << user_function.first_instruction
                 << ", lastPC=" << user_function.last_instruction << std::endl;
     }
-    count = static_cast<unsigned int>( user_function.name.size() + 1 );
+    count = static_cast<uint32_t>( user_function.name.size() + 1 );
     ofs.write( reinterpret_cast<char*>( &count ), sizeof count );
     ofs.write( user_function.name.c_str(), count );
     uint32_t tmp;

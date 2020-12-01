@@ -50,7 +50,7 @@ public:
   [[nodiscard]] std::string to_string_tree() const;
 
   template <class T>
-  std::unique_ptr<T> take_child( unsigned index )
+  std::unique_ptr<T> take_child( size_t index )
   {
     if ( index >= children.size() )
       internal_error( "no child at index " + std::to_string( index ) );
@@ -59,7 +59,7 @@ public:
   }
 
   template <class T>
-  T& child( unsigned index )
+  T& child( size_t index )
   {
     if ( index >= children.size() )
       internal_error( "no child at index " + std::to_string( index ) );

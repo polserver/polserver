@@ -140,7 +140,7 @@ void InstructionGenerator::visit_case_statement( CaseStatement& node )
   FlowControlLabel default_label;
 
   auto& groups = node.dispatch_groups();
-  for ( int i = 0, c = groups.children.size(); i < c; ++i )
+  for ( size_t i = 0, c = groups.children.size(); i < c; ++i )
   {
     CaseDispatchGroup& group = groups.dispatch_group( i );
     FlowControlLabel group_label;
@@ -207,7 +207,7 @@ void InstructionGenerator::visit_block( Block& node )
 
   if ( !node.local_variable_scope_info.variables.empty() )
   {
-    emit.leaveblock( node.local_variable_scope_info.variables.size() );
+    emit.leaveblock( static_cast<unsigned>( node.local_variable_scope_info.variables.size() ) );
   }
 }
 
@@ -273,7 +273,7 @@ void InstructionGenerator::visit_element_access( ElementAccess& acc )
 {
   visit_children( acc );
   update_debug_location( acc );
-  int indexes = acc.indexes().children.size();
+  auto indexes = static_cast<unsigned>( acc.indexes().children.size() );
   if ( indexes == 1 )
     emit.subscript_single();
   else
@@ -284,7 +284,7 @@ void InstructionGenerator::visit_element_assignment( ElementAssignment& node )
 {
   visit_children( node );
   update_debug_location( node );
-  auto num_indexes = node.indexes().children.size();
+  auto num_indexes = static_cast<unsigned>( node.indexes().children.size() );
   if ( node.consume )
   {
     if ( num_indexes == 1 )
@@ -549,7 +549,7 @@ void InstructionGenerator::visit_program( Program& program )
 
   if ( !program.local_variable_scope_info.variables.empty() )
   {
-    emit.leaveblock( program.local_variable_scope_info.variables.size() );
+    emit.leaveblock( static_cast<unsigned>( program.local_variable_scope_info.variables.size() ) );
   }
 }
 

@@ -27,7 +27,7 @@ unsigned DebugStore::add_block( unsigned parent_block_index,
   }
 
   blocks.emplace_back( parent_block_index, base_index, std::move( local_variable_names ) );
-  return blocks.size() - 1;
+  return static_cast<unsigned>( blocks.size() - 1 );
 }
 
 void DebugStore::add_instruction( const DebugStore::InstructionInfo& info )

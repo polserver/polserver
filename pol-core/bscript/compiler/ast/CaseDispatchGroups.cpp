@@ -23,7 +23,7 @@ void CaseDispatchGroups::describe_to( fmt::Writer& w ) const
   w << "case-dispatch-groups";
 }
 
-CaseDispatchGroup& CaseDispatchGroups::dispatch_group( int index )
+CaseDispatchGroup& CaseDispatchGroups::dispatch_group( size_t index )
 {
   return child<CaseDispatchGroup>( index );
 }

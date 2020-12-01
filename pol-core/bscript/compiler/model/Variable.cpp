@@ -4,8 +4,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-Variable::Variable( VariableScope scope, std::string name, unsigned block_depth, size_t index,
-                    WarnOn warn_on, const SourceLocation& source_location )
+Variable::Variable( VariableScope scope, std::string name, BlockDepth block_depth,
+                    VariableIndex index, WarnOn warn_on, const SourceLocation& source_location )
   : scope( scope ),
     name( std::move( name ) ),
     block_depth( block_depth ),
