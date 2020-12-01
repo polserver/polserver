@@ -20,8 +20,7 @@ class ModuleDescriptor;
 class StoredTokenDecoder
 {
 public:
-  StoredTokenDecoder( const std::vector<ModuleDescriptor>&, const std::vector<std::byte>& data,
-                      const DebugStore* );
+  StoredTokenDecoder( const std::vector<ModuleDescriptor>&, const std::vector<std::byte>& data );
 
   void decode_to( const StoredToken&, fmt::Writer& );
 
@@ -35,7 +34,6 @@ private:
 
   const std::vector<ModuleDescriptor>& module_descriptors;
   const std::vector<std::byte>& data;
-  const DebugStore* debug_store;
 };
 
 }  // namespace Pol::Bscript::Compiler

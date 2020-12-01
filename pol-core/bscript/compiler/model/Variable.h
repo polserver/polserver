@@ -9,11 +9,12 @@
 namespace Pol::Bscript::Compiler
 {
 class SourceLocation;
+using VariableIndex = unsigned;
 
 class Variable
 {
 public:
-  Variable( VariableScope, std::string name, unsigned block_depth, size_t index, WarnOn,
+  Variable( VariableScope, std::string name, unsigned block_depth, VariableIndex, WarnOn,
             const SourceLocation& source_location );
 
   void mark_used();
@@ -22,7 +23,7 @@ public:
   const VariableScope scope;
   const std::string name;
   const unsigned block_depth;
-  const size_t index;
+  const VariableIndex index;
   const WarnOn warn_on;
   const SourceLocation& source_location;
 

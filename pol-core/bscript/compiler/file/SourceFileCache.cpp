@@ -73,7 +73,7 @@ void SourceFileCache::keep_some()
   {
     pathname_frequencies.emplace_back( frequency[kv.first], &kv.second->pathname );
   }
-  unsigned remove = files.size() - keep;
+  size_t remove = files.size() - keep;
   std::nth_element( pathname_frequencies.begin(), pathname_frequencies.begin() + remove,
                     pathname_frequencies.end() );
 

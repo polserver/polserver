@@ -21,7 +21,7 @@ void ModuleDeclarationRegistrar::register_module( const ModuleFunctionDeclaratio
   auto module_itr = registered_modules.find( module_name );
   if ( module_itr == registered_modules.end() )
   {
-    unsigned module_index = registered_modules.size();
+    auto module_index = static_cast<unsigned>(registered_modules.size());
 
     registered_modules[module_name] = std::make_unique<EmittedModule>( module_index );
     module_names_in_order.push_back( module_name );
@@ -48,14 +48,14 @@ void ModuleDeclarationRegistrar::lookup_or_register_module_function(
     }
     else
     {
-      function_index = em.function_name_to_index.size();
+      function_index = static_cast<unsigned>( em.function_name_to_index.size() );
       em.function_name_to_index[function_name] = function_index;
       em.function_declarations.emplace_back( function_name, argument_count );
     }
   }
   else
   {
-    module_index = registered_modules.size();
+    module_index = static_cast<unsigned>( registered_modules.size() );
     function_index = 0;
 
     auto mod = std::make_unique<EmittedModule>( module_index );

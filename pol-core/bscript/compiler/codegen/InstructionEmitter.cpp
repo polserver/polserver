@@ -163,7 +163,7 @@ unsigned InstructionEmitter::casejmp()
 unsigned InstructionEmitter::case_dispatch_table( const CaseJumpDataBlock& dispatch_table )
 {
   auto& bytes = dispatch_table.get_data();
-  return data_emitter.append( bytes.data(), bytes.size() );
+  return data_emitter.append( bytes.data(), static_cast<unsigned>( bytes.size() ) );
 }
 
 void InstructionEmitter::consume()
@@ -353,7 +353,7 @@ void InstructionEmitter::subscript_single()
   emit_token( TOK_ARRAY_SUBSCRIPT, TYP_OPERATOR, 1 );
 }
 
-void InstructionEmitter::subscript_multiple( int indexes )
+void InstructionEmitter::subscript_multiple( unsigned indexes )
 {
   emit_token( INS_MULTISUBSCRIPT, TYP_OPERATOR, indexes );
 }

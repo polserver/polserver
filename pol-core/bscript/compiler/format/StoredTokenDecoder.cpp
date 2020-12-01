@@ -10,9 +10,8 @@
 namespace Pol::Bscript::Compiler
 {
 StoredTokenDecoder::StoredTokenDecoder( const std::vector<ModuleDescriptor>& module_descriptors,
-                                        const std::vector<std::byte>& data,
-                                        const DebugStore* debug_store )
-  : module_descriptors( module_descriptors ), data( data ), debug_store( debug_store )
+                                        const std::vector<std::byte>& data )
+  : module_descriptors( module_descriptors ), data( data )
 {
 }
 
