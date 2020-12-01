@@ -1,0 +1,7 @@
+use util;
+var a := struct {
+  ThisKey := "abc" + StrFormatTime( "%Y-%m-%d" ) + ".",
+  ThatKey := "def" StrFormatTime( "%Y-%m-%d" ) + ".",
+  AnotherKey := "some neat string."
+};
+

@@ -1,3 +1,4 @@
+
 parser grammar EscriptParser;
 
 options { tokenVocab=EscriptLexer; }
@@ -268,6 +269,7 @@ expression
     | <assoc=right> expression
       bop=( ':=' | '+=' | '-=' | '*=' | '/=' | '%=')
       expression
+    | expression { notifyErrorListeners("Missing operator?\n"); } expression
     ;
 
 primary
