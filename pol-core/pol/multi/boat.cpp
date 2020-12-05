@@ -304,8 +304,21 @@ void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u
   msg->WriteFlipped<u16>( ( z < 0 ) ? static_cast<u16>( 0x10000 + z ) : static_cast<u16>( z ) );
 
   u16 object_count = static_cast<u16>( travellers_.size() + Components.size() );
-
   msg->WriteFlipped<u16>( object_count );
+
+  const size_t bytesTravellers = ( sizeof( u32 ) + 3 * sizeof( u16 ) ) * travellers_.size();
+  const size_t bytesComponents = ( sizeof( u32 ) + 3 * sizeof( u16 ) ) * Components.size();
+  const size_t predictedSize = 18 + bytesComponents + bytesTravellers;
+  if ( predictedSize > msg->SIZE )
+  {
+    POLLOG_INFO.Format(
+        "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating movement packet\n",
+        serial, x, y, z, travellers_.size() );
+  }
+
+  auto stillFitsTraveller = [&msg, bytesComponents]() -> bool {
+    return msg->SIZE >= msg->offset + bytesComponents + ( sizeof( u32 ) + 3 * sizeof( u16 ) );
+  };
 
   for ( auto& travellerRef : travellers_ )
   {
@@ -313,6 +326,10 @@ void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u
 
     if ( !obj->orphan() )
     {
+      // show travellers only as long as they fit in the packet
+      if ( !stillFitsTraveller() )
+        break;
+
       msg->Write<u32>( obj->serial_ext );
       msg->WriteFlipped<u16>( static_cast<u16>( obj->x + xmod ) );
       msg->WriteFlipped<u16>( static_cast<u16>( obj->y + ymod ) );
@@ -361,10 +378,23 @@ void UBoat::send_display_boat( Network::Client* client )
 
   msg->offset += 2;  // Length
 
-  u16 inner_packet_count =
-      static_cast<u16>( travellers_.size() + Components.size() + 1 );  // Add 1 for the boat aswell
-
+  // Add 1 for the boat aswell
+  const u16 inner_packet_count = static_cast<u16>( travellers_.size() + Components.size() + 1 );
   msg->WriteFlipped<u16>( inner_packet_count );
+
+  // Send_display_boat is only called for CLIENTTYPE_7090, so each 0xF3 is 26 bytes here
+  const size_t bytesComponents = Components.size() * 26;
+  const size_t predictedSize = 5 + inner_packet_count * 26;
+  if ( predictedSize > msg->SIZE )
+  {
+    POLLOG_INFO.Format(
+        "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating display boat packet\n",
+        serial, x, y, z, travellers_.size() );
+  }
+
+  auto stillFitsTraveller = [&msg, bytesComponents]() -> bool {
+    return msg->SIZE >= msg->offset + bytesComponents + 26;
+  };
 
   // Build boat part
 
@@ -386,12 +416,18 @@ void UBoat::send_display_boat( Network::Client* client )
 
   u8 flags = 0;
 
+  // TODO: Check if invisible items/mobiles should be handled differently. Right now this might be
+  // leaking information.
   for ( auto& travellerRef : travellers_ )
   {
     UObject* obj = travellerRef.get();
 
     if ( !obj->orphan() )
     {
+      // show travellers only as long as they fit in the packet
+      if ( !stillFitsTraveller() )
+        break;
+
       msg->Write<u8>( 0xF3u );
       msg->WriteFlipped<u16>( 0x1u );
 
