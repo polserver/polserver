@@ -62,6 +62,8 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.dblclick_wait = elem.remove_ulong( "DoubleClickWait", 0 );
   settingsManager.ssopt.decay_items = elem.remove_bool( "DecayItems", true );
   settingsManager.ssopt.default_decay_time = elem.remove_ulong( "DefaultDecayTime", 10 );
+  settingsManager.ssopt.refresh_decay_after_boat_moves =
+      elem.remove_bool( "RefreshDecayAfterBoatMoves", true );
   settingsManager.ssopt.default_doubleclick_range =
       elem.remove_ushort( "DefaultDoubleclickRange", 2 );
   settingsManager.ssopt.default_accessible_range =

@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-05-2021</datemodified>
+		<datemodified>03-07-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>03-07-2021</date>
+			<author>Nando:</author>
+			<change type="Added">RefreshDecayAfterBoatMoves in servspecopt.cfg. Defaults to true to maintain the old behavior. If this setting is true,<br/>
+the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay<br/>
+on boats. Note that POL doesn't yet handle item decay on boats.</change>
+			<change type="Fixed">HSA boat movement packets (0xF7 and 0xF6) will no longer overflow when too many items are on deck. Note that the packet<br/>
+will be truncated and might be misinterpreted by the client or leave ghost items behind.</change>
+		</entry>
 		<entry>
 			<date>03-05-2021</date>
 			<author>Kevin:</author>

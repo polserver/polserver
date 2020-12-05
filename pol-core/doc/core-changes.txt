@@ -1,4 +1,10 @@
 ﻿-- POL100.1.0 --
+03-07-2021 Nando:
+    Added: RefreshDecayAfterBoatMoves in servspecopt.cfg. Defaults to true to maintain the old behavior. If this setting is true,
+           the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay 
+           on boats. Note that POL doesn't yet handle item decay on boats.
+    Fixed: HSA boat movement packets (0xF7 and 0xF6) will no longer overflow when too many items are on deck. Note that the packet
+           will be truncated and might be misinterpreted by the client or leave ghost items behind.
 03-05-2021 Kevin:
   Removed: The ability to generate the Escript wordlist via the -W argument to ecompile.exe has been removed. The Escript grammar can be
            described by the ANTLR .g4 files in the repository.

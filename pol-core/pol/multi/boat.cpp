@@ -853,7 +853,8 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
         item->x = newx + dx;
         item->y = newy + dy;
 
-        item->restart_decay_timer();
+        if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
+          item->restart_decay_timer();
         MoveItemWorldPosition( oldx, oldy, item, oldrealm );
       }
       else
@@ -866,7 +867,8 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
         item->x += Core::move_delta[move_dir].xmove;
         item->y += Core::move_delta[move_dir].ymove;
 
-        item->restart_decay_timer();
+        if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
+          item->restart_decay_timer();
         MoveItemWorldPosition( oldx, oldy, item, nullptr );
       }
 
@@ -1018,8 +1020,8 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
       item->x = newx;
       item->y = newy;
 
-      item->restart_decay_timer();
-
+      if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
+        item->restart_decay_timer();
       MoveItemWorldPosition( oldx, oldy, item, nullptr );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
