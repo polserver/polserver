@@ -1,5 +1,5 @@
 message("* boost")
-set (BOOST_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/boost_1_74_0")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_74_0")
 set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
