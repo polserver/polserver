@@ -33,7 +33,7 @@ else()
 endif()
 
 if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS ${BOOST_THREAD_LIB})
-  message("  - will build in ${BOOST_SOURCE_DIR}")
+  message("  - will build in ${BOOST_SOURCE_DIR} toolset=${BOOST_TOOLSET}")
   ExternalProject_Add(boost
           SOURCE_DIR ${BOOST_SOURCE_DIR}
           INSTALL_COMMAND ""
@@ -51,7 +51,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
     ExternalProject_Add(boost_extract
             URL "https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.tar.bz2"
             SOURCE_DIR "${BOOST_SOURCE_DIR}"
-            CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
+            CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
             BUILD_COMMAND ""
             INSTALL_COMMAND ""
             BUILD_BYPRODUCTS "${BOOST_SOURCE_DIR}"
