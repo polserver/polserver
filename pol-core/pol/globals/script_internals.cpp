@@ -319,21 +319,6 @@ void ScriptScheduler::run_ready()
 void ScriptScheduler::schedule( UOExecutor* exec )
 {
   passert_always( exec->in_hold_list() == NO_LIST );
-  exec->setDebugLevel( Bscript::Executor::NONE );
-  if ( exec->blocked() )  // when scheduled blocked do not put it in the runlist
-  {
-    if ( exec->sleep_until_clock() )
-    {
-      exec->in_hold_list( Core::HoldListType::TIMEOUT_LIST );
-      exec->hold_itr( holdlist.insert( HoldList::value_type( exec->sleep_until_clock(), exec ) ) );
-    }
-    else
-    {
-      exec->in_hold_list( Core::HoldListType::NOTIMEOUT_LIST );
-      notimeoutholdlist.insert( exec );
-    }
-    return;
-  }
   enqueue( exec );
 }
 
