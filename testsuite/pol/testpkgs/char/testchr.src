@@ -12,6 +12,9 @@ program chartests()
   if (!char)
     return ret_error("Could not find char at slot 1");
   endif
+  if (char.backpack)
+    DestroyItem(char.backpack);
+  endif
   backpack:=CreateItemAtLocation(0,0,0,0xE75);
   var res:=EquipItem(char,backpack);
   if (!res)
@@ -26,18 +29,6 @@ function clean_backpack()
     DestroyItem(item);
   endforeach
 endfunction
-
-exported function apply_aos_mod()
-  backpack.damage_cold_mod:=10;
-  if (char.damage_cold != 10)
-    return ret_error("failed to apply equipped aos prop");
-  endif
-  char.damage_cold_mod+=10;
-  if (char.damage_cold != 20)
-    return ret_error("failed to apply aos prop mod");
-  endif
-  return 1;
-endfunction 
 
 exported function set_name()
   setname(char, "test");

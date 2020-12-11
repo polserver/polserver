@@ -1,0 +1,70 @@
+use os;
+use uo;
+
+include "testutil";
+
+var char;
+var backpack;
+
+program chartests()
+  var a:=FindAccount("test");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  if (char.backpack)
+    DestroyItem(char.backpack);
+  endif
+  backpack:=CreateItemAtLocation(0,0,0,0xE75);
+  var res:=EquipItem(char,backpack);
+  if (!res)
+    return ret_error("Failed to equip backpack "+backpack+" "+res);
+  endif
+  return 1;
+endprogram
+
+
+exported function apply_aos_damage_mod()
+  var aos:={
+    "damage_cold", "damage_energy", "damage_fire", "damage_physical", "damage_poison"};
+  foreach mod in aos
+    char.set_member(mod+"_mod", 0);
+    backpack.set_member(mod+"_mod", 0);
+  endforeach
+  foreach mod in aos
+    backpack.set_member(mod+"_mod", 10);
+    if (char.get_member(mod) != 10)
+      return ret_error("failed to apply equipped aos prop: {} ({})".format(mod,char.get_member(mod)));
+    endif
+  endforeach
+  foreach mod in aos
+    char.set_member(mod+"_mod", 10);
+    if (char.get_member(mod) != 20)
+      return ret_error("failed to apply aos prop mod: "+mod);
+    endif
+  endforeach
+  return 1;
+endfunction 
+
+exported function apply_aos_resist_mod()
+  var aos:={
+    "resist_cold", "resist_energy", "resist_fire", "resist_physical", "resist_poison"};
+  foreach mod in aos
+    char.set_member(mod+"_mod", 0);
+    char.set_member(mod+"_cap_mod", 20);
+    backpack.set_member(mod+"_mod", 0);
+  endforeach
+  foreach mod in aos
+    backpack.set_member(mod+"_mod", 10);
+    if (char.get_member(mod) != 10)
+      return ret_error("failed to apply equipped aos prop: {} ({})".format(mod,char.get_member(mod)));
+    endif
+  endforeach
+  foreach mod in aos
+    char.set_member(mod+"_mod", 20); // cap needs to trigger
+    if (char.get_member(mod) != 20)
+      return ret_error("failed to apply aos prop mod: "+mod);
+    endif
+  endforeach
+  return 1;
+endfunction 
