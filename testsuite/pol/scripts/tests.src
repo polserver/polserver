@@ -19,7 +19,7 @@ program tests()
   foreach pkg in testpkgs
     syslog(pkg[2]);
     var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
-    scripts.sort(1);
+    scripts.sort();
     if ("setup.ecl" in scripts)
       syslog("  Calling setup.ecl..");
       var res:=run_script(":{}:setup.ecl".format(pkg[1]));
