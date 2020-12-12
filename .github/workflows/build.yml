@@ -111,11 +111,16 @@ jobs:
         run: |
           cd bin-build
           ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
+      - name: Test (Shard Fixtures)
+        if: matrix.config.nopch == 0
+        run: |
+          cd bin-build
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E "(escript_|shard_test$)"
       - name: Test (Shard)
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+          ctest --verbose -C ${{ matrix.config.build-type }} -R shard_test$ -FA .*
       - name: Upload shard test log
         if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v1
