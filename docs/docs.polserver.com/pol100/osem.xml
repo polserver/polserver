@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>08/20/2020</datemodified>
+    <datemodified>12/12/2020</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -178,9 +178,10 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="SysLog">
-    <prototype>SysLog( text )</prototype>
+    <prototype>SysLog( text, log_verbose:=1 )</prototype>
     <parameter name="text" value="String"/>
-    <explain>write text to the console, and to the log file includes context (calling script name)</explain>
+    <parameter name="log_verbose" value="Integer (1/0)"/>
+    <explain>write text to the console, and to the log file includes context (calling script name). Context will be skipped if parameter log_verbose is set to 0</explain>
     <return>1 on success</return>
 </function>
 

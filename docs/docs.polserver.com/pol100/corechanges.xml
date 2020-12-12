@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-09-2020</datemodified>
+		<datemodified>12-12-2020</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
@@ -23,6 +23,7 @@ Like LoadExportedScript critical state depends on the caller's script.<br/>
 Args see LoadExportedScript.</change>
 			<change type="Added">packageref.dir member returns directory path<br/>
 packageref.desc member returns description &quot;pkg.name (pkg.dir)&quot;</change>
+			<change type="Changed">added optional parameter for syslog &quot;log_verbose&quot; if set to 0 only the text will be logged and printed, not the scriptname.</change>
 		</entry>
 		<entry>
 			<date>10-25-2020</date>

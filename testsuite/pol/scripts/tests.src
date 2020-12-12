@@ -7,7 +7,7 @@ program tests()
   syslog(
     "\n##########################\n"
     + "#  starting testscripts  #\n"
-    + "##########################\n");
+    + "##########################\n",0);
   var exitcode:=0;
   var testpkgs:={};
   foreach pkg in Packages()
@@ -17,14 +17,14 @@ program tests()
   endforeach
   testpkgs.sort(1);
   foreach pkg in testpkgs
-    syslog(pkg[2]);
+    syslog(pkg[2],0);
     var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
     scripts.sort();
     if ("setup.ecl" in scripts)
-      syslog("  Calling setup.ecl..");
+      syslog("  Calling setup.ecl..",0);
       var res:=run_script(":{}:setup.ecl".format(pkg[1]));
       if (res != 1)
-        syslog("    failed: "+res.errortext);
+        syslog("    failed: "+res.errortext,0);
         exitcode:=1;
         continue;
       endif
@@ -33,25 +33,25 @@ program tests()
       if (file.find("test") != 1)
         continue;
       endif
-      syslog("  Calling {}..".format(file));
+      syslog("  Calling {}..".format(file),0);
       var script:=LoadExportedScript(":{}:{}".format(pkg[1], file));
       if (!script[2])
-        syslog("    failed: "+script[2]);
+        syslog("    failed: "+script[2],0);
         exitcode:=1;
         continue;
       endif
       foreach func in (script[1].exported_functions)
-        syslog("    Calling {}..".format(func));
+        syslog("    Calling {}..".format(func),0);
         var res:=script[1].call(func);  
         if (res != 1)
-          syslog("      failed: "+res.errortext);
+          syslog("      failed: "+res.errortext,0);
           exitcode:=1;
           continue;
         endif
       endforeach
     endforeach
     if ("cleanup.ecl" in scripts)
-      syslog("  Calling cleanup.ecl..");
+      syslog("  Calling cleanup.ecl..",0);
       run_script(":{}:cleanup.ecl".format(pkg[1]));
     endif
   endforeach
@@ -63,6 +63,6 @@ program tests()
   syslog(
     "\n###########################\n"
     + "# finished tests: {} #\n".format(result)
-    + "###########################\n");
+    + "###########################\n",0);
   shutdown(exitcode);
 endprogram

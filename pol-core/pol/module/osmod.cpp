@@ -443,20 +443,18 @@ BObjectImp* OSExecutorModule::mf_Set_Debug()
 BObjectImp* OSExecutorModule::mf_SysLog()
 {
   BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( BObjectImp::OTString ) )
+  int log_verbose;
+  if ( !exec.getParam( 1, log_verbose ) )
+    return new BError( "Invalid parameter type" );
+  std::string strval = imp->getStringRep();
+  if ( log_verbose )
   {
-    String* str = static_cast<String*>( imp );
-    POLLOG << "[" << exec.scriptname() << "]: " << str->data() << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << str->data() << "\n";
-    return new BLong( 1 );
-  }
-  else
-  {
-    std::string strval = imp->getStringRep();
     POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
     INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
-    return new BLong( 1 );
   }
+  else
+    POLLOG_INFO << strval << "\n";
+  return new BLong( 1 );
 }
 
 BObjectImp* OSExecutorModule::mf_Set_Priority()

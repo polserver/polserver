@@ -15,6 +15,7 @@
            Args see LoadExportedScript.
     Added: packageref.dir member returns directory path
            packageref.desc member returns description "pkg.name (pkg.dir)"
+  Changed: added optional parameter for syslog "log_verbose" if set to 0 only the text will be logged and printed, not the scriptname.
 10-25-2020 Turley:
   Changed: updated StrFormatTime to allow all format specifiers see http://www.cppreference.com/stddate/strftime.html for full list.
            Removed restriction of 100 characters.
