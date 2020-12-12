@@ -84,10 +84,14 @@ jobs:
         run: |
           cd bin-build
           ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -R escript_
+      - name: Test (Shard Fixtures)
+        run: |
+          cd bin-build
+          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E "(escript_|shard_test$)"
       - name: Test (Shard)
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+          ctest --verbose -C ${{ matrix.config.build-type }} -R shard_test$ -FA .*
       - name: Coverage
         run: |
           cd bin-build
