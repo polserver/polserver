@@ -220,3 +220,48 @@ else()
   message("Git or clang-format not found for target 'clang_format'")
 endif()
 
+message("adding test targets")
+message("  test_escript")
+add_custom_target(test_escript
+  COMMAND ${CMAKE_CTEST_COMMAND}
+    -j2 --output-on-failure -R escript_ -C ${CMAKE_BUILD_TYPE}
+  COMMENT "Run escript tests"
+  VERBATIM
+  USES_TERMINAL
+)
+set_target_properties(test_escript PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(test_escript PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(test_escript PROPERTIES FOLDER !BuildTargets)
+message("  test_pol")
+add_custom_target(test_pol
+  COMMAND ${CMAKE_CTEST_COMMAND}
+    -j2 --output-on-failure -E escript_ -C ${CMAKE_BUILD_TYPE}
+  COMMENT "Run pol tests"
+  VERBATIM
+  USES_TERMINAL
+)
+set_target_properties(test_pol PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(test_pol PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(test_pol PROPERTIES FOLDER !BuildTargets)
+message("  test_pol_fixture")
+add_custom_target(test_pol_fixture
+  COMMAND ${CMAKE_CTEST_COMMAND}
+    -j2 --output-on-failure -E "(escript_|shard_test$)" -C ${CMAKE_BUILD_TYPE}
+  COMMENT "Run pol fixture tests"
+  VERBATIM
+  USES_TERMINAL
+)
+set_target_properties(test_pol_fixture PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(test_pol_fixture PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(test_pol_fixture PROPERTIES FOLDER !BuildTargets)
+message("  test_pol_only")
+add_custom_target(test_pol_only
+  COMMAND ${CMAKE_CTEST_COMMAND}
+    --verbose -R shard_test$ -FA .* -C ${CMAKE_BUILD_TYPE}
+  COMMENT "Run pol only tests"
+  VERBATIM
+  USES_TERMINAL
+)
+set_target_properties(test_pol_only PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(test_pol_only PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(test_pol_only PROPERTIES FOLDER !BuildTargets)

@@ -71,15 +71,15 @@ jobs:
       - name: Test (EScript)
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_escript
       - name: Test (Shard Fixtures)
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E "(escript_|shard_test$)"
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
       - name: Test (Shard)
         run: |
           cd bin-build
-          ctest --verbose -C ${{ matrix.config.build-type }} -R shard_test$ -FA .*
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
       - name: Upload shard test log
         uses: actions/upload-artifact@v1
         with:
