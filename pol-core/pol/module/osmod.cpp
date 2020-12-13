@@ -155,23 +155,15 @@ Whew!
 */
 BObjectImp* OSExecutorModule::mf_Sleep()
 {
-  int nsecs;
-
-  nsecs = (int)exec.paramAsLong( 0 );
-
-  SleepFor( nsecs );
-
+  int nsecs = exec.paramAsLong( 0 );
+  SleepFor( nsecs > 0 ? static_cast<u32>( nsecs ) : 1u );
   return new BLong( 0 );
 }
 
 BObjectImp* OSExecutorModule::mf_Sleepms()
 {
-  int msecs;
-
-  msecs = (int)exec.paramAsLong( 0 );
-
-  SleepForMs( msecs );
-
+  int msecs = exec.paramAsLong( 0 );
+  SleepForMs( msecs > 0 ? static_cast<u32>( msecs ) : 1u );
   return new BLong( 0 );
 }
 
@@ -185,10 +177,11 @@ BObjectImp* OSExecutorModule::mf_Wait_For_Event()
   }
   else
   {
-    int nsecs = (int)exec.paramAsLong( 0 );
-
+    int nsecs = exec.paramAsLong( 0 );
     if ( nsecs )
     {
+      if ( nsecs < 1 )
+        nsecs = 1;
       wait_type = Core::WAIT_TYPE::WAIT_EVENT;
       blocked_ = true;
       sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
@@ -795,26 +788,24 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
   return true;  // Event was successfully sent (perhaps by discarding old events)
 }
 
-void OSExecutorModule::SleepFor( int nsecs )
+void OSExecutorModule::SleepFor( u32 nsecs )
 {
-  if ( nsecs )
-  {
-    blocked_ = true;
-    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-    sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
-  }
+  if ( !nsecs )
+    return;
+  blocked_ = true;
+  wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
+  sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
 }
 
-void OSExecutorModule::SleepForMs( int msecs )
+void OSExecutorModule::SleepForMs( u32 msecs )
 {
-  if ( msecs )
-  {
-    blocked_ = true;
-    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-    sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
-    if ( !sleep_until_clock_ )
-      sleep_until_clock_ = 1;
-  }
+  if ( !msecs )
+    return;
+  blocked_ = true;
+  wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
+  sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
+  if ( !sleep_until_clock_ )
+    sleep_until_clock_ = 1;
 }
 
 void OSExecutorModule::suspend()

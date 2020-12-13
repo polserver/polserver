@@ -235,7 +235,8 @@ BObjectImp* NPCExecutorModule::move_self( Plib::UFACING facing, bool run, bool a
   int base = 1000 - npc.run_speed * 3;
   if ( base < 250 )
     base = 250;
-  os_module->SleepForMs( run ? ( base / 2 ) : base );
+  u32 sleep = static_cast<u32>( base );
+  os_module->SleepForMs( run ? ( sleep / 2 ) : sleep );
 
   // return new String( FacingStr(facing) );
   return new BLong( success ? 1 : 0 );

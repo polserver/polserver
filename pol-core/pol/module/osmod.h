@@ -18,6 +18,7 @@
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
+#include "clib/rawtypes.h"
 
 namespace Pol
 {
@@ -58,8 +59,8 @@ public:
   ~OSExecutorModule();
 
 
-  void SleepFor( int secs );
-  void SleepForMs( int msecs );
+  void SleepFor( u32 secs );
+  void SleepForMs( u32 msecs );
 
   unsigned int pid() const;
   bool blocked() const;

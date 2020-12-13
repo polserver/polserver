@@ -148,11 +148,11 @@ void UOExecutor::priority( unsigned char priority )
   os_module->priority( priority );
 }
 
-void UOExecutor::SleepFor( int secs )
+void UOExecutor::SleepFor( u32 secs )
 {
   os_module->SleepFor( secs );
 }
-void UOExecutor::SleepForMs( int msecs )
+void UOExecutor::SleepForMs( u32 msecs )
 {
   os_module->SleepForMs( msecs );
 }

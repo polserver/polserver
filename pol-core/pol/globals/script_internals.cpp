@@ -318,7 +318,6 @@ void ScriptScheduler::run_ready()
 
 void ScriptScheduler::schedule( UOExecutor* exec )
 {
-  passert_always( exec->in_hold_list() == NO_LIST );
   enqueue( exec );
 }
 
@@ -460,6 +459,7 @@ void ScriptScheduler::revive_notimeout( UOExecutor* exec )
 
 void ScriptScheduler::enqueue( UOExecutor* exec )
 {
+  passert_always( exec->in_hold_list() == NO_LIST );
   runlist.push_back( exec );
 }
 

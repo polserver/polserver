@@ -112,10 +112,10 @@ public:
   void warn_on_runaway( bool warn_on_runaway );
 
   bool keep_alive() const;
-  void keep_alive(bool status);
+  void keep_alive( bool status );
 
-  void SleepFor( int secs );
-  void SleepForMs( int msecs );
+  void SleepFor( u32 secs );
+  void SleepForMs( u32 msecs );
   unsigned int pid() const;
   bool blocked() const;
   bool in_debugger_holdlist() const;
