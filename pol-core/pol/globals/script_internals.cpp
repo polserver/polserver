@@ -318,6 +318,7 @@ void ScriptScheduler::run_ready()
 
 void ScriptScheduler::schedule( UOExecutor* exec )
 {
+  exec->setDebugLevel( Bscript::Executor::NONE );
   enqueue( exec );
 }
 
