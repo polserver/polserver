@@ -1,5 +1,6 @@
 [![Build Status](https://github.com/polserver/polserver/workflows/Build/badge.svg)](https://github.com/polserver/polserver/actions)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2862/badge.svg)](https://scan.coverity.com/projects/2862)
+[![Coverage Status](https://coveralls.io/repos/github/polserver/polserver/badge.svg?branch=master)](https://coveralls.io/github/polserver/polserver?branch=master)
 
 POL
 =========
