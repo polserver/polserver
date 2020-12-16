@@ -1,0 +1,5 @@
+use uo;
+
+program boat(boat)
+  boat.setprop("started",1);
+endprogram

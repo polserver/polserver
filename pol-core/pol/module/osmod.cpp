@@ -155,23 +155,15 @@ Whew!
 */
 BObjectImp* OSExecutorModule::mf_Sleep()
 {
-  int nsecs;
-
-  nsecs = (int)exec.paramAsLong( 0 );
-
-  SleepFor( nsecs );
-
+  int nsecs = exec.paramAsLong( 0 );
+  SleepFor( nsecs > 0 ? static_cast<u32>( nsecs ) : 1u );
   return new BLong( 0 );
 }
 
 BObjectImp* OSExecutorModule::mf_Sleepms()
 {
-  int msecs;
-
-  msecs = (int)exec.paramAsLong( 0 );
-
-  SleepForMs( msecs );
-
+  int msecs = exec.paramAsLong( 0 );
+  SleepForMs( msecs > 0 ? static_cast<u32>( msecs ) : 1u );
   return new BLong( 0 );
 }
 
@@ -185,10 +177,11 @@ BObjectImp* OSExecutorModule::mf_Wait_For_Event()
   }
   else
   {
-    int nsecs = (int)exec.paramAsLong( 0 );
-
+    int nsecs = exec.paramAsLong( 0 );
     if ( nsecs )
     {
+      if ( nsecs < 1 )
+        nsecs = 1;
       wait_type = Core::WAIT_TYPE::WAIT_EVENT;
       blocked_ = true;
       sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
@@ -443,20 +436,18 @@ BObjectImp* OSExecutorModule::mf_Set_Debug()
 BObjectImp* OSExecutorModule::mf_SysLog()
 {
   BObjectImp* imp = exec.getParamImp( 0 );
-  if ( imp->isa( BObjectImp::OTString ) )
+  int log_verbose;
+  if ( !exec.getParam( 1, log_verbose ) )
+    return new BError( "Invalid parameter type" );
+  std::string strval = imp->getStringRep();
+  if ( log_verbose )
   {
-    String* str = static_cast<String*>( imp );
-    POLLOG << "[" << exec.scriptname() << "]: " << str->data() << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << str->data() << "\n";
-    return new BLong( 1 );
-  }
-  else
-  {
-    std::string strval = imp->getStringRep();
     POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
     INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
-    return new BLong( 1 );
   }
+  else
+    POLLOG_INFO << strval << "\n";
+  return new BLong( 1 );
 }
 
 BObjectImp* OSExecutorModule::mf_Set_Priority()
@@ -797,24 +788,24 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
   return true;  // Event was successfully sent (perhaps by discarding old events)
 }
 
-void OSExecutorModule::SleepFor( int nsecs )
+void OSExecutorModule::SleepFor( u32 nsecs )
 {
-  if ( nsecs )
-  {
-    blocked_ = true;
-    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-    sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
-  }
+  if ( !nsecs )
+    return;
+  blocked_ = true;
+  wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
+  sleep_until_clock_ = Core::polclock() + nsecs * Core::POLCLOCKS_PER_SEC;
 }
 
-void OSExecutorModule::SleepForMs( int msecs )
+void OSExecutorModule::SleepForMs( u32 msecs )
 {
-  if ( msecs )
-  {
-    blocked_ = true;
-    wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
-    sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
-  }
+  if ( !msecs )
+    return;
+  blocked_ = true;
+  wait_type = Core::WAIT_TYPE::WAIT_SLEEP;
+  sleep_until_clock_ = Core::polclock() + msecs * Core::POLCLOCKS_PER_SEC / 1000;
+  if ( !sleep_until_clock_ )
+    sleep_until_clock_ = 1;
 }
 
 void OSExecutorModule::suspend()
@@ -1097,6 +1088,95 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
                                         PerfData::collect_perf, perf.release() );
 
   return new BLong( 0 );  // dummy
+}
+
+BObjectImp* OSExecutorModule::mf_LoadExportedScript()
+{
+  Core::UOExecutor& this_uoexec = uoexec();
+  if ( this_uoexec.pChild == nullptr )
+  {
+    const String* scriptname_str;
+    ObjArray* arr;
+    if ( !exec.getStringParam( 0, scriptname_str ) || !getObjArrayParam( 1, arr ) )
+      return new BError( "Invalid parameter type" );
+    Core::ScriptDef sd;
+    if ( !sd.config_nodie( scriptname_str->value(), exec.prog()->pkg, "scripts/" ) )
+      return new BError( "Error in script name" );
+    if ( !sd.exists() )
+      return new BError( "Script " + sd.name() + " does not exist." );
+    ref_ptr<Bscript::EScriptProgram> program = find_script2( sd );
+    if ( program.get() == nullptr )
+    {
+      ERROR_PRINT << "Error reading script " << sd.name() << "\n";
+      return new Bscript::BError( "Unable to read script" );
+    }
+    Core::UOExecutor* uoexec = Core::create_script_executor();
+    uoexec->keep_alive( true );
+    Core::add_common_exmods( *uoexec );
+    uoexec->addModule( new Module::UOExecutorModule( *uoexec ) );
+
+    uoexec->setProgram( program.get() );
+    if ( program->haveProgram )
+    {
+      for ( int i = (int)( arr->ref_arr.size() ) - 1; i >= 0; --i )
+        uoexec->pushArg( arr->ref_arr[i].get()->impptr() );
+    }
+    if ( this_uoexec.critical() )  // execute directy
+    {
+      uoexec->exec();
+      BObjectImp* ret;
+      if ( uoexec->error() )
+        ret = new BLong( 0 );
+      else if ( uoexec->ValueStack.empty() )
+        ret = new BLong( 1 );
+      else
+        ret = uoexec->ValueStack.back().get()->impptr()->copy();
+      uoexec->set_running_to_completion( false );
+      uoexec->suspend();
+      Core::scriptScheduler.schedule( uoexec );
+
+      auto array = std::make_unique<Bscript::ObjArray>();
+      array->addElement( new Core::ExportScriptObjImp( uoexec ) );
+      array->addElement( ret );
+
+      return array.release();
+    }
+    else
+    {
+      Core::scriptScheduler.schedule( uoexec );
+
+      uoexec->pParent = &this_uoexec;
+      this_uoexec.pChild = uoexec;
+
+      this_uoexec.PC--;
+      // need to fill the valuestack equal to param count (-the return value)
+      this_uoexec.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+      suspend();
+
+      return UninitObject::create();
+    }
+  }
+  else  // reentry
+  {
+    BObjectImp* ret;
+    if ( this_uoexec.pChild->error() )
+      ret = new BLong( 0 );
+    else if ( this_uoexec.pChild->ValueStack.empty() )
+      ret = new BLong( 1 );
+    else
+    {
+      ret = this_uoexec.pChild->ValueStack.back().get()->impptr()->copy();
+      this_uoexec.pChild->ValueStack.pop_back();
+    }
+    auto array = std::make_unique<Bscript::ObjArray>();
+    array->addElement( new Core::ExportScriptObjImp( this_uoexec.pChild ) );
+    array->addElement( ret );
+
+    this_uoexec.pChild->pParent = nullptr;
+    this_uoexec.pChild = nullptr;
+
+    return array.release();
+  }
 }
 
 size_t OSExecutorModule::sizeEstimate() const

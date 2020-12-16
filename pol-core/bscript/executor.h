@@ -80,8 +80,8 @@ struct BackupStruct
 
 enum class ExecutorType
 {
-EXECUTOR,
-POL
+  EXECUTOR,
+  POL
 };
 
 class Executor
@@ -98,7 +98,7 @@ public:
   bool halt_;
   bool run_ok_;
 
-  virtual ExecutorType type() { return ExecutorType::EXECUTOR;  }
+  virtual ExecutorType type() { return ExecutorType::EXECUTOR; }
 
   enum DEBUG_LEVEL
   {

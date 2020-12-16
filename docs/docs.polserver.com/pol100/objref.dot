@@ -55,6 +55,7 @@ storagearea   [label="StorageArea"  href="#StorageArea"  pos="7.85,8.8!"]
 xmlfile         [label="XMLFile"    href="#XMLFile"  pos="7.85,8.5!"]
 xmlnode         [label="XMLNode"    href="#XMLNode"  pos="7.85,8.2!"]
 xmlattributes [label="XMLAttributes" href="#XMLAttributes" pos="7.85,7.9!"]
+exportedscript  [label="ExportedScript" href="#ExportedScript" pos="7.85,7.6!"]
 
 {
 node [width=0, shape=point, style=invis];

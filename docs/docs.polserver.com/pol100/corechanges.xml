@@ -2,9 +2,29 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-25-2020</datemodified>
+		<datemodified>12-12-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-09-2020</date>
+			<author>Turley:</author>
+			<change type="Added">os::LoadExportedScript(scriptname, args:={})<br/>
+Load and start program part of given script.<br/>
+The optional args array will be unpacked and passed as single arguments to the program.<br/>
+Script will be started non-critical or critical depending on the caller's state.<br/>
+Blocks until the program part ends.<br/>
+Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.</change>
+			<change type="Added">ExportScript object<br/>
+the script will remain loaded as long as the object exists.</change>
+			<change type="member">.exported_functions array of exported function names<br/>
+method .call(functionname, args:={})<br/>
+Calls and blocks current script a exported function and returns the return value or 1 if no return value was given.<br/>
+Like LoadExportedScript critical state depends on the caller's script.<br/>
+Args see LoadExportedScript.</change>
+			<change type="Added">packageref.dir member returns directory path<br/>
+packageref.desc member returns description &quot;pkg.name (pkg.dir)&quot;</change>
+			<change type="Changed">added optional parameter for syslog &quot;log_verbose&quot; if set to 0 only the text will be logged and printed, not the scriptname.</change>
+		</entry>
 		<entry>
 			<date>10-25-2020</date>
 			<author>Turley:</author>

@@ -1,0 +1,11 @@
+use uo;
+program caller(params)
+  var exported_script := params[1];
+  var id := params[2];
+  var res:=exported_script.call("longrunning", {});
+  if (res)
+    setglobalproperty("#sim_loadexported{}".format(id),1);
+  else
+    setglobalproperty("#sim_loadexported{}".format(id),2);
+  endif
+endprogram

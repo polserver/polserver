@@ -1,4 +1,21 @@
 ﻿-- POL100 --
+12-9-2020 Turley:
+    Added: os::LoadExportedScript(scriptname, args:={})
+           Load and start program part of given script.
+           The optional args array will be unpacked and passed as single arguments to the program.
+           Script will be started non-critical or critical depending on the caller's state.
+           Blocks until the program part ends.
+           Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.
+    Added: ExportScript object
+           the script will remain loaded as long as the object exists.
+           member: .exported_functions array of exported function names
+           method .call(functionname, args:={})
+           Calls and blocks current script a exported function and returns the return value or 1 if no return value was given.
+           Like LoadExportedScript critical state depends on the caller's script.
+           Args see LoadExportedScript.
+    Added: packageref.dir member returns directory path
+           packageref.desc member returns description "pkg.name (pkg.dir)"
+  Changed: added optional parameter for syslog "log_verbose" if set to 0 only the text will be logged and printed, not the scriptname.
 10-25-2020 Turley:
   Changed: updated StrFormatTime to allow all format specifiers see http://www.cppreference.com/stddate/strftime.html for full list.
            Removed restriction of 100 characters.
@@ -58,10 +75,8 @@
   Changed: If "ShowGumpWarnings" in pol.cfg is disabled, it will also disable warnings about
            overflow in the gump responses (B1 packet). Those messages may indicates the use of macro
            tools or custom clients.
-
 08-18-2020 Nando:
     Added: Parameter "max_cmdlevel" to polsys::ListTextCommands(). Indicates the maximum cmdlevel to include in the list.
-           
 08-13-2020 Nando:
   Changed: item.hitscript and item.onhitscript now always return the full path to the script (":pkgname:scriptname").
            Before, if the item was defined on the same package as the script, only "scriptname" was returned.

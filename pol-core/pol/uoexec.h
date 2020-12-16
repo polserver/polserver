@@ -66,6 +66,7 @@ class UOExecutor final : public Bscript::Executor
 
 private:
   Module::OSExecutorModule* os_module;
+  bool keep_alive_;  // special flag scheduler will not delete the executor on progend
 
 public:
   UOExecutor();
@@ -110,8 +111,11 @@ public:
   bool warn_on_runaway() const;
   void warn_on_runaway( bool warn_on_runaway );
 
-  void SleepFor( int secs );
-  void SleepForMs( int msecs );
+  bool keep_alive() const;
+  void keep_alive( bool status );
+
+  void SleepFor( u32 secs );
+  void SleepForMs( u32 msecs );
   unsigned int pid() const;
   bool blocked() const;
   bool in_debugger_holdlist() const;

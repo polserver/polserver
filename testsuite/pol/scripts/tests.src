@@ -1,24 +1,60 @@
 use uo;
 use os;
-include "maptests";
-include "chartests";
-include "npctests";
+use polsys;
+use file;
 
 program tests()
   syslog(
     "\n##########################\n"
     + "#  starting testscripts  #\n"
-    + "##########################\n");
+    + "##########################\n",0);
   var exitcode:=0;
-
-  if (!mapinfo_test()) exitcode:=1; endif
-  if (!statics_test()) exitcode:=1; endif
-
-  if (!account_test()) exitcode:=1; endif
-  if (!char_test()) exitcode:=1; endif
-  
-  if (!npc_test()) exitcode:=1; endif
-
+  var testpkgs:={};
+  foreach pkg in Packages()
+    if (pkg.dir.find("testpkgs")==1)
+      testpkgs.append({pkg.name,pkg.desc});
+    endif
+  endforeach
+  testpkgs.sort(1);
+  foreach pkg in testpkgs
+    syslog(pkg[2],0);
+    var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
+    scripts.sort();
+    if ("setup.ecl" in scripts)
+      syslog("  Calling setup.ecl..",0);
+      var res:=run_script(":{}:setup.ecl".format(pkg[1]));
+      if (res != 1)
+        syslog("    failed: "+res.errortext,0);
+        exitcode:=1;
+        continue;
+      endif
+    endif
+    foreach file in scripts
+      if (file.find("test") != 1)
+        continue;
+      endif
+      syslog("  Calling {}..".format(file),0);
+      var script:=LoadExportedScript(":{}:{}".format(pkg[1], file));
+      if (!script[2])
+        syslog("    failed: "+script[2],0);
+        exitcode:=1;
+        continue;
+      endif
+      foreach func in (script[1].exported_functions)
+        syslog("    Calling {}..".format(func),0);
+        var res:=script[1].call(func);  
+        if (res != 1)
+          syslog("      failed: "+res.errortext,0);
+          exitcode:=1;
+          continue;
+        endif
+      endforeach
+    endforeach
+    if ("cleanup.ecl" in scripts)
+      syslog("  Calling cleanup.ecl..",0);
+      run_script(":{}:cleanup.ecl".format(pkg[1]));
+    endif
+  endforeach
   
   var result:="success";
   if (exitcode)
@@ -27,6 +63,6 @@ program tests()
   syslog(
     "\n###########################\n"
     + "# finished tests: {} #\n".format(result)
-    + "###########################\n");
+    + "###########################\n",0);
   shutdown(exitcode);
 endprogram

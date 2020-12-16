@@ -25,7 +25,7 @@
 <fileheader>
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
-<datemodified>12/14/2019</datemodified>
+<datemodified>08/20/2020</datemodified>
 </fileheader>
 
 
@@ -741,6 +741,8 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <member mname="version" type="String" access="r/o" mdesc="Package version" />
 <member mname="supports_http" type="Boolean" access="r/o" mdesc="Does the Package supports www?" />
 <member mname="npcdesc" type="Boolean" access="r/o" mdesc="Does the Package hold an own npcdesc.cfg?" />
+<member mname="dir" type="String" access="r/o" mdesc="Package directory path" />
+<member mname="desc" type="String" access="r/o" mdesc="name + directory" />
 </class>
 
 
@@ -902,5 +904,11 @@ ForEach support: iterates over all child nodes, iterator is XMLNode object _iter
 ForEach support: iterates over all attributes, iterator is a struct with key=attributename and value=attributevalue, _iterator_iter is integer index.</explain>
 <method proto="propnames()" returns="Array of Strings" desc="Returns array of all attribute names." />
 <method proto="[key]" returns="String/Error" desc="Returns attribute value." />
+</class>
+
+<class name="ExportedScript">
+<explain>Object representing a script loaded via OS::LoadExportedScript(). The script will be alive as long as the object exists.</explain>
+<member mname="exported_functions" type="Array of Strings" access="r/o" mdesc="Returns names of all exported functions." />
+<method proto=call(function name, [array of args])" returns="Object/Error" desc="Calls the given function with the optional arguments and returns the function return value. Calling script will be blocked until the function returns and will be executed non-critical or critical depending on the calling script." />
 </class>
 </ESCRIPT>

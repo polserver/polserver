@@ -1,0 +1,85 @@
+use uo;
+use os;
+use boat;
+
+include "testutil";
+
+program test_house()
+  return 1;
+endprogram
+
+exported function create()
+  var res:=CreateMultiAtLocation(50,50,0,0x12000);
+  if (!res)
+    return ret_error("Failed to create multi "+res);
+  endif
+  if (res.x !=50 || res.y != 50 || res.z != 0 || res.multiid !=0x6b)
+    var er:="Wrong pos or multiid: {},{},{} {}".format(res.x, res.y, res.z, res.multiid);
+    DestroyMulti(res);
+    return ret_error(er);
+  endif
+  if (res.components.size()!=2)
+    DestroyMulti(res);
+    return ret_error("Components count does not match: "+res.components.size());
+  endif
+  foreach comp in (res.components)
+    if (comp.graphic == 0x6a5)
+      if (comp.x!=50 || comp.y!=53 || comp.z!=7)
+        DestroyMulti(res);
+        return ret_error("Wrong door pos:{},{},{}".format(comp.x,comp.y,comp.z));
+      endif
+    elseif (comp.graphic == 0xbd2)
+      if (comp.x!=52 || comp.y!=54 || comp.z!=5)
+        DestroyMulti(res);
+        return ret_error("Wrong sign pos:{},{},{}".format(comp.x,comp.y,comp.z));
+      endif
+    else
+      DestroyMulti(res);
+      return ret_error("Invalid component: "+hex(comp.graphic));
+    endif 
+  endforeach
+  DestroyMulti(res);
+  return 1;
+endfunction
+
+exported function move_item()
+  var multi:=CreateMultiAtLocation(50,50,0,0x12000);
+  if (!multi)
+    return ret_error("Failed to create multi "+multi);
+  endif
+  var item:=CreateItemAtLocation(0,0,0, 0x3e3f);
+  item.movable:=1;
+  if (item.multi)
+    DestroyMulti(multi);
+    return ret_error("Item is already inside of a multi "+item.multi);
+  endif
+  var res:=MoveObjectToLocation(item,multi.x,multi.y,5);
+  if (!res)
+    DestroyMulti(multi);
+    return ret_error("failed to move to multi: "+res);
+  endif
+  if (item.z != 7)
+    DestroyMulti(multi);
+    return ret_error("Wrong standing height: "+item.z);
+  endif
+  if (item.multi.serial != multi.serial)
+    DestroyMulti(multi);
+    return ret_error("Item not part of multi: "+item.multi);
+  endif
+  if (item.serial == multi.items[0].serial)
+    DestroyMulti(multi);
+    return ret_error("Item not part of multi: "+multi.items);
+  endif
+  res:=MoveObjectToLocation(item,0,0,0,flags:=MOVEOBJECT_FORCELOCATION);
+  if (!res)
+    DestroyMulti(multi);
+    return ret_error("failed to move back to world: "+res);
+  endif
+  if (item.multi)
+    DestroyMulti(multi);
+    return ret_error("Item still part of multi: "+item.multi);
+  endif
+  DestroyItem(item);
+  DestroyMulti(multi);
+  return 1;
+endfunction

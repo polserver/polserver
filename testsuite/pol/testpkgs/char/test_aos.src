@@ -1,0 +1,184 @@
+use os;
+use uo;
+
+include "testutil";
+
+var char;
+var backpack;
+
+program chartests()
+  var a:=FindAccount("test");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  if (char.backpack)
+    DestroyItem(char.backpack);
+  endif
+  backpack:=CreateItemAtLocation(0,0,0,0xE75);
+  var res:=EquipItem(char,backpack);
+  if (!res)
+    return ret_error("Failed to equip backpack "+backpack+" "+res);
+  endif
+  return 1;
+endprogram
+
+function reset(aos, cap)
+  foreach mod in aos
+    char.set_member(mod+"_mod", 0);
+    if (cap)
+      char.set_member(mod+"_cap_mod", 20);
+      backpack.set_member(mod+"_cap_mod", 2);
+    endif
+    backpack.set_member(mod+"_mod", 0);
+  endforeach
+endfunction
+
+function apply_to_equipped(aos)
+  foreach mod in aos
+    backpack.set_member(mod+"_mod", 10);
+    if (char.get_member(mod) != 10)
+      return ret_error("failed to apply equipped aos prop: {} ({})".format(mod,char.get_member(mod)));
+    endif
+  endforeach
+  return 1;
+endfunction
+
+function apply_to_char(aos, cap)
+  foreach mod in aos
+    var new:=20;
+    if (cap)
+      char.set_member(mod+"_mod", 15); // cap needs to trigger
+      new:=22;
+    else
+      char.set_member(mod+"_mod", 10);
+    endif
+    if (char.get_member(mod) != new)
+      return ret_error("failed to apply aos prop mod: {} ({})".format(mod,char.get_member(mod)));
+    endif
+  endforeach
+  return 1;
+endfunction
+
+function unequip_aos_item(aos, cap)
+  var new:=10;
+  if (cap)
+    new:=15;
+  endif
+  MoveObjectToLocation(backpack, char.x, char.y, char.z, char.realm, MOVEOBJECT_FORCELOCATION);
+  foreach mod in aos
+    if (char.get_member(mod) != new)
+      var res:=ret_error("failed to unequip aos prop mod: {} ({})".format(mod,char.get_member(mod)));
+      EquipItem(char,backpack);
+      return res;
+    endif
+  endforeach
+  return 1;
+endfunction
+
+function equip_aos_item(aos, cap)
+  var new:=20;
+  if (cap)
+    new:=22;
+  endif
+  EquipItem(char,backpack);
+  foreach mod in aos
+    if (char.get_member(mod) != new)
+      return ret_error("failed to equip aos prop mod: {} ({})".format(mod,char.get_member(mod)));
+    endif
+  endforeach
+  return 1;
+endfunction
+
+
+exported function apply_aos_damage_mod()
+  var aos:={
+    "damage_cold", "damage_energy", "damage_fire", "damage_physical", "damage_poison"};
+  reset(aos,0);
+  var res:= apply_to_equipped(aos);
+  if (!res)
+    return res;
+  endif
+  res:= apply_to_char(aos, 0);
+  if (!res)
+    return res;
+  endif
+  res:= unequip_aos_item(aos, 0);
+  if (!res)
+    return res;
+  endif
+  res:= equip_aos_item(aos, 0);
+  if (!res)
+    return res;
+  endif
+  return 1;
+endfunction 
+
+exported function apply_aos_resist_mod()
+  var aos:={
+    "resist_cold", "resist_energy", "resist_fire", "resist_physical", "resist_poison"};
+  reset(aos,1);
+  var res:= apply_to_equipped(aos);
+  if (!res)
+    return res;
+  endif
+  res:= apply_to_char(aos, 1);
+  if (!res)
+    return res;
+  endif
+  res:= unequip_aos_item(aos, 1);
+  if (!res)
+    return res;
+  endif
+  res:= equip_aos_item(aos, 1);
+  if (!res)
+    return res;
+  endif
+  return 1;
+endfunction 
+
+exported function apply_aos_misc_mod_cap()
+  var aos:={
+    "defence_increase"};
+  reset(aos,1);
+  var res:= apply_to_equipped(aos);
+  if (!res)
+    return res;
+  endif
+  res:= apply_to_char(aos, 1);
+  if (!res)
+    return res;
+  endif
+  res:= unequip_aos_item(aos, 1);
+  if (!res)
+    return res;
+  endif
+  res:= equip_aos_item(aos, 1);
+  if (!res)
+    return res;
+  endif
+  return 1;
+endfunction 
+
+exported function apply_aos_misc_mod()
+  var aos:={
+    "faster_cast_recovery", "faster_casting" , "hit_chance", "lower_mana_cost", "lower_reagent_cost", "luck", "spell_damage_increase", "swing_speed_increase"};
+  reset(aos,0);
+  var res:= apply_to_equipped(aos);
+  if (!res)
+    return res;
+  endif
+  res:= apply_to_char(aos, 0);
+  if (!res)
+    return res;
+  endif
+  res:= unequip_aos_item(aos, 0);
+  if (!res)
+    return res;
+  endif
+  res:= equip_aos_item(aos, 0);
+  if (!res)
+    return res;
+  endif
+  return 1;
+endfunction 

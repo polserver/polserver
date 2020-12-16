@@ -1,0 +1,25 @@
+use uo;
+use os;
+include "testutil";
+
+program npc_ai()
+  return 1;
+endprogram
+
+exported function npc_ai_movement()
+  var npc:=CreateNPCFromTemplate(":testnpc:test_movement",100,100,0);
+  if (!npc)
+    return ret_error("Could not create NPC: "+npc);
+  endif
+
+  while(1)
+    sleepms(10);
+    if (!npc)
+      break;
+    elseif (!npc.process)
+      return ret_error(npc.getprop("testerror"));
+    endif
+  endwhile
+
+  return 1;
+endfunction

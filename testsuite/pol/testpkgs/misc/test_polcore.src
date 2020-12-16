@@ -1,0 +1,15 @@
+use uo;
+use os;
+
+include "testutil";
+
+program testpolcore()
+  return 1;
+endprogram
+
+exported function polcore_memory()
+  PolCore().internal(2); // memory estimation log
+  PolCore().internal(5); // memory estimation log (scriptscheduler)
+  PolCore().internal(6, "scripts/tests.ecl"); // memory estimation log (script)
+  return 1;
+endfunction

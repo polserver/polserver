@@ -18,6 +18,7 @@
 
 #include "../globals/script_internals.h"
 #include "../polclock.h"
+#include "clib/rawtypes.h"
 
 namespace Pol
 {
@@ -58,8 +59,8 @@ public:
   ~OSExecutorModule();
 
 
-  void SleepFor( int secs );
-  void SleepForMs( int msecs );
+  void SleepFor( u32 secs );
+  void SleepForMs( u32 msecs );
 
   unsigned int pid() const;
   bool blocked() const;
@@ -87,7 +88,6 @@ public:
 
   Core::HoldListType in_hold_list() const;
   void in_hold_list( Core::HoldListType in_hold_list );
-
 
   [[nodiscard]] Bscript::BObjectImp* mf_Create_Debug_Context();
   [[nodiscard]] Bscript::BObjectImp* mf_GetPid();
@@ -117,6 +117,7 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_Clear_Event_Queue();  // DAVE
 
   [[nodiscard]] Bscript::BObjectImp* mf_PerformanceMeasure();
+  [[nodiscard]] Bscript::BObjectImp* mf_LoadExportedScript();
 
 protected:
   bool critical_;
