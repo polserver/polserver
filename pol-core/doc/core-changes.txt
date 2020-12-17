@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+12-17-2020 Turley:
+    Added: AppendConfigFileElem now checks if the file could be opened, returns an error if this fails.
 12-9-2020 Turley:
     Added: os::LoadExportedScript(scriptname, args:={})
            Load and start program part of given script.

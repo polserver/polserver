@@ -5,7 +5,7 @@
 <ESCRIPT>
   <fileheader fname="CFGfile.em">
     <filedesc>Functions for accessing configuration files.</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>12/17/2020</datemodified>
   </fileheader>
 
   <function name="ReadConfigFile"> 
@@ -236,6 +236,7 @@ AppendConfigFileElem( &quot;:mypkg:mycfg&quot;, &quot;MyType&quot;, 0x34F, props
     <error>"Unable to find package X"</error>
     <error>"Poorly formed config file descriptor: X"</error>
     <error>"Invalid parameter type"</error>
+    <error>"Failed to open file"</error>
 </function>
 
 <function name="UnloadConfigFile">
