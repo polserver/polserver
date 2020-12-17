@@ -626,6 +626,8 @@ Bscript::BObjectImp* ConfigFileExecutorModule::mf_AppendConfigFileElem()
   }
 
   std::ofstream ofs( pathname.c_str(), std::ios::app );
+  if ( !ofs.is_open() )
+    return new Bscript::BError( "Failed to open file" );
   ofs << std::endl << elemtype->value() << " " << elemkey << std::endl << "{" << std::endl;
   for ( Bscript::ObjArray::const_iterator itr = objarr->ref_arr.begin(),
                                           end = objarr->ref_arr.end();
