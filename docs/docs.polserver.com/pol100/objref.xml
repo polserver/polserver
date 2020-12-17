@@ -909,6 +909,6 @@ ForEach support: iterates over all attributes, iterator is a struct with key=att
 <class name="ExportedScript">
 <explain>Object representing a script loaded via OS::LoadExportedScript(). The script will be alive as long as the object exists.</explain>
 <member mname="exported_functions" type="Array of Strings" access="r/o" mdesc="Returns names of all exported functions." />
-<method proto=call(function name, [array of args])" returns="Object/Error" desc="Calls the given function with the optional arguments and returns the function return value. Calling script will be blocked until the function returns and will be executed non-critical or critical depending on the calling script." />
+<method proto="call(function name, [array of args])" returns="Object/Error" desc="Calls the given function with the optional arguments and returns the function return value. Calling script will be blocked until the function returns and will be executed non-critical or critical depending on the calling script." />
 </class>
 </ESCRIPT>
