@@ -1,0 +1,5 @@
+1
+<appobj:ConfigFileRef>
+val1
+1
+error{ errortext = "Failed to open file" }

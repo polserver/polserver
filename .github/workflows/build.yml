@@ -39,7 +39,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
       - uses: seanmiddleditch/gha-setup-vsdevenv@v3
       - name: Cache curl
@@ -114,12 +114,17 @@ jobs:
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_escript
+      - name: Test (Shard Fixtures)
+        if: matrix.config.nopch == 0
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
       - name: Test (Shard)
         if: matrix.config.nopch == 0
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
       - name: Upload shard test log
         if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v1

@@ -38,6 +38,7 @@ namespace Core
 UOExecutor::UOExecutor()
     : Executor(),
       os_module( nullptr ),
+      keep_alive_( false ),
       instr_cycles( 0 ),
       sleep_cycles( 0 ),
       start_time( poltime() ),
@@ -129,6 +130,15 @@ void UOExecutor::warn_on_runaway( bool warn_on_runaway )
   os_module->warn_on_runaway( warn_on_runaway );
 }
 
+bool UOExecutor::keep_alive() const
+{
+  return keep_alive_;
+}
+void UOExecutor::keep_alive( bool status )
+{
+  keep_alive_ = status;
+}
+
 unsigned char UOExecutor::priority() const
 {
   return os_module->priority();
@@ -138,11 +148,11 @@ void UOExecutor::priority( unsigned char priority )
   os_module->priority( priority );
 }
 
-void UOExecutor::SleepFor( int secs )
+void UOExecutor::SleepFor( u32 secs )
 {
   os_module->SleepFor( secs );
 }
-void UOExecutor::SleepForMs( int msecs )
+void UOExecutor::SleepForMs( u32 msecs )
 {
   os_module->SleepForMs( msecs );
 }

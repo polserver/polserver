@@ -3,7 +3,6 @@ use os;
 
 program ai()
   var me:=Self();
-  syslog("ai started "+me.name);
 
   var x:=100;
   var y:=100;

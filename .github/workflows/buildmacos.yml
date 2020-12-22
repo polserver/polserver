@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
       - name: Cache curl
         uses: actions/cache@v1
@@ -71,11 +71,15 @@ jobs:
       - name: Test (EScript)
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure --repeat-until-fail 2 -C ${{ matrix.config.build-type }} -R escript_
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_escript
+      - name: Test (Shard Fixtures)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
       - name: Test (Shard)
         run: |
           cd bin-build
-          ctest -j2 --output-on-failure -C ${{ matrix.config.build-type }} -E escript_
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
       - name: Upload shard test log
         uses: actions/upload-artifact@v1
         with:

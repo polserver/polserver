@@ -95,9 +95,18 @@ function(set_compile_flags target is_executable)
       /W4
       /w45038
     >
+    $<$<AND:$<BOOL:${GCOV}>,${linux}>:
+      -g
+      -O0
+      -fprofile-arcs
+      -ftest-coverage
+    >
   )
 
   if(${gcc} OR ${clang})
+    if(${GCOV})
+        target_link_libraries(${target} PRIVATE -fprofile-arcs)
+    endif()
     if(${ENABLE_ASAN})
       target_compile_options(${target} PRIVATE -fsanitize=address)
       target_link_libraries(${target} PRIVATE  -fsanitize=address)

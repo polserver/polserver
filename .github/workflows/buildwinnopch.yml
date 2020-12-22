@@ -40,7 +40,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
       - uses: seanmiddleditch/gha-setup-vsdevenv@v3
       - name: Cache curl

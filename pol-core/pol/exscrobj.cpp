@@ -17,18 +17,19 @@
 #include <stddef.h>
 #include <string>
 
-#include "../bscript/berror.h"
-#include "../bscript/bobject.h"
-#include "../bscript/dict.h"
-#include "../bscript/executor.h"
-#include "../bscript/impstr.h"
-#include "../bscript/objmembers.h"
-#include "../bscript/objmethods.h"
-#include "../clib/strutil.h"
-#include "../plib/systemstate.h"
+#include "bscript/berror.h"
+#include "bscript/bobject.h"
+#include "bscript/dict.h"
+#include "bscript/executor.h"
+#include "bscript/impstr.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/strutil.h"
 #include "module/polsystemmod.h"
 #include "module/uomod.h"
+#include "plib/systemstate.h"
 #include "polcfg.h"
+#include "scrsched.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 
@@ -238,6 +239,180 @@ BObjectRef ScriptExObjImp::get_member( const char* membername )
     return this->get_member_id( objmember->id );
   else
     return BObjectRef( UninitObject::create() );
+}
+
+ScriptWrapper::ScriptWrapper( ScriptExPtr script ) : _script( script ) {}
+ScriptWrapper::~ScriptWrapper()
+{
+  if ( !_script.exists() )
+    return;
+  try
+  {
+    UOExecutor* uoexec = _script.get_weakptr();
+    uoexec->keep_alive( false );
+    uoexec->seterror( true );
+
+    uoexec->revive();
+    if ( uoexec->in_debugger_holdlist() )
+      uoexec->revive_debugged();
+  }
+  catch ( ... )
+  {
+  }
+}
+ExportScriptObjImp::ExportScriptObjImp( UOExecutor* uoexec )
+    : PolObjectImp( OTExportScript ), _ex( new ScriptWrapper( uoexec->weakptr ) ), _delayed( false )
+{
+}
+ExportScriptObjImp::ExportScriptObjImp( std::shared_ptr<ScriptWrapper> script, bool delayed )
+    : PolObjectImp( OTExportScript ), _ex( script ), _delayed( delayed )
+{
+}
+
+const char* ExportScriptObjImp::typeOf() const
+{
+  return "ExportedScript";
+}
+std::string ExportScriptObjImp::getStringRep() const
+{
+  return "ExportedScript";
+}
+size_t ExportScriptObjImp::sizeEstimate() const
+{
+  return sizeof( *this ) + sizeof( ScriptWrapper );
+}
+u8 ExportScriptObjImp::typeOfInt() const
+{
+  return OTExportScript;
+}
+Bscript::BObjectImp* ExportScriptObjImp::copy() const
+{
+  return new ExportScriptObjImp( _ex, false );
+}
+Bscript::BObjectImp* ExportScriptObjImp::call_polmethod( const char* methodname,
+                                                         Core::UOExecutor& ex )
+{
+  ObjMethod* objmethod = getKnownObjMethod( methodname );
+  if ( objmethod != nullptr )
+    return call_polmethod_id( objmethod->id, ex );
+  return new BError( "undefined" );
+}
+Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::UOExecutor& ex,
+                                                            bool /*forcebuiltin*/ )
+{
+  if ( !_ex->_script.exists() )
+    return new BError( "Script destroyed" );
+  UOExecutor* uoexec = _ex->_script.get_weakptr();
+  switch ( id )
+  {
+  case MTH_CALL:
+  {
+    if ( _delayed )  // reentry
+    {
+      ex.pChild = nullptr;
+      uoexec->pParent = nullptr;
+      _delayed = false;
+      if ( uoexec->error() )
+        return new BLong( 0 );
+      else if ( uoexec->ValueStack.empty() )
+        return new BLong( 1 );
+      auto ret = uoexec->ValueStack.back().get()->impptr()->copy();
+      uoexec->ValueStack.pop_back();
+      return ret;
+    }
+    if ( !ex.hasParams( 1 ) )
+      return new BError( "Not enough parameters" );
+    const String* name;
+    if ( !ex.getStringParam( 0, name ) )
+      return new BError( "Invalid argument type" );
+    ObjArray* arr = nullptr;
+    if ( ex.hasParams( 2 ) )
+    {
+      if ( !ex.getObjArrayParam( 1, arr ) )
+        return new BError( "Invalid argument type" );
+    }
+    const EScriptProgram* prog = uoexec->prog();
+    bool found_func = false;
+    u32 func_call_pc;
+    for ( const auto& func : prog->exported_functions )
+    {
+      if ( stricmp( func.name.c_str(), name->value().c_str() ) == 0 )
+      {
+        func_call_pc = func.PC;
+        found_func = true;
+        break;
+      }
+    }
+    if ( !found_func )
+      return new BError( "Exported function name not found" );
+    if ( !uoexec->done )
+      return new BError( "Executor is still running" );
+
+    uoexec->initForFnCall( func_call_pc );
+    if ( arr != nullptr )
+    {
+      for ( size_t i = 0; i < arr->ref_arr.size(); ++i )
+        uoexec->pushArg( arr->ref_arr[i].get()->impptr() );
+    }
+    if ( ex.critical() )
+    {
+      uoexec->exec();
+      Bscript::BObjectImp* ret;
+      if ( uoexec->error() )
+        ret = new BLong( 0 );
+      else if ( uoexec->ValueStack.empty() )
+        ret = new BLong( 1 );
+      else
+      {
+        ret = uoexec->ValueStack.back().get()->impptr()->copy();
+        uoexec->ValueStack.pop_back();
+      }
+      uoexec->set_running_to_completion( false );
+      uoexec->suspend();
+      return ret;
+    }
+    else
+    {
+      ex.pChild = uoexec;
+      uoexec->pParent = &ex;
+      ex.PC--;
+      ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+      if ( arr != nullptr )
+        ex.ValueStack.push_back( BObjectRef( new BObject( UninitObject::create() ) ) );
+      ex.suspend();
+      uoexec->revive();
+      return new ExportScriptObjImp( _ex, true );
+    }
+  }
+  default:
+    return new BError( "undefined" );
+  }
+}
+Bscript::BObjectRef ExportScriptObjImp::get_member( const char* membername )
+{
+  ObjMember* objmember = getKnownObjMember( membername );
+  if ( objmember != nullptr )
+    return get_member_id( objmember->id );
+  return BObjectRef( UninitObject::create() );
+}
+Bscript::BObjectRef ExportScriptObjImp::get_member_id( const int id )
+{
+  if ( !_ex->_script.exists() )
+    return BObjectRef( new BError( "Script destroyed" ) );
+  UOExecutor* uoexec = _ex->_script.get_weakptr();
+  switch ( id )
+  {
+  case MBR_EXPORTED_FUNCTIONS:
+  {
+    auto array = std::make_unique<Bscript::ObjArray>();
+    const EScriptProgram* prog = uoexec->prog();
+    for ( const auto& func : prog->exported_functions )
+      array->addElement( new String( func.name ) );
+    return BObjectRef( array.release() );
+  }
+  default:
+    return BObjectRef( UninitObject::create() );
+  }
 }
 }  // namespace Core
 }  // namespace Pol

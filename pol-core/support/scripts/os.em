@@ -81,7 +81,7 @@ Run_Script( script_name, param := 0 );
     // syslog(text): write text to the console, and to the log file
     //               includes context (calling script name)
     //
-SysLog( text );
+SysLog( text, log_verbose:=1 );
 
 	//
 	// clear_event_queue(): Empties the event queue of the current script.
@@ -104,3 +104,5 @@ Debugger(); // put script in debug state
 
 PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
 HTTPRequest(url, method := "GET", options := struct{});
+
+LoadExportedScript(name, args:={});

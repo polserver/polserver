@@ -1,0 +1,14 @@
+use os;
+
+include "testutil";
+
+program test_runscript()
+  return 1;
+endprogram
+
+exported function run()
+  if (run_script("test_run_script",{})!=1)
+    return ret_error("failed to run script");
+  endif
+  return 1;
+endfunction

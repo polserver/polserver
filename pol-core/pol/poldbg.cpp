@@ -1392,7 +1392,7 @@ void debug_listen_thread( void )
     while ( !Clib::exit_signalled )
     {
       Clib::Socket sock;
-      if ( SL.GetConnection( &sock, 5 ) && sock.connected() )
+      if ( SL.GetConnection( &sock, 1 ) && sock.connected() )
       {
         Clib::SocketClientThread* p = new DebugClientThread( std::move( sock ) );
         p->start();
