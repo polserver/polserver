@@ -17,6 +17,7 @@ use_benchmark(${lib_name})
 if(NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
   add_dependencies(${lib_name} boost)
 endif()
+use_boost(${lib_name})
 
 add_dependencies(${lib_name} git_rev)
 
