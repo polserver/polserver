@@ -50,12 +50,12 @@ jobs:
       - name: Cache antlr
         uses: actions/cache@v1
         with:
-          path: lib/boost_1_74_0
+          path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
       - name: Cache boost
         uses: actions/cache@v1
         with:
-          path: lib/antlr
+          path: lib/boost_1_74_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
