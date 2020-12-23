@@ -44,17 +44,17 @@ jobs:
       - uses: actions/setup-python@v1
       - uses: seanmiddleditch/gha-setup-vsdevenv@v3
       - name: Cache curl
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: lib/curl-7.57.0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-curl-7.57.0
       - name: Cache antlr
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-antlr-buildtypefix
       - name: Cache boost
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: lib/boost_1_74_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
