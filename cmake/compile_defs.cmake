@@ -275,6 +275,14 @@ function(use_benchmark target)
   endif()
 endfunction()
 
+function(use_boost target)
+  target_link_libraries(${target} PUBLIC
+          ${BOOST_REGEX_LIB}
+          ${BOOST_SYSTEM_LIB}
+          ${BOOST_THREAD_LIB}
+          )
+endfunction()
+
 function(use_zlib target)
     if(${windows})
       target_include_directories(${target}  PRIVATE
