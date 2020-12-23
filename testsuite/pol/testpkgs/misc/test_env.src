@@ -1,0 +1,22 @@
+use os;
+include "testutil";
+
+program test_env()
+  return 1;
+endprogram
+
+exported function get_env()
+  var res:=GetEnvironmentVariable("POLCORE_TEST");
+  if (res != "1")
+    return ret_error("Environment variable not found got: "+res);
+  endif
+  return 1;
+endfunction
+
+exported function list_env()
+  var res:=GetEnvironmentVariable();
+  if (res["POLCORE_TEST"] != "1")
+    return ret_error("Environment variable not found got: "+res);
+  endif
+  return 1;
+endfunction

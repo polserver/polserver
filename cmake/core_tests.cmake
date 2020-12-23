@@ -139,4 +139,5 @@ add_test(NAME shard_test
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( shard_test PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
-
+# needed for test_env
+set_tests_properties(shard_test PROPERTIES ENVIRONMENT "POLCORE_TEST=1")

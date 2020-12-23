@@ -4,17 +4,20 @@
  */
 
 #include "osmod.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/network/sckutil.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
-#include "../../plib/systemstate.h"
+
+#include "bscript/berror.h"
+#include "bscript/bobject.h"
+#include "bscript/bstruct.h"
+#include "bscript/dict.h"
+#include "bscript/impstr.h"
+#include "clib/logfacility.h"
+#include "clib/network/sckutil.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/threadhelp.h"
+#include "clib/weakptr.h"
+#include "plib/systemstate.h"
+
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
@@ -48,9 +51,20 @@
 #include <ctime>
 #include <curl/curl.h>
 #include <memory>
+#include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <string_view>
 #include <unordered_map>
+
+// environment variable for mf_GetEnvironmentVariable
+#ifdef _MSC_VER
+extern char** _environ;
+char** environ_vars = _environ;
+#else
+extern char** environ;
+char** environ_vars = environ;
+#endif
 
 namespace Pol
 {
@@ -1176,6 +1190,37 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     this_uoexec.pChild = nullptr;
 
     return array.release();
+  }
+}
+
+BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
+{
+  const String* env_name;
+  if ( !exec.getStringParam( 0, env_name ) )
+    return new BError( "Invalid parameter type" );
+
+  if ( env_name->length() == 0 )
+  {
+    auto envs = std::make_unique<Bscript::BDictionary>();
+    for ( char** current = environ_vars; *current; ++current )
+    {
+      std::string_view env( *current );
+      size_t pos = env.find_first_of( "=" );
+      if ( pos == std::string_view::npos )
+        continue;
+      auto key = env.substr( 0, pos );
+      auto val = env.substr( pos + 1 );
+      envs->addMember( new String( key.data(), key.size(), String::Tainted::YES ),
+                       new String( val.data(), val.size(), String::Tainted::YES ) );
+    }
+    return envs.release();
+  }
+  else
+  {
+    const char* env_val = std::getenv( env_name->data() );
+    if ( !env_val )
+      return new BError( "Environment variable not found" );
+    return new String( env_val, String::Tainted::YES );
   }
 }
 
