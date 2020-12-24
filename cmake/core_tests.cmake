@@ -134,10 +134,21 @@ add_test(NAME shard_ecompile
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
-add_test(NAME shard_test
+# first test run
+add_test(NAME shard_test_1
   COMMAND pol
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
-set_tests_properties( shard_test PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
+set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 # needed for test_env
-set_tests_properties(shard_test PROPERTIES ENVIRONMENT "POLCORE_TEST=1")
+set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1")
+set_tests_properties(shard_test_1 PROPERTIES FIXTURES_SETUP shard_test)
+
+# second test run
+add_test(NAME shard_test_2
+  COMMAND pol
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties( shard_test_2 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
+set_tests_properties( shard_test_2 PROPERTIES ENVIRONMENT "POLCORE_TEST_RUN=2")
+set_tests_properties( shard_test_2 PROPERTIES FIXTURES_REQUIRED shard_test)

@@ -1,0 +1,82 @@
+use os;
+use uo;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_restart()
+  return 1;
+endprogram
+
+exported function prepare_char()
+  if (testrun != 1)
+    return 1;
+  endif
+
+  var a:=CreateAccount("test","pass",1);
+  a.addcharacter(0);
+  var char:=a.getcharacter(1);
+  return 1;
+endfunction
+
+exported function load_char()
+  if (testrun != 2)
+    return 1;
+  endif
+  var a:=FindAccount("test");
+  if (!a)
+    return ret_error("failed to find account");
+  endif
+  var char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("failed to find char");
+  endif
+
+  return 1;
+endfunction
+
+exported function prepare_npc()
+  if (testrun != 1)
+    return 1;
+  endif
+
+  var npc:=CreateNPCFromTemplate(":testnpc:test_movement",100,100,0);
+  return 1;
+endfunction
+
+exported function load_npc()
+  if (testrun != 2)
+    return 1;
+  endif
+  foreach mob in (listmobilesinbox(0,0,-200,10000,10000,2000))
+    
+  endforeach
+  return 1;
+endfunction
+
+exported function prepare_house()
+  if (testrun != 1)
+    return 1;
+  endif
+  
+  var house:=CreateMultiAtLocation(50,50,0,0x12000);
+  return 1;
+endfunction
+
+exported function load_house()
+  if (testrun != 2)
+    return 1;
+  endif
+  var found:=0;
+  foreach multi in (ListMultisInBox(0,0,-200,10000,10000,200))
+    if (multi.x !=50 || multi.y != 50 || multi.z != 0 || multi.multiid !=0x6b)
+      return ret_error("Wrong pos or multiid: {},{},{} {}".format(multi.x, multi.y, multi.z, multi.multiid));
+    endif
+    ++found;
+  endforeach
+
+  if (found==1)
+    return 1;
+  endif
+  return ret_error("found {} multis".format(found));
+endfunction
