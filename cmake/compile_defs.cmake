@@ -321,3 +321,9 @@ function(add_modtbl_dependency ex_name)
   )
   add_dependencies(${ex_name} parse_modules)
 endfunction()
+
+function(use_nlohmann_json target)
+  target_include_directories(${target} PRIVATE
+    "${POL_EXT_LIB_DIR}/nlohmann-json-3.9.1"
+  )
+endfunction()

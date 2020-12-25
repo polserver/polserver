@@ -1,0 +1,147 @@
+#ifndef LSP_SERIALIZER_H
+#define LSP_SERIALIZER_H
+
+#include "protocol.h"
+#include "server.h"
+#include "types.h"
+#include <nlohmann/json.hpp>
+#include <optional>
+
+#define OPTIONAL_JSON_TO( v1 ) optional_emplace_to( nlohmann_json_j, #v1, nlohmann_json_t.v1 );
+#define OPTIONAL_JSON_FROM( v1 ) optional_get_to( nlohmann_json_j, #v1, nlohmann_json_t.v1 );
+
+#define OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Type, ... )                             \
+  void to_json( nlohmann::json& nlohmann_json_j, const Type& nlohmann_json_t )     \
+  {                                                                                \
+    NLOHMANN_JSON_EXPAND( NLOHMANN_JSON_PASTE( OPTIONAL_JSON_TO, __VA_ARGS__ ) )   \
+  }                                                                                \
+  void from_json( const nlohmann::json& nlohmann_json_j, Type& nlohmann_json_t )   \
+  {                                                                                \
+    NLOHMANN_JSON_EXPAND( NLOHMANN_JSON_PASTE( OPTIONAL_JSON_FROM, __VA_ARGS__ ) ) \
+  }
+
+#define EMPTY_DEFINE_TYPE_NONINTRUSIVE( Type )                                    \
+  void to_json( nlohmann::json& nlohmann_json_j, const Type& nlohmann_json_t ) {} \
+  void from_json( const nlohmann::json& nlohmann_json_j, Type& nlohmann_json_t ) {}
+
+template <typename T>
+void optional_get_to( const nlohmann::json& j, const std::string& key, std::optional<T>& where )
+{
+  // @TODO This does not differentiate between an optionally-present key and a required-but-null-valued
+  // key, ie. the difference between std::optional<T> and std::variant<std::nullptr_t, T> respectively.
+  if ( j.contains( key ) && !j.at(key).is_null() )
+  {
+    where.emplace( j.at( key ).get<T>() );
+  }
+}
+
+template <typename T>
+void optional_get_to( const nlohmann::json& j, const std::string& key, T& where )
+{
+  j.at( key ).get_to( where );
+}
+
+template <typename T>
+void optional_emplace_to( nlohmann::json& j, const std::string& key, const std::optional<T>& where )
+{
+  if ( where.has_value() )
+  {
+    j.emplace( key, where.value() );
+  }
+}
+
+template <typename T>
+void optional_emplace_to( nlohmann::json& j, const std::string& key, const T& where )
+{
+  j.emplace( key, where );
+}
+
+namespace Pol::ECompile::LSP::Protocol
+{
+// types.h
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Position, line, character )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Range, start, end )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Location, uri, range )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( LocationLink, originSelectionRange, targetUri, targetRange,
+                                   targetSelectionRange )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Color, red, green, blue, alpha )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( ColorInformation, range, color )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( TextEdit, range, newText )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( ColorPresentation, label, textEdit, additionalTextEdits )
+
+NLOHMANN_JSON_SERIALIZE_ENUM( FoldingRangeKind, {
+                                                    { FoldingRangeKind::INVALID, nullptr },
+                                                    { FoldingRangeKind::Comment, "comments" },
+                                                    { FoldingRangeKind::Imports, "imports" },
+                                                    { FoldingRangeKind::Region, "region" },
+                                                } )
+
+
+NLOHMANN_JSON_SERIALIZE_ENUM( InitializeParams::TraceInitializeParams,
+                              {
+                                  { InitializeParams::TraceInitializeParams::INVALID, nullptr },
+                                  { InitializeParams::TraceInitializeParams::Off, "off" },
+                                  { InitializeParams::TraceInitializeParams::Messages, "messages" },
+                                  { InitializeParams::TraceInitializeParams::Verbose, "verbose" },
+                              } )
+
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( FoldingRange, startLine, startCharacter, endLine, endCharacter,
+                                   kind )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DiagnosticRelatedInformation, location, message )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( CodeDescription, href )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( WorkspaceFolder, uri, name )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Diagnostic, range, severity, code, codeDescription, source,
+                                   message, tags, relatedInformation )  // @TODO data ignored
+
+// protocol.h
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DocumentFilter, language, scheme, pattern )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( InitializeParams::ClientInfoInitializeParams, name, version )
+EMPTY_DEFINE_TYPE_NONINTRUSIVE( ClientCapabilities )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( InitializeParams, capabilities, clientInfo, locale, processId,
+                                   rootPath, rootUri, trace, workspaceFolders )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( ServerCapabilities, textDocumentSync )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( InitializeResult::ServerInfoInitializeResult, name, version )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( InitializeResult, capabilities, serverInfo )
+
+EMPTY_DEFINE_TYPE_NONINTRUSIVE( InitializedParams )
+
+
+void to_json( nlohmann::json& j, const RequestId& p )
+{
+  if ( p.type == RequestId::kString )
+  {
+    j = p.value;
+  }
+  else
+  {
+    j = atoi( p.value.c_str() );
+  }
+}
+
+void from_json( const nlohmann::json& j, RequestId& p )
+{
+  if ( j.is_string() )
+  {
+    j.get_to( p.value );
+    p.type = RequestId::kString;
+  }
+  else if ( j.is_number_integer() )
+  {
+    int n;
+    j.get_to( n );
+    p.value = std::to_string( n );
+    p.type = RequestId::kInt;
+  }
+}
+}  // namespace Pol::ECompile::LSP::Protocol
+#endif

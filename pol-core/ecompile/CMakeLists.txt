@@ -23,4 +23,5 @@ endif()
 dist(${ex_name} scripts)
 
 use_tidy(${ex_name})
+use_nlohmann_json(${ex_name})
 enable_pch(${ex_name} REUSE)

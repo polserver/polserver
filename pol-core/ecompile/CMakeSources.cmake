@@ -4,5 +4,10 @@ set (ecompile_sources  # sorted !
   ECompileMain.h
   ecompile.ico
   ecompile.rc
+  lsp/protocol.h
+  lsp/serializer.h
+  lsp/server.h
+  lsp/server.cpp
+  lsp/types.h
   resource.h
 )

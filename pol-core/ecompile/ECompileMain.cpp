@@ -32,6 +32,7 @@
 #include "../clib/timer.h"
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
+#include "lsp/server.h"
 #include <format/format.h>
 
 namespace Pol
@@ -107,6 +108,7 @@ static char** s_argv;
 
 int debug = 0;
 bool quiet = false;
+bool server = false;
 bool opt_generate_wordlist = false;
 bool keep_building = false;
 bool force_update = false;
@@ -557,6 +559,8 @@ int readargs( int argc, char** argv )
     {
       switch ( arg[1] )
       {
+      case 'j':
+        server = quiet = true;
       case 'A':  // skip it at this point.
         break;
 
@@ -937,14 +941,23 @@ bool run( int argc, char** argv, int* res )
     if ( argv[i][0] == '/' || argv[i][0] == '-' )
 #endif
     {
-      // -r[i] [<dir>]
-      if ( argv[i][1] == 'A' )
+      if ( argv[i][1] == 'j' )
+      {
+        LSP::lsp_server.start();
+        while ( threadhelp::child_threads > 0 )
+        {
+          threadhelp::thread_sleep_ms( 1000 );
+        }
+        any = true;
+      }
+      else if ( argv[i][1] == 'A' )
       {
         compilercfg.UpdateOnlyOnAutoCompile = ( argv[i][2] == 'u' );
         any = true;
 
         AutoCompile();
       }
+      // -r[i] [<dir>]
       else if ( argv[i][1] == 'r' )
       {
         any = true;
