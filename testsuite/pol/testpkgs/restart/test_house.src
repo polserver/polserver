@@ -1,0 +1,33 @@
+use os;
+use uo;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var house;
+
+program test_house()
+  if (testrun == 1) 
+    house:=CreateMultiAtLocation(50,50,0,0x12000);
+    house.setprop("restart_test_house",1);
+  else
+    foreach multi in (ListMultisInBox(0,0,-200,10000,10000,200))
+      if (multi.getprop("restart_test_house"))
+        house:=multi;
+      endif
+    endforeach
+    if (!house)
+      return ret_error("failed to find house");
+    endif
+  endif
+  return 1;
+endprogram
+
+exported function test_basic()
+  if (testrun != 2)
+    return 1;
+  endif
+  if (house.x !=50 || house.y != 50 || house.z != 0 || house.multiid !=0x6b)
+      return ret_error("Wrong pos or multiid: {},{},{} {}".format(house.x, house.y, house.z, house.multiid));
+  endif
+  return 1;
+endfunction
