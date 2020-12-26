@@ -12,6 +12,7 @@
 
 #include <stack>
 #include <string>
+#include <string_view>
 
 namespace Pol
 {
@@ -33,6 +34,7 @@ public:
   explicit String( const char* str, size_t nchars, Tainted san = Tainted::NO );
   explicit String( const char* str, Tainted san = Tainted::NO );
   explicit String( const std::string& str, Tainted san = Tainted::NO );
+  explicit String( const std::string_view& str, Tainted san = Tainted::NO );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   virtual ~String() = default;

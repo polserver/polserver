@@ -1210,8 +1210,8 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
         continue;
       auto key = env.substr( 0, pos );
       auto val = env.substr( pos + 1 );
-      envs->addMember( new String( key.data(), key.size(), String::Tainted::YES ),
-                       new String( val.data(), val.size(), String::Tainted::YES ) );
+      envs->addMember( new String( key, String::Tainted::YES ),
+                       new String( val, String::Tainted::YES ) );
     }
     return envs.release();
   }

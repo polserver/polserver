@@ -61,6 +61,13 @@ String::String( const std::string& str, Tainted san ) : BObjectImp( OTString ), 
   if ( san == Tainted::YES )
     Clib::sanitizeUnicodeWithIso( &value_ );
 }
+
+String::String( const std::string_view& str, Tainted san ) : BObjectImp( OTString ), value_( str )
+{
+  if ( san == Tainted::YES )
+    Clib::sanitizeUnicodeWithIso( &value_ );
+}
+
 String* String::StrStr( int begin, int len ) const
 {
   auto itr = value_.cbegin();
