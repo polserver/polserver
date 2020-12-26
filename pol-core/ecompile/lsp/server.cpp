@@ -1,6 +1,7 @@
 
 #include "server.h"
 #include "clib/esignal.h"
+#include "clib/logfacility.h"
 #include "clib/threadhelp.h"
 #include "nlohmann/json.hpp"
 #include "protocol.h"
@@ -101,9 +102,9 @@ void launchStdout()
   {
     lsp_server.for_response.pop_wait( &msg );
 #ifdef WINDOWS
-    std::cout << "Content-Length: " << msg.size() << "\n\n" << msg << std::flush;
+    INFO_PRINT << "Content-Length: " << msg.size() << "\n\n" << msg;
 #else
-    std::cout << "Content-Length: " << msg.size() << "\r\n\r\n" << msg << std::flush;
+    INFO_PRINT << "Content-Length: " << msg.size() << "\r\n\r\n" << msg;
 #endif
     ERROR_PRINT << "Sending response: " << msg << "\n";
   }
@@ -115,7 +116,7 @@ void launchStdout()
     lsp_server.for_response.push_move( nlohmann::json{                                     \
         { "jsonrpc", "2.0" },                                                              \
         { "id", msg.id },                                                                  \
-        { "result", _handler.##HANDLER##( msg.document->at( "params" ).get<PARAMS>() ) } } \
+        { "result", _handler.HANDLER( msg.document->at( "params" ).get<PARAMS>() ) } } \
                                            .dump() );                                      \
     break;                                                                                 \
   }
@@ -123,7 +124,7 @@ void launchStdout()
 #define HANDLE_NOTIFICATION( METHOD, HANDLER, PARAMS )                  \
   if ( msg.method == METHOD )                                           \
   {                                                                     \
-    _handler.##HANDLER##( msg.document->at( "params" ).get<PARAMS>() ); \
+    _handler.HANDLER( msg.document->at( "params" ).get<PARAMS>() ); \
     break;                                                              \
   }
 
