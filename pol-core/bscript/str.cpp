@@ -39,7 +39,7 @@ namespace Bscript
 {
 String::String( BObjectImp& objimp ) : BObjectImp( OTString ), value_( objimp.getStringRep() ) {}
 
-String::String( const char* s, int len, Tainted san ) : BObjectImp( OTString ), value_( s, len )
+String::String( const char* s, size_t len, Tainted san ) : BObjectImp( OTString ), value_( s, len )
 {
   if ( san == Tainted::YES )
     Clib::sanitizeUnicodeWithIso( &value_ );
@@ -722,7 +722,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     if ( index != std::string::npos )
     {
       utf8::unchecked::next( itr );
-      int len = static_cast<int>( std::distance( value_.cbegin(), itr ) - index );
+      size_t len = std::distance( value_.cbegin(), itr ) - index;
       return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
     }
     return BObjectRef( new BError( "Subscript out of range" ) );
@@ -744,7 +744,7 @@ BObjectRef String::OperSubscript( const BObject& rightobj )
     if ( index != std::string::npos )
     {
       utf8::unchecked::next( itr );
-      int len = static_cast<int>( std::distance( value_.cbegin(), itr ) - index );
+      size_t len = std::distance( value_.cbegin(), itr ) - index;
       return BObjectRef( new BObject( new String( value_.c_str() + index, len ) ) );
     }
     return BObjectRef( new BError( "Subscript out of range" ) );
