@@ -824,8 +824,6 @@ enum class InsertTextFormat
    * snippet. Placeholders with equal identifiers are linked, that is typing in
    * one will update others too.
    *
-   * See also:
-   * https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
    */
   Snippet = 2
 };
@@ -1543,11 +1541,9 @@ struct CodeAction
    *     the user request a more specific type of code action, such as
    *     refactorings.
    *
-   *   - If the user has a
-   *     [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
-   *     that auto applies a code action and only a disabled code actions are
-   *     returned, the client should show the user an error message with
-   *     `reason` in the editor.
+   *   - If the user has a keybinding that auto applies a code action and only a
+   *     disabled code actions are returned, the client should show the user an
+   *     error message with `reason` in the editor.
    *
    * @since 3.16.0
    */
@@ -1759,9 +1755,8 @@ struct CallHierarchyOutgoingCall
   CallHierarchyItem to;
   /**
    * The range at which this item is called. This is the range relative to the
-   * caller, e.g the item passed to
-   * [`provideCallHierarchyOutgoingCalls`](#CallHierarchyItemProvider.provideCallHierarchyOutgoingCalls)
-   * and not [`this.to`](#CallHierarchyOutgoingCall.to).
+   * caller, e.g the item passed to `provideCallHierarchyOutgoingCalls` and not
+   * [`this.to`](#CallHierarchyOutgoingCall.to).
    */
   std::vector<Range> fromRanges;
 };
