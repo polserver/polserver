@@ -36,22 +36,21 @@ using integer = int32_t;
 using uinteger = uint32_t;
 
 /**
- * Defines a decimal number. Since decimal numbers are very
- * rare in the language server specification we denote the
- * exact range with every decimal using the mathematics
- * interval notations (e.g. [0, 1] denotes all decimals d with
- * 0 <= d <= 1.
+ * Defines a decimal number. Since decimal numbers are very rare in the language
+ * server specification we denote the exact range with every decimal using the
+ * mathematics interval notations (e.g. [0, 1] denotes all decimals d with 0 <=
+ * d <= 1.
  */
 using decimal = float;
 /**
- * Position in a text document expressed as zero-based line and character offset.
- * The offsets are based on a UTF-16 string representation. So a string of the form
- * `a𐐀b` the character offset of the character `a` is 0, the character offset of `𐐀`
- * is 1 and the character offset of b is 3 since `𐐀` is represented using two code
- * units in UTF-16.
+ * Position in a text document expressed as zero-based line and character
+ * offset. The offsets are based on a UTF-16 string representation. So a string
+ * of the form `a𐐀b` the character offset of the character `a` is 0, the
+ * character offset of `𐐀` is 1 and the character offset of b is 3 since `𐐀`
+ * is represented using two code units in UTF-16.
  *
- * Positions are line end character agnostic. So you can not specify a position that
- * denotes `\r|\n` or `\n|` where `|` represents the character offset.
+ * Positions are line end character agnostic. So you can not specify a position
+ * that denotes `\r|\n` or `\n|` where `|` represents the character offset.
  */
 struct Position
 {
@@ -60,12 +59,12 @@ struct Position
    */
   uinteger line;
   /**
-   * Character offset on a line in a document (zero-based). Assuming that the line is
-   * represented as a string, the `character` value represents the gap between the
-   * `character` and `character + 1`.
+   * Character offset on a line in a document (zero-based). Assuming that the
+   * line is represented as a string, the `character` value represents the gap
+   * between the `character` and `character + 1`.
    *
-   * If the character value is greater than the line length it defaults back to the
-   * line length.
+   * If the character value is greater than the line length it defaults back to
+   * the line length.
    */
   uinteger character;
 };
@@ -96,8 +95,7 @@ struct Range
 };
 
 /**
- * Represents a location inside a resource, such as a line
- * inside a text file.
+ * Represents a location inside a resource, such as a line inside a text file.
  */
 struct Location
 {
@@ -105,16 +103,16 @@ struct Location
   Range range;
 };
 /**
- * Represents the connection of two locations. Provides additional metadata over normal
- * [locations](#Location), including an origin range.
+ * Represents the connection of two locations. Provides additional metadata over
+ * normal [locations](#Location), including an origin range.
  */
 struct LocationLink
 {
   /**
    * Span of the origin of this link.
    *
-   * Used as the underlined span for mouse definition hover. Defaults to the word range at
-   * the definition position.
+   * Used as the underlined span for mouse definition hover. Defaults to the
+   * word range at the definition position.
    */
   std::optional<Range> originSelectionRange;
   /**
@@ -122,14 +120,16 @@ struct LocationLink
    */
   DocumentUri targetUri;
   /**
-   * The full target range of this link. If the target for example is a symbol then target range is
-   * the range enclosing this symbol not including leading/trailing whitespace but everything else
-   * like comments. This information is typically used to highlight the range in the editor.
+   * The full target range of this link. If the target for example is a symbol
+   * then target range is the range enclosing this symbol not including
+   * leading/trailing whitespace but everything else like comments. This
+   * information is typically used to highlight the range in the editor.
    */
   Range targetRange;
   /**
-   * The range that should be selected and revealed when this link is being followed, e.g the name
-   * of a function. Must be contained by the the `targetRange`. See also `DocumentSymbol#range`
+   * The range that should be selected and revealed when this link is being
+   * followed, e.g the name of a function. Must be contained by the the
+   * `targetRange`. See also `DocumentSymbol#range`
    */
   Range targetSelectionRange;
 };
@@ -178,13 +178,12 @@ struct ColorInformation
 struct TextEdit
 {
   /**
-   * The range of the text document to be manipulated. To insert
-   * text into a document create a range where start === end.
+   * The range of the text document to be manipulated. To insert text into a
+   * document create a range where start === end.
    */
   Range range;
   /**
-   * The string to be inserted. For delete operations use an
-   * empty string.
+   * The string to be inserted. For delete operations use an empty string.
    */
   std::string newText;
 };
@@ -192,21 +191,21 @@ struct TextEdit
 struct ColorPresentation
 {
   /**
-   * The label of this color presentation. It will be shown on the color
-   * picker header. By default this is also the text that is inserted when selecting
+   * The label of this color presentation. It will be shown on the color picker
+   * header. By default this is also the text that is inserted when selecting
    * this color presentation.
    */
   std::string label;
   /**
-   * An [edit](#TextEdit) which is applied to a document when selecting
-   * this presentation for the color.  When `falsy` the [label](#ColorPresentation.label)
-   * is used.
+   * An [edit](#TextEdit) which is applied to a document when selecting this
+   * presentation for the color.  When `falsy` the
+   * [label](#ColorPresentation.label) is used.
    */
   std::optional<TextEdit> textEdit;
   /**
-   * An optional array of additional [text edits](#TextEdit) that are applied when
-   * selecting this color presentation. Edits must not overlap with the main
-   * [edit](#ColorPresentation.textEdit) nor with themselves.
+   * An optional array of additional [text edits](#TextEdit) that are applied
+   * when selecting this color presentation. Edits must not overlap with the
+   * main [edit](#ColorPresentation.textEdit) nor with themselves.
    */
   std::optional<std::vector<TextEdit>> additionalTextEdits;
 };
@@ -232,46 +231,48 @@ enum class FoldingRangeKind
 };
 
 /**
- * Represents a folding range. To be valid, start and end line must be bigger than zero and smaller
- * than the number of lines in the document. Clients are free to ignore invalid ranges.
+ * Represents a folding range. To be valid, start and end line must be bigger
+ * than zero and smaller than the number of lines in the document. Clients are
+ * free to ignore invalid ranges.
  */
 struct FoldingRange
 {
   /**
-   * The zero-based start line of the range to fold. The folded area starts after the line's last
-   * character. To be valid, the end must be zero or larger and smaller than the number of lines in
-   * the document.
+   * The zero-based start line of the range to fold. The folded area starts
+   * after the line's last character. To be valid, the end must be zero or
+   * larger and smaller than the number of lines in the document.
    */
   uinteger startLine;
   /**
-   * The zero-based character offset from where the folded range starts. If not defined, defaults to
-   * the length of the start line.
+   * The zero-based character offset from where the folded range starts. If not
+   * defined, defaults to the length of the start line.
    */
   std::optional<uinteger> startCharacter;
   /**
-   * The zero-based end line of the range to fold. The folded area ends with the line's last
-   * character. To be valid, the end must be zero or larger and smaller than the number of lines in
-   * the document.
+   * The zero-based end line of the range to fold. The folded area ends with the
+   * line's last character. To be valid, the end must be zero or larger and
+   * smaller than the number of lines in the document.
    */
   uinteger endLine;
   /**
-   * The zero-based character offset before the folded range ends. If not defined, defaults to the
-   * length of the end line.
+   * The zero-based character offset before the folded range ends. If not
+   * defined, defaults to the length of the end line.
    */
   std::optional<uinteger> endCharacter;
   /**
-   * Describes the kind of the folding range such as `comment' or 'region'. The kind
-   * is used to categorize folding ranges and used by commands like 'Fold all comments'. See
-   * [FoldingRangeKind](#FoldingRangeKind) for an enumeration of standardized kinds.
+   * Describes the kind of the folding range such as `comment' or 'region'. The
+   * kind is used to categorize folding ranges and used by commands like 'Fold
+   * all comments'. See [FoldingRangeKind](#FoldingRangeKind) for an enumeration
+   * of standardized kinds.
    */
   std::optional<std::string> kind;
 };
 
 
 /**
- * Represents a related message and source code location for a diagnostic. This should be
- * used to point to code locations that cause or related to a diagnostics, e.g when duplicating
- * a symbol in a scope.
+ * Represents a related message and source code location for a diagnostic. This
+ * should be used to point to code locations that cause or related to a
+ * diagnostics, e.g when duplicating a symbol in a scope.
  */
 struct DiagnosticRelatedInformation
 {
@@ -320,8 +321,8 @@ enum class DiagnosticTag
   /**
    * Unused or unnecessary code.
    *
-   * Clients are allowed to render diagnostics with this tag faded out instead of having
-   * an error squiggle.
+   * Clients are allowed to render diagnostics with this tag faded out instead
+   * of having an error squiggle.
    */
   Unnecessary = 1,
   /**
@@ -346,8 +347,8 @@ struct CodeDescription
 };
 
 /**
- * Represents a diagnostic, such as a compiler error or warning. Diagnostic objects
- * are only valid in the scope of a resource.
+ * Represents a diagnostic, such as a compiler error or warning. Diagnostic
+ * objects are only valid in the scope of a resource.
  */
 struct Diagnostic
 {
@@ -372,9 +373,8 @@ struct Diagnostic
    */
   std::optional<CodeDescription> codeDescription;
   /**
-   * A human-readable string describing the source of this
-   * diagnostic, e.g. 'typescript' or 'super lint'. It usually
-   * appears in the user interface.
+   * A human-readable string describing the source of this diagnostic, e.g.
+   * 'typescript' or 'super lint'. It usually appears in the user interface.
    */
   std::optional<std::string> source;
   /**
@@ -388,13 +388,14 @@ struct Diagnostic
    */
   std::optional<std::vector<DiagnosticTag>> tags;
   /**
-   * An array of related diagnostic information, e.g. when symbol-names within
-   * a scope collide all definitions can be marked via this property.
+   * An array of related diagnostic information, e.g. when symbol-names within a
+   * scope collide all definitions can be marked via this property.
    */
   std::optional<std::vector<DiagnosticRelatedInformation>> relatedInformation;
   /**
-   * A data entry field that is preserved between a `textDocument/publishDiagnostics`
-   * notification and `textDocument/codeAction` request.
+   * A data entry field that is preserved between a
+   * `textDocument/publishDiagnostics` notification and
+   * `textDocument/codeAction` request.
    *
    * @since 3.16.0 - proposed state
    */
@@ -402,10 +403,9 @@ struct Diagnostic
 };
 
 /**
- * Represents a reference to a command. Provides a title which
- * will be used to represent a command in the UI and, optionally,
- * an array of arguments which will be passed to the command handler
- * function when invoked.
+ * Represents a reference to a command. Provides a title which will be used to
+ * represent a command in the UI and, optionally, an array of arguments which
+ * will be passed to the command handler function when invoked.
  */
 struct Command
 {
@@ -418,8 +418,7 @@ struct Command
    */
   std::string command;
   /**
-   * Arguments that the command handler should be
-   * invoked with.
+   * Arguments that the command handler should be invoked with.
    */
   std::optional<std::vector<any>> arguments;
 };
@@ -432,18 +431,18 @@ struct Command
 struct ChangeAnnotation
 {
   /**
-   * A human-readable string describing the actual change. The string
-   * is rendered prominent in the user interface.
+   * A human-readable string describing the actual change. The string is
+   * rendered prominent in the user interface.
    */
   std::string label;
   /**
-   * A flag which indicates that user confirmation is needed
-   * before applying the change.
+   * A flag which indicates that user confirmation is needed before applying the
+   * change.
    */
   std::optional<bool> needsConfirmation;
   /**
-   * A human-readable string which is rendered less prominent in
-   * the user interface.
+   * A human-readable string which is rendered less prominent in the user
+   * interface.
    */
   std::optional<std::string> description;
 };
@@ -477,25 +476,28 @@ struct TextDocumentIdentifier
 };
 
 /**
- * A text document identifier to optionally denote a specific version of a text document.
+ * A text document identifier to optionally denote a specific version of a text
+ * document.
  */
 struct OptionalVersionedTextDocumentIdentifier : TextDocumentIdentifier
 {
   /**
-   * The version number of this document. If a versioned text document identifier
-   * is sent from the server to the client and the file is not open in the editor
-   * (the server has not received an open notification before) the server can send
-   * `null` to indicate that the version is unknown and the content on disk is the
-   * truth (as specified with document content ownership).
+   * The version number of this document. If a versioned text document
+   * identifier is sent from the server to the client and the file is not open
+   * in the editor (the server has not received an open notification before) the
+   * server can send `null` to indicate that the version is unknown and the
+   * content on disk is the truth (as specified with document content
+   * ownership).
    */
   std::variant<integer, std::nullptr_t> version;
 };
 
 /**
- * Describes textual changes on a text document. A TextDocumentEdit describes all changes
- * on a document version Si and after they are applied move the document to version Si+1.
- * So the creator of a TextDocumentEdit doesn't need to sort the array of edits or do any
- * kind of ordering. However the edits must be non overlapping.
+ * Describes textual changes on a text document. A TextDocumentEdit describes
+ * all changes on a document version Si and after they are applied move the
+ * document to version Si+1. So the creator of a TextDocumentEdit doesn't need
+ * to sort the array of edits or do any kind of ordering. However the edits must
+ * be non overlapping.
  */
 struct TextDocumentEdit
 {
@@ -634,9 +636,10 @@ struct DeleteFile : ResourceOperation
 };
 
 /**
- * A workspace edit represents changes to many resources managed in the workspace. The edit
- * should either provide `changes` or `documentChanges`. If documentChanges are present
- * they are preferred over `changes` if the client can handle versioned document edits.
+ * A workspace edit represents changes to many resources managed in the
+ * workspace. The edit should either provide `changes` or `documentChanges`. If
+ * documentChanges are present they are preferred over `changes` if the client
+ * can handle versioned document edits.
  */
 struct WorkspaceEdit
 {
@@ -646,23 +649,25 @@ struct WorkspaceEdit
   std::optional<std::map<std::string /*uri*/, std::vector<TextEdit>>> changes;
 
   /**
-   * Depending on the client capability `workspace.workspaceEdit.resourceOperations` document
-   * changes are either an array of `TextDocumentEdit`s to express changes to n different text
-   * documents where each text document edit addresses a specific version of a text document. Or it
-   * can contain above `TextDocumentEdit`s mixed with create, rename and delete file / folder
-   * operations.
+   * Depending on the client capability
+   * `workspace.workspaceEdit.resourceOperations` document changes are either an
+   * array of `TextDocumentEdit`s to express changes to n different text
+   * documents where each text document edit addresses a specific version of a
+   * text document. Or it can contain above `TextDocumentEdit`s mixed with
+   * create, rename and delete file / folder operations.
    *
    * Whether a client supports versioned document edits is expressed via
    * `workspace.workspaceEdit.documentChanges` client capability.
    *
-   * If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations`
-   * then only plain `TextEdit`s using the `changes` property are supported.
+   * If a client neither supports `documentChanges` nor
+   * `workspace.workspaceEdit.resourceOperations` then only plain `TextEdit`s
+   * using the `changes` property are supported.
    */
   std::optional<std::vector<std::variant<TextDocumentEdit, CreateFile, RenameFile, DeleteFile>>>
       documentChanges;
   /**
-   * A map of change annotations that can be referenced in `AnnotatedTextEdit`s or create, rename
-   * and delete file / folder operations.
+   * A map of change annotations that can be referenced in `AnnotatedTextEdit`s
+   * or create, rename and delete file / folder operations.
    *
    * Whether clients honor this property depends on the client capability
    * `workspace.changeAnnotationSupport`.
@@ -685,8 +690,7 @@ struct VersionedTextDocumentIdentifier : TextDocumentIdentifier
 
 
 /**
- * An item to transfer a text document from the client to the
- * server.
+ * An item to transfer a text document from the client to the server.
  */
 struct TextDocumentItem
 {
@@ -699,8 +703,8 @@ struct TextDocumentItem
    */
   std::string languageId;
   /**
-   * The version number of this document (it will increase after each
-   * change, including undo/redo).
+   * The version number of this document (it will increase after each change,
+   * including undo/redo).
    */
   integer version;
   /**
@@ -710,11 +714,11 @@ struct TextDocumentItem
 };
 
 /**
- * Describes the content type that a client supports in various
- * result literals like `Hover`, `ParameterInfo` or `CompletionItem`.
+ * Describes the content type that a client supports in various result literals
+ * like `Hover`, `ParameterInfo` or `CompletionItem`.
  *
- * Please note that `MarkupKinds` must not start with a `$`. This kinds
- * are reserved for internal usage.
+ * Please note that `MarkupKinds` must not start with a `$`. This kinds are
+ * reserved for internal usage.
  */
 enum class MarkupKind
 {
@@ -730,28 +734,31 @@ enum class MarkupKind
 };
 
 /**
- * A `MarkupContent` literal represents a string value which content is interpreted base on its
- * kind flag. Currently the protocol supports `plaintext` and `markdown` as markup kinds.
+ * A `MarkupContent` literal represents a string value which content is
+ * interpreted base on its kind flag. Currently the protocol supports
+ * `plaintext` and `markdown` as markup kinds.
  *
- * If the kind is `markdown` then the value can contain fenced code blocks like in GitHub issues.
- * See https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
+ * If the kind is `markdown` then the value can contain fenced code blocks like
+ * in GitHub issues. See
+ * https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
  *
- * Here is an example how such a string can be constructed using JavaScript / TypeScript:
+ * Here is an example how such a string can be constructed using JavaScript /
+ * TypeScript:
  * ```ts
  * let markdown: MarkdownContent = {
  *  kind: MarkupKind.Markdown,
- *	value: [
- *		'# Header',
- *		'Some text',
- *		'```typescript',
- *		'someCode();',
- *		'```'
- *	].join('\n')
+ *  value: [
+ *    '# Header',
+ *    'Some text',
+ *    '```typescript',
+ *    'someCode();',
+ *    '```'
+ *  ].join('\n')
  * };
  * ```
  *
- * *Please Note* that clients might sanitize the return markdown. A client could decide to
- * remove HTML from the markdown to avoid script execution.
+ * *Please Note* that clients might sanitize the return markdown. A client could
+ * decide to remove HTML from the markdown to avoid script execution.
  */
 struct MarkupContent
 {
@@ -812,10 +819,10 @@ enum class InsertTextFormat
   /**
    * The primary text to be inserted is treated as a snippet.
    *
-   * A snippet can define tab stops and placeholders with `$1`, `$2`
-   * and `${3:foo}`. `$0` defines the final tab stop, it defaults to
-   * the end of the snippet. Placeholders with equal identifiers are linked,
-   * that is typing in one will update others too.
+   * A snippet can define tab stops and placeholders with `$1`, `$2` and
+   * `${3:foo}`. `$0` defines the final tab stop, it defaults to the end of the
+   * snippet. Placeholders with equal identifiers are linked, that is typing in
+   * one will update others too.
    *
    * See also:
    * https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax
@@ -824,8 +831,8 @@ enum class InsertTextFormat
 };
 
 /**
- * Completion item tags are extra annotations that tweak the rendering of a completion
- * item.
+ * Completion item tags are extra annotations that tweak the rendering of a
+ * completion item.
  *
  * @since 3.15.0
  */
@@ -860,8 +867,7 @@ struct InsertReplaceEdit
 };
 
 /**
- * How whitespace and indentation is handled during completion
- * item insertion.
+ * How whitespace and indentation is handled during completion item insertion.
  *
  * @since 3.16.0 - proposed state
  */
@@ -869,40 +875,37 @@ enum class InsertTextMode
 {
   INVALID,
   /**
-   * The insertion or replace strings is taken as it is. If the
-   * value is multi line the lines below the cursor will be
-   * inserted using the indentation defined in the string value.
-   * The client will not apply any kind of adjustments to the
-   * string.
+   * The insertion or replace strings is taken as it is. If the value is multi
+   * line the lines below the cursor will be inserted using the indentation
+   * defined in the string value. The client will not apply any kind of
+   * adjustments to the string.
    */
   AsIs = 1,
   /**
-   * The editor adjusts leading whitespace of new lines so that
-   * they match the indentation up to the cursor of the line for
-   * which the item is accepted.
+   * The editor adjusts leading whitespace of new lines so that they match the
+   * indentation up to the cursor of the line for which the item is accepted.
    *
-   * Consider a line like this: <2tabs><cursor><3tabs>foo. Accepting a
-   * multi line completion item is indented using 2 tabs and all
-   * following lines inserted will be indented using 2 tabs as well.
+   * Consider a line like this: <2tabs><cursor><3tabs>foo. Accepting a multi
+   * line completion item is indented using 2 tabs and all following lines
+   * inserted will be indented using 2 tabs as well.
    */
   AdjustIndentation = 2
 };
 
 /**
- * A completion item represents a text snippet that is
- * proposed to complete text that is being typed.
+ * A completion item represents a text snippet that is proposed to complete text
+ * that is being typed.
  */
 struct CompletionItem
 {
   /**
-   * The label of this completion item. By default
-   * also the text that is inserted when selecting
-   * this completion.
+   * The label of this completion item. By default also the text that is
+   * inserted when selecting this completion.
    */
   std::string label;
   /**
-   * The kind of this completion item. Based of the kind
-   * an icon is chosen by the editor.
+   * The kind of this completion item. Based of the kind an icon is chosen by
+   * the editor.
    */
   std::optional<CompletionItemKind> kind;
   /**
@@ -912,8 +915,8 @@ struct CompletionItem
    */
   std::optional<std::vector<CompletionItemTag>> tags;
   /**
-   * A human-readable string with additional information
-   * about this item, like type or symbol information.
+   * A human-readable string with additional information about this item, like
+   * type or symbol information.
    */
   std::optional<std::string> detail;
   /**
@@ -928,102 +931,104 @@ struct CompletionItem
   /**
    * Select this item when showing.
    *
-   * *Note* that only one completion item can be selected and that the
-   * tool / client decides which item that is. The rule is that the *first*
-   * item of those that match best is selected.
+   * *Note* that only one completion item can be selected and that the tool /
+   * client decides which item that is. The rule is that the *first* item of
+   * those that match best is selected.
    */
   std::optional<bool> preselect;
   /**
-   * A string that should be used when comparing this item
-   * with other items. When `falsy` the [label](#CompletionItem.label)
-   * is used.
+   * A string that should be used when comparing this item with other items.
+   * When `falsy` the [label](#CompletionItem.label) is used.
    */
   std::optional<std::string> sortText;
   /**
-   * A string that should be used when filtering a set of
-   * completion items. When `falsy` the [label](#CompletionItem.label)
-   * is used.
+   * A string that should be used when filtering a set of completion items. When
+   * `falsy` the [label](#CompletionItem.label) is used.
    */
   std::optional<std::string> filterText;
   /**
-   * A string that should be inserted into a document when selecting
-   * this completion. When `falsy` the [label](#CompletionItem.label)
-   * is used.
+   * A string that should be inserted into a document when selecting this
+   * completion. When `falsy` the [label](#CompletionItem.label) is used.
    *
-   * The `insertText` is subject to interpretation by the client side.
-   * Some tools might not take the string literally. For example
-   * VS Code when code complete is requested in this example `con<cursor position>`
-   * and a completion item with an `insertText` of `console` is provided it
-   * will only insert `sole`. Therefore it is recommended to use `textEdit` instead
-   * since it avoids additional client side interpretation.
+   * The `insertText` is subject to interpretation by the client side. Some
+   * tools might not take the string literally. For example VS Code when code
+   * complete is requested in this example `con<cursor position>` and a
+   * completion item with an `insertText` of `console` is provided it will only
+   * insert `sole`. Therefore it is recommended to use `textEdit` instead since
+   * it avoids additional client side interpretation.
    */
   std::optional<std::string> insertText;
   /**
-   * The format of the insert text. The format applies to both the `insertText` property
-   * and the `newText` property of a provided `textEdit`. If omitted defaults to
-   * `InsertTextFormat.PlainText`.
+   * The format of the insert text. The format applies to both the `insertText`
+   * property and the `newText` property of a provided `textEdit`. If omitted
+   * defaults to `InsertTextFormat.PlainText`.
    */
   std::optional<InsertTextFormat> insertTextFormat;
   /**
-   * How whitespace and indentation is handled during completion
-   * item insertion. If ignored the clients default value depends on
-   * the `textDocument.completion.insertTextMode` client capability.
+   * How whitespace and indentation is handled during completion item insertion.
+   * If ignored the clients default value depends on the
+   * `textDocument.completion.insertTextMode` client capability.
    *
    * @since 3.16.0 - proposed state
    */
   std::optional<InsertTextMode> insertTextMode;
   /**
-   * An [edit](#TextEdit) which is applied to a document when selecting
-   * this completion. When an edit is provided the value of
+   * An [edit](#TextEdit) which is applied to a document when selecting this
+   * completion. When an edit is provided the value of
    * [insertText](#CompletionItem.insertText) is ignored.
    *
-   * Most editors support two different operation when accepting a completion item. One is to insert
-   * a completion text and the other is to replace an existing text with a completion text. Since
-   * this can usually not predetermined by a server it can report both ranges. Clients need to
-   * signal support for `InsertReplaceEdits` via the `textDocument.completion.insertReplaceSupport`
-   * client capability property.
+   * Most editors support two different operation when accepting a completion
+   * item. One is to insert a completion text and the other is to replace an
+   * existing text with a completion text. Since this can usually not
+   * predetermined by a server it can report both ranges. Clients need to signal
+   * support for `InsertReplaceEdits` via the
+   * `textDocument.completion.insertReplaceSupport` client capability property.
    *
-   * *Note 1:* The text edit's range as well as both ranges from a insert replace edit must be a
-   * [single line] and they must contain the position at which completion has been requested.
-   * *Note 2:* If an `InsertReplaceEdit` is returned the edit's insert range must be a prefix of
-   * the edit's replace range, that means it must be contained and starting at the same position.
+   * *Note 1:* The text edit's range as well as both ranges from a insert
+   * replace edit must be a [single line] and they must contain the position at
+   * which completion has been requested. *Note 2:* If an `InsertReplaceEdit` is
+   * returned the edit's insert range must be a prefix of the edit's replace
+   * range, that means it must be contained and starting at the same position.
    *
    * @since 3.16.0 additional type `InsertReplaceEdit` - proposed state
    */
   std::optional<std::variant<TextEdit, InsertReplaceEdit>> textEdit;
   /**
-   * An optional array of additional [text edits](#TextEdit) that are applied when
-   * selecting this completion. Edits must not overlap (including the same insert position)
-   * with the main [edit](#CompletionItem.textEdit) nor with themselves.
+   * An optional array of additional [text edits](#TextEdit) that are applied
+   * when selecting this completion. Edits must not overlap (including the same
+   * insert position) with the main [edit](#CompletionItem.textEdit) nor with
+   * themselves.
    *
-   * Additional text edits should be used to change text unrelated to the current cursor position
-   * (for example adding an import statement at the top of the file if the completion item will
-   * insert an unqualified type).
+   * Additional text edits should be used to change text unrelated to the
+   * current cursor position (for example adding an import statement at the top
+   * of the file if the completion item will insert an unqualified type).
    */
   std::optional<std::vector<TextEdit>> additionalTextEdits;
   /**
-   * An optional set of characters that when pressed while this completion is active will accept it
-   * first and then type that character. *Note* that all commit characters should have `length=1`
-   * and that superfluous characters will be ignored.
+   * An optional set of characters that when pressed while this completion is
+   * active will accept it first and then type that character. *Note* that all
+   * commit characters should have `length=1` and that superfluous characters
+   * will be ignored.
    */
   std::optional<std::vector<std::string>> commitCharacters;
   /**
-   * An optional [command](#Command) that is executed *after* inserting this completion. *Note* that
-   * additional modifications to the current document should be described with the
+   * An optional [command](#Command) that is executed *after* inserting this
+   * completion. *Note* that additional modifications to the current document
+   * should be described with the
    * [additionalTextEdits](#CompletionItem.additionalTextEdits)-property.
    */
   std::optional<Command> command;
   /**
-   * A data entry field that is preserved on a completion item between
-   * a [CompletionRequest](#CompletionRequest) and a [CompletionResolveRequest]
+   * A data entry field that is preserved on a completion item between a
+   * [CompletionRequest](#CompletionRequest) and a [CompletionResolveRequest]
    * (#CompletionResolveRequest)
    */
   std::optional<any> data;
 };
 
 /**
- * Represents a collection of [completion items](#CompletionItem) to be presented
- * in the editor.
+ * Represents a collection of [completion items](#CompletionItem) to be
+ * presented in the editor.
  */
 struct CompletionList
 {
@@ -1044,10 +1049,10 @@ struct MarkedStringExt
 };
 
 /**
- * MarkedString can be used to render human readable text. It is either a markdown string
- * or a code-block that provides a language and a code snippet. The language identifier
- * is semantically equal to the optional language identifier in fenced code blocks in GitHub
- * issues. See
+ * MarkedString can be used to render human readable text. It is either a
+ * markdown string or a code-block that provides a language and a code snippet.
+ * The language identifier is semantically equal to the optional language
+ * identifier in fenced code blocks in GitHub issues. See
  * https://help.github.com/articles/creating-and-highlighting-code-blocks/#syntax-highlighting
  *
  * The pair of a language and a value is an equivalent to markdown:
@@ -1055,7 +1060,8 @@ struct MarkedStringExt
  * ${value}
  * ```
  *
- * Note that markdown strings will be sanitized - that means html will be escaped.
+ * Note that markdown strings will be sanitized - that means html will be
+ * escaped.
  * @deprecated use MarkupContent instead.
  */
 using MarkedString = std::variant<std::string, MarkedStringExt>;
@@ -1076,45 +1082,43 @@ struct Hover
 };
 
 /**
- * Represents a parameter of a callable-signature. A parameter can
- * have a label and a doc-comment.
+ * Represents a parameter of a callable-signature. A parameter can have a label
+ * and a doc-comment.
  */
 struct ParameterInformation
 {
   /**
    * The label of this parameter information.
    *
-   * Either a string or an inclusive start and exclusive end offsets within its containing
-   * signature label. (see SignatureInformation.label). The offsets are based on a UTF-16
-   * string representation as `Position` and `Range` does.
+   * Either a string or an inclusive start and exclusive end offsets within its
+   * containing signature label. (see SignatureInformation.label). The offsets
+   * are based on a UTF-16 string representation as `Position` and `Range` does.
    *
-   * *Note*: a label of type string should be a substring of its containing signature label.
-   * Its intended use case is to highlight the parameter label part in the
-   * `SignatureInformation.label`.
+   * *Note*: a label of type string should be a substring of its containing
+   * signature label. Its intended use case is to highlight the parameter label
+   * part in the `SignatureInformation.label`.
    */
   std::variant<std::string, std::tuple<uinteger, uinteger>> label;
   /**
-   * The human-readable doc-comment of this signature. Will be shown
-   * in the UI but can be omitted.
+   * The human-readable doc-comment of this signature. Will be shown in the UI
+   * but can be omitted.
    */
   std::optional<std::variant<std::string, MarkupContent>> documentation;
 };
 
 /**
- * Represents the signature of something callable. A signature
- * can have a label, like a function-name, a doc-comment, and
- * a set of parameters.
+ * Represents the signature of something callable. A signature can have a label,
+ * like a function-name, a doc-comment, and a set of parameters.
  */
 struct SignatureInformation
 {
   /**
-   * The label of this signature. Will be shown in
-   * the UI.
+   * The label of this signature. Will be shown in the UI.
    */
   std::string label;
   /**
-   * The human-readable doc-comment of this signature. Will be shown
-   * in the UI but can be omitted.
+   * The human-readable doc-comment of this signature. Will be shown in the UI
+   * but can be omitted.
    */
   std::optional<std::variant<std::string, MarkupContent>> documentation;
   /**
@@ -1132,9 +1136,8 @@ struct SignatureInformation
 };
 
 /**
- * Signature help represents the signature of something
- * callable. There can be multiple signature but only one
- * active and only one active parameter.
+ * Signature help represents the signature of something callable. There can be
+ * multiple signature but only one active and only one active parameter.
  */
 struct SignatureHelp
 {
@@ -1143,49 +1146,48 @@ struct SignatureHelp
    */
   std::vector<SignatureInformation> signatures;
   /**
-   * The active signature. Set to `null` if no
-   * signatures exist.
+   * The active signature. Set to `null` if no signatures exist.
    */
   std::variant<uinteger, std::nullptr_t> activeSignature;
   /**
-   * The active parameter of the active signature. Set to `null`
-   * if the active signature has no parameters.
+   * The active parameter of the active signature. Set to `null` if the active
+   * signature has no parameters.
    */
   std::variant<uinteger, std::nullptr_t> activeParameter;
 };
 /**
  * The definition of a symbol represented as one or many [locations](#Location).
- * For most programming languages there is only one location at which a symbol is
- * defined.
+ * For most programming languages there is only one location at which a symbol
+ * is defined.
  *
- * Servers should prefer returning `DefinitionLink` over `Definition` if supported
- * by the client.
+ * Servers should prefer returning `DefinitionLink` over `Definition` if
+ * supported by the client.
  */
 using Definition = std::variant<Location, std::vector<Location>>;
 /**
  * Information about where a symbol is defined.
  *
- * Provides additional metadata over normal [location](#Location) definitions, including the range
- * of the defining symbol
+ * Provides additional metadata over normal [location](#Location) definitions,
+ * including the range of the defining symbol
  */
 using DefinitionLink = LocationLink;
 /**
- * The declaration of a symbol representation as one or many [locations](#Location).
+ * The declaration of a symbol representation as one or many
+ * [locations](#Location).
  */
 using Declaration = std::variant<Location, std::vector<Location>>;
 /**
  * Information about where a symbol is declared.
  *
- * Provides additional metadata over normal [location](#Location) declarations, including the range
- * of the declaring symbol.
+ * Provides additional metadata over normal [location](#Location) declarations,
+ * including the range of the declaring symbol.
  *
- * Servers should prefer returning `DeclarationLink` over `Declaration` if supported
- * by the client.
+ * Servers should prefer returning `DeclarationLink` over `Declaration` if
+ * supported by the client.
  */
 using DeclarationLink = LocationLink;
 /**
- * Value-object that contains additional information when
- * requesting references.
+ * Value-object that contains additional information when requesting references.
  */
 struct ReferenceContext
 {
@@ -1214,9 +1216,9 @@ enum class DocumentHighlightKind
   Write = 3
 };
 /**
- * A document highlight is a range inside a text document which deserves
- * special attention. Usually a document highlight is visualized by changing
- * the background color of its range.
+ * A document highlight is a range inside a text document which deserves special
+ * attention. Usually a document highlight is visualized by changing the
+ * background color of its range.
  */
 struct DocumentHighlight
 {
@@ -1303,11 +1305,11 @@ struct SymbolInformation
    */
   std::optional<bool> deprecated;
   /**
-   * The location of this symbol. The location's range is used by a tool
-   * to reveal the location in the editor. If the symbol is selected in the
-   * tool the range's start information is used to position the cursor. So
-   * the range usually spans more than the actual symbol's name and does
-   * normally include thinks like visibility modifiers.
+   * The location of this symbol. The location's range is used by a tool to
+   * reveal the location in the editor. If the symbol is selected in the tool
+   * the range's start information is used to position the cursor. So the range
+   * usually spans more than the actual symbol's name and does normally include
+   * thinks like visibility modifiers.
    *
    * The range doesn't have to denote a node range in the sense of a abstract
    * syntax tree. It can therefore not be used to re-construct a hierarchy of
@@ -1315,9 +1317,9 @@ struct SymbolInformation
    */
   Location location;
   /**
-   * The name of the symbol containing this symbol. This information is for
-   * user interface purposes (e.g. to render a qualifier in the user interface
-   * if necessary). It can't be used to re-infer a hierarchy for the document
+   * The name of the symbol containing this symbol. This information is for user
+   * interface purposes (e.g. to render a qualifier in the user interface if
+   * necessary). It can't be used to re-infer a hierarchy for the document
    * symbols.
    */
   std::optional<std::string> containerName;
@@ -1325,15 +1327,16 @@ struct SymbolInformation
 
 /**
  * Represents programming constructs like variables, classes, interfaces etc.
- * that appear in a document. Document symbols can be hierarchical and they
- * have two ranges: one that encloses its definition and one that points to
- * its most interesting range, e.g. the range of an identifier.
+ * that appear in a document. Document symbols can be hierarchical and they have
+ * two ranges: one that encloses its definition and one that points to its most
+ * interesting range, e.g. the range of an identifier.
  */
 struct DocumentSymbol
 {
   /**
-   * The name of this symbol. Will be displayed in the user interface and therefore must not be
-   * an empty string or a string only consisting of white spaces.
+   * The name of this symbol. Will be displayed in the user interface and
+   * therefore must not be an empty string or a string only consisting of white
+   * spaces.
    */
   std::string name;
   /**
@@ -1357,14 +1360,15 @@ struct DocumentSymbol
    */
   std::optional<bool> deprecated;
   /**
-   * The range enclosing this symbol not including leading/trailing whitespace but everything else
-   * like comments. This information is typically used to determine if the the clients cursor is
-   * inside the symbol to reveal in the symbol in the UI.
+   * The range enclosing this symbol not including leading/trailing whitespace
+   * but everything else like comments. This information is typically used to
+   * determine if the the clients cursor is inside the symbol to reveal in the
+   * symbol in the UI.
    */
   Range range;
   /**
-   * The range that should be selected and revealed when this symbol is being picked, e.g the name
-   * of a function. Must be contained by the the `range`.
+   * The range that should be selected and revealed when this symbol is being
+   * picked, e.g the name of a function. Must be contained by the the `range`.
    */
   Range selectionRange;
   /**
@@ -1379,8 +1383,8 @@ struct DocumentSymbol
  * Kinds are a hierarchical list of identifiers separated by `.`, e.g.
  * `"refactor.extract.function"`.
  *
- * The set of kinds is open and client needs to announce the kinds it supports to the server during
- * initialization.
+ * The set of kinds is open and client needs to announce the kinds it supports
+ * to the server during initialization.
  */
 using CodeActionKind = std::string;
 /**
@@ -1458,34 +1462,35 @@ using CodeActionKind = std::string;
 //     const SourceFixAll: CodeActionKind;
 // }
 /**
- * Contains additional diagnostic information about the context in which
- * a [code action](#CodeActionProvider.provideCodeActions) is run.
+ * Contains additional diagnostic information about the context in which a [code
+ * action](#CodeActionProvider.provideCodeActions) is run.
  */
 struct CodeActionContext
 {
   /**
-   * An array of diagnostics known on the client side overlapping the range provided to the
-   * `textDocument/codeAction` request. They are provided so that the server knows which
-   * errors are currently presented to the user for the given range. There is no guarantee
-   * that these accurately reflect the error state of the resource. The primary parameter
-   * to compute code actions is the provided range.
+   * An array of diagnostics known on the client side overlapping the range
+   * provided to the `textDocument/codeAction` request. They are provided so
+   * that the server knows which errors are currently presented to the user for
+   * the given range. There is no guarantee that these accurately reflect the
+   * error state of the resource. The primary parameter to compute code actions
+   * is the provided range.
    */
   std::vector<Diagnostic> diagnostics;
   /**
    * Requested kind of actions to return.
    *
-   * Actions not of this kind are filtered out by the client before being shown. So servers
-   * can omit computing them.
+   * Actions not of this kind are filtered out by the client before being shown.
+   * So servers can omit computing them.
    */
   std::optional<std::vector<CodeActionKind>> only;
 };
 
 /**
- * A code action represents a change that can be performed in code, e.g. to fix a problem or
- * to refactor code.
+ * A code action represents a change that can be performed in code, e.g. to fix
+ * a problem or to refactor code.
  *
- * A CodeAction must set either `edit` and/or a `command`. If both are supplied, the `edit` is
- * applied first, then the `command` is executed.
+ * A CodeAction must set either `edit` and/or a `command`. If both are supplied,
+ * the `edit` is applied first, then the `command` is executed.
  */
 struct CodeAction
 {
@@ -1504,12 +1509,12 @@ struct CodeAction
    */
   std::optional<std::vector<Diagnostic>> diagnostics;
   /**
-   * Marks this as a preferred action. Preferred actions are used by the `auto fix` command and can
-   * be targeted by keybindings.
+   * Marks this as a preferred action. Preferred actions are used by the `auto
+   * fix` command and can be targeted by keybindings.
    *
-   * A quick fix should be marked preferred if it properly addresses the underlying error.
-   * A refactoring should be marked preferred if it is the most reasonable choice of actions to
-   * take.
+   * A quick fix should be marked preferred if it properly addresses the
+   * underlying error. A refactoring should be marked preferred if it is the
+   * most reasonable choice of actions to take.
    *
    * @since 3.15.0
    */
@@ -1527,19 +1532,22 @@ struct CodeAction
   /**
    * Marks that the code action cannot currently be applied.
    *
-   * Clients should follow the following guidelines regarding disabled code actions:
+   * Clients should follow the following guidelines regarding disabled code
+   * actions:
    *
    *   - Disabled code actions are not shown in automatic
-   * [lightbulb](https://code.visualstudio.com/docs/editor/editingevolved#_code-action) code action
-   * menu.
+   *     [lightbulb](https://code.visualstudio.com/docs/editor/editingevolved#_code-action)
+   *     code action menu.
    *
-   *   - Disabled actions are shown as faded out in the code action menu when the user request a
-   * more specific type of code action, such as refactorings.
+   *   - Disabled actions are shown as faded out in the code action menu when
+   *     the user request a more specific type of code action, such as
+   *     refactorings.
    *
    *   - If the user has a
-   * [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
-   *     that auto applies a code action and only a disabled code actions are returned, the client
-   * should show the user an error message with `reason` in the editor.
+   *     [keybinding](https://code.visualstudio.com/docs/editor/refactoring#_keybindings-for-code-actions)
+   *     that auto applies a code action and only a disabled code actions are
+   *     returned, the client should show the user an error message with
+   *     `reason` in the editor.
    *
    * @since 3.16.0
    */
@@ -1549,14 +1557,13 @@ struct CodeAction
    */
   std::optional<WorkspaceEdit> edit;
   /**
-   * A command this code action executes. If a code action
-   * provides a edit and a command, first the edit is
-   * executed and then the command.
+   * A command this code action executes. If a code action provides a edit and a
+   * command, first the edit is executed and then the command.
    */
   std::optional<Command> command;
   /**
-   * A data entry field that is preserved on a code action between
-   * a `textDocument/codeAction` and a `codeAction/resolve` request.
+   * A data entry field that is preserved on a code action between a
+   * `textDocument/codeAction` and a `codeAction/resolve` request.
    *
    * @since 3.16.0 - proposed state
    */
@@ -1567,8 +1574,9 @@ struct CodeAction
  * A code lens represents a [command](#Command) that should be shown along with
  * source text, like the number of references, a way to run tests, etc.
  *
- * A code lens is _unresolved_ when no command is associated to it. For performance
- * reasons the creation of a code lens and resolving should be done to two stages.
+ * A code lens is _unresolved_ when no command is associated to it. For
+ * performance reasons the creation of a code lens and resolving should be done
+ * to two stages.
  */
 struct CodeLens
 {
@@ -1581,8 +1589,8 @@ struct CodeLens
    */
   std::optional<Command> command;
   /**
-   * A data entry field that is preserved on a code lens item between
-   * a [CodeLensRequest](#CodeLensRequest) and a [CodeLensResolveRequest]
+   * A data entry field that is preserved on a code lens item between a
+   * [CodeLensRequest](#CodeLensRequest) and a [CodeLensResolveRequest]
    * (#CodeLensResolveRequest)
    */
   std::optional<any> data;
@@ -1627,8 +1635,8 @@ struct FormattingOptions
 };
 
 /**
- * A document link is a range in a text document that links to an internal or external resource,
- * like another text document or a web site.
+ * A document link is a range in a text document that links to an internal or
+ * external resource, like another text document or a web site.
  */
 struct DocumentLink
 {
@@ -1643,9 +1651,10 @@ struct DocumentLink
   /**
    * The tooltip text when you hover over this link.
    *
-   * If a tooltip is provided, is will be displayed in a string that includes instructions on how to
-   * trigger the link, such as `{0} (ctrl + click)`. The specific instructions vary depending on OS,
-   * user settings, and localization.
+   * If a tooltip is provided, is will be displayed in a string that includes
+   * instructions on how to trigger the link, such as `{0} (ctrl + click)`. The
+   * specific instructions vary depending on OS, user settings, and
+   * localization.
    *
    * @since 3.15.0
    */
@@ -1658,8 +1667,8 @@ struct DocumentLink
 };
 
 /**
- * A selection range represents a part of a selection hierarchy. A selection range
- * may have a parent selection range that contains it.
+ * A selection range represents a part of a selection hierarchy. A selection
+ * range may have a parent selection range that contains it.
  */
 struct SelectionRange
 {
@@ -1668,15 +1677,15 @@ struct SelectionRange
    */
   Range range;
   /**
-   * @todo The parent selection range containing this range. Therefore `parent.range` must contain
-   * `this.range`.
+   * @todo The parent selection range containing this range. Therefore
+   * `parent.range` must contain `this.range`.
    */
   // std::optional<SelectionRange> parent;
 };
 
 /**
- * Represents programming constructs like functions or constructors in the context
- * of call hierarchy.
+ * Represents programming constructs like functions or constructors in the
+ * context of call hierarchy.
  *
  * @since 3.16.0
  */
@@ -1703,13 +1712,14 @@ struct CallHierarchyItem
    */
   DocumentUri uri;
   /**
-   * The range enclosing this symbol not including leading/trailing whitespace but everything else,
-   * e.g. comments and code.
+   * The range enclosing this symbol not including leading/trailing whitespace
+   * but everything else, e.g. comments and code.
    */
   Range range;
   /**
-   * The range that should be selected and revealed when this symbol is being picked, e.g. the name
-   * of a function. Must be contained by the [`range`](#CallHierarchyItem.range).
+   * The range that should be selected and revealed when this symbol is being
+   * picked, e.g. the name of a function. Must be contained by the
+   * [`range`](#CallHierarchyItem.range).
    */
   Range selectionRange;
   /**
@@ -1736,8 +1746,8 @@ struct CallHierarchyIncomingCall
   std::vector<Range> fromRanges;
 };
 /**
- * Represents an outgoing call, e.g. calling a getter from a method or a method from a constructor
- * etc.
+ * Represents an outgoing call, e.g. calling a getter from a method or a method
+ * from a constructor etc.
  *
  * @since 3.16.0
  */
@@ -1748,8 +1758,8 @@ struct CallHierarchyOutgoingCall
    */
   CallHierarchyItem to;
   /**
-   * The range at which this item is called. This is the range relative to the caller, e.g the item
-   * passed to
+   * The range at which this item is called. This is the range relative to the
+   * caller, e.g the item passed to
    * [`provideCallHierarchyOutgoingCalls`](#CallHierarchyItemProvider.provideCallHierarchyOutgoingCalls)
    * and not [`this.to`](#CallHierarchyOutgoingCall.to).
    */
@@ -1759,14 +1769,16 @@ struct CallHierarchyOutgoingCall
  * A simple text document. Not to be implemented. The document keeps the content
  * as string.
  *
- * @deprecated Use the text document from the new vscode-languageserver-textdocument package.
+ * @deprecated Use the text document from the new
+ * vscode-languageserver-textdocument package.
  */
 struct TextDocument
 {
   /**
-   * The associated URI for this document. Most documents have the __file__-scheme, indicating that
-   * they represent files on disk. However, some documents may have other schemes indicating that
-   * they are not available on disk.
+   * The associated URI for this document. Most documents have the
+   * __file__-scheme, indicating that they represent files on disk. However,
+   * some documents may have other schemes indicating that they are not
+   * available on disk.
    *
    * @readonly
    */
@@ -1778,8 +1790,8 @@ struct TextDocument
    */
   std::string languageId;
   /**
-   * The version number of this document (it will increase after each
-   * change, including undo/redo).
+   * The version number of this document (it will increase after each change,
+   * including undo/redo).
    *
    * @readonly
    */

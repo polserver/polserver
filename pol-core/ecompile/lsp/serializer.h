@@ -27,9 +27,10 @@
 template <typename T>
 void optional_get_to( const nlohmann::json& j, const std::string& key, std::optional<T>& where )
 {
-  // @TODO This does not differentiate between an optionally-present key and a required-but-null-valued
-  // key, ie. the difference between std::optional<T> and std::variant<std::nullptr_t, T> respectively.
-  if ( j.contains( key ) && !j.at(key).is_null() )
+  // @TODO This does not differentiate between an optionally-present key and a
+  // required-but-null-valued key, ie. the difference between std::optional<T> and
+  // std::variant<std::nullptr_t, T> respectively.
+  if ( j.contains( key ) && !j.at( key ).is_null() )
   {
     where.emplace( j.at( key ).get<T>() );
   }
