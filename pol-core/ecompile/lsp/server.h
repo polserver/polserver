@@ -47,6 +47,58 @@ public:
    * is allowed to send requests from the server to the client.
    */
   void onInitialized( const Protocol::InitializedParams& params );
+
+  /**
+   * The document open notification is sent from the client to the server to signal
+   * newly opened text documents. The document's truth is now managed by the client
+   * and the server must not try to read the document's truth using the document's
+   * uri. Open in this sense means it is managed by the client. It doesn't necessarily
+   * mean that its content is presented in an editor. An open notification must not
+   * be sent more than once without a corresponding close notification send before.
+   * This means open and close notification must be balanced and the max open count
+   * is one.
+   */
+  void onDidOpenTextDocument( const Protocol::DidOpenTextDocumentParams& params );
+
+  /**
+   * The document change notification is sent from the client to the server to signal
+   * changes to a text document.
+   */
+  void onDidChangeTextDocument( const Protocol::DidChangeTextDocumentParams& params );
+
+  /**
+   * The document close notification is sent from the client to the server when
+   * the document got closed in the client. The document's truth now exists where
+   * the document's uri points to (e.g. if the document's uri is a file uri the
+   * truth now exists on disk). As with the open notification the close notification
+   * is about managing the document's content. Receiving a close notification
+   * doesn't mean that the document was open in an editor before. A close
+   * notification requires a previous open notification to be sent.
+   */
+  void onDidCloseTextDocument( const Protocol::DidCloseTextDocumentParams& params );
+
+  /**
+   * The document save notification is sent from the client to the server when
+   * the document got saved in the client.
+   */
+  void onDidSaveTextDocument( const Protocol::DidSaveTextDocumentParams& params );
+
+  /**
+   * A document will save notification is sent from the client to the server before
+   * the document is actually saved.
+   */
+  void onWillSaveTextDocument( const Protocol::WillSaveTextDocumentParams& params );
+
+  /**
+   * A document will save request is sent from the client to the server before
+   * the document is actually saved. The request can return an array of TextEdits
+   * which will be applied to the text document before it is saved. Please note that
+   * clients might drop results if computing the text edits took too long or if a
+   * server constantly fails on this request. This is done to keep the save fast and
+   * reliable.
+   */
+  Protocol::WillSaveTextDocumentResult onWillSaveTextDocumentWaitUntil(
+      const Protocol::WillSaveTextDocumentParams& params );
 };
 
 class LspServer

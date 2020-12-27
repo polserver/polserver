@@ -71,6 +71,8 @@ OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( ColorInformation, range, color )
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( TextEdit, range, newText )
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( ColorPresentation, label, textEdit, additionalTextEdits )
 
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( VersionedTextDocumentIdentifier, version, uri )
+
 NLOHMANN_JSON_SERIALIZE_ENUM( FoldingRangeKind, {
                                                     { FoldingRangeKind::INVALID, nullptr },
                                                     { FoldingRangeKind::Comment, "comments" },
@@ -115,6 +117,20 @@ OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( InitializeResult::ServerInfoInitializeResult,
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( InitializeResult, capabilities, serverInfo )
 
 EMPTY_DEFINE_TYPE_NONINTRUSIVE( InitializedParams )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( TextDocumentItem, uri, languageId, version, text )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DidOpenTextDocumentParams, textDocument )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( TextDocumentContentChangeEvent, range, rangeLength, text )
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DidChangeTextDocumentParams, textDocument, contentChanges )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( TextDocumentIdentifier, uri )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DidCloseTextDocumentParams, textDocument )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DidSaveTextDocumentParams, textDocument, text )
+
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( WillSaveTextDocumentParams, textDocument, reason )
 
 
 void to_json( nlohmann::json& j, const RequestId& p )

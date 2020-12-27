@@ -412,6 +412,131 @@ struct InitializedParams
 {
 };
 
+/**
+ * The parameters send in a open text document notification
+ */
+struct DidOpenTextDocumentParams
+{
+  /**
+   * The document that was opened.
+   */
+  TextDocumentItem textDocument;
+};
+
+/**
+ * An event describing a change to a text document. If range and rangeLength are omitted
+ * the new text is considered to be the full content of the document.
+ */
+struct TextDocumentContentChangeEvent
+{
+  /**
+   * The range of the document that changed.
+   */
+  std::optional<Range> range;
+  /**
+   * The optional length of the range that got replaced.
+   *
+   * @deprecated use range instead.
+   */
+  std::optional<uinteger> rangeLength;
+  /**
+   * The new text for the provided range (if given), otherwise the whole document.
+   */
+  std::string text;
+};
+
+/**
+ * The change text document notification's parameters.
+ */
+struct DidChangeTextDocumentParams
+{
+  /**
+   * The document that did change. The version number points
+   * to the version after all provided content changes have
+   * been applied.
+   */
+  VersionedTextDocumentIdentifier textDocument;
+  /**
+   * The actual content changes. The content changes describe single state changes
+   * to the document. So if there are two content changes c1 (at array index 0) and
+   * c2 (at array index 1) for a document in state S then c1 moves the document from
+   * S to S' and c2 from S' to S''. So c1 is computed on the state S and c2 is computed
+   * on the state S'.
+   *
+   * To mirror the content of a document using change events use the following approach:
+   * - start with the same initial content
+   * - apply the 'textDocument/didChange' notifications in the order you receive them.
+   * - apply the `TextDocumentContentChangeEvent`s in a single notification in the order
+   *   you receive them.
+   */
+  std::vector<TextDocumentContentChangeEvent> contentChanges;
+};
+
+/**
+ * The parameters send in a close text document notification
+ */
+struct DidCloseTextDocumentParams
+{
+  /**
+   * The document that was closed.
+   */
+  TextDocumentIdentifier textDocument;
+};
+
+/**
+ * The parameters send in a save text document notification
+ */
+struct DidSaveTextDocumentParams
+{
+  /**
+   * The document that was closed.
+   */
+  TextDocumentIdentifier textDocument;
+  /**
+   * Optional the content when saved. Depends on the includeText value
+   * when the save notification was requested.
+   */
+  std::optional<std::string> text;
+};
+
+/**
+ * Represents reasons why a text document is saved.
+ */
+enum class TextDocumentSaveReason
+{
+  INVALID,
+  /**
+   * Manually triggered, e.g. by the user pressing save, by starting debugging,
+   * or by an API call.
+   */
+  Manual = 1,
+  /**
+   * Automatic after a delay.
+   */
+  AfterDelay = 2,
+  /**
+   * When the editor lost focus.
+   */
+  FocusOut = 3
+};
+
+/**
+ * The parameters send in a will save text document notification.
+ */
+struct WillSaveTextDocumentParams
+{
+  /**
+   * The document that will be saved.
+   */
+  TextDocumentIdentifier textDocument;
+  /**
+   * The 'TextDocumentSaveReason'.
+   */
+  TextDocumentSaveReason reason;
+};
+
+using WillSaveTextDocumentResult = std::optional<std::vector<TextEdit>>;
+
 };  // namespace Pol::ECompile::LSP::Protocol
 
 #endif

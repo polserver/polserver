@@ -110,22 +110,22 @@ void launchStdout()
   }
 }
 
-#define HANDLE_REQUEST( METHOD, HANDLER, PARAMS )                                          \
-  if ( msg.method == METHOD )                                                              \
-  {                                                                                        \
-    lsp_server.for_response.push_move( nlohmann::json{                                     \
-        { "jsonrpc", "2.0" },                                                              \
-        { "id", msg.id },                                                                  \
+#define HANDLE_REQUEST( METHOD, HANDLER, PARAMS )                                      \
+  if ( msg.method == METHOD )                                                          \
+  {                                                                                    \
+    lsp_server.for_response.push_move( nlohmann::json{                                 \
+        { "jsonrpc", "2.0" },                                                          \
+        { "id", msg.id },                                                              \
         { "result", _handler.HANDLER( msg.document->at( "params" ).get<PARAMS>() ) } } \
-                                           .dump() );                                      \
-    break;                                                                                 \
+                                           .dump() );                                  \
+    break;                                                                             \
   }
 
-#define HANDLE_NOTIFICATION( METHOD, HANDLER, PARAMS )                  \
-  if ( msg.method == METHOD )                                           \
-  {                                                                     \
+#define HANDLE_NOTIFICATION( METHOD, HANDLER, PARAMS )              \
+  if ( msg.method == METHOD )                                       \
+  {                                                                 \
     _handler.HANDLER( msg.document->at( "params" ).get<PARAMS>() ); \
-    break;                                                              \
+    break;                                                          \
   }
 
 
@@ -146,6 +146,18 @@ void LspServer::start()
       {
         HANDLE_REQUEST( "initialize", onInitialize, InitializeParams )
         HANDLE_NOTIFICATION( "initialized", onInitialized, InitializedParams )
+        HANDLE_NOTIFICATION( "textDocument/didOpen", onDidOpenTextDocument,
+                             DidOpenTextDocumentParams )
+        HANDLE_NOTIFICATION( "textDocument/didChange", onDidChangeTextDocument,
+                             DidChangeTextDocumentParams )
+        HANDLE_NOTIFICATION( "textDocument/didClose", onDidCloseTextDocument,
+                             DidCloseTextDocumentParams )
+        HANDLE_NOTIFICATION( "textDocument/didSave", onDidSaveTextDocument,
+                             DidSaveTextDocumentParams )
+        HANDLE_NOTIFICATION( "textDocument/willSave", onWillSaveTextDocument,
+                             WillSaveTextDocumentParams )
+        HANDLE_REQUEST( "textDocument/willSaveWaitUntil", onWillSaveTextDocumentWaitUntil,
+                        WillSaveTextDocumentParams )
 
         throw std::runtime_error( "Unknown method " + msg.method );
       } while ( false );
@@ -180,5 +192,42 @@ InitializeResult MessageHandler::onInitialize( const InitializeParams& params )
   return result;
 }
 
-void MessageHandler::onInitialized( const InitializedParams& /* params */ ) {}
+void MessageHandler::onInitialized( const InitializedParams& /* params */ )
+{
+  ERROR_PRINT << "initialized\n";
+}
+
+void MessageHandler::onDidOpenTextDocument( const DidOpenTextDocumentParams& params )
+{
+  ERROR_PRINT << "open " << params.textDocument.uri << "\n";
+}
+
+void MessageHandler::onDidChangeTextDocument( const DidChangeTextDocumentParams& params )
+{
+  ERROR_PRINT << "change " << params.textDocument.uri << "\n";
+}
+
+void MessageHandler::onDidCloseTextDocument( const DidCloseTextDocumentParams& params )
+{
+  ERROR_PRINT << "close " << params.textDocument.uri << "\n";
+}
+
+void MessageHandler::onDidSaveTextDocument( const DidSaveTextDocumentParams& params )
+{
+  ERROR_PRINT << "save " << params.textDocument.uri << "\n";
+}
+
+void MessageHandler::onWillSaveTextDocument( const WillSaveTextDocumentParams& params )
+{
+  ERROR_PRINT << "willSave " << params.textDocument.uri << "\n";
+}
+
+WillSaveTextDocumentResult MessageHandler::onWillSaveTextDocumentWaitUntil(
+    const WillSaveTextDocumentParams& params )
+{
+  ERROR_PRINT << "willSaveWaitUntil " << params.textDocument.uri << "\n";
+  WillSaveTextDocumentResult result;
+  return result;
+}
+
 }  // namespace Pol::ECompile::LSP
