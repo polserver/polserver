@@ -1,4 +1,6 @@
 ﻿-- POL100 --
+12-28-2020 Turley:
+    Added: pol.cfg AllowEnvironmentVariableAccess disable this setting to disallow execution of os::GetEnvironmentVariable
 12-26-2020 Turley:
     Added: os::GetEnvironmentVariable(name:="")
            returns String value of given environment variable name

@@ -279,6 +279,9 @@ void PolConfig::read_pol_config( bool initial_load )
 
   Plib::systemstate.config.debug_level = elem.remove_ushort( "DebugLevel", 0 );
 
+  Plib::systemstate.config.environmentvariable_access =
+      elem.remove_bool( "AllowEnvironmentVariableAccess", true );
+
   /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
   /// turns out to be disabled, or when it was enabled before, but is being disabled now,
   /// run "garbage collection" to free the allocated resources

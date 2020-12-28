@@ -1195,6 +1195,8 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
 
 BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
 {
+  if ( !Plib::systemstate.config.environmentvariable_access )
+    return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
   const String* env_name;
   if ( !exec.getStringParam( 0, env_name ) )
     return new BError( "Invalid parameter type" );

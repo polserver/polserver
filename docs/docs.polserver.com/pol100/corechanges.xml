@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-26-2020</datemodified>
+		<datemodified>12-28-2020</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>12-28-2020</date>
+			<author>Turley:</author>
+			<change type="Added">pol.cfg AllowEnvironmentVariableAccess disable this setting to disallow execution of os::GetEnvironmentVariable</change>
+		</entry>
 		<entry>
 			<date>12-26-2020</date>
 			<author>Turley:</author>

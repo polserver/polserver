@@ -489,6 +489,13 @@ MaxObjtype=0xFFFFFFFF
 #
 #DiscardOldEvents=0
 
+# 
+# AllowEnvironmentVariableAccess 1/0
+# Enable/Disable os::GetEnvironmentVariable module function
+# Default is 1
+#
+#AllowEnvironmentVariableAccess=1
+
 #############################################################################
 ## Experimental Options - Modify at your own risk
 #############################################################################
