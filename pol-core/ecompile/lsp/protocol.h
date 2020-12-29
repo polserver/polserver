@@ -537,6 +537,28 @@ struct WillSaveTextDocumentParams
 
 using WillSaveTextDocumentResult = std::optional<std::vector<TextEdit>>;
 
+
+struct PublishDiagnosticsParams
+{
+  /**
+   * The URI for which diagnostic information is reported.
+   */
+  DocumentUri uri;
+
+  /**
+   * Optional the version number of the document the diagnostics are published
+   * for.
+   *
+   * @since 3.15.0
+   */
+  std::optional<uinteger> version;
+
+  /**
+   * An array of diagnostic information items.
+   */
+  std::vector<Diagnostic> diagnostics;
+};
+
 };  // namespace Pol::ECompile::LSP::Protocol
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef LSP_SERIALIZER_H
 #define LSP_SERIALIZER_H
 
+#include "bscript/compiler/Report.h"
 #include "protocol.h"
 #include "server.h"
 #include "types.h"
@@ -69,6 +70,18 @@ void to_json( nlohmann::json& j, const DocumentUri& t )
 void from_json( const nlohmann::json& j, DocumentUri& t )
 {
   t.raw_uri = j.get<std::string>();
+}
+
+Protocol::Diagnostic to_lsp( const Bscript::Compiler::Diagnostic& t )
+{
+  Diagnostic d;
+  d.message = t.message;
+  d.range = Range{ Position{ t.line - 1, t.character }, Position{ t.line - 1, t.character } };
+  d.severity = t.severity == Bscript::Compiler::Diagnostic::DiagnosticSeverity::Error
+                   ? DiagnosticSeverity::Error
+                   : DiagnosticSeverity::Warning;
+  d.source.emplace( "escript" );
+  return d;
 }
 
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Position, line, character )
@@ -142,6 +155,7 @@ OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( DidSaveTextDocumentParams, textDocument, text
 
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( WillSaveTextDocumentParams, textDocument, reason )
 
+OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( PublishDiagnosticsParams, uri, version, diagnostics )
 
 void to_json( nlohmann::json& j, const RequestId& p )
 {

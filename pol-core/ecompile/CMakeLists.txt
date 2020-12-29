@@ -10,6 +10,8 @@ add_executable(${ex_name}
 set_compile_flags(${ex_name} 1)
 warning_suppression(${ex_name})
 
+target_include_directories(${ex_name} PUBLIC "${POLCORE_DIR}/bscript")
+
 target_link_libraries(${ex_name} PUBLIC
   bscript
   clib

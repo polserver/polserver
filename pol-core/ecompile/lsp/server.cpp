@@ -1,5 +1,9 @@
 
 #include "server.h"
+#include "bscript/compiler/Compiler.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/SourceFileCache.h"
 #include "clib/esignal.h"
 #include "clib/logfacility.h"
 #include "clib/threadhelp.h"
@@ -8,11 +12,14 @@
 #include "serializer.h"
 #include "types.h"
 #include <chrono>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace Pol::ECompile::LSP
 {
 using namespace LSP::Protocol;
+using namespace Bscript;
 
 LspServer lsp_server;
 
@@ -197,9 +204,55 @@ void MessageHandler::onInitialized( const InitializedParams& /* params */ )
   ERROR_PRINT << "initialized\n";
 }
 
+
+struct Summary
+{
+  unsigned UpToDateScripts = 0;
+  unsigned CompiledScripts = 0;
+  unsigned ScriptsWithCompileErrors = 0;
+  size_t ThreadCount = 0;
+  Compiler::Profile profile;
+} summary;
+
+struct Comparison
+{
+  std::atomic<long long> CompileTimeV1Micros{};
+  std::atomic<long long> CompileTimeV2Micros{};
+  std::atomic<long> MatchingResult{};
+  std::atomic<long> NonMatchingResult{};
+  std::atomic<long> MatchingOutput{};
+  std::atomic<long> NonMatchingOutput{};
+} comparison;
+
+Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
+Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
+
 void MessageHandler::onDidOpenTextDocument( const DidOpenTextDocumentParams& params )
 {
-  ERROR_PRINT << "open " << params.textDocument.uri.getPath() << "\n";
+  auto path = params.textDocument.uri.getPath();
+  ERROR_PRINT << "open " << path << "\n";
+  auto compiler = std::make_unique<Bscript::Compiler::Compiler>(
+      em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+
+  Compiler::DiagnosticReport report;
+  compiler->compile_file_steps( path, nullptr, report );
+  em_parse_tree_cache.keep_some();
+  inc_parse_tree_cache.keep_some();
+
+  ERROR_PRINT << "errors = " << report.error_count() << ", warnings = " << report.warning_count()
+              << "\n";
+
+  PublishDiagnosticsParams result;
+  result.uri = params.textDocument.uri;
+  result.version.emplace( params.textDocument.version );
+  result.diagnostics.resize( report.diagnostics.size() );
+  std::transform( report.diagnostics.begin(), report.diagnostics.end(), result.diagnostics.begin(),
+                  to_lsp );
+
+  lsp_server.for_response.push_move( nlohmann::json{
+      { "jsonrpc", "2.0" },
+      { "method", "textDocument/publishDiagnostics" },
+      { "params", result } }.dump() );
 }
 
 void MessageHandler::onDidChangeTextDocument( const DidChangeTextDocumentParams& params )
