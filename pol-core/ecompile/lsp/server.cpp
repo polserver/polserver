@@ -199,33 +199,33 @@ void MessageHandler::onInitialized( const InitializedParams& /* params */ )
 
 void MessageHandler::onDidOpenTextDocument( const DidOpenTextDocumentParams& params )
 {
-  ERROR_PRINT << "open " << params.textDocument.uri << "\n";
+  ERROR_PRINT << "open " << params.textDocument.uri.getPath() << "\n";
 }
 
 void MessageHandler::onDidChangeTextDocument( const DidChangeTextDocumentParams& params )
 {
-  ERROR_PRINT << "change " << params.textDocument.uri << "\n";
+  ERROR_PRINT << "change " << params.textDocument.uri.getPath() << "\n";
 }
 
 void MessageHandler::onDidCloseTextDocument( const DidCloseTextDocumentParams& params )
 {
-  ERROR_PRINT << "close " << params.textDocument.uri << "\n";
+  ERROR_PRINT << "close " << params.textDocument.uri.getPath() << "\n";
 }
 
 void MessageHandler::onDidSaveTextDocument( const DidSaveTextDocumentParams& params )
 {
-  ERROR_PRINT << "save " << params.textDocument.uri << "\n";
+  ERROR_PRINT << "save " << params.textDocument.uri.getPath() << "\n";
 }
 
 void MessageHandler::onWillSaveTextDocument( const WillSaveTextDocumentParams& params )
 {
-  ERROR_PRINT << "willSave " << params.textDocument.uri << "\n";
+  ERROR_PRINT << "willSave " << params.textDocument.uri.getPath() << "\n";
 }
 
 WillSaveTextDocumentResult MessageHandler::onWillSaveTextDocumentWaitUntil(
     const WillSaveTextDocumentParams& params )
 {
-  ERROR_PRINT << "willSaveWaitUntil " << params.textDocument.uri << "\n";
+  ERROR_PRINT << "willSaveWaitUntil " << params.textDocument.uri.getPath() << "\n";
   WillSaveTextDocumentResult result;
   return result;
 }

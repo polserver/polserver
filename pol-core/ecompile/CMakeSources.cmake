@@ -8,6 +8,7 @@ set (ecompile_sources  # sorted !
   lsp/serializer.h
   lsp/server.h
   lsp/server.cpp
+  lsp/types.cpp
   lsp/types.h
   resource.h
 )

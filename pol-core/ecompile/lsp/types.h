@@ -18,7 +18,19 @@ using empty_object = void*;
 /**
  * A tagging type for string properties that are actually document URIs.
  */
-using DocumentUri = std::string;
+struct DocumentUri
+{
+  static DocumentUri fromPath( const std::string& path );
+
+  bool operator==( const DocumentUri& o ) const { return raw_uri == o.raw_uri; }
+  bool operator<( const DocumentUri& o ) const { return raw_uri < o.raw_uri; }
+
+  void setPath( const std::string& path );
+  std::string getPath() const;
+
+  std::string raw_uri;
+};
+
 /**
  * A tagging type for string properties that are actually URIs
  *

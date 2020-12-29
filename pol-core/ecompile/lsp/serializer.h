@@ -61,6 +61,16 @@ namespace Pol::ECompile::LSP::Protocol
 {
 // types.h
 
+void to_json( nlohmann::json& j, const DocumentUri& t )
+{
+  j = t.raw_uri;
+}
+
+void from_json( const nlohmann::json& j, DocumentUri& t )
+{
+  t.raw_uri = j.get<std::string>();
+}
+
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Position, line, character )
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Range, start, end )
 OPTIONAL_DEFINE_TYPE_NONINTRUSIVE( Location, uri, range )
