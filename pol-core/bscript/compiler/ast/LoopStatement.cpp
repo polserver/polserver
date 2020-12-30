@@ -1,6 +1,6 @@
 #include "LoopStatement.h"
 
-#include "compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 namespace Pol::Bscript::Compiler
 {

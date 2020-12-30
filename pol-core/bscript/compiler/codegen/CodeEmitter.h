@@ -1,7 +1,7 @@
 #ifndef POLSERVER_CODEEMITTER_H
 #define POLSERVER_CODEEMITTER_H
 
-#include "compiler/representation/CompiledScript.h"
+#include "bscript/compiler/representation/CompiledScript.h"
 
 namespace Pol::Bscript
 {

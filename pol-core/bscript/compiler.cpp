@@ -36,7 +36,7 @@
 #include "../clib/strutil.h"
 #include "../plib/pkg.h"
 #include "compctx.h"
-#include "compiler/LegacyFunctionOrder.h"
+#include "bscript/compiler/LegacyFunctionOrder.h"
 #include "compilercfg.h"
 #include "eprog.h"
 #include "expression.h"

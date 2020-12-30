@@ -2,15 +2,15 @@
 
 #include "tokens.h"
 
-#include "compiler/ast/BinaryOperator.h"
-#include "compiler/ast/ElementAssignment.h"
-#include "compiler/ast/ElementIndexes.h"
-#include "compiler/ast/Identifier.h"
-#include "compiler/ast/MemberAccess.h"
-#include "compiler/ast/MemberAssignment.h"
-#include "compiler/ast/MemberAssignmentByOperator.h"
-#include "compiler/ast/ValueConsumer.h"
-#include "compiler/ast/VariableAssignmentStatement.h"
+#include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/ElementAssignment.h"
+#include "bscript/compiler/ast/ElementIndexes.h"
+#include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/MemberAccess.h"
+#include "bscript/compiler/ast/MemberAssignment.h"
+#include "bscript/compiler/ast/MemberAssignmentByOperator.h"
+#include "bscript/compiler/ast/ValueConsumer.h"
+#include "bscript/compiler/ast/VariableAssignmentStatement.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -2,8 +2,8 @@
 
 #include <format/format.h>
 
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/ast/Statement.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/Statement.h"
 
 namespace Pol::Bscript::Compiler
 {

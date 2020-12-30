@@ -1,7 +1,7 @@
 #ifndef POLSERVER_DOWHILELOOP_H
 #define POLSERVER_DOWHILELOOP_H
 
-#include "compiler/ast/LoopStatement.h"
+#include "bscript/compiler/ast/LoopStatement.h"
 
 namespace Pol::Bscript::Compiler
 {

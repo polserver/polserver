@@ -1,11 +1,11 @@
 #include "LocalVariableScope.h"
 
-#include "compiler/Report.h"
-#include "compiler/analyzer/LocalVariableScopes.h"
-#include "compiler/analyzer/Variables.h"
-#include "compiler/file/SourceLocation.h"
-#include "compiler/model/LocalVariableScopeInfo.h"
-#include "compiler/model/Variable.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/analyzer/LocalVariableScopes.h"
+#include "bscript/compiler/analyzer/Variables.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/model/Variable.h"
 
 namespace Pol::Bscript::Compiler
 {

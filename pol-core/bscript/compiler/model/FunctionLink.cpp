@@ -1,8 +1,8 @@
 #include "FunctionLink.h"
 
-#include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/ast/UserFunction.h"
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

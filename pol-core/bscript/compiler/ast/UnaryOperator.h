@@ -1,7 +1,7 @@
 #ifndef POLSERVER_UNARYOPERATOR_H
 #define POLSERVER_UNARYOPERATOR_H
 
-#include "compiler/ast/Expression.h"
+#include "bscript/compiler/ast/Expression.h"
 
 #ifndef __TOKENS_H
 #include "tokens.h"

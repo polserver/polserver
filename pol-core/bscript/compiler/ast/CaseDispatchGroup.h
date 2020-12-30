@@ -1,7 +1,7 @@
 #ifndef POLSERVER_CASEDISPATCHGROUP_H
 #define POLSERVER_CASEDISPATCHGROUP_H
 
-#include "compiler/ast/Node.h"
+#include "bscript/compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {

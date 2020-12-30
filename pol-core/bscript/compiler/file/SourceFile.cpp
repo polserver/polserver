@@ -3,8 +3,8 @@
 #include "clib/fileutil.h"
 #include "clib/strutil.h"
 
-#include "compiler/Report.h"
-#include "compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "compilercfg.h"
 
 using EscriptGrammar::EscriptLexer;

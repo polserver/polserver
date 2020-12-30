@@ -8,7 +8,7 @@
 #include <EscriptGrammar/EscriptParser.h>
 
 #include "clib/maputil.h"
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -5,10 +5,10 @@
 
 #include "clib/clib.h"
 #include "clib/logfacility.h"
-#include "compiler/representation/CompiledScript.h"
-#include "compiler/representation/ExportedFunction.h"
-#include "compiler/representation/ModuleDescriptor.h"
-#include "compiler/representation/ModuleFunctionDescriptor.h"
+#include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compiler/representation/ExportedFunction.h"
+#include "bscript/compiler/representation/ModuleDescriptor.h"
+#include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "StoredToken.h"
 #include "filefmt.h"
 

@@ -3,14 +3,14 @@
 #include <cstring>
 
 #include "clib/strutil.h"
-#include "compiler/Report.h"
-#include "compiler/ast/FloatValue.h"
-#include "compiler/ast/FunctionReference.h"
-#include "compiler/ast/IntegerValue.h"
-#include "compiler/ast/StringValue.h"
-#include "compiler/astbuilder/BuilderWorkspace.h"
-#include "compiler/file/SourceLocation.h"
-#include "compiler/model/FunctionLink.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/FloatValue.h"
+#include "bscript/compiler/ast/FunctionReference.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 using EscriptGrammar::EscriptParser;
 

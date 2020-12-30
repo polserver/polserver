@@ -1,7 +1,7 @@
 #include "Constants.h"
 
-#include "compiler/Report.h"
-#include "compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
 
 namespace Pol::Bscript::Compiler
 {
