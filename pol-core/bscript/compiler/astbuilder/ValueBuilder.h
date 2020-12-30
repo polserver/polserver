@@ -1,7 +1,7 @@
 #ifndef POLSERVER_VALUEBUILDER_H
 #define POLSERVER_VALUEBUILDER_H
 
-#include "compiler/astbuilder/TreeBuilder.h"
+#include "bscript/compiler/astbuilder/TreeBuilder.h"
 
 #include <EscriptGrammar/EscriptParser.h>
 

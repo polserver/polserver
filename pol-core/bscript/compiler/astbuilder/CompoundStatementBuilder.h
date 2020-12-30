@@ -1,7 +1,7 @@
 #ifndef POLSERVER_COMPOUNDSTATEMENTBUILDER_H
 #define POLSERVER_COMPOUNDSTATEMENTBUILDER_H
 
-#include "compiler/astbuilder/SimpleStatementBuilder.h"
+#include "bscript/compiler/astbuilder/SimpleStatementBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

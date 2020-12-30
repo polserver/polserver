@@ -1,8 +1,8 @@
 #include "Report.h"
 
 #include "clib/logfacility.h"
-#include "compiler/file/SourceFileIdentifier.h"
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

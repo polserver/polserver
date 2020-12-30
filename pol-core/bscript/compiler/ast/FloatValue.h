@@ -1,7 +1,7 @@
 #ifndef POLSERVER_FLOATVALUE_H
 #define POLSERVER_FLOATVALUE_H
 
-#include "compiler/ast/Value.h"
+#include "bscript/compiler/ast/Value.h"
 
 namespace Pol::Bscript::Compiler
 {

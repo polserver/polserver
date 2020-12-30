@@ -1,7 +1,7 @@
 #ifndef POLSERVER_EXITSTATEMENT_H
 #define POLSERVER_EXITSTATEMENT_H
 
-#include "compiler/ast/Statement.h"
+#include "bscript/compiler/ast/Statement.h"
 
 namespace Pol::Bscript::Compiler
 {

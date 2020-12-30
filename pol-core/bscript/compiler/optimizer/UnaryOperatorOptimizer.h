@@ -1,7 +1,7 @@
 #ifndef POLSERVER_UNARYOPERATOROPTIMIZER_H
 #define POLSERVER_UNARYOPERATOROPTIMIZER_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
 

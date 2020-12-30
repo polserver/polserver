@@ -1,11 +1,11 @@
 #include "ModuleProcessor.h"
 
-#include "compiler/Profile.h"
-#include "compiler/ast/ConstDeclaration.h"
-#include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/astbuilder/BuilderWorkspace.h"
-#include "compiler/file/SourceFile.h"
-#include "compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/file/SourceFile.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 
 namespace Pol::Bscript::Compiler
 {

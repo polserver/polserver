@@ -1,6 +1,6 @@
 #include "LocalVariableScopes.h"
 
-#include "compiler/analyzer/Variables.h"
+#include "bscript/compiler/analyzer/Variables.h"
 
 namespace Pol::Bscript::Compiler
 {

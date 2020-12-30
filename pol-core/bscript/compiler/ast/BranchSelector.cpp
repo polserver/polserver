@@ -2,9 +2,9 @@
 
 #include <format/format.h>
 
-#include "compiler/ast/Expression.h"
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 namespace Pol::Bscript::Compiler
 {

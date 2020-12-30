@@ -1,11 +1,11 @@
 #ifndef POLSERVER_SIMPLEVALUECLONER_H
 #define POLSERVER_SIMPLEVALUECLONER_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
 
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

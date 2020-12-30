@@ -1,7 +1,7 @@
 #ifndef POLSERVER_CASEDISPATCHDEFAULTSELECTOR_H
 #define POLSERVER_CASEDISPATCHDEFAULTSELECTOR_H
 
-#include "compiler/ast/Node.h"
+#include "bscript/compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {
