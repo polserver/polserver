@@ -15,6 +15,7 @@ struct LegacyFunctionOrder;
 class ModuleFunctionDeclaration;
 class Profile;
 class Report;
+class SourceFile;
 class SourceFileCache;
 
 class CompilerWorkspaceBuilder
@@ -25,6 +26,10 @@ public:
 
   std::unique_ptr<CompilerWorkspace> build(
       const std::string& pathname,
+      const LegacyFunctionOrder* legacy_function_order,
+      UserFunctionInclusion );
+  std::unique_ptr<CompilerWorkspace> build(
+      std::shared_ptr<SourceFile> source,
       const LegacyFunctionOrder* legacy_function_order,
       UserFunctionInclusion );
 

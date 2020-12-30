@@ -3,7 +3,9 @@
 #include "bscript/compiler/Compiler.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "clib/esignal.h"
 #include "clib/logfacility.h"
 #include "clib/threadhelp.h"
@@ -12,9 +14,15 @@
 #include "serializer.h"
 #include "types.h"
 #include <chrono>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
+
+// ANTLR undefines this...
+#ifndef EOF
+#define EOF ( -1 )
+#endif
 
 namespace Pol::ECompile::LSP
 {
@@ -230,29 +238,46 @@ Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
 void MessageHandler::onDidOpenTextDocument( const DidOpenTextDocumentParams& params )
 {
   auto path = params.textDocument.uri.getPath();
-  ERROR_PRINT << "open " << path << "\n";
-  auto compiler = std::make_unique<Bscript::Compiler::Compiler>(
-      em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+  if ( params.textDocument.languageId == "escript" )
+  {
+    std::string contents = params.textDocument.text;
+    ERROR_PRINT << "open " << path << "\n";
+    em_parse_tree_cache.configure( UINT_MAX );
+    inc_parse_tree_cache.configure( UINT_MAX );
+    auto compiler = std::make_unique<Bscript::Compiler::Compiler>(
+        em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
 
-  Compiler::DiagnosticReport report;
-  compiler->compile_file_steps( path, nullptr, report );
-  em_parse_tree_cache.keep_some();
-  inc_parse_tree_cache.keep_some();
+    Compiler::DiagnosticReport report;
 
-  ERROR_PRINT << "errors = " << report.error_count() << ", warnings = " << report.warning_count()
-              << "\n";
+    auto sf = Compiler::SourceFile::load( path, contents, summary.profile, report );
 
-  PublishDiagnosticsParams result;
-  result.uri = params.textDocument.uri;
-  result.version.emplace( params.textDocument.version );
-  result.diagnostics.resize( report.diagnostics.size() );
-  std::transform( report.diagnostics.begin(), report.diagnostics.end(), result.diagnostics.begin(),
-                  to_lsp );
+    compiler->compile_file_steps( sf, nullptr, report );
 
-  lsp_server.for_response.push_move( nlohmann::json{
-      { "jsonrpc", "2.0" },
-      { "method", "textDocument/publishDiagnostics" },
-      { "params", result } }.dump() );
+    if ( report.error_count() == 0 )
+    {
+      auto& identifiers = compiler->source_file_identifiers();
+      for ( auto& identifier : identifiers )
+      {
+        ERROR_PRINT << "source " << identifier->pathname << "#" << identifier->index << "\n";
+      }
+    }
+
+
+    ERROR_PRINT << "errors = " << report.error_count() << ", warnings = " << report.warning_count()
+                << "\n";
+
+    PublishDiagnosticsParams result;
+    result.uri = params.textDocument.uri;
+    result.version.emplace( params.textDocument.version );
+    result.diagnostics.resize( report.diagnostics.size() );
+    std::transform( report.diagnostics.begin(), report.diagnostics.end(),
+                    result.diagnostics.begin(), to_lsp );
+
+    lsp_server.for_response.push_move( nlohmann::json{
+        { "jsonrpc", "2.0" },
+        { "method", "textDocument/publishDiagnostics" },
+        { "params", result } }.dump() );
+  }
 }
 
 void MessageHandler::onDidChangeTextDocument( const DidChangeTextDocumentParams& params )

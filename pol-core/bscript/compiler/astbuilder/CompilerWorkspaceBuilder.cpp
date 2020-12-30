@@ -1,6 +1,5 @@
 #include "CompilerWorkspaceBuilder.h"
 
-#include "clib/timer.h"
 #include "bscript/compiler/LegacyFunctionOrder.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
@@ -17,14 +16,50 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "clib/timer.h"
 
 namespace Pol::Bscript::Compiler
 {
 CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
-                                                    SourceFileCache& inc_cache,
-                                                    Profile& profile, Report& report )
+                                                    SourceFileCache& inc_cache, Profile& profile,
+                                                    Report& report )
     : em_cache( em_cache ), inc_cache( inc_cache ), profile( profile ), report( report )
 {
+}
+
+std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
+    std::shared_ptr<SourceFile> sf, const LegacyFunctionOrder* legacy_function_order,
+    UserFunctionInclusion user_function_inclusion )
+{
+  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
+  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
+
+  auto ident = std::make_unique<SourceFileIdentifier>( 0, sf->pathname );
+
+  SourceLocation source_location( ident.get(), 0, 0 );
+
+  SourceFileProcessor src_processor( *ident, workspace, true, user_function_inclusion );
+
+  workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+  workspace.source_files[sf->pathname] = sf;
+
+  compiler_workspace->top_level_statements =
+      std::make_unique<TopLevelStatements>( source_location );
+
+  src_processor.use_module( "basic", source_location );
+  src_processor.use_module( "basicio", source_location );
+  src_processor.process_source( *sf );
+
+  if ( report.error_count() == 0 )
+    build_referenced_user_functions( workspace );
+
+  if ( legacy_function_order )
+  {
+    compiler_workspace->module_functions_in_legacy_order =
+        get_module_functions_in_order( workspace, *legacy_function_order );
+  }
+
+  return compiler_workspace;
 }
 
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
@@ -52,28 +87,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     return {};
   }
 
-  SourceFileProcessor src_processor( *ident, workspace, true, user_function_inclusion );
-
-  workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
-  workspace.source_files[sf->pathname] = sf;
-
-  compiler_workspace->top_level_statements =
-      std::make_unique<TopLevelStatements>( source_location );
-
-  src_processor.use_module( "basic", source_location );
-  src_processor.use_module( "basicio", source_location );
-  src_processor.process_source( *sf );
-
-  if ( report.error_count() == 0 )
-    build_referenced_user_functions( workspace );
-
-  if ( legacy_function_order )
-  {
-    compiler_workspace->module_functions_in_legacy_order =
-        get_module_functions_in_order( workspace, *legacy_function_order );
-  }
-
-  return compiler_workspace;
+  return build( sf, legacy_function_order, user_function_inclusion );
 }
 
 std::vector<const ModuleFunctionDeclaration*>

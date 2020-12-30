@@ -138,9 +138,54 @@ void Compiler::compile_file_steps( const std::string& pathname,
   output = generate( std::move( workspace ), legacy_function_order );
 }
 
+
+void Compiler::compile_file_steps( std::shared_ptr<SourceFile> sf,
+                                   const LegacyFunctionOrder* legacy_function_order,
+                                   Report& report )
+{
+  std::unique_ptr<CompilerWorkspace> workspace =
+      build_workspace( sf, legacy_function_order, report );
+  if ( report.error_count() )
+    return;
+
+  register_constants( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  optimize( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  disambiguate( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  analyze( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  output = generate( std::move( workspace ), legacy_function_order );
+}
+
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
-    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order,
+    std::shared_ptr<SourceFile> sf, const LegacyFunctionOrder* legacy_function_order,
     Report& report )
+{
+  Pol::Tools::HighPerfTimer timer;
+  CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
+  auto workspace = workspace_builder.build( sf, legacy_function_order, user_function_inclusion );
+  profile.build_workspace_micros += timer.ellapsed().count();
+  return workspace;
+}
+
+const SourceFileIdentifiers& Compiler::source_file_identifiers() const
+{
+  // @FIXME uhh what if this is null? is this the right return type
+  return output->source_file_identifiers;
+}
+
+std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
+    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order, Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
   CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );

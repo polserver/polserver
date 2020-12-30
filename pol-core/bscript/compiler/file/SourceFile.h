@@ -25,6 +25,8 @@ public:
   static bool enforced_case_sensitivity_mismatch( const SourceLocation& referencing_location,
                                                   const std::string& pathname, Report& report );
   static std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, Profile&, Report& );
+  static std::shared_ptr<SourceFile> load( const std::string&, std::string, Profile&, Report& );
+
 
   void propagate_errors_to( Report&, const SourceFileIdentifier& );
 

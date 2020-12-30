@@ -72,6 +72,18 @@ bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation&, cons
   return false;
 }
 #endif
+std::shared_ptr<SourceFile> SourceFile::load( const std::string& pathname, std::string contents,
+                                              Profile& profile, Report& report )
+{
+  Clib::sanitizeUnicodeWithIso( &contents );
+
+  if ( Legacy::is_web_script( pathname.c_str() ) )
+  {
+    contents = Legacy::preprocess_web_script( contents );
+  }
+
+  return std::make_shared<SourceFile>( pathname, contents, profile );
+}
 
 std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident, Profile& profile,
                                               Report& report )
@@ -93,14 +105,7 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
     return {};
   }
 
-  Clib::sanitizeUnicodeWithIso( &contents );
-
-  if ( Legacy::is_web_script( pathname.c_str() ) )
-  {
-    contents = Legacy::preprocess_web_script( contents );
-  }
-
-  return std::make_shared<SourceFile>( pathname, contents, profile );
+  return load( pathname, std::move( contents ), profile, report );
 }
 
 EscriptGrammar::EscriptParser::CompilationUnitContext* SourceFile::get_compilation_unit(
