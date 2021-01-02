@@ -1,0 +1,26 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v1
+      - name: Install Compiler and Dependencies
+        shell: pwsh
+        run: |
+          sudo apt-get update
+
+          sudo apt-get install clang-format -y
+      - name: Stylecheck
+        run: |
+          cd testsuite/style
+          ./clang-format-test.py
