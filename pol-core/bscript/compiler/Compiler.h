@@ -4,9 +4,9 @@
 #include "bscript/facility/Compiler.h"
 
 #include <memory>
+#include <vector>
 
 #include "bscript/compiler/model/UserFunctionInclusion.h"
-
 namespace Pol::Bscript::Compiler
 {
 class CompiledScript;

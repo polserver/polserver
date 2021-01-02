@@ -4,7 +4,7 @@
 #include "clib/logfacility.h"
 #include "clib/timer.h"
 #include "bscript/compiler/Profile.h"
-#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ConsoleReport.h"
 #include "bscript/compiler/analyzer/Disambiguator.h"
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
@@ -94,7 +94,7 @@ bool Compiler::compile_file( const std::string& filename,
   {
     auto pathname = Clib::FullPath( filename.c_str() );
 
-    Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
+    ConsoleReport report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
 
     compile_file_steps( pathname, legacy_function_order, report );
     display_outcome( pathname, report );

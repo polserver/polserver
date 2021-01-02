@@ -1,7 +1,7 @@
 #ifndef LSP_SERIALIZER_H
 #define LSP_SERIALIZER_H
 
-#include "bscript/compiler/Report.h"
+#include "bscript/compiler/DiagnosticReport.h"
 #include "protocol.h"
 #include "server.h"
 #include "types.h"
