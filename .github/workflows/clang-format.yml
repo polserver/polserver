@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
       - name: Install Compiler and Dependencies
         shell: pwsh
@@ -23,4 +23,5 @@ jobs:
       - name: Stylecheck
         run: |
           cd testsuite/style
+          chmod +x clang-format-test.py
           ./clang-format-test.py
