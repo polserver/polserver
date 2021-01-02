@@ -7,7 +7,7 @@ namespace Pol
 {
 namespace Clib
 {
-class PolToolMain final : public ProgramMain
+class PolToolMain final : public ProgramMain                                                            
 {
 public:
   PolToolMain();
@@ -21,7 +21,7 @@ private:
   int mapdump();
   int unpackCompressedGump();
 };
-}
-}  // namespaces
+}  // namespace Clib
+}  // namespace Pol
 
 #endif  // POL_TOOL_MAIN_H
