@@ -131,12 +131,6 @@ jobs:
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
-      - name: Stylecheck
-        if: matrix.config.cxx-compiler == 'g++' && matrix.config.os == 'ubuntu-latest'
-        run: |
-          cd testsuite/style
-          ./checknl.py -q
-          ./checkstyle.py -q
 
       - name: Create Artefact
         if: matrix.config.nopch == 0

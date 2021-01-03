@@ -1,0 +1,64 @@
+name: StyleCheck
+
+on: [push, pull_request]
+
+jobs:
+  stylecheck:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+      - name: Install Compiler and Dependencies
+        shell: pwsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install clang-format-10 -y
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 800
+      - name: Stylecheck
+        run: |
+          cd testsuite/style
+          chmod +x clang-format-test.py
+          ./clang-format-test.py
+  
+  notify_on_failure:
+    needs: stylecheck
+    runs-on: "ubuntu-latest"
+    if: failure()
+    steps:
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: failure
+          job: StyleCheck
+  notify_on_success:
+    needs: stylecheck
+    runs-on: "ubuntu-latest"
+    if: success()
+    steps:
+      - name: Discord notification success
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: success
+          job: StyleCheck
+  notify_on_cancel:
+    needs: stylecheck
+    runs-on: "ubuntu-latest"
+    if: cancelled()
+    steps:
+      - name: Discord notification cancelled
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: cancelled
+          job: StyleCheck
