@@ -3,6 +3,7 @@
 #include "bscript/compiler/Compiler.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/DiskCache.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
@@ -30,6 +31,28 @@ using namespace LSP::Protocol;
 using namespace Bscript;
 
 LspServer lsp_server;
+
+struct Summary
+{
+  unsigned UpToDateScripts = 0;
+  unsigned CompiledScripts = 0;
+  unsigned ScriptsWithCompileErrors = 0;
+  size_t ThreadCount = 0;
+  Compiler::Profile profile;
+} summary;
+
+struct Comparison
+{
+  std::atomic<long long> CompileTimeV1Micros{};
+  std::atomic<long long> CompileTimeV2Micros{};
+  std::atomic<long> MatchingResult{};
+  std::atomic<long> NonMatchingResult{};
+  std::atomic<long> MatchingOutput{};
+  std::atomic<long> NonMatchingOutput{};
+} comparison;
+
+Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
+Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
 
 void launchStdin()
 {
@@ -149,6 +172,10 @@ void LspServer::start()
   threadhelp::start_thread( launchStdin, "LSP-STDIN" );
   threadhelp::start_thread( launchStdout, "LSP-STDOUT" );
 
+  em_parse_tree_cache.configure( UINT_MAX );
+  inc_parse_tree_cache.configure( UINT_MAX );
+  Compiler::SourceFile::disk_cache = std::make_unique<Compiler::DiskCache>();
+
   InMessage msg;
   while ( !Clib::exit_signalled )
   {
@@ -212,54 +239,31 @@ void MessageHandler::onInitialized( const InitializedParams& /* params */ )
   ERROR_PRINT << "initialized\n";
 }
 
-
-struct Summary
-{
-  unsigned UpToDateScripts = 0;
-  unsigned CompiledScripts = 0;
-  unsigned ScriptsWithCompileErrors = 0;
-  size_t ThreadCount = 0;
-  Compiler::Profile profile;
-} summary;
-
-struct Comparison
-{
-  std::atomic<long long> CompileTimeV1Micros{};
-  std::atomic<long long> CompileTimeV2Micros{};
-  std::atomic<long> MatchingResult{};
-  std::atomic<long> NonMatchingResult{};
-  std::atomic<long> MatchingOutput{};
-  std::atomic<long> NonMatchingOutput{};
-} comparison;
-
-Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
-Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
-
 void MessageHandler::onDidOpenTextDocument( const DidOpenTextDocumentParams& params )
 {
-  auto path = params.textDocument.uri.getPath();
   if ( params.textDocument.languageId == "escript" )
   {
+    auto path = params.textDocument.uri.getPath();
     std::string contents = params.textDocument.text;
     ERROR_PRINT << "open " << path << "\n";
-    em_parse_tree_cache.configure( UINT_MAX );
-    inc_parse_tree_cache.configure( UINT_MAX );
+    Compiler::SourceFile::disk_cache->set( path, contents );
+
     auto compiler = std::make_unique<Bscript::Compiler::Compiler>(
         em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
 
     Compiler::DiagnosticReport report;
 
-    auto sf = Compiler::SourceFile::load( path, contents, summary.profile, report );
+    // auto sf = Compiler::SourceFile::load( path, contents, summary.profile, report );
 
-    compiler->compile_file_steps( sf, nullptr, report );
+    compiler->compile_file_steps( path, nullptr, report );
 
     if ( report.error_count() == 0 )
     {
-      auto& identifiers = compiler->source_file_identifiers();
+      /*auto& identifiers = compiler->source_file_identifiers();
       for ( auto& identifier : identifiers )
       {
         ERROR_PRINT << "source " << identifier->pathname << "#" << identifier->index << "\n";
-      }
+      }*/
     }
 
 

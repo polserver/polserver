@@ -1,5 +1,6 @@
 #include "types.h"
 #include "clib/logfacility.h"
+#include <filesystem>
 #include <string>
 
 namespace Pol::ECompile::LSP::Protocol
@@ -37,7 +38,7 @@ std::string DocumentUri::getPath() const
   }
 #endif
 
-  return ret;
+  return std::filesystem::path( ret ).make_preferred().string();
 }
 
 

@@ -4,20 +4,17 @@
 #include "bscript/facility/Compiler.h"
 
 #include <memory>
-#include <vector>
 
 #include "bscript/compiler/model/UserFunctionInclusion.h"
+
 namespace Pol::Bscript::Compiler
 {
 class CompiledScript;
 class CompilerWorkspace;
 struct LegacyFunctionOrder;
-class SourceFile;
 class SourceFileCache;
 class Profile;
 class Report;
-class SourceFileIdentifier;
-using SourceFileIdentifiers = std::vector<std::unique_ptr<SourceFileIdentifier>>;
 
 class Compiler : public Pol::Bscript::Facility::Compiler
 {
@@ -36,16 +33,11 @@ public:
 
   bool compile_file( const std::string& filename, const LegacyFunctionOrder* );
   void compile_file_steps( const std::string& pathname, const LegacyFunctionOrder*, Report& );
-  void compile_file_steps( std::shared_ptr<SourceFile>, const LegacyFunctionOrder*, Report& );
-
-  const SourceFileIdentifiers& source_file_identifiers() const;
-
 
 private:
-  std::unique_ptr<CompilerWorkspace> build_workspace( std::shared_ptr<SourceFile>,
-                                                      const LegacyFunctionOrder*, Report& );
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&,
-                                                      const LegacyFunctionOrder*, Report& );
+                                                      const LegacyFunctionOrder*,
+                                                      Report& );
   void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );

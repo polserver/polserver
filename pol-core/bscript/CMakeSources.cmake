@@ -217,6 +217,8 @@ set (bscript_sources    # sorted !
   compiler/codegen/ModuleDeclarationRegistrar.h
   compiler/file/ConformingCharStream.cpp
   compiler/file/ConformingCharStream.h
+  compiler/file/DiskCache.cpp
+  compiler/file/DiskCache.h
   compiler/file/ErrorListener.cpp
   compiler/file/ErrorListener.h
   compiler/file/SourceFile.cpp

@@ -1,9 +1,11 @@
 #include "SourceFile.h"
 
 #include "clib/fileutil.h"
+#include "clib/logfacility.h"
 #include "clib/strutil.h"
 
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/DiskCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "compilercfg.h"
 
@@ -14,10 +16,12 @@ namespace Pol::Bscript::Legacy
 {
 bool is_web_script( const char* filename );
 std::string preprocess_web_script( const std::string& input );
-}
+}  // namespace Pol::Bscript::Legacy
 
 namespace Pol::Bscript::Compiler
 {
+std::unique_ptr<DiskCache> SourceFile::disk_cache;
+
 SourceFile::SourceFile( const std::string& pathname, const std::string& contents, Profile& profile )
     : pathname( pathname ),
       input( contents ),
@@ -45,7 +49,7 @@ void SourceFile::propagate_errors_to( Report& report, const SourceFileIdentifier
   error_listener.propagate_errors_to( report, ident );
 }
 
-#if defined(_WIN32) || defined(__APPLE__)
+#if defined( _WIN32 ) || defined( __APPLE__ )
 bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation& referencing_location,
                                                      const std::string& pathname, Report& report )
 {
@@ -89,6 +93,17 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
                                               Report& report )
 {
   const std::string& pathname = ident.pathname;
+  ERROR_PRINT << "Loading " << pathname << "\n";
+
+  if ( disk_cache )
+  {
+    auto cached_contents = disk_cache->get( pathname );
+    if ( cached_contents )
+    {
+      return load( pathname, *cached_contents, profile, report );
+    }
+  }
+
   std::ifstream ifs( pathname );
   if ( !ifs.is_open() )
   {

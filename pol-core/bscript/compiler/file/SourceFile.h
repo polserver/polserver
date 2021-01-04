@@ -5,17 +5,17 @@
 #include <mutex>
 #include <string>
 
-#include <EscriptGrammar/EscriptLexer.h>
-#include <EscriptGrammar/EscriptParser.h>
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
+#include <EscriptGrammar/EscriptLexer.h>
+#include <EscriptGrammar/EscriptParser.h>
 
 namespace Pol::Bscript::Compiler
 {
+class DiskCache;
 class Profile;
 class Report;
 class SourceLocation;
-
 class SourceFile
 {
 public:
@@ -27,13 +27,14 @@ public:
   static std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, Profile&, Report& );
   static std::shared_ptr<SourceFile> load( const std::string&, std::string, Profile&, Report& );
 
+  static std::unique_ptr<DiskCache> disk_cache;
 
   void propagate_errors_to( Report&, const SourceFileIdentifier& );
 
   EscriptGrammar::EscriptParser::CompilationUnitContext* get_compilation_unit(
       Report&, const SourceFileIdentifier& );
-  EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit(
-      Report&, const SourceFileIdentifier& );
+  EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit( Report&,
+                                                                     const SourceFileIdentifier& );
 
   const std::string pathname;
 
