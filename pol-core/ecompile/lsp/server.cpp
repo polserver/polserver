@@ -225,6 +225,47 @@ void LspServer::start()
   }
 }
 
+void trigger_diagnostics( const Protocol::DocumentUri& uri, uinteger version,
+                          const std::string& contents )
+{
+  auto path = uri.getPath();
+  ERROR_PRINT << "open " << path << "\n";
+  Compiler::SourceFile::disk_cache->set( path, contents );
+
+  auto compiler = std::make_unique<Bscript::Compiler::Compiler>(
+      em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+
+  Compiler::DiagnosticReport report;
+
+  compiler->compile_file_steps( path, nullptr, report );
+
+  if ( report.error_count() == 0 )
+  {
+    // @TODO trigger diagnostics for all other opened documents.
+    /*auto& identifiers = compiler->source_file_identifiers();
+    for ( auto& identifier : identifiers )
+    {
+      ERROR_PRINT << "source " << identifier->pathname << "#" << identifier->index << "\n";
+    }*/
+  }
+
+
+  ERROR_PRINT << "errors = " << report.error_count() << ", warnings = " << report.warning_count()
+              << "\n";
+
+  PublishDiagnosticsParams result;
+  result.uri = uri;
+  result.version.emplace( version );
+  result.diagnostics.resize( report.diagnostics.size() );
+  std::transform( report.diagnostics.begin(), report.diagnostics.end(), result.diagnostics.begin(),
+                  to_lsp );
+
+  lsp_server.for_response.push_move( nlohmann::json{
+      { "jsonrpc", "2.0" },
+      { "method", "textDocument/publishDiagnostics" },
+      { "params", result } }.dump() );
+}
+
 InitializeResult MessageHandler::onInitialize( const InitializeParams& params )
 {
   InitializeResult result;
@@ -243,50 +284,31 @@ void MessageHandler::onDidOpenTextDocument( const DidOpenTextDocumentParams& par
 {
   if ( params.textDocument.languageId == "escript" )
   {
-    auto path = params.textDocument.uri.getPath();
-    std::string contents = params.textDocument.text;
-    ERROR_PRINT << "open " << path << "\n";
-    Compiler::SourceFile::disk_cache->set( path, contents );
-
-    auto compiler = std::make_unique<Bscript::Compiler::Compiler>(
-        em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
-
-    Compiler::DiagnosticReport report;
-
-    // auto sf = Compiler::SourceFile::load( path, contents, summary.profile, report );
-
-    compiler->compile_file_steps( path, nullptr, report );
-
-    if ( report.error_count() == 0 )
-    {
-      /*auto& identifiers = compiler->source_file_identifiers();
-      for ( auto& identifier : identifiers )
-      {
-        ERROR_PRINT << "source " << identifier->pathname << "#" << identifier->index << "\n";
-      }*/
-    }
-
-
-    ERROR_PRINT << "errors = " << report.error_count() << ", warnings = " << report.warning_count()
-                << "\n";
-
-    PublishDiagnosticsParams result;
-    result.uri = params.textDocument.uri;
-    result.version.emplace( params.textDocument.version );
-    result.diagnostics.resize( report.diagnostics.size() );
-    std::transform( report.diagnostics.begin(), report.diagnostics.end(),
-                    result.diagnostics.begin(), to_lsp );
-
-    lsp_server.for_response.push_move( nlohmann::json{
-        { "jsonrpc", "2.0" },
-        { "method", "textDocument/publishDiagnostics" },
-        { "params", result } }.dump() );
+    trigger_diagnostics( params.textDocument.uri, params.textDocument.version,
+                         params.textDocument.text );
   }
 }
 
 void MessageHandler::onDidChangeTextDocument( const DidChangeTextDocumentParams& params )
 {
-  ERROR_PRINT << "change " << params.textDocument.uri.getPath() << "\n";
+  auto path = params.textDocument.uri.getPath();
+  ERROR_PRINT << "change " << path << "\n";
+  // @TODO really should be a better api to keep track of opened documents...
+  if ( Compiler::SourceFile::disk_cache->get( path ) )
+  {
+    for ( auto& change : params.contentChanges )
+    {
+      if ( change.rangeLength.has_value() || change.range.has_value() )
+      {
+        ERROR_PRINT << "Expected full-contents change, not ranged change\n";
+      }
+      else
+      {
+        trigger_diagnostics( params.textDocument.uri, params.textDocument.version, change.text );
+        break;
+      }
+    }
+  }
 }
 
 void MessageHandler::onDidCloseTextDocument( const DidCloseTextDocumentParams& params )

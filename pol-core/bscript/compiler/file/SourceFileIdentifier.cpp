@@ -4,9 +4,10 @@
 
 namespace Pol::Bscript::Compiler
 {
+using path = std::filesystem::path;
+
 SourceFileIdentifier::SourceFileIdentifier( unsigned index, std::string pathname )
-    : index( index ),
-      pathname( std::filesystem::path( std::move( pathname ) ).make_preferred().string() )
+    : index( index ), pathname( path( std::move( pathname ) ).make_preferred().string() )
 {
 }
 
