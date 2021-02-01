@@ -33,7 +33,6 @@
 #include "../objtype.h"
 #include "../polcfg.h"
 #include "../proplist.h"
-#include "regions/resource.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../scrstore.h"
@@ -42,6 +41,7 @@
 #include "../ufunc.h"
 #include "../uoscrobj.h"
 #include "itemdesc.h"
+#include "regions/resource.h"
 
 
 namespace Pol
@@ -1313,6 +1313,12 @@ void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
   if ( ex == nullptr || !ex->listens_to( Core::EVID_LEFTAREA ) )
     return;
 
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_PC ) && wholeft->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+    return;
+
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !wholeft->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+    return;
+
   if ( pol_distance( wholeft, this ) > ex->area_size )
     return;
 
@@ -1322,24 +1328,36 @@ void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
   ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
 }
 
-void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoentered )
+void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoenters )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA ) )
     return;
 
-  if ( pol_distance( whoentered, this ) > ex->area_size )
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_PC ) && whoenters->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     return;
 
-  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoentered ) )
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !whoenters->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     return;
 
-  ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
+  if ( pol_distance( whoenters, this ) > ex->area_size )
+    return;
+
+  if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoenters ) )
+    return;
+
+  ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoenters ) );
 }
 void Pol::Items::Item::inform_moved( Mobile::Character* moved )
 {
   Core::UOExecutor* ex = uoexec_control();
   if ( ex == nullptr || !ex->listens_to( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+    return;
+
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_PC ) && moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+    return;
+
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !moved->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     return;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )

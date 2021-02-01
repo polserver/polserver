@@ -176,7 +176,8 @@ void PrivUpdater::enable_see_hidden( Character* in_range_chr, Character* chr )
     else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
-      if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
+      if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) &&
+           npc->can_accept_area_event_by( in_range_chr ) )
         npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
     }
   }
@@ -191,8 +192,11 @@ void PrivUpdater::disable_see_hidden( Character* in_range_chr, Character* chr )
     else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
-      if ( npc->can_accept_event( Core::EVID_LEFTAREA ) )
+      if ( npc->can_accept_event( Core::EVID_LEFTAREA ) &&
+           npc->can_accept_area_event_by( in_range_chr ) )
+      {
         npc->send_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, in_range_chr ) );
+      }
     }
   }
 }
@@ -206,7 +210,8 @@ void PrivUpdater::enable_see_ghosts( Character* in_range_chr, Character* chr )
     else if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     {
       NPC* npc = static_cast<NPC*>( chr );
-      if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) )
+      if ( npc->can_accept_event( Core::EVID_ENTEREDAREA ) &&
+           npc->can_accept_area_event_by( in_range_chr ) )
         npc->send_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, in_range_chr ) );
     }
   }
@@ -282,7 +287,7 @@ void PrivUpdater::disable_invul( Character* in_range_chr, Character* chr,
     msg.Send( chr->client );
   }
 }
-}
-}
+}  // namespace Mobile
+}  // namespace Pol
 
 #endif

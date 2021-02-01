@@ -104,9 +104,6 @@
 #include "../gameclck.h"
 #include "../globals/object_storage.h"
 #include "../globals/uvars.h"
-#include "regions/guardrgn.h"
-#include "regions/miscrgn.h"
-#include "regions/resource.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
 #include "../layers.h"
@@ -136,8 +133,6 @@
 #include "../polobject.h"
 #include "../polsig.h"
 #include "../profile.h"
-#include "realms/realms.h"
-#include "realms/realm.h"
 #include "../savedata.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
@@ -154,6 +149,11 @@
 #include "../uworld.h"
 #include "../wthrtype.h"
 #include "cfgmod.h"
+#include "realms/realm.h"
+#include "realms/realms.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/resource.h"
 
 #include <module_defs/uo.h>
 
@@ -3125,6 +3125,14 @@ BObjectImp* UOExecutorModule::mf_EnableEvents()
       {
         return nullptr;
       }
+
+
+      unsigned short evopts = 0;
+      if ( exec.hasParams( 2 ) && getParam( 2, evopts ) )
+      {
+        if ( eventmask & ( EVID_ENTEREDAREA | EVID_LEFTAREA ) )
+          uoex.area_mask = static_cast<unsigned char>( evopts & 255 );
+      }
     }
     uoex.eventmask |= eventmask;
     return new BLong( uoex.eventmask );
@@ -4784,7 +4792,7 @@ BObjectImp* UOExecutorModule::mf_Shutdown()
 {
   int exit_code = 0;
 
-  if ( exec.hasParams(1) )
+  if ( exec.hasParams( 1 ) )
   {
     getParam( 0, exit_code );
   }

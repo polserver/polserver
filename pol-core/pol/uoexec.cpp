@@ -45,6 +45,7 @@ UOExecutor::UOExecutor()
       warn_runaway_on_cycle( Plib::systemstate.config.runaway_script_threshold ),
       runaway_cycles( 0 ),
       eventmask( 0 ),
+      area_mask( 0 ),
       area_size( 0 ),
       speech_size( 1 ),
       can_access_offline_mobiles_( false ),
