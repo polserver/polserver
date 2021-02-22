@@ -307,19 +307,19 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitString_literal(EscriptParser::String_literalContext *ctx) override {
+  virtual antlrcpp::Any visitStringLiteral(EscriptParser::StringLiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext *ctx) override {
+  virtual antlrcpp::Any visitInterpolatedString(EscriptParser::InterpolatedStringContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext *ctx) override {
+  virtual antlrcpp::Any visitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext *ctx) override {
+  virtual antlrcpp::Any visitInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 

@@ -186,7 +186,7 @@ switchBlockStatementGroup
     ;
 
 switchLabel
-    : (integerLiteral | IDENTIFIER | string_literal) ':'
+    : (integerLiteral | IDENTIFIER | REGULAR_STRING) ':'
     | DEFAULT ':'
     ;
 
@@ -337,7 +337,7 @@ functionCall
 
 structInitializerExpression
     : IDENTIFIER (':=' expression)?
-    | string_literal (':=' expression)?
+    | REGULAR_STRING (':=' expression)?
     ;
 
 structInitializerExpressionList
@@ -375,26 +375,26 @@ literal
     : integerLiteral
     | floatLiteral
     | CHAR_LITERAL
-    | string_literal
+    | stringLiteral
     ;
 
-string_literal
+stringLiteral
     : REGULAR_STRING
-    | interpolated_regular_string;
+    | interpolatedString;
 
 
-interpolated_regular_string
-	: INTERPOLATED_REGULAR_STRING_START interpolated_regular_string_part* DOUBLE_QUOTE_INSIDE
+interpolatedString
+	: INTERPOLATED_STRING_START interpolatedStringPart* DOUBLE_QUOTE_INSIDE
 	;
 
-interpolated_regular_string_part
-	: interpolated_string_expression
+interpolatedStringPart
+	: interpolatedStringExpression
 	| DOUBLE_CURLY_INSIDE
 	| REGULAR_CHAR_INSIDE
 	| REGULAR_STRING_INSIDE
 	;
 
-interpolated_string_expression
+interpolatedStringExpression
 	: expression (',' expression)*
 	;
 

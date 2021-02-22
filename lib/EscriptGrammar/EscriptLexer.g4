@@ -103,7 +103,7 @@ CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
 REGULAR_STRING:     '"' (~[\\"] | EscapeSequence)* '"';
 
-INTERPOLATED_REGULAR_STRING_START:   '$"'
+INTERPOLATED_STRING_START:   '$"'
     { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);
 
 // Separators

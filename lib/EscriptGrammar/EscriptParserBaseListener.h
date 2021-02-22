@@ -236,17 +236,17 @@ public:
   virtual void enterLiteral(EscriptParser::LiteralContext * /*ctx*/) override { }
   virtual void exitLiteral(EscriptParser::LiteralContext * /*ctx*/) override { }
 
-  virtual void enterString_literal(EscriptParser::String_literalContext * /*ctx*/) override { }
-  virtual void exitString_literal(EscriptParser::String_literalContext * /*ctx*/) override { }
+  virtual void enterStringLiteral(EscriptParser::StringLiteralContext * /*ctx*/) override { }
+  virtual void exitStringLiteral(EscriptParser::StringLiteralContext * /*ctx*/) override { }
 
-  virtual void enterInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext * /*ctx*/) override { }
-  virtual void exitInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext * /*ctx*/) override { }
+  virtual void enterInterpolatedString(EscriptParser::InterpolatedStringContext * /*ctx*/) override { }
+  virtual void exitInterpolatedString(EscriptParser::InterpolatedStringContext * /*ctx*/) override { }
 
-  virtual void enterInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext * /*ctx*/) override { }
-  virtual void exitInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext * /*ctx*/) override { }
+  virtual void enterInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext * /*ctx*/) override { }
+  virtual void exitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext * /*ctx*/) override { }
 
-  virtual void enterInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext * /*ctx*/) override { }
-  virtual void exitInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext * /*ctx*/) override { }
+  virtual void enterInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext * /*ctx*/) override { }
+  virtual void exitInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext * /*ctx*/) override { }
 
   virtual void enterIntegerLiteral(EscriptParser::IntegerLiteralContext * /*ctx*/) override { }
   virtual void exitIntegerLiteral(EscriptParser::IntegerLiteralContext * /*ctx*/) override { }

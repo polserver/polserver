@@ -126,7 +126,7 @@ EscriptParser::CompilationUnitContext* EscriptParser::compilationUnit() {
       | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
       | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
       | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
       | (1ULL << (EscriptParser::LPAREN - 64))
       | (1ULL << (EscriptParser::LBRACE - 64))
       | (1ULL << (EscriptParser::ADD - 64))
@@ -676,7 +676,7 @@ EscriptParser::TopLevelDeclarationContext* EscriptParser::topLevelDeclaration() 
       case EscriptParser::HEX_FLOAT_LITERAL:
       case EscriptParser::CHAR_LITERAL:
       case EscriptParser::REGULAR_STRING:
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START:
+      case EscriptParser::INTERPOLATED_STRING_START:
       case EscriptParser::LPAREN:
       case EscriptParser::LBRACE:
       case EscriptParser::ADD:
@@ -1672,7 +1672,7 @@ EscriptParser::ReturnStatementContext* EscriptParser::returnStatement() {
       | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
       | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
       | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
       | (1ULL << (EscriptParser::LPAREN - 64))
       | (1ULL << (EscriptParser::LBRACE - 64))
       | (1ULL << (EscriptParser::ADD - 64))
@@ -2733,7 +2733,6 @@ EscriptParser::CaseStatementContext* EscriptParser::caseStatement() {
       | (1ULL << (EscriptParser::OCT_LITERAL - 67))
       | (1ULL << (EscriptParser::BINARY_LITERAL - 67))
       | (1ULL << (EscriptParser::REGULAR_STRING - 67))
-      | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 67))
       | (1ULL << (EscriptParser::IDENTIFIER - 67)))) != 0));
     setState(370);
     match(EscriptParser::ENDCASE);
@@ -3264,8 +3263,8 @@ tree::TerminalNode* EscriptParser::SwitchLabelContext::IDENTIFIER() {
   return getToken(EscriptParser::IDENTIFIER, 0);
 }
 
-EscriptParser::String_literalContext* EscriptParser::SwitchLabelContext::string_literal() {
-  return getRuleContext<EscriptParser::String_literalContext>(0);
+tree::TerminalNode* EscriptParser::SwitchLabelContext::REGULAR_STRING() {
+  return getToken(EscriptParser::REGULAR_STRING, 0);
 }
 
 tree::TerminalNode* EscriptParser::SwitchLabelContext::DEFAULT() {
@@ -3313,7 +3312,6 @@ EscriptParser::SwitchLabelContext* EscriptParser::switchLabel() {
       case EscriptParser::OCT_LITERAL:
       case EscriptParser::BINARY_LITERAL:
       case EscriptParser::REGULAR_STRING:
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START:
       case EscriptParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 1);
         setState(418);
@@ -3334,10 +3332,9 @@ EscriptParser::SwitchLabelContext* EscriptParser::switchLabel() {
             break;
           }
 
-          case EscriptParser::REGULAR_STRING:
-          case EscriptParser::INTERPOLATED_REGULAR_STRING_START: {
+          case EscriptParser::REGULAR_STRING: {
             setState(417);
-            string_literal();
+            match(EscriptParser::REGULAR_STRING);
             break;
           }
 
@@ -4758,7 +4755,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
       case EscriptParser::HEX_FLOAT_LITERAL:
       case EscriptParser::CHAR_LITERAL:
       case EscriptParser::REGULAR_STRING:
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START:
+      case EscriptParser::INTERPOLATED_STRING_START:
       case EscriptParser::LPAREN:
       case EscriptParser::LBRACE:
       case EscriptParser::AT:
@@ -5657,7 +5654,7 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -5698,7 +5695,7 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -6203,7 +6200,7 @@ EscriptParser::MethodCallSuffixContext* EscriptParser::methodCallSuffix() {
       | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
       | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
       | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
       | (1ULL << (EscriptParser::LPAREN - 64))
       | (1ULL << (EscriptParser::LBRACE - 64))
       | (1ULL << (EscriptParser::ADD - 64))
@@ -6309,7 +6306,7 @@ EscriptParser::FunctionCallContext* EscriptParser::functionCall() {
       | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
       | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
       | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
       | (1ULL << (EscriptParser::LPAREN - 64))
       | (1ULL << (EscriptParser::LBRACE - 64))
       | (1ULL << (EscriptParser::ADD - 64))
@@ -6353,8 +6350,8 @@ EscriptParser::ExpressionContext* EscriptParser::StructInitializerExpressionCont
   return getRuleContext<EscriptParser::ExpressionContext>(0);
 }
 
-EscriptParser::String_literalContext* EscriptParser::StructInitializerExpressionContext::string_literal() {
-  return getRuleContext<EscriptParser::String_literalContext>(0);
+tree::TerminalNode* EscriptParser::StructInitializerExpressionContext::REGULAR_STRING() {
+  return getToken(EscriptParser::REGULAR_STRING, 0);
 }
 
 
@@ -6411,11 +6408,10 @@ EscriptParser::StructInitializerExpressionContext* EscriptParser::structInitiali
         break;
       }
 
-      case EscriptParser::REGULAR_STRING:
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START: {
+      case EscriptParser::REGULAR_STRING: {
         enterOuterAlt(_localctx, 2);
         setState(657);
-        string_literal();
+        match(EscriptParser::REGULAR_STRING);
         setState(660);
         _errHandler->sync(this);
 
@@ -6594,10 +6590,9 @@ EscriptParser::StructInitializerContext* EscriptParser::structInitializer() {
       _errHandler->sync(this);
 
       _la = _input->LA(1);
-      if (((((_la - 74) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 74)) & ((1ULL << (EscriptParser::REGULAR_STRING - 74))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 74))
-        | (1ULL << (EscriptParser::IDENTIFIER - 74)))) != 0)) {
+      if (_la == EscriptParser::REGULAR_STRING
+
+      || _la == EscriptParser::IDENTIFIER) {
         setState(673);
         structInitializerExpressionList();
       }
@@ -6614,10 +6609,9 @@ EscriptParser::StructInitializerContext* EscriptParser::structInitializer() {
       _errHandler->sync(this);
 
       _la = _input->LA(1);
-      if (((((_la - 74) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 74)) & ((1ULL << (EscriptParser::REGULAR_STRING - 74))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 74))
-        | (1ULL << (EscriptParser::IDENTIFIER - 74)))) != 0)) {
+      if (_la == EscriptParser::REGULAR_STRING
+
+      || _la == EscriptParser::IDENTIFIER) {
         setState(678);
         structInitializerExpressionList();
       }
@@ -6883,7 +6877,7 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -6924,7 +6918,7 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -7047,7 +7041,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -7088,7 +7082,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -7132,7 +7126,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -7173,7 +7167,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
         | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
         | (1ULL << (EscriptParser::CHAR_LITERAL - 64))
         | (1ULL << (EscriptParser::REGULAR_STRING - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 64))
+        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
         | (1ULL << (EscriptParser::LPAREN - 64))
         | (1ULL << (EscriptParser::LBRACE - 64))
         | (1ULL << (EscriptParser::ADD - 64))
@@ -7224,8 +7218,8 @@ tree::TerminalNode* EscriptParser::LiteralContext::CHAR_LITERAL() {
   return getToken(EscriptParser::CHAR_LITERAL, 0);
 }
 
-EscriptParser::String_literalContext* EscriptParser::LiteralContext::string_literal() {
-  return getRuleContext<EscriptParser::String_literalContext>(0);
+EscriptParser::StringLiteralContext* EscriptParser::LiteralContext::stringLiteral() {
+  return getRuleContext<EscriptParser::StringLiteralContext>(0);
 }
 
 
@@ -7290,10 +7284,10 @@ EscriptParser::LiteralContext* EscriptParser::literal() {
       }
 
       case EscriptParser::REGULAR_STRING:
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START: {
+      case EscriptParser::INTERPOLATED_STRING_START: {
         enterOuterAlt(_localctx, 4);
         setState(742);
-        string_literal();
+        stringLiteral();
         break;
       }
 
@@ -7311,48 +7305,48 @@ EscriptParser::LiteralContext* EscriptParser::literal() {
   return _localctx;
 }
 
-//----------------- String_literalContext ------------------------------------------------------------------
+//----------------- StringLiteralContext ------------------------------------------------------------------
 
-EscriptParser::String_literalContext::String_literalContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::StringLiteralContext::StringLiteralContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::String_literalContext::REGULAR_STRING() {
+tree::TerminalNode* EscriptParser::StringLiteralContext::REGULAR_STRING() {
   return getToken(EscriptParser::REGULAR_STRING, 0);
 }
 
-EscriptParser::Interpolated_regular_stringContext* EscriptParser::String_literalContext::interpolated_regular_string() {
-  return getRuleContext<EscriptParser::Interpolated_regular_stringContext>(0);
+EscriptParser::InterpolatedStringContext* EscriptParser::StringLiteralContext::interpolatedString() {
+  return getRuleContext<EscriptParser::InterpolatedStringContext>(0);
 }
 
 
-size_t EscriptParser::String_literalContext::getRuleIndex() const {
-  return EscriptParser::RuleString_literal;
+size_t EscriptParser::StringLiteralContext::getRuleIndex() const {
+  return EscriptParser::RuleStringLiteral;
 }
 
-void EscriptParser::String_literalContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::StringLiteralContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterString_literal(this);
+    parserListener->enterStringLiteral(this);
 }
 
-void EscriptParser::String_literalContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::StringLiteralContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitString_literal(this);
+    parserListener->exitStringLiteral(this);
 }
 
 
-antlrcpp::Any EscriptParser::String_literalContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any EscriptParser::StringLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitString_literal(this);
+    return parserVisitor->visitStringLiteral(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::String_literalContext* EscriptParser::string_literal() {
-  String_literalContext *_localctx = _tracker.createInstance<String_literalContext>(_ctx, getState());
-  enterRule(_localctx, 144, EscriptParser::RuleString_literal);
+EscriptParser::StringLiteralContext* EscriptParser::stringLiteral() {
+  StringLiteralContext *_localctx = _tracker.createInstance<StringLiteralContext>(_ctx, getState());
+  enterRule(_localctx, 144, EscriptParser::RuleStringLiteral);
 
   auto onExit = finally([=] {
     exitRule();
@@ -7368,10 +7362,10 @@ EscriptParser::String_literalContext* EscriptParser::string_literal() {
         break;
       }
 
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START: {
+      case EscriptParser::INTERPOLATED_STRING_START: {
         enterOuterAlt(_localctx, 2);
         setState(746);
-        interpolated_regular_string();
+        interpolatedString();
         break;
       }
 
@@ -7389,56 +7383,56 @@ EscriptParser::String_literalContext* EscriptParser::string_literal() {
   return _localctx;
 }
 
-//----------------- Interpolated_regular_stringContext ------------------------------------------------------------------
+//----------------- InterpolatedStringContext ------------------------------------------------------------------
 
-EscriptParser::Interpolated_regular_stringContext::Interpolated_regular_stringContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::InterpolatedStringContext::InterpolatedStringContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-tree::TerminalNode* EscriptParser::Interpolated_regular_stringContext::INTERPOLATED_REGULAR_STRING_START() {
-  return getToken(EscriptParser::INTERPOLATED_REGULAR_STRING_START, 0);
+tree::TerminalNode* EscriptParser::InterpolatedStringContext::INTERPOLATED_STRING_START() {
+  return getToken(EscriptParser::INTERPOLATED_STRING_START, 0);
 }
 
-tree::TerminalNode* EscriptParser::Interpolated_regular_stringContext::DOUBLE_QUOTE_INSIDE() {
+tree::TerminalNode* EscriptParser::InterpolatedStringContext::DOUBLE_QUOTE_INSIDE() {
   return getToken(EscriptParser::DOUBLE_QUOTE_INSIDE, 0);
 }
 
-std::vector<EscriptParser::Interpolated_regular_string_partContext *> EscriptParser::Interpolated_regular_stringContext::interpolated_regular_string_part() {
-  return getRuleContexts<EscriptParser::Interpolated_regular_string_partContext>();
+std::vector<EscriptParser::InterpolatedStringPartContext *> EscriptParser::InterpolatedStringContext::interpolatedStringPart() {
+  return getRuleContexts<EscriptParser::InterpolatedStringPartContext>();
 }
 
-EscriptParser::Interpolated_regular_string_partContext* EscriptParser::Interpolated_regular_stringContext::interpolated_regular_string_part(size_t i) {
-  return getRuleContext<EscriptParser::Interpolated_regular_string_partContext>(i);
+EscriptParser::InterpolatedStringPartContext* EscriptParser::InterpolatedStringContext::interpolatedStringPart(size_t i) {
+  return getRuleContext<EscriptParser::InterpolatedStringPartContext>(i);
 }
 
 
-size_t EscriptParser::Interpolated_regular_stringContext::getRuleIndex() const {
-  return EscriptParser::RuleInterpolated_regular_string;
+size_t EscriptParser::InterpolatedStringContext::getRuleIndex() const {
+  return EscriptParser::RuleInterpolatedString;
 }
 
-void EscriptParser::Interpolated_regular_stringContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::InterpolatedStringContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterInterpolated_regular_string(this);
+    parserListener->enterInterpolatedString(this);
 }
 
-void EscriptParser::Interpolated_regular_stringContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::InterpolatedStringContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitInterpolated_regular_string(this);
+    parserListener->exitInterpolatedString(this);
 }
 
 
-antlrcpp::Any EscriptParser::Interpolated_regular_stringContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any EscriptParser::InterpolatedStringContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitInterpolated_regular_string(this);
+    return parserVisitor->visitInterpolatedString(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::Interpolated_regular_stringContext* EscriptParser::interpolated_regular_string() {
-  Interpolated_regular_stringContext *_localctx = _tracker.createInstance<Interpolated_regular_stringContext>(_ctx, getState());
-  enterRule(_localctx, 146, EscriptParser::RuleInterpolated_regular_string);
+EscriptParser::InterpolatedStringContext* EscriptParser::interpolatedString() {
+  InterpolatedStringContext *_localctx = _tracker.createInstance<InterpolatedStringContext>(_ctx, getState());
+  enterRule(_localctx, 146, EscriptParser::RuleInterpolatedString);
   size_t _la = 0;
 
   auto onExit = finally([=] {
@@ -7447,7 +7441,7 @@ EscriptParser::Interpolated_regular_stringContext* EscriptParser::interpolated_r
   try {
     enterOuterAlt(_localctx, 1);
     setState(749);
-    match(EscriptParser::INTERPOLATED_REGULAR_STRING_START);
+    match(EscriptParser::INTERPOLATED_STRING_START);
     setState(753);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -7466,7 +7460,7 @@ EscriptParser::Interpolated_regular_stringContext* EscriptParser::interpolated_r
       | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 56))
       | (1ULL << (EscriptParser::CHAR_LITERAL - 56))
       | (1ULL << (EscriptParser::REGULAR_STRING - 56))
-      | (1ULL << (EscriptParser::INTERPOLATED_REGULAR_STRING_START - 56))
+      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 56))
       | (1ULL << (EscriptParser::LPAREN - 56))
       | (1ULL << (EscriptParser::LBRACE - 56))
       | (1ULL << (EscriptParser::ADD - 56))
@@ -7480,7 +7474,7 @@ EscriptParser::Interpolated_regular_stringContext* EscriptParser::interpolated_r
       | (1ULL << (EscriptParser::REGULAR_CHAR_INSIDE - 123))
       | (1ULL << (EscriptParser::REGULAR_STRING_INSIDE - 123)))) != 0)) {
       setState(750);
-      interpolated_regular_string_part();
+      interpolatedStringPart();
       setState(755);
       _errHandler->sync(this);
       _la = _input->LA(1);
@@ -7498,56 +7492,56 @@ EscriptParser::Interpolated_regular_stringContext* EscriptParser::interpolated_r
   return _localctx;
 }
 
-//----------------- Interpolated_regular_string_partContext ------------------------------------------------------------------
+//----------------- InterpolatedStringPartContext ------------------------------------------------------------------
 
-EscriptParser::Interpolated_regular_string_partContext::Interpolated_regular_string_partContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::InterpolatedStringPartContext::InterpolatedStringPartContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-EscriptParser::Interpolated_string_expressionContext* EscriptParser::Interpolated_regular_string_partContext::interpolated_string_expression() {
-  return getRuleContext<EscriptParser::Interpolated_string_expressionContext>(0);
+EscriptParser::InterpolatedStringExpressionContext* EscriptParser::InterpolatedStringPartContext::interpolatedStringExpression() {
+  return getRuleContext<EscriptParser::InterpolatedStringExpressionContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::Interpolated_regular_string_partContext::DOUBLE_CURLY_INSIDE() {
+tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::DOUBLE_CURLY_INSIDE() {
   return getToken(EscriptParser::DOUBLE_CURLY_INSIDE, 0);
 }
 
-tree::TerminalNode* EscriptParser::Interpolated_regular_string_partContext::REGULAR_CHAR_INSIDE() {
+tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::REGULAR_CHAR_INSIDE() {
   return getToken(EscriptParser::REGULAR_CHAR_INSIDE, 0);
 }
 
-tree::TerminalNode* EscriptParser::Interpolated_regular_string_partContext::REGULAR_STRING_INSIDE() {
+tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::REGULAR_STRING_INSIDE() {
   return getToken(EscriptParser::REGULAR_STRING_INSIDE, 0);
 }
 
 
-size_t EscriptParser::Interpolated_regular_string_partContext::getRuleIndex() const {
-  return EscriptParser::RuleInterpolated_regular_string_part;
+size_t EscriptParser::InterpolatedStringPartContext::getRuleIndex() const {
+  return EscriptParser::RuleInterpolatedStringPart;
 }
 
-void EscriptParser::Interpolated_regular_string_partContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::InterpolatedStringPartContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterInterpolated_regular_string_part(this);
+    parserListener->enterInterpolatedStringPart(this);
 }
 
-void EscriptParser::Interpolated_regular_string_partContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::InterpolatedStringPartContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitInterpolated_regular_string_part(this);
+    parserListener->exitInterpolatedStringPart(this);
 }
 
 
-antlrcpp::Any EscriptParser::Interpolated_regular_string_partContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any EscriptParser::InterpolatedStringPartContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitInterpolated_regular_string_part(this);
+    return parserVisitor->visitInterpolatedStringPart(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::Interpolated_regular_string_partContext* EscriptParser::interpolated_regular_string_part() {
-  Interpolated_regular_string_partContext *_localctx = _tracker.createInstance<Interpolated_regular_string_partContext>(_ctx, getState());
-  enterRule(_localctx, 148, EscriptParser::RuleInterpolated_regular_string_part);
+EscriptParser::InterpolatedStringPartContext* EscriptParser::interpolatedStringPart() {
+  InterpolatedStringPartContext *_localctx = _tracker.createInstance<InterpolatedStringPartContext>(_ctx, getState());
+  enterRule(_localctx, 148, EscriptParser::RuleInterpolatedStringPart);
 
   auto onExit = finally([=] {
     exitRule();
@@ -7570,7 +7564,7 @@ EscriptParser::Interpolated_regular_string_partContext* EscriptParser::interpola
       case EscriptParser::HEX_FLOAT_LITERAL:
       case EscriptParser::CHAR_LITERAL:
       case EscriptParser::REGULAR_STRING:
-      case EscriptParser::INTERPOLATED_REGULAR_STRING_START:
+      case EscriptParser::INTERPOLATED_STRING_START:
       case EscriptParser::LPAREN:
       case EscriptParser::LBRACE:
       case EscriptParser::ADD:
@@ -7582,7 +7576,7 @@ EscriptParser::Interpolated_regular_string_partContext* EscriptParser::interpola
       case EscriptParser::IDENTIFIER: {
         enterOuterAlt(_localctx, 1);
         setState(758);
-        interpolated_string_expression();
+        interpolatedStringExpression();
         break;
       }
 
@@ -7621,56 +7615,56 @@ EscriptParser::Interpolated_regular_string_partContext* EscriptParser::interpola
   return _localctx;
 }
 
-//----------------- Interpolated_string_expressionContext ------------------------------------------------------------------
+//----------------- InterpolatedStringExpressionContext ------------------------------------------------------------------
 
-EscriptParser::Interpolated_string_expressionContext::Interpolated_string_expressionContext(ParserRuleContext *parent, size_t invokingState)
+EscriptParser::InterpolatedStringExpressionContext::InterpolatedStringExpressionContext(ParserRuleContext *parent, size_t invokingState)
   : ParserRuleContext(parent, invokingState) {
 }
 
-std::vector<EscriptParser::ExpressionContext *> EscriptParser::Interpolated_string_expressionContext::expression() {
+std::vector<EscriptParser::ExpressionContext *> EscriptParser::InterpolatedStringExpressionContext::expression() {
   return getRuleContexts<EscriptParser::ExpressionContext>();
 }
 
-EscriptParser::ExpressionContext* EscriptParser::Interpolated_string_expressionContext::expression(size_t i) {
+EscriptParser::ExpressionContext* EscriptParser::InterpolatedStringExpressionContext::expression(size_t i) {
   return getRuleContext<EscriptParser::ExpressionContext>(i);
 }
 
-std::vector<tree::TerminalNode *> EscriptParser::Interpolated_string_expressionContext::COMMA() {
+std::vector<tree::TerminalNode *> EscriptParser::InterpolatedStringExpressionContext::COMMA() {
   return getTokens(EscriptParser::COMMA);
 }
 
-tree::TerminalNode* EscriptParser::Interpolated_string_expressionContext::COMMA(size_t i) {
+tree::TerminalNode* EscriptParser::InterpolatedStringExpressionContext::COMMA(size_t i) {
   return getToken(EscriptParser::COMMA, i);
 }
 
 
-size_t EscriptParser::Interpolated_string_expressionContext::getRuleIndex() const {
-  return EscriptParser::RuleInterpolated_string_expression;
+size_t EscriptParser::InterpolatedStringExpressionContext::getRuleIndex() const {
+  return EscriptParser::RuleInterpolatedStringExpression;
 }
 
-void EscriptParser::Interpolated_string_expressionContext::enterRule(tree::ParseTreeListener *listener) {
+void EscriptParser::InterpolatedStringExpressionContext::enterRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->enterInterpolated_string_expression(this);
+    parserListener->enterInterpolatedStringExpression(this);
 }
 
-void EscriptParser::Interpolated_string_expressionContext::exitRule(tree::ParseTreeListener *listener) {
+void EscriptParser::InterpolatedStringExpressionContext::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<EscriptParserListener *>(listener);
   if (parserListener != nullptr)
-    parserListener->exitInterpolated_string_expression(this);
+    parserListener->exitInterpolatedStringExpression(this);
 }
 
 
-antlrcpp::Any EscriptParser::Interpolated_string_expressionContext::accept(tree::ParseTreeVisitor *visitor) {
+antlrcpp::Any EscriptParser::InterpolatedStringExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
-    return parserVisitor->visitInterpolated_string_expression(this);
+    return parserVisitor->visitInterpolatedStringExpression(this);
   else
     return visitor->visitChildren(this);
 }
 
-EscriptParser::Interpolated_string_expressionContext* EscriptParser::interpolated_string_expression() {
-  Interpolated_string_expressionContext *_localctx = _tracker.createInstance<Interpolated_string_expressionContext>(_ctx, getState());
-  enterRule(_localctx, 150, EscriptParser::RuleInterpolated_string_expression);
+EscriptParser::InterpolatedStringExpressionContext* EscriptParser::interpolatedStringExpression() {
+  InterpolatedStringExpressionContext *_localctx = _tracker.createInstance<InterpolatedStringExpressionContext>(_ctx, getState());
+  enterRule(_localctx, 150, EscriptParser::RuleInterpolatedStringExpression);
   size_t _la = 0;
 
   auto onExit = finally([=] {
@@ -7914,9 +7908,9 @@ std::vector<std::string> EscriptParser::_ruleNames = {
   "indexingSuffix", "navigationSuffix", "methodCallSuffix", "functionCall", 
   "structInitializerExpression", "structInitializerExpressionList", "structInitializer", 
   "dictInitializerExpression", "dictInitializerExpressionList", "dictInitializer", 
-  "arrayInitializer", "literal", "string_literal", "interpolated_regular_string", 
-  "interpolated_regular_string_part", "interpolated_string_expression", 
-  "integerLiteral", "floatLiteral"
+  "arrayInitializer", "literal", "stringLiteral", "interpolatedString", 
+  "interpolatedStringPart", "interpolatedStringExpression", "integerLiteral", 
+  "floatLiteral"
 };
 
 std::vector<std::string> EscriptParser::_literalNames = {
@@ -7949,9 +7943,9 @@ std::vector<std::string> EscriptParser::_symbolicNames = {
   "OR_B", "BANG_A", "BANG_B", "BYREF", "UNUSED", "TOK_ERROR", "HASH", "DICTIONARY", 
   "STRUCT", "ARRAY", "STACK", "TOK_IN", "DECIMAL_LITERAL", "HEX_LITERAL", 
   "OCT_LITERAL", "BINARY_LITERAL", "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", 
-  "CHAR_LITERAL", "REGULAR_STRING", "INTERPOLATED_REGULAR_STRING_START", 
-  "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", "ARROW", 
-  "MUL", "DIV", "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", 
+  "CHAR_LITERAL", "REGULAR_STRING", "INTERPOLATED_STRING_START", "LPAREN", 
+  "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", "ARROW", "MUL", 
+  "DIV", "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", 
   "DIV_ASSIGN", "MOD_ASSIGN", "LE", "LT", "GE", "GT", "RSHIFT", "LSHIFT", 
   "BITAND", "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", "EQUAL_DEPRECATED", 
   "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER", "SEMI", "COMMA", 
@@ -8308,7 +8302,7 @@ EscriptParser::Initializer::Initializer() {
     0x19d, 0x19e, 0x3, 0x2, 0x2, 0x2, 0x19e, 0x19f, 0x3, 0x2, 0x2, 0x2, 
     0x19f, 0x1a0, 0x5, 0x3e, 0x20, 0x2, 0x1a0, 0x47, 0x3, 0x2, 0x2, 0x2, 
     0x1a1, 0x1a5, 0x5, 0x9a, 0x4e, 0x2, 0x1a2, 0x1a5, 0x7, 0x7d, 0x2, 0x2, 
-    0x1a3, 0x1a5, 0x5, 0x92, 0x4a, 0x2, 0x1a4, 0x1a1, 0x3, 0x2, 0x2, 0x2, 
+    0x1a3, 0x1a5, 0x7, 0x4c, 0x2, 0x2, 0x1a4, 0x1a1, 0x3, 0x2, 0x2, 0x2, 
     0x1a4, 0x1a2, 0x3, 0x2, 0x2, 0x2, 0x1a4, 0x1a3, 0x3, 0x2, 0x2, 0x2, 
     0x1a5, 0x1a6, 0x3, 0x2, 0x2, 0x2, 0x1a6, 0x1aa, 0x7, 0x76, 0x2, 0x2, 
     0x1a7, 0x1a8, 0x7, 0x22, 0x2, 0x2, 0x1a8, 0x1aa, 0x7, 0x76, 0x2, 0x2, 
@@ -8454,7 +8448,7 @@ EscriptParser::Initializer::Initializer() {
     0x81, 0x3, 0x2, 0x2, 0x2, 0x28e, 0x291, 0x7, 0x7d, 0x2, 0x2, 0x28f, 
     0x290, 0x7, 0x6d, 0x2, 0x2, 0x290, 0x292, 0x5, 0x66, 0x34, 0x2, 0x291, 
     0x28f, 0x3, 0x2, 0x2, 0x2, 0x291, 0x292, 0x3, 0x2, 0x2, 0x2, 0x292, 
-    0x299, 0x3, 0x2, 0x2, 0x2, 0x293, 0x296, 0x5, 0x92, 0x4a, 0x2, 0x294, 
+    0x299, 0x3, 0x2, 0x2, 0x2, 0x293, 0x296, 0x7, 0x4c, 0x2, 0x2, 0x294, 
     0x295, 0x7, 0x6d, 0x2, 0x2, 0x295, 0x297, 0x5, 0x66, 0x34, 0x2, 0x296, 
     0x294, 0x3, 0x2, 0x2, 0x2, 0x296, 0x297, 0x3, 0x2, 0x2, 0x2, 0x297, 
     0x299, 0x3, 0x2, 0x2, 0x2, 0x298, 0x28e, 0x3, 0x2, 0x2, 0x2, 0x298, 
