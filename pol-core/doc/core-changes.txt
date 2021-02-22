@@ -1,5 +1,6 @@
 ﻿-- POL100 --
 02-22-2021 Kevin:
+    Fixed: Various compilation issues when using "\\" in scripts.
     Fixed: Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.
 12-17-2020 Turley:
     Added: AppendConfigFileElem now checks if the file could be opened, returns an error if this fails.
