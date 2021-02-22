@@ -307,6 +307,22 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitString_literal(EscriptParser::String_literalContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) override {
     return visitChildren(ctx);
   }

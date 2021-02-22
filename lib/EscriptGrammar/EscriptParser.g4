@@ -49,7 +49,7 @@ functionDeclaration
     ;
 
 stringIdentifier
-    : STRING_LITERAL
+    : REGULAR_STRING
     | IDENTIFIER
     ;
 
@@ -186,7 +186,7 @@ switchBlockStatementGroup
     ;
 
 switchLabel
-    : (integerLiteral | IDENTIFIER | STRING_LITERAL) ':'
+    : (integerLiteral | IDENTIFIER | string_literal) ':'
     | DEFAULT ':'
     ;
 
@@ -324,7 +324,7 @@ indexingSuffix
     ;
 
 navigationSuffix
-    : '.' ( IDENTIFIER | STRING_LITERAL )
+    : '.' ( IDENTIFIER | REGULAR_STRING )
     ;
 
 methodCallSuffix
@@ -337,7 +337,7 @@ functionCall
 
 structInitializerExpression
     : IDENTIFIER (':=' expression)?
-    | STRING_LITERAL (':=' expression)?
+    | string_literal (':=' expression)?
     ;
 
 structInitializerExpressionList
@@ -375,8 +375,28 @@ literal
     : integerLiteral
     | floatLiteral
     | CHAR_LITERAL
-    | STRING_LITERAL
+    | string_literal
     ;
+
+string_literal
+    : REGULAR_STRING
+    | interpolated_regular_string;
+
+
+interpolated_regular_string
+	: INTERPOLATED_REGULAR_STRING_START interpolated_regular_string_part* DOUBLE_QUOTE_INSIDE
+	;
+
+interpolated_regular_string_part
+	: interpolated_string_expression
+	| DOUBLE_CURLY_INSIDE
+	| REGULAR_CHAR_INSIDE
+	| REGULAR_STRING_INSIDE
+	;
+
+interpolated_string_expression
+	: expression (',' expression)*
+	;
 
 integerLiteral
     : DECIMAL_LITERAL

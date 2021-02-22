@@ -1,6 +1,12 @@
 lexer grammar EscriptLexer;
 channels { COMMENTS }
 
+@lexer::members
+{
+    int interpolatedStringLevel;
+    std::stack<int> curlyLevels;
+}
+
 // Keywords
 
 IF:                 'if';
@@ -95,7 +101,10 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 
 CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
-STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
+REGULAR_STRING:     '"' (~[\\"] | EscapeSequence)* '"';
+
+INTERPOLATED_REGULAR_STRING_START:   '$"'
+    { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);
 
 // Separators
 
@@ -193,3 +202,9 @@ fragment Letter
     | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
 
+mode INTERPOLATION_STRING;
+DOUBLE_CURLY_INSIDE:           '{{';
+OPEN_BRACE_INSIDE:             '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
+REGULAR_CHAR_INSIDE:           EscapeSequence;
+DOUBLE_QUOTE_INSIDE:           '"' { interpolatedStringLevel--; } -> popMode;
+REGULAR_STRING_INSIDE:         ~('{' | '\\' | '"')+;

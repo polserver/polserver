@@ -166,6 +166,14 @@ public:
 
     virtual antlrcpp::Any visitLiteral(EscriptParser::LiteralContext *context) = 0;
 
+    virtual antlrcpp::Any visitString_literal(EscriptParser::String_literalContext *context) = 0;
+
+    virtual antlrcpp::Any visitInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext *context) = 0;
+
+    virtual antlrcpp::Any visitInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext *context) = 0;
+
+    virtual antlrcpp::Any visitInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext *context) = 0;
+
     virtual antlrcpp::Any visitIntegerLiteral(EscriptParser::IntegerLiteralContext *context) = 0;
 
     virtual antlrcpp::Any visitFloatLiteral(EscriptParser::FloatLiteralContext *context) = 0;

@@ -234,6 +234,18 @@ public:
   virtual void enterLiteral(EscriptParser::LiteralContext *ctx) = 0;
   virtual void exitLiteral(EscriptParser::LiteralContext *ctx) = 0;
 
+  virtual void enterString_literal(EscriptParser::String_literalContext *ctx) = 0;
+  virtual void exitString_literal(EscriptParser::String_literalContext *ctx) = 0;
+
+  virtual void enterInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext *ctx) = 0;
+  virtual void exitInterpolated_regular_string(EscriptParser::Interpolated_regular_stringContext *ctx) = 0;
+
+  virtual void enterInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext *ctx) = 0;
+  virtual void exitInterpolated_regular_string_part(EscriptParser::Interpolated_regular_string_partContext *ctx) = 0;
+
+  virtual void enterInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext *ctx) = 0;
+  virtual void exitInterpolated_string_expression(EscriptParser::Interpolated_string_expressionContext *ctx) = 0;
+
   virtual void enterIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) = 0;
   virtual void exitIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) = 0;
 
