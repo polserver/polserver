@@ -8,6 +8,7 @@
 		<entry>
 			<date>02-22-2021</date>
 			<author>Kevin:</author>
+			<change type="Fixed">Various compilation issues when using &quot;\\&quot; in scripts.</change>
 			<change type="Fixed">Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.</change>
 		</entry>
 		<entry>
