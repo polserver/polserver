@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-17-2020</datemodified>
+		<datemodified>02-22-2021</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>02-22-2021</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.</change>
+		</entry>
 		<entry>
 			<date>12-17-2020</date>
 			<author>Turley:</author>
