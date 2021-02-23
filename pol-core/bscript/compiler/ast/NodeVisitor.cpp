@@ -32,6 +32,7 @@
 #include "compiler/ast/FunctionParameterDeclaration.h"
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/IfThenElseStatement.h"
+#include "compiler/ast/InterpolatedString.h"
 #include "compiler/ast/JumpStatement.h"
 #include "compiler/ast/MemberAccess.h"
 #include "compiler/ast/MemberAssignment.h"
@@ -292,8 +293,9 @@ void NodeVisitor::visit_string_value( StringValue& )
 {
 }
 
-void NodeVisitor::visit_interpolated_string_value( InterpolatedStringValue& )
+void NodeVisitor::visit_interpolated_string( InterpolatedString& node )
 {
+  visit_children( node );
 }
 
 void NodeVisitor::visit_struct_initializer( StructInitializer& node )

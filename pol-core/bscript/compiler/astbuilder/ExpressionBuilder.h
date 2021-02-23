@@ -18,6 +18,7 @@ class ElvisOperator;
 class ErrorInitializer;
 class Expression;
 class FunctionCall;
+class InterpolatedString;
 class MemberAccess;
 class MethodCall;
 class UnaryOperator;
@@ -58,6 +59,8 @@ public:
       EscriptGrammar::EscriptParser::ArrayInitializerContext* );
   std::vector<std::unique_ptr<Expression>> expressions(
       EscriptGrammar::EscriptParser::ExpressionListContext* );
+  std::vector<std::unique_ptr<Expression>> expressions(
+      std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> );
 
   std::unique_ptr<FunctionCall> function_call( EscriptGrammar::EscriptParser::FunctionCallContext*,
                                                const std::string& scope );
@@ -87,6 +90,9 @@ public:
 
   std::vector<std::unique_ptr<Argument>> value_arguments(
       EscriptGrammar::EscriptParser::ExpressionListContext* );
+
+  std::unique_ptr<InterpolatedString> interpolated_string(
+      EscriptGrammar::EscriptParser::InterpolatedStringContext* );
 };
 
 }  // namespace Pol::Bscript::Compiler

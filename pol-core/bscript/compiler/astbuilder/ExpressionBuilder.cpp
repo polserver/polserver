@@ -16,6 +16,7 @@
 #include "compiler/ast/FunctionParameterList.h"
 #include "compiler/ast/FunctionReference.h"
 #include "compiler/ast/Identifier.h"
+#include "compiler/ast/InterpolatedString.h"
 #include "compiler/ast/MemberAccess.h"
 #include "compiler/ast/MemberAssignment.h"
 #include "compiler/ast/MethodCall.h"
@@ -34,7 +35,7 @@ namespace Pol::Bscript::Compiler
 {
 ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_identifier,
                                       BuilderWorkspace& workspace )
-  : ValueBuilder( source_file_identifier, workspace )
+    : ValueBuilder( source_file_identifier, workspace )
 {
 }
 
@@ -50,6 +51,13 @@ std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
 {
   auto values = expressions( ctx->expressionList() );
   return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
+}
+
+std::unique_ptr<InterpolatedString> ExpressionBuilder::interpolated_string(
+    EscriptParser::InterpolatedStringContext* ctx )
+{
+  auto values = expressions( ctx->interpolatedStringPart() );
+  return std::make_unique<InterpolatedString>( location_for( *ctx ), std::move( values ) );
 }
 
 std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
@@ -241,7 +249,7 @@ std::unique_ptr<ErrorInitializer> ExpressionBuilder::error(
         std::string identifier;
         if ( auto x = expression_ctx->IDENTIFIER() )
           identifier = text( x );
-        else if ( auto string_literal = expression_ctx->REGULAR_STRING() )
+        else if ( auto string_literal = expression_ctx->STRING_LITERAL() )
           identifier = unquote( string_literal );
         else
           expression_source_ctx.internal_error(
@@ -271,6 +279,14 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
       expressions.push_back( expression( expression_ctx ) );
     }
   }
+  return expressions;
+}
+
+std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
+    std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> ctx )
+{
+  std::vector<std::unique_ptr<Expression>> expressions;
+  // FIXME: todo
   return expressions;
 }
 
@@ -357,8 +373,8 @@ std::unique_ptr<MemberAccess> ExpressionBuilder::navigation(
   std::string name;
   if ( auto identifier = ctx->IDENTIFIER() )
     name = text( identifier );
-  else if ( auto regular_string = ctx->REGULAR_STRING() )
-    name = unquote( regular_string );
+  else if ( auto string_literal = ctx->STRING_LITERAL() )
+    name = unquote( string_literal );
   else
     loc.internal_error( "member_access: need string literal or identifier" );
   return std::make_unique<MemberAccess>( loc, std::move( lhs ), std::move( name ) );
@@ -480,6 +496,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return array_initializer( bare_array );
   }
+  else if ( auto inter_string = ctx->interpolatedString() )
+  {
+    return interpolated_string( inter_string );
+  }
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );
 }
@@ -505,8 +525,8 @@ std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
         std::string identifier;
         if ( auto x = initializer_expression_ctx->IDENTIFIER() )
           identifier = text( x );
-        else if ( auto regular_string = initializer_expression_ctx->REGULAR_STRING() )
-          identifier = unquote( regular_string );
+        else if ( auto string_literal = initializer_expression_ctx->STRING_LITERAL() )
+          identifier = unquote( string_literal );
         else
           loc.internal_error( "Unable to determine identifier for struct initializer" );
 

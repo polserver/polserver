@@ -192,9 +192,9 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
         selectors.push_back(
             std::make_unique<Identifier>( location_for( *identifier ), text( identifier ) ) );
       }
-      else if ( auto regular_string = group_label->REGULAR_STRING() )
+      else if ( auto string_literal = group_label->STRING_LITERAL() )
       {
-        selectors.push_back( regular_string_value( regular_string ) );
+        selectors.push_back( string_value( string_literal ) );
       }
       else if ( auto dflt = group_label->DEFAULT() )
       {
