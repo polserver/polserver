@@ -67,8 +67,8 @@ public:
     RuleStructInitializerExpression = 64, RuleStructInitializerExpressionList = 65, 
     RuleStructInitializer = 66, RuleDictInitializerExpression = 67, RuleDictInitializerExpressionList = 68, 
     RuleDictInitializer = 69, RuleArrayInitializer = 70, RuleLiteral = 71, 
-    RuleInterpolatedString = 72, RuleInterpolatedStringPart = 73, RuleInterpolatedStringExpression = 74, 
-    RuleIntegerLiteral = 75, RuleFloatLiteral = 76
+    RuleInterpolatedString = 72, RuleInterpolatedStringPart = 73, RuleIntegerLiteral = 74, 
+    RuleFloatLiteral = 75
   };
 
   EscriptParser(antlr4::TokenStream *input);
@@ -157,7 +157,6 @@ public:
   class LiteralContext;
   class InterpolatedStringContext;
   class InterpolatedStringPartContext;
-  class InterpolatedStringExpressionContext;
   class IntegerLiteralContext;
   class FloatLiteralContext; 
 
@@ -1531,7 +1530,7 @@ public:
   public:
     InterpolatedStringPartContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    InterpolatedStringExpressionContext *interpolatedStringExpression();
+    ExpressionContext *expression();
     antlr4::tree::TerminalNode *DOUBLE_LBRACE_INSIDE();
     antlr4::tree::TerminalNode *REGULAR_CHAR_INSIDE();
     antlr4::tree::TerminalNode *STRING_LITERAL_INSIDE();
@@ -1544,24 +1543,6 @@ public:
   };
 
   InterpolatedStringPartContext* interpolatedStringPart();
-
-  class  InterpolatedStringExpressionContext : public antlr4::ParserRuleContext {
-  public:
-    InterpolatedStringExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
-    std::vector<antlr4::tree::TerminalNode *> COMMA();
-    antlr4::tree::TerminalNode* COMMA(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  InterpolatedStringExpressionContext* interpolatedStringExpression();
 
   class  IntegerLiteralContext : public antlr4::ParserRuleContext {
   public:

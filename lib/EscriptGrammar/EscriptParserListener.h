@@ -240,9 +240,6 @@ public:
   virtual void enterInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext *ctx) = 0;
   virtual void exitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext *ctx) = 0;
 
-  virtual void enterInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext *ctx) = 0;
-  virtual void exitInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext *ctx) = 0;
-
   virtual void enterIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) = 0;
   virtual void exitIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) = 0;
 

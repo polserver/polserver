@@ -384,14 +384,10 @@ interpolatedString
 	;
 
 interpolatedStringPart
-	: interpolatedStringExpression
+	: expression
 	| DOUBLE_LBRACE_INSIDE
 	| REGULAR_CHAR_INSIDE
 	| STRING_LITERAL_INSIDE
-	;
-
-interpolatedStringExpression
-	: expression (',' expression)*
 	;
 
 integerLiteral

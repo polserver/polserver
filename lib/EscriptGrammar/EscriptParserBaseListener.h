@@ -242,9 +242,6 @@ public:
   virtual void enterInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext * /*ctx*/) override { }
   virtual void exitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext * /*ctx*/) override { }
 
-  virtual void enterInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext * /*ctx*/) override { }
-  virtual void exitInterpolatedStringExpression(EscriptParser::InterpolatedStringExpressionContext * /*ctx*/) override { }
-
   virtual void enterIntegerLiteral(EscriptParser::IntegerLiteralContext * /*ctx*/) override { }
   virtual void exitIntegerLiteral(EscriptParser::IntegerLiteralContext * /*ctx*/) override { }
 
