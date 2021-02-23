@@ -7402,7 +7402,7 @@ EscriptParser::InterpolatedStringContext* EscriptParser::interpolatedString() {
       | (1ULL << (EscriptParser::INC - 56))
       | (1ULL << (EscriptParser::DEC - 56)))) != 0) || ((((_la - 123) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 123)) & ((1ULL << (EscriptParser::IDENTIFIER - 123))
-      | (1ULL << (EscriptParser::DOUBLE_CURLY_INSIDE - 123))
+      | (1ULL << (EscriptParser::DOUBLE_LBRACE_INSIDE - 123))
       | (1ULL << (EscriptParser::REGULAR_CHAR_INSIDE - 123))
       | (1ULL << (EscriptParser::STRING_LITERAL_INSIDE - 123)))) != 0)) {
       setState(745);
@@ -7434,8 +7434,8 @@ EscriptParser::InterpolatedStringExpressionContext* EscriptParser::InterpolatedS
   return getRuleContext<EscriptParser::InterpolatedStringExpressionContext>(0);
 }
 
-tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::DOUBLE_CURLY_INSIDE() {
-  return getToken(EscriptParser::DOUBLE_CURLY_INSIDE, 0);
+tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::DOUBLE_LBRACE_INSIDE() {
+  return getToken(EscriptParser::DOUBLE_LBRACE_INSIDE, 0);
 }
 
 tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::REGULAR_CHAR_INSIDE() {
@@ -7512,10 +7512,10 @@ EscriptParser::InterpolatedStringPartContext* EscriptParser::interpolatedStringP
         break;
       }
 
-      case EscriptParser::DOUBLE_CURLY_INSIDE: {
+      case EscriptParser::DOUBLE_LBRACE_INSIDE: {
         enterOuterAlt(_localctx, 2);
         setState(754);
-        match(EscriptParser::DOUBLE_CURLY_INSIDE);
+        match(EscriptParser::DOUBLE_LBRACE_INSIDE);
         break;
       }
 
@@ -7881,7 +7881,7 @@ std::vector<std::string> EscriptParser::_symbolicNames = {
   "BITAND", "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", "EQUAL_DEPRECATED", 
   "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER", "SEMI", "COMMA", 
   "TILDE", "AT", "COLONCOLON", "COLON", "INC", "DEC", "ELVIS", "WS", "COMMENT", 
-  "LINE_COMMENT", "IDENTIFIER", "DOUBLE_CURLY_INSIDE", "OPEN_BRACE_INSIDE", 
+  "LINE_COMMENT", "IDENTIFIER", "DOUBLE_LBRACE_INSIDE", "LBRACE_INSIDE", 
   "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", "STRING_LITERAL_INSIDE"
 };
 

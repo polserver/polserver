@@ -385,7 +385,7 @@ interpolatedString
 
 interpolatedStringPart
 	: interpolatedStringExpression
-	| DOUBLE_CURLY_INSIDE
+	| DOUBLE_LBRACE_INSIDE
 	| REGULAR_CHAR_INSIDE
 	| STRING_LITERAL_INSIDE
 	;

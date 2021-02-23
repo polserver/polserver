@@ -3,7 +3,7 @@ channels { COMMENTS }
 
 @lexer::members
 {
-    int interpolatedStringLevel;
+    int interpolatedStringLevel = 0;
     std::stack<int> curlyLevels;
 }
 
@@ -112,8 +112,30 @@ LPAREN:             '(';
 RPAREN:             ')';
 LBRACK:             '[';
 RBRACK:             ']';
-LBRACE:             '{';
-RBRACE:             '}';
+LBRACE:             '{'
+{
+    if ( interpolatedStringLevel > 0 )
+      {
+        auto currentLevel = curlyLevels.top();
+        curlyLevels.pop();
+        curlyLevels.push( currentLevel + 1 );
+      }
+};
+RBRACE:             '}'
+{
+    if ( interpolatedStringLevel > 0 )
+      {
+        auto currentLevel = curlyLevels.top();
+        curlyLevels.pop();
+        curlyLevels.push( currentLevel - 1 );
+        if ( curlyLevels.top() == 0 )
+        {
+          curlyLevels.pop();
+          skip();
+          popMode();
+        }
+      }
+};
 DOT:                '.';
 ARROW:              '->';
 MUL:                '*';
@@ -203,8 +225,8 @@ fragment Letter
     ;
 
 mode INTERPOLATION_STRING;
-DOUBLE_CURLY_INSIDE:           '{{';
-OPEN_BRACE_INSIDE:             '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
+DOUBLE_LBRACE_INSIDE:           '{{';
+LBRACE_INSIDE:             '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
 REGULAR_CHAR_INSIDE:           EscapeSequence;
 DOUBLE_QUOTE_INSIDE:           '"' { interpolatedStringLevel--; } -> popMode;
 STRING_LITERAL_INSIDE:         ~('{' | '\\' | '"')+;
