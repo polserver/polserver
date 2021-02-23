@@ -236,9 +236,6 @@ public:
   virtual void enterLiteral(EscriptParser::LiteralContext * /*ctx*/) override { }
   virtual void exitLiteral(EscriptParser::LiteralContext * /*ctx*/) override { }
 
-  virtual void enterStringLiteral(EscriptParser::StringLiteralContext * /*ctx*/) override { }
-  virtual void exitStringLiteral(EscriptParser::StringLiteralContext * /*ctx*/) override { }
-
   virtual void enterInterpolatedString(EscriptParser::InterpolatedStringContext * /*ctx*/) override { }
   virtual void exitInterpolatedString(EscriptParser::InterpolatedStringContext * /*ctx*/) override { }
 

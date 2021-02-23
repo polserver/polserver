@@ -28,7 +28,7 @@ public:
     TOK_ERROR = 60, HASH = 61, DICTIONARY = 62, STRUCT = 63, ARRAY = 64, 
     STACK = 65, TOK_IN = 66, DECIMAL_LITERAL = 67, HEX_LITERAL = 68, OCT_LITERAL = 69, 
     BINARY_LITERAL = 70, FLOAT_LITERAL = 71, HEX_FLOAT_LITERAL = 72, CHAR_LITERAL = 73, 
-    REGULAR_STRING = 74, INTERPOLATED_STRING_START = 75, LPAREN = 76, RPAREN = 77, 
+    STRING_LITERAL = 74, INTERPOLATED_STRING_START = 75, LPAREN = 76, RPAREN = 77, 
     LBRACK = 78, RBRACK = 79, LBRACE = 80, RBRACE = 81, DOT = 82, ARROW = 83, 
     MUL = 84, DIV = 85, MOD = 86, ADD = 87, SUB = 88, ADD_ASSIGN = 89, SUB_ASSIGN = 90, 
     MUL_ASSIGN = 91, DIV_ASSIGN = 92, MOD_ASSIGN = 93, LE = 94, LT = 95, 
@@ -38,7 +38,7 @@ public:
     SEMI = 111, COMMA = 112, TILDE = 113, AT = 114, COLONCOLON = 115, COLON = 116, 
     INC = 117, DEC = 118, ELVIS = 119, WS = 120, COMMENT = 121, LINE_COMMENT = 122, 
     IDENTIFIER = 123, DOUBLE_CURLY_INSIDE = 124, OPEN_BRACE_INSIDE = 125, 
-    REGULAR_CHAR_INSIDE = 126, DOUBLE_QUOTE_INSIDE = 127, REGULAR_STRING_INSIDE = 128
+    REGULAR_CHAR_INSIDE = 126, DOUBLE_QUOTE_INSIDE = 127, STRING_LITERAL_INSIDE = 128
   };
 
   enum {
@@ -67,8 +67,8 @@ public:
     RuleStructInitializerExpression = 64, RuleStructInitializerExpressionList = 65, 
     RuleStructInitializer = 66, RuleDictInitializerExpression = 67, RuleDictInitializerExpressionList = 68, 
     RuleDictInitializer = 69, RuleArrayInitializer = 70, RuleLiteral = 71, 
-    RuleStringLiteral = 72, RuleInterpolatedString = 73, RuleInterpolatedStringPart = 74, 
-    RuleInterpolatedStringExpression = 75, RuleIntegerLiteral = 76, RuleFloatLiteral = 77
+    RuleInterpolatedString = 72, RuleInterpolatedStringPart = 73, RuleInterpolatedStringExpression = 74, 
+    RuleIntegerLiteral = 75, RuleFloatLiteral = 76
   };
 
   EscriptParser(antlr4::TokenStream *input);
@@ -155,7 +155,6 @@ public:
   class DictInitializerContext;
   class ArrayInitializerContext;
   class LiteralContext;
-  class StringLiteralContext;
   class InterpolatedStringContext;
   class InterpolatedStringPartContext;
   class InterpolatedStringExpressionContext;
@@ -309,7 +308,7 @@ public:
   public:
     StringIdentifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *REGULAR_STRING();
+    antlr4::tree::TerminalNode *STRING_LITERAL();
     antlr4::tree::TerminalNode *IDENTIFIER();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -815,7 +814,7 @@ public:
     antlr4::tree::TerminalNode *COLON();
     IntegerLiteralContext *integerLiteral();
     antlr4::tree::TerminalNode *IDENTIFIER();
-    antlr4::tree::TerminalNode *REGULAR_STRING();
+    antlr4::tree::TerminalNode *STRING_LITERAL();
     antlr4::tree::TerminalNode *DEFAULT();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1149,6 +1148,7 @@ public:
     ExplicitDictInitializerContext *explicitDictInitializer();
     ExplicitErrorInitializerContext *explicitErrorInitializer();
     BareArrayInitializerContext *bareArrayInitializer();
+    InterpolatedStringContext *interpolatedString();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1316,7 +1316,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *DOT();
     antlr4::tree::TerminalNode *IDENTIFIER();
-    antlr4::tree::TerminalNode *REGULAR_STRING();
+    antlr4::tree::TerminalNode *STRING_LITERAL();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1371,7 +1371,7 @@ public:
     antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *ASSIGN();
     ExpressionContext *expression();
-    antlr4::tree::TerminalNode *REGULAR_STRING();
+    antlr4::tree::TerminalNode *STRING_LITERAL();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1498,7 +1498,7 @@ public:
     IntegerLiteralContext *integerLiteral();
     FloatLiteralContext *floatLiteral();
     antlr4::tree::TerminalNode *CHAR_LITERAL();
-    StringLiteralContext *stringLiteral();
+    antlr4::tree::TerminalNode *STRING_LITERAL();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1508,22 +1508,6 @@ public:
   };
 
   LiteralContext* literal();
-
-  class  StringLiteralContext : public antlr4::ParserRuleContext {
-  public:
-    StringLiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *REGULAR_STRING();
-    InterpolatedStringContext *interpolatedString();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  StringLiteralContext* stringLiteral();
 
   class  InterpolatedStringContext : public antlr4::ParserRuleContext {
   public:
@@ -1550,7 +1534,7 @@ public:
     InterpolatedStringExpressionContext *interpolatedStringExpression();
     antlr4::tree::TerminalNode *DOUBLE_CURLY_INSIDE();
     antlr4::tree::TerminalNode *REGULAR_CHAR_INSIDE();
-    antlr4::tree::TerminalNode *REGULAR_STRING_INSIDE();
+    antlr4::tree::TerminalNode *STRING_LITERAL_INSIDE();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

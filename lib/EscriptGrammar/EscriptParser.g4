@@ -49,7 +49,7 @@ functionDeclaration
     ;
 
 stringIdentifier
-    : REGULAR_STRING
+    : STRING_LITERAL
     | IDENTIFIER
     ;
 
@@ -186,7 +186,7 @@ switchBlockStatementGroup
     ;
 
 switchLabel
-    : (integerLiteral | IDENTIFIER | REGULAR_STRING) ':'
+    : (integerLiteral | IDENTIFIER | STRING_LITERAL) ':'
     | DEFAULT ':'
     ;
 
@@ -282,6 +282,7 @@ primary
     | explicitDictInitializer
     | explicitErrorInitializer
     | bareArrayInitializer
+    | interpolatedString
     ;
 
 explicitArrayInitializer
@@ -324,7 +325,7 @@ indexingSuffix
     ;
 
 navigationSuffix
-    : '.' ( IDENTIFIER | REGULAR_STRING )
+    : '.' ( IDENTIFIER | STRING_LITERAL )
     ;
 
 methodCallSuffix
@@ -337,7 +338,7 @@ functionCall
 
 structInitializerExpression
     : IDENTIFIER (':=' expression)?
-    | REGULAR_STRING (':=' expression)?
+    | STRING_LITERAL (':=' expression)?
     ;
 
 structInitializerExpressionList
@@ -375,13 +376,8 @@ literal
     : integerLiteral
     | floatLiteral
     | CHAR_LITERAL
-    | stringLiteral
+    | STRING_LITERAL
     ;
-
-stringLiteral
-    : REGULAR_STRING
-    | interpolatedString;
-
 
 interpolatedString
 	: INTERPOLATED_STRING_START interpolatedStringPart* DOUBLE_QUOTE_INSIDE
@@ -391,7 +387,7 @@ interpolatedStringPart
 	: interpolatedStringExpression
 	| DOUBLE_CURLY_INSIDE
 	| REGULAR_CHAR_INSIDE
-	| REGULAR_STRING_INSIDE
+	| STRING_LITERAL_INSIDE
 	;
 
 interpolatedStringExpression

@@ -101,7 +101,7 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 
 CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
-REGULAR_STRING:     '"' (~[\\"] | EscapeSequence)* '"';
+STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
 
 INTERPOLATED_STRING_START:   '$"'
     { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);
@@ -207,4 +207,4 @@ DOUBLE_CURLY_INSIDE:           '{{';
 OPEN_BRACE_INSIDE:             '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
 REGULAR_CHAR_INSIDE:           EscapeSequence;
 DOUBLE_QUOTE_INSIDE:           '"' { interpolatedStringLevel--; } -> popMode;
-REGULAR_STRING_INSIDE:         ~('{' | '\\' | '"')+;
+STRING_LITERAL_INSIDE:         ~('{' | '\\' | '"')+;

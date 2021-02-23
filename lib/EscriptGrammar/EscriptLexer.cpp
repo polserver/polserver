@@ -111,7 +111,7 @@ std::vector<std::string> EscriptLexer::_ruleNames = {
   u8"BANG_B", u8"BANG", u8"BYREF", u8"UNUSED", u8"TOK_ERROR", u8"HASH", 
   u8"DICTIONARY", u8"STRUCT", u8"ARRAY", u8"STACK", u8"TOK_IN", u8"DECIMAL_LITERAL", 
   u8"HEX_LITERAL", u8"OCT_LITERAL", u8"BINARY_LITERAL", u8"FLOAT_LITERAL", 
-  u8"HEX_FLOAT_LITERAL", u8"CHAR_LITERAL", u8"REGULAR_STRING", u8"INTERPOLATED_STRING_START", 
+  u8"HEX_FLOAT_LITERAL", u8"CHAR_LITERAL", u8"STRING_LITERAL", u8"INTERPOLATED_STRING_START", 
   u8"LPAREN", u8"RPAREN", u8"LBRACK", u8"RBRACK", u8"LBRACE", u8"RBRACE", 
   u8"DOT", u8"ARROW", u8"MUL", u8"DIV", u8"MOD", u8"ADD", u8"SUB", u8"ADD_ASSIGN", 
   u8"SUB_ASSIGN", u8"MUL_ASSIGN", u8"DIV_ASSIGN", u8"MOD_ASSIGN", u8"LE", 
@@ -122,7 +122,7 @@ std::vector<std::string> EscriptLexer::_ruleNames = {
   u8"ELVIS", u8"WS", u8"COMMENT", u8"LINE_COMMENT", u8"IDENTIFIER", u8"ExponentPart", 
   u8"EscapeSequence", u8"HexDigits", u8"HexDigit", u8"Digits", u8"LetterOrDigit", 
   u8"Letter", u8"DOUBLE_CURLY_INSIDE", u8"OPEN_BRACE_INSIDE", u8"REGULAR_CHAR_INSIDE", 
-  u8"DOUBLE_QUOTE_INSIDE", u8"REGULAR_STRING_INSIDE"
+  u8"DOUBLE_QUOTE_INSIDE", u8"STRING_LITERAL_INSIDE"
 };
 
 std::vector<std::string> EscriptLexer::_channelNames = {
@@ -168,7 +168,7 @@ std::vector<std::string> EscriptLexer::_symbolicNames = {
   u8"UNUSED", u8"TOK_ERROR", u8"HASH", u8"DICTIONARY", u8"STRUCT", u8"ARRAY", 
   u8"STACK", u8"TOK_IN", u8"DECIMAL_LITERAL", u8"HEX_LITERAL", u8"OCT_LITERAL", 
   u8"BINARY_LITERAL", u8"FLOAT_LITERAL", u8"HEX_FLOAT_LITERAL", u8"CHAR_LITERAL", 
-  u8"REGULAR_STRING", u8"INTERPOLATED_STRING_START", u8"LPAREN", u8"RPAREN", 
+  u8"STRING_LITERAL", u8"INTERPOLATED_STRING_START", u8"LPAREN", u8"RPAREN", 
   u8"LBRACK", u8"RBRACK", u8"LBRACE", u8"RBRACE", u8"DOT", u8"ARROW", u8"MUL", 
   u8"DIV", u8"MOD", u8"ADD", u8"SUB", u8"ADD_ASSIGN", u8"SUB_ASSIGN", u8"MUL_ASSIGN", 
   u8"DIV_ASSIGN", u8"MOD_ASSIGN", u8"LE", u8"LT", u8"GE", u8"GT", u8"RSHIFT", 
@@ -177,7 +177,7 @@ std::vector<std::string> EscriptLexer::_symbolicNames = {
   u8"CHKMEMBER", u8"SEMI", u8"COMMA", u8"TILDE", u8"AT", u8"COLONCOLON", 
   u8"COLON", u8"INC", u8"DEC", u8"ELVIS", u8"WS", u8"COMMENT", u8"LINE_COMMENT", 
   u8"IDENTIFIER", u8"DOUBLE_CURLY_INSIDE", u8"OPEN_BRACE_INSIDE", u8"REGULAR_CHAR_INSIDE", 
-  u8"DOUBLE_QUOTE_INSIDE", u8"REGULAR_STRING_INSIDE"
+  u8"DOUBLE_QUOTE_INSIDE", u8"STRING_LITERAL_INSIDE"
 };
 
 dfa::Vocabulary EscriptLexer::_vocabulary(_literalNames, _symbolicNames);

@@ -166,8 +166,6 @@ public:
 
     virtual antlrcpp::Any visitLiteral(EscriptParser::LiteralContext *context) = 0;
 
-    virtual antlrcpp::Any visitStringLiteral(EscriptParser::StringLiteralContext *context) = 0;
-
     virtual antlrcpp::Any visitInterpolatedString(EscriptParser::InterpolatedStringContext *context) = 0;
 
     virtual antlrcpp::Any visitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext *context) = 0;

@@ -234,9 +234,6 @@ public:
   virtual void enterLiteral(EscriptParser::LiteralContext *ctx) = 0;
   virtual void exitLiteral(EscriptParser::LiteralContext *ctx) = 0;
 
-  virtual void enterStringLiteral(EscriptParser::StringLiteralContext *ctx) = 0;
-  virtual void exitStringLiteral(EscriptParser::StringLiteralContext *ctx) = 0;
-
   virtual void enterInterpolatedString(EscriptParser::InterpolatedStringContext *ctx) = 0;
   virtual void exitInterpolatedString(EscriptParser::InterpolatedStringContext *ctx) = 0;
 
