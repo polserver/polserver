@@ -8,6 +8,7 @@
 namespace Pol::Bscript::Compiler
 {
 class IntegerValue;
+class InterpolatedStringValue;
 class FloatValue;
 class FunctionReference;
 class StringValue;
@@ -27,9 +28,15 @@ public:
   std::unique_ptr<IntegerValue> integer_value(
       EscriptGrammar::EscriptParser::IntegerLiteralContext* );
 
-  std::unique_ptr<StringValue> string_value( antlr4::tree::TerminalNode* string_literal );
+  std::unique_ptr<StringValue> regular_string_value( antlr4::tree::TerminalNode* regular_string );
 
-  std::string unquote( antlr4::tree::TerminalNode* string_literal );
+  std::unique_ptr<InterpolatedStringValue> interpolated_string_value(
+      EscriptGrammar::EscriptParser::InterpolatedStringContext* interpolated_string );
+
+  std::unique_ptr<Value> string_value(
+      EscriptGrammar::EscriptParser::StringLiteralContext* string_literal );
+
+  std::string unquote( antlr4::tree::TerminalNode* regular_string );
 
   std::unique_ptr<Value> value( EscriptGrammar::EscriptParser::LiteralContext* );
 

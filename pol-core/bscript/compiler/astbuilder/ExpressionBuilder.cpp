@@ -241,7 +241,7 @@ std::unique_ptr<ErrorInitializer> ExpressionBuilder::error(
         std::string identifier;
         if ( auto x = expression_ctx->IDENTIFIER() )
           identifier = text( x );
-        else if ( auto string_literal = expression_ctx->STRING_LITERAL() )
+        else if ( auto string_literal = expression_ctx->REGULAR_STRING() )
           identifier = unquote( string_literal );
         else
           expression_source_ctx.internal_error(
@@ -357,8 +357,8 @@ std::unique_ptr<MemberAccess> ExpressionBuilder::navigation(
   std::string name;
   if ( auto identifier = ctx->IDENTIFIER() )
     name = text( identifier );
-  else if ( auto string_literal = ctx->STRING_LITERAL() )
-    name = unquote( string_literal );
+  else if ( auto regular_string = ctx->REGULAR_STRING() )
+    name = unquote( regular_string );
   else
     loc.internal_error( "member_access: need string literal or identifier" );
   return std::make_unique<MemberAccess>( loc, std::move( lhs ), std::move( name ) );
@@ -505,8 +505,8 @@ std::unique_ptr<Expression> ExpressionBuilder::struct_initializer(
         std::string identifier;
         if ( auto x = initializer_expression_ctx->IDENTIFIER() )
           identifier = text( x );
-        else if ( auto string_literal = initializer_expression_ctx->STRING_LITERAL() )
-          identifier = unquote( string_literal );
+        else if ( auto regular_string = initializer_expression_ctx->REGULAR_STRING() )
+          identifier = unquote( regular_string );
         else
           loc.internal_error( "Unable to determine identifier for struct initializer" );
 

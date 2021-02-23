@@ -292,6 +292,10 @@ void NodeVisitor::visit_string_value( StringValue& )
 {
 }
 
+void NodeVisitor::visit_interpolated_string_value( InterpolatedStringValue& )
+{
+}
+
 void NodeVisitor::visit_struct_initializer( StructInitializer& node )
 {
   visit_children( node );

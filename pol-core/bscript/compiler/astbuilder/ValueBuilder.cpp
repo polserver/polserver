@@ -7,6 +7,7 @@
 #include "compiler/ast/FloatValue.h"
 #include "compiler/ast/FunctionReference.h"
 #include "compiler/ast/IntegerValue.h"
+#include "compiler/ast/InterpolatedStringValue.h"
 #include "compiler/ast/StringValue.h"
 #include "compiler/astbuilder/BuilderWorkspace.h"
 #include "compiler/file/SourceLocation.h"
@@ -52,19 +53,26 @@ std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
   return std::make_unique<IntegerValue>( loc, to_int( ctx ) );
 }
 
-std::unique_ptr<StringValue> ValueBuilder::string_value(
-    antlr4::tree::TerminalNode* string_literal )
+std::unique_ptr<StringValue> ValueBuilder::regular_string_value(
+    antlr4::tree::TerminalNode* regular_string )
 {
-  auto loc = location_for( *string_literal );
-  return std::make_unique<StringValue>( loc, unquote( string_literal ) );
+  auto loc = location_for( *regular_string );
+  return std::make_unique<StringValue>( loc, unquote( regular_string ) );
 }
 
-std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
+std::unique_ptr<InterpolatedStringValue> ValueBuilder::interpolated_string_value(
+    EscriptGrammar::EscriptParser::InterpolatedStringContext* interpolated_string )
 {
-  std::string input = string_literal->getSymbol()->getText();
+  auto loc = location_for( *interpolated_string );
+  return std::make_unique<InterpolatedStringValue>( loc, "TODO!" );
+}
+
+std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* regular_string )
+{
+  std::string input = regular_string->getSymbol()->getText();
   const char* s = input.c_str();
   if ( *s != '\"' )
-    location_for( *string_literal ).internal_error( "string does not begin with a quote?" );
+    location_for( *regular_string ).internal_error( "string does not begin with a quote?" );
 
   const char* end = s + 1;
   std::string lit;
@@ -79,15 +87,15 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
     if ( !*end )
     {
       // parser should catch this.
-      location_for( *string_literal ).internal_error( "unterminated string" );
+      location_for( *regular_string ).internal_error( "unterminated string" );
     }
     if ( *end == '\n' || *end == '\r' ) {
-      report.error( location_for( *string_literal ), "String literal contains a newline.\n" );
+      report.error( location_for( *regular_string ), "String literal contains a newline.\n" );
       return lit;
     }
 
     if ( escnext && hexnext )
-      location_for( *string_literal )
+      location_for( *regular_string )
           .internal_error( "Bug in the compiler. Please report this on the forums." );
 
     if ( escnext )
@@ -113,7 +121,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
         char ord = static_cast<char>( strtol( hexstr, &endptr, 16 ) );
         if ( *endptr != '\0' )
         {
-          report.error( location_for( *string_literal ), "Invalid hex escape sequence '", hexstr,
+          report.error( location_for( *regular_string ), "Invalid hex escape sequence '", hexstr,
                         "'.\n" );
           return lit;
         }
@@ -133,7 +141,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
   }
   if ( !Clib::isValidUnicode( lit ) )
   {
-    report.warning( location_for( *string_literal ),
+    report.warning( location_for( *regular_string ),
                     "Warning: invalid unicode character detected. Assuming ISO8859.\n" );
 
     Clib::sanitizeUnicodeWithIso( &lit );
@@ -143,7 +151,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
 
 std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
 {
-  if ( auto string_literal = ctx->STRING_LITERAL() )
+  if ( auto string_literal = ctx->stringLiteral() )
   {
     return string_value( string_literal );
   }
@@ -158,6 +166,23 @@ std::unique_ptr<Value> ValueBuilder::value( EscriptParser::LiteralContext* ctx )
   else
   {
     location_for( *ctx ).internal_error( "unhandled literal" );
+  }
+}
+
+std::unique_ptr<Value> ValueBuilder::string_value(
+    EscriptGrammar::EscriptParser::StringLiteralContext* string_literal )
+{
+  if ( auto regular_string = string_literal->REGULAR_STRING() )
+  {
+    return regular_string_value( regular_string );
+  }
+  else if ( auto interpolated_string = string_literal->interpolatedString() )
+  {
+    return interpolated_string_value( interpolated_string );
+  }
+  else
+  {
+    location_for( *string_literal ).internal_error( "unhandled string literal" );
   }
 }
 

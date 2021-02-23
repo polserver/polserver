@@ -126,8 +126,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
   auto source_location = location_for( *ctx );
 
   std::string include_name;
-  if ( auto string_literal = ctx->stringIdentifier()->STRING_LITERAL() )
-    include_name = tree_builder.unquote( string_literal );
+  if ( auto regular_string = ctx->stringIdentifier()->REGULAR_STRING() )
+    include_name = tree_builder.unquote( regular_string );
   else if ( auto identifier = ctx->stringIdentifier()->IDENTIFIER() )
     include_name = identifier->getSymbol()->getText();
   else
@@ -273,8 +273,8 @@ void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationC
                                                   long long* micros_used )
 {
   EscriptParser::StringIdentifierContext* stringId = ctx->stringIdentifier();
-  std::string modulename = stringId->STRING_LITERAL()
-                               ? tree_builder.unquote( stringId->STRING_LITERAL() )
+  std::string modulename = stringId->REGULAR_STRING()
+                               ? tree_builder.unquote( stringId->REGULAR_STRING() )
                                : tree_builder.text( stringId->IDENTIFIER() );
   auto source_location = location_for( *ctx );
   use_module( modulename, source_location, micros_used );

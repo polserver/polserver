@@ -39,6 +39,7 @@ class FunctionReference;
 class Identifier;
 class IfThenElseStatement;
 class IntegerValue;
+class InterpolatedStringValue;
 class JumpStatement;
 class MemberAccess;
 class MethodCall;
@@ -116,6 +117,7 @@ public:
   virtual void visit_repeat_until_loop( RepeatUntilLoop& );
   virtual void visit_return_statement( ReturnStatement& );
   virtual void visit_string_value( StringValue& );
+  virtual void visit_interpolated_string_value( InterpolatedStringValue& );
   virtual void visit_struct_initializer( StructInitializer& );
   virtual void visit_struct_member_initializer( StructMemberInitializer& );
   virtual void visit_top_level_statements( TopLevelStatements& );
