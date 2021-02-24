@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "ubuntu-latest"
+          - os: "ubuntu-20.04"
             cxx-compiler: g++-8
             c-compiler: gcc-8
             build-type: RelWithDebInfo

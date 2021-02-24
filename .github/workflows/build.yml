@@ -15,21 +15,21 @@ jobs:
             build-type: Release
             nopch: 0
 
-          - os: "ubuntu-latest"
+          - os: "ubuntu-20.04"
             cxx-compiler: g++
             c-compiler: gcc
             compiler-version: 9
             build-type: RelWithDebInfo
             nopch: 0
 
-          - os: "ubuntu-latest"
+          - os: "ubuntu-20.04"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 8
             build-type: RelWithDebInfo
             nopch: 0
           
-          - os: "ubuntu-latest"
+          - os: "ubuntu-20.04"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 8
@@ -58,7 +58,7 @@ jobs:
           path: lib/boost_1_74_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
       - name: Install Compiler and Dependencies
-        if: matrix.config.os == 'ubuntu-latest'
+        if: matrix.config.os == 'ubuntu-20.04'
         shell: pwsh
         run: |
           sudo apt-get update
@@ -141,7 +141,7 @@ jobs:
           mkdir release
           mv *.zip release
       - name: Create Artefact (dbg)
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.nopch == 0
+        if: matrix.config.os == 'ubuntu-20.04' && matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
@@ -157,7 +157,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: "ubuntu-latest" 
+    runs-on: "ubuntu-20.04" 
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Download artefacts
@@ -221,7 +221,7 @@ jobs:
  
   notify_on_failure:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -233,7 +233,7 @@ jobs:
           job: Building
   notify_on_success:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -245,7 +245,7 @@ jobs:
           job: Building
   notify_on_cancel:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled

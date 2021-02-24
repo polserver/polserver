@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "ubuntu-latest"
+          - os: "ubuntu-20.04"
             cxx-compiler: g++
             c-compiler: gcc
             compiler-version: 9
@@ -120,7 +120,7 @@ jobs:
  
   notify_on_failure:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -132,7 +132,7 @@ jobs:
           job: Coverage Report
   notify_on_success:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -144,7 +144,7 @@ jobs:
           job: Coverage Report
   notify_on_cancel:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled

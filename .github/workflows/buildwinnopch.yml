@@ -104,7 +104,7 @@ jobs:
  
   notify_on_failure:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -116,7 +116,7 @@ jobs:
           job: Building (Windows no PCH)
   notify_on_success:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -128,7 +128,7 @@ jobs:
           job: Building (Windows no PCH)
   notify_on_cancel:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled
