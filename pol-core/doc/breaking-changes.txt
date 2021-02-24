@@ -8,6 +8,15 @@
       - Numbers like 98 will be understood as 98.0.0
       - Numbers like 98.1 will be understood as 98.1.0
 
+2020-10-20:
+  Changed: It is now a syntax error to have a string literal that spans multiple lines.
+           If you have code like this:
+                 var a := "first line
+                     second line";
+           change it to something like this (adjust padding as needed):
+                 var a := "first line\n"
+                    + "    second line";
+
 2020-09-15:
     The new compiler could change script behavior.
     Be sure to run the compiler in "comparison mode" and update any scripts that have differences so that this doesn't happen.
