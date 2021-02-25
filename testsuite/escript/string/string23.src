@@ -1,2 +1,2 @@
-print(CAscZ("1
-2"));
+print(Len(SplitWords("1
+2")));
