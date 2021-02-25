@@ -20,12 +20,13 @@ namespace Clib
  * @param filename Full path of the file to be read
  * @throws std::runtime_error When something goes wrong when reading the file
  */
-FileContents::FileContents( const char* filename )
+FileContents::FileContents( const char* filename, bool suppress_error_print )
 {
   FILE* fp = fopen( filename, "rb" );
   if ( fp == nullptr )
   {
-    ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
+    if ( !suppress_error_print )
+      ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
     throw std::runtime_error( "Error opening file" );
   }
 
