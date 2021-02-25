@@ -5,25 +5,26 @@
 #
 # ModuleDirectory: Location of *.em files
 #
-ModuleDirectory=D:\DistroDev\scripts\modules
+ModuleDirectory=/scripts/modules
 
 #
 # IncludeDirectory: Location of *.inc files, if not found relative
 #                   or with a specified package
 #
-IncludeDirectory=D:\DistroDev\scripts
+IncludeDirectory=/scripts
 
 #
 # PolScriptRoot: Location of "::file" includes
 #
-PolScriptRoot=D:\DistroDev\scripts
+PolScriptRoot=/scripts
 
 #
 # PackageRoot: root directories where packages are stored
 #              This can be specified multiple times.
 #
-PackageRoot=D:\DistroDev\pkg
-PackageRoot=D:\DistroDev\devpkg
+PackageRoot=/pkg
+PackageRoot=/pkgopt
+PackageRoot=/devpkg
 
 #
 # Default ecompile options
