@@ -1,7 +1,7 @@
 #ifndef POLSERVER_ARGUMENT_H
 #define POLSERVER_ARGUMENT_H
 
-#include "compiler/ast/Node.h"
+#include "bscript/compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {

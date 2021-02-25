@@ -1,7 +1,7 @@
 #ifndef POLSERVER_ELEMENTACCESS_H
 #define POLSERVER_ELEMENTACCESS_H
 
-#include "compiler/ast/Expression.h"
+#include "bscript/compiler/ast/Expression.h"
 
 namespace Pol::Bscript::Compiler
 {

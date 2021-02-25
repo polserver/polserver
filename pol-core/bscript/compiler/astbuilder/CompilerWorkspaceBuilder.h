@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "compiler/model/UserFunctionInclusion.h"
+#include "bscript/compiler/model/UserFunctionInclusion.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -3,8 +3,8 @@
 #include <utility>
 
 #include "clib/logfacility.h"
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/ast/Expression.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/Expression.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -7,8 +7,8 @@
 #include <optional>
 #include <string>
 
-#include "compiler/astbuilder/ProgramBuilder.h"
-#include "compiler/model/UserFunctionInclusion.h"
+#include "bscript/compiler/astbuilder/ProgramBuilder.h"
+#include "bscript/compiler/model/UserFunctionInclusion.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,11 +1,11 @@
 #ifndef POLSERVER_OPTIMIZER_H
 #define POLSERVER_OPTIMIZER_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
 
-#include "compiler/model/UserFunctionInclusion.h"
+#include "bscript/compiler/model/UserFunctionInclusion.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -7,7 +7,7 @@
 
 #include "clib/formatfwd.h"
 
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

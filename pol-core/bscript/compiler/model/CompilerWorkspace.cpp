@@ -1,12 +1,12 @@
 #include "CompilerWorkspace.h"
 
-#include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/ast/Program.h"
-#include "compiler/ast/TopLevelStatements.h"
-#include "compiler/analyzer/Constants.h"
-#include "compiler/ast/ConstDeclaration.h"
-#include "compiler/ast/UserFunction.h"
-#include "compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/Program.h"
+#include "bscript/compiler/ast/TopLevelStatements.h"
+#include "bscript/compiler/analyzer/Constants.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {

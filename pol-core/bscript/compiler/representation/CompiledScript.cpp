@@ -3,10 +3,10 @@
 #include <utility>
 
 #include "StoredToken.h"
-#include "compiler/file/SourceFileIdentifier.h"
-#include "compiler/representation/ExportedFunction.h"
-#include "compiler/representation/ModuleDescriptor.h"
-#include "compiler/representation/ModuleFunctionDescriptor.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/representation/ExportedFunction.h"
+#include "bscript/compiler/representation/ModuleDescriptor.h"
+#include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

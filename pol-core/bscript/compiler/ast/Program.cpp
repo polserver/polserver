@@ -2,9 +2,9 @@
 
 #include <format/format.h>
 
-#include "compiler/ast/FunctionBody.h"
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/ast/ProgramParameterList.h"
+#include "bscript/compiler/ast/FunctionBody.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/ProgramParameterList.h"
 
 namespace Pol::Bscript::Compiler
 {

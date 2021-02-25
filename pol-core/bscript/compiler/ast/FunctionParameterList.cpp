@@ -2,8 +2,8 @@
 
 #include <format/format.h>
 
-#include "compiler/ast/FunctionParameterDeclaration.h"
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/FunctionParameterDeclaration.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,8 +1,8 @@
 #ifndef POLSERVER_FOREACHLOOP_H
 #define POLSERVER_FOREACHLOOP_H
 
-#include "compiler/ast/LoopStatement.h"
-#include "compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/ast/LoopStatement.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {

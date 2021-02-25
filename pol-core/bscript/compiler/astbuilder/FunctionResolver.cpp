@@ -1,13 +1,13 @@
 #include "FunctionResolver.h"
 
-#include "compiler/Profile.h"
-#include "compiler/Report.h"
-#include "compiler/ast/Function.h"
-#include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/ast/UserFunction.h"
-#include "compiler/astbuilder/AvailableUserFunction.h"
-#include "compiler/file/SourceLocation.h"
-#include "compiler/model/FunctionLink.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/Function.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/astbuilder/AvailableUserFunction.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {

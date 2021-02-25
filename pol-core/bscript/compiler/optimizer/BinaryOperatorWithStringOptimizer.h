@@ -1,7 +1,7 @@
 #ifndef POLSERVER_BINARYOPERATORWITHSTRINGOPTIMIZER_H
 #define POLSERVER_BINARYOPERATORWITHSTRINGOPTIMIZER_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
 

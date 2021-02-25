@@ -1,7 +1,7 @@
 #ifndef POLSERVER_INTEGERVALUE_H
 #define POLSERVER_INTEGERVALUE_H
 
-#include "compiler/ast/Value.h"
+#include "bscript/compiler/ast/Value.h"
 
 namespace Pol::Bscript::Compiler
 {

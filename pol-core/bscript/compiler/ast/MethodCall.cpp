@@ -3,8 +3,8 @@
 #include <format/format.h>
 #include <utility>
 
-#include "compiler/ast/MethodCallArgumentList.h"
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/MethodCallArgumentList.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 #include "compilercfg.h"
 
 namespace Pol::Bscript::Compiler

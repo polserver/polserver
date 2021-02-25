@@ -1,8 +1,8 @@
 #include "UserFunctionVisitor.h"
 
-#include "compiler/ast/UserFunction.h"
-#include "compiler/astbuilder/BuilderWorkspace.h"
-#include "compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -3,8 +3,8 @@
 #include <set>
 
 #include "clib/maputil.h"
-#include "compiler/Profile.h"
-#include "compiler/Report.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/Report.h"
 
 namespace Pol::Bscript::Compiler
 {
