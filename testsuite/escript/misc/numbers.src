@@ -62,3 +62,6 @@ testPrint(t);
 
 t := 2E9;
 testPrint(t);
+
+t := 0x10.1;
+testPrint(t);
