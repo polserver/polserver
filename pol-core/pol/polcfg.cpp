@@ -288,7 +288,7 @@ void PolConfig::read_pol_config( bool initial_load )
     std::string substr;
     std::getline( ss >> std::ws, substr, ',' );
     substr.erase( substr.find_last_not_of( " \t\r\n" ) + 1 );
-    boost::to_lower( substr );
+    Clib::mklowerASCII( substr );
     Plib::systemstate.config.allowed_environmentvariables_access.push_back( substr );
   }
 

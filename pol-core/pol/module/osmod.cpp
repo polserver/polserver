@@ -1195,7 +1195,7 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
 
 BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
 {
-  auto& allowed_vars = Plib::systemstate.config.allowed_environmentvariables_access;
+  const auto& allowed_vars = Plib::systemstate.config.allowed_environmentvariables_access;
   if ( allowed_vars.empty() )
     return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
   const String* env_name;
@@ -1214,7 +1214,7 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
       if ( pos == std::string_view::npos )
         continue;
       auto key = env.substr( 0, pos );
-      auto key_lowered = boost::to_lower_copy( std::string{ key } );
+      auto key_lowered = Clib::strlowerASCII( std::string{ key } );
       auto val = env.substr( pos + 1 );
 
       if ( all_allowed || std::find( allowed_vars.begin(), allowed_vars.end(), key_lowered ) !=
@@ -1230,7 +1230,7 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
   {
     if ( !all_allowed )
     {
-      auto name_lowered = boost::to_lower_copy( env_name->value() );
+      auto name_lowered = Clib::strlowerASCII( env_name->value() );
       if ( std::find( allowed_vars.begin(), allowed_vars.end(), name_lowered ) ==
            allowed_vars.end() )
         return new BError( "Environment Variable access disallowed due to pol.cfg setting" );

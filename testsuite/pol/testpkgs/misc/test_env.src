@@ -21,11 +21,20 @@ exported function list_env()
   return 1;
 endfunction
 
-exported function get_bad_env()
-  // Alternating caps for case-sensitivity checking.
-  var res:=GetEnvironmentVariable("PaTh");
-  if (res.errortext != "Environment Variable access disallowed due to pol.cfg setting")
-    return ret_error("Environment variable found when expected error, got: "+res);
+exported function get_noaccess_env()
+  foreach env in ({"POLCORE_TEST_NOACCESS", "polcore_test_noaccess"})
+    var res:=GetEnvironmentVariable(env);
+    if (res.errortext != "Environment Variable access disallowed due to pol.cfg setting")
+      return ret_error("Environment variable was found when expected access error, got: "+res);
+    endif
+  endforeach
+  return 1;
+endfunction
+
+exported function get_notfound_env()
+  var res:=GetEnvironmentVariable("POLCORE_TEST_NOTFOUND");
+  if (res.errortext != "Environment variable not found")
+    return ret_error("Environment variable found when expected not found error, got: "+res);
   endif
   return 1;
 endfunction

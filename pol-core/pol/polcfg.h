@@ -12,6 +12,7 @@
 #define POLCFG_H
 
 #include <string>
+#include <vector>
 
 #include "crypt/cryptkey.h"
 #if !defined( _WIN32 )
