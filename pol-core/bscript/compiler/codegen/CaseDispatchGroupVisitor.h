@@ -1,7 +1,7 @@
 #ifndef POLSERVER_CASEDISPATCHGROUPVISITOR_H
 #define POLSERVER_CASEDISPATCHGROUPVISITOR_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,8 +1,8 @@
 #include "FlowControlScope.h"
 
-#include "compiler/analyzer/FlowControlScopes.h"
-#include "compiler/analyzer/Variables.h"
-#include "compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/analyzer/FlowControlScopes.h"
+#include "bscript/compiler/analyzer/Variables.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -791,7 +791,10 @@ bool UOExecutor::getSkillIdParam( unsigned param, USKILLID& skillid )
     if ( !getAttributeParam( param, attr ) )
       return false;
     if ( attr->skillid != static_cast<USKILLID>( -1 ) )
-      return attr->skillid;
+    {
+      skillid = attr->skillid;
+      return true;
+    }
     const String* attrname;
     getStringParam( param, attrname );  // no error check needed
     std::string report = "Parameter " + Clib::tostring( param ) + " value " + attrname->value() +

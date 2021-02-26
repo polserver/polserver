@@ -3,8 +3,8 @@
 #include <fstream>
 
 #include "StoredToken.h"
-#include "compiler/format/StoredTokenDecoder.h"
-#include "compiler/representation/CompiledScript.h"
+#include "bscript/compiler/format/StoredTokenDecoder.h"
+#include "bscript/compiler/representation/CompiledScript.h"
 
 namespace Pol::Bscript::Compiler
 {

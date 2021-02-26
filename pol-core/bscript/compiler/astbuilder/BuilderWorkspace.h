@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "compiler/astbuilder/FunctionResolver.h"
+#include "bscript/compiler/astbuilder/FunctionResolver.h"
 
 namespace Pol::Bscript::Compiler
 {

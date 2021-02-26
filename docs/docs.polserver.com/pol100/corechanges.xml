@@ -2,20 +2,21 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-28-2020</datemodified>
+		<datemodified>02-26-2021</datemodified>
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>12-28-2020</date>
-			<author>Turley:</author>
-			<change type="Added">pol.cfg AllowEnvironmentVariableAccess disable this setting to disallow execution of os::GetEnvironmentVariable</change>
+			<date>02-26-2020</date>
+			<author>Turley, Kevin:</author>
+			<change type="Added">os::GetEnvironmentVariable(name:=&quot;&quot;)<br/>
+Returns String value of given environment variable name. If name is empty, returns Dictionary of all environment variables.<br/>
+The pol.cfg setting AllowedEnvironmentVariablesAccess controls script access to this function. See documentation for more details.</change>
 		</entry>
 		<entry>
-			<date>12-26-2020</date>
-			<author>Turley:</author>
-			<change type="Added">os::GetEnvironmentVariable(name:=&quot;&quot;)<br/>
-returns String value of given environment variable name<br/>
-if name is empty returns dictionary of all environment variables</change>
+			<date>02-22-2021</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Various compilation issues when using &quot;\\&quot; in scripts.</change>
+			<change type="Fixed">Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.</change>
 		</entry>
 		<entry>
 			<date>12-17-2020</date>

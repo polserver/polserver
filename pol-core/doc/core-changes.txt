@@ -1,10 +1,11 @@
 ﻿-- POL100 --
-12-28-2020 Turley:
-    Added: pol.cfg AllowEnvironmentVariableAccess disable this setting to disallow execution of os::GetEnvironmentVariable
-12-26-2020 Turley:
+02-26-2020 Turley, Kevin:
     Added: os::GetEnvironmentVariable(name:="")
-           returns String value of given environment variable name
-           if name is empty returns dictionary of all environment variables
+           Returns String value of given environment variable name. If name is empty, returns Dictionary of all environment variables.
+           The pol.cfg setting AllowedEnvironmentVariablesAccess controls script access to this function. See documentation for more details.
+02-22-2021 Kevin:
+    Fixed: Various compilation issues when using "\\" in scripts.
+    Fixed: Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.
 12-17-2020 Turley:
     Added: AppendConfigFileElem now checks if the file could be opened, returns an error if this fails.
 12-9-2020 Turley:

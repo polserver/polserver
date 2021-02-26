@@ -1,7 +1,7 @@
 #ifndef POLSERVER_DISAMBIGUATOR_H
 #define POLSERVER_DISAMBIGUATOR_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

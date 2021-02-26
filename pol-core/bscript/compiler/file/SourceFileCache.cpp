@@ -2,9 +2,9 @@
 
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "compiler/Profile.h"
-#include "compiler/file/SourceFile.h"
-#include "compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/file/SourceFile.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {

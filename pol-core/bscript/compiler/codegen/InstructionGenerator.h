@@ -1,7 +1,7 @@
 #ifndef POLSERVER_INSTRUCTIONGENERATOR_H
 #define POLSERVER_INSTRUCTIONGENERATOR_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <map>
 #include <string>

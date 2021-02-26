@@ -3,8 +3,8 @@
 #include <format/format.h>
 #include <utility>
 
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/ast/StructMemberInitializer.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/StructMemberInitializer.h"
 
 namespace Pol::Bscript::Compiler
 {

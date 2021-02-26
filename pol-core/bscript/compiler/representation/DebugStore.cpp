@@ -1,8 +1,8 @@
 #include "DebugStore.h"
 
-#include "compiler/model/LocalVariableScopeInfo.h"
-#include "compiler/model/Variable.h"
-#include "compiler/representation/DebugBlock.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/model/Variable.h"
+#include "bscript/compiler/representation/DebugBlock.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,9 +1,9 @@
 #include "ModuleDeclarationBuilder.h"
 
-#include "compiler/ast/Expression.h"
-#include "compiler/ast/FunctionParameterDeclaration.h"
-#include "compiler/ast/FunctionParameterList.h"
-#include "compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/FunctionParameterDeclaration.h"
+#include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 
 using EscriptGrammar::EscriptParser;
 

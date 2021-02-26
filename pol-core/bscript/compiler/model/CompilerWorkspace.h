@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "clib/maputil.h"
-#include "compiler/analyzer/Constants.h"
-#include "compiler/ast/Node.h"
+#include "bscript/compiler/analyzer/Constants.h"
+#include "bscript/compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {

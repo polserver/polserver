@@ -3,7 +3,7 @@
 
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
-#include "compiler/astbuilder/UserFunctionBuilder.h"
+#include "bscript/compiler/astbuilder/UserFunctionBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

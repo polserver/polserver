@@ -13,7 +13,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 8
+            compiler-version: 9
             build-type: Release
     runs-on: ${{ matrix.config.os }}
     steps:
@@ -40,7 +40,7 @@ jobs:
           chmod +x "$cmake_archive/bin/cmake"
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin"  | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           # I'm to dumb to get coverity to work with non default compiler
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 800 --slave /usr/bin/g++ g++ /usr/bin/g++-9
       
       - name: Download Coverity Build Tool
         run: |
@@ -57,7 +57,7 @@ jobs:
       - name: Build 3rd party libs
         run: |
           cd bin-build
-          cmake ..
+          cmake .. -DNO_PCH=1 
           cmake --build . --target libcurl
           cmake --build . --target libantlr_ex
           cmake --build . --target boost
@@ -68,7 +68,7 @@ jobs:
       - name: Build with cov-build
         run: |
           cd bin-build
-          cov-configure --gcc
+          cov-configure --template --comptype gcc --compiler gcc
           cmake ..
           cov-build --dir cov-int make -j 2
 
@@ -85,3 +85,8 @@ jobs:
             https://scan.coverity.com/builds?project=polserver%2Fpolserver
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+#      - name: Upload Artefact
+#        uses: actions/upload-artifact@v1
+#        with:
+#          name: test
+#          path: bin-build/polserver.tgz

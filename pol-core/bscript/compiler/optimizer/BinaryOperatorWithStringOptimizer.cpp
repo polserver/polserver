@@ -1,7 +1,7 @@
 #include "BinaryOperatorWithStringOptimizer.h"
 
-#include "compiler/ast/BinaryOperator.h"
-#include "compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/StringValue.h"
 
 namespace Pol::Bscript::Compiler
 {

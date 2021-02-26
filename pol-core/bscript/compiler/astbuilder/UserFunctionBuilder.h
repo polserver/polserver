@@ -1,7 +1,7 @@
 #ifndef POLSERVER_USERFUNCTIONBUILDER_H
 #define POLSERVER_USERFUNCTIONBUILDER_H
 
-#include "compiler/astbuilder/CompoundStatementBuilder.h"
+#include "bscript/compiler/astbuilder/CompoundStatementBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

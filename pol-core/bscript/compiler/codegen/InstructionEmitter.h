@@ -14,10 +14,10 @@
 #ifndef __TOKENS_H
 #include "tokens.h"
 #endif
-#include "compiler/codegen/CodeEmitter.h"
-#include "compiler/codegen/DataEmitter.h"
-#include "compiler/representation/CompiledScript.h"
-#include "compiler/representation/DebugStore.h"
+#include "bscript/compiler/codegen/CodeEmitter.h"
+#include "bscript/compiler/codegen/DataEmitter.h"
+#include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compiler/representation/DebugStore.h"
 
 namespace Pol::Bscript
 {

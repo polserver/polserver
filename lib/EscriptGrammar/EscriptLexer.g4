@@ -95,7 +95,7 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 
 CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
-STRING_LITERAL:     '"' (~["] | EscapeSequence)* '"';
+STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
 
 // Separators
 
@@ -165,10 +165,9 @@ fragment ExponentPart
     : [eE] [+-]? Digits
     ;
 
+// We currently allow all escapes, as they are checked during semantic analysis.
 fragment EscapeSequence
-    : '\\' [btnfr"'\\]
-    | '\\' ([0-3]? [0-7])? [0-7]
-    | '\\' 'u'+ HexDigit HexDigit HexDigit HexDigit
+    : '\\' .
     ;
 
 fragment HexDigits

@@ -1,7 +1,7 @@
 #ifndef POLSERVER_PROGRAMPARAMETERDECLARATION_H
 #define POLSERVER_PROGRAMPARAMETERDECLARATION_H
 
-#include "compiler/ast/Node.h"
+#include "bscript/compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {

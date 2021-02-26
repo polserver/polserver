@@ -4,12 +4,12 @@
 #include <map>
 #include <utility>
 
-#include "compiler/ast/Argument.h"
-#include "compiler/ast/FunctionParameterDeclaration.h"
-#include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/ast/NodeVisitor.h"
-#include "compiler/file/SourceLocation.h"
-#include "compiler/model/FunctionLink.h"
+#include "bscript/compiler/ast/Argument.h"
+#include "bscript/compiler/ast/FunctionParameterDeclaration.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {

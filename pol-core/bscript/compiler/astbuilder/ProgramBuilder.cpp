@@ -1,10 +1,10 @@
 #include "ProgramBuilder.h"
 
-#include "compiler/ast/FunctionBody.h"
-#include "compiler/ast/Program.h"
-#include "compiler/ast/ProgramParameterDeclaration.h"
-#include "compiler/ast/ProgramParameterList.h"
-#include "compiler/ast/Statement.h"
+#include "bscript/compiler/ast/FunctionBody.h"
+#include "bscript/compiler/ast/Program.h"
+#include "bscript/compiler/ast/ProgramParameterDeclaration.h"
+#include "bscript/compiler/ast/ProgramParameterList.h"
+#include "bscript/compiler/ast/Statement.h"
 
 using EscriptGrammar::EscriptParser;
 
