@@ -111,7 +111,7 @@ struct PolConfig
   std::string report_server;
   std::string report_url;
 
-  bool environmentvariable_access;
+  std::vector<std::string> allowed_environmentvariables_access;
 
   static void read_pol_config( bool initial_load );
   static struct stat pol_cfg_stat;

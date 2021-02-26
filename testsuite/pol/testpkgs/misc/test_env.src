@@ -20,3 +20,12 @@ exported function list_env()
   endif
   return 1;
 endfunction
+
+exported function get_bad_env()
+  // Alternating caps for case-sensitivity checking.
+  var res:=GetEnvironmentVariable("PaTh");
+  if (res.errortext != "Environment Variable access disallowed due to pol.cfg setting")
+    return ret_error("Environment variable found when expected error, got: "+res);
+  endif
+  return 1;
+endfunction

@@ -1195,11 +1195,14 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
 
 BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
 {
-  if ( !Plib::systemstate.config.environmentvariable_access )
+  auto& allowed_vars = Plib::systemstate.config.allowed_environmentvariables_access;
+  if ( allowed_vars.empty() )
     return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
   const String* env_name;
   if ( !exec.getStringParam( 0, env_name ) )
     return new BError( "Invalid parameter type" );
+
+  bool all_allowed = allowed_vars.size() == 1 && allowed_vars[0] == "*";
 
   if ( env_name->length() == 0 )
   {
@@ -1211,14 +1214,28 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
       if ( pos == std::string_view::npos )
         continue;
       auto key = env.substr( 0, pos );
+      auto key_lowered = boost::to_lower_copy( std::string{ key } );
       auto val = env.substr( pos + 1 );
-      envs->addMember( new String( key, String::Tainted::YES ),
-                       new String( val, String::Tainted::YES ) );
+
+      if ( all_allowed || std::find( allowed_vars.begin(), allowed_vars.end(), key_lowered ) !=
+                              allowed_vars.end() )
+      {
+        envs->addMember( new String( key, String::Tainted::YES ),
+                         new String( val, String::Tainted::YES ) );
+      }
     }
     return envs.release();
   }
   else
   {
+    if ( !all_allowed )
+    {
+      auto name_lowered = boost::to_lower_copy( env_name->value() );
+      if ( std::find( allowed_vars.begin(), allowed_vars.end(), name_lowered ) ==
+           allowed_vars.end() )
+        return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
+    }
+
     const char* env_val = std::getenv( env_name->data() );
     if ( !env_val )
       return new BError( "Environment variable not found" );
