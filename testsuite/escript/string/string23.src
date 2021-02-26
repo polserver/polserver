@@ -1,0 +1,2 @@
+print(Len(SplitWords("1
+2")));

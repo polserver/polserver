@@ -1266,11 +1266,6 @@ int Parser::tryLiteral( Token& tok, CompilerContext& ctx )
         err = PERR_UNTERMSTRING;
         return -1;
       }
-      if ( *end == '\r' || *end == '\n') {
-        compiler_error( "String literal contains a newline.\n" );
-        err = PERR_MULTILINESTRING;
-        return -1;
-      }
 
       passert_always_r( !( escnext && hexnext ),
                         "Bug in the compiler. Please report this on the forums." );

@@ -1,3 +1,0 @@
-var a := "first line
-          second line";
-print(a);
