@@ -1,7 +1,7 @@
 #ifndef POLSERVER_CASESTATEMENT_H
 #define POLSERVER_CASESTATEMENT_H
 
-#include "compiler/ast/LabelableStatement.h"
+#include "bscript/compiler/ast/LabelableStatement.h"
 
 namespace Pol::Bscript::Compiler
 {

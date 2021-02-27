@@ -1,6 +1,6 @@
 #include "BinaryOperatorOptimizer.h"
 
-#include "compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BinaryOperator.h"
 
 #include "BinaryOperatorWithFloatOptimizer.h"
 #include "BinaryOperatorWithIntegerOptimizer.h"

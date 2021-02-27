@@ -489,6 +489,15 @@ MaxObjtype=0xFFFFFFFF
 #
 #DiscardOldEvents=0
 
+# 
+# AllowedEnvironmentVariablesAccess <comma separate list> or *
+# Enable/Disable os::GetEnvironmentVariable module function
+# When *, all variables are allowed
+# When a list, scripts are only allowed to access these specified variables (case-insensitive).
+# Default is empty, allowing no variable access.
+#
+#AllowedEnvironmentVariablesAccess=
+
 #############################################################################
 ## Experimental Options - Modify at your own risk
 #############################################################################

@@ -1,10 +1,11 @@
 #include "SourceFile.h"
 
+#include "clib/filecont.h"
 #include "clib/fileutil.h"
 #include "clib/strutil.h"
 
-#include "compiler/Report.h"
-#include "compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "compilercfg.h"
 
 using EscriptGrammar::EscriptLexer;
@@ -77,30 +78,25 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
                                               Report& report )
 {
   const std::string& pathname = ident.pathname;
-  std::ifstream ifs( pathname );
-  if ( !ifs.is_open() )
+  try
   {
-    report.error( ident, "Unable to open file '", pathname, "'.\n" );
-    return {};
+    Clib::FileContents fc( pathname.c_str(), true );
+    std::string contents( fc.contents() );
+
+    Clib::sanitizeUnicodeWithIso( &contents );
+
+    if ( Legacy::is_web_script( pathname.c_str() ) )
+    {
+      contents = Legacy::preprocess_web_script( contents );
+    }
+
+    return std::make_shared<SourceFile>( pathname, contents, profile );
   }
-
-  std::string contents( ( std::istreambuf_iterator<char>( ifs ) ),
-                        std::istreambuf_iterator<char>() );
-
-  if ( ifs.fail() )
+  catch ( ... )
   {
     report.error( ident, "Unable to read file '", pathname, "'.\n" );
     return {};
   }
-
-  Clib::sanitizeUnicodeWithIso( &contents );
-
-  if ( Legacy::is_web_script( pathname.c_str() ) )
-  {
-    contents = Legacy::preprocess_web_script( contents );
-  }
-
-  return std::make_shared<SourceFile>( pathname, contents, profile );
 }
 
 EscriptGrammar::EscriptParser::CompilationUnitContext* SourceFile::get_compilation_unit(

@@ -1,0 +1,111 @@
+use os;
+use uo;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+var char;
+
+program test_char()
+  if (testrun == 1)
+    var a:=CreateAccount("test","pass",1);
+    a.addcharacter(0);
+    char:=a.getcharacter(1);
+  else
+    var a:=FindAccount("test");
+    if (!a)
+      return ret_error("failed to find account");
+    endif
+    char:=a.getcharacter(1);
+    if (!char)
+      return ret_error("failed to find char");
+    endif
+  endif
+  return 1;
+endprogram
+
+exported function char_name()
+  if (testrun == 1)
+    setname(char,"restart");
+  else
+    if (char.name !="restart")
+      return ret_error("name missmatch \"{}\"".format(char.name));
+    endif
+  endif
+  return 1;
+endfunction
+
+exported function aos_damage()
+  var aos:={
+    "damage_cold", "damage_energy", "damage_fire", "damage_physical", "damage_poison"};
+  if (testrun == 1)
+    foreach mod in aos
+      char.set_member(mod+"_mod", 10);
+    endforeach
+  else
+    foreach mod in aos
+      if (char.get_member(mod) != 10)
+        return ret_error("failed to load aos prop: {} ({})".format(mod,char.get_member(mod)));
+      endif
+    endforeach
+  endif
+  return 1;
+endfunction
+
+exported function aos_resist()
+  var aos:={
+    "resist_cold", "resist_energy", "resist_fire", "resist_physical", "resist_poison"};
+  if (testrun == 1)
+    foreach mod in aos
+      char.set_member(mod+"_mod", 10);
+      char.set_member(mod+"_cap_mod", 20);
+    endforeach
+  else
+    foreach mod in aos
+      if (char.get_member(mod) != 10)
+        return ret_error("failed to load aos prop: {} ({})".format(mod,char.get_member(mod)));
+      endif
+      if (char.get_member(mod+"_cap") != 20)
+        return ret_error("failed to load aos cap: {} ({})".format(mod,char.get_member(mod+"_cap")));
+      endif
+    endforeach
+  endif
+  return 1;
+endfunction
+
+exported function aos_misc_cap()
+  var aos:={
+    "defence_increase"};
+  if (testrun == 1)
+    foreach mod in aos
+      char.set_member(mod+"_mod", 10);
+      char.set_member(mod+"_cap_mod", 20);
+    endforeach
+  else
+    foreach mod in aos
+      if (char.get_member(mod) != 10)
+        return ret_error("failed to load aos prop: {} ({})".format(mod,char.get_member(mod)));
+      endif
+      if (char.get_member(mod+"_cap") != 20)
+        return ret_error("failed to load aos cap: {} ({})".format(mod,char.get_member(mod+"_cap")));
+      endif
+    endforeach
+  endif
+  return 1;
+endfunction
+
+exported function aos_misc()
+  var aos:={
+    "faster_cast_recovery", "faster_casting" , "hit_chance", "lower_mana_cost", "lower_reagent_cost", "luck", "spell_damage_increase", "swing_speed_increase"};
+  if (testrun == 1)
+    foreach mod in aos
+      char.set_member(mod+"_mod", 10);
+    endforeach
+  else
+    foreach mod in aos
+      if (char.get_member(mod) != 10)
+        return ret_error("failed to load aos prop: {} ({})".format(mod,char.get_member(mod)));
+      endif
+    endforeach
+  endif
+  return 1;
+endfunction

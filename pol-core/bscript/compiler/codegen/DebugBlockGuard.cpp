@@ -1,8 +1,8 @@
 #include "DebugBlockGuard.h"
 
-#include "compiler/codegen/InstructionEmitter.h"
-#include "compiler/model/LocalVariableScopeInfo.h"
-#include "compiler/model/Variable.h"
+#include "bscript/compiler/codegen/InstructionEmitter.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/model/Variable.h"
 
 namespace Pol::Bscript::Compiler
 {

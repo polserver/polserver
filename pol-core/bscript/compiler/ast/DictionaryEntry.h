@@ -1,7 +1,7 @@
 #ifndef POLSERVER_DICTIONARYENTRY_H
 #define POLSERVER_DICTIONARYENTRY_H
 
-#include "compiler/ast/Node.h"
+#include "bscript/compiler/ast/Node.h"
 
 namespace Pol::Bscript::Compiler
 {

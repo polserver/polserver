@@ -1,9 +1,9 @@
 #include "StoredTokenDecoder.h"
 
 #include "StoredToken.h"
-#include "compiler/representation/DebugStore.h"
-#include "compiler/representation/ModuleDescriptor.h"
-#include "compiler/representation/ModuleFunctionDescriptor.h"
+#include "bscript/compiler/representation/DebugStore.h"
+#include "bscript/compiler/representation/ModuleDescriptor.h"
+#include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "objmembers.h"
 #include "objmethods.h"
 

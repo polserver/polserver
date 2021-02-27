@@ -1,9 +1,9 @@
 #include "ReferencedFunctionGatherer.h"
 
-#include "compiler/ast/FunctionCall.h"
-#include "compiler/ast/FunctionReference.h"
-#include "compiler/ast/UserFunction.h"
-#include "compiler/model/FunctionLink.h"
+#include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionReference.h"
+#include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {

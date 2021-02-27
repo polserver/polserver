@@ -1,8 +1,8 @@
 #ifndef POLSERVER_USERFUNCTION_H
 #define POLSERVER_USERFUNCTION_H
 
-#include "compiler/ast/Function.h"
-#include "compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/ast/Function.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {

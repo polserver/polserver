@@ -1,7 +1,7 @@
 #ifndef POLSERVER_FUNCTIONLINK_H
 #define POLSERVER_FUNCTIONLINK_H
 
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

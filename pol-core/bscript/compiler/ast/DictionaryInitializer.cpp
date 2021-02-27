@@ -2,8 +2,8 @@
 
 #include <format/format.h>
 
-#include "compiler/ast/DictionaryEntry.h"
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/DictionaryEntry.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

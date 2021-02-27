@@ -1,8 +1,8 @@
 #include "ModuleDeclarationRegistrar.h"
 
-#include "compiler/ast/ModuleFunctionDeclaration.h"
-#include "compiler/representation/ModuleDescriptor.h"
-#include "compiler/representation/ModuleFunctionDescriptor.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/representation/ModuleDescriptor.h"
+#include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 
 namespace Pol::Bscript::Compiler
 {

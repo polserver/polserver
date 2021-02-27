@@ -1,7 +1,7 @@
 #ifndef POLSERVER_BINARYOPERATORWITHFLOATOPTIMIZER_H
 #define POLSERVER_BINARYOPERATORWITHFLOATOPTIMIZER_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <memory>
 

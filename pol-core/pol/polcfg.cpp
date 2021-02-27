@@ -279,6 +279,19 @@ void PolConfig::read_pol_config( bool initial_load )
 
   Plib::systemstate.config.debug_level = elem.remove_ushort( "DebugLevel", 0 );
 
+  auto allowed_environmentvariables_access =
+      elem.remove_string( "AllowedEnvironmentVariablesAccess", "" );
+  Plib::systemstate.config.allowed_environmentvariables_access.clear();
+  std::stringstream ss( allowed_environmentvariables_access );
+  while ( ss.good() )
+  {
+    std::string substr;
+    std::getline( ss >> std::ws, substr, ',' );
+    substr.erase( substr.find_last_not_of( " \t\r\n" ) + 1 );
+    Clib::mklowerASCII( substr );
+    Plib::systemstate.config.allowed_environmentvariables_access.push_back( substr );
+  }
+
   /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
   /// turns out to be disabled, or when it was enabled before, but is being disabled now,
   /// run "garbage collection" to free the allocated resources

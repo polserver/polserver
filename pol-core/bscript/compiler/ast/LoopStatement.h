@@ -1,7 +1,7 @@
 #ifndef POLSERVER_LOOPSTATEMENT_H
 #define POLSERVER_LOOPSTATEMENT_H
 
-#include "compiler/ast/LabelableStatement.h"
+#include "bscript/compiler/ast/LabelableStatement.h"
 
 namespace Pol::Bscript::Compiler
 {

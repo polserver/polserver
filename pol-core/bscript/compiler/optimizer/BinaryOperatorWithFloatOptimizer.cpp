@@ -1,8 +1,8 @@
 #include "BinaryOperatorWithFloatOptimizer.h"
 
-#include "compiler/Report.h"
-#include "compiler/ast/BinaryOperator.h"
-#include "compiler/ast/FloatValue.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/FloatValue.h"
 
 namespace Pol::Bscript::Compiler
 {

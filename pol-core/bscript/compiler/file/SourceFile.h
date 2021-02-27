@@ -7,8 +7,8 @@
 
 #include <EscriptGrammar/EscriptLexer.h>
 #include <EscriptGrammar/EscriptParser.h>
-#include "compiler/file/ConformingCharStream.h"
-#include "compiler/file/ErrorListener.h"
+#include "bscript/compiler/file/ConformingCharStream.h"
+#include "bscript/compiler/file/ErrorListener.h"
 
 namespace Pol::Bscript::Compiler
 {

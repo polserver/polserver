@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "compiler/model/SimpleTypes.h"
-#include "compiler/model/WarnOn.h"
+#include "bscript/compiler/model/SimpleTypes.h"
+#include "bscript/compiler/model/WarnOn.h"
 
 namespace Pol::Bscript::Compiler
 {

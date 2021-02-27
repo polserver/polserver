@@ -1,16 +1,16 @@
 #include "ConstantValidator.h"
 
-#include "compiler/ast/ArrayInitializer.h"
-#include "compiler/ast/ConstDeclaration.h"
-#include "compiler/ast/DictionaryInitializer.h"
-#include "compiler/ast/ErrorInitializer.h"
-#include "compiler/ast/FloatValue.h"
-#include "compiler/ast/FunctionCall.h"
-#include "compiler/ast/Identifier.h"
-#include "compiler/ast/IntegerValue.h"
-#include "compiler/ast/StringValue.h"
-#include "compiler/ast/StructInitializer.h"
-#include "compiler/model/FunctionLink.h"
+#include "bscript/compiler/ast/ArrayInitializer.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/DictionaryInitializer.h"
+#include "bscript/compiler/ast/ErrorInitializer.h"
+#include "bscript/compiler/ast/FloatValue.h"
+#include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/StructInitializer.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -106,3 +106,5 @@ PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
 HTTPRequest(url, method := "GET", options := struct{});
 
 LoadExportedScript(name, args:={});
+
+GetEnvironmentVariable(name:="");

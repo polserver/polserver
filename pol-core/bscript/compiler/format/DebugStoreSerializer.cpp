@@ -2,8 +2,8 @@
 
 #include <fstream>
 
-#include "compiler/representation/CompiledScript.h"
-#include "compiler/representation/DebugBlock.h"
+#include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compiler/representation/DebugBlock.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler

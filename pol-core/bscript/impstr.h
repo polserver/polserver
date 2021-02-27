@@ -12,6 +12,7 @@
 
 #include <stack>
 #include <string>
+#include <string_view>
 
 namespace Pol
 {
@@ -30,9 +31,10 @@ public:
     NO    // performs no unicode sanitize should only be used for internal usage
   };
   String() : BObjectImp( OTString ), value_( "" ) {}
-  String( const char* str, int nchars, Tainted san = Tainted::NO );
+  explicit String( const char* str, size_t nchars, Tainted san = Tainted::NO );
   explicit String( const char* str, Tainted san = Tainted::NO );
   explicit String( const std::string& str, Tainted san = Tainted::NO );
+  explicit String( const std::string_view& str, Tainted san = Tainted::NO );
   explicit String( BObjectImp& objimp );
   String( const String& str ) : BObjectImp( OTString ), value_( str.value_ ) {}
   virtual ~String() = default;

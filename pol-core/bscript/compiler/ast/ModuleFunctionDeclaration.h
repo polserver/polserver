@@ -1,7 +1,7 @@
 #ifndef POLSERVER_MODULEFUNCTIONDECLARATION_H
 #define POLSERVER_MODULEFUNCTIONDECLARATION_H
 
-#include "compiler/ast/Function.h"
+#include "bscript/compiler/ast/Function.h"
 
 namespace Pol::Bscript::Compiler
 {

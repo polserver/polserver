@@ -3,7 +3,7 @@
 #include <antlr4-runtime.h>
 
 #include "clib/logfacility.h"
-#include "compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,7 +1,7 @@
 #ifndef POLSERVER_STRINGVALUE_H
 #define POLSERVER_STRINGVALUE_H
 
-#include "compiler/ast/Value.h"
+#include "bscript/compiler/ast/Value.h"
 
 namespace Pol::Bscript::Compiler
 {

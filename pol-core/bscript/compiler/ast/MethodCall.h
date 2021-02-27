@@ -1,7 +1,7 @@
 #ifndef POLSERVER_METHODCALL_H
 #define POLSERVER_METHODCALL_H
 
-#include "compiler/ast/Expression.h"
+#include "bscript/compiler/ast/Expression.h"
 
 #ifndef OBJMETHODS_H
 #include "objmethods.h"

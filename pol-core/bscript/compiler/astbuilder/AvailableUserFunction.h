@@ -1,7 +1,7 @@
 #ifndef POLSERVER_AVAILABLEUSERFUNCTION_H
 #define POLSERVER_AVAILABLEUSERFUNCTION_H
 
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace antlr4
 {

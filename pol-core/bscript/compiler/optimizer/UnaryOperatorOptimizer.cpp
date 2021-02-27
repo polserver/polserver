@@ -1,10 +1,10 @@
 #include "UnaryOperatorOptimizer.h"
 
-#include "compiler/ast/FloatValue.h"
-#include "compiler/ast/IntegerValue.h"
-#include "compiler/ast/MemberAccess.h"
-#include "compiler/ast/MemberAssignmentByOperator.h"
-#include "compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/FloatValue.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/MemberAccess.h"
+#include "bscript/compiler/ast/MemberAssignmentByOperator.h"
+#include "bscript/compiler/ast/UnaryOperator.h"
 
 namespace Pol::Bscript::Compiler
 {
