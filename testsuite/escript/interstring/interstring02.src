@@ -1,0 +1,5 @@
+/*
+$"Hello, {world!";
+$"Hello, {if (true) endif}";
+$"Hello, {world:}";
+*/

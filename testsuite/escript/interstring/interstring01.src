@@ -1,0 +1,14 @@
+/*
+$"Hello, world!";
+$"Hello, {}";
+$"Hello, {world}!";
+$"Hello, {world + EnumerateOnlineCharacters()}!";
+$"Hello, {world + $"Hello, world"}";
+$"Hello, {world + $"Hello, {world}"}";
+
+$"Hello, world!";
+$"Hello, {world:format}!";
+$"Hello, {world + EnumerateOnlineCharacters():format}!";
+$"Hello, {world + $"Hello, world":format}";
+$"Hello, {world + $"Hello, {world:format}":format}";
+*/
