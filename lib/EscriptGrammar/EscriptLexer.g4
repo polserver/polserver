@@ -91,7 +91,7 @@ FLOAT_LITERAL:      (Digits '.' Digits? | '.' Digits) ExponentPart?
              |       Digits ExponentPart
              ;
 
-HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits);
+HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+-]? Digits;
 
 STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
 
