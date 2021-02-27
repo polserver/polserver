@@ -80,6 +80,9 @@ void load_mime_config( void )
     gamestate.mime_types["jpg"] = "image/jpeg";
     gamestate.mime_types["jpeg"] = "image/jpeg";
     gamestate.mime_types["gif"] = "image/gif";
+    gamestate.mime_types["png"] = "image/png";
+    gamestate.mime_types["js"] = "text/javascript";
+    gamestate.mime_types["ico"] = "image/x-icon";
     return;
   }
 
@@ -312,7 +315,7 @@ bool legal_pagename( const std::string& page )
   for ( const char* t = page.c_str(); *t; ++t )
   {
     char ch = *t;
-    if ( isalnum( ch ) || ( ch == '/' ) || ( ch == '_' ) )
+    if ( isalnum( ch ) || ( ch == '/' ) || ( ch == '_' ) || (ch == '-') )
     {
       continue;
     }
