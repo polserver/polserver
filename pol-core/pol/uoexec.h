@@ -91,8 +91,11 @@ public:
   bool signal_event( Bscript::BObjectImp* eventimp );
 
   unsigned int eventmask;
+  unsigned char area_mask;
   unsigned short area_size;
   unsigned short speech_size;
+  
+ 
 
   bool can_access_offline_mobiles_;
   bool auxsvc_assume_string;

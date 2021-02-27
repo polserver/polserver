@@ -205,6 +205,10 @@
 <constant>const ACTION_DIR_BACKWARD := 1;</constant>
 <constant>const ACTION_NOREPEAT     := 0;</constant>
 <constant>const ACTION_REPEAT       := 1;</constant>
+<constant>// Masks for EnableEvents()</constant>
+<constant>const EVMASK_ALL      := 0;</constant>
+<constant>const EVMASK_ONLY_PC  := 1;</constant>
+<constant>const EVMASK_ONLY_NPC := 2;</constant>
 <constant>//CanWalk</constant>
 <constant>const CANWALK_DIR := -1;</constant>
 <constant>//UpdateMobile</constant>
@@ -2171,9 +2175,10 @@ const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
 </function>
 
 <function name="EnableEvents">
-  <prototype>EnableEvents( eventtype, range := -1 )</prototype>
+  <prototype>EnableEvents( eventtype, range := -1, evmask := EVMASK_ALL )</prototype>
   <parameter name="eventtype" value="Integer" />
   <parameter name="range" value="Integer (optional, 0..32)" />
+  <parameter name="evmask" value="Integer"
   <explain>Enables events specified. When enabled events occur, they will be placed on the 
         script's event queue, and must be read with wait_for_event.  Events that were 
         previously enabled will remain enabled. </explain>
@@ -2182,6 +2187,7 @@ const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
          it first.</explain>
   <explain>This function is useful only to NPCs and Items that have called RegisterForSpeechEvents.</explain>
   <explain>Range is only used for certain events (currently speech, and entered/leftarea events)</explain>
+  <explain>Evmask is used to receive entered/leftarea caused only by PCs, NPCs, or both (the default)</explain>
   <return>Integer new event "mask" on success</return>
   <error>"Invalid parameter"</error>
 </function>

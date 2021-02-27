@@ -807,7 +807,7 @@ void NPC::inform_leftarea( Character* wholeft )
 {
   if ( ex != nullptr )
   {
-    if ( ex->eventmask & ( Core::EVID_LEFTAREA ) )
+    if ( ( ex->eventmask & ( Core::EVID_LEFTAREA ) ) && can_accept_area_event_by( wholeft ) )
     {
       if ( pol_distance( this, wholeft ) <= ex->area_size )
       {
@@ -823,7 +823,7 @@ void NPC::inform_enteredarea( Character* whoentered )
 {
   if ( ex != nullptr )
   {
-    if ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) )
+    if ( ( ex->eventmask & ( Core::EVID_ENTEREDAREA ) ) && can_accept_area_event_by( whoentered ) )
     {
       if ( pol_distance( this, whoentered ) <= ex->area_size )
       {
@@ -845,7 +845,8 @@ void NPC::inform_moved( Character* moved )
   {
     bool signaled = false;
     passert( moved != nullptr );
-    if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+    if ( ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) ) &&
+         can_accept_area_event_by( moved ) )
     {
       // egcs may have a compiler bug when calling these as inlines
       bool are_inrange =
@@ -893,7 +894,8 @@ void NPC::inform_imoved( Character* chr )
   if ( ex != nullptr )
   {
     passert( chr != nullptr );
-    if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) )
+    if ( ex->eventmask & ( Core::EVID_ENTEREDAREA | Core::EVID_LEFTAREA ) &&
+         can_accept_area_event_by( chr ) )
     {
       // egcs may have a compiler bug when calling these as inlines
       bool are_inrange =
@@ -913,6 +915,21 @@ void NPC::inform_imoved( Character* chr )
       }
     }
   }
+}
+
+bool NPC::can_accept_area_event_by( const Character* who ) const
+{
+  if ( !ex->area_mask )
+    return true;
+
+  const bool isNPC = who->isa( Core::UOBJ_CLASS::CLASS_NPC );
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_PC ) && isNPC )
+    return false;
+
+  if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !isNPC )
+    return false;
+
+  return true;
 }
 
 bool NPC::can_accept_event( Core::EVENTID eventid )

@@ -1,5 +1,9 @@
 ﻿-- POL100 --
 02-27-2021 Nando:
+    Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL). 
+           The allowed values are EVMASK_ONLY_PC, EVMASK_ONLY_NPC, or EVMASK_ALL.
+           When set, an NPC or Item will only receive entered/leftarea events caused by a PC, NPC or all mobiles (the default behavior).
+           This parameter is useful, for example, to decrease the load when there are too many NPCs in the same area.
     Added: Default mimetypes for .png, .js and .ico in the internal webserver
     Added: Allow URLs/filenames with a hyphen (-) in the internal webserver
     Fixed: Crash in SendPacket(), packet.SendPacket() and DisconnectClient() when the client was not yet logged in. Mostly affects packet hooks.
