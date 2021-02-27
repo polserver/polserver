@@ -38,7 +38,8 @@ public:
     SEMI = 111, COMMA = 112, TILDE = 113, AT = 114, COLONCOLON = 115, COLON = 116, 
     INC = 117, DEC = 118, ELVIS = 119, WS = 120, COMMENT = 121, LINE_COMMENT = 122, 
     IDENTIFIER = 123, DOUBLE_LBRACE_INSIDE = 124, LBRACE_INSIDE = 125, REGULAR_CHAR_INSIDE = 126, 
-    DOUBLE_QUOTE_INSIDE = 127, STRING_LITERAL_INSIDE = 128
+    DOUBLE_QUOTE_INSIDE = 127, STRING_LITERAL_INSIDE = 128, CLOSE_BRACE_INSIDE = 129, 
+    FORMAT_STRING = 130, DOUBLE_CURLY_CLOSE_INSIDE = 131
   };
 
   enum {
@@ -1531,6 +1532,9 @@ public:
     InterpolatedStringPartContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     ExpressionContext *expression();
+    antlr4::tree::TerminalNode *COLON();
+    std::vector<antlr4::tree::TerminalNode *> FORMAT_STRING();
+    antlr4::tree::TerminalNode* FORMAT_STRING(size_t i);
     antlr4::tree::TerminalNode *DOUBLE_LBRACE_INSIDE();
     antlr4::tree::TerminalNode *REGULAR_CHAR_INSIDE();
     antlr4::tree::TerminalNode *STRING_LITERAL_INSIDE();

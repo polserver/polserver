@@ -36,7 +36,8 @@ public:
     SEMI = 111, COMMA = 112, TILDE = 113, AT = 114, COLONCOLON = 115, COLON = 116, 
     INC = 117, DEC = 118, ELVIS = 119, WS = 120, COMMENT = 121, LINE_COMMENT = 122, 
     IDENTIFIER = 123, DOUBLE_LBRACE_INSIDE = 124, LBRACE_INSIDE = 125, REGULAR_CHAR_INSIDE = 126, 
-    DOUBLE_QUOTE_INSIDE = 127, STRING_LITERAL_INSIDE = 128
+    DOUBLE_QUOTE_INSIDE = 127, STRING_LITERAL_INSIDE = 128, CLOSE_BRACE_INSIDE = 129, 
+    FORMAT_STRING = 130, DOUBLE_CURLY_CLOSE_INSIDE = 131
   };
 
   enum {
@@ -44,7 +45,7 @@ public:
   };
 
   enum {
-    INTERPOLATION_STRING = 1
+    INTERPOLATION_STRING = 1, INTERPOLATION_FORMAT = 2
   };
 
   EscriptLexer(antlr4::CharStream *input);
@@ -85,8 +86,10 @@ private:
   void INTERPOLATED_STRING_STARTAction(antlr4::RuleContext *context, size_t actionIndex);
   void LBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
   void RBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void COLONAction(antlr4::RuleContext *context, size_t actionIndex);
   void LBRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
   void DOUBLE_QUOTE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void CLOSE_BRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.
 

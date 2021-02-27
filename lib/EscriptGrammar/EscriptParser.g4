@@ -384,7 +384,7 @@ interpolatedString
 	;
 
 interpolatedStringPart
-	: expression
+	: expression (':' FORMAT_STRING+)?
 	| DOUBLE_LBRACE_INSIDE
 	| REGULAR_CHAR_INSIDE
 	| STRING_LITERAL_INSIDE

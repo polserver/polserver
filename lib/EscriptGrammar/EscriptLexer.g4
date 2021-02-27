@@ -175,7 +175,28 @@ TILDE:              '~';
 AT:                 '@';
 
 COLONCOLON:         '::';
-COLON:              ':';
+COLON:              ':'
+{
+        if (interpolatedStringLevel > 0)
+        {
+            int ind = 1;
+            bool switchToFormatString = true;
+            
+            while (_input->LA(ind) != '}')
+            {
+                if (_input->LA(ind) == ':' || _input->LA(ind) == ')')
+                {
+                    switchToFormatString = false;
+                    break;
+                }
+                ind++;
+            }
+            if (switchToFormatString)
+            {
+                setMode( INTERPOLATION_FORMAT );
+            }
+        }
+};
 INC:                '++';
 DEC:                '--';
 
@@ -226,7 +247,12 @@ fragment Letter
 
 mode INTERPOLATION_STRING;
 DOUBLE_LBRACE_INSIDE:           '{{';
-LBRACE_INSIDE:             '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
-REGULAR_CHAR_INSIDE:           EscapeSequence;
-DOUBLE_QUOTE_INSIDE:           '"' { interpolatedStringLevel--; } -> popMode;
-STRING_LITERAL_INSIDE:         ~('{' | '\\' | '"')+;
+LBRACE_INSIDE:                  '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
+REGULAR_CHAR_INSIDE:            EscapeSequence;
+DOUBLE_QUOTE_INSIDE:            '"' { interpolatedStringLevel--; } -> popMode;
+STRING_LITERAL_INSIDE:          ~('{' | '\\' | '"')+;
+
+mode INTERPOLATION_FORMAT;
+DOUBLE_CURLY_CLOSE_INSIDE:      '}}' -> type(FORMAT_STRING);
+CLOSE_BRACE_INSIDE:             '}' { curlyLevels.pop(); }   -> skip, popMode;
+FORMAT_STRING:                  ~'}'+;
