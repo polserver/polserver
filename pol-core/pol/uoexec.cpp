@@ -213,6 +213,9 @@ using namespace Module;
 bool UOExecutor::getCharacterOrClientParam( unsigned param, Mobile::Character*& chrptr,
                                             Network::Client*& clientptr )
 {
+  chrptr = nullptr;
+  clientptr = nullptr;
+
   BObjectImp* imp = getParamImp( param );
   if ( imp == nullptr )
   {

@@ -1,7 +1,9 @@
 ﻿-- POL100 --
-02-27-2020 Turley, Kevin:
+02-27-2021 Nando:
+    Fixed: Crash in SendPacket(), packet.SendPacket() and DisconnectClient() when the client was not yet logged in. Mostly affects packet hooks.
+02-27-2021 Turley, Kevin:
     Added: os::GetEnvironmentVariable(name:="")
-           Returns String value of given environment variable name. If name is empty, returns Dictionary of all environment variables.
+           Returns String value of given environment variable name. If name is empty, returns Dictionary of all allowed environment variables.
            The pol.cfg setting AllowedEnvironmentVariablesAccess controls script access to this function. See documentation for more details.
 02-22-2021 Kevin:
     Fixed: Various compilation issues when using "\\" in scripts.

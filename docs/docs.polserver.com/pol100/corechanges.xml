@@ -6,7 +6,12 @@
 	</header>
 	<version name="POL100">
 		<entry>
-			<date>02-27-2020</date>
+			<date>02-27-2021</date>
+			<author>Nando:</author>
+			<change type="Fixed">Crash in SendPacket(), packet.SendPacket() and DisconnectClient() when the client was not yet logged in. Mostly affects packet hooks.</change>
+		</entry>
+		<entry>
+			<date>02-27-2021</date>
 			<author>Turley, Kevin:</author>
 			<change type="Added">os::GetEnvironmentVariable(name:=&quot;&quot;)<br/>
 Returns String value of given environment variable name. If name is empty, returns Dictionary of all allowed environment variables.<br/>
