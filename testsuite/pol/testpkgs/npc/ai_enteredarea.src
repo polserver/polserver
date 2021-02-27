@@ -1,0 +1,36 @@
+use uo;
+use os;
+use npc;
+
+include "sysevent";
+
+program enteredarea()
+    var me := self();
+    var who_entered := array{};
+    var who_left := array{};
+    
+    var evmask_txt := me.getprop("evmask");    
+    
+    var evmask;
+    case(evmask_txt)
+        "onlynpc": evmask := EVMASK_ONLY_NPC;
+         "onlypc": evmask := EVMASK_ONLY_PC;
+          default: evmask := EVMASK_ALL;
+    endcase   
+        
+    EnableEvents(SYSEVENT_ENTEREDAREA | SYSEVENT_LEFTAREA, 10, evmask);
+   
+    me.setprop("ready", 1);
+   
+    while(me)
+            var ev := wait_for_event(5);
+            case (ev.type)
+                SYSEVENT_ENTEREDAREA:
+                    who_entered.append(ev.source.serial);
+                    me.setprop("who_entered", who_entered);
+                SYSEVENT_LEFTAREA:
+                    who_left.append(ev.source.serial);
+                    me.setprop("who_left", who_left);
+            endcase                
+    endwhile
+endprogram
