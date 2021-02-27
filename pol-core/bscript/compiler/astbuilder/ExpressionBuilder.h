@@ -1,7 +1,7 @@
 #ifndef POLSERVER_EXPRESSIONBUILDER_H
 #define POLSERVER_EXPRESSIONBUILDER_H
 
-#include "compiler/astbuilder/ValueBuilder.h"
+#include "bscript/compiler/astbuilder/ValueBuilder.h"
 
 #ifndef __TOKENS_H
 #include "tokens.h"

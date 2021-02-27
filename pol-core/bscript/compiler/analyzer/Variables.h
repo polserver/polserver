@@ -7,9 +7,9 @@
 #include <vector>
 
 #include "clib/maputil.h"
-#include "compiler/model/SimpleTypes.h"
-#include "compiler/model/VariableScope.h"
-#include "compiler/model/WarnOn.h"
+#include "bscript/compiler/model/SimpleTypes.h"
+#include "bscript/compiler/model/VariableScope.h"
+#include "bscript/compiler/model/WarnOn.h"
 
 namespace Pol::Bscript::Compiler
 {

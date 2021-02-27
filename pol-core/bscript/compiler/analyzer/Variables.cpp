@@ -1,8 +1,8 @@
 #include "Variables.h"
 
-#include "compiler/Report.h"
-#include "compiler/file/SourceLocation.h"
-#include "compiler/model/Variable.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/Variable.h"
 
 namespace Pol::Bscript::Compiler
 {

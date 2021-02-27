@@ -1,8 +1,8 @@
 #ifndef POLSERVER_BLOCK_H
 #define POLSERVER_BLOCK_H
 
-#include "compiler/ast/Statement.h"
-#include "compiler/model/LocalVariableScopeInfo.h"
+#include "bscript/compiler/ast/Statement.h"
+#include "bscript/compiler/model/LocalVariableScopeInfo.h"
 
 namespace Pol::Bscript::Compiler
 {

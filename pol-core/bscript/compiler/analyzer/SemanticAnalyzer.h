@@ -1,15 +1,15 @@
 #ifndef POLSERVER_SEMANTICANALYZER_H
 #define POLSERVER_SEMANTICANALYZER_H
 
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 #include <map>
 #include <memory>
 
 #include "clib/maputil.h"
-#include "compiler/analyzer/FlowControlScopes.h"
-#include "compiler/analyzer/LocalVariableScopes.h"
-#include "compiler/analyzer/Variables.h"
+#include "bscript/compiler/analyzer/FlowControlScopes.h"
+#include "bscript/compiler/analyzer/LocalVariableScopes.h"
+#include "bscript/compiler/analyzer/Variables.h"
 
 namespace Pol::Bscript::Compiler
 {

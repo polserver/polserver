@@ -2,9 +2,9 @@
 
 #include <antlr4-runtime.h>
 
-#include "compiler/ast/ValueConsumer.h"
-#include "compiler/astbuilder/BuilderWorkspace.h"
-#include "compiler/file/SourceLocation.h"
+#include "bscript/compiler/ast/ValueConsumer.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,8 +1,8 @@
 #include "BinaryOperatorWithIntegerOptimizer.h"
 
-#include "compiler/ast/BinaryOperator.h"
-#include "compiler/ast/IntegerValue.h"
-#include "compiler/Report.h"
+#include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/Report.h"
 
 namespace Pol::Bscript::Compiler
 {

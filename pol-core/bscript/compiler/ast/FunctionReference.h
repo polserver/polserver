@@ -1,7 +1,7 @@
 #ifndef POLSERVER_FUNCTIONREFERENCE_H
 #define POLSERVER_FUNCTIONREFERENCE_H
 
-#include "compiler/ast/Value.h"
+#include "bscript/compiler/ast/Value.h"
 
 namespace Pol::Bscript::Compiler
 {

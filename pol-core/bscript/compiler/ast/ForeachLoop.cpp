@@ -3,9 +3,9 @@
 #include <format/format.h>
 #include <utility>
 
-#include "compiler/ast/Block.h"
-#include "compiler/ast/Expression.h"
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/Block.h"
+#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

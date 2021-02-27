@@ -1,11 +1,11 @@
 #include "UserFunctionBuilder.h"
 
-#include "compiler/ast/Expression.h"
-#include "compiler/ast/FunctionBody.h"
-#include "compiler/ast/FunctionParameterDeclaration.h"
-#include "compiler/ast/FunctionParameterList.h"
-#include "compiler/ast/Expression.h"
-#include "compiler/ast/UserFunction.h"
+#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/FunctionBody.h"
+#include "bscript/compiler/ast/FunctionParameterDeclaration.h"
+#include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/UserFunction.h"
 
 using EscriptGrammar::EscriptParser;
 

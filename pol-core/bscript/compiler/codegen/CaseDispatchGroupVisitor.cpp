@@ -1,10 +1,10 @@
 #include "CaseDispatchGroupVisitor.h"
 
-#include "compiler/ast/CaseDispatchDefaultSelector.h"
-#include "compiler/ast/IntegerValue.h"
-#include "compiler/ast/StringValue.h"
-#include "compiler/codegen/CaseJumpDataBlock.h"
-#include "compiler/model/FlowControlLabel.h"
+#include "bscript/compiler/ast/CaseDispatchDefaultSelector.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/codegen/CaseJumpDataBlock.h"
+#include "bscript/compiler/model/FlowControlLabel.h"
 
 namespace Pol::Bscript::Compiler
 {

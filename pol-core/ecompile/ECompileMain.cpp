@@ -129,12 +129,12 @@ struct Summary
 
 struct Comparison
 {
-  std::atomic<long long> CompileTimeV1Micros {};
-  std::atomic<long long> CompileTimeV2Micros {};
-  std::atomic<long> MatchingResult {};
-  std::atomic<long> NonMatchingResult {};
-  std::atomic<long> MatchingOutput {};
-  std::atomic<long> NonMatchingOutput {};
+  std::atomic<long long> CompileTimeV1Micros{};
+  std::atomic<long long> CompileTimeV2Micros{};
+  std::atomic<long> MatchingResult{};
+  std::atomic<long> NonMatchingResult{};
+  std::atomic<long> MatchingOutput{};
+  std::atomic<long> NonMatchingOutput{};
 } comparison;
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
@@ -183,7 +183,7 @@ void compile_inc( const char* path )
 std::vector<unsigned char> file_contents( const std::string& pathname, std::ios::openmode openmode )
 {
   std::ifstream ifs( pathname, openmode );
-  return std::vector<unsigned char>(std::istreambuf_iterator<char>( ifs ), {} );
+  return std::vector<unsigned char>( std::istreambuf_iterator<char>( ifs ), {} );
 }
 
 std::vector<unsigned char> binary_contents( const std::string& pathname )
@@ -193,14 +193,15 @@ std::vector<unsigned char> binary_contents( const std::string& pathname )
   return buffer;
 }
 
-std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins_filenums, const std::vector<std::string>& filenames)
+std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins_filenums,
+                                                const std::vector<std::string>& filenames )
 {
   std::vector<std::string> result;
   result.reserve( ins_filenums.size() );
 
-  for(auto& ins_filenum : ins_filenums)
+  for ( auto& ins_filenum : ins_filenums )
   {
-    result.push_back( filenames.at(ins_filenum));
+    result.push_back( filenames.at( ins_filenum ) );
   }
   return result;
 }
@@ -227,16 +228,15 @@ bool compare_compiler_output( const std::string& path )
   if ( og_ok != new_ok )
   {
     ++comparison.NonMatchingResult;
-    ERROR_PRINT << "V1 " << (og_ok ? "succeeded" : "failed" )
-        << ", V2 " << (new_ok ? "succeeded" : "failed" )
-        << "\n";
+    ERROR_PRINT << "V1 " << ( og_ok ? "succeeded" : "failed" ) << ", V2 "
+                << ( new_ok ? "succeeded" : "failed" ) << "\n";
     throw std::runtime_error( "success/failure mismatch" );
     return false;
   }
   ++comparison.MatchingResult;
 
-  if (!og_ok)
-    return true; // it's ok if they both failed
+  if ( !og_ok )
+    return true;  // it's ok if they both failed
 
   // this is why -T and -G conflict: using the same filenames for every script
 
@@ -303,8 +303,10 @@ bool compare_compiler_output( const std::string& path )
     og_program->read_dbg_file();
     new_program->read_dbg_file();
 
-    auto og_instruction_filenames = instruction_filenames( og_program->dbg_filenum, og_program->dbg_filenames );
-    auto new_instruction_filenames = instruction_filenames( new_program->dbg_filenum, new_program->dbg_filenames );
+    auto og_instruction_filenames =
+        instruction_filenames( og_program->dbg_filenum, og_program->dbg_filenames );
+    auto new_instruction_filenames =
+        instruction_filenames( new_program->dbg_filenum, new_program->dbg_filenames );
 
     bool ins_filenames_match = og_instruction_filenames == new_instruction_filenames;
     bool filenames_match = og_program->dbg_filenames == new_program->dbg_filenames;
@@ -313,8 +315,10 @@ bool compare_compiler_output( const std::string& path )
     bool blocks_match = og_program->blocks == new_program->blocks;
     bool functions_match = og_program->dbg_functions == new_program->dbg_functions;
 
-    bool dbg_matches = file_contents( og_dbg, std::ios::binary) == file_contents( new_dbg, std::ios::binary );
-    bool dbg_txt_matches = file_contents( og_dbg_txt, std::ios::in) == file_contents( new_dbg_txt, std::ios::in );
+    bool dbg_matches =
+        file_contents( og_dbg, std::ios::binary ) == file_contents( new_dbg, std::ios::binary );
+    bool dbg_txt_matches =
+        file_contents( og_dbg_txt, std::ios::in ) == file_contents( new_dbg_txt, std::ios::in );
 
     INFO_PRINT << "Not expected to match exactly:\n";
     INFO_PRINT << "  Debug Info matches:\n";

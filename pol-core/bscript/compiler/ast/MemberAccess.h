@@ -1,7 +1,7 @@
 #ifndef POLSERVER_MEMBERACCESS_H
 #define POLSERVER_MEMBERACCESS_H
 
-#include "compiler/ast/Expression.h"
+#include "bscript/compiler/ast/Expression.h"
 
 #ifndef OBJMEMBERS_H
 #include "objmembers.h"

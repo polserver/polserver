@@ -3,9 +3,9 @@
 #include <format/format.h>
 #include <utility>
 
-#include "compiler/ast/FunctionBody.h"
-#include "compiler/ast/FunctionParameterList.h"
-#include "compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/ast/FunctionBody.h"
+#include "bscript/compiler/ast/FunctionParameterList.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler
 {

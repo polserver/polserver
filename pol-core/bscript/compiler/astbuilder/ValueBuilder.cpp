@@ -3,14 +3,14 @@
 #include <cstring>
 
 #include "clib/strutil.h"
-#include "compiler/Report.h"
-#include "compiler/ast/FloatValue.h"
-#include "compiler/ast/FunctionReference.h"
-#include "compiler/ast/IntegerValue.h"
-#include "compiler/ast/StringValue.h"
-#include "compiler/astbuilder/BuilderWorkspace.h"
-#include "compiler/file/SourceLocation.h"
-#include "compiler/model/FunctionLink.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/FloatValue.h"
+#include "bscript/compiler/ast/FunctionReference.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/FunctionLink.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -80,10 +80,6 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal )
     {
       // parser should catch this.
       location_for( *string_literal ).internal_error( "unterminated string" );
-    }
-    if ( *end == '\n' || *end == '\r' ) {
-      report.error( location_for( *string_literal ), "String literal contains a newline.\n" );
-      return lit;
     }
 
     if ( escnext && hexnext )

@@ -1,7 +1,7 @@
 #ifndef POLSERVER_SIMPLESTATEMENTBUILDER_H
 #define POLSERVER_SIMPLESTATEMENTBUILDER_H
 
-#include "compiler/astbuilder/ExpressionBuilder.h"
+#include "bscript/compiler/astbuilder/ExpressionBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,7 +1,7 @@
 #ifndef POLSERVER_PROGRAMBUILDER_H
 #define POLSERVER_PROGRAMBUILDER_H
 
-#include "compiler/astbuilder/CompoundStatementBuilder.h"
+#include "bscript/compiler/astbuilder/CompoundStatementBuilder.h"
 
 namespace Pol::Bscript::Compiler
 {

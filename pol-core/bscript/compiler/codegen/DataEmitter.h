@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "compiler/representation/CompiledScript.h"
+#include "bscript/compiler/representation/CompiledScript.h"
 
 namespace Pol::Bscript::Compiler
 {

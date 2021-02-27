@@ -12,7 +12,7 @@ namespace Clib
 class FileContents
 {
 public:
-  FileContents( const char* filname );
+  FileContents( const char* filname, bool suppress_error_print = false );
 
   const char* contents() const;
   void set_contents( const std::string& str );
