@@ -1,4 +1,8 @@
 ﻿-- POL100 --
+02-27-2020 Turley, Kevin:
+    Added: os::GetEnvironmentVariable(name:="")
+           Returns String value of given environment variable name. If name is empty, returns Dictionary of all environment variables.
+           The pol.cfg setting AllowedEnvironmentVariablesAccess controls script access to this function. See documentation for more details.
 02-22-2021 Kevin:
     Fixed: Various compilation issues when using "\\" in scripts.
     Fixed: Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.

@@ -12,6 +12,7 @@
 #define POLCFG_H
 
 #include <string>
+#include <vector>
 
 #include "crypt/cryptkey.h"
 #if !defined( _WIN32 )
@@ -110,6 +111,8 @@ struct PolConfig
   std::string report_admin_email;
   std::string report_server;
   std::string report_url;
+
+  std::vector<std::string> allowed_environmentvariables_access;
 
   static void read_pol_config( bool initial_load );
   static struct stat pol_cfg_stat;

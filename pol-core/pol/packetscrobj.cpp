@@ -31,10 +31,10 @@
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/clienttransmit.h"
-#include "realms/realms.h"
 #include "realms/realm.h"
-#include "uworld.h"
+#include "realms/realms.h"
 #include "uoexec.h"
+#include "uworld.h"
 
 namespace Pol
 {
@@ -237,11 +237,11 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
         return new BError( "Offset too high" );
 
       const char* str_offset = reinterpret_cast<const char*>( &buffer[offset] );
-      int real_len = 0;
+      size_t real_len = 0;
 
       // Returns maximum of len characters or up to the first null-byte
       while ( real_len < len && *( str_offset + real_len ) )
-        real_len++;
+        ++real_len;
 
       return new String( str_offset, real_len, String::Tainted::YES );
     }

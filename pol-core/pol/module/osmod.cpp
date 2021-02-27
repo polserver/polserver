@@ -4,17 +4,20 @@
  */
 
 #include "osmod.h"
-#include "../../bscript/berror.h"
-#include "../../bscript/bobject.h"
-#include "../../bscript/bstruct.h"
-#include "../../bscript/impstr.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/network/sckutil.h"
-#include "../../clib/rawtypes.h"
-#include "../../clib/refptr.h"
-#include "../../clib/threadhelp.h"
-#include "../../clib/weakptr.h"
-#include "../../plib/systemstate.h"
+
+#include "bscript/berror.h"
+#include "bscript/bobject.h"
+#include "bscript/bstruct.h"
+#include "bscript/dict.h"
+#include "bscript/impstr.h"
+#include "clib/logfacility.h"
+#include "clib/network/sckutil.h"
+#include "clib/rawtypes.h"
+#include "clib/refptr.h"
+#include "clib/threadhelp.h"
+#include "clib/weakptr.h"
+#include "plib/systemstate.h"
+
 #include "../exscrobj.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
@@ -48,9 +51,20 @@
 #include <ctime>
 #include <curl/curl.h>
 #include <memory>
+#include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <string_view>
 #include <unordered_map>
+
+// environment variable for mf_GetEnvironmentVariable
+#ifdef _MSC_VER
+extern char** _environ;
+char** environ_vars = _environ;
+#else
+extern char** environ;
+char** environ_vars = environ;
+#endif
 
 namespace Pol
 {
@@ -1176,6 +1190,56 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     this_uoexec.pChild = nullptr;
 
     return array.release();
+  }
+}
+
+BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
+{
+  const auto& allowed_vars = Plib::systemstate.config.allowed_environmentvariables_access;
+  if ( allowed_vars.empty() )
+    return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
+  const String* env_name;
+  if ( !exec.getStringParam( 0, env_name ) )
+    return new BError( "Invalid parameter type" );
+
+  bool all_allowed = allowed_vars.size() == 1 && allowed_vars[0] == "*";
+
+  if ( env_name->length() == 0 )
+  {
+    auto envs = std::make_unique<Bscript::BDictionary>();
+    for ( char** current = environ_vars; *current; ++current )
+    {
+      std::string_view env( *current );
+      size_t pos = env.find_first_of( "=" );
+      if ( pos == std::string_view::npos )
+        continue;
+      auto key = env.substr( 0, pos );
+      auto key_lowered = Clib::strlowerASCII( std::string{ key } );
+      auto val = env.substr( pos + 1 );
+
+      if ( all_allowed || std::find( allowed_vars.begin(), allowed_vars.end(), key_lowered ) !=
+                              allowed_vars.end() )
+      {
+        envs->addMember( new String( key, String::Tainted::YES ),
+                         new String( val, String::Tainted::YES ) );
+      }
+    }
+    return envs.release();
+  }
+  else
+  {
+    if ( !all_allowed )
+    {
+      auto name_lowered = Clib::strlowerASCII( env_name->value() );
+      if ( std::find( allowed_vars.begin(), allowed_vars.end(), name_lowered ) ==
+           allowed_vars.end() )
+        return new BError( "Environment Variable access disallowed due to pol.cfg setting" );
+    }
+
+    const char* env_val = std::getenv( env_name->data() );
+    if ( !env_val )
+      return new BError( "Environment variable not found" );
+    return new String( env_val, String::Tainted::YES );
   }
 }
 

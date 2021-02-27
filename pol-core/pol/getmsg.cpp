@@ -45,7 +45,7 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
     return;
   auto& uoex = uoemod->uoexec();
   int textlen = cfBEu16( msg->msglen ) - offsetof( PKTBI_9A, text );
-  if ( msg->type )
+  if ( msg->type && textlen > 0 )
   {
     if ( textlen <= 120 && msg->text[textlen - 1] == '\0' )
     {
@@ -61,7 +61,8 @@ void handle_prompt( Network::Client* client, PKTBI_9A* msg )
       }
       if ( ok )
       {
-        Bscript::String* str = new Bscript::String( msg->text, textlen );
+        Bscript::String* str = new Bscript::String( msg->text, static_cast<size_t>( textlen ),
+                                                    Bscript::String::Tainted::YES );
         uoex.ValueStack.back().set( new Bscript::BObject( str ) );
       }
     }
@@ -78,8 +79,7 @@ Bscript::BObjectImp* UOExecutorModule::mf_RequestInput()
   Mobile::Character* chr;
   Items::Item* item;
   const Bscript::String* prompt;
-  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) ||
-       !getStringParam( 2, prompt ) )
+  if ( !getCharacterParam( 0, chr ) || !getItemParam( 1, item ) || !getStringParam( 2, prompt ) )
   {
     return new Bscript::BError( "Invalid parameter" );
   }

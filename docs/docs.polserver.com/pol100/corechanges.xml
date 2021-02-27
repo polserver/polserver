@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-22-2021</datemodified>
+		<datemodified>02-27-2021</datemodified>
 	</header>
 	<version name="POL100">
+		<entry>
+			<date>02-27-2020</date>
+			<author>Turley, Kevin:</author>
+			<change type="Added">os::GetEnvironmentVariable(name:=&quot;&quot;)<br/>
+Returns String value of given environment variable name. If name is empty, returns Dictionary of all allowed environment variables.<br/>
+The pol.cfg setting AllowedEnvironmentVariablesAccess controls script access to this function. See documentation for more details.</change>
+		</entry>
 		<entry>
 			<date>02-22-2021</date>
 			<author>Kevin:</author>
