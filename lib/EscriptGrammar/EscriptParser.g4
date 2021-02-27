@@ -374,7 +374,6 @@ arrayInitializer
 literal
     : integerLiteral
     | floatLiteral
-    | CHAR_LITERAL
     | STRING_LITERAL
     ;
 
