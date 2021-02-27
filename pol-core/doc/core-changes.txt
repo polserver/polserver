@@ -1,5 +1,7 @@
 ﻿-- POL100 --
 02-27-2021 Nando:
+    Added: Default mimetypes for .png, .js and .ico in the internal webserver
+    Added: Allow URLs/filenames with a hyphen (-) in the internal webserver
     Fixed: Crash in SendPacket(), packet.SendPacket() and DisconnectClient() when the client was not yet logged in. Mostly affects packet hooks.
 02-27-2021 Turley, Kevin:
     Added: os::GetEnvironmentVariable(name:="")

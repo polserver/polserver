@@ -8,6 +8,8 @@
 		<entry>
 			<date>02-27-2021</date>
 			<author>Nando:</author>
+			<change type="Added">Default mimetypes for .png, .js and .ico in the internal webserver</change>
+			<change type="Added">Allow URLs/filenames with a hyphen (-) in the internal webserver</change>
 			<change type="Fixed">Crash in SendPacket(), packet.SendPacket() and DisconnectClient() when the client was not yet logged in. Mostly affects packet hooks.</change>
 		</entry>
 		<entry>
