@@ -215,6 +215,11 @@ const ACTION_DIR_BACKWARD := 1;
 const ACTION_NOREPEAT     := 0;
 const ACTION_REPEAT       := 1;
 
+// Masks for EnableEvents()
+const EVMASK_ALL      := 0;
+const EVMASK_ONLY_PC  := 1;
+const EVMASK_ONLY_NPC := 2;
+
 //CanWalk
 const CANWALK_DIR := -1;
 
@@ -277,7 +282,7 @@ DisableEvents( eventtype );     // eventtype combination of constants from SYSEV
 DisconnectClient( character );
 Distance( obj1, obj2 );
 DistanceEuclidean( obj1, obj2 );
-EnableEvents( eventtype, range := -1);  // eventtype combination of constants from SYSEVENT.INC
+EnableEvents( eventtype, range := -1, evmask := EVMASK_ALL );  // eventtype combination of constants from SYSEVENT.INC
 EnumerateItemsInContainer( container, flags := 0 );
 EnumerateOnlineCharacters();
 EquipFromTemplate( character, template ); // reads from equip.cfg
