@@ -288,7 +288,7 @@ Example: create a POST request to a REST endpoint with custom header:
   <prototype>GetEnvironmentVariable(name:="")</prototype>
     <parameter name="name" value="String name of environment variable, or empty string" />
     <return>String value of given enviroment variable, or if no name is given Dictionary{String, String}</return>
-    <explain>Returns the value of given environment variable, or if no name is given it returns a dictionary with all environment variables.</explain>
+    <explain>Returns the value of given environment variable, or if no name is given it returns a dictionary with all allowed environment variables.</explain>
     <explain>pol.cfg AllowedEnvironmentVariablesAccess setting can be used to restrict access to the environmental variables. Provide a comma-separated list to limit scripts' access to only the variables provided. Use * to allow all variables. Default value: empty (no access)</explain>
     <relatedcfg>pol.cfg</relatedcfg>
 </function>
