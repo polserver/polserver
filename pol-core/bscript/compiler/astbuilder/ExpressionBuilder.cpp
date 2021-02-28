@@ -286,7 +286,33 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> ctx )
 {
   std::vector<std::unique_ptr<Expression>> expressions;
-  // FIXME: todo
+  // FIXME: optimize values
+  // FIXME: double-curleys
+  for ( auto interstringPart_ctx : ctx )
+  {
+    if ( auto expression_ctx = interstringPart_ctx->expression() )
+    {
+      if ( auto format = interstringPart_ctx->FORMAT_STRING() )
+      {
+        format->getText();
+      }
+      expressions.push_back( expression( expression_ctx ) );
+    }
+    else if ( auto string_literal = interstringPart_ctx->STRING_LITERAL_INSIDE() )
+    {
+      expressions.push_back( string_value( string_literal, true ) );
+    }
+    else if ( auto lbrace = interstringPart_ctx->DOUBLE_LBRACE_INSIDE() )
+    {
+      expressions.push_back( string_value( lbrace, true ) );
+    }
+    else
+    {
+      location_for( *interstringPart_ctx )
+          .internal_error( "unhandled context in interpolated string part" );
+    }
+
+  }
   return expressions;
 }
 

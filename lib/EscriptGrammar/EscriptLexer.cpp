@@ -58,7 +58,7 @@ void EscriptLexer::action(RuleContext *context, size_t ruleIndex, size_t actionI
     case 118: COLONAction(dynamic_cast<antlr4::RuleContext *>(context), actionIndex); break;
     case 134: LBRACE_INSIDEAction(dynamic_cast<antlr4::RuleContext *>(context), actionIndex); break;
     case 136: DOUBLE_QUOTE_INSIDEAction(dynamic_cast<antlr4::RuleContext *>(context), actionIndex); break;
-    case 139: CLOSE_BRACE_INSIDEAction(dynamic_cast<antlr4::RuleContext *>(context), actionIndex); break;
+    case 139: CLOSE_RBRACE_INSIDEAction(dynamic_cast<antlr4::RuleContext *>(context), actionIndex); break;
 
   default:
     break;
@@ -159,7 +159,7 @@ void EscriptLexer::DOUBLE_QUOTE_INSIDEAction(antlr4::RuleContext *context, size_
   }
 }
 
-void EscriptLexer::CLOSE_BRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex) {
+void EscriptLexer::CLOSE_RBRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex) {
   switch (actionIndex) {
     case 6:  curlyLevels.pop();  break;
 
@@ -202,8 +202,8 @@ std::vector<std::string> EscriptLexer::_ruleNames = {
   u8"ELVIS", u8"WS", u8"COMMENT", u8"LINE_COMMENT", u8"IDENTIFIER", u8"ExponentPart", 
   u8"EscapeSequence", u8"HexDigits", u8"HexDigit", u8"Digits", u8"LetterOrDigit", 
   u8"Letter", u8"DOUBLE_LBRACE_INSIDE", u8"LBRACE_INSIDE", u8"REGULAR_CHAR_INSIDE", 
-  u8"DOUBLE_QUOTE_INSIDE", u8"STRING_LITERAL_INSIDE", u8"DOUBLE_CURLY_CLOSE_INSIDE", 
-  u8"CLOSE_BRACE_INSIDE", u8"FORMAT_STRING"
+  u8"DOUBLE_QUOTE_INSIDE", u8"STRING_LITERAL_INSIDE", u8"DOUBLE_RBRACE_INSIDE", 
+  u8"CLOSE_RBRACE_INSIDE", u8"FORMAT_STRING"
 };
 
 std::vector<std::string> EscriptLexer::_channelNames = {
@@ -258,7 +258,7 @@ std::vector<std::string> EscriptLexer::_symbolicNames = {
   u8"COMMA", u8"TILDE", u8"AT", u8"COLONCOLON", u8"COLON", u8"INC", u8"DEC", 
   u8"ELVIS", u8"WS", u8"COMMENT", u8"LINE_COMMENT", u8"IDENTIFIER", u8"DOUBLE_LBRACE_INSIDE", 
   u8"LBRACE_INSIDE", u8"REGULAR_CHAR_INSIDE", u8"DOUBLE_QUOTE_INSIDE", u8"STRING_LITERAL_INSIDE", 
-  u8"CLOSE_BRACE_INSIDE", u8"FORMAT_STRING", u8"DOUBLE_CURLY_CLOSE_INSIDE"
+  u8"CLOSE_RBRACE_INSIDE", u8"FORMAT_STRING", u8"DOUBLE_RBRACE_INSIDE"
 };
 
 dfa::Vocabulary EscriptLexer::_vocabulary(_literalNames, _symbolicNames);

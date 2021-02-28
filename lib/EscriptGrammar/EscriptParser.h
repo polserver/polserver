@@ -38,8 +38,8 @@ public:
     SEMI = 110, COMMA = 111, TILDE = 112, AT = 113, COLONCOLON = 114, COLON = 115, 
     INC = 116, DEC = 117, ELVIS = 118, WS = 119, COMMENT = 120, LINE_COMMENT = 121, 
     IDENTIFIER = 122, DOUBLE_LBRACE_INSIDE = 123, LBRACE_INSIDE = 124, REGULAR_CHAR_INSIDE = 125, 
-    DOUBLE_QUOTE_INSIDE = 126, STRING_LITERAL_INSIDE = 127, CLOSE_BRACE_INSIDE = 128, 
-    FORMAT_STRING = 129, DOUBLE_CURLY_CLOSE_INSIDE = 130
+    DOUBLE_QUOTE_INSIDE = 126, STRING_LITERAL_INSIDE = 127, CLOSE_RBRACE_INSIDE = 128, 
+    FORMAT_STRING = 129, DOUBLE_RBRACE_INSIDE = 130
   };
 
   enum {
@@ -1532,8 +1532,7 @@ public:
     virtual size_t getRuleIndex() const override;
     ExpressionContext *expression();
     antlr4::tree::TerminalNode *COLON();
-    std::vector<antlr4::tree::TerminalNode *> FORMAT_STRING();
-    antlr4::tree::TerminalNode* FORMAT_STRING(size_t i);
+    antlr4::tree::TerminalNode *FORMAT_STRING();
     antlr4::tree::TerminalNode *DOUBLE_LBRACE_INSIDE();
     antlr4::tree::TerminalNode *REGULAR_CHAR_INSIDE();
     antlr4::tree::TerminalNode *STRING_LITERAL_INSIDE();

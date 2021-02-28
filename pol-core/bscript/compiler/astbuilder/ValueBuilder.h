@@ -27,9 +27,9 @@ public:
   std::unique_ptr<IntegerValue> integer_value(
       EscriptGrammar::EscriptParser::IntegerLiteralContext* );
 
-  std::unique_ptr<StringValue> string_value( antlr4::tree::TerminalNode* string_literal );
+  std::unique_ptr<StringValue> string_value( antlr4::tree::TerminalNode* string_literal, bool is_interstring = false );
 
-  std::string unquote( antlr4::tree::TerminalNode* string_literal );
+  std::string unquote( antlr4::tree::TerminalNode* string_literal, bool is_interstring = false );
 
   std::unique_ptr<Value> value( EscriptGrammar::EscriptParser::LiteralContext* );
 

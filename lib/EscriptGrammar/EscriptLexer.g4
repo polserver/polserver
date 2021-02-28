@@ -252,6 +252,6 @@ DOUBLE_QUOTE_INSIDE:            '"' { interpolatedStringLevel--; } -> popMode;
 STRING_LITERAL_INSIDE:          ~('{' | '\\' | '"')+;
 
 mode INTERPOLATION_FORMAT;
-DOUBLE_CURLY_CLOSE_INSIDE:      '}}' -> type(FORMAT_STRING);
-CLOSE_BRACE_INSIDE:             '}' { curlyLevels.pop(); }   -> skip, popMode;
+DOUBLE_RBRACE_INSIDE:           '}}' -> type(FORMAT_STRING);
+CLOSE_RBRACE_INSIDE:            '}' { curlyLevels.pop(); }   -> skip, popMode;
 FORMAT_STRING:                  ~'}'+;
