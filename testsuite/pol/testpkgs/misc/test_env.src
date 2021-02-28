@@ -1,0 +1,40 @@
+use os;
+include "testutil";
+
+program test_env()
+  return 1;
+endprogram
+
+exported function get_env()
+  var res:=GetEnvironmentVariable("POLCORE_TEST");
+  if (res != "1")
+    return ret_error("Environment variable not found got: "+res);
+  endif
+  return 1;
+endfunction
+
+exported function list_env()
+  var res:=GetEnvironmentVariable();
+  if (res["POLCORE_TEST"] != "1")
+    return ret_error("Environment variable not found got: "+res);
+  endif
+  return 1;
+endfunction
+
+exported function get_noaccess_env()
+  foreach env in ({"POLCORE_TEST_NOACCESS", "polcore_test_noaccess"})
+    var res:=GetEnvironmentVariable(env);
+    if (res.errortext != "Environment Variable access disallowed due to pol.cfg setting")
+      return ret_error("Environment variable was found when expected access error, got: "+res);
+    endif
+  endforeach
+  return 1;
+endfunction
+
+exported function get_notfound_env()
+  var res:=GetEnvironmentVariable("POLCORE_TEST_NOTFOUND");
+  if (res.errortext != "Environment variable not found")
+    return ret_error("Environment variable found when expected not found error, got: "+res);
+  endif
+  return 1;
+endfunction

@@ -174,6 +174,7 @@ public:
   void on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 texttype,
                           const std::string& lang = "", Bscript::ObjArray* speechtokens = nullptr );
   bool can_accept_event( Core::EVENTID eventid );
+  bool can_accept_area_event_by( const Character* who ) const;
   Bscript::BObjectImp* send_event_script( Bscript::BObjectImp* event );
   bool send_event( Bscript::BObjectImp* event );
 

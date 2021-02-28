@@ -1641,7 +1641,7 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
       }
       if ( ok )
       {
-        resimp = new String( msg->data, datalen );
+        resimp = new String( msg->data, datalen, String::Tainted::YES );
       }
     }
   }

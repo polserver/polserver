@@ -4,9 +4,11 @@ use polsys;
 use file;
 
 program tests()
+  var test_count:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
   syslog(
     "\n##########################\n"
     + "#  starting testscripts  #\n"
+    + "#         Run: "+test_count+"         #\n"
     + "##########################\n",0);
   var exitcode:=0;
   var testpkgs:={};
@@ -16,7 +18,21 @@ program tests()
     endif
   endforeach
   testpkgs.sort(1);
+  
+  var filter:=GetEnvironmentVariable("POLCORE_TEST_FILTER");
+  if (filter)
+    syslog("## using testfilter \""+filter+"\"\n",0);
+  endif
+
   foreach pkg in testpkgs
+    if (filter and !pkg[1].find(filter))
+      continue;
+    endif
+    
+    if (test_count==2 and pkg[1]!="testrestart")
+      continue;
+    endif
+
     syslog(pkg[2],0);
     var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
     scripts.sort();

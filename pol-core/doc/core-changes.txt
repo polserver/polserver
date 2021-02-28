@@ -1,4 +1,16 @@
 ﻿-- POL100 --
+02-27-2021 Nando:
+    Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL). 
+           The allowed values are EVMASK_ONLY_PC, EVMASK_ONLY_NPC, or EVMASK_ALL.
+           When set, an NPC or Item will only receive entered/leftarea events caused by a PC, NPC or all mobiles (the default behavior).
+           This parameter is useful, for example, to decrease the load when there are too many NPCs in the same area.
+    Added: Default mimetypes for .png, .js and .ico in the internal webserver
+    Added: Allow URLs/filenames with a hyphen (-) in the internal webserver
+    Fixed: Crash in SendPacket(), packet.SendPacket() and DisconnectClient() when the client was not yet logged in. Mostly affects packet hooks.
+02-27-2021 Turley, Kevin:
+    Added: os::GetEnvironmentVariable(name:="")
+           Returns String value of given environment variable name. If name is empty, returns Dictionary of all allowed environment variables.
+           The pol.cfg setting AllowedEnvironmentVariablesAccess controls script access to this function. See documentation for more details.
 02-22-2021 Kevin:
     Fixed: Various compilation issues when using "\\" in scripts.
     Fixed: Passing a string for the skill to CheckSkill() now correctly uses the mobile's skill.

@@ -26,7 +26,16 @@ std::unique_ptr<FloatValue> ValueBuilder::float_value(
     EscriptGrammar::EscriptParser::FloatLiteralContext* ctx )
 {
   auto loc = location_for( *ctx );
-  double value = std::stod( text( ctx->FLOAT_LITERAL() ) );
+  auto terminal = ctx->FLOAT_LITERAL();
+  if ( !terminal )
+  {
+    terminal = ctx->HEX_FLOAT_LITERAL();
+    if ( !terminal )
+    {
+      location_for( *ctx ).internal_error( "unhandled float literal" );
+    }
+  }
+  double value = std::stod( text( terminal ) );
   return std::make_unique<FloatValue>( loc, value );
 }
 

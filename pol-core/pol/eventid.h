@@ -33,9 +33,18 @@ enum EVENTID
   EVID_GHOST_SPEECH = 0x1000,
   EVID_GONE_CRIMINAL = 0x2000,
   EVID_TOKEN_SPOKE = 0x4000,
-  EVID_TOKEN_GHOST_SPOKE = 0x8000
+  EVID_TOKEN_GHOST_SPOKE = 0x8000,
+
 };
-}
-}
+
+enum EVMASK
+{
+  EVMASK_ALL      = 0x00,
+  EVMASK_ONLY_PC  = 0x01,
+  EVMASK_ONLY_NPC = 0x02
+};
+
+}  // namespace Core
+}  // namespace Pol
 
 #endif

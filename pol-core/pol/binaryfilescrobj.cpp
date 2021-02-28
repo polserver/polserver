@@ -190,11 +190,11 @@ Bscript::BObjectImp* BBinaryfile::call_method_id( const int id, Bscript::Executo
     _char.resize( value );
     if ( !file.Read( &_char[0], value ) )
       return new BError( "Failed to read" );
-    int len = 0;
+    size_t len = 0;
     const char* _str = reinterpret_cast<const char*>( &_char[0] );
     // Returns maximum of len characters or up to the first null-byte
-    while ( len < value && *( _str + len ) )
-      len++;
+    while ( len < static_cast<size_t>( value ) && *( _str + len ) )
+      ++len;
     return new String( _str, len, String::Tainted::YES );
   }
 

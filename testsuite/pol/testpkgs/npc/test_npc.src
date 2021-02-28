@@ -23,3 +23,170 @@ exported function npc_ai_movement()
 
   return 1;
 endfunction
+
+function wait_for_prop(npc, propname, max_try := 50)
+    while(npc and max_try > 0)
+        sleepms(10);
+        max_try--;
+        var prop := npc.getprop(propname);
+        if (prop.errortext == "Property not found")
+            continue;
+        endif        
+        return prop;
+    endwhile
+    return ret_error("Timeout waiting for {} on serial {}".format(propname, npc.serial));
+endfunction
+
+exported function npc_enteredarea()
+    return npc_test_areaevents(":testnpc:test_enteredarea", 1);
+endfunction
+
+exported function npc_enteredarea_npconly()
+    return npc_test_areaevents(":testnpc:test_enteredarea_onlynpc", 1);
+endfunction
+
+exported function npc_enteredarea_pconly()
+    return npc_test_areaevents(":testnpc:test_enteredarea_onlypc", 0);
+endfunction
+
+function npc_test_areaevents(template, expected_to_see)
+    var     x := 100;
+    var     y := 100;
+    var range := 10; // defined in ai_enteredarea.src
+
+    var npc := CreateNPCFromTemplate(template,x,y,0);
+    if (!npc)
+        return ret_error("Could not create NPC: "+npc);
+    endif
+    
+    var ready := wait_for_prop(npc, "ready");
+    if (ready.errortext)
+        return ready;
+    endif
+    
+    // test if it can see npcs created at the four borders of the event range
+    var probe_npc1         := CreateNPCFromTemplate(":testnpc:probe_npc",x+range,y+range,0);
+    var probe_npc2         := CreateNPCFromTemplate(":testnpc:probe_npc",x-range,y-range,0);
+    var probe_npc3         := CreateNPCFromTemplate(":testnpc:probe_npc",x-range,y+range,0);
+    var probe_npc4         := CreateNPCFromTemplate(":testnpc:probe_npc",x+range,y-range,0);
+    
+    // test if it CANT see npcs created right outside the border of the event range
+    var probe_npc1_notseen         := CreateNPCFromTemplate(":testnpc:probe_npc",x+range,y+range+1,0);
+    var probe_npc2_notseen         := CreateNPCFromTemplate(":testnpc:probe_npc",x-range,y-range-1,0);
+    var probe_npc3_notseen         := CreateNPCFromTemplate(":testnpc:probe_npc",x-range-1,y+range,0);
+    var probe_npc4_notseen         := CreateNPCFromTemplate(":testnpc:probe_npc",x+range+1,y-range,0);
+    
+    // test if it can see an npc created outside, then moved in
+    var probe_npc_outside_then_in  := CreateNPCFromTemplate(":testnpc:probe_npc",x+range+10,y-range-10,0);
+    MoveObjectToLocation(probe_npc_outside_then_in, x+range-2, y+range-2, 0);
+        
+    // the order matters
+    var in_range_npcs := {
+        probe_npc1.serial,
+        probe_npc2.serial,
+        probe_npc3.serial,
+        probe_npc4.serial,
+        probe_npc_outside_then_in.serial
+    };
+    var nExpected := in_range_npcs.size();
+    
+    if (!expected_to_see)
+        var who_entered := wait_for_prop(npc, "who_entered", max_try := 3);
+        if (who_entered.errortext)
+            if (who_entered.errortext["Timeout waiting for"])
+                //expected - go on
+            else
+                return who_entered;
+            endif
+        elseif (who_entered)
+            return ret_error("NPC saw other NPCs entering but shouldnt");
+        else
+            return ret_error("NPC did something odd: " + CStr(who_entered));
+        endif        
+    else
+        var who_entered := wait_for_prop(npc, "who_entered");   
+        if (who_entered.errortext)
+            return who_entered;
+        endif
+        
+        if (who_entered.size() < nExpected)
+            return ret_error("NPC only received {} ENTEREDAREA events out of {}.".format(who_entered.size(), nExpected));
+        endif
+        
+        foreach serial in who_entered
+            var idx := serial in in_range_npcs;
+            if (!idx)
+                return ret_error("Unexpected NPC was seen entering: {}".format(serial));
+            endif 
+            if (_serial_iter != idx)
+                return ret_error("NPC seen entering out of order: {} / {}".format(idx, _serial_iter));
+            endif
+        endforeach
+    endif    
+    
+    // test if it can see them leaving
+    MoveObjectToLocation(probe_npc1, x+range+1, y+range+1, 0);
+    MoveObjectToLocation(probe_npc2, x-range-1, y-range-1, 0);
+    MoveObjectToLocation(probe_npc3, x-range-1, y+range+1, 0);
+    MoveObjectToLocation(probe_npc4, x+range+1, y-range-1, 0);
+    // this one too
+    MoveObjectToLocation(probe_npc_outside_then_in, x+range+20, y+range+20, 0);
+    
+    // test that it DOESNT see them leaving
+    MoveObjectToLocation(probe_npc1_notseen, x+range+10, y+range+10, 0);
+    MoveObjectToLocation(probe_npc2_notseen, x-range-10, y-range-10, 0);
+    MoveObjectToLocation(probe_npc3_notseen, x-range-10, y+range+10, 0);
+    MoveObjectToLocation(probe_npc4_notseen, x+range+10, y-range-10, 0);
+    
+        
+    if (!expected_to_see)
+        var who_left := wait_for_prop(npc, "who_left", max_try := 3);
+        if (who_left.errortext)
+            if (who_left.errortext["Timeout waiting for"])
+                //expected - go on
+            else
+                return who_left;
+            endif
+        elseif (who_left)
+            return ret_error("NPC saw other NPCs leaving but shouldnt");
+        else
+            return ret_error("NPC did something odd: " + CStr(who_left));
+        endif            
+    else
+        var who_left := wait_for_prop(npc, "who_left");
+        if (who_left.errortext)
+            return who_left;
+        endif
+        
+        if (who_left.size() < nExpected)
+            return ret_error("NPC only received {} LEFTAREA events out of {}.".format(who_left.size(), nExpected));
+        endif
+        
+        foreach serial in who_left
+            var idx := serial in in_range_npcs;
+            if (!idx)
+                return ret_error("Unexpected NPC was seen leaving: {}".format(serial));
+            endif 
+            if (_serial_iter != idx)
+                return ret_error("NPC seen leaving out of order: {} / {}".format(idx, _serial_iter));
+            endif
+        endforeach        
+    endif
+        
+    npc.kill();
+    
+    probe_npc1.kill();
+    probe_npc2.kill();
+    probe_npc3.kill();
+    probe_npc4.kill();
+    
+    probe_npc1_notseen.kill();
+    probe_npc2_notseen.kill();
+    probe_npc3_notseen.kill();
+    probe_npc4_notseen.kill();
+    
+    probe_npc_outside_then_in.kill();
+     
+    return 1;
+endfunction
+

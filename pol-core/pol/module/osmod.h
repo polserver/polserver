@@ -118,6 +118,7 @@ public:
 
   [[nodiscard]] Bscript::BObjectImp* mf_PerformanceMeasure();
   [[nodiscard]] Bscript::BObjectImp* mf_LoadExportedScript();
+  [[nodiscard]] Bscript::BObjectImp* mf_GetEnvironmentVariable();
 
 protected:
   bool critical_;
