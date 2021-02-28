@@ -24,13 +24,14 @@ project(polserver
 
 set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
-set(POL_COPYRIGHT "Copyright (C) 1993-2020 Eric N. Swanson")
+set(POL_COPYRIGHT "Copyright (C) 1993-2021 Eric N. Swanson")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 option(ENABLE_FLYWEIGHT_REPORT "Enables flyweight memory report in memoryusage.log" OFF)
 option(GCOV "Build for coverage" OFF)
+mark_as_advanced(NO_PCH USE_CCACHE ENABLE_BENCHMARK ENABLE_FLYWEIGHT_REPORT GCOV)
 
 option(BUILD_ALL "Build everything" ON)
 option(ONLY_ECOMPILE "Build only ecompile" OFF)
@@ -39,17 +40,24 @@ option(ONLY_POL "Build only pol" OFF)
 option(ONLY_POLTOOL "Build only poltool" OFF)
 option(ONLY_UOCONVERT "Build only uoconvert" OFF)
 option(ONLY_UOTOOL "Build only uotool" OFF)
+mark_as_advanced(BUILD_ALL ONLY_ECOMPILE ONLY_RUNECL ONLY_POL ONLY_POLTOOL ONLY_UOCONVERT ONLY_UOTOOL)
 
 option(ENABLE_ASAN "Enables Address sanitizer" OFF)
 option(ENABLE_USAN "Enables Undefined sanitizer" OFF)
 option(ENABLE_MSAN "Enables Memory sanitizer" OFF)
 option(ENABLE_TSAN "Enables Thread sanitizer" OFF)
+mark_as_advanced(ENABLE_ASAN ENABLE_USAN ENABLE_MSAN ENABLE_TSAN)
 
 option(ENABLE_TIDY "Enables clang tidy check" OFF)
 #e.g "-fix;-checks=modernize-use-nullptr"
 set(TIDY_ARGS "" CACHE STRING "clang tidy arguments")
+mark_as_advanced(ENABLE_TIDY TIDY_ARGS)
 
 option(REUSE_PCH "Reuse clib pch if needed (windows only)" OFF)
+mark_as_advanced(REUSE_PCH)
+
+# misc variables to be marked as advanced
+mark_as_advanced(CLANG_FORMAT_EXE ANTLR_EXECUTABLE)
 
 if(${ONLY_ECOMPILE} OR ${ONLY_RUNECL} OR ${ONLY_POL} OR ${ONLY_POLTOOL} OR ${ONLY_UOCONVERT} OR ${ONLY_UOTOOL})
   set(BUILD_ALL OFF)

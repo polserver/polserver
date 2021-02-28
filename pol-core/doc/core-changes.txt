@@ -1,4 +1,8 @@
-﻿-- POL100 --
+﻿-- POL100.0.0 --
+02-28-2021 Nando:
+     Note: POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.
+           The next release will remove support for the old compiler. This is the *last chance* to test 
+           if your scripts change when compiled with the new compiler. (See entry on 09-15-2020)
 02-27-2021 Nando:
     Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL). 
            The allowed values are EVMASK_ONLY_PC, EVMASK_ONLY_NPC, or EVMASK_ALL.

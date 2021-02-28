@@ -15,7 +15,7 @@ Discord: https://discord.gg/4JbC8hA
 
 If you find bugs, please create an issue with the dump, relevant log lines and your best guess on how to reproduce the bug. 
 
-<b>Current version: POL 100 (in development).</b>
+<b>Current stable version: POL 100.0.0</b>
 
 Always check the core-changes.txt file for breaking changes when using the development version. We'll strive to keep the development version stable. If you are looking for POL099, check the branch "POL099". From now on, POL099 will only receive bug-fixes.
 
