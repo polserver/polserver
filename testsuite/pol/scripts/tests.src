@@ -12,12 +12,21 @@ program tests()
     + "##########################\n",0);
   var exitcode:=0;
   var testpkgs:={};
+  var restartpkg;
   foreach pkg in Packages()
     if (pkg.dir.find("testpkgs")==1)
-      testpkgs.append({pkg.name,pkg.desc});
+      if (pkg.name == "testrestart")
+        restartpkg:={pkg.name,pkg.desc};
+      else
+        testpkgs.append({pkg.name,pkg.desc});
+      endif
     endif
   endforeach
   testpkgs.sort(1);
+  // to prevent cleanup of other tests, TestRestart always at the end
+  if (restartpkg)
+    testpkgs.append(restartpkg);
+  endif
   
   var filter:=GetEnvironmentVariable("POLCORE_TEST_FILTER");
   if (filter)

@@ -5,7 +5,7 @@
 // See documentation for details.
 //
 // DO NOT MODIFY THIS FILE!  These are system events.  New core distributions
-// will include new versions of this file.  User events should be placed in 
+// will include new versions of this file.  User events should be placed in
 // eventid.inc, and must have more than one bit set (ie not be any of the
 // values found in this file)
 //
@@ -22,8 +22,6 @@ const SYSEVENT_DAMAGED              := 0x00000008;
 const SYSEVENT_ENTEREDAREA          := 0x00000010;
 const SYSEVENT_LEFTAREA             := 0x00000020;
 
-const SYSEVENT_GONE_CRIMINAL        := 0x2000;
-
 const SYSEVENT_OPPONENT_MOVED       := 0x00000040;
 
 const SYSEVENT_HOSTILE_MOVED        := 0x00000080; // not implemented
@@ -36,9 +34,9 @@ const SYSEVENT_ITEM_GIVEN           := 0x00000400;
 const SYSEVENT_DOUBLECLICKED        := 0x00000800;
 
 const SYSEVENT_GHOST_SPEECH         := 0x00001000;
-const SYSEVENT_RESERVED_00002000    := 0x00002000;
-const SYSEVENT_RESERVED_00004000    := 0x00004000;
-const SYSEVENT_RESERVED_00008000    := 0x00008000;
+const SYSEVENT_GONE_CRIMINAL        := 0x00002000;
+const SYSEVENT_TOKEN_SPEECH         := 0x00004000;
+const SYSEVENT_TOKEN_GHOST_SPEECH   := 0x00008000;
 
 const SYSEVENT_RESERVED_00010000    := 0x00010000;
 const SYSEVENT_RESERVED_00020000    := 0x00020000;
