@@ -194,10 +194,6 @@ if (BUILD_ALL OR (ONLY_ECOMPILE AND ONLY_RUNECL) OR (ONLY_POLTOOL AND ONLY_UOCON
         )
       endif()
     endforeach()
-    add_test(NAME escript_compiler_parity
-            COMMAND ${output_bin_dir}/ecompile -f -G
-            WORKING_DIRECTORY ${testdir}
-            )
   endif()
   if (BUILD_ALL OR (ONLY_POLTOOL AND ONLY_UOCONVERT))
     include(cmake/core_tests.cmake)
