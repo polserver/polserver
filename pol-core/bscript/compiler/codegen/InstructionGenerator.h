@@ -68,6 +68,7 @@ public:
   void visit_var_statement( VarStatement& ) override;
   void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;
+  void visit_interpolated_string( InterpolatedString& ) override;
 
 private:
   // There are two of these because sometimes when calling a method

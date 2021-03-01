@@ -33,6 +33,7 @@
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/InterpolatedString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
@@ -718,5 +719,14 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   emit.jmp_always( *loop.continue_label );
   emit.label( *loop.break_label );
 }
+
+void InstructionGenerator::visit_interpolated_string( InterpolatedString& node )
+{
+  visit_children( node );
+
+  update_debug_location( node );
+  emit.interpolated_string( node.children.size() );
+}
+
 
 }  // namespace Pol::Bscript::Compiler

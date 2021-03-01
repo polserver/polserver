@@ -38,6 +38,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <numeric>
 
 #ifdef ESCRIPT_PROFILE
 #ifdef _WIN32
@@ -1256,6 +1257,28 @@ void Executor::ins_jmpiffalse( const Instruction& ins )
     PC = (unsigned)ins.token.lval;
 
   ValueStack.pop_back();
+}
+
+void Executor::ins_interpolate_string( const Instruction& ins )
+{
+  auto count = ins.token.lval;
+  if ( count == 0 )
+  {
+    ValueStack.push_back( BObjectRef( new BObject( new String( "" ) ) ) );
+  }
+  else
+  {
+    std::vector<std::string> contents( count );
+    while ( count-- )
+    {
+      BObjectRef rightref = ValueStack.back();
+      ValueStack.pop_back();
+      contents[count] = rightref->impptr()->getStringRep();
+    }
+    auto joined = std::accumulate( std::next( contents.begin() ), contents.end(), contents[0],
+                                   []( std::string a, std::string b ) { return a + b; } );
+    ValueStack.push_back( BObjectRef( new BObject( new String( joined ) ) ) );
+  }
 }
 
 void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
@@ -2895,6 +2918,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_set_member_id_unminusminus_post;  // test id
   case INS_SKIPIFTRUE_ELSE_CONSUME:
     return &Executor::ins_skipiftrue_else_consume;
+  case TOK_INTERPOLATED_STRING:
+    return &Executor::ins_interpolate_string;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }

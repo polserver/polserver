@@ -300,11 +300,11 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     }
     else if ( auto string_literal = interstringPart_ctx->STRING_LITERAL_INSIDE() )
     {
-      expressions.push_back( string_value( string_literal, true ) );
+      expressions.push_back( string_value( string_literal, false ) );
     }
     else if ( auto lbrace = interstringPart_ctx->DOUBLE_LBRACE_INSIDE() )
     {
-      expressions.push_back( string_value( lbrace, true ) );
+      expressions.push_back( string_value( lbrace, false ) );
     }
     else
     {

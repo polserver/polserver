@@ -291,6 +291,8 @@ public:
   void ins_div( const Instruction& ins );
   void ins_modulus( const Instruction& ins );
 
+  void ins_interpolate_string( const Instruction& ins );
+
   void ins_insert_into( const Instruction& ins );
 
   void ins_plusequal( const Instruction& ins );

@@ -20,7 +20,7 @@ void InterpolatedString::accept( NodeVisitor& visitor )
 
 void InterpolatedString::describe_to( fmt::Writer& w ) const
 {
-  w << "array-initializer";
+  w << "interpolated-string (" << children.size() << " parts)";
 }
 
 }  // namespace Pol::Bscript::Compiler

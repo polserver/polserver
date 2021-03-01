@@ -62,22 +62,22 @@ std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
 }
 
 std::unique_ptr<StringValue> ValueBuilder::string_value(
-    antlr4::tree::TerminalNode* string_literal, bool is_interstring )
+    antlr4::tree::TerminalNode* string_literal, bool expect_quotes )
 {
   auto loc = location_for( *string_literal );
-  return std::make_unique<StringValue>( loc, unquote( string_literal, is_interstring ) );
+  return std::make_unique<StringValue>( loc, unquote( string_literal, expect_quotes ) );
 }
 
-std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, bool is_interstring )
+std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, bool expect_quotes )
 {
   std::string input = string_literal->getSymbol()->getText();
   const char* s = input.c_str();
-  if ( *s != '\"' && !is_interstring )
+  if ( *s != '\"' && expect_quotes )
     location_for( *string_literal ).internal_error( "string does not begin with a quote?" );
 
-  const char* end = s + (is_interstring ? 0 : 1);
+  const char* end = s + ( expect_quotes ? 1 : 0 );
   std::string lit;
-  lit.reserve(input.length());
+  lit.reserve( input.length() );
   bool escnext = false;  // true when waiting for 2nd char in an escape sequence
   u8 hexnext = 0;        // tells how many more chars in a \xNN escape sequence
   char hexstr[3];        // will contain the \x escape chars to be processed
@@ -87,7 +87,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, b
   {
     if ( !*end )
     {
-      if ( is_interstring )
+      if ( !expect_quotes )
         break;
       // parser should catch this.
       location_for( *string_literal ).internal_error( "unterminated string" );
