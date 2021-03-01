@@ -17,7 +17,9 @@ If you find bugs, please create an issue with the dump, relevant log lines and y
 
 <b>Current stable version: POL 100.0.0</b>
 
-Always check the core-changes.txt file for breaking changes when using the development version. We'll strive to keep the development version stable. If you are looking for POL099, check the branch "POL099". From now on, POL099 will only receive bug-fixes.
+<b>Current beta version: POL 100.1.0-beta</b>
+
+Always check the core-changes.txt file for breaking changes when using the development version. We'll strive to keep the development version stable.
 
 
 Contributing
