@@ -18,11 +18,12 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_fla
 
 project(polserver 
 	LANGUAGES CXX C
-	VERSION 100.0.0
+	VERSION 100.1.0
 	DESCRIPTION "Penultima Online"
 	HOMEPAGE_URL "polserver.com")
 
-set(POL_VERSION_STR "${polserver_VERSION}")
+set(POLVERSION_SUFFIX "-beta")
+set(POL_VERSION_STR "${polserver_VERSION}${POLVERSION_SUFFIX}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
 set(POL_COPYRIGHT "Copyright (C) 1993-2021 Eric N. Swanson")
 
