@@ -314,7 +314,6 @@ set (bscript_sources    # sorted !
   executortype.h
   expression.cpp
   expression.h
-  facility/Compiler.h
   filefmt.h
   fmodule.cpp
   fmodule.h

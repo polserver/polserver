@@ -15,8 +15,6 @@
 #include "parser.h"
 #endif
 
-#include "facility/Compiler.h"
-
 #include <iosfwd>
 #include <map>
 #include <stddef.h>
@@ -124,7 +122,7 @@ private:
   friend class Compiler;
 };
 
-class Compiler final : public SmartParser, public Facility::Compiler
+class Compiler final : public SmartParser
 {
 public:
   static bool check_filecase_;
@@ -279,13 +277,12 @@ public:
   int write_dbg( const char* fname, bool generate_txtfile );
   void writeIncludedFilenames( const char* fname ) const;
 
-  // Facility::Compiler
-  bool compile_file( const std::string& filename ) override;
-  bool write_ecl( const std::string& pathname ) override;
-  void write_listing( const std::string& pathname ) override;
-  void write_dbg( const std::string& pathname, bool include_debug_text ) override;
-  void write_included_filenames( const std::string& pathname ) override;
-  void set_include_compile_mode() override;
+  bool compile_file( const std::string& filename );
+  bool write_ecl( const std::string& pathname );
+  void write_listing( const std::string& pathname );
+  void write_dbg( const std::string& pathname, bool include_debug_text );
+  void write_included_filenames( const std::string& pathname );
+  void set_include_compile_mode();
 
 
   Pol::Bscript::Compiler::LegacyFunctionOrder get_legacy_function_order() const;

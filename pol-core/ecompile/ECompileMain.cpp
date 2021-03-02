@@ -17,7 +17,6 @@
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
 #include "../bscript/executortype.h"
-#include "../bscript/facility/Compiler.h"
 #include "../bscript/filefmt.h"
 #include "../bscript/parser.h"
 #include "../clib/Program/ProgramConfig.h"
@@ -147,10 +146,10 @@ void generate_wordlist()
   Parser::write_words( ofs );
 }
 
-std::unique_ptr<Facility::Compiler> create_compiler()
+std::unique_ptr<Compiler::Compiler> create_compiler()
 {
-  std::unique_ptr<Facility::Compiler> compiler = std::make_unique<Compiler::Compiler>(
-      em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
+  auto compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
+                                                        summary.profile );
   return compiler;
 }
 
@@ -159,7 +158,7 @@ void compile_inc( const char* path )
   if ( !quiet )
     INFO_PRINT << "Compiling: " << path << "\n";
 
-  std::unique_ptr<Facility::Compiler> compiler = create_compiler();
+  std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
   compiler->set_include_compile_mode();
   bool res = compiler->compile_file( path );
@@ -279,7 +278,7 @@ bool compile_file( const char* path )
     if ( !quiet )
       INFO_PRINT << "Compiling: " << path << "\n";
 
-    std::unique_ptr<Facility::Compiler> compiler = create_compiler();
+    std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
     bool success = compiler->compile_file( path );
 
