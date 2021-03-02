@@ -38,8 +38,6 @@ struct CompilerConfig
   int NumberOfThreads;
   bool ParanoiaWarnings;
   bool ErrorOnFileCaseMissmatch;
-  bool UseCompiler2020;
-  bool CompareCompilerOutput;
   int EmParseTreeCacheSize;
   int IncParseTreeCacheSize;
 

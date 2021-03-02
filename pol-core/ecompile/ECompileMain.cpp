@@ -149,20 +149,8 @@ void generate_wordlist()
 
 std::unique_ptr<Facility::Compiler> create_compiler()
 {
-  std::unique_ptr<Facility::Compiler> compiler;
-
-  if ( compilercfg.UseCompiler2020 )
-  {
-    compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
-                                                     summary.profile );
-  }
-  else
-  {
-    auto og_compiler = std::make_unique<Legacy::Compiler>();
-    og_compiler->setQuiet( !debug );
-    compiler = std::move( og_compiler );
-  }
-
+  std::unique_ptr<Facility::Compiler> compiler = std::make_unique<Compiler::Compiler>(
+      em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
   return compiler;
 }
 
@@ -204,137 +192,6 @@ std::vector<std::string> instruction_filenames( const std::vector<unsigned>& ins
     result.push_back( filenames.at( ins_filenum ) );
   }
   return result;
-}
-
-bool compare_compiler_output( const std::string& path )
-{
-  if ( compilercfg.ThreadedCompilation )
-    throw std::runtime_error( "Comparison mode does not work with threaded compilation." );
-
-  Legacy::Compiler og_compiler;
-  og_compiler.setQuiet( !debug );
-
-  Compiler::Compiler new_compiler( em_parse_tree_cache, inc_parse_tree_cache, summary.profile );
-
-  Pol::Tools::HighPerfTimer og_timer;
-  bool og_ok = og_compiler.compile_file( path );
-  comparison.CompileTimeV1Micros += og_timer.ellapsed().count();
-
-  auto hints = og_compiler.get_legacy_function_order();
-  Pol::Tools::HighPerfTimer new_timer;
-  bool new_ok = new_compiler.compile_file( std::string( path ), &hints );
-  comparison.CompileTimeV2Micros += new_timer.ellapsed().count();
-
-  if ( og_ok != new_ok )
-  {
-    ++comparison.NonMatchingResult;
-    ERROR_PRINT << "V1 " << ( og_ok ? "succeeded" : "failed" ) << ", V2 "
-                << ( new_ok ? "succeeded" : "failed" ) << "\n";
-    throw std::runtime_error( "success/failure mismatch" );
-    return false;
-  }
-  ++comparison.MatchingResult;
-
-  if ( !og_ok )
-    return true;  // it's ok if they both failed
-
-  // this is why -T and -G conflict: using the same filenames for every script
-
-  std::string og_ecl( "og-compiler.ecl" );
-  std::string og_lst( "og-compiler.lst" );
-
-  std::string new_ecl( "new-compiler.ecl" );
-  std::string new_lst( "new-compiler.lst" );
-
-  og_compiler.write_ecl( og_ecl );
-  og_compiler.write_listing( og_lst );
-
-  new_compiler.write_ecl( new_ecl );
-  {
-    ref_ptr<EScriptProgram> program( new EScriptProgram );
-    program->read( new_ecl.c_str() );
-    std::ofstream ofs( new_lst.c_str() );
-    program->dump( ofs );
-  }
-
-  ref_ptr<EScriptProgram> og_program( new EScriptProgram );
-  og_program->read( og_ecl.c_str() );
-
-  ref_ptr<EScriptProgram> new_program( new EScriptProgram );
-  new_program->read( new_ecl.c_str() );
-
-  std::ostringstream os1;
-  og_program->dump( os1 );
-
-  std::ostringstream os2;
-  new_program->dump( os2 );
-
-  INFO_PRINT << "Listings match: " << ( os1.str() == os2.str() ) << "\n";
-
-  bool matches = binary_contents( og_ecl ) == binary_contents( new_ecl );
-  if ( matches )
-    ++comparison.MatchingOutput;
-  else
-    ++comparison.NonMatchingOutput;
-
-  INFO_PRINT << "Binary (.ecl) outputs match: " << matches << "\n";
-  if ( !keep_building )
-  {
-    if ( !matches )
-    {
-      INFO_PRINT << "Failing because output does not match.\n"
-                 << "  - " << og_ecl << "\n"
-                 << "  - " << new_ecl << "\n";
-      throw std::runtime_error( "Compiler output mismatch" );
-    }
-  }
-
-  if ( compilercfg.GenerateDebugInfo )
-  {
-    std::string og_dbg( "og-compiler.dbg" );
-    std::string og_dbg_txt( "og-compiler.dbg.txt" );
-
-    std::string new_dbg( "new-compiler.dbg" );
-    std::string new_dbg_txt( "new-compiler.dbg.txt" );
-
-    og_compiler.write_dbg( og_dbg, compilercfg.GenerateDebugTextInfo );
-    new_compiler.write_dbg( new_dbg, compilercfg.GenerateDebugTextInfo );
-
-    og_program->read_dbg_file();
-    new_program->read_dbg_file();
-
-    auto og_instruction_filenames =
-        instruction_filenames( og_program->dbg_filenum, og_program->dbg_filenames );
-    auto new_instruction_filenames =
-        instruction_filenames( new_program->dbg_filenum, new_program->dbg_filenames );
-
-    bool ins_filenames_match = og_instruction_filenames == new_instruction_filenames;
-    bool filenames_match = og_program->dbg_filenames == new_program->dbg_filenames;
-    bool filenum_match = og_program->dbg_filenum == new_program->dbg_filenum;
-    bool ins_blocks_match = og_program->dbg_ins_blocks == new_program->dbg_ins_blocks;
-    bool blocks_match = og_program->blocks == new_program->blocks;
-    bool functions_match = og_program->dbg_functions == new_program->dbg_functions;
-
-    bool dbg_matches =
-        file_contents( og_dbg, std::ios::binary ) == file_contents( new_dbg, std::ios::binary );
-    bool dbg_txt_matches =
-        file_contents( og_dbg_txt, std::ios::in ) == file_contents( new_dbg_txt, std::ios::in );
-
-    INFO_PRINT << "Not expected to match exactly:\n";
-    INFO_PRINT << "  Debug Info matches:\n";
-    INFO_PRINT << "              all: " << dbg_matches << "\n";
-    INFO_PRINT << "    ins filenames: " << ins_filenames_match << "\n";
-    INFO_PRINT << "        filenames: " << filenames_match << "\n";
-    INFO_PRINT << "     file numbers: " << filenum_match << "\n";
-    INFO_PRINT << "       ins_blocks: " << ins_blocks_match << "\n";
-    INFO_PRINT << "           blocks: " << blocks_match << "\n";
-    INFO_PRINT << "        functions: " << functions_match << "\n";
-    INFO_PRINT << "  Debug Info (text) matches: " << dbg_txt_matches << "\n";
-    INFO_PRINT << "    - " << og_dbg_txt << "\n";
-    INFO_PRINT << "    - " << new_dbg_txt << "\n";
-  }
-
-  return true;
 }
 
 /**
@@ -417,17 +274,6 @@ bool compile_file( const char* path )
     }
   }
 
-  if ( compilercfg.CompareCompilerOutput )
-  {
-    if ( !quiet )
-      INFO_PRINT << "Comparing compiler output: " << path << "\n";
-    bool same = compare_compiler_output( path );
-
-    em_parse_tree_cache.keep_some();
-    inc_parse_tree_cache.keep_some();
-
-    return same;
-  }
 
   {
     if ( !quiet )
@@ -595,11 +441,15 @@ int readargs( int argc, char** argv )
 #endif
 
       case 'g':
-        compilercfg.UseCompiler2020 = setting_value( arg );
+      {
+        auto value = setting_value( arg );
+        if ( !value )
+        {
+          INFO_PRINT << "The OG Compiler has been removed.\n";
+          unknown_opt = true;
+        }
         break;
-      case 'G':
-        compilercfg.CompareCompilerOutput = setting_value( arg );
-        break;
+      }
 
       case 'q':
         quiet = true;
@@ -1051,19 +901,6 @@ bool run( int argc, char** argv, int* res )
     tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
     tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
 
-    INFO_PRINT << tmp.str();
-  }
-
-  if ( any && compilercfg.CompareCompilerOutput )
-  {
-    fmt::Writer tmp;
-    tmp << "Compilation Comparison:\n";
-    tmp << "    V1 compile time: " << (long)comparison.CompileTimeV1Micros / 1000 << "\n";
-    tmp << "    V2 compile time: " << (long)comparison.CompileTimeV2Micros / 1000 << "\n";
-    tmp << "     Result matches: " << comparison.MatchingResult << "\n";
-    tmp << "  Result mismatches: " << comparison.NonMatchingResult << "\n";
-    tmp << "     Output matches: " << comparison.MatchingOutput << "\n";
-    tmp << "  Output mismatches: " << comparison.NonMatchingOutput << "\n";
     INFO_PRINT << tmp.str();
   }
 
