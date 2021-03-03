@@ -11,6 +11,7 @@
 #include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/ElvisOperator.h"
 #include "bscript/compiler/ast/ErrorInitializer.h"
+#include "bscript/compiler/ast/FormattedString.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
@@ -58,6 +59,13 @@ std::unique_ptr<InterpolatedString> ExpressionBuilder::interpolated_string(
 {
   auto values = expressions( ctx->interpolatedStringPart() );
   return std::make_unique<InterpolatedString>( location_for( *ctx ), std::move( values ) );
+}
+
+std::unique_ptr<Expression> ExpressionBuilder::formatted_string( std::unique_ptr<Expression> expr,
+                                                                 antlr4::tree::TerminalNode* format )
+{
+  return std::make_unique<FormattedString>( location_for( *format ), std::move( expr ),
+                                            string_value( format, false ) );
 }
 
 std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
@@ -292,11 +300,12 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
   {
     if ( auto expression_ctx = interstringPart_ctx->expression() )
     {
+      std::unique_ptr<Expression> expr = expression( expression_ctx );
       if ( auto format = interstringPart_ctx->FORMAT_STRING() )
       {
-        format->getText();
+        expr = formatted_string( std::move( expr ), format );
       }
-      expressions.push_back( expression( expression_ctx ) );
+      expressions.push_back( std::move(expr) );
     }
     else if ( auto string_literal = interstringPart_ctx->STRING_LITERAL_INSIDE() )
     {

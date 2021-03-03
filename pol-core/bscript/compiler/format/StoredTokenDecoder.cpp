@@ -389,6 +389,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
   case TOK_INTERPOLATED_STRING:
     w << "interpolated string join (" << tkn.offset << " parts)";
     break;
+  case TOK_FORMATTED_STRING:
+    w << "formatted string";
+    break;
 
   default:
     w << "id=0x" << fmt::hex( tkn.id ) << " type=" << tkn.type << " offset=" << tkn.offset

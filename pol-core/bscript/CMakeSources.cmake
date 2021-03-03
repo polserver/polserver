@@ -86,6 +86,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FloatValue.h
   compiler/ast/ForeachLoop.cpp
   compiler/ast/ForeachLoop.h
+  compiler/ast/FormattedString.h
+  compiler/ast/FormattedString.cpp
   compiler/ast/Function.cpp
   compiler/ast/Function.h
   compiler/ast/FunctionBody.cpp
