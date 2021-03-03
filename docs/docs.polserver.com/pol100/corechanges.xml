@@ -2,9 +2,9 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-01-2021</datemodified>
+		<datemodified>03-03-2021</datemodified>
 	</header>
-	<version name="POL100.1.0-beta"/>
+	<version name="POL100.1.0"/>
 	<version name="POL100.0.0">
 		<entry>
 			<date>02-28-2021</date>

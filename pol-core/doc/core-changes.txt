@@ -1,4 +1,4 @@
-﻿-- POL100.1.0-beta --
+﻿-- POL100.1.0 --
 -- POL100.0.0 --
 02-28-2021 Nando:
      Note: POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.

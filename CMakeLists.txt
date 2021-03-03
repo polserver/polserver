@@ -22,8 +22,7 @@ project(polserver
 	DESCRIPTION "Penultima Online"
 	HOMEPAGE_URL "polserver.com")
 
-set(POLVERSION_SUFFIX "-beta")
-set(POL_VERSION_STR "${polserver_VERSION}${POLVERSION_SUFFIX}")
+set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
 set(POL_COPYRIGHT "Copyright (C) 1993-2021 Eric N. Swanson")
 
