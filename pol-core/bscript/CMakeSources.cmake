@@ -334,6 +334,7 @@ set (bscript_sources    # sorted !
   parser.cpp
   parser.h
   str.cpp 
+  str.h
   symcont.cpp
   symcont.h
   tkn_strm.cpp 

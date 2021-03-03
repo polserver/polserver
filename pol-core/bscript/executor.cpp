@@ -29,6 +29,7 @@
 #include "execmodl.h"
 #include "fmodule.h"
 #include "impstr.h"
+#include "str.h"
 #include "token.h"
 #include "tokens.h"
 #ifdef MEMORYLEAK
@@ -1279,6 +1280,19 @@ void Executor::ins_interpolate_string( const Instruction& ins )
                                    []( std::string a, std::string b ) { return a + b; } );
     ValueStack.push_back( BObjectRef( new BObject( new String( joined ) ) ) );
   }
+}
+
+void Executor::ins_format_string( const Instruction& ins )
+{
+  BObjectRef formatref = ValueStack.back();
+  ValueStack.pop_back();
+  BObjectRef& exprref = ValueStack.back();
+  BObject& expr = *exprref;
+
+  auto format = formatref->impptr()->getFormattedStringRep();
+  auto formatted = Bscript::try_to_format( expr.impptr(), format );
+
+  exprref.set( new BObject( new String( formatted ) ) );
 }
 
 void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
@@ -2920,6 +2934,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_skipiftrue_else_consume;
   case TOK_INTERPOLATED_STRING:
     return &Executor::ins_interpolate_string;
+  case TOK_FORMATTED_STRING:
+    return &Executor::ins_format_string;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }
