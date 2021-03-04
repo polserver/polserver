@@ -8,7 +8,7 @@
 #include <string>
 #include <time.h>
 
-#include "../bscript/compiler.h"
+#include "../bscript/compctx.h"
 #include "../bscript/compiler/Compiler.h"
 #include "../bscript/compiler/Profile.h"
 #include "../bscript/compiler/file/SourceFileCache.h"

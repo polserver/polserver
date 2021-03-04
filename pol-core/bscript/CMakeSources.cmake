@@ -284,8 +284,6 @@ set (bscript_sources    # sorted !
   bstruct.h
   compctx.cpp 
   compctx.h
-  compiler.cpp
-  compiler.h
   compilercfg.cpp 
   compilercfg.h
   compmodl.h
