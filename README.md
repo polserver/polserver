@@ -17,7 +17,7 @@ If you find bugs, please create an issue with the dump, relevant log lines and y
 
 <b>Current stable version: POL 100.0.0</b>
 
-<b>Current beta version: POL 100.1.0-beta</b>
+<b>Current development version: POL 100.1.0</b>
 
 Always check the core-changes.txt file for breaking changes when using the development version. We'll strive to keep the development version stable.
 
