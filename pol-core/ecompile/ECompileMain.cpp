@@ -72,8 +72,6 @@ void ECompileMain::showHelp()
 #ifdef WIN32
              << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
 #endif
-             << "       -g           Use ANTLR-grammar-driven compiler\n"
-             << "       -G           Compare OG versus new compiler output\n"
 
              << "       -i           include intrusive debug info in .ecl file\n"
              << "       -l           generate listfile\n"
@@ -83,10 +81,10 @@ void ECompileMain::showHelp()
 #endif
              << "       -q           quiet mode (suppress normal output)\n"
              << "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
-             << "       -ri [dir]      (as '-r' but only compile .inc files)\n"
-             << "         -t[v]      show timing/profiling information [override quiet mode]\n"
-             << "         -u         compile only updated scripts (.src newer than .ecl)\n"
-             << "           -f       force compile even if up-to-date\n"
+             << "       -ri [dir]    (as '-r' but only compile .inc files)\n"
+             << "       -t[v]        show timing/profiling information [override quiet mode]\n"
+             << "       -u           compile only updated scripts (.src newer than .ecl)\n"
+             << "       -f           force compile even if up-to-date\n"
              << "       -s           display summary if -q is not set\n"
              << "       -T[N]        use threaded compilation, force N threads to run\n"
              << "       -vN          verbosity level\n"
