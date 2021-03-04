@@ -18,7 +18,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_fla
 
 project(polserver 
 	LANGUAGES CXX C
-	VERSION 100.0.0
+	VERSION 100.1.0
 	DESCRIPTION "Penultima Online"
 	HOMEPAGE_URL "polserver.com")
 
