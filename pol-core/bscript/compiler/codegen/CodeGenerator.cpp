@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "StoredToken.h"
-#include "bscript/compiler/LegacyFunctionOrder.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterList.h"
@@ -23,7 +22,7 @@
 namespace Pol::Bscript::Compiler
 {
 std::unique_ptr<CompiledScript> CodeGenerator::generate(
-    std::unique_ptr<CompilerWorkspace> workspace, const LegacyFunctionOrder* legacy_function_order )
+    std::unique_ptr<CompilerWorkspace> workspace )
 {
   auto program_info =
       workspace->program
@@ -51,9 +50,9 @@ std::unique_ptr<CompiledScript> CodeGenerator::generate(
                                           module_declaration_registrar );
   CodeGenerator generator( instruction_emitter, module_declaration_registrar );
 
-  generator.register_module_functions( *workspace, legacy_function_order );
+  generator.register_module_functions_alphabetically( *workspace );
 
-  sort_user_functions( *workspace, legacy_function_order );
+  sort_user_functions_alphabetically( *workspace );
 
   generator.generate_instructions( *workspace );
 
@@ -98,33 +97,6 @@ void CodeGenerator::generate_instructions( CompilerWorkspace& workspace )
   }
 }
 
-void CodeGenerator::register_module_functions( CompilerWorkspace& workspace,
-                                               const LegacyFunctionOrder* legacy_function_order )
-{
-  if ( legacy_function_order )
-  {
-    register_module_functions_as_legacy( workspace );
-  }
-  else
-  {
-    register_module_functions_alphabetically( workspace );
-  }
-}
-
-void CodeGenerator::register_module_functions_as_legacy( CompilerWorkspace& workspace )
-{
-  for ( auto& module_function : workspace.module_function_declarations )
-  {
-    // we might assign IDs to more modules that we actually use,
-    // but this will help us compare output with the original compiler.
-    module_declaration_registrar.register_module( *module_function );
-  }
-  for ( const auto& decl : workspace.module_functions_in_legacy_order )
-  {
-    module_declaration_registrar.register_modulefunc( *decl );
-  }
-}
-
 void CodeGenerator::register_module_functions_alphabetically( CompilerWorkspace& workspace )
 {
   sort_module_functions_by_module_name( workspace );
@@ -160,44 +132,6 @@ void CodeGenerator::sort_module_functions_alphabetically( CompilerWorkspace& wor
 
   std::sort( workspace.referenced_module_function_declarations.begin(),
              workspace.referenced_module_function_declarations.end(), sortByModuleFunctionName );
-}
-
-void CodeGenerator::sort_user_functions( CompilerWorkspace& workspace,
-                                         const LegacyFunctionOrder* legacy_function_order )
-{
-  if ( legacy_function_order )
-  {
-    sort_user_functions_as_legacy( workspace, *legacy_function_order );
-  }
-  else
-  {
-    sort_user_functions_alphabetically( workspace );
-  }
-}
-
-void CodeGenerator::sort_user_functions_as_legacy(
-    CompilerWorkspace& workspace, const LegacyFunctionOrder& legacy_function_order )
-{
-  std::map<std::string, size_t> c1_order;
-  for ( auto& n : legacy_function_order.userfunc_emit_order )
-  {
-    c1_order[n] = c1_order.size();
-  }
-
-  auto sortAsLegacy = [c1_order]( const std::unique_ptr<UserFunction>& s1,
-                                  const std::unique_ptr<UserFunction>& s2 ) -> bool {
-    auto itr1 = c1_order.find( s1->name );
-    auto itr2 = c1_order.find( s2->name );
-    if ( itr1 != c1_order.end() && itr1 != c1_order.end() )
-    {
-      return ( *itr1 ).second < ( *itr2 ).second;
-    }
-    else
-    {
-      return s1->name < s2->name;
-    }
-  };
-  std::sort( workspace.user_functions.begin(), workspace.user_functions.end(), sortAsLegacy );
 }
 
 void CodeGenerator::sort_user_functions_alphabetically( CompilerWorkspace& workspace )

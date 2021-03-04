@@ -13,7 +13,6 @@ set (bscript_sources    # sorted !
   StoredToken.h
   compiler/Compiler.cpp
   compiler/Compiler.h
-  compiler/LegacyFunctionOrder.h
   compiler/analyzer/Constants.cpp
   compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp

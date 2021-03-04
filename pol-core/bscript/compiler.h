@@ -38,10 +38,6 @@ namespace Pol
 {
 namespace Bscript
 {
-namespace Compiler
-{
-  struct LegacyFunctionOrder;
-}
 class EScriptProgram;
 class EScriptProgramCheckpoint;
 class FunctionalityModule;
@@ -283,9 +279,6 @@ public:
   void write_dbg( const std::string& pathname, bool include_debug_text );
   void write_included_filenames( const std::string& pathname );
   void set_include_compile_mode();
-
-
-  Pol::Bscript::Compiler::LegacyFunctionOrder get_legacy_function_order() const;
 
   // phase 0: determining bracket syntax
 
