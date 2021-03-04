@@ -1017,7 +1017,6 @@ PackageRoot (path to package root)
 [ThreadedCompilation (0/1 {default 0})]       //uses multiple thread to speed up compilation
 [NumberOfThreads (0/N {default 0})]           //defines the used number of threads (0=autodetect)
 [ParanoiaWarnings (0/1 {default 0})]          //will complain about {} syntax
-[UseCompiler2020 (0/1 {default 1})]           //If set, uses the ANTLR-grammar-based compiler.
 [EmParseTreeCacheSize (0-N {default 25})]     //Cache parse trees for this number of *.em files
 [IncParseTreeCacheSize (0-N {default 50})]    //Cache parse trees for this number of *.inc files
 

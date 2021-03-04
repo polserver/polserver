@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-03-2021</datemodified>
+		<datemodified>03-04-2021</datemodified>
 	</header>
-	<version name="POL100.1.0"/>
+	<version name="POL100.1.0">
+		<entry>
+			<date>03-04-2021</date>
+			<author>Kevin:</author>
+			<change type="Removed">The old compiler has been removed from ecompile in favor of the ANTLR-driven 2020 compiler. This removes the ecompile.cfg<br/>
+setting UseCompiler2020 as well as the ecompile.exe switches -g and -G. Any value of UseCompiler2020 in ecompile.cfg will be<br/>
+ignored without warning.</change>
+		</entry>
+	</version>
 	<version name="POL100.0.0">
 		<entry>
 			<date>02-28-2021</date>

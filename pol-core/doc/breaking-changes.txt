@@ -1,7 +1,10 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
-
--- POL100 [work-in-progress] --
+-- POL100.1.0 [work-in-progress] --
+2021-03-04:
+    The old compiler has now been removed from ecompile. You may no longer use the -g- or -G arguments. Any value of UseCompiler2020
+    in ecompile.cfg will be ignored without warning.
+-- POL100.0.0 --
 2020-10-17:
     polcore().version now returns a string like "100.0.0"
     Package `CoreRequired` fields must use a semantic version such as 99.0.0

@@ -166,9 +166,3 @@ ErrorOnFileCaseMissmatch=0
 # Number of *.inc files to cache (new compiler only)
 # Default is 50
 #IncParseTreeCacheSize=50
-
-#
-# UseCompiler2020
-# Use the ANTLR-grammar-based compiler
-# Default is 1
-#UseCompiler2020=1
