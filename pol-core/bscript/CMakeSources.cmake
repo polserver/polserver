@@ -316,6 +316,7 @@ set (bscript_sources    # sorted !
   fmodule.h
   impstr.h
   modules.h
+  objaccess.cpp
   object.cpp 
   object.h
   objmembers.h
@@ -323,8 +324,6 @@ set (bscript_sources    # sorted !
   objstrm.cpp
   operator.h
   options.h
-  parser.cpp
-  parser.h
   str.cpp 
   symcont.cpp
   symcont.h
