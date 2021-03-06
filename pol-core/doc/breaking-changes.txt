@@ -1,6 +1,8 @@
 # This is a short summary of breaking changes.
 # Please consult core-changes.txt for more information.
 -- POL100.1.0 [work-in-progress] --
+    The ability to generate the Escript wordlist via the -W argument to ecompile.exe has been removed. Passing this argument will
+    result in an unknown option error.
 2021-03-04:
     The old compiler has now been removed from ecompile. You may no longer use the -g- or -G arguments. Any value of UseCompiler2020
     in ecompile.cfg will be ignored without warning.

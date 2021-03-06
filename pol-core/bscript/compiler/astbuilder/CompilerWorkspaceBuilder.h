@@ -11,7 +11,6 @@ namespace Pol::Bscript::Compiler
 {
 class BuilderWorkspace;
 class CompilerWorkspace;
-struct LegacyFunctionOrder;
 class ModuleFunctionDeclaration;
 class Profile;
 class Report;
@@ -23,14 +22,9 @@ public:
   CompilerWorkspaceBuilder( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile&,
                             Report& );
 
-  std::unique_ptr<CompilerWorkspace> build(
-      const std::string& pathname,
-      const LegacyFunctionOrder* legacy_function_order,
-      UserFunctionInclusion );
+  std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion );
 
 private:
-  std::vector<const ModuleFunctionDeclaration*> get_module_functions_in_order(
-      BuilderWorkspace&, const LegacyFunctionOrder& );
   void build_referenced_user_functions( BuilderWorkspace& );
 
   SourceFileCache& em_cache;

@@ -40,7 +40,6 @@ public:
 
   // These reference ModuleFunctionDeclaration objects that are in module_functions
   std::vector<ModuleFunctionDeclaration*> referenced_module_function_declarations;
-  std::vector<const ModuleFunctionDeclaration*> module_functions_in_legacy_order;
 
   std::vector<std::unique_ptr<SourceFileIdentifier>> referenced_source_file_identifiers;
 

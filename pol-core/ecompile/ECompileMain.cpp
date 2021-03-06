@@ -8,9 +8,8 @@
 #include <string>
 #include <time.h>
 
-#include "../bscript/compiler.h"
+#include "../bscript/compctx.h"
 #include "../bscript/compiler/Compiler.h"
-#include "../bscript/compiler/LegacyFunctionOrder.h"
 #include "../bscript/compiler/Profile.h"
 #include "../bscript/compiler/file/SourceFileCache.h"
 #include "../bscript/compilercfg.h"
@@ -18,7 +17,6 @@
 #include "../bscript/executor.h"
 #include "../bscript/executortype.h"
 #include "../bscript/filefmt.h"
-#include "../bscript/parser.h"
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/dirlist.h"
@@ -89,7 +87,6 @@ void ECompileMain::showHelp()
              << "       -T[N]        use threaded compilation, force N threads to run\n"
              << "       -vN          verbosity level\n"
              << "       -w           display warnings\n"
-             << "       -W           generate wordfile\n"
              << "       -y           treat warnings as errors\n"
              << "       -x           write external .dbg file\n"
              << "       -xt          write external .dbg.txt info file\n"
@@ -104,7 +101,6 @@ static char** s_argv;
 
 int debug = 0;
 bool quiet = false;
-bool opt_generate_wordlist = false;
 bool keep_building = false;
 bool force_update = false;
 bool show_timing_details = false;
@@ -136,13 +132,6 @@ struct Comparison
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
 Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
-
-void generate_wordlist()
-{
-  INFO_PRINT << "Writing word list to wordlist.txt\n";
-  std::ofstream ofs( "wordlist.txt", std::ios::out | std::ios::trunc );
-  Parser::write_words( ofs );
-}
 
 std::unique_ptr<Compiler::Compiler> create_compiler()
 {
@@ -496,10 +485,6 @@ int readargs( int argc, char** argv )
       case 's':
         // show_source = true;
         compilercfg.DisplaySummary = true;
-        break;
-
-      case 'W':
-        opt_generate_wordlist = true;
         break;
 
       case 'a':
@@ -995,11 +980,6 @@ int ECompileMain::main()
     INFO_PRINT << "EScript Compiler v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
   }
 
-  if ( ECompile::opt_generate_wordlist )
-  {
-    ECompile::generate_wordlist();
-    return 0;
-  }
   int prog_res = 1;
   bool didanything = ECompile::run( s_argc, s_argv, &prog_res );
 

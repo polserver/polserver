@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-04-2021</datemodified>
+		<datemodified>03-05-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>03-05-2021</date>
+			<author>Kevin:</author>
+			<change type="Removed">The ability to generate the Escript wordlist via the -W argument to ecompile.exe has been removed. The Escript grammar can be<br/>
+described by the ANTLR .g4 files in the repository.</change>
+		</entry>
 		<entry>
 			<date>03-04-2021</date>
 			<author>Kevin:</author>

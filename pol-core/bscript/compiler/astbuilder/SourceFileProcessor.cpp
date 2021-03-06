@@ -21,12 +21,10 @@
 
 using EscriptGrammar::EscriptParser;
 
-namespace Pol::Bscript::Legacy
-{
-std::string getpathof( const std::string& fname );
-}
 namespace Pol::Bscript::Compiler
 {
+std::string getpathof( const std::string& fname );
+
 SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_file_identifier,
                                           BuilderWorkspace& workspace, bool is_src,
                                           UserFunctionInclusion user_function_inclusion )
@@ -172,8 +170,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
 {
   std::string filename_part = include_name + ".inc";
 
-  std::string current_file_path =
-      Pol::Bscript::Legacy::getpathof( source_location.source_file_identifier->pathname );
+  std::string current_file_path = getpathof( source_location.source_file_identifier->pathname );
   std::string filename_full = current_file_path + filename_part;
 
   if ( filename_part[0] == ':' )
@@ -356,4 +353,12 @@ SourceLocation SourceFileProcessor::location_for( antlr4::ParserRuleContext& ctx
   return { &source_file_identifier, ctx };
 }
 
+std::string getpathof( const std::string& fname )
+{
+  std::string::size_type pos = fname.find_last_of( "\\/" );
+  if ( pos == std::string::npos )
+    return "./";
+  else
+    return fname.substr( 0, pos + 1 );
+}
 }  // namespace Pol::Bscript::Compiler

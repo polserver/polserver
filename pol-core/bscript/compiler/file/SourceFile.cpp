@@ -1,5 +1,7 @@
 #include "SourceFile.h"
 
+#include <cstring>
+
 #include "clib/filecont.h"
 #include "clib/fileutil.h"
 #include "clib/strutil.h"
@@ -11,14 +13,11 @@
 using EscriptGrammar::EscriptLexer;
 using EscriptGrammar::EscriptParser;
 
-namespace Pol::Bscript::Legacy
+namespace Pol::Bscript::Compiler
 {
 bool is_web_script( const char* filename );
 std::string preprocess_web_script( const std::string& input );
-}
 
-namespace Pol::Bscript::Compiler
-{
 SourceFile::SourceFile( const std::string& pathname, const std::string& contents, Profile& profile )
     : pathname( pathname ),
       input( contents ),
@@ -85,9 +84,9 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
 
     Clib::sanitizeUnicodeWithIso( &contents );
 
-    if ( Legacy::is_web_script( pathname.c_str() ) )
+    if ( is_web_script( pathname.c_str() ) )
     {
-      contents = Legacy::preprocess_web_script( contents );
+      contents = preprocess_web_script( contents );
     }
 
     return std::make_shared<SourceFile>( pathname, contents, profile );
@@ -125,6 +124,86 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   ++access_count;
   propagate_errors_to( report, ident );
   return module_unit;
+}
+
+/**
+ * Given a file name, tells if this is a web script
+ */
+bool is_web_script( const char* file )
+{
+  const char* ext = strstr( file, ".hsr" );
+  if ( ext && memcmp( ext, ".hsr", 5 ) == 0 )
+    return true;
+  ext = strstr( file, ".asp" );
+  if ( ext && memcmp( ext, ".asp", 5 ) == 0 )
+    return true;
+  return false;
+}
+
+/**
+ * Transforms the raw html page into a script with a single WriteHtml() instruction
+ */
+std::string preprocess_web_script( const std::string& input )
+{
+  std::string output;
+  output = "use http;";
+  output += '\n';
+
+  bool reading_html = true;
+  bool source_is_emit = false;
+  const char* s = input.c_str();
+  std::string acc;
+  while ( *s )
+  {
+    if ( reading_html )
+    {
+      if ( s[0] == '<' && s[1] == '%' )
+      {
+        reading_html = false;
+        if ( !acc.empty() )
+        {
+          output += "WriteHtmlRaw( \"" + acc + "\");\n";
+          acc = "";
+        }
+        s += 2;
+        source_is_emit = ( s[0] == '=' );
+        if ( source_is_emit )
+        {
+          output += "WriteHtmlRaw( ";
+          ++s;
+        }
+      }
+      else
+      {
+        if ( *s == '\"' )
+          acc += "\\\"";
+        else if ( *s == '\r' )
+          ;
+        else if ( *s == '\n' )
+          acc += "\\n";
+        else
+          acc += *s;
+        ++s;
+      }
+    }
+    else
+    {
+      if ( s[0] == '%' && s[1] == '>' )
+      {
+        reading_html = true;
+        s += 2;
+        if ( source_is_emit )
+          output += " );\n";
+      }
+      else
+      {
+        output += *s++;
+      }
+    }
+  }
+  if ( !acc.empty() )
+    output += "WriteHtmlRaw( \"" + acc + "\");\n";
+  return output;
 }
 
 }  // namespace Pol::Bscript::Compiler

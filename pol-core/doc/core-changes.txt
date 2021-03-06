@@ -1,8 +1,11 @@
 ﻿-- POL100.1.0 --
+03-05-2021 Kevin:
+  Removed: The ability to generate the Escript wordlist via the -W argument to ecompile.exe has been removed. The Escript grammar can be
+           described by the ANTLR .g4 files in the repository.
 03-04-2021 Kevin:
   Removed: The old compiler has been removed from ecompile in favor of the ANTLR-driven 2020 compiler. This removes the ecompile.cfg
-          setting UseCompiler2020 as well as the ecompile.exe switches -g and -G. Any value of UseCompiler2020 in ecompile.cfg will be
-          ignored without warning.
+           setting UseCompiler2020 as well as the ecompile.exe switches -g and -G. Any value of UseCompiler2020 in ecompile.cfg will be
+           ignored without warning.
 -- POL100.0.0 --
 02-28-2021 Nando:
      Note: POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.
