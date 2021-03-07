@@ -39,7 +39,7 @@
 #include "pktinid.h"
 #include <format/format.h>
 
-#define CLIENT_CHECKPOINT( x ) client->checkpoint = x
+#define CLIENT_CHECKPOINT( x ) client->session()->checkpoint = x
 #define SESSION_CHECKPOINT( x ) session->checkpoint = x
 
 namespace Pol::Core
@@ -66,7 +66,7 @@ void set_polling_timeouts( Clib::SinglePoller& poller, bool single_threaded_logi
 
 // Taking a reference to SinglePoller is ugly here. But io_step, io_loop and clientpoller will
 // eventually move into the same class.
-bool threadedclient_io_step( Network::Client* session, Clib::SinglePoller& clientpoller,
+bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePoller& clientpoller,
                              int& nidle )
 {
   SESSION_CHECKPOINT( 1 );
@@ -173,7 +173,7 @@ bool threadedclient_io_step( Network::Client* session, Clib::SinglePoller& clien
   return true;
 }  // namespace Pol::Core
 
-void threadedclient_io_loop( Network::Client* session, bool login )
+void threadedclient_io_loop( Network::ThreadedClient* session, bool login )
 {
   int nidle = 0;
   session->last_packet_at = polclock();
@@ -200,27 +200,27 @@ void threadedclient_sleep_until( polclock_t when_logoff )
   }
 }
 
-void threadedclient_io_finalize( Network::Client* client )
+void threadedclient_io_finalize( Network::ThreadedClient* session )
 {
   int seconds_wait = 0;
   {
-    CLIENT_CHECKPOINT( 9 );
+    SESSION_CHECKPOINT( 9 );
     PolLock lck;
-    seconds_wait = client->on_close();
+    seconds_wait = session->myClient.on_close();
   }
 
-  CLIENT_CHECKPOINT( 10 );
+  SESSION_CHECKPOINT( 10 );
   if ( seconds_wait > 0 )
   {
-    polclock_t when_logoff = client->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
+    polclock_t when_logoff = session->last_activity_at + seconds_wait * POLCLOCKS_PER_SEC;
     threadedclient_sleep_until( when_logoff );
   }
 
-  CLIENT_CHECKPOINT( 15 );
-  if ( client->chr )
+  SESSION_CHECKPOINT( 15 );
+  if ( session->myClient.chr )
   {
     PolLock lck;
-    client->on_logoff();
+    session->myClient.on_logoff();
   }
 }
 
@@ -234,22 +234,22 @@ bool client_io_thread( Network::Client* client, bool login )
   CLIENT_CHECKPOINT( 0 );
   try
   {
-    threadedclient_io_loop( client, login );
+    threadedclient_io_loop( client->session(), login );
   }
   catch ( std::string& str )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << str << client->checkpoint;
+        << client->instance_ << str << client->session()->checkpoint;
   }
   catch ( const char* msg )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << msg << client->checkpoint;
+        << client->instance_ << msg << client->session()->checkpoint;
   }
   catch ( std::exception& ex )
   {
     POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << ex.what() << client->checkpoint;
+        << client->instance_ << ex.what() << client->session()->checkpoint;
   }
   CLIENT_CHECKPOINT( 20 );
 
@@ -262,12 +262,12 @@ bool client_io_thread( Network::Client* client, bool login )
 
   try
   {
-    threadedclient_io_finalize( client );
+    threadedclient_io_finalize( client->session() );
   }
   catch ( std::exception& ex )
   {
     POLLOG.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})\n" )
-        << client->instance_ << client->checkpoint << ex.what();
+        << client->instance_ << client->session()->checkpoint << ex.what();
   }
 
   // queue delete of client ptr see method doc for reason
@@ -484,9 +484,10 @@ bool process_data( Network::ThreadedClient* session )
   return false;
 }
 
-bool check_inactivity( Network::Client* client )
+// TODO: We may want to take a buffer directly here instead of a ThreadedClient
+bool check_inactivity( Network::ThreadedClient* session )
 {
-  switch ( client->buffer[0] )
+  switch ( session->buffer[0] )
   {
   case PKTBI_73_ID:
   // Fallthrough
@@ -495,7 +496,7 @@ bool check_inactivity( Network::Client* client )
   case PKTBI_D6_IN_ID:
     return true;
   case PKTBI_BF_ID:
-    if ( ( client->buffer[3] == 0 ) && ( client->buffer[4] == PKTBI_BF::TYPE_SESPAM ) )
+    if ( ( session->buffer[3] == 0 ) && ( session->buffer[4] == PKTBI_BF::TYPE_SESPAM ) )
       return true;
     break;
   default:

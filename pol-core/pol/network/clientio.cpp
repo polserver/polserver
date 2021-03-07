@@ -16,6 +16,7 @@
 #include "../../clib/passert.h"
 #include "../../clib/refptr.h"
 #include "../../clib/spinlock.h"
+#include "../accounts/account.h"
 #include "../crypt/cryptbase.h"
 #include "../ctable.h"
 #include "../globals/network.h"
@@ -34,6 +35,58 @@ namespace Pol
 {
 namespace Network
 {
+PacketLog Client::start_log()
+{
+  std::string filename = "log/";
+  filename += acct->name();
+  filename += ".log";
+
+  return session()->start_log( filename );
+}
+
+PacketLog Client::stop_log()
+{
+  return session()->stop_log();
+}
+
+
+PacketLog ThreadedClient::start_log( std::string filename )
+{
+  Clib::SpinLockGuard guard( _fpLog_lock );
+  if ( !fpLog.empty() )
+  {
+    return PacketLog::Unchanged;  // already logging
+  }
+
+  fpLog = OPEN_FLEXLOG( filename, true );
+  if ( !fpLog.empty() )
+  {
+    return PacketLog::Success;
+  }
+  else
+  {
+    return PacketLog::Error;
+  }
+}
+
+PacketLog ThreadedClient::stop_log()
+{
+  Clib::SpinLockGuard guard( _fpLog_lock );
+  if ( !fpLog.empty() )
+  {
+    auto time_tm = Clib::localtime( time( nullptr ) );
+    FLEXLOG( fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
+    CLOSE_FLEXLOG( fpLog );
+    fpLog.clear();
+    return PacketLog::Success;
+  }
+  else
+  {
+    return PacketLog::Unchanged;
+  }
+}
+
+
 std::string ThreadedClient::ipaddrAsString() const
 {
   return AddressToString( &this->ipaddr );

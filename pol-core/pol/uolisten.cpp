@@ -47,7 +47,7 @@ void UoClientThread::run()
     if ( !create() )
       return;
   }
-  client->thread_pid = threadhelp::thread_pid();
+  client->session()->thread_pid = threadhelp::thread_pid();
   client_io_thread( client );
 }
 
@@ -69,14 +69,17 @@ bool UoClientThread::create()
 
   PolLock lck;
   client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
+  
+  // TODO: move this into an initialization of ThreadedClient.
   client->csocket = _sck.release_handle();  // client cleans up its socket.
+  memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
+
   if ( _def->sticky )
     client->listen_port = _def->port;
   if ( _def->aosresist )
     client->aosresist = true;  // UOCLient.cfg Entry
   // Added null setting for pre-char selection checks using nullptr validation
   client->acct = nullptr;
-  memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
 
   networkManager.clients.push_back( client );
   CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",

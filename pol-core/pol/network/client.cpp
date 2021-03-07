@@ -143,6 +143,10 @@ void Client::Delete( Client* client )
 
 Client::~Client() {}
 
+void Client::init_crypto(void* nseed, int type) {
+    session()->cryptengine->Init( nseed, type );
+}
+
 void Client::unregister()
 {
   auto findClient =
@@ -188,17 +192,8 @@ void Client::PreDelete()
     chr = nullptr;
   }
 
-  {
-    Clib::SpinLockGuard guard( _fpLog_lock );
-    if ( !fpLog.empty() )
-    {
-      time_t now = time( nullptr );
-      auto time = Clib::localtime( now );
-      FLEXLOG( fpLog ) << "Log closed at " << asctime( &time ) << "\n";
-      CLOSE_FLEXLOG( fpLog );
-      fpLog.clear();
-    }
-  }
+  // stop packet-logging
+  stop_log();
 
   delete gd;
   gd = nullptr;
@@ -691,6 +686,7 @@ weak_ptr<Client> Client::getWeakPtr() const
   return weakptr;
 }
 
+// TODO: Add estimatedSize() to ThreadedClient and move the corresponding members
 size_t Client::estimatedSize() const
 {
   Clib::SpinLockGuard guard( _fpLog_lock );

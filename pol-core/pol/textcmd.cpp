@@ -300,21 +300,18 @@ void start_packetlog( Mobile::Character* looker, Mobile::Character* mob )
 {
   if ( mob->connected() )  // gotta be connected to get packets right?
   {
-    Clib::SpinLockGuard guard( mob->client->_fpLog_lock );
-    if ( mob->client->fpLog.empty() )
+    auto res = mob->client->start_log();
+    if ( res == Network::PacketLog::Success )
     {
-      std::string filename = "log/";
-      filename += mob->client->acct->name();
-      filename += ".log";
-      mob->client->fpLog = OPEN_FLEXLOG( filename, true );
-      if ( !mob->client->fpLog.empty() )
-      {
-        send_sysmessage( looker->client, "I/O log file opened for " + mob->name() );
-      }
-      else
-      {
-        send_sysmessage( looker->client, "Unable to open I/O log file for " + mob->name() );
-      }
+      send_sysmessage( looker->client, "I/O log file opened for " + mob->name() );
+    }
+    else if ( res == Network::PacketLog::Unchanged )
+    {
+      send_sysmessage( looker->client, "I/O log was already open for " + mob->name() );
+    }
+    else
+    {
+      send_sysmessage( looker->client, "Unable to open I/O log file for " + mob->name() );
     }
   }
 }
@@ -328,21 +325,18 @@ void textcmd_startlog( Network::Client* client )
   }
   else
   {
-    Clib::SpinLockGuard guard( client->_fpLog_lock );
-    if ( client->fpLog.empty() )
+    auto res = client->start_log();
+    if ( res == Network::PacketLog::Success )
     {
-      std::string filename = "log/";
-      filename += client->acct->name();
-      filename += ".log";
-      client->fpLog = OPEN_FLEXLOG( filename, true );
-      if ( !client->fpLog.empty() )
-      {
-        send_sysmessage( client, "I/O log file opened." );
-      }
-      else
-      {
-        send_sysmessage( client, "Unable to open I/O log file." );
-      }
+      send_sysmessage( client, "I/O log file opened." );
+    }
+    else if ( res == Network::PacketLog::Unchanged )
+    {
+      send_sysmessage( client, "I/O log was already open." );
+    }
+    else
+    {
+      send_sysmessage( client, "Unable to open I/O log file." );
     }
   }
 }
@@ -351,13 +345,8 @@ void stop_packetlog( Mobile::Character* looker, Mobile::Character* mob )
 {
   if ( mob->connected() )  // gotta be connected to already have packets right?
   {
-    Clib::SpinLockGuard guard( mob->client->_fpLog_lock );
-    if ( !mob->client->fpLog.empty() )
-    {
-      auto time_tm = Clib::localtime( time( nullptr ) );
-      FLEXLOG( mob->client->fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
-      CLOSE_FLEXLOG( mob->client->fpLog );
-      mob->client->fpLog.clear();
+    auto res = mob->client->stop_log();
+    if (res == Network::PacketLog::Success) {
       send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
     }
     else
@@ -376,13 +365,8 @@ void textcmd_stoplog( Network::Client* client )
   }
   else
   {
-    Clib::SpinLockGuard guard( client->_fpLog_lock );
-    if ( !client->fpLog.empty() )
-    {
-      auto time_tm = Clib::localtime( time( nullptr ) );
-      FLEXLOG( client->fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
-      CLOSE_FLEXLOG( client->fpLog );
-      client->fpLog.clear();
+    auto res = client->stop_log();
+    if ( res == Network::PacketLog::Success ) {
       send_sysmessage( client, "I/O log file closed." );
     }
     else

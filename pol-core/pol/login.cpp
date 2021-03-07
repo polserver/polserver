@@ -291,7 +291,7 @@ void select_server( Network::Client* client, PKTIN_A0* msg )  // Relay player to
 
   rsp.Send( client );
 
-  client->cryptengine->Init( &nseed, Crypt::CCryptBase::typeGame );
+  client->init_crypto( &nseed, Crypt::CCryptBase::typeGame );
 }
 
 void send_start( Network::Client* client )
@@ -387,7 +387,7 @@ void send_start( Network::Client* client )
 
 void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and character listing
 {
-  client->encrypt_server_stream = true;
+  client->start_encrypted_server_stream();
 
   if ( Network::is_banned_ip( client ) )
   {
