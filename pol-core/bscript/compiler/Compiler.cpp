@@ -30,11 +30,6 @@ Compiler::Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profi
 
 Compiler::~Compiler() = default;
 
-bool Compiler::compile_file( const std::string& filename )
-{
-  return compile_file( filename, nullptr );
-}
-
 bool Compiler::write_ecl( const std::string& pathname )
 {
   if ( output )
@@ -86,8 +81,7 @@ void Compiler::set_include_compile_mode()
   user_function_inclusion = UserFunctionInclusion::All;
 }
 
-bool Compiler::compile_file( const std::string& filename,
-                             const LegacyFunctionOrder* legacy_function_order )
+bool Compiler::compile_file( const std::string& filename )
 {
   bool success;
   try
@@ -96,7 +90,7 @@ bool Compiler::compile_file( const std::string& filename,
 
     Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
 
-    compile_file_steps( pathname, legacy_function_order, report );
+    compile_file_steps( pathname, report );
     display_outcome( pathname, report );
 
     bool have_warning_as_error = report.warning_count() && compilercfg.ErrorOnWarning;
@@ -110,12 +104,9 @@ bool Compiler::compile_file( const std::string& filename,
   return success;
 }
 
-void Compiler::compile_file_steps( const std::string& pathname,
-                                   const LegacyFunctionOrder* legacy_function_order,
-                                   Report& report )
+void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 {
-  std::unique_ptr<CompilerWorkspace> workspace =
-      build_workspace( pathname, legacy_function_order, report );
+  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report );
   if ( report.error_count() )
     return;
 
@@ -131,21 +122,19 @@ void Compiler::compile_file_steps( const std::string& pathname,
   if ( report.error_count() )
     return;
 
-  analyze( *workspace, report);
+  analyze( *workspace, report );
   if ( report.error_count() )
     return;
 
-  output = generate( std::move( workspace ), legacy_function_order );
+  output = generate( std::move( workspace ) );
 }
 
-std::unique_ptr<CompilerWorkspace> Compiler::build_workspace(
-    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order,
-    Report& report )
+std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
+                                                              Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
   CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
-  auto workspace =
-      workspace_builder.build( pathname, legacy_function_order, user_function_inclusion );
+  auto workspace = workspace_builder.build( pathname, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
 }
@@ -181,11 +170,10 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
   profile.analyze_micros += timer.ellapsed().count();
 }
 
-std::unique_ptr<CompiledScript> Compiler::generate(
-    std::unique_ptr<CompilerWorkspace> workspace, const LegacyFunctionOrder* legacy_function_order )
+std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWorkspace> workspace )
 {
   Pol::Tools::HighPerfTimer codegen_timer;
-  auto compiled_script = CodeGenerator::generate( std::move( workspace ), legacy_function_order );
+  auto compiled_script = CodeGenerator::generate( std::move( workspace ) );
   profile.codegen_micros += codegen_timer.ellapsed().count();
   return compiled_script;
 }

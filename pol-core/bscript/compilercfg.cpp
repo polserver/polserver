@@ -59,8 +59,6 @@ void CompilerConfig::Read( const std::string& path )
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
   ErrorOnFileCaseMissmatch = elem.remove_bool( "ErrorOnFileCaseMissmatch", false );
 
-  UseCompiler2020 = elem.remove_bool( "UseCompiler2020", true );
-  CompareCompilerOutput = false; // only makes sense to change temporarily on command line
   EmParseTreeCacheSize = elem.remove_int( "EmParseTreeCacheSize", 25 );
   IncParseTreeCacheSize = elem.remove_int( "IncParseTreeCacheSize", 50 );
 

@@ -131,6 +131,13 @@ typedef struct
 
 class Client;
 
+enum class PacketLog
+{
+  Error,
+  Success,
+  Unchanged
+};
+
 class ThreadedClient
 {
 public:
@@ -151,6 +158,9 @@ public:
 
   bool has_delayed_packets() const;
   void process_delayed_packets();
+
+  PacketLog start_log( std::string filename );
+  PacketLog stop_log();
 
 protected:
   ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient );
@@ -194,7 +204,7 @@ public:
   const Core::MessageTypeFilter* msgtype_filter;
 
   int checkpoint;  // CNXBUG
-  
+
   mutable Clib::SpinLock _fpLog_lock;
   std::string fpLog;
 
@@ -221,7 +231,7 @@ private:
 };
 
 
-class Client : public ThreadedClient
+class Client : private ThreadedClient
 {
 public:
   Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
@@ -229,6 +239,31 @@ public:
   Client& operator=( const Client& ) = delete;
   static void Delete( Client* client );
   size_t estimatedSize() const;
+
+  // later these will return a member "session" instead of casting
+  ThreadedClient* session() { return static_cast<ThreadedClient*>( this ); }
+  const ThreadedClient* session() const { return static_cast<const ThreadedClient*>( this ); }
+
+  // these remaining three members are ok to be public for now and will be wrapped later
+  using ThreadedClient::csocket;
+  using ThreadedClient::ipaddr;
+  using ThreadedClient::msgtype_filter;
+
+  // wrappers for ThreadedClient members
+  PacketLog start_log();
+  PacketLog stop_log();
+
+  void start_encrypted_server_stream() { session()->encrypt_server_stream = true; }
+  void init_crypto( void* nseed, int type );
+
+  std::string ipaddrAsString() const { return session()->ipaddrAsString(); }
+
+  bool isConnected() const { return session()->isConnected(); }
+  bool isReallyConnected() const { return session()->isReallyConnected(); }
+  void forceDisconnect() { session()->forceDisconnect(); }
+
+  Core::polclock_t last_activity_at() { return session()->last_activity_at; }
+  Core::polclock_t last_packet_at() { return session()->last_packet_at; }
 
 protected:
   void PreDelete();
@@ -282,7 +317,7 @@ public:
   //
   unsigned short listen_port;
   bool aosresist;  // UOClient.Cfg Entry
-  
+
   std::string status() const;
 
   void send_pause();
@@ -343,7 +378,7 @@ inline bool ThreadedClient::isConnected() const
 }
 inline bool ThreadedClient::has_delayed_packets() const
 {
-    return !myClient.movementqueue.empty();
+  return !myClient.movementqueue.empty();
 }
 
 inline bool Client::isActive() const

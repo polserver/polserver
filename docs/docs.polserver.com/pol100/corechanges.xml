@@ -2,9 +2,40 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-27-2021</datemodified>
+		<datemodified>03-07-2021</datemodified>
 	</header>
-	<version name="POL100">
+	<version name="POL100.1.0">
+		<entry>
+			<date>03-07-2021</date>
+			<author>Nando:</author>
+			<change type="Added">RefreshDecayAfterBoatMoves in servspecopt.cfg. Defaults to true to maintain the old behavior. If this setting is true,<br/>
+the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay<br/>
+on boats. Note that POL doesn't yet handle item decay on boats.</change>
+			<change type="Fixed">HSA boat movement packets (0xF7 and 0xF6) will no longer overflow when too many items are on deck. Note that the packet<br/>
+will be truncated and might be misinterpreted by the client or leave ghost items behind.</change>
+		</entry>
+		<entry>
+			<date>03-05-2021</date>
+			<author>Kevin:</author>
+			<change type="Removed">The ability to generate the Escript wordlist via the -W argument to ecompile.exe has been removed. The Escript grammar can be<br/>
+described by the ANTLR .g4 files in the repository.</change>
+		</entry>
+		<entry>
+			<date>03-04-2021</date>
+			<author>Kevin:</author>
+			<change type="Removed">The old compiler has been removed from ecompile in favor of the ANTLR-driven 2020 compiler. This removes the ecompile.cfg<br/>
+setting UseCompiler2020 as well as the ecompile.exe switches -g and -G. Any value of UseCompiler2020 in ecompile.cfg will be<br/>
+ignored without warning.</change>
+		</entry>
+	</version>
+	<version name="POL100.0.0">
+		<entry>
+			<date>02-28-2021</date>
+			<author>Nando:</author>
+			<change type="Note">POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.<br/>
+The next release will remove support for the old compiler. This is the *last chance* to test<br/>
+if your scripts change when compiled with the new compiler. (See entry on 09-15-2020)</change>
+		</entry>
 		<entry>
 			<date>02-27-2021</date>
 			<author>Nando:</author>

@@ -2178,7 +2178,7 @@ const CRMULTI_FACING_WEST       := 0x0300;</code></explain>
   <prototype>EnableEvents( eventtype, range := -1, evmask := EVMASK_ALL )</prototype>
   <parameter name="eventtype" value="Integer" />
   <parameter name="range" value="Integer (optional, 0..32)" />
-  <parameter name="evmask" value="Integer"
+  <parameter name="evmask" value="Integer" />
   <explain>Enables events specified. When enabled events occur, they will be placed on the 
         script's event queue, and must be read with wait_for_event.  Events that were 
         previously enabled will remain enabled. </explain>

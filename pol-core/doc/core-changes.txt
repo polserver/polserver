@@ -1,4 +1,22 @@
-﻿-- POL100 --
+﻿-- POL100.1.0 --
+03-07-2021 Nando:
+    Added: RefreshDecayAfterBoatMoves in servspecopt.cfg. Defaults to true to maintain the old behavior. If this setting is true,
+           the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay 
+           on boats. Note that POL doesn't yet handle item decay on boats.
+    Fixed: HSA boat movement packets (0xF7 and 0xF6) will no longer overflow when too many items are on deck. Note that the packet
+           will be truncated and might be misinterpreted by the client or leave ghost items behind.
+03-05-2021 Kevin:
+  Removed: The ability to generate the Escript wordlist via the -W argument to ecompile.exe has been removed. The Escript grammar can be
+           described by the ANTLR .g4 files in the repository.
+03-04-2021 Kevin:
+  Removed: The old compiler has been removed from ecompile in favor of the ANTLR-driven 2020 compiler. This removes the ecompile.cfg
+           setting UseCompiler2020 as well as the ecompile.exe switches -g and -G. Any value of UseCompiler2020 in ecompile.cfg will be
+           ignored without warning.
+-- POL100.0.0 --
+02-28-2021 Nando:
+     Note: POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.
+           The next release will remove support for the old compiler. This is the *last chance* to test 
+           if your scripts change when compiled with the new compiler. (See entry on 09-15-2020)
 02-27-2021 Nando:
     Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL). 
            The allowed values are EVMASK_ONLY_PC, EVMASK_ONLY_NPC, or EVMASK_ALL.

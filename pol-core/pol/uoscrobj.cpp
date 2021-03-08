@@ -4664,10 +4664,10 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
     return BObjectRef( new BLong( obj_->UOExpansionFlagClient ) );
     break;
   case MBR_LAST_ACTIVITY_AT:
-    return BObjectRef( new BLong( obj_->last_activity_at ) );
+    return BObjectRef( new BLong( obj_->last_activity_at() ) );
     break;
   case MBR_LAST_PACKET_AT:
-    return BObjectRef( new BLong( obj_->last_packet_at ) );
+    return BObjectRef( new BLong( obj_->last_packet_at() ) );
     break;
   case MBR_PORT:
     return BObjectRef( new BLong( obj_->listen_port ) );

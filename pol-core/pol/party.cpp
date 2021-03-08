@@ -981,7 +981,7 @@ void party_cmd_handler( Network::Client* client, PKTBI_BF* msg )
     handle_decline_invite( client, msg );
     break;
   default:
-    handle_unknown_packet( client );
+    handle_unknown_packet( client->session() );
   }
 }
 

@@ -13,7 +13,6 @@ set (bscript_sources    # sorted !
   StoredToken.h
   compiler/Compiler.cpp
   compiler/Compiler.h
-  compiler/LegacyFunctionOrder.h
   compiler/analyzer/Constants.cpp
   compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp
@@ -289,8 +288,6 @@ set (bscript_sources    # sorted !
   bstruct.h
   compctx.cpp 
   compctx.h
-  compiler.cpp
-  compiler.h
   compilercfg.cpp 
   compilercfg.h
   compmodl.h
@@ -318,12 +315,12 @@ set (bscript_sources    # sorted !
   executortype.h
   expression.cpp
   expression.h
-  facility/Compiler.h
   filefmt.h
   fmodule.cpp
   fmodule.h
   impstr.h
   modules.h
+  objaccess.cpp
   object.cpp 
   object.h
   objmembers.h
@@ -331,8 +328,6 @@ set (bscript_sources    # sorted !
   objstrm.cpp
   operator.h
   options.h
-  parser.cpp
-  parser.h
   str.cpp 
   str.h
   symcont.cpp

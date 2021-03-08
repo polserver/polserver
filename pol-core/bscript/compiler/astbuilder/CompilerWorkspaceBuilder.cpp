@@ -1,7 +1,6 @@
 #include "CompilerWorkspaceBuilder.h"
 
 #include "clib/timer.h"
-#include "bscript/compiler/LegacyFunctionOrder.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
@@ -21,15 +20,14 @@
 namespace Pol::Bscript::Compiler
 {
 CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
-                                                    SourceFileCache& inc_cache,
-                                                    Profile& profile, Report& report )
+                                                    SourceFileCache& inc_cache, Profile& profile,
+                                                    Report& report )
     : em_cache( em_cache ), inc_cache( inc_cache ), profile( profile ), report( report )
 {
 }
 
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
-    const std::string& pathname, const LegacyFunctionOrder* legacy_function_order,
-    UserFunctionInclusion user_function_inclusion )
+    const std::string& pathname, UserFunctionInclusion user_function_inclusion )
 {
   auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
   BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
@@ -67,36 +65,9 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   if ( report.error_count() == 0 )
     build_referenced_user_functions( workspace );
 
-  if ( legacy_function_order )
-  {
-    compiler_workspace->module_functions_in_legacy_order =
-        get_module_functions_in_order( workspace, *legacy_function_order );
-  }
-
   return compiler_workspace;
 }
 
-std::vector<const ModuleFunctionDeclaration*>
-CompilerWorkspaceBuilder::get_module_functions_in_order( BuilderWorkspace& workspace,
-                                                         const LegacyFunctionOrder& h )
-{
-  std::vector<const ModuleFunctionDeclaration*> ordered;
-
-  for ( auto& scoped_name : h.modulefunc_emit_order )
-  {
-    auto func = workspace.function_resolver.find( scoped_name );
-    if ( !func )
-      throw std::runtime_error( "No modulefunc '" + scoped_name + "' for parity." );
-
-    auto decl = dynamic_cast<const ModuleFunctionDeclaration*>( func );
-    if ( !decl )
-      throw std::runtime_error( "No ModuleFunctionDeclaration for '" + scoped_name +
-                                "' for parity." );
-
-    ordered.push_back( decl );
-  }
-  return ordered;
-}
 
 void CompilerWorkspaceBuilder::build_referenced_user_functions( BuilderWorkspace& workspace )
 {

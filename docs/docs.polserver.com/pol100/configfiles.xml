@@ -347,6 +347,7 @@ Spell (int spellid)
 [HiddenTurnsCount               (0/1 {default 1})]
 [ItemColorMask                  (int mask {default 0xfff})]
 [DecayItems                     (0/1 {default 1})]
+[RefreshDecayAfterBoatMoves     (0/1 {default 1})]
 [UseTileFlagPrefix              (0/1 {default 1})]
 [UseWinLFH                      (0/1 {default 0})]
 [EventVisibilityCoreChecks      (0/1 {default 0})]
@@ -385,6 +386,7 @@ Spell (int spellid)
 [DefaultCharacterHeight         (1-32 {default 15})]
 [EnableWorldMapPackets          (0/1 (default 0))]
 </structure>
+  <explain><i>RefreshDecayAfterBoatMoves</i> if enabled item's decayat will be refreshed after each move or turn of a boat. Note that item decay on boats is not yet handled by the core.</explain>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
   <explain><i>MovementUsesStamina:</i> if enabled stamina costs are defined in movecost.cfg</explain>
   <explain><i>DefaultContainerMaxItems:</i> default is 125, DefaultContainerMaxWeight default is 250. itemdesc.cfg "MaxItems" and "MaxWeight" override these defaults.</explain>
@@ -1017,7 +1019,6 @@ PackageRoot (path to package root)
 [ThreadedCompilation (0/1 {default 0})]       //uses multiple thread to speed up compilation
 [NumberOfThreads (0/N {default 0})]           //defines the used number of threads (0=autodetect)
 [ParanoiaWarnings (0/1 {default 0})]          //will complain about {} syntax
-[UseCompiler2020 (0/1 {default 1})]           //If set, uses the ANTLR-grammar-based compiler.
 [EmParseTreeCacheSize (0-N {default 25})]     //Cache parse trees for this number of *.em files
 [IncParseTreeCacheSize (0-N {default 50})]    //Cache parse trees for this number of *.inc files
 
