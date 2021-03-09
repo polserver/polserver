@@ -33,7 +33,7 @@
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
-#include "bscript/compiler/ast/InterpolatedString.h"
+#include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
@@ -294,7 +294,7 @@ void NodeVisitor::visit_string_value( StringValue& )
 {
 }
 
-void NodeVisitor::visit_interpolated_string( InterpolatedString& node )
+void NodeVisitor::visit_interpolate_string( InterpolateString& node )
 {
   visit_children( node );
 }

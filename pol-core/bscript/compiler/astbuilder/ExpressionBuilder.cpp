@@ -17,7 +17,7 @@
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/Identifier.h"
-#include "bscript/compiler/ast/InterpolatedString.h"
+#include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MethodCall.h"
@@ -54,11 +54,11 @@ std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
   return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
 }
 
-std::unique_ptr<InterpolatedString> ExpressionBuilder::interpolated_string(
+std::unique_ptr<InterpolateString> ExpressionBuilder::interpolate_string(
     EscriptParser::InterpolatedStringContext* ctx )
 {
   auto values = expressions( ctx->interpolatedStringPart() );
-  return std::make_unique<InterpolatedString>( location_for( *ctx ), std::move( values ) );
+  return std::make_unique<InterpolateString>( location_for( *ctx ), std::move( values ) );
 }
 
 std::unique_ptr<Expression> ExpressionBuilder::format_expression(
@@ -533,7 +533,7 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   }
   else if ( auto inter_string = ctx->interpolatedString() )
   {
-    return interpolated_string( inter_string );
+    return interpolate_string( inter_string );
   }
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );

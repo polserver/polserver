@@ -105,8 +105,8 @@ set (bscript_sources    # sorted !
   compiler/ast/IfThenElseStatement.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
-  compiler/ast/InterpolatedString.cpp
-  compiler/ast/InterpolatedString.h
+  compiler/ast/InterpolateString.cpp
+  compiler/ast/InterpolateString.h
   compiler/ast/JumpStatement.cpp
   compiler/ast/JumpStatement.h
   compiler/ast/LabelableStatement.cpp

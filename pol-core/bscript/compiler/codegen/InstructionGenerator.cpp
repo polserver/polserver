@@ -34,7 +34,7 @@
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
 #include "bscript/compiler/ast/IntegerValue.h"
-#include "bscript/compiler/ast/InterpolatedString.h"
+#include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
@@ -721,12 +721,12 @@ void InstructionGenerator::visit_while_loop( WhileLoop& loop )
   emit.label( *loop.break_label );
 }
 
-void InstructionGenerator::visit_interpolated_string( InterpolatedString& node )
+void InstructionGenerator::visit_interpolate_string( InterpolateString& node )
 {
   visit_children( node );
 
   update_debug_location( node );
-  emit.interpolated_string( node.children.size() );
+  emit.interpolate_string( node.children.size() );
 }
 
 void InstructionGenerator::visit_format_expression( FormatExpression& node )

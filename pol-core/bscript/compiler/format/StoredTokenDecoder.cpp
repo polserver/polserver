@@ -386,8 +386,8 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
     w << "peek at top of stack; skip " << tkn.offset
       << " instructions if true, otherwise consume it";
     break;
-  case TOK_INTERPOLATED_STRING:
-    w << "interpolated string join (" << tkn.offset << " parts)";
+  case TOK_INTERPOLATE_STRING:
+    w << "interpolate string (" << tkn.offset << " parts)";
     break;
   case TOK_FORMAT_EXPRESSION:
     w << "format expression";

@@ -2932,7 +2932,7 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_set_member_id_unminusminus_post;  // test id
   case INS_SKIPIFTRUE_ELSE_CONSUME:
     return &Executor::ins_skipiftrue_else_consume;
-  case TOK_INTERPOLATED_STRING:
+  case TOK_INTERPOLATE_STRING:
     return &Executor::ins_interpolate_string;
   case TOK_FORMAT_EXPRESSION:
     return &Executor::ins_format_expression;

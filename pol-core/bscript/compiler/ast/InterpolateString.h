@@ -1,5 +1,5 @@
-#ifndef POLSERVER_INTERPOLATEDSTRING_H
-#define POLSERVER_INTERPOLATEDSTRING_H
+#ifndef POLSERVER_INTERPOLATESTRING_H
+#define POLSERVER_INTERPOLATESTRING_H
 
 #include "compiler/ast/Expression.h"
 
@@ -7,10 +7,10 @@ namespace Pol::Bscript::Compiler
 {
 class NodeVisitor;
 
-class InterpolatedString : public Expression
+class InterpolateString : public Expression
 {
 public:
-  InterpolatedString( const SourceLocation& source_location,
+  InterpolateString( const SourceLocation& source_location,
                       std::vector<std::unique_ptr<Expression>> );
 
   void accept( NodeVisitor& visitor ) override;
@@ -19,4 +19,4 @@ public:
 
 }  // namespace Pol::Bscript::Compiler
 
-#endif  // POLSERVER_INTERPOLATEDSTRING_H
+#endif  // POLSERVER_INTERPOLATESTRING_H

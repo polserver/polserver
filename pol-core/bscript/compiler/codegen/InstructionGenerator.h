@@ -68,7 +68,7 @@ public:
   void visit_var_statement( VarStatement& ) override;
   void visit_variable_assignment_statement( VariableAssignmentStatement& ) override;
   void visit_while_loop( WhileLoop& ) override;
-  void visit_interpolated_string( InterpolatedString& ) override;
+  void visit_interpolate_string( InterpolateString& ) override;
   void visit_format_expression( FormatExpression& ) override;
 
 private:
