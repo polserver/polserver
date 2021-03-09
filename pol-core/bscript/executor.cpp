@@ -1269,15 +1269,29 @@ void Executor::ins_interpolate_string( const Instruction& ins )
   }
   else
   {
-    std::vector<std::string> contents( count );
+    size_t length = 0;
+
+    std::vector<std::string> contents;
+    contents.reserve( count );
+
     while ( count-- )
     {
       BObjectRef rightref = ValueStack.back();
       ValueStack.pop_back();
-      contents[count] = rightref->impptr()->getStringRep();
+      auto str = rightref->impptr()->getStringRep();
+      length += str.length();
+      contents.push_back( std::move( str ) );
     }
-    auto joined = std::accumulate( std::next( contents.begin() ), contents.end(), contents[0],
-                                   []( std::string a, std::string b ) { return a + b; } );
+
+    std::string joined;
+    joined.reserve( length );
+
+    while ( !contents.empty() )
+    {
+      joined += contents.back();
+      contents.pop_back();
+    }
+
     ValueStack.push_back( BObjectRef( new BObject( new String( joined ) ) ) );
   }
 }
