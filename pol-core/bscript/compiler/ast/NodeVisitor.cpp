@@ -27,7 +27,7 @@
 #include "bscript/compiler/ast/ExitStatement.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
-#include "bscript/compiler/ast/FormattedString.h"
+#include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
@@ -299,7 +299,7 @@ void NodeVisitor::visit_interpolated_string( InterpolatedString& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_formatted_string( FormattedString& node )
+void NodeVisitor::visit_format_expression( FormatExpression& node )
 {
   visit_children( node );
 }

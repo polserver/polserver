@@ -891,7 +891,8 @@ bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string&
 }
 // --
 
-std::string try_to_format(BObjectImp* what, std::string& frmt) {
+std::string get_formatted( BObjectImp* what, std::string& frmt )
+{
   std::stringstream result;
   try_to_format( result, what, frmt );
   return result.str();

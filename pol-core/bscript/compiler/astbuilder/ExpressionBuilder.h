@@ -17,7 +17,7 @@ class ElementAccess;
 class ElvisOperator;
 class ErrorInitializer;
 class Expression;
-class FormattedString;
+class FormatExpression;
 class FunctionCall;
 class InterpolatedString;
 class MemberAccess;
@@ -95,7 +95,7 @@ public:
   std::unique_ptr<InterpolatedString> interpolated_string(
       EscriptGrammar::EscriptParser::InterpolatedStringContext* );
 
-  std::unique_ptr<Expression> formatted_string(
+  std::unique_ptr<Expression> format_expression(
       std::unique_ptr<Expression>, antlr4::tree::TerminalNode* );
 };
 

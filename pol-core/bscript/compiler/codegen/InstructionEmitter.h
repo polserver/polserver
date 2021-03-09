@@ -109,7 +109,7 @@ public:
   void value( int );
   void value( const std::string& );
   void interpolated_string( unsigned count );
-  void formatted_string( );
+  void format_expression();
 
   void debug_file_line( unsigned file_index, unsigned line_number );
   void debug_statementbegin();

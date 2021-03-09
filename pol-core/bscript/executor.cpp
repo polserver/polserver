@@ -1282,7 +1282,7 @@ void Executor::ins_interpolate_string( const Instruction& ins )
   }
 }
 
-void Executor::ins_format_string( const Instruction& ins )
+void Executor::ins_format_expression( const Instruction& ins )
 {
   BObjectRef formatref = ValueStack.back();
   ValueStack.pop_back();
@@ -1290,7 +1290,7 @@ void Executor::ins_format_string( const Instruction& ins )
   BObject& expr = *exprref;
 
   auto format = formatref->impptr()->getFormattedStringRep();
-  auto formatted = Bscript::try_to_format( expr.impptr(), format );
+  auto formatted = Bscript::get_formatted( expr.impptr(), format );
 
   exprref.set( new BObject( new String( formatted ) ) );
 }
@@ -2934,8 +2934,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_skipiftrue_else_consume;
   case TOK_INTERPOLATED_STRING:
     return &Executor::ins_interpolate_string;
-  case TOK_FORMATTED_STRING:
-    return &Executor::ins_format_string;
+  case TOK_FORMAT_EXPRESSION:
+    return &Executor::ins_format_expression;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }
