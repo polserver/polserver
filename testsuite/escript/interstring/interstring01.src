@@ -48,3 +48,6 @@ testPrint(t);
 
 t := $"{CAsc("a")}"; // expression -> function call, that returns a Long
 testPrint(t);
+
+t := $"{48879:#x}";
+testPrint(t);
