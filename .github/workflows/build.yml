@@ -180,44 +180,16 @@ jobs:
           zip -j Nightly-Linux-clang.zip Nightly-Linux-clang++/*
 
       - name: Create Release
-        # fork until official release can overwrite tag/release
-        uses: turleypol/create-release@delete-old-release-asset
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          tag_name: NightlyRelease
-          release_name: NightlyRelease
-          replace_old_tag: true
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "NightlyRelease"
           prerelease: true
-          draft: false
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Nightly-Windows.zip
-          asset_name: Nightly-Windows.zip
-          asset_content_type: application/
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Nightly-Linux-gcc.zip
-          asset_name: Nightly-Linux-gcc.zip
-          asset_content_type: application/
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: Nightly-Linux-clang.zip
-          asset_name: Nightly-Linux-clang.zip
-          asset_content_type: application/
+          title: "Nightly Release"
+          files: |
+            Nightly-Windows.zip
+            Nightly-Linux-gcc.zip
+            Nightly-Linux-clang.zip
  
   notify_on_failure:
     needs: build
