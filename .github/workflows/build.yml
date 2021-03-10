@@ -180,7 +180,7 @@ jobs:
           zip -j Nightly-Linux-clang.zip Nightly-Linux-clang++/*
 
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@1369002240ebd4f758bbc69e9ae3649a5c3c2e14"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "NightlyRelease"
