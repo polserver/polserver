@@ -57,3 +57,9 @@ testPrint(t);
 
 t := $"Hello, {@testPrint}";
 testPrint(t);
+
+t := $"Hello{$"\x61\x62\x63"}World";
+testPrint(t);
+
+t := $"Hello, {{{"_".join(array{1,2,3})}}}";
+testPrint(t);

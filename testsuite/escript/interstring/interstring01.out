@@ -43,3 +43,9 @@ Hello <needs Int>
 15.
 String
 Hello, FunctionObject
+16.
+String
+HelloabcWorld
+17.
+String
+Hello, {1_2_3}
