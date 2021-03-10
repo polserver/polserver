@@ -1296,7 +1296,7 @@ void Executor::ins_interpolate_string( const Instruction& ins )
   }
 }
 
-void Executor::ins_format_expression( const Instruction& ins )
+void Executor::ins_format_expression( const Instruction& )
 {
   BObjectRef formatref = ValueStack.back();
   ValueStack.pop_back();
