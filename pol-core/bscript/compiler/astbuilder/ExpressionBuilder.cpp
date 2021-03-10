@@ -294,8 +294,7 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> ctx )
 {
   std::vector<std::unique_ptr<Expression>> expressions;
-  // FIXME: optimize values
-  // FIXME: double-curleys
+
   for ( auto interstringPart_ctx : ctx )
   {
     if ( auto expression_ctx = interstringPart_ctx->expression() )
@@ -313,7 +312,17 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     }
     else if ( auto lbrace = interstringPart_ctx->DOUBLE_LBRACE_INSIDE() )
     {
-      expressions.push_back( string_value( lbrace, false ) );
+      auto loc = location_for( *lbrace );
+      expressions.push_back( std::make_unique<StringValue>( loc, "{" ) );
+    }
+    else if ( auto rbrace = interstringPart_ctx->DOUBLE_RBRACE() )
+    {
+      auto loc = location_for( *rbrace );
+      expressions.push_back( std::make_unique<StringValue>( loc, "}" ) );
+    }
+    else if ( auto escaped = interstringPart_ctx->REGULAR_CHAR_INSIDE() )
+    {
+      expressions.push_back( string_value( escaped, false ) );
     }
     else
     {
