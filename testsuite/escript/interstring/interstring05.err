@@ -1,0 +1,1 @@
+interstring05.src:1:11: error: extraneous input ':' expecting {'!', 'not', 'error', 'dictionary', 'struct', 'array', DECIMAL_LITERAL, HEX_LITERAL, OCT_LITERAL, BINARY_LITERAL, FLOAT_LITERAL, HEX_FLOAT_LITERAL, STRING_LITERAL, INTERPOLATED_STRING_START, '(', '{', '+', '-', '~', '@', '++', '--', IDENTIFIER, '{{', REGULAR_CHAR_INSIDE, DOUBLE_QUOTE_INSIDE, STRING_LITERAL_INSIDE}
