@@ -51,3 +51,9 @@ testPrint(t);
 
 t := $"{48879:#x}";
 testPrint(t);
+
+t := $"Hello {"string":#x}";
+testPrint(t);
+
+t := $"Hello, {@testPrint}";
+testPrint(t);

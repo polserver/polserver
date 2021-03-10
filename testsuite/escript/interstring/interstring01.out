@@ -37,3 +37,9 @@ String
 13.
 String
 0xbeef
+14.
+String
+Hello <needs Int>
+15.
+String
+Hello, FunctionObject
