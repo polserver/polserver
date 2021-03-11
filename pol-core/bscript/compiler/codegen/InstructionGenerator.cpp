@@ -11,6 +11,7 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
+#include "bscript/compiler/ast/ConditionalExpression.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
@@ -737,5 +738,24 @@ void InstructionGenerator::visit_format_expression( FormatExpression& node )
   emit.format_expression();
 }
 
+void InstructionGenerator::visit_conditional_expression( ConditionalExpression& node )
+{
+  update_debug_location( node );
+
+  // generate conditional
+  generate( node.conditional() );
+  // consume+jump to end-of-consequent label if false
+  emit.jmp_if_false( *node.consequent_label );
+  // generate consequent
+  generate( node.consequent() );
+  // jump to end-of-alternate label
+  emit.jmp_always( *node.alternate_label );
+  // end-of-consequent label
+  emit.label( *node.consequent_label );
+  // generate alternate
+  generate( node.alternate() );
+  // end-of-alternate label
+  emit.label( *node.alternate_label );
+}
 
 }  // namespace Pol::Bscript::Compiler
