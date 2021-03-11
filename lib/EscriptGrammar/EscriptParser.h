@@ -1530,6 +1530,7 @@ public:
   public:
     InterpolatedStringPartContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *LBRACE_INSIDE();
     ExpressionContext *expression();
     antlr4::tree::TerminalNode *COLON();
     antlr4::tree::TerminalNode *FORMAT_STRING();

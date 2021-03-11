@@ -8,7 +8,7 @@ function testPrint(num)
 	print(t);
 endfunction
 
-t := $"{}"; // zero parts
+t := $""; // zero parts
 testPrint(t);
 
 t := $"foo"; // one part, string
@@ -22,7 +22,7 @@ t := $"{id1}";  // one part, expression -> identifier -> hex float literal
 testPrint(t);
 
 // #5
-t := $"foo{}"; // two parts
+t := $"foo{""}"; // two parts
 testPrint(t);
 
 t := $"{1}bar"; // one part, expression -> integer literal

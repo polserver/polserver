@@ -383,7 +383,8 @@ interpolatedString
 	;
 
 interpolatedStringPart
-	: expression (':' FORMAT_STRING)?
+	: LBRACE_INSIDE expression (':' FORMAT_STRING)?
+	| LBRACE_INSIDE (':' FORMAT_STRING)? {notifyErrorListeners("Expected expression following interpolated string part start");}
 	| DOUBLE_LBRACE_INSIDE
 	| REGULAR_CHAR_INSIDE
     | DOUBLE_RBRACE
