@@ -2,9 +2,26 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-07-2021</datemodified>
+		<datemodified>03-11-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>03-11-2021</date>
+			<author>Kevin:</author>
+			<change type="Added">Interpolated string expression: $&quot;...&quot;<br/>
+This new expression syntax allows you to join multiple components into a string. Within the ..., you may specify one or more:<br/>
+  - normal strings<br/>
+  - escaped characters, eg. \n<br/>
+  - {expression [: format]}, eg. {who.name} or {who.graphic : #x}<br/>
+  - {{ for a { character, and }} for a } character<br/>
+A complete example:<br/>
+ $&quot;Hello, {who.name}! You are player #{who in EnumerateOnlineCharacters()} online. Your graphic is {who.graphic : #x}.&quot;<br/>
+ ... can replace an expression like ...<br/>
+ &quot;Hello &quot; + who.name + &quot;! You are player #&quot; + (who in EnumerateOnlineCharacters()) + &quot; online. Your graphic is &quot; + Hex(who.graphic)<br/>
+ ... or ...<br/>
+ &quot;Hello {1}! You are player #{2} online. Your graphic is {3:#x}&quot;.format(who.name, who in EnumerateOnlineCharacters(), who.graphic)<br/>
+Since this change introduces new instructions, you **MUST** recompile all your scripts!</change>
+		</entry>
 		<entry>
 			<date>03-07-2021</date>
 			<author>Nando:</author>
