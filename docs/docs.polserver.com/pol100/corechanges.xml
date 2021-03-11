@@ -9,7 +9,7 @@
 			<date>03-11-2021</date>
 			<author>Kevin:</author>
 			<change type="Added">Interpolated string expression: $&quot;...&quot;<br/>
-This new expression syntax allows you to join multiple components into a string. Within the ..., you may specify one or more:<br/>
+This new expression syntax allows you to join multiple components into a string. Within the ..., you may specify zero or more:<br/>
   - normal strings<br/>
   - escaped characters, eg. \n<br/>
   - {expression [: format]}, eg. {who.name} or {who.graphic : #x}<br/>

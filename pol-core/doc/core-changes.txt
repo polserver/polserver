@@ -1,7 +1,7 @@
 ﻿-- POL100.1.0 --
 03-11-2021 Kevin:
     Added: Interpolated string expression: $"..."
-           This new expression syntax allows you to join multiple components into a string. Within the ..., you may specify one or more:
+           This new expression syntax allows you to join multiple components into a string. Within the ..., you may specify zero or more:
              - normal strings
              - escaped characters, eg. \n
              - {expression [: format]}, eg. {who.name} or {who.graphic : #x}
