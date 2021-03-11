@@ -386,6 +386,16 @@ void InstructionEmitter::value( const std::string& v )
   emit_token( TOK_STRING, TYP_OPERAND, data_offset );
 }
 
+void InstructionEmitter::interpolate_string( unsigned count )
+{
+  emit_token( TOK_INTERPOLATE_STRING, TYP_OPERAND, count );
+}
+
+void InstructionEmitter::format_expression()
+{
+  emit_token( TOK_FORMAT_EXPRESSION, TYP_OPERAND );
+}
+
 unsigned InstructionEmitter::emit_data( const std::string& s )
 {
   return data_emitter.store( s );

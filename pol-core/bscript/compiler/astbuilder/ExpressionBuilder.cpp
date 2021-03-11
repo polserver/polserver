@@ -11,11 +11,13 @@
 #include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/ElvisOperator.h"
 #include "bscript/compiler/ast/ErrorInitializer.h"
+#include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MethodCall.h"
@@ -34,7 +36,7 @@ namespace Pol::Bscript::Compiler
 {
 ExpressionBuilder::ExpressionBuilder( const SourceFileIdentifier& source_file_identifier,
                                       BuilderWorkspace& workspace )
-  : ValueBuilder( source_file_identifier, workspace )
+    : ValueBuilder( source_file_identifier, workspace )
 {
 }
 
@@ -52,6 +54,20 @@ std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
   return std::make_unique<ArrayInitializer>( location_for( *ctx ), std::move( values ) );
 }
 
+std::unique_ptr<InterpolateString> ExpressionBuilder::interpolate_string(
+    EscriptParser::InterpolatedStringContext* ctx )
+{
+  auto values = expressions( ctx->interpolatedStringPart() );
+  return std::make_unique<InterpolateString>( location_for( *ctx ), std::move( values ) );
+}
+
+std::unique_ptr<Expression> ExpressionBuilder::format_expression(
+    std::unique_ptr<Expression> expr, antlr4::tree::TerminalNode* format )
+{
+  return std::make_unique<FormatExpression>( location_for( *format ), std::move( expr ),
+                                             string_value( format, false ) );
+}
+
 std::unique_ptr<ArrayInitializer> ExpressionBuilder::array_initializer(
     EscriptParser::ExplicitArrayInitializerContext* ctx )
 {
@@ -67,7 +83,7 @@ std::unique_ptr<Expression> ExpressionBuilder::binary_operator(
 
   BTokenId token_id = binary_operator_token( ctx );
 
-  if ( token_id == TOK_ASSIGN)
+  if ( token_id == TOK_ASSIGN )
   {
     if ( auto element_access = dynamic_cast<ElementAccess*>( lhs.get() ) )
     {
@@ -270,6 +286,50 @@ std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
     {
       expressions.push_back( expression( expression_ctx ) );
     }
+  }
+  return expressions;
+}
+
+std::vector<std::unique_ptr<Expression>> ExpressionBuilder::expressions(
+    std::vector<EscriptGrammar::EscriptParser::InterpolatedStringPartContext*> ctx )
+{
+  std::vector<std::unique_ptr<Expression>> expressions;
+
+  for ( auto interstringPart_ctx : ctx )
+  {
+    if ( auto expression_ctx = interstringPart_ctx->expression() )
+    {
+      std::unique_ptr<Expression> expr = expression( expression_ctx );
+      if ( auto format = interstringPart_ctx->FORMAT_STRING() )
+      {
+        expr = format_expression( std::move( expr ), format );
+      }
+      expressions.push_back( std::move(expr) );
+    }
+    else if ( auto string_literal = interstringPart_ctx->STRING_LITERAL_INSIDE() )
+    {
+      expressions.push_back( string_value( string_literal, false ) );
+    }
+    else if ( auto lbrace = interstringPart_ctx->DOUBLE_LBRACE_INSIDE() )
+    {
+      auto loc = location_for( *lbrace );
+      expressions.push_back( std::make_unique<StringValue>( loc, "{" ) );
+    }
+    else if ( auto rbrace = interstringPart_ctx->DOUBLE_RBRACE() )
+    {
+      auto loc = location_for( *rbrace );
+      expressions.push_back( std::make_unique<StringValue>( loc, "}" ) );
+    }
+    else if ( auto escaped = interstringPart_ctx->REGULAR_CHAR_INSIDE() )
+    {
+      expressions.push_back( string_value( escaped, false ) );
+    }
+    else
+    {
+      location_for( *interstringPart_ctx )
+          .internal_error( "unhandled context in interpolated string part" );
+    }
+
   }
   return expressions;
 }
@@ -479,6 +539,10 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto bare_array = ctx->bareArrayInitializer() )
   {
     return array_initializer( bare_array );
+  }
+  else if ( auto inter_string = ctx->interpolatedString() )
+  {
+    return interpolate_string( inter_string );
   }
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );

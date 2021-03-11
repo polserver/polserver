@@ -27,11 +27,13 @@
 #include "bscript/compiler/ast/ExitStatement.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
+#include "bscript/compiler/ast/FormatExpression.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
 #include "bscript/compiler/ast/IfThenElseStatement.h"
+#include "bscript/compiler/ast/InterpolateString.h"
 #include "bscript/compiler/ast/JumpStatement.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
@@ -290,6 +292,16 @@ void NodeVisitor::visit_return_statement( ReturnStatement& node )
 
 void NodeVisitor::visit_string_value( StringValue& )
 {
+}
+
+void NodeVisitor::visit_interpolate_string( InterpolateString& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_format_expression( FormatExpression& node )
+{
+  visit_children( node );
 }
 
 void NodeVisitor::visit_struct_initializer( StructInitializer& node )

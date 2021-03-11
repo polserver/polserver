@@ -108,6 +108,8 @@ public:
   void value( double );
   void value( int );
   void value( const std::string& );
+  void interpolate_string( unsigned count );
+  void format_expression();
 
   void debug_file_line( unsigned file_index, unsigned line_number );
   void debug_statementbegin();

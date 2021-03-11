@@ -1,0 +1,4 @@
+var i := 0, j := 0;
+print($"{++i}");
+print($"{j++}");
+print($"{i} {j}");

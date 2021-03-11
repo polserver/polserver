@@ -85,6 +85,8 @@ set (bscript_sources    # sorted !
   compiler/ast/FloatValue.h
   compiler/ast/ForeachLoop.cpp
   compiler/ast/ForeachLoop.h
+  compiler/ast/FormatExpression.h
+  compiler/ast/FormatExpression.cpp
   compiler/ast/Function.cpp
   compiler/ast/Function.h
   compiler/ast/FunctionBody.cpp
@@ -103,6 +105,8 @@ set (bscript_sources    # sorted !
   compiler/ast/IfThenElseStatement.h
   compiler/ast/IntegerValue.cpp
   compiler/ast/IntegerValue.h
+  compiler/ast/InterpolateString.cpp
+  compiler/ast/InterpolateString.h
   compiler/ast/JumpStatement.cpp
   compiler/ast/JumpStatement.h
   compiler/ast/LabelableStatement.cpp
@@ -325,6 +329,7 @@ set (bscript_sources    # sorted !
   operator.h
   options.h
   str.cpp 
+  str.h
   symcont.cpp
   symcont.h
   tkn_strm.cpp 

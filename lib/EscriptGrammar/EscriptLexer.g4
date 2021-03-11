@@ -1,6 +1,12 @@
 lexer grammar EscriptLexer;
 channels { COMMENTS }
 
+@lexer::members
+{
+    int interpolatedStringLevel = 0;
+    std::stack<int> curlyLevels;
+}
+
 // Keywords
 
 IF:                 'if';
@@ -95,14 +101,39 @@ HEX_FLOAT_LITERAL:  '0' [xX] (HexDigits '.'? | HexDigits? '.' HexDigits) [pP] [+
 
 STRING_LITERAL:     '"' (~[\\"] | EscapeSequence)* '"';
 
+INTERPOLATED_STRING_START:   '$"'
+    { interpolatedStringLevel++; } -> pushMode(INTERPOLATION_STRING);
+
 // Separators
 
 LPAREN:             '(';
 RPAREN:             ')';
 LBRACK:             '[';
 RBRACK:             ']';
-LBRACE:             '{';
-RBRACE:             '}';
+LBRACE:             '{'
+{
+    if ( interpolatedStringLevel > 0 )
+      {
+        auto currentLevel = curlyLevels.top();
+        curlyLevels.pop();
+        curlyLevels.push( currentLevel + 1 );
+      }
+};
+RBRACE:             '}'
+{
+    if ( interpolatedStringLevel > 0 )
+      {
+        auto currentLevel = curlyLevels.top();
+        curlyLevels.pop();
+        curlyLevels.push( currentLevel - 1 );
+        if ( curlyLevels.top() == 0 )
+        {
+          curlyLevels.pop();
+          skip();
+          popMode();
+        }
+      }
+};
 DOT:                '.';
 ARROW:              '->';
 MUL:                '*';
@@ -142,7 +173,28 @@ TILDE:              '~';
 AT:                 '@';
 
 COLONCOLON:         '::';
-COLON:              ':';
+COLON:              ':'
+{
+        if (interpolatedStringLevel > 0)
+        {
+            int ind = 1;
+            bool switchToFormatString = true;
+            
+            while (_input->LA(ind) != '}')
+            {
+                if (_input->LA(ind) == ':' || _input->LA(ind) == ')')
+                {
+                    switchToFormatString = false;
+                    break;
+                }
+                ind++;
+            }
+            if (switchToFormatString)
+            {
+                setMode( INTERPOLATION_FORMAT );
+            }
+        }
+};
 INC:                '++';
 DEC:                '--';
 
@@ -192,3 +244,15 @@ fragment Letter
     | [\uD800-\uDBFF] [\uDC00-\uDFFF] // covers UTF-16 surrogate pairs encodings for U+10000 to U+10FFFF
     ;
 
+mode INTERPOLATION_STRING;
+DOUBLE_LBRACE_INSIDE:           '{{';
+LBRACE_INSIDE:                  '{' { curlyLevels.push(1); } -> pushMode(DEFAULT_MODE);
+REGULAR_CHAR_INSIDE:            EscapeSequence;
+DOUBLE_QUOTE_INSIDE:            '"' { interpolatedStringLevel--; } -> popMode;
+DOUBLE_RBRACE:                  '}}';
+STRING_LITERAL_INSIDE:          ~('{' | '\\' | '"')+;
+
+mode INTERPOLATION_FORMAT;
+DOUBLE_RBRACE_INSIDE:           '}}' -> type(FORMAT_STRING);
+CLOSE_RBRACE_INSIDE:            '}' { curlyLevels.pop(); }   -> skip, popMode;
+FORMAT_STRING:                  ~'}'+;

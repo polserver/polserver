@@ -469,6 +469,12 @@ void Token::printOn( std::ostream& os ) const
   case RSV_ELVIS:
     os << "?: (elvis)";
     break;
+  case TOK_INTERPOLATE_STRING:
+    os << "interpolate string " << "(" << lval << "parts)";
+    break;
+  case TOK_FORMAT_EXPRESSION:
+    os << "format expression";
+    break;
 
 
   case TOK_FUNC:

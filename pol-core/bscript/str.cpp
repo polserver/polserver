@@ -22,6 +22,7 @@
 #include "executor.h"
 #include "impstr.h"
 #include "objmethods.h"
+#include "str.h"
 
 #ifdef __GNUG__
 #include <streambuf>
@@ -889,6 +890,13 @@ bool try_to_format( std::stringstream& to_stream, BObjectImp* what, std::string&
   return true;
 }
 // --
+
+std::string get_formatted( BObjectImp* what, std::string& frmt )
+{
+  std::stringstream result;
+  try_to_format( result, what, frmt );
+  return result.str();
+}
 
 BObjectImp* String::call_method( const char* methodname, Executor& ex )
 {

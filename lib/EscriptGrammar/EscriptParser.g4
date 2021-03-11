@@ -282,6 +282,7 @@ primary
     | explicitDictInitializer
     | explicitErrorInitializer
     | bareArrayInitializer
+    | interpolatedString
     ;
 
 explicitArrayInitializer
@@ -376,6 +377,19 @@ literal
     | floatLiteral
     | STRING_LITERAL
     ;
+
+interpolatedString
+	: INTERPOLATED_STRING_START interpolatedStringPart* DOUBLE_QUOTE_INSIDE
+	;
+
+interpolatedStringPart
+	: LBRACE_INSIDE expression (':' FORMAT_STRING)?
+	| LBRACE_INSIDE (':' FORMAT_STRING)? {notifyErrorListeners("Expected expression following interpolated string part start");}
+	| DOUBLE_LBRACE_INSIDE
+	| REGULAR_CHAR_INSIDE
+    | DOUBLE_RBRACE
+	| STRING_LITERAL_INSIDE
+	;
 
 integerLiteral
     : DECIMAL_LITERAL

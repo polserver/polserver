@@ -26,23 +26,34 @@ public:
     TOK_ERROR = 60, HASH = 61, DICTIONARY = 62, STRUCT = 63, ARRAY = 64, 
     STACK = 65, TOK_IN = 66, DECIMAL_LITERAL = 67, HEX_LITERAL = 68, OCT_LITERAL = 69, 
     BINARY_LITERAL = 70, FLOAT_LITERAL = 71, HEX_FLOAT_LITERAL = 72, STRING_LITERAL = 73, 
-    LPAREN = 74, RPAREN = 75, LBRACK = 76, RBRACK = 77, LBRACE = 78, RBRACE = 79, 
-    DOT = 80, ARROW = 81, MUL = 82, DIV = 83, MOD = 84, ADD = 85, SUB = 86, 
-    ADD_ASSIGN = 87, SUB_ASSIGN = 88, MUL_ASSIGN = 89, DIV_ASSIGN = 90, 
-    MOD_ASSIGN = 91, LE = 92, LT = 93, GE = 94, GT = 95, RSHIFT = 96, LSHIFT = 97, 
-    BITAND = 98, CARET = 99, BITOR = 100, NOTEQUAL_A = 101, NOTEQUAL_B = 102, 
-    EQUAL_DEPRECATED = 103, EQUAL = 104, ASSIGN = 105, ADDMEMBER = 106, 
-    DELMEMBER = 107, CHKMEMBER = 108, SEMI = 109, COMMA = 110, TILDE = 111, 
-    AT = 112, COLONCOLON = 113, COLON = 114, INC = 115, DEC = 116, ELVIS = 117, 
-    WS = 118, COMMENT = 119, LINE_COMMENT = 120, IDENTIFIER = 121
+    INTERPOLATED_STRING_START = 74, LPAREN = 75, RPAREN = 76, LBRACK = 77, 
+    RBRACK = 78, LBRACE = 79, RBRACE = 80, DOT = 81, ARROW = 82, MUL = 83, 
+    DIV = 84, MOD = 85, ADD = 86, SUB = 87, ADD_ASSIGN = 88, SUB_ASSIGN = 89, 
+    MUL_ASSIGN = 90, DIV_ASSIGN = 91, MOD_ASSIGN = 92, LE = 93, LT = 94, 
+    GE = 95, GT = 96, RSHIFT = 97, LSHIFT = 98, BITAND = 99, CARET = 100, 
+    BITOR = 101, NOTEQUAL_A = 102, NOTEQUAL_B = 103, EQUAL_DEPRECATED = 104, 
+    EQUAL = 105, ASSIGN = 106, ADDMEMBER = 107, DELMEMBER = 108, CHKMEMBER = 109, 
+    SEMI = 110, COMMA = 111, TILDE = 112, AT = 113, COLONCOLON = 114, COLON = 115, 
+    INC = 116, DEC = 117, ELVIS = 118, WS = 119, COMMENT = 120, LINE_COMMENT = 121, 
+    IDENTIFIER = 122, DOUBLE_LBRACE_INSIDE = 123, LBRACE_INSIDE = 124, REGULAR_CHAR_INSIDE = 125, 
+    DOUBLE_QUOTE_INSIDE = 126, DOUBLE_RBRACE = 127, STRING_LITERAL_INSIDE = 128, 
+    CLOSE_RBRACE_INSIDE = 129, FORMAT_STRING = 130
   };
 
   enum {
     COMMENTS = 2
   };
 
+  enum {
+    INTERPOLATION_STRING = 1, INTERPOLATION_FORMAT = 2
+  };
+
   EscriptLexer(antlr4::CharStream *input);
   ~EscriptLexer();
+
+
+      int interpolatedStringLevel = 0;
+      std::stack<int> curlyLevels;
 
   virtual std::string getGrammarFileName() const override;
   virtual const std::vector<std::string>& getRuleNames() const override;
@@ -55,6 +66,7 @@ public:
   virtual const std::vector<uint16_t> getSerializedATN() const override;
   virtual const antlr4::atn::ATN& getATN() const override;
 
+  virtual void action(antlr4::RuleContext *context, size_t ruleIndex, size_t actionIndex) override;
 private:
   static std::vector<antlr4::dfa::DFA> _decisionToDFA;
   static antlr4::atn::PredictionContextCache _sharedContextCache;
@@ -71,6 +83,13 @@ private:
 
 
   // Individual action functions triggered by action() above.
+  void INTERPOLATED_STRING_STARTAction(antlr4::RuleContext *context, size_t actionIndex);
+  void LBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void RBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void COLONAction(antlr4::RuleContext *context, size_t actionIndex);
+  void LBRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void DOUBLE_QUOTE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void CLOSE_RBRACE_INSIDEAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.
 

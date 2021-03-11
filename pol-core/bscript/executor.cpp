@@ -29,6 +29,7 @@
 #include "execmodl.h"
 #include "fmodule.h"
 #include "impstr.h"
+#include "str.h"
 #include "token.h"
 #include "tokens.h"
 #ifdef MEMORYLEAK
@@ -38,6 +39,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
+#include <numeric>
 
 #ifdef ESCRIPT_PROFILE
 #ifdef _WIN32
@@ -1256,6 +1258,55 @@ void Executor::ins_jmpiffalse( const Instruction& ins )
     PC = (unsigned)ins.token.lval;
 
   ValueStack.pop_back();
+}
+
+void Executor::ins_interpolate_string( const Instruction& ins )
+{
+  auto count = ins.token.lval;
+  if ( count == 0 )
+  {
+    ValueStack.push_back( BObjectRef( new BObject( new String( "" ) ) ) );
+  }
+  else
+  {
+    size_t length = 0;
+
+    std::vector<std::string> contents;
+    contents.reserve( count );
+
+    while ( count-- )
+    {
+      BObjectRef rightref = ValueStack.back();
+      ValueStack.pop_back();
+      auto str = rightref->impptr()->getStringRep();
+      length += str.length();
+      contents.push_back( std::move( str ) );
+    }
+
+    std::string joined;
+    joined.reserve( length );
+
+    while ( !contents.empty() )
+    {
+      joined += contents.back();
+      contents.pop_back();
+    }
+
+    ValueStack.push_back( BObjectRef( new BObject( new String( joined ) ) ) );
+  }
+}
+
+void Executor::ins_format_expression( const Instruction& )
+{
+  BObjectRef formatref = ValueStack.back();
+  ValueStack.pop_back();
+  BObjectRef& exprref = ValueStack.back();
+  BObject& expr = *exprref;
+
+  auto format = formatref->impptr()->getFormattedStringRep();
+  auto formatted = Bscript::get_formatted( expr.impptr(), format );
+
+  exprref.set( new BObject( new String( formatted ) ) );
 }
 
 void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
@@ -2895,6 +2946,10 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_set_member_id_unminusminus_post;  // test id
   case INS_SKIPIFTRUE_ELSE_CONSUME:
     return &Executor::ins_skipiftrue_else_consume;
+  case TOK_INTERPOLATE_STRING:
+    return &Executor::ins_interpolate_string;
+  case TOK_FORMAT_EXPRESSION:
+    return &Executor::ins_format_expression;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }

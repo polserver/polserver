@@ -1,5 +1,5 @@
-<h1>Racalac's eScript Reference and Guide v096<br>
-<font size="2">(Last Updated: May 1, 2020)</font></h1>
+<h1>Racalac's eScript Reference and Guide (POL 100.1.0)<br>
+<font size="2">(Last Updated: March 11, 2021)</font></h1>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -79,7 +79,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
   </li><li><a href="#chap11b">Arrays</a>
   </li><li><a href="#chap11c">Structs</a>
   </li><li><a href="#chap11d">Dictionaries</a>
-  </li><li><a href="#chap11e">Function Calls by Reference</a></li></ul>
+  </li><li><a href="#chap11e">Function Calls by Reference</a>
+  </li><li><a href="#chap11f">Interpolated Strings</a></li></ul>
 <p></p>
 
 <p><b><a href="#app2">Appendix A: Gump Tag Descriptions</a></b></p>
@@ -2405,6 +2406,51 @@ value, and then destroy it when the function is done.</p>
 
 <p>
 <br/>
+<p><b><a name="chap11f">Interpolated Strings</a></b></p>
+<br />
+<p>Added in: POL 100.1.0</p>
+<br />
+<p>Interpolated strings provide a clean and concise way to construct a string
+using multiple expressions. The following two statements are equivalent:</p>
+
+<div class="doc-guide-pre"><pre>
+  var a := 1, b := 2;
+  Print("The sum of " + CStr(a) + " and " + CStr(b) + " is " + CStr(a + b));
+</pre></div>
+
+<div class="doc-guide-pre"><pre>
+  var a := 1, b := 2;
+  Print($"The sum of {a} and {b} is {a + b}");
+</pre></div>
+
+<p>Interpolated strings allow <i>any</i> expression inside them, including other
+interpolated strings. This might get messy to read though!</p>
+
+<div class="doc-guide-pre"><pre>
+  Print($"My master is: {master.name ?: $"({self.name} has no master)"}");
+</pre></div>
+
+<p>Interpolated strings also support an optional formatting string that mimics
+the same format used in the String.format method. Specify the formatting string
+via <pre>$"{expression : format}"</pre>. The following two statements are
+equivalent:</p>
+
+<div class="doc-guide-pre"><pre>
+  Print("Your graphic: " + Hex(who.graphic));
+</pre></div>
+
+<div class="doc-guide-pre"><pre>
+  Print($"Your graphic: {who.graphic : #x}");
+</pre></div>
+
+<p>To use a normal brace inside an interpolated string (ie. "escape" the brace),
+specify <i>two</i> of the same brace:</p>
+
+<div class="doc-guide-pre"><pre>
+  Print($"{{ hello }}"); // will print "{ hello }"
+</pre></div>
+
+<br />
 <br/>
 
 <!-- ====================================================================== -->
@@ -2653,4 +2699,6 @@ Cleaned HTML code. - Bodom</p>
 </p>
 <p>v0.9: 05/01/2020<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Elvis Operator by Syzygy<br>
+<p>v0.10: 11/03/2020<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Interpolated Strings by Kevin<br>
 </p>

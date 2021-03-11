@@ -1,0 +1,1 @@
+interstring02.src:1:17: error: token recognition error at: '"; // no new line on purpose...'
