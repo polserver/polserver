@@ -1,5 +1,5 @@
 <h1>Racalac's eScript Reference and Guide (POL 100.1.0)<br>
-<font size="2">(Last Updated: March 11, 2021)</font></h1>
+<font size="2">(Last Updated: March 14, 2021)</font></h1>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
@@ -42,6 +42,7 @@ apologies if I explain some things in annoyingly simple terms.</p>
 </p><ul>
   <li><a href="#chap3a">If-statements</a>
   </li><li><a href="#chap3b">Binary Operators</a>
+  </li><li><a href="#chap3b2">Conditional (Ternary) Operator</a>
   </li><li><a href="#chap3c">Case (switch) statements</a>
   </li><li><a href="#chap3d">Iteration</a></li></ul>
 <p></p>
@@ -84,6 +85,8 @@ apologies if I explain some things in annoyingly simple terms.</p>
 <p></p>
 
 <p><b><a href="#app2">Appendix A: Gump Tag Descriptions</a></b></p>
+
+<p><b><a href="#appB">Appendix B: Operator Precedence</a></b></p>
 
 <p><b><a href="#appX">Appendix X: Revision History</a></b></p>
 
@@ -779,6 +782,41 @@ to this:
                                              targetsquare.x, targetsquare.y,<br/>
                                              targetsquare.objtype ?: locinfo.landtile,<br/>
                                              who.realm);</pre></div></p>
+
+
+<p><b><a name="chap3b2">Conditional (Ternary) Operator</a></b></p>
+<br />
+<p>Added in: POL 100.1.0</p>
+<br />
+<p>The conditional operator is a commonly used shortcut for the if statement, to
+use one of two values depending on a conditional. The operator takes three
+operands: a condition followed by a question mark (?), then an expression to
+execute if the condition is true followed by a colon (:), and finally the
+expression to execute if the condition is false.</p>
+
+<div class="doc-guide-pre"><pre>
+  condition ? exprIfTrue : exprIfFalse
+</pre></div>
+
+The following two functions are equivalent in behavior:
+
+<div class="doc-guide-pre"><pre>
+function example()
+    return condition1 ? value1
+         : condition2 ? value2
+         : condition3 ? value3
+         : value4;
+endfunction
+</pre></div>
+<div class="doc-guide-pre"><pre>
+function example()
+    if (condition1) return value1;
+    elseif (condition2) return value2;
+    elseif (condition3) return value3;
+    else return value4; endif
+endfunction
+</pre></div>
+
 <p><b><a name="chap3c">Case (switch) statements</a></b></p>
 
 <p>It is a common occurance in scripting when you need to make a equality
@@ -2660,6 +2698,99 @@ specify <i>two</i> of the same brace:</p>
 
 <!-- ====================================================================== -->
 
+<h3><a name="appB">Appendix B: Operator Precedence</a></h3>
+<br/>
+
+<table>
+  <thead>
+    <tr>
+      <th>Precedence</th>
+      <th>Title</th>
+      <th>Symbols</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Highest</td>
+      <td>Subscript</td>
+      <td><code>[]</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Member Access</td>
+      <td><code>.</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Postfix</td>
+      <td><code>++</code>, <code>--</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Prefix</td>
+      <td><code>-</code>, <code>+</code>, <code>++</code>, <code>--</code>, <code>~</code>, <code>not</code>, <code>!</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Multiplicative, Shifts, Bitwise AND</td>
+      <td><code>*</code>, <code>/</code>, <code>%</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&amp;</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Additive, Bitwise OR/XOR</td>
+      <td><code>+</code>, <code>-</code>, <code>|</code>, <code>^</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Elvis</td>
+      <td><code>?:</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Named checks</td>
+      <td><code>in</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Comparison</td>
+      <td><code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Equality</td>
+      <td><code>==</code>, <code>!=</code>, <code>&lt;&gt;</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Conjunction</td>
+      <td><code>&amp;&amp;</code>, <code>and</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Disjunction</td>
+      <td><code>||</code>, <code>or</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Conditional Operator</td>
+      <td><code>? :</code></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+      <td>Member Modification/Query</td>
+      <td><code>.+</code>, <code>.-</code>, <code>.?</code></td>
+    </tr>
+    <tr>
+      <td>Lowest</td>
+      <td>Assignment</td>
+      <td><code>:=</code>, <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>%=</code></td>
+    </tr>
+  </tbody>
+</table>
+<br/>
+<br/>
+
+<!-- ====================================================================== -->
 <h3><a name="appX">Appendix X: Revision History</a></h3>
 <br/>
 
@@ -2701,4 +2832,6 @@ Cleaned HTML code. - Bodom</p>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Elvis Operator by Syzygy<br>
 <p>v0.10: 11/03/2020<br/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Interpolated Strings by Kevin<br>
+<p>v0.11: 14/03/2020<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Added documentation for Conditional Operator, Operator Precendences by Kevin<br>
 </p>

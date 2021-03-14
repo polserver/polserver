@@ -1,4 +1,8 @@
 ﻿-- POL100.1.0 --
+03-14-2021 Kevin:
+    Added: Conditional operator: condition ? exprIfTrue : exprIfFalse
+           This new syntax allows you to efficiently return the result of one of the two expressions, depending on whether the conditon
+           expression evaluates to true or false.
 03-11-2021 Kevin:
     Added: Interpolated string expression: $"..."
            This new expression syntax allows you to join multiple components into a string. Within the ..., you may specify zero or more:
