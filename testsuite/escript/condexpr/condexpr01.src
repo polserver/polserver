@@ -1,0 +1,29 @@
+function Call(byref val)
+    return ++val;
+endfunction
+
+function DoNotCall()
+    print("TEST FAILURE");
+    return error{ errortext := "Called!" };
+endfunction
+
+var foo, i := 0;
+
+foo := 1 ? Call(i) : DoNotCall();
+print(foo);
+
+foo := 0 ? DoNotCall() : Call(i);
+print(foo);
+
+foo := -1 > 0 ? DoNotCall() : Call(i);
+print(foo);
+
+foo := -1 > 0 ? DoNotCall() : 0 > 1 ? DoNotCall() : Call(i);
+print(foo);
+
+foo := 0 ?: "" ? DoNotCall() : Unpack("u") ?: 0 ? DoNotCall() : Call(i);
+print(foo);
+
+var bar := struct{};
+foo := bar.+baz := "" ?: "truthty" ? 1 : 0 ? Call(i) : DoNotCall();
+print(foo);

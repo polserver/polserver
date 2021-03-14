@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-11-2021</datemodified>
+		<datemodified>03-14-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>03-14-2021</date>
+			<author>Kevin:</author>
+			<change type="Added">Conditional operator: condition ? exprIfTrue : exprIfFalse<br/>
+This new syntax allows you to efficiently return the result of one of the two expressions, depending on whether the conditon<br/>
+expression evaluates to true or false.</change>
+		</entry>
 		<entry>
 			<date>03-11-2021</date>
 			<author>Kevin:</author>

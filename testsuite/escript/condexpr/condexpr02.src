@@ -1,0 +1,16 @@
+var a := 1e0, b := 1e1, c := 1e2, d := 1e3, e := 1e4, f := 1e5, g := 1e6, h := 1e7;
+var foo, bar, baz;
+
+function testPrint()
+    print($"{foo} {bar} {baz} {foo == bar && bar == baz}");
+endfunction
+
+foo :=  a+b  ?    c+g  ? d :  e+h    : f;  // go crazy 
+bar := (a+b) ? ( (c+g) ? d : (e+h) ) : f;  // group the craziness
+baz := 1000;
+testPrint();
+
+foo := a ? b :  c+d  ?  e+f  : g;
+bar := a ? b : (c+d) ? (e+f) : g;
+baz := 110000;
+testPrint();

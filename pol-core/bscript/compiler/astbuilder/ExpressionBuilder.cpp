@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/ElementAccess.h"
@@ -239,6 +240,20 @@ std::unique_ptr<ElvisOperator> ExpressionBuilder::elvis_operator(
   return std::make_unique<ElvisOperator>( source_location, std::move( lhs ), std::move( rhs ) );
 }
 
+std::unique_ptr<ConditionalOperator> ExpressionBuilder::conditional_operator(
+    EscriptParser::ExpressionContext* ctx )
+{
+  auto source_location = location_for( *ctx );
+  auto expressions = ctx->expression();
+  auto conditional = expression( expressions[0] );
+  auto consequent = expression( expressions[1] );
+  auto alternate = expression( expressions[2] );
+
+  return std::make_unique<ConditionalOperator>( source_location, std::move( conditional ),
+                                                std::move( consequent ), std::move( alternate ) );
+}
+
+
 std::unique_ptr<ErrorInitializer> ExpressionBuilder::error(
     EscriptParser::ExplicitErrorInitializerContext* ctx )
 {
@@ -367,6 +382,10 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
   else if ( auto suffix = ctx->expressionSuffix() )
   {
     result = expression_suffix( expression( ctx->expression()[0] ), suffix );
+  }
+  else if ( auto conditional = ctx->QUESTION() )
+  {
+    result = conditional_operator( ctx );
   }
   else
   {
