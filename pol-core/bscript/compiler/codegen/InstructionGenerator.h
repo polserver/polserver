@@ -70,7 +70,7 @@ public:
   void visit_while_loop( WhileLoop& ) override;
   void visit_interpolate_string( InterpolateString& ) override;
   void visit_format_expression( FormatExpression& ) override;
-  void visit_conditional_expression( ConditionalExpression& ) override;
+  void visit_conditional_operator( ConditionalOperator& ) override;
 
 private:
   // There are two of these because sometimes when calling a method

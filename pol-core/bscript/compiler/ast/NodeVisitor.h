@@ -15,7 +15,7 @@ class CaseDispatchDefaultSelector;
 class CaseDispatchGroup;
 class CaseDispatchGroups;
 class CaseDispatchSelectors;
-class ConditionalExpression;
+class ConditionalOperator;
 class ConstDeclaration;
 class CstyleForLoop;
 class DebugStatementMarker;
@@ -131,7 +131,7 @@ public:
   virtual void visit_var_statement( VarStatement& );
   virtual void visit_variable_assignment_statement( VariableAssignmentStatement& );
   virtual void visit_while_loop( WhileLoop& );
-  virtual void visit_conditional_expression( ConditionalExpression& );
+  virtual void visit_conditional_operator( ConditionalOperator& );
 
   virtual void visit_children( Node& parent );
 };

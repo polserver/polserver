@@ -12,7 +12,7 @@ namespace Pol::Bscript::Compiler
 class Argument;
 class ArrayInitializer;
 class BinaryOperator;
-class ConditionalExpression;
+class ConditionalOperator;
 class DictionaryInitializer;
 class ElementAccess;
 class ElvisOperator;
@@ -51,7 +51,7 @@ public:
   std::unique_ptr<ElvisOperator> elvis_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
 
-  std::unique_ptr<ConditionalExpression> conditional_expression(
+  std::unique_ptr<ConditionalOperator> conditional_operator(
       EscriptGrammar::EscriptParser::ExpressionContext* );
 
   std::unique_ptr<ErrorInitializer> error(

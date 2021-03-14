@@ -1,17 +1,17 @@
-#ifndef POLSERVER_CONDITIONALEXPRESSION_H
-#define POLSERVER_CONDITIONALEXPRESSION_H
+#ifndef POLSERVER_CONDITIONALOPERATOR_H
+#define POLSERVER_CONDITIONALOPERATOR_H
 
 #include "bscript/compiler/ast/Expression.h"
 
 namespace Pol::Bscript::Compiler
 {
 class FlowControlLabel;
-class ConditionalExpression : public Expression
+class ConditionalOperator : public Expression
 {
 public:
-  ConditionalExpression( const SourceLocation&, std::unique_ptr<Expression> conditional,
-                         std::unique_ptr<Expression> consequent,
-                         std::unique_ptr<Expression> alternate );
+  ConditionalOperator( const SourceLocation&, std::unique_ptr<Expression> conditional,
+                       std::unique_ptr<Expression> consequent,
+                       std::unique_ptr<Expression> alternate );
 
   void accept( NodeVisitor& ) override;
   void describe_to( fmt::Writer& ) const override;
@@ -26,4 +26,4 @@ public:
 }  // namespace Pol::Bscript::Compiler
 
 
-#endif  // POLSERVER_CONDITIONALEXPRESSION_H
+#endif  // POLSERVER_CONDITIONALOPERATOR_H

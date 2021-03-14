@@ -11,7 +11,7 @@
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"
 #include "bscript/compiler/ast/CaseStatement.h"
-#include "bscript/compiler/ast/ConditionalExpression.h"
+#include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DebugStatementMarker.h"
@@ -738,7 +738,7 @@ void InstructionGenerator::visit_format_expression( FormatExpression& node )
   emit.format_expression();
 }
 
-void InstructionGenerator::visit_conditional_expression( ConditionalExpression& node )
+void InstructionGenerator::visit_conditional_operator( ConditionalOperator& node )
 {
   update_debug_location( node );
 

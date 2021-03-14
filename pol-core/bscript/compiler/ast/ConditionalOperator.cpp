@@ -1,4 +1,4 @@
-#include "ConditionalExpression.h"
+#include "ConditionalOperator.h"
 
 #include <format/format.h>
 
@@ -7,10 +7,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-ConditionalExpression::ConditionalExpression( const SourceLocation& source_location,
-                                              std::unique_ptr<Expression> conditional,
-                                              std::unique_ptr<Expression> consequent,
-                                              std::unique_ptr<Expression> alternate )
+ConditionalOperator::ConditionalOperator( const SourceLocation& source_location,
+                                          std::unique_ptr<Expression> conditional,
+                                          std::unique_ptr<Expression> consequent,
+                                          std::unique_ptr<Expression> alternate )
     : Expression( source_location ),
       consequent_label( std::make_shared<FlowControlLabel>() ),
       alternate_label( std::make_shared<FlowControlLabel>() )
@@ -22,27 +22,27 @@ ConditionalExpression::ConditionalExpression( const SourceLocation& source_locat
   children.push_back( std::move( alternate ) );
 }
 
-void ConditionalExpression::accept( NodeVisitor& visitor )
+void ConditionalOperator::accept( NodeVisitor& visitor )
 {
-  visitor.visit_conditional_expression( *this );
+  visitor.visit_conditional_operator( *this );
 }
 
-void ConditionalExpression::describe_to( fmt::Writer& w ) const
+void ConditionalOperator::describe_to( fmt::Writer& w ) const
 {
   w << "conditional-expression";
 }
 
-Expression& ConditionalExpression::conditional()
+Expression& ConditionalOperator::conditional()
 {
   return child<Expression>( 0 );
 }
 
-Expression& ConditionalExpression::consequent()
+Expression& ConditionalOperator::consequent()
 {
   return child<Expression>( 1 );
 }
 
-Expression& ConditionalExpression::alternate()
+Expression& ConditionalOperator::alternate()
 {
   return child<Expression>( 2 );
 }
