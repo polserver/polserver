@@ -2,6 +2,7 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/Variable.h"
+#include "clib/logfacility.h"
 #include <memory>
 
 namespace Pol::Bscript::Compiler
