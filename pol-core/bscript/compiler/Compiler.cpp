@@ -88,9 +88,8 @@ bool Compiler::compile_file( const std::string& filename )
   {
     auto pathname = Clib::FullPath( filename.c_str() );
 
-    auto reporter = std::make_unique<ConsoleReporter>( compilercfg.DisplayWarnings ||
-                                                       compilercfg.ErrorOnWarning );
-    Report report( std::move( reporter ) );
+    ConsoleReporter reporter( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
+    Report report( reporter );
 
     compile_file_steps( pathname, report );
     display_outcome( pathname, report );

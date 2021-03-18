@@ -35,31 +35,34 @@ void ConsoleReporter::report_warning( const SourceLocation& source_location, con
   }
 }
 
-Report::Report( std::unique_ptr<ErrorReporter> report )
-    : reporter( std::move( report ) ), errors( 0 ), warnings( 0 )
+void DiagnosticReporter::report_error( const SourceLocation& source_location, const char* msg )
 {
+  auto len = strlen( msg );
+  std::string message( msg, len > 0 ? len - 1 : len );
+  diagnostics.push_back(
+      Diagnostic{ Diagnostic::Severity::Error, source_location, std::move( message ) } );
 }
+
+void DiagnosticReporter::report_warning( const SourceLocation& source_location, const char* msg )
+{
+  auto len = strlen( msg );
+  std::string message( msg, len > 0 ? len - 1 : len );
+  diagnostics.push_back(
+      Diagnostic{ Diagnostic::Severity::Warning, source_location, std::move( message ) } );
+}
+
+Report::Report( ErrorReporter& reporter ) : reporter( reporter ), errors( 0 ), warnings( 0 ) {}
 
 void Report::report_error( const SourceLocation& source_location, const char* msg )
 {
   ++errors;
-  try
-  {
-    ERROR_PRINT << source_location << ": error: " << msg;
-  } catch (...)
-  {
-  }
+  reporter.report_error( source_location, msg );
 }
 
 void Report::report_warning( const SourceLocation& source_location, const char* msg )
 {
   ++warnings;
-  try
-  {
-    ERROR_PRINT << source_location << ": warning: " << msg;
-  } catch (...)
-  {
-  }
+  reporter.report_warning( source_location, msg );
 }
 
 unsigned Report::error_count() const

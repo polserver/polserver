@@ -40,20 +40,19 @@ struct Diagnostic
 class DiagnosticReporter : public ErrorReporter
 {
 public:
-  explicit DiagnosticReporter( bool display_warnings );
+  explicit DiagnosticReporter() = default;
   DiagnosticReporter( const DiagnosticReporter& ) = delete;
   DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
   void report_error( const SourceLocation&, const char* msg ) override;
   void report_warning( const SourceLocation&, const char* msg ) override;
 
-private:
   std::vector<Diagnostic> diagnostics;
 };
 
 class Report
 {
 public:
-  explicit Report( std::unique_ptr<ErrorReporter> report );
+  explicit Report( ErrorReporter& report );
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
@@ -115,7 +114,7 @@ public:
 private:
   void report_error( const SourceLocation&, const char* msg );
   void report_warning( const SourceLocation&, const char* msg );
-  std::unique_ptr<ErrorReporter> reporter;
+  ErrorReporter& reporter;
 
   inline void rec_write( fmt::Writer& /*w*/ ) {}
   template <typename T, typename... Targs>
