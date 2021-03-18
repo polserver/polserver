@@ -37,6 +37,10 @@ public:
   SourceLocation& operator=( const SourceLocation& ) = delete;
   ~SourceLocation() = default;
 
+  bool contains( const SourceLocation& ) const;
+  bool contains( const Position& ) const;
+  bool contains( unsigned short line_number, unsigned short character_column ) const;
+
   void debug( const std::string& msg ) const;
 
   [[noreturn]] void internal_error( const std::string& msg ) const;

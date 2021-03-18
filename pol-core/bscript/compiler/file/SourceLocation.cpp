@@ -66,6 +66,53 @@ SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifi
 {
 }
 
+bool SourceLocation::contains( const Position& position ) const
+{
+  return contains( position.line_number, position.character_column );
+}
+
+bool SourceLocation::contains( unsigned short line_number, unsigned short character_column ) const
+{
+  if ( line_number < start.line_number || line_number > end.line_number )
+  {
+    return false;
+  }
+  if ( line_number == start.line_number && character_column < start.character_column )
+  {
+    return false;
+  }
+  if ( line_number == end.line_number && character_column > end.character_column )
+  {
+    return false;
+  }
+  return true;
+}
+
+bool SourceLocation::contains( const SourceLocation& otherRange ) const
+{
+  if ( otherRange.start.line_number < start.line_number ||
+       otherRange.end.line_number < start.line_number )
+  {
+    return false;
+  }
+  if ( otherRange.start.line_number > end.line_number ||
+       otherRange.end.line_number > end.line_number )
+  {
+    return false;
+  }
+  if ( otherRange.start.line_number == start.line_number &&
+       otherRange.start.character_column < start.character_column )
+  {
+    return false;
+  }
+  if ( otherRange.end.line_number == end.line_number &&
+       otherRange.end.character_column > end.character_column )
+  {
+    return false;
+  }
+  return true;
+}
+
 void SourceLocation::debug( const std::string& msg ) const
 {
   ERROR_PRINT << ( *this ) << ": " << msg << "\n";
