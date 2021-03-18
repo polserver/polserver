@@ -34,8 +34,11 @@ void Variables::restore_shadowed( std::shared_ptr<Variable> variable )
   variables_by_name[variable->name] = std::move( variable );
 }
 
-void Variables::remove_all_but( unsigned count )
+std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count )
 {
+  std::vector<std::shared_ptr<Variable>> removed;
+  removed.reserve( names_by_index.size() - count );
+
   while ( names_by_index.size() > count )
   {
     std::string last_name = names_by_index.back();
@@ -55,9 +58,12 @@ void Variables::remove_all_but( unsigned count )
                         "' was not used.\n" );
       }
       variables_by_name.erase( itr );
+      removed.push_back( removing );
     }
     names_by_index.pop_back();
   }
+
+  return removed;
 }
 
 const std::vector<std::string>& Variables::get_names() const
