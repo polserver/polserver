@@ -12,17 +12,29 @@ Position calculate_end_position( antlr4::Token* symbol )
   unsigned short line = symbol->getLine();
   unsigned short character = symbol->getCharPositionInLine() + 1;
   const auto& str = symbol->getText();
-  for ( size_t i = 0; i < str.size(); i++ )
+  const auto size = str.size();
+
+  for ( size_t i = 0; i < size; i++ )
   {
-    if ( str[i] == '\r' && str[i + 1] == '\n' )
-      ++line, character = 1;
+    if ( str[i] == '\r' && i + 1 < size && str[i + 1] == '\n' )
+    {
+      ++line;
+      character = 1;
+    }
     else if ( str[i] == '\r' )
-      ++line, character = 1;
+    {
+      ++line;
+      character = 1;
+    }
     else if ( str[i] == '\n' )
-      ++line, character = 1;
+    {
+      ++line;
+      character = 1;
+    }
     else
       ++character;
   }
+
   return Position{ line, character };
 }
 
