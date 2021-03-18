@@ -5,8 +5,38 @@
 
 namespace Pol::Bscript::Compiler
 {
-Report::Report( bool display_warnings )
-  : display_warnings( display_warnings ), errors( 0 ), warnings( 0 )
+ConsoleReporter::ConsoleReporter( bool display_warnings )
+    : ErrorReporter(), display_warnings( display_warnings )
+{
+}
+
+void ConsoleReporter::report_error( const SourceLocation& source_location, const char* msg )
+{
+  try
+  {
+    ERROR_PRINT << source_location << ": error: " << msg;
+  }
+  catch ( ... )
+  {
+  }
+}
+
+void ConsoleReporter::report_warning( const SourceLocation& source_location, const char* msg )
+{
+  if ( display_warnings )
+  {
+    try
+    {
+      ERROR_PRINT << source_location << ": warning: " << msg;
+    }
+    catch ( ... )
+    {
+    }
+  }
+}
+
+Report::Report( std::unique_ptr<ErrorReporter> report )
+    : reporter( std::move( report ) ), errors( 0 ), warnings( 0 )
 {
 }
 

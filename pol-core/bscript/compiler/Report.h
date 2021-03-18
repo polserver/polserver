@@ -8,11 +8,52 @@
 namespace Pol::Bscript::Compiler
 {
 class SourceLocation;
+class ErrorReporter
+{
+public:
+  virtual ~ErrorReporter(){};
+  virtual void report_error( const SourceLocation&, const char* msg ) = 0;
+  virtual void report_warning( const SourceLocation&, const char* msg ) = 0;
+};
+class ConsoleReporter : public ErrorReporter
+{
+public:
+  explicit ConsoleReporter( bool display_warnings );
+  ConsoleReporter( const ConsoleReporter& ) = delete;
+  ConsoleReporter& operator=( const ConsoleReporter& ) = delete;
+  void report_error( const SourceLocation&, const char* msg ) override;
+  void report_warning( const SourceLocation&, const char* msg ) override;
+
+private:
+  const bool display_warnings;
+};
+struct Diagnostic
+{
+  enum class Severity
+  {
+    Warning,
+    Error
+  } severity;
+  SourceLocation location;
+  std::string message;
+};
+class DiagnosticReporter : public ErrorReporter
+{
+public:
+  explicit DiagnosticReporter( bool display_warnings );
+  DiagnosticReporter( const DiagnosticReporter& ) = delete;
+  DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
+  void report_error( const SourceLocation&, const char* msg ) override;
+  void report_warning( const SourceLocation&, const char* msg ) override;
+
+private:
+  std::vector<Diagnostic> diagnostics;
+};
 
 class Report
 {
 public:
-  explicit Report( bool display_warnings );
+  explicit Report( std::unique_ptr<ErrorReporter> report );
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
@@ -56,12 +97,9 @@ public:
   template <typename... Args>
   inline void warning( const SourceLocation& source_location, Args&&... args )
   {
-    if ( display_warnings )
-    {
-      fmt::Writer w;
-      rec_write( w, std::forward<Args>( args )... );
-      report_warning( source_location, w.c_str() );
-    }
+    fmt::Writer w;
+    rec_write( w, std::forward<Args>( args )... );
+    report_warning( source_location, w.c_str() );
   }
 
   // Always put a newline at the end of the message.
@@ -77,6 +115,7 @@ public:
 private:
   void report_error( const SourceLocation&, const char* msg );
   void report_warning( const SourceLocation&, const char* msg );
+  std::unique_ptr<ErrorReporter> reporter;
 
   inline void rec_write( fmt::Writer& /*w*/ ) {}
   template <typename T, typename... Targs>
@@ -91,7 +130,6 @@ private:
     rec_write( w, std::forward<Targs>( Fargs )... );
   }
 
-  const bool display_warnings;
   unsigned errors;
   unsigned warnings;
 };
