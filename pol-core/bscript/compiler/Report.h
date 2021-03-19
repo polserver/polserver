@@ -12,8 +12,8 @@ class ErrorReporter
 {
 public:
   virtual ~ErrorReporter(){};
-  virtual void report_error( const SourceLocation&, const char* msg ) = 0;
-  virtual void report_warning( const SourceLocation&, const char* msg ) = 0;
+  virtual void report_error( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void report_warning( const SourceLocation&, const std::string& msg ) = 0;
 };
 class ConsoleReporter : public ErrorReporter
 {
@@ -21,8 +21,8 @@ public:
   explicit ConsoleReporter( bool display_warnings );
   ConsoleReporter( const ConsoleReporter& ) = delete;
   ConsoleReporter& operator=( const ConsoleReporter& ) = delete;
-  void report_error( const SourceLocation&, const char* msg ) override;
-  void report_warning( const SourceLocation&, const char* msg ) override;
+  void report_error( const SourceLocation&, const std::string& msg ) override;
+  void report_warning( const SourceLocation&, const std::string& msg ) override;
 
 private:
   const bool display_warnings;
@@ -43,8 +43,8 @@ public:
   explicit DiagnosticReporter() = default;
   DiagnosticReporter( const DiagnosticReporter& ) = delete;
   DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
-  void report_error( const SourceLocation&, const char* msg ) override;
-  void report_warning( const SourceLocation&, const char* msg ) override;
+  void report_error( const SourceLocation&, const std::string& ) override;
+  void report_warning( const SourceLocation&, const std::string& ) override;
 
   std::vector<Diagnostic> diagnostics;
 };
@@ -62,7 +62,7 @@ public:
   {
     fmt::Writer w;
     rec_write( w, std::forward<Args>( args )... );
-    report_error( source_location, w.c_str() );
+    report_error( source_location, w.str() );
   }
 
   // Always put a newline at the end of the message.
@@ -88,8 +88,8 @@ public:
   {
     fmt::Writer w;
     rec_write( w, std::forward<Args>( args )... );
-    report_error( source_location, w.c_str() );
-    throw std::runtime_error( w.c_str() );
+    report_error( source_location, w.str() );
+    throw std::runtime_error( w.str() );
   }
 
   // Always put a newline at the end of the message.
@@ -98,7 +98,7 @@ public:
   {
     fmt::Writer w;
     rec_write( w, std::forward<Args>( args )... );
-    report_warning( source_location, w.c_str() );
+    report_warning( source_location, w.str() );
   }
 
   // Always put a newline at the end of the message.
@@ -112,8 +112,8 @@ public:
   [[nodiscard]] unsigned warning_count() const;
 
 private:
-  void report_error( const SourceLocation&, const char* msg );
-  void report_warning( const SourceLocation&, const char* msg );
+  void report_error( const SourceLocation&, const std::string& msg );
+  void report_warning( const SourceLocation&, const std::string& msg );
   ErrorReporter& reporter;
 
   inline void rec_write( fmt::Writer& /*w*/ ) {}
