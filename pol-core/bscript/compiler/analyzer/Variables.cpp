@@ -53,12 +53,12 @@ std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count
         if ( removing->warn_on == WarnOn::IfUsed && removing->was_used() )
         {
           report.warning( removing->source_location, "local variable '", last_name,
-                          "' declared as unused but used.\n" );
+                          "' declared as unused but used." );
         }
         else if ( removing->warn_on == WarnOn::IfNotUsed && !removing->was_used() )
         {
           report.warning( removing->source_location, "local variable '", last_name,
-                          "' was not used.\n" );
+                          "' was not used." );
         }
         variables_by_name.erase( itr );
         removed.push_back( removing );

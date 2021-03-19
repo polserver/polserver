@@ -38,7 +38,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 
   if ( SourceFile::enforced_case_sensitivity_mismatch( source_location, pathname, report ) )
   {
-    report.error( *ident, "Refusing to load '", pathname, "'.\n" );
+    report.error( *ident, "Refusing to load '", pathname, "'." );
     return {};
   }
 
@@ -46,7 +46,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 
   if ( !sf || report.error_count() )
   {
-    report.error( *ident, "Unable to load '", pathname, "'.\n" );
+    report.error( *ident, "Unable to load '", pathname, "'." );
     return {};
   }
 

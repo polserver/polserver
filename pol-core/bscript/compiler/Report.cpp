@@ -14,7 +14,7 @@ void ConsoleReporter::report_error( const SourceLocation& source_location, const
 {
   try
   {
-    ERROR_PRINT << source_location << ": error: " << msg;
+    ERROR_PRINT << source_location << ": error: " << msg << "\n";
   }
   catch ( ... )
   {
@@ -28,7 +28,7 @@ void ConsoleReporter::report_warning( const SourceLocation& source_location,
   {
     try
     {
-      ERROR_PRINT << source_location << ": warning: " << msg;
+      ERROR_PRINT << source_location << ": warning: " << msg << "\n";
     }
     catch ( ... )
     {
@@ -39,19 +39,13 @@ void ConsoleReporter::report_warning( const SourceLocation& source_location,
 void DiagnosticReporter::report_error( const SourceLocation& source_location,
                                        const std::string& msg )
 {
-  auto len = msg.length();
-  std::string message( msg, len > 0 ? len - 1 : len );
-  diagnostics.push_back(
-      Diagnostic{ Diagnostic::Severity::Error, source_location, std::move( message ) } );
+  diagnostics.push_back( Diagnostic{ Diagnostic::Severity::Error, source_location, msg } );
 }
 
 void DiagnosticReporter::report_warning( const SourceLocation& source_location,
                                          const std::string& msg )
 {
-  auto len = msg.length();
-  std::string message( msg, len > 0 ? len - 1 : len );
-  diagnostics.push_back(
-      Diagnostic{ Diagnostic::Severity::Warning, source_location, std::move( message ) } );
+  diagnostics.push_back( Diagnostic{ Diagnostic::Severity::Warning, source_location, msg } );
 }
 
 Report::Report( ErrorReporter& reporter ) : reporter( reporter ), errors( 0 ), warnings( 0 ) {}

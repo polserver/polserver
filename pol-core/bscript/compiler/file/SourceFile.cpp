@@ -56,12 +56,12 @@ bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation& refer
     if ( compilercfg.ErrorOnFileCaseMissmatch )
     {
       report.error( referencing_location, "Case mismatch: \n", "  Specified:  ", filepart, "\n",
-                    "  Filesystem: ", truename, "\n" );
+                    "  Filesystem: ", truename );
       return true;
     }
 
     report.warning( referencing_location, "Case mismatch: \n", "  Specified:  ", filepart, "\n",
-                    "  Filesystem: ", truename, "\n" );
+                    "  Filesystem: ", truename );
   }
   return false;
 }
@@ -93,7 +93,7 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
   }
   catch ( ... )
   {
-    report.error( ident, "Unable to read file '", pathname, "'.\n" );
+    report.error( ident, "Unable to read file '", pathname, "'." );
     return {};
   }
 }
