@@ -1,6 +1,5 @@
 #include "CompilerWorkspaceBuilder.h"
 
-#include "clib/timer.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
@@ -14,15 +13,22 @@
 #include "bscript/compiler/astbuilder/UserFunctionVisitor.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "clib/timer.h"
 
 namespace Pol::Bscript::Compiler
 {
-CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileCache& em_cache,
+CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileLoader& source_loader,
+                                                    SourceFileCache& em_cache,
                                                     SourceFileCache& inc_cache, Profile& profile,
                                                     Report& report )
-    : em_cache( em_cache ), inc_cache( inc_cache ), profile( profile ), report( report )
+    : source_loader( source_loader ),
+      em_cache( em_cache ),
+      inc_cache( inc_cache ),
+      profile( profile ),
+      report( report )
 {
 }
 
@@ -42,7 +48,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     return {};
   }
 
-  auto sf = SourceFile::load( *ident, profile, report );
+  auto sf = SourceFile::load( *ident, source_loader, profile, report );
 
   if ( !sf || report.error_count() )
   {

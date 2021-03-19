@@ -12,13 +12,15 @@ namespace Pol::Bscript::Compiler
 class CompiledScript;
 class CompilerWorkspace;
 class SourceFileCache;
+class SourceFileLoader;
 class Profile;
 class Report;
 
 class Compiler
 {
 public:
-  Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& );
+  Compiler( SourceFileLoader& source_loader, SourceFileCache& em_cache, SourceFileCache& inc_cache,
+            Profile& );
   ~Compiler();
   Compiler( const Compiler& ) = delete;
   Compiler& operator=( const Compiler& ) = delete;
@@ -43,6 +45,7 @@ private:
 
   void display_outcome( const std::string& filename, Report& );
 
+  SourceFileLoader& source_loader;
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
   Profile& profile;

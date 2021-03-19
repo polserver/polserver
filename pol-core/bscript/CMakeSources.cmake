@@ -226,6 +226,8 @@ set (bscript_sources    # sorted !
   compiler/file/SourceFileCache.h
   compiler/file/SourceFileIdentifier.cpp
   compiler/file/SourceFileIdentifier.h
+  compiler/file/SourceFileLoader.cpp
+  compiler/file/SourceFileLoader.h
   compiler/file/SourceLocation.cpp
   compiler/file/SourceLocation.h
   compiler/format/CompiledScriptSerializer.cpp

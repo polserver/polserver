@@ -15,18 +15,20 @@ class ModuleFunctionDeclaration;
 class Profile;
 class Report;
 class SourceFileCache;
+class SourceFileLoader;
 
 class CompilerWorkspaceBuilder
 {
 public:
-  CompilerWorkspaceBuilder( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile&,
-                            Report& );
+  CompilerWorkspaceBuilder( SourceFileLoader& source_loader, SourceFileCache& em_cache,
+                            SourceFileCache& inc_cache, Profile&, Report& );
 
   std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion );
 
 private:
   void build_referenced_user_functions( BuilderWorkspace& );
 
+  SourceFileLoader& source_loader;
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
   Profile& profile;

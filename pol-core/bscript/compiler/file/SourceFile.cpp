@@ -8,6 +8,7 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "compilercfg.h"
 
 using EscriptGrammar::EscriptLexer;
@@ -73,15 +74,14 @@ bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation&, cons
 }
 #endif
 
-std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident, Profile& profile,
-                                              Report& report )
+std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
+                                              const SourceFileLoader& source_loader,
+                                              Profile& profile, Report& report )
 {
   const std::string& pathname = ident.pathname;
   try
   {
-    Clib::FileContents fc( pathname.c_str(), true );
-    std::string contents( fc.contents() );
-
+    auto contents = source_loader.get_contents( pathname );
     Clib::sanitizeUnicodeWithIso( &contents );
 
     if ( is_web_script( pathname.c_str() ) )

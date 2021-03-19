@@ -14,6 +14,7 @@ namespace Pol::Bscript::Compiler
 {
 class Profile;
 class Report;
+class SourceFileLoader;
 class SourceLocation;
 
 class SourceFile
@@ -24,7 +25,8 @@ public:
 
   static bool enforced_case_sensitivity_mismatch( const SourceLocation& referencing_location,
                                                   const std::string& pathname, Report& report );
-  static std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, Profile&, Report& );
+  static std::shared_ptr<SourceFile> load( const SourceFileIdentifier&, const SourceFileLoader&,
+                                           Profile&, Report& );
 
   void propagate_errors_to( Report&, const SourceFileIdentifier& );
 

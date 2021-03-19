@@ -1,8 +1,5 @@
 #include "Compiler.h"
 
-#include "clib/fileutil.h"
-#include "clib/logfacility.h"
-#include "clib/timer.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Disambiguator.h"
@@ -11,20 +8,26 @@
 #include "bscript/compiler/codegen/CodeGenerator.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/format/CompiledScriptSerializer.h"
 #include "bscript/compiler/format/DebugStoreSerializer.h"
 #include "bscript/compiler/format/ListingWriter.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/optimizer/Optimizer.h"
 #include "bscript/compiler/representation/CompiledScript.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/timer.h"
 #include "compilercfg.h"
 
 namespace Pol::Bscript::Compiler
 {
-Compiler::Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& profile )
-  : em_cache( em_cache ),
-    inc_cache( inc_cache ),
-    profile( profile )
+Compiler::Compiler( SourceFileLoader& source_loader, SourceFileCache& em_cache,
+                    SourceFileCache& inc_cache, Profile& profile )
+    : source_loader( source_loader ),
+      em_cache( em_cache ),
+      inc_cache( inc_cache ),
+      profile( profile )
 {
 }
 
@@ -87,6 +90,10 @@ bool Compiler::compile_file( const std::string& filename )
   try
   {
     auto pathname = Clib::FullPath( filename.c_str() );
+    if ( pathname.empty() )
+    {
+      pathname = filename;
+    }
 
     ConsoleReporter reporter( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning );
     Report report( reporter );
@@ -143,7 +150,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string&
                                                               Report& report )
 {
   Pol::Tools::HighPerfTimer timer;
-  CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
+  CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, profile, report );
   auto workspace = workspace_builder.build( pathname, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
