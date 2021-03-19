@@ -2,6 +2,7 @@
 #define POLSERVER_COMPILER_H
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "bscript/compiler/model/UserFunctionInclusion.h"
@@ -30,6 +31,7 @@ public:
   void set_include_compile_mode();
 
   void compile_file_steps( const std::string& pathname, Report& );
+  std::unique_ptr<CompilerWorkspace> precompile( const std::string& pathname, Report& );
 
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report& );

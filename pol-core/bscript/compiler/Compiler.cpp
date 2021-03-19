@@ -107,27 +107,36 @@ bool Compiler::compile_file( const std::string& filename )
 
 void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 {
+  std::unique_ptr<CompilerWorkspace> workspace = precompile( pathname, report );
+  if ( !workspace )
+    return;
+  output = generate( std::move( workspace ) );
+}
+
+std::unique_ptr<CompilerWorkspace> Compiler::precompile( const std::string& pathname,
+                                                         Report& report )
+{
   std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report );
   if ( report.error_count() )
-    return;
+    return {};
 
   register_constants( *workspace, report );
   if ( report.error_count() )
-    return;
+    return {};
 
   optimize( *workspace, report );
   if ( report.error_count() )
-    return;
+    return {};
 
   disambiguate( *workspace, report );
   if ( report.error_count() )
-    return;
+    return {};
 
   analyze( *workspace, report );
   if ( report.error_count() )
-    return;
+    return {};
 
-  output = generate( std::move( workspace ) );
+  return workspace;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
