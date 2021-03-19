@@ -89,6 +89,9 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+
+  auto global_variables = globals.remove_all_but( 0 );
+  workspace.scope_tree.set_globals( std::move( global_variables ) );
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
