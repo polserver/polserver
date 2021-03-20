@@ -10,9 +10,11 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceFileLoader.h"
 #include "compilercfg.h"
+#include <EscriptGrammar/EscriptParserVisitor.h>
 
 using EscriptGrammar::EscriptLexer;
 using EscriptGrammar::EscriptParser;
+using EscriptGrammar::EscriptParserVisitor;
 
 namespace Pol::Bscript::Compiler
 {
@@ -95,6 +97,20 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
   {
     report.error( ident, "Unable to read file '", pathname, "'." );
     return {};
+  }
+}
+
+void SourceFile::accept( EscriptParserVisitor& visitor )
+{
+  antlr4::ParserRuleContext* unit = nullptr;
+
+  if ( ( unit = compilation_unit ) )
+  {
+    visitor.visit( unit );
+  }
+  else if ( ( unit = module_unit ) )
+  {
+    visitor.visit( unit );
   }
 }
 

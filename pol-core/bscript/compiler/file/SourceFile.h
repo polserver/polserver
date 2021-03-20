@@ -10,6 +10,15 @@
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
 
+namespace antlr4
+{
+class ParserRuleContext;
+}
+
+namespace EscriptGrammar
+{
+class EscriptParserVisitor;
+}
 namespace Pol::Bscript::Compiler
 {
 class Profile;
@@ -29,6 +38,8 @@ public:
                                            Profile&, Report& );
 
   void propagate_errors_to( Report&, const SourceFileIdentifier& );
+
+  void accept( EscriptGrammar::EscriptParserVisitor& visitor );
 
   EscriptGrammar::EscriptParser::CompilationUnitContext* get_compilation_unit(
       Report&, const SourceFileIdentifier& );

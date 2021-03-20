@@ -4,6 +4,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Disambiguator.h"
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
+#include "bscript/compiler/analyzer/SemanticTokensBuilder.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
 #include "bscript/compiler/file/SourceFileCache.h"
@@ -143,6 +144,10 @@ std::unique_ptr<CompilerWorkspace> Compiler::precompile( const std::string& path
   if ( report.error_count() )
     return {};
 
+  tokenize( *workspace, report );
+  if ( report.error_count() )
+    return {};
+
   return workspace;
 }
 
@@ -185,6 +190,14 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
   SemanticAnalyzer analyzer( workspace, report );
   analyzer.analyze();
   profile.analyze_micros += timer.ellapsed().count();
+}
+
+void Compiler::tokenize( CompilerWorkspace& workspace, Report& report )
+{
+  Pol::Tools::HighPerfTimer timer;
+  SemanticTokensBuilder tokenizer( workspace, report );
+  tokenizer.build();
+  profile.tokenize_micros += timer.ellapsed().count();
 }
 
 std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWorkspace> workspace )

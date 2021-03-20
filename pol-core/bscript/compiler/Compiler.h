@@ -40,6 +40,7 @@ private:
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );
   void analyze( CompilerWorkspace&, Report& );
+  void tokenize( CompilerWorkspace&, Report& );
   std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace> );
 
   void display_outcome( const std::string& filename, Report& );

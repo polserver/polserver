@@ -59,6 +59,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   SourceFileProcessor src_processor( *ident, workspace, true, user_function_inclusion );
 
   workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+  workspace.compiler_workspace.source = sf;
   workspace.source_files[sf->pathname] = sf;
 
   compiler_workspace->top_level_statements =

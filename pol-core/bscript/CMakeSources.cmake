@@ -27,6 +27,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/LocalVariableScopes.h
   compiler/analyzer/SemanticAnalyzer.cpp
   compiler/analyzer/SemanticAnalyzer.h
+  compiler/analyzer/SemanticTokensBuilder.cpp
+  compiler/analyzer/SemanticTokensBuilder.h
   compiler/analyzer/Variables.cpp
   compiler/analyzer/Variables.h
   compiler/ast/Argument.cpp
@@ -245,6 +247,7 @@ set (bscript_sources    # sorted !
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
   compiler/model/LocalVariableScopeInfo.h
+  compiler/model/SemanticTokens.h
   compiler/model/ScopeTree.cpp
   compiler/model/ScopeTree.h
   compiler/model/SimpleTypes.h
