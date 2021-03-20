@@ -247,6 +247,7 @@ set (bscript_sources    # sorted !
   compiler/model/FunctionLink.cpp
   compiler/model/FunctionLink.h
   compiler/model/LocalVariableScopeInfo.h
+  compiler/model/SemanticTokens.cpp
   compiler/model/SemanticTokens.h
   compiler/model/ScopeTree.cpp
   compiler/model/ScopeTree.h

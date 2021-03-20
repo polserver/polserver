@@ -5,11 +5,11 @@
 #include <mutex>
 #include <string>
 
-#include <EscriptGrammar/EscriptLexer.h>
-#include <EscriptGrammar/EscriptParser.h>
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
-
+#include "bscript/compiler/model/SemanticTokens.h"
+#include <EscriptGrammar/EscriptLexer.h>
+#include <EscriptGrammar/EscriptParser.h>
 namespace antlr4
 {
 class ParserRuleContext;
@@ -45,6 +45,8 @@ public:
       Report&, const SourceFileIdentifier& );
   EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit(
       Report&, const SourceFileIdentifier& );
+
+  SemanticTokens get_tokens();
 
   const std::string pathname;
 

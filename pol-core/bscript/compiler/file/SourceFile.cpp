@@ -9,6 +9,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceFileLoader.h"
+#include "bscript/compiler/model/SemanticTokens.h"
 #include "compilercfg.h"
 #include <EscriptGrammar/EscriptParserVisitor.h>
 
@@ -140,6 +141,21 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   ++access_count;
   propagate_errors_to( report, ident );
   return module_unit;
+}
+
+SemanticTokens SourceFile::get_tokens()
+{
+  SemanticTokens tokens;
+  lexer.reset();
+  for ( const auto& lexer_token : lexer.getAllTokens() )
+  {
+    auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
+    if ( semantic_token )
+    {
+      tokens.push_back( std::move( semantic_token ) );
+    }
+  }
+  return tokens;
 }
 
 /**
