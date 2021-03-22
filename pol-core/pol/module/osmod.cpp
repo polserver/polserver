@@ -609,11 +609,10 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               {
                 uoexec_w.get_weakptr()->ValueStack.back().set(
                     new BObject( new BError( "Error connecting to client" ) ) );
+                uoexec_w.get_weakptr()->revive();
+                return;
               }
-              else
-              {
-                uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
-              }
+              uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               uoexec_w.get_weakptr()->revive();
             }
             std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
@@ -1218,7 +1217,7 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
       if ( pos == std::string_view::npos )
         continue;
       auto key = env.substr( 0, pos );
-      auto key_lowered = Clib::strlowerASCII( std::string{ key } );
+      auto key_lowered = Clib::strlowerASCII( std::string{key} );
       auto val = env.substr( pos + 1 );
 
       if ( all_allowed || std::find( allowed_vars.begin(), allowed_vars.end(), key_lowered ) !=

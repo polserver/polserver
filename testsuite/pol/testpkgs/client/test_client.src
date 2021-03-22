@@ -1,6 +1,7 @@
 use os;
 use uo;
-use file;
+use attributes;
+use vitals;
 
 include "testutil";
 
@@ -27,6 +28,10 @@ program chartests()
   if (!res)
     return ret_error("Failed to equip backpack "+backpack+" "+res);
   endif
+  setAttributeBaseValue(char,"STR",1000);
+  setAttributeBaseValue(char,"INT",1000);
+  setAttributeBaseValue(char,"DEX",1000);
+
   var i:=1;
   while (1)
     res := OpenConnection("127.0.0.1",50000,"clientconnection",GetProcess(),1,1);
@@ -58,6 +63,12 @@ program chartests()
     endif
     sleepms(10);
   endwhile
+  print(recalcVitals(char));
+  print(getVitalMaximumValue(char,"Hits"));
+
+  setVital(char, "Hits", getVitalMaximumValue(char,"Hits"));
+  setVital(char, "Mana", getVitalMaximumValue(char,"Mana"));
+  setVital(char, "Stamina", getVitalMaximumValue(char,"Stamina"));
   return 1;
 endprogram
 
@@ -71,8 +82,7 @@ exported function say_something()
   while (1)
     var ev:=Wait_For_Event(5);
     if (!ev)
-      syslog("no signal received");
-      break;
+      return ret_error("no signal received");
     endif
     if (ev.?speech)
       syslog(ev);
@@ -84,20 +94,62 @@ exported function say_something()
   return 1;
 endfunction
 
-exported function move()
+exported function move_turn_water()
   if (!testclient)
     return 1;
   endif
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  char.facing:=1;
   Clear_Event_Queue();
   clientcon.sendevent(struct{todo:="move",arg:=6});
   while (1)
     var ev:=Wait_For_Event(5);
     if (!ev)
-      syslog("no signal received");
-      break;
+      return ret_error("no signal received");
     endif
     if (ev.?move)
       syslog(ev);
+      if (!ev.move)
+        return ret_error("failed to turn");
+      endif
+      break;
+    endif
+  endwhile
+  clientcon.sendevent(struct{todo:="move",arg:=6});
+  while (1)
+    var ev:=Wait_For_Event(5);
+    if (!ev)
+      return ret_error("no signal received");
+    endif
+    if (ev.?move)
+      syslog(ev);
+      if (ev.move)
+        return ret_error("move in water succeeded");
+      endif
+      break;
+    endif
+  endwhile
+  return 1;
+endfunction
+
+exported function move_ground()
+  if (!testclient)
+    return 1;
+  endif
+  MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
+  char.facing:=1;
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="move",arg:=1});
+  while (1)
+    var ev:=Wait_For_Event(5);
+    if (!ev)
+      return ret_error("no signal received");
+    endif
+    if (ev.?move)
+      syslog(ev);
+      if (!ev.move)
+        return ret_error("failed to move");
+      endif
       break;
     endif
   endwhile

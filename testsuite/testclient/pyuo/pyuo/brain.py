@@ -83,6 +83,28 @@ class Brain:
           self.processEvents()
           time.sleep(0.01)
 
+  def onEvent(self, ev):
+    if ev.type == Event.EVT_HP_CHANGED:
+      self.onHpChange(ev.old, ev.new)
+    elif ev.type == Event.EVT_MANA_CHANGED:
+      self.onManaChange(ev.old, ev.new)
+    elif ev.type == Event.EVT_STAM_CHANGED:
+      self.onStamChange(ev.old, ev.new)
+    elif ev.type == Event.EVT_SPEECH:
+      self.onSpeech(ev.speech)
+    elif ev.type == Event.EVT_NOTORIETY:
+      self.onNotorietyChange(ev.old, ev.new)
+    elif ev.type == Event.EVT_MOVED:
+      self.onMovement(ev.oldx, ev.oldy, ev.oldz, ev.oldfacing,
+            ev.x, ev.y, ev.z, ev.facing, ev.ack)
+    elif ev.type == Event.EVT_NEW_MOBILE:
+      self.onNewMobile(ev.mobile)
+    elif ev.type == Event.EVT_CLIENT_CRASH:
+      self.log.critical('Oops! Client crashed:', ev.exception)
+      raise RuntimeError('Oops! Client crashed')
+    else:
+      raise NotImplementedError("Unknown event {}",format(ev.type))
+
   def processEvents(self):
     ''' Process event queue, internal '''
     while True:
@@ -90,27 +112,8 @@ class Brain:
         if not len(self.events):
           return
         ev = self.events.popleft()
+        self.onEvent(ev)
 
-      if ev.type == Event.EVT_HP_CHANGED:
-        self.onHpChange(ev.old, ev.new)
-      elif ev.type == Event.EVT_MANA_CHANGED:
-        self.onManaChange(ev.old, ev.new)
-      elif ev.type == Event.EVT_STAM_CHANGED:
-        self.onStamChange(ev.old, ev.new)
-      elif ev.type == Event.EVT_SPEECH:
-        self.onSpeech(ev.speech)
-      elif ev.type == Event.EVT_NOTORIETY:
-        self.onNotorietyChange(ev.old, ev.new)
-      elif ev.type == Event.EVT_MOVED:
-        self.onMovement(ev.oldx, ev.oldy, ev.oldz, ev.oldfacing,
-            ev.x, ev.y, ev.z, ev.facing, ev.ack)
-      elif ev.type == Event.EVT_NEW_MOBILE:
-        self.onNewMobile(ev.mobile)
-      elif ev.type == Event.EVT_CLIENT_CRASH:
-        self.log.critical('Oops! Client crashed:', ev.exception)
-        raise RuntimeError('Oops! Client crashed')
-      else:
-        raise NotImplementedError("Unknown event {}",format(ev.type))
 
   def event(self, ev):
     ''' Internal function, injects a single event, called from the client thread '''

@@ -861,6 +861,21 @@ class PingPacket(Packet):
   def decodeChild(self):
     self.seq = self.duchar()
 
+class NewSubServerPacket(Packet):
+  ''' new subserver '''
+
+  cmd = 0x76
+  length = 16
+
+  def decodeChild(self):
+    self.x = self.dushort()
+    self.y = self.dushort()
+    self.z = self.dushort()
+    self.unk = self.duchar()
+    self.serverx = self.dushort()
+    self.servery = self.dushort()
+    self.serverwidth = self.dushort()
+    self.serverheight = self.dushort()
 
 class UpdatePlayerPacket(Packet):
   ''' Updates a mobile '''

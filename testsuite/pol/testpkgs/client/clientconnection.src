@@ -10,14 +10,8 @@ program clientconn(con, test)
     endif
     if (ev.todo)
       var json:=PackJson(ev);
-      var jsonlen:=hex(json.length());
-      jsonlen[1,2]:="";
-      var pad:=4-jsonlen.length();
-      while (pad--)
-        jsonlen:="0"+jsonlen;
-      endwhile
       syslog(json);
-      con.transmit(jsonlen+json);
+      con.transmit(json);
       if (ev.todo=="disconnect")
         break;
       endif

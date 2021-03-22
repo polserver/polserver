@@ -824,6 +824,10 @@ class Client(threading.Thread):
 
 		elif isinstance(pkt, packets.SeasonInfoPacket):
 			self.log.info('Ignoring season packet')
+		elif isinstance(pkt, packets.SendSkillsPacket):
+			self.log.info('Ignoring skills packet')
+		elif isinstance(pkt, packets.NewSubServerPacket):
+			self.log.info('Ignoring new subserver packet')
 
 		else:
 			self.log.warn("Unhandled packet {}".format(pkt.__class__))

@@ -10,6 +10,7 @@ import socket
 
 from pyuo import client
 from pyuo import brain
+from pyuo.brain import Event
 
 
 class TestBrain(brain.Brain):
@@ -24,7 +25,7 @@ class TestBrain(brain.Brain):
 
   def loop(self):
     res=self.server.recv()
-    if res==False:
+    if res is None:
         return True
     if not res.get("todo",None):
         return
@@ -39,15 +40,35 @@ class TestBrain(brain.Brain):
     elif todo=="move":
         self.client.move(arg)
 
-  def onMovement(self, oldx, oldy, oldz, oldfacing, x, y, z, facing, ack):
-    self.log.info('MOVEMENT {} {},{},{}.{} -> {},{},{}.{}'.format(
-				'ack' if ack else 'rejected', oldx, oldy, oldz,
-				oldfacing, x, y, z, facing))
-    self.server.send(json.dumps({"move":ack}))
-
-  def onSpeech(self, speech):
-    self.log.debug('SPEECH received: {}'.format(speech))
-    self.server.send(json.dumps({"speech":speech.msg}))
+  def onEvent(self, ev):
+    if ev.type == Event.EVT_HP_CHANGED:
+      self.log.debug('HP changed from {} to {}'.format(ev.old, ev.new))
+      self.server.send(json.dumps({"hpchanged":ev.new}))
+    elif ev.type == Event.EVT_MANA_CHANGED:
+      self.log.debug('MANA changed from {} to {}'.format(ev.old, ev.new))
+      self.server.send(json.dumps({"manachanged":ev.new}))
+    elif ev.type == Event.EVT_STAM_CHANGED:
+      self.log.debug('STAM changed from {} to {}'.format(ev.old, ev.new))
+      self.server.send(json.dumps({"stamchanged":ev.new}))
+    elif ev.type == Event.EVT_SPEECH:
+      self.log.info('SPEECH received: {}'.format(ev.speech))
+      self.server.send(json.dumps({"speech":ev.speech.msg}))
+    elif ev.type == Event.EVT_NOTORIETY:
+      self.log.debug('NOTORIETY changed from {} to {}'.format(ev.old, ev.new))
+      self.server.send(json.dumps({"notorietychanged":ev.new}))
+    elif ev.type == Event.EVT_MOVED:
+      self.log.info('MOVEMENT {} {},{},{}.{} -> {},{},{}.{}'.format(
+				'ack' if ev.ack else 'rejected', ev.oldx, ev.oldy, ev.oldz,
+				ev.oldfacing, ev.x, ev.y, ev.z, ev.facing))
+      self.server.send(json.dumps({"move":ev.ack}))
+    elif ev.type == Event.EVT_NEW_MOBILE:
+      self.log.debug('NEW MOBILE: {}'.format(ev.mobile))
+      self.server.send(json.dumps({"newmobile":ev.mobile.serial}))
+    elif ev.type == Event.EVT_CLIENT_CRASH:
+      self.log.critical('Oops! Client crashed:', ev.exception)
+      raise RuntimeError('Oops! Client crashed')
+    else:
+      raise NotImplementedError("Unknown event {}",format(ev.type))
 
 class PolServer:
   def __init__(self):
@@ -58,24 +79,29 @@ class PolServer:
     self.conn, addr = self.s.accept()
     self.conn.settimeout(0.1)
   
-  def recv(self):
+  def _recv(self):
     try:
-      data = self.conn.recv(4)
+      data = self.conn.recv(1)
     except socket.timeout:
-        return {}
+        return b''
     except Exception as e:
       self.log.info("err {}".format(e))
       self.conn.close()
-      return False
-    try:
-      length=int(data.decode(),16)
-    except:
-      return {}
-    try:
-      data = self.conn.recv(length).decode()
-      data=json.loads(data)
-    except:
-      data = False
+      return None
+    return data
+    
+  def recv(self):
+    data=b''
+    while True:
+      r=self._recv()
+      if r is None:
+        return None
+      data+=r
+      if not len(data):
+          return {}
+      if data.endswith(b'\r\n'):
+        break
+    data=json.loads(data.decode().rstrip('\r\n'))
     return data
 
   def send(self, data):
