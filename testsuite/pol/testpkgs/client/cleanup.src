@@ -1,0 +1,14 @@
+use uo;
+use os;
+
+var res:=GetGlobalProperty("#clientcon");
+if (res)
+  var clientcon:=GetProcess(res);
+  clientcon.sendevent(struct{todo:="disconnect"});
+  sleep(1);
+endif
+var a:=FindAccount("testclient");
+if (a)
+  a.deletecharacter(1);
+  a.delete();
+endif

@@ -17,12 +17,12 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/refptr.h"
 #include "../../clib/network/socketsvc.h"
+#include "../../clib/refptr.h"
 #include "../../clib/weakptr.h"
+#include "../polobject.h"
 #include "../scrdef.h"
 #include "../uoexec.h"
-#include "../polobject.h"
 
 namespace Pol
 {
@@ -72,7 +72,7 @@ public:
   virtual size_t sizeEstimate() const override;
 
   virtual Bscript::BObjectImp* call_polmethod( const char* methodname,
-                                            Core::UOExecutor& ex ) override;
+                                               Core::UOExecutor& ex ) override;
   virtual Bscript::BObjectRef get_member( const char* membername ) override;
 
   void disconnect();
@@ -104,7 +104,7 @@ class AuxClientThread final : public Clib::SocketClientThread
 public:
   AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock );
   AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock, Bscript::BObjectImp* params,
-                   bool assume_string );
+                   bool assume_string, bool keep_alive );
   virtual void run() override;
   void transmit( const Bscript::BObjectImp* imp );
   Bscript::BObjectImp* get_ip();
@@ -120,6 +120,7 @@ private:
   Bscript::BObjectImp* _params;
   bool _assume_string;
   std::atomic<int> _transmit_counter;
+  bool _keep_alive;
 };
 }  // namespace Network
 }  // namespace Pol

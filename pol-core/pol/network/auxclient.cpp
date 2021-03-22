@@ -102,11 +102,12 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock )
       _scriptdef(),
       _params( nullptr ),
       _assume_string( false ),
-      _transmit_counter( 0 )
+      _transmit_counter( 0 ),
+      _keep_alive( false )
 {
 }
 AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock,
-                                  Bscript::BObjectImp* params, bool assume_string )
+                                  Bscript::BObjectImp* params, bool assume_string, bool keep_alive )
     : SocketClientThread( std::move( sock ) ),
       _auxservice( nullptr ),
       _auxconnection(),
@@ -114,7 +115,8 @@ AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock
       _scriptdef( scriptdef ),
       _params( params ),
       _assume_string( assume_string ),
-      _transmit_counter( 0 )
+      _transmit_counter( 0 ),
+      _keep_alive( keep_alive )
 {
 }
 
@@ -183,11 +185,11 @@ void AuxClientThread::run()
 
   std::string tmp;
   bool result, timeout_exit;
-  Clib::SocketLineReader linereader( _sck, 5 );
+  Clib::SocketLineReader linereader( _sck, 5, 0, !_keep_alive );
   for ( ;; )
   {
     result = linereader.readline( tmp, &timeout_exit );
-    if ( !result && !timeout_exit )
+    if ( !result && !timeout_exit && !_keep_alive )
       break;
 
     Core::PolLock lock;

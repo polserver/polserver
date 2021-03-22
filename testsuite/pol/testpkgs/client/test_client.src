@@ -1,0 +1,105 @@
+use os;
+use uo;
+use file;
+
+include "testutil";
+
+var char;
+var backpack;
+
+var clientcon;
+var testclient:=GetEnvironmentVariable("POLCORE_TESTCLIENT")=="TRUE";
+program chartests()
+  if (!testclient)
+    syslog("NO CLIENT TESTS");
+    return 1;
+  endif
+  var a:=FindAccount("testclient");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  if (char.backpack)
+    DestroyItem(char.backpack);
+  endif
+  backpack:=CreateItemAtLocation(0,0,0,0xE75);
+  var res:=EquipItem(char,backpack);
+  if (!res)
+    return ret_error("Failed to equip backpack "+backpack+" "+res);
+  endif
+  var i:=1;
+  while (1)
+    res := OpenConnection("127.0.0.1",50000,"clientconnection",GetProcess(),1,1);
+    if (res)
+      break;
+    endif
+    sleep(1);
+    ++i;
+    if (i>10)
+      return ret_error("Failed to connect to testclient");
+    endif
+  endwhile
+  while (1)
+    res:=GetGlobalProperty("#clientcon");
+    if (res)
+      clientcon:=GetProcess(res);
+      break;
+    endif
+    sleepms(5);
+  endwhile
+  i:=0;
+  while (1)
+    if (char.client)
+      print("TESTSUITE: client connected");
+      break;
+    endif
+    if (i>500)
+      return ret_error("Client did not connect");
+    endif
+    sleepms(10);
+  endwhile
+  return 1;
+endprogram
+
+
+exported function say_something()
+  if (!testclient)
+    return 1;
+  endif
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="speech", arg:="Hello Test"});
+  while (1)
+    var ev:=Wait_For_Event(5);
+    if (!ev)
+      syslog("no signal received");
+      break;
+    endif
+    if (ev.?speech)
+      syslog(ev);
+      if (ev.speech=="Hello Test")
+        break;
+      endif
+    endif
+  endwhile
+  return 1;
+endfunction
+
+exported function move()
+  if (!testclient)
+    return 1;
+  endif
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="move",arg:=6});
+  while (1)
+    var ev:=Wait_For_Event(5);
+    if (!ev)
+      syslog("no signal received");
+      break;
+    endif
+    if (ev.?move)
+      syslog(ev);
+      break;
+    endif
+  endwhile
+  return 1;
+endfunction

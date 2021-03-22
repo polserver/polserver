@@ -1,0 +1,30 @@
+use os;
+use uo;
+
+program clientconn(con, test)
+  SetGlobalProperty("#clientcon", getpid());
+  while (1)
+    var ev:=Wait_For_Event(10);
+    if (!ev)
+      continue;
+    endif
+    if (ev.todo)
+      var json:=PackJson(ev);
+      var jsonlen:=hex(json.length());
+      jsonlen[1,2]:="";
+      var pad:=4-jsonlen.length();
+      while (pad--)
+        jsonlen:="0"+jsonlen;
+      endwhile
+      syslog(json);
+      con.transmit(jsonlen+json);
+      if (ev.todo=="disconnect")
+        break;
+      endif
+    else
+      syslog("from client: "+ev);
+      var e:=UnpackJson(ev.value);
+      test.sendevent(e);
+    endif
+  endwhile
+endprogram
