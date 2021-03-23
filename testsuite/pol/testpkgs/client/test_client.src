@@ -63,9 +63,7 @@ program chartests()
     endif
     sleepms(10);
   endwhile
-  print(recalcVitals(char));
-  print(getVitalMaximumValue(char,"Hits"));
-
+  recalcVitals(char);
   setVital(char, "Hits", getVitalMaximumValue(char,"Hits"));
   setVital(char, "Mana", getVitalMaximumValue(char,"Mana"));
   setVital(char, "Stamina", getVitalMaximumValue(char,"Stamina"));
@@ -85,7 +83,6 @@ exported function say_something()
       return ret_error("no signal received");
     endif
     if (ev.?speech)
-      syslog(ev);
       if (ev.speech=="Hello Test")
         break;
       endif
@@ -108,9 +105,11 @@ exported function move_turn_water()
       return ret_error("no signal received");
     endif
     if (ev.?move)
-      syslog(ev);
       if (!ev.move)
         return ret_error("failed to turn");
+      endif
+      if (ev.args != {1,1,1,6})
+        return ret_error("wrong pos");
       endif
       break;
     endif
@@ -122,9 +121,11 @@ exported function move_turn_water()
       return ret_error("no signal received");
     endif
     if (ev.?move)
-      syslog(ev);
       if (ev.move)
         return ret_error("move in water succeeded");
+      endif
+      if (ev.args != {1,1,1,6})
+        return ret_error("wrong pos");
       endif
       break;
     endif
@@ -146,9 +147,11 @@ exported function move_ground()
       return ret_error("no signal received");
     endif
     if (ev.?move)
-      syslog(ev);
       if (!ev.move)
         return ret_error("failed to move");
+      endif
+      if (ev.args != {101,99,1,1})
+        return ret_error("wrong pos");
       endif
       break;
     endif

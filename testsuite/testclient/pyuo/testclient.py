@@ -33,7 +33,7 @@ class TestBrain(brain.Brain):
     arg=res.get("arg",None)
     self.log.info("got todo: {}->{}".format(todo,arg))
     if todo=="disconnect":
-        self.server.conn.close()
+        self.client.exit()
         return True
     elif todo=="speech":
         self.client.say(arg)
@@ -41,34 +41,10 @@ class TestBrain(brain.Brain):
         self.client.move(arg)
 
   def onEvent(self, ev):
-    if ev.type == Event.EVT_HP_CHANGED:
-      self.log.debug('HP changed from {} to {}'.format(ev.old, ev.new))
-      self.server.send(json.dumps({"hpchanged":ev.new}))
-    elif ev.type == Event.EVT_MANA_CHANGED:
-      self.log.debug('MANA changed from {} to {}'.format(ev.old, ev.new))
-      self.server.send(json.dumps({"manachanged":ev.new}))
-    elif ev.type == Event.EVT_STAM_CHANGED:
-      self.log.debug('STAM changed from {} to {}'.format(ev.old, ev.new))
-      self.server.send(json.dumps({"stamchanged":ev.new}))
-    elif ev.type == Event.EVT_SPEECH:
-      self.log.info('SPEECH received: {}'.format(ev.speech))
-      self.server.send(json.dumps({"speech":ev.speech.msg}))
-    elif ev.type == Event.EVT_NOTORIETY:
-      self.log.debug('NOTORIETY changed from {} to {}'.format(ev.old, ev.new))
-      self.server.send(json.dumps({"notorietychanged":ev.new}))
-    elif ev.type == Event.EVT_MOVED:
-      self.log.info('MOVEMENT {} {},{},{}.{} -> {},{},{}.{}'.format(
-				'ack' if ev.ack else 'rejected', ev.oldx, ev.oldy, ev.oldz,
-				ev.oldfacing, ev.x, ev.y, ev.z, ev.facing))
-      self.server.send(json.dumps({"move":ev.ack}))
-    elif ev.type == Event.EVT_NEW_MOBILE:
-      self.log.debug('NEW MOBILE: {}'.format(ev.mobile))
-      self.server.send(json.dumps({"newmobile":ev.mobile.serial}))
-    elif ev.type == Event.EVT_CLIENT_CRASH:
+    if ev.type == Event.EVT_CLIENT_CRASH:
       self.log.critical('Oops! Client crashed:', ev.exception)
-      raise RuntimeError('Oops! Client crashed')
-    else:
-      raise NotImplementedError("Unknown event {}",format(ev.type))
+      raise RuntimeError('Oops! Client crashed')  
+    self.server.sendEvent(ev)
 
 class PolServer:
   def __init__(self):
@@ -104,6 +80,35 @@ class PolServer:
     data=json.loads(data.decode().rstrip('\r\n'))
     return data
 
+  def sendEvent(self, ev):
+    res={}
+    if ev.type==Event.EVT_HP_CHANGED:
+      res["hp_changed"]=ev.new
+    elif ev.type==Event.EVT_MANA_CHANGED:
+      res["mana_changed"]=ev.new
+    elif ev.type==Event.EVT_STAM_CHANGED:
+      res["stam_changed"]=ev.new
+    elif ev.type==Event.EVT_SPEECH:
+      res["speech"]=ev.speech.msg
+    elif ev.type==Event.EVT_NOTORIETY:
+      res["notoriety"]=ev.new
+    elif ev.type==Event.EVT_MOVED:
+      res["move"]=ev.ack
+      res["args"]=[ev.x, ev.y, ev.z, ev.facing]
+    elif ev.type==Event.EVT_NEW_MOBILE:
+      res["new_mobile"]=ev.mobile.serial
+      res["pos"]=[ev.mobile.x, ev.mobile.y, ev.mobile.z, ev.mobile.facing]
+      res["graphic"]=ev.mobile.graphic
+    elif ev.type==Event.EVT_NEW_ITEM:
+      res["new_item"]=ev.item.serial
+      res["pos"]=[ev.item.x, ev.item.y, ev.item.z, ev.item.facing]
+      res["graphic"]=ev.item.graphic
+    else:
+      raise NotImplementedError("Unknown event {}",format(ev.type))
+
+    if res:
+      self.send(json.dumps(res))
+
   def send(self, data):
     try:
       self.conn.send((data+"\n").encode())
@@ -120,9 +125,15 @@ if __name__ == '__main__':
   lconf = conf['login']
   
   serv =PolServer()
-  # Login to the server
-  c = client.Client()
-  servers = c.connect(lconf.get('ip'), lconf.getint('port'), lconf.get('user'), lconf.get('pass'))
-  chars = c.selectServer(lconf.getint('serveridx'))
-  c.selectCharacter(lconf.get('charname'), lconf.getint('charidx'))
-  TestBrain(c,serv)
+  try:
+    # Login to the server
+    c = client.Client()
+    servers = c.connect(lconf.get('ip'), lconf.getint('port'), lconf.get('user'), lconf.get('pass'))
+    chars = c.selectServer(lconf.getint('serveridx'))
+    c.selectCharacter(lconf.get('charname'), lconf.getint('charidx'))
+    TestBrain(c,serv)
+  finally: # wake up the server and let it close first
+    serv.send("{}")
+    time.sleep(1)
+    serv.conn.close()
+
