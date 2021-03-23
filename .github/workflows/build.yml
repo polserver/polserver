@@ -40,7 +40,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '2.x'
       - uses: seanmiddleditch/gha-setup-vsdevenv@v3
       - name: Cache curl
         uses: actions/cache@v2
