@@ -14,6 +14,7 @@ public:
   virtual ~ErrorReporter(){};
   virtual void report_error( const SourceLocation&, const std::string& msg ) = 0;
   virtual void report_warning( const SourceLocation&, const std::string& msg ) = 0;
+  virtual void clear() = 0;
 };
 class ConsoleReporter : public ErrorReporter
 {
@@ -23,6 +24,7 @@ public:
   ConsoleReporter& operator=( const ConsoleReporter& ) = delete;
   void report_error( const SourceLocation&, const std::string& msg ) override;
   void report_warning( const SourceLocation&, const std::string& msg ) override;
+  void clear() override;
 
 private:
   const bool display_warnings;
@@ -45,6 +47,7 @@ public:
   DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
   void report_error( const SourceLocation&, const std::string& ) override;
   void report_warning( const SourceLocation&, const std::string& ) override;
+  void clear() override;
 
   std::vector<Diagnostic> diagnostics;
 };
@@ -107,6 +110,8 @@ public:
   {
     warning( node.source_location, args... );
   }
+
+  void clear();
 
   [[nodiscard]] unsigned error_count() const;
   [[nodiscard]] unsigned warning_count() const;
