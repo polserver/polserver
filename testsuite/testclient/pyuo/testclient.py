@@ -18,8 +18,8 @@ from pyuo.brain import Event
 class TestBrain(brain.Brain):
   def __init__(self,client,server):
     self.server = server
+    self.id = client.id
     with self.server.eventsLock:
-      self.id = len(self.server.brains)
       self.server.brains.append(self)
     self.todos = collections.deque()
     self.todosLock = threading.Lock()

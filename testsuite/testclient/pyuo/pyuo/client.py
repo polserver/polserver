@@ -482,6 +482,7 @@ class Client(threading.Thread):
     # Change the thread name to better identify
     idstr=''if id is None else str(id)
     self.name = 'Client' +idstr+ self.name
+    self.id = id
 
     ## Send queue
     self.sendqueue = []
