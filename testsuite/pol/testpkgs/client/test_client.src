@@ -72,10 +72,12 @@ program chartests()
       return ret_error("Failed to wait for vital update");
     endif
     if (ev.id==0 && ev.serial==char.serial)
+      syslog(ev);
       if (!(ev.type in vital0))
         vital0.append(ev.type);
       endif
     elseif (ev.id==1 && ev.serial==char2.serial)
+      syslog(ev);
       if (!(ev.type in vital1))
         vital1.append(ev.type);
       endif
