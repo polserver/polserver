@@ -188,7 +188,9 @@ class PolServer:
   def send(self, data):
     try:
       self.conn.send((data+"\n").encode())
-    except:
+      self.log.info("send:"+data)
+    except Exception as e:
+      self.log.error("failed to send: {} {}".format(e,data))
       pass
 
 if __name__ == '__main__':
