@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-14-2021</datemodified>
+		<datemodified>03-24-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>03-24-2021</date>
+			<author>Turley:</author>
+			<change type="Added">os:OpenConnection argument keep_connection<br/>
+defaults to 0, if set to 1 the connection is kept active on read timeout.<br/>
+By default (old behaviour) the connection is closed when for 5 seconds no pkt was received (old behaviour).</change>
+		</entry>
 		<entry>
 			<date>03-14-2021</date>
 			<author>Kevin:</author>
