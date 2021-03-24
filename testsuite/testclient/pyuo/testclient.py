@@ -104,10 +104,12 @@ class PolServer:
           t.join()
         return
       else:
-        if clientid is None:
+        for b in self.brains:
+          if b.id == clientid:
+            b.addTodo(res)
+            break
+        else:
           self.log.error("invalid clientid")
-          continue
-        self.brains[clientid].addTodo(res)
 
   def startclient(self,user,psw,charname,charidx,id):
     with self.eventsLock:
