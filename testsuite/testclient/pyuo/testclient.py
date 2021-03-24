@@ -37,10 +37,6 @@ class TestBrain(brain.Brain):
     if ev.type == Event.EVT_CLIENT_CRASH:
       self.log.critical('Oops! Client crashed: {}'.format(ev.exception))
       raise RuntimeError('Oops! Client crashed')
-    if (ev.type==Event.EVT_HP_CHANGED or
-        ev.type==Event.EVT_MANA_CHANGED or
-        ev.type==Event.EVT_STAM_CHANGED):
-      self.log.info("ev : {}, {}, {}".format(ev.typestr(),ev.new,ev.serial))
     ev.clientid=self.id
     self.server.addevent(ev)
   
@@ -192,7 +188,6 @@ class PolServer:
   def send(self, data):
     try:
       self.conn.send((data+"\n").encode())
-      self.log.info("send:"+data)
     except Exception as e:
       self.log.error("failed to send: {} {}".format(e,data))
       pass

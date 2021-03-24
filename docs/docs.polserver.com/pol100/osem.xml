@@ -228,7 +228,7 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <parameter name="scriptdef" value="Name of the script to be started when the connection is established"/>
     <parameter name="params" value="A struct of parameters to be sent to the script"/>
     <parameter name="assume_string" value="Integer if set to 1 all communication from connection will be sent/received as raw strings."/>
-    <parameter name="keep_connection" value="Integer if set to 1 the connection will not timeout and will be kept alive until the auxilry script exists."/>
+    <parameter name="keep_connection" value="Integer if set to 1 the connection will not timeout and will be kept alive until the auxiliary script exists."/>
     <explain>Creates an outgoing TCP/IP connection to the host/port, once connection is open the scriptdef is run and</explain>
     <explain> any params defined in the struct will be passed to that script. The script type should be in the form of an Auxilry Script.</explain>
     <return>1 on success</return>
