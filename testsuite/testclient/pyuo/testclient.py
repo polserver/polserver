@@ -94,7 +94,7 @@ class PolServer:
       if todo=="connect":
         self.threads.append(
           threading.Thread(target=self.startclient,
-              args=(res["account"],res["psw"],res["name"],res["chrindex"]))
+              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]))
           )
         self.threads[-1].start()
       elif todo=="exit":
@@ -109,9 +109,9 @@ class PolServer:
           continue
         self.brains[clientid].addTodo(res)
 
-  def startclient(self,user,psw,charname,charidx):
+  def startclient(self,user,psw,charname,charidx,id):
     with self.eventsLock:
-      c = client.Client(len(self.clients))
+      c = client.Client(id)
       self.clients.append(c)
     servers = c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
     chars = c.selectServer(self.lconf.getint('serveridx'))
