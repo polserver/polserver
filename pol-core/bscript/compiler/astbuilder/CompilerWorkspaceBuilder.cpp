@@ -100,6 +100,8 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
     return {};
   }
 
+  workspace.source_files[sf->pathname] = sf;
+  compiler_workspace->source = sf;
   compiler_workspace->top_level_statements =
       std::make_unique<TopLevelStatements>( source_location );
 
