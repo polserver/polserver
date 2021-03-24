@@ -10,13 +10,13 @@ program clientconn(con, test)
     endif
     if (ev.todo)
       var json:=PackJson(ev);
-      syslog(json);
+      syslog("      to client: "+json,0);
       con.transmit(json);
-      if (ev.todo=="disconnect")
+      if (ev.todo=="exit")
         break;
       endif
     else
-      syslog("from client: "+ev);
+      syslog("      from client: "+ev,0);
       var e:=UnpackJson(ev.value);
       test.sendevent(e);
     endif

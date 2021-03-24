@@ -31,11 +31,12 @@ class Brain:
   Usually runs in the main thread, starts the client thread.
   '''
 
-  def __init__(self, client):
+  def __init__(self, client, id = None):
     '''! Initialize the object, must provide a connected client instance
     @param client Client: a client instance, already connected, will start it
     '''
-    self.log = logging.getLogger('brain')
+    idstr=''if id is None else str(id)
+    self.log = logging.getLogger('brain'+idstr)
     self.started = threading.Event()
     self.events = collections.deque()
     self.eventsLock = threading.Lock()
@@ -100,7 +101,7 @@ class Brain:
     elif ev.type == Event.EVT_NEW_MOBILE:
       self.onNewMobile(ev.mobile)
     elif ev.type == Event.EVT_CLIENT_CRASH:
-      self.log.critical('Oops! Client crashed:', ev.exception)
+      self.log.critical('Oops! Client crashed: {}'.format(ev.exception))
       raise RuntimeError('Oops! Client crashed')
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
@@ -185,9 +186,33 @@ class Event:
   EVT_NEW_MOBILE = 7
   EVT_NEW_ITEM = 8
 
+  EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
 
   def __init__(self, type, **kwargs):
     self.type = type
     for k, v in kwargs.items():
       setattr(self, k, v)
+
+  def typestr(self):
+    ''' keep in sync with testscript
+        unique type strings '''
+    if self.type==Event.EVT_INIT:
+      return "init"
+    if self.type==Event.EVT_HP_CHANGED:
+      return "hp_changed"
+    elif self.type==Event.EVT_MANA_CHANGED:
+      return "mana_changed"
+    elif self.type==Event.EVT_STAM_CHANGED:
+      return "stam_changed"
+    elif self.type==Event.EVT_SPEECH:
+      return "speech"
+    elif self.type==Event.EVT_NOTORIETY:
+      return "notoriety"
+    elif self.type==Event.EVT_MOVED:
+      return "moved"
+    elif self.type==Event.EVT_NEW_MOBILE:
+      return "new_mobile"
+    elif self.type==Event.EVT_NEW_ITEM:
+      return "new_item"
+

@@ -477,10 +477,11 @@ class Client(threading.Thread):
   ## Language sent to server
   LANG = 'ENU'
 
-  def __init__(self):
+  def __init__(self, id=None):
     super().__init__()
     # Change the thread name to better identify
-    self.name = 'Client' + self.name
+    idstr=''if id is None else str(id)
+    self.name = 'Client' +idstr+ self.name
 
     ## Send queue
     self.sendqueue = []
@@ -499,7 +500,7 @@ class Client(threading.Thread):
     ## When to send next ping
     self.ping = 0
     ## Logger, for internal usage
-    self.log = logging.getLogger('client')
+    self.log = logging.getLogger('client'+idstr)
     ## Features sent with 0xb9 packet
     self.features = None
     ## Flags sent with 0xa9 packet
@@ -689,7 +690,6 @@ class Client(threading.Thread):
   @clientthread
   def handlePacket(self, pkt):
     ''' Handles an incoming packet '''
-
     if isinstance(pkt, packets.LoginDeniedPacket):
       self.log.error('login denied')
       raise LoginDeniedError(pkt.reason)
@@ -917,18 +917,19 @@ class Client(threading.Thread):
   @clientthread
   @logincomplete
   def handleUpdateVitalPacket(self, pkt, attrName, maxAttrName, eventId):
-    old = getattr(self.player, attrName)
     if self.player.serial == pkt.serial:
-      setattr(self.player, maxAttrName, pkt.max)
-      setattr(self.player, attrName, pkt.cur)
-      self.log.info("My %s: %d/%d", attrName.upper(), pkt.cur, pkt.max)
+      mob = self.player
     else:
       mob = self.objects[pkt.serial]
-      setattr(mob, maxAttrName, pkt.max)
-      setattr(mob, attrName, pkt.cur)
+    old = getattr(mob, attrName)
+    setattr(mob, maxAttrName, pkt.max)
+    setattr(mob, attrName, pkt.cur)
+    cur = getattr(mob, attrName)
+    if self.player.serial == pkt.serial:
+      self.log.info("My %s: %d/%d", attrName.upper(), pkt.cur, pkt.max)
+    else:
       self.log.info("0x%X's %s: %d/%d", pkt.serial, attrName.upper(), pkt.cur, pkt.max)
-    cur = getattr(self.player, attrName)
-    self.brain.event(brain.Event(eventId, old=old, new=cur))
+    self.brain.event(brain.Event(eventId, old=old, new=cur, serial=pkt.serial))
 
   @status('game')
   @clientthread
