@@ -9,9 +9,11 @@
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/astbuilder/AvailableUserFunction.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/ModuleProcessor.h"
 #include "bscript/compiler/astbuilder/SourceFileProcessor.h"
 #include "bscript/compiler/astbuilder/UserFunctionVisitor.h"
 #include "bscript/compiler/file/SourceFile.h"
+#include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/file/SourceLocation.h"
@@ -71,6 +73,52 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 
   if ( report.error_count() == 0 )
     build_referenced_user_functions( workspace );
+
+  return compiler_workspace;
+}
+
+std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
+    const std::string& pathname )
+{
+  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
+  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
+
+  auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
+
+  SourceLocation source_location( ident.get(), 0, 0 );
+
+  if ( SourceFile::enforced_case_sensitivity_mismatch( source_location, pathname, report ) )
+  {
+    report.error( *ident, "Refusing to load '", pathname, "'." );
+    return {};
+  }
+
+  auto sf = em_cache.load( *ident, report );
+  if ( !sf || report.error_count() )
+  {
+    report.error( *ident, "Unable to load '", pathname, "'." );
+    return {};
+  }
+
+  compiler_workspace->top_level_statements =
+      std::make_unique<TopLevelStatements>( source_location );
+
+  std::string module_name = pathname.substr( 0, pathname.find_last_of( "." ) );
+
+  ModuleProcessor module_processor( *ident, workspace, module_name );
+
+  Pol::Tools::HighPerfTimer get_module_unit_timer;
+  auto module_unit_context = sf->get_module_unit( report, *ident );
+  long long parse_elapsed = get_module_unit_timer.ellapsed().count();
+  profile.parse_em_micros += parse_elapsed;
+  profile.parse_em_count++;
+
+  Pol::Tools::HighPerfTimer visit_module_unit_timer;
+  module_unit_context->accept( &module_processor );
+  long long ast_elapsed = visit_module_unit_timer.ellapsed().count();
+  profile.ast_em_micros.fetch_add( ast_elapsed );
+
+  workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
 
   return compiler_workspace;
 }

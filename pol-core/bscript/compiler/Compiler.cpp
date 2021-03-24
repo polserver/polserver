@@ -115,48 +115,53 @@ bool Compiler::compile_file( const std::string& filename )
 
 void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 {
-  std::unique_ptr<CompilerWorkspace> workspace = precompile( pathname, report );
-  if ( !workspace )
+  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, false );
+  if ( report.error_count() )
     return;
+
+  register_constants( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  optimize( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  disambiguate( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  analyze( *workspace, report );
+  if ( report.error_count() )
+    return;
+
+  tokenize( *workspace, report );
+  if ( report.error_count() )
+    return;
+
   output = generate( std::move( workspace ) );
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::precompile( const std::string& pathname,
-                                                         Report& report )
+                                                         Report& report, bool is_module )
 {
-  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report );
-  if ( report.error_count() )
-    return {};
-
+  // Let's see how this explodes...
+  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, is_module );
   register_constants( *workspace, report );
-  if ( report.error_count() )
-    return {};
-
   optimize( *workspace, report );
-  if ( report.error_count() )
-    return {};
-
   disambiguate( *workspace, report );
-  if ( report.error_count() )
-    return {};
-
   analyze( *workspace, report );
-  if ( report.error_count() )
-    return {};
-
   tokenize( *workspace, report );
-  if ( report.error_count() )
-    return {};
-
   return workspace;
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
-                                                              Report& report )
+                                                              Report& report, bool is_module )
 {
   Pol::Tools::HighPerfTimer timer;
   CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, profile, report );
-  auto workspace = workspace_builder.build( pathname, user_function_inclusion );
+  auto workspace = is_module ? workspace_builder.build_module( pathname )
+                             : workspace_builder.build( pathname, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
 }
