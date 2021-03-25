@@ -135,13 +135,24 @@ set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
 # first test run
-add_test(NAME shard_test_1
-  COMMAND pol
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
-)
+find_package(Python3 COMPONENTS Interpreter)
+if (${Python3_FOUND})
+  add_test(NAME shard_test_1
+    COMMAND ${CMAKE_COMMAND}
+      -Dpol=$<TARGET_FILE:pol>
+      -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
+      -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_start.cmake
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+  )
+else()
+  add_test(NAME shard_test_1
+    COMMAND pol
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+  )
+endif()
 set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 # needed for test_env
-set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo")
+set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND}")
 set_tests_properties(shard_test_1 PROPERTIES FIXTURES_SETUP shard_test)
 
 # second test run

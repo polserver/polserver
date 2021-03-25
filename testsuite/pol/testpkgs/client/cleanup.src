@@ -1,0 +1,19 @@
+use uo;
+use os;
+
+var res:=GetGlobalProperty("#clientcon");
+if (res)
+  var clientcon:=GetProcess(res);
+  clientcon.sendevent(struct{todo:="exit"});
+  sleep(1);
+endif
+var a:=FindAccount("testclient0");
+if (a)
+  a.deletecharacter(1);
+  a.delete();
+endif
+a:=FindAccount("testclient1");
+if (a)
+  a.deletecharacter(1);
+  a.delete();
+endif

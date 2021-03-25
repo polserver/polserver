@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>12/26/2020</datemodified>
+    <datemodified>03/23/2021</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -222,12 +222,13 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="OpenConnection">
-    <prototype>OpenConnection( host, port, scriptdef, params )</prototype>
+    <prototype>OpenConnection( host, port, scriptdef, params:=0, assume_string:=0, keep_connection:=0 )</prototype>
     <parameter name="host" value="Target host"/>
     <parameter name="port" value="Target port"/>
     <parameter name="scriptdef" value="Name of the script to be started when the connection is established"/>
     <parameter name="params" value="A struct of parameters to be sent to the script"/>
     <parameter name="assume_string" value="Integer if set to 1 all communication from connection will be sent/received as raw strings."/>
+    <parameter name="keep_connection" value="Integer if set to 1 the connection will not timeout and will be kept alive until the auxiliary script exists."/>
     <explain>Creates an outgoing TCP/IP connection to the host/port, once connection is open the scriptdef is run and</explain>
     <explain> any params defined in the struct will be passed to that script. The script type should be in the form of an Auxilry Script.</explain>
     <return>1 on success</return>
