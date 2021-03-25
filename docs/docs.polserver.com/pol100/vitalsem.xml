@@ -50,7 +50,7 @@ const DAMAGE_USE_DEFAULT := 2;</code></explain>
 <function name="ApplyRawDamage">
     <prototype>ApplyRawDamage( Character, Hits, userepsys := DAMAGE_USE_REPSYS, send_damage := DAMAGE_USE_DEFAULT )</prototype>
 	<parameter name="Character" value="Character Reference" />
-	<parameter name="Hits" value="Integer (0..255)" />
+	<parameter name="Hits" value="Integer (0..65535)" />
 	<parameter name="userepsys" value="Integer (optional, default DAMAGE_USE_REPSYS)" />
 	<parameter name="send_damage" value="Integer (optional, default DAMAGE_USE_DEFAULT)" />
 	<explain>Decreases a character's hit points.  If this causes hit points to drop to zero, kills the character.</explain>
