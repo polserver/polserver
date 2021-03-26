@@ -108,12 +108,14 @@ class Brain:
 
   def processEvents(self):
     ''' Process event queue, internal '''
-    while True:
-      with self.eventsLock:
-        if not len(self.events):
-          return
-        ev = self.events.popleft()
-        self.onEvent(ev)
+    with self.eventsLock:
+      if not len(self.events):
+        return
+      events = self.events.copy()
+      self.events.clear()
+    while len(events):
+      ev = events.popleft()
+      self.onEvent(ev)
 
 
   def event(self, ev):
@@ -185,6 +187,10 @@ class Event:
   EVT_MOVED = 6
   EVT_NEW_MOBILE = 7
   EVT_NEW_ITEM = 8
+  EVT_REMOVED_OBJ = 9
+
+  EVT_EXIT = 100
+  EVT_LIST_OBJS = 101
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -215,4 +221,10 @@ class Event:
       return "new_mobile"
     elif self.type==Event.EVT_NEW_ITEM:
       return "new_item"
+    elif self.type==Event.EVT_REMOVED_OBJ:
+      return "removed_obj"
+    elif self.type==Event.EVT_EXIT:
+      return "exit"
+    elif self.type==Event.EVT_LIST_OBJS:
+      return "list_objs"
 

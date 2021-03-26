@@ -489,6 +489,9 @@ class Client(threading.Thread):
     ## Lock for the send queue
     self.sendqueueLock = threading.Lock()
 
+    self.todoqueue = []
+    ## Lock for the todo queue
+    self.todoLock = threading.Lock()
     ## Dict info about last server connected to {ip, port, user, pass}
     self.server = None
     ## Current client status, one of:
@@ -529,10 +532,6 @@ class Client(threading.Thread):
 
     ## Current cursor (0 = Felucca, unhued / BRITANNIA map. 1 = Trammel, hued gold / BRITANNIA map, 2 = (switch to) ILSHENAR map)
     self.cursor = None
-    self.exit_flag = False
-
-  def exit(self):
-    self.exit_flag=True
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -666,7 +665,8 @@ class Client(threading.Thread):
     while True:
       pkt = self.receive(blocking=False)
       self.send()
-      if self.exit_flag:
+
+      if not self.processTodo():
         break
 
       # Check if brain is alive
@@ -720,6 +720,7 @@ class Client(threading.Thread):
       if pkt.serial in self.objects:
         del self.objects[pkt.serial]
         self.log.info("Object 0x%X went out of sight", pkt.serial)
+        self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
       else:
         self.log.warn("Server requested to delete 0x%X but i don't know it", pkt.serial)
 
@@ -1138,6 +1139,25 @@ class Client(threading.Thread):
     for data in queue:
       self.net.send(data)
 
+  def addTodo(self, todo):
+    with self.todoLock:
+      self.todoqueue.append(todo)
+
+  @clientthread
+  def processTodo(self):
+    ''' process todos from brain '''
+    with self.todoLock:
+      queue = self.todoqueue
+      self.todoqueue = []
+    for todo in queue:
+      if todo.type == brain.Event.EVT_EXIT:
+        return False
+      if todo.type == brain.Event.EVT_LIST_OBJS:
+        self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
+      else:
+        raise NotImplementedError("Unknown todo event {}",format(ev.type))
+    return True
+  
   @clientthread
   def receive(self, expect=None, blocking=True):
     '''! Receives next packet from the server

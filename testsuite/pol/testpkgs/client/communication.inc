@@ -8,6 +8,8 @@ const EVT_NOTORIETY := "notoriety";
 const EVT_MOVED := "moved";
 const EVT_NEW_MOBILE := "new_mobile";
 const EVT_NEW_ITEM := "new_item";
+const EVT_REMOVED_OBJ := "removed_obj";
+const EVT_LIST_OBJS := "list_objs";
 
 function waitForClient(id, types)
   while (1)
