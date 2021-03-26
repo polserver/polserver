@@ -1,24 +1,26 @@
 use os;
 use uo;
 
-program clientconn(con, test)
+program clientconn(con, testscript)
   SetGlobalProperty("#clientcon", getpid());
   while (1)
     var ev:=Wait_For_Event(10);
     if (!ev)
       continue;
     endif
-    if (ev.todo)
+    if (ev.?todo)
       var json:=PackJson(ev);
       syslog("      to client: "+json,0);
       con.transmit(json);
       if (ev.todo=="exit")
         break;
       endif
+    elseif (ev.?ownership)
+      testscript:=ev.ownership;
     else
       syslog("      from client: "+ev,0);
       var e:=UnpackJson(ev.value);
-      test.sendevent(e);
+      testscript.sendevent(e);
     endif
   endwhile
 endprogram

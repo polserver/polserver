@@ -1,15 +1,131 @@
 use os;
 use uo;
 
-var a:=FindAccount("testclient0");
-if (!a)
-  a:=CreateAccount("testclient0","pass",1);
-endif
-a.addcharacter(0);
+include "testutil";
+include "communication";
 
-var a2:=FindAccount("testclient1");
-if (!a2)
-  a2:=CreateAccount("testclient1","pass",1);
-endif
-a2.addcharacter(0);
-return 1;
+program setup()
+  if (!clientTestActive())
+    syslog("NO CLIENT TESTS",0);
+    return IGNORE_TEST;
+  endif
+  // create two accounts with one char
+  var a:=FindAccount("testclient0");
+  if (!a)
+    a:=CreateAccount("testclient0","pass",1);
+  endif
+  a.addcharacter(0);
+  var a2:=FindAccount("testclient1");
+  if (!a2)
+    a2:=CreateAccount("testclient1","pass",1);
+  endif
+  a2.addcharacter(0);
+  var char, char2;
+  var res:=setup_char(0,a,char);
+  if (!res)
+    return res;
+  endif
+  res := setup_char(1,a2,char2);
+  if (!res)
+    return res;
+  endif
+
+  // start auxiliary script for client communication
+  var i:=1;
+  while (1)
+    var res := OpenConnection("127.0.0.1",50000,"clientconnection",GetProcess(),1,1);
+    if (res)
+      break;
+    endif
+    sleep(1);
+    ++i;
+    if (i>10)
+      return ret_error("Failed to connect to testclient");
+    endif
+  endwhile
+  var clientcon;
+  while (1)
+    var res:=GetGlobalProperty("#clientcon");
+    if (res)
+      clientcon:=GetProcess(res);
+      break;
+    endif
+    sleepms(5);
+  endwhile
+
+  // TODO: client crash protection, oldxyz is set to 1,1,1 thus core thinks objects are already in range and does not send 0x78 (i think the vector classes rewrite contains a fix)
+  MoveObjectToLocation(char, 100,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation(char2, 100,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+
+  // let both clients connect
+  clientcon.sendevent(struct{todo:="connect",account:="testclient0", psw:="pass", chrindex:=0, name:="Client1", id:=0});
+  clientcon.sendevent(struct{todo:="connect",account:="testclient1", psw:="pass", chrindex:=0, name:="Client2", id:=1});
+  var init0:=0,init1:=0;
+  while (1)
+    var ev:=WaitForClients({EVT_INIT});
+    if (!ev)
+      return ret_error("Failed to connect");
+    endif
+    if (ev.id==0)
+      init0:=1;
+    elseif (ev.id==1)
+      init1:=1;
+    endif
+    if (init0 && init1 && char.client && char2.client)
+      break;
+    endif
+  endwhile
+  update_vitals(char);
+  update_vitals(char2);
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation(char2, 200,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+
+  // wait for initinal vital signals
+  var vital0:={},vital1:={};
+  while (1)
+    var ev:=WaitForClients({EVT_HP_CHANGED,EVT_MANA_CHANGED,EVT_STAM_CHANGED});
+    if (!ev)
+      return ret_error("Failed to wait for vital update");
+    endif
+    if (ev.id==0 && ev.serial==char.serial)
+      if (!(ev.type in vital0))
+        vital0.append(ev.type);
+      endif
+    elseif (ev.id==1 && ev.serial==char2.serial)
+      if (!(ev.type in vital1))
+        vital1.append(ev.type);
+      endif
+    endif
+    if (len(vital0)==3 && len(vital1)==3)
+      break;
+    endif
+  endwhile
+  return 1;
+endprogram
+
+function setup_char(id, acc, byref char)
+  char:=acc.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  setname(char,"Client"+id);
+  if (char.backpack)
+    DestroyItem(char.backpack);
+  endif
+  var backpack:=CreateItemAtLocation(0,0,0,0xE75);
+  var res:=EquipItem(char,backpack);
+  if (!res)
+    return ret_error("Failed to equip backpack "+backpack+" "+res);
+  endif
+  setAttributeBaseValue(char,"STR",1000);
+  setAttributeBaseValue(char,"INT",1000);
+  setAttributeBaseValue(char,"DEX",1000);
+  return 1;
+endfunction
+
+function update_vitals(char)
+  recalcVitals(char);
+  setVital(char, "Hits", getVitalMaximumValue(char,"Hits"));
+  setVital(char, "Mana", getVitalMaximumValue(char,"Mana"));
+  setVital(char, "Stamina", getVitalMaximumValue(char,"Stamina"));
+endfunction

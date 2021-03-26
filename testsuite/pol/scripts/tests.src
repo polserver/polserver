@@ -3,6 +3,8 @@ use os;
 use polsys;
 use file;
 
+include "testutil";
+
 program tests()
   var test_count:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
   syslog(
@@ -48,7 +50,9 @@ program tests()
     if ("setup.ecl" in scripts)
       syslog("  Calling setup.ecl..",0);
       var res:=run_script(":{}:setup.ecl".format(pkg[1]));
-      if (res != 1)
+      if (res == IGNORE_TEST)
+        continue;
+      elseif (res != 1)
         syslog("    failed: "+res.errortext,0);
         exitcode:=1;
         continue;
@@ -65,6 +69,10 @@ program tests()
         exitcode:=1;
         continue;
       endif
+      if (script[2] == IGNORE_TEST)
+        continue;
+      endif
+ 
       foreach func in (script[1].exported_functions)
         syslog("    Calling {}..".format(func),0);
         var res:=script[1].call(func);  
