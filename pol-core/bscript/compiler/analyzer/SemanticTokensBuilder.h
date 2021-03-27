@@ -13,13 +13,12 @@ class Report;
 class SemanticTokensBuilder
 {
 public:
-  SemanticTokensBuilder( CompilerWorkspace& workspace, Report& );
+  SemanticTokensBuilder( CompilerWorkspace& workspace );
 
   void build();
 
 private:
   CompilerWorkspace& workspace;
-  Report& report;
 };
 }  // namespace Pol::Bscript::Compiler
 

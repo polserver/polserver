@@ -52,7 +52,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-antlr-buildtypefix
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-antlr-pic-buildtypefix
       - name: Cache boost
         uses: actions/cache@v2
         with:
@@ -101,7 +101,7 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }}  -- /nologo /verbosity:minimal /maxcpucount
- 
+
   notify_on_failure:
     needs: build
     runs-on: "ubuntu-latest"

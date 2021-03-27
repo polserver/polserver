@@ -10,8 +10,8 @@
 
 namespace Pol::Bscript::Compiler
 {
-SemanticTokensBuilder::SemanticTokensBuilder( CompilerWorkspace& workspace, Report& report )
-    : workspace( workspace ), report( report )
+SemanticTokensBuilder::SemanticTokensBuilder( CompilerWorkspace& workspace )
+    : workspace( workspace )
 {
 }
 

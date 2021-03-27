@@ -135,10 +135,6 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
   if ( report.error_count() )
     return;
 
-  tokenize( *workspace, report );
-  if ( report.error_count() )
-    return;
-
   output = generate( std::move( workspace ) );
 }
 
@@ -151,7 +147,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::precompile( const std::string& path
   optimize( *workspace, report );
   disambiguate( *workspace, report );
   analyze( *workspace, report );
-  tokenize( *workspace, report );
+  tokenize( *workspace );
   return workspace;
 }
 
@@ -197,10 +193,10 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
   profile.analyze_micros += timer.ellapsed().count();
 }
 
-void Compiler::tokenize( CompilerWorkspace& workspace, Report& report )
+void Compiler::tokenize( CompilerWorkspace& workspace )
 {
   Pol::Tools::HighPerfTimer timer;
-  SemanticTokensBuilder tokenizer( workspace, report );
+  SemanticTokensBuilder tokenizer( workspace );
   tokenizer.build();
   profile.tokenize_micros += timer.ellapsed().count();
 }
