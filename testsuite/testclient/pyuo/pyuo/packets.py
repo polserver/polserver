@@ -158,7 +158,7 @@ class Packet():
     ''' Add a signed char (byte) to the packet '''
     if not isinstance(val, int):
       raise TypeError("Expected int, got {}".format(type(val)))
-    if val < 0 or val > 255:
+    if val < -255 or val > 255:
       raise ValueError("Byte {} out of range".format(val))
     self.buf += struct.pack('b', val)
 

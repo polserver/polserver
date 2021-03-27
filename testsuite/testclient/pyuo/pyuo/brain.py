@@ -191,6 +191,8 @@ class Event:
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
+  EVT_OPEN_BACKPACK = 102
+  EVT_TARGET = 103
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -227,4 +229,8 @@ class Event:
       return "exit"
     elif self.type==Event.EVT_LIST_OBJS:
       return "list_objs"
+    elif self.type==Event.EVT_OPEN_BACKPACK:
+      return "open_bp"
+    elif self.type==Event.EVT_TARGET:
+      return "target"
 

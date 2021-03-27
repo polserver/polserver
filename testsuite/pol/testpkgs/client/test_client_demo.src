@@ -1,0 +1,106 @@
+// tests which do not really perform a test
+// used for api testing and demonstration
+// tests should be extended and moved to a different script
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+var char;
+var char2;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a:=FindAccount("testclient0");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  a:=FindAccount("testclient1");
+  char2:=a.getcharacter(1);
+  if (!char2)
+    return ret_error("Could not find char2 at slot 1");
+  endif
+endprogram
+
+
+exported function get_char1_objs()
+  // TODO: just for demonstration
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  while (1)
+    var ev:=waitForClient(0, {EVT_LIST_OBJS});
+    if (!ev)
+      return ev;
+    endif
+    break;
+  endwhile
+  return 1;
+endfunction
+
+exported function open_backpack()
+  // TODO: just for demonstration
+  // empty backpack would lead to an timeout in the client, no secure way to check if the correct pkts got send
+  var item:=CreateItemInContainer(char.backpack, 0xf3f, 1);
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="open_backpack", id:=0});
+  while (1)
+    var ev:=waitForClient(0, {EVT_OPEN_BACKPACK});
+    if (!ev)
+      return ev;
+    endif
+    break;
+  endwhile
+  return 1;
+endfunction
+
+exported function target_loc()
+  // TODO: just for demonstration
+  Clear_Event_Queue();
+  var loc:=GetMapInfo(char.x,char.y);
+  clientcon.sendevent(struct{todo:="target",
+     arg:=struct{x:=char.x,y:=char.y,z:=loc.z,graphic:=loc.landtile},
+     id:=0});
+  // this needs to be moved to a separated script, since its a blocking call
+  // client would timeout after 5s 
+  var tar:=TargetCoordinates(char);
+  while (1)
+    var ev:=waitForClient(0, {EVT_TARGET});
+    if (!ev)
+      return ev;
+    endif
+    if (!ev.res || ev.targettype != 0)
+      return ret_error($"Target failed, no cursor or wrong type {ev.targettype}");
+    endif
+    break;
+  endwhile
+  return 1;
+endfunction
+
+exported function target_char()
+  // TODO: just for demonstration
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="target",
+     arg:=struct{serial:=char.serial},
+     id:=0});
+  // this needs to be moved to a separated script, since its a blocking call
+  // client would timeout after 5s 
+  var tar:=Target(char,TGTOPT_HARMFUL);
+  while (1)
+    var ev:=waitForClient(0, {EVT_TARGET});
+    if (!ev)
+      return ev;
+    endif
+    if (!ev.res || ev.targettype != 1)
+      return ret_error($"Target failed, no cursor or wrong type {ev.targettype}");
+    endif
+    break;
+  endwhile
+  if (tar.serial != char.serial)
+    return ret_error($"Target failed, wrong serial {tar.serial}");
+  endif
+  return 1;
+endfunction
+

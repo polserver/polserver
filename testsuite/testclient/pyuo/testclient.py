@@ -28,7 +28,11 @@ class TestBrain(brain.Brain):
     self.server.addevent(brain.Event(brain.Event.EVT_INIT, clientid=self.id))
 
   def loop(self):
-    if not self.processTodos():
+    try:
+      if not self.processTodos():
+        return True
+    except Exception as e:
+      self.log.exception(e)
       return True
 
   def onEvent(self, ev):
@@ -63,6 +67,32 @@ class TestBrain(brain.Brain):
         self.client.move(arg)
       elif todo=="list_objects":
         self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS))
+      elif todo=="open_backpack":
+        bp=self.client.player.openBackPack()
+        content=0
+        if bp is not None:
+          content=len(bp.content)
+          bp=bp.serial
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_OPEN_BACKPACK,
+            clientid = self.id,
+            serial = bp,
+            contentlen = content))
+      elif todo=="target":
+        res=self.client.waitForTarget(5)
+        targettype=None
+        if res is not None:
+          targettype=res.type
+          if res.what==client.Target.OBJECT:
+            res.target(self.client.objects[arg['serial']])
+          else:
+            res.targetLocation(arg['x'],arg['y'],arg['z'],arg['graphic'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_TARGET,
+            clientid = self.id,
+            targettype = targettype,
+            res = res is not None))
+
     return True
 
 class PolServer:
@@ -204,6 +234,14 @@ class PolServer:
                'pos':[o.x,o.y,o.z,o.facing],
                'graphic':o.graphic}
         )
+        if hasattr(o,"parent") and o.parent is not None:
+          res["objs"][-1]["parent"]=o.parent.serial
+    elif ev.type==Event.EVT_OPEN_BACKPACK:
+      res["serial"]=ev.serial
+      res["content_count"]=ev.contentlen
+    elif ev.type==Event.EVT_TARGET:
+      res["res"]=ev.res
+      res["targettype"]=ev.targettype
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

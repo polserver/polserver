@@ -103,6 +103,8 @@ class Item(UOBject):
     self.amount = 1
     ## Status flags
     self.status = None
+    ## optional parent (mobile/container)
+    self.parent = None
 
     if pkt is not None:
       self.update(pkt)
@@ -171,6 +173,7 @@ class Container(Item):
     item.x = it['x']
     item.y = it['y']
     item.color = it['color']
+    item.parent = self
 
     if self.content is None:
       self.content = []
@@ -300,6 +303,7 @@ class Mobile(UOBject):
           self.client.objects[item.serial] = item
         item.graphic = eq['graphic']
         item.color = eq['color']
+        item.parent = self
 
         self.equip[eq['layer']] = item
 
@@ -326,8 +330,10 @@ class Player(Mobile):
     bp = self.getEquipByLayer(self.LAYER_PACK)
     if not isinstance(bp, Container):
       self.client.doubleClick(bp)
-      self.client.waitFor(lambda: isinstance(bp, Container))
-      self.client.waitFor(lambda: bp.content is not None)
+      if not self.client.waitFor(lambda: isinstance(bp, Container),5):
+        return None
+    if not self.client.waitFor(lambda: bp.content is not None, 5):
+      return None
     return bp
 
 
@@ -358,7 +364,14 @@ class Target:
     assert self.what == po.OBJECT
     po.fill(self.what, self.id, self.type, obj.serial)
     self.client.target = None
-    self.client.send(po)
+    self.client.queue(po)
+
+  def targetLocation(self, x, y, z, graphic):
+    po = packets.TargetCursorPacket()
+    assert self.what == po.LOCATION
+    po.fill(self.what, self.id, self.type, 0, x, y, z, graphic)
+    self.client.target = None
+    self.client.queue(po)
 
 
 class Speech:
@@ -690,6 +703,7 @@ class Client(threading.Thread):
   @status('game')
   @clientthread
   def handlePacket(self, pkt):
+    self.log.debug(pkt)
     ''' Handles an incoming packet '''
     if isinstance(pkt, packets.LoginDeniedPacket):
       self.log.error('login denied')
