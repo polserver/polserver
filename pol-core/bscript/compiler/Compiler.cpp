@@ -138,8 +138,8 @@ void Compiler::compile_file_steps( const std::string& pathname, Report& report )
   output = generate( std::move( workspace ) );
 }
 
-std::unique_ptr<CompilerWorkspace> Compiler::precompile( const std::string& pathname,
-                                                         Report& report, bool is_module )
+std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathname, Report& report,
+                                                      bool is_module )
 {
   // Let's see how this explodes...
   std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, is_module );

@@ -59,7 +59,6 @@ public:
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
-  // Always put a newline at the end of the message.
   template <typename... Args>
   inline void error( const SourceLocation& source_location, Args&&... args )
   {
@@ -68,7 +67,6 @@ public:
     report_error( source_location, w.str() );
   }
 
-  // Always put a newline at the end of the message.
   template <typename... Args>
   inline void error( const SourceFileIdentifier& ident, Args&&... args )
   {
@@ -76,7 +74,6 @@ public:
     error( loc, args... );
   }
 
-  // Always put a newline at the end of the message.
   template <typename... Args>
   inline void error( const Node& node, Args&&... args )
   {
@@ -84,8 +81,6 @@ public:
   }
 
   // Report.fatal: use this when it's not possible to continue after a user-facing error.
-  //
-  // Always put a newline at the end of the message.
   template <typename... Args>
   [[noreturn]] inline void fatal( const SourceLocation& source_location, Args&&... args )
   {
@@ -95,7 +90,6 @@ public:
     throw std::runtime_error( w.str() );
   }
 
-  // Always put a newline at the end of the message.
   template <typename... Args>
   inline void warning( const SourceLocation& source_location, Args&&... args )
   {
@@ -104,7 +98,6 @@ public:
     report_warning( source_location, w.str() );
   }
 
-  // Always put a newline at the end of the message.
   template <typename... Args>
   inline void warning( const Node& node, Args&&... args )
   {
