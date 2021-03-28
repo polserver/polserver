@@ -38,7 +38,7 @@ void SimpleValueCloner::visit_array_initializer( ArrayInitializer& initializer )
   }
   else
   {
-    report.error( initializer, "A const array must be empty.\n", initializer, "\n" );
+    report.error( initializer, "A const array must be empty.\n", initializer );
   }
 }
 
@@ -52,7 +52,7 @@ void SimpleValueCloner::visit_dictionary_initializer( DictionaryInitializer& ini
   }
   else
   {
-    report.error( initializer, "A const dictionary must be empty.\n", initializer, "\n" );
+    report.error( initializer, "A const dictionary must be empty.\n", initializer );
   }
 }
 
@@ -67,7 +67,7 @@ void SimpleValueCloner::visit_error_initializer( ErrorInitializer& initializer )
   }
   else
   {
-    report.error( initializer, "A const error must be empty.\n", initializer, "\n" );
+    report.error( initializer, "A const error must be empty.\n", initializer );
   }
 }
 
@@ -90,7 +90,7 @@ void SimpleValueCloner::visit_function_call( FunctionCall& fc )
 
 void SimpleValueCloner::visit_identifier( Identifier& ident )
 {
-  report.error( ident, "Cannot clone '", ident.name, "' because it is not a constant.\n" );
+  report.error( ident, "Cannot clone '", ident.name, "' because it is not a constant." );
 }
 
 void SimpleValueCloner::visit_integer_value( IntegerValue& iv )
@@ -112,13 +112,13 @@ void SimpleValueCloner::visit_struct_initializer( StructInitializer& node )
   }
   else
   {
-    report.error( node, "A const struct must be empty.\n", node, "\n" );
+    report.error( node, "A const struct must be empty.\n", node );
   }
 }
 
 void SimpleValueCloner::visit_children( Node& parent )
 {
-  report.error( parent, "Cannot optimize this expression:\n", parent, "\n" );
+  report.error( parent, "Cannot optimize this expression:\n", parent );
 }
 
 }  // namespace Pol::Bscript::Compiler

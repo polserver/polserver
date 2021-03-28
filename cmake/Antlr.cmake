@@ -10,7 +10,8 @@
 # if(WIN32) #<-- this
 #  if(WITH_STATIC_CRT)
 #    target_compile_options(antlr4_static PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-
+# 6. Add to runtime/CMakeList.txt in the `if(CMAKE_SYSTEM_NAME MATCHES "Linux")` block:
+#   target_compile_options(antlr4_static PRIVATE "-fPIC")
 message("* antlr")
 set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr")
 set(ANTLR_INSTALL_DIR "${ANTLR_SOURCE_DIR}/install")
@@ -33,7 +34,7 @@ if (NOT EXISTS ${ANTLR_LIB})
     BINARY_DIR ${ANTLR_SOURCE_DIR}/build
     BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
     INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
- 
+
     BUILD_BYPRODUCTS ${ANTLR_LIB}
     LOG_DOWNLOAD 1
     LOG_CONFIGURE 1

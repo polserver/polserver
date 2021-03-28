@@ -127,7 +127,7 @@ void FunctionResolver::register_available_user_function_parse_tree(
     AvailableUserFunction& previous = ( *itr ).second;
 
     report.error( source_location, "Function '", name, "' defined more than once.\n",
-                  "  Previous declaration: ", previous.source_location, "\n" );
+                  "  Previous declaration: ", previous.source_location );
   }
 
   auto itr2 = resolved_functions_by_name.find( name );

@@ -36,6 +36,7 @@ add_dependencies(antlr4_static make_lib_output_dir)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   target_link_libraries(antlr4_static ${UUID_LIBRARIES})
+  target_compile_options(antlr4_static PRIVATE "-fPIC")
 elseif(APPLE)
   target_link_libraries(antlr4_static ${COREFOUNDATION_LIBRARY})
 endif()
@@ -89,9 +90,9 @@ install(TARGETS antlr4_static
         DESTINATION lib
         EXPORT antlr4-targets)
 
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/runtime/src/" 
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/runtime/src/"
         DESTINATION "include/antlr4-runtime"
-        COMPONENT dev 
+        COMPONENT dev
         FILES_MATCHING PATTERN "*.h"
         )
 
