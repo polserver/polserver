@@ -202,8 +202,8 @@ void Token::printOn( std::ostream& os ) const
     break;
 
   case INS_CALL_METHOD_ID:
-    os << "Call Method id " << getObjMethod( (int)lval )->code << " (#" << lval << ", " << type
-       << " params)";
+    os << "Call Method id " << getObjMethod( lval )->code << " (#" << lval << ", "
+       << static_cast<int>( type ) << " params)";
     break;
   case TOK_IN:
     os << "in";
