@@ -19,7 +19,7 @@ class Variable;
 class LocalVariableScope
 {
 public:
-  explicit LocalVariableScope( LocalVariableScopes&,
+  explicit LocalVariableScope( const SourceLocation&, LocalVariableScopes&,
                                LocalVariableScopeInfo& );
   ~LocalVariableScope();
 
