@@ -12,6 +12,7 @@
 #include "../bscript/compiler/Compiler.h"
 #include "../bscript/compiler/Profile.h"
 #include "../bscript/compiler/file/SourceFileCache.h"
+#include "../bscript/compiler/file/SourceFileLoader.h"
 #include "../bscript/compilercfg.h"
 #include "../bscript/escriptv.h"
 #include "../bscript/executor.h"
@@ -130,13 +131,14 @@ struct Comparison
   std::atomic<long> NonMatchingOutput{};
 } comparison;
 
-Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
-Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
+Compiler::SourceFileLoader source_loader;
+Compiler::SourceFileCache em_parse_tree_cache( source_loader, summary.profile );
+Compiler::SourceFileCache inc_parse_tree_cache( source_loader, summary.profile );
 
 std::unique_ptr<Compiler::Compiler> create_compiler()
 {
-  auto compiler = std::make_unique<Compiler::Compiler>( em_parse_tree_cache, inc_parse_tree_cache,
-                                                        summary.profile );
+  auto compiler = std::make_unique<Compiler::Compiler>( source_loader, em_parse_tree_cache,
+                                                        inc_parse_tree_cache, summary.profile );
   return compiler;
 }
 
