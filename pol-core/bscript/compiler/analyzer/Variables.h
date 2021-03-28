@@ -29,7 +29,7 @@ public:
 
   void restore_shadowed( std::shared_ptr<Variable> );
 
-  void remove_all_but( unsigned count );
+  std::vector<std::shared_ptr<Variable>> remove_all_but( unsigned count );
 
   [[nodiscard]] const std::vector<std::string>& get_names() const;
   [[nodiscard]] unsigned count() const;

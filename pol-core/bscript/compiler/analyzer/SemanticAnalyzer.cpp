@@ -2,7 +2,6 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
-#include "clib/strutil.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/analyzer/FlowControlScope.h"
@@ -41,22 +40,24 @@
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
+#include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
+#include "clib/strutil.h"
 #include "filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {
 SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report )
-  : workspace( workspace ),
-    report( report ),
-    globals( VariableScope::Global, report ),
-    locals( VariableScope::Local, report ),
-    break_scopes( locals, report ),
-    continue_scopes( locals, report ),
-    local_scopes( locals, report )
+    : workspace( workspace ),
+      report( report ),
+      globals( VariableScope::Global, report ),
+      locals( VariableScope::Local, report ),
+      break_scopes( locals, report ),
+      continue_scopes( locals, report ),
+      local_scopes( workspace.scope_tree, locals, report )
 {
 }
 
@@ -74,6 +75,8 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
+  workspace.scope_tree.push_scope(
+      SourceLocation( workspace.referenced_source_file_identifiers[0].get(), 0, 0 ) );
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -86,13 +89,16 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+
+  auto global_variables = globals.remove_all_but( 0 );
+  workspace.scope_tree.set_globals( std::move( global_variables ) );
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
 {
   if ( locals.find( node.identifier ) )
   {
-    report.error( node, "FOR iterator '", node.identifier, "' hides a local variable.\n" );
+    report.error( node, "FOR iterator '", node.identifier, "' hides a local variable." );
     return;
   }
   if ( report_function_name_conflict( node.source_location, node.identifier, "for loop iterator" ) )
@@ -103,7 +109,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
   node.first().accept( *this );
   node.last().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   scope.create( node.identifier, WarnOn::Never, node.source_location );
   scope.create( "_" + node.identifier + "_end", WarnOn::Never, node.source_location );
 
@@ -117,7 +123,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
 
 void SemanticAnalyzer::visit_block( Block& block )
 {
-  LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
+  LocalVariableScope scope( block.source_location, local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
 }
@@ -138,7 +144,7 @@ public:
     if ( seen != already_seen_integers.end() )
     {
       report.error( node, "case statement already has a selector for integer value ", node.value,
-                    ".\n", "  See also: ", ( *seen ).second->source_location, "\n" );
+                    ".\n", "  See also: ", ( *seen ).second->source_location );
     }
     else
     {
@@ -153,7 +159,7 @@ public:
     {
       report.error( node, "case statement already has a selector for string value ",
                     Clib::getencodedquotedstring( node.value ), ".\n",
-                    "  See also: ", ( *seen ).second->source_location, "\n" );
+                    "  See also: ", ( *seen ).second->source_location );
     }
     else
     {
@@ -165,7 +171,7 @@ public:
   {
     if ( already_seen_default ) {
       report.error( node, "case statement already has a default clause.\n",
-                    "  See also: ", already_seen_default->source_location, "\n" );
+                    "  See also: ", already_seen_default->source_location );
     } else {
       already_seen_default = &node;
     }
@@ -206,7 +212,7 @@ public:
 
   void visit_identifier( Identifier& identifier ) override
   {
-    report.error( identifier, "Case selector '", identifier.name, "' is not a constant.\n" );
+    report.error( identifier, "Case selector '", identifier.name, "' is not a constant." );
   }
 
   void visit_string_value( StringValue& sv ) override
@@ -249,7 +255,7 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
   node.expression().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   scope.create( node.iterator_name, WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_expr", WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_iter", WarnOn::Never, node.source_location );
@@ -285,7 +291,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       if ( any_named )
       {
         report.error( arg, "In call to '", fc.method_name,
-                      "': Unnamed args cannot follow named args.\n" );
+                      "': Unnamed args cannot follow named args." );
         return;
       }
 
@@ -293,7 +299,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
       {
         report.error( arg, "In call to '", fc.method_name,
                       "': Too many arguments passed.  Expected ", parameters.size(), ", got ",
-                      arguments.size(), ".\n" );
+                      arguments.size(), "." );
         continue;
       }
 
@@ -306,7 +312,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     if ( arguments_passed.find( arg_name ) != arguments_passed.end() )
     {
       report.error( arg, "In call to '", fc.method_name, "': Parameter '", arg_name,
-                    "' passed more than once.\n" );
+                    "' passed more than once." );
       return;
     }
 
@@ -334,14 +340,14 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
         {
           report.error( param, "In call to '", fc.method_name,
                         "': Unable to create argument from default for parameter '", param.name,
-                        "'.\n" );
+                        "'." );
           return;
         }
       }
       else
       {
         report.error( fc, "In call to '", fc.method_name, "': Parameter '", param.name,
-                      "' was not passed, and there is no default.\n" );
+                      "' was not passed, and there is no default." );
         return;
       }
     }
@@ -356,7 +362,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   {
     report.error( *unused_argument.second, "In call to '", fc.method_name, "': Parameter '",
                   unused_argument.first,
-                  "' passed by name, but the function has no such parameter.\n" );
+                  "' passed by name, but the function has no such parameter." );
   }
   if ( !arguments_passed.empty() || arguments.size() > parameters.size())
     return;
@@ -386,13 +392,13 @@ void SemanticAnalyzer::visit_function_parameter_declaration( FunctionParameterDe
     {
       report.error(
           node, "Parameter '", node.name,
-          "' has a disallowed default.  Only simple operands are allowed as default arguments.\n" );
+          "' has a disallowed default.  Only simple operands are allowed as default arguments." );
       // but continue, to avoid unknown identifier errors
     }
   }
   if ( auto existing = locals.find( node.name ) )
   {
-    report.error( node, "Parameter '", node.name, "' already defined.\n" );
+    report.error( node, "Parameter '", node.name, "' already defined." );
     return;
   }
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
@@ -426,7 +432,7 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   }
   else
   {
-    report.error( node, "Unknown identifier '", node.name, "'.\n" );
+    report.error( node, "Unknown identifier '", node.name, "'." );
     return;
   }
 }
@@ -445,9 +451,9 @@ void SemanticAnalyzer::visit_jump_statement( JumpStatement& node )
     auto type_str = node.jump_type == JumpStatement::Break ? "break" : "continue";
 
     if ( !node.label.empty() && break_scopes.any() )
-      report.error( node, "Label '", node.label, "' not found for ", type_str, "\n" );
+      report.error( node, "Label '", node.label, "' not found for ", type_str );
     else
-      report.error( node, "Cannot ", type_str, " here.\n" );
+      report.error( node, "Cannot ", type_str, " here." );
   }
 }
 
@@ -464,7 +470,8 @@ void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
 
 void SemanticAnalyzer::visit_program( Program& program )
 {
-  LocalVariableScope scope( local_scopes, program.local_variable_scope_info );
+  LocalVariableScope scope( program.source_location, local_scopes,
+                            program.local_variable_scope_info );
 
   visit_children( program );
 }
@@ -473,7 +480,7 @@ void SemanticAnalyzer::visit_program_parameter_declaration( ProgramParameterDecl
 {
   if ( auto existing = locals.find( node.name ) )
   {
-    report.error( node, "Parameter '", node.name, "' already defined.\n" );
+    report.error( node, "Parameter '", node.name, "' already defined." );
     return;
   }
   WarnOn warn_on = node.unused ? WarnOn::IfUsed : WarnOn::IfNotUsed;
@@ -499,11 +506,10 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
     if ( node.name.length() > max_name_length )
     {
       report.error( node, "Exported function name '", node.name, "' is too long at ",
-                    node.name.length(), " characters.  Max length: ",
-                    max_name_length, "\n" );
+                    node.name.length(), " characters.  Max length: ", max_name_length );
     }
   }
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
 }
@@ -513,7 +519,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
   if ( auto constant = workspace.constants.find( node.name ) )
   {
     report.error( node, "Cannot define a variable with the same name as constant '", node.name,
-                  "'.\n", "  See also: ", constant->source_location, "\n" );
+                  "'.\n", "  See also: ", constant->source_location );
     return;
   }
 
@@ -528,7 +534,7 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
     if ( auto existing = globals.find( node.name ) )
     {
       report.error( node, "Global variable '", node.name, "' already defined.\n",
-                    "  See also: ", existing->source_location, "\n" );
+                    "  See also: ", existing->source_location );
       return;
     }
 
@@ -551,8 +557,8 @@ void SemanticAnalyzer::visit_variable_assignment_statement( VariableAssignmentSt
         {
           // we have something like
           //      a := a := expr;
-          report.warning( node, "Double-assignment to the same variable '",
-                          node.identifier().name, "'.\n" );
+          report.warning( node, "Double-assignment to the same variable '", node.identifier().name,
+                          "'." );
         }
       }
     }
@@ -584,7 +590,7 @@ bool SemanticAnalyzer::report_function_name_conflict( const CompilerWorkspace& w
     const SourceLocation& function_loc = ( *func_itr ).second;
     report.error( referencing_loc, "Cannot define a ", element_description,
                   " with the same name as function '", function_name, "'.\n",
-                  "  Defined here: ", function_loc, "\n" );
+                  "  Defined here: ", function_loc );
     return true;
   }
   return false;

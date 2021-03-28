@@ -6,9 +6,11 @@
 #include <string>
 #include <vector>
 
-#include "clib/maputil.h"
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/Node.h"
+#include "bscript/compiler/model/ScopeTree.h"
+#include "bscript/compiler/model/SemanticTokens.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -30,6 +32,8 @@ public:
 
   void accept( NodeVisitor& );
 
+  std::shared_ptr<SourceFile> source;
+
   std::vector<std::unique_ptr<ConstDeclaration>> const_declarations;
   Constants constants;
 
@@ -46,6 +50,8 @@ public:
   std::map<std::string, SourceLocation, Clib::ci_cmp_pred> all_function_locations;
 
   std::vector<std::string> global_variable_names;
+  ScopeTree scope_tree;
+  SemanticTokens tokens;
 };
 
 }  // namespace Pol::Bscript::Compiler

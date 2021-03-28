@@ -3,6 +3,8 @@
 #    - Example URL: https://github.com/antlr/antlr4/archive/4.8.tar.gz
 # 2. Copy the contents of runtime/Cpp into lib/antlr
 # 3. regenerate EScriptGrammar
+# 4. Add to runtime/CMakeList.txt in the `if(CMAKE_SYSTEM_NAME MATCHES "Linux")` block:
+#   target_compile_options(antlr4_static PRIVATE "-fPIC")
 
 message("* antlr")
 set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr")
@@ -22,7 +24,7 @@ if (NOT EXISTS ${ANTLR_LIB})
     BINARY_DIR ${ANTLR_SOURCE_DIR}/build
     BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
     INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
- 
+
     BUILD_BYPRODUCTS ${ANTLR_LIB}
     LOG_DOWNLOAD 1
     LOG_CONFIGURE 1
