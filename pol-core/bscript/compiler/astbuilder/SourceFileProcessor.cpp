@@ -138,7 +138,7 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
   if ( !maybe_canonical_include_pathname )
   {
     report.error( source_location,
-                  "Unable to include file '" + include_name + "': failed to locate.\n" );
+                  "Unable to include file '" + include_name + "': failed to locate." );
     return;
   }
 
@@ -153,7 +153,7 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     if ( !sf )
     {
       report.error( source_location, "Unable to include file '", canonical_include_pathname,
-                    "': failed to load.\n" );
+                    "': failed to load." );
       return;
     }
 
@@ -206,7 +206,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
             report.warning( source_location, "Found '", filename_full, "' and '", try_filename_full,
-                            "'! Will use first file!\n" );
+                            "'! Will use first file!" );
         }
       }
       else
@@ -307,8 +307,7 @@ antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
   if ( workspace.compiler_workspace.program )
   {
     report.error( location_for( *ctx ), "Multiple program statements.\n",
-                  "  Other declaration: ", workspace.compiler_workspace.program->source_location,
-                  "\n" );
+                  "  Other declaration: ", workspace.compiler_workspace.program->source_location );
   }
   else
   {
