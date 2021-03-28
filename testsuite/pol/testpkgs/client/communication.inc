@@ -36,7 +36,7 @@ endfunction
 // wait for events of given types and of given client id
 function waitForClient(id, types)
   while (1)
-    var ev:=Wait_For_Event(5);
+    var ev:=Wait_For_Event(10);
     if (!ev)
       return ret_error("no signal received");
     endif
@@ -50,7 +50,7 @@ endfunction
 function waitForClients(types)
   // wait for events of given types of any client
   while (1)
-    var ev:=Wait_For_Event(5);
+    var ev:=Wait_For_Event(10);
     if (!ev)
       return ret_error("no signal received");
     endif
