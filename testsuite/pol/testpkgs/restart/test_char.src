@@ -7,9 +7,10 @@ var char;
 
 program test_char()
   if (testrun == 1)
-    var a:=CreateAccount("test","pass",1);
-    a.addcharacter(0);
-    char:=a.getcharacter(1);
+    char:=createAccountWithChar("test", "pass");
+    if (!char)
+      return char;
+    endif
   else
     var a:=FindAccount("test");
     if (!a)

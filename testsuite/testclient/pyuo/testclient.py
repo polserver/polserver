@@ -111,6 +111,7 @@ class PolServer:
     self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.s.bind(('localhost', 50000))
     self.s.listen(1)
+    self.s.settimeout(30) # FIXME: we need a way to stop this process without a connection
     self.conn, addr = self.s.accept()
     self.conn.settimeout(0.1)
 

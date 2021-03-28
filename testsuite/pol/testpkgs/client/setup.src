@@ -10,22 +10,16 @@ program setup()
     return IGNORE_TEST;
   endif
   // create two accounts with one char
-  var a:=FindAccount("testclient0");
-  if (!a)
-    a:=CreateAccount("testclient0","pass",1);
+  var char:=createAccountWithChar("testclient0", "pass");
+  var char2:=createAccountWithChar("testclient1", "pass");
+  if (!char || !char2)
+    return !char ? char : char2;
   endif
-  a.addcharacter(0);
-  var a2:=FindAccount("testclient1");
-  if (!a2)
-    a2:=CreateAccount("testclient1","pass",1);
-  endif
-  a2.addcharacter(0);
-  var char, char2;
-  var res:=setup_char(0,a,char);
+  var res:=setup_char(0,char);
   if (!res)
     return res;
   endif
-  res := setup_char(1,a2,char2);
+  res := setup_char(1,char2);
   if (!res)
     return res;
   endif
@@ -103,11 +97,7 @@ program setup()
   return 1;
 endprogram
 
-function setup_char(id, acc, byref char)
-  char:=acc.getcharacter(1);
-  if (!char)
-    return ret_error("Could not find char at slot 1");
-  endif
+function setup_char(id, char)
   setname(char,"Client"+id);
   if (char.backpack)
     DestroyItem(char.backpack);
