@@ -35,29 +35,40 @@ void Variables::restore_shadowed( std::shared_ptr<Variable> variable )
   variables_by_name[variable->name] = std::move( variable );
 }
 
-void Variables::remove_all_but( unsigned count )
+std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count )
 {
-  while ( names_by_index.size() > count )
+  std::vector<std::shared_ptr<Variable>> removed;
+  auto size = names_by_index.size() - count;
+  if ( size > 0 )
   {
-    std::string last_name = names_by_index.back();
-    auto itr = variables_by_name.find( last_name );
+    removed.reserve( size );
 
-    if ( itr != variables_by_name.end() )
+    while ( names_by_index.size() > count )
     {
-      auto& removing = ( *itr ).second;
-      if ( removing->warn_on == WarnOn::IfUsed && removing->was_used() )
+      std::string last_name = names_by_index.back();
+      auto itr = variables_by_name.find( last_name );
+
+      if ( itr != variables_by_name.end() )
       {
-        report.warning( removing->source_location,
-                        "local variable '{}' declared as unused but used.", last_name );
+        auto& removing = ( *itr ).second;
+        if ( removing->warn_on == WarnOn::IfUsed && removing->was_used() )
+        {
+          report.warning( removing->source_location,
+                          "local variable '{}' declared as unused but used.", last_name );
+        }
+        else if ( removing->warn_on == WarnOn::IfNotUsed && !removing->was_used() )
+        {
+          report.warning( removing->source_location, "local variable '{}' was not used.",
+                          last_name );
+        }
+        removed.push_back( removing );
+        variables_by_name.erase( itr );
       }
-      else if ( removing->warn_on == WarnOn::IfNotUsed && !removing->was_used() )
-      {
-        report.warning( removing->source_location, "local variable '{}' was not used.", last_name );
-      }
-      variables_by_name.erase( itr );
+      names_by_index.pop_back();
     }
-    names_by_index.pop_back();
   }
+
+  return removed;
 }
 
 const std::vector<std::string>& Variables::get_names() const
