@@ -25,7 +25,7 @@ void ErrorListener::propagate_errors_to( Report& report, const SourceFileIdentif
   {
     SourceLocation location( &ident, static_cast<unsigned>( msg.line_number ),
                              static_cast<unsigned>( msg.char_column ) );
-    report.error( location, msg.message, "\n" );
+    report.error( location, msg.message );
   }
 }
 

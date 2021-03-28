@@ -45,7 +45,7 @@ void FlowControlScopes::push( const FlowControlScope* scope )
     {
       report.error( scope->source_location, "A statement with label '", scope->name,
                     "' is already in scope.\n",
-                    "  See also: ", ( *ins.first ).second->source_location, "\n" );
+                    "  See also: ", ( *ins.first ).second->source_location );
     }
   }
 }

@@ -149,7 +149,7 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
   visit_children( constant );
   if ( !ConstantValidator().validate( constant.expression() ) )
   {
-    report.error( constant, "Const expression must be optimizable.\n", constant, "\n" );
+    report.error( constant, "Const expression must be optimizable.\n", constant );
   }
 }
 

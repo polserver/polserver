@@ -32,7 +32,7 @@ void BinaryOperatorWithFloatOptimizer::visit_float_value( FloatValue& rhs )
   case TOK_DIV:
     if ( rhs.value == 0.0 )
     {
-      report.error( op, "Expression would divide by zero.\n" );
+      report.error( op, "Expression would divide by zero." );
       return;
     }
     dval = lhs.value / rhs.value;

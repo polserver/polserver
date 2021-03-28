@@ -38,7 +38,7 @@ std::shared_ptr<SourceFile> SourceFileCache::load( const SourceFileIdentifier& i
     profile.cache_misses++;
   }
 
-  auto sf = SourceFile::load( ident, profile, report );
+  auto sf = SourceFile::load( ident, source_loader, profile, report );
 
   if ( keep > 0 && sf )
   {
