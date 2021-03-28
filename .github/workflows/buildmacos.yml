@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-pic-buildtypefix
       - name: Cache boost
         uses: actions/cache@v3
         with:
@@ -106,7 +106,7 @@ jobs:
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
- 
+
   notify_on_failure:
     needs: build
     runs-on: "ubuntu-latest"

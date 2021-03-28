@@ -27,7 +27,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-pic-buildtypefix
       - name: Cache boost
         uses: actions/cache@v3
         with:
@@ -50,7 +50,7 @@ jobs:
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
           sudo apt-get install lcov -y
-          
+
           $ninja_version = "1.9.0"
           $cmake_version = "3.16.2"
           $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
@@ -58,7 +58,7 @@ jobs:
           unzip -q ninja-linux.zip -d bin-build
           wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
           tar -xf "$cmake_archive.tar.gz"
-          
+
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
           pip install fastcov
@@ -125,7 +125,7 @@ jobs:
         with:
           path-to-lcov: bin-build/pol-core.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
- 
+
   notify_on_failure:
     needs: build
     runs-on: "ubuntu-latest"

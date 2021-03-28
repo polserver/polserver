@@ -121,7 +121,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, b
         if ( *endptr != '\0' )
         {
           report.error( location_for( *string_literal ), "Invalid hex escape sequence '", hexstr,
-                        "'.\n" );
+                        "'" );
           return lit;
         }
         lit += ord;
@@ -141,7 +141,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, b
   if ( !Clib::isValidUnicode( lit ) )
   {
     report.warning( location_for( *string_literal ),
-                    "Warning: invalid unicode character detected. Assuming ISO8859.\n" );
+                    "Warning: invalid unicode character detected. Assuming ISO8859." );
 
     Clib::sanitizeUnicodeWithIso( &lit );
   }
@@ -191,13 +191,12 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
   }
   catch ( std::invalid_argument& )
   {
-    report.error( location_for( *ctx ), "unable to convert integer value '", ctx->getText(),
-                  "'.\n" );
+    report.error( location_for( *ctx ), "unable to convert integer value '", ctx->getText(), "'." );
     throw;
   }
   catch ( std::out_of_range& )
   {
-    report.error( location_for( *ctx ), "integer value '", ctx->getText(), "' out of range.\n" );
+    report.error( location_for( *ctx ), "integer value '", ctx->getText(), "' out of range." );
     throw;
   }
 
