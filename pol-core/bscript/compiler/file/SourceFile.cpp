@@ -8,6 +8,8 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
+#include "bscript/compiler/model/SemanticTokens.h"
 #include "compilercfg.h"
 #include <EscriptGrammar/EscriptParserVisitor.h>
 
@@ -82,15 +84,14 @@ bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation&, cons
 }
 #endif
 
-std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident, Profile& profile,
-                                              Report& report )
+std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
+                                              const SourceFileLoader& source_loader,
+                                              Profile& profile, Report& report )
 {
   const std::string& pathname = ident.pathname;
   try
   {
-    Clib::FileContents fc( pathname.c_str(), true );
-    std::string contents( fc.contents() );
-
+    auto contents = source_loader.get_contents( pathname );
     Clib::sanitizeUnicodeWithIso( &contents );
 
     if ( is_web_script( pathname.c_str() ) )
@@ -104,6 +105,20 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
   {
     report.error( ident, "Unable to read file '{}'.", pathname );
     return {};
+  }
+}
+
+void SourceFile::accept( EscriptParserVisitor& visitor )
+{
+  antlr4::ParserRuleContext* unit = nullptr;
+
+  if ( ( unit = compilation_unit ) )
+  {
+    visitor.visit( unit );
+  }
+  else if ( ( unit = module_unit ) )
+  {
+    visitor.visit( unit );
   }
 }
 
@@ -200,6 +215,21 @@ antlr4::Token* SourceFile::get_token_at( const Position& position )
 std::vector<antlr4::Token*> SourceFile::get_all_tokens()
 {
   return token_stream.getTokens();
+}
+
+SemanticTokens SourceFile::get_tokens()
+{
+  SemanticTokens tokens;
+  lexer.reset();
+  for ( const auto& lexer_token : lexer.getAllTokens() )
+  {
+    auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
+    if ( semantic_token )
+    {
+      tokens.push_back( std::move( semantic_token ) );
+    }
+  }
+  return tokens;
 }
 
 /**

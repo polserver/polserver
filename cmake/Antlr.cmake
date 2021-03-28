@@ -3,6 +3,8 @@
 #    - Example URL: https://github.com/antlr/antlr4/archive/4.8.tar.gz
 # 2. Copy the contents of runtime/Cpp into lib/antlr
 # 3. regenerate EScriptGrammar
+# 4. Add to runtime/CMakeList.txt in the `if(CMAKE_SYSTEM_NAME MATCHES "Linux")` block:
+#   target_compile_options(antlr4_static PRIVATE "-fPIC")
 
 message("* libantlr")
 set(ANTLR_SOURCE_DIR "${POL_EXT_LIB_DIR}/antlr")
@@ -18,7 +20,7 @@ ExternalProject_Add(libantlr_ext
   SOURCE_DIR  ${ANTLR_SOURCE_DIR}
   PREFIX antlr
   LIST_SEPARATOR |
-  CMAKE_ARGS 
+  CMAKE_ARGS
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=${ANTLR_INSTALL_DIR}
     -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
