@@ -14,13 +14,11 @@ from pyuo import client
 from pyuo import brain
 from pyuo.brain import Event
 
-
 class TestBrain(brain.Brain):
   def __init__(self,client,server):
     self.server = server
     self.id = client.id
-    with self.server.eventsLock:
-      self.server.brains.append(self)
+    self.server.addBrain(self)
     self.todos = collections.deque()
     self.todosLock = threading.Lock()
     super(TestBrain,self).__init__( client, self.id )
@@ -30,10 +28,15 @@ class TestBrain(brain.Brain):
     self.server.addevent(brain.Event(brain.Event.EVT_INIT, clientid=self.id))
 
   def loop(self):
-    if not self.processTodos():
+    try:
+      if not self.processTodos():
+        return True
+    except Exception as e:
+      self.log.exception(e)
       return True
 
   def onEvent(self, ev):
+    '''overwrite brain method to directly send the events to the server'''
     if ev.type == Event.EVT_CLIENT_CRASH:
       self.log.critical('Oops! Client crashed: {}'.format(ev.exception))
       raise RuntimeError('Oops! Client crashed')
@@ -45,21 +48,51 @@ class TestBrain(brain.Brain):
       self.todos.append(ev)
 
   def processTodos(self):
-    while True:
-      with self.todosLock:
-        if not len(self.todos):
-          return True
-        res = self.todos.popleft()
-        todo=res["todo"]
-        arg=res.get("arg",None)
-        self.log.info("got todo: {}->{}".format(todo,arg))
-        if todo=="disconnect":
-          self.client.exit()
-          return False
-        elif todo=="speech":
-          self.client.say(arg)
-        elif todo=="move":
-          self.client.move(arg)
+    with self.todosLock:
+      if not len(self.todos):
+        return True
+      todos = self.todos.copy()
+      self.todos.clear()
+    while len(todos):
+      res = todos.popleft()
+      todo=res["todo"]
+      arg=res.get("arg",None)
+      self.log.info("got todo: {}->{}".format(todo,arg))
+      if todo=="disconnect":
+        self.client.addTodo(brain.Event(brain.Event.EVT_EXIT))
+        return False
+      elif todo=="speech":
+        self.client.say(arg)
+      elif todo=="move":
+        self.client.move(arg)
+      elif todo=="list_objects":
+        self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS))
+      elif todo=="open_backpack":
+        bp=self.client.player.openBackPack()
+        content=0
+        if bp is not None:
+          content=len(bp.content)
+          bp=bp.serial
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_OPEN_BACKPACK,
+            clientid = self.id,
+            serial = bp,
+            contentlen = content))
+      elif todo=="target":
+        res=self.client.waitForTarget(5)
+        targettype=None
+        if res is not None:
+          targettype=res.type
+          if res.what==client.Target.OBJECT:
+            res.target(self.client.objects[arg['serial']])
+          else:
+            res.targetLocation(arg['x'],arg['y'],arg['z'],arg['graphic'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_TARGET,
+            clientid = self.id,
+            targettype = targettype,
+            res = res is not None))
+
     return True
 
 class PolServer:
@@ -74,9 +107,11 @@ class PolServer:
     self.brains=[]
     self.events = collections.deque()
     self.eventsLock = threading.Lock()
+    self.clientLock = threading.Lock()
     self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.s.bind(('localhost', 50000))
     self.s.listen(1)
+    self.s.settimeout(30) # FIXME: we need a way to stop this process without a connection
     self.conn, addr = self.s.accept()
     self.conn.settimeout(0.1)
 
@@ -98,21 +133,23 @@ class PolServer:
           )
         self.threads[-1].start()
       elif todo=="exit":
-        for b in self.brains:
-          b.addTodo({"todo":"disconnect"})
+        with self.clientLock:
+          for b in self.brains:
+            b.addTodo({"todo":"disconnect"})
         for t in self.threads:
           t.join()
         return
       else:
-        for b in self.brains:
-          if b.id == clientid:
-            b.addTodo(res)
-            break
-        else:
-          self.log.error("invalid clientid")
+        with self.clientLock:
+          for b in self.brains:
+            if b.id == clientid:
+              b.addTodo(res)
+              break
+          else:
+            self.log.error("invalid clientid")
 
   def startclient(self,user,psw,charname,charidx,id):
-    with self.eventsLock:
+    with self.clientLock:
       c = client.Client(id)
       self.clients.append(c)
     servers = c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
@@ -120,17 +157,23 @@ class PolServer:
     c.selectCharacter(charname, charidx)
     TestBrain(c,self)
 
+  def addBrain(self, brain):
+    with self.clientLock:
+      self.brains.append(brain)
+
   def addevent(self,ev):
     with self.eventsLock:
       self.events.append(ev)
 
   def brainevents(self):
-    while True:
-      with self.eventsLock:
-        if not len(self.events):
-          return
-        ev = self.events.popleft()
-        self.sendEvent(ev)
+    with self.eventsLock:
+      if not len(self.events):
+        return
+      events=self.events.copy()
+      self.events.clear()
+    while len(events):
+      ev = events.popleft()
+      self.sendEvent(ev)
 
   def _recv(self):
     try:
@@ -158,6 +201,7 @@ class PolServer:
     return data
 
   def sendEvent(self, ev):
+    '''serialization method for client events'''
     res={}
     res["id"]=ev.clientid
     res["type"]=ev.typestr()
@@ -181,11 +225,28 @@ class PolServer:
       res["serial"]=obj.serial
       res["pos"]=[obj.x, obj.y, obj.z, obj.facing]
       res["graphic"]=obj.graphic
+    elif ev.type==Event.EVT_REMOVED_OBJ:
+      res["serial"]=ev.serial
+    elif ev.type==Event.EVT_LIST_OBJS:
+      res["objs"]=[]
+      for _,o in ev.objs.items():
+        res["objs"].append(
+              {'serial':o.serial,
+               'pos':[o.x,o.y,o.z,o.facing],
+               'graphic':o.graphic}
+        )
+        if hasattr(o,"parent") and o.parent is not None:
+          res["objs"][-1]["parent"]=o.parent.serial
+    elif ev.type==Event.EVT_OPEN_BACKPACK:
+      res["serial"]=ev.serial
+      res["content_count"]=ev.contentlen
+    elif ev.type==Event.EVT_TARGET:
+      res["res"]=ev.res
+      res["targettype"]=ev.targettype
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 
-    if res:
-      self.send(json.dumps(res))
+    self.send(json.dumps(res))
 
   def send(self, data):
     try:

@@ -5,7 +5,7 @@ var res:=GetGlobalProperty("#clientcon");
 if (res)
   var clientcon:=GetProcess(res);
   clientcon.sendevent(struct{todo:="exit"});
-  sleep(1);
+  sleepms(200);
 endif
 var a:=FindAccount("testclient0");
 if (a)

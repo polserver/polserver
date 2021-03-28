@@ -1,10 +1,11 @@
 use os;
 use uo;
 
-var a:=FindAccount("test");
-if (!a)
-  a:=CreateAccount("test","pass",1);
+include "testutil";
+
+var char:=createAccountWithChar("test", "pass");
+if (!char)
+  return char;
 endif
-a.addcharacter(0);
 
 return 1;

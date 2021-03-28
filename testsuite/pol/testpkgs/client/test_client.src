@@ -1,123 +1,28 @@
 use os;
 use uo;
-use attributes;
-use vitals;
 
 include "testutil";
 include "communication";
 
 var char;
-var backpack;
 var char2;
-var backpack2;
 
-var clientcon;
-var testclient:=GetEnvironmentVariable("POLCORE_TESTCLIENT")=="TRUE";
+var clientcon := getClientConnection();
 
 program chartests()
-  if (!testclient)
-    syslog("NO CLIENT TESTS");
-    return 1;
-  endif
-  setup_char(0,char,backpack);
-  setup_char(1,char2,backpack2);
-  var i:=1;
-  while (1)
-    var res := OpenConnection("127.0.0.1",50000,"clientconnection",GetProcess(),1,1);
-    if (res)
-      break;
-    endif
-    sleep(1);
-    ++i;
-    if (i>10)
-      return ret_error("Failed to connect to testclient");
-    endif
-  endwhile
-  while (1)
-    var res:=GetGlobalProperty("#clientcon");
-    if (res)
-      clientcon:=GetProcess(res);
-      break;
-    endif
-    sleepms(5);
-  endwhile
-  // TODO: client crash protection, oldxyz is set to 1,1,1 thus core thinks objects are already in range and does not send 0x78 (i think the vector classes rewrite contains a fix)
-  MoveObjectToLocation(char, 100,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  MoveObjectToLocation(char2, 100,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  clientcon.sendevent(struct{todo:="connect",account:="testclient0", psw:="pass", chrindex:=0, name:="Client1", id:=0});
-  clientcon.sendevent(struct{todo:="connect",account:="testclient1", psw:="pass", chrindex:=0, name:="Client2", id:=1});
-  var init0:=0,init1:=0;
-  while (1)
-    var ev:=WaitForClients({EVT_INIT});
-    if (!ev)
-      return ret_error("Failed to connect");
-    endif
-    if (ev.id==0)
-      init0:=1;
-    elseif (ev.id==1)
-      init1:=1;
-    endif
-    if (init0 && init1 && char.client && char2.client)
-      break;
-    endif
-  endwhile
-  update_vitals(char);
-  update_vitals(char2);
-  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  MoveObjectToLocation(char2, 200,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  var vital0:={},vital1:={};
-  while (1)
-    var ev:=WaitForClients({EVT_HP_CHANGED,EVT_MANA_CHANGED,EVT_STAM_CHANGED});
-    if (!ev)
-      return ret_error("Failed to wait for vital update");
-    endif
-    if (ev.id==0 && ev.serial==char.serial)
-      if (!(ev.type in vital0))
-        vital0.append(ev.type);
-      endif
-    elseif (ev.id==1 && ev.serial==char2.serial)
-      if (!(ev.type in vital1))
-        vital1.append(ev.type);
-      endif
-    endif
-    if (len(vital0)==3 && len(vital1)==3)
-      break;
-    endif
-  endwhile
-  return 1;
-endprogram
-
-function setup_char(id, byref char, byref backpack)
-  var a:=FindAccount("testclient"+id);
+  var a:=FindAccount("testclient0");
   char:=a.getcharacter(1);
   if (!char)
     return ret_error("Could not find char at slot 1");
   endif
-  setname(char,"Client1");
-  if (char.backpack)
-    DestroyItem(char.backpack);
+  a:=FindAccount("testclient1");
+  char2:=a.getcharacter(1);
+  if (!char2)
+    return ret_error("Could not find char2 at slot 1");
   endif
-  backpack:=CreateItemAtLocation(0,0,0,0xE75);
-  var res:=EquipItem(char,backpack);
-  if (!res)
-    return ret_error("Failed to equip backpack "+backpack+" "+res);
-  endif
-  setAttributeBaseValue(char,"STR",1000);
-  setAttributeBaseValue(char,"INT",1000);
-  setAttributeBaseValue(char,"DEX",1000);
-endfunction
-
-function update_vitals(char)
-  recalcVitals(char);
-  setVital(char, "Hits", getVitalMaximumValue(char,"Hits"));
-  setVital(char, "Mana", getVitalMaximumValue(char,"Mana"));
-  setVital(char, "Stamina", getVitalMaximumValue(char,"Stamina"));
-endfunction
+endprogram
 
 exported function say_something()
-  if (!testclient)
-    return 1;
-  endif
   Clear_Event_Queue();
   clientcon.sendevent(struct{todo:="speech", arg:="Hello Test", id:=0});
   while (1)
@@ -133,9 +38,6 @@ exported function say_something()
 endfunction
 
 exported function move_turn_water()
-  if (!testclient)
-    return 1;
-  endif
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
   char.facing:=1;
   Clear_Event_Queue();
@@ -171,9 +73,6 @@ exported function move_turn_water()
 endfunction
 
 exported function move_ground()
-  if (!testclient)
-    return 1;
-  endif
   MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
   char.facing:=1;
   Clear_Event_Queue();
