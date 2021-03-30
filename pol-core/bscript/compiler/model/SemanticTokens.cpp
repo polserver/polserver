@@ -1,10 +1,13 @@
 #include "bscript/compiler/model/SemanticTokens.h"
+#include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/ScopeTree.h"
+#include "bscript/compiler/model/Variable.h"
 #include <EscriptGrammar/EscriptLexer.h>
 
 namespace Pol::Bscript::Compiler
 {
 std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
-    const antlr4::Token& token )
+    const ScopeTree& scope_tree, const antlr4::Token& token )
 {
   switch ( token.getType() )
   {
@@ -191,7 +194,23 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
         SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
     return tokens;
   }
+  case EscriptGrammar::EscriptLexer::IDENTIFIER:
+  {
+    const auto& str = token.getText();
+    auto line = static_cast<unsigned short>( token.getLine() );
+    auto character = static_cast<unsigned short>( token.getCharPositionInLine() + 1 );
+    // FIXME: this can be optimized to simultaneously walk the scope tree and
+    // the token list
+    auto variable = scope_tree.find_variable( str, Position{ line, character } );
+    if ( variable )
+    {
+      std::list<SemanticToken> list{ SemanticToken{
+          line, character, token.getText().length(), SemanticTokenType::VARIABLE, {} } };
+      return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
+    }
   }
+  }
+
   return {};
 }
 

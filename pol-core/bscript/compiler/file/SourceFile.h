@@ -23,6 +23,7 @@ namespace Pol::Bscript::Compiler
 {
 class Profile;
 class Report;
+class ScopeTree;
 class SourceFileLoader;
 class SourceLocation;
 
@@ -46,7 +47,7 @@ public:
   EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit(
       Report&, const SourceFileIdentifier& );
 
-  SemanticTokens get_tokens();
+  SemanticTokens get_tokens( ScopeTree& scope_tree );
 
   const std::string pathname;
 
