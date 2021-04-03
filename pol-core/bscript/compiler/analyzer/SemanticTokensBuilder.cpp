@@ -14,7 +14,7 @@ void SemanticTokensBuilder::build()
 {
   if ( workspace.source )
   {
-    workspace.tokens = workspace.source->get_tokens( workspace.scope_tree );
+    workspace.tokens = workspace.source->get_tokens();
     workspace.source->accept( *this );
   }
 }

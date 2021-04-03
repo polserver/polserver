@@ -144,7 +144,7 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   return module_unit;
 }
 
-SemanticTokens SourceFile::get_tokens( ScopeTree& scope_tree )
+SemanticTokens SourceFile::get_tokens()
 {
   SemanticTokens tokens;
   lexer.reset();

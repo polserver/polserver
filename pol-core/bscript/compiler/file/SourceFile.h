@@ -47,7 +47,7 @@ public:
   EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit(
       Report&, const SourceFileIdentifier& );
 
-  SemanticTokens get_tokens( ScopeTree& scope_tree );
+  SemanticTokens get_tokens();
 
   const std::string pathname;
 
