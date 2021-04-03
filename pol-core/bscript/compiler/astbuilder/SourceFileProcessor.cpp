@@ -58,7 +58,9 @@ void SourceFileProcessor::use_module( const std::string& module_name,
   {
     // This is fatal because if we keep going, we'll likely report a bunch of errors
     // that would just be noise, like missing module function declarations or constants.
-    report.fatal( including_location, "Unable to use module '", module_name, "'.\n" );
+    // But in diagnostics mode, we want to continue, so...
+    report.error( including_location, "Unable to use module '", module_name, "'.\n" );
+    return;
   }
   workspace.source_files[ pathname ] = sf;
 
