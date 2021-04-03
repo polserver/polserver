@@ -150,7 +150,7 @@ SemanticTokens SourceFile::get_tokens( ScopeTree& scope_tree )
   lexer.reset();
   for ( const auto& lexer_token : lexer.getAllTokens() )
   {
-    auto semantic_token = SemanticToken::from_lexer_token( scope_tree, *lexer_token );
+    auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
     if ( semantic_token )
     {
       auto& t = *semantic_token;

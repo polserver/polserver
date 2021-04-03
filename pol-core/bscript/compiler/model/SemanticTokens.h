@@ -79,8 +79,7 @@ struct SemanticToken
   SemanticTokenType type;
   std::list<SemanticTokenModifier> modifiers;
 
-  static std::unique_ptr<std::list<SemanticToken>> from_lexer_token( const ScopeTree&,
-                                                                     const antlr4::Token& );
+  static std::unique_ptr<std::list<SemanticToken>> from_lexer_token( const antlr4::Token& );
 };
 
 using SemanticTokens = std::list<SemanticToken>;
