@@ -40,6 +40,9 @@ antlrcpp::Any SemanticTokensBuilder::visitStringIdentifier(
 {
   if ( auto identifier = ctx->IDENTIFIER() )
   {
+    // stringIdentifier is currently produced in useDeclaration and
+    // includeDeclaration, so this will highlight both "use uo" and "include
+    // utils" as namespaces.
     define( workspace, identifier->getSymbol(), SemanticTokenType::NAMESPACE );
   }
   visitChildren( ctx );
@@ -51,7 +54,7 @@ antlrcpp::Any SemanticTokensBuilder::visitForeachIterableExpression(
 {
   if ( auto identifier = ctx->IDENTIFIER() )
   {
-    define( workspace, identifier->getSymbol(), SemanticTokenType::NAMESPACE );
+    define( workspace, identifier->getSymbol(), SemanticTokenType::VARIABLE );
   }
   visitChildren( ctx );
   return antlrcpp::Any();
@@ -108,7 +111,7 @@ antlrcpp::Any SemanticTokensBuilder::visitVariableDeclaration(
 antlrcpp::Any SemanticTokensBuilder::visitProgramParameter(
     EscriptParser::ProgramParameterContext* ctx )
 {
-  define( workspace, ctx->IDENTIFIER()->getSymbol(), SemanticTokenType::VARIABLE );
+  define( workspace, ctx->IDENTIFIER()->getSymbol(), SemanticTokenType::PARAMETER );
   visitChildren( ctx );
   return antlrcpp::Any();
 }
@@ -116,7 +119,7 @@ antlrcpp::Any SemanticTokensBuilder::visitProgramParameter(
 antlrcpp::Any SemanticTokensBuilder::visitFunctionParameter(
     EscriptParser::FunctionParameterContext* ctx )
 {
-  define( workspace, ctx->IDENTIFIER()->getSymbol(), SemanticTokenType::VARIABLE );
+  define( workspace, ctx->IDENTIFIER()->getSymbol(), SemanticTokenType::PARAMETER );
   visitChildren( ctx );
   return antlrcpp::Any();
 }
