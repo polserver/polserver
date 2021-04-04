@@ -16,6 +16,8 @@ public:
 
   void build();
 
+  antlrcpp::Any visitModuleFunctionDeclaration(
+      EscriptGrammar::EscriptParser::ModuleFunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitModuleFunctionParameter(
       EscriptGrammar::EscriptParser::ModuleFunctionParameterContext* ctx ) override;
   antlrcpp::Any visitFunctionDeclaration(
