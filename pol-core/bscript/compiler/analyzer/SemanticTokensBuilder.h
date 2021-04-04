@@ -22,6 +22,8 @@ public:
       EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx ) override;
   antlrcpp::Any visitStringIdentifier(
       EscriptGrammar::EscriptParser::StringIdentifierContext* ctx ) override;
+  antlrcpp::Any visitProgramDeclaration(
+      EscriptGrammar::EscriptParser::ProgramDeclarationContext* ctx ) override;
   antlrcpp::Any visitForeachIterableExpression(
       EscriptGrammar::EscriptParser::ForeachIterableExpressionContext* ctx ) override;
   antlrcpp::Any visitForeachStatement(

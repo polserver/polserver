@@ -49,6 +49,14 @@ antlrcpp::Any SemanticTokensBuilder::visitStringIdentifier(
   return antlrcpp::Any();
 }
 
+antlrcpp::Any SemanticTokensBuilder::visitProgramDeclaration(
+    EscriptParser::ProgramDeclarationContext* ctx )
+{
+  define( workspace, ctx->IDENTIFIER()->getSymbol(), SemanticTokenType::FUNCTION );
+  visitChildren( ctx );
+  return antlrcpp::Any();
+}
+
 antlrcpp::Any SemanticTokensBuilder::visitForeachIterableExpression(
     EscriptParser::ForeachIterableExpressionContext* ctx )
 {
