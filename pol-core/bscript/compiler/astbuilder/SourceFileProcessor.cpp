@@ -159,6 +159,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     {
       report.error( source_location, "Unable to include file '", canonical_include_pathname,
                     "': failed to load." );
+      workspace.compiler_workspace.referenced_source_file_identifiers.push_back(
+          std::move( ident ) );
       return;
     }
 
