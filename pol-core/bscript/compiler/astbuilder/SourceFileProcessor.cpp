@@ -60,7 +60,12 @@ void SourceFileProcessor::use_module( const std::string& module_name,
   {
     // This is fatal because if we keep going, we'll likely report a bunch of errors
     // that would just be noise, like missing module function declarations or constants.
-    report.fatal( including_location, "Unable to use module '{}'.", module_name );
+    // But in diagnostics mode, we want to continue, so...
+    report.error( including_location, "Unable to use module '{}'.", module_name );
+    // Move the failed-to-load SourceFileIdentifier to the compiler to properly
+    // own diagnostic references.
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+    return;
   }
   workspace.source_files[pathname] = sf;
 
@@ -157,6 +162,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     {
       report.error( source_location, "Unable to include file '{}': failed to load.",
                     canonical_include_pathname );
+      workspace.compiler_workspace.referenced_source_file_identifiers.push_back(
+          std::move( ident ) );
       return;
     }
 
