@@ -280,7 +280,16 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   bool any_named = false;
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
-  auto parameters = fc.parameters();
+  auto params = fc.parameters();
+  if ( !params )
+  {
+    // The error is reported via FunctionResolver when called by
+    // CompierWorkspaceBuilder::build_referenced_user_functions. We just need to
+    // skip all of this.
+    return;
+  }
+
+  auto parameters = *params;
 
   for ( auto& arg_unique_ptr : arguments )
   {
