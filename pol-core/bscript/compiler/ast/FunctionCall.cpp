@@ -43,12 +43,14 @@ std::vector<std::unique_ptr<Argument>> FunctionCall::take_arguments()
   return args;
 }
 
-std::vector<std::reference_wrapper<FunctionParameterDeclaration>> FunctionCall::parameters() const
+std::unique_ptr<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>
+FunctionCall::parameters() const
 {
   if ( auto fn = function_link->function() )
-    return fn->parameters();
+    return std::make_unique<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>(
+        fn->parameters() );
   else
-    internal_error( "function has not been resolved" );
+    return {};
 }
 
 }  // namespace Pol::Bscript::Compiler
