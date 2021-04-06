@@ -23,6 +23,7 @@ namespace Pol::Bscript::Compiler
 {
 class Profile;
 class Report;
+class ScopeTree;
 class SourceFileLoader;
 class SourceLocation;
 
