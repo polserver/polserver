@@ -21,8 +21,8 @@ public:
   void describe_to( fmt::Writer& ) const override;
 
   std::vector<std::unique_ptr<Argument>> take_arguments();
-  [[nodiscard]] std::vector<std::reference_wrapper<FunctionParameterDeclaration>> parameters()
-      const;
+  [[nodiscard]] std::unique_ptr<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>
+  parameters() const;
 
   const std::shared_ptr<FunctionLink> function_link;
 
