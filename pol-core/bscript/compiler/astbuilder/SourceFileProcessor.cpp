@@ -60,6 +60,9 @@ void SourceFileProcessor::use_module( const std::string& module_name,
     // that would just be noise, like missing module function declarations or constants.
     // But in diagnostics mode, we want to continue, so...
     report.error( including_location, "Unable to use module '", module_name, "'.\n" );
+    // Move the failed-to-load SourceFileIdentifier to the compiler to properly
+    // own diagnostic references.
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
     return;
   }
   workspace.source_files[ pathname ] = sf;
