@@ -232,7 +232,7 @@ enum class PRIV_FLAGS : u32
   HEAR_GHOSTS = 1 << 7,
   SEE_INVIS_ITEMS = 1 << 8,
   DBLCLICK_ANY = 1 << 9,
-  LOS_ANY = 1 << 19,  // all targetting ignore LOS?
+  LOS_ANY = 1 << 10,  // all targetting ignore LOS?
   IGNORE_DOORS = 1 << 11,
   FREEMOVE = 1 << 12,
   FIRE_WHILE_MOVING = 1 << 13,
