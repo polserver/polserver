@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>03-24-2021</datemodified>
+		<datemodified>04-10-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>04-10-2021</date>
+			<author>AsYlum:</author>
+			<change type="Fixed">Duplicated internal value for &quot;speedhack&quot; and &quot;losany&quot; privileges. When enabling &quot;speedhack&quot; privilege it also worked as &quot;losany&quot;<br/>
+so LoS checks always returned true.</change>
+		</entry>
 		<entry>
 			<date>03-24-2021</date>
 			<author>Turley:</author>
