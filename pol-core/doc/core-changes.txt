@@ -1,4 +1,7 @@
 ﻿-- POL100.1.0 --
+04-10-2021 AsYlum:
+    Fixed: Duplicated internal value for "speedhack" and "losany" privileges. When enabling "speedhack" privilege it also worked as "losany" 
+           so LoS checks always returned true.
 03-24-2021 Turley:
     Added: os:OpenConnection argument keep_connection
            defaults to 0, if set to 1 the connection is kept active on read timeout.
