@@ -1,13 +1,20 @@
 #include "bscript/compiler/model/ScopeTree.h"
+#include "bscript/compiler/ast/ConstDeclaration.h"
+#include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
+#include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/Variable.h"
 #include "clib/logfacility.h"
+#include "clib/strutil.h"
 #include <memory>
 
 namespace Pol::Bscript::Compiler
 {
 ScopeInfo::ScopeInfo( const SourceLocation& loc ) : location( loc ) {}
+
+ScopeTree::ScopeTree( CompilerWorkspace& workspace ) : workspace( workspace ) {}
 
 void ScopeTree::push_scope( const SourceLocation& location )
 {
@@ -48,7 +55,39 @@ void ScopeTree::set_globals( std::vector<std::shared_ptr<Variable>> variables )
   }
 }
 
-std::shared_ptr<Variable> ScopeTree::find_variable( const std::string& name,
+UserFunction* ScopeTree::find_user_function( std::string name ) const
+{
+  Clib::mklowerASCII( name );
+  for ( const auto& user_function : workspace.user_functions )
+  {
+    auto lowered = Clib::strlowerASCII( user_function->name );
+    if ( lowered == name )
+    {
+      return user_function.get();
+    }
+  }
+
+  return nullptr;
+}
+
+ModuleFunctionDeclaration* ScopeTree::find_module_function( std::string name ) const
+{
+  Clib::mklowerASCII( name );
+
+  for ( const auto& module_function : workspace.module_function_declarations )
+  {
+    auto lowered = Clib::strlowerASCII( module_function->name );
+
+    if ( lowered == name )
+    {
+      return module_function.get();
+    }
+  }
+
+  return nullptr;
+}
+
+std::shared_ptr<Variable> ScopeTree::find_variable( std::string name,
                                                     const Position& position ) const
 {
   auto variable = scopes[0]->walk( name, position );
@@ -62,6 +101,23 @@ std::shared_ptr<Variable> ScopeTree::find_variable( const std::string& name,
   }
 
   return {};
+}
+
+ConstDeclaration* ScopeTree::find_constant( std::string name ) const
+{
+  Clib::mklowerASCII( name );
+
+  for ( const auto& const_decl : workspace.const_declarations )
+  {
+    auto lowered = Clib::strlowerASCII( const_decl->identifier );
+
+    if ( lowered == name )
+    {
+      return const_decl.get();
+    }
+  }
+
+  return nullptr;
 }
 
 std::shared_ptr<Variable> ScopeInfo::resolve( const std::string& name ) const
