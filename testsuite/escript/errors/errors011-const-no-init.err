@@ -1,0 +1,1 @@
+errors011-const-no-init.src:1:10: error: mismatched input ';' expecting {'array', '=', ':='}
