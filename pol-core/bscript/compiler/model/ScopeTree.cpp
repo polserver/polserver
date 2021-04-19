@@ -105,19 +105,7 @@ std::shared_ptr<Variable> ScopeTree::find_variable( std::string name,
 
 ConstDeclaration* ScopeTree::find_constant( std::string name ) const
 {
-  Clib::mklowerASCII( name );
-
-  for ( const auto& const_decl : workspace.const_declarations )
-  {
-    auto lowered = Clib::strlowerASCII( const_decl->identifier );
-
-    if ( lowered == name )
-    {
-      return const_decl.get();
-    }
-  }
-
-  return nullptr;
+  return workspace.constants.find( name );
 }
 
 std::shared_ptr<Variable> ScopeInfo::resolve( const std::string& name ) const
