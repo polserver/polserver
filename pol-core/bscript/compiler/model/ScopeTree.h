@@ -2,6 +2,7 @@
 #define POLSERVER_SCOPETREE_H
 
 #include "bscript/compiler/file/SourceLocation.h"
+#include "clib/maputil.h"
 #include <map>
 #include <memory>
 #include <string>
@@ -9,8 +10,11 @@
 
 namespace Pol::Bscript::Compiler
 {
+class CompilerWorkspace;
+class ModuleFunctionDeclaration;
+class UserFunction;
 class Variable;
-
+class ConstDeclaration;
 class ScopeInfo
 {
 public:
@@ -31,13 +35,21 @@ private:
 class ScopeTree
 {
 public:
+  ScopeTree( CompilerWorkspace& workspace );
   void push_scope( const SourceLocation& );
   void pop_scope( std::vector<std::shared_ptr<Variable>> variables );
   void set_globals( std::vector<std::shared_ptr<Variable>> variables );
-  std::shared_ptr<Variable> find_variable( const std::string&, const Position& ) const;
+  std::shared_ptr<Variable> find_variable( std::string name, const Position& ) const;
+  // Data is owned by CompilerWorkspace
+  UserFunction* find_user_function( std::string name ) const;
+  // Data is owned by CompilerWorkspace
+  ModuleFunctionDeclaration* find_module_function( std::string name ) const;
+  // Data is owned by CompilerWorkspace
+  ConstDeclaration* find_constant( std::string name ) const;
 
 private:
-  std::map<std::string, std::shared_ptr<Variable>> globals;
+  CompilerWorkspace& workspace;
+  std::map<std::string, std::shared_ptr<Variable>, Clib::ci_cmp_pred> globals;
   std::vector<std::shared_ptr<ScopeInfo>> scopes;
   unsigned ignored = 0;
 
