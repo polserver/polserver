@@ -143,6 +143,9 @@ public:
   virtual void enterVariableDeclarationList(EscriptParser::VariableDeclarationListContext * /*ctx*/) override { }
   virtual void exitVariableDeclarationList(EscriptParser::VariableDeclarationListContext * /*ctx*/) override { }
 
+  virtual void enterConstantDeclaration(EscriptParser::ConstantDeclarationContext * /*ctx*/) override { }
+  virtual void exitConstantDeclaration(EscriptParser::ConstantDeclarationContext * /*ctx*/) override { }
+
   virtual void enterVariableDeclaration(EscriptParser::VariableDeclarationContext * /*ctx*/) override { }
   virtual void exitVariableDeclaration(EscriptParser::VariableDeclarationContext * /*ctx*/) override { }
 

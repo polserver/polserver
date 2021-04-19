@@ -141,6 +141,9 @@ public:
   virtual void enterVariableDeclarationList(EscriptParser::VariableDeclarationListContext *ctx) = 0;
   virtual void exitVariableDeclarationList(EscriptParser::VariableDeclarationListContext *ctx) = 0;
 
+  virtual void enterConstantDeclaration(EscriptParser::ConstantDeclarationContext *ctx) = 0;
+  virtual void exitConstantDeclaration(EscriptParser::ConstantDeclarationContext *ctx) = 0;
+
   virtual void enterVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) = 0;
   virtual void exitVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) = 0;
 
