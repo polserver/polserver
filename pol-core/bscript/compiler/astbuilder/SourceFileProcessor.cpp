@@ -233,7 +233,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
       // This is fatal because if we keep going, we'll likely report a bunch of errors
       // that would just be noise, like missing functions or constants.
       // But in diagnostics mode, we want to continue, so...
-      report.error( source_location, "Unable to read include file '" + include_name + "'\n" );
+      report.error( source_location, "Unable to read include file '" + include_name + "'" );
       return {};
     }
   }
