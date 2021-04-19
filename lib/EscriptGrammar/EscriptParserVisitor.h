@@ -104,6 +104,8 @@ public:
 
     virtual antlrcpp::Any visitVariableDeclarationList(EscriptParser::VariableDeclarationListContext *context) = 0;
 
+    virtual antlrcpp::Any visitConstantDeclaration(EscriptParser::ConstantDeclarationContext *context) = 0;
+
     virtual antlrcpp::Any visitVariableDeclaration(EscriptParser::VariableDeclarationContext *context) = 0;
 
     virtual antlrcpp::Any visitProgramParameters(EscriptParser::ProgramParametersContext *context) = 0;

@@ -57,19 +57,19 @@ public:
     RuleEnumList = 32, RuleEnumListEntry = 33, RuleSwitchBlockStatementGroup = 34, 
     RuleSwitchLabel = 35, RuleForGroup = 36, RuleBasicForStatement = 37, 
     RuleCstyleForStatement = 38, RuleIdentifierList = 39, RuleVariableDeclarationList = 40, 
-    RuleVariableDeclaration = 41, RuleProgramParameters = 42, RuleProgramParameterList = 43, 
-    RuleProgramParameter = 44, RuleFunctionParameters = 45, RuleFunctionParameterList = 46, 
-    RuleFunctionParameter = 47, RuleScopedFunctionCall = 48, RuleFunctionReference = 49, 
-    RuleExpression = 50, RulePrimary = 51, RuleExplicitArrayInitializer = 52, 
-    RuleExplicitStructInitializer = 53, RuleExplicitDictInitializer = 54, 
-    RuleExplicitErrorInitializer = 55, RuleBareArrayInitializer = 56, RuleParExpression = 57, 
-    RuleExpressionList = 58, RuleExpressionSuffix = 59, RuleIndexingSuffix = 60, 
-    RuleNavigationSuffix = 61, RuleMethodCallSuffix = 62, RuleFunctionCall = 63, 
-    RuleStructInitializerExpression = 64, RuleStructInitializerExpressionList = 65, 
-    RuleStructInitializer = 66, RuleDictInitializerExpression = 67, RuleDictInitializerExpressionList = 68, 
-    RuleDictInitializer = 69, RuleArrayInitializer = 70, RuleLiteral = 71, 
-    RuleInterpolatedString = 72, RuleInterpolatedStringPart = 73, RuleIntegerLiteral = 74, 
-    RuleFloatLiteral = 75
+    RuleConstantDeclaration = 41, RuleVariableDeclaration = 42, RuleProgramParameters = 43, 
+    RuleProgramParameterList = 44, RuleProgramParameter = 45, RuleFunctionParameters = 46, 
+    RuleFunctionParameterList = 47, RuleFunctionParameter = 48, RuleScopedFunctionCall = 49, 
+    RuleFunctionReference = 50, RuleExpression = 51, RulePrimary = 52, RuleExplicitArrayInitializer = 53, 
+    RuleExplicitStructInitializer = 54, RuleExplicitDictInitializer = 55, 
+    RuleExplicitErrorInitializer = 56, RuleBareArrayInitializer = 57, RuleParExpression = 58, 
+    RuleExpressionList = 59, RuleExpressionSuffix = 60, RuleIndexingSuffix = 61, 
+    RuleNavigationSuffix = 62, RuleMethodCallSuffix = 63, RuleFunctionCall = 64, 
+    RuleStructInitializerExpression = 65, RuleStructInitializerExpressionList = 66, 
+    RuleStructInitializer = 67, RuleDictInitializerExpression = 68, RuleDictInitializerExpressionList = 69, 
+    RuleDictInitializer = 70, RuleArrayInitializer = 71, RuleLiteral = 72, 
+    RuleInterpolatedString = 73, RuleInterpolatedStringPart = 74, RuleIntegerLiteral = 75, 
+    RuleFloatLiteral = 76
   };
 
   EscriptParser(antlr4::TokenStream *input);
@@ -125,6 +125,7 @@ public:
   class CstyleForStatementContext;
   class IdentifierListContext;
   class VariableDeclarationListContext;
+  class ConstantDeclarationContext;
   class VariableDeclarationContext;
   class ProgramParametersContext;
   class ProgramParameterListContext;
@@ -484,7 +485,7 @@ public:
     ConstStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *TOK_CONST();
-    VariableDeclarationContext *variableDeclaration();
+    ConstantDeclarationContext *constantDeclaration();
     antlr4::tree::TerminalNode *SEMI();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -917,6 +918,22 @@ public:
   };
 
   VariableDeclarationListContext* variableDeclarationList();
+
+  class  ConstantDeclarationContext : public antlr4::ParserRuleContext {
+  public:
+    ConstantDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *IDENTIFIER();
+    VariableDeclarationInitializerContext *variableDeclarationInitializer();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ConstantDeclarationContext* constantDeclaration();
 
   class  VariableDeclarationContext : public antlr4::ParserRuleContext {
   public:

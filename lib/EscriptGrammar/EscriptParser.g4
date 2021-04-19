@@ -107,7 +107,7 @@ returnStatement
     ;
 
 constStatement
-    : TOK_CONST variableDeclaration ';'
+    : TOK_CONST constantDeclaration ';'
     ;
 
 varStatement
@@ -191,12 +191,12 @@ switchLabel
     ;
 
 forGroup
-    : cstyleForStatement 
+    : cstyleForStatement
     | basicForStatement
     ;
 
 basicForStatement
-    : IDENTIFIER ':=' expression TO expression block 
+    : IDENTIFIER ':=' expression TO expression block
     ;
 
 cstyleForStatement
@@ -207,6 +207,10 @@ identifierList
     ;
 variableDeclarationList
     : variableDeclaration (',' variableDeclaration)*
+    ;
+
+constantDeclaration
+    : IDENTIFIER variableDeclarationInitializer
     ;
 
 variableDeclaration

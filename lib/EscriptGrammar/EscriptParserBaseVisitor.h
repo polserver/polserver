@@ -183,6 +183,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitConstantDeclaration(EscriptParser::ConstantDeclarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -78,7 +78,7 @@ std::unique_ptr<JumpStatement> SimpleStatementBuilder::break_statement(
 std::unique_ptr<ConstDeclaration> SimpleStatementBuilder::const_declaration(
     EscriptParser::ConstStatementContext* ctx )
 {
-  auto variable_declaration = ctx->variableDeclaration();
+  auto variable_declaration = ctx->constantDeclaration();
   auto identifier = text( variable_declaration->IDENTIFIER() );
   auto expression_context = variable_declaration->variableDeclarationInitializer()->expression();
   auto value = expression( expression_context );
