@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <limits>
 
 namespace Pol::Bscript::Compiler
 {
