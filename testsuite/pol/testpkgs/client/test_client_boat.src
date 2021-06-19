@@ -1,5 +1,6 @@
 use os;
 use uo;
+use boat;
 
 include "testutil";
 include "communication";
