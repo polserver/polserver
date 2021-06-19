@@ -854,6 +854,7 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.SendSkillsPacket):
       self.log.info('Ignoring skills packet')
     elif isinstance(pkt, packets.NewSubServerPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_NEW_SUBSERVER))
       self.log.info('Ignoring new subserver packet')
     elif isinstance(pkt, packets.SmoothBoatPacket):
       self.log.info('Ignoring SmoothBoat packet')

@@ -188,6 +188,7 @@ class Event:
   EVT_NEW_MOBILE = 7
   EVT_NEW_ITEM = 8
   EVT_REMOVED_OBJ = 9
+  EVT_NEW_SUBSERVER = 10
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -234,4 +235,6 @@ class Event:
       return "open_bp"
     elif self.type==Event.EVT_TARGET:
       return "target"
+    elif self.type==Event.EVT_NEW_SUBSERVER:
+      return "new_subserver"
 

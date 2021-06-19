@@ -28,6 +28,12 @@ program chartests()
   endif
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
+  while (1)
+    var ev:=waitForClient(0, {EVT_NEW_SUBSERVER});
+    if (ev)
+      break;
+    endif
+  endwhile
 endprogram
 
 exported function move_boat()
@@ -39,18 +45,26 @@ exported function move_boat()
   for i:=1 to 8000
     CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
   endfor
-  print(boat.items.size());
+  var itemres := boat.items.size() > 7000;
   var moveres := MoveBoat(boat,0);
   foreach item in (boat.items)
     DestroyItem(item);
   endforeach
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  sleepms(500);
+  while (1) // sync point
+    var ev:=waitForClient(0, {EVT_NEW_SUBSERVER});
+    if (ev)
+      break;
+    endif
+  endwhile
   clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=0, id:=1});
   Clear_Event_Queue();
   DestroyMulti(boat);
   if (!res)
     return ret_error("Char not on ship");
+  endif
+  if (!itemres)
+    return ret_error("Not enough items");
   endif
   if (!moveres)
     return ret_error("Failed to move ship {}".format(moveres));

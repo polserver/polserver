@@ -245,6 +245,8 @@ class PolServer:
     elif ev.type==Event.EVT_TARGET:
       res["res"]=ev.res
       res["targettype"]=ev.targettype
+    elif ev.type==Event.EVT_NEW_SUBSERVER:
+      pass
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 
