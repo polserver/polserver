@@ -1439,12 +1439,16 @@ class SmoothBoatPacket(Packet):
     self.count = self.dushort()
     self.objs=[]
     for i in range(self.count):
-       self.objs.append({
+      try:
+        self.objs.append({
          'serial':self.duint(),
          'x':self.dushort(),
          'y':self.dushort(),
          'z':self.dushort(),
-       })
+        })
+      except Exception as e:
+        self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
+        break
 
 
 ################################################################################
