@@ -16,6 +16,7 @@ const EVT_REMOVED_OBJ := "removed_obj";
 const EVT_LIST_OBJS := "list_objs";
 const EVT_OPEN_BACKPACK := "open_bp";
 const EVT_TARGET := "target";
+const EVT_SILENT_ITEMS := "silent_items";
 
 function clientTestActive()
   var testclient:=GetEnvironmentVariable("POLCORE_TESTCLIENT")=="TRUE";

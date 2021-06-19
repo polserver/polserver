@@ -546,6 +546,8 @@ class Client(threading.Thread):
     ## Current cursor (0 = Felucca, unhued / BRITANNIA map. 1 = Trammel, hued gold / BRITANNIA map, 2 = (switch to) ILSHENAR map)
     self.cursor = None
 
+    self.silentitems = False # do not signal or log new items
+
   @status('disconnected')
   def connect(self, host, port, user, pwd):
     '''! Connnects to the server, returns a list of gameservers
@@ -927,12 +929,15 @@ class Client(threading.Thread):
   def handleObjectInfoPacket(self, pkt):
     if pkt.serial in self.objects.keys():
       self.objects[pkt.serial].update(pkt)
-      self.log.info("Refresh item: %s", self.objects[pkt.serial])
+      if not self.silentitems:
+        self.log.info("Refresh item: %s", self.objects[pkt.serial])
     else:
       item = Item(self, pkt)
-      self.log.info("New item: %s", item)
+      if not self.silentitems:
+        self.log.info("New item: %s", item)
       self.objects[item.serial] = item
-      self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
+      if not self.silentitems:
+        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
 
   @status('game')
   @clientthread
@@ -1171,8 +1176,10 @@ class Client(threading.Thread):
     for todo in queue:
       if todo.type == brain.Event.EVT_EXIT:
         return False
-      if todo.type == brain.Event.EVT_LIST_OBJS:
+      elif todo.type == brain.Event.EVT_LIST_OBJS:
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
+      elif todo.type == brain.Event.EVT_SILENT_ITEMS:
+        self.silentitems = todo.value
       else:
         raise NotImplementedError("Unknown todo event {}",format(ev.type))
     return True

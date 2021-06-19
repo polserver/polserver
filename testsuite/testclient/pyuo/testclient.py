@@ -92,6 +92,8 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             targettype = targettype,
             res = res is not None))
+      elif todo=="silent_items":
+        self.client.addTodo(brain.Event(brain.Event.EVT_SILENT_ITEMS, value = arg))
 
     return True
 
