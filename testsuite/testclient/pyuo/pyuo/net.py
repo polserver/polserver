@@ -171,7 +171,7 @@ class Network:
     pkt = pktClass()
     pkt.decode(raw)
     assert pkt.validated
-    assert pkt.length == len(raw)
+    assert pkt.length == len(raw), hex(cmd)+" "+str(pkt.length)
 
     # Remove the processed packet from the buffer the buffer
     self.buf = self.buf[size:]
