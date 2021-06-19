@@ -34,10 +34,12 @@ exported function move_boat()
   print(boat.mobiles);
   var res:=boat.mobiles.size()==1;
   clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=1, id:=0});
+  sleepms(500);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   for i:=1 to 8000
     CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
   endfor
+  sleepms(500);
   Clear_Event_Queue();
   print(boat.items.size());
   clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=0, id:=1});
