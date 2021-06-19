@@ -27,20 +27,30 @@ program chartests()
     return ret_error("Failed to create boat "+boat);
   endif
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  print(h);
-  print(MoveObjectToLocation(char, 11,50,h.z));
+  MoveObjectToLocation(char, 11,50,h.z);
 endprogram
 
 exported function move_boat()
   print(boat.mobiles);
   var res:=boat.mobiles.size()==1;
   Clear_Event_Queue();
-  print(MoveBoat(boat,0));
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  for i:=1 to 8000
+    CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
+  endfor
+  print(boat.items.size());
+  var moveres := MoveBoat(boat,0);
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  foreach item in (boat.items)
+    DestroyItem(item);
+  endforeach
   DestroyMulti(boat);
   if (!res)
     return ret_error("Char not on ship");
   endif
-  return res;
+  if (!moveres)
+    return ret_error("Failed to move ship {}".format(moveres));
+  endif
+  return 1;
 endfunction
 
