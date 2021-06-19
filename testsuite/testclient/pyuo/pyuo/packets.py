@@ -525,7 +525,7 @@ class AddItemToContainerPacket(Packet):
   ''' Adds a single item to a container '''
 
   cmd = 0x25
-  length = 20
+  length = 21 # 7090 length
 
   def decodeChild(self):
     self.serial = self.duint()
@@ -534,6 +534,7 @@ class AddItemToContainerPacket(Packet):
     self.amount = self.dushort()
     self.x = self.dushort()
     self.y = self.dushort()
+    self.slotindex = self.duchar()
     self.container = self.duint()
     self.color = self.dushort()
 
