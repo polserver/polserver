@@ -1422,6 +1422,31 @@ class NewObjectInfoPacket(Packet):
     self.x = x & 0x7fff
     self.y = y & 0x3fff
 
+class SmoothBoatPacket(Packet):
+  ''' boat/item update '''
+
+  cmd = 0xf6
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.speed = self.duchar()
+    self.dir = self.duchar()
+    self.facing = self.duchar()
+    self.x = self.dushort()
+    self.y = self.dushort()
+    self.z = self.dushort()
+    self.count = self.dushort()
+    self.objs=[]
+    for i in range(self.count):
+       self.objs.append({
+         'serial':self.duint(),
+         'x':self.dushort(),
+         'y':self.dushort(),
+         'z':self.dushort(),
+       })
+
+
 ################################################################################
 # Build packet list when this module is imported, must stay at the end
 ################################################################################

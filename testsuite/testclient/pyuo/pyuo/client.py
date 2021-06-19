@@ -852,6 +852,9 @@ class Client(threading.Thread):
       self.log.info('Ignoring skills packet')
     elif isinstance(pkt, packets.NewSubServerPacket):
       self.log.info('Ignoring new subserver packet')
+    elif isinstance(pkt, packets.SmoothBoatPacket):
+      self.log.info('Ignoring SmoothBoat packet')
+      self.log.info('{} items'.format(pkt.count))
 
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
