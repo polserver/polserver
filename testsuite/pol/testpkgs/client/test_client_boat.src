@@ -28,7 +28,7 @@ program chartests()
   endif
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   print(h);
-  print(MoveObjectToLocation(char, 11,50,h));
+  print(MoveObjectToLocation(char, 11,50,h.z));
 endprogram
 
 exported function move_boat()

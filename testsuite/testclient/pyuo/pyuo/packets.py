@@ -638,6 +638,7 @@ class AddItemsToContainerPacket(Packet):
         'amount': self.dushort(),
         'x': self.dushort(),
         'y': self.dushort(),
+        'slot': self.duchar(), #7090 version
         'container': self.duint(),
         'color': self.dushort(),
       })
