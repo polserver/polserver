@@ -514,11 +514,12 @@ class DrawContainerPacket(Packet):
   ''' Draws a container's gump '''
 
   cmd = 0x24
-  length = 7
+  length = 9 # 7090 length
 
   def decodeChild(self):
     self.serial = self.duint()
     self.gump = self.dushort()
+    self.dushort()
 
 
 class AddItemToContainerPacket(Packet):
