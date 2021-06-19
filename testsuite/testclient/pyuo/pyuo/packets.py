@@ -1418,6 +1418,7 @@ class NewObjectInfoPacket(Packet):
     self.facing = self.dschar()
     self.color = self.dushort()
     self.flag = self.duchar()
+    self.dushort()
     self.x = x & 0x7fff
     self.y = y & 0x3fff
 
