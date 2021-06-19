@@ -737,8 +737,9 @@ class Client(threading.Thread):
       assert self.lc
       if pkt.serial in self.objects:
         del self.objects[pkt.serial]
-        self.log.info("Object 0x%X went out of sight", pkt.serial)
-        self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
+        if not self.silentitems:
+          self.log.info("Object 0x%X went out of sight", pkt.serial)
+          self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
       else:
         self.log.warn("Server requested to delete 0x%X but i don't know it", pkt.serial)
 

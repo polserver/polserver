@@ -39,15 +39,15 @@ exported function move_boat()
   for i:=1 to 8000
     CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
   endfor
-  sleepms(500);
-  Clear_Event_Queue();
   print(boat.items.size());
-  clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=0, id:=1});
   var moveres := MoveBoat(boat,0);
-  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
   foreach item in (boat.items)
     DestroyItem(item);
   endforeach
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  sleepms(500);
+  clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=0, id:=1});
+  Clear_Event_Queue();
   DestroyMulti(boat);
   if (!res)
     return ret_error("Char not on ship");
