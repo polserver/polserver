@@ -26,7 +26,9 @@ program chartests()
   if (!boat)
     return ret_error("Failed to create boat "+boat);
   endif
-  MoveObjectToLocation(char, 10,50,1,flags:=MOVEOBJECT_FORCELOCATION);
+  var h:=getstandingheight(11,50, 1, boat.realm);
+  print(h);
+  print(MoveObjectToLocation(char, 11,50,h));
 endprogram
 
 exported function move_boat()
@@ -36,6 +38,9 @@ exported function move_boat()
   print(MoveBoat(boat,0));
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
   DestroyMulti(boat);
+  if (!res)
+    return ret_error("Char not on ship");
+  endif
   return res;
 endfunction
 
