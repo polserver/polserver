@@ -111,8 +111,8 @@ class Item(UOBject):
 
   def update(self, pkt):
     ''' Update from packet '''
-    if not isinstance(pkt, packets.ObjectInfoPacket):
-      raise ValueError("Expecting a DrawObjectPacket")
+    if not isinstance(pkt, packets.ObjectInfoPacket) and not isinstance(pkt, packets.NewObjectInfoPacket):
+      raise ValueError("Expecting a (New)DrawObjectPacket")
     self.serial = pkt.serial
     self.graphic = pkt.graphic
     self.amount = pkt.count
@@ -722,6 +722,8 @@ class Client(threading.Thread):
       self.handleDrawObjectPacket(pkt)
 
     elif isinstance(pkt, packets.ObjectInfoPacket):
+      self.handleObjectInfoPacket(pkt)
+    elif isinstance(pkt, packets.NewObjectInfoPacket):
       self.handleObjectInfoPacket(pkt)
 
     elif isinstance(pkt, packets.UpdatePlayerPacket):

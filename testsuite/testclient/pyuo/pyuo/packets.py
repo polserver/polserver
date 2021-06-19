@@ -375,7 +375,7 @@ class StatusBarInfoPacket(Packet):
 
 
 class ObjectInfoPacket(Packet):
-  ''' Braws an item '''
+  ''' Draws an item '''
 
   cmd = 0x1a
 
@@ -1394,6 +1394,29 @@ class CompressedGumpPacket(Packet):
     assert len(self.texts) == dtxtLen
     #self.duchar() # Trailing byte?
 
+
+class NewObjectInfoPacket(Packet):
+  ''' Draws an item '''
+
+  cmd = 0xf3
+  length = 26 #7090 version
+
+  def decodeChild(self):
+    self.dushort()
+    self.duchar()
+    self.serial = self.duint()
+    self.graphic = self.dushort()
+    self.duchar()
+    self.count = self.dushort()
+    self.count = self.dushort()
+    x = self.dushort()
+    y = self.dushort()
+    self.z = self.dschar()
+    self.facing = self.dschar()
+    self.color = self.dushort()
+    self.flag = self.duchar()
+    self.x = x & 0x7fff
+    self.y = y & 0x3fff
 
 ################################################################################
 # Build packet list when this module is imported, must stay at the end
