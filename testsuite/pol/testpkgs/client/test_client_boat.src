@@ -1,0 +1,40 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+var char;
+var char2;
+var boat;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a:=FindAccount("testclient0");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  a:=FindAccount("testclient1");
+  char2:=a.getcharacter(1);
+  if (!char2)
+    return ret_error("Could not find char2 at slot 1");
+  endif
+  boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+  MoveObjectToLocation(char, 10,50,1,flags:=MOVEOBJECT_FORCELOCATION);
+endprogram
+
+exported function move_boat()
+  print(boat.mobiles);
+  var res:=boat.mobiles.size()==1;
+  Clear_Event_Queue();
+  print(MoveBoat(boat,0));
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  DestroyMulti(boat);
+  return res;
+endfunction
+

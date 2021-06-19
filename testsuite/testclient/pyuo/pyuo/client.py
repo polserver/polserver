@@ -486,7 +486,7 @@ class Client(threading.Thread):
   ## Minimum interval between two pings
   PING_INTERVAL = 30
   ## Version sent to server
-  VERSION = '5.0.9.1'
+  VERSION = '7.0.9.1'
   ## Language sent to server
   LANG = 'ENU'
 
