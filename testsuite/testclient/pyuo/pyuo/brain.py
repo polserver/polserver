@@ -237,4 +237,6 @@ class Event:
       return "target"
     elif self.type==Event.EVT_NEW_SUBSERVER:
       return "new_subserver"
+    elif self.type==Event.EVT_SILENT_ITEMS:
+      return "silent_items"
 
