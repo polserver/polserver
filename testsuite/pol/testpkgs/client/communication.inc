@@ -16,7 +16,7 @@ const EVT_REMOVED_OBJ := "removed_obj";
 const EVT_LIST_OBJS := "list_objs";
 const EVT_OPEN_BACKPACK := "open_bp";
 const EVT_TARGET := "target";
-const EVT_SILENT_ITEMS := "silent_items";
+const EVT_DISABLE_ITEM_LOGGING := "disable_item_logging";
 const EVT_NEW_SUBSERVER := "new_subserver";
 const EVT_BOAT_MOVED := "boat_moved";
 

@@ -93,7 +93,7 @@ class TestBrain(brain.Brain):
             targettype = targettype,
             res = res is not None))
       elif todo=="silent_items":
-        self.client.addTodo(brain.Event(brain.Event.EVT_SILENT_ITEMS, value = arg))
+        self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
 
     return True
 
@@ -247,7 +247,7 @@ class PolServer:
       res["targettype"]=ev.targettype
     elif ev.type==Event.EVT_NEW_SUBSERVER:
       pass
-    elif ev.type==Event.EVT_SILENT_ITEMS:
+    elif ev.type==Event.EVT_DISABLE_ITEM_LOGGING:
       pass
     elif ev.type==Event.EVT_BOAT_MOVED:
       res['serial']=ev.boat.serial

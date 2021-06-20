@@ -195,7 +195,7 @@ class Event:
   EVT_LIST_OBJS = 101
   EVT_OPEN_BACKPACK = 102
   EVT_TARGET = 103
-  EVT_SILENT_ITEMS = 104
+  EVT_DISABLE_ITEM_LOGGING = 104
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -238,8 +238,8 @@ class Event:
       return "target"
     elif self.type==Event.EVT_NEW_SUBSERVER:
       return "new_subserver"
-    elif self.type==Event.EVT_SILENT_ITEMS:
-      return "silent_items"
+    elif self.type==Event.EVT_DISABLE_ITEM_LOGGING:
+      return "disable_item_logging"
     elif self.type==Event.EVT_BOAT_MOVED:
       return "boat_moved"
 

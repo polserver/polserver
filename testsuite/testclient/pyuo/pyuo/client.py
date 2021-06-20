@@ -556,7 +556,7 @@ class Client(threading.Thread):
     ## Current cursor (0 = Felucca, unhued / BRITANNIA map. 1 = Trammel, hued gold / BRITANNIA map, 2 = (switch to) ILSHENAR map)
     self.cursor = None
 
-    self.silentitems = False # do not signal or log new items
+    self.disable_item_logging = False # do not signal or log new items
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -747,7 +747,7 @@ class Client(threading.Thread):
       assert self.lc
       if pkt.serial in self.objects:
         del self.objects[pkt.serial]
-        if not self.silentitems:
+        if not self.disable_item_logging:
           self.log.info("Object 0x%X went out of sight", pkt.serial)
           self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
       else:
@@ -940,14 +940,14 @@ class Client(threading.Thread):
   def handleObjectInfoPacket(self, pkt):
     if pkt.serial in self.objects.keys():
       self.objects[pkt.serial].update(pkt)
-      if not self.silentitems:
+      if not self.disable_item_logging:
         self.log.info("Refresh item: %s", self.objects[pkt.serial])
     else:
       item = Item(self, pkt)
-      if not self.silentitems:
+      if not self.disable_item_logging:
         self.log.info("New item: %s", item)
       self.objects[item.serial] = item
-      if not self.silentitems:
+      if not self.disable_item_logging:
         self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
 
   @status('game')
@@ -1057,11 +1057,11 @@ class Client(threading.Thread):
     for obj in pkt.objs:
       if obj['serial'] in self.objects.keys():
         self.objects[obj['serial']].update(obj)
-        if not self.silentitems:
+        if not self.disable_item_logging:
           self.log.info("Boat move item: %s", self.objects[obj['serial']])
     if pkt.serial in self.objects.keys():
       self.objects[pkt.serial].update({'x':pkt.x, 'y':pkt.y,'z':pkt.z})
-      if not self.silentitems:
+      if not self.disable_item_logging:
         self.log.info("Boat move: %s", self.objects[pkt.serial])
         self.brain.event(brain.Event(brain.Event.EVT_BOAT_MOVED, boat=self.objects[pkt.serial]))
 
@@ -1205,9 +1205,9 @@ class Client(threading.Thread):
         return False
       elif todo.type == brain.Event.EVT_LIST_OBJS:
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
-      elif todo.type == brain.Event.EVT_SILENT_ITEMS:
-        self.silentitems = todo.value
-        self.brain.event(brain.Event(brain.Event.EVT_SILENT_ITEMS))
+      elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
+        self.disable_item_logging = todo.value
+        self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
       else:
         raise NotImplementedError("Unknown todo event {}",format(ev.type))
     return True
