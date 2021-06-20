@@ -57,7 +57,7 @@ exported function move_boat()
     if (!ev)
       return ev;
     endif
-    foreach it in ev["objs"]
+    foreach it in (ev["objs"])
       if (it["serial"] == item.serial)
         var p:=it["pos"];
         if (p[1]!=11 || p[2]!=49 || p[3]!=-1)
