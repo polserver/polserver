@@ -283,6 +283,11 @@ class Mobile(UOBject):
 
   def update(self, pkt):
     ''' Update from packet '''
+    if isinstance(pkt, dict):
+      self.x = pkt['x']
+      self.y = pkt['y']
+      self.z = pkt['z']
+      return
     if not isinstance(pkt, packets.UpdatePlayerPacket) and not isinstance(pkt, packets.DrawObjectPacket):
       raise ValueError("Expecting an UpdatePlayerPacket or DrawObjectPacket")
     self.serial = pkt.serial
