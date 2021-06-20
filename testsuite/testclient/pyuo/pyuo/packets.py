@@ -120,6 +120,10 @@ class Packet():
   def dushort(self):
     ''' Returns next unsigned short from the receive buffer '''
     return struct.unpack('>H', self.rpb(2))[0]
+  
+  def dsshort(self):
+    ''' Returns next signed short from the receive buffer '''
+    return struct.unpack('>h', self.rpb(2))[0]
 
   def duint(self):
     ''' Returns next unsigned int from the receive buffer '''
@@ -1435,7 +1439,7 @@ class SmoothBoatPacket(Packet):
     self.facing = self.duchar()
     self.x = self.dushort()
     self.y = self.dushort()
-    self.z = self.dushort()
+    self.z = self.dsshort()
     self.count = self.dushort()
     self.objs=[]
     for i in range(self.count):
@@ -1444,7 +1448,7 @@ class SmoothBoatPacket(Packet):
          'serial':self.duint(),
          'x':self.dushort(),
          'y':self.dushort(),
-         'z':self.dushort(),
+         'z':self.dsshort(),
         })
       except Exception as e:
         self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
