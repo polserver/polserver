@@ -92,7 +92,7 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             targettype = targettype,
             res = res is not None))
-      elif todo=="silent_items":
+      elif todo=="disable_item_logging":
         self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
 
     return True
