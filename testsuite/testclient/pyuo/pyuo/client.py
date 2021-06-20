@@ -1182,6 +1182,7 @@ class Client(threading.Thread):
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
       elif todo.type == brain.Event.EVT_SILENT_ITEMS:
         self.silentitems = todo.value
+        self.brain.event(brain.Event(brain.Event.EVT_SILENT_ITEMS))
       else:
         raise NotImplementedError("Unknown todo event {}",format(ev.type))
     return True
