@@ -36,23 +36,37 @@ exported function move_boat()
   var res:=boat.mobiles.size()==1;
   Clear_Event_Queue();
   var item:=CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
-  print(item.serial);
   var moveres := MoveBoat(boat,0);
+  var clientmoveres:=ret_error("no boat pos");
   while (1)
     var ev:=waitForClient(0, {EVT_BOAT_MOVED});
     if (!ev)
       continue;
     endif
-    print(ev);
+    if (ev.pos[1]!=10 || ev.pos[2]!=49 || ev.pos[3]!=-4)
+      clientmoveres:=ret_error("wrong boat pos {} != {},{},{}".format(ev.pos,10,49,-4));
+    else
+      clientmoveres:=1;
+    endif
     break;
   endwhile
   clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  var itemres:=ret_error("item not found {}".format(item.serial));
   while (1)
     var ev:=waitForClient(0, {EVT_LIST_OBJS});
     if (!ev)
       return ev;
     endif
-    print(ev);
+    foreach it in ev["objs"]
+      if (it["serial"] == item.serial)
+        var p:=it["pos"];
+        if (p[1]!=11 || p[2]!=49 || p[3]!=-1)
+          itemres:=ret_error("wrong item pos {} != {},{},{}".format(p,11,49,-1));
+        else
+          itemres:=1;
+        endif
+      endif
+    endforeach
     break;
   endwhile
 
@@ -68,6 +82,12 @@ exported function move_boat()
   endif
   if (!moveres)
     return ret_error("Failed to move ship {}".format(moveres));
+  endif
+  if (clientmoveres!=1)
+    return clientmoveres;
+  endif
+  if (itemres!=1)
+    return itemres;
   endif
   return 1;
 endfunction
