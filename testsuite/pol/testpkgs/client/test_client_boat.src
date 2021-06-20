@@ -26,20 +26,63 @@ program chartests()
   if (!boat)
     return ret_error("Failed to create boat "+boat);
   endif
+endprogram
+
+exported function move_boat()
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
   while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
   endwhile
-endprogram
+  var res:=boat.mobiles.size()==1;
+  Clear_Event_Queue();
+  var item:=CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
+  print(item.serial);
+  var moveres := MoveBoat(boat,0);
+  while (1)
+    var ev:=waitForClient(0, {EVT_BOAT_MOVED});
+    if (!ev)
+      continue;
+    endif
+    print(ev);
+    break;
+  endwhile
+  clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  while (1)
+    var ev:=waitForClient(0, {EVT_LIST_OBJS});
+    if (!ev)
+      return ev;
+    endif
+    print(ev);
+    break;
+  endwhile
+
+  foreach item in (boat.items)
+    DestroyItem(item);
+  endforeach
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  endwhile
+  Clear_Event_Queue();
+  if (!res)
+    return ret_error("Char not on ship");
+  endif
+  if (!moveres)
+    return ret_error("Failed to move ship {}".format(moveres));
+  endif
+  return 1;
+endfunction
 
 // move a boat with to many items on it (smooth boat pkt overflows)
 exported function move_boat_overflow()
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  endwhile
   var res:=boat.mobiles.size()==1;
   Clear_Event_Queue();
   clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=1, id:=0});
   while (!waitForClient(0, {EVT_SILENT_ITEMS}))
   endwhile
-  var h:=getstandingheight(11,50, boat.z, boat.realm);
   for i:=1 to 8000
     CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
   endfor
@@ -55,7 +98,6 @@ exported function move_boat_overflow()
   while (!waitForClient(0, {EVT_SILENT_ITEMS}))
   endwhile
   Clear_Event_Queue();
-  DestroyMulti(boat);
   if (!res)
     return ret_error("Char not on ship");
   endif

@@ -18,6 +18,7 @@ const EVT_OPEN_BACKPACK := "open_bp";
 const EVT_TARGET := "target";
 const EVT_SILENT_ITEMS := "silent_items";
 const EVT_NEW_SUBSERVER := "new_subserver";
+const EVT_BOAT_MOVED := "boat_moved";
 
 function clientTestActive()
   var testclient:=GetEnvironmentVariable("POLCORE_TESTCLIENT")=="TRUE";

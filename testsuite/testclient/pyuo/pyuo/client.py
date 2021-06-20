@@ -111,6 +111,11 @@ class Item(UOBject):
 
   def update(self, pkt):
     ''' Update from packet '''
+    if isinstance(pkt, dict):
+      self.x = pkt['x']
+      self.y = pkt['y']
+      self.z = pkt['z']
+      return
     if not isinstance(pkt, packets.ObjectInfoPacket) and not isinstance(pkt, packets.NewObjectInfoPacket):
       raise ValueError("Expecting a (New)DrawObjectPacket")
     self.serial = pkt.serial
@@ -857,8 +862,7 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_NEW_SUBSERVER))
       self.log.info('Ignoring new subserver packet')
     elif isinstance(pkt, packets.SmoothBoatPacket):
-      self.log.info('Ignoring SmoothBoat packet')
-      self.log.info('{} items'.format(pkt.count))
+      self.handleSmoothBoatPacket(pkt)
 
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
@@ -1040,6 +1044,22 @@ class Client(threading.Thread):
       self.player.notoriety = pkt.notoriety
       self.brain.event(brain.Event(brain.Event.EVT_NOTORIETY,
           old=old, new=self.player.notoriety))
+  
+  @status('game')
+  @clientthread
+  @logincomplete
+  def handleSmoothBoatPacket(self, pkt):
+    for obj in pkt.objs:
+      if obj['serial'] in self.objects.keys():
+        self.objects[obj['serial']].update(obj)
+        if not self.silentitems:
+          self.log.info("Boat move item: %s", self.objects[obj['serial']])
+    if pkt.serial in self.objects.keys():
+      self.objects[pkt.serial].update({'x':pkt.x, 'y':pkt.y,'z':pkt.z})
+      if not self.silentitems:
+        self.log.info("Boat move: %s", self.objects[pkt.serial])
+        self.brain.event(brain.Event(brain.Event.EVT_BOAT_MOVED, boat=self.objects[pkt.serial]))
+
 
   @logincomplete
   def sendVersion(self):

@@ -189,6 +189,7 @@ class Event:
   EVT_NEW_ITEM = 8
   EVT_REMOVED_OBJ = 9
   EVT_NEW_SUBSERVER = 10
+  EVT_BOAT_MOVED = 11
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -239,4 +240,6 @@ class Event:
       return "new_subserver"
     elif self.type==Event.EVT_SILENT_ITEMS:
       return "silent_items"
+    elif self.type==Event.EVT_BOAT_MOVED:
+      return "boat_moved"
 
