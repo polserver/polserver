@@ -51,7 +51,7 @@ exported function move_boat_overflow()
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
   while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
   endwhile
-  clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=0, id:=1});
+  clientcon.sendevent(struct{todo:=EVT_SILENT_ITEMS, arg:=0, id:=0});
   while (!waitForClient(0, {EVT_SILENT_ITEMS}))
   endwhile
   Clear_Event_Queue();
