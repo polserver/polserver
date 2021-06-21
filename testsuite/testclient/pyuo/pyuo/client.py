@@ -111,8 +111,13 @@ class Item(UOBject):
 
   def update(self, pkt):
     ''' Update from packet '''
-    if not isinstance(pkt, packets.ObjectInfoPacket):
-      raise ValueError("Expecting a DrawObjectPacket")
+    if isinstance(pkt, dict):
+      self.x = pkt['x']
+      self.y = pkt['y']
+      self.z = pkt['z']
+      return
+    if not isinstance(pkt, packets.ObjectInfoPacket) and not isinstance(pkt, packets.NewObjectInfoPacket):
+      raise ValueError("Expecting a (New)DrawObjectPacket")
     self.serial = pkt.serial
     self.graphic = pkt.graphic
     self.amount = pkt.count
@@ -278,6 +283,11 @@ class Mobile(UOBject):
 
   def update(self, pkt):
     ''' Update from packet '''
+    if isinstance(pkt, dict):
+      self.x = pkt['x']
+      self.y = pkt['y']
+      self.z = pkt['z']
+      return
     if not isinstance(pkt, packets.UpdatePlayerPacket) and not isinstance(pkt, packets.DrawObjectPacket):
       raise ValueError("Expecting an UpdatePlayerPacket or DrawObjectPacket")
     self.serial = pkt.serial
@@ -486,7 +496,7 @@ class Client(threading.Thread):
   ## Minimum interval between two pings
   PING_INTERVAL = 30
   ## Version sent to server
-  VERSION = '5.0.9.1'
+  VERSION = '7.0.9.1'
   ## Language sent to server
   LANG = 'ENU'
 
@@ -545,6 +555,8 @@ class Client(threading.Thread):
 
     ## Current cursor (0 = Felucca, unhued / BRITANNIA map. 1 = Trammel, hued gold / BRITANNIA map, 2 = (switch to) ILSHENAR map)
     self.cursor = None
+
+    self.disable_item_logging = False # do not signal or log new items
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -723,6 +735,8 @@ class Client(threading.Thread):
 
     elif isinstance(pkt, packets.ObjectInfoPacket):
       self.handleObjectInfoPacket(pkt)
+    elif isinstance(pkt, packets.NewObjectInfoPacket):
+      self.handleObjectInfoPacket(pkt)
 
     elif isinstance(pkt, packets.UpdatePlayerPacket):
       assert self.lc
@@ -733,8 +747,9 @@ class Client(threading.Thread):
       assert self.lc
       if pkt.serial in self.objects:
         del self.objects[pkt.serial]
-        self.log.info("Object 0x%X went out of sight", pkt.serial)
-        self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
+        if not self.disable_item_logging:
+          self.log.info("Object 0x%X went out of sight", pkt.serial)
+          self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
       else:
         self.log.warn("Server requested to delete 0x%X but i don't know it", pkt.serial)
 
@@ -849,7 +864,10 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.SendSkillsPacket):
       self.log.info('Ignoring skills packet')
     elif isinstance(pkt, packets.NewSubServerPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_NEW_SUBSERVER))
       self.log.info('Ignoring new subserver packet')
+    elif isinstance(pkt, packets.SmoothBoatPacket):
+      self.handleSmoothBoatPacket(pkt)
 
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
@@ -922,12 +940,15 @@ class Client(threading.Thread):
   def handleObjectInfoPacket(self, pkt):
     if pkt.serial in self.objects.keys():
       self.objects[pkt.serial].update(pkt)
-      self.log.info("Refresh item: %s", self.objects[pkt.serial])
+      if not self.disable_item_logging:
+        self.log.info("Refresh item: %s", self.objects[pkt.serial])
     else:
       item = Item(self, pkt)
-      self.log.info("New item: %s", item)
+      if not self.disable_item_logging:
+        self.log.info("New item: %s", item)
       self.objects[item.serial] = item
-      self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
+      if not self.disable_item_logging:
+        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
 
   @status('game')
   @clientthread
@@ -1028,6 +1049,22 @@ class Client(threading.Thread):
       self.player.notoriety = pkt.notoriety
       self.brain.event(brain.Event(brain.Event.EVT_NOTORIETY,
           old=old, new=self.player.notoriety))
+  
+  @status('game')
+  @clientthread
+  @logincomplete
+  def handleSmoothBoatPacket(self, pkt):
+    for obj in pkt.objs:
+      if obj['serial'] in self.objects.keys():
+        self.objects[obj['serial']].update(obj)
+        if not self.disable_item_logging:
+          self.log.info("Boat move item: %s", self.objects[obj['serial']])
+    if pkt.serial in self.objects.keys():
+      self.objects[pkt.serial].update({'x':pkt.x, 'y':pkt.y,'z':pkt.z})
+      if not self.disable_item_logging:
+        self.log.info("Boat move: %s", self.objects[pkt.serial])
+        self.brain.event(brain.Event(brain.Event.EVT_BOAT_MOVED, boat=self.objects[pkt.serial]))
+
 
   @logincomplete
   def sendVersion(self):
@@ -1166,8 +1203,11 @@ class Client(threading.Thread):
     for todo in queue:
       if todo.type == brain.Event.EVT_EXIT:
         return False
-      if todo.type == brain.Event.EVT_LIST_OBJS:
+      elif todo.type == brain.Event.EVT_LIST_OBJS:
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
+      elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
+        self.disable_item_logging = todo.value
+        self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
       else:
         raise NotImplementedError("Unknown todo event {}",format(ev.type))
     return True

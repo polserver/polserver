@@ -120,6 +120,10 @@ class Packet():
   def dushort(self):
     ''' Returns next unsigned short from the receive buffer '''
     return struct.unpack('>H', self.rpb(2))[0]
+  
+  def dsshort(self):
+    ''' Returns next signed short from the receive buffer '''
+    return struct.unpack('>h', self.rpb(2))[0]
 
   def duint(self):
     ''' Returns next unsigned int from the receive buffer '''
@@ -375,7 +379,7 @@ class StatusBarInfoPacket(Packet):
 
 
 class ObjectInfoPacket(Packet):
-  ''' Braws an item '''
+  ''' Draws an item '''
 
   cmd = 0x1a
 
@@ -514,18 +518,19 @@ class DrawContainerPacket(Packet):
   ''' Draws a container's gump '''
 
   cmd = 0x24
-  length = 7
+  length = 9 # 7090 length
 
   def decodeChild(self):
     self.serial = self.duint()
     self.gump = self.dushort()
+    self.dushort()
 
 
 class AddItemToContainerPacket(Packet):
   ''' Adds a single item to a container '''
 
   cmd = 0x25
-  length = 20
+  length = 21 # 7090 length
 
   def decodeChild(self):
     self.serial = self.duint()
@@ -534,6 +539,7 @@ class AddItemToContainerPacket(Packet):
     self.amount = self.dushort()
     self.x = self.dushort()
     self.y = self.dushort()
+    self.slotindex = self.duchar()
     self.container = self.duint()
     self.color = self.dushort()
 
@@ -636,6 +642,7 @@ class AddItemsToContainerPacket(Packet):
         'amount': self.dushort(),
         'x': self.dushort(),
         'y': self.dushort(),
+        'slot': self.duchar(), #7090 version
         'container': self.duint(),
         'color': self.dushort(),
       })
@@ -1393,6 +1400,59 @@ class CompressedGumpPacket(Packet):
     self.texts = zlib.decompress(self.rpb(ctxtLen-4))
     assert len(self.texts) == dtxtLen
     #self.duchar() # Trailing byte?
+
+
+class NewObjectInfoPacket(Packet):
+  ''' Draws an item '''
+
+  cmd = 0xf3
+  length = 26 #7090 version
+
+  def decodeChild(self):
+    self.dushort()
+    self.duchar()
+    self.serial = self.duint()
+    self.graphic = self.dushort()
+    self.duchar()
+    self.count = self.dushort()
+    self.count = self.dushort()
+    x = self.dushort()
+    y = self.dushort()
+    self.z = self.dschar()
+    self.facing = self.dschar()
+    self.color = self.dushort()
+    self.flag = self.duchar()
+    self.dushort()
+    self.x = x & 0x7fff
+    self.y = y & 0x3fff
+
+class SmoothBoatPacket(Packet):
+  ''' boat/item update '''
+
+  cmd = 0xf6
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.speed = self.duchar()
+    self.dir = self.duchar()
+    self.facing = self.duchar()
+    self.x = self.dushort()
+    self.y = self.dushort()
+    self.z = self.dsshort()
+    self.count = self.dushort()
+    self.objs=[]
+    for i in range(self.count):
+      try:
+        self.objs.append({
+         'serial':self.duint(),
+         'x':self.dushort(),
+         'y':self.dushort(),
+         'z':self.dsshort(),
+        })
+      except Exception as e:
+        self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
+        break
 
 
 ################################################################################

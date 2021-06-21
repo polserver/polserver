@@ -1,0 +1,132 @@
+use os;
+use uo;
+use boat;
+
+include "testutil";
+include "communication";
+
+var char;
+var char2;
+var boat;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a:=FindAccount("testclient0");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+  a:=FindAccount("testclient1");
+  char2:=a.getcharacter(1);
+  if (!char2)
+    return ret_error("Could not find char2 at slot 1");
+  endif
+  boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+endprogram
+
+exported function move_boat()
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  endwhile
+  var res:=boat.mobiles.size()==1;
+  Clear_Event_Queue();
+  var item:=CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
+  var moveres := MoveBoat(boat,0);
+  var clientmoveres:=ret_error("no boat pos");
+  while (1)
+    var ev:=waitForClient(0, {EVT_BOAT_MOVED});
+    if (!ev)
+      continue;
+    endif
+    if (ev.pos[1]!=10 || ev.pos[2]!=49 || ev.pos[3]!=-4)
+      clientmoveres:=ret_error("wrong boat pos {} != {},{},{}".format(ev.pos,10,49,-4));
+    else
+      clientmoveres:=1;
+    endif
+    break;
+  endwhile
+  clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  var itemres:=ret_error("item not found {}".format(item.serial));
+  while (1)
+    var ev:=waitForClient(0, {EVT_LIST_OBJS});
+    if (!ev)
+      return ev;
+    endif
+    foreach it in (ev["objs"])
+      if (it["serial"] == item.serial)
+        var p:=it["pos"];
+        if (p[1]!=11 || p[2]!=49 || p[3]!=-1)
+          itemres:=ret_error("wrong item pos {} != {},{},{}".format(p,11,49,-1));
+        else
+          itemres:=1;
+        endif
+      endif
+    endforeach
+    break;
+  endwhile
+
+  foreach item in (boat.items)
+    DestroyItem(item);
+  endforeach
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  endwhile
+  Clear_Event_Queue();
+  if (!res)
+    return ret_error("Char not on ship");
+  endif
+  if (!moveres)
+    return ret_error("Failed to move ship {}".format(moveres));
+  endif
+  if (clientmoveres!=1)
+    return clientmoveres;
+  endif
+  if (itemres!=1)
+    return itemres;
+  endif
+  return 1;
+endfunction
+
+// move a boat with to many items on it (smooth boat pkt overflows)
+exported function move_boat_overflow()
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  endwhile
+  var res:=boat.mobiles.size()==1;
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:=EVT_DISABLE_ITEM_LOGGING, arg:=1, id:=0});
+  while (!waitForClient(0, {EVT_DISABLE_ITEM_LOGGING}))
+  endwhile
+  for i:=1 to 8000
+    CreateItemAtLocation(11,50,h.z, 0x3e3f, 1, boat.realm);
+  endfor
+  var itemres := boat.items.size() > 7000;
+  var moveres := MoveBoat(boat,0);
+  foreach item in (boat.items)
+    DestroyItem(item);
+  endforeach
+  MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
+  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  endwhile
+  clientcon.sendevent(struct{todo:=EVT_DISABLE_ITEM_LOGGING, arg:=0, id:=0});
+  while (!waitForClient(0, {EVT_DISABLE_ITEM_LOGGING}))
+  endwhile
+  Clear_Event_Queue();
+  if (!res)
+    return ret_error("Char not on ship");
+  endif
+  if (!itemres)
+    return ret_error("Not enough items");
+  endif
+  if (!moveres)
+    return ret_error("Failed to move ship {}".format(moveres));
+  endif
+  return 1;
+endfunction
+

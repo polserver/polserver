@@ -303,55 +303,63 @@ void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u
   msg->WriteFlipped<u16>( newy );
   msg->WriteFlipped<u16>( ( z < 0 ) ? static_cast<u16>( 0x10000 + z ) : static_cast<u16>( z ) );
 
-  u16 object_count = static_cast<u16>( travellers_.size() + Components.size() );
-  msg->WriteFlipped<u16>( object_count );
-
-  const size_t bytesTravellers = ( sizeof( u32 ) + 3 * sizeof( u16 ) ) * travellers_.size();
-  const size_t bytesComponents = ( sizeof( u32 ) + 3 * sizeof( u16 ) ) * Components.size();
-  const size_t predictedSize = 18 + bytesComponents + bytesTravellers;
-  if ( predictedSize > msg->SIZE )
-  {
-    POLLOG_INFO.Format(
-        "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating movement packet\n",
-        serial, x, y, z, travellers_.size() );
-  }
-
-  auto stillFitsTraveller = [&msg, bytesComponents]() -> bool {
-    return msg->SIZE >= msg->offset + bytesComponents + ( sizeof( u32 ) + 3 * sizeof( u16 ) );
-  };
-
-  for ( auto& travellerRef : travellers_ )
-  {
-    UObject* obj = travellerRef.get();
-
-    if ( !obj->orphan() )
-    {
-      // show travellers only as long as they fit in the packet
-      if ( !stillFitsTraveller() )
-        break;
-
-      msg->Write<u32>( obj->serial_ext );
-      msg->WriteFlipped<u16>( static_cast<u16>( obj->x + xmod ) );
-      msg->WriteFlipped<u16>( static_cast<u16>( obj->y + ymod ) );
-      msg->WriteFlipped<u16>(
-          static_cast<u16>( ( obj->z < 0 ) ? ( 0x10000 + obj->z ) : ( obj->z ) ) );
-    }
-  }
-
+  const u16 max_count = ( 0xffff - 18 ) / 10;
+  u16 object_count = 0;
+  size_t len_offset = msg->offset;
+  msg->offset += 2;  // Length
   for ( auto& component : Components )
   {
-    if ( component != nullptr && !component->orphan() )
+    if ( object_count >= max_count )
     {
-      msg->Write<u32>( component->serial_ext );
-      msg->WriteFlipped<u16>( static_cast<u16>( component->x + xmod ) );
-      msg->WriteFlipped<u16>( static_cast<u16>( component->y + ymod ) );
-      msg->WriteFlipped<u16>( static_cast<u16>( ( component->z < 0 ) ? ( 0x10000 + component->z )
-                                                                     : ( component->z ) ) );
+      POLLOG_INFO.Format(
+          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating movement packet\n",
+          serial, x, y, z, travellers_.size() );
+      break;
     }
+    if ( component == nullptr || component->orphan() )
+      continue;
+    msg->Write<u32>( component->serial_ext );
+    msg->WriteFlipped<u16>( static_cast<u16>( component->x + xmod ) );
+    msg->WriteFlipped<u16>( static_cast<u16>( component->y + ymod ) );
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( ( component->z < 0 ) ? ( 0x10000 + component->z ) : ( component->z ) ) );
+    ++object_count;
   }
+  for ( auto& travellerRef : travellers_ )
+  {
+    if ( object_count >= max_count )
+    {
+      POLLOG_INFO.Format(
+          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating movement packet\n",
+          serial, x, y, z, travellers_.size() );
+      break;
+    }
+    UObject* obj = travellerRef.get();
 
+    if ( obj->orphan() )
+      continue;
+    if ( obj->ismobile() )
+    {
+      auto* chr = static_cast<Mobile::Character*>( obj );
+      if ( !client->chr->is_visible_to_me( chr ) )
+        continue;
+    }
+    else
+    {
+      auto* item = static_cast<Items::Item*>( obj );
+      if ( item->invisible() && !client->chr->can_seeinvisitems() )
+        continue;
+    }
+    msg->Write<u32>( obj->serial_ext );
+    msg->WriteFlipped<u16>( static_cast<u16>( obj->x + xmod ) );
+    msg->WriteFlipped<u16>( static_cast<u16>( obj->y + ymod ) );
+    msg->WriteFlipped<u16>(
+        static_cast<u16>( ( obj->z < 0 ) ? ( 0x10000 + obj->z ) : ( obj->z ) ) );
+    ++object_count;
+  }
   u16 len = msg->offset;
-
+  msg->offset = len_offset;
+  msg->WriteFlipped<u16>( object_count );
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
@@ -362,7 +370,9 @@ void UBoat::send_smooth_move_to_inrange( Plib::UFACING move_dir, u8 speed, u16 n
                                          bool relative )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      newx, newy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+      newx, newy, realm, RANGE_VISUAL_LARGE_BUILDINGS,
+      [&]( Mobile::Character* zonechr )
+      {
         Network::Client* client = zonechr->client;
 
         if ( inrange( client->chr, this ) &&
@@ -378,26 +388,13 @@ void UBoat::send_display_boat( Network::Client* client )
 
   msg->offset += 2;  // Length
 
-  // Add 1 for the boat aswell
-  const u16 inner_packet_count = static_cast<u16>( travellers_.size() + Components.size() + 1 );
-  msg->WriteFlipped<u16>( inner_packet_count );
-
   // Send_display_boat is only called for CLIENTTYPE_7090, so each 0xF3 is 26 bytes here
-  const size_t bytesComponents = Components.size() * 26;
-  const size_t predictedSize = 5 + inner_packet_count * 26;
-  if ( predictedSize > msg->SIZE )
-  {
-    POLLOG_INFO.Format(
-        "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating display boat packet\n",
-        serial, x, y, z, travellers_.size() );
-  }
-
-  auto stillFitsTraveller = [&msg, bytesComponents]() -> bool {
-    return msg->SIZE >= msg->offset + bytesComponents + 26;
-  };
+  const u16 max_count = ( 0xffff - 5 ) / 26;
+  u16 object_count = 1;  // Add 1 for the boat aswell
+  size_t len_offset = msg->offset;
+  msg->offset += 2;  // Length
 
   // Build boat part
-
   msg->Write<u8>( 0xF3u );
   msg->WriteFlipped<u16>( 0x1u );
   msg->Write<u8>( 0x2u );  // MultiData flag
@@ -414,91 +411,103 @@ void UBoat::send_display_boat( Network::Client* client )
   msg->offset++;     // flags 0 for multis
   msg->offset += 2;  // HSA access flags, TODO find out what these are for and implement it
 
-  u8 flags = 0;
-
-  // TODO: Check if invisible items/mobiles should be handled differently. Right now this might be
-  // leaking information.
+  for ( auto& component : Components )
+  {
+    if ( object_count >= max_count )
+    {
+      POLLOG_INFO.Format(
+          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating display boat packet\n",
+          serial, x, y, z, travellers_.size() );
+      break;
+    }
+    if ( component == nullptr || component->orphan() )
+      continue;
+    msg->Write<u8>( 0xF3u );
+    msg->WriteFlipped<u16>( 0x1u );
+    msg->Write<u8>( 0x0u );  // ItemData flag
+    msg->Write<u32>( component->serial_ext );
+    msg->WriteFlipped<u16>( component->graphic );
+    msg->offset++;  // ID offset, TODO CHECK IF NEED THESE
+    msg->WriteFlipped<u16>( component->get_senditem_amount() );  // Amount
+    msg->WriteFlipped<u16>( component->get_senditem_amount() );  // Amount
+    msg->WriteFlipped<u16>( component->x );
+    msg->WriteFlipped<u16>( component->y );
+    msg->Write<s8>( component->z );
+    msg->Write<u8>( component->facing );
+    msg->WriteFlipped<u16>( component->color );
+    msg->offset++;     // FLAGS, no flags for components
+    msg->offset += 2;  // HSA access flags, TODO find out what these are for and implement it
+    ++object_count;
+  }
   for ( auto& travellerRef : travellers_ )
   {
     UObject* obj = travellerRef.get();
 
-    if ( !obj->orphan() )
+    if ( obj->orphan() )
+      continue;
+    if ( object_count >= max_count )
     {
-      // show travellers only as long as they fit in the packet
-      if ( !stillFitsTraveller() )
-        break;
-
-      msg->Write<u8>( 0xF3u );
-      msg->WriteFlipped<u16>( 0x1u );
-
-      if ( obj->ismobile() )
-        msg->Write<u8>( 0x1u );  // CharData flag
-      else
-        msg->Write<u8>( 0x0u );  // ItemData flag
-
-      msg->Write<u32>( obj->serial_ext );
-      msg->WriteFlipped<u16>( obj->graphic );
-      msg->offset++;  // ID offset, TODO CHECK IF NEED THESE
-
-      if ( obj->ismobile() )
-      {
-        flags = 0;
-
-        msg->WriteFlipped<u16>( 0x1u );  // Amount
-        msg->WriteFlipped<u16>( 0x1u );  // Amount
-      }
-      else
-      {
-        Items::Item* item = static_cast<Items::Item*>( obj );
-
-        if ( item->invisible() && !client->chr->can_seeinvisitems() )
-        {
-          send_remove_object( client, item );
-          continue;
-        }
-
-        if ( client->chr->can_move( item ) )
-          flags |= ITEM_FLAG_FORCE_MOVABLE;
-
-        msg->WriteFlipped<u16>( item->get_senditem_amount() );  // Amount
-        msg->WriteFlipped<u16>( item->get_senditem_amount() );  // Amount
-      }
-
-      msg->WriteFlipped<u16>( obj->x );
-      msg->WriteFlipped<u16>( obj->y );
-      msg->Write<s8>( obj->z );
-      msg->Write<u8>( obj->facing );
-      msg->WriteFlipped<u16>( obj->color );
-
-      msg->Write<u8>( flags );  // FLAGS
-      msg->offset += 2;  // HSA access flags, TODO find out what these are for and implement it
+      POLLOG_INFO.Format(
+          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating display boat packet\n",
+          serial, x, y, z, travellers_.size() );
+      break;
     }
-  }
-
-  for ( auto& component : Components )
-  {
-    if ( component != nullptr && !component->orphan() )
+    u8 flags = 0;
+    if ( obj->ismobile() )
     {
-      msg->Write<u8>( 0xF3u );
-      msg->WriteFlipped<u16>( 0x1u );
+      auto* chr = static_cast<Mobile::Character*>( obj );
+      if ( !client->chr->is_visible_to_me( chr ) )
+        continue;
+    }
+    else
+    {
+      auto* item = static_cast<Items::Item*>( obj );
+      if ( item->invisible() && !client->chr->can_seeinvisitems() )
+      {
+        send_remove_object( client, item );
+        continue;
+      }
+      if ( client->chr->can_move( item ) )
+        flags |= ITEM_FLAG_FORCE_MOVABLE;
+    }
+
+    msg->Write<u8>( 0xF3u );
+    msg->WriteFlipped<u16>( 0x1u );
+
+    if ( obj->ismobile() )
+      msg->Write<u8>( 0x1u );  // CharData flag
+    else
       msg->Write<u8>( 0x0u );  // ItemData flag
-      msg->Write<u32>( component->serial_ext );
-      msg->WriteFlipped<u16>( component->graphic );
-      msg->offset++;  // ID offset, TODO CHECK IF NEED THESE
-      msg->WriteFlipped<u16>( component->get_senditem_amount() );  // Amount
-      msg->WriteFlipped<u16>( component->get_senditem_amount() );  // Amount
-      msg->WriteFlipped<u16>( component->x );
-      msg->WriteFlipped<u16>( component->y );
-      msg->Write<s8>( component->z );
-      msg->Write<u8>( component->facing );
-      msg->WriteFlipped<u16>( component->color );
-      msg->offset++;     // FLAGS, no flags for components
-      msg->offset += 2;  // HSA access flags, TODO find out what these are for and implement it
+
+    msg->Write<u32>( obj->serial_ext );
+    msg->WriteFlipped<u16>( obj->graphic );
+    msg->offset++;  // ID offset, TODO CHECK IF NEED THESE
+
+    if ( obj->ismobile() )
+    {
+      msg->WriteFlipped<u16>( 0x1u );  // Amount
+      msg->WriteFlipped<u16>( 0x1u );  // Amount
     }
+    else
+    {
+      Items::Item* item = static_cast<Items::Item*>( obj );
+      msg->WriteFlipped<u16>( item->get_senditem_amount() );  // Amount
+      msg->WriteFlipped<u16>( item->get_senditem_amount() );  // Amount
+    }
+
+    msg->WriteFlipped<u16>( obj->x );
+    msg->WriteFlipped<u16>( obj->y );
+    msg->Write<s8>( obj->z );
+    msg->Write<u8>( obj->facing );
+    msg->WriteFlipped<u16>( obj->color );
+
+    msg->Write<u8>( flags );  // FLAGS
+    msg->offset += 2;         // HSA access flags, TODO find out what these are for and implement it
+    ++object_count;
   }
-
   u16 len = msg->offset;
-
+  msg->offset = len_offset;
+  msg->WriteFlipped<u16>( object_count );
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
 
@@ -553,7 +562,9 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
 void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+      x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS,
+      [&]( Mobile::Character* zonechr )
+      {
         Network::Client* client = zonechr->client;
 
         if ( client->ClientType & Network::CLIENTTYPE_7090 )
@@ -565,7 +576,9 @@ void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
       } );
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      oldx, oldy, this->realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+      oldx, oldy, this->realm, RANGE_VISUAL_LARGE_BUILDINGS,
+      [&]( Mobile::Character* zonechr )
+      {
         Network::Client* client = zonechr->client;
 
         if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
@@ -873,7 +886,9 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
       }
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          item->x, item->y, realm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
@@ -881,7 +896,9 @@ void UBoat::move_travellers( Plib::UFACING move_dir, const BoatContext& oldlocat
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          oldx, oldy, oldrealm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !inrange( client->chr,
@@ -1025,7 +1042,9 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
       MoveItemWorldPosition( oldx, oldy, item, nullptr );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          item->x, item->y, realm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
@@ -1033,7 +1052,9 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          oldx, oldy, realm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !inrange( client->chr,
@@ -1298,7 +1319,9 @@ bool UBoat::move( Plib::UFACING dir, u8 speed, bool relative )
     move_components( realm );
 
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+        x, y, realm, RANGE_VISUAL_LARGE_BUILDINGS,
+        [&]( Mobile::Character* zonechr )
+        {
           Network::Client* client = zonechr->client;
 
           if ( client->ClientType & Network::CLIENTTYPE_7090 )
@@ -1318,7 +1341,9 @@ bool UBoat::move( Plib::UFACING dir, u8 speed, bool relative )
         } );
 
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS, [&]( Mobile::Character* zonechr ) {
+        oldx, oldy, realm, RANGE_VISUAL_LARGE_BUILDINGS,
+        [&]( Mobile::Character* zonechr )
+        {
           Network::Client* client = zonechr->client;
 
           if ( !inrange( client->chr, this ) )  // send remove to chrs only seeing the old loc
@@ -1412,7 +1437,9 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
       MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          item->x, item->y, realm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
@@ -1420,7 +1447,9 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          oldx, oldy, oldrealm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !inrange( client->chr,
@@ -1473,7 +1502,9 @@ void UBoat::move_components( Realms::Realm* oldrealm )
       MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          item->x, item->y, realm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          item->x, item->y, realm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !( client->ClientType & Network::CLIENTTYPE_7090 ) )
@@ -1481,7 +1512,9 @@ void UBoat::move_components( Realms::Realm* oldrealm )
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL, [&]( Mobile::Character* zonechr ) {
+          oldx, oldy, oldrealm, RANGE_VISUAL,
+          [&]( Mobile::Character* zonechr )
+          {
             Network::Client* client = zonechr->client;
 
             if ( !inrange( client->chr,

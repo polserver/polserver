@@ -92,6 +92,8 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             targettype = targettype,
             res = res is not None))
+      elif todo=="disable_item_logging":
+        self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
 
     return True
 
@@ -243,6 +245,13 @@ class PolServer:
     elif ev.type==Event.EVT_TARGET:
       res["res"]=ev.res
       res["targettype"]=ev.targettype
+    elif ev.type==Event.EVT_NEW_SUBSERVER:
+      pass
+    elif ev.type==Event.EVT_DISABLE_ITEM_LOGGING:
+      pass
+    elif ev.type==Event.EVT_BOAT_MOVED:
+      res['serial']=ev.boat.serial
+      res["pos"]=[ev.boat.x, ev.boat.y, ev.boat.z]
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

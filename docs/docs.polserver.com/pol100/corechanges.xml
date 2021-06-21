@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-10-2021</datemodified>
+		<datemodified>06-21-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>06-21-2021</date>
+			<author>Turley:</author>
+			<change type="Fixed">HSA boat movement packets (0xF7 and 0xF6) overflow logic. It sends now the correct truncated object count and checks visibility of the objects it sends.</change>
+		</entry>
 		<entry>
 			<date>04-10-2021</date>
 			<author>AsYlum:</author>

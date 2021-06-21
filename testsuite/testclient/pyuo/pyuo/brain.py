@@ -188,11 +188,14 @@ class Event:
   EVT_NEW_MOBILE = 7
   EVT_NEW_ITEM = 8
   EVT_REMOVED_OBJ = 9
+  EVT_NEW_SUBSERVER = 10
+  EVT_BOAT_MOVED = 11
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
   EVT_OPEN_BACKPACK = 102
   EVT_TARGET = 103
+  EVT_DISABLE_ITEM_LOGGING = 104
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -233,4 +236,10 @@ class Event:
       return "open_bp"
     elif self.type==Event.EVT_TARGET:
       return "target"
+    elif self.type==Event.EVT_NEW_SUBSERVER:
+      return "new_subserver"
+    elif self.type==Event.EVT_DISABLE_ITEM_LOGGING:
+      return "disable_item_logging"
+    elif self.type==Event.EVT_BOAT_MOVED:
+      return "boat_moved"
 
