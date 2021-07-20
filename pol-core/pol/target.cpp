@@ -101,9 +101,7 @@ void (*func)(Client *client, PKTBI_6C *msg);
 
 TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_on_cancel )
 {
-  cursorid_ = gamestate.target_cursors._cursorid_count;
-
-  gamestate.target_cursors._cursorid_count++;
+  cursorid_ = gamestate.target_cursors._cursorid_count++;
 }
 
 // FIXME we need something like is done for item menus, where we check
@@ -141,7 +139,8 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
   u32 target_cursor_serial = cfBEu32( msg->target_cursor_serial );
   if ( target_cursor_serial != cursorid_ )
   {
-    SuspiciousActs::OutOfSequenceCursor( chr->client );
+    if ( target_cursor_serial != 0 )
+      SuspiciousActs::OutOfSequenceCursor( chr->client );
     cancel( chr );
     return;
   }
