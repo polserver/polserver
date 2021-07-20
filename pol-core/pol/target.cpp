@@ -38,25 +38,13 @@ namespace Core
 void handle_target_cursor( Network::Client* client, PKTBI_6C* msg )
 {
   Mobile::Character* targetter = client->chr;
-  u32 target_cursor_serial = cfBEu32( msg->target_cursor_serial );
 
-  // does target cursor even exist? (NOTE 1-based)
-  if ( target_cursor_serial == 0 ||
-       target_cursor_serial > gamestate.target_cursors._cursorid_count )
-  {
-    return;
-  }
-
-  TargetCursor* tcursor = gamestate.target_cursors._target_cursors[target_cursor_serial - 1];
-  if ( tcursor != targetter->tcursor2 )
+  if ( !targetter->tcursor2 )
   {
     SuspiciousActs::OutOfSequenceCursor( client );
-    targetter->tcursor2 = nullptr;
     return;
   }
-
-  targetter->tcursor2 = nullptr;
-  tcursor->handle_target_cursor( targetter, msg );
+  targetter->tcursor2->handle_target_cursor( targetter, msg );
 }
 
 /*
@@ -113,14 +101,7 @@ void (*func)(Client *client, PKTBI_6C *msg);
 
 TargetCursor::TargetCursor( bool inform_on_cancel ) : inform_on_cancel_( inform_on_cancel )
 {
-  if ( gamestate.target_cursors._cursorid_count > gamestate.target_cursors._target_cursors.size() )
-  {
-    throw std::runtime_error( "Too many targetting cursors!" );
-  }
-
   cursorid_ = gamestate.target_cursors._cursorid_count;
-
-  gamestate.target_cursors._target_cursors[cursorid_ - 1] = this;
 
   gamestate.target_cursors._cursorid_count++;
 }
@@ -157,6 +138,13 @@ void TargetCursor::cancel( Mobile::Character* chr )
 
 void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
 {
+  u32 target_cursor_serial = cfBEu32( msg->target_cursor_serial );
+  if ( target_cursor_serial != cursorid_ )
+  {
+    SuspiciousActs::OutOfSequenceCursor( chr->client );
+    cancel( chr );
+    return;
+  }
   if ( msg->selected_serial != 0 )  // targetted something
   {
     if ( chr->dead() )  // but is dead
@@ -209,7 +197,10 @@ void TargetCursor::handle_target_cursor( Mobile::Character* chr, PKTBI_6C* msg )
   }
 
   if ( msg->x != 0xffff || msg->selected_serial != 0 )
+  {
+    chr->tcursor2 = nullptr;
     on_target_cursor( chr, msg );
+  }
   else
     cancel( chr );
 }
@@ -419,10 +410,8 @@ void NoLosUObjectCursor::on_target_cursor( Mobile::Character* targetter, PKTBI_6
 }
 
 Cursors::Cursors()
-    : _target_cursors(),  // NOTE: the id is 1-based (seems that the stealth client has problem with
-                          // serial==0)
-      _cursorid_count(
-          1 ),  // array and index needs to be initialized before registering the cursors
+    : _cursorid_count( 1 ),  // NOTE: the id is 1-based (seems that the stealth client has problem
+                             // with serial==0)
       los_checked_script_cursor( Module::handle_script_cursor, true ),
       nolos_checked_script_cursor( Module::handle_script_cursor, true ),
 
