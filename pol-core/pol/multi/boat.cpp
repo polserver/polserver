@@ -303,7 +303,8 @@ void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u
   msg->WriteFlipped<u16>( newy );
   msg->WriteFlipped<u16>( ( z < 0 ) ? static_cast<u16>( 0x10000 + z ) : static_cast<u16>( z ) );
 
-  const u16 max_count = ( 0xf000 - 18 ) / 10; // encoding room?
+  // 0xf000 encoding room, huffman can take more space then the maximum of 0xffff
+  const u16 max_count = ( 0xf000 - 18 ) / 10;
   u16 object_count = 0;
   size_t len_offset = msg->offset;
   msg->offset += 2;  // Length
@@ -389,7 +390,8 @@ void UBoat::send_display_boat( Network::Client* client )
   msg->offset += 2;  // Length
 
   // Send_display_boat is only called for CLIENTTYPE_7090, so each 0xF3 is 26 bytes here
-  const u16 max_count = ( 0xf000 - 5 ) / 26; // encoding room?
+  // 0xf000 encoding room, huffman can take more space then the maximum of 0xffff
+  const u16 max_count = ( 0xf000 - 5 ) / 26;
   u16 object_count = 1;  // Add 1 for the boat aswell
   size_t len_offset = msg->offset;
   msg->offset += 2;  // Length
