@@ -306,7 +306,7 @@ void UBoat::send_smooth_move( Network::Client* client, Plib::UFACING move_dir, u
   // 0xf000 encoding room, huffman can take more space then the maximum of 0xffff
   const u16 max_count = ( 0xf000 - 18 ) / 10;
   u16 object_count = 0;
-  size_t len_offset = msg->offset;
+  u16 len_offset = msg->offset;
   msg->offset += 2;  // Length
   for ( auto& component : Components )
   {
@@ -393,7 +393,7 @@ void UBoat::send_display_boat( Network::Client* client )
   // 0xf000 encoding room, huffman can take more space then the maximum of 0xffff
   const u16 max_count = ( 0xf000 - 5 ) / 26;
   u16 object_count = 1;  // Add 1 for the boat aswell
-  size_t len_offset = msg->offset;
+  u16 len_offset = msg->offset;
   msg->offset += 2;  // Length
 
   // Build boat part
