@@ -207,10 +207,6 @@ void show_repdata( Mobile::Character* looker, Mobile::Character* mob );
 struct Cursors
 {
 private:
-  // Every TargetCursor will be statically created once,
-  // and gets a id aka index in array to find the corresponding cursor
-  // from the client pkt. Sounds a bit wierd?
-  std::array<TargetCursor*, 10> _target_cursors;
   u32 _cursorid_count;
 
   friend class TargetCursor;

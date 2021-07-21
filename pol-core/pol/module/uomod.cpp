@@ -773,7 +773,6 @@ const int TGTOPT_CHECK_LOS = 0x0001;
 const int TGTOPT_HARMFUL = 0x0002;
 const int TGTOPT_HELPFUL = 0x0004;
 
-// FIXME susceptible to out-of-sequence target cursors
 void handle_script_cursor( Character* chr, UObject* obj )
 {
   if ( chr != nullptr && chr->client->gd->target_cursor_uoemod != nullptr )
