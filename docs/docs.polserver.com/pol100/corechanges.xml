@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-20-2021</datemodified>
+		<datemodified>07-21-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>07-20-2021</date>
+			<date>07-21-2021</date>
 			<author>Kevin:</author>
 			<change type="Fixed">Fixed bug where a target couldn't be cancelled in some clients.</change>
 		</entry>
