@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+07-22-2021 Turley:
+    Fixed: Fixed crash when too many items exists an a boat.
 07-21-2021 Kevin:
     Fixed: Fixed bug where a target couldn't be cancelled in some clients.
 06-21-2021 Turley:
