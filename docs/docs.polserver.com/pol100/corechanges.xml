@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-21-2021</datemodified>
+		<datemodified>07-22-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>07-22-2021</date>
+			<author>Turley:</author>
+			<change type="Fixed">Fixed crash when too many items exists an a boat.</change>
+		</entry>
 		<entry>
 			<date>07-21-2021</date>
 			<author>Kevin:</author>
