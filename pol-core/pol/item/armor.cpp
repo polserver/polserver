@@ -227,6 +227,7 @@ UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem,
   auto armr = new UArmor( *tmpl, tmpl );
   armr->layer = Core::LAYER_HAND2;
   armr->tmpl = tmpl;
+  armr->copyprops( tmpl->props );
 
   Items::register_intrinsic_equipment( name, armr );
 

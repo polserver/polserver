@@ -14,7 +14,11 @@ exported function load_container()
   endif
   if (!cnt.no_drop_exception)
     DestroyItem(cnt);
-    ret_error("Failed to load nodropexception");
+    return ret_error("Failed to load nodropexception");
+  endif
+  if (!cnt.no_drop)
+    DestroyItem(cnt);
+    return ret_error("Failed to load nodrop");
   endif
   DestroyItem(cnt);
   return 1;

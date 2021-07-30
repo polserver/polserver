@@ -233,6 +233,7 @@ UWeapon* create_intrinsic_weapon( const char* name, Clib::ConfigElem& elem,
   auto wpn = new UWeapon( *tmpl, tmpl );
   wpn->layer = Core::LAYER_HAND1;
   wpn->tmpl = tmpl;
+  wpn->copyprops( tmpl->props );
 
   Items::register_intrinsic_equipment( name, wpn );
 
