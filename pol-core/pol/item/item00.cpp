@@ -12,11 +12,11 @@
 #include "../baseobject.h"
 #include "../gameclck.h"
 #include "../globals/state.h"
-#include "regions/resource.h"
 #include "../uobjcnt.h"
 #include "../uobject.h"
 #include "item.h"
 #include "itemdesc.h"
+#include "regions/resource.h"
 
 namespace Pol
 {
@@ -42,6 +42,7 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   movable( id.default_movable() );
   inuse( false );
   invisible( id.invisible );
+  no_drop( id.no_drop );
 
   // quality is a dynprop that defaults to the itemdesc value. It won't be stored unless it differs
   // from that default. However, GetItemDescriptor() may be used to assign a new quality before the
