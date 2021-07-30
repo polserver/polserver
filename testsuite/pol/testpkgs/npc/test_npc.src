@@ -190,3 +190,25 @@ function npc_test_areaevents(template, expected_to_see)
     return 1;
 endfunction
 
+exported function test_load_desc_props()
+  var npc:=CreateNPCFromTemplate(":testnpc:load_npc",100,100,0);
+  if (!npc)
+    return ret_error("Could not create NPC: "+npc);
+  endif
+
+  if (!npc.weapon.getprop("weaponcprop"))
+    npc.kill();
+    return ret_error("Failed to load weapon cprop");
+  endif
+  if (!npc.shield.getprop("shieldcprop"))
+    npc.kill();
+    return ret_error("Failed to load shield cprop");
+  endif
+  if (!npc.no_drop_exception)
+    npc.kill();
+    return ret_error("Failed to load nodropexception");
+  endif
+
+  npc.kill();
+  return 1;
+endfunction
