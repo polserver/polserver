@@ -1,4 +1,9 @@
 ﻿-- POL100.1.0 --
+07-30-2021 Turley:
+    Fixed: loading of npcdesc AttackCProp and ShieldCProp
+    Fixed: loading of itemdesc NoDrop and NoDropExceptiin
+  Changed: either AttackSpeed or AttackDelay npcdesc entry need to exist for npc weapon creation.
+           Before only AttackSpeed lead to an creation.
 07-22-2021 Turley:
     Fixed: Fixed crash when too many items exists an a boat.
 07-21-2021 Kevin:
