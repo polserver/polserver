@@ -54,12 +54,13 @@ namespace Pol
 {
 namespace Core
 {
-UContainer::UContainer( const Items::ContainerDesc& descriptor )
-    : ULockable( descriptor, UOBJ_CLASS::CLASS_CONTAINER ),
+UContainer::UContainer( const Items::ContainerDesc& id )
+    : ULockable( id, UOBJ_CLASS::CLASS_CONTAINER ),
       desc( Items::find_container_desc( objtype_ ) ),  // NOTE still grabs the permanent descriptor.
       held_weight_( 0 ),
       held_item_count_( 0 )
 {
+  no_drop_exception( id.no_drop_exception );
 }
 
 UContainer::~UContainer()

@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>07-22-2021</datemodified>
+		<datemodified>08-03-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-03-2021</date>
+			<author>Turley:</author>
+			<change type="Fixed">loading of npcdesc AttackCProp and ShieldCProp</change>
+			<change type="Fixed">loading of itemdesc NoDrop and NoDropException</change>
+			<change type="Changed">either AttackSpeed or AttackDelay npcdesc entry need to exist for npc weapon creation.<br/>
+Before only AttackSpeed lead to an creation.</change>
+		</entry>
 		<entry>
 			<date>07-22-2021</date>
 			<author>Turley:</author>

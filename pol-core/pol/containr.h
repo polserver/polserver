@@ -258,7 +258,7 @@ protected:
   // friend class Item;
 
 protected:
-  explicit UContainer( const Items::ContainerDesc& descriptor );
+  explicit UContainer( const Items::ContainerDesc& id );
   // DAVE added this 11/17 so WornItemsContainer could pass up its class to UObject constructor
   UContainer( u32 objtype, UOBJ_CLASS pol_class );
   // uses Items::classname()

@@ -1,0 +1,26 @@
+use uo;
+use os;
+
+include "testutil";
+
+program testload()
+  return 1;
+endprogram
+
+exported function load_container()
+  var cnt:=CreateItemAtLocation(0,0,0,0x200001);
+  if (!cnt)
+    return ret_error("Failed to create container "+cnt);
+  endif
+  if (!cnt.no_drop_exception)
+    DestroyItem(cnt);
+    return ret_error("Failed to load nodropexception");
+  endif
+  if (!cnt.no_drop)
+    DestroyItem(cnt);
+    return ret_error("Failed to load nodrop");
+  endif
+  DestroyItem(cnt);
+  return 1;
+endfunction
+
