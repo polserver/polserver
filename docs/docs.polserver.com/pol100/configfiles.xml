@@ -1309,8 +1309,8 @@ NpcTemplate (string unique templatename)
     [AttributeName...]
 
     // Intrinsic weapon creation
-    AttackSpeed            (int intrinsic weapon speed, no weapon will be created if either this or AttackDelay is missing)
-    [AttackDelay           (int intrinsic weapon delay in ms {default 0}, no weapon will be created if either this or AttackSpeed is missing)]
+    [AttackSpeed            (int intrinsic weapon speed, weapon will be only created if this or AttackDelay is defined)]
+    [AttackDelay           (int intrinsic weapon delay in ms, weapon will be only created if this or AttackSpeed is defined)]
     AttackDamage           (die-string damage for intrinsic weapon)
     AttackAttribute        (string attribute name used for intrinsic weapon)
     [AttackHitSound        (int sound ID for intrinsic weapon {default 0})]
