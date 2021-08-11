@@ -1,0 +1,1 @@
+func014-module-function-conflict.src:2:1: error: User Function 'Broadcast' conflicts with Module Function of the same name.

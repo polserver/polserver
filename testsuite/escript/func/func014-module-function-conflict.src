@@ -1,0 +1,2 @@
+use uo;
+function Broadcast() endfunction

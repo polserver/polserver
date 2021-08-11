@@ -53,8 +53,20 @@ void FunctionResolver::register_function_link( const std::string& name,
 
 void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
 {
-  resolved_functions_by_name[mf->name] = mf;
-  auto scoped_name = mf->module_name + "::" + mf->name;
+  const auto& name = mf->name;
+  auto scoped_name = mf->module_name + "::" + name;
+
+  auto itr = available_user_function_parse_trees.find( name );
+  if ( itr != available_user_function_parse_trees.end() )
+  {
+    const auto& previous = ( *itr ).second;
+
+    report.error( previous.source_location, "User Function '", name,
+                  "' conflicts with Module Function of the same name.\n",
+                  "  Module Function declaration: ", mf->source_location, "\n" );
+  }
+
+  resolved_functions_by_name[name] = mf;
   resolved_functions_by_name[scoped_name] = mf;
 }
 
@@ -116,6 +128,16 @@ void FunctionResolver::register_available_user_function_parse_tree(
 
     report.error( source_location, "Function '", name, "' defined more than once.\n",
                   "  Previous declaration: ", previous.source_location, "\n" );
+  }
+
+  auto itr2 = resolved_functions_by_name.find( name );
+  if ( itr2 != resolved_functions_by_name.end() )
+  {
+    auto* previous = ( *itr2 ).second;
+
+    report.error( source_location, "User Function '", name,
+                  "' conflicts with Module Function of the same name.\n",
+                  "  Module Function declaration: ", previous->source_location, "\n" );
   }
 
   auto auf = AvailableUserFunction{ source_location, ctx };
