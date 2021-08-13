@@ -1,4 +1,6 @@
-﻿-- POL100.1.0 --
+-- POL100.1.0 --
+08-14-2021 Kevin:
+    Fixed: The remaining drop errors (too far away; location blocked) can now be disabled via the ShowWarningItem option.
 08-11-2021 Kevin:
     Fixed: User Functions that conflict with the same name as Module Functions will now result in a compilation error.
 08-03-2021 Turley:

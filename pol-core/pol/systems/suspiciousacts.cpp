@@ -106,3 +106,24 @@ void SuspiciousActs::OutOfSequenceCursor( Network::Client* client )
                  << " used out of sequence cursor.\n";
   }
 }
+
+void SuspiciousActs::DropItemOutOfRange( Network::Client* client, u32 )
+{
+  if ( Plib::systemstate.config.show_warning_item )
+  {
+    POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" )
+        << client->chr->name();
+  }
+}
+
+void SuspiciousActs::DropItemOutAtBlockedLocation( Network::Client* client, u32, u16 x, u16 y,
+                                                   s8 z )
+{
+  if ( Plib::systemstate.config.show_warning_item )
+  {
+    POLLOG_ERROR.Format(
+        "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked "
+        "location.\n" )
+        << client->chr->name() << x << y << (int)z;
+  }
+}
