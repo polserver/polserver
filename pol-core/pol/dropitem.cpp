@@ -371,18 +371,15 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
   short newz;
   if ( !inrangex( chr, x, y, 2 ) && !client->chr->can_moveanydist() )
   {
-    POLLOG_ERROR.Format( "Client (Character {}) tried to drop an item out of range.\n" )
-        << client->chr->name();
+    SuspiciousActs::DropItemOutOfRange( client, item->serial );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
   if ( !chr->realm->dropheight( x, y, z, client->chr->z, &newz, &multi ) )
   {
-    POLLOG_ERROR.Format(
-        "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked "
-        "location.\n" )
-        << client->chr->name() << x << y << (int)z;
+    SuspiciousActs::DropItemOutAtBlockedLocation( client, item->serial, x, y, z );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
