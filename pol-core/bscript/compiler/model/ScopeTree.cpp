@@ -70,6 +70,22 @@ UserFunction* ScopeTree::find_user_function( std::string name ) const
   return nullptr;
 }
 
+std::vector<UserFunction*> ScopeTree::list_user_functions( std::string name ) const
+{
+  std::vector<UserFunction*> results;
+  Clib::mklowerASCII( name );
+  for ( const auto& user_function : workspace.user_functions )
+  {
+    auto lowered = Clib::strlowerASCII( user_function->name );
+    if ( lowered.rfind( name, 0 ) == 0 )
+    {
+      results.push_back( user_function.get() );
+    }
+  }
+
+  return results;
+}
+
 ModuleFunctionDeclaration* ScopeTree::find_module_function( std::string name ) const
 {
   Clib::mklowerASCII( name );
@@ -85,6 +101,23 @@ ModuleFunctionDeclaration* ScopeTree::find_module_function( std::string name ) c
   }
 
   return nullptr;
+}
+
+std::vector<ModuleFunctionDeclaration*> ScopeTree::list_module_functions( std::string name ) const
+{
+  std::vector<ModuleFunctionDeclaration*> results;
+  Clib::mklowerASCII( name );
+  for ( const auto& module_function : workspace.module_function_declarations )
+  {
+    auto lowered = Clib::strlowerASCII( module_function->name );
+
+    if ( lowered.rfind( name, 0 ) == 0 )
+    {
+      results.push_back( module_function.get() );
+    }
+  }
+
+  return results;
 }
 
 std::shared_ptr<Variable> ScopeTree::find_variable( std::string name,
@@ -103,11 +136,34 @@ std::shared_ptr<Variable> ScopeTree::find_variable( std::string name,
   return {};
 }
 
+std::vector<std::shared_ptr<Variable>> ScopeTree::list_variables( std::string prefix,
+                                                                  const Position& position ) const
+{
+  Clib::mklowerASCII( prefix );
+  auto variables = scopes[0]->walk_list( prefix, position );
+
+  std::for_each( globals.begin(), globals.end(),
+                 [&]( const std::pair<std::string, std::shared_ptr<Variable>>& p )
+                 {
+                   auto lowered = Clib::strlowerASCII( p.first );
+                   if ( lowered.rfind( prefix, 0 ) == 0 )
+                   {
+                     variables.push_back( p.second );
+                   }
+                 } );
+
+  return variables;
+}
+
 ConstDeclaration* ScopeTree::find_constant( std::string name ) const
 {
   return workspace.constants.find( name );
 }
 
+std::vector<ConstDeclaration*> ScopeTree::list_constants( std::string name ) const
+{
+  return workspace.constants.list( name );
+}
 std::shared_ptr<Variable> ScopeInfo::resolve( const std::string& name ) const
 {
   auto itr = variables.find( name );
@@ -117,6 +173,21 @@ std::shared_ptr<Variable> ScopeInfo::resolve( const std::string& name ) const
   }
 
   return {};
+}
+
+std::vector<std::shared_ptr<Variable>> ScopeInfo::resolve_list( const std::string& prefix ) const
+{
+  std::vector<std::shared_ptr<Variable>> results;
+  std::for_each( variables.begin(), variables.end(),
+                 [&]( const std::pair<std::string, std::shared_ptr<Variable>>& p )
+                 {
+                   if ( p.first.rfind( prefix, 0 ) == 0 )
+                   {
+                     results.push_back( p.second );
+                   }
+                 } );
+
+  return results;
 }
 
 std::shared_ptr<Variable> ScopeInfo::walk( const std::string& name, const Position& position ) const
@@ -154,6 +225,46 @@ std::shared_ptr<Variable> ScopeInfo::walk( const std::string& name, const Positi
 
   return variable;
 }
+
+std::vector<std::shared_ptr<Variable>> ScopeInfo::walk_list( const std::string& name,
+                                                             const Position& position ) const
+{
+  std::vector<std::shared_ptr<Variable>> results;
+
+  if ( !location.contains( position ) )
+  {
+    return results;
+  }
+
+  const ScopeInfo* current = this;
+
+  bool found;
+  do
+  {
+    found = false;
+
+    auto current_symbol = current->resolve_list( name );
+    if ( !current_symbol.empty() )
+    {
+      results.insert( results.end(), std::make_move_iterator( current_symbol.begin() ),
+                      std::make_move_iterator( current_symbol.end() ) );
+      current_symbol.clear();
+    }
+
+    for ( const auto& child : current->children )
+    {
+      if ( child->location.contains( position ) )
+      {
+        current = child.get();
+        found = true;
+        break;
+      }
+    }
+  } while ( found );
+
+  return results;
+}
+
 
 void ScopeInfo::describe_tree_to_indented( fmt::Writer& w, const ScopeInfo& node, unsigned indent )
 {

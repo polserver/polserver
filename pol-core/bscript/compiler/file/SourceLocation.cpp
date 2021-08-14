@@ -9,6 +9,10 @@ namespace Pol::Bscript::Compiler
 {
 Position calculate_end_position( antlr4::Token* symbol )
 {
+  if ( !symbol )
+  {
+    return Position{ 0, 0 };
+  }
   auto line = static_cast<unsigned short>( symbol->getLine() );
   auto character = static_cast<unsigned short>( symbol->getCharPositionInLine() + 1 );
   const auto& str = symbol->getText();

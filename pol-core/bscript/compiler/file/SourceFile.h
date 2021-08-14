@@ -7,6 +7,7 @@
 
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
+#include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/SemanticTokens.h"
 #include <EscriptGrammar/EscriptLexer.h>
 #include <EscriptGrammar/EscriptParser.h>
@@ -48,6 +49,7 @@ public:
       Report&, const SourceFileIdentifier& );
 
   SemanticTokens get_tokens();
+  std::unique_ptr<antlr4::Token> get_token_at( const Position& position );
 
   const std::string pathname;
 

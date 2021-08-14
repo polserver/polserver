@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace Pol::Bscript::Compiler
 {
@@ -16,6 +17,8 @@ public:
   explicit Constants( Report& );
 
   ConstDeclaration* find( const std::string& name );
+  std::vector<ConstDeclaration*> list( const std::string& prefix );
+
   void create( ConstDeclaration& );
 
 private:

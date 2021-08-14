@@ -13,6 +13,21 @@ ConstDeclaration* Constants::find( const std::string& name )
   return ( itr != constants.end() ) ? ( *itr ).second : nullptr;
 }
 
+std::vector<ConstDeclaration*> Constants::list( const std::string& prefix )
+{
+  std::vector<ConstDeclaration*> results;
+  std::for_each( constants.begin(), constants.end(),
+                 [&]( const std::pair<std::string, ConstDeclaration*>& aPair )
+                 {
+                   if ( aPair.first.rfind( prefix, 0 ) == 0 )
+                   {
+                     results.push_back( aPair.second );
+                   }
+                 } );
+  return results;
+}
+
+
 void Constants::create( ConstDeclaration& constant )
 {
   auto itr = constants.find( constant.identifier );

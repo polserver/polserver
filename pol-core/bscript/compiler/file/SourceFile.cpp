@@ -144,6 +144,26 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   return module_unit;
 }
 
+std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
+{
+  lexer.reset();
+  auto tokens = lexer.getAllTokens();
+  auto result =
+      std::find_if( tokens.begin(), tokens.end(),
+                    [&]( std::unique_ptr<antlr4::Token>& token )
+                    {
+                      return token->getLine() == position.line_number &&
+                             token->getCharPositionInLine() + 1 <= position.character_column &&
+                             token->getCharPositionInLine() + 1 + token->getText().length() >=
+                                 position.character_column;
+                    } );
+  if ( result != tokens.end() )
+  {
+    return std::move( *result );
+  }
+  return {};
+}
+
 SemanticTokens SourceFile::get_tokens()
 {
   SemanticTokens tokens;
