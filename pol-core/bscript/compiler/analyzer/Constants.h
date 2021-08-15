@@ -16,8 +16,8 @@ class Constants
 public:
   explicit Constants( Report& );
 
-  ConstDeclaration* find( const std::string& name );
-  std::vector<ConstDeclaration*> list( const std::string& prefix );
+  ConstDeclaration* find( const std::string& name ) const;
+  std::vector<ConstDeclaration*> list( const std::string& prefix ) const;
 
   void create( ConstDeclaration& );
 

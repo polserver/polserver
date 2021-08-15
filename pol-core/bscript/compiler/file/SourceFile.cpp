@@ -28,8 +28,8 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
       input( contents ),
       conformer( &input ),
       lexer( &conformer ),
-      tokens( &lexer ),
-      parser( &tokens ),
+      token_stream( &lexer ),
+      parser( &token_stream ),
       error_listener( pathname, profile ),
       compilation_unit( nullptr ),
       module_unit( nullptr ),
@@ -150,7 +150,7 @@ std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& positio
   auto tokens = lexer.getAllTokens();
   auto result =
       std::find_if( tokens.begin(), tokens.end(),
-                    [&]( std::unique_ptr<antlr4::Token>& token )
+                    [&]( const auto& token )
                     {
                       return token->getLine() == position.line_number &&
                              token->getCharPositionInLine() + 1 <= position.character_column &&

@@ -57,7 +57,7 @@ private:
   antlr4::ANTLRInputStream input;
   ConformingCharStream conformer;
   EscriptGrammar::EscriptLexer lexer;
-  antlr4::CommonTokenStream tokens;
+  antlr4::CommonTokenStream token_stream;
   EscriptGrammar::EscriptParser parser;
   ErrorListener error_listener;
 

@@ -7,21 +7,21 @@ namespace Pol::Bscript::Compiler
 {
 Constants::Constants( Report& report ) : report( report ) {}
 
-ConstDeclaration* Constants::find( const std::string& name )
+ConstDeclaration* Constants::find( const std::string& name ) const
 {
   auto itr = constants.find( name );
   return ( itr != constants.end() ) ? ( *itr ).second : nullptr;
 }
 
-std::vector<ConstDeclaration*> Constants::list( const std::string& prefix )
+std::vector<ConstDeclaration*> Constants::list( const std::string& prefix ) const
 {
   std::vector<ConstDeclaration*> results;
   std::for_each( constants.begin(), constants.end(),
-                 [&]( const std::pair<std::string, ConstDeclaration*>& aPair )
+                 [&]( const auto& p )
                  {
-                   if ( aPair.first.rfind( prefix, 0 ) == 0 )
+                   if ( p.first.rfind( prefix, 0 ) == 0 )
                    {
-                     results.push_back( aPair.second );
+                     results.push_back( p.second );
                    }
                  } );
   return results;

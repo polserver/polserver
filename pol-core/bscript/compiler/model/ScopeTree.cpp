@@ -143,7 +143,7 @@ std::vector<std::shared_ptr<Variable>> ScopeTree::list_variables( std::string pr
   auto variables = scopes[0]->walk_list( prefix, position );
 
   std::for_each( globals.begin(), globals.end(),
-                 [&]( const std::pair<std::string, std::shared_ptr<Variable>>& p )
+                 [&]( const auto& p )
                  {
                    auto lowered = Clib::strlowerASCII( p.first );
                    if ( lowered.rfind( prefix, 0 ) == 0 )
@@ -179,7 +179,7 @@ std::vector<std::shared_ptr<Variable>> ScopeInfo::resolve_list( const std::strin
 {
   std::vector<std::shared_ptr<Variable>> results;
   std::for_each( variables.begin(), variables.end(),
-                 [&]( const std::pair<std::string, std::shared_ptr<Variable>>& p )
+                 [&]( const auto& p )
                  {
                    if ( p.first.rfind( prefix, 0 ) == 0 )
                    {
