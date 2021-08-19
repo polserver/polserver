@@ -62,8 +62,9 @@ public:
   void visit_constant_loop( ConstantPredicateLoop& ) override;
 
 private:
-  std::shared_ptr<Variable> create_variable( const SourceLocation&, const std::string& scope,
-                                             const std::string& name );
+  std::shared_ptr<Variable> create_variable( const SourceLocation& identifier_location,
+                                             const std::string& scope, const std::string& name,
+                                             const SourceLocation& var_decl_location );
   bool report_function_name_conflict( const SourceLocation&, const std::string& function_name,
                                       const std::string& element_description );
   static bool report_function_name_conflict( const CompilerWorkspace&, Report&,
