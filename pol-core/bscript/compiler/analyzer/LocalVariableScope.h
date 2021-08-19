@@ -23,6 +23,8 @@ public:
                                LocalVariableScopeInfo& );
   ~LocalVariableScope();
 
+  std::shared_ptr<Variable> create( const std::string& name, WarnOn, const SourceLocation&,
+                                    const SourceLocation& );
   std::shared_ptr<Variable> create( const std::string& name, WarnOn, const SourceLocation& );
   std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
 
