@@ -3,15 +3,32 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 
+#include <algorithm>
+
 namespace Pol::Bscript::Compiler
 {
 Constants::Constants( Report& report ) : report( report ) {}
 
-ConstDeclaration* Constants::find( const std::string& name )
+ConstDeclaration* Constants::find( const std::string& name ) const
 {
   auto itr = constants.find( name );
   return ( itr != constants.end() ) ? ( *itr ).second : nullptr;
 }
+
+std::vector<ConstDeclaration*> Constants::list( const std::string& prefix ) const
+{
+  std::vector<ConstDeclaration*> results;
+  std::for_each( constants.begin(), constants.end(),
+                 [&]( const auto& p )
+                 {
+                   if ( p.first.rfind( prefix, 0 ) == 0 )
+                   {
+                     results.push_back( p.second );
+                   }
+                 } );
+  return results;
+}
+
 
 void Constants::create( ConstDeclaration& constant )
 {
