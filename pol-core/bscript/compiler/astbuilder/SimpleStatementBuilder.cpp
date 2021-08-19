@@ -44,6 +44,7 @@ void SimpleStatementBuilder::add_var_statements(
 {
   if ( auto variable_declaration_list = ctx->variableDeclarationList() )
   {
+    auto has_multiple_decls = variable_declaration_list->variableDeclaration().size() > 1;
     for ( auto decl : variable_declaration_list->variableDeclaration() )
     {
       if ( auto identifier = decl->IDENTIFIER() )
@@ -51,23 +52,26 @@ void SimpleStatementBuilder::add_var_statements(
         auto loc = location_for( *decl );
         std::string name = text( identifier );
         std::unique_ptr<VarStatement> var_ast;
+        auto var_decl_location = has_multiple_decls ? loc : location_for( *ctx->VAR() );
 
         if ( auto initializer_context = decl->variableDeclarationInitializer() )
         {
           if ( initializer_context->ARRAY() )
           {
-            var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ), true );
+            var_ast = std::make_unique<VarStatement>( loc, var_decl_location, class_name,
+                                                      std::move( name ), true );
           }
           else
           {
             auto initializer = variable_initializer( initializer_context );
-            var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ),
-                                                      std::move( initializer ) );
+            var_ast = std::make_unique<VarStatement>( loc, var_decl_location, class_name,
+                                                      std::move( name ), std::move( initializer ) );
           }
         }
         else
         {
-          var_ast = std::make_unique<VarStatement>( loc, class_name, std::move( name ) );
+          var_ast = std::make_unique<VarStatement>( loc, var_decl_location, class_name,
+                                                    std::move( name ) );
         }
         statements.push_back( std::move( var_ast ) );
       }
