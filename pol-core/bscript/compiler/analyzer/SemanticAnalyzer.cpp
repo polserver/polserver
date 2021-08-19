@@ -57,15 +57,15 @@
 #include "bscript/compiler/ast/VariableBinding.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
-#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeName.h"
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
-#include "clib/strutil.h"
 #include "bscript/filefmt.h"
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -1331,7 +1331,7 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
 void SemanticAnalyzer::visit_variable_binding( VariableBinding& node )
 {
   if ( auto variable = create_variable( node.source_location, node.scoped_name.scope.string(),
-                                        node.scoped_name.name ) )
+                                        node.scoped_name.name, node.source_location ) )
   {
     node.variable = std::move( variable );
     visit_children( node );
@@ -1481,7 +1481,8 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
-  if ( auto variable = create_variable( node.source_location, node.scope, node.name ) )
+  if ( auto variable =
+           create_variable( node.source_location, node.scope, node.name, node.var_decl_location ) )
   {
     node.variable = std::move( variable );
     visit_children( node );
@@ -1520,9 +1521,9 @@ void SemanticAnalyzer::visit_constant_loop( ConstantPredicateLoop& node )
   visit_loop_statement( node );
 }
 
-std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocation& source_location,
-                                                             const std::string& scope,
-                                                             const std::string& name )
+std::shared_ptr<Variable> SemanticAnalyzer::create_variable(
+    const SourceLocation& source_location, const std::string& scope, const std::string& name,
+    const SourceLocation& var_decl_location )
 {
   auto maybe_scoped_name = ScopableName( scope, name ).string();
 
@@ -1540,7 +1541,8 @@ std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocatio
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
-    return local_scope->create( maybe_scoped_name, WarnOn::Never, source_location );
+    return local_scope->create( maybe_scoped_name, WarnOn::Never, source_location,
+                                var_decl_location );
   }
 
   if ( auto existing = globals.find( maybe_scoped_name ) )
@@ -1552,7 +1554,7 @@ std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocatio
     return {};
   }
 
-  return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location );
+  return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location, var_decl_location );
 }
 
 bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& referencing_loc,

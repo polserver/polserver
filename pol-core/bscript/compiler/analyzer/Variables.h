@@ -24,7 +24,7 @@ public:
   Variables( VariableScope, Report& );
 
   std::shared_ptr<Variable> create( const std::string& name, BlockDepth, WarnOn,
-                                    const SourceLocation& );
+                                    const SourceLocation&, const SourceLocation& );
 
   std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
 

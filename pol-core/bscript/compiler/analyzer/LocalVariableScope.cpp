@@ -38,6 +38,13 @@ LocalVariableScope::~LocalVariableScope()
 std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, WarnOn warn_on,
                                                       const SourceLocation& source_location )
 {
+  return create( name, warn_on, source_location, source_location );
+}
+
+std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, WarnOn warn_on,
+                                                      const SourceLocation& source_location,
+                                                      const SourceLocation& var_decl_location )
+{
   if ( auto existing = scopes.local_variables.find( name ) )
   {
     if ( existing->block_depth == block_depth )
@@ -50,7 +57,8 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
     }
     shadowing.push_back( existing );
   }
-  auto local = scopes.local_variables.create( name, block_depth, warn_on, source_location );
+  auto local = scopes.local_variables.create( name, block_depth, warn_on, source_location,
+                                              var_decl_location );
 
   local_variable_scope_info.variables.push_back( local );
 
