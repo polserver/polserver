@@ -28,8 +28,8 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
       input( contents ),
       conformer( &input ),
       lexer( &conformer ),
-      tokens( &lexer ),
-      parser( &tokens ),
+      token_stream( &lexer ),
+      parser( &token_stream ),
       error_listener( pathname, profile ),
       compilation_unit( nullptr ),
       module_unit( nullptr ),
@@ -142,6 +142,26 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   ++access_count;
   propagate_errors_to( report, ident );
   return module_unit;
+}
+
+std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
+{
+  lexer.reset();
+  auto tokens = lexer.getAllTokens();
+  auto result =
+      std::find_if( tokens.begin(), tokens.end(),
+                    [&]( const auto& token )
+                    {
+                      return token->getLine() == position.line_number &&
+                             token->getCharPositionInLine() + 1 <= position.character_column &&
+                             token->getCharPositionInLine() + 1 + token->getText().length() >=
+                                 position.character_column;
+                    } );
+  if ( result != tokens.end() )
+  {
+    return std::move( *result );
+  }
+  return {};
 }
 
 SemanticTokens SourceFile::get_tokens()
