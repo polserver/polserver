@@ -8,26 +8,33 @@
 
 namespace Pol::Bscript::Compiler
 {
-VarStatement::VarStatement( const SourceLocation& source_location, std::string scope,
+VarStatement::VarStatement( const SourceLocation& identifier_location,
+                            const SourceLocation& var_decl_location, std::string scope,
                             std::string name, std::unique_ptr<Expression> initializer )
     : Statement( source_location, std::move( initializer ) ),
       scope( std::move( scope ) ),
-      name( std::move( name ) )
+      name( std::move( name ) ),
+      var_decl_location( var_decl_location )
 {
 }
 
-VarStatement::VarStatement( const SourceLocation& source_location, std::string scope,
+VarStatement::VarStatement( const SourceLocation& identifier_location,
+                            const SourceLocation& var_decl_location, std::string scope,
                             std::string name )
-    : Statement( source_location ), scope( std::move( scope ) ), name( std::move( name ) )
+    : Statement( source_location ),
+      scope( std::move( scope ) ),
+      name( std::move( name ) ),
+      var_decl_location( var_decl_location )
 {
 }
 
-VarStatement::VarStatement( const SourceLocation& source_location, std::string scope,
+VarStatement::VarStatement( const SourceLocation& identifier_location,
+                            const SourceLocation& var_decl_location, std::string scope,
                             std::string name, bool initialize_as_empty_array )
     : Statement( source_location ),
       scope( std::move( scope ) ),
       name( std::move( name ) ),
-      initialize_as_empty_array( initialize_as_empty_array )
+      var_decl_location( var_decl_location )
 {
 }
 
