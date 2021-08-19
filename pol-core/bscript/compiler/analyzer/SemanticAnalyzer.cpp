@@ -50,8 +50,8 @@
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
-#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/Variable.h"
@@ -1152,7 +1152,8 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
-    node.variable = local_scope->create( maybe_scoped_name, WarnOn::Never, node.source_location );
+    node.variable = local_scope->create( maybe_scoped_name, WarnOn::Never, node.source_location,
+                                         node.var_decl_location );
   }
   else
   {
@@ -1165,7 +1166,8 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
       return;
     }
 
-    node.variable = globals.create( maybe_scoped_name, 0, WarnOn::Never, node.source_location );
+    node.variable = globals.create( maybe_scoped_name, 0, WarnOn::Never, node.source_location,
+                                    node.var_decl_location );
   }
   visit_children( node );
 }
