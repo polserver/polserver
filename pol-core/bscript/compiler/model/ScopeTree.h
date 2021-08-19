@@ -24,7 +24,9 @@ public:
   std::vector<std::shared_ptr<ScopeInfo>> children;
 
   std::shared_ptr<Variable> walk( const std::string&, const Position& ) const;
+  std::vector<std::shared_ptr<Variable>> walk_list( const std::string&, const Position& ) const;
   std::shared_ptr<Variable> resolve( const std::string& ) const;
+  std::vector<std::shared_ptr<Variable>> resolve_list( const std::string& ) const;
 
 private:
   static void describe_tree_to_indented( fmt::Writer&, const ScopeInfo&, unsigned indent );
@@ -46,6 +48,14 @@ public:
   ModuleFunctionDeclaration* find_module_function( std::string name ) const;
   // Data is owned by CompilerWorkspace
   ConstDeclaration* find_constant( std::string name ) const;
+
+  std::vector<std::shared_ptr<Variable>> list_variables( std::string name, const Position& ) const;
+  // Data is owned by CompilerWorkspace
+  std::vector<UserFunction*> list_user_functions( std::string name ) const;
+  // Data is owned by CompilerWorkspace
+  std::vector<ModuleFunctionDeclaration*> list_module_functions( std::string name ) const;
+  // Data is owned by CompilerWorkspace
+  std::vector<ConstDeclaration*> list_constants( std::string name ) const;
 
 private:
   CompilerWorkspace& workspace;
