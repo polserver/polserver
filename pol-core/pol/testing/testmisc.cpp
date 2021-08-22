@@ -39,19 +39,53 @@ void dynprops_test()
     DYN_PROPERTY( itemname, std::string, Core::PROP_NAME_SUFFIX, "" );
   };
   Test h;
-  INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
-  INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
+  if ( h.armod() || h.has_armod() )
+  {
+    INFO_PRINT << "initial ar " << h.armod() << " " << h.has_armod() << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
   h.armod( 10 );
-  INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
+  if ( h.armod() != 10 || h.has_armod() )
+  {
+    INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
   h.armod( 0 );
-  INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
-  INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
-  INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
+  if ( h.armod() || h.has_armod() )
+  {
+    INFO_PRINT << "removed ar " << h.armod() << " " << h.has_armod() << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+
+  if ( !h.itemname().empty() || h.has_itemname() )
+  {
+    INFO_PRINT << "initial name " << h.itemname() << " " << h.has_itemname() << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
   h.itemname( "hello world" );
-  INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
+  if ( h.itemname() != "hello world" || !h.has_itemname() )
+  {
+    INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
   h.itemname( "" );
-  INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
-  INFO_PRINT << "size " << h.estimateSizeDynProps() << "\n";
+  if ( !h.itemname().empty() || h.has_itemname() )
+  {
+    INFO_PRINT << "removed name " << h.itemname() << " " << h.has_itemname() << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
 }
 
 void packet_test()

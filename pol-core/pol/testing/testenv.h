@@ -28,8 +28,10 @@ public:
   static void inc_successes() { ++UnitTest::successes; }
   static void display_test_results()
   {
-    INFO_PRINT << "Successes: " << UnitTest::successes << "\n"
-               << "Failures:  " << UnitTest::failures << "\n";
+    INFO_PRINT << "##############\n"
+               << "Successes: " << UnitTest::successes << "\n"
+               << "Failures:  " << UnitTest::failures << "\n"
+               << "##############\n";
   }
 
   static bool result() { return UnitTest::failures == 0; }
