@@ -47,7 +47,7 @@ void dynprops_test()
   else
     UnitTest::inc_successes();
   h.armod( 10 );
-  if ( h.armod() != 10 || h.has_armod() )
+  if ( h.armod() != 10 || !h.has_armod() )
   {
     INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
     UnitTest::inc_failures();
