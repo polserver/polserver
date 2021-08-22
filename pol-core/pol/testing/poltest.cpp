@@ -17,27 +17,30 @@ namespace Pol
 {
 namespace Testing
 {
-
-void run_pol_tests()
+bool run_pol_tests()
 {
-  create_test_environment();
+  // create_test_environment();
 
 #ifdef ENABLE_BENCHMARK
   benchmark::RunSpecifiedBenchmarks();
   return;
 #endif
+  test_splitnamevalue();
+  test_convertquotedstring();
 
-//  skilladv_test();
+  //  skilladv_test();
 
-//  drop_test();
-//  walk_test();
-//  multiwalk_test();
-//  map_test();
-//  dynprops_test();
+  //  drop_test();
+  //  walk_test();
+  //  multiwalk_test();
+  //  map_test();
+  dynprops_test();
   packet_test();
   dummy();
-  display_test_results();
+
+  UnitTest::display_test_results();
+  return UnitTest::result();
 }
 
-}
-}
+}  // namespace Testing
+}  // namespace Pol

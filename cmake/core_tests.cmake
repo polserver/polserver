@@ -163,3 +163,9 @@ add_test(NAME shard_test_2
 set_tests_properties( shard_test_2 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 set_tests_properties( shard_test_2 PROPERTIES ENVIRONMENT "POLCORE_TEST_RUN=2")
 set_tests_properties( shard_test_2 PROPERTIES FIXTURES_REQUIRED shard_test)
+
+# unit test
+add_test(NAME unittest_pol
+  COMMAND pol -test
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)

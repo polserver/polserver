@@ -94,9 +94,6 @@
 #include "globals/object_storage.h"
 #include "globals/state.h"
 #include "globals/uvars.h"
-#include "regions/guardrgn.h"
-#include "regions/miscrgn.h"
-#include "regions/musicrgn.h"
 #include "item/armor.h"
 #include "item/equipmnt.h"
 #include "item/itemdesc.h"
@@ -127,6 +124,9 @@
 #include "profile.h"
 #include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/musicrgn.h"
 #include "savedata.h"
 #include "scrdef.h"
 #include "scrsched.h"
@@ -899,8 +899,8 @@ const char* Use_low_fragmentation_Heap()
       {
         ULONG HeapFragValue = 2;
 
-        if ( ( ProcAdd )( GetProcessHeap(), HeapCompatibilityInformation, &HeapFragValue,
-                          sizeof( HeapFragValue ) ) )
+        if ( (ProcAdd)( GetProcessHeap(), HeapCompatibilityInformation, &HeapFragValue,
+                        sizeof( HeapFragValue ) ) )
         {
           FreeLibrary( hKernel32 );
           return "low-fragmentation Heap ...activated";
@@ -1108,11 +1108,11 @@ int xmain_inner( bool testing )
   if ( testing )
   {
     POLLOG_INFO << "Running POL test suite.\n";
-    Testing::run_pol_tests();
+    bool res = Testing::run_pol_tests();
     Core::cancel_all_trades();
     Core::stop_gameclock();
     Core::gamestate.deinitialize();
-    return 0;
+    return !res;
   }
 
   // PrintAllocationData();

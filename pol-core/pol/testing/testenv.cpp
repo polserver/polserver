@@ -27,25 +27,6 @@ namespace Testing
 {
 extern bool static_debug_on;
 
-int failures;
-int successes;
-
-void inc_failures()
-{
-  ++failures;
-}
-
-void inc_successes()
-{
-  ++successes;
-}
-
-void display_test_results()
-{
-  INFO_PRINT << "Successes: " << successes << "\n"
-             << "Failures:  " << failures << "\n";
-}
-
 using namespace Items;
 using namespace Core;
 

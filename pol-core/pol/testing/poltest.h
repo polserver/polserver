@@ -12,7 +12,7 @@ namespace Pol
 {
 namespace Testing
 {
-void run_pol_tests();
-}
-}
+bool run_pol_tests();
+}  // namespace Testing
+}  // namespace Pol
 #endif

@@ -72,6 +72,10 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
+      - name: Test (UnitTests)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target unittest_pol
       - name: Test (EScript)
         run: |
           cd bin-build
