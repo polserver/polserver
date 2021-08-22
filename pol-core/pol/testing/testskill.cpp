@@ -23,15 +23,15 @@ void test_skilladv( unsigned int raw, unsigned short base )
   if ( Core::raw_to_base( raw ) != base )
   {
     INFO_PRINT << "raw_to_base failed!\n";
-    inc_failures();
+    UnitTest::inc_failures();
   }
   if ( Core::base_to_raw( base ) != raw )
   {
     INFO_PRINT << "base_to_raw failed!\n";
-    inc_failures();
+    UnitTest::inc_failures();
   }
   INFO_PRINT << "Passed\n";
-  inc_successes();
+  UnitTest::inc_successes();
 }
 }  // namespace
 
@@ -74,12 +74,12 @@ void skilladv_test()
     if ( calcbase != base )
     {
       INFO_PRINT << "Failed (" << calcbase << ")\n";
-      inc_failures();
+      UnitTest::inc_failures();
     }
     else
     {
       INFO_PRINT << "Passed\n";
-      inc_successes();
+      UnitTest::inc_successes();
     }
   }
 
@@ -92,12 +92,12 @@ void skilladv_test()
     if ( calcraw != raw )
     {
       INFO_PRINT << "Failed (" << calcraw << ")\n";
-      inc_failures();
+      UnitTest::inc_failures();
     }
     else
     {
       INFO_PRINT << "Passed\n";
-      inc_successes();
+      UnitTest::inc_successes();
     }
   }
 }

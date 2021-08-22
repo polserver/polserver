@@ -36,7 +36,7 @@ block*/, Plib::MOVEMODE_LAND );
   if ( exp_result != res )
   {
     INFO_PRINT << "Failure!\n";
-    inc_failures();
+    UnitTest::inc_failures();
     return;
   }
   if ( exp_result )  // Z is only defined if result is true
@@ -44,11 +44,11 @@ block*/, Plib::MOVEMODE_LAND );
     if ( exp_z != newz )
     {
       INFO_PRINT << "Failure!\n";
-      inc_failures();
+      UnitTest::inc_failures();
       return;
     }
   }
-  inc_successes();
+  UnitTest::inc_successes();
   INFO_PRINT << "Ok!\n";
 }
 
@@ -70,7 +70,7 @@ void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, u
   if ( exp_result != res )
   {
     INFO_PRINT << "Failure!\n";
-    inc_failures();
+    UnitTest::inc_failures();
     return;
   }
   if ( exp_result )  // Z is only defined if result is true
@@ -78,11 +78,11 @@ void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, u
     if ( exp_z != newz )
     {
       INFO_PRINT << "Failure!\n";
-      inc_failures();
+      UnitTest::inc_failures();
       return;
     }
   }
-  inc_successes();
+  UnitTest::inc_successes();
   INFO_PRINT << "Ok!\n";
 }
 }  // namespace

@@ -1108,11 +1108,11 @@ int xmain_inner( bool testing )
   if ( testing )
   {
     POLLOG_INFO << "Running POL test suite.\n";
-    bool res = Testing::run_pol_tests();
+    bool res_test = Testing::run_pol_tests();
     Core::cancel_all_trades();
     Core::stop_gameclock();
     Core::gamestate.deinitialize();
-    return !res;
+    return !res_test;
   }
 
   // PrintAllocationData();

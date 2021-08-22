@@ -47,12 +47,12 @@ void test_los( Core::UObject* src, Core::UObject* target, bool should_have_los )
   if ( should_have_los == res )
   {
     INFO_PRINT << "Ok!\n";
-    inc_successes();
+    UnitTest::inc_successes();
   }
   else
   {
     INFO_PRINT << "Failure!\n";
-    inc_failures();
+    UnitTest::inc_failures();
   }
 }
 
@@ -74,12 +74,12 @@ void test_los( u16 x1, u16 y1, s8 z1, u16 x2, u16 y2, s8 z2, bool should_have_lo
   if ( should_have_los == res )
   {
     INFO_PRINT << "Ok!\n";
-    inc_successes();
+    UnitTest::inc_successes();
   }
   else
   {
     INFO_PRINT << "Failure!\n";
-    inc_failures();
+    UnitTest::inc_failures();
   }
 }
 
@@ -101,12 +101,12 @@ void test_los( u16 x1, u16 y1, s8 z1, u8 h1, u16 x2, u16 y2, s8 z2, u8 h2, bool 
   if ( should_have_los == res )
   {
     INFO_PRINT << "Ok!\n";
-    inc_successes();
+    UnitTest::inc_successes();
   }
   else
   {
     INFO_PRINT << "Failure!\n";
-    inc_failures();
+    UnitTest::inc_failures();
   }
 }
 }  // namespace

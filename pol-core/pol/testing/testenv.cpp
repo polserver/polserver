@@ -25,6 +25,9 @@ namespace Pol
 {
 namespace Testing
 {
+unsigned int UnitTest::failures = 0;
+unsigned int UnitTest::successes = 0;
+
 extern bool static_debug_on;
 
 using namespace Items;
@@ -184,5 +187,5 @@ void create_test_environment()
     add_item( 0xe42, 1373, 1625, 30 );
   }
 }
-}
-}
+}  // namespace Testing
+}  // namespace Pol

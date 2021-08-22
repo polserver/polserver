@@ -35,8 +35,8 @@ public:
   static bool result() { return UnitTest::failures == 0; }
 
 private:
-  static unsigned int failures = 0;
-  static unsigned int successes = 0;
+  static unsigned int failures;
+  static unsigned int successes;
 };
 
 extern Mobile::NPC* test_banker;
