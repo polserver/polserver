@@ -273,7 +273,7 @@ set_target_properties(test_pol_only PROPERTIES FOLDER !BuildTargets)
 message("  unittest_pol")
 add_custom_target(unittest_pol
   COMMAND ${CMAKE_CTEST_COMMAND}
-    --verbose -R unittest_ -C ${CMAKE_BUILD_TYPE}
+    --verbose -R unittest_ -FA .* -C ${CMAKE_BUILD_TYPE}
   COMMENT "Run pol unittests"
   VERBATIM
   USES_TERMINAL
