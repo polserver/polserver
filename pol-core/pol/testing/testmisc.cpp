@@ -15,6 +15,7 @@
 #include "../globals/uvars.h"
 #include "../network/packethelper.h"
 #include "../realms/realm.h"
+#include "testenv.h"
 
 namespace Pol
 {
@@ -66,7 +67,7 @@ void packet_test()
     }
     INFO_PRINT << w.str() << "\n";
   };
-  auto test = []( const PacketOut<PktOut_2F>& p, const std::array<s8, 10>& a )
+  auto test = [&]( const PacketOut<PktOut_2F>& p, const std::array<s8, 10>& a )
   {
     if ( std::equal( std::begin( p->buffer ), std::end( p->buffer ), std::begin( a ) ) )
       UnitTest::inc_successes();
