@@ -3,11 +3,11 @@
  * @par History
  */
 
-#include <format/format.h>
 #include "../../clib/logfacility.h"
 #include "../globals/uvars.h"
 #include "../realms/realm.h"
 #include "testenv.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -32,7 +32,7 @@ void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned s
   {
     tmp << "Failure!\n";
     INFO_PRINT << tmp.str();
-    inc_failures();
+    UnitTest::inc_failures();
     return;
   }
   if ( result )
@@ -41,11 +41,11 @@ void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned s
     {
       tmp << "Failure!\n";
       INFO_PRINT << tmp.str();
-      inc_failures();
+      UnitTest::inc_failures();
       return;
     }
   }
-  inc_successes();
+  UnitTest::inc_successes();
   INFO_PRINT << tmp.str() << "Ok!\n";
 }
 }  // namespace

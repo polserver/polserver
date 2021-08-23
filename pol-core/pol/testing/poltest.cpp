@@ -18,26 +18,32 @@ namespace Pol
 namespace Testing
 {
 
-void run_pol_tests()
+#define RUNTEST(t) INFO_PRINT<<" - "<<(#t)<<"\n";t();
+
+bool run_pol_tests()
 {
-  create_test_environment();
+  // create_test_environment();
 
 #ifdef ENABLE_BENCHMARK
   benchmark::RunSpecifiedBenchmarks();
   return;
 #endif
+  RUNTEST(test_splitnamevalue)
+  RUNTEST(test_convertquotedstring)
 
-//  skilladv_test();
+  //  skilladv_test();
 
-//  drop_test();
-//  walk_test();
-//  multiwalk_test();
-//  map_test();
-//  dynprops_test();
-  packet_test();
-  dummy();
-  display_test_results();
+  //  drop_test();
+  //  walk_test();
+  //  multiwalk_test();
+  //  map_test();
+  RUNTEST(dynprops_test)
+  RUNTEST(packet_test)
+  RUNTEST(dummy)
+
+  UnitTest::display_test_results();
+  return UnitTest::result();
 }
 
-}
-}
+}  // namespace Testing
+}  // namespace Pol

@@ -6,6 +6,9 @@
 
 #ifndef POL_TESTENV_H
 #define POL_TESTENV_H
+
+#include "../../clib/logfacility.h"
+
 namespace Pol
 {
 namespace Mobile
@@ -18,6 +21,26 @@ class Item;
 }
 namespace Testing
 {
+class UnitTest
+{
+public:
+  static void inc_failures() { ++UnitTest::failures; }
+  static void inc_successes() { ++UnitTest::successes; }
+  static void display_test_results()
+  {
+    INFO_PRINT << "##############\n"
+               << "Successes: " << UnitTest::successes << "\n"
+               << "Failures:  " << UnitTest::failures << "\n"
+               << "##############\n";
+  }
+
+  static bool result() { return UnitTest::failures == 0; }
+
+private:
+  static unsigned int failures;
+  static unsigned int successes;
+};
+
 extern Mobile::NPC* test_banker;
 extern Mobile::NPC* test_banker2;
 extern Mobile::NPC* test_banker3;
@@ -35,9 +58,9 @@ Mobile::NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, s
 
 
 void create_test_environment();
-void inc_failures();
-void inc_successes();
-void display_test_results();
+
+void test_splitnamevalue();
+void test_convertquotedstring();
 
 void map_test();
 void skilladv_test();
@@ -48,6 +71,6 @@ void los_test();
 void dynprops_test();
 void dummy();
 void packet_test();
-}
-}
+}  // namespace Testing
+}  // namespace Pol
 #endif

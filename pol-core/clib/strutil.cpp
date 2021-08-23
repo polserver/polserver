@@ -15,7 +15,6 @@
 
 #include "logfacility.h"
 #include "stlutil.h"
-#include "unittest.h"
 
 namespace Pol
 {
@@ -53,33 +52,6 @@ void splitnamevalue( const std::string& istr, std::string& propname, std::string
     propvalue = "";
   }
 }
-
-void test_splitnamevalue( const std::string& istr, const std::string& exp_pn,
-                          const std::string& exp_pv )
-{
-  std::string pn, pv;
-  splitnamevalue( istr, pn, pv );
-  if ( pn != exp_pn || pv != exp_pv )
-  {
-    INFO_PRINT << "splitnamevalue( \"" << istr << "\" ) fails!\n";
-  }
-}
-
-void test_splitnamevalue()
-{
-  test_splitnamevalue( "a b", "a", "b" );
-  test_splitnamevalue( "av bx", "av", "bx" );
-  test_splitnamevalue( "nm=valu", "nm", "valu" );
-  test_splitnamevalue( "nm:valu", "nm:valu", "" );
-  test_splitnamevalue( "nm", "nm", "" );
-  test_splitnamevalue( "  nm", "nm", "" );
-  test_splitnamevalue( "  nm  ", "nm", "" );
-  test_splitnamevalue( "  nm valu", "nm", "valu" );
-  test_splitnamevalue( "  nm   value   ", "nm", "value" );
-  test_splitnamevalue( "  nm  value is multiple words", "nm", "value is multiple words" );
-  test_splitnamevalue( "  nm  value is multiple words\t ", "nm", "value is multiple words" );
-}
-UnitTest test_splitnamevalue_obj( test_splitnamevalue );
 
 void decodequotedstring( std::string& str )
 {
@@ -155,29 +127,6 @@ std::string getencodedquotedstring( const std::string& in )
   encodequotedstring( tmp );
   return tmp;
 }
-void test_dqs( const std::string& in, const std::string& out )
-{
-  std::string tmp = in;
-  decodequotedstring( tmp );
-  if ( tmp != out )
-  {
-    INFO_PRINT << "decodequotedstring( " << in << " ) fails!\n";
-  }
-  encodequotedstring( tmp );
-  if ( tmp != in )
-  {
-    INFO_PRINT << "encodequotedstring( " << out << " ) fails!\n";
-  }
-}
-
-void test_convertquotedstring()
-{
-  test_dqs( "\"hi\"", "hi" );
-  test_dqs( "\"hi \"", "hi " );
-  test_dqs( "\" hi \"", " hi " );
-  test_dqs( "\" \\\"hi\"", " \"hi" );
-}
-UnitTest test_convertquotedstring_obj( test_convertquotedstring );
 
 // If we have boost, I think we should use it...
 void mklowerASCII( std::string& str )
@@ -245,7 +194,8 @@ void sanitizeUnicode( std::string* str )
   }
   auto begin = str->begin();
   auto end = str->end();
-  auto invalid_chr = []( u32 c ) {
+  auto invalid_chr = []( u32 c )
+  {
     return ( c >= 0x1u && c < 0x9u ) /*0x9 \t 0x10 \n*/ ||
            ( c >= 0x11u && c < 0x13u ) /*0x13 \r*/ || ( c >= 0x14u && c < 0x20u ) || c == 0x7Fu ||
            ( c >= 0x80u && c <= 0x9Fu );

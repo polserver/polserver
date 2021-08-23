@@ -122,6 +122,11 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
+      - name: Test (UnitTests)
+        if: matrix.config.nopch == 0
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target unittest_pol
       - name: Test (Shard)
         if: matrix.config.nopch == 0
         run: |

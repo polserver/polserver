@@ -93,6 +93,10 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
+      - name: Test (UnitTests)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target unittest_pol
       - name: Test (Shard)
         run: |
           cd bin-build
