@@ -170,7 +170,7 @@ void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
     else
     {
       INC_PROFILEVAR( tasks_late );
-      INC_PROFILEVAR_BY( tasks_late_ticks, task->ticks_late( now_clock ) );
+      INC_PROFILEVAR_BY( tasks_late_ticks, static_cast<u32>( task->ticks_late( now_clock ) ) );
     }
 
     THREAD_CHECKPOINT( tasks, 106 );

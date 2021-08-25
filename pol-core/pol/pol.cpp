@@ -550,7 +550,7 @@ void tasks_thread( void )
       TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", sleeptime );
 
       THREAD_CHECKPOINT( tasks, 8 );
-      tasks_thread_sleep( polclock_t_to_ms( sleeptime ) );
+      tasks_thread_sleep( static_cast<u32> i( polclock_t_to_ms( sleeptime ) ) );
       THREAD_CHECKPOINT( tasks, 9 );
     }
   }
@@ -614,7 +614,7 @@ void scripts_thread( void )
     {
       THREAD_CHECKPOINT( scripts, 54 );
 
-      wait_for_pulse( polclock_t_to_ms( sleeptime ) );
+      wait_for_pulse( static_cast<u32>( polclock_t_to_ms( sleeptime ) ) );
 
       THREAD_CHECKPOINT( scripts, 55 );
     }
