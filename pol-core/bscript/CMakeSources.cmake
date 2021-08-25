@@ -3,6 +3,7 @@ set (bscript_sources    # sorted !
   StdAfx.h
   StoredToken.cpp
   StoredToken.h
+  compiler/Antlr4Inc.h
   compiler/Compiler.cpp
   compiler/Compiler.h
   compiler/analyzer/Constants.cpp

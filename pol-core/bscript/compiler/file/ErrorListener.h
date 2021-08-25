@@ -1,7 +1,7 @@
 #ifndef POLSERVER_ERRORLISTENER_H
 #define POLSERVER_ERRORLISTENER_H
 
-#include <antlr4-runtime.h>
+#include "bscript/compiler/Antlr4Inc.h"
 
 namespace Pol::Bscript::Compiler
 {

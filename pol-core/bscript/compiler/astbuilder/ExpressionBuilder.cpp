@@ -383,7 +383,7 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
   {
     result = expression_suffix( expression( ctx->expression()[0] ), suffix );
   }
-  else if ( auto conditional = ctx->QUESTION() )
+  else if ( ctx->QUESTION() )
   {
     result = conditional_operator( ctx );
   }

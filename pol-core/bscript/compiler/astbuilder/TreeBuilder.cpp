@@ -1,7 +1,6 @@
 #include "TreeBuilder.h"
 
-#include <antlr4-runtime.h>
-
+#include "bscript/compiler/Antlr4Inc.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceLocation.h"
