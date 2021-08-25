@@ -56,7 +56,7 @@ unsigned DataEmitter::find( const std::byte* data, size_t len )
   ++start;  // offset=0 means no data, not data at offset 0
   auto itr = std::search( start, data_section.end(), data, data + len );
   if ( itr != data_section.end() )
-    return itr - data_section.begin();
+    return static_cast<unsigned>( itr - data_section.begin() );
   return 0;
 }
 

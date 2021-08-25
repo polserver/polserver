@@ -15,7 +15,7 @@ unsigned CodeEmitter::append( const StoredToken& st )
 
 void CodeEmitter::update_offset( unsigned index, unsigned offset )
 {
-  code[index].offset = offset;
+  code[index].offset = static_cast<unsigned short>( offset );
 }
 
 unsigned CodeEmitter::next_address() const

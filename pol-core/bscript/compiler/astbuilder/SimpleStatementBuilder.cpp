@@ -29,7 +29,8 @@ void SimpleStatementBuilder::add_intrusive_debug_marker(
     antlr4::ParserRuleContext* ctx, std::vector<std::unique_ptr<Statement>>& statements )
 {
   statements.push_back( std::make_unique<DebugStatementMarker>(
-      location_for( *ctx ), ctx->getText(), ctx->start->getStartIndex() ) );
+      location_for( *ctx ), ctx->getText(),
+      static_cast<unsigned>( ctx->start->getStartIndex() ) ) );
 }
 
 void SimpleStatementBuilder::add_var_statements(

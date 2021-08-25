@@ -24,12 +24,14 @@ void CaseDispatchGroupVisitor::visit_case_dispatch_default_selector( CaseDispatc
 
 void CaseDispatchGroupVisitor::visit_integer_value( IntegerValue& integer_node )
 {
-  data_block.on_integer_value_jump_to( integer_node.value, group_block_label.address() );
+  data_block.on_integer_value_jump_to( integer_node.value,
+    static_cast<unsigned short>( group_block_label.address() ) );
 }
 
 void CaseDispatchGroupVisitor::visit_string_value( StringValue& string_node )
 {
-  data_block.on_string_value_jump_to( string_node.value, group_block_label.address() );
+  data_block.on_string_value_jump_to( string_node.value,
+    static_cast<unsigned short>( group_block_label.address() ) );
 }
 
 }  // namespace Pol::Bscript::Compiler
