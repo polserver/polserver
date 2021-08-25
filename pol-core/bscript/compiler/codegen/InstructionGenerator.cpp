@@ -727,7 +727,7 @@ void InstructionGenerator::visit_interpolate_string( InterpolateString& node )
   visit_children( node );
 
   update_debug_location( node );
-  emit.interpolate_string( node.children.size() );
+  emit.interpolate_string( static_cast<unsigned>( node.children.size() ) );
 }
 
 void InstructionGenerator::visit_format_expression( FormatExpression& node )

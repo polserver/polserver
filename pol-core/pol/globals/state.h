@@ -56,7 +56,7 @@ public:
     u32 temp_count_active;
   } decay_statistics;
 
-  std::atomic<int> checkin_clock_times_out_at;
+  std::atomic<s64> checkin_clock_times_out_at;
 };
 
 extern StateManager stateManager;

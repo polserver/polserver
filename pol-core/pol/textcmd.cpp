@@ -219,7 +219,7 @@ void textcmd_listarmor( Network::Client* client )
 std::string timeoutstr( polclock_t at )
 {
   polclock_t ticks = at - polclock();
-  int seconds = ticks / POLCLOCKS_PER_SEC;
+  auto seconds = ticks / POLCLOCKS_PER_SEC;
   return Clib::tostring( seconds ) + " seconds";
 }
 

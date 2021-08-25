@@ -9,6 +9,7 @@
 #define __SCHEDULE_H
 
 #include <functional>
+#include <string>
 
 #include "polclock.h"
 
@@ -79,6 +80,8 @@ public:
 
   virtual void execute( polclock_t now ) override;
   void start();
+
+  std::string name() const { return name_; }
 
 private:
   polclock_t n_initial_clocks;

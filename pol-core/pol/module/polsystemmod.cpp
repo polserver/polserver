@@ -30,8 +30,8 @@
 #include "plib/systemstate.h"
 
 
-#include "realms/realms.h"
 #include "realms/realm.h"
+#include "realms/realms.h"
 
 #include "globals/settings.h"
 #include "globals/uvars.h"
@@ -240,7 +240,7 @@ BObjectImp* PolSystemExecutorModule::mf_ReloadConfiguration()
 
 BObjectImp* PolSystemExecutorModule::mf_ReadMillisecondClock()
 {
-  return new Double( Core::polclock_t_to_ms( Core::polclock() ) );
+  return new Double( static_cast<double>( Core::polclock_t_to_ms( Core::polclock() ) ) );
 }
 
 BObjectImp* PolSystemExecutorModule::mf_ListenPoints()
