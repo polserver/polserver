@@ -95,7 +95,7 @@ void packet_test()
   auto debug = []( const PacketOut<PktOut_2F>& p )
   {
     fmt::Writer w;
-    for ( u8& c : p->buffer )
+    for ( auto& c : p->buffer )
     {
       w << fmt::hex( c ) << " ";
     }
@@ -111,7 +111,7 @@ void packet_test()
       INFO_PRINT << "failed\n";
       debug( p );
       fmt::Writer w;
-      for ( u8& c : a )
+      for ( auto& c : a )
       {
         w << fmt::hex( c ) << " ";
       }
