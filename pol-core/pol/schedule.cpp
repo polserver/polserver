@@ -143,7 +143,7 @@ void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
   TaskScheduler::cleanse();
 
   polclock_t now_clock = polclock();
-  TRACEBUF_ADDELEM( "check_scheduled_tasks now_clock", now_clock );
+  TRACEBUF_ADDELEM( "check_scheduled_tasks now_clock", static_cast<u32>( now_clock ) );
   bool activity = false;
   passert( !gamestate.task_queue.empty() );
   THREAD_CHECKPOINT( tasks, 102 );
@@ -152,13 +152,14 @@ void check_scheduled_tasks( polclock_t* clocksleft, bool* pactivity )
     THREAD_CHECKPOINT( tasks, 103 );
     ScheduledTask* task = gamestate.task_queue.top();
     passert_paranoid( task != nullptr );
-    TRACEBUF_ADDELEM( "check_scheduled_tasks toptask->nextrun", task->next_run_clock() );
+    TRACEBUF_ADDELEM( "check_scheduled_tasks toptask->nextrun",
+                      static_cast<u32>( task->next_run_clock() ) );
     THREAD_CHECKPOINT( tasks, 104 );
     if ( !task->ready( now_clock ) )
     {
       *clocksleft = task->clocksleft( now_clock );
       *pactivity = activity;
-      TRACEBUF_ADDELEM( "check_scheduled_tasks clocksleft", *clocksleft );
+      TRACEBUF_ADDELEM( "check_scheduled_tasks clocksleft", static_cast<u32>( *clocksleft ) );
       return;
     }
 

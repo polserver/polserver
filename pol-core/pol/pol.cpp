@@ -546,8 +546,8 @@ void tasks_thread( void )
 
       passert( sleeptime > 0 );
 
-      TRACEBUF_ADDELEM( "tasks wait_for_pulse now", polclock() );
-      TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", sleeptime );
+      TRACEBUF_ADDELEM( "tasks wait_for_pulse now", static_cast<u32>( polclock() ) );
+      TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", static_cast<u32>( sleeptime ) );
 
       THREAD_CHECKPOINT( tasks, 8 );
       tasks_thread_sleep( static_cast<u32>( polclock_t_to_ms( sleeptime ) ) );
@@ -581,7 +581,7 @@ void scripts_thread( void )
     {
       PolLock lck;
       polclock_checkin();
-      TRACEBUF_ADDELEM( "scripts thread now", polclock() );
+      TRACEBUF_ADDELEM( "scripts thread now", static_cast<u32>( polclock() ) );
       ++stateManager.profilevars.script_passes;
       THREAD_CHECKPOINT( scripts, 1 );
 
