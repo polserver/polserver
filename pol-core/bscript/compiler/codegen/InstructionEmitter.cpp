@@ -142,7 +142,7 @@ void InstructionEmitter::call_modulefunc(
                                                                    module_id, function_index );
   unsigned sympos = include_debug ? emit_data( module_function_declaration.name ) : 0;
   StoredToken token(
-      module_id, TOK_FUNC,
+      static_cast<unsigned char>( module_id ), TOK_FUNC,
       static_cast<BTokenType>(
           function_index ),  // function index, stored in Token.lval, saved in StoredToken.type
       sympos );

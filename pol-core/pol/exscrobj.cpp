@@ -333,7 +333,7 @@ Bscript::BObjectImp* ExportScriptObjImp::call_polmethod_id( const int id, Core::
     }
     const EScriptProgram* prog = uoexec->prog();
     bool found_func = false;
-    u32 func_call_pc;
+    u32 func_call_pc = 0;
     for ( const auto& func : prog->exported_functions )
     {
       if ( stricmp( func.name.c_str(), name->value().c_str() ) == 0 )

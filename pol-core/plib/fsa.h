@@ -59,14 +59,13 @@ public:  // methods
     // Allocate enough memory for the maximum number of elements
 
     char* pMem = new char[m_MaxElements * sizeof( FSA_ELEMENT )];
+    // Clear the memory
+    memset( pMem, 0, sizeof( FSA_ELEMENT ) * m_MaxElements );
 
     m_pMemory = (FSA_ELEMENT*)pMem;
 
     // Set the free list first pointer
     m_pFirstFree = m_pMemory;
-
-    // Clear the memory
-    memset( m_pMemory, 0, sizeof( FSA_ELEMENT ) * m_MaxElements );
 
     // Point at first element
     FSA_ELEMENT* pElement = m_pFirstFree;
@@ -90,7 +89,7 @@ public:  // methods
   ~FixedSizeAllocator()
   {
     // Free up the memory
-    delete[] m_pMemory;
+    delete[]( char* ) m_pMemory;
   }
 
   // Allocate a new USER_TYPE and return a pointer to it
@@ -219,6 +218,6 @@ private:  // data
   size_t m_MaxElements;
   FSA_ELEMENT* m_pMemory;
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 #endif  // defined FSA_H

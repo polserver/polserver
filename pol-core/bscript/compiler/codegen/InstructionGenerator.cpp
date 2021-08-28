@@ -162,7 +162,7 @@ void InstructionGenerator::visit_case_statement( CaseStatement& node )
   if ( !default_label.has_address() )
     emit.label( default_label );
 
-  data_block.on_default_jump_to( default_label.address() );
+  data_block.on_default_jump_to( static_cast<unsigned short>( default_label.address() ) );
 
   emit.label( *node.break_label );
 
@@ -727,7 +727,7 @@ void InstructionGenerator::visit_interpolate_string( InterpolateString& node )
   visit_children( node );
 
   update_debug_location( node );
-  emit.interpolate_string( node.children.size() );
+  emit.interpolate_string( static_cast<unsigned>( node.children.size() ) );
 }
 
 void InstructionGenerator::visit_format_expression( FormatExpression& node )

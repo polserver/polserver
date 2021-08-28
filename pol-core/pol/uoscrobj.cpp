@@ -99,8 +99,8 @@
 #include "polclass.h"
 #include "polclock.h"
 #include "proplist.h"
-#include "realms/realms.h"
 #include "realms/realm.h"
+#include "realms/realms.h"
 #include "spelbook.h"
 #include "statmsg.h"
 #include "syshookscript.h"
@@ -1734,7 +1734,8 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    auto create_new_stack = [&]() -> BObjectImp* {
+    auto create_new_stack = [&]() -> BObjectImp*
+    {
       bool can_insert =
           newcontainer->can_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
       if ( !can_insert )
@@ -1915,7 +1916,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return imp;
 
 
-  auto EnforceCaps = []( s16 baseValue, const s16 capValue ) -> s16 {
+  auto EnforceCaps = []( s16 baseValue, const s16 capValue ) -> s16
+  {
     const bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
 
 
@@ -2468,8 +2470,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
-      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
+      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = static_cast<unsigned int>( value ) );
@@ -3392,7 +3394,7 @@ ObjArray* Character::GetReportables() const
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( rt.serial ) );
     elem->addMember( "killer", kmember.release() );
-    elem->addMember( "gameclock", new BLong( rt.polclock ) );
+    elem->addMember( "gameclock", new BLong( static_cast<s32>( rt.polclock ) ) );
 
     arr->addElement( elem.release() );
   }
@@ -3417,8 +3419,9 @@ ObjArray* Character::GetAggressorTo() const
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
     elem->addMember( "ref", member.release() );
-    elem->addMember(
-        "seconds", new BLong( ( ( *itr ).second - Core::polclock() ) / Core::POLCLOCKS_PER_SEC ) );
+    elem->addMember( "seconds",
+                     new BLong( static_cast<s32>( ( ( *itr ).second - Core::polclock() ) /
+                                                  Core::POLCLOCKS_PER_SEC ) ) );
 
     arr->addElement( elem.release() );
   }
@@ -3443,8 +3446,9 @@ ObjArray* Character::GetLawFullyDamaged() const
     std::unique_ptr<BStruct> elem( new BStruct );
     elem->addMember( "serial", new BLong( ( *itr ).first->serial ) );
     elem->addMember( "ref", member.release() );
-    elem->addMember(
-        "seconds", new BLong( ( ( *itr ).second - Core::polclock() ) / Core::POLCLOCKS_PER_SEC ) );
+    elem->addMember( "seconds",
+                     new BLong( static_cast<s32>( ( ( *itr ).second - Core::polclock() ) /
+                                                  Core::POLCLOCKS_PER_SEC ) ) );
 
     arr->addElement( elem.release() );
   }
@@ -4664,10 +4668,10 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
     return BObjectRef( new BLong( obj_->UOExpansionFlagClient ) );
     break;
   case MBR_LAST_ACTIVITY_AT:
-    return BObjectRef( new BLong( obj_->last_activity_at() ) );
+    return BObjectRef( new BLong( static_cast<s32>( obj_->last_activity_at() ) ) );
     break;
   case MBR_LAST_PACKET_AT:
-    return BObjectRef( new BLong( obj_->last_packet_at() ) );
+    return BObjectRef( new BLong( static_cast<s32>( obj_->last_packet_at() ) ) );
     break;
   case MBR_PORT:
     return BObjectRef( new BLong( obj_->listen_port ) );

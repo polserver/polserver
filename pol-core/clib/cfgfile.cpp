@@ -387,8 +387,7 @@ std::string ConfigElem::remove_string( const char* propname )
   }
   else
   {
-    prop_not_found( propname );
-    return "";  // this is not reached, prop_not_found throws
+    prop_not_found( propname );  // prop_not_found throws
   }
 }
 
@@ -401,8 +400,7 @@ std::string ConfigElem::read_string( const char* propname ) const
   }
   else
   {
-    prop_not_found( propname );
-    return "";  // this is not reached, prop_not_found throws
+    prop_not_found( propname );  // prop_not_found throws
   }
 }
 std::string ConfigElem::read_string( const char* propname, const char* dflt ) const

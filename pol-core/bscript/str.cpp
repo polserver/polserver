@@ -427,7 +427,7 @@ void String::toUpper()
                           static_cast<int>( str.size() ), 0, 0 );
   if ( !len )
     return;
-  else if ( len == str.size() )
+  else if ( len == static_cast<int>( str.size() ) )
   {
     LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_UPPERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
                   static_cast<int>( str.size() ), &str[0], static_cast<int>( str.size() ) );
@@ -466,7 +466,7 @@ void String::toLower()
                           static_cast<int>( str.size() ), 0, 0 );
   if ( !len )
     return;
-  else if ( len == str.size() )
+  else if ( len == static_cast<int>( str.size() ) )
   {
     LCMapStringW( LOCALE_USER_DEFAULT, LCMAP_LOWERCASE | LCMAP_LINGUISTIC_CASING, &str[0],
                   static_cast<int>( str.size() ), &str[0], static_cast<int>( str.size() ) );

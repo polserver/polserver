@@ -325,7 +325,9 @@ void Socket::HandleError()
 {
 #ifdef _WIN32
   int ErrVal;
+#if SCK_WATCH
   static char ErrorBuffer[80];
+#endif
 
   ErrVal = WSAGetLastError();
   WSASetLastError( 0 );

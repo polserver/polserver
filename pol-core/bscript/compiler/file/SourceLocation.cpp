@@ -1,6 +1,6 @@
 #include "SourceLocation.h"
 
-#include <antlr4-runtime.h>
+#include "bscript/compiler/Antlr4Inc.h"
 
 #include "clib/logfacility.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"

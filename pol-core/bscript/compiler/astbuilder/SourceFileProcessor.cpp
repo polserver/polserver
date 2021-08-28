@@ -48,7 +48,9 @@ void SourceFileProcessor::use_module( const std::string& module_name,
     return;
 
   auto ident = std::make_unique<SourceFileIdentifier>(
-      workspace.compiler_workspace.referenced_source_file_identifiers.size(), pathname );
+      static_cast<unsigned>(
+          workspace.compiler_workspace.referenced_source_file_identifiers.size() ),
+      pathname );
 
   Pol::Tools::HighPerfTimer load_timer;
   auto sf = workspace.em_cache.load( *ident, report );
@@ -147,7 +149,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
   if ( workspace.source_files.count( canonical_include_pathname ) == 0 )
   {
     auto ident = std::make_unique<SourceFileIdentifier>(
-        workspace.compiler_workspace.referenced_source_file_identifiers.size(),
+        static_cast<unsigned int>(
+            workspace.compiler_workspace.referenced_source_file_identifiers.size() ),
         canonical_include_pathname );
     auto sf = workspace.inc_cache.load( *ident, report );
     if ( !sf )
