@@ -90,6 +90,7 @@ void vector3d_test()
       },
       Vec3d( 0x7fff, -0x8000, -0x8000 ), "+= clip" );
   UnitTest( []() { return Vec3d( 1, 1, 1 ) == Vec2d( 1, 1 ); }, true, "1,1,1==1,1" );
+  UnitTest( []() { return Vec3d( 2, 1, 1 ).xy() == Vec2d( 2, 1 ); }, true, "2,1,1==1,1" );
 
   UnitTest( []() { return Vec3d( 1, 1, 1 ) < Vec3d( 2, 1, 1 ); }, true, "1,1,1<2,1,1" );
   UnitTest( []() { return Vec3d( 1, 1, 1 ) < Vec3d( 1, 1, 1 ); }, false, "1,1,1<1,1,1" );
@@ -101,6 +102,13 @@ void vector3d_test()
   UnitTest( []() { return Vec3d( 2, 1, 1 ) >= Vec3d( 2, 1, -1 ); }, true, "2,1,1>=2,1,-1" );
   UnitTest( []() { return Vec3d( 2, 1, 1 ) <= Vec3d( 2, 1, 1 ); }, true, "2,1,1<=2,1,1" );
   UnitTest( []() { return Vec3d( 2, 1, 1 ) <= Vec3d( 2, 1, 2 ); }, true, "2,1,1<=2,1,2" );
+  UnitTest( []() { return Vec3d( 1, 1, 1 ) != Vec3d( 1, 1, 1 ); }, false, "1,1,1!=1,1,1" );
+
+  UnitTest( []() { return Vec3d( 1, 1, 1 ) < Vec2d( 2, 1 ); }, true, "1,1,1<2,1" );
+  UnitTest( []() { return Vec3d( 1, 1, 1 ) <= Vec2d( 1, 1 ); }, true, "1,1,1<=1,1" );
+  UnitTest( []() { return Vec3d( 1, 1, 1 ) > Vec2d( 2, 1 ); }, false, "1,1,1>2,1" );
+  UnitTest( []() { return Vec3d( 1, 1, 1 ) >= Vec2d( -1, 1 ); }, true, "1,1,1>=-1,1" );
+  UnitTest( []() { return Vec3d( 1, 1, 1 ) != Vec2d( 1, 1 ); }, false, "1,1,1!=1,1" );
 }
 }  // namespace Testing
 }  // namespace Pol
