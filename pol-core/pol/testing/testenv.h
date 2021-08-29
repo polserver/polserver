@@ -9,6 +9,8 @@
 
 #include "../../clib/logfacility.h"
 
+#include <string>
+
 namespace Pol
 {
 namespace Mobile
@@ -24,6 +26,22 @@ namespace Testing
 class UnitTest
 {
 public:
+  template <typename F, typename T>
+  UnitTest( F f, T res, const std::string& msg )
+  {
+    INFO_PRINT << "    " << msg;
+    T r = f();
+    if ( r == res )
+    {
+      UnitTest::inc_successes();
+    }
+    else
+    {
+      UnitTest::inc_failures();
+      INFO_PRINT << ": " << r << " != " << res;
+    }
+    INFO_PRINT << "\n";
+  }
   static void inc_failures() { ++UnitTest::failures; }
   static void inc_successes() { ++UnitTest::successes; }
   static void display_test_results()
@@ -71,6 +89,9 @@ void los_test();
 void dynprops_test();
 void dummy();
 void packet_test();
+
+void vector2d_test();
+void vector3d_test();
 }  // namespace Testing
 }  // namespace Pol
 #endif
