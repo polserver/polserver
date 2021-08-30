@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-13-2021</datemodified>
+		<datemodified>08-30-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-30-2021</date>
+			<author>Nando:</author>
+			<change type="Fixed">Possible infinite recursion of the attack hook if a character was moved by the attack hook</change>
+		</entry>
 		<entry>
 			<date>08-14-2021</date>
 			<author>Kevin:</author>
