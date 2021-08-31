@@ -205,19 +205,23 @@ bool Pos3d::operator!=( const Pos3d& other ) const
 }
 bool Pos3d::operator<( const Pos3d& other ) const
 {
-  return _xy < other._xy && _z < other._z;
+  if ( _xy == other._xy )
+    return _z < other._z;
+  return _xy < other._xy;
 }
 bool Pos3d::operator>( const Pos3d& other ) const
 {
-  return _xy > other._xy && _z > other._z;
+  if ( _xy == other._xy )
+    return _z > other._z;
+  return _xy > other._xy;
 }
 bool Pos3d::operator<=( const Pos3d& other ) const
 {
-  return _xy <= other._xy && _z <= other._z;
+  return *this == other || *this < other;
 }
 bool Pos3d::operator>=( const Pos3d& other ) const
 {
-  return _xy >= other._xy && _z >= other._z;
+  return *this == other || *this > other;
 }
 bool Pos3d::operator==( const Pos2d& other ) const
 {
@@ -337,6 +341,12 @@ void Pos3d::update_max( const Pos3d& v )
   _xy.update_max( v.xy() );
   if ( v._z > _z )
     _z = v._z;
+}
+
+fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
+{
+  w << "( " << v.x() << ", " << v.y() << ", " << v.z() << " )";
+  return w;
 }
 
 

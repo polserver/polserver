@@ -143,6 +143,7 @@ Pos3d operator+( Pos3d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
+fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v );
 
 class Pos4d
 {
