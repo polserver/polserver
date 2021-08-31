@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+08-30-2021 Nando:
+    Fixed: Possible infinite recursion of the attack hook if a character was moved by the attack hook
 08-14-2021 Kevin:
     Fixed: The remaining drop errors (too far away; location blocked) can now be disabled via the ShowWarningItem option.
 08-11-2021 Kevin:
