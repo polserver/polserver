@@ -52,6 +52,7 @@ void pos2d_test()
   UnitTest( []() { return Pos2d( 2, 1 ) > Pos2d( 1, 1 ); }, true, "2,1>1,1" );
   UnitTest( []() { return Pos2d( 2, 1 ) >= Pos2d( 2, 1 ); }, true, "2,1>=2,1" );
   UnitTest( []() { return Pos2d( 2, 1 ) <= Pos2d( 2, 1 ); }, true, "2,1<=2,1" );
+  UnitTest( []() { return Pos2d( 2, 1 ) != Pos2d( 2, 1 ); }, false, "2,1!=2,1" );
 
   UnitTest( []() { return Pos2d( 2, 1 ).from_origin(); }, Vec2d( 2, 1 ), "2,1.from_origin()" );
   UnitTest( []() { return Pos2d( 2, 1 ).pol_distance( Pos2d( 0, 0 ) ); }, 2, "2,1.pol_distance()" );
@@ -96,6 +97,7 @@ void pos3d_test()
   UnitTest( [&]() { return v1.x() == 1 && v1.y() == 2 && v1.z() == 3; }, true, "v1 init" );
   UnitTest( [&]() { return v1; }, Pos3d( 1, 2, 3 ), "v1 comp" );
   UnitTest( [&]() { return v1.xy(); }, Pos2d( 1, 2 ), "v1.xy comp" );
+  UnitTest( [&]() { return Pos3d( Pos2d( 1, 2 ), 3 ) ); }, Pos3d( 1, 2, 3 ), "init pos2d" );
 
   UnitTest( [&]() { return v += Vec2d( 5, 6 ); }, Pos3d( 5, 6, 0 ), "+=" );
   UnitTest( [&]() { return v -= Vec2d( 5, 6 ); }, Pos3d( 0, 0, 0 ), "-=" );
@@ -106,6 +108,11 @@ void pos3d_test()
   UnitTest( []() { return Pos3d( 1, 2, 3 ) - Vec2d( 3, 4 ); }, Pos3d( 0, 0, 3 ), "-" );
   UnitTest( []() { return Pos3d( 1, 2, 3 ) + Vec3d( 3, 4, 1 ); }, Pos3d( 4, 6, 4 ), "+" );
   UnitTest( []() { return Pos3d( 1, 2, 3 ) - Vec3d( 3, 4, 7 ); }, Pos3d( 0, 0, -4 ), "-" );
+
+  UnitTest( []() { return Pos3d( 5, 2, 3 ) - Pos3d( 3, 4, 10 ); }, Vec2d( 2, -2, -7 ),
+            "5,2,3-3,4,10" );
+  UnitTest( []() { return Pos3d( 5, 2, 3 ) - Pos2d( 3, 4 ); }, Vec2d( 2, -2 ), "5,2,3-3,4" );
+  UnitTest( []() { return Pos2d( 5, 2 ) - Pos3d( 3, 4, 1 ); }, Vec2d( 2, -2 ), "5,2,3-3,4" );
 
   UnitTest(
       [&]()
@@ -134,6 +141,13 @@ void pos3d_test()
   UnitTest( []() { return Pos3d( 2, 1, 1 ) < Pos3d( 2, 1, 2 ); }, true, "2,1,1<2,1,2" );
   UnitTest( []() { return Pos3d( 2, 1, 1 ) > Pos3d( 2, 1, -2 ); }, true, "2,1,1>2,1,-2" );
   UnitTest( []() { return Pos3d( 2, 1, 1 ) != Pos3d( 2, 1, -2 ); }, true, "2,1,1!=2,1,-2" );
+
+  UnitTest( []() { return Pos3d( 1, 1, 1 ) == Pos2d( 1, 1 ); }, true, "1,1,1<1,1" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ) != Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
+  UnitTest( []() { return Pos3d( 1, 1, 1 ) < Pos2d( 2, 1 ); }, true, "1,1,1<2,1" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ) > Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ) >= Pos2d( 1, 1 ); }, true, "2,1,1>=1,1" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ) <= Pos2d( 3, 1 ); }, true, "2,1,1>=3,1" );
 
   UnitTest( []() { return Pos3d( 2, 1, -1 ).from_origin(); }, Vec3d( 2, 1, -1 ),
             "2,1,-1.from_origin()" );
