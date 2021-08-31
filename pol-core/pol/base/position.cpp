@@ -325,9 +325,10 @@ bool Pos3d::inRange( const Pos2d& other, u16 range ) const
 {
   return _xy.inRange( other, range );
 }
-void Pos3d::crop( const Realms::Realm* realm )
+Pos3d& Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );
+  return *this;
 }
 
 void Pos3d::update_min( const Pos3d& v )

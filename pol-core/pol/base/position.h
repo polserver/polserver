@@ -131,7 +131,7 @@ public:
   u16 pol_distance( const Pos3d& other ) const;
   bool inRange( const Pos2d& other, u16 range ) const;
   bool inRange( const Pos3d& other, u16 range ) const;
-  void crop( const Realms::Realm* realm );
+  Pos3d& crop( const Realms::Realm* realm );
 
   void update_min( const Pos3d& v );
   void update_max( const Pos3d& v );
