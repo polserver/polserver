@@ -540,5 +540,12 @@ bool Pos4d::inRange( const Pos2d& other, u16 range ) const
   return _xyz.inRange( other, range );
 }
 
+fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v )
+{
+  w << "( " << v.x() << ", " << v.y() << ", " << v.z()
+    << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
+  return w;
+}
+
 }  // namespace Core
 }  // namespace Pol

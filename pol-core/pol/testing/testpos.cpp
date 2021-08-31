@@ -97,7 +97,7 @@ void pos3d_test()
   UnitTest( [&]() { return v1.x() == 1 && v1.y() == 2 && v1.z() == 3; }, true, "v1 init" );
   UnitTest( [&]() { return v1; }, Pos3d( 1, 2, 3 ), "v1 comp" );
   UnitTest( [&]() { return v1.xy(); }, Pos2d( 1, 2 ), "v1.xy comp" );
-  UnitTest( [&]() { return Pos3d( Pos2d( 1, 2 ), 3 ) ); }, Pos3d( 1, 2, 3 ), "init pos2d" );
+  UnitTest( [&]() { return Pos3d( Pos2d( 1, 2 ), 3 ) }, Pos3d( 1, 2, 3 ), "init pos2d" );
 
   UnitTest( [&]() { return v += Vec2d( 5, 6 ); }, Pos3d( 5, 6, 0 ), "+=" );
   UnitTest( [&]() { return v -= Vec2d( 5, 6 ); }, Pos3d( 0, 0, 0 ), "-=" );
@@ -109,10 +109,10 @@ void pos3d_test()
   UnitTest( []() { return Pos3d( 1, 2, 3 ) + Vec3d( 3, 4, 1 ); }, Pos3d( 4, 6, 4 ), "+" );
   UnitTest( []() { return Pos3d( 1, 2, 3 ) - Vec3d( 3, 4, 7 ); }, Pos3d( 0, 0, -4 ), "-" );
 
-  UnitTest( []() { return Pos3d( 5, 2, 3 ) - Pos3d( 3, 4, 10 ); }, Vec2d( 2, -2, -7 ),
+  UnitTest( []() { return Pos3d( 5, 2, 3 ) - Pos3d( 3, 4, 10 ); }, Vec3d( 2, -2, -7 ),
             "5,2,3-3,4,10" );
   UnitTest( []() { return Pos3d( 5, 2, 3 ) - Pos2d( 3, 4 ); }, Vec2d( 2, -2 ), "5,2,3-3,4" );
-  UnitTest( []() { return Pos2d( 5, 2 ) - Pos3d( 3, 4, 1 ); }, Vec2d( 2, -2 ), "5,2,3-3,4" );
+  UnitTest( []() { return Pos2d( 5, 2 ) - Pos3d( 3, 4, 1 ); }, Vec2d( 2, -2 ), "5,2-3,4,1" );
 
   UnitTest(
       [&]()
@@ -180,6 +180,96 @@ void pos3d_test()
             .can_move_to( Vec2d( 2, 2 ), realm );
       },
       false, "realm.can_move_to(2,2,realm)" );
+}
+
+void pos4d_test()
+{
+  auto* r = gamestate.main_realm;
+  Pos4d v;
+  Pos4d v1( 1, 2, 3, r );
+
+  UnitTest( [&]() { return v.x() == 0 && v.y() == 0 && v.z() == 0 && v.realm() == nullptr; }, true,
+            "init" );
+  UnitTest( [&]() { return v1.x() == 1 && v1.y() == 2 && v1.z() == &&v1.realm() == r; }, true,
+            "v1 init" );
+  UnitTest( [&]() { return v1; }, Pos4d( 1, 2, 3, r ), "v1 comp" );
+  UnitTest( [&]() { return v1.xy(); }, Pos2d( 1, 2 ), "v1.xy comp" );
+  UnitTest( [&]() { return v1.xyz(); }, Pos3d( 1, 2, 3 ), "v1.xyz comp" );
+  UnitTest( [&]() { return Pos4d( Pos2d( 1, 2 ), 3, r ); }, Pos4d( 1, 2, 3, r ), "init pos2d" );
+  UnitTest( [&]() { return Pos4d( Pos3d( 1, 2, 3 ), r ); }, Pos4d( 1, 2, 3, r ), "init pos3d" );
+
+  UnitTest( [&]() { return v += Vec2d( 5, 6 ); }, Pos4d( 5, 6, 0, nullptr ), "+=" );
+  UnitTest( [&]() { return v -= Vec2d( 5, 6 ); }, Pos4d( 0, 0, 0, nullptr ), "-=" );
+  UnitTest( [&]() { return v += Vec3d( 5, 6, 3 ); }, Pos4d( 5, 6, 3, nullptr ), "+=" );
+  UnitTest( [&]() { return v -= Vec3d( 5, 6, 3 ); }, Pos4d( 0, 0, 0, nullptr ), "-=" );
+
+  UnitTest( [&]() { return Pos4d( 1, 2, 3, r ) + Vec2d( 3, 4 ); }, Pos4d( 4, 6, 3, r ), "+" );
+  UnitTest( [&]() { return Pos4d( 1, 2, 3, r ) - Vec2d( 3, 4 ); }, Pos4d( 0, 0, 3, r ), "-" );
+  UnitTest( [&]() { return Pos4d( 1, 2, 3, r ) + Vec3d( 3, 4, 1 ); }, Pos4d( 4, 6, 4, r ), "+" );
+  UnitTest( [&]() { return Pos4d( 1, 2, 3, r ) - Vec3d( 3, 4, 7 ); }, Pos4d( 0, 0, -4, r ), "-" );
+
+  UnitTest( [&]() { return Pos4d( 5, 2, 3, r ) - Pos3d( 3, 4, 10 ); }, Vec3d( 2, -2, -7 ),
+            "5,2,3-3,4,10" );
+  UnitTest( [&]() { return Pos4d( 5, 2, 3, r ) - Pos2d( 3, 4 ); }, Vec2d( 2, -2 ), "5,2,3-3,4" );
+  UnitTest( [&]() { return Pos2d( 5, 2 ) - Pos4d( 3, 4, 1, r ); }, Vec2d( 2, -2 ), "5,2-3,4,1" );
+
+  UnitTest(
+      [&]()
+      {
+        v.x( 10 ).y( 20 ).z( -10 ).realm( r );
+        return v == Pos4d( 10, 20, -10, r );
+      },
+      true, "setX,setY,setZ" );
+
+  UnitTest( [&]() { return Pos4d( 0xffff, 0xffff, -128, r ); },
+            Pos4d( r->width() - 1, r->height() - 1, -128 ), "init clip" );
+
+
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 2, 1, 1, r ); }, true, "1,1,1<2,1,1r" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 1, 1, 1, r ); }, false, "1,1,1<1,1,1r" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 1, 2, 1, r ); }, true, "1,1,1<1,2,1r" );
+  UnitTest( [&]() { return Pos4d( 1, 2, 1, r ) > Pos4d( 1, 1, 1, r ); }, true, "1,2,1>1,1,1r" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) > Pos4d( 1, 1, 1, r ); }, false, "1,1,1>1,1,1r" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos4d( 1, 1, 1, r ); }, true, "2,1,1>1,1,1r" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos4d( 2, 1, 1, r ); }, true, "2,1,1>=2,1,1r" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos4d( 2, 1, 1, r ); }, true, "2,1,1<=2,1,1r" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) < Pos4d( 2, 1, 2, r ); }, true, "2,1,1<2,1,2r" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos4d( 2, 1, -2, r ); }, true, "2,1,1>2,1,-2r" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) != Pos4d( 2, 1, -2, r ); }, true, "2,1,1!=2,1,-2r" );
+
+  UnitTest( [&]() { return Pos4d( 1, 1, 1 ) < Pos3d( 2, 1, 1 ); }, true, "1,1,1<2,1,1" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1 ) < Pos3d( 1, 1, 1 ); }, false, "1,1,1<1,1,1" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1 ) < Pos3d( 1, 2, 1 ); }, true, "1,1,1<1,2,1" );
+  UnitTest( [&]() { return Pos4d( 1, 2, 1 ) > Pos3d( 1, 1, 1 ); }, true, "1,2,1>1,1,1" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1 ) > Pos3d( 1, 1, 1 ); }, false, "1,1,1>1,1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1 ) > Pos3d( 1, 1, 1 ); }, true, "2,1,1>1,1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1 ) >= Pos3d( 2, 1, 1 ); }, true, "2,1,1>=2,1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1 ) <= Pos3d( 2, 1, 1 ); }, true, "2,1,1<=2,1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1 ) < Pos3d( 2, 1, 2 ); }, true, "2,1,1<2,1,2" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1 ) > Pos3d( 2, 1, -2 ); }, true, "2,1,1>2,1,-2" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1 ) != Pos3d( 2, 1, -2 ); }, true, "2,1,1!=2,1,-2" );
+
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) == Pos2d( 1, 1 ); }, true, "1,1,1<1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) != Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos2d( 2, 1 ); }, true, "1,1,1<2,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos2d( 1, 1 ); }, true, "2,1,1>=1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos2d( 3, 1 ); }, true, "2,1,1>=3,1" );
+
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).inRange( Pos2d( 0, 0 ), 2 ); }, true,
+            "2,1,1.inRange()" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).inRange( Pos3d( 10, 0, 0 ), 2 ); }, false,
+            "2,1,1.inRange(10,0,0)" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).inRange( Pos4d( 0, 0, 0, nullptr ), 2 ); }, false,
+            "2,1,1.inRange(nullptr)" );
+
+  UnitTest( [&]() { return Pos4d( 2, 1, 0, r ).can_move_to( Vec2d( -2, -2 ) ); }, false,
+            "2,1,0.can_move_to(-2,-2)" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 0, r ).can_move_to( Vec2d( 2, 2 ) ); }, true,
+            "2,1,0.can_move_to(2,2)" );
+  UnitTest( [&]()
+            { return Pos4d( r->width() - 1, r->height() - 1, 0, r ).can_move_to( Vec2d( 2, 2 ) ); },
+            false, "width,height,0.can_move_to(2,2)" );
 }
 }  // namespace Testing
 }  // namespace Pol
