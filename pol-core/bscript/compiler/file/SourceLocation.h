@@ -8,11 +8,12 @@
 namespace antlr4
 {
 class ParserRuleContext;
+class Token;
 namespace tree
 {
 class TerminalNode;
 }
-}
+}  // namespace antlr4
 
 namespace Pol::Bscript::Compiler
 {
@@ -33,8 +34,9 @@ struct Range
   bool contains( unsigned short line_number, unsigned short character_column ) const;
 
   Range( antlr4::ParserRuleContext& );
-  Range( antlr4::tree::TerminalNode& ctx);
+  Range( antlr4::tree::TerminalNode& ctx );
   Range( const Position start, const Position end );
+  Range( antlr4::Token* token );
 };
 
 class SourceLocation

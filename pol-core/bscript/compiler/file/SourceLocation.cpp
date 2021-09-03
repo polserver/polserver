@@ -60,6 +60,13 @@ Range::Range( antlr4::tree::TerminalNode& ctx )
 {
 }
 
+Range::Range( antlr4::Token* token )
+    : start( Position{ static_cast<unsigned short>( token->getLine() ),
+                       static_cast<unsigned short>( token->getCharPositionInLine() + 1 ) } ),
+      end( calculate_end_position( token ) )
+{
+}
+
 SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
                                 unsigned short line_number, unsigned short character_column )
     : source_file_identifier( source_file_identifier ),
