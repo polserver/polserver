@@ -14,6 +14,8 @@ set (pol_sources  # sorted !
   allocd.h
   anim.h
   baseobject.h
+  base/area.cpp
+  base/area.h
   base/position.cpp
   base/position.h
   base/vector.cpp
@@ -381,6 +383,7 @@ set (pol_sources  # sorted !
   tasks.h
   testing/poltest.cpp
   testing/poltest.h
+  testing/testarea.cpp
   testing/testdrop.cpp
   testing/testenv.cpp
   testing/testenv.h

@@ -45,6 +45,7 @@ bool run_pol_tests()
   RUNTEST( pos2d_test )
   RUNTEST( pos3d_test )
   RUNTEST( pos4d_test )
+  RUNTEST( area2d_test )
 //  RUNTEST( dummy )
 
   UnitTest::display_test_results();
