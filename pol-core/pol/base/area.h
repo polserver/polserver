@@ -96,7 +96,11 @@ public:
   bool contains( const Pos3d& other ) const;
   bool intersect( const Area2d& other ) const;
   bool intersect( const Area3d& other ) const;
+
+  bool operator==( const Area3d& other ) const;
+  bool operator!=( const Area3d& other ) const;
 };
+fmt::Writer& operator<<( fmt::Writer& w, const Area3d& v );
 
 inline Area2dItr::reference Area2dItr::operator*() const
 {

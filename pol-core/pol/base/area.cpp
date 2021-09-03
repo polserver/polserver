@@ -110,5 +110,20 @@ bool Area3d::intersect( const Area3d& other ) const
 {
   return intersect( other._area ) && _z_bottom <= other._z_top && other._z_bottom <= _z_top;
 }
+
+bool Area3d::operator==( const Area3d& other ) const
+{
+  return _area == other._area && _z_bottom == other._z_bottom && _z_top == other._z_top;
+}
+bool Area3d::operator!=( const Area3d& other ) const
+{
+  return !( *this == other );
+}
+
+fmt::Writer& operator<<( fmt::Writer& w, const Area3d& v )
+{
+  w << "( " << v.nw_b() << " - " << v.se_t() << " )";
+  return w;
+}
 }  // namespace Core
 }  // namespace Pol

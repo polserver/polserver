@@ -96,6 +96,7 @@ void pos2d_test();
 void pos3d_test();
 void pos4d_test();
 void area2d_test();
+void area3d_test();
 }  // namespace Testing
 }  // namespace Pol
 #endif

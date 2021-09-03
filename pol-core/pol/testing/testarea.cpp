@@ -31,6 +31,8 @@ void area2d_test()
             "area(1,2,3,4)==(1,2,3,4)" );
   UnitTest( [&]() { return Area2d( p2, p1, r ); }, Area2d( p1, p2, r ),
             "area(3,4,1,2)==(1,2,3,4)" );
+  UnitTest( [&]() { return Area2d( Pos4d( p1, 0, r ), Pos4d( p2, 0, r ) ); }, Area2d( p1, p2, r ),
+            "area(p4(1,2,3,4))==(1,2,3,4)" );
   UnitTest( [&]() { return Area2d( p2, p1, r ) != Area2d( p1, p2, r ); }, false,
             "area(3,4,1,2)!=(1,2,3,4)" );
 
@@ -75,6 +77,66 @@ void area2d_test()
         return true;
       },
       true, "itr" );
+}
+
+void area3d_test()
+{
+  const Pos3d p1( 1, 2, -5 );
+  const Pos3d p2( 3, 4, 5 );
+  auto* r = gamestate.main_realm;
+  UnitTest(
+      [&]()
+      {
+        Area3d a( p1, p2, r );
+        return a.nw() == p1.xy() && a.se() == p2.xy() && a.nw_b() == p1 && a.se_t() == p2();
+      },
+      true, "area(1,2,3,4)" );
+  UnitTest( [&]() { return Area3d( p1, p2, r ); }, Area3d( p1, p2, r ),
+            "area(1,2,3,4)==(1,2,3,4)" );
+  UnitTest( [&]() { return Area3d( p2, p1, r ); }, Area3d( p1, p2, r ),
+            "area(3,4,1,2)==(1,2,3,4)" );
+  UnitTest( [&]() { return Area3d( Pos4d( p1, r ), Pos4d( p2, r ) ); }, Area3d( p1, p2, r ),
+            "area(p4(1,2,3,4))==(1,2,3,4)" );
+  UnitTest( [&]() { return Area3d( p1, p2, r ).area(); }, Area2d( p1.xy(), p2.xy(), r ),
+            "area(1,2,3,4)==2d(1,2,3,4)" );
+  UnitTest( [&]() { return Area3d( p2, p1, r ) != Area3d( p1, p2, r ); }, false,
+            "area(3,4,1,2)!=(1,2,3,4)" );
+
+  UnitTest( [&]() { return Area3d( p2, p1, r ).contains( Pos2d( 1, 2 ) ); }, true,
+            "contains(1,2)" );
+  UnitTest( [&]() { return Area3d( p2, p1, r ).contains( Pos2d( 3, 5 ) ); }, false,
+            "contains(3,5)" );
+  UnitTest( [&]() { return Area3d( p2, p1, r ).contains( Pos3d( 1, 2, 3 ) ); }, true,
+            "contains(1,2,3)" );
+  UnitTest( [&]() { return Area3d( p2, p1, r ).contains( Pos3d( 1, 2, 10 ) ); }, false,
+            "contains(1,2,10)" );
+
+  UnitTest( [&]()
+            { return Area3d( p2, p1, r ).intersect( Area2d( Pos2d( 0, 0 ), Pos2d( 2, 2 ), r ) ); },
+            true, "intersect(0,0,2,2)" );
+  UnitTest( [&]()
+            { return Area3d( p2, p1, r ).intersect( Area2d( Pos2d( 3, 3 ), Pos2d( 4, 4 ), r ) ); },
+            true, "intersect(3,3,4,4)" );
+  UnitTest( [&]()
+            { return Area3d( p2, p1, r ).intersect( Area2d( Pos2d( 4, 3 ), Pos2d( 4, 4 ), r ) ); },
+            false, "intersect(4,3,4,4)" );
+  UnitTest(
+      [&]()
+      { return Area3d( p2, p1, r ).intersect( Area3d( Pos3d( 0, 0, 0 ), Pos3d( 2, 2, 2 ), r ) ); },
+      true, "intersect(0,0,0,2,2,2)" );
+  UnitTest(
+      [&]() {
+        return Area3d( p2, p1, r ).intersect( Area3d( Pos3d( 3, 3, -10 ), Pos3d( 4, 4, 4 ), r ) );
+      },
+      true, "intersect(3,3,-10,4,4,4)" );
+  UnitTest(
+      [&]()
+      { return Area3d( p2, p1, r ).intersect( Area3d( Pos3d( 3, 3, 4 ), Pos3d( 4, 4, 40 ), r ) ); },
+      true, "intersect(3,3,4,4,4,40)" );
+  UnitTest(
+      [&]()
+      { return Area3d( p2, p1, r ).intersect( Area3d( Pos3d( 4, 3, 0 ), Pos3d( 4, 4, 4 ), r ) ); },
+      false, "intersect(4,3,0,4,4,4)" );
 }
 }  // namespace Testing
 }  // namespace Pol
