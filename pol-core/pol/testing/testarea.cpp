@@ -77,6 +77,15 @@ void area2d_test()
         return true;
       },
       true, "itr" );
+
+  UnitTest(
+      [&]()
+      {
+        fmt::Writer tmp;
+        tmp << Area2d( p1, p2, r );
+        return true;
+      },
+      true, "" );
 }
 
 void area3d_test()
@@ -137,6 +146,15 @@ void area3d_test()
       [&]()
       { return Area3d( p2, p1, r ).intersect( Area3d( Pos3d( 4, 3, 0 ), Pos3d( 4, 4, 4 ), r ) ); },
       false, "intersect(4,3,0,4,4,4)" );
+
+  UnitTest(
+      [&]()
+      {
+        fmt::Writer tmp;
+        tmp << Area3d( p1, p2, r );
+        return true;
+      },
+      true, "" );
 }
 }  // namespace Testing
 }  // namespace Pol

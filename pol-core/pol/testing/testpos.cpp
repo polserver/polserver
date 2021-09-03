@@ -80,12 +80,45 @@ void pos2d_test()
       },
       false, "realm.can_move_to(2,2,realm)" );
 
-  UnitTest( []() { return Pos2d( 2, 1 ).direction_toward( Pos2d( 0, 0 ) ); }, FACING_NW,
-            "2,1.direction_toward(0,0)" );
-  UnitTest( []() { return Pos2d( 2, 1 ).direction_toward( Pos2d( 4, 1 ) ); }, FACING_E,
-            "2,1.direction_toward(4,1)" );
+  UnitTest(
+      []()
+      {
+        std::vector<Vec2d> mod{ { { 0, -1 },
+                                  { 1, -1 },
+                                  { 1, 0 },
+                                  { 1, 1 },
+                                  { 0, 1 },
+                                  { -1, 1 },
+                                  { -1, 0 },
+                                  { -1, -1 },
+                                  { 0, 0 } } };
+        std::vector<UFACING> res = { FACING_N,  FACING_NE, FACING_E,  FACING_SE, FACING_S,
+                                     FACING_SW, FACING_W,  FACING_NW, FACING_N };
+        const Pos2d p( 1, 2 );
+        for ( size_t i = 0; i < mod.size(); ++i )
+        {
+          Pos2d tar = p + mod[i];
+          UFACING facing = p.direction_toward( tar );
+          if ( facing != res[i] )
+          {
+            INFO_PRINT << facing << " != " << res[i] << "\n";
+            return false;
+          }
+        }
+        return true;
+      },
+      true, "direction_toward" );
   UnitTest( []() { return Pos2d( 2, 1 ).direction_away( Pos2d( 4, 1 ) ); }, FACING_W,
             "2,1.direction_away(4,1)" );
+
+  UnitTest(
+      []()
+      {
+        fmt::Writer tmp;
+        tmp << Pos2d( 0, 0 );
+        return true;
+      },
+      true, "" );
 }
 
 void pos3d_test()
@@ -181,6 +214,15 @@ void pos3d_test()
             .can_move_to( Vec2d( 2, 2 ), realm );
       },
       false, "realm.can_move_to(2,2,realm)" );
+
+  UnitTest(
+      []()
+      {
+        fmt::Writer tmp;
+        tmp << Pos3d( 0, 0, 0 );
+        return true;
+      },
+      true, "" );
 }
 
 void pos4d_test()
@@ -292,6 +334,15 @@ void pos4d_test()
             "0,0,0.move(N)" );
   UnitTest( [&]() { return Pos4d( 0, 0, 0, r ).move( FACING_S ); }, Pos4d( 0, 1, 0, r ),
             "0,0,0.move(S)" );
+
+  UnitTest(
+      [&]()
+      {
+        fmt::Writer tmp;
+        tmp << Pos3d( 0, 0, 0, r );
+        return true;
+      },
+      true, "" );
 }
 }  // namespace Testing
 }  // namespace Pol
