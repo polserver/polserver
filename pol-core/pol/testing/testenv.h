@@ -92,6 +92,9 @@ void packet_test();
 
 void vector2d_test();
 void vector3d_test();
+void pos2d_test();
+void pos3d_test();
+void pos4d_test();
 }  // namespace Testing
 }  // namespace Pol
 #endif

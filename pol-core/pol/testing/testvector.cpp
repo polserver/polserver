@@ -1,7 +1,7 @@
 
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../base/vector.h"
+#include "base/vector.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
 #include "testenv.h"
 
 namespace Pol

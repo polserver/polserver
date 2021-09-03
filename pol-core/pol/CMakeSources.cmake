@@ -14,6 +14,8 @@ set (pol_sources  # sorted !
   allocd.h
   anim.h
   baseobject.h
+  base/position.cpp
+  base/position.h
   base/vector.cpp
   base/vector.h
   binaryfilescrobj.cpp
@@ -384,6 +386,7 @@ set (pol_sources  # sorted !
   testing/testenv.h
   testing/testlos.cpp
   testing/testmisc.cpp
+  testing/testpos.cpp
   testing/testskill.cpp
   testing/testvector.cpp
   testing/testwalk.cpp
