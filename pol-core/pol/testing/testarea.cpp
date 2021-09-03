@@ -68,7 +68,7 @@ void area2d_test()
         if ( areares != res )
         {
           INFO_PRINT << "size: " << areares.size() << " " << res.size() << "\n";
-          for ( int i = 0; i < res.size(); ++i )
+          for ( size_t i = 0; i < res.size(); ++i )
           {
             INFO_PRINT << res[i] << " " << areares[i] << "\n";
           }
@@ -88,7 +88,7 @@ void area3d_test()
       [&]()
       {
         Area3d a( p1, p2, r );
-        return a.nw() == p1.xy() && a.se() == p2.xy() && a.nw_b() == p1 && a.se_t() == p2();
+        return a.nw() == p1.xy() && a.se() == p2.xy() && a.nw_b() == p1 && a.se_t() == p2;
       },
       true, "area(1,2,3,4)" );
   UnitTest( [&]() { return Area3d( p1, p2, r ); }, Area3d( p1, p2, r ),
