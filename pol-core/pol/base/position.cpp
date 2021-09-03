@@ -1,6 +1,6 @@
 #include "position.h"
 
-#include "../realms/realm.h"
+#include "realms/realm.h"
 
 #include <algorithm>
 #include <array>
@@ -105,7 +105,7 @@ u16 Pos2d::pol_distance( const Pos2d& other ) const
   int yd = std::abs( static_cast<int>( _y ) - other._y );
   return static_cast<u16>( std::max( xd, yd ) );
 }
-bool Pos2d::inRange( const Pos2d& other, u16 range ) const
+bool Pos2d::in_range( const Pos2d& other, u16 range ) const
 {
   return pol_distance( other ) <= range;
 }
@@ -317,13 +317,13 @@ u16 Pos3d::pol_distance( const Pos3d& other ) const
 {
   return _xy.pol_distance( other._xy );
 }
-bool Pos3d::inRange( const Pos3d& other, u16 range ) const
+bool Pos3d::in_range( const Pos3d& other, u16 range ) const
 {
-  return _xy.inRange( other._xy, range );
+  return _xy.in_range( other._xy, range );
 }
-bool Pos3d::inRange( const Pos2d& other, u16 range ) const
+bool Pos3d::in_range( const Pos2d& other, u16 range ) const
 {
-  return _xy.inRange( other, range );
+  return _xy.in_range( other, range );
 }
 Pos3d& Pos3d::crop( const Realms::Realm* realm )
 {
@@ -351,13 +351,13 @@ fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
 }
 
 
-u16 Pos4d::cropX( u16 x ) const
+u16 Pos4d::crop_x( u16 x ) const
 {
   if ( _realm != nullptr && x >= _realm->width() )
     return _realm->width() - 1;
   return x;
 }
-u16 Pos4d::cropY( u16 y ) const
+u16 Pos4d::crop_y( u16 y ) const
 {
   if ( _realm != nullptr && y >= _realm->height() )
     return _realm->height() - 1;
@@ -527,17 +527,17 @@ u16 Pos4d::pol_distance( const Pos4d& other ) const
     return std::numeric_limits<u16>::max();
   return _xyz.pol_distance( other._xyz );
 }
-bool Pos4d::inRange( const Pos4d& other, u16 range ) const
+bool Pos4d::in_range( const Pos4d& other, u16 range ) const
 {
-  return _realm == other._realm && _xyz.inRange( other._xyz, range );
+  return _realm == other._realm && _xyz.in_range( other._xyz, range );
 }
-bool Pos4d::inRange( const Pos3d& other, u16 range ) const
+bool Pos4d::in_range( const Pos3d& other, u16 range ) const
 {
-  return _xyz.inRange( other, range );
+  return _xyz.in_range( other, range );
 }
-bool Pos4d::inRange( const Pos2d& other, u16 range ) const
+bool Pos4d::in_range( const Pos2d& other, u16 range ) const
 {
-  return _xyz.inRange( other, range );
+  return _xyz.in_range( other, range );
 }
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v )

@@ -1,10 +1,11 @@
 
-#include "../../clib/logfacility.h"
-#include "../../clib/rawtypes.h"
-#include "../base/position.h"
-#include "../base/vector.h"
-#include "../globals/uvars.h"
-#include "../realms/realm.h"
+#include "clib/logfacility.h"
+#include "clib/rawtypes.h"
+
+#include "base/position.h"
+#include "base/vector.h"
+#include "globals/uvars.h"
+#include "realms/realm.h"
 #include "testenv.h"
 
 namespace Pol
@@ -56,7 +57,7 @@ void pos2d_test()
 
   UnitTest( []() { return Pos2d( 2, 1 ).from_origin(); }, Vec2d( 2, 1 ), "2,1.from_origin()" );
   UnitTest( []() { return Pos2d( 2, 1 ).pol_distance( Pos2d( 0, 0 ) ); }, 2, "2,1.pol_distance()" );
-  UnitTest( []() { return Pos2d( 2, 1 ).inRange( Pos2d( 0, 0 ), 2 ); }, true, "2,1.inRange()" );
+  UnitTest( []() { return Pos2d( 2, 1 ).in_range( Pos2d( 0, 0 ), 2 ); }, true, "2,1.in_range()" );
 
   UnitTest( [&]() { return Pos2d( realm->width() + 10, realm->height() + 10 ).crop( realm ); },
             Pos2d( realm->width() - 1, realm->height() - 1 ), "crop(realm)" );
@@ -153,10 +154,10 @@ void pos3d_test()
             "2,1,-1.from_origin()" );
   UnitTest( []() { return Pos3d( 2, 1, 1 ).pol_distance( Pos3d( 0, 0, 0 ) ); }, 2,
             "2,1,1.pol_distance()" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ).inRange( Pos2d( 0, 0 ), 2 ); }, true,
-            "2,1,1.inRange()" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ).inRange( Pos3d( 10, 0, 0 ), 2 ); }, false,
-            "2,1,1.inRange(10,0,0)" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ).in_range( Pos2d( 0, 0 ), 2 ); }, true,
+            "2,1,1.in_range()" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ).in_range( Pos3d( 10, 0, 0 ), 2 ); }, false,
+            "2,1,1.in_range(10,0,0)" );
 
   UnitTest( [&]() { return Pos3d( realm->width() + 10, realm->height() + 10, 0 ).crop( realm ); },
             Pos3d( realm->width() - 1, realm->height() - 1, 0 ), "crop(realm)" );
@@ -268,12 +269,12 @@ void pos4d_test()
   UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos2d( 1, 1 ); }, true, "2,1,1>=1,1" );
   UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos2d( 3, 1 ); }, true, "2,1,1>=3,1" );
 
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).inRange( Pos2d( 0, 0 ), 2 ); }, true,
-            "2,1,1.inRange()" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).inRange( Pos3d( 10, 0, 0 ), 2 ); }, false,
-            "2,1,1.inRange(10,0,0)" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).inRange( Pos4d( 0, 0, 0, nullptr ), 2 ); }, false,
-            "2,1,1.inRange(nullptr)" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).in_range( Pos2d( 0, 0 ), 2 ); }, true,
+            "2,1,1.in_range()" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).in_range( Pos3d( 10, 0, 0 ), 2 ); }, false,
+            "2,1,1.in_range(10,0,0)" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).in_range( Pos4d( 0, 0, 0, nullptr ), 2 ); }, false,
+            "2,1,1.in_range(nullptr)" );
 
   UnitTest( [&]() { return Pos4d( 2, 1, 0, r ).can_move_to( Vec2d( -2, -2 ) ); }, false,
             "2,1,0.can_move_to(-2,-2)" );

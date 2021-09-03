@@ -1,8 +1,8 @@
 #ifndef POL_BASE_POSITION_H
 #define POL_BASE_POSITION_H
 
-#include "../../clib/rawtypes.h"
-#include "../../plib/uconst.h"
+#include "clib/rawtypes.h"
+#include "plib/uconst.h"
 #include "vector.h"
 #include <format/format.h>
 #include <utility>
@@ -67,7 +67,7 @@ public:
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos2d& other ) const;
-  bool inRange( const Pos2d& other, u16 range ) const;
+  bool in_range( const Pos2d& other, u16 range ) const;
   Pos2d& crop( const Realms::Realm* realm );
 
   UFACING direction_toward( const Pos2d& other ) const;
@@ -129,8 +129,8 @@ public:
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos3d& other ) const;
-  bool inRange( const Pos2d& other, u16 range ) const;
-  bool inRange( const Pos3d& other, u16 range ) const;
+  bool in_range( const Pos2d& other, u16 range ) const;
+  bool in_range( const Pos3d& other, u16 range ) const;
   Pos3d& crop( const Realms::Realm* realm );
 
   void update_min( const Pos3d& v );
@@ -204,15 +204,15 @@ public:
   Pos4d move( UFACING dir ) const;
   bool can_move_to( const Vec2d& displacement ) const;
 
-  bool inRange( const Pos4d& other, u16 range ) const;
-  bool inRange( const Pos3d& other, u16 range ) const;
-  bool inRange( const Pos2d& other, u16 range ) const;
+  bool in_range( const Pos4d& other, u16 range ) const;
+  bool in_range( const Pos3d& other, u16 range ) const;
+  bool in_range( const Pos2d& other, u16 range ) const;
 
   u16 pol_distance( const Pos4d& other ) const;
 
 private:
-  u16 cropX( u16 x ) const;
-  u16 cropY( u16 y ) const;
+  u16 crop_x( u16 x ) const;
+  u16 crop_y( u16 y ) const;
 };
 Pos4d operator-( Pos4d lhs, const Vec2d& rhs );
 Pos4d operator+( Pos4d lhs, const Vec2d& rhs );
@@ -337,12 +337,12 @@ inline const Pos2d& Pos4d::xy() const
 
 inline Pos4d& Pos4d::x( u16 x )
 {
-  _xyz.x( cropX( x ) );
+  _xyz.x( crop_x( x ) );
   return *this;
 }
 inline Pos4d& Pos4d::y( u16 y )
 {
-  _xyz.y( cropY( y ) );
+  _xyz.y( crop_y( y ) );
   return *this;
 }
 inline Pos4d& Pos4d::z( s8 z )
