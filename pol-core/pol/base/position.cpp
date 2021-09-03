@@ -325,19 +325,6 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
   return *this;
 }
 
-void Pos3d::update_min( const Pos3d& v )
-{
-  _xy.update_min( v.xy() );
-  if ( v._z < _z )
-    _z = v._z;
-}
-void Pos3d::update_max( const Pos3d& v )
-{
-  _xy.update_max( v.xy() );
-  if ( v._z > _z )
-    _z = v._z;
-}
-
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
 {
   w << "( " << v.x() << ", " << v.y() << ", " << v.z() << " )";
