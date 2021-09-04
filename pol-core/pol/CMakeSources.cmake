@@ -14,10 +14,10 @@ set (pol_sources  # sorted !
   allocd.h
   anim.h
   baseobject.h
-  base/area.cpp
-  base/area.h
   base/position.cpp
   base/position.h
+  base/range.cpp
+  base/range.h
   base/vector.cpp
   base/vector.h
   binaryfilescrobj.cpp
@@ -383,13 +383,13 @@ set (pol_sources  # sorted !
   tasks.h
   testing/poltest.cpp
   testing/poltest.h
-  testing/testarea.cpp
   testing/testdrop.cpp
   testing/testenv.cpp
   testing/testenv.h
   testing/testlos.cpp
   testing/testmisc.cpp
   testing/testpos.cpp
+  testing/testrange.cpp
   testing/testskill.cpp
   testing/testvector.cpp
   testing/testwalk.cpp
