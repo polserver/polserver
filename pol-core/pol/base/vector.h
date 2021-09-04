@@ -39,9 +39,6 @@ public:
   Vec2d& x( s16 x );
   Vec2d& y( s16 y );
 
-  void update_min( const Vec2d& v );
-  void update_max( const Vec2d& v );
-
   static s16 clip( int x );
 };
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
@@ -91,9 +88,6 @@ public:
   Vec3d& y( s16 y );
   Vec3d& z( s16 z );
   Vec3d& xy( Vec2d xy );
-
-  void update_min( const Vec3d& v );
-  void update_max( const Vec3d& v );
 };
 Vec3d operator-( Vec3d lhs, const Vec3d& rhs );
 Vec3d operator-( Vec3d lhs, const Vec2d& rhs );

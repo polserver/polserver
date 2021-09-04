@@ -173,19 +173,13 @@ UFACING Pos2d::direction_away( const Pos2d& dst ) const
   return away_cvt[static_cast<int>( toward )];
 }
 
-void Pos2d::update_min( const Pos2d& v )
+Pos2d Pos2d::min( const Pos2d& v ) const
 {
-  if ( v._x < _x )
-    _x = v._x;
-  if ( v._y < _y )
-    _y = v._y;
+  return Pos2d( std::min( _x, v._x ), std::min( _y, v._y ) );
 }
-void Pos2d::update_max( const Pos2d& v )
+Pos2d Pos2d::max( const Pos2d& v ) const
 {
-  if ( v._x > _x )
-    _x = v._x;
-  if ( v._y > _y )
-    _y = v._y;
+  return Pos2d( std::max( _x, v._x ), std::max( _y, v._y ) );
 }
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v )
@@ -329,19 +323,6 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );
   return *this;
-}
-
-void Pos3d::update_min( const Pos3d& v )
-{
-  _xy.update_min( v.xy() );
-  if ( v._z < _z )
-    _z = v._z;
-}
-void Pos3d::update_max( const Pos3d& v )
-{
-  _xy.update_max( v.xy() );
-  if ( v._z > _z )
-    _z = v._z;
 }
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )

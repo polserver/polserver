@@ -47,6 +47,15 @@ void vector2d_test()
   UnitTest( []() { return Vec2d( 2, 1 ) > Vec2d( 1, 1 ); }, true, "2,1>1,1" );
   UnitTest( []() { return Vec2d( 2, 1 ) >= Vec2d( 2, 1 ); }, true, "2,1>=2,1" );
   UnitTest( []() { return Vec2d( 2, 1 ) <= Vec2d( 2, 1 ); }, true, "2,1<=2,1" );
+
+  UnitTest(
+      []()
+      {
+        fmt::Writer tmp;
+        tmp << Vec2d( 0, 0 );
+        return true;
+      },
+      true, "" );
 }
 
 void vector3d_test()
@@ -109,6 +118,15 @@ void vector3d_test()
   UnitTest( []() { return Vec3d( 1, 1, 1 ) > Vec2d( 2, 1 ); }, false, "1,1,1>2,1" );
   UnitTest( []() { return Vec3d( 1, 1, 1 ) >= Vec2d( -1, 1 ); }, true, "1,1,1>=-1,1" );
   UnitTest( []() { return Vec3d( 1, 1, 1 ) != Vec2d( 1, 1 ); }, false, "1,1,1!=1,1" );
+
+  UnitTest(
+      []()
+      {
+        fmt::Writer tmp;
+        tmp << Vec3d( 0, 0, 0 );
+        return true;
+      },
+      true, "" );
 }
 }  // namespace Testing
 }  // namespace Pol
