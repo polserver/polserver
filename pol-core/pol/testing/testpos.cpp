@@ -339,7 +339,7 @@ void pos4d_test()
       [&]()
       {
         fmt::Writer tmp;
-        tmp << Pos3d( 0, 0, 0, r );
+        tmp << Pos4d( 0, 0, 0, r );
         return true;
       },
       true, "" );
