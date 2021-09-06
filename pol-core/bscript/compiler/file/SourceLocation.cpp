@@ -46,40 +46,56 @@ Position calculate_end_position( antlr4::Token* symbol )
   return Position{ line, character };
 }
 
-SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                unsigned short line_number, unsigned short character_column )
-    : source_file_identifier( source_file_identifier ),
-      start( Position{ line_number, character_column } ),
-      end( Position{ USHRT_MAX, USHRT_MAX } )
-{
-}
+Range::Range( const Position start, const Position end ) : start( start ), end( end ) {}
 
-SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                antlr4::ParserRuleContext& ctx )
-    : source_file_identifier( source_file_identifier ),
-      start(
+Range::Range( antlr4::ParserRuleContext& ctx )
+    : start(
           Position{ static_cast<unsigned short>( ctx.getStart()->getLine() ),
                     static_cast<unsigned short>( ctx.getStart()->getCharPositionInLine() + 1 ) } ),
       end( calculate_end_position( ctx.getStop() ) )
 {
 }
 
-SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
-                                antlr4::tree::TerminalNode& ctx )
-    : source_file_identifier( source_file_identifier ),
-      start(
+Range::Range( antlr4::tree::TerminalNode& ctx )
+    : start(
           Position{ static_cast<unsigned short>( ctx.getSymbol()->getLine() ),
                     static_cast<unsigned short>( ctx.getSymbol()->getCharPositionInLine() + 1 ) } ),
       end( calculate_end_position( ctx.getSymbol() ) )
 {
 }
 
-bool SourceLocation::contains( const Position& position ) const
+Range::Range( antlr4::Token* token )
+    : start( Position{ static_cast<unsigned short>( token->getLine() ),
+                       static_cast<unsigned short>( token->getCharPositionInLine() + 1 ) } ),
+      end( calculate_end_position( token ) )
+{
+}
+
+SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
+                                unsigned short line_number, unsigned short character_column )
+    : source_file_identifier( source_file_identifier ),
+      range( Position{ line_number, character_column }, Position{ USHRT_MAX, USHRT_MAX } )
+{
+}
+
+SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
+                                antlr4::ParserRuleContext& ctx )
+    : source_file_identifier( source_file_identifier ), range( ctx )
+{
+}
+
+SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
+                                antlr4::tree::TerminalNode& ctx )
+    : source_file_identifier( source_file_identifier ), range( ctx )
+{
+}
+
+bool Range::contains( const Position& position ) const
 {
   return contains( position.line_number, position.character_column );
 }
 
-bool SourceLocation::contains( unsigned short line_number, unsigned short character_column ) const
+bool Range::contains( unsigned short line_number, unsigned short character_column ) const
 {
   if ( line_number < start.line_number || line_number > end.line_number )
   {
@@ -96,7 +112,7 @@ bool SourceLocation::contains( unsigned short line_number, unsigned short charac
   return true;
 }
 
-bool SourceLocation::contains( const SourceLocation& otherRange ) const
+bool Range::contains( const Range& otherRange ) const
 {
   if ( otherRange.start.line_number < start.line_number ||
        otherRange.end.line_number < start.line_number )
@@ -144,8 +160,8 @@ fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::SourceLocat
     const Pol::Bscript::Compiler::SourceLocation& l, fmt::format_context& ctx ) const
 {
   std::string tmp = l.source_file_identifier->pathname;
-  if ( l.start.line_number || l.start.character_column )
-    fmt::format_to( std::back_inserter( tmp ), ":{}:{}", l.start.line_number,
-                    l.start.character_column );
+  if ( l.range.start.line_number || l.range.start.character_column )
+    fmt::format_to( std::back_inserter( tmp ), ":{}:{}", l.range.start.line_number,
+                    l.range.start.character_column );
   return fmt::formatter<std::string>::format( tmp, ctx );
 }
