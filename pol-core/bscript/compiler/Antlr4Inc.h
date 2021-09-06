@@ -4,6 +4,7 @@
 #if defined( __GNUC__ )
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wattributes"
+#pragma GCC diagnostic ignored "-Wnonportable-include-path"
 #endif
 
 #include <antlr4-runtime.h>
