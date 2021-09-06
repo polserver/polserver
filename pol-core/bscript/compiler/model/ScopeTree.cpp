@@ -195,7 +195,7 @@ std::shared_ptr<Variable> ScopeInfo::walk( const std::string& name, const Positi
 {
   auto variable = std::shared_ptr<Variable>();
 
-  if ( !location.contains( position ) )
+  if ( !location.range.contains( position ) )
   {
     return variable;
   }
@@ -215,7 +215,7 @@ std::shared_ptr<Variable> ScopeInfo::walk( const std::string& name, const Positi
 
     for ( const auto& child : current->children )
     {
-      if ( child->location.contains( position ) )
+      if ( child->location.range.contains( position ) )
       {
         current = child.get();
         found = true;
@@ -232,7 +232,7 @@ std::vector<std::shared_ptr<Variable>> ScopeInfo::walk_list( const std::string& 
 {
   std::vector<std::shared_ptr<Variable>> results;
 
-  if ( !location.contains( position ) )
+  if ( !location.range.contains( position ) )
   {
     return results;
   }
@@ -254,7 +254,7 @@ std::vector<std::shared_ptr<Variable>> ScopeInfo::walk_list( const std::string& 
 
     for ( const auto& child : current->children )
     {
-      if ( child->location.contains( position ) )
+      if ( child->location.range.contains( position ) )
       {
         current = child.get();
         found = true;

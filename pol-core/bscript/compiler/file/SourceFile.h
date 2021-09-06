@@ -51,6 +51,7 @@ public:
 
   SemanticTokens get_tokens();
   std::unique_ptr<antlr4::Token> get_token_at( const Position& position );
+  std::vector<std::unique_ptr<antlr4::Token>> get_all_tokens();
 
   const std::string pathname;
 

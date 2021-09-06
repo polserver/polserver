@@ -167,8 +167,7 @@ EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_uni
 
 std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
 {
-  lexer.reset();
-  auto tokens = lexer.getAllTokens();
+  auto tokens = get_all_tokens();
   auto result =
       std::find_if( tokens.begin(), tokens.end(),
                     [&]( const auto& token )
@@ -183,6 +182,12 @@ std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& positio
     return std::move( *result );
   }
   return {};
+}
+
+std::vector<std::unique_ptr<antlr4::Token>> SourceFile::get_all_tokens()
+{
+  lexer.reset();
+  return lexer.getAllTokens();
 }
 
 SemanticTokens SourceFile::get_tokens()
