@@ -24,11 +24,11 @@
 #include "../mobile/charactr.h"
 #include "../multi/boat.h"
 #include "../polclass.h"
-#include "realms/realms.h"
-#include "realms/realm.h"
 #include "../ufunc.h"
 #include "../uobject.h"
 #include "../uworld.h"
+#include "realms/realm.h"
+#include "realms/realms.h"
 #include "uomod.h"
 
 namespace Pol
@@ -90,7 +90,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
         return new BError( "Can't go there" );
     }
   }
-  Realms::Realm* oldrealm = chr->realm;
+  Realms::Realm* oldrealm = chr->realm();
 
   bool ok;
   if ( newrealm == nullptr || oldrealm == newrealm )
@@ -106,7 +106,8 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
     send_remove_character_to_nearby( chr );
     if ( chr->client != nullptr )
       remove_objects_inrange( chr->client );
-    chr->realm = newrealm;
+    // TODO POS
+    chr->setposition( Core::Pos4d( chr->pos().xyz(), newrealm ) );
     chr->realm_changed();
     ok = move_character_to( chr, x, y, z, flags, oldrealm );
   }
@@ -120,7 +121,7 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
 BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z,
                                                  int flags, Realms::Realm* newrealm )
 {
-  Realms::Realm* oldrealm = boat->realm;
+  Realms::Realm* oldrealm = boat->realm();
   {  // local scope for reg/unreg guard
     Multi::UBoat::BoatMoveGuard registerguard( boat );
     if ( !boat->navigable( boat->multidef(), x, y, z, newrealm ) )
@@ -129,14 +130,13 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, y
     }
   }
   if ( newrealm !=
-       boat->realm )  // boat->move_xy removes on xy change so only realm change check is needed
+       boat->realm() )  // boat->move_xy removes on xy change so only realm change check is needed
   {
     send_remove_object_to_inrange( boat );
   }
-  boat->realm = newrealm;
+  s8 deltaz = static_cast<s8>( z - boat->z() );
+  boat->setposition( Core::Pos4d( boat->pos().xy(), static_cast<s8>( z ), newrealm ) );
 
-  s8 deltaz = static_cast<s8>( z - boat->z );
-  boat->z = (s8)z;
   boat->adjust_traveller_z( deltaz );
   boat->realm_changed();
   bool ok = boat->move_xy( x, y, flags, oldrealm );
@@ -146,7 +146,7 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, y
 BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y,
                                                       zcoord z, int flags, Realms::Realm* newrealm )
 {
-  Realms::Realm* oldrealm = container->realm;
+  Realms::Realm* oldrealm = container->realm();
 
   BObjectImp* ok = internal_MoveItem( static_cast<Item*>( container ), x, y, z, flags, newrealm );
   // Check if container was successfully moved to a new realm and update contents.
@@ -174,11 +174,12 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     return new BError( "That item is being used." );
   }
 
-  Realms::Realm* oldrealm = item->realm;
-  item->realm = newrealm;
-  if ( !item->realm->valid( x, y, z ) )
+  // TODO POS
+  Core::Pos4d oldpos = item->pos();
+  item->setposition( Core::Pos4d( item->pos().xyz(), newrealm ) );
+  if ( !item->realm()->valid( x, y, z ) )
   {  // Should probably have checked this already.
-    item->realm = oldrealm;
+    item->setposition( oldpos );
     std::string message = "Location (" + Clib::tostring( x ) + "," + Clib::tostring( y ) + "," +
                           Clib::tostring( z ) + ") is out of bounds";
     return new BError( message );
@@ -189,16 +190,16 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
   {
     short newz;
     Item* walkon;
-    item->realm->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND );
+    item->realm()->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND );
     // note that newz is ignored...
   }
   else
   {
     short newz;
     Item* walkon;
-    if ( !item->realm->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND ) )
+    if ( !item->realm()->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND ) )
     {
-      item->realm = oldrealm;
+      item->setposition( oldpos );
       return new BError( "Invalid location selected" );
     }
     z = newz;
@@ -217,7 +218,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     // dave changed 1/26/3 order of scripts to call. added unequip/test script call
     if ( !oldcont->check_can_remove_script( chr_owner, item, UContainer::MT_CORE_MOVED ) )
     {
-      item->realm = oldrealm;
+      item->setposition( oldpos );
       return new BError( "Could not remove item from its container." );
     }
     else if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -227,7 +228,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
 
     if ( !item->check_unequiptest_scripts() || !item->check_unequip_script() )
     {
-      item->realm = oldrealm;
+      item->setposition( oldpos );
       return new BError( "Item cannot be unequipped" );
     }
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -244,16 +245,14 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     item->extricate();
 
     // wherever it was, it wasn't in the world/on the ground
-    item->x = oldroot->x;
-    item->y = oldroot->y;
+    item->setposition( Core::Pos4d( oldroot->x(), oldroot->y(), oldpos.z(), oldpos.realm() ) );
     // move_item calls MoveItemWorldLocation, so this gets it
     // in the right place to start with.
-    item->realm = oldrealm;
     add_item_to_world( item );
-    item->realm = newrealm;
+    item->setposition( Core::Pos4d( item->pos().xyz(), newrealm ) );
   }
 
-  move_item( item, x, y, static_cast<signed char>( z ), oldrealm );
+  move_item( item, x, y, static_cast<signed char>( z ), oldpos.realm() );
 
   if ( multi != nullptr )
   {

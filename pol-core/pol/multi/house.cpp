@@ -63,18 +63,22 @@ namespace Multi
 void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in )
 {
   const MultiDef& md = house->multidef();
-  short x1 = house->x + md.minrx, y1 = house->y + md.minry;
-  short x2 = house->x + md.maxrx, y2 = house->y + md.maxry;
+  short x1 = house->x() + md.minrx, y1 = house->y() + md.minry;
+  short x2 = house->x() + md.maxrx, y2 = house->y() + md.maxry;
 
   Core::WorldIterator<Core::MobileFilter>::InBox(
-      x1, y1, x2, y2, house->realm, [&]( Mobile::Character* chr ) {
-        UMulti* multi = house->realm->find_supporting_multi( chr->x, chr->y, chr->z );
+      x1, y1, x2, y2, house->realm(),
+      [&]( Mobile::Character* chr )
+      {
+        UMulti* multi = house->realm()->find_supporting_multi( chr->x(), chr->y(), chr->z() );
         if ( const_cast<const UMulti*>( multi ) == house )
           chrs_in.push_back( chr );
       } );
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      x1, y1, x2, y2, house->realm, [&]( Items::Item* item ) {
-        UMulti* multi = house->realm->find_supporting_multi( item->x, item->y, item->z );
+      x1, y1, x2, y2, house->realm(),
+      [&]( Items::Item* item )
+      {
+        UMulti* multi = house->realm()->find_supporting_multi( item->x(), item->y(), item->z() );
         if ( const_cast<const UMulti*>( multi ) == house )
         {
           if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
@@ -151,9 +155,9 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
   try
   {
     // These casts should be safe, but better check them - 2015-01-25 Bodom
-    newx = boost::numeric_cast<u16>( x + xoff );
-    newy = boost::numeric_cast<u16>( y + yoff );
-    newz = boost::numeric_cast<s8>( z + zoff );
+    newx = boost::numeric_cast<u16>( x() + xoff );
+    newy = boost::numeric_cast<u16>( y() + yoff );
+    newz = boost::numeric_cast<s8>( z() + zoff );
   }
   catch ( boost::bad_numeric_cast& )
   {
@@ -163,12 +167,9 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
                  << fmt::hexu( item->serial ) << " to House " << fmt::hexu( serial ) << '\n';
     return false;
   }
-  item->x = newx;
-  item->y = newy;
-  item->z = newz;
+  item->setposition( Core::Pos4d( newx, newy, newz, realm() ) );
   item->disable_decay();
   item->movable( false );
-  item->realm = realm;
   update_item_to_inrange( item );
   add_item_to_world( item );
   add_component_no_check( Component( item ) );
@@ -615,7 +616,7 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
     if ( item->graphic >= TELEPORTER_START && item->graphic <= TELEPORTER_END )
     {
       Plib::MapShape shape;
-      shape.z = item->z;
+      shape.z = item->z();
       shape.height = Plib::tileheight( item->graphic );
       shape.flags = Plib::tile_flags( item->graphic );
       if ( !shape.height )
@@ -707,10 +708,10 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
         // find out if any of our walls would fall within its footprint.
         unsigned short itswest, itseast, itsnorth, itssouth;
 
-        itswest = static_cast<unsigned short>( multi->x + edef.minrx );
-        itseast = static_cast<unsigned short>( multi->x + edef.maxrx );
-        itsnorth = static_cast<unsigned short>( multi->y + edef.minry );
-        itssouth = static_cast<unsigned short>( multi->y + edef.maxry );
+        itswest = static_cast<unsigned short>( multi->x() + edef.minrx );
+        itseast = static_cast<unsigned short>( multi->x() + edef.maxrx );
+        itsnorth = static_cast<unsigned short>( multi->y() + edef.minry );
+        itssouth = static_cast<unsigned short>( multi->y() + edef.maxry );
 
         if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
         {
@@ -757,8 +758,9 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
   unsigned short wxL, wyL, wxH, wyH;
   Core::zone_convert_clip( x1, y1, realm, &wxL, &wyL );
   Core::zone_convert_clip( x2, y2, realm, &wxH, &wyH );
-  auto includes = [&]( const Core::UObject* obj ) {
-    if ( obj->x >= x1 && obj->x <= x2 && obj->y >= y1 && obj->y <= y2 )
+  auto includes = [&]( const Core::UObject* obj )
+  {
+    if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
     {
       return true;
     }
@@ -857,10 +859,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   UHouse* house = new UHouse( descriptor );
   house->serial = Core::GetNewItemSerialNumber();
   house->serial_ext = ctBEu32( house->serial );
-  house->x = x;
-  house->y = y;
-  house->z = z;
-  house->realm = realm;
+  house->setposition( Core::Pos4d( x, y, z, realm ) );
   send_multi_to_inrange( house );
   // update_item_to_inrange( house );
   add_multi_to_world( house );
@@ -887,25 +886,25 @@ void move_to_ground( Items::Item* item )
       Items::Item* walkon;
       UMulti* multi;
       short newz;
-      unsigned short sx = item->x;
-      unsigned short sy = item->y;
-      item->x = 0;  // move 'self' a bit so it doesn't interfere with itself
-      item->y = 0;
-      bool res = item->realm->walkheight( sx + xd, sy + yd, item->z, &newz, &multi, &walkon, true,
-                                          Plib::MOVEMODE_LAND );
-      item->x = sx;
-      item->y = sy;
+      unsigned short sx = item->x();
+      unsigned short sy = item->y();
+      item->setposition( Core::Pos4d( item->pos() ).x( 0 ).y( 0 ) );
+      // move 'self' a bit so it doesn't interfere with itself
+      bool res = item->realm()->walkheight( sx + xd, sy + yd, item->z(), &newz, &multi, &walkon,
+                                            true, Plib::MOVEMODE_LAND );
+      item->setposition( Core::Pos4d( item->pos() ).x( sx ).y( sy ) );
       if ( res )
       {
-        move_item( item, item->x + xd, item->y + yd, static_cast<signed char>( newz ), nullptr );
+        move_item( item, item->x() + xd, item->y() + yd, static_cast<signed char>( newz ),
+                   nullptr );
         return;
       }
     }
   }
   short newz;
-  if ( item->realm->groundheight( item->x, item->y, &newz ) )
+  if ( item->realm()->groundheight( item->x(), item->y(), &newz ) )
   {
-    move_item( item, item->x, item->y, static_cast<signed char>( newz ), nullptr );
+    move_item( item, item->x(), item->y(), static_cast<signed char>( newz ), nullptr );
     return;
   }
 }
@@ -913,7 +912,7 @@ void move_to_ground( Items::Item* item )
 
 void move_to_ground( Mobile::Character* chr )
 {
-  move_character_to( chr, chr->x, chr->y, chr->z, Core::MOVEITEM_FORCELOCATION, nullptr );
+  move_character_to( chr, chr->x(), chr->y(), chr->z(), Core::MOVEITEM_FORCELOCATION, nullptr );
 }
 
 // void send_remove_object_if_inrange( Client *client, const UObject *item );

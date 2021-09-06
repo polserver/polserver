@@ -61,10 +61,7 @@ Item* Item::clone() const
   Item* item = Item::create( objtype_ );
   item->color = color;
   item->graphic = graphic;
-  item->x = x;
-  item->y = y;
-  item->z = z;
-  item->realm = realm;
+  item->setposition( pos() );
   item->facing = facing;
   item->setamount( amount_ );
   item->layer = layer;
@@ -1297,7 +1294,7 @@ bool Item::is_visible_to_me( const Mobile::Character* chr ) const
 {
   if ( chr == nullptr )
     return false;
-  if ( chr->realm != this->realm )
+  if ( chr->realm() != realm() )
     return false;  // noone can see across different realms.
   if ( !chr->logged_in() )
     return false;
@@ -1364,10 +1361,10 @@ void Pol::Items::Item::inform_moved( Mobile::Character* moved )
     return;
 
   const bool are_inrange =
-      ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
+      ( abs( x() - moved->x() ) <= ex->area_size ) && ( abs( y() - moved->y() ) <= ex->area_size );
 
-  const bool were_inrange =
-      ( abs( x - moved->lastx ) <= ex->area_size ) && ( abs( y - moved->lasty ) <= ex->area_size );
+  const bool were_inrange = ( abs( x() - moved->lastx ) <= ex->area_size ) &&
+                            ( abs( y() - moved->lasty ) <= ex->area_size );
 
   if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
   {

@@ -63,8 +63,8 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAboveCL()
   unsigned short color;
   unsigned short font;
 
-  if ( getUObjectParam( 0, obj ) && getParam( 1, cliloc_num ) &&
-       getUnicodeStringParam( 2, text ) && getParam( 3, font ) && getParam( 4, color ) )
+  if ( getUObjectParam( 0, obj ) && getParam( 1, cliloc_num ) && getUnicodeStringParam( 2, text ) &&
+       getParam( 3, font ) && getParam( 4, color ) )
   {
     passert_paranoid( text != nullptr && obj != nullptr );
 
@@ -89,16 +89,15 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
   unsigned short color;
   unsigned short font;
 
-  if ( getCharacterParam( 0, chr ) && getUObjectParam( 1, obj ) &&
-       getParam( 2, cliloc_num ) && getUnicodeStringParam( 3, text ) && getParam( 4, font ) &&
-       getParam( 5, color ) )
+  if ( getCharacterParam( 0, chr ) && getUObjectParam( 1, obj ) && getParam( 2, cliloc_num ) &&
+       getUnicodeStringParam( 3, text ) && getParam( 4, font ) && getParam( 5, color ) )
   {
     passert_paranoid( chr != nullptr && text != nullptr && obj != nullptr );
 
     if ( !chr->has_active_client() )
       return new BError( "Mobile has no active client" );
 
-    if ( chr->realm != obj->realm )
+    if ( chr->realm() != obj->realm() )
       return new BError( "Cannot print messages across realms!" );
 
     if ( text->length() > SPEECH_MAX_LEN )

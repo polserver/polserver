@@ -115,8 +115,7 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
   client->pause();
   send_remove_object_to_inrange( item );
 
-  item->x = x;
-  item->y = y;
+  item->setposition( Pos4d( item->pos() ).x( x ).y( y ) );
 
   cont->add( item );
   cont->restart_decay_timer();
@@ -223,10 +222,7 @@ bool do_place_item_in_secure_trade_container( Network::Client* client, Items::It
   send_trade_statuses( client->chr );
 
   send_remove_object_to_inrange( item );
-
-  item->x = x;
-  item->y = y;
-  item->z = 9;
+  item->setposition( Pos4d( item->pos() ).x( x ).y( y ).z( 9 ) );
 
   cont->add( item );
 
@@ -319,7 +315,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
-  if ( !client->chr->realm->has_los( *client->chr, *target_item->toplevel_owner() ) )
+  if ( !client->chr->realm()->has_los( *client->chr, *target_item->toplevel_owner() ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -376,15 +372,15 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
     return false;
   }
 
-  if ( !chr->realm->dropheight( x, y, z, client->chr->z, &newz, &multi ) )
+  if ( !chr->realm()->dropheight( x, y, z, client->chr->z(), &newz, &multi ) )
   {
     SuspiciousActs::DropItemOutAtBlockedLocation( client, item->serial, x, y, z );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
-  LosObj tgt( x, y, static_cast<s8>( newz ), chr->realm );
-  if ( !chr->realm->has_los( *client->chr, tgt ) )
+  LosObj tgt( x, y, static_cast<s8>( newz ), chr->realm() );
+  if ( !chr->realm()->has_los( *client->chr, tgt ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -392,17 +388,15 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
 
   item->set_dirty();
   item->restart_decay_timer();
-  item->x = x;
-  item->y = y;
-  item->z = static_cast<s8>( newz );
-  if ( item->realm != chr->realm )
+  item->setposition( Pos4d( item->pos() ).x( x ).y( y ).z( static_cast<s8>( newz ) ) );
+  if ( item->realm() != chr->realm() )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
-      cont->for_each_item( setrealm, (void*)chr->realm );
+      cont->for_each_item( setrealm, (void*)chr->realm() );
     }
-    setrealm( item, (void*)chr->realm );
+    setrealm( item, (void*)chr->realm() );
   }
   item->container = nullptr;
   item->reset_slot();
@@ -430,7 +424,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
     {
       item = Items::Item::create( UOBJ_BACKPACK );
       item->setname( name );
-      item->realm = find_realm( std::string( "britannia" ) );
+      item->setposition( Pos4d( item->pos().xyz(), find_realm( std::string( "britannia" ) ) ) );
       area->insert_root_item( item );
     }
     // Changed this from a passert to return null.
@@ -602,7 +596,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
-  if ( !client->chr->realm->has_los( *client->chr, *dropon ) )
+  if ( !client->chr->realm()->has_los( *client->chr, *dropon ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -665,8 +659,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   item->set_dirty();
   item->container = cont;
-  item->x = rx;
-  item->y = ry;
+  item->setposition( Pos4d( item->pos() ).x( rx ).y( ry ) );
 
   cont->add_at_random_location( item );
 
@@ -715,7 +708,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
-  if ( !client->chr->realm->has_los( *client->chr, *cont->toplevel_owner() ) )
+  if ( !client->chr->realm()->has_los( *client->chr, *cont->toplevel_owner() ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -804,7 +797,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   if ( item->serial != item_serial )
   {
     SuspiciousActs::DropItemOtherThanGotten( client, item_serial, item->serial );
-    item->gotten_by( nullptr ); // TODO: shouldn't we clear_gotten_item() here?
+    item->gotten_by( nullptr );  // TODO: shouldn't we clear_gotten_item() here?
     return;
   }
   item->inuse( false );
@@ -825,7 +818,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
     Multi::UMulti* multi = system_find_multi( target_serial );
 
     if ( multi != nullptr )
-      res = drop_item_on_ground( client, item, ( multi->x + x ), ( multi->y + y ), z );
+      res = drop_item_on_ground( client, item, ( multi->x() + x ), ( multi->y() + y ), z );
     else
       res = place_item( client, item, target_serial, x, y, 0 );
   }
@@ -891,7 +884,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
     Multi::UMulti* multi = system_find_multi( target_serial );
 
     if ( multi != nullptr )
-      res = drop_item_on_ground( client, item, ( multi->x + x ), ( multi->y + y ), z );
+      res = drop_item_on_ground( client, item, ( multi->x() + x ), ( multi->y() + y ), z );
     else
       res = place_item( client, item, target_serial, x, y, 0 );
   }
@@ -939,12 +932,10 @@ void return_traded_items( Mobile::Character* chr )
       if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
       {
         item->set_dirty();
-        item->x = chr->x;
-        item->y = chr->y;
-        item->z = chr->z;
+        item->setposition( chr->pos() );
         add_item_to_world( item );
         register_with_supporting_multi( item );
-        move_item( item, item->x, item->y, item->z, nullptr );
+        move_item( item, item->x(), item->y(), item->z(), nullptr );
         return;
       }
       bp->add_at_random_location( item );
@@ -955,12 +946,10 @@ void return_traded_items( Mobile::Character* chr )
     else
     {
       item->set_dirty();
-      item->x = chr->x;
-      item->y = chr->y;
-      item->realm = chr->realm;
+      item->setposition( chr->pos() );
       add_item_to_world( item );
       register_with_supporting_multi( item );
-      move_item( item, chr->x, chr->y, chr->z, nullptr );
+      move_item( item, chr->x(), chr->y(), chr->z(), nullptr );
     }
   }
 }

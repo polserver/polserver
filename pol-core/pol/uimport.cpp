@@ -104,7 +104,7 @@ void read_character( Clib::ConfigElem& elem )
     chr->readProperties( elem );
 
     // Allows the realm to recognize this char as offline
-    chr->realm->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
 
     chr->clear_dirty();
 
@@ -204,7 +204,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     else
       return nullptr;
   }
-  item->realm = find_realm( "britannia" );
+  item->setposition( Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
 
   item->readProperties( elem );
 
@@ -523,7 +523,7 @@ Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm*
   for ( auto& item : realm->zone[wx][wy].items )
   {
     // FIXME won't find doors which have been perturbed
-    if ( item->objtype_ == objtype && item->x == x && item->y == y && item->z == z )
+    if ( item->objtype_ == objtype && item->x() == x && item->y() == y && item->z() == z )
     {
       return item;
     }
@@ -554,7 +554,7 @@ void import( Clib::ConfigElem& elem )
 
   item->readProperties( elem );
 
-  if ( find_existing_item( item->objtype_, item->x, item->y, item->z, item->realm ) )
+  if ( find_existing_item( item->objtype_, item->x(), item->y(), item->z(), item->realm() ) )
   {
     item->destroy();
     ++dupe_count;
@@ -854,14 +854,11 @@ inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::St
   if ( item == nullptr || item->orphan() )
     return;
   // For now, it just saves the item in items.txt
-  item->x = chr->x;
-  item->y = chr->y;
-  item->z = chr->z;
-  item->realm = chr->realm;
+  item->setposition( chr->pos() );
 
   item->printOn( sw );
 
-  item->x = item->y = item->z = 0;
+  item->setposition( Pos4d( item->pos() ).x( 0 ).y( 0 ).z( 0 ) );
 }
 
 void write_characters( Core::SaveContext& sc )
@@ -1052,179 +1049,202 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
   // the remaining operations are only pure buffered i/o
   auto critical_promise = std::make_shared<std::promise<bool>>();
   auto critical_future = critical_promise->get_future();
-  SaveContext::finished = std::async( std::launch::async, [&, critical_promise]() -> bool {
-    std::atomic<bool> result( true );
-    try
-    {
-      SaveContext sc;
-      std::vector<std::future<bool>> critical_parts;
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
+  SaveContext::finished = std::async(
+      std::launch::async,
+      [&, critical_promise]() -> bool
+      {
+        std::atomic<bool> result( true );
         try
         {
-          sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID << pf_endl
-                   << "#  Mobiles: " << get_mobile_count() << pf_endl
-                   << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
-                   << pf_endl << pf_endl;
+          SaveContext sc;
+          std::vector<std::future<bool>> critical_parts;
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  sc.pol() << "#" << pf_endl << "#  Created by Version: " << POL_VERSION_ID
+                           << pf_endl << "#  Mobiles: " << get_mobile_count() << pf_endl
+                           << "#  Top-level Items: " << get_toplevel_item_count() << pf_endl << "#"
+                           << pf_endl << pf_endl;
 
-          write_system_data( sc.pol );
-          write_global_properties( sc.pol );
-          write_shadow_realms( sc.pol );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store pol datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_items( sc.items );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store items datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_characters( sc );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store character datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_npcs( sc );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store npcs datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_multis( sc.multis );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store multis datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          gamestate.storage.print( sc.storage );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store storage datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_resources_dat( sc.resource );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store resource datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_guilds( sc.guilds );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store guilds datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          Module::write_datastore( sc.datastore );
-          // Atomically (hopefully) perform the switch.
-          Module::commit_datastore();
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store datastore datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      critical_parts.push_back( gamestate.task_thread_pool.checked_push( [&]() {
-        try
-        {
-          write_party( sc.party );
-        }
-        catch ( ... )
-        {
-          POLLOG_ERROR << "failed to store party datafile!\n";
-          Clib::force_backtrace();
-          result = false;
-        }
-      } ) );
-      for ( auto& task : critical_parts )
-        task.wait();
+                  write_system_data( sc.pol );
+                  write_global_properties( sc.pol );
+                  write_shadow_realms( sc.pol );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store pol datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_items( sc.items );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store items datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_characters( sc );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store character datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_npcs( sc );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store npcs datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_multis( sc.multis );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store multis datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  gamestate.storage.print( sc.storage );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store storage datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_resources_dat( sc.resource );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store resource datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_guilds( sc.guilds );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store guilds datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  Module::write_datastore( sc.datastore );
+                  // Atomically (hopefully) perform the switch.
+                  Module::commit_datastore();
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store datastore datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          critical_parts.push_back( gamestate.task_thread_pool.checked_push(
+              [&]()
+              {
+                try
+                {
+                  write_party( sc.party );
+                }
+                catch ( ... )
+                {
+                  POLLOG_ERROR << "failed to store party datafile!\n";
+                  Clib::force_backtrace();
+                  result = false;
+                }
+              } ) );
+          for ( auto& task : critical_parts )
+            task.wait();
 
-      critical_promise->set_value( result );  // critical part end
-      // TODO: since promise can only be set one time move it into a method with a dedicated try
-      // block, now when in theory an upper part fails the promise gets never set
-    }  // deconstructor of the SaveContext flushes and joins the queues
-    catch ( std::ios_base::failure& e )
-    {
-      POLLOG_ERROR << "failed to save datafiles! " << e.what() << ":" << std::strerror( errno )
-                   << "\n";
-      Clib::force_backtrace();
-      result = false;
-    }
-    catch ( ... )
-    {
-      POLLOG_ERROR << "failed to save datafiles!\n";
-      Clib::force_backtrace();
-      result = false;
-    }
-    if ( result )
-    {
-      commit( "pol" );
-      commit( "objects" );
-      commit( "pcs" );
-      commit( "pcequip" );
-      commit( "npcs" );
-      commit( "npcequip" );
-      commit( "items" );
-      commit( "multis" );
-      commit( "storage" );
-      commit( "resource" );
-      commit( "guilds" );
-      commit( "datastore" );
-      commit( "parties" );
-    }
-    return true;
-  } );
+          critical_promise->set_value( result );  // critical part end
+          // TODO: since promise can only be set one time move it into a method with a dedicated try
+          // block, now when in theory an upper part fails the promise gets never set
+        }  // deconstructor of the SaveContext flushes and joins the queues
+        catch ( std::ios_base::failure& e )
+        {
+          POLLOG_ERROR << "failed to save datafiles! " << e.what() << ":" << std::strerror( errno )
+                       << "\n";
+          Clib::force_backtrace();
+          result = false;
+        }
+        catch ( ... )
+        {
+          POLLOG_ERROR << "failed to save datafiles!\n";
+          Clib::force_backtrace();
+          result = false;
+        }
+        if ( result )
+        {
+          commit( "pol" );
+          commit( "objects" );
+          commit( "pcs" );
+          commit( "pcequip" );
+          commit( "npcs" );
+          commit( "npcequip" );
+          commit( "items" );
+          commit( "multis" );
+          commit( "storage" );
+          commit( "resource" );
+          commit( "guilds" );
+          commit( "datastore" );
+          commit( "parties" );
+        }
+        return true;
+      } );
   critical_future.wait();  // wait for end of critical part
 
   if ( Plib::systemstate.accounts_txt_dirty )  // write accounts extra, since it uses extra thread

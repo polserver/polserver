@@ -76,7 +76,8 @@ namespace Core
 using namespace Network;
 
 void handle_unknown_packet( Network::ThreadedClient* session );
-void handle_unknown_packet(Network::Client* client) {
+void handle_unknown_packet( Network::Client* client )
+{
   handle_unknown_packet( client->session() );
 }
 
@@ -441,9 +442,9 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );
-        outMsg->WriteFlipped<u16>( member->x );
-        outMsg->WriteFlipped<u16>( member->y );
-        outMsg->Write<u8>( member->realm->getUOMapID() );
+        outMsg->WriteFlipped<u16>( member->x() );
+        outMsg->WriteFlipped<u16>( member->y() );
+        outMsg->Write<u8>( member->realm()->getUOMapID() );
       }
 
       if ( outMsg->offset != 4 )  // only send if there is an update
@@ -481,9 +482,9 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         outMsg->Write<u32>( member->serial_ext );
         if ( locations )
         {
-          outMsg->WriteFlipped<u16>( member->x );
-          outMsg->WriteFlipped<u16>( member->y );
-          outMsg->Write<u8>( member->realm->getUOMapID() );
+          outMsg->WriteFlipped<u16>( member->x() );
+          outMsg->WriteFlipped<u16>( member->y() );
+          outMsg->Write<u8>( member->realm()->getUOMapID() );
 
           if ( member->dead() )
             outMsg->Write<u8>( 0U );
@@ -533,7 +534,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
     {
       return;
     }
-    if ( pol_distance( client->chr->x, client->chr->y, the_mob->x, the_mob->y ) > 20 )
+    if ( pol_distance( client->chr->x(), client->chr->y(), the_mob->x(), the_mob->y() ) > 20 )
     {
       return;
     }

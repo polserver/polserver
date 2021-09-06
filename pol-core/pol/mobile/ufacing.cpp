@@ -5,6 +5,7 @@
 #include "../../plib/uconst.h"
 #include "../mdelta.h"
 #include "../uobject.h"
+#include "base/position.h"
 #include "charactr.h"
 
 namespace Pol
@@ -12,15 +13,15 @@ namespace Pol
 namespace Core
 {
 // FIXME shouldn't be using PKTIN_02_FACING_MASK here
-MoveDelta move_delta[8] = {{0, -1},   // 0 is N
-                           {+1, -1},  // 1 is NE
-                           {+1, 0},   // ...
-                           {+1, +1}, {0, +1}, {-1, +1}, {-1, 0}, {-1, -1}};
+MoveDelta move_delta[8] = { { 0, -1 },   // 0 is N
+                            { +1, -1 },  // 1 is NE
+                            { +1, 0 },   // ...
+                            { +1, +1 }, { 0, +1 }, { -1, +1 }, { -1, 0 }, { -1, -1 } };
 
-Plib::UFACING away_cvt[8] = {Plib::FACING_S, Plib::FACING_SW, Plib::FACING_W, Plib::FACING_NW,
-                             Plib::FACING_N, Plib::FACING_NE, Plib::FACING_E, Plib::FACING_SE};
+Plib::UFACING away_cvt[8] = { Plib::FACING_S, Plib::FACING_SW, Plib::FACING_W, Plib::FACING_NW,
+                              Plib::FACING_N, Plib::FACING_NE, Plib::FACING_E, Plib::FACING_SE };
 
-std::array<int, 7> adjustments = {{0, +1, -1, +2, -2, +3, -3}};
+std::array<int, 7> adjustments = { { 0, +1, -1, +2, -2, +3, -3 } };
 }  // namespace Core
 namespace Mobile
 {
@@ -58,95 +59,23 @@ Plib::UFACING direction_toward( const Character* src, const Core::UObject* idst 
 {
   using namespace Core;
   const UObject* dst = idst->toplevel_owner();
-  if ( src->x < dst->x )  // East to target
-  {
-    if ( src->y < dst->y )
-      return Plib::FACING_SE;
-    else if ( src->y == dst->y )
-      return Plib::FACING_E;
-    else /* src->y > dst->y */
-      return Plib::FACING_NE;
-  }
-  else if ( src->x == dst->x )
-  {
-    if ( src->y < dst->y )
-      return Plib::FACING_S;
-    else if ( src->y > dst->y )
-      return Plib::FACING_N;
-  }
-  else /* src->x > dst->x */  // West to target
-  {
-    if ( src->y < dst->y )
-      return Plib::FACING_SW;
-    else if ( src->y == dst->y )
-      return Plib::FACING_W;
-    else /* src->y > dst->y */
-      return Plib::FACING_NW;
-  }
-  return Plib::FACING_N;
+  auto f = src->pos().xy().direction_toward( dst->pos().xy() );
+  return static_cast<Plib::UFACING>( f );
 }
 
 Plib::UFACING direction_toward( const Character* src, Core::xcoord to_x, Core::ycoord to_y )
 {
   using namespace Core;
-  if ( src->x < to_x )  // East to target
-  {
-    if ( src->y < to_y )
-      return Plib::FACING_SE;
-    else if ( src->y == to_y )
-      return Plib::FACING_E;
-    else /* src->y > dst->y */
-      return Plib::FACING_NE;
-  }
-  else if ( src->x == to_x )
-  {
-    if ( src->y < to_y )
-      return Plib::FACING_S;
-    else if ( src->y > to_y )
-      return Plib::FACING_N;
-  }
-  else /* src->x > dst->x */  // West to target
-  {
-    if ( src->y < to_y )
-      return Plib::FACING_SW;
-    else if ( src->y == to_y )
-      return Plib::FACING_W;
-    else /* src->y > dst->y */
-      return Plib::FACING_NW;
-  }
-  return Plib::FACING_N;
+  auto f = src->pos().xy().direction_toward( Pos2d( to_x, to_y ) );
+  return static_cast<Plib::UFACING>( f );
 }
 
 Plib::UFACING direction_toward( Core::xcoord from_x, Core::ycoord from_y, Core::xcoord to_x,
                                 Core::ycoord to_y )
 {
   using namespace Core;
-  if ( from_x < to_x )  // East to target
-  {
-    if ( from_y < to_y )
-      return Plib::FACING_SE;
-    else if ( from_y == to_y )
-      return Plib::FACING_E;
-    else /* from_y > to_y */
-      return Plib::FACING_NE;
-  }
-  else if ( from_x == to_x )
-  {
-    if ( from_y < to_y )
-      return Plib::FACING_S;
-    else if ( from_y > to_y )
-      return Plib::FACING_N;
-  }
-  else /* from_x > to_x */  // West to target
-  {
-    if ( from_y < to_y )
-      return Plib::FACING_SW;
-    else if ( from_y == to_y )
-      return Plib::FACING_W;
-    else /* from_y > to_y */
-      return Plib::FACING_NW;
-  }
-  return Plib::FACING_N;
+  auto f = Pos2d( from_x, from_y ).direction_toward( Pos2d( to_x, to_y ) );
+  return static_cast<Plib::UFACING>( f );
 }
 
 Plib::UFACING direction_away( const Character* src, const Core::UObject* idst )

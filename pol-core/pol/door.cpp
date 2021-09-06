@@ -7,8 +7,10 @@
 
 #include <stddef.h>
 
-#include "../bscript/executor.h"
-#include "../clib/rawtypes.h"
+#include "bscript/executor.h"
+#include "clib/rawtypes.h"
+
+#include "base/vector.h"
 #include "globals/uvars.h"
 #include "item/itemdesc.h"
 #include "network/client.h"
@@ -41,7 +43,7 @@ void UDoor::toggle()
 {
   const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
 
-  unsigned short oldx = x, oldy = y;
+  unsigned short oldx = x(), oldy = y();
 
   set_dirty();
   if ( is_open() )
@@ -50,14 +52,12 @@ void UDoor::toggle()
       graphic = dd->graphic;
     else
       graphic = static_cast<u16>( objtype_ );
-    x -= dd->xmod;
-    y -= dd->ymod;
+    setposition( pos() - Vec2d( dd->xmod, dd->ymod ) );
   }
   else
   {
     graphic = dd->open_graphic;
-    x += dd->xmod;
-    y += dd->ymod;
+    setposition( pos() + Vec2d( dd->xmod, dd->ymod ) );
   }
 
   MoveItemWorldPosition( oldx, oldy, this, nullptr );
@@ -99,5 +99,5 @@ bool UDoor::get_method_hook( const char* methodname, Bscript::Executor* ex, Expo
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
