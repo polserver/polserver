@@ -48,6 +48,10 @@ CompoundStatementBuilder::CompoundStatementBuilder(
 void CompoundStatementBuilder::add_statements( EscriptParser::StatementContext* ctx,
                                                std::vector<std::unique_ptr<Statement>>& statements )
 {
+  if ( ctx->has_parse_errors )
+  {
+    return;
+  }
   if ( include_debug )
   {
     add_intrusive_debug_marker( ctx, statements );

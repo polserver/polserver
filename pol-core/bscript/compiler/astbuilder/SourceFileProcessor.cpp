@@ -96,7 +96,7 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   profile.parse_src_micros.fetch_add( parse_us_counted );
   profile.parse_src_count++;
 
-  if ( report.error_count() == 0 )
+  if ( report.error_count() == 0 || workspace.is_diagnostics_mode )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -115,7 +115,7 @@ void SourceFileProcessor::process_include( SourceFile& sf, long long* micros_cou
   profile.parse_inc_micros.fetch_add( parse_micros_elapsed );
   *micros_counted += parse_micros_elapsed;
 
-  if ( report.error_count() == 0 )
+  if ( report.error_count() == 0 || workspace.is_diagnostics_mode )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -135,6 +135,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     include_name = tree_builder.unquote( string_literal );
   else if ( auto identifier = ctx->stringIdentifier()->IDENTIFIER() )
     include_name = identifier->getSymbol()->getText();
+  else if ( workspace.is_diagnostics_mode )
+    return;  // if no node, exit
   else
     source_location.internal_error(
         "Unable to include module: expected a string literal or identifier.\n" );
@@ -281,17 +283,28 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
 void SourceFileProcessor::handle_use_declaration( EscriptParser::UseDeclarationContext* ctx,
                                                   long long* micros_used )
 {
-  EscriptParser::StringIdentifierContext* stringId = ctx->stringIdentifier();
-  std::string modulename = stringId->STRING_LITERAL()
-                               ? tree_builder.unquote( stringId->STRING_LITERAL() )
-                               : tree_builder.text( stringId->IDENTIFIER() );
-  auto source_location = location_for( *ctx );
-  use_module( modulename, source_location, micros_used );
+  if ( auto* stringId = ctx->stringIdentifier() )
+  {
+    if ( auto* stringLiteral = stringId->STRING_LITERAL() )
+    {
+      std::string modulename = tree_builder.unquote( stringLiteral );
+      auto source_location = location_for( *ctx );
+      use_module( modulename, source_location, micros_used );
+    }
+    else if ( auto* identifier = stringId->IDENTIFIER() )
+    {
+      std::string modulename = tree_builder.text( identifier );
+      auto source_location = location_for( *ctx );
+      use_module( modulename, source_location, micros_used );
+    }
+  }
 }
 
 antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
     EscriptParser::FunctionDeclarationContext* ctx )
 {
+  if ( workspace.is_diagnostics_mode && ( ctx->has_parse_errors || ctx->exception != nullptr ) )
+    return antlrcpp::Any();
   auto loc = location_for( *ctx );
   workspace.function_resolver.register_available_user_function( loc, ctx );
   const std::string& function_name = tree_builder.text( ctx->IDENTIFIER() );
@@ -330,6 +343,8 @@ antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
 
 antlrcpp::Any SourceFileProcessor::visitStatement( EscriptParser::StatementContext* ctx )
 {
+  if ( workspace.is_diagnostics_mode && ( ctx->has_parse_errors || ctx->exception != nullptr ) )
+    return antlrcpp::Any();
   if ( auto constStatement = ctx->constStatement() )
   {
     workspace.compiler_workspace.const_declarations.push_back(

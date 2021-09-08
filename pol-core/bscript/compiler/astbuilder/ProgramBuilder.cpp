@@ -26,21 +26,28 @@ std::unique_ptr<Program> ProgramBuilder::program( EscriptParser::ProgramDeclarat
     {
       for ( auto param : param_list->programParameter() )
       {
-        auto name = text( param->IDENTIFIER() );
-        bool unused = param->UNUSED() != nullptr;
-        parameter_declarations.push_back( std::make_unique<ProgramParameterDeclaration>(
-            location_for( *param ), std::move( name ), unused ) );
+        if ( auto identifier = param->IDENTIFIER() )
+        {
+          auto name = text( param->IDENTIFIER() );
+          bool unused = param->UNUSED() != nullptr;
+          parameter_declarations.push_back( std::make_unique<ProgramParameterDeclaration>(
+              location_for( *param ), std::move( name ), unused ) );
+        }
       }
     }
+
+    auto parameter_list = std::make_unique<ProgramParameterList>(
+        location_for( *params ), std::move( parameter_declarations ) );
+
+    if ( auto block = ctx->block() )
+    {
+      auto body = std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( block ) );
+
+      return std::make_unique<Program>( location_for( *ctx ), std::move( parameter_list ),
+                                        std::move( body ) );
+    }
   }
-  auto parameter_list = std::make_unique<ProgramParameterList>(
-      location_for( *ctx->programParameters() ), std::move( parameter_declarations ) );
-
-  auto body =
-      std::make_unique<FunctionBody>( location_for( *ctx ), block_statements( ctx->block() ) );
-
-  return std::make_unique<Program>( location_for( *ctx ), std::move( parameter_list ),
-                                    std::move( body ) );
+  return {};  // uhhm ok?
 }
 
 }  // namespace Pol::Bscript::Compiler

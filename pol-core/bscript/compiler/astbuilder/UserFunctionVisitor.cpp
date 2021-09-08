@@ -15,8 +15,11 @@ antlrcpp::Any UserFunctionVisitor::visitFunctionDeclaration(
     EscriptGrammar::EscriptParser::FunctionDeclarationContext* ctx )
 {
   auto uf = tree_builder.function_declaration( ctx );
-  workspace.function_resolver.register_user_function( uf.get() );
-  workspace.compiler_workspace.user_functions.push_back( std::move( uf ) );
+  if ( uf )
+  {
+    workspace.function_resolver.register_user_function( uf.get() );
+    workspace.compiler_workspace.user_functions.push_back( std::move( uf ) );
+  }
   return antlrcpp::Any();
 }
 

@@ -75,7 +75,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   src_processor.use_module( "basicio", source_location );
   src_processor.process_source( *sf );
 
-  if ( report.error_count() == 0 )
+  if ( report.error_count() == 0 || is_diagnostics_mode )
     build_referenced_user_functions( workspace );
 
   return compiler_workspace;

@@ -2,9 +2,11 @@
 
 #include <set>
 
-#include "clib/maputil.h"
+#include "EscriptGrammar/EscriptParser.h"
+#include "EscriptGrammar/EscriptParserRuleContext.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -29,10 +31,30 @@ void ErrorListener::propagate_errors_to( Report& report, const SourceFileIdentif
   }
 }
 
-void ErrorListener::syntaxError( antlr4::Recognizer*, antlr4::Token* offendingSymbol,
-                                 size_t line, size_t charPositionInLine, const std::string& msg,
-                                 std::exception_ptr )
+void ErrorListener::syntaxError( antlr4::Recognizer* r, antlr4::Token* offendingSymbol, size_t line,
+                                 size_t charPositionInLine, const std::string& msg,
+                                 std::exception_ptr eptr )
 {
+  // FIXME i dunno if this is right cast lalala
+  if ( auto parser = dynamic_cast<antlr4::Parser*>( r ) )
+  {
+    if ( auto ctx =
+             dynamic_cast<EscriptGrammar::EscriptParserRuleContext*>( parser->getContext() ) )
+    {
+      do
+      {
+        if ( ctx->getRuleIndex() == EscriptGrammar::EscriptParser::RuleStatement ||
+             ctx->getRuleIndex() == EscriptGrammar::EscriptParser::RuleProgramDeclaration ||
+             ctx->getRuleIndex() == EscriptGrammar::EscriptParser::RuleFunctionDeclaration )
+        {
+          break;
+        }
+        ctx->has_parse_errors = true;
+        ctx = static_cast<EscriptGrammar::EscriptParserRuleContext*>( ctx->parent );
+      } while ( ctx != nullptr );
+    }
+  }
+
   if ( offendingSymbol )
   {
     std::string symbol = offendingSymbol->getText();
