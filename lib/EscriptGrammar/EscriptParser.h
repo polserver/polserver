@@ -1,4 +1,5 @@
 
+#include "EscriptParserRuleContext.h"
 
 
 // Generated from lib/EscriptGrammar/EscriptParser.g4 by ANTLR 4.8
@@ -162,7 +163,7 @@ public:
   class IntegerLiteralContext;
   class FloatLiteralContext; 
 
-  class  CompilationUnitContext : public antlr4::ParserRuleContext {
+  class  CompilationUnitContext : public EscriptParserRuleContext {
   public:
     CompilationUnitContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -179,7 +180,7 @@ public:
 
   CompilationUnitContext* compilationUnit();
 
-  class  ModuleUnitContext : public antlr4::ParserRuleContext {
+  class  ModuleUnitContext : public EscriptParserRuleContext {
   public:
     ModuleUnitContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -196,7 +197,7 @@ public:
 
   ModuleUnitContext* moduleUnit();
 
-  class  ModuleDeclarationStatementContext : public antlr4::ParserRuleContext {
+  class  ModuleDeclarationStatementContext : public EscriptParserRuleContext {
   public:
     ModuleDeclarationStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -212,7 +213,7 @@ public:
 
   ModuleDeclarationStatementContext* moduleDeclarationStatement();
 
-  class  ModuleFunctionDeclarationContext : public antlr4::ParserRuleContext {
+  class  ModuleFunctionDeclarationContext : public EscriptParserRuleContext {
   public:
     ModuleFunctionDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -231,7 +232,7 @@ public:
 
   ModuleFunctionDeclarationContext* moduleFunctionDeclaration();
 
-  class  ModuleFunctionParameterListContext : public antlr4::ParserRuleContext {
+  class  ModuleFunctionParameterListContext : public EscriptParserRuleContext {
   public:
     ModuleFunctionParameterListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -249,7 +250,7 @@ public:
 
   ModuleFunctionParameterListContext* moduleFunctionParameterList();
 
-  class  ModuleFunctionParameterContext : public antlr4::ParserRuleContext {
+  class  ModuleFunctionParameterContext : public EscriptParserRuleContext {
   public:
     ModuleFunctionParameterContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -266,7 +267,7 @@ public:
 
   ModuleFunctionParameterContext* moduleFunctionParameter();
 
-  class  TopLevelDeclarationContext : public antlr4::ParserRuleContext {
+  class  TopLevelDeclarationContext : public EscriptParserRuleContext {
   public:
     TopLevelDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -285,7 +286,7 @@ public:
 
   TopLevelDeclarationContext* topLevelDeclaration();
 
-  class  FunctionDeclarationContext : public antlr4::ParserRuleContext {
+  class  FunctionDeclarationContext : public EscriptParserRuleContext {
   public:
     FunctionDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -305,7 +306,7 @@ public:
 
   FunctionDeclarationContext* functionDeclaration();
 
-  class  StringIdentifierContext : public antlr4::ParserRuleContext {
+  class  StringIdentifierContext : public EscriptParserRuleContext {
   public:
     StringIdentifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -321,7 +322,7 @@ public:
 
   StringIdentifierContext* stringIdentifier();
 
-  class  UseDeclarationContext : public antlr4::ParserRuleContext {
+  class  UseDeclarationContext : public EscriptParserRuleContext {
   public:
     UseDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -338,7 +339,7 @@ public:
 
   UseDeclarationContext* useDeclaration();
 
-  class  IncludeDeclarationContext : public antlr4::ParserRuleContext {
+  class  IncludeDeclarationContext : public EscriptParserRuleContext {
   public:
     IncludeDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -355,7 +356,7 @@ public:
 
   IncludeDeclarationContext* includeDeclaration();
 
-  class  ProgramDeclarationContext : public antlr4::ParserRuleContext {
+  class  ProgramDeclarationContext : public EscriptParserRuleContext {
   public:
     ProgramDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -374,7 +375,7 @@ public:
 
   ProgramDeclarationContext* programDeclaration();
 
-  class  StatementContext : public antlr4::ParserRuleContext {
+  class  StatementContext : public EscriptParserRuleContext {
   public:
     EscriptParser::ExpressionContext *statementExpression = nullptr;;
     StatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -406,7 +407,7 @@ public:
 
   StatementContext* statement();
 
-  class  StatementLabelContext : public antlr4::ParserRuleContext {
+  class  StatementLabelContext : public EscriptParserRuleContext {
   public:
     StatementLabelContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -422,7 +423,7 @@ public:
 
   StatementLabelContext* statementLabel();
 
-  class  IfStatementContext : public antlr4::ParserRuleContext {
+  class  IfStatementContext : public EscriptParserRuleContext {
   public:
     IfStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -446,7 +447,7 @@ public:
 
   IfStatementContext* ifStatement();
 
-  class  GotoStatementContext : public antlr4::ParserRuleContext {
+  class  GotoStatementContext : public EscriptParserRuleContext {
   public:
     GotoStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -463,7 +464,7 @@ public:
 
   GotoStatementContext* gotoStatement();
 
-  class  ReturnStatementContext : public antlr4::ParserRuleContext {
+  class  ReturnStatementContext : public EscriptParserRuleContext {
   public:
     ReturnStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -480,7 +481,7 @@ public:
 
   ReturnStatementContext* returnStatement();
 
-  class  ConstStatementContext : public antlr4::ParserRuleContext {
+  class  ConstStatementContext : public EscriptParserRuleContext {
   public:
     ConstStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -497,7 +498,7 @@ public:
 
   ConstStatementContext* constStatement();
 
-  class  VarStatementContext : public antlr4::ParserRuleContext {
+  class  VarStatementContext : public EscriptParserRuleContext {
   public:
     VarStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -514,7 +515,7 @@ public:
 
   VarStatementContext* varStatement();
 
-  class  DoStatementContext : public antlr4::ParserRuleContext {
+  class  DoStatementContext : public EscriptParserRuleContext {
   public:
     DoStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -534,7 +535,7 @@ public:
 
   DoStatementContext* doStatement();
 
-  class  WhileStatementContext : public antlr4::ParserRuleContext {
+  class  WhileStatementContext : public EscriptParserRuleContext {
   public:
     WhileStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -553,7 +554,7 @@ public:
 
   WhileStatementContext* whileStatement();
 
-  class  ExitStatementContext : public antlr4::ParserRuleContext {
+  class  ExitStatementContext : public EscriptParserRuleContext {
   public:
     ExitStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -569,7 +570,7 @@ public:
 
   ExitStatementContext* exitStatement();
 
-  class  BreakStatementContext : public antlr4::ParserRuleContext {
+  class  BreakStatementContext : public EscriptParserRuleContext {
   public:
     BreakStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -586,7 +587,7 @@ public:
 
   BreakStatementContext* breakStatement();
 
-  class  ContinueStatementContext : public antlr4::ParserRuleContext {
+  class  ContinueStatementContext : public EscriptParserRuleContext {
   public:
     ContinueStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -603,7 +604,7 @@ public:
 
   ContinueStatementContext* continueStatement();
 
-  class  ForStatementContext : public antlr4::ParserRuleContext {
+  class  ForStatementContext : public EscriptParserRuleContext {
   public:
     ForStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -621,7 +622,7 @@ public:
 
   ForStatementContext* forStatement();
 
-  class  ForeachIterableExpressionContext : public antlr4::ParserRuleContext {
+  class  ForeachIterableExpressionContext : public EscriptParserRuleContext {
   public:
     ForeachIterableExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -641,7 +642,7 @@ public:
 
   ForeachIterableExpressionContext* foreachIterableExpression();
 
-  class  ForeachStatementContext : public antlr4::ParserRuleContext {
+  class  ForeachStatementContext : public EscriptParserRuleContext {
   public:
     ForeachStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -662,7 +663,7 @@ public:
 
   ForeachStatementContext* foreachStatement();
 
-  class  RepeatStatementContext : public antlr4::ParserRuleContext {
+  class  RepeatStatementContext : public EscriptParserRuleContext {
   public:
     RepeatStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -682,7 +683,7 @@ public:
 
   RepeatStatementContext* repeatStatement();
 
-  class  CaseStatementContext : public antlr4::ParserRuleContext {
+  class  CaseStatementContext : public EscriptParserRuleContext {
   public:
     CaseStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -704,7 +705,7 @@ public:
 
   CaseStatementContext* caseStatement();
 
-  class  EnumStatementContext : public antlr4::ParserRuleContext {
+  class  EnumStatementContext : public EscriptParserRuleContext {
   public:
     EnumStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -722,7 +723,7 @@ public:
 
   EnumStatementContext* enumStatement();
 
-  class  BlockContext : public antlr4::ParserRuleContext {
+  class  BlockContext : public EscriptParserRuleContext {
   public:
     BlockContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -738,7 +739,7 @@ public:
 
   BlockContext* block();
 
-  class  VariableDeclarationInitializerContext : public antlr4::ParserRuleContext {
+  class  VariableDeclarationInitializerContext : public EscriptParserRuleContext {
   public:
     VariableDeclarationInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -756,7 +757,7 @@ public:
 
   VariableDeclarationInitializerContext* variableDeclarationInitializer();
 
-  class  EnumListContext : public antlr4::ParserRuleContext {
+  class  EnumListContext : public EscriptParserRuleContext {
   public:
     EnumListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -774,7 +775,7 @@ public:
 
   EnumListContext* enumList();
 
-  class  EnumListEntryContext : public antlr4::ParserRuleContext {
+  class  EnumListEntryContext : public EscriptParserRuleContext {
   public:
     EnumListEntryContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -791,7 +792,7 @@ public:
 
   EnumListEntryContext* enumListEntry();
 
-  class  SwitchBlockStatementGroupContext : public antlr4::ParserRuleContext {
+  class  SwitchBlockStatementGroupContext : public EscriptParserRuleContext {
   public:
     SwitchBlockStatementGroupContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -808,7 +809,7 @@ public:
 
   SwitchBlockStatementGroupContext* switchBlockStatementGroup();
 
-  class  SwitchLabelContext : public antlr4::ParserRuleContext {
+  class  SwitchLabelContext : public EscriptParserRuleContext {
   public:
     SwitchLabelContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -827,7 +828,7 @@ public:
 
   SwitchLabelContext* switchLabel();
 
-  class  ForGroupContext : public antlr4::ParserRuleContext {
+  class  ForGroupContext : public EscriptParserRuleContext {
   public:
     ForGroupContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -843,7 +844,7 @@ public:
 
   ForGroupContext* forGroup();
 
-  class  BasicForStatementContext : public antlr4::ParserRuleContext {
+  class  BasicForStatementContext : public EscriptParserRuleContext {
   public:
     BasicForStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -863,7 +864,7 @@ public:
 
   BasicForStatementContext* basicForStatement();
 
-  class  CstyleForStatementContext : public antlr4::ParserRuleContext {
+  class  CstyleForStatementContext : public EscriptParserRuleContext {
   public:
     CstyleForStatementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -884,7 +885,7 @@ public:
 
   CstyleForStatementContext* cstyleForStatement();
 
-  class  IdentifierListContext : public antlr4::ParserRuleContext {
+  class  IdentifierListContext : public EscriptParserRuleContext {
   public:
     IdentifierListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -901,7 +902,7 @@ public:
 
   IdentifierListContext* identifierList();
 
-  class  VariableDeclarationListContext : public antlr4::ParserRuleContext {
+  class  VariableDeclarationListContext : public EscriptParserRuleContext {
   public:
     VariableDeclarationListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -919,7 +920,7 @@ public:
 
   VariableDeclarationListContext* variableDeclarationList();
 
-  class  ConstantDeclarationContext : public antlr4::ParserRuleContext {
+  class  ConstantDeclarationContext : public EscriptParserRuleContext {
   public:
     ConstantDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -935,7 +936,7 @@ public:
 
   ConstantDeclarationContext* constantDeclaration();
 
-  class  VariableDeclarationContext : public antlr4::ParserRuleContext {
+  class  VariableDeclarationContext : public EscriptParserRuleContext {
   public:
     VariableDeclarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -951,7 +952,7 @@ public:
 
   VariableDeclarationContext* variableDeclaration();
 
-  class  ProgramParametersContext : public antlr4::ParserRuleContext {
+  class  ProgramParametersContext : public EscriptParserRuleContext {
   public:
     ProgramParametersContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -968,7 +969,7 @@ public:
 
   ProgramParametersContext* programParameters();
 
-  class  ProgramParameterListContext : public antlr4::ParserRuleContext {
+  class  ProgramParameterListContext : public EscriptParserRuleContext {
   public:
     ProgramParameterListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -986,7 +987,7 @@ public:
 
   ProgramParameterListContext* programParameterList();
 
-  class  ProgramParameterContext : public antlr4::ParserRuleContext {
+  class  ProgramParameterContext : public EscriptParserRuleContext {
   public:
     ProgramParameterContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1004,7 +1005,7 @@ public:
 
   ProgramParameterContext* programParameter();
 
-  class  FunctionParametersContext : public antlr4::ParserRuleContext {
+  class  FunctionParametersContext : public EscriptParserRuleContext {
   public:
     FunctionParametersContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1021,7 +1022,7 @@ public:
 
   FunctionParametersContext* functionParameters();
 
-  class  FunctionParameterListContext : public antlr4::ParserRuleContext {
+  class  FunctionParameterListContext : public EscriptParserRuleContext {
   public:
     FunctionParameterListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1039,7 +1040,7 @@ public:
 
   FunctionParameterListContext* functionParameterList();
 
-  class  FunctionParameterContext : public antlr4::ParserRuleContext {
+  class  FunctionParameterContext : public EscriptParserRuleContext {
   public:
     FunctionParameterContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1058,7 +1059,7 @@ public:
 
   FunctionParameterContext* functionParameter();
 
-  class  ScopedFunctionCallContext : public antlr4::ParserRuleContext {
+  class  ScopedFunctionCallContext : public EscriptParserRuleContext {
   public:
     ScopedFunctionCallContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1075,7 +1076,7 @@ public:
 
   ScopedFunctionCallContext* scopedFunctionCall();
 
-  class  FunctionReferenceContext : public antlr4::ParserRuleContext {
+  class  FunctionReferenceContext : public EscriptParserRuleContext {
   public:
     FunctionReferenceContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1091,7 +1092,7 @@ public:
 
   FunctionReferenceContext* functionReference();
 
-  class  ExpressionContext : public antlr4::ParserRuleContext {
+  class  ExpressionContext : public EscriptParserRuleContext {
   public:
     antlr4::Token *prefix = nullptr;;
     antlr4::Token *bop = nullptr;;
@@ -1152,7 +1153,7 @@ public:
 
   ExpressionContext* expression();
   ExpressionContext* expression(int precedence);
-  class  PrimaryContext : public antlr4::ParserRuleContext {
+  class  PrimaryContext : public EscriptParserRuleContext {
   public:
     PrimaryContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1178,7 +1179,7 @@ public:
 
   PrimaryContext* primary();
 
-  class  ExplicitArrayInitializerContext : public antlr4::ParserRuleContext {
+  class  ExplicitArrayInitializerContext : public EscriptParserRuleContext {
   public:
     ExplicitArrayInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1194,7 +1195,7 @@ public:
 
   ExplicitArrayInitializerContext* explicitArrayInitializer();
 
-  class  ExplicitStructInitializerContext : public antlr4::ParserRuleContext {
+  class  ExplicitStructInitializerContext : public EscriptParserRuleContext {
   public:
     ExplicitStructInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1210,7 +1211,7 @@ public:
 
   ExplicitStructInitializerContext* explicitStructInitializer();
 
-  class  ExplicitDictInitializerContext : public antlr4::ParserRuleContext {
+  class  ExplicitDictInitializerContext : public EscriptParserRuleContext {
   public:
     ExplicitDictInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1226,7 +1227,7 @@ public:
 
   ExplicitDictInitializerContext* explicitDictInitializer();
 
-  class  ExplicitErrorInitializerContext : public antlr4::ParserRuleContext {
+  class  ExplicitErrorInitializerContext : public EscriptParserRuleContext {
   public:
     ExplicitErrorInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1242,7 +1243,7 @@ public:
 
   ExplicitErrorInitializerContext* explicitErrorInitializer();
 
-  class  BareArrayInitializerContext : public antlr4::ParserRuleContext {
+  class  BareArrayInitializerContext : public EscriptParserRuleContext {
   public:
     BareArrayInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1260,7 +1261,7 @@ public:
 
   BareArrayInitializerContext* bareArrayInitializer();
 
-  class  ParExpressionContext : public antlr4::ParserRuleContext {
+  class  ParExpressionContext : public EscriptParserRuleContext {
   public:
     ParExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1277,7 +1278,7 @@ public:
 
   ParExpressionContext* parExpression();
 
-  class  ExpressionListContext : public antlr4::ParserRuleContext {
+  class  ExpressionListContext : public EscriptParserRuleContext {
   public:
     ExpressionListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1295,7 +1296,7 @@ public:
 
   ExpressionListContext* expressionList();
 
-  class  ExpressionSuffixContext : public antlr4::ParserRuleContext {
+  class  ExpressionSuffixContext : public EscriptParserRuleContext {
   public:
     ExpressionSuffixContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1312,7 +1313,7 @@ public:
 
   ExpressionSuffixContext* expressionSuffix();
 
-  class  IndexingSuffixContext : public antlr4::ParserRuleContext {
+  class  IndexingSuffixContext : public EscriptParserRuleContext {
   public:
     IndexingSuffixContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1329,7 +1330,7 @@ public:
 
   IndexingSuffixContext* indexingSuffix();
 
-  class  NavigationSuffixContext : public antlr4::ParserRuleContext {
+  class  NavigationSuffixContext : public EscriptParserRuleContext {
   public:
     NavigationSuffixContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1346,7 +1347,7 @@ public:
 
   NavigationSuffixContext* navigationSuffix();
 
-  class  MethodCallSuffixContext : public antlr4::ParserRuleContext {
+  class  MethodCallSuffixContext : public EscriptParserRuleContext {
   public:
     MethodCallSuffixContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1365,7 +1366,7 @@ public:
 
   MethodCallSuffixContext* methodCallSuffix();
 
-  class  FunctionCallContext : public antlr4::ParserRuleContext {
+  class  FunctionCallContext : public EscriptParserRuleContext {
   public:
     FunctionCallContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1383,7 +1384,7 @@ public:
 
   FunctionCallContext* functionCall();
 
-  class  StructInitializerExpressionContext : public antlr4::ParserRuleContext {
+  class  StructInitializerExpressionContext : public EscriptParserRuleContext {
   public:
     StructInitializerExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1401,7 +1402,7 @@ public:
 
   StructInitializerExpressionContext* structInitializerExpression();
 
-  class  StructInitializerExpressionListContext : public antlr4::ParserRuleContext {
+  class  StructInitializerExpressionListContext : public EscriptParserRuleContext {
   public:
     StructInitializerExpressionListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1419,7 +1420,7 @@ public:
 
   StructInitializerExpressionListContext* structInitializerExpressionList();
 
-  class  StructInitializerContext : public antlr4::ParserRuleContext {
+  class  StructInitializerContext : public EscriptParserRuleContext {
   public:
     StructInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1437,7 +1438,7 @@ public:
 
   StructInitializerContext* structInitializer();
 
-  class  DictInitializerExpressionContext : public antlr4::ParserRuleContext {
+  class  DictInitializerExpressionContext : public EscriptParserRuleContext {
   public:
     DictInitializerExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1454,7 +1455,7 @@ public:
 
   DictInitializerExpressionContext* dictInitializerExpression();
 
-  class  DictInitializerExpressionListContext : public antlr4::ParserRuleContext {
+  class  DictInitializerExpressionListContext : public EscriptParserRuleContext {
   public:
     DictInitializerExpressionListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1472,7 +1473,7 @@ public:
 
   DictInitializerExpressionListContext* dictInitializerExpressionList();
 
-  class  DictInitializerContext : public antlr4::ParserRuleContext {
+  class  DictInitializerContext : public EscriptParserRuleContext {
   public:
     DictInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1490,7 +1491,7 @@ public:
 
   DictInitializerContext* dictInitializer();
 
-  class  ArrayInitializerContext : public antlr4::ParserRuleContext {
+  class  ArrayInitializerContext : public EscriptParserRuleContext {
   public:
     ArrayInitializerContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1510,7 +1511,7 @@ public:
 
   ArrayInitializerContext* arrayInitializer();
 
-  class  LiteralContext : public antlr4::ParserRuleContext {
+  class  LiteralContext : public EscriptParserRuleContext {
   public:
     LiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1527,7 +1528,7 @@ public:
 
   LiteralContext* literal();
 
-  class  InterpolatedStringContext : public antlr4::ParserRuleContext {
+  class  InterpolatedStringContext : public EscriptParserRuleContext {
   public:
     InterpolatedStringContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1545,7 +1546,7 @@ public:
 
   InterpolatedStringContext* interpolatedString();
 
-  class  InterpolatedStringPartContext : public antlr4::ParserRuleContext {
+  class  InterpolatedStringPartContext : public EscriptParserRuleContext {
   public:
     InterpolatedStringPartContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1567,7 +1568,7 @@ public:
 
   InterpolatedStringPartContext* interpolatedStringPart();
 
-  class  IntegerLiteralContext : public antlr4::ParserRuleContext {
+  class  IntegerLiteralContext : public EscriptParserRuleContext {
   public:
     IntegerLiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1585,7 +1586,7 @@ public:
 
   IntegerLiteralContext* integerLiteral();
 
-  class  FloatLiteralContext : public antlr4::ParserRuleContext {
+  class  FloatLiteralContext : public EscriptParserRuleContext {
   public:
     FloatLiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;

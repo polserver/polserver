@@ -1,9 +1,13 @@
 parser grammar EscriptParser;
 
-options { tokenVocab=EscriptLexer; }
+options {
+    tokenVocab=EscriptLexer;
+    contextSuperClass=EscriptParserRuleContext;
+}
 
 @header
 {
+#include "EscriptParserRuleContext.h"
 }
 
 @parser::members

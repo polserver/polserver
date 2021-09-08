@@ -1,4 +1,5 @@
 
+#include "EscriptParserRuleContext.h"
 
 
 // Generated from lib/EscriptGrammar/EscriptParser.g4 by ANTLR 4.8
@@ -38,7 +39,7 @@ dfa::Vocabulary& EscriptParser::getVocabulary() const {
 //----------------- CompilationUnitContext ------------------------------------------------------------------
 
 EscriptParser::CompilationUnitContext::CompilationUnitContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::CompilationUnitContext::EOF() {
@@ -158,7 +159,7 @@ EscriptParser::CompilationUnitContext* EscriptParser::compilationUnit() {
 //----------------- ModuleUnitContext ------------------------------------------------------------------
 
 EscriptParser::ModuleUnitContext::ModuleUnitContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ModuleUnitContext::EOF() {
@@ -234,7 +235,7 @@ EscriptParser::ModuleUnitContext* EscriptParser::moduleUnit() {
 //----------------- ModuleDeclarationStatementContext ------------------------------------------------------------------
 
 EscriptParser::ModuleDeclarationStatementContext::ModuleDeclarationStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::ModuleFunctionDeclarationContext* EscriptParser::ModuleDeclarationStatementContext::moduleFunctionDeclaration() {
@@ -312,7 +313,7 @@ EscriptParser::ModuleDeclarationStatementContext* EscriptParser::moduleDeclarati
 //----------------- ModuleFunctionDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::ModuleFunctionDeclarationContext::ModuleFunctionDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ModuleFunctionDeclarationContext::IDENTIFIER() {
@@ -400,7 +401,7 @@ EscriptParser::ModuleFunctionDeclarationContext* EscriptParser::moduleFunctionDe
 //----------------- ModuleFunctionParameterListContext ------------------------------------------------------------------
 
 EscriptParser::ModuleFunctionParameterListContext::ModuleFunctionParameterListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::ModuleFunctionParameterContext *> EscriptParser::ModuleFunctionParameterListContext::moduleFunctionParameter() {
@@ -482,7 +483,7 @@ EscriptParser::ModuleFunctionParameterListContext* EscriptParser::moduleFunction
 //----------------- ModuleFunctionParameterContext ------------------------------------------------------------------
 
 EscriptParser::ModuleFunctionParameterContext::ModuleFunctionParameterContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ModuleFunctionParameterContext::IDENTIFIER() {
@@ -558,7 +559,7 @@ EscriptParser::ModuleFunctionParameterContext* EscriptParser::moduleFunctionPara
 //----------------- TopLevelDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::TopLevelDeclarationContext::TopLevelDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::UseDeclarationContext* EscriptParser::TopLevelDeclarationContext::useDeclaration() {
@@ -708,7 +709,7 @@ EscriptParser::TopLevelDeclarationContext* EscriptParser::topLevelDeclaration() 
 //----------------- FunctionDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::FunctionDeclarationContext::FunctionDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::FunctionDeclarationContext::FUNCTION() {
@@ -802,7 +803,7 @@ EscriptParser::FunctionDeclarationContext* EscriptParser::functionDeclaration() 
 //----------------- StringIdentifierContext ------------------------------------------------------------------
 
 EscriptParser::StringIdentifierContext::StringIdentifierContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::StringIdentifierContext::STRING_LITERAL() {
@@ -873,7 +874,7 @@ EscriptParser::StringIdentifierContext* EscriptParser::stringIdentifier() {
 //----------------- UseDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::UseDeclarationContext::UseDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::UseDeclarationContext::USE() {
@@ -942,7 +943,7 @@ EscriptParser::UseDeclarationContext* EscriptParser::useDeclaration() {
 //----------------- IncludeDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::IncludeDeclarationContext::IncludeDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::IncludeDeclarationContext::INCLUDE() {
@@ -1011,7 +1012,7 @@ EscriptParser::IncludeDeclarationContext* EscriptParser::includeDeclaration() {
 //----------------- ProgramDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::ProgramDeclarationContext::ProgramDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ProgramDeclarationContext::PROGRAM() {
@@ -1092,7 +1093,7 @@ EscriptParser::ProgramDeclarationContext* EscriptParser::programDeclaration() {
 //----------------- StatementContext ------------------------------------------------------------------
 
 EscriptParser::StatementContext::StatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::IfStatementContext* EscriptParser::StatementContext::ifStatement() {
@@ -1335,7 +1336,7 @@ EscriptParser::StatementContext* EscriptParser::statement() {
 //----------------- StatementLabelContext ------------------------------------------------------------------
 
 EscriptParser::StatementLabelContext::StatementLabelContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::StatementLabelContext::IDENTIFIER() {
@@ -1398,7 +1399,7 @@ EscriptParser::StatementLabelContext* EscriptParser::statementLabel() {
 //----------------- IfStatementContext ------------------------------------------------------------------
 
 EscriptParser::IfStatementContext::IfStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::IfStatementContext::IF() {
@@ -1530,7 +1531,7 @@ EscriptParser::IfStatementContext* EscriptParser::ifStatement() {
 //----------------- GotoStatementContext ------------------------------------------------------------------
 
 EscriptParser::GotoStatementContext::GotoStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::GotoStatementContext::GOTO() {
@@ -1599,7 +1600,7 @@ EscriptParser::GotoStatementContext* EscriptParser::gotoStatement() {
 //----------------- ReturnStatementContext ------------------------------------------------------------------
 
 EscriptParser::ReturnStatementContext::ReturnStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ReturnStatementContext::RETURN() {
@@ -1698,7 +1699,7 @@ EscriptParser::ReturnStatementContext* EscriptParser::returnStatement() {
 //----------------- ConstStatementContext ------------------------------------------------------------------
 
 EscriptParser::ConstStatementContext::ConstStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ConstStatementContext::TOK_CONST() {
@@ -1767,7 +1768,7 @@ EscriptParser::ConstStatementContext* EscriptParser::constStatement() {
 //----------------- VarStatementContext ------------------------------------------------------------------
 
 EscriptParser::VarStatementContext::VarStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::VarStatementContext::VAR() {
@@ -1836,7 +1837,7 @@ EscriptParser::VarStatementContext* EscriptParser::varStatement() {
 //----------------- DoStatementContext ------------------------------------------------------------------
 
 EscriptParser::DoStatementContext::DoStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::DoStatementContext::DO() {
@@ -1930,7 +1931,7 @@ EscriptParser::DoStatementContext* EscriptParser::doStatement() {
 //----------------- WhileStatementContext ------------------------------------------------------------------
 
 EscriptParser::WhileStatementContext::WhileStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::WhileStatementContext::WHILE() {
@@ -2018,7 +2019,7 @@ EscriptParser::WhileStatementContext* EscriptParser::whileStatement() {
 //----------------- ExitStatementContext ------------------------------------------------------------------
 
 EscriptParser::ExitStatementContext::ExitStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ExitStatementContext::EXIT() {
@@ -2081,7 +2082,7 @@ EscriptParser::ExitStatementContext* EscriptParser::exitStatement() {
 //----------------- BreakStatementContext ------------------------------------------------------------------
 
 EscriptParser::BreakStatementContext::BreakStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::BreakStatementContext::BREAK() {
@@ -2157,7 +2158,7 @@ EscriptParser::BreakStatementContext* EscriptParser::breakStatement() {
 //----------------- ContinueStatementContext ------------------------------------------------------------------
 
 EscriptParser::ContinueStatementContext::ContinueStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ContinueStatementContext::CONTINUE() {
@@ -2233,7 +2234,7 @@ EscriptParser::ContinueStatementContext* EscriptParser::continueStatement() {
 //----------------- ForStatementContext ------------------------------------------------------------------
 
 EscriptParser::ForStatementContext::ForStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ForStatementContext::FOR() {
@@ -2315,7 +2316,7 @@ EscriptParser::ForStatementContext* EscriptParser::forStatement() {
 //----------------- ForeachIterableExpressionContext ------------------------------------------------------------------
 
 EscriptParser::ForeachIterableExpressionContext::ForeachIterableExpressionContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::FunctionCallContext* EscriptParser::ForeachIterableExpressionContext::functionCall() {
@@ -2435,7 +2436,7 @@ EscriptParser::ForeachIterableExpressionContext* EscriptParser::foreachIterableE
 //----------------- ForeachStatementContext ------------------------------------------------------------------
 
 EscriptParser::ForeachStatementContext::ForeachStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ForeachStatementContext::FOREACH() {
@@ -2535,7 +2536,7 @@ EscriptParser::ForeachStatementContext* EscriptParser::foreachStatement() {
 //----------------- RepeatStatementContext ------------------------------------------------------------------
 
 EscriptParser::RepeatStatementContext::RepeatStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::RepeatStatementContext::REPEAT() {
@@ -2629,7 +2630,7 @@ EscriptParser::RepeatStatementContext* EscriptParser::repeatStatement() {
 //----------------- CaseStatementContext ------------------------------------------------------------------
 
 EscriptParser::CaseStatementContext::CaseStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::CaseStatementContext::CASE() {
@@ -2747,7 +2748,7 @@ EscriptParser::CaseStatementContext* EscriptParser::caseStatement() {
 //----------------- EnumStatementContext ------------------------------------------------------------------
 
 EscriptParser::EnumStatementContext::EnumStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::EnumStatementContext::ENUM() {
@@ -2822,7 +2823,7 @@ EscriptParser::EnumStatementContext* EscriptParser::enumStatement() {
 //----------------- BlockContext ------------------------------------------------------------------
 
 EscriptParser::BlockContext::BlockContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::StatementContext *> EscriptParser::BlockContext::statement() {
@@ -2894,7 +2895,7 @@ EscriptParser::BlockContext* EscriptParser::block() {
 //----------------- VariableDeclarationInitializerContext ------------------------------------------------------------------
 
 EscriptParser::VariableDeclarationInitializerContext::VariableDeclarationInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::VariableDeclarationInitializerContext::ASSIGN() {
@@ -2992,7 +2993,7 @@ EscriptParser::VariableDeclarationInitializerContext* EscriptParser::variableDec
 //----------------- EnumListContext ------------------------------------------------------------------
 
 EscriptParser::EnumListContext::EnumListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::EnumListEntryContext *> EscriptParser::EnumListContext::enumListEntry() {
@@ -3085,7 +3086,7 @@ EscriptParser::EnumListContext* EscriptParser::enumList() {
 //----------------- EnumListEntryContext ------------------------------------------------------------------
 
 EscriptParser::EnumListEntryContext::EnumListEntryContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::EnumListEntryContext::IDENTIFIER() {
@@ -3161,7 +3162,7 @@ EscriptParser::EnumListEntryContext* EscriptParser::enumListEntry() {
 //----------------- SwitchBlockStatementGroupContext ------------------------------------------------------------------
 
 EscriptParser::SwitchBlockStatementGroupContext::SwitchBlockStatementGroupContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::BlockContext* EscriptParser::SwitchBlockStatementGroupContext::block() {
@@ -3245,7 +3246,7 @@ EscriptParser::SwitchBlockStatementGroupContext* EscriptParser::switchBlockState
 //----------------- SwitchLabelContext ------------------------------------------------------------------
 
 EscriptParser::SwitchLabelContext::SwitchLabelContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::SwitchLabelContext::COLON() {
@@ -3369,7 +3370,7 @@ EscriptParser::SwitchLabelContext* EscriptParser::switchLabel() {
 //----------------- ForGroupContext ------------------------------------------------------------------
 
 EscriptParser::ForGroupContext::ForGroupContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::CstyleForStatementContext* EscriptParser::ForGroupContext::cstyleForStatement() {
@@ -3447,7 +3448,7 @@ EscriptParser::ForGroupContext* EscriptParser::forGroup() {
 //----------------- BasicForStatementContext ------------------------------------------------------------------
 
 EscriptParser::BasicForStatementContext::BasicForStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::BasicForStatementContext::IDENTIFIER() {
@@ -3534,7 +3535,7 @@ EscriptParser::BasicForStatementContext* EscriptParser::basicForStatement() {
 //----------------- CstyleForStatementContext ------------------------------------------------------------------
 
 EscriptParser::CstyleForStatementContext::CstyleForStatementContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::CstyleForStatementContext::LPAREN() {
@@ -3629,7 +3630,7 @@ EscriptParser::CstyleForStatementContext* EscriptParser::cstyleForStatement() {
 //----------------- IdentifierListContext ------------------------------------------------------------------
 
 EscriptParser::IdentifierListContext::IdentifierListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::IdentifierListContext::IDENTIFIER() {
@@ -3707,7 +3708,7 @@ EscriptParser::IdentifierListContext* EscriptParser::identifierList() {
 //----------------- VariableDeclarationListContext ------------------------------------------------------------------
 
 EscriptParser::VariableDeclarationListContext::VariableDeclarationListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::VariableDeclarationContext *> EscriptParser::VariableDeclarationListContext::variableDeclaration() {
@@ -3789,7 +3790,7 @@ EscriptParser::VariableDeclarationListContext* EscriptParser::variableDeclaratio
 //----------------- ConstantDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::ConstantDeclarationContext::ConstantDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ConstantDeclarationContext::IDENTIFIER() {
@@ -3852,7 +3853,7 @@ EscriptParser::ConstantDeclarationContext* EscriptParser::constantDeclaration() 
 //----------------- VariableDeclarationContext ------------------------------------------------------------------
 
 EscriptParser::VariableDeclarationContext::VariableDeclarationContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::VariableDeclarationContext::IDENTIFIER() {
@@ -3925,7 +3926,7 @@ EscriptParser::VariableDeclarationContext* EscriptParser::variableDeclaration() 
 //----------------- ProgramParametersContext ------------------------------------------------------------------
 
 EscriptParser::ProgramParametersContext::ProgramParametersContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ProgramParametersContext::LPAREN() {
@@ -4001,7 +4002,7 @@ EscriptParser::ProgramParametersContext* EscriptParser::programParameters() {
 //----------------- ProgramParameterListContext ------------------------------------------------------------------
 
 EscriptParser::ProgramParameterListContext::ProgramParameterListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::ProgramParameterContext *> EscriptParser::ProgramParameterListContext::programParameter() {
@@ -4091,7 +4092,7 @@ EscriptParser::ProgramParameterListContext* EscriptParser::programParameterList(
 //----------------- ProgramParameterContext ------------------------------------------------------------------
 
 EscriptParser::ProgramParameterContext::ProgramParameterContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ProgramParameterContext::UNUSED() {
@@ -4190,7 +4191,7 @@ EscriptParser::ProgramParameterContext* EscriptParser::programParameter() {
 //----------------- FunctionParametersContext ------------------------------------------------------------------
 
 EscriptParser::FunctionParametersContext::FunctionParametersContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::FunctionParametersContext::LPAREN() {
@@ -4268,7 +4269,7 @@ EscriptParser::FunctionParametersContext* EscriptParser::functionParameters() {
 //----------------- FunctionParameterListContext ------------------------------------------------------------------
 
 EscriptParser::FunctionParameterListContext::FunctionParameterListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::FunctionParameterContext *> EscriptParser::FunctionParameterListContext::functionParameter() {
@@ -4350,7 +4351,7 @@ EscriptParser::FunctionParameterListContext* EscriptParser::functionParameterLis
 //----------------- FunctionParameterContext ------------------------------------------------------------------
 
 EscriptParser::FunctionParameterContext::FunctionParameterContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::FunctionParameterContext::IDENTIFIER() {
@@ -4450,7 +4451,7 @@ EscriptParser::FunctionParameterContext* EscriptParser::functionParameter() {
 //----------------- ScopedFunctionCallContext ------------------------------------------------------------------
 
 EscriptParser::ScopedFunctionCallContext::ScopedFunctionCallContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ScopedFunctionCallContext::IDENTIFIER() {
@@ -4519,7 +4520,7 @@ EscriptParser::ScopedFunctionCallContext* EscriptParser::scopedFunctionCall() {
 //----------------- FunctionReferenceContext ------------------------------------------------------------------
 
 EscriptParser::FunctionReferenceContext::FunctionReferenceContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::FunctionReferenceContext::AT() {
@@ -4582,7 +4583,7 @@ EscriptParser::FunctionReferenceContext* EscriptParser::functionReference() {
 //----------------- ExpressionContext ------------------------------------------------------------------
 
 EscriptParser::ExpressionContext::ExpressionContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::PrimaryContext* EscriptParser::ExpressionContext::primary() {
@@ -5196,7 +5197,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 //----------------- PrimaryContext ------------------------------------------------------------------
 
 EscriptParser::PrimaryContext::PrimaryContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::LiteralContext* EscriptParser::PrimaryContext::literal() {
@@ -5382,7 +5383,7 @@ EscriptParser::PrimaryContext* EscriptParser::primary() {
 //----------------- ExplicitArrayInitializerContext ------------------------------------------------------------------
 
 EscriptParser::ExplicitArrayInitializerContext::ExplicitArrayInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ExplicitArrayInitializerContext::ARRAY() {
@@ -5454,7 +5455,7 @@ EscriptParser::ExplicitArrayInitializerContext* EscriptParser::explicitArrayInit
 //----------------- ExplicitStructInitializerContext ------------------------------------------------------------------
 
 EscriptParser::ExplicitStructInitializerContext::ExplicitStructInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ExplicitStructInitializerContext::STRUCT() {
@@ -5526,7 +5527,7 @@ EscriptParser::ExplicitStructInitializerContext* EscriptParser::explicitStructIn
 //----------------- ExplicitDictInitializerContext ------------------------------------------------------------------
 
 EscriptParser::ExplicitDictInitializerContext::ExplicitDictInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ExplicitDictInitializerContext::DICTIONARY() {
@@ -5598,7 +5599,7 @@ EscriptParser::ExplicitDictInitializerContext* EscriptParser::explicitDictInitia
 //----------------- ExplicitErrorInitializerContext ------------------------------------------------------------------
 
 EscriptParser::ExplicitErrorInitializerContext::ExplicitErrorInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ExplicitErrorInitializerContext::TOK_ERROR() {
@@ -5670,7 +5671,7 @@ EscriptParser::ExplicitErrorInitializerContext* EscriptParser::explicitErrorInit
 //----------------- BareArrayInitializerContext ------------------------------------------------------------------
 
 EscriptParser::BareArrayInitializerContext::BareArrayInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::BareArrayInitializerContext::LBRACE() {
@@ -5824,7 +5825,7 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
 //----------------- ParExpressionContext ------------------------------------------------------------------
 
 EscriptParser::ParExpressionContext::ParExpressionContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ParExpressionContext::LPAREN() {
@@ -5893,7 +5894,7 @@ EscriptParser::ParExpressionContext* EscriptParser::parExpression() {
 //----------------- ExpressionListContext ------------------------------------------------------------------
 
 EscriptParser::ExpressionListContext::ExpressionListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::ExpressionContext *> EscriptParser::ExpressionListContext::expression() {
@@ -5977,7 +5978,7 @@ EscriptParser::ExpressionListContext* EscriptParser::expressionList() {
 //----------------- ExpressionSuffixContext ------------------------------------------------------------------
 
 EscriptParser::ExpressionSuffixContext::ExpressionSuffixContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::IndexingSuffixContext* EscriptParser::ExpressionSuffixContext::indexingSuffix() {
@@ -6064,7 +6065,7 @@ EscriptParser::ExpressionSuffixContext* EscriptParser::expressionSuffix() {
 //----------------- IndexingSuffixContext ------------------------------------------------------------------
 
 EscriptParser::IndexingSuffixContext::IndexingSuffixContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::IndexingSuffixContext::LBRACK() {
@@ -6133,7 +6134,7 @@ EscriptParser::IndexingSuffixContext* EscriptParser::indexingSuffix() {
 //----------------- NavigationSuffixContext ------------------------------------------------------------------
 
 EscriptParser::NavigationSuffixContext::NavigationSuffixContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::NavigationSuffixContext::DOT() {
@@ -6210,7 +6211,7 @@ EscriptParser::NavigationSuffixContext* EscriptParser::navigationSuffix() {
 //----------------- MethodCallSuffixContext ------------------------------------------------------------------
 
 EscriptParser::MethodCallSuffixContext::MethodCallSuffixContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::MethodCallSuffixContext::DOT() {
@@ -6321,7 +6322,7 @@ EscriptParser::MethodCallSuffixContext* EscriptParser::methodCallSuffix() {
 //----------------- FunctionCallContext ------------------------------------------------------------------
 
 EscriptParser::FunctionCallContext::FunctionCallContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::FunctionCallContext::IDENTIFIER() {
@@ -6426,7 +6427,7 @@ EscriptParser::FunctionCallContext* EscriptParser::functionCall() {
 //----------------- StructInitializerExpressionContext ------------------------------------------------------------------
 
 EscriptParser::StructInitializerExpressionContext::StructInitializerExpressionContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::StructInitializerExpressionContext::IDENTIFIER() {
@@ -6533,7 +6534,7 @@ EscriptParser::StructInitializerExpressionContext* EscriptParser::structInitiali
 //----------------- StructInitializerExpressionListContext ------------------------------------------------------------------
 
 EscriptParser::StructInitializerExpressionListContext::StructInitializerExpressionListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::StructInitializerExpressionContext *> EscriptParser::StructInitializerExpressionListContext::structInitializerExpression() {
@@ -6617,7 +6618,7 @@ EscriptParser::StructInitializerExpressionListContext* EscriptParser::structInit
 //----------------- StructInitializerContext ------------------------------------------------------------------
 
 EscriptParser::StructInitializerContext::StructInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::StructInitializerContext::LBRACE() {
@@ -6729,7 +6730,7 @@ EscriptParser::StructInitializerContext* EscriptParser::structInitializer() {
 //----------------- DictInitializerExpressionContext ------------------------------------------------------------------
 
 EscriptParser::DictInitializerExpressionContext::DictInitializerExpressionContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::ExpressionContext *> EscriptParser::DictInitializerExpressionContext::expression() {
@@ -6805,7 +6806,7 @@ EscriptParser::DictInitializerExpressionContext* EscriptParser::dictInitializerE
 //----------------- DictInitializerExpressionListContext ------------------------------------------------------------------
 
 EscriptParser::DictInitializerExpressionListContext::DictInitializerExpressionListContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 std::vector<EscriptParser::DictInitializerExpressionContext *> EscriptParser::DictInitializerExpressionListContext::dictInitializerExpression() {
@@ -6889,7 +6890,7 @@ EscriptParser::DictInitializerExpressionListContext* EscriptParser::dictInitiali
 //----------------- DictInitializerContext ------------------------------------------------------------------
 
 EscriptParser::DictInitializerContext::DictInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::DictInitializerContext::LBRACE() {
@@ -7043,7 +7044,7 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
 //----------------- ArrayInitializerContext ------------------------------------------------------------------
 
 EscriptParser::ArrayInitializerContext::ArrayInitializerContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::ArrayInitializerContext::LBRACE() {
@@ -7288,7 +7289,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 //----------------- LiteralContext ------------------------------------------------------------------
 
 EscriptParser::LiteralContext::LiteralContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 EscriptParser::IntegerLiteralContext* EscriptParser::LiteralContext::integerLiteral() {
@@ -7381,7 +7382,7 @@ EscriptParser::LiteralContext* EscriptParser::literal() {
 //----------------- InterpolatedStringContext ------------------------------------------------------------------
 
 EscriptParser::InterpolatedStringContext::InterpolatedStringContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::InterpolatedStringContext::INTERPOLATED_STRING_START() {
@@ -7468,7 +7469,7 @@ EscriptParser::InterpolatedStringContext* EscriptParser::interpolatedString() {
 //----------------- InterpolatedStringPartContext ------------------------------------------------------------------
 
 EscriptParser::InterpolatedStringPartContext::InterpolatedStringPartContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::InterpolatedStringPartContext::LBRACE_INSIDE() {
@@ -7620,7 +7621,7 @@ EscriptParser::InterpolatedStringPartContext* EscriptParser::interpolatedStringP
 //----------------- IntegerLiteralContext ------------------------------------------------------------------
 
 EscriptParser::IntegerLiteralContext::IntegerLiteralContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::IntegerLiteralContext::DECIMAL_LITERAL() {
@@ -7701,7 +7702,7 @@ EscriptParser::IntegerLiteralContext* EscriptParser::integerLiteral() {
 //----------------- FloatLiteralContext ------------------------------------------------------------------
 
 EscriptParser::FloatLiteralContext::FloatLiteralContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
+  : EscriptParserRuleContext(parent, invokingState) {
 }
 
 tree::TerminalNode* EscriptParser::FloatLiteralContext::FLOAT_LITERAL() {
