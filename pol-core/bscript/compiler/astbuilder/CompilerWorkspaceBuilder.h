@@ -23,8 +23,9 @@ public:
   CompilerWorkspaceBuilder( SourceFileLoader& source_loader, SourceFileCache& em_cache,
                             SourceFileCache& inc_cache, Profile&, Report& );
 
-  std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion );
-  std::unique_ptr<CompilerWorkspace> build_module( const std::string& pathname );
+  std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion,
+                                            bool );
+  std::unique_ptr<CompilerWorkspace> build_module( const std::string& pathname, bool );
 
 private:
   void build_referenced_user_functions( BuilderWorkspace& );

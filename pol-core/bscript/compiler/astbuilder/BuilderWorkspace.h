@@ -21,7 +21,7 @@ class BuilderWorkspace
 {
 public:
   BuilderWorkspace( CompilerWorkspace&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
-                    Profile& profile, Report& report );
+                    Profile& profile, Report& report, bool is_diagnostics_mode );
   ~BuilderWorkspace();
 
   CompilerWorkspace& compiler_workspace;
@@ -34,6 +34,7 @@ public:
 
   std::map<std::string, std::shared_ptr<SourceFile>> source_files;
   FunctionResolver function_resolver;
+  const bool is_diagnostics_mode;
 };
 
 }  // namespace Pol::Bscript::Compiler

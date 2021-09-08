@@ -36,7 +36,7 @@ public:
                                               bool is_module );
 
 private:
-  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool );
+  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool, bool );
   void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );

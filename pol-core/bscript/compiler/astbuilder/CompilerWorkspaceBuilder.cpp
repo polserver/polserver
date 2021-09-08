@@ -35,10 +35,12 @@ CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileLoader& source_loa
 }
 
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
-    const std::string& pathname, UserFunctionInclusion user_function_inclusion )
+    const std::string& pathname, UserFunctionInclusion user_function_inclusion,
+    bool is_diagnostics_mode )
 {
   auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
-  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
+  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report,
+                              is_diagnostics_mode );
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
 
@@ -80,10 +82,11 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 }
 
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
-    const std::string& pathname )
+    const std::string& pathname, bool is_diagnostics_mode )
 {
   auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
-  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
+  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report,
+                              is_diagnostics_mode );
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
 
