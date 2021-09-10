@@ -79,7 +79,7 @@ UObject::UObject( u32 objtype, UOBJ_CLASS i_uobj_class )
       serial_ext( 0 ),
       objtype_( objtype ),
       color( 0 ),
-      facing( Plib::FACING_N ),
+      facing( Core::FACING_N ),
       _rev( 0 ),
       name_( "" ),
       flags_(),

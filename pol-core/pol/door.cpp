@@ -43,7 +43,7 @@ void UDoor::toggle()
 {
   const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
 
-  unsigned short oldx = x(), oldy = y();
+  Pos4d oldpos = pos();
 
   set_dirty();
   if ( is_open() )
@@ -52,15 +52,15 @@ void UDoor::toggle()
       graphic = dd->graphic;
     else
       graphic = static_cast<u16>( objtype_ );
-    setposition( pos() - Vec2d( dd->xmod, dd->ymod ) );
+    setposition( pos() - dd->mod );
   }
   else
   {
     graphic = dd->open_graphic;
-    setposition( pos() + Vec2d( dd->xmod, dd->ymod ) );
+    setposition( pos() + dd->mod );
   }
 
-  MoveItemWorldPosition( oldx, oldy, this, nullptr );
+  MoveItemWorldPosition( oldpos.x(), oldpos.y(), this, nullptr );
 
   send_item_to_inrange( this );
 }

@@ -39,11 +39,10 @@ namespace Core
 {
 Map::Map( const Items::MapDesc& mapdesc )
     : Item( mapdesc, UOBJ_CLASS::CLASS_ITEM ),
-      gumpwidth( 0 ),
-      gumpheight( 0 ),
+      gumpsize(),
       editable( mapdesc.editable ),
       plotting( false ),
-      pin_points( 0 ),
+      pin_points(),
       xwest( 0 ),
       xeast( 0 ),
       ynorth( 0 ),
@@ -52,18 +51,16 @@ Map::Map( const Items::MapDesc& mapdesc )
 {
 }
 
-Map::~Map() {}
-
 void Map::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
-
-  sw() << "\txwest\t" << xwest << pf_endl;
-  sw() << "\tynorth\t" << ynorth << pf_endl;
-  sw() << "\txeast\t" << xeast << pf_endl;
-  sw() << "\tysouth\t" << ysouth << pf_endl;
-  sw() << "\tgumpwidth\t" << gumpwidth << pf_endl;
-  sw() << "\tgumpheight\t" << gumpheight << pf_endl;
+  Range2d area = getrange();
+  sw() << "\txwest\t" << area.nw().x() << pf_endl;
+  sw() << "\tynorth\t" << area.nw().y() << pf_endl;
+  sw() << "\txeast\t" << area.se().x() << pf_endl;
+  sw() << "\tysouth\t" << area.se().y() << pf_endl;
+  sw() << "\tgumpwidth\t" << gumpsize.x() << pf_endl;
+  sw() << "\tgumpheight\t" << gumpsize.y() << pf_endl;
   sw() << "\tfacetid\t" << facetid << pf_endl;
 
   sw() << "\teditable\t" << editable << pf_endl;
@@ -75,13 +72,12 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
 
 void Map::printPinPoints( Clib::StreamWriter& sw ) const
 {
-  PinPoints::const_iterator itr;
   int i = 0;
   sw() << "\tNumPins " << pin_points.size() << pf_endl;
 
-  for ( itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
+  for ( auto itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
   {
-    sw() << "\tPin" << i << " " << itr->x << "," << itr->y << pf_endl;
+    sw() << "\tPin" << i << " " << itr->x() << "," << itr->y() << pf_endl;
   }
 }
 
@@ -89,19 +85,21 @@ void Map::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );
 
-  xwest = elem.remove_ushort( "xwest", 0 );
-  ynorth = elem.remove_ushort( "ynorth", 0 );
-  xeast = elem.remove_ushort( "xeast", 0 );
-  ysouth = elem.remove_ushort( "ysouth", 0 );
-  gumpwidth = elem.remove_ushort( "gumpwidth", 0 );
-  gumpheight = elem.remove_ushort( "gumpheight", 0 );
+  Range2d area( Pos2d( elem.remove_ushort( "xwest", 0 ), elem.remove_ushort( "ynorth", 0 ) ),
+                Pos2d( elem.remove_ushort( "xeast", 0 ), elem.remove_ushort( "ysouth", 0 ) ),
+                nullptr );
+  xwest = area.nw().x();
+  ynorth = area.nw().y();
+  xeast = area.se().x();
+  ynorth = area.se().y();
+
+  gumpsize = Pos2d( elem.remove_ushort( "gumpwidth", 0 ), elem.remove_ushort( "gumpheight", 0 ) );
   facetid = elem.remove_ushort( "facetid", 0 );
   editable = elem.remove_bool( "editable", false );
 
   unsigned short numpins = elem.remove_ushort( "NumPins", 0 );
   std::string pinval;
   int i, px, py;
-  struct PinPoint pp;
 
   for ( i = 0; i < numpins; i++ )
   {
@@ -110,68 +108,67 @@ void Map::readProperties( Clib::ConfigElem& elem )
     pinval = elem.remove_string( search_string.c_str() );
     sscanf( pinval.c_str(), "%i,%i", &px, &py );
 
-    pp.x = static_cast<unsigned short>( px );
-    pp.y = static_cast<unsigned short>( py );
-
-    pin_points.push_back( pp );
+    pin_points.push_back(
+        Pos2d( static_cast<unsigned short>( px ), static_cast<unsigned short>( py ) ) );
   }
 }
 
 void Map::builtin_on_use( Network::Client* client )
 {
-  if ( gumpwidth && gumpheight )
+  if ( gumpsize == Pos2d( 0, 0 ) )
+    return;
+  Range2d area = getrange();
+  if ( client->ClientType & Network::CLIENTTYPE_70130 )
   {
-    if ( client->ClientType & Network::CLIENTTYPE_70130 )
+    Network::PktHelper::PacketOut<Network::PktOut_F5> msgF5;
+    msgF5->Write<u32>( serial_ext );
+    msgF5->Write<u8>( 0x13u );
+    msgF5->Write<u8>( 0x9du );
+    msgF5->WriteFlipped<u16>( area.nw().x() );
+    msgF5->WriteFlipped<u16>( area.nw().y() );
+    msgF5->WriteFlipped<u16>( area.se().x() );
+    msgF5->WriteFlipped<u16>( area.se().y() );
+    msgF5->WriteFlipped<u16>( gumpsize.x() );
+    msgF5->WriteFlipped<u16>( gumpsize.y() );
+    msgF5->WriteFlipped<u16>( facetid );
+    msgF5.Send( client );
+  }
+  else
+  {
+    Network::PktHelper::PacketOut<Network::PktOut_90> msg90;
+    msg90->Write<u32>( serial_ext );
+    msg90->Write<u8>( 0x13u );
+    msg90->Write<u8>( 0x9du );
+    msg90->WriteFlipped<u16>( area.nw().x() );
+    msg90->WriteFlipped<u16>( area.nw().y() );
+    msg90->WriteFlipped<u16>( area.se().x() );
+    msg90->WriteFlipped<u16>( area.se().y() );
+    msg90->WriteFlipped<u16>( gumpsize.x() );
+    msg90->WriteFlipped<u16>( gumpsize.y() );
+    msg90.Send( client );
+  }
+
+  Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
+  msg56->Write<u32>( serial_ext );
+  msg56->Write<u8>( PKTBI_56::TYPE_REMOVE_ALL );
+  msg56->offset += 5;  // u8 pinidx,u16 pinx,piny
+  msg56.Send( client );
+
+  // need to send each point to the client
+
+  if ( !pin_points.empty() )
+  {
+    msg56->offset = 5;  // msgtype+serial_ext
+    msg56->Write<u8>( PKTBI_56::TYPE_ADD );
+    // u8 pinidx still 0
+
+    for ( const auto& pin : pin_points )
     {
-      Network::PktHelper::PacketOut<Network::PktOut_F5> msgF5;
-      msgF5->Write<u32>( serial_ext );
-      msgF5->Write<u8>( 0x13u );
-      msgF5->Write<u8>( 0x9du );
-      msgF5->WriteFlipped<u16>( xwest );
-      msgF5->WriteFlipped<u16>( ynorth );
-      msgF5->WriteFlipped<u16>( xeast );
-      msgF5->WriteFlipped<u16>( ysouth );
-      msgF5->WriteFlipped<u16>( gumpwidth );
-      msgF5->WriteFlipped<u16>( gumpheight );
-      msgF5->WriteFlipped<u16>( facetid );
-      msgF5.Send( client );
-    }
-    else
-    {
-      Network::PktHelper::PacketOut<Network::PktOut_90> msg90;
-      msg90->Write<u32>( serial_ext );
-      msg90->Write<u8>( 0x13u );
-      msg90->Write<u8>( 0x9du );
-      msg90->WriteFlipped<u16>( xwest );
-      msg90->WriteFlipped<u16>( ynorth );
-      msg90->WriteFlipped<u16>( xeast );
-      msg90->WriteFlipped<u16>( ysouth );
-      msg90->WriteFlipped<u16>( gumpwidth );
-      msg90->WriteFlipped<u16>( gumpheight );
-      msg90.Send( client );
-    }
-
-    Network::PktHelper::PacketOut<Network::PktOut_56> msg56;
-    msg56->Write<u32>( serial_ext );
-    msg56->Write<u8>( PKTBI_56::TYPE_REMOVE_ALL );
-    msg56->offset += 5;  // u8 pinidx,u16 pinx,piny
-    msg56.Send( client );
-
-    // need to send each point to the client
-
-    if ( !pin_points.empty() )
-    {
-      msg56->offset = 5;  // msgtype+serial_ext
-      msg56->Write<u8>( PKTBI_56::TYPE_ADD );
-      // u8 pinidx still 0
-
-      for ( pin_points_itr itr = pin_points.begin(), end = pin_points.end(); itr != end; ++itr )
-      {
-        msg56->offset = 7;  // msgtype+serial_ext+type,pinidx
-        msg56->WriteFlipped<u16>( worldXtoGumpX( itr->x ) );
-        msg56->WriteFlipped<u16>( worldYtoGumpY( itr->y ) );
-        msg56.Send( client );
-      }
+      msg56->offset = 7;  // msgtype+serial_ext+type,pinidx
+      Pos2d gp = worldToGump( pin, area );
+      msg56->WriteFlipped<u16>( gp.x() );
+      msg56->WriteFlipped<u16>( gp.y() );
+      msg56.Send( client );
     }
   }
 }
@@ -188,11 +185,11 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
   case MTH_GETPINS:
   {
     std::unique_ptr<ObjArray> arr( new ObjArray );
-    for ( PinPoints::iterator itr = pin_points.begin(); itr != pin_points.end(); ++itr )
+    for ( const auto& pin : pin_points )
     {
       std::unique_ptr<BStruct> struc( new BStruct );
-      struc->addMember( "x", new BLong( itr->x ) );
-      struc->addMember( "y", new BLong( itr->y ) );
+      struc->addMember( "x", new BLong( pin.x() ) );
+      struc->addMember( "y", new BLong( pin.y() ) );
 
       arr->addElement( struc.release() );
     }
@@ -202,23 +199,15 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
   case MTH_INSERTPIN:
   {
     int idx;
-    unsigned short px, py;
-    if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) && ex.getParam( 1, px ) &&
-         ex.getParam( 2, py ) )
+    Pos2d pin;
+    if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) &&
+         ex.getPos2dParam( 1, 2, &pin, realm() ) )
     {
-      struct PinPoint pp;
-      pin_points_itr itr;
-
-      if ( !realm()->valid( px, py, 0 ) )
-        return new BError( "Invalid Coordinates for Realm" );
-      pp.x = px;
-      pp.y = py;
-
-      itr = pin_points.begin();
+      auto itr = pin_points.begin();
       itr += idx;
 
       set_dirty();
-      pin_points.insert( itr, pp );
+      pin_points.insert( itr, pin );
 
       return new BLong( 1 );
     }
@@ -230,16 +219,11 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
 
   case MTH_APPENDPIN:
   {
-    unsigned short px, py;
-    if ( ex.getParam( 0, px ) && ex.getParam( 1, py ) )
+    Pos2d pin;
+    if ( ex.getPos2dParam( 0, 1, &pin, realm() ) )
     {
-      struct PinPoint pp;
-      if ( !realm()->valid( px, py, 0 ) )
-        return new BError( "Invalid Coordinates for Realm" );
-      pp.x = px;
-      pp.y = py;
       set_dirty();
-      pin_points.push_back( pp );
+      pin_points.push_back( pin );
       return new BLong( 1 );
     }
     else
@@ -253,9 +237,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
     int idx;
     if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() - 1 ) ) )
     {
-      pin_points_itr itr;
-
-      itr = pin_points.begin();
+      auto itr = pin_points.begin();
       itr += idx;
 
       set_dirty();
@@ -287,44 +269,35 @@ Bscript::BObjectImp* Map::script_method( const char* methodname, UOExecutor& ex 
     return nullptr;
 }
 
-bool Map::msgCoordsInBounds( PKTBI_56* msg )
+Range2d Map::getrange() const
 {
-  u16 newx, newy;
-  newx = cfBEu16( msg->pinx );
-  newy = cfBEu16( msg->piny );
-
-  if ( ( ( newx + get_xwest() ) > get_xeast() ) || ( ( newy + get_ynorth() ) > get_ysouth() ) )
-    return false;
-  else
-    return true;
+  return Range2d( Pos2d( xwest, ynorth ), Pos2d( xeast, ysouth ), nullptr );
 }
 
-u16 Map::gumpXtoWorldX( u16 gumpx )
+bool Map::msgCoordsInBounds( PKTBI_56* msg, const Range2d& area ) const
 {
-  float world_xtiles_per_pixel = (float)( get_xeast() - get_xwest() ) / (float)gumpwidth;
-  u16 ret = ( u16 )( get_xwest() + ( world_xtiles_per_pixel * gumpx ) );
-  return ret;
+  Pos2d newpos( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) );
+  newpos += area.nw().from_origin();
+  return area.contains( newpos );
 }
 
-u16 Map::gumpYtoWorldY( u16 gumpy )
+Pos2d Map::gumpToWorld( const Pos2d& gump, const Range2d& area ) const
 {
-  float world_ytiles_per_pixel = (float)( get_ysouth() - get_ynorth() ) / (float)gumpheight;
-  u16 ret = ( u16 )( get_ynorth() + ( world_ytiles_per_pixel * gumpy ) );
-  return ret;
+  Vec2d size = area.se() - area.nw();
+  float world_xtiles_per_pixel = (float)( size.x() ) / gumpsize.x();
+  float world_ytiles_per_pixel = (float)( size.y() ) / gumpsize.y();
+  return Pos2d( (u16)( area.nw().x() + ( world_xtiles_per_pixel * gump.x() ) ),
+                (u16)( area.nw().y() + ( world_ytiles_per_pixel * gump.y() ) ) );
 }
 
-u16 Map::worldXtoGumpX( u16 worldx )
+Pos2d Map::worldToGump( const Pos2d& world, const Range2d& area ) const
 {
-  float world_xtiles_per_pixel = (float)( get_xeast() - get_xwest() ) / (float)gumpwidth;
-  u16 ret = ( u16 )( ( worldx - get_xwest() ) / world_xtiles_per_pixel );
-  return ret;
-}
-
-u16 Map::worldYtoGumpY( u16 worldy )
-{
-  float world_ytiles_per_pixel = (float)( get_ysouth() - get_ynorth() ) / (float)gumpheight;
-  u16 ret = ( u16 )( ( worldy - get_ynorth() ) / world_ytiles_per_pixel );
-  return ret;
+  Vec2d size = area.se() - area.nw();
+  float world_xtiles_per_pixel = (float)( size.x() ) / gumpsize.x();
+  float world_ytiles_per_pixel = (float)( size.y() ) / gumpsize.y();
+  Vec2d delta( world - area.nw() );
+  return Pos2d( (u16)( ( delta.x() ) / world_xtiles_per_pixel ),
+                (u16)( ( delta.y() ) / world_ytiles_per_pixel ) );
 }
 
 // dave 12-20
@@ -332,14 +305,13 @@ Items::Item* Map::clone() const
 {
   Map* map = static_cast<Map*>( base::clone() );
 
-  map->gumpwidth = gumpwidth;
-  map->gumpheight = gumpheight;
+  map->gumpsize = gumpsize;
   map->editable = editable;
   map->plotting = plotting;
   map->pin_points = pin_points;
   map->xwest = xwest;
-  map->xeast = xeast;
   map->ynorth = ynorth;
+  map->xeast = xeast;
   map->ysouth = ysouth;
   map->facetid = facetid;
   return map;
@@ -347,16 +319,12 @@ Items::Item* Map::clone() const
 
 size_t Map::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( u16 ) /*gumpwidth*/
-         + sizeof( u16 )                       /*gumpheight*/
-         + sizeof( bool )                      /*editable*/
-         + sizeof( bool )                      /*plotting*/
-         + sizeof( u16 )                       /*xwest*/
-         + sizeof( u16 )                       /*xeast*/
-         + sizeof( u16 )                       /*ynorth*/
-         + sizeof( u16 )                       /*ysouth*/
-         + sizeof( u16 )                       /*facetid*/
-         + 3 * sizeof( PinPoint* ) + pin_points.capacity() * sizeof( PinPoint );
+  return base::estimatedSize() + sizeof( Pos2d ) /*gumpsize*/
+         + sizeof( bool )                        /*editable*/
+         + sizeof( bool )                        /*plotting*/
+         + 4 * sizeof( u16 )                     /*area*/
+         + sizeof( u16 )                         /*facetid*/
+         + 3 * sizeof( Pos2d* ) + pin_points.capacity() * sizeof( Pos2d );
 }
 
 bool Map::get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
@@ -379,9 +347,7 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   if ( my_map->editable == false )
     return;
 
-  static struct PinPoint pp;
-  Map::pin_points_itr itr;
-
+  Range2d area = my_map->getrange();
   switch ( msg->type )
   {
   case PKTBI_56::TYPE_TOGGLE_EDIT:
@@ -401,59 +367,57 @@ void handle_map_pin( Network::Client* client, PKTBI_56* msg )
   case PKTBI_56::TYPE_ADD:
     if ( !( my_map->plotting ) )
       return;
-    if ( !my_map->msgCoordsInBounds( msg ) )
+    if ( !my_map->msgCoordsInBounds( msg, area ) )
       return;
-
-    pp.x = my_map->gumpXtoWorldX( cfBEu16( msg->pinx ) );
-    pp.y = my_map->gumpYtoWorldY( cfBEu16( msg->piny ) );
-    my_map->pin_points.push_back( pp );
+    my_map->pin_points.push_back(
+        my_map->gumpToWorld( Pos2d( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) ), area ) );
     break;
 
   case PKTBI_56::TYPE_INSERT:
+  {
     if ( !( my_map->plotting ) )
       return;
     if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
       return;
-    if ( !my_map->msgCoordsInBounds( msg ) )
+    if ( !my_map->msgCoordsInBounds( msg, area ) )
       return;
 
-    itr = my_map->pin_points.begin();
+    auto itr = my_map->pin_points.begin();
     itr += msg->pinidx;
-
-    pp.x = my_map->gumpXtoWorldX( cfBEu16( msg->pinx ) );
-    pp.y = my_map->gumpYtoWorldY( cfBEu16( msg->piny ) );
-
-    my_map->pin_points.insert( itr, pp );
+    my_map->pin_points.insert(
+        itr, my_map->gumpToWorld( Pos2d( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) ), area ) );
     break;
+  }
 
   case PKTBI_56::TYPE_CHANGE:
+  {
     if ( !( my_map->plotting ) )
       return;
     if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
       return;
-    if ( !my_map->msgCoordsInBounds( msg ) )
+    if ( !my_map->msgCoordsInBounds( msg, area ) )
       return;
 
-    itr = my_map->pin_points.begin();
+    auto itr = my_map->pin_points.begin();
     itr += msg->pinidx;
-
-    itr->x = my_map->gumpXtoWorldX( cfBEu16( msg->pinx ) );
-    itr->y = my_map->gumpYtoWorldY( cfBEu16( msg->piny ) );
-
+    *itr = my_map->gumpToWorld( Pos2d( cfBEu16( msg->pinx ), cfBEu16( msg->piny ) ), area );
     break;
+  }
 
   case PKTBI_56::TYPE_REMOVE:
+  {
     if ( !( my_map->plotting ) )
       return;
     if ( msg->pinidx >= my_map->pin_points.size() )  // pinidx out of range
       return;
 
-    itr = my_map->pin_points.begin();
+    auto itr = my_map->pin_points.begin();
     itr += msg->pinidx;
 
     my_map->pin_points.erase( itr );
 
     break;
+  }
 
   case PKTBI_56::TYPE_REMOVE_ALL:
     if ( !( my_map->plotting ) )

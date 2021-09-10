@@ -163,9 +163,9 @@ protected:
 public:
   bool use_adjustments() const;
   void use_adjustments( bool newvalue );
-  bool could_move( Plib::UFACING dir ) const;
-  bool anchor_allows_move( Plib::UFACING dir ) const;
-  bool npc_path_blocked( Plib::UFACING dir ) const;
+  bool could_move( Core::UFACING dir ) const;
+  bool anchor_allows_move( Core::UFACING dir ) const;
+  bool npc_path_blocked( Core::UFACING dir ) const;
 
   // EVENTS
 public:

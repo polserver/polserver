@@ -321,7 +321,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
   // TODO POS
   chr->setposition( Pos4d( coord.x, coord.y, coord.z, realm ) );
-  chr->facing = Plib::FACING_W;
+  chr->facing = Core::FACING_W;
   chr->position_changed();
 
   bool valid_stats = false;
@@ -676,7 +676,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   // TODO POS
   chr->setposition( Pos4d( coord.x, coord.y, coord.z, realm ) );
   chr->position_changed();
-  chr->facing = Plib::FACING_W;
+  chr->facing = Core::FACING_W;
 
   bool valid_stats = false;
   unsigned int stat_total = msg->strength + msg->intelligence + msg->dexterity;
@@ -1062,7 +1062,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   chr->setposition( Pos4d( coord.x, coord.y, coord.z, realm ) );
   chr->position_changed();
-  chr->facing = Plib::FACING_W;
+  chr->facing = Core::FACING_W;
 
   bool valid_stats = false;
   unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;

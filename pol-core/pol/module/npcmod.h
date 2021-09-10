@@ -12,9 +12,11 @@
 
 #include <string>
 
-#include "../../plib/uconst.h"
-#include "../polmodl.h"
-#include "../reftypes.h"
+#include "plib/uconst.h"
+
+#include "base/position.h"
+#include "polmodl.h"
+#include "reftypes.h"
 
 namespace Pol
 {
@@ -60,14 +62,14 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_RunAwayFrom();
   [[nodiscard]] Bscript::BObjectImp* mf_TurnToward();
   [[nodiscard]] Bscript::BObjectImp* mf_TurnAwayFrom();
-  
+
   [[nodiscard]] Bscript::BObjectImp* mf_WalkTowardLocation();
   [[nodiscard]] Bscript::BObjectImp* mf_RunTowardLocation();
   [[nodiscard]] Bscript::BObjectImp* mf_WalkAwayFromLocation();
   [[nodiscard]] Bscript::BObjectImp* mf_RunAwayFromLocation();
   [[nodiscard]] Bscript::BObjectImp* mf_TurnTowardLocation();
   [[nodiscard]] Bscript::BObjectImp* mf_TurnAwayFromLocation();
-  
+
   [[nodiscard]] Bscript::BObjectImp* mf_Say();
   [[nodiscard]] Bscript::BObjectImp* mf_SayUC();
   [[nodiscard]] Bscript::BObjectImp* mf_position();
@@ -89,12 +91,12 @@ protected:
   Core::NpcRef npcref;
   Mobile::NPC& npc;
 
-  Bscript::BObjectImp* move_self( Plib::UFACING facing, bool run, bool adjust_ok = false );
+  Bscript::BObjectImp* move_self( Core::UFACING facing, bool run, bool adjust_ok = false );
 
   virtual size_t sizeEstimate() const override;
 
 private:
-  bool _internal_move( Plib::UFACING facing, int run );
+  bool _internal_move( Core::UFACING facing, int run );
 };
 
 inline const Mobile::NPC& NPCExecutorModule::controlled_npc() const

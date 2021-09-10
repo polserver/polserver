@@ -44,10 +44,10 @@
 #include "../multi/multidef.h"
 #include "../network/pktdef.h"
 #include "../proplist.h"
-#include "regions/resource.h"
 #include "../syshookscript.h"
 #include "../uobject.h"
 #include "armrtmpl.h"
+#include "regions/resource.h"
 #include "wepntmpl.h"
 #include <format/format.h>
 
@@ -418,7 +418,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
   }
   auto diceValue = [this]( const std::string& value,
-                           const std::string& error_msg ) -> unsigned short {
+                           const std::string& error_msg ) -> unsigned short
+  {
     Core::Dice dice;
     std::string errmsg;
     if ( !dice.load( value.c_str(), &errmsg ) )
@@ -981,8 +982,8 @@ size_t ContainerDesc::estimatedSize() const
 
 DoorDesc::DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
     : ItemDesc( objtype, elem, DOORDESC, pkg ),
-      xmod( static_cast<s16>( elem.remove_int( "XMOD" ) ) ),
-      ymod( static_cast<s16>( elem.remove_int( "YMOD" ) ) ),
+      mod( static_cast<s16>( elem.remove_int( "XMOD" ) ),
+           static_cast<s16>( elem.remove_int( "YMOD" ) ) ),
       open_graphic( elem.remove_ushort( "OPENGRAPHIC", 0 ) )
 {
 }
@@ -990,15 +991,14 @@ DoorDesc::DoorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pk
 void DoorDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
-  descriptor->addMember( "XMod", new Bscript::BLong( xmod ) );
-  descriptor->addMember( "YMod", new Bscript::BLong( ymod ) );
+  descriptor->addMember( "XMod", new Bscript::BLong( mod.x() ) );
+  descriptor->addMember( "YMod", new Bscript::BLong( mod.y() ) );
   descriptor->addMember( "OpenGraphic", new Bscript::BLong( open_graphic ) );
 }
 size_t DoorDesc::estimatedSize() const
 {
-  return base::estimatedSize() + sizeof( s16 ) /*xmod*/
-         + sizeof( s16 )                       /*ymod*/
-         + sizeof( u16 )                       /*open_graphic*/
+  return base::estimatedSize() + sizeof( Core::Vec2d ) /*mod*/
+         + sizeof( u16 )                               /*open_graphic*/
       ;
 }
 
