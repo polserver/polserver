@@ -13,6 +13,7 @@
 #include <iosfwd>
 #include <stddef.h>
 #include <string>
+#include <utility>
 
 #include "../clib/cfgelem.h"
 #include "../clib/logfacility.h"
@@ -31,8 +32,8 @@
 #include "objtype.h"
 #include "polcfg.h"
 #include "proplist.h"
-#include "realms/realms.h"
 #include "realms/realm.h"
+#include "realms/realms.h"
 #include "syshookscript.h"
 #include "tooltips.h"
 #include "uobjcnt.h"
@@ -243,6 +244,10 @@ const UObject* UObject::toplevel_owner() const
   return this;
 }
 
+void UObject::setposition( Pos4d newpos )
+{
+  pos( std::move( newpos ) );
+}
 
 void UObject::printProperties( Clib::StreamWriter& sw ) const
 {
@@ -258,18 +263,18 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( color != 0 )
     sw() << "\tColor\t0x" << hex( color ) << pf_endl;
 
-  sw() << "\tX\t" << x << pf_endl;
-  sw() << "\tY\t" << y << pf_endl;
-  sw() << "\tZ\t" << (int)z << pf_endl;
+  sw() << "\tX\t" << x() << pf_endl;
+  sw() << "\tY\t" << y() << pf_endl;
+  sw() << "\tZ\t" << (int)z() << pf_endl;
 
   if ( facing )
     sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
 
   sw() << "\tRevision\t" << rev() << pf_endl;
-  if ( realm == nullptr )
+  if ( realm() == nullptr )
     sw() << "\tRealm\tbritannia" << pf_endl;
   else
-    sw() << "\tRealm\t" << realm->name() << pf_endl;
+    sw() << "\tRealm\t" << realm()->name() << pf_endl;
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
@@ -380,22 +385,15 @@ void UObject::readProperties( Clib::ConfigElem& elem )
 
 
   std::string realmstr = elem.remove_string( "Realm", "britannia" );
-  realm = find_realm( realmstr );
-  if ( !realm )
+  auto* realm_tmp = find_realm( realmstr );
+  if ( !realm_tmp )
   {
     ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
         << classname() << name() << serial << realmstr;
     throw std::runtime_error( "Data integrity error" );
   }
-  x = elem.remove_ushort( "X" );
-  y = elem.remove_ushort( "Y" );
-  z = static_cast<s8>( elem.remove_int( "Z" ) );
-  if ( !realm->valid( x, y, z ) )
-  {
-    x = static_cast<u16>( realm->width() ) - 1;
-    y = static_cast<u16>( realm->height() ) - 1;
-    z = 0;
-  }
+  setposition( Pos4d( elem.remove_ushort( "X" ), elem.remove_ushort( "Y" ),
+                      static_cast<s8>( elem.remove_int( "Z" ) ), realm_tmp ) );
 
   unsigned short tmp = elem.remove_ushort( "FACING", 0 );
   setfacing( static_cast<unsigned char>( tmp ) );

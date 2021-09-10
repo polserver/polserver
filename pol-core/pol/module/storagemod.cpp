@@ -13,9 +13,9 @@
 #include "../../clib/clib.h"
 #include "../globals/uvars.h"
 #include "../item/item.h"
-#include "realms/realms.h"
 #include "../storage.h"
 #include "../uoscrobj.h"
+#include "realms/realms.h"
 
 #include <module_defs/storage.h>
 
@@ -99,8 +99,7 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
   const String* name;
   const Items::ItemDesc* descriptor;
 
-  if ( area == nullptr || !getStringParam( 1, name ) ||
-       !getObjtypeParam( 2, descriptor ) )
+  if ( area == nullptr || !getStringParam( 1, name ) || !getObjtypeParam( 2, descriptor ) )
     return new BError( "Invalid parameter type" );
 
   Items::Item* item = Items::Item::create( *descriptor );
@@ -109,8 +108,8 @@ BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 
   item->setname( name->value() );
 
-  if ( item->realm == nullptr )
-    item->realm = Core::find_realm( std::string( "britannia" ) );
+  if ( item->realm() == nullptr ) // TODO POS no realm needed
+    item->setposition( Core::Pos4d( 0, 0, 0, Core::find_realm( std::string( "britannia" ) ) ) );
 
   area->insert_root_item( item );
 

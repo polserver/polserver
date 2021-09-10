@@ -204,17 +204,17 @@ void send_startup( Network::Client* client )
   msg->Write<u32>( chr->serial_ext );
   msg->offset += 4;  // u8 unk5, unk6, unk7, unk8
   msg->WriteFlipped<u16>( chr->graphic );
-  msg->WriteFlipped<u16>( chr->x );
-  msg->WriteFlipped<u16>( chr->y );
+  msg->WriteFlipped<u16>( chr->x() );
+  msg->WriteFlipped<u16>( chr->y() );
   msg->offset++;  // u8 unk_15
-  msg->Write<s8>( chr->z );
+  msg->Write<s8>( chr->z() );
   msg->Write<u8>( chr->facing );
   msg->offset += 3;  // u8 unk18,unk19,unk20
   msg->Write<u8>( 0x7Fu );
   msg->offset++;     // u8 unk22
   msg->offset += 4;  // u16 map_startx, map_starty
-  msg->WriteFlipped<u16>( client->chr->realm->width() );
-  msg->WriteFlipped<u16>( client->chr->realm->height() );
+  msg->WriteFlipped<u16>( client->chr->realm()->width() );
+  msg->WriteFlipped<u16>( client->chr->realm()->height() );
   msg->offset += 6;  // u8 unk31, unk32, unk33, unk34, unk35, unk36
   msg.Send( client );
 }
@@ -245,10 +245,10 @@ void start_client_char( Network::Client* client )
   Multi::UMulti* supporting_multi;
   Items::Item* walkon;
   short newz;
-  if ( client->chr->realm->walkheight( client->chr, client->chr->x, client->chr->y, client->chr->z,
-                                       &newz, &supporting_multi, &walkon ) )
+  if ( client->chr->realm()->walkheight( client->chr, client->chr->x(), client->chr->y(),
+                                         client->chr->z(), &newz, &supporting_multi, &walkon ) )
   {
-    client->chr->z = static_cast<s8>( newz );
+    client->chr->setposition( Pos4d( client->chr->pos() ).z( static_cast<s8>( newz ) ) );
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( supporting_multi != nullptr )
     {
@@ -279,7 +279,7 @@ void start_client_char( Network::Client* client )
 
   send_startup( client );
 
-  send_realm_change( client, client->chr->realm );
+  send_realm_change( client, client->chr->realm() );
   send_map_difs( client );
 
   if ( settingsManager.ssopt.core_sends_season )
@@ -287,9 +287,9 @@ void start_client_char( Network::Client* client )
 
   client->chr->lastx = client->chr->lasty = client->chr->lastz = 0;
 
-  client->gd->music_region = gamestate.musicdef->getregion( 0, 0, client->chr->realm );
-  client->gd->justice_region = gamestate.justicedef->getregion( 0, 0, client->chr->realm );
-  client->gd->weather_region = gamestate.weatherdef->getregion( 0, 0, client->chr->realm );
+  client->gd->music_region = gamestate.musicdef->getregion( 0, 0, client->chr->realm() );
+  client->gd->justice_region = gamestate.justicedef->getregion( 0, 0, client->chr->realm() );
+  client->gd->weather_region = gamestate.weatherdef->getregion( 0, 0, client->chr->realm() );
 
   send_goxyz( client, client->chr );
   client->chr->check_region_changes();
@@ -467,8 +467,8 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 
   if ( !chosen_char->lastx && !chosen_char->lasty )
   {
-    chosen_char->lastx = chosen_char->x;
-    chosen_char->lasty = chosen_char->y;
+    chosen_char->lastx = chosen_char->x();
+    chosen_char->lasty = chosen_char->y();
   }
 
   if ( !reconnecting )

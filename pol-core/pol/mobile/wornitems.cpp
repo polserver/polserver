@@ -53,7 +53,7 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
 
   item->set_dirty();
   item->container = this;
-  item->realm = realm;
+  item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );  // TODO POS nullptr
   item->layer = item->tile_layer;
   contents_[item->tile_layer] = Contents::value_type( item );
   add_bulk( item );
@@ -135,5 +135,5 @@ const UObject* WornItemsContainer::self_as_owner() const
 {
   return chr_owner;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

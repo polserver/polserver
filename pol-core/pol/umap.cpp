@@ -209,7 +209,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
       struct PinPoint pp;
       pin_points_itr itr;
 
-      if ( !realm->valid( px, py, 0 ) )
+      if ( !realm()->valid( px, py, 0 ) )
         return new BError( "Invalid Coordinates for Realm" );
       pp.x = px;
       pp.y = py;
@@ -234,7 +234,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
     if ( ex.getParam( 0, px ) && ex.getParam( 1, py ) )
     {
       struct PinPoint pp;
-      if ( !realm->valid( px, py, 0 ) )
+      if ( !realm()->valid( px, py, 0 ) )
         return new BError( "Invalid Coordinates for Realm" );
       pp.x = px;
       pp.y = py;

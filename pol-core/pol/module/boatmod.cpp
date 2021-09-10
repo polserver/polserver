@@ -32,8 +32,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoat()
 {
   Multi::UBoat* boat = nullptr;
   int direction, speed;
-  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) &&
-       getParam( 2, speed, 1, 4 ) )
+  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) && getParam( 2, speed, 1, 4 ) )
   {
     Plib::UFACING move_dir = static_cast<Plib::UFACING>( direction & 7 );
     boat->move( move_dir, static_cast<u8>( speed ), false );
@@ -47,10 +46,10 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatXY()
   Multi::UBoat* boat = nullptr;
   unsigned short x, y;
   if ( getUBoatParam( 0, boat ) &&
-       getParam( 1, x, 0, static_cast<u16>( boat->realm->width() ) ) &&
-       getParam( 2, y, 0, static_cast<u16>( boat->realm->height() ) ) )
+       getParam( 1, x, 0, static_cast<u16>( boat->realm()->width() ) ) &&
+       getParam( 2, y, 0, static_cast<u16>( boat->realm()->height() ) ) )
   {
-    return new Bscript::BLong( boat->move_xy( x, y, 0, boat->realm ) );
+    return new Bscript::BLong( boat->move_xy( x, y, 0, boat->realm() ) );
   }
   else
   {
@@ -78,8 +77,7 @@ Bscript::BObjectImp* UBoatExecutorModule::mf_MoveBoatRelative()
 {
   Multi::UBoat* boat = nullptr;
   int direction, speed;
-  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) &&
-       getParam( 2, speed, 1, 4 ) )
+  if ( getUBoatParam( 0, boat ) && getParam( 1, direction, 0, 7 ) && getParam( 2, speed, 1, 4 ) )
   {
     Plib::UFACING move_dir = static_cast<Plib::UFACING>( direction & 7 );
     boat->move( move_dir, static_cast<u8>( speed ), true );

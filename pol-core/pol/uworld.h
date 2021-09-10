@@ -218,7 +218,7 @@ inline CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Rea
 
 inline bool CoordsArea::inRange( const UObject* obj ) const
 {
-  return ( obj->x >= _xL && obj->x <= _xH && obj->y >= _yL && obj->y <= _yH );
+  return ( obj->x() >= _xL && obj->x() <= _xH && obj->y() >= _yL && obj->y() <= _yH );
 }
 
 inline void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
@@ -244,7 +244,7 @@ template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
-  InRange( obj->toplevel_owner()->x, obj->toplevel_owner()->y, obj->toplevel_owner()->realm,
+  InRange( obj->toplevel_owner()->x(), obj->toplevel_owner()->y(), obj->toplevel_owner()->realm(),
            RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>

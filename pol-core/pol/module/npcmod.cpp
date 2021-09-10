@@ -149,7 +149,7 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
   int dstart, psub;
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, dstart ) && getParam( 3, psub ) )
   {
-    if ( !npc.realm->valid( x, y, 0 ) )
+    if ( !npc.realm()->valid( x, y, 0 ) )
       return new BError( "Invalid Coordinates for Realm" );
     if ( dstart )
     {
@@ -349,7 +349,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
 
       unsigned short x, y;
       npc.getpos_ifmove( facing, &x, &y );
-      if ( bbox.contains( x, y ) || !bbox.contains( npc.x, npc.y ) )
+      if ( bbox.contains( x, y ) || !bbox.contains( npc.x(), npc.y() ) )
       {
         npc.move( static_cast<unsigned char>( facing ) );
         npc.tellmove();
@@ -522,7 +522,7 @@ BObjectImp* NPCExecutorModule::mf_WalkTowardLocation()
   Core::ycoord y;
   if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
+    if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
     Plib::UFACING fac = direction_toward( &npc, x, y );
     return move_self( fac, false, true );
@@ -540,7 +540,7 @@ BObjectImp* NPCExecutorModule::mf_RunTowardLocation()
 
   if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
+    if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
     Plib::UFACING fac = direction_toward( &npc, x, y );
     return move_self( fac, true, true );
@@ -557,7 +557,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFromLocation()
   Core::ycoord y;
   if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
+    if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
     Plib::UFACING fac = direction_away( &npc, x, y );
     return move_self( fac, false, true );
@@ -574,7 +574,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFromLocation()
   Core::ycoord y;
   if ( exec.getParam( 0, x ) && exec.getParam( 1, y ) )
   {
-    if ( !npc.realm->valid( x, y, npc.z ) )
+    if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
     Plib::UFACING fac = direction_away( &npc, x, y );
     return move_self( fac, true, true );
@@ -596,7 +596,7 @@ BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
     return new BError( "Invalid parameter type" );
   }
 
-  if ( !npc.realm->valid( x, y, npc.z ) )
+  if ( !npc.realm()->valid( x, y, npc.z() ) )
     return new BError( "Invalid Coordinates for Realm" );
   Plib::UFACING fac = direction_toward( &npc, x, y );
   if ( npc.facing == fac )
@@ -620,7 +620,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
     return new BError( "Invalid parameter type" );
   }
 
-  if ( !npc.realm->valid( x, y, npc.z ) )
+  if ( !npc.realm()->valid( x, y, npc.z() ) )
     return new BError( "Invalid Coordinates for Realm" );
   Plib::UFACING fac = direction_away( &npc, x, y );
   if ( npc.facing == fac )
@@ -704,8 +704,9 @@ BObjectImp* NPCExecutorModule::mf_Say()
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range,
-                                                          [&]( Mobile::Character* chr ) {
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x(), npc.y(), npc.realm(), range,
+                                                          [&]( Mobile::Character* chr )
+                                                          {
                                                             if ( !chr->is_visible_to_me( &npc ) )
                                                               return;
                                                             if ( !uclen )
@@ -717,7 +718,9 @@ BObjectImp* NPCExecutorModule::mf_Say()
   if ( doevent >= 1 )
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
+        npc.x(), npc.y(), npc.realm(), range,
+        [&]( Mobile::Character* chr )
+        {
           Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
           if ( chr != &npc )
             othernpc->on_pc_spoke( &npc, text, texttype );
@@ -785,8 +788,9 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x, npc.y, npc.realm, range,
-                                                            [&]( Mobile::Character* chr ) {
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x(), npc.y(), npc.realm(), range,
+                                                            [&]( Mobile::Character* chr )
+                                                            {
                                                               if ( !chr->is_visible_to_me( &npc ) )
                                                                 return;
                                                               talkmsg.Send( chr->client, len );
@@ -795,7 +799,9 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
     if ( doevent >= 1 )
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          npc.x, npc.y, npc.realm, range, [&]( Mobile::Character* chr ) {
+          npc.x(), npc.y(), npc.realm(), range,
+          [&]( Mobile::Character* chr )
+          {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
             if ( othernpc != &npc )
               othernpc->on_pc_spoke( &npc, text->value(), texttype, languc );
@@ -813,9 +819,9 @@ BObjectImp* NPCExecutorModule::mf_position()
 {
   std::unique_ptr<BStruct> oa( new BStruct );
 
-  oa->addMember( "x", new BLong( npc.x ) );
-  oa->addMember( "y", new BLong( npc.y ) );
-  oa->addMember( "z", new BLong( npc.z ) );
+  oa->addMember( "x", new BLong( npc.x() ) );
+  oa->addMember( "y", new BLong( npc.y() ) );
+  oa->addMember( "z", new BLong( npc.z() ) );
 
   return oa.release();
 }
@@ -867,7 +873,7 @@ BObjectImp* NPCExecutorModule::mf_CreateBackpack()
   if ( !npc.layer_is_equipped( Core::LAYER_BACKPACK ) )
   {
     Items::Item* i = Items::Item::create( UOBJ_BACKPACK );
-    i->realm = npc.realm;
+    i->setposition( npc.pos() );
     std::unique_ptr<Items::Item> item( i );
     item->layer = Core::LAYER_BACKPACK;
     if ( npc.equippable( item.get() ) )
@@ -890,7 +896,7 @@ BObjectImp* NPCExecutorModule::mf_CreateItem()
     return new BLong( 0 );
 
   Items::Item* i = Items::Item::create( static_cast<unsigned int>( objtype->value() ) );
-  i->realm = npc.realm;
+  i->setposition( npc.pos() );
   std::unique_ptr<Items::Item> item( i );
   if ( item.get() == nullptr )
     return new BLong( 0 );

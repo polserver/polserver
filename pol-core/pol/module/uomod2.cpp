@@ -257,18 +257,14 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   for_sale->layer = LAYER_VENDOR_FOR_SALE;
   send_wornitem( chr->client, merchant, for_sale );
   for_sale->layer = save_layer_one;
-  for_sale->x = merchant->x;
-  for_sale->y = merchant->y;
-  for_sale->z = merchant->z;
+  for_sale->setposition( merchant->pos() );
   // chr->add_additional_legal_item( for_sale );
 
   save_layer_two = bought->layer;
   bought->layer = LAYER_VENDOR_PLAYER_ITEMS;
   send_wornitem( chr->client, merchant, bought );
   bought->layer = save_layer_two;
-  bought->x = merchant->x;
-  bought->y = merchant->y;
-  bought->z = merchant->z;
+  bought->setposition( merchant->pos() );
   // chr->add_additional_legal_item( bought );
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
@@ -847,9 +843,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
         update_item_to_inrange( remainder_not_sold );
         remainder_not_sold = nullptr;
       }
-      item->x = tx;
-      item->y = ty;
-      item->z = 0;
+      item->setposition( Core::Pos4d( tx, ty, 0, vendor_bought->realm() ) );
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
       vendor_bought->add( item );
@@ -2507,7 +2501,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   if ( house->IsWaitingForAccept() )
     return new BError( "House currently being waiting for a commit" );
 
-  if ( chr->realm->find_supporting_multi( chr->x, chr->y, chr->z ) != house )
+  if ( chr->realm()->find_supporting_multi( chr->x(), chr->y(), chr->z() ) != house )
     return new BError( "You must be inside the house to customize it." );
 
   chr->client->gd->custom_house_serial = house->serial;
@@ -2524,7 +2518,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     msg->Write<u8>( 0xFFu );         // fixme
     msg.Send( chr->client );
   }
-  move_character_to( chr, house->x, house->y, house->z + 7, MOVEITEM_FORCELOCATION, nullptr );
+  move_character_to( chr, house->x(), house->y(), house->z() + 7, MOVEITEM_FORCELOCATION, nullptr );
   // chr->set_script_member("hidden",1);
   // chr->set_script_member("frozen",1);
 
@@ -2546,7 +2540,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     Character* multichr = moblist.back();
     if ( multichr != chr )
-      move_character_to( multichr, house->x + def.minrx, house->y + def.maxry + 1, house->z,
+      move_character_to( multichr, house->x() + def.minrx, house->y() + def.maxry + 1, house->z(),
                          MOVEITEM_FORCELOCATION, nullptr );
     moblist.pop_back();
   }
@@ -2604,7 +2598,7 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.HairId ) );
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.HairHue );
-    tmpitem->realm = client->chr->realm;
+    tmpitem->setposition( client->chr->pos() );
     client->chr->equip( tmpitem );
     send_wornitem_to_inrange( client->chr, tmpitem );
   }
@@ -2618,7 +2612,7 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.BeardId ) );
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.BeardHue );
-    tmpitem->realm = client->chr->realm;
+    tmpitem->setposition( client->chr->pos() );
     client->chr->equip( tmpitem );
     send_wornitem_to_inrange( client->chr, tmpitem );
   }

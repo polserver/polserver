@@ -151,7 +151,7 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const std::str
         color &= Plib::VALID_ITEM_COLOR_MASK;
         it->color = color;
         it->layer = Plib::tilelayer( it->graphic );
-        it->realm = chr->realm;
+        it->setposition( chr->pos() );
         // FIXME equip scripts, equiptest scripts
         if ( chr->equippable( it ) )
         {
@@ -346,7 +346,8 @@ void stop_packetlog( Mobile::Character* looker, Mobile::Character* mob )
   if ( mob->connected() )  // gotta be connected to already have packets right?
   {
     auto res = mob->client->stop_log();
-    if (res == Network::PacketLog::Success) {
+    if ( res == Network::PacketLog::Success )
+    {
       send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
     }
     else
@@ -366,7 +367,8 @@ void textcmd_stoplog( Network::Client* client )
   else
   {
     auto res = client->stop_log();
-    if ( res == Network::PacketLog::Success ) {
+    if ( res == Network::PacketLog::Success )
+    {
       send_sysmessage( client, "I/O log file closed." );
     }
     else
@@ -454,8 +456,8 @@ bool check_single_zone_item_integrity( int, int, Realms::Realm* );
 void textcmd_singlezone_integ_item( Network::Client* client )
 {
   unsigned short wx, wy;
-  zone_convert( client->chr->x, client->chr->y, &wx, &wy, client->chr->realm );
-  bool ok = check_single_zone_item_integrity( wx, wy, client->chr->realm );
+  zone_convert( client->chr->x(), client->chr->y(), &wx, &wy, client->chr->realm() );
+  bool ok = check_single_zone_item_integrity( wx, wy, client->chr->realm() );
   if ( ok )
     send_sysmessage( client, "Item integrity checks out OK!" );
   else

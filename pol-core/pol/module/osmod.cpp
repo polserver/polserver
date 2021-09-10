@@ -594,7 +594,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       bool keep_connection = keep_connection_int != 0;
       BObject paramobj( scriptparam );  // prevent delete
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection]() {
+          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection]()
+          {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
             {
@@ -693,44 +694,46 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
           }
         }
 
-        Core::networkManager.auxthreadpool->push( [uoexec_w, curl_sp, chunk]() {
-          CURL* curl = curl_sp.get();
-          CURLcode res;
-          std::string readBuffer;
-          curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
-
-          /* Perform the request, res will get the return code */
-          res = curl_easy_perform( curl );
-          if ( chunk != nullptr )
-            curl_slist_free_all( chunk );
-          {
-            Core::PolLock lck;
-
-            if ( !uoexec_w.exists() )
+        Core::networkManager.auxthreadpool->push(
+            [uoexec_w, curl_sp, chunk]()
             {
-              DEBUGLOG << "OpenConnection Script has been destroyed\n";
-              return;
-            }
-            /* Check for errors */
-            if ( res != CURLE_OK )
-            {
-              uoexec_w.get_weakptr()->ValueStack.back().set(
-                  new BObject( new BError( curl_easy_strerror( res ) ) ) );
-            }
-            else
-            {
-              // TODO: no sanitize happens, optional function param iso/utf8 encoding, or parse the
-              // header of the http answer?
-              uoexec_w.get_weakptr()->ValueStack.back().set(
-                  new BObject( new String( readBuffer ) ) );
-            }
+              CURL* curl = curl_sp.get();
+              CURLcode res;
+              std::string readBuffer;
+              curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
 
-            uoexec_w.get_weakptr()->revive();
-          }
+              /* Perform the request, res will get the return code */
+              res = curl_easy_perform( curl );
+              if ( chunk != nullptr )
+                curl_slist_free_all( chunk );
+              {
+                Core::PolLock lck;
 
-          /* always cleanup */
-          // curl_easy_cleanup() is performed when the shared pointer deallocates
-        } );
+                if ( !uoexec_w.exists() )
+                {
+                  DEBUGLOG << "OpenConnection Script has been destroyed\n";
+                  return;
+                }
+                /* Check for errors */
+                if ( res != CURLE_OK )
+                {
+                  uoexec_w.get_weakptr()->ValueStack.back().set(
+                      new BObject( new BError( curl_easy_strerror( res ) ) ) );
+                }
+                else
+                {
+                  // TODO: no sanitize happens, optional function param iso/utf8 encoding, or parse
+                  // the header of the http answer?
+                  uoexec_w.get_weakptr()->ValueStack.back().set(
+                      new BObject( new String( readBuffer ) ) );
+                }
+
+                uoexec_w.get_weakptr()->revive();
+              }
+
+              /* always cleanup */
+              // curl_easy_cleanup() is performed when the shared pointer deallocates
+            } );
       }
       else
       {
@@ -790,9 +793,8 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
           if ( em )
           {
             NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->controlled_npc().serial ) << " ("
-                       << npcemod->controlled_npc().x << " " << npcemod->controlled_npc().y << " "
-                       << npcemod->controlled_npc().z << ")\n";
+            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->controlled_npc().serial )
+                       << npcemod->controlled_npc().pos() << "\n";
           }
 
           INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
@@ -1030,7 +1032,8 @@ struct PerfData
     const auto& ranlist = Core::scriptScheduler.getRanlist();
     const auto& holdlist = Core::scriptScheduler.getHoldlist();
     const auto& notimeoutholdlist = Core::scriptScheduler.getNoTimeoutHoldlist();
-    auto collect = [&]( Core::UOExecutor* scr ) {
+    auto collect = [&]( Core::UOExecutor* scr )
+    {
       auto itr = data->data.find( scr->pid() );
       if ( itr == data->data.end() )
         return;
@@ -1217,7 +1220,7 @@ BObjectImp* OSExecutorModule::mf_GetEnvironmentVariable()
       if ( pos == std::string_view::npos )
         continue;
       auto key = env.substr( 0, pos );
-      auto key_lowered = Clib::strlowerASCII( std::string{key} );
+      auto key_lowered = Clib::strlowerASCII( std::string{ key } );
       auto val = env.substr( pos + 1 );
 
       if ( all_allowed || std::find( allowed_vars.begin(), allowed_vars.end(), key_lowered ) !=

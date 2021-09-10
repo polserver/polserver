@@ -319,12 +319,9 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   Coordinate coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
   Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
-
-  chr->x = coord.x;
-  chr->y = coord.y;
-  chr->z = coord.z;
+  // TODO POS
+  chr->setposition( Pos4d( coord.x, coord.y, coord.z, realm ) );
   chr->facing = Plib::FACING_W;
-  chr->realm = realm;
   chr->position_changed();
 
   bool valid_stats = false;
@@ -423,8 +420,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->HairStyle ) );
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
-    tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
+    if ( chr->equippable( tmpitem ) )                        // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -438,7 +435,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->BeardStyle ) );
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
     else
@@ -450,26 +447,21 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
   backpack->layer = LAYER_BACKPACK;
-  backpack->realm = chr->realm;
+  backpack->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    tmpitem->x = 46;
-    tmpitem->y = 91;
-    tmpitem->z = 0;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 46, 91, 0, chr->realm() ) );
     u8 newSlot = 1;
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
-      tmpitem->x = chr->x;
-      tmpitem->y = chr->y;
-      tmpitem->z = chr->z;
+      tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, nullptr );
+      move_item( tmpitem, tmpitem->x(), tmpitem->y(), tmpitem->z(), nullptr );
     }
     else
       backpack->add( tmpitem );
@@ -482,13 +474,13 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_HAND1;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -506,15 +498,15 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = Plib::tilelayer( pantstype );
-    tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
-    tmpitem->realm = chr->realm;
+    tmpitem->color = cfBEu16( msg->pantscolor );             // 0x0284;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
   }
   else if ( chr->race == Plib::RACE_GARGOYLE )  // Gargoyles have Robes.
@@ -523,7 +515,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
   }
 
@@ -576,8 +568,8 @@ void createchar2( Accounts::Account* acct, unsigned index )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->realm = find_realm( std::string( "britannia" ) );
-  chr->x = chr->y = chr->z = chr->facing = 1;
+  chr->setposition( Pos4d( 1, 1, 1, find_realm( std::string( "britannia" ) ) ) );
+  chr->facing = 1;
   chr->wornitems->serial = chr->serial;
   chr->wornitems->serial_ext = chr->serial_ext;
   chr->position_changed();
@@ -681,10 +673,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   Coordinate coord = gamestate.startlocations[0]->select_coordinate();
   Realms::Realm* realm = gamestate.startlocations[0]->realm;
 
-  chr->x = coord.x;
-  chr->y = coord.y;
-  chr->z = coord.z;
-  chr->realm = realm;
+  // TODO POS
+  chr->setposition( Pos4d( coord.x, coord.y, coord.z, realm ) );
   chr->position_changed();
   chr->facing = Plib::FACING_W;
 
@@ -792,8 +782,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->hairstyle ) );
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->haircolor );
-    tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
+    if ( chr->equippable( tmpitem ) )                        // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -807,8 +797,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->beardstyle ) );
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->beardcolor );
-    tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
+    if ( chr->equippable( tmpitem ) )                        // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -822,8 +812,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->face_id ) );
     tmpitem->layer = LAYER_FACE;
     tmpitem->color = cfBEu16( msg->face_color );
-    tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
+    if ( chr->equippable( tmpitem ) )                        // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -834,26 +824,21 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
   backpack->layer = LAYER_BACKPACK;
-  backpack->realm = chr->realm;
+  backpack->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    tmpitem->x = 46;
-    tmpitem->y = 91;
-    tmpitem->z = 0;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 46, 91, 0, chr->realm() ) );
     u8 newSlot = 1;
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
-      tmpitem->x = chr->x;
-      tmpitem->y = chr->y;
-      tmpitem->z = chr->z;
+      tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, nullptr );
+      move_item( tmpitem, tmpitem->x(), tmpitem->y(), tmpitem->z(), nullptr );
     }
     else
       backpack->add( tmpitem );
@@ -866,13 +851,13 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_HAND1;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -890,15 +875,15 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = Plib::tilelayer( pantstype );
-    tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
-    tmpitem->realm = chr->realm;
+    tmpitem->color = cfBEu16( msg->pantscolor );             // 0x0284;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
   }
   else if ( chr->race == Plib::RACE_GARGOYLE )  // Gargoyles have Robes.
@@ -907,7 +892,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
   }
 
@@ -1075,10 +1060,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   Coordinate coord = gamestate.startlocations[msg->StartIndex]->select_coordinate();
   Realms::Realm* realm = gamestate.startlocations[msg->StartIndex]->realm;
 
-  chr->x = coord.x;
-  chr->y = coord.y;
-  chr->z = coord.z;
-  chr->realm = realm;
+  chr->setposition( Pos4d( coord.x, coord.y, coord.z, realm ) );
   chr->position_changed();
   chr->facing = Plib::FACING_W;
 
@@ -1226,8 +1208,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->HairStyle ) );
     tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
-    tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
+    if ( chr->equippable( tmpitem ) )                        // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -1241,8 +1223,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem = Items::Item::create( cfBEu16( msg->BeardStyle ) );
     tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
-    tmpitem->realm = chr->realm;
-    if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
+    if ( chr->equippable( tmpitem ) )                        // check it or passert will trigger
       chr->equip( tmpitem );
     else
     {
@@ -1253,26 +1235,21 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
   backpack->layer = LAYER_BACKPACK;
-  backpack->realm = chr->realm;
+  backpack->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    tmpitem->x = 46;
-    tmpitem->y = 91;
-    tmpitem->z = 0;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 46, 91, 0, chr->realm() ) );
     u8 newSlot = 1;
     if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
     {
-      tmpitem->x = chr->x;
-      tmpitem->y = chr->y;
-      tmpitem->z = chr->z;
+      tmpitem->setposition( chr->pos() );
       add_item_to_world( tmpitem );
       register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->x, tmpitem->y, tmpitem->z, nullptr );
+      move_item( tmpitem, tmpitem->x(), tmpitem->y(), tmpitem->z(), nullptr );
     }
     else
       backpack->add( tmpitem );
@@ -1285,13 +1262,13 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_HAND1;
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -1309,15 +1286,15 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = Plib::tilelayer( pantstype );
-    tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
-    tmpitem->realm = chr->realm;
+    tmpitem->color = cfBEu16( msg->pantscolor );             // 0x0284;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
   }
   else if ( chr->race == Plib::RACE_GARGOYLE )  // Gargoyles have Robes.
@@ -1326,7 +1303,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
     tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
-    tmpitem->realm = chr->realm;
+    tmpitem->setposition( Pos4d( 0, 0, 0, chr->realm() ) );  // TODO POS equip should set the pos
     chr->equip( tmpitem );
   }
 

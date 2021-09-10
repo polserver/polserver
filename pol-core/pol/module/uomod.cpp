@@ -409,7 +409,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
   if ( item != nullptr )
   {
     ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
-    item->realm = cont->realm;
+    item->setposition( cont->pos() );
     item->setamount( amount );
 
     if ( cont->can_add( *item ) )
@@ -594,9 +594,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
   item->layer = LAYER_BANKBOX;
   send_wornitem( chr->client, chr, item );
   item->layer = save_layer;
-  item->x = chr->x;
-  item->y = chr->y;
-  item->z = chr->z;
+  item->setposition( chr->pos() );
   item->double_click( chr->client );  // open the container on the client's screen
   chr->add_remote_container( item );
 
@@ -922,10 +920,10 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 
       //      Never trust packet's objtype is the reason here. They should never
       //      target on other realms. DUH!
-      arr->addMember( "realm", new String( chr->realm->name() ) );
+      arr->addMember( "realm", new String( chr->realm()->name() ) );
 
       Multi::UMulti* multi =
-          chr->realm->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+          chr->realm()->find_supporting_multi( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 
@@ -1099,11 +1097,7 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
 BObjectImp* _complete_create_item_at_location( Item* item, unsigned short x, unsigned short y,
                                                short z, Realms::Realm* realm )
 {
-  // Dave moved these 3 lines up here 12/20 cuz x,y,z was uninit in the createscript.
-  item->x = x;
-  item->y = y;
-  item->z = static_cast<signed char>( z );
-  item->realm = realm;
+  item->setposition( Core::Pos4d( x, y, static_cast<signed char>( z ), realm ) );
 
   // ITEMDESCTODO: use the original descriptor
   const ItemDesc& id = find_itemdesc( item->objtype_ );
@@ -1918,7 +1912,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
        getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
        getParam( 5, explode, UCHAR_MAX ) )
   {
-    if ( src->realm != dst->realm )
+    if ( src->realm() != dst->realm() )
       return new BError( "Realms must match" );
     play_moving_effect( src, dst, effect, static_cast<unsigned char>( speed ),
                         static_cast<unsigned char>( loop ), static_cast<unsigned char>( explode ) );
@@ -2035,7 +2029,7 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
        getParam( 7, direction, UCHAR_MAX ) && getParam( 8, explode, UCHAR_MAX ) &&
        getParam( 9, effect3d ) && getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
   {
-    if ( src->realm != dst->realm )
+    if ( src->realm() != dst->realm() )
       return new BError( "Realms must match" );
     play_moving_effect_ex(
         src, dst, effect, static_cast<unsigned char>( speed ),
@@ -2203,9 +2197,9 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation( /* x, y, z, range, realm
         x, y, realm, range,
         [&]( Item* item )
         {
-          if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
+          if ( ( abs( item->x() - x ) <= range ) && ( abs( item->y() - y ) <= range ) )
           {
-            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z() - z ) < CONST_DEFAULT_ZRANGE ) )
               newarr->addElement( item->make_ref() );
           }
         } );
@@ -2265,7 +2259,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, re
   WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm,
                                       [&]( Mobile::Character* chr )
                                       {
-                                        if ( chr->z >= z1 && chr->z <= z2 )
+                                        if ( chr->z() >= z1 && chr->z() <= z2 )
                                         {
                                           newarr->addElement( chr->make_ref() );
                                         }
@@ -2273,7 +2267,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, re
   WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm,
                                     [&]( Items::Item* item )
                                     {
-                                      if ( item->z >= z1 && item->z <= z2 )
+                                      if ( item->z() >= z1 && item->z() <= z2 )
                                       {
                                         newarr->addElement( item->make_ref() );
                                       }
@@ -2320,7 +2314,7 @@ BObjectImp* UOExecutorModule::mf_ListItemsInBoxOfObjType(
       x1, y1, x2, y2, realm,
       [&]( Items::Item* item )
       {
-        if ( item->z >= z1 && item->z <= z2 && item->objtype_ == objtype )
+        if ( item->z() >= z1 && item->z() <= z2 && item->objtype_ == objtype )
         {
           newarr->addElement( item->make_ref() );
         }
@@ -2367,7 +2361,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
       x1, y1, x2, y2, realm,
       [&]( Mobile::Character* chr )
       {
-        if ( chr->z >= z1 && chr->z <= z2 && chr->script_isa( POL_Class ) )
+        if ( chr->z() >= z1 && chr->z() <= z2 && chr->script_isa( POL_Class ) )
         {
           newarr->addElement( chr->make_ref() );
         }
@@ -2376,7 +2370,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
       x1, y1, x2, y2, realm,
       [&]( Items::Item* item )
       {
-        if ( item->z >= z1 && item->z <= z2 && item->script_isa( POL_Class ) )
+        if ( item->z() >= z1 && item->z() <= z2 && item->script_isa( POL_Class ) )
         {
           newarr->addElement( item->make_ref() );
         }
@@ -2419,7 +2413,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, re
   WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm,
                                       [&]( Mobile::Character* chr )
                                       {
-                                        if ( chr->z >= z1 && chr->z <= z2 )
+                                        if ( chr->z() >= z1 && chr->z() <= z2 )
                                         {
                                           newarr->addElement( chr->make_ref() );
                                         }
@@ -2483,12 +2477,12 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
       [&]( Multi::UMulti* multi )
       {
         const Multi::MultiDef& md = multi->multidef();
-        if ( multi->x + md.minrx > x2 ||  // east of the box
-             multi->x + md.maxrx < x1 ||  // west of the box
-             multi->y + md.minry > y2 ||  // south of the box
-             multi->y + md.maxry < y1 ||  // north of the box
-             multi->z + md.minrz > z2 ||  // above the box
-             multi->z + md.maxrz < z1 )   // below the box
+        if ( multi->x() + md.minrx > x2 ||  // east of the box
+             multi->x() + md.maxrx < x1 ||  // west of the box
+             multi->y() + md.minry > y2 ||  // south of the box
+             multi->y() + md.maxry < y1 ||  // north of the box
+             multi->z() + md.minrz > z2 ||  // above the box
+             multi->z() + md.maxrz < z1 )   // below the box
         {
           return;
         }
@@ -2497,9 +2491,9 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
         for ( const auto& citr : md.components )
         {
           const Multi::MULTI_ELEM* elem = citr.second;
-          int absx = multi->x + elem->x;
-          int absy = multi->y + elem->y;
-          int absz = multi->z + elem->z;
+          int absx = multi->x() + elem->x;
+          int absy = multi->y() + elem->y;
+          int absz = multi->z() + elem->z;
           if ( x1 <= absx && absx <= x2 && y1 <= absy && absy <= y2 )
           {
             // do Z checking
@@ -2631,10 +2625,10 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range,
         x, y, realm, range,
         [&]( Items::Item* item )
         {
-          if ( ( item->objtype_ == objtype ) && ( abs( item->x - x ) <= range ) &&
-               ( abs( item->y - y ) <= range ) )
+          if ( ( item->objtype_ == objtype ) && ( abs( item->x() - x ) <= range ) &&
+               ( abs( item->y() - y ) <= range ) )
           {
-            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z() - z ) < CONST_DEFAULT_ZRANGE ) )
               newarr->addElement( item->make_ref() );
           }
         } );
@@ -2674,9 +2668,9 @@ BObjectImp* UOExecutorModule::mf_ListItemsAtLocation( /* x, y, z, realm */ )
     WorldIterator<ItemFilter>::InRange( x, y, realm, 0,
                                         [&]( Items::Item* item )
                                         {
-                                          if ( ( item->x == x ) && ( item->y == y ) )
+                                          if ( ( item->x() == x ) && ( item->y() == y ) )
                                           {
-                                            if ( ( z == LIST_IGNORE_Z ) || ( item->z == z ) )
+                                            if ( ( z == LIST_IGNORE_Z ) || ( item->z() == z ) )
                                               newarr->addElement( item->make_ref() );
                                           }
                                         } );
@@ -2707,7 +2701,7 @@ BObjectImp* UOExecutorModule::mf_ListGhostsNearLocation()
         x, y, realm, range,
         [&]( Mobile::Character* chr )
         {
-          if ( chr->dead() && ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+          if ( chr->dead() && ( abs( chr->z() - z ) < CONST_DEFAULT_ZRANGE ) )
           {
             newarr->addElement( chr->make_ref() );
           }
@@ -2768,7 +2762,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocationEx( /* x, y, z, range, f
            ( inc_concealed && _chr->concealed() ) ||
            ( inc_normal && !( _chr->hidden() || _chr->dead() || _chr->concealed() ) ) )
       {
-        if ( ( z == LIST_IGNORE_Z ) || ( abs( _chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+        if ( ( z == LIST_IGNORE_Z ) || ( abs( _chr->z() - z ) < CONST_DEFAULT_ZRANGE ) )
         {
           if ( !inc_players_only && !inc_npc_only )
             newarr->addElement( _chr->make_ref() );
@@ -2826,7 +2820,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesNearLocation( /* x, y, z, range, rea
         [&]( Mobile::Character* chr )
         {
           if ( ( !chr->concealed() ) && ( !chr->hidden() ) && ( !chr->dead() ) )
-            if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z - z ) < CONST_DEFAULT_ZRANGE ) )
+            if ( ( z == LIST_IGNORE_Z ) || ( abs( chr->z() - z ) < CONST_DEFAULT_ZRANGE ) )
               newarr->addElement( chr->make_ref() );
         } );
     return newarr.release();
@@ -2845,21 +2839,22 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
   {
     obj = obj->toplevel_owner();
     std::unique_ptr<ObjArray> newarr( new ObjArray );
-    WorldIterator<MobileFilter>::InRange( obj->x, obj->y, obj->realm, range,
-                                          [&]( Mobile::Character* chr )
-                                          {
-                                            if ( chr->dead() || chr->hidden() || chr->concealed() )
-                                              return;
-                                            if ( chr == obj )
-                                              return;
-                                            if ( ( abs( chr->z - obj->z ) < CONST_DEFAULT_ZRANGE ) )
-                                            {
-                                              if ( obj->realm->has_los( *obj, *chr ) )
-                                              {
-                                                newarr->addElement( chr->make_ref() );
-                                              }
-                                            }
-                                          } );
+    WorldIterator<MobileFilter>::InRange(
+        obj->x(), obj->y(), obj->realm(), range,
+        [&]( Mobile::Character* chr )
+        {
+          if ( chr->dead() || chr->hidden() || chr->concealed() )
+            return;
+          if ( chr == obj )
+            return;
+          if ( ( abs( chr->z() - obj->z() ) < CONST_DEFAULT_ZRANGE ) )
+          {
+            if ( obj->realm()->has_los( *obj, *chr ) )
+            {
+              newarr->addElement( chr->make_ref() );
+            }
+          }
+        } );
 
     return newarr.release();
   }
@@ -2889,7 +2884,7 @@ BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm( /*realm*/ )
         continue;
 
       Character* chr = static_cast<Character*>( obj );
-      if ( chr->logged_in() || chr->realm != realm || chr->orphan() )
+      if ( chr->logged_in() || chr->realm() != realm || chr->orphan() )
         continue;
 
       newarr->addElement( new EOfflineCharacterRefObjImp( chr ) );
@@ -2921,7 +2916,7 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
       Character* hostile = *itr;
       if ( hostile->concealed() )
         continue;
-      if ( ( flags & LH_FLAG_LOS ) && !chr->realm->has_los( *chr, *hostile ) )
+      if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *hostile ) )
         continue;
       if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && hostile->hidden() )
         continue;
@@ -2944,7 +2939,7 @@ BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
   UObject* dst;
   if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) )
   {
-    return new BLong( src->realm->has_los( *src, *dst->toplevel_owner() ) );
+    return new BLong( src->realm()->has_los( *src, *dst->toplevel_owner() ) );
   }
   else
   {
@@ -2959,10 +2954,10 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
   short z;
   if ( getUObjectParam( 0, src ) && getParam( 1, x ) && getParam( 2, y ) && getParam( 3, z ) )
   {
-    if ( !src->realm->valid( x, y, z ) )
+    if ( !src->realm()->valid( x, y, z ) )
       return new BError( "Invalid Coordinates for realm" );
-    LosObj tgt( x, y, static_cast<s8>( z ), src->realm );
-    return new BLong( src->realm->has_los( *src, tgt ) );
+    LosObj tgt( x, y, static_cast<s8>( z ), src->realm() );
+    return new BLong( src->realm()->has_los( *src, tgt ) );
   }
   else
   {
@@ -3053,9 +3048,9 @@ BObjectImp* UOExecutorModule::mf_GetPosition()
   if ( getUObjectParam( 0, obj ) )
   {
     std::unique_ptr<BStruct> arr( new BStruct );
-    arr->addMember( "x", new BLong( obj->x ) );
-    arr->addMember( "y", new BLong( obj->y ) );
-    arr->addMember( "z", new BLong( obj->z ) );
+    arr->addMember( "x", new BLong( obj->x() ) );
+    arr->addMember( "y", new BLong( obj->y() ) );
+    arr->addMember( "z", new BLong( obj->z() ) );
     return arr.release();
   }
   else
@@ -3213,8 +3208,8 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
       short newz;
       Multi::UMulti* supporting_multi;
       Item* walkon_item;
-      if ( !chr->realm->walkheight( chr->x, chr->y, chr->z, &newz, &supporting_multi, &walkon_item,
-                                    doors_block, chr->movemode ) )
+      if ( !chr->realm()->walkheight( chr->x(), chr->y(), chr->z(), &newz, &supporting_multi,
+                                      &walkon_item, doors_block, chr->movemode ) )
       {
         return new BError( "That location is blocked" );
       }
@@ -3406,8 +3401,8 @@ BObjectImp* UOExecutorModule::mf_Distance()
   {
     const UObject* tobj1 = obj1->toplevel_owner();
     const UObject* tobj2 = obj2->toplevel_owner();
-    int xd = tobj1->x - tobj2->x;
-    int yd = tobj1->y - tobj2->y;
+    int xd = tobj1->x() - tobj2->x();
+    int yd = tobj1->y() - tobj2->y();
     if ( xd < 0 )
       xd = -xd;
     if ( yd < 0 )
@@ -3431,8 +3426,8 @@ BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
   {
     const UObject* tobj1 = obj1->toplevel_owner();
     const UObject* tobj2 = obj2->toplevel_owner();
-    return new Double( sqrt( pow( (double)( tobj1->x - tobj2->x ), 2 ) +
-                             pow( (double)( tobj1->y - tobj2->y ), 2 ) ) );
+    return new Double( sqrt( pow( (double)( tobj1->x() - tobj2->x() ), 2 ) +
+                             pow( (double)( tobj1->y() - tobj2->y() ), 2 ) ) );
   }
   else
   {
@@ -3702,9 +3697,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 
     true_extricate( item );
 
-    item->x = x;
-    item->y = y;
-    item->z = 0;
+    item->setposition( Core::Pos4d( x, y, 0, cont->realm() ) );  // TODO POS realm
 
     cont->add( item );
     update_item_to_inrange( item );
@@ -3940,10 +3933,10 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
       if ( chr->logged_in() )
         justice_region = chr->client->gd->justice_region;
       else
-        justice_region = gamestate.justicedef->getregion( chr->x, chr->y, chr->realm );
+        justice_region = gamestate.justicedef->getregion( chr->x(), chr->y(), chr->realm() );
     }
     else
-      justice_region = gamestate.justicedef->getregion( obj->x, obj->y, obj->realm );
+      justice_region = gamestate.justicedef->getregion( obj->x(), obj->y(), obj->realm() );
 
     if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
@@ -4192,8 +4185,8 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     }
     else
     {
-      if ( !chr->realm->valid( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ),
-                               0 ) )
+      if ( !chr->realm()->valid( static_cast<unsigned short>( x ), static_cast<unsigned short>( y ),
+                                 0 ) )
         return new BError( "Invalid Coordinates for Realm" );
       msg->Write<u8>( PKTOUT_BA_ARROW_ON );
       msg->WriteFlipped<u16>( static_cast<u16>( x & 0xFFFF ) );
@@ -4918,9 +4911,9 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocationWithFlag(
         {
           if ( ( Plib::tile_uoflags( item->graphic ) & flags ) )
           {
-            if ( ( abs( item->x - x ) <= range ) && ( abs( item->y - y ) <= range ) )
+            if ( ( abs( item->x() - x ) <= range ) && ( abs( item->y() - y ) <= range ) )
             {
-              if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z - z ) < CONST_DEFAULT_ZRANGE ) )
+              if ( ( z == LIST_IGNORE_Z ) || ( abs( item->z() - z ) < CONST_DEFAULT_ZRANGE ) )
                 newarr->addElement( new EItemRefObjImp( item ) );
             }
           }
@@ -5269,16 +5262,15 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 
     if ( !( flags & FP_IGNORE_MOBILES ) )
     {
-      WorldIterator<MobileFilter>::InBox(
-          xL, yL, xH, yH, realm,
-          [&]( Mobile::Character* chr )
-          {
-            theBlockers.AddBlocker( chr->x, chr->y, chr->z );
+      WorldIterator<MobileFilter>::InBox( xL, yL, xH, yH, realm,
+                                          [&]( Mobile::Character* chr )
+                                          {
+                                            theBlockers.AddBlocker( chr->x(), chr->y(), chr->z() );
 
-            if ( Plib::systemstate.config.loglevel >= 12 )
-              POLLOG.Format( "[FindPath]   add Blocker {} at {} {} {}\n" )
-                  << chr->name() << chr->x << chr->y << chr->z;
-          } );
+                                            if ( Plib::systemstate.config.loglevel >= 12 )
+                                              POLLOG << "[FindPath]   add Blocker " << chr->name()
+                                                     << " at " << chr->pos() << "\n";
+                                          } );
     }
 
     // passed via GetSuccessors to realm->walkheight

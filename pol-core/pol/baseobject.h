@@ -1,7 +1,11 @@
 #ifndef BASEOBJECT_H
 #define BASEOBJECT_H
 
-#include "../clib/rawtypes.h"
+#include "clib/rawtypes.h"
+
+#include "base/position.h"
+
+#include <utility>
 
 namespace Pol
 {
@@ -42,6 +46,8 @@ protected:
   ULWObject& operator=( const ULWObject& ) = delete;
   ~ULWObject() = default;
 
+  void pos( Pos4d newpos );
+
 public:
   bool orphan() const;
 
@@ -52,13 +58,18 @@ public:
 
   u8 look_height() const;  // where you're looking from, or to
 
+  const Pos4d& pos() const;
+  u16 x() const;
+  u16 y() const;
+  s8 z() const;
+  Realms::Realm* realm() const;
+
+private:
+  Pos4d position;
+
 public:
-  Realms::Realm* realm;
   u32 serial;
   u16 graphic;
-  u16 x;
-  u16 y;
-  s8 z;
   u8 height;
 
 protected:
@@ -66,14 +77,7 @@ protected:
 };
 
 inline ULWObject::ULWObject( UOBJ_CLASS uobj_class )
-    : realm( nullptr ),
-      serial( 0 ),
-      graphic( 0 ),
-      x( 0 ),
-      y( 0 ),
-      z( 0 ),
-      height( 0 ),
-      uobj_class_( uobj_class )
+    : position(), serial( 0 ), graphic( 0 ), height( 0 ), uobj_class_( uobj_class )
 {
 }
 
@@ -121,6 +125,32 @@ inline bool ULWObject::orphan() const
   return ( serial == 0 );
 }
 
+inline const Pos4d& ULWObject::pos() const
+{
+  return position;
+}
+inline void ULWObject::pos( Pos4d newpos )
+{
+  position = std::move( newpos );
+}
+
+// TODO POS remove as final step
+inline u16 ULWObject::x() const
+{
+  return position.x();
+}
+inline u16 ULWObject::y() const
+{
+  return position.y();
+}
+inline s8 ULWObject::z() const
+{
+  return position.z();
+}
+inline Realms::Realm* ULWObject::realm() const
+{
+  return position.realm();
+}
 
 }  // namespace Core
 }  // namespace Pol

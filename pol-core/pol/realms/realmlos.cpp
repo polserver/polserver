@@ -57,9 +57,9 @@ bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z
 {
   for ( const auto& item : cache.dyn_items )
   {
-    if ( ( item->x == x ) && ( item->y == y ) )
+    if ( ( item->x() == x ) && ( item->y() == y ) )
     {
-      if ( item->z <= z && z < item->z + item->height )
+      if ( item->z() <= z && z < item->z() + item->height )
       {
 #if ENABLE_POLTEST_OUTPUT
         INFO_PRINT << "LOS blocked by " << item->description() << "\n";
@@ -121,13 +121,13 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
                          unsigned short x, unsigned short y, short z, LosCache& cache ) const
 {
   // if the target inhabits the location, LOS can't be blocked:
-  if ( att.x == x && att.y == y && att.z <= z &&
-       z <= att.z + att.height )  // LE to allow for 0-height target
+  if ( att.x() == x && att.y() == y && att.z() <= z &&
+       z <= att.z() + att.height )  // LE to allow for 0-height target
   {
     return false;
   }
-  if ( target.x == x && target.y == y && target.z <= z &&
-       z <= target.z + target.height )  // LE to allow for 0-height target
+  if ( target.x() == x && target.y() == y && target.z() <= z &&
+       z <= target.z() + target.height )  // LE to allow for 0-height target
   {
     return false;
   }
@@ -156,14 +156,14 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
       if ( ( remote_container != nullptr ) && remote )
         return true;
     }
-    if ( att.realm != tgt.realm )
+    if ( att.realm() != tgt.realm() )
       return false;
     if ( chr.ignores_line_of_sight() )
       return true;
   }
   else
   {
-    if ( att.realm != tgt.realm )
+    if ( att.realm() != tgt.realm() )
       return false;
   }
   // due to the nature of los check the same x,y coordinates get checked, cache the last used
@@ -175,8 +175,10 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   cache.dyn_items.clear();
   // pre filter dynitems
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      std::min( att.x, tgt.x ), std::min( att.y, tgt.y ), std::max( att.x, tgt.x ),
-      std::max( att.y, tgt.y ), att.realm, [&]( Items::Item* item ) {
+      std::min( att.x(), tgt.x() ), std::min( att.y(), tgt.y() ), std::max( att.x(), tgt.x() ),
+      std::max( att.y(), tgt.y() ), att.realm(),
+      [&]( Items::Item* item )
+      {
         u32 flags = Plib::tile_flags( item->graphic );
         if ( flags & Plib::FLAG::BLOCKSIGHT )
         {
@@ -196,23 +198,23 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   const u8 att_look_height( att.look_height() );
   const u8 tgt_look_height( tgt.look_height() );
 
-  if ( ( att.y < tgt.y ) || ( att.y == tgt.y && att.z < tgt.z ) )
+  if ( ( att.y() < tgt.y() ) || ( att.y() == tgt.y() && att.z() < tgt.z() ) )
   {
-    x1 = att.x;
-    y1 = att.y;
-    z1 = att.z + att_look_height;
-    x2 = tgt.x;
-    y2 = tgt.y;
-    z2 = tgt.z + tgt_look_height;
+    x1 = att.x();
+    y1 = att.y();
+    z1 = att.z() + att_look_height;
+    x2 = tgt.x();
+    y2 = tgt.y();
+    z2 = tgt.z() + tgt_look_height;
   }
   else
   {
-    x1 = tgt.x;
-    y1 = tgt.y;
-    z1 = tgt.z + tgt_look_height;
-    x2 = att.x;
-    y2 = att.y;
-    z2 = att.z + att_look_height;
+    x1 = tgt.x();
+    y1 = tgt.y();
+    z1 = tgt.z() + tgt_look_height;
+    x2 = att.x();
+    y2 = att.y();
+    z2 = att.z() + att_look_height;
   }
 
   dx = x2 - x1;
@@ -226,11 +228,11 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   {
     if ( !dz )
       return true;
-    if ( att.z <= tgt.z && tgt.z <= att.z + att.height )
+    if ( att.z() <= tgt.z() && tgt.z() <= att.z() + att.height )
     {
       return true;
     }
-    if ( att.z <= tgt.z + tgt_look_height && tgt.z + tgt_look_height <= att.z + att.height )
+    if ( att.z() <= tgt.z() + tgt_look_height && tgt.z() + tgt_look_height <= att.z() + att.height )
     {
       return true;
     }

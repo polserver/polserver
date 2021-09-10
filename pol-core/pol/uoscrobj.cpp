@@ -676,13 +676,13 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_X:
-    return new BLong( x );
+    return new BLong( x() );
     break;
   case MBR_Y:
-    return new BLong( y );
+    return new BLong( y() );
     break;
   case MBR_Z:
-    return new BLong( z );
+    return new BLong( z() );
     break;
   case MBR_NAME:
     return new String( name() );
@@ -712,10 +712,10 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     return new BLong( weight() );
     break;
   case MBR_MULTI:
-    if ( realm != nullptr )
+    if ( realm() != nullptr )
     {
       Multi::UMulti* multi;
-      if ( nullptr != ( multi = realm->find_supporting_multi( x, y, z ) ) )
+      if ( nullptr != ( multi = realm()->find_supporting_multi( x(), y(), z() ) ) )
         return multi->make_ref();
       else
         return new BLong( 0 );
@@ -724,8 +724,8 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
       return new BLong( 0 );
     break;
   case MBR_REALM:
-    if ( realm != nullptr )
-      return new String( realm->name() );
+    if ( realm() != nullptr )
+      return new String( realm()->name() );
     else
       return new BError( "object does not belong to a realm." );
     break;
@@ -1625,11 +1625,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           new_stack = this->clone();
         else
           new_stack = this->remove_part_of_stack( 1 );
-
-        new_stack->x = newx;
-        new_stack->y = newy;
-        new_stack->z = static_cast<s8>( newz );
-        new_stack->realm = newrealm;
+        new_stack->setposition( Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm ) );
         add_item_to_world( new_stack );
         move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
         update_item_to_inrange( new_stack );
@@ -1650,10 +1646,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->x = newx;
-    new_stack->y = newy;
-    new_stack->z = static_cast<s8>( newz );
-    new_stack->realm = newrealm;
+    new_stack->setposition( Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm ) );
     new_stack->setamount( amt );
     add_item_to_world( new_stack );
     move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
@@ -2470,8 +2463,8 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     else if ( value == Plib::RACE_GARGOYLE )
       race = Plib::RACE_GARGOYLE;
     if ( ( race != Plib::RACE_GARGOYLE ) &&
-         ( movemode & Plib::MOVEMODE_FLY ) )                         // FIXME graphic based maybe?
-      movemode = (Plib::MOVEMODE)( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
+         ( movemode & Plib::MOVEMODE_FLY ) )                           // FIXME graphic based maybe?
+      movemode = ( Plib::MOVEMODE )( movemode ^ Plib::MOVEMODE_FLY );  // remove flying
     return new BLong( race );
   case MBR_TRUEOBJTYPE:
     return new BLong( trueobjtype = static_cast<unsigned int>( value ) );
@@ -3990,11 +3983,11 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
       if ( ex.getParam( 0, newx ) && ex.getParam( 1, newy ) &&
            ex.getParam( 2, newz, Core::ZCOORD_MIN, Core::ZCOORD_MAX ) )
       {
-        if ( !realm->valid( newx, newy, newz ) )
+        if ( !realm()->valid( newx, newy, newz ) )
           return new BError( "Coordinates are out of range" );
 
         set_dirty();
-        move_offline_mobiles( newx, newy, newz, realm );
+        move_offline_mobiles( newx, newy, newz, realm() );
         return new BLong( 1 );
       }
       else
@@ -4829,12 +4822,10 @@ ItemGivenEvent::~ItemGivenEvent()
         u8 newSlot = 1;
         if ( !backpack->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
-          item->x = chr->x;
-          item->y = chr->y;
-          item->z = chr->z;
+          item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, item->x, item->y, item->z, nullptr );
+          move_item( item, item->x(), item->y(), item->z(), nullptr );
           return;
         }
         backpack->add( item );
@@ -4843,12 +4834,10 @@ ItemGivenEvent::~ItemGivenEvent()
       }
     }
     cont->remove( item );
-    item->x = chr->x;
-    item->y = chr->y;
-    item->z = chr->z;
+    item->setposition( chr->pos() );
     add_item_to_world( item );
     register_with_supporting_multi( item );
-    move_item( item, item->x, item->y, item->z, nullptr );
+    move_item( item, item->x(), item->y(), item->z(), nullptr );
   }
 }
 }  // namespace Module

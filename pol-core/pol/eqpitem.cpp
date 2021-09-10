@@ -20,9 +20,9 @@
 #include "network/client.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
-#include "systems/suspiciousacts.h"
 #include "realms/realm.h"
 #include "reftypes.h"
+#include "systems/suspiciousacts.h"
 #include "ufunc.h"
 
 namespace Pol
@@ -54,7 +54,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   {
     SuspiciousActs::EquipItemOtherThanGotten( client, serial, item->serial );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );  // 5
-    item->gotten_by( nullptr ); // TODO: shouldn't we clear_gotten_item() here?
+    item->gotten_by( nullptr );  // TODO: shouldn't we clear_gotten_item() here?
     return;
   }
 
@@ -131,7 +131,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
+    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->x(), item->y(), item->z() );
 
     if ( multi != nullptr )
       multi->unregister_object( item );

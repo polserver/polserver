@@ -80,10 +80,10 @@ Bscript::BStruct* UMulti::footprint() const
 {
   const MultiDef& md = multidef();
   std::unique_ptr<Bscript::BStruct> ret( new Bscript::BStruct );
-  ret->addMember( "xmin", new Bscript::BLong( x + md.minrx ) );
-  ret->addMember( "xmax", new Bscript::BLong( x + md.maxrx ) );
-  ret->addMember( "ymin", new Bscript::BLong( y + md.minry ) );
-  ret->addMember( "ymax", new Bscript::BLong( y + md.maxry ) );
+  ret->addMember( "xmin", new Bscript::BLong( x() + md.minrx ) );
+  ret->addMember( "xmax", new Bscript::BLong( x() + md.maxrx ) );
+  ret->addMember( "ymin", new Bscript::BLong( y() + md.minry ) );
+  ret->addMember( "ymax", new Bscript::BLong( y() + md.maxry ) );
   return ret.release();
 }
 

@@ -179,6 +179,8 @@ public:
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
 
+  void setposition( Pos4d newpos );
+
   bool saveonexit() const;
   void saveonexit( bool newvalue );
 

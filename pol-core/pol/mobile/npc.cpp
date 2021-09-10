@@ -150,12 +150,12 @@ const char* NPC::classname() const
 
 bool NPC::anchor_allows_move( Plib::UFACING fdir ) const
 {
-  unsigned short newx = x + Core::move_delta[fdir].xmove;
-  unsigned short newy = y + Core::move_delta[fdir].ymove;
+  unsigned short newx = x() + Core::move_delta[fdir].xmove;
+  unsigned short newy = y() + Core::move_delta[fdir].ymove;
 
   if ( anchor.enabled && !warmode() )
   {
-    unsigned short curdist = Core::pol_distance( x, y, anchor.x, anchor.y );
+    unsigned short curdist = Core::pol_distance( x(), y(), anchor.x, anchor.y );
     unsigned short newdist = Core::pol_distance( newx, newy, anchor.x, anchor.y );
     if ( newdist > curdist )  // if we're moving further away, see if we can
     {
@@ -181,27 +181,27 @@ bool NPC::could_move( Plib::UFACING fdir ) const
   if ( fdir & 1 )  // check if diagonal movement is allowed -- Nando (2009-02-26)
   {
     u8 tmp_facing = ( fdir + 1 ) & 0x7;
-    unsigned short tmp_newx = x + Core::move_delta[tmp_facing].xmove;
-    unsigned short tmp_newy = y + Core::move_delta[tmp_facing].ymove;
+    unsigned short tmp_newx = x() + Core::move_delta[tmp_facing].xmove;
+    unsigned short tmp_newy = y() + Core::move_delta[tmp_facing].ymove;
 
     // needs to save because if only one direction is blocked, it shouldn't block ;)
     short current_boost = gradual_boost;
-    bool walk1 = realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
-                                    &walkon_item, &current_boost );
+    bool walk1 = realm()->walkheight( this, tmp_newx, tmp_newy, z(), &newz, &supporting_multi,
+                                      &walkon_item, &current_boost );
 
     tmp_facing = ( fdir - 1 ) & 0x7;
-    tmp_newx = x + Core::move_delta[tmp_facing].xmove;
-    tmp_newy = y + Core::move_delta[tmp_facing].ymove;
+    tmp_newx = x() + Core::move_delta[tmp_facing].xmove;
+    tmp_newy = y() + Core::move_delta[tmp_facing].ymove;
     current_boost = gradual_boost;
-    if ( !walk1 && !realm->walkheight( this, tmp_newx, tmp_newy, z, &newz, &supporting_multi,
-                                       &walkon_item, &current_boost ) )
+    if ( !walk1 && !realm()->walkheight( this, tmp_newx, tmp_newy, z(), &newz, &supporting_multi,
+                                         &walkon_item, &current_boost ) )
       return false;
   }
-  unsigned short newx = x + Core::move_delta[fdir].xmove;
-  unsigned short newy = y + Core::move_delta[fdir].ymove;
+  unsigned short newx = x() + Core::move_delta[fdir].xmove;
+  unsigned short newy = y() + Core::move_delta[fdir].ymove;
   short current_boost = gradual_boost;
-  return realm->walkheight( this, newx, newy, z, &newz, &supporting_multi, &walkon_item,
-                            &current_boost ) &&
+  return realm()->walkheight( this, newx, newy, z(), &newz, &supporting_multi, &walkon_item,
+                              &current_boost ) &&
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
@@ -211,28 +211,28 @@ bool NPC::npc_path_blocked( Plib::UFACING fdir ) const
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
     return false;
 
-  unsigned short newx = x + Core::move_delta[fdir].xmove;
-  unsigned short newy = y + Core::move_delta[fdir].ymove;
+  unsigned short newx = x() + Core::move_delta[fdir].xmove;
+  unsigned short newy = y() + Core::move_delta[fdir].ymove;
 
   unsigned short wx, wy;
-  Core::zone_convert_clip( newx, newy, realm, &wx, &wy );
+  Core::zone_convert_clip( newx, newy, realm(), &wx, &wy );
 
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
-    for ( const auto& chr : realm->zone[wx][wy].characters )
+    for ( const auto& chr : realm()->zone[wx][wy].characters )
     {
       // First check if there really is a character blocking
-      if ( chr->x == newx && chr->y == newy && chr->z >= z - 10 && chr->z <= z + 10 )
+      if ( chr->x() == newx && chr->y() == newy && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
       {
         if ( !chr->dead() && is_visible_to_me( chr ) )
           return true;
       }
     }
   }
-  for ( const auto& chr : realm->zone[wx][wy].npcs )
+  for ( const auto& chr : realm()->zone[wx][wy].npcs )
   {
     // First check if there really is a character blocking
-    if ( chr->x == newx && chr->y == newy && chr->z >= z - 10 && chr->z <= z + 10 )
+    if ( chr->x() == newx && chr->y() == newy && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
     {
       // Check first with the ssopt false to now allow npcs of same master running on top of
       // each other
@@ -425,7 +425,8 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
 void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
 {
   // for ar and elemental damage/resist the mod values are loaded before in character code!
-  auto diceValue = []( const std::string& dicestr, int* value ) -> bool {
+  auto diceValue = []( const std::string& dicestr, int* value ) -> bool
+  {
     Core::Dice dice;
     std::string errmsg;
     if ( !dice.load( dicestr.c_str(), &errmsg ) )
@@ -434,9 +435,8 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
       *value = dice.roll();
     return *value != 0;
   };
-  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack {
-    return v.addToValue( static_cast<s16>( value ) );
-  };
+  auto apply = []( Core::ValueModPack v, int value ) -> Core::ValueModPack
+  { return v.addToValue( static_cast<s16>( value ) ); };
 
   std::string tmp;
   int value;
@@ -849,12 +849,12 @@ void NPC::inform_moved( Character* moved )
          can_accept_area_event_by( moved ) )
     {
       // egcs may have a compiler bug when calling these as inlines
-      bool are_inrange =
-          ( abs( x - moved->x ) <= ex->area_size ) && ( abs( y - moved->y ) <= ex->area_size );
+      bool are_inrange = ( abs( x() - moved->x() ) <= ex->area_size ) &&
+                         ( abs( y() - moved->y() ) <= ex->area_size );
 
       // inrangex_inline( this, moved, ex->area_size );
-      bool were_inrange = ( abs( x - moved->lastx ) <= ex->area_size ) &&
-                          ( abs( y - moved->lasty ) <= ex->area_size );
+      bool were_inrange = ( abs( x() - moved->lastx ) <= ex->area_size ) &&
+                          ( abs( y() - moved->lasty ) <= ex->area_size );
 
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( moved ) )
@@ -899,11 +899,11 @@ void NPC::inform_imoved( Character* chr )
     {
       // egcs may have a compiler bug when calling these as inlines
       bool are_inrange =
-          ( abs( x - chr->x ) <= ex->area_size ) && ( abs( y - chr->y ) <= ex->area_size );
+          ( abs( x() - chr->x() ) <= ex->area_size ) && ( abs( y() - chr->y() ) <= ex->area_size );
 
       // inrangex_inline( this, moved, ex->area_size );
-      bool were_inrange =
-          ( abs( lastx - chr->x ) <= ex->area_size ) && ( abs( lasty - chr->y ) <= ex->area_size );
+      bool were_inrange = ( abs( lastx - chr->x() ) <= ex->area_size ) &&
+                          ( abs( lasty - chr->y() ) <= ex->area_size );
 
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
            is_visible_to_me( chr ) )

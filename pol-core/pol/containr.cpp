@@ -204,7 +204,7 @@ void UContainer::add( Items::Item* item )
     passert_always( 0 );  // TODO remove once found
   }
   INC_PROFILEVAR( container_adds );
-  item->realm = realm;
+  item->setposition( Pos4d( item->pos().xyz(), realm() ) );  // TODO POS realm should be a nullptr
   item->container = this;
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
@@ -300,10 +300,7 @@ void UContainer::add_at_random_location( Items::Item* item )
 {
   u16 rx, ry;
   get_random_location( &rx, &ry );
-
-  item->x = rx;
-  item->y = ry;
-  item->z = 0;
+  item->setposition( Pos4d( rx, ry, 0, item->realm() ) );  // TODO POS realm nullptr
 
   add( item );
 }
@@ -765,12 +762,11 @@ void UContainer::spill_contents( Multi::UMulti* multi )
       {
         contents_.pop_back();
         item->set_dirty();
-        item->x = x;
-        item->y = y;
-        item->z = z;
+
+        item->setposition( pos() );
         item->container = nullptr;
         add_item_to_world( item );
-        move_item( item, x, y, z, nullptr );
+        move_item( item, x(), y(), z(), nullptr );
         if ( multi )
           multi->register_object( item );
         item->layer = 0;

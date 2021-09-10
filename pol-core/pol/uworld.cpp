@@ -30,11 +30,11 @@ namespace Core
 {
 void add_item_to_world( Items::Item* item )
 {
-  Zone& zone = getzone( item->x, item->y, item->realm );
+  Zone& zone = getzone( item->x(), item->y(), item->realm() );
 
   passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
-  item->realm->add_toplevel_item( *item );
+  item->realm()->add_toplevel_item( *item );
   zone.items.push_back( item );
 }
 
@@ -43,13 +43,13 @@ void remove_item_from_world( Items::Item* item )
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm->find_supporting_multi( item->x, item->y, item->z );
+    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->x(), item->y(), item->z() );
 
     if ( multi != nullptr )
       multi->unregister_object( item );
   }
 
-  Zone& zone = getzone( item->x, item->y, item->realm );
+  Zone& zone = getzone( item->x(), item->y(), item->realm() );
 
   ZoneItems::iterator itr = std::find( zone.items.begin(), zone.items.end(), item );
   if ( itr == zone.items.end() )
@@ -57,30 +57,30 @@ void remove_item_from_world( Items::Item* item )
     POLLOG_ERROR.Format(
         "remove_item_from_world: item 0x{:X} at {},{} does not exist in world zone ( Old Serial: "
         "0x{:X} )\n" )
-        << item->serial << item->x << item->y << ( cfBEu32( item->serial_ext ) );
+        << item->serial << item->x() << item->y() << ( cfBEu32( item->serial_ext ) );
 
     passert( itr != zone.items.end() );
   }
 
-  item->realm->remove_toplevel_item( *item );
+  item->realm()->remove_toplevel_item( *item );
   zone.items.erase( itr );
 }
 
 void add_multi_to_world( Multi::UMulti* multi )
 {
-  Zone& zone = getzone( multi->x, multi->y, multi->realm );
+  Zone& zone = getzone( multi->x(), multi->y(), multi->realm() );
   zone.multis.push_back( multi );
-  multi->realm->add_multi( *multi );
+  multi->realm()->add_multi( *multi );
 }
 
 void remove_multi_from_world( Multi::UMulti* multi )
 {
-  Zone& zone = getzone( multi->x, multi->y, multi->realm );
+  Zone& zone = getzone( multi->x(), multi->y(), multi->realm() );
   ZoneMultis::iterator itr = std::find( zone.multis.begin(), zone.multis.end(), multi );
 
   passert( itr != zone.multis.end() );
 
-  multi->realm->remove_multi( *multi );
+  multi->realm()->remove_multi( *multi );
   zone.multis.erase( itr );
 }
 
@@ -88,7 +88,7 @@ void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned sho
                           unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm )
 {
   Zone& oldzone = getzone( oldx, oldy, oldrealm );
-  Zone& newzone = getzone( newx, newy, multi->realm );
+  Zone& newzone = getzone( newx, newy, multi->realm() );
 
   if ( &oldzone != &newzone )
   {
@@ -99,10 +99,10 @@ void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned sho
     newzone.multis.push_back( multi );
   }
 
-  if ( multi->realm != oldrealm )
+  if ( multi->realm() != oldrealm )
   {
     oldrealm->remove_multi( *multi );
-    multi->realm->add_multi( *multi );
+    multi->realm()->add_multi( *multi );
   }
 }
 
@@ -127,9 +127,10 @@ int get_mobile_count()
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  Zone& zone = getzone( chr->x, chr->y, chr->realm );
+  Zone& zone = getzone( chr->x(), chr->y(), chr->realm() );
 
-  auto set_pos = [&]( ZoneCharacters& set ) {
+  auto set_pos = [&]( ZoneCharacters& set )
+  {
     passert( std::find( set.begin(), set.end(), chr ) == set.end() );
     set.push_back( chr );
   };
@@ -139,7 +140,7 @@ void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
   else
     set_pos( zone.characters );
 
-  chr->realm->add_mobile( *chr, reason );
+  chr->realm()->add_mobile( *chr, reason );
 }
 
 // Function for reporting the whereabouts of chars which are not in their expected zone
@@ -148,9 +149,10 @@ static void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChan
 
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  Zone& zone = getzone( chr->x, chr->y, chr->realm );
+  Zone& zone = getzone( chr->x(), chr->y(), chr->realm() );
 
-  auto clear_pos = [&]( ZoneCharacters& set ) {
+  auto clear_pos = [&]( ZoneCharacters& set )
+  {
     auto itr = std::find( set.begin(), set.end(), chr );
     if ( itr == set.end() )
     {
@@ -158,7 +160,7 @@ void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
           chr, reason );  // Uh-oh, char was not in the expected zone. Find it and report.
       passert( itr != set.end() );
     }
-    chr->realm->remove_mobile( *chr, reason );
+    chr->realm()->remove_mobile( *chr, reason );
     set.erase( itr );
   };
 
@@ -173,18 +175,19 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
                                  Realms::Realm* oldrealm )
 {
   if ( oldrealm == nullptr )
-    oldrealm = chr->realm;
+    oldrealm = chr->realm();
 
   // If the char is logged in (logged_in is always true for NPCs), update its position
   // in the world zones
   if ( chr->logged_in() )
   {
     Zone& oldzone = getzone( oldx, oldy, oldrealm );
-    Zone& newzone = getzone( newx, newy, chr->realm );
+    Zone& newzone = getzone( newx, newy, chr->realm() );
 
     if ( &oldzone != &newzone )
     {
-      auto move_pos = [&]( ZoneCharacters& oldset, ZoneCharacters& newset ) {
+      auto move_pos = [&]( ZoneCharacters& oldset, ZoneCharacters& newset )
+      {
         auto oldset_itr = std::find( oldset.begin(), oldset.end(), chr );
 
         // ensure it's found in the old realm
@@ -204,10 +207,10 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
   }
 
   // Regardless of online or not, tell the realms that we've left
-  if ( chr->realm != oldrealm )
+  if ( chr->realm() != oldrealm )
   {
     oldrealm->remove_mobile( *chr, Realms::WorldChangeReason::Moved );
-    chr->realm->add_mobile( *chr, Realms::WorldChangeReason::Moved );
+    chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::Moved );
   }
 }
 
@@ -215,10 +218,10 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
                             Realms::Realm* oldrealm )
 {
   if ( oldrealm == nullptr )
-    oldrealm = item->realm;
+    oldrealm = item->realm();
 
   Zone& oldzone = getzone( oldx, oldy, oldrealm );
-  Zone& newzone = getzone( item->x, item->y, item->realm );
+  Zone& newzone = getzone( item->x(), item->y(), item->realm() );
 
   if ( &oldzone != &newzone )
   {
@@ -229,8 +232,8 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
       POLLOG_ERROR.Format(
           "MoveItemWorldPosition: item 0x{:X} at old-x/y({},{} - {}) new-x/y({},{} - {}) does not "
           "exist in world zone. \n" )
-          << item->serial << oldx << oldy << oldrealm->name() << item->x << item->y
-          << item->realm->name();
+          << item->serial << oldx << oldy << oldrealm->name() << item->x() << item->y()
+          << item->realm()->name();
 
       passert( itr != oldzone.items.end() );
     }
@@ -241,10 +244,10 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
     newzone.items.push_back( item );
   }
 
-  if ( oldrealm != item->realm )
+  if ( oldrealm != item->realm() )
   {
     oldrealm->remove_toplevel_item( *item );
-    item->realm->add_toplevel_item( *item );
+    item->realm()->add_toplevel_item( *item );
   }
 }
 
@@ -253,8 +256,8 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
 // TODO: check if this is really needed...
 void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  unsigned wgridx = chr->realm->grid_width();
-  unsigned wgridy = chr->realm->grid_height();
+  unsigned wgridx = chr->realm()->grid_width();
+  unsigned wgridy = chr->realm()->grid_height();
 
   std::string msgreason = "unknown reason";
   switch ( reason )
@@ -272,7 +275,7 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
   POLLOG_ERROR.Format(
       "ClrCharacterWorldPosition({}): mob (0x{:X},0x{:X}) supposedly at ({},{}) isn't in correct "
       "zone\n" )
-      << msgreason << chr->serial << chr->serial_ext << chr->x << chr->y;
+      << msgreason << chr->serial << chr->serial_ext << chr->x() << chr->y();
 
   bool is_npc = chr->isa( Core::UOBJ_CLASS::CLASS_NPC );
   for ( unsigned zonex = 0; zonex < wgridx; ++zonex )
@@ -282,12 +285,12 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
       bool found = false;
       if ( is_npc )
       {
-        auto _z = chr->realm->zone[zonex][zoney].npcs;
+        auto _z = chr->realm()->zone[zonex][zoney].npcs;
         found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
       }
       else
       {
-        auto _z = chr->realm->zone[zonex][zoney].characters;
+        auto _z = chr->realm()->zone[zonex][zoney].characters;
         found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
       }
       if ( found )
@@ -307,11 +310,11 @@ bool check_single_zone_item_integrity( int x, int y, Realms::Realm* realm )
     for ( const auto& item : witem )
     {
       unsigned short wx, wy;
-      zone_convert( item->x, item->y, &wx, &wy, realm );
+      zone_convert( item->x(), item->y(), &wx, &wy, realm );
       if ( wx != x || wy != y )
       {
         POLLOG_ERROR.Format( "Item 0x{:X} in zone ({},{}) but location is ({},{}) (zone {},{})\n" )
-            << item->serial << x << y << item->x << item->y << wx << wy;
+            << item->serial << x << y << item->x() << item->y() << wx << wy;
         return false;
       }
     }
@@ -364,9 +367,10 @@ void check_character_integrity()
     unsigned int gridwidth = realm->grid_width();
     unsigned int gridheight = realm->grid_height();
 
-    auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x ) {
+    auto check_zone = []( Mobile::Character* chr, unsigned y, unsigned x )
+    {
       unsigned short wx, wy;
-      zone_convert( chr->x, chr->y, &wx, &wy, chr->realm );
+      zone_convert( chr->x(), chr->y(), &wx, &wy, chr->realm() );
       if ( wx != x || wy != y )
         INFO_PRINT << "Character 0x" << fmt::hexu( chr->serial ) << " in a zone, but elsewhere\n";
     };
@@ -404,5 +408,5 @@ void optimize_zones()
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

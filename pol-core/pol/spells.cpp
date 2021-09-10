@@ -25,13 +25,13 @@
 #include "item/item.h"
 #include "item/itemdesc.h"
 #include "layers.h"
-#include "regions/miscrgn.h"
 #include "mkscrobj.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
 #include "network/pktin.h"
 #include "polclass.h"
 #include "polsig.h"
+#include "regions/miscrgn.h"
 #include "scrstore.h"
 #include "skillid.h"
 #include "spelbook.h"
@@ -47,7 +47,7 @@ namespace Core
 {
 static bool nocast_here( Mobile::Character* chr )
 {
-  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->x, chr->y, chr->realm );
+  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->x(), chr->y(), chr->realm() );
   if ( rgn == nullptr )
   {
     return false;
