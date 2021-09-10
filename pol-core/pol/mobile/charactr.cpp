@@ -3977,7 +3977,7 @@ void Character::realm_changed()
   wornitems->for_each_item( Core::setrealm, (void*)realm() );
   // TODO Pos: realm should be all the time nullptr for these items
   if ( has_gotten_item() )
-    gotten_item()->setposition( Core::Pos4d( gotten_item->pos().xyz(), realm() ) );
+    gotten_item()->setposition( Core::Pos4d( gotten_item()->pos().xyz(), realm() ) );
   if ( trading_cont.get() )
     trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
 
