@@ -1422,8 +1422,8 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
       u16 oldx = item->x();
       u16 oldy = item->y();
 
-      item->setposition( Core::Pos4d( x() + itr2->xdelta, y() + itr2->ydelta,
-                                      z() + static_cast<s8>( itr2->zdelta ), realm() ) );
+      item->setposition(
+          pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, static_cast<s8>( itr2->zdelta ) ) );
 
       MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
@@ -1486,8 +1486,8 @@ void UBoat::move_components( Realms::Realm* oldrealm )
       u16 oldx = item->x();
       u16 oldy = item->y();
 
-      item->setposition( Core::Pos4d( x() + itr2->xdelta, y() + itr2->ydelta,
-                                      z() + static_cast<s8>( itr2->zdelta ), realm() ) );
+      item->setposition(
+          pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, static_cast<s8>( itr2->zdelta ) ) );
 
       MoveItemWorldPosition( oldx, oldy, item, oldrealm );
 
@@ -1773,8 +1773,8 @@ void UBoat::create_components()
     component->graphic = itr->graphic;
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
     component->height = Plib::tileheight( component->graphic );
-    component->setposition( Core::Pos4d( x() + itr->xdelta, y() + itr->ydelta,
-                                         z() + static_cast<s8>( itr->zdelta ), realm() ) );
+    component->setposition(
+        pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, static_cast<s8>( itr2->zdelta ) ) );
     component->disable_decay();
     component->movable( false );
     add_item_to_world( component );

@@ -3889,10 +3889,8 @@ bool Character::move( unsigned char i_dir )
     if ( !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
 
-    setposition( Core::Pos4d( pos() )
-                     .x( static_cast<u16>( newx ) )
-                     .y( static_cast<u16>( newy ) )
-                     .z( static_cast<s8>( newz ) ) );
+    setposition( Core::Pos4d( static_cast<u16>( newx ), static_cast<u16>( newy ),
+                              static_cast<s8>( newz ), realm() ) );
 
     if ( on_mount() && !script_isa( Core::POLCLASS_NPC ) )
     {
@@ -3977,10 +3975,11 @@ void Character::realm_changed()
   //  backpack()->realm = realm;
   //  backpack()->for_each_item(setrealm, (void*)realm);
   wornitems->for_each_item( Core::setrealm, (void*)realm() );
+  // TODO Pos: realm should be all the time nullptr for these items
   if ( has_gotten_item() )
-    gotten_item()->setposition( Core::Pos4d( pos().xyz(), realm() ) );
+    gotten_item()->setposition( Core::Pos4d( gotten_item->pos().xyz(), realm() ) );
   if ( trading_cont.get() )
-    trading_cont->setposition( Core::Pos4d( pos().xyz(), realm() ) );
+    trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
 
   if ( has_active_client() )
   {
@@ -4196,7 +4195,8 @@ void Character::create_trade_container()
   if ( trading_cont.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
-    cont->setposition( Core::Pos4d( pos().xyz(), realm() ) );
+    // TODO Pos: no realm
+    cont->setposition( pos() );
     trading_cont.set( static_cast<Core::UContainer*>( cont ) );
   }
 }

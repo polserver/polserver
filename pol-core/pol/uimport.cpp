@@ -858,7 +858,7 @@ inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::St
 
   item->printOn( sw );
 
-  item->setposition( Pos4d( item->pos() ).x( 0 ).y( 0 ).z( 0 ) );
+  item->setposition( Pos4d( 0, 0, 0, item->realm() ) );
 }
 
 void write_characters( Core::SaveContext& sc )
