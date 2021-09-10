@@ -1774,7 +1774,7 @@ void UBoat::create_components()
     // component itemdesc entries generally have graphic=1, so they don't get their height set.
     component->height = Plib::tileheight( component->graphic );
     component->setposition(
-        pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, static_cast<s8>( itr2->zdelta ) ) );
+        pos() + Core::Vec3d( itr->xdelta, itr->ydelta, static_cast<s8>( itr->zdelta ) ) );
     component->disable_decay();
     component->movable( false );
     add_item_to_world( component );
