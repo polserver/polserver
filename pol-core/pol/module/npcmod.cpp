@@ -392,7 +392,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    Core::UFACING fac = npc.direction_toward( obj->toplevel_owner() );
+    Core::UFACING fac = npc.direction_toward( obj );
     return move_self( fac, false, true );
   }
   else
@@ -413,7 +413,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.direction_toward( obj->toplevel_owner() ), true, true );
+    return move_self( npc.direction_toward( obj ), true, true );
   }
   else
   {
@@ -432,7 +432,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.direction_away( obj->toplevel_owner() ),
+    return move_self( npc.direction_away( obj ),
 
                       false, true );
   }
@@ -453,7 +453,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.direction_away( obj->toplevel_owner() ),
+    return move_self( npc.direction_away( obj ),
 
                       true, true );
   }
@@ -480,7 +480,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Core::UFACING facing = npc.direction_toward( obj->toplevel_owner() );
+  Core::UFACING facing = npc.direction_toward( obj );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here, I'm already facing that direction
 
@@ -509,7 +509,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Core::UFACING facing = npc.direction_away( obj->toplevel_owner() );
+  Core::UFACING facing = npc.direction_away( obj );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here
 

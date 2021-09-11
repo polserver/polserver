@@ -249,6 +249,23 @@ void UObject::setposition( Pos4d newpos )
   pos( std::move( newpos ) );
 }
 
+UFACING UObject::direction_toward( UObject* other ) const
+{
+  return pos2d().direction_toward( other->toplevel_owner()->pos2d() );
+}
+UFACING UObject::direction_toward( const Pos2d& other ) const
+{
+  return pos2d().direction_toward( other );
+}
+UFACING UObject::direction_away( UObject* other ) const
+{
+  return pos2d().direction_away( other->toplevel_owner()->pos2d() );
+}
+UFACING UObject::direction_away( const Pos2d& other ) const
+{
+  return pos2d().direction_away( other );
+}
+
 void UObject::printProperties( Clib::StreamWriter& sw ) const
 {
   using namespace fmt;

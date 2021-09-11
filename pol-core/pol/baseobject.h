@@ -66,11 +66,6 @@ public:
   s8 z() const;
   Realms::Realm* realm() const;
 
-  UFACING direction_toward( ULWObject* other ) const;
-  UFACING direction_toward( const Pos2d& other ) const;
-  UFACING direction_away( ULWObject* other ) const;
-  UFACING direction_away( const Pos2d& other ) const;
-
 private:
   Pos4d position;
 
@@ -165,23 +160,6 @@ inline s8 ULWObject::z() const
 inline Realms::Realm* ULWObject::realm() const
 {
   return position.realm();
-}
-
-inline UFACING ULWObject::direction_toward( ULWObject* other ) const
-{
-  return pos().xy().direction_toward( other->pos().xy() );
-}
-inline UFACING ULWObject::direction_toward( const Pos2d& other ) const
-{
-  return pos().xy().direction_toward( other );
-}
-inline UFACING ULWObject::direction_away( ULWObject* other ) const
-{
-  return pos().xy().direction_away( other->pos().xy() );
-}
-inline UFACING ULWObject::direction_away( const Pos2d& other ) const
-{
-  return pos().xy().direction_away( other );
 }
 
 }  // namespace Core
