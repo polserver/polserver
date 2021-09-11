@@ -190,7 +190,11 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
     if ( obj_->add_member( chr->serial ) )
     {
       if ( is_candidate )
+      {
         obj_->remove_candidate( chr->serial );
+        chr->cancel_party_invite_timeout();
+        chr->candidate_of( nullptr );
+      }
       chr->party( obj_.get() );
       if ( Core::settingsManager.party_cfg.Hooks.OnAddToParty )
         Core::settingsManager.party_cfg.Hooks.OnAddToParty->call( chr->make_ref() );
