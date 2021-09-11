@@ -27,6 +27,7 @@
 #include "partyscrobj.h"
 #include "polcfg.h"
 #include "polclock.h"
+#include "realms/realm.h"
 #include "uobject.h"
 #include "uoscrobj.h"
 #include "vital.h"
@@ -890,6 +891,24 @@ bool UOExecutor::getPartyParam( unsigned param, Core::Party*& party, BError*& er
     return false;
   }
   return true;
+}
+
+bool UOExecutor::getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
+                                const Realms::Realm* realm )
+{
+  u16 x;
+  u16 y;
+  if ( getParam( xparam, x ) && getParam( yparam, y ) )
+  {
+    *pos = Pos2d( x, y );
+    if ( realm && !realm->valid( x, y, 0 ) )
+    {
+      setFunctionResult( new Bscript::BError( "Invalid Coordinates for Realm" ) );
+      return false;
+    }
+    return true;
+  }
+  return false;
 }
 
 }  // namespace Core

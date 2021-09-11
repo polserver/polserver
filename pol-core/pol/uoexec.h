@@ -18,6 +18,7 @@
 #include "../clib/rawtypes.h"
 #include "../clib/weakptr.h"
 #include "./globals/script_internals.h"
+#include "base/position.h"
 #include "skillid.h"
 
 namespace Pol
@@ -50,6 +51,10 @@ class UMulti;
 namespace Network
 {
 class Client;
+}
+namespace Realms
+{
+class Realm;
 }
 
 namespace Core
@@ -94,8 +99,7 @@ public:
   unsigned char area_mask;
   unsigned short area_size;
   unsigned short speech_size;
-  
- 
+
 
   bool can_access_offline_mobiles_;
   bool auxsvc_assume_string;
@@ -152,6 +156,8 @@ public:
   bool getVitalParam( unsigned param, const Vital*& vital );
   bool getGuildParam( unsigned param, Core::Guild*& guild, Bscript::BError*& err );
   bool getPartyParam( unsigned param, Core::Party*& party, Bscript::BError*& err );
+  bool getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
+                      const Realms::Realm* realm = nullptr );
 };
 
 inline bool UOExecutor::listens_to( unsigned int eventflag ) const

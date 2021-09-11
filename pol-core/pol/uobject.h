@@ -172,14 +172,20 @@ public:
   virtual UObject* self_as_owner();
   virtual const UObject* self_as_owner() const;
   virtual const UObject* toplevel_owner() const;
-  virtual bool setgraphic( u16 newobjtype );
-  virtual bool setcolor( u16 newcolor );
-  virtual void on_color_changed();
+
+  void setposition( Pos4d newpos );
+
+  UFACING direction_toward( UObject* other ) const;
+  UFACING direction_toward( const Pos2d& other ) const;
+  UFACING direction_away( UObject* other ) const;
+  UFACING direction_away( const Pos2d& other ) const;
 
   virtual void setfacing( u8 newfacing ) = 0;
   virtual void on_facing_changed();
 
-  void setposition( Pos4d newpos );
+  virtual bool setgraphic( u16 newobjtype );
+  virtual bool setcolor( u16 newcolor );
+  virtual void on_color_changed();
 
   bool saveonexit() const;
   void saveonexit( bool newvalue );

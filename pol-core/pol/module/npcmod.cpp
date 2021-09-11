@@ -86,7 +86,7 @@ BObjectImp* NPCExecutorModule::mf_IsLegalMove()
       static_cast<BApplicObj<Mobile::BoundingBox>*>( appobj );
   const Mobile::BoundingBox& bbox = ao_bbox->value();
 
-  Plib::UFACING facing;
+  Core::UFACING facing;
   if ( Mobile::DecodeFacing( facing_str->value().c_str(), facing ) == false )
     return new BLong( 0 );
 
@@ -106,7 +106,7 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
     if ( param0->isa( BObjectImp::OTString ) )
     {
       const char* dir = exec.paramAsString( 0 );
-      Plib::UFACING facing;
+      Core::UFACING facing;
 
       if ( Mobile::DecodeFacing( dir, facing ) == false )
       {
@@ -121,7 +121,7 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
     else if ( param0->isa( BObjectImp::OTLong ) )
     {
       BLong* blong = static_cast<BLong*>( param0 );
-      Plib::UFACING facing = static_cast<Plib::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+      Core::UFACING facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
       return new BLong( npc.could_move( facing ) ? 1 : 0 );
     }
     else
@@ -173,7 +173,7 @@ BObjectImp* NPCExecutorModule::mf_SetAnchor()
 }
 
 
-bool NPCExecutorModule::_internal_move( Plib::UFACING facing, int run )
+bool NPCExecutorModule::_internal_move( Core::UFACING facing, int run )
 {
   bool success = false;
   int dir = facing;
@@ -196,7 +196,7 @@ bool NPCExecutorModule::_internal_move( Plib::UFACING facing, int run )
   return success;
 }
 
-BObjectImp* NPCExecutorModule::move_self( Plib::UFACING facing, bool run, bool adjust_ok )
+BObjectImp* NPCExecutorModule::move_self( Core::UFACING facing, bool run, bool adjust_ok )
 {
   bool success = false;
   int dir = facing;
@@ -210,7 +210,7 @@ BObjectImp* NPCExecutorModule::move_self( Plib::UFACING facing, bool run, bool a
     {
       for ( int adjust : Core::adjustments )
       {
-        facing = static_cast<Plib::UFACING>( ( dir + adjust ) & 7 );
+        facing = static_cast<Core::UFACING>( ( dir + adjust ) & 7 );
 
         success = _internal_move( facing, run );
         if ( success == true )
@@ -265,7 +265,7 @@ BObjectImp* NPCExecutorModule::mf_Wander()
     adjust_ok = false;
     break;
   }
-  return move_self( static_cast<Plib::UFACING>( newfacing ), false, adjust_ok );
+  return move_self( static_cast<Core::UFACING>( newfacing ), false, adjust_ok );
 }
 
 BObjectImp* NPCExecutorModule::mf_Face()
@@ -276,7 +276,7 @@ BObjectImp* NPCExecutorModule::mf_Face()
   if ( param0 == nullptr || !exec.getParam( 1, flags ) )
     return new BError( "Invalid parameter type." );
 
-  Plib::UFACING i_facing;
+  Core::UFACING i_facing;
 
   if ( param0->isa( BObjectImp::OTString ) )
   {
@@ -293,7 +293,7 @@ BObjectImp* NPCExecutorModule::mf_Face()
   else if ( param0->isa( BObjectImp::OTLong ) )
   {
     BLong* blong = static_cast<BLong*>( param0 );
-    i_facing = static_cast<Plib::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+    i_facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
   }
   else
   {
@@ -319,7 +319,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
   if ( param0->isa( BObjectImp::OTString ) )
   {
     const char* dir = exec.paramAsString( 0 );
-    Plib::UFACING facing;
+    Core::UFACING facing;
 
     if ( Mobile::DecodeFacing( dir, facing ) == false )
     {
@@ -334,7 +334,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
   else if ( param0->isa( BObjectImp::OTLong ) )
   {
     BLong* blong = static_cast<BLong*>( param0 );
-    Plib::UFACING facing = static_cast<Plib::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
+    Core::UFACING facing = static_cast<Core::UFACING>( blong->value() & PKTIN_02_FACING_MASK );
     return move_self( facing, false );
   }
   else if ( param0->isa( BObjectImp::OTApplicObj ) )
@@ -345,7 +345,7 @@ BObjectImp* NPCExecutorModule::mf_Move()
       BApplicObj<Mobile::BoundingBox>* ao_bbox =
           static_cast<BApplicObj<Mobile::BoundingBox>*>( appobj );
       const Mobile::BoundingBox& bbox = ao_bbox->value();
-      Plib::UFACING facing = Mobile::GetRandomFacing();
+      Core::UFACING facing = Mobile::GetRandomFacing();
 
       unsigned short x, y;
       npc.getpos_ifmove( facing, &x, &y );
@@ -392,7 +392,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    Plib::UFACING fac = direction_toward( &npc, obj );
+    Core::UFACING fac = npc.direction_toward( obj );
     return move_self( fac, false, true );
   }
   else
@@ -413,7 +413,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( direction_toward( &npc, obj ), true, true );
+    return move_self( npc.direction_toward( obj ), true, true );
   }
   else
   {
@@ -432,7 +432,9 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( direction_away( &npc, obj ), false, true );
+    return move_self( npc.direction_away( obj ),
+
+                      false, true );
   }
   else
   {
@@ -451,7 +453,9 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( direction_away( &npc, obj ), true, true );
+    return move_self( npc.direction_away( obj ),
+
+                      true, true );
   }
   else
   {
@@ -476,7 +480,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Plib::UFACING facing = direction_toward( &npc, obj );
+  Core::UFACING facing = npc.direction_toward( obj );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here, I'm already facing that direction
 
@@ -505,7 +509,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Plib::UFACING facing = direction_away( &npc, obj );
+  Core::UFACING facing = npc.direction_away( obj );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here
 
@@ -524,7 +528,7 @@ BObjectImp* NPCExecutorModule::mf_WalkTowardLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Plib::UFACING fac = direction_toward( &npc, x, y );
+    Core::UFACING fac = npc.direction_toward( Core::Pos2d( x, y ) );
     return move_self( fac, false, true );
   }
   else
@@ -542,7 +546,7 @@ BObjectImp* NPCExecutorModule::mf_RunTowardLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Plib::UFACING fac = direction_toward( &npc, x, y );
+    Core::UFACING fac = npc.direction_toward( Core::Pos2d( x, y ) );
     return move_self( fac, true, true );
   }
   else
@@ -559,7 +563,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFromLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Plib::UFACING fac = direction_away( &npc, x, y );
+    Core::UFACING fac = npc.direction_away( Core::Pos2d( x, y ) );
     return move_self( fac, false, true );
   }
   else
@@ -576,7 +580,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFromLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Plib::UFACING fac = direction_away( &npc, x, y );
+    Core::UFACING fac = npc.direction_away( Core::Pos2d( x, y ) );
     return move_self( fac, true, true );
   }
   else
@@ -598,7 +602,7 @@ BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
 
   if ( !npc.realm()->valid( x, y, npc.z() ) )
     return new BError( "Invalid Coordinates for Realm" );
-  Plib::UFACING fac = direction_toward( &npc, x, y );
+  Core::UFACING fac = npc.direction_toward( Core::Pos2d( x, y ) );
   if ( npc.facing == fac )
     return new BLong( 0 );  // nothing to do here
 
@@ -622,7 +626,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
 
   if ( !npc.realm()->valid( x, y, npc.z() ) )
     return new BError( "Invalid Coordinates for Realm" );
-  Plib::UFACING fac = direction_away( &npc, x, y );
+  Core::UFACING fac = npc.direction_away( Core::Pos2d( x, y ) );
   if ( npc.facing == fac )
     return new BLong( 0 );  // nothing to do here
 
@@ -828,7 +832,7 @@ BObjectImp* NPCExecutorModule::mf_position()
 
 BObjectImp* NPCExecutorModule::mf_Facing()
 {
-  return new String( Mobile::FacingStr( static_cast<Plib::UFACING>( npc.facing ) ) );
+  return new String( Mobile::FacingStr( static_cast<Core::UFACING>( npc.facing ) ) );
 }
 
 BObjectImp* NPCExecutorModule::mf_GetProperty()

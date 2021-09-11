@@ -17,6 +17,7 @@
 
 #include "../clib/rawtypes.h"
 #include "../plib/uconst.h"
+#include "base/position.h"
 #include "core.h"
 #include "network/packets.h"
 
@@ -218,7 +219,7 @@ void transmit_to_others_inrange( Mobile::Character* center, const void* msg, uns
 
 void destroy_item( Items::Item* item );
 
-void move_item( Items::Item* item, Plib::UFACING facing );
+void move_item( Items::Item* item, Core::UFACING facing );
 void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz,
                 Realms::Realm* oldrealm );
 

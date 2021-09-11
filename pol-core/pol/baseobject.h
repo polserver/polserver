@@ -59,6 +59,8 @@ public:
   u8 look_height() const;  // where you're looking from, or to
 
   const Pos4d& pos() const;
+  const Pos3d& pos3d() const;
+  const Pos2d& pos2d() const;
   u16 x() const;
   u16 y() const;
   s8 z() const;
@@ -132,6 +134,14 @@ inline const Pos4d& ULWObject::pos() const
 inline void ULWObject::pos( Pos4d newpos )
 {
   position = std::move( newpos );
+}
+inline const Pos3d& ULWObject::pos3d() const
+{
+  return pos().xyz();
+}
+inline const Pos2d& ULWObject::pos2d() const
+{
+  return pos().xy();
 }
 
 // TODO POS remove as final step

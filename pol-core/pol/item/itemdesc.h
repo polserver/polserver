@@ -17,6 +17,7 @@
 #include "../proplist.h"
 #include "../scrdef.h"
 #include "../uobject.h"
+#include "base/vector.h"
 
 namespace Pol
 {
@@ -213,8 +214,7 @@ public:
   virtual void PopulateStruct( Bscript::BStruct* descriptor ) const override;
   virtual ~DoorDesc(){};
   virtual size_t estimatedSize() const override;
-  s16 xmod;
-  s16 ymod;
+  Core::Vec2d mod;
   u16 open_graphic;
 };
 

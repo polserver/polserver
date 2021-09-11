@@ -2811,7 +2811,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 }
 
-void Character::getpos_ifmove( Plib::UFACING i_facing, unsigned short* px, unsigned short* py )
+void Character::getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py )
 {
   *px = x() + Core::move_delta[i_facing].xmove;
   *py = y() + Core::move_delta[i_facing].ymove;
@@ -3708,7 +3708,7 @@ bool Character::doors_block() const
     We're sending the "78 create" _before_ the move-approve.
     */
 
-bool Character::can_face( Plib::UFACING /*i_facing*/ )
+bool Character::can_face( Core::UFACING /*i_facing*/ )
 {
   if ( can_freemove() )
     return true;
@@ -3736,7 +3736,7 @@ bool Character::can_face( Plib::UFACING /*i_facing*/ )
 }
 
 
-bool Character::face( Plib::UFACING i_facing, int flags )
+bool Character::face( Core::UFACING i_facing, int flags )
 {
   if ( ( flags & 1 ) == 0 )
   {
@@ -3774,7 +3774,7 @@ bool Character::CustomHousingMove( unsigned char i_dir )
     Multi::UHouse* house = multi->as_house();
     if ( house != nullptr )
     {
-      Plib::UFACING i_facing = static_cast<Plib::UFACING>( i_dir & PKTIN_02_FACING_MASK );
+      Core::UFACING i_facing = static_cast<Core::UFACING>( i_dir & PKTIN_02_FACING_MASK );
       if ( i_facing != facing )
       {
         setfacing( static_cast<u8>( i_facing ) );
@@ -3826,7 +3826,7 @@ bool Character::move( unsigned char i_dir )
 
   u8 oldFacing = facing;
 
-  Plib::UFACING i_facing = static_cast<Plib::UFACING>( i_dir & PKTIN_02_FACING_MASK );
+  Core::UFACING i_facing = static_cast<Core::UFACING>( i_dir & PKTIN_02_FACING_MASK );
   if ( !face( i_facing ) )
     return false;
 

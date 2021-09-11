@@ -12,6 +12,8 @@
 #ifndef ITEM_H
 #include "item/item.h"
 #endif
+#include "base/position.h"
+#include "base/range.h"
 
 namespace Pol
 {
@@ -38,7 +40,7 @@ namespace Network
 class Client;
 }  // namespace Network
 }  // namespace Pol
-}
+}  // namespace Bscript
 namespace Items
 {
 class MapDesc;
@@ -49,37 +51,23 @@ struct PKTBI_56;
 class ExportScript;
 class UOExecutor;
 
-struct PinPoint
-{
-  unsigned short x;
-  unsigned short y;
-};
-
 class Map final : public Items::Item
 {
   typedef Items::Item base;
 
 public:
-  u16 gumpwidth;
-  u16 gumpheight;
+  Pos2d gumpsize;
   bool editable;
   bool plotting;
-  typedef std::vector<PinPoint> PinPoints;
+  typedef std::vector<Pos2d> PinPoints;
   PinPoints pin_points;
-  typedef PinPoints::iterator pin_points_itr;
 
-  inline u16 get_xwest() { return xwest; };
-  inline u16 get_xeast() { return xeast; };
-  inline u16 get_ynorth() { return ynorth; };
-  inline u16 get_ysouth() { return ysouth; };
-  bool msgCoordsInBounds( PKTBI_56* msg );
-  u16 gumpXtoWorldX( u16 gumpx );
-  u16 gumpYtoWorldY( u16 gumpy );
-  u16 worldXtoGumpX( u16 worldx );
-  u16 worldYtoGumpY( u16 worldy );
+  Range2d getrange() const;
 
   virtual Items::Item* clone() const override;  // dave 12-20
-  virtual ~Map();
+  virtual ~Map() = default;
+  Map( const Map& map ) = delete;
+  Map& operator=( const Map& map ) = delete;
   virtual size_t estimatedSize() const override;
 
 protected:
@@ -87,8 +75,7 @@ protected:
   friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
 
   virtual void builtin_on_use( Network::Client* client ) override;
-  virtual Bscript::BObjectImp* script_method( const char* methodname,
-                                              UOExecutor& ex ) override;
+  virtual Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex ) override;
   virtual Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
@@ -105,18 +92,19 @@ protected:
   void printPinPoints( Clib::StreamWriter& sw ) const;
   virtual void readProperties( Clib::ConfigElem& elem ) override;
 
-
+friend void handle_map_pin( Network::Client* client, PKTBI_56* msg );
 private:
+  bool msgCoordsInBounds( PKTBI_56* msg, const Range2d& area ) const;
+  Pos2d gumpToWorld( const Pos2d& gump, const Range2d& area ) const;
+  Pos2d worldToGump( const Pos2d& world, const Range2d& area ) const;
+
+  // due to script access with single writable attributes a direct store as Range2d is not possible
   u16 xwest;
   u16 xeast;
   u16 ynorth;
   u16 ysouth;
   u16 facetid;
-
-private:  // not implemented
-  Map( const Map& map );
-  Map& operator=( const Map& map );
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
