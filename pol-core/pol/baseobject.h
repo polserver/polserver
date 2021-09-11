@@ -59,10 +59,17 @@ public:
   u8 look_height() const;  // where you're looking from, or to
 
   const Pos4d& pos() const;
+  const Pos3d& pos3d() const;
+  const Pos2d& pos2d() const;
   u16 x() const;
   u16 y() const;
   s8 z() const;
   Realms::Realm* realm() const;
+
+  UFACING direction_toward( ULWObject* other ) const;
+  UFACING direction_toward( const Pos2d& other ) const;
+  UFACING direction_away( ULWObject* other ) const;
+  UFACING direction_away( const Pos2d& other ) const;
 
 private:
   Pos4d position;
@@ -133,6 +140,14 @@ inline void ULWObject::pos( Pos4d newpos )
 {
   position = std::move( newpos );
 }
+inline const Pos3d& ULWObject::pos3d() const
+{
+  return pos().xyz();
+}
+inline const Pos2d& ULWObject::pos2d() const;
+{
+  return pos().xy();
+}
 
 // TODO POS remove as final step
 inline u16 ULWObject::x() const
@@ -150,6 +165,23 @@ inline s8 ULWObject::z() const
 inline Realms::Realm* ULWObject::realm() const
 {
   return position.realm();
+}
+
+inline UFACING ULWObject::direction_toward( ULWObject* other ) const
+{
+  return pos().xy().direction_toward( other->pos().xy() );
+}
+inline UFACING ULWObject::direction_toward( const Pos2d& other ) const
+{
+  return pos().xy().direction_toward( other );
+}
+inline UFACING ULWObject::direction_away( ULWObject* other ) const
+{
+  return pos().xy().direction_away( other->pos().xy() );
+}
+inline UFACING ULWObject::direction_away( const Pos2d& other ) const
+{
+  return pos().xy().direction_away( other );
 }
 
 }  // namespace Core

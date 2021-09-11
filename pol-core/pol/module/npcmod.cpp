@@ -392,7 +392,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    Core::UFACING fac = npc.pos().xy().direction_toward( obj->toplevel_owner()->pos().xy() );
+    Core::UFACING fac = npc.direction_toward( obj->toplevel_owner() );
     return move_self( fac, false, true );
   }
   else
@@ -413,8 +413,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.pos().xy().direction_toward( obj->toplevel_owner()->pos().xy() ), true,
-                      true );
+    return move_self( npc.direction_toward( obj->toplevel_owner() ), true, true );
   }
   else
   {
@@ -433,7 +432,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.pos().xy().direction_away( obj->toplevel_owner()->pos().xy() ),
+    return move_self( npc.direction_away( obj->toplevel_owner() ),
 
                       false, true );
   }
@@ -454,7 +453,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
       if ( !npc.is_visible_to_me( chr ) )
         return new BError( "Mobile specified cannot be seen" );
     }
-    return move_self( npc.pos().xy().direction_away( obj->toplevel_owner()->pos().xy() ),
+    return move_self( npc.direction_away( obj->toplevel_owner() ),
 
                       true, true );
   }
@@ -481,7 +480,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Core::UFACING facing = npc.pos().xy().direction_toward( obj->toplevel_owner()->pos().xy() );
+  Core::UFACING facing = npc.direction_toward( obj->toplevel_owner() );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here, I'm already facing that direction
 
@@ -510,7 +509,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
       return new BError( "Mobile specified cannot be seen" );
   }
 
-  Core::UFACING facing = npc.pos().xy().direction_away( obj->toplevel_owner()->pos().xy() );
+  Core::UFACING facing = npc.direction_away( obj->toplevel_owner() );
   if ( facing == npc.facing )
     return new BLong( 0 );  // nothing to do here
 
@@ -529,7 +528,7 @@ BObjectImp* NPCExecutorModule::mf_WalkTowardLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Core::UFACING fac = npc.pos().xy().direction_toward( Core::Pos2d( x, y ) );
+    Core::UFACING fac = npc.direction_toward( Core::Pos2d( x, y ) );
     return move_self( fac, false, true );
   }
   else
@@ -547,7 +546,7 @@ BObjectImp* NPCExecutorModule::mf_RunTowardLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Core::UFACING fac = npc.pos().xy().direction_toward( Core::Pos2d( x, y ) );
+    Core::UFACING fac = npc.direction_toward( Core::Pos2d( x, y ) );
     return move_self( fac, true, true );
   }
   else
@@ -564,7 +563,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFromLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Core::UFACING fac = npc.pos().xy().direction_away( Core::Pos2d( x, y ) );
+    Core::UFACING fac = npc.direction_away( Core::Pos2d( x, y ) );
     return move_self( fac, false, true );
   }
   else
@@ -581,7 +580,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFromLocation()
   {
     if ( !npc.realm()->valid( x, y, npc.z() ) )
       return new BError( "Invalid Coordinates for Realm" );
-    Core::UFACING fac = npc.pos().xy().direction_away( Core::Pos2d( x, y ) );
+    Core::UFACING fac = npc.direction_away( Core::Pos2d( x, y ) );
     return move_self( fac, true, true );
   }
   else
@@ -603,7 +602,7 @@ BObjectImp* NPCExecutorModule::mf_TurnTowardLocation()
 
   if ( !npc.realm()->valid( x, y, npc.z() ) )
     return new BError( "Invalid Coordinates for Realm" );
-  Core::UFACING fac = npc.pos().xy().direction_toward( Core::Pos2d( x, y ) );
+  Core::UFACING fac = npc.direction_toward( Core::Pos2d( x, y ) );
   if ( npc.facing == fac )
     return new BLong( 0 );  // nothing to do here
 
@@ -627,7 +626,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFromLocation()
 
   if ( !npc.realm()->valid( x, y, npc.z() ) )
     return new BError( "Invalid Coordinates for Realm" );
-  Core::UFACING fac = npc.pos().xy().direction_away( Core::Pos2d( x, y ) );
+  Core::UFACING fac = npc.direction_away( Core::Pos2d( x, y ) );
   if ( npc.facing == fac )
     return new BLong( 0 );  // nothing to do here
 
