@@ -179,7 +179,7 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
     {
       is_candidate = chr->candidate_of() == obj_.get();
       if ( !is_candidate )
-        return new BError( "Character is already candidate of a party" );
+        return new BError( "Character is already candidate of another party" );
     }
     else if ( chr->has_offline_mem_of() )
       return new BError( "Character is already offline member of a party" );
