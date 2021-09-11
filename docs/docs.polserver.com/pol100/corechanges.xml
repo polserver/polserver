@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-30-2021</datemodified>
+		<datemodified>09-11-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>09-11-2021</date>
+			<author>Kevin:</author>
+			<change type="Fixed">party.AddMember(character) will no longer error if the character is a candidate of the party.</change>
+			<change type="Changed">party.AddMember(character) will now error if passed an NPC.</change>
+		</entry>
 		<entry>
 			<date>08-30-2021</date>
 			<author>Nando:</author>

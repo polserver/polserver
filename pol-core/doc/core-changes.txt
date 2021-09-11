@@ -1,4 +1,7 @@
 -- POL100.1.0 --
+09-11-2021 Kevin:
+    Fixed: party.AddMember(character) will no longer error if the character is a candidate of the party.
+  Changed: party.AddMember(character) will now error if passed an NPC.
 08-30-2021 Nando:
     Fixed: Possible infinite recursion of the attack hook if a character was moved by the attack hook
 08-14-2021 Kevin:
