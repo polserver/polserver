@@ -144,7 +144,7 @@ inline const Pos3d& ULWObject::pos3d() const
 {
   return pos().xyz();
 }
-inline const Pos2d& ULWObject::pos2d() const;
+inline const Pos2d& ULWObject::pos2d() const
 {
   return pos().xy();
 }
