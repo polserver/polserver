@@ -10,10 +10,12 @@
 
 #include <stddef.h>
 
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/strutil.h"
+
 #include "mapfunc.h"
 #include "pkg.h"
 #include "pol/objtype.h"
