@@ -168,20 +168,33 @@ BObjectImp* EPartyRefObjImp::call_polmethod_id( const int id, Core::UOExecutor& 
   case MTH_ADDMEMBER:
   {
     Mobile::Character* chr;
+    bool is_candidate = false;
     if ( !ex.hasParams( 1 ) )
       return new BError( "Not enough parameters" );
     if ( !ex.getCharacterParam( 0, chr ) )
       return new BError( "Invalid parameter type" );
     if ( chr->has_party() )
       return new BError( "Character is already in a party" );
-    else if ( chr->has_candidate_of() )
-      return new BError( "Character is already candidate of a party" );
+    if ( chr->has_candidate_of() )
+    {
+      is_candidate = chr->candidate_of() == obj_.get();
+      if ( !is_candidate )
+        return new BError( "Character is already candidate of another party" );
+    }
     else if ( chr->has_offline_mem_of() )
       return new BError( "Character is already offline member of a party" );
     if ( !obj_->can_add() )
       return new BError( "Party is already full" );
+    if ( !chr->has_active_client() )
+      return new BError( "Character is offline" );
     if ( obj_->add_member( chr->serial ) )
     {
+      if ( is_candidate )
+      {
+        obj_->remove_candidate( chr->serial );
+        chr->cancel_party_invite_timeout();
+        chr->candidate_of( nullptr );
+      }
       chr->party( obj_.get() );
       if ( Core::settingsManager.party_cfg.Hooks.OnAddToParty )
         Core::settingsManager.party_cfg.Hooks.OnAddToParty->call( chr->make_ref() );

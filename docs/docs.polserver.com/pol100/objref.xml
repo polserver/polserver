@@ -778,12 +778,12 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <member mname="candidates" type="Array" access="r/o" mdesc="Array of Offline Character Refs who are party candidates" />
 <member mname="leader" type="OfflineCharRef" access="r/o" mdesc="Offline Character Ref of leader" />
 
-<method proto="setleader(CharacterRef)" returns="error/true" desc="sets new leader" />
-<method proto="addmember(CharacterRef)" returns="error/true" desc="adds a character to the party" />
-<method proto="addcandidate(CharacterRef)" returns="error/true" desc="adds a character to the party as candidate" />
-<method proto="removemember(CharacterRef)" returns="true/error" desc="removes a character member" />
-<method proto="removecandidate(CharacterRef)" returns="true/error" desc="removes a character candidate" />
-<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)" />
+<method proto="setleader(CharacterRef)" returns="error/true" desc="Sets new leader." />
+<method proto="addmember(CharacterRef)" returns="error/true" desc="Adds a character to the party. If the player is already candidate of another party, this function will fail." />
+<method proto="addcandidate(CharacterRef)" returns="error/true" desc="Adds a character to the party as candidate." />
+<method proto="removemember(CharacterRef)" returns="true/error" desc="Removes a character member." />
+<method proto="removecandidate(CharacterRef)" returns="true/error" desc="Removes a character candidate." />
+<method proto="getprop(string propname)" returns="script object/error" desc="Returns an unpacked script object (i.e. int,string,array,etc)." />
 <method proto="setprop(string propname, object propval)" returns="true/error" desc="Sets a packable object to a property." />
 <method proto="eraseprop(string propname)" returns="true/error" desc="Erases the property named 'propname'." />
 <method proto="propnames()" returns="Array" desc="Returns an array of property name strings." />
