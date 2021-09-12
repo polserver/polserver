@@ -84,10 +84,10 @@ void pos2d_test()
       []()
       {
         Pos2d p( 0, 0 );
-        p.move_self( FACING_S );
+        p.move_to( FACING_S );
         return p;
       },
-      Pos2d( 0, 1 ), "0,0.move_self(S)" );
+      Pos2d( 0, 1 ), "0,0.move_to(S)" );
   UnitTest(
       []()
       {
@@ -226,10 +226,10 @@ void pos3d_test()
       []()
       {
         Pos3d p( 0, 0, 0 );
-        p.move_self( FACING_S );
+        p.move_to( FACING_S );
         return p;
       },
-      Pos3d( 0, 1, 0 ), "0,0,0.move_self(S)" );
+      Pos3d( 0, 1, 0 ), "0,0,0.move_to(S)" );
 
   UnitTest(
       []()
@@ -355,10 +355,10 @@ void pos4d_test()
       [&]()
       {
         Pos4d p( 0, 0, 0, r );
-        p.move_self( FACING_S );
+        p.move_to( FACING_S );
         return p;
       },
-      Pos4d( 0, 1, 0, r ), "0,0,0.move_self(S)" );
+      Pos4d( 0, 1, 0, r ), "0,0,0.move_to(S)" );
   UnitTest(
       [&]()
       {

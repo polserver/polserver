@@ -136,7 +136,7 @@ bool Pos2d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm )
 
   return false;
 }
-Pos2d& Pos2d::move_self( UFACING dir )
+Pos2d& Pos2d::move_to( UFACING dir )
 {
   return *this += move_delta[dir];
 }
@@ -310,9 +310,9 @@ bool Pos3d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm )
 {
   return xy().can_move_to( displacement, realm );
 }
-Pos3d& Pos3d::move_self( UFACING dir )
+Pos3d& Pos3d::move_to( UFACING dir )
 {
-  _xy.move_self( dir );
+  _xy.move_to( dir );
   return *this;
 }
 
@@ -506,9 +506,9 @@ Pos4d Pos4d::move( UFACING dir ) const
   return *this + move_delta[dir];
 }
 
-Pos4d& Pos4d::move_self( UFACING dir )
+Pos4d& Pos4d::move_to( UFACING dir )
 {
-  _xyz.move_self( dir );
+  _xyz.move_to( dir );
   return *this;
 }
 

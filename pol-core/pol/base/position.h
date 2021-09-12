@@ -64,7 +64,7 @@ public:
   Pos2d& y( u16 y );
 
   Vec2d from_origin() const;
-  Pos2d& move_self( UFACING dir );
+  Pos2d& move_to( UFACING dir );
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos2d& other ) const;
@@ -127,7 +127,7 @@ public:
   Pos3d& xy( Pos2d xy );
 
   Vec3d from_origin() const;
-  Pos3d& move_self( UFACING dir );
+  Pos3d& move_to( UFACING dir );
   bool can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const;
 
   u16 pol_distance( const Pos3d& other ) const;
@@ -201,7 +201,7 @@ public:
   //  Pos4d& realm( Realms::Realm* realm ); // removed on purpose
 
   Pos4d move( UFACING dir ) const;
-  Pos4d& move_self( UFACING dir );
+  Pos4d& move_to( UFACING dir );
   bool can_move_to( const Vec2d& displacement ) const;
 
   bool in_range( const Pos4d& other, u16 range ) const;

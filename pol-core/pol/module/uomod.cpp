@@ -5562,7 +5562,7 @@ BObjectImp* UOExecutorModule::mf_CanWalk(
         return new BError( "Cannot walk there" );
     }
 
-    p.move_self( dir );
+    p.move_to( dir );
     short newz;
 
     if ( !p.realm()->walkheight( p.x(), p.y(), p.z(), &newz, nullptr, nullptr, true, movemode,
