@@ -63,7 +63,6 @@
 #include "item/item.h"
 #include "layers.h"
 #include "lightlvl.h"
-#include "mdelta.h"
 #include "mobile/charactr.h"
 #include "mobile/corpse.h"
 #include "multi/multi.h"
@@ -1610,7 +1609,7 @@ void move_item( Item* item, Core::UFACING facing )
   u16 oldx = item->x();
   u16 oldy = item->y();
 
-  item->setposition( item->pos() + Vec2d( move_delta[facing].xmove, move_delta[facing].ymove ) );
+  item->setposition( item->pos().move( facing ) );
 
   item->restart_decay_timer();
   MoveItemWorldPosition( oldx, oldy, item, nullptr );

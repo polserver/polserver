@@ -704,6 +704,31 @@ bool Executor::getParam( unsigned param, short& value, short minval, short maxva
   }
 }
 
+bool Executor::getParam( unsigned param, signed char& value )
+{
+  BObjectImp* imp = getParamImp2( param, BObjectImp::OTLong );
+  if ( !imp )
+    return false;
+
+  BLong* plong = Clib::explicit_cast<BLong*, BObjectImp*>( imp );
+
+  int longvalue = plong->value();
+  if ( longvalue >= std::numeric_limits<s8>::min() && longvalue <= std::numeric_limits<s8>::max() )
+  {
+    value = static_cast<signed char>( longvalue );
+    return true;
+  }
+  else
+  {
+    std::string report = "Parameter " + Clib::tostring( param ) + " value " +
+                         Clib::tostring( longvalue ) + " out of expected range of [" +
+                         Clib::tostring( std::numeric_limits<s8>::max() ) + ".." +
+                         Clib::tostring( std::numeric_limits<s8>::max() ) + "]";
+    func_result_ = new BError( report );
+    return false;
+  }
+}
+
 bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
 {
   BObject* obj = getParam( param );

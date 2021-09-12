@@ -41,7 +41,6 @@
 #include "../globals/uvars.h"
 #include "../item/item.h"
 #include "../item/itemdesc.h"
-#include "../mdelta.h"
 #include "../mkscrobj.h"
 #include "../mobile/charactr.h"
 #include "../network/client.h"
@@ -787,8 +786,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
         }
         else
         {
-          chr->setposition( chr->pos() + Core::Vec2d( Core::move_delta[move_dir].xmove,
-                                                      Core::move_delta[move_dir].ymove ) );
+          chr->setposition( chr->pos().move( move_dir ) );
         }
 
         MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x(), chr->y(), chr, oldrealm );
@@ -839,8 +837,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
         }
         else
         {
-          chr->setposition( chr->pos() + Core::Vec2d( Core::move_delta[move_dir].xmove,
-                                                      Core::move_delta[move_dir].ymove ) );
+          chr->setposition( chr->pos().move( move_dir ) );
         }
       }
     }
@@ -876,8 +873,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
         oldx = item->x();
         oldy = item->y();
 
-        item->setposition( item->pos() + Core::Vec2d( Core::move_delta[move_dir].xmove,
-                                                      Core::move_delta[move_dir].ymove ) );
+        item->setposition( item->pos().move( move_dir ) );
 
         if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
           item->restart_decay_timer();
@@ -1287,23 +1283,21 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
   else
     move_dir = static_cast<Core::UFACING>( ( dir + boat_facing() ) & 7 );
 
-  unsigned short newx, newy;
-  newx = x() + Core::move_delta[move_dir].xmove;
-  newy = y() + Core::move_delta[move_dir].ymove;
+  auto newpos = pos().move( move_dir );
 
-  if ( navigable( multidef(), newx, newy, z(), realm() ) )
+  if ( navigable( multidef(), newpos.x(), newpos.y(), newpos.z(), newpos.realm() ) )
   {
     BoatContext bc( *this );
 
-    send_smooth_move_to_inrange( move_dir, speed, newx, newy, relative );
+    send_smooth_move_to_inrange( move_dir, speed, newpos.x(), newpos.y(), relative );
 
     set_dirty();
 
-    move_multi_in_world( x(), y(), newx, newy, this, realm() );
+    move_multi_in_world( x(), y(), newpos.x(), newpos.y(), this, realm() );
 
     u16 oldx = x();
     u16 oldy = y();
-    setposition( Core::Pos4d( pos() ).x( newx ).y( newy ) );
+    setposition( newpos );
 
     // NOTE, send_boat_to_inrange pauses those it sends to.
     // send_boat_to_inrange( this, oldx, oldy );

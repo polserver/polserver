@@ -45,7 +45,6 @@
 #include "../item/armor.h"
 #include "../item/weapon.h"
 #include "../listenpt.h"
-#include "../mdelta.h"
 #include "../module/npcmod.h"
 #include "../module/uomod.h"
 #include "../multi/multi.h"
@@ -150,13 +149,12 @@ const char* NPC::classname() const
 
 bool NPC::anchor_allows_move( Core::UFACING fdir ) const
 {
-  unsigned short newx = x() + Core::move_delta[fdir].xmove;
-  unsigned short newy = y() + Core::move_delta[fdir].ymove;
+  auto newpos = pos().move( fdir );
 
   if ( anchor.enabled && !warmode() )
   {
     unsigned short curdist = Core::pol_distance( x(), y(), anchor.x, anchor.y );
-    unsigned short newdist = Core::pol_distance( newx, newy, anchor.x, anchor.y );
+    unsigned short newdist = Core::pol_distance( newpos.x(), newpos.y(), anchor.x, anchor.y );
     if ( newdist > curdist )  // if we're moving further away, see if we can
     {
       if ( newdist > anchor.dstart )
@@ -181,27 +179,24 @@ bool NPC::could_move( Core::UFACING fdir ) const
   if ( fdir & 1 )  // check if diagonal movement is allowed -- Nando (2009-02-26)
   {
     u8 tmp_facing = ( fdir + 1 ) & 0x7;
-    unsigned short tmp_newx = x() + Core::move_delta[tmp_facing].xmove;
-    unsigned short tmp_newy = y() + Core::move_delta[tmp_facing].ymove;
+    auto tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
     // needs to save because if only one direction is blocked, it shouldn't block ;)
     short current_boost = gradual_boost;
-    bool walk1 = realm()->walkheight( this, tmp_newx, tmp_newy, z(), &newz, &supporting_multi,
-                                      &walkon_item, &current_boost );
+    bool walk1 = realm()->walkheight( this, tmp_pos.x(), tmp_pos.y(), tmp_pos.z(), &newz,
+                                      &supporting_multi, &walkon_item, &current_boost );
 
     tmp_facing = ( fdir - 1 ) & 0x7;
-    tmp_newx = x() + Core::move_delta[tmp_facing].xmove;
-    tmp_newy = y() + Core::move_delta[tmp_facing].ymove;
+    tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
     current_boost = gradual_boost;
-    if ( !walk1 && !realm()->walkheight( this, tmp_newx, tmp_newy, z(), &newz, &supporting_multi,
-                                         &walkon_item, &current_boost ) )
+    if ( !walk1 && !realm()->walkheight( this, tmp_pos.x(), tmp_pos.y(), tmp_pos.z(), &newz,
+                                         &supporting_multi, &walkon_item, &current_boost ) )
       return false;
   }
-  unsigned short newx = x() + Core::move_delta[fdir].xmove;
-  unsigned short newy = y() + Core::move_delta[fdir].ymove;
+  auto new_pos = pos().move( fdir );
   short current_boost = gradual_boost;
-  return realm()->walkheight( this, newx, newy, z(), &newz, &supporting_multi, &walkon_item,
-                              &current_boost ) &&
+  return realm()->walkheight( this, new_pos.x(), new_pos.y(), new_pos.z(), &newz, &supporting_multi,
+                              &walkon_item, &current_boost ) &&
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
@@ -211,18 +206,17 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
        ( !this->master() && !Core::settingsManager.ssopt.mobiles_block_npc_movement ) )
     return false;
 
-  unsigned short newx = x() + Core::move_delta[fdir].xmove;
-  unsigned short newy = y() + Core::move_delta[fdir].ymove;
+  auto new_pos = pos().move( fdir );
 
   unsigned short wx, wy;
-  Core::zone_convert_clip( newx, newy, realm(), &wx, &wy );
+  Core::zone_convert_clip( new_pos.x(), new_pos.y(), new_pos.realm(), &wx, &wy );
 
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
     for ( const auto& chr : realm()->zone[wx][wy].characters )
     {
       // First check if there really is a character blocking
-      if ( chr->x() == newx && chr->y() == newy && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
+      if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
       {
         if ( !chr->dead() && is_visible_to_me( chr ) )
           return true;
@@ -232,7 +226,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
   for ( const auto& chr : realm()->zone[wx][wy].npcs )
   {
     // First check if there really is a character blocking
-    if ( chr->x() == newx && chr->y() == newy && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
+    if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
     {
       // Check first with the ssopt false to now allow npcs of same master running on top of
       // each other
