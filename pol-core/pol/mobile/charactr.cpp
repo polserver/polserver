@@ -3484,7 +3484,7 @@ void Character::check_light_region_change()
   else
   {
     // dave 12-22 check for no regions
-    Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( x(), y(), realm() );
+    Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( pos() );
     if ( light_region != nullptr )
       newlightlevel = light_region->lightlevel;
     else
@@ -3501,8 +3501,7 @@ void Character::check_light_region_change()
 void Character::check_justice_region_change()
 {
   Core::JusticeRegion* cur_justice_region = client->gd->justice_region;
-  Core::JusticeRegion* new_justice_region =
-      Core::gamestate.justicedef->getregion( x(), y(), client->chr->realm() );
+  Core::JusticeRegion* new_justice_region = Core::gamestate.justicedef->getregion( pos() );
 
   if ( cur_justice_region != new_justice_region )
   {
@@ -3568,7 +3567,7 @@ void Character::check_justice_region_change()
 void Character::check_music_region_change()
 {
   Core::MusicRegion* cur_music_region = client->gd->music_region;
-  Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( x(), y(), realm() );
+  Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( pos() );
 
   // may want to consider changing every n minutes, too, even if region didn't change
   if ( cur_music_region != new_music_region )
@@ -3590,8 +3589,7 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
                                                            // changed type/intensity
 {
   Core::WeatherRegion* cur_weather_region = client->gd->weather_region;
-  Core::WeatherRegion* new_weather_region =
-      Core::gamestate.weatherdef->getregion( x(), y(), realm() );
+  Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( pos() );
 
   // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has no
   // weather region,

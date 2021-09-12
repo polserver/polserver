@@ -9,7 +9,6 @@
 
 #include <stddef.h>
 #include <string>
-#include <tuple>
 
 #include "bscript/berror.h"
 #include "bscript/impstr.h"
@@ -19,10 +18,11 @@
 #include "clib/stlutil.h"
 #include "plib/poltype.h"
 
+#include "base/range.h"
 #include "globals/uvars.h"
 #include "proplist.h"
-#include "realms/realms.h"
 #include "realms/realm.h"
+#include "realms/realms.h"
 #include "zone.h"
 
 namespace Pol
@@ -33,8 +33,6 @@ Region::Region( Clib::ConfigElem& elem, RegionId id )
     : name_( elem.rest() ), regionid_( id ), proplist_( Core::CPropProfiler::Type::REGION )
 {
 }
-
-Region::~Region() {}
 
 size_t Region::estimateSize() const
 {
@@ -122,23 +120,11 @@ void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
       {
         elem.throw_error( "Zone range is out of bounds for realm" );
       }
-      unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-      std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
-      std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
-      unsigned zx, zy;
-      for ( zx = zone_xwest; zx <= zone_xeast; ++zx )
-      {
-        for ( zy = zone_ynorth; zy <= zone_ysouth; ++zy )
-        {
-          /*
-          if (zones[zx][zy].regions[regiontype])
-          {
-          elem.throw_error( "Zone is already allocated" );
-          }
-          */
-          regionrealms[realm][zx][zy] = ridx;
-        }
-      }
+
+      Range2d area( XyToZone( Pos2d( xwest, ynorth ) ), XyToZone( Pos2d( xeast, ysouth ) ),
+                    nullptr );
+      for ( const auto& itr : area )
+        regionrealms[realm][itr.x()][itr.y()] = ridx;
     }
     else
     {
@@ -147,16 +133,15 @@ void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
   }
 }
 
-RegionId RegionGroupBase::getregionid( xcoord x, ycoord y, Realms::Realm* realm )
+RegionId RegionGroupBase::getregionid( const Pos4d& pos )
 {
-  unsigned zx, zy;
-  std::tie( zx, zy ) = XyToZone( x, y );
+  Pos2d zonep = XyToZone( pos.xy() );
   RegionId** regiongrp;
-  if ( realm->is_shadowrealm )
-    regiongrp = regionrealms[realm->baserealm];
+  if ( pos.realm()->is_shadowrealm )
+    regiongrp = regionrealms[pos.realm()->baserealm];
   else
-    regiongrp = regionrealms[realm];
-  return regiongrp[zx][zy];
+    regiongrp = regionrealms[pos.realm()];
+  return regiongrp[zonep.x()][zonep.y()];
 }
 
 Region* RegionGroupBase::getregion_byname( const std::string& regionname )
@@ -168,9 +153,9 @@ Region* RegionGroupBase::getregion_byname( const std::string& regionname )
     return ( *itr ).second;
 }
 
-Region* RegionGroupBase::getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm )
+Region* RegionGroupBase::getregion_byloc( const Pos4d& pos )
 {
-  RegionId ridx = getregionid( x, y, realm );
+  RegionId ridx = getregionid( pos );
 
   // dave 12-22 return null if no regions, don't throw
   std::vector<Region*>::iterator itr = regions_.begin();

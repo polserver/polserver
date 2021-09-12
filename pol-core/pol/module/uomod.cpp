@@ -3368,24 +3368,17 @@ BObjectImp* UOExecutorModule::mf_SetRegionWeatherLevel()
 BObjectImp* UOExecutorModule::mf_AssignRectToWeatherRegion()
 {
   const String* region_name_str;
-  unsigned short xwest, ynorth, xeast, ysouth;
-  const String* strrealm;
+  Pos2d nw, se;
+  Realms::Realm* realm;
 
-  if ( !( getStringParam( 0, region_name_str ) && getParam( 1, xwest ) && getParam( 2, ynorth ) &&
-          getParam( 3, xeast ) && getParam( 4, ysouth ) && getStringParam( 5, strrealm ) ) )
+  if ( !( getStringParam( 0, region_name_str ) && getRealmParam( 5, &realm ) &&
+          getPos2dParam( 1, 2, &nw, realm ) && getPos2dParam( 3, 4, &se, realm ) ) )
   {
     return new BError( "Invalid Parameter type" );
   }
-  Realms::Realm* realm = find_realm( strrealm->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-  if ( !realm->valid( xwest, ynorth, 0 ) )
-    return new BError( "Invalid Coordinates for realm" );
-  if ( !realm->valid( xeast, ysouth, 0 ) )
-    return new BError( "Invalid Coordinates for realm" );
 
-  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->data(), xwest, ynorth,
-                                                           xeast, ysouth, realm );
+  bool res = gamestate.weatherdef->assign_zones_to_region( region_name_str->data(),
+                                                           Range2d( nw, se, nullptr ), realm );
   if ( res )
     return new BLong( 1 );
   else
@@ -3865,21 +3858,13 @@ BObjectImp* UOExecutorModule::mf_RestartScript()
 BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
 {
   const String* resource;
-  xcoord x;
-  ycoord y;
   unsigned short tiletype;
-  const String* strrealm;
-
-  if ( getStringParam( 0, resource ) && getParam( 1, x ) && getParam( 2, y ) &&
-       getParam( 3, tiletype ) && getStringParam( 4, strrealm ) )
+  Pos2d pos;
+  Realms::Realm* realm;
+  if ( getStringParam( 0, resource ) && getRealmParam( 4, &realm ) && getPos2dParam( 1, 2, &pos ) &&
+       getParam( 3, tiletype ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for realm" );
-
-    return get_harvest_difficulty( resource->data(), x, y, realm, tiletype );
+    return get_harvest_difficulty( resource->data(), Pos4d( pos, 0, realm ), tiletype );
   }
   else
   {
@@ -3889,25 +3874,18 @@ BObjectImp* UOExecutorModule::mf_GetHarvestDifficulty()
 
 BObjectImp* UOExecutorModule::mf_HarvestResource()
 {
-  xcoord x;
-  ycoord y;
+  Pos2d pos;
+  Realms::Realm* realm;
   const String* resource;
   int b;
   int n;
-  const String* strrealm;
 
-  if ( getStringParam( 0, resource ) && getParam( 1, x ) && getParam( 2, y ) && getParam( 3, b ) &&
-       getParam( 4, n ) && getStringParam( 5, strrealm ) )
+  if ( getStringParam( 0, resource ) && getRealmParam( 5, &realm ) &&
+       getPos2dParam( 1, 2, &pos, realm ) && getParam( 3, b ) && getParam( 4, n ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for realm" );
-
     if ( b <= 0 )
       return new BError( "b must be >= 0" );
-    return harvest_resource( resource->data(), x, y, realm, b, n );
+    return harvest_resource( resource->data(), Pos4d( pos, 0, realm ), b, n );
   }
   else
   {
@@ -3932,10 +3910,10 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
       if ( chr->logged_in() )
         justice_region = chr->client->gd->justice_region;
       else
-        justice_region = gamestate.justicedef->getregion( chr->x(), chr->y(), chr->realm() );
+        justice_region = gamestate.justicedef->getregion( chr->pos() );
     }
     else
-      justice_region = gamestate.justicedef->getregion( obj->x(), obj->y(), obj->realm() );
+      justice_region = gamestate.justicedef->getregion( obj->pos() );
 
     if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
@@ -3948,18 +3926,11 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
 
 BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation( /* x, y, realm */ )
 {
-  unsigned short x, y;
-  const String* strrealm;
-
-  if ( getParam( 0, x ) && getParam( 1, y ) && getStringParam( 2, strrealm ) )
+  Pos2d pos;
+  Realms::Realm* realm;
+  if ( getRealmParam( 2, &realm ) && getPos2dParam( 0, 1, &pos ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for realm" );
-
-    JusticeRegion* justice_region = gamestate.justicedef->getregion( x, y, realm );
+    JusticeRegion* justice_region = gamestate.justicedef->getregion( Pos4d( pos, 0, realm ) );
     if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );
     else
@@ -3972,20 +3943,13 @@ BObjectImp* UOExecutorModule::mf_GetRegionNameAtLocation( /* x, y, realm */ )
 BObjectImp* UOExecutorModule::mf_GetRegionString()
 {
   const String* resource;
-  unsigned short x, y;
   const String* propname;
-  const String* strrealm;
-
-  if ( getStringParam( 0, resource ) && getParam( 1, x ) && getParam( 2, y ) &&
-       getStringParam( 3, propname ) && getStringParam( 4, strrealm ) )
+  Pos2d pos;
+  Realms::Realm* realm;
+  if ( getStringParam( 0, resource ) && getRealmParam( 4, &realm ) && getPos2dParam( 1, 2, &pos ) &&
+       getStringParam( 3, propname ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for realm" );
-
-    return get_region_string( resource->data(), x, y, realm, propname->value() );
+    return get_region_string( resource->data(), Pos4d( pos, 0, realm ), propname->value() );
   }
   else
   {
@@ -3995,17 +3959,12 @@ BObjectImp* UOExecutorModule::mf_GetRegionString()
 
 BObjectImp* UOExecutorModule::mf_GetRegionLightLevelAtLocation( /* x, y, realm */ )
 {
-  unsigned short x, y;
-  const String* strrealm;
+  Pos2d pos;
+  Realms::Realm* realm;
 
-  if ( getParam( 0, x ) && getParam( 1, y ) && getStringParam( 2, strrealm ) )
+  if ( getRealmParam( 2, &realm ) && getPos2dParam( 0, 1, &pos ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for realm" );
-    LightRegion* light_region = gamestate.lightdef->getregion( x, y, realm );
+    LightRegion* light_region = gamestate.lightdef->getregion( Pos4d( pos, 0, realm ) );
     int lightlevel;
     if ( light_region != nullptr )
       lightlevel = light_region->lightlevel;

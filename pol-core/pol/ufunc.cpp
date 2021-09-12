@@ -1708,8 +1708,7 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
     else
     {
       // dave 12-22 check for no regions
-      LightRegion* light_region =
-          gamestate.lightdef->getregion( client->chr->x(), client->chr->y(), client->chr->realm() );
+      LightRegion* light_region = gamestate.lightdef->getregion( client->chr->pos() );
       if ( light_region != nullptr )
         newlightlevel = light_region->lightlevel;
       else

@@ -47,7 +47,7 @@ namespace Core
 {
 static bool nocast_here( Mobile::Character* chr )
 {
-  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->x(), chr->y(), chr->realm() );
+  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->pos() );
   if ( rgn == nullptr )
   {
     return false;

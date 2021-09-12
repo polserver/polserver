@@ -11,6 +11,7 @@
 #include <string>
 
 #include "../plib/poltype.h"
+#include "base/position.h"
 #include "proplist.h"
 #include "zone.h"
 
@@ -38,7 +39,7 @@ public:
 
 protected:
   explicit Region( Clib::ConfigElem& elem, RegionId id );
-  virtual ~Region();
+  virtual ~Region() = default;
 
   // virtual void read_config( ConfigElem& elem );
   void read_custom_config( Clib::ConfigElem& elem );
@@ -80,7 +81,7 @@ public:
 
 protected:
   Region* getregion_byname( const std::string& regionname );
-  Region* getregion_byloc( xcoord x, ycoord y, Realms::Realm* realm );
+  Region* getregion_byloc( const Pos4d& pos );
 
   std::vector<Region*> regions_;
 
@@ -90,7 +91,7 @@ protected:
 private:
   virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const = 0;
 
-  RegionId getregionid( xcoord x, ycoord y, Realms::Realm* realm );
+  RegionId getregionid( const Pos4d& pos );
   void paint_zones( Clib::ConfigElem& elem, RegionId ridx );
   std::string name_;
   typedef std::map<std::string, Region*> RegionsByName;
@@ -108,7 +109,7 @@ class RegionGroup : public RegionGroupBase
 public:
   explicit RegionGroup( const char* name );
 
-  virtual T* getregion( xcoord x, ycoord y, Realms::Realm* realm );
+  virtual T* getregion( const Pos4d& pos );
   virtual T* getregion( const std::string& regionname );
 
 protected:
@@ -121,9 +122,9 @@ RegionGroup<T>::RegionGroup( const char* name ) : RegionGroupBase( name )
 }
 
 template <class T>
-inline T* RegionGroup<T>::getregion( xcoord x, ycoord y, Realms::Realm* realm )
+inline T* RegionGroup<T>::getregion( const Pos4d& pos )
 {
-  return static_cast<T*>( getregion_byloc( x, y, realm ) );
+  return static_cast<T*>( getregion_byloc( pos ) );
 }
 
 template <class T>
