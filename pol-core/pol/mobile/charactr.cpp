@@ -120,7 +120,6 @@
 #include "../item/weapon.h"
 #include "../item/wepntmpl.h"
 #include "../layers.h"
-#include "../mdelta.h"
 #include "../mkscrobj.h"
 #include "../module/uomod.h"
 #include "../movecost.h"
@@ -2811,12 +2810,6 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 }
 
-void Character::getpos_ifmove( Core::UFACING i_facing, unsigned short* px, unsigned short* py )
-{
-  *px = x() + Core::move_delta[i_facing].xmove;
-  *py = y() + Core::move_delta[i_facing].ymove;
-}
-
 void Character::swing_task_func( Character* chr )
 {
   THREAD_CHECKPOINT( tasks, 800 );
@@ -3784,16 +3777,14 @@ bool Character::CustomHousingMove( unsigned char i_dir )
       }
       else
       {
-        s8 newz = house->z() +
-                  Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num];
-        u16 newx = x() + Core::move_delta[facing].xmove;
-        u16 newy = y() + Core::move_delta[facing].ymove;
+        auto newpos = pos().move( static_cast<Core::UFACING>( facing ) );
+        newpos.z( house->z() +
+                  Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
         const Multi::MultiDef& def = house->multidef();
-        if ( newx > ( house->x() + def.minrx ) && newx <= ( house->x() + def.maxrx ) &&
-             newy > ( house->y() + def.minry ) && newy <= ( house->y() + def.maxry ) )
+        if ( newpos.x() > ( house->x() + def.minrx ) && newpos.x() <= ( house->x() + def.maxrx ) &&
+             newpos.y() > ( house->y() + def.minry ) && newpos.y() <= ( house->y() + def.maxry ) )
         {
-          setposition( Core::Pos4d( static_cast<u16>( newx ), static_cast<u16>( newy ),
-                                    static_cast<s8>( newz ), realm() ) );
+          setposition( newpos );
           MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );
 
           position_changed();
@@ -3838,24 +3829,20 @@ bool Character::move( unsigned char i_dir )
     {
       short new_z;
       u8 tmp_facing = ( facing + 1 ) & 0x7;
-      unsigned short tmp_newx = x() + Core::move_delta[tmp_facing].xmove;
-      unsigned short tmp_newy = y() + Core::move_delta[tmp_facing].ymove;
+      auto tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 =
-          realm()->walkheight( this, tmp_newx, tmp_newy, z(), &new_z, nullptr, nullptr, nullptr );
+      bool walk1 = realm()->walkheight( this, tmp_pos.x(), tmp_pos.y(), tmp_pos.z(), &new_z,
+                                        nullptr, nullptr, nullptr );
 
       tmp_facing = ( facing - 1 ) & 0x7;
-      tmp_newx = x() + Core::move_delta[tmp_facing].xmove;
-      tmp_newy = y() + Core::move_delta[tmp_facing].ymove;
+      tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
-      if ( !walk1 && !realm()->walkheight( this, tmp_newx, tmp_newy, z(), &new_z, nullptr, nullptr,
-                                           nullptr ) )
+      if ( !walk1 && !realm()->walkheight( this, tmp_pos.x(), tmp_pos.y(), tmp_pos.z(), &new_z,
+                                           nullptr, nullptr, nullptr ) )
         return false;
     }
-
-    unsigned short newx = x() + Core::move_delta[facing].xmove;
-    unsigned short newy = y() + Core::move_delta[facing].ymove;
+    auto new_pos = pos().move( static_cast<Core::UFACING>( facing ) );
 
     // FIXME consider consolidating with similar code in UOEMOD.CPP
     short newz;
@@ -3863,10 +3850,10 @@ bool Character::move( unsigned char i_dir )
     Items::Item* walkon_item;
 
     short current_boost = gradual_boost;
-    if ( !realm()->walkheight( this, newx, newy, z(), &newz, &supporting_multi, &walkon_item,
-                               &current_boost ) )
+    if ( !realm()->walkheight( this, new_pos.x(), new_pos.y(), new_pos.z(), &newz,
+                               &supporting_multi, &walkon_item, &current_boost ) )
       return false;
-
+    new_pos.z( static_cast<s8>( newz ) );
     remote_containers_.clear();
 
     if ( !CheckPushthrough() )
@@ -3889,8 +3876,7 @@ bool Character::move( unsigned char i_dir )
     if ( !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
 
-    setposition( Core::Pos4d( static_cast<u16>( newx ), static_cast<u16>( newy ),
-                              static_cast<s8>( newz ), realm() ) );
+    setposition( new_pos );
 
     if ( on_mount() && !script_isa( Core::POLCLASS_NPC ) )
     {
@@ -3997,12 +3983,11 @@ bool Character::CheckPushthrough()
 {
   if ( !can_freemove() && Core::gamestate.system_hooks.pushthrough_hook )
   {
-    unsigned short newx = x() + Core::move_delta[facing].xmove;
-    unsigned short newy = y() + Core::move_delta[facing].ymove;
+    auto newpos = pos().move( static_cast<Core::UFACING>( facing ) );
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newx, newy, realm(), 0,
+        newpos.x(), newpos.y(), newpos.realm(), 0,
         [&]( Mobile::Character* _chr )
         {
           if ( _chr->z() >= z() - 10 && _chr->z() <= z() + 10 && !_chr->dead() &&

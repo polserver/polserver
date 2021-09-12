@@ -14,6 +14,7 @@
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
 #include "../plib/systemstate.h"
+#include "base/position.h"
 #include "fnsearch.h"
 #include "globals/network.h"
 #include "globals/uvars.h"
@@ -101,5 +102,25 @@ bool PolModule::getVitalParam( unsigned param, const Vital*& vital )
   return uoexec().getVitalParam( param, vital );
 }
 
+bool PolModule::getRealmParam( unsigned param, Realms::Realm** realm )
+{
+  return uoexec().getRealmParam( param, realm );
+}
+
+bool PolModule::getPos2dParam( unsigned xparam, unsigned yparam, Pos2d* pos,
+                               const Realms::Realm* realm )
+{
+  return uoexec().getPos2dParam( xparam, yparam, pos, realm );
+}
+bool PolModule::getPos3dParam( unsigned xparam, unsigned yparam, unsigned zparam, Pos3d* pos,
+                               const Realms::Realm* realm )
+{
+  return uoexec().getPos3dParam( xparam, yparam, zparam, pos, realm );
+}
+bool PolModule::getPos4dParam( unsigned xparam, unsigned yparam, unsigned zparam,
+                               unsigned realmparam, Pos4d* pos )
+{
+  return uoexec().getPos4dParam( xparam, yparam, zparam, realmparam, pos );
+}
 }  // namespace Core
 }  // namespace Pol

@@ -1,25 +1,17 @@
 #include "ufacing.h"
 
-#include "../../clib/clib.h"
-#include "../../clib/random.h"
-#include "../../plib/uconst.h"
-#include "../mdelta.h"
-#include "../uobject.h"
+#include "clib/clib.h"
+#include "clib/random.h"
+#include "plib/uconst.h"
+
 #include "base/position.h"
 #include "charactr.h"
+#include "uobject.h"
 
 namespace Pol
 {
 namespace Core
 {
-// FIXME shouldn't be using PKTIN_02_FACING_MASK here
-// TODO Pos: kill me
-MoveDelta move_delta[8] = { { 0, -1 },   // 0 is N
-                            { +1, -1 },  // 1 is NE
-                            { +1, 0 },   // ...
-                            { +1, +1 }, { 0, +1 }, { -1, +1 }, { -1, 0 }, { -1, -1 } };
-
-
 std::array<int, 7> adjustments = { { 0, +1, -1, +2, -2, +3, -3 } };
 }  // namespace Core
 namespace Mobile

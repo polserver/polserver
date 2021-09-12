@@ -83,6 +83,14 @@ void pos2d_test()
   UnitTest(
       []()
       {
+        Pos2d p( 0, 0 );
+        p.move_self( FACING_S );
+        return p;
+      },
+      Pos2d( 0, 1 ), "0,0.move_self(S)" );
+  UnitTest(
+      []()
+      {
         std::vector<Vec2d> mod{ { { 0, -1 },
                                   { 1, -1 },
                                   { 1, 0 },
@@ -214,6 +222,14 @@ void pos3d_test()
             .can_move_to( Vec2d( 2, 2 ), realm );
       },
       false, "realm.can_move_to(2,2,realm)" );
+  UnitTest(
+      []()
+      {
+        Pos3d p( 0, 0, 0 );
+        p.move_self( FACING_S );
+        return p;
+      },
+      Pos3d( 0, 1, 0 ), "0,0,0.move_self(S)" );
 
   UnitTest(
       []()
@@ -335,6 +351,14 @@ void pos4d_test()
   UnitTest( [&]() { return Pos4d( 0, 0, 0, r ).move( FACING_S ); }, Pos4d( 0, 1, 0, r ),
             "0,0,0.move(S)" );
 
+  UnitTest(
+      [&]()
+      {
+        Pos4d p( 0, 0, 0, r );
+        p.move_self( FACING_S );
+        return p;
+      },
+      Pos4d( 0, 1, 0, r ), "0,0,0.move_self(S)" );
   UnitTest(
       [&]()
       {

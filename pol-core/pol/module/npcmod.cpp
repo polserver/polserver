@@ -90,10 +90,9 @@ BObjectImp* NPCExecutorModule::mf_IsLegalMove()
   if ( Mobile::DecodeFacing( facing_str->value().c_str(), facing ) == false )
     return new BLong( 0 );
 
-  unsigned short x, y;
-  npc.getpos_ifmove( facing, &x, &y );
+  auto pos = npc.pos().move( facing );
 
-  return new BLong( bbox.contains( x, y ) );
+  return new BLong( bbox.contains( pos.x(), pos.y() ) );
 }
 
 /* CanMove: parameters (facing)*/
@@ -347,9 +346,8 @@ BObjectImp* NPCExecutorModule::mf_Move()
       const Mobile::BoundingBox& bbox = ao_bbox->value();
       Core::UFACING facing = Mobile::GetRandomFacing();
 
-      unsigned short x, y;
-      npc.getpos_ifmove( facing, &x, &y );
-      if ( bbox.contains( x, y ) || !bbox.contains( npc.x(), npc.y() ) )
+      auto pos = npc.pos().move( facing );
+      if ( bbox.contains( pos.x(), pos.y() ) || !bbox.contains( npc.x(), npc.y() ) )
       {
         npc.move( static_cast<unsigned char>( facing ) );
         npc.tellmove();
