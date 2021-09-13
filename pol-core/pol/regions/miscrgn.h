@@ -83,7 +83,7 @@ public:
   bool assign_zones_to_region( const char* regionname, const Range2d& area, Realms::Realm* realm );
 
 private:
-  RegionRealms default_regionrealms;
+  RegionRealms default_regionrealms;  // y first
 };
 }  // namespace Core
 }  // namespace Pol

@@ -86,7 +86,7 @@ protected:
   std::vector<Region*> regions_;
 
   typedef std::map<Realms::Realm*, RegionId**> RegionRealms;
-  RegionRealms regionrealms;
+  RegionRealms regionrealms;  // y first
 
 private:
   virtual Region* create_region( Clib::ConfigElem& elem, RegionId id ) const = 0;

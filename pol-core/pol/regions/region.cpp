@@ -47,31 +47,25 @@ void Region::read_custom_config( Clib::ConfigElem& elem )
 Bscript::BObjectImp* Region::get_region_string( const std::string& propname )
 {
   std::string propvalue;
-  if ( proplist_.getprop( propname, propvalue ) )
-  {
-    return new Bscript::String( propvalue );
-  }
-  else
-  {
+  if ( !proplist_.getprop( propname, propvalue ) )
     return new Bscript::BError( "Property not found" );
-  }
+  return new Bscript::String( propvalue );
 }
 
 
 RegionGroupBase::RegionGroupBase( const char* name ) : name_( name )
 {
-  // memset( &regionidx_, 0, sizeof regionidx_ );
   for ( const auto& realm : gamestate.Realms )
   {
     unsigned int gridwidth = realm->width() / ZONE_SIZE;
     unsigned int gridheight = realm->height() / ZONE_SIZE;
 
-    RegionId** zone = new RegionId*[gridwidth];
+    RegionId** zone = new RegionId*[gridheight];
 
-    for ( unsigned int i = 0; i < gridwidth; i++ )
+    for ( unsigned int i = 0; i < gridheight; i++ )
     {
-      zone[i] = new RegionId[gridheight];
-      for ( unsigned int j = 0; j < gridheight; j++ )
+      zone[i] = new RegionId[gridwidth];
+      for ( unsigned int j = 0; j < gridwidth; j++ )
       {
         zone[i][j] = 0;
       }
@@ -83,13 +77,13 @@ RegionGroupBase::~RegionGroupBase()
 {
   for ( auto& realm : regionrealms )
   {
-    unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
+    unsigned int gridheight = realm.first->height() / ZONE_SIZE;
 
     // Tokuno-Fix removed Turley, 2009/09/08 (for ZONE_SIZE 4 not needed)
     /*if (gridwidth * ZONE_SIZE < itr->first->width())
       gridwidth++;*/
 
-    for ( unsigned int i = 0; i < gridwidth; i++ )
+    for ( unsigned int i = 0; i < gridheight; i++ )
       delete[] realm.second[i];
     delete[] realm.second;
   }
@@ -124,7 +118,7 @@ void RegionGroupBase::paint_zones( Clib::ConfigElem& elem, RegionId ridx )
       Range2d area( XyToZone( Pos2d( xwest, ynorth ) ), XyToZone( Pos2d( xeast, ysouth ) ),
                     nullptr );
       for ( const auto& itr : area )
-        regionrealms[realm][itr.x()][itr.y()] = ridx;
+        regionrealms[realm][itr.y()][itr.x()] = ridx;
     }
     else
     {
@@ -141,7 +135,7 @@ RegionId RegionGroupBase::getregionid( const Pos4d& pos )
     regiongrp = regionrealms[pos.realm()->baserealm];
   else
     regiongrp = regionrealms[pos.realm()];
-  return regiongrp[zonep.x()][zonep.y()];
+  return regiongrp[zonep.y()][zonep.x()];
 }
 
 Region* RegionGroupBase::getregion_byname( const std::string& regionname )
@@ -149,8 +143,7 @@ Region* RegionGroupBase::getregion_byname( const std::string& regionname )
   RegionsByName::iterator itr = regions_byname_.find( regionname );
   if ( itr == regions_byname_.end() )
     return nullptr;
-  else
-    return ( *itr ).second;
+  return ( *itr ).second;
 }
 
 Region* RegionGroupBase::getregion_byloc( const Pos4d& pos )
@@ -161,8 +154,7 @@ Region* RegionGroupBase::getregion_byloc( const Pos4d& pos )
   std::vector<Region*>::iterator itr = regions_.begin();
   if ( ( itr += ridx ) >= regions_.end() )
     return nullptr;
-  else
-    return regions_[ridx];
+  return regions_[ridx];
 }
 
 void RegionGroupBase::read_region( Clib::ConfigElem& elem )
@@ -193,12 +185,11 @@ size_t RegionGroupBase::estimateSize() const
   }
   for ( const auto& realm : regionrealms )
   {
-    if ( realm.first != nullptr )
-    {
-      unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-      size += gridwidth * sizeof( RegionId ) + sizeof( Realms::Realm* ) +
-              ( sizeof( void* ) * 3 + 1 ) / 2;
-    }
+    if ( realm.first == nullptr )
+      continue;
+    unsigned int gridheight = realm.first->height() / ZONE_SIZE;
+    size += gridheight * sizeof( RegionId ) + sizeof( Realms::Realm* ) +
+            ( sizeof( void* ) * 3 + 1 ) / 2;
   }
   size += name_.capacity();
   for ( const auto& realm : regions_byname_ )
@@ -217,17 +208,16 @@ void read_region_data( RegionGroupBase& grp, const char* preferred_filename,
   else
     filename = other_filename;
 
-  if ( Clib::FileExists( filename ) )
+  if ( !Clib::FileExists( filename ) )
+    return;
+  Clib::ConfigFile cf( filename, tags_expected );
+  Clib::ConfigElem elem;
+
+  grp.create_bgnd_region( elem );
+
+  while ( cf.read( elem ) )
   {
-    Clib::ConfigFile cf( filename, tags_expected );
-    Clib::ConfigElem elem;
-
-    grp.create_bgnd_region( elem );
-
-    while ( cf.read( elem ) )
-    {
-      grp.read_region( elem );
-    }
+    grp.read_region( elem );
   }
 }
 }  // namespace Core

@@ -32,15 +32,10 @@ size_t MusicRegion::estimateSize() const
 
 unsigned short MusicRegion::getmidi() const
 {
-  if ( !midilist_.empty() )
-  {
-    int idx = Clib::random_int( static_cast<int>( midilist_.size() - 1 ) );
-    return midilist_[idx];
-  }
-  else
-  {
+  if ( midilist_.empty() )
     return 0;
-  }
+  int idx = Clib::random_int( static_cast<int>( midilist_.size() - 1 ) );
+  return midilist_[idx];
 }
 
 void read_music_zones()
@@ -51,5 +46,5 @@ void read_music_zones()
                     "regions/regions.cfg",  // other
                     "MusicRegion Region" );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
