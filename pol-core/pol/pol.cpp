@@ -83,6 +83,7 @@
 #include "../plib/pkg.h"
 #include "../plib/systemstate.h"
 #include "accounts/account.h"
+#include "base/position.h"
 #include "checkpnt.h"
 #include "console.h"
 #include "core.h"
@@ -287,9 +288,12 @@ void start_client_char( Network::Client* client )
 
   client->chr->lastx = client->chr->lasty = client->chr->lastz = 0;
 
-  client->gd->music_region = gamestate.musicdef->getregion( 0, 0, client->chr->realm() );
-  client->gd->justice_region = gamestate.justicedef->getregion( 0, 0, client->chr->realm() );
-  client->gd->weather_region = gamestate.weatherdef->getregion( 0, 0, client->chr->realm() );
+  client->gd->music_region =
+      gamestate.musicdef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
+  client->gd->justice_region =
+      gamestate.justicedef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
+  client->gd->weather_region =
+      gamestate.weatherdef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
 
   send_goxyz( client, client->chr );
   client->chr->check_region_changes();

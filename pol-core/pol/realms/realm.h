@@ -21,8 +21,8 @@
 #include "plib/uconst.h"
 #include "plib/udatfile.h"
 
+#include "base/range.h"
 #include "realms/WorldChangeReasons.h"
-
 
 namespace Pol
 {
@@ -31,7 +31,7 @@ namespace Core
 class ItemsVector;
 class ULWObject;
 struct Zone;
-}
+}  // namespace Core
 namespace Mobile
 {
 class Character;
@@ -51,7 +51,7 @@ class MapTileServer;
 class StaticEntryList;
 class StaticServer;
 struct MAPTILE_CELL;
-}
+}  // namespace Plib
 namespace Realms
 {
 typedef std::vector<Multi::UMulti*> MultiList;
@@ -71,6 +71,7 @@ public:
   unsigned short height() const;
   unsigned short grid_width() const;
   unsigned short grid_height() const;
+  Core::Range2d area() const;
 
   unsigned season() const;
 
@@ -247,6 +248,10 @@ inline unsigned short Realm::height() const
 {
   return _descriptor.height;
 }
+inline Core::Range2d Realm::area() const
+{
+  return Core::Range2d( Core::Pos2d( 0, 0 ), Core::Pos2d( width() - 1, height() - 1 ), nullptr );
 }
-}
+}  // namespace Realms
+}  // namespace Pol
 #endif

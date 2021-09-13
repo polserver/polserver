@@ -8,6 +8,7 @@
 #define MISCRGN_H
 
 
+#include "base/range.h"
 #include "regions/region.h"
 #include "zone.h"
 
@@ -79,13 +80,12 @@ public:
   void copy_default_regions();
   virtual size_t estimateSize() const override;
 
-  bool assign_zones_to_region( const char* regionname, unsigned short x1, unsigned short y1,
-                               unsigned short x2, unsigned short y2, Realms::Realm* realm );
+  bool assign_zones_to_region( const char* regionname, const Range2d& area, Realms::Realm* realm );
 
 private:
-  RegionRealms default_regionrealms;
+  RegionRealms default_regionrealms;  // y first
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif
