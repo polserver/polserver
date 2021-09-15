@@ -698,11 +698,11 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
 
   Core::zone_convert_clip( mywest - 100, mynorth - 100, realm, &wxL, &wyL );
   Core::zone_convert_clip( myeast + 100, mysouth + 100, realm, &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& multi : realm->zone[wx][wy].multis )
+      for ( const auto& multi : realm->getzone( wx, wy ).multis )
       {
         const MultiDef& edef = multi->multidef();
         // find out if any of our walls would fall within its footprint.
@@ -766,21 +766,21 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
     }
     return false;
   };
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& chr : realm->zone[wx][wy].characters )
+      for ( const auto& chr : realm->getzone( wx, wy ).characters )
       {
         if ( includes( chr ) )
           return true;
       }
-      for ( const auto& chr : realm->zone[wx][wy].npcs )
+      for ( const auto& chr : realm->getzone( wx, wy ).npcs )
       {
         if ( includes( chr ) )
           return true;
       }
-      for ( const auto& item : realm->zone[wx][wy].items )
+      for ( const auto& item : realm->getzone( wx, wy ).items )
       {
         if ( includes( item ) )
           return true;

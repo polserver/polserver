@@ -452,12 +452,11 @@ void textcmd_constat( Network::Client* client )
 }
 
 
-bool check_single_zone_item_integrity( int, int, Realms::Realm* );
 void textcmd_singlezone_integ_item( Network::Client* client )
 {
   unsigned short wx, wy;
   zone_convert( client->chr->x(), client->chr->y(), &wx, &wy, client->chr->realm() );
-  bool ok = check_single_zone_item_integrity( wx, wy, client->chr->realm() );
+  bool ok = check_single_zone_item_integrity( Pos2d( wx, wy ), client->chr->realm() );
   if ( ok )
     send_sysmessage( client, "Item integrity checks out OK!" );
   else

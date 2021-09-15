@@ -939,11 +939,11 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
   unsigned short wxL, wyL, wxH, wyH;
   zone_convert_clip( chr->x() - 8, chr->y() - 8, chr->realm(), &wxL, &wyL );
   zone_convert_clip( chr->x() + 8, chr->y() + 8, chr->realm(), &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( auto& item : chr->realm()->zone[wx][wy].items )
+      for ( auto& item : chr->realm()->getzone( wx, wy ).items )
       {
         if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
         {
@@ -996,11 +996,11 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
   unsigned short wxL, wyL, wxH, wyH;
   zone_convert_clip( chr->x() - 8, chr->y() - 8, chr->realm(), &wxL, &wyL );
   zone_convert_clip( chr->x() + 8, chr->y() + 8, chr->realm(), &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& _item : chr->realm()->zone[wx][wy].items )
+      for ( const auto& _item : chr->realm()->getzone( wx, wy ).items )
       {
         if ( !inrange( chr, _item ) )
           continue;
