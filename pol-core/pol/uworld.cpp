@@ -30,7 +30,7 @@ namespace Core
 {
 void add_item_to_world( Items::Item* item )
 {
-  Zone& zone = getzone( item->x(), item->y(), item->realm() );
+  Zone& zone = item->realm()->getzone( item->pos().xy() );
 
   passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
@@ -49,7 +49,7 @@ void remove_item_from_world( Items::Item* item )
       multi->unregister_object( item );
   }
 
-  Zone& zone = getzone( item->x(), item->y(), item->realm() );
+  Zone& zone = item->realm()->getzone( item->pos().xy() );
 
   ZoneItems::iterator itr = std::find( zone.items.begin(), zone.items.end(), item );
   if ( itr == zone.items.end() )
@@ -68,14 +68,14 @@ void remove_item_from_world( Items::Item* item )
 
 void add_multi_to_world( Multi::UMulti* multi )
 {
-  Zone& zone = getzone( multi->x(), multi->y(), multi->realm() );
+  Zone& zone = multi->realm()->getzone( multi->pos().xy() );
   zone.multis.push_back( multi );
   multi->realm()->add_multi( *multi );
 }
 
 void remove_multi_from_world( Multi::UMulti* multi )
 {
-  Zone& zone = getzone( multi->x(), multi->y(), multi->realm() );
+  Zone& zone = multi->realm()->getzone( multi->pos().xy() );
   ZoneMultis::iterator itr = std::find( zone.multis.begin(), zone.multis.end(), multi );
 
   passert( itr != zone.multis.end() );
@@ -87,8 +87,8 @@ void remove_multi_from_world( Multi::UMulti* multi )
 void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned short newx,
                           unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm )
 {
-  Zone& oldzone = getzone( oldx, oldy, oldrealm );
-  Zone& newzone = getzone( newx, newy, multi->realm() );
+  Zone& oldzone = oldrealm->getzone( oldx, oldy );
+  Zone& newzone = multi->realm()->getzone( newx, newy );
 
   if ( &oldzone != &newzone )
   {
@@ -127,7 +127,7 @@ int get_mobile_count()
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  Zone& zone = getzone( chr->x(), chr->y(), chr->realm() );
+  Zone& zone = chr->realm()->getzone( chr->pos().xy() );
 
   auto set_pos = [&]( ZoneCharacters& set )
   {
@@ -149,7 +149,7 @@ static void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChan
 
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  Zone& zone = getzone( chr->x(), chr->y(), chr->realm() );
+  Zone& zone = chr->realm()->getzone( chr->pos().xy() );
 
   auto clear_pos = [&]( ZoneCharacters& set )
   {
@@ -181,8 +181,8 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
   // in the world zones
   if ( chr->logged_in() )
   {
-    Zone& oldzone = getzone( oldx, oldy, oldrealm );
-    Zone& newzone = getzone( newx, newy, chr->realm() );
+    Zone& oldzone = oldrealm->getzone( oldx, oldy );
+    Zone& newzone = chr->realm()->getzone( newx, newy );
 
     if ( &oldzone != &newzone )
     {
@@ -220,8 +220,8 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
   if ( oldrealm == nullptr )
     oldrealm = item->realm();
 
-  Zone& oldzone = getzone( oldx, oldy, oldrealm );
-  Zone& newzone = getzone( item->x(), item->y(), item->realm() );
+  Zone& oldzone = oldrealm->getzone( oldx, oldy );
+  Zone& newzone = item->realm()->getzone( item->pos().xy() );
 
   if ( &oldzone != &newzone )
   {

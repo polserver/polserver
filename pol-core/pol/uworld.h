@@ -92,23 +92,10 @@ inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigne
   ( *wy ) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
 }
 
-inline Zone& getzone( unsigned short x, unsigned short y, Realms::Realm* realm )
-{
-  passert( x < realm->width() );
-  passert( y < realm->height() );
-
-  return realm->getzone_grid( x >> Plib::WGRID_SHIFT, y >> Plib::WGRID_SHIFT );
-}
-
 inline Pos2d zone_convert( const Pos4d& p )
 {
   return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
                 static_cast<unsigned short>( p.y() >> Plib::WGRID_SHIFT ) );
-}
-
-inline Zone& getzone( const Pos4d& p )
-{
-  return p.realm()->getzone_grid( Pos2d( p.x() >> Plib::WGRID_SHIFT, p.y() >> Plib::WGRID_SHIFT ) );
 }
 
 namespace
