@@ -368,9 +368,6 @@ inline Core::Zone& Realm::getzone_grid( const Core::Pos2d& p ) const
 }
 inline Core::Zone& Realm::getzone( unsigned short x, unsigned short y ) const
 {
-  passert( x < width() );
-  passert( y < height() );
-
   return getzone_grid( x >> Plib::WGRID_SHIFT, y >> Plib::WGRID_SHIFT );
 }
 inline Core::Zone& Realm::getzone( const Core::Pos2d& p ) const
