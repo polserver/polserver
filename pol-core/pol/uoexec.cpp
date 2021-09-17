@@ -900,7 +900,7 @@ bool UOExecutor::getRealmParam( unsigned param, Realms::Realm** realm )
   if ( !getStringParam( param, realm_name ) )
     return false;
   *realm = find_realm( realm_name->value() );
-  if ( !realm )
+  if ( !( *realm ) )
   {
     setFunctionResult( new Bscript::BError( "Realm not found." ) );
     return false;
