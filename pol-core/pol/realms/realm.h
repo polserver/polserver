@@ -78,7 +78,7 @@ public:
   Core::Zone& getzone_grid( unsigned short x, unsigned short y ) const;  // TODO Pos
   Core::Zone& getzone_grid( const Core::Pos2d& pos ) const;
   Core::Zone& getzone( unsigned short x, unsigned short y ) const;
-  Core::Zone& getzone( const Pos2d& p ) const;
+  Core::Zone& getzone( const Core::Pos2d& p ) const;
 
   unsigned season() const;
 
@@ -373,9 +373,9 @@ inline Core::Zone& Realm::getzone( unsigned short x, unsigned short y ) const
 
   return getzone_grid( x >> Plib::WGRID_SHIFT, y >> Plib::WGRID_SHIFT );
 }
-inline Core::Zone& Realm::getzone( const Pos2d& p ) const
+inline Core::Zone& Realm::getzone( const Core::Pos2d& p ) const
 {
-  return getzone_grid( Pos2d( p.x() >> Plib::WGRID_SHIFT, p.y() >> Plib::WGRID_SHIFT ) );
+  return getzone_grid( Core::Pos2d( p.x() >> Plib::WGRID_SHIFT, p.y() >> Plib::WGRID_SHIFT ) );
 }
 
 
