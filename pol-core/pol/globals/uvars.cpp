@@ -273,36 +273,36 @@ void GameState::cleanup_vars()
   {
     for ( const auto& p : realm->gridarea() )
     {
-      for ( auto& item : realm->getzone( p ).items )
+      for ( auto& item : realm->getzone_grid( p ).items )
       {
         item->destroy();
       }
-      realm->getzone( p ).items.clear();
+      realm->getzone_grid( p ).items.clear();
     }
 
     for ( const auto& p : realm->gridarea() )
     {
-      for ( auto& chr : realm->getzone( p ).characters )
+      for ( auto& chr : realm->getzone_grid( p ).characters )
       {
         chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
         chr->destroy();
       }
-      realm->getzone( p ).characters.clear();
-      for ( auto& chr : realm->getzone( p ).npcs )
+      realm->getzone_grid( p ).characters.clear();
+      for ( auto& chr : realm->getzone_grid( p ).npcs )
       {
         chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
         chr->destroy();
       }
-      realm->getzone( p ).npcs.clear();
+      realm->getzone_grid( p ).npcs.clear();
     }
 
     for ( const auto& p : realm->gridarea() )
     {
-      for ( auto& multi : realm->getzone( p ).multis )
+      for ( auto& multi : realm->getzone_grid( p ).multis )
       {
         multi->destroy();
       }
-      realm->getzone( p ).multis.clear();
+      realm->getzone_grid( p ).multis.clear();
     }
   }
 

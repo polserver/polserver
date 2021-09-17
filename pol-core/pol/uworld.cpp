@@ -280,12 +280,12 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
     bool found = false;
     if ( is_npc )
     {
-      auto _z = chr->realm()->getzone( p ).npcs;
+      auto _z = chr->realm()->getzone_grid( p ).npcs;
       found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
     }
     else
     {
-      auto _z = chr->realm()->getzone( p ).characters;
+      auto _z = chr->realm()->getzone_grid( p ).characters;
       found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
     }
     if ( found )
@@ -299,7 +299,7 @@ bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm )
 {
   try
   {
-    ZoneItems& witem = realm->getzone( pos ).items;
+    ZoneItems& witem = realm->getzone_grid( pos ).items;
 
     for ( const auto& item : witem )
     {
@@ -362,9 +362,9 @@ void check_character_integrity()
 
     for ( const auto& p : realm->gridarea() )
     {
-      for ( const auto& chr : realm->getzone( p ).characters )
+      for ( const auto& chr : realm->getzone_grid( p ).characters )
         check_zone( chr, p );
-      for ( const auto& chr : realm->getzone( p ).npcs )
+      for ( const auto& chr : realm->getzone_grid( p ).npcs )
         check_zone( chr, p );
     }
   }
@@ -377,10 +377,10 @@ void optimize_zones()
   {
     for ( const auto& p : realm->gridarea() )
     {
-      realm->getzone( p ).characters.shrink_to_fit();
-      realm->getzone( p ).npcs.shrink_to_fit();
-      realm->getzone( p ).items.shrink_to_fit();
-      realm->getzone( p ).multis.shrink_to_fit();
+      realm->getzone_grid( p ).characters.shrink_to_fit();
+      realm->getzone_grid( p ).npcs.shrink_to_fit();
+      realm->getzone_grid( p ).items.shrink_to_fit();
+      realm->getzone_grid( p ).multis.shrink_to_fit();
     }
   }
 }

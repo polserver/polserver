@@ -41,13 +41,13 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
   {
     for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& ochr : chr->realm()->getzone( wx, wy ).characters )
+      for ( const auto& ochr : chr->realm()->getzone_grid( wx, wy ).characters )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
         if ( _item != nullptr )
           return _item;
       }
-      for ( const auto& ochr : chr->realm()->getzone( wx, wy ).npcs )
+      for ( const auto& ochr : chr->realm()->getzone_grid( wx, wy ).npcs )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
         if ( _item != nullptr )

@@ -943,7 +943,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
   {
     for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( auto& item : chr->realm()->getzone( wx, wy ).items )
+      for ( auto& item : chr->realm()->getzone_grid( wx, wy ).items )
       {
         if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
         {
@@ -1000,7 +1000,7 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
   {
     for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& _item : chr->realm()->getzone( wx, wy ).items )
+      for ( const auto& _item : chr->realm()->getzone_grid( wx, wy ).items )
       {
         if ( !inrange( chr, _item ) )
           continue;

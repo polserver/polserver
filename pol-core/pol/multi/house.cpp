@@ -702,7 +702,7 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
   {
     for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& multi : realm->getzone( wx, wy ).multis )
+      for ( const auto& multi : realm->getzone_grid( wx, wy ).multis )
       {
         const MultiDef& edef = multi->multidef();
         // find out if any of our walls would fall within its footprint.
@@ -770,17 +770,17 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
   {
     for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& chr : realm->getzone( wx, wy ).characters )
+      for ( const auto& chr : realm->getzone_grid( wx, wy ).characters )
       {
         if ( includes( chr ) )
           return true;
       }
-      for ( const auto& chr : realm->getzone( wx, wy ).npcs )
+      for ( const auto& chr : realm->getzone_grid( wx, wy ).npcs )
       {
         if ( includes( chr ) )
           return true;
       }
-      for ( const auto& item : realm->getzone( wx, wy ).items )
+      for ( const auto& item : realm->getzone_grid( wx, wy ).items )
       {
         if ( includes( item ) )
           return true;

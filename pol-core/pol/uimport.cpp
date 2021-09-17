@@ -520,7 +520,7 @@ Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm*
 {
   unsigned short wx, wy;
   zone_convert( x, y, &wx, &wy, realm );
-  for ( auto& item : realm->getzone( wx, wy ).items )
+  for ( auto& item : realm->getzone_grid( wx, wy ).items )
   {
     // FIXME won't find doors which have been perturbed
     if ( item->objtype_ == objtype && item->x() == x && item->y() == y && item->z() == z )
@@ -906,7 +906,7 @@ void write_items( Clib::StreamWriter& sw_items )
   {
     for ( const auto& p : realm->gridarea() )
     {
-      for ( const auto& item : realm->getzone( p ).items )
+      for ( const auto& item : realm->getzone_grid( p ).items )
       {
         if ( item->itemdesc().save_on_exit && item->saveonexit() )
         {
@@ -939,7 +939,7 @@ void write_multis( Clib::StreamWriter& ofs )
   {
     for ( const auto& p : realm->gridarea() )
     {
-      for ( auto& multi : realm->getzone( p ).multis )
+      for ( auto& multi : realm->getzone_grid( p ).multis )
       {
         if ( Clib::exit_signalled )  // drop waiting commit on shutdown
         {

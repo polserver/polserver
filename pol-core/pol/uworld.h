@@ -97,7 +97,7 @@ inline Zone& getzone( unsigned short x, unsigned short y, Realms::Realm* realm )
   passert( x < realm->width() );
   passert( y < realm->height() );
 
-  return realm->getzone( x >> Plib::WGRID_SHIFT, y >> Plib::WGRID_SHIFT );
+  return realm->getzone_grid( x >> Plib::WGRID_SHIFT, y >> Plib::WGRID_SHIFT );
 }
 
 inline Pos2d zone_convert( const Pos4d& p )
@@ -108,7 +108,7 @@ inline Pos2d zone_convert( const Pos4d& p )
 
 inline Zone& getzone( const Pos4d& p )
 {
-  return p.realm()->getzone( Pos2d( p.x() >> Plib::WGRID_SHIFT, p.y() >> Plib::WGRID_SHIFT ) );
+  return p.realm()->getzone_grid( Pos2d( p.x() >> Plib::WGRID_SHIFT, p.y() >> Plib::WGRID_SHIFT ) );
 }
 
 namespace
@@ -298,7 +298,7 @@ void WorldIterator<Filter>::_forEach( const CoordsArea& coords, const Realms::Re
   {
     for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
     {
-      Filter::call( realm->getzone( wx, wy ), coords, f );
+      Filter::call( realm->getzone_grid( wx, wy ), coords, f );
     }
   }
 }

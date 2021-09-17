@@ -109,12 +109,12 @@ void regen_stats()
     for ( const auto& p : realm->gridarea() )
     {
       bool any = false;
-      for ( auto& chr : realm->getzone( p ).characters )
+      for ( auto& chr : realm->getzone_grid( p ).characters )
       {
         any = true;
         stat_regen( chr );
       }
-      for ( auto& chr : realm->getzone( p ).npcs )
+      for ( auto& chr : realm->getzone_grid( p ).npcs )
       {
         any = true;
         stat_regen( chr );
