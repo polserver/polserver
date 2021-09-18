@@ -116,6 +116,7 @@ class PolServer:
     self.s.settimeout(30) # FIXME: we need a way to stop this process without a connection
     self.conn, addr = self.s.accept()
     self.conn.settimeout(0.1)
+    self.buf=b''
 
   def run(self):
     while True:
@@ -189,17 +190,17 @@ class PolServer:
     return data
     
   def recv(self):
-    data=b''
     while True:
       r=self._recv()
       if r is None:
         return None
-      data+=r
-      if not len(data):
+      self.buf+=r
+      if not len(self.buf):
           return {}
-      if data.endswith(b'\r\n'):
+      if b'\r\n' in self.buf:
         break
-    data=json.loads(data.decode().rstrip('\r\n'))
+    data=json.loads(self.buf[:self.buf.index(b'\r\n')].decode())
+    self.buf=self.buf[self.buf.index(b'\r\n')+2:]
     return data
 
   def sendEvent(self, ev):
