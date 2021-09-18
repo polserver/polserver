@@ -213,7 +213,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
-    for ( const auto& chr : realm()->zone[wx][wy].characters )
+    for ( const auto& chr : realm()->getzone_grid( wx, wy ).characters )
     {
       // First check if there really is a character blocking
       if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
@@ -223,7 +223,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
       }
     }
   }
-  for ( const auto& chr : realm()->zone[wx][wy].npcs )
+  for ( const auto& chr : realm()->getzone_grid( wx, wy ).npcs )
   {
     // First check if there really is a character blocking
     if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )

@@ -37,17 +37,17 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
   unsigned short wxL, wyL, wxH, wyH;
   zone_convert_clip( chr->x() - RANGE_VISUAL, chr->y() - RANGE_VISUAL, chr->realm(), &wxL, &wyL );
   zone_convert_clip( chr->x() + RANGE_VISUAL, chr->y() + RANGE_VISUAL, chr->realm(), &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
     {
-      for ( const auto& ochr : chr->realm()->zone[wx][wy].characters )
+      for ( const auto& ochr : chr->realm()->getzone_grid( wx, wy ).characters )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
         if ( _item != nullptr )
           return _item;
       }
-      for ( const auto& ochr : chr->realm()->zone[wx][wy].npcs )
+      for ( const auto& ochr : chr->realm()->getzone_grid( wx, wy ).npcs )
       {
         Items::Item* _item = ochr->find_wornitem( serial );
         if ( _item != nullptr )

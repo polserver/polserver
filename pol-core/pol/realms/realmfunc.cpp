@@ -313,7 +313,7 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
 void Realm::readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                           Core::ItemsVector& walkon_items, bool doors_block )
 {
-  Core::ZoneItems& witems = Core::getzone( x, y, this ).items;
+  Core::ZoneItems& witems = getzone( x, y ).items;
   for ( const auto& item : witems )
   {
     if ( ( item->x() == x ) && ( item->y() == y ) )

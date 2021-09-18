@@ -29,6 +29,8 @@
 #include "../clib/rawtypes.h"
 #include "../plib/realmdescriptor.h"
 #include "../plib/uconst.h"
+#include "base/position.h"
+#include "base/range.h"
 #include "realms/WorldChangeReasons.h"
 #include "realms/realm.h"
 #include "zone.h"
@@ -43,35 +45,25 @@ void remove_item_from_world( Items::Item* item );
 void add_multi_to_world( Multi::UMulti* multi );
 void remove_multi_from_world( Multi::UMulti* multi );
 void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                          unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm );
+                          unsigned short newy, Multi::UMulti* multi,
+                          Realms::Realm* oldrealm );  // TODO Pos dont pass both new and old.
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
 void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsigned short newx,
                                  unsigned short newy, Mobile::Character* chr,
-                                 Realms::Realm* oldrealm );
+                                 Realms::Realm* oldrealm );  // TODO Pos dont pass both new and old
 
 void SetItemWorldPosition( Items::Item* item );
 void ClrItemWorldPosition( Items::Item* item );
 void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Item* item,
-                            Realms::Realm* oldrealm );
+                            Realms::Realm* oldrealm );  // TODO Pos
 
 int get_toplevel_item_count();
 int get_mobile_count();
 
 void optimize_zones();
-
-typedef std::vector<Mobile::Character*> ZoneCharacters;
-typedef std::vector<Multi::UMulti*> ZoneMultis;
-typedef std::vector<Items::Item*> ZoneItems;
-
-struct Zone
-{
-  ZoneCharacters characters;
-  ZoneCharacters npcs;
-  ZoneItems items;
-  ZoneMultis multis;
-};
+bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm );
 
 inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx,
                           unsigned short* wy, const Realms::Realm* realm )
@@ -82,6 +74,7 @@ inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx
   ( *wx ) = x >> Plib::WGRID_SHIFT;
   ( *wy ) = y >> Plib::WGRID_SHIFT;
 }
+
 
 inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigned short* wx,
                                unsigned short* wy )
@@ -99,12 +92,10 @@ inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigne
   ( *wy ) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
 }
 
-inline Zone& getzone( unsigned short x, unsigned short y, Realms::Realm* realm )
+inline Pos2d zone_convert( const Pos4d& p )
 {
-  passert( x < realm->width() );
-  passert( y < realm->height() );
-
-  return realm->zone[x >> Plib::WGRID_SHIFT][y >> Plib::WGRID_SHIFT];
+  return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
+                static_cast<unsigned short>( p.y() >> Plib::WGRID_SHIFT ) );
 }
 
 namespace
@@ -123,11 +114,19 @@ template <class Filter>
 struct WorldIterator
 {
   template <typename F>
-  static void InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range, F&& f );
+  static void InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range,
+                       F&& f );  // TODO Pos
+  template <typename F>
+  static void InRange( const Pos2d& pos, const Realms::Realm* realm, unsigned range, F&& f );
+  template <typename F>
+  static void InRange( const Pos4d& pos, unsigned range, F&& f );
   template <typename F>
   static void InVisualRange( const UObject* obj, F&& f );
   template <typename F>
-  static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm, F&& f );
+  static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm,
+                     F&& f );  // TODO Pos
+  template <typename F>
+  static void InBox( const Range2d& area, const Realms::Realm* realm, F&& f );
 
 protected:
   template <typename F>
@@ -242,6 +241,20 @@ void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, u
 }
 template <class Filter>
 template <typename F>
+void WorldIterator<Filter>::InRange( const Pos2d& pos, const Realms::Realm* realm, unsigned range,
+                                     F&& f )
+{
+  InRange( pos.x(), pos.y(), realm, range, f );
+}
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InRange( const Pos4d& pos, unsigned range, F&& f )
+{
+  InRange( pos.x(), pos.y(), pos.realm(), range, f );
+}
+
+template <class Filter>
+template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
   InRange( obj->toplevel_owner()->x(), obj->toplevel_owner()->y(), obj->toplevel_owner()->realm(),
@@ -257,16 +270,22 @@ void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms:
   CoordsArea coords( x1, y1, x2, y2, realm );
   _forEach( coords, realm, std::forward<F>( f ) );
 }
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InBox( const Range2d& area, const Realms::Realm* realm, F&& f )
+{
+  InBox( area.nw().x(), area.nw().y(), area.se().x(), area.se().y(), realm, f );
+}
 
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::_forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f )
 {
-  for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
+  for ( u16 wy = coords.wyL; wy <= coords.wyH; ++wy )
   {
-    for ( u16 wy = coords.wyL; wy <= coords.wyH; ++wy )
+    for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
     {
-      Filter::call( realm->zone[wx][wy], coords, f );
+      Filter::call( realm->getzone_grid( wx, wy ), coords, f );
     }
   }
 }

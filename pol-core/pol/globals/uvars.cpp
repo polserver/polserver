@@ -27,10 +27,6 @@
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../console.h"
-#include "regions/guardrgn.h"
-#include "regions/musicrgn.h"
-#include "regions/resource.h"
-#include "regions/miscrgn.h"
 #include "../guilds.h"
 #include "../item/equipmnt.h"
 #include "../item/itemdesc.h"
@@ -44,7 +40,6 @@
 #include "../party.h"
 #include "../polcfg.h"
 #include "../polsem.h"
-#include "realms/realm.h"
 #include "../scrstore.h"
 #include "../spells.h"
 #include "../startloc.h"
@@ -57,6 +52,11 @@
 #include "multidefs.h"
 #include "network.h"
 #include "object_storage.h"
+#include "realms/realm.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/musicrgn.h"
+#include "regions/resource.h"
 #include "script_internals.h"
 #include "ucfg.h"
 
@@ -121,15 +121,15 @@ GameState::GameState()
       // on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
       // We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot
       // is free.
-      spell_scroll_objtype_limits( {{// TODO: Comment those objtypes :D
-                                     {{0x1F2D, 0x1F6C}},
-                                     {{0x2260, 0x226F}},
-                                     {{0x2270, 0x227C}},
-                                     {{0x2D9E, 0x2DAD}},
-                                     {{0x238D, 0x2392}},
-                                     {{0x23A1, 0x23A8}},
-                                     {{0x2D51, 0x2D60}},
-                                     {{0x574B, 0x5750}}}} ),
+      spell_scroll_objtype_limits( { { // TODO: Comment those objtypes :D
+                                       { { 0x1F2D, 0x1F6C } },
+                                       { { 0x2260, 0x226F } },
+                                       { { 0x2270, 0x227C } },
+                                       { { 0x2D9E, 0x2DAD } },
+                                       { { 0x238D, 0x2392 } },
+                                       { { 0x23A1, 0x23A8 } },
+                                       { { 0x2D51, 0x2D60 } },
+                                       { { 0x574B, 0x5750 } } } } ),
       spells(),
       spellcircles(),
       export_scripts(),
@@ -271,50 +271,38 @@ void GameState::cleanup_vars()
 
   for ( auto& realm : Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
-
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& item : realm->getzone_grid( p ).items )
       {
-        for ( auto& item : realm->zone[wx][wy].items )
-        {
-          item->destroy();
-        }
-        realm->zone[wx][wy].items.clear();
+        item->destroy();
       }
+      realm->getzone_grid( p ).items.clear();
     }
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& chr : realm->getzone_grid( p ).characters )
       {
-        for ( auto& chr : realm->zone[wx][wy].characters )
-        {
-          chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          chr->destroy();
-        }
-        realm->zone[wx][wy].characters.clear();
-        for ( auto& chr : realm->zone[wx][wy].npcs )
-        {
-          chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          chr->destroy();
-        }
-        realm->zone[wx][wy].npcs.clear();
+        chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
+        chr->destroy();
       }
+      realm->getzone_grid( p ).characters.clear();
+      for ( auto& chr : realm->getzone_grid( p ).npcs )
+      {
+        chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
+        chr->destroy();
+      }
+      realm->getzone_grid( p ).npcs.clear();
     }
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& multi : realm->getzone_grid( p ).multis )
       {
-        for ( auto& multi : realm->zone[wx][wy].multis )
-        {
-          multi->destroy();
-        }
-        realm->zone[wx][wy].multis.clear();
+        multi->destroy();
       }
+      realm->getzone_grid( p ).multis.clear();
     }
   }
 
