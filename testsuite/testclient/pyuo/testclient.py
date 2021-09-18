@@ -190,15 +190,13 @@ class PolServer:
     return data
     
   def recv(self):
-    while True:
+    while b'\r\n' not in self.buf:
       r=self._recv()
       if r is None:
         return None
       self.buf+=r
       if not len(self.buf):
           return {}
-      if b'\r\n' in self.buf:
-        break
     data=json.loads(self.buf[:self.buf.index(b'\r\n')].decode())
     self.buf=self.buf[self.buf.index(b'\r\n')+2:]
     return data
