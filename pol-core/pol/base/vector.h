@@ -25,10 +25,6 @@ public:
 
   bool operator==( const Vec2d& other ) const;
   bool operator!=( const Vec2d& other ) const;
-  bool operator<( const Vec2d& other ) const;
-  bool operator>( const Vec2d& other ) const;
-  bool operator<=( const Vec2d& other ) const;
-  bool operator>=( const Vec2d& other ) const;
 
   Vec2d& operator-=( const Vec2d& other );
   Vec2d& operator+=( const Vec2d& other );
@@ -62,17 +58,9 @@ public:
 
   bool operator==( const Vec3d& other ) const;
   bool operator!=( const Vec3d& other ) const;
-  bool operator<( const Vec3d& other ) const;
-  bool operator>( const Vec3d& other ) const;
-  bool operator<=( const Vec3d& other ) const;
-  bool operator>=( const Vec3d& other ) const;
 
   bool operator==( const Vec2d& other ) const;
   bool operator!=( const Vec2d& other ) const;
-  bool operator<( const Vec2d& other ) const;
-  bool operator>( const Vec2d& other ) const;
-  bool operator<=( const Vec2d& other ) const;
-  bool operator>=( const Vec2d& other ) const;
 
   Vec3d& operator-=( const Vec3d& other );
   Vec3d& operator-=( const Vec2d& other );

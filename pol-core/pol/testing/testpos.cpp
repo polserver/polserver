@@ -45,14 +45,6 @@ void pos2d_test()
       },
       Pos2d( 0xffff, 0 ), "+= clip" );
 
-  UnitTest( []() { return Pos2d( 1, 1 ) < Pos2d( 2, 1 ); }, true, "1,1<2,1" );
-  UnitTest( []() { return Pos2d( 1, 1 ) < Pos2d( 1, 1 ); }, false, "1,1<1,1" );
-  UnitTest( []() { return Pos2d( 1, 1 ) < Pos2d( 1, 2 ); }, true, "1,1<1,2" );
-  UnitTest( []() { return Pos2d( 1, 2 ) > Pos2d( 1, 1 ); }, true, "1,2>1,1" );
-  UnitTest( []() { return Pos2d( 1, 1 ) > Pos2d( 1, 1 ); }, false, "1,1>1,1" );
-  UnitTest( []() { return Pos2d( 2, 1 ) > Pos2d( 1, 1 ); }, true, "2,1>1,1" );
-  UnitTest( []() { return Pos2d( 2, 1 ) >= Pos2d( 2, 1 ); }, true, "2,1>=2,1" );
-  UnitTest( []() { return Pos2d( 2, 1 ) <= Pos2d( 2, 1 ); }, true, "2,1<=2,1" );
   UnitTest( []() { return Pos2d( 2, 1 ) != Pos2d( 2, 1 ); }, false, "2,1!=2,1" );
 
   UnitTest( []() { return Pos2d( 2, 1 ).from_origin(); }, Vec2d( 2, 1 ), "2,1.from_origin()" );
@@ -172,24 +164,10 @@ void pos3d_test()
       },
       Pos3d( 0xffff, 0, -128 ), "+= clip" );
 
-  UnitTest( []() { return Pos3d( 1, 1, 1 ) < Pos3d( 2, 1, 1 ); }, true, "1,1,1<2,1,1" );
-  UnitTest( []() { return Pos3d( 1, 1, 1 ) < Pos3d( 1, 1, 1 ); }, false, "1,1,1<1,1,1" );
-  UnitTest( []() { return Pos3d( 1, 1, 1 ) < Pos3d( 1, 2, 1 ); }, true, "1,1,1<1,2,1" );
-  UnitTest( []() { return Pos3d( 1, 2, 1 ) > Pos3d( 1, 1, 1 ); }, true, "1,2,1>1,1,1" );
-  UnitTest( []() { return Pos3d( 1, 1, 1 ) > Pos3d( 1, 1, 1 ); }, false, "1,1,1>1,1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) > Pos3d( 1, 1, 1 ); }, true, "2,1,1>1,1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) >= Pos3d( 2, 1, 1 ); }, true, "2,1,1>=2,1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) <= Pos3d( 2, 1, 1 ); }, true, "2,1,1<=2,1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) < Pos3d( 2, 1, 2 ); }, true, "2,1,1<2,1,2" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) > Pos3d( 2, 1, -2 ); }, true, "2,1,1>2,1,-2" );
   UnitTest( []() { return Pos3d( 2, 1, 1 ) != Pos3d( 2, 1, -2 ); }, true, "2,1,1!=2,1,-2" );
 
-  UnitTest( []() { return Pos3d( 1, 1, 1 ) == Pos2d( 1, 1 ); }, true, "1,1,1<1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) != Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
-  UnitTest( []() { return Pos3d( 1, 1, 1 ) < Pos2d( 2, 1 ); }, true, "1,1,1<2,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) > Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) >= Pos2d( 1, 1 ); }, true, "2,1,1>=1,1" );
-  UnitTest( []() { return Pos3d( 2, 1, 1 ) <= Pos2d( 3, 1 ); }, true, "2,1,1>=3,1" );
+  UnitTest( []() { return Pos3d( 1, 1, 1 ) == Pos2d( 1, 1 ); }, true, "1,1,1==1,1" );
+  UnitTest( []() { return Pos3d( 2, 1, 1 ) != Pos2d( 1, 1 ); }, true, "2,1,1!=1,1" );
 
   UnitTest( []() { return Pos3d( 2, 1, -1 ).from_origin(); }, Vec3d( 2, 1, -1 ),
             "2,1,-1.from_origin()" );
@@ -287,45 +265,12 @@ void pos4d_test()
   UnitTest( [&]() { return Pos4d( 0, 0, 0, r ).x( 0xffff ).y( 0xffff ); },
             Pos4d( r->width() - 1, r->height() - 1, 0, r ), "setX,setY crop" );
 
-
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 2, 1, 1, r ); }, true, "1,1,1<2,1,1r" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 1, 1, 1, r ); }, false, "1,1,1<1,1,1r" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 1, 2, 1, r ); }, true, "1,1,1<1,2,1r" );
-  UnitTest( [&]() { return Pos4d( 1, 2, 1, r ) > Pos4d( 1, 1, 1, r ); }, true, "1,2,1>1,1,1r" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) > Pos4d( 1, 1, 1, r ); }, false, "1,1,1>1,1,1r" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos4d( 1, 1, 1, r ); }, true, "2,1,1>1,1,1r" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos4d( 2, 1, 1, r ); }, true, "2,1,1>=2,1,1r" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos4d( 2, 1, 1, r ); }, true, "2,1,1<=2,1,1r" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) < Pos4d( 2, 1, 2, r ); }, true, "2,1,1<2,1,2r" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos4d( 2, 1, -2, r ); }, true, "2,1,1>2,1,-2r" );
   UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) != Pos4d( 2, 1, -2, r ); }, true, "2,1,1!=2,1,-2r" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos4d( 2, 1, 1, nullptr ); }, false,
-            "1,1,1<2,1,1nullptr" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos4d( 1, 1, 1, nullptr ); }, false,
-            "2,1,1<1,1,1nullptr" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos4d( 2, 1, 1, nullptr ); }, false,
-            "2,1,1>=2,1,1nullptr" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos4d( 2, 1, 1, nullptr ); }, false,
-            "2,1,1<=2,1,1nullptr" );
 
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos3d( 2, 1, 1 ); }, true, "1,1,1<2,1,1" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos3d( 1, 1, 1 ); }, false, "1,1,1<1,1,1" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos3d( 1, 2, 1 ); }, true, "1,1,1<1,2,1" );
-  UnitTest( [&]() { return Pos4d( 1, 2, 1, r ) > Pos3d( 1, 1, 1 ); }, true, "1,2,1>1,1,1" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) > Pos3d( 1, 1, 1 ); }, false, "1,1,1>1,1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos3d( 1, 1, 1 ); }, true, "2,1,1>1,1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos3d( 2, 1, 1 ); }, true, "2,1,1>=2,1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos3d( 2, 1, 1 ); }, true, "2,1,1<=2,1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) < Pos3d( 2, 1, 2 ); }, true, "2,1,1<2,1,2" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos3d( 2, 1, -2 ); }, true, "2,1,1>2,1,-2" );
   UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) != Pos3d( 2, 1, -2 ); }, true, "2,1,1!=2,1,-2" );
 
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) == Pos2d( 1, 1 ); }, true, "1,1,1<1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) != Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
-  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) < Pos2d( 2, 1 ); }, true, "1,1,1<2,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) > Pos2d( 1, 1 ); }, true, "2,1,1<1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) >= Pos2d( 1, 1 ); }, true, "2,1,1>=1,1" );
-  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) <= Pos2d( 3, 1 ); }, true, "2,1,1>=3,1" );
+  UnitTest( [&]() { return Pos4d( 1, 1, 1, r ) == Pos2d( 1, 1 ); }, true, "1,1,1==1,1" );
+  UnitTest( [&]() { return Pos4d( 2, 1, 1, r ) != Pos2d( 1, 1 ); }, true, "2,1,1!=1,1" );
 
   UnitTest( [&]() { return Pos4d( 2, 1, 1, r ).in_range( Pos2d( 0, 0 ), 2 ); }, true,
             "2,1,1.in_range()" );

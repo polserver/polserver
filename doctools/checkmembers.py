@@ -23,7 +23,7 @@ def parseMemberDec():
 
 def parseMemberDef(decs):
     defs=dict()
-    with open('../pol-core/bscript/parser.cpp','r') as f:
+    with open('../pol-core/bscript/objaccess.cpp','r') as f:
         in_def=False
         for l in f.readlines():
             l=l.strip();
@@ -32,7 +32,7 @@ def parseMemberDef(decs):
                 continue
             if not in_def:
                 continue
-            if l.startswith('{MBR_'):
+            if l.startswith('{ MBR_'):
                 l=l.replace('{','').replace('"','')
                 l=[_.strip() for _ in l.split(',')]
                 for d in decs:

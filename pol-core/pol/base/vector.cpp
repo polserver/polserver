@@ -22,26 +22,6 @@ bool Vec2d::operator!=( const Vec2d& other ) const
 {
   return !( *this == other );
 }
-bool Vec2d::operator<( const Vec2d& other ) const
-{
-  if ( _x == other._x )
-    return _y < other._y;
-  return _x < other._x;
-}
-bool Vec2d::operator>( const Vec2d& other ) const
-{
-  if ( _x == other._x )
-    return _y > other._y;
-  return _x > other._x;
-}
-bool Vec2d::operator<=( const Vec2d& other ) const
-{
-  return *this == other || *this < other;
-}
-bool Vec2d::operator>=( const Vec2d& other ) const
-{
-  return *this == other || *this > other;
-}
 
 Vec2d& Vec2d::operator-=( const Vec2d& other )
 {
@@ -84,26 +64,6 @@ bool Vec3d::operator!=( const Vec3d& other ) const
 {
   return !( *this == other );
 }
-bool Vec3d::operator<( const Vec3d& other ) const
-{
-  if ( _xy == other._xy )
-    return _z < other._z;
-  return _xy < other._xy;
-}
-bool Vec3d::operator>( const Vec3d& other ) const
-{
-  if ( _xy == other._xy )
-    return _z > other._z;
-  return _xy > other._xy;
-}
-bool Vec3d::operator<=( const Vec3d& other ) const
-{
-  return *this == other || *this < other;
-}
-bool Vec3d::operator>=( const Vec3d& other ) const
-{
-  return *this == other || *this > other;
-}
 bool Vec3d::operator==( const Vec2d& other ) const
 {
   return _xy == other;
@@ -111,22 +71,6 @@ bool Vec3d::operator==( const Vec2d& other ) const
 bool Vec3d::operator!=( const Vec2d& other ) const
 {
   return _xy != other;
-}
-bool Vec3d::operator<( const Vec2d& other ) const
-{
-  return _xy < other;
-}
-bool Vec3d::operator>( const Vec2d& other ) const
-{
-  return _xy > other;
-}
-bool Vec3d::operator<=( const Vec2d& other ) const
-{
-  return _xy <= other;
-}
-bool Vec3d::operator>=( const Vec2d& other ) const
-{
-  return _xy >= other;
 }
 
 Vec3d& Vec3d::operator-=( const Vec3d& other )
