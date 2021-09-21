@@ -23,7 +23,7 @@ def parseMethodDec():
 
 def parseMethodDef(decs):
     defs=dict()
-    with open('../pol-core/bscript/parser.cpp','r') as f:
+    with open('../pol-core/bscript/objaccess.cpp','r') as f:
         in_def=False
         for l in f.readlines():
             l=l.strip();
@@ -32,7 +32,7 @@ def parseMethodDef(decs):
                 continue
             if not in_def:
                 continue
-            if l.startswith('{MTH_'):
+            if l.startswith('{ MTH_'):
                 l=l.replace('{','').replace('"','')
                 l=[_.strip() for _ in l.split(',')]
                 for d in decs:
@@ -67,6 +67,10 @@ def parseFile(file,defs,methods):
                 continue
             if not in_d and '::call_method' in l:
                 l=l[:l.find('::call_method')]
+                active=l.split()[-1]
+                in_d=True
+            elif not in_d and '::call_polmethod' in l:
+                l=l[:l.find('::call_polmethod')]
                 active=l.split()[-1]
                 in_d=True
             elif not in_d and '::script_method_id' in l:
@@ -105,8 +109,11 @@ def parseFile(file,defs,methods):
                         print(linec)
                         raise
                 if 'if ( stricmp' in l:
-                    m=l.split('"')[1]
-                    supported.append(m)
+                    try:
+                        m=l.split('"')[1]
+                        supported.append(m)
+                    except:
+                        pass
                 if 'CallPropertyListMethod' in l:
                     supported.append('!CPROP!')
     return methods

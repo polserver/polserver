@@ -126,11 +126,11 @@ struct WorldIterator
   static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm,
                      F&& f );  // TODO Pos
   template <typename F>
-  static void InBox( const Range2d& area, const Realms::Realm* realm, F&& f );
+  static void InBox( Range2d area, const Realms::Realm* realm, F&& f );
 
 protected:
   template <typename F>
-  static void _forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f );
+  static void _forEach( const CoordsArea& coords, F&& f );
 };
 
 enum class FilterType
@@ -169,63 +169,75 @@ namespace
 struct CoordsArea
 {
   // structure to hold the world and shifted coords
-  CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range );    // create from range
-  CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm );  // create from box
+  CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, unsigned range );  // create from range
+  CoordsArea( const Pos4d& p, unsigned range );                                 // create from range
+  CoordsArea( const Pos4d& p1, const Pos4d& p2 );                               // create from box
+  CoordsArea( Range2d box, const Realms::Realm* posrealm );                     // create from box
+
   bool inRange( const UObject* obj ) const;
 
   // shifted coords
-  u16 wxL;
-  u16 wyL;
-  u16 wxH;
-  u16 wyH;
+  Range2d warea;
+  const Realms::Realm* realm;
 
 private:
-  void convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm );
+  static Pos2d convert( const Pos2d& p );
 
   // plain coords
-  int _xL;
-  int _yL;
-  int _xH;
-  int _yH;
+  Range2d area;
 };
 }  // namespace
 ///////////////
 // imp
 namespace
 {
-inline CoordsArea::CoordsArea( u16 x, u16 y, const Realms::Realm* realm, unsigned range )
+inline CoordsArea::CoordsArea( const Pos2d& p, const Realms::Realm* posrealm, unsigned range )
 {
-  convert( x - range, y - range, x + range, y + range, realm );
-  _xL = x - range;
-  if ( _xL < 0 )
-    _xL = 0;
-  _yL = y - range;
-  if ( _yL < 0 )
-    _yL = 0;
-  _xH = x + range;
-  _yH = y + range;
+  realm = posrealm;
+  if ( range > static_cast<u32>( std::numeric_limits<s16>::max() ) )
+    range = std::numeric_limits<s16>::max();
+  Vec2d r( static_cast<s16>( range ), static_cast<s16>( range ) );
+  area = Range2d( p - r, p + r, realm );
+  warea = Range2d( convert( area.nw() ), convert( area.se() ), nullptr );
 }
-
-inline CoordsArea::CoordsArea( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm )
+inline CoordsArea::CoordsArea( const Pos4d& p, unsigned range )
 {
-  convert( x1, y1, x2, y2, realm );
-  _xL = x1;
-  _yL = y1;
-  _xH = x2;
-  _yH = y2;
+  realm = p.realm();
+  if ( range > static_cast<u32>( std::numeric_limits<s16>::max() ) )
+    range = std::numeric_limits<s16>::max();
+  Vec2d r( static_cast<s16>( range ), static_cast<s16>( range ) );
+  area = Range2d( p - r, p + r );
+  warea = Range2d( convert( area.nw() ), convert( area.se() ), nullptr );
+}
+inline CoordsArea::CoordsArea( const Pos4d& p1, const Pos4d& p2 )
+{
+  realm = p1.realm();
+  area = Range2d( p1.xy(), p2.xy(), realm );
+  warea = Range2d( convert( area.nw() ), convert( area.se() ), nullptr );
+}
+inline CoordsArea::CoordsArea( Range2d box, const Realms::Realm* posrealm )
+{
+  realm = posrealm;
+  area = std::move( box );
+  warea = Range2d( convert( area.nw() ), convert( area.se() ), nullptr );
 }
 
 inline bool CoordsArea::inRange( const UObject* obj ) const
 {
-  return ( obj->x() >= _xL && obj->x() <= _xH && obj->y() >= _yL && obj->y() <= _yH );
+  // TODO Pos:
+  // mmmh i guess we need three versions/have three usecases
+  // 1. simple area.contains eg for script functions
+  // 2. for pkts and stuff obj->inrange virtual which checks parent multi etc
+  // 3. like 2. but with the chr who wants to see the obj (his actual viewrange)
+  // keep this dumb with the maximum possible range here and filter further on callerside?
+  return area.contains( obj->pos().xy() );
 }
 
-inline void CoordsArea::convert( int xL, int yL, int xH, int yH, const Realms::Realm* realm )
+inline Pos2d CoordsArea::convert( const Pos2d& p )
 {
-  zone_convert_clip( xL, yL, realm, &wxL, &wyL );
-  zone_convert_clip( xH, yH, realm, &wxH, &wyH );
-  passert( wxL <= wxH );
-  passert( wyL <= wyH );
+  // zone_convert, but without Pos4d.
+  return Pos2d( static_cast<s16>( p.x() >> Plib::WGRID_SHIFT ),
+                static_cast<s16>( p.y() >> Plib::WGRID_SHIFT ) );
 }
 }  // namespace
 
@@ -234,59 +246,59 @@ template <typename F>
 void WorldIterator<Filter>::InRange( u16 x, u16 y, const Realms::Realm* realm, unsigned range,
                                      F&& f )
 {
-  if ( realm == nullptr )
-    return;
-  CoordsArea coords( x, y, realm, range );
-  _forEach( coords, realm, std::forward<F>( f ) );
+  InRange( Pos2d( x, y ), realm, range, f );
 }
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InRange( const Pos2d& pos, const Realms::Realm* realm, unsigned range,
                                      F&& f )
 {
-  InRange( pos.x(), pos.y(), realm, range, f );
+  if ( realm == nullptr )
+    return;
+  CoordsArea coords( pos, realm, range );
+  _forEach( coords, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InRange( const Pos4d& pos, unsigned range, F&& f )
 {
-  InRange( pos.x(), pos.y(), pos.realm(), range, f );
+  if ( pos.realm() == nullptr )
+    return;
+  CoordsArea coords( pos, range );
+  _forEach( coords, std::forward<F>( f ) );
 }
 
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
-  InRange( obj->toplevel_owner()->x(), obj->toplevel_owner()->y(), obj->toplevel_owner()->realm(),
-           RANGE_VISUAL, std::forward<F>( f ) );
+  // TODO RANGE_VISUAL needs to be something dynamic (client viewrange maximum, max multi size)
+  InRange( obj->toplevel_owner()->pos(), RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
 void WorldIterator<Filter>::InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm,
                                    F&& f )
 {
-  if ( realm == nullptr )
-    return;
-  CoordsArea coords( x1, y1, x2, y2, realm );
-  _forEach( coords, realm, std::forward<F>( f ) );
+  InBox( Range2d( Pos2d( x1, y1 ), Pos2d( x2, y2 ), realm ), realm, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::InBox( const Range2d& area, const Realms::Realm* realm, F&& f )
+void WorldIterator<Filter>::InBox( Range2d area, const Realms::Realm* realm, F&& f )
 {
-  InBox( area.nw().x(), area.nw().y(), area.se().x(), area.se().y(), realm, f );
+  if ( realm == nullptr )
+    return;
+  CoordsArea coords( std::move( area ), realm );
+  _forEach( coords, std::forward<F>( f ) );
 }
 
 template <class Filter>
 template <typename F>
-void WorldIterator<Filter>::_forEach( const CoordsArea& coords, const Realms::Realm* realm, F&& f )
+void WorldIterator<Filter>::_forEach( const CoordsArea& coords, F&& f )
 {
-  for ( u16 wy = coords.wyL; wy <= coords.wyH; ++wy )
+  for ( const auto& p : coords.warea )
   {
-    for ( u16 wx = coords.wxL; wx <= coords.wxH; ++wx )
-    {
-      Filter::call( realm->getzone_grid( wx, wy ), coords, f );
-    }
+    Filter::call( coords.realm->getzone_grid( p ), coords, f );
   }
 }
 

@@ -58,7 +58,8 @@ Range2dItr Range2d::end() const
 
 bool Range2d::contains( const Pos2d& other ) const
 {
-  return _nw <= other && _se >= other;
+  return _nw.x() <= other.x() && _nw.y() <= other.y() && other.x() <= _se.x() &&
+         other.y() <= _se.y();
 }
 
 bool Range2d::intersect( const Range2d& other ) const

@@ -45,26 +45,6 @@ bool Pos2d::operator!=( const Pos2d& other ) const
 {
   return !( *this == other );
 }
-bool Pos2d::operator<( const Pos2d& other ) const
-{
-  if ( _x == other._x )
-    return _y < other._y;
-  return _x < other._x;
-}
-bool Pos2d::operator>( const Pos2d& other ) const
-{
-  if ( _x == other._x )
-    return _y > other._y;
-  return _x > other._x;
-}
-bool Pos2d::operator<=( const Pos2d& other ) const
-{
-  return *this == other || *this < other;
-}
-bool Pos2d::operator>=( const Pos2d& other ) const
-{
-  return *this == other || *this > other;
-}
 
 Pos2d& Pos2d::operator-=( const Vec2d& other )
 {
@@ -201,26 +181,6 @@ bool Pos3d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
 }
-bool Pos3d::operator<( const Pos3d& other ) const
-{
-  if ( _xy == other._xy )
-    return _z < other._z;
-  return _xy < other._xy;
-}
-bool Pos3d::operator>( const Pos3d& other ) const
-{
-  if ( _xy == other._xy )
-    return _z > other._z;
-  return _xy > other._xy;
-}
-bool Pos3d::operator<=( const Pos3d& other ) const
-{
-  return *this == other || *this < other;
-}
-bool Pos3d::operator>=( const Pos3d& other ) const
-{
-  return *this == other || *this > other;
-}
 bool Pos3d::operator==( const Pos2d& other ) const
 {
   return _xy == other;
@@ -228,22 +188,6 @@ bool Pos3d::operator==( const Pos2d& other ) const
 bool Pos3d::operator!=( const Pos2d& other ) const
 {
   return _xy != other;
-}
-bool Pos3d::operator<( const Pos2d& other ) const
-{
-  return _xy < other;
-}
-bool Pos3d::operator>( const Pos2d& other ) const
-{
-  return _xy > other;
-}
-bool Pos3d::operator<=( const Pos2d& other ) const
-{
-  return _xy <= other;
-}
-bool Pos3d::operator>=( const Pos2d& other ) const
-{
-  return _xy >= other;
 }
 
 Pos3d& Pos3d::operator-=( const Vec2d& other )
@@ -336,7 +280,7 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
 {
-  w << "( " << v.x() << ", " << v.y() << ", " << v.z() << " )";
+  w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
   return w;
 }
 
@@ -362,30 +306,6 @@ bool Pos4d::operator!=( const Pos4d& other ) const
 {
   return !( *this == other );
 }
-bool Pos4d::operator<( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz < other._xyz;
-}
-bool Pos4d::operator>( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz > other._xyz;
-}
-bool Pos4d::operator<=( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz <= other._xyz;
-}
-bool Pos4d::operator>=( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz >= other._xyz;
-}
 bool Pos4d::operator==( const Pos3d& other ) const
 {
   return _xyz == other;
@@ -394,22 +314,6 @@ bool Pos4d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
 }
-bool Pos4d::operator<( const Pos3d& other ) const
-{
-  return _xyz < other;
-}
-bool Pos4d::operator>( const Pos3d& other ) const
-{
-  return _xyz > other;
-}
-bool Pos4d::operator<=( const Pos3d& other ) const
-{
-  return _xyz <= other;
-}
-bool Pos4d::operator>=( const Pos3d& other ) const
-{
-  return _xyz >= other;
-}
 bool Pos4d::operator==( const Pos2d& other ) const
 {
   return _xyz.xy() == other;
@@ -417,22 +321,6 @@ bool Pos4d::operator==( const Pos2d& other ) const
 bool Pos4d::operator!=( const Pos2d& other ) const
 {
   return !( *this == other );
-}
-bool Pos4d::operator<( const Pos2d& other ) const
-{
-  return _xyz.xy() < other;
-}
-bool Pos4d::operator>( const Pos2d& other ) const
-{
-  return _xyz.xy() > other;
-}
-bool Pos4d::operator<=( const Pos2d& other ) const
-{
-  return _xyz.xy() <= other;
-}
-bool Pos4d::operator>=( const Pos2d& other ) const
-{
-  return _xyz.xy() >= other;
 }
 
 Pos4d& Pos4d::operator-=( const Vec2d& other )
@@ -538,7 +426,7 @@ bool Pos4d::in_range( const Pos2d& other, u16 range ) const
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v )
 {
-  w << "( " << v.x() << ", " << v.y() << ", " << v.z()
+  w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
     << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
   return w;
 }
