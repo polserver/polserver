@@ -49,6 +49,7 @@ extern int uo_usedif;
 extern bool uo_readuop;
 extern unsigned short uo_map_width;
 extern unsigned short uo_map_height;
+extern size_t uo_map_size;
 
 extern int cfg_max_statics_per_block;
 extern int cfg_warning_statics_per_block;

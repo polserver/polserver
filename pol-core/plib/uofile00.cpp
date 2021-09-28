@@ -12,10 +12,12 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
+#include "plib/mul/map.h"
 #include "plib/mul/tiledata.h"
 #include "plib/uopreader/uop.h"
 #include "pol/objtype.h"
 #include "systemstate.h"
+
 
 namespace Pol
 {
@@ -145,11 +147,11 @@ bool uo_readuop = true;
 
 unsigned short uo_map_width = 0;
 unsigned short uo_map_height = 0;
+size_t uo_map_size = 0;
 
 void open_tiledata( void )
 {
   int tiledata_size;
-  size_t nblocks;
 
   tilefile = open_uo_file( "tiledata.mul", &tiledata_size );
 
@@ -183,22 +185,8 @@ void open_map( void )
   if ( !uo_readuop || !open_uopmap_file( uo_mapid, &map_size ) )
     mapfile = open_map_file( "map", uo_mapid, &map_size );
 
-  if ( ( uo_mapid == 0 || uo_mapid == 1 ) && ( uo_map_width == 0 || uo_map_height == 0 ) )
-  {
-    bool use_legacy_dimensions = ( map_size / 196 ) == 393216;
-    if ( use_legacy_dimensions )
-    {
-      uo_map_width = 6144;
-      uo_map_height = 4096;
-    }
-    else
-    {
-      uo_map_width = 7168;
-      uo_map_height = 4096;
-    }
-    INFO_PRINT << "Using calculated map dimensions: " << uo_map_width << "x" << uo_map_height
-               << "\n";
-  }
+  // Store the file size in a global variable (UGH!)
+  uo_map_size = map_size;
 }
 
 void open_uo_data_files( void )
