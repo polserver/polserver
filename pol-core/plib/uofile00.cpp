@@ -9,9 +9,10 @@
 #include <fstream>
 #include <string>
 
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/strutil.h"
 #include "plib/mul/map.h"
 #include "plib/mul/tiledata.h"
 #include "plib/uopreader/uop.h"
