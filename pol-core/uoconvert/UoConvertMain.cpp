@@ -1059,13 +1059,15 @@ int UoConvertMain::main()
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
 
-    // Auto-detects defaults for mapid=0 or 1 based on the map size. All other sizes are fixed based on the mapid.
+    // Auto-detects defaults for mapid=0 or 1 based on the map size. All other sizes are fixed based
+    // on the mapid.
     Pol::Plib::MUL::MapInfo mapinfo( UoConvert::uo_mapid, UoConvert::uo_map_size );
     int default_width = mapinfo.width();
     int default_height = mapinfo.height();
 
     if ( mapinfo.guessed() )
-      INFO_PRINT << "Auto-detected map dimensions: " << default_width << "x" << default_height << '\n';
+      INFO_PRINT << "Auto-detected map dimensions: " << default_width << "x" << default_height
+                 << '\n';
 
     uo_map_width =
         static_cast<unsigned short>( programArgsFindEquals( "width=", default_width, false ) );
@@ -1162,11 +1164,12 @@ void UoConvertMain::check_for_errors_in_map_parameters()
     size_t expected_size =
         MUL::Map::blockSize * MUL::Map::expected_blocks( uo_map_width, uo_map_height );
 
-    INFO_PRINT << "\nWarning: Width and height do not match the map size (" << UoConvert::uo_map_size
-               << " bytes, expected " << expected_size << ")\n\n";
+    INFO_PRINT << "\nWarning: Width and height do not match the map size ("
+               << UoConvert::uo_map_size << " bytes, expected " << expected_size << ")\n\n";
 
     if ( uo_map_width == 0 || uo_map_height == 0 )
-      throw std::runtime_error( "Width and height were not identified automatically. Please specify them manually." );
+      throw std::runtime_error(
+          "Width and height were not identified automatically. Please specify them manually." );
 
 
     if ( ( uo_map_width % MUL::Map::blockWidth != 0 ) ||
