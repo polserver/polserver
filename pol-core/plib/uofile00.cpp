@@ -12,6 +12,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
+#include "plib/uopreader/uop.h"
 #include "pol/objtype.h"
 #include "systemstate.h"
 
@@ -32,6 +33,43 @@ FILE* mapdif_file = nullptr;
 
 std::ifstream uopmapfile;
 
+size_t estimate_mapsize_uop( std::ifstream& ifs )
+{
+  kaitai::kstream ks( &ifs );
+  uop_t uopfile( &ks );
+
+  size_t totalSize = 0;
+  unsigned int nreadfiles = 0;
+
+  uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
+  do
+  {
+    for ( auto file : *currentblock->block_body()->files() )
+    {
+      if ( file == nullptr )
+        continue;
+      if ( file->decompressed_size() == 0 )
+        continue;
+
+      passert_r( file->compression_type() == uop_t::COMPRESSION_TYPE_NO_COMPRESSION,
+                 "This map is zlib compressed and we can't handle that yet." );
+
+      nreadfiles++;
+      totalSize += file->decompressed_size();
+    }
+    currentblock = currentblock->block_body()->next_addr();
+  } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
+
+  if ( uopfile.header()->nfiles() != nreadfiles )
+    INFO_PRINT << "Warning: not all chunks read (" << nreadfiles << "/"
+               << uopfile.header()->nfiles() << ")\n";
+
+  ifs.clear();
+  ifs.seekg( 0, std::ios::beg );
+
+  return totalSize;
+}
+
 bool open_uopmap_file( const int mapid, int* out_file_size = nullptr )
 {
   std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
@@ -49,7 +87,8 @@ bool open_uopmap_file( const int mapid, int* out_file_size = nullptr )
   {
     if ( out_file_size != nullptr )
     {
-      *out_file_size = Clib::filesize( filename.c_str() );
+      // gets the equivalent mapsize to the original MUL file
+      *out_file_size = static_cast<int>( estimate_mapsize_uop( uopmapfile ) );
     }
     return true;
   }
