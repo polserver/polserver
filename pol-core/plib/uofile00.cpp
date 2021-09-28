@@ -12,6 +12,7 @@
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
+#include "plib/mul/tiledata.h"
 #include "plib/uopreader/uop.h"
 #include "pol/objtype.h"
 #include "systemstate.h"
@@ -152,21 +153,22 @@ void open_tiledata( void )
 
   tilefile = open_uo_file( "tiledata.mul", &tiledata_size );
 
-  if ( ( tiledata_size - 428032 ) % 1188 != 0 && ( tiledata_size - 493568 ) % 1316 == 0 )
-  {
-    cfg_use_new_hsa_format = true;
-    nblocks = ( tiledata_size - 493568 ) / 1316;
-  }
-  else
-  {
-    cfg_use_new_hsa_format = false;
-    nblocks = ( tiledata_size - 428032 ) / 1188;
-  }
+  // Auto-detect HSA format, find number of blocks, etc
+  MUL::TiledataInfo tileinfo( tiledata_size );
 
   // Save the parameters into this ugly global state we have
-  Plib::systemstate.config.max_tile_id = 32 * nblocks - 1;
+  cfg_use_new_hsa_format = tileinfo.is_hsa();
+  Plib::systemstate.config.max_tile_id = tileinfo.max_tile_id();
 
-  INFO_PRINT << "Converting with parameters: UseNewHSAFormat = "
+  if ( !Plib::systemstate.config.max_tile_id )
+  {
+    ERROR_PRINT << "\nError reading tiledata.mul:\n - The file is either corrupted or has an "
+                   "unknown format.\n\n";
+
+    throw std::runtime_error( "Unknown format of tiledata.mul" );
+  }
+
+  INFO_PRINT << "Converting with auto-detected parameters: UseNewHSAFormat = "
              << ( cfg_use_new_hsa_format ? "True" : "False" )
              << ", MaxTileId = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
 }

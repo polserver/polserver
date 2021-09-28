@@ -21,6 +21,7 @@ set (plib_sources  # sorted !
   maptileserver.h
   mapwriter.cpp
   mapwriter.h
+  mul/tiledata.h
   pkg.cpp 
   pkg.h
   polfile.h
