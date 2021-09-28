@@ -125,27 +125,25 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
   std::map<uint64_t, uop_t::file_t*> filemap;
 
   // First pass over the data to build up filehash -> file mapping and calculate total map size.
-  // NOTE: This only reads the first block of the UOP file, which is all that is used for the
-  //       current version (~2018). If that ever changes, you need to access the next blocks in
-  //       sequence:
-  //                 currentblock = currentblock->block_body()->next_addr()
-  //       until next_addr() == nullptr.
-  //
   uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
-
-  for ( auto file : *currentblock->block_body()->files() )
+  do
   {
-    if ( file == nullptr )
-      continue;
-    if ( file->decompressed_size() == 0 )
-      continue;
+    for ( auto file : *currentblock->block_body()->files() )
+    {
+      if ( file == nullptr )
+        continue;
+      if ( file->decompressed_size() == 0 )
+        continue;
 
-    passert_r( file->compression_type() == uop_t::COMPRESSION_TYPE_NO_COMPRESSION,
-               "This map is zlib compressed and we can't handle that yet." );
+      passert_r( file->compression_type() == uop_t::COMPRESSION_TYPE_NO_COMPRESSION,
+                 "This map is zlib compressed and we can't handle that yet." );
 
-    filemap[file->filehash()] = file;
-    totalSize += file->decompressed_size();
-  }
+      filemap[file->filehash()] = file;
+      totalSize += file->decompressed_size();
+    }
+    currentblock = currentblock->block_body()->next_addr();
+  } while ( currentblock != nullptr && filemap.size() < uopfile.header()->nfiles() );
+
   if ( uopfile.header()->nfiles() != filemap.size() )
     INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
                << uopfile.header()->nfiles() << ")\n";
