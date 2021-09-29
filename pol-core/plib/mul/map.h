@@ -27,12 +27,14 @@ struct Map
       return false;
 
     size_t nblocks = filesize / Map::blockSize;
-    if ( expected_blocks( width, height ) != nblocks )
-      return false;
-
-    return true;
+    return expected_blocks( width, height ) == nblocks;
   }
 };
+static_assert( Map::blockSize == 196, "Size mismatch" );
+static_assert( Map::valid_size( 77070336, 6144, 4096 ) );                 // Legacy map
+static_assert( Map::valid_size( 89915392, 7168, 4096 ) );                 // New maps
+static_assert( Map::valid_size( 77070336 - 196, 6144, 4096 ) == false );  // Wrong map 1
+static_assert( Map::valid_size( 89915392 - 196, 7168, 4096 ) == false );  // Wrong map 2
 
 class MapInfo
 {
@@ -50,14 +52,11 @@ public:
 
   bool guessed() { return _guessed_correctly; }
   bool matches_filesize() { return Map::valid_size( filesize, _width, _height ); }
-  
+
   const int mapid = -1;
   const size_t filesize = 0;
 
-  MapInfo( int mapid ) : mapid( mapid )
-  {
-    set_default_size();
-  }
+  MapInfo( int mapid ) : mapid( mapid ) { set_default_size(); }
 
   MapInfo( int mapid, size_t filesize ) : mapid( mapid ), filesize( filesize )
   {
