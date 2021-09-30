@@ -16,6 +16,7 @@
 #include "plib/mul/map.h"
 #include "plib/mul/tiledata.h"
 #include "plib/uopreader/uop.h"
+#include "plib/uopreader/uophash.h"
 #include "pol/objtype.h"
 #include "systemstate.h"
 
@@ -37,17 +38,32 @@ FILE* mapdif_file = nullptr;
 
 std::ifstream uopmapfile;
 
+
+// This code is almost identical to the one in RawMap::load_full_map. One should consider a way to
+// refactor both.
 size_t estimate_mapsize_uop( std::ifstream& ifs )
 {
   kaitai::kstream ks( &ifs );
   uop_t uopfile( &ks );
+  auto maphash = []( int mapid, size_t chunkidx ) {
+    char mapstring[1024];
+    snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
+    return HashLittle2( mapstring );
+  };
+
 
   size_t totalSize = 0;
   unsigned int nreadfiles = 0;
+  std::map<uint64_t, size_t> fileSizes;
 
   uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
   do
   {
+    if ( currentblock->blockaddr() == 0 )
+      break;
+    if ( currentblock->block_body()->files() == nullptr )
+      break;
+
     for ( auto file : *currentblock->block_body()->files() )
     {
       if ( file == nullptr )
@@ -59,7 +75,7 @@ size_t estimate_mapsize_uop( std::ifstream& ifs )
                  "This map is zlib compressed and we can't handle that yet." );
 
       nreadfiles++;
-      totalSize += file->decompressed_size();
+      fileSizes[file->filehash()] = file->decompressed_size();
     }
     currentblock = currentblock->block_body()->next_addr();
   } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
@@ -67,6 +83,23 @@ size_t estimate_mapsize_uop( std::ifstream& ifs )
   if ( uopfile.header()->nfiles() != nreadfiles )
     INFO_PRINT << "Warning: not all chunks read (" << nreadfiles << "/"
                << uopfile.header()->nfiles() << ")\n";
+
+  for ( size_t i = 0; i < fileSizes.size(); i++ )
+  {
+    auto fileitr = fileSizes.find( maphash( uo_mapid, i ) );
+    if ( fileitr == fileSizes.end() )
+    {
+      ERROR_PRINT << "Couldn't find file hash: " << std::to_string( maphash( uo_mapid, i ) )
+                  << "\n";
+      throw std::runtime_error( "UOP map is missing a file chunk." );
+    }
+
+    // Only count those chunks with size 0xC4000 (4096 blocks). Apparently some UOP files have extra
+    // chunks with a single block (an EOF marker, I guess?)
+    const size_t chunkSize = fileitr->second;
+    if ( chunkSize == 0xC4000 )
+      totalSize += fileitr->second;
+  }
 
   ifs.clear();
   ifs.seekg( 0, std::ios::beg );
