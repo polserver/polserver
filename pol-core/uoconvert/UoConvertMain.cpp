@@ -1157,10 +1157,8 @@ int UoConvertMain::main()
 }
 void UoConvertMain::check_for_errors_in_map_parameters()
 {
-  if ( !Pol::Plib::MUL::Map::valid_size( UoConvert::uo_map_size, uo_map_width, uo_map_height ) )
+  if ( !MUL::Map::valid_size( UoConvert::uo_map_size, uo_map_width, uo_map_height ) )
   {
-    using namespace Pol::Plib;
-
     size_t expected_size =
         MUL::Map::blockSize * MUL::Map::expected_blocks( uo_map_width, uo_map_height );
 
