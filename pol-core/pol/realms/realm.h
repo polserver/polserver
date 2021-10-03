@@ -82,8 +82,12 @@ public:
 
   unsigned season() const;
 
-  bool valid( unsigned short x, unsigned short y, short z ) const;
-  bool valid( const Core::Pos3d& p ) const { return valid( p.x(), p.y(), p.z() ); }  // TODO Pos
+  bool valid( unsigned short x, unsigned short y, short /*z*/ ) const
+  {
+    return valid( Core::Pos2d( x, y ) );
+  };  // TODO Pos
+  bool valid( const Core::Pos2d& p ) const;
+  bool valid( const Core::Pos3d& p ) const;
   const std::string name() const;
 
   // functions to broadcast entered- and leftarea events to items and npcs in the realm
@@ -109,125 +113,119 @@ public:
 
   bool walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                    Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                   Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
-  bool walkheight( const Core::Pos2d& p, short oldz, short* newz, Multi::UMulti** pmulti,
-                   Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
-                   short* gradual_boost = nullptr )  // TODO Pos
+                   Plib::MOVEMODE movemode, short* gradual_boost = nullptr )  // TODO Pos
   {
-    return walkheight( p.x(), p.y(), oldz, newz, pmulti, pwalkon, doors_block, movemode,
+    return walkheight( Core::Pos2d( x, y ), oldz, newz, pmulti, pwalkon, doors_block, movemode,
                        gradual_boost );
   }
+  bool walkheight( const Core::Pos2d& p, short oldz, short* newz, Multi::UMulti** pmulti,
+                   Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
+                   short* gradual_boost = nullptr );
   bool walkheight( const Mobile::Character* chr, unsigned short x, unsigned short y, short oldz,
                    short* newz, Multi::UMulti** pmulti, Items::Item** pwalkon,
-                   short* gradual_boost = nullptr );
-  bool walkheight( const Mobile::Character* chr, const Core::Pos2d& p, short oldz, short* newz,
-                   Multi::UMulti** pmulti, Items::Item** pwalkon,
                    short* gradual_boost = nullptr )  // TODO Pos
   {
-    return walkheight( chr, p.x(), p.y(), oldz, newz, pmulti, pwalkon, gradual_boost );
+    return walkheight( chr, Core::Pos2d( x, y ), oldz, newz, pmulti, pwalkon, gradual_boost );
   }
+  bool walkheight( const Mobile::Character* chr, const Core::Pos2d& p, short oldz, short* newz,
+                   Multi::UMulti** pmulti, Items::Item** pwalkon, short* gradual_boost = nullptr );
 
   bool lowest_walkheight( unsigned short x, unsigned short y, short oldz, short* newz,
                           Multi::UMulti** pmulti, Items::Item** pwalkon, bool doors_block,
-                          Plib::MOVEMODE movemode, short* gradual_boost = nullptr );
+                          Plib::MOVEMODE movemode, short* gradual_boost = nullptr )  // TODO Pos
+  {
+    return lowest_walkheight( Core::Pos2d( x, y ), oldz, newz, pmulti, pwalkon, doors_block,
+                              movemode, gradual_boost );
+  }
   bool lowest_walkheight( const Core::Pos2d& p, short oldz, short* newz, Multi::UMulti** pmulti,
                           Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
-                          short* gradual_boost = nullptr )  // TODO Pos
-  {
-    return lowest_walkheight( p.x(), p.y(), oldz, newz, pmulti, pwalkon, doors_block, movemode,
-                              gradual_boost );
-  }
+                          short* gradual_boost = nullptr );
 
   bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
-                   Multi::UMulti** pmulti );
-  bool dropheight( const Core::Pos3d& drop, short chrz, short* newz,
                    Multi::UMulti** pmulti )  // TODO Pos
   {
-    return dropheight( drop.x(), drop.y(), drop.z(), chrz, newz, pmulti );
+    return dropheight( Core::Pos3d( dropx, dropy, dropz ), chrz, newz, pmulti );
   }
+  bool dropheight( const Core::Pos3d& drop, short chrz, short* newz, Multi::UMulti** pmulti );
 
   bool has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) const;
 
-  bool navigable( unsigned short x, unsigned short y, short z, short height ) const;
-  bool navigable( const Core::Pos3d& p, short height ) const  // TODO Pos
+  bool navigable( unsigned short x, unsigned short y, short z, short height ) const  // TODO Pos
   {
-    return navigable( p.x(), p.y(), p.z(), height );
+    return navigable( Core::Pos3d( x, y, z ), height );
   }
+  bool navigable( const Core::Pos3d& p, short height ) const;
 
-  Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y, short z ) const;
-  Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const  // TODO Pos
+  Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y,
+                                        short z ) const  // TODO Pos
   {
-    return find_supporting_multi( pos.x(), pos.y(), pos.z() );
+    return find_supporting_multi( Core::Pos3d( x, y, z ) );
   }
+  Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 
-  bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const;
-  bool lowest_standheight( const Core::Pos2d& pos, short* z ) const  // TODO Pos
+  bool lowest_standheight( unsigned short x, unsigned short y, short* z ) const  // TODO Pos
   {
-    return lowest_standheight( pos.x(), pos.y(), z );
+    return lowest_standheight( Core::Pos2d( x, y ), z );
   }
-  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const;
-  bool findstatic( const Core::Pos2d& pos, unsigned short objtype ) const  // TODO Pos
+  bool lowest_standheight( const Core::Pos2d& pos, short* z ) const;
+  bool findstatic( unsigned short x, unsigned short y, unsigned short objtype ) const  // TODO Pos
   {
-    return findstatic( pos.x(), pos.y(), objtype );
+    return findstatic( Core::Pos2d( x, y ), objtype );
   }
-  void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const;
-  void getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const  // TODO Pos
+  bool findstatic( const Core::Pos2d& pos, unsigned short objtype ) const;
+  void getstatics( Plib::StaticEntryList& statics, unsigned short x, unsigned short y ) const
   {
-    return getstatics( statics, pos.x(), pos.y() );
+    return getstatics( statics, Core::Pos2d( x, y ) );
   }
-  bool groundheight( unsigned short x, unsigned short y, short* z ) const;
-  bool groundheight( const Core::Pos2d& pos, short* z ) const  // TODO Pos
+  void getstatics( Plib::StaticEntryList& statics, const Core::Pos2d& pos ) const;
+  bool groundheight( unsigned short x, unsigned short y, short* z ) const  // TODO Pos
   {
-    return groundheight( pos.x(), pos.y(), z );
+    return groundheight( Core::Pos2d( x, y ), z );
   }
-  Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const;
-  Plib::MAPTILE_CELL getmaptile( const Core::Pos2d& pos ) const  // TODO Pos
+  bool groundheight( const Core::Pos2d& pos, short* z ) const;
+  Plib::MAPTILE_CELL getmaptile( unsigned short x, unsigned short y ) const  // TODO Pos
   {
-    return getmaptile( pos.x(), pos.y() );
+    return getmaptile( Core::Pos2d( x, y ) );
   }
+  Plib::MAPTILE_CELL getmaptile( const Core::Pos2d& pos ) const;
   void getmapshapes( Plib::MapShapeList& shapes, unsigned short x, unsigned short y,
-                     unsigned int anyflags ) const;
-  void getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
                      unsigned int anyflags ) const  // TODO Pos
   {
-    return getmapshapes( shapes, pos.x(), pos.y(), anyflags );
+    return getmapshapes( shapes, Core::Pos2d( x, y ), anyflags );
   }
+  void getmapshapes( Plib::MapShapeList& shapes, const Core::Pos2d& pos,
+                     unsigned int anyflags ) const;
   void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
-                   unsigned int flags ) const;
-  void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos,
                    unsigned int flags ) const  // TODO Pos
   {
-    return readmultis( vec, pos.x(), pos.y(), flags );
+    return readmultis( vec, Core::Pos2d( x, y ), flags );
   }
+  void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags ) const;
   void readmultis( Plib::MapShapeList& vec, unsigned short x, unsigned short y, unsigned int flags,
-                   MultiList& mvec ) const;
-  void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
                    MultiList& mvec ) const  // TODO Pos
   {
-    return readmultis( vec, pos.x(), pos.y(), flags, mvec );
+    return readmultis( vec, Core::Pos2d( x, y ), flags, mvec );
   }
-  void readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const;
-  void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const  // TODO Pos
+  void readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigned int flags,
+                   MultiList& mvec ) const;
+  void readmultis( Plib::StaticList& vec, unsigned short x, unsigned short y ) const  // TODO Pos
   {
-    return readmultis( vec, pos.x(), pos.y() );
+    return readmultis( vec, Core::Pos2d( x, y ) );
   }
+  void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const;
 
   std::set<unsigned int> global_hulls;  // xy-smashed together
   unsigned getUOMapID() const;
   unsigned getNumStaticPatches() const;
   unsigned getNumMapPatches() const;
-  static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );
-  static unsigned int encode_global_hull( const Core::Pos2d& pos )  // TODO Pos
-  {
-    return encode_global_hull( pos.x(), pos.y() );
-  }
+  static unsigned int encode_global_hull( unsigned short ax, unsigned short ay );  // TODO Pos
+  static unsigned int encode_global_hull( const Core::Pos2d& pos );
 
 protected:
   struct LosCache
   {
-    LosCache() : last_x( 0 ), last_y( 0 ), shapes(), dyn_items(){};
-    unsigned short last_x;
-    unsigned short last_y;
+    LosCache() : last_pos(), shapes(), dyn_items(){};
+    Core::Pos2d last_pos;
     Plib::MapShapeList shapes;
     std::vector<Items::Item*> dyn_items;
   };
@@ -240,33 +238,13 @@ protected:
 
   static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
 
-  void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
-                     Core::ItemsVector& walkon_items, bool doors_block );
   void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
-                     Core::ItemsVector& walkon_items, bool doors_block )  // TODO Pos
-  {
-    return readdynamics( vec, pos.x(), pos.y(), walkon_items, doors_block );
-  }
+                     Core::ItemsVector& walkon_items, bool doors_block );
 
-  static bool dynamic_item_blocks_los( unsigned short x, unsigned short y, short z,
-                                       LosCache& cache );
-  static bool dynamic_item_blocks_los( const Core::Pos3d& pos,
-                                       LosCache& cache )  // TODO Pos
-  {
-    return dynamic_item_blocks_los( pos.x(), pos.y(), pos.z(), cache );
-  }
-  bool static_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache ) const;
-  bool static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) const  // TODO Pos
-  {
-    return static_item_blocks_los( pos.x(), pos.y(), pos.z(), cache );
-  }
-  bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target, unsigned short x,
-                    unsigned short y, short z, LosCache& cache ) const;
+  static bool dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache );
+  bool static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) const;
   bool los_blocked( const Core::ULWObject& att, const Core::ULWObject& target,
-                    const Core::Pos3d& pos, LosCache& cache ) const  // TODO Pos
-  {
-    return los_blocked( att, target, pos.x(), pos.y(), pos.z(), cache );
-  }
+                    const Core::Pos3d& pos, LosCache& cache ) const;
 
   Multi::UMulti* find_supporting_multi( MultiList& mvec, short z ) const;
 
@@ -280,6 +258,8 @@ private:
   std::unique_ptr<Plib::StaticServer> _staticserver;
   std::unique_ptr<Plib::MapTileServer> _maptileserver;
   Core::Zone** zone;  // y first
+  Core::Range2d _area;
+  Core::Range2d _gridarea;
 
 public:
   size_t sizeEstimate() const;
@@ -339,6 +319,10 @@ inline unsigned int Realm::encode_global_hull( unsigned short ax, unsigned short
 {
   return ( static_cast<unsigned int>( ax ) << 16 ) | ay;
 }
+inline unsigned int Realm::encode_global_hull( const Core::Pos2d& pos )
+{
+  return ( static_cast<unsigned int>( pos.x() ) << 16 ) | pos.y();
+}
 
 inline unsigned short Realm::width() const
 {
@@ -350,12 +334,11 @@ inline unsigned short Realm::height() const
 }
 inline Core::Range2d Realm::area() const
 {
-  return Core::Range2d( Core::Pos2d( 0, 0 ), Core::Pos2d( width() - 1, height() - 1 ), nullptr );
+  return _area;
 }
 inline Core::Range2d Realm::gridarea() const
 {
-  return Core::Range2d( Core::Pos2d( 0, 0 ), Core::Pos2d( grid_width() - 1, grid_height() - 1 ),
-                        nullptr );
+  return _gridarea;
 }
 
 inline Core::Zone& Realm::getzone_grid( unsigned short x, unsigned short y ) const

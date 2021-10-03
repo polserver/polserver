@@ -349,11 +349,11 @@ void send_start( Network::Client* client )
       msg->Write( gamestate.startlocations[i]->city.c_str(), 32, false );
       msg->Write( gamestate.startlocations[i]->desc.c_str(), 32, false );
 
-      Coordinate coord = gamestate.startlocations[i]->coords[0];
+      Pos3d coord = gamestate.startlocations[i]->coords[0];
 
-      msg->WriteFlipped<u32>( coord.x );
-      msg->WriteFlipped<u32>( coord.y );
-      msg->WriteFlipped<s32>( coord.z );
+      msg->WriteFlipped<u32>( coord.x() );
+      msg->WriteFlipped<u32>( coord.y() );
+      msg->WriteFlipped<s32>( coord.z() );
       msg->WriteFlipped<u32>( gamestate.startlocations[i]->mapid );        // MapID
       msg->WriteFlipped<u32>( gamestate.startlocations[i]->cliloc_desc );  // Cliloc Description
       msg->offset += 4;
@@ -446,8 +446,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   // Dave moved the max_clients check to pol.cpp so character cmdlevel could be checked.
   //
 
-  POLLOG.Format( "Account {} logged in from {}\n" )
-      << acct->name() << client->ipaddrAsString();
+  POLLOG.Format( "Account {} logged in from {}\n" ) << acct->name() << client->ipaddrAsString();
 
   // ENHANCEMENT: could authenticate with real loginservers.
 

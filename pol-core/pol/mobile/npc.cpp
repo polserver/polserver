@@ -208,12 +208,11 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 
   auto new_pos = pos().move( fdir );
 
-  unsigned short wx, wy;
-  Core::zone_convert_clip( new_pos.x(), new_pos.y(), new_pos.realm(), &wx, &wy );
+  Core::Pos2d gridp = Core::zone_convert( new_pos );
 
   if ( Core::settingsManager.ssopt.mobiles_block_npc_movement )
   {
-    for ( const auto& chr : realm()->getzone_grid( wx, wy ).characters )
+    for ( const auto& chr : realm()->getzone_grid( gridp ).characters )
     {
       // First check if there really is a character blocking
       if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
@@ -223,7 +222,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
       }
     }
   }
-  for ( const auto& chr : realm()->getzone_grid( wx, wy ).npcs )
+  for ( const auto& chr : realm()->getzone_grid( gridp ).npcs )
   {
     // First check if there really is a character blocking
     if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )

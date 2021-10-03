@@ -454,9 +454,8 @@ void textcmd_constat( Network::Client* client )
 
 void textcmd_singlezone_integ_item( Network::Client* client )
 {
-  unsigned short wx, wy;
-  zone_convert( client->chr->x(), client->chr->y(), &wx, &wy, client->chr->realm() );
-  bool ok = check_single_zone_item_integrity( Pos2d( wx, wy ), client->chr->realm() );
+  Pos2d gridp = zone_convert( client->chr->pos() );
+  bool ok = check_single_zone_item_integrity( gridp, client->chr->realm() );
   if ( ok )
     send_sysmessage( client, "Item integrity checks out OK!" );
   else

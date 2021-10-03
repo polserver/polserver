@@ -14,7 +14,6 @@
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "mobile/charactr.h"
-#include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 
@@ -78,9 +77,7 @@ void sayto_listening_points( Mobile::Character* speaker, const std::string& text
             continue;
           }
         }
-        const UObject* toplevel = lp->object->toplevel_owner();
-        if ( ( speaker->realm() == toplevel->realm() ) &&
-             ( inrangex( speaker, toplevel->x(), toplevel->y(), lp->range ) ) )
+        if ( speaker->in_range( lp->object.get(), lp->range ) )
         {
           if ( p_lang )
             lp->uoexec->signal_event( new Module::SpeechEvent(
