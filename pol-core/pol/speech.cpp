@@ -176,7 +176,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
                                                    } );
   }
 
-  sayto_listening_points( client->chr, s_text, type );
+  ListenPoint::sayto_listening_points( client->chr, s_text, type );
 }
 
 
@@ -380,7 +380,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
             npc->on_ghost_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
           } );
     }
-    sayto_listening_points( client->chr, text, msgin->type, msgin->lang, speechtokens );
+    ListenPoint::sayto_listening_points( client->chr, text, msgin->type, msgin->lang,
+                                         speechtokens );
   }
 }
 u16 Get12BitNumber( u8* thearray, u16 theindex )

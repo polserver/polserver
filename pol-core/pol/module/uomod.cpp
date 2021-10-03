@@ -286,7 +286,7 @@ UOExecutorModule::~UOExecutorModule()
   }
   if ( registered_for_speech_events )
   {
-    deregister_from_speech_events( &uoex );
+    ListenPoint::deregister_from_speech_events( &uoex );
   }
 }
 
@@ -3071,7 +3071,7 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
     }
     if ( !registered_for_speech_events )
     {
-      register_for_speech_events( center, &uoexec(), range, flags );
+      ListenPoint::register_for_speech_events( center, &uoexec(), range, flags );
       registered_for_speech_events = true;
       return new BLong( 1 );
     }

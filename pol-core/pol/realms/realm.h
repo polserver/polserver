@@ -144,7 +144,7 @@ public:
   bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
                    Multi::UMulti** pmulti )  // TODO Pos
   {
-    return dropheight( Core::Pos3d( dropx, dropy, dropz ), chrz, newz, pmulti );
+    return dropheight( Core::Pos3d( dropx, dropy, (s8)dropz ), chrz, newz, pmulti );
   }
   bool dropheight( const Core::Pos3d& drop, short chrz, short* newz, Multi::UMulti** pmulti );
 
@@ -152,14 +152,14 @@ public:
 
   bool navigable( unsigned short x, unsigned short y, short z, short height ) const  // TODO Pos
   {
-    return navigable( Core::Pos3d( x, y, z ), height );
+    return navigable( Core::Pos3d( x, y, (s8)z ), height );
   }
   bool navigable( const Core::Pos3d& p, short height ) const;
 
   Multi::UMulti* find_supporting_multi( unsigned short x, unsigned short y,
                                         short z ) const  // TODO Pos
   {
-    return find_supporting_multi( Core::Pos3d( x, y, z ) );
+    return find_supporting_multi( Core::Pos3d( x, y, (s8)z ) );
   }
   Multi::UMulti* find_supporting_multi( const Core::Pos3d& pos ) const;
 

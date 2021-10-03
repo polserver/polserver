@@ -4113,10 +4113,10 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
   case MBR_YSOUTH:
     return new BLong( ysouth = static_cast<unsigned short>( value ) );
   case MBR_GUMPWIDTH:
-    gumpsize.x(  static_cast<unsigned short>( value ) );
+    gumpsize.x( static_cast<unsigned short>( value ) );
     return new BLong( gumpsize.x() );
   case MBR_GUMPHEIGHT:
-    gumpsize.y(  static_cast<unsigned short>( value ) );
+    gumpsize.y( static_cast<unsigned short>( value ) );
     return new BLong( gumpsize.y() );
   case MBR_FACETID:
     return new BLong( facetid = static_cast<unsigned short>( value ) );
@@ -4742,7 +4742,8 @@ SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
 }
 
 SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
-                          const char* texttype, std::string lang, Bscript::ObjArray* speechtokens )
+                          const std::string& texttype, std::string lang,
+                          Bscript::ObjArray* speechtokens )
 {
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
   addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );

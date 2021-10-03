@@ -725,7 +725,7 @@ void NPC::on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttyp
          is_visible_to_me( src_chr ) )
     {
       ex->signal_event( new Module::SpeechEvent(
-          src_chr, speech, Core::TextTypeToString( texttype ), lang, speechtokens ) );
+          src_chr, speech, Core::ListenPoint::TextTypeToString( texttype ), lang, speechtokens ) );
     }
   }
 }
@@ -751,7 +751,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 t
          is_visible_to_me( src_chr ) )
     {
       ex->signal_event( new Module::SpeechEvent(
-          src_chr, speech, Core::TextTypeToString( texttype ), lang, speechtokens ) );
+          src_chr, speech, Core::ListenPoint::TextTypeToString( texttype ), lang, speechtokens ) );
     }
   }
 }
