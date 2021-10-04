@@ -58,26 +58,29 @@ void ListenPoint::sayto_listening_points( Mobile::Character* speaker, const std:
       continue;
     }
     ++itr;
-    if ( !speaker->dead() || ( lp->flags & LISTENPT_HEAR_GHOSTS ) )
-    {
-      if ( settingsManager.ssopt.seperate_speechtoken )
-      {
-        if ( speechtokens != nullptr && ( ( lp->flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
-          continue;
-        else if ( speechtokens == nullptr && ( lp->flags & LISTENPT_NO_SPEECH ) )
-          continue;
-      }
-      if ( speaker->in_range( lp->object.get(), lp->range ) )
-      {
-        if ( p_lang )
-          lp->uoexec->signal_event( new Module::SpeechEvent(
-              speaker, text, TextTypeToString( texttype ), p_lang, speechtokens ) );
-        else
-          lp->uoexec->signal_event(
-              new Module::SpeechEvent( speaker, text, TextTypeToString( texttype ) ) );
-      }
-    }
+    lp->sayto( speaker, text, texttype, p_lang, speechtokens );
   }
+}
+
+void ListenPoint::sayto( Mobile::Character* speaker, const std::string& text, u8 texttype,
+                         const char* p_lang, Bscript::ObjArray* speechtokens ) const
+{
+  if ( speaker->dead() && !( flags & LISTENPT_HEAR_GHOSTS ) )
+    return;
+  if ( settingsManager.ssopt.seperate_speechtoken )
+  {
+    if ( speechtokens != nullptr && ( ( flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
+      return;
+    else if ( speechtokens == nullptr && ( flags & LISTENPT_NO_SPEECH ) )
+      return;
+  }
+  if ( !speaker->in_range( object.get(), range ) )
+    return;
+  if ( p_lang )
+    uoexec->signal_event( new Module::SpeechEvent( speaker, text, TextTypeToString( texttype ),
+                                                   p_lang, speechtokens ) );
+  else
+    uoexec->signal_event( new Module::SpeechEvent( speaker, text, TextTypeToString( texttype ) ) );
 }
 
 void ListenPoint::deregister_from_speech_events( UOExecutor* uoexec )

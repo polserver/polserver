@@ -43,6 +43,9 @@ public:
   static std::string TextTypeToString( u8 texttype );
 
 private:
+  void sayto( Mobile::Character* speaker, const std::string& text, u8 texttype, const char* p_lang,
+              Bscript::ObjArray* speechtokens ) const;
+
   UObjectRef object;
   UOExecutor* uoexec;
   u16 range;
