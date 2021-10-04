@@ -85,12 +85,11 @@ void ListenPoint::sayto( Mobile::Character* speaker, const std::string& text, u8
 
 void ListenPoint::deregister_from_speech_events( UOExecutor* uoexec )
 {
-  // ListenPoint lp( nullptr, uoexec, 0, 0 );
   ListenPoints::iterator itr = gamestate.listen_points.find( uoexec );
   if ( itr !=
        gamestate.listen_points.end() )  // could have been cleaned up in sayto_listening_points
   {
-    ListenPoint* lp = ( *itr ).second;
+    ListenPoint* lp = itr->second;
     gamestate.listen_points.erase( uoexec );
     delete lp;
   }
@@ -109,26 +108,18 @@ void ListenPoint::register_for_speech_events( UObject* obj, UOExecutor* uoexec, 
 Bscript::BObjectImp* ListenPoint::GetListenPoints()
 {
   Bscript::ObjArray* arr = new Bscript::ObjArray;
-  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(),
-                               end = gamestate.listen_points.end();
-        itr != end; )
+  ListenPoints::iterator itr = gamestate.listen_points.begin();
+  while ( itr != gamestate.listen_points.end() )
   {
-    ListenPoint* lp = ( *itr ).second;
-    if ( lp == nullptr || lp->object->orphan() )
+    ListenPoint* lp = itr->second;
+    if ( lp->object->orphan() )
     {
-      ListenPoints::iterator next = itr;
-      ++next;
-      gamestate.listen_points.erase( itr );
+      itr = gamestate.listen_points.erase( itr );
       delete lp;
-      itr = next;
-      end = gamestate.listen_points.end();
+      continue;
     }
-    else
-    {
-      arr->addElement( lp->object->make_ref() );
-
-      ++itr;
-    }
+    ++itr;
+    arr->addElement( lp->object->make_ref() );
   }
   return arr;
 }
