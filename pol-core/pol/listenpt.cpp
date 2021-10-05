@@ -4,6 +4,9 @@
  * - 2009/11/24 Turley:    Added realm check
  */
 
+// TODO: remove the iterations with erase (each method is executed in a different thread)
+// root problem is that no cleanup hook/flag exists on objects to perform additional cleanup tasks.
+// check also guild/party code
 
 #include "listenpt.h"
 
