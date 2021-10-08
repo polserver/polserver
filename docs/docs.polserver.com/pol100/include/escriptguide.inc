@@ -1790,9 +1790,9 @@ example, if you wrote a system for a new skill, you could place all the files
 needed for that new skill in a package: all the script source files, the
 compiled source files, support config files, readme files, etc. In POL, there
 are two types of packages, the 'standard' packages which are enabled by default
-(in /pkg/std/), which are normal skill systems, spawner, spells, etc. Then there
+(in /pkg/), which are normal skill systems, spawner, spells, etc. Then there
 are the 'optional' packages which are off by default, but can be used if desired
-(in /pkg/opt/). Normally, enabling an optional package requires some
+(in /pkg/optional/). Normally, enabling an optional package requires some
 instructions which are normally supplied with the package.</p>
 
 <p>Each package must include a package descriptor file, pkg.cfg, which has the
