@@ -16,7 +16,7 @@ $official = false;
 //     urchinTracker();
 //     </script>'
 
-define('OFFICIAL_HEADER_PATH', '/home/polteam/include/_header.php');
+define('OFFICIAL_HEADER_PATH', '/home/polserve/include/_header.php');
 
 // Will be set to true when building the offline doc
 $offline = false;
