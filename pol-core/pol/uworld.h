@@ -65,33 +65,6 @@ int get_mobile_count();
 void optimize_zones();
 bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm );
 
-inline void zone_convert( unsigned short x, unsigned short y, unsigned short* wx,
-                          unsigned short* wy, const Realms::Realm* realm )
-{
-  passert( x < realm->width() );
-  passert( y < realm->height() );
-
-  ( *wx ) = x >> Plib::WGRID_SHIFT;
-  ( *wy ) = y >> Plib::WGRID_SHIFT;
-}
-
-
-inline void zone_convert_clip( int x, int y, const Realms::Realm* realm, unsigned short* wx,
-                               unsigned short* wy )
-{
-  if ( x < 0 )
-    x = 0;
-  if ( y < 0 )
-    y = 0;
-  if ( (unsigned)x >= realm->width() )
-    x = realm->width() - 1;
-  if ( (unsigned)y >= realm->height() )
-    y = realm->height() - 1;
-
-  ( *wx ) = static_cast<unsigned short>( x >> Plib::WGRID_SHIFT );
-  ( *wy ) = static_cast<unsigned short>( y >> Plib::WGRID_SHIFT );
-}
-
 inline Pos2d zone_convert( const Pos4d& p )
 {
   return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
@@ -122,6 +95,10 @@ struct WorldIterator
   static void InRange( const Pos4d& pos, unsigned range, F&& f );
   template <typename F>
   static void InVisualRange( const UObject* obj, F&& f );
+  template <typename F>
+  static void InVisualRange( const Pos2d& pos, const Realms::Realm* realm, F&& f );
+  template <typename F>
+  static void InVisualRange( const Pos4d& pos, F&& f );
   template <typename F>
   static void InBox( u16 x1, u16 y1, u16 x2, u16 y2, const Realms::Realm* realm,
                      F&& f );  // TODO Pos
@@ -274,6 +251,20 @@ void WorldIterator<Filter>::InVisualRange( const UObject* obj, F&& f )
 {
   // TODO RANGE_VISUAL needs to be something dynamic (client viewrange maximum, max multi size)
   InRange( obj->toplevel_owner()->pos(), RANGE_VISUAL, std::forward<F>( f ) );
+}
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InVisualRange( const Pos2d& pos, const Realms::Realm* realm, F&& f )
+{
+  // TODO RANGE_VISUAL needs to be something dynamic (client viewrange maximum, max multi size)
+  InRange( pos, realm, RANGE_VISUAL, std::forward<F>( f ) );
+}
+template <class Filter>
+template <typename F>
+void WorldIterator<Filter>::InVisualRange( const Pos4d& pos, F&& f )
+{
+  // TODO RANGE_VISUAL needs to be something dynamic (client viewrange maximum, max multi size)
+  InRange( pos, RANGE_VISUAL, std::forward<F>( f ) );
 }
 template <class Filter>
 template <typename F>

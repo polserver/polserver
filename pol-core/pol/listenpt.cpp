@@ -4,9 +4,14 @@
  * - 2009/11/24 Turley:    Added realm check
  */
 
+// TODO: remove the iterations with erase (each method is executed in a different thread)
+// root problem is that no cleanup hook/flag exists on objects to perform additional cleanup tasks.
+// check also guild/party code
 
 #include "listenpt.h"
 
+#include <algorithm>
+#include <limits>
 #include <stddef.h>
 
 #include "../bscript/bobject.h"
@@ -14,7 +19,6 @@
 #include "globals/settings.h"
 #include "globals/uvars.h"
 #include "mobile/charactr.h"
-#include "ufunc.h"
 #include "uoexec.h"
 #include "uoscrobj.h"
 
@@ -22,14 +26,12 @@ namespace Pol
 {
 namespace Core
 {
-ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, int range, int flags )
+ListenPoint::ListenPoint( UObject* obj, UOExecutor* uoexec, u16 range, int flags )
     : object( obj ), uoexec( uoexec ), range( range ), flags( flags )
 {
 }
 
-ListenPoint::~ListenPoint() {}
-
-const char* TextTypeToString( u8 texttype )
+std::string ListenPoint::TextTypeToString( u8 texttype )
 {
   switch ( texttype )
   {
@@ -44,98 +46,83 @@ const char* TextTypeToString( u8 texttype )
   }
 }
 
-void sayto_listening_points( Mobile::Character* speaker, const std::string& text, u8 texttype,
-                             const char* p_lang, Bscript::ObjArray* speechtokens )
+void ListenPoint::sayto_listening_points( Mobile::Character* speaker, const std::string& text,
+                                          u8 texttype, const char* p_lang,
+                                          Bscript::ObjArray* speechtokens )
 {
-  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(),
-                               end = gamestate.listen_points.end();
-        itr != end; )
+  ListenPoints::iterator itr = gamestate.listen_points.begin();
+  while ( itr != gamestate.listen_points.end() )
   {
-    ListenPoint* lp = ( *itr ).second;
+    ListenPoint* lp = itr->second;
     if ( lp->object->orphan() )
     {
-      ListenPoints::iterator next = itr;
-      ++next;
-      gamestate.listen_points.erase( itr );
+      itr = gamestate.listen_points.erase( itr );
       delete lp;
-      itr = next;
-      end = gamestate.listen_points.end();
+      continue;
     }
-    else
-    {
-      if ( !speaker->dead() || ( lp->flags & LISTENPT_HEAR_GHOSTS ) )
-      {
-        if ( settingsManager.ssopt.seperate_speechtoken )
-        {
-          if ( speechtokens != nullptr && ( ( lp->flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
-          {
-            ++itr;
-            continue;
-          }
-          else if ( speechtokens == nullptr && ( lp->flags & LISTENPT_NO_SPEECH ) )
-          {
-            ++itr;
-            continue;
-          }
-        }
-        const UObject* toplevel = lp->object->toplevel_owner();
-        if ( ( speaker->realm() == toplevel->realm() ) &&
-             ( inrangex( speaker, toplevel->x(), toplevel->y(), lp->range ) ) )
-        {
-          if ( p_lang )
-            lp->uoexec->signal_event( new Module::SpeechEvent(
-                speaker, text, TextTypeToString( texttype ), p_lang, speechtokens ) );
-          else
-            lp->uoexec->signal_event(
-                new Module::SpeechEvent( speaker, text, TextTypeToString( texttype ) ) );
-        }
-      }
-      ++itr;
-    }
+    ++itr;
+    lp->sayto( speaker, text, texttype, p_lang, speechtokens );
   }
 }
 
-void deregister_from_speech_events( UOExecutor* uoexec )
+void ListenPoint::sayto( Mobile::Character* speaker, const std::string& text, u8 texttype,
+                         const char* p_lang, Bscript::ObjArray* speechtokens ) const
 {
-  // ListenPoint lp( nullptr, uoexec, 0, 0 );
+  if ( speaker->dead() && !( flags & LISTENPT_HEAR_GHOSTS ) )
+    return;
+  if ( settingsManager.ssopt.seperate_speechtoken )
+  {
+    if ( speechtokens != nullptr && ( ( flags & LISTENPT_HEAR_TOKENS ) == 0 ) )
+      return;
+    else if ( speechtokens == nullptr && ( flags & LISTENPT_NO_SPEECH ) )
+      return;
+  }
+  if ( !speaker->in_range( object.get(), range ) )
+    return;
+  if ( p_lang )
+    uoexec->signal_event( new Module::SpeechEvent( speaker, text, TextTypeToString( texttype ),
+                                                   p_lang, speechtokens ) );
+  else
+    uoexec->signal_event( new Module::SpeechEvent( speaker, text, TextTypeToString( texttype ) ) );
+}
+
+void ListenPoint::deregister_from_speech_events( UOExecutor* uoexec )
+{
   ListenPoints::iterator itr = gamestate.listen_points.find( uoexec );
   if ( itr !=
        gamestate.listen_points.end() )  // could have been cleaned up in sayto_listening_points
   {
-    ListenPoint* lp = ( *itr ).second;
+    ListenPoint* lp = itr->second;
     gamestate.listen_points.erase( uoexec );
     delete lp;
   }
 }
 
-void register_for_speech_events( UObject* obj, UOExecutor* uoexec, int range, int flags )
+void ListenPoint::register_for_speech_events( UObject* obj, UOExecutor* uoexec, int range,
+                                              int flags )
 {
-  gamestate.listen_points[uoexec] = new ListenPoint( obj, uoexec, range, flags );
+  gamestate.listen_points[uoexec] =
+      new ListenPoint( obj, uoexec,
+                       static_cast<u16>( std::clamp(
+                           range, 0, static_cast<int>( std::numeric_limits<u16>::max() ) ) ),
+                       flags );
 }
 
-Bscript::BObjectImp* GetListenPoints()
+Bscript::BObjectImp* ListenPoint::GetListenPoints()
 {
   Bscript::ObjArray* arr = new Bscript::ObjArray;
-  for ( ListenPoints::iterator itr = gamestate.listen_points.begin(),
-                               end = gamestate.listen_points.end();
-        itr != end; )
+  ListenPoints::iterator itr = gamestate.listen_points.begin();
+  while ( itr != gamestate.listen_points.end() )
   {
-    ListenPoint* lp = ( *itr ).second;
-    if ( lp == nullptr || lp->object->orphan() )
+    ListenPoint* lp = itr->second;
+    if ( lp->object->orphan() )
     {
-      ListenPoints::iterator next = itr;
-      ++next;
-      gamestate.listen_points.erase( itr );
+      itr = gamestate.listen_points.erase( itr );
       delete lp;
-      itr = next;
-      end = gamestate.listen_points.end();
+      continue;
     }
-    else
-    {
-      arr->addElement( lp->object->make_ref() );
-
-      ++itr;
-    }
+    ++itr;
+    arr->addElement( lp->object->make_ref() );
   }
   return arr;
 }

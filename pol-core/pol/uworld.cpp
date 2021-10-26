@@ -43,7 +43,7 @@ void remove_item_from_world( Items::Item* item )
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->x(), item->y(), item->z() );
+    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos().xyz() );
 
     if ( multi != nullptr )
       multi->unregister_object( item );
@@ -87,8 +87,8 @@ void remove_multi_from_world( Multi::UMulti* multi )
 void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned short newx,
                           unsigned short newy, Multi::UMulti* multi, Realms::Realm* oldrealm )
 {
-  Zone& oldzone = oldrealm->getzone( oldx, oldy );
-  Zone& newzone = multi->realm()->getzone( newx, newy );
+  Zone& oldzone = oldrealm->getzone( Core::Pos2d( oldx, oldy ) );
+  Zone& newzone = multi->realm()->getzone( Core::Pos2d( newx, newy ) );
 
   if ( &oldzone != &newzone )
   {
@@ -181,8 +181,8 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
   // in the world zones
   if ( chr->logged_in() )
   {
-    Zone& oldzone = oldrealm->getzone( oldx, oldy );
-    Zone& newzone = chr->realm()->getzone( newx, newy );
+    Zone& oldzone = oldrealm->getzone( Core::Pos2d( oldx, oldy ) );
+    Zone& newzone = chr->realm()->getzone( Core::Pos2d( newx, newy ) );
 
     if ( &oldzone != &newzone )
     {
@@ -220,7 +220,7 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
   if ( oldrealm == nullptr )
     oldrealm = item->realm();
 
-  Zone& oldzone = oldrealm->getzone( oldx, oldy );
+  Zone& oldzone = oldrealm->getzone( Core::Pos2d( oldx, oldy ) );
   Zone& newzone = item->realm()->getzone( item->pos().xy() );
 
   if ( &oldzone != &newzone )
@@ -303,12 +303,11 @@ bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm )
 
     for ( const auto& item : witem )
     {
-      unsigned short wx, wy;
-      zone_convert( item->x(), item->y(), &wx, &wy, realm );
-      if ( wx != pos.x() || wy != pos.y() )
+      Core::Pos2d wpos = zone_convert( item->pos() );
+      if ( wpos != pos )
       {
         POLLOG_ERROR.Format( "Item 0x{:X} in zone ({},{}) but location is ({},{}) (zone {},{})\n" )
-            << item->serial << pos.x() << pos.y() << item->x() << item->y() << wx << wy;
+            << item->serial << pos.x() << pos.y() << item->x() << item->y() << pos.x() << pos.y();
         return false;
       }
     }
@@ -354,9 +353,8 @@ void check_character_integrity()
   {
     auto check_zone = []( Mobile::Character* chr, const Pos2d& p )
     {
-      unsigned short wx, wy;
-      zone_convert( chr->x(), chr->y(), &wx, &wy, chr->realm() );
-      if ( wx != p.x() || wy != p.y() )
+      Core::Pos2d wpos = zone_convert( chr->pos() );
+      if ( wpos != p )
         INFO_PRINT << "Character 0x" << fmt::hexu( chr->serial ) << " in a zone, but elsewhere\n";
     };
 

@@ -12,6 +12,7 @@
 #define UOSCROBJ_H
 
 #include <stddef.h>
+#include <string>
 
 #include "../bscript/bobject.h"
 #include "../bscript/bstruct.h"
@@ -249,7 +250,7 @@ public:
 class SpeechEvent final : public Bscript::BStruct
 {
 public:
-  SpeechEvent( Mobile::Character* speaker, const std::string& speech, const char* texttype,
+  SpeechEvent( Mobile::Character* speaker, const std::string& speech, const std::string& texttype,
                std::string lang = "", Bscript::ObjArray* speechtokens = nullptr );
 };
 

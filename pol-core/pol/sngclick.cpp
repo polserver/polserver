@@ -13,6 +13,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/passert.h"
 #include "../plib/uconst.h"
+#include "base/range.h"
 #include "containr.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -34,25 +35,22 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
     return item;
 
   // search equipment of nearby mobiles
-  unsigned short wxL, wyL, wxH, wyH;
-  zone_convert_clip( chr->x() - RANGE_VISUAL, chr->y() - RANGE_VISUAL, chr->realm(), &wxL, &wyL );
-  zone_convert_clip( chr->x() + RANGE_VISUAL, chr->y() + RANGE_VISUAL, chr->realm(), &wxH, &wyH );
-  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+  Range2d gridarea( zone_convert( chr->pos() - Vec2d( RANGE_VISUAL, RANGE_VISUAL ) ),
+                    zone_convert( chr->pos() + Vec2d( RANGE_VISUAL, RANGE_VISUAL ) ),
+                    chr->realm() );
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    for ( const auto& ochr : chr->realm()->getzone_grid( gpos ).characters )
     {
-      for ( const auto& ochr : chr->realm()->getzone_grid( wx, wy ).characters )
-      {
-        Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != nullptr )
-          return _item;
-      }
-      for ( const auto& ochr : chr->realm()->getzone_grid( wx, wy ).npcs )
-      {
-        Items::Item* _item = ochr->find_wornitem( serial );
-        if ( _item != nullptr )
-          return _item;
-      }
+      Items::Item* _item = ochr->find_wornitem( serial );
+      if ( _item != nullptr )
+        return _item;
+    }
+    for ( const auto& ochr : chr->realm()->getzone_grid( gpos ).npcs )
+    {
+      Items::Item* _item = ochr->find_wornitem( serial );
+      if ( _item != nullptr )
+        return _item;
     }
   }
   if ( chr->trade_container() )

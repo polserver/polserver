@@ -62,50 +62,37 @@ Guild::Guild( unsigned int guildid )
 
 void Guild::registerWithMembers()
 {
-  for ( SerialSet::iterator itr = _member_serials.begin(); itr != _member_serials.end(); /* */ )
+  SerialSet::iterator itr = _member_serials.begin();
+  while ( itr != _member_serials.end() )
   {
-    unsigned int mserial = ( *itr );
-    SerialSet::iterator last_itr = itr;
+    Mobile::Character* chr = system_find_mobile( *itr );
+    if ( chr == nullptr )
+    {
+      itr = _member_serials.erase( itr );
+      continue;
+    }
     ++itr;
-
-    Mobile::Character* chr = system_find_mobile( mserial );
-    if ( chr != nullptr )
-    {
-      chr->guild( this );
-    }
-    else
-    {
-      _member_serials.erase( last_itr );
-    }
+    chr->guild( this );
   }
 }
 
 void Guild::update_online_members()
 {
-  // FIXME : All of guilds.cpp iterator's need rewritten. Turley found a much better method
-  // used in the party system.
-  // NOTE: stlport seems to not return save itr on erase, but with a list container the iterator
-  // should stay valid
-  for ( SerialSet::iterator itr = _member_serials.begin(), end = _member_serials.end(); itr != end;
-        /* */ )
+  SerialSet::iterator itr = _member_serials.begin();
+  while ( itr != _member_serials.end() )
   {
-    unsigned int mserial = ( *itr );
-    SerialSet::iterator last_itr = itr;
-    ++itr;
-
-    Mobile::Character* chr = Core::system_find_mobile( mserial );
-    if ( chr != nullptr )
+    Mobile::Character* chr = system_find_mobile( *itr );
+    if ( chr == nullptr )
     {
-      if ( chr->client )
-      {
-        send_move( chr->client, chr );
-        send_remove_character_to_nearby_cansee( chr );
-        send_create_mobile_to_nearby_cansee( chr );
-      }
+      itr = _member_serials.erase( itr );
+      continue;
     }
-    else
+    ++itr;
+    if ( chr->client )
     {
-      _member_serials.erase( last_itr );
+      send_move( chr->client, chr );
+      send_remove_character_to_nearby_cansee( chr );
+      send_create_mobile_to_nearby_cansee( chr );
     }
   }
 }

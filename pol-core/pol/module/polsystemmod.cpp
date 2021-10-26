@@ -245,7 +245,7 @@ BObjectImp* PolSystemExecutorModule::mf_ReadMillisecondClock()
 
 BObjectImp* PolSystemExecutorModule::mf_ListenPoints()
 {
-  return Core::GetListenPoints();
+  return Core::ListenPoint::GetListenPoints();
 }
 
 BStruct* SetupRealmDetails( Realms::Realm* realm )

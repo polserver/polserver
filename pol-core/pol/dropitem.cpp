@@ -448,7 +448,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
 void send_trade_container( Network::Client* client, Mobile::Character* whos, UContainer* cont )
 {
   auto msg =
-      Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1 /*amount*/, 0 /*x*/, 0 /*y*/,
+      Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1 /*amount*/, Pos2d() /*pos*/,
                                     cont->slot_index(), whos->serial_ext, cont->color );
   msg.Send( client );
 }

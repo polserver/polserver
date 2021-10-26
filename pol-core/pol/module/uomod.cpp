@@ -286,7 +286,7 @@ UOExecutorModule::~UOExecutorModule()
   }
   if ( registered_for_speech_events )
   {
-    deregister_from_speech_events( &uoex );
+    ListenPoint::deregister_from_speech_events( &uoex );
   }
 }
 
@@ -1507,20 +1507,11 @@ BObjectImp* UOExecutorModule::mf_PlaySoundEffectPrivate()
 
 BObjectImp* UOExecutorModule::mf_PlaySoundEffectXYZ()
 {
-  unsigned short cx, cy;
-  short cz;
+  Core::Pos4d center;
   int effect;
-  const String* strrealm;
-  if ( getParam( 0, cx ) && getParam( 1, cy ) && getParam( 2, cz ) && getParam( 3, effect ) &&
-       getStringParam( 4, strrealm ) )
+  if ( getPos4dParam( 0, 1, 2, 4, &center ) && getParam( 3, effect ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( cx, cy, cz ) )
-      return new BError( "Invalid Coordinates for realm" );
-    play_sound_effect_xyz( cx, cy, static_cast<signed char>( cz ), static_cast<u16>( effect ),
-                           realm );
+    play_sound_effect_xyz( center, static_cast<u16>( effect ) );
     return new BLong( 1 );
   }
   else
@@ -1925,28 +1916,18 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZ()
 {
-  unsigned short sx, sy;
-  unsigned short dx, dy;
-  short sz, dz;
-
   unsigned short effect;
   int speed;
   int loop;
   int explode;
-  const String* strrealm;
-
-  if ( getParam( 0, sx ) && getParam( 1, sy ) && getParam( 2, sz ) && getParam( 3, dx ) &&
-       getParam( 4, dy ) && getParam( 5, dz ) && getParam( 6, effect ) &&
+  Realms::Realm* realm;
+  Pos3d src, dst;
+  if ( getRealmParam( 10, &realm ) && getPos3dParam( 0, 1, 2, &src, realm ) &&
+       getPos3dParam( 3, 4, 5, &dst, realm ) && getParam( 6, effect ) &&
        getParam( 7, speed, UCHAR_MAX ) && getParam( 8, loop, UCHAR_MAX ) &&
-       getParam( 9, explode, UCHAR_MAX ) && getStringParam( 10, strrealm ) )
+       getParam( 9, explode, UCHAR_MAX ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( sx, sy, sz ) || !realm->valid( dx, dy, dz ) )
-      return new BError( "Invalid Coordinates for realm" );
-    play_moving_effect2( sx, sy, static_cast<signed char>( sz ), dx, dy,
-                         static_cast<signed char>( dz ), effect, static_cast<signed char>( speed ),
+    play_moving_effect2( src, dst, effect, static_cast<signed char>( speed ),
                          static_cast<signed char>( loop ), static_cast<signed char>( explode ),
                          realm );
     return new BLong( 1 );
@@ -1980,24 +1961,16 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffect()
 
 BObjectImp* UOExecutorModule::mf_PlayStationaryEffect()
 {
-  unsigned short x, y;
-  short z;
+  Pos4d pos;
   unsigned short effect;
   int speed, loop, explode;
-  const String* strrealm;
-  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getParam( 3, effect ) &&
+  if ( getPos4dParam( 0, 1, 2, 7, &pos ) && getParam( 3, effect ) &&
        getParam( 4, speed, UCHAR_MAX ) && getParam( 5, loop, UCHAR_MAX ) &&
-       getParam( 6, explode, UCHAR_MAX ) && getStringParam( 7, strrealm ) )
+       getParam( 6, explode, UCHAR_MAX ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, z ) )
-      return new BError( "Invalid Coordinates for realm" );
-
-    play_stationary_effect( x, y, static_cast<signed char>( z ), effect,
-                            static_cast<unsigned char>( speed ), static_cast<unsigned char>( loop ),
-                            static_cast<unsigned char>( explode ), realm );
+    play_stationary_effect( pos, effect, static_cast<unsigned char>( speed ),
+                            static_cast<unsigned char>( loop ),
+                            static_cast<unsigned char>( explode ) );
     return new BLong( 1 );
   }
   else
@@ -2045,10 +2018,8 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
 
 BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZEx()
 {
-  unsigned short sx, sy;
-  unsigned short dx, dy;
-  short sz, dz;
-  const String* strrealm;
+  Pos3d src, dst;
+  Realms::Realm* realm;
 
   unsigned short effect;
   int speed;
@@ -2061,25 +2032,19 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectXYZEx()
   unsigned short effect3dexplode;
   unsigned short effect3dsound;
 
-  if ( getParam( 0, sx ) && getParam( 1, sy ) && getParam( 2, sz ) && getParam( 3, dx ) &&
-       getParam( 4, dy ) && getParam( 5, dz ) && getStringParam( 6, strrealm ) &&
-       getParam( 7, effect ) && getParam( 8, speed, UCHAR_MAX ) &&
-       getParam( 9, duration, UCHAR_MAX ) && getParam( 10, hue, INT_MAX ) &&
-       getParam( 11, render, INT_MAX ) && getParam( 12, direction, UCHAR_MAX ) &&
-       getParam( 13, explode, UCHAR_MAX ) && getParam( 14, effect3d ) &&
-       getParam( 15, effect3dexplode ) && getParam( 16, effect3dsound ) )
+  if ( getRealmParam( 6, &realm ) && getPos3dParam( 0, 1, 2, &src, realm ) &&
+       getPos3dParam( 3, 4, 5, &dst, realm ) && getParam( 7, effect ) &&
+       getParam( 8, speed, UCHAR_MAX ) && getParam( 9, duration, UCHAR_MAX ) &&
+       getParam( 10, hue, INT_MAX ) && getParam( 11, render, INT_MAX ) &&
+       getParam( 12, direction, UCHAR_MAX ) && getParam( 13, explode, UCHAR_MAX ) &&
+       getParam( 14, effect3d ) && getParam( 15, effect3dexplode ) &&
+       getParam( 16, effect3dsound ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( sx, sy, sz ) || !realm->valid( dx, dy, dz ) )
-      return new BError( "Invalid Coordinates for realm" );
     play_moving_effect2_ex(
-        sx, sy, static_cast<signed char>( sz ), dx, dy, static_cast<signed char>( dz ), realm,
-        effect, static_cast<unsigned char>( speed ), static_cast<unsigned char>( duration ),
-        static_cast<unsigned int>( hue ), static_cast<unsigned int>( render ),
-        static_cast<unsigned char>( direction ), static_cast<unsigned char>( explode ), effect3d,
-        effect3dexplode, effect3dsound );
+        src, dst, realm, effect, static_cast<unsigned char>( speed ),
+        static_cast<unsigned char>( duration ), static_cast<unsigned int>( hue ),
+        static_cast<unsigned int>( render ), static_cast<unsigned char>( direction ),
+        static_cast<unsigned char>( explode ), effect3d, effect3dexplode, effect3dsound );
     return new BLong( 1 );
   }
   else
@@ -2118,9 +2083,7 @@ BObjectImp* UOExecutorModule::mf_PlayObjectCenteredEffectEx()
 
 BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
 {
-  unsigned short x, y;
-  short z;
-  const String* strrealm;
+  Pos4d pos;
   unsigned short effect;
   int speed;
   int duration;
@@ -2128,21 +2091,13 @@ BObjectImp* UOExecutorModule::mf_PlayStationaryEffectEx()
   int render;
   unsigned short effect3d;
 
-  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z ) && getStringParam( 3, strrealm ) &&
-       getParam( 4, effect ) && getParam( 5, speed, UCHAR_MAX ) &&
-       getParam( 6, duration, UCHAR_MAX ) && getParam( 7, hue, INT_MAX ) &&
-       getParam( 8, render, INT_MAX ) && getParam( 9, effect3d ) )
+  if ( getPos4dParam( 0, 1, 2, 3, &pos ) && getParam( 4, effect ) &&
+       getParam( 5, speed, UCHAR_MAX ) && getParam( 6, duration, UCHAR_MAX ) &&
+       getParam( 7, hue, INT_MAX ) && getParam( 8, render, INT_MAX ) && getParam( 9, effect3d ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
-    if ( !realm->valid( x, y, z ) )
-      return new BError( "Invalid Coordinates for realm" );
-
     play_stationary_effect_ex(
-        x, y, static_cast<signed char>( z ), realm, effect, static_cast<unsigned char>( speed ),
-        static_cast<unsigned char>( duration ), static_cast<unsigned int>( hue ),
-        static_cast<unsigned int>( render ), effect3d );
+        pos, effect, static_cast<unsigned char>( speed ), static_cast<unsigned char>( duration ),
+        static_cast<unsigned int>( hue ), static_cast<unsigned int>( render ), effect3d );
     return new BLong( 1 );
   }
   else
@@ -3116,7 +3071,7 @@ BObjectImp* UOExecutorModule::mf_RegisterForSpeechEvents()
     }
     if ( !registered_for_speech_events )
     {
-      register_for_speech_events( center, &uoexec(), range, flags );
+      ListenPoint::register_for_speech_events( center, &uoexec(), range, flags );
       registered_for_speech_events = true;
       return new BLong( 1 );
     }

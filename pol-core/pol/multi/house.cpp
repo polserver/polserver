@@ -50,6 +50,7 @@
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "base/range.h"
 #include "customhouses.h"
 #include "multi.h"
 #include "multidef.h"
@@ -694,57 +695,55 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
 bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
                       unsigned short mysouth, Realms::Realm* realm )
 {
-  unsigned short wxL, wyL, wxH, wyH;
-
-  Core::zone_convert_clip( mywest - 100, mynorth - 100, realm, &wxL, &wyL );
-  Core::zone_convert_clip( myeast + 100, mysouth + 100, realm, &wxH, &wyH );
-  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+  // TODO Pos maximum multi footprint
+  Core::Range2d gridarea(
+      Core::zone_convert( Core::Pos4d( mywest, mynorth, 0, realm ) - Core::Vec2d( 100, 100 ) ),
+      Core::zone_convert( Core::Pos4d( myeast, mysouth, 0, realm ) + Core::Vec2d( 100, 100 ) ),
+      realm );
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    for ( const auto& multi : realm->getzone_grid( gpos ).multis )
     {
-      for ( const auto& multi : realm->getzone_grid( wx, wy ).multis )
+      const MultiDef& edef = multi->multidef();
+      // find out if any of our walls would fall within its footprint.
+      unsigned short itswest, itseast, itsnorth, itssouth;
+
+      itswest = static_cast<unsigned short>( multi->x() + edef.minrx );
+      itseast = static_cast<unsigned short>( multi->x() + edef.maxrx );
+      itsnorth = static_cast<unsigned short>( multi->y() + edef.minry );
+      itssouth = static_cast<unsigned short>( multi->y() + edef.maxry );
+
+      if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
       {
-        const MultiDef& edef = multi->multidef();
-        // find out if any of our walls would fall within its footprint.
-        unsigned short itswest, itseast, itsnorth, itssouth;
-
-        itswest = static_cast<unsigned short>( multi->x() + edef.minrx );
-        itseast = static_cast<unsigned short>( multi->x() + edef.maxrx );
-        itsnorth = static_cast<unsigned short>( multi->y() + edef.minry );
-        itssouth = static_cast<unsigned short>( multi->y() + edef.maxry );
-
-        if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
+        if ( ( mywest >= itswest && mywest <= itseast ) ||  // NW
+             ( myeast >= itswest && myeast <= itseast ) )   // NE
         {
-          if ( ( mywest >= itswest && mywest <= itseast ) ||  // NW
-               ( myeast >= itswest && myeast <= itseast ) )   // NE
-          {
-            return true;
-          }
+          return true;
         }
-        if ( mysouth >= itsnorth && mysouth <= itssouth )  // South
+      }
+      if ( mysouth >= itsnorth && mysouth <= itssouth )  // South
+      {
+        if ( ( mywest >= itswest && mywest <= itseast ) ||  // SW
+             ( myeast >= itswest && myeast <= itseast ) )   // SE
         {
-          if ( ( mywest >= itswest && mywest <= itseast ) ||  // SW
-               ( myeast >= itswest && myeast <= itseast ) )   // SE
-          {
-            return true;
-          }
+          return true;
         }
+      }
 
-        if ( itsnorth >= mynorth && itsnorth <= mysouth )  // North
+      if ( itsnorth >= mynorth && itsnorth <= mysouth )  // North
+      {
+        if ( ( itswest >= mywest && itswest <= myeast ) ||  // NW
+             ( itseast >= mywest && itseast <= myeast ) )   // NE
         {
-          if ( ( itswest >= mywest && itswest <= myeast ) ||  // NW
-               ( itseast >= mywest && itseast <= myeast ) )   // NE
-          {
-            return true;
-          }
+          return true;
         }
-        if ( itssouth >= mynorth && itssouth <= mysouth )  // South
+      }
+      if ( itssouth >= mynorth && itssouth <= mysouth )  // South
+      {
+        if ( ( itswest >= mywest && itswest <= myeast ) ||  // SW
+             ( itseast >= mywest && itseast <= myeast ) )   // SE
         {
-          if ( ( itswest >= mywest && itswest <= myeast ) ||  // SW
-               ( itseast >= mywest && itseast <= myeast ) )   // SE
-          {
-            return true;
-          }
+          return true;
         }
       }
     }
@@ -755,9 +754,8 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
 bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
                        Realms::Realm* realm )
 {
-  unsigned short wxL, wyL, wxH, wyH;
-  Core::zone_convert_clip( x1, y1, realm, &wxL, &wyL );
-  Core::zone_convert_clip( x2, y2, realm, &wxH, &wyH );
+  Core::Range2d gridarea( Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) ),
+                          Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) ), realm );
   auto includes = [&]( const Core::UObject* obj )
   {
     if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
@@ -766,25 +764,22 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
     }
     return false;
   };
-  for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+    for ( const auto& chr : realm->getzone_grid( gpos ).characters )
     {
-      for ( const auto& chr : realm->getzone_grid( wx, wy ).characters )
-      {
-        if ( includes( chr ) )
-          return true;
-      }
-      for ( const auto& chr : realm->getzone_grid( wx, wy ).npcs )
-      {
-        if ( includes( chr ) )
-          return true;
-      }
-      for ( const auto& item : realm->getzone_grid( wx, wy ).items )
-      {
-        if ( includes( item ) )
-          return true;
-      }
+      if ( includes( chr ) )
+        return true;
+    }
+    for ( const auto& chr : realm->getzone_grid( gpos ).npcs )
+    {
+      if ( includes( chr ) )
+        return true;
+    }
+    for ( const auto& item : realm->getzone_grid( gpos ).items )
+    {
+      if ( includes( item ) )
+        return true;
     }
   }
   return false;

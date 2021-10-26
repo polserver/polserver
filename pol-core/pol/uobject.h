@@ -172,6 +172,12 @@ public:
   virtual UObject* self_as_owner();
   virtual const UObject* self_as_owner() const;
   virtual const UObject* toplevel_owner() const;
+  const Pos4d& toplevel_pos() const;
+
+  bool in_range( const UObject* other, u16 range ) const;
+  bool in_range( const Pos2d& other, u16 range ) const;
+  bool in_visual_range( const UObject* other ) const;
+  bool in_visual_range( const Pos2d& other ) const;
 
   void setposition( Pos4d newpos );
 
@@ -351,6 +357,28 @@ inline bool IsCharacter( u32 serial )
 inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
+}
+
+
+inline const Pos4d& UObject::toplevel_pos() const
+{
+  return toplevel_owner()->pos();
+}
+inline bool UObject::in_range( const UObject* other, u16 range ) const
+{
+  return toplevel_pos().in_range( other->toplevel_pos(), range );
+}
+inline bool UObject::in_range( const Pos2d& other, u16 range ) const
+{
+  return toplevel_pos().in_range( other, range );
+}
+inline bool UObject::in_visual_range( const UObject* other ) const
+{
+  return in_range( other, RANGE_VISUAL );
+}
+inline bool UObject::in_visual_range( const Pos2d& other ) const
+{
+  return in_range( other, RANGE_VISUAL );
 }
 }  // namespace Core
 }  // namespace Pol
