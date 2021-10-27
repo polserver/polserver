@@ -20,14 +20,14 @@ namespace Module
 {
 class UOExecutorModule;
 class UnicodeExecutorModule;
-}
+}  // namespace Module
 namespace Core
 {
 class JusticeRegion;
 class MusicRegion;
 class UContainer;
 class WeatherRegion;
-}
+}  // namespace Core
 namespace Network
 {
 class ClientGameData
@@ -75,7 +75,8 @@ public:
   Core::WeatherRegion* weather_region;
   u32 custom_house_serial;
   u32 custom_house_chrserial;
+  u8 update_range;
 };
-}
-}
+}  // namespace Network
+}  // namespace Pol
 #endif

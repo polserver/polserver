@@ -22,6 +22,7 @@
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long,
    only until they find a better home - but this is better than putting them in POL.CPP. */
 
+#include <algorithm>
 #include <cstddef>
 #include <ctype.h>
 #include <string>
@@ -412,9 +413,16 @@ void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
   handle_unknown_packet( client );
 }
 
-void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
+void handle_update_range_change( Client* client, PKTBI_C8* msg )
 {
-  handle_unknown_packet( client );
+  // lower then 18 makes I think no sense (max is I think 24)
+  u8 range = std::clamp( msg->range, (u8)RANGE_VISUAL, (u8)24 );
+  client->set_update_range( range );
+
+  Network::PktHelper::PacketOut<Network::PktOut_C8> outMsg;
+  // TODO Pos: send updated client->update_range()
+  outMsg->Write<u8>( (u8)RANGE_VISUAL );
+  outMsg.Send( client );
 }
 
 void handle_krrios_packet( Client* client, PKTBI_F0* msg )
