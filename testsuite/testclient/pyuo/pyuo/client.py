@@ -340,7 +340,7 @@ class Player(Mobile):
     bp = self.getEquipByLayer(self.LAYER_PACK)
     if not isinstance(bp, Container):
       self.client.doubleClick(bp)
-      if not self.client.waitFor(lambda: isinstance(bp, Container),5):
+      if not self.client.waitFor(lambda: isinstance(bp, Container) and hasattr(bp,"content"),5):
         return None
     if not self.client.waitFor(lambda: bp.content is not None, 5):
       return None
