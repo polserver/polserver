@@ -415,8 +415,8 @@ void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
 
 void handle_update_range_change( Client* client, PKTBI_C8* msg )
 {
-  // lower then 18 makes I think no sense (max is I think 24)
-  u8 range = std::clamp( msg->range, (u8)RANGE_VISUAL, (u8)24 );
+  // limit range to official range 5-24
+  u8 range = std::clamp( msg->range, (u8)5, (u8)24 );
   client->set_update_range( range );
 
   Network::PktHelper::PacketOut<Network::PktOut_C8> outMsg;
