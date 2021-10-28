@@ -94,17 +94,17 @@ struct VersionDetailStruct
   int patch;
 };
 
-const struct VersionDetailStruct CLIENT_VER_4000 = {4, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_4070 = {4, 0, 7, 0};
-const struct VersionDetailStruct CLIENT_VER_5000 = {5, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_5020 = {5, 0, 2, 0};
-const struct VersionDetailStruct CLIENT_VER_6017 = {6, 0, 1, 7};
-const struct VersionDetailStruct CLIENT_VER_60142 = {6, 0, 14, 2};
-const struct VersionDetailStruct CLIENT_VER_7000 = {7, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_7090 = {7, 0, 9, 0};
-const struct VersionDetailStruct CLIENT_VER_70130 = {7, 0, 13, 0};
-const struct VersionDetailStruct CLIENT_VER_70300 = {7, 0, 30, 0};
-const struct VersionDetailStruct CLIENT_VER_70331 = {7, 0, 33, 1};
+const struct VersionDetailStruct CLIENT_VER_4000 = { 4, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_4070 = { 4, 0, 7, 0 };
+const struct VersionDetailStruct CLIENT_VER_5000 = { 5, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_5020 = { 5, 0, 2, 0 };
+const struct VersionDetailStruct CLIENT_VER_6017 = { 6, 0, 1, 7 };
+const struct VersionDetailStruct CLIENT_VER_60142 = { 6, 0, 14, 2 };
+const struct VersionDetailStruct CLIENT_VER_7000 = { 7, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_7090 = { 7, 0, 9, 0 };
+const struct VersionDetailStruct CLIENT_VER_70130 = { 7, 0, 13, 0 };
+const struct VersionDetailStruct CLIENT_VER_70300 = { 7, 0, 30, 0 };
+const struct VersionDetailStruct CLIENT_VER_70331 = { 7, 0, 33, 1 };
 
 enum ClientTypeFlag
 {
@@ -331,6 +331,8 @@ public:
   Bscript::BObjectImp* make_ref();
   weak_ptr<Client> getWeakPtr() const;
 
+  void set_update_range( u8 range );
+  u8 update_range() const;
 
 public:
   ClientGameData* gd;

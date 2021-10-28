@@ -289,6 +289,10 @@ private:
 
   // UOBJECT INTERFACE
 public:
+  virtual u8 update_range() const override;
+  bool in_visual_range( const Core::UObject* other ) const;
+  bool in_visual_range( const Core::Pos2d& other ) const;
+
   virtual size_t estimatedSize() const override;
 
   virtual void destroy() override;
@@ -1018,6 +1022,17 @@ inline VitalValue& Character::vital( unsigned vitalid )
 {
   passert( vitalid < vitals.size() );
   return vitals[vitalid];
+}
+
+inline bool Character::in_visual_range( const Core::UObject* other ) const
+{
+  if ( !other->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
+    return in_range( other, std::max( update_range(), other->update_range() ) );
+  return in_range( other, update_range() );
+}
+inline bool Character::in_visual_range( const Core::Pos2d& other ) const
+{
+  return in_range( other, update_range() );
 }
 
 // dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp

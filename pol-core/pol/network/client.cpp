@@ -34,6 +34,7 @@
 #include "../crypt/cryptengine.h"
 #include "../globals/network.h"
 #include "../globals/state.h"
+#include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../polsig.h"
 #include "../realms/WorldChangeReasons.h"
@@ -143,8 +144,9 @@ void Client::Delete( Client* client )
 
 Client::~Client() {}
 
-void Client::init_crypto(void* nseed, int type) {
-    session()->cryptengine->Init( nseed, type );
+void Client::init_crypto( void* nseed, int type )
+{
+  session()->cryptengine->Init( nseed, type );
 }
 
 void Client::unregister()
@@ -577,9 +579,9 @@ void ThreadedClient::send_queued_data()
 }
 
 // 33 01 "encrypted": 4F FA
-static const unsigned char pause_pre_encrypted[2] = {0x4F, 0xFA};
+static const unsigned char pause_pre_encrypted[2] = { 0x4F, 0xFA };
 // 33 00 "encrypted": 4C D0
-static const unsigned char restart_pre_encrypted[2] = {0x4C, 0xD0};
+static const unsigned char restart_pre_encrypted[2] = { 0x4C, 0xD0 };
 
 void Client::send_pause()
 {
@@ -684,6 +686,20 @@ Bscript::BObjectImp* Client::make_ref()
 weak_ptr<Client> Client::getWeakPtr() const
 {
   return weakptr;
+}
+
+void Client::set_update_range( u8 range )
+{
+  // store "personal" updaterange
+  gd->update_range = range;
+  // update global updaterange (maximum multi radius/client view range)
+  if ( range > Core::gamestate.update_range )
+    Core::gamestate.update_range = range;
+}
+
+u8 Client::update_range() const
+{
+  return gd->update_range;
 }
 
 // TODO: Add estimatedSize() to ThreadedClient and move the corresponding members

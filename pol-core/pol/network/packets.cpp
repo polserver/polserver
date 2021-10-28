@@ -110,6 +110,7 @@ PacketsSingleton::PacketsSingleton()
   packets.insert( PacketQueuePair( PKTOUT_C1_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTBI_C2_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_C7_ID, new PacketQueueSingle() ) );
+  packets.insert( PacketQueuePair( PKTBI_C8_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_CC_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTBI_D6_OUT_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_DC_ID, new PacketQueueSingle() ) );
@@ -483,6 +484,8 @@ PacketInterface* GetPacket( u8 id, u16 sub )
     return new PktOut_C2();
   case PKTOUT_C7_ID:
     return new PktOut_C7();
+  case PKTBI_C8_ID:
+    return new PktOut_C8();
   case PKTOUT_CC_ID:
     return new PktOut_CC();
   case PKTBI_D6_OUT_ID:

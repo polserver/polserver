@@ -24,12 +24,12 @@
 #include "../../clib/strutil.h"
 #include "../../plib/uconst.h"
 #include "../layers.h"
-#include "realms/realms.h"
 #include "packetinterface.h"
 #include "pktboth.h"
 #include "pktbothid.h"
 #include "pktdef.h"
 #include "pktoutid.h"
+#include "realms/realms.h"
 
 namespace Pol
 {
@@ -469,6 +469,7 @@ typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_C1_ID, 48 + ( SPEECH_MAX_L
     PktOut_C1;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_C2_ID, 21> PktOut_C2;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_C7_ID, 49> PktOut_C7;
+typedef PacketWriterDefs::PacketTemplate<Core::PKTBI_C8_ID, 2> PktOut_C8;
 typedef PacketWriterDefs::PacketTemplate<Core::PKTOUT_CC_ID,
                                          49 + ( SPEECH_MAX_LEN + 1 ) * 2 + SPEECH_MAX_LEN + 1>
     PktOut_CC;

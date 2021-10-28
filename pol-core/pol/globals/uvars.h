@@ -26,7 +26,6 @@
 #include "../layers.h"
 #include "../menu.h"
 #include "../reftypes.h"
-#include "regions/region.h"
 #include "../schedule.h"
 #include "../storage.h"
 #include "../syshook.h"
@@ -34,6 +33,7 @@
 #include "../tasks.h"
 #include "../textcmd.h"
 #include "../uoskills.h"
+#include "regions/region.h"
 
 
 namespace Pol
@@ -248,6 +248,9 @@ public:
     size_t misc;
   };
   threadhelp::TaskThreadPool task_thread_pool;
+
+  u8 update_range;  // maximum update range (client view range/multi footprint) used as
+                    // "pre-filtering" of objects
 
 private:
   void cleanup_vars();
