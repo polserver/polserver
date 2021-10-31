@@ -3780,7 +3780,10 @@ bool Character::CustomHousingMove( unsigned char i_dir )
                   Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
         const Multi::MultiDef& def = house->multidef();
         auto relpos = newpos - house->pos().xy();
-        if ( def.within_multi( relpos ) )
+        // minx and y are wall elements and z is 7
+        // mobile will look like flying when allowing the min coords 
+        if ( def.within_multi( relpos ) && relpos.x() != def.minrxyz.x() &&
+             relpos.y() != def.minrxyz.y() )
         {
           setposition( newpos );
           MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );

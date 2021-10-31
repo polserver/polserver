@@ -936,7 +936,8 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 
   // not in the backpack, or in a subpack.  check global items and subpacks.
   // FIXME doesn't check range?
-  Range2d gridarea( chr->pos() - Vec2d( 8, 8 ), chr->pos() + Vec2d( 8, 8 ) );
+  Range2d gridarea( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
+                    zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
     for ( auto& item : chr->realm()->getzone_grid( gpos ).items )
@@ -988,7 +989,8 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
   }
 
   // check items on the ground
-  Range2d gridarea( chr->pos() - Vec2d( 8, 8 ), chr->pos() + Vec2d( 8, 8 ) );
+  Range2d gridarea( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
+                    zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
     for ( const auto& _item : chr->realm()->getzone_grid( gpos ).items )

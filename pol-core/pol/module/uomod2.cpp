@@ -2543,8 +2543,8 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     {
       Core::Pos4d pos = house->pos() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
       move_character_to( multichr, pos.x(), pos.y(), pos.z(), MOVEITEM_FORCELOCATION, nullptr );
-      moblist.pop_back();
     }
+    moblist.pop_back();
   }
 
   house->editing = true;
