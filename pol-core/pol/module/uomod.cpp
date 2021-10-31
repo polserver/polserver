@@ -2164,53 +2164,36 @@ BObjectImp* UOExecutorModule::mf_ListItemsNearLocation( /* x, y, z, range, realm
   return nullptr;
 }
 
-void UOExecutorModule::internal_InBoxAreaChecks( unsigned short& /*x1*/, unsigned short& /*y1*/,
-                                                 int& z1, unsigned short& x2, unsigned short& y2,
-                                                 int& z2, Realms::Realm* realm )
+Range3d UOExecutorModule::internal_InBoxAreaChecks( const Pos2d& p1, int z1, const Pos2d& p2,
+                                                    int z2, Realms::Realm* realm )
 {
-  if ( z1 < ZCOORD_MIN || z1 == LIST_IGNORE_Z )
+  // no error checks for out of realm range on purpose
+  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
+    std::swap( z1, z2 );
+  if ( z1 == LIST_IGNORE_Z )
     z1 = ZCOORD_MIN;
-
-  if ( x2 >= realm->width() )
-    x2 = ( realm->width() - 1 );
-  if ( y2 >= realm->height() )
-    y2 = ( realm->height() - 1 );
-  if ( z2 > ZCOORD_MAX || z2 == LIST_IGNORE_Z )
+  if ( z2 == LIST_IGNORE_Z )
     z2 = ZCOORD_MAX;
+  return Range3d( Pos3d( p1, Pos3d::clip_s8( z1 ) ), Pos3d( p2, Pos3d::clip_s8( z2 ) ), realm );
 }
 
 BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ )
 {
-  unsigned short x1, y1;
-  int z1;
-  unsigned short x2, y2;
-  int z2;
-  const String* strrealm;
+  int z1, z2;
+  Pos2d p1, p2;
   Realms::Realm* realm;
 
-  if ( !( getParam( 0, x1 ) && getParam( 1, y1 ) && getParam( 2, z1 ) && getParam( 3, x2 ) &&
-          getParam( 4, y2 ) && getParam( 5, z2 ) && getStringParam( 6, strrealm ) ) )
+  if ( !( getPos2dParam( 0, 1, &p1 ) && getParam( 2, z1 ) && getPos2dParam( 3, 4, &p2 ) &&
+          getParam( 5, z2 ) && getRealmParam( 6, &realm ) ) )
   {
     return new BError( "Invalid parameter" );
   }
-
-  realm = find_realm( strrealm->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-
-  if ( x1 > x2 )
-    std::swap( x1, x2 );
-  if ( y1 > y2 )
-    std::swap( y1, y2 );
-  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
-    std::swap( z1, z2 );
-  // Disabled again: ShardAdmins "loves" this "bug" :o/
-  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //   return new BError("Invalid Coordinates for realm");
-  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+  Range3d box = internal_InBoxAreaChecks( p1, z1, p2, z2, realm );
+  z1 = box.nw_b().z();
+  z2 = box.se_t().z();
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
-  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm,
+  WorldIterator<MobileFilter>::InBox( box.range(), realm,
                                       [&]( Mobile::Character* chr )
                                       {
                                         if ( chr->z() >= z1 && chr->z() <= z2 )
@@ -2218,7 +2201,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, re
                                           newarr->addElement( chr->make_ref() );
                                         }
                                       } );
-  WorldIterator<ItemFilter>::InBox( x1, y1, x2, y2, realm,
+  WorldIterator<ItemFilter>::InBox( box.range(), realm,
                                     [&]( Items::Item* item )
                                     {
                                       if ( item->z() >= z1 && item->z() <= z2 )
@@ -2234,38 +2217,22 @@ BObjectImp* UOExecutorModule::mf_ListItemsInBoxOfObjType(
     /* objtype, x1, y1, z1, x2, y2, z2, realm */ )
 {
   unsigned int objtype;
-  unsigned short x1, y1;
-  int z1;
-  unsigned short x2, y2;
-  int z2;
-  const String* strrealm;
+  int z1, z2;
+  Pos2d p1, p2;
   Realms::Realm* realm;
 
-  if ( !( getParam( 0, objtype ) && getParam( 1, x1 ) && getParam( 2, y1 ) && getParam( 3, z1 ) &&
-          getParam( 4, x2 ) && getParam( 5, y2 ) && getParam( 6, z2 ) &&
-          getStringParam( 7, strrealm ) ) )
+  if ( !( getParam( 0, objtype ) && getPos2dParam( 1, 2, &p1 ) && getParam( 3, z1 ) &&
+          getPos2dParam( 4, 5, &p2 ) && getParam( 6, z2 ) && getRealmParam( 7, &realm ) ) )
   {
     return new BError( "Invalid parameter" );
   }
-
-  realm = find_realm( strrealm->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-
-  if ( x1 > x2 )
-    std::swap( x1, x2 );
-  if ( y1 > y2 )
-    std::swap( y1, y2 );
-  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
-    std::swap( z1, z2 );
-  // Disabled again: ShardAdmins "loves" this "bug" :o/
-  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //   return new BError("Invalid Coordinates for realm");
-  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+  Range3d box = internal_InBoxAreaChecks( p1, z1, p2, z2, realm );
+  z1 = box.nw_b().z();
+  z2 = box.se_t().z();
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
   WorldIterator<ItemFilter>::InBox(
-      x1, y1, x2, y2, realm,
+      box.range(), realm,
       [&]( Items::Item* item )
       {
         if ( item->z() >= z1 && item->z() <= z2 && item->objtype_ == objtype )
@@ -2281,38 +2248,22 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
     /* POL_Class, x1, y1, z1, x2, y2, z2, realm */ )
 {
   unsigned int POL_Class;
-  unsigned short x1, y1;
-  int z1;
-  unsigned short x2, y2;
-  int z2;
-  const String* strrealm;
+  int z1, z2;
+  Pos2d p1, p2;
   Realms::Realm* realm;
 
-  if ( !( getParam( 0, POL_Class ) && getParam( 1, x1 ) && getParam( 2, y1 ) && getParam( 3, z1 ) &&
-          getParam( 4, x2 ) && getParam( 5, y2 ) && getParam( 6, z2 ) &&
-          getStringParam( 7, strrealm ) ) )
+  if ( !( getParam( 0, POL_Class ) && getPos2dParam( 1, 2, &p1 ) && getParam( 3, z1 ) &&
+          getPos2dParam( 4, 5, &p2 ) && getParam( 6, z2 ) && getRealmParam( 7, &realm ) ) )
   {
     return new BError( "Invalid parameter" );
   }
-
-  realm = find_realm( strrealm->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-
-  if ( x1 > x2 )
-    std::swap( x1, x2 );
-  if ( y1 > y2 )
-    std::swap( y1, y2 );
-  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
-    std::swap( z1, z2 );
-  // Disabled again: ShardAdmins "loves" this "bug" :o/
-  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //   return new BError("Invalid Coordinates for realm");
-  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+  Range3d box = internal_InBoxAreaChecks( p1, z1, p2, z2, realm );
+  z1 = box.nw_b().z();
+  z2 = box.se_t().z();
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
   WorldIterator<MobileFilter>::InBox(
-      x1, y1, x2, y2, realm,
+      box.range(), realm,
       [&]( Mobile::Character* chr )
       {
         if ( chr->z() >= z1 && chr->z() <= z2 && chr->script_isa( POL_Class ) )
@@ -2321,7 +2272,7 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
         }
       } );
   WorldIterator<ItemFilter>::InBox(
-      x1, y1, x2, y2, realm,
+      box.range(), realm,
       [&]( Items::Item* item )
       {
         if ( item->z() >= z1 && item->z() <= z2 && item->script_isa( POL_Class ) )
@@ -2335,36 +2286,20 @@ BObjectImp* UOExecutorModule::mf_ListObjectsInBoxOfClass(
 
 BObjectImp* UOExecutorModule::mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, realm */ )
 {
-  unsigned short x1, y1;
-  int z1;
-  unsigned short x2, y2;
-  int z2;
-  const String* strrealm;
+  int z1, z2;
+  Pos2d p1, p2;
   Realms::Realm* realm;
 
-  if ( !( getParam( 0, x1 ) && getParam( 1, y1 ) && getParam( 2, z1 ) && getParam( 3, x2 ) &&
-          getParam( 4, y2 ) && getParam( 5, z2 ) && getStringParam( 6, strrealm ) ) )
+  if ( !( getPos2dParam( 0, 1, &p1 ) && getParam( 2, z1 ) && getPos2dParam( 3, 4, &p2 ) &&
+          getParam( 5, z2 ) && getRealmParam( 6, &realm ) ) )
   {
     return new BError( "Invalid parameter" );
   }
-
-  realm = find_realm( strrealm->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-
-  if ( x1 > x2 )
-    std::swap( x1, x2 );
-  if ( y1 > y2 )
-    std::swap( y1, y2 );
-  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
-    std::swap( z1, z2 );
-  // Disabled again: ShardAdmins "loves" this "bug" :o/
-  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //   return new BError("Invalid Coordinates for realm");
-  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
-
+  Range3d box = internal_InBoxAreaChecks( p1, z1, p2, z2, realm );
+  z1 = box.nw_b().z();
+  z2 = box.se_t().z();
   std::unique_ptr<ObjArray> newarr( new ObjArray );
-  WorldIterator<MobileFilter>::InBox( x1, y1, x2, y2, realm,
+  WorldIterator<MobileFilter>::InBox( box.range(), realm,
                                       [&]( Mobile::Character* chr )
                                       {
                                         if ( chr->z() >= z1 && chr->z() <= z2 )
@@ -2378,85 +2313,49 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInBox( /* x1, y1, z1, x2, y2, z2, re
 
 BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, realm */ )
 {
-  unsigned short x1, y1;
-  int z1;
-  unsigned short x2, y2;
-  int z2;
-  const String* strrealm;
+  int z1, z2;
+  Pos2d p1, p2;
   Realms::Realm* realm;
 
-  if ( !( getParam( 0, x1 ) && getParam( 1, y1 ) && getParam( 2, z1 ) && getParam( 3, x2 ) &&
-          getParam( 4, y2 ) && getParam( 5, z2 ) && getStringParam( 6, strrealm ) ) )
+  if ( !( getPos2dParam( 0, 1, &p1 ) && getParam( 2, z1 ) && getPos2dParam( 3, 4, &p2 ) &&
+          getParam( 5, z2 ) && getRealmParam( 6, &realm ) ) )
   {
     return new BError( "Invalid parameter" );
   }
 
-  realm = find_realm( strrealm->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-
-  if ( x1 > x2 )
-    std::swap( x1, x2 );
-  if ( y1 > y2 )
-    std::swap( y1, y2 );
-  if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
-    std::swap( z1, z2 );
-  // Disabled again: ShardAdmins "loves" this "bug" :o/
-  // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-  //   return new BError("Invalid Coordinates for realm");
-  internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+  Range3d box = internal_InBoxAreaChecks( p1, z1, p2, z2, realm );
+  z1 = box.nw_b().z();
+  z2 = box.se_t().z();
 
   std::unique_ptr<ObjArray> newarr( new ObjArray );
 
   // extend the coords to find the center item
   // but only as parameter for the filter function
-  unsigned short x1range = x1;
-  unsigned short x2range = x2 + RANGE_VISUAL_LARGE_BUILDINGS;
-  unsigned short y1range = y1;
-  unsigned short y2range = y2 + RANGE_VISUAL_LARGE_BUILDINGS;
+  Range2d boxrange( box.nw() - gamestate.update_range, box.se() + gamestate.update_range, realm );
 
-  if ( x1range >= RANGE_VISUAL_LARGE_BUILDINGS )
-    x1range -= RANGE_VISUAL_LARGE_BUILDINGS;
-  else
-    x1range = 0;
-  if ( y1range >= RANGE_VISUAL_LARGE_BUILDINGS )
-    y1range -= RANGE_VISUAL_LARGE_BUILDINGS;
-  else
-    y1range = 0;
-
-  internal_InBoxAreaChecks( x1range, y1range, z1, x2range, y2range, z2, realm );
   // search for multis.  this is tricky, since the center might lie outside the box
   WorldIterator<MultiFilter>::InBox(
-      x1range, y1range, x2range, y2range, realm,
+      boxrange, realm,
       [&]( Multi::UMulti* multi )
       {
-        const Multi::MultiDef& md = multi->multidef();
-        if ( multi->x() + md.minrx > x2 ||  // east of the box
-             multi->x() + md.maxrx < x1 ||  // west of the box
-             multi->y() + md.minry > y2 ||  // south of the box
-             multi->y() + md.maxry < y1 ||  // north of the box
-             multi->z() + md.minrz > z2 ||  // above the box
-             multi->z() + md.maxrz < z1 )   // below the box
-        {
+        if ( !box.intersect( multi->current_box() ) )
           return;
-        }
-        // some part of it is contained in the box.  Look at the individual statics, to see
-        // if any of them lie within.
+        const Multi::MultiDef& md = multi->multidef();
+        // some part of it is contained in the box.  Look at the
+        // individual statics, to see if any of them lie within.
         for ( const auto& citr : md.components )
         {
           const Multi::MULTI_ELEM* elem = citr.second;
-          int absx = multi->x() + elem->x;
-          int absy = multi->y() + elem->y;
-          int absz = multi->z() + elem->z;
-          if ( x1 <= absx && absx <= x2 && y1 <= absy && absy <= y2 )
+          Pos3d absp = multi->pos3d() + elem->relpos;
+          if ( box.contains( absp.xy() ) )
           {
             // do Z checking
             int height = Plib::tileheight( getgraphic( elem->objtype ) );
-            int top = absz + height;
+            int top = absp.z() + height;
 
-            if ( ( z1 <= absz && absz <= z2 ) ||  // bottom point lies between
-                 ( z1 <= top && top <= z2 ) ||    // top lies between
-                 ( top >= z2 && absz <= z1 ) )    // spans
+            if ( ( z1 <= absp.z() && absp.z() <= z2 ) ||  // bottom point lies between
+                 ( z1 <= top && top <= z2 ) ||            // top lies between
+                 ( top >= z2 && absp.z() <= z1 ) )        // spans
             {
               newarr->addElement( multi->make_ref() );
               break;  // out of for
@@ -2470,82 +2369,65 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
 
 BObjectImp* UOExecutorModule::mf_ListStaticsInBox( /* x1, y1, z1, x2, y2, z2, flags, realm */ )
 {
-  unsigned short x1, y1;
-  unsigned short x2, y2;
   int z1, z2;
+  Pos2d p1, p2;
   int flags;
-  const String* strrealm;
+  Realms::Realm* realm;
 
-  if ( getParam( 0, x1 ) && getParam( 1, y1 ) && getParam( 2, z1 ) && getParam( 3, x2 ) &&
-       getParam( 4, y2 ) && getParam( 5, z2 ) && getParam( 6, flags ) &&
-       getStringParam( 7, strrealm ) )
+  if ( !( getPos2dParam( 0, 1, &p1 ) && getParam( 2, z1 ) && getPos2dParam( 3, 4, &p2 ) &&
+          getParam( 5, z2 ) && getParam( 6, flags ) && getRealmParam( 7, &realm ) ) )
   {
-    Realms::Realm* realm = find_realm( strrealm->value() );
-    if ( !realm )
-      return new BError( "Realm not found" );
+    return new BError( "Invalid parameter" );
+  }
 
-    if ( x1 > x2 )
-      std::swap( x1, x2 );
-    if ( y1 > y2 )
-      std::swap( y1, y2 );
-    if ( ( z1 > z2 ) && z1 != LIST_IGNORE_Z && z2 != LIST_IGNORE_Z )
-      std::swap( z1, z2 );
-    // Disabled again: ShardAdmins "loves" this "bug" :o/
-    // if ((!realm->valid(x1, y1, z1)) || (!realm->valid(x2, y2, z2)))
-    //   return new BError("Invalid Coordinates for realm");
-    internal_InBoxAreaChecks( x1, y1, z1, x2, y2, z2, realm );
+  Range3d box = internal_InBoxAreaChecks( p1, z1, p2, z2, realm );
+  z1 = box.nw_b().z();
+  z2 = box.se_t().z();
 
-    std::unique_ptr<ObjArray> newarr( new ObjArray );
+  std::unique_ptr<ObjArray> newarr( new ObjArray );
 
-    for ( unsigned short wx = x1; wx <= x2; ++wx )
+  for ( const auto& pos : box.range() )
+  {
+    if ( !( flags & ITEMS_IGNORE_STATICS ) )
     {
-      for ( unsigned short wy = y1; wy <= y2; ++wy )
+      Plib::StaticEntryList slist;
+      realm->getstatics( slist, pos );
+
+      for ( unsigned i = 0; i < slist.size(); ++i )
       {
-        if ( !( flags & ITEMS_IGNORE_STATICS ) )
+        if ( ( z1 <= slist[i].z ) && ( slist[i].z <= z2 ) )
         {
-          Plib::StaticEntryList slist;
-          realm->getstatics( slist, wx, wy );
-
-          for ( unsigned i = 0; i < slist.size(); ++i )
-          {
-            if ( ( z1 <= slist[i].z ) && ( slist[i].z <= z2 ) )
-            {
-              std::unique_ptr<BStruct> arr( new BStruct );
-              arr->addMember( "x", new BLong( wx ) );
-              arr->addMember( "y", new BLong( wy ) );
-              arr->addMember( "z", new BLong( slist[i].z ) );
-              arr->addMember( "objtype", new BLong( slist[i].objtype ) );
-              arr->addMember( "hue", new BLong( slist[i].hue ) );
-              newarr->addElement( arr.release() );
-            }
-          }
-        }
-
-        if ( !( flags & ITEMS_IGNORE_MULTIS ) )
-        {
-          Plib::StaticList mlist;
-          realm->readmultis( mlist, wx, wy );
-
-          for ( unsigned i = 0; i < mlist.size(); ++i )
-          {
-            if ( ( z1 <= mlist[i].z ) && ( mlist[i].z <= z2 ) )
-            {
-              std::unique_ptr<BStruct> arr( new BStruct );
-              arr->addMember( "x", new BLong( wx ) );
-              arr->addMember( "y", new BLong( wy ) );
-              arr->addMember( "z", new BLong( mlist[i].z ) );
-              arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
-              newarr->addElement( arr.release() );
-            }
-          }
+          std::unique_ptr<BStruct> arr( new BStruct );
+          arr->addMember( "x", new BLong( pos.x() ) );
+          arr->addMember( "y", new BLong( pos.y() ) );
+          arr->addMember( "z", new BLong( slist[i].z ) );
+          arr->addMember( "objtype", new BLong( slist[i].objtype ) );
+          arr->addMember( "hue", new BLong( slist[i].hue ) );
+          newarr->addElement( arr.release() );
         }
       }
     }
 
-    return newarr.release();
+    if ( !( flags & ITEMS_IGNORE_MULTIS ) )
+    {
+      Plib::StaticList mlist;
+      realm->readmultis( mlist, pos );
+
+      for ( unsigned i = 0; i < mlist.size(); ++i )
+      {
+        if ( ( z1 <= mlist[i].z ) && ( mlist[i].z <= z2 ) )
+        {
+          std::unique_ptr<BStruct> arr( new BStruct );
+          arr->addMember( "x", new BLong( pos.x() ) );
+          arr->addMember( "y", new BLong( pos.y() ) );
+          arr->addMember( "z", new BLong( mlist[i].z ) );
+          arr->addMember( "objtype", new BLong( mlist[i].graphic ) );
+          newarr->addElement( arr.release() );
+        }
+      }
+    }
   }
-  else
-    return new BError( "Invalid parameter" );
+  return newarr.release();
 }
 
 BObjectImp* UOExecutorModule::mf_ListItemsNearLocationOfType( /* x, y, z, range, objtype, realm */ )
@@ -4445,10 +4327,10 @@ BObjectImp* UOExecutorModule::mf_GetMultiDimensions()
 
     const Multi::MultiDef& md = *Multi::MultiDefByMultiID( multiid );
     std::unique_ptr<BStruct> ret( new BStruct );
-    ret->addMember( "xmin", new BLong( md.minrx ) );
-    ret->addMember( "xmax", new BLong( md.maxrx ) );
-    ret->addMember( "ymin", new BLong( md.minry ) );
-    ret->addMember( "ymax", new BLong( md.maxry ) );
+    ret->addMember( "xmin", new BLong( md.minrxyz.x() ) );
+    ret->addMember( "xmax", new BLong( md.maxrxyz.x() ) );
+    ret->addMember( "ymin", new BLong( md.minrxyz.y() ) );
+    ret->addMember( "ymax", new BLong( md.maxrxyz.y() ) );
     return ret.release();
   }
   else

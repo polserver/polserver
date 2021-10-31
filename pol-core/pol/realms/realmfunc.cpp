@@ -630,7 +630,7 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos,
         else
         {
           const Multi::MultiDef& def = multi->multidef();
-          def.readshapes( vec, delta.x(), delta.y(), multi->z(), anyflags );
+          def.readshapes( vec, delta, multi->z(), anyflags );
         }
       } );
 }
@@ -652,7 +652,7 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigne
         else
         {
           const Multi::MultiDef& def = multi->multidef();
-          if ( def.readshapes( vec, delta.x(), delta.y(), multi->z(), anyflags ) )
+          if ( def.readshapes( vec, delta, multi->z(), anyflags ) )
           {
             mvec.push_back( multi );
           }
@@ -675,7 +675,7 @@ void Realm::readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const
         else
         {
           const Multi::MultiDef& def = multi->multidef();
-          def.readobjects( vec, delta.x(), delta.y(), multi->z() );
+          def.readobjects( vec, delta, multi->z() );
         }
       } );
 }

@@ -80,11 +80,16 @@ Bscript::BStruct* UMulti::footprint() const
 {
   const MultiDef& md = multidef();
   std::unique_ptr<Bscript::BStruct> ret( new Bscript::BStruct );
-  ret->addMember( "xmin", new Bscript::BLong( x() + md.minrx ) );
-  ret->addMember( "xmax", new Bscript::BLong( x() + md.maxrx ) );
-  ret->addMember( "ymin", new Bscript::BLong( y() + md.minry ) );
-  ret->addMember( "ymax", new Bscript::BLong( y() + md.maxry ) );
+  ret->addMember( "xmin", new Bscript::BLong( x() + md.minrxyz.x() ) );
+  ret->addMember( "xmax", new Bscript::BLong( x() + md.maxrxyz.x() ) );
+  ret->addMember( "ymin", new Bscript::BLong( y() + md.minrxyz.y() ) );
+  ret->addMember( "ymax", new Bscript::BLong( y() + md.maxrxyz.y() ) );
   return ret.release();
+}
+Core::Range3d UMulti::current_box() const
+{
+  const MultiDef& md = multidef();
+  return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz );
 }
 
 Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test
@@ -126,5 +131,5 @@ size_t UMulti::estimatedSize() const
   return base::estimatedSize() + sizeof( u16 ) /*multiid*/
       ;
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

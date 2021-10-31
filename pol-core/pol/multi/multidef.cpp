@@ -35,12 +35,8 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
       ybase( 0 ),
       ysize( 0 ),
 
-      minrx( 0 ),
-      minry( 0 ),
-      minrz( 0 ),
-      maxrx( 0 ),
-      maxry( 0 ),
-      maxrz( 0 )
+      minrxyz(),
+      maxrxyz()
 {
   if ( elem.type_is( "BOAT" ) )
   {
@@ -64,9 +60,10 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     std::istringstream is( tmp );
     MULTI_ELEM multielem;
     multielem.is_static = true;
-    if ( is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >>
-         multielem.z )
+    s16 x, y, z;
+    if ( is >> std::hex >> multielem.objtype >> std::dec >> x >> y >> z )
     {
+      multielem.relpos.x( x ).y( y ).z( z );
       elems.push_back( multielem );
     }
     else
@@ -80,9 +77,10 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
     std::istringstream is( tmp );
     MULTI_ELEM multielem;
     multielem.is_static = false;
-    if ( is >> std::hex >> multielem.objtype >> std::dec >> multielem.x >> multielem.y >>
-         multielem.z )
+    s16 x, y, z;
+    if ( is >> std::hex >> multielem.objtype >> std::dec >> x >> y >> z )
     {
+      multielem.relpos.x( x ).y( y ).z( z );
       elems.push_back( multielem );
     }
     else
@@ -93,12 +91,10 @@ MultiDef::MultiDef( Clib::ConfigElem& elem, u16 multiid )
   }
 }
 
-MultiDef::~MultiDef() {}
-
 bool MultiDef::findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
-                               short rx, short ry ) const
+                               const Core::Vec2d& rxy ) const
 {
-  ItrPair pr = components.equal_range( getkey( rx, ry ) );
+  ItrPair pr = components.equal_range( getkey( rxy ) );
   if ( pr.first == components.end() )
   {
     return false;
@@ -111,21 +107,21 @@ bool MultiDef::findcomponents( Components::const_iterator& beg, Components::cons
   }
 }
 
-bool MultiDef::body_contains( short rx, short ry ) const
+bool MultiDef::body_contains( const Core::Vec2d& rxy ) const
 {
-  return ( components.count( getkey( rx, ry ) ) != 0 );
+  return ( components.count( getkey( rxy ) ) != 0 );
 }
-const MULTI_ELEM* MultiDef::find_component( short rx, short ry ) const
+const MULTI_ELEM* MultiDef::find_component( const Core::Vec2d& rxy ) const
 {
-  if ( body_contains( rx, ry ) )
-    return ( *components.find( getkey( rx, ry ) ) ).second;
+  if ( body_contains( rxy ) )
+    return ( *components.find( getkey( rxy ) ) ).second;
   else
     return nullptr;
 }
 
 void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 {
-  unsigned short k = getkey( elem->x, elem->y );
+  unsigned short k = getkey( elem->relpos.xy() );
 
   if ( !hull2.count( k ) )
   {
@@ -136,22 +132,22 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 
   if ( type == BOAT )
   {
-    short int_rx = elem->x, int_ry = elem->y;
+    Core::Vec2d rxy = elem->relpos.xy();
     if ( ( multiid & 1 ) == 0 )  // N/S hull, so squeeze X
     {
-      if ( elem->x == minrx )
-        int_rx = minrx + 1;
-      else if ( elem->x == maxrx )
-        int_rx = maxrx - 1;
+      if ( rxy.x() == minrxyz.x() )
+        rxy.x( minrxyz.x() + 1 );
+      else if ( rxy.x() == maxrxyz.x() )
+        rxy.x( maxrxyz.x() - 1 );
     }
     else
     {
-      if ( elem->y == minry )
-        int_ry = minry + 1;
-      else if ( elem->y > 0 )
-        int_ry = maxry - 1;
+      if ( rxy.y() == minrxyz.y() )
+        rxy.y( minrxyz.y() + 1 );
+      else if ( rxy.y() > 0 )
+        rxy.y( maxrxyz.y() - 1 );
     }
-    elem = find_component( int_rx, int_ry );
+    elem = find_component( rxy );
     if ( elem )
       add_to_internal_hull( elem );
   }
@@ -159,7 +155,7 @@ void MultiDef::add_to_hull( const MULTI_ELEM* elem )
 
 void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
 {
-  unsigned short k = getkey( elem->x, elem->y );
+  unsigned short k = getkey( elem->relpos.xy() );
 
   if ( !internal_hull2.count( k ) )
   {
@@ -171,11 +167,11 @@ void MultiDef::add_to_internal_hull( const MULTI_ELEM* elem )
 void MultiDef::add_body_tohull()
 {
   short rx, ry;
-  for ( ry = minry; ry <= maxry; ++ry )
+  for ( ry = minrxyz.y(); ry <= maxrxyz.y(); ++ry )
   {
-    for ( rx = minrx; rx <= maxrx; ++rx )
+    for ( rx = minrxyz.x(); rx <= maxrxyz.x(); ++rx )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -183,9 +179,9 @@ void MultiDef::add_body_tohull()
         break;
       }
     }
-    for ( rx = maxrx; rx >= minrx; --rx )
+    for ( rx = maxrxyz.x(); rx >= minrxyz.x(); --rx )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -196,20 +192,20 @@ void MultiDef::add_body_tohull()
   }
 
 
-  for ( rx = minrx; rx <= maxrx; ++rx )
+  for ( rx = minrxyz.x(); rx <= maxrxyz.x(); ++rx )
   {
-    for ( ry = minry; ry <= maxry; ++ry )
+    for ( ry = minrxyz.y(); ry <= maxrxyz.y(); ++ry )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
         break;
       }
     }
-    for ( ry = maxry; ry >= minry; --ry )
+    for ( ry = maxrxyz.y(); ry >= minrxyz.y(); --ry )
     {
-      const MULTI_ELEM* elem = find_component( rx, ry );
+      const MULTI_ELEM* elem = find_component( Core::Vec2d( rx, ry ) );
       if ( elem != nullptr )
       {
         add_to_hull( elem );
@@ -227,35 +223,13 @@ void MultiDef::computehull()
 
 void MultiDef::addrec( const MULTI_ELEM* elem )
 {
-  if ( elem->x < minrx )
-    minrx = elem->x;
-  if ( elem->y < minry )
-    minry = elem->y;
-  if ( elem->z < minrz )
-    minrz = elem->z;
-
-  if ( elem->x > maxrx )
-    maxrx = elem->x;
-  if ( elem->y > maxry )
-    maxry = elem->y;
-  if ( elem->z > maxrz )
-    maxrz = elem->z;
-
-  if ( elem->x < global_minrx )
-    global_minrx = elem->x;
-  if ( elem->y < global_minry )
-    global_minry = elem->y;
-  if ( elem->z < global_minrz )
-    global_minrz = elem->z;
-
-  if ( elem->x > global_maxrx )
-    global_maxrx = elem->x;
-  if ( elem->y > global_maxry )
-    global_maxry = elem->y;
-  if ( elem->z > global_maxrz )
-    global_maxrz = elem->z;
-
-  components.insert( Components::value_type( getkey( elem->x, elem->y ), elem ) );
+  minrxyz.x( std::min( minrxyz.x(), elem->relpos.x() ) )
+      .y( std::min( minrxyz.y(), elem->relpos.y() ) )
+      .z( std::min( minrxyz.z(), elem->relpos.z() ) );
+  maxrxyz.x( std::max( maxrxyz.x(), elem->relpos.x() ) )
+      .y( std::max( maxrxyz.y(), elem->relpos.y() ) )
+      .z( std::max( maxrxyz.z(), elem->relpos.z() ) );
+  components.insert( Components::value_type( getkey( elem->relpos.xy() ), elem ) );
 }
 
 void MultiDef::init()
@@ -265,6 +239,12 @@ void MultiDef::init()
     addrec( &elems[i] );
   }
   computehull();
+}
+
+bool MultiDef::within_multi( const Core::Vec2d& relxy ) const
+{
+  return relxy.x() >= minrxyz.x() && relxy.x() <= maxrxyz.x() && relxy.y() >= minrxyz.y() &&
+         relxy.y() <= maxrxyz.y();
 }
 
 size_t MultiDef::estimateSize() const
@@ -282,13 +262,6 @@ size_t MultiDef::estimateSize() const
           components.size();
   return size;
 }
-
-short MultiDef::global_minrx;
-short MultiDef::global_minry;
-short MultiDef::global_minrz;
-short MultiDef::global_maxrx;
-short MultiDef::global_maxry;
-short MultiDef::global_maxrz;
 
 bool MultiDefByMultiIDExists( u16 multiid )
 {
@@ -313,12 +286,11 @@ void read_multidefs()
   while ( cf.read( elem ) )
   {
     u16 multiid = static_cast<u16>( strtoul( elem.rest(), nullptr, 0 ) );
-
     MultiDef* mdef = new MultiDef( elem, multiid );
     mdef->init();
 
     multidef_buffer.multidefs_by_multiid[mdef->multiid] = mdef;
   }
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

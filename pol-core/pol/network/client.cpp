@@ -693,8 +693,8 @@ void Client::set_update_range( u8 range )
   // store "personal" updaterange
   gd->update_range = range;
   // update global updaterange (maximum multi radius/client view range)
-  if ( range > Core::gamestate.update_range )
-    Core::gamestate.update_range = range;
+  if ( range > Core::gamestate.update_range.x() )
+    Core::gamestate.update_range.x( range ).y( range );
 }
 
 u8 Client::update_range() const

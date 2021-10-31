@@ -402,9 +402,9 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
     //     << ":" << dec <<  m_elem->x << "," << m_elem->y << "," << m_elem->z << endl;
     CUSTOM_HOUSE_ELEMENT ch_elem;
     ch_elem.graphic = m_elem->objtype;
-    ch_elem.xoffset = m_elem->x + x;
-    ch_elem.yoffset = m_elem->y + y;
-    ch_elem.z = static_cast<u8>( m_elem->z + z );
+    ch_elem.xoffset = m_elem->relpos.x() + x;
+    ch_elem.yoffset = m_elem->relpos.y() + y;
+    ch_elem.z = static_cast<u8>( m_elem->relpos.z() + z );
     Add( ch_elem );
   }
 }
@@ -700,8 +700,9 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
     msg.Send( chr->client );
   }
   const MultiDef& def = house->multidef();
-  move_character_to( chr, house->x() + def.minrx, house->y() + def.maxry + 1, house->z(),
-                     Core::MOVEITEM_FORCELOCATION, nullptr );
+  Core::Pos3d newpos = house->pos3d() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
+  move_character_to( chr, newpos.x(), newpos.y(), newpos.z(), Core::MOVEITEM_FORCELOCATION,
+                     nullptr );
   if ( chr->client )
   {
     chr->client->gd->custom_house_serial = 0;
@@ -739,7 +740,7 @@ void CustomHousesAdd( Core::PKTBI_D7* msg )
   // the south side of the house can have stairs at z=0
   // int ysize = house->multidef().maxry - house->multidef().minry;
 
-  if ( elem.yoffset == house->multidef().maxry + 1 )
+  if ( elem.yoffset == house->multidef().maxrxyz.y() + 1 )
     elem.z = 0;
 
   house->WorkingDesign.AddOrReplace( elem );
@@ -1141,21 +1142,19 @@ void UHouse::SetCustom( bool _custom )
 }
 void UHouse::CustomHouseSetInitialState()
 {
-  int ysize, xsize, xbase, ybase;
   const MultiDef& def = multidef();
-  ysize = def.maxry - def.minry + 1;  //+1 to include offset 0 in -3..3
-  xsize = def.maxrx - def.minrx + 1;  //+1 to include offset 0 in -3..3
-  xbase = abs( def.minrx );
-  ybase = abs( def.minry );
+  auto size =
+      Core::Pos2d( 1, 2 ) +
+      ( def.maxrxyz.xy() - def.minrxyz.xy() );  //+1 to include offset 0 in -3..3, additional y+1
+                                                // for front steps outside of multidef footprint
+  Core::Vec2d xybase( (short)std::abs( def.minrxyz.x() ), (short)std::abs( def.minrxyz.y() ) );
+
   CurrentDesign.Clear();
-  CurrentDesign.InitDesign( ysize + 1, xsize, xbase,
-                            ybase );  //+1 for front steps outside multidef footprint
+  CurrentDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
   WorkingDesign.Clear();
-  WorkingDesign.InitDesign( ysize + 1, xsize, xbase,
-                            ybase );  //+1 for front steps outside multidef footprint
+  WorkingDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
   BackupDesign.Clear();
-  BackupDesign.InitDesign( ysize + 1, xsize, xbase,
-                           ybase );  //+1 for front steps outside multidef footprint
+  BackupDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
 
   CurrentDesign.AddMultiAtOffset( multiid, 0, 0, 0 );
   WorkingDesign = CurrentDesign;

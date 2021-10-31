@@ -25,11 +25,6 @@ const std::array<Vec2d, 8> move_delta = { { { 0, -1 },   // 0 is N
 const std::array<UFACING, 8> away_cvt = { FACING_S, FACING_SW, FACING_W, FACING_NW,
                                           FACING_N, FACING_NE, FACING_E, FACING_SE };
 
-s8 clip_s8( int v )
-{
-  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
-                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
-}
 u16 clip_u16( int v )
 {
   return static_cast<u16>(
@@ -276,6 +271,12 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );
   return *this;
+}
+
+s8 Pos3d::clip_s8( int v )
+{
+  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
+                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
 }
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )

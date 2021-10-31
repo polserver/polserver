@@ -21,83 +21,79 @@ namespace Pol
 namespace Multi
 {
 // 8/9/03 this seems to be used only by uofile03 -Syz
-bool MultiDef::readobjects( Plib::StaticList& vec, short x, short y, short zbase ) const
+bool MultiDef::readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase ) const
 {
+  if ( !within_multi( rxy ) )
+    return false;
+  Components::const_iterator itr, end;
+  if ( !findcomponents( itr, end, rxy ) )
+    return false;
   bool result = false;
-  if ( x >= minrx && x <= maxrx && y >= minry && y <= maxry )
+  for ( ; itr != end; ++itr )
   {
-    Components::const_iterator itr, end;
-    if ( findcomponents( itr, end, x, y ) )
+    const MULTI_ELEM* elem = ( *itr ).second;
+    unsigned short graphic = Items::getgraphic( elem->objtype );
+    if ( Plib::tile_flags( graphic ) & Plib::FLAG::WALKBLOCK )
     {
-      for ( ; itr != end; ++itr )
+      if ( elem->is_static )
       {
-        const MULTI_ELEM* elem = ( *itr ).second;
-        unsigned short graphic = Items::getgraphic( elem->objtype );
-        if ( Plib::tile_flags( graphic ) & Plib::FLAG::WALKBLOCK )
-        {
-          if ( elem->is_static )
-          {
-            vec.push_back(
-                Plib::StaticRec( graphic, static_cast<signed char>( elem->z + zbase ) ) );
-            result = true;
-          }
-          // Shinigami: removed. doesn't make sense. non-static
-          //            items are normal items an can be removed etc.
-          /* else // put a dummy floor tile there
-           {
-           vec.push_back( StaticRec( 0x495, elem->z+zbase ) );
-           result = true;
-           } */
-        }
+        vec.push_back(
+            Plib::StaticRec( graphic, static_cast<signed char>( elem->relpos.z() + zbase ) ) );
+        result = true;
       }
+      // Shinigami: removed. doesn't make sense. non-static
+      //            items are normal items an can be removed etc.
+      /* else // put a dummy floor tile there
+       {
+       vec.push_back( StaticRec( 0x495, elem->z+zbase ) );
+       result = true;
+       } */
     }
   }
   return result;
 }
 
-bool MultiDef::readshapes( Plib::MapShapeList& vec, short x, short y, short zbase,
+bool MultiDef::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase,
                            unsigned int anyflags ) const
 {
+  if ( !within_multi( rxy ) )
+    return false;
+  Components::const_iterator itr, end;
+  if ( !findcomponents( itr, end, rxy ) )
+    return false;
   bool result = false;
-  if ( x >= minrx && x <= maxrx && y >= minry && y <= maxry )
+  for ( ; itr != end; ++itr )
   {
-    Components::const_iterator itr, end;
-    if ( findcomponents( itr, end, x, y ) )
+    const MULTI_ELEM* elem = ( *itr ).second;
+    unsigned short graphic = Items::getgraphic( elem->objtype );
+    if ( Plib::tile_flags( graphic ) & anyflags )
     {
-      for ( ; itr != end; ++itr )
+      if ( elem->is_static )
       {
-        const MULTI_ELEM* elem = ( *itr ).second;
-        unsigned short graphic = Items::getgraphic( elem->objtype );
-        if ( Plib::tile_flags( graphic ) & anyflags )
+        Plib::MapShape shape;
+        shape.z = elem->relpos.z() + zbase;
+        shape.height = Plib::tileheight( graphic );
+        shape.flags = Plib::systemstate.tile[graphic].flags;  // pol_flags_by_tile( graphic );
+        if ( !shape.height )
         {
-          if ( elem->is_static )
-          {
-            Plib::MapShape shape;
-            shape.z = elem->z + zbase;
-            shape.height = Plib::tileheight( graphic );
-            shape.flags = Plib::systemstate.tile[graphic].flags;  // pol_flags_by_tile( graphic );
-            if ( !shape.height )
-            {
-              ++shape.height;
-              --shape.z;
-            }
-            vec.push_back( shape );
-            result = true;
-          }
-          // Shinigami: removed. doesn't make sense. non-static
-          //            items are normal items an can be removed etc.
-          // Turley: BOAT added so hold count as boat item (who.multi) (and walkable)
-          else if ( type == BOAT )  // put a dummy floor there
-          {
-            Plib::MapShape shape;
-            shape.z = elem->z + zbase - 1;
-            shape.height = 1;
-            shape.flags = Plib::FLAG::MOVELAND | Plib::FLAG::ALLOWDROPON | Plib::FLAG::BLOCKSIGHT |
-                          Plib::FLAG::OVERFLIGHT;
-            vec.push_back( shape );
-            result = true;
-          }
+          ++shape.height;
+          --shape.z;
         }
+        vec.push_back( shape );
+        result = true;
+      }
+      // Shinigami: removed. doesn't make sense. non-static
+      //            items are normal items an can be removed etc.
+      // Turley: BOAT added so hold count as boat item (who.multi) (and walkable)
+      else if ( type == BOAT )  // put a dummy floor there
+      {
+        Plib::MapShape shape;
+        shape.z = elem->relpos.z() + zbase - 1;
+        shape.height = 1;
+        shape.flags = Plib::FLAG::MOVELAND | Plib::FLAG::ALLOWDROPON | Plib::FLAG::BLOCKSIGHT |
+                      Plib::FLAG::OVERFLIGHT;
+        vec.push_back( shape );
+        result = true;
       }
     }
   }

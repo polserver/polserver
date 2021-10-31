@@ -3779,8 +3779,8 @@ bool Character::CustomHousingMove( unsigned char i_dir )
         newpos.z( house->z() +
                   Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
         const Multi::MultiDef& def = house->multidef();
-        if ( newpos.x() > ( house->x() + def.minrx ) && newpos.x() <= ( house->x() + def.maxrx ) &&
-             newpos.y() > ( house->y() + def.minry ) && newpos.y() <= ( house->y() + def.maxry ) )
+        auto relpos = newpos - house->pos().xy();
+        if ( def.within_multi( relpos ) )
         {
           setposition( newpos );
           MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );
