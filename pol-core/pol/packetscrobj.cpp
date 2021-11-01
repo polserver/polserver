@@ -18,6 +18,7 @@
 
 #include <iomanip>
 #include <stddef.h>
+#include <utf8/utf8.h>
 
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
@@ -27,6 +28,7 @@
 #include "../bscript/objmethods.h"
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
+#include "../clib/strutil.h"
 #include "globals/network.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -430,7 +432,44 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
         if ( !SetSize( ( offset + textlen + nullterm ) ) )
         {
           return new BError( "Offset value out of range on a fixed length packet" );
-          ;
+        }
+      }
+      u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
+      std::string asciitext;
+      auto begin = text->value().begin();
+      auto end = text->value().end();
+      while ( begin != end )
+      {
+        auto c = Clib::utf8ToCp1252( utf8::unchecked::next( begin ) );
+        asciitext.push_back( c );
+      }
+      const char* textptr = asciitext.c_str();
+      for ( u16 i = 0; i < textlen; i++ )
+      {
+        bufptr[i] = textptr[i];
+      }
+      
+      if ( nullterm )
+        bufptr[textlen] = 0;
+
+      return new BLong( 1 );
+    }
+    break;
+  }
+  case MTH_SETUTF8STRING:
+  {
+    if ( ex.numParams() != 3 )
+      return new BError( "SetUtf8String requires 3 parameters." );
+    unsigned short offset, nullterm;
+    const String* text;
+    if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, text ) && ex.getParam( 2, nullterm ) )
+    {
+      u16 textlen = static_cast<u16>( text->length() );
+      if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
+      {
+        if ( !SetSize( ( offset + textlen + nullterm ) ) )
+        {
+          return new BError( "Offset value out of range on a fixed length packet" );
         }
       }
 
