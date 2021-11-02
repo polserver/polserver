@@ -464,7 +464,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     const String* text;
     if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, text ) && ex.getParam( 2, nullterm ) )
     {
-      u16 textlen = static_cast<u16>( text->length() );
+      u16 textlen = static_cast<u16>( text->value().length() );
       if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
       {
         if ( !SetSize( ( offset + textlen + nullterm ) ) )
@@ -472,7 +472,6 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
           return new BError( "Offset value out of range on a fixed length packet" );
         }
       }
-
       u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
       const char* textptr = text->value().c_str();
       for ( u16 i = 0; i < textlen; i++ )
