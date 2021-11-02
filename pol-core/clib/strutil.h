@@ -56,6 +56,8 @@ void sanitizeUnicode( std::string* str );
 
 uint8_t utf8ToCp1252( uint32_t utf8char );
 uint32_t cp1252ToUtf8( uint8_t cp1252char );
+std::string strUtf8ToCp1252( const std::string &utf8string );
+std::string strCp1252ToUtf8( const std::string &cp1252string );
 
 }  // namespace Clib
 }  // namespace Pol

@@ -305,5 +305,32 @@ uint32_t cp1252ToUtf8( uint8_t cp1252char )
   }
 }
 
+std::string strUtf8ToCp1252( const std::string &utf8string )
+{
+  auto itr = utf8string.begin();
+  auto end = utf8string.end();
+  std::string outstring;
+  while( itr != end )
+  {
+    auto c = utf8ToCp1252( utf8::unchecked::next( itr ) );
+    outstring.push_back( c );
+  }
+  return outstring;
+}
+
+std::string strCp1252ToUtf8( const std::string &cp1252string )
+{
+  auto itr = cp1252string.begin();
+  auto end = cp1252string.end();
+  std::string outstring;
+  while( itr != end )
+  {
+    auto c = utf8ToCp1252( utf8::unchecked::next( itr ) );
+    outstring.push_back( c );
+  }
+  return outstring;
+}
+
+
 }  // namespace Clib
 }  // namespace Pol

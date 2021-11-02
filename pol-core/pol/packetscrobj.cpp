@@ -435,14 +435,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
         }
       }
       u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
-      std::string asciitext;
-      auto begin = text->value().begin();
-      auto end = text->value().end();
-      while ( begin != end )
-      {
-        auto c = Clib::utf8ToCp1252( utf8::unchecked::next( begin ) );
-        asciitext.push_back( c );
-      }
+      std::string asciitext = Clib::strUtf8ToCp1252(text->value());
       const char* textptr = asciitext.c_str();
       for ( u16 i = 0; i < textlen; i++ )
       {
