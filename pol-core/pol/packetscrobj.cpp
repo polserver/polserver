@@ -426,7 +426,15 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     const String* text;
     if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, text ) && ex.getParam( 2, nullterm ) )
     {
-      u16 textlen = static_cast<u16>( text->length() );
+      std::string cp1252text;
+      if ( text->hasUTF8Characters() )
+      {
+        cp1252text = Clib::strUtf8ToCp1252( text->value() );
+      }
+      else {
+        cp1252text = text->value();
+      }
+      u16 textlen = static_cast<u16>( cp1252text.length() );
       if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
       {
         if ( !SetSize( ( offset + textlen + nullterm ) ) )
@@ -435,8 +443,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
         }
       }
       u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
-      std::string asciitext = Clib::strUtf8ToCp1252(text->value());
-      const char* textptr = asciitext.c_str();
+      const char* textptr = cp1252text.c_str();
       for ( u16 i = 0; i < textlen; i++ )
       {
         bufptr[i] = textptr[i];
