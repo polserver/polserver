@@ -232,8 +232,10 @@ void remove_bom( std::string* strbuf )
 
 uint8_t unicodeToCp1252( uint32_t codepoint )
 {
-  if ( codepoint <= 0xff )
-      return (char)codepoint;
+  if ( codepoint >= 0x80 && codepoint <= 0x9f )
+    return '?';
+  else if ( codepoint <= 0xff )
+    return (char)codepoint;
   else
   {
     switch ( codepoint )
