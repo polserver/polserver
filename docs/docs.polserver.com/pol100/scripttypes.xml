@@ -731,7 +731,6 @@ endprogram</example>
     <prototype>program textcommand(character, text, uc_text, langcode)</prototype>
     <parameter name="character" value="Character ref activating this script" />
     <parameter name="text" value="String after command name" />
-    <parameter name="uc_text" value="a Unicode array of the text string typed after the command (exist if client used unicode speech)" />
     <parameter name="langcode" value="3-character string, representing the client's language code, i.e. 'ENU', 'DEU', 'RUS', etc.(exist if client used unicode speech)" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>
