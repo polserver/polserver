@@ -54,9 +54,18 @@ void sanitizeUnicodeWithIso( std::string* str );
 // if invalid unicode is detected characters get replaced
 void sanitizeUnicode( std::string* str );
 
-uint8_t utf8ToCp1252( uint32_t utf8char );
-uint32_t cp1252ToUtf8( uint8_t cp1252char );
+// Converts a unicode code point (which is the same as a UTF-32 encoded character, but not the same
+// as a UTF-8 or UTF-16 encoded character) into a cp1252 code point (which is the same as a cp1252
+// encoded character)
+uint8_t unicodeToCp1252( uint32_t codepoint );
+
+// Converts a cp1252 code point into a unicode code point
+uint32_t cp1252ToUnicode( uint8_t codepoint );
+
+// Converts a UTF-8 encoded string to CP-1252
 std::string strUtf8ToCp1252( const std::string &utf8string );
+
+// Takes a CP-1252 encoded string and returns the same string encoded in UTF-8
 std::string strCp1252ToUtf8( const std::string &cp1252string );
 
 }  // namespace Clib

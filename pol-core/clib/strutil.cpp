@@ -230,13 +230,13 @@ void remove_bom( std::string* strbuf )
   }
 }
 
-uint8_t utf8ToCp1252( uint32_t utf8char )
+uint8_t unicodeToCp1252( uint32_t codepoint )
 {
-  if ( utf8char <= 0xff )
-      return (char) utf8char;
+  if ( codepoint <= 0xff )
+      return (char)codepoint;
   else
   {
-    switch ( utf8char )
+    switch ( codepoint )
     {
       case 0x20AC: return 128; break; //€
       case 0x201A: return 130; break; //‚
@@ -270,9 +270,9 @@ uint8_t utf8ToCp1252( uint32_t utf8char )
   }
 }
 
-uint32_t cp1252ToUtf8( uint8_t cp1252char )
+uint32_t cp1252ToUnicode( uint8_t codepoint )
 {
-  switch ( cp1252char )
+  switch ( codepoint )
   {
     case 128: return 0x20AC; break; //€
     case 130: return 0x201A; break; //‚
@@ -301,7 +301,7 @@ uint32_t cp1252ToUtf8( uint8_t cp1252char )
     case 156: return 0x0153; break; //œ
     case 158: return 0x017E; break; //ž
     case 159: return 0x0178; break; //Ÿ
-    default: return cp1252char; break;
+    default: return codepoint; break;
   }
 }
 
@@ -312,7 +312,7 @@ std::string strUtf8ToCp1252( const std::string &utf8string )
   std::string outstring;
   while( itr != end )
   {
-    auto c = utf8ToCp1252( utf8::unchecked::next( itr ) );
+    auto c = unicodeToCp1252( utf8::unchecked::next( itr ) );
     outstring.push_back( c );
   }
   return outstring;
@@ -323,10 +323,10 @@ std::string strCp1252ToUtf8( const std::string &cp1252string )
   auto itr = cp1252string.begin();
   auto end = cp1252string.end();
   std::string outstring;
+  auto inserter = std::back_inserter(outstring);
   while( itr != end )
   {
-    auto c = utf8ToCp1252( utf8::unchecked::next( itr ) );
-    outstring.push_back( c );
+    utf8::unchecked::append(cp1252ToUnicode(*itr++), inserter);
   }
   return outstring;
 }
