@@ -79,6 +79,7 @@ void create_test_environment();
 
 void test_splitnamevalue();
 void test_convertquotedstring();
+void test_encodingconversions();
 
 void map_test();
 void skilladv_test();

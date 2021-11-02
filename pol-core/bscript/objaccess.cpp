@@ -450,6 +450,7 @@ ObjMethod object_methods[] = {
     { MTH_CLEAR_BUFFS, "clearbuffs", false },
     { MTH_CALL, "call", false },
     { MTH_SORTEDINSERT, "sorted_insert", false },
+    { MTH_SETUTF8STRING, "setutf8string", false },
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

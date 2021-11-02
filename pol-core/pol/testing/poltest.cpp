@@ -31,6 +31,7 @@ bool run_pol_tests()
 #endif
   RUNTEST( test_splitnamevalue )
   RUNTEST( test_convertquotedstring )
+  RUNTEST( test_encodingconversions )
 
   //  skilladv_test();
 

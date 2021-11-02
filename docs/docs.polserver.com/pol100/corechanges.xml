@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-11-2021</datemodified>
+		<datemodified>11-02-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>11-02-2021</date>
+			<author>Brndd:</author>
+			<change type="Changed">SetString packet hook method will now write CP-1252 (extended ASCII) encoded text. This is what is used for the majority of packet fields that are not UTF-16.</change>
+			<change type="Added">Added a new SetUtf8String packet hook method which will write UTF-8 encoded text.</change>
+		</entry>
 		<entry>
 			<date>09-11-2021</date>
 			<author>Kevin:</author>
