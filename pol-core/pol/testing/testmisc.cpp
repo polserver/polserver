@@ -237,7 +237,8 @@ void test_sanitizeUnicodeWithIso()
   Clib::sanitizeUnicodeWithIso(&output);
   if ( output != expected )
   {
-    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput: " << input << "\n\toutput: " << output << "\n\texpected: " << expected << "\n";
+    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput:    " << input << "\n\toutput:   " <<
+        output << "\n\texpected: " << expected << "\n";
     UnitTest::inc_failures();
   }
   else
@@ -249,7 +250,8 @@ void test_sanitizeUnicodeWithIso()
   Clib::sanitizeUnicodeWithIso(&output);
   if ( output != expected )
   {
-    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput:    " << input << "\n\toutput:   " << output << "\n\texpected: " << expected << "\n";
+    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput:    " << input << "\n\toutput:   " <<
+        output << "\n\texpected: " << expected << "\n";
     UnitTest::inc_failures();
   }
   else
