@@ -177,7 +177,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
   {
     Item* item = ( *for_sale )[i];
     // const ItemDesc& id = find_itemdesc( item->objtype_ );
-    std::string desc = item->merchant_description();
+    std::string desc = Clib::strUtf8ToCp1252(item->merchant_description());
     size_t addlen = 5 + desc.size();
     if ( msg->offset + addlen > sizeof msg->buffer )
     {
@@ -654,7 +654,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       unsigned int buyprice;
       if ( !item->getbuyprice( buyprice ) )
         continue;
-      std::string desc = item->merchant_description();
+      std::string desc = Clib::strUtf8ToCp1252(item->merchant_description());
       if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
       {
         return false;
@@ -1574,20 +1574,22 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->Write<u32>( chr->serial_ext );
   msg->offset += 2;  // u8 type,index
 
-  size_t numbytes = line1->length() + 1;
+  std::string convertedString = Clib::strUtf8ToCp1252(line1->value());
+  size_t numbytes = convertedString.length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line1->data(), static_cast<u16>( numbytes ) );  // null-terminated
+  msg->Write( convertedString.c_str(), static_cast<u16>( numbytes ) );  // null-terminated
 
   msg->Write<u8>( static_cast<u8>( cancel ) );
   msg->Write<u8>( static_cast<u8>( style ) );
   msg->WriteFlipped<s32>( maximum );
-  numbytes = line2->length() + 1;
+  convertedString = Clib::strUtf8ToCp1252(line2->value());
+  numbytes = convertedString.length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line2->data(), static_cast<u16>( numbytes ) );  // null-terminated
+  msg->Write( convertedString.c_str(), static_cast<u16>( numbytes ) );  // null-terminated
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -2285,7 +2287,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
         const BObjectImp* line_imp = arr->imp_at( linenum );
         std::string linetext;
         if ( line_imp )
-          linetext = line_imp->getStringRep();
+          linetext = line_imp->getStringRep(); //This is UTF-8
         if ( msg->offset + linetext.size() + 1 > sizeof msg->buffer )
         {
           return new BError( "Buffer overflow" );
@@ -2381,7 +2383,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
       BObjectImpRefVec params;
       params.push_back( ref_ptr<BObjectImp>( new BLong( linenum ) ) );
       BObject line_ob = book->call_custom_method( "getline", params );
-      linetext = line_ob->getStringRep();
+      linetext = line_ob->getStringRep(); //this is UTF-8
 
       if ( msgOut->offset + linetext.size() + 1 > sizeof msgOut->buffer )
       {

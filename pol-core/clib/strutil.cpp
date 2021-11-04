@@ -154,24 +154,27 @@ bool isValidUnicode( const std::string& str )
   return utf8::find_invalid( str.begin(), str.end() ) == str.end();
 }
 
+// This is something of a misnomer because this actually converts CP-1252 to UTF-8,
+// not ISO-8859 to UTF-8.
 void sanitizeUnicodeWithIso( std::string* str )
 {
   if ( isValidUnicode( *str ) )
     return;
-  // assume iso8859
+  // assume cp-1252
   std::string utf8( "" );
   utf8.reserve( 2 * str->size() + 1 );
 
+  auto backinserter = std::back_inserter(utf8);
   for ( const auto& s : *str )
   {
     if ( !( s & 0x80 ) )
     {
-      utf8.push_back( s );
+      *(backinserter++) = s;
     }
     else
     {
-      utf8.push_back( 0xc2 | ( (unsigned char)( s ) >> 6 ) );
-      utf8.push_back( 0xbf & s );
+      uint32_t codepoint = cp1252ToUnicode(s);
+      utf8::unchecked::append(codepoint, backinserter);
     }
   }
   *str = utf8;

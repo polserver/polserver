@@ -225,6 +225,38 @@ void test_convertquotedstring()
   test_dqs( "\" \\\"hi\"", " \"hi" );
 }
 
+void test_sanitizeUnicodeWithIso()
+{
+  std::string input;
+  std::string output;
+  std::string expected;
+
+  input = "Some weird characters: \x87 \x95 \x80.";
+  output = std::string(input);
+  expected = "Some weird characters: ‡ • €.";
+  Clib::sanitizeUnicodeWithIso(&output);
+  if ( output != expected )
+  {
+    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput: " << input << "\n\toutput: " << output << "\n\texpected: " << expected << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+
+  input = "Maybe someone just wants to say \xC3\xA4 in CP-1252.";
+  output = std::string(input);
+  expected = "Maybe someone just wants to say Ã¤ in CP-1252.";
+  Clib::sanitizeUnicodeWithIso(&output);
+  if ( output != expected )
+  {
+    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput:    " << input << "\n\toutput:   " << output << "\n\texpected: " << expected << "\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
+
+}
+
 void test_cp1252ToUtf8( const std::string& in, const std::string& expected )
 {
   std::string converted = Clib::strCp1252ToUtf8(in);

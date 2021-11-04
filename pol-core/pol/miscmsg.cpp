@@ -550,7 +550,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
     PktHelper::PacketOut<PktOut_98> msgOut;
     msgOut->WriteFlipped<u16>( 37u );  // static length
     msgOut->Write<u32>( the_mob->serial_ext );
-    msgOut->Write( the_mob->name().c_str(), 30, false );
+    msgOut->Write( Clib::strUtf8ToCp1252(the_mob->name()).c_str(), 30, false );
     msgOut.Send( client );
   }
   else

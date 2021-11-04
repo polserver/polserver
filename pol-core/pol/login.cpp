@@ -201,7 +201,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     {
       ++servcount;
       msgA8->WriteFlipped<u16>( idx + 1u );
-      msgA8->Write( server->name.c_str(), 30 );
+      msgA8->Write( Clib::strUtf8ToCp1252(server->name).c_str(), 30 );
       msgA8->WriteFlipped<u16>( idx + 1u );
       msgA8->offset += 2;  // u8 percentfull, s8 timezone
       msgA8->Write( server->ip, 4 );
@@ -329,7 +329,7 @@ void send_start( Network::Client* client )
       Mobile::Character* chr = client->acct->get_character( i );
       if ( chr )
       {
-        msg->Write( chr->name().c_str(), 30, false );
+        msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 30, false );
         msg->offset += 30;  // password
       }
       else
@@ -346,8 +346,8 @@ void send_start( Network::Client* client )
     msg->Write<u8>( i );
     if ( client->ClientType & Network::CLIENTTYPE_70130 )
     {
-      msg->Write( gamestate.startlocations[i]->city.c_str(), 32, false );
-      msg->Write( gamestate.startlocations[i]->desc.c_str(), 32, false );
+      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->city).c_str(), 32, false );
+      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->desc).c_str(), 32, false );
 
       Pos3d coord = gamestate.startlocations[i]->coords[0];
 
@@ -360,8 +360,8 @@ void send_start( Network::Client* client )
     }
     else
     {
-      msg->Write( gamestate.startlocations[i]->city.c_str(), 31, false );
-      msg->Write( gamestate.startlocations[i]->desc.c_str(), 31, false );
+      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->city).c_str(), 31, false );
+      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->desc).c_str(), 31, false );
     }
   }
 

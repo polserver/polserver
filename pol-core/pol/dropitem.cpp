@@ -562,7 +562,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   msg->Write<u32>( client->chr->trade_container()->serial_ext );
   msg->Write<u32>( dropon->trade_container()->serial_ext );
   msg->Write<u8>( 1u );
-  msg->Write( dropon->name().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252(dropon->name()).c_str(), 30, false );
 
   msg.Send( client );
 
@@ -571,7 +571,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   msg->Write<u32>( dropon->trade_container()->serial_ext );
   msg->Write<u32>( client->chr->trade_container()->serial_ext );
   msg->offset++;  // u8 havename same as above
-  msg->Write( client->chr->name().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252(client->chr->name()).c_str(), 30, false );
   msg.Send( dropon->client );
 
   if ( item != nullptr )
