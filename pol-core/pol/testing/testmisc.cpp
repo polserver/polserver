@@ -231,9 +231,9 @@ void test_sanitizeUnicodeWithIso()
   std::string output;
   std::string expected;
 
-  input = "Some weird characters: \x87 \x95 \x80.";
+  input = "Some weird characters: \xC3 \xD0 \xA9.";
   output = std::string(input);
-  expected = "Some weird characters: ‡ • €.";
+  expected = "Some weird characters: Ã Ð ©.";
   Clib::sanitizeUnicodeWithIso(&output);
   if ( output != expected )
   {
@@ -244,9 +244,9 @@ void test_sanitizeUnicodeWithIso()
   else
     UnitTest::inc_successes();
 
-  input = "Maybe someone just wants to say \xC3\xA4 in CP-1252.";
+  input = "Maybe someone just wants to say \xC3\xA4. Well, that is probably an acceptable loss.";
   output = std::string(input);
-  expected = "Maybe someone just wants to say Ã¤ in CP-1252.";
+  expected = "Maybe someone just wants to say ä. Well, that is probably an acceptable loss.";
   Clib::sanitizeUnicodeWithIso(&output);
   if ( output != expected )
   {
