@@ -52,7 +52,7 @@ bool send_menu( Client* client, Menu* menu )
     MenuItem* mi = &menu->menuitems_[idx];
     msg->WriteFlipped<u16>( mi->graphic_ );
     msg->WriteFlipped<u16>( mi->color_ );
-    std::string convertedText = Clib::strUtf8ToCp1252(mi->title);
+    convertedText = Clib::strUtf8ToCp1252(mi->title);
     stringlen = convertedText.length();
     if ( stringlen > 80 )
       stringlen = 80;
