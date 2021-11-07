@@ -400,7 +400,7 @@ In a 32 bit hexadecimal representation the value 1 is 0x00000001 or, in binary
 0000 0000 0000 0000 0000 0000 0000 0001
 If you invert the bits, ones’ complement, you end up with the result, in hexadecimal, of 0xFFFFFFFE or in binary
 1111 1111 1111 1111 1111 1111 1111 1110
-Quoting “The Book of Knowledge”, Wikipedia: <em>“The ones' complement of the number then behaves like the negative of the original number in some arithmetic operations. To within a constant (of −1), the ones' complement behaves like the negative of the original number with binary addition. However, unlike two's complement, these numbers have not seen widespread use because of issues such as the offset of −1, that negating zero results in a distinct negative zero bit pattern, less simplicity with arithmetic borrowing, etc.”</em>.
+Quoting “The Book of Knowledge”, Wikipedia: <em>“The ones' complement of the number then behaves like the negative of the original number in some arithmetic operations. To within a constant (of -1), the ones' complement behaves like the negative of the original number with binary addition. However, unlike two's complement, these numbers have not seen widespread use because of issues such as the offset of -1, that negating zero results in a distinct negative zero bit pattern, less simplicity with arithmetic borrowing, etc.”</em>.
 
 
 <h3>In Addition</h3>
@@ -1790,9 +1790,9 @@ example, if you wrote a system for a new skill, you could place all the files
 needed for that new skill in a package: all the script source files, the
 compiled source files, support config files, readme files, etc. In POL, there
 are two types of packages, the 'standard' packages which are enabled by default
-(in /pkg/std/), which are normal skill systems, spawner, spells, etc. Then there
+(in/pkg or, in some shards and older POL Distros, /pkg/std/), which are normal skill systems, spawner, spells, etc. Then there
 are the 'optional' packages which are off by default, but can be used if desired
-(in /pkg/opt/). Normally, enabling an optional package requires some
+(in /pkg/optional or, in some shards and older POL Distros, /pkg/opt/). Normally, enabling an optional package requires some
 instructions which are normally supplied with the package.</p>
 
 <p>Each package must include a package descriptor file, pkg.cfg, which has the
