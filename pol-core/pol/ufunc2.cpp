@@ -35,11 +35,12 @@ bool send_menu( Client* client, Menu* menu )
   msg->offset += 2;
   msg->offset += 4;  // used_item_serial
   msg->WriteFlipped<u16>( menu->menu_id );
-  size_t stringlen = strlen( menu->title );
+  std::string convertedText = Clib::strUtf8ToCp1252(menu->title);
+  size_t stringlen = convertedText.length();
   if ( stringlen > 80 )
     stringlen = 80;
   msg->Write<u8>( stringlen );  // NOTE null-term not included!
-  msg->Write( menu->title, static_cast<u16>( stringlen ), false );
+  msg->Write( convertedText.c_str(), static_cast<u16>( stringlen ), false );
   msg->Write<u8>( menu->menuitems_.size() );
 
   for ( unsigned idx = 0; idx < menu->menuitems_.size(); idx++ )
@@ -51,11 +52,12 @@ bool send_menu( Client* client, Menu* menu )
     MenuItem* mi = &menu->menuitems_[idx];
     msg->WriteFlipped<u16>( mi->graphic_ );
     msg->WriteFlipped<u16>( mi->color_ );
-    stringlen = strlen( mi->title );
+    convertedText = Clib::strUtf8ToCp1252(mi->title);
+    stringlen = convertedText.length();
     if ( stringlen > 80 )
       stringlen = 80;
     msg->Write<u8>( stringlen );  // NOTE null-term not included!
-    msg->Write( mi->title, static_cast<u16>( stringlen ), false );
+    msg->Write( convertedText.c_str(), static_cast<u16>( stringlen ), false );
   }
   u16 len = msg->offset;
   msg->offset = 1;

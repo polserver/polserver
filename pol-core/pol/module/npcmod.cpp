@@ -671,7 +671,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
     msg->Write<u8>( texttype );
     msg->WriteFlipped<u16>( npc.speech_color() );
     msg->WriteFlipped<u16>( npc.speech_font() );
-    msg->Write( npc.name().c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252(npc.name()).c_str(), 30 );
     msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
                           ? SPEECH_MAX_LEN + 1
                           : static_cast<u16>( strlen( text ) + 1 ) );
@@ -691,7 +691,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
     ucmsg->WriteFlipped<u16>( npc.speech_color() );
     ucmsg->WriteFlipped<u16>( npc.speech_font() );
     ucmsg->Write( "ENU", 4 );
-    ucmsg->Write( npc.description().c_str(), 30 );
+    ucmsg->Write( Clib::strUtf8ToCp1252(npc.description()).c_str(), 30 );
     ucmsg->WriteFlipped( utf16, true );
     uclen = ucmsg->offset;
     ucmsg->offset = 1;
@@ -777,7 +777,7 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
     talkmsg->WriteFlipped<u16>( npc.speech_color() );
     talkmsg->WriteFlipped<u16>( npc.speech_font() );
     talkmsg->Write( languc.c_str(), 4 );
-    talkmsg->Write( npc.description().c_str(), 30 );
+    talkmsg->Write( Clib::strUtf8ToCp1252(npc.description()).c_str(), 30 );
     talkmsg->WriteFlipped( utf16, true );
     u16 len = talkmsg->offset;
     talkmsg->offset = 1;

@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-02-2021</datemodified>
+		<datemodified>11-08-2021</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>11-08-2021</date>
+			<author>Brndd:</author>
+			<change type="Fixed">Outgoing packets with text field now correctly encode the text as CP-1252.</change>
+		</entry>
 		<entry>
 			<date>11-02-2021</date>
 			<author>Brndd:</author>

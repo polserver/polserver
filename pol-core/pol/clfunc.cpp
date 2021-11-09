@@ -63,7 +63,7 @@ void say_above_cl( UObject* obj, unsigned int cliloc_num, const std::string& arg
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
-  msg->Write( obj->description().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30, false );
   msg->Write( utf16text, true );  // ctLEu16
   u16 len = msg->offset;
   msg->offset = 1;
@@ -87,7 +87,7 @@ void private_say_above_cl( Mobile::Character* chr, const UObject* obj, unsigned 
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
-  msg->Write( obj->description().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30, false );
   msg->Write( utf16text, true );  // ctLEu16
   u16 len = msg->offset;
   msg->offset = 1;
@@ -105,7 +105,8 @@ void send_sysmessage_cl_affix( Client* client, unsigned int cliloc_num, const st
   std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
-  unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
+  std::string convertedAffix = Clib::strUtf8ToCp1252(affix);
+  unsigned affix_len = static_cast<unsigned>( convertedAffix.size() + 1 );
   if ( affix_len > SPEECH_MAX_LEN + 1 )
     affix_len = SPEECH_MAX_LEN + 1;
 
@@ -117,7 +118,7 @@ void send_sysmessage_cl_affix( Client* client, unsigned int cliloc_num, const st
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
   msg->Write( "System", 30, false );
-  msg->Write( affix.c_str(), static_cast<u16>( affix_len ) );
+  msg->Write( convertedAffix.c_str(), static_cast<u16>( affix_len ) );
   msg->WriteFlipped( utf16text, true );
   u16 len = msg->offset;
   msg->offset = 1;
@@ -134,7 +135,8 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const std::strin
   std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
-  unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
+  std::string convertedAffix = Clib::strUtf8ToCp1252(affix);
+  unsigned affix_len = static_cast<unsigned>( convertedAffix.size() + 1 );
   if ( affix_len > SPEECH_MAX_LEN + 1 )
     affix_len = SPEECH_MAX_LEN + 1;
 
@@ -145,8 +147,8 @@ void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const std::strin
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
-  msg->Write( obj->description().c_str(), 30, false );
-  msg->Write( affix.c_str(), static_cast<u16>( affix_len ) );
+  msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30, false );
+  msg->Write( convertedAffix.c_str(), static_cast<u16>( affix_len ) );
   msg->WriteFlipped( utf16text, true );
   u16 len = msg->offset;
   msg->offset = 1;
@@ -166,7 +168,8 @@ void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
   std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
-  unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
+  std::string convertedAffix = Clib::strUtf8ToCp1252(affix);
+  unsigned affix_len = static_cast<unsigned>( convertedAffix.size() + 1 );
   if ( affix_len > SPEECH_MAX_LEN + 1 )
     affix_len = SPEECH_MAX_LEN + 1;
 
@@ -177,8 +180,8 @@ void private_say_above_cl_affix( Mobile::Character* chr, const UObject* obj,
   msg->WriteFlipped<u16>( font );
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
-  msg->Write( obj->description().c_str(), 30, false );
-  msg->Write( affix.c_str(), static_cast<u16>( affix_len ) );
+  msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30, false );
+  msg->Write( convertedAffix.c_str(), static_cast<u16>( affix_len ) );
   msg->WriteFlipped( utf16text, true );
   u16 len = msg->offset;
   msg->offset = 1;
@@ -217,7 +220,8 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const s
   std::vector<u16> utf16text = Bscript::String::toUTF16( arguments );
   if ( utf16text.size() > SPEECH_MAX_LEN )
     utf16text.resize( SPEECH_MAX_LEN );
-  unsigned affix_len = static_cast<unsigned>( affix.size() + 1 );
+  std::string convertedAffix = Clib::strUtf8ToCp1252(affix);
+  unsigned affix_len = static_cast<unsigned>( convertedAffix.size() + 1 );
   if ( affix_len > SPEECH_MAX_LEN + 1 )
     affix_len = SPEECH_MAX_LEN + 1;
 
@@ -229,7 +233,7 @@ void build_sysmessage_cl_affix( PktOut_CC* msg, unsigned int cliloc_num, const s
   msg->WriteFlipped<u32>( cliloc_num );
   msg->Write<u8>( ( prepend ) ? 1u : 0u );
   msg->Write( "System", 30, false );
-  msg->Write( affix.c_str(), static_cast<u16>( affix_len ) );
+  msg->Write( convertedAffix.c_str(), static_cast<u16>( affix_len ) );
   msg->WriteFlipped( utf16text, true );
   u16 len = msg->offset;
   msg->offset = 1;
