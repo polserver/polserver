@@ -15,12 +15,13 @@
 #include <string>
 #include <vector>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/poltype.h"
-#include "../../plib/uconst.h"
-#include "../reftypes.h"
+#include "base/position.h"
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
 #include "multi.h"
+#include "plib/poltype.h"
+#include "plib/uconst.h"
+#include "reftypes.h"
 
 namespace Pol
 {
@@ -169,7 +170,8 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
   static bool navigable( const MultiDef&, unsigned short x, unsigned short y, short z,
-                         Realms::Realm* realm );
+                         Realms::Realm* realm );  // TODO Pos
+  static bool navigable( const MultiDef& md, const Core::Pos4d& desired_pos );
   void realm_changed();
   void adjust_traveller_z( s8 delta_z );
 

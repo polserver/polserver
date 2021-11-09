@@ -70,6 +70,11 @@ inline Pos2d zone_convert( const Pos4d& p )
   return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
                 static_cast<unsigned short>( p.y() >> Plib::WGRID_SHIFT ) );
 }
+inline Pos2d zone_convert( const Pos2d& p )
+{
+  return Pos2d( static_cast<unsigned short>( p.x() >> Plib::WGRID_SHIFT ),
+                static_cast<unsigned short>( p.y() >> Plib::WGRID_SHIFT ) );
+}
 
 namespace
 {

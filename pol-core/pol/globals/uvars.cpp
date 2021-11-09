@@ -15,6 +15,7 @@
 
 #include "uvars.h"
 
+#include <algorithm>
 #include <string.h>
 
 #include "../../bscript/bobject.h"
@@ -35,6 +36,7 @@
 #include "../loadunld.h"
 #include "../mobile/attribute.h"
 #include "../multi/boat.h"
+#include "../multi/multidef.h"
 #include "../npctmpl.h"
 #include "../objecthash.h"
 #include "../party.h"
@@ -171,7 +173,7 @@ GameState::GameState()
       paramtextcmds(),
       uo_skills(),
       task_thread_pool(),
-      update_range( RANGE_VISUAL )
+      update_range( (s16)RANGE_VISUAL, (s16)RANGE_VISUAL )
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
 }
@@ -180,6 +182,22 @@ GameState::~GameState()
   // FIXME: since deconstruction of externs has a more or less random order
   // everything should be cleared before.
   // or make sure that the globals get deconstructed before eg the flyweight string container
+}
+
+
+void GameState::update_range_from_multis()
+{
+  for ( const auto& m_pair : Multi::multidef_buffer.multidefs_by_multiid )
+  {
+    if ( m_pair.second == nullptr )
+      continue;
+    auto* mdef = m_pair.second;
+    s16 maxrel = (s16)std::max( { std::abs( mdef->minrxyz.x() ), std::abs( mdef->minrxyz.y() ),
+                                  std::abs( mdef->maxrxyz.x() ), std::abs( mdef->maxrxyz.y() ) } ) +
+                 1;
+    if ( maxrel > update_range.x() )
+      update_range.x( maxrel ).y( maxrel );
+  }
 }
 
 void display_leftover_objects();

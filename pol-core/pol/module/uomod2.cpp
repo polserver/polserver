@@ -95,6 +95,7 @@
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "base/position.h"
 #include "systems/suspiciousacts.h"
 #include "uomod.h"
 
@@ -473,12 +474,12 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
         numleft -= num;
@@ -508,12 +509,12 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
 
@@ -1886,6 +1887,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
 
   LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
   LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
+  LONG_COREVAR( update_range, gamestate.update_range.x() );
   if ( stricmp( corevar, "version" ) == 0 )
     return new String( POL_VERSION_STR );
   if ( stricmp( corevar, "verstr" ) == 0 )
@@ -2521,8 +2523,6 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     msg.Send( chr->client );
   }
   move_character_to( chr, house->x(), house->y(), house->z() + 7, MOVEITEM_FORCELOCATION, nullptr );
-  // chr->set_script_member("hidden",1);
-  // chr->set_script_member("frozen",1);
 
   house->WorkingDesign.AddComponents( house );
   house->CurrentDesign.AddComponents( house );
@@ -2542,8 +2542,10 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     Character* multichr = moblist.back();
     if ( multichr != chr )
-      move_character_to( multichr, house->x() + def.minrx, house->y() + def.maxry + 1, house->z(),
-                         MOVEITEM_FORCELOCATION, nullptr );
+    {
+      Core::Pos4d pos = house->pos() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
+      move_character_to( multichr, pos.x(), pos.y(), pos.z(), MOVEITEM_FORCELOCATION, nullptr );
+    }
     moblist.pop_back();
   }
 

@@ -11,19 +11,23 @@
 
 #include <string>
 
-#include "../clib/strutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "../plib/tiles.h"
+#include "clib/strutil.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "plib/tiles.h"
+
 #include "checkpnt.h"
 #include "cmbtcfg.h"
 #include "console.h"
 #include "extobj.h"
+#include "globals/multidefs.h"
 #include "globals/settings.h"
+#include "globals/uvars.h"
 #include "item/equipmnt.h"
 #include "item/itemdesc.h"
 #include "landtile.h"
 #include "mobile/attribute.h"
+#include "multi/multidef.h"
 #include "objtype.h"
 #include "polcfg.h"
 
@@ -43,7 +47,6 @@ void load_armor_zones();
 namespace Multi
 {
 void load_special_storedconfig( const std::string& cfgname );
-void read_multidefs();
 void read_boat_cfg();
 }  // namespace Multi
 namespace Network
@@ -165,6 +168,7 @@ void load_data()
 
   checkpoint( "read_multidefs" );
   Multi::read_multidefs();
+  gamestate.update_range_from_multis();
 
   checkpoint( "set_watch_vars" );
   set_watch_vars();

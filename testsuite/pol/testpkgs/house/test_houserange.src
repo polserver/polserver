@@ -1,0 +1,45 @@
+use uo;
+use os;
+use boat;
+
+include "testutil";
+
+var multi;
+program test_houserange()
+  multi:=CreateMultiAtLocation(100,100,0,0x12001);
+  if (!multi)
+    return ret_error("Failed to create multi "+multi);
+  endif
+  if (multi.x != 100 || multi.y != 100 || multi.z != 0 || multi.multiid != 0x6c)
+    var er:="Wrong pos or multiid: {},{},{} {}".format(multi.x, multi.y, multi.z, multi.multiid);
+    return ret_error(er);
+  endif
+  return 1;
+endprogram
+
+exported function footprint()
+  var fp:=multi.footprint;
+  if (fp.xmin != 70 || fp.ymin != 100 || fp.xmax != 129 || fp.ymax != 100)
+    return ret_error("Invalid foodprint: "+fp);
+  endif
+  return 1;
+endfunction
+
+exported function multisinbox()
+  // only one tile inside the box
+  var multis:=ListMultisInBox(60,100,0,70,100,0);
+  if (!multis)
+    return ret_error("No multi found");
+  endif
+  if (!(multi in multis))
+    return ret_error("Wrong multi found: "+multis);
+  endif
+  return 1;
+endfunction
+
+exported function update_range()
+  if (PolCore().update_range != 31)
+    return ret_error("wrong update range: "+PolCore().update_range);
+  endif
+  return 1;
+endfunction

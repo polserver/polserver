@@ -33,6 +33,7 @@
 #include "../tasks.h"
 #include "../textcmd.h"
 #include "../uoskills.h"
+#include "base/vector.h"
 #include "regions/region.h"
 
 
@@ -249,8 +250,9 @@ public:
   };
   threadhelp::TaskThreadPool task_thread_pool;
 
-  u8 update_range;  // maximum update range (client view range/multi footprint) used as
-                    // "pre-filtering" of objects
+  void update_range_from_multis();
+  Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
+                             // "pre-filtering" of objects
 
 private:
   void cleanup_vars();
