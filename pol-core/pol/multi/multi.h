@@ -68,8 +68,8 @@ public:
 
   static UMulti* create( const Items::ItemDesc& descriptor, u32 serial = 0 );
 
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
+                                               const Core::Pos4d& pos, int flags );
 
   virtual void double_click( Network::Client* client ) override;
   virtual void register_object( UObject* obj );
@@ -86,8 +86,8 @@ public:
                                 Core::ExportScript** hook, unsigned int* PC ) const override;
 
   Bscript::BStruct* footprint() const;
-  virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
-  virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
+  virtual bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& shapexy, s16 zbase );
+  virtual bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, s16 zbase );
   Core::Range3d current_box() const;
 
   virtual ~UMulti();
@@ -104,11 +104,13 @@ private:
 };
 
 /* Default implementations */
-inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readshapes( Plib::MapShapeList& /*vec*/, const Core::Vec2d& /*shapexy*/,
+                                s16 /*zbase*/ )
 {
   return false;
 };
-inline bool UMulti::readobjects( Plib::StaticList& /*vec*/, s16 /*rx*/, s16 /*ry*/, s16 /*zbase*/ )
+inline bool UMulti::readobjects( Plib::StaticList& /*vec*/, const Core::Vec2d& /*rxy*/,
+                                 s16 /*zbase*/ )
 {
   return false;
 };

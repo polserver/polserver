@@ -14,7 +14,10 @@
 #include <string>
 #include <vector>
 
-#include "../../clib/rawtypes.h"
+#include "clib/rawtypes.h"
+
+#include "base/position.h"
+#include "base/vector.h"
 
 namespace Pol
 {
@@ -68,8 +71,7 @@ struct CUSTOM_HOUSE_ELEMENT
 {
   u8 z;
   u16 graphic;
-  s32 xoffset;
-  s32 yoffset;
+  Core::Vec2d offset;
 };
 
 typedef std::vector<std::vector<std::list<CUSTOM_HOUSE_ELEMENT>>> HouseFloor;  // vector of N-S rows
@@ -85,39 +87,41 @@ class CustomHouseElements
 {
 public:
   CustomHouseElements();
-  CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
-  ~CustomHouseElements();
+  ~CustomHouseElements() = default;
 
-  void SetHeight( u32 _height );
-  void SetWidth( u32 _width );
+  void SetSize( Core::Pos2d size );
+  void SetOffset( Core::Vec2d off );
   size_t estimatedSize() const;
-  HouseFloorZColumn* GetElementsAt( s32 xoffset, s32 yoffset );
-
+  HouseFloorZColumn* GetElementsAt( const Core::Vec2d& off );
+  HouseFloorZColumn* GetElementsAt( const Core::Pos2d& p );
+  HouseFloor& GetFloor();
+  const HouseFloor& GetFloor() const;
   void AddElement( CUSTOM_HOUSE_ELEMENT& elem );
 
+private:
   HouseFloor data;
-  u32 height, width;
-  s32 xoff, yoff;
+  Core::Pos2d size;
+  Core::Vec2d offset;
 };
 
 class CustomHouseDesign
 {
 public:
   CustomHouseDesign();
-  CustomHouseDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
-  ~CustomHouseDesign();
+  CustomHouseDesign( Core::Pos2d size, Core::Vec2d offset );
+  ~CustomHouseDesign() = default;
   size_t estimatedSize() const;
-  void InitDesign( u32 _height, u32 _width, s32 xoffset, s32 yoffset );
+  void InitDesign( Core::Pos2d size, Core::Vec2d offset );
 
   CustomHouseDesign& operator=( const CustomHouseDesign& design );
   void Add( CUSTOM_HOUSE_ELEMENT& elem );
   void AddOrReplace( CUSTOM_HOUSE_ELEMENT& elem );
-  void AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z );
+  void AddMultiAtOffset( u16 multiid, const Core::Vec3d& off );
 
-  bool Erase( u32 xoffset, u32 yoffset, u8 z, int minheight = 0 );
-  bool EraseGraphicAt( u16 graphic, u32 xoffset, u32 yoffset, u8 z );
+  bool Erase( const Core::Pos3d& offset, int minheight = 0 );
+  bool EraseGraphicAt( u16 graphic, const Core::Pos3d& off );
 
-  void ReplaceDirtFloor( u32 x, u32 y );
+  void ReplaceDirtFloor( const Core::Pos2d& pos );
   void Clear();
   bool IsEmpty() const;
 
@@ -131,15 +135,18 @@ public:
 
   int floor_sizes[CUSTOM_HOUSE_NUM_PLANES];
 
-  bool DeleteStairs( u16 id, s32 x, s32 y, s8 z );
+  bool DeleteStairs( u16 id, Core::Pos3d pos );
 
   // assumes x,y already added with xoff and yoff
-  inline bool ValidLocation( u32 xidx, u32 yidx ) { return !( xidx >= width || yidx >= height ); }
+  inline bool ValidLocation( const Core::Pos2d& p )
+  {
+    return !( p.x() >= _size.x() || p.y() >= _size.y() );
+  }
   static bool IsStair( u16 id, int& dir );
   static bool IsStairBlock( u16 id );
 
-  u32 height, width;  // total sizes including front steps
-  s32 xoff, yoff;     // offsets from center west-most and north-most indicies are 0
+  Core::Pos2d _size;    // total sizes including front steps
+  Core::Vec2d _offset;  // offsets from center west-most and north-most indicies are 0
   CustomHouseElements Elements[CUSTOM_HOUSE_NUM_PLANES];  // 5 planes
 
   static const char custom_house_z_xlate_table[CUSTOM_HOUSE_NUM_PLANES];

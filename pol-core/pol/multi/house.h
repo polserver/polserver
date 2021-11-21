@@ -11,13 +11,15 @@
 #include <list>
 #include <vector>
 
-#include "../../bscript/bobject.h"
-#include "../../clib/rawtypes.h"
-#include "../../plib/udatfile.h"
-#include "../item/item.h"
-#include "../reftypes.h"
+#include "bscript/bobject.h"
+#include "clib/rawtypes.h"
+#include "plib/udatfile.h"
+
+#include "base/vector.h"
 #include "customhouses.h"
+#include "item/item.h"
 #include "multi.h"
+#include "reftypes.h"
 
 namespace Pol
 {
@@ -72,8 +74,8 @@ class UHouse final : public UMulti
   typedef std::vector<Component> Components;
 
 public:
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
+                                               const Core::Pos4d& pos, int flags );
   void destroy_components();
 
   CustomHouseDesign CurrentDesign;
@@ -99,7 +101,7 @@ public:
   virtual void walk_on( Mobile::Character* chr ) override;
 
   void ClearSquatters();
-  bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
+  bool add_component( Items::Item* item, const Core::Vec3d& off );
   bool add_component( Component component );
   static void list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in );
   void AcceptHouseCommit( Mobile::Character* chr, bool accept );
@@ -123,9 +125,9 @@ protected:
   virtual Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
   virtual bool script_isa( unsigned isatype ) const override;
   virtual class UHouse* as_house() override;
-  virtual bool readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y,
-                           short zbase ) override;
-  virtual bool readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short zbase ) override;
+  virtual bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& shapexy,
+                           s16 zbase ) override;
+  virtual bool readobjects( Plib::StaticList& vec, const Core::Vec2d& obj_xy, s16 zbase ) override;
   Bscript::ObjArray* component_list() const;
   Bscript::ObjArray* items_list() const;
   Bscript::ObjArray* mobiles_list() const;

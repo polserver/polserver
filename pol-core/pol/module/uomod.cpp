@@ -1192,40 +1192,20 @@ BObjectImp* UOExecutorModule::mf_CreateItemCopyAtLocation( /* x,y,z,item,realm *
 
 BObjectImp* UOExecutorModule::mf_CreateMultiAtLocation( /* x,y,z,objtype,flags,realm */ )
 {
-  unsigned short x, y;
-  short z;
+  Core::Pos4d pos;
   const ItemDesc* descriptor;
   int flags = 0;
-  Realms::Realm* realm = find_realm( "britannia" );
-  if ( !( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, z, ZCOORD_MIN, ZCOORD_MAX ) &&
-          getObjtypeParam( 3, descriptor ) ) )
+  if ( !( getPos4dParam( 0, 1, 2, 5, &pos ) && getObjtypeParam( 3, descriptor ) &&
+          getParam( 4, flags ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
-  if ( exec.hasParams( 5 ) )
-  {
-    if ( !getParam( 4, flags ) )
-      return new BError( "Invalid parameter type" );
-  }
-  if ( exec.hasParams( 6 ) )
-  {
-    const String* strrealm;
-    if ( !getStringParam( 5, strrealm ) )
-      return new BError( "Invalid parameter type" );
-    realm = find_realm( strrealm->value() );
-  }
-
-  if ( !realm )
-    return new BError( "Realm not found" );
-  if ( !realm->valid( x, y, z ) )
-    return new BError( "Invalid Coordinates for Realm" );
   if ( descriptor->type != ItemDesc::BOATDESC && descriptor->type != ItemDesc::HOUSEDESC )
   {
     return new BError( "That objtype is not a Multi" );
   }
 
-  return Multi::UMulti::scripted_create( *descriptor, x, y, static_cast<signed char>( z ), realm,
-                                         flags );
+  return Multi::UMulti::scripted_create( *descriptor, pos, flags );
 }
 
 void replace_properties( Clib::ConfigElem& elem, BStruct* custom )

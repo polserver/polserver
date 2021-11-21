@@ -6,8 +6,9 @@
  */
 
 
-#include "../../clib/rawtypes.h"
-#include "../../plib/systemstate.h"
+#include "clib/rawtypes.h"
+#include "plib/systemstate.h"
+
 #include "customhouses.h"
 
 namespace Pol
@@ -94,27 +95,24 @@ bool CustomHouseDesign::IsStair( u16 id, int& dir )
   return ( delta == 0 );
 }
 
-bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
+bool CustomHouseDesign::DeleteStairs( u16 id, Core::Pos3d pos )
 {
-  int floor_num = z_to_custom_house_table( z );
+  int floor_num = z_to_custom_house_table( pos.z() );
   if ( floor_num == -1 )
     return false;
 
-  u32 xidx = x + xoff;
-  u32 yidx = y + yoff;
-  if ( !ValidLocation( xidx, yidx ) )
+  Core::Pos3d idx = pos + _offset;
+  if ( !ValidLocation( idx.xy() ) )
     return false;
 
   if ( IsStairBlock( id ) )
   {
-    for ( HouseFloorZColumn::iterator itr = Elements[floor_num].data.at( xidx ).at( yidx ).begin(),
-                                      itrend = Elements[floor_num].data.at( xidx ).at( yidx ).end();
-          itr != itrend; ++itr )
+    for ( const auto& ele : Elements[floor_num].GetFloor()[idx.x()][idx.y()] )
     {
-      if ( itr->z == ( z + 5 ) )
+      if ( ele.z == ( pos.z() + 5 ) )
       {
-        id = itr->graphic;
-        z = itr->z;
+        id = ele.graphic;
+        pos.z( ele.z );
         if ( !IsStairBlock( id ) )
           break;
       }
@@ -126,117 +124,109 @@ bool CustomHouseDesign::DeleteStairs( u16 id, s32 x, s32 y, s8 z )
   if ( !IsStair( id, dir ) )
     return false;
 
-  int erase_height = ( ( z - 7 ) % 20 ) / 5;
+  s8 erase_height = ( ( pos.z() - 7 ) % 20 ) / 5;
 
-  int xStart, yStart;
-  int xInc, yInc;
+  pos -= Core::Vec3d( 0, 0, erase_height * 5 );
+  s8 xInc, yInc;
 
   switch ( dir )
   {
   default:
   case 0:  // North
   {
-    xStart = x;
-    yStart = y + erase_height;
+    pos += Core::Vec2d( 0, erase_height );
     xInc = 0;
     yInc = -1;
     break;
   }
   case 1:  // West
   {
-    xStart = x + erase_height;
-    yStart = y;
+    pos += Core::Vec2d( erase_height, 0 );
     xInc = -1;
     yInc = 0;
     break;
   }
   case 2:  // South
   {
-    xStart = x;
-    yStart = y - erase_height;
+    pos -= Core::Vec2d( 0, erase_height );
     xInc = 0;
     yInc = 1;
     break;
   }
   case 3:  // East
   {
-    xStart = x - erase_height;
-    yStart = y;
+    pos -= Core::Vec2d( erase_height, 0 );
     xInc = 1;
     yInc = 0;
     break;
   }
   }
 
-  int zStart = z - ( erase_height * 5 );
-
-  for ( int i = 0; i < 4; ++i )
+  for ( s8 i = 0; i < 4; ++i )
   {
-    x = xStart + ( i * xInc );
-    y = yStart + ( i * yInc );
+    Core::Pos3d v = pos + Core::Vec2d( i * xInc, i * yInc );
 
-    for ( int j = 0; j <= i; ++j )
-      Erase( x, y, static_cast<u8>( zStart + ( j * 5 ) ), 2 );
+    for ( s8 j = 0; j <= i; ++j )
+      Erase( v + Core::Vec3d( 0, 0, j * 5 ), 2 );
 
-    ReplaceDirtFloor( x, y );
+    ReplaceDirtFloor( v.xy() );
   }
 
   return true;
 }
 
-CustomHouseElements::CustomHouseElements() : data(), height( 0 ), width( 0 ), xoff( 0 ), yoff( 0 )
-{
-}
+CustomHouseElements::CustomHouseElements() : data(), size(), offset() {}
 
-CustomHouseElements::CustomHouseElements( u32 _height, u32 _width, s32 xoffset, s32 yoffset )
-    : height( _height ), width( _width ), xoff( xoffset ), yoff( yoffset )
+void CustomHouseElements::SetOffset( Core::Vec2d off )
 {
-  SetWidth( _width );
-  SetHeight( _height );
+  offset = std::move( off );
 }
-CustomHouseElements::~CustomHouseElements() {}
-
-void CustomHouseElements::SetHeight( u32 _height )
+void CustomHouseElements::SetSize( Core::Pos2d dim )
 {
-  height = _height;
-  for ( size_t i = 0; i < width; i++ )
-    data.at( i ).resize( height );
-}
-
-void CustomHouseElements::SetWidth( u32 _width )
-{
-  width = _width;
-  data.resize( width );
+  size = std::move( dim );
+  data.resize( size.x() );
+  for ( size_t x = 0; x < size.x(); ++x )
+    data.at( x ).resize( size.y() );
 }
 
 size_t CustomHouseElements::estimatedSize() const
 {
-  size_t size = sizeof( CustomHouseElements );
-  size += 3 * sizeof( HouseFloor* ) + data.capacity() * sizeof( HouseFloor );
+  size_t csize = sizeof( CustomHouseElements );
+  csize += 3 * sizeof( HouseFloor* ) + data.capacity() * sizeof( HouseFloor );
   for ( const auto& floor : data )
   {
-    size += 3 * sizeof( std::list<CUSTOM_HOUSE_ELEMENT>* ) +
-            floor.capacity() * sizeof( std::list<CUSTOM_HOUSE_ELEMENT> );
+    csize += 3 * sizeof( std::list<CUSTOM_HOUSE_ELEMENT>* ) +
+             floor.capacity() * sizeof( std::list<CUSTOM_HOUSE_ELEMENT> );
     for ( const auto& l : floor )
     {
-      size += 3 * sizeof( CUSTOM_HOUSE_ELEMENT* ) + l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );
+      csize += 3 * sizeof( CUSTOM_HOUSE_ELEMENT* ) + l.size() * sizeof( CUSTOM_HOUSE_ELEMENT );
     }
   }
-  return size;
+  return csize;
 }
 
-HouseFloorZColumn* CustomHouseElements::GetElementsAt( s32 xoffset, s32 yoffset )
+HouseFloor& CustomHouseElements::GetFloor()
 {
-  u32 x = xoffset + xoff;
-  u32 y = yoffset + yoff;
-  return &( data.at( x ).at( y ) );
+  return data;
+}
+const HouseFloor& CustomHouseElements::GetFloor() const
+{
+  return data;
+}
+
+HouseFloorZColumn* CustomHouseElements::GetElementsAt( const Core::Vec2d& off )
+{
+  Core::Pos2d p = Core::Pos2d( 0, 0 ) + off + offset;
+  return &( data.at( p.x() ).at( p.y() ) );
+}
+HouseFloorZColumn* CustomHouseElements::GetElementsAt( const Core::Pos2d& p )
+{
+  return &( data.at( p.x() ).at( p.y() ) );
 }
 void CustomHouseElements::AddElement( CUSTOM_HOUSE_ELEMENT& elem )
 {
-  u32 x = elem.xoffset + xoff;
-  u32 y = elem.yoffset + yoff;
-
-  data.at( x ).at( y ).push_back( elem );
+  Core::Pos2d p = Core::Pos2d( 0, 0 ) + elem.offset + offset;
+  data.at( p.x() ).at( p.y() ).push_back( elem );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

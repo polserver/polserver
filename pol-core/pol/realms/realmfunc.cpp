@@ -626,7 +626,7 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos,
         if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if
                                                       // the house is being edited,
           // everyone in the house would use it for walking...
-          multi->readshapes( vec, delta.x(), delta.y(), multi->z() );
+          multi->readshapes( vec, delta, multi->z() );
         else
         {
           const Multi::MultiDef& def = multi->multidef();
@@ -646,16 +646,14 @@ void Realm::readmultis( Plib::MapShapeList& vec, const Core::Pos2d& pos, unsigne
         Core::Vec2d delta = pos - multi->pos().xy();
         if ( house != nullptr && house->IsCustom() )
         {
-          if ( multi->readshapes( vec, delta.x(), delta.y(), multi->z() ) )
+          if ( multi->readshapes( vec, delta, multi->z() ) )
             mvec.push_back( multi );
         }
         else
         {
           const Multi::MultiDef& def = multi->multidef();
           if ( def.readshapes( vec, delta, multi->z(), anyflags ) )
-          {
             mvec.push_back( multi );
-          }
         }
       } );
 }
@@ -671,7 +669,7 @@ void Realm::readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const
         if ( house != nullptr && house->IsCustom() )  // readshapes switches to working design if
                                                       // the house is being edited,
           // everyone in the house would use it for walking...
-          multi->readobjects( vec, delta.x(), delta.y(), multi->z() );
+          multi->readobjects( vec, delta, multi->z() );
         else
         {
           const Multi::MultiDef& def = multi->multidef();

@@ -163,8 +163,8 @@ public:
   void regself();
   void unregself();
 
-  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y,
-                                               s8 z, Realms::Realm* realm, int flags );
+  static Bscript::BObjectImp* scripted_create( const Items::ItemDesc& descriptor,
+                                               const Core::Pos4d& pos, int flags );
 
   virtual Bscript::BObjectImp* make_ref() override;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex,

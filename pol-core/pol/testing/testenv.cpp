@@ -64,8 +64,8 @@ void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short 
 void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z, int flags )
 {
   Realms::Realm* realm = Core::gamestate.main_realm;
-  Bscript::BObject obj( Multi::UMulti::scripted_create( find_itemdesc( objtype ), x, y,
-                                                        static_cast<s8>( z ), realm, flags ) );
+  Bscript::BObject obj( Multi::UMulti::scripted_create(
+      find_itemdesc( objtype ), Core::Pos4d( x, y, static_cast<s8>( z ), realm ), flags ) );
 }
 
 Mobile::NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z )

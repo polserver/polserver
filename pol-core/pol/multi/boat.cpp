@@ -1689,8 +1689,8 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
   }
 }
 
-Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                             Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor,
+                                             const Core::Pos4d& pos, int flags )
 {
   unsigned short multiid = descriptor.multiid;
   unsigned short multiid_offset =
@@ -1712,7 +1712,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
         ", multiid=" + Clib::hexint( multiid ) );
   }
 
-  if ( !navigable( *md, x, y, z, realm ) )
+  if ( !navigable( *md, pos.x(), pos.y(), pos.z(), pos.realm() ) )
   {
     return new Bscript::BError( "Position indicated is impassable" );
   }
@@ -1721,10 +1721,10 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   boat->multiid = multiid;
   boat->serial = Core::GetNewItemSerialNumber();
   boat->serial_ext = ctBEu32( boat->serial );
-  boat->setposition( Core::Pos4d( x, y, z, realm ) );
+  boat->setposition( pos );
   boat->facing = facing;
   add_multi_to_world( boat );
-  boat->send_display_boat_to_inrange( x, y );
+  boat->send_display_boat_to_inrange( pos.x(), pos.y() );
   // send_boat_to_inrange( boat, x, y, false );
   boat->create_components();
   boat->rescan_components();

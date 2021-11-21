@@ -14,47 +14,47 @@
 
 #include "house.h"
 
-#include <boost/numeric/conversion/cast.hpp>
+#include <format/format.h>
 #include <stdlib.h>
 
-#include "../../bscript/berror.h"
-#include "../../bscript/executor.h"
-#include "../../bscript/objmembers.h"
-#include "../../bscript/objmethods.h"
-#include "../../clib/cfgelem.h"
-#include "../../clib/clib_endian.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/passert.h"
-#include "../../clib/refptr.h"
-#include "../../clib/streamsaver.h"
-#include "../../plib/mapcell.h"
-#include "../../plib/mapshape.h"
-#include "../../plib/systemstate.h"
-#include "../../plib/uconst.h"
-#include "../core.h"
-#include "../fnsearch.h"
-#include "../globals/object_storage.h"
-#include "../globals/uvars.h"
-#include "../item/itemdesc.h"
-#include "../mobile/charactr.h"
-#include "../module/uomod.h"
-#include "../network/cgdata.h"
-#include "../network/client.h"
-#include "../realms/realm.h"
-#include "../scrdef.h"
-#include "../scrsched.h"
-#include "../scrstore.h"
-#include "../syshookscript.h"
-#include "../ufunc.h"
-#include "../uobject.h"
-#include "../uoexec.h"
-#include "../uoscrobj.h"
-#include "../uworld.h"
+#include "bscript/berror.h"
+#include "bscript/executor.h"
+#include "bscript/objmembers.h"
+#include "bscript/objmethods.h"
+#include "clib/cfgelem.h"
+#include "clib/clib_endian.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/refptr.h"
+#include "clib/streamsaver.h"
+#include "plib/mapcell.h"
+#include "plib/mapshape.h"
+#include "plib/systemstate.h"
+#include "plib/uconst.h"
+
 #include "base/range.h"
+#include "core.h"
 #include "customhouses.h"
+#include "fnsearch.h"
+#include "globals/object_storage.h"
+#include "globals/uvars.h"
+#include "item/itemdesc.h"
+#include "mobile/charactr.h"
+#include "module/uomod.h"
 #include "multi.h"
 #include "multidef.h"
-#include <format/format.h>
+#include "network/cgdata.h"
+#include "network/client.h"
+#include "realms/realm.h"
+#include "scrdef.h"
+#include "scrsched.h"
+#include "scrstore.h"
+#include "syshookscript.h"
+#include "ufunc.h"
+#include "uobject.h"
+#include "uoexec.h"
+#include "uoscrobj.h"
+#include "uworld.h"
 
 
 namespace Pol
@@ -125,7 +125,7 @@ void UHouse::create_components()
     if ( !elem.is_static )
     {
       Items::Item* item = Items::Item::create( elem.objtype );
-      bool res = add_component( item, elem.relpos.x(), elem.relpos.y(), elem.relpos.z() );
+      bool res = add_component( item, elem.relpos );
       passert_always_r( res,
                         "Couldn't add newly created item as house component. Please report this "
                         "bug on the forums." );
@@ -138,34 +138,15 @@ void UHouse::create_components()
  * (change item coordinates, set it unmovable, etc...)
  *
  * @param item Pointer to the item to be added
- * @param xoff The X offset inside the house
- * @param yoff The Y offset inside the house
- * @param zoff The Z offset inside the house
+ * @param off The Vec3d offset inside the house
  * @return true on success, false when the item can't be added
  */
-bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
+bool UHouse::add_component( Items::Item* item, const Core::Vec3d& off )
 {
   if ( !can_add_component( item ) )
     return false;
 
-  u16 newx, newy;
-  s8 newz;
-  try
-  {
-    // These casts should be safe, but better check them - 2015-01-25 Bodom
-    newx = boost::numeric_cast<u16>( x() + xoff );
-    newy = boost::numeric_cast<u16>( y() + yoff );
-    newz = boost::numeric_cast<s8>( z() + zoff );
-  }
-  catch ( boost::bad_numeric_cast& )
-  {
-    // Printing an error because this is supposed to not happen,
-    // so it's probably a bug.
-    POLLOG_ERROR << "Out-of-range coordinates while trying to add Item "
-                 << fmt::hexu( item->serial ) << " to House " << fmt::hexu( serial ) << '\n';
-    return false;
-  }
-  item->setposition( Core::Pos4d( newx, newy, newz, realm() ) );
+  item->setposition( pos() + off );
   item->disable_decay();
   item->movable( false );
   update_item_to_inrange( item );
@@ -198,10 +179,9 @@ bool UHouse::add_component( Component item )
 Bscript::ObjArray* UHouse::component_list() const
 {
   std::unique_ptr<Bscript::ObjArray> arr( new Bscript::ObjArray );
-  for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
-        ++itr )
+  for ( const auto& comp : components_ )
   {
-    Items::Item* item = ( *itr ).get();
+    Items::Item* item = comp.get();
     if ( item != nullptr && !item->orphan() )
     {
       arr->addElement( new Module::EItemRefObjImp( item ) );
@@ -374,8 +354,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     {
       CUSTOM_HOUSE_ELEMENT elem;
       elem.graphic = item_graphic;
-      elem.xoffset = xoff;
-      elem.yoffset = yoff;
+      elem.offset = Core::Vec2d( Core::Vec2d::clip( xoff ), Core::Vec2d::clip( yoff ) );
       elem.z = static_cast<u8>( item_z );
       CurrentDesign.Add( elem );
       // invalidate
@@ -399,13 +378,11 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       return new BError( "House is currently been edited" );
     else if ( !ex.hasParams( 4 ) )
       return new BError( "Not enough parameters" );
-    int item_graphic, xoff, yoff, item_z;
-    if ( ex.getParam( 0, item_graphic ) && ex.getParam( 1, xoff ) && ex.getParam( 2, yoff ) &&
-         ex.getParam( 3, item_z ) )
+    int item_graphic;
+    Core::Pos3d off;
+    if ( ex.getParam( 0, item_graphic ) && ex.getPos3dParam( 1, 2, 3, &off ) )
     {
-      bool ret =
-          CurrentDesign.EraseGraphicAt( static_cast<u16>( item_graphic ), static_cast<u32>( xoff ),
-                                        static_cast<u32>( yoff ), static_cast<u8>( item_z ) );
+      bool ret = CurrentDesign.EraseGraphicAt( static_cast<u16>( item_graphic ), off );
       if ( ret )
       {
         // invalidate
@@ -517,9 +494,9 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
     Core::Vec2d xybase( (short)std::abs( def.minrxyz.x() ), (short)std::abs( def.minrxyz.y() ) );
 
 
-    CurrentDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
-    WorkingDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
-    BackupDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
+    CurrentDesign.InitDesign( size, xybase );
+    WorkingDesign.InitDesign( size, xybase );
+    BackupDesign.InitDesign( size, xybase );
     CurrentDesign.readProperties( elem, "Current" );
     WorkingDesign.readProperties( elem, "Working" );
     BackupDesign.readProperties( elem, "Backup" );
@@ -534,10 +511,9 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
 
   sw() << "\tMultiID\t" << multiid << pf_endl;
 
-  for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
-        ++itr )
+  for ( const auto& comp : components_ )
   {
-    Items::Item* item = ( *itr ).get();
+    Items::Item* item = comp.get();
     if ( item != nullptr && !item->orphan() )
     {
       sw() << "\tComponent\t0x" << fmt::hex( item->serial ) << pf_endl;
@@ -569,32 +545,30 @@ void UHouse::destroy_components()
   }
 }
 
-bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, short zbase )
+bool UHouse::readshapes( Plib::MapShapeList& vec, const Core::Vec2d& shapexy, s16 zbase )
 {
   if ( !custom )
     return false;
 
-  bool result = false;
-  HouseFloorZColumn* elems;
-  HouseFloorZColumn::iterator itr;
-  CustomHouseDesign* design;
-  design =
+  CustomHouseDesign* design =
       editing
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
 
-  if ( shape_x + design->xoff < 0 || shape_x + design->xoff >= static_cast<s32>( design->width ) ||
-       shape_y + design->yoff < 0 || shape_y + design->yoff >= static_cast<s32>( design->height ) )
+  auto designpos = shapexy + design->_offset;
+  if ( designpos.x() < 0 || designpos.x() >= design->_size.x() || designpos.y() < 0 ||
+       designpos.y() >= design->_size.y() )
     return false;
+  bool result = false;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    elems = design->Elements[i].GetElementsAt( shape_x, shape_y );
-    for ( itr = elems->begin(); itr != elems->end(); ++itr )
+    auto elems = design->Elements[i].GetElementsAt( shapexy );
+    for ( const auto& elem : *elems )
     {
       Plib::MapShape shape;
-      shape.z = itr->z + zbase;
-      shape.height = Plib::tileheight( itr->graphic );
-      shape.flags = Plib::tile_flags( itr->graphic );
+      shape.z = elem.z + zbase;
+      shape.height = Plib::tileheight( elem.graphic );
+      shape.flags = Plib::tile_flags( elem.graphic );
       if ( !shape.height )
       {
         ++shape.height;
@@ -628,30 +602,28 @@ bool UHouse::readshapes( Plib::MapShapeList& vec, short shape_x, short shape_y, 
   return result;
 }
 
-bool UHouse::readobjects( Plib::StaticList& vec, short obj_x, short obj_y, short zbase )
+bool UHouse::readobjects( Plib::StaticList& vec, const Core::Vec2d& obj_xy, s16 zbase )
 {
   if ( !custom )
     return false;
 
-  bool result = false;
-  HouseFloorZColumn* elems;
-  HouseFloorZColumn::iterator itr;
-  CustomHouseDesign* design;
-  design =
+  CustomHouseDesign* design =
       editing
           ? &WorkingDesign
           : &CurrentDesign;  // consider having a list of players that should use the working set
 
-  if ( obj_x + design->xoff < 0 || obj_x + design->xoff >= static_cast<s32>( design->width ) ||
-       obj_y + design->yoff < 0 || obj_y + design->yoff >= static_cast<s32>( design->height ) )
+  auto designpos = obj_xy + design->_offset;
+  if ( designpos.x() < 0 || designpos.x() >= design->_size.x() || designpos.y() < 0 ||
+       designpos.y() >= design->_size.y() )
     return false;
+  bool result = false;
   for ( int i = 0; i < CUSTOM_HOUSE_NUM_PLANES; i++ )
   {
-    elems = design->Elements[i].GetElementsAt( obj_x, obj_y );
-    for ( itr = elems->begin(); itr != elems->end(); ++itr )
+    auto elems = design->Elements[i].GetElementsAt( obj_xy );
+    for ( const auto& elem : *elems )
     {
-      Plib::StaticRec rec( itr->graphic, static_cast<signed char>( itr->z + zbase ),
-                           Plib::tile_flags( itr->graphic ), Plib::tileheight( itr->graphic ) );
+      Plib::StaticRec rec( elem.graphic, static_cast<signed char>( elem.z + zbase ),
+                           Plib::tile_flags( elem.graphic ), Plib::tileheight( elem.graphic ) );
       if ( !rec.height )
       {
         ++rec.height;
@@ -687,18 +659,14 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
   return house;
 }
 
-bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
-                      unsigned short mysouth, Realms::Realm* realm )
+bool multis_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2 )
 {
-  Core::Pos4d minpos( mywest, mynorth, 0, realm );
-  Core::Pos4d maxpos( myeast, mysouth, 0, realm );
-  // TODO Pos maximum multi footprint, gamestate.update_range?
-  Core::Range2d mybox( minpos, maxpos );
-  Core::Range2d gridarea( Core::zone_convert( minpos - Core::Vec2d( 100, 100 ) ),
-                          Core::zone_convert( maxpos + Core::Vec2d( 100, 100 ) ), nullptr );
+  Core::Range2d mybox( p1, p2 );
+  Core::Range2d gridarea( Core::zone_convert( p1 - Core::gamestate.update_range ),
+                          Core::zone_convert( p2 + Core::gamestate.update_range ), nullptr );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& multi : realm->getzone_grid( gpos ).multis )
+    for ( const auto& multi : p1.realm()->getzone_grid( gpos ).multis )
     {
       // find out if any of our walls would fall within its footprint.
       auto otherbox = multi->current_box().range();
@@ -709,71 +677,57 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
   return false;
 }
 
-bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
-                       Realms::Realm* realm )
+bool objects_exist_in( const Core::Pos4d& p1, const Core::Pos4d& p2 )
 {
-  Core::Range2d gridarea( Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) ),
-                          Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) ), realm );
-  auto includes = [&]( const Core::UObject* obj )
-  {
-    if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
-    {
-      return true;
-    }
-    return false;
-  };
+  Core::Range2d gridarea( Core::zone_convert( p1 ), Core::zone_convert( p2 ), p1.realm() );
+  Core::Range2d area( p1, p2 );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& chr : realm->getzone_grid( gpos ).characters )
+    for ( const auto& chr : p1.realm()->getzone_grid( gpos ).characters )
     {
-      if ( includes( chr ) )
+      if ( area.contains( chr->pos2d() ) )
         return true;
     }
-    for ( const auto& chr : realm->getzone_grid( gpos ).npcs )
+    for ( const auto& chr : p1.realm()->getzone_grid( gpos ).npcs )
     {
-      if ( includes( chr ) )
+      if ( area.contains( chr->pos2d() ) )
         return true;
     }
-    for ( const auto& item : realm->getzone_grid( gpos ).items )
+    for ( const auto& item : p1.realm()->getzone_grid( gpos ).items )
     {
-      if ( includes( item ) )
+      if ( area.contains( item->pos2d() ) )
         return true;
     }
   }
   return false;
 }
 
-bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2, s8 z, int /*flags*/, Realms::Realm* realm )
+bool statics_cause_problems( const Core::Pos4d& p1, const Core::Pos4d& p2 )
 {
-  for ( unsigned short x = x1; x <= x2; ++x )
+  for ( const auto p : Core::Range2d( p1, p2 ) )
   {
-    for ( unsigned short y = y1; y <= y2; ++y )
+    short newz;
+    UMulti* multi;
+    Items::Item* item;
+    if ( !p1.realm()->walkheight( p, p1.z(), &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
     {
-      short newz;
-      UMulti* multi;
-      Items::Item* item;
-      if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
-      {
-        POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" ) << x << y << z;
-        return true;
-      }
-      if ( labs( z - newz ) > 2 )
-      {
-        POLLOG.Format( "Refusing to place house at {},{},{}: result Z ({}) is too far afield\n" )
-            << x << y << z << newz;
-        return true;
-      }
+      POLLOG << "Refusing to place house at " << Core::Pos3d( p, p1.z() )
+             << ": can't stand there\n";
+      return true;
+    }
+    if ( labs( p1.z() - newz ) > 2 )
+    {
+      POLLOG << "Refusing to place house at " << Core::Pos3d( p, p1.z() ) << ": result Z (" << newz
+             << ") is too far afield\n";
+      return true;
     }
   }
   return false;
 }
 
-Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
-                                              Realms::Realm* realm, int flags )
+Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
+                                              const Core::Pos4d& pos, int flags )
 {
-  Core::Pos4d pos( x, y, z, realm );
-
   if ( !MultiDefByMultiIDExists( descriptor.multiid ) )
   {
     return new Bscript::BError(
@@ -785,11 +739,11 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   if ( !pos.can_move_to( md->minrxyz.xy() ) || !pos.can_move_to( md->maxrxyz.xy() ) )
     return new Bscript::BError( "That location is out of bounds" );
 
+  auto minpos = pos + md->minrxyz;
+  auto maxpos = pos + md->maxrxyz;
   if ( ~flags & CRMULTI_IGNORE_MULTIS )
   {
-    if ( multis_exist_in( pos.x() + md->minrxyz.x() - 1, pos.y() + md->minrxyz.y() - 5,
-                          pos.x() + md->maxrxyz.x() + 1, pos.y() + md->maxrxyz.y() + 5,
-                          pos.realm() ) )
+    if ( multis_exist_in( minpos - Core::Vec2d( 1, 5 ), maxpos + Core::Vec2d( 1, 5 ) ) )
     {
       return new Bscript::BError( "Location intersects with another structure" );
     }
@@ -797,17 +751,14 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
   if ( ~flags & CRMULTI_IGNORE_OBJECTS )
   {
-    if ( objects_exist_in( pos.x() + md->minrxyz.x(), pos.y() + md->minrxyz.y(),
-                           pos.x() + md->maxrxyz.x(), pos.y() + md->maxrxyz.y(), pos.realm() ) )
+    if ( objects_exist_in( minpos, maxpos ) )
     {
       return new Bscript::BError( "Something is blocking that location" );
     }
   }
   if ( ~flags & CRMULTI_IGNORE_FLATNESS )
   {
-    if ( statics_cause_problems( pos.x() + md->minrxyz.x() - 1, pos.y() + md->minrxyz.y() - 1,
-                                 pos.x() + md->maxrxyz.x() + 1, pos.y() + md->maxrxyz.y() + 1,
-                                 pos.z(), flags, pos.realm() ) )
+    if ( statics_cause_problems( minpos - Core::Vec2d( 1, 1 ), maxpos + Core::Vec2d( 1, 1 ) ) )
     {
       return new Bscript::BError( "That location is not suitable" );
     }
@@ -836,32 +787,29 @@ void move_to_ground( Items::Item* item )
   item->movable( true );
   item->set_decay_after( 60 );  // just a dummy in case decay=0
   item->restart_decay_timer();
-  for ( unsigned short xd = 0; xd < 5; ++xd )
+  const auto origpos = item->pos();
+  auto interfere_pos = Core::Pos4d( 0, 0, origpos.z(), origpos.realm() );
+  for ( const auto& delta : Core::Range2d( Core::Pos2d( 0, 0 ), Core::Pos2d( 4, 4 ), nullptr ) )
   {
-    for ( unsigned short yd = 0; yd < 5; ++yd )
+    Items::Item* walkon;
+    UMulti* multi;
+    short newz;
+    item->setposition( interfere_pos );
+    auto newpos = origpos.xy() + delta.from_origin();
+    // move 'self' a bit so it doesn't interfere with itself
+    bool res = origpos.realm()->walkheight( newpos, origpos.z(), &newz, &multi, &walkon, true,
+                                            Plib::MOVEMODE_LAND );
+    item->setposition( origpos );
+    if ( res )
     {
-      Items::Item* walkon;
-      UMulti* multi;
-      short newz;
-      unsigned short sx = item->x();
-      unsigned short sy = item->y();
-      item->setposition( Core::Pos4d( item->pos() ).x( 0 ).y( 0 ) );
-      // move 'self' a bit so it doesn't interfere with itself
-      bool res = item->realm()->walkheight( sx + xd, sy + yd, item->z(), &newz, &multi, &walkon,
-                                            true, Plib::MOVEMODE_LAND );
-      item->setposition( Core::Pos4d( item->pos() ).x( sx ).y( sy ) );
-      if ( res )
-      {
-        move_item( item, item->x() + xd, item->y() + yd, static_cast<signed char>( newz ),
-                   nullptr );
-        return;
-      }
+      move_item( item, newpos.x(), newpos.y(), static_cast<signed char>( newz ), nullptr );
+      return;
     }
   }
   short newz;
-  if ( item->realm()->groundheight( item->x(), item->y(), &newz ) )
+  if ( origpos.realm()->groundheight( origpos.xy(), &newz ) )
   {
-    move_item( item, item->x(), item->y(), static_cast<signed char>( newz ), nullptr );
+    move_item( item, origpos.x(), origpos.y(), static_cast<signed char>( newz ), nullptr );
     return;
   }
 }
