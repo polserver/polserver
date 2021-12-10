@@ -251,6 +251,8 @@ class PolServer:
     elif ev.type==Event.EVT_BOAT_MOVED:
       res['serial']=ev.boat.serial
       res["pos"]=[ev.boat.x, ev.boat.y, ev.boat.z]
+    elif ev.type==Event.EVT_OWNCREATE:
+      pass
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

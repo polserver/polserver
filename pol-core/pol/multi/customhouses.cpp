@@ -700,9 +700,8 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
     msg.Send( chr->client );
   }
   const MultiDef& def = house->multidef();
-  Core::Pos3d newpos = house->pos3d() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
-  move_character_to( chr, newpos.x(), newpos.y(), newpos.z(), Core::MOVEITEM_FORCELOCATION,
-                     nullptr );
+  Core::Pos4d newpos = house->pos() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
+  move_character_to( chr, newpos, Core::MOVEITEM_FORCELOCATION );
   if ( chr->client )
   {
     chr->client->gd->custom_house_serial = 0;
@@ -905,9 +904,9 @@ void CustomHousesSelectFloor( Core::PKTBI_D7* msg )
 
   if ( chr )
   {
-    move_character_to( chr, chr->x(), chr->y(),
-                       house->z() + CustomHouseDesign::custom_house_z_xlate_table[floor],
-                       Core::MOVEITEM_FORCELOCATION, nullptr );
+    Core::Pos4d newpos = chr->pos();
+    newpos.z( house->z() + CustomHouseDesign::custom_house_z_xlate_table[floor] );
+    move_character_to( chr, newpos, Core::MOVEITEM_FORCELOCATION );
     if ( chr->client )
       CustomHousesSendFull( house, chr->client, HOUSE_DESIGN_WORKING );
   }

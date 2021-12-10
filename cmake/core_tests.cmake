@@ -15,15 +15,28 @@ endif()
 set_tests_properties(cleantestdir PROPERTIES FIXTURES_SETUP client)
 
 # generate client files, minimal distro and needed core cfgs
+add_test(NAME testenv_map1
+  COMMAND poltool testfiles
+    outdir=coretest/client
+    width=1600
+    height=1600
+    mapid=1
+    hsa=0
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+)
+set_tests_properties(testenv_map1 PROPERTIES DEPENDS cleantestdir)
+set_tests_properties(testenv_map1 PROPERTIES FIXTURES_SETUP client)
+
 add_test(NAME testenv
   COMMAND poltool testenv
     outdir=coretest
     width=192
     height=192
+    mapid=0
     hsa=0
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
-set_tests_properties(testenv PROPERTIES DEPENDS cleantestdir)
+set_tests_properties(testenv PROPERTIES DEPENDS testenv_map1)
 set_tests_properties(testenv PROPERTIES FIXTURES_SETUP client)
 
 add_test(NAME shard_cfgfiles
@@ -68,7 +81,7 @@ set_tests_properties(shard_testpkgs PROPERTIES FIXTURES_SETUP shard)
 # uoconvert part
 
 add_test(NAME uoconvert_map
-  COMMAND uoconvert map britannia 
+  COMMAND uoconvert map realm=britannia 
     width=192 height=192 
     uodata=client
     maxtileid=0x3fff
@@ -78,7 +91,7 @@ set_tests_properties( uoconvert_map PROPERTIES FIXTURES_REQUIRED client)
 set_tests_properties( uoconvert_map PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_statics
-  COMMAND uoconvert statics britannia 
+  COMMAND uoconvert statics realm=britannia 
     uodata=client
     maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
@@ -88,7 +101,7 @@ set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_REQUIRED client)
 set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_maptile
-  COMMAND uoconvert maptile britannia 
+  COMMAND uoconvert maptile realm=britannia 
     uodata=client
     maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
@@ -96,6 +109,41 @@ add_test(NAME uoconvert_maptile
 set_tests_properties( uoconvert_maptile PROPERTIES FIXTURES_REQUIRED client)
 set_tests_properties( uoconvert_maptile PROPERTIES DEPENDS uoconvert_map)
 set_tests_properties( uoconvert_maptile PROPERTIES FIXTURES_SETUP uoconvert)
+
+add_test(NAME uoconvert_map2
+  COMMAND uoconvert map realm=britannia2
+    width=1600
+    height=1600
+    mapid=1
+    uodata=client
+    maxtileid=0x3fff
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties( uoconvert_map2 PROPERTIES DEPENDS uoconvert_maptile)
+set_tests_properties( uoconvert_map2 PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_map2 PROPERTIES FIXTURES_SETUP uoconvert)
+
+add_test(NAME uoconvert_statics2
+  COMMAND uoconvert statics realm=britannia2
+    uodata=client
+    mapid=1
+    maxtileid=0x3fff
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties( uoconvert_statics2 PROPERTIES DEPENDS uoconvert_map2)
+set_tests_properties( uoconvert_statics2 PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_statics2 PROPERTIES FIXTURES_SETUP uoconvert)
+
+add_test(NAME uoconvert_maptile2
+  COMMAND uoconvert maptile realm=britannia2
+    uodata=client
+    mapid=1
+    maxtileid=0x3fff
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
+)
+set_tests_properties( uoconvert_maptile2 PROPERTIES FIXTURES_REQUIRED client)
+set_tests_properties( uoconvert_maptile2 PROPERTIES DEPENDS uoconvert_map2)
+set_tests_properties( uoconvert_maptile2 PROPERTIES FIXTURES_SETUP uoconvert)
 
 add_test(NAME uoconvert_tiles
   COMMAND uoconvert tiles

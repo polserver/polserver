@@ -939,6 +939,30 @@ class DrawObjectPacket(Packet):
 #      self.duchar() # unused/closing
 
 
+class SeedPacket(Packet):
+  ''' login seed to server '''
+
+  cmd = 0xEF
+  length = 21
+
+  def fill(self, ip,version):
+    '''!
+    @param version string: The version
+    '''
+
+    self.ip = ip
+    self.version = [int(_) for _ in version.split('.')]
+
+  def encodeChild(self):
+    self.euchar(self.ip[0])
+    self.euchar(self.ip[1])
+    self.euchar(self.ip[2])
+    self.euchar(self.ip[3])
+    self.euint(self.version[0])
+    self.euint(self.version[1])
+    self.euint(self.version[2])
+    self.euint(self.version[3])
+
 class LoginRequestPacket(Packet):
   ''' Login request to server '''
 
@@ -1182,10 +1206,10 @@ class EnableFeaturesPacket(Packet):
   ''' Used to enable client features '''
 
   cmd = 0xb9
-  length = 3
+  length = 5
 
   def decodeChild(self):
-    self.features = self.dushort()
+    self.features =self.duint()
 
 
 class SeasonInfoPacket(Packet):

@@ -47,8 +47,7 @@ void CoreSetSysTrayToolTip( const std::string& text, Priority priority )
 #endif
 }
 
-bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short y, short z,
-                        int flags, Realms::Realm* oldrealm )
+bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
 {
   // FIXME consider consolidating with similar code in CHARACTER.CPP
   short newz;
@@ -58,27 +57,31 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
 
   if ( flags & MOVEITEM_FORCELOCATION )
   {
-    if ( x >= chr->realm()->width() || y >= chr->realm()->height() )
-    {
-      return false;
-    }
-
-    chr->realm()->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true, chr->movemode,
-                              &new_boost );
-    newz = z;
+    newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &supporting_multi, &walkon_item,
+                                true, chr->movemode, &new_boost );
   }
   else
   {
-    if ( !chr->realm()->walkheight( chr, x, y, z, &newz, &supporting_multi, &walkon_item,
-                                    &new_boost ) )
+    if ( !newpos.realm()->walkheight( chr, newpos.xy(), newpos.z(), &newz, &supporting_multi,
+                                      &walkon_item, &new_boost ) )
     {
       return false;
     }
+    newpos.z( Pos3d::clip_s8( newz ) );
   }
   chr->set_dirty();
+  Pos4d oldpos = chr->pos();
 
-  if ( ( oldrealm != nullptr ) && ( oldrealm != chr->realm() ) )
+  if ( ( chr->realm() != nullptr ) && ( chr->realm() != newpos.realm() ) )
   {
+    // Notify NPCs in the old realm that the player left the realm.
+    oldpos.realm()->notify_left( *chr );
+
+    send_remove_character_to_nearby( chr );
+    if ( chr->client != nullptr )
+      remove_objects_inrange( chr->client );
+    chr->setposition( newpos );
+    chr->realm_changed();
     chr->lastx = 0;
     chr->lasty = 0;
     chr->lastz = 0;
@@ -88,10 +91,9 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     chr->lastx = chr->x();
     chr->lasty = chr->y();
     chr->lastz = chr->z();
+    chr->setposition( newpos );
   }
-
-  MoveCharacterWorldPosition( chr->x(), chr->y(), x, y, chr, oldrealm );
-  chr->setposition( Pos4d( x, y, static_cast<s8>( newz ), chr->realm() ) );
+  MoveCharacterWorldPosition( oldpos, chr );
 
   chr->gradual_boost = new_boost;
   chr->position_changed();
@@ -121,17 +123,14 @@ bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short
     }
   }
 
-  // teleport( chr );
   if ( chr->has_active_client() )
   {
     passert_assume( chr->client !=
                     nullptr );  // tells compiler to assume this is true during static code analysis
 
-    if ( oldrealm != chr->realm() )
-    {
+    if ( oldpos.realm() != chr->realm() )
       send_new_subserver( chr->client );
-      send_owncreate( chr->client, chr );
-    }
+    send_owncreate( chr->client, chr );
     send_goxyz( chr->client, chr );
 
     // send_goxyz seems to stop the weather.  This will force a refresh, if the client cooperates.

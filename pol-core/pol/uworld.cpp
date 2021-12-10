@@ -170,20 +170,14 @@ void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
     clear_pos( zone.npcs );
 }
 
-void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                                 unsigned short newy, Mobile::Character* chr,
-                                 Realms::Realm* oldrealm )
+void MoveCharacterWorldPosition( const Core::Pos4d& oldpos, Mobile::Character* chr )
 {
-  if ( oldrealm == nullptr )
-    oldrealm = chr->realm();
-
   // If the char is logged in (logged_in is always true for NPCs), update its position
   // in the world zones
   if ( chr->logged_in() )
   {
-    Zone& oldzone = oldrealm->getzone( Core::Pos2d( oldx, oldy ) );
-    Zone& newzone = chr->realm()->getzone( Core::Pos2d( newx, newy ) );
-
+    Zone& oldzone = oldpos.realm()->getzone( oldpos.xy() );
+    Zone& newzone = chr->realm()->getzone( chr->pos2d() );
     if ( &oldzone != &newzone )
     {
       auto move_pos = [&]( ZoneCharacters& oldset, ZoneCharacters& newset )
@@ -207,20 +201,16 @@ void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsig
   }
 
   // Regardless of online or not, tell the realms that we've left
-  if ( chr->realm() != oldrealm )
+  if ( chr->realm() != oldpos.realm() )
   {
-    oldrealm->remove_mobile( *chr, Realms::WorldChangeReason::Moved );
+    oldpos.realm()->remove_mobile( *chr, Realms::WorldChangeReason::Moved );
     chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::Moved );
   }
 }
 
-void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Item* item,
-                            Realms::Realm* oldrealm )
+void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
 {
-  if ( oldrealm == nullptr )
-    oldrealm = item->realm();
-
-  Zone& oldzone = oldrealm->getzone( Core::Pos2d( oldx, oldy ) );
+  Zone& oldzone = oldpos.realm()->getzone( oldpos.xy() );
   Zone& newzone = item->realm()->getzone( item->pos().xy() );
 
   if ( &oldzone != &newzone )
@@ -232,8 +222,8 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
       POLLOG_ERROR.Format(
           "MoveItemWorldPosition: item 0x{:X} at old-x/y({},{} - {}) new-x/y({},{} - {}) does not "
           "exist in world zone. \n" )
-          << item->serial << oldx << oldy << oldrealm->name() << item->x() << item->y()
-          << item->realm()->name();
+          << item->serial << oldpos.x() << oldpos.y() << oldpos.realm()->name() << item->x()
+          << item->y() << item->realm()->name();
 
       passert( itr != oldzone.items.end() );
     }
@@ -244,9 +234,9 @@ void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Ite
     newzone.items.push_back( item );
   }
 
-  if ( oldrealm != item->realm() )
+  if ( oldpos.realm() != item->realm() )
   {
-    oldrealm->remove_toplevel_item( *item );
+    oldpos.realm()->remove_toplevel_item( *item );
     item->realm()->add_toplevel_item( *item );
   }
 }

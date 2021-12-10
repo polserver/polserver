@@ -190,6 +190,7 @@ class Event:
   EVT_REMOVED_OBJ = 9
   EVT_NEW_SUBSERVER = 10
   EVT_BOAT_MOVED = 11
+  EVT_OWNCREATE = 12
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -242,4 +243,6 @@ class Event:
       return "disable_item_logging"
     elif self.type==Event.EVT_BOAT_MOVED:
       return "boat_moved"
+    elif self.type==Event.EVT_OWNCREATE:
+      return "owncreate"
 

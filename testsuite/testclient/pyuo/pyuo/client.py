@@ -586,7 +586,12 @@ class Client(threading.Thread):
     self.net = net.Network(self.server['ip'], self.server['port'])
 
     # Send IP as key (will not use encryption)
-    self.queue(ipaddress.ip_address(self.server['ip']).packed)
+    if int(self.VERSION[0])<=4:
+      self.queue(ipaddress.ip_address(self.server['ip']).packed)
+    else:
+      po = packets.SeedPacket()
+      po.fill(ipaddress.ip_address(self.server['ip']).packed, self.VERSION)
+      self.queue(po)
 
     # Send account login request
     self.log.info('logging in')
@@ -926,6 +931,8 @@ class Client(threading.Thread):
     if pkt.serial in self.objects.keys():
       self.objects[pkt.serial].update(pkt)
       self.log.info("Refreshed mobile: %s", self.objects[pkt.serial])
+      if pkt.serial == self.player.serial:
+        self.brain.event(brain.Event(brain.Event.EVT_OWNCREATE))
     else:
       mob = Mobile(self, pkt)
       self.objects[mob.serial] = mob

@@ -769,6 +769,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
 
       if ( chr->logged_in() )
       {
+        Core::Pos4d oldpos = chr->pos();
         chr->lastx = chr->x();
         chr->lasty = chr->y();
 
@@ -785,7 +786,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
           chr->setposition( chr->pos().move( move_dir ) );
         }
 
-        MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x(), chr->y(), chr, oldrealm );
+        MoveCharacterWorldPosition( oldpos, chr );
         chr->position_changed();
         if ( chr->client != nullptr )
         {
@@ -840,8 +841,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
     else
     {
       Items::Item* item = static_cast<Items::Item*>( obj );
-
-      u16 oldx, oldy;
+      Core::Pos4d oldpos = item->pos();
 
       if ( newx != USHRT_MAX &&
            newy != USHRT_MAX )  // dave added 4/9/3, if move_xy was used, dont use facing
@@ -853,27 +853,21 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
 
         item->set_dirty();
 
-        oldx = item->x();
-        oldy = item->y();
-
         item->setposition( Core::Pos4d( item->pos() ).x( newx + dx ).y( newy + dy ) );
 
         if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
           item->restart_decay_timer();
-        MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+        MoveItemWorldPosition( oldpos, item );
       }
       else
       {
         item->set_dirty();
 
-        oldx = item->x();
-        oldy = item->y();
-
         item->setposition( item->pos().move( move_dir ) );
 
         if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
           item->restart_decay_timer();
-        MoveItemWorldPosition( oldx, oldy, item, nullptr );
+        MoveItemWorldPosition( oldpos, item );
       }
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
@@ -887,7 +881,7 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL,
+          oldpos, RANGE_VISUAL,
           [&]( Mobile::Character* zonechr )
           {
             Network::Client* client = zonechr->client;
@@ -954,12 +948,11 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
       {
         // send_remove_character_to_nearby( chr );
 
-
+        Core::Pos4d oldpos = chr->pos();
         turn_traveller_coords( chr, dir );
 
 
-        Core::MoveCharacterWorldPosition( chr->lastx, chr->lasty, chr->x(), chr->y(), chr,
-                                          nullptr );
+        Core::MoveCharacterWorldPosition( oldpos, chr );
         chr->position_changed();
         if ( chr->client != nullptr )
         {
@@ -1020,13 +1013,12 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
       }
       item->set_dirty();
 
-      u16 oldx = item->x();
-      u16 oldy = item->y();
+      Core::Pos4d oldpos = item->pos();
       item->setposition( Core::Pos4d( item->pos() ).x( newx ).y( newy ) );
 
       if ( Core::settingsManager.ssopt.refresh_decay_after_boat_moves )
         item->restart_decay_timer();
-      MoveItemWorldPosition( oldx, oldy, item, nullptr );
+      MoveItemWorldPosition( oldpos, item );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
           item->x(), item->y(), realm(), RANGE_VISUAL,
@@ -1039,7 +1031,7 @@ void UBoat::turn_travellers( RELATIVE_DIR dir, const BoatContext& oldlocation )
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, realm(), RANGE_VISUAL,
+          oldpos, RANGE_VISUAL,
           [&]( Mobile::Character* zonechr )
           {
             Network::Client* client = zonechr->client;
@@ -1367,7 +1359,7 @@ const BoatShape& UBoat::boatshape() const
 }
 
 
-void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm* oldrealm )
+void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm* /*oldrealm*/ )
 {
   const BoatShape& bshape = boatshape();
   auto end = Components.end();
@@ -1409,13 +1401,12 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
       else
         item->graphic = itr2->graphic;
 
-      u16 oldx = item->x();
-      u16 oldy = item->y();
+      Core::Pos4d oldpos = item->pos();
 
       item->setposition(
           pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, static_cast<s8>( itr2->zdelta ) ) );
 
-      MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+      MoveItemWorldPosition( oldpos, item );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
           item->x(), item->y(), realm(), RANGE_VISUAL,
@@ -1428,7 +1419,7 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL,
+          oldpos, RANGE_VISUAL,
           [&]( Mobile::Character* zonechr )
           {
             Network::Client* client = zonechr->client;
@@ -1441,7 +1432,7 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
   }
 }
 
-void UBoat::move_components( Realms::Realm* oldrealm )
+void UBoat::move_components( Realms::Realm* /*oldrealm*/ )
 {
   const BoatShape& bshape = boatshape();
   auto itr = Components.begin();
@@ -1472,14 +1463,12 @@ void UBoat::move_components( Realms::Realm* oldrealm )
       }
 
       item->set_dirty();
-
-      u16 oldx = item->x();
-      u16 oldy = item->y();
+      Core::Pos4d oldpos = item->pos();
 
       item->setposition(
           pos() + Core::Vec3d( itr2->xdelta, itr2->ydelta, static_cast<s8>( itr2->zdelta ) ) );
 
-      MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+      MoveItemWorldPosition( oldpos, item );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
           item->x(), item->y(), realm(), RANGE_VISUAL,
@@ -1492,7 +1481,7 @@ void UBoat::move_components( Realms::Realm* oldrealm )
           } );
 
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          oldx, oldy, oldrealm, RANGE_VISUAL,
+          oldpos, RANGE_VISUAL,
           [&]( Mobile::Character* zonechr )
           {
             Network::Client* client = zonechr->client;

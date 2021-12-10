@@ -3781,12 +3781,13 @@ bool Character::CustomHousingMove( unsigned char i_dir )
         const Multi::MultiDef& def = house->multidef();
         auto relpos = newpos - house->pos().xy();
         // minx and y are wall elements and z is 7
-        // mobile will look like flying when allowing the min coords 
+        // mobile will look like flying when allowing the min coords
         if ( def.within_multi( relpos ) && relpos.x() != def.minrxyz.x() &&
              relpos.y() != def.minrxyz.y() )
         {
+          Core::Pos4d oldpos = pos();
           setposition( newpos );
-          MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );
+          MoveCharacterWorldPosition( oldpos, this );
 
           position_changed();
           set_dirty();
@@ -3877,6 +3878,7 @@ bool Character::move( unsigned char i_dir )
     if ( !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
 
+    Core::Pos4d oldpos = pos();
     setposition( new_pos );
 
     if ( on_mount() && !script_isa( Core::POLCLASS_NPC ) )
@@ -3910,7 +3912,7 @@ bool Character::move( unsigned char i_dir )
     }
 
     gradual_boost = current_boost;
-    MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );
+    MoveCharacterWorldPosition( oldpos, this );
 
     position_changed();
     if ( walkon_item != nullptr )

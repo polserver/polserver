@@ -340,16 +340,13 @@ protected:
   bool getStaticOrDynamicMenuParam( unsigned param, Core::Menu*& menu );
 
 protected:
-  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y,
-                                          Core::zcoord z, int flags, Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x,
-                                               Core::ycoord y, Core::zcoord z, int flags,
-                                               Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y,
-                                          Core::zcoord z, int flags, Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x,
-                                               Core::ycoord y, Core::zcoord z, int flags,
-                                               Realms::Realm* newrealm );
+  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::Pos4d newpos, int flags );
+  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, const Core::Pos4d& newpos,
+                                               int flags );
+  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, const Core::Pos4d& newpos,
+                                          int flags );
+  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container,
+                                               const Core::Pos4d& newpos, int flags );
   static Core::Range3d internal_InBoxAreaChecks( const Core::Pos2d& p1, int z1,
                                                  const Core::Pos2d& p2, int z2,
                                                  Realms::Realm* realm );

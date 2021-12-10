@@ -178,7 +178,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
   {
     Item* item = ( *for_sale )[i];
     // const ItemDesc& id = find_itemdesc( item->objtype_ );
-    std::string desc = Clib::strUtf8ToCp1252(item->merchant_description());
+    std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
     size_t addlen = 5 + desc.size();
     if ( msg->offset + addlen > sizeof msg->buffer )
     {
@@ -655,7 +655,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       unsigned int buyprice;
       if ( !item->getbuyprice( buyprice ) )
         continue;
-      std::string desc = Clib::strUtf8ToCp1252(item->merchant_description());
+      std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
       if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
       {
         return false;
@@ -1575,7 +1575,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->Write<u32>( chr->serial_ext );
   msg->offset += 2;  // u8 type,index
 
-  std::string convertedString = Clib::strUtf8ToCp1252(line1->value());
+  std::string convertedString = Clib::strUtf8ToCp1252( line1->value() );
   size_t numbytes = convertedString.length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
@@ -1585,7 +1585,7 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->Write<u8>( static_cast<u8>( cancel ) );
   msg->Write<u8>( static_cast<u8>( style ) );
   msg->WriteFlipped<s32>( maximum );
-  convertedString = Clib::strUtf8ToCp1252(line2->value());
+  convertedString = Clib::strUtf8ToCp1252( line2->value() );
   numbytes = convertedString.length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
@@ -2289,7 +2289,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
         const BObjectImp* line_imp = arr->imp_at( linenum );
         std::string linetext;
         if ( line_imp )
-          linetext = line_imp->getStringRep(); //This is UTF-8
+          linetext = line_imp->getStringRep();  // This is UTF-8
         if ( msg->offset + linetext.size() + 1 > sizeof msg->buffer )
         {
           return new BError( "Buffer overflow" );
@@ -2385,7 +2385,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
       BObjectImpRefVec params;
       params.push_back( ref_ptr<BObjectImp>( new BLong( linenum ) ) );
       BObject line_ob = book->call_custom_method( "getline", params );
-      linetext = line_ob->getStringRep(); //this is UTF-8
+      linetext = line_ob->getStringRep();  // this is UTF-8
 
       if ( msgOut->offset + linetext.size() + 1 > sizeof msgOut->buffer )
       {
@@ -2522,7 +2522,8 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     msg->Write<u8>( 0xFFu );         // fixme
     msg.Send( chr->client );
   }
-  move_character_to( chr, house->x(), house->y(), house->z() + 7, MOVEITEM_FORCELOCATION, nullptr );
+  Core::Pos4d newpos = house->pos() + Core::Vec3d( 0, 0, 7 );
+  move_character_to( chr, newpos, MOVEITEM_FORCELOCATION );
 
   house->WorkingDesign.AddComponents( house );
   house->CurrentDesign.AddComponents( house );
@@ -2544,7 +2545,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     if ( multichr != chr )
     {
       Core::Pos4d pos = house->pos() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
-      move_character_to( multichr, pos.x(), pos.y(), pos.z(), MOVEITEM_FORCELOCATION, nullptr );
+      move_character_to( multichr, pos, MOVEITEM_FORCELOCATION );
     }
     moblist.pop_back();
   }

@@ -1,0 +1,33 @@
+use uo;
+use os;
+
+include "testutil";
+
+program testitem()
+  return 1;
+endprogram
+
+exported function test_item_realm_move()
+  // crashed by wrongly converting coordinates between realms
+  var item:=CreateItemAtLocation(0,0,0,0xf3f);
+  if (!item)
+    return ret_error("Failed to create item "+item);
+  endif
+
+  MoveObjectToLocation(item,1000,1000,0,"britannia2",MOVEOBJECT_FORCELOCATION);
+  if (item.x != 1000 || item.y != 1000 || item.realm != "britannia2")
+    var res:=$"Failed initial move: {item.x},{item.y},{item.realm}";
+    DestroyItem(item);
+    return ret_error(res);
+  endif
+
+  MoveObjectToLocation(item,10,10,0,"britannia",MOVEOBJECT_FORCELOCATION);
+  if (item.x != 10 || item.y != 10 || item.realm != "britannia")
+    var res:=$"Failed to move: {item.x},{item.y},{item.realm}";
+    DestroyItem(item);
+    return ret_error(res);
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
