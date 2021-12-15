@@ -15,10 +15,12 @@ namespace Pol
 {
 namespace PolTool
 {
-FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int width, int height )
+FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int mapid, int width,
+                              int height )
     : _basedir( std::move( basedir ) ),
       _hsa( hsa ),
       _maxtiles( maxtiles ),
+      _mapid( mapid ),
       _width( width ),
       _height( height )
 {
@@ -31,6 +33,7 @@ FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int widt
              << "  basedir: " << _basedir.string() << "\n"
              << "  HSA: " << _hsa << "\n"
              << "  maxtiles: 0x" << fmt::hex( _maxtiles ) << "\n"
+             << "  mapid: " << _mapid << "\n"
              << "  width: " << _width << "\n"
              << "  height: " << _height << "\n";
 
@@ -228,7 +231,7 @@ void FileGenerator::generateTiledata()
 
 void FileGenerator::generateMap()
 {
-  INFO_PRINT << "Generating map0.mul\n";
+  INFO_PRINT << "Generating map" << _mapid << ".mul\n";
   // initialize with grass tiles on z=0
   Plib::USTRUCT_MAPINFO grass{ 0x3, 0 };
   std::vector<std::vector<Plib::USTRUCT_MAPINFO>> map;
@@ -239,7 +242,8 @@ void FileGenerator::generateMap()
   modifyMap( map );
 
   int header = 0;
-  std::ofstream file( _basedir / "map0.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / ( "map" + std::to_string( _mapid ) + ".mul" ),
+                      std::ofstream::binary | std::ofstream::out );
   for ( int x = 0; x < _width / 8; ++x )
   {
     for ( int y = 0; y < _height / 8; ++y )
@@ -283,10 +287,12 @@ void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& 
 
 void FileGenerator::generateStatics()
 {
-  INFO_PRINT << "Generating statics0.mul\n";
+  INFO_PRINT << "Generating statics" << _mapid << ".mul\n";
   Plib::USTRUCT_IDX idxempty{ 0xFFffFFff, 0xFFffFFff, 0xFFffFFff };
-  std::ofstream file( _basedir / "statics0.mul", std::ofstream::binary | std::ofstream::out );
-  std::ofstream fileidx( _basedir / "staidx0.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / ( "statics" + std::to_string( _mapid ) + ".mul" ),
+                      std::ofstream::binary | std::ofstream::out );
+  std::ofstream fileidx( _basedir / ( "staidx" + std::to_string( _mapid ) + ".mul" ),
+                         std::ofstream::binary | std::ofstream::out );
 
   // init statics: [y][x][...]
   std::vector<std::vector<std::vector<Plib::USTRUCT_STATIC>>> statics;

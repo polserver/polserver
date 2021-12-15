@@ -42,40 +42,28 @@ using namespace Items;
 BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm, flags*/ )
 {
   UObject* obj;
-  unsigned short x, y;
-  short z;
+  Core::Pos4d pos;
   int flags;
-  const String* realm_name;
 
   // Initialize variables
-  if ( !( getUObjectParam( 0, obj ) && getParam( 1, x ) && getParam( 2, y ) &&
-          getParam( 3, z, ZCOORD_MIN, ZCOORD_MAX ) && getStringParam( 4, realm_name ) &&
-          getParam( 5, flags ) ) )
-  {
+  if ( !( getUObjectParam( 0, obj ) && getPos4dParam( 1, 2, 3, 4, &pos ) && getParam( 5, flags ) ) )
     return new BError( "Invalid parameter" );
-  }
-  Realms::Realm* realm = find_realm( realm_name->value() );
-  if ( !realm )
-    return new BError( "Realm not found." );
-  else if ( !realm->valid( x, y, z ) )
-    return new BError( "Invalid coordinates for realm." );
 
   if ( obj->script_isa( POLCLASS_MOBILE ) )
-    return internal_MoveCharacter( static_cast<Character*>( obj ), x, y, z, flags, realm );
+    return internal_MoveCharacter( static_cast<Character*>( obj ), pos, flags );
   else if ( obj->script_isa( POLCLASS_BOAT ) )
-    return internal_MoveBoat( static_cast<Multi::UBoat*>( obj ), x, y, z, flags, realm );
+    return internal_MoveBoat( static_cast<Multi::UBoat*>( obj ), pos, flags );
   else if ( obj->script_isa( POLCLASS_MULTI ) )
     return new BError( "Can't move multis at this time." );
   else if ( obj->script_isa( POLCLASS_CONTAINER ) )
-    return internal_MoveContainer( static_cast<UContainer*>( obj ), x, y, z, flags, realm );
+    return internal_MoveContainer( static_cast<UContainer*>( obj ), pos, flags );
   else if ( obj->script_isa( POLCLASS_ITEM ) )
-    return internal_MoveItem( static_cast<Item*>( obj ), x, y, z, flags, realm );
-  else
-    return new BError( "Can't handle that object type." );
+    return internal_MoveItem( static_cast<Item*>( obj ), pos, flags );
+  return new BError( "Can't handle that object type." );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, ycoord y, zcoord z,
-                                                      int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, const Core::Pos4d& newpos,
+                                                      int flags )
 {
   short newz;
   Multi::UMulti* supporting_multi = nullptr;
@@ -83,44 +71,22 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, xcoord x, 
 
   if ( !( flags & MOVEITEM_FORCELOCATION ) )
   {
-    if ( newrealm != nullptr )
-    {
-      if ( !newrealm->walkheight( x, y, z, &newz, &supporting_multi, &walkon_item, true,
-                                  chr->movemode ) )
-        return new BError( "Can't go there" );
-    }
+    if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &supporting_multi,
+                                      &walkon_item, true, chr->movemode ) )
+      return new BError( "Can't go there" );
   }
-  Realms::Realm* oldrealm = chr->realm();
-
-  bool ok;
-  if ( newrealm == nullptr || oldrealm == newrealm )
-  {  // Realm is staying the same, just changing X Y Z coordinates.
-    ok = move_character_to( chr, x, y, z, flags, nullptr );
-  }
-  else
-  {  // Realm and X Y Z change.
-
-    // Notify NPCs in the old realm that the player left the realm.
-    oldrealm->notify_left( *chr );
-
-    send_remove_character_to_nearby( chr );
-    if ( chr->client != nullptr )
-      remove_objects_inrange( chr->client );
-    // TODO POS
-    chr->setposition( Core::Pos4d( chr->pos().xyz(), newrealm ) );
-    chr->realm_changed();
-    ok = move_character_to( chr, x, y, z, flags, oldrealm );
-  }
-
-  if ( ok )
+  if ( move_character_to( chr, newpos, flags ) )
     return new BLong( 1 );
-  else
-    return new BError( "Can't go there" );
+  return new BError( "Can't go there" );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, ycoord y, zcoord z,
-                                                 int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, const Core::Pos4d& newpos,
+                                                 int flags )
 {
+  xcoord x = newpos.x();
+  zcoord y = newpos.y();
+  zcoord z = newpos.z();
+  Realms::Realm* newrealm = newpos.realm();
   Realms::Realm* oldrealm = boat->realm();
   {  // local scope for reg/unreg guard
     Multi::UBoat::BoatMoveGuard registerguard( boat );
@@ -143,15 +109,17 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, xcoord x, y
   return new BLong( ok );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xcoord x, ycoord y,
-                                                      zcoord z, int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container,
+                                                      const Core::Pos4d& newpos, int flags )
 {
+  Realms::Realm* newrealm = newpos.realm();
   Realms::Realm* oldrealm = container->realm();
 
-  BObjectImp* ok = internal_MoveItem( static_cast<Item*>( container ), x, y, z, flags, newrealm );
+  BObjectImp* ok = internal_MoveItem( static_cast<Item*>( container ), newpos, flags );
   // Check if container was successfully moved to a new realm and update contents.
   if ( !ok->isa( BObjectImp::OTError ) )
   {
+    // TODO POS should be removed
     if ( newrealm != nullptr && oldrealm != newrealm )
       container->for_each_item( setrealm, (void*)newrealm );
   }
@@ -159,8 +127,7 @@ BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container, xco
   return ok;
 }
 
-BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y, zcoord z,
-                                                 int flags, Realms::Realm* newrealm )
+BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos, int flags )
 {
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
   if ( !( flags & MOVEITEM_IGNOREMOVABLE ) && !item->movable() )
@@ -174,35 +141,23 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     return new BError( "That item is being used." );
   }
 
-  // TODO POS
-  Core::Pos4d oldpos = item->pos();
-  item->setposition( Core::Pos4d( item->pos().xyz(), newrealm ) );
-  if ( !item->realm()->valid( x, y, z ) )
-  {  // Should probably have checked this already.
-    item->setposition( oldpos );
-    std::string message = "Location (" + Clib::tostring( x ) + "," + Clib::tostring( y ) + "," +
-                          Clib::tostring( z ) + ") is out of bounds";
-    return new BError( message );
-  }
-
   Multi::UMulti* multi = nullptr;
   if ( flags & MOVEITEM_FORCELOCATION )
   {
     short newz;
     Item* walkon;
-    item->realm()->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND );
+    newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
+                                Plib::MOVEMODE_LAND );
     // note that newz is ignored...
   }
   else
   {
     short newz;
     Item* walkon;
-    if ( !item->realm()->walkheight( x, y, z, &newz, &multi, &walkon, true, Plib::MOVEMODE_LAND ) )
-    {
-      item->setposition( oldpos );
+    if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
+                                      Plib::MOVEMODE_LAND ) )
       return new BError( "Invalid location selected" );
-    }
-    z = newz;
+    newpos.z( Core::Pos3d::clip_s8( newz ) );
   }
 
   if ( item->container != nullptr )
@@ -218,7 +173,6 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     // dave changed 1/26/3 order of scripts to call. added unequip/test script call
     if ( !oldcont->check_can_remove_script( chr_owner, item, UContainer::MT_CORE_MOVED ) )
     {
-      item->setposition( oldpos );
       return new BError( "Could not remove item from its container." );
     }
     else if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -228,7 +182,6 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
 
     if ( !item->check_unequiptest_scripts() || !item->check_unequip_script() )
     {
-      item->setposition( oldpos );
       return new BError( "Item cannot be unequipped" );
     }
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -243,16 +196,15 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, xcoord x, ycoord y,
     item->set_dirty();
 
     item->extricate();
-
-    // wherever it was, it wasn't in the world/on the ground
-    item->setposition( Core::Pos4d( oldroot->x(), oldroot->y(), oldpos.z(), oldpos.realm() ) );
+    // TODO POS if realm is nullptr from root the next lines will fail
+    //  wherever it was, it wasn't in the world/on the ground
+    item->setposition( oldroot->pos() );
     // move_item calls MoveItemWorldLocation, so this gets it
     // in the right place to start with.
     add_item_to_world( item );
-    item->setposition( Core::Pos4d( item->pos().xyz(), newrealm ) );
   }
 
-  move_item( item, x, y, static_cast<signed char>( z ), oldpos.realm() );
+  move_item( item, newpos );
 
   if ( multi != nullptr )
   {

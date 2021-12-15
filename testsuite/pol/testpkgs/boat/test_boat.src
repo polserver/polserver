@@ -52,3 +52,28 @@ exported function move()
   DestroyMulti(res);
   return 1;
 endfunction
+
+/*exported function test_boat_realm_move()
+  // crashed by wrongly converting coordinates between realms
+  var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!boat)
+    return ret_error("Failed to create boat "+boat);
+  endif
+
+  var res:=MoveObjectToLocation(boat,1580,150,0,"britannia2",MOVEOBJECT_FORCELOCATION);
+  if (!res || boat.x != 1580 || boat.y != 150 || boat.realm != "britannia2")
+    var err:=$"Failed initial move: {res}:{boat.x},{boat.y},{boat.realm}";
+    DestroyMulti(boat);
+    return ret_error(err);
+  endif
+
+  res:=MoveObjectToLocation(boat,10,10,0,"britannia",MOVEOBJECT_FORCELOCATION);
+  if (!res || boat.x != 10 || boat.y != 10 || boat.realm != "britannia")
+    var err:=$"Failed to move: {res}:{boat.x},{boat.y},{boat.realm}";
+    DestroyMulti(boat);
+    return ret_error(err);
+  endif
+
+  DestroyMulti(boat);
+  return 1;
+endfunction*/

@@ -1161,7 +1161,7 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
                       unsigned short color )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  std::string convertedText = Clib::strUtf8ToCp1252(text);
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
   u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
@@ -1236,7 +1236,7 @@ void broadcast_unicode( const std::string& text, const std::string& lang, unsign
 void send_nametext( Client* client, const Character* chr, const std::string& str )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  std::string convertedString = Clib::strUtf8ToCp1252(str);
+  std::string convertedString = Clib::strUtf8ToCp1252( str );
   u16 textlen = static_cast<u16>( convertedString.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )
     textlen = SPEECH_MAX_LEN + 1;
@@ -1259,7 +1259,7 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
                 unsigned int journal_print )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  std::string convertedText = Clib::strUtf8ToCp1252(text);
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
   u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
@@ -1277,7 +1277,7 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
   msg->Write( convertedText.c_str(), textlen );
@@ -1310,7 +1310,7 @@ bool say_above_unicode( const UObject* obj, const std::string& text, const std::
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
   msg->WriteFlipped( utf16text );
@@ -1328,7 +1328,7 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
   if ( chr->client == nullptr )
     return false;
   PktHelper::PacketOut<PktOut_1C> msg;
-  std::string convertedText = Clib::strUtf8ToCp1252(text);
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
   u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
@@ -1346,7 +1346,7 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
   msg->Write( convertedText.c_str(), textlen );
@@ -1382,7 +1382,7 @@ bool private_say_above_unicode( Character* chr, const UObject* obj, const std::s
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
   msg->WriteFlipped( utf16text );
@@ -1399,7 +1399,7 @@ bool private_say_above_ex( Character* chr, const UObject* obj, const char* text,
   if ( chr->client == nullptr )
     return false;
   PktHelper::PacketOut<PktOut_1C> msg;
-  std::string convertedText = Clib::strUtf8ToCp1252(text);
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
   u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
@@ -1410,7 +1410,7 @@ bool private_say_above_ex( Character* chr, const UObject* obj, const char* text,
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( 3u );
-  msg->Write( Clib::strUtf8ToCp1252(obj->description()).c_str(), 30 );
+  msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
   msg->Write( convertedText.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
@@ -1603,19 +1603,18 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
 
 void move_item( Item* item, Core::UFACING facing )
 {
-  u16 oldx = item->x();
-  u16 oldy = item->y();
+  Pos4d oldpos = item->pos();
 
   item->setposition( item->pos().move( facing ) );
 
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, nullptr );
+  MoveItemWorldPosition( oldpos, item );
 
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
   Network::RemoveObjectPkt msgremove( item->serial_ext );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      oldx, oldy, item->realm(), RANGE_VISUAL,
+      oldpos, RANGE_VISUAL,
       [&]( Character* zonechr )
       {
         if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
@@ -1629,22 +1628,26 @@ void move_item( Item* item, Core::UFACING facing )
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
 void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* oldrealm )
+                Realms::Realm* /*oldrealm*/ )
+{
+  // TODO POS remove me
+  move_item( item, Core::Pos4d( newx, newy, newz, item->realm() ) );
+}
+void move_item( Items::Item* item, const Core::Pos4d& newpos )
 {
   item->set_dirty();
 
-  u16 oldx = item->x();
-  u16 oldy = item->y();
-  item->setposition( Pos4d( newx, newy, newz, item->realm() ) );
+  Core::Pos4d oldpos = item->pos();
+  item->setposition( newpos );
 
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+  MoveItemWorldPosition( oldpos, item );
 
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
   Network::RemoveObjectPkt msgremove( item->serial_ext );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      oldx, oldy, oldrealm, RANGE_VISUAL,
+      oldpos, RANGE_VISUAL,
       [&]( Character* zonechr )
       {
         if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
@@ -2163,7 +2166,7 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
   std::vector<u16> uwtext = Bscript::String::toUTF16( utext );
   std::vector<u16> ewtext = Bscript::String::toUTF16( etext );
 
-  std::string convertedText = Clib::strUtf8ToCp1252(title);
+  std::string convertedText = Clib::strUtf8ToCp1252( title );
   size_t titlelen = convertedText.length() + 1;
   // Check Lengths
   if ( titlelen > SPEECH_MAX_LEN )
@@ -2176,7 +2179,7 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
   // Build Packet
   msg->offset += 2;
   msg->Write<u32>( of_who->serial_ext );
-  msg->Write( convertedText.c_str(), static_cast<u16>(titlelen) );
+  msg->Write( convertedText.c_str(), static_cast<u16>( titlelen ) );
   msg->WriteFlipped( uwtext );
   msg->WriteFlipped( ewtext );
   u16 len = msg->offset;

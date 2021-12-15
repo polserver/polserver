@@ -31,7 +31,7 @@ endprogram
 exported function move_boat()
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
-  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  while (!waitForClient(0, {EVT_OWNCREATE}))
   endwhile
   var res:=boat.mobiles.size()==1;
   Clear_Event_Queue();
@@ -74,7 +74,7 @@ exported function move_boat()
     DestroyItem(item);
   endforeach
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  while (!waitForClient(0, {EVT_OWNCREATE}))
   endwhile
   Clear_Event_Queue();
   if (!res)
@@ -96,7 +96,7 @@ endfunction
 exported function move_boat_overflow()
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
-  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  while (!waitForClient(0, {EVT_OWNCREATE}))
   endwhile
   var res:=boat.mobiles.size()==1;
   Clear_Event_Queue();
@@ -112,7 +112,7 @@ exported function move_boat_overflow()
     DestroyItem(item);
   endforeach
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
-  while (!waitForClient(0, {EVT_NEW_SUBSERVER}))
+  while (!waitForClient(0, {EVT_OWNCREATE}))
   endwhile
   clientcon.sendevent(struct{todo:=EVT_DISABLE_ITEM_LOGGING, arg:=0, id:=0});
   while (!waitForClient(0, {EVT_DISABLE_ITEM_LOGGING}))

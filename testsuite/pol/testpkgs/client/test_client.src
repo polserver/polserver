@@ -92,3 +92,26 @@ exported function move_ground()
   endwhile
   return 1;
 endfunction
+
+exported function move_realm()
+  MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
+  while (1)
+    var ev:=waitForClient(0, {EVT_OWNCREATE});
+    if (!ev)
+      return ev;
+    endif
+    break;
+  endwhile
+  Clear_Event_Queue();
+  MoveObjectToLocation(char, 100,100,1,"britannia2",MOVEOBJECT_FORCELOCATION);
+  while (1)
+    var ev:=waitForClient(0, {EVT_NEW_SUBSERVER});
+    if (!ev)
+      return ev;
+    endif
+    break;
+  endwhile
+  MoveObjectToLocation(char, 100,100,1,flags:=MOVEOBJECT_FORCELOCATION);
+  Clear_Event_Queue();
+  return 1;
+endfunction

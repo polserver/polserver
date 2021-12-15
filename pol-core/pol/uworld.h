@@ -50,14 +50,11 @@ void move_multi_in_world( unsigned short oldx, unsigned short oldy, unsigned sho
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
-void MoveCharacterWorldPosition( unsigned short oldx, unsigned short oldy, unsigned short newx,
-                                 unsigned short newy, Mobile::Character* chr,
-                                 Realms::Realm* oldrealm );  // TODO Pos dont pass both new and old
+void MoveCharacterWorldPosition( const Core::Pos4d& oldpos, Mobile::Character* chr );
 
 void SetItemWorldPosition( Items::Item* item );
 void ClrItemWorldPosition( Items::Item* item );
-void MoveItemWorldPosition( unsigned short oldx, unsigned short oldy, Items::Item* item,
-                            Realms::Realm* oldrealm );  // TODO Pos
+void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item );
 
 int get_toplevel_item_count();
 int get_mobile_count();

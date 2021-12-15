@@ -16,8 +16,8 @@
 #include "../plib/maptileserver.h"
 #include "../plib/realmdescriptor.h"
 #include "baredistro.h"
-#include "testfiles.h"
 #include "testenv.h"
+#include "testfiles.h"
 #include <format/format.h>
 
 #include <zlib.h>
@@ -285,7 +285,8 @@ int PolToolMain::main()
     int maxtiles = programArgsFindEquals( "maxtiles=", 0x3fff, true );
     int width = programArgsFindEquals( "width=", 6144, false );
     int height = programArgsFindEquals( "height=", 4096, false );
-    PolTool::FileGenerator g( outdir, hsa, maxtiles, width, height );
+    int mapid = programArgsFindEquals( "mapid=", 0, false );
+    PolTool::FileGenerator g( outdir, hsa, maxtiles, mapid, width, height );
     g.generateTiledata();
     g.generateMap();
     g.generateStatics();
