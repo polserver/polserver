@@ -11,7 +11,6 @@
 #include "../clib/Program/ProgramConfig.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
-#include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 
 namespace Pol

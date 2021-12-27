@@ -5,12 +5,11 @@
 
 
 #include "fileutil.h"
+#include "Header_Windows.h"
 
 #include <filesystem>
 #include <limits.h>
 #include <sys/stat.h>
-
-#include "dirlist.h"
 
 #ifdef LINUX
 #include <unistd.h>
@@ -62,7 +61,7 @@ bool IsDirectory( const char* dir )
 
 void MakeDirectory( const char* dir )
 {
-#if defined(__unix__) || defined(__APPLE__)
+#if defined( __unix__ ) || defined( __APPLE__ )
   mkdir( dir, 0777 );
 #else
   mkdir( dir );
@@ -148,7 +147,7 @@ void RemoveFile( const std::string& fname )
 
 std::string FullPath( const char* filename )
 {
-#if defined(__unix__) || defined(__APPLE__)
+#if defined( __unix__ ) || defined( __APPLE__ )
   char tmp[PATH_MAX];
   if ( realpath( filename, tmp ) )
     return tmp;
@@ -175,5 +174,5 @@ std::string GetFilePart( const char* filename )
 {
   return std::filesystem::path( filename ).filename().string();
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

@@ -8,12 +8,13 @@
 
 #include "pol_global_config.h"
 #include <algorithm>
+#include <filesystem>
 #include <stdlib.h>
+#include <system_error>
 
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
-#include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
@@ -21,6 +22,7 @@
 #include "../clib/strutil.h"
 #include "systemstate.h"
 
+namespace fs = std::filesystem;
 namespace Pol
 {
 namespace Plib
@@ -176,9 +178,10 @@ Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem )
   else
   {
     // Forms like CoreRequired POL095-2003-01-28 are no longer allowed.
-    ERROR_PRINT << "Error in package " << name_ << "(" << dir_ << ")" << ":\n"
-                << "  Core version must be a semantic version (n.n.n), but got \""
-                << core_required_ << "\".\n";
+    ERROR_PRINT << "Error in package " << name_ << "(" << dir_ << ")"
+                << ":\n"
+                << "  Core version must be a semantic version (n.n.n), but got \"" << core_required_
+                << "\".\n";
     throw std::runtime_error( "Malformed CoreRequired package field" );
   }
 }
@@ -210,7 +213,7 @@ void Package::check_dependencies() const
 {
   if ( !core_required_.empty() )
   {
-    if ( !(version_greater_or_equal(POL_VERSION_STR, core_required_) ) )
+    if ( !( version_greater_or_equal( POL_VERSION_STR, core_required_ ) ) )
     {
       ERROR_PRINT << "Error in package " << desc() << ":\n"
                   << "  Core version " << core_required_ << " is required, but version "
@@ -257,9 +260,8 @@ void Package::check_conflicts() const
 size_t Package::estimateSize() const
 {
   size_t size = dir_.capacity() + name_.capacity() + version_.capacity() +
-                + core_required_.capacity() + requires_.sizeEstimate() +
-                conflicts_.sizeEstimate() + replaces_.sizeEstimate() +
-                sizeof( bool ) /*provides_system_home_page_*/
+                +core_required_.capacity() + requires_.sizeEstimate() + conflicts_.sizeEstimate() +
+                replaces_.sizeEstimate() + sizeof( bool ) /*provides_system_home_page_*/
       ;
   return size;
 }
@@ -309,39 +311,35 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
 
 void load_packages( const std::string& basedir, bool quiet )
 {
-  for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
+  std::error_code ec;
+  for ( const auto& dir_entry : fs::directory_iterator( basedir, ec ) )
   {
-    std::string dirname = dl.name();
-    if ( dirname[0] == '.' )
+    if ( !dir_entry.is_directory() )
       continue;
-    if ( dirname == "template" )
+    if ( dir_entry.path().stem() == "template" )
       continue;
-
-    std::string pkg_dir = basedir + dirname + "/";
-    std::string pkg_cfg = pkg_dir + "pkg.cfg";
-
-    if ( Clib::FileExists( pkg_cfg.c_str() ) )
+    const auto pkg_dir = dir_entry.path();
+    const auto pkg_cfg = pkg_dir / "pkg.cfg";
+    if ( fs::exists( pkg_cfg ) )
     {
-      Clib::ConfigFile cf( pkg_cfg.c_str() );
+      Clib::ConfigFile cf( pkg_cfg.u8string().c_str() );
       Clib::ConfigElem elem;
 
       cf.readraw( elem );
-      std::string enabled_pkg = pkg_dir + "enabled.pkg";
-      std::string disabled_pkg = pkg_dir + "disabled.pkg";
 
-      if ( ( elem.remove_bool( "Enabled" ) == true || Clib::FileExists( enabled_pkg.c_str() ) ) &&
-           !Clib::FileExists( disabled_pkg.c_str() ) )
+      if ( ( elem.remove_bool( "Enabled" ) == true || fs::exists( pkg_dir / "enabled.pkg" ) ) &&
+           !fs::exists( pkg_dir / "disabled.pkg" ) )
       {
         if ( !quiet )
-          INFO_PRINT << "Loading package in " << pkg_dir << "\n";
-        load_package( pkg_dir, elem, quiet );
+          INFO_PRINT << "Loading package in " << pkg_dir.u8string() << "\n";
+        load_package( pkg_dir.u8string() + "/", elem, quiet );
 
-        load_packages( pkg_dir, quiet );
+        load_packages( pkg_dir.u8string(), quiet );
       }
     }
     else
     {
-      load_packages( pkg_dir, quiet );
+      load_packages( pkg_dir.u8string(), quiet );
     }
   }
 }
@@ -405,9 +403,9 @@ void load_packages( bool quiet )
 
   check_package_deps();
   // sort pkg vector by name, so e.g. startup order is in a defined and maybe also expected order.
-  std::sort(
-      systemstate.packages.begin(), systemstate.packages.end(),
-      []( const Package* pkg1, const Package* pkg2 ) { return pkg1->name() < pkg2->name(); } );
+  std::sort( systemstate.packages.begin(), systemstate.packages.end(),
+             []( const Package* pkg1, const Package* pkg2 )
+             { return pkg1->name() < pkg2->name(); } );
 }
 
 bool pkgdef_split( const std::string& spec, const Package* inpkg, const Package** outpkg,

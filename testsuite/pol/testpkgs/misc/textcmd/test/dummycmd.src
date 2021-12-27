@@ -1,0 +1,4 @@
+
+program dummy(unused who, unused arg)
+  return 1;
+endprogram

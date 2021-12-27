@@ -30,8 +30,6 @@ set (clib_sources
   clibopt.h
   compilerspecifics.h
   dirfunc.h
-  dirlist.cpp
-  dirlist.h
   esignal.cpp
   esignal.h
   fdump.cpp 
