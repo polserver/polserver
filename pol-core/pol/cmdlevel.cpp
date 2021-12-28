@@ -153,6 +153,8 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
     {
       if ( !dir_entry.is_regular_file() )
         continue;
+      if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+        continue;
 
       const auto ext = dir_entry.path().extension();
       if ( !ext.compare( ".ecl" ) )

@@ -316,7 +316,8 @@ void load_packages( const std::string& basedir, bool quiet )
   {
     if ( !dir_entry.is_directory() )
       continue;
-    if ( dir_entry.path().stem() == "template" )
+    if ( auto fn = dir_entry.path().filename().u8string();
+         !fn.empty() && ( *fn.begin() == '.' || fn == "template" ) )
       continue;
     const auto pkg_dir = dir_entry.path();
     const auto pkg_cfg = pkg_dir / "pkg.cfg";

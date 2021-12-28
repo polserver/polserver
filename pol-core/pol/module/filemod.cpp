@@ -635,6 +635,8 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_ListDirectory()
   std::error_code ec;
   for ( const auto& dir_entry : fs::directory_iterator( path, ec ) )
   {
+    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+      continue;
     if ( dir_entry.is_directory() )
     {
       if ( listdirs == 0 )

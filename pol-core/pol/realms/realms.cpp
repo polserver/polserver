@@ -38,6 +38,8 @@ bool load_realms()
   {
     if ( !dir_entry.is_directory() )
       continue;
+    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+      continue;
     const auto realm_name = dir_entry.path().stem().u8string();
 
     passert_r( gamestate.Realms.size() < MAX_NUMER_REALMS,
