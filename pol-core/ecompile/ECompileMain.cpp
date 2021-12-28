@@ -7,6 +7,7 @@
 #include <memory>
 #include <stdlib.h>
 #include <string>
+#include <system_error>
 #include <time.h>
 
 #include <format/format.h>
@@ -562,109 +563,47 @@ void apply_configuration()
   inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
-/**
- * Recursively compile a folder
- *
- * @param basedir Path of the folder to recurse into
- * @param files
- */
-void recurse_compile( const fs::path& basedir, std::vector<std::string>* files )
+void recurse_collect( const fs::path& basedir, std::set<std::string>* files, bool inc_files )
 {
-  int s_compiled, s_uptodate, s_errors;
-  clock_t start, finish;
-
   if ( !fs::is_directory( basedir ) )
     return;
-
-  s_compiled = s_uptodate = s_errors = 0;
-  start = clock();
-  for ( const auto& dir_entry : fs::directory_iterator( basedir ) )
+  std::error_code ec;
+  for ( auto dir_itr = fs::recursive_directory_iterator( basedir, ec );
+        dir_itr != fs::recursive_directory_iterator(); ++dir_itr )
   {
-    if ( Clib::exit_signalled )
-      return;
-    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
-      continue;
-    else if ( dir_entry.is_directory() )
-      recurse_compile( dir_entry.path(), files );
-    else if ( !dir_entry.is_regular_file() )
-      continue;
-    const auto ext = dir_entry.path().extension();
-    if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
-         ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
+    if ( auto fn = dir_itr->path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
     {
-      ++s_compiled;
-      if ( files == nullptr )
-      {
-        try
-        {
-          if ( compile_file( dir_entry.path().u8string().c_str() ) )
-          {
-            ++summary.CompiledScripts;
-          }
-          else
-          {
-            ++s_uptodate;
-            ++summary.UpToDateScripts;
-          }
-        }
-        catch ( std::exception& )
-        {
-          ++summary.CompiledScripts;
-          ++summary.ScriptsWithCompileErrors;
-          if ( !keep_building )
-            throw;
-          s_errors++;
-        }
-      }
-      else
-        files->push_back( dir_entry.path().u8string() );
+      if ( dir_itr->is_directory() )
+        dir_itr.disable_recursion_pending();
+      continue;
     }
-  }
-  if ( files == nullptr )
-    return;
-  finish = clock();
-
-  if ( ( !quiet || timing_quiet_override ) && show_timing_details && s_compiled > 0 &&
-       files != nullptr )
-  {
-    INFO_PRINT << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" ) << " in "
-               << basedir.u8string() << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC )
-               << " second(s)\n";
-    if ( s_uptodate > 0 )
-      INFO_PRINT << "    " << s_uptodate << " script" << ( s_uptodate == 1 ? " was" : "s were" )
-                 << " already up-to-date.\n";
-    if ( s_errors > 0 )
-      INFO_PRINT << "    " << s_errors << " script" << ( s_errors == 1 ? "" : "s" )
-                 << " had errors.\n";
-  }
-}
-void recurse_compile_inc( const fs::path& basedir, std::vector<std::string>* files )
-{
-  if ( !fs::is_directory( basedir ) )
-    return;
-  for ( const auto& dir_entry : fs::directory_iterator( basedir ) )
-  {
-    if ( Clib::exit_signalled )
-      return;
-    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+    else if ( !dir_itr->is_regular_file() )
       continue;
-    else if ( dir_entry.is_directory() )
-      recurse_compile_inc( dir_entry.path(), files );
-    else if ( !dir_entry.is_regular_file() )
-      continue;
-    const auto ext = dir_entry.path().extension();
-
-    if ( !ext.compare( ".inc" ) )
+    const auto ext = dir_itr->path().extension();
+    if ( inc_files )
     {
-      if ( files == nullptr )
-        compile_file( dir_entry.path().u8string().c_str() );
-      else
-        files->push_back( dir_entry.path().u8string() );
+      if ( !ext.compare( ".inc" ) )
+        files->insert( dir_itr->path().u8string() );
+    }
+    else if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
+              ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
+    {
+      files->insert( dir_itr->path().u8string() );
     }
   }
 }
 
-void parallel_compile( const std::vector<std::string>& files )
+void serial_compile( const std::set<std::string>& files )
+{
+  for ( const auto& file : files )
+  {
+    if ( Clib::exit_signalled )
+      return;
+    compile_file_wrapper( file.c_str() );
+  }
+}
+
+void parallel_compile( const std::set<std::string>& files )
 {
   std::atomic<unsigned> compiled_scripts( 0 );
   std::atomic<unsigned> uptodate_scripts( 0 );
@@ -721,24 +660,14 @@ void AutoCompile()
 {
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
+  std::set<std::string> files;
+  recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
+  for ( const auto& pkg : Plib::systemstate.packages )
+    recurse_collect( fs::path( pkg->dir() ), &files, false );
   if ( compilercfg.ThreadedCompilation )
-  {
-    std::vector<std::string> files;
-    recurse_compile( fs::path( compilercfg.PolScriptRoot ), &files );
-    for ( const auto& pkg : Plib::systemstate.packages )
-    {
-      recurse_compile( fs::path( pkg->dir() ), &files );
-    }
     parallel_compile( files );
-  }
   else
-  {
-    recurse_compile( fs::path( compilercfg.PolScriptRoot ), nullptr );
-    for ( const auto& pkg : Plib::systemstate.packages )
-    {
-      recurse_compile( fs::path( pkg->dir() ), nullptr );
-    }
-  }
+    serial_compile( files );
   compilercfg.OnlyCompileUpdatedScripts = save;
 }
 
@@ -786,22 +715,12 @@ bool run( int argc, char** argv, int* res )
         if ( i < argc && argv[i] && argv[i][0] != '-' )
           dir.assign( argv[i] );
 
+        std::set<std::string> files;
+        recurse_collect( fs::path( dir ), &files, compile_inc );
         if ( compilercfg.ThreadedCompilation )
-        {
-          std::vector<std::string> files;
-          if ( compile_inc )
-            recurse_compile_inc( fs::path( dir ), &files );
-          else
-            recurse_compile( fs::path( dir ), &files );
           parallel_compile( files );
-        }
         else
-        {
-          if ( compile_inc )
-            recurse_compile_inc( fs::path( dir ), nullptr );
-          else
-            recurse_compile( fs::path( dir ), nullptr );
-        }
+          serial_compile( files );
       }
       else if ( argv[i][1] == 'C' )
       {
