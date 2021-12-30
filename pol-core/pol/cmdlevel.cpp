@@ -7,16 +7,17 @@
 
 #include "cmdlevel.h"
 
+#include <filesystem>
 #include <memory>
 #include <stddef.h>
 #include <string>
+#include <system_error>
 
 #include "../bscript/bstruct.h"
 #include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
-#include "../clib/dirlist.h"
 #include "../clib/fileutil.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
@@ -28,6 +29,7 @@ namespace Pol
 {
 namespace Core
 {
+namespace fs = std::filesystem;
 CmdLevel::CmdLevel( Clib::ConfigElem& elem, int cmdlevelnum )
     : name( elem.rest() ), cmdlevel( static_cast<unsigned char>( cmdlevelnum ) )
 {
@@ -58,11 +60,11 @@ bool CmdLevel::matches( const std::string& i_name ) const
 }
 void CmdLevel::add_searchdir( Plib::Package* pkg, const std::string& dir )
 {
-  searchlist.emplace_back( SearchDir{pkg, dir} );
+  searchlist.emplace_back( SearchDir{ pkg, dir } );
 }
 void CmdLevel::add_searchdir_front( Plib::Package* pkg, const std::string& dir )
 {
-  searchlist.insert( searchlist.begin(), SearchDir{pkg, dir} );
+  searchlist.insert( searchlist.begin(), SearchDir{ pkg, dir } );
 }
 
 size_t CmdLevel::estimateSize() const
@@ -144,24 +146,23 @@ std::unique_ptr<Bscript::ObjArray> ListCommandsInPackageAtCmdlevel( Plib::Packag
     {
       if ( pkg != m_pkg )
         continue;
-      dir_name = std::string( pkg->dir().c_str() ) + dir_name;
+      dir_name = pkg->dir() + dir_name;
     }
-
-    for ( Clib::DirList dl( dir_name.c_str() ); !dl.at_end(); dl.next() )
+    std::error_code ec;
+    for ( const auto& dir_entry : fs::directory_iterator( dir_name, ec ) )
     {
-      std::string name = dl.name(), ext;
-      if ( name[0] == '.' )
+      if ( !dir_entry.is_regular_file() )
+        continue;
+      if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
         continue;
 
-      std::string::size_type pos = name.rfind( '.' );
-      if ( pos != std::string::npos )
-        ext = name.substr( pos );
-
-      if ( pos != std::string::npos && ( !ext.compare( ".ecl" ) ) )
+      const auto ext = dir_entry.path().extension();
+      if ( !ext.compare( ".ecl" ) )
       {
         std::unique_ptr<Bscript::BStruct> cmdinfo( new Bscript::BStruct );
         cmdinfo->addMember( "dir", new Bscript::String( search_dir->dir ) );
-        cmdinfo->addMember( "script", new Bscript::String( name.c_str() ) );
+        cmdinfo->addMember( "script",
+                            new Bscript::String( dir_entry.path().filename().u8string() ) );
         script_names->addElement( cmdinfo.release() );
       }
     }
