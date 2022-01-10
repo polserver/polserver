@@ -437,7 +437,7 @@ Optionaly there is a color parameter. The class parameter is also optional, trig
           <tr>
             <td>Description:</td>
             <td>Defines an area where the [default-text-id] is displayed.
-The player can modify this data. To get this data check the [return-value].</td>
+The player can modify this data. To get this data check the [return-value]. The maximum number of characters for a TextEntry element is 239.</td>
           </tr>
         </table>
         </td>
@@ -583,7 +583,7 @@ With this you can specify texts that will be added to the CliLoc entry.</td>
         </table>
         </td>
       </tr>
-      <tr><td align="right"><b>Copyright ©2009 Turley</b></td></tr>
+      <tr><td align="right"><b>Copyright Â©2009 Turley</b></td></tr>
     </table>
   </div>
 </div>
