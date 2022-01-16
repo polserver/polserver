@@ -799,9 +799,9 @@ bool run( int argc, char** argv, int* res )
       tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
       tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
       tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
-
-      INFO_PRINT << tmp.str();
     }
+
+    INFO_PRINT << tmp.str();
   }
 
   if ( summary.ScriptsWithCompileErrors )
