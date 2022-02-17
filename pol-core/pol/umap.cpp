@@ -91,7 +91,7 @@ void Map::readProperties( Clib::ConfigElem& elem )
   xwest = area.nw().x();
   ynorth = area.nw().y();
   xeast = area.se().x();
-  ynorth = area.se().y();
+  ysouth = area.se().y();
 
   gumpsize = Pos2d( elem.remove_ushort( "gumpwidth", 0 ), elem.remove_ushort( "gumpheight", 0 ) );
   facetid = elem.remove_ushort( "facetid", 0 );
