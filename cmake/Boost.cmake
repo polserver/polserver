@@ -1,5 +1,5 @@
 message("* boost")
-set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_74_0")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_78_0")
 set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
@@ -9,8 +9,12 @@ elseif (gcc)
 elseif (msvc)
   if (MSVC_TOOLSET_VERSION EQUAL 140)
     set (BOOST_TOOLSET "msvc") # VS 2015 (14.0)
-  elseif(MSVC_TOOLSET_VERSION GREATER_EQUAL 141)
-    set(BOOST_TOOLSET "msvc-14.1") # VS 2017 (15.0) and VS 2019 (16.0)
+  elseif(MSVC_TOOLSET_VERSION EQUAL 141)
+    set(BOOST_TOOLSET "msvc-14.1") # VS 2017 (15.0)
+  elseif(MSVC_TOOLSET_VERSION EQUAL 142)
+    set(BOOST_TOOLSET "msvc-14.2") # VS 2019 (16.0)
+  elseif(MSVC_TOOLSET_VERSION GREATER_EQUAL 143)
+    set(BOOST_TOOLSET "msvc-14.3") # VS 2022 (17.0)
   endif()
 endif()
 
@@ -49,7 +53,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
   if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
     message("  - will extract")
     ExternalProject_Add(boost_extract
-            URL "https://boostorg.jfrog.io/artifactory/main/release/1.74.0/source/boost_1_74_0.tar.bz2"
+            URL "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2"
             SOURCE_DIR "${BOOST_SOURCE_DIR}"
             CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
             BUILD_COMMAND ""
