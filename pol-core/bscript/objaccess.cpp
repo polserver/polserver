@@ -267,6 +267,7 @@ ObjMember object_members[] = {
     { MBR_SWING_SPEED_INCREASE, "swing_speed_increase", true },
     { MBR_SWING_SPEED_INCREASE_MOD, "swing_speed_increase_mod", false },
     { MBR_EXPORTED_FUNCTIONS, "exported_functions", false },
+    { MBR_DISABLE_INACTIVITY_TIMEOUT, "disable_inactivity_timeout", false },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
