@@ -1,5 +1,5 @@
 -- POL100.1.0 --
-04-06-2022 Kevin:
+04-13-2022 Kevin:
     Added: Boolean property `client.disable_inactivity_timeout`.
            If true, the client will not be disconnected due to inactivity.
 11-08-2021 Brndd:

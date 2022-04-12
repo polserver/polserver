@@ -4695,7 +4695,7 @@ BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, boo
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
-  //obj_->set_update_range
+
   BObjectImp* result = nullptr;
   if ( value->isa( BObjectImp::OTLong ) )
   {

@@ -98,11 +98,7 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
   }
   else if ( res == 0 )
   {
-    if ( session->myClient.disable_inactivity_timeout() )
-    {
-      nidle = 0;
-    }
-    else if ( session->myClient.should_check_idle() )
+    if ( session->myClient.should_check_idle() )
     {
       ++nidle;
       if ( nidle == 30 * Plib::systemstate.config.inactivity_warning_timeout )
@@ -642,7 +638,8 @@ bool Client::should_check_idle()
 {
   return ( !chr || chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity ) &&
          Plib::systemstate.config.inactivity_warning_timeout &&
-         Plib::systemstate.config.inactivity_disconnect_timeout;
+         Plib::systemstate.config.inactivity_disconnect_timeout &&
+         !disable_inactivity_timeout();
 }
 
 void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
