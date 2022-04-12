@@ -6,7 +6,7 @@
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>04-13-2022</date>
+			<date>04-12-2022</date>
 			<author>Kevin:</author>
 			<change type="Added">Boolean property `client.disable_inactivity_timeout`.<br/>
 If true, the client will not be disconnected due to inactivity.</change>
