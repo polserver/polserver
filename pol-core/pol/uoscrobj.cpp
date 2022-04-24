@@ -4663,6 +4663,9 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
   case MBR_PORT:
     return BObjectRef( new BLong( obj_->listen_port ) );
     break;
+  case MBR_DISABLE_INACTIVITY_TIMEOUT:
+    return BObjectRef( new BLong( obj_->disable_inactivity_timeout() ) );
+    break;
   }
 
   return base::get_member_id( id );
@@ -4688,12 +4691,25 @@ BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* val
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/, bool /*copy*/ )
+BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
+
+  BObjectImp* result = nullptr;
+  if ( value->isa( BObjectImp::OTLong ) )
+  {
+    BLong* lng = static_cast<BLong*>( value );
+    result = obj_->set_script_member_id( id, lng->value() );
+  }
+
+  if ( result != nullptr )
+    return BObjectRef( result );
+
   return BObjectRef( UninitObject::create() );
 }
+
+
 
 BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
@@ -4836,6 +4852,23 @@ ItemGivenEvent::~ItemGivenEvent()
   }
 }
 }  // namespace Module
+
+namespace Network
+{
+using namespace Bscript;
+BObjectImp* Client::set_script_member_id( const int id, int value )
+{
+  switch ( id )
+  {
+  case MBR_DISABLE_INACTIVITY_TIMEOUT:
+    disable_inactivity_timeout( value );
+    return new BLong( disable_inactivity_timeout() );
+  default:
+    return nullptr;
+  }
+}
+}  // namespace Network
+
 namespace Core
 {
 bool UObject::script_isa( unsigned isatype ) const

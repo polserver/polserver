@@ -842,6 +842,7 @@ methods and properties in the Character and they will be removed in a future rel
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield" />
 <member mname="last_activity_at" type="Integer" access="r/o" mdesc="POL clock when last activity has been made" />
 <member mname="last_packet_at" type="Integer" access="r/o" mdesc="POL clock when last packet has been received" />
+<member mname="disable_inactivity_timeout" type="Boolean" access="r/w" mdesc="If true, client will not be disconnected due to inactivity." />
 <method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
 </class>
 
