@@ -5417,7 +5417,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
           itr != end; ++itr )
     {
       Network::Client* client = *itr;
-      if ( !client->chr->logged_in() || client->getversiondetail().major < 1 )
+      if ( !client->chr || !client->chr->logged_in() || client->getversiondetail().major < 1 )
         continue;
       msg.Send( client );
     }
