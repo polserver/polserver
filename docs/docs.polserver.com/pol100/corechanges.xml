@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-12-2022</datemodified>
+		<datemodified>04-29-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>04-29-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">`SendOverallSeason` now checks that connected clients have a character.</change>
+		</entry>
 		<entry>
 			<date>04-12-2022</date>
 			<author>Kevin:</author>
