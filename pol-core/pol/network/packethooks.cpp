@@ -93,7 +93,8 @@ void ExportedPacketHookHandler( Client* client, void* data )
     if ( phd->default_handler == nullptr )
       POLLOG.Format( "Expected packet hook function for msg 0x{:X} but was null!\n" )
           << (int)*message;
-    else if ( phd->default_handler != ExportedPacketHookHandler ) // only SendFunction is definied but default_handler is defined
+    else if ( phd->default_handler != ExportedPacketHookHandler )  // only SendFunction is definied
+                                                                   // but default_handler is defined
       phd->default_handler( client, data );
     return;
   }
