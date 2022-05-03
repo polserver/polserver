@@ -93,7 +93,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
     if ( phd->default_handler == nullptr )
       POLLOG.Format( "Expected packet hook function for msg 0x{:X} but was null!\n" )
           << (int)*message;
-    else  // only SendFunction is definied but default_handler is definied
+    else if ( phd->default_handler != ExportedPacketHookHandler ) // only SendFunction is definied but default_handler is defined
       phd->default_handler( client, data );
     return;
   }
@@ -113,7 +113,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
        nullptr )  // this will happen if the main packet entry does not define a receive function,
   // but has subcommands, and we've received an unhooked subcmd.
   {
-    if ( phd->default_handler != nullptr )
+    if ( phd->default_handler != nullptr && phd->default_handler != ExportedPacketHookHandler )
       phd->default_handler( client, data );
     return;
   }
@@ -135,7 +135,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
 
     if ( phd->function->call( calling_ref, pkt.get() ) == 0 )
     {
-      if ( phd->default_handler != nullptr )
+      if ( phd->default_handler != nullptr && phd->default_handler != ExportedPacketHookHandler )
         phd->default_handler( client, static_cast<void*>( &pkt->buffer[0] ) );
     }
   }
@@ -148,7 +148,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
 
     if ( phd->function->call( calling_ref, pkt.get() ) == 0 )
     {
-      if ( phd->default_handler != nullptr )
+      if ( phd->default_handler != nullptr && phd->default_handler != ExportedPacketHookHandler )
       {
         // the buffer size may have changed in the script, make sure the packet gets the right size
         // u16* sizeptr = (u16*)(&pkt->buffer[1]);
