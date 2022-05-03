@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+05-04-2022 Kevin:
+    Fixed: Crash from stack overflow in packet hook handling when receiving a subcommand packet for a non-defined subcommand hook.
 04-29-2022 Kevin:
     Fixed: `SendOverallSeason` now checks that connected clients have a character.
 04-12-2022 Kevin:

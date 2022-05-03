@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-29-2022</datemodified>
+		<datemodified>05-04-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>05-04-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Crash from stack overflow in packet hook handling when receiving a subcommand packet for a non-defined subcommand hook.</change>
+		</entry>
 		<entry>
 			<date>04-29-2022</date>
 			<author>Kevin:</author>
