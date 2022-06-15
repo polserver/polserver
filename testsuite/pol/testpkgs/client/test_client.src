@@ -22,6 +22,17 @@ program chartests()
   endif
 endprogram
 
+exported function test_client_properties()
+  if (char.client.acctname != "testclient0")
+    return ret_error("Incorrect account name on char 1, expected 'testclient0");
+  elseif (char2.client.acctname != "testclient1")
+    return ret_error("Incorrect account name on char 2, expected 'testclient1");
+  elseif (char.client.unknownprop != Unpack("u"))
+    return ret_error("Expected char.client.unknownprop to be uninit object, got " + char.client.unknownprop);
+  endif
+  return 1;
+endfunction
+
 exported function say_something()
   Clear_Event_Queue();
   clientcon.sendevent(struct{todo:="speech", arg:="Hello Test", id:=0});
