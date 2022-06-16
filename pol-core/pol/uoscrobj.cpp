@@ -4833,6 +4833,11 @@ BObjectImp* Client::get_script_member_id( const int id )
       return new String( acct->name() );
     return new BError( "Not attached to an account" );
     break;
+  case MBR_ACCT:
+    if ( acct != nullptr )
+      return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( Core::AccountRef( acct ) ) );
+    return new BError( "Not attached to an account" );
+    break;
   case MBR_IP:
     return new String( ipaddrAsString() );
     break;

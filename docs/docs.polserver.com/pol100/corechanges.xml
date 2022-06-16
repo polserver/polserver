@@ -8,6 +8,8 @@
 		<entry>
 			<date>06-16-2022</date>
 			<author>Kevin:</author>
+			<change type="Fixed">Corrected objref documentation on Character.acct, Character.acctname, and Client.acctname.</change>
+			<change type="Added">client.acct member to return Account object</change>
 			<change type="Fixed">Accessing properties on a Client that do not exist no longer results in a shard crash.</change>
 		</entry>
 		<entry>

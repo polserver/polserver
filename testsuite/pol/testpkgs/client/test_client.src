@@ -25,6 +25,10 @@ endprogram
 exported function test_client_properties()
   if (char.client.acctname != "testclient0")
     return ret_error("Incorrect account name on char 1, expected 'testclient0");
+  elseif (char.client.acct.name != "testclient0")
+    return ret_error("Incorrect account reference returned on char.client.acct, expected account with name 'testclient0'");
+  elseif (char2.client.acct.name != "testclient1")
+    return ret_error("Incorrect account reference returned on char2.client.acct, expected account with name 'testclient1'");
   elseif (char2.client.acctname != "testclient1")
     return ret_error("Incorrect account name on char 2, expected 'testclient1");
   elseif (char.client.acct != Unpack("u")) // testing knownObjMember: acct is a known member but not implemented on client
