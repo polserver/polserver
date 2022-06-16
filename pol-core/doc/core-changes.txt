@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+06-16-2022 Kevin:
+    Fixed: Accessing properties on a Client that do not exist no longer results in a shard crash.
 04-29-2022 Kevin:
     Fixed: `SendOverallSeason` now checks that connected clients have a character.
 04-12-2022 Kevin:
