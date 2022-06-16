@@ -206,8 +206,8 @@
 <member mname="trading_with" type="Character" access="r/o" mdesc="Reference to character they are trading with (if any)" />
 <member mname="tradewindow" type="Container" access="r/o" mdesc="Reference to the trade container if the char has an active trade, error if no active trade" />
 <member mname="weapon" type="Item" access="r/o" mdesc="Reference to character's weapon (if any)" />
-<member mname="acct" type="Integer" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
-<member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
+<member mname="acct" type="Account" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
+<member mname="acctname" type="String" access="r/o" mdesc="Account name string (if not NPC)" />
 <member mname="cmdlevel" type="Integer" access="r/w" mdesc="command level of character" />
 <member mname="cmdlevelstr" type="String" access="r/o" mdesc="string name of command level" />
 <member mname="criminal" type="Integer" access="r/o" mdesc="1 = player is temporally criminal (gray) or murderer (red) (see also temporally_criminal)" />
@@ -832,7 +832,8 @@ The ClientRef is important when having packethooks which are active before chara
 access to the Client and not the Character.
 Because the ClientRef contains most information that was in the Character before, it becomes redundant to have those
 methods and properties in the Character and they will be removed in a future release.</explain>
-<member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
+<member mname="acctname" type="String" access="r/o" mdesc="Account name string" />
+<member mname="acct" type="Account" access="r/o" mdesc="Account reference" />
 <member mname="ip" type="String" access="r/o" mdesc="IP Address string" />
 <member mname="port" type="Integer" access="r/o" mdesc="connected listen port" />
 <member mname="clientversion" type="String" access="r/o" mdesc="UO Client version string" />

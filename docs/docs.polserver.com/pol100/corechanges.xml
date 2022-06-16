@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-29-2022</datemodified>
+		<datemodified>06-16-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>06-16-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Corrected objref documentation on Character.acct, Character.acctname, and Client.acctname.</change>
+			<change type="Added">client.acct member to return Account object</change>
+			<change type="Fixed">Accessing properties on a Client that do not exist no longer results in a shard crash.</change>
+		</entry>
 		<entry>
 			<date>04-29-2022</date>
 			<author>Kevin:</author>

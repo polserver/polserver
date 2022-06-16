@@ -274,6 +274,7 @@ public:
   }
 
   Bscript::BObjectImp* set_script_member_id( const int id, int value );
+  Bscript::BObjectImp* get_script_member_id( const int id );
 
 protected:
   void PreDelete();

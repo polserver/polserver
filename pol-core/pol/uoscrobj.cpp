@@ -4621,54 +4621,10 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
   if ( ( !obj_.exists() ) || ( !obj_->isConnected() ) )
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
 
-  switch ( id )
-  {
-  case MBR_ACCTNAME:
-    if ( obj_->acct != nullptr )
-      return BObjectRef( new String( obj_->acct->name() ) );
-    return BObjectRef( new BError( "Not attached to an account" ) );
-    break;
-  case MBR_IP:
-    return BObjectRef( new String( obj_->ipaddrAsString() ) );
-    break;
-  case MBR_CLIENTVERSION:
-    return BObjectRef( new String( obj_->getversion() ) );
-    break;
-  case MBR_CLIENTVERSIONDETAIL:
-  {
-    std::unique_ptr<BStruct> info( new BStruct );
-    Network::VersionDetailStruct version = obj_->getversiondetail();
-    info->addMember( "major", new BLong( version.major ) );
-    info->addMember( "minor", new BLong( version.minor ) );
-    info->addMember( "rev", new BLong( version.rev ) );
-    info->addMember( "patch", new BLong( version.patch ) );
-    return BObjectRef( info.release() );
-  }
-  break;
-  case MBR_CLIENTINFO:
-    return BObjectRef( obj_->getclientinfo() );
-    break;
-  case MBR_CLIENTTYPE:
-    return BObjectRef( new BLong( obj_->ClientType ) );
-    break;
-  case MBR_UO_EXPANSION_CLIENT:
-    return BObjectRef( new BLong( obj_->UOExpansionFlagClient ) );
-    break;
-  case MBR_LAST_ACTIVITY_AT:
-    return BObjectRef( new BLong( static_cast<s32>( obj_->last_activity_at() ) ) );
-    break;
-  case MBR_LAST_PACKET_AT:
-    return BObjectRef( new BLong( static_cast<s32>( obj_->last_packet_at() ) ) );
-    break;
-  case MBR_PORT:
-    return BObjectRef( new BLong( obj_->listen_port ) );
-    break;
-  case MBR_DISABLE_INACTIVITY_TIMEOUT:
-    return BObjectRef( new BLong( obj_->disable_inactivity_timeout() ) );
-    break;
-  }
-
-  return base::get_member_id( id );
+  BObjectImp* result = obj_->get_script_member_id( id );
+  if ( result != nullptr )
+    return BObjectRef( result );
+  return BObjectRef( UninitObject::create() );
 }
 
 BObjectRef EClientRefObjImp::get_member( const char* membername )
@@ -4867,6 +4823,64 @@ BObjectImp* Client::set_script_member_id( const int id, int value )
     return nullptr;
   }
 }
+
+BObjectImp* Client::get_script_member_id( const int id )
+{
+  switch ( id )
+  {
+  case MBR_ACCTNAME:
+    if ( acct != nullptr )
+      return new String( acct->name() );
+    return new BError( "Not attached to an account" );
+    break;
+  case MBR_ACCT:
+    if ( acct != nullptr )
+      return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( Core::AccountRef( acct ) ) );
+    return new BError( "Not attached to an account" );
+    break;
+  case MBR_IP:
+    return new String( ipaddrAsString() );
+    break;
+  case MBR_CLIENTVERSION:
+    return new String( getversion() );
+    break;
+  case MBR_CLIENTVERSIONDETAIL:
+  {
+    std::unique_ptr<BStruct> info( new BStruct );
+    Network::VersionDetailStruct version = getversiondetail();
+    info->addMember( "major", new BLong( version.major ) );
+    info->addMember( "minor", new BLong( version.minor ) );
+    info->addMember( "rev", new BLong( version.rev ) );
+    info->addMember( "patch", new BLong( version.patch ) );
+    return info.release();
+  }
+  break;
+  case MBR_CLIENTINFO:
+    return getclientinfo();
+    break;
+  case MBR_CLIENTTYPE:
+    return new BLong( ClientType );
+    break;
+  case MBR_UO_EXPANSION_CLIENT:
+    return new BLong( UOExpansionFlagClient );
+    break;
+  case MBR_LAST_ACTIVITY_AT:
+    return new BLong( static_cast<s32>( last_activity_at() ) );
+    break;
+  case MBR_LAST_PACKET_AT:
+    return new BLong( static_cast<s32>( last_packet_at() ) );
+    break;
+  case MBR_PORT:
+    return new BLong( listen_port );
+    break;
+  case MBR_DISABLE_INACTIVITY_TIMEOUT:
+    return new BLong( disable_inactivity_timeout() );
+    break;
+  }
+
+  return nullptr;
+}
+
 }  // namespace Network
 
 namespace Core
