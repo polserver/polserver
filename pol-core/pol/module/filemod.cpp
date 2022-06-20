@@ -678,6 +678,8 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenXMLFile()
     filepath = path;
   else
     filepath = outpkg->dir() + path;
+  if ( !Clib::FileExists( filepath ) )
+    return new BError( "File does not exist" );
 
   return new Core::BXMLfile( filepath );
 }
