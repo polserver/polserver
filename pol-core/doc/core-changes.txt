@@ -1,6 +1,7 @@
 ﻿-- POL100.1.0 --
-06-20-2022 Turley:
-  Changed: OpenXMLFile(file) returns Error if file does not exists. Before it returned XMLRef in an error state, so 'if (!xml)' was and is a way to check for success.
+06-21-2022 Turley:
+  Changed: OpenXMLFile(file) returns Error if file does not exists, or any parsing error occurs.
+           Before it returned XMLRef in an error state, so 'if (!xml)' was and is a way to check for success.
 06-16-2022 Kevin:
     Fixed: Corrected objref documentation on Character.acct, Character.acctname, and Client.acctname.
     Added: client.acct member to return Account object

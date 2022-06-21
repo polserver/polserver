@@ -2,13 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-20-2022</datemodified>
+		<datemodified>06-21-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>06-20-2022</date>
+			<date>06-21-2022</date>
 			<author>Turley:</author>
-			<change type="Changed">OpenXMLFile(file) returns Error if file does not exists. Before it returned XMLRef in an error state, so 'if (!xml)' was and is a way to check for success.</change>
+			<change type="Changed">OpenXMLFile(file) returns Error if file does not exists, or any parsing error occurs.<br/>
+Before it returned XMLRef in an error state, so 'if (!xml)' was and is a way to check for success.</change>
 		</entry>
 		<entry>
 			<date>06-16-2022</date>
