@@ -678,8 +678,12 @@ Bscript::BObjectImp* FileAccessExecutorModule::mf_OpenXMLFile()
     filepath = path;
   else
     filepath = outpkg->dir() + path;
-
-  return new Core::BXMLfile( filepath );
+  if ( !Clib::FileExists( filepath ) )
+    return new BError( "File does not exist" );
+  std::unique_ptr<Core::BXMLfile> xml( new Core::BXMLfile( filepath ) );
+  if ( !xml->isTrue() )
+    return new BError( xml->getStringRep() );
+  return xml.release();
 }
 
 Bscript::BObjectImp* FileAccessExecutorModule::mf_CreateXMLFile()
