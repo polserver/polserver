@@ -861,6 +861,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_INVISIBLE:
     return new BLong( invisible() ? 1 : 0 );
     break;
+  case MBR_CURSED:
+    return new BLong( cursed() ? 1 : 0 );
+    break;
   case MBR_DECAYAT:
     return new BLong( decayat_gameclock_ );
     break;
@@ -1148,6 +1151,11 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     invisible( value ? true : false );
     increv();
     return new BLong( invisible() );
+  case MBR_CURSED:
+    restart_decay_timer();
+    cursed( value ? true : false );
+    increv();
+    return new BLong( cursed() );
   case MBR_DECAYAT:
     decayat_gameclock_ = value;
     return new BLong( decayat_gameclock_ );

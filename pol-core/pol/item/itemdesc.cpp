@@ -195,6 +195,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       newbie( elem.remove_bool( "NEWBIE", false ) ),
       insured( elem.remove_bool( "INSURED", false ) ),
       invisible( elem.remove_bool( "INVISIBLE", false ) ),
+      cursed( elem.remove_bool( "CURSED", false ) ),
       decays_on_multis( elem.remove_bool( "DecaysOnMultis", false ) ),
       blocks_casting_if_in_hand( elem.remove_bool( "BlocksCastingIfInHand", true ) ),
       no_drop( elem.remove_bool( "NoDrop", false ) ),
@@ -669,6 +670,7 @@ ItemDesc::ItemDesc( Type type )
       newbie( false ),
       insured( false ),
       invisible( false ),
+      cursed( false ),
       decays_on_multis( false ),
       blocks_casting_if_in_hand( true ),
       no_drop( false ),
@@ -790,6 +792,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "CanUseWhileParalyzed", new BLong( can_use_while_paralyzed ) );
   descriptor->addMember( "Newbie", new BLong( newbie ) );
   descriptor->addMember( "Insured", new BLong( insured ) );
+  descriptor->addMember( "Cursed", new BLong( cursed ) );
   descriptor->addMember( "Invisible", new BLong( invisible ) );
   descriptor->addMember( "DecaysOnMultis", new BLong( decays_on_multis ) );
   descriptor->addMember( "BlocksCastingIfInHand", new BLong( blocks_casting_if_in_hand ) );

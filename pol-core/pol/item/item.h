@@ -150,6 +150,10 @@ public:
   void insured( bool newvalue );
   bool use_insurance();
 
+  bool default_cursed() const;
+  bool cursed() const;
+  void cursed( bool newvalue );
+
   bool no_drop() const;
   bool default_no_drop() const;
   void no_drop( bool newvalue );
@@ -326,6 +330,16 @@ inline bool Item::inuse() const
 inline void Item::inuse( bool newvalue )
 {
   flags_.change( Core::OBJ_FLAGS::IN_USE, newvalue );
+}
+
+inline bool Item::cursed() const
+{
+  return flags_.get( Core::OBJ_FLAGS::CURSED );
+}
+
+inline void Item::cursed( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::CURSED, newvalue );
 }
 
 inline bool Item::invisible() const

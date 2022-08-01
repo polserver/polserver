@@ -31,3 +31,47 @@ exported function test_item_realm_move()
   DestroyItem(item);
   return 1;
 endfunction
+
+exported function test_item_cursed()
+  var cnt:=CreateItemAtLocation(0,0,0,0x200001);
+  if (!cnt)
+    return ret_error("Failed to create container "+cnt);
+  endif
+
+  // Create one stack of gold
+  var gold1 := CreateItemInContainer(cnt, "goldcoin", 1000);
+  if (!gold1)
+      return ret_error($"Failed to create goldcoin {gold1}");
+  endif
+
+  // Create another stack of gold, will be stacked onto existing item `gold1`
+  var gold2 := CreateItemInContainer(cnt, "goldcoin", 2000);
+  if (!gold2)
+      return ret_error($"Failed to create goldcoin {gold2}");
+  elseif (EnumerateItemsInContainer(cnt).size() != 1)
+    return ret_error("Expected one item -- gold -- in container");
+  elseif (gold1 != gold2)
+    return ret_error("Expected second created gold to stack with first");
+  endif
+
+  // Create one stack of cursed gold
+  var cursedgold1 := CreateItemInContainer(cnt, "cursedgoldcoin", 3000);
+  if (!cursedgold1)
+      return ret_error($"Failed to create cursedgoldcoin {cursedgold1}");
+  endif
+
+  // Create another stack of cursed gold, will be stacked onto existing item `cursedgold1`
+  var cursedgold2 := CreateItemInContainer(cnt, "cursedgoldcoin", 4000);
+  if (!cursedgold2)
+      return ret_error($"Failed to create cursedgoldcoin {cursedgold2}");
+  elseif (cursedgold1 != cursedgold2)
+    return ret_error("Expected second created cursedgold to stack with first");
+  elseif (cursedgold1.cursed == 0)
+    return ret_error("Expected created cursedgold to have cursed == 1");
+  elseif (EnumerateItemsInContainer(cnt).size() != 2)
+    return ret_error("Expected two items -- gold and cursedgold -- in container");
+  endif
+
+  DestroyItem(cnt);
+  return 1;
+endfunction

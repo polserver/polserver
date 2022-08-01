@@ -73,7 +73,8 @@ Item* Item::clone() const
   item->insured( insured() );
 
   item->invisible( invisible() );  // dave 12-20
-  item->movable( movable() );      // dave 12-20
+  item->cursed( cursed() );
+  item->movable( movable() );  // dave 12-20
   item->hp_ = hp_;
   item->quality( quality() );
 
@@ -301,6 +302,11 @@ bool Item::default_invisible() const
   return itemdesc().invisible;
 }
 
+bool Item::default_cursed() const
+{
+  return itemdesc().cursed;
+}
+
 bool Item::default_newbie() const
 {
   return itemdesc().newbie;
@@ -370,6 +376,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
 
   if ( invisible() != default_invisible() )
     sw() << "\tInvisible\t" << invisible() << pf_endl;
+
+  if ( cursed() != default_cursed() )
+    sw() << "\tCursed\t" << cursed() << pf_endl;
 
   if ( container != nullptr )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
@@ -495,6 +504,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
     buyprice_( BUYPRICE_DEFAULT );
   newbie( elem.remove_bool( "NEWBIE", default_newbie() ) );
   insured( elem.remove_bool( "INSURED", default_insured() ) );
+  cursed( elem.remove_bool( "CURSED", default_cursed() ) );
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
   quality( elem.remove_double( "QUALITY", itemdesc().quality ) );
 
@@ -690,6 +700,9 @@ void Item::add_to_self( Item*& item )
   if ( !item->insured() )
     insured( false );
 
+  if ( !item->cursed() )
+    cursed( false );
+
   item->destroy();
   item = nullptr;
 }
@@ -803,10 +816,11 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 bool Item::can_add_to_self( const Item& item, bool force_stacking )
     const  // dave 1/26/03 totally changed this function to handle the cprop comparisons.
 {
-  bool res = ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
-               ( item.insured() == insured() ) && ( item.graphic == graphic ) &&
-               ( item.color == color ) && ( item.quality() == quality() ) && ( !inuse() ) &&
-               ( can_add_to_self( item.amount_, force_stacking ) ) );
+  bool res =
+      ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
+        ( item.insured() == insured() ) && ( item.cursed() == cursed() ) &&
+        ( item.graphic == graphic ) && ( item.color == color ) && ( item.quality() == quality() ) &&
+        ( !inuse() ) && ( can_add_to_self( item.amount_, force_stacking ) ) );
   if ( res == true )
   {
     // NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes

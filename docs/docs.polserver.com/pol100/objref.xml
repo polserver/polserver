@@ -80,6 +80,7 @@
 <member mname="buyprice" type="Integer" access="r/w" mdesc="Amount of gold an NPC buys this item for. 0=not for sale, -1=itemdesc default." />
 <member mname="newbie" type="Boolean" access="r/w" mdesc="true if the item remains with the ghost when player dies" />
 <member mname="insured" type="Boolean" access="r/w" mdesc="like newbie, but it gets reset to 0 whenever it saves an item from dropping" />
+<member mname="cursed" type="Boolean" access="r/w" mdesc="true if item is cursed; does not have any special core handling other than preventing cursed and non-cursed items from stacking together." />
 <member mname="item_count" type="Integer" access="r/o" mdesc="number of items in container including the container itself (1 if this item is not a container or an empty container)" />
 <member mname="stackable" type="Integer" access="r/o" mdesc="return is based on POL Decided stackability of item." />
 <member mname="tile_layer" type="Integer" access="r/o" mdesc="returns the Layer setting in the Tiles.cfg/Tiledata" />
