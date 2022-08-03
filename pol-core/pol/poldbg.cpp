@@ -48,7 +48,7 @@ using namespace Bscript;
 const char* poldbg_base_members[] = { "x",       "y",      "z",     "name",   "objtype",
                                       "graphic", "serial", "color", "facing", "height",
                                       "weight",  "multi",  "realm", "dirty" };
-// 28 members
+// 58 members
 const char* poldbg_itemref_members[] = { "amount",
                                          "layer",
                                          "container",
@@ -62,6 +62,7 @@ const char* poldbg_itemref_members[] = { "amount",
                                          "buyprice",
                                          "newbie",
                                          "insured",
+                                         "cursed",
                                          "tile_layer",
                                          "unequipscript",
                                          "item_count",
@@ -1193,7 +1194,7 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
       os.str( "" );
     }
 
-    for ( i = 0; i < 27; i++ )  // i = 27 members
+    for ( i = 0; i < 58; i++ )  // i = 27 members
     {
       memname = poldbg_itemref_members[i];
       os << memname << " " << var.get_member( memname ).get()->impptr()->getStringRep();

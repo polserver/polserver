@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>06-21-2022</datemodified>
+		<datemodified>08-01-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>07-01-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">Boolean property `item.cursed` and corresponding itemdesc.cfg `Cursed` property. There is no special core handling of cursed items, eg. gold coin objtype 0x0EED that is cursed can still be used for vendor transactions.</change>
+		</entry>
 		<entry>
 			<date>06-21-2022</date>
 			<author>Turley:</author>

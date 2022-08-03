@@ -119,6 +119,7 @@ public:
   bool newbie;
   bool insured;
   bool invisible;
+  bool cursed;
   bool decays_on_multis;
   bool blocks_casting_if_in_hand;
   bool no_drop;
