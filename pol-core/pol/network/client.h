@@ -210,6 +210,8 @@ public:
 
   sockaddr ipaddr;
 
+  bool disable_inactivity_timeout;
+
 protected:
   Core::XmitBuffer* first_xmit_buffer;
   Core::XmitBuffer* last_xmit_buffer;
@@ -264,6 +266,15 @@ public:
 
   Core::polclock_t last_activity_at() { return session()->last_activity_at; }
   Core::polclock_t last_packet_at() { return session()->last_packet_at; }
+
+  bool disable_inactivity_timeout() { return session()->disable_inactivity_timeout; }
+  void disable_inactivity_timeout( bool disable )
+  {
+    session()->disable_inactivity_timeout = disable;
+  }
+
+  Bscript::BObjectImp* set_script_member_id( const int id, int value );
+  Bscript::BObjectImp* get_script_member_id( const int id );
 
 protected:
   void PreDelete();

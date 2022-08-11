@@ -1450,6 +1450,7 @@ Item (objtype)
     [CanUseWhileParalyzed   (0/1 {default 0})]
     [Newbie                 (0/1 {default 0})]
     [Insured                (0/1 {default 0})]
+    [Cursed                 (0/1 {default 0})]
     [Invisible              (0/1 {default 0})]
     [DecaysOnMultis         (0/1 {default 0})]
     [BlocksCastingIfInHand  (0/1 {default 0})]
@@ -1606,6 +1607,7 @@ Armor (objtype)
     <explain>RequiresAttention 1 causes container gumps to close when you move, or to unhide you if the item is used.</explain>
     <explain>StackingIgnoresCProps is a space-delimited list of case-sensative CProp names that are ignored when stacking 2 of this item objtype. See also stacking.cfg for a global list.</explain>
     <explain>Spellbook: Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F, Paladin: 0x2270 - 0x227C, Bushido: 0x238D - 0x2392, Ninjitsu: 0x23A1 - 0x23A8, SpellWeaving: 0x2D51 - 0x2D60. The list of spellids for spells.cfg is now as follows: Magery = 1+, Necro = 101+, Paladin = 201+, Bushido = 401+, Ninjitsu = 501+, SpellWeaving = 601+. Sorry this is hardcoded :P</explain>
+    <explain>Cursed: Note that cursed gold coins (objtype 0x0EED) are still usable for commerce transactions with vendors in the core. 'Unspendable' cursed gold coins should be defined in a separate itemdesc entry with a different objtype using the same graphic as gold coins (0x0EED) with Cursed set to 1.</explain>
     <explain>Weapon: If Delay != 0 Core will use it to calculate Weapon speed. Speed Entry is optional ONLY if Delay is populated.</explain>
     <related>spells.cfg</related>
     <related>stacking.cfg</related>

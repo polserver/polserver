@@ -80,6 +80,7 @@
 <member mname="buyprice" type="Integer" access="r/w" mdesc="Amount of gold an NPC buys this item for. 0=not for sale, -1=itemdesc default." />
 <member mname="newbie" type="Boolean" access="r/w" mdesc="true if the item remains with the ghost when player dies" />
 <member mname="insured" type="Boolean" access="r/w" mdesc="like newbie, but it gets reset to 0 whenever it saves an item from dropping" />
+<member mname="cursed" type="Boolean" access="r/w" mdesc="true if item is cursed; does not have any special core handling other than preventing cursed and non-cursed items from stacking together." />
 <member mname="item_count" type="Integer" access="r/o" mdesc="number of items in container including the container itself (1 if this item is not a container or an empty container)" />
 <member mname="stackable" type="Integer" access="r/o" mdesc="return is based on POL Decided stackability of item." />
 <member mname="tile_layer" type="Integer" access="r/o" mdesc="returns the Layer setting in the Tiles.cfg/Tiledata" />
@@ -206,8 +207,8 @@
 <member mname="trading_with" type="Character" access="r/o" mdesc="Reference to character they are trading with (if any)" />
 <member mname="tradewindow" type="Container" access="r/o" mdesc="Reference to the trade container if the char has an active trade, error if no active trade" />
 <member mname="weapon" type="Item" access="r/o" mdesc="Reference to character's weapon (if any)" />
-<member mname="acct" type="Integer" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
-<member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
+<member mname="acct" type="Account" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
+<member mname="acctname" type="String" access="r/o" mdesc="Account name string (if not NPC)" />
 <member mname="cmdlevel" type="Integer" access="r/w" mdesc="command level of character" />
 <member mname="cmdlevelstr" type="String" access="r/o" mdesc="string name of command level" />
 <member mname="criminal" type="Integer" access="r/o" mdesc="1 = player is temporally criminal (gray) or murderer (red) (see also temporally_criminal)" />
@@ -832,7 +833,8 @@ The ClientRef is important when having packethooks which are active before chara
 access to the Client and not the Character.
 Because the ClientRef contains most information that was in the Character before, it becomes redundant to have those
 methods and properties in the Character and they will be removed in a future release.</explain>
-<member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
+<member mname="acctname" type="String" access="r/o" mdesc="Account name string" />
+<member mname="acct" type="Account" access="r/o" mdesc="Account reference" />
 <member mname="ip" type="String" access="r/o" mdesc="IP Address string" />
 <member mname="port" type="Integer" access="r/o" mdesc="connected listen port" />
 <member mname="clientversion" type="String" access="r/o" mdesc="UO Client version string" />
@@ -842,6 +844,7 @@ methods and properties in the Character and they will be removed in a future rel
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield" />
 <member mname="last_activity_at" type="Integer" access="r/o" mdesc="POL clock when last activity has been made" />
 <member mname="last_packet_at" type="Integer" access="r/o" mdesc="POL clock when last packet has been received" />
+<member mname="disable_inactivity_timeout" type="Boolean" access="r/w" mdesc="If true, client will not be disconnected due to inactivity." />
 <method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
 </class>
 

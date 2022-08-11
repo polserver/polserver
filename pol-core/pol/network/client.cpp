@@ -92,6 +92,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient 
       checkpoint( -1 ),  // CNXBUG
       _fpLog_lock(),
       fpLog( "" ),
+      disable_inactivity_timeout( false ),
       first_xmit_buffer( nullptr ),
       last_xmit_buffer( nullptr ),
       n_queued( 0 ),

@@ -7,6 +7,10 @@ program XMLTest()
 	membertest();
 	print("scopetest...");
 	scopetest();
+	print("not existing file...");
+	notexistingtest();
+	print("invalid file...");
+	invalidtest();
 endprogram
 
 function itertest()
@@ -50,4 +54,15 @@ endfunction
 function scopeloose()
 	var xml:=OpenXMLFile("filemod/xmltest.xml");
 	return xml[2].clonenode();
+endfunction
+
+
+function notexistingtest()
+    var xml:=OpenXMLFile("filemod/xmltestnotexisting.xml");
+    print(typeof(xml));
+endfunction
+
+function invalidtest()
+    var xml:=OpenXMLFile("filemod/xmlinvalid.xml");
+    print(typeof(xml));
 endfunction

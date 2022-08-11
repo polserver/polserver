@@ -348,7 +348,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
                                 // ends
 
       if ( item->objtype_ == descriptor->objtype && !item->newbie() &&
-           item->insured() == descriptor->insured &&
+           item->insured() == descriptor->insured && item->cursed() == descriptor->cursed &&
            item->color ==
                descriptor
                    ->color &&  // dave added 5/11/3, only add to existing stack if is default color
@@ -5417,7 +5417,7 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
           itr != end; ++itr )
     {
       Network::Client* client = *itr;
-      if ( !client->chr->logged_in() || client->getversiondetail().major < 1 )
+      if ( !client->chr || !client->chr->logged_in() || client->getversiondetail().major < 1 )
         continue;
       msg.Send( client );
     }

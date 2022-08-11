@@ -2,9 +2,38 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-08-2021</datemodified>
+		<datemodified>08-01-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>07-01-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">Boolean property `item.cursed` and corresponding itemdesc.cfg `Cursed` property. There is no special core handling of cursed items, eg. gold coin objtype 0x0EED that is cursed can still be used for vendor transactions.</change>
+		</entry>
+		<entry>
+			<date>06-21-2022</date>
+			<author>Turley:</author>
+			<change type="Changed">OpenXMLFile(file) returns Error if file does not exists, or any parsing error occurs.<br/>
+Before it returned XMLRef in an error state, so 'if (!xml)' was and is a way to check for success.</change>
+		</entry>
+		<entry>
+			<date>06-16-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Corrected objref documentation on Character.acct, Character.acctname, and Client.acctname.</change>
+			<change type="Added">client.acct member to return Account object</change>
+			<change type="Fixed">Accessing properties on a Client that do not exist no longer results in a shard crash.</change>
+		</entry>
+		<entry>
+			<date>04-29-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">`SendOverallSeason` now checks that connected clients have a character.</change>
+		</entry>
+		<entry>
+			<date>04-12-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">Boolean property `client.disable_inactivity_timeout`.<br/>
+If true, the client will not be disconnected due to inactivity.</change>
+		</entry>
 		<entry>
 			<date>11-08-2021</date>
 			<author>Brndd:</author>

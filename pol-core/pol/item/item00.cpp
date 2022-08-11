@@ -39,6 +39,7 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   unequip_script_ = id.unequip_script;
   newbie( id.newbie );
   insured( id.insured );
+  cursed( id.cursed );
   movable( id.default_movable() );
   inuse( false );
   invisible( id.invisible );
