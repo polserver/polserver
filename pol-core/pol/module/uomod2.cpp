@@ -2675,16 +2675,17 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     return new BError( "Too many entries in menu" );
 
   // Prepare packet
-  // TODO: add KR support?
-  PktHelper::PacketOut<PktOut_BF_Sub14> msg;
-  msg->offset += 4;
-  msg->Write<u8>( 0u );                  // unknown
-  msg->Write<u8>( 1u );                  // 1=2D, 2=KR
-  msg->Write<u32>( above->serial_ext );  // Above serial
-  u16 offset_num_entries = msg->offset;
-  msg->offset += 1;  // Skip num entries now, write it later
+  struct Entry
+  {
+    u32 cliloc = 0;
+    u16 flags = 0;
+    u16 color = 0;
+  };
+  std::vector<Entry> entries;
+  bool newformat = false;
+  if ( chr->client->ClientType & CLIENTTYPE_UOKR )
+    newformat = true;
 
-  u8 num_entries = 0;
   for ( u16 i = 0; i < menu_arr->ref_arr.size(); ++i )
   {
     BObject* bo = menu_arr->ref_arr[i].get();
@@ -2692,19 +2693,14 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
       continue;
     BObjectImp* imp = bo->impptr();
 
-    if ( !++num_entries )  // overflow
+    if ( entries.size() >= 255 )  // overflow
       return new BError( "Too many entries in menu" );
-
-    int cliloc;
-    bool disabled = false;
-    bool arrow = false;
-    u16 color = 0;
-    bool use_color = false;
+    Entry entry;
     if ( imp->isa( BObjectImp::OTLong ) )
     {
-      // Short form: meu is just an int
+      // Short form: menu is just an int
       const BLong* lng = static_cast<BLong*>( imp );
-      cliloc = lng->value();
+      entry.cliloc = lng->value();
     }
     else if ( imp->isa( BObjectImp::OTStruct ) )
     {
@@ -2717,48 +2713,66 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
       if ( !cl->isa( BObjectImp::OTLong ) )
         return new BError( "Invalid cliloc for menu element" );
       const BLong* lng = static_cast<BLong*>( cl );
-      cliloc = lng->value();
+      entry.cliloc = lng->value();
 
       const BObjectImp* ds = elem->FindMember( "disabled" );
-      if ( ds != nullptr )
-        disabled = ds->isTrue();
+      if ( ds != nullptr && ds->isTrue() )
+        entry.flags |= 0x01;
 
       const BObjectImp* ar = elem->FindMember( "arrow" );
-      if ( ar != nullptr )
-        arrow = ar->isTrue();
+      if ( ar != nullptr && ar->isTrue() )
+        entry.flags |= 0x02;
 
       BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember( "color" ) );
       if ( co != nullptr && co->isa( BObjectImp::OTLong ) )
       {
         const BLong* colng = static_cast<BLong*>( co );
-        color = static_cast<u16>( colng->value() );
-        use_color = true;
+        entry.color = static_cast<u16>( colng->value() );
+        entry.flags |= 0x20;
       }
     }
     else
       return new BError( "Menu elements must be int or struct" );
 
-    if ( cliloc < 3000000 || cliloc > 3065535 )
-      return new BError( "Cliloc out of range in menu" );
+    if ( !newformat && ( entry.cliloc < 3000000 || entry.cliloc > 3065535 ) )
+    {
+      if ( chr->client->ClientType & CLIENTTYPE_6017 )
+        newformat = true;
+      else
+        return new BError( "Cliloc out of range in menu" );
+    }
+    entries.push_back( entry );
+  }
 
-    u16 flags = 0x00;
-    if ( disabled )
-      flags |= 0x01;
-    if ( arrow )
-      flags |= 0x02;
-    if ( use_color )
-      flags |= 0x20;
-    msg->WriteFlipped<u16>( static_cast<u16>( i + 1 ) );             // Menu element ID
-    msg->WriteFlipped<u16>( static_cast<u16>( cliloc - 3000000 ) );  // Cliloc ID, adjusted
-    msg->WriteFlipped<u16>( flags );                                 // Flags
-    if ( use_color )
-      msg->WriteFlipped<u16>( static_cast<u16>( color ) );
+  PktHelper::PacketOut<PktOut_BF_Sub14> msg;
+  msg->offset += 4;
+  msg->Write<u8>( 0u );                   // unknown
+  msg->Write<u8>( newformat ? 2u : 1u );  // 1=2D, 2=KR
+  msg->Write<u32>( above->serial_ext );   // Above serial
+  msg->Write<u8>( static_cast<u8> entries.size() );
+  for ( u16 i = 0; i < entries.size(); ++i )
+  {
+    auto& e = entries[i];
+    if ( newformat )
+    {
+      msg->WriteFlipped<u32>( e.cliloc );
+      msg->WriteFlipped<u16>( i + 1 );
+      if ( e.flags & 0x20 )  // new format does not support color
+        e.flags &= ~0x20;
+      msg->WriteFlipped<u16>( e.flags );
+    }
+    else
+    {
+      msg->WriteFlipped<u16>( i + 1 );                                   // Menu element ID
+      msg->WriteFlipped<u16>( static_cast<u16>( e.cliloc - 3000000 ) );  // Cliloc ID, adjusted
+      msg->WriteFlipped<u16>( e.flags );                                 // Flags
+      if ( e.flags & 0x20 )
+        msg->WriteFlipped<u16>( e.color );
+    }
   }
 
   // Add lengths and send
   u16 len = msg->offset;
-  msg->offset = offset_num_entries;
-  msg->Write<u8>( num_entries );
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
   msg.Send( chr->client, len );
