@@ -2749,21 +2749,21 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   msg->Write<u8>( 0u );                   // unknown
   msg->Write<u8>( newformat ? 2u : 1u );  // 1=2D, 2=KR
   msg->Write<u32>( above->serial_ext );   // Above serial
-  msg->Write<u8>( static_cast<u8> entries.size() );
+  msg->Write<u8>( static_cast<u8>( entries.size() ) );
   for ( u16 i = 0; i < entries.size(); ++i )
   {
     auto& e = entries[i];
     if ( newformat )
     {
       msg->WriteFlipped<u32>( e.cliloc );
-      msg->WriteFlipped<u16>( i + 1 );
+      msg->WriteFlipped<u16>( i + 1u );
       if ( e.flags & 0x20 )  // new format does not support color
         e.flags &= ~0x20;
       msg->WriteFlipped<u16>( e.flags );
     }
     else
     {
-      msg->WriteFlipped<u16>( i + 1 );                                   // Menu element ID
+      msg->WriteFlipped<u16>( i + 1u );                                  // Menu element ID
       msg->WriteFlipped<u16>( static_cast<u16>( e.cliloc - 3000000 ) );  // Cliloc ID, adjusted
       msg->WriteFlipped<u16>( e.flags );                                 // Flags
       if ( e.flags & 0x20 )
