@@ -2717,18 +2717,18 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
 
       const BObjectImp* ds = elem->FindMember( "disabled" );
       if ( ds != nullptr && ds->isTrue() )
-        entry.flags |= 0x01;
+        entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_LOCKED;
 
       const BObjectImp* ar = elem->FindMember( "arrow" );
       if ( ar != nullptr && ar->isTrue() )
-        entry.flags |= 0x02;
+        entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_ARROW;
 
       BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember( "color" ) );
       if ( co != nullptr && co->isa( BObjectImp::OTLong ) )
       {
         const BLong* colng = static_cast<BLong*>( co );
         entry.color = static_cast<u16>( colng->value() );
-        entry.flags |= 0x20;
+        entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR;
       }
     }
     else
@@ -2757,8 +2757,8 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     {
       msg->WriteFlipped<u32>( e.cliloc );
       msg->WriteFlipped<u16>( i + 1u );
-      if ( e.flags & 0x20 )  // new format does not support color
-        e.flags &= ~0x20;
+      if ( e.flags & PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR )  // new format does not support color
+        e.flags &= ~PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR;
       msg->WriteFlipped<u16>( e.flags );
     }
     else
