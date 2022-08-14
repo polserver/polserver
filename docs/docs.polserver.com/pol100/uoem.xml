@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>08/14/2022</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -3159,7 +3159,7 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
            (if no response is given, this could hang the script undefinitely)</explain>
   <explain>Every element in the menu array must be an integer specifying a cliloc text for the menu or a
            struct { cliloc, [disabled,] [arrow,] [color] }</explain>
-  <explain>- cliloc: int, this is the only mandatory element in struct, the cliloc text id (min 3000000, max 3065535)</explain>
+  <explain>- cliloc: int, this is the only mandatory element in struct, the cliloc text id (min 3000000, max 3065535 if client version below 6)</explain>
   <explain>- disabled: bool, if true, the menu entry will be disabled and shown in gray (default: false)</explain>
   <explain>- arrow: bool, if true, an arrow will be shown (default: false)</explain>
   <explain>- color: an optional rgb 1555 color (ex, 0 = transparent, 0x8000 = solid black, 0x1F = blue, 0x3E0 = green, 0x7C00 = red)</explain>

@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-01-2022</datemodified>
+		<datemodified>08-14-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-14-2022</date>
+			<author>Turley:</author>
+			<change type="Changed">SendPopUpMenu supports now the new pkt format added with 6.x client, it will be automatically used if needed.<br/>
+The new format does not support color, but removes the limitation of valid cliloc numbers.</change>
+			<change type="Fixed">insurance reset performed after death didnt increase the revision.</change>
+		</entry>
 		<entry>
 			<date>07-01-2022</date>
 			<author>Kevin:</author>
