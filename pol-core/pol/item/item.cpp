@@ -324,6 +324,7 @@ bool Item::use_insurance()
   {
     set_dirty();
     insured( false );
+    increv();
     return true;
   }
   return false;

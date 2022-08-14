@@ -1,4 +1,8 @@
 ﻿-- POL100.1.0 --
+08-14-2022 Turley:
+  Changed: SendPopUpMenu supports now the new pkt format added with 6.x client, it will be automatically used if needed.
+           The new format does not support color, but removes the limitation of valid cliloc numbers.
+    Fixed: insurance reset performed after death didnt increase the revision.
 07-01-2022 Kevin:
     Added: Boolean property `item.cursed` and corresponding itemdesc.cfg `Cursed` property. There is no special core handling of cursed items, eg. gold coin objtype 0x0EED that is cursed can still be used for vendor transactions.
 06-21-2022 Turley:
