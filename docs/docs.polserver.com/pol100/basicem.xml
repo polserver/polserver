@@ -274,7 +274,7 @@ substring of string1 to entire string2.
     <prototype>Trim(str, type:=TRIM_BOTH, to_trim:=" ")</prototype>
     <parameter name="str" value="The string to trim" />
     <parameter name="type" value="The trim type to use" />
-    <parameter name="to_trim" value="The string to trim as whitespace" />
+    <parameter name="to_trim" value="The string containing the character, or set of characters,to trim as whitespace" />
     <explain>Trims whitespaces from strings.</explain>
     <explain>basic.em constants for type value:
 <code>
