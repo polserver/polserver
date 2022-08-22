@@ -2766,7 +2766,7 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
       msg->WriteFlipped<u16>( i + 1u );                                  // Menu element ID
       msg->WriteFlipped<u16>( static_cast<u16>( e.cliloc - 3000000 ) );  // Cliloc ID, adjusted
       msg->WriteFlipped<u16>( e.flags );                                 // Flags
-      if ( e.flags & 0x20 )
+      if ( e.flags & PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR )
         msg->WriteFlipped<u16>( e.color );
     }
   }
@@ -2778,11 +2778,14 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   msg.Send( chr->client, len );
 
   // Cancel any previously waiting popup response
-  if ( chr->client->gd->popup_menu_selection_uoemod != nullptr )
+  if ( auto& old = chr->client->gd->popup_menu_selection_uoemod; old != nullptr )
   {
-    chr->client->gd->popup_menu_selection_uoemod->uoexec().revive();
+    // reset uomod members otherwise the deconstructor will reset the next request
+    old->popup_menu_selection_chr = nullptr;
+    old->popup_menu_selection_above = nullptr;
+    old->uoexec().revive();
 
-    chr->client->gd->popup_menu_selection_uoemod = nullptr;
+    old = nullptr;
     chr->on_popup_menu_selection = nullptr;
   }
 

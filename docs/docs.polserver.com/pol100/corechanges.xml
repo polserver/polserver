@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-14-2022</datemodified>
+		<datemodified>08-21-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-21-2022</date>
+			<author>Turley:</author>
+			<change type="Fixed">PopupMenu request did not work when client canceled a request and sends a new one.</change>
+		</entry>
 		<entry>
 			<date>08-14-2022</date>
 			<author>Turley:</author>
