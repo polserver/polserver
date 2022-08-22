@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+08-21-2022 Turley:
+    Fixed: PopupMenu request did not work when client canceled a request and sends a new one.
 08-14-2022 Turley:
   Changed: SendPopUpMenu supports now the new pkt format added with 6.x client, it will be automatically used if needed.
            The new format does not support color, but removes the limitation of valid cliloc numbers.
