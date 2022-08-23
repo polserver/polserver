@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-14-2022</datemodified>
+		<datemodified>08-23-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-23-2022</date>
+			<author>Yukiko:</author>
+			<change>Modified uoconvert.exe to surface the partial hue flag setting as PartialHue 1 for art tiles containing a partial hue<br/>
+element in the art.</change>
+		</entry>
 		<entry>
 			<date>08-14-2022</date>
 			<author>Turley:</author>

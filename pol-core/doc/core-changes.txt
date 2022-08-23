@@ -1,4 +1,7 @@
 ﻿-- POL100.1.0 --
+08-23-2022 Yukiko:
+           Modified uoconvert.exe to surface the partial hue flag setting as PartialHue 1 for art tiles containing a partial hue
+		   element in the art.
 08-14-2022 Turley:
   Changed: SendPopUpMenu supports now the new pkt format added with 6.x client, it will be automatically used if needed.
            The new format does not support color, but removes the limitation of valid cliloc numbers.
