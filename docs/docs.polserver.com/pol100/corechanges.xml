@@ -6,12 +6,6 @@
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>08-23-2022</date>
-			<author>Yukiko:</author>
-			<change>Modified uoconvert.exe to surface the partial hue flag setting as PartialHue 1 for art tiles containing a partial hue<br/>
-element in the art.</change>
-		</entry>
-		<entry>
 			<date>08-14-2022</date>
 			<author>Turley:</author>
 			<change type="Changed">SendPopUpMenu supports now the new pkt format added with 6.x client, it will be automatically used if needed.<br/>
