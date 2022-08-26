@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-21-2022</datemodified>
+		<datemodified>08-25-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-25-2022</date>
+			<author>Yukiko:</author>
+			<change type="Added">uoconvert now surfaces the partial hue flag in tiles.cfg for tiles that have that flag set in tiledata,<br/>
+eg. PartialHue 1</change>
+		</entry>
 		<entry>
 			<date>08-21-2022</date>
 			<author>Turley:</author>
