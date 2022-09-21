@@ -554,6 +554,7 @@
 <method proto="log_profile(bool clear)" returns="true/false" desc="Writes the script profile to the log, optionally clearing it after." />
 <method proto="set_priority_divide(int divide)" returns="true/false" desc="Sets the priority divide to 'divide'" />
 <method proto="clear_script_profile_counters()" returns="true/false" desc="Clears the script profile counters"/>
+<member mname="poldir" type="String" access="r/o" mdesc="Directory of the POL executable" />
 <method proto="internal(integer)" returns="unspecified" desc="developer methods, not officially published"/>
 </class>
 

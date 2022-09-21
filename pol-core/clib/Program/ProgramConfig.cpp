@@ -33,6 +33,13 @@ void ProgramConfig::configureProgramEnvironment( const std::string& programName 
     exeDir.erase( pos );
     exeDir += "/";
   }
+
+  pos = exeDir.find_last_of( "/./" );
+  if ( pos != std::string::npos )
+  {
+    exeDir.erase( pos - 1, 2 );
+  }
+
   m_programDir = exeDir;
 }
 

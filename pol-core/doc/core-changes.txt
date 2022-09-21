@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+09-21-2022 Kevin:
+    Added: POLCore() member "poldir", returning the directory of the POL executable.
 08-25-2022 Yukiko:
     Added: uoconvert now surfaces the partial hue flag in tiles.cfg for tiles that have that flag set in tiledata,
 	eg. PartialHue 1 
