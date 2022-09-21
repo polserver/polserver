@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-25-2022</datemodified>
+		<datemodified>09-21-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>09-21-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">POLCore() member &quot;poldir&quot;, returning the directory of the POL executable.</change>
+		</entry>
 		<entry>
 			<date>08-25-2022</date>
 			<author>Yukiko:</author>
