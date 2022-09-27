@@ -21,6 +21,7 @@
 #include "plib/realmdescriptor.h"
 #include "plib/uconst.h"
 #include "plib/udatfile.h"
+#include "plib/mapcell.h"
 
 #include "base/position.h"
 #include "base/range.h"
@@ -214,6 +215,27 @@ public:
   }
   void readmultis( Plib::StaticList& vec, const Core::Pos2d& pos ) const;
 
+  void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
+                     Core::ItemsVector& walkon_items, bool doors_block, unsigned int flags ) const;
+
+  void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
+                     Core::ItemsVector& walkon_items, bool doors_block, unsigned int flags ) const
+  {
+    return readdynamics( vec, Core::Pos2d( x, y ), walkon_items, doors_block, flags );
+  }
+
+  void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
+                     Core::ItemsVector& walkon_items, bool doors_block ) const
+  {
+    return readdynamics( vec, Core::Pos2d( x, y ), walkon_items, doors_block, Plib::FLAG::WALKBLOCK );
+  }
+
+  void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
+                     Core::ItemsVector& walkon_items, bool doors_block ) const
+  {
+    return readdynamics( vec, pos, walkon_items, doors_block, Plib::FLAG::WALKBLOCK );
+  }
+
   std::set<unsigned int> global_hulls;  // xy-smashed together
   unsigned getUOMapID() const;
   unsigned getNumStaticPatches() const;
@@ -237,9 +259,6 @@ protected:
                                   bool* result, short* newz, short* gradual_boost = nullptr );
 
   static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
-
-  void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
-                     Core::ItemsVector& walkon_items, bool doors_block );
 
   static bool dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache );
   bool static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) const;
