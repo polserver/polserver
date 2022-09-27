@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-21-2022</datemodified>
+		<datemodified>09-27-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>09-27-2022</date>
+			<author>Brndd:</author>
+			<change type="Added">CreateNPCFromTemplate() now has a &quot;force&quot; parameter, which allows creating NPCs even in invalid locations.</change>
+		</entry>
 		<entry>
 			<date>09-21-2022</date>
 			<author>Kevin:</author>
