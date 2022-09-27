@@ -4449,10 +4449,9 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
 
     Plib::MapShapeList mlist;
     Core::ItemsVector ivec;
-    Plib::MapShapeList itemshapes;
     realm->readmultis( mlist, x, y, flags );
     realm->getmapshapes( mlist, x, y, flags );
-    realm->readdynamics( itemshapes, x, y, ivec, false, flags );
+    realm->readdynamics( mlist, x, y, ivec, false, flags );
 
     for ( unsigned i = 0; i < mlist.size(); ++i )
     {
@@ -4465,20 +4464,6 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
 
       arr->addMember( "height", new BLong( mlist[i].height ) );
       arr->addMember( "flags", new BLong( mlist[i].flags ) );
-      newarr->addElement( arr.release() );
-    }
-
-    for ( unsigned i = 0; i < itemshapes.size(); ++i )
-    {
-      std::unique_ptr<BStruct> arr( new BStruct );
-
-      if ( itemshapes[i].flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA ) )
-        arr->addMember( "z", new BLong( itemshapes[i].z + itemshapes[i].height ) );
-      else
-        arr->addMember( "z", new BLong( itemshapes[i].z ) );
-
-      arr->addMember( "height", new BLong( itemshapes[i].height ) );
-      arr->addMember( "flags", new BLong( itemshapes[i].flags ) );
       newarr->addElement( arr.release() );
     }
 
