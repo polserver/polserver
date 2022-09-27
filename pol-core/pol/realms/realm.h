@@ -227,7 +227,8 @@ public:
   void readdynamics( Plib::MapShapeList& vec, unsigned short x, unsigned short y,
                      Core::ItemsVector& walkon_items, bool doors_block ) const
   {
-    return readdynamics( vec, Core::Pos2d( x, y ), walkon_items, doors_block, Plib::FLAG::WALKBLOCK );
+    return readdynamics( vec, Core::Pos2d( x, y ), walkon_items, doors_block,
+                         Plib::FLAG::WALKBLOCK );
   }
 
   void readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
