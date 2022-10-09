@@ -3,9 +3,17 @@ program MethodTest()
 endprogram
 
 exported function Outer(item)
-  item.Inner();
+  item.InnerCrash();
 endfunction
 
-exported function Inner(item)
+exported function InnerCrash(item)
   var foo := "bar";
 endfunction
+
+exported function Outer2(item)
+  var i:=1;
+  item.InnerCrash();
+  ++i;
+  return i;
+endfunction
+

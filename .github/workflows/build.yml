@@ -134,8 +134,8 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
-        env:
-          POLCORE_TEST_FILTER: testitems
+          #env:
+          #POLCORE_TEST_FILTER: testitems
       - name: Upload shard test log
         if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v1

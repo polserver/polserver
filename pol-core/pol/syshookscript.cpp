@@ -575,15 +575,11 @@ void ExportScript::SaveStack( BackupStruct& backup )
   if ( uoexec.PC != 0 )
   {
     backup.PC = uoexec.PC;
-    while ( !uoexec.ValueStack.empty() )
-    {
-      backup.ValueStack.push_back( uoexec.ValueStack.back() );
-      uoexec.ValueStack.pop_back();
-    }
+    backup.ValueStack = std::move( uoexec.ValueStack );
     if ( ( uoexec.Locals2 != nullptr ) && ( !uoexec.Locals2->empty() ) )
     {
-      backup.Locals.reset( new BObjectRefVec );
-      backup.Locals->assign( uoexec.Locals2->begin(), uoexec.Locals2->end() );
+      backup.Locals.reset( uoexec.Locals2 );
+      uoexec.Locals2 = new BObjectRefVec;
     }
   }
   else
@@ -595,11 +591,7 @@ void ExportScript::LoadStack( BackupStruct& backup )
   if ( backup.PC != 0 )
   {
     uoexec.initForFnCall( backup.PC );
-    while ( !backup.ValueStack.empty() )
-    {
-      uoexec.ValueStack.push_back( backup.ValueStack.back() );
-      backup.ValueStack.pop_back();
-    }
+    uoexec.ValueStack = std::move( backup.ValueStack );
     if ( backup.Locals.get() != nullptr )
     {
       delete uoexec.Locals2;
@@ -612,5 +604,5 @@ size_t ExportScript::estimateSize() const
 {
   return sd.estimatedSize() + uoexec.sizeEstimate();
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
