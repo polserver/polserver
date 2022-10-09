@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-27-2022</datemodified>
+		<datemodified>10-15-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>10-15-2022</date>
+			<author>Turley:</author>
+			<change type="Fixed">crash when calling another method inside of a methodscript</change>
+		</entry>
 		<entry>
 			<date>09-27-2022</date>
 			<author>Brndd:</author>
