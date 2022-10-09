@@ -108,7 +108,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DENABLE_ASAN=1
       - name: Build
         run: |
           cd bin-build
@@ -134,6 +134,8 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
+        env:
+          POLCORE_TEST_FILTER: testitems
       - name: Upload shard test log
         if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v1

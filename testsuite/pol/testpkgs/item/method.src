@@ -1,0 +1,11 @@
+program MethodTest()
+  return 1;
+endprogram
+
+exported function Outer(item)
+  item.Inner();
+endfunction
+
+exported function Inner(item)
+  var foo := "bar";
+endfunction

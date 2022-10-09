@@ -75,3 +75,14 @@ exported function test_item_cursed()
   DestroyItem(cnt);
   return 1;
 endfunction
+
+exported function test_item_method_crash()
+  var item:=CreateItemAtLocation(0,0,0,0x300001);
+  if (!item)
+    return ret_error("Failed to create item "+item);
+  endif
+  print("CALLING");
+  print(item.Outer());
+  DestroyItem(item);
+  return 1;
+endfunction

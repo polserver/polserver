@@ -1111,6 +1111,8 @@ int xmain_inner( bool testing )
 
   if ( testing )
   {
+    Items::allocate_intrinsic_equipment_serials();
+    Core::stateManager.gflag_in_system_startup = false;
     POLLOG_INFO << "Running POL test suite.\n";
     bool res_test = Testing::run_pol_tests();
     Core::cancel_all_trades();
