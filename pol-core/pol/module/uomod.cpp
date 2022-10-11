@@ -1271,7 +1271,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   short z;
   const String* strrealm;
   int forceInt;
-  bool force;
+  bool forceLocation;
   Realms::Realm* realm = find_realm( "britannia" );
 
   if ( !( getStringParam( 0, tmplname ) && getParam( 1, x ) && getParam( 2, y ) &&
@@ -1308,11 +1308,11 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 
   if ( !getParam( 6, forceInt ))
   {
-    force = false;
+    forceLocation = false;
   }
   else
   {
-    force = forceInt ? true : false;
+    forceLocation = forceInt ? true : false;
   }
 
   Clib::ConfigElem elem;
@@ -1332,10 +1332,10 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   Item* dummy_walkon = nullptr;
   if ( !realm->walkheight( x, y, z, &newz, &dummy_multi, &dummy_walkon, true, movemode ) )
   {
-    if ( ! force )
+    if ( !forceLocation )
       return new BError( "Not a valid location for an NPC!" );
   }
-  if ( !force )
+  if ( !forceLocation )
     z = newz;
 
 

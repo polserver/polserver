@@ -8,7 +8,7 @@
 		<entry>
 			<date>09-27-2022</date>
 			<author>Brndd:</author>
-			<change type="Added">CreateNPCFromTemplate() now has a &quot;force&quot; parameter, which allows creating NPCs even in invalid locations.</change>
+			<change type="Added">CreateNPCFromTemplate() now has a &quot;forcelocation&quot; parameter, which allows creating NPCs even in invalid locations.</change>
 		</entry>
 		<entry>
 			<date>09-21-2022</date>
