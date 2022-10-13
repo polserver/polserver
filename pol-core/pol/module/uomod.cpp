@@ -1270,6 +1270,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   unsigned short x, y;
   short z;
   const String* strrealm;
+  int forceInt;
+  bool forceLocation;
   Realms::Realm* realm = find_realm( "britannia" );
 
   if ( !( getStringParam( 0, tmplname ) && getParam( 1, x ) && getParam( 2, y ) &&
@@ -1304,6 +1306,15 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   if ( !realm->valid( x, y, z ) )
     return new BError( "Invalid Coordinates for Realm" );
 
+  if ( !getParam( 6, forceInt ))
+  {
+    forceLocation = false;
+  }
+  else
+  {
+    forceLocation = forceInt ? true : false;
+  }
+
   Clib::ConfigElem elem;
   START_PROFILECLOCK( npc_search );
   bool found = FindNpcTemplate( tmplname->data(), elem );
@@ -1317,13 +1328,15 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   Plib::MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
 
   short newz;
-  Multi::UMulti* dummy_multi;
-  Item* dummy_walkon;
+  Multi::UMulti* dummy_multi = nullptr;
+  Item* dummy_walkon = nullptr;
   if ( !realm->walkheight( x, y, z, &newz, &dummy_multi, &dummy_walkon, true, movemode ) )
   {
-    return new BError( "Not a valid location for an NPC!" );
+    if ( !forceLocation )
+      return new BError( "Not a valid location for an NPC!" );
   }
-  z = newz;
+  if ( !forceLocation )
+    z = newz;
 
 
   NpcRef npc;
@@ -1346,7 +1359,6 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     if ( custom_struct != nullptr )
       replace_properties( elem, custom_struct );
     npc->readPropertiesForNewNPC( elem );
-
     ////HASH
     objStorageManager.objecthash.Insert( npc.get() );
     ////
@@ -1357,7 +1369,6 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     WorldIterator<OnlinePlayerFilter>::InVisualRange(
         npc.get(), [&]( Character* zonechr ) { send_char_data( zonechr->client, npc.get() ); } );
     realm->notify_entered( *npc );
-
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( dummy_multi )
     {
@@ -1383,7 +1394,6 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
         npc->registered_house = 0;
       }
     }
-
     return new ECharacterRefObjImp( npc.get() );
   }
   catch ( std::exception& ex )

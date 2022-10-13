@@ -274,7 +274,7 @@ CreateItemInContainer( container, objtype, amount := 1 );
 CreateItemInInventory( container, objtype, amount := 1 );
 CreateMenu( title );
 CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM );
-CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM);
+CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM, forcelocation := 0);
 DestroyItem( item );
 DestroyMulti( multi );
 Detach();
