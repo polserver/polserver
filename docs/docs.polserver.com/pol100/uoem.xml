@@ -1349,12 +1349,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="override_properties" value="A Struct with keys as String members and values as appropriate (see notes)" />
-  <parameter name="forceposition" value="Integer (0/1)" />
+  <parameter name="forcelocation" value="Integer (0/1)" />
   <explain>Creates an NPC from a template (found in NPCDESC.CFG).</explain>
   <explain>Notes: override_properties: a structure containing members to override values in the 
         NPC template. This can be used to override built-in properties (facing, 
         color, gender etc) and custom properties ("CProps" = dictionary {key=cpropname value=cpropvalue})</explain>
-  <explain>forceposition: if true, the NPC will be created even in an invalid location.</explain>
+  <explain>forcelocation: if true, the NPC will be created even in an invalid location.</explain>
   <return>Character Reference on success</return>
   <error>"Invalid parameter type"</error>
   <error>"Parameter 4 must be a Struct or Integer(0)"</error>
