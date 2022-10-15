@@ -2375,6 +2375,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
       return;
     }
   }
+  size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
   strm << "MTHID_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.lval;
@@ -2387,7 +2388,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
-  BObjectRef& objref = ValueStack.back();
+  BObjectRef& objref = ValueStack[stacksize - 1];
   if ( func_result_ )
   {
     if ( imp )
@@ -2436,6 +2437,7 @@ void Executor::ins_call_method( const Instruction& ins )
     }
   }
 
+  size_t stacksize = ValueStack.size();  // ValueStack can grow
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
   strm << "MTH_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.tokval();
@@ -2449,7 +2451,7 @@ void Executor::ins_call_method( const Instruction& ins )
   profile_escript( name, profile_start );
 #endif
 
-  BObjectRef& objref = ValueStack.back();
+  BObjectRef& objref = ValueStack[stacksize - 1];
   if ( func_result_ )
   {
     if ( imp )
