@@ -2375,19 +2375,19 @@ void Executor::ins_call_method_id( const Instruction& ins )
       return;
     }
   }
-  BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
-  strm << "MTHID_" << objref->impptr()->typeOf() << " ." << ins.token.lval;
+  strm << "MTHID_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.lval;
   if ( !fparams.empty() )
     strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
   std::string name( strm.str() );
   unsigned long profile_start = GetTimeUs();
 #endif
-  BObjectImp* imp = objref->impptr()->call_method_id( ins.token.lval, *this );
+  BObjectImp* imp = ValueStack.back()->impptr()->call_method_id( ins.token.lval, *this );
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
+  BObjectRef& objref = ValueStack.back();
   if ( func_result_ )
   {
     if ( imp )
@@ -2436,20 +2436,20 @@ void Executor::ins_call_method( const Instruction& ins )
     }
   }
 
-  BObjectRef& objref = ValueStack.back();
 #ifdef ESCRIPT_PROFILE
   std::stringstream strm;
-  strm << "MTH_" << objref->impptr()->typeOf() << " ." << ins.token.tokval();
+  strm << "MTH_" << ValueStack.back()->impptr()->typeOf() << " ." << ins.token.tokval();
   if ( !fparams.empty() )
     strm << " [" << fparams[0].get()->impptr()->typeOf() << "]";
   std::string name( strm.str() );
   unsigned long profile_start = GetTimeUs();
 #endif
-  BObjectImp* imp = objref->impptr()->call_method( ins.token.tokval(), *this );
+  BObjectImp* imp = ValueStack.back()->impptr()->call_method( ins.token.tokval(), *this );
 #ifdef ESCRIPT_PROFILE
   profile_escript( name, profile_start );
 #endif
 
+  BObjectRef& objref = ValueStack.back();
   if ( func_result_ )
   {
     if ( imp )
@@ -3175,9 +3175,7 @@ void Executor::reinitExec()
   done = 0;
   seterror( false );
 
-  while ( !ValueStack.empty() )
-    ValueStack.pop_back();
-
+  ValueStack.clear();
   delete Locals2;
   Locals2 = new BObjectRefVec;
 
