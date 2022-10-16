@@ -1,0 +1,19 @@
+program MethodTest()
+  return 1;
+endprogram
+
+exported function Outer(item)
+  item.InnerCrash();
+endfunction
+
+exported function InnerCrash(item)
+  var foo := "bar";
+endfunction
+
+exported function Outer2(item)
+  var i:=1;
+  item.InnerCrash();
+  ++i;
+  return i;
+endfunction
+
