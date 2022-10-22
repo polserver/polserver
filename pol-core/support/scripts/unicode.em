@@ -28,7 +28,7 @@ const _DEFAULT_UCTEXT_REQUIREDCMD := 0;
 // 'langcode' is a 3-character "Originating Language" code
 //       e.g. ENG, ENU, CHT, DEU, FRA, JPN, RUS, KOR (etc??)
 
-BroadcastUC(uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, requiredcmdlevel := _DEFAULT_UCTEXT_REQUIREDCMD );
+BroadcastUC(uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, requiredCmdLevel := _DEFAULT_UCTEXT_REQUIREDCMD );
 PrintTextAbovePrivateUC(above_object, uc_text, langcode, character, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, journal_print := JOURNAL_UC_PRINT_NAME);
 PrintTextAboveUC(above_object, uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, journal_print := JOURNAL_UC_PRINT_NAME); 
 RequestInputUC(character, item, uc_prompt, langcode); // item is a placeholder, pass anything
