@@ -173,7 +173,7 @@ public:
   SOCKET csocket;  // socket to client ACK  - requires header inclusion.
 
   bool preDisconnect;
-  bool disconnect;  // if 1, disconnect this client
+  std::atomic<bool> disconnect;  // if 1, disconnect this client
 
   Crypt::CCryptBase* cryptengine;
   bool encrypt_server_stream;  // encrypt the server stream (data sent to client)?
@@ -182,7 +182,7 @@ public:
   std::atomic<Core::polclock_t> last_activity_at;
   std::atomic<Core::polclock_t> last_packet_at;
 
-  static std::mutex _SocketMutex;
+  std::mutex _SocketMutex;
 
   enum e_recv_states
   {
@@ -239,7 +239,7 @@ public:
   Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
   Client( const Client& ) = delete;
   Client& operator=( const Client& ) = delete;
-  static void Delete( Client* client );
+  ~Client();
   size_t estimatedSize() const;
 
   // later these will return a member "session" instead of casting
@@ -278,7 +278,6 @@ public:
 
 protected:
   void PreDelete();
-  ~Client();
 
 public:
   bool isActive() const;

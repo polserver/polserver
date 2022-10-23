@@ -86,7 +86,7 @@ void NetworkManager::kill_disconnected_clients()
       if ( Plib::systemstate.config.loglevel >= 4 )
         POLLOG << tmp.str() << "\n";
 
-      Network::Client::Delete( client );
+      delete client;
       client = nullptr;
       itr = clients.erase( itr );
     }
@@ -106,7 +106,7 @@ void NetworkManager::deinialize()
   kill_disconnected_clients();
   for ( auto& client : clients )
   {
-    Network::Client::Delete( client );
+    delete client;
   }
   clients.clear();
 
@@ -127,7 +127,7 @@ size_t NetworkManager::getNumberOfLoginClients() const
 {
   size_t no = 0;
   for ( const auto& ls : uoclient_listeners )
-    no += ls.login_clients.size();
+    no += ls.login_clients_size;
   return no;
 }
 

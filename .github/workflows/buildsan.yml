@@ -1,0 +1,156 @@
+name: SanitizerBuild
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - san: -DENABLE_TSAN=1
+            cxx-compiler: clang++
+            c-compiler: clang
+            compiler-version: 12
+            build-type: RelWithDebInfo
+          - san: -DENABLE_ASAN=1
+            cxx-compiler: clang++
+            c-compiler: clang
+            compiler-version: 12
+            build-type: RelWithDebInfo
+
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Cache curl
+        uses: actions/cache@v3
+        with:
+          path: lib/curl-7.57.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
+      - name: Cache antlr
+        uses: actions/cache@v3
+        with:
+          path: lib/antlr
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
+      - name: Cache boost
+        uses: actions/cache@v3
+        with:
+          path: lib/boost_1_78_0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
+      - name: Install Compiler and Dependencies
+        shell: pwsh
+        run: |
+          sudo apt-get update
+
+          $compiler = "${{ matrix.config.cxx-compiler }}"
+          $version = "${{ matrix.config.compiler-version }}"
+
+          if ($version -ne 'default') {
+            sudo apt-get install "$compiler-$version" -y
+          }
+          sudo apt-get install libmysqlclient-dev -y
+          sudo apt-get install kwstyle -y
+          sudo apt-get install uuid-dev -y
+          
+          $ninja_version = "1.9.0"
+          $cmake_version = "3.16.2"
+          $cmake_archive = "cmake-$cmake_version-Linux-x86_64"
+          wget -q "https://github.com/ninja-build/ninja/releases/download/v$ninja_version/ninja-linux.zip"
+          unzip -q ninja-linux.zip -d bin-build
+          wget -q "https://github.com/Kitware/CMake/releases/download/v$cmake_version/$cmake_archive.tar.gz"
+          tar -xf "$cmake_archive.tar.gz"
+          
+          chmod +x bin-build/ninja
+          chmod +x "$cmake_archive/bin/cmake"
+          echo "$Env:GITHUB_WORKSPACE/bin-build" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Set CXX and CC
+        shell: pwsh
+        run: |
+          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
+          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $version = '${{ matrix.config.compiler-version }}'
+
+          if ($version -ne 'default') {
+            $cxx_compiler = "$cxx_compiler-$version"
+            $c_compiler = "$c_compiler-$version"
+          }
+          echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Register problem matcher
+        run: echo "::add-matcher::.github/problem-matchers/${{ matrix.config.c-compiler }}.json"
+      - name: Config
+        run: |
+          cd bin-build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} ${{ matrix.config.san }}
+      - name: Build
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
+
+      - name: Test (EScript)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_escript
+      - name: Test (Shard Fixtures)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
+      - name: Test (UnitTests)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target unittest_pol
+      - name: Test (Shard)
+        run: |
+          cd bin-build
+          cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
+          #env:
+          #POLCORE_TEST_FILTER: testitems
+      - name: Upload shard test log
+        uses: actions/upload-artifact@v3
+        with:
+          name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
+          path: bin-build/coretest/log/pol.log
+
+  notify_on_failure:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: failure()
+    steps:
+      - name: Discord notification failure
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: failure
+          job: Building
+  notify_on_success:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: success()
+    steps:
+      - name: Discord notification success
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: success
+          job: Building
+  notify_on_cancel:
+    needs: build
+    runs-on: "ubuntu-latest"
+    if: cancelled()
+    steps:
+      - name: Discord notification cancelled
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: turleypol/actions-status-discord@master
+        with:
+          status: cancelled
+          job: Building

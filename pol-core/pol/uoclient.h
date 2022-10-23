@@ -10,6 +10,7 @@
 #ifndef UOCLIENT_H
 #define UOCLIENT_H
 
+#include <atomic>
 #include <list>
 #include <memory>
 #include <string>
@@ -96,16 +97,27 @@ public:
   UoClientListener( Clib::ConfigElem& elem );
   UoClientListener( const UoClientListener& ) = delete;
   UoClientListener& operator=( const UoClientListener& ) = delete;
-  UoClientListener( UoClientListener&& ) = default;
-  UoClientListener& operator=( UoClientListener&& ) = default;
+  UoClientListener( UoClientListener&& l )
+  {
+    encryption = std::move( l.encryption );
+    port = std::move( l.port );
+    aosresist = std::move( l.aosresist );
+    sticky = std::move( l.sticky );
+    login_clients_size = l.login_clients_size.load();
+    login_clients = std::move( l.login_clients );
+  }
   ~UoClientListener() = default;
 
   size_t estimateSize() const;
+  void run();
 
   Crypt::TCryptInfo encryption;
   unsigned short port;
   bool aosresist;
   bool sticky;
+  std::atomic<size_t> login_clients_size;  // multiple threads want to know the login size
+
+private:
   std::list<std::unique_ptr<UoClientThread>> login_clients;
 };
 }  // namespace Core
