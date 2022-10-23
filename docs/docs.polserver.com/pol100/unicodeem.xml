@@ -13,12 +13,13 @@
   </fileheader>
   
   <function name="BroadcastUC"> 
-    <prototype>BroadcastUC(uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR)</prototype>
+    <prototype>BroadcastUC(uc_text, langcode, font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR, required_cmdlevel := _DEFAULT_UCTEXT_REQUIREDCMD)</prototype>
     <parameter name="uc_text" value="Array of 2-byte integers, where each integer is a Unicode character" />
     <parameter name="langcode" value="3-character 'Originating Language' string code  e.g. ENU, CHT, DEU, RUS, KOR, etc." />
     <parameter name="font" value="Integer (optional) font code. Not the same as non-unicode font codes" />
     <parameter name="color" value="Integer (optional) color code. Not the same color as the same value for non-unicode prints" />
-    <explain>Broadcasts a unicode string to all players</explain>
+    <parameter name="required_cmdlevel" value=" Integer (optional)" />
+    <explain>Broadcasts a unicode string to every online player whos cmd level is above required_cmdlevel.</explain>
     <explain>uc_text MUST be an array of integers representing unicode characters.</explain>
     <explain>Integers must be "Big Endian" (0x1234) and not "Little Endian" (0x3412).</explain>
     <explain>Integers will be clipped internally to 2-bytes (value masked with 0xFFFF)</explain>

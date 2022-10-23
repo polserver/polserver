@@ -1221,12 +1221,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="Broadcast">
-  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredCmdLevel := _DEFAULT_TEXT_REQUIREDCMD )</prototype>
+  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD )</prototype>
   <parameter name="text" value="String" />
   <parameter name="font" value="Integer (optional)" />
   <parameter name="color" value=" Integer (optional)" />
-  <parameter name="requiredcmdlevel" value=" Integer (optional)" />
-  <explain>Sends text as a System Message to every online player whos cmd level is above requiredcmdlevel. </explain>
+  <parameter name="required_cmdlevel" value=" Integer (optional)" />
+  <explain>Sends text as a System Message to every online player whos cmd level is above required_cmdlevel. </explain>
   <explain>See client.inc for font and color values.</explain>
   <return>1 on success</return>
   <error>none (returns 0 on invalid parameter) </error>
