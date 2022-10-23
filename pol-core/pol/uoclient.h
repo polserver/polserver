@@ -110,14 +110,15 @@ public:
 
   size_t estimateSize() const;
   void run();
+  size_t client_size() const { return login_clients_size; }
 
   Crypt::TCryptInfo encryption;
   unsigned short port;
   bool aosresist;
   bool sticky;
-  std::atomic<size_t> login_clients_size;  // multiple threads want to know the login size
 
 private:
+  std::atomic<size_t> login_clients_size;  // multiple threads want to know the login size
   std::list<std::unique_ptr<UoClientThread>> login_clients;
 };
 }  // namespace Core

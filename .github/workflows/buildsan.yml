@@ -129,7 +129,7 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: failure
-          job: Building
+          job: SanitizerBuilds
   notify_on_success:
     needs: build
     runs-on: "ubuntu-latest"
@@ -141,7 +141,7 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: success
-          job: Building
+          job: SanitizerBuilds
   notify_on_cancel:
     needs: build
     runs-on: "ubuntu-latest"
@@ -153,4 +153,4 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: cancelled
-          job: Building
+          job: SanitizerBuilds
