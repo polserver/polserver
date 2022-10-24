@@ -253,7 +253,7 @@ AddMenuItem( menu, objtype, text, color:=0 );
 ApplyConstraint( objlist, configfile, propertyname, minvalue );
 AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
 Attach( character );
-Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
+Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
 CancelTarget( of_whom );
 CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM);
 CheckLineOfSight( object1, object2 );

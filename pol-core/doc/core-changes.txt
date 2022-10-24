@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+10-24-2022 Crowen(che666):
+    Fixed: uo.em Broadcast and unicode.em BroadcastUC renamed requiredcmdLevel parameter to required_cmdlevel to be consistent.
 10-15-2022 Turley:
     Fixed: crash when calling another method inside of a methodscript
 09-27-2022 Brndd:
