@@ -8,9 +8,7 @@
 		<entry>
 			<date>10-24-2022</date>
 			<author>Crowen(che666):</author>
-			<change type="Fixed">uo.em Broadcast required_cmdlevel parameter and documentation<br/>
-unicode.em BroadcastUC required_cmdlevel parameter and documentation</change>
-			<change type="Added">explanation for the BroadcastUC required_cmdlevel parameter to docs/docs.polserver.com/pol100/unicodeem.xml</change>
+			<change type="Fixed">uo.em Broadcast and unicode.em BroadcastUC renamed requiredcmdLevel parameter to required_cmdlevel to be consistent.</change>
 		</entry>
 		<entry>
 			<date>10-15-2022</date>
