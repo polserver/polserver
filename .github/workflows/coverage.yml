@@ -11,7 +11,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 9
+            compiler-version: 11
             build-type: RelWithDebInfo
     runs-on: ${{ matrix.config.os }}
 
