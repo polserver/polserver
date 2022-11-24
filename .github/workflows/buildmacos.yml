@@ -14,11 +14,11 @@ jobs:
             compiler-version: default
             build-type: Release
 
-          - os: "macos-latest"
-            cxx-compiler: g++
-            c-compiler: gcc
-            compiler-version: 11
-            build-type: RelWithDebInfo
+              #- os: "macos-latest"
+              #cxx-compiler: g++
+              #c-compiler: gcc
+              #compiler-version: 11
+              #build-type: RelWithDebInfo
 
     runs-on: ${{ matrix.config.os }}
 
