@@ -39,23 +39,23 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - uses: seanmiddleditch/gha-setup-vsdevenv@v3
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v4
       - name: Cache curl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/curl-7.57.0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
       - name: Cache antlr
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
       - name: Cache boost
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/boost_1_78_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
@@ -138,7 +138,7 @@ jobs:
           #POLCORE_TEST_FILTER: testitems
       - name: Upload shard test log
         if: matrix.config.nopch == 0
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
@@ -161,7 +161,7 @@ jobs:
 
       - name: Upload Artefact
         if: matrix.config.nopch == 0
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
@@ -172,15 +172,15 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Download artefacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: Nightly-Linux-g++
       - name: Download artefacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: Nightly-Linux-clang++
       - name: Download artefacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: Nightly-Windows-cl
 
