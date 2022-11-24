@@ -11,12 +11,12 @@ jobs:
           - san: -DENABLE_TSAN=1
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 12
+            compiler-version: 14
             build-type: RelWithDebInfo
           - san: -DENABLE_ASAN=1
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 12
+            compiler-version: 14
             build-type: RelWithDebInfo
 
     runs-on: "ubuntu-latest"
