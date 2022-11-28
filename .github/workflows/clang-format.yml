@@ -12,14 +12,14 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |
           sudo apt-get update
-          sudo apt-get install clang-format-10 -y
-          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-10 800
+          sudo apt-get install clang-format-14 -y
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-14 800
       - name: Stylecheck
         run: |
           cd testsuite/style

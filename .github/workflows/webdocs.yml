@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Generate OfflineDocs
         run: |
           cd docs/docs.polserver.com/pol100
@@ -25,7 +25,7 @@ jobs:
           php -f buildoffline.php
           rm -rf offline
       - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@4.1.0
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
           server: ${{ secrets.DOCS_FTP }}
           protocol: ftps
