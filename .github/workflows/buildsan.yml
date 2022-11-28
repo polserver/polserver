@@ -3,8 +3,8 @@ name: SanitizerBuild
 on: [push, pull_request]
 
 jobs:
-  name: ${{matrix.config.name}} Build
   build:
+    name: ${{matrix.config.name}} Build
     strategy:
       fail-fast: false
       matrix:
