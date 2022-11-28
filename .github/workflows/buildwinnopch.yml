@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: ${{matrix.config.name}} Build
+    name: Windows ${{matrix.config.name}} NoPCH Build
     strategy:
       fail-fast: false
       matrix:

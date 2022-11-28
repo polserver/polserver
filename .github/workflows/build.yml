@@ -15,7 +15,7 @@ jobs:
             compiler-version: default
             build-type: Release
             nopch: 0
-            name: Windows
+            name: Windows CL
 
           - os: "ubuntu-latest"
             cxx-compiler: g++
@@ -39,7 +39,7 @@ jobs:
             compiler-version: 14
             build-type: Release
             nopch: 1
-            name: Linux Clang no PCH
+            name: Linux Clang noPCH
 
     runs-on: ${{ matrix.config.os }}
 
