@@ -3,6 +3,7 @@ name: Build
 on: [push, pull_request]
 
 jobs:
+  name: ${{matrix.config.name}} Build
   build:
     strategy:
       fail-fast: false
@@ -14,6 +15,7 @@ jobs:
             compiler-version: default
             build-type: Release
             nopch: 0
+            name: Windows
 
           - os: "ubuntu-latest"
             cxx-compiler: g++
@@ -21,6 +23,7 @@ jobs:
             compiler-version: 11
             build-type: RelWithDebInfo
             nopch: 0
+            name: Linux GCC
 
           - os: "ubuntu-latest"
             cxx-compiler: clang++
@@ -28,6 +31,7 @@ jobs:
             compiler-version: 14
             build-type: RelWithDebInfo
             nopch: 0
+            name: Linux Clang
           
           - os: "ubuntu-latest"
             cxx-compiler: clang++
@@ -35,6 +39,7 @@ jobs:
             compiler-version: 14
             build-type: Release
             nopch: 1
+            name: Linux Clang no PCH
 
     runs-on: ${{ matrix.config.os }}
 

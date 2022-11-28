@@ -3,6 +3,7 @@ name: SanitizerBuild
 on: [push, pull_request]
 
 jobs:
+  name: ${{matrix.config.name}} Build
   build:
     strategy:
       fail-fast: false
@@ -13,11 +14,13 @@ jobs:
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
+            name: ThreadSanitizer
           - san: -DENABLE_ASAN=1
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
+            name: AddressSanitizer
 
     runs-on: "ubuntu-latest"
 
