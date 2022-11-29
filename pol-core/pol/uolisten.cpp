@@ -69,7 +69,7 @@ bool UoClientThread::create()
 
   PolLock lck;
   client = new Network::Client( *Core::networkManager.uo_client_interface.get(), _def->encryption );
-  
+
   // TODO: move this into an initialization of ThreadedClient.
   client->csocket = _sck.release_handle();  // client cleans up its socket.
   memcpy( &client->ipaddr, &client_addr, sizeof client->ipaddr );
@@ -100,18 +100,22 @@ bool UoClientThread::create()
 void uo_client_listener_thread( void* arg )
 {
   UoClientListener* ls = static_cast<UoClientListener*>( arg );
-  INFO_PRINT << "Listening for UO clients on port " << ls->port
-             << " (encryption: " << ls->encryption.eType << ",0x"
-             << fmt::hexu( ls->encryption.uiKey1 ) << ",0x" << fmt::hexu( ls->encryption.uiKey2 )
+  ls->run();
+}
+
+void UoClientListener::run()
+{
+  INFO_PRINT << "Listening for UO clients on port " << port << " (encryption: " << encryption.eType
+             << ",0x" << fmt::hexu( encryption.uiKey1 ) << ",0x" << fmt::hexu( encryption.uiKey2 )
              << ")\n";
 
   Clib::SocketListener SL(
-      ls->port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
+      port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
   while ( !Clib::exit_signalled )
   {
     unsigned int timeout = 2;
     unsigned int mstimeout = 0;
-    if ( !ls->login_clients.empty() )
+    if ( !login_clients.empty() )
     {
       timeout = 0;
       mstimeout = 200;
@@ -122,36 +126,39 @@ void uo_client_listener_thread( void* arg )
       // create an appropriate Client object
       if ( Plib::systemstate.config.use_single_thread_login )
       {
-        std::unique_ptr<UoClientThread> thread( new UoClientThread( ls, std::move( newsck ) ) );
+        std::unique_ptr<UoClientThread> thread( new UoClientThread( this, std::move( newsck ) ) );
         if ( thread->create() )
         {
           client_io_thread( thread->client, true );
-          ls->login_clients.push_back( std::move( thread ) );
+          login_clients.push_back( std::move( thread ) );
+          ++login_clients_size;
         }
       }
       else
       {
-        Clib::SocketClientThread* thread = new UoClientThread( ls, std::move( newsck ) );
+        Clib::SocketClientThread* thread = new UoClientThread( this, std::move( newsck ) );
         thread->start();
       }
     }
 
-    auto itr = ls->login_clients.begin();
-    while ( itr != ls->login_clients.end() )
+    auto itr = login_clients.begin();
+    while ( itr != login_clients.end() )
     {
       auto client = ( *itr )->client;
       if ( client != nullptr && client->isReallyConnected() )
       {
         if ( !client_io_thread( client, true ) )
         {
-          itr = ls->login_clients.erase( itr );
+          itr = login_clients.erase( itr );
+          --login_clients_size;
           continue;
         }
 
         if ( client->isConnected() && client->chr )
         {
           Clib::SocketClientThread::start_thread( itr->release() );
-          itr = ls->login_clients.erase( itr );
+          itr = login_clients.erase( itr );
+          --login_clients_size;
         }
         else if ( ( ( *itr )->login_time +
                     Plib::systemstate.config.loginserver_timeout_mins * 60 ) < poltime() )
@@ -161,7 +168,8 @@ void uo_client_listener_thread( void* arg )
           client->forceDisconnect();
           client->unregister();
           networkManager.clientTransmit->QueueDelete( client );
-          itr = ls->login_clients.erase( itr );
+          itr = login_clients.erase( itr );
+          --login_clients_size;
         }
         else
         {
@@ -170,7 +178,8 @@ void uo_client_listener_thread( void* arg )
       }
       else
       {
-        itr = ls->login_clients.erase( itr );
+        itr = login_clients.erase( itr );
+        --login_clients_size;
       }
     }
   }
