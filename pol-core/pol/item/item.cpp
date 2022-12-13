@@ -492,6 +492,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
   on_use_script_ = elem.remove_string( "ONUSESCRIPT", "" );
   equip_script_ = elem.remove_string( "EQUIPSCRIPT", equip_script_.get().c_str() );
   unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
+  snoop_script_ = elem.remove_string( "SNOOPSCRIPT", snoop_script_.get().c_str() );
 
   decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
   sellprice_( elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ) );
@@ -594,6 +595,39 @@ void Item::readProperties( Clib::ConfigElem& elem )
 void Item::builtin_on_use( Network::Client* client )
 {
   Core::send_sysmessage( client, "I can't think of a way to use that." );
+}
+
+void Item::snoop( Network::Client* client, Mobile::Character* owner )
+{
+  const ItemDesc& itemdesc = this->itemdesc();
+
+  if ( client->chr->skill_ex_active() || client->chr->casting_spell() )
+  {
+    Core::send_sysmessage( client, "I am already doing something else." );
+    return;
+  }
+
+  ref_ptr<Bscript::EScriptProgram> prog;
+
+  if ( !snoop_script_.get().empty() )
+  {
+    Core::ScriptDef sd( snoop_script_, nullptr, "" );
+    prog = find_script2( sd,
+                         true,  // complain if not found
+                         Plib::systemstate.config.cache_interactive_scripts );
+  }
+  else if ( !itemdesc.snoop_script.empty() )
+  {
+    prog = find_script2( itemdesc.snoop_script, true,
+                         Plib::systemstate.config.cache_interactive_scripts );
+  }
+
+  if ( prog.get() != nullptr )
+  {
+    if ( client->chr->start_snoop_script( prog.get(), this, owner ) )
+      return;
+    // else log the fact?
+  }
 }
 
 void Item::double_click( Network::Client* client )

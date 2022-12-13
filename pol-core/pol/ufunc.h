@@ -172,6 +172,8 @@ void play_moving_effect2_ex( const Pos3d& src, const Pos3d& dst, Realms::Realm* 
 Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = nullptr,
                               bool* isRemoteContainer = nullptr );
 
+Items::Item* find_snoopable_item( u32 serial, Mobile::Character** powner );
+
 void send_sysmessage( Network::Client* client, const char* text,
                       unsigned short font = Plib::DEFAULT_TEXT_FONT,
                       unsigned short color = Plib::DEFAULT_TEXT_COLOR );

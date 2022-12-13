@@ -83,7 +83,14 @@ bool Character::start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item
 {
   return start_script( prog, start_attached, new Module::EItemRefObjImp( item ) );
 }
+
+bool Character::start_snoop_script( Bscript::EScriptProgram* prog, Items::Item* item,
+                                    Mobile::Character* owner )
+{
+  return start_script( prog, false, new Module::EItemRefObjImp( item ),
+                       new Module::EOfflineCharacterRefObjImp( owner ) );
 }
+}  // namespace Mobile
 namespace Items
 {
 void Item::walk_on( Mobile::Character* chr )

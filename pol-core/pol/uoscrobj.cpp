@@ -846,6 +846,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_USESCRIPT:
     return new String( on_use_script_ );
     break;
+  case MBR_SNOOPSCRIPT:
+    return new String( snoop_script_ );
+    break;
   case MBR_EQUIPSCRIPT:
     return new String( equip_script_ );
     break;
@@ -1106,6 +1109,9 @@ BObjectImp* Item::set_script_member_id( const int id, const std::string& value )
   {
   case MBR_USESCRIPT:
     on_use_script_ = value;
+    return new String( value );
+  case MBR_SNOOPSCRIPT:
+    snoop_script_ = value;
     return new String( value );
   case MBR_EQUIPSCRIPT:
     equip_script_ = value;

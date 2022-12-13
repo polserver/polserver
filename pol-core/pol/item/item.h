@@ -86,6 +86,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   virtual void double_click( Network::Client* client );
+  void snoop( Network::Client* client, Mobile::Character* owner );
   virtual void builtin_on_use( Network::Client* client );
   virtual void walk_on( Mobile::Character* chr );
 
@@ -276,6 +277,7 @@ protected:
   boost_utils::script_name_flystring on_use_script_;
   boost_utils::script_name_flystring equip_script_;
   boost_utils::script_name_flystring unequip_script_;
+  boost_utils::script_name_flystring snoop_script_;
   mutable const ItemDesc* _itemdesc;
 
 public:

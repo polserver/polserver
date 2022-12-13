@@ -176,6 +176,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       on_use_script( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/items/" ),
       equip_script( elem.remove_string( "EQUIPSCRIPT", "" ) ),
       unequip_script( elem.remove_string( "UNEQUIPSCRIPT", "" ) ),
+      snoop_script( elem.remove_string( "SNOOPSCRIPT", "" ), pkg, "scripts/items/" ),
       control_script( elem.remove_string( "CONTROLSCRIPT", "" ), pkg, "scripts/control/" ),
       create_script( elem.remove_string( "CREATESCRIPT", "" ), pkg, "scripts/control/" ),
       destroy_script( elem.remove_string( "DESTROYSCRIPT", "" ), pkg, "scripts/control/" ),
@@ -774,6 +775,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Script", new String( on_use_script.relativename( pkg ) ) );
   descriptor->addMember( "EquipScript", new String( equip_script ) );
   descriptor->addMember( "UnequipScript", new String( unequip_script ) );
+  descriptor->addMember( "SnoopScript", new String( snoop_script.relativename( pkg ) ) );
   descriptor->addMember( "ControlScript", new String( control_script.relativename( pkg ) ) );
   descriptor->addMember( "CreateScript", new String( create_script.relativename( pkg ) ) );
   descriptor->addMember( "DestroyScript", new String( destroy_script.relativename( pkg ) ) );

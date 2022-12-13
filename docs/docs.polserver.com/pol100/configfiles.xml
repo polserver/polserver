@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding="iso-8859-1"?>
+<?xml version='1.0' encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="configfiles.xslt" ?>
 <!DOCTYPE ESCRIPT SYSTEM "configfiles.dtd">
 <ESCRIPT>
@@ -1430,6 +1430,7 @@ Item (objtype)
     [Tooltip                (string tooltip {default empty})]
     [WalkOnScript           (string scriptname)]
     [Script                 (string scriptname)]
+	[SnoopScript            (string scriptname)]
     [EquipScript            (string scriptname)]
     [UnequipScript          (string scriptname)]
     [ControlScript          (string scriptname)]
@@ -1602,7 +1603,7 @@ Armor (objtype)
     <explain>Note: if objtype &lt; 0x4000, the 'graphic' property is not required, it is assumed objtype=graphic in this case.</explain>
     <explain>Valid ranges for custom items are 0x5000-0xEFFF (0xF000-0xFFFF reserved by core)</explain>
     <explain>Properties having to do with equipping an item is only meaningful if the item is actualy equippable (determined by the graphic number's tiledata flags).</explain>
-    <explain>Item Create, Destroy, and Control scripts are in pkg format or in scripts/control. Method scripts must be packaged.</explain>
+    <explain>Item Create, Destroy, Snoop, and Control scripts are in pkg format or in scripts/control. Method scripts must be packaged.</explain>
     <explain>Container scripts are in pkg format, or in scripts/control</explain>
     <explain>RequiresAttention 1 causes container gumps to close when you move, or to unhide you if the item is used.</explain>
     <explain>StackingIgnoresCProps is a space-delimited list of case-sensative CProp names that are ignored when stacking 2 of this item objtype. See also stacking.cfg for a global list.</explain>
