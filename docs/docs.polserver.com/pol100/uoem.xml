@@ -271,10 +271,12 @@ files define spells &amp; spell ids.</explain>
 </function>
 
 <function name="CreateItemInInventory">
-  <prototype>CreateItemInInventory( container, objtype, amount := 1 )</prototype>
+  <prototype>CreateItemInInventory( container, objtype, amount := 1, x := -1, y := -1 )</prototype>
   <parameter name="container" value="Container reference" />
   <parameter name="objtype" value="Integer objtype for item to be created, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="size of stack to be created. Default = 1" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
   <explain>Creates a stack of items in the specified container. As usual, objtype
   must be valid and amount must be 1..60000. FORCES STACKING: If the specified obytpe is not stackable 
 by 
@@ -1300,10 +1302,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="CreateItemInBackpack">
-  <prototype>CreateItemInBackpack( of_character, objtype, amount := 1 )</prototype>
+  <prototype>CreateItemInBackpack( of_character, objtype, amount := 1, x := -1, y := -1 )</prototype>
   <parameter name="of_character" value="Character Reference" />
   <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="Integer (optional, 0..60000)" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
   <explain>Creates an item in a character's backpack. </explain>
   <explain>Notes: Adds to an existing stack in the top level of the container, if an appropriate stack can be found (meaning, can hold the new amount, the existing item stack has color equal to its itemdesc.cfg color property AND has equal CProps as its itemdesc.cfg entry (not counting locally and globally ignored cprops).  If no appropritate stack is found, creates a new stack. </explain>
   <explain>Runs the item's create script, if any.</explain>
@@ -1321,10 +1325,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="CreateItemInContainer">
-  <prototype>CreateItemInContainer( container, objtype, amount := 1 )</prototype>
+  <prototype>CreateItemInContainer( container, objtype, amount := 1, x := -1, y := -1 )</prototype>
   <parameter name="container" value="Container Reference" />
   <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="Integer (optional, 0..60000)" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
   <explain>Creates an item in a container. </explain>
   <explain>Notes: Adds to an existing stack in the top level of the container, if an appropriate stack can be found (meaning, can hold the new amount, the existing item stack has color equal to its itemdesc.cfg color property AND has equal CProps as its itemdesc.cfg entry (not counting locally and globally ignored cprops).  If no appropritate stack is found, creates a new stack. </explain>
   <explain>Runs the item's create script, if any.</explain>
