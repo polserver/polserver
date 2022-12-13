@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-24-2022</datemodified>
+		<datemodified>12-13-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>12-13-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">CreateItemInBackpack, CreateItemInContainer, and CreateItemInInventory now have an x and y optional parameter to specify location in container gump of where to create the item.</change>
+		</entry>
 		<entry>
 			<date>10-24-2022</date>
 			<author>Crowen(che666):</author>

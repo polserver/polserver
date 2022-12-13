@@ -336,7 +336,7 @@ static bool item_create_params_ok( u32 objtype, int amount )
 }
 
 BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
-                                       unsigned short amount, bool force_stacking,
+                                       unsigned short amount, bool force_stacking, short x, short y,
                                        UOExecutorModule* uoemod )
 {
   if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
@@ -463,7 +463,18 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         return new BError( "Item was destroyed in CanInsert Script" );
       }
 
-      cont->add_at_random_location( item );
+      if ( !cont->is_legal_posn( item, x, y ) )
+      {
+        u16 tx, ty;
+        cont->get_random_location( &tx, &ty );
+        x = tx;
+        y = ty;
+      }
+
+      item->setposition( Core::Pos4d( x, y, 0, cont->realm() ) );  // TODO POS realm
+
+      cont->add( item );
+
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
       UpdateCharacterWeight( item );
@@ -493,14 +504,18 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   Item* item;
   const ItemDesc* descriptor;
   int amount;
+  int px;
+  int py;
 
   if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       getParam( 3, px, -1, 65535 ) && getParam( 4, py, -1, 65535 ) &&
        item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
-                                        static_cast<unsigned short>( amount ), false, this );
+                                        static_cast<unsigned short>( amount ), false,
+                                        static_cast<short>( px ), static_cast<short>( py ), this );
     }
     else
     {
@@ -518,14 +533,18 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   Item* item;
   const ItemDesc* descriptor;
   int amount;
+  int px;
+  int py;
 
   if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       getParam( 3, px, -1, 65535 ) && getParam( 4, py, -1, 65535 ) &&
        item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
-                                        static_cast<unsigned short>( amount ), true, this );
+                                        static_cast<unsigned short>( amount ), true,
+                                        static_cast<short>( px ), static_cast<short>( py ), this );
     }
     else
     {
@@ -1073,14 +1092,18 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
   Character* chr;
   const ItemDesc* descriptor;
   unsigned short amount;
+  int px;
+  int py;
 
   if ( getCharacterParam( 0, chr ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       getParam( 3, px, -1, 65535 ) && getParam( 4, py, -1, 65535 ) &&
        item_create_params_ok( descriptor->objtype, amount ) )
   {
     UContainer* backpack = chr->backpack();
     if ( backpack != nullptr )
     {
-      return _create_item_in_container( backpack, descriptor, amount, false, this );
+      return _create_item_in_container( backpack, descriptor, amount, false,
+                                        static_cast<short>( px ), static_cast<short>( py ), this );
     }
     else
     {
