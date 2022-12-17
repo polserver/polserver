@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding="utf-8"?>
+<?xml version='1.0' encoding="iso-8859-1"?>
 <?xml-stylesheet type="text/xsl" href="configfiles.xslt" ?>
 <!DOCTYPE ESCRIPT SYSTEM "configfiles.dtd">
 <ESCRIPT>
@@ -1430,7 +1430,7 @@ Item (objtype)
     [Tooltip                (string tooltip {default empty})]
     [WalkOnScript           (string scriptname)]
     [Script                 (string scriptname)]
-	[SnoopScript            (string scriptname)]
+    [SnoopScript            (string scriptname)]
     [EquipScript            (string scriptname)]
     [UnequipScript          (string scriptname)]
     [ControlScript          (string scriptname)]
