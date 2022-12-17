@@ -129,9 +129,11 @@ void UoClientListener::run()
         std::unique_ptr<UoClientThread> thread( new UoClientThread( this, std::move( newsck ) ) );
         if ( thread->create() )
         {
-          client_io_thread( thread->client, true );
-          login_clients.push_back( std::move( thread ) );
-          ++login_clients_size;
+          if ( client_io_thread( thread->client, true ) )
+          {
+            login_clients.push_back( std::move( thread ) );
+            ++login_clients_size;
+          }
         }
       }
       else
