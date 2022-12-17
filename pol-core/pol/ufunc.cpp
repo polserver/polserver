@@ -970,7 +970,10 @@ Item* find_snoopable_item( u32 serial, Character** pchr )
     Character* owner = item->GetCharacterOwner();
     if ( owner != nullptr )
     {
-      *pchr = owner;
+      if ( pchr != nullptr )
+      {
+        *pchr = owner;
+      }
       return item;
     }
   }
