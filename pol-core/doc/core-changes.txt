@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+12-17-2022 Turley:
+    Fixed: potential crash in client login phase
 12-13-2022 Kevin:
     Added: CreateItemInBackpack, CreateItemInContainer, and CreateItemInInventory now have an x and y optional parameter to specify location in container gump of where to create the item.
 10-24-2022 Crowen(che666):
