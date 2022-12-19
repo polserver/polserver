@@ -1086,6 +1086,16 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_NO_DROP:
     return new BLong( no_drop() );
+  case MBR_CHARACTER_OWNER:
+  {
+    Mobile::Character* owner = GetCharacterOwner();
+    if ( owner != nullptr )
+    {
+      return new Module::EOfflineCharacterRefObjImp( owner );
+    }
+    return nullptr;
+    break;
+  }
   default:
     return nullptr;
   }

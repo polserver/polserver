@@ -270,6 +270,7 @@ ObjMember object_members[] = {
     { MBR_DISABLE_INACTIVITY_TIMEOUT, "disable_inactivity_timeout", false },
     { MBR_CURSED, "cursed", false },
     { MBR_SNOOPSCRIPT, "snoopscript", false },
+    { MBR_CHARACTER_OWNER, "character_owner", true },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

@@ -1292,13 +1292,13 @@ bool Item::check_unequiptest_scripts()
  *
  * @author DAVE 11/17
  */
-Mobile::Character* Item::GetCharacterOwner()
+Mobile::Character* Item::GetCharacterOwner() const
 {
-  UObject* top_level_item = toplevel_owner();
+  const UObject* top_level_item = toplevel_owner();
   if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     Mobile::Character* chr_owner =
-        Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
+        Core::chr_from_wornitems( static_cast<const Core::UContainer*>( top_level_item ) );
     if ( chr_owner != nullptr )
     {
       return chr_owner;

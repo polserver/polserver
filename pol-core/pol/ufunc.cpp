@@ -1556,6 +1556,15 @@ Character* chr_from_wornitems( UContainer* wornitems )
     return nullptr;  // fixed 3/8/3
 }
 
+Character* chr_from_wornitems( const UContainer* wornitems )
+{
+  Character* owner = wornitems->get_chr_owner();
+  if ( owner != nullptr )
+    return owner;
+  else
+    return nullptr;
+}
+
 void destroy_item( Item* item )
 {
   if ( item->serial == 0 )

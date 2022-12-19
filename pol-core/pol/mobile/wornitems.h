@@ -43,7 +43,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   virtual Bscript::BObjectImp* make_ref() override;
-  virtual Mobile::Character* get_chr_owner() override;
+  virtual Mobile::Character* get_chr_owner() const override;
   Mobile::Character* chr_owner;
 
   virtual UObject* owner() override;
@@ -68,7 +68,7 @@ inline Items::Item* WornItemsContainer::GetItemOnLayer( unsigned idx ) const
   return nullptr;
 }
 
-inline Mobile::Character* WornItemsContainer::get_chr_owner()
+inline Mobile::Character* WornItemsContainer::get_chr_owner() const
 {
   return chr_owner;
 }

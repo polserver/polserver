@@ -244,6 +244,7 @@ void send_open_gump( Network::Client* client, const UContainer& cont );
 void send_multis_newly_inrange( Multi::UMulti* multi, Network::Client* client );
 
 Mobile::Character* chr_from_wornitems( UContainer* wornitems );
+Mobile::Character* chr_from_wornitems( const UContainer* wornitems );
 
 void register_with_supporting_multi( Items::Item* item );
 
