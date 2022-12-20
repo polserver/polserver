@@ -599,6 +599,8 @@ public:
   bool start_skill_script( Bscript::EScriptProgram* prog );
   bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
                              bool start_attached );
+  bool start_snoop_script( Bscript::EScriptProgram* prog, Items::Item* item,
+                           Mobile::Character* owner );
   bool start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell );
   void cancel_menu();
 

@@ -174,8 +174,11 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
     // next, search worn items, items in the backpack, and items in the world.
     Items::Item* item = find_legal_item( client->chr, serial );
 
-    // next, check people's backpacks. (don't recurse down)
-    //    (not done yet)
+    Mobile::Character* owner = nullptr;
+    if ( item == nullptr )
+    {
+      item = find_snoopable_item( serial, &owner );
+    }
 
     if ( item != nullptr )
     {
@@ -222,7 +225,14 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
           client->chr->start_script( prog.get(), false, new Module::EItemRefObjImp( item ) );
       }
 
-      item->double_click( client );
+      if ( owner == nullptr )
+      {
+        item->double_click( client );
+      }
+      else
+      {
+        item->snoop( client, owner );
+      }
       return;
     }
 

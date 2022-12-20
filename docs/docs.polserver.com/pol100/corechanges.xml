@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-17-2022</datemodified>
+		<datemodified>12-19-2022</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>12-19-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">SnoopScript to itemdesc.cfg Item descriptors which runs when a character double-clicks an item that is owned by a different character, eg. another character's backpack or an item within that backpack. This can be used to implement the Snooping skill.</change>
+		</entry>
 		<entry>
 			<date>12-17-2022</date>
 			<author>Turley:</author>

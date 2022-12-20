@@ -962,6 +962,24 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
     return nullptr;
 }
 
+Item* find_snoopable_item( u32 serial, Character** pchr )
+{
+  Item* item = system_find_item( serial );
+  if ( item != nullptr )
+  {
+    Character* owner = item->GetCharacterOwner();
+    if ( owner != nullptr )
+    {
+      if ( pchr != nullptr )
+      {
+        *pchr = owner;
+      }
+      return item;
+    }
+  }
+  return nullptr;
+}
+
 // assume if you pass additlegal or isRemoteContainer, you init to false
 Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool* isRemoteContainer )
 {

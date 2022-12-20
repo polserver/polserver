@@ -78,6 +78,12 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   item = find_legal_item( client->chr, serial, &inRemoteContainer, &isRemoteContainer );
   if ( item == nullptr || isRemoteContainer )
   {
+    if ( find_snoopable_item( serial ) != nullptr )
+    {
+      send_item_move_failure( client, MOVE_ITEM_FAILURE_BELONGS_TO_OTHER );
+      return;
+    }
+
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
   }

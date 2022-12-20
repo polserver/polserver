@@ -97,6 +97,7 @@ public:
   Core::ScriptDef on_use_script;
   boost_utils::script_name_flystring equip_script;
   boost_utils::script_name_flystring unequip_script;
+  Core::ScriptDef snoop_script;
   Core::ScriptDef control_script;
   Core::ScriptDef create_script;
   Core::ScriptDef destroy_script;
