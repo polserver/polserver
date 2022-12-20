@@ -1093,7 +1093,7 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     {
       return new Module::EOfflineCharacterRefObjImp( owner );
     }
-    return nullptr;
+    return new BError( "This item is not owned by any character" );
     break;
   }
   default:
