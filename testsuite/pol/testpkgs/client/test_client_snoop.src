@@ -128,7 +128,7 @@ exported function target_nonlocal_checklos()
   DestroyItem(wall);
 
   if (tar)
-    return ret_error($"Unexpected successful target");
+    return ret_error($"Unexpected successful target: {tar.serial} {tar.desc}");
   endif
   
   var ev;
