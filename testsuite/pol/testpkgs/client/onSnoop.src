@@ -1,0 +1,5 @@
+use uo;
+
+program onSnoop(who, item)
+  SendViewContainer(who, item);
+endprogram

@@ -197,6 +197,7 @@ class Event:
   EVT_OPEN_BACKPACK = 102
   EVT_TARGET = 103
   EVT_DISABLE_ITEM_LOGGING = 104
+  EVT_DOUBLE_CLICK = 105
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -245,4 +246,6 @@ class Event:
       return "boat_moved"
     elif self.type==Event.EVT_OWNCREATE:
       return "owncreate"
+    elif self.type==Event.EVT_DOUBLE_CLICK:
+      return "double_click"
 

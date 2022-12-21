@@ -1,0 +1,108 @@
+use os;
+use uo;
+use boat;
+
+include "testutil";
+include "communication";
+
+var char;
+var npc;
+var backpackItem;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a:=FindAccount("testclient0");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+
+  // Create things out of sight of client to bypass WornItems missing handled client packet
+  npc:=CreateNpcFromTemplate(":TestClient:test_snooping", 100, 100, 0, forcelocation := 1);
+  if (!npc)
+    return ret_error("Failed to create NPC: "+npc);
+  endif
+
+  var backpack := CreateItemAtLocation( 100, 100, 0, "SnoopableBackPack");
+  if (!backpack)
+    return ret_error("Failed to create backpack item: "+npc);
+  endif
+
+  backpackItem := CreateItemInContainer(backpack, "SnoopableBackPack");
+  if (!backpackItem)
+    return ret_error("Failed to create item in backpack: "+backpackItem);
+  endif
+
+  EquipItem(npc, backpack);
+  if (!npc.backpack)
+    return ret_error("NPC has no backpack: "+npc.backpack);
+  endif
+
+  print($"npc {npc.serial} backpack {npc.backpack.serial} backpackItem {backpackItem.serial}");
+
+  SetGlobalProperty("#SnoopingNpc", npc.serial);
+endprogram
+
+exported function use_backpack_out_of_range()
+  MoveObjectToLocation(npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION);
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="double_click", arg:=npc.backpack.serial, id:=0});
+  var ev;
+  while (1)
+    ev:=waitForClient(0, {EVT_SPEECH});
+    if (!ev)
+      return ev;
+    endif
+    if (!ev.msg)
+      return ret_error("No msg property on EVT_SPEECH event");
+    endif
+    break;
+  endwhile
+
+  var expected := "That is too far away.";
+
+  if (ev.msg == expected)
+    return 1;
+  endif
+
+  return ret_error($"Unexpected double-click message: '{ev.msg}' != '{expected}'");
+endfunction
+
+
+exported function use_backpack_in_range()
+  MoveObjectToLocation(npc, char.x, char.y, char.z, flags := MOVEOBJECT_FORCELOCATION);
+
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="double_click", arg:=npc.backpack.serial, id:=0});
+  var ev;
+  while (1)
+    ev:=waitForClient(0, {EVT_DOUBLE_CLICK});
+    if (!ev)
+      return ev;
+    endif
+    break;
+  endwhile
+
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  while (1)
+    ev:=waitForClient(0, {EVT_LIST_OBJS});
+    if (!ev)
+      return ev;
+    endif
+    break;
+  endwhile
+
+  foreach item in (ev.objs)
+    if (item.serial == backpackItem.serial)
+      if (item.parent == npc.backpack.serial)
+        return 1;
+      else
+        return ret_error($"Found backpack item {item.serial}, but parent {item.parent} is not npc backpack {npc.backpack.serial}.");
+      endif
+    endif
+  endforeach
+
+  return ret_error("Could not find backpack item in client's list of objects.");
+endfunction
