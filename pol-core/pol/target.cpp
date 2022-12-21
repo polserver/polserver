@@ -217,8 +217,8 @@ void FullMsgTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* ms
 
 /******************************************************/
 LosCheckedTargetCursor::LosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                                bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
+                                                bool inform_on_cancel, bool allow_nonlocal )
+    : TargetCursor( inform_on_cancel ), allow_nonlocal_( allow_nonlocal ), func( func )
 {
 }
 
@@ -240,6 +240,12 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 
   if ( uobj == nullptr )
     uobj = system_find_multi( selected_serial );
+
+  if ( allow_nonlocal_ && uobj == nullptr )
+  {
+    uobj = find_snoopable_item( selected_serial );
+    additlegal = false;
+  }
 
   if ( uobj == nullptr )
   {
@@ -266,8 +272,8 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 
 /******************************************************/
 NoLosCheckedTargetCursor::NoLosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                                    bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
+                                                    bool inform_on_cancel, bool allow_nonlocal )
+    : TargetCursor( inform_on_cancel ), allow_nonlocal_( allow_nonlocal ), func( func )
 {
 }
 
@@ -289,6 +295,9 @@ void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6
 
   if ( uobj == nullptr )
     uobj = system_find_multi( selected_serial );
+
+  if ( allow_nonlocal_ && uobj == nullptr )
+    uobj = find_snoopable_item( selected_serial );
 
   if ( uobj == nullptr )
   {
@@ -413,6 +422,8 @@ Cursors::Cursors()
                              // with serial==0)
       los_checked_script_cursor( Module::handle_script_cursor, true ),
       nolos_checked_script_cursor( Module::handle_script_cursor, true ),
+      los_checked_allow_nonlocal_script_cursor( Module::handle_script_cursor, true, true ),
+      nolos_checked_allow_nonlocal_script_cursor( Module::handle_script_cursor, true, true ),
 
       add_member_cursor( handle_add_member_cursor ),
       remove_member_cursor( handle_remove_member_cursor ),

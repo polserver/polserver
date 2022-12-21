@@ -76,7 +76,7 @@ class LosCheckedTargetCursor : public TargetCursor
 
 protected:
   LosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                          bool inform_on_cancel = false );
+                          bool inform_on_cancel = false, bool allow_nonlocal = false );
 
 public:
   virtual ~LosCheckedTargetCursor(){};
@@ -84,6 +84,7 @@ public:
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
+  bool allow_nonlocal_;
   void ( *func )( Mobile::Character*, UObject* targetted );
 };
 /******************************************************/
@@ -96,7 +97,7 @@ class NoLosCheckedTargetCursor : public TargetCursor
 
 protected:
   NoLosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                            bool inform_on_cancel = false );
+                            bool inform_on_cancel = false, bool allow_nonlocal = false );
 
 public:
   virtual ~NoLosCheckedTargetCursor(){};
@@ -104,6 +105,7 @@ public:
   virtual void on_target_cursor( Mobile::Character*, PKTBI_6C* msg ) override;
 
 private:
+  bool allow_nonlocal_;
   void ( *func )( Mobile::Character*, UObject* targetted );
 };
 /******************************************************/
@@ -219,6 +221,9 @@ protected:
 public:
   LosCheckedTargetCursor los_checked_script_cursor;
   NoLosCheckedTargetCursor nolos_checked_script_cursor;
+
+  LosCheckedTargetCursor los_checked_allow_nonlocal_script_cursor;
+  NoLosCheckedTargetCursor nolos_checked_allow_nonlocal_script_cursor;
 
   FullMsgTargetCursor add_member_cursor;
   FullMsgTargetCursor remove_member_cursor;

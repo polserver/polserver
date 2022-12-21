@@ -156,11 +156,12 @@
 <constant> </constant>
 <constant>//  Target Options - add these together and pass as second</constant>
 <constant>//  param to Target()</constant>
-<constant>const TGTOPT_CHECK_LOS   := 0x0001;</constant>
-<constant>const TGTOPT_NOCHECK_LOS := 0x0000; // to be explicit</constant>
-<constant>const TGTOPT_HARMFUL     := 0x0002;</constant>
-<constant>const TGTOPT_NEUTRAL     := 0x0000; // to be explicit</constant>
-<constant>const TGTOPT_HELPFUL     := 0x0004;</constant>
+<constant>const TGTOPT_CHECK_LOS      := 0x0001;</constant>
+<constant>const TGTOPT_NOCHECK_LOS    := 0x0000; // to be explicit</constant>
+<constant>const TGTOPT_HARMFUL        := 0x0002;</constant>
+<constant>const TGTOPT_NEUTRAL        := 0x0000; // to be explicit</constant>
+<constant>const TGTOPT_HELPFUL        := 0x0004;</constant>
+<constant>const TGTOPT_ALLOW_NONLOCAL := 0x0008;</constant>
 <constant> </constant>
 <constant>// POLCLASS_* constants - use with obj.isa(POLCLASS_*)</constant>
 <constant>const POLCLASS_UOBJECT      := 1;</constant>
@@ -1777,11 +1778,12 @@ const SYSFIND_SEARCH_OFFLINE_MOBILES := 1;</code></explain>
   <explain>0 is returned if the character does not have line-of-sight to the object.</explain>
   <explain>uo.em constants for options, just add together non-mutually exclusive options.
 <code>
-const TGTOPT_CHECK_LOS   := 0x0001;
-const TGTOPT_NOCHECK_LOS := 0x0000; // to be explicit
-const TGTOPT_HARMFUL     := 0x0002;
-const TGTOPT_NEUTRAL     := 0x0000; // to be explicit
-const TGTOPT_HELPFUL     := 0x0004;</code></explain>
+const TGTOPT_CHECK_LOS      := 0x0001;
+const TGTOPT_NOCHECK_LOS    := 0x0000; // to be explicit
+const TGTOPT_HARMFUL        := 0x0002;
+const TGTOPT_NEUTRAL        := 0x0000; // to be explicit
+const TGTOPT_HELPFUL        := 0x0004;
+const TGTOPT_ALLOW_NONLOCAL :- 0x0008;</code></explain>
     <explain>
        The first 2 options specify if Line-of-sight to the targetting obejct should be checked or not.
        The last 3 options are involved with the reputation system. Use TGTOPT_HARMFUL if the effect that
