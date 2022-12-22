@@ -25,7 +25,7 @@ void load_tile_entry( const Package* /*pkg*/, Clib::ConfigElem& elem )
 {
   unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), nullptr, 0 ) );
   passert_always( graphic < ( systemstate.config.max_tile_id + 1 ) );
-  Tile& entry = systemstate.tile[graphic];
+  Tile& entry = systemstate.tile.at(graphic);
   entry.desc = elem.remove_string( "Desc" );
   entry.uoflags = elem.remove_ulong( "UoFlags" );
   entry.layer = static_cast<u8>( elem.remove_ushort( "Layer", 0 ) );
@@ -39,8 +39,7 @@ void load_tile_entry( const Package* /*pkg*/, Clib::ConfigElem& elem )
 void load_tiles_cfg()
 {
   u32 tile_count = systemstate.config.max_tile_id + 1;
-  systemstate.tile = new Tile[static_cast<size_t>( tile_count )];
-  memset( systemstate.tile, 0, sizeof( Tile ) * tile_count );
+  systemstate.tile.resize( tile_count );
 
   load_all_cfgs( "tiles.cfg", "TILE", load_tile_entry );
 
