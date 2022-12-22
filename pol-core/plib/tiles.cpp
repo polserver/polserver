@@ -38,7 +38,9 @@ void load_tile_entry( const Package* /*pkg*/, Clib::ConfigElem& elem )
 
 void load_tiles_cfg()
 {
-  systemstate.tile = new Tile[static_cast<size_t>( systemstate.config.max_tile_id + 1 )];
+  u32 tile_count = systemstate.config.max_tile_id + 1;
+  systemstate.tile = new Tile[static_cast<size_t>( tile_count )];
+  memset( systemstate.tile, 0, sizeof( Tile ) * tile_count );
 
   load_all_cfgs( "tiles.cfg", "TILE", load_tile_entry );
 
