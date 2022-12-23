@@ -235,6 +235,7 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
   UObject* uobj = find_toplevel_object( selected_serial );
   // FIXME inefficient, but neither works well by itself.
   bool additlegal = false;
+  Mobile::Character* character_owner = nullptr;
   if ( uobj == nullptr )
     uobj = find_legal_item( chr, selected_serial, &additlegal );
 
@@ -243,7 +244,7 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 
   if ( allow_nonlocal_ && uobj == nullptr )
   {
-    uobj = find_snoopable_item( selected_serial );
+    uobj = find_snoopable_item( selected_serial, &character_owner );
     additlegal = false;
   }
 
@@ -256,7 +257,9 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
     return;
   }
 
-  if ( !additlegal && !chr->realm()->has_los( *chr, *uobj->toplevel_owner() ) )
+  UObject* toplevel_owner = character_owner == nullptr ? uobj->toplevel_owner() : character_owner;
+
+  if ( !additlegal && !chr->realm()->has_los( *chr, *toplevel_owner ) )
   {
     if ( chr->client != nullptr )
       send_sysmessage( chr->client, "That is not within your line of sight." );
