@@ -125,7 +125,7 @@ exported function target_nonlocal_checklos()
 
   var tar:=Target(char,TGTOPT_ALLOW_NONLOCAL | TGTOPT_CHECK_LOS);
 
-  // DestroyItem(wall);
+  DestroyItem(wall);
 
   if (tar)
     return ret_error($"Unexpected successful target: {tar.serial} {tar.desc} los check {CheckLosAt(char, npc.x, npc.y, npc.z)}");
