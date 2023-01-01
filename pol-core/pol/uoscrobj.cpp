@@ -515,6 +515,12 @@ BObjectImp* EUBoatRefObjImp::call_polmethod( const char* methodname, Core::UOExe
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
+
+  Multi::UBoat* boat = obj_.get();
+  BObjectImp* imp = boat->custom_script_method( methodname, ex );
+  if ( imp )
+    return imp;
+
   return base::call_polmethod( methodname, ex );
 }
 
