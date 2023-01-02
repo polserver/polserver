@@ -393,6 +393,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( unequip_script_ != itemdesc().unequip_script )
     sw() << "\tUnequipScript\t" << unequip_script_.get() << pf_endl;
 
+  if ( !snoop_script_.get().empty() )
+    sw() << "\tSnoopScript\t" << snoop_script_.get() << pf_endl;
+
   if ( decayat_gameclock_ != 0 )
     sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
