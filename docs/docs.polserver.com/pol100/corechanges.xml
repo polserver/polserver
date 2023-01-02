@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-19-2022</datemodified>
+		<datemodified>01-02-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-02-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Custom Boat method scripts now properly execute.</change>
+		</entry>
 		<entry>
 			<date>12-19-2022</date>
 			<author>Kevin:</author>
