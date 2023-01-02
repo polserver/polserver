@@ -74,7 +74,8 @@ size_t Item::estimatedSize() const
          + sizeof( unsigned short )                          /* hp_*/
          + sizeof( boost_utils::script_name_flystring )      /*on_use_script_*/
          + sizeof( boost_utils::script_name_flystring )      /*equip_script_*/
-         + sizeof( boost_utils::script_name_flystring );     /*unequip_script_*/
+         + sizeof( boost_utils::script_name_flystring )      /*unequip_script_*/
+         + sizeof( boost_utils::script_name_flystring );     /*snoop_script_*/
 }
 }  // namespace Items
 }  // namespace Pol
