@@ -761,12 +761,11 @@ void UContainer::spill_contents( Multi::UMulti* multi )
       if ( item->movable() )
       {
         contents_.pop_back();
-        item->set_dirty();
 
-        item->setposition( pos() );
+        item->setposition( toplevel_pos() );
         item->container = nullptr;
         add_item_to_world( item );
-        move_item( item, x(), y(), z(), nullptr );
+        move_item( item, item->pos() );
         if ( multi )
           multi->register_object( item );
         item->layer = 0;

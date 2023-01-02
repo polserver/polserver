@@ -246,6 +246,7 @@ const UObject* UObject::toplevel_owner() const
 
 void UObject::setposition( Pos4d newpos )
 {
+  set_dirty();
   pos( std::move( newpos ) );
 }
 

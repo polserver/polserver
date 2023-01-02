@@ -193,18 +193,18 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
       return new BError( "Item was destroyed in OnRemove script" );
     }
 
-    item->set_dirty();
-
     item->extricate();
-    // TODO POS if realm is nullptr from root the next lines will fail
     //  wherever it was, it wasn't in the world/on the ground
-    item->setposition( oldroot->pos() );
+    item->setposition( oldroot->toplevel_pos() );
+    if ( item->realm() == nullptr )
+      item->setposition( Pos4d( item->pos3d(), newpos.realm() ) );
     // move_item calls MoveItemWorldLocation, so this gets it
     // in the right place to start with.
     add_item_to_world( item );
   }
-
-  move_item( item, newpos );
+  const Pos4d& oldpos = item->toplevel_pos();
+  item->setposition( newpos );
+  move_item( item, oldpos );
 
   if ( multi != nullptr )
   {

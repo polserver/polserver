@@ -832,36 +832,38 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
 void move_to_ground( Items::Item* item )
 {
+  const Core::Pos4d& oldpos = item->toplevel_pos();
   item->set_dirty();
   item->movable( true );
   item->set_decay_after( 60 );  // just a dummy in case decay=0
   item->restart_decay_timer();
-  for ( unsigned short xd = 0; xd < 5; ++xd )
+  for ( unsigned short xd = 0; xd < 5; ++xd )  // TODO POS Range2d for Vectors?
   {
     for ( unsigned short yd = 0; yd < 5; ++yd )
     {
       Items::Item* walkon;
       UMulti* multi;
       short newz;
-      unsigned short sx = item->x();
-      unsigned short sy = item->y();
       item->setposition( Core::Pos4d( item->pos() ).x( 0 ).y( 0 ) );
+      auto newpos = oldpos + Core::Vec2d( xd, yd );
       // move 'self' a bit so it doesn't interfere with itself
-      bool res = item->realm()->walkheight( sx + xd, sy + yd, item->z(), &newz, &multi, &walkon,
-                                            true, Plib::MOVEMODE_LAND );
-      item->setposition( Core::Pos4d( item->pos() ).x( sx ).y( sy ) );
+      bool res = item->realm()->walkheight( newpos.xy(), item->z(), &newz, &multi, &walkon, true,
+                                            Plib::MOVEMODE_LAND );
       if ( res )
       {
-        move_item( item, item->x() + xd, item->y() + yd, static_cast<signed char>( newz ),
-                   nullptr );
+        item->setposition( newpos.z( static_cast<signed char>( newz ) ) );
+        move_item( item, oldpos );
         return;
       }
+      else
+        item->setposition( oldpos );
     }
   }
   short newz;
-  if ( item->realm()->groundheight( item->x(), item->y(), &newz ) )
+  if ( item->realm()->groundheight( item->pos2d(), &newz ) )
   {
-    move_item( item, item->x(), item->y(), static_cast<signed char>( newz ), nullptr );
+    item->setposition( Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) );
+    move_item( item, oldpos );
     return;
   }
 }

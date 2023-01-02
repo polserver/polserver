@@ -63,7 +63,7 @@ namespace Pol
 {
 namespace Multi
 {
-//#define DEBUG_BOATS
+// #define DEBUG_BOATS
 
 std::vector<Network::Client*> boat_sent_to;
 
@@ -849,7 +849,6 @@ void UBoat::move_travellers( Core::UFACING move_dir, const BoatContext& oldlocat
         s16 dx, dy;
         dx = item->x() - oldlocation.x;  // keeps relative distance from boat mast
         dy = item->y() - oldlocation.y;
-        // Core::move_item( item, newx + dx, newy + dy, item->z, nullptr );
 
         item->set_dirty();
 

@@ -1619,45 +1619,11 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
 }
 
 
-void move_item( Item* item, Core::UFACING facing )
-{
-  Pos4d oldpos = item->pos();
-
-  item->setposition( item->pos().move( facing ) );
-
-  item->restart_decay_timer();
-  MoveItemWorldPosition( oldpos, item );
-
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
-  Network::RemoveObjectPkt msgremove( item->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      oldpos, RANGE_VISUAL,
-      [&]( Character* zonechr )
-      {
-        if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
-          msgremove.Send( zonechr->client );
-      } );
-}
-
-// FIXME: this is called from some places where the item didn't used
-// to be on the ground - in a container, say.
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* /*oldrealm*/ )
+void move_item( Items::Item* item, const Core::Pos4d& oldpos )
 {
-  // TODO POS remove me
-  move_item( item, Core::Pos4d( newx, newy, newz, item->realm() ) );
-}
-void move_item( Items::Item* item, const Core::Pos4d& newpos )
-{
-  item->set_dirty();
-
-  Core::Pos4d oldpos = item->pos();
-  item->setposition( newpos );
-
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );
 

@@ -2253,7 +2253,7 @@ void Character::die()
     _item->setposition( corpse->pos() );
     add_item_to_world( _item );
     register_with_supporting_multi( _item );
-    move_item( _item, corpse->x(), corpse->y(), corpse->z(), nullptr );
+    move_item( _item, corpse->pos() );
   };
 
   // WARNING: never ever touch or be 10000% sure what you are doing!!!!
