@@ -2,14 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-23-2022</datemodified>
+		<datemodified>01-02-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>12-23-2022</date>
+			<date>01-02-2022</date>
 			<author>Kevin:</author>
 			<change type="Added">Target() option TGTOPT_ALLOW_NONLOCAL to allow targeting items owned by other characters (eg. in a snooped backpack).</change>
 			<change type="Added">Member item.character_owner, returns the Character that owns the item, ie. the character whose backpack or equipped items contains the item.</change>
+			<change type="Fixed">SnoopScript is properly persisted across saves when changed via item member item.snoopscript.</change>
+		</entry>
+		<entry>
+			<date>01-02-2022</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Custom Boat method scripts now properly execute.</change>
 		</entry>
 		<entry>
 			<date>12-19-2022</date>
