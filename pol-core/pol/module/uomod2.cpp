@@ -33,6 +33,7 @@
 #include "pol_global_config.h"
 
 #include <ctype.h>
+#include <optional>
 #include <stddef.h>
 #include <string>
 
@@ -474,12 +475,12 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
         numleft -= num;
@@ -509,12 +510,12 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
 
@@ -779,8 +780,9 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 }
 
 extern BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
-                                              unsigned short amount, bool force_stacking, short px,
-                                              short py, UOExecutorModule* uoemod );
+                                              unsigned short amount, bool force_stacking,
+                                              std::optional<Core::Pos2d> pos,
+                                              UOExecutorModule* uoemod );
 // player selling to vendor
 void oldSellHandler( Client* client, PKTIN_9F* msg )
 {
@@ -833,8 +835,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     if ( vendor_bought->can_add( *item ) )
     {
-      u16 tx, ty;
-      vendor_bought->get_random_location( &tx, &ty );
+      auto contpos = vendor_bought->get_random_location();
       backpack->remove( item );
       if ( remainder_not_sold != nullptr )
       {
@@ -844,7 +845,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
         update_item_to_inrange( remainder_not_sold );
         remainder_not_sold = nullptr;
       }
-      item->setposition( Core::Pos4d( tx, ty, 0, vendor_bought->realm() ) );
+      item->setposition( Core::Pos4d( contpos, 0, vendor_bought->realm() ) );
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
       vendor_bought->add( item );
@@ -867,14 +868,14 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
     while ( temp_cost > 60000 )
     {
       BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( 60000 ), false, -1, -1,
+                                            static_cast<unsigned short>( 60000 ), false, {},
                                             nullptr ) );
       temp_cost -= 60000;
     }
     if ( temp_cost > 0 )
     {
       BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( temp_cost ), false, -1, -1,
+                                            static_cast<unsigned short>( temp_cost ), false, {},
                                             nullptr ) );
     }
   }

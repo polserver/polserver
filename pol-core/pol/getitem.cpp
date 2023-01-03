@@ -300,7 +300,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
       {
         return;
       }
-      else if ( orig_container->is_legal_posn( item, item->x(), item->y() ) )
+      else if ( orig_container->is_legal_posn( item->pos2d() ) )
       {
         if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
@@ -338,7 +338,7 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
     {
       if ( item->orphan() )
         return;
-      else if ( bp->is_legal_posn( item, item->x(), item->y() ) )
+      else if ( bp->is_legal_posn( item->pos2d() ) )
       {
         // NOTE it's never in a legal position, cause we clear the x/y/z in getitem
         if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )

@@ -298,9 +298,7 @@ bool UContainer::find_empty_slot( u8& slotIndex )
 
 void UContainer::add_at_random_location( Items::Item* item )
 {
-  u16 rx, ry;
-  get_random_location( &rx, &ry );
-  item->setposition( Pos4d( rx, ry, 0, item->realm() ) );  // TODO POS realm nullptr
+  item->setposition( Pos4d( get_random_location(), 0, item->realm() ) );  // TODO POS realm nullptr
 
   add( item );
 }
@@ -724,30 +722,20 @@ u16 UContainer::gump() const
   return desc.gump;
 }
 
-void UContainer::get_random_location( u16* px, u16* py ) const
+Core::Pos2d UContainer::get_random_location() const
 {
-  if ( desc.minx < desc.maxx )
-  {
-    *px = desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx - 1 ) );
-  }
-  else
-  {
-    *px = desc.minx;
-  }
-
-  if ( desc.miny < desc.maxy )
-  {
-    *py = desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny - 1 ) );
-  }
-  else
-  {
-    *py = desc.miny;
-  }
+  const auto range = desc.bounds.se() - desc.bounds.nw();
+  Core::Pos2d loc(
+      desc.bounds.nw().x() +
+          ( range.x() > 0 ? static_cast<u16>( Clib::random_int( range.x() - 1 ) ) : 0 ),
+      desc.bounds.nw().y() +
+          ( range.y() > 0 ? static_cast<u16>( Clib::random_int( range.y() - 1 ) ) : 0 ) );
+  return loc;
 }
 
-bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) const
+bool UContainer::is_legal_posn( const Core::Pos2d& pos ) const
 {
-  return ( px >= desc.minx && px <= desc.maxx && py >= desc.miny && py <= desc.maxy );
+  return desc.bounds.contains( pos );
 }
 
 void UContainer::spill_contents( Multi::UMulti* multi )

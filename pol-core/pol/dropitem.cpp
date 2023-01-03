@@ -654,13 +654,6 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   send_remove_object_to_inrange( item );
 
-  u16 rx, ry;
-  cont->get_random_location( &rx, &ry );
-
-  item->set_dirty();
-  item->container = cont;
-  item->setposition( Pos4d( item->pos() ).x( rx ).y( ry ) );
-
   cont->add_at_random_location( item );
 
   npc->send_event( new Module::ItemGivenEvent( client->chr, item, npc ) );
@@ -744,10 +737,9 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     }
   }
 
-  u16 rx, ry;
-  cont->get_random_location( &rx, &ry );
+  auto contpos = cont->get_random_location();
 
-  return place_item_in_container( client, item, cont, rx, ry, slotIndex );
+  return place_item_in_container( client, item, cont, contpos.x(), contpos.y(), slotIndex );
 }
 
 /* DROP_ITEM messages come in a couple varieties:

@@ -71,6 +71,7 @@
 #include <cmath>
 #include <cstddef>
 #include <exception>
+#include <optional>
 #include <stdlib.h>
 #include <string>
 
@@ -336,8 +337,8 @@ static bool item_create_params_ok( u32 objtype, int amount )
 }
 
 BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
-                                       unsigned short amount, bool force_stacking, short x, short y,
-                                       UOExecutorModule* uoemod )
+                                       unsigned short amount, bool force_stacking,
+                                       std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod )
 {
   if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
   {
@@ -463,15 +464,10 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         return new BError( "Item was destroyed in CanInsert Script" );
       }
 
-      if ( !cont->is_legal_posn( item, x, y ) )
-      {
-        u16 tx, ty;
-        cont->get_random_location( &tx, &ty );
-        x = tx;
-        y = ty;
-      }
+      if ( !pos || !cont->is_legal_posn( pos.value() ) )
+        pos = cont->get_random_location();
 
-      item->setposition( Core::Pos4d( x, y, 0, cont->realm() ) );  // TODO POS realm
+      item->setposition( Core::Pos4d( pos.value(), 0, cont->realm() ) );  // TODO POS realm
 
       cont->add( item );
 
@@ -513,9 +509,11 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
+      std::optional<Core::Pos2d> pos;
+      if ( px >= 0 && py >= 0 )
+        pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
-                                        static_cast<unsigned short>( amount ), false,
-                                        static_cast<short>( px ), static_cast<short>( py ), this );
+                                        static_cast<unsigned short>( amount ), false, pos, this );
     }
     else
     {
@@ -542,9 +540,11 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
+      std::optional<Core::Pos2d> pos;
+      if ( px >= 0 && py >= 0 )
+        pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
-                                        static_cast<unsigned short>( amount ), true,
-                                        static_cast<short>( px ), static_cast<short>( py ), this );
+                                        static_cast<unsigned short>( amount ), true, pos, this );
     }
     else
     {
@@ -1102,8 +1102,10 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
     UContainer* backpack = chr->backpack();
     if ( backpack != nullptr )
     {
-      return _create_item_in_container( backpack, descriptor, amount, false,
-                                        static_cast<short>( px ), static_cast<short>( py ), this );
+      std::optional<Core::Pos2d> pos;
+      if ( px >= 0 && py >= 0 )
+        pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
+      return _create_item_in_container( backpack, descriptor, amount, false, pos, this );
     }
     else
     {
@@ -1329,7 +1331,7 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   if ( !realm->valid( x, y, z ) )
     return new BError( "Invalid Coordinates for Realm" );
 
-  if ( !getParam( 6, forceInt ))
+  if ( !getParam( 6, forceInt ) )
   {
     forceLocation = false;
   }
@@ -3545,21 +3547,19 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
       return new BError( "Couldn't set slot index on item" );
     }
 
-    short x = static_cast<short>( px );
-    short y = static_cast<short>( py );
-    if ( /*x < 0 || y < 0 ||*/ !cont->is_legal_posn( item, x, y ) )
+    Core::Pos2d cntpos;
+    if ( px < 0 || py < 0 )
+      cntpos = cont->get_random_location();
+    else
     {
-      u16 tx, ty;
-      cont->get_random_location( &tx, &ty );
-      x = tx;
-      y = ty;
+      cntpos.x( static_cast<u16>( px ) ).y( static_cast<u16>( py ) );
+      if ( !cont->is_legal_posn( cntpos ) )
+        cntpos = cont->get_random_location();
     }
-
-    // item->set_dirty();
 
     true_extricate( item );
 
-    item->setposition( Core::Pos4d( x, y, 0, cont->realm() ) );  // TODO POS realm
+    item->setposition( Core::Pos4d( cntpos, 0, cont->realm() ) );  // TODO POS realm
 
     cont->add( item );
     update_item_to_inrange( item );
