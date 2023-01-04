@@ -144,8 +144,8 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   send_remove_object_to_inrange( item );
 
   UContainer* orig_container = item->container;
-  u16 orig_x = item->x(), orig_y = item->y();
-  s8 orig_z = item->z();
+  Pos4d orig_pos = item->pos();  // potential container pos
+  Pos4d orig_toppos = item->toplevel_pos();
 
   if ( item->container != nullptr )
   {
@@ -191,18 +191,17 @@ void get_item( Network::Client* client, PKTIN_07* msg )
     if ( new_item != nullptr )
     {
       new_item->restart_decay_timer();
-      new_item->setposition( Pos4d( orig_x, orig_y, orig_z, item->realm() ) );
+      new_item->setposition( orig_pos );
       if ( orig_container != nullptr )
       {
         // NOTE: we just removed 'item' from its container,
         // so there's room for new_item.
         if ( !orig_container->can_add_to_slot( oldSlot ) || !item->slot_index( oldSlot ) )
         {
-          new_item->set_dirty();
           new_item->setposition( client->chr->pos() );
           add_item_to_world( new_item );
           register_with_supporting_multi( new_item );
-          move_item( new_item, new_item->x(), new_item->y(), new_item->z(), nullptr );
+          move_item( new_item, orig_toppos );
         }
         else
         {
@@ -301,15 +300,14 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
       {
         return;
       }
-      else if ( orig_container->is_legal_posn( item, item->x(), item->y() ) )
+      else if ( orig_container->is_legal_posn( item->pos2d() ) )
       {
         if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
-          item->set_dirty();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x(), chr->y(), chr->z(), nullptr );
+          move_item( item, chr->pos() );
           return;
         }
         else
@@ -319,11 +317,10 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
       {
         if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
-          item->set_dirty();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x(), chr->y(), chr->z(), nullptr );
+          move_item( item, chr->pos() );
           return;
         }
         else
@@ -341,16 +338,15 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
     {
       if ( item->orphan() )
         return;
-      else if ( bp->is_legal_posn( item, item->x(), item->y() ) )
+      else if ( bp->is_legal_posn( item->pos2d() ) )
       {
         // NOTE it's never in a legal position, cause we clear the x/y/z in getitem
         if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
-          item->set_dirty();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x(), chr->y(), chr->z(), nullptr );
+          move_item( item, chr->pos() );
           return;
         }
         else
@@ -360,11 +356,10 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
       {
         if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
         {
-          item->set_dirty();
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, chr->x(), chr->y(), chr->z(), nullptr );
+          move_item( item, chr->pos() );
           return;
         }
         else
@@ -377,7 +372,6 @@ void undo_get_item( Mobile::Character* chr, Items::Item* item )
   }
 
   // Last resort - put it at the player's feet.
-  item->set_dirty();
   item->setposition( chr->pos() );
   item->container = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.

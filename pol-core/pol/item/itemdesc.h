@@ -17,6 +17,7 @@
 #include "../proplist.h"
 #include "../scrdef.h"
 #include "../uobject.h"
+#include "base/range.h"
 #include "base/vector.h"
 
 namespace Pol
@@ -191,8 +192,7 @@ public:
   // string name;
   // u16 objtype;
   u16 gump;
-  u16 minx, maxx;
-  u16 miny, maxy;
+  Core::Range2d bounds;
 
   u16 max_weight;
   u16 max_items;

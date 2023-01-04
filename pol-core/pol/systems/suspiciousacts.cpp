@@ -116,14 +116,14 @@ void SuspiciousActs::DropItemOutOfRange( Network::Client* client, u32 )
   }
 }
 
-void SuspiciousActs::DropItemOutAtBlockedLocation( Network::Client* client, u32, u16 x, u16 y,
-                                                   s8 z )
+void SuspiciousActs::DropItemOutAtBlockedLocation( Network::Client* client, u32,
+                                                   const Core::Pos3d& pos )
 {
   if ( Plib::systemstate.config.show_warning_item )
   {
     POLLOG_ERROR.Format(
         "Client (Character {}) tried to drop an item at ({},{},{}), which is a blocked "
         "location.\n" )
-        << client->chr->name() << x << y << (int)z;
+        << client->chr->name() << pos.x() << pos.y() << (int)pos.z();
   }
 }

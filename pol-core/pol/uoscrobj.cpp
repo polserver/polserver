@@ -1607,16 +1607,13 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
   case MTH_SPLITSTACK_AT:
   {
     unsigned short amt;
-    unsigned short newx, newy;
-    short newz;
-    const String* realm_name;
+    Core::Pos4d newpos;
     Item* new_stack( nullptr );
     u16 item_amount = this->getamount();
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getParam( 0, newx ) || !ex.getParam( 1, newy ) || !ex.getParam( 2, newz ) ||
-              !ex.getStringParam( 3, realm_name ) )
+    else if ( !ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
       return new BError( "Invalid parameter type" );
     else if ( !ex.getParam( 4, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1626,13 +1623,6 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Amount was less than 1" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
-
-    // Validate where things are going
-    Realms::Realm* newrealm = Core::find_realm( realm_name->value() );
-    if ( !newrealm )
-      return new BError( "Realm not found" );
-    else if ( !newrealm->valid( newx, newy, newz ) )
-      return new BError( "Invalid coordinates for realm" );
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
     if ( !this->stackable() && amt > 1 )
@@ -1645,9 +1635,9 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           new_stack = this->clone();
         else
           new_stack = this->remove_part_of_stack( 1 );
-        new_stack->setposition( Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm ) );
+        new_stack->setposition( newpos );
         add_item_to_world( new_stack );
-        move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
+        move_item( new_stack, newpos );
         update_item_to_inrange( new_stack );
       }
 
@@ -1666,10 +1656,10 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->setposition( Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm ) );
+    new_stack->setposition( newpos );
     new_stack->setamount( amt );
     add_item_to_world( new_stack );
-    move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
+    move_item( new_stack, newpos );
     update_item_to_inrange( new_stack );
 
     if ( amt == item_amount )
@@ -4686,7 +4676,6 @@ BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, boo
 }
 
 
-
 BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
@@ -4812,7 +4801,7 @@ ItemGivenEvent::~ItemGivenEvent()
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, item->x(), item->y(), item->z(), nullptr );
+          move_item( item, item->pos() );
           return;
         }
         backpack->add( item );
@@ -4824,7 +4813,7 @@ ItemGivenEvent::~ItemGivenEvent()
     item->setposition( chr->pos() );
     add_item_to_world( item );
     register_with_supporting_multi( item );
-    move_item( item, item->x(), item->y(), item->z(), nullptr );
+    move_item( item, item->pos() );
   }
 }
 }  // namespace Module
