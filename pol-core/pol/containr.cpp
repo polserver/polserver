@@ -725,12 +725,13 @@ u16 UContainer::gump() const
 Core::Pos2d UContainer::get_random_location() const
 {
   const auto range = desc.bounds.se() - desc.bounds.nw();
-  Core::Pos2d loc(
-      desc.bounds.nw().x() +
-          ( range.x() > 0 ? static_cast<u16>( Clib::random_int( range.x() - 1 ) ) : 0 ),
-      desc.bounds.nw().y() +
-          ( range.y() > 0 ? static_cast<u16>( Clib::random_int( range.y() - 1 ) ) : 0 ) );
-  return loc;
+  u16 x = desc.bounds.nw().x();
+  u16 y = desc.bounds.nw().y();
+  if ( range.x() > 0 )
+    x += static_cast<u16>( Clib::random_int( range.x() - 1 ) );
+  if ( range.y() > 0 )
+    y += static_cast<u16>( Clib::random_int( range.y() - 1 ) );
+  return { x, y };
 }
 
 bool UContainer::is_legal_posn( const Core::Pos2d& pos ) const

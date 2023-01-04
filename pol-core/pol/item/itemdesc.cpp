@@ -971,7 +971,7 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 size_t ContainerDesc::estimatedSize() const
 {
   return base::estimatedSize() + sizeof( u16 ) /*gump*/
-         + sizeof( Core::Range2d )             /*minx*/
+         + sizeof( Core::Range2d )             /*bounds*/
          + sizeof( u16 )                       /*max_weight*/
          + sizeof( u16 )                       /*max_items*/
          + sizeof( u8 )                        /*max_slots*/
