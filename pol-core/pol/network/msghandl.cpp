@@ -4,6 +4,7 @@
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
+#include "../getitem.h"
 #include "../globals/network.h"
 #include "client.h"
 #include "pktboth.h"
@@ -130,7 +131,7 @@ void PacketRegistry::initialize_msg_handlers()
   MESSAGE_HANDLER_VARLEN( PKTIN_03, SpeechHandler );
   MESSAGE_HANDLER( PKTIN_05, Mobile::handle_attack );
   MESSAGE_HANDLER( PKTIN_06, doubleclick );
-  MESSAGE_HANDLER( PKTIN_07, get_item );
+  MESSAGE_HANDLER( PKTIN_07, GottenItem::handle );
   MESSAGE_HANDLER( PKTIN_08_V1, drop_item );
   MESSAGE_HANDLER_V2( PKTIN_08_V2, drop_item_v2 );
   MESSAGE_HANDLER( PKTIN_09, handle_singleclick );

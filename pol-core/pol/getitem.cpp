@@ -20,6 +20,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/rawtypes.h"
 #include "containr.h"
+#include "fnsearch.h"
 #include "item/item.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -55,7 +56,7 @@ namespace Pol
 {
 namespace Core
 {
-void get_item( Network::Client* client, PKTIN_07* msg )
+void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   u16 amount = cfBEu16( msg->amount );
@@ -121,10 +122,8 @@ void get_item( Network::Client* client, PKTIN_07* msg )
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
   }
-  if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
-  {
+  if ( item->orphan() )
     return;
-  }
 
   if ( item->container )
   {
@@ -133,10 +132,8 @@ void get_item( Network::Client* client, PKTIN_07* msg )
       send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
       return;
     }
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
-    {
+    if ( item->orphan() )
       return;
-    }
   }
 
   UObject* my_owner = item->toplevel_owner();
@@ -147,21 +144,23 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
 
-  if ( item->container != nullptr )
+  GottenItem gotten_info{ item, orig_pos };
+  if ( orig_container != nullptr )
   {
-    if ( IsCharacter( item->container->serial ) )
-      client->chr->gotten_item_source = Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF;
+    if ( IsCharacter( orig_container->serial ) )
+      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF;
     else
-      client->chr->gotten_item_source = Mobile::Character::GOTTEN_ITEM_IN_CONTAINER;
+      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
+    gotten_info._slot_index = item->slot_index();
     item->extricate();
   }
   else
   {
-    client->chr->gotten_item_source = Mobile::Character::GOTTEN_ITEM_ON_GROUND;
+    gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
     remove_item_from_world( item );
   }
 
-  client->chr->gotten_item( item );
+  client->chr->gotten_item( gotten_info );
   item->inuse( true );
   item->gotten_by( client->chr );
   item->setposition( Pos4d( 0, 0, 0, item->realm() ) );  // don't let a boat carry it around
@@ -169,10 +168,8 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   if ( orig_container != nullptr )
   {
     orig_container->on_remove( client->chr, item );
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
-    {
+    if ( item->orphan() )
       return;
-    }
   }
 
   /* Check for moving part of a stack.  Here are the possibilities:
@@ -223,13 +220,13 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   }
 
   // FIXME : Are these all the possibilities for sources and updating, correctly?
-  if ( client->chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_ON_GROUND )
+  if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND )
   {
     // Item was on the ground, so we ONLY need to update the character's weight
     // to the client.
     send_full_statmsg( client, client->chr );
   }
-  else if ( client->chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF )
+  else if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF )
   {
     // Item was equipped, let's send the full update for ar and statmsg.
     client->chr->refresh_ar();
@@ -247,8 +244,12 @@ void get_item( Network::Client* client, PKTIN_07* msg )
 }
 
 
+GottenItem::GottenItem( Items::Item* item, Core::Pos4d pos )
+    : _item( item ), _pos( std::move( pos ) ), _cnt_serial( 0 )
+{
+}
 /*
-  undo_get_item:
+  undo:
   when a client issues a get_item command, the item is moved into gotten_items.
   all other clients are told to delete it, so they no longer have access to it.
   when the client finally tries to do something with it, if that fails, the
@@ -258,129 +259,88 @@ void get_item( Network::Client* client, PKTIN_07* msg )
   is replaced in gotten_items, for a later EQUIP_ITEM message.
   */
 
-void undo_get_item( Mobile::Character* chr, Items::Item* item )
+void GottenItem::undo( Mobile::Character* chr )
 {
+  if ( !_item )
+    return;
   // item needs to be returned to where it was..  either on
   // the ground, or equipped on the current character,
   // or in whatever it used to be in.
-  ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
-  item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
-
-  item->gotten_by( nullptr );
-  if ( chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_EQUIPPED_ON_SELF )
+  ItemRef itemref( _item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  _item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
+  _item->gotten_by( nullptr );
+  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF )
   {
-    if ( chr->equippable( item ) && item->check_equiptest_scripts( chr ) &&
-         item->check_equip_script( chr, false ) )
+    if ( chr->equippable( _item ) && _item->check_equiptest_scripts( chr ) &&
+         _item->check_equip_script( chr, false ) )
     {
-      if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
-      {
+      if ( _item->orphan() )
         return;
-      }
       // is it possible the character doesn't exist? no, it's my character doing the undoing.
-      chr->equip( item );
-      send_wornitem_to_inrange( chr, item );
+      chr->equip( _item );
+      send_wornitem_to_inrange( chr, _item );
       return;
     }
-    if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
-    {
+    if ( _item->orphan() )
       return;
-    }
-    chr->gotten_item_source = Mobile::Character::GOTTEN_ITEM_IN_CONTAINER;
+    _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
+    _pos = chr->pos();
   }
 
-  if ( chr->gotten_item_source == Mobile::Character::GOTTEN_ITEM_IN_CONTAINER )
+  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER )
   {
     // First attempt to put it back in the original container.
-    // NOTE: This is lost somewhere before it gets here and so never happens.
-    u8 newSlot = 1;
-    UContainer* orig_container = item->container;
-    if ( orig_container && orig_container->can_insert_add_item( chr, UContainer::MT_PLAYER, item ) )
+    UContainer* container = nullptr;
+    auto* orig_obj = system_find_object( _cnt_serial );
+    if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
-      if ( item->orphan() )
+      container = static_cast<UContainer*>( orig_obj );
+      if ( !container->can_add( *_item ) ||
+           !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+        container = nullptr;
+    }
+    if ( _item->orphan() )
+      return;
+    if ( !container )
+    {
+      // Attempt to place the item in the player's backpack.
+      container = chr->backpack();
+      if ( !container || !container->can_add( *_item ) ||
+           !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+        container = nullptr;
+    }
+    if ( _item->orphan() )
+      return;
+    if ( container )
+    {
+      u8 newSlot = _slot_index ? _slot_index : 1;
+      if ( container->can_add_to_slot( newSlot ) && _item->slot_index( newSlot ) )
       {
+        if ( container->is_legal_posn( _pos.xy() ) )
+        {
+          _item->setposition( _pos );
+          container->add( _item );
+        }
+        else
+          container->add_at_random_location( _item );
+        update_item_to_inrange( _item );
+        container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
         return;
       }
-      else if ( orig_container->is_legal_posn( item->pos2d() ) )
-      {
-        if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
-        {
-          item->setposition( chr->pos() );
-          add_item_to_world( item );
-          register_with_supporting_multi( item );
-          move_item( item, chr->pos() );
-          return;
-        }
-        else
-          orig_container->add( item );
-      }
-      else
-      {
-        if ( !orig_container->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
-        {
-          item->setposition( chr->pos() );
-          add_item_to_world( item );
-          register_with_supporting_multi( item );
-          move_item( item, chr->pos() );
-          return;
-        }
-        else
-          orig_container->add_at_random_location( item );
-      }
-      update_item_to_inrange( item );
-      orig_container->on_insert_add_item( chr, UContainer::MT_PLAYER, item );
-      return;
     }
-
-    // Attempt to place the item in the player's backpack.
-    UContainer* bp = chr->backpack();
-    if ( bp != nullptr && bp->can_add( *item ) &&
-         bp->can_insert_add_item( chr, UContainer::MT_PLAYER, item ) )
-    {
-      if ( item->orphan() )
-        return;
-      else if ( bp->is_legal_posn( item->pos2d() ) )
-      {
-        // NOTE it's never in a legal position, cause we clear the x/y/z in getitem
-        if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
-        {
-          item->setposition( chr->pos() );
-          add_item_to_world( item );
-          register_with_supporting_multi( item );
-          move_item( item, chr->pos() );
-          return;
-        }
-        else
-          bp->add( item );
-      }
-      else
-      {
-        if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
-        {
-          item->setposition( chr->pos() );
-          add_item_to_world( item );
-          register_with_supporting_multi( item );
-          move_item( item, chr->pos() );
-          return;
-        }
-        else
-          bp->add_at_random_location( item );
-      }
-      update_item_to_inrange( item );
-      bp->on_insert_add_item( chr, UContainer::MT_PLAYER, item );
-      return;
-    }
+    _pos = chr->pos();
   }
 
-  // Last resort - put it at the player's feet.
-  item->setposition( chr->pos() );
-  item->container = nullptr;
+  // Last resort - put it on the ground, to players feet in case of error from above.
+  _item->setposition( _pos );
+  _item->container = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.
-  item->layer = 0;
+  _item->layer = 0;
 
-  add_item_to_world( item );
+  add_item_to_world( _item );
 
-  register_with_supporting_multi( item );
-  send_item_to_inrange( item );
+  register_with_supporting_multi( _item );
+  send_item_to_inrange( _item );
 }
 }  // namespace Core
 }  // namespace Pol

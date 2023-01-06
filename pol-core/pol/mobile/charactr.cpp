@@ -265,7 +265,6 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       armor_( Core::gamestate.armorzones.size() ),
       wornitems( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
                                                   // WornItemsContainer class
-      gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
       remote_containers_(),
       // MOVEMENT
       dir( 0 ),
@@ -473,14 +472,16 @@ bool Character::is_house_editing() const
 
 void Character::clear_gotten_item()
 {
-  auto item = gotten_item();
-  if ( item != nullptr )
+  if ( !has_gotten_item() )
+    return;
+  auto info = gotten_item();
+  if ( info.item() != nullptr )
   {
-    gotten_item( nullptr );
-    item->inuse( false );
+    gotten_item( {} );
+    info.item()->inuse( false );
     if ( connected() )
       Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-    undo_get_item( this, item );
+    info.undo( this );
   }
 }
 
@@ -534,7 +535,7 @@ unsigned int Character::weight() const
 {
   unsigned int wt = 10 + wornitems->weight();
   if ( has_gotten_item() )
-    wt += gotten_item()->weight();
+    wt += gotten_item().item()->weight();
   if ( trading_cont.get() )
     wt += trading_cont->weight();
   return wt;
@@ -3966,7 +3967,10 @@ void Character::realm_changed()
   wornitems->for_each_item( Core::setrealm, (void*)realm() );
   // TODO Pos: realm should be all the time nullptr for these items
   if ( has_gotten_item() )
-    gotten_item()->setposition( Core::Pos4d( gotten_item()->pos().xyz(), realm() ) );
+  {
+    auto gotten = gotten_item();
+    gotten.item()->setposition( Core::Pos4d( gotten.item()->pos().xyz(), realm() ) );
+  }
   if ( trading_cont.get() )
     trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
 
@@ -4326,7 +4330,6 @@ size_t Character::estimatedSize() const
                 + sizeof( Plib::URACE )                               /*race*/
                 + sizeof( short )                                     /*gradual_boost*/
                 + sizeof( u32 )                                       /*last_corpse*/
-                + sizeof( GOTTEN_ITEM_TYPE )                          /*gotten_item_source*/
                 + sizeof( Core::TargetCursor* )                       /*tcursor2*/
                 + sizeof( weak_ptr<Core::Menu> )                      /*menu*/
                 + sizeof( u16 )                                       /*_last_textcolor*/
