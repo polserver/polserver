@@ -3083,7 +3083,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_GETGOTTENITEM:
     if ( has_gotten_item() )
-      return new Module::EItemRefObjImp( gotten_item() );
+      return new Module::EItemRefObjImp( gotten_item().item() );
     return new BError( "Gotten Item nullptr" );
     break;
   case MTH_CLEARGOTTENITEM:

@@ -94,9 +94,7 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
   }
 
   if ( item->orphan() )
-  {
     return true;
-  }
 
   if ( !cont->can_add_to_slot( slotIndex ) )
   {
@@ -722,9 +720,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
                                                 item->getamount(), item ) )
           {
             if ( item->orphan() )
-            {
               return true;
-            }
             u16 amtadded = item->getamount();
             exitem->add_to_self( item );
             update_item_to_inrange( exitem );
@@ -780,7 +776,8 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   auto pos = Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
   u32 target_serial = cfBEu32( msg->target_serial );
 
-  Items::Item* item = client->chr->gotten_item();
+  GottenItem info = client->chr->gotten_item();
+  Items::Item* item = info.item();
   if ( item == nullptr )
   {
     SuspiciousActs::DropItemButNoneGotten( client, item_serial );
@@ -794,7 +791,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   }
   item->inuse( false );
   item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  client->chr->gotten_item( {} );
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
@@ -818,9 +815,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   if ( !item->orphan() )
   {
     if ( !res )
-    {
-      undo_get_item( client->chr, item );
-    }
+      info.undo( client->chr );
     item->inuse( false );
     item->gotten_by( nullptr );
   }
@@ -844,7 +839,8 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   u8 slotIndex = msg->slotindex;
   u32 target_serial = cfBEu32( msg->target_serial );
 
-  Items::Item* item = client->chr->gotten_item();
+  GottenItem info = client->chr->gotten_item();
+  Items::Item* item = info.item();
   if ( item == nullptr )
   {
     SuspiciousActs::DropItemButNoneGotten( client, item_serial );
@@ -858,7 +854,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   }
   item->inuse( false );
   item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  client->chr->gotten_item( {} );
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
@@ -882,9 +878,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   if ( !item->orphan() )
   {
     if ( !res )
-    {
-      undo_get_item( client->chr, item );
-    }
+      info.undo( client->chr );
     item->inuse( false );
     item->gotten_by( nullptr );
   }
