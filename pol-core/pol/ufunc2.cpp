@@ -35,7 +35,7 @@ bool send_menu( Client* client, Menu* menu )
   msg->offset += 2;
   msg->offset += 4;  // used_item_serial
   msg->WriteFlipped<u16>( menu->menu_id );
-  std::string convertedText = Clib::strUtf8ToCp1252(menu->title);
+  std::string convertedText = Clib::strUtf8ToCp1252( menu->title );
   size_t stringlen = convertedText.length();
   if ( stringlen > 80 )
     stringlen = 80;
@@ -52,7 +52,7 @@ bool send_menu( Client* client, Menu* menu )
     MenuItem* mi = &menu->menuitems_[idx];
     msg->WriteFlipped<u16>( mi->graphic_ );
     msg->WriteFlipped<u16>( mi->color_ );
-    convertedText = Clib::strUtf8ToCp1252(mi->title);
+    convertedText = Clib::strUtf8ToCp1252( mi->title );
     stringlen = convertedText.length();
     if ( stringlen > 80 )
       stringlen = 80;
@@ -84,7 +84,7 @@ void send_container_contents( Client* client, const UContainer& cont )
   u16 count = 0;
   for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
   {
-    const Items::Item* item = GET_ITEM_PTR( itr );
+    const Items::Item* item = *itr;
     if ( !item->invisible() || client->chr->can_seeinvisitems() )
     {
       msg->Write<u32>( item->serial_ext );
@@ -117,7 +117,7 @@ void send_container_contents( Client* client, const UContainer& cont )
     // revision
     for ( UContainer::const_iterator itr = cont.begin(), itrend = cont.end(); itr != itrend; ++itr )
     {
-      const Items::Item* item = GET_ITEM_PTR( itr );
+      const Items::Item* item = *itr;
       if ( !item->invisible() || client->chr->can_seeinvisitems() )
       {
         send_object_cache( client, item );

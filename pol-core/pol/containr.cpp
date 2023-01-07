@@ -82,7 +82,7 @@ void UContainer::destroy_contents()
   while ( !contents_.empty() )
   {
     Contents::value_type item = contents_.back();
-    if ( ITEM_ELEM_PTR( item ) != nullptr )  // this is really only for wornitems.
+    if ( item != nullptr )  // this is really only for wornitems.
     {
       item->container = nullptr;
       item->destroy();
@@ -576,7 +576,7 @@ void UContainer::remove( Items::Item* item )
 void UContainer::remove( iterator itr )
 {
   INC_PROFILEVAR( container_removes );
-  Items::Item* item = GET_ITEM_PTR( itr );
+  Items::Item* item = *itr;
   contents_.erase( itr );
   item->container = nullptr;
   item->reset_slot();
@@ -606,7 +606,7 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
 {
   for ( iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
   {
-    Items::Item* item = GET_ITEM_PTR( itr );
+    Items::Item* item = *itr;
     passert( item != nullptr );
     if ( item != nullptr )
     {
@@ -746,7 +746,7 @@ void UContainer::spill_contents( Multi::UMulti* multi )
   {
     while ( !contents_.empty() )
     {
-      Items::Item* item = ITEM_ELEM_PTR( contents_.back() );
+      Items::Item* item = contents_.back();
       if ( item->movable() )
       {
         contents_.pop_back();

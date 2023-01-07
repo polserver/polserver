@@ -21,7 +21,7 @@ WornItemsContainer::WornItemsContainer()
     : UContainer( Items::find_container_desc( settingsManager.extobj.wornitems_container ) ),
       chr_owner( nullptr )
 {
-  contents_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
+  contents_.resize( HIGHEST_LAYER + 1, nullptr );
 }
 
 size_t WornItemsContainer::estimatedSize() const
@@ -66,7 +66,7 @@ void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
 
   item->set_dirty();
   item->container = nullptr;
-  contents_[item->tile_layer] = EMPTY_ELEM;
+  contents_[item->tile_layer] = nullptr;
   // 12-17-2008 MuadDib added to clear item.layer properties.
   item->layer = 0;
   remove_bulk( item );

@@ -644,7 +644,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
   {
     for ( UContainer::iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
     {
-      Item* item = GET_ITEM_PTR( itr );
+      Item* item = *itr;
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont2 = static_cast<UContainer*>( item );
@@ -665,7 +665,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       {
         for ( buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
         {
-          Item* buyable_item = GET_ITEM_PTR( buyable_itr );
+          Item* buyable_item = *buyable_itr;
           if ( buyable_item->objtype_ == item->objtype_ )
             break;
         }

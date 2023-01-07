@@ -344,7 +344,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
   {
     for ( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
-      Item* item = GET_ITEM_PTR( itr );
+      Item* item = *itr;
       ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function
                                 // ends
 
@@ -5278,7 +5278,7 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
       for ( UContainer::Contents::const_iterator itr = substanceVector.begin();
             itr != substanceVector.end(); ++itr )
       {
-        item = GET_ITEM_PTR( itr );
+        item = *itr;
         if ( item != nullptr )
         {
           if ( ( makeInUse ) && ( !item->inuse() ) )
