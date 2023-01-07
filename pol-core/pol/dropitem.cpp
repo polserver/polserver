@@ -711,7 +711,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
   {
     for ( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
-      Items::Item* exitem = GET_ITEM_PTR( itr );
+      Items::Item* exitem = *itr;
       if ( exitem->can_add_to_self( *item, false ) )
       {
         if ( cont->can_add( *item ) )
@@ -900,7 +900,7 @@ void return_traded_items( Mobile::Character* chr )
   cont->extract( tmp );
   while ( !tmp.empty() )
   {
-    Items::Item* item = ITEM_ELEM_PTR( tmp.back() );
+    Items::Item* item = tmp.back();
     tmp.pop_back();
     item->container = nullptr;
     item->layer = 0;

@@ -1247,7 +1247,7 @@ Core::Spellbook* Character::spellbook( u8 school ) const
   {
     for ( Core::UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
-      const Items::Item* item = GET_ITEM_PTR( itr );
+      const Items::Item* item = *itr;
 
       if ( item != nullptr && item->script_isa( Core::POLCLASS_SPELLBOOK ) )
       {
@@ -2331,7 +2331,7 @@ void Character::die()
     // u8 corpseSlot = 1;
     while ( !tmp.empty() )
     {
-      Items::Item* bp_item = ITEM_ELEM_PTR( tmp.back() );
+      Items::Item* bp_item = tmp.back();
       tmp.pop_back();
       bp_item->container = nullptr;
       bp_item->layer = 0;

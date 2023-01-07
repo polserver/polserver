@@ -86,11 +86,11 @@ inline Items::Item* UCorpse::GetItemOnLayer( unsigned idx ) const
 {
   // Checks if the requested layer is valid
   if ( Items::valid_equip_layer( idx ) )
-    return ITEM_ELEM_PTR( layer_list_[idx] );
+    return layer_list_[idx];
 
-  return EMPTY_ELEM;
+  return nullptr;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

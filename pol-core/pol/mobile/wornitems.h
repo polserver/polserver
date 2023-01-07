@@ -63,7 +63,7 @@ public:
 inline Items::Item* WornItemsContainer::GetItemOnLayer( unsigned idx ) const
 {
   if ( Items::valid_equip_layer( idx ) )
-    return ITEM_ELEM_PTR( contents_[idx] );
+    return contents_[idx];
 
   return nullptr;
 }
@@ -72,7 +72,7 @@ inline Mobile::Character* WornItemsContainer::get_chr_owner() const
 {
   return chr_owner;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif
