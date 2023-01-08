@@ -69,14 +69,13 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
   u32 serial = cfBEu32( msg->serial );
   u16 amount = cfBEu16( msg->amount );
 
-  Items::Item* item;
-
-  if ( client->chr->has_gotten_item() )
+  auto* chr = client->chr;
+  if ( chr->has_gotten_item() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ALREADY_HOLDING_AN_ITEM );
     return;
   }
-  if ( client->chr->dead() )
+  if ( chr->dead() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
@@ -84,7 +83,7 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
   // try to find the item the client referenced, in all the legal places it might be.
 
   bool inRemoteContainer = false, isRemoteContainer = false;
-  item = find_legal_item( client->chr, serial, &inRemoteContainer, &isRemoteContainer );
+  auto* item = find_legal_item( chr, serial, &inRemoteContainer, &isRemoteContainer );
   if ( item == nullptr || isRemoteContainer )
   {
     if ( find_snoopable_item( serial ) != nullptr )
@@ -98,14 +97,12 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
   }
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
 
-  u8 oldSlot = item->slot_index();
-
-  if ( !client->chr->pos().in_range( item->pos(), 2 ) && !client->chr->can_moveanydist() )
+  if ( !chr->pos().in_range( item->pos(), 2 ) && !chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;
   }
-  if ( !client->chr->realm()->has_los( *client->chr, *( item->toplevel_owner() ) ) )
+  if ( !chr->realm()->has_los( *chr, *( item->toplevel_owner() ) ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return;
@@ -116,8 +113,7 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
     return;
   }
-
-  if ( !client->chr->can_move( item ) )
+  if ( !chr->can_move( item ) )
   {
     send_sysmessage( client, "You cannot move that." );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
@@ -135,7 +131,7 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
 
   if ( item->container )
   {
-    if ( !item->container->check_can_remove_script( client->chr, item ) )
+    if ( !item->container->check_can_remove_script( chr, item ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
       return;
@@ -151,15 +147,19 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
   UContainer* orig_container = item->container;
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
+  u8 oldSlot = item->slot_index();
 
   GottenItem gotten_info{ item, orig_pos };
-  if ( orig_container != nullptr )
+  if ( orig_container )
   {
     if ( IsCharacter( orig_container->serial ) )
       gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF;
     else
+    {
       gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-    gotten_info._slot_index = item->slot_index();
+      gotten_info._cnt_serial = orig_container->serial;
+    }
+    gotten_info._slot_index = oldSlot;
     item->extricate();
   }
   else
@@ -168,14 +168,14 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
     remove_item_from_world( item );
   }
 
-  client->chr->gotten_item( gotten_info );
+  chr->gotten_item( gotten_info );
   item->inuse( true );
-  item->gotten_by( client->chr );
+  item->gotten_by( chr );
   item->setposition( Pos4d( 0, 0, 0, item->realm() ) );  // don't let a boat carry it around
 
   if ( orig_container != nullptr )
   {
-    orig_container->on_remove( client->chr, item );
+    orig_container->on_remove( chr, item );
     if ( item->orphan() )
       return;
   }
@@ -203,7 +203,7 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
         // so there's room for new_item.
         if ( !orig_container->can_add_to_slot( oldSlot ) || !item->slot_index( oldSlot ) )
         {
-          new_item->setposition( client->chr->pos() );
+          new_item->setposition( chr->pos() );
           add_item_to_world( new_item );
           register_with_supporting_multi( new_item );
           move_item( new_item, orig_toppos );
@@ -232,22 +232,22 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
   {
     // Item was on the ground, so we ONLY need to update the character's weight
     // to the client.
-    send_full_statmsg( client, client->chr );
+    send_full_statmsg( client, chr );
   }
   else if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF )
   {
     // Item was equipped, let's send the full update for ar and statmsg.
-    client->chr->refresh_ar();
+    chr->refresh_ar();
   }
   else if ( my_owner->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     // Toplevel owner was a container (not a character). Only update weight.
-    send_full_statmsg( client, client->chr );
+    send_full_statmsg( client, chr );
   }
-  else if ( ( my_owner->ismobile() ) && my_owner->serial != client->chr->serial )
+  else if ( ( my_owner->ismobile() ) && my_owner->serial != chr->serial )
   {
     // Toplevel was a mob. Make sure mob was not us. If it's not, send update to weight.
-    send_full_statmsg( client, client->chr );
+    send_full_statmsg( client, chr );
   }
 }
 
@@ -255,7 +255,7 @@ void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
 bool GottenItem::drop( Network::Client* client, u32 item_serial, const Pos3d& pos,
                        u32 target_serial, u8 slot_index )
 {
-  if ( _item == nullptr )
+  if ( !_item )
   {
     SuspiciousActs::DropItemButNoneGotten( client, item_serial );
     return false;
@@ -360,16 +360,16 @@ bool GottenItem::drop_on_ground( Network::Client* client, const Pos3d& pos )
 
   Mobile::Character* chr = client->chr;
 
-  Multi::UMulti* multi;
-  short newz;
-  if ( !chr->pos().in_range( pos, 2 ) && !client->chr->can_moveanydist() )
+  if ( !chr->pos().in_range( pos, 2 ) && !chr->can_moveanydist() )
   {
     SuspiciousActs::DropItemOutOfRange( client, _item->serial );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
-  if ( !chr->realm()->dropheight( pos, client->chr->z(), &newz, &multi ) )
+  Multi::UMulti* multi;
+  short newz;
+  if ( !chr->realm()->dropheight( pos, chr->z(), &newz, &multi ) )
   {
     SuspiciousActs::DropItemOutAtBlockedLocation( client, _item->serial, pos );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
@@ -377,7 +377,7 @@ bool GottenItem::drop_on_ground( Network::Client* client, const Pos3d& pos )
   }
 
   LosObj tgt( Pos4d( pos.xy(), static_cast<s8>( newz ), chr->realm() ) );
-  if ( !chr->realm()->has_los( *client->chr, tgt ) )
+  if ( !chr->realm()->has_los( *chr, tgt ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
