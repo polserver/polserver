@@ -36,8 +36,30 @@ endprogram</example>
     <relatedobj>Item</relatedobj>
     <relatedcfg>itemdesc.cfg</relatedcfg>
     <relatedcfg>servspecopt.cfg</relatedcfg>
+    <relatedtype>SnoopScript</relatedtype>
 </scripttype>
 
+<scripttype name="SnoopScript">
+    <prototype>program snoopscript(character, item, item_character_owner)</prototype>
+    <parameter name="character" value="Character Ref"/>
+    <parameter name="item" value="Item Ref" />
+    <parameter name="item_character_owner" value="Character Ref"/>
+    <return>Return value ignored</return>
+    <schedtype>Normal</schedtype>
+    <def_prio>100</def_prio>
+    <whencalled>When a client double clicks on an item with a defined snoop script inside a container that the character does not have access to, eg. another character's backpack.</whencalled>
+    <wherelives>The 'program' in a .src file, in a package or /scripts/items</wherelives>
+    <todefine>In the item's itemdesc.cfg entry, the 'SnoopScript' property defines the location of the snoop script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/items. Also item.snoopscript is writable in the same format.</todefine>
+    <explain>This script type is similar to the UseScript script type and follows the same restrictions, eg. distance checks.</explain>
+    <example>
+use uo;
+use util;
+program my_example_snoopscript(character, item, item_character_owner)
+    PrintTextAbove(item, $"{character.name} used {item_character_owner.name}'s item!");
+    item.color := RandomInt(50);
+endprogram</example>
+    <relatedtype>UseScript</relatedtype>
+</scripttype>
 
 <scripttype name="WalkOnScript">
     <prototype>program walkonscript(character, item, lastx, lasty, lastz)</prototype>
