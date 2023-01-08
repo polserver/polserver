@@ -1479,6 +1479,18 @@ class SmoothBoatPacket(Packet):
         break
 
 
+class HealthBarStatusUpdate(Packet):
+  ''' Health bar status update (KR) '''
+
+  cmd = 0x17
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.dushort()
+    self.color = self.dushort()
+    self.flags = self.duchar()
+
 ################################################################################
 # Build packet list when this module is imported, must stay at the end
 ################################################################################

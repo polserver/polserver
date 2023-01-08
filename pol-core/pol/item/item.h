@@ -215,7 +215,7 @@ public:
    *
    * @author DAVE, 11/17
    */
-  Mobile::Character* GetCharacterOwner();
+  Mobile::Character* GetCharacterOwner() const;
   /**
    * I'm using the named constructor idiom for creation,
    * so that the right kind of object gets created

@@ -165,11 +165,12 @@ const SYSFIND_SEARCH_OFFLINE_MOBILES := 1;
 //	Target Options - add these together and pass as second
 //	param to Target()
 
-const TGTOPT_CHECK_LOS   := 0x0001;
-const TGTOPT_NOCHECK_LOS := 0x0000;	// to be explicit
-const TGTOPT_HARMFUL     := 0x0002;
-const TGTOPT_NEUTRAL     := 0x0000;	// to be explicit
-const TGTOPT_HELPFUL     := 0x0004;
+const TGTOPT_CHECK_LOS      := 0x0001;
+const TGTOPT_NOCHECK_LOS    := 0x0000;	// to be explicit
+const TGTOPT_HARMFUL        := 0x0002;
+const TGTOPT_NEUTRAL        := 0x0000;	// to be explicit
+const TGTOPT_HELPFUL        := 0x0004;
+const TGTOPT_ALLOW_NONLOCAL := 0x0008;
 
 // POLCLASS_* constants - use with obj.isa(POLCLASS_*)
 const POLCLASS_UOBJECT      := 1;

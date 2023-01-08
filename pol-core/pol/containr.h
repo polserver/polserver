@@ -199,7 +199,7 @@ public:
                                  unsigned short amt_added );
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
-  virtual Mobile::Character* get_chr_owner() { return nullptr; };
+  virtual Mobile::Character* get_chr_owner() const { return nullptr; };
   // system_find: bypasses all locks, etc.
   Items::Item* system_find( u32 serial ) const;
 

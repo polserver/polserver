@@ -1092,6 +1092,16 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_NO_DROP:
     return new BLong( no_drop() );
+  case MBR_CHARACTER_OWNER:
+  {
+    Mobile::Character* owner = GetCharacterOwner();
+    if ( owner != nullptr )
+    {
+      return new Module::EOfflineCharacterRefObjImp( owner );
+    }
+    return new BError( "This item is not owned by any character" );
+    break;
+  }
   default:
     return nullptr;
   }
@@ -1199,7 +1209,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1212,7 +1222,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1225,7 +1235,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1238,7 +1248,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1251,7 +1261,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1264,7 +1274,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1277,7 +1287,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1290,7 +1300,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1303,7 +1313,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1316,7 +1326,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1330,7 +1340,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1343,7 +1353,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1356,7 +1366,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1369,7 +1379,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1383,7 +1393,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1397,7 +1407,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1410,7 +1420,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1423,7 +1433,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1436,7 +1446,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1449,7 +1459,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1462,7 +1472,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1475,7 +1485,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1489,7 +1499,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1502,7 +1512,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1515,7 +1525,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1536,7 +1546,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         if ( Core::IsCharacter( container->serial ) )
         {
-          Mobile::Character* chr = chr_from_wornitems( container );
+          Mobile::Character* chr = container->get_chr_owner();
           if ( chr != nullptr )
             chr->refresh_ar();
         }
@@ -1551,7 +1561,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         if ( Core::IsCharacter( container->serial ) )
         {
-          Mobile::Character* chr = chr_from_wornitems( container );
+          Mobile::Character* chr = container->get_chr_owner();
           if ( chr != nullptr )
             chr->refresh_ar();
         }
@@ -4557,7 +4567,7 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           Mobile::ARUpdater::on_change( chr );
       }

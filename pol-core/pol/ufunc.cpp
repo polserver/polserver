@@ -1546,16 +1546,6 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
       } );
 }
 
-// DAVE made heavy changes to this 11/17 for speed.
-Character* chr_from_wornitems( UContainer* wornitems )
-{
-  Character* owner = wornitems->get_chr_owner();
-  if ( owner != nullptr )
-    return owner;
-  else
-    return nullptr;  // fixed 3/8/3
-}
-
 void destroy_item( Item* item )
 {
   if ( item->serial == 0 )

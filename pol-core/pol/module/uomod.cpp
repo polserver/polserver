@@ -788,6 +788,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
 const int TGTOPT_CHECK_LOS = 0x0001;
 const int TGTOPT_HARMFUL = 0x0002;
 const int TGTOPT_HELPFUL = 0x0004;
+const int TGTOPT_ALLOW_NONLOCAL = 0x0008;
 
 void handle_script_cursor( Character* chr, UObject* obj )
 {
@@ -858,13 +859,28 @@ BObjectImp* UOExecutorModule::mf_Target()
   TargetCursor* tgt_cursor = nullptr;
 
   bool is_los_checked = ( target_options & TGTOPT_CHECK_LOS ) && !chr->ignores_line_of_sight();
+  bool allow_nonlocal = ( target_options & TGTOPT_ALLOW_NONLOCAL );
   if ( is_los_checked )
   {
-    tgt_cursor = &gamestate.target_cursors.los_checked_script_cursor;
+    if ( allow_nonlocal )
+    {
+      tgt_cursor = &gamestate.target_cursors.los_checked_allow_nonlocal_script_cursor;
+    }
+    else
+    {
+      tgt_cursor = &gamestate.target_cursors.los_checked_script_cursor;
+    }
   }
   else
   {
-    tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
+    if ( allow_nonlocal )
+    {
+      tgt_cursor = &gamestate.target_cursors.nolos_checked_allow_nonlocal_script_cursor;
+    }
+    else
+    {
+      tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
+    }
   }
 
   tgt_cursor->send_object_cursor( chr->client, crstype );

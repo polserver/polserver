@@ -873,7 +873,8 @@ class Client(threading.Thread):
       self.log.info('Ignoring new subserver packet')
     elif isinstance(pkt, packets.SmoothBoatPacket):
       self.handleSmoothBoatPacket(pkt)
-
+    elif isinstance(pkt, packets.HealthBarStatusUpdate):
+      pass
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
