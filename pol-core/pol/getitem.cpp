@@ -22,16 +22,18 @@
 #include "containr.h"
 #include "fnsearch.h"
 #include "item/item.h"
+#include "los.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
+#include "network/packethelper.h"
 #include "network/pktdef.h"
 #include "network/pktin.h"
 #include "reftypes.h"
 #include "statmsg.h"
+#include "systems/suspiciousacts.h"
 #include "ufunc.h"
 #include "uobject.h"
 #include "uworld.h"
-
 
 /* How get_item works:
    when the client drags an item off the ground,
@@ -56,7 +58,13 @@ namespace Pol
 {
 namespace Core
 {
-void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
+bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target_serial,
+                          u8 slotIndex );
+
+bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, const Pos2d& pos,
+                 u8 slotIndex );
+
+void GottenItem::handle_lift( Network::Client* client, PKTIN_07* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   u16 amount = cfBEu16( msg->amount );
@@ -92,7 +100,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   u8 oldSlot = item->slot_index();
 
-  if ( pol_distance( client->chr, item ) > 2 && !client->chr->can_moveanydist() )
+  if ( !client->chr->pos().in_range( item->pos(), 2 ) && !client->chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;
@@ -244,10 +252,164 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 }
 
 
+bool GottenItem::drop( Network::Client* client, u32 item_serial, const Pos3d& pos,
+                       u32 target_serial, u8 slot_index )
+{
+  if ( _item == nullptr )
+  {
+    SuspiciousActs::DropItemButNoneGotten( client, item_serial );
+    return false;
+  }
+  if ( _item->serial != item_serial )
+  {
+    SuspiciousActs::DropItemOtherThanGotten( client, item_serial, _item->serial );
+    _item->gotten_by( nullptr );  // TODO: shouldn't we clear_gotten_item() here?
+    return false;
+  }
+  _item->inuse( false );
+  _item->gotten_by( nullptr );
+  client->chr->gotten_item( {} );
+
+  bool res;
+  if ( target_serial == 0xFFffFFffLu )
+  {
+    res = drop_on_ground( client, pos );
+  }
+  else if ( pos.x() == 0xFFFF )
+  {
+    res = drop_item_on_object( client, _item, target_serial, slot_index );
+  }
+  else
+  {
+    Multi::UMulti* multi = system_find_multi( target_serial );
+
+    if ( multi != nullptr )
+      res = drop_on_ground( client, pos + Vec2d( multi->x(), multi->y() ) );
+    else
+      res = place_item( client, _item, target_serial, pos.xy(), 0 );
+  }
+
+  if ( !_item->orphan() )
+  {
+    if ( !res )
+      undo( client->chr );
+    _item->inuse( false );
+    _item->gotten_by( nullptr );
+  }
+  return true;
+}
+
+/* DROP_ITEM messages come in a couple varieties:
+
+    1)  Dropping an item on another object, or a person:
+    item_serial: serial number of item to drop
+    x: 0xFFFF
+    y: 0xFFFF
+    z: 0
+    target_serial: serial number of item or character to drop on.
+
+    2)  Dropping an item on the ground:
+    item_serial: serial number of item to drop
+    x,y,z: position
+    target_serial: 0xFFFFFFFF
+
+    3)  Placing an item in a container, or in an existing pile:
+    item_serial: serial number of item to drop
+    x: x-position
+    y: y-position
+    z: 0
+    target_serial: serial number of item or character or pile to drop on.
+*/
+/*Original version of packet is supported by this function.*/
+void GottenItem::handle_drop( Network::Client* client, PKTIN_08_V1* msg )
+{
+  u32 item_serial = cfBEu32( msg->item_serial );
+  auto pos = Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+  u32 target_serial = cfBEu32( msg->target_serial );
+
+  GottenItem info = client->chr->gotten_item();
+  info.drop( client, item_serial, pos, target_serial, 0 );
+  send_full_statmsg( client, client->chr );
+}
+
+/*This is used for the version of the packet introduced in clients 6.0.1.7 2D and
+UO:KR+ to support Slots*/
+void GottenItem::handle_drop_v2( Network::Client* client, PKTIN_08_V2* msg )
+{
+  u32 item_serial = cfBEu32( msg->item_serial );
+  auto pos = Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
+  u8 slotIndex = msg->slotindex;
+  u32 target_serial = cfBEu32( msg->target_serial );
+
+  GottenItem info = client->chr->gotten_item();
+  if ( !info.drop( client, item_serial, pos, target_serial, slotIndex ) )
+    return;
+
+  Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;
+  drop_msg.Send( client );
+  send_full_statmsg( client, client->chr );
+}
+
+bool GottenItem::drop_on_ground( Network::Client* client, const Pos3d& pos )
+{
+  if ( _item->no_drop() )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
+  }
+
+  Mobile::Character* chr = client->chr;
+
+  Multi::UMulti* multi;
+  short newz;
+  if ( !chr->pos().in_range( pos, 2 ) && !client->chr->can_moveanydist() )
+  {
+    SuspiciousActs::DropItemOutOfRange( client, _item->serial );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
+    return false;
+  }
+
+  if ( !chr->realm()->dropheight( pos, client->chr->z(), &newz, &multi ) )
+  {
+    SuspiciousActs::DropItemOutAtBlockedLocation( client, _item->serial, pos );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
+    return false;
+  }
+
+  LosObj tgt( Pos4d( pos.xy(), static_cast<s8>( newz ), chr->realm() ) );
+  if ( !chr->realm()->has_los( *client->chr, tgt ) )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
+    return false;
+  }
+
+  _item->set_dirty();
+  _item->restart_decay_timer();
+  auto oldrealm = _item->realm();  // TODO POS get rid of all the realm for_each
+  _item->setposition( tgt.pos() );
+  if ( oldrealm != chr->realm() )
+  {
+    if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+    {
+      UContainer* cont = static_cast<UContainer*>( _item );
+      cont->for_each_item( setrealm, (void*)chr->realm() );
+    }
+  }
+  _item->container = nullptr;
+  _item->reset_slot();
+  add_item_to_world( _item );
+  if ( multi != nullptr )
+    multi->register_object( _item );
+
+  send_item_to_inrange( _item );
+  return true;
+}
+
 GottenItem::GottenItem( Items::Item* item, Core::Pos4d pos )
     : _item( item ), _pos( std::move( pos ) ), _cnt_serial( 0 )
 {
 }
+
 /*
   undo:
   when a client issues a get_item command, the item is moved into gotten_items.
@@ -258,7 +420,6 @@ GottenItem::GottenItem( Items::Item* item, Core::Pos4d pos )
   the item.  In those cases, this function is not called but rather the item
   is replaced in gotten_items, for a later EQUIP_ITEM message.
   */
-
 void GottenItem::undo( Mobile::Character* chr )
 {
   if ( !_item )

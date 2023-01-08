@@ -24,6 +24,8 @@ class Item;
 namespace Core
 {
 struct PKTIN_07;
+struct PKTIN_08_V1;
+struct PKTIN_08_V2;
 
 enum class GOTTEN_ITEM_TYPE : u8
 {
@@ -38,12 +40,18 @@ public:
 
   Items::Item* item() { return _item; };
   void undo( Mobile::Character* chr );
-  static void handle( Network::Client* client, PKTIN_07* msg );
+  static void handle_lift( Network::Client* client, PKTIN_07* msg );
+  static void handle_drop( Network::Client* client, PKTIN_08_V1* msg );
+  static void handle_drop_v2( Network::Client* client, PKTIN_08_V2* msg );
 
   bool operator==( const GottenItem& o ) const { return _item == o._item; }
 
 private:
   GottenItem( Items::Item* item, Core::Pos4d pos );
+  bool drop( Network::Client* client, u32 item_serial, const Pos3d& pos, u32 target_serial,
+             u8 slot_index );
+  bool drop_on_ground( Network::Client* client, const Pos3d& pos );
+
   Items::Item* _item = nullptr;
   Core::Pos4d _pos = Core::Pos4d( 0, 0, 0, nullptr );
   u32 _cnt_serial = 0;

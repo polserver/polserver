@@ -120,8 +120,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
 void doubleclick( Network::Client* client, PKTIN_06* msg );
-void drop_item( Network::Client* client, PKTIN_08_V1* msg );
-void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg );
 void equip_item( Network::Client* client, PKTIN_13* msg );
 void handle_help( Network::Client* client, PKTIN_9B* msg );
 void handle_skill_lock( Network::Client* client, PKTBI_3A_LOCKS* msg );
