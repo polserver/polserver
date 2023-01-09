@@ -310,7 +310,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     return false;
   }
 
-  if ( ( client->chr->pos().pol_distance( target_item->pos() ) > 2 ) &&
+  if ( ( client->chr->pos().pol_distance( target_item->toplevel_pos() ) > 2 ) &&
        !client->chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
