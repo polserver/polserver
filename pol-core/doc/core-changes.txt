@@ -1,9 +1,11 @@
 ﻿-- POL100.1.0 --
-01-02-2022 Kevin:
+01-11-2023 Turley:
+    Fixed: Placing items into a container failed since nightly of 01-05-2023
+01-02-2023 Kevin:
     Added: Target() option TGTOPT_ALLOW_NONLOCAL to allow targeting items owned by other characters (eg. in a snooped backpack).
     Added: Member item.character_owner, returns the Character that owns the item, ie. the character whose backpack or equipped items contains the item.
     Fixed: SnoopScript is properly persisted across saves when changed via item member item.snoopscript.
-01-02-2022 Kevin:
+01-02-2023 Kevin:
     Fixed: Custom Boat method scripts now properly execute.
 12-19-2022 Kevin:
     Added: SnoopScript to itemdesc.cfg Item descriptors which runs when a character double-clicks an item that is owned by a different character, eg. another character's backpack or an item within that backpack. This can be used to implement the Snooping skill.
