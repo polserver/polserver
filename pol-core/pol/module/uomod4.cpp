@@ -202,7 +202,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     // in the right place to start with.
     add_item_to_world( item );
   }
-  const Pos4d& oldpos = item->toplevel_pos();
+  const Pos4d oldpos = item->toplevel_pos();
   item->setposition( newpos );
   move_item( item, oldpos );
 
