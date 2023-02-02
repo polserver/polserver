@@ -10,8 +10,7 @@
 			<author>Brndd:</author>
 			<change type="Added">GetStandingLayers() now has a &quot;includeitems&quot; parameter which allows including or excluding items from the search (default: enabled).</change>
 			<change type="Added">GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := &quot;L&quot;, doors_block := 0 ):<br/>
-This is a new EScript function that returns an Array of coordinates that are valid locations for a creature to stand on<br/>
-in a given radius around the given coordinates. One example use-case is finding valid spawning locations for NPCs within an area.</change>
+This is a new EScript function that returns an Array of coordinates that are valid locations for a creature to stand on in a given radius around the given coordinates. One example use-case is finding valid spawning locations for NPCs within an area.</change>
 		</entry>
 		<entry>
 			<date>01-11-2023</date>
