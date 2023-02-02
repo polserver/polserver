@@ -2665,6 +2665,26 @@ const MAPDATA_FLAG_ALL          := 0xffffffff; // All</code></explain>
   <related>Struct</related>
 </function>
 
+<function name="GetStandingCoordinates">
+  <prototype>GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0);</prototype>
+  <parameter name="x" value="Integer world coordinates" />
+  <parameter name="y" value="Integer world coordinates" />
+  <parameter name="radius" value="Integer" />
+  <parameter name="minz" value="Integer" />
+  <parameter name="maxz" value="Integer" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
+  <parameter name="movemode" value="String - case-sensitive movemode (e.g. &quot;LS&quot;)" />
+  <parameter name="doors_block" value="Integer (0/1)" />
+  <explain>Returns an Array of coordinates that a creature can stand on within "radius". "minz" and "maxz" may be used to specify the minimum and maximum height of the returned coordinates.</explain>
+  <return>Array of Structs with members "z" and possibly "multi" (if the coordinate is on a multi).</return>
+  <error>"Invalid parameter type"</error>
+  <error>"Realm not found"</error>
+  <error>"Coordinates invalid for realm"</error>
+  <related>Character</related>
+  <related>Array</related>
+  <related>Struct</related>
+</function>
+
 <function name="ListStaticsInBox">
   <prototype>ListStaticsInBox( x1,y1,z1, x2,y2,z2, flags := 0, realm := _DEFAULT_REALM )</prototype>
   <parameter name="x1" value="integer, for north west upper corner of box" />

@@ -142,6 +142,17 @@ public:
                           Items::Item** pwalkon, bool doors_block, Plib::MOVEMODE movemode,
                           short* gradual_boost = nullptr );
 
+  [[nodiscard]] std::vector<std::tuple<short, Multi::UMulti *, Items::Item *>>
+  get_walkheights(unsigned short x, unsigned short y, short minz, short maxz,
+                   Plib::MOVEMODE movemode, bool doors_block) const
+  {
+    return get_walkheights(Core::Pos2d(x, y), minz, maxz, movemode, doors_block);
+  }
+
+  [[nodiscard]] std::vector<std::tuple<short, Multi::UMulti *, Items::Item *>>
+  get_walkheights(const Core::Pos2d& pos, short minz, short maxz,
+                   Plib::MOVEMODE movemode, bool doors_block) const;
+
   bool dropheight( unsigned short dropx, unsigned short dropy, short dropz, short chrz, short* newz,
                    Multi::UMulti** pmulti )  // TODO Pos
   {
@@ -258,6 +269,9 @@ protected:
 
   static void lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short oldz,
                                   bool* result, short* newz, short* gradual_boost = nullptr );
+
+  static Plib::MapShapeList get_standheights( Plib::MOVEMODE movemode, Plib::MapShapeList shapes,
+                                           short minz, short maxz );
 
   static bool dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, short* newz );
 

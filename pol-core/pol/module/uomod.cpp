@@ -4477,6 +4477,68 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, inclu
     return new BError( "Invalid parameter type" );
 }
 
+BObjectImp* UOExecutorModule::mf_GetStandingCoordinates(/* x, y, radius, minz, maxz, realm := _DEFAULT_REALM, movemode := "L", doors_block = 0 */)
+{
+  int dummy, x, y, r, minz, maxz;
+  const String* realmname;
+  const String* movemodename;
+  bool doors_block;
+
+  if (!(
+           getParam(0, dummy) && //FIXME: remove this dummy once you figure out why getting the 0th param fails every time
+           getParam(1, x) &&
+           getParam(2, y) &&
+           getParam(3, r) &&
+           getParam(4, minz ) &&
+           getParam(5, maxz ) &&
+           getStringParam(6, realmname) &&
+           getStringParam(7, movemodename) &&
+           getParam(8, reinterpret_cast<int&>( doors_block ) )
+          ))
+  {
+    return new BError("Invalid parameter type");
+  }
+
+  Realms::Realm* realm = find_realm(realmname->value());
+  if (!realm)
+    return new BError("Realm not found");
+  if (!realm->valid(x, y, 0))
+    return new BError("Coordinates invalid for realm");
+
+  Plib::MOVEMODE movemode = Character::decode_movemode(movemodename->value());
+
+  std::unique_ptr<ObjArray> result(new ObjArray);
+
+  //Iterate through all tiles in range and populate the return array with valid standing locations
+  for (int i = x - r; i <= x + r; i++)
+  {
+    for (int j = y - r; j <= y + r; j++)
+    {
+      auto layers = realm->get_walkheights(i, j, minz, maxz, movemode, doors_block);
+      for (const auto & layer : layers)
+      {
+        std::unique_ptr<BStruct> height_struct(new BStruct);
+        auto z = std::get<0>(layer);
+        auto multi = std::get<1>(layer);
+
+        //Figure out which members to stick in the struct -- we only add multi it exists
+        height_struct->addMember("x", new BLong(i));
+        height_struct->addMember("y", new BLong(j));
+        height_struct->addMember("z", new BLong(z));
+        if (multi != nullptr)
+        {
+          height_struct->addMember("multi", new EMultiRefObjImp(multi));
+        }
+
+        //Add struct to the return array
+        result->addElement(height_struct.release());
+      }
+    }
+  }
+
+  return result.release();
+}
+
 BObjectImp* UOExecutorModule::mf_ReserveItem()
 {
   Item* item;

@@ -102,6 +102,7 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_ReleaseItem();
   [[nodiscard]] Bscript::BObjectImp* mf_GetStandingHeight();
   [[nodiscard]] Bscript::BObjectImp* mf_GetStandingLayers( /* x, y, flags, realm, includeitems */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_GetStandingCoordinates();
   [[nodiscard]] Bscript::BObjectImp* mf_AssignRectToWeatherRegion();
   [[nodiscard]] Bscript::BObjectImp* mf_SetRegionWeatherLevel();
   [[nodiscard]] Bscript::BObjectImp* mf_CreateAccount();
