@@ -2666,7 +2666,7 @@ const MAPDATA_FLAG_ALL          := 0xffffffff; // All</code></explain>
 </function>
 
 <function name="GetStandingCoordinates">
-  <prototype>GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0);</prototype>
+  <prototype>GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0)</prototype>
   <parameter name="x" value="Integer world coordinates" />
   <parameter name="y" value="Integer world coordinates" />
   <parameter name="radius" value="Integer" />
