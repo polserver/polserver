@@ -172,6 +172,8 @@ void play_moving_effect2_ex( const Pos3d& src, const Pos3d& dst, Realms::Realm* 
 Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = nullptr,
                               bool* isRemoteContainer = nullptr );
 
+Items::Item* find_snoopable_item( u32 serial, Mobile::Character** powner = nullptr );
+
 void send_sysmessage( Network::Client* client, const char* text,
                       unsigned short font = Plib::DEFAULT_TEXT_FONT,
                       unsigned short color = Plib::DEFAULT_TEXT_COLOR );
@@ -218,10 +220,7 @@ void transmit_to_others_inrange( Mobile::Character* center, const void* msg, uns
 
 void destroy_item( Items::Item* item );
 
-void move_item( Items::Item* item, Core::UFACING facing );
-void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* oldrealm );
-void move_item( Items::Item* item, const Core::Pos4d& newpos );
+void move_item( Items::Item* item, const Core::Pos4d& oldpos );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client );
@@ -240,8 +239,6 @@ void send_remove_character_to_nearby_cansee( const Mobile::Character* chr );
 void send_open_gump( Network::Client* client, const UContainer& cont );
 
 void send_multis_newly_inrange( Multi::UMulti* multi, Network::Client* client );
-
-Mobile::Character* chr_from_wornitems( UContainer* wornitems );
 
 void register_with_supporting_multi( Items::Item* item );
 

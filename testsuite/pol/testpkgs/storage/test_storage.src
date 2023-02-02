@@ -70,6 +70,23 @@ exported function add_item()
   //endif
   return 1;
 endfunction
+
+exported function add_item_loc()
+  var r:=FindRootItemInStorageArea(storage, "cnt");
+  if (!r)
+    return ret_error("Didnt found root "+r);
+  endif
+  var oldc:=storage.totalcount;
+  var item := CreateItemInInventory(r, 0xf3f, 1, 80, 90);
+  if (!item)
+    return ret_error($"Could not create item: {item}");
+  elseif (item.x != 80 || item.y != 90)
+    var msg := $"Item not in expected location: item.x ({item.x}) != 80 or item.y ({item.y}) != 90";
+    DestroyItem(item);
+    return ret_error(msg);
+  endif
+  return 1;
+endfunction
   
 exported function move_item()
   var r:=FindRootItemInStorageArea(storage, "cnt");

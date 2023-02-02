@@ -76,3 +76,16 @@ exported function create_in_backpack()
   endif
   return 1;
 endfunction
+
+exported function create_in_backpack_loc()
+  clean_backpack();
+  var item := CreateItemInBackpack(char, 0xf3f, 1, 80, 90);
+  if (!item)
+    return ret_error($"Could not create item: {item}");
+  elseif (item.x != 80 || item.y != 90)
+    var msg := $"Item not in expected location: item.x ({item.x}) != 80 or item.y ({item.y}) != 90";
+    DestroyItem(item);
+    return ret_error(msg);
+  endif
+  return 1;
+endfunction

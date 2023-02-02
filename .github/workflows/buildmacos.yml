@@ -14,29 +14,29 @@ jobs:
             compiler-version: default
             build-type: Release
 
-          - os: "macos-latest"
-            cxx-compiler: g++
-            c-compiler: gcc
-            compiler-version: 9
-            build-type: RelWithDebInfo
+              #- os: "macos-latest"
+              #cxx-compiler: g++
+              #c-compiler: gcc
+              #compiler-version: 11
+              #build-type: RelWithDebInfo
 
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - name: Cache curl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/curl-7.57.0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
       - name: Cache antlr
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
       - name: Cache boost
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/boost_1_78_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
@@ -89,7 +89,7 @@ jobs:
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
       - name: Upload shard test log
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
@@ -102,7 +102,7 @@ jobs:
           mv *.zip release
 
       - name: Upload Artefact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release

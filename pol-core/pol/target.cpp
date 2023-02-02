@@ -217,8 +217,8 @@ void FullMsgTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C* ms
 
 /******************************************************/
 LosCheckedTargetCursor::LosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                                bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
+                                                bool inform_on_cancel, bool allow_nonlocal )
+    : TargetCursor( inform_on_cancel ), allow_nonlocal_( allow_nonlocal ), func( func )
 {
 }
 
@@ -235,11 +235,18 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
   UObject* uobj = find_toplevel_object( selected_serial );
   // FIXME inefficient, but neither works well by itself.
   bool additlegal = false;
+  Mobile::Character* character_owner = nullptr;
   if ( uobj == nullptr )
     uobj = find_legal_item( chr, selected_serial, &additlegal );
 
   if ( uobj == nullptr )
     uobj = system_find_multi( selected_serial );
+
+  if ( allow_nonlocal_ && uobj == nullptr )
+  {
+    uobj = find_snoopable_item( selected_serial, &character_owner );
+    additlegal = false;
+  }
 
   if ( uobj == nullptr )
   {
@@ -250,7 +257,9 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
     return;
   }
 
-  if ( !additlegal && !chr->realm()->has_los( *chr, *uobj->toplevel_owner() ) )
+  UObject* toplevel_owner = character_owner == nullptr ? uobj->toplevel_owner() : character_owner;
+
+  if ( !additlegal && !chr->realm()->has_los( *chr, *toplevel_owner ) )
   {
     if ( chr->client != nullptr )
       send_sysmessage( chr->client, "That is not within your line of sight." );
@@ -266,8 +275,8 @@ void LosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6C*
 
 /******************************************************/
 NoLosCheckedTargetCursor::NoLosCheckedTargetCursor( void ( *func )( Mobile::Character*, UObject* ),
-                                                    bool inform_on_cancel )
-    : TargetCursor( inform_on_cancel ), func( func )
+                                                    bool inform_on_cancel, bool allow_nonlocal )
+    : TargetCursor( inform_on_cancel ), allow_nonlocal_( allow_nonlocal ), func( func )
 {
 }
 
@@ -289,6 +298,9 @@ void NoLosCheckedTargetCursor::on_target_cursor( Mobile::Character* chr, PKTBI_6
 
   if ( uobj == nullptr )
     uobj = system_find_multi( selected_serial );
+
+  if ( allow_nonlocal_ && uobj == nullptr )
+    uobj = find_snoopable_item( selected_serial );
 
   if ( uobj == nullptr )
   {
@@ -413,6 +425,8 @@ Cursors::Cursors()
                              // with serial==0)
       los_checked_script_cursor( Module::handle_script_cursor, true ),
       nolos_checked_script_cursor( Module::handle_script_cursor, true ),
+      los_checked_allow_nonlocal_script_cursor( Module::handle_script_cursor, true, true ),
+      nolos_checked_allow_nonlocal_script_cursor( Module::handle_script_cursor, true, true ),
 
       add_member_cursor( handle_add_member_cursor ),
       remove_member_cursor( handle_remove_member_cursor ),

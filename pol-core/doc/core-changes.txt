@@ -1,4 +1,24 @@
 ﻿-- POL100.1.0 --
+01-11-2023 Turley:
+    Fixed: Placing items into a container failed since nightly of 01-05-2023
+01-02-2023 Kevin:
+    Added: Target() option TGTOPT_ALLOW_NONLOCAL to allow targeting items owned by other characters (eg. in a snooped backpack).
+    Added: Member item.character_owner, returns the Character that owns the item, ie. the character whose backpack or equipped items contains the item.
+    Fixed: SnoopScript is properly persisted across saves when changed via item member item.snoopscript.
+01-02-2023 Kevin:
+    Fixed: Custom Boat method scripts now properly execute.
+12-19-2022 Kevin:
+    Added: SnoopScript to itemdesc.cfg Item descriptors which runs when a character double-clicks an item that is owned by a different character, eg. another character's backpack or an item within that backpack. This can be used to implement the Snooping skill.
+12-17-2022 Turley:
+    Fixed: potential crash in client login phase
+12-13-2022 Kevin:
+    Added: CreateItemInBackpack, CreateItemInContainer, and CreateItemInInventory now have an x and y optional parameter to specify location in container gump of where to create the item.
+10-24-2022 Crowen(che666):
+    Fixed: uo.em Broadcast and unicode.em BroadcastUC renamed requiredcmdLevel parameter to required_cmdlevel to be consistent.
+10-15-2022 Turley:
+    Fixed: crash when calling another method inside of a methodscript
+09-27-2022 Brndd:
+    Added: CreateNPCFromTemplate() now has a "forcelocation" parameter, which allows creating NPCs even in invalid locations.
 09-21-2022 Kevin:
     Added: POLCore() member "poldir", returning the directory of the POL executable.
 08-25-2022 Yukiko:

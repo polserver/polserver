@@ -962,6 +962,24 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
     return nullptr;
 }
 
+Item* find_snoopable_item( u32 serial, Character** pchr )
+{
+  Item* item = system_find_item( serial );
+  if ( item != nullptr )
+  {
+    Character* owner = item->GetCharacterOwner();
+    if ( owner != nullptr )
+    {
+      if ( pchr != nullptr )
+      {
+        *pchr = owner;
+      }
+      return item;
+    }
+  }
+  return nullptr;
+}
+
 // assume if you pass additlegal or isRemoteContainer, you init to false
 Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool* isRemoteContainer )
 {
@@ -1528,16 +1546,6 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
       } );
 }
 
-// DAVE made heavy changes to this 11/17 for speed.
-Character* chr_from_wornitems( UContainer* wornitems )
-{
-  Character* owner = wornitems->get_chr_owner();
-  if ( owner != nullptr )
-    return owner;
-  else
-    return nullptr;  // fixed 3/8/3
-}
-
 void destroy_item( Item* item )
 {
   if ( item->serial == 0 )
@@ -1601,45 +1609,11 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
 }
 
 
-void move_item( Item* item, Core::UFACING facing )
-{
-  Pos4d oldpos = item->pos();
-
-  item->setposition( item->pos().move( facing ) );
-
-  item->restart_decay_timer();
-  MoveItemWorldPosition( oldpos, item );
-
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
-  Network::RemoveObjectPkt msgremove( item->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      oldpos, RANGE_VISUAL,
-      [&]( Character* zonechr )
-      {
-        if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
-          msgremove.Send( zonechr->client );
-      } );
-}
-
-// FIXME: this is called from some places where the item didn't used
-// to be on the ground - in a container, say.
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* /*oldrealm*/ )
+void move_item( Items::Item* item, const Core::Pos4d& oldpos )
 {
-  // TODO POS remove me
-  move_item( item, Core::Pos4d( newx, newy, newz, item->realm() ) );
-}
-void move_item( Items::Item* item, const Core::Pos4d& newpos )
-{
-  item->set_dirty();
-
-  Core::Pos4d oldpos = item->pos();
-  item->setposition( newpos );
-
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );
 

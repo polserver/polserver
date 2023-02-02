@@ -21,3 +21,10 @@ if (a)
   a.deletecharacter(1);
   a.delete();
 endif
+
+res := GetGlobalProperty("#SnoopingNpc");
+if (res)
+  var mob := SystemFindObjectBySerial(res);
+  MoveObjectToLocation(mob, 0, 0, 0, flags := MOVEOBJECT_FORCELOCATION);
+  mob.Kill();
+endif

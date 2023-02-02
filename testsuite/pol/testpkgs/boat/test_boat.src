@@ -53,6 +53,51 @@ exported function move()
   return 1;
 endfunction
 
+exported function test_script_method_syshook()
+  var res:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);
+  if (!res)
+    return ret_error("Failed to create boat "+res);
+  endif
+  var value := res.IsSysHookBoat();
+  if (value != 1)
+    var er:="Wrong IsSysHookBoat() return value: {}".format(value);
+    DestroyMulti(res);
+    return ret_error(er);
+  endif
+  DestroyMulti(res);
+  return 1;
+endfunction
+
+exported function test_script_method_itemdesc()
+  var res:=CreateMultiAtLocation(10,50,-4,0x11001, CRMULTI_FACING_EAST);
+  if (!res)
+    return ret_error("Failed to create boat "+res);
+  endif
+  var value := res.IsItemDescBoat();
+  if (value != 1)
+    var er:="Wrong IsItemDescBoat() return value: {}".format(value);
+    DestroyMulti(res);
+    return ret_error(er);
+  endif
+  DestroyMulti(res);
+  return 1;
+endfunction
+
+exported function test_script_method_both()
+  var res:=CreateMultiAtLocation(10,50,-4,0x11001, CRMULTI_FACING_EAST);
+  if (!res)
+    return ret_error("Failed to create boat "+res);
+  endif
+  var value := res.WhereDefined();
+  if (value != "itemdesc")
+    var er:="Wrong WhereDefined() return value: {}".format(value);
+    DestroyMulti(res);
+    return ret_error(er);
+  endif
+  DestroyMulti(res);
+  return 1;
+endfunction
+
 /*exported function test_boat_realm_move()
   // crashed by wrongly converting coordinates between realms
   var boat:=CreateMultiAtLocation(10,50,-4,0x11000, CRMULTI_FACING_EAST);

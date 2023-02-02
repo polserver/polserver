@@ -165,11 +165,12 @@ const SYSFIND_SEARCH_OFFLINE_MOBILES := 1;
 //	Target Options - add these together and pass as second
 //	param to Target()
 
-const TGTOPT_CHECK_LOS   := 0x0001;
-const TGTOPT_NOCHECK_LOS := 0x0000;	// to be explicit
-const TGTOPT_HARMFUL     := 0x0002;
-const TGTOPT_NEUTRAL     := 0x0000;	// to be explicit
-const TGTOPT_HELPFUL     := 0x0004;
+const TGTOPT_CHECK_LOS      := 0x0001;
+const TGTOPT_NOCHECK_LOS    := 0x0000;	// to be explicit
+const TGTOPT_HARMFUL        := 0x0002;
+const TGTOPT_NEUTRAL        := 0x0000;	// to be explicit
+const TGTOPT_HELPFUL        := 0x0004;
+const TGTOPT_ALLOW_NONLOCAL := 0x0008;
 
 // POLCLASS_* constants - use with obj.isa(POLCLASS_*)
 const POLCLASS_UOBJECT      := 1;
@@ -253,7 +254,7 @@ AddMenuItem( menu, objtype, text, color:=0 );
 ApplyConstraint( objlist, configfile, propertyname, minvalue );
 AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
 Attach( character );
-Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredcmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
+Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
 CancelTarget( of_whom );
 CanWalk(movemode, x1, y1, z1, x2_or_dir, y2 := CANWALK_DIR, realm := _DEFAULT_REALM);
 CheckLineOfSight( object1, object2 );
@@ -269,12 +270,12 @@ CoordinateDistanceEuclidean(x1, y1, x2, y2);
 CreateAccount( acctname, password, enabled );
 CreateItemAtLocation( x, y, z, objtype, amount := 1, realm := _DEFAULT_REALM );
 CreateItemCopyAtLocation(x, y, z, item, realm := _DEFAULT_REALM);
-CreateItemInBackpack( of_character, objtype, amount := 1 );
-CreateItemInContainer( container, objtype, amount := 1 );
-CreateItemInInventory( container, objtype, amount := 1 );
+CreateItemInBackpack( of_character, objtype, amount := 1, x := -1, y := -1 );
+CreateItemInContainer( container, objtype, amount := 1, x := -1, y := -1 );
+CreateItemInInventory( container, objtype, amount := 1, x := -1, y := -1 );
 CreateMenu( title );
 CreateMultiAtLocation( x, y, z, objtype, flags := 0, realm := _DEFAULT_REALM );
-CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM);
+CreateNpcFromTemplate( template, x, y, z, override_properties := 0, realm := _DEFAULT_REALM, forcelocation := 0);
 DestroyItem( item );
 DestroyMulti( multi );
 Detach();

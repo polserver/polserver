@@ -176,6 +176,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       on_use_script( elem.remove_string( "SCRIPT", "" ), pkg, "scripts/items/" ),
       equip_script( elem.remove_string( "EQUIPSCRIPT", "" ) ),
       unequip_script( elem.remove_string( "UNEQUIPSCRIPT", "" ) ),
+      snoop_script( elem.remove_string( "SNOOPSCRIPT", "" ), pkg, "scripts/items/" ),
       control_script( elem.remove_string( "CONTROLSCRIPT", "" ), pkg, "scripts/control/" ),
       create_script( elem.remove_string( "CREATESCRIPT", "" ), pkg, "scripts/control/" ),
       destroy_script( elem.remove_string( "DESTROYSCRIPT", "" ), pkg, "scripts/control/" ),
@@ -774,6 +775,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "Script", new String( on_use_script.relativename( pkg ) ) );
   descriptor->addMember( "EquipScript", new String( equip_script ) );
   descriptor->addMember( "UnequipScript", new String( unequip_script ) );
+  descriptor->addMember( "SnoopScript", new String( snoop_script.relativename( pkg ) ) );
   descriptor->addMember( "ControlScript", new String( control_script.relativename( pkg ) ) );
   descriptor->addMember( "CreateScript", new String( create_script.relativename( pkg ) ) );
   descriptor->addMember( "DestroyScript", new String( destroy_script.relativename( pkg ) ) );
@@ -922,10 +924,8 @@ size_t ItemDesc::estimatedSize() const
 ContainerDesc::ContainerDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
     : ItemDesc( objtype, elem, CONTAINERDESC, pkg ),
       gump( elem.remove_ushort( "GUMP" ) ),
-      minx( elem.remove_ushort( "MINX" ) ),
-      maxx( elem.remove_ushort( "MAXX" ) ),
-      miny( elem.remove_ushort( "MINY" ) ),
-      maxy( elem.remove_ushort( "MAXY" ) ),
+      bounds( Core::Pos2d( elem.remove_ushort( "MINX" ), elem.remove_ushort( "MINY" ) ),
+              Core::Pos2d( elem.remove_ushort( "MAXX" ), elem.remove_ushort( "MAXY" ) ), nullptr ),
       max_weight( elem.remove_ushort( "MAXWEIGHT",
                                       Core::settingsManager.ssopt.default_container_max_weight ) ),
       max_items( elem.remove_ushort( "MAXITEMS",
@@ -954,10 +954,10 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   using namespace Bscript;
   base::PopulateStruct( descriptor );
   descriptor->addMember( "Gump", new BLong( gump ) );
-  descriptor->addMember( "MinX", new BLong( minx ) );
-  descriptor->addMember( "MinY", new BLong( miny ) );
-  descriptor->addMember( "MaxX", new BLong( maxx ) );
-  descriptor->addMember( "MaxY", new BLong( maxy ) );
+  descriptor->addMember( "MinX", new BLong( bounds.nw().x() ) );
+  descriptor->addMember( "MinY", new BLong( bounds.nw().y() ) );
+  descriptor->addMember( "MaxX", new BLong( bounds.se().x() ) );
+  descriptor->addMember( "MaxY", new BLong( bounds.se().y() ) );
   descriptor->addMember( "MaxWeight", new BLong( max_weight ) );
   descriptor->addMember( "MaxItems", new BLong( max_items ) );
   descriptor->addMember( "MaxSlots", new BLong( max_slots ) );
@@ -971,10 +971,7 @@ void ContainerDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 size_t ContainerDesc::estimatedSize() const
 {
   return base::estimatedSize() + sizeof( u16 ) /*gump*/
-         + sizeof( u16 )                       /*minx*/
-         + sizeof( u16 )                       /*maxx*/
-         + sizeof( u16 )                       /*miny*/
-         + sizeof( u16 )                       /*maxy*/
+         + sizeof( Core::Range2d )             /*bounds*/
          + sizeof( u16 )                       /*max_weight*/
          + sizeof( u16 )                       /*max_items*/
          + sizeof( u8 )                        /*max_slots*/

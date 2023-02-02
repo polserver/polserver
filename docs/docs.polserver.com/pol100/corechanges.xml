@@ -2,9 +2,56 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-21-2022</datemodified>
+		<datemodified>01-11-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-11-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">Placing items into a container failed since nightly of 01-05-2023</change>
+		</entry>
+		<entry>
+			<date>01-02-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">Target() option TGTOPT_ALLOW_NONLOCAL to allow targeting items owned by other characters (eg. in a snooped backpack).</change>
+			<change type="Added">Member item.character_owner, returns the Character that owns the item, ie. the character whose backpack or equipped items contains the item.</change>
+			<change type="Fixed">SnoopScript is properly persisted across saves when changed via item member item.snoopscript.</change>
+		</entry>
+		<entry>
+			<date>01-02-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Custom Boat method scripts now properly execute.</change>
+		</entry>
+		<entry>
+			<date>12-19-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">SnoopScript to itemdesc.cfg Item descriptors which runs when a character double-clicks an item that is owned by a different character, eg. another character's backpack or an item within that backpack. This can be used to implement the Snooping skill.</change>
+		</entry>
+		<entry>
+			<date>12-17-2022</date>
+			<author>Turley:</author>
+			<change type="Fixed">potential crash in client login phase</change>
+		</entry>
+		<entry>
+			<date>12-13-2022</date>
+			<author>Kevin:</author>
+			<change type="Added">CreateItemInBackpack, CreateItemInContainer, and CreateItemInInventory now have an x and y optional parameter to specify location in container gump of where to create the item.</change>
+		</entry>
+		<entry>
+			<date>10-24-2022</date>
+			<author>Crowen(che666):</author>
+			<change type="Fixed">uo.em Broadcast and unicode.em BroadcastUC renamed requiredcmdLevel parameter to required_cmdlevel to be consistent.</change>
+		</entry>
+		<entry>
+			<date>10-15-2022</date>
+			<author>Turley:</author>
+			<change type="Fixed">crash when calling another method inside of a methodscript</change>
+		</entry>
+		<entry>
+			<date>09-27-2022</date>
+			<author>Brndd:</author>
+			<change type="Added">CreateNPCFromTemplate() now has a &quot;forcelocation&quot; parameter, which allows creating NPCs even in invalid locations.</change>
+		</entry>
 		<entry>
 			<date>09-21-2022</date>
 			<author>Kevin:</author>

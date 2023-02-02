@@ -393,6 +393,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( unequip_script_ != itemdesc().unequip_script )
     sw() << "\tUnequipScript\t" << unequip_script_.get() << pf_endl;
 
+  if ( !snoop_script_.get().empty() )
+    sw() << "\tSnoopScript\t" << snoop_script_.get() << pf_endl;
+
   if ( decayat_gameclock_ != 0 )
     sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
 
@@ -492,6 +495,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
   on_use_script_ = elem.remove_string( "ONUSESCRIPT", "" );
   equip_script_ = elem.remove_string( "EQUIPSCRIPT", equip_script_.get().c_str() );
   unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
+  snoop_script_ = elem.remove_string( "SNOOPSCRIPT", snoop_script_.get().c_str() );
 
   decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
   sellprice_( elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ) );
@@ -594,6 +598,39 @@ void Item::readProperties( Clib::ConfigElem& elem )
 void Item::builtin_on_use( Network::Client* client )
 {
   Core::send_sysmessage( client, "I can't think of a way to use that." );
+}
+
+void Item::snoop( Network::Client* client, Mobile::Character* owner )
+{
+  const ItemDesc& itemdesc = this->itemdesc();
+
+  if ( client->chr->skill_ex_active() || client->chr->casting_spell() )
+  {
+    Core::send_sysmessage( client, "I am already doing something else." );
+    return;
+  }
+
+  ref_ptr<Bscript::EScriptProgram> prog;
+
+  if ( !snoop_script_.get().empty() )
+  {
+    Core::ScriptDef sd( snoop_script_, nullptr, "" );
+    prog = find_script2( sd,
+                         true,  // complain if not found
+                         Plib::systemstate.config.cache_interactive_scripts );
+  }
+  else if ( !itemdesc.snoop_script.empty() )
+  {
+    prog = find_script2( itemdesc.snoop_script, true,
+                         Plib::systemstate.config.cache_interactive_scripts );
+  }
+
+  if ( prog.get() != nullptr )
+  {
+    if ( client->chr->start_snoop_script( prog.get(), this, owner ) )
+      return;
+    // else log the fact?
+  }
 }
 
 void Item::double_click( Network::Client* client )
@@ -1003,7 +1040,7 @@ void Item::extricate()
     // hmm, a good place for a virtual?
     if ( Core::IsCharacter( container->serial ) )
     {
-      Mobile::Character* chr = chr_from_wornitems( container );
+      Mobile::Character* chr = container->get_chr_owner();
       passert_always( chr != nullptr );  // PRODFIXME linux-crash
       passert_always( chr->is_equipped( this ) );
 
@@ -1159,7 +1196,7 @@ bool Item::check_unequip_script()
   if ( !unequip_script_.get().empty() && container != nullptr &&
        Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = chr_from_wornitems( container );
+    Mobile::Character* chr = container->get_chr_owner();
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
@@ -1241,7 +1278,7 @@ bool Item::check_unequiptest_scripts()
 {
   if ( container != nullptr && Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = chr_from_wornitems( container );
+    Mobile::Character* chr = container->get_chr_owner();
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
@@ -1258,13 +1295,13 @@ bool Item::check_unequiptest_scripts()
  *
  * @author DAVE 11/17
  */
-Mobile::Character* Item::GetCharacterOwner()
+Mobile::Character* Item::GetCharacterOwner() const
 {
-  UObject* top_level_item = toplevel_owner();
+  const UObject* top_level_item = toplevel_owner();
   if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     Mobile::Character* chr_owner =
-        Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
+        static_cast<const Core::UContainer*>( top_level_item )->get_chr_owner();
     if ( chr_owner != nullptr )
     {
       return chr_owner;

@@ -1,0 +1,12 @@
+program Install()
+	Print( "Custom ItemDesc Boat Class Methods Installed." );
+	return 1;
+endprogram
+
+exported function IsItemDescBoat(unused boat)
+    return 1;
+endfunction
+
+exported function WhereDefined(unused boat)
+    return "itemdesc";
+endfunction

@@ -71,6 +71,7 @@
 #include <cmath>
 #include <cstddef>
 #include <exception>
+#include <optional>
 #include <stdlib.h>
 #include <string>
 
@@ -337,7 +338,7 @@ static bool item_create_params_ok( u32 objtype, int amount )
 
 BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                        unsigned short amount, bool force_stacking,
-                                       UOExecutorModule* uoemod )
+                                       std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod )
 {
   if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
   {
@@ -463,7 +464,13 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         return new BError( "Item was destroyed in CanInsert Script" );
       }
 
-      cont->add_at_random_location( item );
+      if ( !pos || !cont->is_legal_posn( pos.value() ) )
+        pos = cont->get_random_location();
+
+      item->setposition( Core::Pos4d( pos.value(), 0, cont->realm() ) );  // TODO POS realm
+
+      cont->add( item );
+
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
       UpdateCharacterWeight( item );
@@ -493,14 +500,20 @@ BObjectImp* UOExecutorModule::mf_CreateItemInContainer()
   Item* item;
   const ItemDesc* descriptor;
   int amount;
+  int px;
+  int py;
 
   if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       getParam( 3, px, -1, 65535 ) && getParam( 4, py, -1, 65535 ) &&
        item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
+      std::optional<Core::Pos2d> pos;
+      if ( px >= 0 && py >= 0 )
+        pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
-                                        static_cast<unsigned short>( amount ), false, this );
+                                        static_cast<unsigned short>( amount ), false, pos, this );
     }
     else
     {
@@ -518,14 +531,20 @@ BObjectImp* UOExecutorModule::mf_CreateItemInInventory()
   Item* item;
   const ItemDesc* descriptor;
   int amount;
+  int px;
+  int py;
 
   if ( getItemParam( 0, item ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       getParam( 3, px, -1, 65535 ) && getParam( 4, py, -1, 65535 ) &&
        item_create_params_ok( descriptor->objtype, amount ) )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
+      std::optional<Core::Pos2d> pos;
+      if ( px >= 0 && py >= 0 )
+        pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
       return _create_item_in_container( static_cast<UContainer*>( item ), descriptor,
-                                        static_cast<unsigned short>( amount ), true, this );
+                                        static_cast<unsigned short>( amount ), true, pos, this );
     }
     else
     {
@@ -769,6 +788,7 @@ BObjectImp* UOExecutorModule::mf_PrintTextAbovePrivate()
 const int TGTOPT_CHECK_LOS = 0x0001;
 const int TGTOPT_HARMFUL = 0x0002;
 const int TGTOPT_HELPFUL = 0x0004;
+const int TGTOPT_ALLOW_NONLOCAL = 0x0008;
 
 void handle_script_cursor( Character* chr, UObject* obj )
 {
@@ -839,13 +859,28 @@ BObjectImp* UOExecutorModule::mf_Target()
   TargetCursor* tgt_cursor = nullptr;
 
   bool is_los_checked = ( target_options & TGTOPT_CHECK_LOS ) && !chr->ignores_line_of_sight();
+  bool allow_nonlocal = ( target_options & TGTOPT_ALLOW_NONLOCAL );
   if ( is_los_checked )
   {
-    tgt_cursor = &gamestate.target_cursors.los_checked_script_cursor;
+    if ( allow_nonlocal )
+    {
+      tgt_cursor = &gamestate.target_cursors.los_checked_allow_nonlocal_script_cursor;
+    }
+    else
+    {
+      tgt_cursor = &gamestate.target_cursors.los_checked_script_cursor;
+    }
   }
   else
   {
-    tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
+    if ( allow_nonlocal )
+    {
+      tgt_cursor = &gamestate.target_cursors.nolos_checked_allow_nonlocal_script_cursor;
+    }
+    else
+    {
+      tgt_cursor = &gamestate.target_cursors.nolos_checked_script_cursor;
+    }
   }
 
   tgt_cursor->send_object_cursor( chr->client, crstype );
@@ -1073,14 +1108,20 @@ BObjectImp* UOExecutorModule::mf_CreateItemInBackpack()
   Character* chr;
   const ItemDesc* descriptor;
   unsigned short amount;
+  int px;
+  int py;
 
   if ( getCharacterParam( 0, chr ) && getObjtypeParam( 1, descriptor ) && getParam( 2, amount ) &&
+       getParam( 3, px, -1, 65535 ) && getParam( 4, py, -1, 65535 ) &&
        item_create_params_ok( descriptor->objtype, amount ) )
   {
     UContainer* backpack = chr->backpack();
     if ( backpack != nullptr )
     {
-      return _create_item_in_container( backpack, descriptor, amount, false, this );
+      std::optional<Core::Pos2d> pos;
+      if ( px >= 0 && py >= 0 )
+        pos = Core::Pos2d( static_cast<u16>( px ), static_cast<u16>( py ) );
+      return _create_item_in_container( backpack, descriptor, amount, false, pos, this );
     }
     else
     {
@@ -1270,6 +1311,8 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   unsigned short x, y;
   short z;
   const String* strrealm;
+  int forceInt;
+  bool forceLocation;
   Realms::Realm* realm = find_realm( "britannia" );
 
   if ( !( getStringParam( 0, tmplname ) && getParam( 1, x ) && getParam( 2, y ) &&
@@ -1304,6 +1347,15 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   if ( !realm->valid( x, y, z ) )
     return new BError( "Invalid Coordinates for Realm" );
 
+  if ( !getParam( 6, forceInt ) )
+  {
+    forceLocation = false;
+  }
+  else
+  {
+    forceLocation = forceInt ? true : false;
+  }
+
   Clib::ConfigElem elem;
   START_PROFILECLOCK( npc_search );
   bool found = FindNpcTemplate( tmplname->data(), elem );
@@ -1317,13 +1369,15 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
   Plib::MOVEMODE movemode = Character::decode_movemode( elem.read_string( "MoveMode", "L" ) );
 
   short newz;
-  Multi::UMulti* dummy_multi;
-  Item* dummy_walkon;
+  Multi::UMulti* dummy_multi = nullptr;
+  Item* dummy_walkon = nullptr;
   if ( !realm->walkheight( x, y, z, &newz, &dummy_multi, &dummy_walkon, true, movemode ) )
   {
-    return new BError( "Not a valid location for an NPC!" );
+    if ( !forceLocation )
+      return new BError( "Not a valid location for an NPC!" );
   }
-  z = newz;
+  if ( !forceLocation )
+    z = newz;
 
 
   NpcRef npc;
@@ -1346,7 +1400,6 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     if ( custom_struct != nullptr )
       replace_properties( elem, custom_struct );
     npc->readPropertiesForNewNPC( elem );
-
     ////HASH
     objStorageManager.objecthash.Insert( npc.get() );
     ////
@@ -1357,7 +1410,6 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
     WorldIterator<OnlinePlayerFilter>::InVisualRange(
         npc.get(), [&]( Character* zonechr ) { send_char_data( zonechr->client, npc.get() ); } );
     realm->notify_entered( *npc );
-
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( dummy_multi )
     {
@@ -1383,7 +1435,6 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
         npc->registered_house = 0;
       }
     }
-
     return new ECharacterRefObjImp( npc.get() );
   }
   catch ( std::exception& ex )
@@ -3512,21 +3563,19 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
       return new BError( "Couldn't set slot index on item" );
     }
 
-    short x = static_cast<short>( px );
-    short y = static_cast<short>( py );
-    if ( /*x < 0 || y < 0 ||*/ !cont->is_legal_posn( item, x, y ) )
+    Core::Pos2d cntpos;
+    if ( px < 0 || py < 0 )
+      cntpos = cont->get_random_location();
+    else
     {
-      u16 tx, ty;
-      cont->get_random_location( &tx, &ty );
-      x = tx;
-      y = ty;
+      cntpos.x( static_cast<u16>( px ) ).y( static_cast<u16>( py ) );
+      if ( !cont->is_legal_posn( cntpos ) )
+        cntpos = cont->get_random_location();
     }
-
-    // item->set_dirty();
 
     true_extricate( item );
 
-    item->setposition( Core::Pos4d( x, y, 0, cont->realm() ) );  // TODO POS realm
+    item->setposition( Core::Pos4d( cntpos, 0, cont->realm() ) );  // TODO POS realm
 
     cont->add( item );
     update_item_to_inrange( item );

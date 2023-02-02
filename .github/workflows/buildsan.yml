@@ -1,4 +1,4 @@
-name: Build
+name: SanitizerBuild
 
 on: [push, pull_request]
 
@@ -9,46 +9,32 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "windows-latest"
-            cxx-compiler: cl
-            c-compiler: cl
-            compiler-version: default
-            build-type: Release
-            nopch: 0
-            name: Windows CL
-
-          - os: "ubuntu-latest"
-            cxx-compiler: g++
-            c-compiler: gcc
-            compiler-version: 11
-            build-type: RelWithDebInfo
-            nopch: 0
-            name: Linux GCC
-
-          - os: "ubuntu-latest"
+          - san: -DENABLE_TSAN=1
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
             build-type: RelWithDebInfo
-            nopch: 0
-            name: Linux Clang
-          
-          - os: "ubuntu-latest"
+            name: ThreadSanitizer
+          - san: -DENABLE_ASAN=1
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 14
-            build-type: Release
-            nopch: 1
-            name: Linux Clang noPCH
+            build-type: RelWithDebInfo
+            name: AddressSanitizer
+          - san: -DENABLE_USAN=1
+            cxx-compiler: clang++
+            c-compiler: clang
+            compiler-version: 14
+            build-type: RelWithDebInfo
+            name: UndefinedSanitizer
 
-    runs-on: ${{ matrix.config.os }}
+    runs-on: "ubuntu-latest"
 
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - uses: seanmiddleditch/gha-setup-vsdevenv@v4
       - name: Cache curl
         uses: actions/cache@v3
         with:
@@ -65,7 +51,6 @@ jobs:
           path: lib/boost_1_78_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
       - name: Install Compiler and Dependencies
-        if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
         run: |
           sudo apt-get update
@@ -75,7 +60,6 @@ jobs:
 
           if ($version -ne 'default') {
             sudo apt-get install "$compiler-$version" -y
-            echo "$compiler-$version --version"
           }
           sudo apt-get install libmysqlclient-dev -y
           sudo apt-get install kwstyle -y
@@ -107,115 +91,42 @@ jobs:
           }
           echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-      - name: Windows Path Workaround
-        if: matrix.config.os == 'windows-latest'
-        shell: cmd
-        run: |
-          rmdir /s /q C:\Strawberry
-          exit /b 0
+
       - name: Register problem matcher
         run: echo "::add-matcher::.github/problem-matchers/${{ matrix.config.c-compiler }}.json"
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DNO_PCH=${{ matrix.config.nopch }} -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} ${{ matrix.config.san }}
       - name: Build
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 2
 
       - name: Test (EScript)
-        if: matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_escript
       - name: Test (Shard Fixtures)
-        if: matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_fixture
       - name: Test (UnitTests)
-        if: matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target unittest_pol
       - name: Test (Shard)
-        if: matrix.config.nopch == 0
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
           #env:
           #POLCORE_TEST_FILTER: testitems
       - name: Upload shard test log
-        if: matrix.config.nopch == 0
         uses: actions/upload-artifact@v3
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
 
-      - name: Create Artefact
-        if: matrix.config.nopch == 0
-        run: |
-          cd bin-build
-          cmake --build . --config ${{ matrix.config.build-type }} --target package
-          cd ../bin
-          mkdir release
-          mv *.zip release
-      - name: Create Artefact (dbg)
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.nopch == 0
-        run: |
-          cd bin-build
-          cmake --build . --config ${{ matrix.config.build-type }} --target create_dbg_zip
-          cd ../bin
-          mv *.zip release
-
-      - name: Upload Artefact
-        if: matrix.config.nopch == 0
-        uses: actions/upload-artifact@v3
-        with:
-          name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
-          path: bin/release
-
-  release:
-    needs: build
-    runs-on: "ubuntu-latest" 
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Download artefacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Nightly-Linux-g++
-          path: Nightly-Linux-g++
-      - name: Download artefacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Nightly-Linux-clang++
-          path: Nightly-Linux-clang++
-      - name: Download artefacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Nightly-Windows-cl
-          path: Nightly-Windows-cl
-
-      - name: Create Release zip
-        run: |
-          zip -j Nightly-Windows.zip Nightly-Windows-cl/*
-          zip -j Nightly-Linux-gcc.zip Nightly-Linux-g++/*
-          zip -j Nightly-Linux-clang.zip Nightly-Linux-clang++/*
-
-      - name: Create Release
-        uses: "turleypol/release_action_dist@master"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "NightlyRelease"
-          reference_release_tag: "v100.0.0"
-          prerelease: true
-          title: "Nightly Release"
-          files: |
-            Nightly-Windows.zip
-            Nightly-Linux-gcc.zip
-            Nightly-Linux-clang.zip
- 
   notify_on_failure:
     needs: build
     runs-on: "ubuntu-latest"
@@ -227,7 +138,7 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: failure
-          job: Building
+          job: SanitizerBuilds
   notify_on_success:
     needs: build
     runs-on: "ubuntu-latest"
@@ -239,7 +150,7 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: success
-          job: Building
+          job: SanitizerBuilds
   notify_on_cancel:
     needs: build
     runs-on: "ubuntu-latest"
@@ -251,4 +162,4 @@ jobs:
         uses: turleypol/actions-status-discord@master
         with:
           status: cancelled
-          job: Building
+          job: SanitizerBuilds

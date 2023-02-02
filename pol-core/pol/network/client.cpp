@@ -69,7 +69,6 @@ void cancel_trade( Mobile::Character* chr1 );
 namespace Network
 {
 unsigned int Client::instance_counter_;
-std::mutex ThreadedClient::_SocketMutex;
 
 ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient )
     : myClient( myClient ),
@@ -134,16 +133,11 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
   memset( &versiondetail_, 0, sizeof( versiondetail_ ) );
 }
 
-void Client::Delete( Client* client )
+Client::~Client()
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );  // TODO: check if this is necessary
-  client->PreDelete();
-  delete client->cryptengine;  // TODO: move this into a unique_ptr<> or at least ~Client()
-  client->cryptengine = nullptr;
-  delete client;
+  PreDelete();
+  delete cryptengine;
 }
-
-Client::~Client() {}
 
 void Client::init_crypto( void* nseed, int type )
 {
@@ -724,8 +718,8 @@ size_t Client::estimatedSize() const
 
 void ThreadedClient::closeConnection()
 {
-  // std::lock_guard<std::mutex> lock (_SocketMutex);
-  if ( csocket != INVALID_SOCKET )  //>= 0)
+  std::lock_guard<std::mutex> lock( _SocketMutex );
+  if ( csocket != INVALID_SOCKET )
   {
 #ifdef _WIN32
     shutdown( csocket, 2 );  // 2 is both sides, defined in winsock2.h ...

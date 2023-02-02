@@ -7,6 +7,7 @@
 #ifndef H_LOS_H
 #define H_LOS_H
 
+#include "base/position.h"
 #include "baseobject.h"
 
 namespace Pol
@@ -20,6 +21,7 @@ public:
   {
     pos( Pos4d( ix, iy, iz, irealm ) );
   }
+  LosObj( Pos4d p ) : ULWObject( UOBJ_CLASS::INVALID ) { pos( std::move( p ) ); }
 };
 }  // namespace Core
 }  // namespace Pol

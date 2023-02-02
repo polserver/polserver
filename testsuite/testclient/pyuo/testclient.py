@@ -78,6 +78,12 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             serial = bp,
             contentlen = content))
+      elif todo=="double_click":
+        self.client.doubleClick(arg)
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_DOUBLE_CLICK,
+            clientid = self.id,
+            serial = arg))
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -253,6 +259,8 @@ class PolServer:
       res["pos"]=[ev.boat.x, ev.boat.y, ev.boat.z]
     elif ev.type==Event.EVT_OWNCREATE:
       pass
+    elif ev.type==Event.EVT_DOUBLE_CLICK:
+      res['serial']=ev.serial
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

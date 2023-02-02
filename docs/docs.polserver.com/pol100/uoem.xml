@@ -156,11 +156,12 @@
 <constant> </constant>
 <constant>//  Target Options - add these together and pass as second</constant>
 <constant>//  param to Target()</constant>
-<constant>const TGTOPT_CHECK_LOS   := 0x0001;</constant>
-<constant>const TGTOPT_NOCHECK_LOS := 0x0000; // to be explicit</constant>
-<constant>const TGTOPT_HARMFUL     := 0x0002;</constant>
-<constant>const TGTOPT_NEUTRAL     := 0x0000; // to be explicit</constant>
-<constant>const TGTOPT_HELPFUL     := 0x0004;</constant>
+<constant>const TGTOPT_CHECK_LOS      := 0x0001;</constant>
+<constant>const TGTOPT_NOCHECK_LOS    := 0x0000; // to be explicit</constant>
+<constant>const TGTOPT_HARMFUL        := 0x0002;</constant>
+<constant>const TGTOPT_NEUTRAL        := 0x0000; // to be explicit</constant>
+<constant>const TGTOPT_HELPFUL        := 0x0004;</constant>
+<constant>const TGTOPT_ALLOW_NONLOCAL := 0x0008;</constant>
 <constant> </constant>
 <constant>// POLCLASS_* constants - use with obj.isa(POLCLASS_*)</constant>
 <constant>const POLCLASS_UOBJECT      := 1;</constant>
@@ -271,10 +272,12 @@ files define spells &amp; spell ids.</explain>
 </function>
 
 <function name="CreateItemInInventory">
-  <prototype>CreateItemInInventory( container, objtype, amount := 1 )</prototype>
+  <prototype>CreateItemInInventory( container, objtype, amount := 1, x := -1, y := -1 )</prototype>
   <parameter name="container" value="Container reference" />
   <parameter name="objtype" value="Integer objtype for item to be created, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="size of stack to be created. Default = 1" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
   <explain>Creates a stack of items in the specified container. As usual, objtype
   must be valid and amount must be 1..60000. FORCES STACKING: If the specified obytpe is not stackable 
 by 
@@ -1221,12 +1224,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="Broadcast">
-  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, requiredCmdLevel := _DEFAULT_TEXT_REQUIREDCMD )</prototype>
+  <prototype>Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD )</prototype>
   <parameter name="text" value="String" />
   <parameter name="font" value="Integer (optional)" />
   <parameter name="color" value=" Integer (optional)" />
-  <parameter name="requiredcmdlevel" value=" Integer (optional)" />
-  <explain>Sends text as a System Message to every online player whos cmd level is above requiredcmdlevel. </explain>
+  <parameter name="required_cmdlevel" value=" Integer (optional)" />
+  <explain>Sends text as a System Message to every online player whos cmd level is above required_cmdlevel. </explain>
   <explain>See client.inc for font and color values.</explain>
   <return>1 on success</return>
   <error>none (returns 0 on invalid parameter) </error>
@@ -1300,10 +1303,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="CreateItemInBackpack">
-  <prototype>CreateItemInBackpack( of_character, objtype, amount := 1 )</prototype>
+  <prototype>CreateItemInBackpack( of_character, objtype, amount := 1, x := -1, y := -1 )</prototype>
   <parameter name="of_character" value="Character Reference" />
   <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="Integer (optional, 0..60000)" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
   <explain>Creates an item in a character's backpack. </explain>
   <explain>Notes: Adds to an existing stack in the top level of the container, if an appropriate stack can be found (meaning, can hold the new amount, the existing item stack has color equal to its itemdesc.cfg color property AND has equal CProps as its itemdesc.cfg entry (not counting locally and globally ignored cprops).  If no appropritate stack is found, creates a new stack. </explain>
   <explain>Runs the item's create script, if any.</explain>
@@ -1321,10 +1326,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
 </function>
 
 <function name="CreateItemInContainer">
-  <prototype>CreateItemInContainer( container, objtype, amount := 1 )</prototype>
+  <prototype>CreateItemInContainer( container, objtype, amount := 1, x := -1, y := -1 )</prototype>
   <parameter name="container" value="Container Reference" />
   <parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
   <parameter name="amount" value="Integer (optional, 0..60000)" />
+  <parameter name="x" value="Integer coords inside container gump (optional)" />
+  <parameter name="y" value="Integer coords inside container gump (optional)" />
   <explain>Creates an item in a container. </explain>
   <explain>Notes: Adds to an existing stack in the top level of the container, if an appropriate stack can be found (meaning, can hold the new amount, the existing item stack has color equal to its itemdesc.cfg color property AND has equal CProps as its itemdesc.cfg entry (not counting locally and globally ignored cprops).  If no appropritate stack is found, creates a new stack. </explain>
   <explain>Runs the item's create script, if any.</explain>
@@ -1349,10 +1356,12 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <parameter name="z" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="override_properties" value="A Struct with keys as String members and values as appropriate (see notes)" />
+  <parameter name="forcelocation" value="Integer (0/1)" />
   <explain>Creates an NPC from a template (found in NPCDESC.CFG).</explain>
   <explain>Notes: override_properties: a structure containing members to override values in the 
         NPC template. This can be used to override built-in properties (facing, 
         color, gender etc) and custom properties ("CProps" = dictionary {key=cpropname value=cpropvalue})</explain>
+  <explain>forcelocation: if true, the NPC will be created even in an invalid location.</explain>
   <return>Character Reference on success</return>
   <error>"Invalid parameter type"</error>
   <error>"Parameter 4 must be a Struct or Integer(0)"</error>
@@ -1769,11 +1778,12 @@ const SYSFIND_SEARCH_OFFLINE_MOBILES := 1;</code></explain>
   <explain>0 is returned if the character does not have line-of-sight to the object.</explain>
   <explain>uo.em constants for options, just add together non-mutually exclusive options.
 <code>
-const TGTOPT_CHECK_LOS   := 0x0001;
-const TGTOPT_NOCHECK_LOS := 0x0000; // to be explicit
-const TGTOPT_HARMFUL     := 0x0002;
-const TGTOPT_NEUTRAL     := 0x0000; // to be explicit
-const TGTOPT_HELPFUL     := 0x0004;</code></explain>
+const TGTOPT_CHECK_LOS      := 0x0001;
+const TGTOPT_NOCHECK_LOS    := 0x0000; // to be explicit
+const TGTOPT_HARMFUL        := 0x0002;
+const TGTOPT_NEUTRAL        := 0x0000; // to be explicit
+const TGTOPT_HELPFUL        := 0x0004;
+const TGTOPT_ALLOW_NONLOCAL :- 0x0008;</code></explain>
     <explain>
        The first 2 options specify if Line-of-sight to the targetting obejct should be checked or not.
        The last 3 options are involved with the reputation system. Use TGTOPT_HARMFUL if the effect that
