@@ -1,4 +1,9 @@
 ﻿-- POL100.1.0 --
+02-02-2023 Brndd:
+    Added: GetStandingLayers() now has a "includeitems" parameter which allows including or excluding items from the search (default: enabled).
+    Added: GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0 ):
+           This is a new EScript function that returns an Array of coordinates that are valid locations for a creature to stand on
+           in a given radius around the given coordinates. One example use-case is finding valid spawning locations for NPCs within an area.
 01-11-2023 Turley:
     Fixed: Placing items into a container failed since nightly of 01-05-2023
 01-02-2023 Kevin:
