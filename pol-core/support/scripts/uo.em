@@ -86,7 +86,7 @@ const TILEDATA_FLAG_DOOR        := 0x20000000; //Door
 const TILEDATA_FLAG_STAIRBACK   := 0x40000000; //StairBack
 const TILEDATA_FLAG_STAIRRIGHT  := 0x80000000; //StairRight
 
-// GetStandingLayers( x, y, flags, realm := _DEFAULT_REALM ); mapdata flags
+// GetStandingLayers( x, y, flags, realm := _DEFAULT_REALM, includeitems := 1 ); mapdata flags
 const MAPDATA_FLAG_NONE         := 0x0000;     // Nothing
 const MAPDATA_FLAG_MOVELAND     := 0x0001;     // Move Land
 const MAPDATA_FLAG_MOVESEA      := 0x0002;     // Move Sea
@@ -314,7 +314,7 @@ GetRegionNameAtLocation( x, y, realm := _DEFAULT_REALM );
 GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM );
 GetSpellDifficulty( spellid );
 GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM );
-GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM );
+GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM, includeitems := 1 );
 GetWorldHeight( x, y, realm := _DEFAULT_REALM );
 GrantPrivilege( character, privilege );
 HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM ); // returns b*a where 0 <= a <= n

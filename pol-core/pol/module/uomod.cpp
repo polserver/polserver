@@ -4429,14 +4429,15 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
+BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, includeitems */ )
 {
   unsigned short x, y;
   int flags;
   const String* strrealm;
+  int includeitems;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, flags ) &&
-       getStringParam( 3, strrealm ) )
+       getStringParam( 3, strrealm ) && getParam( 4, includeitems ) )
   {
     Realms::Realm* realm = find_realm( strrealm->value() );
     if ( !realm )
@@ -4451,7 +4452,10 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
     Core::ItemsVector ivec;
     realm->readmultis( mlist, x, y, flags );
     realm->getmapshapes( mlist, x, y, flags );
-    realm->readdynamics( mlist, x, y, ivec, false, flags );
+    if (includeitems)
+    {
+      realm->readdynamics( mlist, x, y, ivec, false, flags );
+    }
 
     for ( unsigned i = 0; i < mlist.size(); ++i )
     {
