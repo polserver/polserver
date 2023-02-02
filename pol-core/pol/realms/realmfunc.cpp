@@ -187,7 +187,8 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
   }
 }
 
-Plib::MapShapeList Realm::get_standheights( Plib::MOVEMODE movemode, Plib::MapShapeList shapes, short minz, short maxz )
+Plib::MapShapeList Realm::get_standheights( Plib::MOVEMODE movemode, Plib::MapShapeList shapes,
+                                            short minz, short maxz )
 {
   std::vector<short> heights;
   Plib::MapShapeList result;
@@ -204,7 +205,10 @@ Plib::MapShapeList Realm::get_standheights( Plib::MOVEMODE movemode, Plib::MapSh
   //The mapshapes list is not guaranteed to be sorted (e.g. if it's composed of both mapshapes and dynamics)
   //We want it to be sorted in ascending Z order, so that we can easily determine if a shape has enough clearance to stand on.
   //Plib::MapShapeList is implemented as a standard vector, so we can sort it like one.
-  std::sort( shapes.begin(), shapes.end(), [](Plib::MapShape &a, Plib::MapShape &b) {return (a.z + a.height) < (b.z + b.height);} );
+  std::sort( shapes.begin(), shapes.end(),
+             [](Plib::MapShape &a, Plib::MapShape &b) {
+               return (a.z + a.height) < (b.z + b.height);
+             });
 
   //Iterate up until (and including) the second to last shape -- because we know the top shape can't have anything above it
   for (auto shape = shapes.begin(); shape != shapes.end(); shape++)

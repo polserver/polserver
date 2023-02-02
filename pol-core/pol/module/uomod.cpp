@@ -4477,7 +4477,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, inclu
     return new BError( "Invalid parameter type" );
 }
 
-BObjectImp* UOExecutorModule::mf_GetStandingCoordinates(/* x, y, radius, minz, maxz, realm := _DEFAULT_REALM, movemode := "L", doors_block = 0 */)
+BObjectImp* UOExecutorModule::mf_GetStandingCoordinates() /* x, y, radius, minz, maxz, realm := _DEFAULT_REALM, movemode := "L", doors_block = 0 */
 {
   int dummy, x, y, r, minz, maxz;
   const String* realmname;
