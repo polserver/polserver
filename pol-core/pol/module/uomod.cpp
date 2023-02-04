@@ -4503,7 +4503,7 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, inclu
     realm->getmapshapes( mlist, x, y, flags );
     if ( includeitems )
     {
-      realm->readdynamics( mlist, x, y, ivec, false, flags );
+      realm->readdynamics( mlist, Core::Pos2d(x, y), ivec, false, flags );
     }
 
     for ( unsigned i = 0; i < mlist.size(); ++i )
