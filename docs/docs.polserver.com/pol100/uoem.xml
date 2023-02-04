@@ -2643,11 +2643,12 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 </function>
 
 <function name="GetStandingLayers">
-  <prototype>GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM )</prototype>
+  <prototype>GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM, includeitems := 1 )</prototype>
   <parameter name="x" value="Integer world coordinates" />
   <parameter name="y" value="Integer world coordinates" />
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
+  <parameter name="includeitems" value="Integer (0/1) - whether to include items, or only map statics" />
   <explain>Returns an Array of standing Layers and blocking Solids.</explain>
   <explain>mapdata flags:
 <code>
