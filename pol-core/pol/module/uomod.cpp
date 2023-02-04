@@ -4530,56 +4530,56 @@ BObjectImp*
 UOExecutorModule::mf_GetStandingCoordinates() /* x, y, radius, minz, maxz, realm := _DEFAULT_REALM,
                                                  movemode := "L", doors_block = 0 */
 {
-  int x, y, r, minz, maxz, doors_block;
-  const String* realmname;
+  int r, minz, maxz, doors_block;
   const String* movemodename;
+  Core::Pos2d pos;
+  Realms::Realm* realm;
 
-  if ( !( getParam( 0, x ) &&
-          getParam( 1, y ) &&
+  if ( !getRealmParam( 5, &realm ) )
+    return new BError( "Realm not found" );
+
+  if ( !( getPos2dParam( 0, 1, &pos ) &&
           getParam( 2, r ) &&
           getParam( 3, minz ) &&
           getParam( 4, maxz ) &&
-          getStringParam( 5, realmname ) &&
           getStringParam( 6, movemodename ) &&
           getParam( 7, doors_block ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
 
-  Realms::Realm* realm = find_realm( realmname->value() );
-  if ( !realm )
-    return new BError( "Realm not found" );
-  if ( !realm->valid( x, y, 0 ) )
-    return new BError( "Coordinates invalid for realm" );
+  if ( !realm->valid( pos ) )
+    return new BError( "Invalid Coordinates for Realm" );
 
   Plib::MOVEMODE movemode = Character::decode_movemode( movemodename->value() );
 
   std::unique_ptr<ObjArray> result( new ObjArray );
 
   // Iterate through all tiles in range and populate the return array with valid standing locations
-  for ( int i = x - r; i <= x + r; i++ )
+  Core::Pos2d tl( pos.x() - r, pos.y() - r );
+  Core::Pos2d br( pos.x() + r, pos.y() + r );
+  Core::Range2d range( tl, br, realm );
+  for ( auto it = range.begin(); it != range.end(); ++it )
   {
-    for ( int j = y - r; j <= y + r; j++ )
+    auto tile = *it;
+    auto layers = realm->get_walkheights( tile, minz, maxz, movemode, doors_block );
+    for ( const auto& layer : layers )
     {
-      auto layers = realm->get_walkheights( Core::Pos2d(i, j), minz, maxz, movemode, doors_block );
-      for ( const auto& layer : layers )
+      std::unique_ptr<BStruct> height_struct( new BStruct );
+      auto z = std::get<0>( layer );
+      auto multi = std::get<1>( layer );
+
+      // Figure out which members to stick in the struct -- we only add multi it exists
+      height_struct->addMember( "x", new BLong( tile.x() ) );
+      height_struct->addMember( "y", new BLong( tile.y() ) );
+      height_struct->addMember( "z", new BLong( z ) );
+      if ( multi != nullptr )
       {
-        std::unique_ptr<BStruct> height_struct( new BStruct );
-        auto z = std::get<0>( layer );
-        auto multi = std::get<1>( layer );
-
-        // Figure out which members to stick in the struct -- we only add multi it exists
-        height_struct->addMember( "x", new BLong( i ) );
-        height_struct->addMember( "y", new BLong( j ) );
-        height_struct->addMember( "z", new BLong( z ) );
-        if ( multi != nullptr )
-        {
-          height_struct->addMember( "multi", new EMultiRefObjImp( multi ) );
-        }
-
-        // Add struct to the return array
-        result->addElement( height_struct.release() );
+        height_struct->addMember( "multi", new EMultiRefObjImp( multi ) );
       }
+
+      // Add struct to the return array
+      result->addElement( height_struct.release() );
     }
   }
 
