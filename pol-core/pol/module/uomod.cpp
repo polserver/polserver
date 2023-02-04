@@ -4530,21 +4530,18 @@ BObjectImp*
 UOExecutorModule::mf_GetStandingCoordinates() /* x, y, radius, minz, maxz, realm := _DEFAULT_REALM,
                                                  movemode := "L", doors_block = 0 */
 {
-  int dummy, x, y, r, minz, maxz;
+  int x, y, r, minz, maxz, doors_block;
   const String* realmname;
   const String* movemodename;
-  bool doors_block;
 
-  if ( !( getParam( 0, dummy ) &&  // FIXME: remove this dummy once you figure out why
-                                             // getting the 0th param fails every time
-          getParam( 1, x ) &&
-          getParam( 2, y ) &&
-          getParam( 3, r ) &&
-          getParam( 4, minz ) &&
-          getParam( 5, maxz ) &&
-          getStringParam( 6, realmname ) &&
-          getStringParam( 7, movemodename ) &&
-          getParam( 8, reinterpret_cast<int&>( doors_block ) ) ) )
+  if ( !( getParam( 0, x ) &&
+          getParam( 1, y ) &&
+          getParam( 2, r ) &&
+          getParam( 3, minz ) &&
+          getParam( 4, maxz ) &&
+          getStringParam( 5, realmname ) &&
+          getStringParam( 6, movemodename ) &&
+          getParam( 7, doors_block ) ) )
   {
     return new BError( "Invalid parameter type" );
   }
