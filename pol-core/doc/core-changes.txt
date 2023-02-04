@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+02-05-2023 Kevin:
+    Fixed: Creating an item via item descriptor whose SaveOnExit property has been set to 0 will now properly not save the item during a world save.
 01-11-2023 Turley:
     Fixed: Placing items into a container failed since nightly of 01-05-2023
 01-02-2023 Kevin:
