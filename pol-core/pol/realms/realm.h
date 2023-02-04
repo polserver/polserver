@@ -143,13 +143,6 @@ public:
                           short* gradual_boost = nullptr );
 
   [[nodiscard]] std::vector<std::tuple<short, Multi::UMulti*, Items::Item*>> get_walkheights(
-      unsigned short x, unsigned short y, short minz, short maxz, Plib::MOVEMODE movemode,
-      bool doors_block ) const
-  {
-    return get_walkheights( Core::Pos2d( x, y ), minz, maxz, movemode, doors_block );
-  }
-
-  [[nodiscard]] std::vector<std::tuple<short, Multi::UMulti*, Items::Item*>> get_walkheights(
       const Core::Pos2d& pos, short minz, short maxz, Plib::MOVEMODE movemode,
       bool doors_block ) const;
 

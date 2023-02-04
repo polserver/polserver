@@ -4561,7 +4561,7 @@ UOExecutorModule::mf_GetStandingCoordinates() /* x, y, radius, minz, maxz, realm
   {
     for ( int j = y - r; j <= y + r; j++ )
     {
-      auto layers = realm->get_walkheights( i, j, minz, maxz, movemode, doors_block );
+      auto layers = realm->get_walkheights( Core::Pos2d(i, j), minz, maxz, movemode, doors_block );
       for ( const auto& layer : layers )
       {
         std::unique_ptr<BStruct> height_struct( new BStruct );
