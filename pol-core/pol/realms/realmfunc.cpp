@@ -407,7 +407,7 @@ bool Realm::walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos, walkon_items, doors_block /* true */ );
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -460,7 +460,7 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, sh
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos, walkon_items, chr->doors_block() );
+  read_walkable_dynamics( shapes, pos, walkon_items, chr->doors_block() );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( chr->movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -531,7 +531,7 @@ bool Realm::lowest_walkheight( const Core::Pos2d& pos, short oldz, short* newz,
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos, walkon_items, doors_block /* true */ );
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -580,7 +580,7 @@ std::vector<std::tuple<short, Multi::UMulti*, Items::Item*>> Realm::get_walkheig
   Plib::MapShapeList shapes;
   MultiList multis;
   Core::ItemsVector walkon_items;
-  readdynamics( shapes, pos, walkon_items, doors_block );
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
   {
@@ -630,7 +630,7 @@ bool Realm::dropheight( const Core::Pos3d& drop, short chrz, short* newz, Multi:
   mvec.clear();
   ivec.clear();
 
-  readdynamics( shapes, drop.xy(), ivec, true /* doors_block */ );
+  read_walkable_dynamics( shapes, drop.xy(), ivec, true /* doors_block */ );
   readmultis( shapes, drop.xy(), Plib::FLAG::DROP_FLAGS, mvec );
   getmapshapes( shapes, drop.xy(), Plib::FLAG::DROP_FLAGS );
 
