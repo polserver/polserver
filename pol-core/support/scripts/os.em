@@ -103,7 +103,9 @@ OpenConnection( host, port, scriptdef, params := 0, assume_string := 0, keep_con
 Debugger(); // put script in debug state
 
 PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
-HTTPRequest(url, method := "GET", options := struct{});
+
+HTTPRequest(url, method := "GET", options := struct{}, flags := 0);
+const HTTPREQUEST_EXTENDED_RESPONSE := 0x0001; // return Dictionary with various response data instead of a String of response body
 
 LoadExportedScript(name, args:={});
 

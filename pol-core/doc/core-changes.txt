@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+02-06-2023 Kevin:
+    Added: HTTPRequest() now accepts a flags parameter. If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body.
 02-05-2023 Kevin:
     Fixed: Creating an item via item descriptor whose SaveOnExit property has been set to 0 will now properly not save the item during a world save.
 01-11-2023 Turley:

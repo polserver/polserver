@@ -46,6 +46,8 @@ void mkupperASCII( std::string& str );
 std::string strlowerASCII( const std::string& str );
 std::string strupperASCII( const std::string& str );
 
+std::string strtrim( const std::string& str );
+
 void remove_bom( std::string* strbuf );
 
 bool isValidUnicode( const std::string& str );
