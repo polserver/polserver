@@ -2686,7 +2686,8 @@ const MAPDATA_FLAG_ALL          := 0xffffffff; // All</code></explain>
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="movemode" value="String - case-sensitive movemode (e.g. &quot;LS&quot;)" />
   <parameter name="doors_block" value="Integer (0/1)" />
-  <explain>Returns an Array of coordinates that a creature can stand on within "radius". "minz" and "maxz" may be used to specify the minimum and maximum height of the returned coordinates.</explain>
+  <explain>Returns an Array of coordinates that a creature can stand on within "radius". This is a square radius (so really, the apothem).</explain>
+  <explain>"minz" and "maxz" may be used to specify the minimum and maximum height of the returned coordinates.</explain>
   <return>Array of Structs with members "x", "y", "z" and possibly "multi" (containing multi reference if the coordinate is on a multi).</return>
   <error>"Invalid parameter type"</error>
   <error>"Realm not found"</error>
