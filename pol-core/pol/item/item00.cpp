@@ -44,6 +44,7 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   inuse( false );
   invisible( id.invisible );
   no_drop( id.no_drop );
+  saveonexit( id.save_on_exit );
 
   // quality is a dynprop that defaults to the itemdesc value. It won't be stored unless it differs
   // from that default. However, GetItemDescriptor() may be used to assign a new quality before the
