@@ -6,7 +6,7 @@ program test_httprequest()
 endprogram
 
 exported function test_httprequest_regular()
-  var res := HTTPRequest("https://postman-echo.com/status/200");
+  var res := HTTPRequest("http://127.0.0.1:5006/pkg/webserver/test.ecl?body=%7B%22status%22%3A200%7D");
   var expected := "{\"status\":200}";
   if (res != expected)
     return ret_error($"HTTPRequest returned '{res}', expecting '{expected}'");
@@ -15,7 +15,7 @@ exported function test_httprequest_regular()
 endfunction
 
 exported function test_httprequest_ext_status()
-  var res := HTTPRequest("https://postman-echo.com/status/429", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var res := HTTPRequest("http://127.0.0.1:5006/pkg/webserver/test.ecl?status=429&body=%7B%22status%22%3A429%7D", flags := HTTPREQUEST_EXTENDED_RESPONSE);
   var actual, expected;
 
   actual := TypeOfInt(res);
@@ -46,7 +46,7 @@ exported function test_httprequest_ext_status()
 endfunction
 
 exported function test_httprequest_ext_headers()
-  var res := HTTPRequest("https://postman-echo.com/response-headers?test1=value1&test2=value2a&test2=value2b", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var res := HTTPRequest("http://127.0.0.1:5006/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2a%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2b%22%7D%5D", flags := HTTPREQUEST_EXTENDED_RESPONSE);
   var actual, expected;
 
   actual := TypeOfInt(res);
