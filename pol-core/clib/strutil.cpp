@@ -11,6 +11,7 @@
 #include "strutil.h"
 
 #include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <utf8/utf8.h>
 
 #include "logfacility.h"
@@ -147,6 +148,11 @@ std::string strlowerASCII( const std::string& str )
 std::string strupperASCII( const std::string& str )
 {
   return boost::to_upper_copy( str );
+}
+
+std::string strtrim( const std::string& str )
+{
+  return boost::trim_copy( str );
 }
 
 bool isValidUnicode( const std::string& str )

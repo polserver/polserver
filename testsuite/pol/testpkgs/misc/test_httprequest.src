@@ -1,0 +1,77 @@
+use os;
+include "testutil";
+
+program test_httprequest()
+  return 1;
+endprogram
+
+exported function test_httprequest_regular()
+  var res := HTTPRequest("http://127.0.0.1:5006/pkg/webserver/test.ecl?body=%7B%22status%22%3A200%7D");
+  var expected := "{\"status\":200}";
+  if (res != expected)
+    return ret_error($"HTTPRequest returned '{res}', expecting '{expected}'");
+  endif
+  return 1;
+endfunction
+
+exported function test_httprequest_ext_status()
+  var res := HTTPRequest("http://127.0.0.1:5006/pkg/webserver/test.ecl?status=429&body=%7B%22status%22%3A429%7D", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var actual, expected;
+
+  actual := TypeOfInt(res);
+  expected := OT_DICTIONARY;
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned type {actual}, expecting {expected}");
+  endif
+
+  actual := res.status;
+  expected := 429;
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned status {actual}, expecting {expected}");
+  endif
+
+  actual := res.statusText;
+  expected := "Too Many Requests";
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned statusText '{actual}', expecting '{expected}'");
+  endif
+
+  actual := res.body;
+  expected := "{\"status\":429}";
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned body '{actual}', expecting '{expected}'");
+  endif
+
+  return 1;
+endfunction
+
+exported function test_httprequest_ext_headers()
+  var res := HTTPRequest("http://127.0.0.1:5006/pkg/webserver/test.ecl?headers=%5B%7B%22name%22%3A%22test1%22%2C%22value%22%3A%22value1%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2a%22%7D%2C%7B%22name%22%3A%22test2%22%2C%22value%22%3A%22value2b%22%7D%5D", flags := HTTPREQUEST_EXTENDED_RESPONSE);
+  var actual, expected;
+
+  actual := TypeOfInt(res);
+  expected := OT_DICTIONARY;
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned type {actual}, expecting {expected}");
+  endif
+
+  actual := TypeOfInt(res.headers);
+  expected := OT_DICTIONARY;
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned headers type {actual}, expecting {expected}");
+  endif
+
+  actual := res.headers.test1;
+  expected := "value1";
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned headers.test1 '{actual}', expecting '{expected}'");
+  endif
+
+  actual := res.headers.test2;
+  expected := "value2a, value2b";
+  if (actual != expected)
+    return ret_error($"HTTPRequest returned headers.test2 '{actual}', expecting '{expected}'");
+  endif
+
+  return 1;
+endfunction

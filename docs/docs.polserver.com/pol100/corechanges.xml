@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-04-2023</datemodified>
+		<datemodified>02-06-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>02-06-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">HTTPRequest() now accepts a flags parameter. If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body.</change>
+			<change type="Added">http::WriteStatus(code, reason := &quot;&quot;) to change the status of an HTTP response from the web server. If no reason is provided, one will be calculated from the code (if possible). This can only used once before WriteHeader(), WriteHtml(), and WriteHtmlRaw().</change>
+			<change type="Added">http::WriteHeader(name, value) to write a header to an HTTP response from the web server. This function can be used to change the response's Content-Type from the default &quot;text/html&quot;. This can only be used before WriteHtml() and WriteHtmlRaw().</change>
+		</entry>
 		<entry>
 			<date>02-05-2023</date>
 			<author>Kevin:</author>
