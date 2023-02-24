@@ -832,7 +832,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
 void move_to_ground( Items::Item* item )
 {
-  const Core::Pos4d& oldpos = item->toplevel_pos();
+  const Core::Pos4d oldpos = item->toplevel_pos();
   item->set_dirty();
   item->movable( true );
   item->set_decay_after( 60 );  // just a dummy in case decay=0
