@@ -2027,6 +2027,7 @@ const ACTION_REPEAT       := 1;</code></explain>
   <return>1 if the item was destroyed</return>
   <return>0 if the item's destroy script disallowed destruction</return>
   <error>"That item is being used."</error>
+  <error>"That item is a multi. Use uo::DestroyMulti instead."</error>
   <error>"Invalid parameter type"</error>
   <related>Item</related>
 </function>
