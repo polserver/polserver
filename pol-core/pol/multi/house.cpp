@@ -63,7 +63,7 @@ namespace Multi
 {
 void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in )
 {
-  auto box = house->current_box();
+  auto box = house->search_box();
   Core::WorldIterator<Core::MobileFilter>::InBox(
       box.range(), house->realm(),
       [&]( Mobile::Character* chr )

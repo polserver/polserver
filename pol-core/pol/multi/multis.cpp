@@ -92,6 +92,12 @@ Core::Range3d UMulti::current_box() const
   return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz );
 }
 
+Core::Range3d UMulti::search_box() const
+{
+  const MultiDef& md = multidef();
+  return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz + Core::Vec2d( 0, 1 ) );
+}
+
 Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test
 {
   Bscript::BObjectImp* imp = base::get_script_member_id( id );
