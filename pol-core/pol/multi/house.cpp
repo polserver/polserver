@@ -61,6 +61,13 @@ namespace Pol
 {
 namespace Multi
 {
+Core::Range3d UHouse::search_box() const
+{
+  const MultiDef& md = multidef();
+  Core::Vec2d delta = IsCustom() ? Core::Vec2d( 0, 1 ) : Core::Vec2d( 0, 0 );
+  return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz + delta );
+}
+
 void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in )
 {
   auto box = house->search_box();
