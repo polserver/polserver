@@ -1,6 +1,8 @@
 ﻿-- POL100.1.0 --
-02-27-2023 Kevin:
+02-28-2023 Kevin:
     Fixed: MultiRef.items now correctly includes items on the exterior stairs of custom houses.
+02-27-2023 Kevin:
+    Fixed: DestroyItem(item) will now throw an error if item is a multi.
 02-06-2023 Kevin:
     Added: HTTPRequest() now accepts a flags parameter. If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body.
     Added: http::WriteStatus(code, reason := "") to change the status of an HTTP response from the web server. If no reason is provided, one will be calculated from the code (if possible). This can only used once before WriteHeader(), WriteHtml(), and WriteHtmlRaw().

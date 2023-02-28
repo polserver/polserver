@@ -2,13 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-27-2023</datemodified>
+		<datemodified>02-28-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>02-27-2023</date>
+			<date>02-28-2023</date>
 			<author>Kevin:</author>
 			<change type="Fixed">MultiRef.items now correctly includes items on the exterior stairs of custom houses.</change>
+		</entry>
+		<entry>
+			<date>02-27-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">DestroyItem(item) will now throw an error if item is a multi.</change>
 		</entry>
 		<entry>
 			<date>02-06-2023</date>

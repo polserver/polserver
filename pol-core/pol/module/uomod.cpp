@@ -2887,6 +2887,8 @@ BObjectImp* UOExecutorModule::mf_DestroyItem()
       item->gotten_by()->clear_gotten_item();
     else if ( item->inuse() && !is_reserved_to_me( item ) )
       return new BError( "That item is being used." );
+    else if ( item->script_isa( POLCLASS_MULTI ) )
+      return new BError( "That item is a multi. Use uo::DestroyMulti instead." );
 
     const ItemDesc& id = find_itemdesc( item->objtype_ );
     if ( !id.destroy_script.empty() )
