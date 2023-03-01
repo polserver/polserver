@@ -98,7 +98,7 @@ public:
 
   virtual void walk_on( Mobile::Character* chr ) override;
 
-  virtual Core::Range3d search_box() const override;
+  virtual Core::Range3d current_box() const override;
 
   void ClearSquatters();
   bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
