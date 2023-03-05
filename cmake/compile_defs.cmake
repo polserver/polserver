@@ -284,8 +284,11 @@ function(use_boost target)
 endfunction()
 
 function(use_cppdap target)
+  if (NOT EXISTS ${CPPDAP_LIB})
+    add_dependencies(${target} cppdap)
+  endif()
   target_include_directories(${target}  PRIVATE
-    "${CPPDAP_SOURCE_DIR}/include"
+    "${CPPDAP_INSTALL_DIR}/include"
   )
   target_link_libraries(${target} PUBLIC
     ${CPPDAP_LIB}

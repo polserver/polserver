@@ -2,15 +2,16 @@ message("* cppdap")
 
 set (CPPDAP_VERSION_REF "5981969")
 set (CPPDAP_SOURCE_DIR "${POL_EXT_LIB_DIR}/cppdap-${CPPDAP_VERSION_REF}")
+set (CPPDAP_INSTALL_DIR "${CPPDAP_SOURCE_DIR}/build")
 
 if (${windows})
-  set (CPPDAP_LIB "${CPPDAP_SOURCE_DIR}/cppdap.lib" )
+  set (CPPDAP_LIB "${CPPDAP_INSTALL_DIR}/lib/cppdap.lib" )
 else()
-  set (CPPDAP_LIB "${CPPDAP_SOURCE_DIR}/libcppdap.a" )
+  set (CPPDAP_LIB "${CPPDAP_INSTALL_DIR}/lib/libcppdap.a" )
 endif()
 
 if (${windows})
-  set(CPPDAP_FLAGS -DCMAKE_CXX_FLAGS_RELEASE="/EHsc" -DCMAKE_C_FLAGS_RELEASE="/EHsc")
+  set(CPPDAP_FLAGS -DCMAKE_CXX_FLAGS_RELEASE="/MT" -DCMAKE_C_FLAGS_RELEASE="/MT")
 endif()
 
 if(NOT EXISTS ${CPPDAP_LIB})
@@ -18,13 +19,14 @@ if(NOT EXISTS ${CPPDAP_LIB})
     GIT_REPOSITORY   https://github.com/google/cppdap.git
     GIT_TAG          ${CPPDAP_VERSION_REF}
     GIT_SHALLOW      TRUE
-    STEP_TARGETS     build
-    CMAKE_ARGS       ${CPPDAP_FLAGS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    PREFIX           cppdap
+    CMAKE_ARGS       ${CPPDAP_FLAGS} -DCMAKE_INSTALL_PREFIX=${CPPDAP_INSTALL_DIR} -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
     SOURCE_DIR       "${CPPDAP_SOURCE_DIR}"
     BUILD_IN_SOURCE  1
-    INSTALL_COMMAND  ""
-    BUILD_BYPRODUCTS "${CPPDAP_LIB}"
+    INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --config Release --target install
+    BUILD_BYPRODUCTS ${CPPDAP_LIB}
   )
+  set_target_properties (cppdap PROPERTIES FOLDER 3rdParty)
 else()
   message("  cppdap already built")
 endif()
