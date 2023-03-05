@@ -64,6 +64,11 @@ jobs:
         with:
           path: lib/boost_1_78_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
+      - name: Cache cppdap
+        uses: actions/cache@v3
+        with:
+          path: lib/cppdap-5981969
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-5981969-buildtypefix
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
