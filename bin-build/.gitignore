@@ -6,6 +6,7 @@ compile_commands.json
 CPack*
 install_manifest*
 boost*
+cppdap*
 *.h
 *.h.tmp
 *.vcxproj*
