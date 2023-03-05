@@ -87,6 +87,7 @@
 #include "checkpnt.h"
 #include "console.h"
 #include "core.h"
+#include "dap/server.h"
 #include "decay.h"
 #include "extobj.h"
 #include "fnsearch.h"
@@ -811,6 +812,9 @@ void start_threads()
 
   checkpoint( "start dbglisten thread" );
   threadhelp::start_thread( debug_listen_thread, "DbgListn" );
+
+  checkpoint( "start dapdbglisten thread" );
+  threadhelp::start_thread( DapDebugServer::dap_debug_listen_thread, "DapDbgListn" );
 
   checkpoint( "start threadstatus thread" );
   start_thread( threadstatus_thread, "ThreadStatus" );

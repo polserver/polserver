@@ -94,6 +94,7 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.ignore_load_errors = elem.remove_bool( "IgnoreLoadErrors", false );
 
     Plib::systemstate.config.debug_port = elem.remove_ushort( "DebugPort", 0 );
+    Plib::systemstate.config.dap_debug_port = elem.remove_ushort( "DAPDebugPort", 0 );
 
     Plib::systemstate.config.account_save = elem.remove_int( "AccountDataSave", -1 );
     if ( Plib::systemstate.config.account_save > 0 )
