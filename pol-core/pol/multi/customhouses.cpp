@@ -696,7 +696,8 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
   CustomHouseStopEditing( chr, house, itemlist, send_pkts );
 }
 
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, ItemList& itemlist, bool send_pkts )
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, ItemList& itemlist,
+                             bool send_pkts )
 {
   if ( send_pkts && chr->client )
   {
