@@ -19,6 +19,15 @@ namespace Core
 class Event
 {
 public:
+  // wait_until() blocks until the event is fired or `timeout` milliseconds is reached.
+  bool wait_until( int timeout )
+  {
+    std::unique_lock<std::mutex> lock( mutex );
+    return cv.wait_until( lock,
+                          std::chrono::system_clock::now() + std::chrono::milliseconds( timeout ),
+                          [&] { return fired; } );
+  }
+
   // wait() blocks until the event is fired.
   void wait()
   {
@@ -114,7 +123,7 @@ void DapDebugClientThread::run()
   }
 
   // Wait until the Session's closed handler executes.
-  sessionClosed.wait();
+  sessionClosed.wait_until( 1000 );
 
   POLLOG_INFO << "Debug client thread closing.\n";
 }
