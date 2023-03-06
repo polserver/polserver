@@ -2,10 +2,11 @@
 
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
-#include "../../clib/network/socketsvc.h"
-#include "../../clib/network/wnsckt.h"
+#include "../../clib/threadhelp.h"
 #include "../../plib/systemstate.h"
+#include "../globals/network.h"
 #include "../polclock.h"
+#include "../polsem.h"
 
 #include <dap/io.h>
 #include <dap/protocol.h>
@@ -16,51 +17,16 @@ namespace Pol
 {
 namespace Core
 {
-
-using namespace std::chrono_literals;
-
-// Simple class to help with thread synchronization
-class Event
-{
-public:
-  // wait_for() blocks until the event is fired or `timeout` milliseconds is reached.
-  bool wait_for( int timeout )
-  {
-    std::unique_lock<std::mutex> lock( mutex );
-    return cv.wait_for( lock, timeout * 1ms, [&] { return fired; } );
-  }
-
-  // wait() blocks until the event is fired.
-  void wait()
-  {
-    std::unique_lock<std::mutex> lock( mutex );
-    cv.wait( lock, [&] { return fired; } );
-  }
-
-  // fire() signals the event, and unblocks any calls to wait() and wait_for().
-  void fire()
-  {
-    std::unique_lock<std::mutex> lock( mutex );
-    fired = true;
-    cv.notify_all();
-  }
-
-private:
-  std::mutex mutex;
-  std::condition_variable cv;
-  bool fired = false;
-};
-
 // Implements the dap::ReaderWriter IO interface using a Clib::Socket
 class SocketReaderWriter : public dap::ReaderWriter
 {
 public:
-  SocketReaderWriter( Clib::Socket& sck ) : _sck( sck ) {}
+  SocketReaderWriter( const std::shared_ptr<Clib::Socket>& sck ) : _sck( sck ) {}
   size_t read( void* buffer, size_t n ) override
   {
     int bytes_read = 0;
 
-    if ( !_sck.recvdata_nowait( static_cast<char*>( buffer ), n, &bytes_read ) )
+    if ( !_sck->recvdata_nowait( static_cast<char*>( buffer ), n, &bytes_read ) )
       return 0;
     else if ( bytes_read < 0 )
       return 0;
@@ -71,59 +37,65 @@ public:
   {
     unsigned int bytes_sent;
 
-    return _sck.send_nowait( buffer, n, &bytes_sent );
+    return _sck->send_nowait( buffer, n, &bytes_sent );
   }
 
-  bool isOpen() override { return _sck.connected(); }
-  void close() override { _sck.close(); }
+  bool isOpen() override { return _sck->connected(); }
+  void close() override { _sck->close(); }
 
 private:
-  Clib::Socket& _sck;
+  std::shared_ptr<Clib::Socket> _sck;
 };
 
-class DapDebugClientThread : public Clib::SocketClientThread
+class DapDebugClientThread
 {
 public:
-  DapDebugClientThread( Clib::Socket&& sock ) : Clib::SocketClientThread( std::move( sock ) ) {}
-  void run() override;
+  DapDebugClientThread( Clib::Socket&& sock )
+      : _sck( std::make_shared<Clib::Socket>( std::move( sock ) ) ),
+        _rw( std::make_shared<SocketReaderWriter>( _sck ) ),
+        _session( dap::Session::create() )
+  {
+  }
+
+  void run();
+
+private:
+  std::shared_ptr<Clib::Socket> _sck;
+  std::shared_ptr<SocketReaderWriter> _rw;
+  std::unique_ptr<dap::Session> _session;
 };
 
 void DapDebugClientThread::run()
 {
   POLLOG_INFO << "Debug client thread started.\n";
 
-  // Create a new dap::Session.
-  auto session = dap::Session::create();
-
   // Session event handlers
-  session->registerHandler(
+  _session->registerHandler(
       []( const dap::InitializeRequest& )
       {
         POLLOG_INFO << "Got InitializeRequest.\n";
         return dap::InitializeResponse{};
       } );
 
-  Event sessionClosed;
   // Attach the SocketReaderWrier to the Session and begin processing events.
-  session->bind( std::make_shared<SocketReaderWriter>( _sck ),
-                 [&]()
-                 {
-                   POLLOG_INFO << "Debug session endpoint closed.\n";
-                   // Signal to client thread that the Session is closed.
-                   sessionClosed.fire();
-                 } );
+  _session->bind( _rw,
+                  [&]()
+                  {
+                    POLLOG_INFO << "Debug session endpoint closed.\n";
+                    // Signal to client thread that the Session is closed.
+                  } );
 
-  while ( !Clib::exit_signalled && _sck.connected() )
+  while ( !Clib::exit_signalled && _sck->connected() )
   {
     pol_sleep_ms( 1000 );
   }
 
-  session.reset();
+  _session.reset();
 
   // Close the socket endpoint if necessary.
-  if ( _sck.connected() )
+  if ( _sck->connected() )
   {
-    _sck.close();
+    _sck->close();
   }
 
   POLLOG_INFO << "Debug client thread closing.\n";
@@ -139,8 +111,14 @@ void DapDebugServer::dap_debug_listen_thread( void )
       Clib::Socket sock;
       if ( SL.GetConnection( &sock, 1 ) && sock.connected() )
       {
-        Clib::SocketClientThread* p = new DapDebugClientThread( std::move( sock ) );
-        p->start();
+        Core::PolLock lock;
+        auto client = new DapDebugClientThread( std::move( sock ) );
+        Core::networkManager.auxthreadpool->push(
+            [client]()
+            {
+              std::unique_ptr<DapDebugClientThread> _clientptr( client );
+              _clientptr->run();
+            } );
       }
     }
   }
