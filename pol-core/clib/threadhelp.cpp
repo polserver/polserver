@@ -530,6 +530,7 @@ size_t DynTaskThreadPool::threadpoolsize() const
 
 void DynTaskThreadPool::create_thread()
 {
+  std::lock_guard<std::mutex> guard( _pool_mutex );
   for ( const auto& worker : _threads )
   {
     if ( !worker->isbusy() )  // check for a idle instance
@@ -537,7 +538,6 @@ void DynTaskThreadPool::create_thread()
       return;
     }
   }
-  std::lock_guard<std::mutex> guard( _pool_mutex );
   size_t thread_num = _threads.size();
   _threads.emplace_back( new PoolWorker( this, _name + " " + fmt::FormatInt( thread_num ).str() ) );
   ERROR_PRINT << "create pool worker " << _name << " " << thread_num << "\n";
