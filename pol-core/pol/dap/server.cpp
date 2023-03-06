@@ -16,16 +16,18 @@ namespace Pol
 {
 namespace Core
 {
+
+using namespace std::chrono_literals;
+
+// Simple class to help with thread synchronization
 class Event
 {
 public:
-  // wait_until() blocks until the event is fired or `timeout` milliseconds is reached.
-  bool wait_until( int timeout )
+  // wait_for() blocks until the event is fired or `timeout` milliseconds is reached.
+  bool wait_for( int timeout )
   {
     std::unique_lock<std::mutex> lock( mutex );
-    return cv.wait_until( lock,
-                          std::chrono::system_clock::now() + std::chrono::milliseconds( timeout ),
-                          [&] { return fired; } );
+    return cv.wait_for( lock, timeout * 1ms, [&] { return fired; } );
   }
 
   // wait() blocks until the event is fired.
@@ -35,7 +37,7 @@ public:
     cv.wait( lock, [&] { return fired; } );
   }
 
-  // fire() sets signals the event, and unblocks any calls to wait().
+  // fire() signals the event, and unblocks any calls to wait() and wait_for().
   void fire()
   {
     std::unique_lock<std::mutex> lock( mutex );
@@ -116,14 +118,13 @@ void DapDebugClientThread::run()
     pol_sleep_ms( 1000 );
   }
 
+  session.reset();
+
   // Close the socket endpoint if necessary.
   if ( _sck.connected() )
   {
     _sck.close();
   }
-
-  // Wait until the Session's closed handler executes.
-  sessionClosed.wait_until( 1000 );
 
   POLLOG_INFO << "Debug client thread closing.\n";
 }
