@@ -687,6 +687,17 @@ Bscript::ObjArray* CustomHouseDesign::list_parts() const
 
 void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts )
 {
+  ItemList itemlist;
+  MobileList moblist;
+  bool was_editing = house->editing;
+  house->editing = false;
+  UHouse::list_contents( house, itemlist, moblist );
+  house->editing = was_editing;
+  CustomHouseStopEditing( chr, house, itemlist, send_pkts );
+}
+
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, ItemList& itemlist, bool send_pkts )
+{
   if ( send_pkts && chr->client )
   {
     Network::PktHelper::PacketOut<Network::PktOut_BF_Sub20> msg;
@@ -710,9 +721,6 @@ void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pk
   house->editing = false;
   if ( send_pkts && chr->client )
   {
-    ItemList itemlist;
-    MobileList moblist;
-    UHouse::list_contents( house, itemlist, moblist );
     while ( !itemlist.empty() )
     {
       Items::Item* item = itemlist.front();
@@ -1167,6 +1175,13 @@ void UHouse::CustomHouseSetInitialState()
 
 void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool send_pkts )
 {
+  ItemList itemlist;
+  MobileList moblist;
+  bool was_editing = editing;
+  editing = false;
+  UHouse::list_contents( this, itemlist, moblist );
+  editing = was_editing;
+
   if ( drop_changes )
     WorkingDesign = CurrentDesign;
   else
@@ -1182,7 +1197,7 @@ void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool s
   CurrentCompressed.swap( newvec2 );
   if ( chr )
   {
-    CustomHouseStopEditing( chr, this, send_pkts );
+    CustomHouseStopEditing( chr, this, itemlist, send_pkts );
     if ( chr->client && send_pkts )
       CustomHousesSendFull( this, chr->client, HOUSE_DESIGN_CURRENT );
     if ( Core::gamestate.system_hooks.close_customhouse_hook )

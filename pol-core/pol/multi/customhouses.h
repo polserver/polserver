@@ -175,6 +175,8 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client,
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
 void CustomHousesSendShort( UHouse* house, Network::Client* client );
 void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts = true );
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, std::list<Items::Item*>& foo,
+                             bool send_pkts = true );
 }  // namespace Multi
 }  // namespace Pol
 #endif

@@ -988,6 +988,13 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
   waiting_for_accept = false;
   if ( accept )
   {
+    ItemList itemlist;
+    MobileList moblist;
+    bool was_editing = editing;
+    editing = false;
+    UHouse::list_contents( this, itemlist, moblist );
+    editing = was_editing;
+
     revision++;
 
     // commit working design to current design
@@ -997,7 +1004,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     std::vector<u8> newvec;
     CurrentCompressed.swap( newvec );
 
-    CustomHouseStopEditing( chr, this );
+    CustomHouseStopEditing( chr, this, itemlist );
 
     // send full house
     CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
