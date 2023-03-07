@@ -16,7 +16,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_over
 set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
 
-project(polserver 
+project(polserver
 	LANGUAGES CXX C
 	VERSION 100.1.0
 	DESCRIPTION "Penultima Online"
@@ -130,7 +130,7 @@ git_revision_target()
 
 if (${linux})
   option(STRIP_BINARIES "Strip binaries directly, instead of only in package target" OFF)
-  
+
   set(REUSE_PCH ON)
 endif()
 
@@ -150,6 +150,7 @@ if (${windows})
 endif()
 if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.cmake)
+  include(cmake/Cppdap.cmake)
 endif()
 include(cmake/TinyXML.cmake)
 

@@ -71,6 +71,7 @@ struct PolConfig
   bool enable_debug_log;
 
   unsigned short debug_port;
+  unsigned short dap_debug_port;
   std::string debug_password;
   bool debug_local_only;
 
