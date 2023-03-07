@@ -128,14 +128,16 @@ void DapDebugClientThread::run()
           auto pid = request.pid;
           if ( find_uoexec( pid, &uoexec ) )
           {
-            if ( !uoexec->attach_debugger( this->shared_from_this() ) )
-              return dap::Error( "Debugger already attached." );
-
-            _uoexec_wptr = uoexec->weakptr;
             EScriptProgram* prog = const_cast<EScriptProgram*>( uoexec->prog() );
+
             if ( prog->read_dbg_file() == 0 )
             {
+              if ( !uoexec->attach_debugger( shared_from_this() ) )
+                return dap::Error( "Debugger already attached." );
+
+              _uoexec_wptr = uoexec->weakptr;
               _script.set( prog );
+
               return dap::AttachResponse();
             }
             return dap::Error( "No debug information available." );
