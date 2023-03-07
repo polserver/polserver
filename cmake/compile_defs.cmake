@@ -4,9 +4,9 @@ function(set_compile_flags target is_executable)
     ${CMAKE_CURRENT_SOURCE_DIR} #own folder
     ${PROJECT_BINARY_DIR} #global config
   )
-  
+
   # Add 'pol-core' to the include search path of all the projects in it
-  if (${INCLUDE_POLCORE_DIR})    
+  if (${INCLUDE_POLCORE_DIR})
     target_include_directories(${target} PRIVATE
     ${POLCORE_DIR} # path to pol-core
     )
@@ -65,7 +65,7 @@ function(set_compile_flags target is_executable)
       )
     endif()
   endif()
-  
+
   target_compile_features(${target} PUBLIC cxx_std_17)
 
   target_compile_options(${target} PRIVATE
@@ -75,7 +75,7 @@ function(set_compile_flags target is_executable)
       -Wall
       -Wextra
     >
-    
+
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:
       -m${ARCH_BITS}
     >
@@ -284,6 +284,18 @@ function(use_boost target)
           ${BOOST_SYSTEM_LIB}
           ${BOOST_THREAD_LIB}
           )
+endfunction()
+
+function(use_cppdap target)
+  if (NOT EXISTS ${CPPDAP_LIB})
+    add_dependencies(${target} cppdap)
+  endif()
+  target_include_directories(${target}  PRIVATE
+    "${CPPDAP_INSTALL_DIR}/include"
+  )
+  target_link_libraries(${target} PUBLIC
+    ${CPPDAP_LIB}
+  )
 endfunction()
 
 function(use_zlib target)

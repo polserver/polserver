@@ -63,6 +63,11 @@ jobs:
         with:
           path: lib/boost_1_83_0
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-boost-1.83.0
+      - name: Cache cppdap
+        uses: actions/cache@v3
+        with:
+          path: lib/cppdap-5981969
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-5981969
       - name: Install llvm
         if: matrix.config.cxx-compiler == 'clang-cl'
         shell: powershell

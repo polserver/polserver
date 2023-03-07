@@ -151,6 +151,7 @@ endif()
 include(cmake/Kaitai.cmake)
 if (BUILD_ALL OR ONLY_POL)
   include(cmake/Curl.cmake)
+  include(cmake/Cppdap.cmake)
 endif()
 include(cmake/TinyXML.cmake)
 

@@ -59,6 +59,8 @@ set (pol_sources  # sorted !
   crypt/twofish.h
   ctable.cpp
   ctable.h
+  dap/server.cpp
+  dap/server.h
   dblclick.cpp
   decay.cpp
   decay.h
