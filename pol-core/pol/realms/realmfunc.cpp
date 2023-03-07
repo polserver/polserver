@@ -434,12 +434,7 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, sh
           Multi::UHouse* house = multi->as_house();
           if ( house != nullptr )
           {
-            Multi::ItemList itemlist;
-            Multi::MobileList moblist;
-            bool was_editing = house->editing;
-            house->editing = false;
-            Multi::UHouse::list_contents( house, itemlist, moblist );
-            house->editing = was_editing;
+            Multi::ItemList itemlist = Multi::UHouse::get_working_design_items( house );
             Multi::CustomHouseStopEditing( const_cast<Mobile::Character*>( chr ), house, itemlist );
             Multi::CustomHousesSendFull( house, chr->client, Multi::HOUSE_DESIGN_CURRENT );
           }

@@ -685,17 +685,6 @@ Bscript::ObjArray* CustomHouseDesign::list_parts() const
   return arr.release();
 }
 
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts )
-{
-  ItemList itemlist;
-  MobileList moblist;
-  bool was_editing = house->editing;
-  house->editing = false;
-  UHouse::list_contents( house, itemlist, moblist );
-  house->editing = was_editing;
-  CustomHouseStopEditing( chr, house, itemlist, send_pkts );
-}
-
 void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, ItemList& itemlist,
                              bool send_pkts )
 {
@@ -1176,12 +1165,7 @@ void UHouse::CustomHouseSetInitialState()
 
 void UHouse::CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool send_pkts )
 {
-  ItemList itemlist;
-  MobileList moblist;
-  bool was_editing = editing;
-  editing = false;
-  UHouse::list_contents( this, itemlist, moblist );
-  editing = was_editing;
+  ItemList itemlist = get_working_design_items( this );
 
   if ( drop_changes )
     WorkingDesign = CurrentDesign;
