@@ -28,7 +28,6 @@
 
 #include "../clib/refptr.h"
 #include "../clib/spinlock.h"
-#include "../clib/weakptr.h"
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
@@ -69,7 +68,7 @@ typedef std::vector<BObjectRef> ValueStackCont;
 class ExecutorDebugListener
 {
 public:
-  virtual void on_halt() {};
+  virtual void on_halt(){};
 };
 
 // FIXME: how to make this a nested struct in Executor?
@@ -377,8 +376,7 @@ public:
   bool debugging() const;
   void setdebugging( bool debugging );
 
-  void attach_debugger();
-  void attach_debugger( weak_ptr<ExecutorDebugListener> listener );
+  bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {} );
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
   void dbg_ins_trace();
@@ -435,7 +433,7 @@ private:
 private:  // not implemented
   Executor( const Executor& exec );
   Executor& operator=( const Executor& exec );
-  weak_ptr<ExecutorDebugListener> _listener;
+  std::weak_ptr<ExecutorDebugListener> _listener;
 #ifdef ESCRIPT_PROFILE
   unsigned long GetTimeUs();
   void profile_escript( std::string name, unsigned long profile_start );
@@ -480,9 +478,12 @@ inline void Executor::sethalt( bool halt )
 {
   halt_ = halt;
 
-  if ( halt && _listener.exists() )
+  if ( halt )
   {
-    _listener.get_weakptr()->on_halt();
+    if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
+    {
+      listener->on_halt();
+    }
   }
 
   calcrunnable();

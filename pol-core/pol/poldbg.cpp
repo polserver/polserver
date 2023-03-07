@@ -579,7 +579,11 @@ std::string DebugContext::cmd_attach( unsigned pid )
   UOExecutor* uoexec;
   if ( find_uoexec( pid, &uoexec ) )
   {
-    uoexec->attach_debugger();
+    if ( !uoexec->attach_debugger() )
+    {
+      return "Debugger already attached to PID " + Clib::tostring( pid ) + ".";
+    }
+
     uoexec_wptr = uoexec->weakptr;
     EScriptProgram* prog = const_cast<EScriptProgram*>( uoexec->prog() );
     prog->read_dbg_file();

@@ -76,7 +76,8 @@ private:
   Clib::Socket _sck;
 };
 
-class DapDebugClientThread : public ExecutorDebugListener
+class DapDebugClientThread : public ExecutorDebugListener,
+                             public std::enable_shared_from_this<ExecutorDebugListener>
 {
 public:
   DapDebugClientThread( Clib::Socket&& sock )
@@ -127,7 +128,9 @@ void DapDebugClientThread::run()
           auto pid = request.pid;
           if ( find_uoexec( pid, &uoexec ) )
           {
-            uoexec->attach_debugger( _weakptr );
+            if ( !uoexec->attach_debugger( this->shared_from_this() ) )
+              return dap::Error( "Debugger already attached." );
+
             _uoexec_wptr = uoexec->weakptr;
             EScriptProgram* prog = const_cast<EScriptProgram*>( uoexec->prog() );
             if ( prog->read_dbg_file() == 0 )
@@ -158,9 +161,9 @@ void DapDebugClientThread::run()
     _session->registerHandler( [&]( const dap::SetExceptionBreakpointsRequest& )
                                { return dap::SetExceptionBreakpointsResponse(); } );
 
-    _session->registerHandler( [&]( const dap::StackTraceRequest& )
-                                   -> dap::ResponseOrError<dap::StackTraceResponse>
-                               { return dap::StackTraceResponse{}; } );
+    _session->registerHandler(
+        [&]( const dap::StackTraceRequest& ) -> dap::ResponseOrError<dap::StackTraceResponse>
+        { return dap::StackTraceResponse{}; } );
   };
 
   // Session event handlers added before initialization
@@ -221,6 +224,13 @@ void DapDebugClientThread::run()
     _rw->close();
   }
 
+  // Detach debugger in case a DisconnectRequest was not sent.
+  if ( _uoexec_wptr.exists() )
+  {
+    UOExecutor* exec = _uoexec_wptr.get_weakptr();
+    exec->detach_debugger();
+  }
+
   POLLOG_INFO << "Debug client thread closing.\n";
 }
 
@@ -247,7 +257,8 @@ void DapDebugServer::dap_debug_listen_thread( void )
         Core::networkManager.auxthreadpool->push(
             [client]()
             {
-              std::unique_ptr<DapDebugClientThread> _clientptr( client );
+              // shared_ptr needed for enable_shared_from_this
+              std::shared_ptr<DapDebugClientThread> _clientptr( client );
               _clientptr->run();
             } );
       }

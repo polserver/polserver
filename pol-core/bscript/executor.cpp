@@ -89,8 +89,7 @@ Executor::Executor()
       debug_state_( DEBUG_STATE_NONE ),
       breakpoints_(),
       bp_skip_( ~0u ),
-      func_result_( nullptr ),
-      _listener( nullptr )
+      func_result_( nullptr )
 {
   Clib::SpinLockGuard lock( _executor_lock );
   ++executor_count;
@@ -3252,21 +3251,20 @@ ExecutorModule* Executor::findModule( const std::string& name )
   return nullptr;
 }
 
-void Executor::attach_debugger()
+bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
 {
+  if ( debugging() )
+    return false;
+
   setdebugging( true );
   debug_state_ = DEBUG_STATE_ATTACHING;
-  _listener.clear();
-}
-
-void Executor::attach_debugger( weak_ptr<ExecutorDebugListener> listener )
-{
-  attach_debugger();
   _listener = listener;
+  return true;
 }
 
 void Executor::detach_debugger()
 {
+  _listener.reset();
   setdebugging( false );
   debug_state_ = DEBUG_STATE_NONE;
   sethalt( false );
