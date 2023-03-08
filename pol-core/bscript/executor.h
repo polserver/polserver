@@ -69,6 +69,7 @@ class ExecutorDebugListener
 {
 public:
   virtual void on_halt(){};
+  virtual void on_destroy(){};
 };
 
 // FIXME: how to make this a nested struct in Executor?

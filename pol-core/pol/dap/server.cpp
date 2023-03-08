@@ -91,7 +91,9 @@ public:
 
   void run();
 
-  void on_halt();
+  void on_halt() override;
+
+  void on_destroy() override;
 
 private:
   std::shared_ptr<SocketReaderWriter> _rw;
@@ -106,6 +108,16 @@ void DapDebugClientThread::on_halt()
   event.reason = "pause";
   event.threadId = 1;
   _session->send( event );
+}
+
+void DapDebugClientThread::on_destroy()
+{
+  dap::ExitedEvent event;
+  event.exitCode = 0;
+  _session->send( event );
+
+  // threadsafe...? Is the event flushed to the socket before closing?
+  _rw->close();
 }
 
 void DapDebugClientThread::run()
@@ -267,14 +279,6 @@ void DapDebugClientThread::run()
     pol_sleep_ms( 1000 );
   }
 
-  _session.reset();
-
-  // Close the socket endpoint if necessary.
-  if ( _rw->isOpen() )
-  {
-    _rw->close();
-  }
-
   {
     // Detach debugger in case a DisconnectRequest was not sent.
     PolLock lock;
@@ -283,6 +287,14 @@ void DapDebugClientThread::run()
       UOExecutor* exec = _uoexec_wptr.get_weakptr();
       exec->detach_debugger();
     }
+  }
+
+  _session.reset();
+
+  // Close the socket endpoint if necessary.
+  if ( _rw->isOpen() )
+  {
+    _rw->close();
   }
 
   POLLOG_INFO << "Debug client thread closing.\n";

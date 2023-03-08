@@ -104,6 +104,9 @@ Executor::Executor()
 
 Executor::~Executor()
 {
+  if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
+    listener->on_destroy();
+
   {
     Clib::SpinLockGuard lock( _executor_lock );
     --executor_count;
