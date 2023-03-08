@@ -122,6 +122,7 @@ void DapDebugClientThread::run()
     _session->registerHandler(
         [&]( const dap::PolAttachRequest& request ) -> dap::ResponseOrError<dap::AttachResponse>
         {
+          PolLock lock;
           UOExecutor* uoexec;
 
           if ( _uoexec_wptr.exists() )
@@ -155,6 +156,7 @@ void DapDebugClientThread::run()
     _session->registerSentHandler(
         [&]( const dap::ResponseOrError<dap::AttachResponse>& )
         {
+          PolLock lock;
           if ( _uoexec_wptr.exists() )
             if ( _uoexec_wptr.get_weakptr()->halt() )
             {
@@ -165,6 +167,7 @@ void DapDebugClientThread::run()
     _session->registerHandler(
         [&]( const dap::ThreadsRequest& ) -> dap::ResponseOrError<dap::ThreadsResponse>
         {
+          PolLock lock;
           if ( !_uoexec_wptr.exists() )
             return dap::Error( "No script attached." );
 
@@ -183,6 +186,7 @@ void DapDebugClientThread::run()
     _session->registerHandler(
         [&]( const dap::ContinueRequest& ) -> dap::ResponseOrError<dap::ContinueResponse>
         {
+          PolLock lock;
           if ( !_uoexec_wptr.exists() )
           {
             return dap::Error( "No script attached." );
@@ -228,6 +232,7 @@ void DapDebugClientThread::run()
   _session->registerHandler(
       [&]( const dap::DisconnectRequest& )
       {
+        PolLock lock;
         if ( _uoexec_wptr.exists() )
         {
           UOExecutor* exec = _uoexec_wptr.get_weakptr();
@@ -270,11 +275,14 @@ void DapDebugClientThread::run()
     _rw->close();
   }
 
-  // Detach debugger in case a DisconnectRequest was not sent.
-  if ( _uoexec_wptr.exists() )
   {
-    UOExecutor* exec = _uoexec_wptr.get_weakptr();
-    exec->detach_debugger();
+    // Detach debugger in case a DisconnectRequest was not sent.
+    PolLock lock;
+    if ( _uoexec_wptr.exists() )
+    {
+      UOExecutor* exec = _uoexec_wptr.get_weakptr();
+      exec->detach_debugger();
+    }
   }
 
   POLLOG_INFO << "Debug client thread closing.\n";
@@ -299,14 +307,10 @@ void DapDebugServer::dap_debug_listen_thread( void )
           return;
         }
 
-        auto client = new DapDebugClientThread( std::move( sock ) );
-        Core::networkManager.auxthreadpool->push(
-            [client]()
-            {
-              // shared_ptr needed for enable_shared_from_this
-              std::shared_ptr<DapDebugClientThread> _clientptr( client );
-              _clientptr->run();
-            } );
+        // shared_ptr needed for enable_shared_from_this
+        auto client = std::make_shared<DapDebugClientThread>( std::move( sock ) );
+
+        Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
       }
     }
   }
