@@ -85,7 +85,6 @@ public:
         _session( dap::Session::create() ),
         _uoexec_wptr( nullptr )
   {
-    _weakptr.set( this );
   }
 
   virtual ~DapDebugClientThread() {}
@@ -99,7 +98,6 @@ private:
   std::unique_ptr<dap::Session> _session;
   weak_ptr<UOExecutor> _uoexec_wptr;
   ref_ptr<EScriptProgram> _script;
-  weak_ptr_owner<ExecutorDebugListener> _weakptr;
 };
 
 void DapDebugClientThread::on_halt()
@@ -125,6 +123,13 @@ void DapDebugClientThread::run()
         [&]( const dap::PolAttachRequest& request ) -> dap::ResponseOrError<dap::AttachResponse>
         {
           UOExecutor* uoexec;
+
+          if ( _uoexec_wptr.exists() )
+          {
+            _uoexec_wptr.get_weakptr()->detach_debugger();
+            _uoexec_wptr.clear();
+          }
+
           auto pid = request.pid;
           if ( find_uoexec( pid, &uoexec ) )
           {
@@ -143,6 +148,18 @@ void DapDebugClientThread::run()
             return dap::Error( "No debug information available." );
           }
           return dap::Error( "Unknown process id '%d'", int( pid ) );
+        } );
+
+    // After sending an AttachResponse, check if executor is halted. If so, trigger the on_halt()
+    // event.
+    _session->registerSentHandler(
+        [&]( const dap::ResponseOrError<dap::AttachResponse>& )
+        {
+          if ( _uoexec_wptr.exists() )
+            if ( _uoexec_wptr.get_weakptr()->halt() )
+            {
+              on_halt();
+            }
         } );
 
     _session->registerHandler(
@@ -164,8 +181,35 @@ void DapDebugClientThread::run()
                                { return dap::SetExceptionBreakpointsResponse(); } );
 
     _session->registerHandler(
+        [&]( const dap::ContinueRequest& ) -> dap::ResponseOrError<dap::ContinueResponse>
+        {
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+          if ( !uoexec->in_debugger_holdlist() )
+          {
+            return dap::Error( "Script not ready to trace." );
+          }
+
+          uoexec->dbg_run();
+          uoexec->revive_debugged();
+          return dap::ContinueResponse{};
+        } );
+
+    _session->registerHandler(
         [&]( const dap::StackTraceRequest& ) -> dap::ResponseOrError<dap::StackTraceResponse>
         { return dap::StackTraceResponse{}; } );
+
+    _session->registerHandler(
+        [&]( const dap::ScopesRequest& ) -> dap::ResponseOrError<dap::ScopesResponse>
+        { return dap::ScopesResponse{}; } );
+
+    _session->registerHandler(
+        [&]( const dap::VariablesRequest& ) -> dap::ResponseOrError<dap::VariablesResponse>
+        { return dap::VariablesResponse{}; } );
   };
 
   // Session event handlers added before initialization

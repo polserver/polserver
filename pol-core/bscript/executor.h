@@ -474,20 +474,6 @@ inline bool Executor::error() const
   return error_;
 }
 
-inline void Executor::sethalt( bool halt )
-{
-  halt_ = halt;
-
-  if ( halt )
-  {
-    if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
-    {
-      listener->on_halt();
-    }
-  }
-
-  calcrunnable();
-}
 inline bool Executor::halt() const
 {
   return halt_;
