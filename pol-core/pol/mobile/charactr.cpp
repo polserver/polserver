@@ -2555,9 +2555,11 @@ void Character::updateEquipableProperties( Items::Item* item )
   if ( item->has_swing_speed_increase() )
     swing_speed_increase( swing_speed_increase().addToValue( item->swing_speed_increase() ) );
   if ( item->has_min_attack_range_increase() )
-    min_attack_range_increase( min_attack_range_increase().addToValue( item->min_attack_range_increase() ) );
+    min_attack_range_increase(
+        min_attack_range_increase().addToValue( item->min_attack_range_increase() ) );
   if ( item->has_max_attack_range_increase() )
-    max_attack_range_increase( max_attack_range_increase().addToValue( item->max_attack_range_increase() ) );
+    max_attack_range_increase(
+        max_attack_range_increase().addToValue( item->max_attack_range_increase() ) );
 
   // calc defence increase if lower than cap
   if ( item->has_defence_increase() )

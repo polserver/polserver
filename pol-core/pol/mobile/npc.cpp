@@ -1089,9 +1089,11 @@ void NPC::resetEquipablePropertiesNPC()
   if ( has_swing_speed_increase() || has_orig_swing_speed_increase() )
     swing_speed_increase( swing_speed_increase().setAsValue( orig_swing_speed_increase() ) );
   if ( has_min_attack_range_increase() || has_orig_min_attack_range_increase() )
-    min_attack_range_increase( min_attack_range_increase().setAsValue( orig_min_attack_range_increase() ) );
+    min_attack_range_increase(
+        min_attack_range_increase().setAsValue( orig_min_attack_range_increase() ) );
   if ( has_max_attack_range_increase() || has_orig_max_attack_range_increase() )
-    max_attack_range_increase( max_attack_range_increase().setAsValue( orig_max_attack_range_increase() ) );
+    max_attack_range_increase(
+        max_attack_range_increase().setAsValue( orig_max_attack_range_increase() ) );
 }
 
 size_t NPC::estimatedSize() const
