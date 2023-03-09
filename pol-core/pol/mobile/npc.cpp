@@ -333,6 +333,10 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "Luck", orig_luck() );
   if ( has_swing_speed_increase() )
     sw.add( "SwingSpeedIncrease", orig_swing_speed_increase() );
+  if ( has_min_attack_range_increase() )
+    sw.add( "MinAttackRangeIncrease", orig_min_attack_range_increase() );
+  if ( has_max_attack_range_increase() )
+    sw.add( "MaxAttackRangeIncrease", orig_max_attack_range_increase() );
   if ( no_drop_exception() )
     sw.add( "NoDropException", no_drop_exception() );
 }
@@ -499,6 +503,16 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   {
     swing_speed_increase( apply( swing_speed_increase(), value ) );
     orig_swing_speed_increase( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "MINATTACKRANGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    min_attack_range_increase( apply( min_attack_range_increase(), value ) );
+    orig_min_attack_range_increase( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "MAXATTACKRANGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    max_attack_range_increase( apply( max_attack_range_increase(), value ) );
+    orig_max_attack_range_increase( static_cast<s16>( value ) );
   }
 
   // elemental start
@@ -1074,6 +1088,10 @@ void NPC::resetEquipablePropertiesNPC()
     luck( luck().setAsValue( orig_luck() ) );
   if ( has_swing_speed_increase() || has_orig_swing_speed_increase() )
     swing_speed_increase( swing_speed_increase().setAsValue( orig_swing_speed_increase() ) );
+  if ( has_min_attack_range_increase() || has_orig_min_attack_range_increase() )
+    min_attack_range_increase( min_attack_range_increase().setAsValue( orig_min_attack_range_increase() ) );
+  if ( has_max_attack_range_increase() || has_orig_max_attack_range_increase() )
+    max_attack_range_increase( max_attack_range_increase().setAsValue( orig_max_attack_range_increase() ) );
 }
 
 size_t NPC::estimatedSize() const

@@ -2554,6 +2554,10 @@ void Character::updateEquipableProperties( Items::Item* item )
     luck( luck().addToValue( item->luck() ) );
   if ( item->has_swing_speed_increase() )
     swing_speed_increase( swing_speed_increase().addToValue( item->swing_speed_increase() ) );
+  if ( item->has_min_attack_range_increase() )
+    min_attack_range_increase( min_attack_range_increase().addToValue( item->min_attack_range_increase() ) );
+  if ( item->has_max_attack_range_increase() )
+    max_attack_range_increase( max_attack_range_increase().addToValue( item->max_attack_range_increase() ) );
 
   // calc defence increase if lower than cap
   if ( item->has_defence_increase() )
@@ -2625,6 +2629,10 @@ void Character::resetEquipableProperties()
     luck( luck().setAsValue( 0 ) );
   if ( has_swing_speed_increase() )
     swing_speed_increase( swing_speed_increase().setAsValue( 0 ) );
+  if ( has_min_attack_range_increase() )
+    min_attack_range_increase( min_attack_range_increase().setAsValue( 0 ) );
+  if ( has_max_attack_range_increase() )
+    max_attack_range_increase( max_attack_range_increase().setAsValue( 0 ) );
 }
 
 void Character::showarmor() const

@@ -459,15 +459,20 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const
 {
   unsigned short dist = wielder->distance_to( target->toplevel_pos() );
+  signed short min_dist_mod = wielder->min_attack_range_increase().sum();
+  signed short max_dist_mod = wielder->max_attack_range_increase().sum();
   INFO_PRINTLN_TRACE( 22 )
   ( "in_range({:#x},{:#x}):\n"
     "dist:   {}\n"
     "minrange: {}\n"
+    "minrangemod: {}\n"
     "maxrange: {}\n"
+    "maxrangemod: {}\n"
     "has_los:  {}",
-    wielder->serial, target->serial, dist, WEAPON_TMPL->minrange, WEAPON_TMPL->maxrange,
-    wielder->realm()->has_los( *wielder, *target ) );
-  return ( dist >= WEAPON_TMPL->minrange && dist <= WEAPON_TMPL->maxrange &&
+    wielder->serial, target->serial, dist, WEAPON_TMPL->minrange, min_dist_mod,
+    WEAPON_TMPL->maxrange, max_dist_mod, wielder->realm()->has_los( *wielder, *target ) );
+  return ( dist >= ( WEAPON_TMPL->minrange + min_dist_mod ) &&
+           dist <= ( WEAPON_TMPL->maxrange + max_dist_mod ) &&
            wielder->realm()->has_los( *wielder, *target ) );
 }
 

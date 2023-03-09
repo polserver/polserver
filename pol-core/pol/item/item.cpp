@@ -116,6 +116,8 @@ Item* Item::clone() const
   item->luck( luck() );
   item->swing_speed_increase( swing_speed_increase() );
   item->weight_multiplier_mod( weight_multiplier_mod() );
+  item->min_attack_range_increase( min_attack_range_increase() );
+  item->max_attack_range_increase( max_attack_range_increase() );
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -460,6 +462,10 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "Luck", luck().value );
   if ( has_swing_speed_increase() )
     sw.add( "SwingSpeedIncrease", swing_speed_increase().value );
+  if ( has_min_attack_range_increase() )
+    sw.add("MinAttackRangeIncrease" , min_attack_range_increase().value );
+  if ( has_max_attack_range_increase() )
+    sw.add("MaxAttackRangeIncrease", max_attack_range_increase().value);
   // end new prop stuf
   if ( maxhp_mod_ )
     sw.add( "MaxHp_mod", maxhp_mod_ );
@@ -598,6 +604,13 @@ void Item::readProperties( Clib::ConfigElem& elem )
     swing_speed_increase( swing_speed_increase().setAsValue( value ) );
 
   weight_multiplier_mod( elem.remove_double( "WEIGHTMULTIPLIERMOD", 1.0 ) );
+
+  value = static_cast<s16>( elem.remove_int( "MINATTACKRANGEINCREASE", 0 ) );
+  if ( value != 0 )
+    min_attack_range_increase( min_attack_range_increase().setAsValue( value ) );
+  value = static_cast<s16>( elem.remove_int( "MAXATTACKRANGEINCREASE", 0 ) );
+  if ( value != 0 )
+    max_attack_range_increase( max_attack_range_increase().setAsValue( value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )

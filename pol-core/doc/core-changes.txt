@@ -1,4 +1,9 @@
 -- POL100.2.0 --
+11-02-2024 DevGIB:
+    Added: MinAttackRangeIncrease(min_attack_range_increase) and MinAttackRangeIncreaseMod(min_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles minimum attack range.<br/>
+           Min Attack Range Increase is used as a numeric modifier to the minimum range of a weapon, e.g. Base min Weapon range of 1 + attack range increase of 1 would make the minimum attack range 2.
+    Added: MaxAttackRangeIncrease(max_attack_range_increase) and MaxAttackRangeIncreaseMod(max_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles maximum attack range.<br/>
+           Max Attack Range Increase is used as a numeric modifier to the maximum range of a weapon, e.g. Base max Weapon range of 3 + attack range increase of 2 would make the maximum attack range 5.
 11-01-2024 Turley:
     Added: servspecopt.cfg AllowVisualRangeModification 0/1 default 0
            MinimumVisualRange default 5
