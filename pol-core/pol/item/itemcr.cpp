@@ -236,9 +236,12 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   item->physical_resist_cap( item->physical_resist_cap().setAsValue( id.resist_physical_cap ) );
   item->poison_resist_cap( item->poison_resist_cap().setAsValue( id.resist_poison_cap ) );
   item->luck( item->luck().setAsValue( id.luck ) );
-  item->swing_speed_increase( item->swing_speed_increase().setAsValue( id.swing_speed_increase ) );
-  item->min_attack_range_increase( item->min_attack_range_increase().setAsValue( id.min_attack_range_increase ) );
-  item->max_attack_range_increase( item->max_attack_range_increase().setAsValue( id.max_attack_range_increase ) );
+  item->swing_speed_increase(
+      item->swing_speed_increase().setAsValue( id.swing_speed_increase ) );
+  item->min_attack_range_increase(
+      item->min_attack_range_increase().setAsValue( id.min_attack_range_increase ) );
+  item->max_attack_range_increase(
+      item->max_attack_range_increase().setAsValue( id.max_attack_range_increase ) );
 
   // new mods
   item->defence_increase( item->defence_increase().setAsMod( id.defence_increase_mod ) );
