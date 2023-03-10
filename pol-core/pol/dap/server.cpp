@@ -118,7 +118,7 @@ void DapDebugClientThread::run()
 
             if ( prog->read_dbg_file() == 0 )
             {
-              if ( !uoexec->attach_debugger( shared_from_this() ) )
+              if ( !uoexec->attach_debugger( weak_from_this() ) )
                 return dap::Error( "Debugger already attached." );
 
               _uoexec_wptr = uoexec->weakptr;
