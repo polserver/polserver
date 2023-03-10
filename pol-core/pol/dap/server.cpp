@@ -13,6 +13,7 @@
 #include "../uoexec.h"
 
 #include <dap/io.h>
+#include <dap/network.h>
 #include <dap/protocol.h>
 #include <dap/session.h>
 #include <memory>
@@ -45,45 +46,12 @@ namespace Core
 {
 using namespace Bscript;
 
-// Implements the dap::ReaderWriter IO interface using a Clib::Socket
-class SocketReaderWriter : public dap::ReaderWriter
-{
-public:
-  SocketReaderWriter( Clib::Socket&& sck ) : _sck( std::move( sck ) ) {}
-
-  size_t read( void* buffer, size_t n ) override
-  {
-    int bytes_read = 0;
-
-    if ( !_sck.recvdata_nowait( static_cast<char*>( buffer ), n, &bytes_read ) )
-      return 0;
-    else if ( bytes_read < 0 )
-      return 0;
-    return bytes_read;
-  }
-
-  bool write( const void* buffer, size_t n ) override
-  {
-    unsigned int bytes_sent;
-
-    return _sck.send_nowait( buffer, n, &bytes_sent );
-  }
-
-  bool isOpen() override { return _sck.connected(); }
-  void close() override { _sck.close(); }
-
-private:
-  Clib::Socket _sck;
-};
-
 class DapDebugClientThread : public ExecutorDebugListener,
                              public std::enable_shared_from_this<ExecutorDebugListener>
 {
 public:
-  DapDebugClientThread( Clib::Socket&& sock )
-      : _rw( std::make_shared<SocketReaderWriter>( std::move( sock ) ) ),
-        _session( dap::Session::create() ),
-        _uoexec_wptr( nullptr )
+  DapDebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
+      : _rw( rw ), _session( dap::Session::create() ), _uoexec_wptr( nullptr )
   {
   }
 
@@ -96,7 +64,7 @@ public:
   void on_destroy() override;
 
 private:
-  std::shared_ptr<SocketReaderWriter> _rw;
+  std::shared_ptr<dap::ReaderWriter> _rw;
   std::unique_ptr<dap::Session> _session;
   weak_ptr<UOExecutor> _uoexec_wptr;
   ref_ptr<EScriptProgram> _script;
@@ -255,6 +223,9 @@ void DapDebugClientThread::run()
       } );
 
   _session->registerSentHandler(
+      [&]( const dap::ResponseOrError<dap::DisconnectResponse>& response ) { _rw->close(); } );
+
+  _session->registerSentHandler(
       [&]( const dap::ResponseOrError<dap::InitializeResponse>& response )
       {
         if ( response.error )
@@ -304,26 +275,25 @@ void DapDebugServer::dap_debug_listen_thread( void )
 {
   if ( Plib::systemstate.config.dap_debug_port )
   {
-    Clib::SocketListener SL( Plib::systemstate.config.dap_debug_port );
+    auto server = dap::net::Server::create();
+
+    auto onClientConnected = [&]( const std::shared_ptr<dap::ReaderWriter>& rw )
+    {
+      auto client = std::make_shared<DapDebugClientThread>( rw );
+      Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
+    };
+
+    auto started = server->start( Plib::systemstate.config.dap_debug_port, onClientConnected );
+
+    if ( !started )
+    {
+      POLLOG_ERROR << "Failed to start DAP server.\n";
+      return;
+    }
+
     while ( !Clib::exit_signalled )
     {
-      Clib::Socket sock;
-      if ( SL.GetConnection( &sock, 1 ) && sock.connected() )
-      {
-        if ( Plib::systemstate.config.debug_local_only && !sock.is_local() )
-        {
-          // "Only accepting connections from localhost." There does not seem to
-          // be a way to send an error outside of a request. The
-          // InitializeResponse could be used to send the error, but we don't
-          // even need to process the request if it is not a local connection.
-          return;
-        }
-
-        // shared_ptr needed for enable_shared_from_this
-        auto client = std::make_shared<DapDebugClientThread>( std::move( sock ) );
-
-        Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
-      }
+      pol_sleep_ms( 1000 );
     }
   }
 }
