@@ -222,8 +222,8 @@ void DapDebugClientThread::run()
         return dap::DisconnectResponse();
       } );
 
-  _session->registerSentHandler(
-      [&]( const dap::ResponseOrError<dap::DisconnectResponse>& response ) { _rw->close(); } );
+  _session->registerSentHandler( [&]( const dap::ResponseOrError<dap::DisconnectResponse>& )
+                                 { _rw->close(); } );
 
   _session->registerSentHandler(
       [&]( const dap::ResponseOrError<dap::InitializeResponse>& response )
