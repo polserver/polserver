@@ -283,7 +283,12 @@ void DapDebugServer::dap_debug_listen_thread( void )
       Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
     };
 
-    auto started = server->start( Plib::systemstate.config.dap_debug_port, onClientConnected );
+    // If DebugLocalOnly, bind to localhost which allows connections only from local addresses.
+    // Otherwise, bind to any address to also allow remote connections.
+    auto address = Plib::systemstate.config.debug_local_only ? "localhost" : "0.0.0.0";
+
+    auto started =
+        server->start( address, Plib::systemstate.config.dap_debug_port, onClientConnected );
 
     if ( !started )
     {
