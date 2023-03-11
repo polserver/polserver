@@ -112,6 +112,7 @@ void DapDebugClientThread::run()
               uoexec->revive_debugged();
 
             uoexec->detach_debugger();
+            _uoexec_wptr.clear();
           }
 
           auto pid = request.pid;
@@ -223,6 +224,7 @@ void DapDebugClientThread::run()
             exec->revive_debugged();
 
           exec->detach_debugger();
+          _uoexec_wptr.clear();
         }
 
         return dap::DisconnectResponse();
@@ -266,6 +268,7 @@ void DapDebugClientThread::run()
         exec->revive_debugged();
 
       exec->detach_debugger();
+      _uoexec_wptr.clear();
     }
   }
 
