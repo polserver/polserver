@@ -216,6 +216,9 @@ void DapDebugClientThread::run()
         if ( _uoexec_wptr.exists() )
         {
           UOExecutor* exec = _uoexec_wptr.get_weakptr();
+          if ( exec->in_debugger_holdlist() )
+            exec->revive_debugged();
+
           exec->detach_debugger();
         }
 
@@ -256,6 +259,9 @@ void DapDebugClientThread::run()
     if ( _uoexec_wptr.exists() )
     {
       UOExecutor* exec = _uoexec_wptr.get_weakptr();
+      if ( exec->in_debugger_holdlist() )
+        exec->revive_debugged();
+
       exec->detach_debugger();
     }
   }
