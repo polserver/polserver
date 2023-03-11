@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <string.h>
+#include <dap/network.h>
 
 #include "../../bscript/bobject.h"
 #include "../../clib/boostutils.h"

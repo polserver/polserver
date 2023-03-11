@@ -36,6 +36,13 @@
 #include "base/vector.h"
 #include "regions/region.h"
 
+namespace dap
+{
+namespace net
+{
+class Server;
+}
+}  // namespace dap
 
 namespace Pol
 {
@@ -253,6 +260,8 @@ public:
   void update_range_from_multis();
   Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
                              // "pre-filtering" of objects
+
+  std::unique_ptr<dap::net::Server> dap_debug_server;
 
 private:
   void cleanup_vars();

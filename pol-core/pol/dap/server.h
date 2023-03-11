@@ -3,13 +3,10 @@
 
 namespace Pol
 {
-namespace Core
+namespace DapDebugServer
 {
-class DapDebugServer
-{
-public:
-  static void dap_debug_listen_thread( void );
-};
-}  // namespace Core
+void initialize();
+void deinitialize();
+}  // namespace DapDebugServer
 }  // namespace Pol
 #endif

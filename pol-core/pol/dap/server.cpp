@@ -7,6 +7,7 @@
 #include "../../clib/weakptr.h"
 #include "../../plib/systemstate.h"
 #include "../globals/network.h"
+#include "../globals/uvars.h"
 #include "../polclock.h"
 #include "../polsem.h"
 #include "../scrsched.h"
@@ -42,8 +43,9 @@ DAP_STRUCT_TYPEINFO_EXT( PolAttachRequest, AttachRequest, "attach", DAP_FIELD( p
 
 namespace Pol
 {
-namespace Core
+namespace DapDebugServer
 {
+using namespace Core;
 using namespace Bscript;
 
 class DapDebugClientThread : public ExecutorDebugListener,
@@ -283,36 +285,35 @@ void DapDebugClientThread::run()
   POLLOG_INFO << "Debug client thread closing.\n";
 }
 
-void DapDebugServer::dap_debug_listen_thread( void )
+void initialize()
 {
   if ( Plib::systemstate.config.dap_debug_port )
   {
-    auto server = dap::net::Server::create();
-
-    auto onClientConnected = [&]( const std::shared_ptr<dap::ReaderWriter>& rw )
-    {
-      auto client = std::make_shared<DapDebugClientThread>( rw );
-      Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
-    };
+    Core::gamestate.dap_debug_server = dap::net::Server::create();
 
     // If DebugLocalOnly, bind to localhost which allows connections only from local addresses.
     // Otherwise, bind to any address to also allow remote connections.
     auto address = Plib::systemstate.config.debug_local_only ? "localhost" : "0.0.0.0";
 
-    auto started =
-        server->start( address, Plib::systemstate.config.dap_debug_port, onClientConnected );
+    auto started = Core::gamestate.dap_debug_server->start(
+        address, Plib::systemstate.config.dap_debug_port,
+        []( const std::shared_ptr<dap::ReaderWriter>& rw )
+        {
+          auto client = std::make_shared<DapDebugClientThread>( rw );
+          Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
+        } );
 
     if ( !started )
     {
       POLLOG_ERROR << "Failed to start DAP server.\n";
-      return;
-    }
-
-    while ( !Clib::exit_signalled )
-    {
-      pol_sleep_ms( 1000 );
+      Core::gamestate.dap_debug_server.reset();
     }
   }
 }
-}  // namespace Core
+
+void deinitialize()
+{
+  Core::gamestate.dap_debug_server.reset();
+}
+}  // namespace DapDebugServer
 }  // namespace Pol
