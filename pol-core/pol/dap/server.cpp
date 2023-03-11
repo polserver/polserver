@@ -43,7 +43,7 @@ DAP_STRUCT_TYPEINFO_EXT( PolAttachRequest, AttachRequest, "attach", DAP_FIELD( p
 
 namespace Pol
 {
-namespace DapDebugServer
+namespace Network
 {
 using namespace Core;
 using namespace Bscript;
@@ -285,7 +285,7 @@ void DapDebugClientThread::run()
   POLLOG_INFO << "Debug client thread closing.\n";
 }
 
-void initialize()
+void DapDebugServer::initialize()
 {
   if ( Plib::systemstate.config.dap_debug_port )
   {
@@ -311,7 +311,7 @@ void initialize()
   }
 }
 
-void deinitialize()
+void DapDebugServer::deinitialize()
 {
   Core::gamestate.dap_debug_server.reset();
 }

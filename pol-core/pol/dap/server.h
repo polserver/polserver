@@ -3,10 +3,14 @@
 
 namespace Pol
 {
-namespace DapDebugServer
+namespace Network
 {
-void initialize();
-void deinitialize();
-}  // namespace DapDebugServer
+class DapDebugServer
+{
+public:
+  static void initialize();
+  static void deinitialize();
+};
+}  // namespace Network
 }  // namespace Pol
 #endif
