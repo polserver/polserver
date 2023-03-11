@@ -107,8 +107,11 @@ void DapDebugClientThread::run()
 
           if ( _uoexec_wptr.exists() )
           {
-            _uoexec_wptr.get_weakptr()->detach_debugger();
-            _uoexec_wptr.clear();
+            uoexec = _uoexec_wptr.get_weakptr();
+            if ( uoexec->in_debugger_holdlist() )
+              uoexec->revive_debugged();
+
+            uoexec->detach_debugger();
           }
 
           auto pid = request.pid;
