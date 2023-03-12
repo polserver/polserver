@@ -569,7 +569,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     int use_byte_reader_int;
     if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
          getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) &&
-         getParam( 5, keep_connection_int ) && getParam( 5, use_byte_reader_int ) )
+         getParam( 5, keep_connection_int ) && getParam( 6, use_byte_reader_int ) )
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
