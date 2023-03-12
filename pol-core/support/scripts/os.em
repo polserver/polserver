@@ -99,7 +99,7 @@ Set_Event_Queue_Size(size);
 Is_Critical();
 
 OpenURL( character, url );
-OpenConnection( host, port, scriptdef, params := 0, assume_string := 0, keep_connection := 0, use_byte_reader := 0);
+OpenConnection( host, port, scriptdef, params := 0, assume_string := 0, keep_connection := 0, ignore_line_breaks := 0);
 Debugger(); // put script in debug state
 
 PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
