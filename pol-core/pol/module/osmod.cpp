@@ -568,7 +568,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     int keep_connection_int;
     int use_byte_reader_int;
     if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
-         getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) && getParam( 5, keep_connection_int ) && getParam( 5, use_byte_reader_int ) )
+         getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) &&
+         getParam( 5, keep_connection_int ) && getParam( 5, use_byte_reader_int ) )
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
@@ -595,7 +596,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       bool use_byte_reader = use_byte_reader_int != 0;
       BObject paramobj( scriptparam );  // prevent delete
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection, use_byte_reader]()
+          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection,
+           use_byte_reader]()
           {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
