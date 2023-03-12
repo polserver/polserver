@@ -251,7 +251,12 @@ void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 void AuxClientThread::transmit( const std::string& msg )
 {
   if ( _sck.connected() )
-    writeline( _sck, msg );
+  {
+    if ( _use_byte_reader )
+      _sck.write( msg );
+    else
+      writeline( _sck, msg );
+  }
   --_transmit_counter;
 }
 
