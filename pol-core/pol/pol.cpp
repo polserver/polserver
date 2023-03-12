@@ -87,7 +87,6 @@
 #include "checkpnt.h"
 #include "console.h"
 #include "core.h"
-#include "dap/server.h"
 #include "decay.h"
 #include "extobj.h"
 #include "fnsearch.h"
@@ -1170,7 +1169,7 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting threads" );
   Core::start_threads();
   Network::start_aux_services();
-  Core::gamestate.dap_debug_server = std::make_unique<Network::DapDebugServer>();
+  Core::networkManager.initialize();
 
 #ifdef _WIN32
   Core::console_thread();

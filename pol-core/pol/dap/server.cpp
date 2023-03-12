@@ -287,29 +287,28 @@ void DapDebugClientThread::run()
 
 DapDebugServer::DapDebugServer()
 {
-  if ( Plib::systemstate.config.dap_debug_port )
+  _server = dap::net::Server::create();
+
+  // If DebugLocalOnly, bind to localhost which allows connections only from local addresses.
+  // Otherwise, bind to any address to also allow remote connections.
+  auto address = Plib::systemstate.config.debug_local_only ? "localhost" : "0.0.0.0";
+
+  auto started =
+      _server->start( address, Plib::systemstate.config.dap_debug_port,
+                      []( const std::shared_ptr<dap::ReaderWriter>& rw )
+                      {
+                        auto client = std::make_shared<DapDebugClientThread>( rw );
+                        Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
+                      } );
+
+  if ( !started )
   {
-    _server = dap::net::Server::create();
-
-    // If DebugLocalOnly, bind to localhost which allows connections only from local addresses.
-    // Otherwise, bind to any address to also allow remote connections.
-    auto address = Plib::systemstate.config.debug_local_only ? "localhost" : "0.0.0.0";
-
-    auto started =
-        _server->start( address, Plib::systemstate.config.dap_debug_port,
-                        []( const std::shared_ptr<dap::ReaderWriter>& rw )
-                        {
-                          auto client = std::make_shared<DapDebugClientThread>( rw );
-                          Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
-                        } );
-
-    if ( !started )
-    {
-      POLLOG_ERROR << "Failed to start DAP server.\n";
-      _server.reset();
-    }
+    POLLOG_ERROR << "Failed to start DAP server.\n";
+    _server.reset();
   }
 }
+
+DapDebugServer::~DapDebugServer() = default;
 
 }  // namespace Network
 }  // namespace Pol

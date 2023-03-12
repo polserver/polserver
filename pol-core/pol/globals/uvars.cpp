@@ -28,7 +28,6 @@
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../console.h"
-#include "../dap/server.h"
 #include "../guilds.h"
 #include "../item/equipmnt.h"
 #include "../item/itemdesc.h"
@@ -206,8 +205,6 @@ void display_leftover_objects();
 void GameState::deinitialize()
 {
   INFO_PRINT << "Initiating POL Cleanup....\n";
-
-  Core::gamestate.dap_debug_server.reset();
 
   networkManager.deinialize();
   deinit_ipc_vars();

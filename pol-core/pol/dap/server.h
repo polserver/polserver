@@ -1,7 +1,13 @@
 #ifndef POLDBGDAP_H
 #define POLDBGDAP_H
 
-#include <dap/network.h>
+namespace dap
+{
+namespace net
+{
+class Server;
+}
+}  // namespace dap
 
 namespace Pol
 {
@@ -11,6 +17,7 @@ class DapDebugServer
 {
 public:
   DapDebugServer();
+  ~DapDebugServer();
 
 private:
   std::unique_ptr<dap::net::Server> _server;
