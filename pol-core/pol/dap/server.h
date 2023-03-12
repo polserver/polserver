@@ -1,6 +1,8 @@
 #ifndef POLDBGDAP_H
 #define POLDBGDAP_H
 
+#include <memory>
+
 namespace dap
 {
 namespace net
