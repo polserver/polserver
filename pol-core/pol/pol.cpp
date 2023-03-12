@@ -1170,7 +1170,7 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting threads" );
   Core::start_threads();
   Network::start_aux_services();
-  Network::DapDebugServer::initialize();
+  Core::gamestate.dap_debug_server = std::make_unique<Network::DapDebugServer>();
 
 #ifdef _WIN32
   Core::console_thread();
@@ -1193,7 +1193,6 @@ int xmain_inner( bool testing )
     Core::pol_sleep_ms( 1000 );
   }
   Core::checkpoint( "child threads have shut down" );
-  Network::DapDebugServer::deinitialize();
   Core::cancel_all_trades();
   Core::stop_gameclock();
   POLLOG_INFO << "Shutting down...\n";

@@ -1,6 +1,8 @@
 #ifndef POLDBGDAP_H
 #define POLDBGDAP_H
 
+#include <dap/network.h>
+
 namespace Pol
 {
 namespace Network
@@ -8,8 +10,10 @@ namespace Network
 class DapDebugServer
 {
 public:
-  static void initialize();
-  static void deinitialize();
+  DapDebugServer();
+
+private:
+  std::unique_ptr<dap::net::Server> _server;
 };
 }  // namespace Network
 }  // namespace Pol

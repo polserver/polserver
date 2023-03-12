@@ -285,35 +285,31 @@ void DapDebugClientThread::run()
   POLLOG_INFO << "Debug client thread closing.\n";
 }
 
-void DapDebugServer::initialize()
+DapDebugServer::DapDebugServer()
 {
   if ( Plib::systemstate.config.dap_debug_port )
   {
-    Core::gamestate.dap_debug_server = dap::net::Server::create();
+    _server = dap::net::Server::create();
 
     // If DebugLocalOnly, bind to localhost which allows connections only from local addresses.
     // Otherwise, bind to any address to also allow remote connections.
     auto address = Plib::systemstate.config.debug_local_only ? "localhost" : "0.0.0.0";
 
-    auto started = Core::gamestate.dap_debug_server->start(
-        address, Plib::systemstate.config.dap_debug_port,
-        []( const std::shared_ptr<dap::ReaderWriter>& rw )
-        {
-          auto client = std::make_shared<DapDebugClientThread>( rw );
-          Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
-        } );
+    auto started =
+        _server->start( address, Plib::systemstate.config.dap_debug_port,
+                        []( const std::shared_ptr<dap::ReaderWriter>& rw )
+                        {
+                          auto client = std::make_shared<DapDebugClientThread>( rw );
+                          Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
+                        } );
 
     if ( !started )
     {
       POLLOG_ERROR << "Failed to start DAP server.\n";
-      Core::gamestate.dap_debug_server.reset();
+      _server.reset();
     }
   }
 }
 
-void DapDebugServer::deinitialize()
-{
-  Core::gamestate.dap_debug_server.reset();
-}
-}  // namespace DapDebugServer
+}  // namespace Network
 }  // namespace Pol
