@@ -566,9 +566,9 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     unsigned short port;
     int assume_string_int;
     int keep_connection_int;
+    int use_byte_reader_int;
     if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
-         getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) &&
-         getParam( 5, keep_connection_int ) )
+         getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) && getParam( 5, keep_connection_int ) && getParam( 5, use_byte_reader_int ) )
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
@@ -592,9 +592,10 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       std::string hostname( host->value() );
       bool assume_string = assume_string_int != 0;
       bool keep_connection = keep_connection_int != 0;
+      bool use_byte_reader = use_byte_reader_int != 0;
       BObject paramobj( scriptparam );  // prevent delete
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection]()
+          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection, use_byte_reader]()
           {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
@@ -616,8 +617,9 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               uoexec_w.get_weakptr()->revive();
             }
-            std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
-                sd, std::move( s ), paramobj->copy(), assume_string, keep_connection ) );
+            std::unique_ptr<Network::AuxClientThread> client(
+                new Network::AuxClientThread( sd, std::move( s ), paramobj->copy(), assume_string,
+                                              keep_connection, use_byte_reader ) );
             client->run();
           } );
 

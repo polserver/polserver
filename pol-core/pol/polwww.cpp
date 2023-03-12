@@ -762,7 +762,7 @@ void http_func( SOCKET client_socket )
 
   bool timed_out = false;
   Tools::HighPerfTimer requestTimer;
-  while ( sck.connected() && lineReader.readline( tmpstr, &timed_out ) )
+  while ( sck.connected() && lineReader.read( tmpstr, &timed_out ) )
   {
     if ( Plib::systemstate.config.web_server_debug )
       INFO_PRINT << "http(" << sck.handle() << "): '" << tmpstr << "'\n";
