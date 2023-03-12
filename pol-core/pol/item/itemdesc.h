@@ -160,6 +160,10 @@ public:
   unsigned short luck_mod;
   unsigned short swing_speed_increase;
   unsigned short swing_speed_increase_mod;
+  unsigned short min_attack_range_increase;
+  unsigned short min_attack_range_increase_mod;
+  unsigned short max_attack_range_increase;
+  unsigned short max_attack_range_increase_mod;
 
 
   Core::Dice resist_dice;

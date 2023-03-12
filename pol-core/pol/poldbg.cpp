@@ -107,7 +107,11 @@ const char* poldbg_itemref_members[] = { "amount",
                                          "physical_resist_cap",
                                          "luck_mod",
                                          "swing_speed_increase",
-                                         "swing_speed_increase_mod"
+                                         "swing_speed_increase_mod",
+                                         "min_attack_range_increase",
+                                         "min_attack_range_increase_mod",
+                                         "max_attack_range_increase",
+                                         "max_attack_range_increase_mod"
 
 };
 
@@ -200,7 +204,11 @@ const char* poldbg_mobileref_members[] = { "warmode",
                                            "physical_resist_cap",
                                            "luck_mod",
                                            "swing_speed_increase",
-                                           "swing_speed_increase_mod"
+                                           "swing_speed_increase_mod",
+                                           "min_attack_range_increase",
+                                           "min_attack_range_increase_mod",
+                                           "max_attack_range_increase",
+                                           "max_attack_range_increase_mod"
 
 };
 

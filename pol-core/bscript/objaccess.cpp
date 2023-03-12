@@ -250,27 +250,31 @@ ObjMember object_members[] = {
     { MBR_HIT_CHANCE, "hit_chance", true },
     // Additions for new properties mods
     { MBR_LOWER_REAG_COST_MOD, "lower_reagent_cost_mod", false },
-    { MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false },
-    { MBR_FASTER_CASTING_MOD, "faster_casting_mod", false },  // 235
+    { MBR_SPELL_DAMAGE_INCREASE_MOD, "spell_damage_increase_mod", false }, // 235
+    { MBR_FASTER_CASTING_MOD, "faster_casting_mod", false },  
     { MBR_FASTER_CAST_RECOVERY_MOD, "faster_cast_recovery_mod", false },
     { MBR_DEFENCE_CHANCE_INCREASE_MOD, "defence_increase_mod", false },
     { MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD, "defence_increase_cap_mod", false },
-    { MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false },
-    { MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false },  // 240
+    { MBR_LOWER_MANA_COST_MOD, "lower_mana_cost_mod", false },// 240
+    { MBR_FIRE_RESIST_CAP_MOD, "resist_fire_cap_mod", false },  
     { MBR_COLD_RESIST_CAP_MOD, "resist_cold_cap_mod", false },
     { MBR_ENERGY_RESIST_CAP_MOD, "resist_energy_cap_mod", false },
     { MBR_POISON_RESIST_CAP_MOD, "resist_poison_cap_mod", false },
-    { MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false },
-    { MBR_LUCK_MOD, "luck_mod", false },  // 245
+    { MBR_PHYSICAL_RESIST_CAP_MOD, "resist_physical_cap_mod", false },// 245
+    { MBR_LUCK_MOD, "luck_mod", false },  
     { MBR_HIT_CHANCE_MOD, "hit_chance_mod", false },
     { MBR_PACKAGE, "package", true },
     { MBR_SWING_SPEED_INCREASE, "swing_speed_increase", true },
-    { MBR_SWING_SPEED_INCREASE_MOD, "swing_speed_increase_mod", false },
-    { MBR_EXPORTED_FUNCTIONS, "exported_functions", false }, // 250
+    { MBR_SWING_SPEED_INCREASE_MOD, "swing_speed_increase_mod", false },// 250
+    { MBR_EXPORTED_FUNCTIONS, "exported_functions", false }, 
     { MBR_DISABLE_INACTIVITY_TIMEOUT, "disable_inactivity_timeout", false },
     { MBR_CURSED, "cursed", false },
     { MBR_SNOOPSCRIPT, "snoopscript", false },
-    { MBR_CHARACTER_OWNER, "character_owner", true },
+    { MBR_CHARACTER_OWNER, "character_owner", true }, // 255
+    { MBR_MIN_ATTACK_RANGE_INCREASE, "min_attack_range_increase", true },
+    { MBR_MIN_ATTACK_RANGE_INCREASE_MOD, "min_attack_range_increase_mod", false },
+    { MBR_MAX_ATTACK_RANGE_INCREASE, "max_attack_range_increase", true },
+    { MBR_MAX_ATTACK_RANGE_INCREASE_MOD, "max_attack_range_increase_mod", false },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

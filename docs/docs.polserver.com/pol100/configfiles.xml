@@ -1286,110 +1286,113 @@ Region  (string regionname)
     <requiredby>CreateNpcFromTemplate</requiredby>
     <purpose>Configures NPC Templates for creating new NPCs and assigning properties to them.</purpose>
     <structure>
-NpcTemplate (string unique templatename)
-{
-    Name                   (string paperdoll name)
-    ObjType                (integer body model type)
-    Script                 (string AI script)
-    Gender                 (0=male 1=female)
-    TrueColor              (int original body skin color)
-    Color                  (int current body skin color)
-    AR                     (die-string natural armor rating)
-    [FireResist]           (int/die-string)]
-    [ColdResist]           (int/die-string)]
-    [EnergyResist]         (int/die-string)]
-    [PoisonResist]         (int/die-string)]
-    [PhysicalResist]       (int/die-string)]
-    Alignment              ('good' 'neutral' or 'evil)
+      NpcTemplate (string unique templatename)
+      {
+      Name                   (string paperdoll name)
+      ObjType                (integer body model type)
+      Script                 (string AI script)
+      Gender                 (0=male 1=female)
+      TrueColor              (int original body skin color)
+      Color                  (int current body skin color)
+      AR                     (die-string natural armor rating)
+      [FireResist]           (int/die-string)]
+      [ColdResist]           (int/die-string)]
+      [EnergyResist]         (int/die-string)]
+      [PoisonResist]         (int/die-string)]
+      [PhysicalResist]       (int/die-string)]
+      Alignment              ('good' 'neutral' or 'evil)
 
-    [(VitalName)           (die-string value)]
-    [VitalName...]
+      [(VitalName)           (die-string value)]
+      [VitalName...]
 
-    [(AttributeName)       (die-string value)]
-    [AttributeName...]
+      [(AttributeName)       (die-string value)]
+      [AttributeName...]
 
-    // Intrinsic weapon creation
-    [AttackSpeed            (int intrinsic weapon speed, weapon will be only created if this or AttackDelay is defined)]
-    [AttackDelay           (int intrinsic weapon delay in ms, weapon will be only created if this or AttackSpeed is defined)]
-    AttackDamage           (die-string damage for intrinsic weapon)
-    AttackAttribute        (string attribute name used for intrinsic weapon)
-    [AttackHitSound        (int sound ID for intrinsic weapon {default 0})]
-    [AttackMissSound       (int sound ID for intrinsic weapon {default 0})]
-    [AttackHitScript       (string script for intrinsic weapon hit)]
-    [AttackMinRange        (int intrinsic weapon minimum range {default 0})]
-    [AttackMaxRange        (int intrinsic weapon maximum range {default 0})]
-    [AttackAnimation       (int animation ID {default 0 (wrestling)})]
-    [AttackProjectile      (0/1 if defined, sets the intrinsic weapon as a projectile weapon]
-    [AttackProjectileAnim  (int tile number of animation)]
-    [AttackProjectileType  (int objtype of projectile)]
-    [AttackProjectileSound (int soundID for projectile shoot)]
-    [AttackCProp           (string name, string value, will set a CProp on the intrinsicn weapon)]
-    [AttackCprop           (...)]
+      // Intrinsic weapon creation
+      [AttackSpeed            (int intrinsic weapon speed, weapon will be only created if this or AttackDelay is defined)]
+      [AttackDelay           (int intrinsic weapon delay in ms, weapon will be only created if this or AttackSpeed is defined)]
+      AttackDamage           (die-string damage for intrinsic weapon)
+      AttackAttribute        (string attribute name used for intrinsic weapon)
+      [AttackHitSound        (int sound ID for intrinsic weapon {default 0})]
+      [AttackMissSound       (int sound ID for intrinsic weapon {default 0})]
+      [AttackHitScript       (string script for intrinsic weapon hit)]
+      [AttackMinRange        (int intrinsic weapon minimum range {default 0})]
+      [AttackMaxRange        (int intrinsic weapon maximum range {default 0})]
+      [AttackAnimation       (int animation ID {default 0 (wrestling)})]
+      [AttackProjectile      (0/1 if defined, sets the intrinsic weapon as a projectile weapon]
+      [AttackProjectileAnim  (int tile number of animation)]
+      [AttackProjectileType  (int objtype of projectile)]
+      [AttackProjectileSound (int soundID for projectile shoot)]
+      [AttackCProp           (string name, string value, will set a CProp on the intrinsicn weapon)]
+      [AttackCprop           (...)]
 
-    // Intrinsic shield creation
-    Shield                 (int intrinsic shield armor, no shield will be created if missing)
-    [ShieldOnHitScript     (string script for intrinsic shield hit)]
-    [ShieldCProp           (string name, string value, will set a CProp on the intrinsicn shield)]
-    [ShieldCprop           (...)]
+      // Intrinsic shield creation
+      Shield                 (int intrinsic shield armor, no shield will be created if missing)
+      [ShieldOnHitScript     (string script for intrinsic shield hit)]
+      [ShieldCProp           (string name, string value, will set a CProp on the intrinsicn shield)]
+      [ShieldCprop           (...)]
 
-    [FireDamage]            (int/(die-string value))]
-    [ColdDamage]            (int/(die-string value))]
-    [EnergyDamage]          (int/(die-string value))]
-    [PoisonDamage]          (int/(die-string value))]
-    [PhysicalDamage]        (int/(die-string value))]
+      [FireDamage]            (int/(die-string value))]
+      [ColdDamage]            (int/(die-string value))]
+      [EnergyDamage]          (int/(die-string value))]
+      [PoisonDamage]          (int/(die-string value))]
+      [PhysicalDamage]        (int/(die-string value))]
 
-    [MaxHp                 (int maximum hitpoints for intrinsic weapon {default 1}]
+      [MaxHp                 (int maximum hitpoints for intrinsic weapon {default 1}]
 
-    [MoveMode              (movemode string {default 'L'})]
-    [Privs                 (string privilege) [(more privs)]...]
-    [Settings              (string priv set 'on') [(more privs)]...]
+      [MoveMode              (movemode string {default 'L'})]
+      [Privs                 (string privilege) [(more privs)]...]
+      [Settings              (string priv set 'on') [(more privs)]...]
 
-    [SpeechColor           (int speech color {default 0x3B2})]
-    [SpeechFont            (int speech color {default 3})]
+      [SpeechColor           (int speech color {default 0x3B2})]
+      [SpeechFont            (int speech color {default 3})]
 
-    [UseAdjustments        (0/1 {default 1})]
-    [RunSpeed              (int 0-250 {default dexterity})]
-    [SaveOnExit            (0/1 {default 1})]
-    [MethodScript          (string scriptname)]
-    [NoDropException       (0/1 {default 0})]
+      [UseAdjustments        (0/1 {default 1})]
+      [RunSpeed              (int 0-250 {default dexterity})]
+      [SaveOnExit            (0/1 {default 1})]
+      [MethodScript          (string scriptname)]
+      [NoDropException       (0/1 {default 0})]
 
-    [LowerReagentCost       (int/(die-string value))]
-    [SpellDamageIncrease    (int/(die-string value))]
-    [FasterCasting          (int/(die-string value))]
-    [FasterCastRecovery     (int/(die-string value))]
-    [DefenceIncrease        (int/(die-string value))]
-    [DefenceIncreaseCap     (int/(die-string value))]
-    [LowerManaCost          (int/(die-string value))]
-    [HitChance              (int/(die-string value))]
-    [FireResistCap          (int/(die-string value))]
-    [ColdResistCap          (int/(die-string value))]
-    [EnergyResistCap        (int/(die-string value))]
-    [PhysicalResistCap      (int/(die-string value))]
-    [PoisonResistCap        (int/(die-string value))]
-    [Luck                   (int/(die-string value))]
-    [SwingSpeedIncrease     (int/(die-string value))]
+      [LowerReagentCost       (int/(die-string value))]
+      [SpellDamageIncrease    (int/(die-string value))]
+      [FasterCasting          (int/(die-string value))]
+      [FasterCastRecovery     (int/(die-string value))]
+      [DefenceIncrease        (int/(die-string value))]
+      [DefenceIncreaseCap     (int/(die-string value))]
+      [LowerManaCost          (int/(die-string value))]
+      [HitChance              (int/(die-string value))]
+      [FireResistCap          (int/(die-string value))]
+      [ColdResistCap          (int/(die-string value))]
+      [EnergyResistCap        (int/(die-string value))]
+      [PhysicalResistCap      (int/(die-string value))]
+      [PoisonResistCap        (int/(die-string value))]
+      [Luck                   (int/(die-string value))]
+      [SwingSpeedIncrease     (int/(die-string value))]
+      [MinAttackRangeIncrease     (int/(die-string value))]
+      [MaxAttackRangeIncrease     (int/(die-string value))]
 
-    [LowerReagentCostMod    (int/(die-string value))]
-    [SpellDamageIncreaseMod (int/(die-string value))]
-    [FasterCastingMod       (int/(die-string value))]
-    [FasterCastRecoveryMod  (int/(die-string value))]
-    [DefenceIncreaseMod     (int/(die-string value))]
-    [DefenceIncreaseCapMod  (int/(die-string value))]
-    [LowerManaCostMod       (int/(die-string value))]
-    [HitChanceMod           (int/(die-string value))]
-    [FireResistCapMod       (int/(die-string value))]
-    [ColdResistCapMod       (int/(die-string value))]
-    [EnergyResistCapMod     (int/(die-string value))]
-    [PhysicalResistCapMod   (int/(die-string value))]
-    [PoisonResistCapMod     (int/(die-string value))]
-    [LuckMod                (int/(die-string value))]
-    [SwingSpeedIncreaseMod  (int/(die-string value))]
+      [LowerReagentCostMod    (int/(die-string value))]
+      [SpellDamageIncreaseMod (int/(die-string value))]
+      [FasterCastingMod       (int/(die-string value))]
+      [FasterCastRecoveryMod  (int/(die-string value))]
+      [DefenceIncreaseMod     (int/(die-string value))]
+      [DefenceIncreaseCapMod  (int/(die-string value))]
+      [LowerManaCostMod       (int/(die-string value))]
+      [HitChanceMod           (int/(die-string value))]
+      [FireResistCapMod       (int/(die-string value))]
+      [ColdResistCapMod       (int/(die-string value))]
+      [EnergyResistCapMod     (int/(die-string value))]
+      [PhysicalResistCapMod   (int/(die-string value))]
+      [PoisonResistCapMod     (int/(die-string value))]
+      [LuckMod                (int/(die-string value))]
+      [SwingSpeedIncreaseMod  (int/(die-string value))]
+      [AttackRangeIncreaseMod  (int/(die-string value))]
 
-    [CProp                  (string name, string value, will set a CProp on the npc at creation)]
-    [Cprop                  (...)]
-}
-[NpcTemplate...]
-</structure>
+      [CProp                  (string name, string value, will set a CProp on the npc at creation)]
+      [Cprop                  (...)]
+      }
+      [NpcTemplate...]
+    </structure>
     <explain>Movemode string is 'L' for land 'S' for sea, and 'A' for air. I.e. 'LS' would be good for a water elemental.</explain>
     <explain>An 'intrinsic' weapon is used if the NPC does not have a weapon item equipped. It represents (usually), the Wrestling 'weapon' for the NPC. You can define sounds, damage, animation etc.</explain>
     <explain>Vital and Attribute names can use the aliases defined in attributes.cfg and vitals.cfg, i.e. 'STR' instead of 'Strength'. A Die-string may be used for the value of any of these.</explain>
@@ -1413,193 +1416,197 @@ NpcTemplate (string unique templatename)
     <requiredby>CreateItem functions</requiredby>
     <purpose>Defines Item descriptions, to be assigned to individual items on creation. Note each UObject class expects different properties to be present, so each will be listed below. An actual itemdesc.cfg file would not look exactly like this. Class Name must be one of: ITEM CONTAINER SPELLBOOK DOOR HOUSE BOAT MAP WEAPON ARMOR.</purpose>
     <structure>
-(Class Name)  (integer unique 'objtype')
-{
-    (PropertyName)      (value)
-    [PropertyName...]
-}
+      (Class Name)  (integer unique 'objtype')
+      {
+      (PropertyName)      (value)
+      [PropertyName...]
+      }
 
-Item (objtype)
-{
-    Name                    (string unique object name)
-    [Name...]
-    Graphic                 (int tile number)
-    [Color                  (int color {default 0})]
-    [Facing                 (int facing {default 0})]
-    [Desc                   (string description {default empty})]
-    [Tooltip                (string tooltip {default empty})]
-    [WalkOnScript           (string scriptname)]
-    [Script                 (string scriptname)]
-    [SnoopScript            (string scriptname)]
-    [EquipScript            (string scriptname)]
-    [UnequipScript          (string scriptname)]
-    [ControlScript          (string scriptname)]
-    [CreateScript           (string scriptname)]
-    [DestroyScript          (string scriptname)]
-    [MethodScript           (string scriptname)]
-    [RequiresAttention      (0/1 {default 1})]
-    [Lockable               (0/1 {default 0})]
-    [VendorSellsFor         (int gold {default 0})]
-    [VendorBuysFor          (int gold {default 0})]
-    [DecayTime              (int minutes {default servspecopt.cfg option})]
-    [SaveOnExit             (0/1 {default 1})]
-    [Movable                (0/1)]
-    [DoubleClickRange       (int range {default servspecopt.cfg option})]
-    [UseRequiresLOS         (0/1 {default 1})]
-    [GhostsCanUse           (0/1 {default 0})]
-    [CanUseWhileFrozen      (0/1 {default 0})]
-    [CanUseWhileParalyzed   (0/1 {default 0})]
-    [Newbie                 (0/1 {default 0})]
-    [Insured                (0/1 {default 0})]
-    [Cursed                 (0/1 {default 0})]
-    [Invisible              (0/1 {default 0})]
-    [DecaysOnMultis         (0/1 {default 0})]
-    [BlocksCastingIfInHand  (0/1 {default 0})]
-    [StrRequired            (int strength {default 0})]
-    [MaxHP                  (int max {default 0})]
-    [Weight                 (int weight {default tiledata value})]
-    [OldObjtype             (int old objtype)]...
-    [StackingIgnoresCProps  (propname1) [(propname2)]... ]
-    [Resource               (string resource name) (int amount)]
-    [Resource...]
-    [FireResist             (int/(die-string value))]
-    [ColdResist             (int/(die-string value))]
-    [EnergyResist           (int/(die-string value))]
-    [PoisonResist           (int/(die-string value))]
-    [PhysicalResist         (int/(die-string value))]
-    [FireDamage             (int/(die-string value))]
-    [ColdDamage             (int/(die-string value))]
-    [EnergyDamage           (int/(die-string value))]
-    [PoisonDamage           (int/(die-string value))]
-    [PhysicalDamage         (int/(die-string value))]
+      Item (objtype)
+      {
+      Name                    (string unique object name)
+      [Name...]
+      Graphic                 (int tile number)
+      [Color                  (int color {default 0})]
+      [Facing                 (int facing {default 0})]
+      [Desc                   (string description {default empty})]
+      [Tooltip                (string tooltip {default empty})]
+      [WalkOnScript           (string scriptname)]
+      [Script                 (string scriptname)]
+      [SnoopScript            (string scriptname)]
+      [EquipScript            (string scriptname)]
+      [UnequipScript          (string scriptname)]
+      [ControlScript          (string scriptname)]
+      [CreateScript           (string scriptname)]
+      [DestroyScript          (string scriptname)]
+      [MethodScript           (string scriptname)]
+      [RequiresAttention      (0/1 {default 1})]
+      [Lockable               (0/1 {default 0})]
+      [VendorSellsFor         (int gold {default 0})]
+      [VendorBuysFor          (int gold {default 0})]
+      [DecayTime              (int minutes {default servspecopt.cfg option})]
+      [SaveOnExit             (0/1 {default 1})]
+      [Movable                (0/1)]
+      [DoubleClickRange       (int range {default servspecopt.cfg option})]
+      [UseRequiresLOS         (0/1 {default 1})]
+      [GhostsCanUse           (0/1 {default 0})]
+      [CanUseWhileFrozen      (0/1 {default 0})]
+      [CanUseWhileParalyzed   (0/1 {default 0})]
+      [Newbie                 (0/1 {default 0})]
+      [Insured                (0/1 {default 0})]
+      [Cursed                 (0/1 {default 0})]
+      [Invisible              (0/1 {default 0})]
+      [DecaysOnMultis         (0/1 {default 0})]
+      [BlocksCastingIfInHand  (0/1 {default 0})]
+      [StrRequired            (int strength {default 0})]
+      [MaxHP                  (int max {default 0})]
+      [Weight                 (int weight {default tiledata value})]
+      [OldObjtype             (int old objtype)]...
+      [StackingIgnoresCProps  (propname1) [(propname2)]... ]
+      [Resource               (string resource name) (int amount)]
+      [Resource...]
+      [FireResist             (int/(die-string value))]
+      [ColdResist             (int/(die-string value))]
+      [EnergyResist           (int/(die-string value))]
+      [PoisonResist           (int/(die-string value))]
+      [PhysicalResist         (int/(die-string value))]
+      [FireDamage             (int/(die-string value))]
+      [ColdDamage             (int/(die-string value))]
+      [EnergyDamage           (int/(die-string value))]
+      [PoisonDamage           (int/(die-string value))]
+      [PhysicalDamage         (int/(die-string value))]
 
-    [LowerReagentCost       (int/(die-string value))]
-    [SpellDamageIncrease    (int/(die-string value))]
-    [FasterCasting          (int/(die-string value))]
-    [FasterCastRecovery     (int/(die-string value))]
-    [DefenceIncrease        (int/(die-string value))]
-    [DefenceIncreaseCap     (int/(die-string value))]
-    [LowerManaCost          (int/(die-string value))]
-    [HitChance              (int/(die-string value))]
-    [FireResistCap          (int/(die-string value))]
-    [ColdResistCap          (int/(die-string value))]
-    [EnergyResistCap        (int/(die-string value))]
-    [PhysicalResistCap      (int/(die-string value))]
-    [PoisonResistCap        (int/(die-string value))]
-    [Luck                   (int/(die-string value))]
-    [SwingSpeedIncrease     (int/(die-string value))]
+      [LowerReagentCost       (int/(die-string value))]
+      [SpellDamageIncrease    (int/(die-string value))]
+      [FasterCasting          (int/(die-string value))]
+      [FasterCastRecovery     (int/(die-string value))]
+      [DefenceIncrease        (int/(die-string value))]
+      [DefenceIncreaseCap     (int/(die-string value))]
+      [LowerManaCost          (int/(die-string value))]
+      [HitChance              (int/(die-string value))]
+      [FireResistCap          (int/(die-string value))]
+      [ColdResistCap          (int/(die-string value))]
+      [EnergyResistCap        (int/(die-string value))]
+      [PhysicalResistCap      (int/(die-string value))]
+      [PoisonResistCap        (int/(die-string value))]
+      [Luck                   (int/(die-string value))]
+      [SwingSpeedIncrease     (int/(die-string value))]
+      [MinAttackRangeIncrease    (int/(die-string value))]
+      [MaxAttackRangeIncrease    (int/(die-string value))]
 
-    [LowerReagentCostMod    (int/(die-string value))]
-    [SpellDamageIncreaseMod (int/(die-string value))]
-    [FasterCastingMod       (int/(die-string value))]
-    [FasterCastRecoveryMod  (int/(die-string value))]
-    [DefenceIncreaseMod     (int/(die-string value))]
-    [DefenceIncreaseCapMod  (int/(die-string value))]
-    [LowerManaCostMod       (int/(die-string value))]
-    [HitChanceMod           (int/(die-string value))]
-    [FireResistCapMod       (int/(die-string value))]
-    [ColdResistCapMod       (int/(die-string value))]
-    [EnergyResistCapMod     (int/(die-string value))]
-    [PhysicalResistCapMod   (int/(die-string value))]
-    [PoisonResistCapMod     (int/(die-string value))]
-    [LuckMod                (int/(die-string value))]
-    [SwingSpeedIncreaseMod  (int/(die-string value))]
+      [LowerReagentCostMod    (int/(die-string value))]
+      [SpellDamageIncreaseMod (int/(die-string value))]
+      [FasterCastingMod       (int/(die-string value))]
+      [FasterCastRecoveryMod  (int/(die-string value))]
+      [DefenceIncreaseMod     (int/(die-string value))]
+      [DefenceIncreaseCapMod  (int/(die-string value))]
+      [LowerManaCostMod       (int/(die-string value))]
+      [HitChanceMod           (int/(die-string value))]
+      [FireResistCapMod       (int/(die-string value))]
+      [ColdResistCapMod       (int/(die-string value))]
+      [EnergyResistCapMod     (int/(die-string value))]
+      [PhysicalResistCapMod   (int/(die-string value))]
+      [PoisonResistCapMod     (int/(die-string value))]
+      [LuckMod                (int/(die-string value))]
+      [SwingSpeedIncreaseMod  (int/(die-string value))]
+      [MinAttackRangeIncreaseMod (int/(die-string value))]
+      [MaxAttackRangeIncreaseMod (int/(die-string value))]
 
 
-    [StackLimit             (int {default 60000})]
-    [NoDrop                 (0/1 {default 0})]
+      [StackLimit             (int {default 60000})]
+      [NoDrop                 (0/1 {default 0})]
 
-    [CProp                  (string name, string value, will set a CProp on the item at creation)]
-    [Cprop                  (...)]
+      [CProp                  (string name, string value, will set a CProp on the item at creation)]
+      [Cprop                  (...)]
 
-}
+      }
 
-Container (objtype)
-{
-    {everything Item can have, plus: }
-    Gump            (int gump graphic)
-    MinX            (int gump pixel coordinate)
-    MaxX            (int gump pixel coordinate)
-    MinY            (int gump pixel coordinate)
-    MaxY            (int gump pixel coordinate)
-    [MaxWeight      (int weight {default to servspecopt.cfg})]
-    [MaxItems       (int number {default to servspecopt.cfg})]
-    [MaxSlots       (int 1-255 {default to servspecopt.cfg})]
-    [NoDropException    (0/1 {default 0})]
-    [CanInsertScript    (string scriptname)]
-    [OnInsertScript     (string scriptname)]
-    [CanRemoveScript    (string scriptname)]
-    [OnRemoveScript     (string scriptname)]
-}
+      Container (objtype)
+      {
+      {everything Item can have, plus: }
+      Gump            (int gump graphic)
+      MinX            (int gump pixel coordinate)
+      MaxX            (int gump pixel coordinate)
+      MinY            (int gump pixel coordinate)
+      MaxY            (int gump pixel coordinate)
+      [MaxWeight      (int weight {default to servspecopt.cfg})]
+      [MaxItems       (int number {default to servspecopt.cfg})]
+      [MaxSlots       (int 1-255 {default to servspecopt.cfg})]
+      [NoDropException    (0/1 {default 0})]
+      [CanInsertScript    (string scriptname)]
+      [OnInsertScript     (string scriptname)]
+      [CanRemoveScript    (string scriptname)]
+      [OnRemoveScript     (string scriptname)]
+      }
 
-Spellbook (objtype)
-{
-    {everything Container can have, plus: }
-    SpellType  (string {"Magic", "Paladin", "Necro", "Bushido", "Ninjitsu" or "SpellWeaving"})
-}
+      Spellbook (objtype)
+      {
+      {everything Container can have, plus: }
+      SpellType  (string {"Magic", "Paladin", "Necro", "Bushido", "Ninjitsu" or "SpellWeaving"})
+      }
 
-Door (objtype)
-{
-    {everything Item can have, plus: }
-    OpenGraphic    (int tile number, graphic when door is opened)
-    XMod            (int x modification when door toggled)
-    YMod            (int y modification when door toggled)
-}
+      Door (objtype)
+      {
+      {everything Item can have, plus: }
+      OpenGraphic    (int tile number, graphic when door is opened)
+      XMod            (int x modification when door toggled)
+      YMod            (int y modification when door toggled)
+      }
 
-House (objtype)
-{
-    {everything Item can have, plus: }
-    MultiID         (int multiID number for this house)
-}
+      House (objtype)
+      {
+      {everything Item can have, plus: }
+      MultiID         (int multiID number for this house)
+      }
 
-Boat (objtype)
-{
-    {everything Item can have, plus: }
-    MultiID         (int multiID number for this house)
-}
+      Boat (objtype)
+      {
+      {everything Item can have, plus: }
+      MultiID         (int multiID number for this house)
+      }
 
-Map (objtype)
-{
-    {everything Item can have, plus: }
-    Editable        (0/1 {default 1})]
-}
+      Map (objtype)
+      {
+      {everything Item can have, plus: }
+      Editable        (0/1 {default 1})]
+      }
 
-Weapon (objtype)
-{
-    {everything Item can have, plus: }
-    Speed            (int weapon attack speed)
-    [Delay           (int weapon delay in ms {default 0})]
-    Damage           (die-string value)
-    Attribute        (string attribute name for skill this weapon requires)
-    [Anim            (int animation ID number for attack {default 0x9})]
-    [MountedAnim     (int animationID on mount {defaults to value in animxlate.cfg})]
-    [HitSound        (int soundID)]
-    [MissSound       (int soundID)]
-    [HitScript       (string script name)]
-    MaxHP            (int max)
+      Weapon (objtype)
+      {
+      {everything Item can have, plus: }
+      Speed            (int weapon attack speed)
+      [Delay           (int weapon delay in ms {default 0})]
+      Damage           (die-string value)
+      Attribute        (string attribute name for skill this weapon requires)
+      [Anim            (int animation ID number for attack {default 0x9})]
+      [MountedAnim     (int animationID on mount {defaults to value in animxlate.cfg})]
+      [HitSound        (int soundID)]
+      [MissSound       (int soundID)]
+      [HitScript       (string script name)]
+      MaxHP            (int max)
 
-    [Projectile      (0/1 {default 0})]
-    [ProjectileType  (int objtype of projectile)]
-    [ProjectileAnim  (int tile number of animation)]
-    [ProjectileSound (int soundID for projectile shoot)]
+      [Projectile      (0/1 {default 0})]
+      [ProjectileType  (int objtype of projectile)]
+      [ProjectileAnim  (int tile number of animation)]
+      [ProjectileSound (int soundID for projectile shoot)]
 
-    [TwoHanded       (0/1 {default 0})]
-    [MinRange        (int minimum range to attack {default 2 if projectile weapon, 0 else})]
-    [MaxRange        (int maximum range to attack {default 20 if projectile weapon, 1 else})]
-}
+      [TwoHanded       (0/1 {default 0})]
+      [MinRange        (int minimum range to attack {default 2 if projectile weapon, 0 else})]
+      [MaxRange        (int maximum range to attack {default 20 if projectile weapon, 1 else})]
+      }
 
-Armor (objtype)
-{
-    {everything Item can have, plus: }
-    AR               (int armor rating)
-    MaxHP            (int max)
-    [OnHitScript     (string script name)]
-    [Coverage        (string armor zone name {defaults to layer number zone})]
-    [Coverage...]
-}
+      Armor (objtype)
+      {
+      {everything Item can have, plus: }
+      AR               (int armor rating)
+      MaxHP            (int max)
+      [OnHitScript     (string script name)]
+      [Coverage        (string armor zone name {defaults to layer number zone})]
+      [Coverage...]
+      }
 
-...and lots of any of these in the file...
-</structure>
+      ...and lots of any of these in the file...
+    </structure>
     <explain>Note: if objtype &lt; 0x4000, the 'graphic' property is not required, it is assumed objtype=graphic in this case.</explain>
     <explain>Valid ranges for custom items are 0x5000-0xEFFF (0xF000-0xFFFF reserved by core)</explain>
     <explain>Properties having to do with equipping an item is only meaningful if the item is actualy equippable (determined by the graphic number's tiledata flags).</explain>

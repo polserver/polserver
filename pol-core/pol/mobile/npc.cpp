@@ -341,6 +341,10 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw() << "\tLuck\t" << orig_luck() << pf_endl;
   if ( has_swing_speed_increase() )
     sw() << "\tSwingSpeedIncrease\t" << orig_swing_speed_increase() << pf_endl;
+  if ( has_min_attack_range_increase() )
+    sw() << "\tMinAttackRangeIncrease\t" << orig_min_attack_range_increase() << pf_endl;
+  if ( has_max_attack_range_increase() )
+    sw() << "\tMaxAttackRangeIncrease\t" << orig_max_attack_range_increase() << pf_endl;
   if ( no_drop_exception() )
     sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
 }
@@ -509,6 +513,16 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   {
     swing_speed_increase( apply( swing_speed_increase(), value ) );
     orig_swing_speed_increase( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "MINATTACKRANGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    min_attack_range_increase( apply( min_attack_range_increase(), value ) );
+    orig_min_attack_range_increase( static_cast<s16>( value ) );
+  }
+  if ( elem.remove_prop( "MAXATTACKRANGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    max_attack_range_increase( apply( max_attack_range_increase(), value ) );
+    orig_max_attack_range_increase( static_cast<s16>( value ) );
   }
 
   // elemental start
@@ -1106,6 +1120,12 @@ void NPC::resetEquipablePropertiesNPC()
     luck( luck().setAsValue( orig_luck() ) );
   if ( has_swing_speed_increase() || has_orig_swing_speed_increase() )
     swing_speed_increase( swing_speed_increase().setAsValue( orig_swing_speed_increase() ) );
+  if ( has_min_attack_range_increase() || has_orig_min_attack_range_increase() )
+    min_attack_range_increase(
+        min_attack_range_increase().setAsValue( orig_min_attack_range_increase() ) );
+  if ( has_max_attack_range_increase() || has_orig_max_attack_range_increase() )
+    max_attack_range_increase(
+        max_attack_range_increase().setAsValue( orig_max_attack_range_increase() ) );
 }
 
 size_t NPC::estimatedSize() const

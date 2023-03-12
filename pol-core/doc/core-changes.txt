@@ -1,4 +1,9 @@
 ﻿-- POL100.1.0 --
+03-09-2023 DevGIB:
+    Added: MinAttackRangeIncrease(min_attack_range_increase) and MinAttackRangeIncreaseMod(min_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles minimum attack range.<br/>
+        Min Attack Range Increase is used as a numeric modifier to the minimum range of a weapon, e.g. Base min Weapon range of 1 + attack range increase of 1 would make the minimum attack range 2.
+    Added: MaxAttackRangeIncrease(max_attack_range_increase) and MaxAttackRangeIncreaseMod(max_attack_range_increase_mod) to Mobiles and Items allowing people to have a dynamic modifier to the adjust a mobiles maximum attack range.<br/>
+        Max Attack Range Increase is used as a numeric modifier to the maximum range of a weapon, e.g. Base max Weapon range of 3 + attack range increase of 2 would make the maximum attack range 5.
 02-27-2023 Kevin:
     Fixed: DestroyItem(item) will now throw an error if item is a multi.
 02-06-2023 Kevin:
