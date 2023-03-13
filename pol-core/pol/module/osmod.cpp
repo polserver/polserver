@@ -123,8 +123,7 @@ BObjectImp* OSExecutorModule::mf_Debugger()
   Core::UOExecutor* uoexec;
   if ( find_uoexec( pid_, &uoexec ) )
   {
-    uoexec->attach_debugger();
-    return new BLong( 1 );
+    return new BLong( uoexec->attach_debugger() );
   }
   else
     return new BError( "Could not find UOExecutor for current process." );

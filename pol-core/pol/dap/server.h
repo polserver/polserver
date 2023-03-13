@@ -1,15 +1,29 @@
 #ifndef POLDBGDAP_H
 #define POLDBGDAP_H
 
+#include <memory>
+
+namespace dap
+{
+namespace net
+{
+class Server;
+}
+}  // namespace dap
+
 namespace Pol
 {
-namespace Core
+namespace Network
 {
 class DapDebugServer
 {
 public:
-  static void dap_debug_listen_thread( void );
+  DapDebugServer();
+  ~DapDebugServer();
+
+private:
+  std::unique_ptr<dap::net::Server> _server;
 };
-}  // namespace Core
+}  // namespace Network
 }  // namespace Pol
 #endif

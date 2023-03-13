@@ -64,6 +64,14 @@ extern escript_profile_map EscriptProfileMap;
 #endif
 
 typedef std::vector<BObjectRef> ValueStackCont;
+
+class ExecutorDebugListener
+{
+public:
+  virtual void on_halt(){};
+  virtual void on_destroy(){};
+};
+
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
@@ -369,7 +377,7 @@ public:
   bool debugging() const;
   void setdebugging( bool debugging );
 
-  void attach_debugger();
+  bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {} );
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
   void dbg_ins_trace();
@@ -426,6 +434,7 @@ private:
 private:  // not implemented
   Executor( const Executor& exec );
   Executor& operator=( const Executor& exec );
+  std::weak_ptr<ExecutorDebugListener> _listener;
 #ifdef ESCRIPT_PROFILE
   unsigned long GetTimeUs();
   void profile_escript( std::string name, unsigned long profile_start );
@@ -466,11 +475,6 @@ inline bool Executor::error() const
   return error_;
 }
 
-inline void Executor::sethalt( bool halt )
-{
-  halt_ = halt;
-  calcrunnable();
-}
 inline bool Executor::halt() const
 {
   return halt_;

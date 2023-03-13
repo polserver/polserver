@@ -104,6 +104,9 @@ Executor::Executor()
 
 Executor::~Executor()
 {
+  if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
+    listener->on_destroy();
+
   {
     Clib::SpinLockGuard lock( _executor_lock );
     --executor_count;
@@ -2982,6 +2985,17 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
   }
 }
 
+void Executor::sethalt( bool halt )
+{
+  halt_ = halt;
+
+  if ( halt )
+    if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
+      listener->on_halt();
+
+  calcrunnable();
+}
+
 void Executor::execInstr()
 {
   unsigned onPC = PC;
@@ -3251,13 +3265,28 @@ ExecutorModule* Executor::findModule( const std::string& name )
   return nullptr;
 }
 
-void Executor::attach_debugger()
+bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
 {
+  // FIXME: a script can be in debugging state but have no debugger attached,
+  // eg. a script that called `os::Debugger()`. This needs to check if a
+  // debugger is attached. This works for `os::Debugger()` but not for poldbg cmd_attach.
+  if ( !listener.expired() )
+  {
+    if ( !_listener.expired() )
+    {
+      return false;
+    }
+    _listener = listener;
+  }
+
   setdebugging( true );
   debug_state_ = DEBUG_STATE_ATTACHING;
+  return true;
 }
+
 void Executor::detach_debugger()
 {
+  _listener.reset();
   setdebugging( false );
   debug_state_ = DEBUG_STATE_NONE;
   sethalt( false );

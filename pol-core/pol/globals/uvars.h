@@ -36,7 +36,6 @@
 #include "base/vector.h"
 #include "regions/region.h"
 
-
 namespace Pol
 {
 namespace Realms
