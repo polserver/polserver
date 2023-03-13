@@ -36,8 +36,8 @@ jobs:
       - name: Cache cppdap
         uses: actions/cache@v3
         with:
-          path: lib/cppdap-5981969
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-5981969-buildtypefix
+          path: lib/cppdap-eeca5ce
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-eeca5ce
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |

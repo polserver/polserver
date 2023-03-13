@@ -21,6 +21,7 @@ namespace Network
 class AuxService;
 class Client;
 class ClientTransmit;
+class DapDebugServer;
 class PacketHookData;
 class PacketsSingleton;
 class UOClientInterface;
@@ -46,6 +47,7 @@ public:
   NetworkManager( const NetworkManager& ) = delete;
   NetworkManager& operator=( const NetworkManager& ) = delete;
 
+  void initialize();
   void deinialize();
   void kill_disconnected_clients();
 
@@ -110,6 +112,7 @@ public:
   };
 
 private:
+  std::unique_ptr<Network::DapDebugServer> _dap_debug_server;
 };
 
 extern NetworkManager networkManager;
