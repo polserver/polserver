@@ -1,79 +1,255 @@
 #include "server.h"
 
+#include "../../bscript/eprog.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/threadhelp.h"
+#include "../../clib/weakptr.h"
 #include "../../plib/systemstate.h"
 #include "../globals/network.h"
+#include "../globals/uvars.h"
 #include "../polclock.h"
 #include "../polsem.h"
+#include "../scrsched.h"
+#include "../uoexec.h"
 
 #include <dap/io.h>
+#include <dap/network.h>
 #include <dap/protocol.h>
 #include <dap/session.h>
 #include <memory>
 
-namespace Pol
+namespace dap
 {
-namespace Core
-{
-// Implements the dap::ReaderWriter IO interface using a Clib::Socket
-class SocketReaderWriter : public dap::ReaderWriter
+// Define a custom `initialize` request that adds optional `password`.
+class PolInitializeRequest : public InitializeRequest
 {
 public:
-  SocketReaderWriter( Clib::Socket&& sck ) : _sck( std::move( sck ) ) {}
-
-  size_t read( void* buffer, size_t n ) override
-  {
-    int bytes_read = 0;
-
-    if ( !_sck.recvdata_nowait( static_cast<char*>( buffer ), n, &bytes_read ) )
-      return 0;
-    else if ( bytes_read < 0 )
-      return 0;
-    return bytes_read;
-  }
-
-  bool write( const void* buffer, size_t n ) override
-  {
-    unsigned int bytes_sent;
-
-    return _sck.send_nowait( buffer, n, &bytes_sent );
-  }
-
-  bool isOpen() override { return _sck.connected(); }
-  void close() override { _sck.close(); }
-
-private:
-  Clib::Socket _sck;
+  optional<string> password;
 };
 
-class DapDebugClientThread
+DAP_STRUCT_TYPEINFO_EXT( PolInitializeRequest, InitializeRequest, "initialize",
+                         DAP_FIELD( password, "password" ) );
+
+// Define a custom `launch` request that adds `pid`.
+class PolAttachRequest : public AttachRequest
 {
 public:
-  DapDebugClientThread( Clib::Socket&& sock )
-      : _rw( std::make_shared<SocketReaderWriter>( std::move( sock ) ) ),
-        _session( dap::Session::create() )
+  number pid;
+};
+
+DAP_STRUCT_TYPEINFO_EXT( PolAttachRequest, AttachRequest, "attach", DAP_FIELD( pid, "pid" ) );
+}  // namespace dap
+
+namespace Pol
+{
+namespace Network
+{
+using namespace Core;
+using namespace Bscript;
+
+class DapDebugClientThread : public ExecutorDebugListener,
+                             public std::enable_shared_from_this<ExecutorDebugListener>
+{
+public:
+  DapDebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
+      : _rw( rw ), _session( dap::Session::create() ), _uoexec_wptr( nullptr )
   {
   }
+
+  virtual ~DapDebugClientThread() {}
 
   void run();
 
+  void on_halt() override;
+
+  void on_destroy() override;
+
 private:
-  std::shared_ptr<SocketReaderWriter> _rw;
+  std::shared_ptr<dap::ReaderWriter> _rw;
   std::unique_ptr<dap::Session> _session;
+  weak_ptr<UOExecutor> _uoexec_wptr;
+  ref_ptr<EScriptProgram> _script;
 };
+
+void DapDebugClientThread::on_halt()
+{
+  dap::StoppedEvent event;
+  event.reason = "pause";
+  event.threadId = 1;
+  _session->send( event );
+}
+
+void DapDebugClientThread::on_destroy()
+{
+  dap::ExitedEvent event;
+  event.exitCode = 0;
+  _session->send( event );
+
+  // threadsafe...? Is the event flushed to the socket before closing?
+  _rw->close();
+}
 
 void DapDebugClientThread::run()
 {
   POLLOG_INFO << "Debug client thread started.\n";
 
-  // Session event handlers
+  // Session event handlers that are only attached once initialized with the password (if
+  // required).
+  auto attach_authorized_handlers = [&]()
+  {
+    _session->registerHandler( [&]( const dap::ConfigurationDoneRequest& )
+                               { return dap::ConfigurationDoneResponse(); } );
+
+    _session->registerHandler(
+        [&]( const dap::PolAttachRequest& request ) -> dap::ResponseOrError<dap::AttachResponse>
+        {
+          PolLock lock;
+          UOExecutor* uoexec;
+
+          if ( _uoexec_wptr.exists() )
+          {
+            uoexec = _uoexec_wptr.get_weakptr();
+            if ( uoexec->in_debugger_holdlist() )
+              uoexec->revive_debugged();
+
+            uoexec->detach_debugger();
+            _uoexec_wptr.clear();
+          }
+
+          auto pid = request.pid;
+          if ( find_uoexec( pid, &uoexec ) )
+          {
+            EScriptProgram* prog = const_cast<EScriptProgram*>( uoexec->prog() );
+
+            if ( prog->read_dbg_file() == 0 )
+            {
+              if ( !uoexec->attach_debugger( weak_from_this() ) )
+                return dap::Error( "Debugger already attached." );
+
+              _uoexec_wptr = uoexec->weakptr;
+              _script.set( prog );
+
+              return dap::AttachResponse();
+            }
+            return dap::Error( "No debug information available." );
+          }
+          return dap::Error( "Unknown process id '%d'", int( pid ) );
+        } );
+
+    // After sending an AttachResponse, check if executor is halted. If so, trigger the on_halt()
+    // event.
+    _session->registerSentHandler(
+        [&]( const dap::ResponseOrError<dap::AttachResponse>& )
+        {
+          PolLock lock;
+          if ( _uoexec_wptr.exists() )
+            if ( _uoexec_wptr.get_weakptr()->halt() )
+            {
+              on_halt();
+            }
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::ThreadsRequest& ) -> dap::ResponseOrError<dap::ThreadsResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+            return dap::Error( "No script attached." );
+
+          UOExecutor* exec = _uoexec_wptr.get_weakptr();
+          dap::ThreadsResponse response;
+          dap::Thread thread;
+          thread.id = 1;
+          thread.name = Clib::tostring( exec->pid() );
+          response.threads.push_back( thread );
+          return response;
+        } );
+
+    _session->registerHandler( [&]( const dap::SetExceptionBreakpointsRequest& )
+                               { return dap::SetExceptionBreakpointsResponse(); } );
+
+    _session->registerHandler(
+        [&]( const dap::ContinueRequest& ) -> dap::ResponseOrError<dap::ContinueResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+          if ( !uoexec->in_debugger_holdlist() )
+          {
+            return dap::Error( "Script not ready to trace." );
+          }
+
+          uoexec->dbg_run();
+          uoexec->revive_debugged();
+          return dap::ContinueResponse{};
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::StackTraceRequest& ) -> dap::ResponseOrError<dap::StackTraceResponse>
+        { return dap::StackTraceResponse{}; } );
+
+    _session->registerHandler(
+        [&]( const dap::ScopesRequest& ) -> dap::ResponseOrError<dap::ScopesResponse>
+        { return dap::ScopesResponse{}; } );
+
+    _session->registerHandler(
+        [&]( const dap::VariablesRequest& ) -> dap::ResponseOrError<dap::VariablesResponse>
+        { return dap::VariablesResponse{}; } );
+  };
+
+  // Session event handlers added before initialization
   _session->registerHandler(
-      []( const dap::InitializeRequest& )
+      [&]( const dap::PolInitializeRequest& request )
+          -> dap::ResponseOrError<dap::InitializeResponse>
       {
-        POLLOG_INFO << "Got InitializeRequest.\n";
+        if ( !Plib::systemstate.config.debug_password.empty() &&
+             request.password.value( "" ) != Plib::systemstate.config.debug_password )
+          return dap::Error( "Password not recognized." );
+
+        attach_authorized_handlers();
         return dap::InitializeResponse{};
+      } );
+
+  _session->registerHandler(
+      [&]( const dap::DisconnectRequest& )
+      {
+        PolLock lock;
+        if ( _uoexec_wptr.exists() )
+        {
+          UOExecutor* exec = _uoexec_wptr.get_weakptr();
+          if ( exec->in_debugger_holdlist() )
+            exec->revive_debugged();
+
+          exec->detach_debugger();
+          _uoexec_wptr.clear();
+        }
+
+        return dap::DisconnectResponse();
+      } );
+
+  _session->registerSentHandler( [&]( const dap::ResponseOrError<dap::DisconnectResponse>& )
+                                 { _rw->close(); } );
+
+  _session->registerSentHandler(
+      [&]( const dap::ResponseOrError<dap::InitializeResponse>& response )
+      {
+        if ( response.error )
+          _rw->close();
+        else
+          _session->send( dap::InitializedEvent() );
+      } );
+
+  // Error handler
+  _session->onError(
+      [&]( const char* msg )
+      {
+        POLLOG_ERROR << "Debugger session error: " << msg << "\n";
+        _rw->close();
       } );
 
   // Attach the SocketReaderWriter to the Session and begin processing events.
@@ -82,6 +258,20 @@ void DapDebugClientThread::run()
   while ( !Clib::exit_signalled && _rw->isOpen() )
   {
     pol_sleep_ms( 1000 );
+  }
+
+  {
+    // Detach debugger in case a DisconnectRequest was not sent.
+    PolLock lock;
+    if ( _uoexec_wptr.exists() )
+    {
+      UOExecutor* exec = _uoexec_wptr.get_weakptr();
+      if ( exec->in_debugger_holdlist() )
+        exec->revive_debugged();
+
+      exec->detach_debugger();
+      _uoexec_wptr.clear();
+    }
   }
 
   _session.reset();
@@ -95,26 +285,30 @@ void DapDebugClientThread::run()
   POLLOG_INFO << "Debug client thread closing.\n";
 }
 
-void DapDebugServer::dap_debug_listen_thread( void )
+DapDebugServer::DapDebugServer()
 {
-  if ( Plib::systemstate.config.dap_debug_port )
+  _server = dap::net::Server::create();
+
+  // If DebugLocalOnly, bind to localhost which allows connections only from local addresses.
+  // Otherwise, bind to any address to also allow remote connections.
+  auto address = Plib::systemstate.config.debug_local_only ? "localhost" : "0.0.0.0";
+
+  auto started =
+      _server->start( address, Plib::systemstate.config.dap_debug_port,
+                      []( const std::shared_ptr<dap::ReaderWriter>& rw )
+                      {
+                        auto client = std::make_shared<DapDebugClientThread>( rw );
+                        Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
+                      } );
+
+  if ( !started )
   {
-    Clib::SocketListener SL( Plib::systemstate.config.dap_debug_port );
-    while ( !Clib::exit_signalled )
-    {
-      Clib::Socket sock;
-      if ( SL.GetConnection( &sock, 1 ) && sock.connected() )
-      {
-        auto client = new DapDebugClientThread( std::move( sock ) );
-        Core::networkManager.auxthreadpool->push(
-            [client]()
-            {
-              std::unique_ptr<DapDebugClientThread> _clientptr( client );
-              _clientptr->run();
-            } );
-      }
-    }
+    POLLOG_ERROR << "Failed to start DAP server.\n";
+    _server.reset();
   }
 }
-}  // namespace Core
+
+DapDebugServer::~DapDebugServer() = default;
+
+}  // namespace Network
 }  // namespace Pol

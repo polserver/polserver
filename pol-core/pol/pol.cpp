@@ -87,7 +87,6 @@
 #include "checkpnt.h"
 #include "console.h"
 #include "core.h"
-#include "dap/server.h"
 #include "decay.h"
 #include "extobj.h"
 #include "fnsearch.h"
@@ -825,9 +824,6 @@ void start_threads()
   checkpoint( "start dbglisten thread" );
   threadhelp::start_thread( debug_listen_thread, "DbgListn" );
 
-  checkpoint( "start dapdbglisten thread" );
-  threadhelp::start_thread( DapDebugServer::dap_debug_listen_thread, "DapDbgListn" );
-
   checkpoint( "start threadstatus thread" );
   start_thread( threadstatus_thread, "ThreadStatus" );
 
@@ -1189,6 +1185,7 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting threads" );
   Core::start_threads();
   Network::start_aux_services();
+  Core::networkManager.initialize();
 
 #ifdef _WIN32
   Core::console_thread();
@@ -1211,7 +1208,6 @@ int xmain_inner( bool testing )
     Core::pol_sleep_ms( 1000 );
   }
   Core::checkpoint( "child threads have shut down" );
-
   Core::cancel_all_trades();
   Core::stop_gameclock();
   POLLOG_INFOLN( "Shutting down..." );

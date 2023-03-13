@@ -1,6 +1,8 @@
 message("* cppdap")
 
-set (CPPDAP_VERSION_REF "5981969")
+set (CPPDAP_REPOSITORY "https://github.com/KevinEady/cppdap.git")
+set (CPPDAP_VERSION_REF "eeca5ce")
+
 set (CPPDAP_SOURCE_DIR "${POL_EXT_LIB_DIR}/cppdap-${CPPDAP_VERSION_REF}")
 set (CPPDAP_INSTALL_DIR "${CPPDAP_SOURCE_DIR}/build")
 
@@ -16,7 +18,7 @@ endif()
 
 if(NOT EXISTS ${CPPDAP_LIB})
   ExternalProject_Add(cppdap
-    GIT_REPOSITORY   https://github.com/google/cppdap.git
+    GIT_REPOSITORY   ${CPPDAP_REPOSITORY}
     GIT_TAG          ${CPPDAP_VERSION_REF}
     GIT_SHALLOW      TRUE
     PREFIX           cppdap

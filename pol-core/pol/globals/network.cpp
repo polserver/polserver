@@ -8,6 +8,7 @@
 #include "../../clib/threadhelp.h"
 #include "../../plib/systemstate.h"
 #include "../accounts/account.h"
+#include "../dap/server.h"
 #include "../mobile/charactr.h"
 #include "../network/auxclient.h"
 #include "../network/clienttransmit.h"
@@ -96,6 +97,14 @@ void NetworkManager::kill_disconnected_clients()
   }
 }
 
+void NetworkManager::initialize()
+{
+  if ( Plib::systemstate.config.dap_debug_port )
+  {
+    _dap_debug_server = std::make_unique<Network::DapDebugServer>();
+  }
+}
+
 void NetworkManager::deinialize()
 {
   for ( auto& client : clients )
@@ -108,6 +117,8 @@ void NetworkManager::deinialize()
     delete client;
   }
   clients.clear();
+
+  _dap_debug_server.reset();
 
   Clib::delete_all( servers );
 
