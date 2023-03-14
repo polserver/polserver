@@ -450,9 +450,7 @@ void DapDebugClientThread::run()
             return dap::Error( "Script not ready to trace." );
           }
 
-          // FIXME: add this capability to the executor
-          // uoexec->dbg_step_out();
-          uoexec->dbg_run();
+          uoexec->dbg_step_out();
           uoexec->revive_debugged();
           return dap::StepOutResponse{};
         } );
