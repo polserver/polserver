@@ -304,9 +304,15 @@ void DapDebugClientThread::run()
             return dap::Error( "File %d out of range", filenum );
           }
 
-          // FIXME: The SetBreakpointsRequest should only clear all the breakpoints for the given
-          // source, not the whole debuggee.
-          uoexec->dbg_clrallbp();
+          std::set<unsigned> remove_bps;
+          for ( unsigned i = 0; i < _script->dbg_filenum.size(); ++i )
+          {
+            if ( _script->dbg_filenum[i] == filenum )
+            {
+              remove_bps.insert( i );
+            }
+          }
+          uoexec->dbg_clrbps( remove_bps );
 
           dap::SetBreakpointsResponse response;
 

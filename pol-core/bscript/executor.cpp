@@ -3337,6 +3337,15 @@ void Executor::dbg_clrbp( unsigned atPC )
 {
   breakpoints_.erase( atPC );
 }
+
+void Executor::dbg_clrbps( const std::set<unsigned>& PCs )
+{
+  std::set<unsigned> result;
+  std::set_difference( breakpoints_.begin(), breakpoints_.end(), PCs.begin(), PCs.end(),
+                       std::inserter( result, result.end() ) );
+  breakpoints_ = result;
+}
+
 void Executor::dbg_clrallbp()
 {
   breakpoints_.clear();

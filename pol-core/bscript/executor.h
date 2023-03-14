@@ -388,6 +388,7 @@ public:
   void dbg_break();
   void dbg_setbp( unsigned atPC );
   void dbg_clrbp( unsigned atPC );
+  void dbg_clrbps( const std::set<unsigned>& PCs );
   void dbg_clrallbp();
 
   bool exec();
