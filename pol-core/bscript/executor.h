@@ -383,10 +383,12 @@ public:
   void dbg_ins_trace();
   void dbg_step_into();
   void dbg_step_over();
+  void dbg_step_out();
   void dbg_run();
   void dbg_break();
   void dbg_setbp( unsigned atPC );
   void dbg_clrbp( unsigned atPC );
+  void dbg_clrbps( const std::set<unsigned>& PCs );
   void dbg_clrallbp();
 
   bool exec();
@@ -422,7 +424,9 @@ private:
     DEBUG_STATE_STEP_INTO,
     DEBUG_STATE_STEPPING_INTO,
     DEBUG_STATE_STEP_OVER,
-    DEBUG_STATE_STEPPING_OVER
+    DEBUG_STATE_STEPPING_OVER,
+    DEBUG_STATE_STEP_OUT,
+    DEBUG_STATE_STEPPING_OUT,
   };
   DEBUG_STATE debug_state_;
   std::set<unsigned> breakpoints_;
