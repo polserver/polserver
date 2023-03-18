@@ -190,8 +190,248 @@ void DapDebugClientThread::run()
         } );
 
     _session->registerHandler(
+        [&]( const dap::PauseRequest& ) -> dap::ResponseOrError<dap::PauseResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* exec = _uoexec_wptr.get_weakptr();
+          exec->dbg_break();
+          return dap::PauseResponse{};
+        } );
+
+    // After sending a PauseResponse, check if the script is paused. If so, send a StoppedEvent.
+    _session->registerSentHandler(
+        [&]( const dap::ResponseOrError<dap::PauseResponse>& )
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return;
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+          if ( !uoexec->halt() )
+          {
+            return;
+          }
+
+          on_halt();
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::NextRequest& ) -> dap::ResponseOrError<dap::NextResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+          if ( !uoexec->in_debugger_holdlist() )
+          {
+            return dap::Error( "Script not ready to trace." );
+          }
+
+          uoexec->dbg_step_over();
+          uoexec->revive_debugged();
+          return dap::NextResponse();
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::StepInRequest& ) -> dap::ResponseOrError<dap::StepInResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+          if ( !uoexec->in_debugger_holdlist() )
+          {
+            return dap::Error( "Script not ready to trace." );
+          }
+
+          uoexec->dbg_step_into();
+          uoexec->revive_debugged();
+          return dap::StepInResponse();
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::SetBreakpointsRequest& request )
+            -> dap::ResponseOrError<dap::SetBreakpointsResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+
+          unsigned int filenum;
+
+          if ( request.source.sourceReference.has_value() )
+          {
+            filenum = request.source.sourceReference.value();
+          }
+          else
+          {
+            if ( !request.source.path.has_value() )
+            {
+              return dap::Error( "No source location provided." );
+            }
+
+            auto filename_iter =
+                std::find( _script->dbg_filenames.begin(), _script->dbg_filenames.end(),
+                           request.source.path.value() );
+
+            if ( filename_iter == _script->dbg_filenames.end() )
+            {
+              return dap::Error( "File not in scope" );
+            }
+
+            filenum = std::distance( _script->dbg_filenames.begin(), filename_iter );
+          }
+
+          if ( filenum >= _script->dbg_filenames.size() )
+          {
+            return dap::Error( "File %d out of range", filenum );
+          }
+
+          std::set<unsigned> remove_bps;
+          for ( unsigned i = 0; i < _script->dbg_filenum.size(); ++i )
+          {
+            if ( _script->dbg_filenum[i] == filenum )
+            {
+              remove_bps.insert( i );
+            }
+          }
+          uoexec->dbg_clrbps( remove_bps );
+
+          dap::SetBreakpointsResponse response;
+
+          auto breakpoints = request.breakpoints.value( {} );
+          response.breakpoints.resize( breakpoints.size() );
+
+          for ( size_t breakpoint_index = 0; breakpoint_index < breakpoints.size();
+                breakpoint_index++ )
+          {
+            for ( unsigned i = 0; i < _script->dbg_filenum.size(); ++i )
+            {
+              if ( _script->dbg_filenum[i] == filenum &&
+                   _script->dbg_linenum[i] == breakpoints[breakpoint_index].line )
+              {
+                response.breakpoints[breakpoint_index].verified = true;
+                uoexec->dbg_setbp( i );
+                break;
+              }
+            }
+          }
+
+          return response;
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::SourceRequest& request ) -> dap::ResponseOrError<dap::SourceResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          size_t filenum = request.sourceReference;
+          if ( filenum >= _script->dbg_filenames.size() )
+          {
+            return dap::Error( "File out of range: '%d'", int( filenum ) );
+          }
+
+          auto filepath = _script->dbg_filenames[filenum];
+
+          std::ifstream ifs( filepath );
+          if ( !ifs.is_open() )
+            return dap::Error( "File # out of range" );
+
+          std::stringstream buffer;
+          buffer << ifs.rdbuf();
+
+          dap::SourceResponse response;
+          response.content = buffer.str();
+          return response;
+        } );
+
+    _session->registerHandler(
         [&]( const dap::StackTraceRequest& ) -> dap::ResponseOrError<dap::StackTraceResponse>
-        { return dap::StackTraceResponse{}; } );
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* exec = _uoexec_wptr.get_weakptr();
+
+          if ( !exec->halt() )
+          {
+            return dap::Error( "Script must be halted to retrieve stack trace." );
+          }
+
+          std::vector<ReturnContext> stack = exec->ControlStack;
+          dap::StackTraceResponse response;
+
+          unsigned int PC;
+
+          {
+            ReturnContext rc;
+            rc.PC = exec->PC;
+            rc.ValueStackDepth = static_cast<unsigned int>( exec->ValueStack.size() );
+            stack.push_back( rc );
+          }
+
+          // Bottom frame starts at index 1
+          auto frameId = exec->ControlStack.size() + 2;
+
+          while ( !stack.empty() )
+          {
+            ReturnContext& rc = stack.back();
+            PC = rc.PC;
+            stack.pop_back();
+
+            dap::Source source;
+
+            source.name = _script->dbg_filenames[_script->dbg_filenum[PC]];
+            source.path = _script->dbg_filenames[_script->dbg_filenum[PC]];
+
+            dap::StackFrame frame;
+            frame.line = _script->dbg_linenum[PC];
+            frame.column = 1;
+            auto dbgFunction =
+                std::find_if( _script->dbg_functions.begin(), _script->dbg_functions.end(),
+                              [&]( auto& i ) { return i.firstPC <= PC && PC <= i.lastPC; } );
+
+            if ( dbgFunction != _script->dbg_functions.end() )
+            {
+              frame.name = dbgFunction->name;
+            }
+            else
+            {
+              frame.name = "(program)";
+            }
+
+            frame.id = frameId--;
+            frame.source = source;
+
+            response.stackFrames.push_back( frame );
+          }
+
+          return response;
+        } );
 
     _session->registerHandler(
         [&]( const dap::ScopesRequest& ) -> dap::ResponseOrError<dap::ScopesResponse>
@@ -200,6 +440,26 @@ void DapDebugClientThread::run()
     _session->registerHandler(
         [&]( const dap::VariablesRequest& ) -> dap::ResponseOrError<dap::VariablesResponse>
         { return dap::VariablesResponse{}; } );
+
+    _session->registerHandler(
+        [&]( const dap::StepOutRequest& ) -> dap::ResponseOrError<dap::StepOutResponse>
+        {
+          PolLock lock;
+          if ( !_uoexec_wptr.exists() )
+          {
+            return dap::Error( "No script attached." );
+          }
+
+          UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+          if ( !uoexec->in_debugger_holdlist() )
+          {
+            return dap::Error( "Script not ready to trace." );
+          }
+
+          uoexec->dbg_step_out();
+          uoexec->revive_debugged();
+          return dap::StepOutResponse{};
+        } );
   };
 
   // Session event handlers added before initialization
