@@ -88,7 +88,7 @@ public:
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
   virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
-  Core::Range3d current_box() const;
+  virtual Core::Range3d current_box() const;
 
   virtual ~UMulti();
   virtual size_t estimatedSize() const override;
