@@ -148,7 +148,10 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     if ( IsCharacter( orig_container->serial ) )
       gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED_ON_SELF;
     else
+    {
       gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
+      gotten_info._cnt_serial = orig_container->serial;
+    }
     gotten_info._slot_index = item->slot_index();
     item->extricate();
   }
