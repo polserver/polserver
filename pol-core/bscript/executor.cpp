@@ -3059,6 +3059,14 @@ void Executor::execInstr()
           }
         }
       }
+      else if ( debug_state_ == DEBUG_STATE_STEP_OUT )
+      {
+        if ( ControlStack.size() > 0 )
+        {
+          tmpbreakpoints_.insert( ControlStack.back().PC );
+        }
+        debug_state_ = DEBUG_STATE_RUN;
+      }
       else if ( debug_state_ == DEBUG_STATE_RUN )
       {
         // do nothing
@@ -3306,6 +3314,11 @@ void Executor::dbg_step_over()
   debug_state_ = DEBUG_STATE_STEP_OVER;
   sethalt( false );
 }
+void Executor::dbg_step_out()
+{
+  debug_state_ = DEBUG_STATE_STEP_OUT;
+  sethalt( false );
+}
 void Executor::dbg_run()
 {
   debug_state_ = DEBUG_STATE_RUN;
@@ -3324,6 +3337,15 @@ void Executor::dbg_clrbp( unsigned atPC )
 {
   breakpoints_.erase( atPC );
 }
+
+void Executor::dbg_clrbps( const std::set<unsigned>& PCs )
+{
+  std::set<unsigned> result;
+  std::set_difference( breakpoints_.begin(), breakpoints_.end(), PCs.begin(), PCs.end(),
+                       std::inserter( result, result.end() ) );
+  breakpoints_ = result;
+}
+
 void Executor::dbg_clrallbp()
 {
   breakpoints_.clear();
