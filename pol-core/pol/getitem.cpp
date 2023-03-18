@@ -138,8 +138,6 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   UObject* my_owner = item->toplevel_owner();
 
-  send_remove_object_to_inrange( item );
-
   UContainer* orig_container = item->container;
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
@@ -156,6 +154,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   }
   else
   {
+    send_remove_object_to_inrange( item );
     gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
     remove_item_from_world( item );
   }

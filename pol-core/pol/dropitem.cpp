@@ -883,8 +883,11 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
     item->gotten_by( nullptr );
   }
 
-  Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;
-  drop_msg.Send( client );
+  if ( res )
+  {
+    Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;
+    drop_msg.Send( client );
+  }
 
   send_full_statmsg( client, client->chr );
 }
