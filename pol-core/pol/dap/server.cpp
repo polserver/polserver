@@ -243,19 +243,19 @@ void DapDebugClientThread::run()
           PolLock lock;
           dap::PolProcessesResponse response;
 
-          for ( PidList::const_iterator citr = scriptScheduler.getPidlist().begin();
-                citr != scriptScheduler.getPidlist().end(); ++citr )
+          for ( const auto& [pid, uoexec] : scriptScheduler.getPidlist() )
           {
-            UOExecutor* uoexec = ( *citr ).second;
             std::string name = Clib::strlowerASCII( uoexec->scriptname() );
-            if ( strstr( name.c_str(), request.filter.value( "" ).c_str() ) != nullptr )
+            if ( !request.filter.has_value() ||
+                 strstr( name.c_str(), request.filter.value().c_str() ) != nullptr )
             {
               dap::PolProcess entry;
-              entry.id = ( *citr ).first;
+              entry.id = pid;
               entry.program = uoexec->scriptname();
               response.processes.push_back( entry );
             }
           }
+
           return response;
         } );
 
