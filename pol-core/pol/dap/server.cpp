@@ -51,6 +51,33 @@ public:
 
 DAP_STRUCT_TYPEINFO_EXT( PolLaunchRequest, LaunchRequest, "launch", DAP_FIELD( program, "program" ),
                          DAP_FIELD( args, "args" ) );
+
+// Define objects, response, request for custom `processes` command.
+struct PolProcess
+{
+  number id;
+  string program;
+};
+
+DAP_STRUCT_TYPEINFO( PolProcess, "process", DAP_FIELD( id, "id" ),
+                     DAP_FIELD( program, "program" ) );
+
+class PolProcessesResponse : public Response
+{
+public:
+  array<PolProcess> processes;
+};
+
+DAP_STRUCT_TYPEINFO( PolProcessesResponse, "processes", DAP_FIELD( processes, "processes" ) );
+
+class PolProcessesRequest : public Request
+{
+public:
+  using Response = PolProcessesResponse;
+  optional<string> filter;
+};
+
+DAP_STRUCT_TYPEINFO( PolProcessesRequest, "processes", DAP_FIELD( filter, "filter" ) );
 }  // namespace dap
 
 namespace Pol
@@ -207,6 +234,29 @@ void DapDebugClientThread::run()
             return dap::LaunchResponse();
           }
           return dap::Error( "No debug information available." );
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::PolProcessesRequest& request )
+            -> dap::ResponseOrError<dap::PolProcessesResponse>
+        {
+          PolLock lock;
+          dap::PolProcessesResponse response;
+
+          for ( PidList::const_iterator citr = scriptScheduler.getPidlist().begin();
+                citr != scriptScheduler.getPidlist().end(); ++citr )
+          {
+            UOExecutor* uoexec = ( *citr ).second;
+            std::string name = Clib::strlowerASCII( uoexec->scriptname() );
+            if ( strstr( name.c_str(), request.filter.value( "" ).c_str() ) != nullptr )
+            {
+              dap::PolProcess entry;
+              entry.id = ( *citr ).first;
+              entry.program = uoexec->scriptname();
+              response.processes.push_back( entry );
+            }
+          }
+          return response;
         } );
 
     _session->registerHandler(
