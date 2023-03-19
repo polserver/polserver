@@ -59,6 +59,8 @@ set (pol_sources  # sorted !
   crypt/twofish.h
   ctable.cpp
   ctable.h
+  dap/clientthread.cpp
+  dap/clientthread.h
   dap/handles.cpp
   dap/handles.h
   dap/proto.cpp
