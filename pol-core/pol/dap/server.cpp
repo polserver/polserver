@@ -8,8 +8,10 @@
 #include "../../plib/systemstate.h"
 #include "../globals/network.h"
 #include "../globals/uvars.h"
+#include "../module/uomod.h"
 #include "../polclock.h"
 #include "../polsem.h"
+#include "../scrdef.h"
 #include "../scrsched.h"
 #include "../uoexec.h"
 
@@ -39,6 +41,16 @@ public:
 };
 
 DAP_STRUCT_TYPEINFO_EXT( PolAttachRequest, AttachRequest, "attach", DAP_FIELD( pid, "pid" ) );
+
+class PolLaunchRequest : public LaunchRequest
+{
+public:
+  string program;
+  optional<array<string>> args;
+};
+
+DAP_STRUCT_TYPEINFO_EXT( PolLaunchRequest, LaunchRequest, "launch", DAP_FIELD( program, "program" ),
+                         DAP_FIELD( args, "args" ) );
 }  // namespace dap
 
 namespace Pol
@@ -148,6 +160,53 @@ void DapDebugClientThread::run()
             {
               on_halt();
             }
+        } );
+
+    _session->registerHandler(
+        [&]( const dap::PolLaunchRequest& request ) -> dap::ResponseOrError<dap::LaunchResponse>
+        {
+          ScriptDef sd;
+          if ( !sd.config_nodie( request.program, nullptr, "scripts/" ) )
+            return dap::Error( "Error in script name." );
+          if ( !sd.exists() )
+            return dap::Error( "Script " + sd.name() + " does not exist." );
+
+          Module::UOExecutorModule* new_uoemod;
+
+          if ( request.args.has_value() )
+          {
+            std::unique_ptr<ObjArray> arr( new ObjArray );
+
+            for ( const auto& packed_value : request.args.value() )
+            {
+              arr->addElement( BObjectImp::unpack( packed_value.c_str() ) );
+            }
+            new_uoemod = Core::start_script( sd, arr.release() );
+          }
+          else
+          {
+            new_uoemod = Core::start_script( sd, nullptr );
+          }
+
+          if ( new_uoemod == nullptr )
+          {
+            return dap::Error( "Unable to start script" );
+          }
+
+          UOExecutor* uoexec = static_cast<UOExecutor*>( &new_uoemod->exec );
+          EScriptProgram* prog = const_cast<EScriptProgram*>( uoexec->prog() );
+
+          if ( prog->read_dbg_file() == 0 )
+          {
+            if ( !uoexec->attach_debugger( weak_from_this() ) )
+              return dap::Error( "Debugger already attached." );
+
+            _uoexec_wptr = uoexec->weakptr;
+            _script.set( prog );
+
+            return dap::LaunchResponse();
+          }
+          return dap::Error( "No debug information available." );
         } );
 
     _session->registerHandler(
