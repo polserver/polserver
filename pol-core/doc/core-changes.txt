@@ -1,4 +1,6 @@
-﻿-- POL100.1.0 --
+-- POL100.1.0 --
+03-19-2023 Kevin:
+    Added: OpenConnection() now accepts an option for ignore_line_breaks. If set to 1, the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message.
 02-28-2023 Kevin:
     Fixed: MultiRef.items now correctly includes items on the exterior stairs of custom houses.
 02-27-2023 Kevin:
