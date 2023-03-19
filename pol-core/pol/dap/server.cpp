@@ -640,6 +640,7 @@ dap::ResponseOrError<dap::StackTraceResponse> DapDebugClientThread::handle_stack
 dap::ResponseOrError<dap::ScopesResponse> DapDebugClientThread::handle_scopes(
     const dap::ScopesRequest& request )
 {
+  PolLock lock;
   if ( !_uoexec_wptr.exists() )
   {
     return dap::Error( "No script attached." );
@@ -687,6 +688,7 @@ dap::ResponseOrError<dap::ScopesResponse> DapDebugClientThread::handle_scopes(
 dap::ResponseOrError<dap::VariablesResponse> DapDebugClientThread::handle_variables(
     const dap::VariablesRequest& request )
 {
+  PolLock lock;
   if ( !_uoexec_wptr.exists() )
   {
     return dap::Error( "No script attached." );
