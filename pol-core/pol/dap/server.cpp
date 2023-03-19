@@ -90,51 +90,13 @@ namespace Network
 using namespace Core;
 using namespace Bscript;
 
-class Reference
+struct GlobalReference
 {
-public:
-  virtual ~Reference() {}
-
-  enum ReferenceType
-  {
-    GLOBAL,
-    FRAME,
-    VARIABLE
-  };
-
-  virtual ReferenceType type() const = 0;
-
-  template <typename T>
-  T* as()
-  {
-    return static_cast<T*>( this );
-  }
 };
+using FrameReference = size_t;
+using VariableReference = BObjectRef;
 
-class VariableReference : public Reference
-{
-public:
-  VariableReference( BObjectRef objref ) : Reference(), objref( objref ) {}
-  ReferenceType type() const override { return ReferenceType::VARIABLE; }
-
-  BObjectRef objref;
-};
-
-class FrameReference : public Reference
-{
-public:
-  FrameReference( size_t frameId ) : Reference(), frameId( frameId ) {}
-  ReferenceType type() const override { return ReferenceType::FRAME; }
-
-  size_t frameId;
-};
-
-class GlobalReference : public Reference
-{
-public:
-  GlobalReference() : Reference() {}
-  ReferenceType type() const override { return ReferenceType::GLOBAL; }
-};
+using Reference = std::variant<GlobalReference, FrameReference, VariableReference>;
 
 class Handles
 {
@@ -148,10 +110,10 @@ public:
     _handleMap.clear();
   }
 
-  int create( std::unique_ptr<Reference>&& value )
+  int create( const Reference& value )
   {
     int handle = _nextHandle++;
-    _handleMap.insert( { handle, std::move( value ) } );
+    _handleMap.insert( { handle, value } );
     return handle;
   }
 
@@ -160,7 +122,7 @@ public:
     auto iter = _handleMap.find( handle );
     if ( iter != _handleMap.end() )
     {
-      return iter->second.get();
+      return &iter->second;
     }
     return nullptr;
   }
@@ -188,19 +150,19 @@ public:
       variable.type = "struct";
       variable.value = "struct{ ... }";
       variable.namedVariables = static_cast<BStruct*>( impptr )->contents().size();
-      variable.variablesReference = create( std::make_unique<VariableReference>( objref ) );
+      variable.variablesReference = create( objref );
       break;
     case BObjectImp::BObjectType::OTDictionary:
       variable.type = "dictionary";
       variable.value = "dictionary{ ... }";
       variable.namedVariables = static_cast<BDictionary*>( impptr )->contents().size();
-      variable.variablesReference = create( std::make_unique<VariableReference>( objref ) );
+      variable.variablesReference = create( objref );
       break;
     case BObjectImp::BObjectType::OTArray:
       variable.type = "array";
       variable.value = "{ ... }";
       variable.indexedVariables = static_cast<ObjArray*>( impptr )->ref_arr.size();
-      variable.variablesReference = create( std::make_unique<VariableReference>( objref ) );
+      variable.variablesReference = create( objref );
       break;
     default:
       variable.value = impptr->getStringRep();
@@ -210,7 +172,7 @@ public:
 
 private:
   int _nextHandle;
-  std::map<int, std::unique_ptr<Reference>> _handleMap;
+  std::map<int, Reference> _handleMap;
 };
 
 class DapDebugClientThread : public ExecutorDebugListener,
@@ -699,7 +661,7 @@ dap::ResponseOrError<dap::ScopesResponse> DapDebugClientThread::handle_scopes(
 
   if ( !_global_scope_handle )
   {
-    _global_scope_handle = _variable_handles.create( std::make_unique<GlobalReference>() );
+    _global_scope_handle = _variable_handles.create( GlobalReference{} );
   }
 
   dap::ScopesResponse response;
@@ -708,8 +670,7 @@ dap::ResponseOrError<dap::ScopesResponse> DapDebugClientThread::handle_scopes(
     dap::Scope scope;
     scope.name = "Locals @ " + Clib::tostring( frameId );
     scope.presentationHint = "locals";
-    scope.variablesReference =
-        _variable_handles.create( std::make_unique<FrameReference>( frameId - 1 ) );
+    scope.variablesReference = _variable_handles.create( frameId - 1 );
     response.scopes.push_back( scope );
   }
 
@@ -746,138 +707,144 @@ dap::ResponseOrError<dap::VariablesResponse> DapDebugClientThread::handle_variab
     return dap::Error( "Invalid variablesReference id %d", int( request.variablesReference ) );
   }
 
-  // Globals
-  if ( reference_ptr->type() == Reference::ReferenceType::GLOBAL )
-  {
-    BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
-
-    for ( unsigned idx = 0; itr != end; ++itr, ++idx )
-    {
-      dap::Variable current_var;
-      if ( _script->globalvarnames.size() > idx )
+  std::visit(
+      [&]( auto&& arg )
       {
-        current_var.name = _script->globalvarnames[idx];
-      }
-      else
-      {
-        current_var.name = Clib::tostring( idx );
-      }
-
-      if ( idx < uoexec->Globals2.size() )
-      {
-        _variable_handles.add_variable_details( uoexec->Globals2[idx], current_var );
-      }
-
-      response.variables.push_back( current_var );
-    }
-  }
-  // Frames
-  else if ( reference_ptr->type() == Reference::ReferenceType::FRAME )
-  {
-    std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
-    std::vector<ReturnContext> stack = uoexec->ControlStack;
-
-    unsigned int PC;
-
-    {
-      ReturnContext rc;
-      rc.PC = uoexec->PC;
-      rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
-      stack.push_back( rc );
-    }
-
-    auto frameId = reference_ptr->as<FrameReference>()->frameId;
-
-    if ( frameId > uoexec->ControlStack.size() )
-    {
-      return dap::Error( "Unknown variablesReference '%d', frameId '%d'",
-                         int( request.variablesReference ), int( frameId ) );
-    }
-
-    upperLocals2.push_back( uoexec->Locals2 );
-
-    auto currentFrameId = stack.size();
-
-    while ( --currentFrameId, !stack.empty() )
-    {
-      ReturnContext& rc = stack.back();
-      BObjectRefVec* Locals2 = upperLocals2.back();
-      PC = rc.PC;
-      stack.pop_back();
-      upperLocals2.pop_back();
-
-      if ( frameId != currentFrameId )
-      {
-        continue;
-      }
-
-      size_t left = Locals2->size();
-
-      unsigned block = _script->dbg_ins_blocks[PC];
-      while ( left )
-      {
-        while ( left <= _script->blocks[block].parentvariables )
+        using T = std::decay_t<decltype( arg )>;
+        if constexpr ( std::is_same_v<T, GlobalReference> )
         {
-          block = _script->blocks[block].parentblockidx;
+          BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(),
+                                        end = uoexec->Globals2.end();
+
+          for ( unsigned idx = 0; itr != end; ++itr, ++idx )
+          {
+            dap::Variable current_var;
+            if ( _script->globalvarnames.size() > idx )
+            {
+              current_var.name = _script->globalvarnames[idx];
+            }
+            else
+            {
+              current_var.name = Clib::tostring( idx );
+            }
+
+            if ( idx < uoexec->Globals2.size() )
+            {
+              _variable_handles.add_variable_details( uoexec->Globals2[idx], current_var );
+            }
+
+            response.variables.push_back( current_var );
+          }
         }
-        const EPDbgBlock& progblock = _script->blocks[block];
-        size_t varidx = left - 1 - progblock.parentvariables;
-        left--;
-        const auto& ptr = ( *Locals2 )[left];
-
-        dap::Variable current_var;
-        current_var.name = progblock.localvarnames[varidx];
-
-        _variable_handles.add_variable_details( ptr, current_var );
-
-        response.variables.push_back( current_var );
-      }
-    }
-  }
-  // Variables
-  else if ( reference_ptr->type() == Reference::ReferenceType::VARIABLE )
-  {
-    auto impptr = reference_ptr->as<VariableReference>()->objref->impptr();
-
-    if ( impptr != nullptr )
-    {
-      if ( impptr->isa( BObjectImp::OTStruct ) )
-      {
-        BStruct* bstruct = static_cast<BStruct*>( impptr );
-
-        for ( const auto& content : bstruct->contents() )
+        else if constexpr ( std::is_same_v<T, FrameReference> )
         {
-          dap::Variable current_var;
-          current_var.name = content.first;
-          _variable_handles.add_variable_details( content.second, current_var );
-          response.variables.push_back( current_var );
+          std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
+          std::vector<ReturnContext> stack = uoexec->ControlStack;
+
+          unsigned int PC;
+
+          {
+            ReturnContext rc;
+            rc.PC = uoexec->PC;
+            rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
+            stack.push_back( rc );
+          }
+
+          auto frameId = arg;
+
+          if ( frameId > uoexec->ControlStack.size() )
+          {
+            // FIXME: Add an error?
+            // dap::Error( "Unknown variablesReference '%d', frameId '%d'", int(
+            //  request.variablesReference ), int( frameId ) );
+            return;
+          }
+
+          upperLocals2.push_back( uoexec->Locals2 );
+
+          auto currentFrameId = stack.size();
+
+          while ( --currentFrameId, !stack.empty() )
+          {
+            ReturnContext& rc = stack.back();
+            BObjectRefVec* Locals2 = upperLocals2.back();
+            PC = rc.PC;
+            stack.pop_back();
+            upperLocals2.pop_back();
+
+            if ( frameId != currentFrameId )
+            {
+              continue;
+            }
+
+            size_t left = Locals2->size();
+
+            unsigned block = _script->dbg_ins_blocks[PC];
+            while ( left )
+            {
+              while ( left <= _script->blocks[block].parentvariables )
+              {
+                block = _script->blocks[block].parentblockidx;
+              }
+              const EPDbgBlock& progblock = _script->blocks[block];
+              size_t varidx = left - 1 - progblock.parentvariables;
+              left--;
+              const auto& ptr = ( *Locals2 )[left];
+
+              dap::Variable current_var;
+              current_var.name = progblock.localvarnames[varidx];
+
+              _variable_handles.add_variable_details( ptr, current_var );
+
+              response.variables.push_back( current_var );
+            }
+          }
         }
-      }
-      else if ( impptr->isa( BObjectImp::OTDictionary ) )
-      {
-        BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
-        for ( const auto& content : dict->contents() )
+        else if constexpr ( std::is_same_v<T, VariableReference> )
         {
-          dap::Variable current_var;
-          current_var.name = content.first->getStringRep();
-          _variable_handles.add_variable_details( content.second, current_var );
-          response.variables.push_back( current_var );
+          auto impptr = arg->impptr();
+
+          if ( impptr != nullptr )
+          {
+            if ( impptr->isa( BObjectImp::OTStruct ) )
+            {
+              BStruct* bstruct = static_cast<BStruct*>( impptr );
+
+              for ( const auto& content : bstruct->contents() )
+              {
+                dap::Variable current_var;
+                current_var.name = content.first;
+                _variable_handles.add_variable_details( content.second, current_var );
+                response.variables.push_back( current_var );
+              }
+            }
+            else if ( impptr->isa( BObjectImp::OTDictionary ) )
+            {
+              BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
+              for ( const auto& content : dict->contents() )
+              {
+                dap::Variable current_var;
+                current_var.name = content.first->getStringRep();
+                _variable_handles.add_variable_details( content.second, current_var );
+                response.variables.push_back( current_var );
+              }
+            }
+            else if ( impptr->isa( BObjectImp::OTArray ) )
+            {
+              ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
+              size_t index = 1;
+              for ( const auto& content : objarr->ref_arr )
+              {
+                dap::Variable current_var;
+                current_var.name = Clib::tostring( index++ );
+                _variable_handles.add_variable_details( content, current_var );
+                response.variables.push_back( current_var );
+              }
+            }
+          }
         }
-      }
-      else if ( impptr->isa( BObjectImp::OTArray ) )
-      {
-        ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
-        size_t index = 1;
-        for ( const auto& content : objarr->ref_arr )
-        {
-          dap::Variable current_var;
-          current_var.name = Clib::tostring( index++ );
-          _variable_handles.add_variable_details( content, current_var );
-          response.variables.push_back( current_var );
-        }
-      }
-    }
-  }
+      },
+      *reference_ptr );
 
   return response;
 }
