@@ -14,7 +14,6 @@ DAP_IMPLEMENT_STRUCT_TYPEINFO_EXT( PolLaunchRequest, LaunchRequest, "launch",
 DAP_IMPLEMENT_STRUCT_TYPEINFO( PolProcess, "process", DAP_FIELD( id, "id" ),
                                DAP_FIELD( program, "program" ) );
 
-
 DAP_IMPLEMENT_STRUCT_TYPEINFO( PolProcessesResponse, "processes",
                                DAP_FIELD( processes, "processes" ) );
 

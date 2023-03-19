@@ -7,16 +7,11 @@
 
 namespace Pol
 {
-
 namespace Network
 {
 namespace DAP
 {
 using namespace Bscript;
-
-// struct GlobalReference
-// {
-// };
 
 Handles::Handles() : _nextHandle( START_HANDLE ) {}
 
@@ -43,10 +38,6 @@ Reference* Handles::get( int handle )
   return nullptr;
 }
 
-/**
- * Takes a `BObjectRef` and sets the `type` and `value` members of the `dap::Variable. Sets the
- * `variableReference` member for structured variables (eg. structs and arrays).
- */
 void Handles::add_variable_details( const Bscript::BObjectRef& objref, dap::Variable& variable )
 {
   auto impptr = objref->impptr();
@@ -85,7 +76,6 @@ void Handles::add_variable_details( const Bscript::BObjectRef& objref, dap::Vari
     break;
   }
 }
-
-};  // namespace DAP
+}  // namespace DAP
 }  // namespace Network
 }  // namespace Pol

@@ -17,8 +17,6 @@ namespace Network
 {
 namespace DAP
 {
-
-
 class DebugServer
 {
 public:

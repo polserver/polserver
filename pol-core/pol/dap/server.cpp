@@ -15,7 +15,6 @@ namespace Network
 {
 namespace DAP
 {
-
 DebugServer::DebugServer()
 {
   _server = dap::net::Server::create();

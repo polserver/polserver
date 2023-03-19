@@ -6,7 +6,6 @@
 
 #include "../uoexec.h"
 
-
 #include <dap/session.h>
 #include <memory>
 
@@ -29,7 +28,6 @@ namespace Network
 {
 namespace DAP
 {
-
 class ClientThread : public Bscript::ExecutorDebugListener,
                      public std::enable_shared_from_this<Bscript::ExecutorDebugListener>
 {

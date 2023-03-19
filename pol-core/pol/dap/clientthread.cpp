@@ -21,7 +21,6 @@ using namespace Core;
 using namespace Bscript;
 namespace DAP
 {
-
   ClientThread::ClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
       : _rw( rw ),
         _session( dap::Session::create() ),
