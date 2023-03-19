@@ -94,6 +94,7 @@ dap::ResponseOrError<dap::AttachResponse> ClientThread::handle_attach(
 dap::ResponseOrError<dap::LaunchResponse> ClientThread::handle_launch(
     const dap::PolLaunchRequest& request )
 {
+  PolLock lock;
   ScriptDef sd;
   if ( !sd.config_nodie( request.program, nullptr, "scripts/" ) )
     return dap::Error( "Error in script name." );
@@ -649,7 +650,6 @@ dap::ResponseOrError<dap::InitializeResponse> ClientThread::handle_initialize(
        request.password.value( "" ) != Plib::systemstate.config.debug_password )
     return dap::Error( "Password not recognized." );
 
-  // attach_authorized_handlers();
   return dap::InitializeResponse{};
 }
 
