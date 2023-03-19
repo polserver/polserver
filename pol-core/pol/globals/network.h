@@ -18,10 +18,13 @@ namespace Pol
 {
 namespace Network
 {
+namespace DAP
+{
+class DebugServer;
+}
 class AuxService;
 class Client;
 class ClientTransmit;
-class DapDebugServer;
 class PacketHookData;
 class PacketsSingleton;
 class UOClientInterface;
@@ -103,7 +106,7 @@ public:
   std::unique_ptr<threadhelp::DynTaskThreadPool> auxthreadpool;
 
   std::vector<Network::IPRule> banned_ips;
-   
+
   struct Memory
   {
     size_t client_size;
@@ -112,7 +115,7 @@ public:
   };
 
 private:
-  std::unique_ptr<Network::DapDebugServer> _dap_debug_server;
+  std::unique_ptr<Network::DAP::DebugServer> _dap_debug_server;
 };
 
 extern NetworkManager networkManager;

@@ -15,15 +15,20 @@ namespace Pol
 {
 namespace Network
 {
-class DapDebugServer
+namespace DAP
+{
+
+
+class DebugServer
 {
 public:
-  DapDebugServer();
-  ~DapDebugServer();
+  DebugServer();
+  ~DebugServer();
 
 private:
   std::unique_ptr<dap::net::Server> _server;
 };
+}  // namespace DAP
 }  // namespace Network
 }  // namespace Pol
 #endif

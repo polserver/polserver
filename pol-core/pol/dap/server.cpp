@@ -1,4 +1,5 @@
 #include "server.h"
+#include "handles.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
@@ -89,91 +90,8 @@ namespace Network
 {
 using namespace Core;
 using namespace Bscript;
-
-struct GlobalReference
+namespace DAP
 {
-};
-using FrameReference = size_t;
-using VariableReference = BObjectRef;
-
-using Reference = std::variant<GlobalReference, FrameReference, VariableReference>;
-
-class Handles
-{
-public:
-  static constexpr int START_HANDLE = 1000;
-  Handles() : _nextHandle( START_HANDLE ) {}
-
-  void reset()
-  {
-    _nextHandle = START_HANDLE;
-    _handleMap.clear();
-  }
-
-  int create( const Reference& value )
-  {
-    int handle = _nextHandle++;
-    _handleMap.insert( { handle, value } );
-    return handle;
-  }
-
-  Reference* get( int handle )
-  {
-    auto iter = _handleMap.find( handle );
-    if ( iter != _handleMap.end() )
-    {
-      return &iter->second;
-    }
-    return nullptr;
-  }
-
-  /**
-   * Takes a `BObjectRef` and sets the `type` and `value` members of the `dap::Variable. Sets the
-   * `variableReference` member for structured variables (eg. structs and arrays).
-   */
-  void add_variable_details( const Bscript::BObjectRef& objref, dap::Variable& variable )
-  {
-    auto impptr = objref->impptr();
-
-    switch ( impptr->type() )
-    {
-    case BObjectImp::BObjectType::OTString:
-      variable.type = "string";
-      variable.value = impptr->getStringRep();
-      break;
-    case BObjectImp::BObjectType::OTDouble:
-    case BObjectImp::BObjectType::OTLong:
-      variable.type = "number";
-      variable.value = impptr->getStringRep();
-      break;
-    case BObjectImp::BObjectType::OTStruct:
-      variable.type = "struct";
-      variable.value = "struct{ ... }";
-      variable.namedVariables = static_cast<BStruct*>( impptr )->contents().size();
-      variable.variablesReference = create( objref );
-      break;
-    case BObjectImp::BObjectType::OTDictionary:
-      variable.type = "dictionary";
-      variable.value = "dictionary{ ... }";
-      variable.namedVariables = static_cast<BDictionary*>( impptr )->contents().size();
-      variable.variablesReference = create( objref );
-      break;
-    case BObjectImp::BObjectType::OTArray:
-      variable.type = "array";
-      variable.value = "{ ... }";
-      variable.indexedVariables = static_cast<ObjArray*>( impptr )->ref_arr.size();
-      variable.variablesReference = create( objref );
-      break;
-    default:
-      variable.value = impptr->getStringRep();
-      break;
-    }
-  }
-
-private:
-  int _nextHandle;
-  std::map<int, Reference> _handleMap;
-};
 
 class DapDebugClientThread : public ExecutorDebugListener,
                              public std::enable_shared_from_this<ExecutorDebugListener>
@@ -1079,7 +997,7 @@ void DapDebugClientThread::run()
   POLLOG_INFO << "Debug client thread closing.\n";
 }
 
-DapDebugServer::DapDebugServer()
+DebugServer::DebugServer()
 {
   _server = dap::net::Server::create();
 
@@ -1102,7 +1020,7 @@ DapDebugServer::DapDebugServer()
   }
 }
 
-DapDebugServer::~DapDebugServer() = default;
-
+DebugServer::~DebugServer() = default;
+}  // namespace DAP
 }  // namespace Network
 }  // namespace Pol
