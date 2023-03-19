@@ -61,6 +61,28 @@ namespace Pol
 {
 namespace Multi
 {
+Core::Range3d UHouse::current_box() const
+{
+  if ( IsCustom() )
+  {
+    const MultiDef& md = multidef();
+    return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz + Core::Vec2d( 0, 1 ) );
+  }
+  
+  return base::current_box();
+}
+
+ItemList UHouse::get_working_design_items( UHouse* house )
+{
+  ItemList itemlist;
+  MobileList moblist;
+  bool was_editing = house->editing;
+  house->editing = false;
+  UHouse::list_contents( house, itemlist, moblist );
+  house->editing = was_editing;
+  return itemlist;
+}
+
 void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in )
 {
   auto box = house->current_box();
@@ -977,6 +999,8 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
   waiting_for_accept = false;
   if ( accept )
   {
+    auto itemlist = get_working_design_items( this );
+
     revision++;
 
     // commit working design to current design
@@ -986,7 +1010,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     std::vector<u8> newvec;
     CurrentCompressed.swap( newvec );
 
-    CustomHouseStopEditing( chr, this );
+    CustomHouseStopEditing( chr, this, itemlist );
 
     // send full house
     CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );

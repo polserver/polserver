@@ -1,4 +1,6 @@
 ﻿-- POL100.1.0 --
+02-28-2023 Kevin:
+    Fixed: MultiRef.items now correctly includes items on the exterior stairs of custom houses.
 02-27-2023 Kevin:
     Fixed: DestroyItem(item) will now throw an error if item is a multi.
 02-06-2023 Kevin:
