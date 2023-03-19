@@ -1,5 +1,6 @@
 #include "server.h"
 #include "handles.h"
+#include "proto.h"
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
@@ -24,65 +25,6 @@
 #include <dap/session.h>
 #include <map>
 #include <memory>
-
-namespace dap
-{
-// Define a custom `initialize` request that adds optional `password`.
-class PolInitializeRequest : public InitializeRequest
-{
-public:
-  optional<string> password;
-};
-
-DAP_STRUCT_TYPEINFO_EXT( PolInitializeRequest, InitializeRequest, "initialize",
-                         DAP_FIELD( password, "password" ) );
-
-// Define a custom `launch` request that adds `pid`.
-class PolAttachRequest : public AttachRequest
-{
-public:
-  number pid;
-};
-
-DAP_STRUCT_TYPEINFO_EXT( PolAttachRequest, AttachRequest, "attach", DAP_FIELD( pid, "pid" ) );
-
-class PolLaunchRequest : public LaunchRequest
-{
-public:
-  string program;
-  optional<array<string>> args;
-};
-
-DAP_STRUCT_TYPEINFO_EXT( PolLaunchRequest, LaunchRequest, "launch", DAP_FIELD( program, "program" ),
-                         DAP_FIELD( args, "args" ) );
-
-// Define objects, response, request for custom `processes` command.
-struct PolProcess
-{
-  number id;
-  string program;
-};
-
-DAP_STRUCT_TYPEINFO( PolProcess, "process", DAP_FIELD( id, "id" ),
-                     DAP_FIELD( program, "program" ) );
-
-class PolProcessesResponse : public Response
-{
-public:
-  array<PolProcess> processes;
-};
-
-DAP_STRUCT_TYPEINFO( PolProcessesResponse, "processes", DAP_FIELD( processes, "processes" ) );
-
-class PolProcessesRequest : public Request
-{
-public:
-  using Response = PolProcessesResponse;
-  optional<string> filter;
-};
-
-DAP_STRUCT_TYPEINFO( PolProcessesRequest, "processes", DAP_FIELD( filter, "filter" ) );
-}  // namespace dap
 
 namespace Pol
 {

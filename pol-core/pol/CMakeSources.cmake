@@ -61,6 +61,8 @@ set (pol_sources  # sorted !
   ctable.h
   dap/handles.cpp
   dap/handles.h
+  dap/proto.cpp
+  dap/proto.h
   dap/server.cpp
   dap/server.h
   dblclick.cpp
