@@ -21,13 +21,13 @@ using namespace Core;
 using namespace Bscript;
 namespace DAP
 {
-  ClientThread::ClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
-      : _rw( rw ),
-        _session( dap::Session::create() ),
-        _uoexec_wptr( nullptr ),
-        _global_scope_handle( 0 )
-  {
-  }
+ClientThread::ClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
+    : _rw( rw ),
+      _session( dap::Session::create() ),
+      _uoexec_wptr( nullptr ),
+      _global_scope_handle( 0 )
+{
+}
 
 void ClientThread::on_halt()
 {
@@ -205,8 +205,7 @@ dap::ResponseOrError<dap::ContinueResponse> ClientThread::handle_continue(
   return dap::ContinueResponse{};
 }
 
-dap::ResponseOrError<dap::PauseResponse> ClientThread::handle_pause(
-    const dap::PauseRequest& )
+dap::ResponseOrError<dap::PauseResponse> ClientThread::handle_pause( const dap::PauseRequest& )
 {
   PolLock lock;
   if ( !_uoexec_wptr.exists() )
@@ -240,8 +239,7 @@ dap::ResponseOrError<dap::NextResponse> ClientThread::handle_next( const dap::Ne
   return dap::NextResponse{};
 }
 
-dap::ResponseOrError<dap::StepInResponse> ClientThread::handle_stepIn(
-    const dap::StepInRequest& )
+dap::ResponseOrError<dap::StepInResponse> ClientThread::handle_stepIn( const dap::StepInRequest& )
 {
   PolLock lock;
   if ( !_uoexec_wptr.exists() )
@@ -596,46 +594,7 @@ dap::ResponseOrError<dap::VariablesResponse> ClientThread::handle_variables(
         }
         else if constexpr ( std::is_same_v<T, VariableReference> )
         {
-          auto impptr = arg->impptr();
-
-          if ( impptr != nullptr )
-          {
-            if ( impptr->isa( BObjectImp::OTStruct ) )
-            {
-              BStruct* bstruct = static_cast<BStruct*>( impptr );
-
-              for ( const auto& content : bstruct->contents() )
-              {
-                dap::Variable current_var;
-                current_var.name = content.first;
-                _variable_handles.add_variable_details( content.second, current_var );
-                response.variables.push_back( current_var );
-              }
-            }
-            else if ( impptr->isa( BObjectImp::OTDictionary ) )
-            {
-              BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
-              for ( const auto& content : dict->contents() )
-              {
-                dap::Variable current_var;
-                current_var.name = content.first->getStringRep();
-                _variable_handles.add_variable_details( content.second, current_var );
-                response.variables.push_back( current_var );
-              }
-            }
-            else if ( impptr->isa( BObjectImp::OTArray ) )
-            {
-              ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
-              size_t index = 1;
-              for ( const auto& content : objarr->ref_arr )
-              {
-                dap::Variable current_var;
-                current_var.name = Clib::tostring( index++ );
-                _variable_handles.add_variable_details( content, current_var );
-                response.variables.push_back( current_var );
-              }
-            }
-          }
+          response.variables = _variable_handles.to_variables( arg );
         }
       },
       *reference_ptr );
@@ -711,8 +670,7 @@ void ClientThread::after_pause( const dap::ResponseOrError<dap::PauseResponse>& 
   on_halt();
 }
 
-void ClientThread::after_initialize(
-    const dap::ResponseOrError<dap::InitializeResponse>& response )
+void ClientThread::after_initialize( const dap::ResponseOrError<dap::InitializeResponse>& response )
 {
   if ( response.error )
     _rw->close();

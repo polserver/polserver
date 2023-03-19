@@ -1,13 +1,15 @@
 #ifndef DAP_HANDLES_H
 #define DAP_HANDLES_H
 
-#include <variant>
 #include <map>
+#include <variant>
+
+#include <dap/types.h>
 
 namespace dap
 {
 struct Variable;
-}
+}  // namespace dap
 
 namespace Pol
 {
@@ -20,7 +22,9 @@ namespace Network
 {
 namespace DAP
 {
-struct GlobalReference{};
+struct GlobalReference
+{
+};
 using FrameReference = size_t;
 using VariableReference = Pol::Bscript::BObjectRef;
 
@@ -43,6 +47,8 @@ public:
    * `variableReference` member for structured variables (eg. structs and arrays).
    */
   void add_variable_details( const Bscript::BObjectRef& objref, dap::Variable& variable );
+
+  dap::array<dap::Variable> to_variables( const Bscript::BObjectRef& objref );
 
 private:
   int _nextHandle;

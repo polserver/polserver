@@ -2,6 +2,7 @@
 
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
+#include "../../clib/strutil.h"
 
 #include <dap/protocol.h>
 
@@ -75,6 +76,52 @@ void Handles::add_variable_details( const Bscript::BObjectRef& objref, dap::Vari
     variable.value = impptr->getStringRep();
     break;
   }
+}
+
+dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objref )
+{
+  dap::array<dap::Variable> variables;
+  auto impptr = objref->impptr();
+
+  if ( impptr != nullptr )
+  {
+    if ( impptr->isa( BObjectImp::OTStruct ) )
+    {
+      BStruct* bstruct = static_cast<BStruct*>( impptr );
+
+      for ( const auto& content : bstruct->contents() )
+      {
+        dap::Variable current_var;
+        current_var.name = content.first;
+        add_variable_details( content.second, current_var );
+        variables.push_back( current_var );
+      }
+    }
+    else if ( impptr->isa( BObjectImp::OTDictionary ) )
+    {
+      BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
+      for ( const auto& content : dict->contents() )
+      {
+        dap::Variable current_var;
+        current_var.name = content.first->getStringRep();
+        add_variable_details( content.second, current_var );
+        variables.push_back( current_var );
+      }
+    }
+    else if ( impptr->isa( BObjectImp::OTArray ) )
+    {
+      ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
+      size_t index = 1;
+      for ( const auto& content : objarr->ref_arr )
+      {
+        dap::Variable current_var;
+        current_var.name = Clib::tostring( index++ );
+        add_variable_details( content, current_var );
+        variables.push_back( current_var );
+      }
+    }
+  }
+  return variables;
 }
 }  // namespace DAP
 }  // namespace Network
