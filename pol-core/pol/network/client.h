@@ -141,8 +141,8 @@ enum class PacketLog
 class ThreadedClient
 {
 public:
-  bool isReallyConnected() const;
-  bool isConnected() const;
+  bool isReallyConnected();
+  bool isConnected();
 
   void forceDisconnect();
   void closeConnection();
@@ -260,8 +260,8 @@ public:
 
   std::string ipaddrAsString() const { return session()->ipaddrAsString(); }
 
-  bool isConnected() const { return session()->isConnected(); }
-  bool isReallyConnected() const { return session()->isReallyConnected(); }
+  bool isConnected() { return session()->isConnected(); }
+  bool isReallyConnected() { return session()->isReallyConnected(); }
   void forceDisconnect() { session()->forceDisconnect(); }
 
   Core::polclock_t last_activity_at() { return session()->last_activity_at; }
@@ -280,7 +280,7 @@ protected:
   void PreDelete();
 
 public:
-  bool isActive() const;
+  bool isActive();
   void Disconnect();
 
   void unregister();  // removes updater for vitals and takes client away from clientlist
@@ -378,13 +378,14 @@ inline void ThreadedClient::forceDisconnect()
 }
 
 // Checks whether the client is disconnected, and not only marked for disconnection
-inline bool ThreadedClient::isReallyConnected() const
+inline bool ThreadedClient::isReallyConnected()
 {
+  std::lock_guard<std::mutex> lock( _SocketMutex );
   return !this->disconnect && this->csocket != INVALID_SOCKET;
 }
 
 // Checks for both planned and executed disconnections
-inline bool ThreadedClient::isConnected() const
+inline bool ThreadedClient::isConnected()
 {
   return !this->preDisconnect && this->isReallyConnected();
 }
@@ -393,7 +394,7 @@ inline bool ThreadedClient::has_delayed_packets() const
   return !myClient.movementqueue.empty();
 }
 
-inline bool Client::isActive() const
+inline bool Client::isActive()
 {
   return this->ready && this->isConnected();
 }
