@@ -1,5 +1,7 @@
 #include "server.h"
 
+#include "../../bscript/bstruct.h"
+#include "../../bscript/dict.h"
 #include "../../bscript/eprog.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
@@ -19,6 +21,7 @@
 #include <dap/network.h>
 #include <dap/protocol.h>
 #include <dap/session.h>
+#include <map>
 #include <memory>
 
 namespace dap
@@ -87,12 +90,138 @@ namespace Network
 using namespace Core;
 using namespace Bscript;
 
+class Reference
+{
+public:
+  virtual ~Reference() {}
+
+  enum ReferenceType
+  {
+    GLOBAL,
+    FRAME,
+    VARIABLE
+  };
+
+  virtual ReferenceType type() const = 0;
+
+  template <typename T>
+  T* as()
+  {
+    return static_cast<T*>( this );
+  }
+};
+
+class VariableReference : public Reference
+{
+public:
+  VariableReference( BObjectRef objref ) : Reference(), objref( objref ) {}
+  ReferenceType type() const override { return ReferenceType::VARIABLE; }
+
+  BObjectRef objref;
+};
+
+class FrameReference : public Reference
+{
+public:
+  FrameReference( size_t frameId ) : Reference(), frameId( frameId ) {}
+  ReferenceType type() const override { return ReferenceType::FRAME; }
+
+  size_t frameId;
+};
+
+class GlobalReference : public Reference
+{
+public:
+  GlobalReference() : Reference() {}
+  ReferenceType type() const override { return ReferenceType::GLOBAL; }
+};
+
+class Handles
+{
+public:
+  static constexpr int START_HANDLE = 1000;
+  Handles() : _nextHandle( START_HANDLE ) {}
+
+  void reset()
+  {
+    _nextHandle = START_HANDLE;
+    _handleMap.clear();
+  }
+
+  int create( std::unique_ptr<Reference>&& value )
+  {
+    int handle = _nextHandle++;
+    _handleMap.insert( { handle, std::move( value ) } );
+    return handle;
+  }
+
+  Reference* get( int handle )
+  {
+    auto iter = _handleMap.find( handle );
+    if ( iter != _handleMap.end() )
+    {
+      return iter->second.get();
+    }
+    return nullptr;
+  }
+
+  /**
+   * Takes a `BObjectRef` and sets the `type` and `value` members of the `dap::Variable. Sets the
+   * `variableReference` member for structured variables (eg. structs and arrays).
+   */
+  void add_variable_details( const Bscript::BObjectRef& objref, dap::Variable& variable )
+  {
+    auto impptr = objref->impptr();
+
+    switch ( impptr->type() )
+    {
+    case BObjectImp::BObjectType::OTString:
+      variable.type = "string";
+      variable.value = impptr->getStringRep();
+      break;
+    case BObjectImp::BObjectType::OTDouble:
+    case BObjectImp::BObjectType::OTLong:
+      variable.type = "number";
+      variable.value = impptr->getStringRep();
+      break;
+    case BObjectImp::BObjectType::OTStruct:
+      variable.type = "struct";
+      variable.value = "struct{ ... }";
+      variable.namedVariables = static_cast<BStruct*>( impptr )->contents().size();
+      variable.variablesReference = create( std::make_unique<VariableReference>( objref ) );
+      break;
+    case BObjectImp::BObjectType::OTDictionary:
+      variable.type = "dictionary";
+      variable.value = "dictionary{ ... }";
+      variable.namedVariables = static_cast<BDictionary*>( impptr )->contents().size();
+      variable.variablesReference = create( std::make_unique<VariableReference>( objref ) );
+      break;
+    case BObjectImp::BObjectType::OTArray:
+      variable.type = "array";
+      variable.value = "{ ... }";
+      variable.indexedVariables = static_cast<ObjArray*>( impptr )->ref_arr.size();
+      variable.variablesReference = create( std::make_unique<VariableReference>( objref ) );
+      break;
+    default:
+      variable.value = impptr->getStringRep();
+      break;
+    }
+  }
+
+private:
+  int _nextHandle;
+  std::map<int, std::unique_ptr<Reference>> _handleMap;
+};
+
 class DapDebugClientThread : public ExecutorDebugListener,
                              public std::enable_shared_from_this<ExecutorDebugListener>
 {
 public:
   DapDebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
-      : _rw( rw ), _session( dap::Session::create() ), _uoexec_wptr( nullptr )
+      : _rw( rw ),
+        _session( dap::Session::create() ),
+        _uoexec_wptr( nullptr ),
+        _global_scope_handle( 0 )
   {
   }
 
@@ -143,6 +272,8 @@ private:
   std::unique_ptr<dap::Session> _session;
   weak_ptr<UOExecutor> _uoexec_wptr;
   ref_ptr<EScriptProgram> _script;
+  Handles _variable_handles;
+  int _global_scope_handle;
 };
 
 void DapDebugClientThread::on_halt()
@@ -181,6 +312,8 @@ dap::ResponseOrError<dap::AttachResponse> DapDebugClientThread::handle_attach(
     if ( uoexec->in_debugger_holdlist() )
       uoexec->revive_debugged();
 
+    _variable_handles.reset();
+    _global_scope_handle = 0;
     uoexec->detach_debugger();
     _uoexec_wptr.clear();
   }
@@ -311,6 +444,8 @@ dap::ResponseOrError<dap::ContinueResponse> DapDebugClientThread::handle_continu
     return dap::Error( "Script not ready to trace." );
   }
 
+  _variable_handles.reset();
+  _global_scope_handle = 0;
   uoexec->dbg_run();
   uoexec->revive_debugged();
   return dap::ContinueResponse{};
@@ -344,6 +479,8 @@ dap::ResponseOrError<dap::NextResponse> DapDebugClientThread::handle_next( const
     return dap::Error( "Script not ready to trace." );
   }
 
+  _variable_handles.reset();
+  _global_scope_handle = 0;
   uoexec->dbg_step_over();
   uoexec->revive_debugged();
   return dap::NextResponse{};
@@ -364,6 +501,8 @@ dap::ResponseOrError<dap::StepInResponse> DapDebugClientThread::handle_stepIn(
     return dap::Error( "Script not ready to trace." );
   }
 
+  _variable_handles.reset();
+  _global_scope_handle = 0;
   uoexec->dbg_step_into();
   uoexec->revive_debugged();
   return dap::StepInResponse{};
@@ -499,7 +638,7 @@ dap::ResponseOrError<dap::StackTraceResponse> DapDebugClientThread::handle_stack
   }
 
   // Bottom frame starts at index 1
-  auto frameId = exec->ControlStack.size() + 2;
+  auto frameId = exec->ControlStack.size() + 1;
 
   while ( !stack.empty() )
   {
@@ -537,15 +676,210 @@ dap::ResponseOrError<dap::StackTraceResponse> DapDebugClientThread::handle_stack
 }
 
 dap::ResponseOrError<dap::ScopesResponse> DapDebugClientThread::handle_scopes(
-    const dap::ScopesRequest& )
+    const dap::ScopesRequest& request )
 {
-  return dap::ScopesResponse{};
+  if ( !_uoexec_wptr.exists() )
+  {
+    return dap::Error( "No script attached." );
+  }
+
+  UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+  if ( !uoexec->halt() )
+  {
+    return dap::Error( "Script must be halted to retrieve scopes." );
+  }
+
+  size_t frameId = request.frameId;
+
+  // Frame IDs start a 1
+  if ( frameId > uoexec->ControlStack.size() + 1 )
+  {
+    return dap::Error( "Unknown frameId '%d'", frameId );
+  }
+
+  if ( !_global_scope_handle )
+  {
+    _global_scope_handle = _variable_handles.create( std::make_unique<GlobalReference>() );
+  }
+
+  dap::ScopesResponse response;
+
+  {
+    dap::Scope scope;
+    scope.name = "Locals @ " + Clib::tostring( frameId );
+    scope.presentationHint = "locals";
+    scope.variablesReference =
+        _variable_handles.create( std::make_unique<FrameReference>( frameId - 1 ) );
+    response.scopes.push_back( scope );
+  }
+
+  {
+    dap::Scope scope;
+    scope.name = "Globals";
+    scope.variablesReference = _global_scope_handle;
+    response.scopes.push_back( scope );
+  }
+
+  return response;
 }
 
 dap::ResponseOrError<dap::VariablesResponse> DapDebugClientThread::handle_variables(
-    const dap::VariablesRequest& )
+    const dap::VariablesRequest& request )
 {
-  return dap::VariablesResponse{};
+  if ( !_uoexec_wptr.exists() )
+  {
+    return dap::Error( "No script attached." );
+  }
+
+  UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+  if ( !uoexec->halt() )
+  {
+    return dap::Error( "Script must be halted to retrieve variables." );
+  }
+
+  dap::VariablesResponse response;
+
+  auto reference_ptr = _variable_handles.get( request.variablesReference );  //
+
+  if ( reference_ptr == nullptr )
+  {
+    return dap::Error( "Invalid variablesReference id %d", int( request.variablesReference ) );
+  }
+
+  // Globals
+  if ( reference_ptr->type() == Reference::ReferenceType::GLOBAL )
+  {
+    BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
+
+    for ( unsigned idx = 0; itr != end; ++itr, ++idx )
+    {
+      dap::Variable current_var;
+      if ( _script->globalvarnames.size() > idx )
+      {
+        current_var.name = _script->globalvarnames[idx];
+      }
+      else
+      {
+        current_var.name = Clib::tostring( idx );
+      }
+
+      if ( idx < uoexec->Globals2.size() )
+      {
+        _variable_handles.add_variable_details( uoexec->Globals2[idx], current_var );
+      }
+
+      response.variables.push_back( current_var );
+    }
+  }
+  // Frames
+  else if ( reference_ptr->type() == Reference::ReferenceType::FRAME )
+  {
+    std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
+    std::vector<ReturnContext> stack = uoexec->ControlStack;
+
+    unsigned int PC;
+
+    {
+      ReturnContext rc;
+      rc.PC = uoexec->PC;
+      rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
+      stack.push_back( rc );
+    }
+
+    auto frameId = reference_ptr->as<FrameReference>()->frameId;
+
+    if ( frameId > uoexec->ControlStack.size() )
+    {
+      return dap::Error( "Unknown variablesReference '%d', frameId '%d'",
+                         int( request.variablesReference ), int( frameId ) );
+    }
+
+    upperLocals2.push_back( uoexec->Locals2 );
+
+    auto currentFrameId = stack.size();
+
+    while ( --currentFrameId, !stack.empty() )
+    {
+      ReturnContext& rc = stack.back();
+      BObjectRefVec* Locals2 = upperLocals2.back();
+      PC = rc.PC;
+      stack.pop_back();
+      upperLocals2.pop_back();
+
+      if ( frameId != currentFrameId )
+      {
+        continue;
+      }
+
+      size_t left = Locals2->size();
+
+      unsigned block = _script->dbg_ins_blocks[PC];
+      while ( left )
+      {
+        while ( left <= _script->blocks[block].parentvariables )
+        {
+          block = _script->blocks[block].parentblockidx;
+        }
+        const EPDbgBlock& progblock = _script->blocks[block];
+        size_t varidx = left - 1 - progblock.parentvariables;
+        left--;
+        const auto& ptr = ( *Locals2 )[left];
+
+        dap::Variable current_var;
+        current_var.name = progblock.localvarnames[varidx];
+
+        _variable_handles.add_variable_details( ptr, current_var );
+
+        response.variables.push_back( current_var );
+      }
+    }
+  }
+  // Variables
+  else if ( reference_ptr->type() == Reference::ReferenceType::VARIABLE )
+  {
+    auto impptr = reference_ptr->as<VariableReference>()->objref->impptr();
+
+    if ( impptr != nullptr )
+    {
+      if ( impptr->isa( BObjectImp::OTStruct ) )
+      {
+        BStruct* bstruct = static_cast<BStruct*>( impptr );
+
+        for ( const auto& content : bstruct->contents() )
+        {
+          dap::Variable current_var;
+          current_var.name = content.first;
+          _variable_handles.add_variable_details( content.second, current_var );
+          response.variables.push_back( current_var );
+        }
+      }
+      else if ( impptr->isa( BObjectImp::OTDictionary ) )
+      {
+        BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
+        for ( const auto& content : dict->contents() )
+        {
+          dap::Variable current_var;
+          current_var.name = content.first->getStringRep();
+          _variable_handles.add_variable_details( content.second, current_var );
+          response.variables.push_back( current_var );
+        }
+      }
+      else if ( impptr->isa( BObjectImp::OTArray ) )
+      {
+        ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
+        size_t index = 1;
+        for ( const auto& content : objarr->ref_arr )
+        {
+          dap::Variable current_var;
+          current_var.name = Clib::tostring( index++ );
+          _variable_handles.add_variable_details( content, current_var );
+          response.variables.push_back( current_var );
+        }
+      }
+    }
+  }
+
+  return response;
 }
 
 dap::ResponseOrError<dap::InitializeResponse> DapDebugClientThread::handle_initialize(
@@ -574,6 +908,8 @@ dap::ResponseOrError<dap::StepOutResponse> DapDebugClientThread::handle_stepOut(
     return dap::Error( "Script not ready to trace." );
   }
 
+  _variable_handles.reset();
+  _global_scope_handle = 0;
   uoexec->dbg_step_out();
   uoexec->revive_debugged();
   return dap::StepOutResponse{};
@@ -589,6 +925,8 @@ dap::ResponseOrError<dap::DisconnectResponse> DapDebugClientThread::handle_disco
     if ( exec->in_debugger_holdlist() )
       exec->revive_debugged();
 
+    _variable_handles.reset();
+    _global_scope_handle = 0;
     exec->detach_debugger();
     _uoexec_wptr.clear();
   }
@@ -754,6 +1092,8 @@ void DapDebugClientThread::run()
       if ( exec->in_debugger_holdlist() )
         exec->revive_debugged();
 
+      _variable_handles.reset();
+      _global_scope_handle = 0;
       exec->detach_debugger();
       _uoexec_wptr.clear();
     }
