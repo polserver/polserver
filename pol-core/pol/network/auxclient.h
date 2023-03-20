@@ -104,7 +104,7 @@ class AuxClientThread final : public Clib::SocketClientThread
 public:
   AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock );
   AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock, Bscript::BObjectImp* params,
-                   bool assume_string, bool keep_alive );
+                   bool assume_string, bool keep_alive, bool ignore_line_breaks );
   virtual void run() override;
   void transmit( const Bscript::BObjectImp* imp );
   Bscript::BObjectImp* get_ip();
@@ -121,6 +121,7 @@ private:
   bool _assume_string;
   std::atomic<int> _transmit_counter;
   bool _keep_alive;
+  bool _ignore_line_breaks;
 };
 }  // namespace Network
 }  // namespace Pol

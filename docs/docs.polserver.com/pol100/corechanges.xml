@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-28-2023</datemodified>
+		<datemodified>03-19-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>03-19-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">OpenConnection() now accepts an option for ignore_line_breaks. If set to 1, the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message.</change>
+		</entry>
 		<entry>
 			<date>02-28-2023</date>
 			<author>Kevin:</author>

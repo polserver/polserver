@@ -107,7 +107,8 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock )
 {
 }
 AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock,
-                                  Bscript::BObjectImp* params, bool assume_string, bool keep_alive )
+                                  Bscript::BObjectImp* params, bool assume_string, bool keep_alive,
+                                  bool ignore_line_breaks )
     : SocketClientThread( std::move( sock ) ),
       _auxservice( nullptr ),
       _auxconnection(),
@@ -116,7 +117,8 @@ AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock
       _params( params ),
       _assume_string( assume_string ),
       _transmit_counter( 0 ),
-      _keep_alive( keep_alive )
+      _keep_alive( keep_alive ),
+      _ignore_line_breaks( ignore_line_breaks )
 {
 }
 
@@ -185,11 +187,22 @@ void AuxClientThread::run()
 
   std::string tmp;
   bool result, timeout_exit;
-  Clib::SocketLineReader linereader( _sck, 5, 0, !_keep_alive );
+
+  std::unique_ptr<Clib::SocketReader> reader;
+
+  if ( _ignore_line_breaks )
+  {
+    reader = std::make_unique<Clib::SocketByteReader>( _sck, 5, !_keep_alive );
+  }
+  else
+  {
+    reader = std::make_unique<Clib::SocketLineReader>( _sck, 5, 0, !_keep_alive );
+  }
+
   for ( ;; )
   {
-    result = linereader.readline( tmp, &timeout_exit );
-    if ( !result && !timeout_exit && !_keep_alive )
+    result = reader->read( tmp, &timeout_exit );
+    if ( Clib::exit_signalled || ( !result && !timeout_exit && !_keep_alive ) )
       break;
 
     Core::PolLock lock;
@@ -238,7 +251,12 @@ void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 void AuxClientThread::transmit( const std::string& msg )
 {
   if ( _sck.connected() )
-    writeline( _sck, msg );
+  {
+    if ( _ignore_line_breaks )
+      _sck.write( msg );
+    else
+      writeline( _sck, msg );
+  }
   --_transmit_counter;
 }
 

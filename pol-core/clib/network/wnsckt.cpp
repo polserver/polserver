@@ -661,7 +661,7 @@ bool is_invalid_readline_char( unsigned char c )
   return !isprint( c ) && c != '\n';
 }
 
-bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
+bool SocketLineReader::try_read( std::string& out, bool* timed_out )
 {
   if ( timed_out )
     *timed_out = false;
@@ -728,8 +728,32 @@ bool SocketLineReader::try_readline( std::string& out, bool* timed_out )
   return true;
 }
 
+bool SocketByteReader::try_read( std::string& out, bool* timed_out )
+{
+  if ( timed_out )
+    *timed_out = false;
+
+  std::array<char, 4096> buffer;
+
+  int res = -1;
+  if ( !_socket.has_incoming_data( _waitms, &res ) )
+  {
+    if ( timed_out )
+      *timed_out = true;
+    return false;
+  }
+  int bytes_read = -1;
+  if ( !_socket.recvdata_nowait( buffer.data(), static_cast<unsigned>( buffer.size() ),
+                                 &bytes_read ) )
+    return false;
+
+  out = std::string( buffer.data(), bytes_read );
+
+  return true;
+}
+
 // Blocks until a whole line is received, waitms are over or maxlen is reached
-bool SocketLineReader::readline( std::string& out, bool* timed_out )
+bool SocketReader::read( std::string& out, bool* timed_out )
 {
   out = "";
   if ( timed_out )
@@ -741,12 +765,12 @@ bool SocketLineReader::readline( std::string& out, bool* timed_out )
   int timeout_left = max_timeouts;
   while ( !Clib::exit_signalled && _socket.connected() )
   {
-    if ( try_readline( out, &single_timed_out ) )
+    if ( try_read( out, &single_timed_out ) )
     {
       return true;
     }
 
-    // if try_readline() is false, string "out" should be empty unless the maxlen was reached.
+    // if try_read() is false, string "out" should be empty unless the maxlen was reached.
     if ( !out.empty() )
     {
       _socket.close();
