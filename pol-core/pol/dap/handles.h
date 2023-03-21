@@ -26,7 +26,7 @@ namespace DAP
 struct GlobalReference
 {
 };
-using FrameReference = size_t;
+using FrameReference = std::size_t;
 using VariableReference = Pol::Bscript::BObjectRef;
 
 using Reference = std::variant<GlobalReference, FrameReference, VariableReference>;
