@@ -16,7 +16,8 @@ namespace Pol
 namespace Bscript
 {
 class BObjectRef;
-}
+class BObjectImp;
+}  // namespace Bscript
 
 namespace Network
 {
