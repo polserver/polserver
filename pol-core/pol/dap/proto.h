@@ -27,7 +27,7 @@ class PolLaunchRequest : public LaunchRequest
 {
 public:
   string program;
-  optional<array<string>> args;
+  optional<string> arg;
 };
 
 DAP_DECLARE_STRUCT_TYPEINFO( PolLaunchRequest );

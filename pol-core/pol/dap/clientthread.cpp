@@ -103,15 +103,9 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 
   Module::UOExecutorModule* new_uoemod;
 
-  if ( request.args.has_value() )
+  if ( request.arg.has_value() && request.arg->length() > 0 )
   {
-    std::unique_ptr<ObjArray> arr( new ObjArray );
-
-    for ( const auto& packed_value : request.args.value() )
-    {
-      arr->addElement( BObjectImp::unpack( packed_value.c_str() ) );
-    }
-    new_uoemod = Core::start_script( sd, arr.release() );
+    new_uoemod = Core::start_script( sd, BObjectImp::unpack( request.arg->c_str() ) );
   }
   else
   {
