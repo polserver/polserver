@@ -27,7 +27,7 @@ DebugServer::DebugServer()
       _server->start( address, Plib::systemstate.config.dap_debug_port,
                       []( const std::shared_ptr<dap::ReaderWriter>& rw )
                       {
-                        auto client = std::make_shared<ClientThread>( rw );
+                        auto client = std::make_shared<DebugClientThread>( rw );
                         Core::networkManager.auxthreadpool->push( [=]() { client->run(); } );
                       } );
 

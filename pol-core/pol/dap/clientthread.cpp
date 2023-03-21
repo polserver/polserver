@@ -21,7 +21,7 @@ using namespace Core;
 using namespace Bscript;
 namespace DAP
 {
-ClientThread::ClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
+DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
     : _rw( rw ),
       _session( dap::Session::create() ),
       _uoexec_wptr( nullptr ),
@@ -29,7 +29,7 @@ ClientThread::ClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
 {
 }
 
-void ClientThread::on_halt()
+void DebugClientThread::on_halt()
 {
   dap::StoppedEvent event;
   event.reason = "pause";
@@ -37,7 +37,7 @@ void ClientThread::on_halt()
   _session->send( event );
 }
 
-void ClientThread::on_destroy()
+void DebugClientThread::on_destroy()
 {
   dap::ExitedEvent event;
   event.exitCode = 0;
@@ -47,13 +47,13 @@ void ClientThread::on_destroy()
   _rw->close();
 }
 
-dap::ConfigurationDoneResponse ClientThread::handle_configurationDone(
+dap::ConfigurationDoneResponse DebugClientThread::handle_configurationDone(
     const dap::ConfigurationDoneRequest& )
 {
   return dap::ConfigurationDoneResponse{};
 }
 
-dap::ResponseOrError<dap::AttachResponse> ClientThread::handle_attach(
+dap::ResponseOrError<dap::AttachResponse> DebugClientThread::handle_attach(
     const dap::PolAttachRequest& request )
 {
   PolLock lock;
@@ -91,7 +91,7 @@ dap::ResponseOrError<dap::AttachResponse> ClientThread::handle_attach(
   return dap::Error( "Unknown process id '%d'", int( pid ) );
 }
 
-dap::ResponseOrError<dap::LaunchResponse> ClientThread::handle_launch(
+dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
     const dap::PolLaunchRequest& request )
 {
   PolLock lock;
@@ -139,7 +139,7 @@ dap::ResponseOrError<dap::LaunchResponse> ClientThread::handle_launch(
   return dap::Error( "No debug information available." );
 }
 
-dap::ResponseOrError<dap::PolProcessesResponse> ClientThread::handle_processes(
+dap::ResponseOrError<dap::PolProcessesResponse> DebugClientThread::handle_processes(
     const dap::PolProcessesRequest& request )
 {
   PolLock lock;
@@ -161,7 +161,7 @@ dap::ResponseOrError<dap::PolProcessesResponse> ClientThread::handle_processes(
   return response;
 }
 
-dap::ResponseOrError<dap::ThreadsResponse> ClientThread::handle_threads(
+dap::ResponseOrError<dap::ThreadsResponse> DebugClientThread::handle_threads(
     const dap::ThreadsRequest& )
 {
   PolLock lock;
@@ -178,12 +178,12 @@ dap::ResponseOrError<dap::ThreadsResponse> ClientThread::handle_threads(
 }
 
 dap::ResponseOrError<dap::SetExceptionBreakpointsResponse>
-ClientThread::handle_setExceptionBreakpoints( const dap::SetExceptionBreakpointsRequest& )
+DebugClientThread::handle_setExceptionBreakpoints( const dap::SetExceptionBreakpointsRequest& )
 {
   return dap::SetExceptionBreakpointsResponse{};
 }
 
-dap::ResponseOrError<dap::ContinueResponse> ClientThread::handle_continue(
+dap::ResponseOrError<dap::ContinueResponse> DebugClientThread::handle_continue(
     const dap::ContinueRequest& )
 {
   PolLock lock;
@@ -205,7 +205,7 @@ dap::ResponseOrError<dap::ContinueResponse> ClientThread::handle_continue(
   return dap::ContinueResponse{};
 }
 
-dap::ResponseOrError<dap::PauseResponse> ClientThread::handle_pause( const dap::PauseRequest& )
+dap::ResponseOrError<dap::PauseResponse> DebugClientThread::handle_pause( const dap::PauseRequest& )
 {
   PolLock lock;
   if ( !_uoexec_wptr.exists() )
@@ -218,7 +218,7 @@ dap::ResponseOrError<dap::PauseResponse> ClientThread::handle_pause( const dap::
   return dap::PauseResponse{};
 }
 
-dap::ResponseOrError<dap::NextResponse> ClientThread::handle_next( const dap::NextRequest& )
+dap::ResponseOrError<dap::NextResponse> DebugClientThread::handle_next( const dap::NextRequest& )
 {
   PolLock lock;
   if ( !_uoexec_wptr.exists() )
@@ -239,7 +239,8 @@ dap::ResponseOrError<dap::NextResponse> ClientThread::handle_next( const dap::Ne
   return dap::NextResponse{};
 }
 
-dap::ResponseOrError<dap::StepInResponse> ClientThread::handle_stepIn( const dap::StepInRequest& )
+dap::ResponseOrError<dap::StepInResponse> DebugClientThread::handle_stepIn(
+    const dap::StepInRequest& )
 {
   PolLock lock;
   if ( !_uoexec_wptr.exists() )
@@ -260,7 +261,7 @@ dap::ResponseOrError<dap::StepInResponse> ClientThread::handle_stepIn( const dap
   return dap::StepInResponse{};
 }
 
-dap::ResponseOrError<dap::SetBreakpointsResponse> ClientThread::handle_setBreakpoints(
+dap::ResponseOrError<dap::SetBreakpointsResponse> DebugClientThread::handle_setBreakpoints(
     const dap::SetBreakpointsRequest& request )
 {
   PolLock lock;
@@ -332,7 +333,7 @@ dap::ResponseOrError<dap::SetBreakpointsResponse> ClientThread::handle_setBreakp
   return response;
 }
 
-dap::ResponseOrError<dap::SourceResponse> ClientThread::handle_source(
+dap::ResponseOrError<dap::SourceResponse> DebugClientThread::handle_source(
     const dap::SourceRequest& request )
 {
   PolLock lock;
@@ -361,7 +362,7 @@ dap::ResponseOrError<dap::SourceResponse> ClientThread::handle_source(
   return response;
 }
 
-dap::ResponseOrError<dap::StackTraceResponse> ClientThread::handle_stackTrace(
+dap::ResponseOrError<dap::StackTraceResponse> DebugClientThread::handle_stackTrace(
     const dap::StackTraceRequest& )
 {
   PolLock lock;
@@ -427,7 +428,7 @@ dap::ResponseOrError<dap::StackTraceResponse> ClientThread::handle_stackTrace(
   return response;
 }
 
-dap::ResponseOrError<dap::ScopesResponse> ClientThread::handle_scopes(
+dap::ResponseOrError<dap::ScopesResponse> DebugClientThread::handle_scopes(
     const dap::ScopesRequest& request )
 {
   PolLock lock;
@@ -475,7 +476,7 @@ dap::ResponseOrError<dap::ScopesResponse> ClientThread::handle_scopes(
   return response;
 }
 
-dap::ResponseOrError<dap::VariablesResponse> ClientThread::handle_variables(
+dap::ResponseOrError<dap::VariablesResponse> DebugClientThread::handle_variables(
     const dap::VariablesRequest& request )
 {
   PolLock lock;
@@ -602,7 +603,7 @@ dap::ResponseOrError<dap::VariablesResponse> ClientThread::handle_variables(
   return response;
 }
 
-dap::ResponseOrError<dap::InitializeResponse> ClientThread::handle_initialize(
+dap::ResponseOrError<dap::InitializeResponse> DebugClientThread::handle_initialize(
     const dap::PolInitializeRequest& request )
 {
   if ( !Plib::systemstate.config.debug_password.empty() &&
@@ -612,7 +613,7 @@ dap::ResponseOrError<dap::InitializeResponse> ClientThread::handle_initialize(
   return dap::InitializeResponse{};
 }
 
-dap::ResponseOrError<dap::StepOutResponse> ClientThread::handle_stepOut(
+dap::ResponseOrError<dap::StepOutResponse> DebugClientThread::handle_stepOut(
     const dap::StepOutRequest& )
 {
   PolLock lock;
@@ -634,7 +635,7 @@ dap::ResponseOrError<dap::StepOutResponse> ClientThread::handle_stepOut(
   return dap::StepOutResponse{};
 }
 
-dap::ResponseOrError<dap::DisconnectResponse> ClientThread::handle_disconnect(
+dap::ResponseOrError<dap::DisconnectResponse> DebugClientThread::handle_disconnect(
     const dap::DisconnectRequest& )
 {
   PolLock lock;
@@ -653,7 +654,7 @@ dap::ResponseOrError<dap::DisconnectResponse> ClientThread::handle_disconnect(
   return dap::DisconnectResponse{};
 }
 
-void ClientThread::after_pause( const dap::ResponseOrError<dap::PauseResponse>& )
+void DebugClientThread::after_pause( const dap::ResponseOrError<dap::PauseResponse>& )
 {
   PolLock lock;
   if ( !_uoexec_wptr.exists() )
@@ -670,7 +671,8 @@ void ClientThread::after_pause( const dap::ResponseOrError<dap::PauseResponse>& 
   on_halt();
 }
 
-void ClientThread::after_initialize( const dap::ResponseOrError<dap::InitializeResponse>& response )
+void DebugClientThread::after_initialize(
+    const dap::ResponseOrError<dap::InitializeResponse>& response )
 {
   if ( response.error )
     _rw->close();
@@ -678,12 +680,12 @@ void ClientThread::after_initialize( const dap::ResponseOrError<dap::InitializeR
     _session->send( dap::InitializedEvent() );
 }
 
-void ClientThread::after_disconnect( const dap::ResponseOrError<dap::DisconnectResponse>& )
+void DebugClientThread::after_disconnect( const dap::ResponseOrError<dap::DisconnectResponse>& )
 {
   _rw->close();
 }
 
-void ClientThread::after_attach( const dap::ResponseOrError<dap::AttachResponse>& )
+void DebugClientThread::after_attach( const dap::ResponseOrError<dap::AttachResponse>& )
 {
   PolLock lock;
   if ( _uoexec_wptr.exists() )
@@ -693,13 +695,13 @@ void ClientThread::after_attach( const dap::ResponseOrError<dap::AttachResponse>
     }
 }
 
-void ClientThread::on_error( const char* msg )
+void DebugClientThread::on_error( const char* msg )
 {
   POLLOG_ERROR << "Debugger session error: " << msg << "\n";
   _rw->close();
 }
 
-void ClientThread::run()
+void DebugClientThread::run()
 {
   POLLOG_INFO << "Debug client thread started.\n";
 

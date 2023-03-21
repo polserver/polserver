@@ -28,12 +28,12 @@ namespace Network
 {
 namespace DAP
 {
-class ClientThread : public Bscript::ExecutorDebugListener,
-                     public std::enable_shared_from_this<Bscript::ExecutorDebugListener>
+class DebugClientThread : public Bscript::ExecutorDebugListener,
+                          public std::enable_shared_from_this<Bscript::ExecutorDebugListener>
 {
 public:
-  ClientThread( const std::shared_ptr<dap::ReaderWriter>& rw );
-  virtual ~ClientThread() {}
+  DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw );
+  virtual ~DebugClientThread() {}
 
   void run();
 
