@@ -1,5 +1,5 @@
 set (pol_sources  # sorted !
-  CMakeSources.cmake 
+  CMakeSources.cmake
   PolMain.cpp
   PolMain.h
   StdAfx.h
@@ -59,6 +59,12 @@ set (pol_sources  # sorted !
   crypt/twofish.h
   ctable.cpp
   ctable.h
+  dap/clientthread.cpp
+  dap/clientthread.h
+  dap/handles.cpp
+  dap/handles.h
+  dap/proto.cpp
+  dap/proto.h
   dap/server.cpp
   dap/server.h
   dblclick.cpp
