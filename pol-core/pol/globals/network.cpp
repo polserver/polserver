@@ -102,7 +102,7 @@ void NetworkManager::initialize()
 {
   if ( Plib::systemstate.config.dap_debug_port )
   {
-    _dap_debug_server = std::make_unique<Network::DapDebugServer>();
+    _dap_debug_server = std::make_unique<Network::DAP::DebugServer>();
   }
 }
 
