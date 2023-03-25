@@ -103,7 +103,8 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock )
       _params( nullptr ),
       _assume_string( false ),
       _transmit_counter( 0 ),
-      _keep_alive( false )
+      _keep_alive( false ),
+      _ignore_line_breaks( false )
 {
 }
 AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock,
