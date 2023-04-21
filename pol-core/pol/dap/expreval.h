@@ -89,7 +89,7 @@ class ExpressionEvaluator
 public:
   ExpressionEvaluator()
       : _profile(),
-        _report( false ),
+        _report( false, false ),
         _ident( 0, "<eval>" ),
         _compiler_workspace( _report ),
         _cache( _profile ),

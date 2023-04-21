@@ -31,6 +31,7 @@ BObjectRef ExpressionEvaluator::evaluate( Core::UOExecutor* uoexec, Bscript::ESc
 {
   Compiler::SourceFile source_file( "<eval>", expression, _profile );
 
+  _report.reset();
   auto unit = source_file.get_evaluate_unit( _report );
   if ( unit == nullptr || _report.error_count() || !unit->expression() )
   {
