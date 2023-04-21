@@ -26,6 +26,9 @@ public:
   virtual void enterModuleUnit(EscriptParser::ModuleUnitContext * /*ctx*/) override { }
   virtual void exitModuleUnit(EscriptParser::ModuleUnitContext * /*ctx*/) override { }
 
+  virtual void enterEvaluateUnit(EscriptParser::EvaluateUnitContext * /*ctx*/) override { }
+  virtual void exitEvaluateUnit(EscriptParser::EvaluateUnitContext * /*ctx*/) override { }
+
   virtual void enterModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext * /*ctx*/) override { }
   virtual void exitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext * /*ctx*/) override { }
 

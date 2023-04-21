@@ -26,6 +26,8 @@ public:
 
     virtual antlrcpp::Any visitModuleUnit(EscriptParser::ModuleUnitContext *context) = 0;
 
+    virtual antlrcpp::Any visitEvaluateUnit(EscriptParser::EvaluateUnitContext *context) = 0;
+
     virtual antlrcpp::Any visitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *context) = 0;
 
     virtual antlrcpp::Any visitModuleFunctionDeclaration(EscriptParser::ModuleFunctionDeclarationContext *context) = 0;
