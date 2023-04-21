@@ -5,10 +5,10 @@
 #include <mutex>
 #include <string>
 
-#include <EscriptGrammar/EscriptLexer.h>
-#include <EscriptGrammar/EscriptParser.h>
 #include "bscript/compiler/file/ConformingCharStream.h"
 #include "bscript/compiler/file/ErrorListener.h"
+#include <EscriptGrammar/EscriptLexer.h>
+#include <EscriptGrammar/EscriptParser.h>
 
 namespace Pol::Bscript::Compiler
 {
@@ -30,8 +30,9 @@ public:
 
   EscriptGrammar::EscriptParser::CompilationUnitContext* get_compilation_unit(
       Report&, const SourceFileIdentifier& );
-  EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit(
-      Report&, const SourceFileIdentifier& );
+  EscriptGrammar::EscriptParser::ModuleUnitContext* get_module_unit( Report&,
+                                                                     const SourceFileIdentifier& );
+  EscriptGrammar::EscriptParser::EvaluateUnitContext* get_evaluate_unit( Report& );
 
   const std::string pathname;
 
@@ -47,6 +48,7 @@ private:
 
   std::atomic<EscriptGrammar::EscriptParser::CompilationUnitContext*> compilation_unit;
   std::atomic<EscriptGrammar::EscriptParser::ModuleUnitContext*> module_unit;
+  std::atomic<EscriptGrammar::EscriptParser::EvaluateUnitContext*> evaluate_unit;
 
   std::atomic<unsigned> access_count;
 };

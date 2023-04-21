@@ -3,6 +3,7 @@
 #include "../../bscript/bstruct.h"
 #include "../../bscript/dict.h"
 #include "../../bscript/eprog.h"
+#include "../../bscript/impstr.h"
 #include "../../clib/esignal.h"
 #include "../../clib/logfacility.h"
 #include "../../plib/systemstate.h"
@@ -10,21 +11,26 @@
 #include "../polsem.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
+#include "expreval.h"
 
 #include <fstream>
 
 namespace Pol
 {
-namespace Network
-{
 using namespace Core;
 using namespace Bscript;
+using namespace EscriptGrammar;
+using namespace Compiler;
+
+namespace Network
+{
 namespace DAP
 {
 DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
     : _rw( rw ),
       _session( dap::Session::create() ),
       _uoexec_wptr( nullptr ),
+      _expression_evaluator(),
       _global_scope_handle( 0 )
 {
 }
@@ -210,6 +216,31 @@ dap::ResponseOrError<dap::PauseResponse> DebugClientThread::handle_pause( const 
   UOExecutor* exec = _uoexec_wptr.get_weakptr();
   exec->dbg_break();
   return dap::PauseResponse{};
+}
+
+dap::ResponseOrError<dap::EvaluateResponse> DebugClientThread::handle_evaluate(
+    const dap::EvaluateRequest& request )
+{
+  PolLock lock;
+  if ( !_uoexec_wptr.exists() )
+  {
+    return dap::Error( "No script attached." );
+  }
+
+  BObjectRef result;
+  try
+  {
+    result = _expression_evaluator.evaluate( _uoexec_wptr.get_weakptr(), _script.get(),
+                                             request.expression );
+  }
+  catch ( std::exception& ex )
+  {
+    return dap::Error( ex.what() );
+  }
+
+  dap::EvaluateResponse response;
+  _variable_handles.set_response_details( result, response );
+  return response;
 }
 
 dap::ResponseOrError<dap::NextResponse> DebugClientThread::handle_next( const dap::NextRequest& )
@@ -517,7 +548,7 @@ dap::ResponseOrError<dap::VariablesResponse> DebugClientThread::handle_variables
 
             if ( idx < uoexec->Globals2.size() )
             {
-              _variable_handles.add_variable_details( uoexec->Globals2[idx], current_var );
+              _variable_handles.set_response_details( uoexec->Globals2[idx], current_var );
             }
 
             response.variables.push_back( current_var );
@@ -581,7 +612,7 @@ dap::ResponseOrError<dap::VariablesResponse> DebugClientThread::handle_variables
               dap::Variable current_var;
               current_var.name = progblock.localvarnames[varidx];
 
-              _variable_handles.add_variable_details( ptr, current_var );
+              _variable_handles.set_response_details( ptr, current_var );
 
               response.variables.push_back( current_var );
             }
@@ -732,6 +763,9 @@ void DebugClientThread::run()
 
     _session->registerHandler( [this]( const dap::PauseRequest& request )
                                { return handle_pause( request ); } );
+
+    _session->registerHandler( [this]( const dap::EvaluateRequest& request )
+                               { return handle_evaluate( request ); } );
 
     // After sending a PauseResponse, check if the script is paused. If so, send a StoppedEvent.
     _session->registerSentHandler(
