@@ -49,6 +49,7 @@ public:
   void set_response_details( const Bscript::BObjectRef& objref, T& variable );
 
   dap::array<dap::Variable> to_variables( const Bscript::BObjectRef& objref );
+  Bscript::BObjectRef set_index_or_member( const Bscript::BObjectRef& objref, const std::string& key, Bscript::BObjectRef& value );
 
 private:
   int _nextHandle;
@@ -58,7 +59,7 @@ private:
 template <typename T>
 void Handles::set_value( const std::string& string_rep, T& variable )
 {
-  if constexpr ( std::is_same_v<T, dap::Variable> )
+  if constexpr ( std::is_same_v<T, dap::Variable> || std::is_same_v<T, dap::SetVariableResponse> )
   {
     variable.value = string_rep;
   }

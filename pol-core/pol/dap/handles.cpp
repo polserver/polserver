@@ -33,7 +33,42 @@ Reference* Handles::get( int handle )
   return nullptr;
 }
 
-dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objref )
+BObjectRef Handles::set_index_or_member( const BObjectRef& objref, const std::string& key,
+                                         BObjectRef& value )
+{
+  auto impptr = objref->impptr();
+
+  if ( impptr != nullptr )
+  {
+    if ( impptr->isa( BObjectImp::OTStruct ) )
+    {
+      BStruct* bstruct = static_cast<BStruct*>( impptr );
+      bstruct->addMember( key.c_str(), value );
+      return value;
+    }
+    else if ( impptr->isa( BObjectImp::OTDictionary ) )
+    {
+      BDictionary* dict = static_cast<BDictionary*>( impptr );
+      dict->addMember( key.c_str(), value );
+      return value;
+    }
+    else if ( impptr->isa( BObjectImp::OTArray ) )
+    {
+      ObjArray* objarr = static_cast<ObjArray*>( impptr );
+      auto index = strtoul( key.c_str(), nullptr, 0 );
+      objarr->ref_arr.at( index ) = value;
+      return value;
+    }
+    else if ( impptr->isa( BObjectImp::OTApplicObj ) )
+    {
+      impptr->set_member( key.c_str(), value->impptr(), true );
+      return impptr->get_member( key.c_str() );
+    }
+  }
+  return BObjectRef( UninitObject::create() );
+}
+
+dap::array<dap::Variable> Handles::to_variables( const BObjectRef& objref )
 {
   dap::array<dap::Variable> variables;
   auto impptr = objref->impptr();
@@ -54,7 +89,7 @@ dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objr
     }
     else if ( impptr->isa( BObjectImp::OTDictionary ) )
     {
-      BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
+      BDictionary* dict = static_cast<BDictionary*>( impptr );
       for ( const auto& content : dict->contents() )
       {
         dap::Variable current_var;
@@ -65,7 +100,7 @@ dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objr
     }
     else if ( impptr->isa( BObjectImp::OTArray ) )
     {
-      ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
+      ObjArray* objarr = static_cast<ObjArray*>( impptr );
       size_t index = 1;
       for ( const auto& content : objarr->ref_arr )
       {

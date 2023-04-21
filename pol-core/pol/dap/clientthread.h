@@ -66,6 +66,7 @@ private:
       const dap::PolInitializeRequest& );
   dap::ResponseOrError<dap::DisconnectResponse> handle_disconnect( const dap::DisconnectRequest& );
   dap::ResponseOrError<dap::EvaluateResponse> handle_evaluate( const dap::EvaluateRequest& );
+  dap::ResponseOrError<dap::SetVariableResponse> handle_setVariable( const dap::SetVariableRequest& );
 
   // Sent handlers
   void after_pause( const dap::ResponseOrError<dap::PauseResponse>& );
