@@ -61,8 +61,6 @@ set (pol_sources  # sorted !
   ctable.h
   dap/clientthread.cpp
   dap/clientthread.h
-  dap/expreval.cpp
-  dap/expreval.h
   dap/handles.cpp
   dap/handles.h
   dap/proto.cpp

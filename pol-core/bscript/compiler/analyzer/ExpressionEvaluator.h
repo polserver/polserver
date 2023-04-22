@@ -1,45 +1,33 @@
-#ifndef DAP_EXPREVAL_H
-#define DAP_EXPREVAL_H
+#ifndef POLSERVER_EXPREVAL_H
+#define POLSERVER_EXPREVAL_H
 
-#include "../../bscript/compiler/Profile.h"
-#include "../../bscript/compiler/Report.h"
-#include "../../bscript/compiler/ast/NodeVisitor.h"
-#include "../../bscript/compiler/astbuilder/BuilderWorkspace.h"
-#include "../../bscript/compiler/astbuilder/ExpressionBuilder.h"
-#include "../../bscript/compiler/file/SourceFileCache.h"
-#include "../../bscript/compiler/file/SourceFileIdentifier.h"
-#include "../../bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/bobject.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
+#include "bscript/compiler/astbuilder/ExpressionBuilder.h"
+#include "bscript/compiler/file/SourceFileCache.h"
+#include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 
 #include <memory>
 #include <stack>
 
-namespace Pol
+
+namespace Pol::Bscript
 {
-namespace Bscript
-{
-class BObjectRef;
+class Executor;
 class EScriptProgram;
-namespace Compiler
-{
-class Identifier;
-}
-};  // namespace Bscript
-namespace Core
-{
-class UOExecutor;
-}  // namespace Core
-namespace Network
-{
-namespace DAP
+}  // namespace Pol::Bscript
+
+namespace Pol::Bscript::Compiler
 {
 
 class EvaluationVisitor : public Bscript::Compiler::NodeVisitor
 {
 public:
-  EvaluationVisitor( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script )
-      : _uoexec( uoexec ), _script( script )
-  {
-  }
+  EvaluationVisitor( Executor* exec, EScriptProgram* script );
 
   // Values
   void visit_element_access( Bscript::Compiler::ElementAccess& acc ) override;
@@ -74,12 +62,12 @@ public:
       Bscript::Compiler::VariableAssignmentStatement& ) override;
   void visit_conditional_operator( Bscript::Compiler::ConditionalOperator& ) override;
 
-  Bscript::BObjectRef& result();
+  BObjectRef& result();
 
 private:
-  Core::UOExecutor* _uoexec;
+  Executor* _exec;
   Bscript::EScriptProgram* _script;
-  std::stack<Bscript::BObjectRef> stack;
+  std::stack<BObjectRef> stack;
 
   void throw_invalid_expression() const;
 };
@@ -87,32 +75,21 @@ private:
 class ExpressionEvaluator
 {
 public:
-  ExpressionEvaluator()
-      : _profile(),
-        _report( false, false ),
-        _ident( 0, "<eval>" ),
-        _compiler_workspace( _report ),
-        _cache( _profile ),
-        _builder_workspace( _compiler_workspace, _cache, _cache, _profile, _report ),
-        _expression_builder( _ident, _builder_workspace )
-  {
-  }
+  ExpressionEvaluator();
+
   // Throws on errors (parsing, evaluation, ...)
-  Bscript::BObjectRef evaluate( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script,
+  Bscript::BObjectRef evaluate( Executor* uoexec, EScriptProgram* script,
                                 std::string expression );
 
 private:
-  Bscript::Compiler::Profile _profile;
-  Bscript::Compiler::Report _report;
+  Profile _profile;
+  Report _report;
 
-  Bscript::Compiler::SourceFileIdentifier _ident;
-  Bscript::Compiler::CompilerWorkspace _compiler_workspace;
-  Bscript::Compiler::SourceFileCache _cache;
-  Bscript::Compiler::BuilderWorkspace _builder_workspace;
-  Bscript::Compiler::ExpressionBuilder _expression_builder;
+  SourceFileIdentifier _ident;
+  CompilerWorkspace _compiler_workspace;
+  SourceFileCache _cache;
+  BuilderWorkspace _builder_workspace;
+  ExpressionBuilder _expression_builder;
 };
-
-}  // namespace DAP
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
 #endif

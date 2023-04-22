@@ -2,7 +2,7 @@
 #define DAP_CLIENTTHREAD_H
 
 #include "../uoexec.h"
-#include "expreval.h"
+#include "../../bscript/compiler/analyzer/ExpressionEvaluator.h"
 #include "handles.h"
 #include "proto.h"
 
@@ -83,7 +83,7 @@ private:
   weak_ptr<Core::UOExecutor> _uoexec_wptr;
   ref_ptr<Bscript::EScriptProgram> _script;
   Handles _variable_handles;
-  ExpressionEvaluator _expression_evaluator;
+  Bscript::Compiler::ExpressionEvaluator _expression_evaluator;
   int _global_scope_handle;
 };
 

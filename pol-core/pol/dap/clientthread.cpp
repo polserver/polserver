@@ -11,7 +11,6 @@
 #include "../polsem.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
-#include "expreval.h"
 
 #include <fstream>
 
@@ -466,6 +465,12 @@ dap::ResponseOrError<dap::SetBreakpointsResponse> DebugClientThread::handle_setB
 
   for ( size_t breakpoint_index = 0; breakpoint_index < breakpoints.size(); breakpoint_index++ )
   {
+    // Conditional breakpoints are not supported.
+    if (breakpoints[breakpoint_index].condition) {
+      response.breakpoints[breakpoint_index].verified = false;
+      continue;
+    }
+
     for ( unsigned i = 0; i < _script->dbg_filenum.size(); ++i )
     {
       if ( _script->dbg_filenum[i] == filenum &&

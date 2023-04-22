@@ -1,35 +1,37 @@
-#include "expreval.h"
+#include "ExpressionEvaluator.h"
 
-#include "../../bscript/bobject.h"
-#include "../../bscript/compiler/ast/ElementAccess.h"
-#include "../../bscript/compiler/ast/ElementIndexes.h"
-#include "../../bscript/compiler/ast/Expression.h"
-#include "../../bscript/compiler/ast/FloatValue.h"
-#include "../../bscript/compiler/ast/FunctionCall.h"
-#include "../../bscript/compiler/ast/FunctionReference.h"
-#include "../../bscript/compiler/ast/Identifier.h"
-#include "../../bscript/compiler/ast/IntegerValue.h"
-#include "../../bscript/compiler/ast/MemberAccess.h"
-#include "../../bscript/compiler/ast/StringValue.h"
-#include "../../bscript/compiler/file/SourceFile.h"
-#include "../../bscript/impstr.h"
-#include "../uoexec.h"
+#include "bscript/compiler/ast/ElementAccess.h"
+#include "bscript/compiler/ast/ElementIndexes.h"
+#include "bscript/compiler/ast/Expression.h"
+#include "bscript/compiler/ast/FloatValue.h"
+#include "bscript/compiler/ast/FunctionCall.h"
+#include "bscript/compiler/ast/FunctionReference.h"
+#include "bscript/compiler/ast/Identifier.h"
+#include "bscript/compiler/ast/IntegerValue.h"
+#include "bscript/compiler/ast/MemberAccess.h"
+#include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/file/SourceFile.h"
+#include "bscript/executor.h"
+#include "bscript/impstr.h"
 
-namespace Pol
-{
-namespace Network
-{
-namespace DAP
+namespace Pol::Bscript::Compiler
 {
 
-using namespace Bscript;
-using namespace EscriptGrammar;
-using namespace Compiler;
+ExpressionEvaluator::ExpressionEvaluator()
+    : _profile(),
+      _report( false, false ),
+      _ident( 0, "<eval>" ),
+      _compiler_workspace( _report ),
+      _cache( _profile ),
+      _builder_workspace( _compiler_workspace, _cache, _cache, _profile, _report ),
+      _expression_builder( _ident, _builder_workspace )
+{
+}
 
-BObjectRef ExpressionEvaluator::evaluate( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script,
+BObjectRef ExpressionEvaluator::evaluate( Executor* exec, EScriptProgram* script,
                                           std::string expression )
 {
-  Compiler::SourceFile source_file( "<eval>", expression, _profile );
+  SourceFile source_file( "<eval>", expression, _profile );
 
   _report.reset();
   auto unit = source_file.get_evaluate_unit( _report );
@@ -38,7 +40,7 @@ BObjectRef ExpressionEvaluator::evaluate( Core::UOExecutor* uoexec, Bscript::ESc
     throw std::runtime_error( "Invalid expression" );
   }
 
-  EvaluationVisitor visitor( uoexec, script );
+  EvaluationVisitor visitor( exec, script );
 
   auto expression_node = _expression_builder.expression( unit->expression() );
   expression_node->accept( visitor );
@@ -46,14 +48,19 @@ BObjectRef ExpressionEvaluator::evaluate( Core::UOExecutor* uoexec, Bscript::ESc
   return visitor.result();
 }
 
+EvaluationVisitor::EvaluationVisitor( Executor* exec, EScriptProgram* script )
+    : _exec( exec ), _script( script )
+{
+}
+
 void EvaluationVisitor::visit_identifier( Identifier& identifier )
 {
   visit_children( identifier );
-  BObjectRefVec::const_iterator itr = _uoexec->Globals2.begin(), end = _uoexec->Globals2.end();
+  BObjectRefVec::const_iterator itr = _exec->Globals2.begin(), end = _exec->Globals2.end();
   BObjectRef result;
 
-  unsigned block = _script->dbg_ins_blocks[_uoexec->PC];
-  size_t left = _uoexec->Locals2->size();
+  unsigned block = _script->dbg_ins_blocks[_exec->PC];
+  size_t left = _exec->Locals2->size();
 
   while ( left )
   {
@@ -64,7 +71,7 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
     size_t varidx = left - 1 - _script->blocks[block].parentvariables;
     if ( _script->blocks[block].localvarnames[varidx] == identifier.name )
     {
-      stack.push( ( *_uoexec->Locals2 )[left - 1] );
+      stack.push( ( *_exec->Locals2 )[left - 1] );
       return;
     }
     --left;
@@ -75,7 +82,7 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
   {
     if ( _script->globalvarnames.size() > idx && _script->globalvarnames[idx] == identifier.name )
     {
-      stack.push( _uoexec->Globals2[idx] );
+      stack.push( _exec->Globals2[idx] );
       return;
     }
   }
@@ -265,6 +272,4 @@ void EvaluationVisitor::throw_invalid_expression() const
   throw std::runtime_error( "Unsupported expression" );
 }
 
-}  // namespace DAP
-}  // namespace Network
-}  // namespace Pol
+}  // namespace Pol::Bscript::Compiler
