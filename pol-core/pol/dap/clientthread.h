@@ -1,8 +1,8 @@
 #ifndef DAP_CLIENTTHREAD_H
 #define DAP_CLIENTTHREAD_H
 
-#include "../uoexec.h"
 #include "../../bscript/compiler/analyzer/ExpressionEvaluator.h"
+#include "../uoexec.h"
 #include "handles.h"
 #include "proto.h"
 
@@ -66,7 +66,8 @@ private:
       const dap::PolInitializeRequest& );
   dap::ResponseOrError<dap::DisconnectResponse> handle_disconnect( const dap::DisconnectRequest& );
   dap::ResponseOrError<dap::EvaluateResponse> handle_evaluate( const dap::EvaluateRequest& );
-  dap::ResponseOrError<dap::SetVariableResponse> handle_setVariable( const dap::SetVariableRequest& );
+  dap::ResponseOrError<dap::SetVariableResponse> handle_setVariable(
+      const dap::SetVariableRequest& );
 
   // Sent handlers
   void after_pause( const dap::ResponseOrError<dap::PauseResponse>& );

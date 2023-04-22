@@ -49,7 +49,8 @@ public:
   void set_response_details( const Bscript::BObjectRef& objref, T& variable );
 
   dap::array<dap::Variable> to_variables( const Bscript::BObjectRef& objref );
-  Bscript::BObjectRef set_index_or_member( const Bscript::BObjectRef& objref, const std::string& key, Bscript::BObjectRef& value );
+  Bscript::BObjectRef set_index_or_member( const Bscript::BObjectRef& objref,
+                                           const std::string& key, Bscript::BObjectRef& value );
 
 private:
   int _nextHandle;
