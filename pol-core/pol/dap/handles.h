@@ -14,15 +14,35 @@
 
 namespace Pol
 {
+namespace Bscript
+{
+class EScriptProgram;
+}
+namespace Core
+{
+class UOExecutor;
+}  // namespace Core
 namespace Network
 {
 namespace DAP
 {
-struct GlobalReference
+class GlobalReference
 {
+public:
+  GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script );
+
+  std::map<std::string, Bscript::BObjectRef*> contents;
 };
-using FrameReference = std::size_t;
-using VariableReference = Pol::Bscript::BObjectRef;
+
+class FrameReference
+{
+public:
+  FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script, size_t frameId );
+
+  std::map<std::string, Bscript::BObjectRef*> contents;
+};
+
+using VariableReference = Bscript::BObjectRef;
 
 using Reference = std::variant<GlobalReference, FrameReference, VariableReference>;
 

@@ -1,5 +1,7 @@
 #include "handles.h"
 
+#include "../../bscript/eprog.h"
+#include "../uoexec.h"
 namespace Pol
 {
 namespace Network
@@ -130,6 +132,75 @@ dap::array<dap::Variable> Handles::to_variables( const BObjectRef& objref )
     }
   }
   return variables;
+}
+
+FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script,
+                                size_t frameId )
+    : contents()
+{
+  if ( frameId > uoexec->ControlStack.size() )
+  {
+    throw std::runtime_error( "Invalid frame id" );
+  }
+
+  std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
+  std::vector<ReturnContext> stack = uoexec->ControlStack;
+
+  unsigned int PC;
+
+  {
+    ReturnContext rc;
+    rc.PC = uoexec->PC;
+    rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
+    stack.push_back( rc );
+  }
+
+  upperLocals2.push_back( uoexec->Locals2 );
+
+  auto currentFrameId = stack.size();
+
+  while ( --currentFrameId, !stack.empty() )
+  {
+    ReturnContext& rc = stack.back();
+    BObjectRefVec* Locals2 = upperLocals2.back();
+    PC = rc.PC;
+    stack.pop_back();
+    upperLocals2.pop_back();
+
+    if ( frameId != currentFrameId )
+    {
+      continue;
+    }
+
+    size_t left = Locals2->size();
+
+    unsigned block = _script->dbg_ins_blocks[PC];
+    while ( left )
+    {
+      while ( left <= _script->blocks[block].parentvariables )
+      {
+        block = _script->blocks[block].parentblockidx;
+      }
+      const EPDbgBlock& progblock = _script->blocks[block];
+      size_t varidx = left - 1 - progblock.parentvariables;
+      left--;
+      contents[progblock.localvarnames[varidx]] = &( *Locals2 )[left];
+    }
+  }
+}
+
+GlobalReference::GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script )
+    : contents()
+{
+  BObjectRefVec::iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
+
+  for ( unsigned idx = 0; itr != end; ++itr, ++idx )
+  {
+    if ( _script->globalvarnames.size() > idx )
+    {
+      contents[_script->globalvarnames[idx]] = &( *itr );
+    }
+  }
 }
 }  // namespace DAP
 }  // namespace Network

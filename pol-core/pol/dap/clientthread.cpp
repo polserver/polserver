@@ -251,8 +251,6 @@ dap::ResponseOrError<dap::SetVariableResponse> DebugClientThread::handle_setVari
     return dap::Error( "No script attached." );
   }
 
-  UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
-
   BObjectRef value;
   try
   {
@@ -277,80 +275,14 @@ dap::ResponseOrError<dap::SetVariableResponse> DebugClientThread::handle_setVari
       [&]( auto&& arg )
       {
         using T = std::decay_t<decltype( arg )>;
-        if constexpr ( std::is_same_v<T, GlobalReference> )
+        if constexpr ( (std::is_same_v<T, GlobalReference> || std::is_same_v<T, FrameReference>))
         {
-          BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(),
-                                        end = uoexec->Globals2.end();
-
-          for ( unsigned idx = 0; itr != end; ++itr, ++idx )
+          for ( auto& [key, member] : arg.contents )
           {
-            if ( _script->globalvarnames.size() > idx &&
-                 _script->globalvarnames[idx] == request.name )
+            if ( key == request.name )
             {
-              BObjectRef& target = uoexec->Globals2[idx];
-              target = value;
+              *member = value;
               _variable_handles.set_response_details( value, response );
-            }
-          }
-        }
-        else if constexpr ( std::is_same_v<T, FrameReference> )
-        {
-          std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
-          std::vector<ReturnContext> stack = uoexec->ControlStack;
-
-          unsigned int PC;
-
-          {
-            ReturnContext rc;
-            rc.PC = uoexec->PC;
-            rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
-            stack.push_back( rc );
-          }
-
-          auto frameId = arg;
-
-          if ( frameId > uoexec->ControlStack.size() )
-          {
-            // FIXME: Add an error?
-            return;
-          }
-
-          upperLocals2.push_back( uoexec->Locals2 );
-
-          auto currentFrameId = stack.size();
-
-          while ( --currentFrameId, !stack.empty() )
-          {
-            ReturnContext& rc = stack.back();
-            BObjectRefVec* Locals2 = upperLocals2.back();
-            PC = rc.PC;
-            stack.pop_back();
-            upperLocals2.pop_back();
-
-            if ( frameId != currentFrameId )
-            {
-              continue;
-            }
-
-            size_t left = Locals2->size();
-
-            unsigned block = _script->dbg_ins_blocks[PC];
-            while ( left )
-            {
-              while ( left <= _script->blocks[block].parentvariables )
-              {
-                block = _script->blocks[block].parentblockidx;
-              }
-              const EPDbgBlock& progblock = _script->blocks[block];
-              size_t varidx = left - 1 - progblock.parentvariables;
-              left--;
-
-              if ( progblock.localvarnames[varidx] == request.name )
-              {
-                auto& target = ( *Locals2 )[left];
-                target = value;
-                _variable_handles.set_response_details( value, response );
-              }
             }
           }
         }
@@ -466,7 +398,8 @@ dap::ResponseOrError<dap::SetBreakpointsResponse> DebugClientThread::handle_setB
   for ( size_t breakpoint_index = 0; breakpoint_index < breakpoints.size(); breakpoint_index++ )
   {
     // Conditional breakpoints are not supported.
-    if (breakpoints[breakpoint_index].condition) {
+    if ( breakpoints[breakpoint_index].condition )
+    {
       response.breakpoints[breakpoint_index].verified = false;
       continue;
     }
@@ -606,7 +539,7 @@ dap::ResponseOrError<dap::ScopesResponse> DebugClientThread::handle_scopes(
 
   if ( !_global_scope_handle )
   {
-    _global_scope_handle = _variable_handles.create( GlobalReference{} );
+    _global_scope_handle = _variable_handles.create( GlobalReference( uoexec, _script.get() ) );
   }
 
   dap::ScopesResponse response;
@@ -615,7 +548,8 @@ dap::ResponseOrError<dap::ScopesResponse> DebugClientThread::handle_scopes(
     dap::Scope scope;
     scope.name = "Locals @ " + Clib::tostring( frameId );
     scope.presentationHint = "locals";
-    scope.variablesReference = _variable_handles.create( frameId - 1 );
+    scope.variablesReference =
+        _variable_handles.create( FrameReference( uoexec, _script.get(), frameId - 1 ) );
     response.scopes.push_back( scope );
   }
 
@@ -657,93 +591,14 @@ dap::ResponseOrError<dap::VariablesResponse> DebugClientThread::handle_variables
       [&]( auto&& arg )
       {
         using T = std::decay_t<decltype( arg )>;
-        if constexpr ( std::is_same_v<T, GlobalReference> )
+        if constexpr ( (std::is_same_v<T, GlobalReference>) || (std::is_same_v<T, FrameReference>))
         {
-          BObjectRefVec::const_iterator itr = uoexec->Globals2.begin(),
-                                        end = uoexec->Globals2.end();
-
-          for ( unsigned idx = 0; itr != end; ++itr, ++idx )
+          for ( auto const& [key, member] : arg.contents )
           {
             dap::Variable current_var;
-            if ( _script->globalvarnames.size() > idx )
-            {
-              current_var.name = _script->globalvarnames[idx];
-            }
-            else
-            {
-              current_var.name = Clib::tostring( idx );
-            }
-
-            if ( idx < uoexec->Globals2.size() )
-            {
-              _variable_handles.set_response_details( uoexec->Globals2[idx], current_var );
-            }
-
-            response.variables.push_back( current_var );
-          }
-        }
-        else if constexpr ( std::is_same_v<T, FrameReference> )
-        {
-          std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
-          std::vector<ReturnContext> stack = uoexec->ControlStack;
-
-          unsigned int PC;
-
-          {
-            ReturnContext rc;
-            rc.PC = uoexec->PC;
-            rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
-            stack.push_back( rc );
-          }
-
-          auto frameId = arg;
-
-          if ( frameId > uoexec->ControlStack.size() )
-          {
-            // FIXME: Add an error?
-            // dap::Error( "Unknown variablesReference '%d', frameId '%d'", int(
-            //  request.variablesReference ), int( frameId ) );
-            return;
-          }
-
-          upperLocals2.push_back( uoexec->Locals2 );
-
-          auto currentFrameId = stack.size();
-
-          while ( --currentFrameId, !stack.empty() )
-          {
-            ReturnContext& rc = stack.back();
-            BObjectRefVec* Locals2 = upperLocals2.back();
-            PC = rc.PC;
-            stack.pop_back();
-            upperLocals2.pop_back();
-
-            if ( frameId != currentFrameId )
-            {
-              continue;
-            }
-
-            size_t left = Locals2->size();
-
-            unsigned block = _script->dbg_ins_blocks[PC];
-            while ( left )
-            {
-              while ( left <= _script->blocks[block].parentvariables )
-              {
-                block = _script->blocks[block].parentblockidx;
-              }
-              const EPDbgBlock& progblock = _script->blocks[block];
-              size_t varidx = left - 1 - progblock.parentvariables;
-              left--;
-              const auto& ptr = ( *Locals2 )[left];
-
-              dap::Variable current_var;
-              current_var.name = progblock.localvarnames[varidx];
-
-              _variable_handles.set_response_details( ptr, current_var );
-
-              response.variables.push_back( current_var );
-            }
+            current_var.name = key;
+            _variable_handles.set_response_details( *member, current_var );
+            response.variables.push_back( std::move( current_var ) );
           }
         }
         else if constexpr ( std::is_same_v<T, VariableReference> )
