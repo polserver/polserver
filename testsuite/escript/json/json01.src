@@ -17,4 +17,20 @@ program main()
     print(TypeOfInt(obj.d) == OT_STRUCT);
     print(obj.d.size() == 1);
     print(obj.d.key == "value");
+
+    var json_prettified := PackJSON(expr, 1);
+    var expected_prettified :=
+"{
+  \"a\": \"hello there\",
+  \"b\": true,
+  \"c\": [
+    false,
+    null
+  ],
+  \"d\": {
+    \"key\": \"value\"
+  }
+}
+";
+    print($"{(expected_prettified) == (json_prettified)}");
 endprogram

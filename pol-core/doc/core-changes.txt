@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+04-23-2023 Kevin:
+    Added: PackJSON() now accepts an option for `prettify`. If true, the output string will be indented with new lines.
 03-19-2023 Kevin:
     Added: OpenConnection() now accepts an option for ignore_line_breaks. If set to 1, the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message.
 02-28-2023 Kevin:

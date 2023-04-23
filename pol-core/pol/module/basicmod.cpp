@@ -628,9 +628,10 @@ picojson::value recurseE2J( BObjectImp* v )
 Bscript::BObjectImp* BasicExecutorModule::mf_PackJSON()
 {
   BObjectImp* imp = exec.getParamImp( 0 );
-  return new String( recurseE2J( imp ).serialize() );
-}
+  auto prettify = exec.getParamImp( 1 )->isTrue();
 
+  return new String( recurseE2J( imp ).serialize( prettify ) );
+}
 
 Bscript::BObjectImp* recurseJ2E( const picojson::value& v )
 {
