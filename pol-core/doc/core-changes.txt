@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+04-04-2023 Turley:
+    Fixed: Crash when EventQueue is full due to SpeechEvents
 04-23-2023 Kevin:
     Added: PackJSON() now accepts an option for `prettify`. If true, the output string will be indented with new lines.
 03-19-2023 Kevin:
