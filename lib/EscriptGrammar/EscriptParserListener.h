@@ -24,6 +24,9 @@ public:
   virtual void enterModuleUnit(EscriptParser::ModuleUnitContext *ctx) = 0;
   virtual void exitModuleUnit(EscriptParser::ModuleUnitContext *ctx) = 0;
 
+  virtual void enterEvaluateUnit(EscriptParser::EvaluateUnitContext *ctx) = 0;
+  virtual void exitEvaluateUnit(EscriptParser::EvaluateUnitContext *ctx) = 0;
+
   virtual void enterModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *ctx) = 0;
   virtual void exitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *ctx) = 0;
 
