@@ -1,0 +1,35 @@
+use npc;
+use os;
+use uo;
+
+const SYSEVENT_SPEECH := 0x00000001;
+
+program ai()
+  var me:=Self();
+  EnableEvents(SYSEVENT_SPEECH, 12);
+
+  var queue_size := GetObjProperty(me, "EventSize");
+
+  print($"Got queue_size {queue_size}");
+
+  if (queue_size != error)
+    print($"Set queue_size to {queue_size}");
+    Set_Event_Queue_Size(queue_size);
+  endif
+
+  while (1)
+    // We use wait_for_event(0) with Sleep() because events are not queued if
+    // the script is _actively_ waiting for events. This forces queuing in order to
+    // test issues with queued events.
+    var ev := os::wait_for_event(0);
+
+    case(ev.type)
+      SYSEVENT_SPEECH:
+        var tokens := ev.tokens;
+        tokens.sort();
+        // This needs to match what's tested in test_client's say_something_with_tokens
+        Say($"source=[npc] text=[{ev.text}] tokens=[{tokens}]");
+    endcase
+    Sleep(1);
+  endwhile
+endprogram
