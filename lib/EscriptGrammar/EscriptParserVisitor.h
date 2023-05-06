@@ -26,6 +26,8 @@ public:
 
     virtual std::any visitModuleUnit(EscriptParser::ModuleUnitContext *context) = 0;
 
+    virtual std::any visitEvaluateUnit(EscriptParser::EvaluateUnitContext *context) = 0;
+
     virtual std::any visitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *context) = 0;
 
     virtual std::any visitModuleFunctionDeclaration(EscriptParser::ModuleFunctionDeclarationContext *context) = 0;

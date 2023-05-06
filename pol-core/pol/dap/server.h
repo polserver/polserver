@@ -1,5 +1,5 @@
-#ifndef POLDBGDAP_H
-#define POLDBGDAP_H
+#ifndef DAP_SERVER_H
+#define DAP_SERVER_H
 
 #include <memory>
 

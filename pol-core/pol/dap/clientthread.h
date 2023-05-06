@@ -1,10 +1,10 @@
 #ifndef DAP_CLIENTTHREAD_H
 #define DAP_CLIENTTHREAD_H
 
+#include "../../bscript/compiler/analyzer/ExpressionEvaluator.h"
+#include "../uoexec.h"
 #include "handles.h"
 #include "proto.h"
-
-#include "../uoexec.h"
 
 #include <dap/session.h>
 #include <memory>
@@ -65,6 +65,9 @@ private:
   dap::ResponseOrError<dap::InitializeResponse> handle_initialize(
       const dap::PolInitializeRequest& );
   dap::ResponseOrError<dap::DisconnectResponse> handle_disconnect( const dap::DisconnectRequest& );
+  dap::ResponseOrError<dap::EvaluateResponse> handle_evaluate( const dap::EvaluateRequest& );
+  dap::ResponseOrError<dap::SetVariableResponse> handle_setVariable(
+      const dap::SetVariableRequest& );
 
   // Sent handlers
   void after_pause( const dap::ResponseOrError<dap::PauseResponse>& );
@@ -81,6 +84,7 @@ private:
   weak_ptr<Core::UOExecutor> _uoexec_wptr;
   ref_ptr<Bscript::EScriptProgram> _script;
   Handles _variable_handles;
+  Bscript::Compiler::ExpressionEvaluator _expression_evaluator;
   int _global_scope_handle;
 };
 

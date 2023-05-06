@@ -28,6 +28,7 @@ SourceFile::SourceFile( const std::string& pathname, const std::string& contents
       error_listener( pathname, profile ),
       compilation_unit( nullptr ),
       module_unit( nullptr ),
+      evaluate_unit( nullptr ),
       access_count( 0 )
 {
   input.name = pathname;
@@ -130,6 +131,20 @@ EscriptGrammar::EscriptParser::ModuleUnitContext* SourceFile::get_module_unit(
   ++access_count;
   propagate_errors_to( report, ident );
   return module_unit;
+}
+
+EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_unit(
+    Report& report )
+{
+  if ( !evaluate_unit )
+  {
+    std::lock_guard<std::mutex> guard( mutex );
+    if ( !evaluate_unit )
+      evaluate_unit = parser.evaluateUnit();
+  }
+  ++access_count;
+  propagate_errors_to( report, SourceFileIdentifier( 0, "<eval>" ) );
+  return evaluate_unit;
 }
 
 /**

@@ -10,6 +10,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp
   compiler/analyzer/Disambiguator.h
+  compiler/analyzer/ExpressionEvaluator.cpp
+  compiler/analyzer/ExpressionEvaluator.h
   compiler/analyzer/FlowControlScope.cpp
   compiler/analyzer/FlowControlScope.h
   compiler/analyzer/FlowControlScopes.cpp
