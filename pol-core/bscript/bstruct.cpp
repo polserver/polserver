@@ -262,7 +262,7 @@ BObjectRef BStruct::OperSubscript( const BObject& obj )
   }
   else if ( obj->isa( OTLong ) )
   {
-    throw std::runtime_error( "some fool used operator[] on a struct, with an Integer index" );
+    throw std::runtime_error( "Struct members cannot be accessed by an integer index" );
   }
   else
   {

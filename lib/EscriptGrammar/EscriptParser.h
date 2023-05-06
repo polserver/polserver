@@ -43,33 +43,33 @@ public:
   };
 
   enum {
-    RuleCompilationUnit = 0, RuleModuleUnit = 1, RuleModuleDeclarationStatement = 2, 
-    RuleModuleFunctionDeclaration = 3, RuleModuleFunctionParameterList = 4, 
-    RuleModuleFunctionParameter = 5, RuleTopLevelDeclaration = 6, RuleFunctionDeclaration = 7, 
-    RuleStringIdentifier = 8, RuleUseDeclaration = 9, RuleIncludeDeclaration = 10, 
-    RuleProgramDeclaration = 11, RuleStatement = 12, RuleStatementLabel = 13, 
-    RuleIfStatement = 14, RuleGotoStatement = 15, RuleReturnStatement = 16, 
-    RuleConstStatement = 17, RuleVarStatement = 18, RuleDoStatement = 19, 
-    RuleWhileStatement = 20, RuleExitStatement = 21, RuleBreakStatement = 22, 
-    RuleContinueStatement = 23, RuleForStatement = 24, RuleForeachIterableExpression = 25, 
-    RuleForeachStatement = 26, RuleRepeatStatement = 27, RuleCaseStatement = 28, 
-    RuleEnumStatement = 29, RuleBlock = 30, RuleVariableDeclarationInitializer = 31, 
-    RuleEnumList = 32, RuleEnumListEntry = 33, RuleSwitchBlockStatementGroup = 34, 
-    RuleSwitchLabel = 35, RuleForGroup = 36, RuleBasicForStatement = 37, 
-    RuleCstyleForStatement = 38, RuleIdentifierList = 39, RuleVariableDeclarationList = 40, 
-    RuleConstantDeclaration = 41, RuleVariableDeclaration = 42, RuleProgramParameters = 43, 
-    RuleProgramParameterList = 44, RuleProgramParameter = 45, RuleFunctionParameters = 46, 
-    RuleFunctionParameterList = 47, RuleFunctionParameter = 48, RuleScopedFunctionCall = 49, 
-    RuleFunctionReference = 50, RuleExpression = 51, RulePrimary = 52, RuleExplicitArrayInitializer = 53, 
-    RuleExplicitStructInitializer = 54, RuleExplicitDictInitializer = 55, 
-    RuleExplicitErrorInitializer = 56, RuleBareArrayInitializer = 57, RuleParExpression = 58, 
-    RuleExpressionList = 59, RuleExpressionSuffix = 60, RuleIndexingSuffix = 61, 
-    RuleNavigationSuffix = 62, RuleMethodCallSuffix = 63, RuleFunctionCall = 64, 
-    RuleStructInitializerExpression = 65, RuleStructInitializerExpressionList = 66, 
-    RuleStructInitializer = 67, RuleDictInitializerExpression = 68, RuleDictInitializerExpressionList = 69, 
-    RuleDictInitializer = 70, RuleArrayInitializer = 71, RuleLiteral = 72, 
-    RuleInterpolatedString = 73, RuleInterpolatedStringPart = 74, RuleIntegerLiteral = 75, 
-    RuleFloatLiteral = 76
+    RuleCompilationUnit = 0, RuleModuleUnit = 1, RuleEvaluateUnit = 2, RuleModuleDeclarationStatement = 3, 
+    RuleModuleFunctionDeclaration = 4, RuleModuleFunctionParameterList = 5, 
+    RuleModuleFunctionParameter = 6, RuleTopLevelDeclaration = 7, RuleFunctionDeclaration = 8, 
+    RuleStringIdentifier = 9, RuleUseDeclaration = 10, RuleIncludeDeclaration = 11, 
+    RuleProgramDeclaration = 12, RuleStatement = 13, RuleStatementLabel = 14, 
+    RuleIfStatement = 15, RuleGotoStatement = 16, RuleReturnStatement = 17, 
+    RuleConstStatement = 18, RuleVarStatement = 19, RuleDoStatement = 20, 
+    RuleWhileStatement = 21, RuleExitStatement = 22, RuleBreakStatement = 23, 
+    RuleContinueStatement = 24, RuleForStatement = 25, RuleForeachIterableExpression = 26, 
+    RuleForeachStatement = 27, RuleRepeatStatement = 28, RuleCaseStatement = 29, 
+    RuleEnumStatement = 30, RuleBlock = 31, RuleVariableDeclarationInitializer = 32, 
+    RuleEnumList = 33, RuleEnumListEntry = 34, RuleSwitchBlockStatementGroup = 35, 
+    RuleSwitchLabel = 36, RuleForGroup = 37, RuleBasicForStatement = 38, 
+    RuleCstyleForStatement = 39, RuleIdentifierList = 40, RuleVariableDeclarationList = 41, 
+    RuleConstantDeclaration = 42, RuleVariableDeclaration = 43, RuleProgramParameters = 44, 
+    RuleProgramParameterList = 45, RuleProgramParameter = 46, RuleFunctionParameters = 47, 
+    RuleFunctionParameterList = 48, RuleFunctionParameter = 49, RuleScopedFunctionCall = 50, 
+    RuleFunctionReference = 51, RuleExpression = 52, RulePrimary = 53, RuleExplicitArrayInitializer = 54, 
+    RuleExplicitStructInitializer = 55, RuleExplicitDictInitializer = 56, 
+    RuleExplicitErrorInitializer = 57, RuleBareArrayInitializer = 58, RuleParExpression = 59, 
+    RuleExpressionList = 60, RuleExpressionSuffix = 61, RuleIndexingSuffix = 62, 
+    RuleNavigationSuffix = 63, RuleMethodCallSuffix = 64, RuleFunctionCall = 65, 
+    RuleStructInitializerExpression = 66, RuleStructInitializerExpressionList = 67, 
+    RuleStructInitializer = 68, RuleDictInitializerExpression = 69, RuleDictInitializerExpressionList = 70, 
+    RuleDictInitializer = 71, RuleArrayInitializer = 72, RuleLiteral = 73, 
+    RuleInterpolatedString = 74, RuleInterpolatedStringPart = 75, RuleIntegerLiteral = 76, 
+    RuleFloatLiteral = 77
   };
 
   EscriptParser(antlr4::TokenStream *input);
@@ -86,6 +86,7 @@ public:
 
   class CompilationUnitContext;
   class ModuleUnitContext;
+  class EvaluateUnitContext;
   class ModuleDeclarationStatementContext;
   class ModuleFunctionDeclarationContext;
   class ModuleFunctionParameterListContext;
@@ -195,6 +196,22 @@ public:
   };
 
   ModuleUnitContext* moduleUnit();
+
+  class  EvaluateUnitContext : public antlr4::ParserRuleContext {
+  public:
+    EvaluateUnitContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    ExpressionContext *expression();
+    antlr4::tree::TerminalNode *EOF();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  EvaluateUnitContext* evaluateUnit();
 
   class  ModuleDeclarationStatementContext : public antlr4::ParserRuleContext {
   public:

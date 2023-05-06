@@ -1,16 +1,7 @@
 #include "handles.h"
 
-#include "../../bscript/bstruct.h"
-#include "../../bscript/dict.h"
-#include "../../bscript/objmembers.h"
-#include "../../clib/logfacility.h"
-#include "../../clib/stlutil.h"
-#include "../../clib/strutil.h"
-#include "../polclass.h"
-#include "../uoscrobj.h"
-#include <array>
-#include <dap/protocol.h>
-
+#include "../../bscript/eprog.h"
+#include "../uoexec.h"
 namespace Pol
 {
 namespace Network
@@ -44,81 +35,42 @@ Reference* Handles::get( int handle )
   return nullptr;
 }
 
-void Handles::add_variable_details( const Bscript::BObjectRef& objref, dap::Variable& variable )
+BObjectRef Handles::set_index_or_member( const BObjectRef& objref, const std::string& key,
+                                         BObjectRef& value )
 {
   auto impptr = objref->impptr();
 
-  switch ( impptr->type() )
+  if ( impptr != nullptr )
   {
-  case BObjectImp::BObjectType::OTApplicObj:
-    variable.type = "OTApplicObj";
-    variable.value = impptr->getStringRep();
-    variable.variablesReference = create( objref );
-    break;
-  case BObjectImp::BObjectType::OTString:
-    variable.type = "string";
-    variable.value = impptr->getStringRep();
-    break;
-  case BObjectImp::BObjectType::OTDouble:
-  case BObjectImp::BObjectType::OTLong:
-    variable.type = "number";
-    variable.value = impptr->getStringRep();
-    break;
-  case BObjectImp::BObjectType::OTStruct:
-  {
-    auto size = static_cast<BStruct*>( impptr )->contents().size();
-    variable.type = "struct";
-    variable.namedVariables = size;
-    if ( size > 0 )
+    if ( impptr->isa( BObjectImp::OTStruct ) )
     {
-      variable.value = "struct{ ... }";
-      variable.variablesReference = create( objref );
+      BStruct* bstruct = static_cast<BStruct*>( impptr );
+      bstruct->addMember( key.c_str(), value );
+      return value;
     }
-    else
+    else if ( impptr->isa( BObjectImp::OTDictionary ) )
     {
-      variable.value = "struct{ }";
+      BDictionary* dict = static_cast<BDictionary*>( impptr );
+      dict->addMember( key.c_str(), value );
+      return value;
     }
-    break;
+    else if ( impptr->isa( BObjectImp::OTArray ) )
+    {
+      ObjArray* objarr = static_cast<ObjArray*>( impptr );
+      auto index = strtoul( key.c_str(), nullptr, 0 );
+      objarr->ref_arr.at( index ) = value;
+      return value;
+    }
+    else if ( impptr->isa( BObjectImp::OTApplicObj ) )
+    {
+      impptr->set_member( key.c_str(), value->impptr(), true );
+      return impptr->get_member( key.c_str() );
+    }
   }
-  case BObjectImp::BObjectType::OTDictionary:
-  {
-    auto size = static_cast<BDictionary*>( impptr )->contents().size();
-    variable.type = "dictionary";
-    variable.namedVariables = size;
-    if ( size > 0 )
-    {
-      variable.value = "dictionary{ ... }";
-      variable.variablesReference = create( objref );
-    }
-    else
-    {
-      variable.value = "dictionary{ }";
-    }
-    break;
-  }
-  case BObjectImp::BObjectType::OTArray:
-  {
-    auto size = static_cast<ObjArray*>( impptr )->ref_arr.size();
-    variable.type = "array";
-    variable.indexedVariables = size;
-    if ( size > 0 )
-    {
-      variable.value = "array{ ... }";
-      variable.variablesReference = create( objref );
-    }
-    else
-    {
-      variable.value = "array{ }";
-    }
-    break;
-  }
-  default:
-    variable.value = impptr->getStringRep();
-    break;
-  }
+  return BObjectRef( UninitObject::create() );
 }
 
-dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objref )
+dap::array<dap::Variable> Handles::to_variables( const BObjectRef& objref )
 {
   dap::array<dap::Variable> variables;
   auto impptr = objref->impptr();
@@ -133,30 +85,30 @@ dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objr
       {
         dap::Variable current_var;
         current_var.name = content.first;
-        add_variable_details( content.second, current_var );
+        set_response_details( content.second, current_var );
         variables.push_back( current_var );
       }
     }
     else if ( impptr->isa( BObjectImp::OTDictionary ) )
     {
-      BDictionary* dict = static_cast<Bscript::BDictionary*>( impptr );
+      BDictionary* dict = static_cast<BDictionary*>( impptr );
       for ( const auto& content : dict->contents() )
       {
         dap::Variable current_var;
         current_var.name = content.first->getStringRep();
-        add_variable_details( content.second, current_var );
+        set_response_details( content.second, current_var );
         variables.push_back( current_var );
       }
     }
     else if ( impptr->isa( BObjectImp::OTArray ) )
     {
-      ObjArray* objarr = static_cast<Bscript::ObjArray*>( impptr );
+      ObjArray* objarr = static_cast<ObjArray*>( impptr );
       size_t index = 1;
       for ( const auto& content : objarr->ref_arr )
       {
         dap::Variable current_var;
         current_var.name = Clib::tostring( index++ );
-        add_variable_details( content, current_var );
+        set_response_details( content, current_var );
         variables.push_back( current_var );
       }
     }
@@ -170,7 +122,7 @@ dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objr
         {
           dap::Variable variable;
           variable.name = object_member.code;
-          add_variable_details( member_value, variable );
+          set_response_details( member_value, variable );
           variables.push_back( variable );
         }
       }
@@ -180,6 +132,75 @@ dap::array<dap::Variable> Handles::to_variables( const Bscript::BObjectRef& objr
     }
   }
   return variables;
+}
+
+FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script,
+                                size_t frameId )
+    : contents()
+{
+  if ( frameId > uoexec->ControlStack.size() )
+  {
+    throw std::runtime_error( "Invalid frame id" );
+  }
+
+  std::vector<BObjectRefVec*> upperLocals2 = uoexec->upperLocals2;
+  std::vector<ReturnContext> stack = uoexec->ControlStack;
+
+  unsigned int PC;
+
+  {
+    ReturnContext rc;
+    rc.PC = uoexec->PC;
+    rc.ValueStackDepth = static_cast<unsigned int>( uoexec->ValueStack.size() );
+    stack.push_back( rc );
+  }
+
+  upperLocals2.push_back( uoexec->Locals2 );
+
+  auto currentFrameId = stack.size();
+
+  while ( --currentFrameId, !stack.empty() )
+  {
+    ReturnContext& rc = stack.back();
+    BObjectRefVec* Locals2 = upperLocals2.back();
+    PC = rc.PC;
+    stack.pop_back();
+    upperLocals2.pop_back();
+
+    if ( frameId != currentFrameId )
+    {
+      continue;
+    }
+
+    size_t left = Locals2->size();
+
+    unsigned block = _script->dbg_ins_blocks[PC];
+    while ( left )
+    {
+      while ( left <= _script->blocks[block].parentvariables )
+      {
+        block = _script->blocks[block].parentblockidx;
+      }
+      const EPDbgBlock& progblock = _script->blocks[block];
+      size_t varidx = left - 1 - progblock.parentvariables;
+      left--;
+      contents[progblock.localvarnames[varidx]] = &( *Locals2 )[left];
+    }
+  }
+}
+
+GlobalReference::GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script )
+    : contents()
+{
+  BObjectRefVec::iterator itr = uoexec->Globals2.begin(), end = uoexec->Globals2.end();
+
+  for ( unsigned idx = 0; itr != end; ++itr, ++idx )
+  {
+    if ( _script->globalvarnames.size() > idx )
+    {
+      contents[_script->globalvarnames[idx]] = &( *itr );
+    }
+  }
 }
 }  // namespace DAP
 }  // namespace Network

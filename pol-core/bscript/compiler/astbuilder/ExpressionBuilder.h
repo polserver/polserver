@@ -4,7 +4,7 @@
 #include "bscript/compiler/astbuilder/ValueBuilder.h"
 
 #ifndef __TOKENS_H
-#include "tokens.h"
+#include "bscript/tokens.h"
 #endif
 
 namespace Pol::Bscript::Compiler

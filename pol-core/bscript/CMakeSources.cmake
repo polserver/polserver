@@ -10,6 +10,8 @@ set (bscript_sources    # sorted !
   compiler/analyzer/Constants.h
   compiler/analyzer/Disambiguator.cpp
   compiler/analyzer/Disambiguator.h
+  compiler/analyzer/ExpressionEvaluator.cpp
+  compiler/analyzer/ExpressionEvaluator.h
   compiler/analyzer/FlowControlScope.cpp
   compiler/analyzer/FlowControlScope.h
   compiler/analyzer/FlowControlScopes.cpp
@@ -277,19 +279,19 @@ set (bscript_sources    # sorted !
   compiler/Report.h
   berror.cpp
   berror.h
-  blong.cpp 
+  blong.cpp
   bobject.h
   bstruct.cpp
   bstruct.h
-  compctx.cpp 
+  compctx.cpp
   compctx.h
-  compilercfg.cpp 
+  compilercfg.cpp
   compilercfg.h
   compmodl.h
   config.h
   contiter.h
-  dbl.cpp 
-  dict.cpp 
+  dbl.cpp
+  dict.cpp
   dict.h
   eprog.cpp
   eprog.h
@@ -316,18 +318,18 @@ set (bscript_sources    # sorted !
   impstr.h
   modules.h
   objaccess.cpp
-  object.cpp 
+  object.cpp
   object.h
   objmembers.h
   objmethods.h
   objstrm.cpp
   operator.h
   options.h
-  str.cpp 
+  str.cpp
   str.h
   symcont.cpp
   symcont.h
-  tkn_strm.cpp 
+  tkn_strm.cpp
   token.cpp
   token.h
   tokens.cpp
