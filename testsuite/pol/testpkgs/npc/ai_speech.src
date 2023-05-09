@@ -5,15 +5,10 @@ use uo;
 const SYSEVENT_SPEECH := 0x00000001;
 
 program ai()
-  var me:=Self();
   EnableEvents(SYSEVENT_SPEECH, 12);
 
-  var queue_size := GetObjProperty(me, "EventSize");
-
-  print($"Got queue_size {queue_size}");
-
+  var queue_size := GetObjProperty(Self(), "EventSize");
   if (queue_size != error)
-    print($"Set queue_size to {queue_size}");
     Set_Event_Queue_Size(queue_size);
   endif
 
