@@ -1175,31 +1175,33 @@ class UnicodeSpeechRequestPacket(Packet):
     assert len(self.lang) == 3
     self.estring(self.lang, 4)
     if self.tokens:
-      code_bytes = []
-      length = len(self.tokens)
-      code_bytes.append(length >> 4)
-      num3 = length & 15
-      flag = False
-      index = 0
-      while index < length:
-        keyword_id = self.tokens[index]
-        if flag:
-          code_bytes.append(keyword_id >> 4)
-          num3 = keyword_id & 15
-        else:
-          code_bytes.append(((num3 << 4) | ((keyword_id >> 8) & 15)))
-          code_bytes.append(keyword_id)
-        index = index + 1
-        flag = not flag
-      if not flag:
-        code_bytes.append(num3 << 4)
-
-      for code_byte in code_bytes:
-        self.euchar(code_byte)
-      self.estring(self.text, len(self.text) + 1)
+      self.encodeTokens()
     else:
       self.estring(self.text, len(self.text) + 1, True)
 
+  def encodeTokens(self):
+    code_bytes = []
+    length = len(self.tokens)
+    code_bytes.append(length >> 4)
+    num3 = length & 15
+    flag = False
+    index = 0
+    while index < length:
+      keyword_id = self.tokens[index]
+      if flag:
+        code_bytes.append(keyword_id >> 4)
+        num3 = keyword_id & 15
+      else:
+        code_bytes.append(((num3 << 4) | ((keyword_id >> 8) & 15)))
+        code_bytes.append(keyword_id)
+      index = index + 1
+      flag = not flag
+    if not flag:
+      code_bytes.append(num3 << 4)
+
+    for code_byte in code_bytes:
+      self.euchar(code_byte)
+    self.estring(self.text, len(self.text) + 1)
 
 class UnicodeSpeechPacket(Packet):
   ''' Receive an unicode speech '''
