@@ -1136,33 +1136,72 @@ class UnicodeSpeechRequestPacket(Packet):
   TYP_ALLIANCE = 0x0e
   ## Command Prompts
   TYP_COMMAND = 0x0f
+  ## Encoded with speech tokens
+  TYP_ENCODED = 0xc0
 
   cmd = 0xad
 
-  def fill(self, type, lang, text, color, font):
+  def fill(self, type, lang, text, color, font, tokens=None):
     '''!
     @param type int: Speech type, see TYP_ constants
     @param lang string: Three letter language code
     @param text string: What to say
     @param color int: Color code
     @param font int: Font code
+    @param tokens list of ints: speech.mul ids
     '''
     self.type = type
     self.lang = lang
     self.text = text
     self.color = color
     self.font = font
-    self.length = 1 + 2 + 1 + 2 + 2 + 4 + len(self.text)*2+2
+    self.tokens = tokens
+
+    self.length = 1 + 2 + 1 + 2 + 2 + 4
+    if tokens:
+      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) / 8
+      self.length = self.length + token_byte_length + len(self.text)+1
+    else:
+      self.length = self.length + len(self.text)*2+2
 
   def encodeChild(self):
     self.eulen()
-    self.euchar(self.type)
+    if self.tokens:
+      self.euchar(self.type | UnicodeSpeechRequestPacket.TYP_ENCODED)
+    else:
+      self.euchar(self.type)
     self.eushort(self.color)
     self.eushort(self.font)
     assert len(self.lang) == 3
     self.estring(self.lang, 4)
-    self.estring(self.text, len(self.text) + 1, True)
+    if self.tokens:
+      self.encodeTokens()
+    else:
+      self.estring(self.text, len(self.text) + 1, True)
 
+  def encodeTokens(self):
+    code_bytes = []
+    length = len(self.tokens)
+    code_bytes.append(length >> 4)
+    num3 = length & 15
+    flag = False
+    index = 0
+    while index < length:
+      keyword_id = self.tokens[index]
+      if flag:
+        code_bytes.append(keyword_id >> 4)
+        num3 = keyword_id & 15
+      else:
+        code_bytes.append(((num3 << 4) | ((keyword_id >> 8) & 15)))
+        code_bytes.append(keyword_id)
+      index = index + 1
+      flag = not flag
+    if not flag:
+      code_bytes.append(num3 << 4)
+
+    for code_byte in code_bytes:
+      self.euchar(code_byte)
+    self.estring(self.text, len(self.text) + 1)
 
 class UnicodeSpeechPacket(Packet):
   ''' Receive an unicode speech '''

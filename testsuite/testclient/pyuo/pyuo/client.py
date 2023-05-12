@@ -1124,14 +1124,15 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def say(self, text, font=3, color=0):
+  def say(self, text, font=3, color=0, tokens=None):
     ''' Say something, in unicode
     @param text string: Any unicode string
     @param font int: Font code, usually 3
     @param colot int: Font color, usually 0
+    @param tokens list of ints
     '''
     po = packets.UnicodeSpeechRequestPacket()
-    po.fill(po.TYP_NORMAL, self.LANG, text, color, font)
+    po.fill(po.TYP_NORMAL, self.LANG, text, color, font, tokens)
     self.queue(po)
 
   @logincomplete

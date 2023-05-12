@@ -1,0 +1,18 @@
+use os;
+use uo;
+
+const SYSEVENT_SPEECH := 0x00000001;
+
+program main(item)
+  RegisterForSpeechEvents( item, 12 );
+  while (1)
+    var ev := os::wait_for_event(30);
+    case(ev.type)
+      SYSEVENT_SPEECH:
+        var tokens := ev.tokens;
+        tokens.sort();
+        // This needs to match what's tested in test_client's say_something_with_tokens
+        PrintTextAbove(item, $"source=[item] text=[{ev.text}] tokens=[{tokens}]");
+    endcase
+  endwhile
+endprogram

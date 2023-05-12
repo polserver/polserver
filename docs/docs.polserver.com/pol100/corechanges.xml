@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>04-23-2023</datemodified>
+		<datemodified>05-04-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>04-04-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">Crash when EventQueue is full due to SpeechEvents</change>
+		</entry>
 		<entry>
 			<date>04-23-2023</date>
 			<author>Kevin:</author>

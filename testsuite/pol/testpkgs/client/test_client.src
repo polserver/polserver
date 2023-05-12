@@ -54,6 +54,94 @@ exported function say_something()
   return 1;
 endfunction
 
+exported function say_something_with_tokens()
+  var arg := struct{
+    text := "Hello Test",
+    tokens:= {60, 255}
+  };
+
+  // This needs to match what gets echo'ed from test_speech's NPC script ai_speech.src
+  var expected_message := $"source=[npc] text=[{arg.text}] tokens=[{arg.tokens}]";
+
+  var npc :=  CreateNpcFromTemplate(":testnpc:test_speech", char.x + 1, char.y + 1, char.z, realm := char.realm, forcelocation := 1);
+  if (!npc)
+    return ret_error($"Could not create npc: {npc.errortext}");
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{
+    todo := "speech",
+    arg := arg,
+    id := 0
+  });
+
+  while (1)
+    var ev:=waitForClient(0, {EVT_SPEECH});
+    if (!ev)
+      MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+      npc.kill();
+      return ev;
+    endif
+
+    if (ev.msg == expected_message)
+      break;
+    endif
+  endwhile
+
+  MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  npc.kill();
+  return 1;
+endfunction
+
+exported function test_speechtoken_crash()
+  var arg := struct{
+    text := "Hello Test",
+    tokens:= {60, 255}
+  };
+
+  // This needs to match what gets echo'ed from EchoItem's control script control_echo.src
+  var expected_message := $"source=[item] text=[{arg.text}] tokens=[{arg.tokens}]";
+
+  var npc := CreateNpcFromTemplate(":testnpc:test_speech", char.x + 1, char.y + 1, char.z, override_properties := struct{ CProps := dictionary{ "EventSize" -> 0 } }, realm := char.realm, forcelocation := 1);
+  if (!npc)
+    return ret_error($"Could not create npc: {npc.errortext}");
+  endif
+
+  var item :=  CreateItemAtLocation( char.x+2, char.y+2, char.z, "EchoItem", realm := char.realm );
+  if (!item)
+    MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+    npc.kill();
+    return ret_error($"Could not create item: {item.errortext}");
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{
+    todo := "speech",
+    arg := arg,
+    id := 0
+  });
+
+  while (1)
+    var ev:=waitForClient(0, {EVT_SPEECH});
+    if (!ev)
+      MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+      npc.kill();
+      DestroyItem(item);
+      return ev;
+    endif
+
+    // NPC handles events first, then items.
+    if (ev.msg == expected_message)
+      break;
+    endif
+  endwhile
+
+  MoveObjectToLocation(npc, 80, 80, 0, flags := MOVEOBJECT_FORCELOCATION);
+  npc.kill();
+  DestroyItem(item);
+  return 1;
+endfunction
+
 exported function move_turn_water()
   MoveObjectToLocation(char, 1,1,1,flags:=MOVEOBJECT_FORCELOCATION);
   char.facing:=1;

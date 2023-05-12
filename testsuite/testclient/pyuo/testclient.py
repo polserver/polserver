@@ -62,7 +62,10 @@ class TestBrain(brain.Brain):
         self.client.addTodo(brain.Event(brain.Event.EVT_EXIT))
         return False
       elif todo=="speech":
-        self.client.say(arg)
+        if isinstance(arg, str):
+          self.client.say(arg)
+        else:
+          self.client.say(arg['text'], tokens = arg['tokens'])
       elif todo=="move":
         self.client.move(arg)
       elif todo=="list_objects":
