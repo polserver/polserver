@@ -754,7 +754,7 @@ ArmorZone
     <purpose>Defines some combat-specific options.</purpose>
     <structure>
 [DisplayParrySuccessMessages (0/1) {default 0})]
-[WarmodeInhibitsRegen        (0/1) {default 0})]
+[WarmodeInhibitsRegen        (enumeration between 0-4) {default 0})]
 [WarModeDelay                (int Seconds) {default 1})]
 [SingleCombat                (0/1 {default 0})]
 [CoreHitSounds               (0/1 {default 0})]
@@ -765,6 +765,7 @@ ArmorZone
 [AttackWhileFrozen           (0/1 {default 1})]
 [SendAttackMsg               (0/1 {default 1})]
 </structure>
+    <explain><i>WarmodeInhibitsRegen:</i> Determines if warmode stops vital regeneration and if so, what character types: none = 0 (default), both = 1, players only = 2, NPCs only = 3.</explain>
     <explain><i>WarModeDelay:</i> is a delay between ability to toggle war mode status via client. Does not affect using SetWarMode method.</explain>
     <explain><i>SingleCombat:</i> allows players to attack themselves.</explain>
     <explain><i>CoreHitSounds:</i> If enabled, the core handles sending sounds for hit on combat. When mobile hit is an NPC, it uses the NPC's DamagedSound from the NPCTemplate. If disabled, scripts must handle this.</explain>
