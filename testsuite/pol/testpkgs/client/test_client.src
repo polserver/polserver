@@ -220,3 +220,20 @@ exported function move_realm()
   Clear_Event_Queue();
   return 1;
 endfunction
+
+/*
+ Test that with WarmodeInhibitsRegen=3 (NPCs Only), a _PC_ in war mode _will_ regenerate health.
+*/
+exported function client_warmodeinhibitsregen()
+  char.setwarmode(1);
+  SetVital( char, "Life", GetVital( char, "Life" ) / 2);
+  var damaged_health := GetVital( char, "Life" );
+  Sleep(10);
+  var waited_health := GetVital( char, "Life" );
+  char.setwarmode(0);
+
+  if (damaged_health == waited_health)
+    return ret_error($"PC health did not change between sleeping: {damaged_health} -> {waited_health}");
+  endif
+  return 1;
+endfunction

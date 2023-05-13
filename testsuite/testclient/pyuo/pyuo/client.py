@@ -774,7 +774,6 @@ class Client(threading.Thread):
           self.log.warn("Ignoring add item 0x%X to non-container 0x%X", it['serial'], it['container'])
 
     elif isinstance(pkt, packets.WarModePacket):
-      assert self.player.war is None
       self.player.war = pkt.war
 
     elif isinstance(pkt, packets.AllowAttackPacket):

@@ -1,5 +1,6 @@
 use uo;
 use os;
+use vitals;
 include "testutil";
 
 program npc_ai()
@@ -235,5 +236,27 @@ exported function test_npc_realm_move()
   endif
 
   npc.kill();
+  return 1;
+endfunction
+
+/*
+ Test that with WarmodeInhibitsRegen=3 (NPCs Only), an _NPC_ in war mode _will not_ regenerate health.
+*/
+exported function npc_warmodeinhibitsregen()
+  var npc:=CreateNPCFromTemplate(":testnpc:load_npc",100,100,0);
+  if (!npc)
+    return ret_error("Could not create NPC: "+npc);
+  endif
+
+  npc.setwarmode(1);
+  SetVital( npc, "Life", GetVital( npc, "Life" ) / 2);
+  var damaged_health := GetVital( npc, "Life" );
+  Sleep(10);
+  var waited_health := GetVital( npc, "Life" );
+  npc.kill();
+
+  if (damaged_health != waited_health)
+    return ret_error($"NPC health changed between sleeping: {damaged_health} -> {waited_health}");
+  endif
   return 1;
 endfunction
