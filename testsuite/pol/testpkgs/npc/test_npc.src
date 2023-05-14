@@ -251,7 +251,7 @@ exported function npc_warmodeinhibitsregen()
   npc.setwarmode(1);
   SetVital( npc, "Life", GetVital( npc, "Life" ) / 2);
   var damaged_health := GetVital( npc, "Life" );
-  Sleep(10);
+  Sleep(6);
   var waited_health := GetVital( npc, "Life" );
   npc.kill();
 

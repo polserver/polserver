@@ -228,12 +228,16 @@ exported function client_warmodeinhibitsregen()
   char.setwarmode(1);
   SetVital( char, "Life", GetVital( char, "Life" ) / 2);
   var damaged_health := GetVital( char, "Life" );
-  Sleep(10);
-  var waited_health := GetVital( char, "Life" );
-  char.setwarmode(0);
+  var waited_health;
+  for i := 1 to 10
+    waited_health := GetVital( char, "Life" );
+    if (damaged_health != waited_health)
+      char.setwarmode(0);
+      return 1;
+    endif
+    Sleep(1);
+  endfor
 
-  if (damaged_health == waited_health)
-    return ret_error($"PC health did not change between sleeping: {damaged_health} -> {waited_health}");
-  endif
-  return 1;
+  char.setwarmode(0);
+  return ret_error($"PC health did not change between sleeping: {damaged_health} -> {waited_health}");
 endfunction
