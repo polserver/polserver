@@ -88,6 +88,7 @@ Executor::Executor()
       debugging_( false ),
       debug_state_( DEBUG_STATE_NONE ),
       breakpoints_(),
+      break_on_linechange_from_{ ~0u, ~0u },
       bp_skip_( ~0u ),
       func_result_( nullptr )
 {
@@ -3044,19 +3045,19 @@ void Executor::execInstr()
       }
       else if ( debug_state_ == DEBUG_STATE_STEP_OVER )
       {
-        unsigned breakPC = PC + 1;
-        while ( prog_->dbg_ins_statementbegin.size() > breakPC )
+        break_on_linechange_from_ = { prog_->dbg_linenum[PC], ControlStack.size() };
+        debug_state_ = DEBUG_STATE_STEPPING_OVER;
+      }
+      else if ( debug_state_ == DEBUG_STATE_STEPPING_OVER )
+      {
+        if ( ControlStack.size() < break_on_linechange_from_.control ||
+             ( ControlStack.size() == break_on_linechange_from_.control &&
+               prog_->dbg_linenum[PC] != break_on_linechange_from_.line ) )
         {
-          if ( prog_->dbg_ins_statementbegin[breakPC] )
-          {
-            tmpbreakpoints_.insert( breakPC );
-            debug_state_ = DEBUG_STATE_RUN;
-            break;
-          }
-          else
-          {
-            ++breakPC;
-          }
+          debug_state_ = DEBUG_STATE_ATTACHED;
+          break_on_linechange_from_ = { ~0u, ~0u };
+          sethalt( true );
+          return;
         }
       }
       else if ( debug_state_ == DEBUG_STATE_STEP_OUT )

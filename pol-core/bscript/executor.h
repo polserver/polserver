@@ -431,6 +431,11 @@ private:
   DEBUG_STATE debug_state_;
   std::set<unsigned> breakpoints_;
   std::set<unsigned> tmpbreakpoints_;
+  struct
+  {
+    unsigned line;
+    size_t control;
+  } break_on_linechange_from_;
   unsigned bp_skip_;
 
   BObjectImp* func_result_;
