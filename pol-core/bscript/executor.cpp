@@ -105,7 +105,7 @@ Executor::Executor()
 
 Executor::~Executor()
 {
-  if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
+  if ( std::shared_ptr<ExecutorDebugListener> listener = listener_.lock() )
     listener->on_destroy();
 
   {
@@ -2991,7 +2991,7 @@ void Executor::sethalt( bool halt )
   halt_ = halt;
 
   if ( halt )
-    if ( std::shared_ptr<ExecutorDebugListener> listener = _listener.lock() )
+    if ( std::shared_ptr<ExecutorDebugListener> listener = listener_.lock() )
       listener->on_halt();
 
   calcrunnable();
@@ -3281,11 +3281,11 @@ bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
   // debugger is attached. This works for `os::Debugger()` but not for poldbg cmd_attach.
   if ( !listener.expired() )
   {
-    if ( !_listener.expired() )
+    if ( !listener_.expired() )
     {
       return false;
     }
-    _listener = listener;
+    listener_ = listener;
   }
 
   setdebugging( true );
@@ -3295,7 +3295,7 @@ bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
 
 void Executor::detach_debugger()
 {
-  _listener.reset();
+  listener_.reset();
   setdebugging( false );
   debug_state_ = DEBUG_STATE_NONE;
   sethalt( false );

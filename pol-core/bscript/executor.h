@@ -418,7 +418,6 @@ private:
     DEBUG_STATE_ATTACHING,
     DEBUG_STATE_ATTACHED,
     DEBUG_STATE_INS_TRACE,
-    DEBUG_STATE_INS_TRACE_BRK,
     DEBUG_STATE_RUN,
     DEBUG_STATE_BREAK_INTO,
     DEBUG_STATE_STEP_INTO,
@@ -426,7 +425,6 @@ private:
     DEBUG_STATE_STEP_OVER,
     DEBUG_STATE_STEPPING_OVER,
     DEBUG_STATE_STEP_OUT,
-    DEBUG_STATE_STEPPING_OUT,
   };
   DEBUG_STATE debug_state_;
   std::set<unsigned> breakpoints_;
@@ -437,13 +435,13 @@ private:
     size_t control;
   } break_on_linechange_from_;
   unsigned bp_skip_;
+  std::weak_ptr<ExecutorDebugListener> listener_;
 
   BObjectImp* func_result_;
 
 private:  // not implemented
   Executor( const Executor& exec );
   Executor& operator=( const Executor& exec );
-  std::weak_ptr<ExecutorDebugListener> _listener;
 #ifdef ESCRIPT_PROFILE
   unsigned long GetTimeUs();
   void profile_escript( std::string name, unsigned long profile_start );
