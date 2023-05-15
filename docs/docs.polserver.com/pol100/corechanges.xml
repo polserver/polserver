@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-04-2023</datemodified>
+		<datemodified>05-13-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>05-13-2023</date>
+			<author>Kevin:</author>
+			<change type="Changed">Modified functionality of combat.cfg setting WarmodeInhibitsRegen (backwards-compatible). Instead of a boolean 0/1, it is now an enumeration 0-4: none = 0 (default), both = 1, players only = 2, NPCs only = 3.</change>
+		</entry>
 		<entry>
 			<date>04-04-2023</date>
 			<author>Turley:</author>
