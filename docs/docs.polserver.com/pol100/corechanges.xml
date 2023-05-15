@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-13-2023</datemodified>
+		<datemodified>05-15-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>05-15-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Fixed an issue with GetConfigString behavior on large numeric property values.</change>
+		</entry>
 		<entry>
 			<date>05-13-2023</date>
 			<author>Kevin:</author>
