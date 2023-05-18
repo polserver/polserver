@@ -300,6 +300,8 @@ public:
       /* x, y, z, range, objtype, flags, realm */ );
   [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsNearLocationWithFlag(
       /* x, y, z, range, flags, realm */ );
+  [[nodiscard]] Bscript::BObjectImp* mf_ResyncCharacter(
+      /* chr */ );
 
   /* If we're asking a character for a target, who is it?
      that character's target_cursor_ex points to us,

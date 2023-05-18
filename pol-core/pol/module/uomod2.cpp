@@ -3025,5 +3025,19 @@ BObjectImp* UOExecutorModule::mf_ListStaticsNearLocationWithFlag(
   else
     return new BError( "Invalid parameter" );
 }
+
+BObjectImp* UOExecutorModule::mf_ResyncCharacter( /* chr */ )
+{
+  Character* chr;
+
+  if ( getCharacterParam( 0, chr ) )
+  {
+    send_objects_newly_inrange( chr->client );
+    return new BLong( 1 );
+  }
+  else
+    return new BError( "Invalid parameter" );
+}
+
 }  // namespace Module
 }  // namespace Pol
