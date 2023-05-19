@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+05-15-2023 Kevin:
+    Fixed: Fixed an issue with GetConfigString behavior on large numeric property values.
 05-13-2023 Kevin:
   Changed: Modified functionality of combat.cfg setting WarmodeInhibitsRegen (backwards-compatible). Instead of a boolean 0/1, it is now an enumeration 0-4: none = 0 (default), both = 1, players only = 2, NPCs only = 3.
 04-04-2023 Turley:
