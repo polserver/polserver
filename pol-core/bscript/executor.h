@@ -92,6 +92,39 @@ enum class ExecutorType
   POL
 };
 
+enum class ExecutorDebugState
+{
+  ATTACHING,
+  ATTACHED,
+  INS_TRACE,
+  RUN,
+  BREAK_INTO,
+  STEP_INTO,
+  STEPPING_INTO,
+  STEP_OVER,
+  STEPPING_OVER,
+  STEP_OUT,
+};
+
+class ExecutorDebugEnvironment
+{
+public:
+  ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener );
+
+  size_t sizeEstimate() const;
+
+  ExecutorDebugState debug_state;
+  std::set<unsigned> breakpoints;
+  std::set<unsigned> tmpbreakpoints;
+  struct
+  {
+    unsigned line;
+    size_t control;
+  } break_on_linechange_from;
+  unsigned bp_skip;
+  std::weak_ptr<ExecutorDebugListener> listener;
+};
+
 class Executor
 {
 public:
@@ -374,9 +407,6 @@ public:
   bool halt() const;
   void sethalt( bool halt );
 
-  bool debugging() const;
-  void setdebugging( bool debugging );
-
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {} );
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
@@ -411,31 +441,7 @@ private:
 
   bool runs_to_completion_;
 
-  bool debugging_;
-  enum DEBUG_STATE
-  {
-    DEBUG_STATE_NONE,
-    DEBUG_STATE_ATTACHING,
-    DEBUG_STATE_ATTACHED,
-    DEBUG_STATE_INS_TRACE,
-    DEBUG_STATE_RUN,
-    DEBUG_STATE_BREAK_INTO,
-    DEBUG_STATE_STEP_INTO,
-    DEBUG_STATE_STEPPING_INTO,
-    DEBUG_STATE_STEP_OVER,
-    DEBUG_STATE_STEPPING_OVER,
-    DEBUG_STATE_STEP_OUT,
-  };
-  DEBUG_STATE debug_state_;
-  std::set<unsigned> breakpoints_;
-  std::set<unsigned> tmpbreakpoints_;
-  struct
-  {
-    unsigned line;
-    size_t control;
-  } break_on_linechange_from_;
-  unsigned bp_skip_;
-  std::weak_ptr<ExecutorDebugListener> listener_;
+  std::unique_ptr<ExecutorDebugEnvironment> dbg_env_;
 
   BObjectImp* func_result_;
 
@@ -486,16 +492,6 @@ inline bool Executor::halt() const
 {
   return halt_;
 }
-
-inline bool Executor::debugging() const
-{
-  return debugging_;
-}
-inline void Executor::setdebugging( bool debugging )
-{
-  debugging_ = debugging;
-}
-
 
 inline bool Executor::running_to_completion() const
 {
