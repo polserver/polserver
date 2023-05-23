@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+05-23-2023 Turley / Kevin:
+    Fixed: Corrected behavior of dropping items with NoDrop: An attempt from a character to move a no-drop item between regular containers (ie, both containers are not "no-drop exception") will now correctly place the item back into the original container (instead of the player's backpack).
 05-15-2023 Kevin:
     Fixed: Fixed an issue with GetConfigString behavior on large numeric property values.
 05-13-2023 Kevin:
@@ -43,7 +45,7 @@
     Added: POLCore() member "poldir", returning the directory of the POL executable.
 08-25-2022 Yukiko:
     Added: uoconvert now surfaces the partial hue flag in tiles.cfg for tiles that have that flag set in tiledata,
-	eg. PartialHue 1 
+	eg. PartialHue 1
 08-21-2022 Turley:
     Fixed: PopupMenu request did not work when client canceled a request and sends a new one.
 08-14-2022 Turley:
@@ -90,7 +92,7 @@
 06-21-2021 Turley:
     Fixed: HSA boat movement packets (0xF7 and 0xF6) overflow logic. It sends now the correct truncated object count and checks visibility of the objects it sends.
 04-10-2021 AsYlum:
-    Fixed: Duplicated internal value for "speedhack" and "losany" privileges. When enabling "speedhack" privilege it also worked as "losany" 
+    Fixed: Duplicated internal value for "speedhack" and "losany" privileges. When enabling "speedhack" privilege it also worked as "losany"
            so LoS checks always returned true.
 03-24-2021 Turley:
     Added: os:OpenConnection argument keep_connection
@@ -110,7 +112,7 @@
 
            A complete example:
             $"Hello, {who.name}! You are player #{who in EnumerateOnlineCharacters()} online. Your graphic is {who.graphic : #x}."
-            
+
             ... can replace an expression like ...
 
             "Hello " + who.name + "! You are player #" + (who in EnumerateOnlineCharacters()) + " online. Your graphic is " + Hex(who.graphic)
@@ -118,11 +120,11 @@
             ... or ...
 
             "Hello {1}! You are player #{2} online. Your graphic is {3:#x}".format(who.name, who in EnumerateOnlineCharacters(), who.graphic)
-           
+
            Since this change introduces new instructions, you **MUST** recompile all your scripts!
 03-07-2021 Nando:
     Added: RefreshDecayAfterBoatMoves in servspecopt.cfg. Defaults to true to maintain the old behavior. If this setting is true,
-           the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay 
+           the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay
            on boats. Note that POL doesn't yet handle item decay on boats.
     Fixed: HSA boat movement packets (0xF7 and 0xF6) will no longer overflow when too many items are on deck. Note that the packet
            will be truncated and might be misinterpreted by the client or leave ghost items behind.
@@ -136,10 +138,10 @@
 -- POL100.0.0 --
 02-28-2021 Nando:
      Note: POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.
-           The next release will remove support for the old compiler. This is the *last chance* to test 
+           The next release will remove support for the old compiler. This is the *last chance* to test
            if your scripts change when compiled with the new compiler. (See entry on 09-15-2020)
 02-27-2021 Nando:
-    Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL). 
+    Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL).
            The allowed values are EVMASK_ONLY_PC, EVMASK_ONLY_NPC, or EVMASK_ALL.
            When set, an NPC or Item will only receive entered/leftarea events caused by a PC, NPC or all mobiles (the default behavior).
            This parameter is useful, for example, to decrease the load when there are too many NPCs in the same area.
@@ -237,7 +239,7 @@
   Changed: item.hitscript and item.onhitscript now always return the full path to the script (":pkgname:scriptname").
            Before, if the item was defined on the same package as the script, only "scriptname" was returned.
            POTENTIAL BREAKING CHANGE!
-           
+
 08-09-2020 Turley:
     Added: new argument "outdir" for uoconvert tiles/landtiles/multis this allows to define a different directory then the current workdirectory for the produced cfgs
 08-04-2020 AsYlum:

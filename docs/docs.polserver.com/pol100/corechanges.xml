@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-15-2023</datemodified>
+		<datemodified>05-23-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>05-23-2023</date>
+			<author>Turley / Kevin:</author>
+			<change type="Fixed">Corrected behavior of dropping items with NoDrop: An attempt from a character to move a no-drop item between regular containers (ie, both containers are not &quot;no-drop exception&quot;) will now correctly place the item back into the original container (instead of the player's backpack).</change>
+		</entry>
 		<entry>
 			<date>05-15-2023</date>
 			<author>Kevin:</author>
