@@ -198,6 +198,10 @@ class Event:
   EVT_TARGET = 103
   EVT_DISABLE_ITEM_LOGGING = 104
   EVT_DOUBLE_CLICK = 105
+  EVT_LIFT_ITEM = 106
+  EVT_MOVE_ITEM_REJECTED = 107
+  EVT_DROP_ITEM = 108
+  EVT_DROP_APPROVED = 109
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -248,4 +252,11 @@ class Event:
       return "owncreate"
     elif self.type==Event.EVT_DOUBLE_CLICK:
       return "double_click"
-
+    elif self.type==Event.EVT_LIFT_ITEM:
+      return "lift_item"
+    elif self.type==Event.EVT_MOVE_ITEM_REJECTED:
+      return "move_item_rejected"
+    elif self.type==Event.EVT_DROP_ITEM:
+      return "drop_item"
+    elif self.type==Event.EVT_DROP_APPROVED:
+      return "drop_approved"

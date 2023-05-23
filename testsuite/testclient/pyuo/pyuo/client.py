@@ -76,7 +76,7 @@ class UOBject:
     self.log = logging.getLogger(self.__class__.__name__)
     ## Client reference
     self.client = client
-    
+
     ## Unique serial number
     self.serial = None
     ## Graphic ID
@@ -872,7 +872,13 @@ class Client(threading.Thread):
       self.log.info('Ignoring new subserver packet')
     elif isinstance(pkt, packets.SmoothBoatPacket):
       self.handleSmoothBoatPacket(pkt)
+    elif isinstance(pkt, packets.MoveItemRejectedPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_MOVE_ITEM_REJECTED, reason=pkt.reason))
+    elif isinstance(pkt, packets.ApproveDropItemPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_DROP_APPROVED))
     elif isinstance(pkt, packets.HealthBarStatusUpdate):
+      pass
+    elif isinstance(pkt, packets.StatusBarInfoPacket):
       pass
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
@@ -1056,7 +1062,7 @@ class Client(threading.Thread):
       self.player.notoriety = pkt.notoriety
       self.brain.event(brain.Event(brain.Event.EVT_NOTORIETY,
           old=old, new=self.player.notoriety))
-  
+
   @status('game')
   @clientthread
   @logincomplete
@@ -1120,6 +1126,20 @@ class Client(threading.Thread):
     ''' Sends a single click for the given object (Item/Mobile or serial) to server '''
     po = packets.DoubleClickPacket()
     po.fill(obj if type(obj) == int else obj.serial)
+    self.queue(po)
+
+  @logincomplete
+  def lift(self, obj):
+    ''' Sends a lift packet to server'''
+    po = packets.LiftItemPacket()
+    po.fill(obj if type(obj) == int else obj.serial, 1)
+    self.queue(po)
+
+  @logincomplete
+  def drop(self, serial, x, y, z, dropped_on_serial):
+    ''' Sends a drop packet to server'''
+    po = packets.DropItemPacket()
+    po.fill(serial, x, y, z, dropped_on_serial)
     self.queue(po)
 
   @logincomplete
@@ -1219,7 +1239,7 @@ class Client(threading.Thread):
       else:
         raise NotImplementedError("Unknown todo event {}",format(ev.type))
     return True
-  
+
   @clientthread
   def receive(self, expect=None, blocking=True):
     '''! Receives next packet from the server

@@ -301,6 +301,54 @@ class DoubleClickPacket(SerialOnlyPacket):
 
   cmd = 0x06
 
+class LiftItemPacket(Packet):
+  ''' Notify server of a lift on an item '''
+
+  cmd = 0x07
+  length = 7
+
+  def fill(self, serial, amount):
+    self.type = type
+    self.serial = serial
+    self.amount = amount
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.eushort(self.amount)
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.amount = self.dushort()
+
+class DropItemPacket(Packet):
+  ''' Notify server of a drop on an item '''
+
+  cmd = 0x08
+  length = 15
+
+  def fill(self, serial, x, y, z, dropped_on_serial):
+    self.type = type
+    self.serial = serial
+    self.x = x
+    self.y = y
+    self.z = z
+    self.dropped_on_serial = 0xFFFFFFFF if dropped_on_serial == -1 else dropped_on_serial
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.eushort(self.x)
+    self.eushort(self.y)
+    self.euchar(self.z)
+    self.euchar(0) #  Backpack grid index
+    self.euint(self.dropped_on_serial)
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.x = self.dushort()
+    self.y = self.dushort()
+    self.z = self.duchar()
+    self.duchar() # Backpack grid index
+    self.dropped_on_serial = self.duint()
 
 class SingleClickPacket(SerialOnlyPacket):
   ''' Notify server of a single click on something '''
@@ -543,6 +591,23 @@ class AddItemToContainerPacket(Packet):
     self.container = self.duint()
     self.color = self.dushort()
 
+class MoveItemRejectedPacket(Packet):
+  ''' Reject move item (lift or drop) request'''
+
+  cmd = 0x27
+  length = 2
+
+  def decodeChild(self):
+    self.reason = self.duchar()
+
+class ApproveDropItemPacket(Packet):
+  ''' Drop item approved'''
+
+  cmd = 0x29
+  length = 1
+
+  def decodeChild(self):
+      pass
 
 class MobAttributesPacket(Packet):
   ''' Informs about a Mobile's attributes '''

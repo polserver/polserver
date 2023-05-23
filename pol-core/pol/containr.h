@@ -27,19 +27,6 @@
 #include "lockable.h"
 #endif
 
-#define CONTAINER_STORES_ITEMREF 0
-
-#if CONTAINER_STORES_ITEMREF
-#define GET_ITEM_PTR( itr ) ( ( *itr ).get() )
-#define ITEM_ELEM_PTR( elem ) ( elem.get() )
-#define EMPTY_ELEM ItemRef( 0 )
-#else
-#define GET_ITEM_PTR( itr ) ( *itr )
-#define ITEM_ELEM_PTR( elem ) ( elem )
-#define EMPTY_ELEM 0
-#endif
-
-
 namespace Pol
 {
 namespace Clib
@@ -280,7 +267,7 @@ inline const Items::ContainerDesc& UContainer::descriptor() const
 
 inline Items::Item* UContainer::operator[]( unsigned idx ) const
 {
-  return ITEM_ELEM_PTR( contents_[idx] );
+  return contents_[idx];
 }
 }  // namespace Core
 }  // namespace Pol

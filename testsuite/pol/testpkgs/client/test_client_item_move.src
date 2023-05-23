@@ -1,0 +1,220 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+use boat;
+
+var char;
+var clientcon := getClientConnection();
+
+program test_item_move()
+  var a:=FindAccount("testclient0");
+  char:=a.getcharacter(1);
+  if (!char)
+    return ret_error("Could not find char at slot 1");
+  endif
+
+  // Move character somewhere nice.
+  var res := MoveObjectToLocation(char, 100, 50, 0);
+  if (!res)
+    return ret_error($"Could not move character: ${res}");
+  endif
+
+  return 1;
+endprogram
+
+/**
+ * Tests
+ */
+
+// 1. Move item from ground into backpack
+exported function lift_ground_drop_backpack()
+  var item := CreateItemAtLocation(char.x, char.y, char.z, 0x1F03);
+  if (!item)
+    return ret_error($"Could not create item: {item}");
+  endif
+
+  item.movable := 1;
+
+  var err;
+
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(item);
+    return err;
+  endif
+
+  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    DestroyItem(item);
+    return err;
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
+
+// 2. Move item from backpack to into backpack
+exported function lift_backpack_drop_backpack()
+  var item := CreateItemInBackpack(char, 0x1F03);
+
+  if (!item)
+    return ret_error($"Could not create item: {item}");
+  endif
+
+  item.movable := 1;
+
+  var err;
+
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(item);
+    return err;
+  endif
+
+  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    DestroyItem(item);
+    return err;
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
+
+// 3. From item from backpack onto ground
+exported function lift_backpack_drop_ground()
+  var item := CreateItemInBackpack(char, 0x1F03);
+
+  if (!item)
+    return ret_error($"Could not create item: {item}");
+  endif
+
+  item.movable := 1;
+
+  var err;
+
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(item);
+    return err;
+  endif
+
+  if (!drop_item_succeeded(err, item.serial, char.x, char.y, char.z))
+    DestroyItem(item);
+    return err;
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
+
+// 4. Attempt to move a no-drop item in a regular container fails and the item
+//    goes back into its original container (versus the bug of the characters
+//    backpack
+exported function fail_lift_nodrop_drop_backpack()
+
+  var nodrop_container := CreateItemAtLocation(char.x, char.y, char.z, 0xE75);
+  if (!nodrop_container)
+    return ret_error($"Could not create nodrop_item: {nodrop_container}");
+  endif
+
+  var nodrop_item := CreateItemInContainer(nodrop_container, 0x1F03); // robe
+  if (!nodrop_item)
+    DestroyItem(nodrop_container);
+    return ret_error($"Could not create nodrop_item: {nodrop_item}");
+  endif
+
+  nodrop_item.no_drop := 1;
+  nodrop_item.movable := 1;
+  char.backpack.no_drop_exception := 0;
+  var x_before := nodrop_item.x;
+  var y_before := nodrop_item.y;
+
+  var err;
+
+  if (!lift_item_succeeded(err, nodrop_item.serial))
+    DestroyItem(nodrop_container);
+    return err;
+  endif
+
+  if (!drop_item_failed(err, nodrop_item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    DestroyItem(nodrop_container);
+    return err;
+  endif
+
+  if (nodrop_item.container != nodrop_container)
+    return ret_error($"Incorrect container for nodrop_item, got {nodrop_item.container.serial:x} expected {nodrop_container.serial:x}");
+  endif
+
+  if (nodrop_item.x != x_before || nodrop_item.y != y_before)
+    return ret_error($"Position for nodrop_item inside nodrop_container changed, got {nodrop_item.x},{nodrop_item.y} expected {x_before.y_before}");
+  endif
+
+  DestroyItem(nodrop_container);
+  return 1;
+endfunction
+
+/**
+ * Helper functions
+ */
+
+function drop_item_failed(byref err, serial, x, y, z, dropped_on_serial := 0xFFFFFFFF)
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="drop_item", arg:=struct{serial := serial, x := x, y := y, z := z, dropped_on_serial := dropped_on_serial}, id:=0});
+  var ev;
+  while (1)
+    ev:=waitForClient(0, {EVT_DROP_ITEM});
+    if (!ev)
+      return err := ev;
+    endif
+    break;
+  endwhile
+
+  while (1)
+    ev:=waitForClient(0, {EVT_MOVE_ITEM_REJECTED});
+    if (!ev)
+      return err := ev;
+    endif
+    break;
+  endwhile
+  return 1;
+endfunction
+
+function drop_item_succeeded(byref err, serial, x, y, z, dropped_on_serial := 0xFFFFFFFF)
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="drop_item", arg:=struct{serial := serial, x := x, y := y, z := z, dropped_on_serial := dropped_on_serial}, id:=0});
+  var ev;
+  while (1)
+    ev:=waitForClient(0, {EVT_DROP_ITEM});
+    if (!ev)
+      return err := ev;
+    endif
+    break;
+  endwhile
+
+  while (1)
+    ev:=waitForClient(0, {EVT_DROP_APPROVED});
+    if (!ev)
+      return err := ev;
+    endif
+    break;
+  endwhile
+  return 1;
+endfunction
+
+function lift_item_succeeded(byref err, serial)
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="lift_item", arg:=serial, id:=0});
+  var ev;
+  while (1)
+    ev:=waitForClient(0, {EVT_LIFT_ITEM});
+    if (!ev)
+      return err := ev;
+    endif
+    break;
+  endwhile
+  return 1;
+
+  ev:=waitForClient(0, {EVT_MOVE_ITEM_REJECTED}, 1);
+  if (ev)
+    return err := ret_error($"Got unexpected move (lift) item rejected: reason = {ev.reason}");;
+  endif
+  return 1;
+endfunction

@@ -41,7 +41,8 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     return;
   }
 
-  Items::Item* item = client->chr->gotten_item();
+  auto info = client->chr->gotten_item();
+  Items::Item* item = info.item();
 
   if ( item == nullptr )
   {
@@ -63,7 +64,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   item->layer = item->tile_layer;
   item->inuse( false );
   item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  client->chr->gotten_item( {} );
 
   Mobile::Character* equip_on = nullptr;
   if ( equip_on_serial == client->chr->serial )
@@ -77,7 +78,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
 
-      undo_get_item( client->chr, item );
+      info.undo( client->chr );
       return;
     }
   }
@@ -89,7 +90,7 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     // 3D Client doesn't check for this!
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ALREADY_WORN );
 
-    undo_get_item( client->chr, item );  // added 11/01/03 for 3d client
+    info.undo( client->chr );  // added 11/01/03 for 3d client
     return;
   }
 
@@ -99,15 +100,11 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
     // the client now puts the item back where it was before.
 
     // return the item to wherever it was. (?)
-    undo_get_item( client->chr, item );
+    info.undo( client->chr );
     if ( client->chr == equip_on )
-    {
       send_sysmessage( client, "You are not strong enough to use that." );
-    }
     else
-    {
       send_sysmessage( client, "Insufficient strength to equip that." );
-    }
     return;
   }
 
@@ -116,17 +113,13 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
     if ( item->orphan() )
-    {
       return;
-    }
-    undo_get_item( client->chr, item );
+    info.undo( client->chr );
     return;
   }
 
   if ( item->orphan() )
-  {
     return;
-  }
 
   // Unregister the item if it is on a multi
   if ( item->container == nullptr && !item->has_gotten_by() )
