@@ -63,7 +63,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
   if ( isdigit( ch ) || ch == '.' || ch == '+' || ch == '-' )
   {
     char *endptr = nullptr, *endptr2 = nullptr;
-    int l = strtol( s, &endptr, radix );
+    long l = strtol( s, &endptr, radix );
     double d = strtod( s, &endptr2 );
 
     if ( endptr >= endptr2 )
@@ -71,7 +71,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
       // it's a long
       if ( endptr )
       {
-        if ( ( l != INT_MIN ) && ( l != INT_MAX ) )
+        if ( ( l > INT_MIN ) && ( l < INT_MAX ) )
         {
           while ( *endptr )
           {
@@ -139,5 +139,5 @@ std::string normalize_ecl_filename( const std::string& filename )
   else
     return filename;
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

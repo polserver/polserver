@@ -76,7 +76,7 @@ class UOBject:
     self.log = logging.getLogger(self.__class__.__name__)
     ## Client reference
     self.client = client
-    
+
     ## Unique serial number
     self.serial = None
     ## Graphic ID
@@ -774,7 +774,6 @@ class Client(threading.Thread):
           self.log.warn("Ignoring add item 0x%X to non-container 0x%X", it['serial'], it['container'])
 
     elif isinstance(pkt, packets.WarModePacket):
-      assert self.player.war is None
       self.player.war = pkt.war
 
     elif isinstance(pkt, packets.AllowAttackPacket):
@@ -1063,7 +1062,7 @@ class Client(threading.Thread):
       self.player.notoriety = pkt.notoriety
       self.brain.event(brain.Event(brain.Event.EVT_NOTORIETY,
           old=old, new=self.player.notoriety))
-  
+
   @status('game')
   @clientthread
   @logincomplete
@@ -1144,14 +1143,15 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def say(self, text, font=3, color=0):
+  def say(self, text, font=3, color=0, tokens=None):
     ''' Say something, in unicode
     @param text string: Any unicode string
     @param font int: Font code, usually 3
     @param colot int: Font color, usually 0
+    @param tokens list of ints
     '''
     po = packets.UnicodeSpeechRequestPacket()
-    po.fill(po.TYP_NORMAL, self.LANG, text, color, font)
+    po.fill(po.TYP_NORMAL, self.LANG, text, color, font, tokens)
     self.queue(po)
 
   @logincomplete
@@ -1239,7 +1239,7 @@ class Client(threading.Thread):
       else:
         raise NotImplementedError("Unknown todo event {}",format(ev.type))
     return True
-  
+
   @clientthread
   def receive(self, expect=None, blocking=True):
     '''! Receives next packet from the server

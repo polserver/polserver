@@ -17,4 +17,5 @@ program main()
     print(TypeOfInt(obj.d) == OT_STRUCT);
     print(obj.d.size() == 1);
     print(obj.d.key == "value");
+    print(PackJSON(expr, 1) != json);
 endprogram

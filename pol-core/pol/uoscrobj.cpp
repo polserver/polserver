@@ -4743,7 +4743,7 @@ SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
   if ( !lang.empty() )
     addMember( "langcode", new String( lang ) );
   if ( speechtokens != nullptr )
-    addMember( "tokens", speechtokens );
+    addMember( "tokens", new Bscript::ObjArray( *speechtokens ) );
 }
 
 DamageEvent::DamageEvent( Mobile::Character* source, unsigned short damage )

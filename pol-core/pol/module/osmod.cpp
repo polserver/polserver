@@ -566,9 +566,10 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     unsigned short port;
     int assume_string_int;
     int keep_connection_int;
+    int ignore_line_breaks_int;
     if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
          getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) &&
-         getParam( 5, keep_connection_int ) )
+         getParam( 5, keep_connection_int ) && getParam( 6, ignore_line_breaks_int ) )
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
@@ -592,9 +593,11 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       std::string hostname( host->value() );
       bool assume_string = assume_string_int != 0;
       bool keep_connection = keep_connection_int != 0;
+      bool ignore_line_breaks = ignore_line_breaks_int != 0;
       BObject paramobj( scriptparam );  // prevent delete
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection]()
+          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection,
+           ignore_line_breaks]()
           {
             Clib::Socket s;
             bool success_open = s.open( hostname.c_str(), port );
@@ -616,8 +619,9 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               uoexec_w.get_weakptr()->revive();
             }
-            std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
-                sd, std::move( s ), paramobj->copy(), assume_string, keep_connection ) );
+            std::unique_ptr<Network::AuxClientThread> client(
+                new Network::AuxClientThread( sd, std::move( s ), paramobj->copy(), assume_string,
+                                              keep_connection, ignore_line_breaks ) );
             client->run();
           } );
 
@@ -650,7 +654,7 @@ size_t curlReadHeaderCallback( char* buffer, size_t size, size_t nitems, void* u
 {
   auto headerData = static_cast<CurlHeaderData*>( userdata );
   std::string value( buffer, size * nitems );
-  
+
   // statusText is set after parsing the first header line
   if ( !headerData->statusText.has_value() )
   {

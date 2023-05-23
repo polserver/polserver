@@ -103,7 +103,7 @@ Unpack( str );
 TypeOf( expr ); // returns "Integer", "Real" etc
 SizeOf( expr ); // returns estimate of memory used
 TypeOfInt( expr ); // returns Integer representation of TypeOf string
-PackJSON( expr ); 
+PackJSON( expr, pretty := 0 );
 UnpackJSON( jsonStr );
 Boolean( number ); // returns boolean instance
 EncodeBase64( str );

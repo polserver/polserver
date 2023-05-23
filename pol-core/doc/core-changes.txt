@@ -1,4 +1,16 @@
-﻿-- POL100.1.0 --
+-- POL100.1.0 --
+05-15-2023 Kevin:
+    Fixed: Fixed an issue with GetConfigString behavior on large numeric property values.
+05-13-2023 Kevin:
+  Changed: Modified functionality of combat.cfg setting WarmodeInhibitsRegen (backwards-compatible). Instead of a boolean 0/1, it is now an enumeration 0-4: none = 0 (default), both = 1, players only = 2, NPCs only = 3.
+04-04-2023 Turley:
+    Fixed: Crash when EventQueue is full due to SpeechEvents
+04-23-2023 Kevin:
+    Added: PackJSON() now accepts an option for `prettify`. If true, the output string will be indented with new lines.
+03-19-2023 Kevin:
+    Added: OpenConnection() now accepts an option for ignore_line_breaks. If set to 1, the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message.
+02-28-2023 Kevin:
+    Fixed: MultiRef.items now correctly includes items on the exterior stairs of custom houses.
 02-27-2023 Kevin:
     Fixed: DestroyItem(item) will now throw an error if item is a multi.
 02-06-2023 Kevin:

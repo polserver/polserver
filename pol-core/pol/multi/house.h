@@ -98,10 +98,13 @@ public:
 
   virtual void walk_on( Mobile::Character* chr ) override;
 
+  virtual Core::Range3d current_box() const override;
+
   void ClearSquatters();
   bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
   bool add_component( Component component );
   static void list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in );
+  static ItemList get_working_design_items( UHouse* house );
   void AcceptHouseCommit( Mobile::Character* chr, bool accept );
   void CustomHousesQuit( Mobile::Character* chr, bool drop_changes, bool send_pkts = true );
 
