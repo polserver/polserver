@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+05-24-2023 Kevin:
+    Fixed: Fixed crash when using mysql_fetch_row with a query that does not return any result (eg. UPDATE).
 05-23-2023 Turley / Kevin:
     Fixed: Corrected behavior of dropping items with NoDrop: An attempt from a character to move a no-drop item between regular containers (ie, both containers are not "no-drop exception") will now correctly place the item back into the original container (instead of the player's backpack).
 05-15-2023 Kevin:

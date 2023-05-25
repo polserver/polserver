@@ -96,6 +96,7 @@ public:
   int affected_rows() const;
   const char* field_name( unsigned int index ) const;
   int num_rows() const;
+  bool has_result() const;
   virtual Bscript::BObjectImp* copy() const override;
   virtual std::string getStringRep() const override;
   virtual size_t sizeEstimate() const override
