@@ -111,6 +111,8 @@ class ExecutorDebugEnvironment
 public:
   ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener );
 
+  // Return `false` to skip the instruction from executing.
+  bool on_instruction( Executor& );
   size_t sizeEstimate() const;
 
   ExecutorDebugState debug_state;

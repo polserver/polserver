@@ -87,6 +87,101 @@ size_t ExecutorDebugEnvironment::sizeEstimate() const
   return size;
 }
 
+bool ExecutorDebugEnvironment::on_instruction( Executor& ex )
+{
+  switch ( debug_state )
+  {
+  case ( ExecutorDebugState::ATTACHING ):
+  {
+    debug_state = ExecutorDebugState::ATTACHED;
+    ex.sethalt( true );
+    return false;
+  }
+  case ( ExecutorDebugState::INS_TRACE ):
+  {
+    // let this instruction through.
+    debug_state = ExecutorDebugState::ATTACHED;
+    ex.sethalt( true );
+    // but let this instruction execute.
+    break;
+  }
+  case ( ExecutorDebugState::STEP_INTO ):
+  {
+    debug_state = ExecutorDebugState::STEPPING_INTO;
+    // let this instruction execute.
+    break;
+  }
+  case ( ExecutorDebugState::STEPPING_INTO ):
+  {
+    if ( ex.prog()->dbg_ins_statementbegin.size() > ex.PC &&
+         ex.prog()->dbg_ins_statementbegin[ex.PC] )
+    {
+      tmpbreakpoints.insert( ex.PC );
+      // and let breakpoint processing catch it below.
+    }
+    break;
+  }
+  case ( ExecutorDebugState::STEP_OVER ):
+  {
+    break_on_linechange_from = { ex.prog()->dbg_linenum[ex.PC], ex.ControlStack.size() };
+    debug_state = ExecutorDebugState::STEPPING_OVER;
+    break;
+  }
+  case ( ExecutorDebugState::STEPPING_OVER ):
+  {
+    if ( ex.ControlStack.size() < break_on_linechange_from.control ||
+         ( ex.ControlStack.size() == break_on_linechange_from.control &&
+           ex.prog()->dbg_linenum[ex.PC] != break_on_linechange_from.line ) )
+    {
+      debug_state = ExecutorDebugState::ATTACHED;
+      break_on_linechange_from = { ~0u, ~0u };
+      ex.sethalt( true );
+      return false;
+    }
+    break;
+  }
+  case ( ExecutorDebugState::STEP_OUT ):
+  {
+    if ( ex.ControlStack.size() > 0 )
+    {
+      tmpbreakpoints.insert( ex.ControlStack.back().PC );
+    }
+    debug_state = ExecutorDebugState::RUN;
+    break;
+  }
+  case ( ExecutorDebugState::RUN ):
+  {
+    // do nothing
+    break;
+  }
+  case ( ExecutorDebugState::ATTACHED ):
+  {
+    return false;
+  }
+  case ( ExecutorDebugState::BREAK_INTO ):
+  {
+    debug_state = ExecutorDebugState::ATTACHED;
+    ex.sethalt( true );
+    return false;
+    break;
+  }
+  }
+
+  // check for breakpoints on this instruction
+  if ( ( breakpoints.count( ex.PC ) || tmpbreakpoints.count( ex.PC ) ) && bp_skip != ex.PC &&
+       !ex.halt() )
+  {
+    tmpbreakpoints.erase( ex.PC );
+    bp_skip = ex.PC;
+    debug_state = ExecutorDebugState::ATTACHED;
+    ex.sethalt( true );
+    return false;
+  }
+  bp_skip = ~0u;
+
+  return true;
+}
+
 extern int executor_count;
 Clib::SpinLock Executor::_executor_lock;
 Executor::Executor()
@@ -3031,86 +3126,10 @@ void Executor::execInstr()
     if ( debug_level >= INSTRUCTIONS )
       INFO_PRINT << PC << ": " << ins.token << "\n";
 
-    if ( dbg_env_ )
+    // If `on_instruction` returns false, do not execute this instruction.
+    if ( dbg_env_ && !dbg_env_->on_instruction( *this ) )
     {
-      auto& debug_state = dbg_env_->debug_state;
-      auto& breakpoints = dbg_env_->breakpoints;
-      auto& tmpbreakpoints = dbg_env_->tmpbreakpoints;
-      auto& break_on_linechange_from = dbg_env_->break_on_linechange_from;
-      auto& bp_skip = dbg_env_->bp_skip;
-
-      if ( debug_state == ExecutorDebugState::ATTACHING )
-      {
-        debug_state = ExecutorDebugState::ATTACHED;
-        sethalt( true );
-        return;
-      }
-      else if ( debug_state == ExecutorDebugState::INS_TRACE )
-      {
-        // let this instruction through.
-        debug_state = ExecutorDebugState::ATTACHED;
-        sethalt( true );
-        // but let this instruction execute.
-      }
-      else if ( debug_state == ExecutorDebugState::STEP_INTO )
-      {
-        debug_state = ExecutorDebugState::STEPPING_INTO;
-        // let this instruction execute.
-      }
-      else if ( debug_state == ExecutorDebugState::STEPPING_INTO )
-      {
-        if ( prog_->dbg_ins_statementbegin.size() > PC && prog_->dbg_ins_statementbegin[PC] )
-        {
-          tmpbreakpoints.insert( PC );
-          // and let breakpoint processing catch it below.
-        }
-      }
-      else if ( debug_state == ExecutorDebugState::STEP_OVER )
-      {
-        break_on_linechange_from = { prog_->dbg_linenum[PC], ControlStack.size() };
-        debug_state = ExecutorDebugState::STEPPING_OVER;
-      }
-      else if ( debug_state == ExecutorDebugState::STEPPING_OVER )
-      {
-        if ( ControlStack.size() < break_on_linechange_from.control ||
-             ( ControlStack.size() == break_on_linechange_from.control &&
-               prog_->dbg_linenum[PC] != break_on_linechange_from.line ) )
-        {
-          debug_state = ExecutorDebugState::ATTACHED;
-          break_on_linechange_from = { ~0u, ~0u };
-          sethalt( true );
-          return;
-        }
-      }
-      else if ( debug_state == ExecutorDebugState::STEP_OUT )
-      {
-        if ( ControlStack.size() > 0 )
-        {
-          tmpbreakpoints.insert( ControlStack.back().PC );
-        }
-        debug_state = ExecutorDebugState::RUN;
-      }
-      else if ( debug_state == ExecutorDebugState::RUN )
-      {
-        // do nothing
-      }
-      else if ( debug_state == ExecutorDebugState::BREAK_INTO )
-      {
-        debug_state = ExecutorDebugState::ATTACHED;
-        sethalt( true );
-        return;
-      }
-
-      // check for breakpoints on this instruction
-      if ( ( breakpoints.count( PC ) || tmpbreakpoints.count( PC ) ) && bp_skip != PC && !halt() )
-      {
-        tmpbreakpoints.erase( PC );
-        bp_skip = PC;
-        debug_state = ExecutorDebugState::ATTACHED;
-        sethalt( true );
-        return;
-      }
-      bp_skip = ~0u;
+      return;
     }
 
     ++ins.cycles;
@@ -3313,6 +3332,7 @@ bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
       }
       dbg_env_listener = listener;
     }
+    dbg_env_->debug_state = ExecutorDebugState::ATTACHING;
   }
   else
   {
