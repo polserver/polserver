@@ -153,6 +153,14 @@ dap::ResponseOrError<dap::PolProcessesResponse> DebugClientThread::handle_proces
       dap::PolProcess entry;
       entry.id = pid;
       entry.program = uoexec->scriptname();
+
+      if ( uoexec->halt() )
+        entry.state = 2;  // debugging
+      else if ( uoexec->in_hold_list() == NO_LIST )
+        entry.state = 1;  // running
+      else
+        entry.state = 0;  // sleeping
+
       response.processes.push_back( entry );
     }
   }
