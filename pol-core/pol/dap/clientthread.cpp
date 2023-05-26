@@ -76,7 +76,7 @@ dap::ResponseOrError<dap::AttachResponse> DebugClientThread::handle_attach(
     _uoexec_wptr.clear();
   }
 
-  auto pid = request.pid;
+  auto pid = static_cast<unsigned int>( request.pid );
   if ( find_uoexec( pid, &uoexec ) )
   {
     EScriptProgram* prog = const_cast<EScriptProgram*>( uoexec->prog() );
@@ -264,7 +264,7 @@ dap::ResponseOrError<dap::SetVariableResponse> DebugClientThread::handle_setVari
 
   dap::SetVariableResponse response;
 
-  auto reference_ptr = _variable_handles.get( request.variablesReference );  //
+  auto reference_ptr = _variable_handles.get( static_cast<int>( request.variablesReference ) );
 
   if ( reference_ptr == nullptr )
   {
@@ -355,7 +355,7 @@ dap::ResponseOrError<dap::SetBreakpointsResponse> DebugClientThread::handle_setB
 
   if ( request.source.sourceReference.has_value() )
   {
-    filenum = request.source.sourceReference.value();
+    filenum = static_cast<unsigned int>( request.source.sourceReference.value() );
   }
   else
   {
@@ -372,7 +372,8 @@ dap::ResponseOrError<dap::SetBreakpointsResponse> DebugClientThread::handle_setB
       return dap::Error( "File not in scope" );
     }
 
-    filenum = std::distance( _script->dbg_filenames.begin(), filename_iter );
+    filenum =
+        static_cast<unsigned int>( std::distance( _script->dbg_filenames.begin(), filename_iter ) );
   }
 
   if ( filenum >= _script->dbg_filenames.size() )
@@ -580,7 +581,7 @@ dap::ResponseOrError<dap::VariablesResponse> DebugClientThread::handle_variables
 
   dap::VariablesResponse response;
 
-  auto reference_ptr = _variable_handles.get( request.variablesReference );  //
+  auto reference_ptr = _variable_handles.get( static_cast<int>( request.variablesReference ) );
 
   if ( reference_ptr == nullptr )
   {
