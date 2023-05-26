@@ -37,6 +37,7 @@ struct PolProcess
 {
   number id;
   string program;
+  number state; // 0 = sleeping, 1 = running, 2 = debugging
 };
 
 DAP_DECLARE_STRUCT_TYPEINFO( PolProcess );
