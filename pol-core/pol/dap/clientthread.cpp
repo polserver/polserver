@@ -12,6 +12,7 @@
 #include "../scrdef.h"
 #include "../scrsched.h"
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <fstream>
 
 namespace Pol
@@ -146,9 +147,8 @@ dap::ResponseOrError<dap::PolProcessesResponse> DebugClientThread::handle_proces
 
   for ( const auto& [pid, uoexec] : scriptScheduler.getPidlist() )
   {
-    std::string name = Clib::strlowerASCII( uoexec->scriptname() );
     if ( !request.filter.has_value() ||
-         strstr( name.c_str(), request.filter.value().c_str() ) != nullptr )
+         boost::icontains( uoexec->scriptname(), request.filter.value() ) )
     {
       dap::PolProcess entry;
       entry.id = pid;
