@@ -76,7 +76,8 @@ SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifi
 {
 }
 
-SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier, const Range& range )
+SourceLocation::SourceLocation( const SourceFileIdentifier* source_file_identifier,
+                                const Range& range )
     : source_file_identifier( source_file_identifier ), range( range )
 {
 }
