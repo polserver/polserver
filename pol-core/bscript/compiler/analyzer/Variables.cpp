@@ -60,8 +60,8 @@ std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count
           report.warning( removing->source_location, "local variable '", last_name,
                           "' was not used." );
         }
-        variables_by_name.erase( itr );
         removed.push_back( removing );
+        variables_by_name.erase( itr );
       }
       names_by_index.pop_back();
     }
