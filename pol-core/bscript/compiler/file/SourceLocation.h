@@ -43,6 +43,7 @@ class SourceLocation
 public:
   SourceLocation( const SourceFileIdentifier*, unsigned short line_number,
                   unsigned short character_column );
+  SourceLocation( const SourceFileIdentifier*, const Range& );
   SourceLocation( const SourceFileIdentifier*, antlr4::ParserRuleContext& );
   SourceLocation( const SourceFileIdentifier*, antlr4::tree::TerminalNode& );
 
