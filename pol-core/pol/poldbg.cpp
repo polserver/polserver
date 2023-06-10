@@ -200,7 +200,8 @@ const char* poldbg_mobileref_members[] = { "warmode",
                                            "physical_resist_cap",
                                            "luck_mod",
                                            "swing_speed_increase",
-                                           "swing_speed_increase_mod"
+                                           "swing_speed_increase_mod",
+                                           "parry_chance_mod"
 
 };
 

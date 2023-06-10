@@ -3384,6 +3384,7 @@ void Character::attack( Character* opponent )
 
       double parry_chance =
           opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
+      parry_chance += opponent->parry_chance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
         INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
       if ( Clib::random_double( 1.0 ) < parry_chance )
