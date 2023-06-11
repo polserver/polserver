@@ -271,7 +271,7 @@ ObjMember object_members[] = {
     { MBR_CURSED, "cursed", false },
     { MBR_SNOOPSCRIPT, "snoopscript", false },
     { MBR_CHARACTER_OWNER, "character_owner", true },
-    { MBR_PARRY_CHANCE_MOD, "parry_chance_mod", false },
+    { MBR_PARRYCHANCE_MOD, "parrychance_mod", false },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )

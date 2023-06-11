@@ -53,7 +53,7 @@ if( random_float(1.0) &lt; hit_chance )
     call ParryAdvancement sys hook
 
     parry_chance = opponent_parry_skill / 200.0
-    parry_chance += opponent_parry_chance_mod * 0.001
+    parry_chance += opponent_parrychance_mod * 0.001
     if( random_float(1.0) &lt; parry_chance )
       display parry success
       damage -= opponent_shield_ar
