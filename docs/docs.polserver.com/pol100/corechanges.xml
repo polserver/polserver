@@ -6,6 +6,11 @@
 	</header>
 	<version name="POL100.1.0">
 		<entry>
+			<date>11-06-2023</date>
+			<author>Ins:</author>
+			<change type="Added">New Character member .parry_chance_mod +-int in thousandth. Additive modificator of the parry_chance from the defender when it has shield equipped.</change>
+		</entry>
+		<entry>
 			<date>05-24-2023</date>
 			<author>Kevin:</author>
 			<change type="Fixed">Fixed crash when using mysql_fetch_row with a query that does not return any result (eg. UPDATE).</change>

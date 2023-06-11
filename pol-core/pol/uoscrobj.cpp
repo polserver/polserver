@@ -2175,6 +2175,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_EVASIONCHANCE_MOD:
     return new BLong( evasionchance_mod() );
     break;
+  case MBR_PARRY_CHANCE_MOD:
+    return new BLong( parry_chance_mod() );
+    break;
   case MBR_CARRYINGCAPACITY_MOD:
     return new BLong( carrying_capacity_mod() );
     break;
@@ -2535,6 +2538,9 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   case MBR_EVASIONCHANCE_MOD:
     evasionchance_mod( static_cast<short>( value ) );
     return new BLong( evasionchance_mod() );
+  case MBR_PARRY_CHANCE_MOD:
+    parry_chance_mod( static_cast<short>( value ) );
+    return new BLong( parry_chance_mod() );
   case MBR_CARRYINGCAPACITY_MOD:
     carrying_capacity_mod( static_cast<short>( value ) );
     if ( client != nullptr )
