@@ -341,6 +341,9 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   value = hit_chance().mod;
   if ( value )
     sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
+  value = parry_chance().mod;
+  if ( value )
+    sw() << "\tParryChanceMod\t" << static_cast<int>( value ) << pf_endl;
   value = fire_resist_cap().mod;
   if ( value )
     sw() << "\tFireResistCapMod\t" << static_cast<int>( value ) << pf_endl;
@@ -461,6 +464,9 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "HITCHANCEMOD", 0 ) );
   if ( mod_value != 0 )
     hit_chance( hit_chance().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "PARRYCHANCEMOD", 0 ) );
+  if ( mod_value != 0 )
+    parry_chance( parry_chance().setAsMod( mod_value ) );
   mod_value = static_cast<s16>( elem.remove_int( "FIRERESISTCAPMOD", 0 ) );
   if ( mod_value != 0 )
     fire_resist_cap( fire_resist_cap().setAsMod( mod_value ) );

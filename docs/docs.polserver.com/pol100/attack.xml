@@ -39,7 +39,7 @@ hit_chance = (weapon_attribute + 50.0) / (2.0 * opponent_weapon_attribute + 50.0
 hit_chance += hitchance_mod * 0.001
 hit_chance -= opponent_evasionchance_mod * 0.001
 
-if( random_float(1.0) &lt; hitchance )
+if( random_float(1.0) &lt; hit_chance )
   play hit sounds and anims
   damage weapon (1 in 100 chance to lose 1 hp)
 
@@ -53,6 +53,9 @@ if( random_float(1.0) &lt; hitchance )
     call ParryAdvancement sys hook
 
     parry_chance = opponent_parry_skill / 200.0
+    parry_chance += shield_parry_chance / 100.0
+    parry_chance += opponent_parry_chance / 100.0
+    parry_chance += opponent_parry_chance_mod * 0.001
     if( random_float(1.0) &lt; parry_chance )
       display parry success
       damage -= opponent_shield_ar

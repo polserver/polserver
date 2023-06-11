@@ -176,6 +176,8 @@ enum DynPropTypes : u8
   PROP_SWING_SPEED_INCREASE = 89,        // UObject
   PROP_SWING_SPEED_INCREASE_MOD = 90,    // UObject
   PROP_ORIG_SWING_SPEED_INCREASE = 91,   // Npc
+  PROP_PARRY_CHANCE = 92,                // Character
+  PROP_PARRY_CHANCE_MOD = 93,            // Character
 
   PROP_FLAG_SIZE  // used for bitset size
 };

@@ -304,6 +304,7 @@ public:
   DYN_PROPERTY( luck, ValueModPack, PROP_EXT_STATBAR_LUCK, ValueModPack::DEFAULT );
   DYN_PROPERTY( swing_speed_increase, ValueModPack, PROP_SWING_SPEED_INCREASE,
                 ValueModPack::DEFAULT );
+  DYN_PROPERTY( parry_chance, ValueModPack, PROP_PARRY_CHANCE, ValueModPack::DEFAULT );
 
 
 private:

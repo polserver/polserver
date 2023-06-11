@@ -560,6 +560,9 @@ void Item::readProperties( Clib::ConfigElem& elem )
   value = static_cast<s16>( elem.remove_int( "HITCHANCE", 0 ) );
   if ( value != 0 )
     hit_chance( hit_chance().setAsValue( value ) );
+  value = static_cast<s16>( elem.remove_int( "PARRYCHANCE", 0 ) );
+  if ( value != 0 )
+    parry_chance( parry_chance().setAsValue( value ) );
   value = static_cast<s16>( elem.remove_int( "FIRERESISTCAP", 0 ) );
   if ( value != 0 )
     fire_resist_cap( fire_resist_cap().setAsValue( value ) );

@@ -771,6 +771,7 @@ protected:
   DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
   DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HIT_CHANCE_MOD, 0 );
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
+  DYN_PROPERTY( parry_chance_mod, s16, Core::PROP_PARRY_CHANCE_MOD, 0 );
 
   Character* opponent_;
   CharacterSet opponent_of;

@@ -475,6 +475,11 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
     hit_chance( apply( hit_chance(), value ) );
     orig_hit_chance( static_cast<s16>( value ) );
   }
+  if ( elem.remove_prop( "PARRYCHANCE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    parry_chance( apply( parry_chance(), value ) );
+    orig_parry_chance( static_cast<s16>( value ) );
+  }
   if ( elem.remove_prop( "FIRERESISTCAP", &tmp ) && diceValue( tmp, &value ) )
   {
     fire_resist_cap( apply( fire_resist_cap(), value ) );
