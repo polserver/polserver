@@ -160,6 +160,8 @@ public:
   unsigned short luck_mod;
   unsigned short swing_speed_increase;
   unsigned short swing_speed_increase_mod;
+  unsigned short parry_chance;
+  unsigned short parry_chance_mod;
 
 
   Core::Dice resist_dice;

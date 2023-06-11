@@ -1,4 +1,7 @@
 -- POL100.1.0 --
+11-06-2023 Ins:
+    Added: Member character.parry_chance, item.parry_chance. Parry chance (+- int / 100.0). Can be set to shield item or/and NPC/player if it has shield equipped. [+ opponent_parry_chance / 100.0 + opponent_shield_parry_chance / 100.0]
+    Added: Member character.parry_chance_mod, item.parry_chance_mod. Additive modificator of the parry chance from the defender (+- int in thousandth). [+ opponent_parry_chance_mod * 0.001]
 05-24-2023 Kevin:
     Fixed: Fixed crash when using mysql_fetch_row with a query that does not return any result (eg. UPDATE).
 05-23-2023 Turley / Kevin:

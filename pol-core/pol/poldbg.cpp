@@ -201,6 +201,7 @@ const char* poldbg_mobileref_members[] = { "warmode",
                                            "luck_mod",
                                            "swing_speed_increase",
                                            "swing_speed_increase_mod",
+                                           "parry_chance",
                                            "parry_chance_mod"
 
 };

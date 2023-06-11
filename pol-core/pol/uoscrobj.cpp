@@ -1506,6 +1506,19 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     }
     return new BLong( hit_chance().mod );
     break;
+  case MBR_PARRY_CHANCE_MOD:
+    parry_chance( parry_chance().setAsMod( static_cast<short>( value ) ) );
+    if ( container != nullptr )
+    {
+      if ( Core::IsCharacter( container->serial ) )
+      {
+        Mobile::Character* chr = container->get_chr_owner();
+        if ( chr != nullptr )
+          chr->refresh_ar();
+      }
+    }
+    return new BLong( parry_chance().mod );
+    break;
   case MBR_LUCK_MOD:
     luck( luck().setAsMod( static_cast<short>( value ) ) );
     if ( container != nullptr )

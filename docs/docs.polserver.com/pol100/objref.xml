@@ -239,6 +239,7 @@
 <member mname="race" type="Integer" access="r/w" mdesc="Set/get the ML/SA race (new constants in UO.EM: RACE_HUMAN, RACE_ELF,RACE_GARGOYLE). You have to set visual graphic by yourself if you change value (Human male/female = 0x190/0x191 / Elf male/female = 0x25d/0x25e / Gargoyle male/female = 0x029a/0x029b). You can choose Race at Char creation if your UOExpansion and UOFeature settings fit." />
 <member mname="hitchance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the hitchance from the attacker (+- int in thousandth)" />
 <member mname="evasionchance_mod" type="Integer" access="r/w" mdesc="Subtractive modificator of the hitchance from the defender (+- int in thousandth)" />
+<member mname="parry_chance" type="Integer" access="r/w" mdesc="Parry chance (+- int / 100.0). Can be set to shield item or/and NPC/player if it has shield equipped." />
 <member mname="parry_chance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the parry chance from the defender (+- int in thousandth)" />
 <member mname="carrying_capacity" type="Integer" access="r/o" mdesc="Current carrying capacity. Defined as (40 + 3.5*chr.strength + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod. Note that characters can go above their carrying capacity, but will run out of stamina much faster." />
 <member mname="carrying_capacity_mod" type="Integer" access="r/w" mdesc="Carrying capacity modifier. Is taken into account prior to global ssopt modifier." />

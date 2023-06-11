@@ -458,6 +458,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "HitChance", &temp ) )
     hit_chance = diceValue( temp, "Hit Chance" );
 
+  if ( elem.remove_prop( "ParryChance", &temp ) )
+    parry_chance = diceValue( temp, "Parry Chance" );
+
   if ( elem.remove_prop( "FireResistCap", &temp ) )
     resist_fire_cap = diceValue( temp, "Fire Resist Cap" );
 
@@ -494,6 +497,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if ( elem.remove_prop( "HitChanceMod", &temp ) )
     hit_chance_mod = diceValue( temp, "Hit Chance Mod" );
+
+  if ( elem.remove_prop( "ParryChanceMod", &temp ) )
+    parry_chance_mod = diceValue( temp, "Parry Chance Mod" );
 
   if ( elem.remove_prop( "FireResistCapMod", &temp ) )
     resist_fire_cap_mod = diceValue( temp, "Fire Resist Cap Mod" );
@@ -825,6 +831,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DefenceIncreaseCap", new BLong( defence_increase_cap ) );
   descriptor->addMember( "LowerManaCost", new BLong( lower_mana_cost ) );
   descriptor->addMember( "HitChance", new BLong( hit_chance ) );
+  descriptor->addMember( "ParryChance", new BLong( parry_chance ) );
   descriptor->addMember( "FireResistCap", new BLong( resist_fire_cap ) );
   descriptor->addMember( "ColdResistCap", new BLong( resist_cold_cap ) );
   descriptor->addMember( "EnergyResistCap", new BLong( resist_energy_cap ) );
@@ -838,6 +845,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "DefenceIncreaseCapMod", new BLong( defence_increase_cap_mod ) );
   descriptor->addMember( "LowerManaCostMod", new BLong( lower_mana_cost_mod ) );
   descriptor->addMember( "HitChanceMod", new BLong( hit_chance_mod ) );
+  descriptor->addMember( "ParryChanceMod", new BLong( parry_chance_mod ) );
   descriptor->addMember( "FireResistCapMod", new BLong( resist_fire_cap_mod ) );
   descriptor->addMember( "ColdResistCapMod", new BLong( resist_cold_cap_mod ) );
   descriptor->addMember( "EnergyResistCapMod", new BLong( resist_energy_cap_mod ) );
