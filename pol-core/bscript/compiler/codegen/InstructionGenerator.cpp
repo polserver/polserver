@@ -61,6 +61,7 @@
 #include "bscript/compiler/codegen/DebugBlockGuard.h"
 #include "bscript/compiler/codegen/InstructionEmitter.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/Variable.h"
@@ -69,12 +70,13 @@
 namespace Pol::Bscript::Compiler
 {
 InstructionGenerator::InstructionGenerator(
-    InstructionEmitter& emitter, std::map<std::string, FlowControlLabel>& user_function_labels,
-    bool in_function )
-  : emitter( emitter ),
-    emit( emitter ),
-    user_function_labels( user_function_labels ),
-    in_function( in_function )
+    CompilerWorkspace& workspace, InstructionEmitter& emitter,
+    std::map<std::string, FlowControlLabel>& user_function_labels, bool in_function )
+    : workspace( workspace ),
+      emitter( emitter ),
+      emit( emitter ),
+      user_function_labels( user_function_labels ),
+      in_function( in_function )
 {
 }
 
@@ -435,6 +437,10 @@ void InstructionGenerator::visit_identifier( Identifier& node )
   if ( auto var = node.variable )
   {
     emit.access_variable( *var );
+  }
+  else if ( auto const_decl = workspace.constants.find( node.name ) )
+  {
+    visit_children( const_decl->expression() );
   }
   else
   {

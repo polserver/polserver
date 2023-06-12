@@ -146,7 +146,8 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
   if ( workspace )
   {
     register_constants( *workspace, report );
-    optimize( *workspace, report );
+    // We skip optimization so we can still get constants in the AST
+    // optimize( *workspace, report );
     disambiguate( *workspace, report );
     analyze( *workspace, report );
     tokenize( *workspace );

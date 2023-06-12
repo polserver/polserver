@@ -439,6 +439,10 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
   {
     node.variable = global;
   }
+  else if ( auto const_decl = workspace.constants.find( node.name ) )
+  {
+    // Do not show errors on constants
+  }
   else
   {
     report.error( node, "Unknown identifier '", node.name, "'." );
