@@ -1644,29 +1644,7 @@ void Character::on_color_changed()
 
 void Character::on_poison_changed()
 {
-  send_move_mobile_to_nearby_cansee( this );
-
-  // only if client is active or for npcs
-  if ( ( client ) || ( this->isa( Core::UOBJ_CLASS::CLASS_NPC ) ) )
-  {
-    if ( client )
-    {
-      send_goxyz( client, client->chr );
-      // if poisoned send_goxyz handles 0x17 packet
-      if ( !poisoned() )
-        send_poisonhealthbar( client, client->chr );
-    }
-    // This is a KR only packet, so transmit it only to KR clients
-    // who are in range.
-    // if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
-    if ( !poisoned() )
-    {
-      Network::HealthBarStatusUpdate msg( serial_ext, Network::HealthBarStatusUpdate::Color::GREEN,
-                                          poisoned() );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-          this, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-    }
-  }
+  send_move_mobile_to_nearby_cansee( this, true );
 }
 
 void Character::on_hidden_changed()

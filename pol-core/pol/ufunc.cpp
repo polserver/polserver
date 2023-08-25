@@ -1883,7 +1883,7 @@ void send_create_mobile_to_nearby_cansee( const Character* chr )
                                                     } );
 }
 
-void send_move_mobile_to_nearby_cansee( const Character* chr )
+void send_move_mobile_to_nearby_cansee( const Character* chr, bool include_self )
 {
   MoveChrPkt msgmove( chr );
   std::unique_ptr<HealthBarStatusUpdate> msgpoisoned;
@@ -1897,7 +1897,7 @@ void send_move_mobile_to_nearby_cansee( const Character* chr )
   WorldIterator<OnlinePlayerFilter>::InVisualRange( chr,
                                                     [&]( Character* zonechr )
                                                     {
-                                                      if ( zonechr == chr )
+                                                      if ( !include_self && zonechr == chr )
                                                         return;
                                                       if ( zonechr->is_visible_to_me( chr ) )
                                                       {
