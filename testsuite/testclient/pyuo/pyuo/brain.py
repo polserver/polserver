@@ -191,6 +191,7 @@ class Event:
   EVT_NEW_SUBSERVER = 10
   EVT_BOAT_MOVED = 11
   EVT_OWNCREATE = 12
+  EVT_GUMP = 13
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -260,3 +261,5 @@ class Event:
       return "drop_item"
     elif self.type==Event.EVT_DROP_APPROVED:
       return "drop_approved"
+    elif self.type==Event.EVT_GUMP:
+      return "gump"

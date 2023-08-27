@@ -1520,14 +1520,42 @@ class CompressedGumpPacket(Packet):
     self.y = self.duint()
     cLen = self.duint()
     dLen = self.duint()
-    self.commands = zlib.decompress(self.rpb(cLen-4))
-    assert len(self.commands) == dLen
+    commands = zlib.decompress(self.rpb(cLen-4))
+    assert len(commands) == dLen
+    self.commands=commands[:-1].decode().split(' }{ ')
+    if len(self.commands):
+      self.commands[0]=self.commands[0].strip('{ ')
+      self.commands[-1]=self.commands[-1].strip(' }')
+
     textLines = self.duint()
     ctxtLen = self.duint()
     dtxtLen = self.duint()
-    self.texts = zlib.decompress(self.rpb(ctxtLen-4))
-    assert len(self.texts) == dtxtLen
+    texts = zlib.decompress(self.rpb(ctxtLen-4))
+    assert len(texts) == dtxtLen
+    self.texts=[]
+    for i in range(textLines):
+        tlen=struct.unpack('>H',texts[:2])[0]
+        self.texts.append(texts[2:tlen*2+2].decode('utf_16_be'))
+        texts=texts[tlen*2+2:]
     #self.duchar() # Trailing byte?
+
+class CloseGumpResponsePacket(Packet):
+  ''' close gump '''
+
+  cmd = 0xb1
+
+  def fill(self,serial,gumpid):
+    self.serial=serial
+    self.gumpid =gumpid
+    self.length=23
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.euint(self.gumpid)
+    self.euint(0) #button id
+    self.euint(0) #switch count
+    self.euint(0) #string count
 
 
 class NewObjectInfoPacket(Packet):

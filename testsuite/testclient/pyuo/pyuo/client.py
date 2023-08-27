@@ -880,6 +880,11 @@ class Client(threading.Thread):
       pass
     elif isinstance(pkt, packets.StatusBarInfoPacket):
       pass
+    elif isinstance(pkt, packets.CompressedGumpPacket):
+      po = packets.CloseGumpResponsePacket()
+      po.fill(pkt.serial, pkt.gumpid)
+      self.queue(po)
+      self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
