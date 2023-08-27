@@ -1883,31 +1883,32 @@ void send_create_mobile_to_nearby_cansee( const Character* chr )
                                                     } );
 }
 
-void send_move_mobile_to_nearby_cansee( const Character* chr, bool include_self )
+void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_bar_status_update )
 {
   MoveChrPkt msgmove( chr );
   std::unique_ptr<HealthBarStatusUpdate> msgpoisoned;
   std::unique_ptr<HealthBarStatusUpdate> msginvul;
-  if ( chr->poisoned() )
+  if ( chr->poisoned() || send_health_bar_status_update )
     msgpoisoned.reset( new HealthBarStatusUpdate(
         chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned() ) );
-  if ( chr->invul() )
+  if ( chr->invul() || send_health_bar_status_update )
     msginvul.reset( new HealthBarStatusUpdate(
         chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul() ) );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( chr,
-                                                    [&]( Character* zonechr )
-                                                    {
-                                                      if ( !include_self && zonechr == chr )
-                                                        return;
-                                                      if ( zonechr->is_visible_to_me( chr ) )
-                                                      {
-                                                        msgmove.Send( zonechr->client );
-                                                        if ( msgpoisoned )
-                                                          msgpoisoned->Send( zonechr->client );
-                                                        if ( msginvul )
-                                                          msginvul->Send( zonechr->client );
-                                                      }
-                                                    } );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      chr,
+      [&]( Character* zonechr )
+      {
+        if ( !send_health_bar_status_update && zonechr == chr )
+          return;
+        if ( zonechr->is_visible_to_me( chr ) )
+        {
+          msgmove.Send( zonechr->client );
+          if ( msgpoisoned )
+            msgpoisoned->Send( zonechr->client );
+          if ( msginvul )
+            msginvul->Send( zonechr->client );
+        }
+      } );
 }
 
 Character* UpdateCharacterWeight( Item* item )
