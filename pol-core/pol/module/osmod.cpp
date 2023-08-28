@@ -600,6 +600,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
            ignore_line_breaks]()
           {
             Clib::Socket s;
+            std::unique_ptr<BObjectImp> paramcopy;
             bool success_open = s.open( hostname.c_str(), port );
             {
               Core::PolLock lck;
@@ -618,10 +619,11 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               }
               uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               uoexec_w.get_weakptr()->revive();
+              paramcopy.reset( paramobj->copy() );
             }
-            std::unique_ptr<Network::AuxClientThread> client(
-                new Network::AuxClientThread( sd, std::move( s ), paramobj->copy(), assume_string,
-                                              keep_connection, ignore_line_breaks ) );
+            std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
+                sd, std::move( s ), paramcopy.release(), assume_string, keep_connection,
+                ignore_line_breaks ) );
             client->run();
           } );
 

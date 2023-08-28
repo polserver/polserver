@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>05-24-2023</datemodified>
+		<datemodified>08-28-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>08-28-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Fixed race condition causing random crashes with OpenConnection.</change>
+		</entry>
 		<entry>
 			<date>06-11-2023</date>
 			<author>Ins:</author>
