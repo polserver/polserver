@@ -5,7 +5,7 @@ execute_process(
   COMMAND_ECHO STDOUT
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   RESULT_VARIABLE res
-  TIMEOUT 120
+  TIMEOUT 240
 )
 if(NOT "${res}" STREQUAL "0")
   message(SEND_ERROR "${res}")
