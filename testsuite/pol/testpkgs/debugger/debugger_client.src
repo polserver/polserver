@@ -29,14 +29,89 @@ var recvBuffer := "";
 
 program auxservice(conn, params)
     connection := conn;
-    var debuggee_pid := params.debuggee_pid;
+
+    var result;
     var test_script_pid := params.test_script_pid;
-    var result := run_test(debuggee_pid);
+    var test_type := params.test_type;
+
+    if (test_type == "attach")
+        result := run_attach_test(params.debuggee_pid);
+    elseif (test_type == "launch")
+        result := run_launch_test();
+    else
+        result := ret_error($"Unknown debugger test type '{test_type}'");
+    endif
     GetProcess(test_script_pid).SendEvent(struct{ result := result });
     connection := 0;
 endprogram
 
-function run_test(debuggee_pid)
+function run_launch_test()
+    var err;
+
+    // Send request: initialize
+    if (!request_succeeded(err, "initialize", struct{ adapterID := "pol", password := "debugme" }))
+        return err;
+    endif
+
+    // Wait for event: initialized
+    if (!event_received(err, "initialized"))
+        return err;
+    endif
+
+    // Send request: launch
+    // Note: Sets the program's parameter as "stop"
+    if (!request_succeeded(err, "launch", struct{ "program" := ":testdebugger:debuggee", arg := "S4:stop" /* packed */ }));
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: threads
+    // Note: Since we only have one thread that never changes, test sends this message only once.
+    var threads;
+    if (!(threads := request_succeeded(err, "threads")))
+        return err;
+    endif
+    var threadId := threads.threads[1].id;
+
+    // Send request: stackTrace
+    var stackTrace;
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    // Send request: scopes
+    var scopes;
+    if (!(scopes := request_succeeded(err, "scopes", struct{ frameId := stackTrace.stackFrames[1].id })))
+        return err;
+    endif
+
+    var evaluate;
+    if (!(evaluate := request_succeeded(err, "evaluate", struct{ expression := "running", frameId := scopes.scopes[1].variablesReference })))
+        return err;
+    endif
+
+    if (evaluate.result != "stop")
+        return ret_error($"Program argument from launch request `running` does not equal 'stop': {evaluate.result} != 'stop'");
+    endif
+
+    // Send request: continue
+    if (!request_succeeded(err, "continue", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: exited
+    if (!event_received(err, "exited"))
+        return err;
+    endif
+
+    return 1;
+endfunction
+
+function run_attach_test(debuggee_pid)
     var err;
 
     // Send request: initialize
@@ -83,7 +158,7 @@ function run_test(debuggee_pid)
         return err;
     endif
 
-    // Send request: scopes;
+    // Send request: scopes
     var scopes;
     if (!(scopes := request_succeeded(err, "scopes", struct{ frameId := stackTrace.stackFrames[1].id })))
         return err;
@@ -128,11 +203,10 @@ function run_test(debuggee_pid)
         endif
     endforeach
 
-    foreach setting_breakpoint in setting_breakpoints
-        if (!request_succeeded(err, "setBreakpoints", struct{ source := struct{ path := stackTrace.stackFrames[1].source.path }, breakpoints := setting_breakpoints }))
-            return err;
-        endif
-    endforeach
+    // Send request: setBreakpoints
+    if (!request_succeeded(err, "setBreakpoints", struct{ source := struct{ path := stackTrace.stackFrames[1].source.path }, breakpoints := setting_breakpoints }))
+        return err;
+    endif
 
     // Send request: continue
     if (!request_succeeded(err, "continue", struct{ threadId := threadId }))
@@ -334,6 +408,7 @@ function run_test(debuggee_pid)
     return 1;
 endfunction
 
+// Test helper methods
 function fill_buffers(timeout, request_seq := -1, event := "")
     var ev;
     var found := 0;

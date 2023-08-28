@@ -4,44 +4,57 @@ use os;
 
 const TIMEOUT := 2 * 60; // 2 minutes
 
-var debuggee;
-var conn;
-
 program test_debugger()
-    debuggee := start_script("debuggee", 1);
-    if (!debuggee)
-        return ret_error($"Could not start debuggee: {debuggee}");
-    endif
     return 1;
 endprogram
 
-exported function debugger_tests()
+exported function test_debugger_attach()
+    var debuggee := start_script("debuggee", 1);
+    if (!debuggee)
+        return ret_error($"Could not start debuggee: {debuggee}");
+    endif
+
     print($"Started debuggee {debuggee.pid}");
+
     var params := struct{
         debuggee_pid := debuggee.pid,
+        test_type := "attach",
         test_script_pid := GetPid()
     };
-    conn := OpenConnection( "127.0.0.1", 5002, "debugger_client", params := params, assume_string:=1, keep_connection:=1, ignore_line_breaks:=1 );
+
+    var test_result := start_debugger_client(params);
+    debuggee.kill();
+
+    return test_result;
+endfunction
+
+
+exported function test_debugger_launch()
+    var params := struct{
+        test_type := "launch",
+        test_script_pid := GetPid()
+    };
+
+    var test_result := start_debugger_client(params);
+
+    return test_result;
+endfunction
+
+function start_debugger_client(params)
+    var conn := OpenConnection( "127.0.0.1", 5002, "debugger_client", params := params, assume_string:=1, keep_connection:=1, ignore_line_breaks:=1 );
     if (!conn)
-        GetProcess(debuggee.pid).kill();
         return ret_error($"Could not create debugger connection: {conn}");
     endif
 
-    if (conn)
-        var ev;
-        if (ev := os::wait_for_event(TIMEOUT))
-            if (ev.result == 1)
-                GetProcess(debuggee.pid).kill();
-                GetProcess(conn.pid).kill();
-                return 1;
-            endif
-            GetProcess(debuggee.pid).kill();
+    var ev;
+    if (ev := os::wait_for_event(TIMEOUT))
+        if (ev.result == 1)
             GetProcess(conn.pid).kill();
-            return ev.result;
+            return 1;
         endif
-        GetProcess(debuggee.pid).kill();
         GetProcess(conn.pid).kill();
-        return ret_error($"Test timed out after {TIMEOUT} seconds");
+        return ev.result;
     endif
+    GetProcess(conn.pid).kill();
+    return ret_error($"Test timed out after {TIMEOUT} seconds");
 endfunction
-

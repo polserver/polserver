@@ -17,7 +17,7 @@ program main(running)
         var func2_result := func2("func2:param1", global_float, global_array);
         var shadowed_result := funcShadowed("funcShadowed:param1");
         Sleepms(1);
-    dowhile (running);
+    dowhile (running && running != "stop");
 endprogram
 
 function func1( func1_param1, func1_param2, func1_param3 )
