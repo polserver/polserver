@@ -109,7 +109,7 @@ enum class ExecutorDebugState
 class ExecutorDebugEnvironment
 {
 public:
-  ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener );
+  ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener, bool set_attaching );
 
   // Return `false` to skip the instruction from executing.
   bool on_instruction( Executor& );
@@ -409,7 +409,8 @@ public:
   bool halt() const;
   void sethalt( bool halt );
 
-  bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {} );
+  bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
+                        bool set_attaching = true );
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
   void dbg_ins_trace();

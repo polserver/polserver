@@ -70,8 +70,9 @@ void display_executor_instances()
   }
 }
 
-ExecutorDebugEnvironment::ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener )
-    : debug_state( ExecutorDebugState::ATTACHING ),
+ExecutorDebugEnvironment::ExecutorDebugEnvironment( std::weak_ptr<ExecutorDebugListener> listener,
+                                                    bool set_attaching )
+    : debug_state( set_attaching ? ExecutorDebugState::ATTACHING : ExecutorDebugState::RUN ),
       breakpoints(),
       break_on_linechange_from{ ~0u, ~0u },
       bp_skip( ~0u ),
@@ -3316,7 +3317,7 @@ ExecutorModule* Executor::findModule( const std::string& name )
   return nullptr;
 }
 
-bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
+bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener, bool set_attaching )
 {
   // FIXME: a script can be in debugging state but have no debugger attached,
   // eg. a script that called `os::Debugger()`. This needs to check if a
@@ -3332,11 +3333,12 @@ bool Executor::attach_debugger( std::weak_ptr<ExecutorDebugListener> listener )
       }
       dbg_env_listener = listener;
     }
-    dbg_env_->debug_state = ExecutorDebugState::ATTACHING;
+    if ( set_attaching )
+      dbg_env_->debug_state = ExecutorDebugState::ATTACHING;
   }
   else
   {
-    dbg_env_ = std::make_unique<ExecutorDebugEnvironment>( listener );
+    dbg_env_ = std::make_unique<ExecutorDebugEnvironment>( listener, set_attaching );
   }
 
   return true;
