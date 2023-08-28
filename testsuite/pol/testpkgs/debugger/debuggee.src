@@ -1,0 +1,55 @@
+use os;
+use uo;
+
+var global_string := "global_string";
+var global_long := 1;
+var global_float := 3.14;
+var global_array := array{ "global_array[1]", "global_array[2]", "global_array[3]" };
+var global_struct := struct{ "key1" := "global_struct.key1", "key2" := "global_struct.key2", "key3" := "global_struct.key3" };
+var global_dict := dictionary{ 1 -> "global_dict[1]", 2 -> "global_dict[2]", "three" -> "global_dict[\"three\"]" };
+
+var shadowed_variable := "shadowed_variable:global";
+
+program main(running)
+    do
+        Debugger();
+        var func1_result := func1("func1:param1", global_string, global_long);
+        var func2_result := func2("func2:param1", global_float, global_array);
+        var shadowed_result := funcShadowed("funcShadowed:param1");
+        Sleepms(1);
+    dowhile (running);
+endprogram
+
+function func1( func1_param1, func1_param2, func1_param3 )
+    func1_param1;
+    func1_param2;
+    func1_param3;
+    return "func1:return";
+endfunction
+
+function func2( func2_param1, func2_param2, func2_param3 )
+    func2_param1;
+    func2_param2;
+    func2_param3;
+    var funct3_result := func3("func3:param1", global_struct, global_dict); /*set_bp*/
+    return "func2:return";
+endfunction
+
+function func3( func3_param1, func3_param2, func3_param3 )
+    func3_param1;
+    func3_param2;
+    func3_param3;
+    return "func3:return";
+endfunction
+
+function funcShadowed(shadowed_variable)
+    shadowed_variable; /*set_bp*/
+    var was_paused := 0; // Set by debugger
+    for i := 1 to 10
+        if (was_paused)
+            break;
+        endif
+        Sleepms(100); // Used for `pause`
+    endfor
+    return was_paused;
+endfunction

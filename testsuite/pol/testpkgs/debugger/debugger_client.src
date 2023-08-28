@@ -1,0 +1,516 @@
+use os;
+use file;
+
+include "testutil";
+
+const C_RED := "\x1b[31m";
+const C_GREEN := "\x1b[32m";
+const C_YELLOW := "\x1b[33m";
+const C_CYAN := "\x1b[36m";
+const C_MAGENTA_LIGHT := "\x1b[95m";
+const C_RESET := "\x1b[0m";
+
+const CONTENT_LENGTH_HEADER_KEY := "Content-Length: ";
+const CONTENT_LENGTH_HEADER_KEY_LENGTH := 16;
+const CONTENT_LENGTH_HEADER_VALUE_START := CONTENT_LENGTH_HEADER_KEY_LENGTH + 1;
+
+// List of events
+var dapEvents := {};
+
+// Maps a request sequence to a response object
+var dapResponses := dictionary{};
+
+// Global aux script connection
+var connection;
+
+// Next request sequence number
+var nextSequence := 1;
+var recvBuffer := "";
+
+program auxservice(conn, params)
+    connection := conn;
+    var debuggee_pid := params.debuggee_pid;
+    var test_script_pid := params.test_script_pid;
+    var result := run_test(debuggee_pid);
+    GetProcess(test_script_pid).SendEvent(struct{ result := result });
+    connection := 0;
+endprogram
+
+function run_test(debuggee_pid)
+    var err;
+
+    // Send request: initialize
+    if (!request_succeeded(err, "initialize", struct{ adapterID := "pol", password := "debugme" }))
+        return err;
+    endif
+
+    // Wait for event: initialized
+    if (!event_received(err, "initialized"))
+        return err;
+    endif
+
+    // Send request: processes
+    var processes;
+    if (!(processes := request_succeeded(err, "processes", struct{ filter := "debuggee" })))
+        return err;
+    endif
+
+    if (processes.processes[1].id != debuggee_pid)
+        return ret_error($"Process id does not match! Expected {processes.processes[1].id} == {debuggee_pid}");
+    endif
+
+    // Send request: attach
+    if (!request_succeeded(err, "attach", struct{ pid := debuggee_pid }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: threads
+    // Note: Since we only have one thread that never changes, test sends this message only once.
+    var threads;
+    if (!(threads := request_succeeded(err, "threads")))
+        return err;
+    endif
+    var threadId := threads.threads[1].id;
+
+    // Send request: stackTrace
+    var stackTrace;
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    // Send request: scopes;
+    var scopes;
+    if (!(scopes := request_succeeded(err, "scopes", struct{ frameId := stackTrace.stackFrames[1].id })))
+        return err;
+    endif
+
+    var scope_varibles := array{};
+    foreach scope in (scopes.scopes)
+        var variables;
+        if (!(variables := request_succeeded(err, "variables", struct{ variablesReference := scope.variablesReference })))
+            return err;
+        endif
+
+        foreach variable in (variables.variables)
+            var evaluate;
+            if (!(evaluate := request_succeeded(err, "evaluate", struct{ expression := variable.name, frameId := scope.variablesReference })))
+                return err;
+            endif
+
+            if (variable.value != evaluate.result)
+                return ret_error($"Variables value does not match evaluate result: {variable.value} != {evaluate.result}");
+            endif
+
+            if (variable.variablesReference)
+                var inner_variables;
+                if (!(inner_variables := request_succeeded(err, "variables", struct{ variablesReference := variable.variablesReference })))
+                    return err;
+                endif
+            endif
+        endforeach
+    endforeach
+
+    // Get script source
+    var source := ReadFile( "debuggee.src" );
+    if (!source)
+        return ret_error(source);
+    endif
+
+    var setting_breakpoints := array{};
+    foreach line in source
+        if (line.find("/*set_bp*/"))
+            setting_breakpoints.append(struct{ line := _line_iter });
+        endif
+    endforeach
+
+    foreach setting_breakpoint in setting_breakpoints
+        if (!request_succeeded(err, "setBreakpoints", struct{ source := struct{ path := stackTrace.stackFrames[1].source.path }, breakpoints := setting_breakpoints }))
+            return err;
+        endif
+    endforeach
+
+    // Send request: continue
+    if (!request_succeeded(err, "continue", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].name != "func2")
+        return ret_error($"Expected to be in `func2` after first continue: '{stackTrace.stackFrames[1].name}' != 'func2'");
+    endif
+
+    // Send request: stepIn
+    if (!request_succeeded(err, "stepIn", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].name != "func3")
+        return ret_error($"Expected to be in `func3` after first stepIn: '{stackTrace.stackFrames[1].name}' != 'func3'");
+    endif
+
+    if (stackTrace.stackFrames[2].name != "func2")
+        return ret_error($"Expected previous frame to be in `func2` after first stepIn: '{stackTrace.stackFrames[2].name}' != 'func2'");
+    endif
+
+    // Send request: continue
+    if (!request_succeeded(err, "continue", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].name != "funcShadowed")
+        return ret_error($"Expected to be in `funcShadowed` after second continue: '{stackTrace.stackFrames[1].name}' != 'funcShadowed'");
+    endif
+
+    var expectedNextLine := stackTrace.stackFrames[1].line + 1;
+
+    // Send request: evaluate
+    var evaluate;
+    if (!(evaluate := request_succeeded(err, "evaluate", struct{ expression := "shadowed_variable", frameId := stackTrace.stackFrames[1].id })))
+        return err;
+    endif
+
+    if (evaluate.result != "funcShadowed:param1")
+        return ret_error($"Expected value of `shadowed_variable` to be 'funcShadowed:param1': '{evaluate.result}' != 'funcShadowed:param1'");
+    endif
+
+    // Send request: next
+    if (!request_succeeded(err, "next", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].line != expectedNextLine)
+        return ret_error($"Expected to be on line {expectedNextLine} after next: {stackTrace.stackFrames[1].line} != ${expectedNextLine}");
+    endif
+
+    // Send request: continue
+    if (!request_succeeded(err, "continue", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Send request: pause
+    if (!request_succeeded(err, "pause", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].name != "funcShadowed")
+        return ret_error($"Expected to be in `funcShadowed` after third continue: '{stackTrace.stackFrames[1].name}' != 'funcShadowed'");
+    endif
+
+    // Send request: scopes
+    if (!(scopes := request_succeeded(err, "scopes", struct{ frameId := stackTrace.stackFrames[1].id })))
+        return err;
+    endif
+
+    // Send request: setVariable [local]
+    var setVariable;
+    if (!(setVariable := request_succeeded(err, "setVariable", struct{ name := "was_paused", value := "1", variablesReference := scopes.scopes[1].variablesReference })))
+        return err;
+    endif
+
+    if (setVariable.type != "number" || setVariable.value != "1")
+        return ret_error($"Expected setVariable for `was_paused` to be type = number, value = '1': {setVariable.type} != 'number' || {setVariable.value} != '1'");
+    endif
+
+    // Send request: stepOut
+    if (!request_succeeded(err, "stepOut", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].name != "(program)")
+        return ret_error($"Expected to be in `(program)` after stepOut: '{stackTrace.stackFrames[1].name}' != '(program)'");
+    endif
+
+    // Send request: next
+    if (!request_succeeded(err, "next", struct{ threadId := threadId }))
+        return err;
+    endif
+
+    // Wait for event: stopped
+    if (!event_received(err, "stopped"))
+        return err;
+    endif
+
+    // Send request: stackTrace
+    if (!(stackTrace := request_succeeded(err, "stackTrace", struct{ threadId := threadId })))
+        return err;
+    endif
+
+    if (stackTrace.stackFrames[1].name != "(program)")
+        return ret_error($"Expected to be in `(program)` after stepOut: '{stackTrace.stackFrames[1].name}' != '(program)'");
+    endif
+
+    // Send request: evaluate
+    if (!(evaluate := request_succeeded(err, "evaluate", struct{ expression := "shadowed_result", frameId := stackTrace.stackFrames[1].id })))
+        return err;
+    endif
+
+    if (evaluate.result != "1")
+        return ret_error($"Expected value of `shadowed_result` to be '1': '{evaluate.result}' != '1'");
+    endif
+
+    // Send request: scopes
+    if (!(scopes := request_succeeded(err, "scopes", struct{ frameId := stackTrace.stackFrames[1].id })))
+        return err;
+    endif
+
+    // Send request: setVariable [global]
+    if (!(setVariable := request_succeeded(err, "setVariable", struct{ name := "global_float", value := "1.5", variablesReference := scopes.scopes[Len(scopes.scopes)].variablesReference })))
+        return err;
+    endif
+
+    // Send request: evaluate
+    if (!(evaluate := request_succeeded(err, "evaluate", struct{ expression := "global_float", frameId := stackTrace.stackFrames[Len(stackTrace.stackFrames)].id })))
+        return err;
+    endif
+
+    if (evaluate.result != "1.5")
+        return ret_error($"Expected value of `global_float` to be '1.5': '{evaluate.result}' != '1.5'");
+    endif
+
+    return 1;
+endfunction
+
+function fill_buffers(timeout, request_seq := -1, event := "")
+    var ev;
+    var found := 0;
+    outer:
+    while (connection && (ev := wait_for_event(timeout)))
+        if (!ev && timeout > 0)
+            return error{ errortext := "Error filling buffer" };
+        endif
+        recvBuffer += ev.value;
+        if (recvBuffer.length() < CONTENT_LENGTH_HEADER_KEY_LENGTH)
+            continue outer;
+        elseif (recvBuffer[1, CONTENT_LENGTH_HEADER_KEY_LENGTH] != CONTENT_LENGTH_HEADER_KEY)
+            return error{ errortext := "Invalid header in buffer" };
+        else
+            var previousBufferLength := recvBuffer.length();
+            while (recvBuffer)
+                var newlineIndex := recvBuffer.find("\n", 3);
+
+                if (newlineIndex == 0 || recvBuffer == "")
+                    continue outer;
+                endif
+
+                var content_length := CInt(recvBuffer[CONTENT_LENGTH_HEADER_VALUE_START, newlineIndex]);
+
+                if (content_length == 0)
+                    continue outer;
+                endif
+
+                var needed_length := newlineIndex + 2 + content_length;
+
+                if (recvBuffer.length() >= needed_length)
+                    var msg := recvBuffer[newlineIndex + 3, content_length];
+
+                    var obj := UnpackJSON(msg);
+
+                    if (obj.type == "response")
+                        print($"{C_MAGENTA_LIGHT}++ [response#{request_seq}] [{obj.command}]{C_RESET} {PackJSON(obj.body)}");
+
+                        dapResponses[obj.request_seq] := obj;
+                        if (request_seq == obj.request_seq)
+                            found := 1;
+                        endif
+                    elseif (obj.type == "event")
+                        dapEvents.append(obj);
+                        print($"{C_MAGENTA_LIGHT}++ [event] [{obj.event}]{C_RESET} {PackJSON(obj.body)}");
+
+                        if (event != "" && event == obj.event)
+                            found := 1;
+                        endif
+                    endif
+
+                    if (needed_length == recvBuffer.length())
+                        recvBuffer := "";
+                    else
+                        recvBuffer := recvBuffer[needed_length + 1, recvBuffer.length()];
+                    endif
+                endif
+                if (previousBufferLength == recvBuffer.length())
+                    continue outer;
+                endif
+                previousBufferLength := recvBuffer.length();
+                Sleepms(100);
+            endwhile
+            if (found)
+                return found;
+            endif
+        endif
+	endwhile
+
+    return found;
+endfunction
+
+function fill_buffers_for_request(request_seq)
+    var filled := fill_buffers(0, request_seq := request_seq);
+    var found := dapResponses.exists(request_seq);
+    if (found)
+        return 1;
+    endif
+
+    filled := fill_buffers(5, request_seq := request_seq);
+    if (filled == error)
+        return filled;
+    endif
+
+    return dapResponses.exists(request_seq);
+endfunction
+
+function fill_buffers_for_event(event, timeout)
+    var filled := fill_buffers(0, event := event);
+
+    foreach ev in dapEvents
+        if (ev.event == event)
+            return 1;
+        endif
+    endforeach
+
+    filled := fill_buffers(timeout, event := event);
+
+    foreach ev in dapEvents
+        if (ev.event == event)
+            return 1;
+        endif
+    endforeach
+
+    if (filled == error)
+        return filled;
+    endif
+
+    return 0;
+endfunction
+
+function event_wait(event, timeout := 10)
+    var found := fill_buffers_for_event(event, timeout);
+
+    if (found)
+        foreach result in dapEvents
+            if (result.event == event)
+                dapEvents.erase(_result_iter);
+                return result.body;
+            endif
+        endforeach
+    endif
+
+    return error{ errortext := $"No event for type {event}"};
+endfunction
+
+function request(command, arguments)
+    var request_seq := nextSequence;
+
+    var body := struct{
+        command := command,
+        arguments := arguments,
+        type := "request",
+        seq := nextSequence++
+    };
+
+    var content := PackJSON(body);
+    print($"{C_GREEN}-> [request#{request_seq}] [{command}]{C_RESET} {PackJSON(arguments)}");
+
+    var request_text := "Content-Length: " + (content.length()) + CChr(13) + CChr(10) + CChr(13) + CChr(10) + content;
+    connection.transmit(request_text);
+
+    var found := fill_buffers_for_request(request_seq);
+
+    if (found)
+        var result := dapResponses[request_seq];
+        dapResponses.erase(request_seq);
+        if (result.success)
+            return result.body;
+        endif
+        print($"{C_RED}!! [response#{request_seq}]{C_RESET} failed: {result.message}");
+
+        return error{ errortext := $"Request {command}#{request_seq} failed: {result.message}" };
+    endif
+
+    print($"{C_RED}[req seq#{request_seq}]{C_RESET} timed out: {found}");
+    return error{ errortext := $"Request {command}#{request_seq} timed out: {found}"};
+endfunction
+
+function request_succeeded(byref err, command, arguments := struct{})
+    err := 0;
+    var response := request(command, arguments);
+    if (response)
+        print($"{C_CYAN}<- [response] [{command}]{C_RESET}");
+        return response;
+    endif
+    err := ret_error(response);
+    return 0;
+endfunction
+
+function event_received(byref err, event, timeout := 5)
+    err := 0;
+    var response := event_wait(event, timeout);
+    if (response)
+        print($"{C_CYAN}<- [event] [{event}]{C_RESET}");
+        return response;
+    endif
+    err := ret_error(response);
+    return 0;
+endfunction
