@@ -413,7 +413,7 @@ function fill_buffers(timeout, request_seq := -1, event := "")
     var ev;
     var found := 0;
     outer:
-    while (connection && (ev := wait_for_event(timeout)))
+    while (ev := wait_for_event(timeout))
         if (!ev && timeout > 0)
             return error{ errortext := "Error filling buffer" };
         endif
