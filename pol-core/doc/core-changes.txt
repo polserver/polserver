@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+08-28-2023 Kevin:
+    Fixed: Fixed race condition causing random crashes with OpenConnection.
 06-11-2023 Ins:
     Added: New Character member .parrychance_mod +-int in thousandth. Additive modificator of the parry_chance from the defender when it has shield equipped.
 05-24-2023 Kevin:
