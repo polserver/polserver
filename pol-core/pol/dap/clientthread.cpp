@@ -128,7 +128,8 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 
   if ( prog->read_dbg_file() == 0 )
   {
-    if ( !uoexec->attach_debugger( weak_from_this() ) )
+    bool stopAtEntry = request.stopAtEntry.value( false );
+    if ( !uoexec->attach_debugger( weak_from_this(), stopAtEntry ) )
       return dap::Error( "Debugger already attached." );
 
     _uoexec_wptr = uoexec->weakptr;
