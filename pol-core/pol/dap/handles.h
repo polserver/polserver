@@ -104,7 +104,7 @@ void Handles::set_response_details( const Bscript::BObjectRef& objref, T& variab
     break;
   case Bscript::BObjectImp::BObjectType::OTString:
     variable.type = "string";
-    set_value( impptr->getStringRep(), variable );
+    set_value( "\"" + impptr->getStringRep() + "\"", variable );
     break;
   case Bscript::BObjectImp::BObjectType::OTDouble:
   case Bscript::BObjectImp::BObjectType::OTLong:

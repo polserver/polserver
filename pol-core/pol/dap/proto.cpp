@@ -9,7 +9,8 @@ DAP_IMPLEMENT_STRUCT_TYPEINFO_EXT( PolAttachRequest, AttachRequest, "attach",
                                    DAP_FIELD( pid, "pid" ) );
 
 DAP_IMPLEMENT_STRUCT_TYPEINFO_EXT( PolLaunchRequest, LaunchRequest, "launch",
-                                   DAP_FIELD( script, "script" ), DAP_FIELD( arg, "arg" ) );
+                                   DAP_FIELD( script, "script" ), DAP_FIELD( arg, "arg" ),
+                                   DAP_FIELD( stopAtEntry, "stopAtEntry" ) );
 
 DAP_IMPLEMENT_STRUCT_TYPEINFO( PolProcess, "process", DAP_FIELD( id, "id" ),
                                DAP_FIELD( script, "script" ), DAP_FIELD( state, "state" ) );

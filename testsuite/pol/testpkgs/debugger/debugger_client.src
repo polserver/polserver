@@ -94,8 +94,8 @@ function run_launch_test()
         return err;
     endif
 
-    if (evaluate.result != "stop")
-        return ret_error($"Program argument from launch request `running` does not equal 'stop': {evaluate.result} != 'stop'");
+    if (evaluate.result != "\"stop\"")
+        return ret_error($"Program argument from launch request `running` does not equal '\"stop\"': '{evaluate.result}' != '\"stop\"'");
     endif
 
     // Send request: continue
@@ -178,7 +178,7 @@ function run_attach_test(debuggee_pid)
             endif
 
             if (variable.value != evaluate.result)
-                return ret_error($"Variables value does not match evaluate result: {variable.value} != {evaluate.result}");
+                return ret_error($"Variables value does not match evaluate result: '{variable.value}' != '{evaluate.result}'");
             endif
 
             if (variable.variablesReference)
@@ -277,8 +277,8 @@ function run_attach_test(debuggee_pid)
         return err;
     endif
 
-    if (evaluate.result != "funcShadowed:param1")
-        return ret_error($"Expected value of `shadowed_variable` to be 'funcShadowed:param1': '{evaluate.result}' != 'funcShadowed:param1'");
+    if (evaluate.result != "\"funcShadowed:param1\"")
+        return ret_error($"Expected value of `shadowed_variable` to be '\"funcShadowed:param1\"': '{evaluate.result}' != '\"funcShadowed:param1\"'");
     endif
 
     // Send request: next
