@@ -13,6 +13,7 @@
 #include "../scrsched.h"
 
 #include <boost/algorithm/string/predicate.hpp>
+#include <filesystem>
 #include <fstream>
 
 namespace Pol
@@ -26,6 +27,8 @@ namespace Network
 {
 namespace DAP
 {
+namespace fs = std::filesystem;
+
 DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
     : _rw( rw ),
       _session( dap::Session::create() ),
@@ -102,7 +105,13 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 {
   PolLock lock;
   ScriptDef sd;
-  if ( !sd.config_nodie( request.program, nullptr, "scripts/" ) )
+
+  fs::path script_path = request.script;
+
+  if ( script_path.extension() == ".src" )
+    script_path.replace_extension( ".ecl" );
+
+  if ( !sd.config_nodie( script_path, nullptr, "" ) )
     return dap::Error( "Error in script name." );
   if ( !sd.exists() )
     return dap::Error( "Script " + sd.name() + " does not exist." );
@@ -153,7 +162,7 @@ dap::ResponseOrError<dap::PolProcessesResponse> DebugClientThread::handle_proces
     {
       dap::PolProcess entry;
       entry.id = pid;
-      entry.program = uoexec->scriptname();
+      entry.script = uoexec->scriptname();
 
       if ( uoexec->halt() )
         entry.state = 2;  // debugging

@@ -60,7 +60,7 @@ function run_launch_test()
 
     // Send request: launch
     // Note: Sets the program's parameter as "stop"
-    if (!request_succeeded(err, "launch", struct{ "program" := ":testdebugger:debuggee", arg := "S4:stop" /* packed */ }));
+    if (!request_succeeded(err, "launch", struct{ "script" := ":testdebugger:debuggee", arg := "S4:stop" /* packed */ }));
         return err;
     endif
 
