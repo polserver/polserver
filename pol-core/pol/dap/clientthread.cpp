@@ -111,7 +111,7 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
   if ( script_path.extension() == ".src" )
     script_path.replace_extension( ".ecl" );
 
-  if ( !sd.config_nodie( script_path, nullptr, "" ) )
+  if ( !sd.config_nodie( script_path.string(), nullptr, "" ) )
     return dap::Error( "Error in script name." );
   if ( !sd.exists() )
     return dap::Error( "Script " + sd.name() + " does not exist." );
