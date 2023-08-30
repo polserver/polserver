@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+08-29-2023 Kevin:
+    Fixed: Corrected implementation of previous OpenConnection race condition fix.
 08-28-2023 Kevin:
     Fixed: Fixed race condition causing random crashes with OpenConnection.
 06-11-2023 Ins:
