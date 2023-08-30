@@ -286,6 +286,9 @@ class PolServer:
       res['serial']=ev.serial
     elif ev.type==Event.EVT_DROP_APPROVED:
       pass
+    elif ev.type==Event.EVT_GUMP:
+      res['commands']=ev.commands
+      res['texts']=ev.texts
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

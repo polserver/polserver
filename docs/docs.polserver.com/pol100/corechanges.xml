@@ -2,13 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-27-2023</datemodified>
+		<datemodified>08-30-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>08-27-2023</date>
+			<date>08-30-2023</date>
 			<author>Kevin:</author>
 			<change type="Fixed">Client character no longer stutters while moving the character and changing the 'poison' property.</change>
+		</entry>
+		<entry>
+			<date>08-28-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Fixed race condition causing random crashes with OpenConnection.</change>
 		</entry>
 		<entry>
 			<date>06-11-2023</date>
