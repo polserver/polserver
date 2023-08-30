@@ -11,6 +11,11 @@
 			<change type="Fixed">Client character no longer stutters while moving the character and changing the 'poison' property.</change>
 		</entry>
 		<entry>
+			<date>08-29-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Corrected implementation of previous OpenConnection race condition fix.</change>
+		</entry>
+		<entry>
 			<date>08-28-2023</date>
 			<author>Kevin:</author>
 			<change type="Fixed">Fixed race condition causing random crashes with OpenConnection.</change>
