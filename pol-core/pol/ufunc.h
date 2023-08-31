@@ -230,7 +230,8 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial );
 void send_create_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 void send_create_mobile_to_nearby_cansee( const Mobile::Character* chr );
 
-void send_move_mobile_to_nearby_cansee( const Mobile::Character* chr );
+void send_move_mobile_to_nearby_cansee( const Mobile::Character* chr,
+                                        bool send_health_bar_status_update = false );
 
 void send_remove( Network::Client& client, UObject& to_remove );
 
