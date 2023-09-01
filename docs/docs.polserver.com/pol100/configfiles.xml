@@ -917,6 +917,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [WebServerPort=(int port {default 8080})]
 [IgnoreLoadErrors=(1/0 {default 0})]
 [DebugPort=(int port {default 0})]
+[DAPDebugPort=(int port {default 0})]
 [AccountDataSave=(1/0 {default -1})]
 [Verbose=(1/0 {default 0})]
 [LogLevel=(int level {default 0})]
