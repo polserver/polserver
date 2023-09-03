@@ -664,7 +664,7 @@ bool Character::is_innocent_to( const Character* amy ) const
   if ( !Core::settingsManager.repsys_cfg.General.PartyHarmFullCountsAsCriminal )
   {
     Core::Party* party = amy->party();
-    if ( ( party != nullptr ) && ( party->is_member( bob->serial ) ) )
+    if ( ( party != nullptr ) && ( party->is_member( bob.serial ) ) )
       return false;
   }
 
