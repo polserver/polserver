@@ -1,38 +1,29 @@
 # windows only: build zlib
-set(z_sources 
-  ${POL_EXT_LIB_DIR}/zlib/adler32.c
-  ${POL_EXT_LIB_DIR}/zlib/compress.c
-  ${POL_EXT_LIB_DIR}/zlib/crc32.c
-  ${POL_EXT_LIB_DIR}/zlib/crc32.h
-  ${POL_EXT_LIB_DIR}/zlib/deflate.c
-  ${POL_EXT_LIB_DIR}/zlib/deflate.h
-  ${POL_EXT_LIB_DIR}/zlib/inffast.c
-  ${POL_EXT_LIB_DIR}/zlib/inffast.h
-  ${POL_EXT_LIB_DIR}/zlib/inffixed.h
-  ${POL_EXT_LIB_DIR}/zlib/inflate.c
-  ${POL_EXT_LIB_DIR}/zlib/inflate.h
-  ${POL_EXT_LIB_DIR}/zlib/inftrees.c
-  ${POL_EXT_LIB_DIR}/zlib/inftrees.h
-  ${POL_EXT_LIB_DIR}/zlib/trees.c
-  ${POL_EXT_LIB_DIR}/zlib/trees.h
-  ${POL_EXT_LIB_DIR}/zlib/uncompr.c
-  ${POL_EXT_LIB_DIR}/zlib/zconf.h
-  ${POL_EXT_LIB_DIR}/zlib/zlib.h
-  ${POL_EXT_LIB_DIR}/zlib/zutil.c
-  ${POL_EXT_LIB_DIR}/zlib/zutil.h
-)
 
-set(lib_name z)
+message("* zlib")
+set(ZLIB_SOURCE_DIR "${POL_EXT_LIB_DIR}/zlib-1.3")
 
-add_library(${lib_name} STATIC
-  ${${lib_name}_sources}
-)
-set_compile_flags(${lib_name} 0)
+set(ZLIB_INSTALL_DIR "${ZLIB_SOURCE_DIR}/builds")
+set(ZLIB_LIB "${ZLIB_INSTALL_DIR}/lib/zlibstatic.lib")
+set(ZLIB_FLAGS -DCMAKE_USER_MAKE_RULES_OVERRIDE=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake)
 
-target_compile_options(${lib_name} PRIVATE
-  /wd4131 # old-style decorator
-  /wd4244 # conversion loss of data
-  /wd4127 # conditional expression is constant
-)
-
-set_target_properties (${lib_name} PROPERTIES FOLDER 3rdParty)
+if(NOT EXISTS "${ZLIB_LIB}")
+  ExternalProject_Add(libz
+    URL "${ZLIB_SOURCE_DIR}/../zlib13.zip"
+    SOURCE_DIR  "${ZLIB_SOURCE_DIR}"
+    PREFIX z
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${ZLIB_INSTALL_DIR} ${ZLIB_FLAGS} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    BUILD_COMMAND ${CMAKE_COMMAND} --build . --config Release
+    INSTALL_COMMAND ${CMAKE_COMMAND} --build . --config Release --target install
+    BUILD_IN_SOURCE 1
+    BUILD_BYPRODUCTS ${ZLIB_LIB}
+    LOG_DOWNLOAD 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_INSTALL 1
+    LOG_OUTPUT_ON_FAILURE 1
+  )
+  set_target_properties (libz PROPERTIES FOLDER 3rdParty)
+else()
+  message("Zlib already build")
+endif()

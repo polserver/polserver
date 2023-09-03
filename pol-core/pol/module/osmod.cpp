@@ -594,15 +594,17 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       bool assume_string = assume_string_int != 0;
       bool keep_connection = keep_connection_int != 0;
       bool ignore_line_breaks = ignore_line_breaks_int != 0;
-      BObject paramobj( scriptparam );  // prevent delete
+      auto* paramobjimp_raw = scriptparam->copy();  // prevent delete
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection,
+          [uoexec_w, sd, hostname, port, paramobjimp_raw, assume_string, keep_connection,
            ignore_line_breaks]()
           {
             Clib::Socket s;
+            std::unique_ptr<Network::AuxClientThread> client;
             bool success_open = s.open( hostname.c_str(), port );
             {
               Core::PolLock lck;
+              std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );
               if ( !uoexec_w.exists() )
               {
                 DEBUGLOG << "OpenConnection Script has been destroyed\n";
@@ -618,11 +620,12 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               }
               uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               uoexec_w.get_weakptr()->revive();
+              client.reset( new Network::AuxClientThread( sd, std::move( s ), paramobjimp.release(),
+                                                          assume_string, keep_connection,
+                                                          ignore_line_breaks ) );
             }
-            std::unique_ptr<Network::AuxClientThread> client(
-                new Network::AuxClientThread( sd, std::move( s ), paramobj->copy(), assume_string,
-                                              keep_connection, ignore_line_breaks ) );
-            client->run();
+            if ( client )
+              client->run();
           } );
 
       return new BLong( 0 );
@@ -769,7 +772,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
               if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
               {
                 curl_easy_setopt( curl, CURLOPT_HEADERFUNCTION, curlReadHeaderCallback );
-                curl_easy_setopt( curl, CURLOPT_HEADERDATA, &headerData );                
+                curl_easy_setopt( curl, CURLOPT_HEADERDATA, &headerData );
               }
 
               curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
@@ -799,7 +802,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
                     auto response = std::make_unique<Bscript::BDictionary>();
                     auto headers = std::make_unique<Bscript::BDictionary>();
                     long http_code = 0;
-                    
+
                     res = curl_easy_getinfo( curl, CURLINFO_RESPONSE_CODE, &http_code );
                     if ( res == CURLE_OK )
                     {
@@ -813,7 +816,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 
                     response->addMember( new String( "statusText" ),
                                          new String( headerData.statusText.value_or( "" ) ) );
-                    
+
                     response->addMember( new String( "body" ), new String( readBuffer ) );
 
                     for ( auto const& [key, value] : headerData.headers )
