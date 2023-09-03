@@ -31,6 +31,7 @@ struct RepSys_Cfg
     unsigned short CriminalFlagInterval;
     unsigned short AggressorFlagTimeout;
     bool PartyHelpFullCountsAsCriminal;
+    bool PartyHarmFullCountsAsCriminal;
   } General;
 
   struct

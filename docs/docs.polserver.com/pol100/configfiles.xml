@@ -513,6 +513,7 @@ General
     CriminalFlagInterval (int seconds)
     AggressorFlagTimeout (int seconds)
     PartyHelpFullCountsAsCriminal (1/0 default 0)
+    PartyHarmFullCountsAsCriminal (1/0 default 1)
 }
 
 HookList
@@ -539,6 +540,7 @@ HighLightColor note: The client seems to only accept the following numbers
 </explain>
   <explain>HighLightColor function should be made as fast as possible, as it is called many times.</explain>
   <explain>PartyHelpFullCountsAsCriminal defines if HelpFull action counts as criminal act on murderers/criminals if in same party</explain>
+  <explain>PartyHarmFullCountsAsCriminal defines if HarmFull action counts as criminal act on murderers/criminals if in same party</explain>
   <related>servspecopt.cfg</related>
 </cfgfile>
 
