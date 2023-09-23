@@ -324,6 +324,17 @@ void GottenItem::undo( Mobile::Character* chr )
       if ( _item->orphan() )
         return;
     }
+
+    // No drop item has not returned to original container, place the item in the player's backpack.
+    if( !container && _item->no_drop() ) {
+      container = chr->backpack();
+      if ( !container || !container->can_add( *_item ) ||
+           !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+        container = nullptr;
+      if ( _item->orphan() )
+        return;
+    }
+
     if ( container )
     {
       u8 newSlot = _slot_index ? _slot_index : 1;
