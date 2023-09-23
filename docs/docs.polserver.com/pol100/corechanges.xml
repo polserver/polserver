@@ -6,9 +6,22 @@
 	</header>
 	<version name="POL100.1.0">
 		<entry>
+			<date>23-09-2023</date>
+			<author>Ins:</author>
+			<change type="Added">ServSpecOpt &quot;UndoGetItemEnableRangeCheck&quot; 1/0 default 0.<br/>
+				If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+				and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.<br/>
+				If origin position/container is not in default_accessible_range will skip try to put item to origin position/container (unless item is no_drop)<br/>
+				and as last resort will drop item at character position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.</change>
+			<change type="Added">ServSpecOpt &quot;UndoGetItemDropHere&quot; 1/0 default 0.<br/>
+				If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+				and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in<br/>
+				origin container will be skipped.</change>
+		</entry>
+		<entry>
 			<date>03-09-2023</date>
 			<author>Ins:</author>
-			<change type="Added">repsys.cfg General section &quot;PartyHarmFullCountsAsCriminal 1/0&quot; default 1.<br/>
+			<change type="Added">repsys.cfg General section &quot;PartyHarmFullCountsAsCriminal&quot; 1/0 default 1.<br/>
 				If 0 OnHarm does not set mobile to criminal when they are in the same party.</change>
 		</entry>
 		<entry>
