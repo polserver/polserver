@@ -299,7 +299,8 @@ void GottenItem::undo( Mobile::Character* chr )
     if ( _item->orphan() )
       return;
     // Attempt to put it back in the original container.
-    if ( !container && ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
+    if ( !container
+         && ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
     {
       auto* orig_obj = system_find_object( _cnt_serial );
       if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
@@ -307,11 +308,13 @@ void GottenItem::undo( Mobile::Character* chr )
         if ( _item->no_drop()
              || chr->can_moveanydist()
              || !Core::settingsManager.ssopt.undo_get_item_enable_range_check
-             || chr->pos().pol_distance( _pos ) <= Core::settingsManager.ssopt.default_accessible_range)
+             || chr->pos().pol_distance( _pos )
+                    <= Core::settingsManager.ssopt.default_accessible_range)
         {
           container = static_cast<UContainer*>( orig_obj );
           if ( !container->can_add( *_item ) ||
-               !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+               !container
+                    ->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
             container = nullptr;
         }
       }
