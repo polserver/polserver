@@ -292,12 +292,15 @@ void GottenItem::undo( Mobile::Character* chr )
   if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER )
   {
     // First attempt to place the item in the player's backpack.
-    UContainer* container = chr->backpack();
-    if ( !container || !container->can_add( *_item ) ||
-         !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
-      container = nullptr;
-    if ( _item->orphan() )
-      return;
+    UContainer* container = nullptr;
+    if( !_item->no_drop() ) {
+      container = chr->backpack();
+      if ( !container || !container->can_add( *_item ) ||
+           !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+        container = nullptr;
+      if ( _item->orphan() )
+        return;
+    }
     // Attempt to put it back in the original container.
     if ( !container
          && ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
