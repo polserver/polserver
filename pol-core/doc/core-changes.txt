@@ -11,7 +11,7 @@
            origin container will be skipped.
 03-09-2023 Ins:
     Added: repsys.cfg General section "PartyHelpFullCountsAsCriminal 1/0" default 1.
-    If 0 OnHarm does not set mobile to criminal when they are in the same party.
+           If 0 OnHarm does not set mobile to criminal when they are in the same party.
 08-30-2023 Kevin:
     Fixed: Client character no longer stutters while moving the character and changing the 'poison' property.
 08-29-2023 Kevin:
