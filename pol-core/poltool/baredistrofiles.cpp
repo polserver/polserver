@@ -587,7 +587,7 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "# guild members. This enables the client to overlay member positions on a world",
 "# map directly inside the client. Set to 1 to enable core handling of this packet.",
 "#",
-"EnableWorldMapPackets=0",
+"EnableWorldMapPackets=0"
 "",
 "#",
 "# UndoGetItemEnableRangeCheck - 1/0 (default 0)",
@@ -599,7 +599,7 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "# to origin position/container (unless item is no_drop) and as last resort will drop item at character",
 "# position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.",
 "#",
-"UndoGetItemEnableRangeCheck=0",
+"UndoGetItemEnableRangeCheck=0"
 "",
 "#",
 "# UndoGetItemDropHere - 1/0 (default 0)",
@@ -608,7 +608,7 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "# and on fail to put item back to backpack drops item at character position (feet), except no_drop items.",
 "# Attempt to return item in origin container will be skipped.",
 "#",
-"UndoGetItemDropHere=0",
+"UndoGetItemDropHere=0"
                   } ) );
 
   distro.emplace( "config/startloc.cfg",
