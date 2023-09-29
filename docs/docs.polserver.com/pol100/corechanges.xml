@@ -2,14 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-30-2023</datemodified>
+		<datemodified>09-29-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
 			<date>03-09-2023</date>
 			<author>Ins:</author>
 			<change type="Added">repsys.cfg General section &quot;PartyHarmFullCountsAsCriminal 1/0&quot; default 1.<br/>
-				If 0 OnHarm does not set mobile to criminal when they are in the same party.</change>
+If 0 OnHarm does not set mobile to criminal when they are in the same party.</change>
 		</entry>
 		<entry>
 			<date>08-30-2023</date>
