@@ -159,7 +159,6 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   }
   else
   {
-    send_remove_object_to_inrange( item );
     gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
     remove_item_from_world( item );
   }
