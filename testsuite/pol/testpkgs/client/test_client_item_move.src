@@ -6,6 +6,8 @@ use uo;
 use boat;
 
 var char;
+var charX := 1478;
+var charY := 1706;
 var clientcon := getClientConnection();
 
 program test_item_move()
@@ -151,6 +153,155 @@ exported function fail_lift_nodrop_drop_backpack()
   return 1;
 endfunction
 
+
+// 5. ssopt: undo_get_item_drop_here and undo_get_item_enable_range_check
+exported function ssopt_item_drop_here_range_check()
+  //move character to britain?
+  var res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
+  if (!res)
+    return ret_error($"Could not move character: ${res}");
+  endif
+
+  //fill backpack with arrows
+  var item;
+  var filled := 0;
+  var items := array;
+  var i := 0;
+  var errortext;
+  while(i < 1000000)
+    item := CreateItemInContainer(char.backpack, 0x0F3F);
+    if(item == error)
+        if(item.errortext == "That container is full")
+            filled := 1;
+        endif
+        errortext := error.errortext;
+        break;
+    endif
+    item.movable := 1;
+    items.append(item);
+    i := i + 1;
+  endwhile
+
+  if(!filled)
+    destroy_items(items);
+    return ret_error($"Could not fill backpack with items: ${errortext}");
+  endif
+
+  //create item at character feet
+  item := CreateItemAtLocation(char.x, char.y, char.z, 0x0F3F);
+  if(!item)
+    destroy_items(items);
+    return ret_error($"Could not create item: {item}");
+  endif
+
+  var prevItemX := item.x;
+  var prevItemY := item.y;
+
+  //undo_get_item_drop_here = 0
+  //lift item
+  var err;
+  if (!lift_item_succeeded(err, item.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  //move character one tile
+  res := MoveObjectToLocation(char, charX + 1, charY, GetWorldHeight(charX + 1, charY));
+  if (!res)
+    destroy_items(items);
+    return ret_error($"Could not move character: ${res}");
+  endif
+  //drop to backpack
+  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  //item must be at previous location
+  if(item.x != prevItemX || item.y != prevItemY)
+    destroy_items(items, item);
+    return ret_error($"Item should be returned to place where we've got it, but it failed to appear there.");
+  endif
+
+  //TODO: change undo_get_item_drop_here = 1
+  //lift item
+  /*
+  if (!lift_item_succeeded(err, item.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
+  if (!res)
+    destroy_items(items);
+    return ret_error($"Could not move character: ${res}");
+  endif
+  //drop to backpack
+  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  //item must be at character feet
+  if(item.x != char.x || item.y != char.y)
+    destroy_items(items, item);
+    return ret_error($"Item should be at character feet, but it failed to appear there.");
+  endif
+  */
+
+  //TODO: should be changed above undo_get_item_drop_here = 1
+  //undo_get_item_enable_range_check = 0 && undo_get_item_drop_here = 1
+  /*
+  prevItemX := item.x;
+  prevItemY := item.y;
+  //lift item
+  if (!lift_item_succeeded(err, item.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  //move character out of accessible range
+  res := MoveObjectToLocation(char, charX + 4, charY, GetWorldHeight(charX + 4, charY));
+  if (!res)
+    destroy_items(items);
+    return ret_error($"Could not move character: ${res}");
+  endif
+  //drop item
+  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  if(item.x != char.x || item.y != char.y)
+    destroy_items(items, item);
+    return ret_error($"Item should be at character feet, but it failed to appear there.");
+  endif
+  */
+
+  //TODO: change undo_get_item_enable_range_check = 1 && undo_get_item_drop_here = 1
+  /*
+  prevItemX := item.x;
+  prevItemY := item.y;
+  //lift item
+  if (!lift_item_succeeded(err, item.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  //move character out of accessible range
+  res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
+  if (!res)
+    destroy_items(items);
+    return ret_error($"Could not move character: ${res}");
+  endif
+  //drop item
+  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
+    destroy_items(items, item);
+    return err;
+  endif
+  if(item.x != prevItemX || item.y != prevItemY)
+    destroy_items(items, item);
+    return ret_error($"Item should be returned to place where we've got it, but it failed to appear there.");
+  endif
+  */
+
+  destroy_items(items, item);
+  return 1;
+endfunction
+
 /**
  * Helper functions
  */
@@ -217,4 +368,13 @@ function lift_item_succeeded(byref err, serial)
     return err := ret_error($"Got unexpected move (lift) item rejected: reason = {ev.reason}");;
   endif
   return 1;
+endfunction
+
+function destroy_items(items, oneitem := 0)
+  if(oneitem)
+    DestroyItem(oneitem);
+  endif
+  foreach item in items
+    DestroyItem(item);
+  endforeach
 endfunction
