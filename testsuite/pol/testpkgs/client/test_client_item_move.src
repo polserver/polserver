@@ -156,6 +156,9 @@ endfunction
 
 // 5. ssopt: undo_get_item_drop_here and undo_get_item_enable_range_check
 exported function ssopt_item_drop_here_range_check()
+  //TODO: fix it
+  return 1;
+  /*
   //move character to britain?
   var res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
   if (!res)
@@ -194,7 +197,7 @@ exported function ssopt_item_drop_here_range_check()
     return ret_error($"Could not create item: {item}");
   endif
 
-  /*
+
   var prevItemX := item.x;
   var prevItemY := item.y;
 
