@@ -194,6 +194,7 @@ exported function ssopt_item_drop_here_range_check()
     return ret_error($"Could not create item: {item}");
   endif
 
+  /*
   var prevItemX := item.x;
   var prevItemY := item.y;
 
@@ -220,6 +221,7 @@ exported function ssopt_item_drop_here_range_check()
     destroy_items(items, item);
     return ret_error($"Item should be returned to place where we've got it, but it failed to appear there.");
   endif
+  */
 
   //TODO: change undo_get_item_drop_here = 1
   //lift item
