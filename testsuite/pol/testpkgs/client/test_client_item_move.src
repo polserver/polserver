@@ -4,10 +4,13 @@ include "testutil";
 use os;
 use uo;
 use boat;
+use file;
+use polsys;
+
 
 var char;
-var charX := 1478;
-var charY := 1706;
+var charX := 100;
+var charY := 50;
 var clientcon := getClientConnection();
 
 program test_item_move()
@@ -18,7 +21,7 @@ program test_item_move()
   endif
 
   // Move character somewhere nice.
-  var res := MoveObjectToLocation(char, 100, 50, 0);
+  var res := MoveObjectToLocation(char, charX, charY, 0);
   if (!res)
     return ret_error($"Could not move character: ${res}");
   endif
@@ -154,156 +157,344 @@ exported function fail_lift_nodrop_drop_backpack()
 endfunction
 
 
-// 5. ssopt: undo_get_item_drop_here and undo_get_item_enable_range_check
-//TODO: fix it
-function ssopt_item_drop_here_range_check()
-  return 1;
-  /*
-  //move character to britain?
-  var res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
+// 5. Take item from ground and try to put to container that is too far away.
+// Item should be returned to place where have taken it.
+exported function undo_drop_here_0_range_check_0()
+  var err;
+  var res := MoveObjectToLocation(char, charX, charY, 0);
   if (!res)
     return ret_error($"Could not move character: ${res}");
   endif
 
-  //fill backpack with arrows
-  var item;
-  var filled := 0;
-  var items := array;
-  var i := 0;
-  var errortext;
-  while(i < 1000000)
-    item := CreateItemInContainer(char.backpack, 0x0F3F);
-    if(item == error)
-        if(item.errortext == "That container is full")
-            filled := 1;
-        endif
-        errortext := error.errortext;
-        break;
-    endif
-    item.movable := 1;
-    items.append(item);
-    i := i + 1;
-  endwhile
-
-  if(!filled)
-    destroy_items(items);
-    return ret_error($"Could not fill backpack with items: ${errortext}");
+  //create container into which we are going to drop
+  var container := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!container)
+    return ret_error($"Could not create container: ${container}");
   endif
 
-  //create item at character feet
-  item := CreateItemAtLocation(char.x, char.y, char.z, 0x0F3F);
+  //create item near character
+  var item := CreateItemAtLocation(char.x + 1, char.y, char.z, 0x0F3F);
   if(!item)
-    destroy_items(items);
+    DestroyItem(container);
     return ret_error($"Could not create item: {item}");
   endif
-
+  item.movable := 1;
 
   var prevItemX := item.x;
   var prevItemY := item.y;
 
-  //undo_get_item_drop_here = 0
   //lift item
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(container);
+    DestroyItem(item);
+    return err;
+  endif
+  //drop to container
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, container.serial))
+    DestroyItem(container);
+    DestroyItem(item);
+    return err;
+  endif
+  //container is too far item must be at previous location
+  if(item.x != prevItemX || item.y != prevItemY)
+    DestroyItem(container);
+    DestroyItem(item);
+    return ret_error($"Item should be returned to place where have taken it.");
+  endif
+
+  DestroyItem(container);
+  DestroyItem(item);
+
+  return 1;
+endfunction
+
+// 6. Take item from container and try to put to container that is too far away.
+// Item should be returned in origin container.
+exported function undo_drop_0_range_0_container()
   var err;
-  if (!lift_item_succeeded(err, item.serial))
-    destroy_items(items, item);
-    return err;
-  endif
-  //move character one tile
-  res := MoveObjectToLocation(char, charX + 1, charY, GetWorldHeight(charX + 1, charY));
+  var res := MoveObjectToLocation(char, charX, charY, 0);
   if (!res)
-    destroy_items(items);
     return ret_error($"Could not move character: ${res}");
   endif
-  //drop to backpack
-  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
-    destroy_items(items, item);
-    return err;
-  endif
-  //item must be at previous location
-  if(item.x != prevItemX || item.y != prevItemY)
-    destroy_items(items, item);
-    return ret_error($"Item should be returned to place where we've got it, but it failed to appear there.");
-  endif
-  */
 
-  //TODO: change undo_get_item_drop_here = 1
-  //lift item
-  /*
-  if (!lift_item_succeeded(err, item.serial))
-    destroy_items(items, item);
-    return err;
+  //create container into which we are going to drop
+  var container := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!container)
+    return ret_error($"Could not create container: ${container}");
   endif
-  res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
+
+  //create item in container
+  var item := CreateItemInContainer(container, 0x0F3F);
+  if(!item)
+    DestroyItem(container);
+    return ret_error($"Could not create item: {item}");
+  endif
+  item.movable := 1;
+  //move character to accessible range
+  res := MoveObjectToLocation(char, container.x, container.y, 0);
   if (!res)
-    destroy_items(items);
+    DestroyItem(container);
+    DestroyItem(item);
     return ret_error($"Could not move character: ${res}");
   endif
-  //drop to backpack
-  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
-    destroy_items(items, item);
-    return err;
-  endif
-  //item must be at character feet
-  if(item.x != char.x || item.y != char.y)
-    destroy_items(items, item);
-    return ret_error($"Item should be at character feet, but it failed to appear there.");
-  endif
-  */
-
-  //TODO: should be changed above undo_get_item_drop_here = 1
-  //undo_get_item_enable_range_check = 0 && undo_get_item_drop_here = 1
-  /*
-  prevItemX := item.x;
-  prevItemY := item.y;
   //lift item
   if (!lift_item_succeeded(err, item.serial))
-    destroy_items(items, item);
+    DestroyItem(container);
+    DestroyItem(item);
     return err;
   endif
   //move character out of accessible range
-  res := MoveObjectToLocation(char, charX + 4, charY, GetWorldHeight(charX + 4, charY));
+  res := MoveObjectToLocation(char, charX, charY + 4, 0);
   if (!res)
-    destroy_items(items);
+    DestroyItem(container);
+    DestroyItem(item);
     return ret_error($"Could not move character: ${res}");
   endif
   //drop item
-  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
-    destroy_items(items, item);
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, container.serial))
+    DestroyItem(container);
+    DestroyItem(item);
     return err;
   endif
-  if(item.x != char.x || item.y != char.y)
-    destroy_items(items, item);
-    return ret_error($"Item should be at character feet, but it failed to appear there.");
+  if (!item.container || item.container.serial != char.backpack.serial)
+    DestroyItem(container);
+    DestroyItem(item);
+    return ret_error($"Item should be placed in character backpack.");
   endif
-  */
 
-  //TODO: change undo_get_item_enable_range_check = 1 && undo_get_item_drop_here = 1
-  /*
-  prevItemX := item.x;
-  prevItemY := item.y;
+  DestroyItem(container);
+  DestroyItem(item);
+
+  return 1;
+endfunction
+
+// 7. Take NO DROP item from container and try to put to container that is too far away.
+// Item should be placed in character backpack.
+exported function undo_drop_0_range_0_cont_ndrop()
+  var err;
+  var res := MoveObjectToLocation(char, charX, charY, 0);
+  if (!res)
+    return ret_error($"Could not move character: ${res}");
+  endif
+
+  //create container into which we are going to drop
+  var container := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!container)
+    return ret_error($"Could not create container: ${container}");
+  endif
+
+  //create item in container
+  var item := CreateItemInContainer(container, 0x0F3F);
+  if(!item)
+    DestroyItem(container);
+    return ret_error($"Could not create item: {item}");
+  endif
+  item.movable := 1;
+  item.no_drop := 1;
+  //move character to accessible range
+  res := MoveObjectToLocation(char, container.x, container.y, 0);
+  if (!res)
+    DestroyItem(container);
+    DestroyItem(item);
+    return ret_error($"Could not move character: ${res}");
+  endif
   //lift item
   if (!lift_item_succeeded(err, item.serial))
-    destroy_items(items, item);
+    DestroyItem(container);
+    DestroyItem(item);
     return err;
   endif
   //move character out of accessible range
-  res := MoveObjectToLocation(char, charX, charY, GetWorldHeight(charX, charY));
+  res := MoveObjectToLocation(char, charX, charY + 4, 0);
   if (!res)
-    destroy_items(items);
+    DestroyItem(container);
+    DestroyItem(item);
     return ret_error($"Could not move character: ${res}");
   endif
   //drop item
-  if (!drop_item_succeeded(err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial))
-    destroy_items(items, item);
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, container.serial))
+    DestroyItem(container);
+    DestroyItem(item);
     return err;
   endif
-  if(item.x != prevItemX || item.y != prevItemY)
-    destroy_items(items, item);
-    return ret_error($"Item should be returned to place where we've got it, but it failed to appear there.");
+  if (!item.container || item.container.serial != container.serial)
+    DestroyItem(container);
+    DestroyItem(item);
+    return ret_error($"Item should be returned in origin container.");
   endif
-  */
 
-  destroy_items(items, item);
+  DestroyItem(container);
+  DestroyItem(item);
+
+  return 1;
+endfunction
+
+// 8. Take item from ground and try to put to container that is too far away.
+// Item should be placed at character feet.
+exported function undo_range_check_1()
+  var err;
+
+  var originalConf := ReadFile("::config/servspecopt.cfg");
+  if(originalConf == error)
+    return ret_error($"Could not read config/servspecopt.cfg file: ${originalConf}");
+  endif
+
+  var newConf := array;
+  foreach line in originalConf
+    if(line != "UndoGetItemEnableRangeCheck=1" && line != "UndoGetItemEnableRangeCheck=0")
+        newConf.append(line);
+    endif
+  endforeach
+  newConf.append("UndoGetItemEnableRangeCheck=1");
+
+  var writeResult := WriteFile("::config/servspecopt.cfg", newConf);
+  if(writeResult == error)
+    return ret_error($"Could not write config/servspecopt.cfg file: ${writeResult}");
+  endif
+
+  ReloadConfiguration();
+
+  var res := MoveObjectToLocation(char, charX, charY, 0);
+  if (!res)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not move character: ${res}");
+  endif
+
+  //create container into which we are going to drop
+  var container := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!container)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create container: ${container}");
+  endif
+
+  //create item near the character
+  var item := CreateItemAtLocation(char.x + 1, char.y, char.z, 0x0F3F);
+  if(!item)
+    DestroyItem(container);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create item: {item}");
+  endif
+  item.movable := 1;
+  //lift item
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(container);
+    DestroyItem(item);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return err;
+  endif
+  //move character to not accessible range
+  res := MoveObjectToLocation(char, charX - 2, charY, 0);
+  if (!res)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not move character: ${res}");
+  endif
+  //drop item
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, container.serial))
+    DestroyItem(container);
+    DestroyItem(item);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return err;
+  endif
+  if(item.x != char.x || item.y != char.y)
+    DestroyItem(container);
+    DestroyItem(item);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Item should be placed at character feet.");
+  endif
+
+  DestroyItem(container);
+  DestroyItem(item);
+  WriteFile("::config/servspecopt.cfg", originalConf);
+  ReloadConfiguration();
+
+  return 1;
+endfunction
+
+// 9. Take item from ground and try to put to container that is too far away.
+// Item should be placed at character feet.
+exported function undo_drop_here_1()
+  var err;
+
+  var originalConf := ReadFile("::config/servspecopt.cfg");
+  if(originalConf == error)
+    return ret_error($"Could not read config/servspecopt.cfg file: ${originalConf}");
+  endif
+
+  var newConf := array;
+  foreach line in originalConf
+    if(line != "UndoGetItemDropHere=1" && line != "UndoGetItemDropHere=0")
+        newConf.append(line);
+    endif
+  endforeach
+  newConf.append("UndoGetItemDropHere=1");
+
+  var writeResult := WriteFile("::config/servspecopt.cfg", newConf);
+  if(writeResult == error)
+    return ret_error($"Could not write config/servspecopt.cfg file: ${writeResult}");
+  endif
+
+  ReloadConfiguration();
+
+  var res := MoveObjectToLocation(char, charX, charY, 0);
+  if (!res)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not move character: ${res}");
+  endif
+
+  //create container into which we are going to drop
+  var container := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!container)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create container: ${container}");
+  endif
+
+  //create item near the character
+  var item := CreateItemAtLocation(char.x + 1, char.y, char.z, 0x0F3F);
+  if(!item)
+    DestroyItem(container);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create item: {item}");
+  endif
+  item.movable := 1;
+  //lift item
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(container);
+    DestroyItem(item);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return err;
+  endif
+  //drop item
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, container.serial))
+    DestroyItem(container);
+    DestroyItem(item);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return err;
+  endif
+  if(item.x != char.x || item.y != char.y)
+    DestroyItem(container);
+    DestroyItem(item);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Item should be placed at character feet.");
+  endif
+
+  DestroyItem(container);
+  DestroyItem(item);
+  WriteFile("::config/servspecopt.cfg", originalConf);
+  ReloadConfiguration();
+
   return 1;
 endfunction
 
@@ -373,13 +564,4 @@ function lift_item_succeeded(byref err, serial)
     return err := ret_error($"Got unexpected move (lift) item rejected: reason = {ev.reason}");;
   endif
   return 1;
-endfunction
-
-function destroy_items(items, oneitem := 0)
-  if(oneitem)
-    DestroyItem(oneitem);
-  endif
-  foreach item in items
-    DestroyItem(item);
-  endforeach
 endfunction

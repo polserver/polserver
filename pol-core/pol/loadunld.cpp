@@ -268,6 +268,7 @@ void load_data()
 void reload_configuration()
 {
   PolConfig::read_pol_config( false );
+  ServSpecOpt::read_servspecopt();
   Network::read_bannedips_config( false );
   load_npc_templates();
   read_npc_templates();  // dave 1/12/3 npc template data wasn't actually being read, just names.
