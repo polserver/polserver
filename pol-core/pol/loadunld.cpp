@@ -254,10 +254,10 @@ void load_data()
   read_npc_templates();
 
 
-  //#ifdef _WIN32
+  // #ifdef _WIN32
   checkpoint( "load console commands" );
   ConsoleCommand::load_console_commands();
-  //#endif
+  // #endif
 
   Module::load_fileaccess_cfg();
 
@@ -269,6 +269,7 @@ void reload_configuration()
 {
   PolConfig::read_pol_config( false );
   Network::read_bannedips_config( false );
+  gamestate.unload_npc_templates();
   load_npc_templates();
   read_npc_templates();  // dave 1/12/3 npc template data wasn't actually being read, just names.
   ConsoleCommand::load_console_commands();
