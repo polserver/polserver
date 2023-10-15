@@ -50,10 +50,9 @@ exported function destroy_root()
     return ret_error("Failed to create root cnt: "+root);
   endif
   var r:=DestroyRootItemInStorageArea(s,"cnt");
-  // TODO: StorageAreaImp is broken, it doesnt get created!
-  //if (s.count !=0)
-  //  return ret_error("Storage count not 0 after destroy root: "+r+" "+s.count);
-  //endif
+  if (s.count !=0)
+    return ret_error("Storage count not 0 after destroy root: "+r+" "+s.count);
+  endif
   return 1;
 endfunction
 
@@ -64,10 +63,9 @@ exported function add_item()
   endif
   var oldc:=storage.totalcount;
   var item:=CreateItemInContainer(r, 0x3e3f);
-  // TODO: StorageAreaImp is broken, it doesnt get created!
-  //if (storage.totalcount!=oldc+1)
-  //  return ret_error("total count did not increase "+item);
-  //endif
+  if (storage.totalcount!=oldc+1)
+    return ret_error("total count did not increase "+item);
+  endif
   return 1;
 endfunction
 
@@ -100,10 +98,9 @@ exported function move_item()
   if (!res)
     return ret_error("failed to move "+res);
   endif
-  // TODO: StorageAreaImp is broken, it doesnt get created!
-  //if (storage.totalcount!=oldc+1)
-  //  return ret_error("total count did not increase "+res);
-  //endif
+  if (storage.totalcount!=oldc+1)
+    return ret_error("total count did not increase "+res);
+  endif
   return 1;
 endfunction
 

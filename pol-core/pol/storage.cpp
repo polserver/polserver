@@ -329,24 +329,11 @@ BObject* StorageAreaIterator::step()
   return result;
 }
 
-
-class StorageAreaImp final : public BObjectImp
+ContIterator* StorageAreaImp::createIterator( BObject* pIterVal )
 {
-public:
-  StorageAreaImp( StorageArea* area ) : BObjectImp( BObjectImp::OTUnknown ), _area( area ) {}
-  virtual BObjectImp* copy() const override { return new StorageAreaImp( _area ); }
-  virtual std::string getStringRep() const override { return _area->_name; }
-  virtual size_t sizeEstimate() const override { return sizeof( *this ); }
-  ContIterator* createIterator( BObject* pIterVal ) override
-  {
-    return new StorageAreaIterator( _area, pIterVal );
-  }
+  return new StorageAreaIterator( _area, pIterVal );
+}
 
-  BObjectRef get_member( const char* membername ) override;
-
-private:
-  StorageArea* _area;
-};
 BObjectRef StorageAreaImp::get_member( const char* membername )
 {
   if ( stricmp( membername, "count" ) == 0 )
