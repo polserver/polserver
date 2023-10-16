@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+10-15-2023 Kevin:
+    Fixed: Changed return values and parameters used by storage module functions to match documentation.
 03-09-2023 Ins:
     Added: repsys.cfg General section "PartyHarmFullCountsAsCriminal 1/0" default 1.
            If 0 OnHarm does not set mobile to criminal when they are in the same party.

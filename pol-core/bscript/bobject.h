@@ -114,6 +114,7 @@ public:
     OTBoolean = 38,
     OTFuncRef = 39,
     OTExportScript = 40,
+    OTStorageArea = 41,
   };
 
 #if INLINE_BOBJECTIMP_CTOR

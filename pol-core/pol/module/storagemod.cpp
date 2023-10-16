@@ -48,7 +48,7 @@ BObjectImp* StorageExecutorModule::mf_FindStorageArea()
     Core::StorageArea* area = Core::gamestate.storage.find_area( str->value() );
 
     if ( area )
-      return new BApplicPtr( &storage_area_type, area );
+      return new Core::StorageAreaImp( area );
   }
   return new BLong( 0 );  // non-string passed, or not found.
 }
@@ -60,19 +60,21 @@ BObjectImp* StorageExecutorModule::mf_CreateStorageArea()
   {
     Core::StorageArea* area = Core::gamestate.storage.create_area( name->value() );
     if ( area )
-      return new BApplicPtr( &storage_area_type, area );
+      return new Core::StorageAreaImp( area );
   }
   return new BLong( 0 );  // non-string passed, or not found.
 }
 
 BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 {
-  auto area = static_cast<Core::StorageArea*>( exec.getApplicPtrParam( 0, &storage_area_type ) );
+  auto area_imp =
+      static_cast<Core::StorageAreaImp*>( getParamImp( 0, Bscript::BObjectImp::OTStorageArea ) );
   const String* name = getStringParam( 1 );
 
-  if ( !area || !name )
+  if ( !area_imp || !name )
     return new BError( "Invalid parameter type" );
 
+  auto area = area_imp->area();
   Items::Item* item = area->find_root_item( name->value() );
 
   if ( item != nullptr )
@@ -83,11 +85,14 @@ BObjectImp* StorageExecutorModule::mf_FindRootItemInStorageArea()
 
 BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
 {
-  auto area = static_cast<Core::StorageArea*>( getApplicPtrParam( 0, &storage_area_type ) );
+  auto area_imp =
+      static_cast<Core::StorageAreaImp*>( getParamImp( 0, Bscript::BObjectImp::OTStorageArea ) );
   const String* name = getStringParam( 1 );
 
-  if ( !area || !name )
+  if ( !area_imp || !name )
     return new BError( "Invalid parameter type" );
+
+  auto area = area_imp->area();
 
   bool result = area->delete_root_item( name->value() );
   return new BLong( result ? 1 : 0 );
@@ -95,13 +100,15 @@ BObjectImp* StorageExecutorModule::mf_DestroyRootItemInStorageArea()
 
 BObjectImp* StorageExecutorModule::mf_CreateRootItemInStorageArea()
 {
-  auto area = static_cast<Core::StorageArea*>( getApplicPtrParam( 0, &storage_area_type ) );
+  auto area_imp =
+      static_cast<Core::StorageAreaImp*>( getParamImp( 0, Bscript::BObjectImp::OTStorageArea ) );
   const String* name;
   const Items::ItemDesc* descriptor;
 
-  if ( area == nullptr || !getStringParam( 1, name ) || !getObjtypeParam( 2, descriptor ) )
+  if ( area_imp == nullptr || !getStringParam( 1, name ) || !getObjtypeParam( 2, descriptor ) )
     return new BError( "Invalid parameter type" );
 
+  auto area = area_imp->area();
   Items::Item* item = Items::Item::create( *descriptor );
   if ( item == nullptr )
     return new BError( "Unable to create item" );
