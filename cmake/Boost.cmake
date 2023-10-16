@@ -28,12 +28,14 @@ if (${windows})
   set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.lib" )
   set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.lib" )
   set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.lib" )
+  set (BOOST_CXX_FLAGS "cxxflags=/MT")
 else()
   set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
   set (BOOST_BUILD_COMMAND "./b2")
   set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.a" )
   set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.a" )
   set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.a" )
+  set (BOOST_CXX_FLAGS "")
 endif()
 
 if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS ${BOOST_THREAD_LIB})
@@ -43,7 +45,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
           INSTALL_COMMAND ""
           CONFIGURE_COMMAND ""
           DOWNLOAD_COMMAND ""
-          BUILD_COMMAND ${BOOST_BUILD_COMMAND} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=release link=static runtime-link=static --layout=system --with-regex --with-system --with-thread stage
+          BUILD_COMMAND ${BOOST_BUILD_COMMAND} ${BOOST_CXX_FLAGS} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=release link=static runtime-link=static --layout=system --with-regex --with-system --with-thread stage
           BUILD_BYPRODUCTS ${BOOST_REGEX_LIB} ${BOOST_SYSTEM_LIB} ${BOOST_THREAD_LIB}
           LOG_BUILD 1
           BUILD_IN_SOURCE 1
