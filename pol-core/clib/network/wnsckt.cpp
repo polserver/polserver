@@ -199,8 +199,11 @@ void Socket::apply_socket_options( SOCKET sck )
     int res = ioctlsocket( sck, FIONBIO, &nonblocking );
 #else
     int flags = fcntl( sck, F_GETFL );
-    flags |= O_NONBLOCK;
-    int res = fcntl( sck, F_SETFL, O_NONBLOCK );
+    if ( flags == -1 )
+      flags = O_NONBLOCK;
+    else
+      flags |= O_NONBLOCK;
+    int res = fcntl( sck, F_SETFL, flags );
 #endif
     if ( res < 0 )
     {
