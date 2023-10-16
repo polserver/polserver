@@ -11,7 +11,6 @@ program teststorage()
   if (!storage)
     return ret_error("Failed to create storage: "+storage);
   endif
-  // TODO docs say it should be storagename
   var root:=CreateRootItemInStorageArea(storage,"cnt",0xe75);
   if (!root) 
     return ret_error("Failed to create root cnt: "+root);
@@ -118,10 +117,9 @@ exported function move_item_realm()
   if (!res)
     return ret_error("failed to move "+res);
   endif
-  if (item.realm != "britannia")  // TODO vector_classes will fail here on purpose
+  if (item.realm != "britannia")
     return ret_error("wrong realm in storage "+item.realm);
   endif
-  // TODO vector_classes: check some list*Location with this realm nullptr
   res:=MoveObjectToLocation(item,0,0,0,flags:=MOVEOBJECT_FORCELOCATION);
   if (!res)
     return ret_error("failed to move back to world: "+res);

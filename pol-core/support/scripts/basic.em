@@ -46,6 +46,7 @@ const OT_SQLROW           := 37;
 const OT_BOOLEAN          := 38;
 const OT_FUNCOBJECT       := 39;
 const OT_EXPORTEDSCRIPT   := 40;
+const OT_STORAGEAREA      := 41;
 
 	// returns the one-based index of Search within Str after position Start
 Find( Str, Search, Start );

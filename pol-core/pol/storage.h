@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 
+#include "../bscript/bobject.h"
 #include "../clib/maputil.h"
 
 namespace Pol
