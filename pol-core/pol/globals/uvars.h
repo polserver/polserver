@@ -254,13 +254,14 @@ public:
   Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
                              // "pre-filtering" of objects
 
+  void unload_npc_templates();
+
 private:
   void cleanup_vars();
   void cleanup_scripts();
   void clear_listen_points();
   void unload_intrinsic_weapons();
   void unload_intrinsic_templates();
-  void unload_npc_templates();
 };
 extern GameState gamestate;
 }  // namespace Core

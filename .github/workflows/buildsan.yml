@@ -48,8 +48,8 @@ jobs:
       - name: Cache boost
         uses: actions/cache@v3
         with:
-          path: lib/boost_1_78_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
+          path: lib/boost_1_83_0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0
       - name: Install Compiler and Dependencies
         shell: pwsh
         run: |
