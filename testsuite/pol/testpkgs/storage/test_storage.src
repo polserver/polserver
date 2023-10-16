@@ -12,7 +12,7 @@ program teststorage()
     return ret_error("Failed to create storage: "+storage);
   endif
   var root:=CreateRootItemInStorageArea(storage,"cnt",0xe75);
-  if (!root) 
+  if (!root)
     return ret_error("Failed to create root cnt: "+root);
   endif
   return 1;
@@ -45,7 +45,7 @@ endfunction
 exported function destroy_root()
   var s:=findstoragearea("teststorage2");
   var root:=CreateRootItemInStorageArea(s,"cnt",0xe75);
-  if (!root) 
+  if (!root)
     return ret_error("Failed to create root cnt: "+root);
   endif
   var r:=DestroyRootItemInStorageArea(s,"cnt");
@@ -84,7 +84,7 @@ exported function add_item_loc()
   endif
   return 1;
 endfunction
-  
+
 exported function move_item()
   var r:=FindRootItemInStorageArea(storage, "cnt");
   if (!r)
@@ -117,9 +117,10 @@ exported function move_item_realm()
   if (!res)
     return ret_error("failed to move "+res);
   endif
-  if (item.realm != "britannia")
+  if (item.realm != "britannia")  // TODO vector_classes will fail here on purpose
     return ret_error("wrong realm in storage "+item.realm);
   endif
+  // TODO vector_classes: check some list*Location with this realm nullptr
   res:=MoveObjectToLocation(item,0,0,0,flags:=MOVEOBJECT_FORCELOCATION);
   if (!res)
     return ret_error("failed to move back to world: "+res);
