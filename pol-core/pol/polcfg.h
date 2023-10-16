@@ -115,6 +115,8 @@ struct PolConfig
 
   std::vector<std::string> allowed_environmentvariables_access;
 
+  bool enable_colored_output;
+
   static void read_pol_config( bool initial_load );
   static struct stat pol_cfg_stat;
   static void reload_pol_cfg();

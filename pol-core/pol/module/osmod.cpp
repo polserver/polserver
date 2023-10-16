@@ -458,7 +458,7 @@ BObjectImp* OSExecutorModule::mf_SysLog()
   if ( log_verbose )
   {
     POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
-    if ( color->length() )
+    if ( Plib::systemstate.config.enable_colored_output && color->length() )
     {
       INFO_PRINT << color->value() << "syslog [" << exec.scriptname() << "]: " << strval
                  << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
@@ -470,7 +470,7 @@ BObjectImp* OSExecutorModule::mf_SysLog()
   }
   else
   {
-    if ( color->length() )
+    if ( Plib::systemstate.config.enable_colored_output && color->length() )
     {
       POLLOG << strval << "\n";
       INFO_PRINT << color->value() << strval << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
