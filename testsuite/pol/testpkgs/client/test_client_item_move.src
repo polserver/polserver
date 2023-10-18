@@ -180,7 +180,6 @@ exported function undo_drop_here_0_range_check_0()
   endif
   item.movable := 1;
 
-  /*
   var prevItemX := item.x;
   var prevItemY := item.y;
 
@@ -202,7 +201,6 @@ exported function undo_drop_here_0_range_check_0()
     DestroyItem(item);
     return ret_error($"Item should be returned to place where have taken it.");
   endif
-  */
 
   DestroyItem(container);
   DestroyItem(item);
