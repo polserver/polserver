@@ -25,6 +25,8 @@ extern bool LogfileTimestampEveryLine;
 
 namespace Logging
 {
+constexpr char CONSOLE_RESET_COLOR[] = "\x1b[0m";
+
 struct LogFileBehaviour;
 class LogFacility;
 
@@ -194,7 +196,7 @@ void initLogging( LogFacility* logger );  // initalize the logging
 
 
 // several helper defines
-//#define DEBUG_LOG_PRINTS
+// #define DEBUG_LOG_PRINTS
 #ifdef DEBUG_LOG_PRINTS
 #ifdef WINDOWS
 #define __FILENAME__ ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )

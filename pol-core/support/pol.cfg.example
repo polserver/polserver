@@ -209,6 +209,12 @@ RunawayScriptThreshold=10000
 #
 TimestampEveryLine=1
 
+#
+# EnableColoredOutput 1/0
+# If set to 0 ignore color arguments of print/syslog
+# Default is 1
+#
+#EnableColoredOutput=1
 
 #
 # UseSingleThreadLogin
