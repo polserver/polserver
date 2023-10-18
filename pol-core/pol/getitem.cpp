@@ -138,6 +138,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   UObject* my_owner = item->toplevel_owner();
 
+  send_remove_object_to_inrange( item );
+
   UContainer* orig_container = item->container;
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
@@ -157,7 +159,6 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   }
   else
   {
-    send_remove_object_to_inrange( item );
     gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
     remove_item_from_world( item );
   }
@@ -291,28 +292,50 @@ void GottenItem::undo( Mobile::Character* chr )
 
   if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER )
   {
-    // First attempt to put it back in the original container.
+    // First attempt to place the item in the player's backpack.
     UContainer* container = nullptr;
-    auto* orig_obj = system_find_object( _cnt_serial );
-    if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-    {
-      container = static_cast<UContainer*>( orig_obj );
-      if ( !container->can_add( *_item ) ||
-           !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
-        container = nullptr;
-    }
-    if ( _item->orphan() )
-      return;
-    if ( !container )
-    {
-      // Attempt to place the item in the player's backpack.
+    if( !_item->no_drop() ) {
       container = chr->backpack();
       if ( !container || !container->can_add( *_item ) ||
            !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
         container = nullptr;
+      if ( _item->orphan() )
+        return;
     }
-    if ( _item->orphan() )
-      return;
+    // Attempt to put it back in the original container.
+    if ( !container
+         && ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
+    {
+      auto* orig_obj = system_find_object( _cnt_serial );
+      if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+      {
+        if ( _item->no_drop()
+             || chr->can_moveanydist()
+             || !Core::settingsManager.ssopt.undo_get_item_enable_range_check
+             || chr->pos().pol_distance( _pos )
+                    <= Core::settingsManager.ssopt.default_accessible_range)
+        {
+          container = static_cast<UContainer*>( orig_obj );
+          if ( !container->can_add( *_item ) ||
+               !container
+                    ->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+            container = nullptr;
+        }
+      }
+      if ( _item->orphan() )
+        return;
+    }
+
+    // No drop item has not returned to original container, place the item in the player's backpack.
+    if( !container && _item->no_drop() ) {
+      container = chr->backpack();
+      if ( !container || !container->can_add( *_item ) ||
+           !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+        container = nullptr;
+      if ( _item->orphan() )
+        return;
+    }
+
     if ( container )
     {
       u8 newSlot = _slot_index ? _slot_index : 1;
@@ -323,14 +346,28 @@ void GottenItem::undo( Mobile::Character* chr )
           _item->setposition( _pos );
           container->add( _item );
         }
-        else
+        else {
           container->add_at_random_location( _item );
+        }
         update_item_to_inrange( _item );
         container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
         return;
       }
     }
     _pos = chr->pos();
+  }
+
+  if( Core::settingsManager.ssopt.undo_get_item_drop_here )
+  {
+    _pos = chr->pos();
+  }
+  else if ( !chr->can_moveanydist() )
+  {
+    if ( Core::settingsManager.ssopt.undo_get_item_enable_range_check
+         && chr->pos().pol_distance( _pos ) > Core::settingsManager.ssopt.default_accessible_range )
+    {
+      _pos = chr->pos();
+    }
   }
 
   // Last resort - put it on the ground, to players feet in case of error from above.
