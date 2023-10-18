@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-15-2023</datemodified>
+		<datemodified>10-18-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>10-18-2023</date>
+			<author>Turley:</author>
+			<change type="Added">print/syslog console_color parameter. When used with one of the basicio.em CONSOLE_COLOR constants, or a custom xterm formatting string the output to the console is formatted accordingly. Resets the formatting at the end. Xterm formatting is supported on Linux and Windows11. For syslog only the output to the console is modified not the logfile entry.</change>
+			<change type="Added">pol.cfg EnableColoredOutput 1/0 to disable formatted output. Default is 1.</change>
+		</entry>
 		<entry>
 			<date>10-15-2023</date>
 			<author>Kevin:</author>

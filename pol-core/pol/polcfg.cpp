@@ -292,6 +292,8 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.allowed_environmentvariables_access.push_back( substr );
   }
 
+  Plib::systemstate.config.enable_colored_output = elem.remove_bool( "EnableColoredOutput", true );
+
   /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
   /// turns out to be disabled, or when it was enabled before, but is being disabled now,
   /// run "garbage collection" to free the allocated resources

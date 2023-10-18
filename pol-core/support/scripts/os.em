@@ -81,7 +81,7 @@ Run_Script( script_name, param := 0 );
     // syslog(text): write text to the console, and to the log file
     //               includes context (calling script name)
     //
-SysLog( text, log_verbose:=1 );
+SysLog( text, log_verbose:=1, console_color:="" );
 
 	//
 	// clear_event_queue(): Empties the event queue of the current script.
