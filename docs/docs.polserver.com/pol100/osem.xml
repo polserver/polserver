@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>03/23/2021</datemodified>
+    <datemodified>10/17/2023</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -179,10 +179,14 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="SysLog">
-    <prototype>SysLog( text, log_verbose:=1 )</prototype>
+    <prototype>SysLog( text, log_verbose:=1, console_color:="" )</prototype>
     <parameter name="text" value="String"/>
     <parameter name="log_verbose" value="Integer (1/0)"/>
+    <parameter name="console_color" value="xterm text formatting string e.g. one of the CONSOLE_COLOR constants"/>
     <explain>write text to the console, and to the log file includes context (calling script name). Context will be skipped if parameter log_verbose is set to 0</explain>
+    <explain>
+      Parameter console_color needs linux or windows 11, when given ends the line with resetting the formatting ("\x1b[0m"). Via pol.cfg EnableColoredOutput color prints can be disabled. Only the console output receives the formatting strings, the pol.log output is not touched.
+    </explain>
     <return>1 on success</return>
 </function>
 
