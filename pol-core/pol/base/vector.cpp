@@ -55,6 +55,11 @@ fmt::Writer& operator<<( fmt::Writer& w, const Vec2d& v )
   w << "( " << v.x() << ", " << v.y() << " )";
   return w;
 }
+std::ostream& operator<<( std::ostream& os, const Vec2d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << " )";
+  return os;
+}
 
 bool Vec3d::operator==( const Vec3d& other ) const
 {
@@ -123,6 +128,11 @@ fmt::Writer& operator<<( fmt::Writer& w, const Vec3d& v )
 {
   w << "( " << v.x() << ", " << v.y() << ", " << v.z() << " )";
   return w;
+}
+std::ostream& operator<<( std::ostream& os, const Vec3d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << ", " << v.z() << " )";
+  return os;
 }
 }  // namespace Core
 }  // namespace Pol

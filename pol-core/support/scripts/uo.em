@@ -292,7 +292,7 @@ EraseGlobalProperty( propname );
 EraseObjProperty( object, propname );
 FindAccount( acctname );
 FindObjtypeInContainer( container, objtype, flags := FINDOBJTYPE_RECURSIVE );
-FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode := "L" );
 FindSubstance( container, objtype, amount, makeinuse := 0, flags := 0 );
 GetAmount( item );
 GetCommandHelp( character, command );
