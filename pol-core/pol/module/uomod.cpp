@@ -5049,9 +5049,9 @@ BObjectImp* UOExecutorModule::mf_FindPath()
   if ( !getParam( 8, theSkirt ) )
     theSkirt = 5;
 
-  Plib::MOVEMODE movemode = Plib::MOVEMODE_LAND;
-  if ( movemode_name->length() > 0 )
-    movemode = Character::decode_movemode( movemode_name->value() );
+  Plib::MOVEMODE movemode = Character::decode_movemode( movemode_name->value() );
+  if ( movemode == Plib::MOVEMODE_NONE )
+    return new BError( "Wrong movemode parameter" );
 
   if ( theSkirt < 0 )
     theSkirt = 0;

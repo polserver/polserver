@@ -16,7 +16,6 @@ oxo
 /*
 exported function path_nonblocking()
   var res:=FindPath( 100, 100, 0, 100, 105, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
-  print(res);
   var expected:={
     struct{x:=100,y:=101,z:=0},
     struct{x:=100,y:=102,z:=0},
@@ -41,7 +40,6 @@ oxo
 exported function path_blocking()
   var wall:=CreateItemAtLocation(100,101,0,0x6);
   var res:=FindPath( 100, 100, 0, 100, 105, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
-  print(res);
   var expected:={
     struct{x:= 99,y:=101,z:=0},
     struct{x:=100,y:=102,z:=0},
@@ -66,7 +64,6 @@ ooxo
 exported function path_blocking_diagonal()
   var wall:=CreateItemAtLocation(102,101,0,0x6);
   var res:=FindPath( 100, 100, 0, 102, 102, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
-  print(res);
   var expected:={
     struct{x:=101,y:=101,z:=0},
     struct{x:=102,y:=102,z:=0}
@@ -96,7 +93,6 @@ exported function path_blocking_diagonal2()
   var wall:=CreateItemAtLocation(102,101,0,0x6);
   var wall2:=CreateItemAtLocation(101,102,0,0x6);
   var res:=FindPath( 100, 100, 0, 102, 102, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
-  print(res);
   var expected:={
     struct{x:=101,y:=100,z:=0},
     struct{x:=102,y:=100,z:=0},
@@ -166,6 +162,40 @@ exported function path_water_blocking2_ls()
     if (!comp)
       return comp;
     endif
+  endif
+  return 1;
+endfunction
+
+exported function path_wrongmovemode()
+  var res:=FindPath( 100, 100, 0, 100, 105, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="B");
+  if (res.errortext != "Wrong movemode parameter")
+    return ret_error($"expected failure wrong movemode, got: {res}");
+  endif
+  return 1;
+endfunction
+
+// end of map with blocking walls
+exported function path_failure_end_of_map()
+  var wall:=CreateItemAtLocation(191,190,0,0x6);
+  var wall2:=CreateItemAtLocation(190,191,0,0x6);
+  var res:=FindPath( 191, 191, 0, 190, 190, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  if (res.errortext != "Failed to find a path.")
+    return ret_error($"expected failed to find path, got: {res}");
+  endif
+  return 1;
+endfunction
+
+// end of map with blocking walls
+exported function path_failure_end_of_map2()
+  var wall:=CreateItemAtLocation(1,0,0,0x6);
+  var wall2:=CreateItemAtLocation(0,1,0,0x6);
+  var res:=FindPath( 0, 0, 0, 1, 1, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  if (res.errortext != "Failed to find a path.")
+    return ret_error($"expected failed to find path, got: {res}");
   endif
   return 1;
 endfunction
