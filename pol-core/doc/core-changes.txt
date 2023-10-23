@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+10-23-2023 Turley:
+  Changed: added movemode parameter to uo:FindPath, defaults to "L". Before the move mode was fixed to land, now its possible to use the FindPath functionality also for eg see monsters
 10-18-2023 Turley:
     Added: print/syslog console_color parameter. When used with one of the basicio.em CONSOLE_COLOR constants, or a custom xterm formatting string the output to the console is formatted accordingly. Resets the formatting at the end. Xterm formatting is supported on Linux and Windows11. For syslog only the output to the console is modified not the logfile entry.
     Added: pol.cfg EnableColoredOutput 1/0 to disable formatted output. Default is 1.

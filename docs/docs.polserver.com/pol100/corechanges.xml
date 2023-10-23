@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-18-2023</datemodified>
+		<datemodified>10-23-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>10-23-2023</date>
+			<author>Turley:</author>
+			<change type="Changed">added movemode parameter to uo:FindPath, defaults to &quot;L&quot;. Before the move mode was fixed to land, now its possible to use the FindPath functionality also for eg see monsters</change>
+		</entry>
 		<entry>
 			<date>10-18-2023</date>
 			<author>Turley:</author>
