@@ -8,7 +8,7 @@
 		<entry>
 			<date>10-23-2023</date>
 			<author>Turley:</author>
-			<change type="Changed">added movemode parameter to uo:FindPath, defaults to &quot;L&quot;. Before the move mode was fixed to land, now its possible to use the FindPath functionality also for eg see monsters</change>
+			<change type="Changed">added movemode parameter to uo:FindPath, defaults to &quot;L&quot;. Before the move mode was fixed to land, now its possible to use the FindPath functionality also for eg sea monsters</change>
 		</entry>
 		<entry>
 			<date>10-18-2023</date>
