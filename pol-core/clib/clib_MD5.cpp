@@ -9,16 +9,15 @@
 
 #include "clib_MD5.h"
 
-#include <iomanip>
-#include <sstream>
+#include <format/format.h>
 
-#include "logfacility.h"
-#include "pol_global_config.h"
 #include "stlutil.h"
 
 #ifdef WINDOWS
 #include "Header_Windows.h"
 #include <wincrypt.h>
+
+#include "logfacility.h"
 
 namespace Pol
 {
@@ -28,10 +27,6 @@ static HCRYPTPROV hProv = 0;
 
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
-  // bool bResult = true;
-
-  // HCRYPTKEY hKey = nullptr;
-  // HCRYPTKEY hXchgKey = nullptr;
   HCRYPTHASH hHash = 0;
 
   if ( !hProv )
@@ -67,12 +62,12 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
     return false;
   }
 
-  std::ostringstream os;
-  for ( unsigned int i = 0; i < len; i++ )
+  fmt::Writer w;
+  for ( auto& elem : buf )
   {
-    os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << (int)buf[i];
+    w.Format( "{:02x}" ) << (int)elem;
   }
-  out = os.str();
+  out = w.str();
 
   CryptDestroyHash( hHash );
   return true;
@@ -88,7 +83,7 @@ void MD5_Cleanup()
 
 #else
 
-#include <openssl/md5.h>
+#include <openssl/evp.h>
 
 namespace Pol
 {
@@ -96,16 +91,21 @@ namespace Clib
 {
 bool MD5_Encrypt( const std::string& in, std::string& out )
 {
-  unsigned char sum[16];
+  auto ctx = EVP_MD_CTX_new();
 
-  MD5( reinterpret_cast<const unsigned char*>( in.c_str() ), in.length(), sum );
+  EVP_DigestInit_ex( ctx, EVP_md5(), nullptr );
+  EVP_DigestUpdate( ctx, in.c_str(), in.length() );
 
-  std::ostringstream os;
-  for ( auto& elem : sum )
+  unsigned char hash[16];
+  EVP_DigestFinal_ex( ctx, hash, nullptr );
+  EVP_MD_CTX_free( ctx );
+
+  fmt::Writer w;
+  for ( auto& elem : hash )
   {
-    os << std::setfill( '0' ) << std::setw( 2 ) << std::hex << (int)elem;
+    w.Format( "{:02x}" ) << (int)elem;
   }
-  out = os.str();
+  out = w.str();
 
   return true;
 }
@@ -118,11 +118,7 @@ void MD5_Cleanup()
 
 bool MD5_Compare( const std::string& a, const std::string& b )
 {
-  bool ret = false;
-  if ( stringicmp( a, b ) == 0 )
-    ret = true;
-
-  return ret;
+  return stringicmp( a, b ) == 0;
 }
 }
 }
