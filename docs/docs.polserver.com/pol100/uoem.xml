@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>08/14/2022</datemodified>
+    <datemodified>10/22/2023</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -2375,7 +2375,7 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
 </function>
 
 <function name="FindPath">
-  <prototype>FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 )</prototype>
+  <prototype>FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode := "L" )</prototype>
   <parameter name="x1" value="Integer world coordinates - start of the path" />
   <parameter name="y1" value="Integer world coordinates - start of the path" />
   <parameter name="z1" value="Integer world coordinates - start of the path" />
@@ -2385,6 +2385,7 @@ const LIST_IGNORE_Z             := 0x40000000; // Ignore Z-Value and list everyt
   <parameter name="realm" value="String - case-sensitive name of the realm" />
   <parameter name="flags" value="Integer" />
   <parameter name="searchskirt" value="Integer" />
+  <parameter name="movemode" value="String - default 'L'" />
   <explain>Finds a path from start to destination and will return an array of coordinates, representing each step along the path from the next step to take from the start of the path to the actual destination.  The coordinates are found in .x, .y, and .z.</explain>
   <explain>Notes: The skirt around the square that is formed around the start of the path to the destination which represents the searchable area is set by searchskirt. Check out MaxPathFindRange in servspecopt.cfg too.</explain>
   <explain>Notes: uo.em constant for this function:
@@ -2402,6 +2403,7 @@ const FP_IGNORE_DOORS           := 0x02;    // ignore Doors (you've to open door
   <error>"Out of memory."</error>
   <error>"Solution Corrupted!"</error>
   <error>"Pathfind Error."</error>
+  <error>"Wrong movemode parameter"</error>
   <related>NPC</related>
   <related>Array</related>
 </function> 
