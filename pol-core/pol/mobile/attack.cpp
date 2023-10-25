@@ -35,40 +35,38 @@ void handle_attack( Network::Client* client, Core::PKTIN_05* msg )
 
   u32 serial = cfBEu32( msg->serial );
   Character* defender = Core::find_character( serial );
-  if ( defender != nullptr )
+  if ( defender == nullptr )
+    return;
+  if ( !( Core::settingsManager.combat_config.attack_self ) )
   {
-    if ( !( Core::settingsManager.combat_config.attack_self ) )
-    {
-      if ( defender->serial == client->chr->serial )
-      {
-        client->chr->send_highlight();
-        return;
-      }
-    }
-
-    if ( !client->chr->is_visible_to_me( defender ) )
+    if ( defender->serial == client->chr->serial )
     {
       client->chr->send_highlight();
       return;
     }
-    if ( Core::pol_distance( client->chr->x(), client->chr->y(), defender->x(), defender->y() ) >
-         20 )
-    {
-      client->chr->send_highlight();
-      return;
-    }
-
-    if ( defender->acct != nullptr )
-    {
-      if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
-      {
-        client->chr->send_highlight();
-        Core::send_sysmessage( client, "Combat is not allowed in this area." );
-        return;
-      }
-    }
-    client->chr->select_opponent( serial );
   }
+
+  if ( !client->chr->is_visible_to_me( defender ) )
+  {
+    client->chr->send_highlight();
+    return;
+  }
+  if ( !client->chr->in_visual_range( defender ) )
+  {
+    client->chr->send_highlight();
+    return;
+  }
+
+  if ( defender->acct != nullptr )
+  {
+    if ( Core::JusticeRegion::RunNoCombatCheck( defender->client ) == true )
+    {
+      client->chr->send_highlight();
+      Core::send_sysmessage( client, "Combat is not allowed in this area." );
+      return;
+    }
+  }
+  client->chr->select_opponent( serial );
 }
 }  // namespace Mobile
 }  // namespace Pol

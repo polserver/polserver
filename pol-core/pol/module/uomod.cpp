@@ -2802,18 +2802,15 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
   {
     std::unique_ptr<ObjArray> arr( new ObjArray );
 
-    const Character::CharacterSet& cont = chr->hostiles();
-    Character::CharacterSet::const_iterator itr = cont.begin(), end = cont.end();
-    for ( ; itr != end; ++itr )
+    for ( auto& hostile : chr->hostiles() )
     {
-      Character* hostile = *itr;
       if ( hostile->concealed() )
         continue;
       if ( ( flags & LH_FLAG_LOS ) && !chr->realm()->has_los( *chr, *hostile ) )
         continue;
       if ( ( ~flags & LH_FLAG_INCLUDE_HIDDEN ) && hostile->hidden() )
         continue;
-      if ( !inrangex( chr, hostile, range ) )
+      if ( !chr->in_range( hostile, range ) )
         continue;
       arr->addElement( hostile->make_ref() );
     }
@@ -3286,24 +3283,8 @@ BObjectImp* UOExecutorModule::mf_Distance()
   UObject* obj1;
   UObject* obj2;
   if ( getUObjectParam( 0, obj1 ) && getUObjectParam( 1, obj2 ) )
-  {
-    const UObject* tobj1 = obj1->toplevel_owner();
-    const UObject* tobj2 = obj2->toplevel_owner();
-    int xd = tobj1->x() - tobj2->x();
-    int yd = tobj1->y() - tobj2->y();
-    if ( xd < 0 )
-      xd = -xd;
-    if ( yd < 0 )
-      yd = -yd;
-    if ( xd > yd )
-      return new BLong( xd );
-    else
-      return new BLong( yd );
-  }
-  else
-  {
-    return new BError( "Invalid parameter type" );
-  }
+    return new BLong( obj1->toplevel_pos().pol_distance( obj2->toplevel_pos() ) );
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
@@ -3325,12 +3306,10 @@ BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
 
 BObjectImp* UOExecutorModule::mf_CoordinateDistance()
 {
-  unsigned short x1, y1, x2, y2;
-  if ( !( getParam( 0, x1 ) && getParam( 1, y1 ) && getParam( 2, x2 ) && getParam( 3, y2 ) ) )
-  {
+  Pos2d pos1, pos2;
+  if ( !getPos2dParam( 0, 1, &pos1 ) || !getPos2dParam( 2, 3, &pos2 ) )
     return new BError( "Invalid parameter type" );
-  }
-  return new BLong( pol_distance( x1, y1, x2, y2 ) );
+  return new BLong( pos1.pol_distance( pos2 ) );
 }
 
 BObjectImp* UOExecutorModule::mf_CoordinateDistanceEuclidean()

@@ -99,7 +99,7 @@ void singleclick( Network::Client* client, u32 serial )
     else
       chr = find_character( serial );
 
-    if ( chr != nullptr && inrange( client->chr, chr ) &&
+    if ( chr != nullptr && client->chr->in_visual_range( chr ) &&
          !client->chr->is_concealed_from_me( chr ) )
     {
       if ( chr->has_title_guild() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )

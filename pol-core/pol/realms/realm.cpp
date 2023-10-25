@@ -141,15 +141,14 @@ void Realm::notify_moved( Mobile::Character& whomoved )
 {
   // When the movement is larger than 32 tiles, notify mobiles and items in the old location
   // TODO Pos magic 32 everywhere?
-  Core::Pos2d lastp( whomoved.lastx, whomoved.lasty );
-  if ( whomoved.pos().xy().pol_distance( lastp ) > 32 )
+  if ( whomoved.pos().pol_distance( whomoved.lastpos ) > 32 )
   {
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        lastp, this, 32,
+        whomoved.lastpos, 32,
         [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
 
     Core::WorldIterator<Core::ItemFilter>::InRange(
-        lastp, this, 32, [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
+        whomoved.lastpos, 32, [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
   }
 
   // Inform nearby mobiles that a movement has been made.

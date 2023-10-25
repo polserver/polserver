@@ -31,6 +31,7 @@
 #include "../../clib/boostutils.h"
 #include "../../clib/rawtypes.h"
 #include "../../plib/uconst.h"
+#include "../base/position.h"
 #include "../dynproperties.h"
 #include "../eventid.h"
 #include "../item/weapon.h"
@@ -75,10 +76,9 @@ namespace Mobile
 {
 struct Anchor
 {
-  Anchor() : enabled( false ), x( 0 ), y( 0 ), dstart( 0 ), psub( 0 ){};
+  Anchor() : enabled( false ), pos( 0, 0 ), dstart( 0 ), psub( 0 ){};
   bool enabled;
-  unsigned short x;
-  unsigned short y;
+  Core::Pos2d pos;
   unsigned short dstart;
   unsigned short psub;
 };

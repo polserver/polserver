@@ -252,7 +252,7 @@ public:
 
   void update_range_from_multis();
   Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
-                             // "pre-filtering" of objects
+                             // "pre-filtering" of objects, x/y always equal
 
   void unload_npc_templates();
 

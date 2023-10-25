@@ -68,7 +68,7 @@ Core::Range3d UHouse::current_box() const
     const MultiDef& md = multidef();
     return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz + Core::Vec2d( 0, 1 ) );
   }
-  
+
   return base::current_box();
 }
 
@@ -977,9 +977,9 @@ void UHouse::walk_on( Mobile::Character* chr )
       ex->addModule( new Module::UOExecutorModule( *ex ) );
       if ( prog->haveProgram )
       {
-        ex->pushArg( new Bscript::BLong( chr->lastz ) );
-        ex->pushArg( new Bscript::BLong( chr->lasty ) );
-        ex->pushArg( new Bscript::BLong( chr->lastx ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.z() ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.y() ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.x() ) );
         ex->pushArg( new Module::EItemRefObjImp( this ) );
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }

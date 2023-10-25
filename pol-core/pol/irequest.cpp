@@ -49,7 +49,7 @@ void statrequest( Network::Client* client, u32 serial )
     {
       if ( client->chr->is_visible_to_me( chr ) )
       {
-        if ( inrange( client->chr, chr ) )
+        if ( client->chr->in_visual_range( chr ) )
           send_short_statmsg( client, chr );
       }
     }
@@ -157,7 +157,7 @@ void srequest( Network::Client* client, PKTIN_34* msg )
         return;
       if ( !client->chr->is_concealed_from_me( bob ) && client->chr->is_visible_to_me( bob ) )
       {
-        if ( pol_distance( client->chr->x(), client->chr->y(), bob->x(), bob->y() ) < 20 )
+        if ( client->chr->in_visual_range( bob ) )
           statrequest( client, serial );
       }
       if ( client->chr->has_party() )

@@ -82,15 +82,11 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
       remove_objects_inrange( chr->client );
     chr->setposition( newpos );
     chr->realm_changed();
-    chr->lastx = 0;
-    chr->lasty = 0;
-    chr->lastz = 0;
+    chr->lastpos = oldpos;
   }
   else
   {
-    chr->lastx = chr->x();
-    chr->lasty = chr->y();
-    chr->lastz = chr->z();
+    chr->lastpos = oldpos;
     chr->setposition( newpos );
   }
   MoveCharacterWorldPosition( oldpos, chr );
@@ -150,11 +146,12 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
   {
     walkon_item->walk_on( chr );
   }
-
-  chr->lastx = chr->x();
-  chr->lasty = chr->y();
-  chr->lastz = chr->z();
-
+  // TODO pos why?
+  /*
+    chr->lastx = chr->x();
+    chr->lasty = chr->y();
+    chr->lastz = chr->z();
+  */
   return true;
 }
 

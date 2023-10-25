@@ -286,7 +286,7 @@ void start_client_char( Network::Client* client )
   if ( settingsManager.ssopt.core_sends_season )
     send_season_info( client );
 
-  client->chr->lastx = client->chr->lasty = client->chr->lastz = 0;
+  client->chr->lastpos = Pos4d( 0, 0, 0, nullptr );
 
   client->gd->music_region =
       gamestate.musicdef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
@@ -469,11 +469,8 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
 
-  if ( !chosen_char->lastx && !chosen_char->lasty )
-  {
-    chosen_char->lastx = chosen_char->x();
-    chosen_char->lasty = chosen_char->y();
-  }
+  if ( !chosen_char->lastpos.realm() )
+    chosen_char->lastpos = chosen_char->pos();
 
   if ( !reconnecting )
     run_logon_script( chosen_char );

@@ -93,6 +93,8 @@ public:
   virtual ~UMulti();
   virtual size_t estimatedSize() const override;
 
+  virtual u8 update_range() const override;
+
 protected:
   explicit UMulti( const Items::ItemDesc& itemdesc );
 

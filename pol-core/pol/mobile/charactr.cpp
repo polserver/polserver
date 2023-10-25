@@ -269,9 +269,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // MOVEMENT
       dir( 0 ),
       gradual_boost( 0 ),
-      lastx( 0 ),
-      lasty( 0 ),
-      lastz( 0 ),
+      lastpos( 0, 0, 0, nullptr ),
       move_reason( OTHER ),
       movemode( Plib::MOVEMODE_LAND ),
       // COMBAT
@@ -1162,7 +1160,7 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = ( range < -1 ) || pol_distance( this, item ) <= range;
+  const bool within_range = ( range < -1 ) || item->in_range( this, range );
   if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
@@ -1965,7 +1963,7 @@ void Character::send_warmode()
 
 void send_remove_if_hidden_ghost( Character* chr, Network::Client* client )
 {
-  if ( !inrange( chr, client->chr ) )
+  if ( !client->chr->in_visual_range( chr ) )
     return;
 
   if ( !client->chr->is_visible_to_me( chr ) )
@@ -1975,7 +1973,7 @@ void send_remove_if_hidden_ghost( Character* chr, Network::Client* client )
 }
 void send_create_ghost( Character* chr, Network::Client* client )
 {
-  if ( !inrange( chr, client->chr ) )
+  if ( !client->chr->in_visual_range( chr ) )
     return;
 
   if ( chr->dead() && client->chr->is_visible_to_me( chr ) )
@@ -2696,7 +2694,7 @@ bool Character::is_visible_to_me( const Character* chr ) const
   return false;
 };
 
-// NOTE: chr is at new position, lastx/lasty have old position.
+// NOTE: chr is at new position, lastpos have old position.
 void PropagateMove( /*Client *client,*/ Character* chr )
 {
   using namespace Network;
@@ -2721,8 +2719,8 @@ void PropagateMove( /*Client *client,*/ Character* chr )
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
         /* The two characters exist, and are in range of each other.
-        Character 'chr''s lastx and lasty coordinates are valid.
-        SO, if lastx/lasty are out of range of client->chr, we
+        Character 'chr''s lastpos coordinates are valid.
+        SO, if lastpos are out of range of client->chr, we
         should send a 'create' type message.  If they are in range,
         we should just send a move.
         */
@@ -2754,7 +2752,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
               msginvul.Send( client );
           }
         }
-        else if ( Core::inrange( zonechr->x(), zonechr->y(), chr->lastx, chr->lasty ) )
+        else if ( zonechr->in_visual_range( chr->lastpos ) )
         {
           msgmove.Send( client );
           if ( chr->poisoned() )
@@ -2774,14 +2772,14 @@ void PropagateMove( /*Client *client,*/ Character* chr )
 
   // iter over all old in range players and send remove
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastx, chr->lasty, chr->realm(), RANGE_VISUAL,
+      chr->lastpos, RANGE_VISUAL,
       [&]( Character* zonechr )
       {
         Client* client = zonechr->client;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
 
-        if ( Core::inrange( zonechr, chr ) )  // already handled
+        if ( chr->in_visual_range( zonechr ) )  // already handled
           return;
         // if we just walked out of range of this character, send its
         // client a remove object, or else a ghost character will remain.
@@ -3789,9 +3787,7 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
-  lastx = x();
-  lasty = y();
-  lastz = z();
+  lastpos = pos();
 
   // if currently building a house chr can move free inside the multi
   if ( is_house_editing() )
@@ -3912,10 +3908,10 @@ bool Character::move( unsigned char i_dir )
 
     if ( Core::gamestate.system_hooks.ouch_hook )
     {
-      if ( ( lastz - z() ) > 21 )
+      if ( ( lastpos.z() - z() ) > 21 )
         Core::gamestate.system_hooks.ouch_hook->call(
-            make_mobileref( this ), new Bscript::BLong( lastx ), new Bscript::BLong( lasty ),
-            new Bscript::BLong( lastz ) );
+            make_mobileref( this ), new Bscript::BLong( lastpos.x() ),
+            new Bscript::BLong( lastpos.y() ), new Bscript::BLong( lastpos.z() ) );
     }
   }
 
@@ -4303,9 +4299,7 @@ size_t Character::estimatedSize() const
                 + sizeof( u32 )                                       /*registered_house*/
                 + sizeof( unsigned char )                             /*cmdlevel_*/
                 + sizeof( u8 )                                        /*dir*/
-                + sizeof( u16 )                                       /*lastx*/
-                + sizeof( u16 )                                       /*lasty*/
-                + sizeof( s8 )                                        /*lastz*/
+                + sizeof( Core::Pos4d )                               /*lastpos*/
                 + sizeof( MOVEREASON )                                /*move_reason*/
                 + sizeof( Plib::MOVEMODE )                            /*movemode*/
                 + sizeof( time_t )                                    /*disable_regeneration_until*/

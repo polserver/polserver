@@ -32,8 +32,8 @@ void cancel_trade( Mobile::Character* chr1 );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client )
 {
-  if ( inrange( chr, client->chr ) &&
-       !inrange( chr->x(), chr->y(), client->chr->lastx, client->chr->lasty ) &&
+  if ( client->chr->in_visual_range( chr ) &&
+       !client->chr->lastpos.in_range( chr->pos(), client->chr->update_range() ) &&
        client->chr->is_visible_to_me( chr ) && client->chr != chr )
   {
     send_owncreate( client, chr );
@@ -42,8 +42,9 @@ void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client
 
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 {
-  if ( inrange( client->chr, item ) &&
-       !inrange( item->x(), item->y(), client->chr->lastx, client->chr->lasty ) )
+  if ( client->chr->in_visual_range( item ) &&
+       !client->chr->lastpos.in_range(
+           item->pos(), std::max( item->update_range(), client->chr->update_range() ) ) )
   {
     send_item( client, item );
   }
@@ -51,8 +52,9 @@ void send_item_if_newly_inrange( Items::Item* item, Network::Client* client )
 
 void send_multi_if_newly_inrange( Multi::UMulti* multi, Network::Client* client )
 {
-  if ( multi_inrange( client->chr, multi ) &&
-       !multi_inrange( multi->x(), multi->y(), client->chr->lastx, client->chr->lasty ) )
+  if ( client->chr->in_visual_range( multi ) &&
+       !client->chr->lastpos.in_range(
+           multi->pos(), std::max( client->chr->update_range(), multi->update_range() ) ) )
   {
     send_multi( client, multi );
     Multi::UHouse* house = multi->as_house();
@@ -173,8 +175,7 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
         if ( chr->is_trading() )
         {
           if ( ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) ) &&
-               ( pol_distance( chr->x(), chr->y(), chr->trading_with->x(),
-                               chr->trading_with->y() ) > 3 ) )
+               !chr->in_range( chr->trading_with.get(), 3 ) )
           {
             cancel_trade( chr );
           }

@@ -1415,7 +1415,7 @@ void Pol::Items::Item::inform_leftarea( Mobile::Character* wholeft )
   if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !wholeft->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     return;
 
-  if ( pol_distance( wholeft, this ) > ex->area_size )
+  if ( !wholeft->in_range( this, ex->area_size ) )
     return;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( wholeft ) )
@@ -1436,7 +1436,7 @@ void Pol::Items::Item::inform_enteredarea( Mobile::Character* whoenters )
   if ( ( ex->area_mask & Core::EVMASK_ONLY_NPC ) && !whoenters->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
     return;
 
-  if ( pol_distance( whoenters, this ) > ex->area_size )
+  if ( !whoenters->in_range( this, ex->area_size ) )
     return;
 
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( whoenters ) )
@@ -1459,11 +1459,8 @@ void Pol::Items::Item::inform_moved( Mobile::Character* moved )
   if ( Core::settingsManager.ssopt.event_visibility_core_checks && !is_visible_to_me( moved ) )
     return;
 
-  const bool are_inrange =
-      ( abs( x() - moved->x() ) <= ex->area_size ) && ( abs( y() - moved->y() ) <= ex->area_size );
-
-  const bool were_inrange = ( abs( x() - moved->lastx ) <= ex->area_size ) &&
-                            ( abs( y() - moved->lasty ) <= ex->area_size );
+  const bool are_inrange = in_range( moved, ex->area_size );
+  const bool were_inrange = in_range( moved->lastpos, ex->area_size );
 
   if ( are_inrange && !were_inrange && ex->listens_to( Core::EVID_ENTEREDAREA ) )
   {

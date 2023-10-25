@@ -173,7 +173,7 @@ void send_client_char_data( Mobile::Character* chr, Network::Client* client );
 
 void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
 {
-  if ( client->ready && client->chr && client->chr != chr && inrange( client->chr, chr ) )
+  if ( client->ready && client->chr && client->chr != chr && client->chr->in_visual_range( chr ) )
   {
     send_move( client, chr );
   }

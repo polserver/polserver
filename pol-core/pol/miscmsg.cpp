@@ -446,7 +446,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         if ( member->serial == me->serial )
           continue;
 
-        if ( Core::inrange( me, member ) && me->is_visible_to_me( member ) )
+        if ( me->in_visual_range( member ) && me->is_visible_to_me( member ) )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );
@@ -484,7 +484,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         if ( member->serial == me->serial )
           continue;
 
-        if ( locations && Core::inrange( me, member ) && me->is_visible_to_me( member ) )
+        if ( locations && me->in_visual_range( member ) && me->is_visible_to_me( member ) )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );
@@ -536,27 +536,18 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
 {
   u32 serial = cfBEu32( msg->serial );
   Mobile::Character* the_mob = find_character( serial );
-  if ( the_mob != nullptr )
-  {
-    if ( !client->chr->is_visible_to_me( the_mob ) )
-    {
-      return;
-    }
-    if ( pol_distance( client->chr->x(), client->chr->y(), the_mob->x(), the_mob->y() ) > 20 )
-    {
-      return;
-    }
-
-    PktHelper::PacketOut<PktOut_98> msgOut;
-    msgOut->WriteFlipped<u16>( 37u );  // static length
-    msgOut->Write<u32>( the_mob->serial_ext );
-    msgOut->Write( Clib::strUtf8ToCp1252(the_mob->name()).c_str(), 30, false );
-    msgOut.Send( client );
-  }
-  else
-  {
+  if ( the_mob == nullptr )
     return;
-  }
+  if ( !client->chr->is_visible_to_me( the_mob ) )
+    return;
+  if ( !client->chr->in_visual_range( the_mob ) )
+    return;
+
+  PktHelper::PacketOut<PktOut_98> msgOut;
+  msgOut->WriteFlipped<u16>( 37u );  // static length
+  msgOut->Write<u32>( the_mob->serial_ext );
+  msgOut->Write( Clib::strUtf8ToCp1252( the_mob->name() ).c_str(), 30, false );
+  msgOut.Send( client );
 }
 
 void handle_se_object_list( Client* client, PKTBI_D6_IN* msgin )
