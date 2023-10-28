@@ -1,10 +1,5 @@
 -- POL100.1.0 --
-10-18-2023 Turley:
-    Added: print/syslog console_color parameter. When used with one of the basicio.em CONSOLE_COLOR constants, or a custom xterm formatting string the output to the console is formatted accordingly. Resets the formatting at the end. Xterm formatting is supported on Linux and Windows11. For syslog only the output to the console is modified not the logfile entry.
-    Added: pol.cfg EnableColoredOutput 1/0 to disable formatted output. Default is 1.
-10-15-2023 Kevin:
-    Fixed: Changed return values and parameters used by storage module functions to match documentation.
-23-09-2023 Ins:
+10-28-2023 Ins:
     Added: ServSpecOpt "UndoGetItemEnableRangeCheck" 1/0 default 0.
            If enabled - on fail to equip item back on character (if it has been taken from character layer)
            and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.
@@ -14,8 +9,15 @@
            If enabled - on fail to equip item back on character (if it has been taken from character layer)
            and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in
            origin container will be skipped.
-03-09-2023 Ins:
-    Added: repsys.cfg General section "PartyHelpFullCountsAsCriminal 1/0" default 1.
+    Fixed: Leftover items in corpse on client side.
+  Changed: Added ServerSpecOpt reload to ReloadConfiguration.
+10-18-2023 Turley:
+    Added: print/syslog console_color parameter. When used with one of the basicio.em CONSOLE_COLOR constants, or a custom xterm formatting string the output to the console is formatted accordingly. Resets the formatting at the end. Xterm formatting is supported on Linux and Windows11. For syslog only the output to the console is modified not the logfile entry.
+    Added: pol.cfg EnableColoredOutput 1/0 to disable formatted output. Default is 1.
+10-15-2023 Kevin:
+    Fixed: Changed return values and parameters used by storage module functions to match documentation.
+09-03-2023 Ins:
+    Added: repsys.cfg General section "PartyHarmFullCountsAsCriminal 1/0" default 1.
            If 0 OnHarm does not set mobile to criminal when they are in the same party.
 08-30-2023 Kevin:
     Fixed: Client character no longer stutters while moving the character and changing the 'poison' property.

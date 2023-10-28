@@ -158,7 +158,7 @@ endfunction
 
 
 // 5. Take item from ground and try to put to container that is too far away.
-// Item should be returned to place where have taken it.
+// Item should be returned to the place where it has been taken.
 exported function undo_drop_here_0_range_check_0()
   var err;
   var res := MoveObjectToLocation(char, charX, charY, 0);
@@ -209,7 +209,7 @@ exported function undo_drop_here_0_range_check_0()
 endfunction
 
 // 6. Take item from container and try to put to container that is too far away.
-// Item should be returned in origin container.
+// Item should be placed at character backpack.
 exported function undo_drop_0_range_0_container()
   var err;
   var res := MoveObjectToLocation(char, charX, charY, 0);
@@ -256,6 +256,7 @@ exported function undo_drop_0_range_0_container()
     DestroyItem(item);
     return err;
   endif
+  //container is too far, item must be at character backpack
   if (!item.container || item.container.serial != char.backpack.serial)
     DestroyItem(container);
     DestroyItem(item);
@@ -269,7 +270,7 @@ exported function undo_drop_0_range_0_container()
 endfunction
 
 // 7. Take NO DROP item from container and try to put to container that is too far away.
-// Item should be placed in character backpack.
+// Item is no_drop, so it should be placed original container.
 exported function undo_drop_0_range_0_cont_ndrop()
   var err;
   var res := MoveObjectToLocation(char, charX, charY, 0);
@@ -277,53 +278,68 @@ exported function undo_drop_0_range_0_cont_ndrop()
     return ret_error($"Could not move character: ${res}");
   endif
 
-  //create container into which we are going to drop
-  var container := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
-  if (!container)
-    return ret_error($"Could not create container: ${container}");
+  //create container into which we are going to drop item
+  var containerTo := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!containerTo)
+    return ret_error($"Could not create container to: ${containerTo}");
   endif
 
-  //create item in container
-  var item := CreateItemInContainer(container, 0x0F3F);
+  //create container from which we are going to take item
+  var containerFrom := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
+  if (!containerFrom)
+    DestroyItem(containerTo);
+    return ret_error($"Could not create container from: ${containerFrom}");
+  endif
+
+  //create item in containerFrom
+  var item := CreateItemInContainer(containerFrom, 0x0F3F);
   if(!item)
-    DestroyItem(container);
+    DestroyItem(containerTo);
+    DestroyItem(containerFrom);
     return ret_error($"Could not create item: {item}");
   endif
   item.movable := 1;
   item.no_drop := 1;
   //move character to accessible range
-  res := MoveObjectToLocation(char, container.x, container.y, 0);
+  res := MoveObjectToLocation(char, containerFrom.x, containerFrom.y, 0);
   if (!res)
-    DestroyItem(container);
+    DestroyItem(containerTo);
+    DestroyItem(containerFrom);
     DestroyItem(item);
     return ret_error($"Could not move character: ${res}");
   endif
   //lift item
   if (!lift_item_succeeded(err, item.serial))
-    DestroyItem(container);
+    DestroyItem(containerTo);
+    DestroyItem(containerFrom);
     DestroyItem(item);
     return err;
   endif
   //move character out of accessible range
   res := MoveObjectToLocation(char, charX, charY + 4, 0);
   if (!res)
-    DestroyItem(container);
+    DestroyItem(containerTo);
+    DestroyItem(containerFrom);
     DestroyItem(item);
     return ret_error($"Could not move character: ${res}");
   endif
   //drop item
-  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, container.serial))
-    DestroyItem(container);
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, containerTo.serial))
+    DestroyItem(containerTo);
+    DestroyItem(containerFrom);
     DestroyItem(item);
     return err;
   endif
-  if (!item.container || item.container.serial != container.serial)
-    DestroyItem(container);
+  //item is no_drop, item must be at character backpack
+  if (!item.container || item.container.serial != containerFrom.serial)
+    DestroyItem(containerTo);
+    DestroyItem(containerFrom);
     DestroyItem(item);
     return ret_error($"Item should be returned in origin container.");
   endif
 
-  DestroyItem(container);
+  DestroyItem(containerTo);
+  DestroyItem(containerFrom);
   DestroyItem(item);
 
   return 1;
