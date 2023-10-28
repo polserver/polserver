@@ -357,10 +357,15 @@ exported function undo_range_check_1()
 
   var newConf := array;
   foreach line in originalConf
-    if(line != "UndoGetItemEnableRangeCheck=1" && line != "UndoGetItemEnableRangeCheck=0")
-        newConf.append(line);
+    if(Find(line, "UndoGetItemEnableRangeCheck", 1))
+      continue;
     endif
+    if(Find(line, "DefaultAccessibleRange", 1))
+      continue;
+    endif
+    newConf.append(line);
   endforeach
+  newConf.append("DefaultAccessibleRange=2");
   newConf.append("UndoGetItemEnableRangeCheck=1");
 
   var writeResult := WriteFile("::config/servspecopt.cfg", newConf);
@@ -445,10 +450,15 @@ exported function undo_drop_here_1()
 
   var newConf := array;
   foreach line in originalConf
-    if(line != "UndoGetItemDropHere=1" && line != "UndoGetItemDropHere=0")
-        newConf.append(line);
+    if(Find(line, "UndoGetItemDropHere", 1))
+      continue;
     endif
+    if(Find(line, "DefaultAccessibleRange", 1))
+      continue;
+    endif
+    newConf.append(line);
   endforeach
+  newConf.append("DefaultAccessibleRange=2");
   newConf.append("UndoGetItemDropHere=1");
 
   var writeResult := WriteFile("::config/servspecopt.cfg", newConf);
