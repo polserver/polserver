@@ -229,10 +229,7 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
                                 unsigned int* PC ) const;
 
-  void ref_counted_add_ref();
-  void ref_counted_release();
   unsigned ref_counted_count() const;
-  ref_counted* as_ref_counted() { return this; }
   inline void increv() { _rev++; };
   inline u32 rev() const { return _rev; };
   bool dirty() const;
@@ -332,16 +329,6 @@ inline bool UObject::specific_name() const
 inline void UObject::set_dirty()
 {
   flags_.set( OBJ_FLAGS::DIRTY );
-}
-
-inline void UObject::ref_counted_add_ref()
-{
-  ref_counted::add_ref( REFERER_PARAM( this ) );
-}
-
-inline void UObject::ref_counted_release()
-{
-  ref_counted::release( REFERER_PARAM( this ) );
 }
 
 inline unsigned UObject::ref_counted_count() const

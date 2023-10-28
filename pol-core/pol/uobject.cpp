@@ -53,8 +53,6 @@ int display_orphan( UObject* o )
   o->printOn( sw );
   o->printOnDebug( sw_orphan );
   INFO_PRINT << sw().str();
-  // ref_ptr<UObject>::display_referers( o->as_ref_counted() );
-
   return 0;
 }
 void display_unreaped_orphan_instances()
