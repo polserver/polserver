@@ -596,7 +596,7 @@ exported function undo_range_check_1_ret_nested()
 
   //TODO: for some reason even if DefaultAccessibleRange=2
   //and UndoGetItemEnableRangeCheck=1 it fails if distance to container < 6
-  var containerTo := CreateItemAtLocation(char.x + 6, char.y, char.z, 0xE75);
+  var containerTo := CreateItemAtLocation(char.x + 20, char.y, char.z, 0xE75);
   if (!containerTo)
     DestroyItem(rootContainer);
     WriteFile("::config/servspecopt.cfg", originalConf);
@@ -628,6 +628,10 @@ exported function undo_range_check_1_ret_nested()
     ReloadConfiguration();
     return ret_error($"Could not full the backpack.");
   endif
+
+  sleepms(1000);
+  SendViewContainer(char, rootContainer);
+  SendViewContainer(char, nestedContainer);
 
   //lift item
   if (!lift_item_succeeded(err, item.serial))
