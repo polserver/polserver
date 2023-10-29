@@ -222,6 +222,7 @@ exported function undo_drop_0_range_0_container()
   if (!container)
     return ret_error($"Could not create container: ${container}");
   endif
+  SendViewContainer(char, container);
 
   //create item in container
   var item := CreateItemInContainer(container, 0x0F3F);
@@ -290,6 +291,7 @@ exported function undo_drop_0_range_0_cont_ndrop()
     DestroyItem(containerTo);
     return ret_error($"Could not create container from: ${containerFrom}");
   endif
+  SendViewContainer(char, containerFrom);
 
   //create item in containerFrom
   var item := CreateItemInContainer(containerFrom, 0x0F3F);
@@ -410,6 +412,8 @@ exported function undo_range_check_1()
   //move character to not accessible range
   res := MoveObjectToLocation(char, charX - 2, charY, 0);
   if (!res)
+    DestroyItem(container);
+    DestroyItem(item);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
     return ret_error($"Could not move character: ${res}");
@@ -518,6 +522,156 @@ exported function undo_drop_here_1()
 
   DestroyItem(container);
   DestroyItem(item);
+  WriteFile("::config/servspecopt.cfg", originalConf);
+  ReloadConfiguration();
+
+  return 1;
+endfunction
+
+// 10. Take item from a container in a container and try to put to container that is too far away.
+// Backpack that is full, so item should be returned to original container.
+exported function undo_range_check_1_ret_nested()
+  var err;
+
+  var originalConf := ReadFile("::config/servspecopt.cfg");
+  if(originalConf == error)
+    return ret_error($"Could not read config/servspecopt.cfg file: ${originalConf}");
+  endif
+
+  var newConf := array;
+  foreach line in originalConf
+    if(Find(line, "UndoGetItemEnableRangeCheck", 1))
+      continue;
+    endif
+    if(Find(line, "DefaultAccessibleRange", 1))
+      continue;
+    endif
+    newConf.append(line);
+  endforeach
+  newConf.append("DefaultAccessibleRange=2");
+  newConf.append("UndoGetItemEnableRangeCheck=1");
+
+  var writeResult := WriteFile("::config/servspecopt.cfg", newConf);
+  if(writeResult == error)
+    return ret_error($"Could not write config/servspecopt.cfg file: ${writeResult}");
+  endif
+
+  ReloadConfiguration();
+
+  var res := MoveObjectToLocation(char, charX, charY, 0);
+  if (!res)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not move character: ${res}");
+  endif
+
+  //create root container
+  var rootContainer := CreateItemAtLocation(char.x, char.y, char.z, 0xE75);
+  if (!rootContainer)
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create container to: ${rootContainer}");
+  endif
+  SendViewContainer(char, rootContainer);
+
+  //create container in root container from which we are going to take item
+  var nestedContainer := CreateItemInContainer(rootContainer, 0xE75);
+  if (!nestedContainer)
+    DestroyItem(rootContainer);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create container from: ${nestedContainer}");
+  endif
+  SendViewContainer(char, nestedContainer);
+
+  //create item in nested container
+  var item := CreateItemInContainer(nestedContainer, 0x0E21);
+  if(!item)
+    DestroyItem(rootContainer);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create item: {item}");
+  endif
+  item.movable := 1;
+
+  //TODO: for some reason even if DefaultAccessibleRange=2
+  //and UndoGetItemEnableRangeCheck=1 it fails if distance to container < 6
+  var containerTo := CreateItemAtLocation(char.x + 6, char.y, char.z, 0xE75);
+  if (!containerTo)
+    DestroyItem(rootContainer);
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not create item: {item}");
+  endif
+
+  //fill backpack
+  var i;
+  var overflowResult := 0;
+  for( i := 1; i <= 65635; i := i + 1)
+    var overflowItem := CreateItemInContainer(char.backpack, 0x0F3F);
+    if(!overflowItem)
+      if(overflowItem.errortext == "That container is full")
+        overflowResult := 1;
+      endif
+      break;
+    endif
+  endfor
+
+  if(!overflowResult)
+    DestroyItem(rootContainer);
+    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
+      if(backpackItem.objtype == 0x0F3F)
+        DestroyItem(backpackItem);
+      endif
+    endforeach
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Could not full the backpack.");
+  endif
+
+  //lift item
+  if (!lift_item_succeeded(err, item.serial))
+    DestroyItem(rootContainer);
+    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
+      if(backpackItem.objtype == 0x0F3F)
+        DestroyItem(backpackItem);
+      endif
+    endforeach
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return err;
+  endif
+  //drop item
+  if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, containerTo.serial))
+    DestroyItem(rootContainer);
+    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
+      if(backpackItem.objtype == 0x0F3F)
+        DestroyItem(backpackItem);
+      endif
+    endforeach
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return err;
+  endif
+
+  if (!item.container || item.container.serial != nestedContainer.serial)
+    DestroyItem(rootContainer);
+    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
+      if(backpackItem.objtype == 0x0F3F)
+        DestroyItem(backpackItem);
+      endif
+    endforeach
+    WriteFile("::config/servspecopt.cfg", originalConf);
+    ReloadConfiguration();
+    return ret_error($"Item should be placed at character feet.");
+  endif
+
+  DestroyItem(rootContainer);
+  foreach backpackItem in EnumerateItemsInContainer(char.backpack)
+    if(backpackItem.objtype == 0x0F3F)
+      DestroyItem(backpackItem);
+    endif
+  endforeach
   WriteFile("::config/servspecopt.cfg", originalConf);
   ReloadConfiguration();
 

@@ -312,8 +312,8 @@ void GottenItem::undo( Mobile::Character* chr )
         if ( _item->no_drop()
              || chr->can_moveanydist()
              || !Core::settingsManager.ssopt.undo_get_item_enable_range_check
-             || chr->pos().pol_distance( _pos )
-                    <= Core::settingsManager.ssopt.default_accessible_range)
+             || chr->pos().pol_distance( orig_obj->toplevel_pos() )
+                    <= Core::settingsManager.ssopt.default_accessible_range )
         {
           container = static_cast<UContainer*>( orig_obj );
           if ( !container->can_add( *_item ) ||
