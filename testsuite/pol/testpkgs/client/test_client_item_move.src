@@ -570,7 +570,7 @@ exported function undo_range_check_1_ret_nested()
   if (!rootContainer)
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
-    return ret_error($"Could not create container to: ${rootContainer}");
+    return ret_error($"Could not create root container: ${rootContainer}");
   endif
   SendViewContainer(char, rootContainer);
 
@@ -580,7 +580,7 @@ exported function undo_range_check_1_ret_nested()
     DestroyItem(rootContainer);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
-    return ret_error($"Could not create container from: ${nestedContainer}");
+    return ret_error($"Could not create nested container: ${nestedContainer}");
   endif
   SendViewContainer(char, nestedContainer);
 
@@ -599,7 +599,7 @@ exported function undo_range_check_1_ret_nested()
     DestroyItem(rootContainer);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
-    return ret_error($"Could not create item: {item}");
+    return ret_error($"Could not create to container: ${containerTo}");
   endif
 
   //create heavy item in backpack to make container full
@@ -609,7 +609,7 @@ exported function undo_range_check_1_ret_nested()
     DestroyItem(containerTo);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
-    return ret_error($"Could not create item: {backpackItem}");
+    return ret_error($"Could not create backpack item: {backpackItem}");
   endif
 
   //lift item
@@ -637,7 +637,7 @@ exported function undo_range_check_1_ret_nested()
     DestroyItem(backpackItem);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
-    return ret_error($"Item should be placed at character feet.");
+    return ret_error($"Item should be returned in original container.");
   endif
 
   DestroyItem(rootContainer);
