@@ -585,7 +585,7 @@ exported function undo_range_check_1_ret_nested()
   SendViewContainer(char, nestedContainer);
 
   //create item in nested container
-  var item := CreateItemInContainer(nestedContainer, 0x0E21);
+  var item := CreateItemInContainer(nestedContainer, 0x201f03);
   if(!item)
     DestroyItem(rootContainer);
     WriteFile("::config/servspecopt.cfg", originalConf);
@@ -594,9 +594,7 @@ exported function undo_range_check_1_ret_nested()
   endif
   item.movable := 1;
 
-  //TODO: for some reason even if DefaultAccessibleRange=2
-  //and UndoGetItemEnableRangeCheck=1 it fails if distance to container < 6
-  var containerTo := CreateItemAtLocation(char.x + 20, char.y, char.z, 0xE75);
+  var containerTo := CreateItemAtLocation(char.x + 4, char.y, char.z, 0xE75);
   if (!containerTo)
     DestroyItem(rootContainer);
     WriteFile("::config/servspecopt.cfg", originalConf);
@@ -604,43 +602,21 @@ exported function undo_range_check_1_ret_nested()
     return ret_error($"Could not create item: {item}");
   endif
 
-  //fill backpack
-  var i;
-  var overflowResult := 0;
-  for( i := 1; i <= 65635; i := i + 1)
-    var overflowItem := CreateItemInContainer(char.backpack, 0x0F3F);
-    if(!overflowItem)
-      if(overflowItem.errortext == "That container is full")
-        overflowResult := 1;
-      endif
-      break;
-    endif
-  endfor
-
-  if(!overflowResult)
+  //create heavy item in backpack to make container full
+  var backpackItem := CreateItemInContainer(char.backpack, 0x201f03);
+  if(!backpackItem)
     DestroyItem(rootContainer);
-    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
-      if(backpackItem.objtype == 0x0F3F)
-        DestroyItem(backpackItem);
-      endif
-    endforeach
+    DestroyItem(containerTo);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
-    return ret_error($"Could not full the backpack.");
+    return ret_error($"Could not create item: {backpackItem}");
   endif
-
-  sleepms(1000);
-  SendViewContainer(char, rootContainer);
-  SendViewContainer(char, nestedContainer);
 
   //lift item
   if (!lift_item_succeeded(err, item.serial))
     DestroyItem(rootContainer);
-    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
-      if(backpackItem.objtype == 0x0F3F)
-        DestroyItem(backpackItem);
-      endif
-    endforeach
+    DestroyItem(containerTo);
+    DestroyItem(backpackItem);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
     return err;
@@ -648,11 +624,8 @@ exported function undo_range_check_1_ret_nested()
   //drop item
   if (!drop_item_failed(err, item.serial, 0xFF, 0xFF, 0, containerTo.serial))
     DestroyItem(rootContainer);
-    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
-      if(backpackItem.objtype == 0x0F3F)
-        DestroyItem(backpackItem);
-      endif
-    endforeach
+    DestroyItem(containerTo);
+    DestroyItem(backpackItem);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
     return err;
@@ -660,22 +633,16 @@ exported function undo_range_check_1_ret_nested()
 
   if (!item.container || item.container.serial != nestedContainer.serial)
     DestroyItem(rootContainer);
-    foreach backpackItem in EnumerateItemsInContainer(char.backpack)
-      if(backpackItem.objtype == 0x0F3F)
-        DestroyItem(backpackItem);
-      endif
-    endforeach
+    DestroyItem(containerTo);
+    DestroyItem(backpackItem);
     WriteFile("::config/servspecopt.cfg", originalConf);
     ReloadConfiguration();
     return ret_error($"Item should be placed at character feet.");
   endif
 
   DestroyItem(rootContainer);
-  foreach backpackItem in EnumerateItemsInContainer(char.backpack)
-    if(backpackItem.objtype == 0x0F3F)
-      DestroyItem(backpackItem);
-    endif
-  endforeach
+  DestroyItem(containerTo);
+  DestroyItem(backpackItem);
   WriteFile("::config/servspecopt.cfg", originalConf);
   ReloadConfiguration();
 
