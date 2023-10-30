@@ -751,10 +751,11 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.DeleteObjectPacket):
       assert self.lc
       if pkt.serial in self.objects:
-        del self.objects[pkt.serial]
         if not self.disable_item_logging:
+          obj=self.objects[pkt.serial]
           self.log.info("Object 0x%X went out of sight", pkt.serial)
-          self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
+          self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial, oldpos=[obj.x,obj.y,obj.z]))
+        del self.objects[pkt.serial]
       else:
         self.log.warn("Server requested to delete 0x%X but i don't know it", pkt.serial)
 
@@ -948,7 +949,7 @@ class Client(threading.Thread):
       mob = Mobile(self, pkt)
       self.objects[mob.serial] = mob
       self.log.info("New mobile: %s", mob)
-      self.brain.event(brain.Event(brain.Event.EVT_NEW_MOBILE, mobile=mob))
+      self.brain.event(brain.Event(brain.Event.EVT_NEW_MOBILE, mobile=mob, pos=[mob.x,mob.y,mob.z,mob.facing]))
       # Auto single click for new mobiles
       self.singleClick(mob)
 
@@ -966,7 +967,7 @@ class Client(threading.Thread):
         self.log.info("New item: %s", item)
       self.objects[item.serial] = item
       if not self.disable_item_logging:
-        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
+        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item, pos=[item.x,item.y,item.z,item.facing]))
 
   @status('game')
   @clientthread

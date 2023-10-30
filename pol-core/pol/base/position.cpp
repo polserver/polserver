@@ -25,11 +25,6 @@ const std::array<Vec2d, 8> move_delta = { { { 0, -1 },   // 0 is N
 const std::array<UFACING, 8> away_cvt = { FACING_S, FACING_SW, FACING_W, FACING_NW,
                                           FACING_N, FACING_NE, FACING_E, FACING_SE };
 
-u16 clip_u16( int v )
-{
-  return static_cast<u16>(
-      std::clamp( v, 0, static_cast<int>( std::numeric_limits<u16>::max() ) ) );
-}
 }  // namespace
 
 bool Pos2d::operator==( const Pos2d& other ) const
@@ -159,6 +154,12 @@ Pos2d Pos2d::min( const Pos2d& v ) const
 Pos2d Pos2d::max( const Pos2d& v ) const
 {
   return Pos2d( std::max( _x, v._x ), std::max( _y, v._y ) );
+}
+
+u16 Pos2d::clip_u16( int v )
+{
+  return static_cast<u16>(
+      std::clamp( v, 0, static_cast<int>( std::numeric_limits<u16>::max() ) ) );
 }
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v )

@@ -103,7 +103,8 @@ void load_anim_xlate_cfg( bool /*reload*/ )
         std::sort( mobiletype.graphics.begin(), mobiletype.graphics.end() );
         mobiletype.supports_mount = elem.remove_bool( "MountTranslation", false );
 
-        auto split_str = []( const std::string& source ) -> std::vector<std::string> {
+        auto split_str = []( const std::string& source ) -> std::vector<std::string>
+        {
           ISTRINGSTREAM is( source );
           std::string tmp;
           std::vector<std::string> result;
@@ -193,62 +194,65 @@ void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
 
   bool build = false;
   Network::MobileAnimationMsg msg( obj->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( obj, [&]( Mobile::Character* zonechr ) {
-    if ( !build )  // only build if client in range
-    {
-      MobileTranslate::OldAnimDef oldanim;
-      oldanim.valid = true;
-      oldanim.action = static_cast<u16>( action );
-      oldanim.framecount = framecount;
-      oldanim.repeatcount = repeatcount;
-      oldanim.backward = static_cast<u8>( backward );
-      oldanim.repeatflag = static_cast<u8>( repeatflag );
-      oldanim.delay = delay;
-      MobileTranslate::NewAnimDef newanim;
-      bool supports_mount = true;
-      build = true;
-      MobileTranslate const* translate = nullptr;
-      for ( const auto& translates : Core::gamestate.animation_translates )
+  WorldIterator<OnlinePlayerFilter>::InRange(
+      obj, obj->update_range(),
+      [&]( Mobile::Character* zonechr )
       {
-        if ( translates.second.has_graphic( obj->graphic ) )
+        if ( !build )  // only build if client in range
         {
-          translate = &translates.second;
-          supports_mount = translate->supports_mount;
-          break;
+          MobileTranslate::OldAnimDef oldanim;
+          oldanim.valid = true;
+          oldanim.action = static_cast<u16>( action );
+          oldanim.framecount = framecount;
+          oldanim.repeatcount = repeatcount;
+          oldanim.backward = static_cast<u8>( backward );
+          oldanim.repeatflag = static_cast<u8>( repeatflag );
+          oldanim.delay = delay;
+          MobileTranslate::NewAnimDef newanim;
+          bool supports_mount = true;
+          build = true;
+          MobileTranslate const* translate = nullptr;
+          for ( const auto& translates : Core::gamestate.animation_translates )
+          {
+            if ( translates.second.has_graphic( obj->graphic ) )
+            {
+              translate = &translates.second;
+              supports_mount = translate->supports_mount;
+              break;
+            }
+          }
+
+          if ( obj->on_mount() && supports_mount )
+          {
+            if ( action < ACTION_RIDINGHORSE1 || action > ACTION_RIDINGHORSE7 )
+            {
+              UACTION new_action = Core::gamestate.mount_action_xlate[action];
+              if ( new_action == 0 )
+                return;
+              action = new_action;
+              oldanim.action = static_cast<u16>( new_action );
+            }
+          }
+          if ( translate != nullptr )
+          {
+            oldanim = translate->old_anim[action];
+            newanim = translate->new_anim[action];
+          }
+          else
+          {
+            ERROR_PRINT << "Warning: undefined animXlate.cfg entry for graphic 0x"
+                        << fmt::hexu( obj->graphic ) << "\n";
+          }
+
+          msg.update( newanim.anim, newanim.action, newanim.subaction, oldanim.action,
+                      oldanim.framecount, oldanim.repeatcount,
+                      static_cast<DIRECTION_FLAG_OLD>( oldanim.backward ),
+                      static_cast<REPEAT_FLAG_OLD>( oldanim.repeatflag ), oldanim.delay,
+                      oldanim.valid, newanim.valid );
         }
-      }
 
-      if ( obj->on_mount() && supports_mount )
-      {
-        if ( action < ACTION_RIDINGHORSE1 || action > ACTION_RIDINGHORSE7 )
-        {
-          UACTION new_action = Core::gamestate.mount_action_xlate[action];
-          if ( new_action == 0 )
-            return;
-          action = new_action;
-          oldanim.action = static_cast<u16>( new_action );
-        }
-      }
-      if ( translate != nullptr )
-      {
-        oldanim = translate->old_anim[action];
-        newanim = translate->new_anim[action];
-      }
-      else
-      {
-        ERROR_PRINT << "Warning: undefined animXlate.cfg entry for graphic 0x"
-                    << fmt::hexu( obj->graphic ) << "\n";
-      }
-
-      msg.update( newanim.anim, newanim.action, newanim.subaction, oldanim.action,
-                  oldanim.framecount, oldanim.repeatcount,
-                  static_cast<DIRECTION_FLAG_OLD>( oldanim.backward ),
-                  static_cast<REPEAT_FLAG_OLD>( oldanim.repeatflag ), oldanim.delay, oldanim.valid,
-                  newanim.valid );
-    }
-
-    msg.Send( zonechr->client );
-  } );
+        msg.Send( zonechr->client );
+      } );
 }
 
 void handle_action( Network::Client* client, PKTIN_12* cmd )

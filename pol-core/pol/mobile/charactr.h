@@ -291,8 +291,8 @@ private:
 public:
   virtual u8 update_range() const override;
   bool in_visual_range( const Core::UObject* other ) const;
-  bool in_visual_range( const Core::Pos4d& other ) const;
-  bool in_visual_range( const Core::Pos2d& other ) const;
+  bool in_visual_range( const Core::UObject* other, const Core::Pos4d& pos ) const;
+  bool in_visual_range( const Core::UObject* other, const Core::Pos2d& pos ) const;
 
   virtual size_t estimatedSize() const override;
 
@@ -1022,13 +1022,17 @@ inline bool Character::in_visual_range( const Core::UObject* other ) const
     return in_range( other, std::max( update_range(), other->update_range() ) );
   return in_range( other, update_range() );
 }
-inline bool Character::in_visual_range( const Core::Pos4d& other ) const
+inline bool Character::in_visual_range( const Core::UObject* other, const Core::Pos4d& pos ) const
 {
-  return in_range( other, update_range() );
+  if ( other && !other->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
+    return in_range( pos, std::max( update_range(), other->update_range() ) );
+  return in_range( pos, update_range() );
 }
-inline bool Character::in_visual_range( const Core::Pos2d& other ) const
+inline bool Character::in_visual_range( const Core::UObject* other, const Core::Pos2d& pos ) const
 {
-  return in_range( other, update_range() );
+  if ( other && !other->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
+    return in_range( pos, std::max( update_range(), other->update_range() ) );
+  return in_range( pos, update_range() );
 }
 
 // dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp

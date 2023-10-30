@@ -1160,7 +1160,8 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = ( range < -1 ) || item->in_range( this, range );
+  const bool within_range =
+      ( range < -1 ) || item->in_range( this, Core::Pos2d::clip_u16( range ) );
   if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
@@ -1961,27 +1962,6 @@ void Character::send_warmode()
   msg.Send( client );
 }
 
-void send_remove_if_hidden_ghost( Character* chr, Network::Client* client )
-{
-  if ( !client->chr->in_visual_range( chr ) )
-    return;
-
-  if ( !client->chr->is_visible_to_me( chr ) )
-  {
-    send_remove_character( client, chr );
-  }
-}
-void send_create_ghost( Character* chr, Network::Client* client )
-{
-  if ( !client->chr->in_visual_range( chr ) )
-    return;
-
-  if ( chr->dead() && client->chr->is_visible_to_me( chr ) )
-  {
-    send_owncreate( client, chr );
-  }
-}
-
 void Character::resurrect()
 {
   if ( !dead() )
@@ -2062,9 +2042,12 @@ void Character::resurrect()
     send_warmode();
     send_goxyz( client, this );
     send_owncreate( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        client->chr,
-        [&]( Character* zonechr ) { send_remove_if_hidden_ghost( zonechr, client ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange( pos(), update_range(),
+                                                      [&]( Character* zonechr )
+                                                      {
+                                                        if ( !is_visible_to_me( zonechr ) )
+                                                          send_remove_character( client, zonechr );
+                                                      } );
     client->restart();
   }
 
@@ -2103,8 +2086,13 @@ void Character::on_death( Items::Item* corpse )
     send_full_corpse( client, corpse );
 
     send_goxyz( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        pos(), update_range(),
+        [&]( Character* zonechr )
+        {
+          if ( zonechr->dead() && is_visible_to_me( zonechr ) )
+            send_owncreate( client, zonechr );
+        } );
 
     client->restart();
   }
@@ -2709,12 +2697,14 @@ void PropagateMove( /*Client *client,*/ Character* chr )
   MoveChrPkt msgmove( chr );
   build_owncreate( chr, msgcreate.Get() );
 
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
       chr,
       [&]( Character* zonechr )
       {
         Client* client = zonechr->client;
         if ( zonechr == chr )
+          return;
+        if ( !zonechr->in_visual_range( chr ) )
           return;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -2752,7 +2742,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
               msginvul.Send( client );
           }
         }
-        else if ( zonechr->in_visual_range( chr->lastpos ) )
+        else if ( zonechr->in_visual_range( nullptr, chr->lastpos ) )
         {
           msgmove.Send( client );
           if ( chr->poisoned() )
@@ -2771,15 +2761,17 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 
   // iter over all old in range players and send remove
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastpos, RANGE_VISUAL,
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      chr->lastpos,
       [&]( Character* zonechr )
       {
         Client* client = zonechr->client;
+        if ( !zonechr->in_visual_range( nullptr, chr->lastpos ) )
+          return;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
 
-        if ( chr->in_visual_range( zonechr ) )  // already handled
+        if ( zonechr->in_visual_range( chr ) )  // already handled
           return;
         // if we just walked out of range of this character, send its
         // client a remove object, or else a ghost character will remain.
@@ -3122,13 +3114,16 @@ void Character::set_warmode( bool i_warmode )
   else
   {
     Network::MoveChrPkt msgmove( this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this,
-                                                                  [&]( Character* chr )
-                                                                  {
-                                                                    if ( chr == this )
-                                                                      return;
-                                                                    msgmove.Send( chr->client );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+        this,
+        [&]( Character* chr )
+        {
+          if ( chr == this )
+            return;
+          if ( !chr->in_visual_range( this ) )
+            return;
+          msgmove.Send( chr->client );
+        } );
   }
 }
 
@@ -3636,11 +3631,13 @@ void Character::unhide()
     if ( client != nullptr )
       send_owncreate( client, this );
 
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
         this,
         [&]( Character* chr )
         {
           if ( chr == this )
+            return;
+          if ( !chr->in_visual_range( this ) )
             return;
           if ( !chr->is_visible_to_me( this ) )
             return;

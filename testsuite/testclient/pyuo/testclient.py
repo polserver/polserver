@@ -253,10 +253,11 @@ class PolServer:
           ev.type==Event.EVT_NEW_ITEM):
       obj = ev.mobile if ev.type==Event.EVT_NEW_MOBILE else ev.item
       res["serial"]=obj.serial
-      res["pos"]=[obj.x, obj.y, obj.z, obj.facing]
+      res["pos"]=ev.pos
       res["graphic"]=obj.graphic
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
+      res["oldpos"]=ev.oldpos
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():

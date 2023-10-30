@@ -194,7 +194,7 @@ void GameState::update_range_from_multis()
     auto* mdef = m_pair.second;
     s16 maxrel = (s16)std::max( { std::abs( mdef->minrxyz.x() ), std::abs( mdef->minrxyz.y() ),
                                   std::abs( mdef->maxrxyz.x() ), std::abs( mdef->maxrxyz.y() ) } ) +
-                 1;
+                 1 + (u8)RANGE_VISUAL;
     if ( maxrel > update_range.x() )
       update_range.x( maxrel ).y( maxrel );
   }

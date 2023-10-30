@@ -1408,8 +1408,13 @@ BObjectImp* UOExecutorModule::mf_CreateNpcFromTemplate()
 
     // characters.push_back( npc.get() );
     SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcCreate );
-    WorldIterator<OnlinePlayerFilter>::InVisualRange(
-        npc.get(), [&]( Character* zonechr ) { send_char_data( zonechr->client, npc.get() ); } );
+    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+        npc.get(),
+        [&]( Character* zonechr )
+        {
+          if ( zonechr->in_visual_range( npc.get() ) )
+            send_char_data( zonechr->client, npc.get() );
+        } );
     realm->notify_entered( *npc );
     // FIXME: Need to add Walkon checks for multi right here if type is house.
     if ( dummy_multi )
@@ -2796,7 +2801,7 @@ const int LH_FLAG_INCLUDE_HIDDEN = 2;  // include hidden characters
 BObjectImp* UOExecutorModule::mf_ListHostiles()
 {
   Character* chr;
-  int range;
+  u16 range;
   int flags;
   if ( getCharacterParam( 0, chr ) && getParam( 1, range ) && getParam( 2, flags ) )
   {
@@ -5089,7 +5094,7 @@ BObjectImp* UOExecutorModule::mf_FindPath()
   if ( !getPos3dParam( 0, 1, 2, &pos1 ) || !getPos3dParam( 3, 4, 5, &pos2 ) ||
        !getRealmParam( 6, &realm ) || !getStringParam( 9, movemode_name ) )
     return new BError( "Invalid parameter" );
-  if ( !pos1.in_range( pos2, static_cast<u16>( settingsManager.ssopt.max_pathfind_range ) ) )
+  if ( !pos1.in_range( pos2, settingsManager.ssopt.max_pathfind_range ) )
     return new BError( "Beyond Max Range." );
 
   short theSkirt;

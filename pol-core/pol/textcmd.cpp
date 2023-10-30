@@ -181,9 +181,9 @@ void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
 
 void textcmd_resendchars( Network::Client* client )
 {
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
+  Core::WorldIterator<Core::MobileFilter>::InRange( client->chr->pos(), client->chr->update_range(),
+                                                    [&]( Mobile::Character* zonechr )
+                                                    { send_client_char_data( zonechr, client ); } );
 }
 
 void textcmd_shutdown( Network::Client* /*client*/ )

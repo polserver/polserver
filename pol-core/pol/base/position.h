@@ -72,6 +72,8 @@ public:
 
   Pos2d min( const Pos2d& v ) const;
   Pos2d max( const Pos2d& v ) const;
+
+  static u16 clip_u16( int v );
 };
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
