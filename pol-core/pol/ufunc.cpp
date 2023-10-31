@@ -1004,14 +1004,14 @@ void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 
   Network::GraphicEffectPkt msg;
   msg.movingEffect( src, dst, effect, speed, loop, explode );
 
-  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( src->toplevel_owner(),
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( src,
                                                        [&]( Character* zonechr )
                                                        {
                                                          if ( zonechr->in_visual_range( src ) )
                                                            msg.Send( zonechr->client );
                                                        } );
   WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
-      dst->toplevel_owner(),
+      dst,
       [&]( Character* zonechr )
       {
         if ( zonechr->in_visual_range( dst ) &&
@@ -1048,7 +1048,7 @@ void play_lightning_bolt_effect( const UObject* center )
 {
   Network::GraphicEffectPkt msg;
   msg.lightningBold( center );
-  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center->toplevel_owner(),
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center,
                                                        [&]( Character* zonechr )
                                                        {
                                                          if ( zonechr->in_visual_range( center ) )
@@ -1060,7 +1060,7 @@ void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u
 {
   Network::GraphicEffectPkt msg;
   msg.followEffect( center, effect, speed, loop );
-  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center->toplevel_owner(),
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center,
                                                        [&]( Character* zonechr )
                                                        {
                                                          if ( zonechr->in_visual_range( center ) )

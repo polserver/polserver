@@ -173,7 +173,7 @@ GameState::GameState()
       paramtextcmds(),
       uo_skills(),
       task_thread_pool(),
-      update_range( (s16)RANGE_VISUAL, (s16)RANGE_VISUAL )
+      max_update_range( Plib::RANGE_VISUAL )
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
 }
@@ -192,11 +192,11 @@ void GameState::update_range_from_multis()
     if ( m_pair.second == nullptr )
       continue;
     auto* mdef = m_pair.second;
-    s16 maxrel = (s16)std::max( { std::abs( mdef->minrxyz.x() ), std::abs( mdef->minrxyz.y() ),
+    u16 maxrel = (u16)std::max( { std::abs( mdef->minrxyz.x() ), std::abs( mdef->minrxyz.y() ),
                                   std::abs( mdef->maxrxyz.x() ), std::abs( mdef->maxrxyz.y() ) } ) +
-                 1 + (u8)RANGE_VISUAL;
-    if ( maxrel > update_range.x() )
-      update_range.x( maxrel ).y( maxrel );
+                 1 + Plib::RANGE_VISUAL;
+    if ( maxrel > max_update_range )
+      max_update_range = maxrel;
   }
 }
 

@@ -702,7 +702,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x(), npc.y(), npc.realm(), range,
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( &npc, range,
                                                           [&]( Mobile::Character* chr )
                                                           {
                                                             if ( !chr->is_visible_to_me( &npc ) )
@@ -716,7 +716,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
   if ( doevent >= 1 )
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        npc.x(), npc.y(), npc.realm(), range,
+        &npc, range,
         [&]( Mobile::Character* chr )
         {
           Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
@@ -786,7 +786,7 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x(), npc.y(), npc.realm(), range,
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( &npc, range,
                                                             [&]( Mobile::Character* chr )
                                                             {
                                                               if ( !chr->is_visible_to_me( &npc ) )
@@ -797,7 +797,7 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
     if ( doevent >= 1 )
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          npc.x(), npc.y(), npc.realm(), range,
+          &npc, range,
           [&]( Mobile::Character* chr )
           {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );

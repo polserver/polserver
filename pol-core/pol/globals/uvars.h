@@ -251,8 +251,8 @@ public:
   threadhelp::TaskThreadPool task_thread_pool;
 
   void update_range_from_multis();
-  Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
-                             // "pre-filtering" of objects, x/y always equal
+  u16 max_update_range;  // maximum update range (client view range/multi footprint) used as
+                         // "pre-filtering" of objects
 
   void unload_npc_templates();
 

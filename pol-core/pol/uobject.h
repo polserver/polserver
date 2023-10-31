@@ -368,7 +368,7 @@ inline u8 UObject::update_range() const
 {
   // TODO Pos: should objects on a multi need to take
   // it into account that multis due to the footprint have a higher updaterange?
-  return (u8)RANGE_VISUAL;
+  return Plib::RANGE_VISUAL;
 }
 }  // namespace Core
 }  // namespace Pol

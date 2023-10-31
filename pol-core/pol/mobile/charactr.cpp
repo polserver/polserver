@@ -3966,7 +3966,7 @@ bool Character::CheckPushthrough()
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newpos.x(), newpos.y(), newpos.realm(), 0,
+        newpos, 0,
         [&]( Mobile::Character* _chr )
         {
           if ( _chr->z() >= z() - 10 && _chr->z() <= z() + 10 && !_chr->dead() &&
@@ -4049,19 +4049,15 @@ Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemot
 
 bool Character::mightsee( const Items::Item* item ) const
 {
-  while ( item->container != nullptr )
-    item = item->container;
-
+  const auto* owner = item->toplevel_owner();
   for ( const auto& elem : remote_containers_ )
   {
     Items::Item* additional_item = elem.get();
-    if ( additional_item == item )
+    if ( additional_item == owner )
       return true;
   }
 
-
-  return ( ( item->realm() == realm() ) && ( abs( x() - item->x() ) <= RANGE_VISUAL ) &&
-           ( abs( y() - item->y() ) <= RANGE_VISUAL ) );
+  return in_visual_range( owner );
 }
 
 bool Character::squelched() const
@@ -4284,8 +4280,8 @@ void Character::send_buffs()
 u8 Character::update_range() const
 {
   // TODO Pos activate
-  return (u8)RANGE_VISUAL;
-  //  return client ? client->update_range() : (u8)RANGE_VISUAL;
+  return Plib::RANGE_VISUAL;
+  //  return client ? client->update_range() : Plib::RANGE_VISUAL;
 }
 
 size_t Character::estimatedSize() const

@@ -1113,11 +1113,15 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
   stored_packet->swap( packet );
 }
 
-void CustomHousesSendFullToInRange( UHouse* house, int design, int range )
+void CustomHousesSendFullToInRange( UHouse* house, int design )
 {
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      house->x(), house->y(), house->realm(), range,
-      [&]( Mobile::Character* chr ) { CustomHousesSendFull( house, chr->client, design ); } );
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      house,
+      [&]( Mobile::Character* chr )
+      {
+        if ( chr->in_visual_range( house ) )
+          CustomHousesSendFull( house, chr->client, design );
+      } );
 }
 
 void CustomHousesSendShort( UHouse* house, Network::Client* client )

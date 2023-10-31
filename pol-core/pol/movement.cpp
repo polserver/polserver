@@ -82,7 +82,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
 
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
   {
-    WorldIterator<MobileFilter>::InRange( chr->pos(), chr->update_range(),
+    WorldIterator<MobileFilter>::InRange( chr, chr->update_range(),
                                           [&]( Mobile::Character* zonechr )
                                           {
                                             Multi::UMulti* multi =
@@ -118,7 +118,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
   }
   else
   {
-    WorldIterator<MobileFilter>::InRange( chr->pos(), chr->update_range(),
+    WorldIterator<MobileFilter>::InRange( chr, chr->update_range(),
                                           [&]( Mobile::Character* zonechr )
                                           { send_char_if_newly_inrange( zonechr, client ); } );
     WorldIterator<ItemFilter>::InMaxVisualRange(
@@ -134,7 +134,7 @@ void remove_objects_inrange( Network::Client* client )
   Mobile::Character* chr = client->chr;
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
 
-  WorldIterator<MobileFilter>::InRange( chr->pos(), chr->update_range(),
+  WorldIterator<MobileFilter>::InRange( chr, chr->update_range(),
                                         [&]( Mobile::Character* zonechar )
                                         { send_remove_character( client, zonechar, msgremove ); } );
   WorldIterator<ItemFilter>::InMaxVisualRange( chr,

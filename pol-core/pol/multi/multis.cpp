@@ -97,7 +97,7 @@ Core::Range3d UMulti::current_box() const
 u8 UMulti::update_range() const
 {
   const auto& box = current_box();
-  return (u8)RANGE_VISUAL + static_cast<u8>( box.nw().pol_distance( box.se() ) / 2 );
+  return Plib::RANGE_VISUAL + static_cast<u8>( box.nw().pol_distance( box.se() ) / 2 );
 }
 
 Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test

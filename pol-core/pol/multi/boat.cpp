@@ -565,7 +565,7 @@ void UBoat::send_boat_newly_inrange( Network::Client* client )
 void UBoat::send_display_boat_to_inrange( u16 oldx, u16 oldy )
 {
   Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
-      pos(),
+      this,
       [&]( Mobile::Character* zonechr )
       {
         Network::Client* client = zonechr->client;
@@ -1295,7 +1295,7 @@ bool UBoat::move( Core::UFACING dir, u8 speed, bool relative )
     move_components( realm() );
 
     Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
-        pos(),
+        this,
         [&]( Mobile::Character* zonechr )
         {
           Network::Client* client = zonechr->client;
@@ -1870,7 +1870,7 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat )
   boat->unregself();
 
   Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
-      boat->pos(),
+      boat,
       [&]( Mobile::Character* zonechr )
       {
         if ( zonechr->in_visual_range( boat ) )

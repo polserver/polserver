@@ -78,7 +78,7 @@ void send_object_cache_to_inrange( const UObject* obj )
   {
     auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
 
-    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj->toplevel_owner(),
+    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
                                                          [&]( Mobile::Character* chr )
                                                          {
                                                            if ( chr->in_visual_range( obj ) )

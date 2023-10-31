@@ -29,6 +29,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/stlutil.h"
 #include "../clib/strutil.h"
+#include "base/position.h"
 #include "globals/network.h"
 #include "mobile/charactr.h"
 #include "network/client.h"
@@ -128,20 +129,17 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
   {
     if ( ex.numParams() != 4 )
       return new BError( "SendAreaPacket requires 4 parameters." );
-    unsigned short x, y, range;
-    const String* strrealm;
-    if ( ex.getParam( 0, x ) && ex.getParam( 1, y ) && ex.getParam( 2, range ) &&
-         ex.getStringParam( 3, strrealm ) )
+    Core::Pos2d pos;
+    Realms::Realm* realm;
+    unsigned short range;
+    if ( ex.getRealmParam( 3, &realm ) && ex.getPos2dParam( 0, 1, &pos, realm ) &&
+         ex.getParam( 2, range ) )
     {
-      Realms::Realm* realm = find_realm( strrealm->value() );
-      if ( !realm )
-        return new BError( "Realm not found" );
-      if ( !realm->valid( x, y, 0 ) )
-        return new BError( "Invalid Coordinates for realm" );
-
       unsigned short num_sent_to = 0;
       Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-          x, y, realm, range, [&]( Mobile::Character* chr ) {
+          pos, realm, range,
+          [&]( Mobile::Character* chr )
+          {
             Core::networkManager.clientTransmit->AddToQueue( chr->client, (void*)( &buffer[0] ),
                                                              static_cast<int>( buffer.size() ) );
             num_sent_to++;
@@ -431,7 +429,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       {
         cp1252text = Clib::strUtf8ToCp1252( text->value() );
       }
-      else {
+      else
+      {
         cp1252text = text->value();
       }
       u16 textlen = static_cast<u16>( cp1252text.length() );
@@ -448,7 +447,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       {
         bufptr[i] = textptr[i];
       }
-      
+
       if ( nullterm )
         bufptr[textlen] = 0;
 
