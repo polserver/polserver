@@ -46,6 +46,12 @@ Range2d::Range2d( const Pos4d& p1, const Pos4d& p2 )
   _nw = p1.xy().min( p2.xy() );
   _se = p1.xy().max( p2.xy() );
 }
+Range2d::Range2d( const Pos4d& p1, u8 radius )
+{
+  const Vec2d r = Vec2d( radius, radius );
+  _nw = ( p1 - r ).xy();
+  _se = ( p1 + r ).xy();
+}
 
 Range2dItr Range2d::begin() const
 {

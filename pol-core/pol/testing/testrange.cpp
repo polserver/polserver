@@ -104,6 +104,20 @@ void range2d_test()
         return true;
       },
       true, "" );
+
+  UnitTest( [&]() { return Range2d( Pos4d( 2, 2, 0, r ), 1 ); },
+            Range2d( Pos4d( 1, 1, 0, r ), Pos4d( 3, 3, 0, r ) ), "range(1,1,3,3)" );
+  UnitTest( [&]() { return Range2d( Pos4d( 2, 2, 0, r ), 0 ); },
+            Range2d( Pos4d( 2, 2, 0, r ), Pos4d( 2, 2, 0, r ) ), "range(2,2,2,2)" );
+
+  UnitTest(
+      [&]()
+      {
+        auto r1 = Range2d( Pos4d( 2, 2, 0, r ), 0 );
+        auto r2 = Range2d( Pos4d( 2, 2, 0, r ), Pos4d( 5, 5, 0, r ) );
+        return r1.intersect( r2 );
+      },
+      true, "(2,2,2,2).intersect(3,3,5,5)" );
 }
 
 void range3d_test()
