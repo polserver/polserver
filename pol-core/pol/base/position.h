@@ -72,8 +72,6 @@ public:
 
   Pos2d min( const Pos2d& v ) const;
   Pos2d max( const Pos2d& v ) const;
-
-  static u16 clip_u16( int v );
 };
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
@@ -126,8 +124,6 @@ public:
   bool in_range( const Pos2d& other, u16 range ) const;
   bool in_range( const Pos3d& other, u16 range ) const;
   Pos3d& crop( const Realms::Realm* realm );
-
-  static s8 clip_s8( int v );
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );

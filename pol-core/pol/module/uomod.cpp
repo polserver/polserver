@@ -2220,7 +2220,8 @@ Range3d UOExecutorModule::internal_InBoxAreaChecks( const Pos2d& p1, int z1, con
     z1 = ZCOORD_MIN;
   if ( z2 == LIST_IGNORE_Z )
     z2 = ZCOORD_MAX;
-  return Range3d( Pos3d( p1, Pos3d::clip_s8( z1 ) ), Pos3d( p2, Pos3d::clip_s8( z2 ) ), realm );
+  return Range3d( Pos3d( p1, Clib::clamp_convert<s8>( z1 ) ),
+                  Pos3d( p2, Clib::clamp_convert<s8>( z2 ) ), realm );
 }
 
 BObjectImp* UOExecutorModule::mf_ListObjectsInBox( /* x1, y1, z1, x2, y2, z2, realm */ )
@@ -2377,8 +2378,8 @@ BObjectImp* UOExecutorModule::mf_ListMultisInBox( /* x1, y1, z1, x2, y2, z2, rea
 
   // extend the coords to find the center item
   // but only as parameter for the filter function
-  Vec2d urange{ Vec2d::clip( gamestate.max_update_range ),
-                Vec2d::clip( gamestate.max_update_range ) };
+  Vec2d urange{ Clib::clamp_convert<s16>( gamestate.max_update_range ),
+                Clib::clamp_convert<s16>( gamestate.max_update_range ) };
   Range2d boxrange( box.nw() - urange, box.se() + urange, realm );
 
   // search for multis.  this is tricky, since the center might lie outside the box

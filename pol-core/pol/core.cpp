@@ -10,6 +10,7 @@
 
 #include <stddef.h>
 
+#include "../clib/clib.h"
 #include "../clib/compilerspecifics.h"
 #include "../clib/rawtypes.h"
 #include "fnsearch.h"
@@ -67,7 +68,7 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
     {
       return false;
     }
-    newpos.z( Pos3d::clip_s8( newz ) );
+    newpos.z( Clib::clamp_convert<s8>( newz ) );
   }
   chr->set_dirty();
   Pos4d oldpos = chr->pos();

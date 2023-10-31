@@ -17,6 +17,7 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/clib.h"
 #include "../../plib/uconst.h"
 #include "../containr.h"
 #include "../core.h"
@@ -157,7 +158,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
                                       Plib::MOVEMODE_LAND ) )
       return new BError( "Invalid location selected" );
-    newpos.z( Core::Pos3d::clip_s8( newz ) );
+    newpos.z( Clib::clamp_convert<s8>( newz ) );
   }
 
   if ( item->container != nullptr )

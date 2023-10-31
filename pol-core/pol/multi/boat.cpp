@@ -25,6 +25,7 @@
 #include "../../bscript/executor.h"
 #include "../../clib/cfgelem.h"
 #include "../../clib/cfgfile.h"
+#include "../../clib/clib.h"
 #include "../../clib/clib_endian.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
@@ -691,7 +692,7 @@ void UBoat::unregself()
 bool UBoat::navigable( const MultiDef& md, unsigned short x, unsigned short y, short z,
                        Realms::Realm* realm )
 {
-  auto desired_pos = Core::Pos4d( x, y, Core::Pos3d::clip_s8( z ), realm );
+  auto desired_pos = Core::Pos4d( x, y, Clib::clamp_convert<s8>( z ), realm );
   return navigable( md, desired_pos );
 }
 // navigable: Can the ship sit here?  ie is every point on the hull on water,and not blocked?

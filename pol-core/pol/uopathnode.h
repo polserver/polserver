@@ -7,7 +7,8 @@
  */
 
 // AStar search class
-#include "../plib/stlastar.h"
+#include "clib/clib.h"
+#include "plib/stlastar.h"
 #include "realms/realm.h"
 
 #include "base/position.h"
@@ -147,7 +148,7 @@ bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,
         continue;
     }
 
-    UOPathState NewNode{ Pos3d( newpos, Pos3d::clip_s8( newz ) ), params };
+    UOPathState NewNode{ Pos3d( newpos, Clib::clamp_convert<s8>( newz ) ), params };
 
     if ( !NewNode.IsSameState( *SolutionStartNode ) && !NewNode.IsSameState( *SolutionEndNode ) &&
          params->IsBlocking( NewNode.pos ) )

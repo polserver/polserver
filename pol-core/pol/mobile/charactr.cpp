@@ -1161,7 +1161,7 @@ bool Character::can_access( const Items::Item* item, int range ) const
     range = Core::settingsManager.ssopt.default_accessible_range;
 
   const bool within_range =
-      ( range < -1 ) || item->in_range( this, Core::Pos2d::clip_u16( range ) );
+      ( range < -1 ) || item->in_range( this, Clib::clamp_convert<u16>( range ) );
   if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
