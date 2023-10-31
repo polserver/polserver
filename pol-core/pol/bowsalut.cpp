@@ -194,10 +194,12 @@ void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
 
   bool build = false;
   Network::MobileAnimationMsg msg( obj->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      obj, obj->update_range(),
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      obj,
       [&]( Mobile::Character* zonechr )
       {
+        if ( !zonechr->in_visual_range( obj ) )
+          return;
         if ( !build )  // only build if client in range
         {
           MobileTranslate::OldAnimDef oldanim;
