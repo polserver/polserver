@@ -4,34 +4,35 @@
 #include <string.h>
 #include <string>
 
-#include "../clib/Program/ProgramMain.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
-#include "../clib/timer.h"
-#include "../plib/clidata.h"
-#include "../plib/mapcell.h"
-#include "../plib/mapfunc.h"
-#include "../plib/mapshape.h"
-#include "../plib/mapsolid.h"
-#include "../plib/maptile.h"
-#include "../plib/mapwriter.h"
-#include "../plib/polfile.h"
-#include "../plib/realmdescriptor.h"
-#include "../plib/systemstate.h"
-#include "../plib/udatfile.h"
-#include "../plib/uofile.h"
-#include "../plib/uofilei.h"
-#include "../plib/uoinstallfinder.h"
-#include "../plib/uopreader/uop.h"
-#include "../plib/uopreader/uophash.h"
-#include "../plib/ustruct.h"
-#include "../pol/landtile.h"
-#include "../pol/objtype.h"
+#include "clib/Program/ProgramMain.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "clib/timer.h"
+#include "plib/clidata.h"
+#include "plib/mapcell.h"
+#include "plib/mapfunc.h"
+#include "plib/mapshape.h"
+#include "plib/mapsolid.h"
+#include "plib/maptile.h"
+#include "plib/mapwriter.h"
+#include "plib/mul/map.h"
+#include "plib/polfile.h"
+#include "plib/realmdescriptor.h"
+#include "plib/systemstate.h"
+#include "plib/udatfile.h"
+#include "plib/uofile.h"
+#include "plib/uofilei.h"
+#include "plib/uoinstallfinder.h"
+#include "plib/uopreader/uop.h"
+#include "plib/uopreader/uophash.h"
+#include "plib/ustruct.h"
+#include "pol/landtile.h"
+#include "pol/objtype.h"
 
 
 namespace Pol
@@ -1054,39 +1055,26 @@ int UoConvertMain::main()
     UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
-    int default_width = 0;
-    int default_height = 0;
-    switch ( UoConvert::uo_mapid )
-    {
-    case 0:
-    case 1:
-      // calculate this value later in open_map()
-      break;
-    case 2:  // ilshenar:
-      default_width = 2304;
-      default_height = 1600;
-      break;
-    case 3:  // malas
-      default_width = 2560;
-      default_height = 2048;
-      break;
-    case 4:  // tokuno
-      default_width = 1448;
-      default_height = 1448;
-      break;
-    case 5:  // termur
-      default_width = 1280;
-      default_height = 4096;
-      break;
-    }
 
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
 
+    // Auto-detects defaults for mapid=0 or 1 based on the map size. All other sizes are fixed based
+    // on the mapid.
+    Pol::Plib::MUL::MapInfo mapinfo( UoConvert::uo_mapid, UoConvert::uo_map_size );
+    int default_width = mapinfo.width();
+    int default_height = mapinfo.height();
+
+    if ( mapinfo.guessed() )
+      INFO_PRINT << "Auto-detected map dimensions: " << default_width << "x" << default_height
+                 << '\n';
+
     uo_map_width =
-        programArgsFindEquals( "width=", default_width == 0 ? uo_map_width : default_width, false );
-    uo_map_height = programArgsFindEquals(
-        "height=", default_height == 0 ? uo_map_height : default_height, false );
+        static_cast<unsigned short>( programArgsFindEquals( "width=", default_width, false ) );
+    uo_map_height =
+        static_cast<unsigned short>( programArgsFindEquals( "height=", default_height, false ) );
+
+    check_for_errors_in_map_parameters();
 
     int x = programArgsFindEquals( "x=", -1, false );
     int y = programArgsFindEquals( "y=", -1, false );
@@ -1166,6 +1154,29 @@ int UoConvertMain::main()
   }
   UoConvert::clear_tiledata();
   return 0;
+}
+void UoConvertMain::check_for_errors_in_map_parameters()
+{
+  if ( !MUL::Map::valid_size( UoConvert::uo_map_size, uo_map_width, uo_map_height ) )
+  {
+    size_t expected_size =
+        MUL::Map::blockSize * MUL::Map::expected_blocks( uo_map_width, uo_map_height );
+
+    INFO_PRINT << "\nWarning: Width and height do not match the map size ("
+               << UoConvert::uo_map_size << " bytes, expected " << expected_size << ")\n\n";
+
+    if ( uo_map_width == 0 || uo_map_height == 0 )
+      throw std::runtime_error(
+          "Width and height were not identified automatically. Please specify them manually." );
+
+
+    if ( ( uo_map_width % MUL::Map::blockWidth != 0 ) ||
+         ( uo_map_height % MUL::Map::blockHeight != 0 ) )
+      throw std::runtime_error( "Width and height must be divisible by 8" );
+
+    if ( uo_map_size < expected_size )
+      throw std::runtime_error( "Map size is smaller than the given width and height" );
+  }
 }
 bool UoConvertMain::convert_uop_to_mul()
 {

@@ -9,11 +9,17 @@
 #include <fstream>
 #include <string>
 
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/strutil.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/strutil.h"
+#include "plib/mul/map.h"
+#include "plib/mul/tiledata.h"
+#include "plib/uopreader/uop.h"
+#include "plib/uopreader/uophash.h"
 #include "pol/objtype.h"
 #include "systemstate.h"
+
 
 namespace Pol
 {
@@ -32,6 +38,75 @@ FILE* mapdif_file = nullptr;
 
 std::ifstream uopmapfile;
 
+
+// This code is almost identical to the one in RawMap::load_full_map. One should consider a way to
+// refactor both.
+size_t estimate_mapsize_uop( std::ifstream& ifs )
+{
+  kaitai::kstream ks( &ifs );
+  uop_t uopfile( &ks );
+  auto maphash = []( int mapid, size_t chunkidx ) {
+    char mapstring[1024];
+    snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
+    return HashLittle2( mapstring );
+  };
+
+
+  size_t totalSize = 0;
+  unsigned int nreadfiles = 0;
+  std::map<uint64_t, size_t> fileSizes;
+
+  uop_t::block_addr_t* currentblock = uopfile.header()->firstblock();
+  do
+  {
+    if ( currentblock->blockaddr() == 0 )
+      break;
+    if ( currentblock->block_body()->files() == nullptr )
+      break;
+
+    for ( auto file : *currentblock->block_body()->files() )
+    {
+      if ( file == nullptr )
+        continue;
+      if ( file->decompressed_size() == 0 )
+        continue;
+
+      passert_r( file->compression_type() == uop_t::COMPRESSION_TYPE_NO_COMPRESSION,
+                 "This map is zlib compressed and we can't handle that yet." );
+
+      nreadfiles++;
+      fileSizes[file->filehash()] = file->decompressed_size();
+    }
+    currentblock = currentblock->block_body()->next_addr();
+  } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
+
+  if ( uopfile.header()->nfiles() != nreadfiles )
+    INFO_PRINT << "Warning: not all chunks read (" << nreadfiles << "/"
+               << uopfile.header()->nfiles() << ")\n";
+
+  for ( size_t i = 0; i < fileSizes.size(); i++ )
+  {
+    auto fileitr = fileSizes.find( maphash( uo_mapid, i ) );
+    if ( fileitr == fileSizes.end() )
+    {
+      ERROR_PRINT << "Couldn't find file hash: " << std::to_string( maphash( uo_mapid, i ) )
+                  << "\n";
+      throw std::runtime_error( "UOP map is missing a file chunk." );
+    }
+
+    // Only count those chunks with size 0xC4000 (4096 blocks). Apparently some UOP files have extra
+    // chunks with a single block (an EOF marker, I guess?)
+    const size_t chunkSize = fileitr->second;
+    if ( chunkSize == 0xC4000 )
+      totalSize += fileitr->second;
+  }
+
+  ifs.clear();
+  ifs.seekg( 0, std::ios::beg );
+
+  return totalSize;
+}
+
 bool open_uopmap_file( const int mapid, int* out_file_size = nullptr )
 {
   std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
@@ -49,7 +124,8 @@ bool open_uopmap_file( const int mapid, int* out_file_size = nullptr )
   {
     if ( out_file_size != nullptr )
     {
-      *out_file_size = Clib::filesize( filename.c_str() );
+      // gets the equivalent mapsize to the original MUL file
+      *out_file_size = static_cast<int>( estimate_mapsize_uop( uopmapfile ) );
     }
     return true;
   }
@@ -105,29 +181,30 @@ bool uo_readuop = true;
 
 unsigned short uo_map_width = 0;
 unsigned short uo_map_height = 0;
+size_t uo_map_size = 0;
 
 void open_tiledata( void )
 {
   int tiledata_size;
-  size_t nblocks;
 
   tilefile = open_uo_file( "tiledata.mul", &tiledata_size );
 
-  if ( ( tiledata_size - 428032 ) % 1188 != 0 && ( tiledata_size - 493568 ) % 1316 == 0 )
-  {
-    cfg_use_new_hsa_format = true;
-    nblocks = ( tiledata_size - 493568 ) / 1316;
-  }
-  else
-  {
-    cfg_use_new_hsa_format = false;
-    nblocks = ( tiledata_size - 428032 ) / 1188;
-  }
+  // Auto-detect HSA format, find number of blocks, etc
+  MUL::TiledataInfo tileinfo( tiledata_size );
 
   // Save the parameters into this ugly global state we have
-  Plib::systemstate.config.max_tile_id = 32 * nblocks - 1;
+  cfg_use_new_hsa_format = tileinfo.is_hsa();
+  Plib::systemstate.config.max_tile_id = tileinfo.max_tile_id();
 
-  INFO_PRINT << "Converting with parameters: UseNewHSAFormat = "
+  if ( !Plib::systemstate.config.max_tile_id )
+  {
+    ERROR_PRINT << "\nError reading tiledata.mul:\n - The file is either corrupted or has an "
+                   "unknown format.\n\n";
+
+    throw std::runtime_error( "Unknown format of tiledata.mul" );
+  }
+
+  INFO_PRINT << "Converting with auto-detected parameters: UseNewHSAFormat = "
              << ( cfg_use_new_hsa_format ? "True" : "False" )
              << ", MaxTileId = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
 }
@@ -142,22 +219,8 @@ void open_map( void )
   if ( !uo_readuop || !open_uopmap_file( uo_mapid, &map_size ) )
     mapfile = open_map_file( "map", uo_mapid, &map_size );
 
-  if ( ( uo_mapid == 0 || uo_mapid == 1 ) && ( uo_map_width == 0 || uo_map_height == 0 ) )
-  {
-    bool use_legacy_dimensions = ( map_size / 196 ) == 393216;
-    if ( use_legacy_dimensions )
-    {
-      uo_map_width = 6144;
-      uo_map_height = 4096;
-    }
-    else
-    {
-      uo_map_width = 7168;
-      uo_map_height = 4096;
-    }
-    INFO_PRINT << "Using calculated map dimensions: " << uo_map_width << "x" << uo_map_height
-               << "\n";
-  }
+  // Store the file size in a global variable (UGH!)
+  uo_map_size = map_size;
 }
 
 void open_uo_data_files( void )
