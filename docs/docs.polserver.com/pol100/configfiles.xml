@@ -385,6 +385,8 @@ Spell (int spellid)
 [MobilesBlockNpcMovement        (0/1 {default 1})]
 [DefaultCharacterHeight         (1-32 {default 15})]
 [EnableWorldMapPackets          (0/1 (default 0))]
+[UndoGetItemEnableRangeCheck    (0/1 {default 0})]
+[UndoGetItemDropHere            (0/1 {default 0})]
 </structure>
   <explain><i>RefreshDecayAfterBoatMoves</i> if enabled item's decayat will be refreshed after each move or turn of a boat. Note that item decay on boats is not yet handled by the core.</explain>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
@@ -457,6 +459,13 @@ Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   <explain><i>EnableWorldMapPackets:</i> Custom clients have implemented a packet that tracks the position of<br/>
   party and guild members. This enables the client to overlay member positions on a world map<br/>
   directly inside the client. Set to 1 to enable core handling of this packet.<br/></explain>
+  <explain><i>UndoGetItemEnableRangeCheck:</i> If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+  and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.<br/>
+  If origin position/container is not in default_accessible_range will skip try to put item to origin position/container (unless item is no_drop)<br/>
+  and as last resort will drop item at character position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.</explain>
+  <explain><i>UndoGetItemDropHere:</i> If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+  and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in<br/>
+  origin container will be skipped.</explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>

@@ -99,6 +99,9 @@ struct ServSpecOpt
   unsigned char default_character_height;
   bool enable_worldmap_packets;
 
+  bool undo_get_item_enable_range_check;
+  bool undo_get_item_drop_here;
+
   static void read_servspecopt();
   static void ssopt_parse_totalstats( Clib::ConfigElem& elem );
 };
