@@ -1,0 +1,15 @@
+use os;
+use uo;
+
+program main(item)
+    var test_pid := GetObjProperty(item, "#TestPid");
+
+    if (test_pid)
+        GetProcess(test_pid).sendevent( struct{ control_script_pid := GetPid() });
+    endif
+
+    while (item)
+        // Use a long period to ensure the executor properly terminates.
+        Sleep(100);
+    endwhile
+endprogram

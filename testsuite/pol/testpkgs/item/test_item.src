@@ -1,3 +1,4 @@
+use polsys;
 use uo;
 use os;
 
@@ -105,4 +106,72 @@ exported function test_create_item_container_loc()
   endif
   DestroyItem(cnt);
   return 1;
+endfunction
+
+exported function test_item_controlscript_restart()
+  // The control script starting is asynchronous, as it is just scheduled to run
+  // upon item creation. Configure the item to send an event to this test script
+  // when the control script begins execution.
+  var desc := GetItemDescriptor("RestartableItem");
+  desc.SaveOnExit := 0;
+  desc.CProps := dictionary{
+    "#TestPid" -> GetPid()
+  };
+
+  var item := CreateItemAtLocation(0, 0, 0, desc);
+  if (!item)
+    return ret_error($"Failed to create item: ${item}");
+  endif
+
+  var err, initial_control_script_pid, restarted_control_script_pid;
+
+  // Receive process id by event from the initial control script created via item creation.
+  if (!(initial_control_script_pid := get_pid_from_control_script(err, item, "initial")))
+    DestroyItem(item);
+    return err;
+  endif
+
+  // Restart the control script.
+  var restarted := RestartScript(item);
+  if (!restarted)
+    DestroyItem(item);
+    return ret_error($"Failed to RestartScript on item: ${restarted}");
+  endif
+
+  // Receive process id by event from the new control script created by RestartScript.
+  if (!(restarted_control_script_pid := get_pid_from_control_script(err, item, "restarted")))
+    DestroyItem(item);
+    return err;
+  endif
+
+  // The initial and restarted process ids are different.
+  if (initial_control_script_pid == restarted_control_script_pid)
+    DestroyItem(item);
+    return ret_error($"The item's initial control script PID ({initial_control_script_pid}) should not equal the restarted control script PID ({restarted_control_script_pid})");
+  endif
+
+  // RestartScript should have terminated the previous control script.
+  var old_process := GetProcess(initial_control_script_pid);
+  if (old_process)
+    DestroyItem(item);
+    return ret_error($"Previous control script unexpectedly still exists: ${old_process}");
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
+
+function get_pid_from_control_script(byref err, item, label)
+  // Get event from control script containing its process id.
+  var control_script_event := wait_for_event(5);
+  if (!control_script_event)
+    return err := ret_error($"Did not receive event from {label} control script.");
+  endif
+
+  var control_script_pid := control_script_event.control_script_pid;
+  if (item.process.pid != control_script_pid)
+    return err := ret_error($"The item's {label} control script PID ({item.process().pid}) does not equal the control script event's PID ({control_script_pid})");
+  endif
+
+  return control_script_pid;
 endfunction
