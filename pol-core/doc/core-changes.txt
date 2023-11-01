@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+11-01-2023 Kevin:
+    Added: RestartScript() now can restart item control scripts. Similar to NPC scripts, the existing Item control script will terminate and a new one started.
 10-28-2023 Ins:
     Added: ServSpecOpt "UndoGetItemEnableRangeCheck" 1/0 default 0.
            If enabled - on fail to equip item back on character (if it has been taken from character layer)

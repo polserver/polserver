@@ -1681,13 +1681,13 @@ const JOURNAL_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</c
 </function>
 
 <function name="RestartScript">
-  <prototype>RestartScript( npc )</prototype>
-  <parameter name="npc" value="Character Reference (must be an NPC)" />
-  <explain>Stops the current master script for an NPC, and starts a new one. </explain>
+  <prototype>RestartScript( npc_or_item )</prototype>
+  <parameter name="npc_or_item" value="Reference to Character (must be an NPC) or Item" />
+  <explain>Stops the current master script for an NPC or control script for an Item, and starts a new one. </explain>
   <explain>npc.script can be assigned before calling this, to change the master script for an NPC. </explain>
   <return>1 if the script was started</return>
   <error>"Invalid parameter"</error>
-  <error>"RestartScript only operates on NPCs"</error>
+  <error>"RestartScript only operates on NPCs and Items"</error>
   <related>NPC</related>
 </function>
 

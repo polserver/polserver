@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-28-2023</datemodified>
+		<datemodified>11-01-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>11-01-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">RestartScript() now can restart item control scripts. Similar to NPC scripts, the existing Item control script will terminate and a new one started.</change>
+		</entry>
 		<entry>
 			<date>10-28-2023</date>
 			<author>Ins:</author>

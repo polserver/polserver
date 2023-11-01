@@ -367,7 +367,7 @@ RegisterForSpeechEvents( at_object, range, flags := 0 );
 ReleaseItem( item );
 RequestInput( character, item, prompt ); // item is a placeholder, just pass any item
 ReserveItem( item );
-RestartScript( npc );
+RestartScript( npc_or_item );
 Resurrect( mobile, flags := 0 ); // flags: RESURRECT_*
 RevokePrivilege( character, privilege );
 SaveWorldState();
