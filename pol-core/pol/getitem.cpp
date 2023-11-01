@@ -294,7 +294,8 @@ void GottenItem::undo( Mobile::Character* chr )
   {
     // First attempt to place the item in the player's backpack.
     UContainer* container = nullptr;
-    if( !_item->no_drop() ) {
+    if ( !_item->no_drop() )
+    {
       container = chr->backpack();
       if ( !container || !container->can_add( *_item ) ||
            !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
@@ -303,22 +304,19 @@ void GottenItem::undo( Mobile::Character* chr )
         return;
     }
     // Attempt to put it back in the original container.
-    if ( !container
-         && ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
+    if ( !container &&
+         ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
     {
       auto* orig_obj = system_find_object( _cnt_serial );
       if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
-        if ( _item->no_drop()
-             || chr->can_moveanydist()
-             || !Core::settingsManager.ssopt.undo_get_item_enable_range_check
-             || chr->pos().pol_distance( orig_obj->toplevel_pos() )
-                    <= Core::settingsManager.ssopt.default_accessible_range )
+        if ( _item->no_drop() || chr->can_moveanydist() ||
+             !Core::settingsManager.ssopt.undo_get_item_enable_range_check ||
+             chr->in_range( orig_obj, Core::settingsManager.ssopt.default_accessible_range ) )
         {
           container = static_cast<UContainer*>( orig_obj );
           if ( !container->can_add( *_item ) ||
-               !container
-                    ->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
+               !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
             container = nullptr;
         }
       }
@@ -327,7 +325,8 @@ void GottenItem::undo( Mobile::Character* chr )
     }
 
     // No drop item has not returned to original container, place the item in the player's backpack.
-    if( !container && _item->no_drop() ) {
+    if ( !container && _item->no_drop() )
+    {
       container = chr->backpack();
       if ( !container || !container->can_add( *_item ) ||
            !container->can_insert_add_item( chr, UContainer::MT_PLAYER, _item ) )
@@ -346,7 +345,8 @@ void GottenItem::undo( Mobile::Character* chr )
           _item->setposition( _pos );
           container->add( _item );
         }
-        else {
+        else
+        {
           container->add_at_random_location( _item );
         }
         update_item_to_inrange( _item );
@@ -357,14 +357,14 @@ void GottenItem::undo( Mobile::Character* chr )
     _pos = chr->pos();
   }
 
-  if( Core::settingsManager.ssopt.undo_get_item_drop_here )
+  if ( Core::settingsManager.ssopt.undo_get_item_drop_here )
   {
     _pos = chr->pos();
   }
   else if ( !chr->can_moveanydist() )
   {
-    if ( Core::settingsManager.ssopt.undo_get_item_enable_range_check
-         && chr->pos().pol_distance( _pos ) > Core::settingsManager.ssopt.default_accessible_range )
+    if ( Core::settingsManager.ssopt.undo_get_item_enable_range_check &&
+         !chr->in_range( _pos, Core::settingsManager.ssopt.default_accessible_range ) )
     {
       _pos = chr->pos();
     }
