@@ -35,7 +35,7 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
     return item;
 
   // search equipment of nearby mobiles
-  const Vec2d range = Vec2d( chr->update_range(), chr->update_range() );
+  const Vec2d range = Vec2d( chr->los_size(), chr->los_size() );
   Range2d gridarea( zone_convert( chr->pos() - range ), zone_convert( chr->pos() + range ),
                     chr->realm() );
   for ( const auto& gpos : gridarea )

@@ -98,13 +98,13 @@ void PrivUpdater::on_change_see_hidden( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->update_range(),
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
                                                       [&]( Character* zonechr )
                                                       { enable_see_hidden( zonechr, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->update_range(),
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
                                                       [&]( Character* zonechr )
                                                       { disable_see_hidden( zonechr, chr ); } );
   }
@@ -117,13 +117,13 @@ void PrivUpdater::on_change_see_ghosts( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->update_range(),
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
                                                       [&]( Character* zonechr )
                                                       { enable_see_ghosts( zonechr, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->update_range(),
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
                                                       [&]( Character* zonechr )
                                                       { disable_see_ghosts( zonechr, chr ); } );
   }

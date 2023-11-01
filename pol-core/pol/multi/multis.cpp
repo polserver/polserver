@@ -94,10 +94,10 @@ Core::Range3d UMulti::current_box() const
   return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz );
 }
 
-u8 UMulti::update_range() const
+u8 UMulti::visible_size() const
 {
   const auto& box = current_box();
-  return Plib::RANGE_VISUAL + static_cast<u8>( box.nw().pol_distance( box.se() ) / 2 );
+  return static_cast<u8>( box.nw().pol_distance( box.se() ) / 2 );
 }
 
 Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test

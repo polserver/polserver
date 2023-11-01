@@ -2042,7 +2042,7 @@ void Character::resurrect()
     send_warmode();
     send_goxyz( client, this );
     send_owncreate( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InRange( pos(), update_range(),
+    Core::WorldIterator<Core::MobileFilter>::InRange( pos(), los_size(),
                                                       [&]( Character* zonechr )
                                                       {
                                                         if ( !is_visible_to_me( zonechr ) )
@@ -2087,7 +2087,7 @@ void Character::on_death( Items::Item* corpse )
 
     send_goxyz( client, this );
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        pos(), update_range(),
+        pos(), los_size(),
         [&]( Character* zonechr )
         {
           if ( zonechr->dead() && is_visible_to_me( zonechr ) )
@@ -4277,7 +4277,7 @@ void Character::send_buffs()
   }
 }
 
-u8 Character::update_range() const
+u8 Character::los_size() const
 {
   // TODO Pos activate
   return Plib::RANGE_VISUAL;

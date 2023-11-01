@@ -494,7 +494,7 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
   client->send_pause();  // dave removed force=true 5/10/3, let uoclient.cfg option determine xflow
                          // packets (else this hangs 4.0.0e clients)
 
-  Core::WorldIterator<Core::MobileFilter>::InRange( client->chr->pos(), client->chr->update_range(),
+  Core::WorldIterator<Core::MobileFilter>::InRange( client->chr->pos(), client->chr->los_size(),
                                                     [&]( Mobile::Character* zonechr )
                                                     { send_client_char_data( zonechr, client ); } );
 
