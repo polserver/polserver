@@ -209,6 +209,9 @@ public:
   bool check_equiptest_scripts( Mobile::Character* chr, bool startup = false );
   bool check_unequiptest_scripts( Mobile::Character* chr );
   bool check_unequiptest_scripts();
+  bool start_control_script( const ItemDesc& itemdesc );
+  bool start_control_script();
+  bool stop_control_script();
 
   /**
    * Shortcut function to get a pointer to the owner character

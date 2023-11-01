@@ -205,22 +205,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
                   Core::read_gameclock() ) );  // Pergon: Init Property CreateTime for a new Item
 #endif
 
-  if ( !id.control_script.empty() )
-  {
-    passert( item->process() == nullptr );
-
-    Module::UOExecutorModule* uoemod = start_script( id.control_script, item->make_ref() );
-    if ( uoemod )
-    {
-      uoemod->attached_item_ = item;
-      item->process( uoemod );
-    }
-    else
-    {
-      POLLOG << "Unable to start control script " << id.control_script.name() << " for "
-             << id.objtype_description() << "\n";
-    }
-  }
+  item->start_control_script( id );
 
   item->fire_resist( item->fire_resist().setAsValue( id.element_resist.fire ) );
   item->fire_damage( item->fire_damage().setAsValue( id.element_damage.fire ) );

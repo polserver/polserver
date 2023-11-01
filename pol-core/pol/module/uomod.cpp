@@ -3724,6 +3724,7 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 BObjectImp* UOExecutorModule::mf_RestartScript()
 {
   Character* chr;
+  Item* item;
   if ( getCharacterParam( 0, chr ) )
   {
     if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
@@ -3734,8 +3735,13 @@ BObjectImp* UOExecutorModule::mf_RestartScript()
     }
     else
     {
-      return new BError( "RestartScript only operates on NPCs" );
+      return new BError( "RestartScript only operates on NPCs and Items" );
     }
+  }
+  else if ( getItemParam( 0, item ) )
+  {
+    item->stop_control_script();
+    return new BLong( item->start_control_script() );
   }
   else
   {
