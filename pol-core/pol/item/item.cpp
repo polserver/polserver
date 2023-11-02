@@ -1323,6 +1323,52 @@ double Item::getItemdescQuality() const
   return itemdesc().quality;
 }
 
+bool Item::start_control_script()
+{
+  return start_control_script( itemdesc() );
+}
+
+bool Item::start_control_script( const ItemDesc& id )
+{
+  if ( !id.control_script.empty() )
+  {
+    passert( process() == nullptr || process()->uoexec().error() );
+
+    Module::UOExecutorModule* uoemod = Core::start_script( id.control_script, make_ref() );
+    if ( uoemod )
+    {
+      uoemod->attached_item_ = this;
+      process( uoemod );
+      return true;
+    }
+    else
+    {
+      POLLOG << "Unable to start control script " << id.control_script.name() << " for "
+             << id.objtype_description() << "\n";
+      return false;
+    }
+  }
+  return false;
+}
+
+bool Item::stop_control_script()
+{
+  if ( has_process() )
+  {
+    auto& ex = process()->uoexec();
+    ex.seterror( true );
+    // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
+    ex.revive();
+    if ( ex.in_debugger_holdlist() )
+      ex.revive_debugged();
+    Module::UOExecutorModule* uoemod =
+        static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
+    uoemod->attached_item_ = nullptr;
+    return true;
+  }
+  return false;
+}
+
 Core::UOExecutor* Item::uoexec_control()
 {
   if ( process() != nullptr )
