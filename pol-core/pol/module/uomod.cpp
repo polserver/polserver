@@ -3723,29 +3723,25 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
 
 BObjectImp* UOExecutorModule::mf_RestartScript()
 {
-  Character* chr;
-  Item* item;
-  if ( getCharacterParam( 0, chr ) )
+  UObject* obj;
+  if ( !getUObjectParam( 0, obj ) )
+    return new BError( "Invalid parameter" );
+
+  if ( obj->script_isa( POLCLASS_NPC ) )
   {
-    if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
-    {
-      NPC* npc = static_cast<NPC*>( chr );
-      npc->restart_script();
-      return new BLong( 1 );
-    }
-    else
-    {
-      return new BError( "RestartScript only operates on NPCs and Items" );
-    }
+    NPC* npc = static_cast<NPC*>( obj );
+    npc->restart_script();
+    return new BLong( 1 );
   }
-  else if ( getItemParam( 0, item ) )
+  else if ( obj->script_isa( POLCLASS_ITEM ) )
   {
+    Item* item = static_cast<Item*>( obj );
     item->stop_control_script();
     return new BLong( item->start_control_script() );
   }
   else
   {
-    return new BError( "Invalid parameter" );
+    return new BError( "RestartScript only operates on NPCs and Items" );
   }
 }
 
