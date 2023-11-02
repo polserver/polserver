@@ -47,6 +47,7 @@ void read_extobj()
   settingsManager.extobj.sails = elem.remove_unsigned( "Sails", 0x1F019 );
   settingsManager.extobj.storage = elem.remove_unsigned( "Storage", 0x1F01A );
   settingsManager.extobj.weaponslot = elem.remove_unsigned( "Weaponslot", 0x1F01B );
+  settingsManager.extobj.boatmount = elem.remove_unsigned( "Boatmount", 0x1F01C );
 
   settingsManager.extobj.wrestling = elem.remove_unsigned( "Wrestling", 0x1F020 );
   settingsManager.extobj.mount = elem.remove_unsigned( "Mount", 0x1F021 );

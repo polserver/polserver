@@ -3977,6 +3977,12 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
   case MBR_MULTIID:
     return new BLong( multiid );
     break;
+  case MBR_PILOT:
+    if ( mountpiece != nullptr && !mountpiece->orphan() )
+    {
+      return new Module::ECharacterRefObjImp( mountpiece->GetCharacterOwner() );
+    }
+    return nullptr;
   default:
     return nullptr;
   }
@@ -4046,6 +4052,45 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
         return new BError( "Not enough parameters" );
     }
     break;
+  }
+  case MTH_PILOT:
+  {
+    Mobile::Character* chr;
+    if ( ex.hasParams( 1 ) )
+    {
+      if ( ex.getCharacterParam( 0, chr ) )
+      {
+        if ( mountpiece != nullptr && !mountpiece->orphan() )
+        {
+          return new BError( "The boat is already being piloted." );
+        }
+
+        Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
+        if ( !chr->equippable( item ) )
+        {
+          item->destroy();
+          return new BError( "The boat mount piece is not equippable by that character." );
+        }
+        chr->equip( item );
+        send_wornitem_to_inrange( chr, item );
+        mountpiece = Core::ItemRef( item );
+
+        return new BLong( 1 );
+      }
+      return new BError( "Invalid parameters" );
+    }
+    else
+    {
+      if ( mountpiece != nullptr )
+      {
+        if ( !mountpiece->orphan() )
+        {
+          destroy_item( mountpiece.get() );
+        }
+        mountpiece.clear();
+      }
+      return new BLong( 1 );
+    }
   }
   default:
     return nullptr;
@@ -4730,6 +4775,15 @@ BObjectImp* EClientRefObjImp::call_polmethod_id( const int id, Core::UOExecutor&
   }
 
   return base::call_polmethod_id( id, ex );
+}
+
+BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8 speed,
+                                      const u8 direction )
+{
+  addMember( "type", new BLong( Core::EVID_BOAT_MOVEMENT ) );
+  addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
+  addMember( "speed", new BLong( static_cast<int>( speed ) ) );
+  addMember( "direction", new BLong( static_cast<int>( direction ) ) );
 }
 
 SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )

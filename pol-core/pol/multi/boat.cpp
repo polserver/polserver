@@ -43,6 +43,7 @@
 #include "../item/itemdesc.h"
 #include "../mkscrobj.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../network/client.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
@@ -1649,7 +1650,18 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   regself();  // do this after our x,y are known.
   // consider throwing if starting position isn't passable.
 
-  Core::start_script( "misc/boat", make_boatref( this ) );
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) );
+
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << this->serial;
+  }
+  else
+  {
+    this->process( script );
+    this->process()->attached_item_ = this;
+  }
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const

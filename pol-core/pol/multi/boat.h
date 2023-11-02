@@ -183,6 +183,7 @@ public:
   Items::Item* portplank;
   Items::Item* starboardplank;
   Items::Item* hold;
+  Core::ItemRef mountpiece;
 
 protected:
   void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation,

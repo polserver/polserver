@@ -1320,7 +1320,10 @@ bool Character::equippable( const Items::Item* item ) const
           << this->serial << item->serial << item->graphic;
     }
 
-    return false;
+    if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
+    {
+      return false;
+    }
   }
   if ( layer_is_equipped( item->tile_layer ) )
   {
@@ -1343,14 +1346,17 @@ bool Character::equippable( const Items::Item* item ) const
     return false;
   }
 
-  if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+  if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
   {
-    return false;
-  }
-  // redundant sanity check
-  if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
-  {
-    return false;
+    if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+    {
+      return false;
+    }
+    // redundant sanity check
+    if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
+    {
+      return false;
+    }
   }
 
   const Items::ItemDesc& desc = item->itemdesc();

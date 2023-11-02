@@ -46,6 +46,7 @@
 #include "guilds.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
+#include "module/uomod.h"
 #include "multi/customhouses.h"
 #include "multi/multi.h"
 #include "network/client.h"
@@ -57,12 +58,14 @@
 #include "network/pktin.h"
 #include "network/sockio.h"
 #include "party.h"
+#include "polclass.h"
 #include "realms/realm.h"
 #include "scrstore.h"
 #include "spells.h"
 #include "tooltips.h"
 #include "ufunc.h"
 #include "uobject.h"
+#include "uoexec.h"
 #include "uoscrobj.h"
 #include <format/format.h>
 
@@ -401,6 +404,41 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     u32 serial = cfBEu32( msg->popupselect.serial );
     u16 id = cfBEu16( msg->popupselect.entry_tag );
     client->chr->on_popup_menu_selection( client, serial, id );
+    break;
+  }
+  case PKTBI_BF::TYPE_BOAT_MOVE:
+  {
+    Mobile::Character* chr = client->chr;
+    multi = chr->realm()->find_supporting_multi( client->chr->pos3d() );
+
+    if ( multi == nullptr )
+    {
+      POLLOG_INFO.Format( "{}/{} tried to use a boat movement packet without being on a multi.\n" )
+          << client->acct->name() << chr->name();
+      break;
+    }
+
+    if ( !multi->script_isa( Core::POLCLASS_BOAT ) )
+    {
+      POLLOG_INFO.Format(
+          "{}/{} tried to use a boat movement packet without being on a boat multi.\n" )
+          << client->acct->name() << chr->name();
+      break;
+    }
+
+    Module::UOExecutorModule* process = multi->process();
+    if ( !process )
+    {
+      POLLOG_INFO.Format(
+          "{}/{} tried to use a boat movement packet on a boat multi (serial {}) that has no "
+          "running script.\n" )
+          << client->acct->name() << chr->name() << multi->serial;
+      break;
+    }
+
+    process->uoexec().signal_event(
+        new Module::BoatMovementEvent( chr, msg->boatmove.speed, msg->boatmove.direction ) );
+
     break;
   }
   default:

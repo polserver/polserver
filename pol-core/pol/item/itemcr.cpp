@@ -155,7 +155,10 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer
   // useage.
-  item->tile_layer = Plib::tilelayer( graphic );
+  if ( item->objtype_ == Core::settingsManager.extobj.boatmount )
+    item->tile_layer = Core::LAYER_MOUNT;
+  else
+    item->tile_layer = Plib::tilelayer( graphic );
 
   // Have to be set after the item is created, because item graphic changes
   // Because items can have facing 0 as the lightsource we use as default 127 to check
