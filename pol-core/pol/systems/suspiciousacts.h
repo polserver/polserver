@@ -31,6 +31,18 @@ void EquipItemOtherThanGotten( Network::Client* client, u32 equipped_item_serial
                                u32 gotten_item_serial );
 
 void OutOfSequenceCursor( Network::Client* client );
+
+// boat movement packet without being on a multi
+void BoatMoveNoMulti( Network::Client* client );
+
+// boat movement packet without being on a boat multi
+void BoatMoveNotBoatMulti( Network::Client* client );
+
+// boat movement packet on boat multi with no running script
+void BoatMoveMultiNoRunningScript( Network::Client* client, u32 multi_serial );
+
+void BoatMoveOutOfRangeParameters( Network::Client* client, u32 multi_serial, u8 direction,
+                                   u8 speed );
 }  // namespace Pol::SuspiciousActs
 
 #endif  // !H_SYSTEMS_SUSPICIOUSACTS

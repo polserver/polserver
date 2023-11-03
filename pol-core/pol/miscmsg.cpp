@@ -62,6 +62,7 @@
 #include "realms/realm.h"
 #include "scrstore.h"
 #include "spells.h"
+#include "systems/suspiciousacts.h"
 #include "tooltips.h"
 #include "ufunc.h"
 #include "uobject.h"
@@ -413,26 +414,27 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
 
     if ( multi == nullptr )
     {
-      POLLOG_INFO.Format( "{}/{} tried to use a boat movement packet without being on a multi.\n" )
-          << client->acct->name() << chr->name();
+      SuspiciousActs::BoatMoveNoMulti( client );
       break;
     }
 
     if ( !multi->script_isa( Core::POLCLASS_BOAT ) )
     {
-      POLLOG_INFO.Format(
-          "{}/{} tried to use a boat movement packet without being on a boat multi.\n" )
-          << client->acct->name() << chr->name();
+      SuspiciousActs::BoatMoveNotBoatMulti( client );
       break;
     }
 
     Module::UOExecutorModule* process = multi->process();
     if ( !process )
     {
-      POLLOG_INFO.Format(
-          "{}/{} tried to use a boat movement packet on a boat multi (serial {}) that has no "
-          "running script.\n" )
-          << client->acct->name() << chr->name() << multi->serial;
+      SuspiciousActs::BoatMoveMultiNoRunningScript( client, multi->serial );
+      break;
+    }
+
+    if ( msg->boatmove.direction > 7 || msg->boatmove.speed > 2 )
+    {
+      SuspiciousActs::BoatMoveOutOfRangeParameters( client, multi->serial, msg->boatmove.direction,
+                                                    msg->boatmove.speed );
       break;
     }
 
