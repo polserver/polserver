@@ -38,6 +38,9 @@ void BoatMoveNoMulti( Network::Client* client );
 // boat movement packet without being on a boat multi
 void BoatMoveNotBoatMulti( Network::Client* client );
 
+// boat movement packet without being on a boat multi
+void BoatMoveNotPilot( Network::Client* client, u32 multi_serial );
+
 // boat movement packet on boat multi with no running script
 void BoatMoveMultiNoRunningScript( Network::Client* client, u32 multi_serial );
 

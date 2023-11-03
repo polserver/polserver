@@ -1896,5 +1896,54 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat )
   boat->destroy();
   return new Bscript::BLong( 1 );
 }
+
+Mobile::Character* UBoat::pilot() const
+{
+  if ( mountpiece != nullptr && !mountpiece->orphan() )
+  {
+    return mountpiece->GetCharacterOwner();
+  }
+  return nullptr;
+}
+
+Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
+{
+  if ( chr == nullptr )
+  {
+    if ( mountpiece != nullptr )
+    {
+      if ( !mountpiece->orphan() )
+      {
+        destroy_item( mountpiece.get() );
+      }
+      mountpiece.clear();
+    }
+    return new Bscript::BLong( 1 );
+  }
+  else
+  {
+    if ( mountpiece != nullptr && !mountpiece->orphan() )
+    {
+      return new Bscript::BError( "The boat is already being piloted." );
+    }
+
+    if ( !has_process() )
+    {
+      return new Bscript::BError( "The boat does not have a running process." );
+    }
+
+    Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
+    if ( !chr->equippable( item ) )
+    {
+      item->destroy();
+      return new Bscript::BError( "The boat mount piece is not equippable by that character." );
+    }
+    chr->equip( item );
+    send_wornitem_to_inrange( chr, item );
+    mountpiece = Core::ItemRef( item );
+
+    return new Bscript::BLong( 1 );
+  }
+}
 }  // namespace Multi
 }  // namespace Pol

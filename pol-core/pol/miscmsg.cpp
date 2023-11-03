@@ -424,6 +424,13 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
       break;
     }
 
+    Multi::UBoat* boat = static_cast<Multi::UBoat*>( multi );
+    if ( boat->pilot() != chr )
+    {
+      SuspiciousActs::BoatMoveNotPilot( client, multi->serial );
+      break;
+    }
+
     Module::UOExecutorModule* process = multi->process();
     if ( !process )
     {

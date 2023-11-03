@@ -3978,9 +3978,8 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
     return new BLong( multiid );
     break;
   case MBR_PILOT:
-    if ( mountpiece != nullptr && !mountpiece->orphan() )
     {
-      Mobile::Character* owner = mountpiece->GetCharacterOwner();
+      Mobile::Character* owner = pilot();
       if ( owner != nullptr )
       {
         return new Module::ECharacterRefObjImp( owner );
@@ -4073,15 +4072,8 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
       if ( value != 0 )
         return new BError( "Invalid parameters" );
 
-      if ( mountpiece != nullptr )
-      {
-        if ( !mountpiece->orphan() )
-        {
-          destroy_item( mountpiece.get() );
-        }
-        mountpiece.clear();
-      }
-      return new BLong( 1 );
+
+      return set_pilot( nullptr );
     }
     else
     {
@@ -4090,27 +4082,7 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
       if ( !ex.getCharacterParam( 0, chr ) )
         return new BError( "Invalid parameters" );
 
-      if ( mountpiece != nullptr && !mountpiece->orphan() )
-      {
-        return new BError( "The boat is already being piloted." );
-      }
-
-      if ( !has_process() )
-      {
-        return new BError( "The boat does not have a running process." );
-      }
-
-      Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
-      if ( !chr->equippable( item ) )
-      {
-        item->destroy();
-        return new BError( "The boat mount piece is not equippable by that character." );
-      }
-      chr->equip( item );
-      send_wornitem_to_inrange( chr, item );
-      mountpiece = Core::ItemRef( item );
-
-      return new BLong( 1 );
+      return set_pilot( chr );
     }
   }
   default:

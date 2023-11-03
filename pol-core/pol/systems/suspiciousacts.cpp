@@ -157,6 +157,18 @@ void SuspiciousActs::BoatMoveMultiNoRunningScript( Network::Client* client, u32 
         << client->acct->name() << client->chr->name() << multi_serial;
   }
 }
+
+void SuspiciousActs::BoatMoveNotPilot( Network::Client* client, u32 multi_serial )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format(
+        "{}/{} tried to use a boat movement packet on a boat multi (serial 0x{:X}) that they are "
+        "not the pilot of.\n" )
+        << client->acct->name() << client->chr->name() << multi_serial;
+  }
+}
+
 void SuspiciousActs::BoatMoveOutOfRangeParameters( Network::Client* client, u32 multi_serial,
                                                    u8 direction, u8 speed )
 {
