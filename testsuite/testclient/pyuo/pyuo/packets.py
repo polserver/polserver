@@ -624,6 +624,19 @@ class MobAttributesPacket(Packet):
     self.stam_max = self.dushort()
     self.stam_current = self.dushort()
 
+class WornItemPacket(Packet):
+  ''' Informs about a Mobile's newly equipped item '''
+
+  cmd = 0x2e
+  length = 15
+
+  def decodeChild(self):
+    self.item_serial = self.duint()
+    self.graphic = self.dushort()
+    self.duchar() # 0x00
+    self.layer = self.duchar()
+    self.mobile_serial = self.duint()
+    self.color = self.dushort()
 
 class Unk32Packet(Packet):
   ''' Unknown packet '''

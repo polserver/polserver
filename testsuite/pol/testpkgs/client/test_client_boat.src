@@ -9,6 +9,8 @@ var char;
 var char2;
 var boat;
 
+const LAYER_MOUNT := 0x19;  // 25. Mount (horse, ostard etc.).
+
 var clientcon := getClientConnection();
 
 program chartests()
@@ -130,3 +132,83 @@ exported function move_boat_overflow()
   return 1;
 endfunction
 
+// Tests handling of pilot via boatref.pilot() method an boatref.pilot member
+// Also checks for mount piece functionality on both client and server.
+exported function boat_pilot_mbr_mth()
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  var res;
+
+  res := boat.pilot(char);
+  if (!res)
+    return res;
+  elseif (!boat.pilot)
+    return ret_error("Boat pilot not defined after setting.");
+  elseif (boat.pilot != char)
+    return ret_error($"New boat pilot ({boat.pilot.name}) does not equal the set pilot ({char.name})");
+  endif
+
+  res := boat.pilot(char);
+  if (res != error)
+    return ret_error($"Unexpected success when setting pilot of an already-pilotted boat: {res}");
+  endif
+
+  clientcon.sendevent(struct{todo:="list_equipped_items", arg:=char.serial, id:=0});
+  var ev:=waitForClient(0, {EVT_LIST_EQUIPPED_ITEMS});
+  if (!ev)
+    return ev;
+  endif
+
+  var mountpiece := GetEquipmentByLayer(char, LAYER_MOUNT);
+
+  if (!mountpiece)
+    return ret_error("Character does not have an equipped mount piece.");
+  endif
+
+  var mountpiece_found := 0;
+
+  foreach item in (ev.objs)
+    if (item.serial == mountpiece.serial && item.layer == LAYER_MOUNT)
+      mountpiece_found := 1;
+      break;
+    endif
+  endforeach
+
+  if (!mountpiece_found)
+    return ret_error("Character mount piece not found on list of equipped items from client.");
+  endif
+
+  res := boat.pilot();
+  if (!res)
+    return ret_error($"Unable to clear pilot: {res}");
+  elseif (boat.pilot)
+    return ret_error("Boat pilot is not empty (boat.pilot.name) after clearing.");
+  endif
+
+  mountpiece := GetEquipmentByLayer(char, LAYER_MOUNT);
+
+  if (mountpiece)
+    return ret_error("Character erroneously has an equipped mount piece.");
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="list_equipped_items", arg:=char.serial, id:=0});
+  ev:=waitForClient(0, {EVT_LIST_EQUIPPED_ITEMS});
+  if (!ev)
+    return ev;
+  endif
+
+  mountpiece_found := 0;
+
+  foreach item in (ev.objs)
+    if (item.layer == LAYER_MOUNT)
+      mountpiece_found := 1;
+      break;
+    endif
+  endforeach
+
+  if (mountpiece_found)
+    return ret_error("Character erroneously has a mount piece found on list of equipped items from client.");
+  endif
+  return 1;
+endfunction

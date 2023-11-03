@@ -751,7 +751,16 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.DeleteObjectPacket):
       assert self.lc
       if pkt.serial in self.objects:
+        obj = self.objects[pkt.serial]
+        # Delete the object from equipment
+        if isinstance(obj, Item) and obj.parent is not None and isinstance(obj.parent, Mobile):
+          mobile = obj.parent
+          if mobile.equip is not None:
+            mobile.equip = {key:val for key, val in mobile.equip.items() if val != obj}
+
         del self.objects[pkt.serial]
+        obj = None
+
         if not self.disable_item_logging:
           self.log.info("Object 0x%X went out of sight", pkt.serial)
           self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
@@ -885,6 +894,8 @@ class Client(threading.Thread):
       po.fill(pkt.serial, pkt.gumpid)
       self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
+    elif isinstance(pkt, packets.WornItemPacket):
+      self.handleWornItemPacket(pkt)
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1083,6 +1094,33 @@ class Client(threading.Thread):
         self.log.info("Boat move: %s", self.objects[pkt.serial])
         self.brain.event(brain.Event(brain.Event.EVT_BOAT_MOVED, boat=self.objects[pkt.serial]))
 
+  @status('game')
+  @clientthread
+  @logincomplete
+  def handleWornItemPacket(self, pkt):
+    if self.player.serial == pkt.mobile_serial:
+      mob = self.player
+    else:
+      mob = self.objects[pkt.mobile_serial]
+
+    mob.equip = mob.equip or {}
+
+    serial = pkt.item_serial
+    if serial in self.objects.keys():
+      item = self.objects[serial]
+    else:
+      item = Item(self)
+      item.serial = serial
+      self.objects[serial] = item
+
+    item.graphic = pkt.graphic
+    item.color = pkt.color
+    item.parent = mob
+
+    if not self.disable_item_logging:
+      self.log.info("Equip item %s on %s", item, mob)
+
+    mob.equip[pkt.layer] = item
 
   @logincomplete
   def sendVersion(self):
@@ -1238,6 +1276,9 @@ class Client(threading.Thread):
         return False
       elif todo.type == brain.Event.EVT_LIST_OBJS:
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
+      elif todo.type == brain.Event.EVT_LIST_EQUIPPED_ITEMS:
+        mobile = self.objects[todo.serial] if todo.serial in self.objects else None
+        self.brain.event(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, mobile = mobile))
       elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
         self.disable_item_logging = todo.value
         self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))

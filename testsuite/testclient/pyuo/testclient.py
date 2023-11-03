@@ -70,6 +70,8 @@ class TestBrain(brain.Brain):
         self.client.move(arg)
       elif todo=="list_objects":
         self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS))
+      elif todo=="list_equipped_items":
+        self.client.addTodo(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, serial = arg))
       elif todo=="open_backpack":
         bp=self.client.player.openBackPack()
         content=0
@@ -260,6 +262,16 @@ class PolServer:
         )
         if hasattr(o,"parent") and o.parent is not None:
           res["objs"][-1]["parent"]=o.parent.serial
+    elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
+      res["objs"]=[]
+      if ev.mobile is not None and ev.mobile.equip is not None:
+        for k,o in ev.mobile.equip.items():
+          res["objs"].append(
+                {'serial':o.serial,
+                 'color':o.color,
+                 'layer':k,
+                 'graphic':o.graphic}
+          )
     elif ev.type==Event.EVT_OPEN_BACKPACK:
       res["serial"]=ev.serial
       res["content_count"]=ev.contentlen

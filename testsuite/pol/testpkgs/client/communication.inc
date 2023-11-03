@@ -14,6 +14,7 @@ const EVT_NEW_MOBILE := "new_mobile";
 const EVT_NEW_ITEM := "new_item";
 const EVT_REMOVED_OBJ := "removed_obj";
 const EVT_LIST_OBJS := "list_objs";
+const EVT_LIST_EQUIPPED_ITEMS := "list_equipped_items";
 const EVT_OPEN_BACKPACK := "open_bp";
 const EVT_TARGET := "target";
 const EVT_DOUBLE_CLICK := "double_click";
