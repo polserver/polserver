@@ -174,8 +174,8 @@ GameState::GameState()
       uo_skills(),
       task_thread_pool(),
       max_update_range( Plib::RANGE_VISUAL ),
-      max_update_range_multi( 0 ),
-      max_update_range_client( Plib::RANGE_VISUAL )
+      max_update_range_client( Plib::RANGE_VISUAL ),
+      max_update_range_multi( 0 )
 
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );

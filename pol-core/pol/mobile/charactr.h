@@ -289,11 +289,6 @@ private:
 
   // UOBJECT INTERFACE
 public:
-  virtual u8 los_size() const;
-  bool in_visual_range( const Core::UObject* other ) const;
-  bool in_visual_range( const Core::UObject* other, const Core::Pos4d& pos ) const;
-  bool in_visual_range( const Core::UObject* other, const Core::Pos2d& pos ) const;
-
   virtual size_t estimatedSize() const override;
 
   virtual void destroy() override;
@@ -628,6 +623,11 @@ public:
   void last_textcolor( u16 new_color );
 
   u8 get_flag1( Network::Client* other_client ) const;
+
+  u8 los_size() const;
+  bool in_visual_range( const Core::UObject* other ) const;
+  bool in_visual_range( const Core::UObject* other, const Core::Pos4d& pos ) const;
+  bool in_visual_range( const Core::UObject* other, const Core::Pos2d& pos ) const;
 
   // PRIVS SETTINGS STATUS
 public:
