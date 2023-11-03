@@ -457,7 +457,7 @@ ObjMethod object_methods[] = {
     { MTH_CALL, "call", false },
     { MTH_SORTEDINSERT, "sorted_insert", false },
     { MTH_SETUTF8STRING, "setutf8string", false },
-    { MTH_PILOT, "pilot", false },  // 155
+    { MTH_SETPILOT, "setpilot", false },  // 155
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )

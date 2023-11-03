@@ -133,14 +133,16 @@ exported function move_boat_overflow()
   return 1;
 endfunction
 
-// Tests handling of pilot via boatref.pilot() method an boatref.pilot member
+// Tests handling of pilot via boatref.setpilot() method and boatref.pilot member
 // Also checks for mount piece functionality on both client and server.
 exported function boat_pilot_mbr_mth()
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
+  boat.setpilot(0);
+
   var res;
 
-  res := boat.pilot(char);
+  res := boat.setpilot(char);
   if (!res)
     return res;
   elseif (!boat.pilot)
@@ -149,7 +151,7 @@ exported function boat_pilot_mbr_mth()
     return ret_error($"New boat pilot ({boat.pilot.name}) does not equal the set pilot ({char.name})");
   endif
 
-  res := boat.pilot(char);
+  res := boat.setpilot(char);
   if (res != error)
     return ret_error($"Unexpected success when setting pilot of an already-pilotted boat: {res}");
   endif
@@ -179,7 +181,7 @@ exported function boat_pilot_mbr_mth()
     return ret_error("Character mount piece not found on list of equipped items from client.");
   endif
 
-  res := boat.pilot();
+  res := boat.setpilot(0);
   if (!res)
     return ret_error($"Unable to clear pilot: {res}");
   elseif (boat.pilot)
@@ -217,9 +219,11 @@ endfunction
 exported function boat_pilot_packets()
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
+  boat.setpilot(0);
+
   var res;
 
-  res := boat.pilot(char);
+  res := boat.setpilot(char);
   if (!res)
     return ret_error($"Failed to set pilot: {res}");
   endif
