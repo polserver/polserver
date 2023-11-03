@@ -1735,8 +1735,22 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   Core::objStorageManager.objecthash.Insert( boat );
   ////
 
-  Core::start_script( "misc/boat", make_boatref( boat ) );
-  return make_boatref( boat );
+  Bscript::BObjectImp* boatref = make_boatref( boat );
+
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), boatref );
+
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << boat->serial;
+  }
+  else
+  {
+    boat->process( script );
+    boat->process()->attached_item_ = boat;
+  }
+
+  return boatref;
 }
 
 void UBoat::create_components()
