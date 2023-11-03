@@ -1172,6 +1172,13 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
+  def boat_move(self, serial, direction, speed):
+    ''' Sends a boat move packet to server'''
+    po = packets.GeneralInfoPacket()
+    po.fill(po.SUB_BOATMOVE, serial, direction, speed)
+    self.queue(po)
+
+  @logincomplete
   def lift(self, obj):
     ''' Sends a lift packet to server'''
     po = packets.LiftItemPacket()

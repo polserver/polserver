@@ -10,6 +10,7 @@ var char2;
 var boat;
 
 const LAYER_MOUNT := 0x19;  // 25. Mount (horse, ostard etc.).
+const SYSEVENT_BOAT_MOVEMENT := 0x00010000;
 
 var clientcon := getClientConnection();
 
@@ -210,5 +211,83 @@ exported function boat_pilot_mbr_mth()
   if (mountpiece_found)
     return ret_error("Character erroneously has a mount piece found on list of equipped items from client.");
   endif
+  return 1;
+endfunction
+
+exported function boat_pilot_packets()
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  var res;
+
+  res := boat.pilot(char);
+  if (!res)
+    return ret_error($"Failed to set pilot: {res}");
+  endif
+
+  boat.setprop("#TestClientBoatPid", GetPid());
+
+  var expected := array{
+    struct{ direction := 1, speed := 1 },
+    struct{ direction := 2, speed := 2 },
+    struct{ direction := 3, speed := 0 }
+  };
+
+  foreach boat_move_details in expected
+    var direction := boat_move_details.direction, speed := boat_move_details.speed;
+
+    // Holds the boat movement event as received on the boat control script
+    var control_script_event;
+
+    // Holds the handled EVT_BOAT_MOVE on the testclient.
+    var client_boat_move_event;
+
+    Clear_Event_Queue();
+    clientcon.sendevent(struct{todo:="boat_move", arg:=struct{ serial := char.serial, direction := direction, speed := speed }, id:=0});
+    res := get_boat_move_events(control_script_event, client_boat_move_event);
+    if (!res)
+      return res;
+    endif
+
+    if (control_script_event.direction != direction)
+      return ret_error($"control_script_event.direction ({control_script_event.direction}) != direction ({direction})");
+    elseif (client_boat_move_event.direction != direction)
+      return ret_error($"client_boat_move_event.direction ({client_boat_move_event.direction}) != direction ({direction})");
+    elseif (control_script_event.speed != speed)
+      return ret_error($"control_script_event.speed ({control_script_event.speed}) != speed ({speed})");
+    elseif (control_script_event.type != SYSEVENT_BOAT_MOVEMENT)
+      return ret_error($"control_script_event.type ({control_script_event.type}) != SYSEVENT_BOAT_MOVEMENT ({SYSEVENT_BOAT_MOVEMENT})");
+    elseif (client_boat_move_event.speed != speed)
+      return ret_error($"client_boat_move_event.speed ({client_boat_move_event.speed}) != speed ({speed})");
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// Gets an event from both the boat control script as well as the client.
+// Returns error if both events cannot be fulfilled within `timeout` seconds.
+function get_boat_move_events(byref control_script_event, byref client_boat_move_event, timeout := 10)
+  control_script_event := 0;
+  client_boat_move_event := 0;
+  while (1)
+    var ev:=Wait_For_Event(timeout);
+    if (!ev)
+      return ret_error($"no signal received for one of control_script_event={control_script_event}, client_boat_move_event={client_boat_move_event}");
+    endif
+    if (ev.source == "control_script")
+      control_script_event := ev.event;
+      if (client_boat_move_event && control_script_event)
+        break;
+      else
+        continue;
+      endif
+    elseif (client_boat_move_event || (ev.id != 0 || !(ev.type in {EVT_BOAT_MOVE})))
+      continue;
+    endif
+    client_boat_move_event := ev;
+    if (client_boat_move_event && control_script_event)
+      break;
+    endif
+  endwhile
   return 1;
 endfunction

@@ -95,6 +95,15 @@ class TestBrain(brain.Brain):
           brain.Event(brain.Event.EVT_LIFT_ITEM,
             clientid = self.id,
             serial = arg))
+      elif todo=="boat_move":
+        self.client.boat_move(arg['serial'], arg['direction'], arg['speed'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_BOAT_MOVE,
+            clientid = self.id,
+            serial = arg['serial'],
+            direction = arg['direction'],
+            speed = arg['speed'],
+            ))
       elif todo=="drop_item":
         self.client.drop(arg['serial'], arg['x'], arg['y'], arg['z'], arg['dropped_on_serial'])
         self.server.addevent(
@@ -294,6 +303,10 @@ class PolServer:
       res['amount']=1
     elif ev.type==Event.EVT_MOVE_ITEM_REJECTED:
       res['reason']=ev.reason
+    elif ev.type==Event.EVT_BOAT_MOVE:
+      res['serial']=ev.serial
+      res['direction']=ev.direction
+      res['speed']=ev.speed
     elif ev.type==Event.EVT_DROP_ITEM:
       res['serial']=ev.serial
     elif ev.type==Event.EVT_DROP_APPROVED:
