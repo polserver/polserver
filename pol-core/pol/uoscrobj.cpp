@@ -4065,6 +4065,11 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
           return new BError( "The boat is already being piloted." );
         }
 
+        if ( !has_process() )
+        {
+          return new BError( "The boat does not have a running process." );
+        }
+
         Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
         if ( !chr->equippable( item ) )
         {
