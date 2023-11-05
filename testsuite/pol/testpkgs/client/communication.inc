@@ -4,6 +4,7 @@ use vitals;
 
 //see pyuo/brain.py method typestr()
 const EVT_INIT := "init";
+const EVT_EXIT := "exit";
 const EVT_HP_CHANGED := "hp_changed";
 const EVT_MANA_CHANGED := "mana_changed";
 const EVT_STAM_CHANGED := "stam_changed";

@@ -82,6 +82,7 @@ public:
 
   Core::Vec3d minrxyz;  // minimum relative distances
   Core::Vec3d maxrxyz;
+  u8 max_radius;
   Components components;
 
   ItrPair findcomponents( const Core::Vec2d& rxy );

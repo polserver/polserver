@@ -1,15 +1,16 @@
 use uo;
 use os;
+include "testutil";
+include "communication";
 
 foreach multi in (ListMultisInBox(0,0,-200,10000,10000,200))
   DestroyMulti(multi);
 endforeach
 
-var res:=GetGlobalProperty("#clientcon");
-if (res)
-  var clientcon:=GetProcess(res);
+var clientcon := getClientConnection();
+if (clientcon)
   clientcon.sendevent(struct{todo:="exit"});
-  sleepms(200);
+  WaitForClient(0,{EVT_EXIT},2);
 endif
 var a:=FindAccount("testclient0");
 if (a)
@@ -22,7 +23,7 @@ if (a)
   a.delete();
 endif
 
-res := GetGlobalProperty("#SnoopingNpc");
+var res := GetGlobalProperty("#SnoopingNpc");
 if (res)
   var mob := SystemFindObjectBySerial(res);
   MoveObjectToLocation(mob, 0, 0, 0, flags := MOVEOBJECT_FORCELOCATION);

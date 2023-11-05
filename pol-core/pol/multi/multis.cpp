@@ -96,8 +96,8 @@ Core::Range3d UMulti::current_box() const
 
 u8 UMulti::visible_size() const
 {
-  const auto& box = current_box();
-  return static_cast<u8>( box.nw().pol_distance( box.se() ) / 2 );
+  const MultiDef& md = multidef();
+  return md.max_radius;
 }
 
 Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test
