@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+11-08-2023 Turley:
+    Fixed: crash due to NPCs after calling ReloadConfiguration
 11-01-2023 Kevin:
     Added: RestartScript() now can restart item control scripts. Similar to NPC scripts, the existing Item control script will terminate and a new one started.
 10-28-2023 Ins:

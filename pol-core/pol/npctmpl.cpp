@@ -7,7 +7,6 @@
 
 #include "npctmpl.h"
 
-#include <format/format.h>
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
@@ -19,6 +18,8 @@
 #include "item/equipmnt.h"
 #include "item/weapon.h"
 #include "syshookscript.h"
+#include <format/format.h>
+#include <memory>
 
 namespace Pol
 {
@@ -49,10 +50,10 @@ int translate( const std::string& name, TRANSLATION* table )
   return 0;
 }
 
-TRANSLATION xlate_align[] = {{"good", NpcTemplate::GOOD},
-                             {"neutral", NpcTemplate::NEUTRAL},
-                             {"evil", NpcTemplate::EVIL},
-                             {nullptr, 0}};
+TRANSLATION xlate_align[] = { { "good", NpcTemplate::GOOD },
+                              { "neutral", NpcTemplate::NEUTRAL },
+                              { "evil", NpcTemplate::EVIL },
+                              { nullptr, 0 } };
 
 
 NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg )
@@ -114,11 +115,12 @@ size_t NpcTemplate::estimateSize() const
   return size;
 }
 
-const NpcTemplate& create_npc_template( const Clib::ConfigElem& elem, const Plib::Package* pkg )
+std::shared_ptr<NpcTemplate> create_npc_template( const Clib::ConfigElem& elem,
+                                                  const Plib::Package* pkg )
 {
-  NpcTemplate* tmpl = new NpcTemplate( elem, pkg );
+  auto tmpl = std::make_shared<NpcTemplate>( elem, pkg );
   gamestate.npc_templates[tmpl->name] = tmpl;
-  return *tmpl;
+  return tmpl;
 }
 
 void load_npc_templates()
@@ -151,12 +153,12 @@ void load_npc_templates()
   }
 }
 
-const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem )
+std::shared_ptr<NpcTemplate> find_npc_template( const Clib::ConfigElem& elem )
 {
-  NpcTemplates::const_iterator itr = gamestate.npc_templates.find( elem.rest() );
+  auto itr = gamestate.npc_templates.find( elem.rest() );
   if ( itr != gamestate.npc_templates.end() )
   {
-    return *( ( *itr ).second );
+    return itr->second;
   }
   else
   {
@@ -172,5 +174,5 @@ const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem )
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
