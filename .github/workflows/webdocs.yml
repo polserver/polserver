@@ -1,0 +1,35 @@
+name: WebDocSync
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - docs/docs.polserver.com/**
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - os: "ubuntu-latest"
+
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate OfflineDocs
+        run: |
+          cd docs/docs.polserver.com/pol100
+          mkdir archives
+          php -f buildoffline.php
+          rm -rf offline
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@4.3.2
+        with:
+          server: ${{ secrets.DOCS_FTP }}
+          protocol: ftps
+          username: ${{ secrets.DOCS_FTP_USER }}
+          password: ${{ secrets.DOCS_FTP_PASSWORD }}
+          local-dir: docs/docs.polserver.com/pol100/
+          server-dir: pol100/

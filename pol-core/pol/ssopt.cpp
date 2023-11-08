@@ -139,6 +139,11 @@ void ServSpecOpt::read_servspecopt()
   settingsManager.ssopt.enable_worldmap_packets =
       elem.remove_bool( "EnableWorldMapPackets", false );
 
+  settingsManager.ssopt.undo_get_item_enable_range_check =
+      elem.remove_ushort( "UndoGetItemEnableRangeCheck", false );
+  settingsManager.ssopt.undo_get_item_drop_here =
+      elem.remove_ushort( "UndoGetItemDropHere", false );
+
   ssopt_parse_totalstats( elem );
 
   // Turley 2009/11/06 u8 range...

@@ -23,8 +23,9 @@
 #include <set>
 #include <vector>
 
-#include "../../clib/rawtypes.h"
-#include "../../plib/udatfile.h"
+#include "clib/rawtypes.h"
+#include "plib/udatfile.h"
+#include "pol/base/vector.h"  // uotool also uses this file :(
 
 namespace Pol
 {
@@ -42,10 +43,8 @@ extern void read_multidefs();
 
 struct MULTI_ELEM
 {
+  Core::Vec3d relpos;
   unsigned short objtype;
-  s16 x;
-  s16 y;
-  s16 z;
   bool is_static;
 };
 
@@ -53,7 +52,7 @@ class MultiDef
 {
 public:
   explicit MultiDef( Clib::ConfigElem& elem, u16 multiid );
-  ~MultiDef();
+  ~MultiDef() = default;
 
   u16 multiid;
   enum HOUSETYPE : u8
@@ -81,31 +80,25 @@ public:
   typedef std::multimap<unsigned short, const MULTI_ELEM*> Components;
   typedef std::pair<Components::const_iterator, Components::const_iterator> ItrPair;
 
-  short minrx, minry, minrz;  // minimum relative distances
-  short maxrx, maxry, maxrz;
+  Core::Vec3d minrxyz;  // minimum relative distances
+  Core::Vec3d maxrxyz;
   Components components;
 
-  static short global_minrx;
-  static short global_minry;
-  static short global_minrz;
-  static short global_maxrx;
-  static short global_maxry;
-  static short global_maxrz;
+  ItrPair findcomponents( const Core::Vec2d& rxy );
 
-  ItrPair findcomponents( short rx, short ry );
+  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end,
+                       const Core::Vec2d& rxy ) const;
 
-  bool findcomponents( Components::const_iterator& beg, Components::const_iterator& end, short rx,
-                       short ry ) const;
-
-  static unsigned short getkey( short rx, short ry );
+  static unsigned short getkey( const Core::Vec2d& rxy );
 
   // returns true if it finds anything at this rx,ry
-  bool readobjects( Plib::StaticList& vec, short rx, short ry, short zbase ) const;
-  bool readshapes( Plib::MapShapeList& vec, short rx, short ry, short zbase,
+  bool readobjects( Plib::StaticList& vec, const Core::Vec2d& rxy, short zbase ) const;
+  bool readshapes( Plib::MapShapeList& vec, const Core::Vec2d& rxy, short zbase,
                    unsigned int anyflags ) const;
 
-  bool body_contains( short rx, short ry ) const;
-  const MULTI_ELEM* find_component( short rx, short ry ) const;
+  bool body_contains( const Core::Vec2d& rxy ) const;
+  bool within_multi( const Core::Vec2d& relxy ) const;
+  const MULTI_ELEM* find_component( const Core::Vec2d& rxy ) const;
 
   void add_to_hull( const MULTI_ELEM* elem );
   void add_to_internal_hull( const MULTI_ELEM* elem );
@@ -121,13 +114,15 @@ public:
   size_t estimateSize() const;
 };
 
+void read_multidefs();
+
 bool MultiDefByMultiIDExists( u16 multiid );
 const MultiDef* MultiDefByMultiID( u16 multiid );
 
-inline unsigned short MultiDef::getkey( short rx, short ry )
+inline unsigned short MultiDef::getkey( const Core::Vec2d& rxy )
 {
-  unsigned char crx = static_cast<unsigned char>( rx );
-  unsigned char cry = static_cast<unsigned char>( ry );
+  unsigned char crx = static_cast<unsigned char>( rxy.x() );
+  unsigned char cry = static_cast<unsigned char>( rxy.y() );
 
   unsigned short key = ( crx << 8 ) | cry;
   return key;

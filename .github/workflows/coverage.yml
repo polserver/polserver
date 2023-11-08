@@ -11,28 +11,28 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 9
+            compiler-version: 11
             build-type: RelWithDebInfo
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - name: Cache curl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
+          path: lib/curl-8.2.1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
       - name: Cache antlr
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
       - name: Cache boost
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: lib/boost_1_74_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
+          path: lib/boost_1_83_0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0
 
       - name: Install Compiler and Dependencies
         shell: pwsh
@@ -46,7 +46,10 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             echo "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev kwstyle uuid-dev lcov -y
+          sudo apt-get install libmysqlclient-dev -y
+          sudo apt-get install kwstyle -y
+          sudo apt-get install uuid-dev -y
+          sudo apt-get install lcov -y
           
           $ninja_version = "1.9.0"
           $cmake_version = "3.16.2"
@@ -108,12 +111,12 @@ jobs:
           genhtml --demangle-cpp pol-core.info -o coverage
           cmake -E tar c coverage.zip --format=zip coverage
       - name: Upload shard test log
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
       - name: Upload coverage report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Coveragelog
           path: bin-build/coverage.zip

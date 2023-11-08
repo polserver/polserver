@@ -29,7 +29,7 @@ void load_tile_entry( const Package* /*pkg*/, Clib::ConfigElem& elem )
 {
   unsigned short graphic = static_cast<unsigned short>( strtoul( elem.rest(), nullptr, 0 ) );
   passert_always( graphic < ( systemstate.tile.size() ) );
-  Tile& entry = systemstate.tile[graphic];
+  Tile& entry = systemstate.tile.at(graphic);
   entry.desc = elem.remove_string( "Desc" );
   entry.uoflags = elem.remove_ulong( "UoFlags" );
   entry.layer = static_cast<u8>( elem.remove_ushort( "Layer", 0 ) );

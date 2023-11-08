@@ -11,19 +11,23 @@
 
 #include <string>
 
-#include "../clib/strutil.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
-#include "../plib/tiles.h"
+#include "clib/strutil.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
+#include "plib/tiles.h"
+
 #include "checkpnt.h"
 #include "cmbtcfg.h"
 #include "console.h"
 #include "extobj.h"
+#include "globals/multidefs.h"
 #include "globals/settings.h"
+#include "globals/uvars.h"
 #include "item/equipmnt.h"
 #include "item/itemdesc.h"
 #include "landtile.h"
 #include "mobile/attribute.h"
+#include "multi/multidef.h"
 #include "objtype.h"
 #include "polcfg.h"
 
@@ -43,7 +47,6 @@ void load_armor_zones();
 namespace Multi
 {
 void load_special_storedconfig( const std::string& cfgname );
-void read_multidefs();
 void read_boat_cfg();
 }  // namespace Multi
 namespace Network
@@ -165,6 +168,7 @@ void load_data()
 
   checkpoint( "read_multidefs" );
   Multi::read_multidefs();
+  gamestate.update_range_from_multis();
 
   checkpoint( "set_watch_vars" );
   set_watch_vars();
@@ -250,10 +254,10 @@ void load_data()
   read_npc_templates();
 
 
-  //#ifdef _WIN32
+  // #ifdef _WIN32
   checkpoint( "load console commands" );
   ConsoleCommand::load_console_commands();
-  //#endif
+  // #endif
 
   Module::load_fileaccess_cfg();
 
@@ -264,7 +268,9 @@ void load_data()
 void reload_configuration()
 {
   PolConfig::read_pol_config( false );
+  ServSpecOpt::read_servspecopt();
   Network::read_bannedips_config( false );
+  gamestate.unload_npc_templates();
   load_npc_templates();
   read_npc_templates();  // dave 1/12/3 npc template data wasn't actually being read, just names.
   ConsoleCommand::load_console_commands();

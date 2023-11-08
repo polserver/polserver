@@ -22,6 +22,7 @@
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long,
    only until they find a better home - but this is better than putting them in POL.CPP. */
 
+#include <algorithm>
 #include <cstddef>
 #include <ctype.h>
 #include <string>
@@ -412,9 +413,16 @@ void handle_unknown_C4( Client* client, PKTOUT_C4* /*msg*/ )
   handle_unknown_packet( client );
 }
 
-void handle_update_range_change( Client* client, PKTBI_C8* /*msg*/ )
+void handle_update_range_change( Client* client, PKTBI_C8* msg )
 {
-  handle_unknown_packet( client );
+  // limit range to official range 5-24
+  u8 range = std::clamp( msg->range, (u8)5, (u8)24 );
+  client->set_update_range( range );
+
+  Network::PktHelper::PacketOut<Network::PktOut_C8> outMsg;
+  // TODO Pos: send updated client->update_range()
+  outMsg->Write<u8>( (u8)RANGE_VISUAL );
+  outMsg.Send( client );
 }
 
 void handle_krrios_packet( Client* client, PKTBI_F0* msg )
@@ -542,7 +550,7 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
     PktHelper::PacketOut<PktOut_98> msgOut;
     msgOut->WriteFlipped<u16>( 37u );  // static length
     msgOut->Write<u32>( the_mob->serial_ext );
-    msgOut->Write( the_mob->name().c_str(), 30, false );
+    msgOut->Write( Clib::strUtf8ToCp1252(the_mob->name()).c_str(), 30, false );
     msgOut.Send( client );
   }
   else

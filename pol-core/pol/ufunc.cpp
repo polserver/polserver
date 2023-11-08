@@ -537,7 +537,7 @@ bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, uns
 void send_put_in_container( Client* client, const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->x(), item->y(),
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
       item->slot_index(), item->container->serial_ext, item->color );
   msg.Send( client );
 
@@ -548,7 +548,7 @@ void send_put_in_container( Client* client, const Item* item )
 void send_put_in_container_to_inrange( const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->x(), item->y(),
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
       item->slot_index(), item->container->serial_ext, item->color );
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
@@ -694,8 +694,8 @@ void send_item( Client* client, const Item* item )
   if ( client->chr->can_move( item ) )
     flags |= ITEM_FLAG_FORCE_MOVABLE;
 
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->x(),
-                            item->y(), item->z(), item->facing, item->color, flags );
+  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
+                            item->facing, item->color, flags );
   pkt.Send( client );
 
   // if the item is a corpse, transmit items contained by it
@@ -714,8 +714,8 @@ void send_item( Client* client, const Item* item )
 /* Tell all clients new information about an item */
 void send_item_to_inrange( const Item* item )
 {
-  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->x(),
-                            item->y(), item->z(), item->facing, item->color, 0 );
+  auto pkt = SendWorldItem( item->serial, item->graphic, item->get_senditem_amount(), item->pos3d(),
+                            item->facing, item->color, 0 );
   auto pkt_remove = RemoveObjectPkt( item->serial_ext );
   auto pkt_rev = ObjRevisionPkt( item->serial_ext, item->rev() );
 
@@ -936,24 +936,20 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 
   // not in the backpack, or in a subpack.  check global items and subpacks.
   // FIXME doesn't check range?
-  unsigned short wxL, wyL, wxH, wyH;
-  zone_convert_clip( chr->x() - 8, chr->y() - 8, chr->realm(), &wxL, &wyL );
-  zone_convert_clip( chr->x() + 8, chr->y() + 8, chr->realm(), &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  Range2d gridarea( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
+                    zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( auto& item : chr->realm()->getzone_grid( gpos ).items )
     {
-      for ( auto& item : chr->realm()->zone[wx][wy].items )
+      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
-        if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-        {
-          cont = (UContainer*)item;
-          if ( serial == cont->serial )
-            return cont;
-          cont = cont->find_container( serial );
-          if ( cont )
-            return cont;
-        }
+        cont = (UContainer*)item;
+        if ( serial == cont->serial )
+          return cont;
+        cont = cont->find_container( serial );
+        if ( cont )
+          return cont;
       }
     }
   }
@@ -964,6 +960,24 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
     return static_cast<UContainer*>( item );
   else
     return nullptr;
+}
+
+Item* find_snoopable_item( u32 serial, Character** pchr )
+{
+  Item* item = system_find_item( serial );
+  if ( item != nullptr )
+  {
+    Character* owner = item->GetCharacterOwner();
+    if ( owner != nullptr )
+    {
+      if ( pchr != nullptr )
+      {
+        *pchr = owner;
+      }
+      return item;
+    }
+  }
+  return nullptr;
 }
 
 // assume if you pass additlegal or isRemoteContainer, you init to false
@@ -993,28 +1007,24 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
   }
 
   // check items on the ground
-  unsigned short wxL, wyL, wxH, wyH;
-  zone_convert_clip( chr->x() - 8, chr->y() - 8, chr->realm(), &wxL, &wyL );
-  zone_convert_clip( chr->x() + 8, chr->y() + 8, chr->realm(), &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  Range2d gridarea( zone_convert( chr->pos() - Vec2d( 8, 8 ) ),
+                    zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( const auto& _item : chr->realm()->getzone_grid( gpos ).items )
     {
-      for ( const auto& _item : chr->realm()->zone[wx][wy].items )
+      if ( !chr->in_visual_range( _item ) )
+        continue;
+      if ( _item->serial == serial )
       {
-        if ( !inrange( chr, _item ) )
-          continue;
-        if ( _item->serial == serial )
-        {
-          passert_always( _item->container == nullptr );
-          return _item;
-        }
-        if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-        {
-          item = ( (const UContainer*)_item )->find( serial );
-          if ( item != nullptr )
-            return item;
-        }
+        passert_always( _item->container == nullptr );
+        return _item;
+      }
+      if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+      {
+        item = ( (const UContainer*)_item )->find( serial );
+        if ( item != nullptr )
+          return item;
       }
     }
   }
@@ -1026,25 +1036,26 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
 
 void play_sound_effect( const UObject* center, u16 effect )
 {
-  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, center->x(), center->y(), 0 );
+  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u,
+                             Pos3d( center->toplevel_pos().xy(), 0 ) );
   // FIXME hearing range check perhaps?
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
-void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm )
+void play_sound_effect_xyz( const Pos4d& center, u16 effect )
 {
-  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, cx, cy, cz );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      cx, cy, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, center.xyz() );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
 void play_sound_effect_private( const UObject* center, u16 effect, Character* forchr )
 {
   if ( forchr->client )
   {
-    Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, center->x(), center->y(),
-                               0 );
+    Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u,
+                               Pos3d( center->pos3d() ).z( 0 ) );
     msg.Send( forchr->client );
   }
 }
@@ -1061,24 +1072,24 @@ void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 
       dst->toplevel_owner(),
       [&]( Character* zonechr )
       {
-        if ( !inrange( zonechr, src ) )  // send to char only in range of dst
+        if ( !zonechr->in_visual_range( src ) )  // send to char only in range of dst
           msg.Send( zonechr->client );
       } );
 }
 
-void play_moving_effect2( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect, u8 speed,
-                          u8 loop, u8 explode, Realms::Realm* realm )
+void play_moving_effect2( const Pos3d& src, const Pos3d& dst, u16 effect, u8 speed, u8 loop,
+                          u8 explode, Realms::Realm* realm )
 {
   Network::GraphicEffectPkt msg;
-  msg.movingEffect( xs, ys, zs, xd, yd, zd, effect, speed, loop, explode );
+  msg.movingEffect( src, dst, effect, speed, loop, explode );
 
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      xs, ys, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      xd, yd, realm, RANGE_VISUAL,
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      src.xy(), realm, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      dst.xy(), realm,
       [&]( Character* zonechr )
       {
-        if ( !inrange( zonechr, xs, ys ) )  // send to chrs only in range of dest
+        if ( !zonechr->in_visual_range( src.xy() ) )  // send to chrs only in range of dest
           msg.Send( zonechr->client );
       } );
 }
@@ -1100,22 +1111,21 @@ void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u
       center->toplevel_owner(), [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
-void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode,
-                             Realms::Realm* realm )
+void play_stationary_effect( const Pos4d& pos, u16 effect, u8 speed, u8 loop, u8 explode )
 {
   Network::GraphicEffectPkt msg;
-  msg.stationaryEffect( x, y, z, effect, speed, loop, explode );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      x, y, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  msg.stationaryEffect( pos.xyz(), effect, speed, loop, explode );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      pos, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
-void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed,
-                                u8 duration, u32 hue, u32 render, u16 effect3d )
+void play_stationary_effect_ex( const Pos4d& pos, u16 effect, u8 speed, u8 duration, u32 hue,
+                                u32 render, u16 effect3d )
 {
   Network::GraphicEffectExPkt msg;
-  msg.stationaryEffect( x, y, z, effect, speed, duration, hue, render, effect3d );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      x, y, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  msg.stationaryEffect( pos.xyz(), effect, speed, duration, hue, render, effect3d );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      pos, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
 }
 
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration,
@@ -1139,28 +1149,27 @@ void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, 
       src, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       dst,
-      [&]( Character* zonechr )
-      {
-        if ( !inrange( zonechr, src ) )  // send to chrs only in range of dst
+      [&]( Character* zonechr ) {  // send to chrs only in range of dst
+        if ( !zonechr->in_visual_range( src ) )
           msg.Send( zonechr->client );
       } );
 }
 
-void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
-                             u16 effect, u8 speed, u8 duration, u32 hue, u32 render, u8 direction,
-                             u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound )
+void play_moving_effect2_ex( const Pos3d& src, const Pos3d& dst, Realms::Realm* realm, u16 effect,
+                             u8 speed, u8 duration, u32 hue, u32 render, u8 direction, u8 explode,
+                             u16 effect3d, u16 effect3dexplode, u16 effect3dsound )
 {
   Network::GraphicEffectExPkt msg;
-  msg.movingEffect( xs, ys, zs, xd, yd, zd, effect, speed, duration, hue, render, direction,
-                    explode, effect3d, effect3dexplode, effect3dsound );
+  msg.movingEffect( src, dst, effect, speed, duration, hue, render, direction, explode, effect3d,
+                    effect3dexplode, effect3dsound );
 
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      xs, ys, realm, RANGE_VISUAL, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      xd, yd, realm, RANGE_VISUAL,
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      src.xy(), realm, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      dst.xy(), realm,
       [&]( Character* zonechr )
       {
-        if ( !inrange( zonechr, xs, ys ) )  // send to chrs only in range of dst
+        if ( !zonechr->in_visual_range( src.xy() ) )  // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
 }
@@ -1170,7 +1179,8 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
                       unsigned short color )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  u16 textlen = static_cast<u16>( strlen( text ) + 1 );
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
+  u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -1181,7 +1191,7 @@ void send_sysmessage( Network::Client* client, const char* text, unsigned short 
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( font );
   msg->Write( "System", 30 );
-  msg->Write( text, textlen );
+  msg->Write( convertedText.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1244,7 +1254,8 @@ void broadcast_unicode( const std::string& text, const std::string& lang, unsign
 void send_nametext( Client* client, const Character* chr, const std::string& str )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  u16 textlen = static_cast<u16>( str.length() + 1 );
+  std::string convertedString = Clib::strUtf8ToCp1252( str );
+  u16 textlen = static_cast<u16>( convertedString.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -1254,8 +1265,8 @@ void send_nametext( Client* client, const Character* chr, const std::string& str
   msg->Write<u8>( Plib::TEXTTYPE_YOU_SEE );
   msg->WriteFlipped<u16>( chr->name_color( client->chr ) );  // 0x03B2
   msg->WriteFlipped<u16>( 3u );
-  msg->Write( str.c_str(), 30 );
-  msg->Write( str.c_str(), textlen );
+  msg->Write( convertedString.c_str(), 30 );
+  msg->Write( convertedString.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1266,7 +1277,8 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
                 unsigned int journal_print )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  u16 textlen = static_cast<u16>( strlen( text ) + 1 );
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
+  u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -1283,10 +1295,10 @@ bool say_above( const UObject* obj, const char* text, unsigned short font, unsig
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( obj->description().c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
-  msg->Write( text, textlen );
+  msg->Write( convertedText.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1316,7 +1328,7 @@ bool say_above_unicode( const UObject* obj, const std::string& text, const std::
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( obj->description().c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
   msg->WriteFlipped( utf16text );
@@ -1334,7 +1346,8 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
   if ( chr->client == nullptr )
     return false;
   PktHelper::PacketOut<PktOut_1C> msg;
-  u16 textlen = static_cast<u16>( strlen( text ) + 1 );
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
+  u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -1351,10 +1364,10 @@ bool private_say_above( Character* chr, const UObject* obj, const char* text, un
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( obj->description().c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
-  msg->Write( text, textlen );
+  msg->Write( convertedText.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1387,7 +1400,7 @@ bool private_say_above_unicode( Character* chr, const UObject* obj, const std::s
     break;
   case JOURNAL_PRINT_NAME:
   default:
-    msg->Write( obj->description().c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
     break;
   }
   msg->WriteFlipped( utf16text );
@@ -1404,7 +1417,8 @@ bool private_say_above_ex( Character* chr, const UObject* obj, const char* text,
   if ( chr->client == nullptr )
     return false;
   PktHelper::PacketOut<PktOut_1C> msg;
-  u16 textlen = static_cast<u16>( strlen( text ) + 1 );
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
+  u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -1414,8 +1428,8 @@ bool private_say_above_ex( Character* chr, const UObject* obj, const char* text,
   msg->Write<u8>( Plib::TEXTTYPE_NORMAL );
   msg->WriteFlipped<u16>( color );
   msg->WriteFlipped<u16>( 3u );
-  msg->Write( obj->description().c_str(), 30 );
-  msg->Write( text, textlen );
+  msg->Write( Clib::strUtf8ToCp1252( obj->description() ).c_str(), 30 );
+  msg->Write( convertedText.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1426,7 +1440,8 @@ bool private_say_above_ex( Character* chr, const UObject* obj, const char* text,
 void send_objdesc( Client* client, Item* item )
 {
   PktHelper::PacketOut<PktOut_1C> msg;
-  u16 textlen = static_cast<u16>( item->description().length() + 1 );
+  std::string convertedText = Clib::strUtf8ToCp1252( item->description() );
+  u16 textlen = static_cast<u16>( convertedText.length() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )  // FIXME need to handle this better second msg?
     textlen = SPEECH_MAX_LEN + 1;
   msg->offset += 2;
@@ -1436,7 +1451,7 @@ void send_objdesc( Client* client, Item* item )
   msg->WriteFlipped<u16>( 0x03B2u );
   msg->WriteFlipped<u16>( 3u );
   msg->Write( "System", 30 );
-  msg->Write( item->description().c_str(), textlen );
+  msg->Write( convertedText.c_str(), textlen );
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1531,16 +1546,6 @@ void transmit_to_others_inrange( Character* center, const void* msg, unsigned ms
       } );
 }
 
-// DAVE made heavy changes to this 11/17 for speed.
-Character* chr_from_wornitems( UContainer* wornitems )
-{
-  Character* owner = wornitems->get_chr_owner();
-  if ( owner != nullptr )
-    return owner;
-  else
-    return nullptr;  // fixed 3/8/3
-}
-
 void destroy_item( Item* item )
 {
   if ( item->serial == 0 )
@@ -1604,50 +1609,19 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
 }
 
 
-void move_item( Item* item, Core::UFACING facing )
-{
-  u16 oldx = item->x();
-  u16 oldy = item->y();
-
-  item->setposition( item->pos().move( facing ) );
-
-  item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, nullptr );
-
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
-  Network::RemoveObjectPkt msgremove( item->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      oldx, oldy, item->realm(), RANGE_VISUAL,
-      [&]( Character* zonechr )
-      {
-        if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
-          msgremove.Send( zonechr->client );
-      } );
-}
-
-// FIXME: this is called from some places where the item didn't used
-// to be on the ground - in a container, say.
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* oldrealm )
+void move_item( Items::Item* item, const Core::Pos4d& oldpos )
 {
-  item->set_dirty();
-
-  u16 oldx = item->x();
-  u16 oldy = item->y();
-  item->setposition( Pos4d( newx, newy, newz, item->realm() ) );
-
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldx, oldy, item, oldrealm );
+  MoveItemWorldPosition( oldpos, item );
 
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
   Network::RemoveObjectPkt msgremove( item->serial_ext );
   WorldIterator<OnlinePlayerFilter>::InRange(
-      oldx, oldy, oldrealm, RANGE_VISUAL,
+      oldpos, RANGE_VISUAL,
       [&]( Character* zonechr )
       {
         if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
@@ -1657,15 +1631,15 @@ void move_item( Item* item, unsigned short newx, unsigned short newy, signed cha
 
 void send_multi( Client* client, const Multi::UMulti* multi )
 {
-  auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->x(), multi->y(),
-                             multi->z(), multi->color );
+  auto pkt =
+      SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->pos3d(), multi->color );
   pkt.Send( client );
 }
 
 void send_multi_to_inrange( const Multi::UMulti* multi )
 {
-  auto pkt = SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->x(), multi->y(),
-                             multi->z(), multi->color );
+  auto pkt =
+      SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->pos3d(), multi->color );
   WorldIterator<OnlinePlayerFilter>::InVisualRange(
       multi, [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
 }
@@ -1708,8 +1682,7 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
     else
     {
       // dave 12-22 check for no regions
-      LightRegion* light_region =
-          gamestate.lightdef->getregion( client->chr->x(), client->chr->y(), client->chr->realm() );
+      LightRegion* light_region = gamestate.lightdef->getregion( client->chr->pos() );
       if ( light_region != nullptr )
         newlightlevel = light_region->lightlevel;
       else
@@ -1910,31 +1883,32 @@ void send_create_mobile_to_nearby_cansee( const Character* chr )
                                                     } );
 }
 
-void send_move_mobile_to_nearby_cansee( const Character* chr )
+void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_bar_status_update )
 {
   MoveChrPkt msgmove( chr );
   std::unique_ptr<HealthBarStatusUpdate> msgpoisoned;
   std::unique_ptr<HealthBarStatusUpdate> msginvul;
-  if ( chr->poisoned() )
+  if ( chr->poisoned() || send_health_bar_status_update )
     msgpoisoned.reset( new HealthBarStatusUpdate(
         chr->serial_ext, HealthBarStatusUpdate::Color::GREEN, chr->poisoned() ) );
-  if ( chr->invul() )
+  if ( chr->invul() || send_health_bar_status_update )
     msginvul.reset( new HealthBarStatusUpdate(
         chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul() ) );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( chr,
-                                                    [&]( Character* zonechr )
-                                                    {
-                                                      if ( zonechr == chr )
-                                                        return;
-                                                      if ( zonechr->is_visible_to_me( chr ) )
-                                                      {
-                                                        msgmove.Send( zonechr->client );
-                                                        if ( msgpoisoned )
-                                                          msgpoisoned->Send( zonechr->client );
-                                                        if ( msginvul )
-                                                          msginvul->Send( zonechr->client );
-                                                      }
-                                                    } );
+  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+      chr,
+      [&]( Character* zonechr )
+      {
+        if ( !send_health_bar_status_update && zonechr == chr )
+          return;
+        if ( zonechr->is_visible_to_me( chr ) )
+        {
+          msgmove.Send( zonechr->client );
+          if ( msgpoisoned )
+            msgpoisoned->Send( zonechr->client );
+          if ( msginvul )
+            msginvul->Send( zonechr->client );
+        }
+      } );
 }
 
 Character* UpdateCharacterWeight( Item* item )
@@ -2167,7 +2141,8 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
   std::vector<u16> uwtext = Bscript::String::toUTF16( utext );
   std::vector<u16> ewtext = Bscript::String::toUTF16( etext );
 
-  size_t titlelen = title.size();
+  std::string convertedText = Clib::strUtf8ToCp1252( title );
+  size_t titlelen = convertedText.length() + 1;
   // Check Lengths
   if ( titlelen > SPEECH_MAX_LEN )
     titlelen = SPEECH_MAX_LEN;
@@ -2179,7 +2154,7 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
   // Build Packet
   msg->offset += 2;
   msg->Write<u32>( of_who->serial_ext );
-  msg->Write( title.c_str(), static_cast<u16>( titlelen + 1 ) );
+  msg->Write( convertedText.c_str(), static_cast<u16>( titlelen ) );
   msg->WriteFlipped( uwtext );
   msg->WriteFlipped( ewtext );
   u16 len = msg->offset;

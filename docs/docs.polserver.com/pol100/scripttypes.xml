@@ -36,8 +36,30 @@ endprogram</example>
     <relatedobj>Item</relatedobj>
     <relatedcfg>itemdesc.cfg</relatedcfg>
     <relatedcfg>servspecopt.cfg</relatedcfg>
+    <relatedtype>SnoopScript</relatedtype>
 </scripttype>
 
+<scripttype name="SnoopScript">
+    <prototype>program snoopscript(character, item, item_character_owner)</prototype>
+    <parameter name="character" value="Character Ref"/>
+    <parameter name="item" value="Item Ref" />
+    <parameter name="item_character_owner" value="Character Ref"/>
+    <return>Return value ignored</return>
+    <schedtype>Normal</schedtype>
+    <def_prio>100</def_prio>
+    <whencalled>When a client double clicks on an item with a defined snoop script inside a container that the character does not have access to, eg. another character's backpack.</whencalled>
+    <wherelives>The 'program' in a .src file, in a package or /scripts/items</wherelives>
+    <todefine>In the item's itemdesc.cfg entry, the 'SnoopScript' property defines the location of the snoop script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/items. Also item.snoopscript is writable in the same format.</todefine>
+    <explain>This script type is similar to the UseScript script type and follows the same restrictions, eg. distance checks.</explain>
+    <example>
+use uo;
+use util;
+program my_example_snoopscript(character, item, item_character_owner)
+    PrintTextAbove(item, $"{character.name} used {item_character_owner.name}'s item!");
+    item.color := RandomInt(50);
+endprogram</example>
+    <relatedtype>UseScript</relatedtype>
+</scripttype>
 
 <scripttype name="WalkOnScript">
     <prototype>program walkonscript(character, item, lastx, lasty, lastz)</prototype>
@@ -76,7 +98,7 @@ endprogram</example>
     <whencalled>Immediately after the item is created (includes boot-up).</whencalled>
     <wherelives>The 'program' in a .src file, in a package or /scripts/control</wherelives>
     <todefine>In the item's itemdesc.cfg entry, the 'ControlScript' property defines the location of the control script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/control.</todefine>
-    <explain>This script is called when the item is created and stays attached to the item. Usually control scripts do not exit until the item is destroyed (note, you must handle this yourself). They generally use a loop to process events or do some housecleaning after some sleeping, or wait_for_event.</explain>
+    <explain>This script is called when the item is created and stays attached to the item. Usually control scripts do not exit until the item is destroyed (note, you must handle this yourself: control scripts will not automatically terminate when the item is destroyed). They generally use a loop to process events or do some housecleaning after some sleeping, or wait_for_event.</explain>
     <example>
 use uo;
 use os;
@@ -731,7 +753,6 @@ endprogram</example>
     <prototype>program textcommand(character, text, uc_text, langcode)</prototype>
     <parameter name="character" value="Character ref activating this script" />
     <parameter name="text" value="String after command name" />
-    <parameter name="uc_text" value="a Unicode array of the text string typed after the command (exist if client used unicode speech)" />
     <parameter name="langcode" value="3-character string, representing the client's language code, i.e. 'ENU', 'DEU', 'RUS', etc.(exist if client used unicode speech)" />
     <return>return value ignored</return>
     <schedtype>Normal</schedtype>

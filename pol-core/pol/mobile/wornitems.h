@@ -43,7 +43,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   virtual Bscript::BObjectImp* make_ref() override;
-  virtual Mobile::Character* get_chr_owner() override;
+  virtual Mobile::Character* get_chr_owner() const override;
   Mobile::Character* chr_owner;
 
   virtual UObject* owner() override;
@@ -63,16 +63,16 @@ public:
 inline Items::Item* WornItemsContainer::GetItemOnLayer( unsigned idx ) const
 {
   if ( Items::valid_equip_layer( idx ) )
-    return ITEM_ELEM_PTR( contents_[idx] );
+    return contents_[idx];
 
   return nullptr;
 }
 
-inline Mobile::Character* WornItemsContainer::get_chr_owner()
+inline Mobile::Character* WornItemsContainer::get_chr_owner() const
 {
   return chr_owner;
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol
 
 #endif

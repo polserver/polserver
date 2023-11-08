@@ -516,14 +516,13 @@ void read_storage_dat()
   }
 }
 
-Items::Item* find_existing_item( u32 objtype, u16 x, u16 y, s8 z, Realms::Realm* realm )
+Items::Item* find_existing_item( u32 objtype, const Pos4d& pos )
 {
-  unsigned short wx, wy;
-  zone_convert( x, y, &wx, &wy, realm );
-  for ( auto& item : realm->zone[wx][wy].items )
+  Pos2d gridp = zone_convert( pos );
+  for ( auto& item : pos.realm()->getzone_grid( gridp ).items )
   {
     // FIXME won't find doors which have been perturbed
-    if ( item->objtype_ == objtype && item->x() == x && item->y() == y && item->z() == z )
+    if ( item->objtype_ == objtype && item->pos() == pos )
     {
       return item;
     }
@@ -554,7 +553,7 @@ void import( Clib::ConfigElem& elem )
 
   item->readProperties( elem );
 
-  if ( find_existing_item( item->objtype_, item->x(), item->y(), item->z(), item->realm() ) )
+  if ( find_existing_item( item->objtype_, item->pos() ) )
   {
     item->destroy();
     ++dupe_count;
@@ -858,7 +857,9 @@ inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::St
 
   item->printOn( sw );
 
-  item->setposition( Pos4d( 0, 0, 0, item->realm() ) );
+  item->setposition(
+      Pos4d( 0, 0, 0,
+             item->realm() ) );  // TODO POS position should have no meaning remove this completely
 }
 
 void write_characters( Core::SaveContext& sc )
@@ -904,20 +905,14 @@ void write_items( Clib::StreamWriter& sw_items )
 {
   for ( const auto& realm : gamestate.Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
-
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( const auto& item : realm->getzone_grid( p ).items )
       {
-        for ( const auto& item : realm->zone[wx][wy].items )
+        if ( item->itemdesc().save_on_exit && item->saveonexit() )
         {
-          if ( item->itemdesc().save_on_exit && item->saveonexit() )
-          {
-            sw_items << *item;
-            item->clear_dirty();
-          }
+          sw_items << *item;
+          item->clear_dirty();
         }
       }
     }
@@ -933,7 +928,7 @@ void write_items( Clib::StreamWriter& sw_items )
       {
         // Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
         if ( chr->has_gotten_item() )
-          WriteGottenItem( chr, chr->gotten_item(), sw_items );
+          WriteGottenItem( chr, chr->gotten_item().item(), sw_items );
       }
     }
   }
@@ -943,30 +938,24 @@ void write_multis( Clib::StreamWriter& ofs )
 {
   for ( const auto& realm : gamestate.Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
-
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& multi : realm->getzone_grid( p ).multis )
       {
-        for ( auto& multi : realm->zone[wx][wy].multis )
+        if ( Clib::exit_signalled )  // drop waiting commit on shutdown
         {
-          if ( Clib::exit_signalled )  // drop waiting commit on shutdown
+          Multi::UHouse* house = multi->as_house();
+          if ( house != nullptr )
           {
-            Multi::UHouse* house = multi->as_house();
-            if ( house != nullptr )
+            if ( house->IsCustom() )
             {
-              if ( house->IsCustom() )
-              {
-                if ( house->IsWaitingForAccept() )
-                  house->AcceptHouseCommit( nullptr, false );
-              }
+              if ( house->IsWaitingForAccept() )
+                house->AcceptHouseCommit( nullptr, false );
             }
           }
-          ofs << *multi;
-          multi->clear_dirty();
         }
+        ofs << *multi;
+        multi->clear_dirty();
       }
     }
   }
@@ -1296,7 +1285,7 @@ void read_starting_locations()
       if ( sscanf( coord.c_str(), "%d,%d,%d", &x, &y, &z ) == 3 )
       {
         loc->coords.push_back(
-            Coordinate( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
+            Pos3d( static_cast<u16>( x ), static_cast<u16>( y ), static_cast<s8>( z ) ) );
       }
       else
       {

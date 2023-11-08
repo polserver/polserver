@@ -73,7 +73,8 @@ Item* Item::clone() const
   item->insured( insured() );
 
   item->invisible( invisible() );  // dave 12-20
-  item->movable( movable() );      // dave 12-20
+  item->cursed( cursed() );
+  item->movable( movable() );  // dave 12-20
   item->hp_ = hp_;
   item->quality( quality() );
 
@@ -301,6 +302,11 @@ bool Item::default_invisible() const
   return itemdesc().invisible;
 }
 
+bool Item::default_cursed() const
+{
+  return itemdesc().cursed;
+}
+
 bool Item::default_newbie() const
 {
   return itemdesc().newbie;
@@ -318,6 +324,7 @@ bool Item::use_insurance()
   {
     set_dirty();
     insured( false );
+    increv();
     return true;
   }
   return false;
@@ -371,6 +378,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( invisible() != default_invisible() )
     sw() << "\tInvisible\t" << invisible() << pf_endl;
 
+  if ( cursed() != default_cursed() )
+    sw() << "\tCursed\t" << cursed() << pf_endl;
+
   if ( container != nullptr )
     sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
 
@@ -382,6 +392,9 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
 
   if ( unequip_script_ != itemdesc().unequip_script )
     sw() << "\tUnequipScript\t" << unequip_script_.get() << pf_endl;
+
+  if ( !snoop_script_.get().empty() )
+    sw() << "\tSnoopScript\t" << snoop_script_.get() << pf_endl;
 
   if ( decayat_gameclock_ != 0 )
     sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
@@ -482,6 +495,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
   on_use_script_ = elem.remove_string( "ONUSESCRIPT", "" );
   equip_script_ = elem.remove_string( "EQUIPSCRIPT", equip_script_.get().c_str() );
   unequip_script_ = elem.remove_string( "UNEQUIPSCRIPT", unequip_script_.get().c_str() );
+  snoop_script_ = elem.remove_string( "SNOOPSCRIPT", snoop_script_.get().c_str() );
 
   decayat_gameclock_ = elem.remove_ulong( "DECAYAT", 0 );
   sellprice_( elem.remove_ulong( "SELLPRICE", SELLPRICE_DEFAULT ) );
@@ -495,6 +509,7 @@ void Item::readProperties( Clib::ConfigElem& elem )
     buyprice_( BUYPRICE_DEFAULT );
   newbie( elem.remove_bool( "NEWBIE", default_newbie() ) );
   insured( elem.remove_bool( "INSURED", default_insured() ) );
+  cursed( elem.remove_bool( "CURSED", default_cursed() ) );
   hp_ = elem.remove_ushort( "HP", itemdesc().maxhp );
   quality( elem.remove_double( "QUALITY", itemdesc().quality ) );
 
@@ -583,6 +598,39 @@ void Item::readProperties( Clib::ConfigElem& elem )
 void Item::builtin_on_use( Network::Client* client )
 {
   Core::send_sysmessage( client, "I can't think of a way to use that." );
+}
+
+void Item::snoop( Network::Client* client, Mobile::Character* owner )
+{
+  const ItemDesc& itemdesc = this->itemdesc();
+
+  if ( client->chr->skill_ex_active() || client->chr->casting_spell() )
+  {
+    Core::send_sysmessage( client, "I am already doing something else." );
+    return;
+  }
+
+  ref_ptr<Bscript::EScriptProgram> prog;
+
+  if ( !snoop_script_.get().empty() )
+  {
+    Core::ScriptDef sd( snoop_script_, nullptr, "" );
+    prog = find_script2( sd,
+                         true,  // complain if not found
+                         Plib::systemstate.config.cache_interactive_scripts );
+  }
+  else if ( !itemdesc.snoop_script.empty() )
+  {
+    prog = find_script2( itemdesc.snoop_script, true,
+                         Plib::systemstate.config.cache_interactive_scripts );
+  }
+
+  if ( prog.get() != nullptr )
+  {
+    if ( client->chr->start_snoop_script( prog.get(), this, owner ) )
+      return;
+    // else log the fact?
+  }
 }
 
 void Item::double_click( Network::Client* client )
@@ -689,6 +737,9 @@ void Item::add_to_self( Item*& item )
 
   if ( !item->insured() )
     insured( false );
+
+  if ( !item->cursed() )
+    cursed( false );
 
   item->destroy();
   item = nullptr;
@@ -803,10 +854,11 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
 bool Item::can_add_to_self( const Item& item, bool force_stacking )
     const  // dave 1/26/03 totally changed this function to handle the cprop comparisons.
 {
-  bool res = ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
-               ( item.insured() == insured() ) && ( item.graphic == graphic ) &&
-               ( item.color == color ) && ( item.quality() == quality() ) && ( !inuse() ) &&
-               ( can_add_to_self( item.amount_, force_stacking ) ) );
+  bool res =
+      ( ( item.objtype_ == objtype_ ) && ( item.newbie() == newbie() ) &&
+        ( item.insured() == insured() ) && ( item.cursed() == cursed() ) &&
+        ( item.graphic == graphic ) && ( item.color == color ) && ( item.quality() == quality() ) &&
+        ( !inuse() ) && ( can_add_to_self( item.amount_, force_stacking ) ) );
   if ( res == true )
   {
     // NOTE! this logic is copied in Item::has_only_default_cprops(), so make any necessary changes
@@ -988,7 +1040,7 @@ void Item::extricate()
     // hmm, a good place for a virtual?
     if ( Core::IsCharacter( container->serial ) )
     {
-      Mobile::Character* chr = chr_from_wornitems( container );
+      Mobile::Character* chr = container->get_chr_owner();
       passert_always( chr != nullptr );  // PRODFIXME linux-crash
       passert_always( chr->is_equipped( this ) );
 
@@ -1144,7 +1196,7 @@ bool Item::check_unequip_script()
   if ( !unequip_script_.get().empty() && container != nullptr &&
        Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = chr_from_wornitems( container );
+    Mobile::Character* chr = container->get_chr_owner();
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
@@ -1226,7 +1278,7 @@ bool Item::check_unequiptest_scripts()
 {
   if ( container != nullptr && Core::IsCharacter( container->serial ) )
   {
-    Mobile::Character* chr = chr_from_wornitems( container );
+    Mobile::Character* chr = container->get_chr_owner();
     passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
@@ -1243,13 +1295,13 @@ bool Item::check_unequiptest_scripts()
  *
  * @author DAVE 11/17
  */
-Mobile::Character* Item::GetCharacterOwner()
+Mobile::Character* Item::GetCharacterOwner() const
 {
-  UObject* top_level_item = toplevel_owner();
+  const UObject* top_level_item = toplevel_owner();
   if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
   {
     Mobile::Character* chr_owner =
-        Core::chr_from_wornitems( static_cast<Core::UContainer*>( top_level_item ) );
+        static_cast<const Core::UContainer*>( top_level_item )->get_chr_owner();
     if ( chr_owner != nullptr )
     {
       return chr_owner;
@@ -1269,6 +1321,52 @@ const char* Item::target_tag() const
 double Item::getItemdescQuality() const
 {
   return itemdesc().quality;
+}
+
+bool Item::start_control_script()
+{
+  return start_control_script( itemdesc() );
+}
+
+bool Item::start_control_script( const ItemDesc& id )
+{
+  if ( !id.control_script.empty() )
+  {
+    passert( process() == nullptr || process()->uoexec().error() );
+
+    Module::UOExecutorModule* uoemod = Core::start_script( id.control_script, make_ref() );
+    if ( uoemod )
+    {
+      uoemod->attached_item_ = this;
+      process( uoemod );
+      return true;
+    }
+    else
+    {
+      POLLOG << "Unable to start control script " << id.control_script.name() << " for "
+             << id.objtype_description() << "\n";
+      return false;
+    }
+  }
+  return false;
+}
+
+bool Item::stop_control_script()
+{
+  if ( has_process() )
+  {
+    auto& ex = process()->uoexec();
+    ex.seterror( true );
+    // A Sleeping script would otherwise sit and wait until it wakes up to be killed.
+    ex.revive();
+    if ( ex.in_debugger_holdlist() )
+      ex.revive_debugged();
+    Module::UOExecutorModule* uoemod =
+        static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
+    uoemod->attached_item_ = nullptr;
+    return true;
+  }
+  return false;
 }
 
 Core::UOExecutor* Item::uoexec_control()

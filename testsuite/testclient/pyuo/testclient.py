@@ -62,7 +62,10 @@ class TestBrain(brain.Brain):
         self.client.addTodo(brain.Event(brain.Event.EVT_EXIT))
         return False
       elif todo=="speech":
-        self.client.say(arg)
+        if isinstance(arg, str):
+          self.client.say(arg)
+        else:
+          self.client.say(arg['text'], tokens = arg['tokens'])
       elif todo=="move":
         self.client.move(arg)
       elif todo=="list_objects":
@@ -78,6 +81,25 @@ class TestBrain(brain.Brain):
             clientid = self.id,
             serial = bp,
             contentlen = content))
+      elif todo=="double_click":
+        self.client.doubleClick(arg)
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_DOUBLE_CLICK,
+            clientid = self.id,
+            serial = arg))
+      elif todo=="lift_item":
+        self.client.lift(arg)
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_LIFT_ITEM,
+            clientid = self.id,
+            serial = arg))
+      elif todo=="drop_item":
+        self.client.drop(arg['serial'], arg['x'], arg['y'], arg['z'], arg['dropped_on_serial'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_DROP_ITEM,
+            clientid = self.id,
+            serial = arg['serial']
+            ))
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -116,6 +138,7 @@ class PolServer:
     self.s.settimeout(30) # FIXME: we need a way to stop this process without a connection
     self.conn, addr = self.s.accept()
     self.conn.settimeout(0.1)
+    self.buf=b''
 
   def run(self):
     while True:
@@ -189,17 +212,15 @@ class PolServer:
     return data
     
   def recv(self):
-    data=b''
-    while True:
+    while b'\r\n' not in self.buf:
       r=self._recv()
       if r is None:
         return None
-      data+=r
-      if not len(data):
+      self.buf+=r
+      if not len(self.buf):
           return {}
-      if data.endswith(b'\r\n'):
-        break
-    data=json.loads(data.decode().rstrip('\r\n'))
+    data=json.loads(self.buf[:self.buf.index(b'\r\n')].decode())
+    self.buf=self.buf[self.buf.index(b'\r\n')+2:]
     return data
 
   def sendEvent(self, ev):
@@ -252,6 +273,22 @@ class PolServer:
     elif ev.type==Event.EVT_BOAT_MOVED:
       res['serial']=ev.boat.serial
       res["pos"]=[ev.boat.x, ev.boat.y, ev.boat.z]
+    elif ev.type==Event.EVT_OWNCREATE:
+      pass
+    elif ev.type==Event.EVT_DOUBLE_CLICK:
+      res['serial']=ev.serial
+    elif ev.type==Event.EVT_LIFT_ITEM:
+      res['serial']=ev.serial
+      res['amount']=1
+    elif ev.type==Event.EVT_MOVE_ITEM_REJECTED:
+      res['reason']=ev.reason
+    elif ev.type==Event.EVT_DROP_ITEM:
+      res['serial']=ev.serial
+    elif ev.type==Event.EVT_DROP_APPROVED:
+      pass
+    elif ev.type==Event.EVT_GUMP:
+      res['commands']=ev.commands
+      res['texts']=ev.texts
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

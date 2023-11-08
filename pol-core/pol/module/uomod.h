@@ -30,10 +30,11 @@
 #ifndef H_UOMOD_H
 #define H_UOMOD_H
 
-#include "../../clib/rawtypes.h"
-#include "../../plib/poltype.h"
-#include "../polmodl.h"
-#include "../reftypes.h"
+#include "base/range.h"
+#include "clib/rawtypes.h"
+#include "plib/poltype.h"
+#include "polmodl.h"
+#include "reftypes.h"
 
 namespace Pol
 {
@@ -339,19 +340,16 @@ protected:
   bool getStaticOrDynamicMenuParam( unsigned param, Core::Menu*& menu );
 
 protected:
-  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::xcoord x, Core::ycoord y,
-                                          Core::zcoord z, int flags, Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, Core::xcoord x,
-                                               Core::ycoord y, Core::zcoord z, int flags,
-                                               Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, Core::xcoord x, Core::ycoord y,
-                                          Core::zcoord z, int flags, Realms::Realm* newrealm );
-  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container, Core::xcoord x,
-                                               Core::ycoord y, Core::zcoord z, int flags,
-                                               Realms::Realm* newrealm );
-  static void internal_InBoxAreaChecks( unsigned short& x1, unsigned short& y1, int& z1,
-                                        unsigned short& x2, unsigned short& y2, int& z2,
-                                        Realms::Realm* realm );
+  Bscript::BObjectImp* internal_MoveItem( Items::Item* item, Core::Pos4d newpos, int flags );
+  Bscript::BObjectImp* internal_MoveCharacter( Mobile::Character* chr, const Core::Pos4d& newpos,
+                                               int flags );
+  Bscript::BObjectImp* internal_MoveBoat( Multi::UBoat* boat, const Core::Pos4d& newpos,
+                                          int flags );
+  Bscript::BObjectImp* internal_MoveContainer( Core::UContainer* container,
+                                               const Core::Pos4d& newpos, int flags );
+  static Core::Range3d internal_InBoxAreaChecks( const Core::Pos2d& p1, int z1,
+                                                 const Core::Pos2d& p2, int z2,
+                                                 Realms::Realm* realm );
   Bscript::BObjectImp* internal_SendUnCompressedGumpMenu( Mobile::Character* chr,
                                                           Bscript::ObjArray* layout_arr,
                                                           Bscript::ObjArray* data_arr, int x, int y,

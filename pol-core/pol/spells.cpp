@@ -47,7 +47,7 @@ namespace Core
 {
 static bool nocast_here( Mobile::Character* chr )
 {
-  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->x(), chr->y(), chr->realm() );
+  NoCastRegion* rgn = gamestate.nocastdef->getregion( chr->pos() );
   if ( rgn == nullptr )
   {
     return false;
@@ -74,7 +74,7 @@ bool knows_spell( Mobile::Character* chr, u16 spellid )
   {
     for ( UContainer::const_iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
     {
-      const Items::Item* _item = GET_ITEM_PTR( itr );
+      const Items::Item* _item = *itr;
 
       if ( _item != nullptr && _item->script_isa( POLCLASS_SPELLBOOK ) )
       {

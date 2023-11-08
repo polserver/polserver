@@ -1,0 +1,216 @@
+use uo;
+use os;
+
+include "testutil";
+
+program findpathtests()
+  return 1;
+endprogram
+
+/*
+oxo
+oxo
+oxo
+oxo
+oxo
+/*
+exported function path_nonblocking()
+  var res:=FindPath( 100, 100, 0, 100, 105, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+  var expected:={
+    struct{x:=100,y:=101,z:=0},
+    struct{x:=100,y:=102,z:=0},
+    struct{x:=100,y:=103,z:=0},
+    struct{x:=100,y:=104,z:=0},
+    struct{x:=100,y:=105,z:=0}
+  };
+  var comp:=compare_path(res,expected);
+  if (!comp)
+    return comp;
+  endif
+  return 1;
+endfunction
+
+/*
+oxo
+x-o
+oxo
+oxo
+oxo
+/*
+exported function path_blocking()
+  var wall:=CreateItemAtLocation(100,101,0,0x6);
+  var res:=FindPath( 100, 100, 0, 100, 105, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+  var expected:={
+    struct{x:= 99,y:=101,z:=0},
+    struct{x:=100,y:=102,z:=0},
+    struct{x:=100,y:=103,z:=0},
+    struct{x:=100,y:=104,z:=0},
+    struct{x:=100,y:=105,z:=0}
+  };
+  DestroyItem(wall);
+  var comp:=compare_path(res,expected);
+  if (!comp)
+    return comp;
+  endif
+  return 1;
+endfunction
+
+/*
+one diagonal does not block
+xooo
+ox-o
+ooxo
+*/
+exported function path_blocking_diagonal()
+  var wall:=CreateItemAtLocation(102,101,0,0x6);
+  var res:=FindPath( 100, 100, 0, 102, 102, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+  var expected:={
+    struct{x:=101,y:=101,z:=0},
+    struct{x:=102,y:=102,z:=0}
+  };
+  DestroyItem(wall);
+  var comp:=compare_path(res,expected);
+  if (!comp)
+    return comp;
+  endif
+  return 1;
+endfunction
+
+/*
+two diagonal will block
+this was the solution before vector rewrite
+xooo
+xo-o
+x-xo
+oxoo
+this is the new one (due to different iterating order of Range2d)
+xxxo
+oo-x
+o-xo
+oooo
+*/
+exported function path_blocking_diagonal2()
+  var wall:=CreateItemAtLocation(102,101,0,0x6);
+  var wall2:=CreateItemAtLocation(101,102,0,0x6);
+  var res:=FindPath( 100, 100, 0, 102, 102, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+  var expected:={
+    struct{x:=101,y:=100,z:=0},
+    struct{x:=102,y:=100,z:=0},
+    struct{x:=103,y:=101,z:=0},
+    struct{x:=102,y:=102,z:=0}
+  };
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  var comp:=compare_path(res,expected);
+  if (!comp)
+    return comp;
+  endif
+  return 1;
+endfunction
+
+/* water ends at 30,30, walls block complete land
+OOOO
+OX-o
+O-Xo
+*/
+exported function path_water_blocking2()
+  var wall:=CreateItemAtLocation(31,30,0,0x6);
+  var wall2:=CreateItemAtLocation(30,31,0,0x6);
+  var res:=FindPath( 30, 30, 0, 31, 31, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  if (res.errortext != "Failed to find a path.")
+    return ret_error($"expected failed to find path, got: {res}");
+  endif
+  return 1;
+endfunction
+
+/* water ends at 30,30, walls block complete land
+movemode set to LS to reach the target
+OOO
+OX-
+X-X
+OXo
+
+macos result (no clue why, but valid)
+OOX
+OX-X
+O-o
+Ooo
+*/
+exported function path_water_blocking2_ls()
+  var wall:=CreateItemAtLocation(31,30,0,0x6);
+  var wall2:=CreateItemAtLocation(30,31,0,0x6);
+  var res:=FindPath( 30, 30, 0, 31, 31, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
+  var expected:={
+    struct{x:=29,y:=31,z:=-5},
+    struct{x:=30,y:=32,z:=-5},
+    struct{x:=31,y:=31,z:=0}
+  };
+
+  var expected2:={
+    struct{x:=31,y:=29,z:=-5},
+    struct{x:=32,y:=30,z:=-5},
+    struct{x:=31,y:=31,z:=0}
+  };
+
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  var comp:=compare_path(res,expected);
+  if (!comp)
+    comp:=compare_path(res,expected2);
+    if (!comp)
+      return comp;
+    endif
+  endif
+  return 1;
+endfunction
+
+exported function path_wrongmovemode()
+  var res:=FindPath( 100, 100, 0, 100, 105, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="B");
+  if (res.errortext != "Wrong movemode parameter")
+    return ret_error($"expected failure wrong movemode, got: {res}");
+  endif
+  return 1;
+endfunction
+
+// end of map with blocking walls
+exported function path_failure_end_of_map()
+  var wall:=CreateItemAtLocation(191,190,0,0x6);
+  var wall2:=CreateItemAtLocation(190,191,0,0x6);
+  var res:=FindPath( 191, 191, 0, 190, 190, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  if (res.errortext != "Failed to find a path.")
+    return ret_error($"expected failed to find path, got: {res}");
+  endif
+  return 1;
+endfunction
+
+// end of map with blocking walls
+exported function path_failure_end_of_map2()
+  var wall:=CreateItemAtLocation(1,0,0,0x6);
+  var wall2:=CreateItemAtLocation(0,1,0,0x6);
+  var res:=FindPath( 0, 0, 0, 1, 1, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
+  DestroyItem(wall);
+  DestroyItem(wall2);
+  if (res.errortext != "Failed to find a path.")
+    return ret_error($"expected failed to find path, got: {res}");
+  endif
+  return 1;
+endfunction
+
+function compare_path(res,exp)
+  if (len(res) != len(exp))
+    return ret_error($"different length result: {res} expected: {exp}");
+  endif
+  for i:=1 to res.size()
+    if (res[i].x != exp[i].x || 
+        res[i].y != exp[i].y ||
+        res[i].z != exp[i].z)
+      return ret_error($"different entry result: {res} expected: {exp}");
+    endif
+  endfor
+  return 1;
+endfunction
+

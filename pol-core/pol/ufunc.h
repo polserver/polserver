@@ -145,33 +145,34 @@ UContainer* find_legal_container( const Mobile::Character* chr, u32 serial );
 bool is_a_parent( const Items::Item* item, u32 serial );
 void play_sound_effect( const UObject* center, u16 effect );
 void play_sound_effect_private( const UObject* center, u16 effect, Mobile::Character* forchr );
-void play_sound_effect_xyz( u16 cx, u16 cy, s8 cz, u16 effect, Realms::Realm* realm );
+void play_sound_effect_xyz( const Pos4d& center, u16 effect );
 void play_lightning_bolt_effect( const UObject* center );
 void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 speed, u8 loop,
                          u8 explode );
-void play_moving_effect2( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, u16 effect, u8 speed,
-                          u8 loop, u8 explode, Realms::Realm* realm );
+void play_moving_effect2( const Pos3d& src, const Pos3d& dst, u16 effect, u8 speed, u8 loop,
+                          u8 explode, Realms::Realm* realm );
 void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u8 loop );
 
-void play_stationary_effect( u16 x, u16 y, s8 z, u16 effect, u8 speed, u8 loop, u8 explode,
-                             Realms::Realm* realm );
+void play_stationary_effect( const Pos4d& pos, u16 effect, u8 speed, u8 loop, u8 explode );
 
-void play_stationary_effect_ex( u16 x, u16 y, s8 z, Realms::Realm* realm, u16 effect, u8 speed,
-                                u8 duration, u32 hue, u32 render, u16 effect3d );
+void play_stationary_effect_ex( const Pos4d& pos, u16 effect, u8 speed, u8 duration, u32 hue,
+                                u32 render, u16 effect3d );
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration,
                                      u32 hue, u32 render, u8 layer, u16 effect3d );
 void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, u8 speed,
                             u8 duration, u32 hue, u32 render, u8 direction, u8 explode,
                             u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
-void play_moving_effect2_ex( u16 xs, u16 ys, s8 zs, u16 xd, u16 yd, s8 zd, Realms::Realm* realm,
-                             u16 effect, u8 speed, u8 duration, u32 hue, u32 render, u8 direction,
-                             u8 explode, u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
+void play_moving_effect2_ex( const Pos3d& src, const Pos3d& dst, Realms::Realm* realm, u16 effect,
+                             u8 speed, u8 duration, u32 hue, u32 render, u8 direction, u8 explode,
+                             u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
 
 
 // find_legal_item: search worn items, including backpack recursively, and
 // items on the ground, recursively, for an item of a given serial.
 Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = nullptr,
                               bool* isRemoteContainer = nullptr );
+
+Items::Item* find_snoopable_item( u32 serial, Mobile::Character** powner = nullptr );
 
 void send_sysmessage( Network::Client* client, const char* text,
                       unsigned short font = Plib::DEFAULT_TEXT_FONT,
@@ -219,9 +220,7 @@ void transmit_to_others_inrange( Mobile::Character* center, const void* msg, uns
 
 void destroy_item( Items::Item* item );
 
-void move_item( Items::Item* item, Core::UFACING facing );
-void move_item( Items::Item* item, unsigned short newx, unsigned short newy, signed char newz,
-                Realms::Realm* oldrealm );
+void move_item( Items::Item* item, const Core::Pos4d& oldpos );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client );
@@ -231,7 +230,8 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial );
 void send_create_mobile_if_nearby_cansee( Network::Client* client, const Mobile::Character* chr );
 void send_create_mobile_to_nearby_cansee( const Mobile::Character* chr );
 
-void send_move_mobile_to_nearby_cansee( const Mobile::Character* chr );
+void send_move_mobile_to_nearby_cansee( const Mobile::Character* chr,
+                                        bool send_health_bar_status_update = false );
 
 void send_remove( Network::Client& client, UObject& to_remove );
 
@@ -240,8 +240,6 @@ void send_remove_character_to_nearby_cansee( const Mobile::Character* chr );
 void send_open_gump( Network::Client* client, const UContainer& cont );
 
 void send_multis_newly_inrange( Multi::UMulti* multi, Network::Client* client );
-
-Mobile::Character* chr_from_wornitems( UContainer* wornitems );
 
 void register_with_supporting_multi( Items::Item* item );
 

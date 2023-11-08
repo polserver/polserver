@@ -263,6 +263,9 @@ function(use_curl target)
       if(TARGET PkgConfig::LIBSSH2)
         target_link_libraries(${target} PUBLIC PkgConfig::LIBSSH2)
       endif()
+      find_library(CoreFoundation_Library CoreFoundation)
+      find_library(SystemConfiguration_Library SystemConfiguration)
+      target_link_libraries(${target} PUBLIC ${CoreFoundation_Library} ${SystemConfiguration_Library})
     endif()
   else()
     target_link_libraries(${target} PUBLIC wldap32)
@@ -284,14 +287,17 @@ function(use_boost target)
 endfunction()
 
 function(use_zlib target)
-    if(${windows})
-      target_include_directories(${target}  PRIVATE
-        "${POL_EXT_LIB_DIR}/zlib"
-      )
+  if(${windows})
+    if (NOT EXISTS ${ZLIB_LIB})
+      add_dependencies(${target} libz)
     endif()
-    target_link_libraries(${target} PRIVATE
-      z
+    target_include_directories(${target}
+      PRIVATE ${ZLIB_INSTALL_DIR}/include
     )
+    target_link_libraries(${target} PRIVATE ${ZLIB_LIB})
+  else()
+    target_link_libraries(${target} PRIVATE z)
+  endif()
 endfunction()
 
 function(warning_suppression target)

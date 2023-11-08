@@ -15,10 +15,12 @@ namespace Pol
 {
 namespace PolTool
 {
-FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int width, int height )
+FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int mapid, int width,
+                              int height )
     : _basedir( std::move( basedir ) ),
       _hsa( hsa ),
       _maxtiles( maxtiles ),
+      _mapid( mapid ),
       _width( width ),
       _height( height )
 {
@@ -31,6 +33,7 @@ FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int widt
              << "  basedir: " << _basedir.string() << "\n"
              << "  HSA: " << _hsa << "\n"
              << "  maxtiles: 0x" << fmt::hex( _maxtiles ) << "\n"
+             << "  mapid: " << _mapid << "\n"
              << "  width: " << _width << "\n"
              << "  height: " << _height << "\n";
 
@@ -47,11 +50,13 @@ void FileGenerator::writeFile( std::ofstream& stream, T& data )
 template <typename T, typename U>
 void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
 {
-  auto addland = []( T* e, u32 flags, std::string name ) {
+  auto addland = []( T* e, u32 flags, std::string name )
+  {
     e->flags = flags;
     strncpy( e->name, name.c_str(), 19 );
   };
-  auto additem = []( U* e, u32 flags, u8 weight, u8 layer, u8 height, std::string name ) {
+  auto additem = []( U* e, u32 flags, u8 weight, u8 layer, u8 height, std::string name )
+  {
     e->flags = flags;
     e->weight = weight;
     e->layer = layer;
@@ -69,6 +74,7 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   addland( &land[0xa8], 0x000000c0, "water" );
   additem( &item[0xe75], 0x00600002, 3, 21, 1, "backpack" );
   additem( &item[0xf3f], 0x04000800, 0, 0, 1, "arrow" );
+  additem( &item[0xeed], 0x04000801, 0, 0, 0, "gold coin" );
   // house 0x6b
   additem( &item[0x6], 0x00002050, 255, 0, 20, "wooden wall" );
   additem( &item[0x7], 0x00002050, 255, 0, 20, "wooden wall" );
@@ -226,9 +232,9 @@ void FileGenerator::generateTiledata()
 
 void FileGenerator::generateMap()
 {
-  INFO_PRINT << "Generating map0.mul\n";
+  INFO_PRINT << "Generating map" << _mapid << ".mul\n";
   // initialize with grass tiles on z=0
-  Plib::USTRUCT_MAPINFO grass{0x3, 0};
+  Plib::USTRUCT_MAPINFO grass{ 0x3, 0 };
   std::vector<std::vector<Plib::USTRUCT_MAPINFO>> map;
   map.resize( _height );
   for ( auto& line : map )
@@ -237,7 +243,8 @@ void FileGenerator::generateMap()
   modifyMap( map );
 
   int header = 0;
-  std::ofstream file( _basedir / "map0.mul", std::ofstream::binary | std::ofstream::out );
+  std::ofstream file( _basedir / ( "map" + std::to_string( _mapid ) + ".mul" ),
+                      std::ofstream::binary | std::ofstream::out );
   for ( int x = 0; x < _width / 8; ++x )
   {
     for ( int y = 0; y < _height / 8; ++y )
@@ -256,7 +263,7 @@ void FileGenerator::generateMap()
 
 void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& map )
 {
-  Plib::USTRUCT_MAPINFO water{0xa8, -5};
+  Plib::USTRUCT_MAPINFO water{ 0xa8, -5 };
   const int border = 30;
   int y = 0;
   for ( auto& line : map )
@@ -264,7 +271,8 @@ void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& 
     int x = 0;
     std::replace_if(
         line.begin(), line.end(),
-        [&]( const auto& ) {
+        [&]( const auto& )
+        {
           if ( x < border || x > _width - border || y < border || y > _width - border )
           {
             ++x;
@@ -280,10 +288,12 @@ void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& 
 
 void FileGenerator::generateStatics()
 {
-  INFO_PRINT << "Generating statics0.mul\n";
-  Plib::USTRUCT_IDX idxempty{0xFFffFFff, 0xFFffFFff, 0xFFffFFff};
-  std::ofstream file( _basedir / "statics0.mul", std::ofstream::binary | std::ofstream::out );
-  std::ofstream fileidx( _basedir / "staidx0.mul", std::ofstream::binary | std::ofstream::out );
+  INFO_PRINT << "Generating statics" << _mapid << ".mul\n";
+  Plib::USTRUCT_IDX idxempty{ 0xFFffFFff, 0xFFffFFff, 0xFFffFFff };
+  std::ofstream file( _basedir / ( "statics" + std::to_string( _mapid ) + ".mul" ),
+                      std::ofstream::binary | std::ofstream::out );
+  std::ofstream fileidx( _basedir / ( "staidx" + std::to_string( _mapid ) + ".mul" ),
+                         std::ofstream::binary | std::ofstream::out );
 
   // init statics: [y][x][...]
   std::vector<std::vector<std::vector<Plib::USTRUCT_STATIC>>> statics;
@@ -296,7 +306,7 @@ void FileGenerator::generateStatics()
 
   modifyStatics( statics );
 
-  Plib::USTRUCT_IDX idx{0, 0, 0xFFffFFff};
+  Plib::USTRUCT_IDX idx{ 0, 0, 0xFFffFFff };
   for ( int x = 0; x < _width / 8; ++x )
   {
     for ( int y = 0; y < _height / 8; ++y )
@@ -319,9 +329,10 @@ void FileGenerator::generateStatics()
 void FileGenerator::modifyStatics(
     std::vector<std::vector<std::vector<Plib::USTRUCT_STATIC>>>& statics )
 {
-  auto addstatic = [&]( int x, int y, s8 z, u16 graphic, u16 hue ) {
+  auto addstatic = [&]( int x, int y, s8 z, u16 graphic, u16 hue )
+  {
     statics[y / 8][x / 8].push_back(
-        {graphic, static_cast<s8>( x % 8 ), static_cast<s8>( y % 8 ), z, hue} );
+        { graphic, static_cast<s8>( x % 8 ), static_cast<s8>( y % 8 ), z, hue } );
   };
 
   addstatic( 10, 5, -5, 0x3fff, 0 );
@@ -331,7 +342,8 @@ void FileGenerator::modifyStatics(
 template <typename T>
 void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
 {
-  auto elem = [&]( u16 graphic, s16 x, s16 y, s16 z, u32 flags ) {
+  auto elem = [&]( u16 graphic, s16 x, s16 y, s16 z, u32 flags )
+  {
     T e{};
     e.graphic = graphic;
     e.x = x;
@@ -452,13 +464,34 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
       elem( 0x05c3, 4, 0, 27, 1 ),   elem( 0x05c3, 4, 1, 27, 1 ),   elem( 0x05c3, 4, 2, 27, 1 ),
       elem( 0x05c3, 4, 3, 27, 1 ),   elem( 0x05c3, 4, 4, 27, 1 ),
   };
+  multis[0x6c] = std::vector<T>{
+      elem( 0x04ae, -30, 0, 0, 1 ), elem( 0x04ae, -29, 0, 0, 1 ), elem( 0x04ae, -28, 0, 0, 1 ),
+      elem( 0x04ae, -27, 0, 0, 1 ), elem( 0x04ae, -26, 0, 0, 1 ), elem( 0x04ae, -25, 0, 0, 1 ),
+      elem( 0x04ae, -24, 0, 0, 1 ), elem( 0x04ae, -23, 0, 0, 1 ), elem( 0x04ae, -22, 0, 0, 1 ),
+      elem( 0x04ae, -21, 0, 0, 1 ), elem( 0x04ae, -20, 0, 0, 1 ), elem( 0x04ae, -19, 0, 0, 1 ),
+      elem( 0x04ae, -18, 0, 0, 1 ), elem( 0x04ae, -17, 0, 0, 1 ), elem( 0x04ae, -16, 0, 0, 1 ),
+      elem( 0x04ae, -15, 0, 0, 1 ), elem( 0x04ae, -14, 0, 0, 1 ), elem( 0x04ae, -13, 0, 0, 1 ),
+      elem( 0x04ae, -12, 0, 0, 1 ), elem( 0x04ae, -11, 0, 0, 1 ), elem( 0x04ae, -10, 0, 0, 1 ),
+      elem( 0x04ae, -9, 0, 0, 1 ),  elem( 0x04ae, -8, 0, 0, 1 ),  elem( 0x04ae, -7, 0, 0, 1 ),
+      elem( 0x04ae, -6, 0, 0, 1 ),  elem( 0x04ae, -5, 0, 0, 1 ),  elem( 0x04ae, -4, 0, 0, 1 ),
+      elem( 0x04ae, -3, 0, 0, 1 ),  elem( 0x04ae, -2, 0, 0, 1 ),  elem( 0x04ae, -1, 0, 0, 1 ),
+      elem( 0x04ae, 0, 0, 0, 1 ),   elem( 0x04ae, 1, 0, 0, 1 ),   elem( 0x04ae, 2, 0, 0, 1 ),
+      elem( 0x04ae, 3, 0, 0, 1 ),   elem( 0x04ae, 4, 0, 0, 1 ),   elem( 0x04ae, 5, 0, 0, 1 ),
+      elem( 0x04ae, 6, 0, 0, 1 ),   elem( 0x04ae, 7, 0, 0, 1 ),   elem( 0x04ae, 8, 0, 0, 1 ),
+      elem( 0x04ae, 9, 0, 0, 1 ),   elem( 0x04ae, 10, 0, 0, 1 ),  elem( 0x04ae, 11, 0, 0, 1 ),
+      elem( 0x04ae, 12, 0, 0, 1 ),  elem( 0x04ae, 13, 0, 0, 1 ),  elem( 0x04ae, 14, 0, 0, 1 ),
+      elem( 0x04ae, 15, 0, 0, 1 ),  elem( 0x04ae, 16, 0, 0, 1 ),  elem( 0x04ae, 17, 0, 0, 1 ),
+      elem( 0x04ae, 18, 0, 0, 1 ),  elem( 0x04ae, 19, 0, 0, 1 ),  elem( 0x04ae, 20, 0, 0, 1 ),
+      elem( 0x04ae, 21, 0, 0, 1 ),  elem( 0x04ae, 22, 0, 0, 1 ),  elem( 0x04ae, 23, 0, 0, 1 ),
+      elem( 0x04ae, 24, 0, 0, 1 ),  elem( 0x04ae, 25, 0, 0, 1 ),  elem( 0x04ae, 26, 0, 0, 1 ),
+      elem( 0x04ae, 27, 0, 0, 1 ),  elem( 0x04ae, 28, 0, 0, 1 ),  elem( 0x04ae, 29, 0, 0, 1 ) };
 }
 
 template <typename T>
 void FileGenerator::writeMultis( std::vector<std::vector<T>>& multis )
 {
-  Plib::USTRUCT_IDX idx{0, 0, 0xFFffFFff};
-  Plib::USTRUCT_IDX idxempty{0xFFffFFff, 0xFFffFFff, 0xFFffFFff};
+  Plib::USTRUCT_IDX idx{ 0, 0, 0xFFffFFff };
+  Plib::USTRUCT_IDX idxempty{ 0xFFffFFff, 0xFFffFFff, 0xFFffFFff };
   std::ofstream file( _basedir / "multi.mul", std::ofstream::binary | std::ofstream::out );
   std::ofstream fileidx( _basedir / "multi.idx", std::ofstream::binary | std::ofstream::out );
   idx.offset = 0;

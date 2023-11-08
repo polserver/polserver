@@ -34,7 +34,7 @@ void send_full_statmsg( Network::Client* client, Mobile::Character* chr )
   PacketOut<Network::PktOut_11> msg;
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
-  msg->Write( chr->name().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 30, false );
   bool ignore_caps = Core::settingsManager.ssopt.core_ignores_defence_caps;
   if ( networkManager.uoclient_general.hits.any )
   {
@@ -278,7 +278,7 @@ void send_short_statmsg( Network::Client* client, Mobile::Character* chr )
   PacketOut<Network::PktOut_11> msg;
   msg->offset += 2;  // msglen
   msg->Write<u32>( chr->serial_ext );
-  msg->Write( chr->name().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 30, false );
 
   if ( networkManager.uoclient_general.hits.any )
   {

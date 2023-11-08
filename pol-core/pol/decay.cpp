@@ -54,7 +54,7 @@ namespace Core
 
 void decay_worldzone( unsigned wx, unsigned wy, Realms::Realm* realm )
 {
-  Zone& zone = realm->zone[wx][wy];
+  Zone& zone = realm->getzone_grid( (u16)wx, (u16)wy );
   gameclock_t now = read_gameclock();
   bool statistics = Plib::systemstate.config.thread_decay_statistics;
 

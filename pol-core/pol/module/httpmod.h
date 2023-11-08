@@ -33,7 +33,10 @@ class HttpExecutorModule : public Bscript::TmplExecutorModule<HttpExecutorModule
 {
 public:
   HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& isck );
+  ~HttpExecutorModule();
 
+  [[nodiscard]] Bscript::BObjectImp* mf_WriteStatus();
+  [[nodiscard]] Bscript::BObjectImp* mf_WriteHeader();
   [[nodiscard]] Bscript::BObjectImp* mf_WriteHtml();
   [[nodiscard]] Bscript::BObjectImp* mf_WriteHtmlRaw();
   [[nodiscard]] Bscript::BObjectImp* mf_QueryParam();
@@ -50,6 +53,9 @@ public:
   QueryParamMap params_;
   int continuing_offset;
   std::string query_ip_;
+  bool cannotSendStatus = false;
+  bool cannotSendHeaders = false;
+  bool hasCustomContentType = false;
 };
 }  // namespace Module
 }  // namespace Pol

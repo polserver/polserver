@@ -19,6 +19,8 @@
 
 #include <string>
 
+#include "base/position.h"
+
 namespace Pol
 {
 namespace Items
@@ -45,8 +47,7 @@ enum Priority
 };
 void CoreSetSysTrayToolTip( const std::string& text, Priority pri );
 
-bool move_character_to( Mobile::Character* chr, unsigned short x, unsigned short y, short z,
-                        int flags, Realms::Realm* oldrealm );
+bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags );
 
 const int MOVEITEM_IGNOREMOVABLE = 0x20000000L;
 const int MOVEITEM_FORCELOCATION = 0x40000000L;

@@ -515,6 +515,12 @@ BObjectImp* EUBoatRefObjImp::call_polmethod( const char* methodname, Core::UOExe
   ObjMethod* objmethod = getKnownObjMethod( methodname );
   if ( objmethod != nullptr )
     return this->call_polmethod_id( objmethod->id, ex, forcebuiltin );
+
+  Multi::UBoat* boat = obj_.get();
+  BObjectImp* imp = boat->custom_script_method( methodname, ex );
+  if ( imp )
+    return imp;
+
   return base::call_polmethod( methodname, ex );
 }
 
@@ -846,6 +852,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_USESCRIPT:
     return new String( on_use_script_ );
     break;
+  case MBR_SNOOPSCRIPT:
+    return new String( snoop_script_ );
+    break;
   case MBR_EQUIPSCRIPT:
     return new String( equip_script_ );
     break;
@@ -860,6 +869,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_INVISIBLE:
     return new BLong( invisible() ? 1 : 0 );
+    break;
+  case MBR_CURSED:
+    return new BLong( cursed() ? 1 : 0 );
     break;
   case MBR_DECAYAT:
     return new BLong( decayat_gameclock_ );
@@ -1080,6 +1092,16 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_NO_DROP:
     return new BLong( no_drop() );
+  case MBR_CHARACTER_OWNER:
+  {
+    Mobile::Character* owner = GetCharacterOwner();
+    if ( owner != nullptr )
+    {
+      return new Module::EOfflineCharacterRefObjImp( owner );
+    }
+    return new BError( "This item is not owned by any character" );
+    break;
+  }
   default:
     return nullptr;
   }
@@ -1103,6 +1125,9 @@ BObjectImp* Item::set_script_member_id( const int id, const std::string& value )
   {
   case MBR_USESCRIPT:
     on_use_script_ = value;
+    return new String( value );
+  case MBR_SNOOPSCRIPT:
+    snoop_script_ = value;
     return new String( value );
   case MBR_EQUIPSCRIPT:
     equip_script_ = value;
@@ -1148,6 +1173,11 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     invisible( value ? true : false );
     increv();
     return new BLong( invisible() );
+  case MBR_CURSED:
+    restart_decay_timer();
+    cursed( value ? true : false );
+    increv();
+    return new BLong( cursed() );
   case MBR_DECAYAT:
     decayat_gameclock_ = value;
     return new BLong( decayat_gameclock_ );
@@ -1179,7 +1209,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1192,7 +1222,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1205,7 +1235,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1218,7 +1248,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1231,7 +1261,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1244,7 +1274,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1257,7 +1287,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1270,7 +1300,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1283,7 +1313,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1296,7 +1326,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1310,7 +1340,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1323,7 +1353,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1336,7 +1366,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1349,7 +1379,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1363,7 +1393,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1377,7 +1407,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1390,7 +1420,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1403,7 +1433,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1416,7 +1446,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1429,7 +1459,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1442,7 +1472,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1455,7 +1485,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1469,7 +1499,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1482,7 +1512,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1495,7 +1525,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           chr->refresh_ar();
       }
@@ -1516,7 +1546,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         if ( Core::IsCharacter( container->serial ) )
         {
-          Mobile::Character* chr = chr_from_wornitems( container );
+          Mobile::Character* chr = container->get_chr_owner();
           if ( chr != nullptr )
             chr->refresh_ar();
         }
@@ -1531,7 +1561,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
       {
         if ( Core::IsCharacter( container->serial ) )
         {
-          Mobile::Character* chr = chr_from_wornitems( container );
+          Mobile::Character* chr = container->get_chr_owner();
           if ( chr != nullptr )
             chr->refresh_ar();
         }
@@ -1587,16 +1617,13 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
   case MTH_SPLITSTACK_AT:
   {
     unsigned short amt;
-    unsigned short newx, newy;
-    short newz;
-    const String* realm_name;
+    Core::Pos4d newpos;
     Item* new_stack( nullptr );
     u16 item_amount = this->getamount();
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
-    else if ( !ex.getParam( 0, newx ) || !ex.getParam( 1, newy ) || !ex.getParam( 2, newz ) ||
-              !ex.getStringParam( 3, realm_name ) )
+    else if ( !ex.getPos4dParam( 0, 1, 2, 3, &newpos ) )
       return new BError( "Invalid parameter type" );
     else if ( !ex.getParam( 4, amt ) )
       return new BError( "No amount specified to pull from existing stack" );
@@ -1606,13 +1633,6 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Amount was less than 1" );
     else if ( this->inuse() )
       return new BError( "Item is in use" );
-
-    // Validate where things are going
-    Realms::Realm* newrealm = Core::find_realm( realm_name->value() );
-    if ( !newrealm )
-      return new BError( "Realm not found" );
-    else if ( !newrealm->valid( newx, newy, newz ) )
-      return new BError( "Invalid coordinates for realm" );
 
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
     if ( !this->stackable() && amt > 1 )
@@ -1625,9 +1645,9 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           new_stack = this->clone();
         else
           new_stack = this->remove_part_of_stack( 1 );
-        new_stack->setposition( Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm ) );
+        new_stack->setposition( newpos );
         add_item_to_world( new_stack );
-        move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
+        move_item( new_stack, newpos );
         update_item_to_inrange( new_stack );
       }
 
@@ -1646,10 +1666,10 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->setposition( Core::Pos4d( newx, newy, static_cast<s8>( newz ), newrealm ) );
+    new_stack->setposition( newpos );
     new_stack->setamount( amt );
     add_item_to_world( new_stack );
-    move_item( new_stack, newx, newy, static_cast<signed char>( newz ), newrealm );
+    move_item( new_stack, newpos );
     update_item_to_inrange( new_stack );
 
     if ( amt == item_amount )
@@ -2155,6 +2175,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_EVASIONCHANCE_MOD:
     return new BLong( evasionchance_mod() );
     break;
+  case MBR_PARRYCHANCE_MOD:
+    return new BLong( parrychance_mod() );
+    break;
   case MBR_CARRYINGCAPACITY_MOD:
     return new BLong( carrying_capacity_mod() );
     break;
@@ -2515,6 +2538,9 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   case MBR_EVASIONCHANCE_MOD:
     evasionchance_mod( static_cast<short>( value ) );
     return new BLong( evasionchance_mod() );
+  case MBR_PARRYCHANCE_MOD:
+    parrychance_mod( static_cast<short>( value ) );
+    return new BLong( parrychance_mod() );
   case MBR_CARRYINGCAPACITY_MOD:
     carrying_capacity_mod( static_cast<short>( value ) );
     if ( client != nullptr )
@@ -3063,7 +3089,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_GETGOTTENITEM:
     if ( has_gotten_item() )
-      return new Module::EItemRefObjImp( gotten_item() );
+      return new Module::EItemRefObjImp( gotten_item().item() );
     return new BError( "Gotten Item nullptr" );
     break;
   case MTH_CLEARGOTTENITEM:
@@ -4113,10 +4139,10 @@ BObjectImp* Map::set_script_member_id( const int id, int value )
   case MBR_YSOUTH:
     return new BLong( ysouth = static_cast<unsigned short>( value ) );
   case MBR_GUMPWIDTH:
-    gumpsize.x(  static_cast<unsigned short>( value ) );
+    gumpsize.x( static_cast<unsigned short>( value ) );
     return new BLong( gumpsize.x() );
   case MBR_GUMPHEIGHT:
-    gumpsize.y(  static_cast<unsigned short>( value ) );
+    gumpsize.y( static_cast<unsigned short>( value ) );
     return new BLong( gumpsize.y() );
   case MBR_FACETID:
     return new BLong( facetid = static_cast<unsigned short>( value ) );
@@ -4547,7 +4573,7 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
     {
       if ( Core::IsCharacter( container->serial ) )
       {
-        Mobile::Character* chr = chr_from_wornitems( container );
+        Mobile::Character* chr = container->get_chr_owner();
         if ( chr != nullptr )
           Mobile::ARUpdater::on_change( chr );
       }
@@ -4621,51 +4647,10 @@ BObjectRef EClientRefObjImp::get_member_id( const int id )
   if ( ( !obj_.exists() ) || ( !obj_->isConnected() ) )
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
 
-  switch ( id )
-  {
-  case MBR_ACCTNAME:
-    if ( obj_->acct != nullptr )
-      return BObjectRef( new String( obj_->acct->name() ) );
-    return BObjectRef( new BError( "Not attached to an account" ) );
-    break;
-  case MBR_IP:
-    return BObjectRef( new String( obj_->ipaddrAsString() ) );
-    break;
-  case MBR_CLIENTVERSION:
-    return BObjectRef( new String( obj_->getversion() ) );
-    break;
-  case MBR_CLIENTVERSIONDETAIL:
-  {
-    std::unique_ptr<BStruct> info( new BStruct );
-    Network::VersionDetailStruct version = obj_->getversiondetail();
-    info->addMember( "major", new BLong( version.major ) );
-    info->addMember( "minor", new BLong( version.minor ) );
-    info->addMember( "rev", new BLong( version.rev ) );
-    info->addMember( "patch", new BLong( version.patch ) );
-    return BObjectRef( info.release() );
-  }
-  break;
-  case MBR_CLIENTINFO:
-    return BObjectRef( obj_->getclientinfo() );
-    break;
-  case MBR_CLIENTTYPE:
-    return BObjectRef( new BLong( obj_->ClientType ) );
-    break;
-  case MBR_UO_EXPANSION_CLIENT:
-    return BObjectRef( new BLong( obj_->UOExpansionFlagClient ) );
-    break;
-  case MBR_LAST_ACTIVITY_AT:
-    return BObjectRef( new BLong( static_cast<s32>( obj_->last_activity_at() ) ) );
-    break;
-  case MBR_LAST_PACKET_AT:
-    return BObjectRef( new BLong( static_cast<s32>( obj_->last_packet_at() ) ) );
-    break;
-  case MBR_PORT:
-    return BObjectRef( new BLong( obj_->listen_port ) );
-    break;
-  }
-
-  return base::get_member_id( id );
+  BObjectImp* result = obj_->get_script_member_id( id );
+  if ( result != nullptr )
+    return BObjectRef( result );
+  return BObjectRef( UninitObject::create() );
 }
 
 BObjectRef EClientRefObjImp::get_member( const char* membername )
@@ -4688,12 +4673,24 @@ BObjectRef EClientRefObjImp::set_member( const char* membername, BObjectImp* val
   return BObjectRef( UninitObject::create() );
 }
 
-BObjectRef EClientRefObjImp::set_member_id( const int /*id*/, BObjectImp* /*value*/, bool /*copy*/ )
+BObjectRef EClientRefObjImp::set_member_id( const int id, BObjectImp* value, bool /*copy*/ )
 {
   if ( !obj_.exists() || !obj_->isConnected() )
     return BObjectRef( new BError( "Client not ready or disconnected" ) );
+
+  BObjectImp* result = nullptr;
+  if ( value->isa( BObjectImp::OTLong ) )
+  {
+    BLong* lng = static_cast<BLong*>( value );
+    result = obj_->set_script_member_id( id, lng->value() );
+  }
+
+  if ( result != nullptr )
+    return BObjectRef( result );
+
   return BObjectRef( UninitObject::create() );
 }
+
 
 BObjectImp* EClientRefObjImp::call_polmethod( const char* methodname, Core::UOExecutor& ex )
 {
@@ -4742,7 +4739,8 @@ SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )
 }
 
 SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
-                          const char* texttype, std::string lang, Bscript::ObjArray* speechtokens )
+                          const std::string& texttype, std::string lang,
+                          Bscript::ObjArray* speechtokens )
 {
   addMember( "type", new BLong( Core::EVID_SPOKE ) );
   addMember( "source", new Module::EOfflineCharacterRefObjImp( speaker ) );
@@ -4751,7 +4749,7 @@ SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
   if ( !lang.empty() )
     addMember( "langcode", new String( lang ) );
   if ( speechtokens != nullptr )
-    addMember( "tokens", speechtokens );
+    addMember( "tokens", new Bscript::ObjArray( *speechtokens ) );
 }
 
 DamageEvent::DamageEvent( Mobile::Character* source, unsigned short damage )
@@ -4819,7 +4817,7 @@ ItemGivenEvent::~ItemGivenEvent()
           item->setposition( chr->pos() );
           add_item_to_world( item );
           register_with_supporting_multi( item );
-          move_item( item, item->x(), item->y(), item->z(), nullptr );
+          move_item( item, item->pos() );
           return;
         }
         backpack->add( item );
@@ -4831,10 +4829,85 @@ ItemGivenEvent::~ItemGivenEvent()
     item->setposition( chr->pos() );
     add_item_to_world( item );
     register_with_supporting_multi( item );
-    move_item( item, item->x(), item->y(), item->z(), nullptr );
+    move_item( item, item->pos() );
   }
 }
 }  // namespace Module
+
+namespace Network
+{
+using namespace Bscript;
+BObjectImp* Client::set_script_member_id( const int id, int value )
+{
+  switch ( id )
+  {
+  case MBR_DISABLE_INACTIVITY_TIMEOUT:
+    disable_inactivity_timeout( value );
+    return new BLong( disable_inactivity_timeout() );
+  default:
+    return nullptr;
+  }
+}
+
+BObjectImp* Client::get_script_member_id( const int id )
+{
+  switch ( id )
+  {
+  case MBR_ACCTNAME:
+    if ( acct != nullptr )
+      return new String( acct->name() );
+    return new BError( "Not attached to an account" );
+    break;
+  case MBR_ACCT:
+    if ( acct != nullptr )
+      return new Accounts::AccountObjImp( Accounts::AccountPtrHolder( Core::AccountRef( acct ) ) );
+    return new BError( "Not attached to an account" );
+    break;
+  case MBR_IP:
+    return new String( ipaddrAsString() );
+    break;
+  case MBR_CLIENTVERSION:
+    return new String( getversion() );
+    break;
+  case MBR_CLIENTVERSIONDETAIL:
+  {
+    std::unique_ptr<BStruct> info( new BStruct );
+    Network::VersionDetailStruct version = getversiondetail();
+    info->addMember( "major", new BLong( version.major ) );
+    info->addMember( "minor", new BLong( version.minor ) );
+    info->addMember( "rev", new BLong( version.rev ) );
+    info->addMember( "patch", new BLong( version.patch ) );
+    return info.release();
+  }
+  break;
+  case MBR_CLIENTINFO:
+    return getclientinfo();
+    break;
+  case MBR_CLIENTTYPE:
+    return new BLong( ClientType );
+    break;
+  case MBR_UO_EXPANSION_CLIENT:
+    return new BLong( UOExpansionFlagClient );
+    break;
+  case MBR_LAST_ACTIVITY_AT:
+    return new BLong( static_cast<s32>( last_activity_at() ) );
+    break;
+  case MBR_LAST_PACKET_AT:
+    return new BLong( static_cast<s32>( last_packet_at() ) );
+    break;
+  case MBR_PORT:
+    return new BLong( listen_port );
+    break;
+  case MBR_DISABLE_INACTIVITY_TIMEOUT:
+    return new BLong( disable_inactivity_timeout() );
+    break;
+  }
+
+  return nullptr;
+}
+
+}  // namespace Network
+
 namespace Core
 {
 bool UObject::script_isa( unsigned isatype ) const

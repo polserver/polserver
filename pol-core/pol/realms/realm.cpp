@@ -37,13 +37,18 @@ Realm::Realm( const std::string& realm_name, const std::string& realm_path )
       _staticserver( new Plib::StaticServer( _descriptor ) ),
       _maptileserver( new Plib::MapTileServer( _descriptor ) )
 {
+  _area = Core::Range2d( Core::Pos2d( 0, 0 ),
+                         Core::Pos2d( _descriptor.width - 1, _descriptor.height - 1 ), nullptr );
+  _gridarea = Core::Range2d( Core::Pos2d( 0, 0 ),
+                             Core::Pos2d( _descriptor.grid_width - 1, _descriptor.grid_height - 1 ),
+                             nullptr );
   size_t gridwidth = grid_width();
   size_t gridheight = grid_height();
 
-  zone = new Core::Zone*[gridwidth];
+  zone = new Core::Zone*[gridheight];
 
-  for ( size_t i = 0; i < gridwidth; i++ )
-    zone[i] = new Core::Zone[gridheight];
+  for ( size_t i = 0; i < gridheight; i++ )
+    zone[i] = new Core::Zone[gridwidth];
 }
 
 Realm::Realm( const std::string& realm_name, Realm* realm )
@@ -57,19 +62,24 @@ Realm::Realm( const std::string& realm_name, Realm* realm )
       _toplevel_item_count( 0 ),
       _multi_count( 0 )
 {
+  _area = Core::Range2d( Core::Pos2d( 0, 0 ),
+                         Core::Pos2d( _descriptor.width - 1, _descriptor.height - 1 ), nullptr );
+  _gridarea = Core::Range2d( Core::Pos2d( 0, 0 ),
+                             Core::Pos2d( _descriptor.grid_width - 1, _descriptor.grid_height - 1 ),
+                             nullptr );
   size_t gridwidth = grid_width();
   size_t gridheight = grid_height();
 
-  zone = new Core::Zone*[gridwidth];
+  zone = new Core::Zone*[gridheight];
 
-  for ( size_t i = 0; i < gridwidth; i++ )
-    zone[i] = new Core::Zone[gridheight];
+  for ( size_t i = 0; i < gridheight; i++ )
+    zone[i] = new Core::Zone[gridwidth];
 }
 
 Realm::~Realm()
 {
-  size_t gridwidth = grid_width();
-  for ( size_t i = 0; i < gridwidth; i++ )
+  size_t gridheight = grid_height();
+  for ( size_t i = 0; i < gridheight; i++ )
     delete[] zone[i];
   delete[] zone;
 }
@@ -79,18 +89,13 @@ size_t Realm::sizeEstimate() const
   size_t size = sizeof( *this );
   size += shadowname.capacity();
   // zone **
-  unsigned gridwidth = grid_width();
-  unsigned gridheight = grid_height();
-
-  for ( unsigned x = 0; x < gridwidth; ++x )
+  for ( const auto& p : gridarea() )
   {
-    for ( unsigned y = 0; y < gridheight; ++y )
-    {
-      size += 3 * sizeof( void** ) + zone[x][y].characters.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].npcs.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].items.capacity() * sizeof( void* );
-      size += 3 * sizeof( void** ) + zone[x][y].multis.capacity() * sizeof( void* );
-    }
+    const auto& gzone = getzone_grid( p );
+    size += 3 * sizeof( void** ) + gzone.characters.capacity() * sizeof( void* );
+    size += 3 * sizeof( void** ) + gzone.npcs.capacity() * sizeof( void* );
+    size += 3 * sizeof( void** ) + gzone.items.capacity() * sizeof( void* );
+    size += 3 * sizeof( void** ) + gzone.multis.capacity() * sizeof( void* );
   }
 
   // estimated set footprint
@@ -116,9 +121,13 @@ unsigned Realm::season() const
   return _descriptor.season;
 }
 
-bool Realm::valid( unsigned short x, unsigned short y, short z ) const
+bool Realm::valid( const Core::Pos2d& p ) const
 {
-  return ( x < width() && y < height() && z >= Core::ZCOORD_MIN && z <= Core::ZCOORD_MAX );
+  return _area.contains( p );
+}
+bool Realm::valid( const Core::Pos3d& p ) const
+{
+  return _area.contains( p.xy() );
 }
 
 const std::string Realm::name() const
@@ -131,26 +140,26 @@ const std::string Realm::name() const
 void Realm::notify_moved( Mobile::Character& whomoved )
 {
   // When the movement is larger than 32 tiles, notify mobiles and items in the old location
-  if ( Core::pol_distance( whomoved.lastx, whomoved.lasty, whomoved.x(), whomoved.y() ) > 32 )
+  // TODO Pos magic 32 everywhere?
+  Core::Pos2d lastp( whomoved.lastx, whomoved.lasty );
+  if ( whomoved.pos().xy().pol_distance( lastp ) > 32 )
   {
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        whomoved.lastx, whomoved.lasty, this, 32,
+        lastp, this, 32,
         [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
 
-    Core::WorldIterator<Core::ItemFilter>::InRange( whomoved.lastx, whomoved.lasty, this, 32,
-                                                    [&]( Items::Item* item )
-                                                    { item->inform_moved( &whomoved ); } );
+    Core::WorldIterator<Core::ItemFilter>::InRange(
+        lastp, this, 32, [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
   }
 
   // Inform nearby mobiles that a movement has been made.
   Core::WorldIterator<Core::MobileFilter>::InRange(
-      whomoved.x(), whomoved.y(), this, 33,
+      whomoved.pos(), 33,
       [&]( Mobile::Character* chr ) { Mobile::NpcPropagateMove( chr, &whomoved ); } );
 
   // the same for top-level items
-  Core::WorldIterator<Core::ItemFilter>::InRange( whomoved.x(), whomoved.y(), this, 33,
-                                                  [&]( Items::Item* item )
-                                                  { item->inform_moved( &whomoved ); } );
+  Core::WorldIterator<Core::ItemFilter>::InRange(
+      whomoved.pos(), 33, [&]( Items::Item* item ) { item->inform_moved( &whomoved ); } );
 }
 
 // The unhid character was already in the area and must have seen the other mobiles. So only notify
@@ -158,12 +167,11 @@ void Realm::notify_moved( Mobile::Character& whomoved )
 void Realm::notify_unhid( Mobile::Character& whounhid )
 {
   Core::WorldIterator<Core::NPCFilter>::InRange(
-      whounhid.x(), whounhid.y(), this, 32,
+      whounhid.pos(), 32,
       [&]( Mobile::Character* chr ) { Mobile::NpcPropagateEnteredArea( chr, &whounhid ); } );
 
-  Core::WorldIterator<Core::ItemFilter>::InRange( whounhid.x(), whounhid.y(), this, 32,
-                                                  [&]( Items::Item* item )
-                                                  { item->inform_enteredarea( &whounhid ); } );
+  Core::WorldIterator<Core::ItemFilter>::InRange(
+      whounhid.pos(), 32, [&]( Items::Item* item ) { item->inform_enteredarea( &whounhid ); } );
 }
 
 // Resurrecting is just like unhiding
@@ -175,7 +183,7 @@ void Realm::notify_resurrected( Mobile::Character& whoressed )
 void Realm::notify_entered( Mobile::Character& whoentered )
 {
   Core::WorldIterator<Core::MobileFilter>::InRange(
-      whoentered.x(), whoentered.y(), this, 32,
+      whoentered.pos(), 32,
       [&]( Mobile::Character* chr )
       {
         Mobile::NpcPropagateEnteredArea( chr, &whoentered );
@@ -185,21 +193,19 @@ void Realm::notify_entered( Mobile::Character& whoentered )
       } );
 
   // and notify the top-level items too
-  Core::WorldIterator<Core::ItemFilter>::InRange( whoentered.x(), whoentered.y(), this, 32,
-                                                  [&]( Items::Item* item )
-                                                  { item->inform_enteredarea( &whoentered ); } );
+  Core::WorldIterator<Core::ItemFilter>::InRange(
+      whoentered.pos(), 32, [&]( Items::Item* item ) { item->inform_enteredarea( &whoentered ); } );
 }
 
 // Must be used right before a mobile leaves (before updating x and y)
 void Realm::notify_left( Mobile::Character& wholeft )
 {
   Core::WorldIterator<Core::MobileFilter>::InRange(
-      wholeft.x(), wholeft.y(), this, 32,
+      wholeft.pos(), 32,
       [&]( Mobile::Character* chr ) { Mobile::NpcPropagateLeftArea( chr, &wholeft ); } );
 
-  Core::WorldIterator<Core::ItemFilter>::InRange( wholeft.x(), wholeft.y(), this, 32,
-                                                  [&]( Items::Item* item )
-                                                  { item->inform_leftarea( &wholeft ); } );
+  Core::WorldIterator<Core::ItemFilter>::InRange(
+      wholeft.pos(), 32, [&]( Items::Item* item ) { item->inform_leftarea( &wholeft ); } );
 }
 
 // This function will be called whenever:

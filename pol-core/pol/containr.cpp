@@ -82,7 +82,7 @@ void UContainer::destroy_contents()
   while ( !contents_.empty() )
   {
     Contents::value_type item = contents_.back();
-    if ( ITEM_ELEM_PTR( item ) != nullptr )  // this is really only for wornitems.
+    if ( item != nullptr )  // this is really only for wornitems.
     {
       item->container = nullptr;
       item->destroy();
@@ -298,9 +298,7 @@ bool UContainer::find_empty_slot( u8& slotIndex )
 
 void UContainer::add_at_random_location( Items::Item* item )
 {
-  u16 rx, ry;
-  get_random_location( &rx, &ry );
-  item->setposition( Pos4d( rx, ry, 0, item->realm() ) );  // TODO POS realm nullptr
+  item->setposition( Pos4d( get_random_location(), 0, item->realm() ) );  // TODO POS realm nullptr
 
   add( item );
 }
@@ -578,7 +576,7 @@ void UContainer::remove( Items::Item* item )
 void UContainer::remove( iterator itr )
 {
   INC_PROFILEVAR( container_removes );
-  Items::Item* item = GET_ITEM_PTR( itr );
+  Items::Item* item = *itr;
   contents_.erase( itr );
   item->container = nullptr;
   item->reset_slot();
@@ -608,7 +606,7 @@ Items::Item* UContainer::find( u32 objserial, iterator& where_in_container )
 {
   for ( iterator itr = contents_.begin(); itr != contents_.end(); ++itr )
   {
-    Items::Item* item = GET_ITEM_PTR( itr );
+    Items::Item* item = *itr;
     passert( item != nullptr );
     if ( item != nullptr )
     {
@@ -724,30 +722,21 @@ u16 UContainer::gump() const
   return desc.gump;
 }
 
-void UContainer::get_random_location( u16* px, u16* py ) const
+Core::Pos2d UContainer::get_random_location() const
 {
-  if ( desc.minx < desc.maxx )
-  {
-    *px = desc.minx + static_cast<u16>( Clib::random_int( desc.maxx - desc.minx - 1 ) );
-  }
-  else
-  {
-    *px = desc.minx;
-  }
-
-  if ( desc.miny < desc.maxy )
-  {
-    *py = desc.miny + static_cast<u16>( Clib::random_int( desc.maxy - desc.miny - 1 ) );
-  }
-  else
-  {
-    *py = desc.miny;
-  }
+  const auto range = desc.bounds.se() - desc.bounds.nw();
+  u16 x = desc.bounds.nw().x();
+  u16 y = desc.bounds.nw().y();
+  if ( range.x() > 0 )
+    x += static_cast<u16>( Clib::random_int( range.x() - 1 ) );
+  if ( range.y() > 0 )
+    y += static_cast<u16>( Clib::random_int( range.y() - 1 ) );
+  return { x, y };
 }
 
-bool UContainer::is_legal_posn( const Items::Item* /*item*/, u16 px, u16 py ) const
+bool UContainer::is_legal_posn( const Core::Pos2d& pos ) const
 {
-  return ( px >= desc.minx && px <= desc.maxx && py >= desc.miny && py <= desc.maxy );
+  return desc.bounds.contains( pos );
 }
 
 void UContainer::spill_contents( Multi::UMulti* multi )
@@ -757,16 +746,15 @@ void UContainer::spill_contents( Multi::UMulti* multi )
   {
     while ( !contents_.empty() )
     {
-      Items::Item* item = ITEM_ELEM_PTR( contents_.back() );
+      Items::Item* item = contents_.back();
       if ( item->movable() )
       {
         contents_.pop_back();
-        item->set_dirty();
 
-        item->setposition( pos() );
+        item->setposition( toplevel_pos() );
         item->container = nullptr;
         add_item_to_world( item );
-        move_item( item, x(), y(), z(), nullptr );
+        move_item( item, item->pos() );
         if ( multi )
           multi->register_object( item );
         item->layer = 0;

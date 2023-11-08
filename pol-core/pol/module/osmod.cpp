@@ -451,16 +451,35 @@ BObjectImp* OSExecutorModule::mf_SysLog()
 {
   BObjectImp* imp = exec.getParamImp( 0 );
   int log_verbose;
-  if ( !exec.getParam( 1, log_verbose ) )
+  const String* color;
+  if ( !exec.getParam( 1, log_verbose ) || !exec.getStringParam( 2, color ) )
     return new BError( "Invalid parameter type" );
   std::string strval = imp->getStringRep();
   if ( log_verbose )
   {
     POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
-    INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
+    if ( Plib::systemstate.config.enable_colored_output && color->length() )
+    {
+      INFO_PRINT << color->value() << "syslog [" << exec.scriptname() << "]: " << strval
+                 << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+    }
+    else
+    {
+      INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
+    }
   }
   else
-    POLLOG_INFO << strval << "\n";
+  {
+    if ( Plib::systemstate.config.enable_colored_output && color->length() )
+    {
+      POLLOG << strval << "\n";
+      INFO_PRINT << color->value() << strval << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+    }
+    else
+    {
+      POLLOG_INFO << strval << "\n";
+    }
+  }
   return new BLong( 1 );
 }
 
@@ -566,9 +585,10 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
     unsigned short port;
     int assume_string_int;
     int keep_connection_int;
+    int ignore_line_breaks_int;
     if ( getStringParam( 0, host ) && getParam( 1, port ) && getStringParam( 2, scriptname_str ) &&
          getParamImp( 3, scriptparam ) && getParam( 4, assume_string_int ) &&
-         getParam( 5, keep_connection_int ) )
+         getParam( 5, keep_connection_int ) && getParam( 6, ignore_line_breaks_int ) )
     {
       // FIXME needs to inherit available modules?
       Core::ScriptDef sd;
@@ -592,14 +612,18 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       std::string hostname( host->value() );
       bool assume_string = assume_string_int != 0;
       bool keep_connection = keep_connection_int != 0;
-      BObject paramobj( scriptparam );  // prevent delete
+      bool ignore_line_breaks = ignore_line_breaks_int != 0;
+      auto* paramobjimp_raw = scriptparam->copy();  // prevent delete
       Core::networkManager.auxthreadpool->push(
-          [uoexec_w, sd, hostname, port, paramobj, assume_string, keep_connection]()
+          [uoexec_w, sd, hostname, port, paramobjimp_raw, assume_string, keep_connection,
+           ignore_line_breaks]()
           {
             Clib::Socket s;
+            std::unique_ptr<Network::AuxClientThread> client;
             bool success_open = s.open( hostname.c_str(), port );
             {
               Core::PolLock lck;
+              std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );
               if ( !uoexec_w.exists() )
               {
                 DEBUGLOG << "OpenConnection Script has been destroyed\n";
@@ -615,10 +639,12 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               }
               uoexec_w.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
               uoexec_w.get_weakptr()->revive();
+              client.reset( new Network::AuxClientThread( sd, std::move( s ), paramobjimp.release(),
+                                                          assume_string, keep_connection,
+                                                          ignore_line_breaks ) );
             }
-            std::unique_ptr<Network::AuxClientThread> client( new Network::AuxClientThread(
-                sd, std::move( s ), paramobj->copy(), assume_string, keep_connection ) );
-            client->run();
+            if ( client )
+              client->run();
           } );
 
       return new BLong( 0 );
@@ -638,6 +664,64 @@ size_t curlWriteCallback( void* contents, size_t size, size_t nmemb, void* userp
   return size * nmemb;
 }
 
+const int HTTPREQUEST_EXTENDED_RESPONSE = 0x0001;
+
+struct CurlHeaderData
+{
+  std::optional<std::string> statusText;
+  std::map<std::string, std::string> headers = {};
+};
+
+size_t curlReadHeaderCallback( char* buffer, size_t size, size_t nitems, void* userdata )
+{
+  auto headerData = static_cast<CurlHeaderData*>( userdata );
+  std::string value( buffer, size * nitems );
+
+  // statusText is set after parsing the first header line
+  if ( !headerData->statusText.has_value() )
+  {
+    std::string statusText = "";
+    if ( value.rfind( "HTTP/", 0 ) == 0 )
+    {
+      // Find space after "HTTP/x" (before status code)
+      size_t pos = value.find( " " );
+      if ( pos != std::string::npos )
+      {
+        // Find space after status code (before status text)
+        pos = value.find( " ", pos + 1 );
+        if ( pos != std::string::npos )
+        {
+          statusText = Clib::strtrim( value.substr( pos + 1 ) );
+        }
+      }
+    }
+    headerData->statusText.emplace( statusText );
+  }
+  else
+  {
+    size_t pos = value.find( ":" );
+    if ( pos != std::string::npos )
+    {
+      std::string headerName = Clib::strlowerASCII( value.substr( 0, pos ) );
+      std::string headerValue = Clib::strtrim( value.substr( pos + 1 ) );
+
+      // If the header already exists, append it (comma-separated) to previous value
+      if ( headerData->headers.count( headerName ) )
+      {
+        auto& existing = headerData->headers.at( headerName );
+        existing.append( ", " );
+        existing.append( headerValue );
+      }
+      else
+      {
+        headerData->headers.emplace( headerName, headerValue );
+      }
+    }
+  }
+
+  return nitems * size;
+}
+
 BObjectImp* OSExecutorModule::mf_HTTPRequest()
 {
   Core::UOExecutor& this_uoexec = uoexec();
@@ -646,7 +730,9 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
   {
     const String *url, *method;
     BObjectImp* options;
-    if ( getStringParam( 0, url ) && getStringParam( 1, method ) && getParamImp( 2, options ) )
+    int flags;
+    if ( getStringParam( 0, url ) && getStringParam( 1, method ) && getParamImp( 2, options ) &&
+         getParam( 3, flags ) )
     {
       if ( !this_uoexec.suspend() )
       {
@@ -695,11 +781,19 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
         }
 
         Core::networkManager.auxthreadpool->push(
-            [uoexec_w, curl_sp, chunk]()
+            [uoexec_w, curl_sp, chunk, flags]()
             {
               CURL* curl = curl_sp.get();
               CURLcode res;
               std::string readBuffer;
+              CurlHeaderData headerData;
+
+              if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
+              {
+                curl_easy_setopt( curl, CURLOPT_HEADERFUNCTION, curlReadHeaderCallback );
+                curl_easy_setopt( curl, CURLOPT_HEADERDATA, &headerData );
+              }
+
               curl_easy_setopt( curl, CURLOPT_WRITEDATA, &readBuffer );
 
               /* Perform the request, res will get the return code */
@@ -711,7 +805,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 
                 if ( !uoexec_w.exists() )
                 {
-                  DEBUGLOG << "OpenConnection Script has been destroyed\n";
+                  DEBUGLOG << "HTTPRequest Script has been destroyed\n";
                   return;
                 }
                 /* Check for errors */
@@ -722,10 +816,45 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
                 }
                 else
                 {
-                  // TODO: no sanitize happens, optional function param iso/utf8 encoding, or parse
-                  // the header of the http answer?
-                  uoexec_w.get_weakptr()->ValueStack.back().set(
-                      new BObject( new String( readBuffer ) ) );
+                  if ( flags == HTTPREQUEST_EXTENDED_RESPONSE )
+                  {
+                    auto response = std::make_unique<Bscript::BDictionary>();
+                    auto headers = std::make_unique<Bscript::BDictionary>();
+                    long http_code = 0;
+
+                    res = curl_easy_getinfo( curl, CURLINFO_RESPONSE_CODE, &http_code );
+                    if ( res == CURLE_OK )
+                    {
+                      response->addMember( new String( "status" ), new BLong( http_code ) );
+                    }
+                    else
+                    {
+                      response->addMember( new String( "status" ),
+                                           new BError( curl_easy_strerror( res ) ) );
+                    }
+
+                    response->addMember( new String( "statusText" ),
+                                         new String( headerData.statusText.value_or( "" ) ) );
+
+                    response->addMember( new String( "body" ), new String( readBuffer ) );
+
+                    for ( auto const& [key, value] : headerData.headers )
+                    {
+                      headers->addMember( new String( key ), new String( value ) );
+                    }
+
+                    response->addMember( new String( "headers" ), headers.release() );
+
+                    uoexec_w.get_weakptr()->ValueStack.back().set(
+                        new BObject( response.release() ) );
+                  }
+                  else
+                  {
+                    // TODO: no sanitize happens, optional function param iso/utf8 encoding, or
+                    // parse the header of the http answer?
+                    uoexec_w.get_weakptr()->ValueStack.back().set(
+                        new BObject( new String( readBuffer ) ) );
+                  }
                 }
 
                 uoexec_w.get_weakptr()->revive();

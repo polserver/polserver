@@ -50,9 +50,8 @@ void regen_stats()
   unsigned empty_zones = 0;
   unsigned nonempty_zones = 0;
 
-  unsigned wgridx, wgridy;
-
-  auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr ) {
+  auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr )
+  {
     THREAD_CHECKPOINT( tasks, 402 );
 
     if ( chr->has_lightoverride() )
@@ -79,10 +78,36 @@ void regen_stats()
     }
     THREAD_CHECKPOINT( tasks, 404 );
 
-    // If in warmode, don't regenerate.
-    // If regeneration is currently disabled, don't do it either.
-    if ( ( chr->warmode() && settingsManager.combat_config.warmode_inhibits_regen ) ||
-         ( now <= chr->disable_regeneration_until ) )
+    // If in warmode, don't regenerate...
+    if ( chr->warmode() )
+    {
+      switch ( settingsManager.combat_config.warmode_inhibits_regen )
+      {
+      // at all.
+      case WarmodeInhibitsRegenStrategy::Both:
+        return;
+
+      // if chr is a player.
+      case WarmodeInhibitsRegenStrategy::PlayerOnly:
+        if ( !chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+          return;
+        break;
+
+      // if chr is an npc.
+      case WarmodeInhibitsRegenStrategy::NonplayerOnly:
+        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+          return;
+        break;
+
+      // ignore for regeneration purposes.
+      case WarmodeInhibitsRegenStrategy::None:
+      default:
+        break;
+      }
+    }
+
+    // If regeneration is currently disabled, don't do it.
+    if ( now <= chr->disable_regeneration_until )
     {
       return;
     }
@@ -107,29 +132,23 @@ void regen_stats()
 
   for ( auto& realm : gamestate.Realms )
   {
-    wgridx = realm->grid_width();
-    wgridy = realm->grid_height();
-
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      bool any = false;
+      for ( auto& chr : realm->getzone_grid( p ).characters )
       {
-        bool any = false;
-        for ( auto& chr : realm->zone[wx][wy].characters )
-        {
-          any = true;
-          stat_regen( chr );
-        }
-        for ( auto& chr : realm->zone[wx][wy].npcs )
-        {
-          any = true;
-          stat_regen( chr );
-        }
-        if ( any )
-          ++nonempty_zones;
-        else
-          ++empty_zones;
+        any = true;
+        stat_regen( chr );
       }
+      for ( auto& chr : realm->getzone_grid( p ).npcs )
+      {
+        any = true;
+        stat_regen( chr );
+      }
+      if ( any )
+        ++nonempty_zones;
+      else
+        ++empty_zones;
     }
   }
   THREAD_CHECKPOINT( tasks, 499 );

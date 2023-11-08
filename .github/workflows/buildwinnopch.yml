@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: Windows ${{matrix.config.name}} NoPCH Build
     strategy:
       fail-fast: false
       matrix:
@@ -15,6 +16,7 @@ jobs:
             build-type: Release
             nopch: 1
             ninja: 1
+            name: CL Ninja
           - os: "windows-latest"
             cxx-compiler: clang-cl
             c-compiler: clang-cl
@@ -22,6 +24,7 @@ jobs:
             build-type: Release
             nopch: 1
             ninja: 1
+            name: Clang Ninja
           - os: "windows-latest"
             cxx-compiler: cl
             c-compiler: cl
@@ -29,6 +32,7 @@ jobs:
             build-type: Debug
             nopch: 1
             ninja: 0
+            name: CL msbuild
           - os: "windows-latest"
             cxx-compiler: clang-cl
             c-compiler: clang-cl
@@ -36,33 +40,35 @@ jobs:
             build-type: Debug
             nopch: 1
             ninja: 0
+            name: Clang msbuild
 
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
-      - uses: seanmiddleditch/gha-setup-vsdevenv@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v4
       - name: Cache curl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-curl-7.57.0
+          path: lib/curl-8.2.1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}
       - name: Cache antlr
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-${{ matrix.config.build-type }}-${{ matrix.config.nopch }}-${{ matrix.config.ninja }}-antlr-buildtypefix
       - name: Cache boost
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: lib/boost_1_74_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
+          path: lib/boost_1_83_0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0
       - name: Install llvm
         if: matrix.config.cxx-compiler == 'clang-cl'
         shell: powershell
         run: |
-          Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+          iwr -useb get.scoop.sh -outfile 'install.ps1'
+          .\install.ps1 -RunAsAdmin
           scoop install llvm --global
           #echo "::set-env name=PATH::$env:PATH"
 
@@ -80,6 +86,12 @@ jobs:
 
           echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      
+      - name: Windows Path Workaround
+        shell: cmd
+        run: |
+          rmdir /s /q C:\Strawberry
+          exit /b 0
 
       - name: Config (Ninja)
         if: matrix.config.ninja == 1
@@ -101,7 +113,7 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }}  -- /nologo /verbosity:minimal /maxcpucount
- 
+
   notify_on_failure:
     needs: build
     runs-on: "ubuntu-latest"

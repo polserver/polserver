@@ -31,7 +31,7 @@ UCorpse::UCorpse( const Items::ContainerDesc& descriptor )
     : UContainer( descriptor ), corpsetype( 0 ), ownerserial( 0 )
 {
   movable( false );
-  layer_list_.resize( HIGHEST_LAYER + 1, EMPTY_ELEM );
+  layer_list_.resize( HIGHEST_LAYER + 1, nullptr );
 }
 
 bool UCorpse::take_contents_to_grave() const
@@ -47,7 +47,7 @@ void UCorpse::take_contents_to_grave( bool newvalue )
 void UCorpse::add( Item* item )
 {
   // When an item is added, check if it's equippable and add to the appropriate layer
-  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == EMPTY_ELEM )
+  if ( Items::valid_equip_layer( item ) && GetItemOnLayer( item->tile_layer ) == nullptr )
   {
     PutItemOnLayer( item );
   }
@@ -58,13 +58,13 @@ void UCorpse::add( Item* item )
 
 void UCorpse::remove( iterator itr )
 {
-  Item* item = GET_ITEM_PTR( itr );
+  Item* item = *itr;
 
   if ( Items::valid_equip_layer( item ) )
   {
     Item* item_on_layer = GetItemOnLayer( item->tile_layer );
 
-    if ( item_on_layer != EMPTY_ELEM && item_on_layer->serial == item->serial )
+    if ( item_on_layer != nullptr && item_on_layer->serial == item->serial )
     {
       RemoveItemFromLayer( item );
     }
@@ -86,7 +86,7 @@ void UCorpse::spill_contents( Multi::UMulti* multi )
     any = false;
     for ( iterator itr = begin(); itr != end(); ++itr )
     {
-      Item* item = GET_ITEM_PTR( itr );
+      Item* item = *itr;
       if ( item->tile_layer == LAYER_HAIR || item->tile_layer == LAYER_BEARD ||
            item->tile_layer == LAYER_FACE || item->movable() == false )
       {
@@ -120,7 +120,7 @@ void UCorpse::RemoveItemFromLayer( Item* item )
 
   item->set_dirty();
   set_dirty();
-  layer_list_[item->tile_layer] = EMPTY_ELEM;
+  layer_list_[item->tile_layer] = nullptr;
   item->layer = 0;
 }
 
@@ -181,5 +181,5 @@ bool UCorpse::get_method_hook( const char* methodname, Bscript::Executor* ex, Ex
     return true;
   return base::get_method_hook( methodname, ex, hook, PC );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

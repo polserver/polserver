@@ -301,6 +301,54 @@ class DoubleClickPacket(SerialOnlyPacket):
 
   cmd = 0x06
 
+class LiftItemPacket(Packet):
+  ''' Notify server of a lift on an item '''
+
+  cmd = 0x07
+  length = 7
+
+  def fill(self, serial, amount):
+    self.type = type
+    self.serial = serial
+    self.amount = amount
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.eushort(self.amount)
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.amount = self.dushort()
+
+class DropItemPacket(Packet):
+  ''' Notify server of a drop on an item '''
+
+  cmd = 0x08
+  length = 15
+
+  def fill(self, serial, x, y, z, dropped_on_serial):
+    self.type = type
+    self.serial = serial
+    self.x = x
+    self.y = y
+    self.z = z
+    self.dropped_on_serial = 0xFFFFFFFF if dropped_on_serial == -1 else dropped_on_serial
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.eushort(self.x)
+    self.eushort(self.y)
+    self.euchar(self.z)
+    self.euchar(0) #  Backpack grid index
+    self.euint(self.dropped_on_serial)
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.x = self.dushort()
+    self.y = self.dushort()
+    self.z = self.duchar()
+    self.duchar() # Backpack grid index
+    self.dropped_on_serial = self.duint()
 
 class SingleClickPacket(SerialOnlyPacket):
   ''' Notify server of a single click on something '''
@@ -543,6 +591,23 @@ class AddItemToContainerPacket(Packet):
     self.container = self.duint()
     self.color = self.dushort()
 
+class MoveItemRejectedPacket(Packet):
+  ''' Reject move item (lift or drop) request'''
+
+  cmd = 0x27
+  length = 2
+
+  def decodeChild(self):
+    self.reason = self.duchar()
+
+class ApproveDropItemPacket(Packet):
+  ''' Drop item approved'''
+
+  cmd = 0x29
+  length = 1
+
+  def decodeChild(self):
+      pass
 
 class MobAttributesPacket(Packet):
   ''' Informs about a Mobile's attributes '''
@@ -939,6 +1004,30 @@ class DrawObjectPacket(Packet):
 #      self.duchar() # unused/closing
 
 
+class SeedPacket(Packet):
+  ''' login seed to server '''
+
+  cmd = 0xEF
+  length = 21
+
+  def fill(self, ip,version):
+    '''!
+    @param version string: The version
+    '''
+
+    self.ip = ip
+    self.version = [int(_) for _ in version.split('.')]
+
+  def encodeChild(self):
+    self.euchar(self.ip[0])
+    self.euchar(self.ip[1])
+    self.euchar(self.ip[2])
+    self.euchar(self.ip[3])
+    self.euint(self.version[0])
+    self.euint(self.version[1])
+    self.euint(self.version[2])
+    self.euint(self.version[3])
+
 class LoginRequestPacket(Packet):
   ''' Login request to server '''
 
@@ -1112,33 +1201,72 @@ class UnicodeSpeechRequestPacket(Packet):
   TYP_ALLIANCE = 0x0e
   ## Command Prompts
   TYP_COMMAND = 0x0f
+  ## Encoded with speech tokens
+  TYP_ENCODED = 0xc0
 
   cmd = 0xad
 
-  def fill(self, type, lang, text, color, font):
+  def fill(self, type, lang, text, color, font, tokens=None):
     '''!
     @param type int: Speech type, see TYP_ constants
     @param lang string: Three letter language code
     @param text string: What to say
     @param color int: Color code
     @param font int: Font code
+    @param tokens list of ints: speech.mul ids
     '''
     self.type = type
     self.lang = lang
     self.text = text
     self.color = color
     self.font = font
-    self.length = 1 + 2 + 1 + 2 + 2 + 4 + len(self.text)*2+2
+    self.tokens = tokens
+
+    self.length = 1 + 2 + 1 + 2 + 2 + 4
+    if tokens:
+      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) / 8
+      self.length = self.length + token_byte_length + len(self.text)+1
+    else:
+      self.length = self.length + len(self.text)*2+2
 
   def encodeChild(self):
     self.eulen()
-    self.euchar(self.type)
+    if self.tokens:
+      self.euchar(self.type | UnicodeSpeechRequestPacket.TYP_ENCODED)
+    else:
+      self.euchar(self.type)
     self.eushort(self.color)
     self.eushort(self.font)
     assert len(self.lang) == 3
     self.estring(self.lang, 4)
-    self.estring(self.text, len(self.text) + 1, True)
+    if self.tokens:
+      self.encodeTokens()
+    else:
+      self.estring(self.text, len(self.text) + 1, True)
 
+  def encodeTokens(self):
+    code_bytes = []
+    length = len(self.tokens)
+    code_bytes.append(length >> 4)
+    num3 = length & 15
+    flag = False
+    index = 0
+    while index < length:
+      keyword_id = self.tokens[index]
+      if flag:
+        code_bytes.append(keyword_id >> 4)
+        num3 = keyword_id & 15
+      else:
+        code_bytes.append(((num3 << 4) | ((keyword_id >> 8) & 15)))
+        code_bytes.append(keyword_id)
+      index = index + 1
+      flag = not flag
+    if not flag:
+      code_bytes.append(num3 << 4)
+
+    for code_byte in code_bytes:
+      self.euchar(code_byte)
+    self.estring(self.text, len(self.text) + 1)
 
 class UnicodeSpeechPacket(Packet):
   ''' Receive an unicode speech '''
@@ -1182,10 +1310,10 @@ class EnableFeaturesPacket(Packet):
   ''' Used to enable client features '''
 
   cmd = 0xb9
-  length = 3
+  length = 5
 
   def decodeChild(self):
-    self.features = self.dushort()
+    self.features =self.duint()
 
 
 class SeasonInfoPacket(Packet):
@@ -1392,14 +1520,42 @@ class CompressedGumpPacket(Packet):
     self.y = self.duint()
     cLen = self.duint()
     dLen = self.duint()
-    self.commands = zlib.decompress(self.rpb(cLen-4))
-    assert len(self.commands) == dLen
+    commands = zlib.decompress(self.rpb(cLen-4))
+    assert len(commands) == dLen
+    self.commands=commands[:-1].decode().split(' }{ ')
+    if len(self.commands):
+      self.commands[0]=self.commands[0].strip('{ ')
+      self.commands[-1]=self.commands[-1].strip(' }')
+
     textLines = self.duint()
     ctxtLen = self.duint()
     dtxtLen = self.duint()
-    self.texts = zlib.decompress(self.rpb(ctxtLen-4))
-    assert len(self.texts) == dtxtLen
+    texts = zlib.decompress(self.rpb(ctxtLen-4))
+    assert len(texts) == dtxtLen
+    self.texts=[]
+    for i in range(textLines):
+        tlen=struct.unpack('>H',texts[:2])[0]
+        self.texts.append(texts[2:tlen*2+2].decode('utf_16_be'))
+        texts=texts[tlen*2+2:]
     #self.duchar() # Trailing byte?
+
+class CloseGumpResponsePacket(Packet):
+  ''' close gump '''
+
+  cmd = 0xb1
+
+  def fill(self,serial,gumpid):
+    self.serial=serial
+    self.gumpid =gumpid
+    self.length=23
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.euint(self.gumpid)
+    self.euint(0) #button id
+    self.euint(0) #switch count
+    self.euint(0) #string count
 
 
 class NewObjectInfoPacket(Packet):
@@ -1454,6 +1610,18 @@ class SmoothBoatPacket(Packet):
         self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
         break
 
+
+class HealthBarStatusUpdate(Packet):
+  ''' Health bar status update (KR) '''
+
+  cmd = 0x17
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.dushort()
+    self.color = self.dushort()
+    self.flags = self.duchar()
 
 ################################################################################
 # Build packet list when this module is imported, must stay at the end

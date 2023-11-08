@@ -29,7 +29,7 @@ void TestEnv::generate()
     fs::create_directories( _basedir );
 
   fs::path clientdir = _basedir / "client";
-  FileGenerator g( clientdir, _hsa, _maxtiles, _width, _height );
+  FileGenerator g( clientdir, _hsa, _maxtiles, 0, _width, _height );
   g.generateTiledata();
   g.generateMap();
   g.generateStatics();

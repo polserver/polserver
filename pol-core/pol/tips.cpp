@@ -21,16 +21,17 @@ namespace Core
 {
 bool send_tip( Network::Client* client, const char* tipname, unsigned short tipnum )
 {
-  size_t textlen = strlen( tipname );
+  std::string convertedText = Clib::strUtf8ToCp1252( tipname );
+  size_t textlen = convertedText.length() + 1;
   if ( textlen > 0 && unsigned( textlen ) <= 9999 )
   {
     Network::PktHelper::PacketOut<Network::PktOut_A6> msg;
-    msg->WriteFlipped<u16>( textlen + 11 );
+    msg->WriteFlipped<u16>( textlen + 10 );
     msg->Write<u8>( PKTOUT_A6_TYPE_TIP );
     msg->offset += 2;  // unk4,5
     msg->WriteFlipped<u16>( tipnum );
-    msg->WriteFlipped<u16>( textlen + 1 );
-    msg->Write( tipname, static_cast<u16>( textlen + 1 ) );
+    msg->WriteFlipped<u16>( textlen );
+    msg->Write( convertedText.c_str(), static_cast<u16>( textlen ) );
     msg.Send( client );
     return true;
   }
@@ -42,17 +43,18 @@ bool send_tip( Network::Client* client, const char* tipname, unsigned short tipn
 
 void send_tip( Network::Client* client, const std::string& tiptext )
 {
-  size_t textlen = tiptext.size();
+  std::string convertedText = Clib::strUtf8ToCp1252(tiptext);
+  size_t textlen = convertedText.size() + 1;
   if ( textlen >= 10000 )
     textlen = 9999;
 
   Network::PktHelper::PacketOut<Network::PktOut_A6> msg;
-  msg->WriteFlipped<u16>( textlen + 11 );
+  msg->WriteFlipped<u16>( textlen + 10 );
   msg->Write<u8>( PKTOUT_A6_TYPE_TIP );
   msg->offset += 2;  // unk4,5
   msg->offset += 2;  // tipnum
-  msg->WriteFlipped<u16>( textlen + 1 );
-  msg->Write( tiptext.c_str(), static_cast<u16>( textlen + 1 ) );
+  msg->WriteFlipped<u16>( textlen );
+  msg->Write( convertedText.c_str(), static_cast<u16>( textlen ) );
   msg.Send( client );
 }
 

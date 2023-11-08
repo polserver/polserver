@@ -81,7 +81,7 @@ Run_Script( script_name, param := 0 );
     // syslog(text): write text to the console, and to the log file
     //               includes context (calling script name)
     //
-SysLog( text, log_verbose:=1 );
+SysLog( text, log_verbose:=1, console_color:="" );
 
 	//
 	// clear_event_queue(): Empties the event queue of the current script.
@@ -99,11 +99,13 @@ Set_Event_Queue_Size(size);
 Is_Critical();
 
 OpenURL( character, url );
-OpenConnection( host, port, scriptdef, params := 0, assume_string := 0, keep_connection := 0);
+OpenConnection( host, port, scriptdef, params := 0, assume_string := 0, keep_connection := 0, ignore_line_breaks := 0);
 Debugger(); // put script in debug state
 
 PerformanceMeasure(delta_seconds := 10, max_scripts := 100);
-HTTPRequest(url, method := "GET", options := struct{});
+
+HTTPRequest(url, method := "GET", options := struct{}, flags := 0);
+const HTTPREQUEST_EXTENDED_RESPONSE := 0x0001; // return Dictionary with various response data instead of a String of response body
 
 LoadExportedScript(name, args:={});
 

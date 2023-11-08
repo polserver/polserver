@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>07/30/2021</datemodified>
+    <datemodified>10/18/2023</datemodified>
 </fileheader>
 
 
@@ -385,6 +385,8 @@ Spell (int spellid)
 [MobilesBlockNpcMovement        (0/1 {default 1})]
 [DefaultCharacterHeight         (1-32 {default 15})]
 [EnableWorldMapPackets          (0/1 (default 0))]
+[UndoGetItemEnableRangeCheck    (0/1 {default 0})]
+[UndoGetItemDropHere            (0/1 {default 0})]
 </structure>
   <explain><i>RefreshDecayAfterBoatMoves</i> if enabled item's decayat will be refreshed after each move or turn of a boat. Note that item decay on boats is not yet handled by the core.</explain>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
@@ -457,6 +459,13 @@ Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   <explain><i>EnableWorldMapPackets:</i> Custom clients have implemented a packet that tracks the position of<br/>
   party and guild members. This enables the client to overlay member positions on a world map<br/>
   directly inside the client. Set to 1 to enable core handling of this packet.<br/></explain>
+  <explain><i>UndoGetItemEnableRangeCheck:</i> If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+  and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.<br/>
+  If origin position/container is not in default_accessible_range will skip try to put item to origin position/container (unless item is no_drop)<br/>
+  and as last resort will drop item at character position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.</explain>
+  <explain><i>UndoGetItemDropHere:</i> If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+  and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in<br/>
+  origin container will be skipped.</explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>
@@ -513,6 +522,7 @@ General
     CriminalFlagInterval (int seconds)
     AggressorFlagTimeout (int seconds)
     PartyHelpFullCountsAsCriminal (1/0 default 0)
+    PartyHarmFullCountsAsCriminal (1/0 default 1)
 }
 
 HookList
@@ -539,6 +549,7 @@ HighLightColor note: The client seems to only accept the following numbers
 </explain>
   <explain>HighLightColor function should be made as fast as possible, as it is called many times.</explain>
   <explain>PartyHelpFullCountsAsCriminal defines if HelpFull action counts as criminal act on murderers/criminals if in same party</explain>
+  <explain>PartyHarmFullCountsAsCriminal defines if HarmFull action counts as criminal act on murderers/criminals if in same party</explain>
   <related>servspecopt.cfg</related>
 </cfgfile>
 
@@ -754,7 +765,7 @@ ArmorZone
     <purpose>Defines some combat-specific options.</purpose>
     <structure>
 [DisplayParrySuccessMessages (0/1) {default 0})]
-[WarmodeInhibitsRegen        (0/1) {default 0})]
+[WarmodeInhibitsRegen        (enumeration between 0-4) {default 0})]
 [WarModeDelay                (int Seconds) {default 1})]
 [SingleCombat                (0/1 {default 0})]
 [CoreHitSounds               (0/1 {default 0})]
@@ -765,6 +776,7 @@ ArmorZone
 [AttackWhileFrozen           (0/1 {default 1})]
 [SendAttackMsg               (0/1 {default 1})]
 </structure>
+    <explain><i>WarmodeInhibitsRegen:</i> Determines if warmode stops vital regeneration and if so, what character types: none = 0 (default), both = 1, players only = 2, NPCs only = 3.</explain>
     <explain><i>WarModeDelay:</i> is a delay between ability to toggle war mode status via client. Does not affect using SetWarMode method.</explain>
     <explain><i>SingleCombat:</i> allows players to attack themselves.</explain>
     <explain><i>CoreHitSounds:</i> If enabled, the core handles sending sounds for hit on combat. When mobile hit is an NPC, it uses the NPC's DamagedSound from the NPCTemplate. If disabled, scripts must handle this.</explain>
@@ -963,7 +975,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ShowWarningGump=(1/0 {default 1})]
 [ShowWarningItem=(1/0 {default 1})]
 [ShowWarningCursorSequence=(1/0 {default 1})]
-[AllowEnvironmentVariableAccess=(1/0 {default 1})]
+[AllowedEnvironmentVariablesAccess=(string {default ""})]
+[EnableColoredOutput=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
     <explain>UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
@@ -1430,6 +1443,7 @@ Item (objtype)
     [Tooltip                (string tooltip {default empty})]
     [WalkOnScript           (string scriptname)]
     [Script                 (string scriptname)]
+    [SnoopScript            (string scriptname)]
     [EquipScript            (string scriptname)]
     [UnequipScript          (string scriptname)]
     [ControlScript          (string scriptname)]
@@ -1450,6 +1464,7 @@ Item (objtype)
     [CanUseWhileParalyzed   (0/1 {default 0})]
     [Newbie                 (0/1 {default 0})]
     [Insured                (0/1 {default 0})]
+    [Cursed                 (0/1 {default 0})]
     [Invisible              (0/1 {default 0})]
     [DecaysOnMultis         (0/1 {default 0})]
     [BlocksCastingIfInHand  (0/1 {default 0})]
@@ -1601,11 +1616,12 @@ Armor (objtype)
     <explain>Note: if objtype &lt; 0x4000, the 'graphic' property is not required, it is assumed objtype=graphic in this case.</explain>
     <explain>Valid ranges for custom items are 0x5000-0xEFFF (0xF000-0xFFFF reserved by core)</explain>
     <explain>Properties having to do with equipping an item is only meaningful if the item is actualy equippable (determined by the graphic number's tiledata flags).</explain>
-    <explain>Item Create, Destroy, and Control scripts are in pkg format or in scripts/control. Method scripts must be packaged.</explain>
+    <explain>Item Create, Destroy, Snoop, and Control scripts are in pkg format or in scripts/control. Method scripts must be packaged.</explain>
     <explain>Container scripts are in pkg format, or in scripts/control</explain>
     <explain>RequiresAttention 1 causes container gumps to close when you move, or to unhide you if the item is used.</explain>
     <explain>StackingIgnoresCProps is a space-delimited list of case-sensative CProp names that are ignored when stacking 2 of this item objtype. See also stacking.cfg for a global list.</explain>
     <explain>Spellbook: Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F, Paladin: 0x2270 - 0x227C, Bushido: 0x238D - 0x2392, Ninjitsu: 0x23A1 - 0x23A8, SpellWeaving: 0x2D51 - 0x2D60. The list of spellids for spells.cfg is now as follows: Magery = 1+, Necro = 101+, Paladin = 201+, Bushido = 401+, Ninjitsu = 501+, SpellWeaving = 601+. Sorry this is hardcoded :P</explain>
+    <explain>Cursed: Note that cursed gold coins (objtype 0x0EED) are still usable for commerce transactions with vendors in the core. 'Unspendable' cursed gold coins should be defined in a separate itemdesc entry with a different objtype using the same graphic as gold coins (0x0EED) with Cursed set to 1.</explain>
     <explain>Weapon: If Delay != 0 Core will use it to calculate Weapon speed. Speed Entry is optional ONLY if Delay is populated.</explain>
     <related>spells.cfg</related>
     <related>stacking.cfg</related>

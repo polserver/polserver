@@ -15,7 +15,7 @@ namespace fs = std::filesystem;
 class FileGenerator
 {
 public:
-  FileGenerator( fs::path basedir, bool hsa, int maxtiles, int width, int height );
+  FileGenerator( fs::path basedir, bool hsa, int maxtiles, int mapid, int width, int height );
   void generateTiledata();
   void generateMap();
   void generateStatics();
@@ -44,6 +44,7 @@ private:
   fs::path _basedir;
   bool _hsa;
   int _maxtiles;
+  int _mapid;
   int _width;
   int _height;
 };

@@ -190,12 +190,19 @@ class Event:
   EVT_REMOVED_OBJ = 9
   EVT_NEW_SUBSERVER = 10
   EVT_BOAT_MOVED = 11
+  EVT_OWNCREATE = 12
+  EVT_GUMP = 13
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
   EVT_OPEN_BACKPACK = 102
   EVT_TARGET = 103
   EVT_DISABLE_ITEM_LOGGING = 104
+  EVT_DOUBLE_CLICK = 105
+  EVT_LIFT_ITEM = 106
+  EVT_MOVE_ITEM_REJECTED = 107
+  EVT_DROP_ITEM = 108
+  EVT_DROP_APPROVED = 109
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -242,4 +249,17 @@ class Event:
       return "disable_item_logging"
     elif self.type==Event.EVT_BOAT_MOVED:
       return "boat_moved"
-
+    elif self.type==Event.EVT_OWNCREATE:
+      return "owncreate"
+    elif self.type==Event.EVT_DOUBLE_CLICK:
+      return "double_click"
+    elif self.type==Event.EVT_LIFT_ITEM:
+      return "lift_item"
+    elif self.type==Event.EVT_MOVE_ITEM_REJECTED:
+      return "move_item_rejected"
+    elif self.type==Event.EVT_DROP_ITEM:
+      return "drop_item"
+    elif self.type==Event.EVT_DROP_APPROVED:
+      return "drop_approved"
+    elif self.type==Event.EVT_GUMP:
+      return "gump"

@@ -26,7 +26,6 @@
 #include "../layers.h"
 #include "../menu.h"
 #include "../reftypes.h"
-#include "regions/region.h"
 #include "../schedule.h"
 #include "../storage.h"
 #include "../syshook.h"
@@ -34,6 +33,8 @@
 #include "../tasks.h"
 #include "../textcmd.h"
 #include "../uoskills.h"
+#include "base/vector.h"
+#include "regions/region.h"
 
 
 namespace Pol
@@ -249,13 +250,18 @@ public:
   };
   threadhelp::TaskThreadPool task_thread_pool;
 
+  void update_range_from_multis();
+  Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
+                             // "pre-filtering" of objects
+
+  void unload_npc_templates();
+
 private:
   void cleanup_vars();
   void cleanup_scripts();
   void clear_listen_points();
   void unload_intrinsic_weapons();
   void unload_intrinsic_templates();
-  void unload_npc_templates();
 };
 extern GameState gamestate;
 }  // namespace Core

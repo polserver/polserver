@@ -265,7 +265,6 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       armor_( Core::gamestate.armorzones.size() ),
       wornitems( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
                                                   // WornItemsContainer class
-      gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
       remote_containers_(),
       // MOVEMENT
       dir( 0 ),
@@ -473,14 +472,16 @@ bool Character::is_house_editing() const
 
 void Character::clear_gotten_item()
 {
-  auto item = gotten_item();
-  if ( item != nullptr )
+  if ( !has_gotten_item() )
+    return;
+  auto info = gotten_item();
+  if ( info.item() != nullptr )
   {
-    gotten_item( nullptr );
-    item->inuse( false );
+    gotten_item( {} );
+    info.item()->inuse( false );
     if ( connected() )
       Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-    undo_get_item( this, item );
+    info.undo( this );
   }
 }
 
@@ -534,7 +535,7 @@ unsigned int Character::weight() const
 {
   unsigned int wt = 10 + wornitems->weight();
   if ( has_gotten_item() )
-    wt += gotten_item()->weight();
+    wt += gotten_item().item()->weight();
   if ( trading_cont.get() )
     wt += trading_cont->weight();
   return wt;
@@ -1246,7 +1247,7 @@ Core::Spellbook* Character::spellbook( u8 school ) const
   {
     for ( Core::UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
-      const Items::Item* item = GET_ITEM_PTR( itr );
+      const Items::Item* item = *itr;
 
       if ( item != nullptr && item->script_isa( Core::POLCLASS_SPELLBOOK ) )
       {
@@ -1643,29 +1644,7 @@ void Character::on_color_changed()
 
 void Character::on_poison_changed()
 {
-  send_move_mobile_to_nearby_cansee( this );
-
-  // only if client is active or for npcs
-  if ( ( client ) || ( this->isa( Core::UOBJ_CLASS::CLASS_NPC ) ) )
-  {
-    if ( client )
-    {
-      send_goxyz( client, client->chr );
-      // if poisoned send_goxyz handles 0x17 packet
-      if ( !poisoned() )
-        send_poisonhealthbar( client, client->chr );
-    }
-    // This is a KR only packet, so transmit it only to KR clients
-    // who are in range.
-    // if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
-    if ( !poisoned() )
-    {
-      Network::HealthBarStatusUpdate msg( serial_ext, Network::HealthBarStatusUpdate::Color::GREEN,
-                                          poisoned() );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-          this, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-    }
-  }
+  send_move_mobile_to_nearby_cansee( this, true );
 }
 
 void Character::on_hidden_changed()
@@ -2253,7 +2232,7 @@ void Character::die()
     _item->setposition( corpse->pos() );
     add_item_to_world( _item );
     register_with_supporting_multi( _item );
-    move_item( _item, corpse->x(), corpse->y(), corpse->z(), nullptr );
+    move_item( _item, corpse->pos() );
   };
 
   // WARNING: never ever touch or be 10000% sure what you are doing!!!!
@@ -2330,7 +2309,7 @@ void Character::die()
     // u8 corpseSlot = 1;
     while ( !tmp.empty() )
     {
-      Items::Item* bp_item = ITEM_ELEM_PTR( tmp.back() );
+      Items::Item* bp_item = tmp.back();
       tmp.pop_back();
       bp_item->container = nullptr;
       bp_item->layer = 0;
@@ -3383,6 +3362,7 @@ void Character::attack( Character* opponent )
 
       double parry_chance =
           opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
+      parry_chance += opponent->parrychance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
         INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
       if ( Clib::random_double( 1.0 ) < parry_chance )
@@ -3484,7 +3464,7 @@ void Character::check_light_region_change()
   else
   {
     // dave 12-22 check for no regions
-    Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( x(), y(), realm() );
+    Core::LightRegion* light_region = Core::gamestate.lightdef->getregion( pos() );
     if ( light_region != nullptr )
       newlightlevel = light_region->lightlevel;
     else
@@ -3501,8 +3481,7 @@ void Character::check_light_region_change()
 void Character::check_justice_region_change()
 {
   Core::JusticeRegion* cur_justice_region = client->gd->justice_region;
-  Core::JusticeRegion* new_justice_region =
-      Core::gamestate.justicedef->getregion( x(), y(), client->chr->realm() );
+  Core::JusticeRegion* new_justice_region = Core::gamestate.justicedef->getregion( pos() );
 
   if ( cur_justice_region != new_justice_region )
   {
@@ -3568,7 +3547,7 @@ void Character::check_justice_region_change()
 void Character::check_music_region_change()
 {
   Core::MusicRegion* cur_music_region = client->gd->music_region;
-  Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( x(), y(), realm() );
+  Core::MusicRegion* new_music_region = Core::gamestate.musicdef->getregion( pos() );
 
   // may want to consider changing every n minutes, too, even if region didn't change
   if ( cur_music_region != new_music_region )
@@ -3590,8 +3569,7 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
                                                            // changed type/intensity
 {
   Core::WeatherRegion* cur_weather_region = client->gd->weather_region;
-  Core::WeatherRegion* new_weather_region =
-      Core::gamestate.weatherdef->getregion( x(), y(), realm() );
+  Core::WeatherRegion* new_weather_region = Core::gamestate.weatherdef->getregion( pos() );
 
   // eric 5/31/03: I don't think this is right.  it's possible to go from somewhere that has no
   // weather region,
@@ -3781,11 +3759,15 @@ bool Character::CustomHousingMove( unsigned char i_dir )
         newpos.z( house->z() +
                   Multi::CustomHouseDesign::custom_house_z_xlate_table[house->editing_floor_num] );
         const Multi::MultiDef& def = house->multidef();
-        if ( newpos.x() > ( house->x() + def.minrx ) && newpos.x() <= ( house->x() + def.maxrx ) &&
-             newpos.y() > ( house->y() + def.minry ) && newpos.y() <= ( house->y() + def.maxry ) )
+        auto relpos = newpos - house->pos().xy();
+        // minx and y are wall elements and z is 7
+        // mobile will look like flying when allowing the min coords
+        if ( def.within_multi( relpos ) && relpos.x() != def.minrxyz.x() &&
+             relpos.y() != def.minrxyz.y() )
         {
+          Core::Pos4d oldpos = pos();
           setposition( newpos );
-          MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );
+          MoveCharacterWorldPosition( oldpos, this );
 
           position_changed();
           set_dirty();
@@ -3876,6 +3858,7 @@ bool Character::move( unsigned char i_dir )
     if ( !cached_settings.get( PRIV_FLAGS::FIRE_WHILE_MOVING ) && weapon->is_projectile() )
       reset_swing_timer();
 
+    Core::Pos4d oldpos = pos();
     setposition( new_pos );
 
     if ( on_mount() && !script_isa( Core::POLCLASS_NPC ) )
@@ -3909,7 +3892,7 @@ bool Character::move( unsigned char i_dir )
     }
 
     gradual_boost = current_boost;
-    MoveCharacterWorldPosition( lastx, lasty, x(), y(), this, nullptr );
+    MoveCharacterWorldPosition( oldpos, this );
 
     position_changed();
     if ( walkon_item != nullptr )
@@ -3963,7 +3946,10 @@ void Character::realm_changed()
   wornitems->for_each_item( Core::setrealm, (void*)realm() );
   // TODO Pos: realm should be all the time nullptr for these items
   if ( has_gotten_item() )
-    gotten_item()->setposition( Core::Pos4d( gotten_item()->pos().xyz(), realm() ) );
+  {
+    auto gotten = gotten_item();
+    gotten.item()->setposition( Core::Pos4d( gotten.item()->pos().xyz(), realm() ) );
+  }
   if ( trading_cont.get() )
     trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
 
@@ -4296,6 +4282,13 @@ void Character::send_buffs()
   }
 }
 
+u8 Character::update_range() const
+{
+  // TODO Pos activate
+  return (u8)RANGE_VISUAL;
+  //  return client ? client->update_range() : (u8)RANGE_VISUAL;
+}
+
 size_t Character::estimatedSize() const
 {
   size_t size = base::estimatedSize() + uclang.capacity() + privs.estimatedSize() +
@@ -4316,7 +4309,6 @@ size_t Character::estimatedSize() const
                 + sizeof( Plib::URACE )                               /*race*/
                 + sizeof( short )                                     /*gradual_boost*/
                 + sizeof( u32 )                                       /*last_corpse*/
-                + sizeof( GOTTEN_ITEM_TYPE )                          /*gotten_item_source*/
                 + sizeof( Core::TargetCursor* )                       /*tcursor2*/
                 + sizeof( weak_ptr<Core::Menu> )                      /*menu*/
                 + sizeof( u16 )                                       /*_last_textcolor*/

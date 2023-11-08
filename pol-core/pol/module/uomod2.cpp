@@ -33,6 +33,7 @@
 #include "pol_global_config.h"
 
 #include <ctype.h>
+#include <optional>
 #include <stddef.h>
 #include <string>
 
@@ -95,6 +96,7 @@
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "base/position.h"
 #include "systems/suspiciousacts.h"
 #include "uomod.h"
 
@@ -177,7 +179,7 @@ bool send_vendorwindow_contents( Client* client, UContainer* for_sale, bool send
   {
     Item* item = ( *for_sale )[i];
     // const ItemDesc& id = find_itemdesc( item->objtype_ );
-    std::string desc = item->merchant_description();
+    std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
     size_t addlen = 5 + desc.size();
     if ( msg->offset + addlen > sizeof msg->buffer )
     {
@@ -473,12 +475,12 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
         numleft -= num;
@@ -508,12 +510,12 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-              // FIXME : Add Grid Index Default Location Checks here.
-              // Remember, if index fails, move to the ground.
-              if ( from_bought )
-            vendor_bought->add( tobuy );
-          else
-            for_sale->add( tobuy );
+            // FIXME : Add Grid Index Default Location Checks here.
+            // Remember, if index fails, move to the ground.
+            if ( from_bought )
+              vendor_bought->add( tobuy );
+            else
+              for_sale->add( tobuy );
           continue;
         }
 
@@ -642,7 +644,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
   {
     for ( UContainer::iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
     {
-      Item* item = GET_ITEM_PTR( itr );
+      Item* item = *itr;
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont2 = static_cast<UContainer*>( item );
@@ -654,7 +656,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       unsigned int buyprice;
       if ( !item->getbuyprice( buyprice ) )
         continue;
-      std::string desc = item->merchant_description();
+      std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
       if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
       {
         return false;
@@ -663,7 +665,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       {
         for ( buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
         {
-          Item* buyable_item = GET_ITEM_PTR( buyable_itr );
+          Item* buyable_item = *buyable_itr;
           if ( buyable_item->objtype_ == item->objtype_ )
             break;
         }
@@ -779,6 +781,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 
 extern BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                               unsigned short amount, bool force_stacking,
+                                              std::optional<Core::Pos2d> pos,
                                               UOExecutorModule* uoemod );
 // player selling to vendor
 void oldSellHandler( Client* client, PKTIN_9F* msg )
@@ -832,8 +835,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     if ( vendor_bought->can_add( *item ) )
     {
-      u16 tx, ty;
-      vendor_bought->get_random_location( &tx, &ty );
+      auto contpos = vendor_bought->get_random_location();
       backpack->remove( item );
       if ( remainder_not_sold != nullptr )
       {
@@ -843,7 +845,7 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
         update_item_to_inrange( remainder_not_sold );
         remainder_not_sold = nullptr;
       }
-      item->setposition( Core::Pos4d( tx, ty, 0, vendor_bought->realm() ) );
+      item->setposition( Core::Pos4d( contpos, 0, vendor_bought->realm() ) );
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
       vendor_bought->add( item );
@@ -866,14 +868,14 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
     while ( temp_cost > 60000 )
     {
       BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( 60000 ), false,
+                                            static_cast<unsigned short>( 60000 ), false, {},
                                             nullptr ) );
       temp_cost -= 60000;
     }
     if ( temp_cost > 0 )
     {
       BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( temp_cost ), false,
+                                            static_cast<unsigned short>( temp_cost ), false, {},
                                             nullptr ) );
     }
   }
@@ -1574,20 +1576,22 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
   msg->Write<u32>( chr->serial_ext );
   msg->offset += 2;  // u8 type,index
 
-  size_t numbytes = line1->length() + 1;
+  std::string convertedString = Clib::strUtf8ToCp1252( line1->value() );
+  size_t numbytes = convertedString.length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line1->data(), static_cast<u16>( numbytes ) );  // null-terminated
+  msg->Write( convertedString.c_str(), static_cast<u16>( numbytes ) );  // null-terminated
 
   msg->Write<u8>( static_cast<u8>( cancel ) );
   msg->Write<u8>( static_cast<u8>( style ) );
   msg->WriteFlipped<s32>( maximum );
-  numbytes = line2->length() + 1;
+  convertedString = Clib::strUtf8ToCp1252( line2->value() );
+  numbytes = convertedString.length() + 1;
   if ( numbytes > 256 )
     numbytes = 256;
   msg->WriteFlipped<u16>( numbytes );
-  msg->Write( line2->data(), static_cast<u16>( numbytes ) );  // null-terminated
+  msg->Write( convertedString.c_str(), static_cast<u16>( numbytes ) );  // null-terminated
   u16 len = msg->offset;
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
@@ -1884,6 +1888,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
 
   LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
   LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
+  LONG_COREVAR( update_range, gamestate.update_range.x() );
   if ( stricmp( corevar, "version" ) == 0 )
     return new String( POL_VERSION_STR );
   if ( stricmp( corevar, "verstr" ) == 0 )
@@ -1906,6 +1911,8 @@ BObjectImp* GetCoreVariable( const char* corevar )
     return GetPktStatusObj();
   if ( stricmp( corevar, "memory_usage" ) == 0 )
     return new BLong( static_cast<int>( Clib::getCurrentMemoryUsage() / 1024 ) );
+  if ( stricmp( corevar, "poldir" ) == 0 )
+    return new String( Clib::ProgramConfig::programDir() );
 
   return new BError( std::string( "Unknown core variable " ) + corevar );
 }
@@ -2285,7 +2292,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
         const BObjectImp* line_imp = arr->imp_at( linenum );
         std::string linetext;
         if ( line_imp )
-          linetext = line_imp->getStringRep();
+          linetext = line_imp->getStringRep();  // This is UTF-8
         if ( msg->offset + linetext.size() + 1 > sizeof msg->buffer )
         {
           return new BError( "Buffer overflow" );
@@ -2381,7 +2388,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
       BObjectImpRefVec params;
       params.push_back( ref_ptr<BObjectImp>( new BLong( linenum ) ) );
       BObject line_ob = book->call_custom_method( "getline", params );
-      linetext = line_ob->getStringRep();
+      linetext = line_ob->getStringRep();  // this is UTF-8
 
       if ( msgOut->offset + linetext.size() + 1 > sizeof msgOut->buffer )
       {
@@ -2518,9 +2525,8 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
     msg->Write<u8>( 0xFFu );         // fixme
     msg.Send( chr->client );
   }
-  move_character_to( chr, house->x(), house->y(), house->z() + 7, MOVEITEM_FORCELOCATION, nullptr );
-  // chr->set_script_member("hidden",1);
-  // chr->set_script_member("frozen",1);
+  Core::Pos4d newpos = house->pos() + Core::Vec3d( 0, 0, 7 );
+  move_character_to( chr, newpos, MOVEITEM_FORCELOCATION );
 
   house->WorkingDesign.AddComponents( house );
   house->CurrentDesign.AddComponents( house );
@@ -2540,8 +2546,10 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   {
     Character* multichr = moblist.back();
     if ( multichr != chr )
-      move_character_to( multichr, house->x() + def.minrx, house->y() + def.maxry + 1, house->z(),
-                         MOVEITEM_FORCELOCATION, nullptr );
+    {
+      Core::Pos4d pos = house->pos() + Core::Vec2d( def.minrxyz.x(), def.maxrxyz.y() + 1 );
+      move_character_to( multichr, pos, MOVEITEM_FORCELOCATION );
+    }
     moblist.pop_back();
   }
 
@@ -2670,16 +2678,17 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     return new BError( "Too many entries in menu" );
 
   // Prepare packet
-  // TODO: add KR support?
-  PktHelper::PacketOut<PktOut_BF_Sub14> msg;
-  msg->offset += 4;
-  msg->Write<u8>( 0u );                  // unknown
-  msg->Write<u8>( 1u );                  // 1=2D, 2=KR
-  msg->Write<u32>( above->serial_ext );  // Above serial
-  u16 offset_num_entries = msg->offset;
-  msg->offset += 1;  // Skip num entries now, write it later
+  struct Entry
+  {
+    u32 cliloc = 0;
+    u16 flags = 0;
+    u16 color = 0;
+  };
+  std::vector<Entry> entries;
+  bool newformat = false;
+  if ( chr->client->ClientType & CLIENTTYPE_UOKR )
+    newformat = true;
 
-  u8 num_entries = 0;
   for ( u16 i = 0; i < menu_arr->ref_arr.size(); ++i )
   {
     BObject* bo = menu_arr->ref_arr[i].get();
@@ -2687,19 +2696,14 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
       continue;
     BObjectImp* imp = bo->impptr();
 
-    if ( !++num_entries )  // overflow
+    if ( entries.size() >= 255 )  // overflow
       return new BError( "Too many entries in menu" );
-
-    int cliloc;
-    bool disabled = false;
-    bool arrow = false;
-    u16 color = 0;
-    bool use_color = false;
+    Entry entry;
     if ( imp->isa( BObjectImp::OTLong ) )
     {
-      // Short form: meu is just an int
+      // Short form: menu is just an int
       const BLong* lng = static_cast<BLong*>( imp );
-      cliloc = lng->value();
+      entry.cliloc = lng->value();
     }
     else if ( imp->isa( BObjectImp::OTStruct ) )
     {
@@ -2712,58 +2716,79 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
       if ( !cl->isa( BObjectImp::OTLong ) )
         return new BError( "Invalid cliloc for menu element" );
       const BLong* lng = static_cast<BLong*>( cl );
-      cliloc = lng->value();
+      entry.cliloc = lng->value();
 
       const BObjectImp* ds = elem->FindMember( "disabled" );
-      if ( ds != nullptr )
-        disabled = ds->isTrue();
+      if ( ds != nullptr && ds->isTrue() )
+        entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_LOCKED;
 
       const BObjectImp* ar = elem->FindMember( "arrow" );
-      if ( ar != nullptr )
-        arrow = ar->isTrue();
+      if ( ar != nullptr && ar->isTrue() )
+        entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_ARROW;
 
       BObjectImp* co = const_cast<BObjectImp*>( elem->FindMember( "color" ) );
       if ( co != nullptr && co->isa( BObjectImp::OTLong ) )
       {
         const BLong* colng = static_cast<BLong*>( co );
-        color = static_cast<u16>( colng->value() );
-        use_color = true;
+        entry.color = static_cast<u16>( colng->value() );
+        entry.flags |= PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR;
       }
     }
     else
       return new BError( "Menu elements must be int or struct" );
 
-    if ( cliloc < 3000000 || cliloc > 3065535 )
-      return new BError( "Cliloc out of range in menu" );
+    if ( !newformat && ( entry.cliloc < 3000000 || entry.cliloc > 3065535 ) )
+    {
+      if ( chr->client->ClientType & CLIENTTYPE_6017 )
+        newformat = true;
+      else
+        return new BError( "Cliloc out of range in menu" );
+    }
+    entries.push_back( entry );
+  }
 
-    u16 flags = 0x00;
-    if ( disabled )
-      flags |= 0x01;
-    if ( arrow )
-      flags |= 0x02;
-    if ( use_color )
-      flags |= 0x20;
-    msg->WriteFlipped<u16>( static_cast<u16>( i + 1 ) );             // Menu element ID
-    msg->WriteFlipped<u16>( static_cast<u16>( cliloc - 3000000 ) );  // Cliloc ID, adjusted
-    msg->WriteFlipped<u16>( flags );                                 // Flags
-    if ( use_color )
-      msg->WriteFlipped<u16>( static_cast<u16>( color ) );
+  PktHelper::PacketOut<PktOut_BF_Sub14> msg;
+  msg->offset += 4;
+  msg->Write<u8>( 0u );                   // unknown
+  msg->Write<u8>( newformat ? 2u : 1u );  // 1=2D, 2=KR
+  msg->Write<u32>( above->serial_ext );   // Above serial
+  msg->Write<u8>( static_cast<u8>( entries.size() ) );
+  for ( u16 i = 0; i < entries.size(); ++i )
+  {
+    auto& e = entries[i];
+    if ( newformat )
+    {
+      msg->WriteFlipped<u32>( e.cliloc );
+      msg->WriteFlipped<u16>( i + 1u );
+      if ( e.flags & PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR )  // new format does not support color
+        e.flags &= ~PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR;
+      msg->WriteFlipped<u16>( e.flags );
+    }
+    else
+    {
+      msg->WriteFlipped<u16>( i + 1u );                                  // Menu element ID
+      msg->WriteFlipped<u16>( static_cast<u16>( e.cliloc - 3000000 ) );  // Cliloc ID, adjusted
+      msg->WriteFlipped<u16>( e.flags );                                 // Flags
+      if ( e.flags & PKTBI_BF_14_ENTRIES::POPUP_MENU_COLOR )
+        msg->WriteFlipped<u16>( e.color );
+    }
   }
 
   // Add lengths and send
   u16 len = msg->offset;
-  msg->offset = offset_num_entries;
-  msg->Write<u8>( num_entries );
   msg->offset = 1;
   msg->WriteFlipped<u16>( len );
   msg.Send( chr->client, len );
 
   // Cancel any previously waiting popup response
-  if ( chr->client->gd->popup_menu_selection_uoemod != nullptr )
+  if ( auto& old = chr->client->gd->popup_menu_selection_uoemod; old != nullptr )
   {
-    chr->client->gd->popup_menu_selection_uoemod->uoexec().revive();
+    // reset uomod members otherwise the deconstructor will reset the next request
+    old->popup_menu_selection_chr = nullptr;
+    old->popup_menu_selection_above = nullptr;
+    old->uoexec().revive();
 
-    chr->client->gd->popup_menu_selection_uoemod = nullptr;
+    old = nullptr;
     chr->on_popup_menu_selection = nullptr;
   }
 

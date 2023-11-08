@@ -80,6 +80,7 @@
 <member mname="buyprice" type="Integer" access="r/w" mdesc="Amount of gold an NPC buys this item for. 0=not for sale, -1=itemdesc default." />
 <member mname="newbie" type="Boolean" access="r/w" mdesc="true if the item remains with the ghost when player dies" />
 <member mname="insured" type="Boolean" access="r/w" mdesc="like newbie, but it gets reset to 0 whenever it saves an item from dropping" />
+<member mname="cursed" type="Boolean" access="r/w" mdesc="true if item is cursed; does not have any special core handling other than preventing cursed and non-cursed items from stacking together." />
 <member mname="item_count" type="Integer" access="r/o" mdesc="number of items in container including the container itself (1 if this item is not a container or an empty container)" />
 <member mname="stackable" type="Integer" access="r/o" mdesc="return is based on POL Decided stackability of item." />
 <member mname="tile_layer" type="Integer" access="r/o" mdesc="returns the Layer setting in the Tiles.cfg/Tiledata" />
@@ -144,6 +145,7 @@
 <member mname="faster_cast_recovery_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="luck_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
 <member mname="swing_speed_increase_mod" type="Integer" access="r/w" mdesc="Modifier for property, added to base of the object." />
+<member mname="character_owner" type="OfflineCharacterRef" access="r/o" mdesc="Returns Character that owns the item, ie. the character whose backpack or equipped items contains the item." />
 
 
 <method proto="splitStackAt(x, y, z, realm, amount)" returns="Item" desc="Will split the item into 2 stacks. Returns a reference to the new stack made from item. Places new stack at the coordinates" />
@@ -206,8 +208,8 @@
 <member mname="trading_with" type="Character" access="r/o" mdesc="Reference to character they are trading with (if any)" />
 <member mname="tradewindow" type="Container" access="r/o" mdesc="Reference to the trade container if the char has an active trade, error if no active trade" />
 <member mname="weapon" type="Item" access="r/o" mdesc="Reference to character's weapon (if any)" />
-<member mname="acct" type="Integer" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
-<member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
+<member mname="acct" type="Account" access="r/o" mdesc="Account Reference (if not NPC) (deprecated, will be removed in next release, use Client instead)" />
+<member mname="acctname" type="String" access="r/o" mdesc="Account name string (if not NPC)" />
 <member mname="cmdlevel" type="Integer" access="r/w" mdesc="command level of character" />
 <member mname="cmdlevelstr" type="String" access="r/o" mdesc="string name of command level" />
 <member mname="criminal" type="Integer" access="r/o" mdesc="1 = player is temporally criminal (gray) or murderer (red) (see also temporally_criminal)" />
@@ -237,6 +239,7 @@
 <member mname="race" type="Integer" access="r/w" mdesc="Set/get the ML/SA race (new constants in UO.EM: RACE_HUMAN, RACE_ELF,RACE_GARGOYLE). You have to set visual graphic by yourself if you change value (Human male/female = 0x190/0x191 / Elf male/female = 0x25d/0x25e / Gargoyle male/female = 0x029a/0x029b). You can choose Race at Char creation if your UOExpansion and UOFeature settings fit." />
 <member mname="hitchance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the hitchance from the attacker (+- int in thousandth)" />
 <member mname="evasionchance_mod" type="Integer" access="r/w" mdesc="Subtractive modificator of the hitchance from the defender (+- int in thousandth)" />
+<member mname="parrychance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the parry_chance from the defender (+- int in thousandth)" />
 <member mname="carrying_capacity" type="Integer" access="r/o" mdesc="Current carrying capacity. Defined as (40 + 3.5*chr.strength + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod. Note that characters can go above their carrying capacity, but will run out of stamina much faster." />
 <member mname="carrying_capacity_mod" type="Integer" access="r/w" mdesc="Carrying capacity modifier. Is taken into account prior to global ssopt modifier." />
 <member mname="statcap" type="Integer" access="r/w" mdesc="AOS+ Statcap entry in statusbar, default 255" />
@@ -553,6 +556,7 @@
 <method proto="log_profile(bool clear)" returns="true/false" desc="Writes the script profile to the log, optionally clearing it after." />
 <method proto="set_priority_divide(int divide)" returns="true/false" desc="Sets the priority divide to 'divide'" />
 <method proto="clear_script_profile_counters()" returns="true/false" desc="Clears the script profile counters"/>
+<member mname="poldir" type="String" access="r/o" mdesc="Directory of the POL executable" />
 <method proto="internal(integer)" returns="unspecified" desc="developer methods, not officially published"/>
 </class>
 
@@ -662,7 +666,7 @@ Pre-intialize with var a := array { 53, 76, 32 };</explain>
 <explain>An object passed to an Aux Service Script that allows the script to transmit and recieve packed data over a TCP/IP port. use wait_for_event() in the service script to recieve data. </explain>
 <member mname="ip" type="String" access="r/o" mdesc="Originating IP on the AuxConnection Pipe" />
 
-<method proto="transmit(object o)" returns="error/0" desc="Transmits the packable object 'o' over the Aux connection." />
+<method proto="transmit(object o)" returns="error/0" desc="Transmits the packable object 'o' over the Aux connection. If the connection script has the AUXSVC_ASSUME_STRING script option, then the parameter object `o` is sent as a string and not unpacked. If the Aux Connection was created with the ignore_line_breaks option, then a CRLF will not be appended to the message. " />
 </class>
 
 
@@ -769,6 +773,7 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <method proto="SetString(int offset, string string, int nullterminate)" returns="true/error" desc="Sets a string value at offset (0-based). If offset plus length of string is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a 0 terminator." />
 <method proto="SetUnicodeString(int offset, array unicode character, int nullterminate)" returns="true/error" desc="Sets a unicode string at offset (0-based). If offset plus length of string (2*number of members in the array) is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte values. See unicode.em for useful functions. CAscZ in basic.em is useful for character sets that use the ascii/ansi standard." />
 <method proto="SetUnicodeStringFlipped(int offset, array unicode character, int nullterminate)" returns="true/error" desc="Sets a unicode string at offset (0-based). If offset plus length of string (2*number of members in the array) is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a double 0 terminator. Unicode strings in eScript are arrays of 2-byte values. See unicode.em for useful functions. CAscZ in basic.em is useful for character sets that use the ascii/ansi standard. With Flipped Byte Order (for specific packet support)" />
+<method proto="SetUtf8String(int offset, string string, int nullterminate)" returns="true/error" desc="Sets a UTF-8 encoded string value at offset (0-based). If offset plus length of string is greater than current size, the packet is resized to fit the new data and the encoded size is updated for variable length packets. Resizing is not allowed for fixed-length packets. Set nullterminate to 1 if you want to automatically append a 0 terminator." />
 </class>
 
 
@@ -831,7 +836,8 @@ The ClientRef is important when having packethooks which are active before chara
 access to the Client and not the Character.
 Because the ClientRef contains most information that was in the Character before, it becomes redundant to have those
 methods and properties in the Character and they will be removed in a future release.</explain>
-<member mname="acctname" type="Account" access="r/o" mdesc="Account name string (if not NPC)" />
+<member mname="acctname" type="String" access="r/o" mdesc="Account name string" />
+<member mname="acct" type="Account" access="r/o" mdesc="Account reference" />
 <member mname="ip" type="String" access="r/o" mdesc="IP Address string" />
 <member mname="port" type="Integer" access="r/o" mdesc="connected listen port" />
 <member mname="clientversion" type="String" access="r/o" mdesc="UO Client version string" />
@@ -841,6 +847,7 @@ methods and properties in the Character and they will be removed in a future rel
 <member mname="clienttype" type="Integer" access="r/o" mdesc="clientversion type bitfield" />
 <member mname="last_activity_at" type="Integer" access="r/o" mdesc="POL clock when last activity has been made" />
 <member mname="last_packet_at" type="Integer" access="r/o" mdesc="POL clock when last packet has been received" />
+<member mname="disable_inactivity_timeout" type="Boolean" access="r/w" mdesc="If true, client will not be disconnected due to inactivity." />
 <method proto="compareversion(string Version)" returns="true/false" desc="true if Client Version >= given Versionstring" />
 </class>
 

@@ -46,6 +46,8 @@ void mkupperASCII( std::string& str );
 std::string strlowerASCII( const std::string& str );
 std::string strupperASCII( const std::string& str );
 
+std::string strtrim( const std::string& str );
+
 void remove_bom( std::string* strbuf );
 
 bool isValidUnicode( const std::string& str );
@@ -53,6 +55,21 @@ bool isValidUnicode( const std::string& str );
 void sanitizeUnicodeWithIso( std::string* str );
 // if invalid unicode is detected characters get replaced
 void sanitizeUnicode( std::string* str );
+
+// Converts a unicode code point (which is the same as a UTF-32 encoded character, but not the same
+// as a UTF-8 or UTF-16 encoded character) into a cp1252 code point (which is the same as a cp1252
+// encoded character)
+uint8_t unicodeToCp1252( uint32_t codepoint );
+
+// Converts a cp1252 code point into a unicode code point
+uint32_t cp1252ToUnicode( uint8_t codepoint );
+
+// Converts a UTF-8 encoded string to CP-1252
+std::string strUtf8ToCp1252( const std::string &utf8string );
+
+// Takes a CP-1252 encoded string and returns the same string encoded in UTF-8
+std::string strCp1252ToUtf8( const std::string &cp1252string );
+
 }  // namespace Clib
 }  // namespace Pol
 #endif  // CLIB_STRUTIL_H

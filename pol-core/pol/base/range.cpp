@@ -58,7 +58,8 @@ Range2dItr Range2d::end() const
 
 bool Range2d::contains( const Pos2d& other ) const
 {
-  return _nw <= other && _se >= other;
+  return _nw.x() <= other.x() && _nw.y() <= other.y() && other.x() <= _se.x() &&
+         other.y() <= _se.y();
 }
 
 bool Range2d::intersect( const Range2d& other ) const
@@ -80,6 +81,11 @@ fmt::Writer& operator<<( fmt::Writer& w, const Range2d& v )
 {
   w << "( " << v.nw() << " - " << v.se() << " )";
   return w;
+}
+std::ostream& operator<<( std::ostream& os, const Range2d& v )
+{
+  os << "( " << v.nw() << " - " << v.se() << " )";
+  return os;
 }
 
 Range3d::Range3d( const Pos3d& p1, const Pos3d& p2, const Realms::Realm* realm )
@@ -123,6 +129,11 @@ fmt::Writer& operator<<( fmt::Writer& w, const Range3d& v )
 {
   w << "( " << v.nw_b() << " - " << v.se_t() << " )";
   return w;
+}
+std::ostream& operator<<( std::ostream& os, const Range3d& v )
+{
+  os << "( " << v.nw_b() << " - " << v.se_t() << " )";
+  return os;
 }
 }  // namespace Core
 }  // namespace Pol

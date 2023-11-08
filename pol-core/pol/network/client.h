@@ -94,17 +94,17 @@ struct VersionDetailStruct
   int patch;
 };
 
-const struct VersionDetailStruct CLIENT_VER_4000 = {4, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_4070 = {4, 0, 7, 0};
-const struct VersionDetailStruct CLIENT_VER_5000 = {5, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_5020 = {5, 0, 2, 0};
-const struct VersionDetailStruct CLIENT_VER_6017 = {6, 0, 1, 7};
-const struct VersionDetailStruct CLIENT_VER_60142 = {6, 0, 14, 2};
-const struct VersionDetailStruct CLIENT_VER_7000 = {7, 0, 0, 0};
-const struct VersionDetailStruct CLIENT_VER_7090 = {7, 0, 9, 0};
-const struct VersionDetailStruct CLIENT_VER_70130 = {7, 0, 13, 0};
-const struct VersionDetailStruct CLIENT_VER_70300 = {7, 0, 30, 0};
-const struct VersionDetailStruct CLIENT_VER_70331 = {7, 0, 33, 1};
+const struct VersionDetailStruct CLIENT_VER_4000 = { 4, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_4070 = { 4, 0, 7, 0 };
+const struct VersionDetailStruct CLIENT_VER_5000 = { 5, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_5020 = { 5, 0, 2, 0 };
+const struct VersionDetailStruct CLIENT_VER_6017 = { 6, 0, 1, 7 };
+const struct VersionDetailStruct CLIENT_VER_60142 = { 6, 0, 14, 2 };
+const struct VersionDetailStruct CLIENT_VER_7000 = { 7, 0, 0, 0 };
+const struct VersionDetailStruct CLIENT_VER_7090 = { 7, 0, 9, 0 };
+const struct VersionDetailStruct CLIENT_VER_70130 = { 7, 0, 13, 0 };
+const struct VersionDetailStruct CLIENT_VER_70300 = { 7, 0, 30, 0 };
+const struct VersionDetailStruct CLIENT_VER_70331 = { 7, 0, 33, 1 };
 
 enum ClientTypeFlag
 {
@@ -173,7 +173,7 @@ public:
   SOCKET csocket;  // socket to client ACK  - requires header inclusion.
 
   bool preDisconnect;
-  bool disconnect;  // if 1, disconnect this client
+  std::atomic<bool> disconnect;  // if 1, disconnect this client
 
   Crypt::CCryptBase* cryptengine;
   bool encrypt_server_stream;  // encrypt the server stream (data sent to client)?
@@ -182,7 +182,7 @@ public:
   std::atomic<Core::polclock_t> last_activity_at;
   std::atomic<Core::polclock_t> last_packet_at;
 
-  static std::mutex _SocketMutex;
+  mutable std::mutex _SocketMutex;
 
   enum e_recv_states
   {
@@ -209,6 +209,8 @@ public:
   std::string fpLog;
 
   sockaddr ipaddr;
+
+  bool disable_inactivity_timeout;
 
 protected:
   Core::XmitBuffer* first_xmit_buffer;
@@ -237,7 +239,7 @@ public:
   Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption );
   Client( const Client& ) = delete;
   Client& operator=( const Client& ) = delete;
-  static void Delete( Client* client );
+  ~Client();
   size_t estimatedSize() const;
 
   // later these will return a member "session" instead of casting
@@ -265,9 +267,17 @@ public:
   Core::polclock_t last_activity_at() { return session()->last_activity_at; }
   Core::polclock_t last_packet_at() { return session()->last_packet_at; }
 
+  bool disable_inactivity_timeout() { return session()->disable_inactivity_timeout; }
+  void disable_inactivity_timeout( bool disable )
+  {
+    session()->disable_inactivity_timeout = disable;
+  }
+
+  Bscript::BObjectImp* set_script_member_id( const int id, int value );
+  Bscript::BObjectImp* get_script_member_id( const int id );
+
 protected:
   void PreDelete();
-  ~Client();
 
 public:
   bool isActive() const;
@@ -331,6 +341,8 @@ public:
   Bscript::BObjectImp* make_ref();
   weak_ptr<Client> getWeakPtr() const;
 
+  void set_update_range( u8 range );
+  u8 update_range() const;
 
 public:
   ClientGameData* gd;
@@ -368,6 +380,7 @@ inline void ThreadedClient::forceDisconnect()
 // Checks whether the client is disconnected, and not only marked for disconnection
 inline bool ThreadedClient::isReallyConnected() const
 {
+  std::lock_guard<std::mutex> lock( _SocketMutex );
   return !this->disconnect && this->csocket != INVALID_SOCKET;
 }
 

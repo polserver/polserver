@@ -1,0 +1,37 @@
+use os;
+use http;
+
+program HTMLPage()
+    var testPid := QueryParam("testPid");
+    var headers := QueryParam("headers");
+    var status := QueryParam("status");
+    var statusText := QueryParam("statusText");
+    var body := QueryParam("body");
+    var order := QueryParam("order") ?: "status,headers,body";
+
+    var scriptResponse := struct{};
+
+    foreach what in (SplitWords(order, ","))
+        case(what)
+        "status":
+           if (status)
+                scriptResponse.status := WriteStatus(CInt(status), statusText ?: "");
+            endif
+        "headers":
+            if (headers)
+                headers := UnpackJSON(headers);
+                foreach header in headers
+                    scriptResponse.headers := WriteHeader(header.name, header.value);
+                endforeach
+            endif
+        "body":
+            if (body)
+                scriptResponse.body := WriteHtmlRaw(CStr(body));
+            endif
+        endcase
+    endforeach
+
+    if (testPid)
+        GetProcess(CInt(testPid)).SendEvent(scriptResponse);
+    endif
+endprogram

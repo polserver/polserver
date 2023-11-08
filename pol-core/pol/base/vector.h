@@ -25,10 +25,6 @@ public:
 
   bool operator==( const Vec2d& other ) const;
   bool operator!=( const Vec2d& other ) const;
-  bool operator<( const Vec2d& other ) const;
-  bool operator>( const Vec2d& other ) const;
-  bool operator<=( const Vec2d& other ) const;
-  bool operator>=( const Vec2d& other ) const;
 
   Vec2d& operator-=( const Vec2d& other );
   Vec2d& operator+=( const Vec2d& other );
@@ -44,6 +40,7 @@ public:
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
 Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
 fmt::Writer& operator<<( fmt::Writer& w, const Vec2d& v );
+std::ostream& operator<<( std::ostream& os, const Vec2d& v );
 
 class Vec3d
 {
@@ -62,17 +59,9 @@ public:
 
   bool operator==( const Vec3d& other ) const;
   bool operator!=( const Vec3d& other ) const;
-  bool operator<( const Vec3d& other ) const;
-  bool operator>( const Vec3d& other ) const;
-  bool operator<=( const Vec3d& other ) const;
-  bool operator>=( const Vec3d& other ) const;
 
   bool operator==( const Vec2d& other ) const;
   bool operator!=( const Vec2d& other ) const;
-  bool operator<( const Vec2d& other ) const;
-  bool operator>( const Vec2d& other ) const;
-  bool operator<=( const Vec2d& other ) const;
-  bool operator>=( const Vec2d& other ) const;
 
   Vec3d& operator-=( const Vec3d& other );
   Vec3d& operator-=( const Vec2d& other );
@@ -94,6 +83,7 @@ Vec3d operator-( Vec3d lhs, const Vec2d& rhs );
 Vec3d operator+( Vec3d lhs, const Vec3d& rhs );
 Vec3d operator+( Vec3d lhs, const Vec2d& rhs );
 fmt::Writer& operator<<( fmt::Writer& w, const Vec3d& v );
+std::ostream& operator<<( std::ostream& os, const Vec3d& v );
 
 
 inline Vec2d::Vec2d( s16 x, s16 y ) : _x( x ), _y( y ) {}

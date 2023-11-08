@@ -50,6 +50,7 @@
 #include "../uoexec.h"
 #include "../uoscrobj.h"
 #include "../uworld.h"
+#include "base/range.h"
 #include "customhouses.h"
 #include "multi.h"
 #include "multidef.h"
@@ -60,25 +61,44 @@ namespace Pol
 {
 namespace Multi
 {
+Core::Range3d UHouse::current_box() const
+{
+  if ( IsCustom() )
+  {
+    const MultiDef& md = multidef();
+    return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz + Core::Vec2d( 0, 1 ) );
+  }
+  
+  return base::current_box();
+}
+
+ItemList UHouse::get_working_design_items( UHouse* house )
+{
+  ItemList itemlist;
+  MobileList moblist;
+  bool was_editing = house->editing;
+  house->editing = false;
+  UHouse::list_contents( house, itemlist, moblist );
+  house->editing = was_editing;
+  return itemlist;
+}
+
 void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in )
 {
-  const MultiDef& md = house->multidef();
-  short x1 = house->x() + md.minrx, y1 = house->y() + md.minry;
-  short x2 = house->x() + md.maxrx, y2 = house->y() + md.maxry;
-
+  auto box = house->current_box();
   Core::WorldIterator<Core::MobileFilter>::InBox(
-      x1, y1, x2, y2, house->realm(),
+      box.range(), house->realm(),
       [&]( Mobile::Character* chr )
       {
-        UMulti* multi = house->realm()->find_supporting_multi( chr->x(), chr->y(), chr->z() );
+        UMulti* multi = house->realm()->find_supporting_multi( chr->pos3d() );
         if ( const_cast<const UMulti*>( multi ) == house )
           chrs_in.push_back( chr );
       } );
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      x1, y1, x2, y2, house->realm(),
+      box.range(), house->realm(),
       [&]( Items::Item* item )
       {
-        UMulti* multi = house->realm()->find_supporting_multi( item->x(), item->y(), item->z() );
+        UMulti* multi = house->realm()->find_supporting_multi( item->pos3d() );
         if ( const_cast<const UMulti*>( multi ) == house )
         {
           if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
@@ -127,7 +147,7 @@ void UHouse::create_components()
     if ( !elem.is_static )
     {
       Items::Item* item = Items::Item::create( elem.objtype );
-      bool res = add_component( item, elem.x, elem.y, elem.z );
+      bool res = add_component( item, elem.relpos.x(), elem.relpos.y(), elem.relpos.z() );
       passert_always_r( res,
                         "Couldn't add newly created item as house component. Please report this "
                         "bug on the forums." );
@@ -511,18 +531,17 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
   custom = elem.remove_bool( "Custom", false );
   if ( custom )
   {
-    short ysize, xsize, xbase, ybase;
     const MultiDef& def = multidef();
-    ysize = def.maxry - def.minry + 1;  //+1 to include offset 0 in -3..3
-    xsize = def.maxrx - def.minrx + 1;  //+1 to include offset 0 in -3..3
-    xbase = (short)abs( def.minrx );
-    ybase = (short)abs( def.minry );
-    CurrentDesign.InitDesign( ysize + 1, xsize, xbase,
-                              ybase );  //+1 for front steps outside multidef footprint
-    WorkingDesign.InitDesign( ysize + 1, xsize, xbase,
-                              ybase );  //+1 for front steps outside multidef footprint
-    BackupDesign.InitDesign( ysize + 1, xsize, xbase,
-                             ybase );  //+1 for front steps outside multidef footprint
+    auto size =
+        Core::Pos2d( 1, 2 ) +
+        ( def.maxrxyz.xy() - def.minrxyz.xy() );  //+1 to include offset 0 in -3..3, additional y+1
+                                                  // for front steps outside of multidef footprint
+    Core::Vec2d xybase( (short)std::abs( def.minrxyz.x() ), (short)std::abs( def.minrxyz.y() ) );
+
+
+    CurrentDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
+    WorkingDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
+    BackupDesign.InitDesign( size.y(), size.x(), xybase.x(), xybase.y() );
     CurrentDesign.readProperties( elem, "Current" );
     WorkingDesign.readProperties( elem, "Working" );
     BackupDesign.readProperties( elem, "Backup" );
@@ -690,63 +709,23 @@ UHouse* UHouse::FindWorkingHouse( u32 chrserial )
   return house;
 }
 
-// fixme realm
 bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned short myeast,
                       unsigned short mysouth, Realms::Realm* realm )
 {
-  unsigned short wxL, wyL, wxH, wyH;
-
-  Core::zone_convert_clip( mywest - 100, mynorth - 100, realm, &wxL, &wyL );
-  Core::zone_convert_clip( myeast + 100, mysouth + 100, realm, &wxH, &wyH );
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  Core::Pos4d minpos( mywest, mynorth, 0, realm );
+  Core::Pos4d maxpos( myeast, mysouth, 0, realm );
+  // TODO Pos maximum multi footprint, gamestate.update_range?
+  Core::Range2d mybox( minpos, maxpos );
+  Core::Range2d gridarea( Core::zone_convert( minpos - Core::Vec2d( 100, 100 ) ),
+                          Core::zone_convert( maxpos + Core::Vec2d( 100, 100 ) ), nullptr );
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( const auto& multi : realm->getzone_grid( gpos ).multis )
     {
-      for ( const auto& multi : realm->zone[wx][wy].multis )
-      {
-        const MultiDef& edef = multi->multidef();
-        // find out if any of our walls would fall within its footprint.
-        unsigned short itswest, itseast, itsnorth, itssouth;
-
-        itswest = static_cast<unsigned short>( multi->x() + edef.minrx );
-        itseast = static_cast<unsigned short>( multi->x() + edef.maxrx );
-        itsnorth = static_cast<unsigned short>( multi->y() + edef.minry );
-        itssouth = static_cast<unsigned short>( multi->y() + edef.maxry );
-
-        if ( mynorth >= itsnorth && mynorth <= itssouth )  // North
-        {
-          if ( ( mywest >= itswest && mywest <= itseast ) ||  // NW
-               ( myeast >= itswest && myeast <= itseast ) )   // NE
-          {
-            return true;
-          }
-        }
-        if ( mysouth >= itsnorth && mysouth <= itssouth )  // South
-        {
-          if ( ( mywest >= itswest && mywest <= itseast ) ||  // SW
-               ( myeast >= itswest && myeast <= itseast ) )   // SE
-          {
-            return true;
-          }
-        }
-
-        if ( itsnorth >= mynorth && itsnorth <= mysouth )  // North
-        {
-          if ( ( itswest >= mywest && itswest <= myeast ) ||  // NW
-               ( itseast >= mywest && itseast <= myeast ) )   // NE
-          {
-            return true;
-          }
-        }
-        if ( itssouth >= mynorth && itssouth <= mysouth )  // South
-        {
-          if ( ( itswest >= mywest && itswest <= myeast ) ||  // SW
-               ( itseast >= mywest && itseast <= myeast ) )   // SE
-          {
-            return true;
-          }
-        }
-      }
+      // find out if any of our walls would fall within its footprint.
+      auto otherbox = multi->current_box().range();
+      if ( mybox.intersect( otherbox ) )
+        return true;
     }
   }
   return false;
@@ -755,9 +734,8 @@ bool multis_exist_in( unsigned short mywest, unsigned short mynorth, unsigned sh
 bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2,
                        Realms::Realm* realm )
 {
-  unsigned short wxL, wyL, wxH, wyH;
-  Core::zone_convert_clip( x1, y1, realm, &wxL, &wyL );
-  Core::zone_convert_clip( x2, y2, realm, &wxH, &wyH );
+  Core::Range2d gridarea( Core::zone_convert( Core::Pos4d( x1, y1, 0, realm ) ),
+                          Core::zone_convert( Core::Pos4d( x2, y2, 0, realm ) ), realm );
   auto includes = [&]( const Core::UObject* obj )
   {
     if ( obj->x() >= x1 && obj->x() <= x2 && obj->y() >= y1 && obj->y() <= y2 )
@@ -766,25 +744,22 @@ bool objects_exist_in( unsigned short x1, unsigned short y1, unsigned short x2, 
     }
     return false;
   };
-  for ( unsigned short wx = wxL; wx <= wxH; ++wx )
+  for ( const auto& gpos : gridarea )
   {
-    for ( unsigned short wy = wyL; wy <= wyH; ++wy )
+    for ( const auto& chr : realm->getzone_grid( gpos ).characters )
     {
-      for ( const auto& chr : realm->zone[wx][wy].characters )
-      {
-        if ( includes( chr ) )
-          return true;
-      }
-      for ( const auto& chr : realm->zone[wx][wy].npcs )
-      {
-        if ( includes( chr ) )
-          return true;
-      }
-      for ( const auto& item : realm->zone[wx][wy].items )
-      {
-        if ( includes( item ) )
-          return true;
-      }
+      if ( includes( chr ) )
+        return true;
+    }
+    for ( const auto& chr : realm->getzone_grid( gpos ).npcs )
+    {
+      if ( includes( chr ) )
+        return true;
+    }
+    for ( const auto& item : realm->getzone_grid( gpos ).items )
+    {
+      if ( includes( item ) )
+        return true;
     }
   }
   return false;
@@ -819,22 +794,24 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned shor
 Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor, u16 x, u16 y, s8 z,
                                               Realms::Realm* realm, int flags )
 {
-  const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
-  if ( md == nullptr )
+  Core::Pos4d pos( x, y, z, realm );
+
+  if ( !MultiDefByMultiIDExists( descriptor.multiid ) )
   {
     return new Bscript::BError(
         "Multi definition not found for House, objtype=" + Clib::hexint( descriptor.objtype ) +
         ", multiid=" + Clib::hexint( descriptor.multiid ) );
   }
+  const MultiDef* md = MultiDefByMultiID( descriptor.multiid );
 
-  if ( ( !realm->valid( x + md->minrx, y + md->minry, z + md->minrz ) ) ||
-       ( !realm->valid( x + md->maxrx, y + md->maxry, z + md->maxrz ) ) )
+  if ( !pos.can_move_to( md->minrxyz.xy() ) || !pos.can_move_to( md->maxrxyz.xy() ) )
     return new Bscript::BError( "That location is out of bounds" );
 
   if ( ~flags & CRMULTI_IGNORE_MULTIS )
   {
-    if ( multis_exist_in( x + md->minrx - 1, y + md->minry - 5, x + md->maxrx + 1,
-                          y + md->maxry + 5, realm ) )
+    if ( multis_exist_in( pos.x() + md->minrxyz.x() - 1, pos.y() + md->minrxyz.y() - 5,
+                          pos.x() + md->maxrxyz.x() + 1, pos.y() + md->maxrxyz.y() + 5,
+                          pos.realm() ) )
     {
       return new Bscript::BError( "Location intersects with another structure" );
     }
@@ -842,15 +819,17 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
   if ( ~flags & CRMULTI_IGNORE_OBJECTS )
   {
-    if ( objects_exist_in( x + md->minrx, y + md->minry, x + md->maxrx, y + md->maxry, realm ) )
+    if ( objects_exist_in( pos.x() + md->minrxyz.x(), pos.y() + md->minrxyz.y(),
+                           pos.x() + md->maxrxyz.x(), pos.y() + md->maxrxyz.y(), pos.realm() ) )
     {
       return new Bscript::BError( "Something is blocking that location" );
     }
   }
   if ( ~flags & CRMULTI_IGNORE_FLATNESS )
   {
-    if ( statics_cause_problems( x + md->minrx - 1, y + md->minry - 1, x + md->maxrx + 1,
-                                 y + md->maxry + 1, z, flags, realm ) )
+    if ( statics_cause_problems( pos.x() + md->minrxyz.x() - 1, pos.y() + md->minrxyz.y() - 1,
+                                 pos.x() + md->maxrxyz.x() + 1, pos.y() + md->maxrxyz.y() + 1,
+                                 pos.z(), flags, pos.realm() ) )
     {
       return new Bscript::BError( "That location is not suitable" );
     }
@@ -859,7 +838,7 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
   UHouse* house = new UHouse( descriptor );
   house->serial = Core::GetNewItemSerialNumber();
   house->serial_ext = ctBEu32( house->serial );
-  house->setposition( Core::Pos4d( x, y, z, realm ) );
+  house->setposition( pos );
   send_multi_to_inrange( house );
   // update_item_to_inrange( house );
   add_multi_to_world( house );
@@ -875,36 +854,38 @@ Bscript::BObjectImp* UHouse::scripted_create( const Items::ItemDesc& descriptor,
 
 void move_to_ground( Items::Item* item )
 {
+  const Core::Pos4d oldpos = item->toplevel_pos();
   item->set_dirty();
   item->movable( true );
   item->set_decay_after( 60 );  // just a dummy in case decay=0
   item->restart_decay_timer();
-  for ( unsigned short xd = 0; xd < 5; ++xd )
+  for ( unsigned short xd = 0; xd < 5; ++xd )  // TODO POS Range2d for Vectors?
   {
     for ( unsigned short yd = 0; yd < 5; ++yd )
     {
       Items::Item* walkon;
       UMulti* multi;
       short newz;
-      unsigned short sx = item->x();
-      unsigned short sy = item->y();
       item->setposition( Core::Pos4d( item->pos() ).x( 0 ).y( 0 ) );
+      auto newpos = oldpos + Core::Vec2d( xd, yd );
       // move 'self' a bit so it doesn't interfere with itself
-      bool res = item->realm()->walkheight( sx + xd, sy + yd, item->z(), &newz, &multi, &walkon,
-                                            true, Plib::MOVEMODE_LAND );
-      item->setposition( Core::Pos4d( item->pos() ).x( sx ).y( sy ) );
+      bool res = item->realm()->walkheight( newpos.xy(), item->z(), &newz, &multi, &walkon, true,
+                                            Plib::MOVEMODE_LAND );
       if ( res )
       {
-        move_item( item, item->x() + xd, item->y() + yd, static_cast<signed char>( newz ),
-                   nullptr );
+        item->setposition( newpos.z( static_cast<signed char>( newz ) ) );
+        move_item( item, oldpos );
         return;
       }
+      else
+        item->setposition( oldpos );
     }
   }
   short newz;
-  if ( item->realm()->groundheight( item->x(), item->y(), &newz ) )
+  if ( item->realm()->groundheight( item->pos2d(), &newz ) )
   {
-    move_item( item, item->x(), item->y(), static_cast<signed char>( newz ), nullptr );
+    item->setposition( Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) );
+    move_item( item, oldpos );
     return;
   }
 }
@@ -912,7 +893,7 @@ void move_to_ground( Items::Item* item )
 
 void move_to_ground( Mobile::Character* chr )
 {
-  move_character_to( chr, chr->x(), chr->y(), chr->z(), Core::MOVEITEM_FORCELOCATION, nullptr );
+  move_character_to( chr, chr->pos(), Core::MOVEITEM_FORCELOCATION );
 }
 
 // void send_remove_object_if_inrange( Client *client, const UObject *item );
@@ -1018,6 +999,8 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
   waiting_for_accept = false;
   if ( accept )
   {
+    auto itemlist = get_working_design_items( this );
+
     revision++;
 
     // commit working design to current design
@@ -1027,7 +1010,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     std::vector<u8> newvec;
     CurrentCompressed.swap( newvec );
 
-    CustomHouseStopEditing( chr, this );
+    CustomHouseStopEditing( chr, this, itemlist );
 
     // send full house
     CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );

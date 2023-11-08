@@ -140,6 +140,7 @@ enum class OBJ_FLAGS : u16
   CONTENT_TO_GRAVE = 1 << 8,    // UCorpse flag
   NO_DROP = 1 << 9,             // Item flag
   NO_DROP_EXCEPTION = 1 << 10,  // Container/Character flag
+  CURSED = 1 << 11,             // Cursed
 };
 
 /**
@@ -172,6 +173,11 @@ public:
   virtual UObject* self_as_owner();
   virtual const UObject* self_as_owner() const;
   virtual const UObject* toplevel_owner() const;
+  const Pos4d& toplevel_pos() const;
+
+  virtual u8 update_range() const;
+  bool in_range( const UObject* other, u16 range ) const;
+  bool in_range( const Pos2d& other, u16 range ) const;
 
   void setposition( Pos4d newpos );
 
@@ -223,10 +229,7 @@ public:
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
                                 unsigned int* PC ) const;
 
-  void ref_counted_add_ref();
-  void ref_counted_release();
   unsigned ref_counted_count() const;
-  ref_counted* as_ref_counted() { return this; }
   inline void increv() { _rev++; };
   inline u32 rev() const { return _rev; };
   bool dirty() const;
@@ -328,16 +331,6 @@ inline void UObject::set_dirty()
   flags_.set( OBJ_FLAGS::DIRTY );
 }
 
-inline void UObject::ref_counted_add_ref()
-{
-  ref_counted::add_ref( REFERER_PARAM( this ) );
-}
-
-inline void UObject::ref_counted_release()
-{
-  ref_counted::release( REFERER_PARAM( this ) );
-}
-
 inline unsigned UObject::ref_counted_count() const
 {
   return ref_counted::count();
@@ -351,6 +344,26 @@ inline bool IsCharacter( u32 serial )
 inline bool IsItem( u32 serial )
 {
   return ( serial & 0x40000000Lu ) ? true : false;
+}
+
+
+inline const Pos4d& UObject::toplevel_pos() const
+{
+  return toplevel_owner()->pos();
+}
+inline bool UObject::in_range( const UObject* other, u16 range ) const
+{
+  return toplevel_pos().in_range( other->toplevel_pos(), range );
+}
+inline bool UObject::in_range( const Pos2d& other, u16 range ) const
+{
+  return toplevel_pos().in_range( other, range );
+}
+inline u8 UObject::update_range() const
+{
+  // TODO Pos: for multis it needs to be based on the footprint and objects on a multi need to take
+  // it into account
+  return (u8)RANGE_VISUAL;
 }
 }  // namespace Core
 }  // namespace Pol

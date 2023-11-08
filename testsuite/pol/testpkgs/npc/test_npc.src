@@ -1,5 +1,6 @@
 use uo;
 use os;
+use vitals;
 include "testutil";
 
 program npc_ai()
@@ -210,5 +211,52 @@ exported function test_load_desc_props()
   endif
 
   npc.kill();
+  return 1;
+endfunction
+
+exported function test_npc_realm_move()
+  // crashed by wrongly converting coordinates between realms
+  var npc:=CreateNPCFromTemplate(":testnpc:load_npc",100,100,0);
+  if (!npc)
+    return ret_error("Could not create NPC: "+npc);
+  endif
+
+  MoveObjectToLocation(npc,1000,1000,0,"britannia2",MOVEOBJECT_FORCELOCATION);
+  if (npc.x != 1000 || npc.y != 1000 || npc.realm != "britannia2")
+    var res:=$"Failed initial move: {npc.x},{npc.y},{npc.realm}";
+    npc.kill();
+    return ret_error(res);
+  endif
+
+  MoveObjectToLocation(npc,10,10,0,"britannia",MOVEOBJECT_FORCELOCATION);
+  if (npc.x != 10 || npc.y != 10 || npc.realm != "britannia")
+    var res:=$"Failed to move: {npc.x},{npc.y},{npc.realm}";
+    npc.kill();
+    return ret_error(res);
+  endif
+
+  npc.kill();
+  return 1;
+endfunction
+
+/*
+ Test that with WarmodeInhibitsRegen=3 (NPCs Only), an _NPC_ in war mode _will not_ regenerate health.
+*/
+exported function npc_warmodeinhibitsregen()
+  var npc:=CreateNPCFromTemplate(":testnpc:load_npc",100,100,0);
+  if (!npc)
+    return ret_error("Could not create NPC: "+npc);
+  endif
+
+  npc.setwarmode(1);
+  SetVital( npc, "Life", GetVital( npc, "Life" ) / 2);
+  var damaged_health := GetVital( npc, "Life" );
+  Sleep(6);
+  var waited_health := GetVital( npc, "Life" );
+  npc.kill();
+
+  if (damaged_health != waited_health)
+    return ret_error($"NPC health changed between sleeping: {damaged_health} -> {waited_health}");
+  endif
   return 1;
 endfunction

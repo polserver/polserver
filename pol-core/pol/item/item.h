@@ -86,6 +86,7 @@ public:
   virtual size_t estimatedSize() const override;
 
   virtual void double_click( Network::Client* client );
+  void snoop( Network::Client* client, Mobile::Character* owner );
   virtual void builtin_on_use( Network::Client* client );
   virtual void walk_on( Mobile::Character* chr );
 
@@ -150,6 +151,10 @@ public:
   void insured( bool newvalue );
   bool use_insurance();
 
+  bool default_cursed() const;
+  bool cursed() const;
+  void cursed( bool newvalue );
+
   bool no_drop() const;
   bool default_no_drop() const;
   void no_drop( bool newvalue );
@@ -204,13 +209,16 @@ public:
   bool check_equiptest_scripts( Mobile::Character* chr, bool startup = false );
   bool check_unequiptest_scripts( Mobile::Character* chr );
   bool check_unequiptest_scripts();
+  bool start_control_script( const ItemDesc& itemdesc );
+  bool start_control_script();
+  bool stop_control_script();
 
   /**
    * Shortcut function to get a pointer to the owner character
    *
    * @author DAVE, 11/17
    */
-  Mobile::Character* GetCharacterOwner();
+  Mobile::Character* GetCharacterOwner() const;
   /**
    * I'm using the named constructor idiom for creation,
    * so that the right kind of object gets created
@@ -272,6 +280,7 @@ protected:
   boost_utils::script_name_flystring on_use_script_;
   boost_utils::script_name_flystring equip_script_;
   boost_utils::script_name_flystring unequip_script_;
+  boost_utils::script_name_flystring snoop_script_;
   mutable const ItemDesc* _itemdesc;
 
 public:
@@ -326,6 +335,16 @@ inline bool Item::inuse() const
 inline void Item::inuse( bool newvalue )
 {
   flags_.change( Core::OBJ_FLAGS::IN_USE, newvalue );
+}
+
+inline bool Item::cursed() const
+{
+  return flags_.get( Core::OBJ_FLAGS::CURSED );
+}
+
+inline void Item::cursed( bool newvalue )
+{
+  flags_.change( Core::OBJ_FLAGS::CURSED, newvalue );
 }
 
 inline bool Item::invisible() const

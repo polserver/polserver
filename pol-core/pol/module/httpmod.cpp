@@ -18,7 +18,9 @@ namespace Pol
 namespace Core
 {
 std::string http_decodestr( const std::string& s );
-}
+std::string reasonPhrase( int code );
+}  // namespace Core
+
 namespace Module
 {
 using namespace Bscript;
@@ -28,6 +30,151 @@ HttpExecutorModule::HttpExecutorModule( Bscript::Executor& exec, Clib::Socket&& 
       sck_( std::move( isck ) ),
       continuing_offset( 0 )
 {
+}
+
+HttpExecutorModule::~HttpExecutorModule()
+{
+  if ( sck_.connected() )
+  {
+    unsigned nsent;
+    std::string line;
+
+    // Since status line and headers are now controlled by script, check if they are sendable.
+    if ( !cannotSendStatus )
+    {
+      line += "HTTP/1.1 200 OK\n";
+    }
+    if ( !cannotSendHeaders )
+    {
+      if ( !hasCustomContentType )
+      {
+        line += "Content-Type: text/html\n\n";
+      }
+      else
+      {
+        line += "\n";
+      }
+
+      if ( !line.empty() )
+      {
+        sck_.send_nowait( (void*)( line.c_str() ), static_cast<unsigned int>( line.length() ),
+                          &nsent );
+      }
+    }
+  }
+}
+
+BObjectImp* HttpExecutorModule::mf_WriteStatus()
+{
+  int code;
+  const String* reason;
+
+  if ( !sck_.connected() )
+  {
+    exec.seterror( true );
+    return new BError( "Socket is disconnected" );
+  }
+
+  if ( getParam( 0, code ) && getStringParam( 1, reason ) )
+  {
+    if ( cannotSendStatus )
+    {
+      return new BError(
+          "Cannot send status after WriteStatus, WriteHeader, WriteHtml, or WriteHtmlRaw" );
+    }
+
+    unsigned nsent;
+    std::string line = "HTTP/1.1 " + std::to_string( code );
+    auto& reasonString = reason->value();
+
+    if ( reasonString.empty() )
+    {
+      std::string defaultReason = Core::reasonPhrase( code );
+      if ( !defaultReason.empty() )
+      {
+        line += " " + defaultReason + "\n";
+      }
+    }
+    else
+    {
+      line += " " + reasonString + "\n";
+    }
+
+    bool res =
+        sck_.send_nowait( (void*)( line.c_str() + continuing_offset ),
+                          static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
+
+    if ( res )
+    {
+      cannotSendStatus = true;
+      continuing_offset = 0;
+      return new BLong( 1 );
+    }
+    else
+    {
+      continuing_offset += nsent;
+      auto& uoex = uoexec();
+      uoex.SleepForMs( 500u );
+      --uoex.PC;
+      return uoex.fparams[0]->impptr();
+    }
+  }
+  return new BError( "Invalid parameter type" );
+}
+
+
+BObjectImp* HttpExecutorModule::mf_WriteHeader()
+{
+  const String* name;
+  const String* value;
+
+  if ( !sck_.connected() )
+  {
+    exec.seterror( true );
+    return new BError( "Socket is disconnected" );
+  }
+
+  if ( getStringParam( 0, name ) && getStringParam( 1, value ) )
+  {
+    if ( cannotSendHeaders )
+    {
+      return new BError( "Cannot send headers after WriteHtml or WriteHtmlRaw" );
+    }
+
+    if ( Clib::strlowerASCII( name->value() ) == "content-type" )
+    {
+      hasCustomContentType = true;
+    }
+
+    unsigned nsent;
+    std::string line;
+
+    if ( !cannotSendStatus )
+    {
+      line += "HTTP/1.1 200 OK\n";
+    }
+    line += name->value() + ": " + value->value() + "\n";
+
+    bool res =
+        sck_.send_nowait( (void*)( line.c_str() + continuing_offset ),
+                          static_cast<unsigned int>( line.length() - continuing_offset ), &nsent );
+
+    if ( res )
+    {
+      cannotSendStatus = true;
+      continuing_offset = 0;
+      return new BLong( 1 );
+    }
+    else
+    {
+      continuing_offset += nsent;
+      auto& uoex = uoexec();
+      uoex.SleepForMs( 500u );
+      --uoex.PC;
+      return uoex.fparams[0]->impptr();
+    }
+  }
+  return new BError( "Invalid parameter type" );
 }
 
 BObjectImp* HttpExecutorModule::mf_WriteHtml()
@@ -42,14 +189,31 @@ BObjectImp* HttpExecutorModule::mf_WriteHtml()
   {
     // TODO: some tricky stuff so if the socket blocks, the script goes to
     // sleep for a bit and sends the rest later
-
     unsigned nsent;
-    const std::string& s = str->value();
+
+    std::string s;
+    if ( !cannotSendStatus )
+    {
+      s += "HTTP/1.1 200 OK\n";
+    }
+
+    if ( !cannotSendHeaders )
+    {
+      if ( !hasCustomContentType )
+      {
+        s += "Content-Type: text/html\n";
+      }
+      s += "\n";
+    }
+    s += str->value();
+
     bool res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
     if ( res )
     {
+      cannotSendStatus = true;
+      cannotSendHeaders = true;
       continuing_offset = 0;
       // we don't really care if this works or not, terribly.
       sck_.send_nowait( "\n", 1, &nsent );
@@ -85,12 +249,30 @@ BObjectImp* HttpExecutorModule::mf_WriteHtmlRaw()
     // sleep for a bit and sends the rest later
 
     unsigned nsent;
-    const std::string& s = str->value();
+    std::string s;
+
+    if ( !cannotSendStatus )
+    {
+      s += "HTTP/1.1 200 OK\n";
+    }
+
+    if ( !cannotSendHeaders )
+    {
+      if ( !hasCustomContentType )
+      {
+        s += "Content-Type: text/html\n";
+      }
+      s += "\n";
+    }
+    s += str->value();
+
     bool res =
         sck_.send_nowait( (void*)( s.c_str() + continuing_offset ),
                           static_cast<unsigned int>( s.length() - continuing_offset ), &nsent );
     if ( res )
     {
+      cannotSendStatus = true;
+      cannotSendHeaders = true;
       continuing_offset = 0;
       return new BLong( 1 );
     }

@@ -9,7 +9,7 @@
 #ifndef MULTI_H
 #define MULTI_H
 
-#include "../../plib/udatfile.h"
+#include "plib/udatfile.h"
 
 // also consider: multimap<unsigned int, unsigned int>
 // unsigned int is (x << 16) | y
@@ -20,8 +20,10 @@
 // unsigned int is z << 16 | objtype
 
 #ifndef ITEM_H
-#include "../item/item.h"
+#include "item/item.h"
 #endif
+
+#include "base/range.h"
 
 namespace Pol
 {
@@ -86,6 +88,7 @@ public:
   Bscript::BStruct* footprint() const;
   virtual bool readshapes( Plib::MapShapeList& vec, s16 rx, s16 ry, s16 zbase );
   virtual bool readobjects( Plib::StaticList& vec, s16 rx, s16 ry, s16 zbase );
+  virtual Core::Range3d current_box() const;
 
   virtual ~UMulti();
   virtual size_t estimatedSize() const override;

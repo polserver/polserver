@@ -23,6 +23,16 @@ namespace Pol
 {
 namespace Core
 {
+WarmodeInhibitsRegenStrategy CombatConfig::to_warmode_inhibits_regen_strategy(
+    unsigned short value )
+{
+  if ( value > static_cast<unsigned short>( WarmodeInhibitsRegenStrategy::MAX ) )
+  {
+    return WarmodeInhibitsRegenStrategy::None;
+  }
+  return static_cast<WarmodeInhibitsRegenStrategy>( value );
+}
+
 void CombatConfig::read_combat_config()
 {
   Clib::ConfigFile cf;
@@ -38,7 +48,7 @@ void CombatConfig::read_combat_config()
   settingsManager.combat_config.display_parry_success_messages =
       elem.remove_bool( "DisplayParrySuccessMessages", false );
   settingsManager.combat_config.warmode_inhibits_regen =
-      elem.remove_bool( "WarmodeInhibitsRegen", false );
+      to_warmode_inhibits_regen_strategy( elem.remove_ushort( "WarmodeInhibitsRegen", 0 ) );
   settingsManager.combat_config.attack_self = elem.remove_bool( "SingleCombat", false );
   settingsManager.combat_config.warmode_delay = elem.remove_ulong( "WarModeDelay", 1 );
   settingsManager.combat_config.core_hit_sounds = elem.remove_bool( "CoreHitSounds", false );
@@ -50,5 +60,5 @@ void CombatConfig::read_combat_config()
   settingsManager.combat_config.attack_while_frozen = elem.remove_bool( "AttackWhileFrozen", true );
   settingsManager.combat_config.send_attack_msg = elem.remove_bool( "SendAttackMsg", true );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -34,6 +34,7 @@
 #include "../clib/random.h"
 #include "../clib/rawtypes.h"
 #include "../plib/systemstate.h"
+#include "base/position.h"
 #include "containr.h"
 #include "eventid.h"
 #include "fnsearch.h"
@@ -70,8 +71,8 @@ namespace Core
 {
 void send_trade_statuses( Mobile::Character* chr );
 
-bool place_item_in_container( Network::Client* client, Items::Item* item, UContainer* cont, u16 x,
-                              u16 y, u8 slotIndex )
+bool place_item_in_container( Network::Client* client, Items::Item* item, UContainer* cont,
+                              const Pos2d& pos, u8 slotIndex )
 {
   ItemRef itemref( item );
   if ( ( cont->serial == item->serial ) || is_a_parent( cont, item->serial ) )
@@ -93,9 +94,7 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
   }
 
   if ( item->orphan() )
-  {
     return true;
-  }
 
   if ( !cont->can_add_to_slot( slotIndex ) )
   {
@@ -115,7 +114,7 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
   client->pause();
   send_remove_object_to_inrange( item );
 
-  item->setposition( Pos4d( item->pos() ).x( x ).y( y ) );
+  item->setposition( Pos4d( item->pos() ).xy( pos ) );
 
   cont->add( item );
   cont->restart_decay_timer();
@@ -131,10 +130,10 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
 }
 
 bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item,
-                                              UContainer* cont, Mobile::Character* dropon, u16 x,
-                                              u16 y, u8 move_type );
-bool place_item_in_secure_trade_container( Network::Client* client, Items::Item* item, u16 x,
-                                           u16 y )
+                                              UContainer* cont, Mobile::Character* dropon,
+                                              const Pos2d& pos, u8 move_type );
+bool place_item_in_secure_trade_container( Network::Client* client, Items::Item* item,
+                                           const Pos2d& pos )
 {
   UContainer* cont = client->chr->trade_container();
   Mobile::Character* dropon = client->chr->trading_with.get();
@@ -168,7 +167,7 @@ bool place_item_in_secure_trade_container( Network::Client* client, Items::Item*
   // Remember, if index fails, move to the ground. That is, IF secure trade uses
   // grid index.
 
-  return do_place_item_in_secure_trade_container( client, item, cont, dropon, x, y, 0 );
+  return do_place_item_in_secure_trade_container( client, item, cont, dropon, pos, 0 );
 }
 
 Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* client,
@@ -203,17 +202,16 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
   // FIXME : Add Grid Index Default Location Checks here.
   // Remember, if index fails, move to the ground.
 
-  if ( do_place_item_in_secure_trade_container(
-           client, item, cont, dropon, 5 + static_cast<u16>( Clib::random_int( 44 ) ),
-           5 + static_cast<u16>( Clib::random_int( 44 ) ), 1 ) )
+  if ( do_place_item_in_secure_trade_container( client, item, cont, dropon,
+                                                cont->get_random_location(), 1 ) )
     return new Bscript::BLong( 1 );
   else
     return new Bscript::BError( "Something went wrong with trade window." );
 }
 
 bool do_place_item_in_secure_trade_container( Network::Client* client, Items::Item* item,
-                                              UContainer* cont, Mobile::Character* dropon, u16 x,
-                                              u16 y, u8 move_type )
+                                              UContainer* cont, Mobile::Character* dropon,
+                                              const Pos2d& pos, u8 move_type )
 {
   client->pause();
 
@@ -222,7 +220,7 @@ bool do_place_item_in_secure_trade_container( Network::Client* client, Items::It
   send_trade_statuses( client->chr );
 
   send_remove_object_to_inrange( item );
-  item->setposition( Pos4d( item->pos() ).x( x ).y( y ).z( 9 ) );
+  item->setposition( Pos4d( pos, 9, item->realm() ) );
 
   cont->add( item );
 
@@ -285,7 +283,7 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
   return true;
 }
 
-bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, u16 x, u16 y,
+bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, const Pos2d& pos,
                  u8 slotIndex )
 {
   Items::Item* target_item = find_legal_item( client->chr, target_serial );
@@ -300,7 +298,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
         send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
         return false;
       }
-      return place_item_in_secure_trade_container( client, item, x, y );
+      return place_item_in_secure_trade_container( client, item, pos );
     }
   }
 
@@ -310,7 +308,8 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     return false;
   }
 
-  if ( ( pol_distance( client->chr, target_item ) > 2 ) && !client->chr->can_moveanydist() )
+  if ( ( client->chr->pos().pol_distance( target_item->toplevel_pos() ) > 2 ) &&
+       !client->chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
@@ -341,7 +340,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
       send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
       return false;
     }
-    return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), x, y,
+    return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), pos,
                                     slotIndex );
   }
   else
@@ -353,7 +352,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   }
 }
 
-bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16 y, s8 z )
+bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3d& pos )
 {
   if ( item->no_drop() )
   {
@@ -365,21 +364,21 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
 
   Multi::UMulti* multi;
   short newz;
-  if ( !inrangex( chr, x, y, 2 ) && !client->chr->can_moveanydist() )
+  if ( !chr->pos().in_range( pos, 2 ) && !client->chr->can_moveanydist() )
   {
     SuspiciousActs::DropItemOutOfRange( client, item->serial );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
-  if ( !chr->realm()->dropheight( x, y, z, client->chr->z(), &newz, &multi ) )
+  if ( !chr->realm()->dropheight( pos, client->chr->z(), &newz, &multi ) )
   {
-    SuspiciousActs::DropItemOutAtBlockedLocation( client, item->serial, x, y, z );
+    SuspiciousActs::DropItemOutAtBlockedLocation( client, item->serial, pos );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
-  LosObj tgt( x, y, static_cast<s8>( newz ), chr->realm() );
+  LosObj tgt( Pos4d( pos.xy(), static_cast<s8>( newz ), chr->realm() ) );
   if ( !chr->realm()->has_los( *client->chr, tgt ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
@@ -388,15 +387,15 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, u16 x, u16
 
   item->set_dirty();
   item->restart_decay_timer();
-  item->setposition( Pos4d( item->pos() ).x( x ).y( y ).z( static_cast<s8>( newz ) ) );
-  if ( item->realm() != chr->realm() )
+  auto oldrealm = item->realm();  // TODO POS get rid of all the realm for_each
+  item->setposition( tgt.pos() );
+  if ( oldrealm != chr->realm() )
   {
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
     {
       UContainer* cont = static_cast<UContainer*>( item );
       cont->for_each_item( setrealm, (void*)chr->realm() );
     }
-    setrealm( item, (void*)chr->realm() );
   }
   item->container = nullptr;
   item->reset_slot();
@@ -424,7 +423,8 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
     {
       item = Items::Item::create( UOBJ_BACKPACK );
       item->setname( name );
-      item->setposition( Pos4d( item->pos().xyz(), find_realm( std::string( "britannia" ) ) ) );
+      item->setposition( Pos4d( item->pos().xyz(),
+                                find_realm( std::string( "britannia" ) ) ) );  // TODO POS nullptr
       area->insert_root_item( item );
     }
     // Changed this from a passert to return null.
@@ -448,7 +448,7 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
 void send_trade_container( Network::Client* client, Mobile::Character* whos, UContainer* cont )
 {
   auto msg =
-      Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1 /*amount*/, 0 /*x*/, 0 /*y*/,
+      Network::AddItemContainerMsg( cont->serial_ext, cont->graphic, 1 /*amount*/, Pos2d() /*pos*/,
                                     cont->slot_index(), whos->serial_ext, cont->color );
   msg.Send( client );
 }
@@ -562,7 +562,7 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   msg->Write<u32>( client->chr->trade_container()->serial_ext );
   msg->Write<u32>( dropon->trade_container()->serial_ext );
   msg->Write<u8>( 1u );
-  msg->Write( dropon->name().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252( dropon->name() ).c_str(), 30, false );
 
   msg.Send( client );
 
@@ -571,11 +571,11 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   msg->Write<u32>( dropon->trade_container()->serial_ext );
   msg->Write<u32>( client->chr->trade_container()->serial_ext );
   msg->offset++;  // u8 havename same as above
-  msg->Write( client->chr->name().c_str(), 30, false );
+  msg->Write( Clib::strUtf8ToCp1252( client->chr->name() ).c_str(), 30, false );
   msg.Send( dropon->client );
 
   if ( item != nullptr )
-    return place_item_in_secure_trade_container( client, item, 20, 20 );
+    return place_item_in_secure_trade_container( client, item, Pos2d( 20, 20 ) );
   else
     return true;
 }
@@ -654,13 +654,6 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   send_remove_object_to_inrange( item );
 
-  u16 rx, ry;
-  cont->get_random_location( &rx, &ry );
-
-  item->set_dirty();
-  item->container = cont;
-  item->setposition( Pos4d( item->pos() ).x( rx ).y( ry ) );
-
   cont->add_at_random_location( item );
 
   npc->send_event( new Module::ItemGivenEvent( client->chr, item, npc ) );
@@ -718,7 +711,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
   {
     for ( UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
-      Items::Item* exitem = GET_ITEM_PTR( itr );
+      Items::Item* exitem = *itr;
       if ( exitem->can_add_to_self( *item, false ) )
       {
         if ( cont->can_add( *item ) )
@@ -727,9 +720,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
                                                 item->getamount(), item ) )
           {
             if ( item->orphan() )
-            {
               return true;
-            }
             u16 amtadded = item->getamount();
             exitem->add_to_self( item );
             update_item_to_inrange( exitem );
@@ -744,10 +735,9 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     }
   }
 
-  u16 rx, ry;
-  cont->get_random_location( &rx, &ry );
+  auto contpos = cont->get_random_location();
 
-  return place_item_in_container( client, item, cont, rx, ry, slotIndex );
+  return place_item_in_container( client, item, cont, contpos, slotIndex );
 }
 
 /* DROP_ITEM messages come in a couple varieties:
@@ -783,12 +773,11 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
 void drop_item( Network::Client* client, PKTIN_08_V1* msg )
 {
   u32 item_serial = cfBEu32( msg->item_serial );
-  u16 x = cfBEu16( msg->x );
-  u16 y = cfBEu16( msg->y );
-  s8 z = msg->z;
+  auto pos = Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
   u32 target_serial = cfBEu32( msg->target_serial );
 
-  Items::Item* item = client->chr->gotten_item();
+  GottenItem info = client->chr->gotten_item();
+  Items::Item* item = info.item();
   if ( item == nullptr )
   {
     SuspiciousActs::DropItemButNoneGotten( client, item_serial );
@@ -802,14 +791,14 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   }
   item->inuse( false );
   item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  client->chr->gotten_item( {} );
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
   {
-    res = drop_item_on_ground( client, item, x, y, z );
+    res = drop_item_on_ground( client, item, pos );
   }
-  else if ( x == 0xFFFF )
+  else if ( pos.x() == 0xFFFF )
   {
     res = drop_item_on_object( client, item, target_serial, 0 );
   }
@@ -818,17 +807,15 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
     Multi::UMulti* multi = system_find_multi( target_serial );
 
     if ( multi != nullptr )
-      res = drop_item_on_ground( client, item, ( multi->x() + x ), ( multi->y() + y ), z );
+      res = drop_item_on_ground( client, item, pos + Vec2d( multi->x(), multi->y() ) );
     else
-      res = place_item( client, item, target_serial, x, y, 0 );
+      res = place_item( client, item, target_serial, pos.xy(), 0 );
   }
 
   if ( !item->orphan() )
   {
     if ( !res )
-    {
-      undo_get_item( client->chr, item );
-    }
+      info.undo( client->chr );
     item->inuse( false );
     item->gotten_by( nullptr );
   }
@@ -848,13 +835,12 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
 void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
 {
   u32 item_serial = cfBEu32( msg->item_serial );
-  u16 x = cfBEu16( msg->x );
-  u16 y = cfBEu16( msg->y );
-  s8 z = msg->z;
+  auto pos = Pos3d( cfBEu16( msg->x ), cfBEu16( msg->y ), msg->z );
   u8 slotIndex = msg->slotindex;
   u32 target_serial = cfBEu32( msg->target_serial );
 
-  Items::Item* item = client->chr->gotten_item();
+  GottenItem info = client->chr->gotten_item();
+  Items::Item* item = info.item();
   if ( item == nullptr )
   {
     SuspiciousActs::DropItemButNoneGotten( client, item_serial );
@@ -868,14 +854,14 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   }
   item->inuse( false );
   item->gotten_by( nullptr );
-  client->chr->gotten_item( nullptr );
+  client->chr->gotten_item( {} );
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
   {
-    res = drop_item_on_ground( client, item, x, y, z );
+    res = drop_item_on_ground( client, item, pos );
   }
-  else if ( x == 0xFFFF )
+  else if ( pos.x() == 0xFFFF )
   {
     res = drop_item_on_object( client, item, target_serial, slotIndex );
   }
@@ -884,23 +870,24 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
     Multi::UMulti* multi = system_find_multi( target_serial );
 
     if ( multi != nullptr )
-      res = drop_item_on_ground( client, item, ( multi->x() + x ), ( multi->y() + y ), z );
+      res = drop_item_on_ground( client, item, pos + Vec2d( multi->x(), multi->y() ) );
     else
-      res = place_item( client, item, target_serial, x, y, 0 );
+      res = place_item( client, item, target_serial, pos.xy(), 0 );
   }
 
   if ( !item->orphan() )
   {
     if ( !res )
-    {
-      undo_get_item( client->chr, item );
-    }
+      info.undo( client->chr );
     item->inuse( false );
     item->gotten_by( nullptr );
   }
 
-  Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;
-  drop_msg.Send( client );
+  if ( res )
+  {
+    Network::PktHelper::PacketOut<Network::PktOut_29> drop_msg;
+    drop_msg.Send( client );
+  }
 
   send_full_statmsg( client, client->chr );
 }
@@ -916,7 +903,7 @@ void return_traded_items( Mobile::Character* chr )
   cont->extract( tmp );
   while ( !tmp.empty() )
   {
-    Items::Item* item = ITEM_ELEM_PTR( tmp.back() );
+    Items::Item* item = tmp.back();
     tmp.pop_back();
     item->container = nullptr;
     item->layer = 0;
@@ -931,11 +918,10 @@ void return_traded_items( Mobile::Character* chr )
       u8 newSlot = 1;
       if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
       {
-        item->set_dirty();
         item->setposition( chr->pos() );
         add_item_to_world( item );
         register_with_supporting_multi( item );
-        move_item( item, item->x(), item->y(), item->z(), nullptr );
+        move_item( item, item->pos() );
         return;
       }
       bp->add_at_random_location( item );
@@ -945,11 +931,10 @@ void return_traded_items( Mobile::Character* chr )
     }
     else
     {
-      item->set_dirty();
       item->setposition( chr->pos() );
       add_item_to_world( item );
       register_with_supporting_multi( item );
-      move_item( item, chr->x(), chr->y(), chr->z(), nullptr );
+      move_item( item, item->pos() );
     }
   }
 }

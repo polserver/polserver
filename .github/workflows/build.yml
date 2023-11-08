@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: ${{matrix.config.name}} Build
     strategy:
       fail-fast: false
       matrix:
@@ -14,51 +15,55 @@ jobs:
             compiler-version: default
             build-type: Release
             nopch: 0
+            name: Windows CL
 
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 9
+            compiler-version: 11
             build-type: RelWithDebInfo
             nopch: 0
+            name: Linux GCC
 
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 8
+            compiler-version: 14
             build-type: RelWithDebInfo
             nopch: 0
+            name: Linux Clang
           
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 8
+            compiler-version: 14
             build-type: Release
             nopch: 1
+            name: Linux Clang noPCH
 
     runs-on: ${{ matrix.config.os }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - uses: seanmiddleditch/gha-setup-vsdevenv@v3
+      - uses: seanmiddleditch/gha-setup-vsdevenv@v4
       - name: Cache curl
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: lib/curl-7.57.0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-c++17-buildtype-curl-7.57.0
+          path: lib/curl-8.2.1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
       - name: Cache antlr
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: lib/antlr
           key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
       - name: Cache boost
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
-          path: lib/boost_1_74_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-buildtypefix
+          path: lib/boost_1_83_0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh
@@ -72,7 +77,9 @@ jobs:
             sudo apt-get install "$compiler-$version" -y
             echo "$compiler-$version --version"
           }
-          sudo apt-get install mysql-client libmysqlclient-dev kwstyle uuid-dev -y
+          sudo apt-get install libmysqlclient-dev -y
+          sudo apt-get install kwstyle -y
+          sudo apt-get install uuid-dev -y
           
           $ninja_version = "1.9.0"
           $cmake_version = "3.16.2"
@@ -100,7 +107,12 @@ jobs:
           }
           echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
+      - name: Windows Path Workaround
+        if: matrix.config.os == 'windows-latest'
+        shell: cmd
+        run: |
+          rmdir /s /q C:\Strawberry
+          exit /b 0
       - name: Register problem matcher
         run: echo "::add-matcher::.github/problem-matchers/${{ matrix.config.c-compiler }}.json"
       - name: Config
@@ -132,9 +144,11 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
+          #env:
+          #POLCORE_TEST_FILTER: testitems
       - name: Upload shard test log
         if: matrix.config.nopch == 0
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Testlog-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin-build/coretest/log/pol.log
@@ -157,7 +171,7 @@ jobs:
 
       - name: Upload Artefact
         if: matrix.config.nopch == 0
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
@@ -168,17 +182,20 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Download artefacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: Nightly-Linux-g++
+          path: Nightly-Linux-g++
       - name: Download artefacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: Nightly-Linux-clang++
+          path: Nightly-Linux-clang++
       - name: Download artefacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: Nightly-Windows-cl
+          path: Nightly-Windows-cl
 
       - name: Create Release zip
         run: |

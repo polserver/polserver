@@ -34,6 +34,7 @@
 #include "../crypt/cryptengine.h"
 #include "../globals/network.h"
 #include "../globals/state.h"
+#include "../globals/uvars.h"
 #include "../mobile/charactr.h"
 #include "../polsig.h"
 #include "../realms/WorldChangeReasons.h"
@@ -68,7 +69,6 @@ void cancel_trade( Mobile::Character* chr1 );
 namespace Network
 {
 unsigned int Client::instance_counter_;
-std::mutex ThreadedClient::_SocketMutex;
 
 ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient )
     : myClient( myClient ),
@@ -91,6 +91,7 @@ ThreadedClient::ThreadedClient( Crypt::TCryptInfo& encryption, Client& myClient 
       checkpoint( -1 ),  // CNXBUG
       _fpLog_lock(),
       fpLog( "" ),
+      disable_inactivity_timeout( false ),
       first_xmit_buffer( nullptr ),
       last_xmit_buffer( nullptr ),
       n_queued( 0 ),
@@ -132,19 +133,15 @@ Client::Client( ClientInterface& aInterface, Crypt::TCryptInfo& encryption )
   memset( &versiondetail_, 0, sizeof( versiondetail_ ) );
 }
 
-void Client::Delete( Client* client )
+Client::~Client()
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );  // TODO: check if this is necessary
-  client->PreDelete();
-  delete client->cryptengine;  // TODO: move this into a unique_ptr<> or at least ~Client()
-  client->cryptengine = nullptr;
-  delete client;
+  PreDelete();
+  delete cryptengine;
 }
 
-Client::~Client() {}
-
-void Client::init_crypto(void* nseed, int type) {
-    session()->cryptengine->Init( nseed, type );
+void Client::init_crypto( void* nseed, int type )
+{
+  session()->cryptengine->Init( nseed, type );
 }
 
 void Client::unregister()
@@ -577,9 +574,9 @@ void ThreadedClient::send_queued_data()
 }
 
 // 33 01 "encrypted": 4F FA
-static const unsigned char pause_pre_encrypted[2] = {0x4F, 0xFA};
+static const unsigned char pause_pre_encrypted[2] = { 0x4F, 0xFA };
 // 33 00 "encrypted": 4C D0
-static const unsigned char restart_pre_encrypted[2] = {0x4C, 0xD0};
+static const unsigned char restart_pre_encrypted[2] = { 0x4C, 0xD0 };
 
 void Client::send_pause()
 {
@@ -686,6 +683,20 @@ weak_ptr<Client> Client::getWeakPtr() const
   return weakptr;
 }
 
+void Client::set_update_range( u8 range )
+{
+  // store "personal" updaterange
+  gd->update_range = range;
+  // update global updaterange (maximum multi radius/client view range)
+  if ( range > Core::gamestate.update_range.x() )
+    Core::gamestate.update_range.x( range ).y( range );
+}
+
+u8 Client::update_range() const
+{
+  return gd->update_range;
+}
+
 // TODO: Add estimatedSize() to ThreadedClient and move the corresponding members
 size_t Client::estimatedSize() const
 {
@@ -707,8 +718,8 @@ size_t Client::estimatedSize() const
 
 void ThreadedClient::closeConnection()
 {
-  // std::lock_guard<std::mutex> lock (_SocketMutex);
-  if ( csocket != INVALID_SOCKET )  //>= 0)
+  std::lock_guard<std::mutex> lock( _SocketMutex );
+  if ( csocket != INVALID_SOCKET )
   {
 #ifdef _WIN32
     shutdown( csocket, 2 );  // 2 is both sides, defined in winsock2.h ...

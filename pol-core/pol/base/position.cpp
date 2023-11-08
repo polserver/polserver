@@ -25,11 +25,6 @@ const std::array<Vec2d, 8> move_delta = { { { 0, -1 },   // 0 is N
 const std::array<UFACING, 8> away_cvt = { FACING_S, FACING_SW, FACING_W, FACING_NW,
                                           FACING_N, FACING_NE, FACING_E, FACING_SE };
 
-s8 clip_s8( int v )
-{
-  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
-                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
-}
 u16 clip_u16( int v )
 {
   return static_cast<u16>(
@@ -44,26 +39,6 @@ bool Pos2d::operator==( const Pos2d& other ) const
 bool Pos2d::operator!=( const Pos2d& other ) const
 {
   return !( *this == other );
-}
-bool Pos2d::operator<( const Pos2d& other ) const
-{
-  if ( _x == other._x )
-    return _y < other._y;
-  return _x < other._x;
-}
-bool Pos2d::operator>( const Pos2d& other ) const
-{
-  if ( _x == other._x )
-    return _y > other._y;
-  return _x > other._x;
-}
-bool Pos2d::operator<=( const Pos2d& other ) const
-{
-  return *this == other || *this < other;
-}
-bool Pos2d::operator>=( const Pos2d& other ) const
-{
-  return *this == other || *this > other;
 }
 
 Pos2d& Pos2d::operator-=( const Vec2d& other )
@@ -191,7 +166,11 @@ fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v )
   w << "( " << v.x() << ", " << v.y() << " )";
   return w;
 }
-
+std::ostream& operator<<( std::ostream& os, const Pos2d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << " )";
+  return os;
+}
 
 bool Pos3d::operator==( const Pos3d& other ) const
 {
@@ -201,26 +180,6 @@ bool Pos3d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
 }
-bool Pos3d::operator<( const Pos3d& other ) const
-{
-  if ( _xy == other._xy )
-    return _z < other._z;
-  return _xy < other._xy;
-}
-bool Pos3d::operator>( const Pos3d& other ) const
-{
-  if ( _xy == other._xy )
-    return _z > other._z;
-  return _xy > other._xy;
-}
-bool Pos3d::operator<=( const Pos3d& other ) const
-{
-  return *this == other || *this < other;
-}
-bool Pos3d::operator>=( const Pos3d& other ) const
-{
-  return *this == other || *this > other;
-}
 bool Pos3d::operator==( const Pos2d& other ) const
 {
   return _xy == other;
@@ -228,22 +187,6 @@ bool Pos3d::operator==( const Pos2d& other ) const
 bool Pos3d::operator!=( const Pos2d& other ) const
 {
   return _xy != other;
-}
-bool Pos3d::operator<( const Pos2d& other ) const
-{
-  return _xy < other;
-}
-bool Pos3d::operator>( const Pos2d& other ) const
-{
-  return _xy > other;
-}
-bool Pos3d::operator<=( const Pos2d& other ) const
-{
-  return _xy <= other;
-}
-bool Pos3d::operator>=( const Pos2d& other ) const
-{
-  return _xy >= other;
 }
 
 Pos3d& Pos3d::operator-=( const Vec2d& other )
@@ -334,10 +277,22 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
   return *this;
 }
 
+s8 Pos3d::clip_s8( int v )
+{
+  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
+                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
+}
+
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
 {
-  w << "( " << v.x() << ", " << v.y() << ", " << v.z() << " )";
+  w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
   return w;
+}
+
+std::ostream& operator<<( std::ostream& os, const Pos3d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
+  return os;
 }
 
 
@@ -362,30 +317,6 @@ bool Pos4d::operator!=( const Pos4d& other ) const
 {
   return !( *this == other );
 }
-bool Pos4d::operator<( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz < other._xyz;
-}
-bool Pos4d::operator>( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz > other._xyz;
-}
-bool Pos4d::operator<=( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz <= other._xyz;
-}
-bool Pos4d::operator>=( const Pos4d& other ) const
-{
-  if ( _realm != other._realm )
-    return false;
-  return _xyz >= other._xyz;
-}
 bool Pos4d::operator==( const Pos3d& other ) const
 {
   return _xyz == other;
@@ -394,22 +325,6 @@ bool Pos4d::operator!=( const Pos3d& other ) const
 {
   return !( *this == other );
 }
-bool Pos4d::operator<( const Pos3d& other ) const
-{
-  return _xyz < other;
-}
-bool Pos4d::operator>( const Pos3d& other ) const
-{
-  return _xyz > other;
-}
-bool Pos4d::operator<=( const Pos3d& other ) const
-{
-  return _xyz <= other;
-}
-bool Pos4d::operator>=( const Pos3d& other ) const
-{
-  return _xyz >= other;
-}
 bool Pos4d::operator==( const Pos2d& other ) const
 {
   return _xyz.xy() == other;
@@ -417,22 +332,6 @@ bool Pos4d::operator==( const Pos2d& other ) const
 bool Pos4d::operator!=( const Pos2d& other ) const
 {
   return !( *this == other );
-}
-bool Pos4d::operator<( const Pos2d& other ) const
-{
-  return _xyz.xy() < other;
-}
-bool Pos4d::operator>( const Pos2d& other ) const
-{
-  return _xyz.xy() > other;
-}
-bool Pos4d::operator<=( const Pos2d& other ) const
-{
-  return _xyz.xy() <= other;
-}
-bool Pos4d::operator>=( const Pos2d& other ) const
-{
-  return _xyz.xy() >= other;
 }
 
 Pos4d& Pos4d::operator-=( const Vec2d& other )
@@ -538,9 +437,15 @@ bool Pos4d::in_range( const Pos2d& other, u16 range ) const
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v )
 {
-  w << "( " << v.x() << ", " << v.y() << ", " << v.z()
+  w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
     << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
   return w;
+}
+std::ostream& operator<<( std::ostream& os, const Pos4d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
+     << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
+  return os;
 }
 
 }  // namespace Core

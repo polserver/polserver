@@ -4,29 +4,33 @@
  */
 
 
+#include <filesystem>
 #include <string>
 
-#include "../clib/dirlist.h"
 #include "globals/uvars.h"
 
 namespace Pol
 {
 namespace Core
 {
+namespace fs = std::filesystem;
 void load_tips()
 {
   gamestate.tipfilenames.clear();
 
-  for ( Clib::DirList dl( "tips/" ); !dl.at_end(); dl.next() )
+  std::error_code ec;
+  for ( const auto& dir_entry : fs::directory_iterator( "tips", ec ) )
   {
-    std::string name = dl.name();
-    if ( name[0] == '.' )
+    if ( !dir_entry.is_regular_file() )
       continue;
-    if ( name.find( ".txt" ) != std::string::npos )
+    if ( auto fn = dir_entry.path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+      continue;
+    const auto path = dir_entry.path();
+    if ( !path.extension().compare( ".txt" ) )
     {
-      gamestate.tipfilenames.push_back( name.c_str() );
+      gamestate.tipfilenames.push_back( path.filename().u8string() );
     }
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -313,7 +313,7 @@ void Spellbook::calc_current_bitwise_contents()
 {
   for ( UContainer::const_iterator itr = begin(), itrend = end(); itr != itrend; ++itr )
   {
-    const Item* scroll = GET_ITEM_PTR( itr );
+    const Item* scroll = *itr;
     u16 spellnum = USpellScroll::convert_objtype_to_spellnum( scroll->objtype_, spell_school );
     u8 spellslot = spellnum & 7;
     if ( spellslot == 0 )
@@ -324,7 +324,7 @@ void Spellbook::calc_current_bitwise_contents()
   // ok, it's been upgraded. Destroy everything inside it.
   for ( UContainer::iterator itr = begin(), itrend = end(); itr != itrend; ++itr )
   {
-    Item* scroll = GET_ITEM_PTR( itr );
+    Item* scroll = *itr;
     scroll->destroy();
   }
 }
@@ -426,5 +426,5 @@ void send_spellbook_contents( Network::Client* client, Spellbook& spellbook )
   msg->WriteFlipped<u16>( count );
   msg.Send( client, len );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

@@ -17,6 +17,7 @@
 #include "../proplist.h"
 #include "../scrdef.h"
 #include "../uobject.h"
+#include "base/range.h"
 #include "base/vector.h"
 
 namespace Pol
@@ -97,6 +98,7 @@ public:
   Core::ScriptDef on_use_script;
   boost_utils::script_name_flystring equip_script;
   boost_utils::script_name_flystring unequip_script;
+  Core::ScriptDef snoop_script;
   Core::ScriptDef control_script;
   Core::ScriptDef create_script;
   Core::ScriptDef destroy_script;
@@ -119,6 +121,7 @@ public:
   bool newbie;
   bool insured;
   bool invisible;
+  bool cursed;
   bool decays_on_multis;
   bool blocks_casting_if_in_hand;
   bool no_drop;
@@ -189,8 +192,7 @@ public:
   // string name;
   // u16 objtype;
   u16 gump;
-  u16 minx, maxx;
-  u16 miny, maxy;
+  Core::Range2d bounds;
 
   u16 max_weight;
   u16 max_items;

@@ -1,6 +1,7 @@
 #ifndef H_SYSTEMS_SUSPICIOUSACTS
 #define H_SYSTEMS_SUSPICIOUSACTS
 
+#include "base/position.h"
 #include "clib/rawtypes.h"
 
 namespace Pol::Network
@@ -19,7 +20,8 @@ void GumpResponseOverflows( Network::Client* client );
 
 void DropItemButNoneGotten( Network::Client* client, u32 item_serial );
 void DropItemOutOfRange( Network::Client* client, u32 item_serial );
-void DropItemOutAtBlockedLocation( Network::Client* client, u32 item_serial, u16 x, u16 y, s8 z );
+void DropItemOutAtBlockedLocation( Network::Client* client, u32 item_serial,
+                                   const Core::Pos3d& pos );
 
 void DropItemOtherThanGotten( Network::Client* client, u32 dropped_item_serial,
                               u32 gotten_item_serial );

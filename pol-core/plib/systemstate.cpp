@@ -34,7 +34,8 @@ void SystemState::deinitialize()
 size_t SystemState::estimatedSize() const
 {
   size_t size = sizeof( SystemState );
-  size += ( config.max_tile_id + 1 ) * sizeof( Tile );
+
+  size += sizeof( std::vector<Tile> ) + sizeof( Tile ) * tile.capacity();
 
   size += 3 * sizeof( Package** ) + packages.capacity() * sizeof( Package* );
   for ( const auto& pkg : packages )

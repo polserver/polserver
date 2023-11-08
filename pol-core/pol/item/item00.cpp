@@ -39,10 +39,12 @@ Item::Item( const ItemDesc& id, Core::UOBJ_CLASS uobj_class )
   unequip_script_ = id.unequip_script;
   newbie( id.newbie );
   insured( id.insured );
+  cursed( id.cursed );
   movable( id.default_movable() );
   inuse( false );
   invisible( id.invisible );
   no_drop( id.no_drop );
+  saveonexit( id.save_on_exit );
 
   // quality is a dynprop that defaults to the itemdesc value. It won't be stored unless it differs
   // from that default. However, GetItemDescriptor() may be used to assign a new quality before the
@@ -73,7 +75,8 @@ size_t Item::estimatedSize() const
          + sizeof( unsigned short )                          /* hp_*/
          + sizeof( boost_utils::script_name_flystring )      /*on_use_script_*/
          + sizeof( boost_utils::script_name_flystring )      /*equip_script_*/
-         + sizeof( boost_utils::script_name_flystring );     /*unequip_script_*/
+         + sizeof( boost_utils::script_name_flystring )      /*unequip_script_*/
+         + sizeof( boost_utils::script_name_flystring );     /*snoop_script_*/
 }
 }  // namespace Items
 }  // namespace Pol

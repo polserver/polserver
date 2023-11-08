@@ -53,13 +53,13 @@ const int los_range = 20;
 /**
  * @ingroup los3d
  */
-bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z, LosCache& cache )
+bool Realm::dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache )
 {
   for ( const auto& item : cache.dyn_items )
   {
-    if ( ( item->x() == x ) && ( item->y() == y ) )
+    if ( ( item->pos() == pos.xy() ) )
     {
-      if ( item->z() <= z && z < item->z() + item->height )
+      if ( item->z() <= pos.z() && pos.z() < item->z() + item->height )
       {
 #if ENABLE_POLTEST_OUTPUT
         INFO_PRINT << "LOS blocked by " << item->description() << "\n";
@@ -74,16 +74,14 @@ bool Realm::dynamic_item_blocks_los( unsigned short x, unsigned short y, short z
 /**
  * @ingroup los3d
  */
-bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z,
-                                    LosCache& cache ) const
+bool Realm::static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) const
 {
-  if ( cache.last_x != x || cache.last_y != y )
+  if ( pos != cache.last_pos )
   {
     cache.shapes.clear();
-    cache.last_x = x;
-    cache.last_y = y;
-    getmapshapes( cache.shapes, x, y, Plib::FLAG::BLOCKSIGHT );
-    readmultis( cache.shapes, x, y, Plib::FLAG::BLOCKSIGHT );
+    cache.last_pos = pos.xy();
+    getmapshapes( cache.shapes, pos.xy(), Plib::FLAG::BLOCKSIGHT );
+    readmultis( cache.shapes, pos.xy(), Plib::FLAG::BLOCKSIGHT );
   }
   for ( const auto& shape : cache.shapes )
   {
@@ -101,7 +99,7 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z,
       ++ob_ht;
     }
 
-    if ( ob_z <= z && z < ob_z + ob_ht )
+    if ( ob_z <= pos.z() && pos.z() < ob_z + ob_ht )
     {
 #if ENABLE_POLTEST_OUTPUT
       INFO_PRINT << "LOS blocked by static object\n";
@@ -118,23 +116,28 @@ bool Realm::static_item_blocks_los( unsigned short x, unsigned short y, short z,
  * @ingroup los3d
  */
 bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& target,
-                         unsigned short x, unsigned short y, short z, LosCache& cache ) const
+                         const Core::Pos3d& pos, LosCache& cache ) const
 {
   // if the target inhabits the location, LOS can't be blocked:
-  if ( att.x() == x && att.y() == y && att.z() <= z &&
-       z <= att.z() + att.height )  // LE to allow for 0-height target
+  if ( att.pos() == pos.xy() && att.z() <= pos.z() &&
+       pos.z() <= att.z() + att.height )  // LE to allow for 0-height target
   {
     return false;
   }
-  if ( target.x() == x && target.y() == y && target.z() <= z &&
-       z <= target.z() + target.height )  // LE to allow for 0-height target
+  if ( target.pos() == pos.xy() && target.z() <= pos.z() &&
+       pos.z() <= target.z() + target.height )  // LE to allow for 0-height target
   {
     return false;
   }
 
-  return dynamic_item_blocks_los( x, y, z, cache ) || static_item_blocks_los( x, y, z, cache );
+  return dynamic_item_blocks_los( pos, cache ) || static_item_blocks_los( pos, cache );
 }
 
+s8 clip_s8( int v )
+{
+  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
+                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
+}
 /// absolute value of a
 #define ABS( a ) ( ( ( a ) < 0 ) ? -( a ) : ( a ) )
 
@@ -169,14 +172,12 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   // due to the nature of los check the same x,y coordinates get checked, cache the last used
   // coords to reduce the expensive map/multi read per coordinate
   static thread_local LosCache cache;
-  cache.last_x = 0xFFFF;
-  cache.last_y = 0xFFFF;
+  cache.last_pos.x( 0xFFFF ).y( 0xFFFF );
   cache.shapes.clear();
   cache.dyn_items.clear();
   // pre filter dynitems
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      std::min( att.x(), tgt.x() ), std::min( att.y(), tgt.y() ), std::max( att.x(), tgt.x() ),
-      std::max( att.y(), tgt.y() ), att.realm(),
+      Core::Range2d( att.pos(), tgt.pos() ), att.realm(),
       [&]( Items::Item* item )
       {
         u32 flags = Plib::tile_flags( item->graphic );
@@ -257,7 +258,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, x, y, z, cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
         return false;
 
       if ( x == x2 )
@@ -289,7 +290,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, x, y, z, cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
         return false;
 
       if ( y == y2 )
@@ -321,7 +322,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, x, y, z, cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
         return false;
 
       if ( z == z2 )

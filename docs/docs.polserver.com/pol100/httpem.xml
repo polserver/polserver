@@ -5,9 +5,31 @@
   <fileheader fname="HTTP.em">
     <filedesc>Functions to send and receive data over an HTTP connection using POL's internal webserver. Scripts in /scripts/www are considered at the top level directory. I.e. http://192.168.0.5:8088/online.ecl </filedesc>
     <filedesc>Scripts stored in packages can be retrieved by accessing /pkg/packagename/script.ecl I.e. http://127.0.0.1:8088/pkg/guild/guilds.ecl </filedesc>
-    <datemodified>10/27/2007</datemodified>
+    <datemodified>02/06/2023</datemodified>
   </fileheader>
     
+  <function name="WriteStatus"> 
+    <prototype>WriteStatus( code, reason := "" )</prototype>
+    <parameter name="code" value="Integer" />
+    <parameter name="reason" value="String" />
+    <explain>Writes the status code provided. If no reason provided, one will be calculated from the code (if possible). This can only used once before WriteHeader(), WriteHtml(), and WriteHtmlRaw().</explain>
+    <return>1 on success</return>
+    <error>"Socket is disconnected"</error>
+    <error>"Cannot send status after WriteStatus, WriteHeader, WriteHtml, or WriteHtmlRaw"</error>
+    <error>"Invalid parameter type"</error>
+  </function>
+
+  <function name="WriteHeader"> 
+    <prototype>WriteHeader( name, value )</prototype>
+    <parameter name="name" value="String" />
+    <parameter name="value" value="String" />
+    <explain>Writes the header provided. This function can be used to change the response's Content-Type from the default "text/html". This can only used before WriteHtml() and WriteHtmlRaw().</explain>
+    <return>1 on success</return>
+    <error>"Socket is disconnected"</error>
+    <error>"Cannot send headers after WriteHtml or WriteHtmlRaw"</error>
+    <error>"Invalid parameter type"</error>
+  </function>
+
   <function name="WriteHtml"> 
     <prototype>WriteHtml( html )</prototype>
     <parameter name="html" value="String" />

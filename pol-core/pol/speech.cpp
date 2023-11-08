@@ -86,8 +86,8 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   {
     INFO_PRINT << chr->name() << " speaking w/ color 0x" << fmt::hexu( cfBEu16( color ) ) << "\n";
   }
-
-  u16 textlen = static_cast<u16>( text.size() + 1 );
+  std::string convertedText = Clib::strUtf8ToCp1252( text );
+  u16 textlen = static_cast<u16>( convertedText.size() + 1 );
   if ( textlen > SPEECH_MAX_LEN + 1 )
     textlen = SPEECH_MAX_LEN + 1;
 
@@ -98,8 +98,8 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   talkmsg->Write<u8>( type );  // FIXME authorize
   talkmsg->WriteFlipped<u16>( textcol );
   talkmsg->WriteFlipped<u16>( font );
-  talkmsg->Write( chr->name().c_str(), 30 );
-  talkmsg->Write( text.c_str(), textlen );
+  talkmsg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30 );
+  talkmsg->Write( convertedText.c_str(), textlen );
   u16 len = talkmsg->offset;
   talkmsg->offset = 1;
   talkmsg->WriteFlipped<u16>( len );
@@ -176,7 +176,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
                                                    } );
   }
 
-  sayto_listening_points( client->chr, s_text, type );
+  ListenPoint::sayto_listening_points( client->chr, s_text, type );
 }
 
 
@@ -206,7 +206,7 @@ void SpeechHandler( Network::Client* client, PKTIN_03* mymsg )
 }
 
 void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::string& text,
-                        Bscript::ObjArray* speechtokens )
+                        std::unique_ptr<Bscript::ObjArray> speechtokens )
 {
   if ( text.empty() )
     return;
@@ -260,7 +260,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
   talkmsg->WriteFlipped<u16>( textcol );
   talkmsg->WriteFlipped<u16>( msgin->font );
   talkmsg->Write( msgin->lang, 4 );
-  talkmsg->Write( chr->name().c_str(), 30 );
+  talkmsg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30 );
 
   std::vector<u16> utf16 = Bscript::String::toUTF16( text );
   if ( utf16.size() > SPEECH_MAX_LEN )
@@ -367,7 +367,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
           [&]( Mobile::Character* otherchr )
           {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
+            npc->on_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens.get() );
           } );
     }
     else
@@ -377,10 +377,11 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
           [&]( Mobile::Character* otherchr )
           {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
-            npc->on_ghost_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens );
+            npc->on_ghost_pc_spoke( chr, text, msgin->type, msgin->lang, speechtokens.get() );
           } );
     }
-    sayto_listening_points( client->chr, text, msgin->type, msgin->lang, speechtokens );
+    ListenPoint::sayto_listening_points( client->chr, text, msgin->type, msgin->lang,
+                                         speechtokens.get() );
   }
 }
 u16 Get12BitNumber( u8* thearray, u16 theindex )
@@ -438,7 +439,7 @@ void UnicodeSpeechHandler( Network::Client* client, PKTIN_AD* msgin )
     msgin->type &= ( ~0xC0 );  // Client won't accept C0 text type messages, so must set to 0
   }
 
-  SendUnicodeSpeech( client, msgin, text, speechtokens.release() );
+  SendUnicodeSpeech( client, msgin, text, std::move( speechtokens ) );
 }
 }  // namespace Core
 }  // namespace Pol

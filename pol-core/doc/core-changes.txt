@@ -1,4 +1,110 @@
 -- POL100.1.0 --
+11-01-2023 Kevin:
+    Added: RestartScript() now can restart item control scripts. Similar to NPC scripts, the existing Item control script will terminate and a new one started.
+10-28-2023 Ins:
+    Added: ServSpecOpt "UndoGetItemEnableRangeCheck" 1/0 default 0.
+           If enabled - on fail to equip item back on character (if it has been taken from character layer)
+           and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.
+           If origin position/container is not in default_accessible_range will skip try to put item to origin position/container (unless item is no_drop)
+           and as last resort will drop item at character position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.
+    Added: ServSpecOpt "UndoGetItemDropHere" 1/0 default 0.
+           If enabled - on fail to equip item back on character (if it has been taken from character layer)
+           and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in
+           origin container will be skipped.
+    Fixed: Leftover items in corpse on client side.
+  Changed: Added ServerSpecOpt reload to ReloadConfiguration.
+10-23-2023 Turley:
+  Changed: added movemode parameter to uo:FindPath, defaults to "L". Before the move mode was fixed to land, now its possible to use the FindPath functionality also for eg sea monsters
+10-18-2023 Turley:
+    Added: print/syslog console_color parameter. When used with one of the basicio.em CONSOLE_COLOR constants, or a custom xterm formatting string the output to the console is formatted accordingly. Resets the formatting at the end. Xterm formatting is supported on Linux and Windows11. For syslog only the output to the console is modified not the logfile entry.
+    Added: pol.cfg EnableColoredOutput 1/0 to disable formatted output. Default is 1.
+10-15-2023 Kevin:
+    Fixed: Changed return values and parameters used by storage module functions to match documentation.
+09-03-2023 Ins:
+    Added: repsys.cfg General section "PartyHarmFullCountsAsCriminal 1/0" default 1.
+           If 0 OnHarm does not set mobile to criminal when they are in the same party.
+08-30-2023 Kevin:
+    Fixed: Client character no longer stutters while moving the character and changing the 'poison' property.
+08-29-2023 Kevin:
+    Fixed: Corrected implementation of previous OpenConnection race condition fix.
+08-28-2023 Kevin:
+    Fixed: Fixed race condition causing random crashes with OpenConnection.
+06-11-2023 Ins:
+    Added: New Character member .parrychance_mod +-int in thousandth. Additive modificator of the parry_chance from the defender when it has shield equipped.
+05-24-2023 Kevin:
+    Fixed: Fixed crash when using mysql_fetch_row with a query that does not return any result (eg. UPDATE).
+05-23-2023 Turley / Kevin:
+    Fixed: Corrected behavior of dropping items with NoDrop: An attempt from a character to move a no-drop item between regular containers (ie, both containers are not "no-drop exception") will now correctly place the item back into the original container (instead of the player's backpack).
+05-15-2023 Kevin:
+    Fixed: Fixed an issue with GetConfigString behavior on large numeric property values.
+05-13-2023 Kevin:
+  Changed: Modified functionality of combat.cfg setting WarmodeInhibitsRegen (backwards-compatible). Instead of a boolean 0/1, it is now an enumeration 0-4: none = 0 (default), both = 1, players only = 2, NPCs only = 3.
+04-04-2023 Turley:
+    Fixed: Crash when EventQueue is full due to SpeechEvents
+04-23-2023 Kevin:
+    Added: PackJSON() now accepts an option for `prettify`. If true, the output string will be indented with new lines.
+03-19-2023 Kevin:
+    Added: OpenConnection() now accepts an option for ignore_line_breaks. If set to 1, the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message.
+02-28-2023 Kevin:
+    Fixed: MultiRef.items now correctly includes items on the exterior stairs of custom houses.
+02-27-2023 Kevin:
+    Fixed: DestroyItem(item) will now throw an error if item is a multi.
+02-06-2023 Kevin:
+    Added: HTTPRequest() now accepts a flags parameter. If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body.
+    Added: http::WriteStatus(code, reason := "") to change the status of an HTTP response from the web server. If no reason is provided, one will be calculated from the code (if possible). This can only used once before WriteHeader(), WriteHtml(), and WriteHtmlRaw().
+    Added: http::WriteHeader(name, value) to write a header to an HTTP response from the web server. This function can be used to change the response's Content-Type from the default "text/html". This can only be used before WriteHtml() and WriteHtmlRaw().
+02-05-2023 Kevin:
+    Fixed: Creating an item via item descriptor whose SaveOnExit property has been set to 0 will now properly not save the item during a world save.
+01-11-2023 Turley:
+    Fixed: Placing items into a container failed since nightly of 01-05-2023
+01-02-2023 Kevin:
+    Added: Target() option TGTOPT_ALLOW_NONLOCAL to allow targeting items owned by other characters (eg. in a snooped backpack).
+    Added: Member item.character_owner, returns the Character that owns the item, ie. the character whose backpack or equipped items contains the item.
+    Fixed: SnoopScript is properly persisted across saves when changed via item member item.snoopscript.
+01-02-2023 Kevin:
+    Fixed: Custom Boat method scripts now properly execute.
+12-19-2022 Kevin:
+    Added: SnoopScript to itemdesc.cfg Item descriptors which runs when a character double-clicks an item that is owned by a different character, eg. another character's backpack or an item within that backpack. This can be used to implement the Snooping skill.
+12-17-2022 Turley:
+    Fixed: potential crash in client login phase
+12-13-2022 Kevin:
+    Added: CreateItemInBackpack, CreateItemInContainer, and CreateItemInInventory now have an x and y optional parameter to specify location in container gump of where to create the item.
+10-24-2022 Crowen(che666):
+    Fixed: uo.em Broadcast and unicode.em BroadcastUC renamed requiredcmdLevel parameter to required_cmdlevel to be consistent.
+10-15-2022 Turley:
+    Fixed: crash when calling another method inside of a methodscript
+09-27-2022 Brndd:
+    Added: CreateNPCFromTemplate() now has a "forcelocation" parameter, which allows creating NPCs even in invalid locations.
+09-21-2022 Kevin:
+    Added: POLCore() member "poldir", returning the directory of the POL executable.
+08-25-2022 Yukiko:
+    Added: uoconvert now surfaces the partial hue flag in tiles.cfg for tiles that have that flag set in tiledata,
+	eg. PartialHue 1
+08-21-2022 Turley:
+    Fixed: PopupMenu request did not work when client canceled a request and sends a new one.
+08-14-2022 Turley:
+  Changed: SendPopUpMenu supports now the new pkt format added with 6.x client, it will be automatically used if needed.
+           The new format does not support color, but removes the limitation of valid cliloc numbers.
+    Fixed: insurance reset performed after death didnt increase the revision.
+07-01-2022 Kevin:
+    Added: Boolean property `item.cursed` and corresponding itemdesc.cfg `Cursed` property. There is no special core handling of cursed items, eg. gold coin objtype 0x0EED that is cursed can still be used for vendor transactions.
+06-21-2022 Turley:
+  Changed: OpenXMLFile(file) returns Error if file does not exists, or any parsing error occurs.
+           Before it returned XMLRef in an error state, so 'if (!xml)' was and is a way to check for success.
+06-16-2022 Kevin:
+    Fixed: Corrected objref documentation on Character.acct, Character.acctname, and Client.acctname.
+    Added: client.acct member to return Account object
+    Fixed: Accessing properties on a Client that do not exist no longer results in a shard crash.
+04-29-2022 Kevin:
+    Fixed: `SendOverallSeason` now checks that connected clients have a character.
+04-12-2022 Kevin:
+    Added: Boolean property `client.disable_inactivity_timeout`.
+           If true, the client will not be disconnected due to inactivity.
+11-08-2021 Brndd:
+    Fixed: Outgoing packets with text field now correctly encode the text as CP-1252.
+11-02-2021 Brndd:
+  Changed: SetString packet hook method will now write CP-1252 (extended ASCII) encoded text. This is what is used for the majority of packet fields that are not UTF-16.
+    Added: Added a new SetUtf8String packet hook method which will write UTF-8 encoded text.
 09-11-2021 Kevin:
     Fixed: party.AddMember(character) will no longer error if the character is a candidate of the party.
   Changed: party.AddMember(character) will now error if passed an NPC.
@@ -20,7 +126,7 @@
 06-21-2021 Turley:
     Fixed: HSA boat movement packets (0xF7 and 0xF6) overflow logic. It sends now the correct truncated object count and checks visibility of the objects it sends.
 04-10-2021 AsYlum:
-    Fixed: Duplicated internal value for "speedhack" and "losany" privileges. When enabling "speedhack" privilege it also worked as "losany" 
+    Fixed: Duplicated internal value for "speedhack" and "losany" privileges. When enabling "speedhack" privilege it also worked as "losany"
            so LoS checks always returned true.
 03-24-2021 Turley:
     Added: os:OpenConnection argument keep_connection
@@ -40,7 +146,7 @@
 
            A complete example:
             $"Hello, {who.name}! You are player #{who in EnumerateOnlineCharacters()} online. Your graphic is {who.graphic : #x}."
-            
+
             ... can replace an expression like ...
 
             "Hello " + who.name + "! You are player #" + (who in EnumerateOnlineCharacters()) + " online. Your graphic is " + Hex(who.graphic)
@@ -48,11 +154,11 @@
             ... or ...
 
             "Hello {1}! You are player #{2} online. Your graphic is {3:#x}".format(who.name, who in EnumerateOnlineCharacters(), who.graphic)
-           
+
            Since this change introduces new instructions, you **MUST** recompile all your scripts!
 03-07-2021 Nando:
     Added: RefreshDecayAfterBoatMoves in servspecopt.cfg. Defaults to true to maintain the old behavior. If this setting is true,
-           the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay 
+           the items on deck will be refreshed after each movement or turn. You might want to disable this to implement item decay
            on boats. Note that POL doesn't yet handle item decay on boats.
     Fixed: HSA boat movement packets (0xF7 and 0xF6) will no longer overflow when too many items are on deck. Note that the packet
            will be truncated and might be misinterpreted by the client or leave ghost items behind.
@@ -66,10 +172,10 @@
 -- POL100.0.0 --
 02-28-2021 Nando:
      Note: POL 100.0.0 is now officially released. This release marks the beginning of more frequent, rolling releases.
-           The next release will remove support for the old compiler. This is the *last chance* to test 
+           The next release will remove support for the old compiler. This is the *last chance* to test
            if your scripts change when compiled with the new compiler. (See entry on 09-15-2020)
 02-27-2021 Nando:
-    Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL). 
+    Added: Parameter "evmask" to EnableEvents(ev, range := -1, evmask := EVMASK_ALL).
            The allowed values are EVMASK_ONLY_PC, EVMASK_ONLY_NPC, or EVMASK_ALL.
            When set, an NPC or Item will only receive entered/leftarea events caused by a PC, NPC or all mobiles (the default behavior).
            This parameter is useful, for example, to decrease the load when there are too many NPCs in the same area.
@@ -167,7 +273,7 @@
   Changed: item.hitscript and item.onhitscript now always return the full path to the script (":pkgname:scriptname").
            Before, if the item was defined on the same package as the script, only "scriptname" was returned.
            POTENTIAL BREAKING CHANGE!
-           
+
 08-09-2020 Turley:
     Added: new argument "outdir" for uoconvert tiles/landtiles/multis this allows to define a different directory then the current workdirectory for the produced cfgs
 08-04-2020 AsYlum:

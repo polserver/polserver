@@ -6,21 +6,46 @@
 
 #ifndef ZONE_H
 #define ZONE_H
+#include <vector>
 
-#include <utility>
-
-#include "../plib/poltype.h"
+#include "base/position.h"
 
 namespace Pol
 {
+namespace Mobile
+{
+class Character;
+}
+namespace Multi
+{
+class UMulti;
+}
+namespace Items
+{
+class Item;
+}
 namespace Core
 {
 const unsigned ZONE_SIZE = 4;
 const unsigned ZONE_SHIFT = 2;
 
-std::pair<unsigned, unsigned> XyToZone( xcoord x, ycoord y );
+Pos2d XyToZone( const Pos2d& pos );
 
 typedef unsigned short RegionId;
+
+// world
+typedef std::vector<Mobile::Character*> ZoneCharacters;
+typedef std::vector<Multi::UMulti*> ZoneMultis;
+typedef std::vector<Items::Item*> ZoneItems;
+
+struct Zone
+{
+  ZoneCharacters characters;
+  ZoneCharacters npcs;
+  ZoneItems items;
+  ZoneMultis multis;
+};
+
 }  // namespace Core
 }  // namespace Pol
 #endif

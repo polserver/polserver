@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="OS.em">
     <filedesc>POL System Environment Functions</filedesc>
-    <datemodified>03/23/2021</datemodified>
+    <datemodified>10/17/2023</datemodified>
     <constant>// set_script_option constants</constant>
     <constant>const SCRIPTOPT_NO_INTERRUPT := 1; // if 1, script runs until it sleeps</constant>
     <constant>const SCRIPTOPT_DEBUG        := 2; // if 1, prints any debug info included</constant>
@@ -12,6 +12,7 @@
     <constant>const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</constant>
     <constant>const SCRIPTOPT_AUXSVC_ASSUME_STRING := 5;</constant>
     <constant>const SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT := 6; // if 1, do not kill script if attached character's client disconnects</constant>
+    <constant>const HTTPREQUEST_EXTENDED_RESPONSE := 0x0001; // return Dictionary with various response data instead of a String of response body</constant>
   </fileheader>
 
   <function name="GetProcess">
@@ -178,10 +179,14 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="SysLog">
-    <prototype>SysLog( text, log_verbose:=1 )</prototype>
+    <prototype>SysLog( text, log_verbose:=1, console_color:="" )</prototype>
     <parameter name="text" value="String"/>
     <parameter name="log_verbose" value="Integer (1/0)"/>
+    <parameter name="console_color" value="xterm text formatting string e.g. one of the CONSOLE_COLOR constants"/>
     <explain>write text to the console, and to the log file includes context (calling script name). Context will be skipped if parameter log_verbose is set to 0</explain>
+    <explain>
+      Parameter console_color needs linux or windows 11, when given ends the line with resetting the formatting ("\x1b[0m"). Via pol.cfg EnableColoredOutput color prints can be disabled. Only the console output receives the formatting strings, the pol.log output is not touched.
+    </explain>
     <return>1 on success</return>
 </function>
 
@@ -229,6 +234,7 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
     <parameter name="params" value="A struct of parameters to be sent to the script"/>
     <parameter name="assume_string" value="Integer if set to 1 all communication from connection will be sent/received as raw strings."/>
     <parameter name="keep_connection" value="Integer if set to 1 the connection will not timeout and will be kept alive until the auxiliary script exists."/>
+    <parameter name="ignore_line_breaks" value="Integer if set to 1 the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message."/>
     <explain>Creates an outgoing TCP/IP connection to the host/port, once connection is open the scriptdef is run and</explain>
     <explain> any params defined in the struct will be passed to that script. The script type should be in the form of an Auxilry Script.</explain>
     <return>1 on success</return>
@@ -258,11 +264,12 @@ const SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES := 4;</code></explain>
 </function>
 
 <function name="HTTPRequest">
-    <prototype>HTTPRequest(url, method := "GET", options := struct{})</prototype>
+    <prototype>HTTPRequest(url, method := "GET", options := struct{}, flags := 0)</prototype>
     <parameter name="url" value="URL"/>
     <parameter name="method" value="HTTP Method to use for request (eg. GET, POST)"/>
     <parameter name="options" value="A struct containing options for the request. Available options are: 'data', a string representing the POST data; 'headers', a struct containing headers to send, where the key is the header's name and value is the header's value" />
-	<explain>Creates an HTTP request, and returns the returned data as a string.</explain>
+    <parameter name="flags" value="Flags to modify behavior." />
+	<explain>Creates an HTTP request, and returns the returned body as a string, or if HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with response data.</explain>
 	<code>
 Example: create a POST request to a REST endpoint with custom header:
 
@@ -273,7 +280,7 @@ Example: create a POST request to a REST endpoint with custom header:
   }
 });
 </code>
-  <return>Response data as a string.</return>
+  <return>If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body. Otherwise, returns response body as a string.</return>
 </function>
 
 <function name="LoadExportedScript">

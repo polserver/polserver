@@ -9,7 +9,6 @@
 #include "miscrgn.h"
 
 #include <stddef.h>
-#include <tuple>
 
 #include "clib/cfgelem.h"
 #include "clib/rawtypes.h"
@@ -80,12 +79,12 @@ WeatherDef::WeatherDef( const char* name ) : RegionGroup<WeatherRegion>( name )
     unsigned int gridwidth = realm->width() / ZONE_SIZE;
     unsigned int gridheight = realm->height() / ZONE_SIZE;
 
-    RegionId** zone = new RegionId*[gridwidth];
+    RegionId** zone = new RegionId*[gridheight];
 
-    for ( unsigned int i = 0; i < gridwidth; i++ )
+    for ( unsigned int i = 0; i < gridheight; i++ )
     {
-      zone[i] = new RegionId[gridheight];
-      for ( unsigned int j = 0; j < gridheight; j++ )
+      zone[i] = new RegionId[gridwidth];
+      for ( unsigned int j = 0; j < gridwidth; j++ )
       {
         zone[i][j] = 0;
       }
@@ -98,9 +97,9 @@ WeatherDef::~WeatherDef()
 {
   for ( auto& realmregion : default_regionrealms )
   {
-    unsigned int gridwidth = realmregion.first->width() / ZONE_SIZE;
+    unsigned int gridheight = realmregion.first->height() / ZONE_SIZE;
 
-    for ( unsigned int i = 0; i < gridwidth; i++ )
+    for ( unsigned int i = 0; i < gridheight; i++ )
       delete[] realmregion.second[i];
     delete[] realmregion.second;
   }
@@ -112,9 +111,9 @@ size_t WeatherDef::estimateSize() const
 
   for ( const auto& realm : default_regionrealms )
   {
-    unsigned int gridwidth = realm.first->width() / ZONE_SIZE;
-    size +=
-        gridwidth * sizeof( RegionId ) + sizeof( Realms::Realm* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
+    unsigned int gridheight = realm.first->height() / ZONE_SIZE;
+    size += gridheight * sizeof( RegionId ) + sizeof( Realms::Realm* ) +
+            ( sizeof( void* ) * 3 + 1 ) / 2;
   }
   return size;
 }
@@ -124,65 +123,29 @@ void WeatherDef::copy_default_regions()
   for ( auto& realmregion : regionrealms )
   {
     Realms::Realm* realm = realmregion.first;
-    unsigned int gridwidth = realm->width() / ZONE_SIZE;
-    unsigned int gridheight = realm->height() / ZONE_SIZE;
-
-    for ( unsigned int i = 0; i < gridwidth; i++ )
-    {
-      for ( unsigned int j = 0; j < gridheight; j++ )
-      {
-        default_regionrealms[realm][i][j] = regionrealms[realm][i][j];
-      }
-    }
+    Range2d area = Range2d( Pos2d( 0, 0 ), XyToZone( realm->area().se() ), nullptr );
+    for ( const auto& p : area )
+      default_regionrealms[realm][p.y()][p.x()] = regionrealms[realm][p.y()][p.x()];
   }
 }
 
-bool WeatherDef::assign_zones_to_region( const char* regionname, unsigned short xwest,
-                                         unsigned short ynorth, unsigned short xeast,
-                                         unsigned short ysouth, Realms::Realm* realm )
+bool WeatherDef::assign_zones_to_region( const char* regionname, const Range2d& area,
+                                         Realms::Realm* realm )
 {
-  if ( xwest >= realm->width() )
-    xwest = static_cast<unsigned short>( realm->width() ) - 1;
-  if ( xeast >= realm->width() )
-    xeast = static_cast<unsigned short>( realm->width() ) - 1;
-  if ( ynorth >= realm->height() )
-    ynorth = static_cast<unsigned short>( realm->height() ) - 1;
-  if ( ysouth >= realm->height() )
-    ysouth = static_cast<unsigned short>( realm->height() ) - 1;
-
-
+  Range2d zone_area( XyToZone( area.nw() ), XyToZone( area.se() ), nullptr );
   if ( regionname && regionname[0] )
   {
     Region* rgn = getregion_byname( regionname );
     if ( rgn == nullptr )
       return false;
 
-    unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-
-    std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
-    std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
-
-    for ( auto zx = zone_xwest; zx <= zone_xeast; ++zx )
-    {
-      for ( auto zy = zone_ynorth; zy <= zone_ysouth; ++zy )
-      {
-        regionrealms[realm][zx][zy] = rgn->regionid();
-      }
-    }
+    for ( const auto& p : zone_area )
+      regionrealms[realm][p.y()][p.x()] = rgn->regionid();
   }
   else  // move 'em back to the default
   {
-    unsigned zone_xwest, zone_ynorth, zone_xeast, zone_ysouth;
-    std::tie( zone_xwest, zone_ynorth ) = XyToZone( xwest, ynorth );
-    std::tie( zone_xeast, zone_ysouth ) = XyToZone( xeast, ysouth );
-
-    for ( auto zx = zone_xwest; zx <= zone_xeast; ++zx )
-    {
-      for ( auto zy = zone_ynorth; zy <= zone_ysouth; ++zy )
-      {
-        regionrealms[realm][zx][zy] = default_regionrealms[realm][zx][zy];
-      }
-    }
+    for ( const auto& p : zone_area )
+      regionrealms[realm][p.y()][p.x()] = default_regionrealms[realm][p.y()][p.x()];
   }
   update_all_weatherregions();
   return true;

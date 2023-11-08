@@ -2,40 +2,42 @@
 
 #include <cstdio>
 #include <exception>
+#include <filesystem>
 #include <iosfwd>
 #include <memory>
 #include <stdlib.h>
 #include <string>
+#include <system_error>
 #include <time.h>
 
-#include "../bscript/compctx.h"
-#include "../bscript/compiler/Compiler.h"
-#include "../bscript/compiler/Profile.h"
-#include "../bscript/compiler/file/SourceFileCache.h"
-#include "../bscript/compilercfg.h"
-#include "../bscript/escriptv.h"
-#include "../bscript/executor.h"
-#include "../bscript/executortype.h"
-#include "../bscript/filefmt.h"
-#include "../clib/Program/ProgramConfig.h"
-#include "../clib/Program/ProgramMain.h"
-#include "../clib/dirlist.h"
-#include "../clib/esignal.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/mdump.h"
-#include "../clib/passert.h"
-#include "../clib/threadhelp.h"
-#include "../clib/timer.h"
-#include "../plib/pkg.h"
-#include "../plib/systemstate.h"
 #include <format/format.h>
+
+#include "bscript/compctx.h"
+#include "bscript/compiler/Compiler.h"
+#include "bscript/compiler/Profile.h"
+#include "bscript/compiler/file/SourceFileCache.h"
+#include "bscript/compilercfg.h"
+#include "bscript/escriptv.h"
+#include "bscript/executor.h"
+#include "bscript/executortype.h"
+#include "bscript/filefmt.h"
+#include "clib/Program/ProgramConfig.h"
+#include "clib/Program/ProgramMain.h"
+#include "clib/esignal.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/mdump.h"
+#include "clib/passert.h"
+#include "clib/threadhelp.h"
+#include "clib/timer.h"
+#include "plib/pkg.h"
+#include "plib/systemstate.h"
 
 namespace Pol
 {
 namespace ECompile
 {
-using namespace std;
+namespace fs = std::filesystem;
 using namespace Pol::Core;
 using namespace Pol::Plib;
 using namespace Pol::Bscript;
@@ -561,117 +563,47 @@ void apply_configuration()
   inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
-/**
- * Recursively compile a folder
- *
- * @param basedir Path of the folder to recurse into
- * @param files
- */
-void recurse_compile( const std::string& basedir, std::vector<std::string>* files )
+void recurse_collect( const fs::path& basedir, std::set<std::string>* files, bool inc_files )
 {
-  int s_compiled, s_uptodate, s_errors;
-  clock_t start, finish;
-
-  if ( !Clib::IsDirectory( basedir.c_str() ) )
+  if ( !fs::is_directory( basedir ) )
     return;
-
-  s_compiled = s_uptodate = s_errors = 0;
-  start = clock();
-  for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
+  std::error_code ec;
+  for ( auto dir_itr = fs::recursive_directory_iterator( basedir, ec );
+        dir_itr != fs::recursive_directory_iterator(); ++dir_itr )
   {
-    if ( Clib::exit_signalled )
-      return;
-    std::string name = dl.name(), ext;
-    if ( name[0] == '.' )
+    if ( auto fn = dir_itr->path().filename().u8string(); !fn.empty() && *fn.begin() == '.' )
+    {
+      if ( dir_itr->is_directory() )
+        dir_itr.disable_recursion_pending();
       continue;
-
-    std::string::size_type pos = name.rfind( '.' );
-    if ( pos != std::string::npos )
-      ext = name.substr( pos );
-
-    try
-    {
-      if ( pos != std::string::npos &&
-           ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
-             ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) ) )
-      {
-        s_compiled++;
-        if ( files == nullptr )
-        {
-          if ( compile_file( ( basedir + name ).c_str() ) )
-          {
-            ++summary.CompiledScripts;
-          }
-          else
-          {
-            ++s_uptodate;
-            ++summary.UpToDateScripts;
-          }
-        }
-        else
-          files->push_back( ( basedir + name ) );
-      }
-      else
-      {
-        recurse_compile( basedir + name + "/", files );
-      }
     }
-    catch ( std::exception& )
-    {
-      ++summary.CompiledScripts;
-      ++summary.ScriptsWithCompileErrors;
-      if ( !keep_building )
-        throw;
-      s_errors++;
-    }
-  }
-  if ( files == nullptr )
-    return;
-  finish = clock();
-
-  if ( ( !quiet || timing_quiet_override ) && show_timing_details && s_compiled > 0 &&
-       files == nullptr )
-  {
-    INFO_PRINT << "Compiled " << s_compiled << " script" << ( s_compiled == 1 ? "" : "s" ) << " in "
-               << basedir << " in " << (int)( ( finish - start ) / CLOCKS_PER_SEC )
-               << " second(s)\n";
-    if ( s_uptodate > 0 )
-      INFO_PRINT << "    " << s_uptodate << " script" << ( s_uptodate == 1 ? " was" : "s were" )
-                 << " already up-to-date.\n";
-    if ( s_errors > 0 )
-      INFO_PRINT << "    " << s_errors << " script" << ( s_errors == 1 ? "" : "s" )
-                 << " had errors.\n";
-  }
-}
-void recurse_compile_inc( const std::string& basedir, std::vector<std::string>* files )
-{
-  for ( Clib::DirList dl( basedir.c_str() ); !dl.at_end(); dl.next() )
-  {
-    if ( Clib::exit_signalled )
-      return;
-    std::string name = dl.name(), ext;
-    if ( name[0] == '.' )
+    else if ( !dir_itr->is_regular_file() )
       continue;
-
-    std::string::size_type pos = name.rfind( '.' );
-    if ( pos != std::string::npos )
-      ext = name.substr( pos );
-
-    if ( pos != std::string::npos && !ext.compare( ".inc" ) )
+    const auto ext = dir_itr->path().extension();
+    if ( inc_files )
     {
-      if ( files == nullptr )
-        compile_file( ( basedir + name ).c_str() );
-      else
-        files->push_back( ( basedir + name ) );
+      if ( !ext.compare( ".inc" ) )
+        files->insert( dir_itr->path().u8string() );
     }
-    else
+    else if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
+              ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
     {
-      recurse_compile( basedir + name + "/", files );
+      files->insert( dir_itr->path().u8string() );
     }
   }
 }
 
-void parallel_compile( const std::vector<std::string>& files )
+void serial_compile( const std::set<std::string>& files )
+{
+  for ( const auto& file : files )
+  {
+    if ( Clib::exit_signalled )
+      return;
+    compile_file_wrapper( file.c_str() );
+  }
+}
+
+void parallel_compile( const std::set<std::string>& files )
 {
   std::atomic<unsigned> compiled_scripts( 0 );
   std::atomic<unsigned> uptodate_scripts( 0 );
@@ -685,32 +617,34 @@ void parallel_compile( const std::vector<std::string>& files )
     summary.ThreadCount = pool.size();
     for ( const auto& file : files )
     {
-      pool.push( [&]() {
-        if ( !par_keep_building || Clib::exit_signalled )
-          return;
-        try
-        {
-          if ( compile_file( file.c_str() ) )
-            ++compiled_scripts;
-          else
-            ++uptodate_scripts;
-        }
-        catch ( std::exception& e )
-        {
-          ++compiled_scripts;
-          ++error_scripts;
-          compiler_error( "failed to compile ", file.c_str(), ": ", e.what(), "\n" );
-          if ( !keep_building )
+      pool.push(
+          [&]()
           {
-            par_keep_building = false;
-          }
-        }
-        catch ( ... )
-        {
-          par_keep_building = false;
-          Clib::force_backtrace();
-        }
-      } );
+            if ( !par_keep_building || Clib::exit_signalled )
+              return;
+            try
+            {
+              if ( compile_file( file.c_str() ) )
+                ++compiled_scripts;
+              else
+                ++uptodate_scripts;
+            }
+            catch ( std::exception& e )
+            {
+              ++compiled_scripts;
+              ++error_scripts;
+              compiler_error( "failed to compile ", file.c_str(), ": ", e.what(), "\n" );
+              if ( !keep_building )
+              {
+                par_keep_building = false;
+              }
+            }
+            catch ( ... )
+            {
+              par_keep_building = false;
+              Clib::force_backtrace();
+            }
+          } );
     }
   }
   summary.CompiledScripts = compiled_scripts;
@@ -726,24 +660,14 @@ void AutoCompile()
 {
   bool save = compilercfg.OnlyCompileUpdatedScripts;
   compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
+  std::set<std::string> files;
+  recurse_collect( fs::path( compilercfg.PolScriptRoot ), &files, false );
+  for ( const auto& pkg : Plib::systemstate.packages )
+    recurse_collect( fs::path( pkg->dir() ), &files, false );
   if ( compilercfg.ThreadedCompilation )
-  {
-    std::vector<std::string> files;
-    recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), &files );
-    for ( const auto& pkg : Plib::systemstate.packages )
-    {
-      recurse_compile( Clib::normalized_dir_form( pkg->dir() ), &files );
-    }
     parallel_compile( files );
-  }
   else
-  {
-    recurse_compile( Clib::normalized_dir_form( compilercfg.PolScriptRoot ), nullptr );
-    for ( const auto& pkg : Plib::systemstate.packages )
-    {
-      recurse_compile( Clib::normalized_dir_form( pkg->dir() ), nullptr );
-    }
-  }
+    serial_compile( files );
   compilercfg.OnlyCompileUpdatedScripts = save;
 }
 
@@ -791,22 +715,12 @@ bool run( int argc, char** argv, int* res )
         if ( i < argc && argv[i] && argv[i][0] != '-' )
           dir.assign( argv[i] );
 
+        std::set<std::string> files;
+        recurse_collect( fs::path( dir ), &files, compile_inc );
         if ( compilercfg.ThreadedCompilation )
-        {
-          std::vector<std::string> files;
-          if ( compile_inc )
-            recurse_compile_inc( Clib::normalized_dir_form( dir ), &files );
-          else
-            recurse_compile( Clib::normalized_dir_form( dir ), &files );
           parallel_compile( files );
-        }
         else
-        {
-          if ( compile_inc )
-            recurse_compile_inc( Clib::normalized_dir_form( dir ), nullptr );
-          else
-            recurse_compile( Clib::normalized_dir_form( dir ), nullptr );
-        }
+          serial_compile( files );
       }
       else if ( argv[i][1] == 'C' )
       {
@@ -854,34 +768,38 @@ bool run( int argc, char** argv, int* res )
       tmp << "    " << summary.UpToDateScripts << " script"
           << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
 
-    tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
-        << "\n";
-    tmp << "        - load *.em:   " << (long long)summary.profile.load_em_micros / 1000 << "\n";
-    tmp << "       - parse *.em:   " << (long long)summary.profile.parse_em_micros / 1000 << " ("
-        << (long)summary.profile.parse_em_count << ")\n";
-    tmp << "         - ast *.em:   " << (long long)summary.profile.ast_em_micros / 1000 << "\n";
-    tmp << "      - parse *.inc:   " << (long long)summary.profile.parse_inc_micros / 1000 << " ("
-        << (long)summary.profile.parse_inc_count << ")\n";
-    tmp << "        - ast *.inc:   " << (long long)summary.profile.ast_inc_micros / 1000 << "\n";
-    tmp << "      - parse *.src:   " << (long long)summary.profile.parse_src_micros / 1000 << " ("
-        << (long)summary.profile.parse_src_count << ")\n";
-    tmp << "        - ast *.src:   " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
-    tmp << "  resolve functions:   "
-        << (long long)summary.profile.ast_resolve_functions_micros / 1000 << "\n";
-    tmp << " register constants: "
-        << (long long)summary.profile.register_const_declarations_micros / 1000 << "\n";
-    tmp << "            analyze: " << (long long)summary.profile.analyze_micros / 1000 << "\n";
-    tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
-    tmp << "       disambiguate: " << (long long)summary.profile.disambiguate_micros / 1000 << "\n";
-    tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
-    tmp << "  prune cache (sel): " << (long long)summary.profile.prune_cache_select_micros / 1000
-        << "\n";
-    tmp << "  prune cache (del): " << (long long)summary.profile.prune_cache_delete_micros / 1000
-        << "\n";
-    tmp << "\n";
-    tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
-    tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
-    tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
+    if ( show_timing_details )
+    {
+      tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
+          << "\n";
+      tmp << "        - load *.em:   " << (long long)summary.profile.load_em_micros / 1000 << "\n";
+      tmp << "       - parse *.em:   " << (long long)summary.profile.parse_em_micros / 1000 << " ("
+          << (long)summary.profile.parse_em_count << ")\n";
+      tmp << "         - ast *.em:   " << (long long)summary.profile.ast_em_micros / 1000 << "\n";
+      tmp << "      - parse *.inc:   " << (long long)summary.profile.parse_inc_micros / 1000 << " ("
+          << (long)summary.profile.parse_inc_count << ")\n";
+      tmp << "        - ast *.inc:   " << (long long)summary.profile.ast_inc_micros / 1000 << "\n";
+      tmp << "      - parse *.src:   " << (long long)summary.profile.parse_src_micros / 1000 << " ("
+          << (long)summary.profile.parse_src_count << ")\n";
+      tmp << "        - ast *.src:   " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
+      tmp << "  resolve functions:   "
+          << (long long)summary.profile.ast_resolve_functions_micros / 1000 << "\n";
+      tmp << " register constants: "
+          << (long long)summary.profile.register_const_declarations_micros / 1000 << "\n";
+      tmp << "            analyze: " << (long long)summary.profile.analyze_micros / 1000 << "\n";
+      tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
+      tmp << "       disambiguate: " << (long long)summary.profile.disambiguate_micros / 1000
+          << "\n";
+      tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
+      tmp << "  prune cache (sel): " << (long long)summary.profile.prune_cache_select_micros / 1000
+          << "\n";
+      tmp << "  prune cache (del): " << (long long)summary.profile.prune_cache_delete_micros / 1000
+          << "\n";
+      tmp << "\n";
+      tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
+      tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
+      tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
+    }
 
     INFO_PRINT << tmp.str();
   }

@@ -34,6 +34,7 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
     : port( elem.remove_ushort( "PORT" ) ),
       aosresist( elem.remove_bool( "AOSRESISTANCES", false ) ),
       sticky( elem.remove_bool( "KeepClients", false ) ),
+      login_clients_size( 0 ),
       login_clients()
 
 {
@@ -43,7 +44,7 @@ UoClientListener::UoClientListener( Clib::ConfigElem& elem )
 size_t UoClientListener::estimateSize() const
 {
   size_t size = sizeof( UoClientListener );
-  size += login_clients.size() * ( sizeof( UoClientThread ) + 3 * sizeof( void* ) );
+  size += login_clients_size * ( sizeof( UoClientThread ) + 3 * sizeof( void* ) );
   return size;
 }
 

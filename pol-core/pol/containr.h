@@ -27,19 +27,6 @@
 #include "lockable.h"
 #endif
 
-#define CONTAINER_STORES_ITEMREF 0
-
-#if CONTAINER_STORES_ITEMREF
-#define GET_ITEM_PTR( itr ) ( ( *itr ).get() )
-#define ITEM_ELEM_PTR( elem ) ( elem.get() )
-#define EMPTY_ELEM ItemRef( 0 )
-#else
-#define GET_ITEM_PTR( itr ) ( *itr )
-#define ITEM_ELEM_PTR( elem ) ( elem )
-#define EMPTY_ELEM 0
-#endif
-
-
 namespace Pol
 {
 namespace Clib
@@ -199,13 +186,13 @@ public:
                                  unsigned short amt_added );
   virtual void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item );
 
-  virtual Mobile::Character* get_chr_owner() { return nullptr; };
+  virtual Mobile::Character* get_chr_owner() const { return nullptr; };
   // system_find: bypasses all locks, etc.
   Items::Item* system_find( u32 serial ) const;
 
   u16 gump() const;
-  void get_random_location( u16* px, u16* py ) const;
-  bool is_legal_posn( const Items::Item* item, u16 x, u16 y ) const;
+  Core::Pos2d get_random_location() const;
+  bool is_legal_posn( const Core::Pos2d& pos ) const;
   void enumerate_contents( Bscript::ObjArray* arr, int flags );
   void extract( Contents& cnt );
 
@@ -280,7 +267,7 @@ inline const Items::ContainerDesc& UContainer::descriptor() const
 
 inline Items::Item* UContainer::operator[]( unsigned idx ) const
 {
-  return ITEM_ELEM_PTR( contents_[idx] );
+  return contents_[idx];
 }
 }  // namespace Core
 }  // namespace Pol

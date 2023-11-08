@@ -15,6 +15,7 @@
 
 #include "uvars.h"
 
+#include <algorithm>
 #include <string.h>
 
 #include "../../bscript/bobject.h"
@@ -27,10 +28,6 @@
 #include "../accounts/accounts.h"
 #include "../checkpnt.h"
 #include "../console.h"
-#include "regions/guardrgn.h"
-#include "regions/musicrgn.h"
-#include "regions/resource.h"
-#include "regions/miscrgn.h"
 #include "../guilds.h"
 #include "../item/equipmnt.h"
 #include "../item/itemdesc.h"
@@ -39,12 +36,12 @@
 #include "../loadunld.h"
 #include "../mobile/attribute.h"
 #include "../multi/boat.h"
+#include "../multi/multidef.h"
 #include "../npctmpl.h"
 #include "../objecthash.h"
 #include "../party.h"
 #include "../polcfg.h"
 #include "../polsem.h"
-#include "realms/realm.h"
 #include "../scrstore.h"
 #include "../spells.h"
 #include "../startloc.h"
@@ -57,6 +54,11 @@
 #include "multidefs.h"
 #include "network.h"
 #include "object_storage.h"
+#include "realms/realm.h"
+#include "regions/guardrgn.h"
+#include "regions/miscrgn.h"
+#include "regions/musicrgn.h"
+#include "regions/resource.h"
 #include "script_internals.h"
 #include "ucfg.h"
 
@@ -121,15 +123,15 @@ GameState::GameState()
       // on OSI uses the 301+ spellrange that we can find. 5/30/06 - MuadDib
       // We use Mysticism at array entry 3 because Mysticism spellids are 678 -> 693 and this slot
       // is free.
-      spell_scroll_objtype_limits( {{// TODO: Comment those objtypes :D
-                                     {{0x1F2D, 0x1F6C}},
-                                     {{0x2260, 0x226F}},
-                                     {{0x2270, 0x227C}},
-                                     {{0x2D9E, 0x2DAD}},
-                                     {{0x238D, 0x2392}},
-                                     {{0x23A1, 0x23A8}},
-                                     {{0x2D51, 0x2D60}},
-                                     {{0x574B, 0x5750}}}} ),
+      spell_scroll_objtype_limits( { { // TODO: Comment those objtypes :D
+                                       { { 0x1F2D, 0x1F6C } },
+                                       { { 0x2260, 0x226F } },
+                                       { { 0x2270, 0x227C } },
+                                       { { 0x2D9E, 0x2DAD } },
+                                       { { 0x238D, 0x2392 } },
+                                       { { 0x23A1, 0x23A8 } },
+                                       { { 0x2D51, 0x2D60 } },
+                                       { { 0x574B, 0x5750 } } } } ),
       spells(),
       spellcircles(),
       export_scripts(),
@@ -170,7 +172,8 @@ GameState::GameState()
       textcmds(),
       paramtextcmds(),
       uo_skills(),
-      task_thread_pool()
+      task_thread_pool(),
+      update_range( (s16)RANGE_VISUAL, (s16)RANGE_VISUAL )
 {
   memset( &mount_action_xlate, 0, sizeof( mount_action_xlate ) );
 }
@@ -179,6 +182,22 @@ GameState::~GameState()
   // FIXME: since deconstruction of externs has a more or less random order
   // everything should be cleared before.
   // or make sure that the globals get deconstructed before eg the flyweight string container
+}
+
+
+void GameState::update_range_from_multis()
+{
+  for ( const auto& m_pair : Multi::multidef_buffer.multidefs_by_multiid )
+  {
+    if ( m_pair.second == nullptr )
+      continue;
+    auto* mdef = m_pair.second;
+    s16 maxrel = (s16)std::max( { std::abs( mdef->minrxyz.x() ), std::abs( mdef->minrxyz.y() ),
+                                  std::abs( mdef->maxrxyz.x() ), std::abs( mdef->maxrxyz.y() ) } ) +
+                 1;
+    if ( maxrel > update_range.x() )
+      update_range.x( maxrel ).y( maxrel );
+  }
 }
 
 void display_leftover_objects();
@@ -271,50 +290,38 @@ void GameState::cleanup_vars()
 
   for ( auto& realm : Realms )
   {
-    unsigned wgridx = realm->grid_width();
-    unsigned wgridy = realm->grid_height();
-
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& item : realm->getzone_grid( p ).items )
       {
-        for ( auto& item : realm->zone[wx][wy].items )
-        {
-          item->destroy();
-        }
-        realm->zone[wx][wy].items.clear();
+        item->destroy();
       }
+      realm->getzone_grid( p ).items.clear();
     }
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& chr : realm->getzone_grid( p ).characters )
       {
-        for ( auto& chr : realm->zone[wx][wy].characters )
-        {
-          chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          chr->destroy();
-        }
-        realm->zone[wx][wy].characters.clear();
-        for ( auto& chr : realm->zone[wx][wy].npcs )
-        {
-          chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
-          chr->destroy();
-        }
-        realm->zone[wx][wy].npcs.clear();
+        chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
+        chr->destroy();
       }
+      realm->getzone_grid( p ).characters.clear();
+      for ( auto& chr : realm->getzone_grid( p ).npcs )
+      {
+        chr->acct.clear();  // dave added 9/27/03, see above comment re: mutual references
+        chr->destroy();
+      }
+      realm->getzone_grid( p ).npcs.clear();
     }
 
-    for ( unsigned wx = 0; wx < wgridx; ++wx )
+    for ( const auto& p : realm->gridarea() )
     {
-      for ( unsigned wy = 0; wy < wgridy; ++wy )
+      for ( auto& multi : realm->getzone_grid( p ).multis )
       {
-        for ( auto& multi : realm->zone[wx][wy].multis )
-        {
-          multi->destroy();
-        }
-        realm->zone[wx][wy].multis.clear();
+        multi->destroy();
       }
+      realm->getzone_grid( p ).multis.clear();
     }
   }
 

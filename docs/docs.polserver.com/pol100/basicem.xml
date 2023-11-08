@@ -274,7 +274,7 @@ substring of string1 to entire string2.
     <prototype>Trim(str, type:=TRIM_BOTH, to_trim:=" ")</prototype>
     <parameter name="str" value="The string to trim" />
     <parameter name="type" value="The trim type to use" />
-    <parameter name="to_trim" value="The string to trim as whitespace" />
+    <parameter name="to_trim" value="The string containing the character, or set of characters, to trim as whitespace" />
     <explain>Trims whitespaces from strings.</explain>
     <explain>basic.em constants for type value:
 <code>
@@ -315,9 +315,10 @@ const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code
   </function>
 
   <function name="PackJSON">
-    <prototype>PackJSON( expr )</prototype>
+    <prototype>PackJSON( expr, prettify )</prototype>
     <parameter name="expr" value="An object to pack" />
-    <explain>Returns a JSON-serialization of the object to pack.</explain>
+    <parameter name="prettify" value="If true, prettify the output string" />
+    <explain>Returns a JSON-serialization of the object to pack. If `prettify` is true, the output string will be indented with new lines.</explain>
     <explain>The following conversions are done:</explain>
     <explain>eScript -&gt; JSON</explain>
     <explain>double -&gt; number</explain>

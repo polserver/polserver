@@ -40,6 +40,21 @@ void range2d_test()
             "contains(1,2)" );
   UnitTest( [&]() { return Range2d( p2, p1, r ).contains( Pos2d( 3, 5 ) ); }, false,
             "contains(3,5)" );
+  UnitTest( [&]()
+            { return Range2d( Pos2d( 1, 1 ), Pos2d( 2, 2 ), nullptr ).contains( Pos2d( 1, 0 ) ); },
+            false, "1,1,2,2.contains(1,0)" );
+  UnitTest( [&]()
+            { return Range2d( Pos2d( 1, 1 ), Pos2d( 2, 2 ), nullptr ).contains( Pos2d( 0, 1 ) ); },
+            false, "1,1,2,2.contains(0,1)" );
+  UnitTest( [&]()
+            { return Range2d( Pos2d( 1, 1 ), Pos2d( 2, 2 ), nullptr ).contains( Pos2d( 2, 0 ) ); },
+            false, "1,1,2,2.contains(2,0)" );
+  UnitTest( [&]()
+            { return Range2d( Pos2d( 1, 1 ), Pos2d( 2, 2 ), nullptr ).contains( Pos2d( 2, 3 ) ); },
+            false, "1,1,2,2.contains(2,3)" );
+  UnitTest( [&]()
+            { return Range2d( Pos2d( 1, 1 ), Pos2d( 2, 2 ), nullptr ).contains( Pos2d( 3, 1 ) ); },
+            false, "1,1,2,2.contains(3,1)" );
 
   UnitTest(
       [&]()

@@ -149,6 +149,12 @@ int BSQLResultSet::num_rows() const
     return 0;
   return static_cast<int>( mysql_num_rows( _result->ptr() ) );
 };
+
+bool BSQLResultSet::has_result() const
+{
+  return _result && _result->ptr();
+}
+
 Bscript::BObjectImp* BSQLResultSet::copy() const
 {
   if ( _affected_rows )

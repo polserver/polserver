@@ -10,9 +10,9 @@ namespace Pol
 {
 namespace Core
 {
-std::pair<unsigned, unsigned> XyToZone( xcoord x, ycoord y )
+Pos2d XyToZone( const Pos2d& pos )
 {
-  return std::make_pair<unsigned, unsigned>( x >> ZONE_SHIFT, y >> ZONE_SHIFT );
+  return Pos2d( pos.x() >> ZONE_SHIFT, pos.y() >> ZONE_SHIFT );
 }
 }  // namespace Core
 }  // namespace Pol

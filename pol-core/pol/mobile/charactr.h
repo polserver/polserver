@@ -49,6 +49,7 @@
 #include "../baseobject.h"
 #include "../dynproperties.h"
 #include "../gameclck.h"
+#include "../getitem.h"
 #include "../polclock.h"
 #include "../reftypes.h"
 #include "../skillid.h"
@@ -127,7 +128,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
 void createchar2( Accounts::Account* acct, unsigned index );
-void undo_get_item( Mobile::Character* chr, Items::Item* item );
 void write_characters( SaveContext& sc );
 void write_npcs( SaveContext& sc );
 }  // namespace Core
@@ -289,6 +289,10 @@ private:
 
   // UOBJECT INTERFACE
 public:
+  virtual u8 update_range() const override;
+  bool in_visual_range( const Core::UObject* other ) const;
+  bool in_visual_range( const Core::Pos2d& other ) const;
+
   virtual size_t estimatedSize() const override;
 
   virtual void destroy() override;
@@ -384,7 +388,7 @@ public:
   unsigned int gold_carried() const;
   void spend_gold( unsigned int amount );
 
-  DYN_PROPERTY_POINTER( gotten_item, Items::Item*, Core::PROP_GOTTEN_BY );
+  DYN_PROPERTY( gotten_item, Core::GottenItem, Core::PROP_GOTTEN_BY, Core::GottenItem{} );
   void clear_gotten_item();
 
   void add_remote_container( Items::Item* );
@@ -595,6 +599,8 @@ public:
   bool start_skill_script( Bscript::EScriptProgram* prog );
   bool start_itemuse_script( Bscript::EScriptProgram* prog, Items::Item* item,
                              bool start_attached );
+  bool start_snoop_script( Bscript::EScriptProgram* prog, Items::Item* item,
+                           Mobile::Character* owner );
   bool start_spell_script( Bscript::EScriptProgram* prog, Core::USpell* spell );
   void cancel_menu();
 
@@ -710,10 +716,6 @@ public:
   int charindex() const;  // find account character index, or -1 if not found.
   void on_delete_from_account();
 
-protected:
-  friend void Core::undo_get_item( Character* chr,
-                                   Items::Item* item );  // this just gets uglier and uglier.
-
   // BUFF/DEBUFF BAR
 public:
   void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, const std::string& arguments );
@@ -739,13 +741,6 @@ protected:
   ref_ptr<Core::WornItemsContainer> wornitems;
 
 public:
-  enum GOTTEN_ITEM_TYPE : u8
-  {
-    GOTTEN_ITEM_ON_GROUND,
-    GOTTEN_ITEM_EQUIPPED_ON_SELF,
-    GOTTEN_ITEM_IN_CONTAINER
-  } gotten_item_source;
-
   std::vector<Core::ItemRef> remote_containers_;  // does not own its objects
   // MOVEMENT
 public:
@@ -776,6 +771,7 @@ protected:
   DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
   DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HIT_CHANCE_MOD, 0 );
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
+  DYN_PROPERTY( parrychance_mod, s16, Core::PROP_PARRYCHANCE_MOD, 0 );
 
   Character* opponent_;
   CharacterSet opponent_of;
@@ -1018,6 +1014,17 @@ inline VitalValue& Character::vital( unsigned vitalid )
 {
   passert( vitalid < vitals.size() );
   return vitals[vitalid];
+}
+
+inline bool Character::in_visual_range( const Core::UObject* other ) const
+{
+  if ( !other->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
+    return in_range( other, std::max( update_range(), other->update_range() ) );
+  return in_range( other, update_range() );
+}
+inline bool Character::in_visual_range( const Core::Pos2d& other ) const
+{
+  return in_range( other, update_range() );
 }
 
 // dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp

@@ -80,6 +80,7 @@ typedef std::list<CUSTOM_HOUSE_ELEMENT> HouseFloorZColumn;
 // v v v v v v
 // [][][][][][] - lists of zoffsets
 // [][][][][][]
+typedef std::list<Items::Item*> ItemList;
 
 class CustomHouseElements
 {
@@ -174,7 +175,8 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client,
                            int design = HOUSE_DESIGN_CURRENT );
 void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
 void CustomHousesSendShort( UHouse* house, Network::Client* client );
-void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, bool send_pkts = true );
+void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, ItemList& itemlist,
+                             bool send_pkts = true );
 }  // namespace Multi
 }  // namespace Pol
 #endif

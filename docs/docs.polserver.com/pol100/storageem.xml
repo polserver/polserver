@@ -43,10 +43,10 @@
 
 <function name="CreateRootItemInStorageArea">
 	<prototype>CreateRootItemInStorageArea( area, itemname, objtype )</prototype>
-	<parameter name="area" value="String" />
+	<parameter name="area" value="Storage Area Reference" />
 	<parameter name="itemname" value="String" />
 	<parameter name="objtype" value="Integer objtype, OR String ObjtypeName, OR GetItemDescriptor struct." />
-	<explain>Creates the "root" (top-level) item in the storage area "area". "itemname" is the name of this
+	<explain>Creates the "root" (top-level) item in the storage area provided. "itemname" is the name of this
 				item, and "objtype" is its type.</explain>
 	<explain>Notes: The item is normally a container. For example, a bankbox is a storage area and the root item 
 is the chest container. Normal items are then placed in this container.</explain>

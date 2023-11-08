@@ -49,10 +49,6 @@ public:
 
   bool operator==( const Pos2d& other ) const;
   bool operator!=( const Pos2d& other ) const;
-  bool operator<( const Pos2d& other ) const;
-  bool operator>( const Pos2d& other ) const;
-  bool operator<=( const Pos2d& other ) const;
-  bool operator>=( const Pos2d& other ) const;
 
   Pos2d& operator-=( const Vec2d& other );
   Pos2d& operator+=( const Vec2d& other );
@@ -81,6 +77,8 @@ Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs );
 fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v );
+std::ostream& operator<<( std::ostream& os, const Pos2d& v );
+
 
 class Pos3d
 {
@@ -99,17 +97,9 @@ public:
 
   bool operator==( const Pos3d& other ) const;
   bool operator!=( const Pos3d& other ) const;
-  bool operator<( const Pos3d& other ) const;
-  bool operator>( const Pos3d& other ) const;
-  bool operator<=( const Pos3d& other ) const;
-  bool operator>=( const Pos3d& other ) const;
 
   bool operator==( const Pos2d& other ) const;
   bool operator!=( const Pos2d& other ) const;
-  bool operator<( const Pos2d& other ) const;
-  bool operator>( const Pos2d& other ) const;
-  bool operator<=( const Pos2d& other ) const;
-  bool operator>=( const Pos2d& other ) const;
 
   Pos3d& operator-=( const Vec2d& other );
   Pos3d& operator+=( const Vec2d& other );
@@ -134,6 +124,8 @@ public:
   bool in_range( const Pos2d& other, u16 range ) const;
   bool in_range( const Pos3d& other, u16 range ) const;
   Pos3d& crop( const Realms::Realm* realm );
+
+  static s8 clip_s8( int v );
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );
@@ -143,6 +135,7 @@ Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v );
+std::ostream& operator<<( std::ostream& os, const Pos3d& v );
 
 class Pos4d
 {
@@ -162,24 +155,12 @@ public:
 
   bool operator==( const Pos4d& other ) const;
   bool operator!=( const Pos4d& other ) const;
-  bool operator<( const Pos4d& other ) const;
-  bool operator>( const Pos4d& other ) const;
-  bool operator<=( const Pos4d& other ) const;
-  bool operator>=( const Pos4d& other ) const;
 
   bool operator==( const Pos3d& other ) const;
   bool operator!=( const Pos3d& other ) const;
-  bool operator<( const Pos3d& other ) const;
-  bool operator>( const Pos3d& other ) const;
-  bool operator<=( const Pos3d& other ) const;
-  bool operator>=( const Pos3d& other ) const;
 
   bool operator==( const Pos2d& other ) const;
   bool operator!=( const Pos2d& other ) const;
-  bool operator<( const Pos2d& other ) const;
-  bool operator>( const Pos2d& other ) const;
-  bool operator<=( const Pos2d& other ) const;
-  bool operator>=( const Pos2d& other ) const;
 
   Pos4d& operator-=( const Vec2d& other );
   Pos4d& operator+=( const Vec2d& other );
@@ -224,6 +205,7 @@ Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs );
 // Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs ); // TODO: think if this one makes sense
 fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v );
+std::ostream& operator<<( std::ostream& os, const Pos4d& v );
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
 

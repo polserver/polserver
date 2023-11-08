@@ -1,0 +1,177 @@
+use polsys;
+use uo;
+use os;
+
+include "testutil";
+
+program testitem()
+  return 1;
+endprogram
+
+exported function test_item_realm_move()
+  // crashed by wrongly converting coordinates between realms
+  var item:=CreateItemAtLocation(0,0,0,0xf3f);
+  if (!item)
+    return ret_error("Failed to create item "+item);
+  endif
+
+  MoveObjectToLocation(item,1000,1000,0,"britannia2",MOVEOBJECT_FORCELOCATION);
+  if (item.x != 1000 || item.y != 1000 || item.realm != "britannia2")
+    var res:=$"Failed initial move: {item.x},{item.y},{item.realm}";
+    DestroyItem(item);
+    return ret_error(res);
+  endif
+
+  MoveObjectToLocation(item,10,10,0,"britannia",MOVEOBJECT_FORCELOCATION);
+  if (item.x != 10 || item.y != 10 || item.realm != "britannia")
+    var res:=$"Failed to move: {item.x},{item.y},{item.realm}";
+    DestroyItem(item);
+    return ret_error(res);
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
+
+exported function test_item_cursed()
+  var cnt:=CreateItemAtLocation(0,0,0,0x200001);
+  if (!cnt)
+    return ret_error("Failed to create container "+cnt);
+  endif
+
+  // Create one stack of gold
+  var gold1 := CreateItemInContainer(cnt, "goldcoin", 1000);
+  if (!gold1)
+      return ret_error($"Failed to create goldcoin {gold1}");
+  endif
+
+  // Create another stack of gold, will be stacked onto existing item `gold1`
+  var gold2 := CreateItemInContainer(cnt, "goldcoin", 2000);
+  if (!gold2)
+      return ret_error($"Failed to create goldcoin {gold2}");
+  elseif (EnumerateItemsInContainer(cnt).size() != 1)
+    return ret_error("Expected one item -- gold -- in container");
+  elseif (gold1 != gold2)
+    return ret_error("Expected second created gold to stack with first");
+  endif
+
+  // Create one stack of cursed gold
+  var cursedgold1 := CreateItemInContainer(cnt, "cursedgoldcoin", 3000);
+  if (!cursedgold1)
+      return ret_error($"Failed to create cursedgoldcoin {cursedgold1}");
+  endif
+
+  // Create another stack of cursed gold, will be stacked onto existing item `cursedgold1`
+  var cursedgold2 := CreateItemInContainer(cnt, "cursedgoldcoin", 4000);
+  if (!cursedgold2)
+      return ret_error($"Failed to create cursedgoldcoin {cursedgold2}");
+  elseif (cursedgold1 != cursedgold2)
+    return ret_error("Expected second created cursedgold to stack with first");
+  elseif (cursedgold1.cursed == 0)
+    return ret_error("Expected created cursedgold to have cursed == 1");
+  elseif (EnumerateItemsInContainer(cnt).size() != 2)
+    return ret_error("Expected two items -- gold and cursedgold -- in container");
+  endif
+
+  DestroyItem(cnt);
+  return 1;
+endfunction
+
+exported function test_item_method_crash()
+  var item:=CreateItemAtLocation(0,0,0,0x300001);
+  if (!item)
+    return ret_error("Failed to create item "+item);
+  endif
+  item.Outer(); // this crashed
+  if (item.Outer2() != 2)
+    DestroyItem(item);
+    return ret_error("Locals backup seems to be broken");
+  endif
+  DestroyItem(item);
+  return 1;
+endfunction
+
+exported function test_create_item_container_loc()
+  var cnt := CreateItemAtLocation(0,0,0,0x200001);
+  if (!cnt)
+    return ret_error("Failed to create container "+cnt);
+  endif
+  var item := CreateItemInContainer(cnt, "goldcoin", 1000, 80, 90);
+  if (!item)
+    return ret_error($"Could not create item: {item}");
+  elseif (item.x != 80 || item.y != 90)
+    var msg := $"Item not in expected location: item.x ({item.x}) != 80 or item.y ({item.y}) != 90";
+    DestroyItem(cnt);
+    return ret_error(msg);
+  endif
+  DestroyItem(cnt);
+  return 1;
+endfunction
+
+exported function test_item_controlscript_restart()
+  // The control script starting is asynchronous, as it is just scheduled to run
+  // upon item creation. Configure the item to send an event to this test script
+  // when the control script begins execution.
+  var desc := GetItemDescriptor("RestartableItem");
+  desc.SaveOnExit := 0;
+  desc.CProps := dictionary{
+    "#TestPid" -> GetPid()
+  };
+
+  var item := CreateItemAtLocation(0, 0, 0, desc);
+  if (!item)
+    return ret_error($"Failed to create item: ${item}");
+  endif
+
+  var err, initial_control_script_pid, restarted_control_script_pid;
+
+  // Receive process id by event from the initial control script created via item creation.
+  if (!(initial_control_script_pid := get_pid_from_control_script(err, item, "initial")))
+    DestroyItem(item);
+    return err;
+  endif
+
+  // Restart the control script.
+  var restarted := RestartScript(item);
+  if (!restarted)
+    DestroyItem(item);
+    return ret_error($"Failed to RestartScript on item: ${restarted}");
+  endif
+
+  // Receive process id by event from the new control script created by RestartScript.
+  if (!(restarted_control_script_pid := get_pid_from_control_script(err, item, "restarted")))
+    DestroyItem(item);
+    return err;
+  endif
+
+  // The initial and restarted process ids are different.
+  if (initial_control_script_pid == restarted_control_script_pid)
+    DestroyItem(item);
+    return ret_error($"The item's initial control script PID ({initial_control_script_pid}) should not equal the restarted control script PID ({restarted_control_script_pid})");
+  endif
+
+  // RestartScript should have terminated the previous control script.
+  var old_process := GetProcess(initial_control_script_pid);
+  if (old_process)
+    DestroyItem(item);
+    return ret_error($"Previous control script unexpectedly still exists: ${old_process}");
+  endif
+
+  DestroyItem(item);
+  return 1;
+endfunction
+
+function get_pid_from_control_script(byref err, item, label)
+  // Get event from control script containing its process id.
+  var control_script_event := wait_for_event(5);
+  if (!control_script_event)
+    return err := ret_error($"Did not receive event from {label} control script.");
+  endif
+
+  var control_script_pid := control_script_event.control_script_pid;
+  if (item.process.pid != control_script_pid)
+    return err := ret_error($"The item's {label} control script PID ({item.process().pid}) does not equal the control script event's PID ({control_script_pid})");
+  endif
+
+  return control_script_pid;
+endfunction
