@@ -403,12 +403,6 @@ void GameState::unload_intrinsic_templates()
 // quick and nasty fix until npcdesc usage is rewritten
 void GameState::unload_npc_templates()
 {
-  for ( auto& templates : npc_templates )
-  {
-    if ( templates.second != nullptr )
-      delete templates.second;
-    templates.second = nullptr;
-  }
   npc_templates.clear();
 
   npc_template_elems.clear();
@@ -427,7 +421,7 @@ GameState::Memory GameState::estimateSize() const
   for ( const auto& ele : npc_templates )
   {
     usage.misc += ele.first.capacity() + sizeof( NpcTemplate* ) + ( sizeof( void* ) * 3 + 1 ) / 2;
-    if ( ele.second != nullptr )
+    if ( ele.second )
       usage.misc += ele.second->estimateSize();
   }
 

@@ -23,6 +23,7 @@
 
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <stddef.h>
 #include <string>
 
@@ -275,7 +276,7 @@ protected:
 
 private:
   Core::CharacterRef master_;
-  const Core::NpcTemplate& template_;
+  std::shared_ptr<Core::NpcTemplate> template_;
 };
 
 inline Character* NPC::master() const
@@ -285,7 +286,7 @@ inline Character* NPC::master() const
 
 inline Core::NpcTemplate::ALIGNMENT NPC::alignment() const
 {
-  return template_.alignment;
+  return template_->alignment;
 }
 
 inline unsigned short NPC::ar() const
