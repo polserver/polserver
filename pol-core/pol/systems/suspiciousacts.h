@@ -41,9 +41,7 @@ void BoatMoveNotBoatMulti( Network::Client* client );
 // boat movement packet without being on a boat multi
 void BoatMoveNotPilot( Network::Client* client, u32 multi_serial );
 
-// boat movement packet on boat multi with no running script
-void BoatMoveMultiNoRunningScript( Network::Client* client, u32 multi_serial );
-
+// boat movement packet used packet with direction > 7 or speed > 2
 void BoatMoveOutOfRangeParameters( Network::Client* client, u32 multi_serial, u8 direction,
                                    u8 speed );
 }  // namespace Pol::SuspiciousActs

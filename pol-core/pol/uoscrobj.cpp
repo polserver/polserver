@@ -4770,13 +4770,14 @@ BObjectImp* EClientRefObjImp::call_polmethod_id( const int id, Core::UOExecutor&
   return base::call_polmethod_id( id, ex );
 }
 
-BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8 speed,
-                                      const u8 direction )
+BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8 speed, const u8 direction,
+                                      const u8 relative_direction )
 {
   addMember( "type", new BLong( Core::EVID_BOAT_MOVEMENT ) );
   addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
   addMember( "speed", new BLong( static_cast<int>( speed ) ) );
   addMember( "direction", new BLong( static_cast<int>( direction ) ) );
+  addMember( "relative_direction", new BLong( static_cast<int>( relative_direction ) ) );
 }
 
 SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )

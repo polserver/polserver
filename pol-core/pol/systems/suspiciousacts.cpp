@@ -147,17 +147,6 @@ void SuspiciousActs::BoatMoveNotBoatMulti( Network::Client* client )
   }
 }
 
-void SuspiciousActs::BoatMoveMultiNoRunningScript( Network::Client* client, u32 multi_serial )
-{
-  if ( Plib::systemstate.config.show_warning_boat_move )
-  {
-    POLLOG_ERROR.Format(
-        "{}/{} tried to use a boat movement packet on a boat multi (serial 0x{:X}) that has no "
-        "running script.\n" )
-        << client->acct->name() << client->chr->name() << multi_serial;
-  }
-}
-
 void SuspiciousActs::BoatMoveNotPilot( Network::Client* client, u32 multi_serial )
 {
   if ( Plib::systemstate.config.show_warning_boat_move )

@@ -431,13 +431,6 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
       break;
     }
 
-    Module::UOExecutorModule* process = multi->process();
-    if ( !process )
-    {
-      SuspiciousActs::BoatMoveMultiNoRunningScript( client, multi->serial );
-      break;
-    }
-
     if ( msg->boatmove.direction > 7 || msg->boatmove.speed > 2 )
     {
       SuspiciousActs::BoatMoveOutOfRangeParameters( client, multi->serial, msg->boatmove.direction,
@@ -445,8 +438,17 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
       break;
     }
 
-    process->uoexec().signal_event(
-        new Module::BoatMovementEvent( chr, msg->boatmove.speed, msg->boatmove.direction ) );
+    Module::UOExecutorModule* process = multi->process();
+    if ( !process )
+    {
+      break;
+    }
+
+    auto relative_direction =
+        static_cast<Core::UFACING>( ( msg->boatmove.direction + boat->boat_facing() ) & 7 );
+
+    process->uoexec().signal_event( new Module::BoatMovementEvent(
+        chr, msg->boatmove.speed, msg->boatmove.direction, relative_direction ) );
 
     break;
   }
