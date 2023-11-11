@@ -41,7 +41,7 @@ std::ifstream uopmapfile;
 
 // This code is almost identical to the one in RawMap::load_full_map. One should consider a way to
 // refactor both.
-size_t estimate_mapsize_uop( std::ifstream& ifs )
+size_t uop_equivalent_mul_size( std::ifstream& ifs )
 {
   kaitai::kstream ks( &ifs );
   uop_t uopfile( &ks );
@@ -107,7 +107,7 @@ size_t estimate_mapsize_uop( std::ifstream& ifs )
   return totalSize;
 }
 
-bool open_uopmap_file( const int mapid, int* out_file_size = nullptr )
+bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
 {
   std::string filepart = "map" + std::to_string( mapid ) + "LegacyMUL.uop";
   std::string filename = systemstate.config.uo_datafile_root + filepart;
@@ -120,20 +120,15 @@ bool open_uopmap_file( const int mapid, int* out_file_size = nullptr )
 
   uopmapfile.open( filename, std::ios::binary );
 
-  if ( (bool)uopmapfile )
-  {
-    if ( out_file_size != nullptr )
-    {
-      // gets the equivalent mapsize to the original MUL file
-      *out_file_size = static_cast<int>( estimate_mapsize_uop( uopmapfile ) );
-    }
-    return true;
-  }
+  if ( uopmapfile.fail() )
+    return false;
 
-  return false;
+  if ( out_file_size != nullptr )
+    *out_file_size = uop_equivalent_mul_size( uopmapfile );
+  return true;
 }
 
-FILE* open_uo_file( const std::string& filename_part, int* out_file_size = nullptr )
+FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr )
 {
   std::string filename = systemstate.config.uo_datafile_root + filename_part;
   FILE* fp = fopen( filename.c_str(), "rb" );
@@ -160,7 +155,7 @@ FILE* open_uo_file( const std::string& filename_part, int* out_file_size = nullp
   return fp;
 }
 
-FILE* open_map_file( std::string name, int map_id, int* out_file_size = nullptr )
+FILE* open_map_file( std::string name, int map_id, size_t* out_file_size = nullptr )
 {
   std::string filename;
 
@@ -185,7 +180,7 @@ size_t uo_map_size = 0;
 
 void open_tiledata( void )
 {
-  int tiledata_size;
+  size_t tiledata_size;
 
   tilefile = open_uo_file( "tiledata.mul", &tiledata_size );
 
@@ -211,7 +206,7 @@ void open_tiledata( void )
 
 void open_map( void )
 {
-  int map_size;
+  size_t map_size;
   // First tries to load the new UOP files. Otherwise fall back to map[N].mul files.
   // map1 uses map0 + 'dif' files, unless there is a map1.mul (newer clients)
   // same for staidx and statics
@@ -225,8 +220,6 @@ void open_map( void )
 
 void open_uo_data_files( void )
 {
-  std::string filename;
-
   open_map();
 
   sidxfile = open_map_file( "staidx", uo_mapid );
@@ -244,6 +237,7 @@ void open_uo_data_files( void )
 
   if ( uo_usedif )
   {
+    std::string filename;
     filename = "stadifl" + Clib::tostring( uo_mapid ) + ".mul";
     if ( Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
     {
