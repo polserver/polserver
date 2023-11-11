@@ -65,6 +65,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
             LOG_CONFIGURE 1
             BUILD_IN_SOURCE 1
             LOG_OUTPUT_ON_FAILURE 1
+            DOWNLOAD_EXTRACT_TIMESTAMP 1
             )
     set_target_properties (boost_extract PROPERTIES FOLDER 3rdParty)
 
