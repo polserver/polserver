@@ -84,7 +84,6 @@ add_test(NAME uoconvert_map
   COMMAND uoconvert map realm=britannia 
     width=192 height=192 
     uodata=client
-    maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_map PROPERTIES FIXTURES_REQUIRED client)
@@ -93,7 +92,6 @@ set_tests_properties( uoconvert_map PROPERTIES FIXTURES_SETUP uoconvert)
 add_test(NAME uoconvert_statics
   COMMAND uoconvert statics realm=britannia 
     uodata=client
-    maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_statics PROPERTIES DEPENDS uoconvert_map)
@@ -103,7 +101,6 @@ set_tests_properties( uoconvert_statics PROPERTIES FIXTURES_SETUP uoconvert)
 add_test(NAME uoconvert_maptile
   COMMAND uoconvert maptile realm=britannia 
     uodata=client
-    maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_maptile PROPERTIES FIXTURES_REQUIRED client)
@@ -116,7 +113,6 @@ add_test(NAME uoconvert_map2
     height=1600
     mapid=1
     uodata=client
-    maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_map2 PROPERTIES DEPENDS uoconvert_maptile)
@@ -127,7 +123,6 @@ add_test(NAME uoconvert_statics2
   COMMAND uoconvert statics realm=britannia2
     uodata=client
     mapid=1
-    maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_statics2 PROPERTIES DEPENDS uoconvert_map2)
@@ -138,7 +133,6 @@ add_test(NAME uoconvert_maptile2
   COMMAND uoconvert maptile realm=britannia2
     uodata=client
     mapid=1
-    maxtileid=0x3fff
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( uoconvert_maptile2 PROPERTIES FIXTURES_REQUIRED client)
@@ -148,7 +142,6 @@ set_tests_properties( uoconvert_maptile2 PROPERTIES FIXTURES_SETUP uoconvert)
 add_test(NAME uoconvert_tiles
   COMMAND uoconvert tiles
     uodata=client
-    maxtileid=0x3fff
     outdir=config
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
@@ -158,7 +151,6 @@ set_tests_properties( uoconvert_tiles PROPERTIES FIXTURES_SETUP uoconvert)
 add_test(NAME uoconvert_landtiles
   COMMAND uoconvert landtiles
     uodata=client
-    maxtileid=0x3fff
     outdir=config
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
@@ -168,7 +160,6 @@ set_tests_properties( uoconvert_landtiles PROPERTIES FIXTURES_SETUP uoconvert)
 add_test(NAME uoconvert_multis
   COMMAND uoconvert multis
     uodata=client
-    maxtileid=0x3fff
     outdir=config
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
