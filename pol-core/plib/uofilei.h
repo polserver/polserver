@@ -31,7 +31,7 @@ extern std::ifstream uopmapfile;
 
 struct USTRUCT_VERSION;
 
-FILE* open_uo_file( const std::string& filename_part, int* out_file_size = nullptr );
+FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nullptr );
 
 bool check_verdata( unsigned int file, unsigned int block, const USTRUCT_VERSION*& vrec );
 
