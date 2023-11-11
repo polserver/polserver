@@ -78,10 +78,13 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.web_server = elem.remove_bool( "WebServer", false );
     Plib::systemstate.config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
 
-    if ( elem.has_prop( "MaxTileID" ) )
+    unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0 );
+    if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX &&
+         max_tile != 0 )
     {
-      INFO_PRINT << "Warning: MaxTileID has been removed from pol.cfg.\n";
+      max_tile = UOBJ_DEFAULT_MAX;
     }
+    Plib::systemstate.config.max_tile_id = max_tile;
 
     unsigned int max_obj = elem.remove_unsigned( "MaxObjtype", EXTOBJ_HIGHEST_DEFAULT );
     if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFFFF )

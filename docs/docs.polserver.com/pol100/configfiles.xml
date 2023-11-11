@@ -959,7 +959,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave/shutdown-save-full/shutdown-save-incremental {default abort})]
 [ShutdownSaveType=(full/incremental {default full})]
 [TimestampEveryLine=(1/0 {default 0})]
-[MaxTileID=(0x3FFF/0x7FFF {default 0x3FFF})]
+[MaxTileID=(0/0x3FFF/0x7FFF/0xFFFF {default is 0})]
 [MaxObjtype=(0x20000/0xFFFFFFFF {default 0x20000})]
 [DiscardOldEvents=(1/0 {default 0})]
 [UseSingleThreadLogin=(1/0 {default 0})]
@@ -999,6 +999,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>ShowWarningGump: will show unexpected gump responses and B1 packet overflow messages on the console.</explain>
     <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
     <explain>ShowWarningCursorSequence: will show a warning when a player sends click packets out of sequence, this is usually due to the player running some sort of macro or client injection program.</explain>
+    <explain>MaxTileID: maximum tile id. If 0, it will be chosen according to the graphics in tiles.cfg.</explain>
 </cfgfile>
 
 

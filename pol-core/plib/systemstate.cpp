@@ -19,7 +19,7 @@ SystemState::SystemState()
       accounts_txt_dirty( false ),
       accounts_txt_stat(),
       config(),
-      tile( UOBJ_HSA_MAX + 1 ),
+      tile(),
       max_graphic( 0 )
 {
 }

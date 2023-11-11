@@ -1362,7 +1362,7 @@ void UoConvertMain::load_uoconvert_cfg()
       else if ( elem.type_is( "ClientOptions" ) )
       {
         if ( elem.has_prop( "UseNewHSAFormat" ) )
-          INFO_PRINT << "Warning: UseNewHSAFormat has been removed from uoconvert.cfg.\n";
+          INFO_PRINT << "Warning: UseNewHSAFormat in uoconvert.cfg is no longer needed.\n";
       }
     }
   }

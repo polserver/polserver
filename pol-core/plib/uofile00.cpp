@@ -188,7 +188,7 @@ void open_tiledata( void )
   MUL::TiledataInfo tileinfo( tiledata_size );
 
   // Save the parameters into this ugly global state we have
-  cfg_use_new_hsa_format = tileinfo.is_hsa();
+  Plib::cfg_use_new_hsa_format = tileinfo.is_hsa();
   Plib::systemstate.config.max_tile_id = tileinfo.max_tile_id();
 
   if ( !Plib::systemstate.config.max_tile_id )
@@ -199,9 +199,9 @@ void open_tiledata( void )
     throw std::runtime_error( "Unknown format of tiledata.mul" );
   }
 
-  INFO_PRINT << "Converting with auto-detected parameters: UseNewHSAFormat = "
-             << ( cfg_use_new_hsa_format ? "True" : "False" )
-             << ", MaxTileId = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
+  INFO_PRINT << "Using auto-detected parameters:"
+             << "\tUseNewHSAFormat = " << ( Plib::cfg_use_new_hsa_format ? "True" : "False" ) << "\n"
+             << "\tMaxTileID = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
 }
 
 void open_map( void )

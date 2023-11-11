@@ -60,7 +60,7 @@ struct PolConfig
   std::atomic<unsigned short> inactivity_warning_timeout;
   std::atomic<unsigned short> inactivity_disconnect_timeout;
   std::atomic<unsigned short> min_cmdlevel_to_login;
-  size_t max_tile_id;
+  unsigned short max_tile_id;
   unsigned int max_objtype;
 
   unsigned short max_clients;

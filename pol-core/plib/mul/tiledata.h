@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include "plib/ustruct.h"
 
 namespace Pol::Plib::MUL
@@ -78,7 +79,11 @@ class TiledataInfo
 public:
   TiledataInfo( size_t filesize ) { detect( filesize ); }
   bool is_hsa() { return _is_hsa; }
-  size_t max_tile_id() { return _max_tile_id; };
+  unsigned short max_tile_id() { 
+    if (_max_tile_id <= std::numeric_limits<unsigned short>::max())
+      return static_cast<unsigned short>(_max_tile_id); 
+    return 0;
+  };
 };
 
 };  // namespace Pol::Plib::MUL
