@@ -45,7 +45,8 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
 {
   kaitai::kstream ks( &ifs );
   uop_t uopfile( &ks );
-  auto maphash = []( int mapid, size_t chunkidx ) {
+  auto maphash = []( int mapid, size_t chunkidx )
+  {
     char mapstring[1024];
     snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
     return HashLittle2( mapstring );
@@ -200,7 +201,8 @@ void open_tiledata( void )
   }
 
   INFO_PRINT << "Using auto-detected parameters:"
-             << "\tUseNewHSAFormat = " << ( Plib::cfg_use_new_hsa_format ? "True" : "False" ) << "\n"
+             << "\tUseNewHSAFormat = " << ( Plib::cfg_use_new_hsa_format ? "True" : "False" )
+             << "\n"
              << "\tMaxTileID = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
 }
 
