@@ -1188,7 +1188,8 @@ bool UoConvertMain::convert_uop_to_mul()
   std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
   std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
 
-  auto maphash = []( int mapid, size_t chunkidx ) {
+  auto maphash = []( int mapid, size_t chunkidx )
+  {
     fmt::Writer tmp;
     tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
     return HashLittle2( tmp.str() );
@@ -1246,7 +1247,7 @@ void UoConvertMain::setup_uoconvert()
 
   if ( max_tile )
   {
-    INFO_PRINT << "Warning: maxtileid will be ignored and the information from tiledata.mul used instead.\n";
+    INFO_PRINT << "Warning: maxtileid will be ignored and detected from tiledata.mul instead.\n";
   }
 
   // read required parameters from pol.cfg
