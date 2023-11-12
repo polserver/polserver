@@ -1246,11 +1246,11 @@ void UoConvertMain::setup_uoconvert()
 
   if ( max_tile )
   {
-    INFO_PRINT << "Warning: maxtileid has been removed from uoconvert options.\n";
+    INFO_PRINT << "Warning: maxtileid will be ignored and the information from tiledata.mul used instead.\n";
   }
 
-  // if any of the two is missing, read from pol.cfg
-  if ( uodata_root.empty() || !max_tile )
+  // read required parameters from pol.cfg
+  if ( uodata_root.empty() )
   {
     INFO_PRINT << "Reading pol.cfg.\n";
     Clib::ConfigFile cf( "pol.cfg" );
@@ -1260,11 +1260,6 @@ void UoConvertMain::setup_uoconvert()
 
     if ( uodata_root.empty() )
       uodata_root = Plib::UOInstallFinder::remove_elem( elem );
-
-    if ( elem.has_prop( "MaxTileID" ) )
-    {
-      INFO_PRINT << "Warning: MaxTileID has been removed from pol.cfg.\n";
-    }
   }
 
   // Save the parameters into this ugly global state we have
