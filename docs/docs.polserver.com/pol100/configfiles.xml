@@ -116,8 +116,16 @@ Listener
     <explain>The right-hand-side "Strength", "Intelligence", and "Dexterity" are Attribute names that MUST be defined in attributes.cfg. </explain>
     <explain>The right-hand-side "Life", "Mana", and "Stamina" are Vital names that MUST be defined in vitals.cfg.</explain>
     <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
-    <explain>The Protocol and Listener sections are optional.</explain>
-    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section.</explain>
+    <explain>The Protocol and Listener sections are optional. You need at least one Listener to accept client connections.</explain>
+    <explain>Encryption: valid values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'.</explain>
+    <explain> 
+        Encryptions 'ignition', 'uorice', and 'none' all mean 'no encryption'.
+        If the 'major.minor.build' is given, the encryption key will be calculated for
+        that client version. 
+        Example, '7.0.4' is a listener for client 7.0.4.1 (no patch)
+    </explain>
+    <explain>Each Listener section allows you to listen for different client encryption types on different ports.
+        This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555.</explain>
     <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
     <explain>MethodScript: General Methodscript for characters Deprecated!</explain>
@@ -909,7 +917,6 @@ UoDataFileRoot=(path to UO MUL files {see Windows-specific notes})
 WorldDataPath=(path to POL Data files {default data/})
 RealmDataPath=(path to POL Realm files {default realm/})
 PidFilePath=(where POL will write its .pid file {default ./})
-[ClientEncryptionVersion=(string {default none})]
 [CountResourceTiles=(1/0 {default 1}]
 [WebServer=(1/0 {default 0})]
 [WebServerPort=(int port {default 8080})]
@@ -979,13 +986,9 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [EnableColoredOutput=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
-    <explain>UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
+    <explain>
+        UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
     On Windows, the setting will default to the directory of the Ultima Online installation found in the Windows Registry.</explain>
-    ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
-            e.g. 7.0.4 for latest client 7.0.4.1
-            default for both is "none"
-    <explain>Clarification: for ClientEncryptionVersion, the allowable values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'. Here, 'ignition', 'uorice', and 'none' all mean 'no encryption'.</explain>
-    <explain>Due to autocalculation 'major.minor.build' means setting a listener for client 7.0.4.1 '7.0.4' (no patch)</explain>
     <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>

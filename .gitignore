@@ -9,3 +9,4 @@ Makefile
 /CMakeSettings.json
 __pycache__
 gen/
+build/
