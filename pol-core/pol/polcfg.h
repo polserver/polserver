@@ -42,7 +42,6 @@ struct PolConfig
   bool inhibit_saves;
   bool log_script_cycles;
   bool count_resource_tiles;
-  Crypt::TCryptInfo client_encryption_version;
 
   bool web_server;
   unsigned short web_server_port;
