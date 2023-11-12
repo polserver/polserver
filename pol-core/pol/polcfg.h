@@ -15,7 +15,6 @@
 #include <string>
 #include <vector>
 
-#include "crypt/cryptkey.h"
 #if !defined( _WIN32 )
 #include <sys/stat.h>
 #include <sys/types.h>
