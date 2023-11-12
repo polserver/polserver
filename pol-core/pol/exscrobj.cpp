@@ -217,8 +217,8 @@ BObjectRef ScriptExObjImp::get_member_id( const int id )
       return BObjectRef( new Module::ECharacterRefObjImp( uoemod->attached_chr_ ) );
     else if ( uoemod->attached_npc_ != nullptr )
       return BObjectRef( new Module::ECharacterRefObjImp( uoemod->attached_npc_ ) );
-    else if ( uoemod->attached_item_ )
-      return BObjectRef( new Module::EItemRefObjImp( uoemod->attached_item_ ) );
+    else if ( uoemod->attached_item_.get() )
+      return BObjectRef( new Module::EItemRefObjImp( uoemod->attached_item_.get() ) );
     else
       return BObjectRef( new BLong( 0 ) );
   case MBR_CONTROLLER:

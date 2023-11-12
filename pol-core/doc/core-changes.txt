@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+11-12-2023 Kevin:
+    Fixed: crash when control scripts end for a destroyed item
 11-08-2023 Turley:
     Fixed: crash due to NPCs after calling ReloadConfiguration
 11-01-2023 Kevin:
