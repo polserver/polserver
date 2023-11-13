@@ -445,7 +445,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     }
 
     auto relative_direction =
-        static_cast<Core::UFACING>( ( msg->boatmove.direction + boat->boat_facing() ) & 7 );
+        static_cast<Core::UFACING>( ( msg->boatmove.direction - boat->boat_facing() + 8 ) & 7 );
 
     process->uoexec().signal_event( new Module::BoatMovementEvent(
         chr, msg->boatmove.speed, msg->boatmove.direction, relative_direction ) );
