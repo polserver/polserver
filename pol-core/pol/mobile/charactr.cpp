@@ -2267,6 +2267,31 @@ void Character::die()
       _copy_item( item );
       continue;
     }
+
+    if ( item->layer == Core::LAYER_MOUNT &&
+         item->objtype_ == Core::settingsManager.extobj.boatmount )
+    {
+      Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
+
+      // Clear the pilot from the boat
+      if ( multi != nullptr && multi->script_isa( Core::POLCLASS_BOAT ) )
+      {
+        Multi::UBoat* boat = static_cast<Multi::UBoat*>( multi );
+        if ( boat->pilot() == this )
+        {
+          boat->clear_pilot();
+          continue;
+        }
+      }
+
+      // If for some reason there was a mismatch between chr multi and boat pilot, just destroy the
+      // boatmount. Destroying the boatmount item will leave an orphaned itemref on the boat multi.
+      // The itemref will be re-set on next set_pilot call, as an orphaned boatmount behaves as if
+      // there is no boatmount at all.
+      destroy_item( item );
+      continue;
+    }
+
     ///
     /// Unequip scripts aren't honored when moving a dead mobile's equipment
     /// onto a corpse if honor_unequip_script_on_death is disabled.

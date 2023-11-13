@@ -1910,14 +1910,7 @@ Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
 {
   if ( chr == nullptr )
   {
-    if ( mountpiece != nullptr )
-    {
-      if ( !mountpiece->orphan() )
-      {
-        destroy_item( mountpiece.get() );
-      }
-      mountpiece.clear();
-    }
+    clear_pilot();
     return new Bscript::BLong( 1 );
   }
   else
@@ -1932,6 +1925,28 @@ Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
       return new Bscript::BError( "The boat does not have a running process." );
     }
 
+    if ( !chr->client )
+    {
+      return new Bscript::BError( "That character is not connected." );
+    }
+
+    BoatContext bc( *this );
+    bool pilot_on_ship = false;
+    for ( const auto& travellerRef : travellers_ )
+    {
+      UObject* obj = travellerRef.get();
+      if ( !obj->orphan() && on_ship( bc, obj ) && obj == chr )
+      {
+        pilot_on_ship = true;
+        break;
+      }
+    }
+
+    if ( !pilot_on_ship )
+    {
+      return new Bscript::BError( "The boat does not have that character on it." );
+    }
+
     Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
     if ( !chr->equippable( item ) )
     {
@@ -1942,7 +1957,22 @@ Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
     send_wornitem_to_inrange( chr, item );
     mountpiece = Core::ItemRef( item );
 
+    // Mark the item as 'in-use' to prevent moving by client or scripts.
+    item->inuse( true );
+
     return new Bscript::BLong( 1 );
+  }
+}
+
+void UBoat::clear_pilot()
+{
+  if ( mountpiece != nullptr )
+  {
+    if ( !mountpiece->orphan() )
+    {
+      destroy_item( mountpiece.get() );
+    }
+    mountpiece.clear();
   }
 }
 }  // namespace Multi

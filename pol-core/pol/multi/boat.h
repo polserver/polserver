@@ -179,6 +179,7 @@ public:
 
   Mobile::Character* pilot() const;
   Bscript::BObjectImp* set_pilot( Mobile::Character* chr );
+  void clear_pilot();
 
   // Should these be arrays instead to support customizable boats with certain component choises ?
   Items::Item* tillerman;
