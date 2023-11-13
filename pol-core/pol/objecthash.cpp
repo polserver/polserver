@@ -180,30 +180,30 @@ void ObjectHash::Reap()
   }
 }
 
-void ObjectHash::Clear()
+void ObjectHash::Clear( bool shutdown )
 {
   bool any;
   do
   {
     any = false;
-    unsigned skipped = 0;
     for ( OH_iterator itr = hash.begin(), itrend = hash.end(); itr != itrend; )
     {
-      UObject* obj = ( *itr ).second.get();
+      UObject* obj = itr->second.get();
 
       if ( obj->orphan() && obj->ref_counted_count() == 1 )
       {
-        hash.erase( itr++ );
+        itr = hash.erase( itr );
         any = true;
       }
       else
       {
-        ++skipped;
         ++itr;
       }
     }
   } while ( any );
-  if ( !hash.empty() )
+
+  reap_iterator = hash.begin();  // set itr for ::Reap back to the beginning
+  if ( shutdown && !hash.empty() )
   {
     INFO_PRINT << "Leftover objects in objecthash: " << hash.size() << "\n";
 
@@ -213,7 +213,6 @@ void ObjectHash::Clear()
     INFO_PRINT << "Leaking a copy of the objecthash in order to avoid a crash.\n";
     new hs( hash );
   }
-  //    hash.clear();
 }
 
 
@@ -272,5 +271,5 @@ void ObjectHash::RegisterCleanDeletedSerial( u32 serial )
 {
   clean_deleted.insert( serial );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

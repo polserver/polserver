@@ -61,6 +61,7 @@
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../globals/memoryusage.h"
+#include "../globals/object_storage.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
@@ -2016,6 +2017,10 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
           return new BLong( 0 );
         Core::scriptScheduler.logScriptVariables( script->data() );
         return new BLong( 1 );
+      }
+      else if ( type == 7 )
+      {
+        Core::objStorageManager.objecthash.Clear( false );
       }
       return new BLong( 1 );
     }

@@ -1132,7 +1132,7 @@ struct ScriptDiffData
       name += " (" + uoemod->attached_chr_->name() + ")";
     else if ( uoemod->attached_npc_ != nullptr )
       name += " (" + static_cast<Mobile::NPC*>( uoemod->attached_npc_ )->templatename() + ")";
-    else if ( uoemod->attached_item_ )
+    else if ( uoemod->attached_item_.get() )
       name += " (" + uoemod->attached_item_->name() + ")";
   }
 
