@@ -1660,7 +1660,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   else
   {
     this->process( script );
-    this->process()->attached_item_ = this;
+    this->process()->attached_item_.set( this );
   }
 }
 
@@ -1747,7 +1747,7 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   else
   {
     boat->process( script );
-    boat->process()->attached_item_ = boat;
+    boat->process()->attached_item_.set( boat );
   }
 
   return boatref;
