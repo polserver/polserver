@@ -175,3 +175,13 @@ function get_pid_from_control_script(byref err, item, label)
 
   return control_script_pid;
 endfunction
+
+
+// controlscript needs to be the last holder of itemref and destroy it
+// crash test/AddressSanitizer
+exported function test_item_controlscript_destroy()
+  var item:=CreateItemAtLocation(0,0,0,0x400003);
+  item:=0;
+  sleepms(30);
+  return 1;
+endfunction
