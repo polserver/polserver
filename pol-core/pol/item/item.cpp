@@ -1337,7 +1337,7 @@ bool Item::start_control_script( const ItemDesc& id )
     Module::UOExecutorModule* uoemod = Core::start_script( id.control_script, make_ref() );
     if ( uoemod )
     {
-      uoemod->attached_item_ = this;
+      uoemod->attached_item_.set( this );
       process( uoemod );
       return true;
     }
@@ -1363,7 +1363,8 @@ bool Item::stop_control_script()
       ex.revive_debugged();
     Module::UOExecutorModule* uoemod =
         static_cast<Module::UOExecutorModule*>( ex.findModule( "UO" ) );
-    uoemod->attached_item_ = nullptr;
+    uoemod->attached_item_.clear();
+    process( nullptr );
     return true;
   }
   return false;
