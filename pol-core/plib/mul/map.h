@@ -75,31 +75,17 @@ inline bool MapInfo::guess_size( size_t map_size )
   if ( mapid != 0 && mapid != 1 )
     return false;
 
+  constexpr int map0_height = 4096;
+
   size_t mapblocks = map_size / Map::blockSize;
-  switch ( mapblocks )
-  {
-  case Map::expected_blocks( 6144, 4096 ):
-    _width = 6144;
-    _height = 4096;
-    break;
+  constexpr int map0_blocks = map0_height / Map::blockHeight;
 
-  case Map::expected_blocks( 7168, 4096 ):
-    _width = 7168;
-    _height = 4096;
-    break;
+  // Number of blocks has to be divisible by either dimension
+  if ( ( mapblocks % map0_blocks ) != 0 )
+    return false;
 
-  // Last guess. Do we actually need the others?
-  default:
-    constexpr int common_height = 4096 / Map::blockHeight;
-
-    // Number of blocks has to be divisible by either dimension
-    if ( ( mapblocks % common_height ) != 0 )
-      return false;
-
-    _height = 4096;
-    _width = static_cast<int>( Map::blockWidth * ( mapblocks / common_height ) );
-    break;
-  }
+  _height = map0_height;
+  _width = static_cast<int>( Map::blockWidth * ( mapblocks / map0_blocks ) );
 
   return true;
 }
