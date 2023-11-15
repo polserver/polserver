@@ -51,8 +51,7 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
     snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
     return HashLittle2( mapstring );
   };
-
-
+  
   size_t totalSize = 0;
   unsigned int nreadfiles = 0;
   std::map<uint64_t, size_t> fileSizes;
@@ -95,11 +94,13 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
       throw std::runtime_error( "UOP map is missing a file chunk." );
     }
 
-    // Only count those chunks with size 0xC4000 (4096 blocks). Apparently some UOP files have extra
-    // chunks with a single block (an EOF marker, I guess?)
+    // Each chunk typically has 0xC4000 bytes (4096 blocks). If the chunk is smaller,
+    // the size is off by one.
     const size_t chunkSize = fileitr->second;
     if ( chunkSize == 0xC4000 )
       totalSize += fileitr->second;
+    else
+      totalSize += fileitr->second - MUL::Map::blockSize;
   }
 
   ifs.clear();
