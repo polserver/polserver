@@ -97,10 +97,10 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
     // Each chunk typically has 0xC4000 bytes (4096 blocks). If the chunk is smaller,
     // the size is off by one.
     const size_t chunkSize = fileitr->second;
-    if ( chunkSize == 0xC4000 )
-      totalSize += fileitr->second;
-    else
+    if ( chunkSize < 0xC4000 )
       totalSize += fileitr->second - MUL::Map::blockSize;
+    else
+      totalSize += fileitr->second;
   }
 
   ifs.clear();
