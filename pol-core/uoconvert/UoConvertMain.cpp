@@ -62,13 +62,13 @@ void UoConvertMain::showHelp()
               << "  UOCONVERT command [options ...]\n"
               << "    \n"
               << "  Commands: \n"
-              << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width}"
+              << "    map {uodata=Dir} {realm=realmname} {width=Width}"
               << "        {height=Height} {mapid=0} {readuop=1} {x=X} {y=Y}\n"
-              << "    statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-              << "    maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-              << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n"
-              << "    tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n"
-              << "    landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n";
+              << "    statics {uodata=Dir} {realm=realmname}\n"
+              << "    maptile {uodata=Dir} {realm=realmname}\n"
+              << "    multis {uodata=Dir} {outdir=dir}\n"
+              << "    tiles {uodata=Dir} {outdir=dir}\n"
+              << "    landtiles {uodata=Dir} {outdir=dir}\n";
 }
 
 using namespace Core;
