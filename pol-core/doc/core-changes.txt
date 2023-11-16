@@ -1,4 +1,13 @@
 -- POL100.1.0 --
+11-16-2023 Nando:
+    Added:  UoConvert smartness:
+            - MaxTileID is now detected from tiledata.mul (uoconvert) and tiles.cfg (POL). 
+            - Default width/height for each map id
+            - map0 and map1 width can be estimated automatically based on a height of 4096
+            - better error handling
+  Changed:  usedif=1 is now the default in uoconvert
+  Removed:  UseNewHSAFormat in uoconvert.cfg. This will be detected automatically from 
+            tiledata.mul size.
 11-08-2023 Turley:
     Fixed: crash due to NPCs after calling ReloadConfiguration
 11-01-2023 Kevin:
