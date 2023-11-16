@@ -283,7 +283,7 @@ void BareDistro::distro_files( std::map<fs::path, std::vector<std::string>>& dis
 "#                   double click an object again.",
 "# Default is 1",
 "#",
-"DoubleClickWait=1",
+"DoubleClickWait=0",
 "",
 "#",
 "# DefaultLightLevel - Default light level for regions with no level defined.",

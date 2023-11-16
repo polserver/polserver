@@ -44,11 +44,13 @@ program tests()
       continue;
     endif
 
-    syslog(pkg[2],0,"\x1B[1;32m");
+    var pkgstartms:=ReadMillisecondClock();
+    syslog(pkg[2],0,CONSOLE_COLOR_MAGENTA);
     var scripts:=listdirectory(":{}:".format(pkg[1]),"ecl");
     scripts.sort();
     if ("setup.ecl" in scripts)
       syslog("  Calling setup.ecl..",0,CONSOLE_COLOR_GREEN);
+      var startms:=ReadMillisecondClock();
       var res:=run_script(":{}:setup.ecl".format(pkg[1]));
       if (res == IGNORE_TEST)
         continue;
@@ -57,11 +59,13 @@ program tests()
         exitcode:=1;
         continue;
       endif
+      syslog("  ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
     endif
     foreach file in scripts
       if (file.find("test") != 1)
         continue;
       endif
+      var scriptstartms:=ReadMillisecondClock();
       syslog("  Calling {}..".format(file),0,CONSOLE_COLOR_GREEN);
       var script:=LoadExportedScript(":{}:{}".format(pkg[1], file));
       if (!script[2])
@@ -74,6 +78,7 @@ program tests()
       endif
  
       foreach func in (script[1].exported_functions)
+        var startms:=ReadMillisecondClock();
         syslog("    Calling {}..".format(func),0,CONSOLE_COLOR_GREEN);
         var res:=script[1].call(func);  
         if (res != 1)
@@ -81,12 +86,17 @@ program tests()
           exitcode:=1;
           continue;
         endif
+        syslog("    ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
       endforeach
+      syslog("  ..{}ms".format(ReadMillisecondClock()-scriptstartms),0,CONSOLE_COLOR_GREEN);
     endforeach
     if ("cleanup.ecl" in scripts)
       syslog("  Calling cleanup.ecl..",0,CONSOLE_COLOR_GREEN);
+      var startms:=ReadMillisecondClock();
       run_script(":{}:cleanup.ecl".format(pkg[1]));
+      syslog("  ..{}ms".format(ReadMillisecondClock()-startms),0,CONSOLE_COLOR_GREEN);
     endif
+    syslog("..{}ms".format(ReadMillisecondClock()-pkgstartms),0,CONSOLE_COLOR_MAGENTA);
   endforeach
   
   var result:=$"{CONSOLE_COLOR_GREEN}success";
