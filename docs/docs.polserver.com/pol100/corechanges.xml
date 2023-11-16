@@ -16,7 +16,7 @@
 			<change type="Changed">usedif=1 is now the default in uoconvert</change>
 			<change type="Removed">UseNewHSAFormat in uoconvert.cfg. This will be detected automatically from<br/>
 tiledata.mul size.</change>
-	<version name="POL100.1.0">
+		</entry>
 		<entry>
 			<date>11-12-2023</date>
 			<author>Kevin:</author>
