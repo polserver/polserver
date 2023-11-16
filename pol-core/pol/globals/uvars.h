@@ -97,7 +97,7 @@ typedef RegionGroup<LightRegion> LightDef;
 typedef RegionGroup<MusicRegion> MusicDef;
 
 typedef std::map<std::string, NpcTemplateElem, Clib::ci_cmp_pred> NpcTemplatesElems;
-typedef std::map<std::string, NpcTemplate*> NpcTemplates;
+typedef std::map<std::string, std::shared_ptr<NpcTemplate>> NpcTemplates;
 
 typedef ref_ptr<Party> PartyRef;
 typedef std::vector<PartyRef> Parties;

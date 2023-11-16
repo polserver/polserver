@@ -3522,7 +3522,7 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
     return new BLong( run_speed );
     break;
   case MBR_ALIGNMENT:
-    return new BLong( this->template_.alignment );
+    return new BLong( template_->alignment );
     break;
   case MBR_SAVEONEXIT:
     return new BLong( saveonexit() );
@@ -3641,12 +3641,12 @@ BObjectImp* NPC::script_method( const char* methodname, Core::UOExecutor& execut
 
 BObjectImp* NPC::custom_script_method( const char* methodname, Core::UOExecutor& executor )
 {
-  if ( template_.method_script != nullptr )
+  if ( template_->method_script != nullptr )
   {
     unsigned PC;
-    if ( template_.method_script->FindExportedFunction(
+    if ( template_->method_script->FindExportedFunction(
              methodname, static_cast<unsigned int>( executor.numParams() + 1 ), PC ) )
-      return template_.method_script->call( PC, make_ref(), executor.fparams );
+      return template_->method_script->call( PC, make_ref(), executor.fparams );
   }
   return Core::gamestate.system_hooks.call_script_method( methodname, &executor, this );
 }

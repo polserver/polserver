@@ -1031,7 +1031,7 @@ unsigned char NPC::hilite_color_idx( const Character* seen_by ) const
   }
   else
   {
-    switch ( template_.alignment )
+    switch ( template_->alignment )
     {
     case Core::NpcTemplate::NEUTRAL:
       return CHAR_HILITE_ATTACKABLE;
@@ -1072,7 +1072,7 @@ unsigned short NPC::name_color( const Character* seen_by ) const
   }
   else
   {
-    switch ( template_.alignment )
+    switch ( template_->alignment )
     {
     case Core::NpcTemplate::NEUTRAL:
       return Core::settingsManager.repsys_cfg.NameColoring.Attackable;
