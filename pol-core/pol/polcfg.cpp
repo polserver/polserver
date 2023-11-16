@@ -216,9 +216,6 @@ void PolConfig::read_pol_config( bool initial_load )
         << tmp;
   }
 
-  CalculateCryptKeys( elem.remove_string( "ClientEncryptionVersion", "none" ),
-                      Plib::systemstate.config.client_encryption_version );
-
   Plib::systemstate.config.display_unknown_packets =
       elem.remove_bool( "DisplayUnknownPackets", false );
   Plib::systemstate.config.exp_los_checks_map = elem.remove_bool( "ExpLosChecksMap", true );

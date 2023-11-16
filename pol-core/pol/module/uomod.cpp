@@ -281,10 +281,10 @@ UOExecutorModule::~UOExecutorModule()
     attached_chr_->script_ex = nullptr;
     attached_chr_ = nullptr;
   }
-  if ( attached_item_ )
+  if ( attached_item_.get() )
   {
     attached_item_->process( nullptr );
-    attached_item_ = nullptr;
+    attached_item_.clear();
   }
   if ( registered_for_speech_events )
   {

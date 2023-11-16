@@ -321,7 +321,7 @@ public:
 
   Mobile::Character* attached_chr_;
   Mobile::Character* attached_npc_;
-  Items::Item* attached_item_;
+  Core::ItemRef attached_item_;
   Core::CharacterRef controller_;
 
   bool is_reserved_to_me( Items::Item* item );
