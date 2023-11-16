@@ -98,9 +98,9 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
     // the size is off by one.
     const size_t chunkSize = fileitr->second;
     if ( chunkSize < 0xC4000 )
-      totalSize += fileitr->second - MUL::Map::blockSize;
+      totalSize += chunkSize - MUL::Map::blockSize;
     else
-      totalSize += fileitr->second;
+      totalSize += chunkSize;
   }
 
   ifs.clear();
