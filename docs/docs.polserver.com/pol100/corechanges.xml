@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-12-2023</datemodified>
+		<datemodified>11-19-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>11-19-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">possible deadlock in packethooks</change>
+		</entry>
 		<entry>
 			<date>11-12-2023</date>
 			<author>Kevin:</author>
