@@ -1,0 +1,10 @@
+use uo;
+program p()
+  return 1;
+endprogram
+
+exported function UpdatePlayer_0x77(who, byref packet)
+  print("Temporary Deadlocktest");
+  sendsysmessage(who,"Temporary Deadlocktest");
+  return 0;
+endfunction
