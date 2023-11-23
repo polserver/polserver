@@ -26,6 +26,7 @@ if(NOT EXISTS "${CURL_LIB}")
     LOG_BUILD 1
     LOG_INSTALL 1
     LOG_OUTPUT_ON_FAILURE 1
+    DOWNLOAD_EXTRACT_TIMESTAMP 1
   )
   set_target_properties (libcurl PROPERTIES FOLDER 3rdParty)
 else()
