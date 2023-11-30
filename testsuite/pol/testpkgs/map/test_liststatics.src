@@ -8,11 +8,15 @@ program liststatics()
 endprogram
 
 exported function inbox()
-  var info:=ListStaticsInBox(10,5,-128,11,5,128);
-  if (info[1].objtype !=0x3fff || info[1].x !=10 || info[1].y!=5 || info[1].z!=-5)
+  var info:=ListStaticsInBox(154,154,-128,154,153,128);
+  print(info);
+  if (len(info)!=2)
+    return ret_error($"wrong number of statics got : {info}");
+  endif
+  if ( info[1].objtype!=0x05c3 || info[1].x!=154 || info[1].y!=153 || info[1].z!=27 || info[1].hue!=0)
     return ret_error("Wrong static found at pos 1 :"+info[1]);
   endif
-  if (info[2].objtype !=0x3fff || info[2].x !=11 || info[2].y!=5 || info[2].z!=10)
+  if (info[1].objtype!=0x05c3 || info[2].x !=154 || info[2].y!=154 || info[2].z!=27 || info[2].hue!=1)
     return ret_error("Wrong static found at pos 2 :"+info[2]);
   endif
   return 1;

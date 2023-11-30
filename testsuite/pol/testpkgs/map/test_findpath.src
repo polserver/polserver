@@ -108,15 +108,15 @@ exported function path_blocking_diagonal2()
   return 1;
 endfunction
 
-/* water ends at 30,30, walls block complete land
+/* water ends at 28,28 walls block complete land
 OOOO
 OX-o
 O-Xo
 */
 exported function path_water_blocking2()
-  var wall:=CreateItemAtLocation(31,30,0,0x6);
-  var wall2:=CreateItemAtLocation(30,31,0,0x6);
-  var res:=FindPath( 30, 30, 0, 31, 31, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+  var wall:=CreateItemAtLocation(29,28,0,0x6);
+  var wall2:=CreateItemAtLocation(28,29,0,0x6);
+  var res:=FindPath( 28, 28, 0, 29, 29, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
   DestroyItem(wall);
   DestroyItem(wall2);
   if (res.errortext != "Failed to find a path.")
@@ -125,7 +125,7 @@ exported function path_water_blocking2()
   return 1;
 endfunction
 
-/* water ends at 30,30, walls block complete land
+/* water ends at 28,28, walls block complete land
 movemode set to LS to reach the target
 OOO
 OX-
@@ -139,19 +139,19 @@ O-o
 Ooo
 */
 exported function path_water_blocking2_ls()
-  var wall:=CreateItemAtLocation(31,30,0,0x6);
-  var wall2:=CreateItemAtLocation(30,31,0,0x6);
-  var res:=FindPath( 30, 30, 0, 31, 31, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
+  var wall:=CreateItemAtLocation(29,28,0,0x6);
+  var wall2:=CreateItemAtLocation(28,29,0,0x6);
+  var res:=FindPath( 28, 28, 0, 29, 29, 0, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode:="LS" );
   var expected:={
-    struct{x:=29,y:=31,z:=-5},
-    struct{x:=30,y:=32,z:=-5},
-    struct{x:=31,y:=31,z:=0}
+    struct{x:=27,y:=29,z:=-5},
+    struct{x:=28,y:=30,z:=-5},
+    struct{x:=29,y:=29,z:=0}
   };
 
   var expected2:={
-    struct{x:=31,y:=29,z:=-5},
-    struct{x:=32,y:=30,z:=-5},
-    struct{x:=31,y:=31,z:=0}
+    struct{x:=29,y:=27,z:=-5},
+    struct{x:=30,y:=28,z:=-5},
+    struct{x:=29,y:=29,z:=0}
   };
 
   DestroyItem(wall);
