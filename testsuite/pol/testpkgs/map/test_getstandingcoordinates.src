@@ -45,7 +45,15 @@ var expected_data := array{
 
 exported function getstanding()
     var coords := GetStandingCoordinates(25, 87, 5);
-        
+
+    // Uncomment this block to generate a preformatted list of the function's return values, for updating expected_data above
+
+    // foreach coord in (coords)
+    //     var multi := coords.multi ? $", \"multi\" := {coord.multi}" : "";
+    //     var comma := _coord_iter == coords.size() ? "" : ",";
+    //     print($"    struct\{ \"x\" := {coord.x}, \"y\" := {coord.y}, \"z\" := {coord.z}{multi} \}{comma}");
+    // endforeach
+
     var i;
     for (i := 1; i <= coords.size(); i++)
         var coord := coords[i];
