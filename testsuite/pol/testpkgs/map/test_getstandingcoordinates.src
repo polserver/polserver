@@ -8,25 +8,44 @@ program getstanding()
 endprogram
 
 var expected_data := array{
-    struct{"x" := 24, "y" := 86, "z" := 0},
-    struct{"x" := 25, "y" := 86, "z" := 0},
-    struct{"x" := 26, "y" := 86, "z" := 0},
-    struct{"x" := 27, "y" := 86, "z" := 0},
-    struct{"x" := 28, "y" := 86, "z" := 0},
-    struct{"x" := 29, "y" := 86, "z" := 0},
-    struct{"x" := 30, "y" := 86, "z" := 0},
-    struct{"x" := 24, "y" := 87, "z" := -3},
-    struct{"x" := 25, "y" := 87, "z" := -3},
-    struct{"x" := 26, "y" := 87, "z" := -3},
-    struct{"x" := 27, "y" := 87, "z" := -3},
-    struct{"x" := 28, "y" := 87, "z" := -3},
-    struct{"x" := 29, "y" := 87, "z" := -3},
-    struct{"x" := 30, "y" := 87, "z" := -3}
+    struct{ "x" := 28, "y" := 82, "z" := -2 },
+    struct{ "x" := 29, "y" := 82, "z" := 0 },
+    struct{ "x" := 30, "y" := 82, "z" := 0 },
+    struct{ "x" := 28, "y" := 83, "z" := -2 },
+    struct{ "x" := 29, "y" := 83, "z" := 0 },
+    struct{ "x" := 30, "y" := 83, "z" := 0 },
+    struct{ "x" := 28, "y" := 84, "z" := -2 },
+    struct{ "x" := 29, "y" := 84, "z" := 0 },
+    struct{ "x" := 30, "y" := 84, "z" := 0 },
+    struct{ "x" := 28, "y" := 85, "z" := -2 },
+    struct{ "x" := 29, "y" := 85, "z" := 0 },
+    struct{ "x" := 30, "y" := 85, "z" := 0 },
+    struct{ "x" := 28, "y" := 86, "z" := -2 },
+    struct{ "x" := 29, "y" := 86, "z" := 0 },
+    struct{ "x" := 30, "y" := 86, "z" := 0 },
+    struct{ "x" := 28, "y" := 87, "z" := -2 },
+    struct{ "x" := 29, "y" := 87, "z" := 0 },
+    struct{ "x" := 30, "y" := 87, "z" := 0 },
+    struct{ "x" := 28, "y" := 88, "z" := -2 },
+    struct{ "x" := 29, "y" := 88, "z" := 0 },
+    struct{ "x" := 30, "y" := 88, "z" := 0 },
+    struct{ "x" := 28, "y" := 89, "z" := -2 },
+    struct{ "x" := 29, "y" := 89, "z" := 0 },
+    struct{ "x" := 30, "y" := 89, "z" := 0 },
+    struct{ "x" := 28, "y" := 90, "z" := -2 },
+    struct{ "x" := 29, "y" := 90, "z" := 0 },
+    struct{ "x" := 30, "y" := 90, "z" := 0 },
+    struct{ "x" := 28, "y" := 91, "z" := -2 },
+    struct{ "x" := 29, "y" := 91, "z" := 0 },
+    struct{ "x" := 30, "y" := 91, "z" := 0 },
+    struct{ "x" := 28, "y" := 92, "z" := -2 },
+    struct{ "x" := 29, "y" := 92, "z" := 0 },
+    struct{ "x" := 30, "y" := 92, "z" := 0 }
 };
 
 exported function getstanding()
     var coords := GetStandingCoordinates(25, 87, 5);
-    
+        
     var i;
     for (i := 1; i <= coords.size(); i++)
         var coord := coords[i];
