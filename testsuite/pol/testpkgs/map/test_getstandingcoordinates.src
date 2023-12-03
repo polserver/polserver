@@ -1,0 +1,43 @@
+use uo;
+use os;
+
+include "testutil";
+
+program getstanding()
+    return 1;
+endprogram
+
+var expected_data := array{
+    struct{"x" := 24, "y" := 86, "z" := 0},
+    struct{"x" := 25, "y" := 86, "z" := 0},
+    struct{"x" := 26, "y" := 86, "z" := 0},
+    struct{"x" := 27, "y" := 86, "z" := 0},
+    struct{"x" := 28, "y" := 86, "z" := 0},
+    struct{"x" := 29, "y" := 86, "z" := 0},
+    struct{"x" := 30, "y" := 86, "z" := 0},
+    struct{"x" := 24, "y" := 87, "z" := -3},
+    struct{"x" := 25, "y" := 87, "z" := -3},
+    struct{"x" := 26, "y" := 87, "z" := -3},
+    struct{"x" := 27, "y" := 87, "z" := -3},
+    struct{"x" := 28, "y" := 87, "z" := -3},
+    struct{"x" := 29, "y" := 87, "z" := -3},
+    struct{"x" := 30, "y" := 87, "z" := -3}
+};
+
+exported function getstanding()
+    var coords := GetStandingCoordinates(25, 87, 5);
+    
+    var i;
+    for (i := 1; i <= coords.size(); i++)
+        var coord := coords[i];
+        var expected := expected_data[i];
+        if (coord.x != expected.x || coord.y != expected.y || coord.z != expected.z)
+            return ret_error($"Invalid data returned at index {i}. Expected {expected}; got {coord}");
+        endif
+    endfor
+    
+    if (coords.size() != expected_data.size())
+        return ret_error($"Invalid number of coordinates returned. Expected {expected_data.size()}; got {coords.size()}");
+    endif
+    return 1;
+endfunction
