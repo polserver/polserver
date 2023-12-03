@@ -204,8 +204,10 @@ Plib::MapShapeList Realm::get_standheights( Plib::MOVEMODE movemode, Plib::MapSh
 
   // The mapshapes list is not guaranteed to be sorted (e.g. if it's composed of both mapshapes and
   // dynamics) We want it to be sorted in ascending Z order, so that we can easily determine if a
-  // shape has enough clearance to stand on. Plib::MapShapeList is implemented as a standard vector,
-  // so we can sort it like one.
+  // shape has enough clearance to stand on. Note that we sort by the "top" (z+height) of the shape;
+  // this way a wall that lays at Z0 and has a height of 20 will be sorted above a floor tile at
+  // Z5. This makes it easy to determine if there's something blocking standing on a given tile.
+  // Plib::MapShapeList is implemented as a standard vector, so we can sort it like one.
   std::sort( shapes.begin(), shapes.end(),
              []( Plib::MapShape& a, Plib::MapShape& b )
              { return ( a.z + a.height ) < ( b.z + b.height ); } );
@@ -230,12 +232,13 @@ Plib::MapShapeList Realm::get_standheights( Plib::MOVEMODE movemode, Plib::MapSh
     auto above = std::next( shape );
     if ( above != shapes.end() )
     {
-      short abovetop = above->z + above->height;
-
       unsigned char charheight = Core::settingsManager.ssopt.default_character_height;
 
       // Check that there's enough clearance above this shape to stand here
-      if ( abovetop < ( top + charheight ) )
+      // because the list is sorted by z+height, if the z of the shape after this in the list
+      // is less than the height of a character standing on this shape, it must block standing
+      // in this tile.
+      if ( above->z < ( top + charheight + 1 ) )
       {
         continue;
       }
