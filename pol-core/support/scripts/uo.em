@@ -316,7 +316,7 @@ GetRegionString( resource, x, y, propertyname, realm := _DEFAULT_REALM );
 GetSpellDifficulty( spellid );
 GetStandingHeight( x, y, startz, realm := _DEFAULT_REALM );
 GetStandingLayers( x, y, flags := MAPDATA_FLAG_ALL, realm := _DEFAULT_REALM, includeitems := 1 );
-GetStandingCoordinates( dummy, x, y, radius, minz, maxz, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0);
+GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0);
 GetWorldHeight( x, y, realm := _DEFAULT_REALM );
 GrantPrivilege( character, privilege );
 HarvestResource( resource, x, y, b, n, realm := _DEFAULT_REALM ); // returns b*a where 0 <= a <= n
