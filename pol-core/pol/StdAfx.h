@@ -43,7 +43,6 @@
 
 #include "../plib/clidata.h"
 #include "../plib/udatfile.h"
-#include "crypt/cryptkey.h"
 #include "mobile/attribute.h"
 #include "skillid.h"
 

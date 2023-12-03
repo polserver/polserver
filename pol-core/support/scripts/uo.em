@@ -292,7 +292,7 @@ EraseGlobalProperty( propname );
 EraseObjProperty( object, propname );
 FindAccount( acctname );
 FindObjtypeInContainer( container, objtype, flags := FINDOBJTYPE_RECURSIVE );
-FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5 );
+FindPath( x1, y1, z1, x2, y2, z2, realm := _DEFAULT_REALM, flags := FP_IGNORE_MOBILES, searchskirt := 5, movemode := "L" );
 FindSubstance( container, objtype, amount, makeinuse := 0, flags := 0 );
 GetAmount( item );
 GetCommandHelp( character, command );
@@ -368,7 +368,7 @@ RegisterForSpeechEvents( at_object, range, flags := 0 );
 ReleaseItem( item );
 RequestInput( character, item, prompt ); // item is a placeholder, just pass any item
 ReserveItem( item );
-RestartScript( npc );
+RestartScript( npc_or_item );
 Resurrect( mobile, flags := 0 ); // flags: RESURRECT_*
 RevokePrivilege( character, privilege );
 SaveWorldState();

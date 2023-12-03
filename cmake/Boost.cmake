@@ -1,5 +1,5 @@
 message("* boost")
-set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_78_0")
+set (BOOST_SOURCE_DIR "${POL_EXT_LIB_DIR}/boost_1_83_0")
 set (BOOST_STAGE_LIB_DIR "${BOOST_SOURCE_DIR}/stage/lib")
 
 if (clang)
@@ -28,12 +28,14 @@ if (${windows})
   set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.lib" )
   set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.lib" )
   set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.lib" )
+  set (BOOST_CXX_FLAGS "cxxflags=/MT")
 else()
   set (BOOST_CONFIGURE_COMMAND "./bootstrap.sh")
   set (BOOST_BUILD_COMMAND "./b2")
   set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.a" )
   set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.a" )
   set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.a" )
+  set (BOOST_CXX_FLAGS "")
 endif()
 
 if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS ${BOOST_THREAD_LIB})
@@ -43,7 +45,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
           INSTALL_COMMAND ""
           CONFIGURE_COMMAND ""
           DOWNLOAD_COMMAND ""
-          BUILD_COMMAND ${BOOST_BUILD_COMMAND} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=release link=static runtime-link=static --layout=system --with-regex --with-system --with-thread stage
+          BUILD_COMMAND ${BOOST_BUILD_COMMAND} ${BOOST_CXX_FLAGS} address-model=${ARCH_BITS} toolset=${BOOST_TOOLSET} variant=release link=static runtime-link=static --layout=system --with-regex --with-system --with-thread stage
           BUILD_BYPRODUCTS ${BOOST_REGEX_LIB} ${BOOST_SYSTEM_LIB} ${BOOST_THREAD_LIB}
           LOG_BUILD 1
           BUILD_IN_SOURCE 1
@@ -53,7 +55,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
   if (NOT EXISTS "${BOOST_SOURCE_DIR}/boost")
     message("  - will extract")
     ExternalProject_Add(boost_extract
-            URL "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2"
+            URL "https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.bz2"
             SOURCE_DIR "${BOOST_SOURCE_DIR}"
             CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND} --with-toolset=${BOOST_TOOLSET}
             BUILD_COMMAND ""
@@ -63,6 +65,7 @@ if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS
             LOG_CONFIGURE 1
             BUILD_IN_SOURCE 1
             LOG_OUTPUT_ON_FAILURE 1
+            DOWNLOAD_EXTRACT_TIMESTAMP 1
             )
     set_target_properties (boost_extract PROPERTIES FOLDER 3rdParty)
 

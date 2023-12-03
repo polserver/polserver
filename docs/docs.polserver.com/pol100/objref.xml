@@ -239,6 +239,7 @@
 <member mname="race" type="Integer" access="r/w" mdesc="Set/get the ML/SA race (new constants in UO.EM: RACE_HUMAN, RACE_ELF,RACE_GARGOYLE). You have to set visual graphic by yourself if you change value (Human male/female = 0x190/0x191 / Elf male/female = 0x25d/0x25e / Gargoyle male/female = 0x029a/0x029b). You can choose Race at Char creation if your UOExpansion and UOFeature settings fit." />
 <member mname="hitchance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the hitchance from the attacker (+- int in thousandth)" />
 <member mname="evasionchance_mod" type="Integer" access="r/w" mdesc="Subtractive modificator of the hitchance from the defender (+- int in thousandth)" />
+<member mname="parrychance_mod" type="Integer" access="r/w" mdesc="Additive modificator of the parry_chance from the defender (+- int in thousandth)" />
 <member mname="carrying_capacity" type="Integer" access="r/o" mdesc="Current carrying capacity. Defined as (40 + 3.5*chr.strength + chr.carrying_capacity_mod)*ssopt.carrying_capacity_mod. Note that characters can go above their carrying capacity, but will run out of stamina much faster." />
 <member mname="carrying_capacity_mod" type="Integer" access="r/w" mdesc="Carrying capacity modifier. Is taken into account prior to global ssopt modifier." />
 <member mname="statcap" type="Integer" access="r/w" mdesc="AOS+ Statcap entry in statusbar, default 255" />
@@ -665,7 +666,7 @@ Pre-intialize with var a := array { 53, 76, 32 };</explain>
 <explain>An object passed to an Aux Service Script that allows the script to transmit and recieve packed data over a TCP/IP port. use wait_for_event() in the service script to recieve data. </explain>
 <member mname="ip" type="String" access="r/o" mdesc="Originating IP on the AuxConnection Pipe" />
 
-<method proto="transmit(object o)" returns="error/0" desc="Transmits the packable object 'o' over the Aux connection." />
+<method proto="transmit(object o)" returns="error/0" desc="Transmits the packable object 'o' over the Aux connection. If the connection script has the AUXSVC_ASSUME_STRING script option, then the parameter object `o` is sent as a string and not unpacked. If the Aux Connection was created with the ignore_line_breaks option, then a CRLF will not be appended to the message. " />
 </class>
 
 

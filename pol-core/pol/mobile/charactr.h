@@ -49,6 +49,7 @@
 #include "../baseobject.h"
 #include "../dynproperties.h"
 #include "../gameclck.h"
+#include "../getitem.h"
 #include "../polclock.h"
 #include "../reftypes.h"
 #include "../skillid.h"
@@ -127,7 +128,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
 void createchar2( Accounts::Account* acct, unsigned index );
-void undo_get_item( Mobile::Character* chr, Items::Item* item );
 void write_characters( SaveContext& sc );
 void write_npcs( SaveContext& sc );
 }  // namespace Core
@@ -388,7 +388,7 @@ public:
   unsigned int gold_carried() const;
   void spend_gold( unsigned int amount );
 
-  DYN_PROPERTY_POINTER( gotten_item, Items::Item*, Core::PROP_GOTTEN_BY );
+  DYN_PROPERTY( gotten_item, Core::GottenItem, Core::PROP_GOTTEN_BY, Core::GottenItem{} );
   void clear_gotten_item();
 
   void add_remote_container( Items::Item* );
@@ -716,10 +716,6 @@ public:
   int charindex() const;  // find account character index, or -1 if not found.
   void on_delete_from_account();
 
-protected:
-  friend void Core::undo_get_item( Character* chr,
-                                   Items::Item* item );  // this just gets uglier and uglier.
-
   // BUFF/DEBUFF BAR
 public:
   void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, const std::string& arguments );
@@ -745,13 +741,6 @@ protected:
   ref_ptr<Core::WornItemsContainer> wornitems;
 
 public:
-  enum GOTTEN_ITEM_TYPE : u8
-  {
-    GOTTEN_ITEM_ON_GROUND,
-    GOTTEN_ITEM_EQUIPPED_ON_SELF,
-    GOTTEN_ITEM_IN_CONTAINER
-  } gotten_item_source;
-
   std::vector<Core::ItemRef> remote_containers_;  // does not own its objects
   // MOVEMENT
 public:
@@ -782,6 +771,7 @@ protected:
   DYN_PROPERTY( delay_mod, s16, Core::PROP_DELAY_MOD, 0 );
   DYN_PROPERTY( hitchance_mod, s16, Core::PROP_HIT_CHANCE_MOD, 0 );
   DYN_PROPERTY( evasionchance_mod, s16, Core::PROP_EVASIONCHANCE_MOD, 0 );
+  DYN_PROPERTY( parrychance_mod, s16, Core::PROP_PARRYCHANCE_MOD, 0 );
 
   Character* opponent_;
   CharacterSet opponent_of;

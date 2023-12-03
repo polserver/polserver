@@ -348,7 +348,7 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
 {
   base::printDebugProperties( sw );
-  sw() << "# template: " << template_.name << pf_endl;
+  sw() << "# template: " << template_->name << pf_endl;
   if ( anchor.enabled )
   {
     sw() << "# anchor: x=" << anchor.x << " y=" << anchor.y << " dstart=" << anchor.dstart
@@ -363,14 +363,14 @@ void NPC::readNpcProperties( Clib::ConfigElem& elem )
   Items::UWeapon* wpn = static_cast<Items::UWeapon*>(
       Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND1 ) );
   if ( wpn == nullptr )
-    wpn = Items::create_intrinsic_weapon_from_npctemplate( elem, template_.pkg );
+    wpn = Items::create_intrinsic_weapon_from_npctemplate( elem, template_->pkg );
   if ( wpn != nullptr )
     weapon = wpn;
 
   Items::UArmor* sld = static_cast<Items::UArmor*>(
       Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND2 ) );
   if ( sld == nullptr )
-    sld = Items::create_intrinsic_shield_from_npctemplate( elem, template_.pkg );
+    sld = Items::create_intrinsic_shield_from_npctemplate( elem, template_->pkg );
   if ( sld != nullptr )
     shield = sld;
 
@@ -670,7 +670,7 @@ void NPC::start_script()
 {
   passert( ex == nullptr );
   passert( !script.get().empty() );
-  Core::ScriptDef sd( script, template_.pkg, "scripts/ai/" );
+  Core::ScriptDef sd( script, template_->pkg, "scripts/ai/" );
   // Log( "NPC script starting: %s\n", sd.name().c_str() );
 
   ref_ptr<Bscript::EScriptProgram> prog = Core::find_script2( sd );
@@ -1023,8 +1023,8 @@ void NPC::get_hitscript_params( double damage, Items::UArmor** parmor, unsigned 
 
 Items::UWeapon* NPC::intrinsic_weapon()
 {
-  if ( template_.intrinsic_weapon )
-    return template_.intrinsic_weapon;
+  if ( template_->intrinsic_weapon )
+    return template_->intrinsic_weapon;
   else
     return Core::gamestate.wrestling_weapon;
 }

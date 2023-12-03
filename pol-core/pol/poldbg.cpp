@@ -200,7 +200,9 @@ const char* poldbg_mobileref_members[] = { "warmode",
                                            "physical_resist_cap",
                                            "luck_mod",
                                            "swing_speed_increase",
-                                           "swing_speed_increase_mod"
+                                           "swing_speed_increase_mod",
+                                           "parrychance_mod"
+
 
 };
 
@@ -1370,7 +1372,7 @@ void DebugClientThread::run()
   while ( !dctx.done() )
   {
     Clib::writeline( _sck, dctx.prompt() );
-    if ( !linereader.readline( cmdline ) )
+    if ( !linereader.read( cmdline ) )
       break;
 
     bool ret = dctx.process( cmdline, results );

@@ -334,6 +334,10 @@ Bscript::BObjectImp* SQLExecutorModule::mf_mysql_fetch_row()
   {
     return new BError( "Invalid parameters" );
   }
+  else if ( !result->has_result() )
+  {
+    return new BError( "Query returned no result" );
+  }
   return new Core::BSQLRow( result );
 }
 

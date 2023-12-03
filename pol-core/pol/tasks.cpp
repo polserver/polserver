@@ -78,10 +78,36 @@ void regen_stats()
     }
     THREAD_CHECKPOINT( tasks, 404 );
 
-    // If in warmode, don't regenerate.
-    // If regeneration is currently disabled, don't do it either.
-    if ( ( chr->warmode() && settingsManager.combat_config.warmode_inhibits_regen ) ||
-         ( now <= chr->disable_regeneration_until ) )
+    // If in warmode, don't regenerate...
+    if ( chr->warmode() )
+    {
+      switch ( settingsManager.combat_config.warmode_inhibits_regen )
+      {
+      // at all.
+      case WarmodeInhibitsRegenStrategy::Both:
+        return;
+
+      // if chr is a player.
+      case WarmodeInhibitsRegenStrategy::PlayerOnly:
+        if ( !chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+          return;
+        break;
+
+      // if chr is an npc.
+      case WarmodeInhibitsRegenStrategy::NonplayerOnly:
+        if ( chr->isa( Core::UOBJ_CLASS::CLASS_NPC ) )
+          return;
+        break;
+
+      // ignore for regeneration purposes.
+      case WarmodeInhibitsRegenStrategy::None:
+      default:
+        break;
+      }
+    }
+
+    // If regeneration is currently disabled, don't do it.
+    if ( now <= chr->disable_regeneration_until )
     {
       return;
     }

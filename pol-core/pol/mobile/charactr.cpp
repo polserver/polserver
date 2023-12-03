@@ -265,7 +265,6 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       armor_( Core::gamestate.armorzones.size() ),
       wornitems( new Core::WornItemsContainer ),  // default objtype is in containr.cpp,
                                                   // WornItemsContainer class
-      gotten_item_source( GOTTEN_ITEM_ON_GROUND ),
       remote_containers_(),
       // MOVEMENT
       dir( 0 ),
@@ -473,14 +472,16 @@ bool Character::is_house_editing() const
 
 void Character::clear_gotten_item()
 {
-  auto item = gotten_item();
-  if ( item != nullptr )
+  if ( !has_gotten_item() )
+    return;
+  auto info = gotten_item();
+  if ( info.item() != nullptr )
   {
-    gotten_item( nullptr );
-    item->inuse( false );
+    gotten_item( {} );
+    info.item()->inuse( false );
     if ( connected() )
       Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-    undo_get_item( this, item );
+    info.undo( this );
   }
 }
 
@@ -534,7 +535,7 @@ unsigned int Character::weight() const
 {
   unsigned int wt = 10 + wornitems->weight();
   if ( has_gotten_item() )
-    wt += gotten_item()->weight();
+    wt += gotten_item().item()->weight();
   if ( trading_cont.get() )
     wt += trading_cont->weight();
   return wt;
@@ -1246,7 +1247,7 @@ Core::Spellbook* Character::spellbook( u8 school ) const
   {
     for ( Core::UContainer::const_iterator itr = cont->begin(); itr != cont->end(); ++itr )
     {
-      const Items::Item* item = GET_ITEM_PTR( itr );
+      const Items::Item* item = *itr;
 
       if ( item != nullptr && item->script_isa( Core::POLCLASS_SPELLBOOK ) )
       {
@@ -1643,29 +1644,7 @@ void Character::on_color_changed()
 
 void Character::on_poison_changed()
 {
-  send_move_mobile_to_nearby_cansee( this );
-
-  // only if client is active or for npcs
-  if ( ( client ) || ( this->isa( Core::UOBJ_CLASS::CLASS_NPC ) ) )
-  {
-    if ( client )
-    {
-      send_goxyz( client, client->chr );
-      // if poisoned send_goxyz handles 0x17 packet
-      if ( !poisoned() )
-        send_poisonhealthbar( client, client->chr );
-    }
-    // This is a KR only packet, so transmit it only to KR clients
-    // who are in range.
-    // if poisoned send_move_mobile_to_nearby_cansee handles 0x17 packet
-    if ( !poisoned() )
-    {
-      Network::HealthBarStatusUpdate msg( serial_ext, Network::HealthBarStatusUpdate::Color::GREEN,
-                                          poisoned() );
-      Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-          this, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-    }
-  }
+  send_move_mobile_to_nearby_cansee( this, true );
 }
 
 void Character::on_hidden_changed()
@@ -2330,7 +2309,7 @@ void Character::die()
     // u8 corpseSlot = 1;
     while ( !tmp.empty() )
     {
-      Items::Item* bp_item = ITEM_ELEM_PTR( tmp.back() );
+      Items::Item* bp_item = tmp.back();
       tmp.pop_back();
       bp_item->container = nullptr;
       bp_item->layer = 0;
@@ -3383,6 +3362,7 @@ void Character::attack( Character* opponent )
 
       double parry_chance =
           opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
+      parry_chance += opponent->parrychance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
         INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
       if ( Clib::random_double( 1.0 ) < parry_chance )
@@ -3966,7 +3946,10 @@ void Character::realm_changed()
   wornitems->for_each_item( Core::setrealm, (void*)realm() );
   // TODO Pos: realm should be all the time nullptr for these items
   if ( has_gotten_item() )
-    gotten_item()->setposition( Core::Pos4d( gotten_item()->pos().xyz(), realm() ) );
+  {
+    auto gotten = gotten_item();
+    gotten.item()->setposition( Core::Pos4d( gotten.item()->pos().xyz(), realm() ) );
+  }
   if ( trading_cont.get() )
     trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
 
@@ -4326,7 +4309,6 @@ size_t Character::estimatedSize() const
                 + sizeof( Plib::URACE )                               /*race*/
                 + sizeof( short )                                     /*gradual_boost*/
                 + sizeof( u32 )                                       /*last_corpse*/
-                + sizeof( GOTTEN_ITEM_TYPE )                          /*gotten_item_source*/
                 + sizeof( Core::TargetCursor* )                       /*tcursor2*/
                 + sizeof( weak_ptr<Core::Menu> )                      /*menu*/
                 + sizeof( u16 )                                       /*_last_textcolor*/

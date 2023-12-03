@@ -4,34 +4,35 @@
 #include <string.h>
 #include <string>
 
-#include "../clib/Program/ProgramMain.h"
-#include "../clib/cfgelem.h"
-#include "../clib/cfgfile.h"
-#include "../clib/fileutil.h"
-#include "../clib/logfacility.h"
-#include "../clib/passert.h"
-#include "../clib/rawtypes.h"
-#include "../clib/stlutil.h"
-#include "../clib/timer.h"
-#include "../plib/clidata.h"
-#include "../plib/mapcell.h"
-#include "../plib/mapfunc.h"
-#include "../plib/mapshape.h"
-#include "../plib/mapsolid.h"
-#include "../plib/maptile.h"
-#include "../plib/mapwriter.h"
-#include "../plib/polfile.h"
-#include "../plib/realmdescriptor.h"
-#include "../plib/systemstate.h"
-#include "../plib/udatfile.h"
-#include "../plib/uofile.h"
-#include "../plib/uofilei.h"
-#include "../plib/uoinstallfinder.h"
-#include "../plib/uopreader/uop.h"
-#include "../plib/uopreader/uophash.h"
-#include "../plib/ustruct.h"
-#include "../pol/landtile.h"
-#include "../pol/objtype.h"
+#include "clib/Program/ProgramMain.h"
+#include "clib/cfgelem.h"
+#include "clib/cfgfile.h"
+#include "clib/fileutil.h"
+#include "clib/logfacility.h"
+#include "clib/passert.h"
+#include "clib/rawtypes.h"
+#include "clib/stlutil.h"
+#include "clib/timer.h"
+#include "plib/clidata.h"
+#include "plib/mapcell.h"
+#include "plib/mapfunc.h"
+#include "plib/mapshape.h"
+#include "plib/mapsolid.h"
+#include "plib/maptile.h"
+#include "plib/mapwriter.h"
+#include "plib/mul/map.h"
+#include "plib/polfile.h"
+#include "plib/realmdescriptor.h"
+#include "plib/systemstate.h"
+#include "plib/udatfile.h"
+#include "plib/uofile.h"
+#include "plib/uofilei.h"
+#include "plib/uoinstallfinder.h"
+#include "plib/uopreader/uop.h"
+#include "plib/uopreader/uophash.h"
+#include "plib/ustruct.h"
+#include "pol/landtile.h"
+#include "pol/objtype.h"
 
 
 namespace Pol
@@ -61,13 +62,13 @@ void UoConvertMain::showHelp()
               << "  UOCONVERT command [options ...]\n"
               << "    \n"
               << "  Commands: \n"
-              << "    map {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname} {width=Width}"
+              << "    map {uodata=Dir} {realm=realmname} {width=Width}"
               << "        {height=Height} {mapid=0} {readuop=1} {x=X} {y=Y}\n"
-              << "    statics {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-              << "    maptile {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {realm=realmname}\n"
-              << "    multis {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n"
-              << "    tiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n"
-              << "    landtiles {uodata=Dir} {maxtileid=0x3FFF/0x7FFF} {outdir=dir}\n";
+              << "    statics {uodata=Dir} {realm=realmname}\n"
+              << "    maptile {uodata=Dir} {realm=realmname}\n"
+              << "    multis {uodata=Dir} {outdir=dir}\n"
+              << "    tiles {uodata=Dir} {outdir=dir}\n"
+              << "    landtiles {uodata=Dir} {outdir=dir}\n";
 }
 
 using namespace Core;
@@ -1052,41 +1053,30 @@ int UoConvertMain::main()
   else if ( command == "map" )
   {
     UoConvert::uo_mapid = programArgsFindEquals( "mapid=", 0, false );
-    UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 0, false );
+    UoConvert::uo_usedif = programArgsFindEquals( "usedif=", 1, false );
     UoConvert::uo_readuop = (bool)programArgsFindEquals( "readuop=", 1, false );
 
     std::string realm = programArgsFindEquals( "realm=", "britannia" );
-    int default_width = 6144;
-    int default_height = 4096;
-    switch ( UoConvert::uo_mapid )
-    {
-    case 0:
-    case 1:
-      break;
-    case 2:  // ilshenar:
-      default_width = 2304;
-      default_height = 1600;
-      break;
-    case 3:  // malas
-      default_width = 2560;
-      default_height = 2048;
-      break;
-    case 4:  // tokuno
-      default_width = 1448;
-      default_height = 1448;
-      break;
-    case 5:  // termur
-      default_width = 1280;
-      default_height = 4096;
-      break;
-    }
-    int width = programArgsFindEquals( "width=", default_width, false );
-    int height = programArgsFindEquals( "height=", default_height, false );
-    UoConvert::uo_map_width = static_cast<unsigned short>( width );
-    UoConvert::uo_map_height = static_cast<unsigned short>( height );
 
     UoConvert::open_uo_data_files();
     UoConvert::read_uo_data();
+
+    // Auto-detects defaults for mapid=0 or 1 based on the map size. All other sizes are fixed based
+    // on the mapid.
+    Pol::Plib::MUL::MapInfo mapinfo( UoConvert::uo_mapid, UoConvert::uo_map_size );
+    int default_width = mapinfo.width();
+    int default_height = mapinfo.height();
+
+    if ( mapinfo.guessed() )
+      INFO_PRINT << "Auto-detected map dimensions: " << default_width << "x" << default_height
+                 << '\n';
+
+    uo_map_width =
+        static_cast<unsigned short>( programArgsFindEquals( "width=", default_width, false ) );
+    uo_map_height =
+        static_cast<unsigned short>( programArgsFindEquals( "height=", default_height, false ) );
+
+    check_for_errors_in_map_parameters();
 
     int x = programArgsFindEquals( "x=", -1, false );
     int y = programArgsFindEquals( "y=", -1, false );
@@ -1103,8 +1093,8 @@ int UoConvertMain::main()
     }
     else
     {
-      UoConvertMain::create_map( realm, static_cast<unsigned short>( width ),
-                                 static_cast<unsigned short>( height ) );
+      UoConvertMain::create_map( realm, static_cast<unsigned short>( uo_map_width ),
+                                 static_cast<unsigned short>( uo_map_height ) );
     }
   }
   else if ( command == "statics" )
@@ -1167,6 +1157,29 @@ int UoConvertMain::main()
   UoConvert::clear_tiledata();
   return 0;
 }
+void UoConvertMain::check_for_errors_in_map_parameters()
+{
+  if ( !MUL::Map::valid_size( UoConvert::uo_map_size, uo_map_width, uo_map_height ) )
+  {
+    size_t expected_size =
+        MUL::Map::blockSize * MUL::Map::expected_blocks( uo_map_width, uo_map_height );
+
+    INFO_PRINT << "\nWarning: Width and height do not match the map size ("
+               << UoConvert::uo_map_size << " bytes, expected " << expected_size << ")\n\n";
+
+    if ( uo_map_width == 0 || uo_map_height == 0 )
+      throw std::runtime_error(
+          "Width and height were not identified automatically. Please specify them manually." );
+
+
+    if ( ( uo_map_width % MUL::Map::blockWidth != 0 ) ||
+         ( uo_map_height % MUL::Map::blockHeight != 0 ) )
+      throw std::runtime_error( "Width and height must be divisible by 8" );
+
+    if ( uo_map_size < expected_size )
+      throw std::runtime_error( "Map size is smaller than the given width and height" );
+  }
+}
 bool UoConvertMain::convert_uop_to_mul()
 {
   // this is kludgy and doesn't take into account the UODataPath. Mostly a proof of concept now.
@@ -1175,7 +1188,8 @@ bool UoConvertMain::convert_uop_to_mul()
   std::string mul_mapfile = "map" + to_string( uo_mapid ) + ".mul";
   std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
 
-  auto maphash = []( int mapid, size_t chunkidx ) {
+  auto maphash = []( int mapid, size_t chunkidx )
+  {
     fmt::Writer tmp;
     tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
     return HashLittle2( tmp.str() );
@@ -1231,8 +1245,13 @@ void UoConvertMain::setup_uoconvert()
   unsigned short max_tile =
       static_cast<unsigned short>( programArgsFindEquals( "maxtileid=", 0x0, true ) );
 
-  // if any of the two is missing, read from pol.cfg
-  if ( uodata_root.empty() || !max_tile )
+  if ( max_tile )
+  {
+    INFO_PRINT << "Warning: maxtileid will be ignored and detected from tiledata.mul instead.\n";
+  }
+
+  // read required parameters from pol.cfg
+  if ( uodata_root.empty() )
   {
     INFO_PRINT << "Reading pol.cfg.\n";
     Clib::ConfigFile cf( "pol.cfg" );
@@ -1242,16 +1261,9 @@ void UoConvertMain::setup_uoconvert()
 
     if ( uodata_root.empty() )
       uodata_root = Plib::UOInstallFinder::remove_elem( elem );
-
-    if ( !max_tile )
-      max_tile = elem.remove_ushort( "MaxTileID", 0x0 );
   }
 
-  if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
-    max_tile = UOBJ_DEFAULT_MAX;
-
   // Save the parameters into this ugly global state we have
-  Plib::systemstate.config.max_tile_id = max_tile;
   Plib::systemstate.config.uo_datafile_root = Clib::normalized_dir_form( uodata_root );
 
   // Load parameters from uoconvert.cfg (multi types, mounts, etc)
@@ -1346,7 +1358,7 @@ void UoConvertMain::load_uoconvert_cfg()
       else if ( elem.type_is( "ClientOptions" ) )
       {
         if ( elem.has_prop( "UseNewHSAFormat" ) )
-          UoConvert::cfg_use_new_hsa_format = elem.remove_bool( "UseNewHSAFormat" );
+          INFO_PRINT << "Warning: UseNewHSAFormat in uoconvert.cfg is no longer needed.\n";
       }
     }
   }

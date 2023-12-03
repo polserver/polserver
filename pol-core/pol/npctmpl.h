@@ -9,6 +9,7 @@
 #define NPCTMPL_H
 
 #include <map>
+#include <memory>
 #include <stddef.h>
 #include <string>
 
@@ -25,12 +26,12 @@ namespace Items
 {
 class UArmor;
 class UWeapon;
-}
+}  // namespace Items
 namespace Core
 {
 class ExportScript;
 
-class NpcTemplate
+class NpcTemplate : public std::enable_shared_from_this<NpcTemplate>
 {
 public:
   std::string name;
@@ -54,7 +55,7 @@ public:
   ~NpcTemplate();
 };
 
-const NpcTemplate& find_npc_template( const Clib::ConfigElem& elem );
+std::shared_ptr<NpcTemplate> find_npc_template( const Clib::ConfigElem& elem );
 bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem );
 bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cf, Clib::ConfigElem& elem );
 
@@ -85,6 +86,6 @@ private:
   NpcTemplateConfigSource _source;
   Clib::ConfigElem _elem;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

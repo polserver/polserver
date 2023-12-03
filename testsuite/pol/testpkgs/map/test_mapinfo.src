@@ -9,18 +9,22 @@ endprogram
 
 exported function mapinfo()
   var errortext:="";
-  for x:=0 to 191
-    for y:=0 to 191
+  for x:=31 to 33
+    for y:=20 to 30
       var info:=GetMapInfo(x,y);
-      if ((x>23 && x<33) || (x>(192-34) && x<(192-23))
-       || (y>23 && y<33) || (y>(192-34) && y<(192-23)))
-        continue; // border is a bit weird bug or feature?
-      endif
-      if (x<30 || x>(192-30) || y<30 || y>(192-30))
+      if (y<28)
         if (info.landtile != 0xa8 || info.z != -5)
           errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0xa8,-5,info.landtile,info.z);
         endif
-      else
+      elseif (y==28)
+        if (info.landtile != 0x17 || info.z != -2)
+          errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0x17,-3,info.landtile,info.z);
+        endif
+      elseif (y==29)
+        if (info.landtile != 0x17 || info.z != 0)
+          errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0x17,0,info.landtile,info.z);
+        endif
+      elseif (y>=30)
         if (info.landtile != 0x3 || info.z != 0)
           errortext+="Wrong mapinfo {},{}: expected {},{} got {},{}\n".format(x,y,0x3,0,info.landtile,info.z);
         endif

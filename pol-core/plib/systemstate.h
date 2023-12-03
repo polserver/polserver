@@ -41,7 +41,7 @@ public:
 
   Core::PolConfig config;
   std::vector<Tile> tile;
-  bool tiles_loaded;
+  u16 max_graphic;
 
   size_t estimatedSize() const;
 

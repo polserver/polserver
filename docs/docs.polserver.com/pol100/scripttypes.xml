@@ -98,7 +98,7 @@ endprogram</example>
     <whencalled>Immediately after the item is created (includes boot-up).</whencalled>
     <wherelives>The 'program' in a .src file, in a package or /scripts/control</wherelives>
     <todefine>In the item's itemdesc.cfg entry, the 'ControlScript' property defines the location of the control script. This is in package format ':pkgname:scriptname', or if just 'scriptname' in the same package, or /scripts/control.</todefine>
-    <explain>This script is called when the item is created and stays attached to the item. Usually control scripts do not exit until the item is destroyed (note, you must handle this yourself). They generally use a loop to process events or do some housecleaning after some sleeping, or wait_for_event.</explain>
+    <explain>This script is called when the item is created and stays attached to the item. Usually control scripts do not exit until the item is destroyed (note, you must handle this yourself: control scripts will not automatically terminate when the item is destroyed). They generally use a loop to process events or do some housecleaning after some sleeping, or wait_for_event.</explain>
     <example>
 use uo;
 use os;

@@ -97,7 +97,7 @@ typedef RegionGroup<LightRegion> LightDef;
 typedef RegionGroup<MusicRegion> MusicDef;
 
 typedef std::map<std::string, NpcTemplateElem, Clib::ci_cmp_pred> NpcTemplatesElems;
-typedef std::map<std::string, NpcTemplate*> NpcTemplates;
+typedef std::map<std::string, std::shared_ptr<NpcTemplate>> NpcTemplates;
 
 typedef ref_ptr<Party> PartyRef;
 typedef std::vector<PartyRef> Parties;
@@ -254,13 +254,14 @@ public:
   Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
                              // "pre-filtering" of objects
 
+  void unload_npc_templates();
+
 private:
   void cleanup_vars();
   void cleanup_scripts();
   void clear_listen_points();
   void unload_intrinsic_weapons();
   void unload_intrinsic_templates();
-  void unload_npc_templates();
 };
 extern GameState gamestate;
 }  // namespace Core

@@ -166,7 +166,11 @@ fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v )
   w << "( " << v.x() << ", " << v.y() << " )";
   return w;
 }
-
+std::ostream& operator<<( std::ostream& os, const Pos2d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << " )";
+  return os;
+}
 
 bool Pos3d::operator==( const Pos3d& other ) const
 {
@@ -283,6 +287,12 @@ fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
 {
   w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
   return w;
+}
+
+std::ostream& operator<<( std::ostream& os, const Pos3d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
+  return os;
 }
 
 
@@ -430,6 +440,12 @@ fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v )
   w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
     << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
   return w;
+}
+std::ostream& operator<<( std::ostream& os, const Pos4d& v )
+{
+  os << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
+     << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
+  return os;
 }
 
 }  // namespace Core

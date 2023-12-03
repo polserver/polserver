@@ -1,0 +1,50 @@
+use os;
+use uo;
+use polsys;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_item()
+  if (testrun == 1)
+    // Test setting SaveOnExit in item descriptor successfully changes item save behavior
+    var desc := GetItemDescriptor(0xeed);
+    desc.SaveOnExit := 0;
+    var item := CreateItemAtLocation(55,55,0, desc);
+    if (!item) 
+      return ret_error($"Could not create should-not-save item in first server run: {item}");
+    endif
+    SetGlobalProperty("test_item_shouldNotExist", item.serial);
+
+    // Change SaveOnExit to true, to enable saving the item
+    desc.SaveOnExit := 1;
+    var item2 := CreateItemAtLocation(55,55,0, desc);
+    if (!item2) 
+      return ret_error($"Could not create should-save item in first server run: {item2}");
+    endif
+    SetGlobalProperty("test_item_shouldExist", item2.serial);
+  else
+    // Check that the item that should not exist does not exist
+    var serial := GetGlobalProperty("test_item_shouldNotExist");
+    if (!serial)
+      return ret_error("Global property test_item_shouldNotExist not found");
+    endif
+
+    var item := SystemFindObjectBySerial(serial);
+    if (item)
+      return ret_error($"Item with serial {item.serial:#x} erroneously exists: {item.desc} (objtype {item.objtype:#x}) at ({item.x}, {item.y}, {item.z})");
+    endif
+
+    // Check that the item that should exist does exist
+    var serial2 := GetGlobalProperty("test_item_shouldExist");
+    if (!serial2)
+      return ret_error("Global property test_item_shouldExist not found");
+    endif
+
+    var item2 := SystemFindObjectBySerial(serial2);
+    if (!item2)
+      return ret_error($"Item with serial {serial2:#x} does not exists: {item2})");
+    endif
+  endif
+  return 1;
+endprogram

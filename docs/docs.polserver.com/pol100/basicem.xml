@@ -315,9 +315,10 @@ const TRIM_BOTH  := 0x3; // Trim whitespace from Left and Right of string.</code
   </function>
 
   <function name="PackJSON">
-    <prototype>PackJSON( expr )</prototype>
+    <prototype>PackJSON( expr, prettify )</prototype>
     <parameter name="expr" value="An object to pack" />
-    <explain>Returns a JSON-serialization of the object to pack.</explain>
+    <parameter name="prettify" value="If true, prettify the output string" />
+    <explain>Returns a JSON-serialization of the object to pack. If `prettify` is true, the output string will be indented with new lines.</explain>
     <explain>The following conversions are done:</explain>
     <explain>eScript -&gt; JSON</explain>
     <explain>double -&gt; number</explain>

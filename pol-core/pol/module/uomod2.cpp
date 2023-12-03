@@ -61,6 +61,7 @@
 #include "../core.h"
 #include "../exscrobj.h"
 #include "../globals/memoryusage.h"
+#include "../globals/object_storage.h"
 #include "../globals/script_internals.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
@@ -644,7 +645,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
   {
     for ( UContainer::iterator itr = cont->begin(), end = cont->end(); itr != end; ++itr )
     {
-      Item* item = GET_ITEM_PTR( itr );
+      Item* item = *itr;
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         UContainer* cont2 = static_cast<UContainer*>( item );
@@ -665,7 +666,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       {
         for ( buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
         {
-          Item* buyable_item = GET_ITEM_PTR( buyable_itr );
+          Item* buyable_item = *buyable_itr;
           if ( buyable_item->objtype_ == item->objtype_ )
             break;
         }
@@ -2016,6 +2017,10 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
           return new BLong( 0 );
         Core::scriptScheduler.logScriptVariables( script->data() );
         return new BLong( 1 );
+      }
+      else if ( type == 7 )
+      {
+        Core::objStorageManager.objecthash.Clear( false );
       }
       return new BLong( 1 );
     }

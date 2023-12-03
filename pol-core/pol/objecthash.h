@@ -51,7 +51,7 @@ public:
 
   bool Insert( UObject* obj );
   bool Remove( u32 serial );
-  void Clear();
+  void Clear( bool shutdown = true );
   void Reap();
 
   UObject* Find( u32 serial );
@@ -78,6 +78,6 @@ private:
   ds dirty_deleted;
   ds clean_deleted;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -78,12 +78,13 @@ void PolConfig::read_pol_config( bool initial_load )
     Plib::systemstate.config.web_server = elem.remove_bool( "WebServer", false );
     Plib::systemstate.config.web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
 
-    unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
-
-    if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
-      Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX;
-    else
-      Plib::systemstate.config.max_tile_id = max_tile;
+    unsigned short max_tile = elem.remove_ushort( "MaxTileID", 0 );
+    if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX &&
+         max_tile != 0 )
+    {
+      max_tile = UOBJ_DEFAULT_MAX;
+    }
+    Plib::systemstate.config.max_tile_id = max_tile;
 
     unsigned int max_obj = elem.remove_unsigned( "MaxObjtype", EXTOBJ_HIGHEST_DEFAULT );
     if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFFFF )
@@ -215,9 +216,6 @@ void PolConfig::read_pol_config( bool initial_load )
         << tmp;
   }
 
-  CalculateCryptKeys( elem.remove_string( "ClientEncryptionVersion", "none" ),
-                      Plib::systemstate.config.client_encryption_version );
-
   Plib::systemstate.config.display_unknown_packets =
       elem.remove_bool( "DisplayUnknownPackets", false );
   Plib::systemstate.config.exp_los_checks_map = elem.remove_bool( "ExpLosChecksMap", true );
@@ -291,6 +289,8 @@ void PolConfig::read_pol_config( bool initial_load )
     Clib::mklowerASCII( substr );
     Plib::systemstate.config.allowed_environmentvariables_access.push_back( substr );
   }
+
+  Plib::systemstate.config.enable_colored_output = elem.remove_bool( "EnableColoredOutput", true );
 
   /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
   /// turns out to be disabled, or when it was enabled before, but is being disabled now,

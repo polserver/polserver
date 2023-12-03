@@ -85,6 +85,8 @@ void load_repsys_cfg_general( Clib::ConfigElem& elem )
       elem.remove_ushort( "AggressorFlagTimeout" );
   settingsManager.repsys_cfg.General.PartyHelpFullCountsAsCriminal =
       elem.remove_bool( "PartyHelpFullCountsAsCriminal", false );
+  settingsManager.repsys_cfg.General.PartyHarmFullCountsAsCriminal =
+      elem.remove_bool( "PartyHarmFullCountsAsCriminal", true );
 }
 void load_repsys_cfg_hooks( Clib::ConfigElem& elem )
 {
@@ -634,6 +636,7 @@ namespace Mobile
 ///   Bob is a Guild Ally of Amy
 ///   Bob is a Guild Enemy of Amy
 ///   Amy has Lawfully Damaged Bob
+///   If PartyHarmFullCountsAsCriminal true and Bob is in same Party as Amy
 ///
 bool Character::is_innocent_to( const Character* amy ) const
 {
@@ -657,6 +660,13 @@ bool Character::is_innocent_to( const Character* amy ) const
 
   if ( amy->has_lawfully_damaged( &bob ) )
     return false;
+
+  if ( !Core::settingsManager.repsys_cfg.General.PartyHarmFullCountsAsCriminal )
+  {
+    Core::Party* party = amy->party();
+    if ( ( party != nullptr ) && ( party->is_member( bob.serial ) ) )
+      return false;
+  }
 
   return true;
 }
@@ -1021,7 +1031,7 @@ unsigned char NPC::hilite_color_idx( const Character* seen_by ) const
   }
   else
   {
-    switch ( template_.alignment )
+    switch ( template_->alignment )
     {
     case Core::NpcTemplate::NEUTRAL:
       return CHAR_HILITE_ATTACKABLE;
@@ -1062,7 +1072,7 @@ unsigned short NPC::name_color( const Character* seen_by ) const
   }
   else
   {
-    switch ( template_.alignment )
+    switch ( template_->alignment )
     {
     case Core::NpcTemplate::NEUTRAL:
       return Core::settingsManager.repsys_cfg.NameColoring.Attackable;

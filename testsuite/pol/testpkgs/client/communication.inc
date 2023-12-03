@@ -17,10 +17,15 @@ const EVT_LIST_OBJS := "list_objs";
 const EVT_OPEN_BACKPACK := "open_bp";
 const EVT_TARGET := "target";
 const EVT_DOUBLE_CLICK := "double_click";
+const EVT_LIFT_ITEM := "lift_item";
+const EVT_MOVE_ITEM_REJECTED := "move_item_rejected";
+const EVT_DROP_ITEM := "drop_item";
+const EVT_DROP_APPROVED := "drop_approved";
 const EVT_DISABLE_ITEM_LOGGING := "disable_item_logging";
 const EVT_NEW_SUBSERVER := "new_subserver";
 const EVT_BOAT_MOVED := "boat_moved";
 const EVT_OWNCREATE := "owncreate";
+const EVT_GUMP := "gump";
 
 function clientTestActive()
   var testclient:=GetEnvironmentVariable("POLCORE_TESTCLIENT")=="TRUE";
@@ -39,9 +44,9 @@ function getClientConnection()
 endfunction
 
 // wait for events of given types and of given client id
-function waitForClient(id, types)
+function waitForClient(id, types, timeout := 10)
   while (1)
-    var ev:=Wait_For_Event(10);
+    var ev:=Wait_For_Event(timeout);
     if (!ev)
       return ret_error("no signal received");
     endif

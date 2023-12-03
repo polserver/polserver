@@ -175,7 +175,7 @@ public:  // methods
   }
 
   // Advances search one step
-  unsigned int SearchStep( bool doors_block )
+  unsigned int SearchStep()
   {
     // Firstly break if the user has not initialised the search
     assert( ( m_State > SEARCH_STATE_NOT_INITIALISED ) && ( m_State < SEARCH_STATE_INVALID ) );
@@ -257,8 +257,8 @@ public:  // methods
 
       // User provides this functions and uses AddSuccessor to add each successor of
       // node 'n' to m_Successors
-      bool ret = n->m_UserState.GetSuccessors( this, n->parent ? &n->parent->m_UserState : nullptr,
-                                               doors_block );
+      bool ret =
+          n->m_UserState.GetSuccessors( this, n->parent ? &n->parent->m_UserState : nullptr );
 
       if ( !ret )
       {
@@ -723,7 +723,7 @@ private:  // data
 
   bool m_CancelRequest;
 };
-}
-}
+}  // namespace Plib
+}  // namespace Pol
 
 #endif  // defined STLASTAR_H

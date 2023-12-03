@@ -4,14 +4,24 @@
 <ESCRIPT>  
   <fileheader fname="basicio.em">
     <filedesc>Basic I/O functions.</filedesc>
-    <datemodified>08/31/2015</datemodified>
+    <datemodified>10/17/2023</datemodified>
+    <constant>const CONSOLE_COLOR_RED     := "\x1b[31m";</constant>
+    <constant>const CONSOLE_COLOR_GREEN   := "\x1b[32m";</constant>
+    <constant>const CONSOLE_COLOR_YELLOW  := "\x1b[33m";</constant>
+    <constant>const CONSOLE_COLOR_BLUE    := "\x1b[34m";</constant>
+    <constant>const CONSOLE_COLOR_MAGENTA := "\x1b[35m";</constant>
+    <constant>const CONSOLE_COLOR_CYAN    := "\x1b[36m";</constant>
   </fileheader>
 
   <function name="Print">
-    <prototype>Print(anything)</prototype>
+    <prototype>Print(anything, console_color:="")</prototype>
     <parameter name="anything" value="Any object, or primitive." />
+    <parameter name="console_color" value="xterm text formatting string e.g. one of the CONSOLE_COLOR constants"/>
     <explain>
       Prints 'anything' to the console. If it's a string or number, it will show the value. If it's an array, struct or dictionary, it will show the contents of the structure fairly nicely. On Packets it will show the content. Else, it shows the type of object, i.e. 'ItemRef'.
+    </explain>
+    <explain>
+      Parameter console_color needs linux or windows 11, when given ends the line with resetting the formatting ("\x1b[0m"). Via pol.cfg EnableColoredOutput color prints can be disabled.
     </explain>
     <return>Nothing</return>
  </function>

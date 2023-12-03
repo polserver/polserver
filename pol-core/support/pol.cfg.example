@@ -44,15 +44,6 @@ UoDataFileRoot=
 #############################################################################
 
 #
-# ClientEncryptionVersion - string
-# Default none
-# Clarification: for ClientEncryptionVersion, the allowable values are 'major.minor.build', '2.0.0x',
-# 'ignition', 'uorice', and 'none'. Here, 'ignition', 'uorice', and 'none' all mean 'no encryption'.
-# Due to autocalculation 'major.minor.build' means setting a listener for client 7.0.4.1 '7.0.4' (no patch)
-#
-#ClientEncryptionVersion=none
-
-#
 # MinCmdlevelToLogin: Only characters with this command level or higher
 #                     log in. (0=player,5=admin)
 # Default 0
@@ -209,6 +200,12 @@ RunawayScriptThreshold=10000
 #
 TimestampEveryLine=1
 
+#
+# EnableColoredOutput 1/0
+# If set to 0 ignore color arguments of print/syslog
+# Default is 1
+#
+#EnableColoredOutput=1
 
 #
 # UseSingleThreadLogin

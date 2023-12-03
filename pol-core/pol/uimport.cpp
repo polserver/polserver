@@ -857,7 +857,9 @@ inline void WriteGottenItem( Mobile::Character* chr, Items::Item* item, Clib::St
 
   item->printOn( sw );
 
-  item->setposition( Pos4d( 0, 0, 0, item->realm() ) );
+  item->setposition(
+      Pos4d( 0, 0, 0,
+             item->realm() ) );  // TODO POS position should have no meaning remove this completely
 }
 
 void write_characters( Core::SaveContext& sc )
@@ -926,7 +928,7 @@ void write_items( Clib::StreamWriter& sw_items )
       {
         // Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
         if ( chr->has_gotten_item() )
-          WriteGottenItem( chr, chr->gotten_item(), sw_items );
+          WriteGottenItem( chr, chr->gotten_item().item(), sw_items );
       }
     }
   }

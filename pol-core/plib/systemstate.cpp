@@ -3,6 +3,7 @@
 
 #include "../clib/stlutil.h"
 #include "pkg.h"
+#include "pol/objtype.h"
 #include "tiles.h"
 
 namespace Pol
@@ -19,7 +20,7 @@ SystemState::SystemState()
       accounts_txt_stat(),
       config(),
       tile(),
-      tiles_loaded( false )
+      max_graphic( 0 )
 {
 }
 

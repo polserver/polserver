@@ -11,10 +11,10 @@
 #ifndef POLCFG_H
 #define POLCFG_H
 
+#include <atomic>
 #include <string>
 #include <vector>
 
-#include "crypt/cryptkey.h"
 #if !defined( _WIN32 )
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -29,7 +29,7 @@ struct PolConfig
   std::string world_data_path;
   std::string realm_data_path;
   std::string pidfile_path;
-  bool verbose;
+  std::atomic<bool> verbose;
   unsigned short loglevel;  // 0=nothing 10=lots
   unsigned short select_timeout_usecs;
   unsigned short loginserver_timeout_mins;
@@ -41,7 +41,6 @@ struct PolConfig
   bool inhibit_saves;
   bool log_script_cycles;
   bool count_resource_tiles;
-  Crypt::TCryptInfo client_encryption_version;
 
   bool web_server;
   unsigned short web_server_port;
@@ -55,11 +54,11 @@ struct PolConfig
   bool enable_secure_trading;
   unsigned int runaway_script_threshold;
   bool ignore_load_errors;
-  unsigned short min_cmdlvl_ignore_inactivity;
-  unsigned short inactivity_warning_timeout;
-  unsigned short inactivity_disconnect_timeout;
-  unsigned short min_cmdlevel_to_login;
-  unsigned int max_tile_id;
+  std::atomic<unsigned short> min_cmdlvl_ignore_inactivity;
+  std::atomic<unsigned short> inactivity_warning_timeout;
+  std::atomic<unsigned short> inactivity_disconnect_timeout;
+  std::atomic<unsigned short> min_cmdlevel_to_login;
+  unsigned short max_tile_id;
   unsigned int max_objtype;
 
   unsigned short max_clients;
@@ -113,6 +112,8 @@ struct PolConfig
   std::string report_url;
 
   std::vector<std::string> allowed_environmentvariables_access;
+
+  bool enable_colored_output;
 
   static void read_pol_config( bool initial_load );
   static struct stat pol_cfg_stat;

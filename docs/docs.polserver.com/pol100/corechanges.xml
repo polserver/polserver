@@ -2,15 +2,153 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>02-02-2023</datemodified>
+		<datemodified>11-19-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+	<entry>
+			<date>11-19-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">possible deadlock in packethooks</change>
+	</entry>
+	<entry>
+			<date>11-16-2023</date>
+			<author>Nando:</author>
+			<change type="Added">UoConvert smartness:<br/>
+- MaxTileID is now detected from tiledata.mul (uoconvert) and tiles.cfg (POL).<br/>
+- Default width/height for each map id<br/>
+- map0 and map1 width can be estimated automatically based on a height of 4096<br/>
+- better error handling</change>
+			<change type="Changed">usedif=1 is now the default in uoconvert</change>
+			<change type="Removed">UseNewHSAFormat in uoconvert.cfg. This will be detected automatically from<br/>
+tiledata.mul size.</change>
 		<entry>
-			<date>02-02-2023</date>
-			<author>Brndd:</author>
-			<change type="Added">GetStandingLayers() now has a &quot;includeitems&quot; parameter which allows including or excluding items from the search (default: enabled).</change>
-			<change type="Added">GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := &quot;L&quot;, doors_block := 0 ):<br/>
-This is a new EScript function that returns an Array of coordinates that are valid locations for a creature to stand on in a given radius around the given coordinates. One example use-case is finding valid spawning locations for NPCs within an area.</change>
+			<date>11-12-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">crash when control scripts end for a destroyed item</change>
+		</entry>
+		<entry>
+			<date>11-08-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">crash due to NPCs after calling ReloadConfiguration</change>
+		</entry>
+		<entry>
+			<date>11-01-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">RestartScript() now can restart item control scripts. Similar to NPC scripts, the existing Item control script will terminate and a new one started.</change>
+		</entry>
+		<entry>
+			<date>10-28-2023</date>
+			<author>Ins:</author>
+			<change type="Added">ServSpecOpt &quot;UndoGetItemEnableRangeCheck&quot; 1/0 default 0.<br/>
+If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.<br/>
+If origin position/container is not in default_accessible_range will skip try to put item to origin position/container (unless item is no_drop)<br/>
+and as last resort will drop item at character position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.</change>
+			<change type="Added">ServSpecOpt &quot;UndoGetItemDropHere&quot; 1/0 default 0.<br/>
+If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in<br/>
+origin container will be skipped.</change>
+			<change type="Fixed">Leftover items in corpse on client side.</change>
+			<change type="Changed">Added ServerSpecOpt reload to ReloadConfiguration.</change>
+		</entry>
+		<entry>
+			<date>10-23-2023</date>
+			<author>Turley:</author>
+			<change type="Changed">added movemode parameter to uo:FindPath, defaults to &quot;L&quot;. Before the move mode was fixed to land, now its possible to use the FindPath functionality also for eg sea monsters</change>
+		</entry>
+		<entry>
+			<date>10-18-2023</date>
+			<author>Turley:</author>
+			<change type="Added">print/syslog console_color parameter. When used with one of the basicio.em CONSOLE_COLOR constants, or a custom xterm formatting string the output to the console is formatted accordingly. Resets the formatting at the end. Xterm formatting is supported on Linux and Windows11. For syslog only the output to the console is modified not the logfile entry.</change>
+			<change type="Added">pol.cfg EnableColoredOutput 1/0 to disable formatted output. Default is 1.</change>
+		</entry>
+		<entry>
+			<date>10-15-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Changed return values and parameters used by storage module functions to match documentation.</change>
+		</entry>
+		<entry>
+			<date>09-03-2023</date>
+			<author>Ins:</author>
+			<change type="Added">repsys.cfg General section &quot;PartyHarmFullCountsAsCriminal 1/0&quot; default 1.<br/>
+If 0 OnHarm does not set mobile to criminal when they are in the same party.</change>
+		</entry>
+		<entry>
+			<date>08-30-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Client character no longer stutters while moving the character and changing the 'poison' property.</change>
+		</entry>
+		<entry>
+			<date>08-29-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Corrected implementation of previous OpenConnection race condition fix.</change>
+		</entry>
+		<entry>
+			<date>08-28-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Fixed race condition causing random crashes with OpenConnection.</change>
+		</entry>
+		<entry>
+			<date>06-11-2023</date>
+			<author>Ins:</author>
+			<change type="Added">New Character member .parrychance_mod +-int in thousandth. Additive modificator of the parry_chance from the defender when it has shield equipped.</change>
+		</entry>
+		<entry>
+			<date>05-24-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Fixed crash when using mysql_fetch_row with a query that does not return any result (eg. UPDATE).</change>
+		</entry>
+		<entry>
+			<date>05-23-2023</date>
+			<author>Turley / Kevin:</author>
+			<change type="Fixed">Corrected behavior of dropping items with NoDrop: An attempt from a character to move a no-drop item between regular containers (ie, both containers are not &quot;no-drop exception&quot;) will now correctly place the item back into the original container (instead of the player's backpack).</change>
+		</entry>
+		<entry>
+			<date>05-15-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Fixed an issue with GetConfigString behavior on large numeric property values.</change>
+		</entry>
+		<entry>
+			<date>05-13-2023</date>
+			<author>Kevin:</author>
+			<change type="Changed">Modified functionality of combat.cfg setting WarmodeInhibitsRegen (backwards-compatible). Instead of a boolean 0/1, it is now an enumeration 0-4: none = 0 (default), both = 1, players only = 2, NPCs only = 3.</change>
+		</entry>
+		<entry>
+			<date>04-04-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">Crash when EventQueue is full due to SpeechEvents</change>
+		</entry>
+		<entry>
+			<date>04-23-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">PackJSON() now accepts an option for `prettify`. If true, the output string will be indented with new lines.</change>
+		</entry>
+		<entry>
+			<date>03-19-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">OpenConnection() now accepts an option for ignore_line_breaks. If set to 1, the connection script will receive events for all incoming socket data and not be restricted to data ending in line breaks, with CRLFs included in the event's value. The connection's transmit method will also not append a CRLF to the message.</change>
+		</entry>
+		<entry>
+			<date>02-28-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">MultiRef.items now correctly includes items on the exterior stairs of custom houses.</change>
+		</entry>
+		<entry>
+			<date>02-27-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">DestroyItem(item) will now throw an error if item is a multi.</change>
+		</entry>
+		<entry>
+			<date>02-06-2023</date>
+			<author>Kevin:</author>
+			<change type="Added">HTTPRequest() now accepts a flags parameter. If HTTPREQUEST_EXTENDED_RESPONSE is passed as flags, returns a Dictionary with members: 'status', the numeric HTTP status code; 'statusText', the reason phrase; 'headers', a Dictionary of key-values for each header; 'body', the response text body.</change>
+			<change type="Added">http::WriteStatus(code, reason := &quot;&quot;) to change the status of an HTTP response from the web server. If no reason is provided, one will be calculated from the code (if possible). This can only used once before WriteHeader(), WriteHtml(), and WriteHtmlRaw().</change>
+			<change type="Added">http::WriteHeader(name, value) to write a header to an HTTP response from the web server. This function can be used to change the response's Content-Type from the default &quot;text/html&quot;. This can only be used before WriteHtml() and WriteHtmlRaw().</change>
+		</entry>
+		<entry>
+			<date>02-05-2023</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Creating an item via item descriptor whose SaveOnExit property has been set to 0 will now properly not save the item during a world save.</change>
 		</entry>
 		<entry>
 			<date>01-11-2023</date>

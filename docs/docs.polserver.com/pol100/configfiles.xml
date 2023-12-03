@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>07/30/2021</datemodified>
+    <datemodified>10/18/2023</datemodified>
 </fileheader>
 
 
@@ -116,8 +116,16 @@ Listener
     <explain>The right-hand-side "Strength", "Intelligence", and "Dexterity" are Attribute names that MUST be defined in attributes.cfg. </explain>
     <explain>The right-hand-side "Life", "Mana", and "Stamina" are Vital names that MUST be defined in vitals.cfg.</explain>
     <explain>MaxSkillID allows you to use new client skills, but setting it too high can crash older clients. You must define attributes.cfg/uoskills.cfg entries for each skillID up to MaxSkillID (default 57).</explain>
-    <explain>The Protocol and Listener sections are optional.</explain>
-    <explain>Each Listener section allows you to listen for different client encryption types on different ports. This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555. Valid encryption types are found in the pol.cfg section.</explain>
+    <explain>The Protocol and Listener sections are optional. You need at least one Listener to accept client connections.</explain>
+    <explain>Encryption: valid values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'.</explain>
+    <explain> 
+        Encryptions 'ignition', 'uorice', and 'none' all mean 'no encryption'.
+        If the 'major.minor.build' is given, the encryption key will be calculated for
+        that client version. 
+        Example, '7.0.4' is a listener for client 7.0.4.1 (no patch)
+    </explain>
+    <explain>Each Listener section allows you to listen for different client encryption types on different ports.
+        This means you can listen for "1.26.4" clients on port 5003 and "ignition" clients on port 5555.</explain>
     <explain>KeepClients: if set to 1 clients keep this listener port even after different gameserver select; actually 1 is the old behaviour and 0 the old behaviour of pol.cfg ListenPort</explain>
     <explain>AOSResistances: This flag aids in deciding which version of Armor to send in the StatMsg packets. With this enabled, a client who uses an account with AOS Expansion enabled will see their Physical Resist instead of AR member.</explain>
     <explain>MethodScript: General Methodscript for characters Deprecated!</explain>
@@ -188,11 +196,6 @@ MultiTypes
 Mounts
 {
   Tiles (int ItemID) [(int ItemID) ...]
-}
-
-ClientOptions
-{
-  UseNewHSAFormat (integer 0/1 {default 0})
 }
 </structure>
     <explain>MultiIDs are defined in multi.mul/idx. A multi can either be a "house", "boat" or "stairs" (decorations such as stairs, curtains, carpets, etc).</explain>
@@ -385,6 +388,8 @@ Spell (int spellid)
 [MobilesBlockNpcMovement        (0/1 {default 1})]
 [DefaultCharacterHeight         (1-32 {default 15})]
 [EnableWorldMapPackets          (0/1 (default 0))]
+[UndoGetItemEnableRangeCheck    (0/1 {default 0})]
+[UndoGetItemDropHere            (0/1 {default 0})]
 </structure>
   <explain><i>RefreshDecayAfterBoatMoves</i> if enabled item's decayat will be refreshed after each move or turn of a boat. Note that item decay on boats is not yet handled by the core.</explain>
   <explain><i>TotalStatsAtCreation:</i> takes a comma-delimited lists of values and/or ranges (default = '65,80'). Example: TotalStatsAtCreation=65,80,90-95,100-110</explain>
@@ -457,6 +462,13 @@ Note: Token and nonToken Eventtype is still the same (SYSEVENT_SPEECH)</explain>
   <explain><i>EnableWorldMapPackets:</i> Custom clients have implemented a packet that tracks the position of<br/>
   party and guild members. This enables the client to overlay member positions on a world map<br/>
   directly inside the client. Set to 1 to enable core handling of this packet.<br/></explain>
+  <explain><i>UndoGetItemEnableRangeCheck:</i> If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+  and on fail to put item back to backpack will check if item has been taken from position/container that is in default_accessible_range.<br/>
+  If origin position/container is not in default_accessible_range will skip try to put item to origin position/container (unless item is no_drop)<br/>
+  and as last resort will drop item at character position (feet). UndoGetItemDropHere executed before UndoGetItemEnableRangeCheck if both are set.</explain>
+  <explain><i>UndoGetItemDropHere:</i> If enabled - on fail to equip item back on character (if it has been taken from character layer)<br/>
+  and on fail to put item back to backpack drops item at character position (feet), except no_drop items. Attempt to return item in<br/>
+  origin container will be skipped.</explain>
   <related>movecost.cfg</related>
   <related>repsys.cfg</related>
 </cfgfile>
@@ -513,6 +525,7 @@ General
     CriminalFlagInterval (int seconds)
     AggressorFlagTimeout (int seconds)
     PartyHelpFullCountsAsCriminal (1/0 default 0)
+    PartyHarmFullCountsAsCriminal (1/0 default 1)
 }
 
 HookList
@@ -539,6 +552,7 @@ HighLightColor note: The client seems to only accept the following numbers
 </explain>
   <explain>HighLightColor function should be made as fast as possible, as it is called many times.</explain>
   <explain>PartyHelpFullCountsAsCriminal defines if HelpFull action counts as criminal act on murderers/criminals if in same party</explain>
+  <explain>PartyHarmFullCountsAsCriminal defines if HarmFull action counts as criminal act on murderers/criminals if in same party</explain>
   <related>servspecopt.cfg</related>
 </cfgfile>
 
@@ -754,7 +768,7 @@ ArmorZone
     <purpose>Defines some combat-specific options.</purpose>
     <structure>
 [DisplayParrySuccessMessages (0/1) {default 0})]
-[WarmodeInhibitsRegen        (0/1) {default 0})]
+[WarmodeInhibitsRegen        (enumeration between 0-4) {default 0})]
 [WarModeDelay                (int Seconds) {default 1})]
 [SingleCombat                (0/1 {default 0})]
 [CoreHitSounds               (0/1 {default 0})]
@@ -765,6 +779,7 @@ ArmorZone
 [AttackWhileFrozen           (0/1 {default 1})]
 [SendAttackMsg               (0/1 {default 1})]
 </structure>
+    <explain><i>WarmodeInhibitsRegen:</i> Determines if warmode stops vital regeneration and if so, what character types: none = 0 (default), both = 1, players only = 2, NPCs only = 3.</explain>
     <explain><i>WarModeDelay:</i> is a delay between ability to toggle war mode status via client. Does not affect using SetWarMode method.</explain>
     <explain><i>SingleCombat:</i> allows players to attack themselves.</explain>
     <explain><i>CoreHitSounds:</i> If enabled, the core handles sending sounds for hit on combat. When mobile hit is an NPC, it uses the NPC's DamagedSound from the NPCTemplate. If disabled, scripts must handle this.</explain>
@@ -897,7 +912,6 @@ UoDataFileRoot=(path to UO MUL files {see Windows-specific notes})
 WorldDataPath=(path to POL Data files {default data/})
 RealmDataPath=(path to POL Realm files {default realm/})
 PidFilePath=(where POL will write its .pid file {default ./})
-[ClientEncryptionVersion=(string {default none})]
 [CountResourceTiles=(1/0 {default 1}]
 [WebServer=(1/0 {default 0})]
 [WebServerPort=(int port {default 8080})]
@@ -947,7 +961,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [AssertionFailureAction=(abort/continue/shutdown/shutdown-nosave/shutdown-save-full/shutdown-save-incremental {default abort})]
 [ShutdownSaveType=(full/incremental {default full})]
 [TimestampEveryLine=(1/0 {default 0})]
-[MaxTileID=(0x3FFF/0x7FFF {default 0x3FFF})]
+[MaxTileID=(0/0x3FFF/0x7FFF/0xFFFF {default is 0})]
 [MaxObjtype=(0x20000/0xFFFFFFFF {default 0x20000})]
 [DiscardOldEvents=(1/0 {default 0})]
 [UseSingleThreadLogin=(1/0 {default 0})]
@@ -963,16 +977,13 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [ShowWarningGump=(1/0 {default 1})]
 [ShowWarningItem=(1/0 {default 1})]
 [ShowWarningCursorSequence=(1/0 {default 1})]
-[AllowEnvironmentVariableAccess=(1/0 {default 1})]
+[AllowedEnvironmentVariablesAccess=(string {default ""})]
+[EnableColoredOutput=(1/0 {default 1})]
 </structure>
     <explain>Your own pol.cfg should give descriptions on most of these. I'll describe them here if people want me to.</explain>
-    <explain>UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
+    <explain>
+        UoDataFileRoot: Directory where Ultima Online client files are located. Used by UOConvert.exe to find map, multi, tiledata, statics, etc. files.
     On Windows, the setting will default to the directory of the Ultima Online installation found in the Windows Registry.</explain>
-    ignition = uorice = none, 2.0.0x and due to autocalculation major.minor.build (no patch)
-            e.g. 7.0.4 for latest client 7.0.4.1
-            default for both is "none"
-    <explain>Clarification: for ClientEncryptionVersion, the allowable values are 'major.minor.build', '2.0.0x', 'ignition', 'uorice', and 'none'. Here, 'ignition', 'uorice', and 'none' all mean 'no encryption'.</explain>
-    <explain>Due to autocalculation 'major.minor.build' means setting a listener for client 7.0.4.1 '7.0.4' (no patch)</explain>
     <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>
@@ -986,6 +997,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>ShowWarningGump: will show unexpected gump responses and B1 packet overflow messages on the console.</explain>
     <explain>ShowWarningItem: will show equip item and drop item warning messages on the console.</explain>
     <explain>ShowWarningCursorSequence: will show a warning when a player sends click packets out of sequence, this is usually due to the player running some sort of macro or client injection program.</explain>
+    <explain>MaxTileID: maximum tile id. If 0, it will be chosen according to the graphics in tiles.cfg.</explain>
 </cfgfile>
 
 

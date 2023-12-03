@@ -2175,6 +2175,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_EVASIONCHANCE_MOD:
     return new BLong( evasionchance_mod() );
     break;
+  case MBR_PARRYCHANCE_MOD:
+    return new BLong( parrychance_mod() );
+    break;
   case MBR_CARRYINGCAPACITY_MOD:
     return new BLong( carrying_capacity_mod() );
     break;
@@ -2535,6 +2538,9 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
   case MBR_EVASIONCHANCE_MOD:
     evasionchance_mod( static_cast<short>( value ) );
     return new BLong( evasionchance_mod() );
+  case MBR_PARRYCHANCE_MOD:
+    parrychance_mod( static_cast<short>( value ) );
+    return new BLong( parrychance_mod() );
   case MBR_CARRYINGCAPACITY_MOD:
     carrying_capacity_mod( static_cast<short>( value ) );
     if ( client != nullptr )
@@ -3083,7 +3089,7 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_GETGOTTENITEM:
     if ( has_gotten_item() )
-      return new Module::EItemRefObjImp( gotten_item() );
+      return new Module::EItemRefObjImp( gotten_item().item() );
     return new BError( "Gotten Item nullptr" );
     break;
   case MTH_CLEARGOTTENITEM:
@@ -3516,7 +3522,7 @@ BObjectImp* NPC::get_script_member_id( const int id ) const
     return new BLong( run_speed );
     break;
   case MBR_ALIGNMENT:
-    return new BLong( this->template_.alignment );
+    return new BLong( template_->alignment );
     break;
   case MBR_SAVEONEXIT:
     return new BLong( saveonexit() );
@@ -3635,12 +3641,12 @@ BObjectImp* NPC::script_method( const char* methodname, Core::UOExecutor& execut
 
 BObjectImp* NPC::custom_script_method( const char* methodname, Core::UOExecutor& executor )
 {
-  if ( template_.method_script != nullptr )
+  if ( template_->method_script != nullptr )
   {
     unsigned PC;
-    if ( template_.method_script->FindExportedFunction(
+    if ( template_->method_script->FindExportedFunction(
              methodname, static_cast<unsigned int>( executor.numParams() + 1 ), PC ) )
-      return template_.method_script->call( PC, make_ref(), executor.fparams );
+      return template_->method_script->call( PC, make_ref(), executor.fparams );
   }
   return Core::gamestate.system_hooks.call_script_method( methodname, &executor, this );
 }
@@ -4743,7 +4749,7 @@ SpeechEvent::SpeechEvent( Mobile::Character* speaker, const std::string& speech,
   if ( !lang.empty() )
     addMember( "langcode", new String( lang ) );
   if ( speechtokens != nullptr )
-    addMember( "tokens", speechtokens );
+    addMember( "tokens", new Bscript::ObjArray( *speechtokens ) );
 }
 
 DamageEvent::DamageEvent( Mobile::Character* source, unsigned short damage )
