@@ -35,13 +35,13 @@ else()
   set (BOOST_REGEX_LIB "${BOOST_STAGE_LIB_DIR}/libboost_regex.a" )
   set (BOOST_SYSTEM_LIB "${BOOST_STAGE_LIB_DIR}/libboost_system.a" )
   set (BOOST_THREAD_LIB "${BOOST_STAGE_LIB_DIR}/libboost_thread.a" )
-  
+
   if("arm64" IN_LIST CMAKE_OSX_ARCHITECTURES AND "x86_64" IN_LIST CMAKE_OSX_ARCHITECTURES)
     set (BOOST_CXX_FLAGS "-arch arm64 -arch x86_64")
-    else()
+  else()
     set (BOOST_CXX_FLAGS "")
   endif()
-endif()    
+endif()
 
 if(NOT EXISTS ${BOOST_REGEX_LIB} OR NOT EXISTS ${BOOST_SYSTEM_LIB} OR NOT EXISTS ${BOOST_THREAD_LIB})
   message("  - will build in ${BOOST_SOURCE_DIR} toolset=${BOOST_TOOLSET} cxxflags=${BOOST_CXX_FLAGS}")

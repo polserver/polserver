@@ -46,7 +46,7 @@ jobs:
           brew install pkg-config
           brew reinstall openssl@1.1
           brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
-          wget https://raw.githubusercontent.com/KevinEady/brew-universalize/HEAD/brew-universalize && chmod +x brew-universalize
+          wget https://raw.githubusercontent.com/KevinEady/brew-universalize/28adb06/brew-universalize && chmod +x brew-universalize
           ./brew-universalize openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
           echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
