@@ -46,6 +46,8 @@ jobs:
           brew install pkg-config
           brew reinstall openssl@1.1
           brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++
+          wget https://raw.githubusercontent.com/KevinEady/brew-universalize/HEAD/brew-universalize && chmod +x brew-universalize
+          ./brew-universalize openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3   # curl uses openssl@3
           echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Set CXX and CC
@@ -66,7 +68,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64'
       - name: Build
         run: |
           cd bin-build

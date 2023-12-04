@@ -98,6 +98,13 @@ macro(detect_platform)
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm.*|ARM.*)")
     set(arm_proc 1)
   endif()
+  
+  # Needed by ExternalProject to add list arguments
+  string(REPLACE ";" "|" PIPED_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
+  
+  if(DEFINED CMAKE_OSX_ARCHITECTURES)
+    message("  macOS architectures: ${CMAKE_OSX_ARCHITECTURES}")
+  endif()
 
   #atleast a problem when arm (32bit) processor runs in a VM
   set(file_offset_bits 0)
