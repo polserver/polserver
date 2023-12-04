@@ -102,7 +102,7 @@ macro(detect_platform)
   # Needed by ExternalProject to add list arguments
   string(REPLACE ";" "|" PIPED_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
 
-  if(DEFINED CMAKE_OSX_ARCHITECTURES)
+  if(NOT "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
     message("  macOS architectures: ${CMAKE_OSX_ARCHITECTURES}")
   endif()
 
