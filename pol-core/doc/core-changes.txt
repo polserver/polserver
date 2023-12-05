@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+12-06-2023 Brndd:
+    Fixed: crash due to character.clearBuffs()
 11-19-2023 Turley:
     Fixed: possible deadlock in packethooks
 11-16-2023 Nando:
