@@ -89,3 +89,39 @@ exported function create_in_backpack_loc()
   endif
   return 1;
 endfunction
+
+exported function test_buffs()
+  var err;
+  err := char.addBuff(1029, 30, 1075814, 1075815, CAscZ("1234 5678"));
+  if (err == error)
+    return ret_error($"Could not add buff: {err}");
+  endif
+  err := char.delBuff(1029);
+  if (err == error)
+    return ret_error($"Could not delete buff: {err}");
+  endif
+  
+  //Try clearing buffs
+  err := char.addBuff(1029, 30, 1075814, 1075815, CAscZ("1234 5678"));
+  print($"addBuff: {err}");
+  if (err == error)
+    return ret_error($"Could not add buff: {err}");
+  endif
+  err := char.clearBuffs();
+  if (err == error)
+    return ret_error($"Could not clear buffs: {err}");
+  endif
+  
+  //Try deleting an inexistent buff, should fail
+  err := char.delBuff(1029);
+  if (err != error)
+    return ret_error($"Deleting an inexistent buff didn't cause an error: {err}");
+  endif
+  
+  //Try clearing buffs when there are none
+  err := char.clearBuffs();
+  if (err == error)
+    return ret_error($"Could not clear buffs: {err}");
+  endif
+  return 1;
+endfunction

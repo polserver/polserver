@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+12-06-2023 Brndd:
+    Fixed: crash due to character.clearBuffs()
 12-03-2023 Brndd:
     Added: GetStandingLayers() now has a "includeitems" parameter which allows including or excluding items from the search (default: enabled).
     Fixed: GetStandingLayers() now returns the height of results correctly.

@@ -4257,7 +4257,13 @@ bool Character::delBuff( u16 icon )
 void Character::clearBuffs()
 {
   for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
-    delBuff( it->first );
+  {
+    if ( client != nullptr )
+    {
+      send_buff_message( this, it->first, false );
+    }
+  }
+  buffs_.clear();
 }
 
 /**
