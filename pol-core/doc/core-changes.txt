@@ -1,4 +1,7 @@
 -- POL100.1.0 --
+12-16-2023 Kukkino:
+  Changed: PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 ):
+           Now validates 'action' parameter against UACTION
 12-10-2023 Turley:
     Fixed: https support on windows for HttpRequest (broken since august)
     Fixed: unpack of big double values on windows when it used e notation. (broken since...)
