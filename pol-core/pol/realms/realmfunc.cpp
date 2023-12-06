@@ -187,6 +187,68 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
   }
 }
 
+Plib::MapShapeList Realm::get_standheights( Plib::MOVEMODE movemode, Plib::MapShapeList shapes,
+                                            short minz, short maxz )
+{
+  std::vector<short> heights;
+  Plib::MapShapeList result;
+  unsigned int moveflags = 0;
+
+  // there being two separate sets of moveflags for this is quite annoying
+  if ( movemode & Plib::MOVEMODE_LAND )
+    moveflags = moveflags | Plib::FLAG::MOVELAND;
+  if ( movemode & Plib::MOVEMODE_SEA )
+    moveflags = moveflags | Plib::FLAG::MOVESEA;
+  if ( movemode & Plib::MOVEMODE_FLY )
+    moveflags = moveflags | Plib::FLAG::OVERFLIGHT;
+
+  // The mapshapes list is not guaranteed to be sorted (e.g. if it's composed of both mapshapes and
+  // dynamics) We want it to be sorted in ascending Z order, so that we can easily determine if a
+  // shape has enough clearance to stand on. Note that we sort by the "top" (z+height) of the shape;
+  // this way a wall that lays at Z0 and has a height of 20 will be sorted above a floor tile at
+  // Z5. This makes it easy to determine if there's something blocking standing on a given tile.
+  // Plib::MapShapeList is implemented as a standard vector, so we can sort it like one.
+  std::sort( shapes.begin(), shapes.end(),
+             []( Plib::MapShape& a, Plib::MapShape& b )
+             { return ( a.z + a.height ) < ( b.z + b.height ); } );
+
+  // Iterate up until (and including) the second to last shape -- because we know the top shape
+  // can't have anything above it
+  for ( auto shape = shapes.begin(); shape != shapes.end(); shape++ )
+  {
+    if ( !( moveflags & shape->flags ) )
+    {
+      continue;
+    }
+
+    short top = shape->z + shape->height;
+
+    if ( top < minz || top > maxz )
+    {
+      continue;
+    }
+
+    // If there's a layer above this, check that we have clearance
+    auto above = std::next( shape );
+    if ( above != shapes.end() )
+    {
+      unsigned char charheight = Core::settingsManager.ssopt.default_character_height;
+
+      // Check that there's enough clearance above this shape to stand here
+      // because the list is sorted by z+height, if the z of the shape after this in the list
+      // is less than the height of a character standing on this shape, it must block standing
+      // in this tile.
+      if ( above->z < ( top + charheight + 1 ) )
+      {
+        continue;
+      }
+    }
+
+    result.push_back( *shape );
+  }
+
+  return result;
+}
 
 void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, short minz,
                                 bool* result_out, short* newz_out, short* gradual_boost )
@@ -302,14 +364,15 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
 
 
 void Realm::readdynamics( Plib::MapShapeList& vec, const Core::Pos2d& pos,
-                          Core::ItemsVector& walkon_items, bool doors_block )
+                          Core::ItemsVector& walkon_items, bool doors_block,
+                          unsigned int flags ) const
 {
   Core::ZoneItems& witems = getzone( pos ).items;
   for ( const auto& item : witems )
   {
     if ( item->pos() == pos )
     {
-      if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
+      if ( Plib::tile_flags( item->graphic ) & flags )
       {
         if ( doors_block || item->itemdesc().type != Items::ItemDesc::DOORDESC )
         {
@@ -347,7 +410,7 @@ bool Realm::walkheight( const Core::Pos2d& pos, short oldz, short* newz, Multi::
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos, walkon_items, doors_block /* true */ );
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -400,7 +463,7 @@ bool Realm::walkheight( const Mobile::Character* chr, const Core::Pos2d& pos, sh
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos, walkon_items, chr->doors_block() );
+  read_walkable_dynamics( shapes, pos, walkon_items, chr->doors_block() );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( chr->movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -472,7 +535,7 @@ bool Realm::lowest_walkheight( const Core::Pos2d& pos, short oldz, short* newz,
   mvec.clear();
   walkon_items.clear();
 
-  readdynamics( shapes, pos, walkon_items, doors_block /* true */ );
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block /* true */ );
   unsigned int flags = Plib::FLAG::MOVE_FLAGS;
   if ( movemode & Plib::MOVEMODE_FLY )
     flags |= Plib::FLAG::OVERFLIGHT;
@@ -506,6 +569,56 @@ bool Realm::lowest_walkheight( const Core::Pos2d& pos, short oldz, short* newz,
   return result;
 }
 
+std::vector<std::tuple<short, Multi::UMulti*, Items::Item*>> Realm::get_walkheights(
+    const Core::Pos2d& pos, short minz, short maxz, Plib::MOVEMODE movemode,
+    bool doors_block ) const
+{
+  std::vector<std::tuple<short, Multi::UMulti*, Items::Item*>> result;
+
+  if ( !valid( pos ) )
+  {
+    return result;
+  }
+
+  // Build shapes list
+  Plib::MapShapeList shapes;
+  MultiList multis;
+  Core::ItemsVector walkon_items;
+  read_walkable_dynamics( shapes, pos, walkon_items, doors_block );
+  unsigned int flags = Plib::FLAG::MOVE_FLAGS;
+  if ( movemode & Plib::MOVEMODE_FLY )
+  {
+    flags |= Plib::FLAG::OVERFLIGHT;
+  }
+  readmultis( shapes, pos, flags, multis );
+  getmapshapes( shapes, pos, flags );
+
+  // Get valid layers on this tile
+  auto layers = get_standheights( movemode, shapes, minz, maxz );
+
+  // Combine those layers into a tuple and put it in our result vector
+  for ( auto shape : layers )
+  {
+    auto z = shape.z;
+    auto height = shape.height;
+    auto top = z + height;
+    Multi::UMulti* pmulti = nullptr;
+    if ( !multis.empty() )
+    {
+      pmulti = find_supporting_multi( multis, z );
+    }
+
+    Items::Item* pwalkon = nullptr;
+    if ( !walkon_items.empty() )
+    {
+      pwalkon = find_walkon_item( walkon_items, top );
+    }
+
+    result.emplace_back( top, pmulti, pwalkon );
+  }
+
+  return result;
+}
 
 bool Realm::dropheight( const Core::Pos3d& drop, short chrz, short* newz, Multi::UMulti** pmulti )
 {
@@ -521,7 +634,7 @@ bool Realm::dropheight( const Core::Pos3d& drop, short chrz, short* newz, Multi:
   mvec.clear();
   ivec.clear();
 
-  readdynamics( shapes, drop.xy(), ivec, true /* doors_block */ );
+  read_walkable_dynamics( shapes, drop.xy(), ivec, true /* doors_block */ );
   readmultis( shapes, drop.xy(), Plib::FLAG::DROP_FLAGS, mvec );
   getmapshapes( shapes, drop.xy(), Plib::FLAG::DROP_FLAGS );
 

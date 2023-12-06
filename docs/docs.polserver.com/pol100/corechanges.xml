@@ -2,13 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-06-2023</datemodified>
+		<datemodified>12-03-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
 		<entry>
-			<date>12-06-2023</date>
+			<date>12-03-2023</date>
 			<author>Brndd:</author>
-			<change type="Fixed">crash due to character.clearBuffs()</change>
+			<change type="Added">GetStandingLayers() now has a &quot;includeitems&quot; parameter which allows including or excluding items from the search (default: enabled).</change>
+			<change type="Fixed">GetStandingLayers() now returns the height of results correctly.</change>
+			<change type="Added">GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := &quot;L&quot;, doors_block := 0 ):<br/>
+This is a new EScript function that returns an Array of coordinates that are valid locations for a creature to stand on in a given radius around the given coordinates. One example use-case is finding valid spawning locations for NPCs within an area.</change>
 		</entry>
 		<entry>
 			<date>11-19-2023</date>
