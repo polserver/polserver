@@ -29,12 +29,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: lib/curl-8.2.1
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1
       - name: Cache antlr
         uses: actions/cache@v3
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-buildtypefix
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.8
       - name: Cache boost
         uses: actions/cache@v3
         with:
@@ -45,7 +45,9 @@ jobs:
         run: |
           brew install pkg-config
           brew reinstall openssl@1.1
-          brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++
+          brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
+          # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `bew-universalize`.
+          ./bin-build/brew-universalize openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
           echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Set CXX and CC
@@ -66,7 +68,7 @@ jobs:
       - name: Config
         run: |
           cd bin-build
-          cmake .. -G Ninja -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }}
+          cmake .. -G Ninja -DREUSE_PCH=1 -DCMAKE_BUILD_TYPE=${{ matrix.config.build-type }} -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64'
       - name: Build
         run: |
           cd bin-build
@@ -106,7 +108,7 @@ jobs:
         with:
           name: Nightly-${{ runner.os }}-${{ matrix.config.cxx-compiler }}
           path: bin/release
- 
+
   notify_on_failure:
     needs: build
     runs-on: "ubuntu-latest"
