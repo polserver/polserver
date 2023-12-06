@@ -4483,14 +4483,15 @@ BObjectImp* UOExecutorModule::mf_GetStandingHeight()
   }
 }
 
-BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
+BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm, includeitems */ )
 {
   unsigned short x, y;
   int flags;
   const String* strrealm;
+  int includeitems;
 
   if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, flags ) &&
-       getStringParam( 3, strrealm ) )
+       getStringParam( 3, strrealm ) && getParam( 4, includeitems ) )
   {
     Realms::Realm* realm = find_realm( strrealm->value() );
     if ( !realm )
@@ -4502,15 +4503,20 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
     std::unique_ptr<ObjArray> newarr( new ObjArray );
 
     Plib::MapShapeList mlist;
+    Core::ItemsVector ivec;
     realm->readmultis( mlist, x, y, flags );
     realm->getmapshapes( mlist, x, y, flags );
+    if ( includeitems )
+    {
+      realm->readdynamics( mlist, Core::Pos2d(x, y), ivec, false, flags );
+    }
 
     for ( unsigned i = 0; i < mlist.size(); ++i )
     {
       std::unique_ptr<BStruct> arr( new BStruct );
 
       if ( mlist[i].flags & ( Plib::FLAG::MOVELAND | Plib::FLAG::MOVESEA ) )
-        arr->addMember( "z", new BLong( mlist[i].z + 1 ) );
+        arr->addMember( "z", new BLong( mlist[i].z + mlist[i].height ) );
       else
         arr->addMember( "z", new BLong( mlist[i].z ) );
 
@@ -4523,6 +4529,66 @@ BObjectImp* UOExecutorModule::mf_GetStandingLayers( /* x, y, flags, realm */ )
   }
   else
     return new BError( "Invalid parameter type" );
+}
+
+BObjectImp*
+UOExecutorModule::mf_GetStandingCoordinates() /* x, y, radius, minz, maxz, realm := _DEFAULT_REALM,
+                                                 movemode := "L", doors_block = 0 */
+{
+  int r, minz, maxz, doors_block;
+  const String* movemodename;
+  Core::Pos2d pos;
+  Realms::Realm* realm;
+
+  if ( !getRealmParam( 5, &realm ) )
+    return new BError( "Realm not found" );
+
+  if ( !( getPos2dParam( 0, 1, &pos ) &&
+          getParam( 2, r ) &&
+          getParam( 3, minz ) &&
+          getParam( 4, maxz ) &&
+          getStringParam( 6, movemodename ) &&
+          getParam( 7, doors_block ) ) )
+  {
+    return new BError( "Invalid parameter type" );
+  }
+
+  if ( !realm->valid( pos ) )
+    return new BError( "Invalid Coordinates for Realm" );
+
+  Plib::MOVEMODE movemode = Character::decode_movemode( movemodename->value() );
+
+  std::unique_ptr<ObjArray> result( new ObjArray );
+
+  // Iterate through all tiles in range and populate the return array with valid standing locations
+  Core::Pos2d tl( pos.x() - r, pos.y() - r );
+  Core::Pos2d br( pos.x() + r, pos.y() + r );
+  Core::Range2d range( tl, br, realm );
+  for ( auto it = range.begin(); it != range.end(); ++it )
+  {
+    auto tile = *it;
+    auto layers = realm->get_walkheights( tile, minz, maxz, movemode, doors_block );
+    for ( const auto& layer : layers )
+    {
+      std::unique_ptr<BStruct> height_struct( new BStruct );
+      auto z = std::get<0>( layer );
+      auto multi = std::get<1>( layer );
+
+      // Figure out which members to stick in the struct -- we only add multi it exists
+      height_struct->addMember( "x", new BLong( tile.x() ) );
+      height_struct->addMember( "y", new BLong( tile.y() ) );
+      height_struct->addMember( "z", new BLong( z ) );
+      if ( multi != nullptr )
+      {
+        height_struct->addMember( "multi", new EMultiRefObjImp( multi ) );
+      }
+
+      // Add struct to the return array
+      result->addElement( height_struct.release() );
+    }
+  }
+
+  return result.release();
 }
 
 BObjectImp* UOExecutorModule::mf_ReserveItem()
