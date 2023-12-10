@@ -344,11 +344,25 @@ void test_encodingconversions()
 
 void test_curlfeatures()
 {
+  bool http{ false };
+  bool https{ false };
   curl_version_info_data* data = curl_version_info( CURLVERSION_NOW );
   for ( int i = 0; data->protocols[i]; ++i )
   {
-    INFO_PRINT << i << " " << data->protocols[i] << "\n";
+    INFO_PRINT << data->protocols[i] << " ";
+    if ( std::string( data->protocols[i] ) == "https" )
+      https = true;
+    else if ( std::string( data->protocols[i] ) == "http" )
+      http = true;
   }
+  INFO_PRINT << "\n";
+  if ( !https || !http )
+  {
+    INFO_PRINT << "http(s) is not supported\n";
+    UnitTest::inc_failures();
+  }
+  else
+    UnitTest::inc_successes();
 }
 
 }  // namespace Testing
