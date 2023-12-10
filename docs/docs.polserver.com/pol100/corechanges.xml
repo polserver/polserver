@@ -9,6 +9,7 @@
 			<date>12-10-2023</date>
 			<author>Turley:</author>
 			<change type="Fixed">https support on windows for HttpRequest (broken since august)</change>
+			<change type="Fixed">unpack of big double values on windows when it used e notation. (broken since...)</change>
 		</entry>
 		<entry>
 			<date>12-06-2023</date>
