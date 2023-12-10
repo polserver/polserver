@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "windows-latest"
+          - os: "windows-2019"
             cxx-compiler: cl
             c-compiler: cl
             compiler-version: default
@@ -53,17 +53,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: lib/curl-8.2.1
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1-1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1-2
       - name: Cache antlr
         uses: actions/cache@v3
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.8
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.8-1
       - name: Cache boost
         uses: actions/cache@v3
         with:
           path: lib/boost_1_83_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-1
       - name: Install Compiler and Dependencies
         if: matrix.config.os == 'ubuntu-latest'
         shell: pwsh

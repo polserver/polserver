@@ -1,5 +1,4 @@
 #clang-format all modified/new cpp/h/hpp files in given directory (pol-core)
-cmake_minimum_required(VERSION 3.2)
 if(NOT DEFINED GIT)
   message(FATAL_ERROR "git not defined")
 endif()

@@ -3,3 +3,7 @@ include "packtst";
 var ob := 0.00000000000076;
 var rep := "r7.6e-13";
 test_pack( ob, rep );
+
+ob := 6000000.0;
+rep := "r6e+06";
+test_pack( ob, rep );

@@ -4,3 +4,9 @@ Result representation:   r7.6e-13
 Successful!
 Unpacked: 7.6e-13
 Unpack matches!
+Testing Pack for: 6e+06
+Expected representation: r6e+06
+Result representation:   r6e+06
+Successful!
+Unpacked: 6e+06
+Unpack matches!
