@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.2)
-
 if(NOT DEFINED ecompile_cfg)
   message(FATAL_ERROR "ecompile_cfg not defined")
 endif()
