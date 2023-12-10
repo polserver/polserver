@@ -4,12 +4,13 @@
       "owner": "msvc",
       "pattern": [
         {
-          "regexp": "^..\\\\(.*)\\((\\d+)\\)\\s*:\\s*(?:fatal\\s*)?(error|warning)\\s+(?:.*)?([\\d]{4}):(\\s+.*)$",
+          "regexp": "^(?:\\s+\\d+\\>)?([^\\s].*)\\((\\d+),?(\\d+)?(?:,\\d+,\\d+)?\\)\\s*:\\s+(error|warning|info)\\s+(\\w{1,2}\\d+)\\s*:\\s*(.*)$",
           "file": 1,
           "line": 2,
-          "code": 4,
-          "severity": 3,
-          "message": 5
+          "column": 3,
+          "severity": 4,
+          "code": 5,
+          "message": 6
         }
       ]
     }
