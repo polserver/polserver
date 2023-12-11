@@ -49,7 +49,9 @@ bool run_pol_tests()
   RUNTEST( pos4d_test )
   RUNTEST( range2d_test )
   RUNTEST( range3d_test )
-//  RUNTEST( dummy )
+
+  RUNTEST( test_curlfeatures )
+  //  RUNTEST( dummy )
 
   UnitTest::display_test_results();
   return UnitTest::result();
