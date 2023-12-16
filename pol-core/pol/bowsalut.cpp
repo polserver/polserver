@@ -184,6 +184,13 @@ void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
                              REPEAT_FLAG_OLD repeatflag /*=PKTOUT_6E::NOREPEAT*/,
                              unsigned char delay /*=0x01*/ )
 {
+  if ( !UACTION_IS_VALID( static_cast<u16>( action ) ) )
+  {
+    ERROR_PRINT << "Warning: attempt to send invalid action 0x" << fmt::hexu( action )
+                << " to character 0x" << fmt::hexu( obj->serial ) << "\n";
+    return;
+  }
+
   bool build = false;
   Network::MobileAnimationMsg msg( obj->serial_ext );
   WorldIterator<OnlinePlayerFilter>::InVisualRange( obj, [&]( Mobile::Character* zonechr ) {

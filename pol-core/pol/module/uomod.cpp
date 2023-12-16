@@ -1514,6 +1514,11 @@ BObjectImp* UOExecutorModule::mf_PerformAction()
        getParam( 3, repeatcount ) && getParam( 4, backward ) && getParam( 5, repeatflag ) &&
        getParam( 6, delay ) )
   {
+    if ( !UACTION_IS_VALID( actionval ) )
+    {
+      return new BError( "Invalid parameter 'action'" );
+    }
+
     UACTION action = static_cast<UACTION>( actionval );
     send_action_to_inrange(
         chr, action, framecount, repeatcount, static_cast<DIRECTION_FLAG_OLD>( backward ),

@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-10-2023</datemodified>
+		<datemodified>12-16-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>12-16-2023</date>
+			<author>Kukkino:</author>
+			<change type="Changed">PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 ):<br/>
+Now validates 'action' parameter against UACTION</change>
+		</entry>
 		<entry>
 			<date>12-10-2023</date>
 			<author>Turley:</author>
