@@ -5,6 +5,7 @@
 
 
 #include <cmath>
+#include <iomanip>
 #include <sstream>
 #include <string>
 
@@ -20,13 +21,19 @@ namespace Bscript
 std::string Double::pack() const
 {
   OSTRINGSTREAM os;
+  std::streamsize origprecision = os.precision();
+  os.precision(15);
   os << "r" << dval_;
+  os.precision(origprecision);
   return OSTRINGSTREAM_STR( os );
 }
 
 void Double::packonto( std::ostream& os ) const
 {
+  std::streamsize origprecision = os.precision();
+  os.precision(15);
   os << "r" << dval_;
+  os.precision(origprecision);
 }
 
 BObjectImp* Double::unpack( std::istream& is )
