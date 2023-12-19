@@ -44,10 +44,11 @@ jobs:
         shell: pwsh
         run: |
           brew install pkg-config
-          brew install ninja mysql-client mysql-connector-c++ openssl@3 libssh2
+          brew reinstall openssl@1.1
+          brew install ninja openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `bew-universalize`.
-          ./bin-build/brew-universalize mysql-client mysql-connector-c++ openssl@3 libssh2
-          echo "PKG_CONFIG_PATH=/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          ./bin-build/brew-universalize openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
+          echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         env:
           HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
 
