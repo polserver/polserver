@@ -532,11 +532,12 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
     return;
   }
 
-  report_function_name_conflict(node.source_location, node.name, "variable");
+  report_function_name_conflict( node.source_location, node.name, "variable" );
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
-    node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location );
+    node.variable = local_scope->create( node.name, WarnOn::Never, node.source_location,
+                                         node.var_decl_location );
   }
   else
   {
@@ -547,7 +548,8 @@ void SemanticAnalyzer::visit_var_statement( VarStatement& node )
       return;
     }
 
-    node.variable = globals.create( node.name, 0, WarnOn::Never, node.source_location );
+    node.variable =
+        globals.create( node.name, 0, WarnOn::Never, node.source_location, node.var_decl_location );
   }
   visit_children( node );
 }
