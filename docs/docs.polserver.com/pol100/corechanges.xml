@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-16-2023</datemodified>
+		<datemodified>12-20-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>12-20-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">storing of doubles, before the precision was fixed to 6 now its possible to store in e.g. CProps 12345678.12345678</change>
+		</entry>
 		<entry>
 			<date>12-16-2023</date>
 			<author>Kukkino:</author>
