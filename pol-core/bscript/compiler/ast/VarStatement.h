@@ -12,11 +12,12 @@ class Variable;
 class VarStatement : public Statement
 {
 public:
-  VarStatement( const SourceLocation&, const SourceLocation&, std::string name,
-                std::unique_ptr<Expression> initializer );
-  VarStatement( const SourceLocation&, const SourceLocation&, std::string name );
-  VarStatement( const SourceLocation&, const SourceLocation&, std::string name,
-                bool initialize_as_empty_array );
+  VarStatement( const SourceLocation& identifier_location, const SourceLocation& var_decl_location,
+                std::string name, std::unique_ptr<Expression> initializer );
+  VarStatement( const SourceLocation& identifier_location, const SourceLocation& var_decl_location,
+                std::string name );
+  VarStatement( const SourceLocation& identifier_location, const SourceLocation& var_decl_location,
+                std::string name, bool initialize_as_empty_array );
 
   void accept( NodeVisitor& ) override;
   void describe_to( fmt::Writer& ) const override;
