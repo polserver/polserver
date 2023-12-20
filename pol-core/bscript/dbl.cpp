@@ -4,29 +4,42 @@
  */
 
 
+#include <charconv>
 #include <cmath>
 #include <sstream>
 #include <string>
+#include <system_error>
 
 #include "../clib/stlutil.h"
 #include "berror.h"
 #include "bobject.h"
 #include "impstr.h"
-
+namespace
+{
+std::string double_to_string( double val )
+{
+  std::string buff( 100, '\0' );
+  auto [buffptr, ec] = std::to_chars( buff.data(), buff.data() + buff.size(), val );
+  if ( ec == std::errc() )
+  {
+    buff.resize( buffptr - buff.data() );
+    return buff;
+  }
+  throw std::system_error( std::make_error_code( ec ) );
+}
+}  // namespace
 namespace Pol
 {
 namespace Bscript
 {
 std::string Double::pack() const
 {
-  OSTRINGSTREAM os;
-  os << "r" << dval_;
-  return OSTRINGSTREAM_STR( os );
+  return std::string( "r" ) + double_to_string( dval_ );
 }
 
 void Double::packonto( std::ostream& os ) const
 {
-  os << "r" << dval_;
+  os << "r" << double_to_string( dval_ );
 }
 
 BObjectImp* Double::unpack( std::istream& is )
@@ -60,15 +73,15 @@ BObjectImp* Double::unpack( std::istream& is )
     }
     else
     {
-      if ( ch == 'e' ) // might be an exponent, or an error struct following the double (sadface)
+      if ( ch == 'e' )  // might be an exponent, or an error struct following the double (sadface)
       {
-        is.get(); // the 'e'
+        is.get();  // the 'e'
 
-        if ( std::isdigit( is.peek() ) ) // assume it's followed by an error struct
+        if ( std::isdigit( is.peek() ) )  // assume it's followed by an error struct
         {
           is.unget();
         }
-        else // assume it's an exponent
+        else  // assume it's an exponent
         {
           tmp.push_back( ch );        // the e
           tmp.push_back( is.get() );  // the '+' or '-'
@@ -81,7 +94,7 @@ BObjectImp* Double::unpack( std::istream& is )
       break;
     }
   }
-  ISTRINGSTREAM is2(tmp);
+  ISTRINGSTREAM is2( tmp );
   if ( is2 >> dv )
 #endif
   {
@@ -137,10 +150,7 @@ bool Double::operator<( const BObjectImp& objimp ) const
 
 std::string Double::getStringRep() const
 {
-  OSTRINGSTREAM os;
-
-  os << dval_;
-  return OSTRINGSTREAM_STR( os );
+  return double_to_string( dval_ );
 }
 
 BObjectImp* Double::selfPlusObjImp( const BObjectImp& objimp ) const
@@ -275,5 +285,5 @@ void Double::selfDividedByObj( Double& objimp, BObject& obj )
   else
     dval_ /= objimp.value();
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

@@ -24,10 +24,15 @@ endfunction()
 function (readfile file content content_len)
   # read given file into string list
   FILE(READ ${file} contents)
+  #keep original ;
   STRING(REGEX REPLACE ";" "\\\\;" contents "${contents}")
+  #remove last newline
+  STRING(REGEX REPLACE "\n$" "" contents "${contents}")
+  #cmake does not really support entries add _
+  STRING(REGEX REPLACE "\n\n" "\n_\n" contents "${contents}")
+  #each newline a new list element
   STRING(REGEX REPLACE "\n" ";" contents "${contents}")
   list(LENGTH contents len)
-  math(EXPR len ${len}-2) # extra ; at end
   set(${content} ${contents} PARENT_SCOPE)
   set(${content_len} ${len} PARENT_SCOPE)
 endfunction()
@@ -47,7 +52,8 @@ function (compareresult scriptname result)
   readfile("${scriptname}.out" outcontent outlen)
   readfile("${scriptname}.tst" tstcontent tstlen)
   if (${outlen} EQUAL ${tstlen})
-    foreach(i RANGE ${outlen})
+    math(EXPR looprange ${outlen}-1)
+    foreach(i RANGE ${looprange})
       list(GET outcontent ${i} out)
       list(GET tstcontent ${i} tst)
       if (NOT ${out} STREQUAL ${tst})
@@ -133,9 +139,7 @@ function (testwithcompiler)
             message(SEND_ERROR "${scriptname}.ecl did not run")
           else()
             compareresult(${scriptname} success)
-            if (NOT ${success})
-              message(${runecl_out})
-            endif()
+            # no message needed compare prints
           endif()
         endif()
       endif()

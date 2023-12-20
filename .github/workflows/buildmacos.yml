@@ -8,7 +8,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "macos-latest"
+          - os: "macos-13"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: default
@@ -29,17 +29,17 @@ jobs:
         uses: actions/cache@v3
         with:
           path: lib/curl-8.2.1
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-curl-8.2.1-1
       - name: Cache antlr
         uses: actions/cache@v3
         with:
           path: lib/antlr
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.8
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-antlr-4.8-1
       - name: Cache boost
         uses: actions/cache@v3
         with:
           path: lib/boost_1_83_0
-          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0
+          key: ${{ runner.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-boost-1.83.0-1
       - name: Install Dependencies
         shell: pwsh
         run: |
@@ -49,12 +49,14 @@ jobs:
           # Update the Homebrew-installed shared library binaries with the other architecture (amd64) via `bew-universalize`.
           ./bin-build/brew-universalize openssl@1.1 glib-openssl mysql-client mysql-connector-c++ openssl@3 libssh2
           echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@1.1/lib/pkgconfig:/usr/local/opt/mysql-client/lib/pkgconfig:$Env:PKG_CONFIG_PATH" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          #env:
+          #HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: '1'
 
       - name: Set CXX and CC
         shell: pwsh
         run: |
-          $cxx_compiler = '${{ matrix.config.cxx-compiler }}'
-          $c_compiler = '${{ matrix.config.c-compiler }}'
+          $cxx_compiler = "${{ matrix.config.cxx-compiler }}"
+          $c_compiler = "${{ matrix.config.c-compiler }}"
           $version = '${{ matrix.config.compiler-version }}'
 
           if ($version -ne 'default') {
@@ -64,6 +66,7 @@ jobs:
 
           echo "CXX=$cxx_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "CC=$c_compiler" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "MACOSX_DEPLOYMENT_TARGET=13.3" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Config
         run: |

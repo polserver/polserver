@@ -219,7 +219,14 @@ class PolServer:
       self.buf+=r
       if not len(self.buf):
           return {}
-    data=json.loads(self.buf[:self.buf.index(b'\r\n')].decode())
+    try:
+      data=json.loads(self.buf[:self.buf.index(b'\r\n')].decode())
+    except Exception as e:
+      self.log.error('failed to receive: {} data: "{}" buffer: "{}"'.format(
+        e,
+        self.buf[:self.buf.index(b'\r\n')].decode(),
+        self.buf.decode()))
+      raise e
     self.buf=self.buf[self.buf.index(b'\r\n')+2:]
     return data
 

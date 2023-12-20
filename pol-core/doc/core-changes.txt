@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+12-20-2023 Turley:
+    Fixed: storing of doubles, before the precision was fixed to 6 now its possible to store in e.g. CProps 12345678.12345678
 12-16-2023 Kukkino:
   Changed: PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 ):
            Now validates 'action' parameter against UACTION
