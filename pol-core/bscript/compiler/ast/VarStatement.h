@@ -12,9 +12,12 @@ class Variable;
 class VarStatement : public Statement
 {
 public:
-  VarStatement( const SourceLocation&, std::string name, std::unique_ptr<Expression> initializer );
-  VarStatement( const SourceLocation&, std::string name );
-  VarStatement( const SourceLocation&, std::string name, bool initialize_as_empty_array );
+  VarStatement( const SourceLocation& identifier_location, const SourceLocation& var_decl_location,
+                std::string name, std::unique_ptr<Expression> initializer );
+  VarStatement( const SourceLocation& identifier_location, const SourceLocation& var_decl_location,
+                std::string name );
+  VarStatement( const SourceLocation& identifier_location, const SourceLocation& var_decl_location,
+                std::string name, bool initialize_as_empty_array );
 
   void accept( NodeVisitor& ) override;
   void describe_to( fmt::Writer& ) const override;
@@ -23,6 +26,7 @@ public:
   const bool initialize_as_empty_array = false;
 
   std::shared_ptr<Variable> variable;
+  const SourceLocation var_decl_location;
 };
 
 }  // namespace Pol::Bscript::Compiler

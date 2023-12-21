@@ -37,8 +37,9 @@ CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileLoader& source_loa
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     const std::string& pathname, UserFunctionInclusion user_function_inclusion )
 {
-  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
-  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
+  auto compiler_workspace =
+      std::make_unique<CompilerWorkspace>( report, em_cache, inc_cache, profile );
+  auto& workspace = compiler_workspace->builder_workspace;
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
 
@@ -82,8 +83,9 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
     const std::string& pathname )
 {
-  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report );
-  BuilderWorkspace workspace( *compiler_workspace, em_cache, inc_cache, profile, report );
+  auto compiler_workspace =
+      std::make_unique<CompilerWorkspace>( report, em_cache, inc_cache, profile );
+  auto& workspace = compiler_workspace->builder_workspace;
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
 
