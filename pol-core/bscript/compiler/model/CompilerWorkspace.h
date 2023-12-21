@@ -8,6 +8,7 @@
 
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/Node.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/ScopeTree.h"
 #include "bscript/compiler/model/SemanticTokens.h"
 #include "clib/maputil.h"
@@ -15,11 +16,13 @@
 namespace Pol::Bscript::Compiler
 {
 class Block;
+class BuilderWorkspace;
 class ConstDeclaration;
 class ModuleFunctionDeclaration;
 class Program;
 class Report;
 class SourceFile;
+class SourceFileCache;
 class SourceFileIdentifier;
 class TopLevelStatements;
 class UserFunction;
@@ -27,7 +30,8 @@ class UserFunction;
 class CompilerWorkspace
 {
 public:
-  explicit CompilerWorkspace( Report& );
+  explicit CompilerWorkspace( Report&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
+                              Profile& profile );
   ~CompilerWorkspace();
 
   void accept( NodeVisitor& );
@@ -52,6 +56,7 @@ public:
   std::vector<std::string> global_variable_names;
   ScopeTree scope_tree;
   SemanticTokens tokens;
+  BuilderWorkspace builder_workspace;
 };
 
 }  // namespace Pol::Bscript::Compiler
