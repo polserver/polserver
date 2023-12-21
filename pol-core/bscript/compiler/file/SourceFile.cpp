@@ -165,6 +165,36 @@ EscriptGrammar::EscriptParser::EvaluateUnitContext* SourceFile::get_evaluate_uni
   return evaluate_unit;
 }
 
+std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( const Position& position )
+{
+  auto tokens = get_all_tokens();
+  size_t token_index = 0;
+  for ( const auto& token : tokens )
+  {
+    if ( token->getLine() == position.line_number &&
+         token->getCharPositionInLine() + 1 <= position.character_column &&
+         token->getCharPositionInLine() + 1 + token->getText().length() >=
+             position.character_column )
+    {
+      break;
+    }
+    token_index++;
+  }
+
+  if ( token_index < tokens.size() )
+  {
+    return get_hidden_tokens_before( token_index );
+  }
+
+  return std::vector<antlr4::Token*>();
+}
+
+std::vector<antlr4::Token*> SourceFile::get_hidden_tokens_before( size_t tokenIndex )
+{
+  token_stream.reset();
+  return token_stream.getHiddenTokensToLeft( tokenIndex );
+}
+
 std::unique_ptr<antlr4::Token> SourceFile::get_token_at( const Position& position )
 {
   auto tokens = get_all_tokens();
