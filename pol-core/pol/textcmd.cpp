@@ -173,7 +173,7 @@ void send_client_char_data( Mobile::Character* chr, Network::Client* client );
 
 void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
 {
-  if ( client->ready && client->chr && client->chr != chr && inrange( client->chr, chr ) )
+  if ( client->ready && client->chr && client->chr != chr && client->chr->in_visual_range( chr ) )
   {
     send_move( client, chr );
   }
@@ -181,9 +181,9 @@ void send_move_if_inrange2( Mobile::Character* chr, Network::Client* client )
 
 void textcmd_resendchars( Network::Client* client )
 {
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
+  Core::WorldIterator<Core::MobileFilter>::InRange( client->chr, client->chr->los_size(),
+                                                    [&]( Mobile::Character* zonechr )
+                                                    { send_client_char_data( zonechr, client ); } );
 }
 
 void textcmd_shutdown( Network::Client* /*client*/ )

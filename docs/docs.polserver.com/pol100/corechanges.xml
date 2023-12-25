@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-20-2023</datemodified>
+		<datemodified>12-22-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>12-22-2023</date>
+			<author>Turley:</author>
+			<change type="Fixed">Multis get now send/removed based on their footprint. Especially big multis had the problem (bigger then 32x32)</change>
+			<change type="Fixed">login near 0,0 did not send items/mobiles nearby</change>
+		</entry>
 		<entry>
 			<date>12-20-2023</date>
 			<author>Turley:</author>

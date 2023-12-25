@@ -288,6 +288,20 @@ class Mobile(UOBject):
       self.y = pkt['y']
       self.z = pkt['z']
       return
+    if isinstance(pkt, packets.WornItemPacket):
+      if pkt.serial in self.client.objects.keys():
+        item = self.client.objects[pkt.serial]
+      else:
+        item = Item(self.client)
+        item.serial = pkt.serial
+        self.client.objects[item.serial] = item
+        item.graphic = pkt.graphic
+        item.color = pkt.color
+        item.parent = self
+
+      self.equip[pkt.layer] = item
+      return
+
     if not isinstance(pkt, packets.UpdatePlayerPacket) and not isinstance(pkt, packets.DrawObjectPacket):
       raise ValueError("Expecting an UpdatePlayerPacket or DrawObjectPacket")
     self.serial = pkt.serial
@@ -751,27 +765,28 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.DeleteObjectPacket):
       assert self.lc
       if pkt.serial in self.objects:
-        del self.objects[pkt.serial]
         if not self.disable_item_logging:
+          obj=self.objects[pkt.serial]
           self.log.info("Object 0x%X went out of sight", pkt.serial)
-          self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial))
+          self.brain.event(brain.Event(brain.Event.EVT_REMOVED_OBJ, serial=pkt.serial, oldpos=[obj.x,obj.y,obj.z]))
+        del self.objects[pkt.serial]
       else:
         self.log.warn("Server requested to delete 0x%X but i don't know it", pkt.serial)
 
     elif isinstance(pkt, packets.AddItemToContainerPacket):
       assert self.lc
-      if isinstance(self.objects[pkt.container], Container):
-        self.objects[pkt.container].addItem(pkt)
-      else:
-        self.log.warn("Ignoring add item 0x%X to non-container 0x%X", pkt.serial, pkt.container)
+      assert isinstance(self.objects[pkt.container], Item)
+      if not isinstance(self.objects[pkt.container], Container):
+        self.objects[pkt.container].upgradeToContainer()
+      self.objects[pkt.container].addItem(pkt)
 
     elif isinstance(pkt, packets.AddItemsToContainerPacket):
       assert self.lc
       for it in pkt.items:
-        if isinstance(self.objects[it['container']], Container):
-          self.objects[it['container']].addItem(it)
-        else:
-          self.log.warn("Ignoring add item 0x%X to non-container 0x%X", it['serial'], it['container'])
+        assert isinstance(self.objects[it['container']], Item)
+        if not isinstance(self.objects[it['container']], Container):
+          self.objects[it['container']].upgradeToContainer()
+        self.objects[it['container']].addItem(it)
 
     elif isinstance(pkt, packets.WarModePacket):
       self.player.war = pkt.war
@@ -885,6 +900,9 @@ class Client(threading.Thread):
       po.fill(pkt.serial, pkt.gumpid)
       self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
+    elif isinstance(pkt, packets.WornItemPacket):
+      self.objects[pkt.mobile].update(pkt)
+      self.log.info("wornitem item: %s mobile: %s", self.objects[pkt.serial], self.objects[pkt.mobile])
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -948,7 +966,7 @@ class Client(threading.Thread):
       mob = Mobile(self, pkt)
       self.objects[mob.serial] = mob
       self.log.info("New mobile: %s", mob)
-      self.brain.event(brain.Event(brain.Event.EVT_NEW_MOBILE, mobile=mob))
+      self.brain.event(brain.Event(brain.Event.EVT_NEW_MOBILE, mobile=mob, pos=[mob.x,mob.y,mob.z,mob.facing]))
       # Auto single click for new mobiles
       self.singleClick(mob)
 
@@ -966,7 +984,7 @@ class Client(threading.Thread):
         self.log.info("New item: %s", item)
       self.objects[item.serial] = item
       if not self.disable_item_logging:
-        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item))
+        self.brain.event(brain.Event(brain.Event.EVT_NEW_ITEM, item=item, pos=[item.x,item.y,item.z,item.facing]))
 
   @status('game')
   @clientthread

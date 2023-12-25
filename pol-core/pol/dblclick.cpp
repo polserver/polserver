@@ -58,10 +58,10 @@ void send_paperdoll( Network::Client* client, Mobile::Character* chr )
                        ( !chr->has_title_suffix() ? "" : " " + chr->title_suffix() );
     if ( chr->has_title_race() )
       name += " (" + chr->title_race() + ")";
-    msg->Write( Clib::strUtf8ToCp1252(name).c_str(), 60 );
+    msg->Write( Clib::strUtf8ToCp1252( name ).c_str(), 60 );
   }
   else
-    msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 60 );
+    msg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 60 );
 
 
   // MuadDib changed to reflect true status for 0x20 packet. 1/4/2007
@@ -142,7 +142,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
         script_ran =
             client->chr->start_script( prog.get(), false, new Module::ECharacterRefObjImp( chr ) );
     }
-    if ( !script_ran && inrange( client->chr, chr ) )
+    if ( !script_ran && client->chr->in_visual_range( chr ) )
     {
       // MuadDib Changed from a large if || || || to switch case. 1/4/2007
       switch ( chr->graphic )
@@ -200,8 +200,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
         return;
       }
 
-      unsigned short dst = pol_distance( client->chr, item );
-      if ( dst > id.doubleclick_range && !client->chr->can_dblclickany() )
+      if ( !client->chr->can_dblclickany() && !item->in_range( client->chr, id.doubleclick_range ) )
       {
         private_say_above( client->chr, item, "That is too far away." );
         return;

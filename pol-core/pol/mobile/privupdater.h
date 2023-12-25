@@ -98,13 +98,15 @@ void PrivUpdater::on_change_see_hidden( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        chr, [&]( Character* zonechr ) { enable_see_hidden( zonechr, chr ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
+                                                      [&]( Character* zonechr )
+                                                      { enable_see_hidden( zonechr, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        chr, [&]( Character* zonechr ) { disable_see_hidden( zonechr, chr ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
+                                                      [&]( Character* zonechr )
+                                                      { disable_see_hidden( zonechr, chr ); } );
   }
 }
 
@@ -115,13 +117,15 @@ void PrivUpdater::on_change_see_ghosts( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        chr, [&]( Character* zonechr ) { enable_see_ghosts( zonechr, chr ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
+                                                      [&]( Character* zonechr )
+                                                      { enable_see_ghosts( zonechr, chr ); } );
   }
   else
   {
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        chr, [&]( Character* zonechr ) { disable_see_ghosts( zonechr, chr ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange( chr->pos(), chr->los_size(),
+                                                      [&]( Character* zonechr )
+                                                      { disable_see_ghosts( zonechr, chr ); } );
   }
 }
 
@@ -133,13 +137,23 @@ void PrivUpdater::on_change_see_invis_items( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::ItemFilter>::InVisualRange(
-        chr, [&]( Items::Item* zoneitem ) { enable_see_invis_items( zoneitem, chr ); } );
+    Core::WorldIterator<Core::ItemFilter>::InMaxVisualRange(
+        chr,
+        [&]( Items::Item* zoneitem )
+        {
+          if ( chr->in_visual_range( zoneitem ) )
+            enable_see_invis_items( zoneitem, chr );
+        } );
   }
   else
   {
-    Core::WorldIterator<Core::ItemFilter>::InVisualRange(
-        chr, [&]( Items::Item* zoneitem ) { disable_see_invis_items( zoneitem, chr ); } );
+    Core::WorldIterator<Core::ItemFilter>::InMaxVisualRange(
+        chr,
+        [&]( Items::Item* zoneitem )
+        {
+          if ( chr->in_visual_range( zoneitem ) )
+            disable_see_invis_items( zoneitem, chr );
+        } );
   }
 }
 
@@ -150,15 +164,25 @@ void PrivUpdater::on_change_invul( Character* chr, bool enable )
 
   if ( enable )
   {
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-        chr, [&]( Character* zonechr ) { enable_invul( zonechr, chr ); } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+        chr,
+        [&]( Character* zonechr )
+        {
+          if ( zonechr->in_visual_range( chr ) )
+            enable_invul( zonechr, chr );
+        } );
   }
   else
   {
     Network::HealthBarStatusUpdate msg( chr->serial_ext,
                                         Network::HealthBarStatusUpdate::Color::YELLOW, false );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
-        chr, [&]( Character* zonechr ) { disable_invul( zonechr, chr, msg ); } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+        chr,
+        [&]( Character* zonechr )
+        {
+          if ( zonechr->in_visual_range( chr ) )
+            disable_invul( zonechr, chr, msg );
+        } );
   }
 }
 

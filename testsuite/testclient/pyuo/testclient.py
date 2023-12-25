@@ -163,6 +163,7 @@ class PolServer:
             b.addTodo({"todo":"disconnect"})
         for t in self.threads:
           t.join()
+        self.sendEvent(brain.Event(brain.Event.EVT_EXIT,clientid=0))
         return
       else:
         with self.clientLock:
@@ -235,7 +236,7 @@ class PolServer:
     res={}
     res["id"]=ev.clientid
     res["type"]=ev.typestr()
-    if ev.type==Event.EVT_INIT:
+    if ev.type==Event.EVT_INIT or ev.type==Event.EVT_EXIT:
       pass
     elif (ev.type==Event.EVT_HP_CHANGED or
         ev.type==Event.EVT_MANA_CHANGED or
@@ -253,10 +254,11 @@ class PolServer:
           ev.type==Event.EVT_NEW_ITEM):
       obj = ev.mobile if ev.type==Event.EVT_NEW_MOBILE else ev.item
       res["serial"]=obj.serial
-      res["pos"]=[obj.x, obj.y, obj.z, obj.facing]
+      res["pos"]=ev.pos
       res["graphic"]=obj.graphic
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
+      res["oldpos"]=ev.oldpos
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():

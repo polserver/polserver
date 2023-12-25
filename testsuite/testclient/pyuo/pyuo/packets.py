@@ -505,7 +505,6 @@ class DeleteObjectPacket(SerialOnlyPacket):
 
   cmd = 0x1d
 
-
 class ControlAnimationPacket(Packet):
   ''' Control Animation '''
 
@@ -624,6 +623,19 @@ class MobAttributesPacket(Packet):
     self.stam_max = self.dushort()
     self.stam_current = self.dushort()
 
+class WornItemPacket(Packet):
+  ''' Informs about worn items '''
+
+  cmd = 0x2e
+  length = 15
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.graphic = self.dushort()
+    self.unk = self.duchar()
+    self.layer = self.duchar()
+    self.mobile = self.duint()
+    self.color = self.dushort()
 
 class Unk32Packet(Packet):
   ''' Unknown packet '''

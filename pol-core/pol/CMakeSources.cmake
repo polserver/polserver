@@ -404,7 +404,6 @@ set (pol_sources  # sorted !
   ufunc.cpp
   ufunc.h
   ufunc2.cpp
-  ufuncinl.h
   ufuncstd.h
   uimport.cpp
   uimport.h

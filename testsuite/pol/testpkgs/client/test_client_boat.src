@@ -29,6 +29,7 @@ program chartests()
 endprogram
 
 exported function move_boat()
+  MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
   while (!waitForClient(0, {EVT_OWNCREATE}))
@@ -94,6 +95,7 @@ endfunction
 
 // move a boat with to many items on it (smooth boat pkt overflows)
 exported function move_boat_overflow()
+  MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
   while (!waitForClient(0, {EVT_OWNCREATE}))
@@ -130,3 +132,65 @@ exported function move_boat_overflow()
   return 1;
 endfunction
 
+/* move boat in direction of char and check at which distance the boat is visible and then back out of sight
+*/
+exported function boat_update_range()
+  MoveBoatXY(boat,10,50);
+  Clear_Event_Queue();
+  //move char out of range
+  MoveObjectToLocation(char, boat.x+30,boat.y,1,flags:=MOVEOBJECT_FORCELOCATION);
+  while (!waitForClient(0, {EVT_OWNCREATE}))
+  endwhile
+  clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  var ev:=waitForClient(0, {EVT_LIST_OBJS});
+  if (!ev)
+    return ev;
+  endif
+  foreach it in (ev["objs"])
+    if (it["serial"]==boat.serial)
+      return ret_error("boat still in range");
+    endif
+  endforeach
+  // now move boat to char
+  var i:=10;
+  while (--i>0)
+    MoveBoat(boat,2);
+    sleepms(10);
+  endwhile
+  while (1)
+    ev:=waitForClient(0, {EVT_NEW_ITEM});
+    if (!ev)
+      return ev;
+    endif
+    if (ev["serial"] == boat.serial)
+      var x:=char.x-ev["pos"][1];
+      var y:=char.y-ev["pos"][2];
+      if (x!=23 ||y!=0) // (18 visual range +5 footprint/2)
+        return ret_error($"update distance failed: {x}, {y}");
+      endif
+      break;
+    endif
+  endwhile
+
+  // move boat again out of range
+  i:=10;
+  while (--i>0)
+    MoveBoat(boat,6);
+    sleepms(10);
+  endwhile
+  while (1)
+    ev:=waitForClient(0, {EVT_REMOVED_OBJ});
+    if (!ev)
+      return ev;
+    endif
+    if (ev["serial"] == boat.serial)
+      var x:=char.x-ev["oldpos"][1];
+      var y:=char.y-ev["oldpos"][2];
+      if (x!=23 ||y!=0) // (18 visual range +5 footprint/2)
+        return ret_error($"remove update distance failed: {x}, {y}");
+      endif
+      break;
+    endif
+  endwhile
+  return 1;
+endfunction

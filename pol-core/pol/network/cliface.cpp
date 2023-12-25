@@ -249,7 +249,7 @@ void UOClientInterface::bcast_vital_changed( Mobile::Character* who,
   {
     for ( auto& client : clients )
     {
-      if ( who->client != client && client->ready && inrange( who, client->chr ) )
+      if ( who->client != client && client->ready && client->chr->in_visual_range( who ) )
       {
         cvu.others_vital_changed( client, who, vital );
       }

@@ -289,10 +289,6 @@ private:
 
   // UOBJECT INTERFACE
 public:
-  virtual u8 update_range() const override;
-  bool in_visual_range( const Core::UObject* other ) const;
-  bool in_visual_range( const Core::Pos2d& other ) const;
-
   virtual size_t estimatedSize() const override;
 
   virtual void destroy() override;
@@ -628,6 +624,11 @@ public:
 
   u8 get_flag1( Network::Client* other_client ) const;
 
+  u8 los_size() const;
+  bool in_visual_range( const Core::UObject* other ) const;
+  bool in_visual_range( const Core::UObject* other, const Core::Pos4d& pos ) const;
+  bool in_visual_range( const Core::UObject* other, const Core::Pos2d& pos ) const;
+
   // PRIVS SETTINGS STATUS
 public:
   void on_aos_ext_stat_changed();
@@ -746,8 +747,7 @@ public:
 public:
   u8 dir;  // the entire 'dir' from their last MSG02_WALK
   short gradual_boost;
-  u16 lastx, lasty;  // position before their last MSG02_WALK
-  s8 lastz;
+  Core::Pos4d lastpos;  // position before their last MSG02_WALK
 
   enum MOVEREASON : u8
   {
@@ -1018,13 +1018,19 @@ inline VitalValue& Character::vital( unsigned vitalid )
 
 inline bool Character::in_visual_range( const Core::UObject* other ) const
 {
-  if ( !other->isa( Core::UOBJ_CLASS::CLASS_CHARACTER ) )
-    return in_range( other, std::max( update_range(), other->update_range() ) );
-  return in_range( other, update_range() );
+  return in_range( other, los_size() + other->visible_size() );
 }
-inline bool Character::in_visual_range( const Core::Pos2d& other ) const
+inline bool Character::in_visual_range( const Core::UObject* other, const Core::Pos4d& pos ) const
 {
-  return in_range( other, update_range() );
+  if ( other )
+    return in_range( pos, los_size() + other->visible_size() );
+  return in_range( pos, los_size() );
+}
+inline bool Character::in_visual_range( const Core::UObject* other, const Core::Pos2d& pos ) const
+{
+  if ( other )
+    return in_range( pos, los_size() + other->visible_size() );
+  return in_range( pos, los_size() );
 }
 
 // dave moved this here from .cpp 2/3/3 so i can use it in uoemod.cpp

@@ -38,7 +38,7 @@ exported function multisinbox()
 endfunction
 
 exported function update_range()
-  if (PolCore().update_range != 31)
+  if (PolCore().update_range != 49) // multi 6c 30+1+18
     return ret_error("wrong update range: "+PolCore().update_range);
   endif
   return 1;

@@ -1,5 +1,6 @@
 #include "position.h"
 
+#include "clib/clib.h"
 #include "realms/realm.h"
 
 #include <algorithm>
@@ -25,11 +26,6 @@ const std::array<Vec2d, 8> move_delta = { { { 0, -1 },   // 0 is N
 const std::array<UFACING, 8> away_cvt = { FACING_S, FACING_SW, FACING_W, FACING_NW,
                                           FACING_N, FACING_NE, FACING_E, FACING_SE };
 
-u16 clip_u16( int v )
-{
-  return static_cast<u16>(
-      std::clamp( v, 0, static_cast<int>( std::numeric_limits<u16>::max() ) ) );
-}
 }  // namespace
 
 bool Pos2d::operator==( const Pos2d& other ) const
@@ -45,23 +41,23 @@ Pos2d& Pos2d::operator-=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) - other.x();
   int y = static_cast<int>( _y ) - other.y();
-  _x = clip_u16( x );
-  _y = clip_u16( y );
+  _x = Clib::clamp_convert<u16>( x );
+  _y = Clib::clamp_convert<u16>( y );
   return *this;
 }
 Pos2d& Pos2d::operator+=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) + other.x();
   int y = static_cast<int>( _y ) + other.y();
-  _x = clip_u16( x );
-  _y = clip_u16( y );
+  _x = Clib::clamp_convert<u16>( x );
+  _y = Clib::clamp_convert<u16>( y );
   return *this;
 }
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs )
 {
   int x = static_cast<int>( lhs.x() ) - rhs.x();
   int y = static_cast<int>( lhs.y() ) - rhs.y();
-  return Vec2d( Vec2d::clip( x ), Vec2d::clip( y ) );
+  return Vec2d( Clib::clamp_convert<s16>( x ), Clib::clamp_convert<s16>( y ) );
 }
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs )
 {
@@ -203,14 +199,14 @@ Pos3d& Pos3d::operator-=( const Vec3d& other )
 {
   _xy -= other.xy();
   int z = static_cast<int>( _z ) - other.z();
-  _z = clip_s8( z );
+  _z = Clib::clamp_convert<s8>( z );
   return *this;
 }
 Pos3d& Pos3d::operator+=( const Vec3d& other )
 {
   _xy += other.xy();
   int z = static_cast<int>( _z ) + other.z();
-  _z = clip_s8( z );
+  _z = Clib::clamp_convert<s8>( z );
   return *this;
 }
 
@@ -246,7 +242,7 @@ Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs )
 {
   Vec2d xy = lhs.xy() - rhs.xy();
   int z = static_cast<int>( lhs.z() ) - rhs.z();
-  return Vec3d( xy, Vec2d::clip( z ) );
+  return Vec3d( xy, Clib::clamp_convert<s16>( z ) );
 }
 
 bool Pos3d::can_move_to( const Vec2d& displacement, const Realms::Realm* realm ) const
@@ -275,12 +271,6 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
 {
   _xy.crop( realm );
   return *this;
-}
-
-s8 Pos3d::clip_s8( int v )
-{
-  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
-                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
 }
 
 fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )

@@ -15,9 +15,10 @@ exported function npc_ai_movement()
 
   while(1)
     sleepms(10);
-    if (!npc)
-      break;
-    elseif (!npc.process)
+    if (!npc.process)
+      if (!npc)
+        break;
+      endif
       return ret_error(npc.getprop("testerror"));
     endif
   endwhile

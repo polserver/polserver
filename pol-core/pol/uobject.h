@@ -175,8 +175,9 @@ public:
   virtual const UObject* toplevel_owner() const;
   const Pos4d& toplevel_pos() const;
 
-  virtual u8 update_range() const;
+  virtual u8 visible_size() const;
   bool in_range( const UObject* other, u16 range ) const;
+  bool in_range( const Pos4d& other, u16 range ) const;
   bool in_range( const Pos2d& other, u16 range ) const;
 
   void setposition( Pos4d newpos );
@@ -359,11 +360,15 @@ inline bool UObject::in_range( const Pos2d& other, u16 range ) const
 {
   return toplevel_pos().in_range( other, range );
 }
-inline u8 UObject::update_range() const
+inline bool UObject::in_range( const Pos4d& other, u16 range ) const
 {
-  // TODO Pos: for multis it needs to be based on the footprint and objects on a multi need to take
-  // it into account
-  return (u8)RANGE_VISUAL;
+  return toplevel_pos().in_range( other, range );
+}
+inline u8 UObject::visible_size() const
+{
+  // TODO Pos: should objects on a multi need to take
+  // it into account that multis due to the footprint have a higher updaterange?
+  return 0;
 }
 }  // namespace Core
 }  // namespace Pol

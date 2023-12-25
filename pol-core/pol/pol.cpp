@@ -222,14 +222,22 @@ void send_startup( Network::Client* client )
 
 void send_inrange_items( Network::Client* client )
 {
-  WorldIterator<ItemFilter>::InVisualRange(
-      client->chr, [&]( Items::Item* item ) { send_item( client, item ); } );
+  WorldIterator<ItemFilter>::InMaxVisualRange( client->chr,
+                                               [&]( Items::Item* item )
+                                               {
+                                                 if ( client->chr->in_visual_range( item ) )
+                                                   send_item( client, item );
+                                               } );
 }
 
 void send_inrange_multis( Network::Client* client )
 {
-  WorldIterator<MultiFilter>::InVisualRange(
-      client->chr, [&]( Multi::UMulti* multi ) { send_multi( client, multi ); } );
+  WorldIterator<MultiFilter>::InMaxVisualRange( client->chr,
+                                                [&]( Multi::UMulti* multi )
+                                                {
+                                                  if ( client->chr->in_visual_range( multi ) )
+                                                    send_multi( client, multi );
+                                                } );
 }
 
 void textcmd_startlog( Network::Client* client );
@@ -286,7 +294,7 @@ void start_client_char( Network::Client* client )
   if ( settingsManager.ssopt.core_sends_season )
     send_season_info( client );
 
-  client->chr->lastx = client->chr->lasty = client->chr->lastz = 0;
+  client->chr->lastpos = Pos4d( 0, 0, 0, nullptr );
 
   client->gd->music_region =
       gamestate.musicdef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
@@ -469,11 +477,8 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
 
-  if ( !chosen_char->lastx && !chosen_char->lasty )
-  {
-    chosen_char->lastx = chosen_char->x();
-    chosen_char->lasty = chosen_char->y();
-  }
+  if ( !chosen_char->lastpos.realm() )
+    chosen_char->lastpos = chosen_char->pos();
 
   if ( !reconnecting )
     run_logon_script( chosen_char );
@@ -489,9 +494,9 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
   client->send_pause();  // dave removed force=true 5/10/3, let uoclient.cfg option determine xflow
                          // packets (else this hangs 4.0.0e clients)
 
-  Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-      client->chr,
-      [&]( Mobile::Character* zonechr ) { send_client_char_data( zonechr, client ); } );
+  Core::WorldIterator<Core::MobileFilter>::InRange( client->chr->pos(), client->chr->los_size(),
+                                                    [&]( Mobile::Character* zonechr )
+                                                    { send_client_char_data( zonechr, client ); } );
 
   send_inrange_items( client );
   send_inrange_multis( client );

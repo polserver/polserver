@@ -124,8 +124,6 @@ public:
   bool in_range( const Pos2d& other, u16 range ) const;
   bool in_range( const Pos3d& other, u16 range ) const;
   Pos3d& crop( const Realms::Realm* realm );
-
-  static s8 clip_s8( int v );
 };
 Pos3d operator-( Pos3d lhs, const Vec2d& rhs );
 Pos3d operator+( Pos3d lhs, const Vec2d& rhs );

@@ -78,12 +78,14 @@ void send_object_cache_to_inrange( const UObject* obj )
   {
     auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
 
-    WorldIterator<OnlinePlayerFilter>::InVisualRange( obj->toplevel_owner(),
-                                                      [&]( Mobile::Character* chr ) {
-                                                        pkt_rev.Send( chr->client );
-                                                        // FIXME need to check character's
-                                                        // additional_legal_items.
-                                                      } );
+    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
+                                                         [&]( Mobile::Character* chr )
+                                                         {
+                                                           if ( chr->in_visual_range( obj ) )
+                                                             pkt_rev.Send( chr->client );
+                                                           // FIXME need to check character's
+                                                           // additional_legal_items.
+                                                         } );
   }
 }
 

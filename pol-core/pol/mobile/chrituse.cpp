@@ -58,7 +58,7 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
     ex->pushArg( new Module::ECharacterRefObjImp( this ) );
   }
 
-  ex->priority(100);
+  ex->priority( 100 );
 
   if ( ex->setProgram( prog ) )
   {
@@ -108,14 +108,14 @@ void Item::walk_on( Mobile::Character* chr )
       ex->addModule( new Module::UOExecutorModule( *ex ) );
       if ( prog->haveProgram )
       {
-        ex->pushArg( new Bscript::BLong( chr->lastz ) );
-        ex->pushArg( new Bscript::BLong( chr->lasty ) );
-        ex->pushArg( new Bscript::BLong( chr->lastx ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.z() ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.y() ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.x() ) );
         ex->pushArg( new Module::EItemRefObjImp( this ) );
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
 
-      ex->priority(100);
+      ex->priority( 100 );
 
       if ( ex->setProgram( prog.get() ) )
       {
@@ -124,5 +124,5 @@ void Item::walk_on( Mobile::Character* chr )
     }
   }
 }
-}
-}
+}  // namespace Items
+}  // namespace Pol

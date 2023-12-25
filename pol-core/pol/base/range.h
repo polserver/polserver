@@ -42,6 +42,7 @@ public:
   Range2d() = default;
   Range2d( const Pos2d& p1, const Pos2d& p2, const Realms::Realm* realm );
   Range2d( const Pos4d& p1, const Pos4d& p2 );
+  Range2d( const Pos4d& p1, u8 radius );
   Range2d( const Range2d& other ) = default;
   Range2d( Range2d&& other ) = default;
   ~Range2d() = default;

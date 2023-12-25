@@ -14,6 +14,7 @@
 #include "../../bscript/objmembers.h"
 #include "../../clib/logfacility.h"
 #include "../../clib/passert.h"
+#include "../../plib/uconst.h"
 #include "../baseobject.h"
 #include "../globals/state.h"
 #include "../globals/uvars.h"
@@ -86,10 +87,17 @@ Bscript::BStruct* UMulti::footprint() const
   ret->addMember( "ymax", new Bscript::BLong( y() + md.maxrxyz.y() ) );
   return ret.release();
 }
+
 Core::Range3d UMulti::current_box() const
 {
   const MultiDef& md = multidef();
   return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz );
+}
+
+u8 UMulti::visible_size() const
+{
+  const MultiDef& md = multidef();
+  return md.max_radius;
 }
 
 Bscript::BObjectImp* UMulti::get_script_member_id( const int id ) const  /// id test

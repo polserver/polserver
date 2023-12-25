@@ -1,19 +1,12 @@
 #include "vector.h"
+#include "clib/clib.h"
 
-#include <algorithm>
 #include <cstdlib>
-#include <limits>
 
 namespace Pol
 {
 namespace Core
 {
-s16 Vec2d::clip( int v )
-{
-  return static_cast<s16>( std::clamp( v, static_cast<int>( std::numeric_limits<s16>::min() ),
-                                       static_cast<int>( std::numeric_limits<s16>::max() ) ) );
-}
-
 bool Vec2d::operator==( const Vec2d& other ) const
 {
   return _x == other._x && _y == other._y;
@@ -27,16 +20,16 @@ Vec2d& Vec2d::operator-=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) - other._x;
   int y = static_cast<int>( _y ) - other._y;
-  _x = clip( x );
-  _y = clip( y );
+  _x = Clib::clamp_convert<s16>( x );
+  _y = Clib::clamp_convert<s16>( y );
   return *this;
 }
 Vec2d& Vec2d::operator+=( const Vec2d& other )
 {
   int x = static_cast<int>( _x ) + other._x;
   int y = static_cast<int>( _y ) + other._y;
-  _x = clip( x );
-  _y = clip( y );
+  _x = Clib::clamp_convert<s16>( x );
+  _y = Clib::clamp_convert<s16>( y );
   return *this;
 }
 
@@ -82,14 +75,14 @@ Vec3d& Vec3d::operator-=( const Vec3d& other )
 {
   _xy -= other._xy;
   int z = static_cast<int>( _z ) - other._z;
-  _z = Vec2d::clip( z );
+  _z = Clib::clamp_convert<s16>( z );
   return *this;
 }
 Vec3d& Vec3d::operator+=( const Vec3d& other )
 {
   _xy += other._xy;
   int z = static_cast<int>( _z ) + other._z;
-  _z = Vec2d::clip( z );
+  _z = Clib::clamp_convert<s16>( z );
   return *this;
 }
 Vec3d& Vec3d::operator-=( const Vec2d& other )

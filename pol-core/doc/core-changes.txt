@@ -1,4 +1,7 @@
 -- POL100.1.0 --
+12-22-2023 Turley:
+    Fixed: Multis get now send/removed based on their footprint. Especially big multis had the problem (bigger then 32x32)
+    Fixed: login near 0,0 did not send items/mobiles nearby
 12-20-2023 Turley:
     Fixed: storing of doubles, before the precision was fixed to 6 now its possible to store in e.g. CProps 12345678.12345678
 12-16-2023 Kukkino:
