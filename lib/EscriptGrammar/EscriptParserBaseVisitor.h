@@ -1,7 +1,7 @@
 
 
 
-// Generated from lib/EscriptGrammar/EscriptParser.g4 by ANTLR 4.8
+// Generated from EscriptParser.g4 by ANTLR 4.13.1
 
 #pragma once
 
@@ -19,311 +19,311 @@ namespace EscriptGrammar {
 class  EscriptParserBaseVisitor : public EscriptParserVisitor {
 public:
 
-  virtual antlrcpp::Any visitCompilationUnit(EscriptParser::CompilationUnitContext *ctx) override {
+  virtual std::any visitCompilationUnit(EscriptParser::CompilationUnitContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModuleUnit(EscriptParser::ModuleUnitContext *ctx) override {
+  virtual std::any visitModuleUnit(EscriptParser::ModuleUnitContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *ctx) override {
+  virtual std::any visitModuleDeclarationStatement(EscriptParser::ModuleDeclarationStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModuleFunctionDeclaration(EscriptParser::ModuleFunctionDeclarationContext *ctx) override {
+  virtual std::any visitModuleFunctionDeclaration(EscriptParser::ModuleFunctionDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModuleFunctionParameterList(EscriptParser::ModuleFunctionParameterListContext *ctx) override {
+  virtual std::any visitModuleFunctionParameterList(EscriptParser::ModuleFunctionParameterListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitModuleFunctionParameter(EscriptParser::ModuleFunctionParameterContext *ctx) override {
+  virtual std::any visitModuleFunctionParameter(EscriptParser::ModuleFunctionParameterContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) override {
+  virtual std::any visitTopLevelDeclaration(EscriptParser::TopLevelDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) override {
+  virtual std::any visitFunctionDeclaration(EscriptParser::FunctionDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStringIdentifier(EscriptParser::StringIdentifierContext *ctx) override {
+  virtual std::any visitStringIdentifier(EscriptParser::StringIdentifierContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitUseDeclaration(EscriptParser::UseDeclarationContext *ctx) override {
+  virtual std::any visitUseDeclaration(EscriptParser::UseDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIncludeDeclaration(EscriptParser::IncludeDeclarationContext *ctx) override {
+  virtual std::any visitIncludeDeclaration(EscriptParser::IncludeDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitProgramDeclaration(EscriptParser::ProgramDeclarationContext *ctx) override {
+  virtual std::any visitProgramDeclaration(EscriptParser::ProgramDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStatement(EscriptParser::StatementContext *ctx) override {
+  virtual std::any visitStatement(EscriptParser::StatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStatementLabel(EscriptParser::StatementLabelContext *ctx) override {
+  virtual std::any visitStatementLabel(EscriptParser::StatementLabelContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIfStatement(EscriptParser::IfStatementContext *ctx) override {
+  virtual std::any visitIfStatement(EscriptParser::IfStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitGotoStatement(EscriptParser::GotoStatementContext *ctx) override {
+  virtual std::any visitGotoStatement(EscriptParser::GotoStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitReturnStatement(EscriptParser::ReturnStatementContext *ctx) override {
+  virtual std::any visitReturnStatement(EscriptParser::ReturnStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitConstStatement(EscriptParser::ConstStatementContext *ctx) override {
+  virtual std::any visitConstStatement(EscriptParser::ConstStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVarStatement(EscriptParser::VarStatementContext *ctx) override {
+  virtual std::any visitVarStatement(EscriptParser::VarStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDoStatement(EscriptParser::DoStatementContext *ctx) override {
+  virtual std::any visitDoStatement(EscriptParser::DoStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitWhileStatement(EscriptParser::WhileStatementContext *ctx) override {
+  virtual std::any visitWhileStatement(EscriptParser::WhileStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExitStatement(EscriptParser::ExitStatementContext *ctx) override {
+  virtual std::any visitExitStatement(EscriptParser::ExitStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBreakStatement(EscriptParser::BreakStatementContext *ctx) override {
+  virtual std::any visitBreakStatement(EscriptParser::BreakStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitContinueStatement(EscriptParser::ContinueStatementContext *ctx) override {
+  virtual std::any visitContinueStatement(EscriptParser::ContinueStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitForStatement(EscriptParser::ForStatementContext *ctx) override {
+  virtual std::any visitForStatement(EscriptParser::ForStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitForeachIterableExpression(EscriptParser::ForeachIterableExpressionContext *ctx) override {
+  virtual std::any visitForeachIterableExpression(EscriptParser::ForeachIterableExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitForeachStatement(EscriptParser::ForeachStatementContext *ctx) override {
+  virtual std::any visitForeachStatement(EscriptParser::ForeachStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitRepeatStatement(EscriptParser::RepeatStatementContext *ctx) override {
+  virtual std::any visitRepeatStatement(EscriptParser::RepeatStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCaseStatement(EscriptParser::CaseStatementContext *ctx) override {
+  virtual std::any visitCaseStatement(EscriptParser::CaseStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitEnumStatement(EscriptParser::EnumStatementContext *ctx) override {
+  virtual std::any visitEnumStatement(EscriptParser::EnumStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBlock(EscriptParser::BlockContext *ctx) override {
+  virtual std::any visitBlock(EscriptParser::BlockContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVariableDeclarationInitializer(EscriptParser::VariableDeclarationInitializerContext *ctx) override {
+  virtual std::any visitVariableDeclarationInitializer(EscriptParser::VariableDeclarationInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitEnumList(EscriptParser::EnumListContext *ctx) override {
+  virtual std::any visitEnumList(EscriptParser::EnumListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitEnumListEntry(EscriptParser::EnumListEntryContext *ctx) override {
+  virtual std::any visitEnumListEntry(EscriptParser::EnumListEntryContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitSwitchBlockStatementGroup(EscriptParser::SwitchBlockStatementGroupContext *ctx) override {
+  virtual std::any visitSwitchBlockStatementGroup(EscriptParser::SwitchBlockStatementGroupContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitSwitchLabel(EscriptParser::SwitchLabelContext *ctx) override {
+  virtual std::any visitSwitchLabel(EscriptParser::SwitchLabelContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitForGroup(EscriptParser::ForGroupContext *ctx) override {
+  virtual std::any visitForGroup(EscriptParser::ForGroupContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBasicForStatement(EscriptParser::BasicForStatementContext *ctx) override {
+  virtual std::any visitBasicForStatement(EscriptParser::BasicForStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCstyleForStatement(EscriptParser::CstyleForStatementContext *ctx) override {
+  virtual std::any visitCstyleForStatement(EscriptParser::CstyleForStatementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIdentifierList(EscriptParser::IdentifierListContext *ctx) override {
+  virtual std::any visitIdentifierList(EscriptParser::IdentifierListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVariableDeclarationList(EscriptParser::VariableDeclarationListContext *ctx) override {
+  virtual std::any visitVariableDeclarationList(EscriptParser::VariableDeclarationListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitConstantDeclaration(EscriptParser::ConstantDeclarationContext *ctx) override {
+  virtual std::any visitConstantDeclaration(EscriptParser::ConstantDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) override {
+  virtual std::any visitVariableDeclaration(EscriptParser::VariableDeclarationContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitProgramParameters(EscriptParser::ProgramParametersContext *ctx) override {
+  virtual std::any visitProgramParameters(EscriptParser::ProgramParametersContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitProgramParameterList(EscriptParser::ProgramParameterListContext *ctx) override {
+  virtual std::any visitProgramParameterList(EscriptParser::ProgramParameterListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitProgramParameter(EscriptParser::ProgramParameterContext *ctx) override {
+  virtual std::any visitProgramParameter(EscriptParser::ProgramParameterContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionParameters(EscriptParser::FunctionParametersContext *ctx) override {
+  virtual std::any visitFunctionParameters(EscriptParser::FunctionParametersContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionParameterList(EscriptParser::FunctionParameterListContext *ctx) override {
+  virtual std::any visitFunctionParameterList(EscriptParser::FunctionParameterListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionParameter(EscriptParser::FunctionParameterContext *ctx) override {
+  virtual std::any visitFunctionParameter(EscriptParser::FunctionParameterContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitScopedFunctionCall(EscriptParser::ScopedFunctionCallContext *ctx) override {
+  virtual std::any visitScopedFunctionCall(EscriptParser::ScopedFunctionCallContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionReference(EscriptParser::FunctionReferenceContext *ctx) override {
+  virtual std::any visitFunctionReference(EscriptParser::FunctionReferenceContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExpression(EscriptParser::ExpressionContext *ctx) override {
+  virtual std::any visitExpression(EscriptParser::ExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitPrimary(EscriptParser::PrimaryContext *ctx) override {
+  virtual std::any visitPrimary(EscriptParser::PrimaryContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) override {
+  virtual std::any visitExplicitArrayInitializer(EscriptParser::ExplicitArrayInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *ctx) override {
+  virtual std::any visitExplicitStructInitializer(EscriptParser::ExplicitStructInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExplicitDictInitializer(EscriptParser::ExplicitDictInitializerContext *ctx) override {
+  virtual std::any visitExplicitDictInitializer(EscriptParser::ExplicitDictInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExplicitErrorInitializer(EscriptParser::ExplicitErrorInitializerContext *ctx) override {
+  virtual std::any visitExplicitErrorInitializer(EscriptParser::ExplicitErrorInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitBareArrayInitializer(EscriptParser::BareArrayInitializerContext *ctx) override {
+  virtual std::any visitBareArrayInitializer(EscriptParser::BareArrayInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitParExpression(EscriptParser::ParExpressionContext *ctx) override {
+  virtual std::any visitParExpression(EscriptParser::ParExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExpressionList(EscriptParser::ExpressionListContext *ctx) override {
+  virtual std::any visitExpressionList(EscriptParser::ExpressionListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) override {
+  virtual std::any visitExpressionSuffix(EscriptParser::ExpressionSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) override {
+  virtual std::any visitIndexingSuffix(EscriptParser::IndexingSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) override {
+  virtual std::any visitNavigationSuffix(EscriptParser::NavigationSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) override {
+  virtual std::any visitMethodCallSuffix(EscriptParser::MethodCallSuffixContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFunctionCall(EscriptParser::FunctionCallContext *ctx) override {
+  virtual std::any visitFunctionCall(EscriptParser::FunctionCallContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStructInitializerExpression(EscriptParser::StructInitializerExpressionContext *ctx) override {
+  virtual std::any visitStructInitializerExpression(EscriptParser::StructInitializerExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStructInitializerExpressionList(EscriptParser::StructInitializerExpressionListContext *ctx) override {
+  virtual std::any visitStructInitializerExpressionList(EscriptParser::StructInitializerExpressionListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStructInitializer(EscriptParser::StructInitializerContext *ctx) override {
+  virtual std::any visitStructInitializer(EscriptParser::StructInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDictInitializerExpression(EscriptParser::DictInitializerExpressionContext *ctx) override {
+  virtual std::any visitDictInitializerExpression(EscriptParser::DictInitializerExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDictInitializerExpressionList(EscriptParser::DictInitializerExpressionListContext *ctx) override {
+  virtual std::any visitDictInitializerExpressionList(EscriptParser::DictInitializerExpressionListContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitDictInitializer(EscriptParser::DictInitializerContext *ctx) override {
+  virtual std::any visitDictInitializer(EscriptParser::DictInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitArrayInitializer(EscriptParser::ArrayInitializerContext *ctx) override {
+  virtual std::any visitArrayInitializer(EscriptParser::ArrayInitializerContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitLiteral(EscriptParser::LiteralContext *ctx) override {
+  virtual std::any visitLiteral(EscriptParser::LiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitInterpolatedString(EscriptParser::InterpolatedStringContext *ctx) override {
+  virtual std::any visitInterpolatedString(EscriptParser::InterpolatedStringContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext *ctx) override {
+  virtual std::any visitInterpolatedStringPart(EscriptParser::InterpolatedStringPartContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) override {
+  virtual std::any visitIntegerLiteral(EscriptParser::IntegerLiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFloatLiteral(EscriptParser::FloatLiteralContext *ctx) override {
+  virtual std::any visitFloatLiteral(EscriptParser::FloatLiteralContext *ctx) override {
     return visitChildren(ctx);
   }
 

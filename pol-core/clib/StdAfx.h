@@ -9,8 +9,6 @@
 #ifndef _CLIB_STDAFX_H
 #define _CLIB_STDAFX_H
 
-#include "Header_Windows.h"
-
 // System Includes
 #include <assert.h>
 #include <atomic>
@@ -30,15 +28,15 @@
 #include <vector>
 
 // 3rd Party Includes
-#include <format/format.h>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/flyweight.hpp>
+#include <format/format.h>
 
 // Project Includes (be really really carefull what to include!)
 
 // explicit included since needed anyway for later includes
-#include "compilerspecifics.h"
 #include "Debugging/LogSink.h"
+#include "compilerspecifics.h"
 #include "message_queue.h"
 
 #include "fixalloc.h"

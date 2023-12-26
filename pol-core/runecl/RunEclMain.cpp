@@ -14,6 +14,7 @@
 #include "../bscript/executor.h"
 #include "../bscript/filefmt.h"
 #include "../bscript/object.h"
+#include "../clib/Header_Windows.h"
 #include "../clib/Program/ProgramMain.h"
 #include "../clib/boostutils.h"
 #include "../clib/fileutil.h"
@@ -127,9 +128,9 @@ int RunEclMain::runeclScript( std::string fileName )
   Plib::load_packages( true /*quiet*/ );
 
   const auto& pkgs = Plib::systemstate.packages;
-  auto pkg = std::find_if( pkgs.begin(), pkgs.end(), [&dir]( Plib::Package* p ) {
-    return Clib::stringicmp( p->dir(), dir ) == 0;
-  } );
+  auto pkg =
+      std::find_if( pkgs.begin(), pkgs.end(),
+                    [&dir]( Plib::Package* p ) { return Clib::stringicmp( p->dir(), dir ) == 0; } );
   if ( pkg != pkgs.end() )
   {
     program->pkg = *pkg;

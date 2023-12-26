@@ -18,14 +18,14 @@ namespace antlr4 {
   /// of speed.
   class ANTLR4CPP_PUBLIC Lexer : public Recognizer, public TokenSource {
   public:
-    static const size_t DEFAULT_MODE = 0;
-    static const size_t MORE = static_cast<size_t>(-2);
-    static const size_t SKIP = static_cast<size_t>(-3);
+    static constexpr size_t DEFAULT_MODE = 0;
+    static constexpr size_t MORE = std::numeric_limits<size_t>::max() - 1;
+    static constexpr size_t SKIP = std::numeric_limits<size_t>::max() - 2;
 
-    static const size_t DEFAULT_TOKEN_CHANNEL = Token::DEFAULT_CHANNEL;
-    static const size_t HIDDEN = Token::HIDDEN_CHANNEL;
-    static const size_t MIN_CHAR_VALUE = 0;
-    static const size_t MAX_CHAR_VALUE = 0x10FFFF;
+    static constexpr size_t DEFAULT_TOKEN_CHANNEL = Token::DEFAULT_CHANNEL;
+    static constexpr size_t HIDDEN = Token::HIDDEN_CHANNEL;
+    static constexpr size_t MIN_CHAR_VALUE = 0;
+    static constexpr size_t MAX_CHAR_VALUE = 0x10FFFF;
 
     CharStream *_input; // Pure reference, usually from statically allocated instance.
 
