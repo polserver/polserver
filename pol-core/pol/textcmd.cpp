@@ -196,7 +196,7 @@ void handle_ident_cursor( Mobile::Character* chr, PKTBI_6C* msgin )
   if ( chr->client != nullptr )
   {
     char s[80];
-    snprintf( s, 80, "Serial: 0x%8.08lX, %ld, ObjType 0x%4.04X",
+    snprintf( s, Clib::arsize( s ), "Serial: 0x%8.08lX, %ld, ObjType 0x%4.04X",
               static_cast<unsigned long>( cfBEu32( msgin->selected_serial ) ),
               static_cast<signed long>( cfBEu32( msgin->selected_serial ) ),
               cfBEu16( msgin->graphic ) );

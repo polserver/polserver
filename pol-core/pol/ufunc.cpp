@@ -51,6 +51,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "../plib/mapcell.h"
 #include "../plib/systemstate.h"
 #include "accounts/account.h"
@@ -1762,7 +1763,7 @@ std::string format_description( unsigned int polflags, const std::string& descde
   if ( amount != 1 )
   {
     char s[15];
-    snprintf( s, 15, "%hu ", amount );
+    snprintf( s, Clib::arsize( s ), "%hu ", amount );
     desc = s;
   }
   else if ( settingsManager.ssopt.use_tile_flag_prefix )
