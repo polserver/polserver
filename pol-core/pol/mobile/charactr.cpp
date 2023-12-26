@@ -2658,7 +2658,7 @@ bool Character::is_concealed_from_me( const Character* chr ) const
   return ( chr->concealed() > cmdlevel() );
 }
 
-bool Character::is_visible_to_me( const Character* chr ) const
+bool Character::is_visible_to_me( const Character* chr, bool check_range ) const
 {
   if ( chr == nullptr )
     return false;
@@ -2666,13 +2666,18 @@ bool Character::is_visible_to_me( const Character* chr ) const
     return true;  // I can always see myself (?)
   if ( is_concealed_from_me( chr ) )
     return false;
-
-  if ( chr->realm() != this->realm() )
-    return false;  // noone can see across different realms.
   if ( !chr->logged_in() )
     return false;
   if ( chr->hidden() && !cached_settings.get( PRIV_FLAGS::SEE_HIDDEN ) )
     return false;  // noone can see anyone hidden.
+  if ( check_range )
+  {
+    if ( !in_visual_range( chr ) )
+      return false;
+  }
+  else if ( chr->realm() != this->realm() )
+    return false;
+
   if ( dead() )
     return true;  // If I'm dead, I can see anything
   if ( !chr->dead() || cached_settings.get( PRIV_FLAGS::SEE_GHOSTS ) )
@@ -2703,8 +2708,6 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       {
         Client* client = zonechr->client;
         if ( zonechr == chr )
-          return;
-        if ( !zonechr->in_visual_range( chr ) )
           return;
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
@@ -2768,7 +2771,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
         Client* client = zonechr->client;
         if ( !zonechr->in_visual_range( nullptr, chr->lastpos ) )
           return;
-        if ( !zonechr->is_visible_to_me( chr ) )
+        if ( !zonechr->is_visible_to_me( chr, /*check_range*/ false ) )
           return;
 
         if ( zonechr->in_visual_range( chr ) )  // already handled
@@ -3636,8 +3639,6 @@ void Character::unhide()
         [&]( Character* chr )
         {
           if ( chr == this )
-            return;
-          if ( !chr->in_visual_range( this ) )
             return;
           if ( !chr->is_visible_to_me( this ) )
             return;

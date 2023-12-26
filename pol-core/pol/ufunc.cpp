@@ -51,6 +51,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "../plib/mapcell.h"
 #include "../plib/systemstate.h"
 #include "accounts/account.h"
@@ -394,16 +395,17 @@ void send_remove_character_to_nearby( const Character* chr )
 void send_remove_character_to_nearby_cantsee( const Character* chr )
 {
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( chr,
-                                                       [&]( Character* zonechr )
-                                                       {
-                                                         if ( zonechr == chr )
-                                                           return;
-                                                         if ( !zonechr->in_visual_range( chr ) )
-                                                           return;
-                                                         if ( !zonechr->is_visible_to_me( chr ) )
-                                                           msgremove.Send( zonechr->client );
-                                                       } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      chr,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr == chr )
+          return;
+        if ( !zonechr->in_visual_range( chr ) )
+          return;
+        if ( !zonechr->is_visible_to_me( chr, /*check_range*/ false ) )
+          msgremove.Send( zonechr->client );
+      } );
 }
 
 void send_remove_character_to_nearby_cansee( const Character* chr )
@@ -413,7 +415,7 @@ void send_remove_character_to_nearby_cansee( const Character* chr )
       chr,
       [&]( Character* _chr )
       {
-        if ( _chr != chr && _chr->in_visual_range( chr ) && _chr->is_visible_to_me( chr ) )
+        if ( _chr != chr && _chr->is_visible_to_me( chr ) )
           msgremove.Send( _chr->client );
       } );
 }
@@ -732,11 +734,7 @@ void send_char_data( Client* client, Character* chr )
 
   if ( !client->chr->is_visible_to_me( chr ) )
     return;
-
-  if ( client->chr->in_visual_range( chr ) )
-  {
-    send_owncreate( client, chr );
-  }
+  send_owncreate( client, chr );
 }
 
 /* send_client_char_data: called once for each character when a client
@@ -750,10 +748,7 @@ void send_client_char_data( Character* chr, Client* client )
   if ( !client->chr->is_visible_to_me( chr ) )
     return;
 
-  if ( client->chr->in_visual_range( chr ) )
-  {
-    send_owncreate( client, chr );
-  }
+  send_owncreate( client, chr );
 }
 
 void send_item_move_failure( Network::Client* client, u8 reason )
@@ -1768,7 +1763,7 @@ std::string format_description( unsigned int polflags, const std::string& descde
   if ( amount != 1 )
   {
     char s[15];
-    sprintf( s, "%hu ", amount );
+    snprintf( s, Clib::arsize( s ), "%hu ", amount );
     desc = s;
   }
   else if ( settingsManager.ssopt.use_tile_flag_prefix )
@@ -1863,8 +1858,7 @@ void register_with_supporting_multi( Item* item )
 void send_create_mobile_if_nearby_cansee( Client* client, const Character* chr )
 {
   if ( client->ready &&  // must be logged into game
-       client->chr->in_visual_range( chr ) && client->chr != chr &&
-       client->chr->is_visible_to_me( chr ) )
+       client->chr != chr && client->chr->is_visible_to_me( chr ) )
   {
     send_owncreate( client, chr );
   }
@@ -1872,15 +1866,14 @@ void send_create_mobile_if_nearby_cansee( Client* client, const Character* chr )
 
 void send_create_mobile_to_nearby_cansee( const Character* chr )
 {
-  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
-      chr,
-      [&]( Character* zonechr )
-      {
-        if ( zonechr == chr )
-          return;
-        if ( zonechr->in_visual_range( chr ) && zonechr->is_visible_to_me( chr ) )
-          send_owncreate( zonechr->client, chr );
-      } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( chr,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr == chr )
+                                                           return;
+                                                         if ( zonechr->is_visible_to_me( chr ) )
+                                                           send_owncreate( zonechr->client, chr );
+                                                       } );
 }
 
 void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_bar_status_update )
@@ -1900,7 +1893,7 @@ void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_b
       {
         if ( !send_health_bar_status_update && zonechr == chr )
           return;
-        if ( zonechr->in_visual_range( chr ) && zonechr->is_visible_to_me( chr ) )
+        if ( zonechr->is_visible_to_me( chr ) )
         {
           msgmove.Send( zonechr->client );
           if ( msgpoisoned )

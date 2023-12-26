@@ -10,6 +10,7 @@
 
 #include "../clib/passert.h"
 #include "../clib/rawtypes.h"
+#include "../clib/stlutil.h"
 #include "systemstate.h"
 #include "uofile.h"
 #include "uofilei.h"
@@ -92,7 +93,7 @@ void readtile( unsigned short tilenum, USTRUCT_TILE* tile )
 
   if ( tilenum > systemstate.config.max_tile_id )
   {
-    sprintf( tile->name, "multi" );
+    snprintf( tile->name, Clib::arsize( tile->name ), "multi" );
     tile->weight = 0xFF;
   }
   else
@@ -132,7 +133,7 @@ void readtile( unsigned short tilenum, USTRUCT_TILE_HSA* tile )
 
   if ( tilenum > systemstate.config.max_tile_id )
   {
-    sprintf( tile->name, "multi" );
+    snprintf( tile->name, Clib::arsize( tile->name ), "multi" );
     tile->weight = 0xFF;
   }
   else

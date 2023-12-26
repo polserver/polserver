@@ -446,7 +446,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         if ( member->serial == me->serial )
           continue;
 
-        if ( me->in_visual_range( member ) && me->is_visible_to_me( member ) )
+        if ( me->is_visible_to_me( member ) )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );
@@ -484,7 +484,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         if ( member->serial == me->serial )
           continue;
 
-        if ( locations && me->in_visual_range( member ) && me->is_visible_to_me( member ) )
+        if ( locations && me->is_visible_to_me( member ) )
           continue;
 
         outMsg->Write<u32>( member->serial_ext );
@@ -539,8 +539,6 @@ void handle_allnames( Client* client, PKTBI_98_IN* msg )
   if ( the_mob == nullptr )
     return;
   if ( !client->chr->is_visible_to_me( the_mob ) )
-    return;
-  if ( !client->chr->in_visual_range( the_mob ) )
     return;
 
   PktHelper::PacketOut<PktOut_98> msgOut;

@@ -383,7 +383,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     Core::UFACING fac = npc.direction_toward( obj );
@@ -404,7 +404,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     return move_self( npc.direction_toward( obj ), true, true );
@@ -423,7 +423,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     return move_self( npc.direction_away( obj ),
@@ -444,7 +444,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     return move_self( npc.direction_away( obj ),
@@ -470,7 +470,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
   if ( obj->ismobile() )
   {
     Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-    if ( !npc.is_visible_to_me( chr ) )
+    if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
       return new BError( "Mobile specified cannot be seen" );
   }
 
@@ -499,7 +499,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
   if ( obj->ismobile() )
   {
     Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-    if ( !npc.is_visible_to_me( chr ) )
+    if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
       return new BError( "Mobile specified cannot be seen" );
   }
 
@@ -702,16 +702,17 @@ BObjectImp* NPCExecutorModule::mf_Say()
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( &npc, range,
-                                                          [&]( Mobile::Character* chr )
-                                                          {
-                                                            if ( !chr->is_visible_to_me( &npc ) )
-                                                              return;
-                                                            if ( !uclen )
-                                                              msg.Send( chr->client, len );
-                                                            else
-                                                              ucmsg.Send( chr->client, uclen );
-                                                          } );
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+      &npc, range,
+      [&]( Mobile::Character* chr )
+      {
+        if ( !chr->is_visible_to_me( &npc, /*check_range*/ false ) )
+          return;
+        if ( !uclen )
+          msg.Send( chr->client, len );
+        else
+          ucmsg.Send( chr->client, uclen );
+      } );
 
   if ( doevent >= 1 )
   {
@@ -786,13 +787,14 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( &npc, range,
-                                                            [&]( Mobile::Character* chr )
-                                                            {
-                                                              if ( !chr->is_visible_to_me( &npc ) )
-                                                                return;
-                                                              talkmsg.Send( chr->client, len );
-                                                            } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+        &npc, range,
+        [&]( Mobile::Character* chr )
+        {
+          if ( !chr->is_visible_to_me( &npc, /*check_range*/ false ) )
+            return;
+          talkmsg.Send( chr->client, len );
+        } );
 
     if ( doevent >= 1 )
     {

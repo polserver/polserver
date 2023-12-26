@@ -142,7 +142,7 @@ void Realm::notify_moved( Mobile::Character& whomoved )
   // When the movement is larger than 32 tiles, notify mobiles and items in the old location
   // TODO Pos magic 32 everywhere?
   // TODO its for npcs, with ex->area_size, NPC::update_range equal the area_size?
-  if ( whomoved.pos().pol_distance( whomoved.lastpos ) > 32 )
+  if ( whomoved.distance_to( whomoved.lastpos ) > 32 )
   {
     Core::WorldIterator<Core::MobileFilter>::InRange(
         whomoved.lastpos, 32,

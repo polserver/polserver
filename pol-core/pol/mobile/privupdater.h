@@ -168,7 +168,7 @@ void PrivUpdater::on_change_invul( Character* chr, bool enable )
         chr,
         [&]( Character* zonechr )
         {
-          if ( zonechr->in_visual_range( chr ) )
+          if ( zonechr->is_visible_to_me( chr ) )
             enable_invul( zonechr, chr );
         } );
   }
@@ -180,7 +180,7 @@ void PrivUpdater::on_change_invul( Character* chr, bool enable )
         chr,
         [&]( Character* zonechr )
         {
-          if ( zonechr->in_visual_range( chr ) )
+          if ( zonechr->is_visible_to_me( chr ) )
             disable_invul( zonechr, chr, msg );
         } );
   }
@@ -276,10 +276,7 @@ void PrivUpdater::enable_invul( Character* in_range_chr, Character* chr )
 {
   if ( in_range_chr != chr )
   {
-    if ( in_range_chr->is_visible_to_me( chr ) )
-    {
-      send_owncreate( in_range_chr->client, chr );
-    }
+    send_owncreate( in_range_chr->client, chr );
   }
   else
   {
@@ -294,13 +291,10 @@ void PrivUpdater::disable_invul( Character* in_range_chr, Character* chr,
 {
   if ( in_range_chr != chr )
   {
-    if ( in_range_chr->is_visible_to_me( chr ) )
-    {
-      send_owncreate( in_range_chr->client, chr );
+    send_owncreate( in_range_chr->client, chr );
 
-      // Needs to update the healthbar, because send_owncreate only sends if invul() == true.
-      msg.Send( in_range_chr->client );
-    }
+    // Needs to update the healthbar, because send_owncreate only sends if invul() == true.
+    msg.Send( in_range_chr->client );
   }
   else
   {

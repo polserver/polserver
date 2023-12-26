@@ -369,21 +369,22 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Hex()
   {
     BLong* plong = static_cast<BLong*>( imp );
     char s[20];
-    sprintf( s, "0x%X", static_cast<unsigned int>( plong->value() ) );
+    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( plong->value() ) );
     return new String( s );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTDouble ) )
   {
     Double* pdbl = static_cast<Double*>( imp );
     char s[20];
-    sprintf( s, "0x%X", static_cast<unsigned int>( pdbl->value() ) );
+    snprintf( s, Clib::arsize( s ), "0x%X", static_cast<unsigned int>( pdbl->value() ) );
     return new String( s );
   }
   else if ( imp->isa( Bscript::BObjectImp::OTString ) )
   {
     String* str = static_cast<String*>( imp );
     char s[20];
-    sprintf( s, "0x%X", static_cast<unsigned int>( strtoul( str->data(), nullptr, 0 ) ) );
+    snprintf( s, Clib::arsize( s ), "0x%X",
+              static_cast<unsigned int>( strtoul( str->data(), nullptr, 0 ) ) );
     return new String( s );
   }
   else
@@ -430,7 +431,7 @@ Bscript::BObjectImp* BasicExecutorModule::mf_Bin()
     BLong* plong = static_cast<BLong*>( imp );
     int number = plong->value();
 #ifdef __APPLE__
-    std::string bits = std::bitset<2>(number).to_string();
+    std::string bits = std::bitset<2>( number ).to_string();
     return new String( bits );
 #else
     char buffer[sizeof( int ) * 8 + 1];
