@@ -47,9 +47,6 @@ void regen_stats()
   gameclock_t now_gameclock = read_gameclock();
   THREAD_CHECKPOINT( tasks, 401 );
 
-  unsigned empty_zones = 0;
-  unsigned nonempty_zones = 0;
-
   auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr )
   {
     THREAD_CHECKPOINT( tasks, 402 );
@@ -134,21 +131,14 @@ void regen_stats()
   {
     for ( const auto& p : realm->gridarea() )
     {
-      bool any = false;
       for ( auto& chr : realm->getzone_grid( p ).characters )
       {
-        any = true;
         stat_regen( chr );
       }
       for ( auto& chr : realm->getzone_grid( p ).npcs )
       {
-        any = true;
         stat_regen( chr );
       }
-      if ( any )
-        ++nonempty_zones;
-      else
-        ++empty_zones;
     }
   }
   THREAD_CHECKPOINT( tasks, 499 );

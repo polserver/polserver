@@ -343,7 +343,7 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
     if ( obj->ismobile() )
     {
       auto* chr = static_cast<Mobile::Character*>( obj );
-      if ( !client->chr->is_visible_to_me( chr ) )
+      if ( !client->chr->is_visible_to_me( chr, /*check_range*/ false ) )
         continue;
     }
     else
@@ -460,7 +460,7 @@ void UBoat::send_display_boat( Network::Client* client )
     if ( obj->ismobile() )
     {
       auto* chr = static_cast<Mobile::Character*>( obj );
-      if ( !client->chr->is_visible_to_me( chr ) )
+      if ( !client->chr->is_visible_to_me( chr, /*check_range*/ false ) )
         continue;
     }
     else

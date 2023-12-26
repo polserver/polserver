@@ -141,19 +141,13 @@ const char* NPC::classname() const
   return "NPC";
 }
 
-
-// 8-25-05 Austin
-// Moved unsigned short pol_distance( unsigned short x1, unsigned short y1,
-//                  unsigned short x2, unsigned short y2 )
-// to ufunc.cpp
-
 bool NPC::anchor_allows_move( Core::UFACING fdir ) const
 {
   auto newpos = pos().move( fdir );
 
   if ( anchor.enabled && !warmode() )
   {
-    unsigned short curdist = pos2d().pol_distance( anchor.pos );
+    unsigned short curdist = distance_to( anchor.pos );
     unsigned short newdist = newpos.xy().pol_distance( anchor.pos );
     if ( newdist > curdist )  // if we're moving further away, see if we can
     {
@@ -217,7 +211,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
       // First check if there really is a character blocking
       if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
       {
-        if ( !chr->dead() && is_visible_to_me( chr ) )
+        if ( !chr->dead() && is_visible_to_me( chr, /*check_range*/ false ) )
           return true;
       }
     }
@@ -233,12 +227,12 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
       {
         NPC* npc = static_cast<NPC*>( chr );
         if ( npc->master() && this->master() == npc->master() && !npc->dead() &&
-             is_visible_to_me( npc ) )
+             is_visible_to_me( npc, /*check_range*/ false ) )
           return true;
       }
       else
       {
-        if ( !chr->dead() && is_visible_to_me( chr ) )
+        if ( !chr->dead() && is_visible_to_me( chr, /*check_range*/ false ) )
           return true;
       }
     }
@@ -722,7 +716,7 @@ void NPC::on_pc_spoke( Character* src_chr, const std::string& speech, u8 texttyp
        in_range( src_chr, ex->speech_size ) && !deafened() )
   {
     if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-         is_visible_to_me( src_chr ) )
+         is_visible_to_me( src_chr, /*check_range*/ false ) )
     {
       ex->signal_event( new Module::SpeechEvent(
           src_chr, speech, Core::ListenPoint::TextTypeToString( texttype ), lang, speechtokens ) );
@@ -748,7 +742,7 @@ void NPC::on_ghost_pc_spoke( Character* src_chr, const std::string& speech, u8 t
        in_range( src_chr, ex->speech_size ) && !deafened() )
   {
     if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-         is_visible_to_me( src_chr ) )
+         is_visible_to_me( src_chr, /*check_range*/ false ) )
     {
       ex->signal_event( new Module::SpeechEvent(
           src_chr, speech, Core::ListenPoint::TextTypeToString( texttype ), lang, speechtokens ) );
@@ -790,7 +784,7 @@ void NPC::inform_criminal( Character* thecriminal )
          in_range( thecriminal, ex->area_size ) )
     {
       if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-           is_visible_to_me( thecriminal ) )
+           is_visible_to_me( thecriminal, /*check_range*/ false ) )
         ex->signal_event( new Module::SourcedEvent( Core::EVID_GONE_CRIMINAL, thecriminal ) );
     }
   }
@@ -805,7 +799,7 @@ void NPC::inform_leftarea( Character* wholeft )
       if ( in_range( wholeft, ex->area_size ) )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-             is_visible_to_me( wholeft ) )
+             is_visible_to_me( wholeft, /*check_range*/ false ) )
           ex->signal_event( new Module::SourcedEvent( Core::EVID_LEFTAREA, wholeft ) );
       }
     }
@@ -821,7 +815,7 @@ void NPC::inform_enteredarea( Character* whoentered )
       if ( in_range( whoentered, ex->area_size ) )
       {
         if ( ( !Core::settingsManager.ssopt.event_visibility_core_checks ) ||
-             is_visible_to_me( whoentered ) )
+             is_visible_to_me( whoentered, /*check_range*/ false ) )
           ex->signal_event( new Module::SourcedEvent( Core::EVID_ENTEREDAREA, whoentered ) );
       }
     }

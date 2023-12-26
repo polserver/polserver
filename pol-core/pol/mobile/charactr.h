@@ -644,7 +644,7 @@ public:
   bool ignores_line_of_sight() const;
 
   bool is_visible() const;  // meant to combine "hiding", "concealed", "invisible" etc.
-  bool is_visible_to_me( const Character* chr ) const;
+  bool is_visible_to_me( const Character* chr, bool check_range = true ) const;
   bool hidden() const;
   void hidden( bool value );
   void unhide();

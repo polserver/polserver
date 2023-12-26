@@ -597,11 +597,11 @@ std::vector<std::tuple<short, Multi::UMulti*, Items::Item*>> Realm::get_walkheig
   auto layers = get_standheights( movemode, shapes, minz, maxz );
 
   // Combine those layers into a tuple and put it in our result vector
-  for ( auto shape : layers )
+  for ( const auto& shape : layers )
   {
     auto z = shape.z;
     auto height = shape.height;
-    auto top = z + height;
+    short top = z + height;
     Multi::UMulti* pmulti = nullptr;
     if ( !multis.empty() )
     {

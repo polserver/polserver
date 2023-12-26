@@ -1040,7 +1040,7 @@ static int format_description( int argc, char** argv )
     if ( amount != 1 )
     {
       char s[15];
-      sprintf( s, "%hu ", amount );
+      snprintf( s, 15, "%hu ", amount );
       desc = s;
     }
 

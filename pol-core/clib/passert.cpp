@@ -93,8 +93,8 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
   if ( Pol::Clib::ExceptionParser::programAbortReporting() )
   {
     char reportedReason[512];
-    if ( sprintf( reportedReason, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr,
-                  reason.c_str(), file, line ) > 0 )
+    if ( snprintf( reportedReason, 512, "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr,
+                   reason.c_str(), file, line ) > 0 )
       ExceptionParser::reportProgramAbort( ExceptionParser::getTrace(),
                                            std::string( reportedReason ) );
     else

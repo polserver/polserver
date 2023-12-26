@@ -1,5 +1,6 @@
 #include "testfiles.h"
 
+#include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 #include "../plib/mapblock.h"
@@ -381,7 +382,7 @@ void FileGenerator::modifyStatics(
   };
 
   auto addstatic_rel = [&]( u16 graphic, s16 x, s16 y, s16 z, u16 hue = 0 )
-  { addstatic( 150 + x, 150 + y, 0 + z, graphic, hue ); };
+  { addstatic( 150 + x, 150 + y, Clib::clamp_convert<s8>( 0 + z ), graphic, hue ); };
   const u16 roof = 0x1;
   addstatic_rel( 0x0066, -3, -3, 0 );
   addstatic_rel( 0x0009, -3, -3, 7 );
