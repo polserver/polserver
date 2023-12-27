@@ -117,6 +117,7 @@ struct PKTIN_03
   u16 font;
   char text[SPEECH_MAX_LEN + 1]; /* one or more characters, null-terminated. */
 };
+static_assert( sizeof( PKTIN_03 ) < MAXBUFFER, "size missmatch" );
 
 struct PKTIN_04
 {
@@ -350,6 +351,7 @@ struct PKTIN_9F
   } items[( MAXBUFFER - 9 ) / 6];
 };
 static_assert( sizeof( PKTIN_9F ) == 2559, "size missmatch" );
+static_assert( sizeof( PKTIN_9F ) < MAXBUFFER, "size missmatch" );
 
 struct PKTIN_A0
 {

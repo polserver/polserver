@@ -154,6 +154,7 @@ struct PKTBI_3B
   } items[( MAXBUFFER - 8 ) / 7];
 };
 static_assert( sizeof( PKTBI_3B ) == 2556, "size missmatch" );
+static_assert( sizeof( PKTBI_3B ) < MAXBUFFER, "size missmatch" );
 
 struct PKTBI_56
 {
@@ -469,6 +470,7 @@ struct PKTBI_B8_IN_UPDATE
   u16 wtext[SPEECH_MAX_LEN + 1];
 };
 static_assert( sizeof( PKTBI_B8_IN_UPDATE ) == SPEECH_MAX_LEN * 2 + 2 + 8, "size missmatch" );
+static_assert( sizeof( PKTBI_B8_IN_UPDATE ) < MAXBUFFER, "size missmatch" );
 
 struct PKTBI_B8_IN
 {
@@ -569,12 +571,14 @@ struct PKTBI_BF_06_03
   u16 wtext[SPEECH_MAX_LEN + 1];  // wide-character, double-null terminated
 };
 static_assert( sizeof( PKTBI_BF_06_03 ) == SPEECH_MAX_LEN * 2 + 2 + 4, "size missmatch" );
+static_assert( sizeof( PKTBI_BF_06_03 ) < MAXBUFFER, "size missmatch" );
 
 struct PKTBI_BF_06_04_IN
 {
   u16 wtext[SPEECH_MAX_LEN + 1];  // wide-character, double-null terminated
 };
 static_assert( sizeof( PKTBI_BF_06_04_IN ) == SPEECH_MAX_LEN * 2 + 2, "size missmatch" );
+static_assert( sizeof( PKTBI_BF_06_04_IN ) < MAXBUFFER, "size missmatch" );
 
 // struct PKTBI_BF_06_04_OUT
 //{
@@ -937,6 +941,7 @@ struct PKTBI_C2
   };
 };
 static_assert( sizeof( PKTBI_C2 ) == SPEECH_MAX_LEN * 2 + 2 + 19, "size missmatch" );
+static_assert( sizeof( PKTBI_C2 ) < MAXBUFFER, "size missmatch" );
 
 struct PKTBI_C8
 {
@@ -962,6 +967,7 @@ struct PKTBI_D6_IN
   } serials[( MAXBUFFER - 3 ) / 4];
 };
 static_assert( sizeof( PKTBI_D6_IN ) == 2559, "size missmatch" );
+static_assert( sizeof( PKTBI_D6_IN ) < MAXBUFFER, "size missmatch" );
 
 // struct AOS_OBJECT_PROPERTY_LIST_ELEM
 //{
