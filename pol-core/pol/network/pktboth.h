@@ -13,6 +13,7 @@
 #define __PKTBOTHH
 
 #include "../clib/rawtypes.h"
+#include "../plib/uconst.h"
 #include "pktbothid.h"
 #include "pktdef.h"
 
@@ -150,9 +151,9 @@ struct PKTBI_3B
     u8 layer;
     u32 item_serial;
     u16 number_bought;
-  } items[1]; /* Dunno how many it should be */
+  } items[( MAXBUFFER - 8 ) / 7];
 };
-static_assert( sizeof( PKTBI_3B ) == 15, "size missmatch" );
+static_assert( sizeof( PKTBI_3B ) == 2556, "size missmatch" );
 
 struct PKTBI_56
 {
@@ -183,9 +184,9 @@ struct PKTBI_66
   u16 pages;
   u16 page;
   u16 lines;
-  char text[1];
+  char text[MAXBUFFER - 13];
 };
-static_assert( sizeof( PKTBI_66 ) == 14, "size missmatch" );
+static_assert( sizeof( PKTBI_66 ) == MAXBUFFER, "size missmatch" );
 
 // struct PKTBI_66_HDR
 //{
@@ -450,9 +451,9 @@ struct PKTBI_9A
   u32 serial;
   u32 prompt;
   u32 type;
-  char text[1];
+  char text[MAXBUFFER - 15];
 };
-static_assert( sizeof( PKTBI_9A ) == 16, "size missmatch" );
+static_assert( sizeof( PKTBI_9A ) == MAXBUFFER, "size missmatch" );
 
 struct PKTBI_B8_IN_REQUEST
 {
@@ -465,16 +466,17 @@ struct PKTBI_B8_IN_UPDATE
   u32 serial;
   u16 cmdtype;
   u16 textlen;
-  u16 wtext[2];
+  u16 wtext[SPEECH_MAX_LEN + 1];
 };
-static_assert( sizeof( PKTBI_B8_IN_UPDATE ) == 12, "size missmatch" );
+static_assert( sizeof( PKTBI_B8_IN_UPDATE ) == SPEECH_MAX_LEN * 2 + 2 + 8, "size missmatch" );
 
 struct PKTBI_B8_IN
 {
   u8 msgtype;
   u16 msglen;
   u8 mode;
-  union {
+  union
+  {
     PKTBI_B8_IN_REQUEST profile_request;
     PKTBI_B8_IN_UPDATE profile_update;
   };
@@ -506,9 +508,9 @@ struct PKTBI_BD
 {
   u8 msgtype;
   u16 msglen;
-  char version[1];
+  char version[MAXBUFFER - 3];
 };
-static_assert( sizeof( PKTBI_BD ) == 4, "size missmatch" );
+static_assert( sizeof( PKTBI_BD ) == MAXBUFFER, "size missmatch" );
 
 struct PKTBI_BF_04
 {
@@ -563,16 +565,16 @@ struct PKTBI_BF_06_02_IN
 
 struct PKTBI_BF_06_03
 {
-  u32 memberid;  //(of target, from client, of source, from server)
-  u16 wtext[2];  // wide-character, double-null terminated
+  u32 memberid;                   //(of target, from client, of source, from server)
+  u16 wtext[SPEECH_MAX_LEN + 1];  // wide-character, double-null terminated
 };
-static_assert( sizeof( PKTBI_BF_06_03 ) == 8, "size missmatch" );
+static_assert( sizeof( PKTBI_BF_06_03 ) == SPEECH_MAX_LEN * 2 + 2 + 4, "size missmatch" );
 
 struct PKTBI_BF_06_04_IN
 {
-  u16 wtext[2];  // wide-character, double-null terminated
+  u16 wtext[SPEECH_MAX_LEN + 1];  // wide-character, double-null terminated
 };
-static_assert( sizeof( PKTBI_BF_06_04_IN ) == 4, "size missmatch" );
+static_assert( sizeof( PKTBI_BF_06_04_IN ) == SPEECH_MAX_LEN * 2 + 2, "size missmatch" );
 
 // struct PKTBI_BF_06_04_OUT
 //{
@@ -613,7 +615,8 @@ static_assert( sizeof( PKTBI_BF_06_09 ) == 4, "size missmatch" );
 struct PKTBI_BF_06
 {
   u8 partycmd;
-  union {
+  union
+  {
     PKTBI_BF_06_01_IN partyadd;  // client
     // PKTBI_BF_06_01_OUT partyaddout; //server
     PKTBI_BF_06_02_IN partyremove;  // client
@@ -678,7 +681,7 @@ struct PKTBI_BF_14
   u16 unk;  // always 00 01
   u32 serial;
   u8 numentries;
-  PKTBI_BF_14_ENTRIES entries[1];
+  PKTBI_BF_14_ENTRIES entries[( MAXBUFFER - 7 ) / 8];
 };
 
 struct PKTBI_BF_15
@@ -828,7 +831,8 @@ struct PKTBI_BF_2A_RESULT
 // to change Hair, Beard and Color (maybe Race, but not in this Release)
 struct PKTBI_BF_RACE_CHANGER_RESULT
 {
-  union {
+  union
+  {
     // PKTBI_BF_2A_CALL_RACE_CHANGER call;
     PKTBI_BF_2A_RESULT result;
   };
@@ -846,7 +850,8 @@ struct PKTBI_BF
   u8 msgtype;
   u16 msglen;
   u16 subcmd;
-  union {
+  union
+  {
     u32 keys[6];  // BF.1: Cycling key-stack
     u32 addkey;   // BF.2: Adding key to top of stack
     // PKTBI_BF_04 closegump; //BF.4
@@ -922,16 +927,16 @@ struct PKTBI_C2
   u32 serial;
   u32 msg_id;
   // When a server-sent message, these next 10+ bytes must all be 0x00.
-  u32 unk;       // unknown -- always 0 0 0 1 (from client)
-  char lang[4];  // "enu" - US english
-  u16 wtext[2];  // wide-character, double-null terminated
+  u32 unk;                        // unknown -- always 0 0 0 1 (from client)
+  char lang[4];                   // "enu" - US english
+  u16 wtext[SPEECH_MAX_LEN + 1];  // wide-character, double-null terminated
 
   enum
   {
     SERVER_MSGLEN = 0x15
   };
 };
-static_assert( sizeof( PKTBI_C2 ) == 23, "size missmatch" );
+static_assert( sizeof( PKTBI_C2 ) == SPEECH_MAX_LEN * 2 + 2 + 19, "size missmatch" );
 
 struct PKTBI_C8
 {
@@ -954,9 +959,9 @@ struct PKTBI_D6_IN
   struct
   {
     u32 serial;
-  } serials[1];
+  } serials[( MAXBUFFER - 3 ) / 4];
 };
-static_assert( sizeof( PKTBI_D6_IN ) == 7, "size missmatch" );
+static_assert( sizeof( PKTBI_D6_IN ) == 2559, "size missmatch" );
 
 // struct AOS_OBJECT_PROPERTY_LIST_ELEM
 //{
@@ -1091,7 +1096,8 @@ struct PKTBI_D7
   u16 msglen;
   u32 serial;
   u16 subcmd;
-  union {
+  union
+  {
     CH_ERASE ch_erase;
     CH_ADD ch_add;
     CH_ADD_MULTI ch_add_multi;
@@ -1154,7 +1160,8 @@ struct PKTBI_F0
   u8 msgtype;
   u16 msglen;
   u8 subcmd;
-  union {
+  union
+  {
     PKTBI_F0_00 query_party;
     PKTBI_F0_01 query_guild;
   };
