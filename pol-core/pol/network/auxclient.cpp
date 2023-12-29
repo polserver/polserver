@@ -237,6 +237,9 @@ void AuxClientThread::run()
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
   Core::PolLock lock;
+  // hold also the transmit mutex, the counter syncs but not in a way that the threadsanitizer
+  // recognizes is.
+  std::unique_lock<std::mutex> lock( _transmit_mutex );
   _auxconnection->disconnect();
   // the auxconnection is probably referenced by another ref_ptr,
   // so its deletion must be protected by the lock.
