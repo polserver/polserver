@@ -4247,17 +4247,18 @@ unsigned int Character::guildid() const
  * Sends packets to the client accordingly
  * @author Bodom
  */
-void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
-                         const std::string& arguments )
+void Character::addBuff( u16 icon, u16 duration, u32 cl_name, const std::string& name_arguments,
+                         u32 cl_descr, const std::string& desc_arguments )
 {
   // Icon is already present, must send a remove packet first or client will not update
   delBuff( icon );
 
   Core::gameclock_t end = Core::read_gameclock() + duration;
-  buffs_[icon] = { end, cl_name, cl_descr, arguments };
+  buffs_[icon] = { end, cl_name, cl_descr, name_arguments, desc_arguments };
 
   if ( client != nullptr )
-    send_buff_message( this, icon, true, duration, cl_name, cl_descr, arguments );
+    send_buff_message( this, icon, true, duration, cl_name, name_arguments, cl_descr,
+                       desc_arguments );
 }
 
 /**
@@ -4286,11 +4287,11 @@ bool Character::delBuff( u16 icon )
  */
 void Character::clearBuffs()
 {
-  for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+  if ( client != nullptr )
   {
-    if ( client != nullptr )
+    for ( const auto& buf : buffs_ )
     {
-      send_buff_message( this, it->first, false );
+      send_buff_message( this, buf.first, false );
     }
   }
   buffs_.clear();
@@ -4305,16 +4306,12 @@ void Character::send_buffs()
   if ( client == nullptr )
     return;
 
-  for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+  for ( const auto& [icon, buf] : buffs_ )
   {
-    int duration = it->second.end - Core::read_gameclock();
-    if ( duration < 0 )
-      duration = 0;
-    else if ( duration > 0xFFFF )
-      duration = 0xFFFF;
+    u16 duration = Clib::clamp_convert<u16>( buf.end - Core::read_gameclock() );
 
-    send_buff_message( this, it->first, true, static_cast<u16>( duration ), it->second.cl_name,
-                       it->second.cl_descr, it->second.arguments );
+    send_buff_message( this, icon, true, duration, buf.cl_name, buf.name_arguments, buf.cl_descr,
+                       buf.desc_arguments );
   }
 }
 
