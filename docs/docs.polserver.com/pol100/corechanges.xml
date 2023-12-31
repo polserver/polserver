@@ -7,7 +7,7 @@
 	<version name="POL100.1.0">
 		<entry>
 			<date>12-31-2023</date>
-			<author>YourName:</author>
+			<author>Vitor:</author>
 			<change type="Added">MaxAnimID to pol.cfg to extend animation limit for characters. (default: 2048)</change>
 		</entry>
 		<entry>
