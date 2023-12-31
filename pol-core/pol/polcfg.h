@@ -41,7 +41,6 @@ struct PolConfig
   bool inhibit_saves;
   bool log_script_cycles;
   bool count_resource_tiles;
-
   bool web_server;
   unsigned short web_server_port;
   bool web_server_local_only;
@@ -60,6 +59,7 @@ struct PolConfig
   std::atomic<unsigned short> min_cmdlevel_to_login;
   unsigned short max_tile_id;
   unsigned int max_objtype;
+  unsigned short max_anim_id;
 
   unsigned short max_clients;
   unsigned short character_slots;

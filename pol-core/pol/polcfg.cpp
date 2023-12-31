@@ -86,6 +86,8 @@ void PolConfig::read_pol_config( bool initial_load )
     }
     Plib::systemstate.config.max_tile_id = max_tile;
 
+    Plib::systemstate.config.max_anim_id = elem.remove_ushort("MaxAnimID", UOBJ_MAX_ANIMS);
+
     unsigned int max_obj = elem.remove_unsigned( "MaxObjtype", EXTOBJ_HIGHEST_DEFAULT );
     if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFFFF )
       Plib::systemstate.config.max_objtype = EXTOBJ_HIGHEST_DEFAULT;
