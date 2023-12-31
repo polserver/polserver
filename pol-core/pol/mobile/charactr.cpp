@@ -1620,8 +1620,7 @@ bool Character::setgraphic( u16 newgraphic )
 {
   if ( newgraphic < 1 ||
        newgraphic >
-           Plib::systemstate.config.max_anim_id )  // Maximum graphic: Default would be 2048, 
-                                                   // changed to allow new graphics -- Vitor - 2023-12-31
+           Plib::systemstate.config.max_anim_id )
     return false;
 
   set_dirty();
