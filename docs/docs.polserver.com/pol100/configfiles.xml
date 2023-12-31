@@ -963,6 +963,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [TimestampEveryLine=(1/0 {default 0})]
 [MaxTileID=(0/0x3FFF/0x7FFF/0xFFFF {default is 0})]
 [MaxObjtype=(0x20000/0xFFFFFFFF {default 0x20000})]
+[MaxAnimID=(0x800/0xFFFFFFFF {default 0x800})]
 [DiscardOldEvents=(1/0 {default 0})]
 [UseSingleThreadLogin=(1/0 {default 0})]
 [DisableNagle=(1/0 {default 0})]

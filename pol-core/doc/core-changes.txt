@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+12-31-2023 Vitor:
+    Added: MaxAnimID to pol.cfg to extend animation limit for characters. (default: 2048)
 12-29-2023 Turley:
     Fixed: os::OpenConnection when sending multiple messages there was a (very low) chance that the messages where send in the wrong order.
 12-22-2023 Turley:

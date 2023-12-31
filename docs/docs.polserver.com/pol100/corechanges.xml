@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-29-2023</datemodified>
+		<datemodified>12-31-2023</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>12-31-2023</date>
+			<author>Vitor:</author>
+			<change type="Added">MaxAnimID to pol.cfg to extend animation limit for characters. (default: 2048)</change>
+		</entry>
 		<entry>
 			<date>12-29-2023</date>
 			<author>Turley:</author>
