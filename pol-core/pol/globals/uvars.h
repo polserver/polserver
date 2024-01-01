@@ -251,8 +251,9 @@ public:
   threadhelp::TaskThreadPool task_thread_pool;
 
   void update_range_from_multis();
-  Core::Vec2d update_range;  // maximum update range (client view range/multi footprint) used as
-                             // "pre-filtering" of objects
+  void update_range_from_client( u16 range );
+  u16 max_update_range;  // maximum update range (client view range/multi footprint) used as
+                         // "pre-filtering" of objects
 
   void unload_npc_templates();
 
@@ -262,6 +263,9 @@ private:
   void clear_listen_points();
   void unload_intrinsic_weapons();
   void unload_intrinsic_templates();
+
+  u16 max_update_range_client;
+  u16 max_update_range_multi;
 };
 extern GameState gamestate;
 }  // namespace Core

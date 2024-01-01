@@ -521,7 +521,7 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
 
 void ThreadedClient::send_queued_data()
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );
+  std::lock_guard<std::mutex> lock( _socketMutex );
   Core::XmitBuffer* xbuffer;
   // hand off data to the sockets layer until it won't take any more.
   // note if a buffer is sent in full, we try to send the next one, ad infinitum
@@ -688,8 +688,7 @@ void Client::set_update_range( u8 range )
   // store "personal" updaterange
   gd->update_range = range;
   // update global updaterange (maximum multi radius/client view range)
-  if ( range > Core::gamestate.update_range.x() )
-    Core::gamestate.update_range.x( range ).y( range );
+  Core::gamestate.update_range_from_client( range );
 }
 
 u8 Client::update_range() const
@@ -718,7 +717,7 @@ size_t Client::estimatedSize() const
 
 void ThreadedClient::closeConnection()
 {
-  std::lock_guard<std::mutex> lock( _SocketMutex );
+  std::lock_guard<std::mutex> lock( _socketMutex );
   if ( csocket != INVALID_SOCKET )
   {
 #ifdef _WIN32

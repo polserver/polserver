@@ -35,7 +35,7 @@ if (${linux})
     crypto
     pthread
   )
-  if (arm_proc)
+  if (arm_proc AND NOT APPLE)
     target_link_libraries(${lib_name} PUBLIC atomic)
   endif()
 elseif(${windows})

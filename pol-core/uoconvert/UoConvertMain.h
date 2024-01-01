@@ -54,6 +54,8 @@ public:
 protected:
   virtual int main();
 
+  void check_for_errors_in_map_parameters();
+
   bool convert_uop_to_mul();
 
   void setup_uoconvert();

@@ -31,6 +31,10 @@ endprogram
 
 /**
  * Tests
+ * TODO: there is no lift "success" pkt
+ *       currently it waits for 1s if a reject pkt is send
+ *       this sync is needed because the chr itself gets moved out of range
+ *       if the drop target is moved out of range this 1s delay shouldnt be needed
  */
 
 // 1. Move item from ground into backpack
@@ -708,8 +712,8 @@ function lift_item_succeeded(byref err, serial)
     endif
     break;
   endwhile
-  return 1;
 
+  // TODO: see top
   ev:=waitForClient(0, {EVT_MOVE_ITEM_REJECTED}, 1);
   if (ev)
     return err := ret_error($"Got unexpected move (lift) item rejected: reason = {ev.reason}");;

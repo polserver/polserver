@@ -133,13 +133,13 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   else
     range = Core::settingsManager.ssopt.speech_range;
   Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->x(), chr->y(), chr->realm(), range,
+      chr, range,
       [&]( Mobile::Character* other_chr )
       {
         Network::Client* client2 = other_chr->client;
         if ( client == client2 )
           return;
-        if ( !other_chr->is_visible_to_me( chr ) )
+        if ( !other_chr->is_visible_to_me( chr, /*check_range*/ false ) )
           return;
         if ( other_chr->deafened() )
           return;
@@ -157,7 +157,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
 
   if ( !chr->dead() )
   {
-    Core::WorldIterator<Core::NPCFilter>::InRange( chr->x(), chr->y(), chr->realm(), range,
+    Core::WorldIterator<Core::NPCFilter>::InRange( chr, range,
                                                    [&]( Mobile::Character* otherchr )
                                                    {
                                                      Mobile::NPC* npc =
@@ -167,7 +167,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   }
   else
   {
-    Core::WorldIterator<Core::NPCFilter>::InRange( chr->x(), chr->y(), chr->realm(), range,
+    Core::WorldIterator<Core::NPCFilter>::InRange( chr, range,
                                                    [&]( Mobile::Character* otherchr )
                                                    {
                                                      Mobile::NPC* npc =
@@ -338,13 +338,13 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     else
       range = Core::settingsManager.ssopt.speech_range;
     Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-        chr->x(), chr->y(), chr->realm(), range,
+        chr, range,
         [&]( Mobile::Character* otherchr )
         {
           Network::Client* client2 = otherchr->client;
           if ( client == client2 )
             return;
-          if ( !otherchr->is_visible_to_me( chr ) )
+          if ( !otherchr->is_visible_to_me( chr, /*check_range*/ false ) )
             return;
           if ( otherchr->deafened() )
             return;
@@ -363,7 +363,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     if ( !chr->dead() )
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x(), chr->y(), chr->realm(), range,
+          chr, range,
           [&]( Mobile::Character* otherchr )
           {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );
@@ -373,7 +373,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     else
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          chr->x(), chr->y(), chr->realm(), range,
+          chr, range,
           [&]( Mobile::Character* otherchr )
           {
             Mobile::NPC* npc = static_cast<Mobile::NPC*>( otherchr );

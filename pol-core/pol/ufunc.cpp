@@ -51,6 +51,7 @@
 #include "../clib/clib_endian.h"
 #include "../clib/logfacility.h"
 #include "../clib/passert.h"
+#include "../clib/stlutil.h"
 #include "../plib/mapcell.h"
 #include "../plib/systemstate.h"
 #include "accounts/account.h"
@@ -381,32 +382,36 @@ void send_remove_character( Network::Client* client, const Mobile::Character* ch
 void send_remove_character_to_nearby( const Character* chr )
 {
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( chr,
-                                                    [&]( Character* zonechr )
-                                                    {
-                                                      if ( zonechr == chr )
-                                                        return;
-                                                      msgremove.Send( zonechr->client );
-                                                    } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( chr,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr == chr )
+                                                           return;
+                                                         if ( zonechr->in_visual_range( chr ) )
+                                                           msgremove.Send( zonechr->client );
+                                                       } );
 }
 
 void send_remove_character_to_nearby_cantsee( const Character* chr )
 {
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( chr,
-                                                    [&]( Character* zonechr )
-                                                    {
-                                                      if ( zonechr == chr )
-                                                        return;
-                                                      if ( !zonechr->is_visible_to_me( chr ) )
-                                                        msgremove.Send( zonechr->client );
-                                                    } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      chr,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr == chr )
+          return;
+        if ( !zonechr->in_visual_range( chr ) )
+          return;
+        if ( !zonechr->is_visible_to_me( chr, /*check_range*/ false ) )
+          msgremove.Send( zonechr->client );
+      } );
 }
 
 void send_remove_character_to_nearby_cansee( const Character* chr )
 {
   Network::RemoveObjectPkt msgremove( chr->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       chr,
       [&]( Character* _chr )
       {
@@ -420,7 +425,7 @@ void send_remove_object_if_inrange( Client* client, const Item* item )
   if ( !client->ready ) /* if a client is just connecting, don't bother him. */
     return;
 
-  if ( !inrange( client->chr, item ) )
+  if ( !client->chr->in_visual_range( item ) )
     return;
   Network::RemoveObjectPkt msgremove( item->serial_ext );
   msgremove.Send( client );
@@ -437,8 +442,13 @@ void send_remove_object( Client* client, const UObject* object )
 void send_remove_object_to_inrange( const UObject* centerObject )
 {
   Network::RemoveObjectPkt msgremove( centerObject->serial_ext );
-  Core::WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      centerObject, [&]( Character* chr ) { msgremove.Send( chr->client ); } );
+  Core::WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      centerObject,
+      [&]( Character* chr )
+      {
+        if ( chr->in_visual_range( centerObject ) )
+          msgremove.Send( chr->client );
+      } );
 }
 
 void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& pkt )
@@ -447,91 +457,6 @@ void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& p
     return;
   pkt.update( item->serial_ext );
   pkt.Send( client );
-}
-
-bool inrangex( const Character* c1, const Character* c2, int maxdist )
-{
-  return ( ( c1->realm() == c2->realm() ) && ( abs( c1->x() - c2->x() ) <= maxdist ) &&
-           ( abs( c1->y() - c2->y() ) <= maxdist ) );
-}
-
-bool inrangex( const UObject* c1, unsigned short x, unsigned short y, int maxdist )
-{
-  return ( ( abs( c1->x() - x ) <= maxdist ) && ( abs( c1->y() - y ) <= maxdist ) );
-}
-
-bool inrange( const UObject* c1, unsigned short x, unsigned short y )
-{
-  return ( ( abs( c1->x() - x ) <= RANGE_VISUAL ) && ( abs( c1->y() - y ) <= RANGE_VISUAL ) );
-}
-
-bool inrange( const Mobile::Character* c1, const Mobile::Character* c2 )
-{
-  // note, these are unsigned.  abs converts to signed, so everything _should_ be okay.
-  return ( ( c1->realm() == c2->realm() ) && ( abs( c1->x() - c2->x() ) <= RANGE_VISUAL ) &&
-           ( abs( c1->y() - c2->y() ) <= RANGE_VISUAL ) );
-}
-
-bool inrange( const Mobile::Character* c1, const UObject* obj )
-{
-  obj = obj->toplevel_owner();
-
-  return ( ( c1->realm() == obj->realm() ) && ( abs( c1->x() - obj->x() ) <= RANGE_VISUAL ) &&
-           ( abs( c1->y() - obj->y() ) <= RANGE_VISUAL ) );
-}
-
-bool multi_inrange( const Mobile::Character* c1, const Multi::UMulti* obj )
-{
-  return ( ( c1->realm() == obj->realm() ) &&
-           ( abs( c1->x() - obj->x() ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( c1->y() - obj->y() ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
-}
-
-unsigned short pol_distance( unsigned short x1, unsigned short y1, unsigned short x2,
-                             unsigned short y2 )
-{
-  int xd = abs( x1 - x2 );
-  int yd = abs( y1 - y2 );
-  if ( xd > yd )
-    return static_cast<unsigned short>( xd );
-  else
-    return static_cast<unsigned short>( yd );
-}
-
-unsigned short pol_distance( const Mobile::Character* c1, const UObject* obj )
-{
-  obj = obj->toplevel_owner();
-
-  int xd = abs( c1->x() - obj->x() );
-  int yd = abs( c1->y() - obj->y() );
-  if ( xd > yd )
-    return static_cast<unsigned short>( xd );
-  else
-    return static_cast<unsigned short>( yd );
-}
-
-bool in_say_range( const Character* c1, const Character* c2 )
-{
-  return inrangex( c1, c2, settingsManager.ssopt.speech_range );
-}
-bool in_yell_range( const Character* c1, const Character* c2 )
-{
-  return inrangex( c1, c2, settingsManager.ssopt.yell_range );
-}
-bool in_whisper_range( const Character* c1, const Character* c2 )
-{
-  return inrangex( c1, c2, settingsManager.ssopt.whisper_range );
-}
-
-bool inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
-{
-  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL ) && ( abs( y1 - y2 ) <= RANGE_VISUAL ) );
-}
-
-bool multi_inrange( unsigned short x1, unsigned short y1, unsigned short x2, unsigned short y2 )
-{
-  return ( ( abs( x1 - x2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) &&
-           ( abs( y1 - y2 ) <= RANGE_VISUAL_LARGE_BUILDINGS ) );
 }
 
 void send_put_in_container( Client* client, const Item* item )
@@ -677,8 +602,12 @@ void send_corpse_equip_inrange( const Item* item )
 {
   const UCorpse* corpse = static_cast<const UCorpse*>( item );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      corpse, [&]( Character* chr ) { send_corpse_equip( chr->client, corpse ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( corpse,
+                                                       [&]( Character* chr )
+                                                       {
+                                                         if ( chr->in_visual_range( corpse ) )
+                                                           send_corpse_equip( chr->client, corpse );
+                                                       } );
 }
 
 // Item::sendto( Client* ) ??
@@ -719,18 +648,20 @@ void send_item_to_inrange( const Item* item )
   auto pkt_remove = RemoveObjectPkt( item->serial_ext );
   auto pkt_rev = ObjRevisionPkt( item->serial_ext, item->rev() );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       item,
       [&]( Character* zonechr )
       {
-        if ( item->invisible() && !zonechr->client->chr->can_seeinvisitems() )
+        if ( !zonechr->in_visual_range( item ) )
+          return;
+        if ( item->invisible() && !zonechr->can_seeinvisitems() )
         {
           pkt_remove.Send( zonechr->client );
           return;
         }
 
         u8 flags = 0;
-        if ( zonechr->client->chr->can_move( item ) )
+        if ( zonechr->can_move( item ) )
           flags |= ITEM_FLAG_FORCE_MOVABLE;
         pkt.updateFlags( flags );
         pkt.Send( zonechr->client );
@@ -803,11 +734,7 @@ void send_char_data( Client* client, Character* chr )
 
   if ( !client->chr->is_visible_to_me( chr ) )
     return;
-
-  if ( inrange( client->chr, chr ) )
-  {
-    send_owncreate( client, chr );
-  }
+  send_owncreate( client, chr );
 }
 
 /* send_client_char_data: called once for each character when a client
@@ -821,10 +748,7 @@ void send_client_char_data( Character* chr, Client* client )
   if ( !client->chr->is_visible_to_me( chr ) )
     return;
 
-  if ( inrange( client->chr, chr ) )
-  {
-    send_owncreate( client, chr );
-  }
+  send_owncreate( client, chr );
 }
 
 void send_item_move_failure( Network::Client* client, u8 reason )
@@ -1039,15 +963,24 @@ void play_sound_effect( const UObject* center, u16 effect )
   Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u,
                              Pos3d( center->toplevel_pos().xy(), 0 ) );
   // FIXME hearing range check perhaps?
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( center ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
 }
 
 void play_sound_effect_xyz( const Pos4d& center, u16 effect )
 {
   Network::PlaySoundPkt msg( PKTOUT_54_FLAG_SINGLEPLAY, effect - 1u, center.xyz() );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      center,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr->in_visual_range( nullptr, center ) )
+          msg.Send( zonechr->client );
+      } );
 }
 
 void play_sound_effect_private( const UObject* center, u16 effect, Character* forchr )
@@ -1066,13 +999,18 @@ void play_moving_effect( const UObject* src, const UObject* dst, u16 effect, u8 
   Network::GraphicEffectPkt msg;
   msg.movingEffect( src, dst, effect, speed, loop, explode );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      src->toplevel_owner(), [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      dst->toplevel_owner(),
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( src,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( src ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      dst,
       [&]( Character* zonechr )
       {
-        if ( !zonechr->in_visual_range( src ) )  // send to char only in range of dst
+        if ( zonechr->in_visual_range( dst ) &&
+             !zonechr->in_visual_range( src ) )  // send to char only in range of dst
           msg.Send( zonechr->client );
       } );
 }
@@ -1083,13 +1021,19 @@ void play_moving_effect2( const Pos3d& src, const Pos3d& dst, u16 effect, u8 spe
   Network::GraphicEffectPkt msg;
   msg.movingEffect( src, dst, effect, speed, loop, explode );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      src.xy(), realm, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      src.xy(), realm,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr->in_visual_range( nullptr, src.xy() ) )
+          msg.Send( zonechr->client );
+      } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       dst.xy(), realm,
       [&]( Character* zonechr )
       {
-        if ( !zonechr->in_visual_range( src.xy() ) )  // send to chrs only in range of dest
+        if ( zonechr->in_visual_range( nullptr, dst.xy() ) &&
+             !zonechr->in_visual_range( nullptr, src.xy() ) )  // send to chrs only in range of dest
           msg.Send( zonechr->client );
       } );
 }
@@ -1099,24 +1043,37 @@ void play_lightning_bolt_effect( const UObject* center )
 {
   Network::GraphicEffectPkt msg;
   msg.lightningBold( center );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center->toplevel_owner(), [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( center ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
 }
 
 void play_object_centered_effect( const UObject* center, u16 effect, u8 speed, u8 loop )
 {
   Network::GraphicEffectPkt msg;
   msg.followEffect( center, effect, speed, loop );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center->toplevel_owner(), [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( center ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
 }
 
 void play_stationary_effect( const Pos4d& pos, u16 effect, u8 speed, u8 loop, u8 explode )
 {
   Network::GraphicEffectPkt msg;
   msg.stationaryEffect( pos.xyz(), effect, speed, loop, explode );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      pos, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      pos,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr->in_visual_range( nullptr, pos ) )
+          msg.Send( zonechr->client );
+      } );
 }
 
 void play_stationary_effect_ex( const Pos4d& pos, u16 effect, u8 speed, u8 duration, u32 hue,
@@ -1124,8 +1081,13 @@ void play_stationary_effect_ex( const Pos4d& pos, u16 effect, u8 speed, u8 durat
 {
   Network::GraphicEffectExPkt msg;
   msg.stationaryEffect( pos.xyz(), effect, speed, duration, hue, render, effect3d );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      pos, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      pos,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr->in_visual_range( nullptr, pos ) )
+          msg.Send( zonechr->client );
+      } );
 }
 
 void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed, u8 duration,
@@ -1133,8 +1095,12 @@ void play_object_centered_effect_ex( const UObject* center, u16 effect, u8 speed
 {
   Network::GraphicEffectExPkt msg;
   msg.followEffect( center, effect, speed, duration, hue, render, layer, effect3d );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( center,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( center ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
 }
 
 void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, u8 speed,
@@ -1145,12 +1111,16 @@ void play_moving_effect_ex( const UObject* src, const UObject* dst, u16 effect, 
   msg.movingEffect( src, dst, effect, speed, duration, hue, render, direction, explode, effect3d,
                     effect3dexplode, effect3dsound );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      src, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( src,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( src ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       dst,
       [&]( Character* zonechr ) {  // send to chrs only in range of dst
-        if ( !zonechr->in_visual_range( src ) )
+        if ( zonechr->in_visual_range( dst ) && !zonechr->in_visual_range( src ) )
           msg.Send( zonechr->client );
       } );
 }
@@ -1163,13 +1133,19 @@ void play_moving_effect2_ex( const Pos3d& src, const Pos3d& dst, Realms::Realm* 
   msg.movingEffect( src, dst, effect, speed, duration, hue, render, direction, explode, effect3d,
                     effect3dexplode, effect3dsound );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      src.xy(), realm, [&]( Character* zonechr ) { msg.Send( zonechr->client ); } );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      src.xy(), realm,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr->in_visual_range( nullptr, src.xy() ) )
+          msg.Send( zonechr->client );
+      } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       dst.xy(), realm,
       [&]( Character* zonechr )
       {
-        if ( !zonechr->in_visual_range( src.xy() ) )  // send to chrs only in range of dst
+        if ( zonechr->in_visual_range( nullptr, dst.xy() ) &&
+             !zonechr->in_visual_range( nullptr, src.xy() ) )  // send to chrs only in range of dst
           msg.Send( zonechr->client );
       } );
 }
@@ -1517,32 +1493,38 @@ void send_death_message( Character* chr_died, Item* corpse )
   msg->Write<u32>( corpse->serial_ext );
   msg->offset += 4;  // u32 unk4_zero
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( corpse,
-                                                    [&]( Character* zonechr )
-                                                    {
-                                                      if ( zonechr == chr_died )
-                                                        return;
-                                                      msg.Send( zonechr->client );
-                                                    } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( corpse,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr == chr_died )
+                                                           return;
+                                                         if ( zonechr->in_visual_range( corpse ) )
+                                                           msg.Send( zonechr->client );
+                                                       } );
 }
 
 void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen )
 {
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      center, [&]( Character* zonechr )
-      { Core::networkManager.clientTransmit->AddToQueue( zonechr->client, msg, msglen ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      center,
+      [&]( Character* zonechr )
+      {
+        if ( zonechr->in_visual_range( center ) )
+          Core::networkManager.clientTransmit->AddToQueue( zonechr->client, msg, msglen );
+      } );
 }
 
 void transmit_to_others_inrange( Character* center, const void* msg, unsigned msglen )
 {
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       center,
       [&]( Character* zonechr )
       {
         Client* client = zonechr->client;
         if ( zonechr == center )
           return;
-        Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
+        if ( zonechr->in_visual_range( center ) )
+          Core::networkManager.clientTransmit->AddToQueue( client, msg, msglen );
       } );
 }
 
@@ -1617,14 +1599,21 @@ void move_item( Items::Item* item, const Core::Pos4d& oldpos )
   item->restart_decay_timer();
   MoveItemWorldPosition( oldpos, item );
 
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      item, [&]( Character* zonechr ) { send_item( zonechr->client, item ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( item,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( item ) )
+                                                           send_item( zonechr->client, item );
+                                                       } );
   Network::RemoveObjectPkt msgremove( item->serial_ext );
-  WorldIterator<OnlinePlayerFilter>::InRange(
-      oldpos, RANGE_VISUAL,
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
+      oldpos,
       [&]( Character* zonechr )
       {
-        if ( !inrange( zonechr, item ) )  // not in range.  If old loc was in range, send a delete.
+        if ( !zonechr->in_visual_range( item, oldpos ) )
+          return;
+        if ( !zonechr->in_visual_range(
+                 item ) )  // not in range.  If old loc was in range, send a delete.
           msgremove.Send( zonechr->client );
       } );
 }
@@ -1640,8 +1629,12 @@ void send_multi_to_inrange( const Multi::UMulti* multi )
 {
   auto pkt =
       SendWorldMulti( multi->serial_ext, multi->multidef().multiid, multi->pos3d(), multi->color );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
-      multi, [&]( Character* zonechr ) { pkt.Send( zonechr->client ); } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( multi,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr->in_visual_range( multi ) )
+                                                           pkt.Send( zonechr->client );
+                                                       } );
 }
 
 
@@ -1770,7 +1763,7 @@ std::string format_description( unsigned int polflags, const std::string& descde
   if ( amount != 1 )
   {
     char s[15];
-    sprintf( s, "%hu ", amount );
+    snprintf( s, Clib::arsize( s ), "%hu ", amount );
     desc = s;
   }
   else if ( settingsManager.ssopt.use_tile_flag_prefix )
@@ -1865,7 +1858,7 @@ void register_with_supporting_multi( Item* item )
 void send_create_mobile_if_nearby_cansee( Client* client, const Character* chr )
 {
   if ( client->ready &&  // must be logged into game
-       inrange( client->chr, chr ) && client->chr != chr && client->chr->is_visible_to_me( chr ) )
+       client->chr != chr && client->chr->is_visible_to_me( chr ) )
   {
     send_owncreate( client, chr );
   }
@@ -1873,14 +1866,14 @@ void send_create_mobile_if_nearby_cansee( Client* client, const Character* chr )
 
 void send_create_mobile_to_nearby_cansee( const Character* chr )
 {
-  WorldIterator<OnlinePlayerFilter>::InVisualRange( chr,
-                                                    [&]( Character* zonechr )
-                                                    {
-                                                      if ( zonechr == chr )
-                                                        return;
-                                                      if ( zonechr->is_visible_to_me( chr ) )
-                                                        send_owncreate( zonechr->client, chr );
-                                                    } );
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( chr,
+                                                       [&]( Character* zonechr )
+                                                       {
+                                                         if ( zonechr == chr )
+                                                           return;
+                                                         if ( zonechr->is_visible_to_me( chr ) )
+                                                           send_owncreate( zonechr->client, chr );
+                                                       } );
 }
 
 void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_bar_status_update )
@@ -1894,7 +1887,7 @@ void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_b
   if ( chr->invul() || send_health_bar_status_update )
     msginvul.reset( new HealthBarStatusUpdate(
         chr->serial_ext, HealthBarStatusUpdate::Color::YELLOW, chr->invul() ) );
-  WorldIterator<OnlinePlayerFilter>::InVisualRange(
+  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
       chr,
       [&]( Character* zonechr )
       {

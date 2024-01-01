@@ -120,7 +120,7 @@ class Packet():
   def dushort(self):
     ''' Returns next unsigned short from the receive buffer '''
     return struct.unpack('>H', self.rpb(2))[0]
-  
+
   def dsshort(self):
     ''' Returns next signed short from the receive buffer '''
     return struct.unpack('>h', self.rpb(2))[0]
@@ -505,7 +505,6 @@ class DeleteObjectPacket(SerialOnlyPacket):
 
   cmd = 0x1d
 
-
 class ControlAnimationPacket(Packet):
   ''' Control Animation '''
 
@@ -625,17 +624,17 @@ class MobAttributesPacket(Packet):
     self.stam_current = self.dushort()
 
 class WornItemPacket(Packet):
-  ''' Informs about a Mobile's newly equipped item '''
+  ''' Informs about worn items '''
 
   cmd = 0x2e
   length = 15
 
   def decodeChild(self):
-    self.item_serial = self.duint()
+    self.serial = self.duint()
     self.graphic = self.dushort()
-    self.duchar() # 0x00
+    self.unk = self.duchar()
     self.layer = self.duchar()
-    self.mobile_serial = self.duint()
+    self.mobile = self.duint()
     self.color = self.dushort()
 
 class Unk32Packet(Packet):

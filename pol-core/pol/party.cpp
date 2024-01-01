@@ -564,10 +564,9 @@ void Party::send_msg_to_all( unsigned int clilocnr, const std::string& affix,
 
 void Party::send_stat_to( Mobile::Character* chr, Mobile::Character* bob ) const
 {
-  if ( ( chr != bob ) && ( is_member( bob->serial ) ) && ( chr->realm() == bob->realm() ) &&
-       ( pol_distance( chr->x(), chr->y(), bob->x(), bob->y() ) < 20 ) )
+  if ( ( chr != bob ) && ( is_member( bob->serial ) ) && chr->in_visual_range( bob ) )
   {
-    if ( !chr->is_visible_to_me( bob ) )
+    if ( !chr->is_visible_to_me( bob, /*check_range*/ false ) )
       send_short_statmsg( chr->client, bob );
 
     send_attributes_normalized( chr, bob );

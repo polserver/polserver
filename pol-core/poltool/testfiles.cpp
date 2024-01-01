@@ -1,5 +1,6 @@
 #include "testfiles.h"
 
+#include "../clib/clib.h"
 #include "../clib/logfacility.h"
 #include "../clib/strutil.h"
 #include "../plib/mapblock.h"
@@ -250,9 +251,9 @@ void FileGenerator::generateMap()
     for ( int y = 0; y < _height / 8; ++y )
     {
       writeFile( file, header );
-      for ( int bx = 0; bx < 8; ++bx )
+      for ( int by = 0; by < 8; ++by )
       {
-        for ( int by = 0; by < 8; ++by )
+        for ( int bx = 0; bx < 8; ++bx )
         {
           writeFile( file, map[y * 8 + by][x * 8 + bx] );
         }
@@ -264,16 +265,20 @@ void FileGenerator::generateMap()
 void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& map )
 {
   Plib::USTRUCT_MAPINFO water{ 0xa8, -5 };
+  Plib::USTRUCT_MAPINFO sandborder{ 0x17, -3 };
+  Plib::USTRUCT_MAPINFO sand{ 0x17, 0 };
   const int border = 30;
   int y = 0;
   for ( auto& line : map )
   {
     int x = 0;
+    // fill border (without transition area) with water
     std::replace_if(
         line.begin(), line.end(),
         [&]( const auto& )
         {
-          if ( x < border || x > _width - border || y < border || y > _width - border )
+          if ( x < border - 2 || x > _width - border + 1 || y < border - 2 ||
+               y > _height - border + 1 )
           {
             ++x;
             return true;
@@ -282,6 +287,47 @@ void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& 
           return false;
         },
         water );
+    // fill outer transition line with sand and z -3
+    x = 0;
+    std::replace_if(
+        line.begin(), line.end(),
+        [&]( const auto& e )
+        {
+          if ( e.landtile != 0x3 )
+          {
+            ++x;
+            return false;
+          }
+          if ( x == border - 2 || x == _width - border + 1 || y == border - 2 ||
+               y == _height - border + 1 )
+          {
+            ++x;
+            return true;
+          }
+          ++x;
+          return false;
+        },
+        sandborder );
+    // fill inner transition line with sand and z 0
+    x = 0;
+    std::replace_if(
+        line.begin(), line.end(),
+        [&]( const auto& e )
+        {
+          if ( e.landtile != 0x3 )
+          {
+            ++x;
+            return false;
+          }
+          if ( x == border - 1 || x == _width - border || y == border - 1 || y == _height - border )
+          {
+            ++x;
+            return true;
+          }
+          ++x;
+          return false;
+        },
+        sand );
     ++y;
   }
 }
@@ -335,8 +381,149 @@ void FileGenerator::modifyStatics(
         { graphic, static_cast<s8>( x % 8 ), static_cast<s8>( y % 8 ), z, hue } );
   };
 
-  addstatic( 10, 5, -5, 0x3fff, 0 );
-  addstatic( 11, 5, 10, 0x3fff, 0 );
+  auto addstatic_rel = [&]( u16 graphic, s16 x, s16 y, s16 z, u16 hue = 0 )
+  { addstatic( 150 + x, 150 + y, Clib::clamp_convert<s8>( 0 + z ), graphic, hue ); };
+  const u16 roof = 0x1;
+  addstatic_rel( 0x0066, -3, -3, 0 );
+  addstatic_rel( 0x0009, -3, -3, 7 );
+  addstatic_rel( 0x0064, -3, -2, 0 );
+  addstatic_rel( 0x0008, -3, -2, 7 );
+  addstatic_rel( 0x0064, -3, -1, 0 );
+  addstatic_rel( 0x0008, -3, -1, 7 );
+  addstatic_rel( 0x0064, -3, 0, 0 );
+  addstatic_rel( 0x0008, -3, 0, 7 );
+  addstatic_rel( 0x0064, -3, 1, 0 );
+  addstatic_rel( 0x000f, -3, 1, 7 );
+  addstatic_rel( 0x0064, -3, 2, 0 );
+  addstatic_rel( 0x0008, -3, 2, 7 );
+  addstatic_rel( 0x0064, -3, 3, 0 );
+  addstatic_rel( 0x0008, -3, 3, 7 );
+  addstatic_rel( 0x0063, -2, -3, 0 );
+  addstatic_rel( 0x0007, -2, -3, 7 );
+  addstatic_rel( 0x04b4, -2, -2, 7 );
+  addstatic_rel( 0x05c4, -2, -2, 27 );
+  addstatic_rel( 0x04ad, -2, -1, 7 );
+  addstatic_rel( 0x05c4, -2, -1, 27 );
+  addstatic_rel( 0x04ad, -2, 0, 7 );
+  addstatic_rel( 0x05c4, -2, 0, 27 );
+  addstatic_rel( 0x04ad, -2, 1, 7 );
+  addstatic_rel( 0x05c4, -2, 1, 27 );
+  addstatic_rel( 0x04ad, -2, 2, 7 );
+  addstatic_rel( 0x05c4, -2, 2, 27 );
+  addstatic_rel( 0x0063, -2, 3, 0 );
+  addstatic_rel( 0x04b2, -2, 3, 7 );
+  addstatic_rel( 0x0007, -2, 3, 7 );
+  addstatic_rel( 0x05c4, -2, 3, 27 );
+  addstatic_rel( 0x05c4, -2, 4, 27 );
+  addstatic_rel( 0x0063, -1, -3, 0 );
+  addstatic_rel( 0x0007, -1, -3, 7 );
+  addstatic_rel( 0x04b0, -1, -2, 7 );
+  addstatic_rel( 0x05c4, -1, -2, 30 );
+  addstatic_rel( 0x04ab, -1, -1, 7 );
+  addstatic_rel( 0x05c4, -1, -1, 30 );
+  addstatic_rel( 0x04aa, -1, 0, 7 );
+  addstatic_rel( 0x05c4, -1, 0, 30 );
+  addstatic_rel( 0x04ac, -1, 1, 7 );
+  addstatic_rel( 0x05c4, -1, 1, 30 );
+  addstatic_rel( 0x04a9, -1, 2, 7 );
+  addstatic_rel( 0x05c4, -1, 2, 30 );
+  addstatic_rel( 0x0063, -1, 3, 0 );
+  addstatic_rel( 0x04ae, -1, 3, 7 );
+  addstatic_rel( 0x000c, -1, 3, 7 );
+  addstatic_rel( 0x0018, -1, 3, 27 );
+  addstatic_rel( 0x05c4, -1, 3, 30 );
+  addstatic_rel( 0x0758, -1, 4, 2 );
+  addstatic_rel( 0x05c4, -1, 4, 30 );
+  addstatic_rel( 0x0063, 0, -3, 0 );
+  addstatic_rel( 0x0007, 0, -3, 7 );
+  addstatic_rel( 0x04b0, 0, -2, 7 );
+  addstatic_rel( 0x05c4, 0, -2, 33 );
+  addstatic_rel( 0x04a9, 0, -1, 7 );
+  addstatic_rel( 0x05c4, 0, -1, 33 );
+  addstatic_rel( 0x04ac, 0, 0, 7 );
+  addstatic_rel( 0x05c4, 0, 0, 33 );
+  addstatic_rel( 0x04ab, 0, 1, 7 );
+  addstatic_rel( 0x05c4, 0, 1, 33 );
+  addstatic_rel( 0x04aa, 0, 2, 7 );
+  addstatic_rel( 0x05c4, 0, 2, 33 );
+  addstatic_rel( 0x04ae, 0, 3, 7 );
+  //  addstatic_rel( 0x06a5, 0, 3, 7 );
+  addstatic_rel( 0x0018, 0, 3, 27 );
+  addstatic_rel( 0x05c4, 0, 3, 33 );
+  addstatic_rel( 0x0751, 0, 4, 2 );
+  addstatic_rel( 0x05c4, 0, 4, 33 );
+  addstatic_rel( 0x0063, 1, -3, 0 );
+  addstatic_rel( 0x0007, 1, -3, 7 );
+  addstatic_rel( 0x04b0, 1, -2, 7 );
+  addstatic_rel( 0x05c2, 1, -2, 36 );
+  addstatic_rel( 0x04aa, 1, -1, 7 );
+  addstatic_rel( 0x05c2, 1, -1, 36 );
+  addstatic_rel( 0x04a9, 1, 0, 7 );
+  addstatic_rel( 0x05c2, 1, 0, 36 );
+  addstatic_rel( 0x04a9, 1, 1, 7 );
+  addstatic_rel( 0x05c2, 1, 1, 36 );
+  addstatic_rel( 0x04ab, 1, 2, 7 );
+  addstatic_rel( 0x05c2, 1, 2, 36 );
+  addstatic_rel( 0x0063, 1, 3, 0 );
+  addstatic_rel( 0x04ae, 1, 3, 7 );
+  addstatic_rel( 0x000a, 1, 3, 7 );
+  addstatic_rel( 0x0018, 1, 3, 27 );
+  addstatic_rel( 0x05c2, 1, 3, 36 );
+  addstatic_rel( 0x0756, 1, 4, 2 );
+  addstatic_rel( 0x05c2, 1, 4, 36 );
+  addstatic_rel( 0x0063, 2, -3, 0 );
+  addstatic_rel( 0x0007, 2, -3, 7 );
+  addstatic_rel( 0x04b0, 2, -2, 7 );
+  addstatic_rel( 0x05c3, 2, -2, 33, roof );
+  addstatic_rel( 0x04ac, 2, -1, 7 );
+  addstatic_rel( 0x05c3, 2, -1, 33 );
+  addstatic_rel( 0x04ab, 2, 0, 7 );
+  addstatic_rel( 0x05c3, 2, 0, 33 );
+  addstatic_rel( 0x04aa, 2, 1, 7 );
+  addstatic_rel( 0x05c3, 2, 1, 33 );
+  addstatic_rel( 0x04ac, 2, 2, 7 );
+  addstatic_rel( 0x05c3, 2, 2, 33 );
+  addstatic_rel( 0x0063, 2, 3, 0 );
+  addstatic_rel( 0x04ae, 2, 3, 7 );
+  addstatic_rel( 0x0007, 2, 3, 7 );
+  addstatic_rel( 0x05c3, 2, 3, 33, roof );
+  // addstatic_rel( 0x0bd2, 2, 4, 5 );
+  addstatic_rel( 0x0b98, 2, 4, 5 );
+  addstatic_rel( 0x05c3, 2, 4, 33, roof );
+  addstatic_rel( 0x0063, 3, -3, 0 );
+  addstatic_rel( 0x0007, 3, -3, 7 );
+  addstatic_rel( 0x0064, 3, -2, 0 );
+  addstatic_rel( 0x04b3, 3, -2, 7 );
+  addstatic_rel( 0x0008, 3, -2, 7 );
+  addstatic_rel( 0x05c3, 3, -2, 30, roof );
+  addstatic_rel( 0x0064, 3, -1, 0 );
+  addstatic_rel( 0x04af, 3, -1, 7 );
+  addstatic_rel( 0x0008, 3, -1, 7 );
+  addstatic_rel( 0x05c3, 3, -1, 30 );
+  addstatic_rel( 0x0064, 3, 0, 0 );
+  addstatic_rel( 0x04af, 3, 0, 7 );
+  addstatic_rel( 0x0008, 3, 0, 7 );
+  addstatic_rel( 0x05c3, 3, 0, 30, roof );
+  addstatic_rel( 0x0064, 3, 1, 0 );
+  addstatic_rel( 0x04af, 3, 1, 7 );
+  addstatic_rel( 0x000f, 3, 1, 7 );
+  addstatic_rel( 0x05c3, 3, 1, 30, roof );
+  addstatic_rel( 0x0064, 3, 2, 0 );
+  addstatic_rel( 0x04af, 3, 2, 7 );
+  addstatic_rel( 0x0008, 3, 2, 7 );
+  addstatic_rel( 0x05c3, 3, 2, 30 );
+  addstatic_rel( 0x0065, 3, 3, 0 );
+  addstatic_rel( 0x04b1, 3, 3, 7 );
+  addstatic_rel( 0x0006, 3, 3, 7 );
+  addstatic_rel( 0x05c3, 3, 3, 30, roof );
+  addstatic_rel( 0x05c3, 3, 4, 30, roof );
+  addstatic_rel( 0x05c3, 4, -2, 27, roof );
+  addstatic_rel( 0x05c3, 4, -1, 27 );
+  addstatic_rel( 0x05c3, 4, 0, 27, roof );
+  addstatic_rel( 0x05c3, 4, 1, 27, roof );
+  addstatic_rel( 0x05c3, 4, 2, 27 );
+  addstatic_rel( 0x05c3, 4, 3, 27 );
+  addstatic_rel( 0x05c3, 4, 4, 27, roof );
 }
 
 template <typename T>

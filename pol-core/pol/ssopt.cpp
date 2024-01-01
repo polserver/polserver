@@ -34,6 +34,7 @@
 #include "../clib/cfgfile.h"
 #include "../clib/fileutil.h"
 #include "../clib/logfacility.h"
+#include "../clib/stlutil.h"
 #include "globals/settings.h"
 #include "network/pktdef.h"
 
@@ -66,12 +67,12 @@ void ServSpecOpt::read_servspecopt()
       elem.remove_bool( "RefreshDecayAfterBoatMoves", true );
   settingsManager.ssopt.default_doubleclick_range =
       elem.remove_ushort( "DefaultDoubleclickRange", 2 );
-  settingsManager.ssopt.default_accessible_range =
-      elem.remove_int( "DefaultAccessibleRange", settingsManager.ssopt.default_doubleclick_range );
+  settingsManager.ssopt.default_accessible_range = elem.remove_ushort(
+      "DefaultAccessibleRange", settingsManager.ssopt.default_doubleclick_range );
   settingsManager.ssopt.default_light_level = elem.remove_ushort( "DefaultLightLevel", 10 );
   settingsManager.ssopt.event_visibility_core_checks =
       elem.remove_bool( "EventVisibilityCoreChecks", false );
-  settingsManager.ssopt.max_pathfind_range = elem.remove_ulong( "MaxPathFindRange", 50 );
+  settingsManager.ssopt.max_pathfind_range = elem.remove_ushort( "MaxPathFindRange", 50 );
   settingsManager.ssopt.movement_uses_stamina = elem.remove_bool( "MovementUsesStamina", false );
   settingsManager.ssopt.use_tile_flag_prefix = elem.remove_bool( "UseTileFlagPrefix", true );
   settingsManager.ssopt.default_container_max_items =
@@ -193,13 +194,13 @@ void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )
       if ( *valend != '\0' || valend == valmax || statmax < statmin )
         break;  // invalid second value
       if ( statmax == statmin )
-        sprintf( tmp, "%lu", static_cast<unsigned long>( statmin ) );
+        snprintf( tmp, Clib::arsize( tmp ), "%lu", static_cast<unsigned long>( statmin ) );
       else
-        sprintf( tmp, "%lu-%lu", static_cast<unsigned long>( statmin ),
-                 static_cast<unsigned long>( statmax ) );
+        snprintf( tmp, Clib::arsize( tmp ), "%lu-%lu", static_cast<unsigned long>( statmin ),
+                  static_cast<unsigned long>( statmax ) );
     }
     else
-      sprintf( tmp, "%lu", static_cast<unsigned long>( statmin ) );
+      snprintf( tmp, Clib::arsize( tmp ), "%lu", static_cast<unsigned long>( statmin ) );
     settingsManager.ssopt.total_stats_at_creation.push_back( tmp );
     valok = true;
     token = strtok( nullptr, "," );

@@ -49,13 +49,14 @@ bool newstat_dont_add( std::vector<STATIC_ENTRY>& vec, USTRUCT_STATIC* pstat )
 
 int write_pol_static_files( const std::string& realm )
 {
+#ifndef NDEBUG
   unsigned int duplicates = 0;
   unsigned int illegales = 0;
   unsigned int statics = 0;
   unsigned int empties = 0;
   unsigned int nonempties = 0;
   unsigned int maxcount = 0;
-
+#endif
   std::string directory = "realm/" + realm + "/";
 
   std::string statidx_dat = directory + "statidx.dat";
@@ -105,16 +106,22 @@ int write_pol_static_files( const std::string& realm )
             nrec.z = pstat[i].z;
             nrec.hue = pstat[i].hue;
             vec.push_back( nrec );
+#ifndef NDEBUG
             ++statics;
+#endif
           }
           else
           {
+#ifndef NDEBUG
             ++duplicates;
+#endif
           }
         }
         else
         {
+#ifndef NDEBUG
           ++illegales;
+#endif
 
           if ( cfg_show_illegal_graphic_warning )
             INFO_PRINT << " Warning: Item with illegal Graphic 0x" << fmt::hexu( pstat[i].graphic )
@@ -127,12 +134,14 @@ int write_pol_static_files( const std::string& realm )
         fwrite( &vec[i], sizeof( STATIC_ENTRY ), 1, fdat );
         ++index;
       }
+#ifndef NDEBUG
       if ( vec.empty() )
         ++empties;
       else
         ++nonempties;
       if ( vec.size() > maxcount )
         maxcount = static_cast<unsigned int>( vec.size() );
+#endif
     }
   }
   STATIC_INDEX idx;

@@ -117,6 +117,7 @@ struct PKTIN_03
   u16 font;
   char text[SPEECH_MAX_LEN + 1]; /* one or more characters, null-terminated. */
 };
+static_assert( sizeof( PKTIN_03 ) < MAXBUFFER, "size missmatch" );
 
 struct PKTIN_04
 {
@@ -347,9 +348,10 @@ struct PKTIN_9F
   {
     u32 serial;
     u16 amount;
-  } items[1];
+  } items[( MAXBUFFER - 9 ) / 6];
 };
-static_assert( sizeof( PKTIN_9F ) == 15, "size missmatch" );
+static_assert( sizeof( PKTIN_9F ) == 2559, "size missmatch" );
+static_assert( sizeof( PKTIN_9F ) < MAXBUFFER, "size missmatch" );
 
 struct PKTIN_A0
 {
@@ -387,9 +389,9 @@ struct PKTIN_AC
     RETCODE_OKAY
   };
   u16 datalen;
-  char data[1];
+  char data[MAXBUFFER - 12];
 };
-static_assert( sizeof( PKTIN_AC ) == 13, "size missmatch" );
+static_assert( sizeof( PKTIN_AC ) == MAXBUFFER, "size missmatch" );
 
 struct PKTIN_AD
 {
@@ -398,10 +400,10 @@ struct PKTIN_AD
   u8 type;
   u16 color;
   u16 font;
-  char lang[4];  // "enu" - US English
-  u16 wtext[2];  // wide-character, double-null terminated
+  char lang[4];                       // "enu" - US English
+  u16 wtext[( MAXBUFFER - 12 ) / 2];  // wide-character, double-null terminated
 };
-static_assert( sizeof( PKTIN_AD ) == 16, "size missmatch" );
+static_assert( sizeof( PKTIN_AD ) == MAXBUFFER, "size missmatch" );
 
 struct PKTIN_B1
 {
@@ -507,6 +509,7 @@ struct PKTIN_E4
   u32 unknown_length;  // 16 Bytes
   u8 unknown[RESPONSE_MAX_LEN];
 };
+static_assert( sizeof( PKTIN_E4 ) == 207, "size missmatch" );
 
 struct PKTIN_EF
 {
@@ -573,7 +576,7 @@ static_assert( sizeof( PKTIN_FA ) == 1, "size missmatch" );
 struct PKTIN_FB
 {
   u8 msgtype;  // Byte 0
-  u8 show;  // Bytes 1
+  u8 show;     // Bytes 1
 };
 static_assert( sizeof( PKTIN_FB ) == 2, "size missmatch" );
 

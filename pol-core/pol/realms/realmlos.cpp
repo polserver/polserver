@@ -4,6 +4,7 @@
  */
 #include <stdlib.h>
 
+#include "clib/clib.h"
 #include "clib/rawtypes.h"
 #include "plib/mapcell.h"
 
@@ -133,11 +134,6 @@ bool Realm::los_blocked( const Core::ULWObject& att, const Core::ULWObject& targ
   return dynamic_item_blocks_los( pos, cache ) || static_item_blocks_los( pos, cache );
 }
 
-s8 clip_s8( int v )
-{
-  return static_cast<s8>( std::clamp( v, static_cast<int>( std::numeric_limits<s8>::min() ),
-                                      static_cast<int>( std::numeric_limits<s8>::max() ) ) );
-}
 /// absolute value of a
 #define ABS( a ) ( ( ( a ) < 0 ) ? -( a ) : ( a ) )
 
@@ -258,7 +254,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, Clib::clamp_convert<s8>( z ) ), cache ) )
         return false;
 
       if ( x == x2 )
@@ -290,7 +286,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, Clib::clamp_convert<s8>( z ) ), cache ) )
         return false;
 
       if ( y == y2 )
@@ -322,7 +318,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
 
     for ( ;; )
     {
-      if ( los_blocked( att, tgt, Core::Pos3d( x, y, clip_s8( z ) ), cache ) )
+      if ( los_blocked( att, tgt, Core::Pos3d( x, y, Clib::clamp_convert<s8>( z ) ), cache ) )
         return false;
 
       if ( z == z2 )

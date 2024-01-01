@@ -18,7 +18,6 @@ program chartests()
     return ret_error("Could not find char at slot 1");
   endif
 
-  // Create things out of sight of client to bypass WornItems missing handled client packet
   npc:=CreateNpcFromTemplate(":TestClient:test_snooping", 100, 100, 0, forcelocation := 1);
   if (!npc)
     return ret_error("Failed to create NPC: "+npc);
@@ -45,7 +44,7 @@ program chartests()
 endprogram
 
 exported function use_backpack_out_of_range()
-  MoveObjectToLocation(npc, 100, 100, 0, flags := MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation(npc, char.x+20, char.y, char.z, flags := MOVEOBJECT_FORCELOCATION);
   Clear_Event_Queue();
   clientcon.sendevent(struct{todo:="double_click", arg:=npc.backpack.serial, id:=0});
   var ev;

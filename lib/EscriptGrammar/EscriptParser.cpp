@@ -1,7 +1,7 @@
 
 
 
-// Generated from lib/EscriptGrammar/EscriptParser.g4 by ANTLR 4.8
+// Generated from EscriptParser.g4 by ANTLR 4.13.1
 
 
 #include "EscriptParserListener.h"
@@ -12,14 +12,419 @@
 
 using namespace antlrcpp;
 using namespace EscriptGrammar;
+
 using namespace antlr4;
 
-EscriptParser::EscriptParser(antlr4::TokenStream *input) : Parser(input) {
-  _interpreter = new atn::ParserATNSimulator(this, _atn, _decisionToDFA, _sharedContextCache);
+namespace {
+
+struct EscriptParserStaticData final {
+  EscriptParserStaticData(std::vector<std::string> ruleNames,
+                        std::vector<std::string> literalNames,
+                        std::vector<std::string> symbolicNames)
+      : ruleNames(std::move(ruleNames)), literalNames(std::move(literalNames)),
+        symbolicNames(std::move(symbolicNames)),
+        vocabulary(this->literalNames, this->symbolicNames) {}
+
+  EscriptParserStaticData(const EscriptParserStaticData&) = delete;
+  EscriptParserStaticData(EscriptParserStaticData&&) = delete;
+  EscriptParserStaticData& operator=(const EscriptParserStaticData&) = delete;
+  EscriptParserStaticData& operator=(EscriptParserStaticData&&) = delete;
+
+  std::vector<antlr4::dfa::DFA> decisionToDFA;
+  antlr4::atn::PredictionContextCache sharedContextCache;
+  const std::vector<std::string> ruleNames;
+  const std::vector<std::string> literalNames;
+  const std::vector<std::string> symbolicNames;
+  const antlr4::dfa::Vocabulary vocabulary;
+  antlr4::atn::SerializedATNView serializedATN;
+  std::unique_ptr<antlr4::atn::ATN> atn;
+};
+
+::antlr4::internal::OnceFlag escriptparserParserOnceFlag;
+#if ANTLR4_USE_THREAD_LOCAL_CACHE
+static thread_local
+#endif
+EscriptParserStaticData *escriptparserParserStaticData = nullptr;
+
+void escriptparserParserInitialize() {
+#if ANTLR4_USE_THREAD_LOCAL_CACHE
+  if (escriptparserParserStaticData != nullptr) {
+    return;
+  }
+#else
+  assert(escriptparserParserStaticData == nullptr);
+#endif
+  auto staticData = std::make_unique<EscriptParserStaticData>(
+    std::vector<std::string>{
+      "compilationUnit", "moduleUnit", "moduleDeclarationStatement", "moduleFunctionDeclaration", 
+      "moduleFunctionParameterList", "moduleFunctionParameter", "topLevelDeclaration", 
+      "functionDeclaration", "stringIdentifier", "useDeclaration", "includeDeclaration", 
+      "programDeclaration", "statement", "statementLabel", "ifStatement", 
+      "gotoStatement", "returnStatement", "constStatement", "varStatement", 
+      "doStatement", "whileStatement", "exitStatement", "breakStatement", 
+      "continueStatement", "forStatement", "foreachIterableExpression", 
+      "foreachStatement", "repeatStatement", "caseStatement", "enumStatement", 
+      "block", "variableDeclarationInitializer", "enumList", "enumListEntry", 
+      "switchBlockStatementGroup", "switchLabel", "forGroup", "basicForStatement", 
+      "cstyleForStatement", "identifierList", "variableDeclarationList", 
+      "constantDeclaration", "variableDeclaration", "programParameters", 
+      "programParameterList", "programParameter", "functionParameters", 
+      "functionParameterList", "functionParameter", "scopedFunctionCall", 
+      "functionReference", "expression", "primary", "explicitArrayInitializer", 
+      "explicitStructInitializer", "explicitDictInitializer", "explicitErrorInitializer", 
+      "bareArrayInitializer", "parExpression", "expressionList", "expressionSuffix", 
+      "indexingSuffix", "navigationSuffix", "methodCallSuffix", "functionCall", 
+      "structInitializerExpression", "structInitializerExpressionList", 
+      "structInitializer", "dictInitializerExpression", "dictInitializerExpressionList", 
+      "dictInitializer", "arrayInitializer", "literal", "interpolatedString", 
+      "interpolatedStringPart", "integerLiteral", "floatLiteral"
+    },
+    std::vector<std::string>{
+      "", "'if'", "'then'", "'elseif'", "'endif'", "'else'", "'goto'", "'return'", 
+      "'const'", "'var'", "'do'", "'dowhile'", "'while'", "'endwhile'", 
+      "'exit'", "'function'", "'endfunction'", "'exported'", "'use'", "'include'", 
+      "'break'", "'continue'", "'for'", "'endfor'", "'to'", "'foreach'", 
+      "'endforeach'", "'repeat'", "'until'", "'program'", "'endprogram'", 
+      "'case'", "'default'", "'endcase'", "'enum'", "'endenum'", "'downto'", 
+      "'step'", "'reference'", "'out'", "'inout'", "'ByVal'", "'string'", 
+      "'long'", "'integer'", "'unsigned'", "'signed'", "'real'", "'float'", 
+      "'double'", "'as'", "'is'", "'&&'", "'and'", "'||'", "'or'", "'!'", 
+      "'not'", "'byref'", "'unused'", "'error'", "'hash'", "'dictionary'", 
+      "'struct'", "'array'", "'stack'", "'in'", "", "", "", "", "", "", 
+      "", "", "'('", "')'", "'['", "']'", "'{'", "'}'", "'.'", "'->'", "'*'", 
+      "'/'", "'%'", "'+'", "'-'", "'+='", "'-='", "'*='", "'/='", "'%='", 
+      "'<='", "'<'", "'>='", "'>'", "'>>'", "'<<'", "'&'", "'^'", "'|'", 
+      "'<>'", "'!='", "'='", "'=='", "':='", "'.+'", "'.-'", "'.\\u003F'", 
+      "';'", "','", "'~'", "'@'", "'::'", "':'", "'++'", "'--'", "'\\u003F:'", 
+      "'\\u003F'", "", "", "", "", "'{{'"
+    },
+    std::vector<std::string>{
+      "", "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST", 
+      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION", 
+      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR", 
+      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM", 
+      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "DOWNTO", "STEP", 
+      "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING", "TOK_LONG", "INTEGER", 
+      "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE", "AS", "IS", "AND_A", 
+      "AND_B", "OR_A", "OR_B", "BANG_A", "BANG_B", "BYREF", "UNUSED", "TOK_ERROR", 
+      "HASH", "DICTIONARY", "STRUCT", "ARRAY", "STACK", "TOK_IN", "DECIMAL_LITERAL", 
+      "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL", "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", 
+      "STRING_LITERAL", "INTERPOLATED_STRING_START", "LPAREN", "RPAREN", 
+      "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", "ARROW", "MUL", "DIV", 
+      "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", 
+      "MOD_ASSIGN", "LE", "LT", "GE", "GT", "RSHIFT", "LSHIFT", "BITAND", 
+      "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", "EQUAL_DEPRECATED", 
+      "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER", "SEMI", 
+      "COMMA", "TILDE", "AT", "COLONCOLON", "COLON", "INC", "DEC", "ELVIS", 
+      "QUESTION", "WS", "COMMENT", "LINE_COMMENT", "IDENTIFIER", "DOUBLE_LBRACE_INSIDE", 
+      "LBRACE_INSIDE", "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", "DOUBLE_RBRACE", 
+      "STRING_LITERAL_INSIDE", "CLOSE_RBRACE_INSIDE", "FORMAT_STRING"
+    }
+  );
+  static const int32_t serializedATNSegment[] = {
+  	4,1,131,784,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
+  	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
+  	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
+  	28,2,29,7,29,2,30,7,30,2,31,7,31,2,32,7,32,2,33,7,33,2,34,7,34,2,35,7,
+  	35,2,36,7,36,2,37,7,37,2,38,7,38,2,39,7,39,2,40,7,40,2,41,7,41,2,42,7,
+  	42,2,43,7,43,2,44,7,44,2,45,7,45,2,46,7,46,2,47,7,47,2,48,7,48,2,49,7,
+  	49,2,50,7,50,2,51,7,51,2,52,7,52,2,53,7,53,2,54,7,54,2,55,7,55,2,56,7,
+  	56,2,57,7,57,2,58,7,58,2,59,7,59,2,60,7,60,2,61,7,61,2,62,7,62,2,63,7,
+  	63,2,64,7,64,2,65,7,65,2,66,7,66,2,67,7,67,2,68,7,68,2,69,7,69,2,70,7,
+  	70,2,71,7,71,2,72,7,72,2,73,7,73,2,74,7,74,2,75,7,75,2,76,7,76,1,0,5,
+  	0,156,8,0,10,0,12,0,159,9,0,1,0,1,0,1,1,5,1,164,8,1,10,1,12,1,167,9,1,
+  	1,1,1,1,1,2,1,2,3,2,173,8,2,1,3,1,3,1,3,3,3,178,8,3,1,3,1,3,1,3,1,4,1,
+  	4,1,4,5,4,186,8,4,10,4,12,4,189,9,4,1,5,1,5,1,5,3,5,194,8,5,1,6,1,6,1,
+  	6,1,6,1,6,3,6,201,8,6,1,7,3,7,204,8,7,1,7,1,7,1,7,1,7,1,7,1,7,1,8,1,8,
+  	1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,11,1,11,1,11,1,11,1,11,1,11,1,12,
+  	1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,
+  	1,12,1,12,1,12,1,12,3,12,247,8,12,1,13,1,13,1,13,1,14,1,14,1,14,3,14,
+  	255,8,14,1,14,1,14,1,14,1,14,1,14,5,14,262,8,14,10,14,12,14,265,9,14,
+  	1,14,1,14,3,14,269,8,14,1,14,1,14,1,15,1,15,1,15,1,15,1,16,1,16,3,16,
+  	279,8,16,1,16,1,16,1,17,1,17,1,17,1,17,1,18,1,18,1,18,1,18,1,19,3,19,
+  	292,8,19,1,19,1,19,1,19,1,19,1,19,1,19,1,20,3,20,301,8,20,1,20,1,20,1,
+  	20,1,20,1,20,1,21,1,21,1,21,1,22,1,22,3,22,313,8,22,1,22,1,22,1,23,1,
+  	23,3,23,319,8,23,1,23,1,23,1,24,3,24,324,8,24,1,24,1,24,1,24,1,24,1,25,
+  	1,25,1,25,1,25,1,25,1,25,3,25,336,8,25,1,26,3,26,339,8,26,1,26,1,26,1,
+  	26,1,26,1,26,1,26,1,26,1,27,3,27,349,8,27,1,27,1,27,1,27,1,27,1,27,1,
+  	27,1,28,3,28,358,8,28,1,28,1,28,1,28,1,28,1,28,4,28,365,8,28,11,28,12,
+  	28,366,1,28,1,28,1,29,1,29,1,29,1,29,1,29,1,30,5,30,377,8,30,10,30,12,
+  	30,380,9,30,1,31,1,31,1,31,1,31,1,31,1,31,1,31,3,31,389,8,31,1,32,1,32,
+  	1,32,5,32,394,8,32,10,32,12,32,397,9,32,1,32,3,32,400,8,32,1,33,1,33,
+  	1,33,3,33,405,8,33,1,34,4,34,408,8,34,11,34,12,34,409,1,34,1,34,1,35,
+  	1,35,1,35,3,35,417,8,35,1,35,1,35,1,35,3,35,422,8,35,1,36,1,36,3,36,426,
+  	8,36,1,37,1,37,1,37,1,37,1,37,1,37,1,37,1,38,1,38,1,38,1,38,1,38,1,38,
+  	1,38,1,38,1,38,1,39,1,39,1,39,3,39,447,8,39,1,40,1,40,1,40,5,40,452,8,
+  	40,10,40,12,40,455,9,40,1,41,1,41,1,41,1,42,1,42,3,42,462,8,42,1,43,1,
+  	43,3,43,466,8,43,1,43,1,43,1,44,1,44,3,44,472,8,44,1,44,5,44,475,8,44,
+  	10,44,12,44,478,9,44,1,45,1,45,1,45,1,45,1,45,3,45,485,8,45,3,45,487,
+  	8,45,1,46,1,46,3,46,491,8,46,1,46,1,46,1,47,1,47,1,47,5,47,498,8,47,10,
+  	47,12,47,501,9,47,1,48,3,48,504,8,48,1,48,3,48,507,8,48,1,48,1,48,1,48,
+  	3,48,512,8,48,1,49,1,49,1,49,1,49,1,50,1,50,1,50,1,51,1,51,1,51,1,51,
+  	1,51,1,51,3,51,527,8,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,
+  	1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,
+  	1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,1,51,
+  	1,51,1,51,1,51,1,51,1,51,1,51,1,51,5,51,573,8,51,10,51,12,51,576,9,51,
+  	1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,1,52,3,52,590,
+  	8,52,1,53,1,53,3,53,594,8,53,1,54,1,54,3,54,598,8,54,1,55,1,55,3,55,602,
+  	8,55,1,56,1,56,3,56,606,8,56,1,57,1,57,3,57,610,8,57,1,57,1,57,1,57,3,
+  	57,615,8,57,1,57,1,57,1,57,3,57,620,8,57,1,58,1,58,1,58,1,58,1,59,1,59,
+  	1,59,5,59,629,8,59,10,59,12,59,632,9,59,1,60,1,60,1,60,3,60,637,8,60,
+  	1,61,1,61,1,61,1,61,1,62,1,62,1,62,1,63,1,63,1,63,1,63,3,63,650,8,63,
+  	1,63,1,63,1,64,1,64,1,64,3,64,657,8,64,1,64,1,64,1,65,1,65,1,65,3,65,
+  	664,8,65,1,65,1,65,1,65,3,65,669,8,65,3,65,671,8,65,1,66,1,66,1,66,5,
+  	66,676,8,66,10,66,12,66,679,9,66,1,67,1,67,3,67,683,8,67,1,67,1,67,1,
+  	67,3,67,688,8,67,1,67,1,67,1,67,3,67,693,8,67,1,68,1,68,1,68,3,68,698,
+  	8,68,1,69,1,69,1,69,5,69,703,8,69,10,69,12,69,706,9,69,1,70,1,70,3,70,
+  	710,8,70,1,70,1,70,1,70,3,70,715,8,70,1,70,1,70,1,70,3,70,720,8,70,1,
+  	71,1,71,3,71,724,8,71,1,71,1,71,1,71,3,71,729,8,71,1,71,1,71,1,71,1,71,
+  	1,71,3,71,736,8,71,1,71,1,71,1,71,3,71,741,8,71,1,71,1,71,1,71,3,71,746,
+  	8,71,1,72,1,72,1,72,3,72,751,8,72,1,73,1,73,5,73,755,8,73,10,73,12,73,
+  	758,9,73,1,73,1,73,1,74,1,74,1,74,1,74,3,74,766,8,74,1,74,1,74,1,74,3,
+  	74,771,8,74,1,74,1,74,1,74,1,74,1,74,3,74,778,8,74,1,75,1,75,1,76,1,76,
+  	1,76,0,1,102,77,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,
+  	40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,
+  	86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,122,
+  	124,126,128,130,132,134,136,138,140,142,144,146,148,150,152,0,14,2,0,
+  	73,73,123,123,2,0,86,87,116,117,2,0,56,57,112,112,2,0,83,85,97,99,2,0,
+  	86,87,100,101,1,0,93,96,2,0,102,103,105,105,1,0,52,53,1,0,54,55,1,0,107,
+  	109,2,0,88,92,106,106,1,0,116,117,1,0,67,70,1,0,71,72,843,0,157,1,0,0,
+  	0,2,165,1,0,0,0,4,172,1,0,0,0,6,174,1,0,0,0,8,182,1,0,0,0,10,190,1,0,
+  	0,0,12,200,1,0,0,0,14,203,1,0,0,0,16,211,1,0,0,0,18,213,1,0,0,0,20,217,
+  	1,0,0,0,22,221,1,0,0,0,24,246,1,0,0,0,26,248,1,0,0,0,28,251,1,0,0,0,30,
+  	272,1,0,0,0,32,276,1,0,0,0,34,282,1,0,0,0,36,286,1,0,0,0,38,291,1,0,0,
+  	0,40,300,1,0,0,0,42,307,1,0,0,0,44,310,1,0,0,0,46,316,1,0,0,0,48,323,
+  	1,0,0,0,50,335,1,0,0,0,52,338,1,0,0,0,54,348,1,0,0,0,56,357,1,0,0,0,58,
+  	370,1,0,0,0,60,378,1,0,0,0,62,388,1,0,0,0,64,390,1,0,0,0,66,401,1,0,0,
+  	0,68,407,1,0,0,0,70,421,1,0,0,0,72,425,1,0,0,0,74,427,1,0,0,0,76,434,
+  	1,0,0,0,78,443,1,0,0,0,80,448,1,0,0,0,82,456,1,0,0,0,84,459,1,0,0,0,86,
+  	463,1,0,0,0,88,469,1,0,0,0,90,486,1,0,0,0,92,488,1,0,0,0,94,494,1,0,0,
+  	0,96,503,1,0,0,0,98,513,1,0,0,0,100,517,1,0,0,0,102,526,1,0,0,0,104,589,
+  	1,0,0,0,106,591,1,0,0,0,108,595,1,0,0,0,110,599,1,0,0,0,112,603,1,0,0,
+  	0,114,619,1,0,0,0,116,621,1,0,0,0,118,625,1,0,0,0,120,636,1,0,0,0,122,
+  	638,1,0,0,0,124,642,1,0,0,0,126,645,1,0,0,0,128,653,1,0,0,0,130,670,1,
+  	0,0,0,132,672,1,0,0,0,134,692,1,0,0,0,136,694,1,0,0,0,138,699,1,0,0,0,
+  	140,719,1,0,0,0,142,745,1,0,0,0,144,750,1,0,0,0,146,752,1,0,0,0,148,777,
+  	1,0,0,0,150,779,1,0,0,0,152,781,1,0,0,0,154,156,3,12,6,0,155,154,1,0,
+  	0,0,156,159,1,0,0,0,157,155,1,0,0,0,157,158,1,0,0,0,158,160,1,0,0,0,159,
+  	157,1,0,0,0,160,161,5,0,0,1,161,1,1,0,0,0,162,164,3,4,2,0,163,162,1,0,
+  	0,0,164,167,1,0,0,0,165,163,1,0,0,0,165,166,1,0,0,0,166,168,1,0,0,0,167,
+  	165,1,0,0,0,168,169,5,0,0,1,169,3,1,0,0,0,170,173,3,6,3,0,171,173,3,34,
+  	17,0,172,170,1,0,0,0,172,171,1,0,0,0,173,5,1,0,0,0,174,175,5,123,0,0,
+  	175,177,5,75,0,0,176,178,3,8,4,0,177,176,1,0,0,0,177,178,1,0,0,0,178,
+  	179,1,0,0,0,179,180,5,76,0,0,180,181,5,110,0,0,181,7,1,0,0,0,182,187,
+  	3,10,5,0,183,184,5,111,0,0,184,186,3,10,5,0,185,183,1,0,0,0,186,189,1,
+  	0,0,0,187,185,1,0,0,0,187,188,1,0,0,0,188,9,1,0,0,0,189,187,1,0,0,0,190,
+  	193,5,123,0,0,191,192,5,106,0,0,192,194,3,102,51,0,193,191,1,0,0,0,193,
+  	194,1,0,0,0,194,11,1,0,0,0,195,201,3,18,9,0,196,201,3,20,10,0,197,201,
+  	3,22,11,0,198,201,3,14,7,0,199,201,3,24,12,0,200,195,1,0,0,0,200,196,
+  	1,0,0,0,200,197,1,0,0,0,200,198,1,0,0,0,200,199,1,0,0,0,201,13,1,0,0,
+  	0,202,204,5,17,0,0,203,202,1,0,0,0,203,204,1,0,0,0,204,205,1,0,0,0,205,
+  	206,5,15,0,0,206,207,5,123,0,0,207,208,3,92,46,0,208,209,3,60,30,0,209,
+  	210,5,16,0,0,210,15,1,0,0,0,211,212,7,0,0,0,212,17,1,0,0,0,213,214,5,
+  	18,0,0,214,215,3,16,8,0,215,216,5,110,0,0,216,19,1,0,0,0,217,218,5,19,
+  	0,0,218,219,3,16,8,0,219,220,5,110,0,0,220,21,1,0,0,0,221,222,5,29,0,
+  	0,222,223,5,123,0,0,223,224,3,86,43,0,224,225,3,60,30,0,225,226,5,30,
+  	0,0,226,23,1,0,0,0,227,247,3,28,14,0,228,247,3,30,15,0,229,247,3,32,16,
+  	0,230,247,3,34,17,0,231,247,3,36,18,0,232,247,3,38,19,0,233,247,3,40,
+  	20,0,234,247,3,42,21,0,235,247,3,44,22,0,236,247,3,46,23,0,237,247,3,
+  	48,24,0,238,247,3,52,26,0,239,247,3,54,27,0,240,247,3,56,28,0,241,247,
+  	3,58,29,0,242,247,5,110,0,0,243,244,3,102,51,0,244,245,5,110,0,0,245,
+  	247,1,0,0,0,246,227,1,0,0,0,246,228,1,0,0,0,246,229,1,0,0,0,246,230,1,
+  	0,0,0,246,231,1,0,0,0,246,232,1,0,0,0,246,233,1,0,0,0,246,234,1,0,0,0,
+  	246,235,1,0,0,0,246,236,1,0,0,0,246,237,1,0,0,0,246,238,1,0,0,0,246,239,
+  	1,0,0,0,246,240,1,0,0,0,246,241,1,0,0,0,246,242,1,0,0,0,246,243,1,0,0,
+  	0,247,25,1,0,0,0,248,249,5,123,0,0,249,250,5,115,0,0,250,27,1,0,0,0,251,
+  	252,5,1,0,0,252,254,3,116,58,0,253,255,5,2,0,0,254,253,1,0,0,0,254,255,
+  	1,0,0,0,255,256,1,0,0,0,256,263,3,60,30,0,257,258,5,3,0,0,258,259,3,116,
+  	58,0,259,260,3,60,30,0,260,262,1,0,0,0,261,257,1,0,0,0,262,265,1,0,0,
+  	0,263,261,1,0,0,0,263,264,1,0,0,0,264,268,1,0,0,0,265,263,1,0,0,0,266,
+  	267,5,5,0,0,267,269,3,60,30,0,268,266,1,0,0,0,268,269,1,0,0,0,269,270,
+  	1,0,0,0,270,271,5,4,0,0,271,29,1,0,0,0,272,273,5,6,0,0,273,274,5,123,
+  	0,0,274,275,5,110,0,0,275,31,1,0,0,0,276,278,5,7,0,0,277,279,3,102,51,
+  	0,278,277,1,0,0,0,278,279,1,0,0,0,279,280,1,0,0,0,280,281,5,110,0,0,281,
+  	33,1,0,0,0,282,283,5,8,0,0,283,284,3,82,41,0,284,285,5,110,0,0,285,35,
+  	1,0,0,0,286,287,5,9,0,0,287,288,3,80,40,0,288,289,5,110,0,0,289,37,1,
+  	0,0,0,290,292,3,26,13,0,291,290,1,0,0,0,291,292,1,0,0,0,292,293,1,0,0,
+  	0,293,294,5,10,0,0,294,295,3,60,30,0,295,296,5,11,0,0,296,297,3,116,58,
+  	0,297,298,5,110,0,0,298,39,1,0,0,0,299,301,3,26,13,0,300,299,1,0,0,0,
+  	300,301,1,0,0,0,301,302,1,0,0,0,302,303,5,12,0,0,303,304,3,116,58,0,304,
+  	305,3,60,30,0,305,306,5,13,0,0,306,41,1,0,0,0,307,308,5,14,0,0,308,309,
+  	5,110,0,0,309,43,1,0,0,0,310,312,5,20,0,0,311,313,5,123,0,0,312,311,1,
+  	0,0,0,312,313,1,0,0,0,313,314,1,0,0,0,314,315,5,110,0,0,315,45,1,0,0,
+  	0,316,318,5,21,0,0,317,319,5,123,0,0,318,317,1,0,0,0,318,319,1,0,0,0,
+  	319,320,1,0,0,0,320,321,5,110,0,0,321,47,1,0,0,0,322,324,3,26,13,0,323,
+  	322,1,0,0,0,323,324,1,0,0,0,324,325,1,0,0,0,325,326,5,22,0,0,326,327,
+  	3,72,36,0,327,328,5,23,0,0,328,49,1,0,0,0,329,336,3,128,64,0,330,336,
+  	3,98,49,0,331,336,5,123,0,0,332,336,3,116,58,0,333,336,3,114,57,0,334,
+  	336,3,106,53,0,335,329,1,0,0,0,335,330,1,0,0,0,335,331,1,0,0,0,335,332,
+  	1,0,0,0,335,333,1,0,0,0,335,334,1,0,0,0,336,51,1,0,0,0,337,339,3,26,13,
+  	0,338,337,1,0,0,0,338,339,1,0,0,0,339,340,1,0,0,0,340,341,5,25,0,0,341,
+  	342,5,123,0,0,342,343,5,66,0,0,343,344,3,50,25,0,344,345,3,60,30,0,345,
+  	346,5,26,0,0,346,53,1,0,0,0,347,349,3,26,13,0,348,347,1,0,0,0,348,349,
+  	1,0,0,0,349,350,1,0,0,0,350,351,5,27,0,0,351,352,3,60,30,0,352,353,5,
+  	28,0,0,353,354,3,102,51,0,354,355,5,110,0,0,355,55,1,0,0,0,356,358,3,
+  	26,13,0,357,356,1,0,0,0,357,358,1,0,0,0,358,359,1,0,0,0,359,360,5,31,
+  	0,0,360,361,5,75,0,0,361,362,3,102,51,0,362,364,5,76,0,0,363,365,3,68,
+  	34,0,364,363,1,0,0,0,365,366,1,0,0,0,366,364,1,0,0,0,366,367,1,0,0,0,
+  	367,368,1,0,0,0,368,369,5,33,0,0,369,57,1,0,0,0,370,371,5,34,0,0,371,
+  	372,5,123,0,0,372,373,3,64,32,0,373,374,5,35,0,0,374,59,1,0,0,0,375,377,
+  	3,24,12,0,376,375,1,0,0,0,377,380,1,0,0,0,378,376,1,0,0,0,378,379,1,0,
+  	0,0,379,61,1,0,0,0,380,378,1,0,0,0,381,382,5,106,0,0,382,389,3,102,51,
+  	0,383,384,5,104,0,0,384,385,3,102,51,0,385,386,6,31,-1,0,386,389,1,0,
+  	0,0,387,389,5,64,0,0,388,381,1,0,0,0,388,383,1,0,0,0,388,387,1,0,0,0,
+  	389,63,1,0,0,0,390,395,3,66,33,0,391,392,5,111,0,0,392,394,3,66,33,0,
+  	393,391,1,0,0,0,394,397,1,0,0,0,395,393,1,0,0,0,395,396,1,0,0,0,396,399,
+  	1,0,0,0,397,395,1,0,0,0,398,400,5,111,0,0,399,398,1,0,0,0,399,400,1,0,
+  	0,0,400,65,1,0,0,0,401,404,5,123,0,0,402,403,5,106,0,0,403,405,3,102,
+  	51,0,404,402,1,0,0,0,404,405,1,0,0,0,405,67,1,0,0,0,406,408,3,70,35,0,
+  	407,406,1,0,0,0,408,409,1,0,0,0,409,407,1,0,0,0,409,410,1,0,0,0,410,411,
+  	1,0,0,0,411,412,3,60,30,0,412,69,1,0,0,0,413,417,3,150,75,0,414,417,5,
+  	123,0,0,415,417,5,73,0,0,416,413,1,0,0,0,416,414,1,0,0,0,416,415,1,0,
+  	0,0,417,418,1,0,0,0,418,422,5,115,0,0,419,420,5,32,0,0,420,422,5,115,
+  	0,0,421,416,1,0,0,0,421,419,1,0,0,0,422,71,1,0,0,0,423,426,3,76,38,0,
+  	424,426,3,74,37,0,425,423,1,0,0,0,425,424,1,0,0,0,426,73,1,0,0,0,427,
+  	428,5,123,0,0,428,429,5,106,0,0,429,430,3,102,51,0,430,431,5,24,0,0,431,
+  	432,3,102,51,0,432,433,3,60,30,0,433,75,1,0,0,0,434,435,5,75,0,0,435,
+  	436,3,102,51,0,436,437,5,110,0,0,437,438,3,102,51,0,438,439,5,110,0,0,
+  	439,440,3,102,51,0,440,441,5,76,0,0,441,442,3,60,30,0,442,77,1,0,0,0,
+  	443,446,5,123,0,0,444,445,5,111,0,0,445,447,3,78,39,0,446,444,1,0,0,0,
+  	446,447,1,0,0,0,447,79,1,0,0,0,448,453,3,84,42,0,449,450,5,111,0,0,450,
+  	452,3,84,42,0,451,449,1,0,0,0,452,455,1,0,0,0,453,451,1,0,0,0,453,454,
+  	1,0,0,0,454,81,1,0,0,0,455,453,1,0,0,0,456,457,5,123,0,0,457,458,3,62,
+  	31,0,458,83,1,0,0,0,459,461,5,123,0,0,460,462,3,62,31,0,461,460,1,0,0,
+  	0,461,462,1,0,0,0,462,85,1,0,0,0,463,465,5,75,0,0,464,466,3,88,44,0,465,
+  	464,1,0,0,0,465,466,1,0,0,0,466,467,1,0,0,0,467,468,5,76,0,0,468,87,1,
+  	0,0,0,469,476,3,90,45,0,470,472,5,111,0,0,471,470,1,0,0,0,471,472,1,0,
+  	0,0,472,473,1,0,0,0,473,475,3,90,45,0,474,471,1,0,0,0,475,478,1,0,0,0,
+  	476,474,1,0,0,0,476,477,1,0,0,0,477,89,1,0,0,0,478,476,1,0,0,0,479,480,
+  	5,59,0,0,480,487,5,123,0,0,481,484,5,123,0,0,482,483,5,106,0,0,483,485,
+  	3,102,51,0,484,482,1,0,0,0,484,485,1,0,0,0,485,487,1,0,0,0,486,479,1,
+  	0,0,0,486,481,1,0,0,0,487,91,1,0,0,0,488,490,5,75,0,0,489,491,3,94,47,
+  	0,490,489,1,0,0,0,490,491,1,0,0,0,491,492,1,0,0,0,492,493,5,76,0,0,493,
+  	93,1,0,0,0,494,499,3,96,48,0,495,496,5,111,0,0,496,498,3,96,48,0,497,
+  	495,1,0,0,0,498,501,1,0,0,0,499,497,1,0,0,0,499,500,1,0,0,0,500,95,1,
+  	0,0,0,501,499,1,0,0,0,502,504,5,58,0,0,503,502,1,0,0,0,503,504,1,0,0,
+  	0,504,506,1,0,0,0,505,507,5,59,0,0,506,505,1,0,0,0,506,507,1,0,0,0,507,
+  	508,1,0,0,0,508,511,5,123,0,0,509,510,5,106,0,0,510,512,3,102,51,0,511,
+  	509,1,0,0,0,511,512,1,0,0,0,512,97,1,0,0,0,513,514,5,123,0,0,514,515,
+  	5,114,0,0,515,516,3,128,64,0,516,99,1,0,0,0,517,518,5,113,0,0,518,519,
+  	5,123,0,0,519,101,1,0,0,0,520,521,6,51,-1,0,521,527,3,104,52,0,522,523,
+  	7,1,0,0,523,527,3,102,51,14,524,525,7,2,0,0,525,527,3,102,51,13,526,520,
+  	1,0,0,0,526,522,1,0,0,0,526,524,1,0,0,0,527,574,1,0,0,0,528,529,10,12,
+  	0,0,529,530,7,3,0,0,530,573,3,102,51,13,531,532,10,11,0,0,532,533,7,4,
+  	0,0,533,573,3,102,51,12,534,535,10,10,0,0,535,536,5,118,0,0,536,573,3,
+  	102,51,11,537,538,10,9,0,0,538,539,5,66,0,0,539,573,3,102,51,10,540,541,
+  	10,8,0,0,541,542,7,5,0,0,542,573,3,102,51,9,543,544,10,7,0,0,544,545,
+  	5,104,0,0,545,546,6,51,-1,0,546,573,3,102,51,8,547,548,10,6,0,0,548,549,
+  	7,6,0,0,549,573,3,102,51,7,550,551,10,5,0,0,551,552,7,7,0,0,552,573,3,
+  	102,51,6,553,554,10,4,0,0,554,555,7,8,0,0,555,573,3,102,51,5,556,557,
+  	10,3,0,0,557,558,5,119,0,0,558,559,3,102,51,0,559,560,5,115,0,0,560,561,
+  	3,102,51,4,561,573,1,0,0,0,562,563,10,2,0,0,563,564,7,9,0,0,564,573,3,
+  	102,51,2,565,566,10,1,0,0,566,567,7,10,0,0,567,573,3,102,51,1,568,569,
+  	10,16,0,0,569,573,3,120,60,0,570,571,10,15,0,0,571,573,7,11,0,0,572,528,
+  	1,0,0,0,572,531,1,0,0,0,572,534,1,0,0,0,572,537,1,0,0,0,572,540,1,0,0,
+  	0,572,543,1,0,0,0,572,547,1,0,0,0,572,550,1,0,0,0,572,553,1,0,0,0,572,
+  	556,1,0,0,0,572,562,1,0,0,0,572,565,1,0,0,0,572,568,1,0,0,0,572,570,1,
+  	0,0,0,573,576,1,0,0,0,574,572,1,0,0,0,574,575,1,0,0,0,575,103,1,0,0,0,
+  	576,574,1,0,0,0,577,590,3,144,72,0,578,590,3,116,58,0,579,590,3,128,64,
+  	0,580,590,3,98,49,0,581,590,5,123,0,0,582,590,3,100,50,0,583,590,3,106,
+  	53,0,584,590,3,108,54,0,585,590,3,110,55,0,586,590,3,112,56,0,587,590,
+  	3,114,57,0,588,590,3,146,73,0,589,577,1,0,0,0,589,578,1,0,0,0,589,579,
+  	1,0,0,0,589,580,1,0,0,0,589,581,1,0,0,0,589,582,1,0,0,0,589,583,1,0,0,
+  	0,589,584,1,0,0,0,589,585,1,0,0,0,589,586,1,0,0,0,589,587,1,0,0,0,589,
+  	588,1,0,0,0,590,105,1,0,0,0,591,593,5,64,0,0,592,594,3,142,71,0,593,592,
+  	1,0,0,0,593,594,1,0,0,0,594,107,1,0,0,0,595,597,5,63,0,0,596,598,3,134,
+  	67,0,597,596,1,0,0,0,597,598,1,0,0,0,598,109,1,0,0,0,599,601,5,62,0,0,
+  	600,602,3,140,70,0,601,600,1,0,0,0,601,602,1,0,0,0,602,111,1,0,0,0,603,
+  	605,5,60,0,0,604,606,3,134,67,0,605,604,1,0,0,0,605,606,1,0,0,0,606,113,
+  	1,0,0,0,607,609,5,79,0,0,608,610,3,118,59,0,609,608,1,0,0,0,609,610,1,
+  	0,0,0,610,611,1,0,0,0,611,620,5,80,0,0,612,614,5,79,0,0,613,615,3,118,
+  	59,0,614,613,1,0,0,0,614,615,1,0,0,0,615,616,1,0,0,0,616,617,5,111,0,
+  	0,617,618,5,80,0,0,618,620,6,57,-1,0,619,607,1,0,0,0,619,612,1,0,0,0,
+  	620,115,1,0,0,0,621,622,5,75,0,0,622,623,3,102,51,0,623,624,5,76,0,0,
+  	624,117,1,0,0,0,625,630,3,102,51,0,626,627,5,111,0,0,627,629,3,102,51,
+  	0,628,626,1,0,0,0,629,632,1,0,0,0,630,628,1,0,0,0,630,631,1,0,0,0,631,
+  	119,1,0,0,0,632,630,1,0,0,0,633,637,3,122,61,0,634,637,3,126,63,0,635,
+  	637,3,124,62,0,636,633,1,0,0,0,636,634,1,0,0,0,636,635,1,0,0,0,637,121,
+  	1,0,0,0,638,639,5,77,0,0,639,640,3,118,59,0,640,641,5,78,0,0,641,123,
+  	1,0,0,0,642,643,5,81,0,0,643,644,7,0,0,0,644,125,1,0,0,0,645,646,5,81,
+  	0,0,646,647,5,123,0,0,647,649,5,75,0,0,648,650,3,118,59,0,649,648,1,0,
+  	0,0,649,650,1,0,0,0,650,651,1,0,0,0,651,652,5,76,0,0,652,127,1,0,0,0,
+  	653,654,5,123,0,0,654,656,5,75,0,0,655,657,3,118,59,0,656,655,1,0,0,0,
+  	656,657,1,0,0,0,657,658,1,0,0,0,658,659,5,76,0,0,659,129,1,0,0,0,660,
+  	663,5,123,0,0,661,662,5,106,0,0,662,664,3,102,51,0,663,661,1,0,0,0,663,
+  	664,1,0,0,0,664,671,1,0,0,0,665,668,5,73,0,0,666,667,5,106,0,0,667,669,
+  	3,102,51,0,668,666,1,0,0,0,668,669,1,0,0,0,669,671,1,0,0,0,670,660,1,
+  	0,0,0,670,665,1,0,0,0,671,131,1,0,0,0,672,677,3,130,65,0,673,674,5,111,
+  	0,0,674,676,3,130,65,0,675,673,1,0,0,0,676,679,1,0,0,0,677,675,1,0,0,
+  	0,677,678,1,0,0,0,678,133,1,0,0,0,679,677,1,0,0,0,680,682,5,79,0,0,681,
+  	683,3,132,66,0,682,681,1,0,0,0,682,683,1,0,0,0,683,684,1,0,0,0,684,693,
+  	5,80,0,0,685,687,5,79,0,0,686,688,3,132,66,0,687,686,1,0,0,0,687,688,
+  	1,0,0,0,688,689,1,0,0,0,689,690,5,111,0,0,690,691,5,80,0,0,691,693,6,
+  	67,-1,0,692,680,1,0,0,0,692,685,1,0,0,0,693,135,1,0,0,0,694,697,3,102,
+  	51,0,695,696,5,82,0,0,696,698,3,102,51,0,697,695,1,0,0,0,697,698,1,0,
+  	0,0,698,137,1,0,0,0,699,704,3,136,68,0,700,701,5,111,0,0,701,703,3,136,
+  	68,0,702,700,1,0,0,0,703,706,1,0,0,0,704,702,1,0,0,0,704,705,1,0,0,0,
+  	705,139,1,0,0,0,706,704,1,0,0,0,707,709,5,79,0,0,708,710,3,138,69,0,709,
+  	708,1,0,0,0,709,710,1,0,0,0,710,711,1,0,0,0,711,720,5,80,0,0,712,714,
+  	5,79,0,0,713,715,3,138,69,0,714,713,1,0,0,0,714,715,1,0,0,0,715,716,1,
+  	0,0,0,716,717,5,111,0,0,717,718,5,80,0,0,718,720,6,70,-1,0,719,707,1,
+  	0,0,0,719,712,1,0,0,0,720,141,1,0,0,0,721,723,5,79,0,0,722,724,3,118,
+  	59,0,723,722,1,0,0,0,723,724,1,0,0,0,724,725,1,0,0,0,725,746,5,80,0,0,
+  	726,728,5,79,0,0,727,729,3,118,59,0,728,727,1,0,0,0,728,729,1,0,0,0,729,
+  	730,1,0,0,0,730,731,5,111,0,0,731,732,5,80,0,0,732,746,6,71,-1,0,733,
+  	735,5,75,0,0,734,736,3,118,59,0,735,734,1,0,0,0,735,736,1,0,0,0,736,737,
+  	1,0,0,0,737,746,5,76,0,0,738,740,5,75,0,0,739,741,3,118,59,0,740,739,
+  	1,0,0,0,740,741,1,0,0,0,741,742,1,0,0,0,742,743,5,111,0,0,743,744,5,76,
+  	0,0,744,746,6,71,-1,0,745,721,1,0,0,0,745,726,1,0,0,0,745,733,1,0,0,0,
+  	745,738,1,0,0,0,746,143,1,0,0,0,747,751,3,150,75,0,748,751,3,152,76,0,
+  	749,751,5,73,0,0,750,747,1,0,0,0,750,748,1,0,0,0,750,749,1,0,0,0,751,
+  	145,1,0,0,0,752,756,5,74,0,0,753,755,3,148,74,0,754,753,1,0,0,0,755,758,
+  	1,0,0,0,756,754,1,0,0,0,756,757,1,0,0,0,757,759,1,0,0,0,758,756,1,0,0,
+  	0,759,760,5,127,0,0,760,147,1,0,0,0,761,762,5,125,0,0,762,765,3,102,51,
+  	0,763,764,5,115,0,0,764,766,5,131,0,0,765,763,1,0,0,0,765,766,1,0,0,0,
+  	766,778,1,0,0,0,767,770,5,125,0,0,768,769,5,115,0,0,769,771,5,131,0,0,
+  	770,768,1,0,0,0,770,771,1,0,0,0,771,772,1,0,0,0,772,778,6,74,-1,0,773,
+  	778,5,124,0,0,774,778,5,126,0,0,775,778,5,128,0,0,776,778,5,129,0,0,777,
+  	761,1,0,0,0,777,767,1,0,0,0,777,773,1,0,0,0,777,774,1,0,0,0,777,775,1,
+  	0,0,0,777,776,1,0,0,0,778,149,1,0,0,0,779,780,7,12,0,0,780,151,1,0,0,
+  	0,781,782,7,13,0,0,782,153,1,0,0,0,82,157,165,172,177,187,193,200,203,
+  	246,254,263,268,278,291,300,312,318,323,335,338,348,357,366,378,388,395,
+  	399,404,409,416,421,425,446,453,461,465,471,476,484,486,490,499,503,506,
+  	511,526,572,574,589,593,597,601,605,609,614,619,630,636,649,656,663,668,
+  	670,677,682,687,692,697,704,709,714,719,723,728,735,740,745,750,756,765,
+  	770,777
+  };
+  staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
+
+  antlr4::atn::ATNDeserializer deserializer;
+  staticData->atn = deserializer.deserialize(staticData->serializedATN);
+
+  const size_t count = staticData->atn->getNumberOfDecisions();
+  staticData->decisionToDFA.reserve(count);
+  for (size_t i = 0; i < count; i++) { 
+    staticData->decisionToDFA.emplace_back(staticData->atn->getDecisionState(i), i);
+  }
+  escriptparserParserStaticData = staticData.release();
+}
+
+}
+
+EscriptParser::EscriptParser(TokenStream *input) : EscriptParser(input, antlr4::atn::ParserATNSimulatorOptions()) {}
+
+EscriptParser::EscriptParser(TokenStream *input, const antlr4::atn::ParserATNSimulatorOptions &options) : Parser(input) {
+  EscriptParser::initialize();
+  _interpreter = new atn::ParserATNSimulator(this, *escriptparserParserStaticData->atn, escriptparserParserStaticData->decisionToDFA, escriptparserParserStaticData->sharedContextCache, options);
 }
 
 EscriptParser::~EscriptParser() {
   delete _interpreter;
+}
+
+const atn::ATN& EscriptParser::getATN() const {
+  return *escriptparserParserStaticData->atn;
 }
 
 std::string EscriptParser::getGrammarFileName() const {
@@ -27,11 +432,15 @@ std::string EscriptParser::getGrammarFileName() const {
 }
 
 const std::vector<std::string>& EscriptParser::getRuleNames() const {
-  return _ruleNames;
+  return escriptparserParserStaticData->ruleNames;
 }
 
-dfa::Vocabulary& EscriptParser::getVocabulary() const {
-  return _vocabulary;
+const dfa::Vocabulary& EscriptParser::getVocabulary() const {
+  return escriptparserParserStaticData->vocabulary;
+}
+
+antlr4::atn::SerializedATNView EscriptParser::getSerializedATN() const {
+  return escriptparserParserStaticData->serializedATN;
 }
 
 
@@ -71,7 +480,7 @@ void EscriptParser::CompilationUnitContext::exitRule(tree::ParseTreeListener *li
 }
 
 
-antlrcpp::Any EscriptParser::CompilationUnitContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::CompilationUnitContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitCompilationUnit(this);
   else
@@ -83,7 +492,11 @@ EscriptParser::CompilationUnitContext* EscriptParser::compilationUnit() {
   enterRule(_localctx, 0, EscriptParser::RuleCompilationUnit);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -92,50 +505,8 @@ EscriptParser::CompilationUnitContext* EscriptParser::compilationUnit() {
     _errHandler->sync(this);
     _la = _input->LA(1);
     while ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << EscriptParser::IF)
-      | (1ULL << EscriptParser::GOTO)
-      | (1ULL << EscriptParser::RETURN)
-      | (1ULL << EscriptParser::TOK_CONST)
-      | (1ULL << EscriptParser::VAR)
-      | (1ULL << EscriptParser::DO)
-      | (1ULL << EscriptParser::WHILE)
-      | (1ULL << EscriptParser::EXIT)
-      | (1ULL << EscriptParser::FUNCTION)
-      | (1ULL << EscriptParser::EXPORTED)
-      | (1ULL << EscriptParser::USE)
-      | (1ULL << EscriptParser::INCLUDE)
-      | (1ULL << EscriptParser::BREAK)
-      | (1ULL << EscriptParser::CONTINUE)
-      | (1ULL << EscriptParser::FOR)
-      | (1ULL << EscriptParser::FOREACH)
-      | (1ULL << EscriptParser::REPEAT)
-      | (1ULL << EscriptParser::PROGRAM)
-      | (1ULL << EscriptParser::CASE)
-      | (1ULL << EscriptParser::ENUM)
-      | (1ULL << EscriptParser::BANG_A)
-      | (1ULL << EscriptParser::BANG_B)
-      | (1ULL << EscriptParser::TOK_ERROR)
-      | (1ULL << EscriptParser::DICTIONARY)
-      | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-      | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-      | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-      | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-      | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-      | (1ULL << (EscriptParser::LPAREN - 64))
-      | (1ULL << (EscriptParser::LBRACE - 64))
-      | (1ULL << (EscriptParser::ADD - 64))
-      | (1ULL << (EscriptParser::SUB - 64))
-      | (1ULL << (EscriptParser::SEMI - 64))
-      | (1ULL << (EscriptParser::TILDE - 64))
-      | (1ULL << (EscriptParser::AT - 64))
-      | (1ULL << (EscriptParser::INC - 64))
-      | (1ULL << (EscriptParser::DEC - 64))
-      | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+      ((1ULL << _la) & -3242591711666448446) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << (_la - 64)) & 590886344872464377) != 0)) {
       setState(154);
       topLevelDeclaration();
       setState(159);
@@ -191,7 +562,7 @@ void EscriptParser::ModuleUnitContext::exitRule(tree::ParseTreeListener *listene
 }
 
 
-antlrcpp::Any EscriptParser::ModuleUnitContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ModuleUnitContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitModuleUnit(this);
   else
@@ -203,7 +574,11 @@ EscriptParser::ModuleUnitContext* EscriptParser::moduleUnit() {
   enterRule(_localctx, 2, EscriptParser::RuleModuleUnit);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -263,7 +638,7 @@ void EscriptParser::ModuleDeclarationStatementContext::exitRule(tree::ParseTreeL
 }
 
 
-antlrcpp::Any EscriptParser::ModuleDeclarationStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ModuleDeclarationStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitModuleDeclarationStatement(this);
   else
@@ -274,7 +649,11 @@ EscriptParser::ModuleDeclarationStatementContext* EscriptParser::moduleDeclarati
   ModuleDeclarationStatementContext *_localctx = _tracker.createInstance<ModuleDeclarationStatementContext>(_ctx, getState());
   enterRule(_localctx, 4, EscriptParser::RuleModuleDeclarationStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -353,7 +732,7 @@ void EscriptParser::ModuleFunctionDeclarationContext::exitRule(tree::ParseTreeLi
 }
 
 
-antlrcpp::Any EscriptParser::ModuleFunctionDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ModuleFunctionDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitModuleFunctionDeclaration(this);
   else
@@ -365,7 +744,11 @@ EscriptParser::ModuleFunctionDeclarationContext* EscriptParser::moduleFunctionDe
   enterRule(_localctx, 6, EscriptParser::RuleModuleFunctionDeclaration);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -437,7 +820,7 @@ void EscriptParser::ModuleFunctionParameterListContext::exitRule(tree::ParseTree
 }
 
 
-antlrcpp::Any EscriptParser::ModuleFunctionParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ModuleFunctionParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitModuleFunctionParameterList(this);
   else
@@ -449,7 +832,11 @@ EscriptParser::ModuleFunctionParameterListContext* EscriptParser::moduleFunction
   enterRule(_localctx, 8, EscriptParser::RuleModuleFunctionParameterList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -515,7 +902,7 @@ void EscriptParser::ModuleFunctionParameterContext::exitRule(tree::ParseTreeList
 }
 
 
-antlrcpp::Any EscriptParser::ModuleFunctionParameterContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ModuleFunctionParameterContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitModuleFunctionParameter(this);
   else
@@ -527,7 +914,11 @@ EscriptParser::ModuleFunctionParameterContext* EscriptParser::moduleFunctionPara
   enterRule(_localctx, 10, EscriptParser::RuleModuleFunctionParameter);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -599,7 +990,7 @@ void EscriptParser::TopLevelDeclarationContext::exitRule(tree::ParseTreeListener
 }
 
 
-antlrcpp::Any EscriptParser::TopLevelDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::TopLevelDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitTopLevelDeclaration(this);
   else
@@ -610,7 +1001,11 @@ EscriptParser::TopLevelDeclarationContext* EscriptParser::topLevelDeclaration() 
   TopLevelDeclarationContext *_localctx = _tracker.createInstance<TopLevelDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 12, EscriptParser::RuleTopLevelDeclaration);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -753,7 +1148,7 @@ void EscriptParser::FunctionDeclarationContext::exitRule(tree::ParseTreeListener
 }
 
 
-antlrcpp::Any EscriptParser::FunctionDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FunctionDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFunctionDeclaration(this);
   else
@@ -765,7 +1160,11 @@ EscriptParser::FunctionDeclarationContext* EscriptParser::functionDeclaration() 
   enterRule(_localctx, 14, EscriptParser::RuleFunctionDeclaration);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -831,7 +1230,7 @@ void EscriptParser::StringIdentifierContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::StringIdentifierContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::StringIdentifierContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitStringIdentifier(this);
   else
@@ -843,7 +1242,11 @@ EscriptParser::StringIdentifierContext* EscriptParser::stringIdentifier() {
   enterRule(_localctx, 16, EscriptParser::RuleStringIdentifier);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -906,7 +1309,7 @@ void EscriptParser::UseDeclarationContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::UseDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::UseDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitUseDeclaration(this);
   else
@@ -917,7 +1320,11 @@ EscriptParser::UseDeclarationContext* EscriptParser::useDeclaration() {
   UseDeclarationContext *_localctx = _tracker.createInstance<UseDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 18, EscriptParser::RuleUseDeclaration);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -975,7 +1382,7 @@ void EscriptParser::IncludeDeclarationContext::exitRule(tree::ParseTreeListener 
 }
 
 
-antlrcpp::Any EscriptParser::IncludeDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IncludeDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitIncludeDeclaration(this);
   else
@@ -986,7 +1393,11 @@ EscriptParser::IncludeDeclarationContext* EscriptParser::includeDeclaration() {
   IncludeDeclarationContext *_localctx = _tracker.createInstance<IncludeDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 20, EscriptParser::RuleIncludeDeclaration);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1052,7 +1463,7 @@ void EscriptParser::ProgramDeclarationContext::exitRule(tree::ParseTreeListener 
 }
 
 
-antlrcpp::Any EscriptParser::ProgramDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ProgramDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitProgramDeclaration(this);
   else
@@ -1063,7 +1474,11 @@ EscriptParser::ProgramDeclarationContext* EscriptParser::programDeclaration() {
   ProgramDeclarationContext *_localctx = _tracker.createInstance<ProgramDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 22, EscriptParser::RuleProgramDeclaration);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1181,7 +1596,7 @@ void EscriptParser::StatementContext::exitRule(tree::ParseTreeListener *listener
 }
 
 
-antlrcpp::Any EscriptParser::StatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::StatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitStatement(this);
   else
@@ -1192,7 +1607,11 @@ EscriptParser::StatementContext* EscriptParser::statement() {
   StatementContext *_localctx = _tracker.createInstance<StatementContext>(_ctx, getState());
   enterRule(_localctx, 24, EscriptParser::RuleStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1314,12 +1733,14 @@ EscriptParser::StatementContext* EscriptParser::statement() {
     case 17: {
       enterOuterAlt(_localctx, 17);
       setState(243);
-      dynamic_cast<StatementContext *>(_localctx)->statementExpression = expression(0);
+      antlrcpp::downCast<StatementContext *>(_localctx)->statementExpression = expression(0);
       setState(244);
       match(EscriptParser::SEMI);
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -1364,7 +1785,7 @@ void EscriptParser::StatementLabelContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::StatementLabelContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::StatementLabelContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitStatementLabel(this);
   else
@@ -1375,7 +1796,11 @@ EscriptParser::StatementLabelContext* EscriptParser::statementLabel() {
   StatementLabelContext *_localctx = _tracker.createInstance<StatementLabelContext>(_ctx, getState());
   enterRule(_localctx, 26, EscriptParser::RuleStatementLabel);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1459,7 +1884,7 @@ void EscriptParser::IfStatementContext::exitRule(tree::ParseTreeListener *listen
 }
 
 
-antlrcpp::Any EscriptParser::IfStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IfStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitIfStatement(this);
   else
@@ -1471,7 +1896,11 @@ EscriptParser::IfStatementContext* EscriptParser::ifStatement() {
   enterRule(_localctx, 28, EscriptParser::RuleIfStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1563,7 +1992,7 @@ void EscriptParser::GotoStatementContext::exitRule(tree::ParseTreeListener *list
 }
 
 
-antlrcpp::Any EscriptParser::GotoStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::GotoStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitGotoStatement(this);
   else
@@ -1574,7 +2003,11 @@ EscriptParser::GotoStatementContext* EscriptParser::gotoStatement() {
   GotoStatementContext *_localctx = _tracker.createInstance<GotoStatementContext>(_ctx, getState());
   enterRule(_localctx, 30, EscriptParser::RuleGotoStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1632,7 +2065,7 @@ void EscriptParser::ReturnStatementContext::exitRule(tree::ParseTreeListener *li
 }
 
 
-antlrcpp::Any EscriptParser::ReturnStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ReturnStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitReturnStatement(this);
   else
@@ -1644,7 +2077,11 @@ EscriptParser::ReturnStatementContext* EscriptParser::returnStatement() {
   enterRule(_localctx, 32, EscriptParser::RuleReturnStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1656,29 +2093,8 @@ EscriptParser::ReturnStatementContext* EscriptParser::returnStatement() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-      | (1ULL << EscriptParser::BANG_B)
-      | (1ULL << EscriptParser::TOK_ERROR)
-      | (1ULL << EscriptParser::DICTIONARY)
-      | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-      | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-      | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-      | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-      | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-      | (1ULL << (EscriptParser::LPAREN - 64))
-      | (1ULL << (EscriptParser::LBRACE - 64))
-      | (1ULL << (EscriptParser::ADD - 64))
-      | (1ULL << (EscriptParser::SUB - 64))
-      | (1ULL << (EscriptParser::TILDE - 64))
-      | (1ULL << (EscriptParser::AT - 64))
-      | (1ULL << (EscriptParser::INC - 64))
-      | (1ULL << (EscriptParser::DEC - 64))
-      | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
       setState(277);
       expression(0);
     }
@@ -1731,7 +2147,7 @@ void EscriptParser::ConstStatementContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::ConstStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ConstStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitConstStatement(this);
   else
@@ -1742,7 +2158,11 @@ EscriptParser::ConstStatementContext* EscriptParser::constStatement() {
   ConstStatementContext *_localctx = _tracker.createInstance<ConstStatementContext>(_ctx, getState());
   enterRule(_localctx, 34, EscriptParser::RuleConstStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1800,7 +2220,7 @@ void EscriptParser::VarStatementContext::exitRule(tree::ParseTreeListener *liste
 }
 
 
-antlrcpp::Any EscriptParser::VarStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::VarStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitVarStatement(this);
   else
@@ -1811,7 +2231,11 @@ EscriptParser::VarStatementContext* EscriptParser::varStatement() {
   VarStatementContext *_localctx = _tracker.createInstance<VarStatementContext>(_ctx, getState());
   enterRule(_localctx, 36, EscriptParser::RuleVarStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1881,7 +2305,7 @@ void EscriptParser::DoStatementContext::exitRule(tree::ParseTreeListener *listen
 }
 
 
-antlrcpp::Any EscriptParser::DoStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::DoStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitDoStatement(this);
   else
@@ -1893,7 +2317,11 @@ EscriptParser::DoStatementContext* EscriptParser::doStatement() {
   enterRule(_localctx, 38, EscriptParser::RuleDoStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -1971,7 +2399,7 @@ void EscriptParser::WhileStatementContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::WhileStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::WhileStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitWhileStatement(this);
   else
@@ -1983,7 +2411,11 @@ EscriptParser::WhileStatementContext* EscriptParser::whileStatement() {
   enterRule(_localctx, 40, EscriptParser::RuleWhileStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2047,7 +2479,7 @@ void EscriptParser::ExitStatementContext::exitRule(tree::ParseTreeListener *list
 }
 
 
-antlrcpp::Any EscriptParser::ExitStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExitStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExitStatement(this);
   else
@@ -2058,7 +2490,11 @@ EscriptParser::ExitStatementContext* EscriptParser::exitStatement() {
   ExitStatementContext *_localctx = _tracker.createInstance<ExitStatementContext>(_ctx, getState());
   enterRule(_localctx, 42, EscriptParser::RuleExitStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2114,7 +2550,7 @@ void EscriptParser::BreakStatementContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::BreakStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BreakStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitBreakStatement(this);
   else
@@ -2126,7 +2562,11 @@ EscriptParser::BreakStatementContext* EscriptParser::breakStatement() {
   enterRule(_localctx, 44, EscriptParser::RuleBreakStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2190,7 +2630,7 @@ void EscriptParser::ContinueStatementContext::exitRule(tree::ParseTreeListener *
 }
 
 
-antlrcpp::Any EscriptParser::ContinueStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ContinueStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitContinueStatement(this);
   else
@@ -2202,7 +2642,11 @@ EscriptParser::ContinueStatementContext* EscriptParser::continueStatement() {
   enterRule(_localctx, 46, EscriptParser::RuleContinueStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2270,7 +2714,7 @@ void EscriptParser::ForStatementContext::exitRule(tree::ParseTreeListener *liste
 }
 
 
-antlrcpp::Any EscriptParser::ForStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ForStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitForStatement(this);
   else
@@ -2282,7 +2726,11 @@ EscriptParser::ForStatementContext* EscriptParser::forStatement() {
   enterRule(_localctx, 48, EscriptParser::RuleForStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2360,7 +2808,7 @@ void EscriptParser::ForeachIterableExpressionContext::exitRule(tree::ParseTreeLi
 }
 
 
-antlrcpp::Any EscriptParser::ForeachIterableExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ForeachIterableExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitForeachIterableExpression(this);
   else
@@ -2371,7 +2819,11 @@ EscriptParser::ForeachIterableExpressionContext* EscriptParser::foreachIterableE
   ForeachIterableExpressionContext *_localctx = _tracker.createInstance<ForeachIterableExpressionContext>(_ctx, getState());
   enterRule(_localctx, 50, EscriptParser::RuleForeachIterableExpression);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2420,6 +2872,8 @@ EscriptParser::ForeachIterableExpressionContext* EscriptParser::foreachIterableE
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -2484,7 +2938,7 @@ void EscriptParser::ForeachStatementContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::ForeachStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ForeachStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitForeachStatement(this);
   else
@@ -2496,7 +2950,11 @@ EscriptParser::ForeachStatementContext* EscriptParser::foreachStatement() {
   enterRule(_localctx, 52, EscriptParser::RuleForeachStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2580,7 +3038,7 @@ void EscriptParser::RepeatStatementContext::exitRule(tree::ParseTreeListener *li
 }
 
 
-antlrcpp::Any EscriptParser::RepeatStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::RepeatStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitRepeatStatement(this);
   else
@@ -2592,7 +3050,11 @@ EscriptParser::RepeatStatementContext* EscriptParser::repeatStatement() {
   enterRule(_localctx, 54, EscriptParser::RuleRepeatStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2682,7 +3144,7 @@ void EscriptParser::CaseStatementContext::exitRule(tree::ParseTreeListener *list
 }
 
 
-antlrcpp::Any EscriptParser::CaseStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::CaseStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitCaseStatement(this);
   else
@@ -2694,7 +3156,11 @@ EscriptParser::CaseStatementContext* EscriptParser::caseStatement() {
   enterRule(_localctx, 56, EscriptParser::RuleCaseStatement);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2725,12 +3191,7 @@ EscriptParser::CaseStatementContext* EscriptParser::caseStatement() {
       _errHandler->sync(this);
       _la = _input->LA(1);
     } while (_la == EscriptParser::DEFAULT || ((((_la - 67) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 67)) & ((1ULL << (EscriptParser::DECIMAL_LITERAL - 67))
-      | (1ULL << (EscriptParser::HEX_LITERAL - 67))
-      | (1ULL << (EscriptParser::OCT_LITERAL - 67))
-      | (1ULL << (EscriptParser::BINARY_LITERAL - 67))
-      | (1ULL << (EscriptParser::STRING_LITERAL - 67))
-      | (1ULL << (EscriptParser::IDENTIFIER - 67)))) != 0));
+      ((1ULL << (_la - 67)) & 72057594037928015) != 0));
     setState(368);
     match(EscriptParser::ENDCASE);
    
@@ -2784,7 +3245,7 @@ void EscriptParser::EnumStatementContext::exitRule(tree::ParseTreeListener *list
 }
 
 
-antlrcpp::Any EscriptParser::EnumStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::EnumStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitEnumStatement(this);
   else
@@ -2795,7 +3256,11 @@ EscriptParser::EnumStatementContext* EscriptParser::enumStatement() {
   EnumStatementContext *_localctx = _tracker.createInstance<EnumStatementContext>(_ctx, getState());
   enterRule(_localctx, 58, EscriptParser::RuleEnumStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2851,7 +3316,7 @@ void EscriptParser::BlockContext::exitRule(tree::ParseTreeListener *listener) {
 }
 
 
-antlrcpp::Any EscriptParser::BlockContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BlockContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitBlock(this);
   else
@@ -2862,7 +3327,11 @@ EscriptParser::BlockContext* EscriptParser::block() {
   BlockContext *_localctx = _tracker.createInstance<BlockContext>(_ctx, getState());
   enterRule(_localctx, 60, EscriptParser::RuleBlock);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -2931,7 +3400,7 @@ void EscriptParser::VariableDeclarationInitializerContext::exitRule(tree::ParseT
 }
 
 
-antlrcpp::Any EscriptParser::VariableDeclarationInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::VariableDeclarationInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitVariableDeclarationInitializer(this);
   else
@@ -2942,7 +3411,11 @@ EscriptParser::VariableDeclarationInitializerContext* EscriptParser::variableDec
   VariableDeclarationInitializerContext *_localctx = _tracker.createInstance<VariableDeclarationInitializerContext>(_ctx, getState());
   enterRule(_localctx, 62, EscriptParser::RuleVariableDeclarationInitializer);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3029,7 +3502,7 @@ void EscriptParser::EnumListContext::exitRule(tree::ParseTreeListener *listener)
 }
 
 
-antlrcpp::Any EscriptParser::EnumListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::EnumListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitEnumList(this);
   else
@@ -3041,7 +3514,11 @@ EscriptParser::EnumListContext* EscriptParser::enumList() {
   enterRule(_localctx, 64, EscriptParser::RuleEnumList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3118,7 +3595,7 @@ void EscriptParser::EnumListEntryContext::exitRule(tree::ParseTreeListener *list
 }
 
 
-antlrcpp::Any EscriptParser::EnumListEntryContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::EnumListEntryContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitEnumListEntry(this);
   else
@@ -3130,7 +3607,11 @@ EscriptParser::EnumListEntryContext* EscriptParser::enumListEntry() {
   enterRule(_localctx, 66, EscriptParser::RuleEnumListEntry);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3194,7 +3675,7 @@ void EscriptParser::SwitchBlockStatementGroupContext::exitRule(tree::ParseTreeLi
 }
 
 
-antlrcpp::Any EscriptParser::SwitchBlockStatementGroupContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::SwitchBlockStatementGroupContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitSwitchBlockStatementGroup(this);
   else
@@ -3205,7 +3686,11 @@ EscriptParser::SwitchBlockStatementGroupContext* EscriptParser::switchBlockState
   SwitchBlockStatementGroupContext *_localctx = _tracker.createInstance<SwitchBlockStatementGroupContext>(_ctx, getState());
   enterRule(_localctx, 68, EscriptParser::RuleSwitchBlockStatementGroup);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3286,7 +3771,7 @@ void EscriptParser::SwitchLabelContext::exitRule(tree::ParseTreeListener *listen
 }
 
 
-antlrcpp::Any EscriptParser::SwitchLabelContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::SwitchLabelContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitSwitchLabel(this);
   else
@@ -3297,7 +3782,11 @@ EscriptParser::SwitchLabelContext* EscriptParser::switchLabel() {
   SwitchLabelContext *_localctx = _tracker.createInstance<SwitchLabelContext>(_ctx, getState());
   enterRule(_localctx, 70, EscriptParser::RuleSwitchLabel);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3398,7 +3887,7 @@ void EscriptParser::ForGroupContext::exitRule(tree::ParseTreeListener *listener)
 }
 
 
-antlrcpp::Any EscriptParser::ForGroupContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ForGroupContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitForGroup(this);
   else
@@ -3409,7 +3898,11 @@ EscriptParser::ForGroupContext* EscriptParser::forGroup() {
   ForGroupContext *_localctx = _tracker.createInstance<ForGroupContext>(_ctx, getState());
   enterRule(_localctx, 72, EscriptParser::RuleForGroup);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3492,7 +3985,7 @@ void EscriptParser::BasicForStatementContext::exitRule(tree::ParseTreeListener *
 }
 
 
-antlrcpp::Any EscriptParser::BasicForStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BasicForStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitBasicForStatement(this);
   else
@@ -3503,7 +3996,11 @@ EscriptParser::BasicForStatementContext* EscriptParser::basicForStatement() {
   BasicForStatementContext *_localctx = _tracker.createInstance<BasicForStatementContext>(_ctx, getState());
   enterRule(_localctx, 74, EscriptParser::RuleBasicForStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3583,7 +4080,7 @@ void EscriptParser::CstyleForStatementContext::exitRule(tree::ParseTreeListener 
 }
 
 
-antlrcpp::Any EscriptParser::CstyleForStatementContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::CstyleForStatementContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitCstyleForStatement(this);
   else
@@ -3594,7 +4091,11 @@ EscriptParser::CstyleForStatementContext* EscriptParser::cstyleForStatement() {
   CstyleForStatementContext *_localctx = _tracker.createInstance<CstyleForStatementContext>(_ctx, getState());
   enterRule(_localctx, 76, EscriptParser::RuleCstyleForStatement);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3662,7 +4163,7 @@ void EscriptParser::IdentifierListContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::IdentifierListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IdentifierListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitIdentifierList(this);
   else
@@ -3673,7 +4174,11 @@ EscriptParser::IdentifierListContext* EscriptParser::identifierList() {
   IdentifierListContext *_localctx = _tracker.createInstance<IdentifierListContext>(_ctx, getState());
   enterRule(_localctx, 78, EscriptParser::RuleIdentifierList);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3692,6 +4197,8 @@ EscriptParser::IdentifierListContext* EscriptParser::identifierList() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -3744,7 +4251,7 @@ void EscriptParser::VariableDeclarationListContext::exitRule(tree::ParseTreeList
 }
 
 
-antlrcpp::Any EscriptParser::VariableDeclarationListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::VariableDeclarationListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitVariableDeclarationList(this);
   else
@@ -3756,7 +4263,11 @@ EscriptParser::VariableDeclarationListContext* EscriptParser::variableDeclaratio
   enterRule(_localctx, 80, EscriptParser::RuleVariableDeclarationList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3818,7 +4329,7 @@ void EscriptParser::ConstantDeclarationContext::exitRule(tree::ParseTreeListener
 }
 
 
-antlrcpp::Any EscriptParser::ConstantDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ConstantDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitConstantDeclaration(this);
   else
@@ -3829,7 +4340,11 @@ EscriptParser::ConstantDeclarationContext* EscriptParser::constantDeclaration() 
   ConstantDeclarationContext *_localctx = _tracker.createInstance<ConstantDeclarationContext>(_ctx, getState());
   enterRule(_localctx, 82, EscriptParser::RuleConstantDeclaration);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3881,7 +4396,7 @@ void EscriptParser::VariableDeclarationContext::exitRule(tree::ParseTreeListener
 }
 
 
-antlrcpp::Any EscriptParser::VariableDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::VariableDeclarationContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitVariableDeclaration(this);
   else
@@ -3893,7 +4408,11 @@ EscriptParser::VariableDeclarationContext* EscriptParser::variableDeclaration() 
   enterRule(_localctx, 84, EscriptParser::RuleVariableDeclaration);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -3905,9 +4424,7 @@ EscriptParser::VariableDeclarationContext* EscriptParser::variableDeclaration() 
 
     _la = _input->LA(1);
     if (((((_la - 64) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-      | (1ULL << (EscriptParser::EQUAL_DEPRECATED - 64))
-      | (1ULL << (EscriptParser::ASSIGN - 64)))) != 0)) {
+      ((1ULL << (_la - 64)) & 5497558138881) != 0)) {
       setState(460);
       variableDeclarationInitializer();
     }
@@ -3958,7 +4475,7 @@ void EscriptParser::ProgramParametersContext::exitRule(tree::ParseTreeListener *
 }
 
 
-antlrcpp::Any EscriptParser::ProgramParametersContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ProgramParametersContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitProgramParameters(this);
   else
@@ -3970,7 +4487,11 @@ EscriptParser::ProgramParametersContext* EscriptParser::programParameters() {
   enterRule(_localctx, 86, EscriptParser::RuleProgramParameters);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4038,7 +4559,7 @@ void EscriptParser::ProgramParameterListContext::exitRule(tree::ParseTreeListene
 }
 
 
-antlrcpp::Any EscriptParser::ProgramParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ProgramParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitProgramParameterList(this);
   else
@@ -4050,7 +4571,11 @@ EscriptParser::ProgramParameterListContext* EscriptParser::programParameterList(
   enterRule(_localctx, 88, EscriptParser::RuleProgramParameterList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4128,7 +4653,7 @@ void EscriptParser::ProgramParameterContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::ProgramParameterContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ProgramParameterContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitProgramParameter(this);
   else
@@ -4140,7 +4665,11 @@ EscriptParser::ProgramParameterContext* EscriptParser::programParameter() {
   enterRule(_localctx, 90, EscriptParser::RuleProgramParameter);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4223,7 +4752,7 @@ void EscriptParser::FunctionParametersContext::exitRule(tree::ParseTreeListener 
 }
 
 
-antlrcpp::Any EscriptParser::FunctionParametersContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FunctionParametersContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFunctionParameters(this);
   else
@@ -4235,7 +4764,11 @@ EscriptParser::FunctionParametersContext* EscriptParser::functionParameters() {
   enterRule(_localctx, 92, EscriptParser::RuleFunctionParameters);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4305,7 +4838,7 @@ void EscriptParser::FunctionParameterListContext::exitRule(tree::ParseTreeListen
 }
 
 
-antlrcpp::Any EscriptParser::FunctionParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FunctionParameterListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFunctionParameterList(this);
   else
@@ -4317,7 +4850,11 @@ EscriptParser::FunctionParameterListContext* EscriptParser::functionParameterLis
   enterRule(_localctx, 94, EscriptParser::RuleFunctionParameterList);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4391,7 +4928,7 @@ void EscriptParser::FunctionParameterContext::exitRule(tree::ParseTreeListener *
 }
 
 
-antlrcpp::Any EscriptParser::FunctionParameterContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FunctionParameterContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFunctionParameter(this);
   else
@@ -4403,7 +4940,11 @@ EscriptParser::FunctionParameterContext* EscriptParser::functionParameter() {
   enterRule(_localctx, 96, EscriptParser::RuleFunctionParameter);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4483,7 +5024,7 @@ void EscriptParser::ScopedFunctionCallContext::exitRule(tree::ParseTreeListener 
 }
 
 
-antlrcpp::Any EscriptParser::ScopedFunctionCallContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ScopedFunctionCallContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitScopedFunctionCall(this);
   else
@@ -4494,7 +5035,11 @@ EscriptParser::ScopedFunctionCallContext* EscriptParser::scopedFunctionCall() {
   ScopedFunctionCallContext *_localctx = _tracker.createInstance<ScopedFunctionCallContext>(_ctx, getState());
   enterRule(_localctx, 98, EscriptParser::RuleScopedFunctionCall);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4548,7 +5093,7 @@ void EscriptParser::FunctionReferenceContext::exitRule(tree::ParseTreeListener *
 }
 
 
-antlrcpp::Any EscriptParser::FunctionReferenceContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FunctionReferenceContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFunctionReference(this);
   else
@@ -4559,7 +5104,11 @@ EscriptParser::FunctionReferenceContext* EscriptParser::functionReference() {
   FunctionReferenceContext *_localctx = _tracker.createInstance<FunctionReferenceContext>(_ctx, getState());
   enterRule(_localctx, 100, EscriptParser::RuleFunctionReference);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -4779,7 +5328,7 @@ void EscriptParser::ExpressionContext::exitRule(tree::ParseTreeListener *listene
 }
 
 
-antlrcpp::Any EscriptParser::ExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExpression(this);
   else
@@ -4802,7 +5351,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
     size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     unrollRecursionContexts(parentContext);
   });
   try {
@@ -4837,14 +5390,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
       case EscriptParser::INC:
       case EscriptParser::DEC: {
         setState(522);
-        dynamic_cast<ExpressionContext *>(_localctx)->prefix = _input->LT(1);
+        antlrcpp::downCast<ExpressionContext *>(_localctx)->prefix = _input->LT(1);
         _la = _input->LA(1);
         if (!(((((_la - 86) & ~ 0x3fULL) == 0) &&
-          ((1ULL << (_la - 86)) & ((1ULL << (EscriptParser::ADD - 86))
-          | (1ULL << (EscriptParser::SUB - 86))
-          | (1ULL << (EscriptParser::INC - 86))
-          | (1ULL << (EscriptParser::DEC - 86)))) != 0))) {
-          dynamic_cast<ExpressionContext *>(_localctx)->prefix = _errHandler->recoverInline(this);
+          ((1ULL << (_la - 86)) & 3221225475) != 0))) {
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->prefix = _errHandler->recoverInline(this);
         }
         else {
           _errHandler->reportMatch(this);
@@ -4859,13 +5409,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
       case EscriptParser::BANG_B:
       case EscriptParser::TILDE: {
         setState(524);
-        dynamic_cast<ExpressionContext *>(_localctx)->prefix = _input->LT(1);
+        antlrcpp::downCast<ExpressionContext *>(_localctx)->prefix = _input->LT(1);
         _la = _input->LA(1);
         if (!(((((_la - 56) & ~ 0x3fULL) == 0) &&
-          ((1ULL << (_la - 56)) & ((1ULL << (EscriptParser::BANG_A - 56))
-          | (1ULL << (EscriptParser::BANG_B - 56))
-          | (1ULL << (EscriptParser::TILDE - 56)))) != 0))) {
-          dynamic_cast<ExpressionContext *>(_localctx)->prefix = _errHandler->recoverInline(this);
+          ((1ULL << (_la - 56)) & 72057594037927939) != 0))) {
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->prefix = _errHandler->recoverInline(this);
         }
         else {
           _errHandler->reportMatch(this);
@@ -4898,16 +5446,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 12))) throw FailedPredicateException(this, "precpred(_ctx, 12)");
           setState(529);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 83) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 83)) & ((1ULL << (EscriptParser::MUL - 83))
-            | (1ULL << (EscriptParser::DIV - 83))
-            | (1ULL << (EscriptParser::MOD - 83))
-            | (1ULL << (EscriptParser::RSHIFT - 83))
-            | (1ULL << (EscriptParser::LSHIFT - 83))
-            | (1ULL << (EscriptParser::BITAND - 83)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            ((1ULL << (_la - 83)) & 114695) != 0))) {
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -4925,14 +5468,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 11))) throw FailedPredicateException(this, "precpred(_ctx, 11)");
           setState(532);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 86) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 86)) & ((1ULL << (EscriptParser::ADD - 86))
-            | (1ULL << (EscriptParser::SUB - 86))
-            | (1ULL << (EscriptParser::CARET - 86))
-            | (1ULL << (EscriptParser::BITOR - 86)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            ((1ULL << (_la - 86)) & 49155) != 0))) {
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -4950,7 +5490,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 10))) throw FailedPredicateException(this, "precpred(_ctx, 10)");
           setState(535);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::ELVIS);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::ELVIS);
           setState(536);
           expression(11);
           break;
@@ -4963,7 +5503,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 9))) throw FailedPredicateException(this, "precpred(_ctx, 9)");
           setState(538);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::TOK_IN);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::TOK_IN);
           setState(539);
           expression(10);
           break;
@@ -4976,14 +5516,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 8))) throw FailedPredicateException(this, "precpred(_ctx, 8)");
           setState(541);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 93) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 93)) & ((1ULL << (EscriptParser::LE - 93))
-            | (1ULL << (EscriptParser::LT - 93))
-            | (1ULL << (EscriptParser::GE - 93))
-            | (1ULL << (EscriptParser::GT - 93)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            ((1ULL << (_la - 93)) & 15) != 0))) {
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5001,7 +5538,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
           setState(544);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::EQUAL_DEPRECATED);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::EQUAL_DEPRECATED);
            notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); 
           setState(546);
           expression(8);
@@ -5015,13 +5552,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 6))) throw FailedPredicateException(this, "precpred(_ctx, 6)");
           setState(548);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 102) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 102)) & ((1ULL << (EscriptParser::NOTEQUAL_A - 102))
-            | (1ULL << (EscriptParser::NOTEQUAL_B - 102))
-            | (1ULL << (EscriptParser::EQUAL - 102)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            ((1ULL << (_la - 102)) & 11) != 0))) {
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5039,12 +5574,12 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 5))) throw FailedPredicateException(this, "precpred(_ctx, 5)");
           setState(551);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(_la == EscriptParser::AND_A
 
           || _la == EscriptParser::AND_B)) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5062,12 +5597,12 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 4))) throw FailedPredicateException(this, "precpred(_ctx, 4)");
           setState(554);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(_la == EscriptParser::OR_A
 
           || _la == EscriptParser::OR_B)) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5102,13 +5637,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 2))) throw FailedPredicateException(this, "precpred(_ctx, 2)");
           setState(563);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 107) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 107)) & ((1ULL << (EscriptParser::ADDMEMBER - 107))
-            | (1ULL << (EscriptParser::DELMEMBER - 107))
-            | (1ULL << (EscriptParser::CHKMEMBER - 107)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            ((1ULL << (_la - 107)) & 7) != 0))) {
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5126,16 +5659,11 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 1))) throw FailedPredicateException(this, "precpred(_ctx, 1)");
           setState(566);
-          dynamic_cast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _input->LT(1);
           _la = _input->LA(1);
           if (!(((((_la - 88) & ~ 0x3fULL) == 0) &&
-            ((1ULL << (_la - 88)) & ((1ULL << (EscriptParser::ADD_ASSIGN - 88))
-            | (1ULL << (EscriptParser::SUB_ASSIGN - 88))
-            | (1ULL << (EscriptParser::MUL_ASSIGN - 88))
-            | (1ULL << (EscriptParser::DIV_ASSIGN - 88))
-            | (1ULL << (EscriptParser::MOD_ASSIGN - 88))
-            | (1ULL << (EscriptParser::ASSIGN - 88)))) != 0))) {
-            dynamic_cast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
+            ((1ULL << (_la - 88)) & 262175) != 0))) {
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5164,12 +5692,12 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
           if (!(precpred(_ctx, 15))) throw FailedPredicateException(this, "precpred(_ctx, 15)");
           setState(571);
-          dynamic_cast<ExpressionContext *>(_localctx)->postfix = _input->LT(1);
+          antlrcpp::downCast<ExpressionContext *>(_localctx)->postfix = _input->LT(1);
           _la = _input->LA(1);
           if (!(_la == EscriptParser::INC
 
           || _la == EscriptParser::DEC)) {
-            dynamic_cast<ExpressionContext *>(_localctx)->postfix = _errHandler->recoverInline(this);
+            antlrcpp::downCast<ExpressionContext *>(_localctx)->postfix = _errHandler->recoverInline(this);
           }
           else {
             _errHandler->reportMatch(this);
@@ -5178,6 +5706,8 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
           break;
         }
 
+        default:
+          break;
         } 
       }
       setState(576);
@@ -5265,7 +5795,7 @@ void EscriptParser::PrimaryContext::exitRule(tree::ParseTreeListener *listener) 
 }
 
 
-antlrcpp::Any EscriptParser::PrimaryContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::PrimaryContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitPrimary(this);
   else
@@ -5276,7 +5806,11 @@ EscriptParser::PrimaryContext* EscriptParser::primary() {
   PrimaryContext *_localctx = _tracker.createInstance<PrimaryContext>(_ctx, getState());
   enterRule(_localctx, 104, EscriptParser::RulePrimary);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5367,6 +5901,8 @@ EscriptParser::PrimaryContext* EscriptParser::primary() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -5411,7 +5947,7 @@ void EscriptParser::ExplicitArrayInitializerContext::exitRule(tree::ParseTreeLis
 }
 
 
-antlrcpp::Any EscriptParser::ExplicitArrayInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExplicitArrayInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExplicitArrayInitializer(this);
   else
@@ -5422,7 +5958,11 @@ EscriptParser::ExplicitArrayInitializerContext* EscriptParser::explicitArrayInit
   ExplicitArrayInitializerContext *_localctx = _tracker.createInstance<ExplicitArrayInitializerContext>(_ctx, getState());
   enterRule(_localctx, 106, EscriptParser::RuleExplicitArrayInitializer);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5439,6 +5979,8 @@ EscriptParser::ExplicitArrayInitializerContext* EscriptParser::explicitArrayInit
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -5483,7 +6025,7 @@ void EscriptParser::ExplicitStructInitializerContext::exitRule(tree::ParseTreeLi
 }
 
 
-antlrcpp::Any EscriptParser::ExplicitStructInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExplicitStructInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExplicitStructInitializer(this);
   else
@@ -5494,7 +6036,11 @@ EscriptParser::ExplicitStructInitializerContext* EscriptParser::explicitStructIn
   ExplicitStructInitializerContext *_localctx = _tracker.createInstance<ExplicitStructInitializerContext>(_ctx, getState());
   enterRule(_localctx, 108, EscriptParser::RuleExplicitStructInitializer);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5511,6 +6057,8 @@ EscriptParser::ExplicitStructInitializerContext* EscriptParser::explicitStructIn
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -5555,7 +6103,7 @@ void EscriptParser::ExplicitDictInitializerContext::exitRule(tree::ParseTreeList
 }
 
 
-antlrcpp::Any EscriptParser::ExplicitDictInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExplicitDictInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExplicitDictInitializer(this);
   else
@@ -5566,7 +6114,11 @@ EscriptParser::ExplicitDictInitializerContext* EscriptParser::explicitDictInitia
   ExplicitDictInitializerContext *_localctx = _tracker.createInstance<ExplicitDictInitializerContext>(_ctx, getState());
   enterRule(_localctx, 110, EscriptParser::RuleExplicitDictInitializer);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5583,6 +6135,8 @@ EscriptParser::ExplicitDictInitializerContext* EscriptParser::explicitDictInitia
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -5627,7 +6181,7 @@ void EscriptParser::ExplicitErrorInitializerContext::exitRule(tree::ParseTreeLis
 }
 
 
-antlrcpp::Any EscriptParser::ExplicitErrorInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExplicitErrorInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExplicitErrorInitializer(this);
   else
@@ -5638,7 +6192,11 @@ EscriptParser::ExplicitErrorInitializerContext* EscriptParser::explicitErrorInit
   ExplicitErrorInitializerContext *_localctx = _tracker.createInstance<ExplicitErrorInitializerContext>(_ctx, getState());
   enterRule(_localctx, 112, EscriptParser::RuleExplicitErrorInitializer);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5655,6 +6213,8 @@ EscriptParser::ExplicitErrorInitializerContext* EscriptParser::explicitErrorInit
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -5707,7 +6267,7 @@ void EscriptParser::BareArrayInitializerContext::exitRule(tree::ParseTreeListene
 }
 
 
-antlrcpp::Any EscriptParser::BareArrayInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::BareArrayInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitBareArrayInitializer(this);
   else
@@ -5719,7 +6279,11 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
   enterRule(_localctx, 114, EscriptParser::RuleBareArrayInitializer);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5735,29 +6299,8 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(608);
         expressionList();
       }
@@ -5775,29 +6318,8 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(613);
         expressionList();
       }
@@ -5809,6 +6331,8 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -5857,7 +6381,7 @@ void EscriptParser::ParExpressionContext::exitRule(tree::ParseTreeListener *list
 }
 
 
-antlrcpp::Any EscriptParser::ParExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ParExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitParExpression(this);
   else
@@ -5868,7 +6392,11 @@ EscriptParser::ParExpressionContext* EscriptParser::parExpression() {
   ParExpressionContext *_localctx = _tracker.createInstance<ParExpressionContext>(_ctx, getState());
   enterRule(_localctx, 116, EscriptParser::RuleParExpression);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -5930,7 +6458,7 @@ void EscriptParser::ExpressionListContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::ExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExpressionList(this);
   else
@@ -5941,7 +6469,11 @@ EscriptParser::ExpressionListContext* EscriptParser::expressionList() {
   ExpressionListContext *_localctx = _tracker.createInstance<ExpressionListContext>(_ctx, getState());
   enterRule(_localctx, 118, EscriptParser::RuleExpressionList);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6010,7 +6542,7 @@ void EscriptParser::ExpressionSuffixContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::ExpressionSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ExpressionSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitExpressionSuffix(this);
   else
@@ -6021,7 +6553,11 @@ EscriptParser::ExpressionSuffixContext* EscriptParser::expressionSuffix() {
   ExpressionSuffixContext *_localctx = _tracker.createInstance<ExpressionSuffixContext>(_ctx, getState());
   enterRule(_localctx, 120, EscriptParser::RuleExpressionSuffix);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6049,6 +6585,8 @@ EscriptParser::ExpressionSuffixContext* EscriptParser::expressionSuffix() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -6097,7 +6635,7 @@ void EscriptParser::IndexingSuffixContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::IndexingSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IndexingSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitIndexingSuffix(this);
   else
@@ -6108,7 +6646,11 @@ EscriptParser::IndexingSuffixContext* EscriptParser::indexingSuffix() {
   IndexingSuffixContext *_localctx = _tracker.createInstance<IndexingSuffixContext>(_ctx, getState());
   enterRule(_localctx, 122, EscriptParser::RuleIndexingSuffix);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6166,7 +6708,7 @@ void EscriptParser::NavigationSuffixContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::NavigationSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::NavigationSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitNavigationSuffix(this);
   else
@@ -6178,7 +6720,11 @@ EscriptParser::NavigationSuffixContext* EscriptParser::navigationSuffix() {
   enterRule(_localctx, 124, EscriptParser::RuleNavigationSuffix);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6251,7 +6797,7 @@ void EscriptParser::MethodCallSuffixContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::MethodCallSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::MethodCallSuffixContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitMethodCallSuffix(this);
   else
@@ -6263,7 +6809,11 @@ EscriptParser::MethodCallSuffixContext* EscriptParser::methodCallSuffix() {
   enterRule(_localctx, 126, EscriptParser::RuleMethodCallSuffix);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6279,29 +6829,8 @@ EscriptParser::MethodCallSuffixContext* EscriptParser::methodCallSuffix() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-      | (1ULL << EscriptParser::BANG_B)
-      | (1ULL << EscriptParser::TOK_ERROR)
-      | (1ULL << EscriptParser::DICTIONARY)
-      | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-      | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-      | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-      | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-      | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-      | (1ULL << (EscriptParser::LPAREN - 64))
-      | (1ULL << (EscriptParser::LBRACE - 64))
-      | (1ULL << (EscriptParser::ADD - 64))
-      | (1ULL << (EscriptParser::SUB - 64))
-      | (1ULL << (EscriptParser::TILDE - 64))
-      | (1ULL << (EscriptParser::AT - 64))
-      | (1ULL << (EscriptParser::INC - 64))
-      | (1ULL << (EscriptParser::DEC - 64))
-      | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
       setState(648);
       expressionList();
     }
@@ -6358,7 +6887,7 @@ void EscriptParser::FunctionCallContext::exitRule(tree::ParseTreeListener *liste
 }
 
 
-antlrcpp::Any EscriptParser::FunctionCallContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FunctionCallContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFunctionCall(this);
   else
@@ -6370,7 +6899,11 @@ EscriptParser::FunctionCallContext* EscriptParser::functionCall() {
   enterRule(_localctx, 128, EscriptParser::RuleFunctionCall);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6384,29 +6917,8 @@ EscriptParser::FunctionCallContext* EscriptParser::functionCall() {
 
     _la = _input->LA(1);
     if ((((_la & ~ 0x3fULL) == 0) &&
-      ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-      | (1ULL << EscriptParser::BANG_B)
-      | (1ULL << EscriptParser::TOK_ERROR)
-      | (1ULL << EscriptParser::DICTIONARY)
-      | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-      | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-      | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-      | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-      | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-      | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-      | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-      | (1ULL << (EscriptParser::LPAREN - 64))
-      | (1ULL << (EscriptParser::LBRACE - 64))
-      | (1ULL << (EscriptParser::ADD - 64))
-      | (1ULL << (EscriptParser::SUB - 64))
-      | (1ULL << (EscriptParser::TILDE - 64))
-      | (1ULL << (EscriptParser::AT - 64))
-      | (1ULL << (EscriptParser::INC - 64))
-      | (1ULL << (EscriptParser::DEC - 64))
-      | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+      ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+      ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
       setState(655);
       expressionList();
     }
@@ -6463,7 +6975,7 @@ void EscriptParser::StructInitializerExpressionContext::exitRule(tree::ParseTree
 }
 
 
-antlrcpp::Any EscriptParser::StructInitializerExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::StructInitializerExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitStructInitializerExpression(this);
   else
@@ -6475,7 +6987,11 @@ EscriptParser::StructInitializerExpressionContext* EscriptParser::structInitiali
   enterRule(_localctx, 130, EscriptParser::RuleStructInitializerExpression);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6570,7 +7086,7 @@ void EscriptParser::StructInitializerExpressionListContext::exitRule(tree::Parse
 }
 
 
-antlrcpp::Any EscriptParser::StructInitializerExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::StructInitializerExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitStructInitializerExpressionList(this);
   else
@@ -6581,7 +7097,11 @@ EscriptParser::StructInitializerExpressionListContext* EscriptParser::structInit
   StructInitializerExpressionListContext *_localctx = _tracker.createInstance<StructInitializerExpressionListContext>(_ctx, getState());
   enterRule(_localctx, 132, EscriptParser::RuleStructInitializerExpressionList);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6654,7 +7174,7 @@ void EscriptParser::StructInitializerContext::exitRule(tree::ParseTreeListener *
 }
 
 
-antlrcpp::Any EscriptParser::StructInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::StructInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitStructInitializer(this);
   else
@@ -6666,7 +7186,11 @@ EscriptParser::StructInitializerContext* EscriptParser::structInitializer() {
   enterRule(_localctx, 134, EscriptParser::RuleStructInitializer);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6714,6 +7238,8 @@ EscriptParser::StructInitializerContext* EscriptParser::structInitializer() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -6762,7 +7288,7 @@ void EscriptParser::DictInitializerExpressionContext::exitRule(tree::ParseTreeLi
 }
 
 
-antlrcpp::Any EscriptParser::DictInitializerExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::DictInitializerExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitDictInitializerExpression(this);
   else
@@ -6774,7 +7300,11 @@ EscriptParser::DictInitializerExpressionContext* EscriptParser::dictInitializerE
   enterRule(_localctx, 136, EscriptParser::RuleDictInitializerExpression);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6842,7 +7372,7 @@ void EscriptParser::DictInitializerExpressionListContext::exitRule(tree::ParseTr
 }
 
 
-antlrcpp::Any EscriptParser::DictInitializerExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::DictInitializerExpressionListContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitDictInitializerExpressionList(this);
   else
@@ -6853,7 +7383,11 @@ EscriptParser::DictInitializerExpressionListContext* EscriptParser::dictInitiali
   DictInitializerExpressionListContext *_localctx = _tracker.createInstance<DictInitializerExpressionListContext>(_ctx, getState());
   enterRule(_localctx, 138, EscriptParser::RuleDictInitializerExpressionList);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6926,7 +7460,7 @@ void EscriptParser::DictInitializerContext::exitRule(tree::ParseTreeListener *li
 }
 
 
-antlrcpp::Any EscriptParser::DictInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::DictInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitDictInitializer(this);
   else
@@ -6938,7 +7472,11 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
   enterRule(_localctx, 140, EscriptParser::RuleDictInitializer);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -6954,29 +7492,8 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(708);
         dictInitializerExpressionList();
       }
@@ -6994,29 +7511,8 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(713);
         dictInitializerExpressionList();
       }
@@ -7028,6 +7524,8 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -7088,7 +7586,7 @@ void EscriptParser::ArrayInitializerContext::exitRule(tree::ParseTreeListener *l
 }
 
 
-antlrcpp::Any EscriptParser::ArrayInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::ArrayInitializerContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitArrayInitializer(this);
   else
@@ -7100,7 +7598,11 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
   enterRule(_localctx, 142, EscriptParser::RuleArrayInitializer);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -7116,29 +7618,8 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(722);
         expressionList();
       }
@@ -7156,29 +7637,8 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(727);
         expressionList();
       }
@@ -7199,29 +7659,8 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(734);
         expressionList();
       }
@@ -7239,29 +7678,8 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
 
       _la = _input->LA(1);
       if ((((_la & ~ 0x3fULL) == 0) &&
-        ((1ULL << _la) & ((1ULL << EscriptParser::BANG_A)
-        | (1ULL << EscriptParser::BANG_B)
-        | (1ULL << EscriptParser::TOK_ERROR)
-        | (1ULL << EscriptParser::DICTIONARY)
-        | (1ULL << EscriptParser::STRUCT))) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
-        ((1ULL << (_la - 64)) & ((1ULL << (EscriptParser::ARRAY - 64))
-        | (1ULL << (EscriptParser::DECIMAL_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_LITERAL - 64))
-        | (1ULL << (EscriptParser::OCT_LITERAL - 64))
-        | (1ULL << (EscriptParser::BINARY_LITERAL - 64))
-        | (1ULL << (EscriptParser::FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::HEX_FLOAT_LITERAL - 64))
-        | (1ULL << (EscriptParser::STRING_LITERAL - 64))
-        | (1ULL << (EscriptParser::INTERPOLATED_STRING_START - 64))
-        | (1ULL << (EscriptParser::LPAREN - 64))
-        | (1ULL << (EscriptParser::LBRACE - 64))
-        | (1ULL << (EscriptParser::ADD - 64))
-        | (1ULL << (EscriptParser::SUB - 64))
-        | (1ULL << (EscriptParser::TILDE - 64))
-        | (1ULL << (EscriptParser::AT - 64))
-        | (1ULL << (EscriptParser::INC - 64))
-        | (1ULL << (EscriptParser::DEC - 64))
-        | (1ULL << (EscriptParser::IDENTIFIER - 64)))) != 0)) {
+        ((1ULL << _la) & -3242591731706757120) != 0) || ((((_la - 64) & ~ 0x3fULL) == 0) &&
+        ((1ULL << (_la - 64)) & 590815976128286713) != 0)) {
         setState(739);
         expressionList();
       }
@@ -7273,6 +7691,8 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -7321,7 +7741,7 @@ void EscriptParser::LiteralContext::exitRule(tree::ParseTreeListener *listener) 
 }
 
 
-antlrcpp::Any EscriptParser::LiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::LiteralContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitLiteral(this);
   else
@@ -7332,7 +7752,11 @@ EscriptParser::LiteralContext* EscriptParser::literal() {
   LiteralContext *_localctx = _tracker.createInstance<LiteralContext>(_ctx, getState());
   enterRule(_localctx, 144, EscriptParser::RuleLiteral);
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -7418,7 +7842,7 @@ void EscriptParser::InterpolatedStringContext::exitRule(tree::ParseTreeListener 
 }
 
 
-antlrcpp::Any EscriptParser::InterpolatedStringContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::InterpolatedStringContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitInterpolatedString(this);
   else
@@ -7430,7 +7854,11 @@ EscriptParser::InterpolatedStringContext* EscriptParser::interpolatedString() {
   enterRule(_localctx, 146, EscriptParser::RuleInterpolatedString);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -7441,11 +7869,7 @@ EscriptParser::InterpolatedStringContext* EscriptParser::interpolatedString() {
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (((((_la - 124) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 124)) & ((1ULL << (EscriptParser::DOUBLE_LBRACE_INSIDE - 124))
-      | (1ULL << (EscriptParser::LBRACE_INSIDE - 124))
-      | (1ULL << (EscriptParser::REGULAR_CHAR_INSIDE - 124))
-      | (1ULL << (EscriptParser::DOUBLE_RBRACE - 124))
-      | (1ULL << (EscriptParser::STRING_LITERAL_INSIDE - 124)))) != 0)) {
+      ((1ULL << (_la - 124)) & 55) != 0)) {
       setState(753);
       interpolatedStringPart();
       setState(758);
@@ -7521,7 +7945,7 @@ void EscriptParser::InterpolatedStringPartContext::exitRule(tree::ParseTreeListe
 }
 
 
-antlrcpp::Any EscriptParser::InterpolatedStringPartContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::InterpolatedStringPartContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitInterpolatedStringPart(this);
   else
@@ -7533,7 +7957,11 @@ EscriptParser::InterpolatedStringPartContext* EscriptParser::interpolatedStringP
   enterRule(_localctx, 148, EscriptParser::RuleInterpolatedStringPart);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -7605,6 +8033,8 @@ EscriptParser::InterpolatedStringPartContext* EscriptParser::interpolatedStringP
       break;
     }
 
+    default:
+      break;
     }
    
   }
@@ -7657,7 +8087,7 @@ void EscriptParser::IntegerLiteralContext::exitRule(tree::ParseTreeListener *lis
 }
 
 
-antlrcpp::Any EscriptParser::IntegerLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::IntegerLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitIntegerLiteral(this);
   else
@@ -7669,7 +8099,11 @@ EscriptParser::IntegerLiteralContext* EscriptParser::integerLiteral() {
   enterRule(_localctx, 150, EscriptParser::RuleIntegerLiteral);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -7677,10 +8111,7 @@ EscriptParser::IntegerLiteralContext* EscriptParser::integerLiteral() {
     setState(779);
     _la = _input->LA(1);
     if (!(((((_la - 67) & ~ 0x3fULL) == 0) &&
-      ((1ULL << (_la - 67)) & ((1ULL << (EscriptParser::DECIMAL_LITERAL - 67))
-      | (1ULL << (EscriptParser::HEX_LITERAL - 67))
-      | (1ULL << (EscriptParser::OCT_LITERAL - 67))
-      | (1ULL << (EscriptParser::BINARY_LITERAL - 67)))) != 0))) {
+      ((1ULL << (_la - 67)) & 15) != 0))) {
     _errHandler->recoverInline(this);
     }
     else {
@@ -7730,7 +8161,7 @@ void EscriptParser::FloatLiteralContext::exitRule(tree::ParseTreeListener *liste
 }
 
 
-antlrcpp::Any EscriptParser::FloatLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
+std::any EscriptParser::FloatLiteralContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<EscriptParserVisitor*>(visitor))
     return parserVisitor->visitFloatLiteral(this);
   else
@@ -7742,7 +8173,11 @@ EscriptParser::FloatLiteralContext* EscriptParser::floatLiteral() {
   enterRule(_localctx, 152, EscriptParser::RuleFloatLiteral);
   size_t _la = 0;
 
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
   auto onExit = finally([=] {
+#endif
     exitRule();
   });
   try {
@@ -7771,7 +8206,7 @@ EscriptParser::FloatLiteralContext* EscriptParser::floatLiteral() {
 
 bool EscriptParser::sempred(RuleContext *context, size_t ruleIndex, size_t predicateIndex) {
   switch (ruleIndex) {
-    case 51: return expressionSempred(dynamic_cast<ExpressionContext *>(context), predicateIndex);
+    case 51: return expressionSempred(antlrcpp::downCast<ExpressionContext *>(context), predicateIndex);
 
   default:
     break;
@@ -7802,670 +8237,10 @@ bool EscriptParser::expressionSempred(ExpressionContext *_localctx, size_t predi
   return true;
 }
 
-// Static vars and initialization.
-std::vector<dfa::DFA> EscriptParser::_decisionToDFA;
-atn::PredictionContextCache EscriptParser::_sharedContextCache;
-
-// We own the ATN which in turn owns the ATN states.
-atn::ATN EscriptParser::_atn;
-std::vector<uint16_t> EscriptParser::_serializedATN;
-
-std::vector<std::string> EscriptParser::_ruleNames = {
-  "compilationUnit", "moduleUnit", "moduleDeclarationStatement", "moduleFunctionDeclaration", 
-  "moduleFunctionParameterList", "moduleFunctionParameter", "topLevelDeclaration", 
-  "functionDeclaration", "stringIdentifier", "useDeclaration", "includeDeclaration", 
-  "programDeclaration", "statement", "statementLabel", "ifStatement", "gotoStatement", 
-  "returnStatement", "constStatement", "varStatement", "doStatement", "whileStatement", 
-  "exitStatement", "breakStatement", "continueStatement", "forStatement", 
-  "foreachIterableExpression", "foreachStatement", "repeatStatement", "caseStatement", 
-  "enumStatement", "block", "variableDeclarationInitializer", "enumList", 
-  "enumListEntry", "switchBlockStatementGroup", "switchLabel", "forGroup", 
-  "basicForStatement", "cstyleForStatement", "identifierList", "variableDeclarationList", 
-  "constantDeclaration", "variableDeclaration", "programParameters", "programParameterList", 
-  "programParameter", "functionParameters", "functionParameterList", "functionParameter", 
-  "scopedFunctionCall", "functionReference", "expression", "primary", "explicitArrayInitializer", 
-  "explicitStructInitializer", "explicitDictInitializer", "explicitErrorInitializer", 
-  "bareArrayInitializer", "parExpression", "expressionList", "expressionSuffix", 
-  "indexingSuffix", "navigationSuffix", "methodCallSuffix", "functionCall", 
-  "structInitializerExpression", "structInitializerExpressionList", "structInitializer", 
-  "dictInitializerExpression", "dictInitializerExpressionList", "dictInitializer", 
-  "arrayInitializer", "literal", "interpolatedString", "interpolatedStringPart", 
-  "integerLiteral", "floatLiteral"
-};
-
-std::vector<std::string> EscriptParser::_literalNames = {
-  "", "'if'", "'then'", "'elseif'", "'endif'", "'else'", "'goto'", "'return'", 
-  "'const'", "'var'", "'do'", "'dowhile'", "'while'", "'endwhile'", "'exit'", 
-  "'function'", "'endfunction'", "'exported'", "'use'", "'include'", "'break'", 
-  "'continue'", "'for'", "'endfor'", "'to'", "'foreach'", "'endforeach'", 
-  "'repeat'", "'until'", "'program'", "'endprogram'", "'case'", "'default'", 
-  "'endcase'", "'enum'", "'endenum'", "'downto'", "'step'", "'reference'", 
-  "'out'", "'inout'", "'ByVal'", "'string'", "'long'", "'integer'", "'unsigned'", 
-  "'signed'", "'real'", "'float'", "'double'", "'as'", "'is'", "'&&'", "'and'", 
-  "'||'", "'or'", "'!'", "'not'", "'byref'", "'unused'", "'error'", "'hash'", 
-  "'dictionary'", "'struct'", "'array'", "'stack'", "'in'", "", "", "", 
-  "", "", "", "", "", "'('", "')'", "'['", "']'", "'{'", "'}'", "'.'", "'->'", 
-  "'*'", "'/'", "'%'", "'+'", "'-'", "'+='", "'-='", "'*='", "'/='", "'%='", 
-  "'<='", "'<'", "'>='", "'>'", "'>>'", "'<<'", "'&'", "'^'", "'|'", "'<>'", 
-  "'!='", "'='", "'=='", "':='", "'.+'", "'.-'", "'.?'", "';'", "','", "'~'", 
-  "'@'", "'::'", "':'", "'++'", "'--'", "'?:'", "'?'", "", "", "", "", "'{{'"
-};
-
-std::vector<std::string> EscriptParser::_symbolicNames = {
-  "", "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST", 
-  "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION", 
-  "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR", "TO", 
-  "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM", "CASE", 
-  "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "DOWNTO", "STEP", "REFERENCE", 
-  "TOK_OUT", "INOUT", "BYVAL", "STRING", "TOK_LONG", "INTEGER", "UNSIGNED", 
-  "SIGNED", "REAL", "FLOAT", "DOUBLE", "AS", "IS", "AND_A", "AND_B", "OR_A", 
-  "OR_B", "BANG_A", "BANG_B", "BYREF", "UNUSED", "TOK_ERROR", "HASH", "DICTIONARY", 
-  "STRUCT", "ARRAY", "STACK", "TOK_IN", "DECIMAL_LITERAL", "HEX_LITERAL", 
-  "OCT_LITERAL", "BINARY_LITERAL", "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", 
-  "STRING_LITERAL", "INTERPOLATED_STRING_START", "LPAREN", "RPAREN", "LBRACK", 
-  "RBRACK", "LBRACE", "RBRACE", "DOT", "ARROW", "MUL", "DIV", "MOD", "ADD", 
-  "SUB", "ADD_ASSIGN", "SUB_ASSIGN", "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", 
-  "LE", "LT", "GE", "GT", "RSHIFT", "LSHIFT", "BITAND", "CARET", "BITOR", 
-  "NOTEQUAL_A", "NOTEQUAL_B", "EQUAL_DEPRECATED", "EQUAL", "ASSIGN", "ADDMEMBER", 
-  "DELMEMBER", "CHKMEMBER", "SEMI", "COMMA", "TILDE", "AT", "COLONCOLON", 
-  "COLON", "INC", "DEC", "ELVIS", "QUESTION", "WS", "COMMENT", "LINE_COMMENT", 
-  "IDENTIFIER", "DOUBLE_LBRACE_INSIDE", "LBRACE_INSIDE", "REGULAR_CHAR_INSIDE", 
-  "DOUBLE_QUOTE_INSIDE", "DOUBLE_RBRACE", "STRING_LITERAL_INSIDE", "CLOSE_RBRACE_INSIDE", 
-  "FORMAT_STRING"
-};
-
-dfa::Vocabulary EscriptParser::_vocabulary(_literalNames, _symbolicNames);
-
-std::vector<std::string> EscriptParser::_tokenNames;
-
-EscriptParser::Initializer::Initializer() {
-	for (size_t i = 0; i < _symbolicNames.size(); ++i) {
-		std::string name = _vocabulary.getLiteralName(i);
-		if (name.empty()) {
-			name = _vocabulary.getSymbolicName(i);
-		}
-
-		if (name.empty()) {
-			_tokenNames.push_back("<INVALID>");
-		} else {
-      _tokenNames.push_back(name);
-    }
-	}
-
-  _serializedATN = {
-    0x3, 0x608b, 0xa72a, 0x8133, 0xb9ed, 0x417c, 0x3be7, 0x7786, 0x5964, 
-    0x3, 0x85, 0x312, 0x4, 0x2, 0x9, 0x2, 0x4, 0x3, 0x9, 0x3, 0x4, 0x4, 
-    0x9, 0x4, 0x4, 0x5, 0x9, 0x5, 0x4, 0x6, 0x9, 0x6, 0x4, 0x7, 0x9, 0x7, 
-    0x4, 0x8, 0x9, 0x8, 0x4, 0x9, 0x9, 0x9, 0x4, 0xa, 0x9, 0xa, 0x4, 0xb, 
-    0x9, 0xb, 0x4, 0xc, 0x9, 0xc, 0x4, 0xd, 0x9, 0xd, 0x4, 0xe, 0x9, 0xe, 
-    0x4, 0xf, 0x9, 0xf, 0x4, 0x10, 0x9, 0x10, 0x4, 0x11, 0x9, 0x11, 0x4, 
-    0x12, 0x9, 0x12, 0x4, 0x13, 0x9, 0x13, 0x4, 0x14, 0x9, 0x14, 0x4, 0x15, 
-    0x9, 0x15, 0x4, 0x16, 0x9, 0x16, 0x4, 0x17, 0x9, 0x17, 0x4, 0x18, 0x9, 
-    0x18, 0x4, 0x19, 0x9, 0x19, 0x4, 0x1a, 0x9, 0x1a, 0x4, 0x1b, 0x9, 0x1b, 
-    0x4, 0x1c, 0x9, 0x1c, 0x4, 0x1d, 0x9, 0x1d, 0x4, 0x1e, 0x9, 0x1e, 0x4, 
-    0x1f, 0x9, 0x1f, 0x4, 0x20, 0x9, 0x20, 0x4, 0x21, 0x9, 0x21, 0x4, 0x22, 
-    0x9, 0x22, 0x4, 0x23, 0x9, 0x23, 0x4, 0x24, 0x9, 0x24, 0x4, 0x25, 0x9, 
-    0x25, 0x4, 0x26, 0x9, 0x26, 0x4, 0x27, 0x9, 0x27, 0x4, 0x28, 0x9, 0x28, 
-    0x4, 0x29, 0x9, 0x29, 0x4, 0x2a, 0x9, 0x2a, 0x4, 0x2b, 0x9, 0x2b, 0x4, 
-    0x2c, 0x9, 0x2c, 0x4, 0x2d, 0x9, 0x2d, 0x4, 0x2e, 0x9, 0x2e, 0x4, 0x2f, 
-    0x9, 0x2f, 0x4, 0x30, 0x9, 0x30, 0x4, 0x31, 0x9, 0x31, 0x4, 0x32, 0x9, 
-    0x32, 0x4, 0x33, 0x9, 0x33, 0x4, 0x34, 0x9, 0x34, 0x4, 0x35, 0x9, 0x35, 
-    0x4, 0x36, 0x9, 0x36, 0x4, 0x37, 0x9, 0x37, 0x4, 0x38, 0x9, 0x38, 0x4, 
-    0x39, 0x9, 0x39, 0x4, 0x3a, 0x9, 0x3a, 0x4, 0x3b, 0x9, 0x3b, 0x4, 0x3c, 
-    0x9, 0x3c, 0x4, 0x3d, 0x9, 0x3d, 0x4, 0x3e, 0x9, 0x3e, 0x4, 0x3f, 0x9, 
-    0x3f, 0x4, 0x40, 0x9, 0x40, 0x4, 0x41, 0x9, 0x41, 0x4, 0x42, 0x9, 0x42, 
-    0x4, 0x43, 0x9, 0x43, 0x4, 0x44, 0x9, 0x44, 0x4, 0x45, 0x9, 0x45, 0x4, 
-    0x46, 0x9, 0x46, 0x4, 0x47, 0x9, 0x47, 0x4, 0x48, 0x9, 0x48, 0x4, 0x49, 
-    0x9, 0x49, 0x4, 0x4a, 0x9, 0x4a, 0x4, 0x4b, 0x9, 0x4b, 0x4, 0x4c, 0x9, 
-    0x4c, 0x4, 0x4d, 0x9, 0x4d, 0x4, 0x4e, 0x9, 0x4e, 0x3, 0x2, 0x7, 0x2, 
-    0x9e, 0xa, 0x2, 0xc, 0x2, 0xe, 0x2, 0xa1, 0xb, 0x2, 0x3, 0x2, 0x3, 0x2, 
-    0x3, 0x3, 0x7, 0x3, 0xa6, 0xa, 0x3, 0xc, 0x3, 0xe, 0x3, 0xa9, 0xb, 0x3, 
-    0x3, 0x3, 0x3, 0x3, 0x3, 0x4, 0x3, 0x4, 0x5, 0x4, 0xaf, 0xa, 0x4, 0x3, 
-    0x5, 0x3, 0x5, 0x3, 0x5, 0x5, 0x5, 0xb4, 0xa, 0x5, 0x3, 0x5, 0x3, 0x5, 
-    0x3, 0x5, 0x3, 0x6, 0x3, 0x6, 0x3, 0x6, 0x7, 0x6, 0xbc, 0xa, 0x6, 0xc, 
-    0x6, 0xe, 0x6, 0xbf, 0xb, 0x6, 0x3, 0x7, 0x3, 0x7, 0x3, 0x7, 0x5, 0x7, 
-    0xc4, 0xa, 0x7, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x3, 0x8, 0x5, 
-    0x8, 0xcb, 0xa, 0x8, 0x3, 0x9, 0x5, 0x9, 0xce, 0xa, 0x9, 0x3, 0x9, 0x3, 
-    0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0x9, 0x3, 0xa, 0x3, 0xa, 0x3, 
-    0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xb, 0x3, 0xc, 0x3, 0xc, 0x3, 0xc, 0x3, 
-    0xc, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 0xd, 0x3, 
-    0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 
-    0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 
-    0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x3, 0xe, 0x5, 0xe, 0xf9, 0xa, 0xe, 
-    0x3, 0xf, 0x3, 0xf, 0x3, 0xf, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x5, 
-    0x10, 0x101, 0xa, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 0x3, 0x10, 
-    0x3, 0x10, 0x7, 0x10, 0x108, 0xa, 0x10, 0xc, 0x10, 0xe, 0x10, 0x10b, 
-    0xb, 0x10, 0x3, 0x10, 0x3, 0x10, 0x5, 0x10, 0x10f, 0xa, 0x10, 0x3, 0x10, 
-    0x3, 0x10, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x11, 0x3, 0x12, 0x3, 
-    0x12, 0x5, 0x12, 0x119, 0xa, 0x12, 0x3, 0x12, 0x3, 0x12, 0x3, 0x13, 
-    0x3, 0x13, 0x3, 0x13, 0x3, 0x13, 0x3, 0x14, 0x3, 0x14, 0x3, 0x14, 0x3, 
-    0x14, 0x3, 0x15, 0x5, 0x15, 0x126, 0xa, 0x15, 0x3, 0x15, 0x3, 0x15, 
-    0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x15, 0x3, 0x16, 0x5, 0x16, 0x12f, 
-    0xa, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 0x16, 0x3, 
-    0x17, 0x3, 0x17, 0x3, 0x17, 0x3, 0x18, 0x3, 0x18, 0x5, 0x18, 0x13b, 
-    0xa, 0x18, 0x3, 0x18, 0x3, 0x18, 0x3, 0x19, 0x3, 0x19, 0x5, 0x19, 0x141, 
-    0xa, 0x19, 0x3, 0x19, 0x3, 0x19, 0x3, 0x1a, 0x5, 0x1a, 0x146, 0xa, 0x1a, 
-    0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1a, 0x3, 0x1b, 0x3, 0x1b, 0x3, 
-    0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x3, 0x1b, 0x5, 0x1b, 0x152, 0xa, 0x1b, 
-    0x3, 0x1c, 0x5, 0x1c, 0x155, 0xa, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 
-    0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1c, 0x3, 0x1d, 0x5, 0x1d, 0x15f, 
-    0xa, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 0x1d, 0x3, 
-    0x1d, 0x3, 0x1e, 0x5, 0x1e, 0x168, 0xa, 0x1e, 0x3, 0x1e, 0x3, 0x1e, 
-    0x3, 0x1e, 0x3, 0x1e, 0x3, 0x1e, 0x6, 0x1e, 0x16f, 0xa, 0x1e, 0xd, 0x1e, 
-    0xe, 0x1e, 0x170, 0x3, 0x1e, 0x3, 0x1e, 0x3, 0x1f, 0x3, 0x1f, 0x3, 0x1f, 
-    0x3, 0x1f, 0x3, 0x1f, 0x3, 0x20, 0x7, 0x20, 0x17b, 0xa, 0x20, 0xc, 0x20, 
-    0xe, 0x20, 0x17e, 0xb, 0x20, 0x3, 0x21, 0x3, 0x21, 0x3, 0x21, 0x3, 0x21, 
-    0x3, 0x21, 0x3, 0x21, 0x3, 0x21, 0x5, 0x21, 0x187, 0xa, 0x21, 0x3, 0x22, 
-    0x3, 0x22, 0x3, 0x22, 0x7, 0x22, 0x18c, 0xa, 0x22, 0xc, 0x22, 0xe, 0x22, 
-    0x18f, 0xb, 0x22, 0x3, 0x22, 0x5, 0x22, 0x192, 0xa, 0x22, 0x3, 0x23, 
-    0x3, 0x23, 0x3, 0x23, 0x5, 0x23, 0x197, 0xa, 0x23, 0x3, 0x24, 0x6, 0x24, 
-    0x19a, 0xa, 0x24, 0xd, 0x24, 0xe, 0x24, 0x19b, 0x3, 0x24, 0x3, 0x24, 
-    0x3, 0x25, 0x3, 0x25, 0x3, 0x25, 0x5, 0x25, 0x1a3, 0xa, 0x25, 0x3, 0x25, 
-    0x3, 0x25, 0x3, 0x25, 0x5, 0x25, 0x1a8, 0xa, 0x25, 0x3, 0x26, 0x3, 0x26, 
-    0x5, 0x26, 0x1ac, 0xa, 0x26, 0x3, 0x27, 0x3, 0x27, 0x3, 0x27, 0x3, 0x27, 
-    0x3, 0x27, 0x3, 0x27, 0x3, 0x27, 0x3, 0x28, 0x3, 0x28, 0x3, 0x28, 0x3, 
-    0x28, 0x3, 0x28, 0x3, 0x28, 0x3, 0x28, 0x3, 0x28, 0x3, 0x28, 0x3, 0x29, 
-    0x3, 0x29, 0x3, 0x29, 0x5, 0x29, 0x1c1, 0xa, 0x29, 0x3, 0x2a, 0x3, 0x2a, 
-    0x3, 0x2a, 0x7, 0x2a, 0x1c6, 0xa, 0x2a, 0xc, 0x2a, 0xe, 0x2a, 0x1c9, 
-    0xb, 0x2a, 0x3, 0x2b, 0x3, 0x2b, 0x3, 0x2b, 0x3, 0x2c, 0x3, 0x2c, 0x5, 
-    0x2c, 0x1d0, 0xa, 0x2c, 0x3, 0x2d, 0x3, 0x2d, 0x5, 0x2d, 0x1d4, 0xa, 
-    0x2d, 0x3, 0x2d, 0x3, 0x2d, 0x3, 0x2e, 0x3, 0x2e, 0x5, 0x2e, 0x1da, 
-    0xa, 0x2e, 0x3, 0x2e, 0x7, 0x2e, 0x1dd, 0xa, 0x2e, 0xc, 0x2e, 0xe, 0x2e, 
-    0x1e0, 0xb, 0x2e, 0x3, 0x2f, 0x3, 0x2f, 0x3, 0x2f, 0x3, 0x2f, 0x3, 0x2f, 
-    0x5, 0x2f, 0x1e7, 0xa, 0x2f, 0x5, 0x2f, 0x1e9, 0xa, 0x2f, 0x3, 0x30, 
-    0x3, 0x30, 0x5, 0x30, 0x1ed, 0xa, 0x30, 0x3, 0x30, 0x3, 0x30, 0x3, 0x31, 
-    0x3, 0x31, 0x3, 0x31, 0x7, 0x31, 0x1f4, 0xa, 0x31, 0xc, 0x31, 0xe, 0x31, 
-    0x1f7, 0xb, 0x31, 0x3, 0x32, 0x5, 0x32, 0x1fa, 0xa, 0x32, 0x3, 0x32, 
-    0x5, 0x32, 0x1fd, 0xa, 0x32, 0x3, 0x32, 0x3, 0x32, 0x3, 0x32, 0x5, 0x32, 
-    0x202, 0xa, 0x32, 0x3, 0x33, 0x3, 0x33, 0x3, 0x33, 0x3, 0x33, 0x3, 0x34, 
-    0x3, 0x34, 0x3, 0x34, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 
-    0x35, 0x3, 0x35, 0x5, 0x35, 0x211, 0xa, 0x35, 0x3, 0x35, 0x3, 0x35, 
-    0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 
-    0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 
-    0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 
-    0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 
-    0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 
-    0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 
-    0x3, 0x35, 0x3, 0x35, 0x3, 0x35, 0x7, 0x35, 0x23f, 0xa, 0x35, 0xc, 0x35, 
-    0xe, 0x35, 0x242, 0xb, 0x35, 0x3, 0x36, 0x3, 0x36, 0x3, 0x36, 0x3, 0x36, 
-    0x3, 0x36, 0x3, 0x36, 0x3, 0x36, 0x3, 0x36, 0x3, 0x36, 0x3, 0x36, 0x3, 
-    0x36, 0x3, 0x36, 0x5, 0x36, 0x250, 0xa, 0x36, 0x3, 0x37, 0x3, 0x37, 
-    0x5, 0x37, 0x254, 0xa, 0x37, 0x3, 0x38, 0x3, 0x38, 0x5, 0x38, 0x258, 
-    0xa, 0x38, 0x3, 0x39, 0x3, 0x39, 0x5, 0x39, 0x25c, 0xa, 0x39, 0x3, 0x3a, 
-    0x3, 0x3a, 0x5, 0x3a, 0x260, 0xa, 0x3a, 0x3, 0x3b, 0x3, 0x3b, 0x5, 0x3b, 
-    0x264, 0xa, 0x3b, 0x3, 0x3b, 0x3, 0x3b, 0x3, 0x3b, 0x5, 0x3b, 0x269, 
-    0xa, 0x3b, 0x3, 0x3b, 0x3, 0x3b, 0x3, 0x3b, 0x5, 0x3b, 0x26e, 0xa, 0x3b, 
-    0x3, 0x3c, 0x3, 0x3c, 0x3, 0x3c, 0x3, 0x3c, 0x3, 0x3d, 0x3, 0x3d, 0x3, 
-    0x3d, 0x7, 0x3d, 0x277, 0xa, 0x3d, 0xc, 0x3d, 0xe, 0x3d, 0x27a, 0xb, 
-    0x3d, 0x3, 0x3e, 0x3, 0x3e, 0x3, 0x3e, 0x5, 0x3e, 0x27f, 0xa, 0x3e, 
-    0x3, 0x3f, 0x3, 0x3f, 0x3, 0x3f, 0x3, 0x3f, 0x3, 0x40, 0x3, 0x40, 0x3, 
-    0x40, 0x3, 0x41, 0x3, 0x41, 0x3, 0x41, 0x3, 0x41, 0x5, 0x41, 0x28c, 
-    0xa, 0x41, 0x3, 0x41, 0x3, 0x41, 0x3, 0x42, 0x3, 0x42, 0x3, 0x42, 0x5, 
-    0x42, 0x293, 0xa, 0x42, 0x3, 0x42, 0x3, 0x42, 0x3, 0x43, 0x3, 0x43, 
-    0x3, 0x43, 0x5, 0x43, 0x29a, 0xa, 0x43, 0x3, 0x43, 0x3, 0x43, 0x3, 0x43, 
-    0x5, 0x43, 0x29f, 0xa, 0x43, 0x5, 0x43, 0x2a1, 0xa, 0x43, 0x3, 0x44, 
-    0x3, 0x44, 0x3, 0x44, 0x7, 0x44, 0x2a6, 0xa, 0x44, 0xc, 0x44, 0xe, 0x44, 
-    0x2a9, 0xb, 0x44, 0x3, 0x45, 0x3, 0x45, 0x5, 0x45, 0x2ad, 0xa, 0x45, 
-    0x3, 0x45, 0x3, 0x45, 0x3, 0x45, 0x5, 0x45, 0x2b2, 0xa, 0x45, 0x3, 0x45, 
-    0x3, 0x45, 0x3, 0x45, 0x5, 0x45, 0x2b7, 0xa, 0x45, 0x3, 0x46, 0x3, 0x46, 
-    0x3, 0x46, 0x5, 0x46, 0x2bc, 0xa, 0x46, 0x3, 0x47, 0x3, 0x47, 0x3, 0x47, 
-    0x7, 0x47, 0x2c1, 0xa, 0x47, 0xc, 0x47, 0xe, 0x47, 0x2c4, 0xb, 0x47, 
-    0x3, 0x48, 0x3, 0x48, 0x5, 0x48, 0x2c8, 0xa, 0x48, 0x3, 0x48, 0x3, 0x48, 
-    0x3, 0x48, 0x5, 0x48, 0x2cd, 0xa, 0x48, 0x3, 0x48, 0x3, 0x48, 0x3, 0x48, 
-    0x5, 0x48, 0x2d2, 0xa, 0x48, 0x3, 0x49, 0x3, 0x49, 0x5, 0x49, 0x2d6, 
-    0xa, 0x49, 0x3, 0x49, 0x3, 0x49, 0x3, 0x49, 0x5, 0x49, 0x2db, 0xa, 0x49, 
-    0x3, 0x49, 0x3, 0x49, 0x3, 0x49, 0x3, 0x49, 0x3, 0x49, 0x5, 0x49, 0x2e2, 
-    0xa, 0x49, 0x3, 0x49, 0x3, 0x49, 0x3, 0x49, 0x5, 0x49, 0x2e7, 0xa, 0x49, 
-    0x3, 0x49, 0x3, 0x49, 0x3, 0x49, 0x5, 0x49, 0x2ec, 0xa, 0x49, 0x3, 0x4a, 
-    0x3, 0x4a, 0x3, 0x4a, 0x5, 0x4a, 0x2f1, 0xa, 0x4a, 0x3, 0x4b, 0x3, 0x4b, 
-    0x7, 0x4b, 0x2f5, 0xa, 0x4b, 0xc, 0x4b, 0xe, 0x4b, 0x2f8, 0xb, 0x4b, 
-    0x3, 0x4b, 0x3, 0x4b, 0x3, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x5, 
-    0x4c, 0x300, 0xa, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x5, 0x4c, 
-    0x305, 0xa, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 0x3, 0x4c, 
-    0x5, 0x4c, 0x30c, 0xa, 0x4c, 0x3, 0x4d, 0x3, 0x4d, 0x3, 0x4e, 0x3, 0x4e, 
-    0x3, 0x4e, 0x2, 0x3, 0x68, 0x4f, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 
-    0x10, 0x12, 0x14, 0x16, 0x18, 0x1a, 0x1c, 0x1e, 0x20, 0x22, 0x24, 0x26, 
-    0x28, 0x2a, 0x2c, 0x2e, 0x30, 0x32, 0x34, 0x36, 0x38, 0x3a, 0x3c, 0x3e, 
-    0x40, 0x42, 0x44, 0x46, 0x48, 0x4a, 0x4c, 0x4e, 0x50, 0x52, 0x54, 0x56, 
-    0x58, 0x5a, 0x5c, 0x5e, 0x60, 0x62, 0x64, 0x66, 0x68, 0x6a, 0x6c, 0x6e, 
-    0x70, 0x72, 0x74, 0x76, 0x78, 0x7a, 0x7c, 0x7e, 0x80, 0x82, 0x84, 0x86, 
-    0x88, 0x8a, 0x8c, 0x8e, 0x90, 0x92, 0x94, 0x96, 0x98, 0x9a, 0x2, 0x10, 
-    0x4, 0x2, 0x4b, 0x4b, 0x7d, 0x7d, 0x4, 0x2, 0x58, 0x59, 0x76, 0x77, 
-    0x4, 0x2, 0x3a, 0x3b, 0x72, 0x72, 0x4, 0x2, 0x55, 0x57, 0x63, 0x65, 
-    0x4, 0x2, 0x58, 0x59, 0x66, 0x67, 0x3, 0x2, 0x5f, 0x62, 0x4, 0x2, 0x68, 
-    0x69, 0x6b, 0x6b, 0x3, 0x2, 0x36, 0x37, 0x3, 0x2, 0x38, 0x39, 0x3, 0x2, 
-    0x6d, 0x6f, 0x4, 0x2, 0x5a, 0x5e, 0x6c, 0x6c, 0x3, 0x2, 0x76, 0x77, 
-    0x3, 0x2, 0x45, 0x48, 0x3, 0x2, 0x49, 0x4a, 0x2, 0x34d, 0x2, 0x9f, 0x3, 
-    0x2, 0x2, 0x2, 0x4, 0xa7, 0x3, 0x2, 0x2, 0x2, 0x6, 0xae, 0x3, 0x2, 0x2, 
-    0x2, 0x8, 0xb0, 0x3, 0x2, 0x2, 0x2, 0xa, 0xb8, 0x3, 0x2, 0x2, 0x2, 0xc, 
-    0xc0, 0x3, 0x2, 0x2, 0x2, 0xe, 0xca, 0x3, 0x2, 0x2, 0x2, 0x10, 0xcd, 
-    0x3, 0x2, 0x2, 0x2, 0x12, 0xd5, 0x3, 0x2, 0x2, 0x2, 0x14, 0xd7, 0x3, 
-    0x2, 0x2, 0x2, 0x16, 0xdb, 0x3, 0x2, 0x2, 0x2, 0x18, 0xdf, 0x3, 0x2, 
-    0x2, 0x2, 0x1a, 0xf8, 0x3, 0x2, 0x2, 0x2, 0x1c, 0xfa, 0x3, 0x2, 0x2, 
-    0x2, 0x1e, 0xfd, 0x3, 0x2, 0x2, 0x2, 0x20, 0x112, 0x3, 0x2, 0x2, 0x2, 
-    0x22, 0x116, 0x3, 0x2, 0x2, 0x2, 0x24, 0x11c, 0x3, 0x2, 0x2, 0x2, 0x26, 
-    0x120, 0x3, 0x2, 0x2, 0x2, 0x28, 0x125, 0x3, 0x2, 0x2, 0x2, 0x2a, 0x12e, 
-    0x3, 0x2, 0x2, 0x2, 0x2c, 0x135, 0x3, 0x2, 0x2, 0x2, 0x2e, 0x138, 0x3, 
-    0x2, 0x2, 0x2, 0x30, 0x13e, 0x3, 0x2, 0x2, 0x2, 0x32, 0x145, 0x3, 0x2, 
-    0x2, 0x2, 0x34, 0x151, 0x3, 0x2, 0x2, 0x2, 0x36, 0x154, 0x3, 0x2, 0x2, 
-    0x2, 0x38, 0x15e, 0x3, 0x2, 0x2, 0x2, 0x3a, 0x167, 0x3, 0x2, 0x2, 0x2, 
-    0x3c, 0x174, 0x3, 0x2, 0x2, 0x2, 0x3e, 0x17c, 0x3, 0x2, 0x2, 0x2, 0x40, 
-    0x186, 0x3, 0x2, 0x2, 0x2, 0x42, 0x188, 0x3, 0x2, 0x2, 0x2, 0x44, 0x193, 
-    0x3, 0x2, 0x2, 0x2, 0x46, 0x199, 0x3, 0x2, 0x2, 0x2, 0x48, 0x1a7, 0x3, 
-    0x2, 0x2, 0x2, 0x4a, 0x1ab, 0x3, 0x2, 0x2, 0x2, 0x4c, 0x1ad, 0x3, 0x2, 
-    0x2, 0x2, 0x4e, 0x1b4, 0x3, 0x2, 0x2, 0x2, 0x50, 0x1bd, 0x3, 0x2, 0x2, 
-    0x2, 0x52, 0x1c2, 0x3, 0x2, 0x2, 0x2, 0x54, 0x1ca, 0x3, 0x2, 0x2, 0x2, 
-    0x56, 0x1cd, 0x3, 0x2, 0x2, 0x2, 0x58, 0x1d1, 0x3, 0x2, 0x2, 0x2, 0x5a, 
-    0x1d7, 0x3, 0x2, 0x2, 0x2, 0x5c, 0x1e8, 0x3, 0x2, 0x2, 0x2, 0x5e, 0x1ea, 
-    0x3, 0x2, 0x2, 0x2, 0x60, 0x1f0, 0x3, 0x2, 0x2, 0x2, 0x62, 0x1f9, 0x3, 
-    0x2, 0x2, 0x2, 0x64, 0x203, 0x3, 0x2, 0x2, 0x2, 0x66, 0x207, 0x3, 0x2, 
-    0x2, 0x2, 0x68, 0x210, 0x3, 0x2, 0x2, 0x2, 0x6a, 0x24f, 0x3, 0x2, 0x2, 
-    0x2, 0x6c, 0x251, 0x3, 0x2, 0x2, 0x2, 0x6e, 0x255, 0x3, 0x2, 0x2, 0x2, 
-    0x70, 0x259, 0x3, 0x2, 0x2, 0x2, 0x72, 0x25d, 0x3, 0x2, 0x2, 0x2, 0x74, 
-    0x26d, 0x3, 0x2, 0x2, 0x2, 0x76, 0x26f, 0x3, 0x2, 0x2, 0x2, 0x78, 0x273, 
-    0x3, 0x2, 0x2, 0x2, 0x7a, 0x27e, 0x3, 0x2, 0x2, 0x2, 0x7c, 0x280, 0x3, 
-    0x2, 0x2, 0x2, 0x7e, 0x284, 0x3, 0x2, 0x2, 0x2, 0x80, 0x287, 0x3, 0x2, 
-    0x2, 0x2, 0x82, 0x28f, 0x3, 0x2, 0x2, 0x2, 0x84, 0x2a0, 0x3, 0x2, 0x2, 
-    0x2, 0x86, 0x2a2, 0x3, 0x2, 0x2, 0x2, 0x88, 0x2b6, 0x3, 0x2, 0x2, 0x2, 
-    0x8a, 0x2b8, 0x3, 0x2, 0x2, 0x2, 0x8c, 0x2bd, 0x3, 0x2, 0x2, 0x2, 0x8e, 
-    0x2d1, 0x3, 0x2, 0x2, 0x2, 0x90, 0x2eb, 0x3, 0x2, 0x2, 0x2, 0x92, 0x2f0, 
-    0x3, 0x2, 0x2, 0x2, 0x94, 0x2f2, 0x3, 0x2, 0x2, 0x2, 0x96, 0x30b, 0x3, 
-    0x2, 0x2, 0x2, 0x98, 0x30d, 0x3, 0x2, 0x2, 0x2, 0x9a, 0x30f, 0x3, 0x2, 
-    0x2, 0x2, 0x9c, 0x9e, 0x5, 0xe, 0x8, 0x2, 0x9d, 0x9c, 0x3, 0x2, 0x2, 
-    0x2, 0x9e, 0xa1, 0x3, 0x2, 0x2, 0x2, 0x9f, 0x9d, 0x3, 0x2, 0x2, 0x2, 
-    0x9f, 0xa0, 0x3, 0x2, 0x2, 0x2, 0xa0, 0xa2, 0x3, 0x2, 0x2, 0x2, 0xa1, 
-    0x9f, 0x3, 0x2, 0x2, 0x2, 0xa2, 0xa3, 0x7, 0x2, 0x2, 0x3, 0xa3, 0x3, 
-    0x3, 0x2, 0x2, 0x2, 0xa4, 0xa6, 0x5, 0x6, 0x4, 0x2, 0xa5, 0xa4, 0x3, 
-    0x2, 0x2, 0x2, 0xa6, 0xa9, 0x3, 0x2, 0x2, 0x2, 0xa7, 0xa5, 0x3, 0x2, 
-    0x2, 0x2, 0xa7, 0xa8, 0x3, 0x2, 0x2, 0x2, 0xa8, 0xaa, 0x3, 0x2, 0x2, 
-    0x2, 0xa9, 0xa7, 0x3, 0x2, 0x2, 0x2, 0xaa, 0xab, 0x7, 0x2, 0x2, 0x3, 
-    0xab, 0x5, 0x3, 0x2, 0x2, 0x2, 0xac, 0xaf, 0x5, 0x8, 0x5, 0x2, 0xad, 
-    0xaf, 0x5, 0x24, 0x13, 0x2, 0xae, 0xac, 0x3, 0x2, 0x2, 0x2, 0xae, 0xad, 
-    0x3, 0x2, 0x2, 0x2, 0xaf, 0x7, 0x3, 0x2, 0x2, 0x2, 0xb0, 0xb1, 0x7, 
-    0x7d, 0x2, 0x2, 0xb1, 0xb3, 0x7, 0x4d, 0x2, 0x2, 0xb2, 0xb4, 0x5, 0xa, 
-    0x6, 0x2, 0xb3, 0xb2, 0x3, 0x2, 0x2, 0x2, 0xb3, 0xb4, 0x3, 0x2, 0x2, 
-    0x2, 0xb4, 0xb5, 0x3, 0x2, 0x2, 0x2, 0xb5, 0xb6, 0x7, 0x4e, 0x2, 0x2, 
-    0xb6, 0xb7, 0x7, 0x70, 0x2, 0x2, 0xb7, 0x9, 0x3, 0x2, 0x2, 0x2, 0xb8, 
-    0xbd, 0x5, 0xc, 0x7, 0x2, 0xb9, 0xba, 0x7, 0x71, 0x2, 0x2, 0xba, 0xbc, 
-    0x5, 0xc, 0x7, 0x2, 0xbb, 0xb9, 0x3, 0x2, 0x2, 0x2, 0xbc, 0xbf, 0x3, 
-    0x2, 0x2, 0x2, 0xbd, 0xbb, 0x3, 0x2, 0x2, 0x2, 0xbd, 0xbe, 0x3, 0x2, 
-    0x2, 0x2, 0xbe, 0xb, 0x3, 0x2, 0x2, 0x2, 0xbf, 0xbd, 0x3, 0x2, 0x2, 
-    0x2, 0xc0, 0xc3, 0x7, 0x7d, 0x2, 0x2, 0xc1, 0xc2, 0x7, 0x6c, 0x2, 0x2, 
-    0xc2, 0xc4, 0x5, 0x68, 0x35, 0x2, 0xc3, 0xc1, 0x3, 0x2, 0x2, 0x2, 0xc3, 
-    0xc4, 0x3, 0x2, 0x2, 0x2, 0xc4, 0xd, 0x3, 0x2, 0x2, 0x2, 0xc5, 0xcb, 
-    0x5, 0x14, 0xb, 0x2, 0xc6, 0xcb, 0x5, 0x16, 0xc, 0x2, 0xc7, 0xcb, 0x5, 
-    0x18, 0xd, 0x2, 0xc8, 0xcb, 0x5, 0x10, 0x9, 0x2, 0xc9, 0xcb, 0x5, 0x1a, 
-    0xe, 0x2, 0xca, 0xc5, 0x3, 0x2, 0x2, 0x2, 0xca, 0xc6, 0x3, 0x2, 0x2, 
-    0x2, 0xca, 0xc7, 0x3, 0x2, 0x2, 0x2, 0xca, 0xc8, 0x3, 0x2, 0x2, 0x2, 
-    0xca, 0xc9, 0x3, 0x2, 0x2, 0x2, 0xcb, 0xf, 0x3, 0x2, 0x2, 0x2, 0xcc, 
-    0xce, 0x7, 0x13, 0x2, 0x2, 0xcd, 0xcc, 0x3, 0x2, 0x2, 0x2, 0xcd, 0xce, 
-    0x3, 0x2, 0x2, 0x2, 0xce, 0xcf, 0x3, 0x2, 0x2, 0x2, 0xcf, 0xd0, 0x7, 
-    0x11, 0x2, 0x2, 0xd0, 0xd1, 0x7, 0x7d, 0x2, 0x2, 0xd1, 0xd2, 0x5, 0x5e, 
-    0x30, 0x2, 0xd2, 0xd3, 0x5, 0x3e, 0x20, 0x2, 0xd3, 0xd4, 0x7, 0x12, 
-    0x2, 0x2, 0xd4, 0x11, 0x3, 0x2, 0x2, 0x2, 0xd5, 0xd6, 0x9, 0x2, 0x2, 
-    0x2, 0xd6, 0x13, 0x3, 0x2, 0x2, 0x2, 0xd7, 0xd8, 0x7, 0x14, 0x2, 0x2, 
-    0xd8, 0xd9, 0x5, 0x12, 0xa, 0x2, 0xd9, 0xda, 0x7, 0x70, 0x2, 0x2, 0xda, 
-    0x15, 0x3, 0x2, 0x2, 0x2, 0xdb, 0xdc, 0x7, 0x15, 0x2, 0x2, 0xdc, 0xdd, 
-    0x5, 0x12, 0xa, 0x2, 0xdd, 0xde, 0x7, 0x70, 0x2, 0x2, 0xde, 0x17, 0x3, 
-    0x2, 0x2, 0x2, 0xdf, 0xe0, 0x7, 0x1f, 0x2, 0x2, 0xe0, 0xe1, 0x7, 0x7d, 
-    0x2, 0x2, 0xe1, 0xe2, 0x5, 0x58, 0x2d, 0x2, 0xe2, 0xe3, 0x5, 0x3e, 0x20, 
-    0x2, 0xe3, 0xe4, 0x7, 0x20, 0x2, 0x2, 0xe4, 0x19, 0x3, 0x2, 0x2, 0x2, 
-    0xe5, 0xf9, 0x5, 0x1e, 0x10, 0x2, 0xe6, 0xf9, 0x5, 0x20, 0x11, 0x2, 
-    0xe7, 0xf9, 0x5, 0x22, 0x12, 0x2, 0xe8, 0xf9, 0x5, 0x24, 0x13, 0x2, 
-    0xe9, 0xf9, 0x5, 0x26, 0x14, 0x2, 0xea, 0xf9, 0x5, 0x28, 0x15, 0x2, 
-    0xeb, 0xf9, 0x5, 0x2a, 0x16, 0x2, 0xec, 0xf9, 0x5, 0x2c, 0x17, 0x2, 
-    0xed, 0xf9, 0x5, 0x2e, 0x18, 0x2, 0xee, 0xf9, 0x5, 0x30, 0x19, 0x2, 
-    0xef, 0xf9, 0x5, 0x32, 0x1a, 0x2, 0xf0, 0xf9, 0x5, 0x36, 0x1c, 0x2, 
-    0xf1, 0xf9, 0x5, 0x38, 0x1d, 0x2, 0xf2, 0xf9, 0x5, 0x3a, 0x1e, 0x2, 
-    0xf3, 0xf9, 0x5, 0x3c, 0x1f, 0x2, 0xf4, 0xf9, 0x7, 0x70, 0x2, 0x2, 0xf5, 
-    0xf6, 0x5, 0x68, 0x35, 0x2, 0xf6, 0xf7, 0x7, 0x70, 0x2, 0x2, 0xf7, 0xf9, 
-    0x3, 0x2, 0x2, 0x2, 0xf8, 0xe5, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xe6, 0x3, 
-    0x2, 0x2, 0x2, 0xf8, 0xe7, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xe8, 0x3, 0x2, 
-    0x2, 0x2, 0xf8, 0xe9, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xea, 0x3, 0x2, 0x2, 
-    0x2, 0xf8, 0xeb, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xec, 0x3, 0x2, 0x2, 0x2, 
-    0xf8, 0xed, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xee, 0x3, 0x2, 0x2, 0x2, 0xf8, 
-    0xef, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xf0, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xf1, 
-    0x3, 0x2, 0x2, 0x2, 0xf8, 0xf2, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xf3, 0x3, 
-    0x2, 0x2, 0x2, 0xf8, 0xf4, 0x3, 0x2, 0x2, 0x2, 0xf8, 0xf5, 0x3, 0x2, 
-    0x2, 0x2, 0xf9, 0x1b, 0x3, 0x2, 0x2, 0x2, 0xfa, 0xfb, 0x7, 0x7d, 0x2, 
-    0x2, 0xfb, 0xfc, 0x7, 0x75, 0x2, 0x2, 0xfc, 0x1d, 0x3, 0x2, 0x2, 0x2, 
-    0xfd, 0xfe, 0x7, 0x3, 0x2, 0x2, 0xfe, 0x100, 0x5, 0x76, 0x3c, 0x2, 0xff, 
-    0x101, 0x7, 0x4, 0x2, 0x2, 0x100, 0xff, 0x3, 0x2, 0x2, 0x2, 0x100, 0x101, 
-    0x3, 0x2, 0x2, 0x2, 0x101, 0x102, 0x3, 0x2, 0x2, 0x2, 0x102, 0x109, 
-    0x5, 0x3e, 0x20, 0x2, 0x103, 0x104, 0x7, 0x5, 0x2, 0x2, 0x104, 0x105, 
-    0x5, 0x76, 0x3c, 0x2, 0x105, 0x106, 0x5, 0x3e, 0x20, 0x2, 0x106, 0x108, 
-    0x3, 0x2, 0x2, 0x2, 0x107, 0x103, 0x3, 0x2, 0x2, 0x2, 0x108, 0x10b, 
-    0x3, 0x2, 0x2, 0x2, 0x109, 0x107, 0x3, 0x2, 0x2, 0x2, 0x109, 0x10a, 
-    0x3, 0x2, 0x2, 0x2, 0x10a, 0x10e, 0x3, 0x2, 0x2, 0x2, 0x10b, 0x109, 
-    0x3, 0x2, 0x2, 0x2, 0x10c, 0x10d, 0x7, 0x7, 0x2, 0x2, 0x10d, 0x10f, 
-    0x5, 0x3e, 0x20, 0x2, 0x10e, 0x10c, 0x3, 0x2, 0x2, 0x2, 0x10e, 0x10f, 
-    0x3, 0x2, 0x2, 0x2, 0x10f, 0x110, 0x3, 0x2, 0x2, 0x2, 0x110, 0x111, 
-    0x7, 0x6, 0x2, 0x2, 0x111, 0x1f, 0x3, 0x2, 0x2, 0x2, 0x112, 0x113, 0x7, 
-    0x8, 0x2, 0x2, 0x113, 0x114, 0x7, 0x7d, 0x2, 0x2, 0x114, 0x115, 0x7, 
-    0x70, 0x2, 0x2, 0x115, 0x21, 0x3, 0x2, 0x2, 0x2, 0x116, 0x118, 0x7, 
-    0x9, 0x2, 0x2, 0x117, 0x119, 0x5, 0x68, 0x35, 0x2, 0x118, 0x117, 0x3, 
-    0x2, 0x2, 0x2, 0x118, 0x119, 0x3, 0x2, 0x2, 0x2, 0x119, 0x11a, 0x3, 
-    0x2, 0x2, 0x2, 0x11a, 0x11b, 0x7, 0x70, 0x2, 0x2, 0x11b, 0x23, 0x3, 
-    0x2, 0x2, 0x2, 0x11c, 0x11d, 0x7, 0xa, 0x2, 0x2, 0x11d, 0x11e, 0x5, 
-    0x54, 0x2b, 0x2, 0x11e, 0x11f, 0x7, 0x70, 0x2, 0x2, 0x11f, 0x25, 0x3, 
-    0x2, 0x2, 0x2, 0x120, 0x121, 0x7, 0xb, 0x2, 0x2, 0x121, 0x122, 0x5, 
-    0x52, 0x2a, 0x2, 0x122, 0x123, 0x7, 0x70, 0x2, 0x2, 0x123, 0x27, 0x3, 
-    0x2, 0x2, 0x2, 0x124, 0x126, 0x5, 0x1c, 0xf, 0x2, 0x125, 0x124, 0x3, 
-    0x2, 0x2, 0x2, 0x125, 0x126, 0x3, 0x2, 0x2, 0x2, 0x126, 0x127, 0x3, 
-    0x2, 0x2, 0x2, 0x127, 0x128, 0x7, 0xc, 0x2, 0x2, 0x128, 0x129, 0x5, 
-    0x3e, 0x20, 0x2, 0x129, 0x12a, 0x7, 0xd, 0x2, 0x2, 0x12a, 0x12b, 0x5, 
-    0x76, 0x3c, 0x2, 0x12b, 0x12c, 0x7, 0x70, 0x2, 0x2, 0x12c, 0x29, 0x3, 
-    0x2, 0x2, 0x2, 0x12d, 0x12f, 0x5, 0x1c, 0xf, 0x2, 0x12e, 0x12d, 0x3, 
-    0x2, 0x2, 0x2, 0x12e, 0x12f, 0x3, 0x2, 0x2, 0x2, 0x12f, 0x130, 0x3, 
-    0x2, 0x2, 0x2, 0x130, 0x131, 0x7, 0xe, 0x2, 0x2, 0x131, 0x132, 0x5, 
-    0x76, 0x3c, 0x2, 0x132, 0x133, 0x5, 0x3e, 0x20, 0x2, 0x133, 0x134, 0x7, 
-    0xf, 0x2, 0x2, 0x134, 0x2b, 0x3, 0x2, 0x2, 0x2, 0x135, 0x136, 0x7, 0x10, 
-    0x2, 0x2, 0x136, 0x137, 0x7, 0x70, 0x2, 0x2, 0x137, 0x2d, 0x3, 0x2, 
-    0x2, 0x2, 0x138, 0x13a, 0x7, 0x16, 0x2, 0x2, 0x139, 0x13b, 0x7, 0x7d, 
-    0x2, 0x2, 0x13a, 0x139, 0x3, 0x2, 0x2, 0x2, 0x13a, 0x13b, 0x3, 0x2, 
-    0x2, 0x2, 0x13b, 0x13c, 0x3, 0x2, 0x2, 0x2, 0x13c, 0x13d, 0x7, 0x70, 
-    0x2, 0x2, 0x13d, 0x2f, 0x3, 0x2, 0x2, 0x2, 0x13e, 0x140, 0x7, 0x17, 
-    0x2, 0x2, 0x13f, 0x141, 0x7, 0x7d, 0x2, 0x2, 0x140, 0x13f, 0x3, 0x2, 
-    0x2, 0x2, 0x140, 0x141, 0x3, 0x2, 0x2, 0x2, 0x141, 0x142, 0x3, 0x2, 
-    0x2, 0x2, 0x142, 0x143, 0x7, 0x70, 0x2, 0x2, 0x143, 0x31, 0x3, 0x2, 
-    0x2, 0x2, 0x144, 0x146, 0x5, 0x1c, 0xf, 0x2, 0x145, 0x144, 0x3, 0x2, 
-    0x2, 0x2, 0x145, 0x146, 0x3, 0x2, 0x2, 0x2, 0x146, 0x147, 0x3, 0x2, 
-    0x2, 0x2, 0x147, 0x148, 0x7, 0x18, 0x2, 0x2, 0x148, 0x149, 0x5, 0x4a, 
-    0x26, 0x2, 0x149, 0x14a, 0x7, 0x19, 0x2, 0x2, 0x14a, 0x33, 0x3, 0x2, 
-    0x2, 0x2, 0x14b, 0x152, 0x5, 0x82, 0x42, 0x2, 0x14c, 0x152, 0x5, 0x64, 
-    0x33, 0x2, 0x14d, 0x152, 0x7, 0x7d, 0x2, 0x2, 0x14e, 0x152, 0x5, 0x76, 
-    0x3c, 0x2, 0x14f, 0x152, 0x5, 0x74, 0x3b, 0x2, 0x150, 0x152, 0x5, 0x6c, 
-    0x37, 0x2, 0x151, 0x14b, 0x3, 0x2, 0x2, 0x2, 0x151, 0x14c, 0x3, 0x2, 
-    0x2, 0x2, 0x151, 0x14d, 0x3, 0x2, 0x2, 0x2, 0x151, 0x14e, 0x3, 0x2, 
-    0x2, 0x2, 0x151, 0x14f, 0x3, 0x2, 0x2, 0x2, 0x151, 0x150, 0x3, 0x2, 
-    0x2, 0x2, 0x152, 0x35, 0x3, 0x2, 0x2, 0x2, 0x153, 0x155, 0x5, 0x1c, 
-    0xf, 0x2, 0x154, 0x153, 0x3, 0x2, 0x2, 0x2, 0x154, 0x155, 0x3, 0x2, 
-    0x2, 0x2, 0x155, 0x156, 0x3, 0x2, 0x2, 0x2, 0x156, 0x157, 0x7, 0x1b, 
-    0x2, 0x2, 0x157, 0x158, 0x7, 0x7d, 0x2, 0x2, 0x158, 0x159, 0x7, 0x44, 
-    0x2, 0x2, 0x159, 0x15a, 0x5, 0x34, 0x1b, 0x2, 0x15a, 0x15b, 0x5, 0x3e, 
-    0x20, 0x2, 0x15b, 0x15c, 0x7, 0x1c, 0x2, 0x2, 0x15c, 0x37, 0x3, 0x2, 
-    0x2, 0x2, 0x15d, 0x15f, 0x5, 0x1c, 0xf, 0x2, 0x15e, 0x15d, 0x3, 0x2, 
-    0x2, 0x2, 0x15e, 0x15f, 0x3, 0x2, 0x2, 0x2, 0x15f, 0x160, 0x3, 0x2, 
-    0x2, 0x2, 0x160, 0x161, 0x7, 0x1d, 0x2, 0x2, 0x161, 0x162, 0x5, 0x3e, 
-    0x20, 0x2, 0x162, 0x163, 0x7, 0x1e, 0x2, 0x2, 0x163, 0x164, 0x5, 0x68, 
-    0x35, 0x2, 0x164, 0x165, 0x7, 0x70, 0x2, 0x2, 0x165, 0x39, 0x3, 0x2, 
-    0x2, 0x2, 0x166, 0x168, 0x5, 0x1c, 0xf, 0x2, 0x167, 0x166, 0x3, 0x2, 
-    0x2, 0x2, 0x167, 0x168, 0x3, 0x2, 0x2, 0x2, 0x168, 0x169, 0x3, 0x2, 
-    0x2, 0x2, 0x169, 0x16a, 0x7, 0x21, 0x2, 0x2, 0x16a, 0x16b, 0x7, 0x4d, 
-    0x2, 0x2, 0x16b, 0x16c, 0x5, 0x68, 0x35, 0x2, 0x16c, 0x16e, 0x7, 0x4e, 
-    0x2, 0x2, 0x16d, 0x16f, 0x5, 0x46, 0x24, 0x2, 0x16e, 0x16d, 0x3, 0x2, 
-    0x2, 0x2, 0x16f, 0x170, 0x3, 0x2, 0x2, 0x2, 0x170, 0x16e, 0x3, 0x2, 
-    0x2, 0x2, 0x170, 0x171, 0x3, 0x2, 0x2, 0x2, 0x171, 0x172, 0x3, 0x2, 
-    0x2, 0x2, 0x172, 0x173, 0x7, 0x23, 0x2, 0x2, 0x173, 0x3b, 0x3, 0x2, 
-    0x2, 0x2, 0x174, 0x175, 0x7, 0x24, 0x2, 0x2, 0x175, 0x176, 0x7, 0x7d, 
-    0x2, 0x2, 0x176, 0x177, 0x5, 0x42, 0x22, 0x2, 0x177, 0x178, 0x7, 0x25, 
-    0x2, 0x2, 0x178, 0x3d, 0x3, 0x2, 0x2, 0x2, 0x179, 0x17b, 0x5, 0x1a, 
-    0xe, 0x2, 0x17a, 0x179, 0x3, 0x2, 0x2, 0x2, 0x17b, 0x17e, 0x3, 0x2, 
-    0x2, 0x2, 0x17c, 0x17a, 0x3, 0x2, 0x2, 0x2, 0x17c, 0x17d, 0x3, 0x2, 
-    0x2, 0x2, 0x17d, 0x3f, 0x3, 0x2, 0x2, 0x2, 0x17e, 0x17c, 0x3, 0x2, 0x2, 
-    0x2, 0x17f, 0x180, 0x7, 0x6c, 0x2, 0x2, 0x180, 0x187, 0x5, 0x68, 0x35, 
-    0x2, 0x181, 0x182, 0x7, 0x6a, 0x2, 0x2, 0x182, 0x183, 0x5, 0x68, 0x35, 
-    0x2, 0x183, 0x184, 0x8, 0x21, 0x1, 0x2, 0x184, 0x187, 0x3, 0x2, 0x2, 
-    0x2, 0x185, 0x187, 0x7, 0x42, 0x2, 0x2, 0x186, 0x17f, 0x3, 0x2, 0x2, 
-    0x2, 0x186, 0x181, 0x3, 0x2, 0x2, 0x2, 0x186, 0x185, 0x3, 0x2, 0x2, 
-    0x2, 0x187, 0x41, 0x3, 0x2, 0x2, 0x2, 0x188, 0x18d, 0x5, 0x44, 0x23, 
-    0x2, 0x189, 0x18a, 0x7, 0x71, 0x2, 0x2, 0x18a, 0x18c, 0x5, 0x44, 0x23, 
-    0x2, 0x18b, 0x189, 0x3, 0x2, 0x2, 0x2, 0x18c, 0x18f, 0x3, 0x2, 0x2, 
-    0x2, 0x18d, 0x18b, 0x3, 0x2, 0x2, 0x2, 0x18d, 0x18e, 0x3, 0x2, 0x2, 
-    0x2, 0x18e, 0x191, 0x3, 0x2, 0x2, 0x2, 0x18f, 0x18d, 0x3, 0x2, 0x2, 
-    0x2, 0x190, 0x192, 0x7, 0x71, 0x2, 0x2, 0x191, 0x190, 0x3, 0x2, 0x2, 
-    0x2, 0x191, 0x192, 0x3, 0x2, 0x2, 0x2, 0x192, 0x43, 0x3, 0x2, 0x2, 0x2, 
-    0x193, 0x196, 0x7, 0x7d, 0x2, 0x2, 0x194, 0x195, 0x7, 0x6c, 0x2, 0x2, 
-    0x195, 0x197, 0x5, 0x68, 0x35, 0x2, 0x196, 0x194, 0x3, 0x2, 0x2, 0x2, 
-    0x196, 0x197, 0x3, 0x2, 0x2, 0x2, 0x197, 0x45, 0x3, 0x2, 0x2, 0x2, 0x198, 
-    0x19a, 0x5, 0x48, 0x25, 0x2, 0x199, 0x198, 0x3, 0x2, 0x2, 0x2, 0x19a, 
-    0x19b, 0x3, 0x2, 0x2, 0x2, 0x19b, 0x199, 0x3, 0x2, 0x2, 0x2, 0x19b, 
-    0x19c, 0x3, 0x2, 0x2, 0x2, 0x19c, 0x19d, 0x3, 0x2, 0x2, 0x2, 0x19d, 
-    0x19e, 0x5, 0x3e, 0x20, 0x2, 0x19e, 0x47, 0x3, 0x2, 0x2, 0x2, 0x19f, 
-    0x1a3, 0x5, 0x98, 0x4d, 0x2, 0x1a0, 0x1a3, 0x7, 0x7d, 0x2, 0x2, 0x1a1, 
-    0x1a3, 0x7, 0x4b, 0x2, 0x2, 0x1a2, 0x19f, 0x3, 0x2, 0x2, 0x2, 0x1a2, 
-    0x1a0, 0x3, 0x2, 0x2, 0x2, 0x1a2, 0x1a1, 0x3, 0x2, 0x2, 0x2, 0x1a3, 
-    0x1a4, 0x3, 0x2, 0x2, 0x2, 0x1a4, 0x1a8, 0x7, 0x75, 0x2, 0x2, 0x1a5, 
-    0x1a6, 0x7, 0x22, 0x2, 0x2, 0x1a6, 0x1a8, 0x7, 0x75, 0x2, 0x2, 0x1a7, 
-    0x1a2, 0x3, 0x2, 0x2, 0x2, 0x1a7, 0x1a5, 0x3, 0x2, 0x2, 0x2, 0x1a8, 
-    0x49, 0x3, 0x2, 0x2, 0x2, 0x1a9, 0x1ac, 0x5, 0x4e, 0x28, 0x2, 0x1aa, 
-    0x1ac, 0x5, 0x4c, 0x27, 0x2, 0x1ab, 0x1a9, 0x3, 0x2, 0x2, 0x2, 0x1ab, 
-    0x1aa, 0x3, 0x2, 0x2, 0x2, 0x1ac, 0x4b, 0x3, 0x2, 0x2, 0x2, 0x1ad, 0x1ae, 
-    0x7, 0x7d, 0x2, 0x2, 0x1ae, 0x1af, 0x7, 0x6c, 0x2, 0x2, 0x1af, 0x1b0, 
-    0x5, 0x68, 0x35, 0x2, 0x1b0, 0x1b1, 0x7, 0x1a, 0x2, 0x2, 0x1b1, 0x1b2, 
-    0x5, 0x68, 0x35, 0x2, 0x1b2, 0x1b3, 0x5, 0x3e, 0x20, 0x2, 0x1b3, 0x4d, 
-    0x3, 0x2, 0x2, 0x2, 0x1b4, 0x1b5, 0x7, 0x4d, 0x2, 0x2, 0x1b5, 0x1b6, 
-    0x5, 0x68, 0x35, 0x2, 0x1b6, 0x1b7, 0x7, 0x70, 0x2, 0x2, 0x1b7, 0x1b8, 
-    0x5, 0x68, 0x35, 0x2, 0x1b8, 0x1b9, 0x7, 0x70, 0x2, 0x2, 0x1b9, 0x1ba, 
-    0x5, 0x68, 0x35, 0x2, 0x1ba, 0x1bb, 0x7, 0x4e, 0x2, 0x2, 0x1bb, 0x1bc, 
-    0x5, 0x3e, 0x20, 0x2, 0x1bc, 0x4f, 0x3, 0x2, 0x2, 0x2, 0x1bd, 0x1c0, 
-    0x7, 0x7d, 0x2, 0x2, 0x1be, 0x1bf, 0x7, 0x71, 0x2, 0x2, 0x1bf, 0x1c1, 
-    0x5, 0x50, 0x29, 0x2, 0x1c0, 0x1be, 0x3, 0x2, 0x2, 0x2, 0x1c0, 0x1c1, 
-    0x3, 0x2, 0x2, 0x2, 0x1c1, 0x51, 0x3, 0x2, 0x2, 0x2, 0x1c2, 0x1c7, 0x5, 
-    0x56, 0x2c, 0x2, 0x1c3, 0x1c4, 0x7, 0x71, 0x2, 0x2, 0x1c4, 0x1c6, 0x5, 
-    0x56, 0x2c, 0x2, 0x1c5, 0x1c3, 0x3, 0x2, 0x2, 0x2, 0x1c6, 0x1c9, 0x3, 
-    0x2, 0x2, 0x2, 0x1c7, 0x1c5, 0x3, 0x2, 0x2, 0x2, 0x1c7, 0x1c8, 0x3, 
-    0x2, 0x2, 0x2, 0x1c8, 0x53, 0x3, 0x2, 0x2, 0x2, 0x1c9, 0x1c7, 0x3, 0x2, 
-    0x2, 0x2, 0x1ca, 0x1cb, 0x7, 0x7d, 0x2, 0x2, 0x1cb, 0x1cc, 0x5, 0x40, 
-    0x21, 0x2, 0x1cc, 0x55, 0x3, 0x2, 0x2, 0x2, 0x1cd, 0x1cf, 0x7, 0x7d, 
-    0x2, 0x2, 0x1ce, 0x1d0, 0x5, 0x40, 0x21, 0x2, 0x1cf, 0x1ce, 0x3, 0x2, 
-    0x2, 0x2, 0x1cf, 0x1d0, 0x3, 0x2, 0x2, 0x2, 0x1d0, 0x57, 0x3, 0x2, 0x2, 
-    0x2, 0x1d1, 0x1d3, 0x7, 0x4d, 0x2, 0x2, 0x1d2, 0x1d4, 0x5, 0x5a, 0x2e, 
-    0x2, 0x1d3, 0x1d2, 0x3, 0x2, 0x2, 0x2, 0x1d3, 0x1d4, 0x3, 0x2, 0x2, 
-    0x2, 0x1d4, 0x1d5, 0x3, 0x2, 0x2, 0x2, 0x1d5, 0x1d6, 0x7, 0x4e, 0x2, 
-    0x2, 0x1d6, 0x59, 0x3, 0x2, 0x2, 0x2, 0x1d7, 0x1de, 0x5, 0x5c, 0x2f, 
-    0x2, 0x1d8, 0x1da, 0x7, 0x71, 0x2, 0x2, 0x1d9, 0x1d8, 0x3, 0x2, 0x2, 
-    0x2, 0x1d9, 0x1da, 0x3, 0x2, 0x2, 0x2, 0x1da, 0x1db, 0x3, 0x2, 0x2, 
-    0x2, 0x1db, 0x1dd, 0x5, 0x5c, 0x2f, 0x2, 0x1dc, 0x1d9, 0x3, 0x2, 0x2, 
-    0x2, 0x1dd, 0x1e0, 0x3, 0x2, 0x2, 0x2, 0x1de, 0x1dc, 0x3, 0x2, 0x2, 
-    0x2, 0x1de, 0x1df, 0x3, 0x2, 0x2, 0x2, 0x1df, 0x5b, 0x3, 0x2, 0x2, 0x2, 
-    0x1e0, 0x1de, 0x3, 0x2, 0x2, 0x2, 0x1e1, 0x1e2, 0x7, 0x3d, 0x2, 0x2, 
-    0x1e2, 0x1e9, 0x7, 0x7d, 0x2, 0x2, 0x1e3, 0x1e6, 0x7, 0x7d, 0x2, 0x2, 
-    0x1e4, 0x1e5, 0x7, 0x6c, 0x2, 0x2, 0x1e5, 0x1e7, 0x5, 0x68, 0x35, 0x2, 
-    0x1e6, 0x1e4, 0x3, 0x2, 0x2, 0x2, 0x1e6, 0x1e7, 0x3, 0x2, 0x2, 0x2, 
-    0x1e7, 0x1e9, 0x3, 0x2, 0x2, 0x2, 0x1e8, 0x1e1, 0x3, 0x2, 0x2, 0x2, 
-    0x1e8, 0x1e3, 0x3, 0x2, 0x2, 0x2, 0x1e9, 0x5d, 0x3, 0x2, 0x2, 0x2, 0x1ea, 
-    0x1ec, 0x7, 0x4d, 0x2, 0x2, 0x1eb, 0x1ed, 0x5, 0x60, 0x31, 0x2, 0x1ec, 
-    0x1eb, 0x3, 0x2, 0x2, 0x2, 0x1ec, 0x1ed, 0x3, 0x2, 0x2, 0x2, 0x1ed, 
-    0x1ee, 0x3, 0x2, 0x2, 0x2, 0x1ee, 0x1ef, 0x7, 0x4e, 0x2, 0x2, 0x1ef, 
-    0x5f, 0x3, 0x2, 0x2, 0x2, 0x1f0, 0x1f5, 0x5, 0x62, 0x32, 0x2, 0x1f1, 
-    0x1f2, 0x7, 0x71, 0x2, 0x2, 0x1f2, 0x1f4, 0x5, 0x62, 0x32, 0x2, 0x1f3, 
-    0x1f1, 0x3, 0x2, 0x2, 0x2, 0x1f4, 0x1f7, 0x3, 0x2, 0x2, 0x2, 0x1f5, 
-    0x1f3, 0x3, 0x2, 0x2, 0x2, 0x1f5, 0x1f6, 0x3, 0x2, 0x2, 0x2, 0x1f6, 
-    0x61, 0x3, 0x2, 0x2, 0x2, 0x1f7, 0x1f5, 0x3, 0x2, 0x2, 0x2, 0x1f8, 0x1fa, 
-    0x7, 0x3c, 0x2, 0x2, 0x1f9, 0x1f8, 0x3, 0x2, 0x2, 0x2, 0x1f9, 0x1fa, 
-    0x3, 0x2, 0x2, 0x2, 0x1fa, 0x1fc, 0x3, 0x2, 0x2, 0x2, 0x1fb, 0x1fd, 
-    0x7, 0x3d, 0x2, 0x2, 0x1fc, 0x1fb, 0x3, 0x2, 0x2, 0x2, 0x1fc, 0x1fd, 
-    0x3, 0x2, 0x2, 0x2, 0x1fd, 0x1fe, 0x3, 0x2, 0x2, 0x2, 0x1fe, 0x201, 
-    0x7, 0x7d, 0x2, 0x2, 0x1ff, 0x200, 0x7, 0x6c, 0x2, 0x2, 0x200, 0x202, 
-    0x5, 0x68, 0x35, 0x2, 0x201, 0x1ff, 0x3, 0x2, 0x2, 0x2, 0x201, 0x202, 
-    0x3, 0x2, 0x2, 0x2, 0x202, 0x63, 0x3, 0x2, 0x2, 0x2, 0x203, 0x204, 0x7, 
-    0x7d, 0x2, 0x2, 0x204, 0x205, 0x7, 0x74, 0x2, 0x2, 0x205, 0x206, 0x5, 
-    0x82, 0x42, 0x2, 0x206, 0x65, 0x3, 0x2, 0x2, 0x2, 0x207, 0x208, 0x7, 
-    0x73, 0x2, 0x2, 0x208, 0x209, 0x7, 0x7d, 0x2, 0x2, 0x209, 0x67, 0x3, 
-    0x2, 0x2, 0x2, 0x20a, 0x20b, 0x8, 0x35, 0x1, 0x2, 0x20b, 0x211, 0x5, 
-    0x6a, 0x36, 0x2, 0x20c, 0x20d, 0x9, 0x3, 0x2, 0x2, 0x20d, 0x211, 0x5, 
-    0x68, 0x35, 0x10, 0x20e, 0x20f, 0x9, 0x4, 0x2, 0x2, 0x20f, 0x211, 0x5, 
-    0x68, 0x35, 0xf, 0x210, 0x20a, 0x3, 0x2, 0x2, 0x2, 0x210, 0x20c, 0x3, 
-    0x2, 0x2, 0x2, 0x210, 0x20e, 0x3, 0x2, 0x2, 0x2, 0x211, 0x240, 0x3, 
-    0x2, 0x2, 0x2, 0x212, 0x213, 0xc, 0xe, 0x2, 0x2, 0x213, 0x214, 0x9, 
-    0x5, 0x2, 0x2, 0x214, 0x23f, 0x5, 0x68, 0x35, 0xf, 0x215, 0x216, 0xc, 
-    0xd, 0x2, 0x2, 0x216, 0x217, 0x9, 0x6, 0x2, 0x2, 0x217, 0x23f, 0x5, 
-    0x68, 0x35, 0xe, 0x218, 0x219, 0xc, 0xc, 0x2, 0x2, 0x219, 0x21a, 0x7, 
-    0x78, 0x2, 0x2, 0x21a, 0x23f, 0x5, 0x68, 0x35, 0xd, 0x21b, 0x21c, 0xc, 
-    0xb, 0x2, 0x2, 0x21c, 0x21d, 0x7, 0x44, 0x2, 0x2, 0x21d, 0x23f, 0x5, 
-    0x68, 0x35, 0xc, 0x21e, 0x21f, 0xc, 0xa, 0x2, 0x2, 0x21f, 0x220, 0x9, 
-    0x7, 0x2, 0x2, 0x220, 0x23f, 0x5, 0x68, 0x35, 0xb, 0x221, 0x222, 0xc, 
-    0x9, 0x2, 0x2, 0x222, 0x223, 0x7, 0x6a, 0x2, 0x2, 0x223, 0x224, 0x8, 
-    0x35, 0x1, 0x2, 0x224, 0x23f, 0x5, 0x68, 0x35, 0xa, 0x225, 0x226, 0xc, 
-    0x8, 0x2, 0x2, 0x226, 0x227, 0x9, 0x8, 0x2, 0x2, 0x227, 0x23f, 0x5, 
-    0x68, 0x35, 0x9, 0x228, 0x229, 0xc, 0x7, 0x2, 0x2, 0x229, 0x22a, 0x9, 
-    0x9, 0x2, 0x2, 0x22a, 0x23f, 0x5, 0x68, 0x35, 0x8, 0x22b, 0x22c, 0xc, 
-    0x6, 0x2, 0x2, 0x22c, 0x22d, 0x9, 0xa, 0x2, 0x2, 0x22d, 0x23f, 0x5, 
-    0x68, 0x35, 0x7, 0x22e, 0x22f, 0xc, 0x5, 0x2, 0x2, 0x22f, 0x230, 0x7, 
-    0x79, 0x2, 0x2, 0x230, 0x231, 0x5, 0x68, 0x35, 0x2, 0x231, 0x232, 0x7, 
-    0x75, 0x2, 0x2, 0x232, 0x233, 0x5, 0x68, 0x35, 0x6, 0x233, 0x23f, 0x3, 
-    0x2, 0x2, 0x2, 0x234, 0x235, 0xc, 0x4, 0x2, 0x2, 0x235, 0x236, 0x9, 
-    0xb, 0x2, 0x2, 0x236, 0x23f, 0x5, 0x68, 0x35, 0x4, 0x237, 0x238, 0xc, 
-    0x3, 0x2, 0x2, 0x238, 0x239, 0x9, 0xc, 0x2, 0x2, 0x239, 0x23f, 0x5, 
-    0x68, 0x35, 0x3, 0x23a, 0x23b, 0xc, 0x12, 0x2, 0x2, 0x23b, 0x23f, 0x5, 
-    0x7a, 0x3e, 0x2, 0x23c, 0x23d, 0xc, 0x11, 0x2, 0x2, 0x23d, 0x23f, 0x9, 
-    0xd, 0x2, 0x2, 0x23e, 0x212, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x215, 0x3, 
-    0x2, 0x2, 0x2, 0x23e, 0x218, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x21b, 0x3, 
-    0x2, 0x2, 0x2, 0x23e, 0x21e, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x221, 0x3, 
-    0x2, 0x2, 0x2, 0x23e, 0x225, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x228, 0x3, 
-    0x2, 0x2, 0x2, 0x23e, 0x22b, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x22e, 0x3, 
-    0x2, 0x2, 0x2, 0x23e, 0x234, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x237, 0x3, 
-    0x2, 0x2, 0x2, 0x23e, 0x23a, 0x3, 0x2, 0x2, 0x2, 0x23e, 0x23c, 0x3, 
-    0x2, 0x2, 0x2, 0x23f, 0x242, 0x3, 0x2, 0x2, 0x2, 0x240, 0x23e, 0x3, 
-    0x2, 0x2, 0x2, 0x240, 0x241, 0x3, 0x2, 0x2, 0x2, 0x241, 0x69, 0x3, 0x2, 
-    0x2, 0x2, 0x242, 0x240, 0x3, 0x2, 0x2, 0x2, 0x243, 0x250, 0x5, 0x92, 
-    0x4a, 0x2, 0x244, 0x250, 0x5, 0x76, 0x3c, 0x2, 0x245, 0x250, 0x5, 0x82, 
-    0x42, 0x2, 0x246, 0x250, 0x5, 0x64, 0x33, 0x2, 0x247, 0x250, 0x7, 0x7d, 
-    0x2, 0x2, 0x248, 0x250, 0x5, 0x66, 0x34, 0x2, 0x249, 0x250, 0x5, 0x6c, 
-    0x37, 0x2, 0x24a, 0x250, 0x5, 0x6e, 0x38, 0x2, 0x24b, 0x250, 0x5, 0x70, 
-    0x39, 0x2, 0x24c, 0x250, 0x5, 0x72, 0x3a, 0x2, 0x24d, 0x250, 0x5, 0x74, 
-    0x3b, 0x2, 0x24e, 0x250, 0x5, 0x94, 0x4b, 0x2, 0x24f, 0x243, 0x3, 0x2, 
-    0x2, 0x2, 0x24f, 0x244, 0x3, 0x2, 0x2, 0x2, 0x24f, 0x245, 0x3, 0x2, 
-    0x2, 0x2, 0x24f, 0x246, 0x3, 0x2, 0x2, 0x2, 0x24f, 0x247, 0x3, 0x2, 
-    0x2, 0x2, 0x24f, 0x248, 0x3, 0x2, 0x2, 0x2, 0x24f, 0x249, 0x3, 0x2, 
-    0x2, 0x2, 0x24f, 0x24a, 0x3, 0x2, 0x2, 0x2, 0x24f, 0x24b, 0x3, 0x2, 
-    0x2, 0x2, 0x24f, 0x24c, 0x3, 0x2, 0x2, 0x2, 0x24f, 0x24d, 0x3, 0x2, 
-    0x2, 0x2, 0x24f, 0x24e, 0x3, 0x2, 0x2, 0x2, 0x250, 0x6b, 0x3, 0x2, 0x2, 
-    0x2, 0x251, 0x253, 0x7, 0x42, 0x2, 0x2, 0x252, 0x254, 0x5, 0x90, 0x49, 
-    0x2, 0x253, 0x252, 0x3, 0x2, 0x2, 0x2, 0x253, 0x254, 0x3, 0x2, 0x2, 
-    0x2, 0x254, 0x6d, 0x3, 0x2, 0x2, 0x2, 0x255, 0x257, 0x7, 0x41, 0x2, 
-    0x2, 0x256, 0x258, 0x5, 0x88, 0x45, 0x2, 0x257, 0x256, 0x3, 0x2, 0x2, 
-    0x2, 0x257, 0x258, 0x3, 0x2, 0x2, 0x2, 0x258, 0x6f, 0x3, 0x2, 0x2, 0x2, 
-    0x259, 0x25b, 0x7, 0x40, 0x2, 0x2, 0x25a, 0x25c, 0x5, 0x8e, 0x48, 0x2, 
-    0x25b, 0x25a, 0x3, 0x2, 0x2, 0x2, 0x25b, 0x25c, 0x3, 0x2, 0x2, 0x2, 
-    0x25c, 0x71, 0x3, 0x2, 0x2, 0x2, 0x25d, 0x25f, 0x7, 0x3e, 0x2, 0x2, 
-    0x25e, 0x260, 0x5, 0x88, 0x45, 0x2, 0x25f, 0x25e, 0x3, 0x2, 0x2, 0x2, 
-    0x25f, 0x260, 0x3, 0x2, 0x2, 0x2, 0x260, 0x73, 0x3, 0x2, 0x2, 0x2, 0x261, 
-    0x263, 0x7, 0x51, 0x2, 0x2, 0x262, 0x264, 0x5, 0x78, 0x3d, 0x2, 0x263, 
-    0x262, 0x3, 0x2, 0x2, 0x2, 0x263, 0x264, 0x3, 0x2, 0x2, 0x2, 0x264, 
-    0x265, 0x3, 0x2, 0x2, 0x2, 0x265, 0x26e, 0x7, 0x52, 0x2, 0x2, 0x266, 
-    0x268, 0x7, 0x51, 0x2, 0x2, 0x267, 0x269, 0x5, 0x78, 0x3d, 0x2, 0x268, 
-    0x267, 0x3, 0x2, 0x2, 0x2, 0x268, 0x269, 0x3, 0x2, 0x2, 0x2, 0x269, 
-    0x26a, 0x3, 0x2, 0x2, 0x2, 0x26a, 0x26b, 0x7, 0x71, 0x2, 0x2, 0x26b, 
-    0x26c, 0x7, 0x52, 0x2, 0x2, 0x26c, 0x26e, 0x8, 0x3b, 0x1, 0x2, 0x26d, 
-    0x261, 0x3, 0x2, 0x2, 0x2, 0x26d, 0x266, 0x3, 0x2, 0x2, 0x2, 0x26e, 
-    0x75, 0x3, 0x2, 0x2, 0x2, 0x26f, 0x270, 0x7, 0x4d, 0x2, 0x2, 0x270, 
-    0x271, 0x5, 0x68, 0x35, 0x2, 0x271, 0x272, 0x7, 0x4e, 0x2, 0x2, 0x272, 
-    0x77, 0x3, 0x2, 0x2, 0x2, 0x273, 0x278, 0x5, 0x68, 0x35, 0x2, 0x274, 
-    0x275, 0x7, 0x71, 0x2, 0x2, 0x275, 0x277, 0x5, 0x68, 0x35, 0x2, 0x276, 
-    0x274, 0x3, 0x2, 0x2, 0x2, 0x277, 0x27a, 0x3, 0x2, 0x2, 0x2, 0x278, 
-    0x276, 0x3, 0x2, 0x2, 0x2, 0x278, 0x279, 0x3, 0x2, 0x2, 0x2, 0x279, 
-    0x79, 0x3, 0x2, 0x2, 0x2, 0x27a, 0x278, 0x3, 0x2, 0x2, 0x2, 0x27b, 0x27f, 
-    0x5, 0x7c, 0x3f, 0x2, 0x27c, 0x27f, 0x5, 0x80, 0x41, 0x2, 0x27d, 0x27f, 
-    0x5, 0x7e, 0x40, 0x2, 0x27e, 0x27b, 0x3, 0x2, 0x2, 0x2, 0x27e, 0x27c, 
-    0x3, 0x2, 0x2, 0x2, 0x27e, 0x27d, 0x3, 0x2, 0x2, 0x2, 0x27f, 0x7b, 0x3, 
-    0x2, 0x2, 0x2, 0x280, 0x281, 0x7, 0x4f, 0x2, 0x2, 0x281, 0x282, 0x5, 
-    0x78, 0x3d, 0x2, 0x282, 0x283, 0x7, 0x50, 0x2, 0x2, 0x283, 0x7d, 0x3, 
-    0x2, 0x2, 0x2, 0x284, 0x285, 0x7, 0x53, 0x2, 0x2, 0x285, 0x286, 0x9, 
-    0x2, 0x2, 0x2, 0x286, 0x7f, 0x3, 0x2, 0x2, 0x2, 0x287, 0x288, 0x7, 0x53, 
-    0x2, 0x2, 0x288, 0x289, 0x7, 0x7d, 0x2, 0x2, 0x289, 0x28b, 0x7, 0x4d, 
-    0x2, 0x2, 0x28a, 0x28c, 0x5, 0x78, 0x3d, 0x2, 0x28b, 0x28a, 0x3, 0x2, 
-    0x2, 0x2, 0x28b, 0x28c, 0x3, 0x2, 0x2, 0x2, 0x28c, 0x28d, 0x3, 0x2, 
-    0x2, 0x2, 0x28d, 0x28e, 0x7, 0x4e, 0x2, 0x2, 0x28e, 0x81, 0x3, 0x2, 
-    0x2, 0x2, 0x28f, 0x290, 0x7, 0x7d, 0x2, 0x2, 0x290, 0x292, 0x7, 0x4d, 
-    0x2, 0x2, 0x291, 0x293, 0x5, 0x78, 0x3d, 0x2, 0x292, 0x291, 0x3, 0x2, 
-    0x2, 0x2, 0x292, 0x293, 0x3, 0x2, 0x2, 0x2, 0x293, 0x294, 0x3, 0x2, 
-    0x2, 0x2, 0x294, 0x295, 0x7, 0x4e, 0x2, 0x2, 0x295, 0x83, 0x3, 0x2, 
-    0x2, 0x2, 0x296, 0x299, 0x7, 0x7d, 0x2, 0x2, 0x297, 0x298, 0x7, 0x6c, 
-    0x2, 0x2, 0x298, 0x29a, 0x5, 0x68, 0x35, 0x2, 0x299, 0x297, 0x3, 0x2, 
-    0x2, 0x2, 0x299, 0x29a, 0x3, 0x2, 0x2, 0x2, 0x29a, 0x2a1, 0x3, 0x2, 
-    0x2, 0x2, 0x29b, 0x29e, 0x7, 0x4b, 0x2, 0x2, 0x29c, 0x29d, 0x7, 0x6c, 
-    0x2, 0x2, 0x29d, 0x29f, 0x5, 0x68, 0x35, 0x2, 0x29e, 0x29c, 0x3, 0x2, 
-    0x2, 0x2, 0x29e, 0x29f, 0x3, 0x2, 0x2, 0x2, 0x29f, 0x2a1, 0x3, 0x2, 
-    0x2, 0x2, 0x2a0, 0x296, 0x3, 0x2, 0x2, 0x2, 0x2a0, 0x29b, 0x3, 0x2, 
-    0x2, 0x2, 0x2a1, 0x85, 0x3, 0x2, 0x2, 0x2, 0x2a2, 0x2a7, 0x5, 0x84, 
-    0x43, 0x2, 0x2a3, 0x2a4, 0x7, 0x71, 0x2, 0x2, 0x2a4, 0x2a6, 0x5, 0x84, 
-    0x43, 0x2, 0x2a5, 0x2a3, 0x3, 0x2, 0x2, 0x2, 0x2a6, 0x2a9, 0x3, 0x2, 
-    0x2, 0x2, 0x2a7, 0x2a5, 0x3, 0x2, 0x2, 0x2, 0x2a7, 0x2a8, 0x3, 0x2, 
-    0x2, 0x2, 0x2a8, 0x87, 0x3, 0x2, 0x2, 0x2, 0x2a9, 0x2a7, 0x3, 0x2, 0x2, 
-    0x2, 0x2aa, 0x2ac, 0x7, 0x51, 0x2, 0x2, 0x2ab, 0x2ad, 0x5, 0x86, 0x44, 
-    0x2, 0x2ac, 0x2ab, 0x3, 0x2, 0x2, 0x2, 0x2ac, 0x2ad, 0x3, 0x2, 0x2, 
-    0x2, 0x2ad, 0x2ae, 0x3, 0x2, 0x2, 0x2, 0x2ae, 0x2b7, 0x7, 0x52, 0x2, 
-    0x2, 0x2af, 0x2b1, 0x7, 0x51, 0x2, 0x2, 0x2b0, 0x2b2, 0x5, 0x86, 0x44, 
-    0x2, 0x2b1, 0x2b0, 0x3, 0x2, 0x2, 0x2, 0x2b1, 0x2b2, 0x3, 0x2, 0x2, 
-    0x2, 0x2b2, 0x2b3, 0x3, 0x2, 0x2, 0x2, 0x2b3, 0x2b4, 0x7, 0x71, 0x2, 
-    0x2, 0x2b4, 0x2b5, 0x7, 0x52, 0x2, 0x2, 0x2b5, 0x2b7, 0x8, 0x45, 0x1, 
-    0x2, 0x2b6, 0x2aa, 0x3, 0x2, 0x2, 0x2, 0x2b6, 0x2af, 0x3, 0x2, 0x2, 
-    0x2, 0x2b7, 0x89, 0x3, 0x2, 0x2, 0x2, 0x2b8, 0x2bb, 0x5, 0x68, 0x35, 
-    0x2, 0x2b9, 0x2ba, 0x7, 0x54, 0x2, 0x2, 0x2ba, 0x2bc, 0x5, 0x68, 0x35, 
-    0x2, 0x2bb, 0x2b9, 0x3, 0x2, 0x2, 0x2, 0x2bb, 0x2bc, 0x3, 0x2, 0x2, 
-    0x2, 0x2bc, 0x8b, 0x3, 0x2, 0x2, 0x2, 0x2bd, 0x2c2, 0x5, 0x8a, 0x46, 
-    0x2, 0x2be, 0x2bf, 0x7, 0x71, 0x2, 0x2, 0x2bf, 0x2c1, 0x5, 0x8a, 0x46, 
-    0x2, 0x2c0, 0x2be, 0x3, 0x2, 0x2, 0x2, 0x2c1, 0x2c4, 0x3, 0x2, 0x2, 
-    0x2, 0x2c2, 0x2c0, 0x3, 0x2, 0x2, 0x2, 0x2c2, 0x2c3, 0x3, 0x2, 0x2, 
-    0x2, 0x2c3, 0x8d, 0x3, 0x2, 0x2, 0x2, 0x2c4, 0x2c2, 0x3, 0x2, 0x2, 0x2, 
-    0x2c5, 0x2c7, 0x7, 0x51, 0x2, 0x2, 0x2c6, 0x2c8, 0x5, 0x8c, 0x47, 0x2, 
-    0x2c7, 0x2c6, 0x3, 0x2, 0x2, 0x2, 0x2c7, 0x2c8, 0x3, 0x2, 0x2, 0x2, 
-    0x2c8, 0x2c9, 0x3, 0x2, 0x2, 0x2, 0x2c9, 0x2d2, 0x7, 0x52, 0x2, 0x2, 
-    0x2ca, 0x2cc, 0x7, 0x51, 0x2, 0x2, 0x2cb, 0x2cd, 0x5, 0x8c, 0x47, 0x2, 
-    0x2cc, 0x2cb, 0x3, 0x2, 0x2, 0x2, 0x2cc, 0x2cd, 0x3, 0x2, 0x2, 0x2, 
-    0x2cd, 0x2ce, 0x3, 0x2, 0x2, 0x2, 0x2ce, 0x2cf, 0x7, 0x71, 0x2, 0x2, 
-    0x2cf, 0x2d0, 0x7, 0x52, 0x2, 0x2, 0x2d0, 0x2d2, 0x8, 0x48, 0x1, 0x2, 
-    0x2d1, 0x2c5, 0x3, 0x2, 0x2, 0x2, 0x2d1, 0x2ca, 0x3, 0x2, 0x2, 0x2, 
-    0x2d2, 0x8f, 0x3, 0x2, 0x2, 0x2, 0x2d3, 0x2d5, 0x7, 0x51, 0x2, 0x2, 
-    0x2d4, 0x2d6, 0x5, 0x78, 0x3d, 0x2, 0x2d5, 0x2d4, 0x3, 0x2, 0x2, 0x2, 
-    0x2d5, 0x2d6, 0x3, 0x2, 0x2, 0x2, 0x2d6, 0x2d7, 0x3, 0x2, 0x2, 0x2, 
-    0x2d7, 0x2ec, 0x7, 0x52, 0x2, 0x2, 0x2d8, 0x2da, 0x7, 0x51, 0x2, 0x2, 
-    0x2d9, 0x2db, 0x5, 0x78, 0x3d, 0x2, 0x2da, 0x2d9, 0x3, 0x2, 0x2, 0x2, 
-    0x2da, 0x2db, 0x3, 0x2, 0x2, 0x2, 0x2db, 0x2dc, 0x3, 0x2, 0x2, 0x2, 
-    0x2dc, 0x2dd, 0x7, 0x71, 0x2, 0x2, 0x2dd, 0x2de, 0x7, 0x52, 0x2, 0x2, 
-    0x2de, 0x2ec, 0x8, 0x49, 0x1, 0x2, 0x2df, 0x2e1, 0x7, 0x4d, 0x2, 0x2, 
-    0x2e0, 0x2e2, 0x5, 0x78, 0x3d, 0x2, 0x2e1, 0x2e0, 0x3, 0x2, 0x2, 0x2, 
-    0x2e1, 0x2e2, 0x3, 0x2, 0x2, 0x2, 0x2e2, 0x2e3, 0x3, 0x2, 0x2, 0x2, 
-    0x2e3, 0x2ec, 0x7, 0x4e, 0x2, 0x2, 0x2e4, 0x2e6, 0x7, 0x4d, 0x2, 0x2, 
-    0x2e5, 0x2e7, 0x5, 0x78, 0x3d, 0x2, 0x2e6, 0x2e5, 0x3, 0x2, 0x2, 0x2, 
-    0x2e6, 0x2e7, 0x3, 0x2, 0x2, 0x2, 0x2e7, 0x2e8, 0x3, 0x2, 0x2, 0x2, 
-    0x2e8, 0x2e9, 0x7, 0x71, 0x2, 0x2, 0x2e9, 0x2ea, 0x7, 0x4e, 0x2, 0x2, 
-    0x2ea, 0x2ec, 0x8, 0x49, 0x1, 0x2, 0x2eb, 0x2d3, 0x3, 0x2, 0x2, 0x2, 
-    0x2eb, 0x2d8, 0x3, 0x2, 0x2, 0x2, 0x2eb, 0x2df, 0x3, 0x2, 0x2, 0x2, 
-    0x2eb, 0x2e4, 0x3, 0x2, 0x2, 0x2, 0x2ec, 0x91, 0x3, 0x2, 0x2, 0x2, 0x2ed, 
-    0x2f1, 0x5, 0x98, 0x4d, 0x2, 0x2ee, 0x2f1, 0x5, 0x9a, 0x4e, 0x2, 0x2ef, 
-    0x2f1, 0x7, 0x4b, 0x2, 0x2, 0x2f0, 0x2ed, 0x3, 0x2, 0x2, 0x2, 0x2f0, 
-    0x2ee, 0x3, 0x2, 0x2, 0x2, 0x2f0, 0x2ef, 0x3, 0x2, 0x2, 0x2, 0x2f1, 
-    0x93, 0x3, 0x2, 0x2, 0x2, 0x2f2, 0x2f6, 0x7, 0x4c, 0x2, 0x2, 0x2f3, 
-    0x2f5, 0x5, 0x96, 0x4c, 0x2, 0x2f4, 0x2f3, 0x3, 0x2, 0x2, 0x2, 0x2f5, 
-    0x2f8, 0x3, 0x2, 0x2, 0x2, 0x2f6, 0x2f4, 0x3, 0x2, 0x2, 0x2, 0x2f6, 
-    0x2f7, 0x3, 0x2, 0x2, 0x2, 0x2f7, 0x2f9, 0x3, 0x2, 0x2, 0x2, 0x2f8, 
-    0x2f6, 0x3, 0x2, 0x2, 0x2, 0x2f9, 0x2fa, 0x7, 0x81, 0x2, 0x2, 0x2fa, 
-    0x95, 0x3, 0x2, 0x2, 0x2, 0x2fb, 0x2fc, 0x7, 0x7f, 0x2, 0x2, 0x2fc, 
-    0x2ff, 0x5, 0x68, 0x35, 0x2, 0x2fd, 0x2fe, 0x7, 0x75, 0x2, 0x2, 0x2fe, 
-    0x300, 0x7, 0x85, 0x2, 0x2, 0x2ff, 0x2fd, 0x3, 0x2, 0x2, 0x2, 0x2ff, 
-    0x300, 0x3, 0x2, 0x2, 0x2, 0x300, 0x30c, 0x3, 0x2, 0x2, 0x2, 0x301, 
-    0x304, 0x7, 0x7f, 0x2, 0x2, 0x302, 0x303, 0x7, 0x75, 0x2, 0x2, 0x303, 
-    0x305, 0x7, 0x85, 0x2, 0x2, 0x304, 0x302, 0x3, 0x2, 0x2, 0x2, 0x304, 
-    0x305, 0x3, 0x2, 0x2, 0x2, 0x305, 0x306, 0x3, 0x2, 0x2, 0x2, 0x306, 
-    0x30c, 0x8, 0x4c, 0x1, 0x2, 0x307, 0x30c, 0x7, 0x7e, 0x2, 0x2, 0x308, 
-    0x30c, 0x7, 0x80, 0x2, 0x2, 0x309, 0x30c, 0x7, 0x82, 0x2, 0x2, 0x30a, 
-    0x30c, 0x7, 0x83, 0x2, 0x2, 0x30b, 0x2fb, 0x3, 0x2, 0x2, 0x2, 0x30b, 
-    0x301, 0x3, 0x2, 0x2, 0x2, 0x30b, 0x307, 0x3, 0x2, 0x2, 0x2, 0x30b, 
-    0x308, 0x3, 0x2, 0x2, 0x2, 0x30b, 0x309, 0x3, 0x2, 0x2, 0x2, 0x30b, 
-    0x30a, 0x3, 0x2, 0x2, 0x2, 0x30c, 0x97, 0x3, 0x2, 0x2, 0x2, 0x30d, 0x30e, 
-    0x9, 0xe, 0x2, 0x2, 0x30e, 0x99, 0x3, 0x2, 0x2, 0x2, 0x30f, 0x310, 0x9, 
-    0xf, 0x2, 0x2, 0x310, 0x9b, 0x3, 0x2, 0x2, 0x2, 0x54, 0x9f, 0xa7, 0xae, 
-    0xb3, 0xbd, 0xc3, 0xca, 0xcd, 0xf8, 0x100, 0x109, 0x10e, 0x118, 0x125, 
-    0x12e, 0x13a, 0x140, 0x145, 0x151, 0x154, 0x15e, 0x167, 0x170, 0x17c, 
-    0x186, 0x18d, 0x191, 0x196, 0x19b, 0x1a2, 0x1a7, 0x1ab, 0x1c0, 0x1c7, 
-    0x1cf, 0x1d3, 0x1d9, 0x1de, 0x1e6, 0x1e8, 0x1ec, 0x1f5, 0x1f9, 0x1fc, 
-    0x201, 0x210, 0x23e, 0x240, 0x24f, 0x253, 0x257, 0x25b, 0x25f, 0x263, 
-    0x268, 0x26d, 0x278, 0x27e, 0x28b, 0x292, 0x299, 0x29e, 0x2a0, 0x2a7, 
-    0x2ac, 0x2b1, 0x2b6, 0x2bb, 0x2c2, 0x2c7, 0x2cc, 0x2d1, 0x2d5, 0x2da, 
-    0x2e1, 0x2e6, 0x2eb, 0x2f0, 0x2f6, 0x2ff, 0x304, 0x30b, 
-  };
-
-  atn::ATNDeserializer deserializer;
-  _atn = deserializer.deserialize(_serializedATN);
-
-  size_t count = _atn.getNumberOfDecisions();
-  _decisionToDFA.reserve(count);
-  for (size_t i = 0; i < count; i++) { 
-    _decisionToDFA.emplace_back(_atn.getDecisionState(i), i);
-  }
+void EscriptParser::initialize() {
+#if ANTLR4_USE_THREAD_LOCAL_CACHE
+  escriptparserParserInitialize();
+#else
+  ::antlr4::internal::call_once(escriptparserParserOnceFlag, escriptparserParserInitialize);
+#endif
 }
-
-EscriptParser::Initializer EscriptParser::_init;

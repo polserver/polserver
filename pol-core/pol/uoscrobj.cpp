@@ -2396,9 +2396,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     if ( client != nullptr )
     {
       std::unique_ptr<BStruct> lastcoord( new BStruct );
-      lastcoord->addMember( "lastx", new BLong( lastx ) );
-      lastcoord->addMember( "lasty", new BLong( lasty ) );
-      lastcoord->addMember( "lastz", new BLong( lastz ) );
+      lastcoord->addMember( "lastx", new BLong( lastpos.x() ) );
+      lastcoord->addMember( "lasty", new BLong( lastpos.y() ) );
+      lastcoord->addMember( "lastz", new BLong( lastpos.z() ) );
       return lastcoord.release();
     }
     return new BError( "No client attached." );

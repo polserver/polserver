@@ -9,6 +9,7 @@
 
 #include "auxclient.h"
 
+#include <chrono>
 #include <iosfwd>
 
 #include "../../bscript/berror.h"
@@ -104,7 +105,8 @@ AuxClientThread::AuxClientThread( AuxService* auxsvc, Clib::Socket&& sock )
       _assume_string( false ),
       _transmit_counter( 0 ),
       _keep_alive( false ),
-      _ignore_line_breaks( false )
+      _ignore_line_breaks( false ),
+      _transmit_mutex()
 {
 }
 AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock,
@@ -119,7 +121,8 @@ AuxClientThread::AuxClientThread( Core::ScriptDef scriptdef, Clib::Socket&& sock
       _assume_string( assume_string ),
       _transmit_counter( 0 ),
       _keep_alive( keep_alive ),
-      _ignore_line_breaks( ignore_line_breaks )
+      _ignore_line_breaks( ignore_line_breaks ),
+      _transmit_mutex()
 {
 }
 
@@ -234,6 +237,9 @@ void AuxClientThread::run()
     std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
 
   Core::PolLock lock;
+  // hold also the transmit mutex, the counter syncs but not in a way that the threadsanitizer
+  // recognizes is.
+  std::unique_lock<std::mutex> transmitlock( _transmit_mutex );
   _auxconnection->disconnect();
   // the auxconnection is probably referenced by another ref_ptr,
   // so its deletion must be protected by the lock.
@@ -251,6 +257,9 @@ void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 
 void AuxClientThread::transmit( const std::string& msg )
 {
+  // wait for all other transmits to finish
+  // sending in parallel is nothing what we want
+  std::unique_lock<std::mutex> lock( _transmit_mutex );
   if ( _sck.connected() )
   {
     if ( _ignore_line_breaks )
@@ -301,10 +310,12 @@ void AuxService::run()
     {
       Core::PolLock lock;
       AuxClientThread* client( new AuxClientThread( this, std::move( sock ) ) );
-      Core::networkManager.auxthreadpool->push( [client]() {
-        std::unique_ptr<AuxClientThread> _clientptr( client );
-        _clientptr->run();
-      } );
+      Core::networkManager.auxthreadpool->push(
+          [client]()
+          {
+            std::unique_ptr<AuxClientThread> _clientptr( client );
+            _clientptr->run();
+          } );
     }
   }
 }

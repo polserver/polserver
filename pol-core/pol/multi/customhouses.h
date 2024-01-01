@@ -173,7 +173,7 @@ void CustomHousesRoofSelect( Core::PKTBI_D7* msg );
 void CustomHousesRoofRemove( Core::PKTBI_D7* msg );
 void CustomHousesSendFull( UHouse* house, Network::Client* client,
                            int design = HOUSE_DESIGN_CURRENT );
-void CustomHousesSendFullToInRange( UHouse* house, int design, int range );
+void CustomHousesSendFullToInRange( UHouse* house, int design );
 void CustomHousesSendShort( UHouse* house, Network::Client* client );
 void CustomHouseStopEditing( Mobile::Character* chr, UHouse* house, ItemList& itemlist,
                              bool send_pkts = true );

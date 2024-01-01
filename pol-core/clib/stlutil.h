@@ -11,7 +11,6 @@
 #ifndef STLUTIL_H
 #define STLUTIL_H
 
-#include "Header_Windows.h"
 #include <cstring>
 #include <sstream>
 

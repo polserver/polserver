@@ -8,15 +8,12 @@
 #ifndef AUXCLIENT_H_
 #define AUXCLIENT_H_
 
-
-#ifndef BSCRIPT_BOBJECT_H
-#include "../../bscript/bobject.h"
-#endif
-
 #include <atomic>
+#include <mutex>
 #include <string>
 #include <vector>
 
+#include "../../bscript/bobject.h"
 #include "../../clib/network/socketsvc.h"
 #include "../../clib/refptr.h"
 #include "../../clib/weakptr.h"
@@ -122,6 +119,7 @@ private:
   std::atomic<int> _transmit_counter;
   bool _keep_alive;
   bool _ignore_line_breaks;
+  std::mutex _transmit_mutex;
 };
 }  // namespace Network
 }  // namespace Pol

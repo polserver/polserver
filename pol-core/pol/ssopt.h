@@ -45,10 +45,10 @@ struct ServSpecOpt
   unsigned int default_decay_time;
   bool refresh_decay_after_boat_moves;
   unsigned short default_doubleclick_range;
-  int default_accessible_range;
+  unsigned short default_accessible_range;
   unsigned short default_light_level;
   bool event_visibility_core_checks;
-  unsigned int max_pathfind_range;
+  unsigned short max_pathfind_range;
   bool movement_uses_stamina;
   bool use_tile_flag_prefix;
   unsigned short default_container_max_items;

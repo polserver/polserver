@@ -8,6 +8,8 @@
 #define CLIB_CLIB_H
 
 #include "pol_global_config.h"
+#include <algorithm>
+#include <limits>
 
 #ifndef __STDDEF_H
 #include "stddef.h"
@@ -97,6 +99,14 @@ inline std::tm localtime( const std::time_t& t )
   localtime_r( &t, &result );
 #endif
   return result;
+}
+
+// convert number of type U to type T considering the limits of T
+template <typename T, typename U>
+inline T clamp_convert( U v )
+{
+  return static_cast<T>( std::clamp( v, static_cast<U>( std::numeric_limits<T>::min() ),
+                                     static_cast<U>( std::numeric_limits<T>::max() ) ) );
 }
 }  // namespace Clib
 }  // namespace Pol

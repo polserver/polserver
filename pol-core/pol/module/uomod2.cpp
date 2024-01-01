@@ -50,6 +50,7 @@
 #include "../../clib/passert.h"
 #include "../../clib/rawtypes.h"
 #include "../../clib/refptr.h"
+#include "../../clib/stlutil.h"
 #include "../../plib/pkg.h"
 #include "../../plib/staticblock.h"
 #include "../../plib/systemstate.h"
@@ -809,10 +810,10 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
   }
 
   unsigned int cost = 0;
-  int num_items = cfBEu16( msg->num_items );
-  Clib::sanitize_upperlimit( &num_items, ( 0xFFFF - 9 ) / 6 );
+  size_t num_items = cfBEu16( msg->num_items );
+  Clib::sanitize_upperlimit( &num_items, Clib::arsize( msg->items ) );
 
-  for ( int i = 0; i < num_items; ++i )
+  for ( size_t i = 0; i < num_items; ++i )
   {
     u32 serial = cfBEu32( msg->items[i].serial );
     u16 amount = cfBEu16( msg->items[i].amount );
@@ -922,10 +923,10 @@ void sellhandler( Client* client, PKTIN_9F* msg )
     return;
   }
 
-  int num_items = cfBEu16( msg->num_items );
+  size_t num_items = cfBEu16( msg->num_items );
   std::unique_ptr<ObjArray> items_sold( new ObjArray );
-  Clib::sanitize_upperlimit( &num_items, ( 0xFFFF - 9 ) / 6 );
-  for ( int i = 0; i < num_items; ++i )
+  Clib::sanitize_upperlimit( &num_items, Clib::arsize( msg->items ) );
+  for ( size_t i = 0; i < num_items; ++i )
   {
     u32 serial = cfBEu32( msg->items[i].serial );
     u32 amount = cfBEu16( msg->items[i].amount );
@@ -1889,7 +1890,7 @@ BObjectImp* GetCoreVariable( const char* corevar )
 
   LONG_COREVAR( instr_per_min, stateManager.profilevars.last_sipm );
   LONG_COREVAR( priority_divide, scriptScheduler.priority_divide );
-  LONG_COREVAR( update_range, gamestate.update_range.x() );
+  LONG_COREVAR( update_range, gamestate.max_update_range );
   if ( stricmp( corevar, "version" ) == 0 )
     return new String( POL_VERSION_STR );
   if ( stricmp( corevar, "verstr" ) == 0 )

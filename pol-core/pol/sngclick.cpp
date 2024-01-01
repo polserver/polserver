@@ -35,8 +35,8 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
     return item;
 
   // search equipment of nearby mobiles
-  Range2d gridarea( zone_convert( chr->pos() - Vec2d( RANGE_VISUAL, RANGE_VISUAL ) ),
-                    zone_convert( chr->pos() + Vec2d( RANGE_VISUAL, RANGE_VISUAL ) ),
+  const Vec2d range = Vec2d( chr->los_size(), chr->los_size() );
+  Range2d gridarea( zone_convert( chr->pos() - range ), zone_convert( chr->pos() + range ),
                     chr->realm() );
   for ( const auto& gpos : gridarea )
   {
@@ -99,7 +99,7 @@ void singleclick( Network::Client* client, u32 serial )
     else
       chr = find_character( serial );
 
-    if ( chr != nullptr && inrange( client->chr, chr ) &&
+    if ( chr != nullptr && client->chr->in_visual_range( chr ) &&
          !client->chr->is_concealed_from_me( chr ) )
     {
       if ( chr->has_title_guild() && ( settingsManager.ssopt.core_handled_tags & 0x1 ) )

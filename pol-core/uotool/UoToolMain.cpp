@@ -1040,7 +1040,7 @@ static int format_description( int argc, char** argv )
     if ( amount != 1 )
     {
       char s[15];
-      sprintf( s, "%hu ", amount );
+      snprintf( s, Clib::arsize( s ), "%hu ", amount );
       desc = s;
     }
 
@@ -1223,13 +1223,6 @@ int UoToolMain::main()
   Plib::systemstate.config.uo_datafile_root = Plib::UOInstallFinder::remove_elem( elem );
   Plib::systemstate.config.uo_datafile_root =
       Clib::normalized_dir_form( Plib::systemstate.config.uo_datafile_root );
-
-  unsigned short max_tile = elem.remove_ushort( "MaxTileID", UOBJ_DEFAULT_MAX );
-
-  if ( max_tile != UOBJ_DEFAULT_MAX && max_tile != UOBJ_SA_MAX && max_tile != UOBJ_HSA_MAX )
-    Plib::systemstate.config.max_tile_id = UOBJ_DEFAULT_MAX;
-  else
-    Plib::systemstate.config.max_tile_id = max_tile;
 
   std::string argvalue = binArgs[1];
   if ( argvalue[0] == '/' || argvalue[0] == ':' )

@@ -99,6 +99,8 @@ void pos3d_test();
 void pos4d_test();
 void range2d_test();
 void range3d_test();
+
+void test_curlfeatures();
 }  // namespace Testing
 }  // namespace Pol
 #endif

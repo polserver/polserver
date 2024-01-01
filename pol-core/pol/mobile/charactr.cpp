@@ -269,9 +269,7 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // MOVEMENT
       dir( 0 ),
       gradual_boost( 0 ),
-      lastx( 0 ),
-      lasty( 0 ),
-      lastz( 0 ),
+      lastpos( 0, 0, 0, nullptr ),
       move_reason( OTHER ),
       movemode( Plib::MOVEMODE_LAND ),
       // COMBAT
@@ -1162,7 +1160,8 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range = ( range < -1 ) || pol_distance( this, item ) <= range;
+  const bool within_range =
+      ( range < -1 ) || item->in_range( this, Clib::clamp_convert<u16>( range ) );
   if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
@@ -1969,27 +1968,6 @@ void Character::send_warmode()
   msg.Send( client );
 }
 
-void send_remove_if_hidden_ghost( Character* chr, Network::Client* client )
-{
-  if ( !inrange( chr, client->chr ) )
-    return;
-
-  if ( !client->chr->is_visible_to_me( chr ) )
-  {
-    send_remove_character( client, chr );
-  }
-}
-void send_create_ghost( Character* chr, Network::Client* client )
-{
-  if ( !inrange( chr, client->chr ) )
-    return;
-
-  if ( chr->dead() && client->chr->is_visible_to_me( chr ) )
-  {
-    send_owncreate( client, chr );
-  }
-}
-
 void Character::resurrect()
 {
   if ( !dead() )
@@ -2070,9 +2048,12 @@ void Character::resurrect()
     send_warmode();
     send_goxyz( client, this );
     send_owncreate( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        client->chr,
-        [&]( Character* zonechr ) { send_remove_if_hidden_ghost( zonechr, client ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange( pos(), los_size(),
+                                                      [&]( Character* zonechr )
+                                                      {
+                                                        if ( !is_visible_to_me( zonechr ) )
+                                                          send_remove_character( client, zonechr );
+                                                      } );
     client->restart();
   }
 
@@ -2111,8 +2092,13 @@ void Character::on_death( Items::Item* corpse )
     send_full_corpse( client, corpse );
 
     send_goxyz( client, this );
-    Core::WorldIterator<Core::MobileFilter>::InVisualRange(
-        client->chr, [&]( Character* zonechr ) { send_create_ghost( zonechr, client ); } );
+    Core::WorldIterator<Core::MobileFilter>::InRange(
+        pos(), los_size(),
+        [&]( Character* zonechr )
+        {
+          if ( zonechr->dead() && is_visible_to_me( zonechr ) )
+            send_owncreate( client, zonechr );
+        } );
 
     client->restart();
   }
@@ -2703,7 +2689,7 @@ bool Character::is_concealed_from_me( const Character* chr ) const
   return ( chr->concealed() > cmdlevel() );
 }
 
-bool Character::is_visible_to_me( const Character* chr ) const
+bool Character::is_visible_to_me( const Character* chr, bool check_range ) const
 {
   if ( chr == nullptr )
     return false;
@@ -2711,13 +2697,18 @@ bool Character::is_visible_to_me( const Character* chr ) const
     return true;  // I can always see myself (?)
   if ( is_concealed_from_me( chr ) )
     return false;
-
-  if ( chr->realm() != this->realm() )
-    return false;  // noone can see across different realms.
   if ( !chr->logged_in() )
     return false;
   if ( chr->hidden() && !cached_settings.get( PRIV_FLAGS::SEE_HIDDEN ) )
     return false;  // noone can see anyone hidden.
+  if ( check_range )
+  {
+    if ( !in_visual_range( chr ) )
+      return false;
+  }
+  else if ( chr->realm() != this->realm() )
+    return false;
+
   if ( dead() )
     return true;  // If I'm dead, I can see anything
   if ( !chr->dead() || cached_settings.get( PRIV_FLAGS::SEE_GHOSTS ) )
@@ -2727,7 +2718,7 @@ bool Character::is_visible_to_me( const Character* chr ) const
   return false;
 };
 
-// NOTE: chr is at new position, lastx/lasty have old position.
+// NOTE: chr is at new position, lastpos have old position.
 void PropagateMove( /*Client *client,*/ Character* chr )
 {
   using namespace Network;
@@ -2742,7 +2733,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
   MoveChrPkt msgmove( chr );
   build_owncreate( chr, msgcreate.Get() );
 
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
       chr,
       [&]( Character* zonechr )
       {
@@ -2752,8 +2743,8 @@ void PropagateMove( /*Client *client,*/ Character* chr )
         if ( !zonechr->is_visible_to_me( chr ) )
           return;
         /* The two characters exist, and are in range of each other.
-        Character 'chr''s lastx and lasty coordinates are valid.
-        SO, if lastx/lasty are out of range of client->chr, we
+        Character 'chr''s lastpos coordinates are valid.
+        SO, if lastpos are out of range of client->chr, we
         should send a 'create' type message.  If they are in range,
         we should just send a move.
         */
@@ -2785,7 +2776,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
               msginvul.Send( client );
           }
         }
-        else if ( Core::inrange( zonechr->x(), zonechr->y(), chr->lastx, chr->lasty ) )
+        else if ( zonechr->in_visual_range( nullptr, chr->lastpos ) )
         {
           msgmove.Send( client );
           if ( chr->poisoned() )
@@ -2804,15 +2795,17 @@ void PropagateMove( /*Client *client,*/ Character* chr )
       } );
 
   // iter over all old in range players and send remove
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
-      chr->lastx, chr->lasty, chr->realm(), RANGE_VISUAL,
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+      chr->lastpos,
       [&]( Character* zonechr )
       {
         Client* client = zonechr->client;
-        if ( !zonechr->is_visible_to_me( chr ) )
+        if ( !zonechr->in_visual_range( nullptr, chr->lastpos ) )
+          return;
+        if ( !zonechr->is_visible_to_me( chr, /*check_range*/ false ) )
           return;
 
-        if ( Core::inrange( zonechr, chr ) )  // already handled
+        if ( zonechr->in_visual_range( chr ) )  // already handled
           return;
         // if we just walked out of range of this character, send its
         // client a remove object, or else a ghost character will remain.
@@ -3155,13 +3148,16 @@ void Character::set_warmode( bool i_warmode )
   else
   {
     Network::MoveChrPkt msgmove( this );
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange( this,
-                                                                  [&]( Character* chr )
-                                                                  {
-                                                                    if ( chr == this )
-                                                                      return;
-                                                                    msgmove.Send( chr->client );
-                                                                  } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
+        this,
+        [&]( Character* chr )
+        {
+          if ( chr == this )
+            return;
+          if ( !chr->in_visual_range( this ) )
+            return;
+          msgmove.Send( chr->client );
+        } );
   }
 }
 
@@ -3669,7 +3665,7 @@ void Character::unhide()
     if ( client != nullptr )
       send_owncreate( client, this );
 
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InVisualRange(
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
         this,
         [&]( Character* chr )
         {
@@ -3820,9 +3816,7 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
-  lastx = x();
-  lasty = y();
-  lastz = z();
+  lastpos = pos();
 
   // if currently building a house chr can move free inside the multi
   if ( is_house_editing() )
@@ -3943,10 +3937,10 @@ bool Character::move( unsigned char i_dir )
 
     if ( Core::gamestate.system_hooks.ouch_hook )
     {
-      if ( ( lastz - z() ) > 21 )
+      if ( ( lastpos.z() - z() ) > 21 )
         Core::gamestate.system_hooks.ouch_hook->call(
-            make_mobileref( this ), new Bscript::BLong( lastx ), new Bscript::BLong( lasty ),
-            new Bscript::BLong( lastz ) );
+            make_mobileref( this ), new Bscript::BLong( lastpos.x() ),
+            new Bscript::BLong( lastpos.y() ), new Bscript::BLong( lastpos.z() ) );
     }
   }
 
@@ -4004,7 +3998,7 @@ bool Character::CheckPushthrough()
     auto mobs = std::unique_ptr<Bscript::ObjArray>();
 
     Core::WorldIterator<Core::MobileFilter>::InRange(
-        newpos.x(), newpos.y(), newpos.realm(), 0,
+        newpos, 0,
         [&]( Mobile::Character* _chr )
         {
           if ( _chr->z() >= z() - 10 && _chr->z() <= z() + 10 && !_chr->dead() &&
@@ -4087,19 +4081,15 @@ Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemot
 
 bool Character::mightsee( const Items::Item* item ) const
 {
-  while ( item->container != nullptr )
-    item = item->container;
-
+  const auto* owner = item->toplevel_owner();
   for ( const auto& elem : remote_containers_ )
   {
     Items::Item* additional_item = elem.get();
-    if ( additional_item == item )
+    if ( additional_item == owner )
       return true;
   }
 
-
-  return ( ( item->realm() == realm() ) && ( abs( x() - item->x() ) <= RANGE_VISUAL ) &&
-           ( abs( y() - item->y() ) <= RANGE_VISUAL ) );
+  return in_visual_range( owner );
 }
 
 bool Character::squelched() const
@@ -4288,7 +4278,13 @@ bool Character::delBuff( u16 icon )
 void Character::clearBuffs()
 {
   for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
-    delBuff( it->first );
+  {
+    if ( client != nullptr )
+    {
+      send_buff_message( this, it->first, false );
+    }
+  }
+  buffs_.clear();
 }
 
 /**
@@ -4313,11 +4309,11 @@ void Character::send_buffs()
   }
 }
 
-u8 Character::update_range() const
+u8 Character::los_size() const
 {
   // TODO Pos activate
-  return (u8)RANGE_VISUAL;
-  //  return client ? client->update_range() : (u8)RANGE_VISUAL;
+  return Plib::RANGE_VISUAL;
+  //  return client ? client->update_range() : Plib::RANGE_VISUAL;
 }
 
 size_t Character::estimatedSize() const
@@ -4328,9 +4324,7 @@ size_t Character::estimatedSize() const
                 + sizeof( u32 )                                       /*registered_house*/
                 + sizeof( unsigned char )                             /*cmdlevel_*/
                 + sizeof( u8 )                                        /*dir*/
-                + sizeof( u16 )                                       /*lastx*/
-                + sizeof( u16 )                                       /*lasty*/
-                + sizeof( s8 )                                        /*lastz*/
+                + sizeof( Core::Pos4d )                               /*lastpos*/
                 + sizeof( MOVEREASON )                                /*move_reason*/
                 + sizeof( Plib::MOVEMODE )                            /*movemode*/
                 + sizeof( time_t )                                    /*disable_regeneration_until*/

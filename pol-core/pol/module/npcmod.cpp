@@ -143,18 +143,14 @@ BObjectImp* NPCExecutorModule::mf_Self()
 
 BObjectImp* NPCExecutorModule::mf_SetAnchor()
 {
-  Core::xcoord x;
-  Core::ycoord y;
+  Core::Pos2d pos;
   int dstart, psub;
-  if ( getParam( 0, x ) && getParam( 1, y ) && getParam( 2, dstart ) && getParam( 3, psub ) )
+  if ( getPos2dParam( 0, 1, &pos, npc.realm() ) && getParam( 2, dstart ) && getParam( 3, psub ) )
   {
-    if ( !npc.realm()->valid( x, y, 0 ) )
-      return new BError( "Invalid Coordinates for Realm" );
     if ( dstart )
     {
       npc.anchor.enabled = true;
-      npc.anchor.x = static_cast<unsigned short>( x );
-      npc.anchor.y = static_cast<unsigned short>( y );
+      npc.anchor.pos = pos;
       npc.anchor.dstart = static_cast<unsigned short>( dstart );
       npc.anchor.psub = static_cast<unsigned short>( psub );
       return new BLong( 1 );
@@ -387,7 +383,7 @@ BObjectImp* NPCExecutorModule::mf_WalkToward()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     Core::UFACING fac = npc.direction_toward( obj );
@@ -408,7 +404,7 @@ BObjectImp* NPCExecutorModule::mf_RunToward()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     return move_self( npc.direction_toward( obj ), true, true );
@@ -427,7 +423,7 @@ BObjectImp* NPCExecutorModule::mf_WalkAwayFrom()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     return move_self( npc.direction_away( obj ),
@@ -448,7 +444,7 @@ BObjectImp* NPCExecutorModule::mf_RunAwayFrom()
     if ( obj->ismobile() )
     {
       Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !npc.is_visible_to_me( chr ) )
+      if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
         return new BError( "Mobile specified cannot be seen" );
     }
     return move_self( npc.direction_away( obj ),
@@ -474,7 +470,7 @@ BObjectImp* NPCExecutorModule::mf_TurnToward()
   if ( obj->ismobile() )
   {
     Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-    if ( !npc.is_visible_to_me( chr ) )
+    if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
       return new BError( "Mobile specified cannot be seen" );
   }
 
@@ -503,7 +499,7 @@ BObjectImp* NPCExecutorModule::mf_TurnAwayFrom()
   if ( obj->ismobile() )
   {
     Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-    if ( !npc.is_visible_to_me( chr ) )
+    if ( !npc.is_visible_to_me( chr, /*check_range*/ false ) )
       return new BError( "Mobile specified cannot be seen" );
   }
 
@@ -671,7 +667,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
     msg->Write<u8>( texttype );
     msg->WriteFlipped<u16>( npc.speech_color() );
     msg->WriteFlipped<u16>( npc.speech_font() );
-    msg->Write( Clib::strUtf8ToCp1252(npc.name()).c_str(), 30 );
+    msg->Write( Clib::strUtf8ToCp1252( npc.name() ).c_str(), 30 );
     msg->Write( text, ( strlen( text ) > SPEECH_MAX_LEN + 1 )
                           ? SPEECH_MAX_LEN + 1
                           : static_cast<u16>( strlen( text ) + 1 ) );
@@ -691,7 +687,7 @@ BObjectImp* NPCExecutorModule::mf_Say()
     ucmsg->WriteFlipped<u16>( npc.speech_color() );
     ucmsg->WriteFlipped<u16>( npc.speech_font() );
     ucmsg->Write( "ENU", 4 );
-    ucmsg->Write( Clib::strUtf8ToCp1252(npc.description()).c_str(), 30 );
+    ucmsg->Write( Clib::strUtf8ToCp1252( npc.description() ).c_str(), 30 );
     ucmsg->WriteFlipped( utf16, true );
     uclen = ucmsg->offset;
     ucmsg->offset = 1;
@@ -706,21 +702,22 @@ BObjectImp* NPCExecutorModule::mf_Say()
     range = Core::settingsManager.ssopt.yell_range;
   else
     range = Core::settingsManager.ssopt.speech_range;
-  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x(), npc.y(), npc.realm(), range,
-                                                          [&]( Mobile::Character* chr )
-                                                          {
-                                                            if ( !chr->is_visible_to_me( &npc ) )
-                                                              return;
-                                                            if ( !uclen )
-                                                              msg.Send( chr->client, len );
-                                                            else
-                                                              ucmsg.Send( chr->client, uclen );
-                                                          } );
+  Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+      &npc, range,
+      [&]( Mobile::Character* chr )
+      {
+        if ( !chr->is_visible_to_me( &npc, /*check_range*/ false ) )
+          return;
+        if ( !uclen )
+          msg.Send( chr->client, len );
+        else
+          ucmsg.Send( chr->client, uclen );
+      } );
 
   if ( doevent >= 1 )
   {
     Core::WorldIterator<Core::NPCFilter>::InRange(
-        npc.x(), npc.y(), npc.realm(), range,
+        &npc, range,
         [&]( Mobile::Character* chr )
         {
           Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );
@@ -777,7 +774,7 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
     talkmsg->WriteFlipped<u16>( npc.speech_color() );
     talkmsg->WriteFlipped<u16>( npc.speech_font() );
     talkmsg->Write( languc.c_str(), 4 );
-    talkmsg->Write( Clib::strUtf8ToCp1252(npc.description()).c_str(), 30 );
+    talkmsg->Write( Clib::strUtf8ToCp1252( npc.description() ).c_str(), 30 );
     talkmsg->WriteFlipped( utf16, true );
     u16 len = talkmsg->offset;
     talkmsg->offset = 1;
@@ -790,18 +787,19 @@ BObjectImp* NPCExecutorModule::mf_SayUC()
       range = Core::settingsManager.ssopt.yell_range;
     else
       range = Core::settingsManager.ssopt.speech_range;
-    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange( npc.x(), npc.y(), npc.realm(), range,
-                                                            [&]( Mobile::Character* chr )
-                                                            {
-                                                              if ( !chr->is_visible_to_me( &npc ) )
-                                                                return;
-                                                              talkmsg.Send( chr->client, len );
-                                                            } );
+    Core::WorldIterator<Core::OnlinePlayerFilter>::InRange(
+        &npc, range,
+        [&]( Mobile::Character* chr )
+        {
+          if ( !chr->is_visible_to_me( &npc, /*check_range*/ false ) )
+            return;
+          talkmsg.Send( chr->client, len );
+        } );
 
     if ( doevent >= 1 )
     {
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          npc.x(), npc.y(), npc.realm(), range,
+          &npc, range,
           [&]( Mobile::Character* chr )
           {
             Mobile::NPC* othernpc = static_cast<Mobile::NPC*>( chr );

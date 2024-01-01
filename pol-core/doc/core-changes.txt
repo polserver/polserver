@@ -1,4 +1,35 @@
 -- POL100.1.0 --
+12-29-2023 Turley:
+    Fixed: os::OpenConnection when sending multiple messages there was a (very low) chance that the messages where send in the wrong order.
+12-22-2023 Turley:
+    Fixed: Multis get now send/removed based on their footprint. Especially big multis had the problem (bigger then 32x32)
+    Fixed: login near 0,0 did not send items/mobiles nearby
+12-20-2023 Turley:
+    Fixed: storing of doubles, before the precision was fixed to 6 now its possible to store in e.g. CProps 12345678.12345678
+12-16-2023 Kukkino:
+  Changed: PerformAction( character, action, framecount := 5, repeatcount := 1, backward := ACTION_DIR_FORWARD, repeatflag := ACTION_NOREPEAT, delay := 1 ):
+           Now validates 'action' parameter against UACTION
+12-10-2023 Turley:
+    Fixed: https support on windows for HttpRequest (broken since august)
+    Fixed: unpack of big double values on windows when it used e notation. (broken since...)
+12-06-2023 Brndd:
+    Fixed: crash due to character.clearBuffs()
+12-03-2023 Brndd:
+    Added: GetStandingLayers() now has a "includeitems" parameter which allows including or excluding items from the search (default: enabled).
+    Fixed: GetStandingLayers() now returns the height of results correctly.
+    Added: GetStandingCoordinates( x, y, radius := 0, minz := -128, maxz := 127, realm := _DEFAULT_REALM, movemode := "L", doors_block := 0 ):
+           This is a new EScript function that returns an Array of coordinates that are valid locations for a creature to stand on in a given radius around the given coordinates. One example use-case is finding valid spawning locations for NPCs within an area.
+11-19-2023 Turley:
+    Fixed: possible deadlock in packethooks
+11-16-2023 Nando:
+    Added:  UoConvert smartness:
+            - MaxTileID is now detected from tiledata.mul (uoconvert) and tiles.cfg (POL).
+            - Default width/height for each map id
+            - map0 and map1 width can be estimated automatically based on a height of 4096
+            - better error handling
+  Changed:  usedif=1 is now the default in uoconvert
+  Removed:  UseNewHSAFormat in uoconvert.cfg. This will be detected automatically from
+            tiledata.mul size.
 11-12-2023 Kevin:
     Fixed: crash when control scripts end for a destroyed item
 11-08-2023 Turley:

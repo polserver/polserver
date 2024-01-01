@@ -14,6 +14,7 @@
 #include "../../bscript/berror.h"
 #include "../../bscript/bobject.h"
 #include "../../bscript/impstr.h"
+#include "../../clib/stlutil.h"
 
 #include <module_defs/math.h>
 
@@ -345,7 +346,7 @@ Bscript::BObjectImp* MathExecutorModule::mf_FormatRealToString()
     ///        on Windows/Linux. Use something else? 2016-01-23 Bodom
     /// Turley: as of now 2018-10-30 vs2017 on appveyor and travis show no difference with 64bit. Is
     /// it just a difference between 64bit and 32bit?
-    sprintf( buffer, "%.*g", static_cast<int>( digits ), x );
+    snprintf( buffer, Clib::arsize( buffer ), "%.*g", static_cast<int>( digits ), x );
     return new String( buffer );
   }
   else

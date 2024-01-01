@@ -38,22 +38,19 @@ namespace Core
 {
 void statrequest( Network::Client* client, u32 serial )
 {
-  if ( serial == client->chr->serial )
+  auto chr = client->chr;
+  if ( serial == chr->serial )
   {
-    send_full_statmsg( client, client->chr );
+    send_full_statmsg( client, chr );
+    return;
   }
-  else
-  {
-    Mobile::Character* chr = find_character( serial );
-    if ( chr != nullptr )
-    {
-      if ( client->chr->is_visible_to_me( chr ) )
-      {
-        if ( inrange( client->chr, chr ) )
-          send_short_statmsg( client, chr );
-      }
-    }
-  }
+  Mobile::Character* bob = find_character( serial );
+  if ( !bob )
+    return;
+  if ( chr->is_visible_to_me( bob ) )
+    send_short_statmsg( client, bob );
+  if ( chr->has_party() )
+    chr->party()->send_stat_to( chr, bob );
 }
 
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr )
@@ -147,23 +144,7 @@ void srequest( Network::Client* client, PKTIN_34* msg )
   u32 serial = cfBEu32( msg->serial2 );
 
   if ( msg->stattype == STATTYPE_STATWINDOW )
-  {
-    if ( client->chr->serial == serial )
-      statrequest( client, serial );
-    else
-    {
-      Mobile::Character* bob = find_character( serial );
-      if ( bob == nullptr )
-        return;
-      if ( !client->chr->is_concealed_from_me( bob ) && client->chr->is_visible_to_me( bob ) )
-      {
-        if ( pol_distance( client->chr->x(), client->chr->y(), bob->x(), bob->y() ) < 20 )
-          statrequest( client, serial );
-      }
-      if ( client->chr->has_party() )
-        client->chr->party()->send_stat_to( client->chr, bob );
-    }
-  }
+    statrequest( client, serial );
   else if ( msg->stattype == STATTYPE_SKILLWINDOW )
     skillrequest( client, serial );
 }

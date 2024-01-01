@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+
+# This tool is used to create universal binaries of Homebrew-installed shared
+# libraries. This is needed to build universal (x86_64 and arm64) binaries on
+# macOS.
+
+set -e
+
+for COMMAND_DEPENDENCY in "jq" "wget"; do
+  if ! command -v $COMMAND_DEPENDENCY &> /dev/null; then
+      printf "'$COMMAND_DEPENDENCY' could not be found. Install via: brew install $COMMAND_DEPENDENCY\n" >&2
+      exit 1
+  fi
+done
+
+MACOS_VERSION=$(/usr/bin/sw_vers -productVersion)
+
+case $MACOS_VERSION in
+14.*) MACOS_RELEASE="sonoma" ;;
+13.*) MACOS_RELEASE="ventura" ;;
+12.*) MACOS_RELEASE="monterey" ;;
+11.*) MACOS_RELEASE="big_sur" ;;
+10.15.*) MACOS_RELEASE="catalina" ;;
+10.14.*) MACOS_RELEASE="mojave" ;;
+10.13.*) MACOS_RELEASE="high_sierra" ;;
+10.12.*) MACOS_RELEASE="sierra" ;;
+10.11.*) MACOS_RELEASE="el_capitan" ;;
+esac
+
+if [ -z "$MACOS_RELEASE" ]; then
+  printf "Cannot get macOS release from version: $MACOS_VERSION\n" >&2
+  exit 1
+fi
+
+HOMEBREW_PREFIX=$(brew --prefix)
+ARCH_THIS=$(uname -m)
+
+if [ "$ARCH_THIS" == "arm64" ]; then
+  ARCH_OTHER=x86_64
+  HOMEBREW_PREFIX_OTHER=/usr/local
+  DOWNLOAD_PROPERTY=$MACOS_RELEASE
+else
+  ARCH_OTHER=arm64
+  HOMEBREW_PREFIX_OTHER=/opt/homebrew
+  DOWNLOAD_PROPERTY="arm64_$MACOS_RELEASE"
+fi
+
+HOMEBREW_CELLAR_OTHER=$HOMEBREW_PREFIX_OTHER/Cellar
+
+WORK_DIR=$(mktemp -d)
+
+echo "Homebrew prefix: $HOMEBREW_PREFIX"
+echo "macOS release: $MACOS_RELEASE [$ARCH_THIS]"
+echo "brew info download property: $DOWNLOAD_PROPERTY"
+echo "Work directory: $WORK_DIR"
+
+DOWNLOAD_URLS=$(brew info --json $@ | jq -r '.[] | .bottle.stable.files[. = "'$DOWNLOAD_PROPERTY'"].url')
+
+echo "$DOWNLOAD_URLS" | wget --no-verbose -P $WORK_DIR --header "Authorization: Bearer QQ==" -i -
+
+for DOWNLOAD_URL in $DOWNLOAD_URLS; do
+  tar xfz $WORK_DIR/$(basename $DOWNLOAD_URL) -C $WORK_DIR
+done
+
+for MERGING_LIB in $(find $WORK_DIR -iname '*.dylib' -type f); do
+  EXISTING_LIB="${MERGING_LIB/$WORK_DIR/$HOMEBREW_PREFIX/Cellar}"
+  MERGING_ARCH=$(lipo -archs $MERGING_LIB)
+
+  if [ ! -f $EXISTING_LIB ]; then
+    echo "$EXISTING_LIB does not exist to merge $MERGING_LIB [$MERGING_ARCH]"
+    continue
+  fi
+
+  EXISTING_ARCH=$(lipo -archs $EXISTING_LIB)
+
+  if [ "$EXISTING_ARCH" = "x86_64 arm64" ]; then
+    echo "$EXISTING_LIB [$EXISTING_ARCH] -> already universal"
+    continue
+  fi
+
+  BACKUP_FILENAME=${EXISTING_LIB%.dylib}.$EXISTING_ARCH.dylib
+
+  echo "$EXISTING_LIB [$EXISTING_ARCH] -> $BACKUP_FILENAME and merging $MERGING_LIB [$MERGING_ARCH]"
+
+  if [ ! -f $BACKUP_FILENAME ]; then
+    cp $EXISTING_LIB $BACKUP_FILENAME
+  fi
+
+  INSTALL_NAME_TOOL_ARGS=""
+
+  for DEP_LIB_FILENAME in $(otool -L -arch $ARCH_OTHER $MERGING_LIB | grep -Eo '@@HOMEBREW_(PREFIX|CELLAR)@@\S+'); do
+    NEW_DEP_LIB_FILENAME=${DEP_LIB_FILENAME/@@HOMEBREW_PREFIX@@/$HOMEBREW_PREFIX_OTHER}
+    NEW_DEP_LIB_FILENAME=${NEW_DEP_LIB_FILENAME/@@HOMEBREW_CELLAR@@/$HOMEBREW_CELLAR_OTHER}
+
+    if [ "$(basename $NEW_DEP_LIB_FILENAME)" == "$(basename $MERGING_LIB)" ]; then
+      INSTALL_NAME_TOOL_ARGS+="-id $NEW_DEP_LIB_FILENAME "
+    else
+      INSTALL_NAME_TOOL_ARGS+="-change $DEP_LIB_FILENAME $NEW_DEP_LIB_FILENAME "
+    fi
+  done
+
+  if [ ${#INSTALL_NAME_TOOL_ARGS} -ne 0 ]; then
+    install_name_tool $INSTALL_NAME_TOOL_ARGS $MERGING_LIB
+  fi
+
+  lipo -create $BACKUP_FILENAME $MERGING_LIB -output $EXISTING_LIB
+  codesign -s - $EXISTING_LIB || true
+done
+
+rm -rf $WORK_DIR

@@ -41,7 +41,7 @@ ClientGameData::ClientGameData()
       weather_region( nullptr ),
       custom_house_serial( 0 ),
       custom_house_chrserial( 0 ),
-      update_range( RANGE_VISUAL )
+      update_range( Plib::RANGE_VISUAL )
 {
 }
 

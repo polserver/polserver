@@ -68,7 +68,7 @@ Core::Range3d UHouse::current_box() const
     const MultiDef& md = multidef();
     return Core::Range3d( pos() + md.minrxyz, pos() + md.maxrxyz + Core::Vec2d( 0, 1 ) );
   }
-  
+
   return base::current_box();
 }
 
@@ -408,7 +408,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       std::vector<u8> newvec2;
       CurrentCompressed.swap( newvec2 );
       revision++;
-      CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+      CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT );
       return new BLong( 1 );
     }
     break;
@@ -436,7 +436,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
         WorkingCompressed.swap( newvec );
         std::vector<u8> newvec2;
         CurrentCompressed.swap( newvec2 );
-        CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+        CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT );
       }
       return new BLong( ret ? 1 : 0 );
     }
@@ -977,9 +977,9 @@ void UHouse::walk_on( Mobile::Character* chr )
       ex->addModule( new Module::UOExecutorModule( *ex ) );
       if ( prog->haveProgram )
       {
-        ex->pushArg( new Bscript::BLong( chr->lastz ) );
-        ex->pushArg( new Bscript::BLong( chr->lasty ) );
-        ex->pushArg( new Bscript::BLong( chr->lastx ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.z() ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.y() ) );
+        ex->pushArg( new Bscript::BLong( chr->lastpos.x() ) );
         ex->pushArg( new Module::EItemRefObjImp( this ) );
         ex->pushArg( new Module::ECharacterRefObjImp( chr ) );
       }
@@ -1013,7 +1013,7 @@ void UHouse::AcceptHouseCommit( Mobile::Character* chr, bool accept )
     CustomHouseStopEditing( chr, this, itemlist );
 
     // send full house
-    CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT, RANGE_VISUAL_LARGE_BUILDINGS );
+    CustomHousesSendFullToInRange( this, HOUSE_DESIGN_CURRENT );
   }
   else
   {

@@ -771,8 +771,9 @@ void Character::restart_criminal_timer( Core::polclock_t until )
   {
     if ( criminal_until_ < Core::polclock() )
     {
+      // TODO Pos see realm.cpp
       Core::WorldIterator<Core::NPCFilter>::InRange(
-          x(), y(), realm(), 32, [&]( Character* chr ) { NpcPropagateCriminal( chr, this ); } );
+          this, 32, [&]( Character* chr ) { NpcPropagateCriminal( chr, this ); } );
     }
     criminal_until_ = until;
   }

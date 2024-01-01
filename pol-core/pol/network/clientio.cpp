@@ -98,7 +98,7 @@ void ThreadedClient::recv_remaining( int total_expected )
   int max_expected = total_expected - bytes_received;
 
   {
-    std::lock_guard<std::mutex> lock( _SocketMutex );
+    std::lock_guard<std::mutex> lock( _socketMutex );
     count = cryptengine->Receive( &buffer[bytes_received], max_expected, csocket );
   }
 
@@ -127,7 +127,7 @@ void ThreadedClient::recv_remaining_nocrypt( int total_expected )
   int count;
 
   {
-    std::lock_guard<std::mutex> lock( _SocketMutex );
+    std::lock_guard<std::mutex> lock( _socketMutex );
     count = recv( csocket, (char*)&buffer[bytes_received], total_expected - bytes_received, 0 );
   }
   if ( count > 0 )
@@ -255,7 +255,6 @@ void Client::transmit( const void* data, int len )
     if ( handled )
     {
       Core::PolLock lock;
-      std::lock_guard<std::mutex> guard( _SocketMutex );
       CallOutgoingPacketExportedFunction( this, data, len, p, phd, handled );
     }
   }
@@ -276,7 +275,7 @@ void Client::transmit( const void* data, int len )
     }
   }
 
-  std::lock_guard<std::mutex> guard( _SocketMutex );
+  std::lock_guard<std::mutex> guard( _socketMutex );
   if ( disconnect )
   {
     POLLOG_INFO << "Warning: Trying to send to a disconnected client! \n";
