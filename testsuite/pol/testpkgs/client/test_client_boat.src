@@ -138,6 +138,8 @@ endfunction
 // Tests handling of pilot via boatref.setpilot() method and boatref.pilot member
 // Also checks for mount piece functionality on both client and server.
 exported function boat_pilot_mbr_mth()
+  //return 1;
+  MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
   boat.setpilot(0);
@@ -219,6 +221,8 @@ exported function boat_pilot_mbr_mth()
 endfunction
 
 exported function boat_pilot_packets()
+  //return 1;
+  MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
   MoveObjectToLocation(char, 11,50,h.z);
   boat.setpilot(0);
@@ -266,6 +270,11 @@ exported function boat_pilot_packets()
       return ret_error($"client_boat_move_event.speed ({client_boat_move_event.speed}) != speed ({speed})");
     endif
   endforeach
+
+  res := boat.setpilot(0);
+  if (!res)
+    return ret_error($"Failed to clear pilot: {res}");
+  endif
 
   return 1;
 endfunction

@@ -1643,6 +1643,21 @@ class SmoothBoatPacket(Packet):
         self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
         break
 
+class MultipleNewObjectInfoPacket(Packet):
+  ''' Draws multiple objects '''
+
+  cmd = 0xf7
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.log.info('got length {}'.format(self.length))
+    self.count = self.dushort()
+    self.packets = []
+    for _ in range(0, self.count):
+      pkt = NewObjectInfoPacket()
+      pkt.decode(self.rpb(pkt.length))
+      self.log.info("got packet for item {}".format(pkt.serial))
+      self.packets.append(pkt)
 
 class HealthBarStatusUpdate(Packet):
   ''' Health bar status update (KR) '''
