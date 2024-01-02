@@ -21,7 +21,7 @@ set (SOURCES
 )
 
 set(STRING_ENCODING_TYPE "ICONV" CACHE STRING "Set the way strings have to be encoded (ICONV|WIN32API|NONE|...)")
-message("${STRING_ENCODING_TYPE}")
+
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 add_library (${PROJECT_NAME} ${HEADERS} ${SOURCES})
