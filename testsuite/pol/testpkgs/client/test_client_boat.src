@@ -313,7 +313,10 @@ exported function boat_update_range()
   MoveBoatXY(boat,10,50);
   Clear_Event_Queue();
   //move char out of range
-  MoveObjectToLocation(char, boat.x+30,boat.y,1,flags:=MOVEOBJECT_FORCELOCATION);
+  MoveObjectToLocation(char, boat.x+30,boat.y,1,realm:="britannia2", flags:=MOVEOBJECT_FORCELOCATION);
+  while (!waitForClient(0, {EVT_OWNCREATE}))
+  endwhile
+  MoveObjectToLocation(char, boat.x+30,boat.y,1,realm:="britannia", flags:=MOVEOBJECT_FORCELOCATION);
   while (!waitForClient(0, {EVT_OWNCREATE}))
   endwhile
   clientcon.sendevent(struct{todo:="list_objects", id:=0});
