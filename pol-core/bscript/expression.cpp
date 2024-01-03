@@ -705,13 +705,11 @@ void Expression::remove_non_emitting_tokens()
 
 void Expression::dump_tokens() const
 {
-  INFO_PRINT << "Expression with " << tokens.size() << " tokens:\n";
+  INFO_PRINT2( "Expression with {} tokens:", tokens.size() );
   for ( unsigned i = 0; i < tokens.size(); ++i )
   {
     Token* tk = tokens[i];
-    INFO_PRINT << fmt::pad( i, 4, ' ' )
-               << " (" << fmt::pad( get_num_tokens( i ), 2, ' ' ) << ")"
-               << ": " << *tk << "\n";
+    INFO_PRINT2( "{:>4} ({:>2}): {}", i, get_num_tokens( i ), *tk );
   }
 }
 
