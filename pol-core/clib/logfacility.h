@@ -177,16 +177,6 @@ class Message
 {
 public:
   Message();
-  Message( std::string msg )
-  {
-    _msg = std::move( msg );
-    _msg += '\n';  // TODO do we need nonflushing logs?
-  };
-  template <typename... T>
-  Message( std::string_view format, T&&... args )
-  {
-    _msg = fmt::format( format, args... ) + '\n';
-  }
   Message( LogWithIDTag, const std::string& id );
   ~Message();  // auto flush
 
@@ -195,9 +185,24 @@ public:
 private:
   std::unique_ptr<fmt::Writer> _formater;
   std::string _id = {};
-  std::string _msg = {};
 };
 
+
+template <typename Sink>
+struct Message2
+{
+  template <typename... T>
+  static void log( std::string_view format, T&&... args )
+  {
+    if constexpr ( sizeof...( args ) == 0 )
+      send( std::string( format ) );
+    else
+      send( fmt::format( format, args... ) );
+  };
+
+private:
+  static void send( std::string msg );
+};
 
 extern LogFacility* global_logger;        // pointer to the instance of the main class
 void initLogging( LogFacility* logger );  // initalize the logging
@@ -217,15 +222,16 @@ void initLogging( LogFacility* logger );  // initalize the logging
   Clib::Logging::Message<                                                                        \
       Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>() \
       .message()
-using POLLOG_INFO2 = Clib::Logging::Message<
-    Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>;
+#define POLLOG_INFO2                                                               \
+  Clib::Logging::Message2<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, \
+                                                      Clib::Logging::LogSink_pollog>>::log
 
 // log into pol.log
 #define POLLOG Clib::Logging::Message<Clib::Logging::LogSink_pollog>().message()
 
 // log only into std::cout
 #define INFO_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cout>().message()
-using INFO_PRINT2 = Clib::Logging::Message<Clib::Logging::LogSink_cout>;
+#define INFO_PRINT2 Clib::Logging::Message2<Clib::Logging::LogSink_cout>::log
 // log only into std::cout if level is equal or higher
 #define INFO_PRINT_TRACE( n )                      \
   if ( Plib::systemstate.config.debug_level >= n ) \
