@@ -8,9 +8,11 @@ namespace Tools
 {
 void DebugT::print( const std::string& name, long long time )
 {
-  INFO_PRINT << "\n----------------------------------\n"
-             << name << ": " << time << " ms\n"
-             << "----------------------------------\n";
+  INFO_PRINT2(
+      "\n----------------------------------\n"
+      "{}: {} ms"
+      "\n----------------------------------",
+      name, time );
 }
 void SilentT::print( const std::string&, long long ) {}
 
@@ -73,5 +75,5 @@ HighPerfTimer::time_mu HighPerfTimer::ellapsed() const
 // forward declarce both versions
 template class Timer<DebugT>;
 template class Timer<SilentT>;
-}
-}
+}  // namespace Tools
+}  // namespace Pol
