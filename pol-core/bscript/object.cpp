@@ -161,12 +161,12 @@ typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
 {
-  INFO_PRINT << imp->instance() << ": " << imp->getStringRep() << "\n";
+  INFO_PRINT2( "{}: {}", imp->instance(), imp->getStringRep() );
   return 0;
 }
 void display_bobjectimp_instances()
 {
-  INFO_PRINT << "bobjectimp instances: " << bobjectimp_instances.size() << "\n";
+  INFO_PRINT2( "bobjectimp instances: {}", bobjectimp_instances.size() );
   for ( bobjectimps::iterator itr = bobjectimp_instances.begin(); itr != bobjectimp_instances.end();
         ++itr )
   {
@@ -1436,9 +1436,8 @@ long ObjArray::contains( const BObjectImp& imp ) const
       BObject* bo = ( itr->get() );
       if ( bo == nullptr )
       {
-        INFO_PRINT << Clib::scripts_thread_script << " - '" << imp
-                   << " in array{}' check. Invalid data at index " << ( itr - ref_arr.begin() ) + 1
-                   << "\n";
+        INFO_PRINT2( "{} - '{} in array{{}}' check. Invalid data at index {}",
+                     Clib::scripts_thread_script, imp, ( itr - ref_arr.begin() ) + 1 );
         continue;
       }
       else if ( *( bo->impptr() ) == imp )
@@ -1618,7 +1617,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
             return new BError( "Subindex to large" );
         }
         sort( ref_arr.begin(), ref_arr.end(),
-              [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool {
+              [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
+              {
                 auto sub_arr1 = static_cast<ObjArray*>( x1.get()->impptr() );
                 auto sub_arr2 = static_cast<ObjArray*>( x2.get()->impptr() );
                 auto sub1 = sub_arr1->ref_arr[sub_index - 1];
@@ -1712,7 +1712,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       if ( reverse )
       {
         ref_arr.insert( std::lower_bound( ref_arr.begin(), ref_arr.end(), item,
-                                          []( const BObjectRef& x1, const BObjectRef& x2 ) -> bool {
+                                          []( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
+                                          {
                                             const BObject* b1 = x1.get();
                                             const BObject* b2 = x2.get();
                                             if ( b1 == nullptr || b2 == nullptr )
@@ -1731,7 +1732,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
     }
     else
     {
-      auto cmp_func = [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool {
+      auto cmp_func = [=]( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
+      {
         if ( x1.get() == nullptr || !x1.get()->isa( OTArray ) )
           return false;
         if ( x2.get() == nullptr || !x2.get()->isa( OTArray ) )
