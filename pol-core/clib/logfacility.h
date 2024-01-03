@@ -177,11 +177,15 @@ class Message
 {
 public:
   Message();
-  Message( std::string msg ) { _msg = std::move( msg ); };
+  Message( std::string msg )
+  {
+    _msg = std::move( msg );
+    _msg += '\n';  // TODO do we need nonflushing logs?
+  };
   template <typename... T>
   Message( std::string_view format, T&&... args )
   {
-    _msg = fmt::format( format, args... );
+    _msg = fmt::format( format, args... ) + '\n';
   }
   Message( LogWithIDTag, const std::string& id );
   ~Message();  // auto flush
