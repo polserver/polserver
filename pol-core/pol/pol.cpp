@@ -1002,11 +1002,11 @@ int xmain_inner( bool testing )
 
   Clib::MakeDirectory( "log" );
 
-  POLLOG_INFO << "POL " << POL_VERSION_ID << " - " << Clib::ProgramConfig::build_target()
-              << "\nCompiled on " << Clib::ProgramConfig::build_datetime() << "\n"
-              << POL_COPYRIGHT << "\n\n";
+  POLLOG_INFO2( "POL {} - {}\nCompiled on {}\n{}\n\n", POL_VERSION_ID,
+                Clib::ProgramConfig::build_target(), Clib::ProgramConfig::build_datetime(),
+                POL_COPYRIGHT );
   if ( testing )
-    POLLOG_INFO << "TESTING MODE\n\n";
+    POLLOG_INFO2( "TESTING MODE\n\n" );
 
 #ifndef NDEBUG
   POLLOG_INFO << "Sizes: \n"
