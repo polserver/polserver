@@ -3816,6 +3816,13 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
+  auto* mountpiece = wornitem( Core::LAYER_MOUNT );
+  bool is_piloting_boat =
+      mountpiece != nullptr && mountpiece->objtype_ == Core::settingsManager.extobj.boatmount;
+
+  if ( is_piloting_boat )
+    return false;
+
   lastpos = pos();
 
   // if currently building a house chr can move free inside the multi
