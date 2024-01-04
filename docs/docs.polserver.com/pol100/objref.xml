@@ -382,8 +382,10 @@
 <member mname="weaponslot" type="Array" access="r/o" mdesc="array of ItemRefs of all the weaponslot components on the boat, or empty array if none" />
 <member mname="components" type="Array" access="r/o" mdesc="array of ItemRefs of all the components on the boat" />
 <member mname="multiid" type="Integer" access="r/o" mdesc="id for this kind of multi" />
+<member mname="pilot" type="Character" access="r/o" mdesc="pilot of boat (if any)" />
 
 <method proto="move_offline_mobiles(int x, int y, int z[, string realm])" returns="true/false" desc="moves offline mobiles on boat to x,y,z. If realm is not set, Boat-realm is used." />
+<method proto="setpilot(Character | 0)" returns="true/false" desc="Sets the boat pilot to the provided character; removes pilot if `0` is passed. Mouse movements from the boat's pilot will be sent to the boat's control script. See event SYSEVENT_BOAT_MOVEMENT for more details. Possible errors: The boat is already being piloted; The boat does not have a running process; That character is not connected; The boat does not have that character on it; The boat mount piece is not equippable by that character; The client for that character does not support High Seas Adventure" />
 </class>
 
 
