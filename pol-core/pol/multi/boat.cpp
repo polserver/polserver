@@ -1943,6 +1943,12 @@ Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
       return new Bscript::BError( "That character is not connected." );
     }
 
+    if ( !( chr->client->ClientType & Network::CLIENTTYPE_7090 ) )
+    {
+      return new Bscript::BError(
+          "The client for that character does not support High Seas Adventure." );
+    }
+
     BoatContext bc( *this );
     bool pilot_on_ship = false;
     for ( const auto& travellerRef : travellers_ )
