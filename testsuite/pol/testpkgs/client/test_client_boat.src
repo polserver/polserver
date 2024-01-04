@@ -305,6 +305,36 @@ function get_boat_move_events(byref control_script_event, byref client_boat_move
   return 1;
 endfunction
 
+// Tests handling of pilot via boatref.setpilot() method and boatref.pilot member
+// Also checks for mount piece functionality on both client and server.
+exported function boat_pilot_blocks_movement()
+  MoveBoatXY(boat,10,50);
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  boat.setpilot(0);
+
+  var res;
+
+  res := boat.setpilot(char);
+  if (!res)
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  clientcon.sendevent(struct{todo:="move",arg:=1,id:=0});
+  while (1)
+    var ev:=waitForClient(0, {EVT_MOVED});
+    if (!ev)
+      return ev;
+    elseif (ev.ack)
+      return ret_error("Character unexpectedly successfully moved.");
+    endif
+    break;
+  endwhile
+
+  return 1;
+endfunction
+
 /* move boat in direction of char and check at which distance the boat is visible and then back out of sight
 */
 exported function boat_update_range()
