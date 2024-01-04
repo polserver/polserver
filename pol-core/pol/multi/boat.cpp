@@ -649,13 +649,15 @@ void unpause_paused()
 }
 
 
-UBoat::UBoat( const Items::ItemDesc& descriptor ) : UMulti( descriptor )
+UBoat::UBoat( const Items::ItemDesc& descriptor )
+    : UMulti( descriptor ),
+      tillerman( nullptr ),
+      portplank( nullptr ),
+      starboardplank( nullptr ),
+      hold( nullptr ),
+      mountpiece( nullptr )
 {
   passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
-  tillerman = nullptr;
-  hold = nullptr;
-  portplank = nullptr;
-  starboardplank = nullptr;
 }
 
 UBoat* UBoat::as_boat()
