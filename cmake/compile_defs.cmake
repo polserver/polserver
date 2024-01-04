@@ -16,7 +16,6 @@ function(set_compile_flags target is_executable)
     ${BOOST_SOURCE_DIR} # boost
     "${POL_EXT_LIB_DIR}" #format/, antlr/, tinyxml/, etc
     "${POL_EXT_LIB_DIR}/picojson-1.3.0" #pico
-    "${POL_EXT_LIB_DIR}/kaitai-runtime" #kaitai
   )
 
   target_compile_definitions(${target} PRIVATE
