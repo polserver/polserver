@@ -3806,6 +3806,12 @@ bool Character::CustomHousingMove( unsigned char i_dir )
   return false;
 }
 
+bool Character::is_piloting_boat() const
+{
+  auto* mountpiece = wornitem( Core::LAYER_MOUNT );
+  return mountpiece != nullptr && mountpiece->objtype_ == Core::settingsManager.extobj.boatmount;
+}
+
 //************************************
 // Method:    move
 // FullName:  Character::move
@@ -3816,12 +3822,10 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
-  auto* mountpiece = wornitem( Core::LAYER_MOUNT );
-  bool is_piloting_boat =
-      mountpiece != nullptr && mountpiece->objtype_ == Core::settingsManager.extobj.boatmount;
-
-  if ( is_piloting_boat )
+  if ( is_piloting_boat() )
+  {
     return false;
+  }
 
   lastpos = pos();
 

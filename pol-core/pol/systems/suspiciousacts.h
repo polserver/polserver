@@ -38,12 +38,15 @@ void BoatMoveNoMulti( Network::Client* client );
 // boat movement packet without being on a boat multi
 void BoatMoveNotBoatMulti( Network::Client* client );
 
-// boat movement packet without being on a boat multi
+// boat movement packet sent while on a boat that character is not a pilot of
 void BoatMoveNotPilot( Network::Client* client, u32 multi_serial );
 
 // boat movement packet used packet with direction > 7 or speed > 2
 void BoatMoveOutOfRangeParameters( Network::Client* client, u32 multi_serial, u8 direction,
                                    u8 speed );
+
+// character attempted to move while piloting a boat
+void CharacterMovementWhilePiloting( Network::Client* client );
 }  // namespace Pol::SuspiciousActs
 
 #endif  // !H_SYSTEMS_SUSPICIOUSACTS

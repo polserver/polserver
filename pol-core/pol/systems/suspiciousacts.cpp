@@ -169,3 +169,12 @@ void SuspiciousActs::BoatMoveOutOfRangeParameters( Network::Client* client, u32 
         << client->acct->name() << client->chr->name() << multi_serial << direction << speed;
   }
 }
+
+void SuspiciousActs::CharacterMovementWhilePiloting( Network::Client* client )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format( "{}/{} tried to move their character while piloting a boat\n." )
+        << client->acct->name() << client->chr->name();
+  }
+}

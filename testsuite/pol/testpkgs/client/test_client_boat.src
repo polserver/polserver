@@ -140,8 +140,8 @@ endfunction
 exported function boat_pilot_mbr_mth()
   MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  MoveObjectToLocation(char, 11,50,h.z);
   boat.setpilot(0);
+  MoveObjectToLocation(char, 11,50,h.z);
 
   var res;
 
@@ -222,8 +222,8 @@ endfunction
 exported function boat_pilot_packets()
   MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  MoveObjectToLocation(char, 11,50,h.z);
   boat.setpilot(0);
+  MoveObjectToLocation(char, 11,50,h.z);
 
   var res;
 
@@ -253,18 +253,24 @@ exported function boat_pilot_packets()
     clientcon.sendevent(struct{todo:="boat_move", arg:=struct{ serial := char.serial, direction := direction, speed := speed }, id:=0});
     res := get_boat_move_events(control_script_event, client_boat_move_event);
     if (!res)
+      boat.setpilot(0);
       return res;
     endif
 
     if (control_script_event.direction != direction)
+      boat.setpilot(0);
       return ret_error($"control_script_event.direction ({control_script_event.direction}) != direction ({direction})");
     elseif (client_boat_move_event.direction != direction)
+      boat.setpilot(0);
       return ret_error($"client_boat_move_event.direction ({client_boat_move_event.direction}) != direction ({direction})");
     elseif (control_script_event.speed != speed)
+      boat.setpilot(0);
       return ret_error($"control_script_event.speed ({control_script_event.speed}) != speed ({speed})");
     elseif (control_script_event.type != SYSEVENT_BOAT_MOVEMENT)
+      boat.setpilot(0);
       return ret_error($"control_script_event.type ({control_script_event.type}) != SYSEVENT_BOAT_MOVEMENT ({SYSEVENT_BOAT_MOVEMENT})");
     elseif (client_boat_move_event.speed != speed)
+      boat.setpilot(0);
       return ret_error($"client_boat_move_event.speed ({client_boat_move_event.speed}) != speed ({speed})");
     endif
   endforeach
@@ -310,8 +316,8 @@ endfunction
 exported function boat_pilot_blocks_movement()
   MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  MoveObjectToLocation(char, 11,50,h.z);
   boat.setpilot(0);
+  MoveObjectToLocation(char, 11,50,h.z);
 
   var res;
 
@@ -325,13 +331,22 @@ exported function boat_pilot_blocks_movement()
   while (1)
     var ev:=waitForClient(0, {EVT_MOVED});
     if (!ev)
+      boat.setpilot(0);
       return ev;
     elseif (ev.ack)
-      return ret_error("Character unexpectedly successfully moved.");
+      boat.setpilot(0);
+      return ret_error("Character unexpectedly successfully moved via client movement.");
     endif
     break;
   endwhile
 
+  res := MoveObjectToLocation(char, char.x, char.y, char.z);
+  if (res)
+    boat.setpilot(0);
+    return ret_error("Character unexpectedly successfully moved via MoveObjectToLocation.");
+  endif
+
+  boat.setpilot(0);
   return 1;
 endfunction
 
