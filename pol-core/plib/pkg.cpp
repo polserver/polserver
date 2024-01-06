@@ -200,7 +200,7 @@ bool Package::check_replacements() const
     if ( found != nullptr )
     {
       any = true;
-      INFO_PRINT << "Package " << desc() << " replaces package " << found->desc() << "\n";
+      INFO_PRINT2( "Package {} replaces package {}", desc(), found->desc() );
       remove_package( found );
       delete found;
       found = nullptr;
@@ -279,9 +279,8 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     {
       // replace existing package with newer version
       if ( !quiet )
-        INFO_PRINT << "Replacing package " << existing_pkg->desc() << " version "
-                   << existing_pkg->version() << " with version " << pkg->version() << " found in "
-                   << pkg->dir() << "\n";
+        INFO_PRINT2( "Replacing package {} version {} with version {} found in {}",
+                     existing_pkg->desc(), existing_pkg->version(), pkg->version(), pkg->dir() );
       remove_package( existing_pkg );
       delete existing_pkg;
       existing_pkg = nullptr;
@@ -296,9 +295,8 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     {
       // skip this package, its version is older
       if ( !quiet )
-        INFO_PRINT << "Skipping package " << pkg->desc() << " version " << pkg->version()
-                   << " because version " << existing_pkg->version() << " was already found in "
-                   << existing_pkg->dir() << "\n";
+        INFO_PRINT2( "Skipping package {} version {} because version {} was already found in ",
+                     pkg->desc(), pkg->version(), existing_pkg->version(), existing_pkg->dir() );
       return;
     }
   }
@@ -332,7 +330,7 @@ void load_packages( const std::string& basedir, bool quiet )
            !fs::exists( pkg_dir / "disabled.pkg" ) )
       {
         if ( !quiet )
-          INFO_PRINT << "Loading package in " << pkg_dir.u8string() << "\n";
+          INFO_PRINT2( "Loading package in {}", pkg_dir.u8string() );
         load_package( pkg_dir.u8string() + "/", elem, quiet );
 
         load_packages( pkg_dir.u8string(), quiet );
@@ -394,7 +392,7 @@ void load_packages( bool quiet )
       {
         dir = Clib::normalized_dir_form( dir );
         if ( !quiet )
-          INFO_PRINT << "Searching for packages under " << dir << "\n";
+          INFO_PRINT2( "Searching for packages under {}", dir );
         load_packages( dir.c_str(), quiet );
       }
     }

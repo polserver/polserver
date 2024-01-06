@@ -85,12 +85,12 @@ void load_tiles_cfg()
 
   if ( new_max != expected_max )
   {
-    INFO_PRINT << "Warning: MaxTileID in pol.cfg does not match graphics in tiles.cfg"
-               << "\tMax graphic in tiles.cfg: " << Clib::hexint( systemstate.max_graphic )
-               << "\n"
-               << "\tCurrent MaxTileID: " << Clib::hexint( systemstate.config.max_tile_id )
-               << "\n"
-               << "\tExpected MaxTileID: " << Clib::hexint( expected_max ) << "\n";
+    INFO_PRINT2(
+        "Warning: MaxTileID in pol.cfg does not match graphics in tiles.cfg"
+        "\tMax graphic in tiles.cfg: {:#x}\n"
+        "\tCurrent MaxTileID: {:#x}\n"
+        "\tExpected MaxTileID: {:#x}",
+        systemstate.max_graphic, systemstate.config.max_tile_id, expected_max );
   }
 
   systemstate.config.max_tile_id = new_max;

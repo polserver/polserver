@@ -190,8 +190,7 @@ u32 polflags_from_tileflags( unsigned short tile, u32 uoflags, bool use_no_shoot
 
   if ( cfg_show_roof_and_platform_warning )
     if ( ( mapflags & FLAG::BLOCKING ) && ( mapflags & ( FLAG::MOVELAND | FLAG::MOVESEA ) ) )
-      INFO_PRINT << " Warning: Tile 0x" << fmt::hexu( tile )
-                 << " uses Roof- and Platform-Flag at same time.\n";
+      INFO_PRINT2( "Warning: Tile {:#x} uses Roof- and Platform-Flag at same time.", tile );
 
   return mapflags;
 }

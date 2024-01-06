@@ -32,7 +32,7 @@ void staticsmax()
         if ( idxrec.length > max )
         {
           max = idxrec.length;
-          INFO_PRINT << "Max: " << max << ", X=" << xblock << ", Y=" << yblock << "\n";
+          INFO_PRINT2( "Max: {}, X={}, Y={}", max, xblock, yblock );
         }
       }
     }

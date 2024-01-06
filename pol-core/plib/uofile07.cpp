@@ -36,8 +36,8 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y )
 #if ENABLE_POLTEST_OUTPUT
       if ( static_debug_on )
       {
-        INFO_PRINT << "static: " << int( srec->x_offset ) << " " << int( srec->y_offset ) << " "
-                   << int( srec->z ) << " 0x" << fmt::hexu( srec->graphic ) << "\n";
+        INFO_PRINT2( "static: {} {} {} {}", int( srec->x_offset ), int( srec->y_offset ),
+                     int( srec->z ), srec->graphic );
       }
 #endif
 
@@ -69,8 +69,8 @@ void readstatics( StaticList& vec, unsigned short x, unsigned short y, unsigned 
 #if ENABLE_POLTEST_OUTPUT
       if ( static_debug_on )
       {
-        INFO_PRINT << "static: " << int( srec->x_offset ) << " " << int( srec->y_offset ) << " "
-                   << int( srec->z ) << " 0x" << fmt::hexu( srec->graphic ) << "\n";
+        INFO_PRINT2( "static: {} {} {} {:#x}", int( srec->x_offset ), int( srec->y_offset ),
+                     int( srec->z ), srec->graphic );
       }
 #endif
 
@@ -102,8 +102,8 @@ void readallstatics( StaticList& vec, unsigned short x, unsigned short y )
 #if ENABLE_POLTEST_OUTPUT
       if ( static_debug_on )
       {
-        INFO_PRINT << "static: " << int( srec->x_offset ) << " " << int( srec->y_offset ) << " "
-                   << int( srec->z ) << " 0x" << fmt::hexu( srec->graphic ) << "\n";
+        INFO_PRINT2( "static: {} {} {} {:#x}", int( srec->x_offset ), int( srec->y_offset ),
+                     int( srec->z ), srec->graphic );
       }
 #endif
 

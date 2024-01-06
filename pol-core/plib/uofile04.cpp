@@ -29,7 +29,7 @@ void readwater()
   fseek( sidxfile, 0, SEEK_SET );
   for ( int xblock = 0; xblock < 6144 / 8; ++xblock )
   {
-    INFO_PRINT << xblock << "..";
+    INFO_PRINT_N2( "{}..", xblock );
     for ( int yblock = 0; yblock < 4096 / 8; ++yblock )
     {
       if ( fread( &idxrec, sizeof idxrec, 1, sidxfile ) != 1 )
