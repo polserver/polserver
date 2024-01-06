@@ -33,6 +33,9 @@
 #include "executortype.h"
 #include <format/format.h>
 
+#ifdef ESCRIPT_PROFILE
+#include <map>
+#endif
 
 namespace Pol
 {
@@ -50,7 +53,6 @@ class ModuleFunction;
 class String;
 class Token;
 #ifdef ESCRIPT_PROFILE
-#include <map>
 
 struct profile_instr
 {
