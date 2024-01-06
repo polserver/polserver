@@ -127,3 +127,54 @@ void SuspiciousActs::DropItemOutAtBlockedLocation( Network::Client* client, u32,
         << client->chr->name() << pos.x() << pos.y() << (int)pos.z();
   }
 }
+
+void SuspiciousActs::BoatMoveNoMulti( Network::Client* client )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format( "{}/{} tried to use a boat movement packet without being on a multi.\n" )
+        << client->acct->name() << client->chr->name();
+  }
+}
+
+void SuspiciousActs::BoatMoveNotBoatMulti( Network::Client* client )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format(
+        "{}/{} tried to use a boat movement packet without being on a boat multi.\n" )
+        << client->acct->name() << client->chr->name();
+  }
+}
+
+void SuspiciousActs::BoatMoveNotPilot( Network::Client* client, u32 multi_serial )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format(
+        "{}/{} tried to use a boat movement packet on a boat multi (serial 0x{:X}) that they are "
+        "not the pilot of.\n" )
+        << client->acct->name() << client->chr->name() << multi_serial;
+  }
+}
+
+void SuspiciousActs::BoatMoveOutOfRangeParameters( Network::Client* client, u32 multi_serial,
+                                                   u8 direction, u8 speed )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format(
+        "{}/{} tried to use a boat movement packet on a boat multi (serial 0x{:X}) with "
+        "out-of-range parameters (direction = {}, speed = {})\n." )
+        << client->acct->name() << client->chr->name() << multi_serial << direction << speed;
+  }
+}
+
+void SuspiciousActs::CharacterMovementWhilePiloting( Network::Client* client )
+{
+  if ( Plib::systemstate.config.show_warning_boat_move )
+  {
+    POLLOG_ERROR.Format( "{}/{} tried to move their character while piloting a boat\n." )
+        << client->acct->name() << client->chr->name();
+  }
+}

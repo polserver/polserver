@@ -1319,7 +1319,10 @@ bool Character::equippable( const Items::Item* item ) const
           << this->serial << item->serial << item->graphic;
     }
 
-    return false;
+    if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
+    {
+      return false;
+    }
   }
   if ( layer_is_equipped( item->tile_layer ) )
   {
@@ -1342,14 +1345,17 @@ bool Character::equippable( const Items::Item* item ) const
     return false;
   }
 
-  if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+  if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
   {
-    return false;
-  }
-  // redundant sanity check
-  if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
-  {
-    return false;
+    if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+    {
+      return false;
+    }
+    // redundant sanity check
+    if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
+    {
+      return false;
+    }
   }
 
   const Items::ItemDesc& desc = item->itemdesc();
@@ -2247,6 +2253,31 @@ void Character::die()
       _copy_item( item );
       continue;
     }
+
+    if ( item->layer == Core::LAYER_MOUNT &&
+         item->objtype_ == Core::settingsManager.extobj.boatmount )
+    {
+      Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
+
+      // Clear the pilot from the boat
+      if ( multi != nullptr && multi->script_isa( Core::POLCLASS_BOAT ) )
+      {
+        Multi::UBoat* boat = static_cast<Multi::UBoat*>( multi );
+        if ( boat->pilot() == this )
+        {
+          boat->clear_pilot();
+          continue;
+        }
+      }
+
+      // If for some reason there was a mismatch between chr multi and boat pilot, just destroy the
+      // boatmount. Destroying the boatmount item will leave an orphaned itemref on the boat multi.
+      // The itemref will be re-set on next set_pilot call, as an orphaned boatmount behaves as if
+      // there is no boatmount at all.
+      destroy_item( item );
+      continue;
+    }
+
     ///
     /// Unequip scripts aren't honored when moving a dead mobile's equipment
     /// onto a corpse if honor_unequip_script_on_death is disabled.
@@ -3775,6 +3806,12 @@ bool Character::CustomHousingMove( unsigned char i_dir )
   return false;
 }
 
+bool Character::is_piloting_boat() const
+{
+  auto* mountpiece = wornitem( Core::LAYER_MOUNT );
+  return mountpiece != nullptr && mountpiece->objtype_ == Core::settingsManager.extobj.boatmount;
+}
+
 //************************************
 // Method:    move
 // FullName:  Character::move
@@ -3785,6 +3822,11 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
+  if ( is_piloting_boat() )
+  {
+    return false;
+  }
+
   lastpos = pos();
 
   // if currently building a house chr can move free inside the multi

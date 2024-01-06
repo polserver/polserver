@@ -1,5 +1,14 @@
 use os;
 program start_boat( param )
-  start_script( ":testboat:boat", param );
-endprogram
+  var ev, listener := start_script( ":testboat:boat", param );
 
+  // TODO until control scripts can be specified for boats better, a workaround
+  // to forward events from the boat control script to the created listener.
+
+  while ( param )
+    if ( ev := wait_for_event(10) )
+      listener.sendevent( ev );
+    endif
+  endwhile
+  return 1;
+endprogram

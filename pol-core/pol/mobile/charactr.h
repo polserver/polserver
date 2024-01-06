@@ -394,6 +394,7 @@ public:
   Items::Item* find_wornitem( u32 find_serial ) const;
   bool has_shield() const;
   Items::UArmor* get_shield() const;
+  bool is_piloting_boat() const;
 
   // MOVEMENT
 public:

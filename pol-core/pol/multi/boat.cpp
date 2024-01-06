@@ -44,6 +44,7 @@
 #include "../item/itemdesc.h"
 #include "../mkscrobj.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../network/client.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
@@ -648,13 +649,15 @@ void unpause_paused()
 }
 
 
-UBoat::UBoat( const Items::ItemDesc& descriptor ) : UMulti( descriptor )
+UBoat::UBoat( const Items::ItemDesc& descriptor )
+    : UMulti( descriptor ),
+      tillerman( nullptr ),
+      portplank( nullptr ),
+      starboardplank( nullptr ),
+      hold( nullptr ),
+      mountpiece( nullptr )
 {
   passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
-  tillerman = nullptr;
-  hold = nullptr;
-  portplank = nullptr;
-  starboardplank = nullptr;
 }
 
 UBoat* UBoat::as_boat()
@@ -1656,7 +1659,18 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   regself();  // do this after our x,y are known.
   // consider throwing if starting position isn't passable.
 
-  Core::start_script( "misc/boat", make_boatref( this ) );
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) );
+
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << this->serial;
+  }
+  else
+  {
+    this->process( script );
+    this->process()->attached_item_.set( this );
+  }
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const
@@ -1730,8 +1744,22 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   Core::objStorageManager.objecthash.Insert( boat );
   ////
 
-  Core::start_script( "misc/boat", make_boatref( boat ) );
-  return make_boatref( boat );
+  Bscript::BObjectImp* boatref = make_boatref( boat );
+
+  Module::UOExecutorModule* script =
+      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), boatref );
+
+  if ( script == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << boat->serial;
+  }
+  else
+  {
+    boat->process( script );
+    boat->process()->attached_item_.set( boat );
+  }
+
+  return boatref;
 }
 
 void UBoat::create_components()
@@ -1880,6 +1908,91 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat )
   remove_multi_from_world( boat );
   boat->destroy();
   return new Bscript::BLong( 1 );
+}
+
+Mobile::Character* UBoat::pilot() const
+{
+  if ( mountpiece != nullptr && !mountpiece->orphan() )
+  {
+    return mountpiece->GetCharacterOwner();
+  }
+  return nullptr;
+}
+
+Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
+{
+  if ( chr == nullptr )
+  {
+    clear_pilot();
+    return new Bscript::BLong( 1 );
+  }
+  else
+  {
+    if ( mountpiece != nullptr && !mountpiece->orphan() )
+    {
+      return new Bscript::BError( "The boat is already being piloted." );
+    }
+
+    if ( !has_process() )
+    {
+      return new Bscript::BError( "The boat does not have a running process." );
+    }
+
+    if ( !chr->client )
+    {
+      return new Bscript::BError( "That character is not connected." );
+    }
+
+    if ( !( chr->client->ClientType & Network::CLIENTTYPE_7090 ) )
+    {
+      return new Bscript::BError(
+          "The client for that character does not support High Seas Adventure." );
+    }
+
+    BoatContext bc( *this );
+    bool pilot_on_ship = false;
+    for ( const auto& travellerRef : travellers_ )
+    {
+      UObject* obj = travellerRef.get();
+      if ( !obj->orphan() && on_ship( bc, obj ) && obj == chr )
+      {
+        pilot_on_ship = true;
+        break;
+      }
+    }
+
+    if ( !pilot_on_ship )
+    {
+      return new Bscript::BError( "The boat does not have that character on it." );
+    }
+
+    Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
+    if ( !chr->equippable( item ) )
+    {
+      item->destroy();
+      return new Bscript::BError( "The boat mount piece is not equippable by that character." );
+    }
+    chr->equip( item );
+    send_wornitem_to_inrange( chr, item );
+    mountpiece = Core::ItemRef( item );
+
+    // Mark the item as 'in-use' to prevent moving by client or scripts.
+    item->inuse( true );
+
+    return new Bscript::BLong( 1 );
+  }
+}
+
+void UBoat::clear_pilot()
+{
+  if ( mountpiece != nullptr )
+  {
+    if ( !mountpiece->orphan() )
+    {
+      destroy_item( mountpiece.get() );
+    }
+    mountpiece.clear();
+  }
 }
 }  // namespace Multi
 }  // namespace Pol

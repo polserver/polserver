@@ -120,7 +120,7 @@ class Packet():
   def dushort(self):
     ''' Returns next unsigned short from the receive buffer '''
     return struct.unpack('>H', self.rpb(2))[0]
-  
+
   def dsshort(self):
     ''' Returns next signed short from the receive buffer '''
     return struct.unpack('>h', self.rpb(2))[0]
@@ -1387,6 +1387,8 @@ class GeneralInfoPacket(Packet):
   SUB_LOGIN = 0x1f
   ## Enable map-diff files
   SUB_MAPDIFF = 0x18
+  ## Boat movement
+  SUB_BOATMOVE = 0x33
 
   cmd = 0xbf
 
@@ -1414,6 +1416,13 @@ class GeneralInfoPacket(Packet):
       self.lang = args[0]
       self.length = 5 + len(self.lang)+1
 
+    elif self.sub == self.SUB_BOATMOVE:
+      checkArgLen(3)
+      self.serial = args[0]
+      self.direction = args[1]
+      self.speed = args[2]
+      self.length = 12
+
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
 
@@ -1426,6 +1435,12 @@ class GeneralInfoPacket(Packet):
 
     elif self.sub == self.SUB_LANG:
       self.estring(self.lang, len(self.lang)+1)
+
+    elif self.sub == self.SUB_BOATMOVE:
+      self.euint(self.serial)
+      self.euchar(self.direction)
+      self.euchar(self.direction)
+      self.euchar(self.speed)
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented yet'.format(self.sub))
@@ -1486,6 +1501,12 @@ class GeneralInfoPacket(Packet):
     elif self.sub == self.SUB_HOUSE_REV:
       self.serial = self.duint()
       self.rev = self.duint()
+
+    elif self.sub == self.SUB_BOATMOVE:
+      self.serial = self.duint()
+      self.direction = self.duchar()
+      self.duchar() # direction is repeated
+      self.speed = self.duchar()
 
     else:
       raise NotImplementedError("Subcommand 0x%0.2X not implemented yet." % self.sub)
@@ -1622,6 +1643,21 @@ class SmoothBoatPacket(Packet):
         self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
         break
 
+class MultipleNewObjectInfoPacket(Packet):
+  ''' Draws multiple objects '''
+
+  cmd = 0xf7
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.log.info('got length {}'.format(self.length))
+    self.count = self.dushort()
+    self.packets = []
+    for _ in range(0, self.count):
+      pkt = NewObjectInfoPacket()
+      pkt.decode(self.rpb(pkt.length))
+      self.log.info("got packet for item {}".format(pkt.serial))
+      self.packets.append(pkt)
 
 class HealthBarStatusUpdate(Packet):
   ''' Health bar status update (KR) '''

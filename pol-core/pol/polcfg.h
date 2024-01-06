@@ -99,6 +99,7 @@ struct PolConfig
   bool show_warning_gump;
   bool show_warning_item;
   bool show_warning_cursor_seq;
+  bool show_warning_boat_move;
 
   /**
    * @brief Returns true if program aborts are reported

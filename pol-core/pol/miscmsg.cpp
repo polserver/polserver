@@ -46,6 +46,7 @@
 #include "guilds.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
+#include "module/uomod.h"
 #include "multi/customhouses.h"
 #include "multi/multi.h"
 #include "network/client.h"
@@ -57,12 +58,15 @@
 #include "network/pktin.h"
 #include "network/sockio.h"
 #include "party.h"
+#include "polclass.h"
 #include "realms/realm.h"
 #include "scrstore.h"
 #include "spells.h"
+#include "systems/suspiciousacts.h"
 #include "tooltips.h"
 #include "ufunc.h"
 #include "uobject.h"
+#include "uoexec.h"
 #include "uoscrobj.h"
 #include <format/format.h>
 
@@ -401,6 +405,51 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
     u32 serial = cfBEu32( msg->popupselect.serial );
     u16 id = cfBEu16( msg->popupselect.entry_tag );
     client->chr->on_popup_menu_selection( client, serial, id );
+    break;
+  }
+  case PKTBI_BF::TYPE_BOAT_MOVE:
+  {
+    Mobile::Character* chr = client->chr;
+    multi = chr->realm()->find_supporting_multi( client->chr->pos3d() );
+
+    if ( multi == nullptr )
+    {
+      SuspiciousActs::BoatMoveNoMulti( client );
+      break;
+    }
+
+    if ( !multi->script_isa( Core::POLCLASS_BOAT ) )
+    {
+      SuspiciousActs::BoatMoveNotBoatMulti( client );
+      break;
+    }
+
+    Multi::UBoat* boat = static_cast<Multi::UBoat*>( multi );
+    if ( boat->pilot() != chr )
+    {
+      SuspiciousActs::BoatMoveNotPilot( client, multi->serial );
+      break;
+    }
+
+    if ( msg->boatmove.direction > 7 || msg->boatmove.speed > 2 )
+    {
+      SuspiciousActs::BoatMoveOutOfRangeParameters( client, multi->serial, msg->boatmove.direction,
+                                                    msg->boatmove.speed );
+      break;
+    }
+
+    Module::UOExecutorModule* process = multi->process();
+    if ( !process )
+    {
+      break;
+    }
+
+    auto relative_direction =
+        static_cast<Core::UFACING>( ( msg->boatmove.direction - boat->boat_facing() + 8 ) & 7 );
+
+    process->uoexec().signal_event( new Module::BoatMovementEvent(
+        chr, msg->boatmove.speed, msg->boatmove.direction, relative_direction ) );
+
     break;
   }
   default:

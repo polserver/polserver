@@ -271,7 +271,8 @@ ObjMember object_members[] = {
     { MBR_CURSED, "cursed", false },
     { MBR_SNOOPSCRIPT, "snoopscript", false },
     { MBR_CHARACTER_OWNER, "character_owner", true },
-    { MBR_PARRYCHANCE_MOD, "parrychance_mod", false },
+    { MBR_PARRYCHANCE_MOD, "parrychance_mod", false },  // 255
+    { MBR_PILOT, "pilot", false },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
@@ -456,6 +457,7 @@ ObjMethod object_methods[] = {
     { MTH_CALL, "call", false },
     { MTH_SORTEDINSERT, "sorted_insert", false },
     { MTH_SETUTF8STRING, "setutf8string", false },
+    { MTH_SETPILOT, "setpilot", false },  // 155
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
