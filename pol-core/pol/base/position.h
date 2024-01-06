@@ -1,9 +1,9 @@
-#ifndef POL_BASE_POSITION_H
-#define POL_BASE_POSITION_H
+#pragma once
 
 #include "clib/rawtypes.h"
 #include "plib/uconst.h"
 #include "vector.h"
+#include <fmt/format.h>
 #include <format/format.h>
 #include <utility>
 
@@ -32,6 +32,10 @@ enum UFACING : u8
   FACING_W = 6,
   FACING_NW = 7
 };
+inline auto format_as( UFACING f )
+{
+  return fmt::underlying( f );
+}
 
 class Pos2d
 {
@@ -344,4 +348,20 @@ inline Pos4d& Pos4d::xyz( Pos3d xyz )
 }
 }  // namespace Core
 }  // namespace Pol
-#endif
+
+// derive from std::string formatter to support eg padding
+template <>
+struct fmt::formatter<Pol::Core::Pos2d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Pos2d& p, fmt::format_context& ctx ) const;
+};
+template <>
+struct fmt::formatter<Pol::Core::Pos3d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Pos3d& p, fmt::format_context& ctx ) const;
+};
+template <>
+struct fmt::formatter<Pol::Core::Pos4d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Pos4d& p, fmt::format_context& ctx ) const;
+};

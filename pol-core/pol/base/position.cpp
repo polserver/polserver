@@ -440,3 +440,25 @@ std::ostream& operator<<( std::ostream& os, const Pos4d& v )
 
 }  // namespace Core
 }  // namespace Pol
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Pos2d>::format(
+    const Pol::Core::Pos2d& p, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {}, {} )", p.x(), p.y() ), ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Pos3d>::format(
+    const Pol::Core::Pos3d& p, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {}, {}, {} )", p.x(), p.y(), p.z() ),
+                                              ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Pos4d>::format(
+    const Pol::Core::Pos4d& p, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format(
+      fmt::format( "( {}, {}, {}, {} )", p.x(), p.y(), p.z(),
+                   p.realm() ? p.realm()->name() : "null" ),
+      ctx );
+}

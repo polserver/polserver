@@ -1,13 +1,11 @@
-#ifndef POL_BASE_RANGE_H
-#define POL_BASE_RANGE_H
+#pragma once
 
 #include "position.h"
+#include <fmt/format.h>
 #include <format/format.h>
 #include <iterator>
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 class Range2dItr
 {
@@ -139,7 +137,18 @@ inline const Range2d& Range3d::range() const
 {
   return _range;
 }
-}  // namespace Core
-}  // namespace Pol
+}  // namespace Pol::Core
 
-#endif
+// derive from std::string formatter to support eg padding
+template <>
+struct fmt::formatter<Pol::Core::Range2d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Range2d& r,
+                                        fmt::format_context& ctx ) const;
+};
+template <>
+struct fmt::formatter<Pol::Core::Range3d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Range3d& r,
+                                        fmt::format_context& ctx ) const;
+};

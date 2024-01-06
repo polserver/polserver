@@ -143,3 +143,16 @@ std::ostream& operator<<( std::ostream& os, const Range3d& v )
 }
 }  // namespace Core
 }  // namespace Pol
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Range2d>::format(
+    const Pol::Core::Range2d& r, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {} - {} )", r.nw(), r.se() ), ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Range3d>::format(
+    const Pol::Core::Range3d& r, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {} - {} )", r.nw_b(), r.se_t() ),
+                                              ctx );
+}

@@ -96,14 +96,8 @@ void range2d_test()
       },
       true, "itr" );
 
-  UnitTest(
-      [&]()
-      {
-        fmt::Writer tmp;
-        tmp << Range2d( p1, p2, r );
-        return true;
-      },
-      true, "" );
+  UnitTest( [&]() { return fmt::format( "{:->25}", Range2d( p1, p2, r ) ); },
+            "--( ( 1, 2 ) - ( 3, 4 ) )", "format padding" );
 
   UnitTest( [&]() { return Range2d( Pos4d( 2, 2, 0, r ), 1 ); },
             Range2d( Pos4d( 1, 1, 0, r ), Pos4d( 3, 3, 0, r ) ), "range(1,1,3,3)" );
@@ -185,14 +179,8 @@ void range3d_test()
       },
       false, "intersect(4,3,0,4,4,4)" );
 
-  UnitTest(
-      [&]()
-      {
-        fmt::Writer tmp;
-        tmp << Range3d( p1, p2, r );
-        return true;
-      },
-      true, "" );
+  UnitTest( [&]() { return fmt::format( "{:->32}", Range3d( p1, p2, r ) ); },
+            "--( ( 1, 2, -5 ) - ( 3, 4, 5 ) )", "format padding" );
 }
 }  // namespace Testing
 }  // namespace Pol

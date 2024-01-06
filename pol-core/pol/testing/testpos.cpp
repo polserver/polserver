@@ -111,14 +111,8 @@ void pos2d_test()
   UnitTest( []() { return Pos2d( 2, 1 ).direction_away( Pos2d( 4, 1 ) ); }, FACING_W,
             "2,1.direction_away(4,1)" );
 
-  UnitTest(
-      []()
-      {
-        fmt::Writer tmp;
-        tmp << Pos2d( 0, 0 );
-        return true;
-      },
-      true, "" );
+  UnitTest( []() { return fmt::format( "{:->10}", Pos2d( 0, 0 ) ); }, "--( 0, 0 )",
+            "format padding" );
 }
 
 void pos3d_test()
@@ -209,14 +203,8 @@ void pos3d_test()
       },
       Pos3d( 0, 1, 0 ), "0,0,0.move_to(S)" );
 
-  UnitTest(
-      []()
-      {
-        fmt::Writer tmp;
-        tmp << Pos3d( 0, 0, 0 );
-        return true;
-      },
-      true, "" );
+  UnitTest( []() { return fmt::format( "{:->13}", Pos3d( 0, 0, 0 ) ); }, "--( 0, 0, 0 )",
+            "format padding" );
 }
 
 void pos4d_test()
@@ -304,14 +292,9 @@ void pos4d_test()
         return p;
       },
       Pos4d( 0, 1, 0, r ), "0,0,0.move_to(S)" );
-  UnitTest(
-      [&]()
-      {
-        fmt::Writer tmp;
-        tmp << Pos4d( 0, 0, 0, r );
-        return true;
-      },
-      true, "" );
+
+  UnitTest( [&]() { return fmt::format( "{:->24}", Pos4d( 0, 0, 0, r ) ); },
+            "--( 0, 0, 0, britannia )", "format padding" );
 }
 }  // namespace Testing
 }  // namespace Pol
