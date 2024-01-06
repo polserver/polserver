@@ -46,7 +46,6 @@
 #include "realms/realm.h"
 #include "uworld.h"
 
-
 #define HULL_HEIGHT_BUFFER 2
 namespace Pol
 {
@@ -91,8 +90,8 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
-      INFO_PRINT << "static: graphic=0x" << fmt::hexu( srec.graphic ) << ", z=" << int( srec.z )
-                 << ", ht=" << int( srec.height ) << "\n";
+      INFO_PRINTLN( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
+                    int( srec.height ) );
     }
 #endif
 
@@ -109,7 +108,7 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
       {
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
-          INFO_PRINT << "Setting Z to " << int( ztemp ) << "\n";
+          INFO_PRINTLN( "Setting Z to {}", int( ztemp ) );
 #endif
         possible_shapes.push_back( &shape );
         newz = ztop;
@@ -153,9 +152,8 @@ void Realm::standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& shapes, sh
 #if ENABLE_POLTEST_OUTPUT
           if ( static_debug_on )
           {
-            INFO_PRINT << "static: objtype=0x" << fmt::hexu( srec.graphic )
-                       << ", z=" << int( srec.z ) << ", ht=" << int( srec.height )
-                       << " blocks movement to z=" << int( newz ) << "\n";
+            INFO_PRINTLN( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}",
+                          srec.graphic, int( srec.z ), int( srec.height ), int( newz ) );
           }
 #endif
 
@@ -284,8 +282,8 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
-      INFO_PRINT << "static: graphic=0x" << fmt::hexu( srec.graphic ) << ", z=" << int( srec.z )
-                 << ", ht=" << int( srec.height ) << "\n";
+      INFO_PRINTLN( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
+                    int( srec.height ) );
     }
 #endif
 
@@ -301,7 +299,7 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
       {
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
-          INFO_PRINT << "Setting Z to " << int( ztemp ) << "\n";
+          INFO_PRINTLN( "Setting Z to {}", int( ztemp ) );
 #endif
         bool valid = true;
         // validate that its actually standable
@@ -329,9 +327,8 @@ void Realm::lowest_standheight( Plib::MOVEMODE movemode, Plib::MapShapeList& sha
 #if ENABLE_POLTEST_OUTPUT
             if ( static_debug_on )
             {
-              INFO_PRINT << "static: objtype=0x" << fmt::hexu( srec.graphic )
-                         << ", z=" << int( srec.z ) << ", ht=" << int( srec.height )
-                         << " blocks movement to z=" << int( newz ) << "\n";
+              INFO_PRINTLN( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}",
+                            srec.graphic, int( srec.z ), int( srec.height ), int( newz ) );
             }
 #endif
             valid = false;
@@ -666,8 +663,8 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
-      INFO_PRINT << "static: graphic=0x" << fmt::hexu( srec.graphic ) << ", z=" << int( srec.z )
-                 << ", ht=" << int( Plib::tileheight( srec.graphic ) ) << "\n";
+      INFO_PRINTLN( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
+                    int( Plib::tileheight( srec.graphic ) ) );
     }
 #endif
 
@@ -681,7 +678,7 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
                             // will override a blocking map tile.
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
-          INFO_PRINT << "Setting Z to " << int( ztemp ) << "\n";
+          INFO_PRINTLN( "Setting Z to {}", int( ztemp ) );
 #endif
         z = ztop;
         result = true;
@@ -705,10 +702,9 @@ bool Realm::dropheight( Plib::MapShapeList& shapes, short dropz, short chrz, sho
 #if ENABLE_POLTEST_OUTPUT
           if ( static_debug_on )
           {
-            INFO_PRINT << "static: objtype=0x" << fmt::hexu( srec.graphic )
-                       << ", z=" << int( srec.z )
-                       << ", ht=" << int( Plib::tileheight( srec.graphic ) )
-                       << " blocks movement to z=" << int( z ) << "\n";
+            INFO_PRINTLN( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}",
+                          srec.graphic, int( srec.z ), int( Plib::tileheight( srec.graphic ) ),
+                          int( z ) );
           }
 #endif
           result = false;

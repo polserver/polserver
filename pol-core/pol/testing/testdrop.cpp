@@ -7,7 +7,7 @@
 #include "../globals/uvars.h"
 #include "../realms/realm.h"
 #include "testenv.h"
-#include <format/format.h>
+#include <fmt/format.h>
 
 namespace Pol
 {
@@ -19,19 +19,17 @@ namespace
 void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned short dropx,
                 unsigned short dropy, short dropz, bool exp_result, short exp_z )
 {
-  fmt::Writer tmp;
-  tmp << "POL DropHeight(" << chrx << "," << chry << "," << chrz << "," << dropx << "," << dropy
-      << "," << dropz << "): "
-      << "Expect " << exp_result << "," << exp_z << ": ";
+  std::string tmp = fmt::format( "POL DropHeight({},{},{},{},{},{}): Expect {}<{}: ", chrx, chry,
+                                 chrz, dropx, dropy, dropz, exp_result, exp_z );
 
   short newz;
   Multi::UMulti* multi;
   bool result = Core::gamestate.main_realm->dropheight( dropx, dropy, dropz, chrz, &newz, &multi );
-  tmp << "Got " << result << "," << newz << ": ";
+  tmp += fmt::format( "Got {},{}: ", result, newz );
   if ( exp_result != result )
   {
-    tmp << "Failure!\n";
-    INFO_PRINT << tmp.str();
+    tmp += "Failure!";
+    INFO_PRINTLN( tmp );
     UnitTest::inc_failures();
     return;
   }
@@ -39,20 +37,20 @@ void test_drop( unsigned short chrx, unsigned short chry, short chrz, unsigned s
   {
     if ( newz != exp_z )
     {
-      tmp << "Failure!\n";
-      INFO_PRINT << tmp.str();
+      tmp += "Failure!";
+      INFO_PRINTLN( tmp );
       UnitTest::inc_failures();
       return;
     }
   }
   UnitTest::inc_successes();
-  INFO_PRINT << tmp.str() << "Ok!\n";
+  INFO_PRINTLN( "{}Ok!", tmp );
 }
 }  // namespace
 
 void drop_test()
 {
-  INFO_PRINT << "POL datafile drop tests:\n";
+  INFO_PRINTLN( "POL datafile drop tests:" );
   // first things first.  Gotta be able to drop stuff by the brit bank.
   test_drop( 1432, 1696, 0, 1433, 1696, 0, true, 0 );
   // in the bank, on the floor

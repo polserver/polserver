@@ -460,12 +460,12 @@ BObjectImp* OSExecutorModule::mf_SysLog()
     POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
     if ( Plib::systemstate.config.enable_colored_output && color->length() )
     {
-      INFO_PRINT << color->value() << "syslog [" << exec.scriptname() << "]: " << strval
-                 << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+      INFO_PRINTLN( "{}syslog [{}]: {}{}", color->value(), exec.scriptname(), strval,
+                   Clib::Logging::CONSOLE_RESET_COLOR );
     }
     else
     {
-      INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
+      INFO_PRINTLN( "syslog [{}]: {}", exec.scriptname(), strval );
     }
   }
   else
@@ -473,7 +473,7 @@ BObjectImp* OSExecutorModule::mf_SysLog()
     if ( Plib::systemstate.config.enable_colored_output && color->length() )
     {
       POLLOG << strval << "\n";
-      INFO_PRINT << color->value() << strval << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+      INFO_PRINTLN( "{}{}{}", color->value(), strval, Clib::Logging::CONSOLE_RESET_COLOR );
     }
     else
     {
@@ -917,16 +917,16 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
         BObject ob( imp );
         if ( Plib::systemstate.config.loglevel >= 11 )
         {
-          INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
+          INFO_PRINTLN( "Event queue for {} is full, discarding event.", exec.scriptname() );
           ExecutorModule* em = exec.findModule( "npc" );
           if ( em )
           {
             NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->controlled_npc().serial )
-                       << npcemod->controlled_npc().pos() << "\n";
+            INFO_PRINTLN( "NPC Serial: {:#x}{}", npcemod->controlled_npc().serial,
+                         npcemod->controlled_npc().pos() );
           }
 
-          INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
+          INFO_PRINTLN( "Event: {}", ob->getStringRep() );
         }
         return false;  // Event-queue is full
       }

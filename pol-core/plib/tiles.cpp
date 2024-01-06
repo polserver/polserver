@@ -85,7 +85,7 @@ void load_tiles_cfg()
 
   if ( new_max != expected_max )
   {
-    INFO_PRINT2(
+    INFO_PRINTLN(
         "Warning: MaxTileID in pol.cfg does not match graphics in tiles.cfg"
         "\tMax graphic in tiles.cfg: {:#x}\n"
         "\tCurrent MaxTileID: {:#x}\n"

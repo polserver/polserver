@@ -101,7 +101,7 @@ void pos2d_test()
           UFACING facing = p.direction_toward( tar );
           if ( facing != res[i] )
           {
-            INFO_PRINT << facing << " != " << res[i] << "\n";
+            INFO_PRINTLN( "{} != {}", facing, res[i] );
             return false;
           }
         }

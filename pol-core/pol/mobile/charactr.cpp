@@ -216,7 +216,7 @@ void load_armor_zones()
   if ( !Clib::FileExists( "config/armrzone.cfg" ) )
   {
     if ( Plib::systemstate.config.loglevel > 1 )
-      INFO_PRINT << "File config/armrzone.cfg not found, skipping.\n";
+      INFO_PRINTLN( "File config/armrzone.cfg not found, skipping." );
     return;
   }
   Clib::ConfigFile cf( "config/armrzone.cfg" );
@@ -1624,9 +1624,7 @@ void Character::set_vitals_to_maximum()  // throw()
 
 bool Character::setgraphic( u16 newgraphic )
 {
-  if ( newgraphic < 1 ||
-       newgraphic >
-           Plib::systemstate.config.max_anim_id )
+  if ( newgraphic < 1 || newgraphic > Plib::systemstate.config.max_anim_id )
     return false;
 
   set_dirty();
@@ -1832,7 +1830,7 @@ double Character::apply_damage( double damage, Character* source, bool userepsys
 {
   damage = armor_absorb_damage( damage );
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINT << "Final damage: " << damage << "\n";
+    INFO_PRINTLN( "Final damage: {}", damage );
   do_imhit_effects();
   apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), source, userepsys,
                                send_damage_packet );
@@ -2816,7 +2814,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
 void Character::swing_task_func( Character* chr )
 {
   THREAD_CHECKPOINT( tasks, 800 );
-  INFO_PRINT_TRACE( 20 ) << "swing_task_func(0x" << fmt::hexu( chr->serial ) << ")\n";
+  INFO_PRINTLN_TRACE( 20 )( "swing_task_func({:#x})", chr->serial );
   chr->mob_flags_.set( MOB_FLAGS::READY_TO_SWING );
   chr->check_attack_after_move();
   THREAD_CHECKPOINT( tasks, 899 );
@@ -2824,7 +2822,7 @@ void Character::swing_task_func( Character* chr )
 
 void Character::schedule_attack()
 {
-  INFO_PRINT_TRACE( 18 ) << "schedule_attack(0x" << fmt::hexu( this->serial ) << ")\n";
+  INFO_PRINTLN_TRACE( 18 )( "schedule_attack({:#x})", this->serial );
   // we'll get here with a swing_task already set, if
   // while in an adjacent cell to your opponent, you turn/move
   // while waiting for your timeout.
@@ -2836,8 +2834,9 @@ void Character::schedule_attack()
 
     if ( !weapon_delay )
     {
-      INFO_PRINT_TRACE( 19 ) << "clocks[speed] = (" << Core::POLCLOCKS_PER_SEC << "*15000)/(("
-                             << dexterity() << "+100)*" << weapon_speed << ")\n";
+      INFO_PRINTLN_TRACE( 19 )
+      ( "clocks[speed] = ({}*15000)/(({}+100)*{})", Core::POLCLOCKS_PER_SEC, dexterity(),
+        weapon_speed );
 
       clocks = Core::POLCLOCKS_PER_SEC * static_cast<Core::polclock_t>( 15000L );
       clocks /= ( dexterity() + 100 ) * weapon_speed;
@@ -2848,8 +2847,9 @@ void Character::schedule_attack()
       if ( delay_sum < 0 )
         delay_sum = 0;
 
-      INFO_PRINT_TRACE( 19 ) << "clocks[delay] = ((" << weapon_delay << "+" << delay_mod() << "="
-                             << delay_sum << ")*" << Core::POLCLOCKS_PER_SEC << ")/1000\n";
+      INFO_PRINTLN_TRACE( 19 )
+      ( "clocks[delay] = (({}+{}={})*{})/1000", weapon_delay, delay_mod(), delay_sum,
+        Core::POLCLOCKS_PER_SEC );
 
       clocks = ( delay_sum * Core::POLCLOCKS_PER_SEC ) / 1000;
     }
@@ -2862,9 +2862,9 @@ void Character::schedule_attack()
 
     if ( clocks < ( Core::POLCLOCKS_PER_SEC / 5 ) )
     {
-      INFO_PRINT_TRACE( 20 ) << name() << " attack timer: " << clocks << "\n";
+      INFO_PRINTLN_TRACE( 20 )( "{} attack timer: {}", name(), clocks );
     }
-    INFO_PRINT_TRACE( 19 ) << "clocks=" << clocks << "\n";
+    INFO_PRINTLN_TRACE( 19 )( "clocks={}", clocks );
 
     new Core::OneShotTaskInst<Character*>( &swing_task, swing_timer_start_clock_ + clocks + 1,
                                            swing_task_func, this );
@@ -2873,7 +2873,7 @@ void Character::schedule_attack()
 
 void Character::reset_swing_timer()
 {
-  INFO_PRINT_TRACE( 15 ) << "reset_swing_timer(0x" << fmt::hexu( this->serial ) << ")\n";
+  INFO_PRINTLN_TRACE( 15 )( "reset_swing_timer({:#x})", this->serial );
   mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
 
   swing_timer_start_clock_ = Core::polclock();
@@ -2888,8 +2888,8 @@ void Character::reset_swing_timer()
 
 bool Character::manual_set_swing_timer( Core::polclock_t clocks )
 {
-  INFO_PRINT_TRACE( 15 ) << "manual_set_swing_timer(0x" << fmt::hexu( this->serial )
-                         << ") delay: " << clocks << "\n";
+  INFO_PRINTLN_TRACE( 15 )
+  ( "manual_set_swing_timer({:#x}) delay: {}", this->serial, clocks );
   mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
 
   swing_timer_start_clock_ = Core::polclock();
@@ -2926,19 +2926,21 @@ bool Character::is_attackable( Character* who ) const
   passert( who != nullptr );
   if ( Core::settingsManager.combat_config.scripted_attack_checks )
   {
-    INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
-                           << fmt::hexu( who->serial ) << "): will be handled by combat hook.\n";
+    INFO_PRINTLN_TRACE( 21 )
+    ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, who->serial );
     return true;
   }
   else
   {
-    INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
-                           << fmt::hexu( who->serial ) << "):\n"
-                           << "  who->dead:  " << who->dead() << "\n"
-                           << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
-                           << "  hidden:     " << hidden() << "\n"
-                           << "  who->hidden:  " << who->hidden() << "\n"
-                           << "  concealed:  " << is_concealed_from_me( who ) << "\n";
+    INFO_PRINTLN_TRACE( 21 )
+    ( "is_attackable({:#x},{:#x}):\n"
+      "  who->dead:  {}\n"
+      "  wpn->inrange: {}\n"
+      "  hidden:     {}\n"
+      "  who->hidden:  {}\n"
+      "  concealed:  {}",
+      this->serial, who->serial, who->dead(), weapon->in_range( this, who ), hidden(),
+      who->hidden(), is_concealed_from_me( who ) );
     if ( who->dead() )
       return false;
     else if ( !weapon->in_range( this, who ) )
@@ -2960,8 +2962,8 @@ Character* Character::get_attackable_opponent() const
 {
   if ( opponent_ != nullptr )
   {
-    INFO_PRINT_TRACE( 20 ) << "get_attackable_opponent(0x" << fmt::hexu( this->serial )
-                           << "): checking opponent, 0x" << fmt::hexu( opponent_->serial ) << "\n";
+    INFO_PRINTLN_TRACE( 20 )
+    ( "get_attackable_opponent({:#x}): checking opponent {:#x}", this->serial, opponent_->serial );
     if ( is_attackable( opponent_ ) )
       return opponent_;
   }
@@ -2970,8 +2972,8 @@ Character* Character::get_attackable_opponent() const
   {
     for ( auto& who : opponent_of )
     {
-      INFO_PRINT_TRACE( 20 ) << "get_attackable_opponent(0x" << fmt::hexu( this->serial )
-                             << "): checking opponent_of, 0x" << fmt::hexu( who->serial ) << "\n";
+      INFO_PRINTLN_TRACE( 20 )
+      ( "get_attackable_opponent({:#x}): checking opponent_of {:#x}", this->serial, who->serial );
       if ( is_attackable( who ) )
         return who;
     }
@@ -3039,9 +3041,8 @@ void Character::inform_imoved( Character* /*chr*/ ) {}
 
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
-  INFO_PRINT_TRACE( 12 ) << "set_opponent(0x" << fmt::hexu( this->serial ) << ",0x"
-                         << ( new_opponent != nullptr ? fmt::hex( new_opponent->serial ) : '0' )
-                         << ")\n";
+  INFO_PRINTLN_TRACE( 12 )
+  ( "set_opponent({:#x},{:#x})", this->serial, new_opponent != nullptr ? new_opponent->serial : 0 );
   if ( new_opponent != nullptr )
   {
     if ( new_opponent->dead() )
@@ -3285,7 +3286,7 @@ void Character::attack( Character* opponent )
   }
 
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINT << name() << " attacks " << opponent->name() << "\n";
+    INFO_PRINTLN( "{} attacks {}", name(), opponent->name() );
 
   if ( weapon->is_projectile() )
   {
@@ -3354,18 +3355,18 @@ void Character::attack( Character* opponent )
   hit_chance += hitchance_mod() * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
+    INFO_PRINT( "Chance to hit: {}: ", hit_chance );
   if ( Clib::random_double( 1.0 ) < hit_chance )
   {
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Hit!\n";
+      INFO_PRINTLN( "Hit!" );
     do_hit_success_effects();
 
     double damage = random_weapon_damage();
     damage_weapon();
 
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Base damage: " << damage << "\n";
+      INFO_PRINTLN( "Base damage: {}", damage );
 
     double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
     damage_multiplier += strength() * 0.20f;
@@ -3374,8 +3375,8 @@ void Character::attack( Character* opponent )
     damage *= damage_multiplier;
 
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Damage multiplier due to tactics/STR: " << damage_multiplier
-                 << " Result: " << damage << "\n";
+      INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
+                   damage );
 
     if ( opponent->shield != nullptr )
     {
@@ -3391,11 +3392,11 @@ void Character::attack( Character* opponent )
           opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
       parry_chance += opponent->parrychance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
-        INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
+        INFO_PRINT( "Parry Chance: {}: ", parry_chance );
       if ( Clib::random_double( 1.0 ) < parry_chance )
       {
         if ( Core::settingsManager.watch.combat )
-          INFO_PRINT << opponent->shield->ar() << " hits deflected\n";
+          INFO_PRINTLN( "{} hits deflected", opponent->shield->ar() );
         if ( Core::settingsManager.combat_config.display_parry_success_messages &&
              opponent->client )
           Core::send_sysmessage( opponent->client, "You successfully parried the attack!" );
@@ -3407,7 +3408,7 @@ void Character::attack( Character* opponent )
       else
       {
         if ( Core::settingsManager.watch.combat )
-          INFO_PRINT << "failed.\n";
+          INFO_PRINTLN( "failed." );
       }
     }
     if ( weapon->hit_script().empty() )
@@ -3423,7 +3424,7 @@ void Character::attack( Character* opponent )
   else
   {
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Miss!\n";
+      INFO_PRINTLN( "Miss!" );
     opponent->on_swing_failure( this );
     do_hit_failure_effects();
     if ( Core::gamestate.system_hooks.hitmiss_hook )
@@ -3439,9 +3440,9 @@ void Character::check_attack_after_move()
   FUNCTION_CHECKPOINT( check_attack_after_move, 1 );
   Character* opponent = get_attackable_opponent();
   FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
-  INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
-                         << "): opponent is 0x"
-                         << ( opponent != nullptr ? fmt::hex( opponent->serial ) : '0' ) << "\n";
+  INFO_PRINTLN_TRACE( 20 )
+  ( "check_attack_after_move({:#x}): opponent is {:#x}", this->serial,
+    opponent != nullptr ? opponent->serial : 0 );
   if ( opponent != nullptr &&  // and I have an opponent
        !dead() &&              // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
@@ -3464,7 +3465,7 @@ void Character::check_attack_after_move()
     else
     {
       FUNCTION_CHECKPOINT( check_attack_after_move, 7 );
-      INFO_PRINT_TRACE( 20 ) << "not ready to swing\n";
+      INFO_PRINTLN_TRACE( 20 )( "not ready to swing" );
       schedule_attack();
       FUNCTION_CHECKPOINT( check_attack_after_move, 8 );
     }

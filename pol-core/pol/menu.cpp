@@ -103,7 +103,7 @@ void Menu::read_menus()
   if ( !Clib::FileExists( "config/menus.cfg" ) )
   {
     if ( Plib::systemstate.config.loglevel > 1 )
-      INFO_PRINT << "File config/menus.cfg not found, skipping.\n";
+      INFO_PRINTLN("File config/menus.cfg not found, skipping.");
     return;
   }
 
@@ -255,7 +255,7 @@ void Menu::read_menus()
         }
         else
         {
-          INFO_PRINT << "Unable to find SubMenu " << mi->submenu_name << "\n";
+          INFO_PRINTLN("Unable to find SubMenu {}",mi->submenu_name);
         }
       }
     }

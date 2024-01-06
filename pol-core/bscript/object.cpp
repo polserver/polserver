@@ -161,12 +161,12 @@ typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
 {
-  INFO_PRINT2( "{}: {}", imp->instance(), imp->getStringRep() );
+  INFO_PRINTLN( "{}: {}", imp->instance(), imp->getStringRep() );
   return 0;
 }
 void display_bobjectimp_instances()
 {
-  INFO_PRINT2( "bobjectimp instances: {}", bobjectimp_instances.size() );
+  INFO_PRINTLN( "bobjectimp instances: {}", bobjectimp_instances.size() );
   for ( bobjectimps::iterator itr = bobjectimp_instances.begin(); itr != bobjectimp_instances.end();
         ++itr )
   {
@@ -1436,7 +1436,7 @@ long ObjArray::contains( const BObjectImp& imp ) const
       BObject* bo = ( itr->get() );
       if ( bo == nullptr )
       {
-        INFO_PRINT2( "{} - '{} in array{{}}' check. Invalid data at index {}",
+        INFO_PRINTLN( "{} - '{} in array{{}}' check. Invalid data at index {}",
                      Clib::scripts_thread_script, imp, ( itr - ref_arr.begin() ) + 1 );
         continue;
       }

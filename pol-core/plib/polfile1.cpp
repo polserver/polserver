@@ -80,7 +80,7 @@ int write_pol_static_files( const std::string& realm )
     int progress = y * 100L / descriptor.height;
     if ( progress != lastprogress )
     {
-      INFO_PRINT_N2( "\rCreating POL statics files: {}%", progress );
+      INFO_PRINT( "\rCreating POL statics files: {}%", progress );
       lastprogress = progress;
     }
     for ( u16 x = 0; x < descriptor.width; x += STATICBLOCK_CHUNK )
@@ -124,7 +124,7 @@ int write_pol_static_files( const std::string& realm )
 #endif
 
           if ( cfg_show_illegal_graphic_warning )
-            INFO_PRINT2( " Warning: Item with illegal Graphic {:#x} in Area {} {} {} {}",
+            INFO_PRINTLN( " Warning: Item with illegal Graphic {:#x} in Area {} {} {} {}",
                          pstat[i].graphic, x, y, ( x + STATICBLOCK_CHUNK - 1 ),
                          ( y + STATICBLOCK_CHUNK - 1 ) );
         }
@@ -153,18 +153,18 @@ int write_pol_static_files( const std::string& realm )
   fclose( fidx );
   if ( !errors )
   {
-    INFO_PRINT2( "\rCreating POL statics files: Complete" );
+    INFO_PRINTLN( "\rCreating POL statics files: Complete" );
     rename( statidx_tmp.c_str(), statidx_dat.c_str() );
     rename( statics_tmp.c_str(), statics_dat.c_str() );
   }
   else
   {
-    INFO_PRINT2( "\rCreating POL statics files: Error" );
+    INFO_PRINTLN( "\rCreating POL statics files: Error" );
   }
 
 
 #ifndef NDEBUG
-  INFO_PRINT2(
+  INFO_PRINTLN(
       "{} statics written\n"
       "{} duplicates eliminated\n"
       "{} illegales eliminated\n"

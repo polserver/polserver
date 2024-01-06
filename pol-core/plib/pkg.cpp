@@ -200,7 +200,7 @@ bool Package::check_replacements() const
     if ( found != nullptr )
     {
       any = true;
-      INFO_PRINT2( "Package {} replaces package {}", desc(), found->desc() );
+      INFO_PRINTLN( "Package {} replaces package {}", desc(), found->desc() );
       remove_package( found );
       delete found;
       found = nullptr;
@@ -279,7 +279,7 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     {
       // replace existing package with newer version
       if ( !quiet )
-        INFO_PRINT2( "Replacing package {} version {} with version {} found in {}",
+        INFO_PRINTLN( "Replacing package {} version {} with version {} found in {}",
                      existing_pkg->desc(), existing_pkg->version(), pkg->version(), pkg->dir() );
       remove_package( existing_pkg );
       delete existing_pkg;
@@ -295,7 +295,7 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     {
       // skip this package, its version is older
       if ( !quiet )
-        INFO_PRINT2( "Skipping package {} version {} because version {} was already found in ",
+        INFO_PRINTLN( "Skipping package {} version {} because version {} was already found in ",
                      pkg->desc(), pkg->version(), existing_pkg->version(), existing_pkg->dir() );
       return;
     }
@@ -330,7 +330,7 @@ void load_packages( const std::string& basedir, bool quiet )
            !fs::exists( pkg_dir / "disabled.pkg" ) )
       {
         if ( !quiet )
-          INFO_PRINT2( "Loading package in {}", pkg_dir.u8string() );
+          INFO_PRINTLN( "Loading package in {}", pkg_dir.u8string() );
         load_package( pkg_dir.u8string() + "/", elem, quiet );
 
         load_packages( pkg_dir.u8string(), quiet );
@@ -392,7 +392,7 @@ void load_packages( bool quiet )
       {
         dir = Clib::normalized_dir_form( dir );
         if ( !quiet )
-          INFO_PRINT2( "Searching for packages under {}", dir );
+          INFO_PRINTLN( "Searching for packages under {}", dir );
         load_packages( dir.c_str(), quiet );
       }
     }

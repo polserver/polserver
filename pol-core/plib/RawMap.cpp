@@ -146,7 +146,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
   } while ( currentblock != nullptr && filemap.size() < uopfile.header()->nfiles() );
 
   if ( uopfile.header()->nfiles() != filemap.size() )
-    INFO_PRINT2( "Warning: not all chunks read ({}/{})", filemap.size(),
+    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", filemap.size(),
                  uopfile.header()->nfiles() );
 
   // Sanity checking and pre-allocate mapinfo vector

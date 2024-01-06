@@ -53,7 +53,7 @@ ECompileMain::~ECompileMain() {}
 
 void ECompileMain::showHelp()
 {
-  INFO_PRINT2(
+  INFO_PRINTLN(
       "Usage:\n"
       "    \n"
       "  ECOMPILE [options] filespec [filespec ...]\n"
@@ -145,7 +145,7 @@ std::unique_ptr<Compiler::Compiler> create_compiler()
 void compile_inc( const char* path )
 {
   if ( !quiet )
-    INFO_PRINT2( "Compiling: {}", path );
+    INFO_PRINTLN( "Compiling: {}", path );
 
   std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
@@ -223,7 +223,7 @@ bool compile_file( const char* path )
     if ( Clib::GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp )
     {
       if ( compilercfg.VerbosityLevel > 0 )
-        INFO_PRINT2( "{} is newer than {}", filename_src, filename_ecl );
+        INFO_PRINTLN( "{} is newer than {}", filename_src, filename_ecl );
       all_old = false;
     }
 
@@ -239,7 +239,7 @@ bool compile_file( const char* path )
           if ( Clib::GetFileTimestamp( depname.c_str() ) >= ecl_timestamp )
           {
             if ( compilercfg.VerbosityLevel > 0 )
-              INFO_PRINT2( "{} is newer than {}", depname, filename_ecl );
+              INFO_PRINTLN( "{} is newer than {}", depname, filename_ecl );
             all_old = false;
             break;
           }
@@ -248,14 +248,14 @@ bool compile_file( const char* path )
       else
       {
         if ( compilercfg.VerbosityLevel > 0 )
-          INFO_PRINT2( "{} does not exist.", filename_dep );
+          INFO_PRINTLN( "{} does not exist.", filename_dep );
         all_old = false;
       }
     }
     if ( all_old )
     {
       if ( !quiet && compilercfg.DisplayUpToDateScripts )
-        INFO_PRINT2( "{} is up-to-date.", filename_ecl );
+        INFO_PRINTLN( "{} is up-to-date.", filename_ecl );
       return false;
     }
   }
@@ -263,7 +263,7 @@ bool compile_file( const char* path )
 
   {
     if ( !quiet )
-      INFO_PRINT2( "Compiling: {}", path );
+      INFO_PRINTLN( "Compiling: {}", path );
 
     std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
@@ -277,7 +277,7 @@ bool compile_file( const char* path )
       if ( !success )  // good, it failed
       {
         if ( !quiet )
-          INFO_PRINT2( "Compilation failed as expected." );
+          INFO_PRINTLN( "Compilation failed as expected." );
         return true;
       }
       else
@@ -291,7 +291,7 @@ bool compile_file( const char* path )
 
 
     if ( !quiet )
-      INFO_PRINT2( "Writing:   {}", filename_ecl );
+      INFO_PRINTLN( "Writing:   {}", filename_ecl );
 
     if ( !compiler->write_ecl( filename_ecl ) )
     {
@@ -301,13 +301,13 @@ bool compile_file( const char* path )
     if ( compilercfg.GenerateListing )
     {
       if ( !quiet )
-        INFO_PRINT2( "Writing:   {}", filename_lst );
+        INFO_PRINTLN( "Writing:   {}", filename_lst );
       compiler->write_listing( filename_lst );
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
     {
       if ( !quiet )
-        INFO_PRINT2( "Deleting:  {}", filename_lst );
+        INFO_PRINTLN( "Deleting:  {}", filename_lst );
       Clib::RemoveFile( filename_lst );
     }
 
@@ -315,29 +315,29 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
       {
-        INFO_PRINT2( "Writing:   {}", filename_dbg );
+        INFO_PRINTLN( "Writing:   {}", filename_dbg );
         if ( compilercfg.GenerateDebugTextInfo )
-          INFO_PRINT2( "Writing:   {}.txt", filename_dbg );
+          INFO_PRINTLN( "Writing:   {}.txt", filename_dbg );
       }
       compiler->write_dbg( filename_dbg, compilercfg.GenerateDebugTextInfo );
     }
     else if ( Clib::FileExists( filename_dbg.c_str() ) )
     {
       if ( !quiet )
-        INFO_PRINT2( "Deleting:  {}", filename_dbg );
+        INFO_PRINTLN( "Deleting:  {}", filename_dbg );
       Clib::RemoveFile( filename_dbg );
     }
 
     if ( compilercfg.GenerateDependencyInfo )
     {
       if ( !quiet )
-        INFO_PRINT2( "Writing:   {}", filename_dep );
+        INFO_PRINTLN( "Writing:   {}", filename_dep );
       compiler->write_included_filenames( filename_dep );
     }
     else if ( Clib::FileExists( filename_dep.c_str() ) )
     {
       if ( !quiet )
-        INFO_PRINT2( "Deleting:  {}", filename_dep );
+        INFO_PRINTLN( "Deleting:  {}", filename_dep );
       Clib::RemoveFile( filename_dep );
     }
   }
@@ -429,7 +429,7 @@ int readargs( int argc, char** argv )
         auto value = setting_value( arg );
         if ( !value )
         {
-          INFO_PRINT2( "The OG Compiler has been removed." );
+          INFO_PRINTLN( "The OG Compiler has been removed." );
           unknown_opt = true;
         }
         break;
@@ -807,7 +807,7 @@ bool run( int argc, char** argv, int* res )
       tmp += fmt::format( "     - cache misses: {}\n", (long)summary.profile.cache_misses );
     }
 
-    INFO_PRINT2( tmp );
+    INFO_PRINTLN( tmp );
   }
 
   if ( summary.ScriptsWithCompileErrors )
@@ -901,7 +901,7 @@ int ECompileMain::main()
   {
     // vX.YY
     double vernum = (double)1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    INFO_PRINT2( "EScript Compiler v{}\n{}\n", vernum, POL_COPYRIGHT );
+    INFO_PRINTLN( "EScript Compiler v{}\n{}\n", vernum, POL_COPYRIGHT );
   }
 
   int prog_res = 1;

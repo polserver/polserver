@@ -22,7 +22,7 @@ std::string UOInstallFinder::remove_elem( Clib::ConfigElem& elem )
           "found on the system." );
     }
 
-    INFO_PRINT2( "Using Ultima Online data files from installation directory {}", uodata_root );
+    INFO_PRINTLN( "Using Ultima Online data files from installation directory {}", uodata_root );
   }
   return uodata_root;
 }

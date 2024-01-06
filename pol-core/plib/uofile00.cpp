@@ -81,7 +81,7 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
   } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
 
   if ( uopfile.header()->nfiles() != nreadfiles )
-    INFO_PRINT2( "Warning: not all chunks read ({}/{})", nreadfiles, uopfile.header()->nfiles() );
+    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", nreadfiles, uopfile.header()->nfiles() );
 
   for ( size_t i = 0; i < fileSizes.size(); i++ )
   {
@@ -114,7 +114,7 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
   std::string filename = systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) )
   {
-    INFO_PRINT2( "{} not found in {}. Searching for old map[N].mul files.", filepart,
+    INFO_PRINTLN( "{} not found in {}. Searching for old map[N].mul files.", filepart,
                  systemstate.config.uo_datafile_root );
     return false;
   }
@@ -200,7 +200,7 @@ void open_tiledata( void )
     throw std::runtime_error( "Unknown format of tiledata.mul" );
   }
 
-  INFO_PRINT2(
+  INFO_PRINTLN(
       "Using auto-detected parameters:\n"
       "\tUseNewHSAFormat = {}\n"
       "\tMaxTileID = {:#x}",

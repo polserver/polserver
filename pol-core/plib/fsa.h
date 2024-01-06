@@ -178,7 +178,7 @@ public:  // methods
   // For debugging this displays both lists (using the prev/next list pointers)
   void Debug()
   {
-    INFO_PRINT2( "free list" );
+    INFO_PRINTLN( "free list" );
     FSA_ELEMENT* p = m_pFirstFree;
     std::string tmp;
     while ( p )
@@ -186,9 +186,9 @@ public:  // methods
       tmp += fmt::format( "{:#x}!{:#x} ", p->pPrev, p->pNext );
       p = p->pNext;
     }
-    INFO_PRINT2( tmp );
+    INFO_PRINTLN( tmp );
 
-    INFO_PRINT2( "used list" );
+    INFO_PRINTLN( "used list" );
     tmp.clear();
 
     p = m_pFirstUsed;
@@ -197,7 +197,7 @@ public:  // methods
       tmp += fmt::format( "{:#x}!{:#x} ", p->pPrev, p->pNext );
       p = p->pNext;
     }
-    INFO_PRINT2( tmp );
+    INFO_PRINTLN( tmp );
   }
 
   // Iterators

@@ -30,7 +30,7 @@ FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int mapi
                               Clib::tostring( Plib::MAPBLOCK_CHUNK ) );
   if ( _basedir.empty() )
     _basedir = ".";
-  INFO_PRINT2(
+  INFO_PRINTLN(
       "Generating testfiles\n"
       "  basedir: {}\n"
       "  HSA: {}\n"
@@ -218,7 +218,7 @@ void FileGenerator::genTiledata( std::vector<T>& land, std::vector<U>& item )
 
 void FileGenerator::generateTiledata()
 {
-  INFO_PRINT2( "Generating tiledata.mul" );
+  INFO_PRINTLN( "Generating tiledata.mul" );
   if ( !_hsa )
   {
     std::vector<Plib::USTRUCT_LAND_TILE> landtiles( 0x4000, Plib::USTRUCT_LAND_TILE() );
@@ -235,7 +235,7 @@ void FileGenerator::generateTiledata()
 
 void FileGenerator::generateMap()
 {
-  INFO_PRINT2( "Generating map{}.mul", _mapid );
+  INFO_PRINTLN( "Generating map{}.mul", _mapid );
   // initialize with grass tiles on z=0
   Plib::USTRUCT_MAPINFO grass{ 0x3, 0 };
   std::vector<std::vector<Plib::USTRUCT_MAPINFO>> map;
@@ -336,7 +336,7 @@ void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& 
 
 void FileGenerator::generateStatics()
 {
-  INFO_PRINT2( "Generating statics{}.mul", _mapid );
+  INFO_PRINTLN( "Generating statics{}.mul", _mapid );
   Plib::USTRUCT_IDX idxempty{ 0xFFffFFff, 0xFFffFFff, 0xFFffFFff };
   std::ofstream file( _basedir / ( "statics" + std::to_string( _mapid ) + ".mul" ),
                       std::ofstream::binary | std::ofstream::out );
@@ -702,7 +702,7 @@ void FileGenerator::writeMultis( std::vector<std::vector<T>>& multis )
 
 void FileGenerator::generateMultis()
 {
-  INFO_PRINT2( "Generating multi.mul" );
+  INFO_PRINTLN( "Generating multi.mul" );
   if ( !_hsa )
   {
     std::vector<std::vector<Plib::USTRUCT_MULTI_ELEMENT>> multis;

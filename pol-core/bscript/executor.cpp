@@ -66,7 +66,7 @@ void display_executor_instances()
   {
     // Fix for crashes due to orphaned script instances.
     if ( !ex->empty_scriptname() )
-      INFO_PRINT2( ex->scriptname() );
+      INFO_PRINTLN( ex->scriptname() );
   }
 }
 
@@ -2479,7 +2479,7 @@ void Executor::ins_call_method( const Instruction& ins )
 void Executor::ins_statementbegin( const Instruction& ins )
 {
   if ( debug_level >= SOURCELINES && ins.token.tokval() )
-    INFO_PRINT2( ins.token.tokval() );
+    INFO_PRINTLN( ins.token.tokval() );
 }
 
 // case CTRL_PROGEND:
@@ -2998,7 +2998,7 @@ void Executor::execInstr()
     const Instruction& ins = prog_->instr.at( PC );
 #endif
     if ( debug_level >= INSTRUCTIONS )
-      INFO_PRINT2( "{}: {}", PC, ins.token );
+      INFO_PRINTLN( "{}: {}", PC, ins.token );
 
     if ( debugging_ )
     {

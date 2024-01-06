@@ -161,7 +161,7 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
 static bool in_ex_handler = false;
 void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )
 {
-  INFO_PRINT2( "In trans_func." );
+  INFO_PRINTLN( "In trans_func." );
   if ( in_ex_handler )
   {
     POLLOG_INFO << "recursive structured exception\n";

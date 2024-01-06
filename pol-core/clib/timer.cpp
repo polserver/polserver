@@ -8,7 +8,7 @@ namespace Tools
 {
 void DebugT::print( const std::string& name, long long time )
 {
-  INFO_PRINT2(
+  INFO_PRINTLN(
       "\n----------------------------------\n"
       "{}: {} ms"
       "\n----------------------------------",

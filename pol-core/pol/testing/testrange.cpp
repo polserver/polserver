@@ -85,10 +85,10 @@ void range2d_test()
                                   { 3, 4 } } };
         if ( rangeres != res )
         {
-          INFO_PRINT << "size: " << rangeres.size() << " " << res.size() << "\n";
+          INFO_PRINTLN( "size: {} {}", rangeres.size(), res.size() );
           for ( size_t i = 0; i < res.size(); ++i )
           {
-            INFO_PRINT << res[i] << " " << rangeres[i] << "\n";
+            INFO_PRINTLN( "{} {}", res[i], rangeres[i] );
           }
           return false;
         }

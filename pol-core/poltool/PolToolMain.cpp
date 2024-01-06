@@ -190,7 +190,7 @@ int PolToolMain::unpackCompressedGump()
   auto y = toInt( index );
   index += 4;
   msg += fmt::format( " y {}", y );
-  INFO_PRINT2( msg );
+  INFO_PRINTLN( msg );
   auto cbuflen = toInt( index ) - 4;
   index += 4;
   auto datalen = static_cast<unsigned long>( toInt( index ) );
@@ -208,7 +208,7 @@ int PolToolMain::unpackCompressedGump()
     if ( c == '}' )
       msg += '\n';
   }
-  INFO_PRINT2( msg );
+  INFO_PRINTLN( msg );
 
   auto linecount = toInt( index );
   index += 4;
@@ -247,7 +247,7 @@ int PolToolMain::unpackCompressedGump()
       msg += "\"\"\n";
     j += 2 + wc * 2;
   }
-  INFO_PRINT2( msg );
+  INFO_PRINTLN( msg );
   return 0;
 }
 

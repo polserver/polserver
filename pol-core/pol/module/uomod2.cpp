@@ -2113,7 +2113,7 @@ void handle_resurrect_menu( Client* client, PKTBI_2C* msg )
 {
   if ( msg->choice )
   {
-    INFO_PRINT << "Resurrect Menu Choice: " << int( msg->choice ) << "\n";
+    INFO_PRINTLN( "Resurrect Menu Choice: {}", int( msg->choice ) );
     // transmit( client, msg, sizeof *msg );
   }
 

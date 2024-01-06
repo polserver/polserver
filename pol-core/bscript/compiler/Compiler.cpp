@@ -181,7 +181,7 @@ void Compiler::display_outcome( const std::string& filename, Report& report )
   auto msg = fmt::format( "{}: {} errors", filename, report.error_count() );
   if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
     msg += fmt::format( ", {} warnings", report.warning_count() );
-  INFO_PRINT2( msg + '.' );
+  INFO_PRINTLN( msg + '.' );
 }
 
 }  // namespace Pol::Bscript::Compiler

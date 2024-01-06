@@ -121,7 +121,7 @@ void load_movecost( bool reload )
   else if ( !Clib::FileExists( "config/movecost.cfg" ) )
   {
     if ( !reload && Plib::systemstate.config.loglevel > 0 )
-      INFO_PRINT << "File config/movecost.cfg not found, skipping.\n";
+      INFO_PRINTLN( "File config/movecost.cfg not found, skipping." );
     return;
   }
 

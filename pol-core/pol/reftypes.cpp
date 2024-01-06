@@ -25,13 +25,12 @@ unsigned int crefs_count;
 void display_reftypes()
 {
 #if REFTYPE_DEBUG
-  fmt::Writer tmp;
+  std::string tmp;
   for ( CharacterRefs::iterator itr = crefs.begin(); itr != crefs.end(); ++itr )
   {
-    tmp << "cref " << ( *itr ).first << "=0x" << fmt::hexu( ( *itr ).second->get()->serial )
-        << "\n";
+    tmp += fmt::format( "cref {}={:#x}\n", itr->first, itr->second->get()->serial );
   }
-  INFO_PRINT << tmp.str();
+  INFO_PRINT( tmp );
 #endif
 }
 #if REFTYPE_DEBUG
@@ -182,5 +181,5 @@ ItemRef::~ItemRef()
   }
 }
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

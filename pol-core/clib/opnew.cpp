@@ -445,7 +445,7 @@ void PrintHeapData()
   last_blocks_allocated = blocks_allocated;
 
 #ifndef MEMORYLEAK
-  INFO_PRINT2( "OpNewHeap: allocated {} blocks, {} bytes\nOpNewHeap: delta {} blocks, {} bytes",
+  INFO_PRINTLN( "OpNewHeap: allocated {} blocks, {} bytes\nOpNewHeap: delta {} blocks, {} bytes",
                blocks_allocated, bytes_allocated, delta_blocks, delta_bytes );
 #else
   DEBUGLOG << "Heap (whole):  " << blocks_allocated << " blocks with " << bytes_allocated

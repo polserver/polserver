@@ -122,8 +122,9 @@ void Spellbook::double_click( Network::Client* client )
          !( settingsManager.ssopt.uo_feature_enable & PKTOUT_A9::FLAG_AOS_FEATURES ) )
     {
       if ( Plib::systemstate.config.loglevel > 1 )
-        INFO_PRINT << "Client with AOS Expansion Account using spellbook without UOFeatureEnable "
-                      "0x20 Bitflag.\n";
+        INFO_PRINTLN(
+            "Client with AOS Expansion Account using spellbook without UOFeatureEnable "
+            "0x20 Bitflag." );
       send_book_old( client );
       return;
     }

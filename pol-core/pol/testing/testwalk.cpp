@@ -24,18 +24,17 @@ void test_walk( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, un
 {
   short newz;
 
-  INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
-             << "Expect " << exp_result << "," << exp_z << ": ";
+  INFO_PRINT("WalkHeight({},{},{}): Expect {},{}: ",newx,newy,oldz,exp_result,exp_z);
   UMulti* multi;
   Item* itm;
   bool res = gamestate.main_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, true /*doors
 block*/, Plib::MOVEMODE_LAND );
 
-  INFO_PRINT << "Got " << res << "," << newz << ": ";
+  INFO_PRINT("Got {},{}: ",res,newz);
 
   if ( exp_result != res )
   {
-    INFO_PRINT << "Failure!\n";
+    INFO_PRINTLN("Failure!");
     UnitTest::inc_failures();
     return;
   }
@@ -43,13 +42,13 @@ block*/, Plib::MOVEMODE_LAND );
   {
     if ( exp_z != newz )
     {
-      INFO_PRINT << "Failure!\n";
+      INFO_PRINTLN("Failure!");
       UnitTest::inc_failures();
       return;
     }
   }
   UnitTest::inc_successes();
-  INFO_PRINT << "Ok!\n";
+  INFO_PRINTLN("Ok!");
 }
 
 void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, unsigned short newx,
@@ -58,18 +57,17 @@ void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, u
 {
   short newz;
 
-  INFO_PRINT << "WalkHeight(" << newx << "," << newy << "," << oldz << "): "
-             << "Expect " << exp_result << "," << exp_z << ": ";
+  INFO_PRINT("WalkHeight({},{},{}): Expect {},{}: ",newx,newy,oldz,exp_result,exp_z);
   UMulti* multi;
   Item* itm;
   bool res = gamestate.main_realm->walkheight( newx, newy, oldz, &newz, &multi, &itm, doors_block,
                                                movemode );
 
-  INFO_PRINT << "Got " << res << "," << newz << ": ";
+  INFO_PRINT("Got {},{}: ",res,newz);
 
   if ( exp_result != res )
   {
-    INFO_PRINT << "Failure!\n";
+    INFO_PRINTLN("Failure!");
     UnitTest::inc_failures();
     return;
   }
@@ -77,19 +75,19 @@ void test_walk2( unsigned short /*oldx*/, unsigned short /*oldy*/, short oldz, u
   {
     if ( exp_z != newz )
     {
-      INFO_PRINT << "Failure!\n";
+      INFO_PRINTLN("Failure!");
       UnitTest::inc_failures();
       return;
     }
   }
   UnitTest::inc_successes();
-  INFO_PRINT << "Ok!\n";
+  INFO_PRINTLN("Ok!");
 }
 }  // namespace
 
 void walk_test()
 {
-  INFO_PRINT << "POL datafile tests:\n";
+  INFO_PRINTLN("POL datafile tests:");
   test_walk( 1344, 1637, 72, 1345, 1637, true, 72 );
 
   // walk down some stairs in Castle Britannia
@@ -277,7 +275,7 @@ void walk_test()
 
 void multiwalk_test()
 {
-  INFO_PRINT << "POL datafile multi walk tests:\n";
+  INFO_PRINTLN("POL datafile multi walk tests:");
   // now we have a small house in the hills
   test_walk( 2016, 1332, 0, 2016, 1331, true, 4 );
   test_walk( 2016, 1331, 4, 2017, 1331, true, 4 );

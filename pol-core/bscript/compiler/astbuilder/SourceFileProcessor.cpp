@@ -188,16 +188,16 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
         std::string try_filename_full = pkg->dir() + "include/" + path;
 
         if ( compilercfg.VerbosityLevel >= 10 )
-          INFO_PRINT2( "Searching for {}", filename_full );
+          INFO_PRINTLN( "Searching for {}", filename_full );
 
         if ( !Clib::FileExists( filename_full.c_str() ) )
         {
           if ( compilercfg.VerbosityLevel >= 10 )
-            INFO_PRINT2( "Searching for {}", try_filename_full );
+            INFO_PRINTLN( "Searching for {}", try_filename_full );
           if ( Clib::FileExists( try_filename_full.c_str() ) )
           {
             if ( compilercfg.VerbosityLevel >= 10 )
-              INFO_PRINT2( "Found {}", try_filename_full );
+              INFO_PRINTLN( "Found {}", try_filename_full );
 
             filename_full = try_filename_full;
           }
@@ -205,7 +205,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
         else
         {
           if ( compilercfg.VerbosityLevel >= 10 )
-            INFO_PRINT2( "Found {}", filename_full );
+            INFO_PRINTLN( "Found {}", filename_full );
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
             report.warning( source_location, "Found '", filename_full, "' and '", try_filename_full,
@@ -218,9 +218,9 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
 
         if ( compilercfg.VerbosityLevel >= 10 )
         {
-          INFO_PRINT2( "Searching for {}", filename_full );
+          INFO_PRINTLN( "Searching for {}", filename_full );
           if ( Clib::FileExists( filename_full.c_str() ) )
-            INFO_PRINT2( "Found {}", filename_full );
+            INFO_PRINTLN( "Found {}", filename_full );
         }
       }
     }
@@ -234,17 +234,17 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
   else
   {
     if ( compilercfg.VerbosityLevel >= 10 )
-      INFO_PRINT2( "Searching for {}", filename_full );
+      INFO_PRINTLN( "Searching for {}", filename_full );
 
     if ( !Clib::FileExists( filename_full.c_str() ) )
     {
       std::string try_filename_full = compilercfg.IncludeDirectory + filename_part;
       if ( compilercfg.VerbosityLevel >= 10 )
-        INFO_PRINT2( "Searching for {}", try_filename_full );
+        INFO_PRINTLN( "Searching for {}", try_filename_full );
       if ( Clib::FileExists( try_filename_full.c_str() ) )
       {
         if ( compilercfg.VerbosityLevel >= 10 )
-          INFO_PRINT2( "Found {}", try_filename_full );
+          INFO_PRINTLN( "Found {}", try_filename_full );
 
         // cout << "Using " << try_filename << endl;
         filename_full = try_filename_full;
@@ -253,7 +253,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
     else
     {
       if ( compilercfg.VerbosityLevel >= 10 )
-        INFO_PRINT2( "Found {}", filename_full );
+        INFO_PRINTLN( "Found {}", filename_full );
     }
   }
   if ( SourceFile::enforced_case_sensitivity_mismatch( source_location, filename_full, report ) )

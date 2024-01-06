@@ -83,7 +83,7 @@ int keyid[] = {
  */
 static int print_ctable()
 {
-  INFO_PRINT2( "#include \"ctable.h\"\n\nSVR_KEYDESC keydesc[ 257 ] = {" );
+  INFO_PRINTLN( "#include \"ctable.h\"\n\nSVR_KEYDESC keydesc[ 257 ] = {" );
   std::string tmp;
   for ( int i = 0; i <= 256; i++ )
   {
@@ -102,7 +102,7 @@ static int print_ctable()
                         valout );
   }
   tmp += "};\n";
-  INFO_PRINT2( tmp );
+  INFO_PRINTLN( tmp );
   return 0;
 }
 
@@ -156,7 +156,7 @@ static int tiledump( int argc, char** argv )
     {
       if ( fread( &version, sizeof version, 1, fp ) != 1 )
         break;
-      INFO_PRINT2( "Block Version: {:08X}", static_cast<unsigned long>( version ) );
+      INFO_PRINTLN( "Block Version: {:08X}", static_cast<unsigned long>( version ) );
     }
     if ( fread( &tile, sizeof tile, 1, fp ) != 1 )
       break;
@@ -203,7 +203,7 @@ static int verlandtile()
     readlandtile( objtype, &landtile );
     if ( landtile.flags || landtile.unk || landtile.name[0] )
     {
-      INFO_PRINT2(
+      INFO_PRINTLN(
           "Land Tile: {:#x}\n"
           "\tflags: {:#x}\n"
           "\t  unk: {:#x}\n"
@@ -238,7 +238,7 @@ static int landtilehist()
   {
     tmp += fmt::format( "{}: {}\n", elem.first, elem.second );
   }
-  INFO_PRINT2( tmp );
+  INFO_PRINTLN( tmp );
   clear_tiledata();
   return 0;
 }
@@ -294,7 +294,7 @@ static int landtileflagsearch( int argc, char** argv )
     readlandtile( objtype, &landtile );
     if ( ( landtile.flags & flags ) == flags && ( ~landtile.flags & notflags ) == notflags )
     {
-      INFO_PRINT2(
+      INFO_PRINTLN(
           "Land Tile: {:#x}\n"
           "\tflags: {:#x}\n"
           "\t  unk: {:#x}\n"
@@ -326,7 +326,7 @@ static int loschange( int /*argc*/, char** /*argv*/ )
     if ( old_lostest != new_lostest )
     {
       display_tileinfo( objtype, tile );
-      INFO_PRINT2( " Old LOS: {}\n New LOS: {}", old_lostest, new_lostest );
+      INFO_PRINTLN( " Old LOS: {}\n New LOS: {}", old_lostest, new_lostest );
     }
   }
   clear_tiledata();
@@ -346,7 +346,7 @@ static int print_verdata_info()
        1 )  // ENDIAN-BROKEN
     throw std::runtime_error( "print_verdata_info: fread(num_version_records) failed." );
 
-  INFO_PRINT2( "There are {} version records.", num_version_records );
+  INFO_PRINTLN( "There are {} version records.", num_version_records );
 
   int filecount[32];
   int inv_filecount = 0;
@@ -364,17 +364,17 @@ static int print_verdata_info()
   for ( int i = 0; i < 32; ++i )
   {
     if ( filecount[i] )
-      INFO_PRINT2( "File {:#x}: {} versioned blocks.", i, filecount[i] );
+      INFO_PRINTLN( "File {:#x}: {} versioned blocks.", i, filecount[i] );
   }
   if ( inv_filecount )
-    INFO_PRINT2( "{} invalid file indexes", inv_filecount );
+    INFO_PRINTLN( "{} invalid file indexes", inv_filecount );
   clear_tiledata();
   return 0;
 }
 
 static int print_statics()
 {
-  INFO_PRINT2( "Reading UO data.." );
+  INFO_PRINTLN( "Reading UO data.." );
   open_uo_data_files();
   read_uo_data();
   int water = 0;
@@ -402,16 +402,16 @@ static int print_statics()
             continue;
           }
           if ( !hdrshown )
-            INFO_PRINT2( "{},{}:", x, y );
+            INFO_PRINTLN( "{},{}:", x, y );
           hdrshown = true;
-          INFO_PRINT2( "\tOBJT= {:#x}  Z={}  HT={}  FLAGS={:#x}", elem.graphic, int( elem.z ),
+          INFO_PRINTLN( "\tOBJT= {:#x}  Z={}  HT={}  FLAGS={:#x}", elem.graphic, int( elem.z ),
                        height, Plib::tile_uoflags_read( elem.graphic ) );
           ++cnt;
         }
       }
     }
   }
-  INFO_PRINT2( "{} statics exist.\n{} water tiles exist.\n{} strange water tiles exist.", cnt,
+  INFO_PRINTLN( "{} statics exist.\n{} water tiles exist.\n{} strange water tiles exist.", cnt,
                water, strange_water );
   clear_tiledata();
   return 0;
@@ -438,18 +438,18 @@ static int rawdump( int argc, char** argv )
     }
     std::string tmp = "Header:\n";
     Clib::fdump( std::back_inserter( tmp ), buffer, hdrlen );
-    INFO_PRINT2( tmp );
+    INFO_PRINTLN( tmp );
   }
 
   while ( fread( buffer, reclen, 1, fp ) == 1 )
   {
     std::string tmp = fmt::format( "Record {} ({:#X}):\n", recnum, recnum );
     Clib::fdump( std::back_inserter( tmp ), buffer, reclen );
-    INFO_PRINT2( tmp );
+    INFO_PRINTLN( tmp );
 
     ++recnum;
   }
-  INFO_PRINT2( "{} records read.", recnum );
+  INFO_PRINTLN( "{} records read.", recnum );
   fclose( fp );
   return 0;
 }
@@ -491,7 +491,7 @@ static int print_sndlist()
       break;
 
     sound.read( filename, sizeof filename );
-    INFO_PRINT2( "{:#x}, {:#x}: {}\nlen {}", i, serial, filename, length );
+    INFO_PRINTLN( "{:#x}, {:#x}: {}\nlen {}", i, serial, filename, length );
   }
   return 0;
 }
@@ -503,7 +503,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
 
   USTRUCT_TILE tile;
   read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
-  INFO_PRINT2( "Multi {:#x} -- {}:", i + i + ( Plib::systemstate.config.max_tile_id + 1 ),
+  INFO_PRINTLN( "Multi {:#x} -- {}:", i + i + ( Plib::systemstate.config.max_tile_id + 1 ),
                tile.name );
   std::string tmp;
   for ( short y = multi->minrxyz.y(); y <= multi->maxrxyz.y(); ++y )
@@ -528,7 +528,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
     }
     tmp += "\n";
   }
-  INFO_PRINT2( tmp );
+  INFO_PRINTLN( tmp );
 }
 
 static void print_multidata( u16 i, Multi::MultiDef* multi )
@@ -538,19 +538,19 @@ static void print_multidata( u16 i, Multi::MultiDef* multi )
 
   USTRUCT_TILE tile;
   read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
-  INFO_PRINT2( "Multi {:#x} -- {}:", i + ( Plib::systemstate.config.max_tile_id + 1 ), tile.name );
+  INFO_PRINTLN( "Multi {:#x} -- {}:", i + ( Plib::systemstate.config.max_tile_id + 1 ), tile.name );
   std::string tmp;
   for ( const auto& _itr : multi->components )
   {
     const Multi::MULTI_ELEM* elem = _itr.second;
     tmp += fmt::format( "{:#x} {:#x}:{}\n", elem->objtype, (int)elem->is_static, elem->relpos );
   }
-  INFO_PRINT2( tmp );
+  INFO_PRINTLN( tmp );
 }
 
 static int print_multis()
 {
-  INFO_PRINT2( "Reading UO data.." );
+  INFO_PRINTLN( "Reading UO data.." );
   open_uo_data_files();
   read_uo_data();
   Multi::read_multidefs();
@@ -572,12 +572,12 @@ static int z_histogram()
   unsigned int zcount[256];
   memset( zcount, 0, sizeof( zcount ) );
 
-  INFO_PRINT2( "Reading UO data.." );
+  INFO_PRINTLN( "Reading UO data.." );
   open_uo_data_files();
   read_uo_data();
   for ( u16 x = 0; x < 6143; ++x )
   {
-    INFO_PRINT_N2( "." );
+    INFO_PRINT( "." );
     for ( u16 y = 0; y < 4095; ++y )
     {
       USTRUCT_MAPINFO mi;
@@ -587,11 +587,11 @@ static int z_histogram()
       ++zcount[z + 128];
     }
   }
-  INFO_PRINT2( "" );
+  INFO_PRINTLN( "" );
   for ( int i = 0; i < 256; ++i )
   {
     if ( zcount[i] )
-      INFO_PRINT2( "{}: {}", i - 128, zcount[i] );
+      INFO_PRINTLN( "{}: {}", i - 128, zcount[i] );
   }
   clear_tiledata();
   return 0;
@@ -601,12 +601,12 @@ static int statics_histogram()
 {
   unsigned int counts[1000];
   memset( counts, 0, sizeof counts );
-  INFO_PRINT2( "Reading UO data.." );
+  INFO_PRINTLN( "Reading UO data.." );
   open_uo_data_files();
   read_uo_data();
   for ( u16 x = 0; x < 6143; x += 8 )
   {
-    INFO_PRINT_N2( "." );
+    INFO_PRINT( "." );
     for ( u16 y = 0; y < 4095; y += 8 )
     {
       std::vector<USTRUCT_STATIC> p;
@@ -619,11 +619,11 @@ static int statics_histogram()
         ERROR_PRINT << "doh: count=" << count << "\n";
     }
   }
-  INFO_PRINT2( "" );
+  INFO_PRINTLN( "" );
   for ( int i = 0; i < 1000; ++i )
   {
     if ( counts[i] )
-      INFO_PRINT2( "{}: {}", i, counts[i] );
+      INFO_PRINTLN( "{}: {}", i, counts[i] );
   }
   clear_tiledata();
   return 0;
@@ -631,13 +631,13 @@ static int statics_histogram()
 
 static int write_polmap( const char* filename, unsigned short xbegin, unsigned short xend )
 {
-  INFO_PRINT2( "Writing {}", filename );
+  INFO_PRINTLN( "Writing {}", filename );
   FILE* fp = fopen( filename, "wb" );
   int num = xend + 1 - xbegin;
   for ( u16 xs = xbegin; xs < xend; xs += 8 )
   {
     int percent = ( xs - xbegin ) * 100 / num;
-    INFO_PRINT_N2( "\r{}%", percent );
+    INFO_PRINT( "\r{}%", percent );
     for ( u16 ys = 0; ys < 4096; ys += 8 )
     {
       short z;
@@ -668,7 +668,7 @@ static int write_polmap( const char* filename, unsigned short xbegin, unsigned s
 
 static int write_polmap()
 {
-  INFO_PRINT2( "Reading UO data.." );
+  INFO_PRINTLN( "Reading UO data.." );
   open_uo_data_files();
   read_uo_data();
   write_polmap( "dngnmap0.pol", 5120, 6144 );
@@ -706,13 +706,13 @@ static int water_search()
     for ( u16 x = wxl; x < wxh; x++ )
     {
       if ( has_water( x, y ) )
-        INFO_PRINT_N2( "W" );
+        INFO_PRINT( "W" );
       else
-        INFO_PRINT_N2( "." );
+        INFO_PRINT( "." );
     }
-    INFO_PRINT2( "" );
+    INFO_PRINTLN( "" );
   }
-  INFO_PRINT2( "" );
+  INFO_PRINTLN( "" );
   return 0;
 }
 
@@ -842,10 +842,10 @@ static int findlandtile( int /*argc*/, char** argv )
       safe_getmapinfo( x, y, &z, &mi );
       if ( mi.landtile == landtile )
       {
-        INFO_PRINT_N2( "{},{},{}", x, y, (int)mi.z );
+        INFO_PRINT( "{},{},{}", x, y, (int)mi.z );
         if ( mi.z != z )
-          INFO_PRINT_N2( " ({})", z );
-        INFO_PRINT2( "" );
+          INFO_PRINT( " ({})", z );
+        INFO_PRINTLN( "" );
       }
     }
   }
@@ -857,7 +857,7 @@ static int findlandtile( int /*argc*/, char** argv )
 static int findgraphic( int /*argc*/, char** argv )
 {
   int graphic = strtoul( argv[1], nullptr, 0 );
-  INFO_PRINT2( "Searching map for statics with graphic={:#x}", graphic );
+  INFO_PRINTLN( "Searching map for statics with graphic={:#x}", graphic );
 
   open_uo_data_files();
   read_uo_data();
@@ -872,7 +872,7 @@ static int findgraphic( int /*argc*/, char** argv )
       {
         if ( rec.graphic == graphic )
         {
-          INFO_PRINT2( "{},{},{}", x, y, (int)rec.z );
+          INFO_PRINTLN( "{},{},{}", x, y, (int)rec.z );
         }
       }
     }
@@ -896,7 +896,7 @@ static int findlandtileflags( int /*argc*/, char** argv )
       safe_getmapinfo( x, y, &z, &mi );
       if ( Plib::landtile_uoflags_read( mi.landtile ) & flags )
       {
-        INFO_PRINT2( "{},{},{}: landtile {:#x}, flags {:#x}", x, y, (int)mi.z, mi.landtile,
+        INFO_PRINTLN( "{},{},{}: landtile {:#x}, flags {:#x}", x, y, (int)mi.z, mi.landtile,
                      Plib::landtile_uoflags_read( mi.landtile ) );
       }
     }
@@ -938,7 +938,7 @@ static int defragstatics( int argc, char** argv )
     int progress = x * 100L / descriptor.width;
     if ( progress != lastprogress )
     {
-      INFO_PRINT_N2( "\rRewriting statics files: {}%", progress );
+      INFO_PRINT( "\rRewriting statics files: {}%", progress );
       lastprogress = progress;
     }
     for ( u16 y = 0; y < descriptor.height; y += Plib::STATICBLOCK_CHUNK )
@@ -1007,7 +1007,7 @@ static int defragstatics( int argc, char** argv )
     }
   }
 
-  INFO_PRINT2( "\rRewriting statics files: Complete" );
+  INFO_PRINTLN( "\rRewriting statics files: Complete" );
   fclose( fidx );
   fclose( fmul );
   return 0;
@@ -1086,9 +1086,9 @@ static int format_description( int argc, char** argv )
       desc += 's';
 
     if ( amount == 1 )
-      INFO_PRINT2( "Singular: {}", desc );
+      INFO_PRINTLN( "Singular: {}", desc );
     else
-      INFO_PRINT2( "Plural: {}", desc );
+      INFO_PRINTLN( "Plural: {}", desc );
   }
   return 0;
 }
@@ -1101,7 +1101,7 @@ static int checkmultis()
   {
     fclose( multi_idx );
     fclose( multi_mul );
-    INFO_PRINT2( "Failed seek check" );
+    INFO_PRINTLN( "Failed seek check" );
     return 0;
   }
   unsigned count = 0;
@@ -1119,7 +1119,7 @@ static int checkmultis()
       throw std::runtime_error( "checkmultis: fread(elem) failed." );
     if ( elem.x != 0 || elem.y != 0 || elem.z != 0 )
     {
-      INFO_PRINT2( "ERROR: First tile not in center: {} {} {} ({}) MultiID: {:#x}", elem.x, elem.y,
+      INFO_PRINTLN( "ERROR: First tile not in center: {} {} {} ({}) MultiID: {:#x}", elem.x, elem.y,
                    elem.z, elem.flags, i );
       ++errors;
     }
@@ -1134,7 +1134,7 @@ static int checkmultis()
           throw std::runtime_error( "checkmultis: fread(multi_mul) failed." );
         if ( elem.x == 0 && elem.y == 0 && elem.z == 0 && elem.graphic != 0x0001 && elem.flags )
         {
-          INFO_PRINT2(
+          INFO_PRINTLN(
               "Warning: Found invis tile as center, but could use {:#x} at 0 0 0 MultiID: {:#x}",
               elem.graphic, i );
           ++warnings;
@@ -1144,7 +1144,7 @@ static int checkmultis()
     }
     ++count;
   }
-  INFO_PRINT2( "Checked Multis: {} with invis center: {} Warnings: {} Errors: {}", count,
+  INFO_PRINTLN( "Checked Multis: {} with invis center: {} Warnings: {} Errors: {}", count,
                invisitems, warnings, errors );
   fclose( multi_idx );
   fclose( multi_mul );
@@ -1316,7 +1316,7 @@ int UoToolMain::main()
   }
   else if ( argvalue == "writekeys" )
   {
-    INFO_PRINT2( "Keys written to current.key" );
+    INFO_PRINTLN( "Keys written to current.key" );
     return 0;
   }
   else if ( argvalue == "mapdump" )

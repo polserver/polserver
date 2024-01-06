@@ -661,8 +661,8 @@ void handle_e1_clienttype( Client* client, PKTIN_E1* msg )
     client->setClientType( CLIENTTYPE_UOSA );
     break;
   default:
-    INFO_PRINT << "Unknown client type send with packet 0xE1 : 0x"
-               << fmt::hexu( static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) ) << "\n";
+    INFO_PRINTLN( "Unknown client type send with packet 0xE1 : {:#x}",
+                 static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) );
     break;
   }
 }
@@ -681,9 +681,8 @@ void handle_aos_commands( Client* client, PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   if ( client && client->chr && client->chr->serial != serial )
   {
-    INFO_PRINT << "Ignoring spoofed packet 0xD7 from character 0x"
-               << fmt::hexu( client->chr->serial ) << " trying to spoof 0x" << fmt::hexu( serial )
-               << "\n";
+    INFO_PRINTLN( "Ignoring spoofed packet 0xD7 from character {:#x} trying to spoof {:#x}",
+                 client->chr->serial, serial );
     return;
   }
 

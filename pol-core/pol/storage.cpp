@@ -219,7 +219,7 @@ void Storage::read( Clib::ConfigFile& cf )
   {
     if ( --num_until_dot == 0 )
     {
-      INFO_PRINT << ".";
+      INFO_PRINT( "." );
       num_until_dot = 1000;
     }
     if ( elem.type_is( "StorageArea" ) )
@@ -257,7 +257,7 @@ void Storage::read( Clib::ConfigFile& cf )
   clock_t end = clock();
   int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
-  INFO_PRINT << " " << nobjects << " elements in " << ms << " ms.\n";
+  INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
 void Storage::print( Clib::StreamWriter& sw ) const

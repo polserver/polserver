@@ -66,7 +66,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
-      INFO_PRINT2( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
+      INFO_PRINTLN( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
                    int( srec.height ) );
     }
 #endif
@@ -90,7 +90,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
          // will override a blocking map tile.
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
-          INFO_PRINT2( "Setting Z to {}", int( ztemp ) );
+          INFO_PRINTLN( "Setting Z to {}", int( ztemp ) );
 #endif
         newz = ztemp;
         result = true;
@@ -114,7 +114,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
         {
-          INFO_PRINT2( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}", srec.graphic,
+          INFO_PRINTLN( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}", srec.graphic,
                        int( srec.z ), int( srec.height ), int( newz ) );
         }
 #endif

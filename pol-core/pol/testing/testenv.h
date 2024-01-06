@@ -29,7 +29,7 @@ public:
   template <typename F, typename T>
   UnitTest( F f, T res, const std::string& msg )
   {
-    INFO_PRINT_N2( "    {}", msg );
+    INFO_PRINT( "    {}", msg );
     auto r = f();
     if ( r == res )
     {
@@ -38,15 +38,15 @@ public:
     else
     {
       UnitTest::inc_failures();
-      INFO_PRINT_N2( ": {} != {}", r, res );
+      INFO_PRINT( ": {} != {}", r, res );
     }
-    INFO_PRINT2( "" );
+    INFO_PRINTLN( "" );
   }
   static void inc_failures() { ++UnitTest::failures; }
   static void inc_successes() { ++UnitTest::successes; }
   static void display_test_results()
   {
-    INFO_PRINT2(
+    INFO_PRINTLN(
         "##############\n"
         "Successes: {}\n"
         "Failures:  {}\n"

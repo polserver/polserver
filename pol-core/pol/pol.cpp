@@ -736,7 +736,7 @@ void threadstatus_thread( void )
       --timeouts_remaining;
       if ( timeouts_remaining == 0 )
       {
-        INFO_PRINT << "Waiting for " << threadhelp::child_threads << " child threads to exit\n";
+        INFO_PRINTLN( "Waiting for {} child threads to exit", threadhelp::child_threads );
         timeouts_remaining = 5;
       }
     }
@@ -764,10 +764,10 @@ void console_thread( void )
     if ( stateManager.polsig.reload_configuration_signalled )
     {
       PolLock lck;
-      INFO_PRINT << "Reloading configuration...";
+      INFO_PRINT( "Reloading configuration..." );
       stateManager.polsig.reload_configuration_signalled = false;
       reload_configuration();
-      INFO_PRINT << "Done.\n";
+      INFO_PRINTLN( "Done." );
     }
 #endif
   }
@@ -848,31 +848,32 @@ void display_leftover_objects()
   Clib::OFStreamWriter sw( &ofs );
   sw.init( "leftovers.txt" );
   objStorageManager.objecthash.PrintContents( sw );
-  fmt::Writer tmp;
+  std::string tmp;
   if ( stateManager.uobjcount.uobject_count != 0 )
-    tmp << "Remaining UObjects: " << stateManager.uobjcount.uobject_count << "\n";
+    tmp += fmt::format( "Remaining UObjects: {}\n", stateManager.uobjcount.uobject_count );
   if ( stateManager.uobjcount.ucharacter_count != 0 )
-    tmp << "Remaining Mobiles: " << stateManager.uobjcount.ucharacter_count << "\n";
+    tmp += fmt::format( "Remaining Mobiles: {}\n", stateManager.uobjcount.ucharacter_count );
   if ( stateManager.uobjcount.npc_count != 0 )
-    tmp << "Remaining NPCs: " << stateManager.uobjcount.npc_count << "\n";
+    tmp += fmt::format( "Remaining NPCs: {}\n", stateManager.uobjcount.npc_count );
   if ( stateManager.uobjcount.uitem_count != 0 )
-    tmp << "Remaining Items: " << stateManager.uobjcount.uitem_count << "\n";
+    tmp += fmt::format( "Remaining Items: {}\n", stateManager.uobjcount.uitem_count );
   if ( stateManager.uobjcount.umulti_count != 0 )
-    tmp << "Remaining Multis: " << stateManager.uobjcount.umulti_count << "\n";
+    tmp += fmt::format( "Remaining Multis: {}\n", stateManager.uobjcount.umulti_count );
   if ( stateManager.uobjcount.unreaped_orphans != 0 )
-    tmp << "Unreaped orphans: " << stateManager.uobjcount.unreaped_orphans << "\n";
+    tmp += fmt::format( "Unreaped orphans: {}\n", stateManager.uobjcount.unreaped_orphans );
   if ( stateManager.uobjcount.uobj_count_echrref != 0 )
-    tmp << "Remaining EChrRef objects: " << stateManager.uobjcount.uobj_count_echrref << "\n";
+    tmp +=
+        fmt::format( "Remaining EChrRef objects: {}\n", stateManager.uobjcount.uobj_count_echrref );
   if ( Bscript::executor_count )
-    tmp << "Remaining Executors: " << Bscript::executor_count << "\n";
+    tmp += fmt::format( "Remaining Executors: {}\n", Bscript::executor_count );
   if ( Bscript::eobject_imp_count )
-    tmp << "Remaining script objectimps: " << Bscript::eobject_imp_count << "\n";
-  INFO_PRINT << tmp.str();
+    tmp += fmt::format( "Remaining script objectimps: {}\n", Bscript::eobject_imp_count );
+  INFO_PRINT( tmp );
 }
 
 void run_start_scripts()
 {
-  INFO_PRINT << "Running startup script.\n";
+  INFO_PRINTLN( "Running startup script." );
   run_script_to_completion( "start" );
   for ( const auto& pkg : Plib::systemstate.packages )
   {
@@ -884,7 +885,7 @@ void run_start_scripts()
       Bscript::BObject obj( run_script_to_completion( script ) );
     }
   }
-  INFO_PRINT << "Startup script complete.\n";
+  INFO_PRINTLN( "Startup script complete." );
 }
 
 #ifdef _WIN32
@@ -983,7 +984,7 @@ int xmain_inner( bool testing )
   if ( polpid.is_open() )
     polpid << Clib::tostring( getpid() );
   else
-    INFO_PRINT << "Cannot create pid file in " << Plib::systemstate.config.pidfile_path << "\n";
+    INFO_PRINTLN( "Cannot create pid file in {}", Plib::systemstate.config.pidfile_path );
 
   polpid.close();
 #endif

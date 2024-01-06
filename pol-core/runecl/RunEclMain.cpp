@@ -91,7 +91,7 @@ void RunEclMain::dumpScript( std::string fileName )
 
   std::ostringstream os;
   program->dump( os );
-  INFO_PRINT2( os.str() );
+  INFO_PRINTLN( os.str() );
 }
 
 int RunEclMain::runeclScript( std::string fileName )
@@ -197,7 +197,7 @@ int RunEclMain::runeclScript( std::string fileName )
                       profile.sum / ( 1.0 * profile.count ) );
     }
 #endif
-    INFO_PRINT2( fmt::to_string( buffer ) );
+    INFO_PRINTLN( fmt::to_string( buffer ) );
   }
   // deinit
   Core::configurationbuffer.deinitialize();
