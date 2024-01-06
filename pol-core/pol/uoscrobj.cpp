@@ -4063,11 +4063,11 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
       return new BError( "Not enough parameters" );
     }
 
-    BObjectImp* imp = ex.getParamImp( 0 );
+    BObjectImp* impMaybeZero = ex.getParamImp( 0 );
 
-    if ( imp->isa( BObjectImp::OTLong ) )
+    if ( impMaybeZero->isa( BObjectImp::OTLong ) )
     {
-      auto value = static_cast<BLong*>( imp )->value();
+      auto value = static_cast<BLong*>( impMaybeZero )->value();
 
       if ( value != 0 )
         return new BError( "Invalid parameters" );
