@@ -92,18 +92,24 @@ endfunction
 
 exported function test_buffs()
   var err;
-  err := char.addBuff(1029, 30, 1075814, 1075815, CAscZ("1234 5678"));
+  err := char.addBuff(1029, 30, 1075814, 1075815, "1234 5678");
   if (err == error)
     return ret_error($"Could not add buff: {err}");
   endif
+  if (char.buffs.size() != 1 || !char.buffs.exists(1029))
+    return ret_error($"Active buff not listed: {char.buffs}");
+  endif
+    
   err := char.delBuff(1029);
   if (err == error)
     return ret_error($"Could not delete buff: {err}");
   endif
+  if (char.buffs.size() != 0)
+    return ret_error($"Active buffs not empty: {char.buffs}");
+  endif
   
   //Try clearing buffs
-  err := char.addBuff(1029, 30, 1075814, 1075815, CAscZ("1234 5678"));
-  print($"addBuff: {err}");
+  err := char.addBuff(1029, 30, 1075814, 1075815, "1234 5678");
   if (err == error)
     return ret_error($"Could not add buff: {err}");
   endif
