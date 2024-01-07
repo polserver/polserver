@@ -52,6 +52,7 @@
 #include "../polvar.h"
 #include "../realms/realm.h"
 #include "../scrsched.h"
+#include "../scrstore.h"
 #include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
@@ -1659,12 +1660,24 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   regself();  // do this after our x,y are known.
   // consider throwing if starting position isn't passable.
 
-  Module::UOExecutorModule* script =
-      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), make_boatref( this ) );
+  auto control_script = itemdesc().control_script.empty() ? Core::ScriptDef( "misc/boat", nullptr )
+                                                          : itemdesc().control_script;
+
+  auto prog = Core::find_script2( control_script );
+
+  if ( prog.get() == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script {}, boat: serial 0x{:X}" )
+        << control_script.c_str() << this->serial;
+    return;
+  }
+
+  Module::UOExecutorModule* script = Core::start_script( prog, make_boatref( this ) );
 
   if ( script == nullptr )
   {
-    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << this->serial;
+    POLLOG_ERROR.Format( "Could not start script {}, boat: serial 0x{:X}" )
+        << control_script.c_str() << this->serial;
   }
   else
   {
@@ -1746,12 +1759,25 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
 
   Bscript::BObjectImp* boatref = make_boatref( boat );
 
-  Module::UOExecutorModule* script =
-      Core::start_script( Core::ScriptDef( "misc/boat", nullptr ), boatref );
+  auto control_script = descriptor.control_script.empty() ? Core::ScriptDef( "misc/boat", nullptr )
+                                                          : descriptor.control_script;
+
+  auto prog = Core::find_script2( control_script );
+
+  if ( prog.get() == nullptr )
+  {
+    POLLOG_ERROR.Format( "Could not start script {}, boat: serial 0x{:X}" )
+        << control_script.c_str() << boat->serial;
+
+    return boatref;
+  }
+
+  Module::UOExecutorModule* script = Core::start_script( prog, boatref );
 
   if ( script == nullptr )
   {
-    POLLOG_ERROR.Format( "Could not start script misc/boat, boat: serial 0x{:X}" ) << boat->serial;
+    POLLOG_ERROR.Format( "Could not start script {}, boat: serial 0x{:X}" )
+        << control_script.c_str() << boat->serial;
   }
   else
   {

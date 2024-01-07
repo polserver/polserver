@@ -415,3 +415,34 @@ exported function boat_update_range()
   endwhile
   return 1;
 endfunction
+
+exported function boat_nondefault_control_script()
+  var boat2:=CreateMultiAtLocation(20,30,-4,0x11002, CRMULTI_FACING_EAST);
+  if (!boat2)
+    return ret_error($"Failed to create boat: {boat2}");
+  endif
+
+  var expected := "testpkgs/boat/boat.ecl";
+  var actual := boat2.process.name;
+
+  if (actual != expected)
+    DestroyMulti(boat2);
+    return ret_error($"Boat 0x11002 control script mismatch, expected '{expected}' != actual '{actual}'");
+  endif
+
+  DestroyMulti(boat2);
+  return 1;
+endfunction
+
+exported function boat_bad_control_script_no_crash()
+  var boat2:=CreateMultiAtLocation(20,30,-4,0x11003, CRMULTI_FACING_EAST);
+  if (!boat2)
+    return ret_error($"Failed to create boat: {boat2}");
+  elseif (boat2.process)
+    DestroyMulti(boat2);
+    return ret_error($"Boat has an unexpected control script: {boat.process.name}");
+  endif
+
+  DestroyMulti(boat2);
+  return 1;
+endfunction
