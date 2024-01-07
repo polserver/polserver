@@ -20,7 +20,7 @@ tinyxml.dir
 format.dir
 stackwalk.dir
 *ninja*
-kaitai.dir
+kaitai
 curl
 Testing
 CTest*
