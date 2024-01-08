@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-31-2023</datemodified>
+		<datemodified>01-09-2024</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-07-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat control script can be specified via the `ControlScript` item descriptor. If none specified, defaults to existing `scripts/misc/boat.ecl`.</change>
+			<change type="Fixed">Shard no longer crashes if boat control script does not exist.</change>
+		</entry>
+		<entry>
+			<date>01-06-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat script is now properly considered as a control script for the boat.</change>
+			<change type="Added">Boat piloting via mouse movements. Set pilot of a boat via `boat.set_pilot(who)`, clear via `boat.set_pilot(0)`, and retrieved via `boat.pilot`. See boat method `set_pilot` and member `pilot` for more details.</change>
+			<change type="Added">Boat piloting events are sent to the boat's control script. See `SYSEVENT_BOAT_MOVEMENT` for more details.</change>
+		</entry>
 		<entry>
 			<date>12-31-2023</date>
 			<author>Vitor:</author>

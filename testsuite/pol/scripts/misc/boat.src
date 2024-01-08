@@ -2,8 +2,8 @@ use os;
 program start_boat( param )
   var ev, listener := start_script( ":testboat:boat", param );
 
-  // TODO until control scripts can be specified for boats better, a workaround
-  // to forward events from the boat control script to the created listener.
+  // The default control script starts forwards events from the boat control
+  // script to the created listener.
 
   while ( param )
     if ( ev := wait_for_event(10) )

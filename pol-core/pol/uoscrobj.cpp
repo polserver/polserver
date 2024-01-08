@@ -4056,7 +4056,7 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
     }
     break;
   }
-  case MTH_SETPILOT:
+  case MTH_SET_PILOT:
   {
     if ( !ex.hasParams( 1 ) )
     {
