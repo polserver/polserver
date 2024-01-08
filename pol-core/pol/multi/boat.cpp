@@ -1795,7 +1795,15 @@ void UBoat::create_components()
                                                                end = bshape.Componentshapes.end();
         itr != end; ++itr )
   {
-    Items::Item* component = Items::Item::create( itr->objtype );
+    Items::Item* component;
+    try
+    {
+      component = Items::Item::create( itr->objtype );
+    }
+    catch ( ... )
+    {
+      continue;
+    }
     if ( component == nullptr )
       continue;
     // check boat members here
