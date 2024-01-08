@@ -135,17 +135,17 @@ exported function move_boat_overflow()
   return 1;
 endfunction
 
-// Tests handling of pilot via boatref.setpilot() method and boatref.pilot member
+// Tests handling of pilot via boatref.set_pilot() method and boatref.pilot member
 // Also checks for mount piece functionality on both client and server.
 exported function boat_pilot_mbr_mth()
   MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  boat.setpilot(0);
+  boat.set_pilot(0);
   MoveObjectToLocation(char, 11,50,h.z);
 
   var res;
 
-  res := boat.setpilot(char);
+  res := boat.set_pilot(char);
   if (!res)
     return res;
   elseif (!boat.pilot)
@@ -154,7 +154,7 @@ exported function boat_pilot_mbr_mth()
     return ret_error($"New boat pilot ({boat.pilot.name}) does not equal the set pilot ({char.name})");
   endif
 
-  res := boat.setpilot(char);
+  res := boat.set_pilot(char);
   if (res != error)
     return ret_error($"Unexpected success when setting pilot of an already-pilotted boat: {res}");
   endif
@@ -184,7 +184,7 @@ exported function boat_pilot_mbr_mth()
     return ret_error("Character mount piece not found on list of equipped items from client.");
   endif
 
-  res := boat.setpilot(0);
+  res := boat.set_pilot(0);
   if (!res)
     return ret_error($"Unable to clear pilot: {res}");
   elseif (boat.pilot)
@@ -222,12 +222,12 @@ endfunction
 exported function boat_pilot_packets()
   MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  boat.setpilot(0);
+  boat.set_pilot(0);
   MoveObjectToLocation(char, 11,50,h.z);
 
   var res;
 
-  res := boat.setpilot(char);
+  res := boat.set_pilot(char);
   if (!res)
     return ret_error($"Failed to set pilot: {res}");
   endif
@@ -253,29 +253,29 @@ exported function boat_pilot_packets()
     clientcon.sendevent(struct{todo:="boat_move", arg:=struct{ serial := char.serial, direction := direction, speed := speed }, id:=0});
     res := get_boat_move_events(control_script_event, client_boat_move_event);
     if (!res)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return res;
     endif
 
     if (control_script_event.direction != direction)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ret_error($"control_script_event.direction ({control_script_event.direction}) != direction ({direction})");
     elseif (client_boat_move_event.direction != direction)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ret_error($"client_boat_move_event.direction ({client_boat_move_event.direction}) != direction ({direction})");
     elseif (control_script_event.speed != speed)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ret_error($"control_script_event.speed ({control_script_event.speed}) != speed ({speed})");
     elseif (control_script_event.type != SYSEVENT_BOAT_MOVEMENT)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ret_error($"control_script_event.type ({control_script_event.type}) != SYSEVENT_BOAT_MOVEMENT ({SYSEVENT_BOAT_MOVEMENT})");
     elseif (client_boat_move_event.speed != speed)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ret_error($"client_boat_move_event.speed ({client_boat_move_event.speed}) != speed ({speed})");
     endif
   endforeach
 
-  res := boat.setpilot(0);
+  res := boat.set_pilot(0);
   if (!res)
     return ret_error($"Failed to clear pilot: {res}");
   endif
@@ -311,17 +311,17 @@ function get_boat_move_events(byref control_script_event, byref client_boat_move
   return 1;
 endfunction
 
-// Tests handling of pilot via boatref.setpilot() method and boatref.pilot member
+// Tests handling of pilot via boatref.set_pilot() method and boatref.pilot member
 // Also checks for mount piece functionality on both client and server.
 exported function boat_pilot_blocks_movement()
   MoveBoatXY(boat,10,50);
   var h:=getstandingheight(11,50, boat.z, boat.realm);
-  boat.setpilot(0);
+  boat.set_pilot(0);
   MoveObjectToLocation(char, 11,50,h.z);
 
   var res;
 
-  res := boat.setpilot(char);
+  res := boat.set_pilot(char);
   if (!res)
     return res;
   endif
@@ -331,10 +331,10 @@ exported function boat_pilot_blocks_movement()
   while (1)
     var ev:=waitForClient(0, {EVT_MOVED});
     if (!ev)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ev;
     elseif (ev.ack)
-      boat.setpilot(0);
+      boat.set_pilot(0);
       return ret_error("Character unexpectedly successfully moved via client movement.");
     endif
     break;
@@ -342,11 +342,11 @@ exported function boat_pilot_blocks_movement()
 
   res := MoveObjectToLocation(char, char.x, char.y, char.z);
   if (res)
-    boat.setpilot(0);
+    boat.set_pilot(0);
     return ret_error("Character unexpectedly successfully moved via MoveObjectToLocation.");
   endif
 
-  boat.setpilot(0);
+  boat.set_pilot(0);
   return 1;
 endfunction
 
