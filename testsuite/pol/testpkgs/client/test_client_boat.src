@@ -1,6 +1,7 @@
 use os;
 use uo;
 use boat;
+use polsys;
 
 include "testutil";
 include "communication";
@@ -444,5 +445,116 @@ exported function boat_bad_control_script_no_crash()
   endif
 
   DestroyMulti(boat2);
+  return 1;
+endfunction
+
+exported function boat_alternate_multiid()
+  MoveBoatXY(boat,10,50);
+  var h:=getstandingheight(11,50, boat.z, boat.realm);
+  MoveObjectToLocation(char, 11,50,h.z);
+  while (!waitForClient(0, {EVT_OWNCREATE}))
+  endwhile
+
+  var res;
+
+  do
+    res := ensure_multiid(1, "Unexpected initial boat.multiid");
+
+    if (!res)
+      break;
+    endif
+
+    res := boat.set_alternate_multiid(1);
+
+    if (!res)
+      res := ret_error($"Unable to set_alternate_multiid(1): {res}");
+      break;
+    endif
+
+    res := ensure_multiid(5, "Unexpected first alternate boat.multiid");
+
+    if (!res)
+      break;
+    endif
+
+    res := boat.set_alternate_multiid(2);
+
+    if (!res)
+      res := ret_error($"Unable to set_alternate_multiid(2): {res}");
+      break;
+    endif
+
+    res := ensure_multiid(9, "Unexpected second alternate boat.multiid");
+
+    if (!res)
+      break;
+    endif
+
+    res := boat.set_alternate_multiid(3);
+
+    if (res != error)
+      res := ret_error($"Unexpected success for set_alternate_multiid(3): {res}");
+      break;
+    endif
+
+    res := ensure_multiid(9, "Unexpected change in boat.multiid after invalid boat.set_alternate_multiid(3)");
+
+    if (!res)
+      break;
+    endif
+
+    res := boat.set_alternate_multiid(0);
+
+    if (!res)
+      res := ret_error($"Unable to set_alternate_multiid(0): {res.errortext}");
+      break;
+    endif
+
+    res := ensure_multiid(1, "Unexpected base boat.multiid");
+
+    if (!res)
+      break;
+    endif
+
+    res := 1;
+  dowhile (0);
+
+  return res;
+endfunction
+
+function ensure_multiid(multiid, errormsg)
+  if (boat.multiid != multiid)
+    return ret_error($"{errormsg}, expected {multiid} != actual {boat.multiid}");
+  endif
+
+  Clear_Event_Queue();
+
+  clientcon.sendevent(struct{todo:="list_objects", id:=0});
+  while (1)
+    var res:=waitForClient(0, {EVT_LIST_OBJS});
+    if (!res)
+      return res;
+    endif
+
+    foreach obj in (res.objs)
+      if (obj.serial == boat.serial)
+        if (obj.graphic != multiid)
+          return ret_error("client boat.graphic mismatch, expected {multiid} != actual {obj.graphic}");
+        else
+          return 1;
+        endif
+      endif
+    endforeach
+    break;
+  endwhile
+  return ret_error("client object list does not contain boat");
+endfunction
+
+exported function boat_alternate_multiid_itemdesc()
+  var AlternateMultiID := GetItemDescriptor(0x11000).AlternateMultiID;
+  if (!((4 in AlternateMultiID) && (8 in AlternateMultiID) && (Len(AlternateMultiID) == 2)))
+    return ret_error("Expected AlternateMultiID to be { 4, 8 }, got " + AlternateMultiID);
+  endif
+
   return 1;
 endfunction
