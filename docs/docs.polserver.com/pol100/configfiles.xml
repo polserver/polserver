@@ -1568,7 +1568,7 @@ House (objtype)
 Boat (objtype)
 {
     {everything Item can have, plus: }
-    MultiID           (int multiID number for this house)
+    MultiID           (int multiID number for this boat)
     AlternateMultiID  (int multiID number for alternative shape of boat, multiple can be supplied in order)
 }
 
@@ -1624,6 +1624,7 @@ Armor (objtype)
     <explain>Spellbook: Recognized scroll objects are: Magic: 0x1F2D - 0x1F6C, Necro 0x2260 - 0x226F, Paladin: 0x2270 - 0x227C, Bushido: 0x238D - 0x2392, Ninjitsu: 0x23A1 - 0x23A8, SpellWeaving: 0x2D51 - 0x2D60. The list of spellids for spells.cfg is now as follows: Magery = 1+, Necro = 101+, Paladin = 201+, Bushido = 401+, Ninjitsu = 501+, SpellWeaving = 601+. Sorry this is hardcoded :P</explain>
     <explain>Cursed: Note that cursed gold coins (objtype 0x0EED) are still usable for commerce transactions with vendors in the core. 'Unspendable' cursed gold coins should be defined in a separate itemdesc entry with a different objtype using the same graphic as gold coins (0x0EED) with Cursed set to 1.</explain>
     <explain>Weapon: If Delay != 0 Core will use it to calculate Weapon speed. Speed Entry is optional ONLY if Delay is populated.</explain>
+    <explain>AlternateMultiID: Specifies additional MultiIDs that can be used to switch a boat's graphic via boat method set_alternate_multiid().</explain>
     <related>spells.cfg</related>
     <related>stacking.cfg</related>
 </cfgfile>
