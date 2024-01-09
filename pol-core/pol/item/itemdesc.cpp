@@ -1067,8 +1067,10 @@ void BoatDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
   std::unique_ptr<Bscript::ObjArray> a( new Bscript::ObjArray );
-  for ( u16 alt : alternates )
-    a->addElement( new Bscript::BLong( alt ) );
+
+  // `alternates` contains the base multi id at index 0, so start at 1.
+  for ( size_t i = 1; i < alternates.size(); ++i )
+    a->addElement( new Bscript::BLong( alternates[i] ) );
 
   descriptor->addMember( "AlternateMultiID", a.release() );
 }
