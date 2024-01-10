@@ -26,9 +26,9 @@ void SuspiciousActs::GumpResponseHasTooManyInts( Network::Client* client )
   // TODO: report the extra ints?
   if ( Plib::systemstate.config.show_warning_gump )
   {
-    ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                << client->chr->name()
-                << ") Blech! B1 message specified more ints than it can hold!\n";
+    ERROR_PRINTLN(
+        "Client (Account {}, Character {}) Blech! B1 message specified more ints than it can hold!",
+        client->acct->name(), client->chr->name() );
   }
 }
 
@@ -37,9 +37,10 @@ void SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( Network::Client* clien
   // TODO: report the extra ints/strings?
   if ( Plib::systemstate.config.show_warning_gump )
   {
-    ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                << client->chr->name()
-                << ") Blech! B1 message specified too many ints and/or strings!\n";
+    ERROR_PRINTLN(
+        "Client (Account {}, Character {}) Blech! B1 message specified too many ints and/or "
+        "strings!",
+        client->acct->name(), client->chr->name() );
   }
 }
 
@@ -48,9 +49,9 @@ void SuspiciousActs::GumpResponseOverflows( Network::Client* client )
   // TODO: report by how much?
   if ( Plib::systemstate.config.show_warning_gump )
   {
-    ERROR_PRINT << "Client (Account " << client->acct->name() << ", Character "
-                << client->chr->name()
-                << ") Blech! B1 message strings overflow the message buffer!\n";
+    ERROR_PRINTLN(
+        "Client (Account {}, Character {}) Blech! B1 message strings overflow the message buffer!",
+        client->acct->name(), client->chr->name() );
   }
 }
 

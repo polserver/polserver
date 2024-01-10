@@ -187,27 +187,26 @@ void Menu::read_menus()
 
         if ( objtype_str == "" )
         {
-          ERROR_PRINT << "Entry in menu " << menu->name
-                      << " must provide at least an object type\n";
+          ERROR_PRINTLN( "Entry in menu {} must provide at least an object type", menu->name );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
         u32 objtype = (u32)strtoul( objtype_str.c_str(), nullptr, 0 );
         if ( objtype == 0 )  // 0 specified, or text
         {
-          ERROR_PRINT << "Entry in menu " << menu->name << " cannot specify [" << objtype_str
-                      << "] as an Object Type.\n";
+          ERROR_PRINTLN( "Entry in menu {} cannot specify [{}] as an Object Type.", menu->name,
+                         objtype_str );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
         if ( ( stricmp( propname.c_str(), "SubMenu" ) == 0 ) && ( submenu_name == "" ) )
         {
-          ERROR_PRINT << "SubMenu in menu " << menu->name
-                      << " needs format: Objtype, Title, SubMenuName [got '" << value << "']\n";
+          ERROR_PRINTLN( "SubMenu in menu {} needs format: Objtype, Title, SubMenuName [got '{}']",
+                         menu->name, value );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
         if ( ( stricmp( propname.c_str(), "Entry" ) == 0 ) && ( submenu_name != "" ) )
         {
-          ERROR_PRINT << "Entry in menu " << menu->name << " must not specify SubMenuName [got '"
-                      << value << "']\n";
+          ERROR_PRINTLN( "Entry in menu {} must not specify SubMenuName [got '{}']", menu->name,
+                         value );
           throw std::runtime_error( "Data error in MENUS.CFG" );
         }
 
@@ -232,7 +231,7 @@ void Menu::read_menus()
       }
       else
       {
-        ERROR_PRINT << "Unexpected property in menu " << menu->name << ": " << propname << "\n";
+        ERROR_PRINTLN( "Unexpected property in menu {}: {}", menu->name, propname );
         throw std::runtime_error( "Data error in MENUS.CFG" );
       }
     }

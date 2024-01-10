@@ -11,10 +11,10 @@ class FunctionParameterList : public Node
 {
 public:
   FunctionParameterList( const SourceLocation&,
-                 std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters );
+                         std::vector<std::unique_ptr<FunctionParameterDeclaration>> parameters );
 
   void accept( NodeVisitor& visitor ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 };
 
 }  // namespace Pol::Bscript::Compiler

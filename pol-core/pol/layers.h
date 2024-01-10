@@ -9,6 +9,7 @@
 #ifndef __LAYERS_H
 #define __LAYERS_H
 
+#include <fmt/format.h>
 #include <string>
 #include <vector>
 
@@ -33,6 +34,10 @@ enum LAYER_INFO
   LAYER_BANKBOX = 29
 };
 
+inline auto format_as( LAYER_INFO l )
+{
+  return fmt::underlying( l );
+}
 // TODO: figure out which is left and right
 enum LAYER_DETAILED
 {
@@ -107,6 +112,6 @@ makes sure to drop items only in the correct layer (again, server
 needs to check this).  The only spcial case is the backpack -
 Character::backpack() uses LAYER_BACKPACK to return the backpack item.
 */
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

@@ -8,6 +8,7 @@
 
 #include "spells.h"
 
+#include <iterator>
 #include <stdlib.h>
 #include <time.h>
 
@@ -154,8 +155,7 @@ USpell::USpell( Clib::ConfigElem& elem, Plib::Package* pkg )
     if ( circle < 1 || circle > gamestate.spellcircles.size() ||
          gamestate.spellcircles[circle - 1] == nullptr )
     {
-      ERROR_PRINT << "Error reading spell " << name_ << ": Circle " << circle
-                  << " is not defined.\n";
+      ERROR_PRINTLN( "Error reading spell {}: Circle {} is not defined.", name_, circle );
       throw std::runtime_error( "Config file error" );
     }
 
@@ -285,7 +285,7 @@ void do_cast( Network::Client* client, u16 spellid )
   USpell* spell = gamestate.spells[spellid];
   if ( spell == nullptr )
   {
-    ERROR_PRINT << "Spell " << spellid << " is not implemented.\n";
+    ERROR_PRINTLN( "Spell {} is not implemented.", spellid );
     send_sysmessage( client, "That spell does not function." );
     return;
   }
@@ -397,27 +397,28 @@ void register_spell( USpell* spell, unsigned short spellid )
   if ( gamestate.spells[spellid] )
   {
     USpell* origspell = gamestate.spells[spellid];
-    fmt::Writer tmp;
-    tmp << "Spell ID " << spellid << " (" << origspell->name() << ") multiply defined\n";
+    std::string tmp =
+        fmt::format( "Spell ID {} ({}) multiply defined", spellid, origspell->name() );
     if ( origspell->pkg_ != nullptr )
     {
-      tmp << "  Spell originally defined in package '" << origspell->pkg_->name() << "' ("
-          << origspell->pkg_->dir() << ")\n";
+      fmt::format_to( std::back_inserter( tmp ),
+                      "\n  Spell originally defined in package '{}' ({})", origspell->pkg_->name(),
+                      origspell->pkg_->dir() );
     }
     else
     {
-      tmp << "  Spell originally defined in main\n";
+      tmp += "\n  Spell originally defined in main";
     }
     if ( spell->pkg_ != nullptr )
     {
-      tmp << "  Spell redefined in package '" << spell->pkg_->name() << "' (" << spell->pkg_->dir()
-          << ")\n";
+      fmt::format_to( std::back_inserter( tmp ), "\n  Spell redefined in package '{}' ({})",
+                      spell->pkg_->name(), spell->pkg_->dir() );
     }
     else
     {
-      tmp << "  Spell redefined in main\n";
+      tmp += "\n  Spell redefined in main";
     }
-    ERROR_PRINT << tmp.str();
+    ERROR_PRINTLN( tmp );
     throw std::runtime_error( "Spell ID multiply defined" );
   }
 
@@ -442,7 +443,7 @@ void load_circle_data()
     int index = strtoul( elem.rest(), nullptr, 0 ) - 1;
     if ( index < 0 || index >= 100 )
     {
-      ERROR_PRINT << "Error in CIRCLES.CFG: Circle must fall between 1 and 100\n";
+      ERROR_PRINTLN( "Error in CIRCLES.CFG: Circle must fall between 1 and 100" );
       throw std::runtime_error( "Config file error" );
     }
 
@@ -450,7 +451,7 @@ void load_circle_data()
 
     if ( gamestate.spellcircles[index] != nullptr )
     {
-      ERROR_PRINT << "Error in CIRCLES.CFG: Circle " << index + 1 << " is multiply defined.\n";
+      ERROR_PRINTLN( "Error in CIRCLES.CFG: Circle {} is multiply defined.", index + 1 );
       throw std::runtime_error( "Config file error" );
     }
 

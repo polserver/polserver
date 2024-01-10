@@ -18,9 +18,9 @@ void Argument::accept( NodeVisitor& visitor )
   visitor.visit_argument( *this );
 }
 
-void Argument::describe_to( fmt::Writer& w ) const
+void Argument::describe_to( std::string& w ) const
 {
-  w << "argument(" << identifier << ")";
+  fmt::format_to( std::back_inserter( w ), "argument({})", identifier );
 }
 
 std::unique_ptr<Expression> Argument::take_expression()

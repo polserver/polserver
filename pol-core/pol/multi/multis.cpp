@@ -35,7 +35,7 @@ UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, Core::UOBJ_C
 
   if ( !MultiDefByMultiIDExists( itemdesc.multiid ) )
   {
-    ERROR_PRINT.Format( "Tried to create a Multi type 0x{:X}\n" ) << itemdesc.objtype;
+    ERROR_PRINTLN( "Tried to create a Multi type {:#X}", itemdesc.objtype );
     throw std::runtime_error( "Unvalid Multi type" );
   }
   ++Core::stateManager.uobjcount.umulti_count;
@@ -48,7 +48,7 @@ UMulti::~UMulti()
 
 void UMulti::double_click( Network::Client* /*client*/ )
 {
-  ERROR_PRINT << "Ack! You can't double-click a multi!\n";
+  ERROR_PRINTLN( "Ack! You can't double-click a multi!" );
   throw std::runtime_error( "double_click() on a multi should not be possible." );
 }
 

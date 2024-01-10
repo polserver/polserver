@@ -404,8 +404,8 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   auto* realm_tmp = find_realm( realmstr );
   if ( !realm_tmp )
   {
-    ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
-        << classname() << name() << serial << realmstr;
+    ERROR_PRINTLN( "{} '{}' ({:#X}): has an invalid realm property '{}'.", classname(), name(),
+                   serial, realmstr );
     throw std::runtime_error( "Data integrity error" );
   }
   setposition( Pos4d( elem.remove_ushort( "X" ), elem.remove_ushort( "Y" ),
@@ -531,10 +531,9 @@ Clib::StreamWriter& operator<<( Clib::StreamWriter& writer, const UObject& obj )
 
 bool UObject::setgraphic( u16 /*newgraphic*/ )
 {
-  ERROR_PRINT.Format(
-      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: "
-      "0x{:X}\n" )
-      << serial;
+  ERROR_PRINTLN(
+      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: {:#X}",
+      serial );
   return false;
 }
 

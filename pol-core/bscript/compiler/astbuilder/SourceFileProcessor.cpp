@@ -60,7 +60,7 @@ void SourceFileProcessor::use_module( const std::string& module_name,
   {
     // This is fatal because if we keep going, we'll likely report a bunch of errors
     // that would just be noise, like missing module function declarations or constants.
-    report.fatal( including_location, "Unable to use module '", module_name, "'.\n" );
+    report.fatal( including_location, "Unable to use module '{}.", module_name );
   }
   workspace.source_files[pathname] = sf;
 
@@ -140,7 +140,7 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
   if ( !maybe_canonical_include_pathname )
   {
     report.error( source_location,
-                  "Unable to include file '" + include_name + "': failed to locate.\n" );
+                  "Unable to include file '" + include_name + "': failed to locate." );
     return;
   }
 
@@ -155,8 +155,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     auto sf = workspace.inc_cache.load( *ident, report );
     if ( !sf )
     {
-      report.error( source_location, "Unable to include file '", canonical_include_pathname,
-                    "': failed to load.\n" );
+      report.error( source_location, "Unable to include file '{}': failed to load.",
+                    canonical_include_pathname );
       return;
     }
 
@@ -208,8 +208,8 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
             INFO_PRINTLN( "Found {}", filename_full );
 
           if ( Clib::FileExists( try_filename_full.c_str() ) )
-            report.warning( source_location, "Found '", filename_full, "' and '", try_filename_full,
-                            "'! Will use first file!\n" );
+            report.warning( source_location, "Found '{}' and '{}'! Will use first file!",
+                            filename_full, try_filename_full );
         }
       }
       else
@@ -228,7 +228,7 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
     {
       // This is fatal because if we keep going, we'll likely report a bunch of errors
       // that would just be noise, like missing functions or constants.
-      report.fatal( source_location, "Unable to read include file '" + include_name + "'\n" );
+      report.fatal( source_location, "Unable to read include file '{}'", include_name );
     }
   }
   else
@@ -309,9 +309,10 @@ antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
 {
   if ( workspace.compiler_workspace.program )
   {
-    report.error( location_for( *ctx ), "Multiple program statements.\n",
-                  "  Other declaration: ", workspace.compiler_workspace.program->source_location,
-                  "\n" );
+    report.error( location_for( *ctx ),
+                  "Multiple program statements.\n"
+                  "  Other declaration: {}",
+                  workspace.compiler_workspace.program->source_location );
   }
   else
   {

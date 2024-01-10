@@ -156,15 +156,12 @@ void CompilerContext::printOn( fmt::Writer& writer ) const
 {
   writer << "File: " << filename << ", Line " << line << "\n";
 }
-
-void CompilerContext::printOnShort( std::ostream& os ) const
-{
-  os << filename << ", Line " << line << std::endl;
-}
-
-void CompilerContext::printOnShort( fmt::Writer& writer ) const
-{
-  writer << filename << ", Line " << line << "\n";
-}
 }  // namespace Bscript
 }  // namespace Pol
+
+fmt::format_context::iterator fmt::formatter<Pol::Bscript::CompilerContext>::format(
+    const Pol::Bscript::CompilerContext& c, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format(
+      fmt::format( "File: {}, Line {}", c.filename, c.line ), ctx );
+}

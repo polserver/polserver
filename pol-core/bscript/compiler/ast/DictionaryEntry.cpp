@@ -22,9 +22,9 @@ void DictionaryEntry::accept( NodeVisitor& visitor )
   visitor.visit_dictionary_entry( *this );
 }
 
-void DictionaryEntry::describe_to( fmt::Writer& w ) const
+void DictionaryEntry::describe_to( std::string& w ) const
 {
-  w << "dictionary-entry";
+  w += "dictionary-entry";
 }
 
 }  // namespace Pol::Bscript::Compiler

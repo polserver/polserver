@@ -40,15 +40,15 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
   {
     if ( existing->block_depth == block_depth )
     {
-      report.error( source_location, "Variable '", name, "' is already in scope.\n",
-                    "  See previous definition at: ",
-                    existing->source_location, "\n" );
+      report.error( source_location,
+                    "Variable '{}' is already in scope.\n"
+                    "  See previous definition at: {}",
+                    name, existing->source_location );
       return existing;
     }
     shadowing.push_back( existing );
   }
-  auto local = scopes.local_variables.create( name, block_depth, warn_on,
-                                              source_location );
+  auto local = scopes.local_variables.create( name, block_depth, warn_on, source_location );
 
   local_variable_scope_info.variables.push_back( local );
 

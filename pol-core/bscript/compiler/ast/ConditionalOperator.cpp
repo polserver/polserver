@@ -27,9 +27,9 @@ void ConditionalOperator::accept( NodeVisitor& visitor )
   visitor.visit_conditional_operator( *this );
 }
 
-void ConditionalOperator::describe_to( fmt::Writer& w ) const
+void ConditionalOperator::describe_to( std::string& w ) const
 {
-  w << "conditional-expression";
+  w += "conditional-expression";
 }
 
 Expression& ConditionalOperator::conditional()

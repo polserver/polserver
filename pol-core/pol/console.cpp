@@ -212,23 +212,23 @@ void ConsoleCommand::exec_console_cmd( char ch )
   }
   catch ( const char* msg )
   {
-    ERROR_PRINT << "Command aborted due to: " << msg << "\n";
+    ERROR_PRINTLN( "Command aborted due to: {}", msg );
   }
   catch ( std::string& str )
   {
-    ERROR_PRINT << "Command aborted due to: " << str << "\n";
+    ERROR_PRINTLN( "Command aborted due to: {}", str );
   }                                 // egcs has some trouble realizing 'exception' should catch
   catch ( std::runtime_error& re )  // runtime_errors, so...
   {
-    ERROR_PRINT << "Command aborted due to: " << re.what() << "\n";
+    ERROR_PRINTLN( "Command aborted due to: {}", re.what() );
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Command aborted due to: " << ex.what() << "\n";
+    ERROR_PRINTLN( "Command aborted due to: {}", ex.what() );
   }
   catch ( int xn )
   {
-    ERROR_PRINT << "Command aborted due to: " << xn << "\n";
+    ERROR_PRINTLN( "Command aborted due to: {}", xn );
   }
   return;
 }

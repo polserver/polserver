@@ -181,13 +181,9 @@ void NodeVisitor::visit_error_initializer( ErrorInitializer& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_exit_statement( ExitStatement& )
-{
-}
+void NodeVisitor::visit_exit_statement( ExitStatement& ) {}
 
-void NodeVisitor::visit_float_value( FloatValue& )
-{
-}
+void NodeVisitor::visit_float_value( FloatValue& ) {}
 
 void NodeVisitor::visit_foreach_loop( ForeachLoop& node )
 {
@@ -214,22 +210,16 @@ void NodeVisitor::visit_function_parameter_list( FunctionParameterList& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_function_reference( FunctionReference& )
-{
-}
+void NodeVisitor::visit_function_reference( FunctionReference& ) {}
 
-void NodeVisitor::visit_identifier( Identifier& )
-{
-}
+void NodeVisitor::visit_identifier( Identifier& ) {}
 
 void NodeVisitor::visit_if_then_else_statement( IfThenElseStatement& node )
 {
   visit_children( node );
 }
 
-void NodeVisitor::visit_integer_value( IntegerValue& )
-{
-}
+void NodeVisitor::visit_integer_value( IntegerValue& ) {}
 
 void NodeVisitor::visit_jump_statement( JumpStatement& node )
 {
@@ -291,9 +281,7 @@ void NodeVisitor::visit_return_statement( ReturnStatement& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_string_value( StringValue& )
-{
-}
+void NodeVisitor::visit_string_value( StringValue& ) {}
 
 void NodeVisitor::visit_interpolate_string( InterpolateString& node )
 {
@@ -325,9 +313,7 @@ void NodeVisitor::visit_unary_operator( UnaryOperator& node )
   visit_children( node );
 }
 
-void NodeVisitor::visit_uninitialized_value( UninitializedValue& )
-{
-}
+void NodeVisitor::visit_uninitialized_value( UninitializedValue& ) {}
 
 void NodeVisitor::visit_user_function( UserFunction& node )
 {

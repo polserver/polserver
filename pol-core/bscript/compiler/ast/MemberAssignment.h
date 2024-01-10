@@ -17,7 +17,7 @@ public:
                     const Pol::Bscript::ObjMember* );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   Expression& entity();
   Expression& rhs();

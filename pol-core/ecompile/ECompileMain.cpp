@@ -207,8 +207,8 @@ bool compile_file( const char* path )
 
   if ( ext.compare( ".src" ) != 0 && ext.compare( ".hsr" ) != 0 && ext.compare( ".asp" ) != 0 )
   {
-    compiler_error( "Didn't find '.src', '.hsr', or '.asp' extension on source filename '", path,
-                    "'!\n" );
+    compiler_error( "Didn't find '.src', '.hsr', or '.asp' extension on source filename '{}'!",
+                    path );
     throw std::runtime_error( "Error in source filename" );
   }
   std::string filename_ecl = fname.replace( pos, 4, ".ecl" );
@@ -546,7 +546,7 @@ int readargs( int argc, char** argv )
 
     if ( unknown_opt )
     {
-      ERROR_PRINT << "Unknown option: " << argv[i] << "\n";
+      ERROR_PRINTLN( "Unknown option: {}", argv[i] );
       return 1;
     }
   }
@@ -629,7 +629,7 @@ void parallel_compile( const std::set<std::string>& files )
             {
               ++compiled_scripts;
               ++error_scripts;
-              compiler_error( "failed to compile ", file.c_str(), ": ", e.what(), "\n" );
+              compiler_error( "failed to compile {}: {}", file, e.what() );
               if ( !keep_building )
               {
                 par_keep_building = false;
@@ -856,7 +856,7 @@ void read_config_file( int argc, char* argv[] )
   }
   else
   {
-    ERROR_PRINT << "Could not find " << cfgpath << "; using defaults.\n";
+    ERROR_PRINTLN( "Could not find {}; using defaults.", cfgpath );
     compilercfg.SetDefaults();
   }
 }

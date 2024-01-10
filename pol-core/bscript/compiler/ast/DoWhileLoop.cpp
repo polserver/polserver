@@ -22,9 +22,9 @@ void DoWhileLoop::accept( NodeVisitor& visitor )
   visitor.visit_do_while_loop( *this );
 }
 
-void DoWhileLoop::describe_to( fmt::Writer& w ) const
+void DoWhileLoop::describe_to( std::string& w ) const
 {
-  w << "do-while-loop";
+  w += "do-while-loop";
 }
 
 Block& DoWhileLoop::block()

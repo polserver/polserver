@@ -96,7 +96,7 @@ bool Compiler::compile_file( const std::string& filename )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << ex.what() << '\n';
+    ERROR_PRINTLN( ex.what() );
     success = false;
   }
   return success;

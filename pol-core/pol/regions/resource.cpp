@@ -368,8 +368,7 @@ void read_global_data( Clib::ConfigElem& elem )
   ResourceDef* rd = find_resource_def( elem.rest() );
   if ( rd == nullptr )
   {
-    ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest()
-                << "\n";
+    ERROR_PRINTLN( "Error reading RESOURCE.DAT: Unable to find resource type {}", elem.rest() );
     throw std::runtime_error( "Data file error" );
   }
 
@@ -380,16 +379,15 @@ void read_region_data( Clib::ConfigElem& elem )
   ResourceDef* rd = find_resource_def( elem.rest() );
   if ( rd == nullptr )
   {
-    ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find resource type " << elem.rest()
-                << "\n";
+    ERROR_PRINTLN( "Error reading RESOURCE.DAT: Unable to find resource type {}", elem.rest() );
     throw std::runtime_error( "Data file error" );
   }
   std::string regionname = elem.remove_string( "Name" );
   ResourceRegion* rgn = rd->getregion( regionname );
   if ( rgn == nullptr )
   {
-    ERROR_PRINT << "Error reading RESOURCE.DAT: Unable to find region " << regionname
-                << " in resource " << elem.rest() << "\n";
+    ERROR_PRINTLN( "Error reading RESOURCE.DAT: Unable to find region {} in resource {}",
+                   regionname, elem.rest() );
     throw std::runtime_error( "Data file error" );
   }
   rgn->read_data( elem );

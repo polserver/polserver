@@ -555,7 +555,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
   // find_script( filename, true, config.cache_interactive_scripts );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << page_sd.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", page_sd.name() );
     res = false;
     lck.unlock();
     http_not_found( sck, page );
@@ -986,7 +986,7 @@ void http_thread( void )
   SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port );
   if ( http_socket == INVALID_SOCKET )
   {
-    ERROR_PRINT << "Unable to listen on socket: " << http_socket << "\n";
+    ERROR_PRINTLN( "Unable to listen on socket: {}", http_socket );
     return;
   }
   fd_set listen_fd;

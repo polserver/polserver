@@ -36,9 +36,9 @@ void IfThenElseStatement::accept( NodeVisitor& visitor )
   visitor.visit_if_then_else_statement( *this );
 }
 
-void IfThenElseStatement::describe_to( fmt::Writer& w ) const
+void IfThenElseStatement::describe_to( std::string& w ) const
 {
-  w << "if-then-else-statement";
+  w += "if-then-else-statement";
 }
 
 BranchSelector& IfThenElseStatement::branch_selector()

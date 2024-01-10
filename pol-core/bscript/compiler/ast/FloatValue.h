@@ -13,7 +13,7 @@ public:
   FloatValue( const SourceLocation&, double value );
 
   void accept( NodeVisitor& visitor ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const double value;
 };

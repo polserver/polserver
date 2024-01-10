@@ -15,7 +15,7 @@ public:
   MemberAccess( const SourceLocation&, std::unique_ptr<Expression> lhs, std::string name );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   std::unique_ptr<Expression> take_entity();
 

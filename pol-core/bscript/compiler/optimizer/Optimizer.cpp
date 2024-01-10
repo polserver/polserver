@@ -28,7 +28,7 @@
 namespace Pol::Bscript::Compiler
 {
 Optimizer::Optimizer( Constants& constants, Report& report )
-  : constants( constants ), report( report )
+    : constants( constants ), report( report )
 {
 }
 
@@ -119,7 +119,7 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
         branch_type = BranchSelector::IfTrue;
         break;
       default:
-        selector.internal_error("Expected conditional branch with predicate");
+        selector.internal_error( "Expected conditional branch with predicate" );
       }
       optimized_replacement = std::make_unique<BranchSelector>(
           selector.source_location, branch_type, unary_operator->take_operand() );
@@ -137,7 +137,7 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
       branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
       break;
     default:
-      selector.internal_error("Expected conditional branch with predicate");
+      selector.internal_error( "Expected conditional branch with predicate" );
     }
     optimized_replacement =
         std::make_unique<BranchSelector>( selector.source_location, branch_type );
@@ -149,7 +149,10 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
   visit_children( constant );
   if ( !ConstantValidator().validate( constant.expression() ) )
   {
-    report.error( constant, "Const expression must be optimizable.\n", constant, "\n" );
+    report.error( constant,
+                  "Const expression must be optimizable.\n"
+                  "{}",
+                  constant );
   }
 }
 

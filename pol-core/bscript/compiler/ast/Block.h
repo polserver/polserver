@@ -16,7 +16,7 @@ public:
   Block( const SourceLocation&, std::vector<std::unique_ptr<Statement>> statements );
 
   void accept( NodeVisitor& visitor ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   // set by semantic analyzer:
   LocalVariableScopeInfo local_variable_scope_info;

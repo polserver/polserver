@@ -7,13 +7,13 @@ namespace Pol::Bscript::Compiler
 {
 class Statement;
 
-class FunctionBody : public Node // This is used for both UserFunction and Program.  Better name?
+class FunctionBody : public Node  // This is used for both UserFunction and Program.  Better name?
 {
 public:
   FunctionBody( const SourceLocation&, std::vector<std::unique_ptr<Statement>> );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   Statement* last_statement();
 };

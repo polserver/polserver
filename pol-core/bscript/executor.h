@@ -374,6 +374,7 @@ public:
   void attach_debugger();
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
+  void dbg_get_instruction( size_t atPC, std::string& os ) const;
   void dbg_ins_trace();
   void dbg_step_into();
   void dbg_step_over();
@@ -388,6 +389,7 @@ public:
   void initForFnCall( unsigned in_PC );
   void show_context( unsigned atPC );
   void show_context( fmt::Writer& os, unsigned atPC );
+  void show_context( std::string& os, unsigned atPC );
 
   int getDebugLevel() { return debug_level; }
   void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }

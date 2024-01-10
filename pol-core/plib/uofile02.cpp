@@ -69,7 +69,7 @@ void readstaticblock( std::vector<USTRUCT_STATIC>* ppst, int* pnum, unsigned sho
     rawstaticfullread();
   if ( x >= uo_map_width || y >= uo_map_height )
   {
-    ERROR_PRINT << "readstaticblock: x=" << x << ",y=" << y << "\n";
+    ERROR_PRINTLN( "readstaticblock: x={},y={}", x, y );
   }
   unsigned int x_block, y_block;
   x_block = x / 8;
@@ -117,7 +117,7 @@ void rawstaticfullread()
 
         if ( srec_count > cfg_warning_statics_per_block )
           INFO_PRINTLN( " Warning: {} items found in area {} {} {} {}", srec_count, x, y, ( x + 7 ),
-                       ( y + 7 ) );
+                        ( y + 7 ) );
 
         buf.count = srec_count;
       }
@@ -168,7 +168,7 @@ void rawstaticfullread()
 
         if ( srec_count > cfg_warning_statics_per_block )
           INFO_PRINTLN( " Warning: {} items found in dif-area {} {} {} {}", srec_count, x, y,
-                       ( x + 7 ), ( y + 7 ) );
+                        ( x + 7 ), ( y + 7 ) );
 
         buf.count = srec_count;
       }

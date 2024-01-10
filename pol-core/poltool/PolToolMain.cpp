@@ -35,22 +35,22 @@ PolToolMain::PolToolMain() : ProgramMain() {}
 
 void PolToolMain::showHelp()
 {
-  ERROR_PRINT << "Usage:\n"
-              << "    \n"
-              << "  POLTOOL mapdump [options]\n"
-              << "        Options:\n"
-              << "            x1 y1 [x2 y2 realm]       writes polmap info to polmap.html\n"
-              << "  POLTOOL uncompressgump FileName\n"
-              << "        unpacks and prints 0xDD gump from given packet log\n"
-              << "        file needs to contain a single 0xDD packetlog\n"
-
-              << "  POLTOOL testfiles [options]\n"
-              << "        Options:\n"
-              << "          outdir=.\n"
-              << "          hsa=0\n"
-              << "          maxtiles=0x3fff\n"
-              << "          width=6144\n"
-              << "          height=4096\n";
+  ERROR_PRINTLN(
+      "Usage:\n"
+      "    \n"
+      "  POLTOOL mapdump [options]\n"
+      "        Options:\n"
+      "            x1 y1 [x2 y2 realm]       writes polmap info to polmap.html\n"
+      "  POLTOOL uncompressgump FileName\n"
+      "        unpacks and prints 0xDD gump from given packet log\n"
+      "        file needs to contain a single 0xDD packetlog\n"
+      "  POLTOOL testfiles [options]\n"
+      "        Options:\n"
+      "          outdir=.\n"
+      "          hsa=0\n"
+      "          maxtiles=0x3fff\n"
+      "          width=6144\n"
+      "          height=4096" );
 }
 
 int PolToolMain::mapdump()
@@ -314,7 +314,7 @@ int PolToolMain::main()
   }
   else
   {
-    ERROR_PRINT << "Unknown command " << binArgs[1] << "\n";
+    ERROR_PRINTLN( "Unknown command {}", binArgs[1] );
     return 1;  // return "error"
   }
 }

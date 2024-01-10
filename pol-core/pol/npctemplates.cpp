@@ -7,11 +7,11 @@
 
 
 #include <exception>
+#include <iterator>
 #include <stdexcept>
 #include <string.h>
 #include <string>
 
-#include <format/format.h>
 #include "../clib/cfgelem.h"
 #include "../clib/cfgfile.h"
 #include "../clib/clib.h"
@@ -21,6 +21,7 @@
 #include "../plib/systemstate.h"
 #include "globals/uvars.h"
 #include "npctmpl.h"
+#include <format/format.h>
 
 
 namespace Pol
@@ -39,28 +40,25 @@ void NpcTemplateConfigSource::display_error( const std::string& msg, bool /*show
 {
   bool showed_elem_line = false;
 
-  fmt::Writer tmp;
-  tmp << ( error ? "Error" : "Warning" ) << " reading configuration file " << _filename << ":\n";
-
-  tmp << "\t" << msg << "\n";
+  std::string tmp = fmt::format(
+      "{} reading configuratiom file {}:\n"
+      "\t{}",
+      error ? "Error" : "Warning", _filename, msg );
 
   if ( elem != nullptr )
   {
     if ( strlen( elem->type() ) > 0 )
     {
-      tmp << "\tElement: " << elem->type() << " " << elem->rest();
+      fmt::format_to( std::back_inserter( tmp ), "\n\tElement: {} {}", elem->type(), elem->rest() );
       if ( _fileline )
-        tmp << ", found on line " << _fileline;
-      tmp << "\n";
+        fmt::format_to( std::back_inserter( tmp ), ", found on line {}", _fileline );
       showed_elem_line = true;
     }
   }
 
-  // if (show_curline)
-  //    cerr << "\tNear line: " << _cur_line << endl;
   if ( _fileline && !showed_elem_line )
-    tmp << "\tElement started on line: " << _fileline << "\n";
-  ERROR_PRINT << tmp.str();
+    fmt::format_to( std::back_inserter( tmp ), "\n\tElement started on line: {}", _fileline );
+  ERROR_PRINTLN( tmp );
 }
 
 
@@ -140,19 +138,19 @@ bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cf, Clib::Con
   }
   catch ( const char* msg )
   {
-    ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << msg << "\n";
+    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, msg );
   }
   catch ( std::string& str )
   {
-    ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << str << "\n";
+    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, str );
   }                                 // egcs has some trouble realizing 'exception' should catch
   catch ( std::runtime_error& re )  // runtime_errors, so...
   {
-    ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << re.what() << "\n";
+    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, re.what() );
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "NPC Creation (" << template_name << ") Failed: " << ex.what() << "\n";
+    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, ex.what() );
   }
 #ifndef WIN32
   catch ( ... )
@@ -208,5 +206,5 @@ void read_npc_templates()
     read_npc_templates( pkg );
   }
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

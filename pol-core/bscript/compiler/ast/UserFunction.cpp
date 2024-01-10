@@ -13,10 +13,10 @@ UserFunction::UserFunction( const SourceLocation& source_location, bool exported
                             std::unique_ptr<FunctionParameterList> parameter_list,
                             std::unique_ptr<FunctionBody> body,
                             const SourceLocation& endfunction_location )
-  : Function( source_location, std::move( name ), std::move( parameter_list ),
-              std::move( body ) ),
-    exported( exported ),
-    endfunction_location( endfunction_location )
+    : Function( source_location, std::move( name ), std::move( parameter_list ),
+                std::move( body ) ),
+      exported( exported ),
+      endfunction_location( endfunction_location )
 {
 }
 
@@ -25,9 +25,9 @@ void UserFunction::accept( NodeVisitor& visitor )
   visitor.visit_user_function( *this );
 }
 
-void UserFunction::describe_to( fmt::Writer& w ) const
+void UserFunction::describe_to( std::string& w ) const
 {
-  w << "user-function(" << name << ")";
+  fmt::format_to( std::back_inserter( w ), "user-function({})", name );
 }
 
 FunctionBody& UserFunction::body()

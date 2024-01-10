@@ -32,12 +32,12 @@ void VarStatement::accept( NodeVisitor& visitor )
   visitor.visit_var_statement( *this );
 }
 
-void VarStatement::describe_to( fmt::Writer& w ) const
+void VarStatement::describe_to( std::string& w ) const
 {
-  w << "var-statement(" << name;
+  fmt::format_to( std::back_inserter( w ), "var-statement({}", name );
   if ( initialize_as_empty_array )
-    w << ", initialize-as-empty-array";
-  w << ")";
+    w += ", initialize-as-empty-array";
+  w += ")";
 }
 
 }  // namespace Pol::Bscript::Compiler

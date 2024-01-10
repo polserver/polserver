@@ -27,9 +27,9 @@ void ConstDeclaration::accept( NodeVisitor& visitor )
   visitor.visit_const_declaration( *this );
 }
 
-void ConstDeclaration::describe_to( fmt::Writer& w ) const
+void ConstDeclaration::describe_to( std::string& w ) const
 {
-  w << "const-declaration(" << identifier << ")";
+  fmt::format_to( std::back_inserter( w ), "const-declaration({})", identifier );
 }
 
 }  // namespace Pol::Bscript::Compiler
