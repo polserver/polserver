@@ -51,7 +51,7 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
     snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
     return HashLittle2( mapstring );
   };
-  
+
   size_t totalSize = 0;
   unsigned int nreadfiles = 0;
   std::map<uint64_t, size_t> fileSizes;
@@ -81,8 +81,7 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
   } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
 
   if ( uopfile.header()->nfiles() != nreadfiles )
-    INFO_PRINT << "Warning: not all chunks read (" << nreadfiles << "/"
-               << uopfile.header()->nfiles() << ")\n";
+    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", nreadfiles, uopfile.header()->nfiles() );
 
   for ( size_t i = 0; i < fileSizes.size(); i++ )
   {
@@ -115,8 +114,8 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
   std::string filename = systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) )
   {
-    INFO_PRINT << filepart << " not found in " << systemstate.config.uo_datafile_root
-               << ". Searching for old map[N].mul files.\n";
+    INFO_PRINTLN( "{} not found in {}. Searching for old map[N].mul files.", filepart,
+                 systemstate.config.uo_datafile_root );
     return false;
   }
 
@@ -201,10 +200,11 @@ void open_tiledata( void )
     throw std::runtime_error( "Unknown format of tiledata.mul" );
   }
 
-  INFO_PRINT << "Using auto-detected parameters:"
-             << "\tUseNewHSAFormat = " << ( Plib::cfg_use_new_hsa_format ? "True" : "False" )
-             << "\n"
-             << "\tMaxTileID = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
+  INFO_PRINTLN(
+      "Using auto-detected parameters:\n"
+      "\tUseNewHSAFormat = {}\n"
+      "\tMaxTileID = {:#x}",
+      Plib::cfg_use_new_hsa_format, Plib::systemstate.config.max_tile_id );
 }
 
 void open_map( void )

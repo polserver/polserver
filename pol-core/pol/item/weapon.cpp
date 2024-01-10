@@ -459,12 +459,14 @@ bool UWeapon::consume_projectile( Core::UContainer* cont ) const
 bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Character* target ) const
 {
   unsigned short dist = wielder->distance_to( target->toplevel_pos() );
-  INFO_PRINT_TRACE( 22 ) << "in_range(0x" << fmt::hexu( wielder->serial ) << ",0x"
-                         << fmt::hexu( target->serial ) << "):\n"
-                         << "dist:   " << dist << "\n"
-                         << "minrange: " << WEAPON_TMPL->minrange << "\n"
-                         << "maxrange: " << WEAPON_TMPL->maxrange << "\n"
-                         << "has_los:  " << wielder->realm()->has_los( *wielder, *target ) << "\n";
+  INFO_PRINTLN_TRACE( 22 )
+  ( "in_range({:#x},{:#x}):\n"
+    "dist:   {}\n"
+    "minrange: {}\n"
+    "maxrange: {}\n"
+    "has_los:  {}",
+    wielder->serial, target->serial, dist, WEAPON_TMPL->minrange, WEAPON_TMPL->maxrange,
+    wielder->realm()->has_los( *wielder, *target ) );
   return ( dist >= WEAPON_TMPL->minrange && dist <= WEAPON_TMPL->maxrange &&
            wielder->realm()->has_los( *wielder, *target ) );
 }

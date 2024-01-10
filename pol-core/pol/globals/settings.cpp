@@ -50,10 +50,10 @@ void set_watch_vars()
     cf.readraw( elem );
   }
   else if ( Plib::systemstate.config.loglevel > 1 )
-    INFO_PRINT << "File config/watch.cfg not found, skipping.\n";
+    INFO_PRINTLN( "File config/watch.cfg not found, skipping." );
 
   settingsManager.watch.combat = elem.remove_bool( "COMBAT", false );
   settingsManager.watch.profile_scripts = elem.remove_bool( "ProfileScripts", false );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

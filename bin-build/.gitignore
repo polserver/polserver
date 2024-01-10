@@ -27,3 +27,4 @@ CTest*
 ipch
 module_defs
 coretest
+fmt

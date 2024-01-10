@@ -52,7 +52,7 @@ int display_orphan( UObject* o )
   sw() << o->name() << ", " << o->ref_counted_count() << '\n';
   o->printOn( sw );
   o->printOnDebug( sw_orphan );
-  INFO_PRINT << sw().str();
+  INFO_PRINT( sw().str() );
   return 0;
 }
 void display_unreaped_orphan_instances()

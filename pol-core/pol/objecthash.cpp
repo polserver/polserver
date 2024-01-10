@@ -205,12 +205,12 @@ void ObjectHash::Clear( bool shutdown )
   reap_iterator = hash.begin();  // set itr for ::Reap back to the beginning
   if ( shutdown && !hash.empty() )
   {
-    INFO_PRINT << "Leftover objects in objecthash: " << hash.size() << "\n";
+    INFO_PRINTLN( "Leftover objects in objecthash: {}", hash.size() );
 
     // the hash will be cleared after main() exits, with other statics.
     // this usually causes assertion failures and crashes.
     // creating a copy of the internal hash will ensure no refcounts reach zero.
-    INFO_PRINT << "Leaking a copy of the objecthash in order to avoid a crash.\n";
+    INFO_PRINTLN( "Leaking a copy of the objecthash in order to avoid a crash." );
     new hs( hash );
   }
 }

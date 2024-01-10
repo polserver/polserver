@@ -89,7 +89,7 @@ public:  // methods
   ~FixedSizeAllocator()
   {
     // Free up the memory
-    delete[]( char* ) m_pMemory;
+    delete[] (char*)m_pMemory;
   }
 
   // Allocate a new USER_TYPE and return a pointer to it
@@ -178,28 +178,26 @@ public:  // methods
   // For debugging this displays both lists (using the prev/next list pointers)
   void Debug()
   {
-    INFO_PRINT << "free list";
+    INFO_PRINTLN( "free list" );
     FSA_ELEMENT* p = m_pFirstFree;
-    fmt::Writer _tmp;
+    std::string tmp;
     while ( p )
     {
-      _tmp << fmt::hex( p->pPrev ) << "!" << fmt::hex( p->pNext ) << " ";
+      tmp += fmt::format( "{:#x}!{:#x} ", p->pPrev, p->pNext );
       p = p->pNext;
     }
-    _tmp << "\n";
-    INFO_PRINT << _tmp.str();
+    INFO_PRINTLN( tmp );
 
-    INFO_PRINT << "used list\n";
-    _tmp.Clear();
+    INFO_PRINTLN( "used list" );
+    tmp.clear();
 
     p = m_pFirstUsed;
     while ( p )
     {
-      _tmp << fmt::hex( p->pPrev ) << "!" << fmt::hex( p->pNext ) << " ";
+      tmp += fmt::format( "{:#x}!{:#x} ", p->pPrev, p->pNext );
       p = p->pNext;
     }
-    _tmp << "\n";
-    INFO_PRINT << _tmp.str();
+    INFO_PRINTLN( tmp );
   }
 
   // Iterators

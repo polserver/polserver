@@ -6,6 +6,7 @@
 #include <ctime>
 #include <format/format.h>
 #include <iostream>
+#include <iterator>
 
 #include "../bscript/bobject.h"
 #include "../bscript/config.h"
@@ -90,7 +91,7 @@ void RunEclMain::dumpScript( std::string fileName )
 
   std::ostringstream os;
   program->dump( os );
-  INFO_PRINT << os.str();
+  INFO_PRINTLN( os.str() );
 }
 
 int RunEclMain::runeclScript( std::string fileName )
@@ -155,36 +156,48 @@ int RunEclMain::runeclScript( std::string fileName )
 
   if ( m_profile )
   {
-    fmt::Writer tmp;
-    tmp << "Profiling information: \n"
-        << "\tEObjectImp constructions: " << eobject_imp_constructions << "\n";
+    fmt::memory_buffer buffer;
+    fmt::format_to( std::back_inserter( buffer ),
+                    "Profiling information: \n"
+                    "\tEObjectImp constructions: {}\n",
+                    eobject_imp_constructions );
     if ( eobject_imp_count )
-      tmp << "\tRemaining BObjectImps: " << eobject_imp_count << "\n";
-    tmp << "\tInstruction cycles: " << escript_instr_cycles << "\n"
-        << "\tInnerExec calls: " << escript_execinstr_calls << "\n"
-        << "\tClocks: " << clocks << " (" << seconds << " seconds)\n"
+      fmt::format_to( std::back_inserter( buffer ), "\tRemaining BObjectImps: {}\n",
+                      eobject_imp_count );
+    fmt::format_to( std::back_inserter( buffer ),
+                    "\tInstruction cycles: {}\n"
+                    "\tInnerExec calls: {}\n"
+                    "\tClocks: {} ( {} seconds)\n",
+                    escript_instr_cycles, escript_execinstr_calls, clocks, seconds );
 #ifdef _WIN32
-        << "\tKernel Time: " << ( *(__int64*)&kernelEnd ) - ( *(__int64*)&kernelStart ) << "\n"
-        << "\tUser Time:   " << ( *(__int64*)&userEnd ) - ( *(__int64*)&userStart ) << "\n"
+    fmt::format_to( std::back_inserter( buffer ),
+                    "\tKernel Time: {}\n"
+                    "\tUser Time:   {}\n",
+                    ( *(__int64*)&kernelEnd ) - ( *(__int64*)&kernelStart ),
+                    ( *(__int64*)&userEnd ) - ( *(__int64*)&userStart ) );
 #endif
-        << "\tSpace used: " << memory_used << "\n\n"
-        << "\tCycles Per Second: " << escript_instr_cycles / seconds << "\n"
-        << "\tCycles Per Minute: " << 60.0 * escript_instr_cycles / seconds << "\n"
-        << "\tCycles Per Hour:   " << 3600.0 * escript_instr_cycles / seconds << "\n";
+    fmt::format_to( std::back_inserter( buffer ),
+                    "\tSpace used: {}\n\n"
+                    "\tCycles Per Second: {}\n"
+                    "\tCycles Per Minute: {}\n"
+                    "\tCycles Per Hour:   {}\n",
+                    memory_used, escript_instr_cycles / seconds,
+                    60.0 * escript_instr_cycles / seconds,
+                    3600.0 * escript_instr_cycles / seconds );
 #if BOBJECTIMP_DEBUG
     display_bobjectimp_instances();
 #endif
 #ifdef ESCRIPT_PROFILE
-    tmp << "FuncName,Count,Min,Max,Sum,Avarage\n";
-    for ( escript_profile_map::iterator itr = EscriptProfileMap.begin();
-          itr != EscriptProfileMap.end(); ++itr )
+    fmt::format_to( std::back_inserter( buffer ), "FuncName,Count,Min,Max,Sum,Avarage\n" );
+    ;
+    for ( const auto& [name, profile] : EscriptProfileMap )
     {
-      tmp << itr->first << "," << itr->second.count << "," << itr->second.min << ","
-          << itr->second.max << "," << itr->second.sum << ","
-          << ( itr->second.sum / ( 1.0 * itr->second.count ) ) << "\n";
+      fmt::format_to( std::back_inserter( buffer ), "{},{},{},{},{},{}\n", name, profile.count,
+                      profile.min, profile.max, profile.sum,
+                      profile.sum / ( 1.0 * profile.count ) );
     }
 #endif
-    INFO_PRINT << tmp.str();
+    INFO_PRINTLN( fmt::to_string( buffer ) );
   }
   // deinit
   Core::configurationbuffer.deinitialize();

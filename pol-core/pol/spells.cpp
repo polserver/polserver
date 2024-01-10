@@ -430,7 +430,7 @@ void load_circle_data()
   if ( !Clib::FileExists( "config/circles.cfg" ) )
   {
     if ( Plib::systemstate.config.loglevel > 1 )
-      INFO_PRINT << "File config/circles not found, skipping.\n";
+      INFO_PRINTLN( "File config/circles not found, skipping." );
     return;
   }
 
@@ -480,7 +480,7 @@ void load_spell_data()
   if ( Clib::FileExists( "config/spells.cfg" ) )
     load_spells_cfg( "config/spells.cfg", nullptr );
   else if ( Plib::systemstate.config.loglevel > 1 )
-    INFO_PRINT << "File config/spells.cfg not found, skipping\n";
+    INFO_PRINTLN( "File config/spells.cfg not found, skipping" );
 
   for ( Plib::Packages::iterator itr = Plib::systemstate.packages.begin();
         itr != Plib::systemstate.packages.end(); ++itr )

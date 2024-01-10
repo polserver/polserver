@@ -47,7 +47,7 @@ pthread_t main_pthread;
 
 void sigpipe_handler( int x )
 {
-  INFO_PRINT << "SIGPIPE! param=" << x << "\n";
+  INFO_PRINTLN( "SIGPIPE! param={}", x );
 }
 
 void handle_HUP( int /*x*/ )

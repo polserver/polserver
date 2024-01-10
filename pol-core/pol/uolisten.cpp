@@ -105,9 +105,8 @@ void uo_client_listener_thread( void* arg )
 
 void UoClientListener::run()
 {
-  INFO_PRINT << "Listening for UO clients on port " << port << " (encryption: " << encryption.eType
-             << ",0x" << fmt::hexu( encryption.uiKey1 ) << ",0x" << fmt::hexu( encryption.uiKey2 )
-             << ")\n";
+  INFO_PRINTLN( "Listening for UO clients on port {} (encryption: {},{:#x},{:#x})", port,
+               encryption.eType, encryption.uiKey1, encryption.uiKey2 );
 
   Clib::SocketListener SL(
       port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );

@@ -985,7 +985,7 @@ double NPC::armor_absorb_damage( double damage )
     blocked -= absorbed;
     absorbed += Clib::random_int( blocked );
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << absorbed << " hits absorbed by NPC armor.\n";
+      INFO_PRINTLN( "{} hits absorbed by NPC armor.", absorbed );
     damage -= absorbed;
     if ( damage < 0 )
       damage = 0;

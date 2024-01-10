@@ -9,7 +9,6 @@
 #include <ctype.h>
 #include <stddef.h>
 
-#include <format/format.h>
 #include "../bscript/eprog.h"
 #include "../bscript/impstr.h"
 #include "../clib/cfgelem.h"
@@ -27,6 +26,7 @@
 #include "scrdef.h"
 #include "scrsched.h"
 #include "scrstore.h"
+#include <fmt/format.h>
 
 #ifdef _WIN32
 #include <conio.h>
@@ -141,19 +141,15 @@ void ConsoleCommand::exec_console_cmd( char ch )
 #endif
   if ( ch == '?' )
   {
-    fmt::Writer tmp;
-    tmp << "Commands: \n";
+    std::string tmp = "Commands: \n";
     for ( unsigned i = 0; i < gamestate.console_commands.size(); ++i )
     {
       ConsoleCommand& cmd = gamestate.console_commands[i];
       std::string sc = getcmdstr( cmd.ch );
-      if ( sc.size() == 1 )
-        tmp << " ";
-      tmp << " " << sc << ": ";
-      tmp << cmd.description << "\n";
+      tmp += fmt::format( "{}{}: {}\n", sc.size() == 1 ? "  " : " ", sc, cmd.description );
     }
-    tmp << "  ?: Help (This list)\n";
-    INFO_PRINT << tmp.str();
+    tmp += "  ?: Help (This list)";
+    INFO_PRINTLN( tmp );
     return;
   }
 
@@ -161,28 +157,28 @@ void ConsoleCommand::exec_console_cmd( char ch )
   ConsoleCommand* cmd = find_console_command( ch );
   if ( !cmd )
   {
-    INFO_PRINT << "Unknown console command: '" << getcmdstr( ch ) << "'\n";
+    INFO_PRINTLN( "Unknown console command: '{}'", getcmdstr( ch ) );
     return;
   }
   if ( cmd->script == "[lock]" )
   {
     ConsoleCommand::console_locked = true;
-    INFO_PRINT << "Console is now locked.\n";
+    INFO_PRINTLN( "Console is now locked." );
     return;
   }
   if ( cmd->script == "[unlock]" )
   {
     ConsoleCommand::console_locked = true;
-    INFO_PRINT << "Console is now unlocked.\n";
+    INFO_PRINTLN( "Console is now unlocked." );
     return;
   }
   if ( cmd->script == "[lock/unlock]" )
   {
     ConsoleCommand::console_locked = !ConsoleCommand::console_locked;
     if ( ConsoleCommand::console_locked )
-      INFO_PRINT << "Console is now locked.\n";
+      INFO_PRINTLN( "Console is now locked." );
     else
-      INFO_PRINT << "Console is now unlocked.\n";
+      INFO_PRINTLN( "Console is now unlocked." );
     return;
   }
   if ( cmd->script == "[threadstatus]" )
@@ -199,7 +195,7 @@ void ConsoleCommand::exec_console_cmd( char ch )
 
   if ( ConsoleCommand::console_locked )
   {
-    INFO_PRINT << "Console is locked.  Press '" << ConsoleCommand::unlock_char << "' to unlock.\n";
+    INFO_PRINTLN( "Console is locked.  Press '{}' to unlock.", ConsoleCommand::unlock_char );
     return;
   }
 
@@ -253,5 +249,5 @@ void ConsoleCommand::check_console_commands( Clib::KeyboardHook* kb )
   }
 }
 #endif
-}
-}
+}  // namespace Core
+}  // namespace Pol

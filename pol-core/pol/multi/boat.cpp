@@ -705,7 +705,7 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
   if ( !desired_pos.can_move_to( md.minrxyz.xy() ) || !desired_pos.can_move_to( md.maxrxyz.xy() ) )
   {
 #ifdef DEBUG_BOATS
-    INFO_PRINT << "Location " << desired_pos << " impassable, location is off the map\n";
+    INFO_PRINTLN( "Location {} impassable, location is off the map", desired_pos );
 #endif
     return false;
   }
@@ -716,7 +716,7 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
   {
     Core::Pos3d hullpos = desired_pos.xyz() + ele->relpos;
 #ifdef DEBUG_BOATS
-    INFO_PRINT << "[" << hullpos << "]";
+    INFO_PRINT( "[{}]", hullpos );
 #endif
     /*
      * See if any other ship hulls occupy this space
@@ -725,8 +725,8 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
     if ( desired_pos.realm()->global_hulls.count( gh ) )  // already a boat there
     {
 #ifdef DEBUG_BOATS
-      INFO_PRINT << "Location " << desired_pos.realm()->name() << " " << hullpos
-                 << " already has a ship hull present\n";
+      INFO_PRINTLN( "Location {} {} already has a ship hull present", desired_pos.realm()->name(),
+                   hullpos );
 #endif
       return false;
     }

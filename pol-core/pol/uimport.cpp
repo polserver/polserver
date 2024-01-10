@@ -320,7 +320,7 @@ void read_shadow_realms( Clib::ConfigElem& elem )
   else
   {
     add_realm( name, baserealm );
-    INFO_PRINT << "\nShadowrealm " << name << "\n";
+    INFO_PRINTLN( "\nShadowrealm {}", name );
   }
 }
 
@@ -376,7 +376,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 
   if ( Clib::FileExists( filename ) )
   {
-    INFO_PRINT << "  " << filename << ":";
+    INFO_PRINT( "  {}:", filename );
     Clib::ConfigFile cf( filename, tags );
     Clib::ConfigElem elem;
 
@@ -387,7 +387,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
     {
       if ( --num_until_dot == 0 )
       {
-        INFO_PRINT << ".";
+        INFO_PRINT( "." );
         num_until_dot = 1000;
       }
       try
@@ -426,7 +426,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 
     timer.stop();
 
-    INFO_PRINT << " " << nobjects << " elements in " << timer.ellapsed() << " ms.\n";
+    INFO_PRINTLN( " {} elements in {} ms.", nobjects, timer.ellapsed() );
   }
 }
 
@@ -510,7 +510,7 @@ void read_storage_dat()
 
   if ( Clib::FileExists( storagefile ) )
   {
-    INFO_PRINT << "  " << storagefile << ":";
+    INFO_PRINT( "  {}:", storagefile );
     Clib::ConfigFile cf2( storagefile );
     gamestate.storage.read( cf2 );
   }
@@ -583,8 +583,7 @@ void import_new_data()
       import( elem );
     }
     unlink( importfile.c_str() );
-    INFO_PRINT << "Import Results: " << import_count << " imported, " << dupe_count
-               << " duplicates.\n";
+    INFO_PRINTLN( "Import Results: {} imported, {} duplicates.", import_count, dupe_count );
   }
 }
 
@@ -1350,8 +1349,7 @@ void read_gameservers()
       iptext = networkManager.ipaddr_str;
       if ( iptext == "" )
       {
-        INFO_PRINT << "Skipping server " << svr->name
-                   << " because there is no Internet IP address.\n";
+        INFO_PRINTLN( "Skipping server {} because there is no Internet IP address.", svr->name );
         continue;
       }
     }
@@ -1360,7 +1358,7 @@ void read_gameservers()
       iptext = networkManager.lanaddr_str;
       if ( iptext == "" )
       {
-        INFO_PRINT << "Skipping server " << svr->name << " because there is no LAN IP address.\n";
+        INFO_PRINTLN( "Skipping server {} because there is no LAN IP address.", svr->name );
         continue;
       }
     }

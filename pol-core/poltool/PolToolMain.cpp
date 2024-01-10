@@ -175,21 +175,22 @@ int PolToolMain::unpackCompressedGump()
     return 1;
   ++index;
   auto len = toShort( index );
-  INFO_PRINT << "len " << len;
+  std::string msg = fmt::format( "len {}", len );
   index += 2;
   auto serial = toInt( index );
   index += 4;
-  INFO_PRINT << " serial " << serial;
+  msg += fmt::format( " serial {}", serial );
   auto gumpid = static_cast<unsigned int>( toInt( index ) );
   index += 4;
-  INFO_PRINT << " gumpID " << gumpid;
+  msg += fmt::format( " gumpID {}", gumpid );
 
   auto x = toInt( index );
   index += 4;
-  INFO_PRINT << " x " << x;
+  msg += fmt::format( " x {}", x );
   auto y = toInt( index );
   index += 4;
-  INFO_PRINT << " y " << y;
+  msg += fmt::format( " y {}", y );
+  INFO_PRINTLN( msg );
   auto cbuflen = toInt( index ) - 4;
   index += 4;
   auto datalen = static_cast<unsigned long>( toInt( index ) );
@@ -200,15 +201,14 @@ int PolToolMain::unpackCompressedGump()
     return 1;
   index += cbuflen;
   std::string layout( uncompressed.get(), uncompressed.get() + datalen - 1 );
-  fmt::Writer layouttmp;
-  layouttmp << '\n';
+  msg = '\n';
   for ( const auto& c : layout )
   {
-    layouttmp << c;
+    msg += c;
     if ( c == '}' )
-      layouttmp << '\n';
+      msg += '\n';
   }
-  INFO_PRINT << layouttmp.str();
+  INFO_PRINTLN( msg );
 
   auto linecount = toInt( index );
   index += 4;
@@ -221,9 +221,7 @@ int PolToolMain::unpackCompressedGump()
   if ( res < 0 )
     return 1;
   std::string layout2( uncompressed2.get(), uncompressed2.get() + datalen );
-  INFO_PRINT << '\n';
-  fmt::Writer datatmp;
-  datatmp << '\n';
+  msg = "\n\n";
   size_t j = 0;
   for ( size_t i = 0; i < linecount; ++i )
   {
@@ -243,14 +241,13 @@ int PolToolMain::unpackCompressedGump()
           u8_conv += static_cast<char>( ( c >> 8 ) & 0xff );
         }
       }
-      datatmp << '"' << u8_conv << "\"\n";
+      msg += '"' + u8_conv + "\"\n";
     }
     else
-      datatmp << "\"\"\n";
+      msg += "\"\"\n";
     j += 2 + wc * 2;
   }
-  INFO_PRINT << datatmp.str();
-  INFO_PRINT << '\n';
+  INFO_PRINTLN( msg );
   return 0;
 }
 

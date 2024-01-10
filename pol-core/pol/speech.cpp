@@ -84,7 +84,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
 
   if ( Plib::systemstate.config.show_speech_colors )
   {
-    INFO_PRINT << chr->name() << " speaking w/ color 0x" << fmt::hexu( cfBEu16( color ) ) << "\n";
+    INFO_PRINTLN( "{} speaking w/ color {:#x}", chr->name(), cfBEu16( color ) );
   }
   std::string convertedText = Clib::strUtf8ToCp1252( text );
   u16 textlen = static_cast<u16>( convertedText.size() + 1 );
@@ -247,8 +247,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
 
   if ( Plib::systemstate.config.show_speech_colors )
   {
-    INFO_PRINT << chr->name() << " speaking w/ color 0x" << fmt::hexu( cfBEu16( msgin->color ) )
-               << "\n";
+    INFO_PRINTLN( "{} speaking w/ color {:#x}", chr->name(), cfBEu16( msgin->color ) );
   }
 
   Network::PktHelper::PacketOut<Network::PktOut_AE> ghostmsg;

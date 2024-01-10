@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <exception>
+#include <iterator>
 #include <stddef.h>
 #include <string>
 
@@ -314,7 +315,7 @@ bool process_data( Network::ThreadedClient* session )
     unsigned char msgtype = session->buffer[0];
     session->last_msgtype = msgtype;  // CNXBUG
     if ( Plib::systemstate.config.verbose )
-      INFO_PRINT.Format( "Incoming msg type: 0x{:X}\n" ) << (int)msgtype;
+      INFO_PRINTLN( "Incoming msg type: {:#X}", (int)msgtype );
 
     if ( !Network::PacketRegistry::is_defined( msgtype ) )
     {
@@ -385,8 +386,8 @@ bool process_data( Network::ThreadedClient* session )
       }
 
       if ( Plib::systemstate.config.verbose )
-        INFO_PRINT.Format( "Message Received: Type 0x{:X}, Length {} bytes\n" )
-            << (int)msgtype << session->message_length;
+        INFO_PRINTLN( "Message Received: Type {:#X}, Length {} bytes", (int)msgtype,
+                     session->message_length );
 
       PolLock lck;  // multithread
       // it can happen that a client gets disconnected while waiting for the lock.
@@ -441,7 +442,7 @@ bool process_data( Network::ThreadedClient* session )
       {
         if ( Plib::systemstate.config.verbose )
         {
-          INFO_PRINT.Format( "UOKR Seed Message Received: Type 0x{:X}\n" ) << (int)cstype;
+          INFO_PRINTLN( "UOKR Seed Message Received: Type {:#X}", (int)cstype );
         }
         session->myClient.send_KR_encryption_response();
         session->myClient.setClientType( Network::CLIENTTYPE_UOKR );  // UO:KR logging in
@@ -452,7 +453,7 @@ bool process_data( Network::ThreadedClient* session )
         // new seed since 6.0.5.0 (0xef should never appear in normal ipseed)
         if ( Plib::systemstate.config.verbose )
         {
-          INFO_PRINT.Format( "6.0.5.0+ Crypt Seed Message Received: Type 0x{:X}\n" ) << (int)cstype;
+          INFO_PRINTLN( "6.0.5.0+ Crypt Seed Message Received: Type {:#X}", (int)cstype );
         }
         session->recv_state = Network::ThreadedClient::RECV_STATE_CLIENTVERSION_WAIT;
       }
@@ -510,22 +511,21 @@ bool check_inactivity( Network::ThreadedClient* session )
 // bytes_received, const std::string& why)
 void report_weird_packet( Network::ThreadedClient* session, const std::string& why )
 {
-  fmt::Writer tmp;
-  tmp.Format( "Client#{}: {} type 0x{:X}, {} bytes (IP: {}, Account: {})\n" )
-      << session->myClient.instance_ << why << (int)session->buffer[0] << session->bytes_received
-      << session->ipaddrAsString()
-      << ( ( session->myClient.acct != nullptr ) ? session->myClient.acct->name() : "None" );
+  std::string tmp = fmt::format(
+      "Client#{}: {} type {:#X}, {} bytes (IP: {}, Account: {})\n", session->myClient.instance_,
+      why, (int)session->buffer[0], session->bytes_received, session->ipaddrAsString(),
+      ( session->myClient.acct != nullptr ) ? session->myClient.acct->name() : "None" );
 
   if ( session->bytes_received <= 64 )
   {
-    Clib::fdump( tmp, session->buffer, session->bytes_received );
-    POLLOG_INFO << tmp.str() << "\n";
+    Clib::fdump( std::back_inserter( tmp ), session->buffer, session->bytes_received );
+    POLLOG_INFO2( tmp );
   }
   else
   {
-    INFO_PRINT << tmp.str();
-    Clib::fdump( tmp, session->buffer, session->bytes_received );
-    POLLOG << tmp.str() << "\n";
+    INFO_PRINT( tmp );
+    Clib::fdump( std::back_inserter( tmp ), session->buffer, session->bytes_received );
+    POLLOG << tmp << "\n";
   }
 }
 
@@ -542,7 +542,7 @@ void handle_unknown_packet( Network::ThreadedClient* session )
 void handle_undefined_packet( Network::ThreadedClient* session )
 {
   int msgtype = (int)session->buffer[0];
-  INFO_PRINT.Format( "Undefined message type 0x{:X}\n" ) << msgtype;
+  INFO_PRINTLN( "Undefined message type {:#X}", msgtype );
 
   // Tries to read as much of it out as possible
   session->recv_remaining( sizeof session->buffer / 2 );
@@ -574,9 +574,9 @@ namespace Pol::Network
 int Client::on_close()
 {
   unregister();
-  INFO_PRINT << "Client disconnected from " << ipaddrAsString() << " ("
-             << Core::networkManager.clients.size() << "/"
-             << Core::networkManager.getNumberOfLoginClients() << " connections)\n";
+  INFO_PRINTLN( "Client disconnected from {} ({}/{} connections)", ipaddrAsString(),
+               Core::networkManager.clients.size(),
+               Core::networkManager.getNumberOfLoginClients() );
 
   Core::CoreSetSysTrayToolTip(
       Clib::tostring( Core::networkManager.clients.size() ) + " clients connected",
@@ -638,8 +638,7 @@ bool Client::should_check_idle()
 {
   return ( !chr || chr->cmdlevel() < Plib::systemstate.config.min_cmdlvl_ignore_inactivity ) &&
          Plib::systemstate.config.inactivity_warning_timeout &&
-         Plib::systemstate.config.inactivity_disconnect_timeout &&
-         !disable_inactivity_timeout();
+         Plib::systemstate.config.inactivity_disconnect_timeout && !disable_inactivity_timeout();
 }
 
 void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
@@ -647,8 +646,7 @@ void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
   const unsigned char msgtype = pktbuffer[0];
   try
   {
-    INFO_PRINT_TRACE( 10 ) << "Client#" << instance_ << ": message 0x" << fmt::hexu( msgtype )
-                           << "\n";
+    INFO_PRINTLN_TRACE( 10 )( "Client#{}: message {:#x}", instance_, msgtype );
 
     // TODO: use PacketRegistry::handle_msg(...) ?
     MSG_HANDLER packetHandler = Network::PacketRegistry::find_handler( msgtype, this );
