@@ -551,9 +551,10 @@ function ensure_multiid(multiid, errormsg)
 endfunction
 
 exported function boat_alternate_multiid_itemdesc()
-  var AlternateMultiID := GetItemDescriptor(0x11000).AlternateMultiID;
-  if (!((4 in AlternateMultiID) && (8 in AlternateMultiID) && (Len(AlternateMultiID) == 2)))
-    return ret_error("Expected AlternateMultiID to be { 4, 8 }, got " + AlternateMultiID);
+  var actual := GetItemDescriptor(0x11000).AlternateMultiID;
+  var expected := array{4, 8};
+  if (actual != expected)
+    return ret_error($"Expected AlternateMultiID to be {expected}, got {actual}");
   endif
 
   return 1;
