@@ -1650,13 +1650,11 @@ class MultipleNewObjectInfoPacket(Packet):
 
   def decodeChild(self):
     self.length = self.dushort()
-    self.log.info('got length {}'.format(self.length))
     self.count = self.dushort()
     self.packets = []
     for _ in range(0, self.count):
       pkt = NewObjectInfoPacket()
       pkt.decode(self.rpb(pkt.length))
-      self.log.info("got packet for item {}".format(pkt.serial))
       self.packets.append(pkt)
 
 class HealthBarStatusUpdate(Packet):

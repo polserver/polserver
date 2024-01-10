@@ -1055,17 +1055,28 @@ size_t MultiDesc::estimatedSize() const
 }
 
 BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : MultiDesc( objtype, elem, BOATDESC, pkg )
+    : MultiDesc( objtype, elem, BOATDESC, pkg ), alternates()
 {
+  u16 alternate;
+  alternates.push_back( multiid );
+  while ( elem.remove_prop( "ALTERNATEMULTIID", &alternate ) )
+    alternates.push_back( alternate );
 }
 
 void BoatDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
+  std::unique_ptr<Bscript::ObjArray> a( new Bscript::ObjArray );
+
+  // `alternates` contains the base multi id at index 0, so start at 1.
+  for ( size_t i = 1; i < alternates.size(); ++i )
+    a->addElement( new Bscript::BLong( alternates[i] ) );
+
+  descriptor->addMember( "AlternateMultiID", a.release() );
 }
 size_t BoatDesc::estimatedSize() const
 {
-  return base::estimatedSize();
+  return base::estimatedSize() + alternates.capacity();
 }
 
 HouseDesc::HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )

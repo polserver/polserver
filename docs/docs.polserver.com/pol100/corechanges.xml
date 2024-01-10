@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-09-2024</datemodified>
+		<datemodified>01-10-2024</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-10-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat item descriptor `AlternateMultiID` and boat method `boat.set_alternate_multiid(position)` to facilitate changing a boat's graphic, for example switching a boat from a &quot;normal&quot; to a &quot;damaged&quot; graphic.</change>
+		</entry>
 		<entry>
 			<date>01-07-2024</date>
 			<author>Kevin:</author>
