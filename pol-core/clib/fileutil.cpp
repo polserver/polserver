@@ -22,9 +22,27 @@ namespace Pol
 {
 namespace Clib
 {
-std::string normalized_dir_form( const std::string& istr )
+std::string normalized_dir_form( const std::string& istr, const std::string& base )
 {
-  std::string str = istr;
+  std::string str;
+
+  if ( base.empty() )
+  {
+    str = istr;
+  }
+  else
+  {
+    std::filesystem::path filepath( istr );
+    if ( filepath.is_absolute() )
+    {
+      str = istr;
+    }
+    else
+    {
+      std::filesystem::path basepath( base );
+      str = ( basepath / filepath ).lexically_normal().u8string();
+    }
+  }
 
   {
     std::string::size_type bslashpos;

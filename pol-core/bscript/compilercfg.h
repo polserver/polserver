@@ -41,7 +41,7 @@ struct CompilerConfig
   int EmParseTreeCacheSize;
   int IncParseTreeCacheSize;
 
-  void Read( const std::string& path );
+  void Read( const std::string& path, const std::string& base = "" );
   void SetDefaults();
 };
 

@@ -17,7 +17,7 @@ namespace Pol
 {
 namespace Bscript
 {
-void CompilerConfig::Read( const std::string& path )
+void CompilerConfig::Read( const std::string& path, const std::string& base )
 {
   Clib::ConfigFile cf( path.c_str() );
   Clib::ConfigElem elem;
@@ -29,14 +29,14 @@ void CompilerConfig::Read( const std::string& path )
   std::string tmp;
   while ( elem.remove_prop( "PackageRoot", &tmp ) )
   {
-    PackageRoot.push_back( Clib::normalized_dir_form( tmp ) );
+    PackageRoot.push_back( Clib::normalized_dir_form( tmp, base ) );
   }
   if ( elem.remove_prop( "IncludeDirectory", &tmp ) )
   {
-    IncludeDirectory = Clib::normalized_dir_form( tmp );
+    IncludeDirectory = Clib::normalized_dir_form( tmp, base );
   }
-  ModuleDirectory = Clib::normalized_dir_form( elem.remove_string( "ModuleDirectory" ) );
-  PolScriptRoot = Clib::normalized_dir_form( elem.remove_string( "PolScriptRoot" ) );
+  ModuleDirectory = Clib::normalized_dir_form( elem.remove_string( "ModuleDirectory" ), base );
+  PolScriptRoot = Clib::normalized_dir_form( elem.remove_string( "PolScriptRoot" ), base );
   GenerateListing = elem.remove_bool( "GenerateListing", false );
   GenerateDebugInfo = elem.remove_bool( "GenerateDebugInfo", false );
   GenerateDebugTextInfo = elem.remove_bool( "GenerateDebugTextInfo", false );
