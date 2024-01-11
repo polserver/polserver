@@ -47,13 +47,13 @@ OFStreamWriter::OFStreamWriter( std::ofstream* stream )
 OFStreamWriter::~OFStreamWriter()
 {
 #if 0
-      if ( _writer->size() )
-      {
-        Tools::HighPerfTimer t;
-        *_stream << _writer->c_str();
-        _fs_time += t.ellapsed();
-      }
-      ERROR_PRINTLN("streamwriter {} io time {}",_stream_name,_fs_time.count( ));
+  if ( _writer->size() )
+  {
+    Tools::HighPerfTimer t;
+    *_stream << _writer->c_str();
+    _fs_time += t.ellapsed();
+  }
+  ERROR_PRINTLN( "streamwriter {} io time {}", _stream_name, _fs_time.count() );
 #else
   if ( _writer->size() )
     *_stream << _writer->str();

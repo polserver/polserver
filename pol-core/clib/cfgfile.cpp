@@ -1003,7 +1003,7 @@ void ConfigFile::display_error( const std::string& msg, bool show_curline,
   }
 
   if ( show_curline )
-    tmp += fmt::format( "\n\tNear line: {}\n", _cur_line );
+    tmp += fmt::format( "\n\tNear line: {}", _cur_line );
   if ( _element_line_start && !showed_elem_line )
     tmp += fmt::format( "\n\tElement started on line: {}", _element_line_start );
   ERROR_PRINTLN( tmp );

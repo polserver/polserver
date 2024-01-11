@@ -36,7 +36,7 @@ UMulti::UMulti( const Items::ItemDesc& itemdesc ) : Item( itemdesc, Core::UOBJ_C
   if ( !MultiDefByMultiIDExists( itemdesc.multiid ) )
   {
     ERROR_PRINTLN( "Tried to create a Multi type {:#X}", itemdesc.objtype );
-    throw std::runtime_error( "Unvalid Multi type" );
+    throw std::runtime_error( "Invalid Multi type" );
   }
   ++Core::stateManager.uobjcount.umulti_count;
 }
