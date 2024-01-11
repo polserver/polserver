@@ -1,0 +1,2 @@
+uninit03.src:1:14: error: extraneous input 'uninit' expecting {'byref', 'unused', ')', IDENTIFIER}
+
