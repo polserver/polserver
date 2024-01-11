@@ -1,4 +1,7 @@
 -- POL100.1.0 --
+01-11-2024 Kevin:
+    Added: Escript keyword `uninit` to represent the uninitialized value. This keyword can be used anywhere a "simple value" is used, eg. expressions, constants, user function default parameters, etc.
+           This change increases the Escript version, therefore a recompilation of all scripts is required.
 01-10-2024 Kevin:
     Added: Boat item descriptor `AlternateMultiID` and boat method `boat.set_alternate_multiid(position)` to facilitate changing a boat's graphic, for example switching a boat from a "normal" to a "damaged" graphic.
 01-07-2024 Kevin:
