@@ -280,6 +280,7 @@ primary
     | parExpression
     | functionCall
     | scopedFunctionCall
+    | UNINIT
     | IDENTIFIER
     | functionReference
     | explicitArrayInitializer

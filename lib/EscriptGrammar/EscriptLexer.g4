@@ -85,6 +85,7 @@ STRUCT:             'struct';
 ARRAY:              'array';
 STACK:              'stack';
 TOK_IN:             'in';
+UNINIT:             'uninit';
 
 // Literals
 
