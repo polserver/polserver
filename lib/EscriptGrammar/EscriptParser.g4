@@ -281,6 +281,8 @@ primary
     | functionCall
     | scopedFunctionCall
     | UNINIT
+    | BOOL_TRUE
+    | BOOL_FALSE
     | IDENTIFIER
     | functionReference
     | explicitArrayInitializer

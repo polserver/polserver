@@ -86,6 +86,8 @@ ARRAY:              'array';
 STACK:              'stack';
 TOK_IN:             'in';
 UNINIT:             'uninit';
+BOOL_TRUE:          'true';
+BOOL_FALSE:         'false';
 
 // Literals
 
@@ -93,7 +95,7 @@ DECIMAL_LITERAL:    ('0' | [1-9] Digits?);
 HEX_LITERAL:        '0' [xX] HexDigits;
 OCT_LITERAL:        '0' [0-7]+;
 BINARY_LITERAL:     '0' [bB] [01]+;
-                    
+
 FLOAT_LITERAL:      (Digits '.' Digits? | '.' Digits) ExponentPart?
              |       Digits ExponentPart
              ;
@@ -180,7 +182,7 @@ COLON:              ':'
         {
             int ind = 1;
             bool switchToFormatString = true;
-            
+
             while (_input->LA(ind) != '}')
             {
                 if (_input->LA(ind) == ':' || _input->LA(ind) == ')')
