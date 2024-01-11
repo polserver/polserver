@@ -131,9 +131,10 @@ declaration-time like: var number_of_pies := 15; </p>
 
 <p>Variables that are not given any initializer will be set to the
 "uninitialized value". This is equivalent to the concept of <code>NULL</code>,
-<code>nil</code>, and <code>None</code> in other programming languages. The
-eScript keyword for the uninitialized value is <code>uninit</code> and can be
-used in any place expressions are used.</p>
+<code>nil</code>, and <code>None</code> in other programming languages. Starting
+from eScript Compiler version v1.17, the eScript keyword for the uninitialized
+value is <code>uninit</code> and can be used in any place expressions are
+used.</p>
 
 <p>To declare a "constant," or a variable that you can only read its value from,
 you must do it at the top of the file, before any of the functions, much like
