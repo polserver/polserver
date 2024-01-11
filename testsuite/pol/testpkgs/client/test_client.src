@@ -31,9 +31,9 @@ exported function test_client_properties()
     return ret_error("Incorrect account reference returned on char2.client.acct, expected account with name 'testclient1'");
   elseif (char2.client.acctname != "testclient1")
     return ret_error("Incorrect account name on char 2, expected 'testclient1");
-  elseif (char.client.multi != Unpack("u")) // testing knownObjMember: acct is a known member but not implemented on client
+  elseif (char.client.multi != uninit) // testing knownObjMember: acct is a known member but not implemented on client
     return ret_error("Expected char.client.multi to be uninit object, got " + char.client.multi);
-  elseif (char.client.unknownprop != Unpack("u")) // testing of objmember that is not known
+  elseif (char.client.unknownprop != uninit) // testing of objmember that is not known
     return ret_error("Expected char.client.unknownprop to be uninit object, got " + char.client.unknownprop);
   endif
   return 1;
