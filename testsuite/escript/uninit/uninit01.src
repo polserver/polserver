@@ -19,5 +19,5 @@ print(FOO);
 const BAR := uninit;
 print(BAR);
 
-function foo(bar, baz := uninit) print($"bar: {bar} baz: {baz}"); endfunction
-foo("BAR");
+function blubb(bar, baz := uninit) print($"bar: {bar} baz: {baz}"); endfunction
+blubb("BAR");
