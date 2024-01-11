@@ -22,6 +22,7 @@ public:
   void visit_integer_value( IntegerValue& ) override;
   void visit_string_value( StringValue& ) override;
   void visit_struct_initializer( StructInitializer& ) override;
+  void visit_uninitialized_value( UninitializedValue& ) override;
 
   void visit_children( Node& parent ) override;
 

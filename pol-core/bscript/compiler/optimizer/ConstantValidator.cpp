@@ -64,6 +64,11 @@ void ConstantValidator::visit_struct_initializer( StructInitializer& initializer
   valid = initializer.children.empty();
 }
 
+void ConstantValidator::visit_uninitialized_value( UninitializedValue& )
+{
+  valid = true;
+}
+
 void ConstantValidator::visit_children( Node& )
 {
 }

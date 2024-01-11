@@ -14,6 +14,7 @@
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
@@ -115,6 +116,12 @@ void SimpleValueCloner::visit_struct_initializer( StructInitializer& node )
     report.error( node, "A const struct must be empty.\n", node, "\n" );
   }
 }
+
+void SimpleValueCloner::visit_uninitialized_value( UninitializedValue& )
+{
+  cloned_value = std::make_unique<UninitializedValue>( use_source_location );
+}
+
 
 void SimpleValueCloner::visit_children( Node& parent )
 {
