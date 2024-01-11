@@ -1,7 +1,7 @@
 
 
 
-// Generated from /Users/kevineady/UO/polserver/lib/EscriptGrammar/EscriptParser.g4 by ANTLR 4.13.1
+// Generated from EscriptParser.g4 by ANTLR 4.13.1
 
 
 #include "EscriptParserListener.h"
@@ -56,68 +56,68 @@ void escriptparserParserInitialize() {
 #endif
   auto staticData = std::make_unique<EscriptParserStaticData>(
     std::vector<std::string>{
-      "compilationUnit", "moduleUnit", "moduleDeclarationStatement", "moduleFunctionDeclaration", 
-      "moduleFunctionParameterList", "moduleFunctionParameter", "topLevelDeclaration", 
-      "functionDeclaration", "stringIdentifier", "useDeclaration", "includeDeclaration", 
-      "programDeclaration", "statement", "statementLabel", "ifStatement", 
-      "gotoStatement", "returnStatement", "constStatement", "varStatement", 
-      "doStatement", "whileStatement", "exitStatement", "breakStatement", 
-      "continueStatement", "forStatement", "foreachIterableExpression", 
-      "foreachStatement", "repeatStatement", "caseStatement", "enumStatement", 
-      "block", "variableDeclarationInitializer", "enumList", "enumListEntry", 
-      "switchBlockStatementGroup", "switchLabel", "forGroup", "basicForStatement", 
-      "cstyleForStatement", "identifierList", "variableDeclarationList", 
-      "constantDeclaration", "variableDeclaration", "programParameters", 
-      "programParameterList", "programParameter", "functionParameters", 
-      "functionParameterList", "functionParameter", "scopedFunctionCall", 
-      "functionReference", "expression", "primary", "explicitArrayInitializer", 
-      "explicitStructInitializer", "explicitDictInitializer", "explicitErrorInitializer", 
-      "bareArrayInitializer", "parExpression", "expressionList", "expressionSuffix", 
-      "indexingSuffix", "navigationSuffix", "methodCallSuffix", "functionCall", 
-      "structInitializerExpression", "structInitializerExpressionList", 
-      "structInitializer", "dictInitializerExpression", "dictInitializerExpressionList", 
-      "dictInitializer", "arrayInitializer", "literal", "interpolatedString", 
+      "compilationUnit", "moduleUnit", "moduleDeclarationStatement", "moduleFunctionDeclaration",
+      "moduleFunctionParameterList", "moduleFunctionParameter", "topLevelDeclaration",
+      "functionDeclaration", "stringIdentifier", "useDeclaration", "includeDeclaration",
+      "programDeclaration", "statement", "statementLabel", "ifStatement",
+      "gotoStatement", "returnStatement", "constStatement", "varStatement",
+      "doStatement", "whileStatement", "exitStatement", "breakStatement",
+      "continueStatement", "forStatement", "foreachIterableExpression",
+      "foreachStatement", "repeatStatement", "caseStatement", "enumStatement",
+      "block", "variableDeclarationInitializer", "enumList", "enumListEntry",
+      "switchBlockStatementGroup", "switchLabel", "forGroup", "basicForStatement",
+      "cstyleForStatement", "identifierList", "variableDeclarationList",
+      "constantDeclaration", "variableDeclaration", "programParameters",
+      "programParameterList", "programParameter", "functionParameters",
+      "functionParameterList", "functionParameter", "scopedFunctionCall",
+      "functionReference", "expression", "primary", "explicitArrayInitializer",
+      "explicitStructInitializer", "explicitDictInitializer", "explicitErrorInitializer",
+      "bareArrayInitializer", "parExpression", "expressionList", "expressionSuffix",
+      "indexingSuffix", "navigationSuffix", "methodCallSuffix", "functionCall",
+      "structInitializerExpression", "structInitializerExpressionList",
+      "structInitializer", "dictInitializerExpression", "dictInitializerExpressionList",
+      "dictInitializer", "arrayInitializer", "literal", "interpolatedString",
       "interpolatedStringPart", "integerLiteral", "floatLiteral"
     },
     std::vector<std::string>{
-      "", "'if'", "'then'", "'elseif'", "'endif'", "'else'", "'goto'", "'return'", 
-      "'const'", "'var'", "'do'", "'dowhile'", "'while'", "'endwhile'", 
-      "'exit'", "'function'", "'endfunction'", "'exported'", "'use'", "'include'", 
-      "'break'", "'continue'", "'for'", "'endfor'", "'to'", "'foreach'", 
-      "'endforeach'", "'repeat'", "'until'", "'program'", "'endprogram'", 
-      "'case'", "'default'", "'endcase'", "'enum'", "'endenum'", "'downto'", 
-      "'step'", "'reference'", "'out'", "'inout'", "'ByVal'", "'string'", 
-      "'long'", "'integer'", "'unsigned'", "'signed'", "'real'", "'float'", 
-      "'double'", "'as'", "'is'", "'&&'", "'and'", "'||'", "'or'", "'!'", 
-      "'not'", "'byref'", "'unused'", "'error'", "'hash'", "'dictionary'", 
-      "'struct'", "'array'", "'stack'", "'in'", "'uninit'", "", "", "", 
-      "", "", "", "", "", "'('", "')'", "'['", "']'", "'{'", "'}'", "'.'", 
-      "'->'", "'*'", "'/'", "'%'", "'+'", "'-'", "'+='", "'-='", "'*='", 
-      "'/='", "'%='", "'<='", "'<'", "'>='", "'>'", "'>>'", "'<<'", "'&'", 
-      "'^'", "'|'", "'<>'", "'!='", "'='", "'=='", "':='", "'.+'", "'.-'", 
-      "'.\\u003F'", "';'", "','", "'~'", "'@'", "'::'", "':'", "'++'", "'--'", 
+      "", "'if'", "'then'", "'elseif'", "'endif'", "'else'", "'goto'", "'return'",
+      "'const'", "'var'", "'do'", "'dowhile'", "'while'", "'endwhile'",
+      "'exit'", "'function'", "'endfunction'", "'exported'", "'use'", "'include'",
+      "'break'", "'continue'", "'for'", "'endfor'", "'to'", "'foreach'",
+      "'endforeach'", "'repeat'", "'until'", "'program'", "'endprogram'",
+      "'case'", "'default'", "'endcase'", "'enum'", "'endenum'", "'downto'",
+      "'step'", "'reference'", "'out'", "'inout'", "'ByVal'", "'string'",
+      "'long'", "'integer'", "'unsigned'", "'signed'", "'real'", "'float'",
+      "'double'", "'as'", "'is'", "'&&'", "'and'", "'||'", "'or'", "'!'",
+      "'not'", "'byref'", "'unused'", "'error'", "'hash'", "'dictionary'",
+      "'struct'", "'array'", "'stack'", "'in'", "'uninit'", "", "", "",
+      "", "", "", "", "", "'('", "')'", "'['", "']'", "'{'", "'}'", "'.'",
+      "'->'", "'*'", "'/'", "'%'", "'+'", "'-'", "'+='", "'-='", "'*='",
+      "'/='", "'%='", "'<='", "'<'", "'>='", "'>'", "'>>'", "'<<'", "'&'",
+      "'^'", "'|'", "'<>'", "'!='", "'='", "'=='", "':='", "'.+'", "'.-'",
+      "'.\\u003F'", "';'", "','", "'~'", "'@'", "'::'", "':'", "'++'", "'--'",
       "'\\u003F:'", "'\\u003F'", "", "", "", "", "'{{'"
     },
     std::vector<std::string>{
-      "", "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST", 
-      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION", 
-      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR", 
-      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM", 
-      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "DOWNTO", "STEP", 
-      "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING", "TOK_LONG", "INTEGER", 
-      "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE", "AS", "IS", "AND_A", 
-      "AND_B", "OR_A", "OR_B", "BANG_A", "BANG_B", "BYREF", "UNUSED", "TOK_ERROR", 
-      "HASH", "DICTIONARY", "STRUCT", "ARRAY", "STACK", "TOK_IN", "UNINIT", 
-      "DECIMAL_LITERAL", "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL", 
-      "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", "STRING_LITERAL", "INTERPOLATED_STRING_START", 
-      "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT", 
-      "ARROW", "MUL", "DIV", "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN", 
-      "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "LE", "LT", "GE", "GT", 
-      "RSHIFT", "LSHIFT", "BITAND", "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B", 
-      "EQUAL_DEPRECATED", "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER", 
-      "SEMI", "COMMA", "TILDE", "AT", "COLONCOLON", "COLON", "INC", "DEC", 
-      "ELVIS", "QUESTION", "WS", "COMMENT", "LINE_COMMENT", "IDENTIFIER", 
-      "DOUBLE_LBRACE_INSIDE", "LBRACE_INSIDE", "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE", 
+      "", "IF", "THEN", "ELSEIF", "ENDIF", "ELSE", "GOTO", "RETURN", "TOK_CONST",
+      "VAR", "DO", "DOWHILE", "WHILE", "ENDWHILE", "EXIT", "FUNCTION", "ENDFUNCTION",
+      "EXPORTED", "USE", "INCLUDE", "BREAK", "CONTINUE", "FOR", "ENDFOR",
+      "TO", "FOREACH", "ENDFOREACH", "REPEAT", "UNTIL", "PROGRAM", "ENDPROGRAM",
+      "CASE", "DEFAULT", "ENDCASE", "ENUM", "ENDENUM", "DOWNTO", "STEP",
+      "REFERENCE", "TOK_OUT", "INOUT", "BYVAL", "STRING", "TOK_LONG", "INTEGER",
+      "UNSIGNED", "SIGNED", "REAL", "FLOAT", "DOUBLE", "AS", "IS", "AND_A",
+      "AND_B", "OR_A", "OR_B", "BANG_A", "BANG_B", "BYREF", "UNUSED", "TOK_ERROR",
+      "HASH", "DICTIONARY", "STRUCT", "ARRAY", "STACK", "TOK_IN", "UNINIT",
+      "DECIMAL_LITERAL", "HEX_LITERAL", "OCT_LITERAL", "BINARY_LITERAL",
+      "FLOAT_LITERAL", "HEX_FLOAT_LITERAL", "STRING_LITERAL", "INTERPOLATED_STRING_START",
+      "LPAREN", "RPAREN", "LBRACK", "RBRACK", "LBRACE", "RBRACE", "DOT",
+      "ARROW", "MUL", "DIV", "MOD", "ADD", "SUB", "ADD_ASSIGN", "SUB_ASSIGN",
+      "MUL_ASSIGN", "DIV_ASSIGN", "MOD_ASSIGN", "LE", "LT", "GE", "GT",
+      "RSHIFT", "LSHIFT", "BITAND", "CARET", "BITOR", "NOTEQUAL_A", "NOTEQUAL_B",
+      "EQUAL_DEPRECATED", "EQUAL", "ASSIGN", "ADDMEMBER", "DELMEMBER", "CHKMEMBER",
+      "SEMI", "COMMA", "TILDE", "AT", "COLONCOLON", "COLON", "INC", "DEC",
+      "ELVIS", "QUESTION", "WS", "COMMENT", "LINE_COMMENT", "IDENTIFIER",
+      "DOUBLE_LBRACE_INSIDE", "LBRACE_INSIDE", "REGULAR_CHAR_INSIDE", "DOUBLE_QUOTE_INSIDE",
       "DOUBLE_RBRACE", "STRING_LITERAL_INSIDE", "CLOSE_RBRACE_INSIDE", "FORMAT_STRING"
     }
   );
@@ -404,7 +404,7 @@ void escriptparserParserInitialize() {
 
   const size_t count = staticData->atn->getNumberOfDecisions();
   staticData->decisionToDFA.reserve(count);
-  for (size_t i = 0; i < count; i++) { 
+  for (size_t i = 0; i < count; i++) {
     staticData->decisionToDFA.emplace_back(staticData->atn->getDecisionState(i), i);
   }
   escriptparserParserStaticData = staticData.release();
@@ -515,7 +515,7 @@ EscriptParser::CompilationUnitContext* EscriptParser::compilationUnit() {
     }
     setState(160);
     match(EscriptParser::EOF);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -595,7 +595,7 @@ EscriptParser::ModuleUnitContext* EscriptParser::moduleUnit() {
     }
     setState(168);
     match(EscriptParser::EOF);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -677,7 +677,7 @@ EscriptParser::ModuleDeclarationStatementContext* EscriptParser::moduleDeclarati
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -769,7 +769,7 @@ EscriptParser::ModuleFunctionDeclarationContext* EscriptParser::moduleFunctionDe
     match(EscriptParser::RPAREN);
     setState(180);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -855,7 +855,7 @@ EscriptParser::ModuleFunctionParameterListContext* EscriptParser::moduleFunction
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -935,7 +935,7 @@ EscriptParser::ModuleFunctionParameterContext* EscriptParser::moduleFunctionPara
       setState(192);
       expression(0);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1090,7 +1090,7 @@ EscriptParser::TopLevelDeclarationContext* EscriptParser::topLevelDeclaration() 
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1188,7 +1188,7 @@ EscriptParser::FunctionDeclarationContext* EscriptParser::functionDeclaration() 
     block();
     setState(209);
     match(EscriptParser::ENDFUNCTION);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1263,7 +1263,7 @@ EscriptParser::StringIdentifierContext* EscriptParser::stringIdentifier() {
       _errHandler->reportMatch(this);
       consume();
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1336,7 +1336,7 @@ EscriptParser::UseDeclarationContext* EscriptParser::useDeclaration() {
     stringIdentifier();
     setState(215);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1409,7 +1409,7 @@ EscriptParser::IncludeDeclarationContext* EscriptParser::includeDeclaration() {
     stringIdentifier();
     setState(219);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1494,7 +1494,7 @@ EscriptParser::ProgramDeclarationContext* EscriptParser::programDeclaration() {
     block();
     setState(225);
     match(EscriptParser::ENDPROGRAM);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1743,7 +1743,7 @@ EscriptParser::StatementContext* EscriptParser::statement() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1810,7 +1810,7 @@ EscriptParser::StatementLabelContext* EscriptParser::statementLabel() {
     match(EscriptParser::IDENTIFIER);
     setState(249);
     match(EscriptParser::COLON);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -1946,7 +1946,7 @@ EscriptParser::IfStatementContext* EscriptParser::ifStatement() {
     }
     setState(270);
     match(EscriptParser::ENDIF);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2019,7 +2019,7 @@ EscriptParser::GotoStatementContext* EscriptParser::gotoStatement() {
     match(EscriptParser::IDENTIFIER);
     setState(274);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2101,7 +2101,7 @@ EscriptParser::ReturnStatementContext* EscriptParser::returnStatement() {
     }
     setState(280);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2174,7 +2174,7 @@ EscriptParser::ConstStatementContext* EscriptParser::constStatement() {
     constantDeclaration();
     setState(284);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2247,7 +2247,7 @@ EscriptParser::VarStatementContext* EscriptParser::varStatement() {
     variableDeclarationList();
     setState(288);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2345,7 +2345,7 @@ EscriptParser::DoStatementContext* EscriptParser::doStatement() {
     parExpression();
     setState(297);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2437,7 +2437,7 @@ EscriptParser::WhileStatementContext* EscriptParser::whileStatement() {
     block();
     setState(305);
     match(EscriptParser::ENDWHILE);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2504,7 +2504,7 @@ EscriptParser::ExitStatementContext* EscriptParser::exitStatement() {
     match(EscriptParser::EXIT);
     setState(308);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2584,7 +2584,7 @@ EscriptParser::BreakStatementContext* EscriptParser::breakStatement() {
     }
     setState(314);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2664,7 +2664,7 @@ EscriptParser::ContinueStatementContext* EscriptParser::continueStatement() {
     }
     setState(320);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2750,7 +2750,7 @@ EscriptParser::ForStatementContext* EscriptParser::forStatement() {
     forGroup();
     setState(327);
     match(EscriptParser::ENDFOR);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2876,7 +2876,7 @@ EscriptParser::ForeachIterableExpressionContext* EscriptParser::foreachIterableE
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -2980,7 +2980,7 @@ EscriptParser::ForeachStatementContext* EscriptParser::foreachStatement() {
     block();
     setState(345);
     match(EscriptParser::ENDFOREACH);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3078,7 +3078,7 @@ EscriptParser::RepeatStatementContext* EscriptParser::repeatStatement() {
     expression(0);
     setState(354);
     match(EscriptParser::SEMI);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3182,20 +3182,20 @@ EscriptParser::CaseStatementContext* EscriptParser::caseStatement() {
     expression(0);
     setState(362);
     match(EscriptParser::RPAREN);
-    setState(364); 
+    setState(364);
     _errHandler->sync(this);
     _la = _input->LA(1);
     do {
       setState(363);
       switchBlockStatementGroup();
-      setState(366); 
+      setState(366);
       _errHandler->sync(this);
       _la = _input->LA(1);
     } while (_la == EscriptParser::DEFAULT || ((((_la - 68) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 68)) & 72057594037928015) != 0));
     setState(368);
     match(EscriptParser::ENDCASE);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3274,7 +3274,7 @@ EscriptParser::EnumStatementContext* EscriptParser::enumStatement() {
     enumList();
     setState(373);
     match(EscriptParser::ENDENUM);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3344,13 +3344,13 @@ EscriptParser::BlockContext* EscriptParser::block() {
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
         setState(375);
-        statement(); 
+        statement();
       }
       setState(380);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 23, _ctx);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3438,7 +3438,7 @@ EscriptParser::VariableDeclarationInitializerContext* EscriptParser::variableDec
         match(EscriptParser::EQUAL_DEPRECATED);
         setState(384);
         expression(0);
-         notifyErrorListeners("Unexpected token: '='. Did you mean := for assign?\n"); 
+         notifyErrorListeners("Unexpected token: '='. Did you mean := for assign?\n");
         break;
       }
 
@@ -3452,7 +3452,7 @@ EscriptParser::VariableDeclarationInitializerContext* EscriptParser::variableDec
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3535,7 +3535,7 @@ EscriptParser::EnumListContext* EscriptParser::enumList() {
         setState(391);
         match(EscriptParser::COMMA);
         setState(392);
-        enumListEntry(); 
+        enumListEntry();
       }
       setState(397);
       _errHandler->sync(this);
@@ -3549,7 +3549,7 @@ EscriptParser::EnumListContext* EscriptParser::enumList() {
       setState(398);
       match(EscriptParser::COMMA);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3629,7 +3629,7 @@ EscriptParser::EnumListEntryContext* EscriptParser::enumListEntry() {
       setState(403);
       expression(0);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3697,7 +3697,7 @@ EscriptParser::SwitchBlockStatementGroupContext* EscriptParser::switchBlockState
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(407); 
+    setState(407);
     _errHandler->sync(this);
     alt = 1;
     do {
@@ -3711,13 +3711,13 @@ EscriptParser::SwitchBlockStatementGroupContext* EscriptParser::switchBlockState
       default:
         throw NoViableAltException(this);
       }
-      setState(409); 
+      setState(409);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 28, _ctx);
     } while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER);
     setState(411);
     block();
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3845,7 +3845,7 @@ EscriptParser::SwitchLabelContext* EscriptParser::switchLabel() {
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -3927,7 +3927,7 @@ EscriptParser::ForGroupContext* EscriptParser::forGroup() {
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4018,7 +4018,7 @@ EscriptParser::BasicForStatementContext* EscriptParser::basicForStatement() {
     expression(0);
     setState(432);
     block();
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4117,7 +4117,7 @@ EscriptParser::CstyleForStatementContext* EscriptParser::cstyleForStatement() {
     match(EscriptParser::RPAREN);
     setState(441);
     block();
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4201,7 +4201,7 @@ EscriptParser::IdentifierListContext* EscriptParser::identifierList() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4287,7 +4287,7 @@ EscriptParser::VariableDeclarationListContext* EscriptParser::variableDeclaratio
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4354,7 +4354,7 @@ EscriptParser::ConstantDeclarationContext* EscriptParser::constantDeclaration() 
     match(EscriptParser::IDENTIFIER);
     setState(457);
     variableDeclarationInitializer();
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4429,7 +4429,7 @@ EscriptParser::VariableDeclarationContext* EscriptParser::variableDeclaration() 
       setState(460);
       variableDeclarationInitializer();
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4509,7 +4509,7 @@ EscriptParser::ProgramParametersContext* EscriptParser::programParameters() {
     }
     setState(467);
     match(EscriptParser::RPAREN);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4603,7 +4603,7 @@ EscriptParser::ProgramParameterListContext* EscriptParser::programParameterList(
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4706,7 +4706,7 @@ EscriptParser::ProgramParameterContext* EscriptParser::programParameter() {
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4788,7 +4788,7 @@ EscriptParser::FunctionParametersContext* EscriptParser::functionParameters() {
     }
     setState(492);
     match(EscriptParser::RPAREN);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4874,7 +4874,7 @@ EscriptParser::FunctionParameterListContext* EscriptParser::functionParameterLis
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -4978,7 +4978,7 @@ EscriptParser::FunctionParameterContext* EscriptParser::functionParameter() {
       setState(510);
       expression(0);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -5051,7 +5051,7 @@ EscriptParser::ScopedFunctionCallContext* EscriptParser::scopedFunctionCall() {
     match(EscriptParser::COLONCOLON);
     setState(515);
     functionCall();
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -5118,7 +5118,7 @@ EscriptParser::FunctionReferenceContext* EscriptParser::functionReference() {
     match(EscriptParser::AT);
     setState(518);
     match(EscriptParser::IDENTIFIER);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -5541,7 +5541,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
           if (!(precpred(_ctx, 7))) throw FailedPredicateException(this, "precpred(_ctx, 7)");
           setState(544);
           antlrcpp::downCast<ExpressionContext *>(_localctx)->bop = match(EscriptParser::EQUAL_DEPRECATED);
-           notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n"); 
+           notifyErrorListeners("Deprecated '=' found: did you mean '==' or ':='?\n");
           setState(546);
           expression(8);
           break;
@@ -5710,7 +5710,7 @@ EscriptParser::ExpressionContext* EscriptParser::expression(int precedence) {
 
         default:
           break;
-        } 
+        }
       }
       setState(576);
       _errHandler->sync(this);
@@ -5917,7 +5917,7 @@ EscriptParser::PrimaryContext* EscriptParser::primary() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -5995,7 +5995,7 @@ EscriptParser::ExplicitArrayInitializerContext* EscriptParser::explicitArrayInit
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6073,7 +6073,7 @@ EscriptParser::ExplicitStructInitializerContext* EscriptParser::explicitStructIn
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6151,7 +6151,7 @@ EscriptParser::ExplicitDictInitializerContext* EscriptParser::explicitDictInitia
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6229,7 +6229,7 @@ EscriptParser::ExplicitErrorInitializerContext* EscriptParser::explicitErrorInit
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6347,7 +6347,7 @@ EscriptParser::BareArrayInitializerContext* EscriptParser::bareArrayInitializer(
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6420,7 +6420,7 @@ EscriptParser::ParExpressionContext* EscriptParser::parExpression() {
     expression(0);
     setState(624);
     match(EscriptParser::RPAREN);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6502,13 +6502,13 @@ EscriptParser::ExpressionListContext* EscriptParser::expressionList() {
         setState(627);
         match(EscriptParser::COMMA);
         setState(628);
-        expression(0); 
+        expression(0);
       }
       setState(633);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 56, _ctx);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6601,7 +6601,7 @@ EscriptParser::ExpressionSuffixContext* EscriptParser::expressionSuffix() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6674,7 +6674,7 @@ EscriptParser::IndexingSuffixContext* EscriptParser::indexingSuffix() {
     expressionList();
     setState(641);
     match(EscriptParser::RBRACK);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6755,7 +6755,7 @@ EscriptParser::NavigationSuffixContext* EscriptParser::navigationSuffix() {
       _errHandler->reportMatch(this);
       consume();
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6849,7 +6849,7 @@ EscriptParser::MethodCallSuffixContext* EscriptParser::methodCallSuffix() {
     }
     setState(652);
     match(EscriptParser::RPAREN);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -6937,7 +6937,7 @@ EscriptParser::FunctionCallContext* EscriptParser::functionCall() {
     }
     setState(659);
     match(EscriptParser::RPAREN);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7048,7 +7048,7 @@ EscriptParser::StructInitializerExpressionContext* EscriptParser::structInitiali
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7130,13 +7130,13 @@ EscriptParser::StructInitializerExpressionListContext* EscriptParser::structInit
         setState(674);
         match(EscriptParser::COMMA);
         setState(675);
-        structInitializerExpression(); 
+        structInitializerExpression();
       }
       setState(680);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 63, _ctx);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7254,7 +7254,7 @@ EscriptParser::StructInitializerContext* EscriptParser::structInitializer() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7334,7 +7334,7 @@ EscriptParser::DictInitializerExpressionContext* EscriptParser::dictInitializerE
       setState(697);
       expression(0);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7416,13 +7416,13 @@ EscriptParser::DictInitializerExpressionListContext* EscriptParser::dictInitiali
         setState(701);
         match(EscriptParser::COMMA);
         setState(702);
-        dictInitializerExpression(); 
+        dictInitializerExpression();
       }
       setState(707);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 68, _ctx);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7540,7 +7540,7 @@ EscriptParser::DictInitializerContext* EscriptParser::dictInitializer() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7707,7 +7707,7 @@ EscriptParser::ArrayInitializerContext* EscriptParser::arrayInitializer() {
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7804,7 +7804,7 @@ EscriptParser::LiteralContext* EscriptParser::literal() {
     default:
       throw NoViableAltException(this);
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -7891,7 +7891,7 @@ EscriptParser::InterpolatedStringContext* EscriptParser::interpolatedString() {
     }
     setState(760);
     match(EscriptParser::DOUBLE_QUOTE_INSIDE);
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -8049,7 +8049,7 @@ EscriptParser::InterpolatedStringPartContext* EscriptParser::interpolatedStringP
     default:
       break;
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -8131,7 +8131,7 @@ EscriptParser::IntegerLiteralContext* EscriptParser::integerLiteral() {
       _errHandler->reportMatch(this);
       consume();
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
@@ -8206,7 +8206,7 @@ EscriptParser::FloatLiteralContext* EscriptParser::floatLiteral() {
       _errHandler->reportMatch(this);
       consume();
     }
-   
+
   }
   catch (RecognitionException &e) {
     _errHandler->reportError(this, e);
