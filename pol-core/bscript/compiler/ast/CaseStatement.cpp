@@ -29,11 +29,11 @@ void CaseStatement::accept( NodeVisitor& visitor )
   visitor.visit_case_statement( *this );
 }
 
-void CaseStatement::describe_to( fmt::Writer& w ) const
+void CaseStatement::describe_to( std::string& w ) const
 {
-  w << "case-statement";
+  w += "case-statement";
   if ( !get_label().empty() )
-    w << "(label:" << get_label() << ")";
+    fmt::format_to( std::back_inserter( w ), "(label:{})", get_label() );
 }
 
 Expression& CaseStatement::expression()

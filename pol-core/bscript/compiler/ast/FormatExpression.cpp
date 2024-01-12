@@ -23,9 +23,9 @@ void FormatExpression::accept( NodeVisitor& visitor )
   visitor.visit_format_expression( *this );
 }
 
-void FormatExpression::describe_to( fmt::Writer& w ) const
+void FormatExpression::describe_to( std::string& w ) const
 {
-  w << "format-expression";
+  w += "format-expression";
 }
 
 }  // namespace Pol::Bscript::Compiler

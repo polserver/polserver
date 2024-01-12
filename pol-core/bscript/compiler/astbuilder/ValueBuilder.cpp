@@ -2,7 +2,6 @@
 
 #include <cstring>
 
-#include "clib/strutil.h"
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/FunctionReference.h"
@@ -11,6 +10,7 @@
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "clib/strutil.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -18,7 +18,7 @@ namespace Pol::Bscript::Compiler
 {
 ValueBuilder::ValueBuilder( const SourceFileIdentifier& source_file_identifier,
                             BuilderWorkspace& workspace )
-  : TreeBuilder( source_file_identifier, workspace )
+    : TreeBuilder( source_file_identifier, workspace )
 {
 }
 
@@ -61,8 +61,8 @@ std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
   return std::make_unique<IntegerValue>( loc, to_int( ctx ) );
 }
 
-std::unique_ptr<StringValue> ValueBuilder::string_value(
-    antlr4::tree::TerminalNode* string_literal, bool expect_quotes )
+std::unique_ptr<StringValue> ValueBuilder::string_value( antlr4::tree::TerminalNode* string_literal,
+                                                         bool expect_quotes )
 {
   auto loc = location_for( *string_literal );
   return std::make_unique<StringValue>( loc, unquote( string_literal, expect_quotes ) );
@@ -120,8 +120,8 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, b
         char ord = static_cast<char>( strtol( hexstr, &endptr, 16 ) );
         if ( *endptr != '\0' )
         {
-          report.error( location_for( *string_literal ), "Invalid hex escape sequence '", hexstr,
-                        "'.\n" );
+          report.error( location_for( *string_literal ), "Invalid hex escape sequence '{}'.",
+                        hexstr );
           return lit;
         }
         lit += ord;
@@ -141,7 +141,7 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, b
   if ( !Clib::isValidUnicode( lit ) )
   {
     report.warning( location_for( *string_literal ),
-                    "Warning: invalid unicode character detected. Assuming ISO8859.\n" );
+                    "Warning: invalid unicode character detected. Assuming ISO8859." );
 
     Clib::sanitizeUnicodeWithIso( &lit );
   }
@@ -191,13 +191,12 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
   }
   catch ( std::invalid_argument& )
   {
-    report.error( location_for( *ctx ), "unable to convert integer value '", ctx->getText(),
-                  "'.\n" );
+    report.error( location_for( *ctx ), "unable to convert integer value '{}'.", ctx->getText() );
     throw;
   }
   catch ( std::out_of_range& )
   {
-    report.error( location_for( *ctx ), "integer value '", ctx->getText(), "' out of range.\n" );
+    report.error( location_for( *ctx ), "integer value '{}' out of range.", ctx->getText() );
     throw;
   }
 

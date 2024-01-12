@@ -241,13 +241,13 @@ void EScriptProgram::addToken( const Token& token )
     break;
 
     default:
-      ERROR_PRINT << "AddToken: Can't handle TYP_CONTROL: " << token << "\n";
+      ERROR_PRINTLN( "AddToken: Can't handle TYP_CONTROL: {}", token );
       throw std::runtime_error( "Unexpected token in AddToken() (1)" );
       break;
     }
     break;
   default:
-    ERROR_PRINT << "AddToken: Can't handle " << token << "\n";
+    ERROR_PRINTLN( "AddToken: Can't handle {}", token );
     throw std::runtime_error( "Unexpected Token passed to AddToken() (2)" );
     break;
   }

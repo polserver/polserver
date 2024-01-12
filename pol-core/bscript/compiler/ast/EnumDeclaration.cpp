@@ -22,9 +22,9 @@ void EnumDeclaration::accept( NodeVisitor& visitor )
   visitor.visit_enum_declaration( *this );
 }
 
-void EnumDeclaration::describe_to( fmt::Writer& w ) const
+void EnumDeclaration::describe_to( std::string& w ) const
 {
-  w << "enum-declaration";
+  w += "enum-declaration";
 }
 
 }  // namespace Pol::Bscript::Compiler

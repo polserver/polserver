@@ -9,6 +9,7 @@
 #define ACTION_H
 
 #include <cstddef>
+#include <fmt/format.h>
 #include <vector>
 
 #include "../clib/rawtypes.h"
@@ -63,6 +64,10 @@ enum UACTION
   ACTION_EAT = 0x22,
   ACTION__HIGHEST = 0x22
 };
+inline auto format_as( UACTION a )
+{
+  return fmt::underlying( a );
+}
 
 inline bool UACTION_IS_VALID( unsigned short action )
 {
@@ -114,6 +119,6 @@ struct MobileTranslate
   bool has_graphic( u16 graphic ) const;
   size_t estimateSize() const;
 };
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

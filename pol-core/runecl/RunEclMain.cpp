@@ -60,13 +60,14 @@ RunEclMain::~RunEclMain() {}
 
 void RunEclMain::showHelp()
 {
-  ERROR_PRINT << "Usage:\n"
-              << "    \n"
-              << "  RUNECL [options] filespec [filespec ...]\n"
-              << "        Options:\n"
-              << "            -q    Quiet\n"
-              << "            -d    Debug output\n"
-              << "            -p    Profile\n";
+  ERROR_PRINTLN(
+      "Usage:\n"
+      "    \n"
+      "  RUNECL [options] filespec [filespec ...]\n"
+      "        Options:\n"
+      "            -q    Quiet\n"
+      "            -d    Debug output\n"
+      "            -p    Profile" );
   // TODO: what about "-v" and "-a"?
 }
 
@@ -118,7 +119,7 @@ int RunEclMain::runeclScript( std::string fileName )
   ref_ptr<EScriptProgram> program( new EScriptProgram );
   if ( program->read( fileName.c_str() ) )
   {
-    ERROR_PRINT << "Error reading " << fileName << "\n";
+    ERROR_PRINTLN( "Error reading {}", fileName );
     return 1;
   }
   exe.setProgram( program.get() );
@@ -228,7 +229,7 @@ int RunEclMain::runecl()
       case 'P':
         break;
       default:
-        ERROR_PRINT << "Unknown option: " << binArgs[i] << "\n";
+        ERROR_PRINTLN( "Unknown option: {}", binArgs[i] );
         return 1;
       }
       break;
@@ -255,7 +256,10 @@ int RunEclMain::main()
   if ( !m_quiet )
   {
     double vernum = 1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    ERROR_PRINT << "EScript Executor v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
+    ERROR_PRINTLN(
+        "EScript Executor v{}\n"
+        "{}\n",
+        vernum, POL_COPYRIGHT );
   }
 
   /**********************************************

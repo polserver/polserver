@@ -27,9 +27,9 @@ void FunctionCall::accept( NodeVisitor& visitor )
   visitor.visit_function_call( *this );
 }
 
-void FunctionCall::describe_to( fmt::Writer& w ) const
+void FunctionCall::describe_to( std::string& w ) const
 {
-  w << "function-call(" << method_name << ")";
+  fmt::format_to( std::back_inserter( w ), "function-call({})", method_name );
 }
 
 std::vector<std::unique_ptr<Argument>> FunctionCall::take_arguments()

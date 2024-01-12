@@ -18,9 +18,9 @@ void ReturnStatement::accept( NodeVisitor& visitor )
   visitor.visit_return_statement( *this );
 }
 
-void ReturnStatement::describe_to( fmt::Writer& w ) const
+void ReturnStatement::describe_to( std::string& w ) const
 {
-  w << "return-statement";
+  w += "return-statement";
 }
 
 }  // namespace Pol::Bscript::Compiler

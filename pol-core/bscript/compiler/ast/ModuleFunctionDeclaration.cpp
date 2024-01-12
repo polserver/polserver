@@ -22,9 +22,10 @@ void ModuleFunctionDeclaration::accept( NodeVisitor& visitor )
   visitor.visit_module_function_declaration( *this );
 }
 
-void ModuleFunctionDeclaration::describe_to( fmt::Writer& w ) const
+void ModuleFunctionDeclaration::describe_to( std::string& w ) const
 {
-  w << "module-function-declaration(" << module_name << "::" << name << ")";
+  fmt::format_to( std::back_inserter( w ), "module-function-declaration({}::{})", module_name,
+                  name );
 }
 
 }  // namespace Pol::Bscript::Compiler

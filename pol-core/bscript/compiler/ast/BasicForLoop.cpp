@@ -25,9 +25,9 @@ void BasicForLoop::accept( NodeVisitor& visitor )
   visitor.visit_basic_for_loop( *this );
 }
 
-void BasicForLoop::describe_to( fmt::Writer& w ) const
+void BasicForLoop::describe_to( std::string& w ) const
 {
-  w << "basic-for-loop";
+  w += "basic-for-loop";
 }
 
 Expression& BasicForLoop::first()

@@ -8,8 +8,8 @@
 
 #include <stddef.h>
 
-#include <format/format.h>
 #include "../clib/logfacility.h"
+#include <format/format.h>
 
 namespace Pol
 {
@@ -19,12 +19,12 @@ unsigned int UserFunction::_instances;
 std::set<UserFunction*> UserFunction::_instancelist;
 void UserFunction::show_instances()
 {
-  fmt::Writer tmp;
+  std::string tmp;
   for ( const auto& uf : _instancelist )
   {
-    tmp << uf->name << "\n";
+    tmp += uf->name + "\n";
   }
-  ERROR_PRINT << tmp.str();
+  ERROR_PRINT( tmp );
 }
 void UserFunction::register_instance()
 {
@@ -52,5 +52,5 @@ UserFunction::UserFunction()
 {
 }
 
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

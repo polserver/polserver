@@ -32,6 +32,7 @@
 #include "str.h"
 #include "token.h"
 #include "tokens.h"
+#include <iterator>
 #ifdef MEMORYLEAK
 #include "../clib/mlog.h"
 #endif
@@ -137,8 +138,7 @@ bool Executor::AttachFunctionalityModules()
     execmodules.push_back( em );
     if ( em == nullptr )
     {
-      ERROR_PRINT << "WARNING: " << scriptname() << ": Unable to find module "
-                  << fm->modulename.get() << "\n";
+      ERROR_PRINTLN( "WARNING: {}: Unable to find module {}", scriptname(), fm->modulename.get() );
       return false;
     }
 
@@ -158,8 +158,7 @@ bool Executor::AttachFunctionalityModules()
           func->funcidx = em->functionIndex( func->name.get() );
           if ( func->funcidx == -1 )
           {
-            ERROR_PRINT << "Unable to find " << fm->modulename.get() << "::" << func->name.get()
-                        << "\n";
+            ERROR_PRINTLN( "Unable to find {}::{}", fm->modulename.get(), func->name.get() );
             return false;
           }
         }
@@ -888,7 +887,7 @@ void Executor::ins_declareArray( const Instruction& /*ins*/ )
   if ( !objref->isa( BObjectImp::OTUninit ) )
   {
     // FIXME: weak error message
-    ERROR_PRINT << "variable is already initialized..\n";
+    ERROR_PRINTLN( "variable is already initialized.." );
     seterror( true );
     return;
   }
@@ -2572,7 +2571,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
 {
   if ( ControlStack.empty() )
   {
-    ERROR_PRINT << "Return without GOSUB! (PC=" << PC << ", " << scriptname() << ")\n";
+    ERROR_PRINTLN( "Return without GOSUB! (PC={}, {})", PC, scriptname() );
 
     seterror( true );
     return;
@@ -3116,6 +3115,12 @@ std::string Executor::dbg_get_instruction( size_t atPC ) const
      << prog_->instr[atPC].token;
   return os.str();
 }
+void Executor::dbg_get_instruction( size_t atPC, std::string& os ) const
+{
+  fmt::format_to( std::back_inserter( os ), "{}{}{} {}", ( atPC == PC ) ? ">" : " ", atPC,
+                  breakpoints_.count( static_cast<unsigned>( atPC ) ) ? "*" : ":",
+                  prog_->instr[atPC].token );
+}
 
 void Executor::show_context( unsigned atPC )
 {
@@ -3151,6 +3156,25 @@ void Executor::show_context( fmt::Writer& os, unsigned atPC )
   for ( unsigned i = start; i <= end; ++i )
   {
     os << dbg_get_instruction( i ) << '\n';
+  }
+}
+void Executor::show_context( std::string& os, unsigned atPC )
+{
+  unsigned start, end;
+  if ( atPC >= 5 )
+    start = atPC - 5;
+  else
+    start = 0;
+
+  end = atPC + 5;
+
+  if ( end >= nLines )
+    end = nLines - 1;
+
+  for ( unsigned i = start; i <= end; ++i )
+  {
+    dbg_get_instruction( i, os );
+    os += '\n';
   }
 }
 

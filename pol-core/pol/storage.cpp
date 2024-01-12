@@ -242,13 +242,13 @@ void Storage::read( Clib::ConfigFile& cf )
       }
       else
       {
-        ERROR_PRINT << "Storage: Got an ITEM element, but don't have a StorageArea to put it.\n";
+        ERROR_PRINTLN( "Storage: Got an ITEM element, but don't have a StorageArea to put it." );
         throw std::runtime_error( "Data file integrity error" );
       }
     }
     else
     {
-      ERROR_PRINT << "Unexpected element type " << elem.type() << " in storage file.\n";
+      ERROR_PRINTLN( "Unexpected element type {} in storage file.", elem.type() );
       throw std::runtime_error( "Data file integrity error" );
     }
     ++nobjects;

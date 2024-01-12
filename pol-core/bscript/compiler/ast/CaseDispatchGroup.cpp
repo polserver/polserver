@@ -24,9 +24,9 @@ void CaseDispatchGroup::accept( NodeVisitor& visitor )
   visitor.visit_case_dispatch_group( *this );
 }
 
-void CaseDispatchGroup::describe_to( fmt::Writer& w ) const
+void CaseDispatchGroup::describe_to( std::string& w ) const
 {
-  w << "case-dispatch-group";
+  w += "case-dispatch-group";
 }
 
 CaseDispatchSelectors& CaseDispatchGroup::selectors()

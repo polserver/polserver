@@ -22,9 +22,9 @@ void VariableAssignmentStatement::accept( NodeVisitor& visitor )
   visitor.visit_variable_assignment_statement( *this );
 }
 
-void VariableAssignmentStatement::describe_to( fmt::Writer& w ) const
+void VariableAssignmentStatement::describe_to( std::string& w ) const
 {
-  w << "variable-assignment-statement";
+  w += "variable-assignment-statement";
 }
 
 Identifier& VariableAssignmentStatement::identifier()

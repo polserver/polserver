@@ -115,7 +115,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
 
   if ( !ifs )
   {
-    ERROR_PRINT << "Error when opening UOP file.\n";
+    ERROR_PRINTLN( "Error when opening UOP file." );
     return 0;
   }
 
@@ -147,7 +147,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
 
   if ( uopfile.header()->nfiles() != filemap.size() )
     INFO_PRINTLN( "Warning: not all chunks read ({}/{})", filemap.size(),
-                 uopfile.header()->nfiles() );
+                  uopfile.header()->nfiles() );
 
   // Sanity checking and pre-allocate mapinfo vector
   passert_r(
@@ -165,8 +165,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
     auto fileitr = filemap.find( maphash( uo_mapid, i ) );
     if ( fileitr == filemap.end() )
     {
-      ERROR_PRINT << "Couldn't find file hash: " << std::to_string( maphash( uo_mapid, i ) )
-                  << "\n";
+      ERROR_PRINTLN( "Couldn't find file hash: {}", std::to_string( maphash( uo_mapid, i ) ) );
       throw std::runtime_error( "UOP map is missing a file chunk." );
     }
 

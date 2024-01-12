@@ -17,9 +17,9 @@ void ArrayInitializer::accept( NodeVisitor& visitor )
   visitor.visit_array_initializer( *this );
 }
 
-void ArrayInitializer::describe_to( fmt::Writer& w ) const
+void ArrayInitializer::describe_to( std::string& w ) const
 {
-  w << "array-initializer";
+  w += "array-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -93,22 +93,22 @@ void ProgramMain::start( int argc, char* argv[] )
   }
   catch ( const char* msg )
   {
-    ERROR_PRINT << "Execution aborted due to: " << msg << "\n";
+    ERROR_PRINTLN( "Execution aborted due to: {}", msg );
     exitcode = 1;
   }
   catch ( std::string& str )
   {
-    ERROR_PRINT << "Execution aborted due to: " << str << "\n";
+    ERROR_PRINTLN( "Execution aborted due to: {}", str );
     exitcode = 1;
   }                                 // egcs has some trouble realizing 'exception' should catch
   catch ( std::runtime_error& re )  // runtime_errors, so...
   {
-    ERROR_PRINT << "Execution aborted due to: " << re.what() << "\n";
+    ERROR_PRINTLN( "Execution aborted due to: {}", re.what() );
     exitcode = 1;
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Execution aborted due to: " << ex.what() << "\n";
+    ERROR_PRINTLN( "Execution aborted due to: {}", ex.what() );
     exitcode = 1;
   }
   catch ( int xn )
@@ -121,8 +121,7 @@ void ProgramMain::start( int argc, char* argv[] )
 #ifndef _WIN32
   catch ( ... )
   {
-    ERROR_PRINT << "Execution aborted due to generic exception."
-                << "\n";
+    ERROR_PRINTLN( "Execution aborted due to generic exception." );
     exitcode = 2;
   }
 #endif

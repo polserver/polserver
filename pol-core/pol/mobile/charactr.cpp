@@ -189,7 +189,7 @@ unsigned short layer_to_zone( unsigned short layer )
         return zone;
     }
   }
-  ERROR_PRINT << "Couldn't find an Armor Zone in armrzone.cfg for layer " << layer << "\n";
+  ERROR_PRINTLN( "Couldn't find an Armor Zone in armrzone.cfg for layer {}", layer );
   throw std::runtime_error( "Configuration file error" );
 }
 
@@ -207,7 +207,7 @@ unsigned short zone_name_to_zone( const char* zname )
       return zone;
     }
   }
-  ERROR_PRINT << "Couldn't find an armrzone.cfg config elem named '" << zname << "'\n";
+  ERROR_PRINTLN( "Couldn't find an armrzone.cfg config elem named '{}'", zname );
 
   throw std::runtime_error( "Configuration file error" );
 }
@@ -236,9 +236,10 @@ void load_armor_zones()
     {
       if ( in_layer < Core::LOWEST_LAYER || in_layer > Core::HIGHEST_LAYER )
       {
-        ERROR_PRINT << "ArmorZone " << az.name << ": Layer " << in_layer << " is out of range.\n"
-                    << "Valid range is " << Core::LOWEST_LAYER << " to " << Core::HIGHEST_LAYER
-                    << "\n";
+        ERROR_PRINTLN(
+            "ArmorZone {}: Layer {} is out of range.\n"
+            "Valid range is {} to {}",
+            az.name, in_layer, Core::LOWEST_LAYER, Core::HIGHEST_LAYER );
         throw std::runtime_error( "Configuration file error" );
       }
       az.layers.push_back( in_layer );
@@ -792,7 +793,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   {
     if ( Core::system_find_mobile( serial ) )
     {
-      ERROR_PRINT.Format( "Character 0x{:X} defined more than once.\n" ) << serial;
+      ERROR_PRINTLN( "Character {:#X} defined more than once.", serial );
       throw std::runtime_error( "Data integrity error" );
     }
   }
@@ -807,23 +808,20 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
     if ( charindex >= Plib::systemstate.config.character_slots )
     {
-      ERROR_PRINT << "Account " << acctname << ": "
-                  << "CHARIDX of " << charindex << " is too high for character serial (0x"
-                  << fmt::hexu( serial ) << ")\n";
+      ERROR_PRINTLN( "Account {}: CHARIDX of {} is too high for character serial ({:#X})", acctname,
+                     charindex, serial );
 
       throw std::runtime_error( "Data integrity error" );
     }
     Accounts::Account* search_acct = Accounts::find_account( acctname.c_str() );
     if ( search_acct == nullptr )
     {
-      ERROR_PRINT << "Character '" << name() << "': "
-                  << "Account '" << acctname << "' doesn't exist.\n";
+      ERROR_PRINTLN( "Character '{}': Account '{}' doesn't exist.", name(), acctname );
       throw std::runtime_error( "Data integrity error" );
     }
     if ( search_acct->get_character( charindex ) != nullptr )
     {
-      ERROR_PRINT << "Account " << acctname << " has two characters with CHARIDX of " << charindex
-                  << "\n";
+      ERROR_PRINTLN( "Account {} has two characters with CHARIDX of {}", acctname, charindex );
       throw std::runtime_error( "Data integrity error" );
     }
 
@@ -840,7 +838,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   if ( name_ == "" )
   {
-    ERROR_PRINT << "Character '0x" << fmt::hexu( serial ) << "' has no name!\n";
+    ERROR_PRINTLN( "Character '{:#X}' has no name!", serial );
     throw std::runtime_error( "Data integrity error" );
   }
   wornitems->serial = serial;
@@ -1970,7 +1968,7 @@ void Character::resurrect()
 {
   if ( !dead() )
   {
-    ERROR_PRINT << "uh, trying to resurrect " << name() << ", who isn't dead.\n";
+    ERROR_PRINTLN( "uh, trying to resurrect {}, who isn't dead.", name() );
     return;
   }
   set_dirty();
@@ -2072,8 +2070,7 @@ void Character::on_death( Items::Item* corpse )
   }
   else
   {
-    ERROR_PRINT.Format( "Create Character: Failed to equip death shroud 0x{:X}\n" )
-        << death_shroud->graphic;
+    ERROR_PRINTLN( "Create Character: Failed to equip death shroud {:#X}", death_shroud->graphic );
     death_shroud->destroy();
   }
 
@@ -3376,7 +3373,7 @@ void Character::attack( Character* opponent )
 
     if ( Core::settingsManager.watch.combat )
       INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
-                   damage );
+                    damage );
 
     if ( opponent->shield != nullptr )
     {

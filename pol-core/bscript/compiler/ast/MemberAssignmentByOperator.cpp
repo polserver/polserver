@@ -39,9 +39,10 @@ void MemberAssignmentByOperator::accept( NodeVisitor& visitor )
   visitor.visit_member_assignment_by_operator( *this );
 }
 
-void MemberAssignmentByOperator::describe_to( fmt::Writer& w ) const
+void MemberAssignmentByOperator::describe_to( std::string& w ) const
 {
-  w << "member-assignment-by-operator(" << name << ", " << token_id << ")";
+  fmt::format_to( std::back_inserter( w ), "member-assignment-by-operator({}, {})", name,
+                  token_id );
 }
 
 }  // namespace Pol::Bscript::Compiler

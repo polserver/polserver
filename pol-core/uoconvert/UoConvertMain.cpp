@@ -57,18 +57,19 @@ UoConvertMain::~UoConvertMain() {}
 
 void UoConvertMain::showHelp()
 {
-  ERROR_PRINT << "Usage:\n"
-              << "    \n"
-              << "  UOCONVERT command [options ...]\n"
-              << "    \n"
-              << "  Commands: \n"
-              << "    map {uodata=Dir} {realm=realmname} {width=Width}"
-              << "        {height=Height} {mapid=0} {readuop=1} {x=X} {y=Y}\n"
-              << "    statics {uodata=Dir} {realm=realmname}\n"
-              << "    maptile {uodata=Dir} {realm=realmname}\n"
-              << "    multis {uodata=Dir} {outdir=dir}\n"
-              << "    tiles {uodata=Dir} {outdir=dir}\n"
-              << "    landtiles {uodata=Dir} {outdir=dir}\n";
+  ERROR_PRINTLN(
+      "Usage:\n"
+      "    \n"
+      "  UOCONVERT command [options ...]\n"
+      "    \n"
+      "  Commands: \n"
+      "    map {uodata=Dir} {realm=realmname} {width=Width}        {height=Height} {mapid=0} "
+      "{readuop=1} {x=X} {y=Y}\n"
+      "    statics {uodata=Dir} {realm=realmname}\n"
+      "    maptile {uodata=Dir} {realm=realmname}\n"
+      "    multis {uodata=Dir} {outdir=dir}\n"
+      "    tiles {uodata=Dir} {outdir=dir}\n"
+      "    landtiles {uodata=Dir} {outdir=dir}" );
 }
 
 using namespace Core;
@@ -106,7 +107,7 @@ void UoConvertMain::display_flags()
                   0x4000, flags, cfg_use_no_shoot, cfg_LOS_through_windows );
               unsigned moveland = ( polflags & Plib::FLAG::MOVELAND ) ? 1 : 0;
               INFO_PRINTLN( "{} {} {} {} {} {}: {}", blocking, platform, walk, wall, half, floor,
-                           moveland );
+                            moveland );
             }
           }
         }
@@ -207,7 +208,7 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
   ProcessSolidBlock( x_base, y_base, *mapwriter );
   delete mapwriter;
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
-               with_more_solids, total_statics );
+                with_more_solids, total_statics );
 }
 
 void UoConvertMain::create_map( const std::string& realm, unsigned short width,
@@ -783,8 +784,7 @@ void UoConvertMain::write_multi( FILE* multis_cfg, unsigned id, FILE* multi_mul,
     type = "Stairs";
   else
   {
-    ERROR_PRINT << "Type 0x" << fmt::hexu( id )
-                << " not found in uoconvert.cfg, assuming \"House\" type.\n";
+    ERROR_PRINTLN( "Type {:#x} not found in uoconvert.cfg, assuming \"House\" type.", id );
     type = "House";
   }
   mytype = type;
@@ -1165,7 +1165,7 @@ void UoConvertMain::check_for_errors_in_map_parameters()
         MUL::Map::blockSize * MUL::Map::expected_blocks( uo_map_width, uo_map_height );
 
     INFO_PRINTLN( "\nWarning: Width and height do not match the map size ({} bytes, expected {})",
-                 UoConvert::uo_map_size, expected_size );
+                  UoConvert::uo_map_size, expected_size );
 
     if ( uo_map_width == 0 || uo_map_height == 0 )
       throw std::runtime_error(
@@ -1198,7 +1198,7 @@ bool UoConvertMain::convert_uop_to_mul()
   std::ifstream ifs( uop_mapfile, std::ifstream::binary );
   if ( !ifs )
   {
-    ERROR_PRINT << "Error when opening mapfile: " << uop_mapfile << '\n';
+    ERROR_PRINTLN( "Error when opening mapfile: {}", uop_mapfile );
     return false;
   }
 
@@ -1219,7 +1219,7 @@ bool UoConvertMain::convert_uop_to_mul()
 
   if ( uopfile.header()->nfiles() != filemap.size() )
     INFO_PRINTLN( "Warning: not all chunks read ({}/{})", filemap.size(),
-                 uopfile.header()->nfiles() );
+                  uopfile.header()->nfiles() );
 
   std::ofstream ofs( mul_mapfile, std::ofstream::binary );
   for ( size_t i = 0; i < filemap.size(); i++ )
@@ -1326,7 +1326,7 @@ void UoConvertMain::load_uoconvert_cfg()
           {
             UoConvert::cfg_max_statics_per_block = MAX_STATICS_PER_BLOCK;
             INFO_PRINTLN( "max. Statics per Block limited to {} Items",
-                         UoConvert::cfg_max_statics_per_block );
+                          UoConvert::cfg_max_statics_per_block );
           }
           else if ( UoConvert::cfg_max_statics_per_block < 0 )
             UoConvert::cfg_max_statics_per_block = 1000;
@@ -1340,7 +1340,7 @@ void UoConvertMain::load_uoconvert_cfg()
           {
             UoConvert::cfg_warning_statics_per_block = MAX_STATICS_PER_BLOCK;
             INFO_PRINTLN( "max. Statics per Block for Warning limited to {} Items",
-                         UoConvert::cfg_warning_statics_per_block );
+                          UoConvert::cfg_warning_statics_per_block );
           }
           else if ( UoConvert::cfg_warning_statics_per_block < 0 )
             UoConvert::cfg_warning_statics_per_block = 1000;

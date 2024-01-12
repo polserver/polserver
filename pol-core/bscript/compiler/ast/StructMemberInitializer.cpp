@@ -25,9 +25,9 @@ void StructMemberInitializer::accept( NodeVisitor& visitor )
   visitor.visit_struct_member_initializer( *this );
 }
 
-void StructMemberInitializer::describe_to( fmt::Writer& w ) const
+void StructMemberInitializer::describe_to( std::string& w ) const
 {
-  w << "struct-member-initializer(" << name << ")";
+  fmt::format_to( std::back_inserter( w ), "struct-member-initializer({})", name );
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -31,7 +31,6 @@
 #include "../multi/boatcomp.h"
 #include "../objtype.h"
 #include "../polcfg.h"
-#include "regions/resource.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../spelbook.h"
@@ -42,6 +41,7 @@
 #include "armrtmpl.h"
 #include "item.h"
 #include "itemdesc.h"
+#include "regions/resource.h"
 #include "weapon.h"
 #include "wepntmpl.h"
 #include <format/format.h>
@@ -65,14 +65,13 @@ Item* Item::create( u32 objtype, u32 serial )
   }
   else
   {
-    fmt::Writer message;
-    message.Format( "Objtype not defined : 0x{:X}" ) << objtype;
+    std::string message = fmt::format( "Objtype not defined : {:#X}", objtype );
 
     if ( !Plib::systemstate.config.ignore_load_errors )
-      throw std::runtime_error( message.str() );
+      throw std::runtime_error( message );
     else
     {
-      ERROR_PRINT << message.str() << "\n";
+      ERROR_PRINTLN( message );
       return nullptr;
     }
   }

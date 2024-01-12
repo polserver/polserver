@@ -22,9 +22,9 @@ void Block::accept( NodeVisitor& visitor )
   visitor.visit_block( *this );
 }
 
-void Block::describe_to( fmt::Writer& w ) const
+void Block::describe_to( std::string& w ) const
 {
-  w << "block";
+  w += "block";
 }
 
 }  // namespace Pol::Bscript::Compiler

@@ -14,7 +14,7 @@ public:
   Argument( const SourceLocation&, std::string identifier, std::unique_ptr<Expression> );
 
   void accept( NodeVisitor& visitor ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const std::string identifier;  // can be empty if not specified
 

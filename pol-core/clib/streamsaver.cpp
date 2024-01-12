@@ -47,13 +47,13 @@ OFStreamWriter::OFStreamWriter( std::ofstream* stream )
 OFStreamWriter::~OFStreamWriter()
 {
 #if 0
-      if ( _writer->size() )
-      {
-        Tools::HighPerfTimer t;
-        *_stream << _writer->c_str();
-        _fs_time += t.ellapsed();
-      }
-      ERROR_PRINT << "streamwriter " << _stream_name << " io time " << _fs_time.count( ) << "\n";
+  if ( _writer->size() )
+  {
+    Tools::HighPerfTimer t;
+    *_stream << _writer->c_str();
+    _fs_time += t.ellapsed();
+  }
+  ERROR_PRINTLN( "streamwriter {} io time {}", _stream_name, _fs_time.count() );
 #else
   if ( _writer->size() )
     *_stream << _writer->str();
@@ -135,33 +135,36 @@ ThreadedOFStreamWriter::ThreadedOFStreamWriter( std::ofstream* stream )
 }
 void ThreadedOFStreamWriter::start_worker()
 {
-  _writethread = std::thread( [this]() {
-    std::list<WriterPtr> writers;
-    // small helper lambda to write into stream
-    auto _write_to_stream = [&]( std::list<WriterPtr>& l ) {
-      for ( const auto& _w : l )
+  _writethread = std::thread(
+      [this]()
       {
-        if ( _w->size() )
-          *_stream << _w->str();
-      }
-    };
-    try
-    {
-      for ( ;; )
-      {
+        std::list<WriterPtr> writers;
+        // small helper lambda to write into stream
+        auto _write_to_stream = [&]( std::list<WriterPtr>& l )
+        {
+          for ( const auto& _w : l )
+          {
+            if ( _w->size() )
+              *_stream << _w->str();
+          }
+        };
+        try
+        {
+          for ( ;; )
+          {
+            writers.clear();
+            _msg_queue.pop_wait( &writers );
+            _write_to_stream( writers );
+          }
+        }
+        catch ( writer_queue::Canceled& )
+        {
+        }
         writers.clear();
-        _msg_queue.pop_wait( &writers );
+        _msg_queue.pop_remaining( &writers );
         _write_to_stream( writers );
-      }
-    }
-    catch ( writer_queue::Canceled& )
-    {
-    }
-    writers.clear();
-    _msg_queue.pop_remaining( &writers );
-    _write_to_stream( writers );
-    _stream->flush();
-  } );
+        _stream->flush();
+      } );
 }
 
 ThreadedOFStreamWriter::~ThreadedOFStreamWriter()

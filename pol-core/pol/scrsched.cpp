@@ -132,7 +132,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
+    ERROR_PRINTLN( "Error reading script {}", filename );
     throw std::runtime_error( "Error starting script" );
   }
 
@@ -161,7 +161,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", script.name() );
     // throw runtime_error( "Error starting script" );
     return nullptr;
   }
@@ -198,7 +198,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", script.name() );
     // throw runtime_error( "Error starting script" );
     return nullptr;
   }
@@ -314,7 +314,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
+    ERROR_PRINTLN( "Error reading script {}", filename );
     return false;
   }
 
@@ -331,7 +331,7 @@ bool run_script_to_completion( const char* filename )
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
+    ERROR_PRINTLN( "Error reading script {}", filename );
     return false;
   }
 
@@ -346,7 +346,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", script.name() );
     return new Bscript::BError( "Unable to read script" );
   }
 

@@ -11,10 +11,10 @@ class ElementAccess : public Expression
 {
 public:
   ElementAccess( const SourceLocation&, std::unique_ptr<Expression> lhs,
-                      std::unique_ptr<ElementIndexes> );
+                 std::unique_ptr<ElementIndexes> );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   ElementIndexes& indexes();
 

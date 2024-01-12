@@ -23,15 +23,16 @@ void Constants::create( ConstDeclaration& constant )
       // The OG compiler ignores enum members with the same name as a
       // constant or enum that was defined earlier.
 
-      report.warning( constant, "Constant '", constant.identifier,
-                      "' definition ignored due to an earlier definition.\n",
-                      "  Previous definition at: ",
-                      ( *itr ).second->source_location, "\n" );
+      report.warning( constant,
+                      "Constant '{}' definition ignored due to an earlier definition.\n"
+                      "  Previous definition at: {}",
+                      constant.identifier, ( *itr ).second->source_location );
       return;
     }
-    report.error( constant, "Constant '", constant.identifier, "' defined more than once.\n",
-                  "  Previous definition at: ",
-                  ( *itr ).second->source_location, "\n" );
+    report.error( constant,
+                  "Constant '{}' defined more than once.\n"
+                  "  Previous definition at: {}",
+                  constant.identifier, ( *itr ).second->source_location );
   }
 
   constants[constant.identifier] = &constant;

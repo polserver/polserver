@@ -405,14 +405,14 @@ static int print_statics()
             INFO_PRINTLN( "{},{}:", x, y );
           hdrshown = true;
           INFO_PRINTLN( "\tOBJT= {:#x}  Z={}  HT={}  FLAGS={:#x}", elem.graphic, int( elem.z ),
-                       height, Plib::tile_uoflags_read( elem.graphic ) );
+                        height, Plib::tile_uoflags_read( elem.graphic ) );
           ++cnt;
         }
       }
     }
   }
   INFO_PRINTLN( "{} statics exist.\n{} water tiles exist.\n{} strange water tiles exist.", cnt,
-               water, strange_water );
+                water, strange_water );
   clear_tiledata();
   return 0;
 }
@@ -504,7 +504,7 @@ static void print_multihull( u16 i, Multi::MultiDef* multi )
   USTRUCT_TILE tile;
   read_objinfo( static_cast<u16>( i + ( Plib::systemstate.config.max_tile_id + 1 ) ), tile );
   INFO_PRINTLN( "Multi {:#x} -- {}:", i + i + ( Plib::systemstate.config.max_tile_id + 1 ),
-               tile.name );
+                tile.name );
   std::string tmp;
   for ( short y = multi->minrxyz.y(); y <= multi->maxrxyz.y(); ++y )
   {
@@ -616,7 +616,7 @@ static int statics_histogram()
       if ( count < 1000 )
         ++counts[count];
       else
-        ERROR_PRINT << "doh: count=" << count << "\n";
+        ERROR_PRINTLN( "doh: count={}", count );
     }
   }
   INFO_PRINTLN( "" );
@@ -897,7 +897,7 @@ static int findlandtileflags( int /*argc*/, char** argv )
       if ( Plib::landtile_uoflags_read( mi.landtile ) & flags )
       {
         INFO_PRINTLN( "{},{},{}: landtile {:#x}, flags {:#x}", x, y, (int)mi.z, mi.landtile,
-                     Plib::landtile_uoflags_read( mi.landtile ) );
+                      Plib::landtile_uoflags_read( mi.landtile ) );
       }
     }
   }
@@ -1120,7 +1120,7 @@ static int checkmultis()
     if ( elem.x != 0 || elem.y != 0 || elem.z != 0 )
     {
       INFO_PRINTLN( "ERROR: First tile not in center: {} {} {} ({}) MultiID: {:#x}", elem.x, elem.y,
-                   elem.z, elem.flags, i );
+                    elem.z, elem.flags, i );
       ++errors;
     }
     else if ( elem.graphic == 0x0001 )
@@ -1145,7 +1145,7 @@ static int checkmultis()
     ++count;
   }
   INFO_PRINTLN( "Checked Multis: {} with invis center: {} Warnings: {} Errors: {}", count,
-               invisitems, warnings, errors );
+                invisitems, warnings, errors );
   fclose( multi_idx );
   fclose( multi_mul );
   return 1;
@@ -1160,33 +1160,34 @@ UoToolMain::~UoToolMain() {}
 
 void UoToolMain::showHelp()
 {
-  ERROR_PRINT << "Usage:\n"
-              << "    \n"
-              << "  UOTOOL command [options ...]\n"
-              << "    \n"
-              << "  Commands:\n"
-              << "    tiledump filename        Dump object information\n"
-              << "    vertile                  Dump updated object info\n"
-              << "    rawdump filename hdrlen reclen\n"
-              << "    ctable                   Print Server encryption table\n"
-              << "    findgraphic graphic      finds coords of statics with graphic\n"
-              << "    findlandtileflags flags  finds landtiles with flags\n"
-              << "    contour                  write binary file 6144x4096 z heights\n"
-              << "    mapdump x1 y1 [x2 y2]    dumps map+statics info to html tables\n"
-              << "    landtileflagsearch flags [notflags]  prints landtiles matching args\n"
-              << "    flagsearch flags [notflags]          prints tiles matching flags\n"
-              << "    landtilehist             prints landtile histogram\n"
-              << "    staticshist              histogram of number of statics at a location\n"
-              << "    zhist                    histogram of map z\n"
-              << "    multis                   prints multi definitions \n"
-              << "    verdata                  prints verdata info\n"
-              << "    statics                  prints statics info\n"
-              << "    sndlist                  prints sound list info\n"
-              << "    verlandtile              prints verdata landtile info\n"
-              << "    loschange                prints differences in LOS handling \n"
-              << "    staticdefrag [realm]     recreates static files {default britannia} \n"
-              << "    formatdesc name          prints plural and singular form of name \n"
-              << "    checkmultis              prints infos about multi center items \n";
+  ERROR_PRINTLN(
+      "Usage:\n"
+      "    \n"
+      "  UOTOOL command [options ...]\n"
+      "    \n"
+      "  Commands:\n"
+      "    tiledump filename        Dump object information\n"
+      "    vertile                  Dump updated object info\n"
+      "    rawdump filename hdrlen reclen\n"
+      "    ctable                   Print Server encryption table\n"
+      "    findgraphic graphic      finds coords of statics with graphic\n"
+      "    findlandtileflags flags  finds landtiles with flags\n"
+      "    contour                  write binary file 6144x4096 z heights\n"
+      "    mapdump x1 y1 [x2 y2]    dumps map+statics info to html tables\n"
+      "    landtileflagsearch flags [notflags]  prints landtiles matching args\n"
+      "    flagsearch flags [notflags]          prints tiles matching flags\n"
+      "    landtilehist             prints landtile histogram\n"
+      "    staticshist              histogram of number of statics at a location\n"
+      "    zhist                    histogram of map z\n"
+      "    multis                   prints multi definitions \n"
+      "    verdata                  prints verdata info\n"
+      "    statics                  prints statics info\n"
+      "    sndlist                  prints sound list info\n"
+      "    verlandtile              prints verdata landtile info\n"
+      "    loschange                prints differences in LOS handling \n"
+      "    staticdefrag [realm]     recreates static files {default britannia} \n"
+      "    formatdesc name          prints plural and singular form of name \n"
+      "    checkmultis              prints infos about multi center items " );
 }
 
 static int s_argc;

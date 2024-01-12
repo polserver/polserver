@@ -22,11 +22,11 @@ void WhileLoop::accept( NodeVisitor& visitor )
   visitor.visit_while_loop( *this );
 }
 
-void WhileLoop::describe_to( fmt::Writer& w ) const
+void WhileLoop::describe_to( std::string& w ) const
 {
-  w << "while-loop";
+  w += "while-loop";
   if ( !get_label().empty() )
-    w << "(label:" << get_label() << ")";
+    fmt::format_to( std::back_inserter( w ), "(label:{})", get_label() );
 }
 
 Expression& WhileLoop::predicate()

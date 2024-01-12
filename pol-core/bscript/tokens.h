@@ -7,6 +7,7 @@
 #ifndef __TOKENS_H
 #define __TOKENS_H
 
+#include <fmt/format.h>
 #include <iosfwd>
 
 #include "../clib/rawtypes.h"
@@ -295,6 +296,14 @@ enum ESCRIPT_CASE_TYPES : u8
   CASE_TYPE_DEFAULT = 254,
   CASE_STRING_MAXLEN = 253
 };
+inline auto format_as( BTokenType t )
+{
+  return fmt::underlying( t );
+}
+inline auto format_as( BTokenId t )
+{
+  return fmt::underlying( t );
+}
 }  // namespace Bscript
 
 namespace Clib

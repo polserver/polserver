@@ -2,8 +2,8 @@
 
 #include <format/format.h>
 
-#include "clib/strutil.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -17,9 +17,10 @@ void StringValue::accept( NodeVisitor& visitor )
   visitor.visit_string_value( *this );
 }
 
-void StringValue::describe_to( fmt::Writer& w ) const
+void StringValue::describe_to( std::string& w ) const
 {
-  w << "string-value(" << Clib::getencodedquotedstring( value ) << ")";
+  fmt::format_to( std::back_inserter( w ), "string-value({})",
+                  Clib::getencodedquotedstring( value ) );
 }
 
 }  // namespace Pol::Bscript::Compiler

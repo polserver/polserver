@@ -123,7 +123,7 @@ void run_thread( void ( *threadf )( void ) )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
+    ERROR_PRINTLN( "Thread exception: {}", ex.what() );
   }
 
   --child_threads;
@@ -139,7 +139,7 @@ void run_thread( void ( *threadf )( void* ), void* arg )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
+    ERROR_PRINTLN( "Thread exception: {}", ex.what() );
   }
 
   --child_threads;
@@ -292,7 +292,7 @@ void ThreadMap::Register( size_t pid, const std::string& name )
   if ( !DuplicateHandle( GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &hThread, 0,
                          FALSE, DUPLICATE_SAME_ACCESS ) )
   {
-    ERROR_PRINT << "failed to duplicate thread handle\n";
+    ERROR_PRINTLN( "failed to duplicate thread handle" );
     return;
   }
   _handles.insert( std::make_pair( pid, hThread ) );
@@ -370,7 +370,7 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
           }
           catch ( std::exception& ex )
           {
-            ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
+            ERROR_PRINTLN( "Thread exception: {}", ex.what() );
             Clib::force_backtrace( true );
             return;
           }
@@ -503,7 +503,7 @@ void DynTaskThreadPool::PoolWorker::run()
         }
         catch ( std::exception& ex )
         {
-          ERROR_PRINT << "Thread exception: " << ex.what() << "\n";
+          ERROR_PRINTLN( "Thread exception: {}", ex.what() );
           Clib::force_backtrace( true );
           return;
         }
@@ -540,7 +540,7 @@ void DynTaskThreadPool::create_thread()
   }
   size_t thread_num = _threads.size();
   _threads.emplace_back( new PoolWorker( this, _name + " " + fmt::FormatInt( thread_num ).str() ) );
-  ERROR_PRINT << "create pool worker " << _name << " " << thread_num << "\n";
+  ERROR_PRINTLN( "create pool worker {} {}", _name, thread_num );
 }
 
 DynTaskThreadPool::~DynTaskThreadPool()

@@ -675,8 +675,9 @@ void threadstatus_thread( void )
       polclock_t now = polclock();
       if ( now >= stateManager.checkin_clock_times_out_at )
       {
-        ERROR_PRINT << "########################################################\n";
-        ERROR_PRINT << "No clock movement in 30 seconds.  Dumping thread status.\n";
+        ERROR_PRINTLN(
+            "########################################################\n"
+            "No clock movement in 30 seconds.  Dumping thread status." );
         stateManager.polsig.report_status_signalled = true;
         stateManager.checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
       }
@@ -684,41 +685,47 @@ void threadstatus_thread( void )
 
     if ( stateManager.polsig.report_status_signalled )
     {
-      fmt::Writer tmp;
-      tmp << "*Thread Info*\n";
-      tmp << "Semaphore TID: " << locker << "\n";
+      std::string tmp = fmt::format(
+          "*Thread Info*\n"
+          "Semaphore TID: {}\n",
+          locker );
 
       if ( Plib::systemstate.config.log_traces_when_stuck )
         Pol::Clib::ExceptionParser::logAllStackTraces();
 
-      tmp << "Scripts Thread Checkpoint: " << stateManager.polsig.scripts_thread_checkpoint << "\n";
-      tmp << "Last Script: " << Clib::scripts_thread_script
-          << " PC: " << Clib::scripts_thread_scriptPC << "\n";
-      tmp << "Escript Instruction Cycles: " << Bscript::escript_instr_cycles << "\n";
-      tmp << "Tasks Thread Checkpoint: " << stateManager.polsig.tasks_thread_checkpoint << "\n";
-      tmp << "Active Client Thread Checkpoint: "
-          << stateManager.polsig.active_client_thread_checkpoint << "\n";
-      tmp << "Number of clients: " << Core::networkManager.clients.size() << "\n";
+      fmt::format_to( std::back_inserter( tmp ),
+                      "Scripts Thread Checkpoint: {}\n"
+                      "Last Script: {} PC: {}\n"
+                      "Escript Instruction Cycles: {}\n"
+                      "Tasks Thread Checkpoint: {}\n"
+                      "Active Client Thread Checkpoint: {}\n"
+                      "Number of clients: {}\n",
+                      stateManager.polsig.scripts_thread_checkpoint, Clib::scripts_thread_script,
+                      Clib::scripts_thread_scriptPC, Bscript::escript_instr_cycles,
+                      stateManager.polsig.tasks_thread_checkpoint,
+                      stateManager.polsig.active_client_thread_checkpoint,
+                      Core::networkManager.clients.size() );
       for ( const auto& client : Core::networkManager.clients )
-        tmp << " " << client->ipaddrAsString() << " "
-            << ( client->acct == nullptr ? "prelogin " : client->acct->name() ) << " "
-            << client->session()->checkpoint << "\n";
+        fmt::format_to( std::back_inserter( tmp ), " {} {} {}\n", client->ipaddrAsString(),
+                        client->acct == nullptr ? "prelogin " : client->acct->name(),
+                        client->session()->checkpoint );
       if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
-        tmp << "check_attack_after_move() Checkpoint: "
-            << stateManager.polsig.check_attack_after_move_function_checkpoint << "\n";
-      tmp << "Current Threads:"
-          << "\n";
+        fmt::format_to( std::back_inserter( tmp ), "check_attack_after_move() Checkpoint: {}\n",
+                        stateManager.polsig.check_attack_after_move_function_checkpoint );
+      tmp += "Current Threads:\n";
       ThreadMap::Contents contents;
       threadmap.CopyContents( contents );
       for ( ThreadMap::Contents::const_iterator citr = contents.begin(); citr != contents.end();
             ++citr )
       {
-        tmp << ( *citr ).first << " - " << ( *citr ).second << "\n";
+        fmt::format_to( std::back_inserter( tmp ), "{} - {}\n", ( *citr ).first, ( *citr ).second );
       }
-      tmp << "Child threads (child_threads): " << threadhelp::child_threads << "\n";
-      tmp << "Registered threads (ThreadMap): " << contents.size() << "\n";
+      fmt::format_to( std::back_inserter( tmp ),
+                      "Child threads (child_threads): {}\n"
+                      "Registered threads (ThreadMap): {}",
+                      threadhelp::child_threads, contents.size() );
       stateManager.polsig.report_status_signalled = false;
-      ERROR_PRINT << tmp.str();
+      ERROR_PRINTLN( tmp );
     }
     if ( Clib::exit_signalled )
     {

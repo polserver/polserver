@@ -88,8 +88,7 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
     auto fileitr = fileSizes.find( maphash( uo_mapid, i ) );
     if ( fileitr == fileSizes.end() )
     {
-      ERROR_PRINT << "Couldn't find file hash: " << std::to_string( maphash( uo_mapid, i ) )
-                  << "\n";
+      ERROR_PRINTLN( "Couldn't find file hash: {}", std::to_string( maphash( uo_mapid, i ) ) );
       throw std::runtime_error( "UOP map is missing a file chunk." );
     }
 
@@ -115,7 +114,7 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
   if ( !Clib::FileExists( filename ) )
   {
     INFO_PRINTLN( "{} not found in {}. Searching for old map[N].mul files.", filepart,
-                 systemstate.config.uo_datafile_root );
+                  systemstate.config.uo_datafile_root );
     return false;
   }
 
@@ -135,17 +134,18 @@ FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nu
   FILE* fp = fopen( filename.c_str(), "rb" );
   if ( !fp )
   {
-    ERROR_PRINT << "Unable to open UO datafile: " << filename << "\n"
-                << "POL.CFG specifies UODataFileRoot as '" << systemstate.config.uo_datafile_root
-                << "'.  Is this correct?\n"
-                << "  The following files must be present in that directory:\n"
-                << "      map0.mul OR map0LegacyMUL.uop\n"
-                << "      multi.idx\n"
-                << "      multi.mul\n"
-                << "      staidx0.mul\n"
-                << "      statics0.mul\n"
-                << "      tiledata.mul\n"
-                << "      verdata.mul    (optional - only if present on client install)\n";
+    ERROR_PRINTLN(
+        "Unable to open UO datafile: {}\n"
+        "POL.CFG specifies UODataFileRoot as '{}'.  Is this correct?\n"
+        "  The following files must be present in that directory:\n"
+        "      map0.mul OR map0LegacyMUL.uop\n"
+        "      multi.idx\n"
+        "      multi.mul\n"
+        "      staidx0.mul\n"
+        "      statics0.mul\n"
+        "      tiledata.mul\n"
+        "      verdata.mul    (optional - only if present on client install)",
+        filename, systemstate.config.uo_datafile_root );
 
     throw std::runtime_error( "Error opening UO datafile." );
   }
@@ -163,8 +163,7 @@ FILE* open_map_file( std::string name, int map_id, size_t* out_file_size = nullp
   filename = name + Clib::tostring( map_id ) + ".mul";
   if ( uo_mapid == 1 && !Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
   {
-    ERROR_PRINT << "Unable to find UO file: " << filename
-                << ", reading " + name + "0.mul instead.\n";
+    ERROR_PRINTLN( "Unable to find UO file: {}, reading {}0.mul instead.", filename, name );
     filename = name + "0.mul";
   }
 
@@ -194,8 +193,11 @@ void open_tiledata( void )
 
   if ( !Plib::systemstate.config.max_tile_id )
   {
-    ERROR_PRINT << "\nError reading tiledata.mul:\n - The file is either corrupted or has an "
-                   "unknown format.\n\n";
+    ERROR_PRINTLN(
+        "\n"
+        "Error reading tiledata.mul:\n"
+        " - The file is either corrupted or has an "
+        "unknown format.\n" );
 
     throw std::runtime_error( "Unknown format of tiledata.mul" );
   }

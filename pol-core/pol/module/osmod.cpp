@@ -1256,7 +1256,7 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     ref_ptr<Bscript::EScriptProgram> program = find_script2( sd );
     if ( program.get() == nullptr )
     {
-      ERROR_PRINT << "Error reading script " << sd.name() << "\n";
+      ERROR_PRINTLN( "Error reading script {}", sd.name() );
       return new Bscript::BError( "Unable to read script" );
     }
     Core::UOExecutor* uoexec = Core::create_script_executor();

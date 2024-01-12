@@ -7,6 +7,7 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #pragma once
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <format/format.h>
 #include <fstream>
 #include <future>
@@ -246,8 +247,11 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define INFO_PRINTLN_TRACE( n )                    \
   if ( Plib::systemstate.config.debug_level >= n ) \
   INFO_PRINTLN
-// log only into std::cerr
-#define ERROR_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cerr>().message()
+
+// log only into std::cerr with \n addition
+#define ERROR_PRINTLN Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<true>
+// log only into std::cerr without \n addition
+#define ERROR_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<false>
 
 // log into script.log
 #define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>().message()

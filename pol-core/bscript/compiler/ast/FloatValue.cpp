@@ -16,9 +16,9 @@ void FloatValue::accept( NodeVisitor& visitor )
   visitor.visit_float_value( *this );
 }
 
-void FloatValue::describe_to( fmt::Writer& w ) const
+void FloatValue::describe_to( std::string& w ) const
 {
-  w << "float-value(" << value << ")";
+  fmt::format_to( std::back_inserter( w ), "float-value({})", value );
 }
 
 }  // namespace Pol::Bscript::Compiler

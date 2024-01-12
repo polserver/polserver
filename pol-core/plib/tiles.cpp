@@ -76,7 +76,7 @@ void load_tiles_cfg()
 
   if ( systemstate.max_graphic == 0 )
   {
-    ERROR_PRINT << "Error: No tiles loaded. Please check tiles.cfg\n";
+    ERROR_PRINTLN( "Error: No tiles loaded. Please check tiles.cfg" );
     return;
   }
 
