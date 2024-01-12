@@ -384,8 +384,9 @@ void CustomHouseDesign::AddMultiAtOffset( u16 multiid, s8 x, s8 y, s8 z )
   const MultiDef* multidef = MultiDefByMultiID( multiid );
   if ( multidef == nullptr )
   {
-    ERROR_PRINT << "Trying to add Multi to customhouse, multiid 0x" << fmt::hexu( multiid )
-                << " multi definition doesn't exist!\n";
+    ERROR_PRINTLN(
+        "Trying to add Multi to customhouse, multiid {:#X} multi definition doesn't exist!",
+        multiid );
     return;
   }
 

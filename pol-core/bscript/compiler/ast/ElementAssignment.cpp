@@ -23,9 +23,9 @@ void ElementAssignment::accept( NodeVisitor& visitor )
 {
   visitor.visit_element_assignment( *this );
 }
-void ElementAssignment::describe_to( fmt::Writer& w ) const
+void ElementAssignment::describe_to( std::string& w ) const
 {
-  w << "element-assignment";
+  w += "element-assignment";
 }
 
 ElementIndexes& ElementAssignment::indexes()

@@ -161,7 +161,7 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
 static bool in_ex_handler = false;
 void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )
 {
-  INFO_PRINT << "In trans_func.\n";
+  INFO_PRINTLN( "In trans_func." );
   if ( in_ex_handler )
   {
     POLLOG_INFO << "recursive structured exception\n";
@@ -187,5 +187,5 @@ void InstallOldStructuredExceptionHandler( void )
 }
 
 #endif
-}
-}
+}  // namespace Clib
+}  // namespace Pol

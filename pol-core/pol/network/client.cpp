@@ -173,7 +173,7 @@ void Client::PreDelete()
     }
     else
     {
-      ERROR_PRINT << "Uhh...  active character not logged in!??\n";
+      ERROR_PRINTLN( "Uhh...  active character not logged in!??" );
     }
   }
 

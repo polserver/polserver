@@ -234,9 +234,9 @@ void update_rpm( void )
   stateManager.profilevars.nonbusy_sysload_cycles = 0;
   stateManager.profilevars.sysload_nprocs = 0;
   if ( Plib::systemstate.config.watch_sysload )
-    INFO_PRINT.Format( "sysload={} ({}) cputime={}\n" )
-        << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs
-        << stateManager.profilevars.last_cputime;
+    INFO_PRINTLN( "sysload={} ({}) cputime={}", stateManager.profilevars.last_sysload,
+                  stateManager.profilevars.last_sysload_nprocs,
+                  stateManager.profilevars.last_cputime );
   if ( Plib::systemstate.config.log_sysload )
     POLLOG.Format( "sysload={} ({}) cputime={}\n" )
         << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs
@@ -247,20 +247,20 @@ void update_rpm( void )
     // cout << "container_removes:" << GET_PROFILEVAR_PER_MIN( container_removes ) << endl;
 
 #ifndef NDEBUG
-  INFO_PRINT << "activity: " << stateManager.profilevars.last_script_passes_activity
-             << "  noactivity: " << stateManager.profilevars.last_script_passes_noactivity << "\n";
+  INFO_PRINTLN( "activity: {}  noactivity: {}",
+                stateManager.profilevars.last_script_passes_activity,
+                stateManager.profilevars.last_script_passes_noactivity );
 #endif
   stateManager.profilevars.last_mapcache_hits = stateManager.profilevars.mapcache_hits;
   stateManager.profilevars.last_mapcache_misses = stateManager.profilevars.mapcache_misses;
   if ( Plib::systemstate.config.watch_mapcache )
-    INFO_PRINT << "mapcache: hits=" << stateManager.profilevars.mapcache_hits
-               << ", misses=" << stateManager.profilevars.mapcache_misses << ", rate="
-               << ( stateManager.profilevars.mapcache_hits
-                        ? ( stateManager.profilevars.mapcache_hits * 100 /
-                            ( stateManager.profilevars.mapcache_hits +
-                              stateManager.profilevars.mapcache_misses ) )
-                        : 0 )
-               << "%\n";
+    INFO_PRINTLN(
+        "mapcache: hits={}, misses={}, rate={}%", stateManager.profilevars.mapcache_hits,
+        stateManager.profilevars.mapcache_misses,
+        ( stateManager.profilevars.mapcache_hits ? ( stateManager.profilevars.mapcache_hits * 100 /
+                                                     ( stateManager.profilevars.mapcache_hits +
+                                                       stateManager.profilevars.mapcache_misses ) )
+                                                 : 0 ) );
   stateManager.profilevars.mapcache_hits = 0;
   stateManager.profilevars.mapcache_misses = 0;
 
@@ -272,22 +272,21 @@ void update_rpm( void )
   TICK_PROFILEVAR( noactivity_scheduler_passes );
 
   if ( Plib::systemstate.config.watch_rpm )
-    INFO_PRINT << "scpt: " << stateManager.profilevars.last_sppm
-               << "  task: " << ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) ) << "("
-               << ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ) << ")"
-               << "  scin: " << stateManager.profilevars.last_sipm
-               << "  scsl: " << stateManager.profilevars.last_scpm
-               << "  MOB: " << get_mobile_count() << "  TLI: " << get_toplevel_item_count() << "\n";
+    INFO_PRINTLN( "scpt: {}  task: {}({})  scin: {}  scsl: {}  MOB: {}  TLI: {}",
+                  stateManager.profilevars.last_sppm,
+                  ( GET_PROFILEVAR_PER_MIN( scheduler_passes ) ),
+                  ( GET_PROFILEVAR_PER_MIN( noactivity_scheduler_passes ) ),
+                  stateManager.profilevars.last_sipm, stateManager.profilevars.last_scpm,
+                  get_mobile_count(), get_toplevel_item_count() );
 
   if ( Plib::systemstate.config.show_realm_info )
   {
-    INFO_PRINT << "\nRealm info: \n";
+    INFO_PRINTLN( "\nRealm info: " );
     for ( auto realm : gamestate.Realms )
     {
-      INFO_PRINT << "    - " << realm->name() << " (mob: " << realm->mobile_count()
-                 << ", off: " << realm->offline_mobile_count()
-                 << ", tli: " << realm->toplevel_item_count() << ", mlt: " << realm->multi_count()
-                 << ")\n";
+      INFO_PRINTLN( "    - {} (mob: {}, off: {}, tli: {}, mlt: {})", realm->name(),
+                    realm->mobile_count(), realm->offline_mobile_count(),
+                    realm->toplevel_item_count(), realm->multi_count() );
     }
   }
   THREAD_CHECKPOINT( tasks, 399 );

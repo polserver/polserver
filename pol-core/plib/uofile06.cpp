@@ -25,7 +25,7 @@ inline bool flags_swimmable( unsigned int flags )
          ( USTRUCT_TILE::FLAG_FLOOR | USTRUCT_TILE::FLAG_LIQUID );
 }
 void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x, unsigned short y,
-                  short oldz, bool* result_out, short* newz_out )
+                       short oldz, bool* result_out, short* newz_out )
 {
   short lowest_blocking_z = 128;
   short highest_blocking_z = -127;
@@ -66,8 +66,8 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
-      INFO_PRINT << "static: graphic=0x" << fmt::hexu( srec.graphic ) << ", z=" << int( srec.z )
-                 << ", ht=" << int( srec.height ) << "\n";
+      INFO_PRINTLN( "static: graphic={:#x}, z={}, ht={}", srec.graphic, int( srec.z ),
+                   int( srec.height ) );
     }
 #endif
 
@@ -90,7 +90,7 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
          // will override a blocking map tile.
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
-          INFO_PRINT << "Setting Z to " << int( ztemp ) << "\n";
+          INFO_PRINTLN( "Setting Z to {}", int( ztemp ) );
 #endif
         newz = ztemp;
         result = true;
@@ -114,9 +114,8 @@ void standheight_read( MOVEMODE movemode, StaticList& statics, unsigned short x,
 #if ENABLE_POLTEST_OUTPUT
         if ( static_debug_on )
         {
-          INFO_PRINT << "static: objtype=0x" << fmt::hexu( srec.graphic ) << ", z=" << int( srec.z )
-                     << ", ht=" << int( srec.height ) << " blocks movement to z=" << int( newz )
-                     << "\n";
+          INFO_PRINTLN( "static: objtype={:#x}, z={}, ht={} blocks movement to z={}", srec.graphic,
+                       int( srec.z ), int( srec.height ), int( newz ) );
         }
 #endif
         result = false;

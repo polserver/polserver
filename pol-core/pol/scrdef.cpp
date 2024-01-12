@@ -59,7 +59,7 @@ void ScriptDef::config( const std::string& iname, const Plib::Package* ipkg, con
   const Plib::Package* npkg;
   if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
   {
-    ERROR_PRINT << "Error reading script descriptor '" << iname << "'\n";
+    ERROR_PRINTLN( "Error reading script descriptor '{}'", iname );
     throw std::runtime_error( "Error reading script descriptor" );
   }
 
@@ -71,7 +71,7 @@ void ScriptDef::config( const std::string& iname, const Plib::Package* ipkg, con
   {
     if ( !empty() && !exists() )
     {
-      ERROR_PRINT << "Warning! " << name_.get() << " does not exist!\n";
+      ERROR_PRINTLN( "Warning! {} does not exist!", name_.get() );
     }
   }
 }
@@ -88,7 +88,7 @@ bool ScriptDef::config_nodie( const std::string& iname, const Plib::Package* ipk
   const Plib::Package* npkg;
   if ( !Plib::pkgdef_split( iname, ipkg, &npkg, &path ) )
   {
-    ERROR_PRINT << "Error reading script descriptor '" << iname << "'\n";
+    ERROR_PRINTLN( "Error reading script descriptor '{}'", iname );
     return false;
   }
 

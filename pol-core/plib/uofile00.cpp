@@ -51,7 +51,7 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
     snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
     return HashLittle2( mapstring );
   };
-  
+
   size_t totalSize = 0;
   unsigned int nreadfiles = 0;
   std::map<uint64_t, size_t> fileSizes;
@@ -81,16 +81,14 @@ size_t uop_equivalent_mul_size( std::ifstream& ifs )
   } while ( currentblock != nullptr && nreadfiles < uopfile.header()->nfiles() );
 
   if ( uopfile.header()->nfiles() != nreadfiles )
-    INFO_PRINT << "Warning: not all chunks read (" << nreadfiles << "/"
-               << uopfile.header()->nfiles() << ")\n";
+    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", nreadfiles, uopfile.header()->nfiles() );
 
   for ( size_t i = 0; i < fileSizes.size(); i++ )
   {
     auto fileitr = fileSizes.find( maphash( uo_mapid, i ) );
     if ( fileitr == fileSizes.end() )
     {
-      ERROR_PRINT << "Couldn't find file hash: " << std::to_string( maphash( uo_mapid, i ) )
-                  << "\n";
+      ERROR_PRINTLN( "Couldn't find file hash: {}", std::to_string( maphash( uo_mapid, i ) ) );
       throw std::runtime_error( "UOP map is missing a file chunk." );
     }
 
@@ -115,8 +113,8 @@ bool open_uopmap_file( const int mapid, size_t* out_file_size = nullptr )
   std::string filename = systemstate.config.uo_datafile_root + filepart;
   if ( !Clib::FileExists( filename ) )
   {
-    INFO_PRINT << filepart << " not found in " << systemstate.config.uo_datafile_root
-               << ". Searching for old map[N].mul files.\n";
+    INFO_PRINTLN( "{} not found in {}. Searching for old map[N].mul files.", filepart,
+                  systemstate.config.uo_datafile_root );
     return false;
   }
 
@@ -136,17 +134,18 @@ FILE* open_uo_file( const std::string& filename_part, size_t* out_file_size = nu
   FILE* fp = fopen( filename.c_str(), "rb" );
   if ( !fp )
   {
-    ERROR_PRINT << "Unable to open UO datafile: " << filename << "\n"
-                << "POL.CFG specifies UODataFileRoot as '" << systemstate.config.uo_datafile_root
-                << "'.  Is this correct?\n"
-                << "  The following files must be present in that directory:\n"
-                << "      map0.mul OR map0LegacyMUL.uop\n"
-                << "      multi.idx\n"
-                << "      multi.mul\n"
-                << "      staidx0.mul\n"
-                << "      statics0.mul\n"
-                << "      tiledata.mul\n"
-                << "      verdata.mul    (optional - only if present on client install)\n";
+    ERROR_PRINTLN(
+        "Unable to open UO datafile: {}\n"
+        "POL.CFG specifies UODataFileRoot as '{}'.  Is this correct?\n"
+        "  The following files must be present in that directory:\n"
+        "      map0.mul OR map0LegacyMUL.uop\n"
+        "      multi.idx\n"
+        "      multi.mul\n"
+        "      staidx0.mul\n"
+        "      statics0.mul\n"
+        "      tiledata.mul\n"
+        "      verdata.mul    (optional - only if present on client install)",
+        filename, systemstate.config.uo_datafile_root );
 
     throw std::runtime_error( "Error opening UO datafile." );
   }
@@ -164,8 +163,7 @@ FILE* open_map_file( std::string name, int map_id, size_t* out_file_size = nullp
   filename = name + Clib::tostring( map_id ) + ".mul";
   if ( uo_mapid == 1 && !Clib::FileExists( systemstate.config.uo_datafile_root + filename ) )
   {
-    ERROR_PRINT << "Unable to find UO file: " << filename
-                << ", reading " + name + "0.mul instead.\n";
+    ERROR_PRINTLN( "Unable to find UO file: {}, reading {}0.mul instead.", filename, name );
     filename = name + "0.mul";
   }
 
@@ -195,16 +193,20 @@ void open_tiledata( void )
 
   if ( !Plib::systemstate.config.max_tile_id )
   {
-    ERROR_PRINT << "\nError reading tiledata.mul:\n - The file is either corrupted or has an "
-                   "unknown format.\n\n";
+    ERROR_PRINTLN(
+        "\n"
+        "Error reading tiledata.mul:\n"
+        " - The file is either corrupted or has an "
+        "unknown format.\n" );
 
     throw std::runtime_error( "Unknown format of tiledata.mul" );
   }
 
-  INFO_PRINT << "Using auto-detected parameters:"
-             << "\tUseNewHSAFormat = " << ( Plib::cfg_use_new_hsa_format ? "True" : "False" )
-             << "\n"
-             << "\tMaxTileID = " << Clib::hexint( Plib::systemstate.config.max_tile_id ) << "\n";
+  INFO_PRINTLN(
+      "Using auto-detected parameters:\n"
+      "\tUseNewHSAFormat = {}\n"
+      "\tMaxTileID = {:#x}",
+      Plib::cfg_use_new_hsa_format, Plib::systemstate.config.max_tile_id );
 }
 
 void open_map( void )

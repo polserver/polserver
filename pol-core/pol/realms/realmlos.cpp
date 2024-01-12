@@ -63,7 +63,7 @@ bool Realm::dynamic_item_blocks_los( const Core::Pos3d& pos, LosCache& cache )
       if ( item->z() <= pos.z() && pos.z() < item->z() + item->height )
       {
 #if ENABLE_POLTEST_OUTPUT
-        INFO_PRINT << "LOS blocked by " << item->description() << "\n";
+        INFO_PRINTLN( "LOS blocked by {}", item->description() );
 #endif
         return true;
       }
@@ -89,9 +89,8 @@ bool Realm::static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) co
     short ob_ht = shape.height;
     short ob_z = shape.z;
 #if ENABLE_POLTEST_OUTPUT
-    INFO_PRINT << "static type 0x" << fmt::hexu( itr->graphic ) << " (flags 0x"
-               << fmt::hexu( tile_flags( itr->graphic ) ) << ", ht=" << ob_ht << ")"
-               << " at z-coord " << (int)itr->z << "\n";
+    INFO_PRINTLN( "static type {:#x} (flags {:#x}, ht={}) at z-coord {}", itr->graphic,
+                 tile_flags( itr->graphic ), ob_ht, (int)itr->z );
 #endif
 
     if ( ob_ht == 0 )  // treat a 0-height object as a 1-height object at position z-1
@@ -103,7 +102,7 @@ bool Realm::static_item_blocks_los( const Core::Pos3d& pos, LosCache& cache ) co
     if ( ob_z <= pos.z() && pos.z() < ob_z + ob_ht )
     {
 #if ENABLE_POLTEST_OUTPUT
-      INFO_PRINT << "LOS blocked by static object\n";
+      INFO_PRINTLN( "LOS blocked by static object" );
 #endif
       return true;
     }

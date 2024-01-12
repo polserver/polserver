@@ -104,7 +104,8 @@ unsigned int RawMap::load_full_map( FILE* mapfile, FILE* mapdif_file )
 // TODO: cleanup the code
 unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
 {
-  auto maphash = []( int mapid, size_t chunkidx ) {
+  auto maphash = []( int mapid, size_t chunkidx )
+  {
     char mapstring[1024];
     snprintf( mapstring, sizeof mapstring, "build/map%dlegacymul/%08i.dat", mapid, (int)chunkidx );
     return HashLittle2( mapstring );
@@ -114,7 +115,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
 
   if ( !ifs )
   {
-    ERROR_PRINT << "Error when opening UOP file.\n";
+    ERROR_PRINTLN( "Error when opening UOP file." );
     return 0;
   }
 
@@ -145,8 +146,8 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
   } while ( currentblock != nullptr && filemap.size() < uopfile.header()->nfiles() );
 
   if ( uopfile.header()->nfiles() != filemap.size() )
-    INFO_PRINT << "Warning: not all chunks read (" << filemap.size() << "/"
-               << uopfile.header()->nfiles() << ")\n";
+    INFO_PRINTLN( "Warning: not all chunks read ({}/{})", filemap.size(),
+                  uopfile.header()->nfiles() );
 
   // Sanity checking and pre-allocate mapinfo vector
   passert_r(
@@ -164,8 +165,7 @@ unsigned int RawMap::load_full_map( int uo_mapid, std::istream& ifs )
     auto fileitr = filemap.find( maphash( uo_mapid, i ) );
     if ( fileitr == filemap.end() )
     {
-      ERROR_PRINT << "Couldn't find file hash: " << std::to_string( maphash( uo_mapid, i ) )
-                  << "\n";
+      ERROR_PRINTLN( "Couldn't find file hash: {}", std::to_string( maphash( uo_mapid, i ) ) );
       throw std::runtime_error( "UOP map is missing a file chunk." );
     }
 

@@ -24,7 +24,7 @@ Function::Function( const SourceLocation& source_location, std::string name,
 
 unsigned Function::parameter_count() const
 {
-  return static_cast<unsigned>(children.at( 0 )->children.size());
+  return static_cast<unsigned>( children.at( 0 )->children.size() );
 }
 
 std::vector<std::reference_wrapper<FunctionParameterDeclaration>> Function::parameters()

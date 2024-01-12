@@ -28,7 +28,7 @@ void dummy() {}
 void map_test()
 {
   Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( 1453, 1794 );
-  INFO_PRINT << cell.landtile << " " << cell.z << "\n";
+  INFO_PRINTLN( "{} {}", cell.landtile, cell.z );
 }
 
 void dynprops_test()
@@ -43,7 +43,7 @@ void dynprops_test()
   Test h;
   if ( h.armod() || h.has_armod() )
   {
-    INFO_PRINT << "initial ar " << h.armod() << " " << h.has_armod() << "\n";
+    INFO_PRINTLN( "initial ar {} {}", h.armod(), h.has_armod() );
     UnitTest::inc_failures();
   }
   else
@@ -51,7 +51,7 @@ void dynprops_test()
   h.armod( 10 );
   if ( h.armod() != 10 || !h.has_armod() )
   {
-    INFO_PRINT << "ar " << h.armod() << " " << h.has_armod() << "\n";
+    INFO_PRINTLN( "ar {} {}", h.armod(), h.has_armod() );
     UnitTest::inc_failures();
   }
   else
@@ -59,7 +59,7 @@ void dynprops_test()
   h.armod( 0 );
   if ( h.armod() || h.has_armod() )
   {
-    INFO_PRINT << "removed ar " << h.armod() << " " << h.has_armod() << "\n";
+    INFO_PRINTLN( "removed ar {} {}", h.armod(), h.has_armod() );
     UnitTest::inc_failures();
   }
   else
@@ -67,7 +67,7 @@ void dynprops_test()
 
   if ( !h.itemname().empty() || h.has_itemname() )
   {
-    INFO_PRINT << "initial name " << h.itemname() << " " << h.has_itemname() << "\n";
+    INFO_PRINTLN( "initial name {} {}", h.itemname(), h.has_itemname() );
     UnitTest::inc_failures();
   }
   else
@@ -75,7 +75,7 @@ void dynprops_test()
   h.itemname( "hello world" );
   if ( h.itemname() != "hello world" || !h.has_itemname() )
   {
-    INFO_PRINT << "name " << h.itemname() << " " << h.has_itemname() << "\n";
+    INFO_PRINTLN( "name {} {}", h.itemname(), h.has_itemname() );
     UnitTest::inc_failures();
   }
   else
@@ -83,7 +83,7 @@ void dynprops_test()
   h.itemname( "" );
   if ( !h.itemname().empty() || h.has_itemname() )
   {
-    INFO_PRINT << "removed name " << h.itemname() << " " << h.has_itemname() << "\n";
+    INFO_PRINTLN( "removed name {} {}", h.itemname(), h.has_itemname() );
     UnitTest::inc_failures();
   }
   else
@@ -96,12 +96,12 @@ void packet_test()
   using namespace Network::PktHelper;
   auto debug = []( const PacketOut<PktOut_2F>& p )
   {
-    fmt::Writer w;
+    std::string w;
     for ( auto& c : p->buffer )
     {
-      w << fmt::hex( c ) << " ";
+      w += fmt::format( "{:x} ", c );
     }
-    INFO_PRINT << w.str() << "\n";
+    INFO_PRINTLN( w );
   };
   auto test = [&]( const PacketOut<PktOut_2F>& p, const std::array<s8, 10>& a )
   {
@@ -110,14 +110,14 @@ void packet_test()
     else
     {
       UnitTest::inc_failures();
-      INFO_PRINT << "failed\n";
+      INFO_PRINTLN( "failed" );
       debug( p );
-      fmt::Writer w;
+      std::string w;
       for ( auto& c : a )
       {
-        w << fmt::hex( c ) << " ";
+        w += fmt::format( "{:x} ", c );
       }
-      INFO_PRINT << w.str() << "\n";
+      INFO_PRINTLN( w );
     }
   };
   {
@@ -175,7 +175,7 @@ void test_splitnamevalue( const std::string& istr, const std::string& exp_pn,
   Clib::splitnamevalue( istr, pn, pv );
   if ( pn != exp_pn || pv != exp_pv )
   {
-    INFO_PRINT << "splitnamevalue( \"" << istr << "\" ) fails!\n";
+    INFO_PRINTLN( "splitnamevalue( \"{}\" ) fails!", istr );
     UnitTest::inc_failures();
   }
   else
@@ -203,7 +203,7 @@ void test_dqs( const std::string& in, const std::string& out )
   Clib::decodequotedstring( tmp );
   if ( tmp != out )
   {
-    INFO_PRINT << "decodequotedstring( " << in << " ) fails!\n";
+    INFO_PRINTLN( "decodequotedstring( {} ) fails!", in );
     UnitTest::inc_failures();
   }
   else
@@ -212,7 +212,7 @@ void test_dqs( const std::string& in, const std::string& out )
   Clib::encodequotedstring( tmp );
   if ( tmp != in )
   {
-    INFO_PRINT << "encodequotedstring( " << out << " ) fails!\n";
+    INFO_PRINTLN( "encodequotedstring( {} ) fails!", out );
     UnitTest::inc_failures();
   }
   else
@@ -239,8 +239,12 @@ void test_sanitizeUnicodeWithIso()
   Clib::sanitizeUnicodeWithIso( &output );
   if ( output != expected )
   {
-    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput:    " << input
-               << "\n\toutput:   " << output << "\n\texpected: " << expected << "\n";
+    INFO_PRINTLN(
+        "sanitizeUnicodeWithIso fails!\n"
+        "\tinput:    {}\n"
+        "\toutput:   {}\n"
+        "\texpected: {}",
+        input, output, expected );
     UnitTest::inc_failures();
   }
   else
@@ -252,8 +256,12 @@ void test_sanitizeUnicodeWithIso()
   Clib::sanitizeUnicodeWithIso( &output );
   if ( output != expected )
   {
-    INFO_PRINT << "sanitizeUnicodeWithIso fails!\n\tinput:    " << input
-               << "\n\toutput:   " << output << "\n\texpected: " << expected << "\n";
+    INFO_PRINTLN(
+        "sanitizeUnicodeWithIso fails!\n"
+        "\tinput:    {}\n"
+        "\toutput:   {}\n"
+        "\texpected: {}",
+        input, output, expected );
     UnitTest::inc_failures();
   }
   else
@@ -265,7 +273,7 @@ void test_cp1252ToUtf8( const std::string& in, const std::string& expected )
   std::string converted = Clib::strCp1252ToUtf8( in );
   if ( converted != expected )
   {
-    INFO_PRINT << "CP-1252 to UTF-8 conversion fails!\n";
+    INFO_PRINTLN( "CP-1252 to UTF-8 conversion fails!" );
     UnitTest::inc_failures();
   }
   else
@@ -279,7 +287,7 @@ void test_utf8ToCp1252( const std::string& in, const std::string& expected )
   std::string converted = Clib::strUtf8ToCp1252( in );
   if ( converted != expected )
   {
-    INFO_PRINT << "UTF-8 to CP-1252 conversion fails!\n";
+    INFO_PRINTLN( "UTF-8 to CP-1252 conversion fails!" );
     UnitTest::inc_failures();
   }
   else
@@ -349,16 +357,16 @@ void test_curlfeatures()
   curl_version_info_data* data = curl_version_info( CURLVERSION_NOW );
   for ( int i = 0; data->protocols[i]; ++i )
   {
-    INFO_PRINT << data->protocols[i] << " ";
+    INFO_PRINT( "{} ", data->protocols[i] );
     if ( std::string( data->protocols[i] ) == "https" )
       https = true;
     else if ( std::string( data->protocols[i] ) == "http" )
       http = true;
   }
-  INFO_PRINT << "\n";
+  INFO_PRINTLN( "" );
   if ( !https || !http )
   {
-    INFO_PRINT << "http(s) is not supported\n";
+    INFO_PRINTLN( "http(s) is not supported" );
     UnitTest::inc_failures();
   }
   else

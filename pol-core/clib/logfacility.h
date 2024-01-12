@@ -4,9 +4,10 @@ This header is part of the PCH
 Remove the include in all StdAfx.h files or live with the consequences :)
 */
 
-#ifndef CLIB_LOGFACILITY_H
-#define CLIB_LOGFACILITY_H
+#pragma once
 
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <format/format.h>
 #include <fstream>
 #include <future>
@@ -39,8 +40,8 @@ public:
   virtual ~LogSinkGenericFile();
   void open_log_file( bool open_timestamp );
   void setBehaviour( const LogFileBehaviour* behaviour, std::string filename );
-  virtual void addMessage( fmt::Writer* msg ) override;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  virtual void addMessage( const std::string& msg ) override;
+  virtual void addMessage( const std::string& msg, const std::string& id ) override;
 
 protected:
   friend class LogFacility;
@@ -65,8 +66,8 @@ class LogSink_cout final : public LogSink
 public:
   LogSink_cout();
   virtual ~LogSink_cout() = default;
-  virtual void addMessage( fmt::Writer* msg ) override;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  virtual void addMessage( const std::string& msg ) override;
+  virtual void addMessage( const std::string& msg, const std::string& id ) override;
 };
 
 // std::cerr sink
@@ -75,8 +76,8 @@ class LogSink_cerr final : public LogSink
 public:
   LogSink_cerr();
   virtual ~LogSink_cerr() = default;
-  virtual void addMessage( fmt::Writer* msg ) override;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  virtual void addMessage( const std::string& msg ) override;
+  virtual void addMessage( const std::string& msg, const std::string& id ) override;
 };
 
 // pol.log (and start.log) file sink
@@ -102,8 +103,8 @@ class LogSink_debuglog final : public LogSinkGenericFile
 public:
   LogSink_debuglog();
   virtual ~LogSink_debuglog() = default;
-  virtual void addMessage( fmt::Writer* msg ) override;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  virtual void addMessage( const std::string& msg ) override;
+  virtual void addMessage( const std::string& msg, const std::string& id ) override;
   void disable();
   static bool Disabled;
 };
@@ -122,8 +123,8 @@ public:
   LogSink_flexlog();
   virtual ~LogSink_flexlog() = default;
   std::string create( std::string logfilename, bool open_timestamp );
-  virtual void addMessage( fmt::Writer* msg ) override;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  virtual void addMessage( const std::string& msg ) override;
+  virtual void addMessage( const std::string& msg, const std::string& id ) override;
   void close( const std::string& id );
 
 private:
@@ -136,8 +137,8 @@ class LogSink_dual final : public LogSink
 public:
   LogSink_dual();
   virtual ~LogSink_dual() = default;
-  virtual void addMessage( fmt::Writer* msg ) override;
-  virtual void addMessage( fmt::Writer* msg, const std::string& id ) override;
+  virtual void addMessage( const std::string& msg ) override;
+  virtual void addMessage( const std::string& msg, const std::string& id ) override;
 };
 
 // main class which starts the logging
@@ -149,7 +150,7 @@ public:
   LogFacility( const LogFacility& ) = delete;
   LogFacility& operator=( const LogFacility& ) = delete;
   template <typename Sink>
-  void save( fmt::Writer* message, const std::string& id );
+  void save( std::string message, std::string id );
   void registerSink( LogSink* sink );
   void disableDebugLog();
   void disableFileLog();
@@ -166,28 +167,52 @@ private:
   std::vector<LogSink*> _registered_sinks;
 };
 
+// constructor tag for id constructor
+static struct LogWithIDTag
+{
+} logWithID;
+
 // construct a message for given sink, on deconstruction sends the msg to the facility
 template <typename Sink>
 class Message
 {
 public:
   Message();
-  Message( const std::string& id );
-  Message(
-      const std::string& file, const int line,
-      const std::string& function );  // for internal stuff with __FILE__, __LINE__, __FUNCTION__
-  Message(
-      const std::string& id, const std::string& file, const int line,
-      const std::string& function );  // for internal stuff with __FILE__, __LINE__, __FUNCTION__
-  ~Message();                         // auto flush
+  Message( LogWithIDTag, const std::string& id );
+  ~Message();  // auto flush
 
   fmt::Writer& message() { return *( _formater.get() ); }
 
 private:
   std::unique_ptr<fmt::Writer> _formater;
-  std::string _id;
+  std::string _id = {};
 };
 
+template <typename Sink>
+struct Message2
+{
+  template <bool newline, typename Str, typename... Args>
+  static void logmsg( Str const& format, Args&&... args )
+  {
+    if constexpr ( sizeof...( args ) == 0 )
+    {
+      if constexpr ( newline )
+        send( std::string( format ) + '\n' );
+      else
+        send( std::string( format ) );
+    }
+    else
+    {
+      if constexpr ( newline )
+        send( fmt::format( format, args... ) + '\n' );
+      else
+        send( fmt::format( format, args... ) );
+    }
+  }
+
+private:
+  static void send( std::string msg );
+};
 
 extern LogFacility* global_logger;        // pointer to the instance of the main class
 void initLogging( LogFacility* logger );  // initalize the logging
@@ -196,61 +221,50 @@ void initLogging( LogFacility* logger );  // initalize the logging
 
 
 // several helper defines
-// #define DEBUG_LOG_PRINTS
-#ifdef DEBUG_LOG_PRINTS
-#ifdef WINDOWS
-#define __FILENAME__ ( strrchr( __FILE__, '\\' ) ? strrchr( __FILE__, '\\' ) + 1 : __FILE__ )
-#else
-#define __FILENAME__ ( strrchr( __FILE__, '/' ) ? strrchr( __FILE__, '/' ) + 1 : __FILE__ )
-#endif
-#define LOG_PRINT_CALLER_INFO __FILENAME__, __LINE__, __FUNCTION__
-#define LOG_PRINT_CALLER_INFO2 , __FILENAME__, __LINE__, __FUNCTION__
-#else
-#define LOG_PRINT_CALLER_INFO
-#define LOG_PRINT_CALLER_INFO2
-#endif
 
 // log into pol.log and std::cerr
-#define POLLOG_ERROR                                                                            \
-  Clib::Logging::Message<                                                                       \
-      Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, Clib::Logging::LogSink_pollog>>( \
-      LOG_PRINT_CALLER_INFO )                                                                   \
+#define POLLOG_ERROR                                                                             \
+  Clib::Logging::Message<                                                                        \
+      Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, Clib::Logging::LogSink_pollog>>() \
       .message()
 // log into pol.log and std::cout
-#define POLLOG_INFO                                                                             \
-  Clib::Logging::Message<                                                                       \
-      Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>( \
-      LOG_PRINT_CALLER_INFO )                                                                   \
+#define POLLOG_INFO                                                                              \
+  Clib::Logging::Message<                                                                        \
+      Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>() \
       .message()
-// log into pol.log
-#define POLLOG \
-  Clib::Logging::Message<Clib::Logging::LogSink_pollog>( LOG_PRINT_CALLER_INFO ).message()
+#define POLLOG_INFO2                                   \
+  Clib::Logging::Message2<Clib::Logging::LogSink_dual< \
+      Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>::logmsg<true>
 
-// log only into std::cout
-#define INFO_PRINT \
-  Clib::Logging::Message<Clib::Logging::LogSink_cout>( LOG_PRINT_CALLER_INFO ).message()
+// log into pol.log
+#define POLLOG Clib::Logging::Message<Clib::Logging::LogSink_pollog>().message()
+
+// log only into std::cout with \n addition
+#define INFO_PRINTLN Clib::Logging::Message2<Clib::Logging::LogSink_cout>::logmsg<true>
+// log only into std::cout without \n addition
+#define INFO_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cout>::logmsg<false>
 // log only into std::cout if level is equal or higher
-#define INFO_PRINT_TRACE( n )                      \
+#define INFO_PRINTLN_TRACE( n )                    \
   if ( Plib::systemstate.config.debug_level >= n ) \
-  INFO_PRINT
-// log only into std::cerr
-#define ERROR_PRINT \
-  Clib::Logging::Message<Clib::Logging::LogSink_cerr>( LOG_PRINT_CALLER_INFO ).message()
+  INFO_PRINTLN
+
+// log only into std::cerr with \n addition
+#define ERROR_PRINTLN Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<true>
+// log only into std::cerr without \n addition
+#define ERROR_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<false>
 
 // log into script.log
-#define SCRIPTLOG \
-  Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>( LOG_PRINT_CALLER_INFO ).message()
+#define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>().message()
 // log into debug.log (if enabled)
 #define DEBUGLOG                                    \
   if ( !Clib::Logging::LogSink_debuglog::Disabled ) \
-  Clib::Logging::Message<Clib::Logging::LogSink_debuglog>( LOG_PRINT_CALLER_INFO ).message()
+  Clib::Logging::Message<Clib::Logging::LogSink_debuglog>().message()
 // log into leak.log
-#define LEAKLOG \
-  Clib::Logging::Message<Clib::Logging::LogSink_leaklog>( LOG_PRINT_CALLER_INFO ).message()
+#define LEAKLOG Clib::Logging::Message<Clib::Logging::LogSink_leaklog>().message()
 
 // log into sink id need a call of OPEN_LOG before
 #define FLEXLOG( id ) \
-  Clib::Logging::Message<Clib::Logging::LogSink_flexlog>( id LOG_PRINT_CALLER_INFO2 ).message()
+  Clib::Logging::Message<Clib::Logging::LogSink_flexlog>( Clib::Logging::logWithID, id ).message()
 // open logfile of given filename, returns unique unsigned int for usage of logging/closing
 #define OPEN_FLEXLOG( filename, open_timestamp ) \
   Clib::Logging::global_logger->registerFlexLogger( filename, open_timestamp )
@@ -267,5 +281,3 @@ void initLogging( LogFacility* logger );  // initalize the logging
 
 #define GET_LOG_FILESTAMP Clib::Logging::LogSink::getTimeStamp()
 }  // namespace Pol
-
-#endif  // CLIB_LOGFACILITY_H

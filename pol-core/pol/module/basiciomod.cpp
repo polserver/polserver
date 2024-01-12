@@ -26,12 +26,12 @@ Bscript::BObjectImp* BasicIoExecutorModule::mf_Print()
     return new Bscript::BError( "Invalid parameter type" );
   if ( Plib::systemstate.config.enable_colored_output && color->length() )
   {
-    INFO_PRINT << color->value() << exec.getParamImp( 0 )->getStringRep()
-               << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+    INFO_PRINTLN( "{}{}{}", color->value(), exec.getParamImp( 0 )->getStringRep(),
+                 Clib::Logging::CONSOLE_RESET_COLOR );
   }
   else
   {
-    INFO_PRINT << exec.getParamImp( 0 )->getStringRep() << "\n";
+    INFO_PRINTLN( exec.getParamImp( 0 )->getStringRep() );
   }
   return new Bscript::UninitObject;
 }

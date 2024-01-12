@@ -13,7 +13,7 @@ public:
   FunctionReference( const SourceLocation&, std::string name, std::shared_ptr<FunctionLink> );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const std::string name;
   const std::shared_ptr<FunctionLink> function_link;

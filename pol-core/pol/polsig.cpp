@@ -47,7 +47,7 @@ pthread_t main_pthread;
 
 void sigpipe_handler( int x )
 {
-  INFO_PRINT << "SIGPIPE! param=" << x << "\n";
+  INFO_PRINTLN( "SIGPIPE! param={}", x );
 }
 
 void handle_HUP( int /*x*/ )
@@ -97,7 +97,7 @@ void install_signal_handlers()
   int res = pthread_sigmask( SIG_BLOCK, &blocked_sigs, nullptr );
   if ( res )
   {
-    ERROR_PRINT << "pthread_sigmask failed: " << res << "\n";
+    ERROR_PRINTLN( "pthread_sigmask failed: {}", res );
     if ( Clib::Logging::global_logger )
       Clib::Logging::global_logger->wait_for_empty_queue();
     exit( 1 );
@@ -112,7 +112,7 @@ void signal_catch_thread()
   int res = pthread_kill( main_pthread, SIGTERM );
   if ( res )
   {
-    ERROR_PRINT << "pthread_kill failed: " << res << "\n";
+    ERROR_PRINTLN( "pthread_kill failed: {}", res );
   }
 }
 
@@ -137,27 +137,27 @@ void catch_signals_thread( void )
     switch ( caught )
     {
     case SIGHUP:
-      ERROR_PRINT << "SIGHUP: reload configuration.\n";
+      ERROR_PRINTLN( "SIGHUP: reload configuration." );
       stateManager.polsig.reload_configuration_signalled = true;
       break;
     case SIGUSR1:
-      ERROR_PRINT << "SIGUSR1: report thread status.\n";
+      ERROR_PRINTLN( "SIGUSR1: report thread status." );
       stateManager.polsig.report_status_signalled = true;
       break;
     case SIGINT:
-      ERROR_PRINT << "SIGINT: exit.\n";
+      ERROR_PRINTLN( "SIGINT: exit." );
       Clib::signal_exit();
       break;
     case SIGQUIT:
-      ERROR_PRINT << "SIGQUIT: exit.\n";
+      ERROR_PRINTLN( "SIGQUIT: exit." );
       Clib::signal_exit();
       break;
     case SIGTERM:
-      ERROR_PRINT << "SIGTERM: exit.\n";
+      ERROR_PRINTLN( "SIGTERM: exit." );
       Clib::signal_exit();
       break;
     default:
-      ERROR_PRINT << "Unexpected signal: " << caught << "\n";
+      ERROR_PRINTLN( "Unexpected signal: {}", caught );
       break;
     }
   }

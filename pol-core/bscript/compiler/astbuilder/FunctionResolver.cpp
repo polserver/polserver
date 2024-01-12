@@ -61,9 +61,10 @@ void FunctionResolver::register_module_function( ModuleFunctionDeclaration* mf )
   {
     const auto& previous = ( *itr ).second;
 
-    report.error( previous.source_location, "User Function '", name,
-                  "' conflicts with Module Function of the same name.\n",
-                  "  Module Function declaration: ", mf->source_location, "\n" );
+    report.error( previous.source_location,
+                  "User Function '{}' conflicts with Module Function of the same name.\n"
+                  "  Module Function declaration: {}",
+                  name, mf->source_location );
   }
 
   resolved_functions_by_name[name] = mf;
@@ -107,7 +108,7 @@ bool FunctionResolver::resolve( std::vector<AvailableUserFunction>& to_build_ast
       {
         // complain, super complain
         const std::shared_ptr<FunctionLink>& function_link = ( function_links )[0];
-        report.error( function_link->source_location, "User Function '", name, "' not found.\n" );
+        report.error( function_link->source_location, "User Function '{}' not found.", name );
         unresolved_itr = unresolved_function_links_by_name.erase( unresolved_itr );
       }
     }
@@ -126,8 +127,10 @@ void FunctionResolver::register_available_user_function_parse_tree(
   {
     AvailableUserFunction& previous = ( *itr ).second;
 
-    report.error( source_location, "Function '", name, "' defined more than once.\n",
-                  "  Previous declaration: ", previous.source_location, "\n" );
+    report.error( source_location,
+                  "Function '{}' defined more than once.\n"
+                  "  Previous declaration: {}",
+                  name, previous.source_location );
   }
 
   auto itr2 = resolved_functions_by_name.find( name );
@@ -135,9 +138,10 @@ void FunctionResolver::register_available_user_function_parse_tree(
   {
     auto* previous = ( *itr2 ).second;
 
-    report.error( source_location, "User Function '", name,
-                  "' conflicts with Module Function of the same name.\n",
-                  "  Module Function declaration: ", previous->source_location, "\n" );
+    report.error( source_location,
+                  "User Function '{}' conflicts with Module Function of the same name.\n"
+                  "  Module Function declaration: {}",
+                  name, previous->source_location );
   }
 
   auto auf = AvailableUserFunction{ source_location, ctx };

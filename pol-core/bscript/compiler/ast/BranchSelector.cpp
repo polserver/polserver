@@ -28,9 +28,9 @@ void BranchSelector::accept( NodeVisitor& visitor )
   visitor.visit_branch_selector( *this );
 }
 
-void BranchSelector::describe_to( fmt::Writer& w ) const
+void BranchSelector::describe_to( std::string& w ) const
 {
-  w << "branch-selector(" << branch_type << ")";
+  fmt::format_to( std::back_inserter( w ), "branch-selector({})", fmt::underlying( branch_type ) );
 }
 
 Expression* BranchSelector::predicate()

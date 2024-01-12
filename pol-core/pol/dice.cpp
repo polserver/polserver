@@ -157,9 +157,11 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Uh, looks like I found damage of " << dicestr << " confusing.\n"
-                << "Valid formats look like: 3D6+2, 2D8, D10, 4, 2d20-4\n"
-                << "No spaces please!\n";
+    ERROR_PRINTLN(
+        "Uh, looks like I found damage of {} confusing.\n"
+        "Valid formats look like: 3D6+2, 2D8, D10, 4, 2d20-4\n"
+        "No spaces please!",
+        dicestr );
     POLLOG.Format( "Dice String {} hurt me!: {}\n" ) << dicestr << ex.what();
     *errormsg = "An exception occured trying to decipher dice '";
     *errormsg += dicestr;

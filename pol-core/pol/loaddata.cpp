@@ -123,14 +123,14 @@ void insert_deferred_items()
   unsigned int nobjects = 0;
   Tools::Timer<> timer;
 
-  INFO_PRINT << "  deferred inserts:";
+  INFO_PRINT( "  deferred inserts:" );
 
   for ( DeferList::iterator itr = objStorageManager.deferred_insertions.begin();
         itr != objStorageManager.deferred_insertions.end(); ++itr )
   {
     if ( --num_until_dot == 0 )
     {
-      INFO_PRINT << ".";
+      INFO_PRINT( "." );
       num_until_dot = 1000;
     }
 
@@ -147,10 +147,9 @@ void insert_deferred_items()
       }
       else
       {
-        ERROR_PRINT.Format(
-            "Item 0x{:X} is supposed to be on Character 0x{:X}, but that character cannot be "
-            "found.\n" )
-            << item->serial << container_serial;
+        ERROR_PRINTLN(
+            "Item {:#X} is supposed to be on Character {:#X}, but that character cannot be ",
+            item->serial, container_serial );
 
         // Austin - Aug. 10, 2006
         // Removes the object if ignore_load_errors is enabled and the character can't be found.
@@ -158,7 +157,7 @@ void insert_deferred_items()
           throw std::runtime_error( "Data file integrity error" );
         else
         {
-          ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
+          ERROR_PRINTLN( "Ignore load errors enabled. Removing object." );
           obj->destroy();
         }
       }
@@ -173,9 +172,9 @@ void insert_deferred_items()
       }
       else
       {
-        ERROR_PRINT << "Item 0x" << fmt::hexu( item->serial )
-                    << " is supposed to be in container 0x" << fmt::hexu( container_serial )
-                    << ", but that container cannot be found.\n";
+        ERROR_PRINTLN(
+            "Item {:#X} is supposed to be in container {:#X}, but that container cannot be found.",
+            item->serial, container_serial );
 
         // Austin - Aug. 10, 2006
         // Removes the object if ignore_load_errors is enabled and the character can't be found.
@@ -183,7 +182,7 @@ void insert_deferred_items()
           throw std::runtime_error( "Data file integrity error" );
         else
         {
-          ERROR_PRINT << "Ignore load errors enabled. Removing object.\n";
+          ERROR_PRINTLN( "Ignore load errors enabled. Removing object." );
           obj->destroy();
         }
       }
@@ -191,7 +190,7 @@ void insert_deferred_items()
     ++nobjects;
   }
   timer.stop();
-  INFO_PRINT << " " << nobjects << " elements in " << timer.ellapsed() << " ms.\n";
+  INFO_PRINTLN( " {} elements in {} ms.", nobjects, timer.ellapsed() );
 
   objStorageManager.deferred_insertions.clear();
 }
@@ -199,7 +198,7 @@ void insert_deferred_items()
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 {
   item->layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
-  item->tile_layer = item->layer;            // adjust for tiledata changes
+  item->tile_layer = item->layer;                  // adjust for tiledata changes
 
   if ( chr->equippable( item ) && item->check_equiptest_scripts( chr, true ) &&
        item->check_equip_script( chr, true ) &&
@@ -211,9 +210,10 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   }
   else
   {
-    ERROR_PRINT << "Item 0x" << fmt::hexu( item->serial )
-                << " is supposed to be equipped on Character " << fmt::hexu( chr->serial )
-                << ", but is not 'equippable' on that character.\n";
+    ERROR_PRINTLN(
+        "Item {:#X} is supposed to be equipped on Character {:#X}, but is not 'equippable' on that "
+        "character.",
+        item->serial, chr->serial );
     UContainer* bp = chr->backpack();
     if ( bp )
     {
@@ -226,20 +226,19 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
         bp->add_at_random_location( item );
         // leaving dirty
         stateManager.gflag_enforce_container_limits = true;
-        ERROR_PRINT << "I'm so cool, I put it in the character's backpack!\n";
+        ERROR_PRINTLN( "I'm so cool, I put it in the character's backpack!" );
         return;
       }
       else
       {
         stateManager.gflag_enforce_container_limits = true;
-        ERROR_PRINT << "Tried to put it in the character's backpack, "
-                    << "but it wouldn't fit.\n";
+        ERROR_PRINTLN( "Tried to put it in the character's backpack, but it wouldn't fit." );
       }
     }
     else
     {
-      ERROR_PRINT << "Tried to put it in the character's backpack, "
-                  << "but there isn't one.  That's naughty...\n";
+      ERROR_PRINTLN(
+          "Tried to put it in the character's backpack, but there isn't one.  That's naughty..." );
     }
     throw std::runtime_error( "Data file integrity error" );
   }
@@ -280,15 +279,14 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
     bool add_to_slot = cont->can_add_to_slot( slotIndex );
     if ( !canadd )
     {
-      ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial ) << " to container 0x"
-                  << fmt::hexu( cont->serial ) << "\n";
+      ERROR_PRINTLN( "Can't add Item {:#X} to container {:#X}", item->serial, cont->serial );
       throw std::runtime_error( "Data file error" );
     }
 
     if ( !add_to_slot || !item->slot_index( slotIndex ) )
     {
-      ERROR_PRINT << "Can't add Item 0x" << fmt::hexu( item->serial ) << " to container 0x"
-                  << fmt::hexu( cont->serial ) << " at slot 0x" << fmt::hexu( slotIndex ) << "\n";
+      ERROR_PRINTLN( "Can't add Item {:#X} to container {:#X} at slot {:#X}", item->serial,
+                     cont->serial, slotIndex );
       throw std::runtime_error( "Data file error" );
     }
 
@@ -304,8 +302,8 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
   }
   else
   {
-    INFO_PRINT << "Container type 0x" << fmt::hexu( cont_item->objtype_ )
-               << " contains items, but is not a container class\n";
+    INFO_PRINTLN( "Container type {:#x} contains items, but is not a container class",
+                  cont_item->objtype_ );
     throw std::runtime_error( "Config file error" );
   }
 }

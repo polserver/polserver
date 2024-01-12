@@ -93,8 +93,8 @@ void PacketRegistry::set_extended_handler( UEXTMSGID submsgtype,
 {
   if ( Core::networkManager.ext_handler_table[submsgtype].func )
   {
-    ERROR_PRINT.Format( "Extended Message Handler {} (0x{:X}) multiply defined.\n" )
-        << submsgtype << submsgtype;
+    ERROR_PRINTLN( "Extended Message Handler {} ({:#X}) multiply defined.",
+                   fmt::underlying( submsgtype ), fmt::underlying( submsgtype ) );
     throw std::runtime_error( "Extended Message Handler multiply defined." );
   }
   Core::networkManager.ext_handler_table[submsgtype].func = func;

@@ -219,7 +219,7 @@ void Storage::read( Clib::ConfigFile& cf )
   {
     if ( --num_until_dot == 0 )
     {
-      INFO_PRINT << ".";
+      INFO_PRINT( "." );
       num_until_dot = 1000;
     }
     if ( elem.type_is( "StorageArea" ) )
@@ -242,13 +242,13 @@ void Storage::read( Clib::ConfigFile& cf )
       }
       else
       {
-        ERROR_PRINT << "Storage: Got an ITEM element, but don't have a StorageArea to put it.\n";
+        ERROR_PRINTLN( "Storage: Got an ITEM element, but don't have a StorageArea to put it." );
         throw std::runtime_error( "Data file integrity error" );
       }
     }
     else
     {
-      ERROR_PRINT << "Unexpected element type " << elem.type() << " in storage file.\n";
+      ERROR_PRINTLN( "Unexpected element type {} in storage file.", elem.type() );
       throw std::runtime_error( "Data file integrity error" );
     }
     ++nobjects;
@@ -257,7 +257,7 @@ void Storage::read( Clib::ConfigFile& cf )
   clock_t end = clock();
   int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
-  INFO_PRINT << " " << nobjects << " elements in " << ms << " ms.\n";
+  INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
 void Storage::print( Clib::StreamWriter& sw ) const

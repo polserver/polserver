@@ -842,7 +842,7 @@ void read_party_dat()
   if ( settingsManager.party_cfg.General.RemoveMemberOnLogoff )
     return;
 
-  INFO_PRINT << "  " << partyfile << ":";
+  INFO_PRINT( "  {}:", partyfile );
   Clib::ConfigFile cf( partyfile );
   Clib::ConfigSection sect_party( cf, "PARTY", Clib::CST_NORMAL );
   Clib::ConfigElem elem;
@@ -852,7 +852,7 @@ void read_party_dat()
   {
     if ( --num_until_dot == 0 )
     {
-      INFO_PRINT << ".";
+      INFO_PRINT( "." );
       num_until_dot = 1000;
     }
     if ( sect_party.matches( elem ) )
@@ -861,7 +861,7 @@ void read_party_dat()
   clock_t end = clock();
   int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
-  INFO_PRINT << " " << gamestate.parties.size() << " elements in " << ms << " ms.\n";
+  INFO_PRINTLN( " {} elements in {} ms.", gamestate.parties.size(), ms );
 
   register_party_members();
 }

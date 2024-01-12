@@ -11,7 +11,7 @@ public:
   ProgramParameterDeclaration( const SourceLocation&, std::string name, bool unused );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const std::string name;
   const bool unused;

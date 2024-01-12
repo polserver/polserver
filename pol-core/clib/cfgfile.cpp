@@ -604,7 +604,7 @@ void ConfigFile::open( const char* i_filename )
 
   if ( !ifs.is_open() )
   {
-    ERROR_PRINT << "Unable to open configuration file " << _filename << "\n";
+    ERROR_PRINTLN( "Unable to open configuration file {}", _filename );
     throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
   }
 #else
@@ -986,27 +986,27 @@ void ConfigFile::display_error( const std::string& msg, bool show_curline,
                                 const ConfigElemBase* elem, bool error ) const
 {
   bool showed_elem_line = false;
-  fmt::Writer tmp;
-  tmp << ( error ? "Error" : "Warning" ) << " reading configuration file " << _filename << ":\n"
-      << "\t" << msg << "\n";
+  std::string tmp = fmt::format(
+      " {} reading configuration file {}:\n"
+      "\t{}",
+      error ? "Error" : "Warning", _filename, msg );
 
   if ( elem != nullptr )
   {
     if ( strlen( elem->type() ) > 0 )
     {
-      tmp << "\tElement: " << elem->type() << " " << elem->rest();
+      tmp += fmt::format( "\n\tElement: {} {}", elem->type(), elem->rest() );
       if ( _element_line_start )
-        tmp << ", found on line " << _element_line_start;
-      tmp << "\n";
+        tmp += fmt::format( ", found on line {}", _element_line_start );
       showed_elem_line = true;
     }
   }
 
   if ( show_curline )
-    tmp << "\tNear line: " << _cur_line << "\n";
+    tmp += fmt::format( "\n\tNear line: {}", _cur_line );
   if ( _element_line_start && !showed_elem_line )
-    tmp << "\tElement started on line: " << _element_line_start << "\n";
-  ERROR_PRINT << tmp.str();
+    tmp += fmt::format( "\n\tElement started on line: {}", _element_line_start );
+  ERROR_PRINTLN( tmp );
 }
 
 void ConfigFile::display_and_rethrow_exception()
@@ -1065,8 +1065,7 @@ void ConfigFile::readraw( ConfigElem& elem )
 void StubConfigSource::display_error( const std::string& msg, bool /*show_curline*/,
                                       const ConfigElemBase* /*elem*/, bool error ) const
 {
-  ERROR_PRINT << ( error ? "Error" : "Warning" ) << " reading configuration element:"
-              << "\t" << msg << "\n";
+  ERROR_PRINTLN( "{} reading configuration element:\t{}", ( error ? "Error" : "Warning" ), msg );
 }
 }  // namespace Clib
 }  // namespace Pol

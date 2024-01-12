@@ -22,8 +22,7 @@ std::string UOInstallFinder::remove_elem( Clib::ConfigElem& elem )
           "found on the system." );
     }
 
-    INFO_PRINT << "Using Ultima Online data files from installation directory " << uodata_root
-               << "\n";
+    INFO_PRINTLN( "Using Ultima Online data files from installation directory {}", uodata_root );
   }
   return uodata_root;
 }
@@ -71,7 +70,7 @@ const std::vector<std::string> KNOWN_KEYS = {
     "Origin Worlds Online\\Ultima Online Third Dawn\\1.0",
 };
 
-const std::vector<std::string> KNOWN_VALUES = {"ExePath", "Install Dir", "InstallDir"};
+const std::vector<std::string> KNOWN_VALUES = { "ExePath", "Install Dir", "InstallDir" };
 
 #ifdef _WIN64
 const bool is64bit = true;

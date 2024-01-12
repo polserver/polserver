@@ -11,7 +11,8 @@ class FlowControlLabel;
 class BranchSelector : public Node
 {
 public:
-  enum BranchType {
+  enum BranchType
+  {
     IfTrue,
     IfFalse,
     Always,
@@ -22,7 +23,7 @@ public:
   BranchSelector( const SourceLocation&, BranchType branch_type );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const BranchType branch_type;
   std::shared_ptr<FlowControlLabel> flow_control_label;
@@ -30,6 +31,6 @@ public:
   Expression* predicate();
 };
 
-}
+}  // namespace Pol::Bscript::Compiler
 
 #endif  // POLSERVER_BRANCHSELECTOR_H

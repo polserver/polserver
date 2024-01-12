@@ -360,7 +360,7 @@ void HttpExecutorModule::read_query_string( const std::string& query_string )
       params_[name.c_str()] = value;
 
       if ( Plib::systemstate.config.web_server_debug )
-        INFO_PRINT << "http-param: '" << param << "', '" << Core::http_decodestr( param ) << "'\n";
+        INFO_PRINTLN( "http-param: '{}', '{}'", param, Core::http_decodestr( param ) );
 
       start = brk + 1;
     } while ( brk != std::string::npos );

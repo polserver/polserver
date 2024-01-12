@@ -11,7 +11,7 @@ public:
   DebugStatementMarker( const SourceLocation&, std::string text, unsigned start_index );
 
   void accept( NodeVisitor& visitor ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const std::string text;
   const unsigned start_index;

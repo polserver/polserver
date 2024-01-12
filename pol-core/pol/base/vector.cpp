@@ -129,3 +129,16 @@ std::ostream& operator<<( std::ostream& os, const Vec3d& v )
 }
 }  // namespace Core
 }  // namespace Pol
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Vec2d>::format(
+    const Pol::Core::Vec2d& v, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {}, {} )", v.x(), v.y() ), ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Vec3d>::format(
+    const Pol::Core::Vec3d& v, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {}, {}, {} )", v.x(), v.y(), v.z() ),
+                                              ctx );
+}

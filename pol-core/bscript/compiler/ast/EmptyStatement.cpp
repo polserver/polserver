@@ -16,9 +16,9 @@ void EmptyStatement::accept( NodeVisitor& visitor )
   visitor.visit_empty_statement( *this );
 }
 
-void EmptyStatement::describe_to( fmt::Writer& w ) const
+void EmptyStatement::describe_to( std::string& w ) const
 {
-  w << "empty-statement";
+  w += "empty-statement";
 }
 
 }  // namespace Pol::Bscript::Compiler

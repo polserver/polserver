@@ -53,51 +53,51 @@ ECompileMain::~ECompileMain() {}
 
 void ECompileMain::showHelp()
 {
-  INFO_PRINT << "Usage:\n"
-             << "    \n"
-             << "  ECOMPILE [options] filespec [filespec ...]\n"
-             << "    \n"
-             << "  Output is : filespec.ecl\n"
-             << "  Options:\n"
-             << "   Options: \n"
-             << "       -a           compile *.asp pages also\n"
-             << "       -A           automatically compile scripts in main and enabled packages\n"
-             << "       -Au          (as '-A' but only compile updated files)\n"
-             << "       -b           keep building other scripts after errors\n"
-             << "       -c           treat wrong capitalization in include directives as error\n"
-             << "       -C cfgpath   path to configuration (replaces ecompile.cfg)\n"
-             << "       -d           display confusing compiler parse information\n"
-             << "       -D           write dependency information\n"
-             << "       -e           report error on successful compilation (used for testing)\n"
+  INFO_PRINTLN(
+      "Usage:\n"
+      "    \n"
+      "  ECOMPILE [options] filespec [filespec ...]\n"
+      "    \n"
+      "  Output is : filespec.ecl\n"
+      "  Options:\n"
+      "   Options: \n"
+      "       -a           compile *.asp pages also\n"
+      "       -A           automatically compile scripts in main and enabled packages\n"
+      "       -Au          (as '-A' but only compile updated files)\n"
+      "       -b           keep building other scripts after errors\n"
+      "       -c           treat wrong capitalization in include directives as error\n"
+      "       -C cfgpath   path to configuration (replaces ecompile.cfg)\n"
+      "       -d           display confusing compiler parse information\n"
+      "       -D           write dependency information\n"
+      "       -e           report error on successful compilation (used for testing)\n"
 #ifdef WIN32
-             << "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
+      "       -Ecfgpath    set or change the ECOMPILE_CFG_PATH evironment variable\n"
 #endif
 
-             << "       -i           include intrusive debug info in .ecl file\n"
-             << "       -l           generate listfile\n"
-             << "       -m           don't optimize object members\n"
+      "       -i           include intrusive debug info in .ecl file\n"
+      "       -l           generate listfile\n"
+      "       -m           don't optimize object members\n"
 #ifdef WIN32
-             << "       -Pdir        set or change the EM and INC files Environment Variables\n"
+      "       -Pdir        set or change the EM and INC files Environment Variables\n"
 #endif
-             << "       -q           quiet mode (suppress normal output)\n"
-             << "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
-             << "       -ri [dir]    (as '-r' but only compile .inc files)\n"
-             << "       -t[v]        show timing/profiling information [override quiet mode]\n"
-             << "       -u           compile only updated scripts (.src newer than .ecl)\n"
-             << "       -f           force compile even if up-to-date\n"
-             << "       -s           display summary if -q is not set\n"
-             << "       -T[N]        use threaded compilation, force N threads to run\n"
-             << "       -vN          verbosity level\n"
-             << "       -w           display warnings\n"
-             << "       -y           treat warnings as errors\n"
-             << "       -x           write external .dbg file\n"
-             << "       -xt          write external .dbg.txt info file\n"
-             << "\n"
-             << " NOTE:\n"
-             << "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
-             << "   a literal [dir] of '.' (no quotes) or options will not parse correctly.\n";
+      "       -q           quiet mode (suppress normal output)\n"
+      "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
+      "       -ri [dir]    (as '-r' but only compile .inc files)\n"
+      "       -t[v]        show timing/profiling information [override quiet mode]\n"
+      "       -u           compile only updated scripts (.src newer than .ecl)\n"
+      "       -f           force compile even if up-to-date\n"
+      "       -s           display summary if -q is not set\n"
+      "       -T[N]        use threaded compilation, force N threads to run\n"
+      "       -vN          verbosity level\n"
+      "       -w           display warnings\n"
+      "       -y           treat warnings as errors\n"
+      "       -x           write external .dbg file\n"
+      "       -xt          write external .dbg.txt info file\n"
+      "\n"
+      " NOTE:\n"
+      "   If <filespec> are required after an empty -r[i] option, you MUST specify\n"
+      "   a literal [dir] of '.' (no quotes) or options will not parse correctly." );
 }
-
 static int s_argc;
 static char** s_argv;
 
@@ -145,7 +145,7 @@ std::unique_ptr<Compiler::Compiler> create_compiler()
 void compile_inc( const char* path )
 {
   if ( !quiet )
-    INFO_PRINT << "Compiling: " << path << "\n";
+    INFO_PRINTLN( "Compiling: {}", path );
 
   std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
@@ -207,8 +207,8 @@ bool compile_file( const char* path )
 
   if ( ext.compare( ".src" ) != 0 && ext.compare( ".hsr" ) != 0 && ext.compare( ".asp" ) != 0 )
   {
-    compiler_error( "Didn't find '.src', '.hsr', or '.asp' extension on source filename '", path,
-                    "'!\n" );
+    compiler_error( "Didn't find '.src', '.hsr', or '.asp' extension on source filename '{}'!",
+                    path );
     throw std::runtime_error( "Error in source filename" );
   }
   std::string filename_ecl = fname.replace( pos, 4, ".ecl" );
@@ -223,7 +223,7 @@ bool compile_file( const char* path )
     if ( Clib::GetFileTimestamp( filename_src.c_str() ) >= ecl_timestamp )
     {
       if ( compilercfg.VerbosityLevel > 0 )
-        INFO_PRINT << filename_src << " is newer than " << filename_ecl << "\n";
+        INFO_PRINTLN( "{} is newer than {}", filename_src, filename_ecl );
       all_old = false;
     }
 
@@ -239,7 +239,7 @@ bool compile_file( const char* path )
           if ( Clib::GetFileTimestamp( depname.c_str() ) >= ecl_timestamp )
           {
             if ( compilercfg.VerbosityLevel > 0 )
-              INFO_PRINT << depname << " is newer than " << filename_ecl << "\n";
+              INFO_PRINTLN( "{} is newer than {}", depname, filename_ecl );
             all_old = false;
             break;
           }
@@ -248,16 +248,14 @@ bool compile_file( const char* path )
       else
       {
         if ( compilercfg.VerbosityLevel > 0 )
-          INFO_PRINT << filename_dep << " does not exist."
-                     << "\n";
+          INFO_PRINTLN( "{} does not exist.", filename_dep );
         all_old = false;
       }
     }
     if ( all_old )
     {
       if ( !quiet && compilercfg.DisplayUpToDateScripts )
-        INFO_PRINT << filename_ecl << " is up-to-date."
-                   << "\n";
+        INFO_PRINTLN( "{} is up-to-date.", filename_ecl );
       return false;
     }
   }
@@ -265,7 +263,7 @@ bool compile_file( const char* path )
 
   {
     if ( !quiet )
-      INFO_PRINT << "Compiling: " << path << "\n";
+      INFO_PRINTLN( "Compiling: {}", path );
 
     std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
@@ -279,8 +277,7 @@ bool compile_file( const char* path )
       if ( !success )  // good, it failed
       {
         if ( !quiet )
-          INFO_PRINT << "Compilation failed as expected."
-                     << "\n";
+          INFO_PRINTLN( "Compilation failed as expected." );
         return true;
       }
       else
@@ -294,7 +291,7 @@ bool compile_file( const char* path )
 
 
     if ( !quiet )
-      INFO_PRINT << "Writing:   " << filename_ecl << "\n";
+      INFO_PRINTLN( "Writing:   {}", filename_ecl );
 
     if ( !compiler->write_ecl( filename_ecl ) )
     {
@@ -304,13 +301,13 @@ bool compile_file( const char* path )
     if ( compilercfg.GenerateListing )
     {
       if ( !quiet )
-        INFO_PRINT << "Writing:   " << filename_lst << "\n";
+        INFO_PRINTLN( "Writing:   {}", filename_lst );
       compiler->write_listing( filename_lst );
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
     {
       if ( !quiet )
-        INFO_PRINT << "Deleting:  " << filename_lst << "\n";
+        INFO_PRINTLN( "Deleting:  {}", filename_lst );
       Clib::RemoveFile( filename_lst );
     }
 
@@ -318,30 +315,29 @@ bool compile_file( const char* path )
     {
       if ( !quiet )
       {
-        INFO_PRINT << "Writing:   " << filename_dbg << "\n";
+        INFO_PRINTLN( "Writing:   {}", filename_dbg );
         if ( compilercfg.GenerateDebugTextInfo )
-          INFO_PRINT << "Writing:   " << filename_dbg << ".txt"
-                     << "\n";
+          INFO_PRINTLN( "Writing:   {}.txt", filename_dbg );
       }
       compiler->write_dbg( filename_dbg, compilercfg.GenerateDebugTextInfo );
     }
     else if ( Clib::FileExists( filename_dbg.c_str() ) )
     {
       if ( !quiet )
-        INFO_PRINT << "Deleting:  " << filename_dbg << "\n";
+        INFO_PRINTLN( "Deleting:  {}", filename_dbg );
       Clib::RemoveFile( filename_dbg );
     }
 
     if ( compilercfg.GenerateDependencyInfo )
     {
       if ( !quiet )
-        INFO_PRINT << "Writing:   " << filename_dep << "\n";
+        INFO_PRINTLN( "Writing:   {}", filename_dep );
       compiler->write_included_filenames( filename_dep );
     }
     else if ( Clib::FileExists( filename_dep.c_str() ) )
     {
       if ( !quiet )
-        INFO_PRINT << "Deleting:  " << filename_dep << "\n";
+        INFO_PRINTLN( "Deleting:  {}", filename_dep );
       Clib::RemoveFile( filename_dep );
     }
   }
@@ -433,7 +429,7 @@ int readargs( int argc, char** argv )
         auto value = setting_value( arg );
         if ( !value )
         {
-          INFO_PRINT << "The OG Compiler has been removed.\n";
+          INFO_PRINTLN( "The OG Compiler has been removed." );
           unknown_opt = true;
         }
         break;
@@ -550,7 +546,7 @@ int readargs( int argc, char** argv )
 
     if ( unknown_opt )
     {
-      ERROR_PRINT << "Unknown option: " << argv[i] << "\n";
+      ERROR_PRINTLN( "Unknown option: {}", argv[i] );
       return 1;
     }
   }
@@ -633,7 +629,7 @@ void parallel_compile( const std::set<std::string>& files )
             {
               ++compiled_scripts;
               ++error_scripts;
-              compiler_error( "failed to compile ", file.c_str(), ": ", e.what(), "\n" );
+              compiler_error( "failed to compile {}: {}", file, e.what() );
               if ( !keep_building )
               {
                 par_keep_building = false;
@@ -752,56 +748,66 @@ bool run( int argc, char** argv, int* res )
 
   if ( any && compilercfg.DisplaySummary && !quiet )
   {
-    fmt::Writer tmp;
-    tmp << "Compilation Summary:\n";
+    std::string tmp = "Compilation Summary:\n";
     if ( summary.ThreadCount )
-      tmp << "    Used " << summary.ThreadCount << " threads\n";
+      tmp += fmt::format( "    Used {} threads\n", summary.ThreadCount );
     if ( summary.CompiledScripts )
-      tmp << "    Compiled " << summary.CompiledScripts << " script"
-          << ( summary.CompiledScripts == 1 ? "" : "s" ) << " in " << timer.ellapsed() << " ms.\n";
+      tmp += fmt::format( "    Compiled {} script{} in {} ms.\n", summary.CompiledScripts,
+                          ( summary.CompiledScripts == 1 ? "" : "s" ), timer.ellapsed() );
 
     if ( summary.ScriptsWithCompileErrors )
-      tmp << "    " << summary.ScriptsWithCompileErrors << " of those script"
-          << ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) << " had errors.\n";
+      tmp +=
+          fmt::format( "    {} of those script{} had errors.\n", summary.ScriptsWithCompileErrors,
+                       ( summary.ScriptsWithCompileErrors == 1 ? "" : "s" ) );
 
     if ( summary.UpToDateScripts )
-      tmp << "    " << summary.UpToDateScripts << " script"
-          << ( summary.UpToDateScripts == 1 ? " was" : "s were" ) << " already up-to-date.\n";
+      tmp += fmt::format( "    {} script{} already up-to-date.\n", summary.UpToDateScripts,
+                          ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
 
     if ( show_timing_details )
     {
-      tmp << "    build workspace: " << (long long)summary.profile.build_workspace_micros / 1000
-          << "\n";
-      tmp << "        - load *.em:   " << (long long)summary.profile.load_em_micros / 1000 << "\n";
-      tmp << "       - parse *.em:   " << (long long)summary.profile.parse_em_micros / 1000 << " ("
-          << (long)summary.profile.parse_em_count << ")\n";
-      tmp << "         - ast *.em:   " << (long long)summary.profile.ast_em_micros / 1000 << "\n";
-      tmp << "      - parse *.inc:   " << (long long)summary.profile.parse_inc_micros / 1000 << " ("
-          << (long)summary.profile.parse_inc_count << ")\n";
-      tmp << "        - ast *.inc:   " << (long long)summary.profile.ast_inc_micros / 1000 << "\n";
-      tmp << "      - parse *.src:   " << (long long)summary.profile.parse_src_micros / 1000 << " ("
-          << (long)summary.profile.parse_src_count << ")\n";
-      tmp << "        - ast *.src:   " << (long long)summary.profile.ast_src_micros / 1000 << "\n";
-      tmp << "  resolve functions:   "
-          << (long long)summary.profile.ast_resolve_functions_micros / 1000 << "\n";
-      tmp << " register constants: "
-          << (long long)summary.profile.register_const_declarations_micros / 1000 << "\n";
-      tmp << "            analyze: " << (long long)summary.profile.analyze_micros / 1000 << "\n";
-      tmp << "           optimize: " << (long long)summary.profile.optimize_micros / 1000 << "\n";
-      tmp << "       disambiguate: " << (long long)summary.profile.disambiguate_micros / 1000
-          << "\n";
-      tmp << "      generate code: " << (long long)summary.profile.codegen_micros / 1000 << "\n";
-      tmp << "  prune cache (sel): " << (long long)summary.profile.prune_cache_select_micros / 1000
-          << "\n";
-      tmp << "  prune cache (del): " << (long long)summary.profile.prune_cache_delete_micros / 1000
-          << "\n";
-      tmp << "\n";
-      tmp << "      - ambiguities: " << (long)summary.profile.ambiguities << "\n";
-      tmp << "       - cache hits: " << (long)summary.profile.cache_hits << "\n";
-      tmp << "     - cache misses: " << (long)summary.profile.cache_misses << "\n";
+      tmp += fmt::format( "    build workspace: {}\n",
+                          (long long)summary.profile.build_workspace_micros / 1000 );
+      tmp += fmt::format( "        - load *.em:   {}\n",
+                          (long long)summary.profile.load_em_micros / 1000 );
+      tmp += fmt::format( "       - parse *.em:   {} ({})\n",
+                          (long long)summary.profile.parse_em_micros / 1000,
+                          (long)summary.profile.parse_em_count );
+      tmp += fmt::format( "         - ast *.em:   {}\n",
+                          (long long)summary.profile.ast_em_micros / 1000 );
+      tmp += fmt::format( "      - parse *.inc:   {} ({})\n",
+                          (long long)summary.profile.parse_inc_micros / 1000,
+                          (long)summary.profile.parse_inc_count );
+      tmp += fmt::format( "        - ast *.inc:   {}\n",
+                          (long long)summary.profile.ast_inc_micros / 1000 );
+      tmp += fmt::format( "      - parse *.src:   {} ({})\n",
+                          (long long)summary.profile.parse_src_micros / 1000,
+                          (long)summary.profile.parse_src_count );
+      tmp += fmt::format( "        - ast *.src:   {}\n",
+                          (long long)summary.profile.ast_src_micros / 1000 );
+      tmp += fmt::format( "  resolve functions:   {}\n",
+                          (long long)summary.profile.ast_resolve_functions_micros / 1000 );
+      tmp += fmt::format( " register constants: {}\n",
+                          (long long)summary.profile.register_const_declarations_micros / 1000 );
+      tmp += fmt::format( "            analyze: {}\n",
+                          (long long)summary.profile.analyze_micros / 1000 );
+      tmp += fmt::format( "           optimize: {}\n",
+                          (long long)summary.profile.optimize_micros / 1000 );
+      tmp += fmt::format( "       disambiguate: {}\n",
+                          (long long)summary.profile.disambiguate_micros / 1000 );
+      tmp += fmt::format( "      generate code: {}\n",
+                          (long long)summary.profile.codegen_micros / 1000 );
+      tmp += fmt::format( "  prune cache (sel): {}\n",
+                          (long long)summary.profile.prune_cache_select_micros / 1000 );
+      tmp += fmt::format( "  prune cache (del): {}\n",
+                          (long long)summary.profile.prune_cache_delete_micros / 1000 );
+      tmp += "\n";
+      tmp += fmt::format( "      - ambiguities: {}\n", (long)summary.profile.ambiguities );
+      tmp += fmt::format( "       - cache hits: {}\n", (long)summary.profile.cache_hits );
+      tmp += fmt::format( "     - cache misses: {}\n", (long)summary.profile.cache_misses );
     }
 
-    INFO_PRINT << tmp.str();
+    INFO_PRINTLN( tmp );
   }
 
   if ( summary.ScriptsWithCompileErrors )
@@ -850,7 +856,7 @@ void read_config_file( int argc, char* argv[] )
   }
   else
   {
-    ERROR_PRINT << "Could not find " << cfgpath << "; using defaults.\n";
+    ERROR_PRINTLN( "Could not find {}; using defaults.", cfgpath );
     compilercfg.SetDefaults();
   }
 }
@@ -895,7 +901,7 @@ int ECompileMain::main()
   {
     // vX.YY
     double vernum = (double)1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    INFO_PRINT << "EScript Compiler v" << vernum << "\n" << POL_COPYRIGHT << "\n\n";
+    INFO_PRINTLN( "EScript Compiler v{}\n{}\n", vernum, POL_COPYRIGHT );
   }
 
   int prog_res = 1;

@@ -226,11 +226,10 @@ void ScriptScheduler::run_ready()
           inscount = 0;
           if ( Plib::systemstate.config.report_critical_scripts )
           {
-            fmt::Writer tmp;
-            tmp << "Critical script " << ex->scriptname() << " has run for " << totcount
-                << " instructions\n";
+            std::string tmp = fmt::format( "Critical script {} has run for {} instructions\n",
+                                           ex->scriptname(), totcount );
             ex->show_context( tmp, ex->PC );
-            ERROR_PRINT << tmp.str();
+            ERROR_PRINT( tmp );
           }
         }
         continue;
@@ -407,7 +406,8 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       log << " (" << global->impref().typeOf() << ") " << global->impref().sizeEstimate() << "\n";
     }
     log << "Locals\n";
-    auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals ) {
+    auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals )
+    {
       log << "  " << prog->dbg_filenames[prog->dbg_filenum[PC]] << ": " << prog->dbg_linenum[PC]
           << "\n";
 

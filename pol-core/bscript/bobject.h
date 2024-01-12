@@ -21,6 +21,7 @@
 #define INLINE_BOBJECTIMP_CTOR 1
 #endif
 
+#include <fmt/ostream.h>
 #include <format/format.h>
 
 #include "../clib/fixalloc.h"
@@ -962,4 +963,12 @@ T* BApplicObj<T>::operator->()
 }
 }  // namespace Bscript
 }  // namespace Pol
+template <>
+struct fmt::formatter<Pol::Bscript::BObjectImp> : fmt::ostream_formatter
+{
+};
+template <>
+struct fmt::formatter<Pol::Bscript::BObject> : fmt::ostream_formatter
+{
+};
 #endif

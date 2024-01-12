@@ -17,9 +17,9 @@ void CaseDispatchSelectors::accept( NodeVisitor& visitor )
   visitor.visit_case_dispatch_selectors( *this );
 }
 
-void CaseDispatchSelectors::describe_to( fmt::Writer& w ) const
+void CaseDispatchSelectors::describe_to( std::string& w ) const
 {
-  w << "case-dispatch-selectors";
+  w += "case-dispatch-selectors";
 }
 
 }  // namespace Pol::Bscript::Compiler

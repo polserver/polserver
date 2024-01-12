@@ -10,8 +10,10 @@
 #include "compilercfg.h"
 
 #include <iosfwd>
+#include <iterator>
 #include <string>
 
+#include <fmt/format.h>
 #include <format/format.h>
 
 namespace Pol
@@ -34,8 +36,6 @@ public:
 
   void printOn( std::ostream& os ) const;
   void printOn( fmt::Writer& writer ) const;
-  void printOnShort( std::ostream& os ) const;
-  void printOnShort( fmt::Writer& writer ) const;
 
   void skipws();
   int skipcomments();
@@ -67,43 +67,35 @@ inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx 
   return writer;
 }
 
-namespace
-{
-inline void rec_write( fmt::Writer& /*w*/ ) {}
-template <typename T, typename... Targs>
-inline void rec_write( fmt::Writer& w, T&& value, Targs&&... Fargs )
-{
-  w << value;
-  rec_write( w, std::forward<Targs>( Fargs )... );
-}
-}  // namespace
-
-template <typename... Args>
-inline void compiler_warning( CompilerContext* ctx, Args&&... args )
+template <typename Str, typename... Args>
+inline void compiler_warning( CompilerContext* ctx, Str const& format, Args&&... args )
 {
   if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
   {
-    fmt::Writer w;
-    rec_write( w, std::forward<Args>( args )... );
+    std::string out = fmt::format( format, args... );
 
     if ( compilercfg.ErrorOnWarning )
-      throw std::runtime_error( w.str() );
+      throw std::runtime_error( out );
     else
     {
       if ( ctx != nullptr )
-        w << *ctx;
-      ERROR_PRINT << w.c_str();
+        fmt::format_to( std::back_inserter( out ), "{}", *ctx );
+      ERROR_PRINTLN( out );
     }
   }
 }
 
-template <typename... Args>
-inline void compiler_error( Args&&... args )
+template <typename Str, typename... Args>
+inline void compiler_error( Str const& format, Args&&... args )
 {
-  fmt::Writer w;
-  rec_write( w, std::forward<Args>( args )... );
-  ERROR_PRINT << w.str();
+  ERROR_PRINTLN( format, args... );
 }
 }  // namespace Bscript
 }  // namespace Pol
+template <>
+struct fmt::formatter<Pol::Bscript::CompilerContext> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::CompilerContext& c,
+                                        fmt::format_context& ctx ) const;
+};
 #endif

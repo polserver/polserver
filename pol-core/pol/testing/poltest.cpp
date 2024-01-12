@@ -17,8 +17,8 @@ namespace Pol
 {
 namespace Testing
 {
-#define RUNTEST( t )                     \
-  INFO_PRINT << " - " << ( #t ) << "\n"; \
+#define RUNTEST( t )              \
+  INFO_PRINTLN( " - {}", ( #t ) ); \
   t();
 
 bool run_pol_tests()

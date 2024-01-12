@@ -1617,8 +1617,8 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
 {
   if ( client->gd->textentry_uoemod == nullptr )
   {
-    ERROR_PRINT << "Client (Account " << client->chr->acct->name() << ", Character "
-                << client->chr->name() << ")used out-of-sequence textentry command?\n";
+    ERROR_PRINTLN( "Client (Account {}, Character {}) used out-of-sequence textentry command?",
+                   client->chr->acct->name(), client->chr->name() );
     return;
   }
   auto& uoex = client->gd->textentry_uoemod->uoexec();
@@ -2113,7 +2113,7 @@ void handle_resurrect_menu( Client* client, PKTBI_2C* msg )
 {
   if ( msg->choice )
   {
-    INFO_PRINT << "Resurrect Menu Choice: " << int( msg->choice ) << "\n";
+    INFO_PRINTLN( "Resurrect Menu Choice: {}", int( msg->choice ) );
     // transmit( client, msg, sizeof *msg );
   }
 
