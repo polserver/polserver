@@ -6,6 +6,7 @@
 
 
 #include <errno.h>
+#include <iterator>
 #include <mutex>
 #include <stddef.h>
 #include <string>
@@ -29,7 +30,7 @@
 #include "packethelper.h"
 #include "packethooks.h"
 #include "packets.h"
-#include <format/format.h>
+#include <fmt/chrono.h>
 
 namespace Pol
 {
@@ -75,7 +76,7 @@ PacketLog ThreadedClient::stop_log()
   if ( !fpLog.empty() )
   {
     auto time_tm = Clib::localtime( time( nullptr ) );
-    FLEXLOG( fpLog ) << "Log closed at %s" << asctime( &time_tm ) << "\n";
+    FLEXLOGLN( fpLog, "Log closed at {:%c}", time_tm );
     CLOSE_FLEXLOG( fpLog );
     fpLog.clear();
     return PacketLog::Success;
@@ -268,10 +269,9 @@ void Client::transmit( const void* data, int len )
     Clib::SpinLockGuard guard( _fpLog_lock );
     if ( !fpLog.empty() )
     {
-      fmt::Writer tmp;
-      tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
-      Clib::fdump( tmp, data, len );
-      FLEXLOG( fpLog ) << tmp.str() << "\n";
+      std::string tmp = fmt::format( "Server -> Client: {:#X}, {} bytes\n", msgtype, len );
+      Clib::fdump( std::back_inserter( tmp ), data, len );
+      FLEXLOGLN( fpLog, tmp );
     }
   }
 
