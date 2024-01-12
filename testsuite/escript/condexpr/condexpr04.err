@@ -1,1 +1,1 @@
-condexpr04.src:1:11: error: extraneous input 'if' expecting {'!', 'not', 'error', 'dictionary', 'struct', 'array', 'uninit', DECIMAL_LITERAL, HEX_LITERAL, OCT_LITERAL, BINARY_LITERAL, FLOAT_LITERAL, HEX_FLOAT_LITERAL, STRING_LITERAL, INTERPOLATED_STRING_START, '(', '{', '+', '-', '~', '@', '++', '--', IDENTIFIER}
+condexpr04.src:1:6: error: missing ';' at '('
