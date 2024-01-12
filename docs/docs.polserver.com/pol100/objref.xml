@@ -25,7 +25,7 @@
 <fileheader>
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
-<datemodified>01/07/2024</datemodified>
+<datemodified>01/12/2024</datemodified>
 </fileheader>
 
 
@@ -335,7 +335,7 @@
 <method proto="clearLawfullydamagedTo(MobileRef chr)" returns="true/error" desc="clears lawfullydamaged entry for given chr" />
 <method proto="deaf(int duration)" returns="int/error" desc="character cannot hear for 'duration' seconds. -1 means forever. 0 clears the deaf" />
 <method proto="setseason(int season_id,int playsound )" returns="int/error" desc="Used to send the Season packet 0xBC to a single character, doesnt resend the lightlevel or weather." />
-<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name)" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string; separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, &quot;1234 5678&quot;); Optional arguments_name parameters needs a client higher then 5.x and modifies the cliloc_name." />
+<method proto="addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name])" returns="true/error" desc="Adds a buff to Character's buff bar. Duration is in seconds: countdown is done by the client, but the icon is never automatically removed. Arguments is an Unicode string; separated by a single tab character. Example: who.addBuff(1029, 30, 1075814, 1075815, &quot;1234 5678&quot;); Optional arguments_name parameters needs a client higher then 5.x and modifies the cliloc_name." />
 <method proto="clearBuffs()" returns="true/error" desc="Removes all buffs from Character's buff bar." />
 <method proto="delBuff(int icon_id)" returns="true/error" desc="Removes a buff from Character's buff bar." />
 <method proto="disableSkillsFor(int duration)" returns="duration/error" desc="Disables skill scripts for given seconds" />

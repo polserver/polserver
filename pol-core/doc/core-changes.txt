@@ -1,4 +1,9 @@
 -- POL100.1.0 --
+01-12-2024 Turley:
+    Added: chr.buffs member. Returns the current active buffs added via addBuff as dictionary.
+           Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}
+  Changed: addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name]) new optional argument arguments_name.
+           Needs a client higher then 5.x and modifies the cliloc_name like argument_desc does for cliloc_descr.
 01-10-2024 Kevin:
     Added: Boat item descriptor `AlternateMultiID` and boat method `boat.set_alternate_multiid(position)` to facilitate changing a boat's graphic, for example switching a boat from a "normal" to a "damaged" graphic.
 01-07-2024 Kevin:
