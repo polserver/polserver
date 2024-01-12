@@ -13,7 +13,7 @@ public:
   BooleanValue( const SourceLocation&, bool value );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const bool value;
 };
