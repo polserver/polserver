@@ -1,0 +1,24 @@
+var a:=true;
+var b:=false;
+print(a); // true
+print(b); // false
+print(pack(a));
+print(pack(b));
+print(unpack(pack(a))); // true
+print(unpack(pack(b))); // false
+print(typeof(a));
+print(typeofint(a));
+print(cstr(a));
+print(!b); // true
+print(a==b); // false
+var c:=a;
+a:= false;
+print(a); // false
+print(c); // true
+
+if (c)
+  print("c is true");
+endif
+if (!a)
+  print("a is false");
+endif
