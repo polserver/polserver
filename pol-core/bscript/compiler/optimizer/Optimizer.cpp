@@ -161,7 +161,7 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
     optimized_replacement =
         std::make_unique<BranchSelector>( selector.source_location, branch_type );
   }
-  else if ( auto uninit = dynamic_cast<UninitializedValue*>( predicate ) )
+  else if ( dynamic_cast<UninitializedValue*>( predicate ) )
   {
     BranchSelector::BranchType branch_type;
     switch ( selector.branch_type )

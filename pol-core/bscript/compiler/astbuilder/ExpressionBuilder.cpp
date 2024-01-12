@@ -564,15 +564,15 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   {
     return interpolate_string( inter_string );
   }
-  else if ( auto uninit = ctx->UNINIT() )
+  else if ( ctx->UNINIT() )
   {
     return std::make_unique<UninitializedValue>( location_for( *ctx ) );
   }
-  else if ( auto uninit = ctx->BOOL_TRUE() )
+  else if ( ctx->BOOL_TRUE() )
   {
     return std::make_unique<BooleanValue>( location_for( *ctx ), true );
   }
-  else if ( auto uninit = ctx->BOOL_FALSE() )
+  else if ( ctx->BOOL_FALSE() )
   {
     return std::make_unique<BooleanValue>( location_for( *ctx ), false );
   }
