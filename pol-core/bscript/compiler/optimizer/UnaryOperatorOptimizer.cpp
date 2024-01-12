@@ -1,5 +1,6 @@
 #include "UnaryOperatorOptimizer.h"
 
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/MemberAccess.h"
@@ -20,6 +21,23 @@ std::unique_ptr<Expression> UnaryOperatorOptimizer::optimize()
 }
 
 void UnaryOperatorOptimizer::visit_children( Node& ) {}
+
+void UnaryOperatorOptimizer::visit_boolean_value( BooleanValue& bv )
+{
+  bool value;
+
+  switch ( unary_operator.token_id )
+  {
+  case TOK_LOG_NOT:
+    value = !bv.value;
+    break;
+
+  default:
+    return;
+  }
+
+  optimized_result = std::make_unique<BooleanValue>( bv.source_location, value );
+}
 
 void UnaryOperatorOptimizer::visit_float_value( FloatValue& fv )
 {

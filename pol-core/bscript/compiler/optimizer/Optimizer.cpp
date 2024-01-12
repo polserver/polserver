@@ -6,6 +6,7 @@
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/Block.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/Identifier.h"
@@ -135,6 +136,23 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
       break;
     case BranchSelector::IfFalse:
       branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    default:
+      selector.internal_error( "Expected conditional branch with predicate" );
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
+  else if ( auto bv = dynamic_cast<BooleanValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = bv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = !bv->value ? BranchSelector::Always : BranchSelector::Never;
       break;
     default:
       selector.internal_error( "Expected conditional branch with predicate" );
