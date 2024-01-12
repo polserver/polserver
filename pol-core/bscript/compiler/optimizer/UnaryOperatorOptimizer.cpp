@@ -6,6 +6,7 @@
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -109,4 +110,11 @@ void UnaryOperatorOptimizer::visit_member_access( MemberAccess& gm )
       gm.source_location, consume, std::move( entity ), gm.name, new_token_id, *gm.known_member );
 }
 
+void UnaryOperatorOptimizer::visit_uninitialized_value( UninitializedValue& uninit )
+{
+  if ( unary_operator.token_id == TOK_LOG_NOT )
+  {
+    optimized_result = std::make_unique<IntegerValue>( uninit.source_location, 1 );
+  }
+}
 }  // namespace Pol::Bscript::Compiler

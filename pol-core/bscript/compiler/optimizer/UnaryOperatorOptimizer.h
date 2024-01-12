@@ -13,6 +13,7 @@ class Identifier;
 class IntegerValue;
 class FloatValue;
 class UnaryOperator;
+class UninitializedValue;
 
 class UnaryOperatorOptimizer : public NodeVisitor
 {
@@ -23,6 +24,7 @@ public:
 
   void visit_children( Node& ) override;
   void visit_boolean_value( BooleanValue& ) override;
+  void visit_uninitialized_value( UninitializedValue& ) override;
   void visit_float_value( FloatValue& literal ) override;
   void visit_integer_value( IntegerValue& literal ) override;
   void visit_member_access( MemberAccess& ) override;

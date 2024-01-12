@@ -16,6 +16,7 @@
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
@@ -153,6 +154,23 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
       break;
     case BranchSelector::IfFalse:
       branch_type = !bv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    default:
+      selector.internal_error( "Expected conditional branch with predicate" );
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
+  else if ( auto uninit = dynamic_cast<UninitializedValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = BranchSelector::Always;
       break;
     default:
       selector.internal_error( "Expected conditional branch with predicate" );
