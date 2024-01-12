@@ -208,11 +208,10 @@ void ScriptScheduler::run_ready()
         ex->runaway_cycles += Plib::systemstate.config.runaway_script_threshold;
         if ( ex->warn_on_runaway() )
         {
-          fmt::Writer tmp;
-          tmp << "Runaway script[" << ex->pid() << "]: " << ex->scriptname() << " ("
-              << ex->runaway_cycles << " cycles)\n";
+          std::string tmp = fmt::format( "Runaway script[{}]: ({} cycles)\n", ex->pid(),
+                                         ex->scriptname(), ex->runaway_cycles );
           ex->show_context( tmp, ex->PC );
-          SCRIPTLOG << tmp.str();
+          SCRIPTLOG( tmp );
         }
         ex->warn_runaway_on_cycle += Plib::systemstate.config.runaway_script_threshold;
       }

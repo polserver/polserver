@@ -194,19 +194,26 @@ struct Message2
   template <bool newline, typename Str, typename... Args>
   static void logmsg( Str const& format, Args&&... args )
   {
-    if constexpr ( sizeof...( args ) == 0 )
+    try
     {
-      if constexpr ( newline )
-        send( std::string( format ) + '\n' );
+      if constexpr ( sizeof...( args ) == 0 )
+      {
+        if constexpr ( newline )
+          send( std::string( format ) + '\n' );
+        else
+          send( std::string( format ) );
+      }
       else
-        send( std::string( format ) );
+      {
+        if constexpr ( newline )
+          send( fmt::format( format, args... ) + '\n' );
+        else
+          send( fmt::format( format, args... ) );
+      }
     }
-    else
+    catch ( fmt::format_error& )
     {
-      if constexpr ( newline )
-        send( fmt::format( format, args... ) + '\n' );
-      else
-        send( fmt::format( format, args... ) );
+      send( std::string( "failed to format" ) + format + '\n' );
     }
   }
 
@@ -243,7 +250,7 @@ void initLogging( LogFacility* logger );  // initalize the logging
 #define INFO_PRINTLN Clib::Logging::Message2<Clib::Logging::LogSink_cout>::logmsg<true>
 // log only into std::cout without \n addition
 #define INFO_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cout>::logmsg<false>
-// log only into std::cout if level is equal or higher
+// log only into std::cout if level is equal or higher with \n addition
 #define INFO_PRINTLN_TRACE( n )                    \
   if ( Plib::systemstate.config.debug_level >= n ) \
   INFO_PRINTLN
@@ -253,14 +260,20 @@ void initLogging( LogFacility* logger );  // initalize the logging
 // log only into std::cerr without \n addition
 #define ERROR_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<false>
 
-// log into script.log
-#define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>().message()
-// log into debug.log (if enabled)
-#define DEBUGLOG                                    \
+// log into script.log with \n addition
+#define SCRIPTLOGLN Clib::Logging::Message2<Clib::Logging::LogSink_scriptlog>::logmsg<true>
+// log into script.log without \n addition
+#define SCRIPTLOG Clib::Logging::Message2<Clib::Logging::LogSink_scriptlog>::logmsg<false>
+
+// log into debug.log (if enabled) with \n addition
+#define DEBUGLOGLN                                  \
   if ( !Clib::Logging::LogSink_debuglog::Disabled ) \
-  Clib::Logging::Message<Clib::Logging::LogSink_debuglog>().message()
-// log into leak.log
-#define LEAKLOG Clib::Logging::Message<Clib::Logging::LogSink_leaklog>().message()
+  Clib::Logging::Message2<Clib::Logging::LogSink_debuglog>::logmsg<true>
+
+// log into leak.log without \n addition
+#define LEAKLOG Clib::Logging::Message2<Clib::Logging::LogSink_leaklog>::logmsg<false>
+// log into leak.log with \n addition
+#define LEAKLOGLN Clib::Logging::Message2<Clib::Logging::LogSink_leaklog>::logmsg<true>
 
 // log into sink id need a call of OPEN_LOG before
 #define FLEXLOG( id ) \

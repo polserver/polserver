@@ -851,9 +851,11 @@ BObjectImp* UOExecutorModule::mf_Target()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::Target():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::Target():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -989,9 +991,11 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::TargetCoordinates():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::TargetCoordinates():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1032,9 +1036,11 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::TargetMultiPlacement():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::TargetMultiPlacement():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1658,7 +1664,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
       return true;
     }
   }
-  DEBUGLOG << "SelectMenuItem: expected a menu name (static menu) or a CreateMenu() dynamic menu\n";
+  DEBUGLOGLN( "SelectMenuItem: expected a menu name (static menu) or a CreateMenu() dynamic menu" );
   return false;
 }
 
@@ -1685,9 +1691,11 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SelectMenuItem():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SelectMenuItem():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
