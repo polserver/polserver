@@ -32,6 +32,8 @@ set (bscript_sources    # sorted !
   compiler/ast/BinaryOperator.h
   compiler/ast/Block.cpp
   compiler/ast/Block.h
+  compiler/ast/BooleanValue.cpp
+  compiler/ast/BooleanValue.h
   compiler/ast/BranchSelector.cpp
   compiler/ast/BranchSelector.h
   compiler/ast/CaseDispatchDefaultSelector.cpp

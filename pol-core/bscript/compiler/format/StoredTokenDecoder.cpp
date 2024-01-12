@@ -34,7 +34,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, fmt::Writer& w )
       << " len=" << s.length() << " offset=0x" << fmt::hex( tkn.offset );
     break;
   }
-
+  case TOK_BOOL:
+    w << (tkn.offset ? "true" : "false") << " (boolean)";
+    break;
   case TOK_ADD:
     w << "+";
     break;

@@ -1378,6 +1378,12 @@ void Executor::ins_long( const Instruction& ins )
   ValueStack.push_back( BObjectRef( new BObject( new BLong( ins.token.lval ) ) ) );
 }
 
+// case TOK_BOOL:
+void Executor::ins_bool( const Instruction& ins )
+{
+  ValueStack.push_back( BObjectRef( new BObject( new BBoolean( ins.token.lval ) ) ) );
+}
+
 // case TOK_CONSUMER:
 void Executor::ins_consume( const Instruction& /*ins*/ )
 {
@@ -2977,6 +2983,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_interpolate_string;
   case TOK_FORMAT_EXPRESSION:
     return &Executor::ins_format_expression;
+  case TOK_BOOL:
+    return &Executor::ins_bool;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }

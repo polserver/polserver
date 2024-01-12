@@ -3,6 +3,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ArrayInitializer.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
@@ -41,6 +42,11 @@ void SimpleValueCloner::visit_array_initializer( ArrayInitializer& initializer )
   {
     report.error( initializer, "A const array must be empty.\n", initializer, "\n" );
   }
+}
+
+void SimpleValueCloner::visit_boolean_value( BooleanValue& bv )
+{
+  cloned_value = std::make_unique<BooleanValue>( use_source_location, bv.value );
 }
 
 void SimpleValueCloner::visit_dictionary_initializer( DictionaryInitializer& initializer )

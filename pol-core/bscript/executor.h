@@ -238,6 +238,7 @@ public:
   void ins_localvar( const Instruction& ins );
   void ins_makeLocal( const Instruction& ins );
   void ins_declareArray( const Instruction& ins );
+  void ins_bool( const Instruction& ins );
   void ins_long( const Instruction& ins );
   void ins_double( const Instruction& ins );
   void ins_string( const Instruction& ins );

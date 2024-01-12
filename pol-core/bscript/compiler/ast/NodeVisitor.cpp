@@ -5,6 +5,7 @@
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/Block.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/CaseDispatchDefaultSelector.h"
 #include "bscript/compiler/ast/CaseDispatchGroup.h"
@@ -82,6 +83,11 @@ void NodeVisitor::visit_binary_operator( BinaryOperator& node )
 }
 
 void NodeVisitor::visit_block( Block& node )
+{
+  visit_children( node );
+}
+
+void NodeVisitor::visit_boolean_value( BooleanValue& node )
 {
   visit_children( node );
 }

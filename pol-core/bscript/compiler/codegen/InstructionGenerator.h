@@ -30,6 +30,7 @@ public:
   void visit_cstyle_for_loop( CstyleForLoop& loop ) override;
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_block( Block& ) override;
+  void visit_boolean_value( BooleanValue& ) override;
   void visit_branch_selector( BranchSelector& ) override;
   void visit_debug_statement_marker( DebugStatementMarker& ) override;
   void visit_dictionary_entry( DictionaryEntry& ) override;

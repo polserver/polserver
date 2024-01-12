@@ -15,6 +15,7 @@ public:
   bool validate( Node& );
 
   void visit_array_initializer( ArrayInitializer& ) override;
+  void visit_boolean_value( BooleanValue& ) override;
   void visit_dictionary_initializer( DictionaryInitializer& ) override;
   void visit_error_initializer( ErrorInitializer& ) override;
   void visit_float_value( FloatValue& ) override;
