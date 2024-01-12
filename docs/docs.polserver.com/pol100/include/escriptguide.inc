@@ -136,6 +136,10 @@ from eScript Compiler version v1.17, the eScript keyword for the uninitialized
 value is <code>uninit</code> and can be used in any place expressions are
 used.</p>
 
+<p>Additionally, starting from eScript Compiler version v1.17, eScript boolean
+keywords `true` and `false` can be used, equivalent to `Boolean(1)` and `Boolean(0)`
+respectively.</p>
+
 <p>To declare a "constant," or a variable that you can only read its value from,
 you must do it at the top of the file, before any of the functions, much like
 declaring a global variable since constants are global themselves. Whenever the
