@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-10-2024</datemodified>
+		<datemodified>01-12-2024</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-12-2024</date>
+			<author>Turley:</author>
+			<change type="Added">chr.buffs member. Returns the current active buffs added via addBuff as dictionary.<br/>
+Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}</change>
+			<change type="Changed">addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name]) new optional argument arguments_name.<br/>
+Needs a client higher then 5.x and modifies the cliloc_name like argument_desc does for cliloc_descr.</change>
+		</entry>
 		<entry>
 			<date>01-10-2024</date>
 			<author>Kevin:</author>

@@ -206,8 +206,9 @@ struct Buff
   u32 cl_name;
   // Description cliloc ID
   u32 cl_descr;
-  // Unicode string, arguments to be replaced in cl_descr, separated by tabs
-  std::string arguments;
+  // Unicode string, arguments to be replaced in cl_name/cl_descr, separated by tabs
+  std::string name_arguments;
+  std::string desc_arguments;
 };
 
 struct reportable_t
@@ -720,7 +721,8 @@ public:
 
   // BUFF/DEBUFF BAR
 public:
-  void addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr, const std::string& arguments );
+  void addBuff( u16 icon, u16 duration, u32 cl_name, const std::string& name_arguments,
+                u32 cl_descr, const std::string& desc_arguments );
   bool delBuff( u16 icon );
   void clearBuffs();
   void send_buffs();
