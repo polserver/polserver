@@ -22,3 +22,10 @@ endif
 if (!a)
   print("a is false");
 endif
+
+const foo := true;
+print(foo);
+case (true)
+true: print("case: true");
+false: print("case: false");
+endcase
