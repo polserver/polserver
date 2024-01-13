@@ -1103,9 +1103,11 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendDialogGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendDialogGump():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1230,9 +1232,11 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendDialogGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendDialogGump():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1600,9 +1604,11 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendTextEntryGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendTextEntryGump():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1967,12 +1973,9 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
 #ifdef MEMORYLEAK
       if ( type == 1 )
       {
-        char buffer[30];
         auto time_tm = Clib::localtime( time( nullptr ) );
-
-        strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", &time_tm );
-        DEBUGLOG << "[" << buffer << "] polcore().internal\n";
-        LEAKLOG << buffer << ";";
+        DEBUGLOGLN( "[{:%m/%d %T}] polcore().internal", time_tm );
+        LEAKLOG( "{:%m/%d %T};", time_tm );
 
         bobject_alloc.log_stuff( "bobject" );
         uninit_alloc.log_stuff( "uninit" );
@@ -1983,13 +1986,13 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       }
 #endif
 #ifdef ESCRIPT_PROFILE
-      DEBUGLOG << "FuncName,Count,Min,Max,Sum,Avarage\n";
+      DEBUGLOGLN( "FuncName,Count,Min,Max,Sum,Avarage" );
       for ( escript_profile_map::iterator itr = EscriptProfileMap.begin();
             itr != EscriptProfileMap.end(); ++itr )
       {
-        DEBUGLOG << itr->first << "," << itr->second.count << "," << itr->second.min << ","
-                 << itr->second.max << "," << itr->second.sum << ","
-                 << ( itr->second.sum / ( 1.0 * itr->second.count ) ) << "\n";
+        DEBUGLOGLN( "{},{},{},{},{},{}", itr->first, itr->second.count, itr->second.min,
+                    itr->second.max, itr->second.sum,
+                    ( itr->second.sum / ( 1.0 * itr->second.count ) ) );
       }
 #endif
       if ( type == 2 )
@@ -2139,9 +2142,11 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendInstaResDialog():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendInstaResDialog():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2206,9 +2211,11 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SelectColor():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SelectColor():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2801,9 +2808,11 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   // Suspend the script first
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendPopupMenu():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendPopupMenu():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

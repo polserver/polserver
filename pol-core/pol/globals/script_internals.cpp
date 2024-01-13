@@ -1,5 +1,6 @@
 #include "script_internals.h"
 
+#include <iterator>
 #include <string.h>
 
 #include "../../clib/logfacility.h"
@@ -82,46 +83,49 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   }
   usage.scriptstorage_count = scrstore.size();
 
-  fmt::Writer verbose_w;
+  std::string verbose_w;
   if ( verbose )
-    verbose_w << GET_LOG_FILESTAMP << "\n";
+    verbose_w = GET_LOG_FILESTAMP + "\n";
   usage.script_size += 3 * sizeof( UOExecutor** ) + runlist.size() * sizeof( UOExecutor* );
   if ( verbose )
-    verbose_w << "runlist:\n";
+    verbose_w += "runlist:\n";
   for ( const auto& exec : runlist )
   {
     if ( exec != nullptr )
     {
       usage.script_size += exec->sizeEstimate();
       if ( verbose )
-        verbose_w << exec->scriptname() << " " << exec->sizeEstimate() << "\n";
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {} \n", exec->scriptname(),
+                        exec->sizeEstimate() );
     }
   }
   usage.script_count += runlist.size();
 
   usage.script_size += 3 * sizeof( UOExecutor** ) + ranlist.size() * sizeof( UOExecutor* );
   if ( verbose )
-    verbose_w << "ranlist:\n";
+    verbose_w += "ranlist:\n";
   for ( const auto& exec : ranlist )
   {
     if ( exec != nullptr )
     {
       usage.script_size += exec->sizeEstimate();
       if ( verbose )
-        verbose_w << exec->scriptname() << " " << exec->sizeEstimate() << "\n";
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(),
+                        exec->sizeEstimate() );
     }
   }
   usage.script_count += ranlist.size();
 
   if ( verbose )
-    verbose_w << "holdlist:\n";
+    verbose_w += "holdlist:\n";
   for ( const auto& hold : holdlist )
   {
     if ( hold.second != nullptr )
     {
       usage.script_size += hold.second->sizeEstimate();
       if ( verbose )
-        verbose_w << hold.second->scriptname() << " " << hold.second->sizeEstimate() << "\n";
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold.second->scriptname(),
+                        hold.second->sizeEstimate() );
     }
     usage.script_size += sizeof( Core::polclock_t ) + ( sizeof( void* ) * 3 + 1 ) / 2;
   }
@@ -129,35 +133,37 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 
   usage.script_size += 3 * sizeof( void* );
   if ( verbose )
-    verbose_w << "notimeoutholdlist:\n";
+    verbose_w += "notimeoutholdlist:\n";
   for ( const auto& hold : notimeoutholdlist )
   {
     if ( hold != nullptr )
     {
       usage.script_size += hold->sizeEstimate() + 3 * sizeof( void* );
       if ( verbose )
-        verbose_w << hold->scriptname() << " " << hold->sizeEstimate() << "\n";
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
+                        hold->sizeEstimate() );
     }
   }
   usage.script_count += notimeoutholdlist.size();
 
   usage.script_size += 3 * sizeof( void* );
   if ( verbose )
-    verbose_w << "debuggerholdlist:\n";
+    verbose_w += "debuggerholdlist:\n";
   for ( const auto& hold : debuggerholdlist )
   {
     if ( hold != nullptr )
     {
       usage.script_size += hold->sizeEstimate() + 3 * sizeof( void* );
       if ( verbose )
-        verbose_w << hold->scriptname() << " " << hold->sizeEstimate() << "\n";
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
+                        hold->sizeEstimate() );
     }
   }
   usage.script_count += debuggerholdlist.size();
   if ( verbose )
   {
     auto log = OPEN_FLEXLOG( "log/memoryusagescripts.log", false );
-    FLEXLOG( log ) << verbose_w.str();
+    FLEXLOGLN( log, verbose_w );  // extra newline at the end,seperates the old from the new entry
 
     CLOSE_FLEXLOG( log );
   }
@@ -208,11 +214,10 @@ void ScriptScheduler::run_ready()
         ex->runaway_cycles += Plib::systemstate.config.runaway_script_threshold;
         if ( ex->warn_on_runaway() )
         {
-          fmt::Writer tmp;
-          tmp << "Runaway script[" << ex->pid() << "]: " << ex->scriptname() << " ("
-              << ex->runaway_cycles << " cycles)\n";
+          std::string tmp = fmt::format( "Runaway script[{}]: ({} cycles)\n", ex->pid(),
+                                         ex->scriptname(), ex->runaway_cycles );
           ex->show_context( tmp, ex->PC );
-          SCRIPTLOG << tmp.str();
+          SCRIPTLOG( tmp );
         }
         ex->warn_runaway_on_cycle += Plib::systemstate.config.runaway_script_threshold;
       }
@@ -361,8 +366,7 @@ bool ScriptScheduler::find_exec( unsigned int pid, UOExecutor** exec )
 
 bool ScriptScheduler::logScriptVariables( const std::string& name ) const
 {
-  fmt::Writer log;
-  log << GET_LOG_FILESTAMP << " " << name << "\n";
+  std::string log = fmt::format( "{} {}\n", GET_LOG_FILESTAMP, name );
   std::vector<Bscript::Executor*> scripts;
   for ( const auto& exec : runlist )
   {
@@ -386,30 +390,28 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
   }
   for ( const auto& exec : scripts )
   {
-    log << "Size: " << exec->sizeEstimate();
+    fmt::format_to( std::back_inserter( log ), "Size: {}", exec->sizeEstimate() );
     auto prog = const_cast<Bscript::EScriptProgram*>( exec->prog() );
     if ( prog->read_dbg_file() != 0 )
     {
-      log << " failed to load debug info\n";
+      log += " failed to load debug info\n";
       break;
     }
     size_t i = 0;
-    log << "\nGlobals\n";
+    log += "\nGlobals\n";
     for ( const auto& global : exec->Globals2 )
     {
-      log << "  ";
-      if ( prog->globalvarnames.size() > i )
-        log << prog->globalvarnames[i];
-      else
-        log << i;
-      ++i;
-      log << " (" << global->impref().typeOf() << ") " << global->impref().sizeEstimate() << "\n";
+      fmt::format_to(
+          std::back_inserter( log ), "  {} ({}) {}\n",
+          prog->globalvarnames.size() > i ? prog->globalvarnames[i] : std::to_string( i ),
+          global->impref().typeOf(), global->impref().sizeEstimate() );
     }
-    log << "Locals\n";
+    log += "Locals\n";
     auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals )
     {
-      log << "  " << prog->dbg_filenames[prog->dbg_filenum[PC]] << ": " << prog->dbg_linenum[PC]
-          << "\n";
+      fmt::format_to( std::back_inserter( log ), "  {}: {}\n",
+                      prog->dbg_filenames[prog->dbg_filenum[PC]], prog->dbg_linenum[PC] );
+
 
       unsigned block = prog->dbg_ins_blocks[PC];
       size_t left = locals->size();
@@ -423,19 +425,19 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
         size_t varidx = left - 1 - progblock.parentvariables;
         left--;
         Bscript::BObjectImp* ptr = ( *locals )[varidx]->impptr();
-        log << "  " << progblock.localvarnames[varidx] << " (" << ptr->typeOf() << ") "
-            << ptr->sizeEstimate() << "\n";
+        fmt::format_to( std::back_inserter( log ), "  {} ({}) {}\n",
+                        progblock.localvarnames[varidx], ptr->typeOf(), ptr->sizeEstimate() );
       }
     };
     log_stack( exec->PC, exec->Locals2 );
     for ( int stack_i = static_cast<int>( exec->ControlStack.size() ) - 1; stack_i >= 0; --stack_i )
     {
-      log << "Stack " << stack_i << "\n";
+      fmt::format_to( std::back_inserter( log ), "Stack {}\n", stack_i );
       log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
     }
   }
   auto logf = OPEN_FLEXLOG( "log/scriptmemory.log", false );
-  FLEXLOG( logf ) << log.str();
+  FLEXLOGLN( logf, log );
   CLOSE_FLEXLOG( logf );
   return true;
 }

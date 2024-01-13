@@ -298,6 +298,7 @@ enum MemberID
   MBR_CHARACTER_OWNER,  // 255
   MBR_PARRYCHANCE_MOD,
   MBR_PILOT,
+  MBR_BUFFS,
 };
 
 inline auto format_as( MemberID id )

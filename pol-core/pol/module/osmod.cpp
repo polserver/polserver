@@ -602,9 +602,10 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       }
       if ( !this_uoexec.suspend() )
       {
-        DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
-                 << ": \n"
-                 << "\tThe execution of this script can't be blocked!\n";
+        DEBUGLOGLN(
+            "Script Error in '{}' PC={}: \n"
+            "\tThe execution of this script can't be blocked!",
+            this_uoexec.scriptname(), this_uoexec.PC );
         return new Bscript::BError( "Script can't be blocked" );
       }
 
@@ -626,7 +627,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );
               if ( !uoexec_w.exists() )
               {
-                DEBUGLOG << "OpenConnection Script has been destroyed\n";
+                DEBUGLOGLN( "OpenConnection Script has been destroyed" );
                 s.close();
                 return;
               }
@@ -736,9 +737,10 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
     {
       if ( !this_uoexec.suspend() )
       {
-        DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
-                 << ": \n"
-                 << "\tThe execution of this script can't be blocked!\n";
+        DEBUGLOGLN(
+            "Script Error in '{}' PC={}: \n"
+            "\tThe execution of this script can't be blocked!",
+            this_uoexec.scriptname(), this_uoexec.PC );
         return new Bscript::BError( "Script can't be blocked" );
       }
 
@@ -805,7 +807,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 
                 if ( !uoexec_w.exists() )
                 {
-                  DEBUGLOG << "HTTPRequest Script has been destroyed\n";
+                  DEBUGLOGLN( "HTTPRequest Script has been destroyed" );
                   return;
                 }
                 /* Check for errors */
@@ -1153,7 +1155,7 @@ struct PerfData
     std::vector<ScriptDiffData> res;
     if ( !data->uoexec_w.exists() )
     {
-      DEBUGLOG << "PerformanceMeasure Script has been destroyed\n";
+      DEBUGLOGLN( "PerformanceMeasure Script has been destroyed" );
       return;
     }
     double sum_instr( 0 );
@@ -1211,9 +1213,10 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
 
   if ( !this_uoexec.suspend() )
   {
-    DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
-             << ": \n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        this_uoexec.scriptname(), this_uoexec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
