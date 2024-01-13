@@ -1182,9 +1182,91 @@ int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
     {
       return offset;
     }
-    else
+    else if ( type == CASE_TYPE_UNINIT )
     {
-      dataptr += type;
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
+    }
+  }
+}
+
+int Executor::ins_casejmp_findbool( const Token& token, BBoolean* bbool )
+{
+  const unsigned char* dataptr = token.dataptr;
+  for ( ;; )
+  {
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
+    dataptr += 2;
+    unsigned char type = *dataptr;
+    dataptr += 1;
+    if ( type == CASE_TYPE_LONG )
+    {
+      dataptr += 4;
+    }
+    else if ( type == CASE_TYPE_DEFAULT )
+    {
+      return offset;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      unsigned char value = *dataptr;
+      dataptr += 1;
+      if ( value == bbool->value() )
+      {
+        return offset;
+      }
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
+    }
+  }
+}
+
+int Executor::ins_casejmp_finduninit( const Token& token )
+{
+  const unsigned char* dataptr = token.dataptr;
+  for ( ;; )
+  {
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
+    dataptr += 2;
+    unsigned char type = *dataptr;
+    dataptr += 1;
+    if ( type == CASE_TYPE_LONG )
+    {
+      dataptr += 4;
+    }
+    else if ( type == CASE_TYPE_DEFAULT )
+    {
+      return offset;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      return offset;
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
     }
   }
 }
@@ -1208,13 +1290,23 @@ int Executor::ins_casejmp_findstring( const Token& token, String* bstringimp )
     {
       return offset;
     }
-    else
+    else if ( type == CASE_TYPE_BOOL )
     {
-      if ( bstring.size() == type && memcmp( bstring.data(), dataptr, type ) == 0 )
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1;
+      if ( bstring.size() == len && memcmp( bstring.data(), dataptr, len ) == 0 )
       {
         return offset;
       }
-      dataptr += type;
+      dataptr += len;
     }
   }
 }
@@ -1237,9 +1329,18 @@ int Executor::ins_casejmp_finddefault( const Token& token )
     {
       return offset;
     }
-    else
+    else if ( type == CASE_TYPE_UNINIT )
     {
-      dataptr += type;
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
     }
   }
 }
@@ -1255,6 +1356,14 @@ void Executor::ins_casejmp( const Instruction& ins )
   else if ( objimp->isa( BObjectImp::OTString ) )
   {
     PC = ins_casejmp_findstring( ins.token, static_cast<String*>( objimp ) );
+  }
+  else if ( objimp->isa( BObjectImp::OTBoolean ) )
+  {
+    PC = ins_casejmp_findbool( ins.token, static_cast<BBoolean*>( objimp ) );
+  }
+  else if ( objimp->isa( BObjectImp::OTUninit ) )
+  {
+    PC = ins_casejmp_finduninit( ins.token );
   }
   else
   {

@@ -1,8 +1,10 @@
 #include "CaseDispatchGroupVisitor.h"
 
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/CaseDispatchDefaultSelector.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/codegen/CaseJumpDataBlock.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 
@@ -15,6 +17,11 @@ CaseDispatchGroupVisitor::CaseDispatchGroupVisitor( CaseJumpDataBlock& data_bloc
       group_block_label( group_block_label ),
       default_label( default_label )
 {
+}
+void CaseDispatchGroupVisitor::visit_boolean_value( BooleanValue& boolean_node )
+{
+  data_block.on_boolean_value_jump_to( boolean_node.value,
+                                       static_cast<unsigned short>( group_block_label.address() ) );
 }
 
 void CaseDispatchGroupVisitor::visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& )
@@ -34,4 +41,9 @@ void CaseDispatchGroupVisitor::visit_string_value( StringValue& string_node )
     static_cast<unsigned short>( group_block_label.address() ) );
 }
 
+void CaseDispatchGroupVisitor::visit_uninitialized_value( UninitializedValue& )
+{
+  data_block.on_uninitialized_value_jump_to(
+      static_cast<unsigned short>( group_block_label.address() ) );
+}
 }  // namespace Pol::Bscript::Compiler

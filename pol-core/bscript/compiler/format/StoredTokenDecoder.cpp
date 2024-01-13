@@ -474,14 +474,25 @@ void StoredTokenDecoder::decode_casejmp_table( fmt::Writer& w, unsigned offset )
       offset += 4;
       w << "\n" << indent << value << ": @" << jump_address;
     }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      bool value = static_cast<bool>( data.at( offset ) );
+      offset += 1;
+      w << "\n" << indent << ( value ? "true" : "false" ) << ": @" << jump_address;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      w << "\n" << indent << "<uninit>: @" << jump_address;
+    }
     else if ( type == CASE_TYPE_DEFAULT )
     {
       w << "\n" << indent << "default: @" << jump_address;
       break;
     }
-    else
+    else if ( type == CASE_TYPE_STRING )
     {
-      unsigned string_length = type;  // type is the length of the string, otherwise
+      unsigned string_length = static_cast<unsigned>( data.at( offset ) );
+      offset += 1;
       if ( offset + string_length > data.size() )
         throw std::runtime_error( "casejmp string at offset " + std::to_string( offset ) + " of " +
                                   std::to_string( string_length ) +
@@ -492,6 +503,10 @@ void StoredTokenDecoder::decode_casejmp_table( fmt::Writer& w, unsigned offset )
       std::string contents( s_begin, s_begin + string_length );
       w << "\n" << indent << Clib::getencodedquotedstring( contents ) << ": @" << jump_address;
       offset += string_length;
+    }
+    else
+    {
+      throw std::runtime_error( "casejmp unhandled type " + std::to_string( type ) );
     }
   }
 }

@@ -3,6 +3,7 @@
 #include <cstring>
 
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/IntegerValue.h"
@@ -20,6 +21,28 @@ ValueBuilder::ValueBuilder( const SourceFileIdentifier& source_file_identifier,
                             BuilderWorkspace& workspace )
     : TreeBuilder( source_file_identifier, workspace )
 {
+}
+
+std::unique_ptr<BooleanValue> ValueBuilder::bool_value(
+    EscriptGrammar::EscriptParser::BoolLiteralContext* ctx )
+{
+  bool value;
+  auto loc = location_for( *ctx );
+
+  if ( ctx->BOOL_TRUE() )
+  {
+    value = true;
+  }
+  else if ( ctx->BOOL_FALSE() )
+  {
+    value = false;
+  }
+  else
+  {
+    location_for( *ctx ).internal_error( "unhandled boolean literal" );
+  }
+
+  return std::make_unique<BooleanValue>( loc, value );
 }
 
 std::unique_ptr<FloatValue> ValueBuilder::float_value(
