@@ -900,8 +900,7 @@ int ECompileMain::main()
   if ( !ECompile::quiet )
   {
     // vX.YY
-    double vernum = (double)1 + (double)( ESCRIPT_FILE_VER_CURRENT / 100.0f );
-    INFO_PRINTLN( "EScript Compiler v{}\n{}\n", vernum, POL_COPYRIGHT );
+    INFO_PRINTLN( "EScript Compiler v1.{}\n{}\n", ESCRIPT_FILE_VER_CURRENT, POL_COPYRIGHT );
   }
 
   int prog_res = 1;
