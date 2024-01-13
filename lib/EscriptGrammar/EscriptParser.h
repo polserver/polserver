@@ -70,7 +70,7 @@ public:
     RuleStructInitializer = 67, RuleDictInitializerExpression = 68, RuleDictInitializerExpressionList = 69,
     RuleDictInitializer = 70, RuleArrayInitializer = 71, RuleLiteral = 72,
     RuleInterpolatedString = 73, RuleInterpolatedStringPart = 74, RuleIntegerLiteral = 75,
-    RuleFloatLiteral = 76
+    RuleFloatLiteral = 76, RuleBoolLiteral = 77
   };
 
   explicit EscriptParser(antlr4::TokenStream *input);
@@ -169,6 +169,7 @@ public:
   class InterpolatedStringPartContext;
   class IntegerLiteralContext;
   class FloatLiteralContext;
+  class BoolLiteralContext;
 
   class  CompilationUnitContext : public antlr4::ParserRuleContext {
   public:
@@ -822,6 +823,8 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *COLON();
     IntegerLiteralContext *integerLiteral();
+    BoolLiteralContext *boolLiteral();
+    antlr4::tree::TerminalNode *UNINIT();
     antlr4::tree::TerminalNode *IDENTIFIER();
     antlr4::tree::TerminalNode *STRING_LITERAL();
     antlr4::tree::TerminalNode *DEFAULT();
@@ -1611,6 +1614,22 @@ public:
   };
 
   FloatLiteralContext* floatLiteral();
+
+  class  BoolLiteralContext : public antlr4::ParserRuleContext {
+  public:
+    BoolLiteralContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *BOOL_TRUE();
+    antlr4::tree::TerminalNode *BOOL_FALSE();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+
+  };
+
+  BoolLiteralContext* boolLiteral();
 
 
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

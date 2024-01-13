@@ -327,6 +327,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitBoolLiteral(EscriptParser::BoolLiteralContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
 
 };
 

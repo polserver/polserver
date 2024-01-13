@@ -186,7 +186,7 @@ switchBlockStatementGroup
     ;
 
 switchLabel
-    : (integerLiteral | IDENTIFIER | STRING_LITERAL) ':'
+    : (integerLiteral | boolLiteral | UNINIT | IDENTIFIER | STRING_LITERAL) ':'
     | DEFAULT ':'
     ;
 
@@ -409,4 +409,9 @@ integerLiteral
 floatLiteral
     : FLOAT_LITERAL
     | HEX_FLOAT_LITERAL
+    ;
+
+boolLiteral
+    : BOOL_TRUE
+    | BOOL_FALSE
     ;

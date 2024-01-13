@@ -249,6 +249,9 @@ public:
   virtual void enterFloatLiteral(EscriptParser::FloatLiteralContext *ctx) = 0;
   virtual void exitFloatLiteral(EscriptParser::FloatLiteralContext *ctx) = 0;
 
+  virtual void enterBoolLiteral(EscriptParser::BoolLiteralContext *ctx) = 0;
+  virtual void exitBoolLiteral(EscriptParser::BoolLiteralContext *ctx) = 0;
+
 
 };
 
