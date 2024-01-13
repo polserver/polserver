@@ -174,12 +174,12 @@ static struct LogWithIDTag
 
 // construct a message for given sink, on deconstruction sends the msg to the facility
 template <typename Sink>
-class Message
+class MessageOld
 {
 public:
-  Message();
-  Message( LogWithIDTag, const std::string& id );
-  ~Message();  // auto flush
+  MessageOld();
+  MessageOld( LogWithIDTag, const std::string& id );
+  ~MessageOld();  // auto flush
 
   fmt::Writer& message() { return *( _formater.get() ); }
 
@@ -189,29 +189,52 @@ private:
 };
 
 template <typename Sink>
-struct Message2
+struct Message
 {
   template <bool newline, typename Str, typename... Args>
   static void logmsg( Str const& format, Args&&... args )
   {
-    if constexpr ( sizeof...( args ) == 0 )
+    try
     {
-      if constexpr ( newline )
-        send( std::string( format ) + '\n' );
+      if constexpr ( sizeof...( args ) == 0 )
+      {
+        if constexpr ( newline )
+          send( std::string( format ) + '\n' );
+        else
+          send( std::string( format ) );
+      }
       else
-        send( std::string( format ) );
+      {
+        if constexpr ( newline )
+          send( fmt::format( format, args... ) + '\n' );
+        else
+          send( fmt::format( format, args... ) );
+      }
     }
-    else
+    catch ( fmt::format_error& )
     {
-      if constexpr ( newline )
-        send( fmt::format( format, args... ) + '\n' );
+      send( std::string( "failed to format: " ) + format + '\n' );
+    }
+  }
+
+  template <typename Str, typename... Args>
+  static void logmsglnID( const std::string& id, Str const& format, Args&&... args )
+  {
+    try
+    {
+      if constexpr ( sizeof...( args ) == 0 )
+        send( std::string( format ) + '\n', id );
       else
-        send( fmt::format( format, args... ) );
+        send( fmt::format( format, args... ) + '\n', id );
+    }
+    catch ( fmt::format_error& )
+    {
+      send( std::string( "failed to format: " ) + format + '\n', id );
     }
   }
 
 private:
-  static void send( std::string msg );
+  static void send( std::string msg, std::string id = {} );
 };
 
 extern LogFacility* global_logger;        // pointer to the instance of the main class
@@ -224,47 +247,52 @@ void initLogging( LogFacility* logger );  // initalize the logging
 
 // log into pol.log and std::cerr
 #define POLLOG_ERROR                                                                             \
-  Clib::Logging::Message<                                                                        \
+  Clib::Logging::MessageOld<                                                                     \
       Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, Clib::Logging::LogSink_pollog>>() \
       .message()
 // log into pol.log and std::cout
 #define POLLOG_INFO                                                                              \
-  Clib::Logging::Message<                                                                        \
+  Clib::Logging::MessageOld<                                                                     \
       Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>() \
       .message()
-#define POLLOG_INFO2                                   \
-  Clib::Logging::Message2<Clib::Logging::LogSink_dual< \
-      Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>::logmsg<true>
+#define POLLOG_INFO2                                                              \
+  Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, \
+                                                     Clib::Logging::LogSink_pollog>>::logmsg<true>
 
 // log into pol.log
-#define POLLOG Clib::Logging::Message<Clib::Logging::LogSink_pollog>().message()
+#define POLLOG Clib::Logging::MessageOld<Clib::Logging::LogSink_pollog>().message()
 
 // log only into std::cout with \n addition
-#define INFO_PRINTLN Clib::Logging::Message2<Clib::Logging::LogSink_cout>::logmsg<true>
+#define INFO_PRINTLN Clib::Logging::Message<Clib::Logging::LogSink_cout>::logmsg<true>
 // log only into std::cout without \n addition
-#define INFO_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cout>::logmsg<false>
-// log only into std::cout if level is equal or higher
+#define INFO_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cout>::logmsg<false>
+// log only into std::cout if level is equal or higher with \n addition
 #define INFO_PRINTLN_TRACE( n )                    \
   if ( Plib::systemstate.config.debug_level >= n ) \
   INFO_PRINTLN
 
 // log only into std::cerr with \n addition
-#define ERROR_PRINTLN Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<true>
+#define ERROR_PRINTLN Clib::Logging::Message<Clib::Logging::LogSink_cerr>::logmsg<true>
 // log only into std::cerr without \n addition
-#define ERROR_PRINT Clib::Logging::Message2<Clib::Logging::LogSink_cerr>::logmsg<false>
+#define ERROR_PRINT Clib::Logging::Message<Clib::Logging::LogSink_cerr>::logmsg<false>
 
-// log into script.log
-#define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>().message()
-// log into debug.log (if enabled)
-#define DEBUGLOG                                    \
+// log into script.log with \n addition
+#define SCRIPTLOGLN Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>::logmsg<true>
+// log into script.log without \n addition
+#define SCRIPTLOG Clib::Logging::Message<Clib::Logging::LogSink_scriptlog>::logmsg<false>
+
+// log into debug.log (if enabled) with \n addition
+#define DEBUGLOGLN                                  \
   if ( !Clib::Logging::LogSink_debuglog::Disabled ) \
-  Clib::Logging::Message<Clib::Logging::LogSink_debuglog>().message()
-// log into leak.log
-#define LEAKLOG Clib::Logging::Message<Clib::Logging::LogSink_leaklog>().message()
+  Clib::Logging::Message<Clib::Logging::LogSink_debuglog>::logmsg<true>
 
-// log into sink id need a call of OPEN_LOG before
-#define FLEXLOG( id ) \
-  Clib::Logging::Message<Clib::Logging::LogSink_flexlog>( Clib::Logging::logWithID, id ).message()
+// log into leak.log without \n addition
+#define LEAKLOG Clib::Logging::Message<Clib::Logging::LogSink_leaklog>::logmsg<false>
+// log into leak.log with \n addition
+#define LEAKLOGLN Clib::Logging::Message<Clib::Logging::LogSink_leaklog>::logmsg<true>
+
+// log into sink id with \n addition, need a call of OPEN_LOG before
+#define FLEXLOGLN Clib::Logging::Message<Clib::Logging::LogSink_flexlog>::logmsglnID
 // open logfile of given filename, returns unique unsigned int for usage of logging/closing
 #define OPEN_FLEXLOG( filename, open_timestamp ) \
   Clib::Logging::global_logger->registerFlexLogger( filename, open_timestamp )

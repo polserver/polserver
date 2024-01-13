@@ -308,7 +308,7 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
       {
         if ( Plib::systemstate.config.report_missing_configs )
         {
-          DEBUGLOG << "Config File " << filename << " does not exist.\n";
+          DEBUGLOGLN( "Config File {} does not exist.", filename );
         }
         return ConfigFileRef( nullptr );
       }
@@ -324,8 +324,7 @@ ConfigFileRef FindConfigFile( const std::string& filename, const std::string& al
   catch ( std::exception& ex )
   {
     // There was some weird problem reading the config file.
-    DEBUGLOG << "An exception was encountered while reading " << filename << ": " << ex.what()
-             << "\n";
+    DEBUGLOGLN( "An exception was encountered while reading {}: {}", filename, ex.what() );
     return ConfigFileRef( nullptr );
   }
 }
@@ -366,11 +365,12 @@ int UnloadConfigFile( const std::string& filename )
 #ifdef MEMORYLEAK
 void ConfigFiles_log_stuff()
 {
-  DEBUGLOG << "ConfigFiles: " << Core::configurationbuffer.cfgfiles.size() << " files loaded and "
-           << Core::configurationbuffer.oldcfgfiles.size() << " files 'removed'\n";
+  DEBUGLOGLN( "ConfigFiles: {} files loaded and {} files 'removed'",
+              Core::configurationbuffer.cfgfiles.size(),
+              Core::configurationbuffer.oldcfgfiles.size() );
 
-  LEAKLOG << Core::configurationbuffer.cfgfiles.size() << ";"
-          << Core::configurationbuffer.oldcfgfiles.size() << ";";
+  LEAKLOG( "{};{};", Core::configurationbuffer.cfgfiles.size(),
+              Core::configurationbuffer.oldcfgfiles.size() );
 }
 #endif
 }  // namespace Core

@@ -377,17 +377,16 @@ bool process_data( Network::ThreadedClient* session )
         Clib::SpinLockGuard guard( session->_fpLog_lock );
         if ( !session->fpLog.empty() )
         {
-          fmt::Writer tmp;
-          tmp << "Client -> Server: 0x" << fmt::hexu( msgtype ) << ", " << session->message_length
-              << " bytes\n";
-          Clib::fdump( tmp, &session->buffer, session->message_length );
-          FLEXLOG( session->fpLog ) << tmp.str() << "\n";
+          std::string tmp = fmt::format( "Client -> Server: {:#X}, {} bytes\n", msgtype,
+                                         session->message_length );
+          Clib::fdump( std::back_inserter( tmp ), &session->buffer, session->message_length );
+          FLEXLOGLN( session->fpLog, tmp );
         }
       }
 
       if ( Plib::systemstate.config.verbose )
         INFO_PRINTLN( "Message Received: Type {:#X}, Length {} bytes", (int)msgtype,
-                     session->message_length );
+                      session->message_length );
 
       PolLock lck;  // multithread
       // it can happen that a client gets disconnected while waiting for the lock.
@@ -575,8 +574,8 @@ int Client::on_close()
 {
   unregister();
   INFO_PRINTLN( "Client disconnected from {} ({}/{} connections)", ipaddrAsString(),
-               Core::networkManager.clients.size(),
-               Core::networkManager.getNumberOfLoginClients() );
+                Core::networkManager.clients.size(),
+                Core::networkManager.getNumberOfLoginClients() );
 
   Core::CoreSetSysTrayToolTip(
       Clib::tostring( Core::networkManager.clients.size() ) + " clients connected",

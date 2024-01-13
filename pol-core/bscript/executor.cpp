@@ -305,15 +305,16 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
   {
     if ( !IS_DEBUGLOG_DISABLED )
     {
-      fmt::Writer tmp;
-      tmp << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n";
+      std::string tmp = fmt::format( "Script Error in '{}' PC={}:\n", scriptname(), PC );
       if ( current_module_function )
-        tmp << "\tCall to function " << current_module_function->name.get() << ":\n";
+        fmt::format_to( std::back_inserter( tmp ), "\tCall to function {}:\n",
+                        current_module_function->name.get() );
       else
-        tmp << "\tCall to an object method.\n";
-      tmp << "\tParameter " << param << ": Expected datatype " << BObjectImp::typestr( type )
-          << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
-      DEBUGLOG << tmp.str();
+        tmp += "\tCall to an object method.\n";
+      fmt::format_to( std::back_inserter( tmp ),
+                      "\tParameter {}: Expected datatype {}, got datatype {}", param,
+                      BObjectImp::typestr( type ), BObjectImp::typestr( imp->type() ) );
+      DEBUGLOGLN( tmp );
     }
     return nullptr;
   }
@@ -446,10 +447,12 @@ bool Executor::getRealParam( unsigned param, double& value )
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Expected Integer or Real"
-             << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected Integer or Real, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( imp->type() ) );
 
     return false;
   }
@@ -474,12 +477,12 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param
-             << ": Expected datatype " /*<< pointer_type TODO this is totally useless since its a
-                                          pointer address*/
-             << ", got datatype " << BObjectImp::typestr( ap->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected datatype, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( ap->type() ) );
 
     return nullptr;
   }
@@ -497,12 +500,11 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param
-             << ": Expected datatype " /*<< object_type TODO this is totally useless since its a
-                                          pointer address*/
-             << ", got datatype " << aob->getStringRep() << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected datatype, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param, aob->getStringRep() );
 
     return nullptr;
   }
@@ -824,8 +826,10 @@ void Executor::execFunc( const Token& token )
   current_module_function = modfunc;
   if ( modfunc->funcidx == -1 )
   {
-    DEBUGLOG << "Error in script '" << prog_->name.get() << "':\n"
-             << "\tModule Function " << modfunc->name.get() << " was not found.\n";
+    DEBUGLOGLN(
+        "Error in script '{}':\n"
+        "\tModule Function {} was not found.",
+        prog_->name.get(), modfunc->name.get() );
 
     throw std::runtime_error( "No implementation for function found." );
   }
@@ -3228,18 +3232,18 @@ void Executor::initForFnCall( unsigned in_PC )
     {
       if ( !data_shown )
       {
-        LEAKLOG << "ValueStack... ";
+        LEAKLOG( "ValueStack... " );
         data_shown = true;
       }
 
-      LEAKLOG << ValueStack.back()->impptr()->pack();
-      LEAKLOG << " [" << ValueStack.back()->impptr()->sizeEstimate() << "] ";
+      LEAKLOG( "{} [{}]", ValueStack.back()->impptr()->pack(),
+               ValueStack.back()->impptr()->sizeEstimate() );
     }
     ValueStack.pop_back();
   }
   if ( Clib::memoryleak_debug )
     if ( data_shown )
-      LEAKLOG << " ...deleted\n";
+      LEAKLOGLN( " ...deleted" );
 #endif
 
   ValueStack.clear();
