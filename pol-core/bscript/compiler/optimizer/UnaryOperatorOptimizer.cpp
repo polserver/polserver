@@ -37,7 +37,8 @@ void UnaryOperatorOptimizer::visit_boolean_value( BooleanValue& bv )
     return;
   }
 
-  optimized_result = std::make_unique<BooleanValue>( bv.source_location, value );
+  // Logical-not returns 1/0 as BLong, ie. `!false` == `1`
+  optimized_result = std::make_unique<IntegerValue>( bv.source_location, value );
 }
 
 void UnaryOperatorOptimizer::visit_float_value( FloatValue& fv )
