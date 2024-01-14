@@ -1,6 +1,5 @@
 #include "Program.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

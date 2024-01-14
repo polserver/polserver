@@ -536,7 +536,7 @@ void DynTaskThreadPool::create_thread()
     }
   }
   size_t thread_num = _threads.size();
-  _threads.emplace_back( new PoolWorker( this, _name + " " + fmt::FormatInt( thread_num ).str() ) );
+  _threads.emplace_back( new PoolWorker( this, _name + " " + std::to_string( thread_num ) ) );
   ERROR_PRINTLN( "create pool worker {} {}", _name, thread_num );
 }
 

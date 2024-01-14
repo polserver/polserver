@@ -118,9 +118,7 @@ float UOPathState::GetCost( const UOPathState& successor ) const
 
 std::string UOPathState::Name() const
 {
-  fmt::Writer writer;
-  writer << pos;
-  return writer.str();
+  return fmt::to_string( pos );
 }
 
 bool UOPathState::GetSuccessors( Plib::AStarSearch<UOPathState>* astarsearch,

@@ -1,13 +1,14 @@
 #ifndef CLIB_STREAMSAVER_H
 #define CLIB_STREAMSAVER_H
 
+#include <format/format.h>
 #include <iosfwd>
 #include <memory>
 #include <string>
 #include <thread>
 
 #include "message_queue.h"
-#include <format/format.h>
+
 #if 0
 #include "timer.h"
 #endif
@@ -77,8 +78,7 @@ private:
 
 class ThreadedOFStreamWriter final : public StreamWriter
 {
-  typedef std::unique_ptr<fmt::Writer> WriterPtr;
-  typedef message_queue<WriterPtr> writer_queue;
+  typedef message_queue<std::string> writer_queue;
 
 public:
   ThreadedOFStreamWriter();
@@ -93,7 +93,7 @@ private:
   std::ofstream* _stream;
   writer_queue _msg_queue;
   std::thread _writethread;
-  std::list<WriterPtr> _writers_hold;
+  std::list<std::string> _writers_hold;
   std::string _stream_name;
 };
 }  // namespace Clib

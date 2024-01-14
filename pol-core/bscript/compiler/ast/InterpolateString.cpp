@@ -1,6 +1,5 @@
 #include "InterpolateString.h"
 
-#include <format/format.h>
 
 #include "clib/strutil.h"
 #include "compiler/ast/NodeVisitor.h"

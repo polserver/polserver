@@ -138,14 +138,14 @@ void ThreadedOFStreamWriter::start_worker()
   _writethread = std::thread(
       [this]()
       {
-        std::list<WriterPtr> writers;
+        std::list<std::string> writers;
         // small helper lambda to write into stream
-        auto _write_to_stream = [&]( std::list<WriterPtr>& l )
+        auto _write_to_stream = [&]( std::list<std::string>& l )
         {
           for ( const auto& _w : l )
           {
-            if ( _w->size() )
-              *_stream << _w->str();
+            if ( !_w.empty() )
+              *_stream << _w;
           }
         };
         try
@@ -183,7 +183,7 @@ void ThreadedOFStreamWriter::flush()
 {
   if ( _writer->size() )
   {
-    _writers_hold.emplace_back( std::move( _writer ) );
+    _writers_hold.emplace_back( _writer->str() );
     if ( _writers_hold.size() > 10 )
     {
       _msg_queue.push( _writers_hold );

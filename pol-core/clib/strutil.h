@@ -14,7 +14,6 @@
 #include "rawtypes.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
-#include <format/format.h>
 #include <string>
 #include <type_traits>
 

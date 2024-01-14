@@ -15,6 +15,7 @@
 #include "house.h"
 
 #include <boost/numeric/conversion/cast.hpp>
+#include <iterator>
 #include <stdlib.h>
 
 #include "../../bscript/berror.h"
@@ -54,7 +55,6 @@
 #include "customhouses.h"
 #include "multi.h"
 #include "multidef.h"
-#include <format/format.h>
 
 
 namespace Pol
@@ -510,21 +510,22 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
     {
       if ( !add_component( Component( item ) ) )
       {
-        fmt::Writer os;
-        os << "Couldn't add component " << fmt::hexu( item->serial ) << " to house "
-           << fmt::hexu( serial ) << ".\n";
+        std::string os =
+            fmt::format( "Couldn't add component {:#X} to house {:#X}.\n", item->serial, serial );
         UHouse* contHouse = item->house();
         if ( contHouse == nullptr )
         {
-          os << "This is probably a core bug. Please report it on the forums.";
+          os += "This is probably a core bug. Please report it on the forums.";
         }
         else
         {
-          os << "This item is already part of house " << contHouse->serial << ".\n";
-          os << "Allowing an item to be a component in two different houses was a bug,\n";
-          os << "please also fix your save data.";
+          fmt::format_to( std::back_inserter( os ),
+                          "This item is already part of house {:#X}.\n"
+                          "Allowing an item to be a component in two different houses was a bug,\n"
+                          "please also fix your save data.",
+                          contHouse->serial );
         }
-        throw std::runtime_error( os.str() );
+        throw std::runtime_error( os );
       }
     }
   }

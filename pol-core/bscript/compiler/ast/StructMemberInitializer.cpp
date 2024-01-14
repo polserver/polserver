@@ -1,6 +1,5 @@
 #include "StructMemberInitializer.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

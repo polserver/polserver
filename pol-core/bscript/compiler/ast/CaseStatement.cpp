@@ -1,6 +1,6 @@
 #include "CaseStatement.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/CaseDispatchGroup.h"

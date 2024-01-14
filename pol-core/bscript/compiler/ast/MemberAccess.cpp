@@ -1,6 +1,5 @@
 #include "MemberAccess.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "compilercfg.h"

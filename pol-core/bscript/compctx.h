@@ -14,7 +14,6 @@
 #include <string>
 
 #include <fmt/format.h>
-#include <format/format.h>
 
 namespace Pol
 {
@@ -35,7 +34,6 @@ public:
   CompilerContext& operator=( const CompilerContext& ) = default;
 
   void printOn( std::ostream& os ) const;
-  void printOn( fmt::Writer& writer ) const;
 
   void skipws();
   int skipcomments();
@@ -54,18 +52,6 @@ public:
   bool silence_unicode_warnings;  // tryLiteral gets executed multiple times flag used to ensure
                                   // that unicode warning gets only printed once
 };
-
-inline std::ostream& operator<<( std::ostream& os, const CompilerContext& ctx )
-{
-  ctx.printOn( os );
-  return os;
-}
-
-inline fmt::Writer& operator<<( fmt::Writer& writer, const CompilerContext& ctx )
-{
-  ctx.printOn( writer );
-  return writer;
-}
 
 template <typename Str, typename... Args>
 inline void compiler_warning( CompilerContext* ctx, Str const& format, Args&&... args )

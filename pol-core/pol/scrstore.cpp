@@ -17,7 +17,7 @@
 #include "polcfg.h"
 #include "profile.h"
 #include "scrdef.h"
-#include <format/format.h>
+
 #include <iterator>
 
 

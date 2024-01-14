@@ -9,8 +9,6 @@
 
 #include "passert.h"
 
-#include <format/format.h>
-
 #include "Debugging/ExceptionParser.h"
 #include "esignal.h"
 #include "logfacility.h"

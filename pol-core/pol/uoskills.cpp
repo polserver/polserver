@@ -77,8 +77,8 @@ void load_skill_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
 
   if ( gamestate.uo_skills[uoskill.skillid].inited )
   {
-    elem.throw_error( "UOSkill " + fmt::FormatInt( uoskill.skillid ).str() +
-                      " already defined by " + gamestate.uo_skills[uoskill.skillid].pkg->desc() );
+    elem.throw_error( "UOSkill " + std::to_string( uoskill.skillid ) + " already defined by " +
+                      gamestate.uo_skills[uoskill.skillid].pkg->desc() );
   }
 
   gamestate.uo_skills[uoskill.skillid] = uoskill;

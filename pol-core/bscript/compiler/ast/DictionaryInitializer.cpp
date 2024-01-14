@@ -1,6 +1,5 @@
 #include "DictionaryInitializer.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

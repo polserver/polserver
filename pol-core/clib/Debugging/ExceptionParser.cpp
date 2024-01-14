@@ -5,7 +5,6 @@
 #include "../stlutil.h"
 #include "../threadhelp.h"
 #include "pol_global_config.h"
-#include <format/format.h>
 
 #include <cstddef>
 #include <cstdlib>

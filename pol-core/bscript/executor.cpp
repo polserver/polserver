@@ -3112,11 +3112,9 @@ void Executor::execInstr()
 
 std::string Executor::dbg_get_instruction( size_t atPC ) const
 {
-  fmt::Writer os;
-  os << ( ( atPC == PC ) ? ">" : " " ) << atPC
-     << ( breakpoints_.count( static_cast<unsigned>( atPC ) ) ? "*" : ":" ) << " "
-     << prog_->instr[atPC].token;
-  return os.str();
+  std::string out;
+  dbg_get_instruction( atPC, out );
+  return out;
 }
 void Executor::dbg_get_instruction( size_t atPC, std::string& os ) const
 {
@@ -3141,24 +3139,6 @@ void Executor::show_context( unsigned atPC )
   for ( unsigned i = start; i <= end; ++i )
   {
     POLLOGLN( "{}: {}", i, dbg_get_instruction( i ) );
-  }
-}
-void Executor::show_context( fmt::Writer& os, unsigned atPC )
-{
-  unsigned start, end;
-  if ( atPC >= 5 )
-    start = atPC - 5;
-  else
-    start = 0;
-
-  end = atPC + 5;
-
-  if ( end >= nLines )
-    end = nLines - 1;
-
-  for ( unsigned i = start; i <= end; ++i )
-  {
-    os << dbg_get_instruction( i ) << '\n';
   }
 }
 void Executor::show_context( std::string& os, unsigned atPC )

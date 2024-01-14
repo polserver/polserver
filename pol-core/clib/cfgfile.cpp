@@ -20,7 +20,6 @@
 #include "logfacility.h"
 #include "stlutil.h"
 #include "strutil.h"
-#include <format/format.h>
 
 
 namespace Pol

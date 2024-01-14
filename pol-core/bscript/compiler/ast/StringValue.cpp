@@ -1,6 +1,5 @@
 #include "StringValue.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "clib/strutil.h"
