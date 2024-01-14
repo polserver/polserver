@@ -6,6 +6,7 @@
 
 
 #include <chrono>
+#include <iterator>
 #include <string.h>
 #include <string>
 #include <thread>
@@ -55,7 +56,7 @@ bool UoClientThread::create()
 {
   if ( !_sck.connected() )  // should not happend, just here to be sure
   {
-    POLLOG << "Login failed, socket is invalid\n";
+    POLLOGLN( "Login failed, socket is invalid" );
     return false;
   }
   login_time = poltime();
@@ -84,15 +85,16 @@ bool UoClientThread::create()
   networkManager.clients.push_back( client );
   CoreSetSysTrayToolTip( Clib::tostring( networkManager.clients.size() ) + " clients connected",
                          ToolTipPrioritySystem );
-  fmt::Writer tmp;
-  tmp.Format( "Client#{} connected from {} ({}/{} connections)" )
-      << client->instance_ << Network::AddressToString( &client_addr )
-      << networkManager.clients.size() << networkManager.getNumberOfLoginClients();
+  std::string tmp =
+      fmt::format( "Client#{} connected from {} ({}/{} connections)", client->instance_,
+                   Network::AddressToString( &client_addr ), networkManager.clients.size(),
+                   networkManager.getNumberOfLoginClients() );
   if ( getsockname( client->csocket, &host_addr, &host_addrlen ) == 0 )
   {
-    tmp << " on interface " << Network::AddressToString( &host_addr );
+    fmt::format_to( std::back_inserter( tmp ), " on interface {}",
+                    Network::AddressToString( &host_addr ) );
   }
-  POLLOG << tmp.str() << "\n";
+  POLLOGLN( tmp );
   return true;
 }
 
@@ -106,7 +108,7 @@ void uo_client_listener_thread( void* arg )
 void UoClientListener::run()
 {
   INFO_PRINTLN( "Listening for UO clients on port {} (encryption: {},{:#x},{:#x})", port,
-               encryption.eType, encryption.uiKey1, encryption.uiKey2 );
+                encryption.eType, encryption.uiKey1, encryption.uiKey2 );
 
   Clib::SocketListener SL(
       port, Clib::Socket::option( Clib::Socket::nonblocking | Clib::Socket::reuseaddr ) );
@@ -164,7 +166,7 @@ void UoClientListener::run()
         else if ( ( ( *itr )->login_time +
                     Plib::systemstate.config.loginserver_timeout_mins * 60 ) < poltime() )
         {
-          POLLOG << "Client#" << client->instance_ << " LoginServer timeout disconnect\n";
+          POLLOGLN( "Client#{} LoginServer timeout disconnect", client->instance_ );
           PolLock lck;
           client->forceDisconnect();
           client->unregister();

@@ -217,7 +217,7 @@ LPTSTR MSJExceptionHandler::GetExceptionString( DWORD dwCode )
   // If not one of the "known" exceptions, try to get the string
   // from NTDLL.DLL's message table.
 
-  static TCHAR szBuffer[512] = {0};
+  static TCHAR szBuffer[512] = { 0 };
 
   FormatMessage( FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_HMODULE,
                  GetModuleHandle( _T( "NTDLL.DLL" ) ), dwCode, 0, szBuffer, sizeof( szBuffer ), 0 );
@@ -249,7 +249,7 @@ BOOL MSJExceptionHandler::GetLogicalAddress( PVOID addr, PTSTR szModule, DWORD l
   PIMAGE_DOS_HEADER pDosHdr = (PIMAGE_DOS_HEADER)hMod;
 
   // From the DOS header, find the NT (PE) header
-  PIMAGE_NT_HEADERS pNtHdr = ( PIMAGE_NT_HEADERS )( hMod + pDosHdr->e_lfanew );
+  PIMAGE_NT_HEADERS pNtHdr = (PIMAGE_NT_HEADERS)( hMod + pDosHdr->e_lfanew );
 
   PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION( pNtHdr );
 
@@ -406,7 +406,7 @@ int __cdecl MSJExceptionHandler::_tprintf( const TCHAR* format, ... )
   va_end( argptr );
 
   //    WriteFile( m_hReportFile, szBuff, retValue * sizeof(TCHAR), &cbWritten, 0 );
-  POLLOG_INFO << szBuff;
+  POLLOG_INFO( szBuff );
 
   return retValue;
 }
@@ -474,5 +474,5 @@ BOOL MSJExceptionHandler::InitImagehlpFunctions( void )
 
   return TRUE;
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

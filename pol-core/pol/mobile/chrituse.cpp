@@ -32,9 +32,11 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
 {
   if ( !( !start_attached || ( script_ex == nullptr ) ) )
   {
-    POLLOG << "Character::start_script hiccup\n"
-           << "Trying to start script " << prog->name.get() << "\n"
-           << "Script " << script_ex->scriptname() << " is already running\n";
+    POLLOGLN(
+        "Character::start_script hiccup\n"
+        "Trying to start script {}\n"
+        "Script {} is already running",
+        prog->name.get(), script_ex->scriptname() );
     return false;  // if it's going to have a passert() error, just return false.
   }
   passert( !start_attached || ( script_ex == nullptr ) );
@@ -73,7 +75,7 @@ bool Character::start_script( Bscript::EScriptProgram* prog, bool start_attached
   }
   else
   {
-    POLLOG << "Unable to setProgram(" << prog->name.get() << ")\n";
+    POLLOGLN( "Unable to setProgram({})", prog->name.get() );
     return false;
   }
 }

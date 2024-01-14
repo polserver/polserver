@@ -2,13 +2,12 @@
 /*
 logging stuff
 basic idea is to have an extra thread which performs all the file operations
-messages get send on deconstruction the fmt::Writer is used
 the sinks are fixed defined which removes a bit the flexibility, but makes the code cleaner
 and new sinks can be easily added.
 
 Usage:
-POLLOG << "my text\n"
-POLLOG.Format("hello {}") << "world";
+POLLOGLN("my text)"
+POLLOG("hello {}\n", "world");
 */
 
 #include "logfacility.h"
@@ -215,30 +214,6 @@ void LogFacility::wait_for_empty_queue()
   auto ret = promise->get_future();
   _worker->send( [=]() { promise->set_value( true ); } );
   ret.get();  // block wait till valid
-}
-
-// Message default construct
-template <typename Sink>
-MessageOld<Sink>::MessageOld() : _formater( new fmt::Writer() ), _id( "" )
-{
-}
-
-template <typename Sink>
-MessageOld<Sink>::MessageOld( LogWithIDTag, const std::string& id )
-    : _formater( new fmt::Writer() ), _id( id )
-{
-}
-// on deconstruction transfer the formater to the facility
-template <typename Sink>
-MessageOld<Sink>::~MessageOld()
-{
-  if ( _formater && _formater->size() > 0 )
-  {
-    if ( global_logger == nullptr )
-      printf( "%s", _formater->c_str() );
-    else
-      global_logger->save<Sink>( _formater->str(), std::move( _id ) );
-  }
 }
 
 template <typename Sink>
@@ -518,15 +493,12 @@ bool Clib::Logging::LogSink_debuglog::Disabled = false;
 
 #define SINK_TEMPLATE_DEFINES( sink )                                                         \
   template struct Pol::Clib::Logging::Message<Pol::Clib::Logging::sink>;                      \
-  template class Pol::Clib::Logging::MessageOld<Pol::Clib::Logging::sink>;                    \
   template Pol::Clib::Logging::sink* Pol::Clib::Logging::getSink<Pol::Clib::Logging::sink>(); \
   template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>(              \
       std::string message, std::string id );
 
 #define SINK_TEMPLATE_DEFINES_DUAL( sink1, sink2 )                                                 \
   template struct Pol::Clib::Logging::Message<                                                     \
-      Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>;     \
-  template class Pol::Clib::Logging::MessageOld<                                                   \
       Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>;     \
   template Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>* \
   Pol::Clib::Logging::getSink<                                                                     \

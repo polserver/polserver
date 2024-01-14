@@ -86,7 +86,7 @@ void PolConfig::read_pol_config( bool initial_load )
     }
     Plib::systemstate.config.max_tile_id = max_tile;
 
-    Plib::systemstate.config.max_anim_id = elem.remove_ushort("MaxAnimID", UOBJ_MAX_ANIMS);
+    Plib::systemstate.config.max_anim_id = elem.remove_ushort( "MaxAnimID", UOBJ_MAX_ANIMS );
 
     unsigned int max_obj = elem.remove_unsigned( "MaxObjtype", EXTOBJ_HIGHEST_DEFAULT );
     if ( max_obj < EXTOBJ_HIGHEST_DEFAULT || max_obj > 0xFFFFFFFF )
@@ -195,10 +195,10 @@ void PolConfig::read_pol_config( bool initial_load )
     Clib::passert_abort = true;
     Plib::systemstate.config.assertion_shutdown_save_type =
         SAVE_FULL;  // should never come into play
-    POLLOG_ERROR.Format(
+    POLLOG_ERRORLN(
         "Unknown pol.cfg AssertionFailureAction value: {} (expected abort, continue, shutdown, or "
-        "shutdown-nosave)\n" )
-        << tmp;
+        "shutdown-nosave)",
+        tmp );
   }
 
   tmp = elem.remove_string( "ShutdownSaveType", "full" );
@@ -213,9 +213,8 @@ void PolConfig::read_pol_config( bool initial_load )
   else
   {
     Plib::systemstate.config.shutdown_save_type = SAVE_FULL;
-    POLLOG_ERROR.Format(
-        "Unknown pol.cfg ShutdownSaveType value: {} (expected full or incremental)\n" )
-        << tmp;
+    POLLOG_ERRORLN( "Unknown pol.cfg ShutdownSaveType value: {} (expected full or incremental)",
+                    tmp );
   }
 
   Plib::systemstate.config.display_unknown_packets =
@@ -313,16 +312,16 @@ void PolConfig::reload_pol_cfg()
     if ( ( newst.st_mtime != PolConfig::pol_cfg_stat.st_mtime ) &&
          ( newst.st_mtime < time( nullptr ) - 10 ) )
     {
-      POLLOG_INFO << "Reloading pol.cfg...";
+      POLLOG_INFO( "Reloading pol.cfg..." );
       memcpy( &PolConfig::pol_cfg_stat, &newst, sizeof PolConfig::pol_cfg_stat );
 
       PolConfig::read_pol_config( false );
-      POLLOG_INFO << "Done!\n";
+      POLLOG_INFOLN( "Done!" );
     }
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERROR << "Error rereading pol.cfg: " << ex.what() << "\n";
+    POLLOG_ERRORLN( "Error rereading pol.cfg: {}", ex.what() );
   }
   THREAD_CHECKPOINT( tasks, 699 );
 }

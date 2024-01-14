@@ -54,10 +54,7 @@ void force_backtrace( bool /*complete*/ )
 void force_backtrace( bool complete )
 {
   std::string stack_trace = Clib::ExceptionParser::getTrace();
-  fmt::Writer tmp;
-  tmp << "=== Stack Backtrace ===\n" << stack_trace;
-
-  POLLOG_ERROR << tmp.str() << "\n";
+  POLLOG_ERRORLN( "=== Stack Backtrace ===\n{}", stack_trace );
   if ( complete )
     ExceptionParser::logAllStackTraces();
 }
@@ -71,14 +68,13 @@ void passert_failed( const char* expr, const char* file, unsigned line )
 void passert_failed( const char* expr, const std::string& reason, const char* file, unsigned line )
 {
   if ( reason != "" )
-    POLLOG_ERROR << "Assertion Failed: " << expr << " (" << reason << "), " << file << ", line "
-                 << line << "\n";
+    POLLOG_ERRORLN( "Assertion Failed: {} ({}), {}, line {}", expr, reason, file, line );
   else
-    POLLOG_ERROR << "Assertion Failed: " << expr << ", " << file << ", line " << line << "\n";
+    POLLOG_ERRORLN( "Assertion Failed: {}, {}, line {}", expr, file, line );
 
   if ( passert_dump_stack )
   {
-    POLLOG_ERROR << "Forcing stack backtrace.\n";
+    POLLOG_ERRORLN( "Forcing stack backtrace." );
     force_backtrace();
   }
   else
@@ -106,13 +102,13 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
 
   if ( passert_shutdown )
   {
-    POLLOG_ERROR << "Shutting down due to assertion failure.\n";
+    POLLOG_ERRORLN( "Shutting down due to assertion failure." );
     Clib::signal_exit( 1 );
     passert_shutdown_due_to_assertion = true;
   }
   if ( passert_abort )
   {
-    POLLOG_ERROR << "Aborting due to assertion failure.\n";
+    POLLOG_ERRORLN( "Aborting due to assertion failure." );
     abort();
   }
 

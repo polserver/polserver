@@ -561,7 +561,7 @@ int Character::charindex() const
       return i;
   }
 
-  POLLOG_INFO << "Warning: Can't find charidx for Character 0x" << fmt::hexu( serial ) << "\n";
+  POLLOG_INFOLN( "Warning: Can't find charidx for Character {:#X}", serial );
   return -1;
 }
 
@@ -1310,11 +1310,12 @@ bool Character::equippable( const Items::Item* item ) const
   {
     if ( item->objtype_ == Core::settingsManager.extobj.mount )
     {
-      POLLOG_INFO.Format(
-          "\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have a mount "
-          "graphic (current graphic: 0x{:X}). Check that the list of mounts in uoconvert.cfg is "
-          "correct and re-run uoconvert if necessary.\n" )
-          << this->serial << item->serial << item->graphic;
+      POLLOG_INFO(
+          "\n"
+          "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have a mount "
+          "graphic (current graphic: {:#X}). Check that the list of mounts in uoconvert.cfg is "
+          "correct and re-run uoconvert if necessary.\n",
+          this->serial, item->serial, item->graphic );
     }
 
     if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
@@ -1336,10 +1337,11 @@ bool Character::equippable( const Items::Item* item ) const
   if ( item->tile_layer == Core::LAYER_MOUNT && Plib::systemstate.config.enforce_mount_objtype &&
        item->objtype_ != Core::settingsManager.extobj.mount )
   {
-    POLLOG_INFO.Format(
-        "\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have the mount "
-        "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n" )
-        << this->serial << item->serial;
+    POLLOG_INFO(
+        "\n"
+        "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have the mount "
+        "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n",
+        this->serial, item->serial );
     return false;
   }
 
@@ -1889,7 +1891,7 @@ void Character::run_hit_script( Character* defender, double damage )
   }
   else
   {
-    POLLOG << "Blech, couldn't start hitscript " << weapon->hit_script().name() << "\n";
+    POLLOGLN( "Blech, couldn't start hitscript {}", weapon->hit_script().name() );
   }
 }
 

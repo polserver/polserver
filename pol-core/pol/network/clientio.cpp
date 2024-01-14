@@ -278,11 +278,10 @@ void Client::transmit( const void* data, int len )
   std::lock_guard<std::mutex> guard( _socketMutex );
   if ( disconnect )
   {
-    POLLOG_INFO << "Warning: Trying to send to a disconnected client! \n";
-    fmt::Writer tmp;
-    tmp << "Server -> Client: 0x" << fmt::hexu( msgtype ) << ", " << len << " bytes\n";
-    Clib::fdump( tmp, data, len );
-    POLLOG_INFO << tmp.str() << "\n";
+    POLLOG_INFOLN( "Warning: Trying to send to a disconnected client! " );
+    std::string tmp = fmt::format( "Server -> Client: {:#X}, {} bytes\n", msgtype, len );
+    Clib::fdump( std::back_inserter( tmp ), data, len );
+    POLLOG_INFOLN( tmp );
     return;
   }
 

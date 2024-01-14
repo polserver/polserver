@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <ctype.h>
+#include <iterator>
 #include <string>
 
 #include "../bscript/eprog.h"
@@ -136,13 +137,13 @@ void handle_rename_char( Client* client, PKTIN_75* msg )
         // only allow: a-z, A-Z & spaces
         if ( *p != ' ' && !isalpha( *p ) )
         {
-          fmt::Writer tmp;
-          tmp.Format( "Client#{} (account {}) attempted an invalid rename (packet 0x{:X}):\n{}\n" )
-              << client->instance_
-              << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" )
-              << (int)msg->msgtype << msg->name;
-          Clib::fdump( tmp, msg->name, static_cast<int>( strlen( msg->name ) ) );
-          POLLOG_INFO << tmp.str();
+          std::string tmp = fmt::format(
+              "Client#{} (account {}) attempted an invalid rename (packet {:#X}):\n{}",
+              client->instance_, ( client->acct != nullptr ) ? client->acct->name() : "unknown",
+              (int)msg->msgtype, msg->name );
+          Clib::fdump( std::back_inserter( tmp ), msg->name,
+                       static_cast<int>( strlen( msg->name ) ) );
+          POLLOG_INFOLN( tmp );
           *p = '\0';
           send_sysmessage( client, "Invalid name!" );
           return;  // dave 12/26 if invalid name, do not apply to chr!
@@ -265,7 +266,7 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
   }
   else
   {
-    POLLOG_INFO << "Suspect string length in PKTBI_BD packet: " << len << "\n";
+    POLLOG_INFOLN( "Suspect string length in PKTBI_BD packet: {}", len );
   }
 }
 
@@ -397,8 +398,8 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
   {
     if ( client->chr->on_popup_menu_selection == nullptr )
     {
-      POLLOG_INFO.Format( "{}/{} tried to use a popup menu, but none was active.\n" )
-          << client->acct->name() << client->chr->name();
+      POLLOG_INFOLN( "{}/{} tried to use a popup menu, but none was active.", client->acct->name(),
+                     client->chr->name() );
       break;
     }
 
@@ -662,7 +663,7 @@ void handle_e1_clienttype( Client* client, PKTIN_E1* msg )
     break;
   default:
     INFO_PRINTLN( "Unknown client type send with packet 0xE1 : {:#x}",
-                 static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) );
+                  static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) );
     break;
   }
 }
@@ -682,7 +683,7 @@ void handle_aos_commands( Client* client, PKTBI_D7* msg )
   if ( client && client->chr && client->chr->serial != serial )
   {
     INFO_PRINTLN( "Ignoring spoofed packet 0xD7 from character {:#x} trying to spoof {:#x}",
-                 client->chr->serial, serial );
+                  client->chr->serial, serial );
     return;
   }
 

@@ -45,10 +45,10 @@ bool load_realms()
     passert_r( gamestate.Realms.size() < MAX_NUMER_REALMS,
                "You can't use more than " + Clib::tostring( MAX_NUMER_REALMS ) + " realms" );
 
-    POLLOG_INFO << "Loading Realm " << realm_name << ".\n";
+    POLLOG_INFOLN( "Loading Realm {}.", realm_name );
     Tools::Timer<> timer;
     temprealm = new Realms::Realm( realm_name, dir_entry.path().u8string() );
-    POLLOG_INFO << "Completed in " << timer.ellapsed() << " ms.\n";
+    POLLOG_INFOLN( "Completed in {} ms.", timer.ellapsed() );
     gamestate.Realms.push_back( temprealm );
     ++realm_counter;
 

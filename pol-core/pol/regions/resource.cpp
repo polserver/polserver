@@ -199,11 +199,11 @@ void ResourceDef::counttiles()
       }
     }
   }
-  POLLOG_INFO << "Resource " << name() << ": " << tilecount << "\n";
+  POLLOG_INFOLN( "Resource {}: {}", name(), tilecount );
   for ( unsigned i = 0; i < regions_.size(); ++i )
   {
     ResourceRegion* rrgn = static_cast<ResourceRegion*>( regions_[i] );
-    POLLOG_INFO << "Region " << regions_[i]->name() << ": " << rrgn->tilecount_ << "\n";
+    POLLOG_INFOLN( "Region {}: {}", regions_[i]->name(), rrgn->tilecount_ );
   }
 }
 

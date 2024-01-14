@@ -33,8 +33,8 @@ bool ObjectHash::Insert( UObject* obj )
   if ( itr != hash.end() )
   {
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" )
-          << obj->serial;
+      POLLOGLN( "ObjectHash insert failed for object serial {:#X}. (duplicate serial?)",
+                obj->serial );
     return false;
   }
   hash.insert( hash.end(), std::make_pair( obj->serial, UObjectRef( obj ) ) );

@@ -348,7 +348,7 @@ void load_system_hooks()
             else if ( !hookclass.compare( "guild" ) )
               setMethod( &gamestate.system_hooks.guild_method_script, pkg, script );
             else
-              POLLOG_INFO << "Unknown class used for method hook: " << hookclass << "\n";
+              POLLOG_INFOLN( "Unknown class used for method hook: {}", hookclass );
           }
         }
       }

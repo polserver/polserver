@@ -183,8 +183,8 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
   {
     // Printing an error because this is supposed to not happen,
     // so it's probably a bug.
-    POLLOG_ERROR << "Out-of-range coordinates while trying to add Item "
-                 << fmt::hexu( item->serial ) << " to House " << fmt::hexu( serial ) << '\n';
+    POLLOG_ERRORLN( "Out-of-range coordinates while trying to add Item {:#X} to House {:#X}",
+                    item->serial, serial );
     return false;
   }
   item->setposition( Core::Pos4d( newx, newy, newz, realm() ) );
@@ -581,12 +581,11 @@ void UHouse::destroy_components()
   {
     Items::Item* item = components_.back().get();
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOG.Format( "Destroying component 0x{:X}, serial=0x{:X}\n" )
-          << item->objtype_ << item->serial;
+      POLLOGLN( "Destroying component {:#X}, serial={:#X}", item->objtype_, item->serial );
     if ( !item->orphan() )
       Core::destroy_item( item );
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOG << "Component destroyed\n";
+      POLLOGLN( "Component destroyed" );
     components_.pop_back();
   }
 }
@@ -777,13 +776,13 @@ bool statics_cause_problems( unsigned short x1, unsigned short y1, unsigned shor
       Items::Item* item;
       if ( !realm->walkheight( x, y, z, &newz, &multi, &item, true, Plib::MOVEMODE_LAND ) )
       {
-        POLLOG.Format( "Refusing to place house at {},{},{}: can't stand there\n" ) << x << y << z;
+        POLLOGLN( "Refusing to place house at {},{},{}: can't stand there", x, y, z );
         return true;
       }
       if ( labs( z - newz ) > 2 )
       {
-        POLLOG.Format( "Refusing to place house at {},{},{}: result Z ({}) is too far afield\n" )
-            << x << y << z << newz;
+        POLLOGLN( "Refusing to place house at {},{},{}: result Z ({}) is too far afield", x, y, z,
+                  newz );
         return true;
       }
     }

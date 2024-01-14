@@ -209,7 +209,7 @@ bool commit_incremental( const std::string& basename )
     if ( unlink( datfile.c_str() ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to delete {}: {} ({})\n" ) << datfile << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to delete {}: {} ({})", datfile, strerror( err ), err );
     }
   }
   if ( Clib::FileExists( ndtfile ) )
@@ -218,8 +218,8 @@ bool commit_incremental( const std::string& basename )
     if ( rename( ndtfile.c_str(), datfile.c_str() ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << ndtfile << datfile << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", ndtfile, datfile, strerror( err ),
+                      err );
     }
   }
 
@@ -292,7 +292,7 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERROR.Format( "Exception during incremental save: {}\n" ) << ex.what();
+    POLLOG_ERRORLN( "Exception during incremental save: {}", ex.what() );
     objStorageManager.incremental_saves_disabled = true;
     throw;
   }
