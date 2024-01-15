@@ -491,7 +491,7 @@ void StoredTokenDecoder::decode_casejmp_table( std::string& w, unsigned offset )
     {
       int value = integer_at( offset );
       offset += 4;
-      fmt::format_to( std::back_inserter( w ), "\n{}{}:@{}", indent, value, jump_address );
+      fmt::format_to( std::back_inserter( w ), "\n{}{}: @{}", indent, value, jump_address );
     }
     else if ( type == CASE_TYPE_DEFAULT )
     {

@@ -1310,11 +1310,11 @@ bool Character::equippable( const Items::Item* item ) const
   {
     if ( item->objtype_ == Core::settingsManager.extobj.mount )
     {
-      POLLOG_INFO(
+      POLLOG_INFOLN(
           "\n"
           "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have a mount "
           "graphic (current graphic: {:#X}). Check that the list of mounts in uoconvert.cfg is "
-          "correct and re-run uoconvert if necessary.\n",
+          "correct and re-run uoconvert if necessary.",
           this->serial, item->serial, item->graphic );
     }
 
@@ -1337,10 +1337,10 @@ bool Character::equippable( const Items::Item* item ) const
   if ( item->tile_layer == Core::LAYER_MOUNT && Plib::systemstate.config.enforce_mount_objtype &&
        item->objtype_ != Core::settingsManager.extobj.mount )
   {
-    POLLOG_INFO(
+    POLLOG_INFOLN(
         "\n"
         "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have the mount "
-        "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n",
+        "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.",
         this->serial, item->serial );
     return false;
   }

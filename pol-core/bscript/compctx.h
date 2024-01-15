@@ -33,8 +33,6 @@ public:
   CompilerContext( const CompilerContext& ) = default;
   CompilerContext& operator=( const CompilerContext& ) = default;
 
-  void printOn( std::ostream& os ) const;
-
   void skipws();
   int skipcomments();
 

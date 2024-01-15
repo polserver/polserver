@@ -193,7 +193,7 @@ struct Message
     }
     catch ( fmt::format_error& )
     {
-      send( std::string( "failed to format" ) + format + '\n' );
+      send( std::string( "failed to format: " ) + format + '\n' );
     }
   }
 
@@ -209,7 +209,7 @@ struct Message
     }
     catch ( fmt::format_error& )
     {
-      send( std::string( "failed to format" ) + format + '\n', id );
+      send( std::string( "failed to format: " ) + format + '\n', id );
     }
   }
 
