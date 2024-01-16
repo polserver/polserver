@@ -4,7 +4,7 @@
 #include "plib/uconst.h"
 #include "vector.h"
 #include <fmt/format.h>
-#include <format/format.h>
+
 #include <utility>
 
 namespace Pol
@@ -80,9 +80,6 @@ public:
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs );
-fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v );
-std::ostream& operator<<( std::ostream& os, const Pos2d& v );
-
 
 class Pos3d
 {
@@ -136,8 +133,6 @@ Pos3d operator+( Pos3d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
-fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v );
-std::ostream& operator<<( std::ostream& os, const Pos3d& v );
 
 class Pos4d
 {
@@ -206,8 +201,6 @@ Vec2d operator-( const Pos2d& lhs, const Pos4d& rhs );
 Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs );
 // Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs ); // TODO: think if this one makes sense
-fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v );
-std::ostream& operator<<( std::ostream& os, const Pos4d& v );
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
 

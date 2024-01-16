@@ -4,7 +4,7 @@
 
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "clib/logfacility.h"
-#include <format/format.h>
+
 #include <iterator>
 
 namespace Pol::Bscript::Compiler
@@ -49,14 +49,6 @@ void SourceLocation::internal_error( const std::string& msg, const SourceLocatio
 {
   ERROR_PRINTLN( "{}: {}\n  See also: {}", ( *this ), msg, related );
   throw std::runtime_error( msg );
-}
-
-fmt::Writer& operator<<( fmt::Writer& w, const SourceLocation& location )
-{
-  w << location.source_file_identifier->pathname;
-  if ( location.line_number || location.character_column )
-    w << ":" << location.line_number << ":" << location.character_column;
-  return w;
 }
 
 }  // namespace Pol::Bscript::Compiler

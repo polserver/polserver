@@ -38,7 +38,7 @@
 #include "pktbothid.h"
 #include "pktdef.h"
 #include "pktinid.h"
-#include <format/format.h>
+
 
 #define CLIENT_CHECKPOINT( x ) client->session()->checkpoint = x
 #define SESSION_CHECKPOINT( x ) session->checkpoint = x
@@ -73,8 +73,8 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
   SESSION_CHECKPOINT( 1 );
   if ( !clientpoller.prepare( session->have_queued_data() ) )
   {
-    POLLOG_INFO.Format( "Client#{}: ERROR - couldn't poll socket={}\n" )
-        << session->myClient.instance_ << session->csocket;
+    POLLOG_INFO( "Client#{}: ERROR - couldn't poll socket={}\n", session->myClient.instance_,
+                 session->csocket );
 
     if ( session->csocket != INVALID_SOCKET )
       session->forceDisconnect();
@@ -93,8 +93,7 @@ bool threadedclient_io_step( Network::ThreadedClient* session, Clib::SinglePolle
   if ( res < 0 )
   {
     int sckerr = socket_errno;
-    POLLOG.Format( "Client#{}: select res={}, sckerr={}\n" )
-        << session->myClient.instance_ << res << sckerr;
+    POLLOGLN( "Client#{}: select res={}, sckerr={}", session->myClient.instance_, res, sckerr );
     return false;
   }
   else if ( res == 0 )
@@ -229,7 +228,7 @@ bool client_io_thread( Network::Client* client, bool login )
 {
   if ( !login && Plib::systemstate.config.loglevel >= 11 )
   {
-    POLLOG.Format( "Network::Client#{} i/o thread starting\n" ) << client->instance_;
+    POLLOGLN( "Network::Client#{} i/o thread starting", client->instance_ );
   }
 
   CLIENT_CHECKPOINT( 0 );
@@ -239,27 +238,27 @@ bool client_io_thread( Network::Client* client, bool login )
   }
   catch ( std::string& str )
   {
-    POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << str << client->session()->checkpoint;
+    POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
+                    str, client->session()->checkpoint );
   }
   catch ( const char* msg )
   {
-    POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << msg << client->session()->checkpoint;
+    POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
+                    msg, client->session()->checkpoint );
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERROR.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={})\n" )
-        << client->instance_ << ex.what() << client->session()->checkpoint;
+    POLLOG_ERRORLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={})", client->instance_,
+                    ex.what(), client->session()->checkpoint );
   }
   CLIENT_CHECKPOINT( 20 );
 
   if ( login && client->isConnected() )
     return true;
 
-  POLLOG.Format( "Client#{} ({}): disconnected (account {})\n" )
-      << client->instance_ << client->ipaddrAsString()
-      << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" );
+  POLLOGLN( "Client#{} ({}): disconnected (account {})", client->instance_,
+            client->ipaddrAsString(),
+            ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ) );
 
   try
   {
@@ -267,8 +266,8 @@ bool client_io_thread( Network::Client* client, bool login )
   }
   catch ( std::exception& ex )
   {
-    POLLOG.Format( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})\n" )
-        << client->instance_ << client->session()->checkpoint << ex.what();
+    POLLOGLN( "Client#{}: Exception in i/o thread: {}! (checkpoint={}, what={})", client->instance_,
+              client->session()->checkpoint, ex.what() );
   }
 
   // queue delete of client ptr see method doc for reason
@@ -413,10 +412,10 @@ bool process_data( Network::ThreadedClient* session )
         {
           // Such combinations of instance and acct happen quite often. Maybe this should become
           // Client->full_id() or something.
-          POLLOG_ERROR.Format( "Client#{} ({}, Acct {}) sent non-allowed message type 0x{:X}.\n" )
-              << session->myClient.instance_ << session->ipaddrAsString()
-              << ( session->myClient.acct ? session->myClient.acct->name() : "unknown" )
-              << (int)msgtype;
+          POLLOG_ERRORLN( "Client#{} ({}, Acct {}) sent non-allowed message type {:#X}.",
+                          session->myClient.instance_, session->ipaddrAsString(),
+                          ( session->myClient.acct ? session->myClient.acct->name() : "unknown" ),
+                          (int)msgtype );
         }
       }
       session->recv_state = Network::ThreadedClient::RECV_STATE_MSGTYPE_WAIT;
@@ -518,13 +517,13 @@ void report_weird_packet( Network::ThreadedClient* session, const std::string& w
   if ( session->bytes_received <= 64 )
   {
     Clib::fdump( std::back_inserter( tmp ), session->buffer, session->bytes_received );
-    POLLOG_INFO2( tmp );
+    POLLOG_INFO( tmp );
   }
   else
   {
     INFO_PRINT( tmp );
     Clib::fdump( std::back_inserter( tmp ), session->buffer, session->bytes_received );
-    POLLOG << tmp << "\n";
+    POLLOGLN( tmp );
   }
 }
 
@@ -560,9 +559,7 @@ void handle_humongous_packet( Network::ThreadedClient* session, unsigned int rep
   // be useful for debugging)
   session->recv_remaining( sizeof session->buffer / 2 );
 
-  fmt::Writer tmp;
-  tmp.Format( "Humongous packet (length {})", reported_size );
-  report_weird_packet( session, tmp.str() );
+  report_weird_packet( session, fmt::format( "Humongous packet (length {})", reported_size ) );
 }
 }  // namespace Pol::Core
 
@@ -655,12 +652,12 @@ void Client::handle_msg( unsigned char* pktbuffer, int pktlen )
   }
   catch ( std::exception& ex )
   {
-    POLLOG_ERROR.Format( "Client#{}: Exception in message handler 0x{:X}: {}\n" )
-        << instance_ << (int)msgtype << ex.what();
+    POLLOG_ERRORLN( "Client#{}: Exception in message handler {:#X}: {}", instance_, (int)msgtype,
+                    ex.what() );
 
-    fmt::Writer tmp;
-    Clib::fdump( tmp, pktbuffer, pktlen );
-    POLLOG << tmp.str() << "\n";
+    std::string tmp;
+    Clib::fdump( std::back_inserter( tmp ), pktbuffer, pktlen );
+    POLLOGLN( tmp );
 
     Core::restart_all_clients();
     throw;

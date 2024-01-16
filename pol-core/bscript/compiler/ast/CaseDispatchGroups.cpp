@@ -1,6 +1,5 @@
 #include "CaseDispatchGroups.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/CaseDispatchGroup.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

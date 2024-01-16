@@ -31,7 +31,7 @@
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
-#include <format/format.h>
+
 
 #ifdef ESCRIPT_PROFILE
 #include <map>
@@ -388,7 +388,6 @@ public:
   void reinitExec();
   void initForFnCall( unsigned in_PC );
   void show_context( unsigned atPC );
-  void show_context( fmt::Writer& os, unsigned atPC );
   void show_context( std::string& os, unsigned atPC );
 
   int getDebugLevel() { return debug_level; }

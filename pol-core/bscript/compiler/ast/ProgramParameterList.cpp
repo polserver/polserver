@@ -1,6 +1,5 @@
 #include "ProgramParameterList.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"

@@ -9,7 +9,7 @@
 
 #include "clib_MD5.h"
 
-#include <format/format.h>
+#include <fmt/format.h>
 
 #include "stlutil.h"
 
@@ -62,12 +62,11 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
     return false;
   }
 
-  fmt::Writer w;
+  out = "";
   for ( auto& elem : buf )
   {
-    w.Format( "{:02x}" ) << (int)elem;
+    fmt::format_to( std::back_inserter( out ), "{:02x}", (int)elem );
   }
-  out = w.str();
 
   CryptDestroyHash( hHash );
   return true;
@@ -100,12 +99,11 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
   EVP_DigestFinal_ex( ctx, hash, nullptr );
   EVP_MD_CTX_free( ctx );
 
-  fmt::Writer w;
+  out = "";
   for ( auto& elem : hash )
   {
-    w.Format( "{:02x}" ) << (int)elem;
+    fmt::format_to( std::back_inserter( out ), "{:02x}", (int)elem );
   }
-  out = w.str();
 
   return true;
 }

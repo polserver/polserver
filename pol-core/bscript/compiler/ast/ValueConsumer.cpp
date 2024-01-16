@@ -1,6 +1,5 @@
 #include "ValueConsumer.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 

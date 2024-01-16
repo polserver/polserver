@@ -18,7 +18,7 @@
 #include "item/equipmnt.h"
 #include "item/weapon.h"
 #include "syshookscript.h"
-#include <format/format.h>
+
 #include <iterator>
 #include <memory>
 

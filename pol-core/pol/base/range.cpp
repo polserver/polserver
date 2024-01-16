@@ -83,17 +83,6 @@ bool Range2d::operator!=( const Range2d& other ) const
   return !( *this == other );
 }
 
-fmt::Writer& operator<<( fmt::Writer& w, const Range2d& v )
-{
-  w << "( " << v.nw() << " - " << v.se() << " )";
-  return w;
-}
-std::ostream& operator<<( std::ostream& os, const Range2d& v )
-{
-  os << "( " << v.nw() << " - " << v.se() << " )";
-  return os;
-}
-
 Range3d::Range3d( const Pos3d& p1, const Pos3d& p2, const Realms::Realm* realm )
     : _range( p1.xy(), p2.xy(), realm )
 {
@@ -129,17 +118,6 @@ bool Range3d::operator==( const Range3d& other ) const
 bool Range3d::operator!=( const Range3d& other ) const
 {
   return !( *this == other );
-}
-
-fmt::Writer& operator<<( fmt::Writer& w, const Range3d& v )
-{
-  w << "( " << v.nw_b() << " - " << v.se_t() << " )";
-  return w;
-}
-std::ostream& operator<<( std::ostream& os, const Range3d& v )
-{
-  os << "( " << v.nw_b() << " - " << v.se_t() << " )";
-  return os;
 }
 }  // namespace Core
 }  // namespace Pol

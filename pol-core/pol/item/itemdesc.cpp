@@ -17,6 +17,7 @@
 
 #include <ctype.h>
 #include <iosfwd>
+#include <iterator>
 #include <stdlib.h>
 #include <string.h>
 
@@ -49,7 +50,7 @@
 #include "armrtmpl.h"
 #include "regions/resource.h"
 #include "wepntmpl.h"
-#include <format/format.h>
+
 
 namespace Pol
 {
@@ -890,11 +891,11 @@ void ItemDesc::unload_scripts()
 
 std::string ItemDesc::objtype_description() const
 {
-  fmt::Writer tmp;
+  std::string tmp;
   if ( pkg )
-    tmp << ":" << pkg->name() << ":";
-  tmp << objtypename << " (0x" << fmt::hexu( objtype ) << ")";
-  return tmp.str();
+    fmt::format_to( std::back_inserter( tmp ), ":{}:", pkg->name() );
+  fmt::format_to( std::back_inserter( tmp ), "{} ({:#X})", objtypename, objtype );
+  return tmp;
 }
 
 bool ItemDesc::default_movable() const

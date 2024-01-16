@@ -7,8 +7,6 @@
 #include <type_traits>
 #include <vector>
 
-#include "clib/formatfwd.h"
-
 #include "bscript/compiler/file/SourceLocation.h"
 
 namespace Pol::Bscript::Compiler

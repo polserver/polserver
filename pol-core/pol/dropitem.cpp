@@ -1011,8 +1011,8 @@ void change_trade_status( Mobile::Character* chr, bool set )
     }
     else
     {
-      POLLOG_ERROR.Format( "Can't swap trade containers: ic0={},w0={}, ic1={},w1={}\n" )
-          << cont0->item_count() << cont0->weight() << cont1->item_count() << cont1->weight();
+      POLLOG_ERRORLN( "Can't swap trade containers: ic0={},w0={}, ic1={},w1={}",
+                      cont0->item_count(), cont0->weight(), cont1->item_count(), cont1->weight() );
     }
   }
 }

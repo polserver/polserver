@@ -8,7 +8,8 @@
 
 #ifndef NDEBUG
 #include "logfacility.h"
-#include <format/format.h>
+#include <fmt/format.h>
+#include <iterator>
 #endif
 
 namespace Pol
@@ -23,21 +24,22 @@ unsigned tracebuffer_insertpoint;
 void LogTraceBuffer()
 {
 #ifndef NDEBUG
-  fmt::Writer tmp;
-  tmp << "TraceBuffer:\n";
+  std::string tmp = "TraceBuffer:\n";
   for ( unsigned i = tracebuffer_insertpoint; i < TRACEBUF_DEPTH; ++i )
   {
     if ( tracebuffer[i].tag )
-      tmp << tracebuffer[i].tag << "=" << tracebuffer[i].value << "\n";
+      fmt::format_to( std::back_inserter( tmp ), "{}={}\n", tracebuffer[i].tag,
+                      tracebuffer[i].value );
   }
   for ( unsigned i = 0; i < tracebuffer_insertpoint; ++i )
   {
     if ( tracebuffer[i].tag )
-      tmp << tracebuffer[i].tag << "=" << tracebuffer[i].value << "\n";
+      fmt::format_to( std::back_inserter( tmp ), "{}={}\n", tracebuffer[i].tag,
+                      tracebuffer[i].value );
   }
-  tmp << "End of TraceBuffer.\n";
-  POLLOG << tmp.str();
+  tmp += "End of TraceBuffer.\n";
+  POLLOG( tmp );
 #endif
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

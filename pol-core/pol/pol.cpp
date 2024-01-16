@@ -139,7 +139,7 @@
 #include "uoclient.h"
 #include "uoscrobj.h"
 #include "uworld.h"
-#include <format/format.h>
+
 
 #ifndef NDEBUG
 #include "containr.h"
@@ -406,15 +406,14 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
 
   Mobile::Character* chosen_char = client->acct->get_character( charidx );
 
-  POLLOG.Format( "Account {} selecting character {}\n" )
-      << client->acct->name() << chosen_char->name();
+  POLLOGLN( "Account {} selecting character {}", client->acct->name(), chosen_char->name() );
 
   if ( Plib::systemstate.config.min_cmdlevel_to_login > chosen_char->cmdlevel() )
   {
-    POLLOG.Format(
+    POLLOGLN(
         "Account {} with character {} doesn't fit MinCmdlevelToLogin from pol.cfg. Client "
-        "disconnected by Core.\n" )
-        << client->acct->name() << chosen_char->name();
+        "disconnected by Core.",
+        client->acct->name(), chosen_char->name() );
 
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
@@ -426,10 +425,11 @@ void char_select( Network::Client* client, PKTIN_5D* msg )
                           clientHasCharacter ) ) >= Plib::systemstate.config.max_clients ) &&
        ( chosen_char->cmdlevel() < Plib::systemstate.config.max_clients_bypass_cmdlevel ) )
   {
-    POLLOG.Format(
+    POLLOGLN(
         "To much clients connected. Check MaximumClients and/or MaximumClientsBypassCmdLevel in "
-        "pol.cfg.\nAccount {} with character {} Client disconnected by Core.\n" )
-        << client->acct->name() << chosen_char->name();
+        "pol.cfg.\n"
+        "Account {} with character {} Client disconnected by Core.",
+        client->acct->name(), chosen_char->name() );
 
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
@@ -565,17 +565,17 @@ void tasks_thread( void )
   }
   catch ( const char* msg )
   {
-    POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << msg;
+    POLLOGLN( "Tasks Thread exits due to exception: {}", msg );
     throw;
   }
   catch ( std::string& str )
   {
-    POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << str;
+    POLLOGLN( "Tasks Thread exits due to exception: {}", str );
     throw;
   }
   catch ( std::exception& ex )
   {
-    POLLOG.Format( "Tasks Thread exits due to exception: {}\n" ) << ex.what();
+    POLLOGLN( "Tasks Thread exits due to exception: {}", ex.what() );
     throw;
   }
 }
@@ -961,13 +961,13 @@ void Check_libc_version()
     }
   }
   else
-    POLLOG_ERROR << "Error in analyzing libc version string [" << libc_version
-                 << "]. Please contact Core-Team.\n";
+    POLLOG_ERRORLN( "Error in analyzing libc version string [{}]. Please contact Core-Team.",
+                    libc_version );
 
   if ( main_version * 100000000 + sub_version * 10000 + build >= 2 * 100000000 + 3 * 10000 + 2 )
-    POLLOG_INFO << "Found libc " << libc_version << " - ok\n";
+    POLLOG_INFOLN( "Found libc {} - ok", libc_version );
   else
-    POLLOG_ERROR << "Found libc " << libc_version << " - Please update to 2.3.2 or above.\n";
+    POLLOG_ERRORLN( "Found libc {} - Please update to 2.3.2 or above.", libc_version );
 }
 #endif
 
@@ -1010,30 +1010,33 @@ int xmain_inner( bool testing )
 
   Clib::MakeDirectory( "log" );
 
-  POLLOG_INFO2( "POL {} - {}\nCompiled on {}\n{}\n", POL_VERSION_ID,
-                Clib::ProgramConfig::build_target(), Clib::ProgramConfig::build_datetime(),
-                POL_COPYRIGHT );
+  POLLOG_INFOLN( "POL {} - {}\nCompiled on {}\n{}", POL_VERSION_ID,
+                 Clib::ProgramConfig::build_target(), Clib::ProgramConfig::build_datetime(),
+                 POL_COPYRIGHT );
   if ( testing )
-    POLLOG_INFO2( "TESTING MODE\n" );
+    POLLOG_INFOLN( "TESTING MODE" );
 
 #ifndef NDEBUG
-  POLLOG_INFO << "Sizes: \n"
-              << "   UObject:    " << sizeof( Core::UObject ) << "\n"
-              << "   Item:       " << sizeof( Items::Item ) << "\n"
-              << "   UContainer: " << sizeof( Core::UContainer ) << "\n"
-              << "   Character:  " << sizeof( Mobile::Character ) << "\n"
-              << "   Client:     " << sizeof( Network::Client ) << "\n"
-              << "   NPC:        " << sizeof( Mobile::NPC ) << "\n";
+  POLLOG_INFOLN(
+      "Sizes: \n"
+      "   UObject:    {}\n"
+      "   Item:       {}\n"
+      "   UContainer: {}\n"
+      "   Character:  {}\n"
+      "   Client:     {}\n"
+      "   NPC:        {}",
+      sizeof( Core::UObject ), sizeof( Items::Item ), sizeof( Core::UContainer ),
+      sizeof( Mobile::Character ), sizeof( Network::Client ), sizeof( Mobile::NPC ) );
 
 #ifdef __unix__
 #ifdef PTHREAD_THREADS_MAX
-  POLLOG_INFO << "   Max Threads: " << PTHREAD_THREADS_MAX << "\n";
+  POLLOG_INFOLN( "   Max Threads: {}", PTHREAD_THREADS_MAX );
 #endif
 #endif
-  POLLOG_INFO << "\n";
+  POLLOG_INFOLN( "" );
 #endif
-  POLLOG_INFO << "Using " << Core::gamestate.task_thread_pool.size() << " out of "
-              << std::thread::hardware_concurrency() << " worldsave threads\n";
+  POLLOG_INFOLN( "Using {} out of {} worldsave threads", Core::gamestate.task_thread_pool.size(),
+                 std::thread::hardware_concurrency() );
 
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();
@@ -1042,7 +1045,7 @@ int xmain_inner( bool testing )
   Core::start_pol_clocks();
   Core::pause_pol_clocks();
 
-  POLLOG_INFO << "Reading Configuration.\n";
+  POLLOG_INFOLN( "Reading Configuration." );
 
   Core::stateManager.gflag_in_system_startup = true;
 
@@ -1075,8 +1078,9 @@ int xmain_inner( bool testing )
   Core::checkpoint( "loading POL map file" );
   if ( !Core::load_realms() )
   {
-    POLLOG_ERROR << "Unable to load Realms. Please make sure your Realms have been generated by "
-                    "UOConvert and your RealmDataPath is set correctly in Pol.cfg.\n";
+    POLLOG_ERRORLN(
+        "Unable to load Realms. Please make sure your Realms have been generated by "
+        "UOConvert and your RealmDataPath is set correctly in Pol.cfg." );
     return 1;
   }
 
@@ -1094,7 +1098,7 @@ int xmain_inner( bool testing )
   res = Network::init_sockets_library();
   if ( res < 0 )
   {
-    POLLOG_ERROR << "Unable to initialize sockets library.\n";
+    POLLOG_ERRORLN( "Unable to initialize sockets library." );
     return 1;
   }
 
@@ -1126,7 +1130,7 @@ int xmain_inner( bool testing )
   {
     Items::allocate_intrinsic_equipment_serials();
     Core::stateManager.gflag_in_system_startup = false;
-    POLLOG_INFO << "Running POL test suite.\n";
+    POLLOG_INFOLN( "Running POL test suite." );
     bool res_test = Testing::run_pol_tests();
     Core::cancel_all_trades();
     Core::stop_gameclock();
@@ -1135,7 +1139,7 @@ int xmain_inner( bool testing )
   }
 
   // PrintAllocationData();
-  POLLOG_INFO << "Reading data files:\n";
+  POLLOG_INFOLN( "Reading data files:" );
   {
     Tools::Timer<> timer;
     Core::checkpoint( "reading account data" );
@@ -1143,7 +1147,7 @@ int xmain_inner( bool testing )
 
     Core::checkpoint( "reading data" );
     Core::read_data();
-    POLLOG_INFO << "Done! " << timer.ellapsed() << " milliseconds.\n";
+    POLLOG_INFOLN( "Done! {} milliseconds.", timer.ellapsed() );
   }
 
 
@@ -1158,14 +1162,13 @@ int xmain_inner( bool testing )
   Core::checkpoint( "starting client listeners" );
   Core::start_uo_client_listeners();
 
-  POLLOG_INFO << "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n";
+  POLLOG_INFO( "Initialization complete.  POL is active.  Ctrl-C to stop.\n\n" );
 
   DEINIT_STARTLOG();
-  POLLOG.Format( "{0:s} ({1:s}) compiled on {2:s} running.\n" )
-      << "POL " << POL_VERSION_ID << Clib::ProgramConfig::build_target()
-      << Clib::ProgramConfig::build_datetime();
+  POLLOGLN( "{0:s} ({1:s}) compiled on {2:s} running.", "POL ", POL_VERSION_ID,
+            Clib::ProgramConfig::build_target(), Clib::ProgramConfig::build_datetime() );
 
-  POLLOG_INFO << "Game is active.\n";
+  POLLOG_INFOLN( "Game is active." );
 
   Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
@@ -1207,13 +1210,13 @@ int xmain_inner( bool testing )
 
   Core::cancel_all_trades();
   Core::stop_gameclock();
-  POLLOG_INFO << "Shutting down...\n";
+  POLLOG_INFOLN( "Shutting down..." );
 
   Core::checkpoint( "writing data" );
   if ( Core::should_write_data() )
   {
     Core::CoreSetSysTrayToolTip( "Writing data files", Core::ToolTipPriorityShutdown );
-    POLLOG_INFO << "Writing data files...";
+    POLLOG_INFO( "Writing data files..." );
 
     Core::PolLock lck;
     unsigned int dirty, clean;
@@ -1233,15 +1236,14 @@ int xmain_inner( bool testing )
     else
       Core::save_incremental( dirty, clean, elapsed_ms );
     Core::SaveContext::ready();
-    POLLOG_INFO << "Data save completed in " << elapsed_ms << " ms. " << timer.ellapsed()
-                << " total.\n";
+    POLLOG_INFOLN( "Data save completed in {} ms. {} total.", elapsed_ms, timer.ellapsed() );
   }
   else
   {
     if ( Clib::passert_shutdown_due_to_assertion && Clib::passert_nosave )
-      POLLOG_INFO << "Not writing data due to assertion failure.\n";
+      POLLOG_INFOLN( "Not writing data due to assertion failure." );
     else if ( Plib::systemstate.config.inhibit_saves )
-      POLLOG_INFO << "Not writing data due to pol.cfg InhibitSaves=1 setting.\n";
+      POLLOG_INFOLN( "Not writing data due to pol.cfg InhibitSaves=1 setting." );
   }
   Core::gamestate.deinitialize();
   return Clib::exit_code;
@@ -1257,7 +1259,7 @@ int xmain_outer( bool testing )
   {
     if ( Core::stateManager.last_checkpoint != nullptr )
     {
-      POLLOG_INFO << "Server Shutdown: " << Core::stateManager.last_checkpoint << "\n";
+      POLLOG_INFOLN( "Server Shutdown: {}", Core::stateManager.last_checkpoint );
       // pol_sleep_ms( 10000 );
     }
     Core::gamestate.deinitialize();

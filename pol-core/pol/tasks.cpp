@@ -238,9 +238,8 @@ void update_rpm( void )
                   stateManager.profilevars.last_sysload_nprocs,
                   stateManager.profilevars.last_cputime );
   if ( Plib::systemstate.config.log_sysload )
-    POLLOG.Format( "sysload={} ({}) cputime={}\n" )
-        << stateManager.profilevars.last_sysload << stateManager.profilevars.last_sysload_nprocs
-        << stateManager.profilevars.last_cputime;
+    POLLOGLN( "sysload={} ({}) cputime={}", stateManager.profilevars.last_sysload,
+              stateManager.profilevars.last_sysload_nprocs, stateManager.profilevars.last_cputime );
     // cout << "npc_searches:" << GET_PROFILEVAR_PER_MIN( npc_searches ) << " in " <<
     // GET_PROFILECLOCK_MS( npc_search ) << " ms" << endl;
     // cout << "container_adds:" << GET_PROFILEVAR_PER_MIN( container_adds ) << endl;

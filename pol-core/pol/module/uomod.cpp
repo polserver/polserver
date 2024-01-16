@@ -3137,7 +3137,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
   }
   catch ( std::exception& ex )
   {
-    POLLOG << "Exception during world save! (" << ex.what() << ")\n";
+    POLLOGLN( "Exception during world save! ({})", ex.what() );
     return new BError( "Exception during world save" );
   }
 }
@@ -5030,9 +5030,9 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 
   if ( Plib::systemstate.config.loglevel >= 12 )
   {
-    POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, 0x{:X}, {})\n" )
-        << pos1 << pos2 << realm->name() << flags << theSkirt;
-    POLLOG.Format( "[FindPath]   search for Blockers inside {}\n" ) << range;
+    POLLOGLN( "[FindPath] Calling FindPath({}, {}, {}, {:#X}, {})", pos1, pos2, realm->name(),
+              flags, theSkirt );
+    POLLOGLN( "[FindPath]   search for Blockers inside {}", range );
   }
 
   bool doors_block = ( flags & FP_IGNORE_DOORS ) ? false : true;
@@ -5046,15 +5046,15 @@ BObjectImp* UOExecutorModule::mf_FindPath()
                                           params.AddBlocker( chr->pos3d() );
 
                                           if ( Plib::systemstate.config.loglevel >= 12 )
-                                            POLLOG << "[FindPath]   add Blocker " << chr->name()
-                                                   << " at " << chr->pos() << "\n";
+                                            POLLOGLN( "[FindPath]   add Blocker {} at {}",
+                                                      chr->name(), chr->pos() );
                                         } );
   }
 
   if ( Plib::systemstate.config.loglevel >= 12 )
   {
-    POLLOG.Format( "[FindPath]   use StartNode {}\n" ) << pos1;
-    POLLOG.Format( "[FindPath]   use EndNode {}\n" ) << pos2;
+    POLLOGLN( "[FindPath]   use StartNode {}", pos1 );
+    POLLOGLN( "[FindPath]   use EndNode {}", pos2 );
   }
 
   // Create a start state

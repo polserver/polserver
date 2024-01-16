@@ -200,10 +200,10 @@ public:
     passert_always_r( offset + sizeof( T ) <= SIZE, "pkt " + Clib::hexint( ID ) );
     if ( std::numeric_limits<T>::max() < x )  // dont let the shard crash, a warning is better
     {
-      POLLOG_ERROR.Format(
-          "ERROR: Write: trying to write {} on offset {} for pkt 0x{:X}/0x{:X} and only {} is "
-          "allowed!\n" )
-          << x << offset << (int)ID << SUB << std::numeric_limits<T>::max();
+      POLLOG_ERRORLN(
+          "ERROR: Write: trying to write {} on offset {} for pkt {:#X}/{:#X} and only {} is "
+          "allowed!",
+          (int)x, offset, (int)ID, (int)SUB, std::numeric_limits<T>::max() );
       PktWriterTemplateSpecs::WriteHelper<T>::Write( std::numeric_limits<T>::max(), buffer,
                                                      offset );
     }
@@ -232,10 +232,10 @@ public:
     passert_always_r( offset + sizeof( T ) <= SIZE, "pkt " + Clib::hexint( _id ) );
     if ( std::numeric_limits<T>::max() < x )  // dont let the shard crash, a warning is better
     {
-      POLLOG_ERROR.Format(
-          "ERROR: WriteFlipped: trying to write {} on offset {} for pkt 0x{:X}/0x{:X} and only {} "
-          "is allowed!\n" )
-          << x << offset << (int)ID << SUB << std::numeric_limits<T>::max();
+      POLLOG_ERRORLN(
+          "ERROR: WriteFlipped: trying to write {} on offset {} for pkt {:#X}/{:#X} and only {} "
+          "is allowed!",
+          (int)x, offset, (int)ID, (int)SUB, std::numeric_limits<T>::max() );
       PktWriterTemplateSpecs::WriteHelper<T>::WriteFlipped( std::numeric_limits<T>::max(), buffer,
                                                             offset );
     }

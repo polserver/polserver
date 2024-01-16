@@ -5,7 +5,6 @@
 #include "../stlutil.h"
 #include "../threadhelp.h"
 #include "pol_global_config.h"
-#include <format/format.h>
 
 #include <cstddef>
 #include <cstdlib>
@@ -589,16 +588,15 @@ static void handleStackTraceRequestLinux( int signal, siginfo_t* signalInfo, voi
   threadhelp::ThreadMap::Contents threadDesc;
   threadhelp::threadmap.CopyContents( threadDesc );
 
-  fmt::Writer output;
-  output << "STACK TRACE for thread \"" << threadDesc[pthread_self()] << "\"(" << pthread_self()
-         << "):\n";
-  output << ExceptionParser::getTrace() << "\n";
+  std::string output = fmt::format( "STACK TRACE for thread \"{}\"({}):\n",
+                                    threadDesc[pthread_self()], pthread_self() );
+  output += ExceptionParser::getTrace() + '\n';
 
   // print to stdout
   printf( "%s", output.c_str() );
 
   // print to error output
-  POLLOG_ERROR << output.str();
+  POLLOG_ERROR( output );
 
   // wait here for logging facility to make sure everything was processed
   if ( Clib::Logging::global_logger )
@@ -615,10 +613,10 @@ void ExceptionParser::logAllStackTraces()
 
     if ( pthread_kill( threadID, SIGUSR1 ) != 0 )
     {
-      fmt::Writer output;
-      output << "pthread_kill() failed to send SIGUSR1 to thread " << threadsDesc[threadID] << "("
-             << threadID << ")\n";
-      fprintf( stderr, "%s", output.c_str() );
+      fprintf( stderr, "%s",
+               fmt::format( "pthread_kill() failed to send SIGUSR1 to thread {}({})\n",
+                            threadsDesc[threadID], threadID )
+                   .c_str() );
     }
   }
 }

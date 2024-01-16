@@ -1,6 +1,5 @@
 #include "ElementAccess.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

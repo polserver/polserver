@@ -44,7 +44,7 @@ StaticServer::StaticServer( const RealmDescriptor& descriptor )
 
 void StaticServer::Validate() const
 {
-  POLLOG_INFO << "Validating statics files: ";
+  POLLOG_INFO( "Validating statics files: " );
   Tools::Timer<> timer;
   for ( unsigned short y = 0; y < _descriptor.height; y += STATICBLOCK_CHUNK )
   {
@@ -53,7 +53,7 @@ void StaticServer::Validate() const
       ValidateBlock( x, y );
     }
   }
-  POLLOG_INFO << "Completed in " << timer.ellapsed() << " ms.\n";
+  POLLOG_INFOLN( "Completed in {} ms.", timer.ellapsed() );
 }
 
 void StaticServer::ValidateBlock( unsigned short x, unsigned short y ) const

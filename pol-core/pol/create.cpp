@@ -48,7 +48,6 @@
 #include "uoexec.h"
 #include "uoskills.h"
 #include "uworld.h"
-#include <format/format.h>
 
 
 namespace Pol
@@ -513,7 +512,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   client->chr = chr;
   client->acct->set_character( msg->CharNumber, client->chr );
 
-  POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
+  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -883,7 +882,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   client->chr = chr;
   client->acct->set_character( charslot, client->chr );
 
-  POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
+  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -1286,7 +1285,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   client->chr = chr;
   client->acct->set_character( msg->CharNumber, client->chr );
 
-  POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
+  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );

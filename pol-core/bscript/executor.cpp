@@ -178,7 +178,7 @@ int Executor::getParams( unsigned howMany )
     {
       if ( ValueStack.empty() )
       {
-        POLLOG_ERROR.Format( "Fatal error: Value Stack Empty! ({},PC={})\n" ) << prog_->name << PC;
+        POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={})", prog_->name, PC );
         seterror( true );
         return -1;
       }
@@ -808,7 +808,7 @@ BObjectRef Executor::getObjRef( void )
 {
   if ( ValueStack.empty() )
   {
-    POLLOG_ERROR.Format( "Fatal error: Value Stack Empty! ({},PC={})\n" ) << prog_->name << PC;
+    POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={})", prog_->name, PC );
     seterror( true );
     return BObjectRef( UninitObject::create() );
   }
@@ -2513,16 +2513,17 @@ void Executor::ins_jsr_userfunc( const Instruction& ins )
   PC = (unsigned)ins.token.lval;
   if ( ControlStack.size() >= escript_config.max_call_depth )
   {
-    fmt::Writer tmp;
-    tmp << "Script " << scriptname() << " exceeded maximum call depth\n"
-        << "Return path PCs: ";
+    std::string tmp = fmt::format(
+        "Script {} exceeded maximum call depth\n"
+        "Return path PCs: ",
+        scriptname() );
     while ( !ControlStack.empty() )
     {
       rc = ControlStack.back();
       ControlStack.pop_back();
-      tmp << rc.PC << " ";
+      fmt::format_to( std::back_inserter( tmp ), "{} ", rc.PC );
     }
-    POLLOG << tmp.str() << "\n";
+    POLLOGLN( tmp );
     seterror( true );
   }
 }
@@ -3082,21 +3083,19 @@ void Executor::execInstr()
   }
   catch ( std::exception& ex )
   {
-    fmt::Writer tmp;
-    tmp << "Exception in: " << prog_->name.get() << " PC=" << onPC << ": " << ex.what() << "\n";
+    std::string tmp =
+        fmt::format( "Exception in: {} PC={}: {}\n", prog_->name.get(), onPC, ex.what() );
     if ( !run_ok_ )
-      tmp << "run_ok_ = false\n";
+      tmp += "run_ok_ = false\n";
     if ( PC < nLines )
-    {
-      tmp << " PC < nLines: (" << PC << " < " << nLines << ") \n";
-    }
+      fmt::format_to( std::back_inserter( tmp ), " PC < nLines: ({} < {})\n", PC, nLines );
     if ( error_ )
-      tmp << "error_ = true\n";
+      tmp += "error_ = true\n";
     if ( done )
-      tmp << "done = true\n";
+      tmp += "done = true\n";
 
     seterror( true );
-    POLLOG_ERROR << tmp.str();
+    POLLOG_ERROR( tmp );
 
     show_context( onPC );
   }
@@ -3104,7 +3103,7 @@ void Executor::execInstr()
   catch ( ... )
   {
     seterror( true );
-    POLLOG_ERROR << "Exception in " << prog_->name.get() << ", PC=" << onPC << ": unclassified\n";
+    POLLOG_ERRORLN( "Exception in {}, PC={}: unclassified", prog_->name.get(), onPC );
 
     show_context( onPC );
   }
@@ -3113,11 +3112,9 @@ void Executor::execInstr()
 
 std::string Executor::dbg_get_instruction( size_t atPC ) const
 {
-  fmt::Writer os;
-  os << ( ( atPC == PC ) ? ">" : " " ) << atPC
-     << ( breakpoints_.count( static_cast<unsigned>( atPC ) ) ? "*" : ":" ) << " "
-     << prog_->instr[atPC].token;
-  return os.str();
+  std::string out;
+  dbg_get_instruction( atPC, out );
+  return out;
 }
 void Executor::dbg_get_instruction( size_t atPC, std::string& os ) const
 {
@@ -3141,25 +3138,7 @@ void Executor::show_context( unsigned atPC )
 
   for ( unsigned i = start; i <= end; ++i )
   {
-    POLLOG.Format( "{}: {}\n" ) << i << dbg_get_instruction( i );
-  }
-}
-void Executor::show_context( fmt::Writer& os, unsigned atPC )
-{
-  unsigned start, end;
-  if ( atPC >= 5 )
-    start = atPC - 5;
-  else
-    start = 0;
-
-  end = atPC + 5;
-
-  if ( end >= nLines )
-    end = nLines - 1;
-
-  for ( unsigned i = start; i <= end; ++i )
-  {
-    os << dbg_get_instruction( i ) << '\n';
+    POLLOGLN( "{}: {}", i, dbg_get_instruction( i ) );
   }
 }
 void Executor::show_context( std::string& os, unsigned atPC )

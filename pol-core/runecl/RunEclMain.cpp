@@ -4,7 +4,7 @@
 #include "RunEclMain.h"
 
 #include <ctime>
-#include <format/format.h>
+
 #include <iostream>
 #include <iterator>
 

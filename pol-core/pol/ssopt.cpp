@@ -211,7 +211,7 @@ void ServSpecOpt::ssopt_parse_totalstats( Clib::ConfigElem& elem )
     settingsManager.ssopt.total_stats_at_creation.clear();
     settingsManager.ssopt.total_stats_at_creation.push_back( "65" );
     settingsManager.ssopt.total_stats_at_creation.push_back( "80" );
-    POLLOG_ERROR << "Invalid TotalStatsAtCreation value '" << total_stats << "', using '65,80'\n";
+    POLLOG_ERRORLN( "Invalid TotalStatsAtCreation value '{}', using '65,80'", total_stats );
   }
   /*
       // DEBUG OUTPUT

@@ -13,7 +13,7 @@
 #include "../clib/logfacility.h"
 #include "../plib/systemstate.h"
 #include "spells.h"
-#include <format/format.h>
+
 
 namespace Pol
 {

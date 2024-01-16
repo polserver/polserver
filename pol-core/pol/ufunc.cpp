@@ -692,8 +692,8 @@ void update_item_to_inrange( const Item* item )
         update_wornitem_to_inrange( chr, item );
       }
       else
-        POLLOG_ERROR.Format( "Ack! update_item_to_inrange: character 0x{:X} doesn't exist!\n" )
-            << item->container->serial;
+        POLLOG_ERRORLN( "Ack! update_item_to_inrange: character {:#X} doesn't exist!",
+                        item->container->serial );
     }
     else
     {
@@ -1532,8 +1532,8 @@ void destroy_item( Item* item )
 {
   if ( item->serial == 0 )
   {
-    POLLOG_ERROR.Format( "destroy {}: {}, orphan! (old serial: 0x{:X})\n" )
-        << item->description() << item->classname() << ( cfBEu32( item->serial_ext ) );
+    POLLOG_ERRORLN( "destroy {}: {}, orphan! (old serial: {:#X})", item->description(),
+                    item->classname(), ( cfBEu32( item->serial_ext ) ) );
   }
 
   if ( item->serial != 0 )

@@ -198,11 +198,9 @@ void create_thread( ThreadData* td, bool dec_child = false )
   HANDLE h = (HANDLE)_beginthreadex( nullptr, 0, thread_stub2, td, 0, &threadid );
   if ( h == 0 )  // added for better debugging
   {
-    POLLOG.Format(
-        "error in create_thread: {:d} {:d} \"{:s}\" \"{:s}\" {:d} {:d} {:s} {:d} {:d} {:}\n" )
-        << errno << _doserrno << strerror( errno ) << strerror( _doserrno ) << threads++
-        << (unsigned)thread_stub2 << td->name.c_str() << (unsigned)td->entry
-        << (unsigned)td->entry_noparam << td->arg;
+    POLLOG( "error in create_thread: {} {} \"{}\" \"{}\" {} {} {} {} {} {}\n", errno, _doserrno,
+            strerror( errno ), strerror( _doserrno ), threads++, (unsigned)thread_stub2,
+            td->name.c_str(), (unsigned)td->entry, (unsigned)td->entry_noparam, td->arg );
 
     // dec_child says that we should dec_child_threads when there's an error... :)
     if ( dec_child )
@@ -222,11 +220,10 @@ void create_thread( ThreadData* td, bool dec_child = false )
   int result = pthread_create( &thread, &create_detached_attr, thread_stub2, td );
   if ( result != 0 )  // added for better debugging
   {
-    POLLOG.Format( "error in create_thread: {:d} {:d} \"{:s}\" {:d} {:} {:s} {:} {:} {:}\n" )
-        << result << errno << strerror( errno ) << threads++
-        << reinterpret_cast<const void*>( thread_stub2 ) << td->name.c_str()
-        << reinterpret_cast<const void*>( td->entry )
-        << reinterpret_cast<const void*>( td->entry_noparam ) << td->arg;
+    POLLOG( "error in create_thread: {} {} \"{}\" {} {} {} {} {} :}\n", result, errno,
+            strerror( errno ), threads++, reinterpret_cast<const void*>( thread_stub2 ),
+            td->name.c_str(), reinterpret_cast<const void*>( td->entry ),
+            reinterpret_cast<const void*>( td->entry_noparam ), td->arg );
 
     // dec_child says that we should dec_child_threads when there's an error... :)
     if ( dec_child )
@@ -539,7 +536,7 @@ void DynTaskThreadPool::create_thread()
     }
   }
   size_t thread_num = _threads.size();
-  _threads.emplace_back( new PoolWorker( this, _name + " " + fmt::FormatInt( thread_num ).str() ) );
+  _threads.emplace_back( new PoolWorker( this, _name + " " + std::to_string( thread_num ) ) );
   ERROR_PRINTLN( "create pool worker {} {}", _name, thread_num );
 }
 
