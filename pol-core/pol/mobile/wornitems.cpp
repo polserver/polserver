@@ -89,7 +89,7 @@ void WornItemsContainer::print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& s
       if ( ( clayer == LAYER_HAIR ) || ( clayer == LAYER_BEARD ) || ( clayer == LAYER_FACE ) ||
            ( clayer == LAYER_ROBE_DRESS && item->objtype_ == UOBJ_DEATH_SHROUD ) )
       {
-        sw_pc << *item;
+        item->printOn( sw_pc );
         item->clear_dirty();
       }
       else if ( clayer == LAYER_BACKPACK )
@@ -103,7 +103,7 @@ void WornItemsContainer::print( Clib::StreamWriter& sw_pc, Clib::StreamWriter& s
       }
       else
       {
-        sw_equip << *item;
+        item->printOn( sw_equip );
         item->clear_dirty();
       }
     }

@@ -758,18 +758,17 @@ void Party::printOn( Clib::StreamWriter& sw ) const
   if ( system_find_mobile( _leaderserial ) == nullptr )
     return;
 
-  sw() << "Party" << pf_endl << "{" << pf_endl << "\tLeader\t0x" << fmt::hex( _leaderserial )
-       << pf_endl;
+  sw.write( "Party\n{\n" );
+  sw.add( "Leader", Clib::hexint( _leaderserial ) );
 
   for ( const auto& mserial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( mserial );
     if ( mem != nullptr )
-      sw() << "\tMember\t0x" << fmt::hex( mserial ) << pf_endl;
+      sw.add( "Member", Clib::hexint( mserial ) );
   }
   _proplist.printProperties( sw );
-  sw() << "}" << pf_endl << pf_endl;
-  // sw.flush();
+  sw.write( "}\n\n" );
 }
 
 std::vector<Mobile::Character*> Party::get_members( bool include_offline ) const

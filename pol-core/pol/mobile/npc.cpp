@@ -242,12 +242,9 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 
 void NPC::printOn( Clib::StreamWriter& sw ) const
 {
-  sw() << classname() << " " << template_name.get() << pf_endl;
-  sw() << "{" << pf_endl;
+  sw.write( "{} {}\n{{\n", classname(), template_name.get() );
   printProperties( sw );
-  sw() << "}" << pf_endl;
-  sw() << pf_endl;
-  // sw.flush();
+  sw.write( "}\n\n" );
 }
 
 void NPC::printSelfOn( Clib::StreamWriter& sw ) const
@@ -262,91 +259,91 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
 
   if ( registered_house )
-    sw() << "\tRegisteredHouse\t0x" << hex( registered_house ) << pf_endl;
+    sw.add( "RegisteredHouse", Clib::hexint( registered_house ) );
 
   if ( npc_ar_ )
-    sw() << "\tAR\t" << npc_ar_ << pf_endl;
+    sw.add( "AR", npc_ar_ );
 
   if ( !script.get().empty() )
-    sw() << "\tscript\t" << script.get() << pf_endl;
+    sw.add( "script", script.get() );
 
   if ( master_.get() != nullptr )
-    sw() << "\tmaster\t" << master_->serial << pf_endl;
+    sw.add( "master", master_->serial );
 
   if ( has_speech_color() )
-    sw() << "\tSpeechColor\t" << speech_color() << pf_endl;
+    sw.add( "SpeechColor", speech_color() );
 
   if ( has_speech_font() )
-    sw() << "\tSpeechFont\t" << speech_font() << pf_endl;
+    sw.add( "SpeechFont", speech_font() );
 
   if ( run_speed != dexterity() )
-    sw() << "\tRunSpeed\t" << run_speed << pf_endl;
+    sw.add( "RunSpeed", run_speed );
 
   if ( use_adjustments() != true )
-    sw() << "\tUseAdjustments\t" << use_adjustments() << pf_endl;
+    sw.add( "UseAdjustments", use_adjustments() );
 
 
   if ( has_orig_fire_resist() )
-    sw() << "\tFireResist\t" << orig_fire_resist() << pf_endl;
+    sw.add( "FireResist", orig_fire_resist() );
   if ( has_orig_cold_resist() )
-    sw() << "\tColdResist\t" << orig_cold_resist() << pf_endl;
+    sw.add( "ColdResist", orig_cold_resist() );
   if ( has_orig_energy_resist() )
-    sw() << "\tEnergyResist\t" << orig_energy_resist() << pf_endl;
+    sw.add( "EnergyResist", orig_energy_resist() );
   if ( has_orig_poison_resist() )
-    sw() << "\tPoisonResist\t" << orig_poison_resist() << pf_endl;
+    sw.add( "PoisonResist", orig_poison_resist() );
   if ( has_orig_physical_resist() )
-    sw() << "\tPhysicalResist\t" << orig_physical_resist() << pf_endl;
+    sw.add( "PhysicalResist", orig_physical_resist() );
 
   if ( has_orig_fire_damage() )
-    sw() << "\tFireDamage\t" << orig_fire_damage() << pf_endl;
+    sw.add( "FireDamage", orig_fire_damage() );
   if ( has_orig_cold_damage() )
-    sw() << "\tColdDamage\t" << orig_cold_damage() << pf_endl;
+    sw.add( "ColdDamage", orig_cold_damage() );
   if ( has_orig_energy_damage() )
-    sw() << "\tEnergyDamage\t" << orig_energy_damage() << pf_endl;
+    sw.add( "EnergyDamage", orig_energy_damage() );
   if ( has_orig_poison_damage() )
-    sw() << "\tPoisonDamage\t" << orig_poison_damage() << pf_endl;
+    sw.add( "PoisonDamage", orig_poison_damage() );
   if ( has_orig_physical_damage() )
-    sw() << "\tPhysicalDamage\t" << orig_physical_damage() << pf_endl;
+    sw.add( "PhysicalDamage", orig_physical_damage() );
   if ( has_orig_lower_reagent_cost() )
-    sw() << "\tLowerReagentCost\t" << orig_lower_reagent_cost() << pf_endl;
+    sw.add( "LowerReagentCost", orig_lower_reagent_cost() );
   if ( has_orig_spell_damage_increase() )
-    sw() << "\tSpellDamageIncrease\t" << orig_spell_damage_increase() << pf_endl;
+    sw.add( "SpellDamageIncrease", orig_spell_damage_increase() );
   if ( has_orig_faster_casting() )
-    sw() << "\tFasterCasting\t" << orig_faster_casting() << pf_endl;
+    sw.add( "FasterCasting", orig_faster_casting() );
   if ( has_orig_faster_cast_recovery() )
-    sw() << "\tFasterCastRecovery\t" << orig_faster_cast_recovery() << pf_endl;
+    sw.add( "FasterCastRecovery", orig_faster_cast_recovery() );
   if ( has_orig_defence_increase() )
-    sw() << "\tDefenceIncrease\t" << orig_defence_increase() << pf_endl;
+    sw.add( "DefenceIncrease", orig_defence_increase() );
   if ( has_orig_defence_increase_cap() )
-    sw() << "\tDefenceIncreaseCap\t" << orig_defence_increase_cap() << pf_endl;
+    sw.add( "DefenceIncreaseCap", orig_defence_increase_cap() );
   if ( has_orig_lower_mana_cost() )
-    sw() << "\tLowerManaCost\t" << orig_lower_mana_cost() << pf_endl;
+    sw.add( "LowerManaCost", orig_lower_mana_cost() );
   if ( has_orig_fire_resist_cap() )
-    sw() << "\tFireResistCap\t" << orig_fire_resist_cap() << pf_endl;
+    sw.add( "FireResistCap", orig_fire_resist_cap() );
   if ( has_orig_cold_resist_cap() )
-    sw() << "\tColdResistCap\t" << orig_cold_resist_cap() << pf_endl;
+    sw.add( "ColdResistCap", orig_cold_resist_cap() );
   if ( has_orig_energy_resist_cap() )
-    sw() << "\tEnergyResistCap\t" << orig_energy_resist_cap() << pf_endl;
+    sw.add( "EnergyResistCap", orig_energy_resist_cap() );
   if ( has_orig_physical_resist_cap() )
-    sw() << "\tPhysicalResistCap\t" << orig_physical_resist_cap() << pf_endl;
+    sw.add( "PhysicalResistCap", orig_physical_resist_cap() );
   if ( has_orig_poison_resist_cap() )
-    sw() << "\tPoisonResistCap\t" << orig_poison_resist_cap() << pf_endl;
+    sw.add( "PoisonResistCap", orig_poison_resist_cap() );
   if ( has_orig_luck() )
-    sw() << "\tLuck\t" << orig_luck() << pf_endl;
+    sw.add( "Luck", orig_luck() );
   if ( has_swing_speed_increase() )
-    sw() << "\tSwingSpeedIncrease\t" << orig_swing_speed_increase() << pf_endl;
+    sw.add( "SwingSpeedIncrease", orig_swing_speed_increase() );
   if ( no_drop_exception() )
-    sw() << "\tNoDropException\t" << no_drop_exception() << pf_endl;
+    sw.add( "NoDropException", no_drop_exception() );
 }
 
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
 {
   base::printDebugProperties( sw );
-  sw() << "# template: " << template_->name << pf_endl;
+  sw.write( "# template: {}\n", template_->name );
   if ( anchor.enabled )
   {
-    sw() << "# anchor: x=" << anchor.pos.x() << " y=" << anchor.pos.y()
-         << " dstart=" << anchor.dstart << " psub=" << anchor.psub << pf_endl;
+    sw.write( "# anchor: x={} y={} dstart={} psub={}\n", anchor.pos.x(), anchor.pos.y(),
+              anchor.dstart, anchor.psub );
   }
 }
 

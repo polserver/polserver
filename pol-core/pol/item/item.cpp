@@ -367,110 +367,110 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   std::string suffix = name_suffix();
 
   if ( amount_ != 1 )
-    sw() << "\tAmount\t" << amount_ << pf_endl;
+    sw.add( "Amount", amount_ );
 
   if ( layer != 0 )
-    sw() << "\tLayer\t" << (int)layer << pf_endl;
+    sw.add( "Layer", (int)layer );
 
   if ( movable() != default_movable() )
-    sw() << "\tMovable\t" << movable() << pf_endl;
+    sw.add( "Movable", movable() );
 
   if ( invisible() != default_invisible() )
-    sw() << "\tInvisible\t" << invisible() << pf_endl;
+    sw.add( "Invisible", invisible() );
 
   if ( cursed() != default_cursed() )
-    sw() << "\tCursed\t" << cursed() << pf_endl;
+    sw.add( "Cursed", cursed() );
 
   if ( container != nullptr )
-    sw() << "\tContainer\t0x" << hex( container->serial ) << pf_endl;
+    sw.add( "Container", Clib::hexint( container->serial ) );
 
   if ( !on_use_script_.get().empty() )
-    sw() << "\tOnUseScript\t" << on_use_script_.get() << pf_endl;
+    sw.add( "OnUseScript", on_use_script_.get() );
 
   if ( equip_script_ != itemdesc().equip_script )
-    sw() << "\tEquipScript\t" << equip_script_.get() << pf_endl;
+    sw.add( "EquipScript", equip_script_.get() );
 
   if ( unequip_script_ != itemdesc().unequip_script )
-    sw() << "\tUnequipScript\t" << unequip_script_.get() << pf_endl;
+    sw.add( "UnequipScript", unequip_script_.get() );
 
   if ( !snoop_script_.get().empty() )
-    sw() << "\tSnoopScript\t" << snoop_script_.get() << pf_endl;
+    sw.add( "SnoopScript", snoop_script_.get() );
 
   if ( decayat_gameclock_ != 0 )
-    sw() << "\tDecayAt\t" << decayat_gameclock_ << pf_endl;
+    sw.add( "DecayAt", decayat_gameclock_ );
 
   if ( has_sellprice_() )
-    sw() << "\tSellPrice\t" << sellprice_() << pf_endl;
+    sw.add( "SellPrice", sellprice_() );
   if ( has_buyprice_() )
-    sw() << "\tBuyPrice\t" << buyprice_() << pf_endl;
+    sw.add( "BuyPrice", buyprice_() );
 
   if ( newbie() != default_newbie() )
-    sw() << "\tNewbie\t" << newbie() << pf_endl;
+    sw.add( "Newbie", newbie() );
 
   if ( insured() != default_insured() )
-    sw() << "\tInsured\t" << insured() << pf_endl;
+    sw.add( "Insured", insured() );
   // new prop stuff
   if ( has_fire_resist() )
-    sw() << "\tFireResist\t" << fire_resist().value << pf_endl;
+    sw.add( "FireResist", fire_resist().value );
   if ( has_cold_resist() )
-    sw() << "\tColdResist\t" << cold_resist().value << pf_endl;
+    sw.add( "ColdResist", cold_resist().value );
   if ( has_energy_resist() )
-    sw() << "\tEnergyResist\t" << energy_resist().value << pf_endl;
+    sw.add( "EnergyResist", energy_resist().value );
   if ( has_poison_resist() )
-    sw() << "\tPoisonResist\t" << poison_resist().value << pf_endl;
+    sw.add( "PoisonResist", poison_resist().value );
   if ( has_physical_resist() )
-    sw() << "\tPhysicalResist\t" << physical_resist().value << pf_endl;
+    sw.add( "PhysicalResist", physical_resist().value );
 
   if ( has_fire_damage() )
-    sw() << "\tFireDamage\t" << fire_damage().value << pf_endl;
+    sw.add( "FireDamage", fire_damage().value );
   if ( has_cold_damage() )
-    sw() << "\tColdDamage\t" << cold_damage().value << pf_endl;
+    sw.add( "ColdDamage", cold_damage().value );
   if ( has_energy_damage() )
-    sw() << "\tEnergyDamage\t" << energy_damage().value << pf_endl;
+    sw.add( "EnergyDamage", energy_damage().value );
   if ( has_poison_damage() )
-    sw() << "\tPoisonDamage\t" << poison_damage().value << pf_endl;
+    sw.add( "PoisonDamage", poison_damage().value );
   if ( has_physical_damage() )
-    sw() << "\tPhysicalDamage\t" << physical_damage().value << pf_endl;
+    sw.add( "PhysicalDamage", physical_damage().value );
   if ( has_lower_reagent_cost() )
-    sw() << "\tLowerReagentCost\t" << lower_reagent_cost().value << pf_endl;
+    sw.add( "LowerReagentCost", lower_reagent_cost().value );
   if ( has_spell_damage_increase() )
-    sw() << "\tSpellDamageIncrease\t" << spell_damage_increase().value << pf_endl;
+    sw.add( "SpellDamageIncrease", spell_damage_increase().value );
   if ( has_faster_casting() )
-    sw() << "\tFasterCasting\t" << faster_casting().value << pf_endl;
+    sw.add( "FasterCasting", faster_casting().value );
   if ( has_faster_cast_recovery() )
-    sw() << "\tFasterCastRecovery\t" << faster_cast_recovery().value << pf_endl;
+    sw.add( "FasterCastRecovery", faster_cast_recovery().value );
   if ( has_defence_increase() )
-    sw() << "\tDefenceIncrease\t" << defence_increase().value << pf_endl;
+    sw.add( "DefenceIncrease", defence_increase().value );
   if ( has_defence_increase_cap() )
-    sw() << "\tDefenceIncreaseCap\t" << defence_increase_cap().value << pf_endl;
+    sw.add( "DefenceIncreaseCap", defence_increase_cap().value );
   if ( has_lower_mana_cost() )
-    sw() << "\tLowerManaCost\t" << lower_mana_cost().value << pf_endl;
+    sw.add( "LowerManaCost", lower_mana_cost().value );
   if ( has_fire_resist_cap() )
-    sw() << "\tFireResistCap\t" << fire_resist_cap().value << pf_endl;
+    sw.add( "FireResistCap", fire_resist_cap().value );
   if ( has_cold_resist_cap() )
-    sw() << "\tColdResistCap\t" << cold_resist_cap().value << pf_endl;
+    sw.add( "ColdResistCap", cold_resist_cap().value );
   if ( has_energy_resist_cap() )
-    sw() << "\tEnergyResistCap\t" << energy_resist_cap().value << pf_endl;
+    sw.add( "EnergyResistCap", energy_resist_cap().value );
   if ( has_physical_resist_cap() )
-    sw() << "\tPhysicalResistCap\t" << physical_resist_cap().value << pf_endl;
+    sw.add( "PhysicalResistCap", physical_resist_cap().value );
   if ( has_poison_resist_cap() )
-    sw() << "\tPoisonResistCap\t" << poison_resist_cap().value << pf_endl;
+    sw.add( "PoisonResistCap", poison_resist_cap().value );
   if ( has_luck() )
-    sw() << "\tLuck\t" << luck().value << pf_endl;
+    sw.add( "Luck", luck().value );
   if ( has_swing_speed_increase() )
-    sw() << "\tSwingSpeedIncrease\t" << swing_speed_increase().value << pf_endl;
+    sw.add( "SwingSpeedIncrease", swing_speed_increase().value );
   // end new prop stuf
   if ( maxhp_mod_ )
-    sw() << "\tMaxHp_mod\t" << maxhp_mod_ << pf_endl;
+    sw.add( "MaxHp_mod", maxhp_mod_ );
   if ( hp_ != itemdesc().maxhp )
-    sw() << "\tHp\t" << hp_ << pf_endl;
+    sw.add( "Hp", hp_ );
   double quali = quality();
   if ( quali != getItemdescQuality() )
-    sw() << "\tQuality\t" << quali << pf_endl;
+    sw.add( "Quality", quali );
   if ( !suffix.empty() )
-    sw() << "\tNameSuffix\t" << suffix << pf_endl;
+    sw.add( "NameSuffix", suffix );
   if ( no_drop() != default_no_drop() )
-    sw() << "\tNoDrop\t" << no_drop() << pf_endl;
+    sw.add( "NoDrop", no_drop() );
 }
 
 void Item::printDebugProperties( Clib::StreamWriter& sw ) const

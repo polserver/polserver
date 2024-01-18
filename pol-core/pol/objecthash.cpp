@@ -131,11 +131,11 @@ u32 ObjectHash::GetNextUnusedCharSerial()
 void ObjectHash::PrintContents( Clib::StreamWriter& sw ) const
 {
   OH_const_iterator itr, itrend;
-  sw() << "Object Count: " << hash.size() << "\n";
+  sw.write( "Object Count: {}\n", hash.size() );
   for ( itr = hash.begin(), itrend = hash.end(); itr != itrend; ++itr )
   {
-    sw() << "type: " << itr->second->classname() << " serial: 0x"
-         << fmt::hexu( itr->second->serial ) << " name: " << itr->second->name() << "\n";
+    sw.write( "type: {} serial: {:#X} name: {}\n", itr->second->classname(), itr->second->serial,
+              itr->second->name() );
     // itr->second->printOn( sw ); // its no more safe to try to print the complete object
   }
 }

@@ -1,11 +1,13 @@
 #ifndef CLIB_STREAMSAVER_H
 #define CLIB_STREAMSAVER_H
 
-#include <format/format.h>
+#include <fmt/format.h>
 #include <iosfwd>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <thread>
+#include <type_traits>
 
 #include "message_queue.h"
 
@@ -20,17 +22,36 @@ namespace Clib
 class StreamWriter
 {
 public:
-  StreamWriter();
+  StreamWriter() = default;
   virtual ~StreamWriter() = default;
   StreamWriter( const StreamWriter& ) = delete;
   StreamWriter& operator=( const StreamWriter& ) = delete;
-  fmt::Writer& operator()();
+
+  template <typename Str, typename T>
+  void add( Str&& key, T&& value )
+  {
+    if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )  // force bool to write as 0/1
+      fmt::format_to( std::back_inserter( _buf ), "\t{}\t{}\n", key, value );
+    else
+      fmt::format_to( std::back_inserter( _buf ), "\t{}\t{:d}\n", key, value );
+    flush_test();
+  }
+  template <typename Str, typename... Args>
+  void write( Str&& format, Args&&... args )
+  {
+    if constexpr ( sizeof...( args ) == 0 )
+      _buf += format;
+    else
+      fmt::format_to( std::back_inserter( _buf ), format, args... );
+    flush_test();
+  }
   virtual void init( const std::string& filepath ) = 0;
   virtual void flush() = 0;
   virtual void flush_file() = 0;
 
 protected:
-  std::unique_ptr<fmt::Writer> _writer;
+  void flush_test();
+  std::string _buf = {};
 };
 
 class FMTStreamWriter final : public StreamWriter
@@ -41,6 +62,7 @@ public:
   virtual void init( const std::string& ) override{};  // argument is not used
   virtual void flush() override{};
   virtual void flush_file() override{};
+  const std::string& buffer() const { return _buf; };
 };
 
 class OFStreamWriter final : public StreamWriter

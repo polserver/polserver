@@ -322,8 +322,6 @@ private:  // not implemented:
   UObject& operator=( const UObject& );
 };
 
-extern Clib::StreamWriter& operator<<( Clib::StreamWriter&, const UObject& );
-
 inline bool UObject::specific_name() const
 {
   return !name_.get().empty();

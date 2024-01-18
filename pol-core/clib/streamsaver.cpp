@@ -11,16 +11,10 @@ namespace Clib
 {
 const std::size_t flush_limit = 10000;  // 500;
 
-/// BaseClass implements only writer operator logic
-StreamWriter::StreamWriter() : _writer( new fmt::Writer ) {}
-
-fmt::Writer& StreamWriter::operator()()
+void StreamWriter::flush_test()
 {
-  if ( _writer->size() >= flush_limit )  // guard against to big objects
-  {
-    this->flush();
-  }
-  return *( _writer.get() );
+  if ( _buf.size() >= flush_limit )  // guard against to big objects
+    flush();
 }
 
 /// ofstream implementation (simple non threaded)
@@ -47,16 +41,16 @@ OFStreamWriter::OFStreamWriter( std::ofstream* stream )
 OFStreamWriter::~OFStreamWriter()
 {
 #if 0
-  if ( _writer->size() )
+  if ( !_buf.empty() )
   {
     Tools::HighPerfTimer t;
-    *_stream << _writer->c_str();
+    *_stream << _buf;
     _fs_time += t.ellapsed();
   }
   ERROR_PRINTLN( "streamwriter {} io time {}", _stream_name, _fs_time.count() );
 #else
-  if ( _writer->size() )
-    *_stream << _writer->str();
+  if ( !_buf.empty() )
+    *_stream << _buf;
 #endif
 }
 
@@ -72,10 +66,10 @@ void OFStreamWriter::flush()
 #if 0
       Tools::HighPerfTimer t;
 #endif
-  if ( _writer->size() )
+  if ( !_buf.empty() )
   {
-    *_stream << _writer->str();
-    _writer->Clear();
+    *_stream << _buf;
+    _buf.clear();
   }
 #if 0
       _fs_time += t.ellapsed( );
@@ -95,18 +89,18 @@ OStreamWriter::OStreamWriter( std::ostream* stream ) : StreamWriter(), _stream( 
 
 OStreamWriter::~OStreamWriter()
 {
-  if ( _writer->size() )
-    *_stream << _writer->str();
+  if ( !_buf.empty() )
+    *_stream << _buf;
 }
 
 void OStreamWriter::init( const std::string& ) {}
 
 void OStreamWriter::flush()
 {
-  if ( _writer->size() )
+  if ( !_buf.empty() )
   {
-    *_stream << _writer->str();
-    _writer.reset( new fmt::Writer );
+    *_stream << _buf;
+    _buf.clear();
   }
 }
 
@@ -181,15 +175,14 @@ void ThreadedOFStreamWriter::init( const std::string& filepath )
 
 void ThreadedOFStreamWriter::flush()
 {
-  if ( _writer->size() )
+  if ( _buf.empty() )
+    return;
+  _writers_hold.emplace_back( std::move( _buf ) );
+  if ( _writers_hold.size() > 10 )
   {
-    _writers_hold.emplace_back( _writer->str() );
-    if ( _writers_hold.size() > 10 )
-    {
-      _msg_queue.push( _writers_hold );
-    }
-    _writer.reset( new fmt::Writer );
+    _msg_queue.push( _writers_hold );
   }
+  _buf.clear();
 }
 
 void ThreadedOFStreamWriter::flush_file()

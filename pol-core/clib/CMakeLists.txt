@@ -22,7 +22,6 @@ use_boost(${lib_name})
 add_dependencies(${lib_name} git_rev)
 
 target_link_libraries(${lib_name} PUBLIC
-  format
   fmt
 )
 

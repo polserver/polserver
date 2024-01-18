@@ -176,7 +176,7 @@ void StorageArea::print( Clib::StreamWriter& sw ) const
   {
     const Items::Item* item = cont_item.second;
     if ( item->saveonexit() )
-      sw << *item;
+      item->printOn( sw );
   }
 }
 
@@ -264,13 +264,11 @@ void Storage::print( Clib::StreamWriter& sw ) const
 {
   for ( const auto& area : areas )
   {
-    sw() << "StorageArea" << '\n'
-         << "{" << '\n'
-         << "\tName\t" << area.first << '\n'
-         << "}" << '\n'
-         << '\n';
+    sw.write( "StorageArea\n{\n" );
+    sw.add( "Name", area.first );
+    sw.write( "}\n\n" );
     area.second->print( sw );
-    sw() << '\n';
+    sw.write( '\n' );
   }
 }
 

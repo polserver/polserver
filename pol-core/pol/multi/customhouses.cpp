@@ -450,8 +450,8 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
           for ( HouseFloorZColumn::const_iterator zitr = yitr->begin(), zitrend = yitr->end();
                 zitr != zitrend; ++zitr )
           {
-            sw() << "\t" << prefix << "\t " << zitr->graphic << " " << zitr->xoffset << " "
-                 << zitr->yoffset << " " << (u16)zitr->z << '\n';
+            sw.write( "\t{}\t {} {} {} {}\n", prefix, zitr->graphic, zitr->xoffset, zitr->yoffset,
+                      (u16)zitr->z );
           }
         }
       }

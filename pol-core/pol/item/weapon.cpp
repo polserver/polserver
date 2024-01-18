@@ -490,11 +490,11 @@ void UWeapon::printProperties( Clib::StreamWriter& sw ) const
   short dmg_mod = damage_mod();
 
   if ( dmg_mod )
-    sw() << "\tdmg_mod\t" << dmg_mod << pf_endl;
+    sw.add( "dmg_mod", dmg_mod );
   if ( speed_mod_ )
-    sw() << "tspeed_mod\t" << speed_mod_ << pf_endl;
+    sw.add( "speed_mod", speed_mod_ );
   if ( !( hit_script_ == WEAPON_TMPL->hit_script ) )
-    sw() << "\tHitScript\t" << hit_script_.relativename( tmpl->pkg ) << pf_endl;
+    sw.add( "HitScript", hit_script_.relativename( tmpl->pkg ) );
 }
 
 void UWeapon::readProperties( Clib::ConfigElem& elem )

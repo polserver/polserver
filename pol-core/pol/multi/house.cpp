@@ -555,7 +555,7 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  sw() << "\tMultiID\t" << multiid << pf_endl;
+  sw.add( "MultiID", multiid );
 
   for ( Components::const_iterator itr = components_.begin(), end = components_.end(); itr != end;
         ++itr )
@@ -563,16 +563,16 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
     Items::Item* item = ( *itr ).get();
     if ( item != nullptr && !item->orphan() )
     {
-      sw() << "\tComponent\t0x" << fmt::hex( item->serial ) << pf_endl;
+      sw.add( "Component", Clib::hexint( item->serial ) );
     }
   }
-  sw() << "\tCustom\t" << custom << pf_endl;
+  sw.add( "Custom", custom );
   if ( custom )
   {
     CurrentDesign.printProperties( sw, "Current" );
     WorkingDesign.printProperties( sw, "Working" );
     BackupDesign.printProperties( sw, "Backup" );
-    sw() << "\tDesignRevision\t" << revision << pf_endl;
+    sw.add( "DesignRevision", revision );
   }
 }
 

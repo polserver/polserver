@@ -417,11 +417,9 @@ void read_resources_dat()
 
 void ResourceDef::write( Clib::StreamWriter& sw ) const
 {
-  sw() << "GlobalResourcePool " << name() << '\n'
-       << "{" << '\n'
-       << "\tUnits\t" << current_units_ << '\n'
-       << "}" << '\n'
-       << '\n';
+  sw.write( "GlobalResourcePool {}\n{{\n", name() );
+  sw.add( "Units", current_units_ );
+  sw.write( "}\n\n" );
 
   for ( unsigned i = 0; i < regions_.size(); ++i )
   {
@@ -444,14 +442,11 @@ size_t ResourceDef::estimateSize() const
 
 void ResourceRegion::write( Clib::StreamWriter& sw, const std::string& resource_name ) const
 {
-  sw() << "RegionalResourcePool " << resource_name << '\n'
-       << "{" << '\n'
-       << "\tName\t" << name_ << '\n'
-       << "\tUnits\t" << units_ << '\n'
-       << "#\t(regions/" << resource_name << ".cfg: Capacity is " << capacity_ << ")" << '\n'
-       << "}" << '\n'
-       << '\n';
-  // sw.flush();
+  sw.write( "RegionalResourcePool {}\n{{\n", resource_name );
+  sw.add( "Name", name_ );
+  sw.add( "Units", units_ );
+  sw.write( "#\t(regions/{}.cfg: Capacity is {})\n", resource_name, capacity_ );
+  sw.write( "}\n\n" );
 }
 
 size_t ResourceRegion::estimateSize() const

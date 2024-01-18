@@ -49,10 +49,10 @@ int display_orphan( UObject* o )
 {
   Clib::FMTStreamWriter sw;
   Clib::OFStreamWriter sw_orphan( &orphans_txt );
-  sw() << o->name() << ", " << o->ref_counted_count() << '\n';
+  sw.write( "{}, {}\n", o->name(), o->ref_counted_count() );
   o->printOn( sw );
   o->printOnDebug( sw_orphan );
-  INFO_PRINT( sw().str() );
+  INFO_PRINT( sw.buffer() );
   return 0;
 }
 void display_unreaped_orphan_instances()
@@ -270,105 +270,105 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   using namespace fmt;
 
   if ( !name_.get().empty() )
-    sw() << "\tName\t" << name_.get() << pf_endl;
+    sw.add( "Name", name_.get() );
 
-  sw() << "\tSerial\t0x" << hex( serial ) << pf_endl;
-  sw() << "\tObjType\t0x" << hex( objtype_ ) << pf_endl;
-  sw() << "\tGraphic\t0x" << hex( graphic ) << pf_endl;
+  sw.add( "Serial", Clib::hexint( serial ) );
+  sw.add( "ObjType", Clib::hexint( objtype_ ) );
+  sw.add( "Graphic", Clib::hexint( graphic ) );
 
   if ( color != 0 )
-    sw() << "\tColor\t0x" << hex( color ) << pf_endl;
+    sw.add( "Color", Clib::hexint( color ) );
 
-  sw() << "\tX\t" << x() << pf_endl;
-  sw() << "\tY\t" << y() << pf_endl;
-  sw() << "\tZ\t" << (int)z() << pf_endl;
+  sw.add( "X", x() );
+  sw.add( "Y", y() );
+  sw.add( "Z", (int)z() );
 
   if ( facing )
-    sw() << "\tFacing\t" << static_cast<int>( facing ) << pf_endl;
+    sw.add( "Facing", static_cast<int>( facing ) );
 
-  sw() << "\tRevision\t" << rev() << pf_endl;
+  sw.add( "Revision", rev() );
   if ( realm() == nullptr )
-    sw() << "\tRealm\tbritannia" << pf_endl;
+    sw.add( "Realm", "britannia" );
   else
-    sw() << "\tRealm\t" << realm()->name() << pf_endl;
+    sw.add( "Realm", realm()->name() );
 
   s16 value = fire_resist().mod;
   if ( value != 0 )
-    sw() << "\tFireResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "FireResistMod", static_cast<int>( value ) );
   value = cold_resist().mod;
   if ( value != 0 )
-    sw() << "\tColdResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "ColdResistMod", static_cast<int>( value ) );
   value = energy_resist().mod;
   if ( value != 0 )
-    sw() << "\tEnergyResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "EnergyResistMod", static_cast<int>( value ) );
   value = poison_resist().mod;
   if ( value != 0 )
-    sw() << "\tPoisonResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "PoisonResistMod", static_cast<int>( value ) );
   value = physical_resist().mod;
   if ( value != 0 )
-    sw() << "\tPhysicalResistMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "PhysicalResistMod", static_cast<int>( value ) );
 
   value = fire_damage().mod;
   if ( value != 0 )
-    sw() << "\tFireDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "FireDamageMod", static_cast<int>( value ) );
   value = cold_damage().mod;
   if ( value != 0 )
-    sw() << "\tColdDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "ColdDamageMod", static_cast<int>( value ) );
   value = energy_damage().mod;
   if ( value != 0 )
-    sw() << "\tEnergyDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "EnergyDamageMod", static_cast<int>( value ) );
   value = poison_damage().mod;
   if ( value != 0 )
-    sw() << "\tPoisonDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "PoisonDamageMod", static_cast<int>( value ) );
   value = physical_damage().mod;
   if ( value != 0 )
-    sw() << "\tPhysicalDamageMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "PhysicalDamageMod", static_cast<int>( value ) );
   // new mod stuff
   value = lower_reagent_cost().mod;
   if ( value )
-    sw() << "\tLowerReagentCostMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "LowerReagentCostMod", static_cast<int>( value ) );
   value = defence_increase().mod;
   if ( value )
-    sw() << "\tDefenceIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "DefenceIncreaseMod", static_cast<int>( value ) );
   value = defence_increase_cap().mod;
   if ( value )
-    sw() << "\tDefenceIncreaseCapMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "DefenceIncreaseCapMod", static_cast<int>( value ) );
   value = lower_mana_cost().mod;
   if ( value )
-    sw() << "\tLowerManaCostMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "LowerManaCostMod", static_cast<int>( value ) );
   value = hit_chance().mod;
   if ( value )
-    sw() << "\tHitChanceMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "HitChanceMod", static_cast<int>( value ) );
   value = fire_resist_cap().mod;
   if ( value )
-    sw() << "\tFireResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "FireResistCapMod", static_cast<int>( value ) );
   value = cold_resist_cap().mod;
   if ( value )
-    sw() << "\tColdResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "ColdResistCapMod", static_cast<int>( value ) );
   value = energy_resist_cap().mod;
   if ( value )
-    sw() << "\tEnergyResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "EnergyResistCapMod", static_cast<int>( value ) );
   value = physical_resist_cap().mod;
   if ( value )
-    sw() << "\tPhysicalResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "PhysicalResistCapMod", static_cast<int>( value ) );
   value = poison_resist_cap().mod;
   if ( value )
-    sw() << "\tPoisonResistCapMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "PoisonResistCapMod", static_cast<int>( value ) );
   value = spell_damage_increase().mod;
   if ( value )
-    sw() << "\tSpellDamageIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "SpellDamageIncreaseMod", static_cast<int>( value ) );
   value = faster_casting().mod;
   if ( value )
-    sw() << "\tFasterCastingMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "FasterCastingMod", static_cast<int>( value ) );
   value = faster_cast_recovery().mod;
   if ( value )
-    sw() << "\tFasterCastRecoveryMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "FasterCastRecoveryMod", static_cast<int>( value ) );
   value = luck().mod;
   if ( value )
-    sw() << "\tLuckMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "LuckMod", static_cast<int>( value ) );
   value = swing_speed_increase().mod;
   if ( value )
-    sw() << "\tSwingSpeedIncreaseMod\t" << static_cast<int>( value ) << pf_endl;
+    sw.add( "SwingSpeedIncreaseMod", static_cast<int>( value ) );
   // end new mod stuff
 
 
@@ -377,7 +377,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
 
 void UObject::printDebugProperties( Clib::StreamWriter& sw ) const
 {
-  sw() << "# uobj_class: " << (int)uobj_class_ << pf_endl;
+  sw.write( "# uobj_class: {}\n", (int)uobj_class_ );
 }
 
 /// Fixes invalid graphic, moving here to allow it to be overridden in subclass (see Multi)
@@ -504,29 +504,17 @@ void UObject::printSelfOn( Clib::StreamWriter& sw ) const
 
 void UObject::printOn( Clib::StreamWriter& sw ) const
 {
-  sw() << classname() << pf_endl;
-  sw() << "{" << pf_endl;
+  sw.write( "{}\n{{\n", classname() );
   printProperties( sw );
-  sw() << "}" << pf_endl;
-  sw() << pf_endl;
-  // sw.flush();
+  sw.write( "}\n\n" );
 }
 
 void UObject::printOnDebug( Clib::StreamWriter& sw ) const
 {
-  sw() << classname() << pf_endl;
-  sw() << "{" << pf_endl;
+  sw.write( "{}\n{{\n", classname() );
   printProperties( sw );
   printDebugProperties( sw );
-  sw() << "}" << pf_endl;
-  sw() << pf_endl;
-  // sw.flush();
-}
-
-Clib::StreamWriter& operator<<( Clib::StreamWriter& writer, const UObject& obj )
-{
-  obj.printOn( writer );
-  return writer;
+  sw.write( "}\n\n" );
 }
 
 bool UObject::setgraphic( u16 /*newgraphic*/ )

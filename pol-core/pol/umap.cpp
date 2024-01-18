@@ -55,29 +55,29 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
   Range2d area = getrange();
-  sw() << "\txwest\t" << area.nw().x() << pf_endl;
-  sw() << "\tynorth\t" << area.nw().y() << pf_endl;
-  sw() << "\txeast\t" << area.se().x() << pf_endl;
-  sw() << "\tysouth\t" << area.se().y() << pf_endl;
-  sw() << "\tgumpwidth\t" << gumpsize.x() << pf_endl;
-  sw() << "\tgumpheight\t" << gumpsize.y() << pf_endl;
-  sw() << "\tfacetid\t" << facetid << pf_endl;
+  sw.add( "xwest", area.nw().x() );
+  sw.add( "ynorth", area.nw().y() );
+  sw.add( "xeast", area.se().x() );
+  sw.add( "ysouth", area.se().y() );
+  sw.add( "gumpwidth", gumpsize.x() );
+  sw.add( "gumpheight", gumpsize.y() );
+  sw.add( "facetid", facetid );
 
-  sw() << "\teditable\t" << editable << pf_endl;
+  sw.add( "editable", editable );
 
   printPinPoints( sw );
 
-  sw() << pf_endl;
+  sw.write( "\n" );
 }
 
 void Map::printPinPoints( Clib::StreamWriter& sw ) const
 {
   int i = 0;
-  sw() << "\tNumPins " << pin_points.size() << pf_endl;
+  sw.add( "NumPins", pin_points.size() );
 
   for ( auto itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
   {
-    sw() << "\tPin" << i << " " << itr->x() << "," << itr->y() << pf_endl;
+    sw.write( "\tPin{} {},{}\n", i, itr->x(), itr->y() );
   }
 }
 
