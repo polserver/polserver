@@ -7,6 +7,11 @@
 	<version name="POL100.1.0">
 		<entry>
 			<date>01-18-2024</date>
+			<author>Kevin:</author>
+			<change type="Note">POL 100.1.0 is now officially released.</change>
+		</entry>
+		<entry>
+			<date>01-18-2024</date>
 			<author>Kukkino:</author>
 			<change type="Changed">A player that single-clicks a hidden mobile will no longer receive a &quot;You see&quot; message for that mobile.</change>
 		</entry>

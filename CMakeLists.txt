@@ -16,7 +16,7 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_over
 set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
 
-project(polserver 
+project(polserver
 	LANGUAGES CXX C
 	VERSION 100.1.0
 	DESCRIPTION "Penultima Online"
@@ -24,7 +24,7 @@ project(polserver
 
 set(POL_VERSION_STR "${polserver_VERSION}")
 set(POL_VERSION_NAME "Never Gonna Give You Up")
-set(POL_COPYRIGHT "Copyright (C) 1993-2021 Eric N. Swanson")
+set(POL_COPYRIGHT "Copyright (C) 1993-2024 Eric N. Swanson")
 
 option(NO_PCH "Disable pre-compiled headers" OFF)
 option(USE_CCACHE "Use ccache if found" OFF)
@@ -130,7 +130,7 @@ git_revision_target()
 
 if (${linux})
   option(STRIP_BINARIES "Strip binaries directly, instead of only in package target" OFF)
-  
+
   set(REUSE_PCH ON)
 endif()
 
