@@ -37,7 +37,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
   }
   case TOK_BOOL:
-    w << (tkn.offset ? "true" : "false") << " (boolean)";
+    fmt::format_to( std::back_inserter( w ), "{} (boolean)", static_cast<bool>( tkn.offset ) );
     break;
   case TOK_ADD:
     w += "+";
@@ -499,11 +499,11 @@ void StoredTokenDecoder::decode_casejmp_table( std::string& w, unsigned offset )
     {
       bool value = static_cast<bool>( data.at( offset ) );
       offset += 1;
-      w << "\n" << indent << ( value ? "true" : "false" ) << ": @" << jump_address;
+      fmt::format_to( std::back_inserter( w ), "\n{}{}: @{}", indent, value, jump_address );
     }
     else if ( type == CASE_TYPE_UNINIT )
     {
-      w << "\n" << indent << "<uninit>: @" << jump_address;
+      fmt::format_to( std::back_inserter( w ), "\n{}<uninit>: @{}", indent, jump_address );
     }
     else if ( type == CASE_TYPE_DEFAULT )
     {
