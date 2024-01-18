@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-12-2024</datemodified>
+		<datemodified>01-18-2024</datemodified>
 	</header>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kukkino:</author>
+			<change type="Changed">A player that single-clicks a hidden mobile will no longer receive a &quot;You see&quot; message for that mobile.</change>
+		</entry>
 		<entry>
 			<date>01-12-2024</date>
 			<author>Turley:</author>

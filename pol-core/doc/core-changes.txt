@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+01-18-2024 Kukkino:
+  Changed: A player that single-clicks a hidden mobile will no longer receive a "You see" message for that mobile.
 01-12-2024 Turley:
     Added: chr.buffs member. Returns the current active buffs added via addBuff as dictionary.
            Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}
