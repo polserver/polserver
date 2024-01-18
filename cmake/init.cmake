@@ -222,7 +222,7 @@ macro(cmake_fake_target)
       cmake/Curl.cmake
       cmake/EscriptGrammarLib.cmake
       cmake/escript_grammar.cmake
-      cmake/Format.cmake
+      cmake/Fmt.cmake
       cmake/Kaitai.cmake
       cmake/StackWalker.cmake
       cmake/TinyXML.cmake
@@ -243,7 +243,7 @@ macro(cmake_fake_target)
     cmake/Curl.cmake
     cmake/EscriptGrammarLib.cmake
     cmake/escript_grammar.cmake
-    cmake/Format.cmake
+    cmake/Fmt.cmake
     cmake/Kaitai.cmake
     cmake/StackWalker.cmake
     cmake/TinyXML.cmake
