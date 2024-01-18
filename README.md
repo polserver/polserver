@@ -13,11 +13,11 @@ Docs: http://docs.polserver.com/
 
 Discord: https://discord.gg/4JbC8hA
 
-If you find bugs, please create an issue with the dump, relevant log lines and your best guess on how to reproduce the bug. 
+If you find bugs, please create an issue with the dump, relevant log lines and your best guess on how to reproduce the bug.
 
-<b>Current stable version: POL 100.0.0</b>
+<b>Current stable version: POL 100.1.0</b>
 
-<b>Current development version: POL 100.1.0</b>
+<b>Current development version: POL 100.2.0</b>
 
 Always check the core-changes.txt file for breaking changes when using the development version. We'll strive to keep the development version stable.
 
@@ -54,7 +54,7 @@ start the build, make sure to have the `Realease` mode selected.
 Minimum compiler version: Visual Studio 2017
 
 <b>Warning:</b> We can not easily debug dumps from self-compiled cores. Make sure you save the `.pdb` and `.exe`!
- 
+
 Compiling in Linux
 ----------
 

@@ -1,4 +1,6 @@
 -- POL100.1.0 --
+01-18-2024 Kevin:
+     Note: POL 100.1.0 is now officially released.
 01-18-2024 Kukkino:
   Changed: A player that single-clicks a hidden mobile will no longer receive a "You see" message for that mobile.
 01-12-2024 Turley:
