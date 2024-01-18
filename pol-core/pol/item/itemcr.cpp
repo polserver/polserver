@@ -44,7 +44,7 @@
 #include "regions/resource.h"
 #include "weapon.h"
 #include "wepntmpl.h"
-#include <format/format.h>
+
 
 namespace Pol
 {

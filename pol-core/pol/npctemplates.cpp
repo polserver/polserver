@@ -21,7 +21,6 @@
 #include "../plib/systemstate.h"
 #include "globals/uvars.h"
 #include "npctmpl.h"
-#include <format/format.h>
 
 
 namespace Pol

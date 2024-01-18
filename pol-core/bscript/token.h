@@ -19,7 +19,6 @@
 
 #include "options.h"
 #include <fmt/ostream.h>
-#include <format/format.h>
 
 namespace Pol
 {
@@ -90,7 +89,6 @@ public:
 };
 
 std::ostream& operator<<( std::ostream&, const Token& );
-fmt::Writer& operator<<( fmt::Writer&, const Token& );
 }  // namespace Bscript
 namespace Clib
 {

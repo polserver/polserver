@@ -20,7 +20,6 @@
 #include "logfacility.h"
 #include "stlutil.h"
 #include "strutil.h"
-#include <format/format.h>
 
 
 namespace Pol
@@ -611,8 +610,8 @@ void ConfigFile::open( const char* i_filename )
   fp = fopen( i_filename, "rt" );
   if ( !fp )
   {
-    POLLOG_ERROR << "Unable to open configuration file " << _filename << " " << errno << ": "
-                 << std::strerror( errno ) << "\n";
+    POLLOG_ERRORLN( "Unable to open configuration file {} {}: {}", _filename, errno,
+                    std::strerror( errno ) );
     throw std::runtime_error( std::string( "Unable to open configuration file " ) + _filename );
   }
 #endif

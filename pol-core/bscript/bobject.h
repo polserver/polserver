@@ -22,7 +22,7 @@
 #endif
 
 #include <fmt/ostream.h>
-#include <format/format.h>
+
 
 #include "../clib/fixalloc.h"
 #include "../clib/passert.h"
@@ -335,7 +335,6 @@ public:
   virtual ContIterator* createIterator( BObject* pIterVal );
 
   friend std::ostream& operator<<( std::ostream&, const BObjectImp& );
-  friend fmt::Writer& operator<<( fmt::Writer&, const BObjectImp& );
 
 private:
   BObjectType type_;
@@ -395,7 +394,6 @@ public:
 
   //   friend StreamWriter& operator << (StreamWriter&, const BObject& );
   friend std::ostream& operator<<( std::ostream&, const BObject& );
-  friend fmt::Writer& operator<<( fmt::Writer&, const BObject& );
   void printOn( std::ostream& ) const;
 
   BObjectImp* impptr();

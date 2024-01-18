@@ -34,78 +34,88 @@ namespace Clib
 
 void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
 {
-  fmt::Writer tmp;
-  tmp << "Structured Exception Detected: 0x" << fmt::hex( n ) << "\n"
-      << "ExceptionRecord:\n"
-      << "  Exception Code:    0x" << fmt::hex( ex->ExceptionRecord->ExceptionCode ) << "\n"
-      << "  Exception Flags:   0x" << fmt::hex( ex->ExceptionRecord->ExceptionFlags ) << "\n"
-      << "  Exception Record:  0x"
-      << fmt::hex(
-             (long long)( reinterpret_cast<const void*>( ex->ExceptionRecord->ExceptionRecord ) ) )
-      << "\n"
-      << "  Exception Address: 0x"
-      << fmt::hex(
-             (long long)( reinterpret_cast<const void*>( ex->ExceptionRecord->ExceptionAddress ) ) )
-      << "\n"
-      << "  NumberParameters:  0x" << fmt::hex( ex->ExceptionRecord->NumberParameters ) << "\n";
+  std::string tmp = fmt::format(
+      "Structured Exception Detected: {:#X}\n"
+      "ExceptionRecord:\n"
+      "  Exception Code:    {:#X}\n"
+      "  Exception Flags:   {:#X}\n"
+      "  Exception Record:  {:#X}\n"
+      "  Exception Address: {:#X}\n"
+      "  NumberParameters:  {:#X}\n",
+      n, ex->ExceptionRecord->ExceptionCode, ex->ExceptionRecord->ExceptionFlags,
+      (long long)( reinterpret_cast<const void*>( ex->ExceptionRecord->ExceptionRecord ) ),
+      (long long)( reinterpret_cast<const void*>( ex->ExceptionRecord->ExceptionAddress ) ),
+      ex->ExceptionRecord->NumberParameters );
 
   if ( ex->ExceptionRecord->NumberParameters )
   {
-    tmp << "  Exception Information:";
+    tmp += "  Exception Information:";
     for ( DWORD i = 0; i < ex->ExceptionRecord->NumberParameters; i++ )
     {
-      fmt::Writer _tmp;
-      _tmp.Format( "{}{:#X}" ) << ( ( ( i & 7 ) == 0 ) ? "\n  "
-                                                       : "  " )  // print newline every 8 numbers
-                               << ex->ExceptionRecord->ExceptionInformation[i];
-      tmp << _tmp.str();
+      fmt::format_to( std::back_inserter( tmp ), "{}{:#X}",
+                      ( ( i & 7 ) == 0 ) ? "\n  " : "  ",  // print newline every 8 numbers
+                      ex->ExceptionRecord->ExceptionInformation[i] );
     }
-    tmp << "\n";
+    tmp += '\n';
   }
-  POLLOG_INFO << tmp.str();
+  POLLOG_INFO( tmp );
 
 
-  POLLOG_INFO << "ContextRecord:\n"
-              << "  ContextFlags: 0x" << fmt::hex( ex->ContextRecord->ContextFlags ) << "\n";
+  POLLOG_INFOLN(
+      "ContextRecord:\n"
+      "  ContextFlags: {:#X}",
+      ex->ContextRecord->ContextFlags );
   if ( ex->ContextRecord->ContextFlags & CONTEXT_DEBUG_REGISTERS )
   {
-    POLLOG_INFO << "  CONTEXT_DEBUG_REGISTERS:\n"
-                << "       Dr0: 0x" << fmt::hex( ex->ContextRecord->Dr0 ) << "\n"
-                << "       Dr1: 0x" << fmt::hex( ex->ContextRecord->Dr1 ) << "\n"
-                << "       Dr2: 0x" << fmt::hex( ex->ContextRecord->Dr2 ) << "\n"
-                << "       Dr3: 0x" << fmt::hex( ex->ContextRecord->Dr3 ) << "\n"
-                << "       Dr6: 0x" << fmt::hex( ex->ContextRecord->Dr6 ) << "\n"
-                << "       Dr7: 0x" << fmt::hex( ex->ContextRecord->Dr7 ) << "\n";
+    POLLOG_INFOLN(
+        "  CONTEXT_DEBUG_REGISTERS:\n"
+        "       Dr0: {:#X}\n"
+        "       Dr1: {:#X}\n"
+        "       Dr2: {:#X}\n"
+        "       Dr3: {:#X}\n"
+        "       Dr6: {:#X}\n"
+        "       Dr7: {:#X}",
+        ex->ContextRecord->Dr0, ex->ContextRecord->Dr1, ex->ContextRecord->Dr2,
+        ex->ContextRecord->Dr3, ex->ContextRecord->Dr6, ex->ContextRecord->Dr7 );
   }
   if ( ex->ContextRecord->ContextFlags & CONTEXT_SEGMENTS )
   {
-    POLLOG_INFO << "  CONTEXT_SEGMENTS:\n"
-                << "     SegGs: 0x" << fmt::hex( ex->ContextRecord->SegGs ) << "\n"
-                << "     SegFs: 0x" << fmt::hex( ex->ContextRecord->SegFs ) << "\n"
-                << "     SegEs: 0x" << fmt::hex( ex->ContextRecord->SegEs ) << "\n"
-                << "     SegDs: 0x" << fmt::hex( ex->ContextRecord->SegDs ) << "\n";
+    POLLOG_INFOLN(
+        "  CONTEXT_SEGMENTS:\n"
+        "     SegGs: {:#X}\n"
+        "     SegFs: {:#X}\n"
+        "     SegEs: {:#X}\n"
+        "     SegDs: {:#X}",
+        ex->ContextRecord->SegGs, ex->ContextRecord->SegFs, ex->ContextRecord->SegEs,
+        ex->ContextRecord->SegDs );
   }
   if ( ex->ContextRecord->ContextFlags & CONTEXT_INTEGER )
   {
-    POLLOG_INFO << "  CONTEXT_INTEGER:\n"
-                << "       Edi: 0x" << fmt::hex( ex->ContextRecord->Edi ) << "\n"
-                << "       Esi: 0x" << fmt::hex( ex->ContextRecord->Esi ) << "\n"
-                << "       Ebx: 0x" << fmt::hex( ex->ContextRecord->Ebx ) << "\n"
-                << "       Edx: 0x" << fmt::hex( ex->ContextRecord->Edx ) << "\n"
-                << "       Ecx: 0x" << fmt::hex( ex->ContextRecord->Ecx ) << "\n"
-                << "       Eax: 0x" << fmt::hex( ex->ContextRecord->Eax ) << "\n";
+    POLLOG_INFOLN(
+        "  CONTEXT_INTEGER:\n"
+        "       Edi: {:#X}\n"
+        "       Esi: {:#X}\n"
+        "       Ebx: {:#X}\n"
+        "       Edx: {:#X}\n"
+        "       Ecx: {:#X}\n"
+        "       Eax: {:#X}",
+        ex->ContextRecord->Edi, ex->ContextRecord->Esi, ex->ContextRecord->Ebx,
+        ex->ContextRecord->Edx, ex->ContextRecord->Ecx, ex->ContextRecord->Eax );
   }
   if ( ex->ContextRecord->ContextFlags & CONTEXT_CONTROL )
   {
-    POLLOG_INFO << "  CONTEXT_CONTROL:\n"
-                << "       Ebp: 0x" << fmt::hex( ex->ContextRecord->Ebp ) << "\n"
-                << "       Eip: 0x" << fmt::hex( ex->ContextRecord->Eip ) << "\n"
-                << "     SegCs: 0x" << fmt::hex( ex->ContextRecord->SegCs ) << "\n"
-                << "    EFlags: 0x" << fmt::hex( ex->ContextRecord->EFlags ) << "\n"
-                << "       Esp: 0x" << fmt::hex( ex->ContextRecord->Esp ) << "\n"
-                << "     SegSs: 0x" << fmt::hex( ex->ContextRecord->SegSs ) << "\n";
+    POLLOG_INFOLN(
+        "  CONTEXT_CONTROL:\n"
+        "       Ebp: {:#X}\n"
+        "       Eip: {:#X}\n"
+        "     SegCs: {:#X}\n"
+        "    EFlags: {:#X}\n"
+        "       Esp: {:#X}\n"
+        "     SegSs: {:#X}",
+        ex->ContextRecord->Ebp, ex->ContextRecord->Eip, ex->ContextRecord->SegCs,
+        ex->ContextRecord->EFlags, ex->ContextRecord->Esp, ex->ContextRecord->SegSs );
 
-    POLLOG_INFO << "    Stack Backtrace:\n";
+    POLLOG_INFOLN( "    Stack Backtrace:" );
     // int frames = 3;
     DWORD* ebp = (DWORD*)ex->ContextRecord->Ebp;
     DWORD eip = ex->ContextRecord->Eip;
@@ -113,12 +123,13 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
     DWORD new_eip;
 
 
-    fmt::Writer tmp;
-    tmp << "    EIP        RETADDR\n";
+    std::string tmp = "    EIP        RETADDR\n";
     int levelsleft = 100;
     while ( ebp && levelsleft-- )
     {
-      tmp << "    0x" << fmt::hex( eip );
+      fmt::format_to( std::back_inserter( tmp ),
+
+                      "    {:#X}", eip );
 
       if ( !IsBadReadPtr( ebp, sizeof *ebp ) )
       {
@@ -126,25 +137,25 @@ void se_trans_func( unsigned int n, EXCEPTION_POINTERS* ex )
       }
       else
       {
-        tmp << "[Can't read stack!]\n";
+        tmp += "[Can't read stack!]\n";
         break;
       }
       if ( !IsBadReadPtr( ebp + 1, sizeof *ebp ) )
       {
-        tmp << "    0x" << fmt::hex( *( ebp + 1 ) );
+        fmt::format_to( std::back_inserter( tmp ), "    {:#X}", *( ebp + 1 ) );
         new_eip = *( ebp + 1 );
       }
       else
       {
-        tmp << "[Can't read stack!]\n";
+        tmp += "[Can't read stack!]\n";
         break;
       }
 
       ebp = new_ebp;
       eip = new_eip;
-      tmp << "\n";
+      tmp += "\n";
     }
-    POLLOG_INFO << tmp.str();
+    POLLOG_INFO( tmp );
   }
 
   if ( n == EXCEPTION_ACCESS_VIOLATION )
@@ -164,13 +175,12 @@ void alt_se_trans_func( unsigned int u, _EXCEPTION_POINTERS* pExp )
   INFO_PRINTLN( "In trans_func." );
   if ( in_ex_handler )
   {
-    POLLOG_INFO << "recursive structured exception\n";
+    POLLOG_INFOLN( "recursive structured exception" );
   }
   else
   {
     in_ex_handler = true;
-    POLLOG_INFO.Format( "Structured exception in {} compiled on {} at {}\n" )
-        << ProgramConfig::build_datetime();
+    POLLOG_INFOLN( "Structured exception compiled on {}", ProgramConfig::build_datetime() );
 
     MSJExceptionHandler::MSJUnhandledExceptionFilter( pExp );
     in_ex_handler = false;

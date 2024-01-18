@@ -1,6 +1,6 @@
 #include "ModuleFunctionDeclaration.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"

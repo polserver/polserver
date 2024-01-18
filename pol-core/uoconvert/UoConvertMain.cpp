@@ -1189,11 +1189,7 @@ bool UoConvertMain::convert_uop_to_mul()
   std::string uop_mapfile = "map" + to_string( uo_mapid ) + "LegacyMUL.uop";
 
   auto maphash = []( int mapid, size_t chunkidx )
-  {
-    fmt::Writer tmp;
-    tmp << "build/map" << mapid << "legacymul/" << fmt::pad( chunkidx, 8, '0' ) << ".dat";
-    return HashLittle2( tmp.str() );
-  };
+  { return HashLittle2( fmt::format( "build/map{}legacymul/{:08d}.dat", mapid, chunkidx ) ); };
 
   std::ifstream ifs( uop_mapfile, std::ifstream::binary );
   if ( !ifs )

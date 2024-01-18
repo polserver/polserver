@@ -10,7 +10,7 @@
 #include <cstddef>
 #ifdef _WIN32
 #include "../clib/logfacility.h"
-#include <format/format.h>
+
 #include <malloc.h>
 #endif
 

@@ -69,8 +69,8 @@ UOExecutor::~UOExecutor()
   {
     int elapsed = static_cast<int>(
         poltime() - start_time );  // Doh! A script can't run more than 68 years, for this to work.
-    POLLOG_ERROR.Format( "Script {}: {} instr cycles, {} sleep cycles, {} seconds\n" )
-        << scriptname() << instr_cycles << sleep_cycles << elapsed;
+    POLLOG_ERRORLN( "Script {}: {} instr cycles, {} sleep cycles, {} seconds", scriptname(),
+                    instr_cycles, sleep_cycles, elapsed );
   }
 
   pParent = nullptr;

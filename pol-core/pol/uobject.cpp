@@ -94,7 +94,7 @@ UObject::~UObject()
 {
   if ( ref_counted::count() != 0 )
   {
-    POLLOG_INFO << "Ouch! UObject::~UObject() with count()==" << ref_counted::count() << "\n";
+    POLLOG_INFOLN( "Ouch! UObject::~UObject() with count()=={}", ref_counted::count() );
   }
   passert( ref_counted::count() == 0 );
   if ( serial == 0 )
@@ -126,7 +126,7 @@ void UObject::destroy()
   {
     if ( ref_counted::count() < 1 )
     {
-      POLLOG_INFO << "Ouch! UObject::destroy() with count()==" << ref_counted::count() << "\n";
+      POLLOG_INFOLN( "Ouch! UObject::destroy() with count()=={}", ref_counted::count() );
     }
 
     set_dirty();  // we will have to write a 'object deleted' directive once

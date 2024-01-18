@@ -32,7 +32,7 @@
 #include "../pol/globals/multidefs.h"
 #include "../pol/multi/multidef.h"
 #include "../pol/objtype.h"
-#include <format/format.h>
+#include <fmt/format.h>
 
 namespace Pol
 {
@@ -112,31 +112,35 @@ unsigned char buffer[10000];
 
 static void display_tileinfo( unsigned short objtype, const USTRUCT_TILE& tile )
 {
-  fmt::Writer _tmp;
-  _tmp.Format( "objtype:  0x{:04X}\n" ) << objtype;
-  _tmp << "  name:   " << tile.name << "\n";
+  std::string _tmp = fmt::format(
+      "objtype:  {:#06X}\n"
+      "  name:   {}\n",
+      objtype, tile.name );
+
   if ( tile.flags )
-    _tmp.Format( "  flags:  0x{:08X}\n" ) << static_cast<unsigned long>( tile.flags );
+    fmt::format_to( std::back_inserter( _tmp ), "  flags:  {:#010X}\n",
+                    static_cast<unsigned long>( tile.flags ) );
   if ( tile.weight )
-    _tmp.Format( "  weight: 0x{:02X}\n" ) << (int)tile.weight;
+    fmt::format_to( std::back_inserter( _tmp ), "  weight: {:#04X}\n", (int)tile.weight );
   if ( tile.layer )
-    _tmp.Format( "  layer:  0x{:02X}\n" ) << (int)tile.layer;
+    fmt::format_to( std::back_inserter( _tmp ), "  layer:  {:#04X}\n", (int)tile.layer );
   if ( tile.unk6 )
-    _tmp.Format( "  unk6:   0x{:02X}\n" ) << (int)tile.unk6;
+    fmt::format_to( std::back_inserter( _tmp ), "  unk6:   {:#04X}\n", (int)tile.unk6 );
   if ( tile.unk7 )
-    _tmp.Format( "  unk7:   0x{:02X}\n" ) << (int)tile.unk7;
+    fmt::format_to( std::back_inserter( _tmp ), "  unk7:   {:#04X}\n", (int)tile.unk7 );
   if ( tile.unk8 )
-    _tmp.Format( "  unk8:   0x{:02X}\n" ) << (int)tile.unk8;
+    fmt::format_to( std::back_inserter( _tmp ), "  unk8:   {:#04X}\n", (int)tile.unk8 );
   if ( tile.unk9 )
-    _tmp.Format( "  unk9:   0x{:02X}\n" ) << (int)tile.unk9;
+    fmt::format_to( std::back_inserter( _tmp ), "  unk9:   {:#04X}\n", (int)tile.unk9 );
   if ( tile.anim )
-    _tmp.Format( "  anim:   0x{:08X}\n" ) << static_cast<unsigned long>( tile.anim );
+    fmt::format_to( std::back_inserter( _tmp ), "  anim:   {:#010X}\n",
+                    static_cast<unsigned long>( tile.anim ) );
   if ( tile.height )
-    _tmp.Format( "  height: 0x{:02X}\n" ) << (int)tile.height;
+    fmt::format_to( std::back_inserter( _tmp ), "  height: {:#04X}\n", (int)tile.height );
   if ( tile.unk14 )
-    _tmp.Format( "  unk14:  0x{:02X}\n" ) << (int)tile.unk14;
+    fmt::format_to( std::back_inserter( _tmp ), "  unk14:  {:#04X}\n", (int)tile.unk14 );
   if ( tile.unk15 )
-    _tmp.Format( "  unk15:  0x{:02X}\n" ) << (int)tile.unk15;
+    fmt::format_to( std::back_inserter( _tmp ), "  unk15:  {:#04X}\n", (int)tile.unk15 );
 }
 
 static int tiledump( int argc, char** argv )

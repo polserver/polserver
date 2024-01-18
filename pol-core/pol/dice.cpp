@@ -162,7 +162,7 @@ bool Dice::load( const char* dicestr, std::string* errormsg )
         "Valid formats look like: 3D6+2, 2D8, D10, 4, 2d20-4\n"
         "No spaces please!",
         dicestr );
-    POLLOG.Format( "Dice String {} hurt me!: {}\n" ) << dicestr << ex.what();
+    POLLOGLN( "Dice String {} hurt me!: {}", dicestr, ex.what() );
     *errormsg = "An exception occured trying to decipher dice '";
     *errormsg += dicestr;
     *errormsg += "'";
@@ -196,5 +196,5 @@ unsigned short Dice::max_value() const
   else
     return static_cast<u16>( total );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

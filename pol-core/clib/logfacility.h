@@ -8,7 +8,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
-#include <format/format.h>
 #include <fstream>
 #include <future>
 #include <map>
@@ -167,27 +166,8 @@ private:
   std::vector<LogSink*> _registered_sinks;
 };
 
-// constructor tag for id constructor
-static struct LogWithIDTag
-{
-} logWithID;
-
-// construct a message for given sink, on deconstruction sends the msg to the facility
-template <typename Sink>
-class MessageOld
-{
-public:
-  MessageOld();
-  MessageOld( LogWithIDTag, const std::string& id );
-  ~MessageOld();  // auto flush
-
-  fmt::Writer& message() { return *( _formater.get() ); }
-
-private:
-  std::unique_ptr<fmt::Writer> _formater;
-  std::string _id = {};
-};
-
+// macro struct for logging entrypoint
+// performs the actual formatting and sending to sink
 template <typename Sink>
 struct Message
 {
@@ -245,22 +225,28 @@ void initLogging( LogFacility* logger );  // initalize the logging
 
 // several helper defines
 
-// log into pol.log and std::cerr
-#define POLLOG_ERROR                                                                             \
-  Clib::Logging::MessageOld<                                                                     \
-      Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, Clib::Logging::LogSink_pollog>>() \
-      .message()
-// log into pol.log and std::cout
-#define POLLOG_INFO                                                                              \
-  Clib::Logging::MessageOld<                                                                     \
-      Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>() \
-      .message()
-#define POLLOG_INFO2                                                              \
-  Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, \
+// log into pol.log and std::cerr with \n addition
+#define POLLOG_ERRORLN                                                            \
+  Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, \
+                                                     Clib::Logging::LogSink_pollog>>::logmsg<true>
+// log into pol.log and std::cerr without \n addition
+#define POLLOG_ERROR                                                              \
+  Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cerr, \
                                                      Clib::Logging::LogSink_pollog>>::logmsg<true>
 
-// log into pol.log
-#define POLLOG Clib::Logging::MessageOld<Clib::Logging::LogSink_pollog>().message()
+// log into pol.log and std::cout with \n addition
+#define POLLOG_INFOLN                                                             \
+  Clib::Logging::Message<Clib::Logging::LogSink_dual<Clib::Logging::LogSink_cout, \
+                                                     Clib::Logging::LogSink_pollog>>::logmsg<true>
+// log into pol.log and std::cout without \n addition
+#define POLLOG_INFO                                   \
+  Clib::Logging::Message<Clib::Logging::LogSink_dual< \
+      Clib::Logging::LogSink_cout, Clib::Logging::LogSink_pollog>>::logmsg<false>
+
+// log into pol.log with \n addition
+#define POLLOGLN Clib::Logging::Message<Clib::Logging::LogSink_pollog>::logmsg<true>
+// log into pol.log without \n addition
+#define POLLOG Clib::Logging::Message<Clib::Logging::LogSink_pollog>::logmsg<false>
 
 // log only into std::cout with \n addition
 #define INFO_PRINTLN Clib::Logging::Message<Clib::Logging::LogSink_cout>::logmsg<true>

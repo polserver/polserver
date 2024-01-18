@@ -18,10 +18,10 @@ void ListingWriter::write( std::ofstream& ofs )
   int i = 0;
   for ( auto& tkn : compiled_script.code )
   {
-    fmt::Writer w;
-    decoder.decode_to(tkn, w);
+    std::string w;
+    decoder.decode_to( tkn, w );
 
-    ofs << i << ": " << w.str() << "\n";
+    ofs << i << ": " << w << "\n";
     ++i;
   }
 }

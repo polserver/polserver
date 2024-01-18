@@ -1,8 +1,13 @@
--- POL100.1.0 --
-01-14-2024 Kevin:
-    Added: Escript keyword `uninit` to represent the uninitialized value. This keyword can be used anywhere a "simple value" is used, eg. expressions, constants, user function default parameters, etc.
-           This change increases the Escript version, therefore a recompilation of all scripts is required.
+-- POL100.2.0 --
+01-18-2024 Kevin:
+    Added: Escript keyword `uninit` to represent the uninitialized value.
     Added: Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.
+     Note: These keywords can be used anywhere a "simple value" is used, eg. expressions, constants, user function default parameters, etc. Additionally, these changes increases the Escript version, therefore a recompilation of all scripts is required.
+-- POL100.1.0 --
+01-18-2024 Kevin:
+     Note: POL 100.1.0 is now officially released.
+01-18-2024 Kukkino:
+  Changed: A player that single-clicks a hidden mobile will no longer receive a "You see" message for that mobile.
 01-12-2024 Turley:
     Added: chr.buffs member. Returns the current active buffs added via addBuff as dictionary.
            Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}

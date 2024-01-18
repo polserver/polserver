@@ -1,6 +1,5 @@
 #include "WhileLoop.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/Expression.h"

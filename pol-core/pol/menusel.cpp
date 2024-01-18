@@ -25,7 +25,7 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 
   if ( !client->chr )
   {
-    POLLOG.Format( "{} tried to use a menu without being in the game.\n" ) << client->acct->name();
+    POLLOGLN( "{} tried to use a menu without being in the game.", client->acct->name() );
     return;
   }
 
@@ -38,8 +38,8 @@ void handle_menu_selection( Network::Client* client, PKTIN_7D* msg )
 
   if ( active_menu == nullptr )
   {
-    POLLOG.Format( "{}/{} tried to use a menu, but none was active.\n" )
-        << client->acct->name() << client->chr->name();
+    POLLOGLN( "{}/{} tried to use a menu, but none was active.", client->acct->name(),
+              client->chr->name() );
     return;
   }
 

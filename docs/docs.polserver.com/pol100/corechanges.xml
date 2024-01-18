@@ -2,15 +2,27 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>01-14-2024</datemodified>
+		<datemodified>01-18-2024</datemodified>
 	</header>
+	<version name="POL100.2.0">
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript keyword `uninit` to represent the uninitialized value.</change>
+			<change type="Added">Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.</change>
+			<change type="Note">These keywords can be used anywhere a &quot;simple value&quot; is used, eg. expressions, constants, user function default parameters, etc. Additionally, these changes increases the Escript version, therefore a recompilation of all scripts is required.</change>
+		</entry>
+	</version>
 	<version name="POL100.1.0">
 		<entry>
-			<date>01-14-2024</date>
+			<date>01-18-2024</date>
 			<author>Kevin:</author>
-			<change type="Added">Escript keyword `uninit` to represent the uninitialized value. This keyword can be used anywhere a &quot;simple value&quot; is used, eg. expressions, constants, user function default parameters, etc.<br/>
-This change increases the Escript version, therefore a recompilation of all scripts is required.</change>
-			<change type="Added">Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.</change>
+			<change type="Note">POL 100.1.0 is now officially released.</change>
+		</entry>
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kukkino:</author>
+			<change type="Changed">A player that single-clicks a hidden mobile will no longer receive a &quot;You see&quot; message for that mobile.</change>
 		</entry>
 		<entry>
 			<date>01-12-2024</date>

@@ -200,7 +200,7 @@ void UContainer::add( Items::Item* item )
   // passert( can_add( *item ) );
   if ( orphan() )
   {
-    POLLOG_ERROR << "Trying to add item to orphan container!\n";
+    POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
   INC_PROFILEVAR( container_adds );
@@ -326,7 +326,7 @@ void UContainer::extract( Contents& cnt )
 {
   if ( orphan() )
   {
-    POLLOG_ERROR << "Trying to add item to orphan container!\n";
+    POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
   contents_.swap( cnt );
@@ -357,7 +357,7 @@ void UContainer::swap( UContainer& cont )
 
   if ( orphan() )
   {
-    POLLOG_ERROR << "Trying to add item to orphan container!\n";
+    POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
   contents_.swap( cont.contents_ );
@@ -540,8 +540,8 @@ void UContainer::remove( Items::Item* item )
 {
   if ( item->container != this )
   {
-    POLLOG.Format( "UContainer::remove(Item*), serial=0x{:X}, item=0x{:X}, item->cont=0x{:X}\n" )
-        << serial << item->serial << item->container->serial;
+    POLLOGLN( "UContainer::remove(Item*), serial={:#X}, item={:#X}, item->cont={:#X}", serial,
+              item->serial, item->container->serial );
     passert_always( item->container == this );
     int* p = nullptr;
     *p = 6;

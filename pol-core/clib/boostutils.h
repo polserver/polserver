@@ -196,6 +196,34 @@ struct flyweight_initializers
 
   ~flyweight_initializers();
 };
+inline auto format_as( const cprop_name_flystring& s )
+{
+  return s.get();
+}
+inline auto format_as( const cprop_value_flystring& s )
+{
+  return s.get();
+}
+inline auto format_as( const cfg_key_flystring& s )
+{
+  return s.get();
+}
+inline auto format_as( const object_name_flystring& s )
+{
+  return s.get();
+}
+inline auto format_as( const script_name_flystring& s )
+{
+  return s.get();
+}
+inline auto format_as( const npctemplate_name_flystring& s )
+{
+  return s.get();
+}
+inline auto format_as( const function_name_flystring& s )
+{
+  return s.get();
+}
 }  // namespace boost_utils
 }  // namespace Pol
 

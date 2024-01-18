@@ -8,8 +8,6 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 #include <iosfwd>
 #include <string>
 
-#include <format/format.h>
-
 namespace Pol::Clib::Logging
 {
 class LogSink

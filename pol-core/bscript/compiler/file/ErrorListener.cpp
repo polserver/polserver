@@ -36,9 +36,8 @@ void ErrorListener::syntaxError( antlr4::Recognizer*, antlr4::Token* offendingSy
     std::string symbol = offendingSymbol->getText();
     if ( easily_overlooked_reserved_words.count( symbol ) )
     {
-      fmt::Writer w;
-      w << "Did not expect reserved word '" << symbol << "' in this context.\n";
-      error_messages.push_back( { w.str(), line, charPositionInLine + 1 } );
+      std::string w = fmt::format( "Did not expect reserved word '{}' in this context.\n", symbol );
+      error_messages.push_back( { w, line, charPositionInLine + 1 } );
     }
   }
 

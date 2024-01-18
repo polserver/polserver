@@ -30,7 +30,6 @@
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "itemdesc.h"
-#include <format/format.h>
 
 
 namespace Pol

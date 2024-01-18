@@ -1,7 +1,6 @@
 #ifndef POLSERVER_REPORT_H
 #define POLSERVER_REPORT_H
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Node.h"
 

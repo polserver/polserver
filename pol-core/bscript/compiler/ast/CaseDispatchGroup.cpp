@@ -1,6 +1,5 @@
 #include "CaseDispatchGroup.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/CaseDispatchSelectors.h"

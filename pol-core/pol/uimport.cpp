@@ -982,8 +982,7 @@ bool commit( const std::string& basename )
     if ( unlink( bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" )
-          << bakfile_c << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to remove {}: {} ({})", bakfile_c, strerror( err ), err );
     }
   }
 
@@ -993,8 +992,8 @@ bool commit( const std::string& basename )
     if ( rename( datfile_c, bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << datfile_c << bakfile_c << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", datfile_c, bakfile_c, strerror( err ),
+                      err );
     }
   }
 
@@ -1004,8 +1003,8 @@ bool commit( const std::string& basename )
     if ( rename( ndtfile_c, datfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << ndtfile_c << datfile_c << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", ndtfile_c, datfile_c, strerror( err ),
+                      err );
     }
   }
 
@@ -1067,7 +1066,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store pol datafile!\n";
+                  POLLOG_ERRORLN( "failed to store pol datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1081,7 +1080,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store items datafile!\n";
+                  POLLOG_ERRORLN( "failed to store items datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1095,7 +1094,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store character datafile!\n";
+                  POLLOG_ERRORLN( "failed to store character datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1109,7 +1108,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store npcs datafile!\n";
+                  POLLOG_ERRORLN( "failed to store npcs datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1123,7 +1122,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store multis datafile!\n";
+                  POLLOG_ERRORLN( "failed to store multis datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1137,7 +1136,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store storage datafile!\n";
+                  POLLOG_ERRORLN( "failed to store storage datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1151,7 +1150,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store resource datafile!\n";
+                  POLLOG_ERRORLN( "failed to store resource datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1165,7 +1164,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store guilds datafile!\n";
+                  POLLOG_ERRORLN( "failed to store guilds datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1181,7 +1180,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store datastore datafile!\n";
+                  POLLOG_ERRORLN( "failed to store datastore datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1195,7 +1194,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store party datafile!\n";
+                  POLLOG_ERRORLN( "failed to store party datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1209,14 +1208,13 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
         }  // deconstructor of the SaveContext flushes and joins the queues
         catch ( std::ios_base::failure& e )
         {
-          POLLOG_ERROR << "failed to save datafiles! " << e.what() << ":" << std::strerror( errno )
-                       << "\n";
+          POLLOG_ERRORLN( "failed to save datafiles! {}:{}", e.what(), std::strerror( errno ) );
           Clib::force_backtrace();
           result = false;
         }
         catch ( ... )
         {
-          POLLOG_ERROR << "failed to save datafiles!\n";
+          POLLOG_ERRORLN( "failed to save datafiles!" );
           Clib::force_backtrace();
           result = false;
         }
@@ -1410,8 +1408,8 @@ void read_gameservers()
       }
       else
       {
-        POLLOG_ERROR.Format( "Warning: gethostbyname_r failed for server {} ({}): {}\n" )
-            << svr->name << svr->hostname << my_h_errno;
+        POLLOG_ERRORLN( "Warning: gethostbyname_r failed for server {} ({}): {}", svr->name,
+                        svr->hostname, my_h_errno );
       }
 #endif
     }

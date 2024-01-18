@@ -1,6 +1,5 @@
 #include "CaseDispatchSelectors.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 

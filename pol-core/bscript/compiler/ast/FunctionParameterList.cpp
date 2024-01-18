@@ -1,6 +1,5 @@
 #include "FunctionParameterList.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/NodeVisitor.h"

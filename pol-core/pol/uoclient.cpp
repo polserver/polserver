@@ -104,11 +104,12 @@ void load_general_entry( const Plib::Package* pkg, Clib::ConfigElem& elem )
       if ( shs->Initialize() )
       {
         networkManager.uoclient_general.method_script = shs;
-        POLLOG_INFO << "\n"
-                       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-                       "WARNING: uoclient.cfg MethodScript entry is deprecated! Use syshook.cfg "
-                       "SystemMethod Mobile entry instead.\n"
-                       "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+        POLLOG_INFOLN(
+            "\n"
+            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+            "WARNING: uoclient.cfg MethodScript entry is deprecated! Use syshook.cfg "
+            "SystemMethod Mobile entry instead.\n"
+            "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
       }
       else
         delete shs;

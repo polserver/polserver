@@ -1,6 +1,5 @@
 #include "IfThenElseStatement.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BranchSelector.h"

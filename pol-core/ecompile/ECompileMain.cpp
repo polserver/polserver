@@ -10,7 +10,6 @@
 #include <system_error>
 #include <time.h>
 
-#include <format/format.h>
 
 #include "bscript/compctx.h"
 #include "bscript/compiler/Compiler.h"

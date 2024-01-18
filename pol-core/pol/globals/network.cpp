@@ -83,7 +83,7 @@ void NetworkManager::kill_disconnected_clients()
                               client->chr ? client->chr->name() : "[no character]" );
       ERROR_PRINTLN( tmp );
       if ( Plib::systemstate.config.loglevel >= 4 )
-        POLLOG << tmp << "\n";
+        POLLOGLN( tmp );
 
       delete client;
       client = nullptr;

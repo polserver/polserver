@@ -1,6 +1,5 @@
 #include "Node.h"
 
-#include <format/format.h>
 
 namespace Pol::Bscript::Compiler
 {

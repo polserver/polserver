@@ -91,8 +91,7 @@ void ExportedPacketHookHandler( Client* client, void* data )
   if ( phd->function == nullptr && phd->SubCommands.empty() )
   {
     if ( phd->default_handler == nullptr )
-      POLLOG.Format( "Expected packet hook function for msg 0x{:X} but was null!\n" )
-          << (int)*message;
+      POLLOGLN( "Expected packet hook function for msg {:#X} but was null!", (int)*message );
     else  // only SendFunction is definied but default_handler is definied
       phd->default_handler( client, data );
     return;
@@ -301,11 +300,9 @@ static void packethook_warn_if_previously_defined( u8 msgid, PacketVersion pktve
   auto existing_out_func = hook_data->outgoing_function;
 
   if ( existing_in_func != nullptr )
-    POLLOG.Format( "Packet hook receive function multiply defined for packet 0x{:X}!\n" )
-        << (int)msgid;
+    POLLOGLN( "Packet hook receive function multiply defined for packet {:#X}!", (int)msgid );
   if ( existing_out_func != nullptr )
-    POLLOG.Format( "Packet hook send function multiply defined for packet 0x{:X}!\n" )
-        << (int)msgid;
+    POLLOGLN( "Packet hook send function multiply defined for packet {:#X}!", (int)msgid );
 }
 
 void load_packet_entries( const Plib::Package* pkg, Clib::ConfigElem& elem )
@@ -537,7 +534,7 @@ void SetVersionDetailStruct( const std::string& ver, VersionDetailStruct& detail
     detail.minor = 0;
     detail.rev = 0;
     detail.patch = 0;
-    POLLOG_ERROR.Format( "Malformed client version string in Packethook: {}\n" ) << ver;
+    POLLOG_ERRORLN( "Malformed client version string in Packethook: {}", ver );
   }
 }
 

@@ -93,7 +93,7 @@ void write_account_data()
   }
   catch ( ... )
   {
-    POLLOG_ERROR << "failed to store accounts!\n";
+    POLLOG_ERRORLN( "failed to store accounts!" );
     result = false;
     Clib::force_backtrace();
   }

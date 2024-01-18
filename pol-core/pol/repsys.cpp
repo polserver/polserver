@@ -253,7 +253,7 @@ void RepSystem::repsys_task( Mobile::Character* amy )
         send_create_mobile_to_nearby_cansee( other.get() );
       }
       else
-        POLLOG << "NOTE: repsys crash avoidance...\n";
+        POLLOGLN( "NOTE: repsys crash avoidance..." );
       THREAD_CHECKPOINT( tasks, 1014 );
       refreshall = true;
     }
@@ -291,7 +291,7 @@ void RepSystem::repsys_task( Mobile::Character* amy )
         send_create_mobile_to_nearby_cansee( other.get() );
       }
       else
-        POLLOG << "NOTE: repsys crash avoidance...\n";
+        POLLOGLN( "NOTE: repsys crash avoidance..." );
       THREAD_CHECKPOINT( tasks, 1023 );
       refreshall = true;
     }

@@ -449,17 +449,17 @@ void sql_service_thread_stub()
   }
   catch ( const char* msg )
   {
-    POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << msg;
+    POLLOGLN( "SQL Thread exits due to exception: {}", msg );
     throw;
   }
   catch ( std::string& str )
   {
-    POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << str;
+    POLLOGLN( "SQL Thread exits due to exception: {}", str );
     throw;
   }
   catch ( std::exception& ex )
   {
-    POLLOG.Format( "SQL Thread exits due to exception: {}\n" ) << ex.what();
+    POLLOGLN( "SQL Thread exits due to exception: {}", ex.what() );
     throw;
   }
 }

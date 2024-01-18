@@ -1343,8 +1343,8 @@ bool Item::start_control_script( const ItemDesc& id )
     }
     else
     {
-      POLLOG << "Unable to start control script " << id.control_script.name() << " for "
-             << id.objtype_description() << "\n";
+      POLLOGLN( "Unable to start control script {} for {}", id.control_script.name(),
+                id.objtype_description() );
       return false;
     }
   }
