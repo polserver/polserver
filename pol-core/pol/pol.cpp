@@ -852,7 +852,7 @@ void display_leftover_objects()
 #endif
   display_reftypes();
   std::ofstream ofs;
-  Clib::OFStreamWriter sw( &ofs );
+  Clib::StreamWriter sw( &ofs );
   sw.init( "leftovers.txt" );
   objStorageManager.objecthash.PrintContents( sw );
   std::string tmp;

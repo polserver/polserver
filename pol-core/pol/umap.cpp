@@ -66,8 +66,6 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
   sw.add( "editable", editable );
 
   printPinPoints( sw );
-
-  sw.write( "\n" );
 }
 
 void Map::printPinPoints( Clib::StreamWriter& sw ) const
@@ -77,7 +75,7 @@ void Map::printPinPoints( Clib::StreamWriter& sw ) const
 
   for ( auto itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
   {
-    sw.write( "\tPin{} {},{}\n", i, itr->x(), itr->y() );
+    sw.add( fmt::format( "Pin{}", i ), fmt::format( "{},{}", itr->x(), itr->y() ) );
   }
 }
 

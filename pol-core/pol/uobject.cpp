@@ -47,8 +47,8 @@ std::ofstream orphans_txt( "orphans.txt", std::ios::out | std::ios::trunc );
 
 int display_orphan( UObject* o )
 {
-  Clib::FMTStreamWriter sw;
-  Clib::OFStreamWriter sw_orphan( &orphans_txt );
+  Clib::StreamWriter sw( nullptr );
+  Clib::StreamWriter sw_orphan( &orphans_txt );
   sw.write( "{}, {}\n", o->name(), o->ref_counted_count() );
   o->printOn( sw );
   o->printOnDebug( sw_orphan );

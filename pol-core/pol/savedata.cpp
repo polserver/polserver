@@ -260,7 +260,7 @@ int save_incremental( unsigned int& dirty, unsigned int& clean, long long& elaps
     std::string index_pathname = Plib::systemstate.config.world_data_path + index_basename + ".ndt";
     Clib::open_file( ofs_data, data_pathname, std::ios::out );
     Clib::open_file( ofs_index, index_pathname, std::ios::out );
-    Clib::OFStreamWriter sw_data( &ofs_data );
+    Clib::StreamWriter sw_data( &ofs_data );
     write_system_data( sw_data );
     write_global_properties( sw_data );
 

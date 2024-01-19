@@ -20,7 +20,7 @@ namespace Core
 class SaveContext
 {
   // typedef Clib::ThreadedOFStreamWriter SaveStrategy; // too many context switches!
-  typedef Clib::OFStreamWriter SaveStrategy;
+  typedef Clib::StreamWriter SaveStrategy;
 
 private:
   std::ofstream _pol;
