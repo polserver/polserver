@@ -1226,7 +1226,7 @@ int Executor::ins_casejmp_findbool( const Token& token, BBoolean* bbool )
     }
     else if ( type == CASE_TYPE_BOOL )
     {
-      unsigned char value = static_cast<unsigned char>( *dataptr );
+      bool value = static_cast<bool>( *dataptr );
       dataptr += 1;
       if ( value == bbool->value() )
       {
