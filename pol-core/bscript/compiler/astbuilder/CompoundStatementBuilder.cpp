@@ -124,7 +124,7 @@ void CompoundStatementBuilder::add_statements( EscriptParser::StatementContext* 
   {
     statements.push_back( std::make_unique<EmptyStatement>( location_for( *ctx ) ) );
   }
-  else
+  else if ( !workspace.continue_on_error )
   {
     location_for( *ctx ).internal_error( "unhandled statement" );
   }
