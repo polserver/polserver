@@ -24,10 +24,10 @@ ExpressionEvaluator::ExpressionEvaluator()
       _consoleReporter( false, false ),
       _report( _consoleReporter ),
       _ident( 0, "<eval>" ),
-      _compiler_workspace( _report, _cache, _cache, _profile ),
+      _compiler_workspace( _report, _cache, _cache, true, _profile ),
       _loader(),
       _cache( _loader, _profile ),
-      _builder_workspace( _compiler_workspace, _cache, _cache, _profile, _report ),
+      _builder_workspace( _compiler_workspace, _cache, _cache, true, _profile, _report ),
       _expression_builder( _ident, _builder_workspace )
 {
 }

@@ -21,7 +21,7 @@ class CompilerWorkspaceBuilder
 {
 public:
   CompilerWorkspaceBuilder( SourceFileLoader& source_loader, SourceFileCache& em_cache,
-                            SourceFileCache& inc_cache, Profile&, Report& );
+                            SourceFileCache& inc_cache, bool continue_on_error, Profile&, Report& );
 
   std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion );
   std::unique_ptr<CompilerWorkspace> build_module( const std::string& pathname );
@@ -32,6 +32,7 @@ private:
   SourceFileLoader& source_loader;
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
+  const bool continue_on_error;
   Profile& profile;
   Report& report;
 };
