@@ -21,13 +21,15 @@ class BuilderWorkspace
 {
 public:
   BuilderWorkspace( CompilerWorkspace&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
-                    Profile& profile, Report& report );
+                    bool continue_on_error, Profile& profile, Report& report );
   ~BuilderWorkspace();
 
   CompilerWorkspace& compiler_workspace;
 
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
+
+  const bool continue_on_error;
 
   Profile& profile;
   Report& report;
