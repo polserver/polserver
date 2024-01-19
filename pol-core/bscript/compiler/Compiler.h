@@ -32,11 +32,12 @@ public:
   void set_include_compile_mode();
 
   void compile_file_steps( const std::string& pathname, Report& );
-  std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&,
-                                              bool is_module );
+  std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&, bool is_module,
+                                              bool continue_on_error );
 
 private:
-  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool );
+  std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool is_module,
+                                                      bool continue_on_error );
   void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );

@@ -28,13 +28,13 @@ std::string getpathof( const std::string& fname );
 SourceFileProcessor::SourceFileProcessor( const SourceFileIdentifier& source_file_identifier,
                                           BuilderWorkspace& workspace, bool is_src,
                                           UserFunctionInclusion user_function_inclusion )
-  : profile( workspace.profile ),
-    report( workspace.report ),
-    source_file_identifier( source_file_identifier ),
-    workspace( workspace ),
-    tree_builder( source_file_identifier, workspace ),
-    is_src( is_src ),
-    user_function_inclusion( user_function_inclusion )
+    : profile( workspace.profile ),
+      report( workspace.report ),
+      source_file_identifier( source_file_identifier ),
+      workspace( workspace ),
+      tree_builder( source_file_identifier, workspace ),
+      is_src( is_src ),
+      user_function_inclusion( user_function_inclusion )
 {
 }
 
@@ -96,7 +96,7 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   profile.parse_src_micros.fetch_add( parse_us_counted );
   profile.parse_src_count++;
 
-  if ( report.error_count() == 0 )
+  if ( workspace.continue_on_error || report.error_count() == 0 )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -115,7 +115,7 @@ void SourceFileProcessor::process_include( SourceFile& sf, long long* micros_cou
   profile.parse_inc_micros.fetch_add( parse_micros_elapsed );
   *micros_counted += parse_micros_elapsed;
 
-  if ( report.error_count() == 0 )
+  if ( workspace.continue_on_error || report.error_count() == 0 )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
