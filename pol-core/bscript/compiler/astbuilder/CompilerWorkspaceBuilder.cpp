@@ -24,11 +24,13 @@ namespace Pol::Bscript::Compiler
 {
 CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileLoader& source_loader,
                                                     SourceFileCache& em_cache,
-                                                    SourceFileCache& inc_cache, Profile& profile,
+                                                    SourceFileCache& inc_cache,
+                                                    bool continue_on_error, Profile& profile,
                                                     Report& report )
     : source_loader( source_loader ),
       em_cache( em_cache ),
       inc_cache( inc_cache ),
+      continue_on_error( continue_on_error ),
       profile( profile ),
       report( report )
 {
@@ -37,8 +39,8 @@ CompilerWorkspaceBuilder::CompilerWorkspaceBuilder( SourceFileLoader& source_loa
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
     const std::string& pathname, UserFunctionInclusion user_function_inclusion )
 {
-  auto compiler_workspace =
-      std::make_unique<CompilerWorkspace>( report, em_cache, inc_cache, profile );
+  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report, em_cache, inc_cache,
+                                                                 continue_on_error, profile );
   auto& workspace = compiler_workspace->builder_workspace;
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
@@ -74,7 +76,7 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
   src_processor.use_module( "basicio", source_location );
   src_processor.process_source( *sf );
 
-  if ( report.error_count() == 0 )
+  if ( continue_on_error || report.error_count() == 0 )
     build_referenced_user_functions( workspace );
 
   return compiler_workspace;
@@ -83,8 +85,8 @@ std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build(
 std::unique_ptr<CompilerWorkspace> CompilerWorkspaceBuilder::build_module(
     const std::string& pathname )
 {
-  auto compiler_workspace =
-      std::make_unique<CompilerWorkspace>( report, em_cache, inc_cache, profile );
+  auto compiler_workspace = std::make_unique<CompilerWorkspace>( report, em_cache, inc_cache,
+                                                                 continue_on_error, profile );
   auto& workspace = compiler_workspace->builder_workspace;
 
   auto ident = std::make_unique<SourceFileIdentifier>( 0, pathname );
