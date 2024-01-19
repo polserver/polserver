@@ -181,6 +181,8 @@ public:
   bool getParam( unsigned param, short& value, short minval, short maxval );
   bool getParam( unsigned param, signed char& value );
 
+  bool getParam( unsigned param, bool& value );
+
   void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
 

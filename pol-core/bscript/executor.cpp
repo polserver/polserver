@@ -730,6 +730,32 @@ bool Executor::getParam( unsigned param, signed char& value )
   }
 }
 
+bool Executor::getParam( unsigned param, bool& value )
+{
+  BObjectImp* imp = getParamImp( param );
+  if ( imp->isa( BObjectImp::OTBoolean ) )
+  {
+    value = static_cast<BBoolean*>( imp )->value();
+    return true;
+  }
+  else if ( imp->isa( BObjectImp::OTLong ) )
+  {
+    value = static_cast<BLong*>( imp )->isTrue();
+    return true;
+  }
+  else
+  {
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected Boolean or Integer, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( imp->type() ) );
+
+    return false;
+  }
+}
+
 bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
 {
   BObject* obj = getParam( param );

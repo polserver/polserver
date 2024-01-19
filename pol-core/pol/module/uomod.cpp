@@ -5172,13 +5172,11 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 
   if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) && getParam( 2, amount ) )
   {
-    int makeInUseLong;
     bool makeInUse;
     int flags;
-    if ( !getParam( 3, makeInUseLong ) )
+    if ( !getParam( 3, makeInUse ) )
       makeInUse = false;
-    else
-      makeInUse = ( makeInUseLong ? true : false );
+
     if ( !getParam( 4, flags ) )
       flags = 0;
 
