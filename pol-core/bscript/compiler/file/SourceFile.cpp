@@ -104,15 +104,13 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
 
 void SourceFile::accept( EscriptParserVisitor& visitor )
 {
-  antlr4::ParserRuleContext* unit = nullptr;
-
-  if ( ( unit = compilation_unit ) )
+  if ( compilation_unit )
   {
-    visitor.visit( unit );
+    visitor.visit( compilation_unit );
   }
-  else if ( ( unit = module_unit ) )
+  else if ( module_unit )
   {
-    visitor.visit( unit );
+    visitor.visit( module_unit );
   }
 }
 
