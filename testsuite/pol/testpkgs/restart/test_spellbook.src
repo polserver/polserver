@@ -1,0 +1,39 @@
+use os;
+use uo;
+use polsys;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_spellbook()
+  return 1;
+endprogram
+
+// save/load test for things in SpellBook class
+exported function load_save_spellbook()
+  if (testrun == 1)
+    var item := CreateItemAtLocation(10,11,-5, "restart_test_spellbook",1,"britannia2");
+    item.name:="load_save_spellbook";
+    if (!item)
+      return ret_error($"failed to create item {item}");
+    endif
+    SetGlobalProperty("test_item_storage_spellbook", item.serial);
+    item.addspell(50);
+    item.addspell(3);
+  else
+
+    var serial := GetGlobalProperty("test_item_storage_spellbook");
+    if (!serial)
+      return ret_error("Global property not found");
+    endif
+
+    var item := SystemFindObjectBySerial(serial);
+    if (!item)
+      return ret_error($"Item with serial {serial:#x} does not exists: {item})");
+    endif
+    if (!item.hasspell(50) || !item.hasspell(3))
+      return ret_error("Spellbook does not have 3&50 spell: +"+item.spells());
+    endif
+  endif
+  return 1;
+endfunction
