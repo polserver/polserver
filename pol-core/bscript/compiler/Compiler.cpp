@@ -157,7 +157,8 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
-                                                              Report& report, bool is_module, bool continue_on_error )
+                                                              Report& report, bool is_module,
+                                                              bool continue_on_error )
 {
   Pol::Tools::HighPerfTimer timer;
   CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, continue_on_error,
