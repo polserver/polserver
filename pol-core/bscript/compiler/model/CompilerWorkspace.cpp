@@ -12,10 +12,11 @@
 namespace Pol::Bscript::Compiler
 {
 CompilerWorkspace::CompilerWorkspace( Report& report, SourceFileCache& em_cache,
-                                      SourceFileCache& inc_cache, Profile& profile )
+                                      SourceFileCache& inc_cache, bool continue_on_error,
+                                      Profile& profile )
     : constants( report ),
       scope_tree( *this ),
-      builder_workspace( *this, em_cache, inc_cache, profile, report )
+      builder_workspace( *this, em_cache, inc_cache, continue_on_error, profile, report )
 {
 }
 
