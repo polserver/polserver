@@ -116,7 +116,7 @@ bool Compiler::compile_file( const std::string& filename )
 
 void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 {
-  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, false );
+  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, false, false );
   if ( report.error_count() )
     return;
 
@@ -160,10 +160,11 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathname, Report& report,
-                                                      bool is_module )
+                                                      bool is_module, bool continue_on_error )
 {
   // Let's see how this explodes...
-  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, is_module );
+  std::unique_ptr<CompilerWorkspace> workspace =
+      build_workspace( pathname, report, is_module, continue_on_error );
   if ( workspace )
   {
     register_constants( *workspace, report );
@@ -177,10 +178,12 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
 }
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
-                                                              Report& report, bool is_module )
+                                                              Report& report, bool is_module,
+                                                              bool continue_on_error )
 {
   Pol::Tools::HighPerfTimer timer;
-  CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, profile, report );
+  CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, continue_on_error,
+                                              profile, report );
   auto workspace = is_module ? workspace_builder.build_module( pathname )
                              : workspace_builder.build( pathname, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();
