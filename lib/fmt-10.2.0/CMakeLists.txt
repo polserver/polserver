@@ -451,3 +451,7 @@ if (FMT_MASTER_PROJECT AND EXISTS ${gitignore})
   set(CPACK_RESOURCE_FILE_README ${PROJECT_SOURCE_DIR}/README.md)
   include(CPack)
 endif ()
+
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+  target_compile_options(fmt PRIVATE "-fPIC")
+endif()
