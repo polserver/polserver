@@ -1,0 +1,54 @@
+use os;
+use uo;
+use polsys;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_account()
+  return 1;
+endprogram
+
+// save/load test for things in Account class
+exported function load_save_account()
+  var props:={
+//                  {"Name", {"",1}},
+//              {"Password", {"",1}},
+          {"PasswordHash", {"usernamepasswordhash",MD5Encrypt("restart_accountmypass")}},
+               {"Enabled", {"enabled",0}},
+//          {"DefaultPrivs", {"",1}},
+       {"DefaultCmdLevel", {"defaultcmdlevel",1}},
+           {"UOExpansion", {"uo_expansion","SE"}}
+  };
+
+  if (testrun == 1)
+    var acc:=CreateAccount("restart_account","mypass",0);
+    if (!acc)
+      return ret_error($"failed to create account {acc}");
+    endif
+    acc.setdefaultcmdlevel(1);
+    acc.set_uo_expansion("SE");
+    acc.addcharacter(1);
+    acc.setprop("test",1);
+  else
+
+    var acc := FindAccount("restart_account");
+    if (!acc)
+      return ret_error("failed to find account");
+    endif
+    foreach prop in props
+      var val:=acc.get_member(prop[2][1]);
+      if (val != prop[2][2])
+        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      endif
+    endforeach
+    var chr:=acc.getcharacter(1);
+    if (!chr)
+      return ret_error($"failed to load chr {chr}");
+    endif
+    if (acc.getprop("test")!=1)
+      return ret_error($"failed to load cprop :"+acc.getprop("test"));
+    endif
+  endif
+  return 1;
+endfunction

@@ -3,31 +3,85 @@ use uo;
 include "testutil";
 
 var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
-var house;
 
 program test_house()
-  if (testrun == 1) 
-    house:=CreateMultiAtLocation(50,50,0,0x12000);
-    house.setprop("restart_test_house",1);
-  else
-    foreach multi in (ListMultisInBox(0,0,-200,10000,10000,200))
-      if (multi.getprop("restart_test_house"))
-        house:=multi;
-      endif
-    endforeach
-    if (!house)
-      return ret_error("failed to find house");
-    endif
-  endif
   return 1;
 endprogram
 
-exported function test_basic()
-  if (testrun != 2)
-    return 1;
+// save/load test for things in House class
+exported function load_save_house()
+  var props:={
+                {"MultiID", {"multiid",0x6b}}
+  };
+
+  if (testrun == 1)
+    var house:=CreateMultiAtLocation(50,50,0,0x12000);
+    house.name:="load_save_house";
+    if (!house)
+      return ret_error($"failed to create house {house}");
+    endif
+    SetGlobalProperty("test_storage_house", house.serial);
+  else
+
+    var serial := GetGlobalProperty("test_storage_house");
+    if (!serial)
+      return ret_error("Global property not found");
+    endif
+
+    var house := SystemFindObjectBySerial(serial);
+    if (!house)
+      return ret_error($"House with serial {serial:#x} does not exists: {house})");
+    endif
+    foreach prop in props
+      var val:=house.get_member(prop[2][1]);
+      if (val != prop[2][2])
+        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      endif
+    endforeach
+    if (len(house.components)!=2) // door, sign
+      return ret_error($"invalid components: {house.components}");
+    endif
   endif
-  if (house.x !=50 || house.y != 50 || house.z != 0 || house.multiid !=0x6b)
-      return ret_error("Wrong pos or multiid: {},{},{} {}".format(house.x, house.y, house.z, house.multiid));
+  return 1;
+endfunction
+
+exported function load_save_house_custom()
+  var props:={
+                {"Custom", {"custom",1}}
+//                {"Current", {"",1}},
+//                {"Working", {"",1}},
+//                 {"Backup", {"",1}},
+//         {"DesignRevision", {"",1}}
+  };
+
+  if (testrun == 1)
+    var house:=CreateMultiAtLocation(60,60,0,0x12000);
+    house.name:="load_save_house_custom";
+    if (!house)
+      return ret_error($"failed to create house {house}");
+    endif
+    SetGlobalProperty("test_storage_house_custom", house.serial);
+    house.setcustom(1);
+  else
+
+    var serial := GetGlobalProperty("test_storage_house_custom");
+    if (!serial)
+      return ret_error("Global property not found");
+    endif
+
+    var house := SystemFindObjectBySerial(serial);
+    if (!house)
+      return ret_error($"House with serial {serial:#x} does not exists: {house}");
+    endif
+    foreach prop in props
+      var val:=house.get_member(prop[2][1]);
+      if (val != prop[2][2])
+        return ret_error($"Member {prop[2][1]} {prop[2][2]} != {val}");
+      endif
+    endforeach
+    if (len(house.house_parts)!=140) 
+      return ret_error($"invalid number of parts: "+len(house.house_parts));
+    endif
   endif
   return 1;
 endfunction

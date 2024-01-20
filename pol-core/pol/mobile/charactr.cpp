@@ -720,7 +720,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "PartyCanLoot", party_can_loot() );
   for ( const auto& rt : reportable_ )
   {
-    sw.add( "Reportable", Clib::hexint( rt.serial ) );
+    sw.add( "Reportable", fmt::format( "{:#x} {}", rt.serial, rt.polclock ) );
   }
 
   Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
@@ -901,7 +901,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   {
     ISTRINGSTREAM is( rt );
     reportable_t rt_t;
-    if ( is >> rt_t.serial >> rt_t.polclock )
+    if ( is >> std::hex >> rt_t.serial >> std::dec >> rt_t.polclock )
     {
       reportable_.insert( rt_t );
     }
