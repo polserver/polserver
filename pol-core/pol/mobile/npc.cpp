@@ -254,12 +254,7 @@ void NPC::printSelfOn( Clib::StreamWriter& sw ) const
 
 void NPC::printProperties( Clib::StreamWriter& sw ) const
 {
-  using namespace fmt;
-
   base::printProperties( sw );
-
-  if ( registered_house )
-    sw.add( "RegisteredHouse", Clib::hexint( registered_house ) );
 
   if ( npc_ar_ )
     sw.add( "AR", npc_ar_ );
@@ -349,8 +344,6 @@ void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
 
 void NPC::readNpcProperties( Clib::ConfigElem& elem )
 {
-  registered_house = elem.remove_ulong( "REGISTEREDHOUSE", 0 );
-
   Items::UWeapon* wpn = static_cast<Items::UWeapon*>(
       Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND1 ) );
   if ( wpn == nullptr )

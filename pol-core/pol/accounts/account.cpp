@@ -108,7 +108,7 @@ void Account::writeto( Clib::StreamWriter& sw ) const
   }
   props_.printProperties( sw );
 
-  sw.write( "}\n" );
+  sw.write( "}\n\n" );
 }
 
 void Account::writeto( Clib::ConfigElem& elem ) const
