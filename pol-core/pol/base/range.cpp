@@ -83,17 +83,6 @@ bool Range2d::operator!=( const Range2d& other ) const
   return !( *this == other );
 }
 
-fmt::Writer& operator<<( fmt::Writer& w, const Range2d& v )
-{
-  w << "( " << v.nw() << " - " << v.se() << " )";
-  return w;
-}
-std::ostream& operator<<( std::ostream& os, const Range2d& v )
-{
-  os << "( " << v.nw() << " - " << v.se() << " )";
-  return os;
-}
-
 Range3d::Range3d( const Pos3d& p1, const Pos3d& p2, const Realms::Realm* realm )
     : _range( p1.xy(), p2.xy(), realm )
 {
@@ -130,16 +119,18 @@ bool Range3d::operator!=( const Range3d& other ) const
 {
   return !( *this == other );
 }
-
-fmt::Writer& operator<<( fmt::Writer& w, const Range3d& v )
-{
-  w << "( " << v.nw_b() << " - " << v.se_t() << " )";
-  return w;
-}
-std::ostream& operator<<( std::ostream& os, const Range3d& v )
-{
-  os << "( " << v.nw_b() << " - " << v.se_t() << " )";
-  return os;
-}
 }  // namespace Core
 }  // namespace Pol
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Range2d>::format(
+    const Pol::Core::Range2d& r, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {} - {} )", r.nw(), r.se() ), ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Range3d>::format(
+    const Pol::Core::Range3d& r, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {} - {} )", r.nw_b(), r.se_t() ),
+                                              ctx );
+}

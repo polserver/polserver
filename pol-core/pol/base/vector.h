@@ -1,13 +1,11 @@
-#ifndef POL_BASE_VECTOR_H
-#define POL_BASE_VECTOR_H
+#pragma once
 
 #include "clib/rawtypes.h"
-#include <format/format.h>
+#include <fmt/format.h>
+
 #include <utility>
 
-namespace Pol
-{
-namespace Core
+namespace Pol::Core
 {
 class Vec2d
 {
@@ -37,8 +35,6 @@ public:
 };
 Vec2d operator-( Vec2d lhs, const Vec2d& rhs );
 Vec2d operator+( Vec2d lhs, const Vec2d& rhs );
-fmt::Writer& operator<<( fmt::Writer& w, const Vec2d& v );
-std::ostream& operator<<( std::ostream& os, const Vec2d& v );
 
 class Vec3d
 {
@@ -80,8 +76,6 @@ Vec3d operator-( Vec3d lhs, const Vec3d& rhs );
 Vec3d operator-( Vec3d lhs, const Vec2d& rhs );
 Vec3d operator+( Vec3d lhs, const Vec3d& rhs );
 Vec3d operator+( Vec3d lhs, const Vec2d& rhs );
-fmt::Writer& operator<<( fmt::Writer& w, const Vec3d& v );
-std::ostream& operator<<( std::ostream& os, const Vec3d& v );
 
 
 inline Vec2d::Vec2d( s16 x, s16 y ) : _x( x ), _y( y ) {}
@@ -146,6 +140,15 @@ inline Vec3d& Vec3d::xy( Vec2d xy )
   _xy = std::move( xy );
   return *this;
 }
-}  // namespace Core
-}  // namespace Pol
-#endif
+}  // namespace Pol::Core
+// derive from std::string formatter to support eg padding
+template <>
+struct fmt::formatter<Pol::Core::Vec2d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Vec2d& p, fmt::format_context& ctx ) const;
+};
+template <>
+struct fmt::formatter<Pol::Core::Vec3d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Vec3d& p, fmt::format_context& ctx ) const;
+};

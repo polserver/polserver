@@ -1,6 +1,5 @@
 #include "MethodCallArgumentList.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -17,9 +16,9 @@ void MethodCallArgumentList::accept( NodeVisitor& visitor )
 {
   visitor.visit_method_call_argument_list( *this );
 }
-void MethodCallArgumentList::describe_to( fmt::Writer& w ) const
+void MethodCallArgumentList::describe_to( std::string& w ) const
 {
-  w << "method-call-argument-list";
+  w += "method-call-argument-list";
 }
 
 }  // namespace Pol::Bscript::Compiler

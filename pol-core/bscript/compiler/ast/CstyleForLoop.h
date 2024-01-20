@@ -16,7 +16,7 @@ public:
                  std::unique_ptr<Block> );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   Expression& initializer();
   Expression& predicate();

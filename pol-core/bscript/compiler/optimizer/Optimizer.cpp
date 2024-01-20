@@ -6,6 +6,7 @@
 #include "bscript/compiler/analyzer/Constants.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/Block.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/Identifier.h"
@@ -15,6 +16,7 @@
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
@@ -28,7 +30,7 @@
 namespace Pol::Bscript::Compiler
 {
 Optimizer::Optimizer( Constants& constants, Report& report )
-  : constants( constants ), report( report )
+    : constants( constants ), report( report )
 {
 }
 
@@ -119,7 +121,7 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
         branch_type = BranchSelector::IfTrue;
         break;
       default:
-        selector.internal_error("Expected conditional branch with predicate");
+        selector.internal_error( "Expected conditional branch with predicate" );
       }
       optimized_replacement = std::make_unique<BranchSelector>(
           selector.source_location, branch_type, unary_operator->take_operand() );
@@ -137,7 +139,41 @@ void Optimizer::visit_branch_selector( BranchSelector& selector )
       branch_type = !iv->value ? BranchSelector::Always : BranchSelector::Never;
       break;
     default:
-      selector.internal_error("Expected conditional branch with predicate");
+      selector.internal_error( "Expected conditional branch with predicate" );
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
+  else if ( auto bv = dynamic_cast<BooleanValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = bv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = !bv->value ? BranchSelector::Always : BranchSelector::Never;
+      break;
+    default:
+      selector.internal_error( "Expected conditional branch with predicate" );
+    }
+    optimized_replacement =
+        std::make_unique<BranchSelector>( selector.source_location, branch_type );
+  }
+  else if ( dynamic_cast<UninitializedValue*>( predicate ) )
+  {
+    BranchSelector::BranchType branch_type;
+    switch ( selector.branch_type )
+    {
+    case BranchSelector::IfTrue:
+      branch_type = BranchSelector::Never;
+      break;
+    case BranchSelector::IfFalse:
+      branch_type = BranchSelector::Always;
+      break;
+    default:
+      selector.internal_error( "Expected conditional branch with predicate" );
     }
     optimized_replacement =
         std::make_unique<BranchSelector>( selector.source_location, branch_type );
@@ -149,7 +185,10 @@ void Optimizer::visit_const_declaration( ConstDeclaration& constant )
   visit_children( constant );
   if ( !ConstantValidator().validate( constant.expression() ) )
   {
-    report.error( constant, "Const expression must be optimizable.\n", constant );
+    report.error( constant,
+                  "Const expression must be optimizable.\n"
+                  "{}",
+                  constant );
   }
 }
 

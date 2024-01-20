@@ -163,7 +163,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   u32 objtype;
   if ( elem.remove_prop( "SERIAL", &serial ) == false )
   {
-    ERROR_PRINT << "Item element has no SERIAL property, omitting.\n";
+    ERROR_PRINTLN( "Item element has no SERIAL property, omitting." );
     return nullptr;
   }
 
@@ -182,13 +182,13 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   {
     if ( system_find_item( serial ) )
     {
-      ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" ) << serial;
+      ERROR_PRINTLN( "Duplicate item read from datafiles (Serial={:#X})", serial );
       throw std::runtime_error( "Data integrity error" );
     }
   }
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
   {
-    ERROR_PRINT.Format( "Item (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
+    ERROR_PRINTLN( "Item (Serial {:#X}) has no OBJTYPE property, omitting.", serial );
     return nullptr;
   }
   if ( gamestate.old_objtype_conversions.count( objtype ) )
@@ -197,8 +197,7 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   Items::Item* item = Items::Item::create( objtype, serial );
   if ( item == nullptr )
   {
-    ERROR_PRINT.Format( "Unable to create item: objtype=0x{:X}, serial=0x{:X}" )
-        << objtype << serial;
+    ERROR_PRINTLN( "Unable to create item: objtype={:#X}, serial={:#X}", objtype, serial );
     if ( !Plib::systemstate.config.ignore_load_errors )
       throw std::runtime_error( "Item::create failed!" );
     else
@@ -320,7 +319,7 @@ void read_shadow_realms( Clib::ConfigElem& elem )
   else
   {
     add_realm( name, baserealm );
-    INFO_PRINT << "\nShadowrealm " << name << "\n";
+    INFO_PRINTLN( "\nShadowrealm {}", name );
   }
 }
 
@@ -336,17 +335,17 @@ void read_multi( Clib::ConfigElem& elem )
   u32 objtype;
   if ( elem.remove_prop( "SERIAL", &serial ) == false )
   {
-    ERROR_PRINT << "A Multi has no SERIAL property.\n";
+    ERROR_PRINTLN( "A Multi has no SERIAL property." );
     throw std::runtime_error( "Config File error." );
   }
   if ( system_find_multi( serial ) || system_find_item( serial ) )
   {
-    ERROR_PRINT.Format( "Duplicate item read from datafiles (Serial=0x{:X})\n" ) << serial;
+    ERROR_PRINTLN( "Duplicate item read from datafiles (Serial={:#X})", serial );
     throw std::runtime_error( "Data integrity error" );
   }
   if ( elem.remove_prop( "OBJTYPE", &objtype ) == false )
   {
-    ERROR_PRINT.Format( "Multi (Serial 0x{:X}) has no OBJTYPE property, omitting." ) << serial;
+    ERROR_PRINTLN( "Multi (Serial {:#X}) has no OBJTYPE property, omitting.", serial );
     return;
   }
   if ( gamestate.old_objtype_conversions.count( objtype ) )
@@ -355,8 +354,7 @@ void read_multi( Clib::ConfigElem& elem )
   Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
   if ( multi == nullptr )
   {
-    ERROR_PRINT.Format( "Unable to create multi: objtype=0x{:X}, serial=0x{:X}\n" )
-        << objtype << serial;
+    ERROR_PRINTLN( "Unable to create multi: objtype={:#X}, serial={:#X}", objtype, serial );
     throw std::runtime_error( "Multi::create failed!" );
   }
   multi->readProperties( elem );
@@ -376,7 +374,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 
   if ( Clib::FileExists( filename ) )
   {
-    INFO_PRINT << "  " << filename << ":";
+    INFO_PRINT( "  {}:", filename );
     Clib::ConfigFile cf( filename, tags );
     Clib::ConfigElem elem;
 
@@ -387,7 +385,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
     {
       if ( --num_until_dot == 0 )
       {
-        INFO_PRINT << ".";
+        INFO_PRINT( "." );
         num_until_dot = 1000;
       }
       try
@@ -426,7 +424,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
 
     timer.stop();
 
-    INFO_PRINT << " " << nobjects << " elements in " << timer.ellapsed() << " ms.\n";
+    INFO_PRINTLN( " {} elements in {} ms.", nobjects, timer.ellapsed() );
   }
 }
 
@@ -438,14 +436,17 @@ void read_pol_dat()
 
   if ( settingsManager.polvar.DataWrittenBy.empty() )
   {
-    ERROR_PRINT
-        << "CoreVersion not found in " << polfile << "\n\n"
-        << polfile << " must contain a section similar to: \n"
-        << "System\n"
-        << "{\n"
-        << "\tCoreVersion 99\n"
-        << "}\n\n"
-        << "Ensure that the CoreVersion matches the version that created your data files!\n";
+    ERROR_PRINTLN(
+        "CoreVersion not found in {}\n"
+        "\n"
+        "{} must contain a section similar to: \n"
+        "System\n"
+        "{\n"
+        "\tCoreVersion 99\n"
+        "}\n"
+        "\n"
+        "Ensure that the CoreVersion matches the version that created your data files!",
+        polfile, polfile );
     throw std::runtime_error( "Data file error" );
   }
 }
@@ -510,7 +511,7 @@ void read_storage_dat()
 
   if ( Clib::FileExists( storagefile ) )
   {
-    INFO_PRINT << "  " << storagefile << ":";
+    INFO_PRINT( "  {}:", storagefile );
     Clib::ConfigFile cf2( storagefile );
     gamestate.storage.read( cf2 );
   }
@@ -539,7 +540,7 @@ void import( Clib::ConfigElem& elem )
   objtype = elem.remove_unsigned( "OBJTYPE" );
   if ( objtype > Plib::systemstate.config.max_tile_id )
   {
-    ERROR_PRINT.Format( "Importing file: 0x{:X} is out of range.\n" ) << objtype;
+    ERROR_PRINTLN( "Importing file: {:#X} is out of range.", objtype );
     throw std::runtime_error( "Error while importing file." );
   }
 
@@ -547,7 +548,7 @@ void import( Clib::ConfigElem& elem )
 
   if ( item == nullptr )
   {
-    ERROR_PRINT.Format( "Unable to import item: objtype=0x{:X}\n" ) << objtype;
+    ERROR_PRINTLN( "Unable to import item: objtype={:#X}", objtype );
     throw std::runtime_error( "Item::create failed!" );
   }
 
@@ -583,8 +584,7 @@ void import_new_data()
       import( elem );
     }
     unlink( importfile.c_str() );
-    INFO_PRINT << "Import Results: " << import_count << " imported, " << dupe_count
-               << " duplicates.\n";
+    INFO_PRINTLN( "Import Results: {} imported, {} duplicates.", import_count, dupe_count );
   }
 }
 
@@ -624,18 +624,22 @@ int read_data()
   if ( Clib::FileExists( objectsndtfile ) )
   {
     // Display reads "Reading data files..."
-    ERROR_PRINT << "Error!\n"
-                << "'" << objectsndtfile << " exists.  This probably means the system\n"
-                << "exited while writing its state.  To avoid loss of data,\n"
-                << "forcing human intervention.\n";
+    ERROR_PRINTLN(
+        "Error!\n"
+        "'{} exists.  This probably means the system\n"
+        "exited while writing its state.  To avoid loss of data,\n"
+        "forcing human intervention.",
+        objectsndtfile );
     throw std::runtime_error( "Human intervention required." );
   }
   if ( Clib::FileExists( storagendtfile ) )
   {
-    ERROR_PRINT << "Error!\n"
-                << "'" << storagendtfile << " exists.  This probably means the system\n"
-                << "exited while writing its state.  To avoid loss of data,\n"
-                << "forcing human intervention.\n";
+    ERROR_PRINTLN(
+        "Error!\n"
+        "'{} exists.  This probably means the system\n"
+        "exited while writing its state.  To avoid loss of data,\n"
+        "forcing human intervention.",
+        storagendtfile );
     throw std::runtime_error( "Human intervention required." );
   }
 
@@ -978,8 +982,7 @@ bool commit( const std::string& basename )
     if ( unlink( bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to remove {}: {} ({})\n" )
-          << bakfile_c << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to remove {}: {} ({})", bakfile_c, strerror( err ), err );
     }
   }
 
@@ -989,8 +992,8 @@ bool commit( const std::string& basename )
     if ( rename( datfile_c, bakfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << datfile_c << bakfile_c << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", datfile_c, bakfile_c, strerror( err ),
+                      err );
     }
   }
 
@@ -1000,8 +1003,8 @@ bool commit( const std::string& basename )
     if ( rename( ndtfile_c, datfile_c ) )
     {
       int err = errno;
-      POLLOG_ERROR.Format( "Unable to rename {} to {}: {} ({})\n" )
-          << ndtfile_c << datfile_c << strerror( err ) << err;
+      POLLOG_ERRORLN( "Unable to rename {} to {}: {} ({})", ndtfile_c, datfile_c, strerror( err ),
+                      err );
     }
   }
 
@@ -1063,7 +1066,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store pol datafile!\n";
+                  POLLOG_ERRORLN( "failed to store pol datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1077,7 +1080,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store items datafile!\n";
+                  POLLOG_ERRORLN( "failed to store items datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1091,7 +1094,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store character datafile!\n";
+                  POLLOG_ERRORLN( "failed to store character datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1105,7 +1108,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store npcs datafile!\n";
+                  POLLOG_ERRORLN( "failed to store npcs datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1119,7 +1122,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store multis datafile!\n";
+                  POLLOG_ERRORLN( "failed to store multis datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1133,7 +1136,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store storage datafile!\n";
+                  POLLOG_ERRORLN( "failed to store storage datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1147,7 +1150,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store resource datafile!\n";
+                  POLLOG_ERRORLN( "failed to store resource datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1161,7 +1164,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store guilds datafile!\n";
+                  POLLOG_ERRORLN( "failed to store guilds datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1177,7 +1180,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store datastore datafile!\n";
+                  POLLOG_ERRORLN( "failed to store datastore datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1191,7 +1194,7 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
                 }
                 catch ( ... )
                 {
-                  POLLOG_ERROR << "failed to store party datafile!\n";
+                  POLLOG_ERRORLN( "failed to store party datafile!" );
                   Clib::force_backtrace();
                   result = false;
                 }
@@ -1205,14 +1208,13 @@ int write_data( unsigned int& dirty_writes, unsigned int& clean_writes, long lon
         }  // deconstructor of the SaveContext flushes and joins the queues
         catch ( std::ios_base::failure& e )
         {
-          POLLOG_ERROR << "failed to save datafiles! " << e.what() << ":" << std::strerror( errno )
-                       << "\n";
+          POLLOG_ERRORLN( "failed to save datafiles! {}:{}", e.what(), std::strerror( errno ) );
           Clib::force_backtrace();
           result = false;
         }
         catch ( ... )
         {
-          POLLOG_ERROR << "failed to save datafiles!\n";
+          POLLOG_ERRORLN( "failed to save datafiles!" );
           Clib::force_backtrace();
           result = false;
         }
@@ -1267,7 +1269,7 @@ void read_starting_locations()
   {
     if ( stricmp( elem.type(), "StartingLocation" ) != 0 )
     {
-      ERROR_PRINT << "Unknown element type in startloc.cfg: " << elem.type() << "\n";
+      ERROR_PRINTLN( "Unknown element type in startloc.cfg: {}", elem.type() );
       throw std::runtime_error( "Error in configuration file." );
     }
 
@@ -1289,16 +1291,15 @@ void read_starting_locations()
       }
       else
       {
-        ERROR_PRINT << "Poorly formed coordinate in startloc.cfg: '" << coord << "' for city "
-                    << loc->city << ", description " << loc->desc << "\n";
+        ERROR_PRINTLN( "Poorly formed coordinate in startloc.cfg: '{}' for city {}, description {}",
+                       coord, loc->city, loc->desc );
         throw std::runtime_error( "Configuration file error in startloc.cfg." );
       }
     }
     if ( loc->coords.size() == 0 )
     {
-      ERROR_PRINT << "STARTLOC.CFG: StartingLocation (" << loc->city << "," << loc->desc
-                  << ") has no Coordinate properties."
-                  << "\n";
+      ERROR_PRINTLN( "STARTLOC.CFG: StartingLocation ({},{}) has no Coordinate properties.",
+                     loc->city, loc->desc );
       throw std::runtime_error( "Configuration file error." );
     }
     gamestate.startlocations.push_back( loc.release() );
@@ -1350,8 +1351,7 @@ void read_gameservers()
       iptext = networkManager.ipaddr_str;
       if ( iptext == "" )
       {
-        INFO_PRINT << "Skipping server " << svr->name
-                   << " because there is no Internet IP address.\n";
+        INFO_PRINTLN( "Skipping server {} because there is no Internet IP address.", svr->name );
         continue;
       }
     }
@@ -1360,7 +1360,7 @@ void read_gameservers()
       iptext = networkManager.lanaddr_str;
       if ( iptext == "" )
       {
-        INFO_PRINT << "Skipping server " << svr->name << " because there is no LAN IP address.\n";
+        INFO_PRINTLN( "Skipping server {} because there is no LAN IP address.", svr->name );
         continue;
       }
     }
@@ -1369,8 +1369,8 @@ void read_gameservers()
     {
       if ( sscanf( iptext.c_str(), "%d.%d.%d.%d", &ip0, &ip1, &ip2, &ip3 ) != 4 )
       {
-        ERROR_PRINT << "SERVERS.CFG: Poorly formed IP (" << iptext << ") for GameServer '"
-                    << svr->name << "'.\n";
+        ERROR_PRINTLN( "SERVERS.CFG: Poorly formed IP ({}) for GameServer '{}'.", iptext,
+                       svr->name );
         throw std::runtime_error( "Configuration file error." );
       }
       svr->ip[0] = static_cast<unsigned char>( ip3 );
@@ -1408,8 +1408,8 @@ void read_gameservers()
       }
       else
       {
-        POLLOG_ERROR.Format( "Warning: gethostbyname_r failed for server {} ({}): {}\n" )
-            << svr->name << svr->hostname << my_h_errno;
+        POLLOG_ERRORLN( "Warning: gethostbyname_r failed for server {} ({}): {}", svr->name,
+                        svr->hostname, my_h_errno );
       }
 #endif
     }

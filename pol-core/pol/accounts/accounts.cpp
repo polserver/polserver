@@ -41,7 +41,7 @@ void read_account_data()
 
   std::string accountsfile = Plib::systemstate.config.world_data_path + "accounts.txt";
 
-  INFO_PRINT << "  " << accountsfile << ":";
+  INFO_PRINT( "  {}:", accountsfile );
   stat( accountsfile.c_str(), &Plib::systemstate.accounts_txt_stat );
 
   {
@@ -52,7 +52,7 @@ void read_account_data()
     {
       if ( --num_until_dot == 0 )
       {
-        INFO_PRINT << ".";
+        INFO_PRINT( "." );
         num_until_dot = 1000;
       }
       Core::gamestate.accounts.push_back( Core::AccountRef( new Account( elem ) ) );
@@ -65,7 +65,7 @@ void read_account_data()
     write_account_data();
   }
 
-  INFO_PRINT << " " << naccounts << " elements in " << timer.ellapsed() << " ms.\n";
+  INFO_PRINTLN( " {} elements in {} ms.", naccounts, timer.ellapsed() );
 }
 
 void write_account_data()
@@ -93,7 +93,7 @@ void write_account_data()
   }
   catch ( ... )
   {
-    POLLOG_ERROR << "failed to store accounts!\n";
+    POLLOG_ERRORLN( "failed to store accounts!" );
     result = false;
     Clib::force_backtrace();
   }
@@ -214,7 +214,7 @@ void reload_account_data( void )
     if ( ( newst.st_mtime != Plib::systemstate.accounts_txt_stat.st_mtime ) &&
          ( newst.st_mtime < time( nullptr ) - 10 ) )
     {
-      INFO_PRINT << "Reloading accounts.txt...";
+      INFO_PRINT( "Reloading accounts.txt..." );
       memcpy( &Plib::systemstate.accounts_txt_stat, &newst,
               sizeof Plib::systemstate.accounts_txt_stat );
 
@@ -225,7 +225,7 @@ void reload_account_data( void )
         {
           reread_account( elem );
         }
-        INFO_PRINT << "Done!\n";
+        INFO_PRINTLN( "Done!" );
       }
       if ( Plib::systemstate.accounts_txt_dirty )
       {
@@ -235,7 +235,7 @@ void reload_account_data( void )
   }
   catch ( ... )
   {
-    INFO_PRINT << "Error reading accounts.txt!\n";
+    INFO_PRINTLN( "Error reading accounts.txt!" );
   }
   THREAD_CHECKPOINT( tasks, 599 );
 }

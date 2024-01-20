@@ -7,7 +7,7 @@
 
 #include <cstring>
 #include <filesystem>
-#include <format/format.h>
+
 #include <fstream>
 #include <utility>
 #include <vector>
@@ -30,13 +30,15 @@ FileGenerator::FileGenerator( fs::path basedir, bool hsa, int maxtiles, int mapi
                               Clib::tostring( Plib::MAPBLOCK_CHUNK ) );
   if ( _basedir.empty() )
     _basedir = ".";
-  INFO_PRINT << "Generating testfiles\n"
-             << "  basedir: " << _basedir.string() << "\n"
-             << "  HSA: " << _hsa << "\n"
-             << "  maxtiles: 0x" << fmt::hex( _maxtiles ) << "\n"
-             << "  mapid: " << _mapid << "\n"
-             << "  width: " << _width << "\n"
-             << "  height: " << _height << "\n";
+  INFO_PRINTLN(
+      "Generating testfiles\n"
+      "  basedir: {}\n"
+      "  HSA: {}\n"
+      "  maxtiles: {:#x}\n"
+      "  mapid: {}\n"
+      "  width: {}\n"
+      "  height: {}",
+      _basedir.string(), _hsa, _maxtiles, _mapid, _width, _height );
 
   if ( _basedir != "." && !fs::exists( _basedir ) )
     fs::create_directories( _basedir );
@@ -216,7 +218,7 @@ void FileGenerator::genTiledata( std::vector<T>& land, std::vector<U>& item )
 
 void FileGenerator::generateTiledata()
 {
-  INFO_PRINT << "Generating tiledata.mul\n";
+  INFO_PRINTLN( "Generating tiledata.mul" );
   if ( !_hsa )
   {
     std::vector<Plib::USTRUCT_LAND_TILE> landtiles( 0x4000, Plib::USTRUCT_LAND_TILE() );
@@ -233,7 +235,7 @@ void FileGenerator::generateTiledata()
 
 void FileGenerator::generateMap()
 {
-  INFO_PRINT << "Generating map" << _mapid << ".mul\n";
+  INFO_PRINTLN( "Generating map{}.mul", _mapid );
   // initialize with grass tiles on z=0
   Plib::USTRUCT_MAPINFO grass{ 0x3, 0 };
   std::vector<std::vector<Plib::USTRUCT_MAPINFO>> map;
@@ -334,7 +336,7 @@ void FileGenerator::modifyMap( std::vector<std::vector<Plib::USTRUCT_MAPINFO>>& 
 
 void FileGenerator::generateStatics()
 {
-  INFO_PRINT << "Generating statics" << _mapid << ".mul\n";
+  INFO_PRINTLN( "Generating statics{}.mul", _mapid );
   Plib::USTRUCT_IDX idxempty{ 0xFFffFFff, 0xFFffFFff, 0xFFffFFff };
   std::ofstream file( _basedir / ( "statics" + std::to_string( _mapid ) + ".mul" ),
                       std::ofstream::binary | std::ofstream::out );
@@ -540,68 +542,71 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
     return e;
   };
   multis.resize( 0x3fff, std::vector<T>() );
-  // first boat
-  multis[0x0] = std::vector<T>{
-      elem( 0x3edd, 0, 0, 0, 1 ),   elem( 0x3e4e, 1, 4, 0, 0 ),   elem( 0x3eae, 0, -4, 0, 0 ),
-      elem( 0x3eb2, 2, 0, 0, 0 ),   elem( 0x3eb1, -2, 0, 0, 0 ),  elem( 0x3eac, 0, -2, 0, 1 ),
-      elem( 0x3e9e, 1, -3, 0, 1 ),  elem( 0x3ead, 0, -3, 0, 1 ),  elem( 0x3e9d, -1, -3, 0, 1 ),
-      elem( 0x3eac, 1, -1, 0, 1 ),  elem( 0x3ea1, -1, -1, 0, 1 ), elem( 0x3ea0, 1, -2, 0, 1 ),
-      elem( 0x3e9f, -1, -2, 0, 1 ), elem( 0x3eac, 0, -1, 0, 1 ),  elem( 0x3ea1, -1, 0, 0, 1 ),
-      elem( 0x3eac, 1, 0, 0, 1 ),   elem( 0x3e9c, 1, -4, 0, 1 ),  elem( 0x3e9b, -1, -4, 0, 1 ),
-      elem( 0x3ee4, 2, -1, 0, 1 ),  elem( 0x3eb1, -2, -1, 0, 1 ), elem( 0x3e9a, 0, -5, 0, 1 ),
-      elem( 0x3ede, 2, 0, 0, 1 ),   elem( 0x3edc, -1, 1, 0, 1 ),  elem( 0x3ea1, -1, 1, 0, 1 ),
-      elem( 0x3eac, 0, 1, 0, 1 ),   elem( 0x3eac, 1, 1, 0, 1 ),   elem( 0x3ea5, -1, 2, 0, 1 ),
-      elem( 0x3eac, 0, 2, 0, 1 ),   elem( 0x3ea6, 1, 2, 0, 1 ),   elem( 0x3eb2, 2, 1, 0, 1 ),
-      elem( 0x3eb1, -2, 1, 0, 1 ),  elem( 0x3ece, -2, 2, 0, 1 ),  elem( 0x3ea7, -1, 3, 0, 1 ),
-      elem( 0x3eac, 0, 3, 0, 1 ),   elem( 0x3ea8, 1, 3, 0, 1 ),   elem( 0x3eb6, -1, 4, 0, 1 ),
-      elem( 0x3eaa, 0, 4, 0, 1 ),   elem( 0x3ebc, 0, 5, 0, 1 ),
-  };
-  multis[0x1] = std::vector<T>{
-      elem( 0x3e5a, 0, 0, 0, 1 ),   elem( 0x3e55, -4, 0, 0, 0 ),  elem( 0x3e65, 4, 0, 0, 0 ),
-      elem( 0x3e85, 0, 2, 0, 0 ),   elem( 0x3e8a, 0, -2, 0, 0 ),  elem( 0x3e88, 0, -1, 0, 1 ),
-      elem( 0x3e8b, 1, 1, 0, 1 ),   elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),
-      elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e5b, 1, -1, 0, 1 ),  elem( 0x3e88, 1, -1, 0, 1 ),
-      elem( 0x3e8b, -1, 0, 0, 1 ),  elem( 0x3e88, -1, -1, 0, 1 ), elem( 0x3e8a, -1, -2, 0, 1 ),
-      elem( 0x3e8b, -2, 0, 0, 1 ),  elem( 0x3e8d, -2, -1, 0, 1 ), elem( 0x3e59, 0, 2, 0, 1 ),
-      elem( 0x3e3f, -1, 2, 0, 1 ),  elem( 0x3e7e, 2, 1, 0, 1 ),   elem( 0x3e8a, 1, -2, 0, 1 ),
-      elem( 0x3e7f, 2, -1, 0, 1 ),  elem( 0x3e8b, 2, 0, 0, 1 ),   elem( 0x3e85, 1, 2, 0, 1 ),
-      elem( 0x3e8c, -2, 1, 0, 1 ),  elem( 0x3e8b, 3, 0, 0, 1 ),   elem( 0x3e7d, 3, -1, 0, 1 ),
-      elem( 0x3e90, -3, -1, 0, 1 ), elem( 0x3e8f, -3, 0, 0, 1 ),  elem( 0x3e5c, 2, -2, 0, 1 ),
-      elem( 0x3e7c, 3, 1, 0, 1 ),   elem( 0x3e8e, -3, 1, 0, 1 ),  elem( 0x3e66, 4, 1, 0, 1 ),
-      elem( 0x3e67, 4, -1, 0, 1 ),  elem( 0x3e91, -4, 1, 0, 1 ),  elem( 0x3e94, -4, -1, 0, 1 ),
-      elem( 0x3e63, -5, 0, 0, 1 ),  elem( 0x3e69, 5, 0, 0, 1 ),
-  };
-  multis[0x2] = std::vector<T>{
-      elem( 0x3ee2, 0, 0, 0, 1 ),   elem( 0x3e4b, 0, -4, 0, 0 ),  elem( 0x3eb9, 0, 4, 0, 0 ),
-      elem( 0x3eb1, -2, 0, 0, 0 ),  elem( 0x3eb2, 2, 0, 0, 0 ),   elem( 0x3eac, 1, 0, 0, 1 ),
-      elem( 0x3eac, 1, -1, 0, 1 ),  elem( 0x3eac, 1, 1, 0, 1 ),   elem( 0x3eac, 0, 1, 0, 1 ),
-      elem( 0x3eac, 0, -1, 0, 1 ),  elem( 0x3ee1, -1, 1, 0, 1 ),  elem( 0x3ea1, -1, -1, 0, 1 ),
-      elem( 0x3ea1, -1, 0, 0, 1 ),  elem( 0x3ea1, -1, 1, 0, 1 ),  elem( 0x3eb1, -2, 1, 0, 1 ),
-      elem( 0x3eb1, -2, -1, 0, 1 ), elem( 0x3ea0, 1, -2, 0, 1 ),  elem( 0x3e9f, -1, -2, 0, 1 ),
-      elem( 0x3eac, 0, -2, 0, 1 ),  elem( 0x3ee3, 2, 0, 0, 1 ),   elem( 0x3ee6, 2, -1, 0, 1 ),
-      elem( 0x3eb2, 2, 1, 0, 1 ),   elem( 0x3ea6, 1, 2, 0, 1 ),   elem( 0x3eac, 0, 2, 0, 1 ),
-      elem( 0x3ea5, -1, 2, 0, 1 ),  elem( 0x3ead, 0, -3, 0, 1 ),  elem( 0x3e9d, -1, -3, 0, 1 ),
-      elem( 0x3e9e, 1, -3, 0, 1 ),  elem( 0x3ee0, -2, 2, 0, 1 ),  elem( 0x3ea8, 1, 3, 0, 1 ),
-      elem( 0x3ea7, -1, 3, 0, 1 ),  elem( 0x3eac, 0, 3, 0, 1 ),   elem( 0x3eb6, -1, 4, 0, 1 ),
-      elem( 0x3eb5, 1, 4, 0, 1 ),   elem( 0x3e9b, -1, -4, 0, 1 ), elem( 0x3e9c, 1, -4, 0, 1 ),
-      elem( 0x3eb4, 0, 5, 0, 1 ),   elem( 0x3ec4, 0, -5, 0, 1 ),
-  };
-  multis[0x3] = std::vector<T>{
-      elem( 0x3e6c, 0, 0, 0, 1 ),   elem( 0x3e50, 4, 0, 0, 0 ),   elem( 0x3e93, -4, 0, 0, 0 ),
-      elem( 0x3e8a, 0, -2, 0, 0 ),  elem( 0x3e85, 0, 2, 0, 0 ),   elem( 0x3e8b, 1, 1, 0, 1 ),
-      elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, -1, 0, 0, 1 ),  elem( 0x3e88, -1, -1, 0, 1 ),
-      elem( 0x3e6d, 1, -1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),   elem( 0x3e88, 1, -1, 0, 1 ),
-      elem( 0x3e88, 0, -1, 0, 1 ),  elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e8b, 2, 0, 0, 1 ),
-      elem( 0x3e7e, 2, 1, 0, 1 ),   elem( 0x3e85, 1, 2, 0, 1 ),   elem( 0x3e8a, 1, -2, 0, 1 ),
-      elem( 0x3e8a, -1, -2, 0, 1 ), elem( 0x3e8c, -2, 1, 0, 1 ),  elem( 0x3e8b, -2, 0, 0, 1 ),
-      elem( 0x3e8d, -2, -1, 0, 1 ), elem( 0x3e6b, 0, 2, 0, 1 ),   elem( 0x3e41, -1, 2, 0, 1 ),
-      elem( 0x3e7f, 2, -1, 0, 1 ),  elem( 0x3e7d, 3, -1, 0, 1 ),  elem( 0x3e8b, 3, 0, 0, 1 ),
-      elem( 0x3e7c, 3, 1, 0, 1 ),   elem( 0x3e6e, 2, -2, 0, 1 ),  elem( 0x3e8e, -3, 1, 0, 1 ),
-      elem( 0x3e8f, -3, 0, 0, 1 ),  elem( 0x3e90, -3, -1, 0, 1 ), elem( 0x3e79, 4, 1, 0, 1 ),
-      elem( 0x3e7b, 4, -1, 0, 1 ),  elem( 0x3e94, -4, -1, 0, 1 ), elem( 0x3e91, -4, 1, 0, 1 ),
-      elem( 0x3e76, 5, 0, 0, 1 ),   elem( 0x3e95, -5, 0, 0, 1 ),
-  };
-  // end first boat
+  for (int alternate_offset = 0; alternate_offset < 12; alternate_offset += 4)
+  {
+    // boat
+    multis[0x0 + alternate_offset] = std::vector<T>{
+        elem( 0x3edd, 0, 0, 0, 1 ),   elem( 0x3e4e, 1, 4, 0, 0 ),   elem( 0x3eae, 0, -4, 0, 0 ),
+        elem( 0x3eb2, 2, 0, 0, 0 ),   elem( 0x3eb1, -2, 0, 0, 0 ),  elem( 0x3eac, 0, -2, 0, 1 ),
+        elem( 0x3e9e, 1, -3, 0, 1 ),  elem( 0x3ead, 0, -3, 0, 1 ),  elem( 0x3e9d, -1, -3, 0, 1 ),
+        elem( 0x3eac, 1, -1, 0, 1 ),  elem( 0x3ea1, -1, -1, 0, 1 ), elem( 0x3ea0, 1, -2, 0, 1 ),
+        elem( 0x3e9f, -1, -2, 0, 1 ), elem( 0x3eac, 0, -1, 0, 1 ),  elem( 0x3ea1, -1, 0, 0, 1 ),
+        elem( 0x3eac, 1, 0, 0, 1 ),   elem( 0x3e9c, 1, -4, 0, 1 ),  elem( 0x3e9b, -1, -4, 0, 1 ),
+        elem( 0x3ee4, 2, -1, 0, 1 ),  elem( 0x3eb1, -2, -1, 0, 1 ), elem( 0x3e9a, 0, -5, 0, 1 ),
+        elem( 0x3ede, 2, 0, 0, 1 ),   elem( 0x3edc, -1, 1, 0, 1 ),  elem( 0x3ea1, -1, 1, 0, 1 ),
+        elem( 0x3eac, 0, 1, 0, 1 ),   elem( 0x3eac, 1, 1, 0, 1 ),   elem( 0x3ea5, -1, 2, 0, 1 ),
+        elem( 0x3eac, 0, 2, 0, 1 ),   elem( 0x3ea6, 1, 2, 0, 1 ),   elem( 0x3eb2, 2, 1, 0, 1 ),
+        elem( 0x3eb1, -2, 1, 0, 1 ),  elem( 0x3ece, -2, 2, 0, 1 ),  elem( 0x3ea7, -1, 3, 0, 1 ),
+        elem( 0x3eac, 0, 3, 0, 1 ),   elem( 0x3ea8, 1, 3, 0, 1 ),   elem( 0x3eb6, -1, 4, 0, 1 ),
+        elem( 0x3eaa, 0, 4, 0, 1 ),   elem( 0x3ebc, 0, 5, 0, 1 ),
+    };
+    multis[0x1 + alternate_offset] = std::vector<T>{
+        elem( 0x3e5a, 0, 0, 0, 1 ),   elem( 0x3e55, -4, 0, 0, 0 ),  elem( 0x3e65, 4, 0, 0, 0 ),
+        elem( 0x3e85, 0, 2, 0, 0 ),   elem( 0x3e8a, 0, -2, 0, 0 ),  elem( 0x3e88, 0, -1, 0, 1 ),
+        elem( 0x3e8b, 1, 1, 0, 1 ),   elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),
+        elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e5b, 1, -1, 0, 1 ),  elem( 0x3e88, 1, -1, 0, 1 ),
+        elem( 0x3e8b, -1, 0, 0, 1 ),  elem( 0x3e88, -1, -1, 0, 1 ), elem( 0x3e8a, -1, -2, 0, 1 ),
+        elem( 0x3e8b, -2, 0, 0, 1 ),  elem( 0x3e8d, -2, -1, 0, 1 ), elem( 0x3e59, 0, 2, 0, 1 ),
+        elem( 0x3e3f, -1, 2, 0, 1 ),  elem( 0x3e7e, 2, 1, 0, 1 ),   elem( 0x3e8a, 1, -2, 0, 1 ),
+        elem( 0x3e7f, 2, -1, 0, 1 ),  elem( 0x3e8b, 2, 0, 0, 1 ),   elem( 0x3e85, 1, 2, 0, 1 ),
+        elem( 0x3e8c, -2, 1, 0, 1 ),  elem( 0x3e8b, 3, 0, 0, 1 ),   elem( 0x3e7d, 3, -1, 0, 1 ),
+        elem( 0x3e90, -3, -1, 0, 1 ), elem( 0x3e8f, -3, 0, 0, 1 ),  elem( 0x3e5c, 2, -2, 0, 1 ),
+        elem( 0x3e7c, 3, 1, 0, 1 ),   elem( 0x3e8e, -3, 1, 0, 1 ),  elem( 0x3e66, 4, 1, 0, 1 ),
+        elem( 0x3e67, 4, -1, 0, 1 ),  elem( 0x3e91, -4, 1, 0, 1 ),  elem( 0x3e94, -4, -1, 0, 1 ),
+        elem( 0x3e63, -5, 0, 0, 1 ),  elem( 0x3e69, 5, 0, 0, 1 ),
+    };
+    multis[0x2 + alternate_offset] = std::vector<T>{
+        elem( 0x3ee2, 0, 0, 0, 1 ),   elem( 0x3e4b, 0, -4, 0, 0 ),  elem( 0x3eb9, 0, 4, 0, 0 ),
+        elem( 0x3eb1, -2, 0, 0, 0 ),  elem( 0x3eb2, 2, 0, 0, 0 ),   elem( 0x3eac, 1, 0, 0, 1 ),
+        elem( 0x3eac, 1, -1, 0, 1 ),  elem( 0x3eac, 1, 1, 0, 1 ),   elem( 0x3eac, 0, 1, 0, 1 ),
+        elem( 0x3eac, 0, -1, 0, 1 ),  elem( 0x3ee1, -1, 1, 0, 1 ),  elem( 0x3ea1, -1, -1, 0, 1 ),
+        elem( 0x3ea1, -1, 0, 0, 1 ),  elem( 0x3ea1, -1, 1, 0, 1 ),  elem( 0x3eb1, -2, 1, 0, 1 ),
+        elem( 0x3eb1, -2, -1, 0, 1 ), elem( 0x3ea0, 1, -2, 0, 1 ),  elem( 0x3e9f, -1, -2, 0, 1 ),
+        elem( 0x3eac, 0, -2, 0, 1 ),  elem( 0x3ee3, 2, 0, 0, 1 ),   elem( 0x3ee6, 2, -1, 0, 1 ),
+        elem( 0x3eb2, 2, 1, 0, 1 ),   elem( 0x3ea6, 1, 2, 0, 1 ),   elem( 0x3eac, 0, 2, 0, 1 ),
+        elem( 0x3ea5, -1, 2, 0, 1 ),  elem( 0x3ead, 0, -3, 0, 1 ),  elem( 0x3e9d, -1, -3, 0, 1 ),
+        elem( 0x3e9e, 1, -3, 0, 1 ),  elem( 0x3ee0, -2, 2, 0, 1 ),  elem( 0x3ea8, 1, 3, 0, 1 ),
+        elem( 0x3ea7, -1, 3, 0, 1 ),  elem( 0x3eac, 0, 3, 0, 1 ),   elem( 0x3eb6, -1, 4, 0, 1 ),
+        elem( 0x3eb5, 1, 4, 0, 1 ),   elem( 0x3e9b, -1, -4, 0, 1 ), elem( 0x3e9c, 1, -4, 0, 1 ),
+        elem( 0x3eb4, 0, 5, 0, 1 ),   elem( 0x3ec4, 0, -5, 0, 1 ),
+    };
+    multis[0x3 + alternate_offset] = std::vector<T>{
+        elem( 0x3e6c, 0, 0, 0, 1 ),   elem( 0x3e50, 4, 0, 0, 0 ),   elem( 0x3e93, -4, 0, 0, 0 ),
+        elem( 0x3e8a, 0, -2, 0, 0 ),  elem( 0x3e85, 0, 2, 0, 0 ),   elem( 0x3e8b, 1, 1, 0, 1 ),
+        elem( 0x3e8b, -1, 1, 0, 1 ),  elem( 0x3e8b, -1, 0, 0, 1 ),  elem( 0x3e88, -1, -1, 0, 1 ),
+        elem( 0x3e6d, 1, -1, 0, 1 ),  elem( 0x3e8b, 0, 1, 0, 1 ),   elem( 0x3e88, 1, -1, 0, 1 ),
+        elem( 0x3e88, 0, -1, 0, 1 ),  elem( 0x3e8b, 1, 0, 0, 1 ),   elem( 0x3e8b, 2, 0, 0, 1 ),
+        elem( 0x3e7e, 2, 1, 0, 1 ),   elem( 0x3e85, 1, 2, 0, 1 ),   elem( 0x3e8a, 1, -2, 0, 1 ),
+        elem( 0x3e8a, -1, -2, 0, 1 ), elem( 0x3e8c, -2, 1, 0, 1 ),  elem( 0x3e8b, -2, 0, 0, 1 ),
+        elem( 0x3e8d, -2, -1, 0, 1 ), elem( 0x3e6b, 0, 2, 0, 1 ),   elem( 0x3e41, -1, 2, 0, 1 ),
+        elem( 0x3e7f, 2, -1, 0, 1 ),  elem( 0x3e7d, 3, -1, 0, 1 ),  elem( 0x3e8b, 3, 0, 0, 1 ),
+        elem( 0x3e7c, 3, 1, 0, 1 ),   elem( 0x3e6e, 2, -2, 0, 1 ),  elem( 0x3e8e, -3, 1, 0, 1 ),
+        elem( 0x3e8f, -3, 0, 0, 1 ),  elem( 0x3e90, -3, -1, 0, 1 ), elem( 0x3e79, 4, 1, 0, 1 ),
+        elem( 0x3e7b, 4, -1, 0, 1 ),  elem( 0x3e94, -4, -1, 0, 1 ), elem( 0x3e91, -4, 1, 0, 1 ),
+        elem( 0x3e76, 5, 0, 0, 1 ),   elem( 0x3e95, -5, 0, 0, 1 ),
+    };
+    // end boat
+  }
   multis[0x6b] = std::vector<T>{
       elem( 0x0066, -3, -3, 0, 1 ),  elem( 0x0009, -3, -3, 7, 1 ),  elem( 0x0064, -3, -2, 0, 1 ),
       elem( 0x0008, -3, -2, 7, 1 ),  elem( 0x0064, -3, -1, 0, 1 ),  elem( 0x0008, -3, -1, 7, 1 ),
@@ -700,7 +705,7 @@ void FileGenerator::writeMultis( std::vector<std::vector<T>>& multis )
 
 void FileGenerator::generateMultis()
 {
-  INFO_PRINT << "Generating multi.mul\n";
+  INFO_PRINTLN( "Generating multi.mul" );
   if ( !_hsa )
   {
     std::vector<std::vector<Plib::USTRUCT_MULTI_ELEMENT>> multis;

@@ -1,10 +1,10 @@
 #include "SourceFileCache.h"
 
-#include "clib/logfacility.h"
-#include "clib/timer.h"
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "clib/logfacility.h"
+#include "clib/timer.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -26,7 +26,6 @@ std::shared_ptr<SourceFile> SourceFileCache::load( const SourceFileIdentifier& i
     auto itr = files.find( pathname );
     if ( itr != files.end() )
     {
-      // INFO_PRINT << "Cache hit: " << pathname << "\n";
       profile.cache_hits++;
 
       // We do not propagate errors here.  This happens when the compilation unit
@@ -34,7 +33,6 @@ std::shared_ptr<SourceFile> SourceFileCache::load( const SourceFileIdentifier& i
       // whether the file was just loaded, or was cached.
       return ( *itr ).second;
     }
-    // INFO_PRINT << "Cache miss: " << pathname << "\n";
     profile.cache_misses++;
   }
 
@@ -83,18 +81,10 @@ void SourceFileCache::keep_some()
   for ( auto itr = pathname_frequencies.begin(), end = itr + remove; itr != end; ++itr )
   {
     const std::string& pathname = *( ( *itr ).second );
-    // INFO_PRINT << "Remove from cache: " << *( *itr ).second
-    //                                            << "(" << ( *itr ).first << ")\n";
     ( *itr ).second = nullptr;
     files.erase( pathname );
   }
   profile.prune_cache_delete_micros += delete_timer.ellapsed().count();
-
-  //  INFO_PRINT << "Cache kept:\n";
-  //  for( auto& kv : files )
-  //  {
-  //    INFO_PRINT << "  - " << kv.first << " (" << frequency[kv.first] << ")\n";
-  //  }
 }
 
 }  // namespace Pol::Bscript::Compiler

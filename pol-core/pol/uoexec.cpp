@@ -69,8 +69,8 @@ UOExecutor::~UOExecutor()
   {
     int elapsed = static_cast<int>(
         poltime() - start_time );  // Doh! A script can't run more than 68 years, for this to work.
-    POLLOG_ERROR.Format( "Script {}: {} instr cycles, {} sleep cycles, {} seconds\n" )
-        << scriptname() << instr_cycles << sleep_cycles << elapsed;
+    POLLOG_ERRORLN( "Script {}: {} instr cycles, {} sleep cycles, {} seconds", scriptname(),
+                    instr_cycles, sleep_cycles, elapsed );
   }
 
   pParent = nullptr;
@@ -614,10 +614,12 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Expected Long or String, got datatype "
-             << BObjectImp::typestr( imp->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected Long or String, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( imp->type() ) );
     return false;
   }
 
@@ -643,10 +645,11 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Value " << objtype_long
-             << " is out of range for an objtype\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Value {} is out of range for an objtype",
+        scriptname(), PC, current_module_function->name.get(), param, objtype_long );
     setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " +
                                    Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
     return false;
@@ -710,10 +713,12 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Expected Long, String, or Struct, got datatype "
-             << BObjectImp::typestr( imp->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected Long, String, or Struct, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( imp->type() ) );
     return false;
   }
 
@@ -755,10 +760,11 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Value " << objtype_long
-             << " is out of range for an objtype\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Value {} is out of range for an objtype",
+        scriptname(), PC, current_module_function->name.get(), param, objtype_long );
     setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
     return false;
   }

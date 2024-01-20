@@ -9,7 +9,7 @@
 
 #include "clib_MD5.h"
 
-#include <format/format.h>
+#include <fmt/format.h>
 
 #include "stlutil.h"
 
@@ -35,7 +35,7 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
     {
       if ( !CryptAcquireContext( &hProv, nullptr, nullptr, PROV_RSA_FULL, 0 ) )
       {
-        ERROR_PRINT << "Error " << GetLastError() << " acquiring crypt context\n";
+        ERROR_PRINTLN( "Error {} acquiring crypt context", GetLastError() );
         return false;
       }
     }
@@ -43,7 +43,7 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
 
   if ( !CryptCreateHash( hProv, CALG_MD5, 0, 0, &hHash ) )
   {
-    ERROR_PRINT << "Error " << GetLastError() << " creating hash\n";
+    ERROR_PRINTLN( "Error {} creating hash", GetLastError() );
     return false;
   }
 
@@ -51,23 +51,22 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
   if ( !CryptHashData( hHash, (const unsigned char*)( in.data() ),
                        static_cast<unsigned long>( in.length() ), 0 ) )
   {
-    ERROR_PRINT << "Error " << GetLastError() << " adding data to hash\n";
+    ERROR_PRINTLN( "Error {} adding data to hash", GetLastError() );
     return false;
   }
   unsigned long len = 16;
   unsigned char buf[16];
   if ( !CryptGetHashParam( hHash, HP_HASHVAL, buf, &len, 0 ) )
   {
-    ERROR_PRINT << "Error " << GetLastError() << " getting hash value\n";
+    ERROR_PRINTLN( "Error {} getting hash value", GetLastError() );
     return false;
   }
 
-  fmt::Writer w;
+  out = "";
   for ( auto& elem : buf )
   {
-    w.Format( "{:02x}" ) << (int)elem;
+    fmt::format_to( std::back_inserter( out ), "{:02x}", (int)elem );
   }
-  out = w.str();
 
   CryptDestroyHash( hHash );
   return true;
@@ -100,12 +99,11 @@ bool MD5_Encrypt( const std::string& in, std::string& out )
   EVP_DigestFinal_ex( ctx, hash, nullptr );
   EVP_MD_CTX_free( ctx );
 
-  fmt::Writer w;
+  out = "";
   for ( auto& elem : hash )
   {
-    w.Format( "{:02x}" ) << (int)elem;
+    fmt::format_to( std::back_inserter( out ), "{:02x}", (int)elem );
   }
-  out = w.str();
 
   return true;
 }

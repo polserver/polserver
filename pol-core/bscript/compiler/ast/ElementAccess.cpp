@@ -1,6 +1,5 @@
 #include "ElementAccess.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -22,9 +21,9 @@ void ElementAccess::accept( NodeVisitor& visitor )
   visitor.visit_element_access( *this );
 }
 
-void ElementAccess::describe_to( fmt::Writer& w ) const
+void ElementAccess::describe_to( std::string& w ) const
 {
-  w << "element-access";
+  w += "element-access";
 }
 
 ElementIndexes& ElementAccess::indexes()

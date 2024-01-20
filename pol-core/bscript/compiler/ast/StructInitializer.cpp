@@ -1,6 +1,6 @@
 #include "StructInitializer.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -20,9 +20,9 @@ void StructInitializer::accept( NodeVisitor& visitor )
   visitor.visit_struct_initializer( *this );
 }
 
-void StructInitializer::describe_to( fmt::Writer& w ) const
+void StructInitializer::describe_to( std::string& w ) const
 {
-  w << "struct-initializer";
+  w += "struct-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

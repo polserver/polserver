@@ -1,6 +1,5 @@
 #include "ElementIndexes.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -18,9 +17,9 @@ void ElementIndexes::accept( NodeVisitor& visitor )
   visitor.visit_element_indexes( *this );
 }
 
-void ElementIndexes::describe_to( fmt::Writer& w ) const
+void ElementIndexes::describe_to( std::string& w ) const
 {
-  w << "element-indexes";
+  w += "element-indexes";
 }
 
 }  // namespace Pol::Bscript::Compiler

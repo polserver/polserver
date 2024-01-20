@@ -157,17 +157,6 @@ Pos2d Pos2d::max( const Pos2d& v ) const
   return Pos2d( std::max( _x, v._x ), std::max( _y, v._y ) );
 }
 
-fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v )
-{
-  w << "( " << v.x() << ", " << v.y() << " )";
-  return w;
-}
-std::ostream& operator<<( std::ostream& os, const Pos2d& v )
-{
-  os << "( " << v.x() << ", " << v.y() << " )";
-  return os;
-}
-
 bool Pos3d::operator==( const Pos3d& other ) const
 {
   return _xy == other._xy && _z == other._z;
@@ -272,19 +261,6 @@ Pos3d& Pos3d::crop( const Realms::Realm* realm )
   _xy.crop( realm );
   return *this;
 }
-
-fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v )
-{
-  w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
-  return w;
-}
-
-std::ostream& operator<<( std::ostream& os, const Pos3d& v )
-{
-  os << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << " )";
-  return os;
-}
-
 
 u16 Pos4d::crop_x( u16 x ) const
 {
@@ -425,18 +401,27 @@ bool Pos4d::in_range( const Pos2d& other, u16 range ) const
   return _xyz.in_range( other, range );
 }
 
-fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v )
-{
-  w << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
-    << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
-  return w;
-}
-std::ostream& operator<<( std::ostream& os, const Pos4d& v )
-{
-  os << "( " << v.x() << ", " << v.y() << ", " << (int)v.z() << ", "
-     << ( v.realm() != nullptr ? v.realm()->name() : "null" ) << " )";
-  return os;
-}
-
 }  // namespace Core
 }  // namespace Pol
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Pos2d>::format(
+    const Pol::Core::Pos2d& p, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {}, {} )", p.x(), p.y() ), ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Pos3d>::format(
+    const Pol::Core::Pos3d& p, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format( fmt::format( "( {}, {}, {} )", p.x(), p.y(), p.z() ),
+                                              ctx );
+}
+
+fmt::format_context::iterator fmt::formatter<Pol::Core::Pos4d>::format(
+    const Pol::Core::Pos4d& p, fmt::format_context& ctx ) const
+{
+  return fmt::formatter<std::string>::format(
+      fmt::format( "( {}, {}, {}, {} )", p.x(), p.y(), p.z(),
+                   p.realm() ? p.realm()->name() : "null" ),
+      ctx );
+}

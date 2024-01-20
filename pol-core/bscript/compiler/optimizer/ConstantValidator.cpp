@@ -1,6 +1,7 @@
 #include "ConstantValidator.h"
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/ErrorInitializer.h"
@@ -26,6 +27,11 @@ bool ConstantValidator::validate( Node& node )
 void ConstantValidator::visit_array_initializer( ArrayInitializer& initializer )
 {
   valid = initializer.children.empty();
+}
+
+void ConstantValidator::visit_boolean_value( BooleanValue& )
+{
+  valid = true;
 }
 
 void ConstantValidator::visit_dictionary_initializer( DictionaryInitializer& initializer )
@@ -62,6 +68,11 @@ void ConstantValidator::visit_string_value( StringValue& )
 void ConstantValidator::visit_struct_initializer( StructInitializer& initializer )
 {
   valid = initializer.children.empty();
+}
+
+void ConstantValidator::visit_uninitialized_value( UninitializedValue& )
+{
+  valid = true;
 }
 
 void ConstantValidator::visit_children( Node& )

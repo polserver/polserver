@@ -548,7 +548,7 @@ Bscript::BObjectImp* CallPropertyListMethod_id( PropertyList& proplist, const in
     Bscript::BObjectImp* propval = ex.getParamImp( 1 );
     if ( propval->isa( Bscript::BObjectImp::OTError ) )
     {
-      POLLOG.Format( "wtf, setprop w/ an error '{}' PC:{}\n" ) << ex.scriptname().c_str() << ex.PC;
+      POLLOGLN( "wtf, setprop w/ an error '{}' PC:{}", ex.scriptname().c_str(), ex.PC );
     }
     std::string propname = propname_str->value();
     proplist.setprop( propname, propval->pack() );

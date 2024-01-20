@@ -2,9 +2,59 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>12-29-2023</datemodified>
+		<datemodified>01-18-2024</datemodified>
 	</header>
+	<version name="POL100.2.0">
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript keyword `uninit` to represent the uninitialized value.</change>
+			<change type="Added">Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.</change>
+			<change type="Note">These keywords can be used anywhere a &quot;simple value&quot; is used, eg. expressions, constants, user function default parameters, etc. Additionally, these changes increases the Escript version, therefore a recompilation of all scripts is required.</change>
+		</entry>
+	</version>
 	<version name="POL100.1.0">
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kevin:</author>
+			<change type="Note">POL 100.1.0 is now officially released.</change>
+		</entry>
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kukkino:</author>
+			<change type="Changed">A player that single-clicks a hidden mobile will no longer receive a &quot;You see&quot; message for that mobile.</change>
+		</entry>
+		<entry>
+			<date>01-12-2024</date>
+			<author>Turley:</author>
+			<change type="Added">chr.buffs member. Returns the current active buffs added via addBuff as dictionary.<br/>
+Key is the iconid and value a struct struct{name_cliloc, desc_cliloc, end_time, name_args, desc_args}</change>
+			<change type="Changed">addBuff(int icon_id, int duration, int cliloc_name, int cliloc_descr, string arguments_desc, [string arguments_name]) new optional argument arguments_name.<br/>
+Needs a client higher then 5.x and modifies the cliloc_name like argument_desc does for cliloc_descr.</change>
+		</entry>
+		<entry>
+			<date>01-10-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat item descriptor `AlternateMultiID` and boat method `boat.set_alternate_multiid(position)` to facilitate changing a boat's graphic, for example switching a boat from a &quot;normal&quot; to a &quot;damaged&quot; graphic.</change>
+		</entry>
+		<entry>
+			<date>01-07-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat control script can be specified via the `ControlScript` item descriptor. If none specified, defaults to existing `scripts/misc/boat.ecl`.</change>
+			<change type="Fixed">Shard no longer crashes if boat control script does not exist.</change>
+		</entry>
+		<entry>
+			<date>01-06-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Boat script is now properly considered as a control script for the boat.</change>
+			<change type="Added">Boat piloting via mouse movements. Set pilot of a boat via `boat.set_pilot(who)`, clear via `boat.set_pilot(0)`, and retrieved via `boat.pilot`. See boat method `set_pilot` and member `pilot` for more details.</change>
+			<change type="Added">Boat piloting events are sent to the boat's control script. See `SYSEVENT_BOAT_MOVEMENT` for more details.</change>
+		</entry>
+		<entry>
+			<date>12-31-2023</date>
+			<author>Vitor:</author>
+			<change type="Added">MaxAnimID to pol.cfg to extend animation limit for characters. (default: 2048)</change>
+		</entry>
 		<entry>
 			<date>12-29-2023</date>
 			<author>Turley:</author>

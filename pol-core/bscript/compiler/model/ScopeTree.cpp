@@ -266,36 +266,20 @@ std::vector<std::shared_ptr<Variable>> ScopeInfo::walk_list( const std::string& 
 }
 
 
-void ScopeInfo::describe_tree_to_indented( fmt::Writer& w, const ScopeInfo& node, unsigned indent )
+void ScopeInfo::describe_tree_to_indented( std::string& w, const ScopeInfo& node, unsigned indent )
 {
-  w << std::string( indent * 2, ' ' ) << "- ";
+  w += std::string( indent * 2, ' ' ) + "- ";
 
   for ( const auto& variable : node.variables )
   {
-    w << variable.first << " ";
+    w += variable.first + " ";
   }
-  w << "\n";
+  w += "\n";
   for ( const auto& child : node.children )
   {
     if ( child )
       describe_tree_to_indented( w, *child, indent + 1 );
   }
-}
-
-fmt::Writer& operator<<( fmt::Writer& w, const ScopeInfo& node )
-{
-  node.describe_tree_to_indented( w, node, 0 );
-  return w;
-}
-
-fmt::Writer& operator<<( fmt::Writer& w, const ScopeTree& node )
-{
-  for ( const auto& child : node.scopes )
-  {
-    if ( child )
-      w << *child;
-  }
-  return w;
 }
 
 }  // namespace Pol::Bscript::Compiler

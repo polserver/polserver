@@ -187,8 +187,8 @@ void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
 {
   if ( !UACTION_IS_VALID( static_cast<u16>( action ) ) )
   {
-    ERROR_PRINT << "Warning: attempt to send invalid action 0x" << fmt::hexu( action )
-                << " to character 0x" << fmt::hexu( obj->serial ) << "\n";
+    ERROR_PRINTLN( "Warning: attempt to send invalid action {:#x} to character {:#x}", action,
+                   obj->serial );
     return;
   }
 
@@ -242,8 +242,8 @@ void send_action_to_inrange( const Mobile::Character* obj, UACTION action,
           }
           else
           {
-            ERROR_PRINT << "Warning: undefined animXlate.cfg entry for graphic 0x"
-                        << fmt::hexu( obj->graphic ) << "\n";
+            ERROR_PRINTLN( "Warning: undefined animXlate.cfg entry for graphic {:#x}",
+                           obj->graphic );
           }
 
           msg.update( newanim.anim, newanim.action, newanim.subaction, oldanim.action,

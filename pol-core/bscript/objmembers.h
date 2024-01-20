@@ -29,6 +29,9 @@
 
 #ifndef OBJMEMBERS_H
 #define OBJMEMBERS_H
+
+#include <fmt/format.h>
+
 namespace Pol
 {
 namespace Bscript
@@ -287,15 +290,21 @@ enum MemberID
   MBR_HIT_CHANCE_MOD,
   MBR_PACKAGE,
   MBR_SWING_SPEED_INCREASE,
-  MBR_SWING_SPEED_INCREASE_MOD, // 250
+  MBR_SWING_SPEED_INCREASE_MOD,  // 250
   MBR_EXPORTED_FUNCTIONS,
   MBR_DISABLE_INACTIVITY_TIMEOUT,
   MBR_CURSED,
   MBR_SNOOPSCRIPT,
   MBR_CHARACTER_OWNER,  // 255
   MBR_PARRYCHANCE_MOD,
+  MBR_PILOT,
+  MBR_BUFFS,
 };
 
+inline auto format_as( MemberID id )
+{
+  return fmt::underlying( id );
+}
 
 typedef struct
 {

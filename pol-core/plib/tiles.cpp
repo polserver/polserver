@@ -76,7 +76,7 @@ void load_tiles_cfg()
 
   if ( systemstate.max_graphic == 0 )
   {
-    ERROR_PRINT << "Error: No tiles loaded. Please check tiles.cfg\n";
+    ERROR_PRINTLN( "Error: No tiles loaded. Please check tiles.cfg" );
     return;
   }
 
@@ -85,12 +85,12 @@ void load_tiles_cfg()
 
   if ( new_max != expected_max )
   {
-    INFO_PRINT << "Warning: MaxTileID in pol.cfg does not match graphics in tiles.cfg"
-               << "\tMax graphic in tiles.cfg: " << Clib::hexint( systemstate.max_graphic )
-               << "\n"
-               << "\tCurrent MaxTileID: " << Clib::hexint( systemstate.config.max_tile_id )
-               << "\n"
-               << "\tExpected MaxTileID: " << Clib::hexint( expected_max ) << "\n";
+    INFO_PRINTLN(
+        "Warning: MaxTileID in pol.cfg does not match graphics in tiles.cfg"
+        "\tMax graphic in tiles.cfg: {:#x}\n"
+        "\tCurrent MaxTileID: {:#x}\n"
+        "\tExpected MaxTileID: {:#x}",
+        systemstate.max_graphic, systemstate.config.max_tile_id, expected_max );
   }
 
   systemstate.config.max_tile_id = new_max;

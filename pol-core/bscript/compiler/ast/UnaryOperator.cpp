@@ -1,6 +1,6 @@
 #include "UnaryOperator.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -20,9 +20,9 @@ void UnaryOperator::accept( NodeVisitor& visitor )
   visitor.visit_unary_operator( *this );
 }
 
-void UnaryOperator::describe_to( fmt::Writer& w ) const
+void UnaryOperator::describe_to( std::string& w ) const
 {
-  w << "unary-operator(" << op << ")";
+  fmt::format_to( std::back_inserter( w ), "unary-operator({})", op );
 }
 
 Expression& UnaryOperator::operand()

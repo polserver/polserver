@@ -1,6 +1,5 @@
 #include "IntegerValue.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
@@ -16,9 +15,9 @@ void IntegerValue::accept( NodeVisitor& visitor )
   visitor.visit_integer_value( *this );
 }
 
-void IntegerValue::describe_to( fmt::Writer& w ) const
+void IntegerValue::describe_to( std::string& w ) const
 {
-  w << "integer-value(" << value << ")";
+  fmt::format_to( std::back_inserter( w ), "integer-value({})", value );
 }
 
 }  // namespace Pol::Bscript::Compiler

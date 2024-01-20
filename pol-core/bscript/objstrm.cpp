@@ -7,7 +7,7 @@
 #include "bobject.h"
 #include "impstr.h"
 
-#include <format/format.h>
+
 #include <sstream>
 
 namespace Pol
@@ -19,25 +19,11 @@ std::ostream& operator<<( std::ostream& os, const BObject& obj )
   obj.impptr()->printOn( os );
   return os;
 }
-fmt::Writer& operator<<( fmt::Writer& w, const BObject& obj )
-{
-  std::ostringstream os;
-  obj.impptr()->printOn( os );
-  w << os.str();
-  return w;
-}
 
 std::ostream& operator<<( std::ostream& os, const BObjectImp& objimp )
 {
   objimp.printOn( os );
   return os;
-}
-fmt::Writer& operator<<( fmt::Writer& w, const BObjectImp& objimp )
-{
-  std::ostringstream os;
-  objimp.printOn( os );
-  w << os.str();
-  return w;
 }
 
 void BObject::printOn( std::ostream& os ) const
@@ -90,5 +76,5 @@ void BBoolean::printOn( std::ostream& os ) const
 {
   os << ( bval_ ? "true" : "false" );
 }
-}
-}
+}  // namespace Bscript
+}  // namespace Pol

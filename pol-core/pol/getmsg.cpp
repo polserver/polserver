@@ -96,9 +96,11 @@ Bscript::BObjectImp* UOExecutorModule::mf_RequestInput()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::RequestInput():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::RequestInput():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
   if ( !prompt->hasUTF8Characters() )

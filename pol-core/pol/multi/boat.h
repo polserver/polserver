@@ -177,6 +177,9 @@ public:
 
   virtual void on_color_changed() override;
 
+  Mobile::Character* pilot() const;
+  Bscript::BObjectImp* set_pilot( Mobile::Character* chr );
+  void clear_pilot();
 
   // Should these be arrays instead to support customizable boats with certain component choises ?
   Items::Item* tillerman;
@@ -185,6 +188,7 @@ public:
   Items::Item* hold;
 
 protected:
+  Core::ItemRef mountpiece;
   void move_travellers( enum Core::UFACING move_dir, const BoatContext& oldlocation,
                         unsigned short x = USHRT_MAX, unsigned short y = USHRT_MAX,
                         Realms::Realm* oldrealm = nullptr );

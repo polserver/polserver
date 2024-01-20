@@ -189,7 +189,7 @@ unsigned short layer_to_zone( unsigned short layer )
         return zone;
     }
   }
-  ERROR_PRINT << "Couldn't find an Armor Zone in armrzone.cfg for layer " << layer << "\n";
+  ERROR_PRINTLN( "Couldn't find an Armor Zone in armrzone.cfg for layer {}", layer );
   throw std::runtime_error( "Configuration file error" );
 }
 
@@ -207,7 +207,7 @@ unsigned short zone_name_to_zone( const char* zname )
       return zone;
     }
   }
-  ERROR_PRINT << "Couldn't find an armrzone.cfg config elem named '" << zname << "'\n";
+  ERROR_PRINTLN( "Couldn't find an armrzone.cfg config elem named '{}'", zname );
 
   throw std::runtime_error( "Configuration file error" );
 }
@@ -216,7 +216,7 @@ void load_armor_zones()
   if ( !Clib::FileExists( "config/armrzone.cfg" ) )
   {
     if ( Plib::systemstate.config.loglevel > 1 )
-      INFO_PRINT << "File config/armrzone.cfg not found, skipping.\n";
+      INFO_PRINTLN( "File config/armrzone.cfg not found, skipping." );
     return;
   }
   Clib::ConfigFile cf( "config/armrzone.cfg" );
@@ -236,9 +236,10 @@ void load_armor_zones()
     {
       if ( in_layer < Core::LOWEST_LAYER || in_layer > Core::HIGHEST_LAYER )
       {
-        ERROR_PRINT << "ArmorZone " << az.name << ": Layer " << in_layer << " is out of range.\n"
-                    << "Valid range is " << Core::LOWEST_LAYER << " to " << Core::HIGHEST_LAYER
-                    << "\n";
+        ERROR_PRINTLN(
+            "ArmorZone {}: Layer {} is out of range.\n"
+            "Valid range is {} to {}",
+            az.name, in_layer, Core::LOWEST_LAYER, Core::HIGHEST_LAYER );
         throw std::runtime_error( "Configuration file error" );
       }
       az.layers.push_back( in_layer );
@@ -560,7 +561,7 @@ int Character::charindex() const
       return i;
   }
 
-  POLLOG_INFO << "Warning: Can't find charidx for Character 0x" << fmt::hexu( serial ) << "\n";
+  POLLOG_INFOLN( "Warning: Can't find charidx for Character {:#X}", serial );
   return -1;
 }
 
@@ -792,7 +793,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
   {
     if ( Core::system_find_mobile( serial ) )
     {
-      ERROR_PRINT.Format( "Character 0x{:X} defined more than once.\n" ) << serial;
+      ERROR_PRINTLN( "Character {:#X} defined more than once.", serial );
       throw std::runtime_error( "Data integrity error" );
     }
   }
@@ -807,23 +808,20 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
     if ( charindex >= Plib::systemstate.config.character_slots )
     {
-      ERROR_PRINT << "Account " << acctname << ": "
-                  << "CHARIDX of " << charindex << " is too high for character serial (0x"
-                  << fmt::hexu( serial ) << ")\n";
+      ERROR_PRINTLN( "Account {}: CHARIDX of {} is too high for character serial ({:#X})", acctname,
+                     charindex, serial );
 
       throw std::runtime_error( "Data integrity error" );
     }
     Accounts::Account* search_acct = Accounts::find_account( acctname.c_str() );
     if ( search_acct == nullptr )
     {
-      ERROR_PRINT << "Character '" << name() << "': "
-                  << "Account '" << acctname << "' doesn't exist.\n";
+      ERROR_PRINTLN( "Character '{}': Account '{}' doesn't exist.", name(), acctname );
       throw std::runtime_error( "Data integrity error" );
     }
     if ( search_acct->get_character( charindex ) != nullptr )
     {
-      ERROR_PRINT << "Account " << acctname << " has two characters with CHARIDX of " << charindex
-                  << "\n";
+      ERROR_PRINTLN( "Account {} has two characters with CHARIDX of {}", acctname, charindex );
       throw std::runtime_error( "Data integrity error" );
     }
 
@@ -840,7 +838,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
 
   if ( name_ == "" )
   {
-    ERROR_PRINT << "Character '0x" << fmt::hexu( serial ) << "' has no name!\n";
+    ERROR_PRINTLN( "Character '{:#X}' has no name!", serial );
     throw std::runtime_error( "Data integrity error" );
   }
   wornitems->serial = serial;
@@ -1312,14 +1310,18 @@ bool Character::equippable( const Items::Item* item ) const
   {
     if ( item->objtype_ == Core::settingsManager.extobj.mount )
     {
-      POLLOG_INFO.Format(
-          "\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have a mount "
-          "graphic (current graphic: 0x{:X}). Check that the list of mounts in uoconvert.cfg is "
-          "correct and re-run uoconvert if necessary.\n" )
-          << this->serial << item->serial << item->graphic;
+      POLLOG_INFOLN(
+          "\n"
+          "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have a mount "
+          "graphic (current graphic: {:#X}). Check that the list of mounts in uoconvert.cfg is "
+          "correct and re-run uoconvert if necessary.",
+          this->serial, item->serial, item->graphic );
     }
 
-    return false;
+    if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
+    {
+      return false;
+    }
   }
   if ( layer_is_equipped( item->tile_layer ) )
   {
@@ -1335,21 +1337,25 @@ bool Character::equippable( const Items::Item* item ) const
   if ( item->tile_layer == Core::LAYER_MOUNT && Plib::systemstate.config.enforce_mount_objtype &&
        item->objtype_ != Core::settingsManager.extobj.mount )
   {
-    POLLOG_INFO.Format(
-        "\nWarning: Character 0x{:X} tried to mount Item 0x{:X}, but it doesn't have the mount "
-        "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.\n" )
-        << this->serial << item->serial;
+    POLLOG_INFOLN(
+        "\n"
+        "Warning: Character {:#X} tried to mount Item {:#X}, but it doesn't have the mount "
+        "objtype (as defined in extobj.cfg) and EnforceMountObjtype in pol.cfg is true.",
+        this->serial, item->serial );
     return false;
   }
 
-  if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+  if ( item->objtype_ != Core::settingsManager.extobj.boatmount )
   {
-    return false;
-  }
-  // redundant sanity check
-  if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
-  {
-    return false;
+    if ( ~Plib::tile_flags( item->graphic ) & Plib::FLAG::EQUIPPABLE )
+    {
+      return false;
+    }
+    // redundant sanity check
+    if ( Plib::tilelayer( item->graphic ) != item->tile_layer )
+    {
+      return false;
+    }
   }
 
   const Items::ItemDesc& desc = item->itemdesc();
@@ -1618,9 +1624,7 @@ void Character::set_vitals_to_maximum()  // throw()
 
 bool Character::setgraphic( u16 newgraphic )
 {
-  if ( newgraphic < 1 ||
-       newgraphic >
-           0x800 )  // Maximum graphic: 2048, changed to allow new graphics -- Nando - 2009-01-14
+  if ( newgraphic < 1 || newgraphic > Plib::systemstate.config.max_anim_id )
     return false;
 
   set_dirty();
@@ -1826,7 +1830,7 @@ double Character::apply_damage( double damage, Character* source, bool userepsys
 {
   damage = armor_absorb_damage( damage );
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINT << "Final damage: " << damage << "\n";
+    INFO_PRINTLN( "Final damage: {}", damage );
   do_imhit_effects();
   apply_raw_damage_hundredths( static_cast<unsigned int>( damage * 100 ), source, userepsys,
                                send_damage_packet );
@@ -1887,7 +1891,7 @@ void Character::run_hit_script( Character* defender, double damage )
   }
   else
   {
-    POLLOG << "Blech, couldn't start hitscript " << weapon->hit_script().name() << "\n";
+    POLLOGLN( "Blech, couldn't start hitscript {}", weapon->hit_script().name() );
   }
 }
 
@@ -1966,7 +1970,7 @@ void Character::resurrect()
 {
   if ( !dead() )
   {
-    ERROR_PRINT << "uh, trying to resurrect " << name() << ", who isn't dead.\n";
+    ERROR_PRINTLN( "uh, trying to resurrect {}, who isn't dead.", name() );
     return;
   }
   set_dirty();
@@ -2068,8 +2072,7 @@ void Character::on_death( Items::Item* corpse )
   }
   else
   {
-    ERROR_PRINT.Format( "Create Character: Failed to equip death shroud 0x{:X}\n" )
-        << death_shroud->graphic;
+    ERROR_PRINTLN( "Create Character: Failed to equip death shroud {:#X}", death_shroud->graphic );
     death_shroud->destroy();
   }
 
@@ -2247,6 +2250,31 @@ void Character::die()
       _copy_item( item );
       continue;
     }
+
+    if ( item->layer == Core::LAYER_MOUNT &&
+         item->objtype_ == Core::settingsManager.extobj.boatmount )
+    {
+      Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
+
+      // Clear the pilot from the boat
+      if ( multi != nullptr && multi->script_isa( Core::POLCLASS_BOAT ) )
+      {
+        Multi::UBoat* boat = static_cast<Multi::UBoat*>( multi );
+        if ( boat->pilot() == this )
+        {
+          boat->clear_pilot();
+          continue;
+        }
+      }
+
+      // If for some reason there was a mismatch between chr multi and boat pilot, just destroy the
+      // boatmount. Destroying the boatmount item will leave an orphaned itemref on the boat multi.
+      // The itemref will be re-set on next set_pilot call, as an orphaned boatmount behaves as if
+      // there is no boatmount at all.
+      destroy_item( item );
+      continue;
+    }
+
     ///
     /// Unequip scripts aren't honored when moving a dead mobile's equipment
     /// onto a corpse if honor_unequip_script_on_death is disabled.
@@ -2785,7 +2813,7 @@ void PropagateMove( /*Client *client,*/ Character* chr )
 void Character::swing_task_func( Character* chr )
 {
   THREAD_CHECKPOINT( tasks, 800 );
-  INFO_PRINT_TRACE( 20 ) << "swing_task_func(0x" << fmt::hexu( chr->serial ) << ")\n";
+  INFO_PRINTLN_TRACE( 20 )( "swing_task_func({:#x})", chr->serial );
   chr->mob_flags_.set( MOB_FLAGS::READY_TO_SWING );
   chr->check_attack_after_move();
   THREAD_CHECKPOINT( tasks, 899 );
@@ -2793,7 +2821,7 @@ void Character::swing_task_func( Character* chr )
 
 void Character::schedule_attack()
 {
-  INFO_PRINT_TRACE( 18 ) << "schedule_attack(0x" << fmt::hexu( this->serial ) << ")\n";
+  INFO_PRINTLN_TRACE( 18 )( "schedule_attack({:#x})", this->serial );
   // we'll get here with a swing_task already set, if
   // while in an adjacent cell to your opponent, you turn/move
   // while waiting for your timeout.
@@ -2805,8 +2833,9 @@ void Character::schedule_attack()
 
     if ( !weapon_delay )
     {
-      INFO_PRINT_TRACE( 19 ) << "clocks[speed] = (" << Core::POLCLOCKS_PER_SEC << "*15000)/(("
-                             << dexterity() << "+100)*" << weapon_speed << ")\n";
+      INFO_PRINTLN_TRACE( 19 )
+      ( "clocks[speed] = ({}*15000)/(({}+100)*{})", Core::POLCLOCKS_PER_SEC, dexterity(),
+        weapon_speed );
 
       clocks = Core::POLCLOCKS_PER_SEC * static_cast<Core::polclock_t>( 15000L );
       clocks /= ( dexterity() + 100 ) * weapon_speed;
@@ -2817,8 +2846,9 @@ void Character::schedule_attack()
       if ( delay_sum < 0 )
         delay_sum = 0;
 
-      INFO_PRINT_TRACE( 19 ) << "clocks[delay] = ((" << weapon_delay << "+" << delay_mod() << "="
-                             << delay_sum << ")*" << Core::POLCLOCKS_PER_SEC << ")/1000\n";
+      INFO_PRINTLN_TRACE( 19 )
+      ( "clocks[delay] = (({}+{}={})*{})/1000", weapon_delay, delay_mod(), delay_sum,
+        Core::POLCLOCKS_PER_SEC );
 
       clocks = ( delay_sum * Core::POLCLOCKS_PER_SEC ) / 1000;
     }
@@ -2831,9 +2861,9 @@ void Character::schedule_attack()
 
     if ( clocks < ( Core::POLCLOCKS_PER_SEC / 5 ) )
     {
-      INFO_PRINT_TRACE( 20 ) << name() << " attack timer: " << clocks << "\n";
+      INFO_PRINTLN_TRACE( 20 )( "{} attack timer: {}", name(), clocks );
     }
-    INFO_PRINT_TRACE( 19 ) << "clocks=" << clocks << "\n";
+    INFO_PRINTLN_TRACE( 19 )( "clocks={}", clocks );
 
     new Core::OneShotTaskInst<Character*>( &swing_task, swing_timer_start_clock_ + clocks + 1,
                                            swing_task_func, this );
@@ -2842,7 +2872,7 @@ void Character::schedule_attack()
 
 void Character::reset_swing_timer()
 {
-  INFO_PRINT_TRACE( 15 ) << "reset_swing_timer(0x" << fmt::hexu( this->serial ) << ")\n";
+  INFO_PRINTLN_TRACE( 15 )( "reset_swing_timer({:#x})", this->serial );
   mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
 
   swing_timer_start_clock_ = Core::polclock();
@@ -2857,8 +2887,8 @@ void Character::reset_swing_timer()
 
 bool Character::manual_set_swing_timer( Core::polclock_t clocks )
 {
-  INFO_PRINT_TRACE( 15 ) << "manual_set_swing_timer(0x" << fmt::hexu( this->serial )
-                         << ") delay: " << clocks << "\n";
+  INFO_PRINTLN_TRACE( 15 )
+  ( "manual_set_swing_timer({:#x}) delay: {}", this->serial, clocks );
   mob_flags_.remove( MOB_FLAGS::READY_TO_SWING );
 
   swing_timer_start_clock_ = Core::polclock();
@@ -2895,19 +2925,21 @@ bool Character::is_attackable( Character* who ) const
   passert( who != nullptr );
   if ( Core::settingsManager.combat_config.scripted_attack_checks )
   {
-    INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
-                           << fmt::hexu( who->serial ) << "): will be handled by combat hook.\n";
+    INFO_PRINTLN_TRACE( 21 )
+    ( "is_attackable({:#x},{:#x}): will be handled by combat hook.", this->serial, who->serial );
     return true;
   }
   else
   {
-    INFO_PRINT_TRACE( 21 ) << "is_attackable(0x" << fmt::hexu( this->serial ) << ",0x"
-                           << fmt::hexu( who->serial ) << "):\n"
-                           << "  who->dead:  " << who->dead() << "\n"
-                           << "  wpn->inrange: " << weapon->in_range( this, who ) << "\n"
-                           << "  hidden:     " << hidden() << "\n"
-                           << "  who->hidden:  " << who->hidden() << "\n"
-                           << "  concealed:  " << is_concealed_from_me( who ) << "\n";
+    INFO_PRINTLN_TRACE( 21 )
+    ( "is_attackable({:#x},{:#x}):\n"
+      "  who->dead:  {}\n"
+      "  wpn->inrange: {}\n"
+      "  hidden:     {}\n"
+      "  who->hidden:  {}\n"
+      "  concealed:  {}",
+      this->serial, who->serial, who->dead(), weapon->in_range( this, who ), hidden(),
+      who->hidden(), is_concealed_from_me( who ) );
     if ( who->dead() )
       return false;
     else if ( !weapon->in_range( this, who ) )
@@ -2929,8 +2961,8 @@ Character* Character::get_attackable_opponent() const
 {
   if ( opponent_ != nullptr )
   {
-    INFO_PRINT_TRACE( 20 ) << "get_attackable_opponent(0x" << fmt::hexu( this->serial )
-                           << "): checking opponent, 0x" << fmt::hexu( opponent_->serial ) << "\n";
+    INFO_PRINTLN_TRACE( 20 )
+    ( "get_attackable_opponent({:#x}): checking opponent {:#x}", this->serial, opponent_->serial );
     if ( is_attackable( opponent_ ) )
       return opponent_;
   }
@@ -2939,8 +2971,8 @@ Character* Character::get_attackable_opponent() const
   {
     for ( auto& who : opponent_of )
     {
-      INFO_PRINT_TRACE( 20 ) << "get_attackable_opponent(0x" << fmt::hexu( this->serial )
-                             << "): checking opponent_of, 0x" << fmt::hexu( who->serial ) << "\n";
+      INFO_PRINTLN_TRACE( 20 )
+      ( "get_attackable_opponent({:#x}): checking opponent_of {:#x}", this->serial, who->serial );
       if ( is_attackable( who ) )
         return who;
     }
@@ -3008,9 +3040,8 @@ void Character::inform_imoved( Character* /*chr*/ ) {}
 
 void Character::set_opponent( Character* new_opponent, bool inform_old_opponent )
 {
-  INFO_PRINT_TRACE( 12 ) << "set_opponent(0x" << fmt::hexu( this->serial ) << ",0x"
-                         << ( new_opponent != nullptr ? fmt::hex( new_opponent->serial ) : '0' )
-                         << ")\n";
+  INFO_PRINTLN_TRACE( 12 )
+  ( "set_opponent({:#x},{:#x})", this->serial, new_opponent != nullptr ? new_opponent->serial : 0 );
   if ( new_opponent != nullptr )
   {
     if ( new_opponent->dead() )
@@ -3254,7 +3285,7 @@ void Character::attack( Character* opponent )
   }
 
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINT << name() << " attacks " << opponent->name() << "\n";
+    INFO_PRINTLN( "{} attacks {}", name(), opponent->name() );
 
   if ( weapon->is_projectile() )
   {
@@ -3323,18 +3354,18 @@ void Character::attack( Character* opponent )
   hit_chance += hitchance_mod() * 0.001f;
   hit_chance -= opponent->evasionchance_mod() * 0.001f;
   if ( Core::settingsManager.watch.combat )
-    INFO_PRINT << "Chance to hit: " << hit_chance << ": ";
+    INFO_PRINT( "Chance to hit: {}: ", hit_chance );
   if ( Clib::random_double( 1.0 ) < hit_chance )
   {
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Hit!\n";
+      INFO_PRINTLN( "Hit!" );
     do_hit_success_effects();
 
     double damage = random_weapon_damage();
     damage_weapon();
 
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Base damage: " << damage << "\n";
+      INFO_PRINTLN( "Base damage: {}", damage );
 
     double damage_multiplier = attribute( Core::gamestate.pAttrTactics->attrid ).effective() + 50;
     damage_multiplier += strength() * 0.20f;
@@ -3343,8 +3374,8 @@ void Character::attack( Character* opponent )
     damage *= damage_multiplier;
 
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Damage multiplier due to tactics/STR: " << damage_multiplier
-                 << " Result: " << damage << "\n";
+      INFO_PRINTLN( "Damage multiplier due to tactics/STR: {} Result: {}", damage_multiplier,
+                    damage );
 
     if ( opponent->shield != nullptr )
     {
@@ -3360,11 +3391,11 @@ void Character::attack( Character* opponent )
           opponent->attribute( Core::gamestate.pAttrParry->attrid ).effective() / 200.0;
       parry_chance += opponent->parrychance_mod() * 0.001f;
       if ( Core::settingsManager.watch.combat )
-        INFO_PRINT << "Parry Chance: " << parry_chance << ": ";
+        INFO_PRINT( "Parry Chance: {}: ", parry_chance );
       if ( Clib::random_double( 1.0 ) < parry_chance )
       {
         if ( Core::settingsManager.watch.combat )
-          INFO_PRINT << opponent->shield->ar() << " hits deflected\n";
+          INFO_PRINTLN( "{} hits deflected", opponent->shield->ar() );
         if ( Core::settingsManager.combat_config.display_parry_success_messages &&
              opponent->client )
           Core::send_sysmessage( opponent->client, "You successfully parried the attack!" );
@@ -3376,7 +3407,7 @@ void Character::attack( Character* opponent )
       else
       {
         if ( Core::settingsManager.watch.combat )
-          INFO_PRINT << "failed.\n";
+          INFO_PRINTLN( "failed." );
       }
     }
     if ( weapon->hit_script().empty() )
@@ -3392,7 +3423,7 @@ void Character::attack( Character* opponent )
   else
   {
     if ( Core::settingsManager.watch.combat )
-      INFO_PRINT << "Miss!\n";
+      INFO_PRINTLN( "Miss!" );
     opponent->on_swing_failure( this );
     do_hit_failure_effects();
     if ( Core::gamestate.system_hooks.hitmiss_hook )
@@ -3408,9 +3439,9 @@ void Character::check_attack_after_move()
   FUNCTION_CHECKPOINT( check_attack_after_move, 1 );
   Character* opponent = get_attackable_opponent();
   FUNCTION_CHECKPOINT( check_attack_after_move, 2 );
-  INFO_PRINT_TRACE( 20 ) << "check_attack_after_move(0x" << fmt::hexu( this->serial )
-                         << "): opponent is 0x"
-                         << ( opponent != nullptr ? fmt::hex( opponent->serial ) : '0' ) << "\n";
+  INFO_PRINTLN_TRACE( 20 )
+  ( "check_attack_after_move({:#x}): opponent is {:#x}", this->serial,
+    opponent != nullptr ? opponent->serial : 0 );
   if ( opponent != nullptr &&  // and I have an opponent
        !dead() &&              // If I'm not dead
        ( Core::settingsManager.combat_config.attack_while_frozen ||
@@ -3433,7 +3464,7 @@ void Character::check_attack_after_move()
     else
     {
       FUNCTION_CHECKPOINT( check_attack_after_move, 7 );
-      INFO_PRINT_TRACE( 20 ) << "not ready to swing\n";
+      INFO_PRINTLN_TRACE( 20 )( "not ready to swing" );
       schedule_attack();
       FUNCTION_CHECKPOINT( check_attack_after_move, 8 );
     }
@@ -3775,6 +3806,12 @@ bool Character::CustomHousingMove( unsigned char i_dir )
   return false;
 }
 
+bool Character::is_piloting_boat() const
+{
+  auto* mountpiece = wornitem( Core::LAYER_MOUNT );
+  return mountpiece != nullptr && mountpiece->objtype_ == Core::settingsManager.extobj.boatmount;
+}
+
 //************************************
 // Method:    move
 // FullName:  Character::move
@@ -3785,6 +3822,11 @@ bool Character::CustomHousingMove( unsigned char i_dir )
 //************************************
 bool Character::move( unsigned char i_dir )
 {
+  if ( is_piloting_boat() )
+  {
+    return false;
+  }
+
   lastpos = pos();
 
   // if currently building a house chr can move free inside the multi
@@ -4207,17 +4249,18 @@ unsigned int Character::guildid() const
  * Sends packets to the client accordingly
  * @author Bodom
  */
-void Character::addBuff( u16 icon, u16 duration, u32 cl_name, u32 cl_descr,
-                         const std::string& arguments )
+void Character::addBuff( u16 icon, u16 duration, u32 cl_name, const std::string& name_arguments,
+                         u32 cl_descr, const std::string& desc_arguments )
 {
   // Icon is already present, must send a remove packet first or client will not update
   delBuff( icon );
 
   Core::gameclock_t end = Core::read_gameclock() + duration;
-  buffs_[icon] = { end, cl_name, cl_descr, arguments };
+  buffs_[icon] = { end, cl_name, cl_descr, name_arguments, desc_arguments };
 
   if ( client != nullptr )
-    send_buff_message( this, icon, true, duration, cl_name, cl_descr, arguments );
+    send_buff_message( this, icon, true, duration, cl_name, name_arguments, cl_descr,
+                       desc_arguments );
 }
 
 /**
@@ -4246,11 +4289,11 @@ bool Character::delBuff( u16 icon )
  */
 void Character::clearBuffs()
 {
-  for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+  if ( client != nullptr )
   {
-    if ( client != nullptr )
+    for ( const auto& buf : buffs_ )
     {
-      send_buff_message( this, it->first, false );
+      send_buff_message( this, buf.first, false );
     }
   }
   buffs_.clear();
@@ -4265,16 +4308,12 @@ void Character::send_buffs()
   if ( client == nullptr )
     return;
 
-  for ( auto it = buffs_.begin(); it != buffs_.end(); ++it )
+  for ( const auto& [icon, buf] : buffs_ )
   {
-    int duration = it->second.end - Core::read_gameclock();
-    if ( duration < 0 )
-      duration = 0;
-    else if ( duration > 0xFFFF )
-      duration = 0xFFFF;
+    u16 duration = Clib::clamp_convert<u16>( buf.end - Core::read_gameclock() );
 
-    send_buff_message( this, it->first, true, static_cast<u16>( duration ), it->second.cl_name,
-                       it->second.cl_descr, it->second.arguments );
+    send_buff_message( this, icon, true, duration, buf.cl_name, buf.name_arguments, buf.cl_descr,
+                       buf.desc_arguments );
   }
 }
 

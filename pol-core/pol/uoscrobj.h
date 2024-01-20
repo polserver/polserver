@@ -260,6 +260,12 @@ public:
   DamageEvent( Mobile::Character* source, unsigned short damage );
 };
 
+class BoatMovementEvent : public Bscript::BStruct
+{
+public:
+  BoatMovementEvent( Mobile::Character* source, const u8 speed, const u8 direction,
+                     const u8 relative_direction );
+};
 
 class SourcedEvent : public Bscript::BStruct
 {

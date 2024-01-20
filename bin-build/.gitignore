@@ -20,10 +20,11 @@ tinyxml.dir
 format.dir
 stackwalk.dir
 *ninja*
-kaitai.dir
+kaitai
 curl
 Testing
 CTest*
 ipch
 module_defs
 coretest
+fmt

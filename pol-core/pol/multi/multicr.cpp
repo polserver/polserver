@@ -49,8 +49,8 @@ UMulti* UMulti::create( const Items::ItemDesc& descriptor, u32 serial )
   }
   else
   {
-    ERROR_PRINT << "Tried to create multi 0x" << fmt::hexu( descriptor.objtype )
-                << " but no definition exists in itemdesc.cfg\n";
+    ERROR_PRINTLN( "Tried to create multi {:#X} but no definition exists in itemdesc.cfg",
+                   descriptor.objtype );
     return nullptr;
   }
 
@@ -79,5 +79,5 @@ Bscript::BObjectImp* UMulti::scripted_create( const Items::ItemDesc& descriptor,
   else
     return new Bscript::BError( "Don't know what kind of multi to make" );
 }
-}
-}
+}  // namespace Multi
+}  // namespace Pol

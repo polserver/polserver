@@ -849,6 +849,15 @@ struct PKTBI_BF_32
   u32 unk2;  // always 0x0 in my tests
 };
 
+// HSA Boat movement
+struct PKTBI_BF_33
+{
+  u32 serial;
+  u8 direction;
+  u8 unk1;  // direction is duplicated
+  u8 speed;
+};
+
 struct PKTBI_BF
 {
   u8 msgtype;
@@ -883,6 +892,7 @@ struct PKTBI_BF
     u8 se_spam;                                         // BF.24
     PKTBI_BF_RACE_CHANGER_RESULT characterracechanger;  // BF.2A
     PKTBI_BF_32 toggleflying;                           // BF.32
+    PKTBI_BF_33 boatmove;                               // BF.33
   };
 
   enum
@@ -915,7 +925,8 @@ struct PKTBI_BF
     TYPE_DAMAGE = 0x22,
     TYPE_SESPAM = 0x24,
     TYPE_CHARACTER_RACE_CHANGER = 0x2A,
-    TYPE_TOGGLE_FLYING = 0x32
+    TYPE_TOGGLE_FLYING = 0x32,
+    TYPE_BOAT_MOVE = 0x33
   };
   enum
   {

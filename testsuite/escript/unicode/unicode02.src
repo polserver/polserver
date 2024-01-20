@@ -16,7 +16,6 @@ print( u == t );
 print( p != u );
 print(sep);
 
-var uninit;
 var optests := array{
 	"1234", "Нè└└☺", "b", "ab", "a", "caterpillar",
 	array{ "α", "β", "γ", 19 },

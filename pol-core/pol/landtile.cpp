@@ -37,7 +37,7 @@ void load_landtile_cfg()
   load_all_cfgs( "landtiles.cfg", "landtile", load_landtile_entry );
 
   if ( !gamestate.landtiles_loaded )
-    ERROR_PRINT << "Warning: No landtiles loaded. Please check landtiles.cfg\n";
+    ERROR_PRINTLN( "Warning: No landtiles loaded. Please check landtiles.cfg" );
 }
 
 unsigned int landtile_uoflags( unsigned short landtile )

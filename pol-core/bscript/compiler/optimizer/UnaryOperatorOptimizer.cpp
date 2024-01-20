@@ -1,10 +1,12 @@
 #include "UnaryOperatorOptimizer.h"
 
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -20,6 +22,24 @@ std::unique_ptr<Expression> UnaryOperatorOptimizer::optimize()
 }
 
 void UnaryOperatorOptimizer::visit_children( Node& ) {}
+
+void UnaryOperatorOptimizer::visit_boolean_value( BooleanValue& bv )
+{
+  bool value;
+
+  switch ( unary_operator.token_id )
+  {
+  case TOK_LOG_NOT:
+    value = !bv.value;
+    break;
+
+  default:
+    return;
+  }
+
+  // Logical-not returns 1/0 as BLong, ie. `!false` == `1`
+  optimized_result = std::make_unique<IntegerValue>( bv.source_location, value );
+}
 
 void UnaryOperatorOptimizer::visit_float_value( FloatValue& fv )
 {
@@ -91,4 +111,11 @@ void UnaryOperatorOptimizer::visit_member_access( MemberAccess& gm )
       gm.source_location, consume, std::move( entity ), gm.name, new_token_id, *gm.known_member );
 }
 
+void UnaryOperatorOptimizer::visit_uninitialized_value( UninitializedValue& uninit )
+{
+  if ( unary_operator.token_id == TOK_LOG_NOT )
+  {
+    optimized_result = std::make_unique<IntegerValue>( uninit.source_location, 1 );
+  }
+}
 }  // namespace Pol::Bscript::Compiler

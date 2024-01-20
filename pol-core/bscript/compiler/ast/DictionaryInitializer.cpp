@@ -1,6 +1,5 @@
 #include "DictionaryInitializer.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -18,9 +17,9 @@ void DictionaryInitializer::accept( NodeVisitor& visitor )
   visitor.visit_dictionary_initializer( *this );
 }
 
-void DictionaryInitializer::describe_to( fmt::Writer& w ) const
+void DictionaryInitializer::describe_to( std::string& w ) const
 {
-  w << "dictionary-initializer";
+  w += "dictionary-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

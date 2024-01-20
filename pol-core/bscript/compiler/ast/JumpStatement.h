@@ -11,7 +11,8 @@ class FlowControlLabel;
 class JumpStatement : public Statement
 {
 public:
-  enum JumpType {
+  enum JumpType
+  {
     Break,
     Continue
   };
@@ -19,7 +20,7 @@ public:
   JumpStatement( const SourceLocation&, JumpType, std::string label );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const JumpType jump_type;
   const std::string label;

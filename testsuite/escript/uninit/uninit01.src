@@ -1,0 +1,23 @@
+print(uninit);
+
+uninit := 5;
+print(uninit);
+
+// `uninit` is an expression, so this should work, just like `++1++`.
+++uninit++;
+print(uninit);
+
+print({ 1, 2, uninit });
+print(struct{ foo := uninit });
+print(dictionary{ "foo" -> uninit });
+
+enum E
+    FOO := uninit
+endenum
+print(FOO);
+
+const BAR := uninit;
+print(BAR);
+
+function blubb(bar, baz := uninit) print($"bar: {bar} baz: {baz}"); endfunction
+blubb("BAR");

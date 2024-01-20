@@ -70,6 +70,8 @@ class TestBrain(brain.Brain):
         self.client.move(arg)
       elif todo=="list_objects":
         self.client.addTodo(brain.Event(brain.Event.EVT_LIST_OBJS))
+      elif todo=="list_equipped_items":
+        self.client.addTodo(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, serial = arg))
       elif todo=="open_backpack":
         bp=self.client.player.openBackPack()
         content=0
@@ -93,6 +95,15 @@ class TestBrain(brain.Brain):
           brain.Event(brain.Event.EVT_LIFT_ITEM,
             clientid = self.id,
             serial = arg))
+      elif todo=="boat_move":
+        self.client.boat_move(arg['serial'], arg['direction'], arg['speed'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_BOAT_MOVE,
+            clientid = self.id,
+            serial = arg['serial'],
+            direction = arg['direction'],
+            speed = arg['speed'],
+            ))
       elif todo=="drop_item":
         self.client.drop(arg['serial'], arg['x'], arg['y'], arg['z'], arg['dropped_on_serial'])
         self.server.addevent(
@@ -269,6 +280,16 @@ class PolServer:
         )
         if hasattr(o,"parent") and o.parent is not None:
           res["objs"][-1]["parent"]=o.parent.serial
+    elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
+      res["objs"]=[]
+      if ev.mobile is not None and ev.mobile.equip is not None:
+        for k,o in ev.mobile.equip.items():
+          res["objs"].append(
+                {'serial':o.serial,
+                 'color':o.color,
+                 'layer':k,
+                 'graphic':o.graphic}
+          )
     elif ev.type==Event.EVT_OPEN_BACKPACK:
       res["serial"]=ev.serial
       res["content_count"]=ev.contentlen
@@ -291,6 +312,10 @@ class PolServer:
       res['amount']=1
     elif ev.type==Event.EVT_MOVE_ITEM_REJECTED:
       res['reason']=ev.reason
+    elif ev.type==Event.EVT_BOAT_MOVE:
+      res['serial']=ev.serial
+      res['direction']=ev.direction
+      res['speed']=ev.speed
     elif ev.type==Event.EVT_DROP_ITEM:
       res['serial']=ev.serial
     elif ev.type==Event.EVT_DROP_APPROVED:

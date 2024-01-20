@@ -115,7 +115,7 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
     {
       auto pkg = Plib::find_package( tmp );
       if ( pkg == nullptr )
-        ERROR_PRINT << "Fileaccess package entry not found: " << tmp << "\n";
+        ERROR_PRINTLN( "Fileaccess package entry not found: {}", tmp );
       else
         Packages.insert( pkg );
     }
@@ -130,7 +130,7 @@ FileAccess::FileAccess( Clib::ConfigElem& elem )
         if ( pkgdef_split( tmp, nullptr, &cfgpkg, &cfgpath ) )
           Directories.push_back( std::make_pair( cfgpkg, cfgpath ) );
         else
-          ERROR_PRINT << "Invalid fileaccess Directory entry: " << tmp << "\n";
+          ERROR_PRINTLN( "Invalid fileaccess Directory entry: {}", tmp );
       }
     }
     if ( Directories.empty() )

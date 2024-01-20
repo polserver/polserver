@@ -17,6 +17,7 @@
 
 #include <ctype.h>
 #include <iosfwd>
+#include <iterator>
 #include <stdlib.h>
 #include <string.h>
 
@@ -49,7 +50,7 @@
 #include "armrtmpl.h"
 #include "regions/resource.h"
 #include "wepntmpl.h"
-#include <format/format.h>
+
 
 namespace Pol
 {
@@ -88,7 +89,7 @@ ResourceComponent::ResourceComponent( const std::string& rname, unsigned amount 
 {
   if ( rd == nullptr )
   {
-    ERROR_PRINT << "itemdesc.cfg: Resource '" << rname << "' not found\n";
+    ERROR_PRINTLN( "itemdesc.cfg: Resource '{}' not found", rname );
     throw std::runtime_error( "Configuration error" );
   }
 }
@@ -243,8 +244,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
     if ( multiid == 0xFFFF )
     {
-      ERROR_PRINT << "Itemdesc has no 'multiid' specified for a multi.\n"
-                  << "      Note: read corechanges.txt for the new multi format\n";
+      ERROR_PRINTLN(
+          "Itemdesc has no 'multiid' specified for a multi.\n"
+          "      Note: read corechanges.txt for the new multi format" );
       elem.throw_error( "Configuration error" );
     }
   }
@@ -258,7 +260,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       }
       else
       {
-        ERROR_PRINT << "Itemdesc has no 'graphic' specified, and no 'objtype' is valid either.\n";
+        ERROR_PRINTLN( "Itemdesc has no 'graphic' specified, and no 'objtype' is valid either." );
         elem.throw_error( "Configuration error" );
       }
     }
@@ -270,7 +272,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   // Make sure Weapons and Armors ALL have this value defined to not break the core combat system
   if ( maxhp == 0 && ( type == WEAPONDESC || type == ARMORDESC ) )
   {
-    ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X}  has no MaxHP specified." ) << objtype;
+    ERROR_PRINTLN( "itemdesc.cfg, objtype {:#X}  has no MaxHP specified.", objtype );
     elem.throw_error( "Configuration error" );
   }
 
@@ -338,8 +340,7 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     }
     else
     {
-      ERROR_PRINT.Format( "itemdesc.cfg, objtype 0x{:X} : Resource '{}' is malformed.\n" )
-          << objtype << temp;
+      ERROR_PRINTLN( "itemdesc.cfg, objtype {:#X} : Resource '{}' is malformed.", objtype, temp );
       throw std::runtime_error( "Configuration file error" );
     }
   }
@@ -348,9 +349,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   {
     if ( Core::gamestate.objtype_byname.count( temp.c_str() ) )
     {
-      ERROR_PRINT.Format(
-          "Warning! objtype 0x{:X} : ObjtypeName '{}' is the same as objtype {:#X}\n" )
-          << objtype << temp << Core::gamestate.objtype_byname[temp.c_str()];
+      ERROR_PRINTLN( "Warning! objtype {:#X} : ObjtypeName '{}' is the same as objtype {:#X}",
+                     objtype, temp, Core::gamestate.objtype_byname[temp.c_str()] );
       // throw runtime_error( "Configuration file error" );
     }
     else
@@ -426,8 +426,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
     std::string errmsg;
     if ( !dice.load( value.c_str(), &errmsg ) )
     {
-      ERROR_PRINT << "Error loading itemdesc.cfg " << error_msg << " for " << objtype_description()
-                  << " : " << errmsg << "\n";
+      ERROR_PRINTLN( "Error loading itemdesc.cfg {} for {} : {}", error_msg, objtype_description(),
+                     errmsg );
       throw std::runtime_error( "Error loading Item Mods" );
     }
     return dice.roll();
@@ -560,8 +560,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       std::string errmsg;
       if ( !dice.load( tmp.c_str(), &errmsg ) )
       {
-        ERROR_PRINT << "Error loading itemdesc.cfg Elemental Resistances for "
-                    << objtype_description() << " : " << errmsg << "\n";
+        ERROR_PRINTLN( "Error loading itemdesc.cfg Elemental Resistances for {} : {}",
+                       objtype_description(), errmsg );
         throw std::runtime_error( "Error loading Item Elemental Resistances" );
       }
       switch ( resist )
@@ -615,8 +615,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       std::string errmsg;
       if ( !dice.load( tmp.c_str(), &errmsg ) )
       {
-        ERROR_PRINT << "Error loading itemdesc.cfg elemental damages for " << objtype_description()
-                    << " : " << errmsg << "\n";
+        ERROR_PRINTLN( "Error loading itemdesc.cfg elemental damages for {} : {}",
+                       objtype_description(), errmsg );
         throw std::runtime_error( "Error loading Item Elemental Damages" );
       }
       switch ( edamage )
@@ -891,11 +891,11 @@ void ItemDesc::unload_scripts()
 
 std::string ItemDesc::objtype_description() const
 {
-  fmt::Writer tmp;
+  std::string tmp;
   if ( pkg )
-    tmp << ":" << pkg->name() << ":";
-  tmp << objtypename << " (0x" << fmt::hexu( objtype ) << ")";
-  return tmp.str();
+    fmt::format_to( std::back_inserter( tmp ), ":{}:", pkg->name() );
+  fmt::format_to( std::back_inserter( tmp ), "{} ({:#X})", objtypename, objtype );
+  return tmp;
 }
 
 bool ItemDesc::default_movable() const
@@ -1055,17 +1055,28 @@ size_t MultiDesc::estimatedSize() const
 }
 
 BoatDesc::BoatDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
-    : MultiDesc( objtype, elem, BOATDESC, pkg )
+    : MultiDesc( objtype, elem, BOATDESC, pkg ), alternates()
 {
+  u16 alternate;
+  alternates.push_back( multiid );
+  while ( elem.remove_prop( "ALTERNATEMULTIID", &alternate ) )
+    alternates.push_back( alternate );
 }
 
 void BoatDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
 {
   base::PopulateStruct( descriptor );
+  std::unique_ptr<Bscript::ObjArray> a( new Bscript::ObjArray );
+
+  // `alternates` contains the base multi id at index 0, so start at 1.
+  for ( size_t i = 1; i < alternates.size(); ++i )
+    a->addElement( new Bscript::BLong( alternates[i] ) );
+
+  descriptor->addMember( "AlternateMultiID", a.release() );
 }
 size_t BoatDesc::estimatedSize() const
 {
-  return base::estimatedSize();
+  return base::estimatedSize() + alternates.capacity();
 }
 
 HouseDesc::HouseDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* pkg )
@@ -1307,16 +1318,14 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
 
     if ( has_itemdesc( descriptor->objtype ) )
     {
-      fmt::Writer tmp;
-      tmp.Format( "Error: Objtype 0x{:X} is already defined in" ) << descriptor->objtype;
-      if ( find_itemdesc( descriptor->objtype ).pkg == nullptr )
-        tmp << "config/itemdesc.cfg\n";
-      else
-        tmp << find_itemdesc( descriptor->objtype ).pkg->dir() << "itemdesc.cfg\n";
-      ERROR_PRINT << tmp.str();
+      auto objpkg = find_itemdesc( descriptor->objtype ).pkg;
+      std::string tmp =
+          fmt::format( "Error: Objtype {:#X} is already defined in {}itemdesc.cfg",
+                       descriptor->objtype, objpkg == nullptr ? "config/" : objpkg->dir() );
+      ERROR_PRINTLN( tmp );
 
-      elem.throw_error( "ObjType " + Clib::hexint( descriptor->objtype ) +
-                        " defined more than once." );
+      elem.throw_error(
+          fmt::format( "ObjType {:#X} defined more than once.", descriptor->objtype ) );
     }
     Core::gamestate.desctable[descriptor->objtype] = descriptor;
 

@@ -27,6 +27,7 @@ struct ExternalObject
   unsigned int sails;
   unsigned int storage;
   unsigned int weaponslot;
+  unsigned int boatmount;
 
   unsigned int wrestling;
   unsigned int mount;

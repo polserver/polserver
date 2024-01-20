@@ -31,7 +31,6 @@
 #include "../multi/boatcomp.h"
 #include "../objtype.h"
 #include "../polcfg.h"
-#include "regions/resource.h"
 #include "../scrdef.h"
 #include "../scrsched.h"
 #include "../spelbook.h"
@@ -42,9 +41,10 @@
 #include "armrtmpl.h"
 #include "item.h"
 #include "itemdesc.h"
+#include "regions/resource.h"
 #include "weapon.h"
 #include "wepntmpl.h"
-#include <format/format.h>
+
 
 namespace Pol
 {
@@ -65,14 +65,13 @@ Item* Item::create( u32 objtype, u32 serial )
   }
   else
   {
-    fmt::Writer message;
-    message.Format( "Objtype not defined : 0x{:X}" ) << objtype;
+    std::string message = fmt::format( "Objtype not defined : {:#X}", objtype );
 
     if ( !Plib::systemstate.config.ignore_load_errors )
-      throw std::runtime_error( message.str() );
+      throw std::runtime_error( message );
     else
     {
-      ERROR_PRINT << message.str() << "\n";
+      ERROR_PRINTLN( message );
       return nullptr;
     }
   }
@@ -155,7 +154,10 @@ Item* Item::create( const ItemDesc& id, u32 serial )
 
   // 12-17-2008 MuadDib added for reading the tilelayer at all times while retaining item.layer
   // useage.
-  item->tile_layer = Plib::tilelayer( graphic );
+  if ( item->objtype_ == Core::settingsManager.extobj.boatmount )
+    item->tile_layer = Core::LAYER_MOUNT;
+  else
+    item->tile_layer = Plib::tilelayer( graphic );
 
   // Have to be set after the item is created, because item graphic changes
   // Because items can have facing 0 as the lightsource we use as default 127 to check

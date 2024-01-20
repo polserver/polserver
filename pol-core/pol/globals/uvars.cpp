@@ -216,7 +216,7 @@ void display_leftover_objects();
 
 void GameState::deinitialize()
 {
-  INFO_PRINT << "Initiating POL Cleanup....\n";
+  INFO_PRINTLN( "Initiating POL Cleanup...." );
 
   networkManager.deinialize();
   deinit_ipc_vars();

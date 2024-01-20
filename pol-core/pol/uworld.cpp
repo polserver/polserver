@@ -54,10 +54,10 @@ void remove_item_from_world( Items::Item* item )
   ZoneItems::iterator itr = std::find( zone.items.begin(), zone.items.end(), item );
   if ( itr == zone.items.end() )
   {
-    POLLOG_ERROR.Format(
-        "remove_item_from_world: item 0x{:X} at {},{} does not exist in world zone ( Old Serial: "
-        "0x{:X} )\n" )
-        << item->serial << item->x() << item->y() << ( cfBEu32( item->serial_ext ) );
+    POLLOG_ERRORLN(
+        "remove_item_from_world: item {:#X} at {} does not exist in world zone ( Old Serial: {:#X} "
+        ")",
+        item->serial, item->pos2d(), ( cfBEu32( item->serial_ext ) ) );
 
     passert( itr != zone.items.end() );
   }
@@ -219,11 +219,9 @@ void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
 
     if ( itr == oldzone.items.end() )
     {
-      POLLOG_ERROR.Format(
-          "MoveItemWorldPosition: item 0x{:X} at old-x/y({},{} - {}) new-x/y({},{} - {}) does not "
-          "exist in world zone. \n" )
-          << item->serial << oldpos.x() << oldpos.y() << oldpos.realm()->name() << item->x()
-          << item->y() << item->realm()->name();
+      POLLOG_ERRORLN(
+          "MoveItemWorldPosition: item {:#X} at old {} new {} does not exist in world zone.",
+          item->serial, oldpos, item->pos() );
 
       passert( itr != oldzone.items.end() );
     }
@@ -259,10 +257,9 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
     break;
   }
 
-  POLLOG_ERROR.Format(
-      "ClrCharacterWorldPosition({}): mob (0x{:X},0x{:X}) supposedly at ({},{}) isn't in correct "
-      "zone\n" )
-      << msgreason << chr->serial << chr->serial_ext << chr->x() << chr->y();
+  POLLOG_ERRORLN(
+      "ClrCharacterWorldPosition({}): mob ({:#X},{:#X}) supposedly at {} isn't in correct zone.",
+      msgreason, chr->serial, chr->serial_ext, chr->pos() );
 
   bool is_npc = chr->isa( Core::UOBJ_CLASS::CLASS_NPC );
   for ( const auto& p : chr->realm()->gridarea() )
@@ -279,8 +276,7 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
       found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
     }
     if ( found )
-      POLLOG_ERROR.Format( "ClrCharacterWorldPosition: Found mob in zone ({},{})\n" )
-          << p.x() << p.y();
+      POLLOG_ERRORLN( "ClrCharacterWorldPosition: Found mob in zone {}", p );
   }
 }
 // Dave added this for debugging a single zone
@@ -296,15 +292,15 @@ bool check_single_zone_item_integrity( const Pos2d& pos, Realms::Realm* realm )
       Core::Pos2d wpos = zone_convert( item->pos() );
       if ( wpos != pos )
       {
-        POLLOG_ERROR.Format( "Item 0x{:X} in zone ({},{}) but location is ({},{}) (zone {},{})\n" )
-            << item->serial << pos.x() << pos.y() << item->x() << item->y() << pos.x() << pos.y();
+        POLLOG_ERRORLN( "Item {:#X} in zone {} but location is {} (zone {})", item->serial, pos,
+                        item->pos(), wpos );
         return false;
       }
     }
   }
   catch ( ... )
   {
-    POLLOG_ERROR.Format( "item integ problem at zone ({},{})\n" ) << pos.x() << pos.y();
+    POLLOG_ERRORLN( "item integ problem at zone {}", pos );
     return false;
   }
   return true;
@@ -345,7 +341,7 @@ void check_character_integrity()
     {
       Core::Pos2d wpos = zone_convert( chr->pos() );
       if ( wpos != p )
-        INFO_PRINT << "Character 0x" << fmt::hexu( chr->serial ) << " in a zone, but elsewhere\n";
+        INFO_PRINTLN( "Character {:#x} in a zone, but elsewhere", chr->serial );
     };
 
     for ( const auto& p : realm->gridarea() )

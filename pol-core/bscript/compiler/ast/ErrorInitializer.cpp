@@ -1,6 +1,6 @@
 #include "ErrorInitializer.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -19,9 +19,9 @@ void ErrorInitializer::accept( NodeVisitor& visitor )
   visitor.visit_error_initializer( *this );
 }
 
-void ErrorInitializer::describe_to( fmt::Writer& w ) const
+void ErrorInitializer::describe_to( std::string& w ) const
 {
-  w << "error-initializer";
+  w += "error-initializer";
 }
 
 }  // namespace Pol::Bscript::Compiler

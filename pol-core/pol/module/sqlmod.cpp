@@ -43,7 +43,8 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
                                                    const std::string username,
                                                    const std::string password )
 {
-  auto msg = [uoexec, host, username, password]() {
+  auto msg = [uoexec, host, username, password]()
+  {
     std::unique_ptr<Core::BSQLConnection> sql;
     {
       Core::PolLock lck;
@@ -53,7 +54,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
@@ -65,7 +66,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
@@ -77,7 +78,7 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set( new BObject( sql.release() ) );
@@ -88,8 +89,10 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
 
   if ( !uoexec->suspend() )
   {
-    DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        uoexec->scriptname(), uoexec->PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -103,12 +106,13 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
 {
   // The BSQLConnection shouldn't be destroyed before the lambda runs
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
-  auto msg = [uoexec, sqlRef, db]() {
+  auto msg = [uoexec, sqlRef, db]()
+  {
     if ( sqlRef == nullptr )
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
@@ -120,7 +124,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
@@ -132,7 +136,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set( new BObject( new BLong( 1 ) ) );
@@ -143,8 +147,10 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
 
   if ( !uoexec->suspend() )
   {
-    DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        uoexec->scriptname(), uoexec->PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
   Core::networkManager.sql_service->push( std::move( msg ) );
@@ -173,13 +179,14 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
 
   // The BSQLConnection shouldn't be destroyed before the lambda runs
   ref_ptr<Core::BSQLConnection> sqlRef( sql );
-  auto msg = [uoexec, sqlRef, query, sharedParams]() {
+  auto msg = [uoexec, sqlRef, query, sharedParams]()
+  {
     if ( sqlRef == nullptr )  // TODO: this doesn't make any sense and should be checked before the
                               // lambda. Same happens in background_select().
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
@@ -191,7 +198,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set(
@@ -203,7 +210,7 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
     {
       Core::PolLock lck;
       if ( !uoexec.exists() )
-        INFO_PRINT << "Script has been destroyed\n";
+        INFO_PRINTLN( "Script has been destroyed" );
       else
       {
         uoexec.get_weakptr()->ValueStack.back().set( new BObject( sqlRef->getResultSet() ) );
@@ -214,8 +221,10 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
 
   if ( !uoexec->suspend() )
   {
-    DEBUGLOG << "Script Error in '" << uoexec->scriptname() << "' PC=" << uoexec->PC << ": \n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        uoexec->scriptname(), uoexec->PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

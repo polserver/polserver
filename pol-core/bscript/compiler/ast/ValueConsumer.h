@@ -13,7 +13,7 @@ public:
   ValueConsumer( const SourceLocation&, std::unique_ptr<Expression> child );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 };
 
 }  // namespace Pol::Bscript::Compiler

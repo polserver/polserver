@@ -79,8 +79,8 @@ void CalculateCryptKeys( const std::string& name, TCryptInfo& infoCrypt )
       infoCrypt.eType = CRYPT_NOCRYPT;
       infoCrypt.uiKey1 = 0;
       infoCrypt.uiKey2 = 0;
-      POLLOG_ERROR << "Malformed encryption version string: " << name
-                   << "using Ignition encryption engine\n";
+      POLLOG_ERRORLN( "Malformed encryption version string: {} using Ignition encryption engine",
+                      name );
     }
   }
 }
@@ -226,5 +226,5 @@ bool compareVersion( int ver1major, int ver1minor, int ver1build, int ver2major,
 // confusion
 // AddClient("uorice",    0,          0,          CRYPT_NOCRYPT); //dave added 3/14, avoid newbie
 // confusion
-}
-}
+}  // namespace Crypt
+}  // namespace Pol

@@ -19,7 +19,7 @@ BareDistro::BareDistro( fs::path basedir, bool hsa, int maxtiles, int width, int
 }
 void BareDistro::generate()
 {
-  INFO_PRINT << "Generating minimal distro files\n";
+  INFO_PRINTLN( "Generating minimal distro files" );
   std::map<fs::path, std::vector<std::string>> distro;
   distro_files( distro );
 

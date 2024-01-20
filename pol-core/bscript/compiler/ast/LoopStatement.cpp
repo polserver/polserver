@@ -5,9 +5,9 @@
 namespace Pol::Bscript::Compiler
 {
 LoopStatement::LoopStatement( const SourceLocation& source_location, std::string label )
-  : LabelableStatement( source_location, std::move( label ) ),
-    break_label( std::make_shared<FlowControlLabel>() ),
-    continue_label( std::make_shared<FlowControlLabel>() )
+    : LabelableStatement( source_location, std::move( label ) ),
+      break_label( std::make_shared<FlowControlLabel>() ),
+      continue_label( std::make_shared<FlowControlLabel>() )
 {
 }
 

@@ -44,6 +44,7 @@
 #include "../item/itemdesc.h"
 #include "../mkscrobj.h"
 #include "../mobile/charactr.h"
+#include "../module/uomod.h"
 #include "../network/client.h"
 #include "../network/packethelper.h"
 #include "../network/packets.h"
@@ -51,6 +52,7 @@
 #include "../polvar.h"
 #include "../realms/realm.h"
 #include "../scrsched.h"
+#include "../scrstore.h"
 #include "../syshookscript.h"
 #include "../ufunc.h"
 #include "../uobject.h"
@@ -93,7 +95,7 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, unsigned char
     }
   }
 
-  ERROR_PRINT << "Boat component definition '" << str << "' is poorly formed.\n";
+  ERROR_PRINTLN( "Boat component definition '{}' is poorly formed.", str );
   throw std::runtime_error( "Poorly formed boat.cfg component definition" );
 }
 
@@ -136,7 +138,7 @@ BoatShape::ComponentShape::ComponentShape( const std::string& str, const std::st
 
   if ( !ok )
   {
-    ERROR_PRINT << "Boat component definition '" << str << "' is poorly formed.\n";
+    ERROR_PRINTLN( "Boat component definition '{}' is poorly formed.", str );
     throw std::runtime_error( "Poorly formed boat.cfg component definition" );
   }
 }
@@ -256,8 +258,7 @@ void read_boat_cfg( void )
     }
     catch ( std::exception& )
     {
-      ERROR_PRINT << "Error occurred reading definition for boat 0x" << fmt::hexu( multiid )
-                  << "\n";
+      ERROR_PRINTLN( "Error occurred reading definition for boat {:#X}", multiid );
       throw;
     }
   }
@@ -313,9 +314,8 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   {
     if ( object_count >= max_count )
     {
-      POLLOG_INFO.Format(
-          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating movement packet\n",
-          serial, x(), y(), z(), travellers_.size() );
+      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating movement packet",
+                     serial, pos(), travellers_.size() );
       break;
     }
     if ( component == nullptr || component->orphan() )
@@ -331,9 +331,8 @@ void UBoat::send_smooth_move( Network::Client* client, Core::UFACING move_dir, u
   {
     if ( object_count >= max_count )
     {
-      POLLOG_INFO.Format(
-          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating movement packet\n",
-          serial, x(), y(), z(), travellers_.size() );
+      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating movement packet",
+                     serial, pos(), travellers_.size() );
       break;
     }
     UObject* obj = travellerRef.get();
@@ -419,9 +418,8 @@ void UBoat::send_display_boat( Network::Client* client )
   {
     if ( object_count >= max_count )
     {
-      POLLOG_INFO.Format(
-          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating display boat packet\n",
-          serial, x(), y(), z(), travellers_.size() );
+      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating display boat packet",
+                     serial, pos(), travellers_.size() );
       break;
     }
     if ( component == nullptr || component->orphan() )
@@ -451,9 +449,8 @@ void UBoat::send_display_boat( Network::Client* client )
       continue;
     if ( object_count >= max_count )
     {
-      POLLOG_INFO.Format(
-          "Boat 0x{:X} at ({},{},{}) with {} items is too full - truncating display boat packet\n",
-          serial, x(), y(), z(), travellers_.size() );
+      POLLOG_INFOLN( "Boat {:#X} at {} with {} items is too full - truncating display boat packet",
+                     serial, pos(), travellers_.size() );
       break;
     }
     u8 flags = 0;
@@ -648,13 +645,15 @@ void unpause_paused()
 }
 
 
-UBoat::UBoat( const Items::ItemDesc& descriptor ) : UMulti( descriptor )
+UBoat::UBoat( const Items::ItemDesc& descriptor )
+    : UMulti( descriptor ),
+      tillerman( nullptr ),
+      portplank( nullptr ),
+      starboardplank( nullptr ),
+      hold( nullptr ),
+      mountpiece( nullptr )
 {
   passert( Core::gamestate.boatshapes.count( multiid ) != 0 );
-  tillerman = nullptr;
-  hold = nullptr;
-  portplank = nullptr;
-  starboardplank = nullptr;
 }
 
 UBoat* UBoat::as_boat()
@@ -701,7 +700,7 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
   if ( !desired_pos.can_move_to( md.minrxyz.xy() ) || !desired_pos.can_move_to( md.maxrxyz.xy() ) )
   {
 #ifdef DEBUG_BOATS
-    INFO_PRINT << "Location " << desired_pos << " impassable, location is off the map\n";
+    INFO_PRINTLN( "Location {} impassable, location is off the map", desired_pos );
 #endif
     return false;
   }
@@ -712,7 +711,7 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
   {
     Core::Pos3d hullpos = desired_pos.xyz() + ele->relpos;
 #ifdef DEBUG_BOATS
-    INFO_PRINT << "[" << hullpos << "]";
+    INFO_PRINT( "[{}]", hullpos );
 #endif
     /*
      * See if any other ship hulls occupy this space
@@ -721,8 +720,8 @@ bool UBoat::navigable( const MultiDef& md, const Core::Pos4d& desired_pos )
     if ( desired_pos.realm()->global_hulls.count( gh ) )  // already a boat there
     {
 #ifdef DEBUG_BOATS
-      INFO_PRINT << "Location " << desired_pos.realm()->name() << " " << hullpos
-                 << " already has a ship hull present\n";
+      INFO_PRINTLN( "Location {} {} already has a ship hull present", desired_pos.realm()->name(),
+                    hullpos );
 #endif
       return false;
     }
@@ -1386,10 +1385,10 @@ void UBoat::transform_components( const BoatShape& old_boatshape, Realms::Realm*
       if ( item->container != nullptr || item->has_gotten_by() )
       {
         u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
-        POLLOG_ERROR.Format(
+        POLLOG_ERRORLN(
             "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
-            << item->serial << item->graphic << containerSerial;
+            "boat: serial {:#X}\n, graphic: {:#X}, container: {:#X}.",
+            item->serial, item->graphic, containerSerial );
         continue;
       }
 
@@ -1459,10 +1458,11 @@ void UBoat::move_components( Realms::Realm* /*oldrealm*/ )
       if ( item->container != nullptr || item->has_gotten_by() )
       {
         u32 containerSerial = ( item->container != nullptr ) ? item->container->serial : 0;
-        POLLOG_INFO.Format(
+        POLLOG_INFOLN(
             "Boat component is gotten or in a container and couldn't be moved together with the "
-            "boat: serial 0x{:X}\n, graphic: 0x{:X}, container: 0x{:X}." )
-            << item->serial << item->graphic << containerSerial;
+            "boat: serial {:#X}\n"
+            ", graphic: {:#X}, container: {:#X}.",
+            item->serial, item->graphic, containerSerial );
         continue;
       }
 
@@ -1656,7 +1656,30 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
   regself();  // do this after our x,y are known.
   // consider throwing if starting position isn't passable.
 
-  Core::start_script( "misc/boat", make_boatref( this ) );
+  auto control_script = itemdesc().control_script.empty() ? Core::ScriptDef( "misc/boat", nullptr )
+                                                          : itemdesc().control_script;
+
+  auto prog = Core::find_script2( control_script );
+
+  if ( prog.get() == nullptr )
+  {
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+                    this->serial );
+    return;
+  }
+
+  Module::UOExecutorModule* script = Core::start_script( prog, make_boatref( this ) );
+
+  if ( script == nullptr )
+  {
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+                    this->serial );
+  }
+  else
+  {
+    this->process( script );
+    this->process()->attached_item_.set( this );
+  }
 }
 
 void UBoat::printProperties( Clib::StreamWriter& sw ) const
@@ -1730,8 +1753,35 @@ Bscript::BObjectImp* UBoat::scripted_create( const Items::ItemDesc& descriptor, 
   Core::objStorageManager.objecthash.Insert( boat );
   ////
 
-  Core::start_script( "misc/boat", make_boatref( boat ) );
-  return make_boatref( boat );
+  Bscript::BObjectImp* boatref = make_boatref( boat );
+
+  auto control_script = descriptor.control_script.empty() ? Core::ScriptDef( "misc/boat", nullptr )
+                                                          : descriptor.control_script;
+
+  auto prog = Core::find_script2( control_script );
+
+  if ( prog.get() == nullptr )
+  {
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+                    boat->serial );
+
+    return boatref;
+  }
+
+  Module::UOExecutorModule* script = Core::start_script( prog, boatref );
+
+  if ( script == nullptr )
+  {
+    POLLOG_ERRORLN( "Could not start script {}, boat: serial {:#X}", control_script.c_str(),
+                    boat->serial );
+  }
+  else
+  {
+    boat->process( script );
+    boat->process()->attached_item_.set( boat );
+  }
+
+  return boatref;
 }
 
 void UBoat::create_components()
@@ -1741,7 +1791,15 @@ void UBoat::create_components()
                                                                end = bshape.Componentshapes.end();
         itr != end; ++itr )
   {
-    Items::Item* component = Items::Item::create( itr->objtype );
+    Items::Item* component;
+    try
+    {
+      component = Items::Item::create( itr->objtype );
+    }
+    catch ( ... )
+    {
+      continue;
+    }
     if ( component == nullptr )
       continue;
     // check boat members here
@@ -1880,6 +1938,91 @@ Bscript::BObjectImp* destroy_boat( UBoat* boat )
   remove_multi_from_world( boat );
   boat->destroy();
   return new Bscript::BLong( 1 );
+}
+
+Mobile::Character* UBoat::pilot() const
+{
+  if ( mountpiece != nullptr && !mountpiece->orphan() )
+  {
+    return mountpiece->GetCharacterOwner();
+  }
+  return nullptr;
+}
+
+Bscript::BObjectImp* UBoat::set_pilot( Mobile::Character* chr )
+{
+  if ( chr == nullptr )
+  {
+    clear_pilot();
+    return new Bscript::BLong( 1 );
+  }
+  else
+  {
+    if ( mountpiece != nullptr && !mountpiece->orphan() )
+    {
+      return new Bscript::BError( "The boat is already being piloted." );
+    }
+
+    if ( !has_process() )
+    {
+      return new Bscript::BError( "The boat does not have a running process." );
+    }
+
+    if ( !chr->client )
+    {
+      return new Bscript::BError( "That character is not connected." );
+    }
+
+    if ( !( chr->client->ClientType & Network::CLIENTTYPE_7090 ) )
+    {
+      return new Bscript::BError(
+          "The client for that character does not support High Seas Adventure." );
+    }
+
+    BoatContext bc( *this );
+    bool pilot_on_ship = false;
+    for ( const auto& travellerRef : travellers_ )
+    {
+      UObject* obj = travellerRef.get();
+      if ( !obj->orphan() && on_ship( bc, obj ) && obj == chr )
+      {
+        pilot_on_ship = true;
+        break;
+      }
+    }
+
+    if ( !pilot_on_ship )
+    {
+      return new Bscript::BError( "The boat does not have that character on it." );
+    }
+
+    Items::Item* item = Items::Item::create( Core::settingsManager.extobj.boatmount );
+    if ( !chr->equippable( item ) )
+    {
+      item->destroy();
+      return new Bscript::BError( "The boat mount piece is not equippable by that character." );
+    }
+    chr->equip( item );
+    send_wornitem_to_inrange( chr, item );
+    mountpiece = Core::ItemRef( item );
+
+    // Mark the item as 'in-use' to prevent moving by client or scripts.
+    item->inuse( true );
+
+    return new Bscript::BLong( 1 );
+  }
+}
+
+void UBoat::clear_pilot()
+{
+  if ( mountpiece != nullptr )
+  {
+    if ( !mountpiece->orphan() )
+    {
+      destroy_item( mountpiece.get() );
+    }
+    mountpiece.clear();
+  }
 }
 }  // namespace Multi
 }  // namespace Pol

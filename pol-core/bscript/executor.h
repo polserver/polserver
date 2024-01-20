@@ -31,8 +31,11 @@
 #include "bobject.h"
 #include "eprog.h"
 #include "executortype.h"
-#include <format/format.h>
 
+
+#ifdef ESCRIPT_PROFILE
+#include <map>
+#endif
 
 namespace Pol
 {
@@ -50,7 +53,6 @@ class ModuleFunction;
 class String;
 class Token;
 #ifdef ESCRIPT_PROFILE
-#include <map>
 
 struct profile_instr
 {
@@ -179,6 +181,8 @@ public:
   bool getParam( unsigned param, short& value, short minval, short maxval );
   bool getParam( unsigned param, signed char& value );
 
+  bool getParam( unsigned param, bool& value );
+
   void* getApplicPtrParam( unsigned param, const BApplicObjType* pointer_type );
   BApplicObjBase* getApplicObjParam( unsigned param, const BApplicObjType* object_type );
 
@@ -238,6 +242,7 @@ public:
   void ins_localvar( const Instruction& ins );
   void ins_makeLocal( const Instruction& ins );
   void ins_declareArray( const Instruction& ins );
+  void ins_bool( const Instruction& ins );
   void ins_long( const Instruction& ins );
   void ins_double( const Instruction& ins );
   void ins_string( const Instruction& ins );
@@ -354,7 +359,9 @@ public:
   void ins_funcref( const Instruction& ins );
 
   static int ins_casejmp_findlong( const Token& token, BLong* blong );
+  static int ins_casejmp_findbool( const Token& token, BBoolean* bbool );
   static int ins_casejmp_findstring( const Token& token, String* bstringimp );
+  static int ins_casejmp_finduninit( const Token& token );
   static int ins_casejmp_finddefault( const Token& token );
 
   bool running_to_completion() const;
@@ -372,6 +379,7 @@ public:
   void attach_debugger();
   void detach_debugger();
   std::string dbg_get_instruction( size_t atPC ) const;
+  void dbg_get_instruction( size_t atPC, std::string& os ) const;
   void dbg_ins_trace();
   void dbg_step_into();
   void dbg_step_over();
@@ -385,7 +393,7 @@ public:
   void reinitExec();
   void initForFnCall( unsigned in_PC );
   void show_context( unsigned atPC );
-  void show_context( fmt::Writer& os, unsigned atPC );
+  void show_context( std::string& os, unsigned atPC );
 
   int getDebugLevel() { return debug_level; }
   void setDebugLevel( DEBUG_LEVEL level ) { debug_level = level; }

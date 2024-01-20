@@ -692,8 +692,8 @@ void update_item_to_inrange( const Item* item )
         update_wornitem_to_inrange( chr, item );
       }
       else
-        POLLOG_ERROR.Format( "Ack! update_item_to_inrange: character 0x{:X} doesn't exist!\n" )
-            << item->container->serial;
+        POLLOG_ERRORLN( "Ack! update_item_to_inrange: character {:#X} doesn't exist!",
+                        item->container->serial );
     }
     else
     {
@@ -1532,8 +1532,8 @@ void destroy_item( Item* item )
 {
   if ( item->serial == 0 )
   {
-    POLLOG_ERROR.Format( "destroy {}: {}, orphan! (old serial: 0x{:X})\n" )
-        << item->description() << item->classname() << ( cfBEu32( item->serial_ext ) );
+    POLLOG_ERRORLN( "destroy {}: {}, orphan! (old serial: {:#X})", item->description(),
+                    item->classname(), ( cfBEu32( item->serial_ext ) ) );
   }
 
   if ( item->serial != 0 )
@@ -2169,32 +2169,34 @@ void sendCharProfile( Character* chr, Character* of_who, const std::string& titl
  * @param arguments arguments for cl_descr as string, separated by spaces
  */
 void send_buff_message( Character* chr, u16 icon, bool show, u16 duration, u32 cl_name,
-                        u32 cl_descr, const std::string& arguments )
+                        const std::string& name_arguments, u32 cl_descr,
+                        const std::string& desc_arguments )
 {
   PktHelper::PacketOut<PktOut_DF> msg;
   msg->offset += 2;  // length will be written later
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u16>( icon );
-  msg->Write<u8>( 0u );  // unknown, always 0
-  msg->Write<u8>( show ? 1u : 0u );
+  msg->WriteFlipped<u16>( show ? 1u : 0u );
   if ( show )
   {
     msg->Write<u32>( 0u );  // unknown, always 0
     msg->WriteFlipped<u16>( icon );
-    msg->Write<u8>( 0u );   // unknown, always 0
-    msg->Write<u8>( 1u );   // unknown, always 1
-    msg->Write<u32>( 0u );  // unknown, always 0
+    msg->WriteFlipped<u16>( 1u );  // unknown, always 1
+    msg->Write<u32>( 0u );         // unknown, always 0
     msg->WriteFlipped<u16>( duration );
     msg->Write<u16>( 0u );  // unknown, always 0
     msg->Write<u8>( 0u );   // unknown, always 0
     msg->WriteFlipped<u32>( cl_name );
     msg->WriteFlipped<u32>( cl_descr );
-    msg->Write<u32>( 0u );   // unknown, always 0
-    msg->Write<u8>( 0u );    // unknown, always 0
-    msg->Write<u8>( 1u );    // unknown, always 1
-    msg->Write<u16>( 20u );  // a space character
-    msg->Write<u16>( 20u );  // a space character
-    msg->Write( Bscript::String::toUTF16( arguments ) );
+    msg->Write<u32>( 0u );  // 3rd cliloc?
+    auto nameargs = Bscript::String::toUTF16( name_arguments );
+    msg->WriteFlipped<u16>( nameargs.size() + 1 );
+    msg->Write( nameargs );
+    auto descargs = Bscript::String::toUTF16( desc_arguments );
+    msg->WriteFlipped<u16>( descargs.size() + 1 );
+    msg->Write( descargs );
+    msg->WriteFlipped<u16>( 1u );  // 3rd arg length?
+    msg->Write<u16>( 0u );
   }
 
   u16 len = msg->offset;

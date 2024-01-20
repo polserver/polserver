@@ -10,7 +10,7 @@
 #include <cstddef>
 #ifdef _WIN32
 #include "../clib/logfacility.h"
-#include <format/format.h>
+
 #include <malloc.h>
 #endif
 
@@ -43,12 +43,12 @@ void PrintAllocationData()
       bytes_free += hinfo._size;
     }
   }
-  fmt::Writer _tmp;
-  _tmp.Format( "Heap:  Used {} blocks, {} bytes, Free {} blocks, {} bytes\n" )
-      << blocks_used << bytes_used << blocks_free << bytes_free;
-  _tmp.Format( "Delta: Used {} blocks, {} bytes, Free {} blocks, {} bytes\n" )
-      << ( blocks_used - last_blocks_used ) << ( bytes_used - last_bytes_used )
-      << ( blocks_free - last_blocks_free ) << ( bytes_free - last_bytes_free );
+  std::string tmp;
+  tmp += fmt::format( "Heap:  Used {} blocks, {} bytes, Free {} blocks, {} bytes\n", blocks_used,
+                      bytes_used, blocks_free, bytes_free );
+  tmp += fmt::format( "Delta: Used {} blocks, {} bytes, Free {} blocks, {} bytes\n",
+                      blocks_used - last_blocks_used, bytes_used - last_bytes_used,
+                      blocks_free - last_blocks_free, bytes_free - last_bytes_free );
   last_blocks_used = blocks_used;
   last_bytes_used = bytes_used;
   last_blocks_free = blocks_free;
@@ -57,23 +57,23 @@ void PrintAllocationData()
   switch ( heapstatus )
   {
   case _HEAPEMPTY:
-    _tmp << "OK - empty heap\n";
+    tmp += "OK - empty heap\n";
     break;
   case _HEAPEND:
-    _tmp << "OK - end of heap\n";
+    tmp += "OK - end of heap\n";
     break;
   case _HEAPBADPTR:
-    _tmp << "ERROR - bad pointer to heap\n";
+    tmp += "ERROR - bad pointer to heap\n";
     break;
   case _HEAPBADBEGIN:
-    _tmp << "ERROR - bad start of heap\n";
+    tmp += "ERROR - bad start of heap\n";
     break;
   case _HEAPBADNODE:
-    _tmp << "ERROR - bad node in heap\n";
+    tmp += "ERROR - bad node in heap\n";
     break;
   }
-  INFO_PRINT << _tmp.str();
+  INFO_PRINTLN( tmp );
 #endif
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

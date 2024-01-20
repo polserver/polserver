@@ -1,6 +1,6 @@
 #include "MethodCall.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/MethodCallArgumentList.h"
@@ -28,14 +28,14 @@ void MethodCall::accept( NodeVisitor& visitor )
   visitor.visit_method_call( *this );
 }
 
-void MethodCall::describe_to( fmt::Writer& w ) const
+void MethodCall::describe_to( std::string& w ) const
 {
-  w << "method-call(" << methodname << ")";
+  fmt::format_to( std::back_inserter( w ), "method-call({})", methodname );
 }
 
 unsigned MethodCall::argument_count() const
 {
-  return static_cast<unsigned>(children.at( 1 )->children.size());
+  return static_cast<unsigned>( children.at( 1 )->children.size() );
 }
 
 }  // namespace Pol::Bscript::Compiler

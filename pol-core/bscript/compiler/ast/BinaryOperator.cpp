@@ -1,6 +1,6 @@
 #include "BinaryOperator.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -22,9 +22,9 @@ void BinaryOperator::accept( NodeVisitor& visitor )
   visitor.visit_binary_operator( *this );
 }
 
-void BinaryOperator::describe_to( fmt::Writer& w ) const
+void BinaryOperator::describe_to( std::string& w ) const
 {
-  w << "binary-operator(" << op << ")";
+  fmt::format_to( std::back_inserter( w ), "binary-operator({})", op );
 }
 
 Expression& BinaryOperator::lhs()

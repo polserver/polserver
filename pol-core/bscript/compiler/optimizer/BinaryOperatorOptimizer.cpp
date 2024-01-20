@@ -2,6 +2,7 @@
 
 #include "bscript/compiler/ast/BinaryOperator.h"
 
+#include "BinaryOperatorWithBooleanOptimizer.h"
 #include "BinaryOperatorWithFloatOptimizer.h"
 #include "BinaryOperatorWithIntegerOptimizer.h"
 #include "BinaryOperatorWithStringOptimizer.h"
@@ -21,6 +22,13 @@ std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
 
 void BinaryOperatorOptimizer::visit_children( Node& )
 {
+}
+
+void BinaryOperatorOptimizer::visit_boolean_value( BooleanValue& lhs )
+{
+  BinaryOperatorWithBooleanOptimizer optimizer( lhs, op, report );
+  op.rhs().accept( optimizer );
+  optimized_result = std::move( optimizer.optimized_result );
 }
 
 void BinaryOperatorOptimizer::visit_float_value( FloatValue& lhs )

@@ -140,8 +140,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
   {
     send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
     client->Disconnect();
-    POLLOG.Format( "Incorrect password for account {} from {}\n" )
-        << acct->name() << client->ipaddrAsString();
+    POLLOGLN( "Incorrect password for account {} from {}", acct->name(), client->ipaddrAsString() );
     return;
   }
   else
@@ -160,8 +159,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     return;
   }
 
-  POLLOG_INFO.Format( "Account {} logged in from {}\n" )
-      << acct->name() << client->ipaddrAsString();
+  POLLOG_INFOLN( "Account {} logged in from {}", acct->name(), client->ipaddrAsString() );
 
   client->acct = acct;
 
@@ -191,8 +189,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
       }
       else
       {
-        POLLOG.Format( "gethostbyname(\"{}\") failed for server {}\n" )
-            << server->hostname << server->name;
+        POLLOGLN( "gethostbyname(\"{}\") failed for server {}", server->hostname, server->name );
         continue;
       }
     }
@@ -201,7 +198,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     {
       ++servcount;
       msgA8->WriteFlipped<u16>( idx + 1u );
-      msgA8->Write( Clib::strUtf8ToCp1252(server->name).c_str(), 30 );
+      msgA8->Write( Clib::strUtf8ToCp1252( server->name ).c_str(), 30 );
       msgA8->WriteFlipped<u16>( idx + 1u );
       msgA8->offset += 2;  // u8 percentfull, s8 timezone
       msgA8->Write( server->ip, 4 );
@@ -217,8 +214,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
 
   if ( servcount == 0 )
   {
-    POLLOG.Format( "No applicable servers for client connecting from {}\n" )
-        << client->ipaddrAsString();
+    POLLOGLN( "No applicable servers for client connecting from {}", client->ipaddrAsString() );
   }
 }
 
@@ -329,7 +325,7 @@ void send_start( Network::Client* client )
       Mobile::Character* chr = client->acct->get_character( i );
       if ( chr )
       {
-        msg->Write( Clib::strUtf8ToCp1252(chr->name()).c_str(), 30, false );
+        msg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30, false );
         msg->offset += 30;  // password
       }
       else
@@ -346,8 +342,8 @@ void send_start( Network::Client* client )
     msg->Write<u8>( i );
     if ( client->ClientType & Network::CLIENTTYPE_70130 )
     {
-      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->city).c_str(), 32, false );
-      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->desc).c_str(), 32, false );
+      msg->Write( Clib::strUtf8ToCp1252( gamestate.startlocations[i]->city ).c_str(), 32, false );
+      msg->Write( Clib::strUtf8ToCp1252( gamestate.startlocations[i]->desc ).c_str(), 32, false );
 
       Pos3d coord = gamestate.startlocations[i]->coords[0];
 
@@ -360,8 +356,8 @@ void send_start( Network::Client* client )
     }
     else
     {
-      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->city).c_str(), 31, false );
-      msg->Write( Clib::strUtf8ToCp1252(gamestate.startlocations[i]->desc).c_str(), 31, false );
+      msg->Write( Clib::strUtf8ToCp1252( gamestate.startlocations[i]->city ).c_str(), 31, false );
+      msg->Write( Clib::strUtf8ToCp1252( gamestate.startlocations[i]->desc ).c_str(), 31, false );
     }
   }
 
@@ -421,8 +417,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   {
     send_login_error( client, LOGIN_ERROR_WRONG_PASSWORD );
     client->Disconnect();
-    POLLOG.Format( "Incorrect password for account {} from {}\n" )
-        << acct->name() << client->ipaddrAsString();
+    POLLOGLN( "Incorrect password for account {} from {}", acct->name(), client->ipaddrAsString() );
     return;
   }
   else
@@ -446,7 +441,7 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   // Dave moved the max_clients check to pol.cpp so character cmdlevel could be checked.
   //
 
-  POLLOG.Format( "Account {} logged in from {}\n" ) << acct->name() << client->ipaddrAsString();
+  POLLOGLN( "Account {} logged in from {}", acct->name(), client->ipaddrAsString() );
 
   // ENHANCEMENT: could authenticate with real loginservers.
 
@@ -472,7 +467,7 @@ void delete_character( Accounts::Account* acct, Mobile::Character* chr, int char
 {
   if ( !chr->logged_in() )
   {
-    POLLOG.Format( "Account {} deleting character 0x{:X}\n" ) << acct->name() << chr->serial;
+    POLLOGLN( "Account {} deleting character {:#X}", acct->name(), chr->serial );
 
     chr->acct.clear();
     acct->clear_character( charidx );

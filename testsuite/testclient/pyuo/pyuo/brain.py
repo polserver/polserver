@@ -203,6 +203,8 @@ class Event:
   EVT_MOVE_ITEM_REJECTED = 107
   EVT_DROP_ITEM = 108
   EVT_DROP_APPROVED = 109
+  EVT_LIST_EQUIPPED_ITEMS = 110
+  EVT_BOAT_MOVE = 111
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -239,6 +241,8 @@ class Event:
       return "exit"
     elif self.type==Event.EVT_LIST_OBJS:
       return "list_objs"
+    elif self.type==Event.EVT_LIST_EQUIPPED_ITEMS:
+      return "list_equipped_items"
     elif self.type==Event.EVT_OPEN_BACKPACK:
       return "open_bp"
     elif self.type==Event.EVT_TARGET:
@@ -259,6 +263,8 @@ class Event:
       return "move_item_rejected"
     elif self.type==Event.EVT_DROP_ITEM:
       return "drop_item"
+    elif self.type==Event.EVT_BOAT_MOVE:
+      return "boat_move"
     elif self.type==Event.EVT_DROP_APPROVED:
       return "drop_approved"
     elif self.type==Event.EVT_GUMP:

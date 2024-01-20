@@ -11,10 +11,10 @@ class VariableAssignmentStatement : public Statement
 {
 public:
   VariableAssignmentStatement( const SourceLocation&, std::unique_ptr<Identifier> identifier,
-                         std::unique_ptr<Node> rhs );
+                               std::unique_ptr<Node> rhs );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   Identifier& identifier();
   Node& rhs();

@@ -7,6 +7,7 @@
 #ifndef __TOKENS_H
 #define __TOKENS_H
 
+#include <fmt/format.h>
 #include <iosfwd>
 
 #include "../clib/rawtypes.h"
@@ -220,7 +221,7 @@ enum BTokenId : u16
   INS_SKIPIFTRUE_ELSE_CONSUME = 0x6a,
   TOK_INTERPOLATE_STRING = 0x6b,
   TOK_FORMAT_EXPRESSION = 0x6c,
-
+  TOK_BOOL = 0x6d,
 
   // --- UPPER SPACE 0x0100-0xFFFF: TOKENS THAT AREN'T PART OF EMITTED CODE ---
   //
@@ -293,8 +294,18 @@ enum ESCRIPT_CASE_TYPES : u8
 {
   CASE_TYPE_LONG = 255,
   CASE_TYPE_DEFAULT = 254,
-  CASE_STRING_MAXLEN = 253
+  CASE_TYPE_STRING = 253,
+  CASE_TYPE_BOOL = 252,
+  CASE_TYPE_UNINIT = 251
 };
+inline auto format_as( BTokenType t )
+{
+  return fmt::underlying( t );
+}
+inline auto format_as( BTokenId t )
+{
+  return fmt::underlying( t );
+}
 }  // namespace Bscript
 
 namespace Clib

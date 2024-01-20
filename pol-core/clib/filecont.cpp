@@ -26,7 +26,7 @@ FileContents::FileContents( const char* filename, bool suppress_error_print )
   if ( fp == nullptr )
   {
     if ( !suppress_error_print )
-      ERROR_PRINT << "Unable to open '" << filename << "' for reading.\n";
+      ERROR_PRINTLN( "Unable to open '{}' for reading.", filename );
     throw std::runtime_error( "Error opening file" );
   }
 

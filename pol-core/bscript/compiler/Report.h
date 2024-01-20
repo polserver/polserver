@@ -1,7 +1,6 @@
 #ifndef POLSERVER_REPORT_H
 #define POLSERVER_REPORT_H
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Node.h"
 
@@ -59,49 +58,48 @@ public:
   Report( const Report& ) = delete;
   Report& operator=( const Report& ) = delete;
 
-  template <typename... Args>
-  inline void error( const SourceLocation& source_location, Args&&... args )
+  template <typename Str, typename... Args>
+  inline void error( const SourceLocation& source_location, Str const& format, Args&&... args )
   {
-    fmt::Writer w;
-    rec_write( w, std::forward<Args>( args )... );
-    report_error( source_location, w.str() );
+    auto msg = fmt::format( format, args... );
+    report_error( source_location, msg.c_str() );
   }
 
-  template <typename... Args>
-  inline void error( const SourceFileIdentifier& ident, Args&&... args )
+  template <typename Str, typename... Args>
+  inline void error( const SourceFileIdentifier& ident, Str const& format, Args&&... args )
   {
     SourceLocation loc( &ident, 0, 0 );
-    error( loc, args... );
+    error( loc, format, args... );
   }
 
-  template <typename... Args>
-  inline void error( const Node& node, Args&&... args )
+  template <typename Str, typename... Args>
+  inline void error( const Node& node, Str const& format, Args&&... args )
   {
-    error( node.source_location, args... );
+    error( node.source_location, format, args... );
   }
 
   // Report.fatal: use this when it's not possible to continue after a user-facing error.
-  template <typename... Args>
-  [[noreturn]] inline void fatal( const SourceLocation& source_location, Args&&... args )
+  //
+  template <typename Str, typename... Args>
+  [[noreturn]] inline void fatal( const SourceLocation& source_location, Str const& format,
+                                  Args&&... args )
   {
-    fmt::Writer w;
-    rec_write( w, std::forward<Args>( args )... );
-    report_error( source_location, w.str() );
-    throw std::runtime_error( w.str() );
+    auto msg = fmt::format( format, args... );
+    report_error( source_location, msg.c_str() );
+    throw std::runtime_error( msg.c_str() );
   }
 
-  template <typename... Args>
-  inline void warning( const SourceLocation& source_location, Args&&... args )
+  template <typename Str, typename... Args>
+  inline void warning( const SourceLocation& source_location, Str const& format, Args&&... args )
   {
-    fmt::Writer w;
-    rec_write( w, std::forward<Args>( args )... );
-    report_warning( source_location, w.str() );
+    auto msg = fmt::format( format, args... );
+    report_warning( source_location, msg.c_str() );
   }
 
-  template <typename... Args>
-  inline void warning( const Node& node, Args&&... args )
+  template <typename Str, typename... Args>
+  inline void warning( const Node& node, Str const& format, Args&&... args )
   {
-    warning( node.source_location, args... );
+    warning( node.source_location, format, args... );
   }
 
   void clear();
@@ -114,19 +112,7 @@ private:
   void report_warning( const SourceLocation&, const std::string& msg );
   ErrorReporter& reporter;
 
-  inline void rec_write( fmt::Writer& /*w*/ ) {}
-  template <typename T, typename... Targs>
-  inline void rec_write( fmt::Writer& w, T&& value, Targs&&... Fargs )
-  {
-    try
-    {
-      w << value;
-    } catch(...)
-    {
-    }
-    rec_write( w, std::forward<Targs>( Fargs )... );
-  }
-
+  // const bool display_warnings;
   unsigned errors;
   unsigned warnings;
 };

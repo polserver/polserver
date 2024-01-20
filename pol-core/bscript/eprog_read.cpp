@@ -45,22 +45,22 @@ int EScriptProgram::read( const char* fname )
     BSCRIPT_FILE_HDR hdr;
     if ( fread( &hdr, sizeof hdr, 1, fp ) != 1 )
     {
-      ERROR_PRINT << "Error loading script " << fname << ": error reading header\n";
+      ERROR_PRINTLN( "Error loading script {}: error reading header", fname );
       fclose( fp );
       return -1;
     }
     if ( hdr.magic2[0] != BSCRIPT_FILE_MAGIC0 || hdr.magic2[1] != BSCRIPT_FILE_MAGIC1 )
     {
-      ERROR_PRINT << "Error loading script " << fname << ": bad magic value '" << hdr.magic2[0]
-                  << hdr.magic2[1] << "'\n";
+      ERROR_PRINTLN( "Error loading script {}: bad magic value '{}{}'", fname, hdr.magic2[0],
+                     hdr.magic2[1] );
       fclose( fp );
       return -1;
     }
     // auto-check for latest version (see filefmt.h for setting)
     if ( hdr.version != ESCRIPT_FILE_VER_CURRENT )
     {
-      ERROR_PRINT << "Error loading script " << fname << ": Recompile required. Bad version number "
-                  << hdr.version << "\n";
+      ERROR_PRINTLN( "Error loading script {}: Recompile required. Bad version number {}", fname,
+                     hdr.version );
       fclose( fp );
       return -1;
     }
@@ -74,7 +74,7 @@ int EScriptProgram::read( const char* fname )
       case BSCRIPT_SECTION_PROGDEF:
         if ( read_progdef_hdr( fp ) )
         {
-          ERROR_PRINT << "Error loading script " << fname << ": error reading progdef section\n";
+          ERROR_PRINTLN( "Error loading script {}: error reading progdef section", fname );
           fclose( fp );
           return -1;
         }
@@ -83,7 +83,7 @@ int EScriptProgram::read( const char* fname )
       case BSCRIPT_SECTION_MODULE:
         if ( read_module( fp ) )
         {
-          ERROR_PRINT << "Error loading script " << fname << ": error reading module section\n";
+          ERROR_PRINTLN( "Error loading script {}: error reading module section", fname );
           fclose( fp );
           return -1;
         }
@@ -97,8 +97,8 @@ int EScriptProgram::read( const char* fname )
       case BSCRIPT_SECTION_GLOBALVARNAMES:
         if ( read_globalvarnames( fp ) )
         {
-          ERROR_PRINT << "Error loading script " << fname
-                      << ": error reading global variable name section\n";
+          ERROR_PRINTLN( "Error loading script {}: error reading global variable name section",
+                         fname );
           fclose( fp );
           return -1;
         }
@@ -106,15 +106,14 @@ int EScriptProgram::read( const char* fname )
       case BSCRIPT_SECTION_EXPORTED_FUNCTIONS:
         if ( read_exported_functions( fp, &sechdr ) )
         {
-          ERROR_PRINT << "Error loading script " << fname
-                      << ": error reading exported functions section\n";
+          ERROR_PRINTLN( "Error loading script {}: error reading exported functions section",
+                         fname );
           fclose( fp );
           return -1;
         }
         break;
       default:
-        ERROR_PRINT << "Error loading script " << fname << ": unknown section type " << sechdr.type
-                    << "\n";
+        ERROR_PRINTLN( "Error loading script {}: unknown section type {}", fname, sechdr.type );
         fclose( fp );
         return -1;
       }
@@ -125,7 +124,7 @@ int EScriptProgram::read( const char* fname )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << "Exception caught while loading script " << fname << ": " << ex.what() << "\n";
+    ERROR_PRINTLN( "Exception caught while loading script {}: {}", fname, ex.what() );
     if ( fp != nullptr )
       fclose( fp );
     return -1;
@@ -133,7 +132,7 @@ int EScriptProgram::read( const char* fname )
 #ifndef WIN32
   catch ( ... )
   {
-    ERROR_PRINT << "Exception caught while loading script " << fname << "\n";
+    ERROR_PRINTLN( "Exception caught while loading script {}", fname );
     if ( fp != nullptr )
       fclose( fp );
     return -1;
@@ -295,6 +294,7 @@ int EScriptProgram::_readToken( Token& token, unsigned position ) const
   case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
   case INS_SKIPIFTRUE_ELSE_CONSUME:
+  case TOK_BOOL:
     token.lval = st.offset;
     return 0;
   case TOK_FUNCREF:
@@ -408,7 +408,7 @@ int EScriptProgram::read_dbg_file()
   FILE* fp = fopen( mname.c_str(), "rb" );
   if ( !fp )
   {
-    ERROR_PRINT << "Unable to open " << mname << "\n";
+    ERROR_PRINTLN( "Unable to open {}", mname );
     return -1;
   }
 
@@ -416,8 +416,8 @@ int EScriptProgram::read_dbg_file()
   size_t fread_res = fread( &dbgversion, sizeof dbgversion, 1, fp );
   if ( fread_res != 1 || ( dbgversion != 2 && dbgversion != 3 ) )
   {
-    ERROR_PRINT << "Recompile required. Bad version " << dbgversion << " in " << mname
-                << ", expected version 2\n";
+    ERROR_PRINTLN( "Recompile required. Bad version {} in {}, expected version 2", dbgversion,
+                   mname );
     fclose( fp );
     return -1;
   }

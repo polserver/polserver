@@ -14,8 +14,8 @@ StoredToken::StoredToken( unsigned char aModule, int aID, BTokenType aType, unsi
 {
   if ( offset != aOffset )
   {
-    ERROR_PRINT << "Data segment overflowed.\n"
-                << "Flog the programmer for using 2-byte offsets in datafiles.\n";
+    ERROR_PRINTLN(
+        "Data segment overflowed.\nFlog the programmer for using 2-byte offsets in datafiles." );
     throw std::runtime_error( "Data segment overflowed" );
   }
 }

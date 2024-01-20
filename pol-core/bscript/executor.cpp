@@ -32,6 +32,7 @@
 #include "str.h"
 #include "token.h"
 #include "tokens.h"
+#include <iterator>
 #ifdef MEMORYLEAK
 #include "../clib/mlog.h"
 #endif
@@ -66,7 +67,7 @@ void display_executor_instances()
   {
     // Fix for crashes due to orphaned script instances.
     if ( !ex->empty_scriptname() )
-      INFO_PRINT << ex->scriptname() << "\n";
+      INFO_PRINTLN( ex->scriptname() );
   }
 }
 
@@ -137,8 +138,7 @@ bool Executor::AttachFunctionalityModules()
     execmodules.push_back( em );
     if ( em == nullptr )
     {
-      ERROR_PRINT << "WARNING: " << scriptname() << ": Unable to find module "
-                  << fm->modulename.get() << "\n";
+      ERROR_PRINTLN( "WARNING: {}: Unable to find module {}", scriptname(), fm->modulename.get() );
       return false;
     }
 
@@ -158,8 +158,7 @@ bool Executor::AttachFunctionalityModules()
           func->funcidx = em->functionIndex( func->name.get() );
           if ( func->funcidx == -1 )
           {
-            ERROR_PRINT << "Unable to find " << fm->modulename.get() << "::" << func->name.get()
-                        << "\n";
+            ERROR_PRINTLN( "Unable to find {}::{}", fm->modulename.get(), func->name.get() );
             return false;
           }
         }
@@ -179,7 +178,7 @@ int Executor::getParams( unsigned howMany )
     {
       if ( ValueStack.empty() )
       {
-        POLLOG_ERROR.Format( "Fatal error: Value Stack Empty! ({},PC={})\n" ) << prog_->name << PC;
+        POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={})", prog_->name, PC );
         seterror( true );
         return -1;
       }
@@ -306,15 +305,16 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
   {
     if ( !IS_DEBUGLOG_DISABLED )
     {
-      fmt::Writer tmp;
-      tmp << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n";
+      std::string tmp = fmt::format( "Script Error in '{}' PC={}:\n", scriptname(), PC );
       if ( current_module_function )
-        tmp << "\tCall to function " << current_module_function->name.get() << ":\n";
+        fmt::format_to( std::back_inserter( tmp ), "\tCall to function {}:\n",
+                        current_module_function->name.get() );
       else
-        tmp << "\tCall to an object method.\n";
-      tmp << "\tParameter " << param << ": Expected datatype " << BObjectImp::typestr( type )
-          << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
-      DEBUGLOG << tmp.str();
+        tmp += "\tCall to an object method.\n";
+      fmt::format_to( std::back_inserter( tmp ),
+                      "\tParameter {}: Expected datatype {}, got datatype {}", param,
+                      BObjectImp::typestr( type ), BObjectImp::typestr( imp->type() ) );
+      DEBUGLOGLN( tmp );
     }
     return nullptr;
   }
@@ -447,10 +447,12 @@ bool Executor::getRealParam( unsigned param, double& value )
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param << ": Expected Integer or Real"
-             << ", got datatype " << BObjectImp::typestr( imp->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected Integer or Real, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( imp->type() ) );
 
     return false;
   }
@@ -475,12 +477,12 @@ void* Executor::getApplicPtrParam( unsigned param, const BApplicObjType* pointer
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param
-             << ": Expected datatype " /*<< pointer_type TODO this is totally useless since its a
-                                          pointer address*/
-             << ", got datatype " << BObjectImp::typestr( ap->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected datatype, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( ap->type() ) );
 
     return nullptr;
   }
@@ -498,12 +500,11 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << PC << ": \n"
-             << "\tCall to function " << current_module_function->name.get() << ":\n"
-             << "\tParameter " << param
-             << ": Expected datatype " /*<< object_type TODO this is totally useless since its a
-                                          pointer address*/
-             << ", got datatype " << aob->getStringRep() << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected datatype, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param, aob->getStringRep() );
 
     return nullptr;
   }
@@ -729,6 +730,32 @@ bool Executor::getParam( unsigned param, signed char& value )
   }
 }
 
+bool Executor::getParam( unsigned param, bool& value )
+{
+  BObjectImp* imp = getParamImp( param );
+  if ( imp->isa( BObjectImp::OTBoolean ) )
+  {
+    value = static_cast<BBoolean*>( imp )->value();
+    return true;
+  }
+  else if ( imp->isa( BObjectImp::OTLong ) )
+  {
+    value = static_cast<BLong*>( imp )->isTrue();
+    return true;
+  }
+  else
+  {
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function {}:\n"
+        "\tParameter {}: Expected Boolean or Integer, got datatype {}",
+        scriptname(), PC, current_module_function->name.get(), param,
+        BObjectImp::typestr( imp->type() ) );
+
+    return false;
+  }
+}
+
 bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
 {
   BObject* obj = getParam( param );
@@ -807,7 +834,7 @@ BObjectRef Executor::getObjRef( void )
 {
   if ( ValueStack.empty() )
   {
-    POLLOG_ERROR.Format( "Fatal error: Value Stack Empty! ({},PC={})\n" ) << prog_->name << PC;
+    POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={})", prog_->name, PC );
     seterror( true );
     return BObjectRef( UninitObject::create() );
   }
@@ -825,8 +852,10 @@ void Executor::execFunc( const Token& token )
   current_module_function = modfunc;
   if ( modfunc->funcidx == -1 )
   {
-    DEBUGLOG << "Error in script '" << prog_->name.get() << "':\n"
-             << "\tModule Function " << modfunc->name.get() << " was not found.\n";
+    DEBUGLOGLN(
+        "Error in script '{}':\n"
+        "\tModule Function {} was not found.",
+        prog_->name.get(), modfunc->name.get() );
 
     throw std::runtime_error( "No implementation for function found." );
   }
@@ -888,7 +917,7 @@ void Executor::ins_declareArray( const Instruction& /*ins*/ )
   if ( !objref->isa( BObjectImp::OTUninit ) )
   {
     // FIXME: weak error message
-    ERROR_PRINT << "variable is already initialized..\n";
+    ERROR_PRINTLN( "variable is already initialized.." );
     seterror( true );
     return;
   }
@@ -1183,9 +1212,91 @@ int Executor::ins_casejmp_findlong( const Token& token, BLong* blong )
     {
       return offset;
     }
-    else
+    else if ( type == CASE_TYPE_UNINIT )
     {
-      dataptr += type;
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
+    }
+  }
+}
+
+int Executor::ins_casejmp_findbool( const Token& token, BBoolean* bbool )
+{
+  const unsigned char* dataptr = token.dataptr;
+  for ( ;; )
+  {
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
+    dataptr += 2;
+    unsigned char type = *dataptr;
+    dataptr += 1;
+    if ( type == CASE_TYPE_LONG )
+    {
+      dataptr += 4;
+    }
+    else if ( type == CASE_TYPE_DEFAULT )
+    {
+      return offset;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      bool value = static_cast<bool>( *dataptr );
+      dataptr += 1;
+      if ( value == bbool->value() )
+      {
+        return offset;
+      }
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
+    }
+  }
+}
+
+int Executor::ins_casejmp_finduninit( const Token& token )
+{
+  const unsigned char* dataptr = token.dataptr;
+  for ( ;; )
+  {
+    unsigned short offset;
+    std::memcpy( &offset, dataptr, sizeof( unsigned short ) );
+    dataptr += 2;
+    unsigned char type = *dataptr;
+    dataptr += 1;
+    if ( type == CASE_TYPE_LONG )
+    {
+      dataptr += 4;
+    }
+    else if ( type == CASE_TYPE_DEFAULT )
+    {
+      return offset;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      return offset;
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
     }
   }
 }
@@ -1209,13 +1320,23 @@ int Executor::ins_casejmp_findstring( const Token& token, String* bstringimp )
     {
       return offset;
     }
-    else
+    else if ( type == CASE_TYPE_BOOL )
     {
-      if ( bstring.size() == type && memcmp( bstring.data(), dataptr, type ) == 0 )
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1;
+      if ( bstring.size() == len && memcmp( bstring.data(), dataptr, len ) == 0 )
       {
         return offset;
       }
-      dataptr += type;
+      dataptr += len;
     }
   }
 }
@@ -1238,9 +1359,18 @@ int Executor::ins_casejmp_finddefault( const Token& token )
     {
       return offset;
     }
-    else
+    else if ( type == CASE_TYPE_UNINIT )
     {
-      dataptr += type;
+      /* nothing */
+    }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      dataptr += 1;
+    }
+    else if ( type == CASE_TYPE_STRING )
+    {
+      unsigned char len = *dataptr;
+      dataptr += 1 + len;
     }
   }
 }
@@ -1256,6 +1386,14 @@ void Executor::ins_casejmp( const Instruction& ins )
   else if ( objimp->isa( BObjectImp::OTString ) )
   {
     PC = ins_casejmp_findstring( ins.token, static_cast<String*>( objimp ) );
+  }
+  else if ( objimp->isa( BObjectImp::OTBoolean ) )
+  {
+    PC = ins_casejmp_findbool( ins.token, static_cast<BBoolean*>( objimp ) );
+  }
+  else if ( objimp->isa( BObjectImp::OTUninit ) )
+  {
+    PC = ins_casejmp_finduninit( ins.token );
   }
   else
   {
@@ -1376,6 +1514,12 @@ void Executor::ins_globalvar( const Instruction& ins )
 void Executor::ins_long( const Instruction& ins )
 {
   ValueStack.push_back( BObjectRef( new BObject( new BLong( ins.token.lval ) ) ) );
+}
+
+// case TOK_BOOL:
+void Executor::ins_bool( const Instruction& ins )
+{
+  ValueStack.push_back( BObjectRef( new BObject( new BBoolean( ins.token.lval ) ) ) );
 }
 
 // case TOK_CONSUMER:
@@ -2479,7 +2623,7 @@ void Executor::ins_call_method( const Instruction& ins )
 void Executor::ins_statementbegin( const Instruction& ins )
 {
   if ( debug_level >= SOURCELINES && ins.token.tokval() )
-    INFO_PRINT << ins.token.tokval() << "\n";
+    INFO_PRINTLN( ins.token.tokval() );
 }
 
 // case CTRL_PROGEND:
@@ -2510,16 +2654,17 @@ void Executor::ins_jsr_userfunc( const Instruction& ins )
   PC = (unsigned)ins.token.lval;
   if ( ControlStack.size() >= escript_config.max_call_depth )
   {
-    fmt::Writer tmp;
-    tmp << "Script " << scriptname() << " exceeded maximum call depth\n"
-        << "Return path PCs: ";
+    std::string tmp = fmt::format(
+        "Script {} exceeded maximum call depth\n"
+        "Return path PCs: ",
+        scriptname() );
     while ( !ControlStack.empty() )
     {
       rc = ControlStack.back();
       ControlStack.pop_back();
-      tmp << rc.PC << " ";
+      fmt::format_to( std::back_inserter( tmp ), "{} ", rc.PC );
     }
-    POLLOG << tmp.str() << "\n";
+    POLLOGLN( tmp );
     seterror( true );
   }
 }
@@ -2572,7 +2717,7 @@ void Executor::ins_return( const Instruction& /*ins*/ )
 {
   if ( ControlStack.empty() )
   {
-    ERROR_PRINT << "Return without GOSUB! (PC=" << PC << ", " << scriptname() << ")\n";
+    ERROR_PRINTLN( "Return without GOSUB! (PC={}, {})", PC, scriptname() );
 
     seterror( true );
     return;
@@ -2977,6 +3122,8 @@ ExecInstrFunc Executor::GetInstrFunc( const Token& token )
     return &Executor::ins_interpolate_string;
   case TOK_FORMAT_EXPRESSION:
     return &Executor::ins_format_expression;
+  case TOK_BOOL:
+    return &Executor::ins_bool;
   default:
     throw std::runtime_error( "Undefined execution token " + Clib::tostring( token.id ) );
   }
@@ -2998,7 +3145,7 @@ void Executor::execInstr()
     const Instruction& ins = prog_->instr.at( PC );
 #endif
     if ( debug_level >= INSTRUCTIONS )
-      INFO_PRINT << PC << ": " << ins.token << "\n";
+      INFO_PRINTLN( "{}: {}", PC, ins.token );
 
     if ( debugging_ )
     {
@@ -3079,21 +3226,19 @@ void Executor::execInstr()
   }
   catch ( std::exception& ex )
   {
-    fmt::Writer tmp;
-    tmp << "Exception in: " << prog_->name.get() << " PC=" << onPC << ": " << ex.what() << "\n";
+    std::string tmp =
+        fmt::format( "Exception in: {} PC={}: {}\n", prog_->name.get(), onPC, ex.what() );
     if ( !run_ok_ )
-      tmp << "run_ok_ = false\n";
+      tmp += "run_ok_ = false\n";
     if ( PC < nLines )
-    {
-      tmp << " PC < nLines: (" << PC << " < " << nLines << ") \n";
-    }
+      fmt::format_to( std::back_inserter( tmp ), " PC < nLines: ({} < {})\n", PC, nLines );
     if ( error_ )
-      tmp << "error_ = true\n";
+      tmp += "error_ = true\n";
     if ( done )
-      tmp << "done = true\n";
+      tmp += "done = true\n";
 
     seterror( true );
-    POLLOG_ERROR << tmp.str();
+    POLLOG_ERROR( tmp );
 
     show_context( onPC );
   }
@@ -3101,7 +3246,7 @@ void Executor::execInstr()
   catch ( ... )
   {
     seterror( true );
-    POLLOG_ERROR << "Exception in " << prog_->name.get() << ", PC=" << onPC << ": unclassified\n";
+    POLLOG_ERRORLN( "Exception in {}, PC={}: unclassified", prog_->name.get(), onPC );
 
     show_context( onPC );
   }
@@ -3110,11 +3255,15 @@ void Executor::execInstr()
 
 std::string Executor::dbg_get_instruction( size_t atPC ) const
 {
-  fmt::Writer os;
-  os << ( ( atPC == PC ) ? ">" : " " ) << atPC
-     << ( breakpoints_.count( static_cast<unsigned>( atPC ) ) ? "*" : ":" ) << " "
-     << prog_->instr[atPC].token;
-  return os.str();
+  std::string out;
+  dbg_get_instruction( atPC, out );
+  return out;
+}
+void Executor::dbg_get_instruction( size_t atPC, std::string& os ) const
+{
+  fmt::format_to( std::back_inserter( os ), "{}{}{} {}", ( atPC == PC ) ? ">" : " ", atPC,
+                  breakpoints_.count( static_cast<unsigned>( atPC ) ) ? "*" : ":",
+                  prog_->instr[atPC].token );
 }
 
 void Executor::show_context( unsigned atPC )
@@ -3132,10 +3281,10 @@ void Executor::show_context( unsigned atPC )
 
   for ( unsigned i = start; i <= end; ++i )
   {
-    POLLOG.Format( "{}: {}\n" ) << i << dbg_get_instruction( i );
+    POLLOGLN( "{}: {}", i, dbg_get_instruction( i ) );
   }
 }
-void Executor::show_context( fmt::Writer& os, unsigned atPC )
+void Executor::show_context( std::string& os, unsigned atPC )
 {
   unsigned start, end;
   if ( atPC >= 5 )
@@ -3150,7 +3299,8 @@ void Executor::show_context( fmt::Writer& os, unsigned atPC )
 
   for ( unsigned i = start; i <= end; ++i )
   {
-    os << dbg_get_instruction( i ) << '\n';
+    dbg_get_instruction( i, os );
+    os += '\n';
   }
 }
 
@@ -3204,18 +3354,18 @@ void Executor::initForFnCall( unsigned in_PC )
     {
       if ( !data_shown )
       {
-        LEAKLOG << "ValueStack... ";
+        LEAKLOG( "ValueStack... " );
         data_shown = true;
       }
 
-      LEAKLOG << ValueStack.back()->impptr()->pack();
-      LEAKLOG << " [" << ValueStack.back()->impptr()->sizeEstimate() << "] ";
+      LEAKLOG( "{} [{}]", ValueStack.back()->impptr()->pack(),
+               ValueStack.back()->impptr()->sizeEstimate() );
     }
     ValueStack.pop_back();
   }
   if ( Clib::memoryleak_debug )
     if ( data_shown )
-      LEAKLOG << " ...deleted\n";
+      LEAKLOGLN( " ...deleted" );
 #endif
 
   ValueStack.clear();

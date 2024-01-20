@@ -302,7 +302,7 @@ class Mobile(UOBject):
       self.equip[pkt.layer] = item
       return
 
-    if not isinstance(pkt, packets.UpdatePlayerPacket) and not isinstance(pkt, packets.DrawObjectPacket):
+    if not isinstance(pkt, packets.UpdatePlayerPacket) and not isinstance(pkt, packets.DrawObjectPacket) and not isinstance(pkt, packets.NewObjectInfoPacket):
       raise ValueError("Expecting an UpdatePlayerPacket or DrawObjectPacket")
     self.serial = pkt.serial
     self.graphic = pkt.graphic
@@ -312,7 +312,8 @@ class Mobile(UOBject):
     self.facing = pkt.facing
     self.color = pkt.color
     self.status = pkt.flag
-    self.notoriety = pkt.notoriety
+    if hasattr(pkt, 'notoriety'):
+      self.notoriety = pkt.notoriety
 
     # Handle equip
     if isinstance(pkt, packets.DrawObjectPacket):
@@ -765,6 +766,13 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.DeleteObjectPacket):
       assert self.lc
       if pkt.serial in self.objects:
+        obj = self.objects[pkt.serial]
+        # Delete the object from equipment
+        if isinstance(obj, Item) and obj.parent is not None and isinstance(obj.parent, Mobile):
+          mobile = obj.parent
+          if mobile.equip is not None:
+            mobile.equip = {key:val for key, val in mobile.equip.items() if val != obj}
+
         if not self.disable_item_logging:
           obj=self.objects[pkt.serial]
           self.log.info("Object 0x%X went out of sight", pkt.serial)
@@ -901,8 +909,12 @@ class Client(threading.Thread):
       self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
     elif isinstance(pkt, packets.WornItemPacket):
-      self.objects[pkt.mobile].update(pkt)
+      self.handleWornItemPacket(pkt)
       self.log.info("wornitem item: %s mobile: %s", self.objects[pkt.serial], self.objects[pkt.mobile])
+    elif isinstance(pkt, packets.MultipleNewObjectInfoPacket):
+      for obj in pkt.packets:
+        self.handleObjectInfoPacket(obj)
+
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1101,6 +1113,33 @@ class Client(threading.Thread):
         self.log.info("Boat move: %s", self.objects[pkt.serial])
         self.brain.event(brain.Event(brain.Event.EVT_BOAT_MOVED, boat=self.objects[pkt.serial]))
 
+  @status('game')
+  @clientthread
+  @logincomplete
+  def handleWornItemPacket(self, pkt):
+    if self.player.serial == pkt.mobile:
+      mob = self.player
+    else:
+      mob = self.objects[pkt.mobile]
+
+    mob.equip = mob.equip or {}
+
+    serial = pkt.serial
+    if serial in self.objects.keys():
+      item = self.objects[serial]
+    else:
+      item = Item(self)
+      item.serial = serial
+      self.objects[serial] = item
+
+    item.graphic = pkt.graphic
+    item.color = pkt.color
+    item.parent = mob
+
+    if not self.disable_item_logging:
+      self.log.info("Equip item %s on %s", item, mob)
+
+    mob.equip[pkt.layer] = item
 
   @logincomplete
   def sendVersion(self):
@@ -1149,6 +1188,13 @@ class Client(threading.Thread):
     ''' Sends a single click for the given object (Item/Mobile or serial) to server '''
     po = packets.DoubleClickPacket()
     po.fill(obj if type(obj) == int else obj.serial)
+    self.queue(po)
+
+  @logincomplete
+  def boat_move(self, serial, direction, speed):
+    ''' Sends a boat move packet to server'''
+    po = packets.GeneralInfoPacket()
+    po.fill(po.SUB_BOATMOVE, serial, direction, speed)
     self.queue(po)
 
   @logincomplete
@@ -1256,11 +1302,14 @@ class Client(threading.Thread):
         return False
       elif todo.type == brain.Event.EVT_LIST_OBJS:
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = self.objects.copy()))
+      elif todo.type == brain.Event.EVT_LIST_EQUIPPED_ITEMS:
+        mobile = self.objects[todo.serial] if todo.serial in self.objects else None
+        self.brain.event(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, mobile = mobile))
       elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
         self.disable_item_logging = todo.value
         self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
       else:
-        raise NotImplementedError("Unknown todo event {}",format(ev.type))
+        raise NotImplementedError("Unknown todo event {}",format(todo.type))
     return True
 
   @clientthread

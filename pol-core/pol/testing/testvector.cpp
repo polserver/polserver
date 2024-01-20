@@ -39,14 +39,8 @@ void vector2d_test()
       },
       Vec2d( 0x7fff, -0x8000 ), "+= clip" );
 
-  UnitTest(
-      []()
-      {
-        fmt::Writer tmp;
-        tmp << Vec2d( 0, 0 );
-        return true;
-      },
-      true, "" );
+  UnitTest( []() { return fmt::format( "{:->10}", Vec2d( 0, 0 ) ); }, "--( 0, 0 )",
+            "format padding" );
 }
 
 void vector3d_test()
@@ -96,14 +90,8 @@ void vector3d_test()
 
   UnitTest( []() { return Vec3d( 1, 1, 1 ) != Vec2d( 1, 1 ); }, false, "1,1,1!=1,1" );
 
-  UnitTest(
-      []()
-      {
-        fmt::Writer tmp;
-        tmp << Vec3d( 0, 0, 0 );
-        return true;
-      },
-      true, "" );
+  UnitTest( []() { return fmt::format( "{:->13}", Vec3d( 0, 0, 0 ) ); }, "--( 0, 0, 0 )",
+            "format padding" );
 }
 }  // namespace Testing
 }  // namespace Pol

@@ -176,6 +176,8 @@ public:
 
     virtual std::any visitFloatLiteral(EscriptParser::FloatLiteralContext *context) = 0;
 
+    virtual std::any visitBoolLiteral(EscriptParser::BoolLiteralContext *context) = 0;
+
 
 };
 

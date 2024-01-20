@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <ctype.h>
+#include <iterator>
 #include <string>
 
 #include "../bscript/eprog.h"
@@ -46,6 +47,7 @@
 #include "guilds.h"
 #include "mobile/attribute.h"
 #include "mobile/charactr.h"
+#include "module/uomod.h"
 #include "multi/customhouses.h"
 #include "multi/multi.h"
 #include "network/client.h"
@@ -57,14 +59,17 @@
 #include "network/pktin.h"
 #include "network/sockio.h"
 #include "party.h"
+#include "polclass.h"
 #include "realms/realm.h"
 #include "scrstore.h"
 #include "spells.h"
+#include "systems/suspiciousacts.h"
 #include "tooltips.h"
 #include "ufunc.h"
 #include "uobject.h"
+#include "uoexec.h"
 #include "uoscrobj.h"
-#include <format/format.h>
+
 
 namespace Pol
 {
@@ -132,13 +137,13 @@ void handle_rename_char( Client* client, PKTIN_75* msg )
         // only allow: a-z, A-Z & spaces
         if ( *p != ' ' && !isalpha( *p ) )
         {
-          fmt::Writer tmp;
-          tmp.Format( "Client#{} (account {}) attempted an invalid rename (packet 0x{:X}):\n{}\n" )
-              << client->instance_
-              << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" )
-              << (int)msg->msgtype << msg->name;
-          Clib::fdump( tmp, msg->name, static_cast<int>( strlen( msg->name ) ) );
-          POLLOG_INFO << tmp.str();
+          std::string tmp = fmt::format(
+              "Client#{} (account {}) attempted an invalid rename (packet {:#X}):\n{}",
+              client->instance_, ( client->acct != nullptr ) ? client->acct->name() : "unknown",
+              (int)msg->msgtype, msg->name );
+          Clib::fdump( std::back_inserter( tmp ), msg->name,
+                       static_cast<int>( strlen( msg->name ) ) );
+          POLLOG_INFOLN( tmp );
           *p = '\0';
           send_sysmessage( client, "Invalid name!" );
           return;  // dave 12/26 if invalid name, do not apply to chr!
@@ -261,7 +266,7 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
   }
   else
   {
-    POLLOG_INFO << "Suspect string length in PKTBI_BD packet: " << len << "\n";
+    POLLOG_INFOLN( "Suspect string length in PKTBI_BD packet: {}", len );
   }
 }
 
@@ -393,14 +398,59 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
   {
     if ( client->chr->on_popup_menu_selection == nullptr )
     {
-      POLLOG_INFO.Format( "{}/{} tried to use a popup menu, but none was active.\n" )
-          << client->acct->name() << client->chr->name();
+      POLLOG_INFOLN( "{}/{} tried to use a popup menu, but none was active.", client->acct->name(),
+                     client->chr->name() );
       break;
     }
 
     u32 serial = cfBEu32( msg->popupselect.serial );
     u16 id = cfBEu16( msg->popupselect.entry_tag );
     client->chr->on_popup_menu_selection( client, serial, id );
+    break;
+  }
+  case PKTBI_BF::TYPE_BOAT_MOVE:
+  {
+    Mobile::Character* chr = client->chr;
+    multi = chr->realm()->find_supporting_multi( client->chr->pos3d() );
+
+    if ( multi == nullptr )
+    {
+      SuspiciousActs::BoatMoveNoMulti( client );
+      break;
+    }
+
+    if ( !multi->script_isa( Core::POLCLASS_BOAT ) )
+    {
+      SuspiciousActs::BoatMoveNotBoatMulti( client );
+      break;
+    }
+
+    Multi::UBoat* boat = static_cast<Multi::UBoat*>( multi );
+    if ( boat->pilot() != chr )
+    {
+      SuspiciousActs::BoatMoveNotPilot( client, multi->serial );
+      break;
+    }
+
+    if ( msg->boatmove.direction > 7 || msg->boatmove.speed > 2 )
+    {
+      SuspiciousActs::BoatMoveOutOfRangeParameters( client, multi->serial, msg->boatmove.direction,
+                                                    msg->boatmove.speed );
+      break;
+    }
+
+    Module::UOExecutorModule* process = multi->process();
+    if ( !process )
+    {
+      break;
+    }
+
+    auto relative_direction =
+        static_cast<Core::UFACING>( ( msg->boatmove.direction - boat->boat_facing() + 8 ) & 7 );
+
+    process->uoexec().signal_event( new Module::BoatMovementEvent(
+        chr, msg->boatmove.speed, msg->boatmove.direction, relative_direction ) );
+
     break;
   }
   default:
@@ -612,8 +662,8 @@ void handle_e1_clienttype( Client* client, PKTIN_E1* msg )
     client->setClientType( CLIENTTYPE_UOSA );
     break;
   default:
-    INFO_PRINT << "Unknown client type send with packet 0xE1 : 0x"
-               << fmt::hexu( static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) ) << "\n";
+    INFO_PRINTLN( "Unknown client type send with packet 0xE1 : {:#x}",
+                  static_cast<unsigned long>( cfBEu32( msg->clienttype ) ) );
     break;
   }
 }
@@ -632,9 +682,8 @@ void handle_aos_commands( Client* client, PKTBI_D7* msg )
   u32 serial = cfBEu32( msg->serial );
   if ( client && client->chr && client->chr->serial != serial )
   {
-    INFO_PRINT << "Ignoring spoofed packet 0xD7 from character 0x"
-               << fmt::hexu( client->chr->serial ) << " trying to spoof 0x" << fmt::hexu( serial )
-               << "\n";
+    INFO_PRINTLN( "Ignoring spoofed packet 0xD7 from character {:#x} trying to spoof {:#x}",
+                  client->chr->serial, serial );
     return;
   }
 

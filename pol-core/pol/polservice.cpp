@@ -6,7 +6,7 @@
 
 #include "../clib/esignal.h"
 #include "../clib/threadhelp.h"
-//#include "../clib/xmain.h"
+// #include "../clib/xmain.h"
 #include "../clib/logfacility.h"
 
 #include "../plib/systemstate.h"
@@ -302,7 +302,7 @@ void ShutdownSystemTrayHandling()
     if ( !rc )
     {
       DWORD err = GetLastError();
-      INFO_PRINT << "Unable to shutdown systray: " << err << "\n";
+      INFO_PRINTLN( "Unable to shutdown systray: {}", err );
     }
   }
 }

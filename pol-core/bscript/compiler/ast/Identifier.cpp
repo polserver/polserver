@@ -1,6 +1,5 @@
 #include "Identifier.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
@@ -16,10 +15,9 @@ void Identifier::accept( NodeVisitor& visitor )
   visitor.visit_identifier( *this );
 }
 
-void Identifier::describe_to( fmt::Writer& w ) const
+void Identifier::describe_to( std::string& w ) const
 {
-  w << "identifier(" << name;
-  w << ")";
+  fmt::format_to( std::back_inserter( w ), "identifier({})", name );
 }
 
 }  // namespace Pol::Bscript::Compiler

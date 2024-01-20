@@ -237,24 +237,24 @@ void hook( ExportScript* shs, const std::string& hookname, const std::string& ex
   }
   else
   {
-    INFO_PRINT << "Unknown SystemHook " << hookname << "\n";
+    INFO_PRINTLN( "Unknown SystemHook {}", hookname );
     return;
   }
 
   if ( *pphook != nullptr )
   {
-    INFO_PRINT << "SystemHook " << hookname << " multiply defined\n"
-               << "  Already found in: " << gamestate.system_hooks.check_skill_hook->scriptname()
-               << "\n"
-               << "  Also defined in:  " << shs->scriptname() << "\n";
+    INFO_PRINTLN(
+        "SystemHook {} multiply defined\n"
+        "  Already found in: {}\n"
+        "  Also defined in:  {}",
+        hookname, gamestate.system_hooks.check_skill_hook->scriptname(), shs->scriptname() );
     return;
   }
 
   unsigned PC;
   if ( !shs->FindExportedFunction( exfuncname, nargs, PC ) )
   {
-    INFO_PRINT << "Exported Function " << exfuncname << " not found in " << shs->scriptname()
-               << "\n";
+    INFO_PRINTLN( "Exported Function {} not found in {}", exfuncname, shs->scriptname() );
     return;
   }
 
@@ -348,7 +348,7 @@ void load_system_hooks()
             else if ( !hookclass.compare( "guild" ) )
               setMethod( &gamestate.system_hooks.guild_method_script, pkg, script );
             else
-              POLLOG_INFO << "Unknown class used for method hook: " << hookclass << "\n";
+              POLLOG_INFOLN( "Unknown class used for method hook: {}", hookclass );
           }
         }
       }

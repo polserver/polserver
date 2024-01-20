@@ -43,7 +43,7 @@ void CombatConfig::read_combat_config()
     cf.readraw( elem );
   }
   else if ( Plib::systemstate.config.loglevel > 1 )
-    INFO_PRINT << "File config/combat.cfg not found, skipping.\n";
+    INFO_PRINTLN( "File config/combat.cfg not found, skipping." );
 
   settingsManager.combat_config.display_parry_success_messages =
       elem.remove_bool( "DisplayParrySuccessMessages", false );

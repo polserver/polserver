@@ -1,6 +1,5 @@
 #include "RepeatUntilLoop.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/Expression.h"
@@ -23,11 +22,11 @@ void RepeatUntilLoop::accept( NodeVisitor& visitor )
   visitor.visit_repeat_until_loop( *this );
 }
 
-void RepeatUntilLoop::describe_to( fmt::Writer& w ) const
+void RepeatUntilLoop::describe_to( std::string& w ) const
 {
-  w << "repeat-until-loop";
+  w += "repeat-until-loop";
   if ( !get_label().empty() )
-    w << "(label:" << get_label() << ")";
+    fmt::format_to( std::back_inserter( w ), "(label:{})", get_label() );
 }
 
 Block& RepeatUntilLoop::block()

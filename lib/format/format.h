@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef FMT_FORMAT_H_
-#define FMT_FORMAT_H_
+#ifndef FMT_FORMAT_H_OLD
+#define FMT_FORMAT_H_OLD
 
 #include <stdint.h>
 

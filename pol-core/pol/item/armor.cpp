@@ -30,7 +30,6 @@
 #include "../uobject.h"
 #include "armrtmpl.h"
 #include "itemdesc.h"
-#include <format/format.h>
 
 
 namespace Pol
@@ -61,14 +60,12 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
     }
     catch ( std::runtime_error& )
     {
-      fmt::Writer tmp;
-      tmp.Format( "Error in Objtype 0x{:X} " ) << objtype;
-      if ( pkg == nullptr )
-        tmp << "config/itemdesc.cfg\n";
-      else
-        tmp << pkg->dir() << "itemdesc.cfg\n";
+      std::string tmp = fmt::format( "Error in Objtype {:#X} {}itemdesc.cfg", objtype,
+                                     pkg == nullptr ? "config/" :
 
-      ERROR_PRINT << tmp.str();
+                                                    pkg->dir() );
+
+      ERROR_PRINTLN( tmp );
       throw;
     }
   }
@@ -87,14 +84,11 @@ ArmorDesc::ArmorDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package* 
       }
       catch ( std::runtime_error& )
       {
-        fmt::Writer tmp;
-        tmp.Format( "Error in Objtype 0x{:X} " ) << objtype;
-        if ( pkg == nullptr )
-          tmp << "config/itemdesc.cfg\n";
-        else
-          tmp << pkg->dir() << "itemdesc.cfg\n";
+        std::string tmp = fmt::format( "Error in Objtype {:#X} {}itemdesc.cfg", objtype,
+                                       pkg == nullptr ? "config/" :
 
-        ERROR_PRINT << tmp.str();
+                                                      pkg->dir() );
+        ERROR_PRINTLN( tmp );
         throw;
       }
     }

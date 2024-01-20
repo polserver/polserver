@@ -22,7 +22,6 @@ print( u == t );
 print( p != u );
 print(sep);
 
-var uninit;
 var optests := array{
 	"1234", "hello", "b", "ab", "a", "caterpillar",
 	1234, 0, -6,
