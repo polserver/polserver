@@ -132,6 +132,18 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
     return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
   }
 
+  case EscriptGrammar::EscriptLexer::BOOL_FALSE:
+  case EscriptGrammar::EscriptLexer::BOOL_TRUE:
+  case EscriptGrammar::EscriptLexer::UNINIT:
+  {
+    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
+                                                  token.getCharPositionInLine() + 1,
+                                                  token.getText().length(),
+                                                  SemanticTokenType::VARIABLE,
+                                                  { SemanticTokenModifier::READONLY } } };
+    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
+  }
+
 
   case EscriptGrammar::EscriptLexer::DECIMAL_LITERAL:
   case EscriptGrammar::EscriptLexer::HEX_LITERAL:
