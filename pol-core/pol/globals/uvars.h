@@ -168,13 +168,14 @@ public:
   unsigned int baserealm_count;
   unsigned int shadowrealm_count;
 
-  std::unique_ptr<PeriodicTask> update_rpm_task;
-  std::unique_ptr<PeriodicTask> regen_stats_task;
-  std::unique_ptr<PeriodicTask> regen_resources_task;
-  std::unique_ptr<PeriodicTask> reload_accounts_task;
-  std::unique_ptr<PeriodicTask> write_account_task;
-  std::unique_ptr<PeriodicTask> update_sysload_task;
-  std::unique_ptr<PeriodicTask> reload_pol_cfg_task;
+  // owned by task_queue
+  PeriodicTask* update_rpm_task;
+  PeriodicTask* regen_stats_task;
+  PeriodicTask* regen_resources_task;
+  PeriodicTask* reload_accounts_task;
+  PeriodicTask* write_account_task;
+  PeriodicTask* update_sysload_task;
+  PeriodicTask* reload_pol_cfg_task;
 
   std::vector<Mobile::Attribute*> attributes;
   unsigned numAttributes;
