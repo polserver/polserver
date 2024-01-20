@@ -394,6 +394,11 @@ std::unique_ptr<Expression> ExpressionBuilder::expression( EscriptParser::Expres
   {
     result = conditional_operator( ctx );
   }
+  else if ( workspace.continue_on_error )
+  {
+    // Should probably be something else like InvalidValue
+    result = std::make_unique<UninitializedValue>( location_for( *ctx ) );
+  }
   else
   {
     location_for( *ctx ).internal_error( "unhandled expression" );
