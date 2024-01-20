@@ -3,6 +3,7 @@
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/Block.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/CaseDispatchDefaultSelector.h"
 #include "bscript/compiler/ast/CaseDispatchGroup.h"
@@ -26,6 +27,7 @@
 #include "bscript/compiler/ast/RepeatUntilLoop.h"
 #include "bscript/compiler/ast/ReturnStatement.h"
 #include "bscript/compiler/ast/StringValue.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
@@ -195,6 +197,14 @@ std::unique_ptr<CaseStatement> CompoundStatementBuilder::case_statement(
       else if ( auto string_literal = group_label->STRING_LITERAL() )
       {
         selectors.push_back( string_value( string_literal ) );
+      }
+      if ( auto bool_literal = group_label->boolLiteral() )
+      {
+        selectors.push_back( bool_value( bool_literal ) );
+      }
+      if ( auto uninit = group_label->UNINIT() )
+      {
+        selectors.push_back( std::make_unique<UninitializedValue>( location_for( *uninit ) ) );
       }
       else if ( auto dflt = group_label->DEFAULT() )
       {

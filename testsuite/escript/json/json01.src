@@ -1,8 +1,8 @@
 program main()
-    var expr := struct{ 
-        "a" := "hello there", 
-        "b" := Boolean(1), 
-        "c" := array{ Boolean(0), Unpack("u") },
+    var expr := struct{
+        "a" := "hello there",
+        "b" := Boolean(1),
+        "c" := array{ Boolean(0), uninit },
         "d" := struct{ "key" := "value" }
     };
     var json := PackJSON(expr);
@@ -12,7 +12,7 @@ program main()
     print(obj.a == "hello there");
     print(obj.b == Boolean(1));
     print(obj.c[1] == Boolean(0));
-    print(obj.c[2] == Unpack("u"));
+    print(obj.c[2] == uninit);
     print(obj.c.size() == 2);
     print(TypeOfInt(obj.d) == OT_STRUCT);
     print(obj.d.size() == 1);

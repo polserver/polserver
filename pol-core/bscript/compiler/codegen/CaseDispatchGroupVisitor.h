@@ -15,8 +15,10 @@ public:
                             FlowControlLabel& default_label );
 
   void visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& ) override;
+  void visit_boolean_value( BooleanValue& ) override;
   void visit_integer_value( IntegerValue& ) override;
   void visit_string_value( StringValue& ) override;
+  void visit_uninitialized_value( UninitializedValue& ) override;
 
 private:
   CaseJumpDataBlock& data_block;

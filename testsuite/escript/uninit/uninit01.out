@@ -1,0 +1,9 @@
+<uninitialized object>
+<uninitialized object>
+<uninitialized object>
+{ 1, 2, <uninitialized object> }
+struct{ foo = <uninitialized object> }
+dict{ "foo" -> <uninitialized object> }
+<uninitialized object>
+<uninitialized object>
+bar: BAR baz: <uninitialized object>

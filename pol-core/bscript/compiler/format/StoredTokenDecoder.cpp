@@ -36,7 +36,9 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
                     Clib::getencodedquotedstring( s ), s.length(), tkn.offset );
     break;
   }
-
+  case TOK_BOOL:
+    fmt::format_to( std::back_inserter( w ), "{} (boolean)", static_cast<bool>( tkn.offset ) );
+    break;
   case TOK_ADD:
     w += "+";
     break;
@@ -493,14 +495,25 @@ void StoredTokenDecoder::decode_casejmp_table( std::string& w, unsigned offset )
       offset += 4;
       fmt::format_to( std::back_inserter( w ), "\n{}{}: @{}", indent, value, jump_address );
     }
+    else if ( type == CASE_TYPE_BOOL )
+    {
+      bool value = static_cast<bool>( data.at( offset ) );
+      offset += 1;
+      fmt::format_to( std::back_inserter( w ), "\n{}{}: @{}", indent, value, jump_address );
+    }
+    else if ( type == CASE_TYPE_UNINIT )
+    {
+      fmt::format_to( std::back_inserter( w ), "\n{}<uninit>: @{}", indent, jump_address );
+    }
     else if ( type == CASE_TYPE_DEFAULT )
     {
       fmt::format_to( std::back_inserter( w ), "\n{}default: @{}", indent, jump_address );
       break;
     }
-    else
+    else if ( type == CASE_TYPE_STRING )
     {
-      unsigned string_length = type;  // type is the length of the string, otherwise
+      unsigned string_length = static_cast<unsigned>( data.at( offset ) );
+      offset += 1;
       if ( offset + string_length > data.size() )
         throw std::runtime_error( "casejmp string at offset " + std::to_string( offset ) + " of " +
                                   std::to_string( string_length ) +
@@ -512,6 +525,10 @@ void StoredTokenDecoder::decode_casejmp_table( std::string& w, unsigned offset )
       fmt::format_to( std::back_inserter( w ), "\n{}{}: @{}", indent,
                       Clib::getencodedquotedstring( contents ), jump_address );
       offset += string_length;
+    }
+    else
+    {
+      throw std::runtime_error( "casejmp unhandled type " + std::to_string( type ) );
     }
   }
 }

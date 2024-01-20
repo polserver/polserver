@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+01-18-2024 Kevin:
+    Added: Escript keyword `uninit` to represent the uninitialized value.
+    Added: Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.
+     Note: These keywords can be used anywhere a "simple value" is used, eg. expressions, constants, user function default parameters, etc. Additionally, these changes increases the Escript version, therefore a recompilation of all scripts is required.
 -- POL100.1.0 --
 01-18-2024 Kevin:
      Note: POL 100.1.0 is now officially released.

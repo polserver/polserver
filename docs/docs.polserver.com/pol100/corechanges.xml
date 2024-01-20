@@ -4,7 +4,15 @@
 		<topic>Latest Core Changes</topic>
 		<datemodified>01-18-2024</datemodified>
 	</header>
-	<version name="POL100.2.0"/>
+	<version name="POL100.2.0">
+		<entry>
+			<date>01-18-2024</date>
+			<author>Kevin:</author>
+			<change type="Added">Escript keyword `uninit` to represent the uninitialized value.</change>
+			<change type="Added">Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.</change>
+			<change type="Note">These keywords can be used anywhere a &quot;simple value&quot; is used, eg. expressions, constants, user function default parameters, etc. Additionally, these changes increases the Escript version, therefore a recompilation of all scripts is required.</change>
+		</entry>
+	</version>
 	<version name="POL100.1.0">
 		<entry>
 			<date>01-18-2024</date>

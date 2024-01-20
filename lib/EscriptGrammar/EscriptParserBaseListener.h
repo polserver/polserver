@@ -251,6 +251,9 @@ public:
   virtual void enterFloatLiteral(EscriptParser::FloatLiteralContext * /*ctx*/) override { }
   virtual void exitFloatLiteral(EscriptParser::FloatLiteralContext * /*ctx*/) override { }
 
+  virtual void enterBoolLiteral(EscriptParser::BoolLiteralContext * /*ctx*/) override { }
+  virtual void exitBoolLiteral(EscriptParser::BoolLiteralContext * /*ctx*/) override { }
+
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }
   virtual void exitEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

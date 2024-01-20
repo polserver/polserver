@@ -3,6 +3,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ArrayInitializer.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
@@ -14,6 +15,7 @@
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
 #include "bscript/compiler/ast/StructMemberInitializer.h"
+#include "bscript/compiler/ast/UninitializedValue.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler
@@ -43,6 +45,11 @@ void SimpleValueCloner::visit_array_initializer( ArrayInitializer& initializer )
                   "{}",
                   initializer );
   }
+}
+
+void SimpleValueCloner::visit_boolean_value( BooleanValue& bv )
+{
+  cloned_value = std::make_unique<BooleanValue>( use_source_location, bv.value );
 }
 
 void SimpleValueCloner::visit_dictionary_initializer( DictionaryInitializer& initializer )
@@ -127,6 +134,12 @@ void SimpleValueCloner::visit_struct_initializer( StructInitializer& node )
                   node );
   }
 }
+
+void SimpleValueCloner::visit_uninitialized_value( UninitializedValue& )
+{
+  cloned_value = std::make_unique<UninitializedValue>( use_source_location );
+}
+
 
 void SimpleValueCloner::visit_children( Node& parent )
 {

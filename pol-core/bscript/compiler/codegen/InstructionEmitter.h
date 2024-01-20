@@ -107,6 +107,7 @@ public:
   void uninit();
   void value( double );
   void value( int );
+  void value( bool );
   void value( const std::string& );
   void interpolate_string( unsigned count );
   void format_expression();

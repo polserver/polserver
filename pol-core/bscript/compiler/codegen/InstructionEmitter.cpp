@@ -380,6 +380,11 @@ void InstructionEmitter::value( int v )
   emit_token( TOK_LONG, TYP_OPERAND, offset );
 }
 
+void InstructionEmitter::value( bool v )
+{
+  emit_token( TOK_BOOL, TYP_OPERAND, v );
+}
+
 void InstructionEmitter::value( const std::string& v )
 {
   unsigned data_offset = emit_data( v );
