@@ -3,6 +3,8 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 
+#include <algorithm>
+
 namespace Pol::Bscript::Compiler
 {
 Constants::Constants( Report& report ) : report( report ) {}
