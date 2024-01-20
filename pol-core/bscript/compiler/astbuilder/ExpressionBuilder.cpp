@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/ConditionalOperator.h"
 #include "bscript/compiler/ast/DictionaryEntry.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
@@ -562,6 +563,18 @@ std::unique_ptr<Expression> ExpressionBuilder::primary( EscriptParser::PrimaryCo
   else if ( auto inter_string = ctx->interpolatedString() )
   {
     return interpolate_string( inter_string );
+  }
+  else if ( ctx->UNINIT() )
+  {
+    return std::make_unique<UninitializedValue>( location_for( *ctx ) );
+  }
+  else if ( ctx->BOOL_TRUE() )
+  {
+    return std::make_unique<BooleanValue>( location_for( *ctx ), true );
+  }
+  else if ( ctx->BOOL_FALSE() )
+  {
+    return std::make_unique<BooleanValue>( location_for( *ctx ), false );
   }
 
   location_for( *ctx ).internal_error( "unhandled primary expression" );

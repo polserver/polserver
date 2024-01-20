@@ -48,7 +48,6 @@
 #include "uoexec.h"
 #include "uoskills.h"
 #include "uworld.h"
-#include <format/format.h>
 
 
 namespace Pol
@@ -201,8 +200,8 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 {
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << client->ipaddrAsString()
-                << " tried to create a character without an account!\n";
+    ERROR_PRINTLN( "Client from {} tried to create a character without an account!",
+                   client->ipaddrAsString() );
     client->forceDisconnect();
     return;
   }
@@ -216,7 +215,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
             client->acct->get_character( msg->CharNumber ) != nullptr ||
             msg->StartIndex >= gamestate.startlocations.size() )
   {
-    ERROR_PRINT << "Create Character: Invalid parameters.\n";
+    ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
@@ -296,9 +295,10 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
         continue;
     }
 
-    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '"
-                << i << "' in name '" << tstr << "'. Client IP: " << client->ipaddrAsString()
-                << " Client Name: " << client->acct->name() << "\n";
+    ERROR_PRINTLN(
+        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
+        "IP: {} Client Name: {}",
+        tmpchr, i, tstr, client->ipaddrAsString(), client->acct->name() );
     client->forceDisconnect();
     return;
   }
@@ -340,24 +340,15 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   }
   if ( !valid_stats )
   {
-    fmt::Writer tmp;
-    tmp << "Create Character: Stats sum to " << stat_total << ".\n"
-        << "Valid values/ranges are: ";
-    for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
-    {
-      if ( sidx > 0 )
-        tmp << ",";
-      tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
-    }
-    ERROR_PRINT << tmp.str() << "\n";
+    ERROR_PRINTLN( "Create Character: Stats sum to {}.\nValid values/ranges are: {}", stat_total,
+                   settingsManager.ssopt.total_stats_at_creation );
     client->forceDisconnect();
     return;
   }
   if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
   {
-    ERROR_PRINT << "Create Character: A stat was too small."
-                << " Str=" << msg->Strength << " Int=" << msg->Intelligence
-                << " Dex=" << msg->Dexterity << "\n";
+    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", msg->Strength,
+                   msg->Intelligence, msg->Dexterity );
 
     client->forceDisconnect();
     return;
@@ -373,7 +364,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
        msg->SkillNumber2 > networkManager.uoclient_general.maxskills ||
        msg->SkillNumber3 > networkManager.uoclient_general.maxskills )
   {
-    ERROR_PRINT << "Create Character: A skill number was out of range\n";
+    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
     client->forceDisconnect();
     return;
   }
@@ -383,7 +374,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
        ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 != 100 ) ||
          msg->SkillValue1 > 50 || msg->SkillValue2 > 50 || msg->SkillValue3 > 50 ) )
   {
-    ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
+    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
     client->forceDisconnect();
     return;
   }
@@ -424,7 +415,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip hair 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -439,7 +430,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip beard 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -521,7 +512,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   client->chr = chr;
   client->acct->set_character( msg->CharNumber, client->chr );
 
-  POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
+  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -553,7 +544,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     }
     else
     {
-      ERROR_PRINT << "script misc/oncreate: setProgram failed\n";
+      ERROR_PRINTLN( "script misc/oncreate: setProgram failed" );
     }
   }
 }
@@ -589,8 +580,8 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   int charslot = ctBEu32( msg->char_slot );
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << client->ipaddrAsString()
-                << " tried to create a character without an account!\n";
+    ERROR_PRINTLN( "Client from {} tried to create a character without an account!",
+                   client->ipaddrAsString() );
     client->Disconnect();
     return;
   }
@@ -603,7 +594,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   else if ( charslot >= Plib::systemstate.config.character_slots ||
             client->acct->get_character( charslot ) != nullptr )
   {
-    ERROR_PRINT << "Create Character: Invalid parameters.\n";
+    ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
@@ -648,9 +639,10 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
         continue;
     }
 
-    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '"
-                << i << "' in name '" << tstr << "'. Client IP: " << client->ipaddrAsString()
-                << " Client Name: " << client->acct->name() << "\n";
+    ERROR_PRINTLN(
+        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
+        "IP: {} Client Name: {}",
+        tmpchr, i, tstr, client->ipaddrAsString(), client->acct->name() );
     client->forceDisconnect();
     return;
   }
@@ -693,24 +685,17 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
   if ( !valid_stats )
   {
-    fmt::Writer tmp;
-    tmp << "Create Character: Stats sum to " << stat_total << ".\n"
-        << "Valid values/ranges are: ";
-    for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
-    {
-      if ( sidx > 0 )
-        tmp << ",";
-      tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
-    }
-    ERROR_PRINT << tmp.str() << "\n";
+    ERROR_PRINTLN(
+        "Create Character: Stats sum to {}. "
+        "Valid values/ranges are: {}",
+        stat_total, settingsManager.ssopt.total_stats_at_creation );
     client->forceDisconnect();
     return;
   }
   if ( msg->strength < 10 || msg->intelligence < 10 || msg->dexterity < 10 )
   {
-    ERROR_PRINT << "Create Character: A stat was too small."
-                << " Str=" << msg->strength << " Int=" << msg->intelligence
-                << " Dex=" << msg->dexterity << "\n";
+    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", msg->strength,
+                   msg->intelligence, msg->dexterity );
 
     client->forceDisconnect();
     return;
@@ -728,7 +713,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
        msg->skillnumber3 > networkManager.uoclient_general.maxskills ||
        msg->skillnumber4 > networkManager.uoclient_general.maxskills )
   {
-    ERROR_PRINT << "Create Character: A skill number was out of range\n";
+    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
     client->forceDisconnect();
     return;
   }
@@ -741,7 +726,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
          msg->skillvalue1 > 50 || msg->skillvalue2 > 50 || msg->skillvalue3 > 50 ||
          msg->skillvalue4 > 50 ) )
   {
-    ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
+    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
     client->forceDisconnect();
     return;
   }
@@ -785,7 +770,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip hair 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -800,7 +785,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip beard 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -815,7 +800,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip face 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip face {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -897,7 +882,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   client->chr = chr;
   client->acct->set_character( charslot, client->chr );
 
-  POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
+  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -930,7 +915,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     }
     else
     {
-      ERROR_PRINT << "script misc/oncreate: setProgram failed\n";
+      ERROR_PRINTLN( "script misc/oncreate: setProgram failed" );
     }
   }
 }
@@ -939,8 +924,8 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 {
   if ( client->acct == nullptr )
   {
-    ERROR_PRINT << "Client from " << client->ipaddrAsString()
-                << " tried to create a character without an account!\n";
+    ERROR_PRINTLN( "Client from {} tried to create a character without an account!",
+                   client->ipaddrAsString() );
     client->forceDisconnect();
     return;
   }
@@ -954,7 +939,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
             client->acct->get_character( msg->CharNumber ) != nullptr ||
             msg->StartIndex >= gamestate.startlocations.size() )
   {
-    ERROR_PRINT << "Create Character: Invalid parameters.\n";
+    ERROR_PRINTLN( "Create Character: Invalid parameters." );
     send_login_error( client, LOGIN_ERROR_MISC );
     client->Disconnect();
     return;
@@ -1034,9 +1019,10 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
         continue;
     }
 
-    ERROR_PRINT << "Create Character: Attempted to use invalid character '" << tmpchr << "' pos '"
-                << i << "' in name '" << tstr << "'. Client IP: " << client->ipaddrAsString()
-                << " Client Name: " << client->acct->name() << "\n";
+    ERROR_PRINTLN(
+        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
+        "IP: {} Client Name: {}",
+        tmpchr, i, tstr, client->ipaddrAsString(), client->acct->name() );
     client->Disconnect();
     return;
   }
@@ -1079,24 +1065,15 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   }
   if ( !valid_stats )
   {
-    fmt::Writer tmp;
-    tmp << "Create Character: Stats sum to " << stat_total << ".\n"
-        << "Valid values/ranges are: ";
-    for ( sidx = 0; sidx < settingsManager.ssopt.total_stats_at_creation.size(); ++sidx )
-    {
-      if ( sidx > 0 )
-        tmp << ",";
-      tmp << settingsManager.ssopt.total_stats_at_creation[sidx];
-    }
-    ERROR_PRINT << tmp.str() << "\n";
+    ERROR_PRINTLN( "Create Character: Stats sum to {}.\nValid values/ranges are: {}", stat_total,
+                   settingsManager.ssopt.total_stats_at_creation );
     client->forceDisconnect();
     return;
   }
   if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
   {
-    ERROR_PRINT << "Create Character: A stat was too small."
-                << " Str=" << msg->Strength << " Int=" << msg->Intelligence
-                << " Dex=" << msg->Dexterity << "\n";
+    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", msg->Strength,
+                   msg->Intelligence, msg->Dexterity );
 
     client->forceDisconnect();
     return;
@@ -1153,7 +1130,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
        msg->SkillNumber3 > networkManager.uoclient_general.maxskills ||
        msg->SkillNumber4 > networkManager.uoclient_general.maxskills )
   {
-    ERROR_PRINT << "Create Character: A skill number was out of range\n";
+    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
     client->forceDisconnect();
     return;
   }
@@ -1167,7 +1144,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
          msg->SkillValue1 > 50 || msg->SkillValue2 > 50 || msg->SkillValue3 > 50 ||
          msg->SkillValue4 > 50 ) )
   {
-    ERROR_PRINT << "Create Character: Starting skill values incorrect\n";
+    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
     client->forceDisconnect();
     return;
   }
@@ -1211,7 +1188,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip hair 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip hair {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -1226,7 +1203,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
       chr->equip( tmpitem );
     else
     {
-      ERROR_PRINT.Format( "Create Character: Failed to equip beard 0x{:X}\n" ) << tmpitem->graphic;
+      ERROR_PRINTLN( "Create Character: Failed to equip beard {:#X}", tmpitem->graphic );
       tmpitem->destroy();
     }
   }
@@ -1308,7 +1285,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   client->chr = chr;
   client->acct->set_character( msg->CharNumber, client->chr );
 
-  POLLOG.Format( "Account {} created character 0x{:X}\n" ) << client->acct->name() << chr->serial;
+  POLLOGLN( "Account {} created character {:#X}", client->acct->name(), chr->serial );
   SetCharacterWorldPosition( chr, Realms::WorldChangeReason::PlayerEnter );
   client->msgtype_filter = networkManager.game_filter.get();
   start_client_char( client );
@@ -1341,7 +1318,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     }
     else
     {
-      ERROR_PRINT << "script misc/oncreate: setProgram failed\n";
+      ERROR_PRINTLN( "script misc/oncreate: setProgram failed" );
     }
   }
 }

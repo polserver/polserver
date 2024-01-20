@@ -135,7 +135,7 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const std::str
         objtype = Items::get_objtype_byname( ot_str );
         if ( !objtype )
         {
-          ERROR_PRINT << "Blech! Can't find '" << ot_str << "' named in equip.cfg\n";
+          ERROR_PRINTLN( "Blech! Can't find '{}' named in equip.cfg", ot_str );
           continue;
         }
       }
@@ -593,7 +593,7 @@ bool start_textcmd_script( Network::Client* client, const std::string& text,
         }
         else
         {
-          ERROR_PRINT << "script " << scriptname << ": setProgram failed\n";
+          ERROR_PRINTLN( "script {}: setProgram failed", scriptname );
           // TODO: it seems to keep looking until it finds one it can use..guess this is okay?
         }
       }

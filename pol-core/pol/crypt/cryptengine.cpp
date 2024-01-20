@@ -61,7 +61,7 @@ CCryptBase* create_crypt_engine( TCryptInfo& infoCrypt )
   case CRYPT_BLOWFISH_TWOFISH:
     return create_crypt_blowfish_twofish_engine( infoCrypt.uiKey1, infoCrypt.uiKey2 );
   default:
-    POLLOG_ERROR << "Unknown ClientEncryptionVersion, using Ignition encryption engine\n";
+    POLLOG_ERRORLN( "Unknown ClientEncryptionVersion, using Ignition encryption engine" );
     return create_nocrypt_engine();
   }
 }

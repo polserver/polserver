@@ -70,6 +70,11 @@ BObjectImp* UOExecutorModule::internal_MoveCharacter( Character* chr, const Core
   Multi::UMulti* supporting_multi = nullptr;
   Item* walkon_item = nullptr;
 
+  if ( chr->is_piloting_boat() )
+  {
+    return new BError( "That character is piloting a boat and cannot be moved" );
+  }
+
   if ( !( flags & MOVEITEM_FORCELOCATION ) )
   {
     if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &supporting_multi,

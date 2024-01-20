@@ -1,7 +1,7 @@
 #include "Report.h"
 
-#include "clib/logfacility.h"
 #include "bscript/compiler/file/SourceLocation.h"
+#include "clib/logfacility.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -14,7 +14,7 @@ void ConsoleReporter::report_error( const SourceLocation& source_location, const
 {
   try
   {
-    ERROR_PRINT << source_location << ": error: " << msg << "\n";
+    ERROR_PRINTLN( "{}: error: {}", source_location, msg );
   }
   catch ( ... )
   {
@@ -28,7 +28,7 @@ void ConsoleReporter::report_warning( const SourceLocation& source_location,
   {
     try
     {
-      ERROR_PRINT << source_location << ": warning: " << msg << "\n";
+      ERROR_PRINTLN( "{}: warning: {}", source_location, msg );
     }
     catch ( ... )
     {

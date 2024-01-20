@@ -1011,8 +1011,8 @@ void change_trade_status( Mobile::Character* chr, bool set )
     }
     else
     {
-      POLLOG_ERROR.Format( "Can't swap trade containers: ic0={},w0={}, ic1={},w1={}\n" )
-          << cont0->item_count() << cont0->weight() << cont1->item_count() << cont1->weight();
+      POLLOG_ERRORLN( "Can't swap trade containers: ic0={},w0={}, ic1={},w1={}",
+                      cont0->item_count(), cont0->weight(), cont1->item_count(), cont1->weight() );
     }
   }
 }
@@ -1024,7 +1024,7 @@ void handle_secure_trade_msg( Network::Client* client, PKTBI_6F* msg )
   switch ( msg->action )
   {
   case PKTBI_6F::ACTION_CANCEL:
-    INFO_PRINT_TRACE( 5 ) << "Cancel secure trade\n";
+    INFO_PRINTLN_TRACE( 5 )( "Cancel secure trade" );
     cancel_trade( client->chr );
     break;
 
@@ -1033,17 +1033,17 @@ void handle_secure_trade_msg( Network::Client* client, PKTBI_6F* msg )
     set = msg->cont1_serial ? true : false;
     if ( set )
     {
-      INFO_PRINT_TRACE( 5 ) << "Set secure trade indicator\n";
+      INFO_PRINTLN_TRACE( 5 )( "Set secure trade indicator" );
     }
     else
     {
-      INFO_PRINT_TRACE( 5 ) << "Clear secure trade indicator\n";
+      INFO_PRINTLN_TRACE( 5 )( "Clear secure trade indicator" );
     }
     change_trade_status( client->chr, set );
     break;
 
   default:
-    INFO_PRINT_TRACE( 5 ) << "Unknown secure trade action: " << (int)msg->action << "\n";
+    INFO_PRINTLN_TRACE( 5 )( "Unknown secure trade action: {}", (int)msg->action );
     break;
   }
 }

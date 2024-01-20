@@ -21,7 +21,7 @@ print(foo);
 foo := -1 > 0 ? DoNotCall() : 0 > 1 ? DoNotCall() : Call(i);
 print(foo);
 
-foo := 0 ?: "" ? DoNotCall() : Unpack("u") ?: 0 ? DoNotCall() : Call(i);
+foo := 0 ?: "" ? DoNotCall() : uninit ?: 0 ? DoNotCall() : Call(i);
 print(foo);
 
 var bar := struct{};

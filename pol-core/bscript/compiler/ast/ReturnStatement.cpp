@@ -1,6 +1,5 @@
 #include "ReturnStatement.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
@@ -18,9 +17,9 @@ void ReturnStatement::accept( NodeVisitor& visitor )
   visitor.visit_return_statement( *this );
 }
 
-void ReturnStatement::describe_to( fmt::Writer& w ) const
+void ReturnStatement::describe_to( std::string& w ) const
 {
-  w << "return-statement";
+  w += "return-statement";
 }
 
 }  // namespace Pol::Bscript::Compiler

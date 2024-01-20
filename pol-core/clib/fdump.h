@@ -4,18 +4,13 @@
  */
 
 
-#ifndef CLIB_FDUMP_H
-#define CLIB_FDUMP_H
+#pragma once
 
-#include <format/format.h>
+#include <iterator>
+#include <string>
 
-namespace Pol
+namespace Pol::Clib
 {
-namespace Clib
-{
-void fdump( fmt::Writer& writer, const void* data, int len );
-}
-}
+void fdump( std::back_insert_iterator<std::string> buffer, const void* data, int len );
+}  // namespace Pol::Clib
 
-
-#endif  // CLIB_FDUMP_H

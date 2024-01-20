@@ -1,6 +1,5 @@
 #include "MemberAccess.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "compilercfg.h"
@@ -22,9 +21,9 @@ void MemberAccess::accept( NodeVisitor& visitor )
   visitor.visit_member_access( *this );
 }
 
-void MemberAccess::describe_to( fmt::Writer& w ) const
+void MemberAccess::describe_to( std::string& w ) const
 {
-  w << "member-access(" << name << ")";
+  fmt::format_to( std::back_inserter( w ), "member-access({})", name );
 }
 
 std::unique_ptr<Expression> MemberAccess::take_entity()

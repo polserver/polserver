@@ -1,6 +1,5 @@
 #include "FunctionBody.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/ast/Statement.h"
@@ -18,9 +17,9 @@ void FunctionBody::accept( NodeVisitor& visitor )
   visitor.visit_function_body( *this );
 }
 
-void FunctionBody::describe_to( fmt::Writer& w ) const
+void FunctionBody::describe_to( std::string& w ) const
 {
-  w << "user-function-body";
+  w += "user-function-body";
 }
 
 Statement* FunctionBody::last_statement()

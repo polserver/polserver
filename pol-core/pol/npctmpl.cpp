@@ -18,7 +18,8 @@
 #include "item/equipmnt.h"
 #include "item/weapon.h"
 #include "syshookscript.h"
-#include <format/format.h>
+
+#include <iterator>
 #include <memory>
 
 namespace Pol
@@ -38,14 +39,15 @@ int translate( const std::string& name, TRANSLATION* table )
     if ( table[i].name == name )
       return table[i].value;
   }
-  fmt::Writer tmp;
-  tmp << "Unable to translate value '" << name << "'\n";
-  tmp << "  Expected one of the following values:\n";
+  std::string tmp = fmt::format(
+      "Unable to translate value '{}'\n"
+      "  Expected one of the following values:",
+      name );
   for ( int i = 0; table[i].name; ++i )
   {
-    tmp << "  " << table[i].name << "\n";
+    fmt::format_to( std::back_inserter( tmp ), "\n {}", table[i].name );
   }
-  ERROR_PRINT << tmp.str();
+  ERROR_PRINTLN( tmp );
   throw std::runtime_error( "Unable to translate value" );
   return 0;
 }

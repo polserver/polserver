@@ -51,6 +51,7 @@
 
 #include "uoscrobj.h"
 
+#include <memory>
 #include <string>
 
 #include "../bscript/berror.h"
@@ -2408,6 +2409,21 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( casting_spell() );
   case MBR_LAST_TEXTCOLOR:
     return new BLong( last_textcolor() );
+  case MBR_BUFFS:
+  {
+    auto buffs = std::make_unique<BDictionary>();
+    for ( const auto& [icon, buf] : buffs_ )
+    {
+      auto info = std::make_unique<BStruct>();
+      info->addMember( "name_cliloc", new BLong( buf.cl_name ) );
+      info->addMember( "desc_cliloc", new BLong( buf.cl_descr ) );
+      info->addMember( "end_time", new BLong( buf.end ) );
+      info->addMember( "name_args", new String( buf.name_arguments ) );
+      info->addMember( "desc_args", new String( buf.desc_arguments ) );
+      buffs->addMember( new BLong( icon ), info.release() );
+    }
+    return buffs.release();
+  }
   }
   // if all else fails, returns nullptr
   return nullptr;
@@ -3322,20 +3338,31 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     u16 duration;
     u32 cl_name;
     u32 cl_descr;
-    const String* text;
+    const String* desc_text;
+    std::string name_args;
 
     if ( !ex.hasParams( 5 ) )
       return new BError( "Not enough parameters" );
     if ( ex.getParam( 0, icon ) && ex.getParam( 1, duration ) && ex.getParam( 2, cl_name ) &&
-         ex.getParam( 3, cl_descr ) && ex.getUnicodeStringParam( 4, text ) )
+         ex.getParam( 3, cl_descr ) && ex.getUnicodeStringParam( 4, desc_text ) )
     {
+      if ( ex.hasParams( 6 ) )
+      {
+        const String* name_text;
+        if ( !ex.getUnicodeStringParam( 5, name_text ) )
+          break;
+        if ( name_text->length() > SPEECH_MAX_LEN )
+          return new BError( "Title text exceeds maximum size." );
+        name_args = name_text->value();
+      }
+
       if ( !( icon && cl_name && cl_descr ) )
         return new BError( "Invalid parameters" );
 
-      if ( text->length() > SPEECH_MAX_LEN )
+      if ( desc_text->length() > SPEECH_MAX_LEN )
         return new BError( "Text exceeds maximum size." );
 
-      addBuff( icon, duration, cl_name, cl_descr, text->value() );
+      addBuff( icon, duration, cl_name, name_args, cl_descr, desc_text->value() );
       return new BLong( 1 );
     }
     break;
@@ -3977,6 +4004,15 @@ BObjectImp* UBoat::get_script_member_id( const int id ) const
   case MBR_MULTIID:
     return new BLong( multiid );
     break;
+  case MBR_PILOT:
+    {
+      Mobile::Character* owner = pilot();
+      if ( owner != nullptr )
+      {
+        return new Module::ECharacterRefObjImp( owner );
+      }
+    }
+    return new BLong( 0 );
   default:
     return nullptr;
   }
@@ -4046,6 +4082,57 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
         return new BError( "Not enough parameters" );
     }
     break;
+  }
+  case MTH_SET_PILOT:
+  {
+    if ( !ex.hasParams( 1 ) )
+    {
+      return new BError( "Not enough parameters" );
+    }
+
+    BObjectImp* impMaybeZero = ex.getParamImp( 0 );
+
+    if ( impMaybeZero->isa( BObjectImp::OTLong ) )
+    {
+      auto value = static_cast<BLong*>( impMaybeZero )->value();
+
+      if ( value != 0 )
+        return new BError( "Invalid parameters" );
+
+
+      return set_pilot( nullptr );
+    }
+    else
+    {
+      Mobile::Character* chr;
+
+      if ( !ex.getCharacterParam( 0, chr ) )
+        return new BError( "Invalid parameters" );
+
+      return set_pilot( chr );
+    }
+  }
+  case MTH_SET_ALTERNATE_MULTIID:
+  {
+    if ( ex.numParams() != 1 )
+      return new BError( "Not enough parameters" );
+    int index;
+    if ( !ex.getParam( 0, index ) )
+      return new BError( "Invalid parameter type" );
+    const auto& desc = static_cast<const Items::BoatDesc&>( itemdesc() );
+    if ( index < 0 || static_cast<size_t>( index ) >= desc.alternates.size() )
+      return new BError( "Index out of range" );
+
+    {
+      UBoat::BoatMoveGuard guard( this );
+      u16 new_multiid = desc.alternates[index];
+      u16 base_multi = multiid & ~3u;
+      u16 multioffset = multiid - base_multi;
+      multiid = new_multiid + multioffset;
+    }
+    transform_components( boatshape(), nullptr );
+    send_display_boat_to_inrange();
+    return new BLong( 1 );
   }
   default:
     return nullptr;
@@ -4730,6 +4817,16 @@ BObjectImp* EClientRefObjImp::call_polmethod_id( const int id, Core::UOExecutor&
   }
 
   return base::call_polmethod_id( id, ex );
+}
+
+BoatMovementEvent::BoatMovementEvent( Mobile::Character* source, const u8 speed, const u8 direction,
+                                      const u8 relative_direction )
+{
+  addMember( "type", new BLong( Core::EVID_BOAT_MOVEMENT ) );
+  addMember( "source", new Module::EOfflineCharacterRefObjImp( source ) );
+  addMember( "speed", new BLong( static_cast<int>( speed ) ) );
+  addMember( "direction", new BLong( static_cast<int>( direction ) ) );
+  addMember( "relative_direction", new BLong( static_cast<int>( relative_direction ) ) );
 }
 
 SourcedEvent::SourcedEvent( Core::EVENTID type, Mobile::Character* source )

@@ -213,7 +213,7 @@ void decay_single_thread( void* arg )
   }
   if ( !total_grid_count )
   {
-    POLLOG_ERROR << "No realm grids?!\n";
+    POLLOG_ERRORLN( "No realm grids?!" );
     return;
   }
   // sweep every realm ~10minutes -> 36ms for 6 realms
@@ -245,17 +245,17 @@ void decay_single_thread( void* arg )
                 stateManager.decay_statistics.temp_count_active );
             stateManager.decay_statistics.temp_count_decayed = 0;
             stateManager.decay_statistics.temp_count_active = 0;
-            POLLOG_INFO.Format(
+            POLLOG_INFOLN(
                 "DECAY STATISTICS: decayed: max {} mean {} variance {} runs {} active max {} mean "
-                "{} variance {} runs {}\n" )
-                << stateManager.decay_statistics.decayed.max()
-                << stateManager.decay_statistics.decayed.mean()
-                << stateManager.decay_statistics.decayed.variance()
-                << stateManager.decay_statistics.decayed.count()
-                << stateManager.decay_statistics.active_decay.max()
-                << stateManager.decay_statistics.active_decay.mean()
-                << stateManager.decay_statistics.active_decay.variance()
-                << stateManager.decay_statistics.active_decay.count();
+                "{} variance {} runs {}",
+                stateManager.decay_statistics.decayed.max(),
+                stateManager.decay_statistics.decayed.mean(),
+                stateManager.decay_statistics.decayed.variance(),
+                stateManager.decay_statistics.decayed.count(),
+                stateManager.decay_statistics.active_decay.max(),
+                stateManager.decay_statistics.active_decay.mean(),
+                stateManager.decay_statistics.active_decay.variance(),
+                stateManager.decay_statistics.active_decay.count() );
           }
           init = false;
         }
@@ -269,7 +269,7 @@ void decay_single_thread( void* arg )
           wx = 0;
           if ( ++wy >= gridy )
           {
-            POLLOG_ERROR << "SHOULD NEVER HAPPEN\n";
+            POLLOG_ERRORLN( "SHOULD NEVER HAPPEN" );
             wy = 0;
           }
         }

@@ -5,12 +5,13 @@
  * - 2009-07-18 MuadDib: Updated dump messages for bug tracker
  */
 
+#include "mdump.h"
 #include "clib.h"
 #include "logfacility.h"
-#include "mdump.h"
 #include "passert.h"
 #include "strexcpt.h"
 #include "threadhelp.h"
+#include <iterator>
 
 #pragma warning( disable : 4091 )  // unused typedef
 #include "../../lib/StackWalker/StackWalker.h"
@@ -127,7 +128,7 @@ void HiddenMiniDumper::Initialize()
 
   if ( szResult )
   {
-    POLLOG_INFO << szResult << "\n";
+    POLLOG_INFOLN( szResult );
     InstallOldStructuredExceptionHandler();
   }
 }
@@ -136,8 +137,8 @@ void HiddenMiniDumper::Initialize()
 LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInfo )
 {
   LONG retval = EXCEPTION_CONTINUE_SEARCH;
-  fmt::Writer result;
-  fmt::Writer dumppath;
+  std::string result;
+  std::string dumppath;
   if ( !_Initialized )
     Initialize();
 
@@ -145,7 +146,7 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
       ( MINIDUMPWRITEDUMP )::GetProcAddress( hDbgHelpDll, "MiniDumpWriteDump" );
   if ( pDump )
   {
-    dumppath << _StartTimestamp << "-" << fmt::hex( _DumpCount++ ) << ".dmp";
+    dumppath = fmt::format( "{}-{:x}.dmp", _StartTimestamp, _DumpCount++ );
 
     HANDLE hFile = ::CreateFile( dumppath.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE, nullptr,
                                  CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr );
@@ -167,41 +168,43 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
       else
         dumptype = MiniDumpNormal;
 
-      ERROR_PRINT << "Unhandled Exception! Minidump started...\n";
+      ERROR_PRINTLN( "Unhandled Exception! Minidump started..." );
       BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo,
                         nullptr, nullptr );
       if ( bOK )
       {
-        result.Format(
+        result = fmt::format(
             "Unhandled Exception! Writing Minidump file. \nPost this file with explanation and "
             "last lines from log files on http://forums.polserver.com/tracker.php for the "
-            "development team.\nSaved dump file to '{}'\n" )
-            << dumppath.str();
+            "development team.\nSaved dump file to '{}'\n",
+            dumppath );
         retval = EXCEPTION_EXECUTE_HANDLER;
       }
       else
       {
-        result.Format( "Failed to save dump file to '{}' (error {})" )
-            << dumppath.str() << GetLastError();
+        result =
+            fmt::format( "Failed to save dump file to '{}' (error {})", dumppath, GetLastError() );
       }
       ::CloseHandle( hFile );
     }
     else
     {
-      result.Format( "Failed to create dump file '{}' (error {})" )
-          << dumppath.str() << GetLastError();
+      result =
+          fmt::format( "Failed to create dump file '{}' (error {})", dumppath, GetLastError() );
     }
   }
   print_backtrace();
   FreeLibrary( hDbgHelpDll );
   _Initialized = false;
 
-  if ( result.size() > 0 )
+  if ( !result.empty() )
   {
-    POLLOG_ERROR << "##########################################################\n"
-                 << result.str() << "\n"
-                 << "Last Script: " << scripts_thread_script << " PC: " << scripts_thread_scriptPC
-                 << "\n##########################################################\n";
+    POLLOG_ERRORLN(
+        "##########################################################\n"
+        "{}\n"
+        "Last Script: {} PC: {}\n"
+        "##########################################################",
+        result, scripts_thread_script, scripts_thread_scriptPC );
   }
   if ( Clib::Logging::global_logger )
     Clib::Logging::global_logger->wait_for_empty_queue();  // wait here for logging facility to make
@@ -215,10 +218,10 @@ public:
   StackWalkerLogger( int options ) : StackWalker( options ){};
   virtual ~StackWalkerLogger()
   {
-    if ( _log.size() > 0 )
-      POLLOG_ERROR << _log.str();
+    if ( !_log.empty() )
+      POLLOG_ERROR( _log );
   }
-  fmt::Writer _log;
+  std::string _log;
 
 protected:
   // no output
@@ -228,7 +231,7 @@ protected:
   {
   }
   virtual void OnDbgHelpErr( LPCSTR szFuncName, DWORD gle, DWORD64 addr ) override{};
-  virtual void OnOutput( LPCSTR szText ) override { _log << szText; }
+  virtual void OnOutput( LPCSTR szText ) override { _log += szText; }
   virtual void OnCallstackEntry( CallstackEntryType eType, CallstackEntry& entry ) override
   {
     try
@@ -236,26 +239,27 @@ protected:
       if ( ( eType != lastEntry ) && ( entry.offset != 0 ) )
       {
         if ( entry.undFullName[0] != 0 )
-          _log << entry.undFullName;
+          _log += entry.undFullName;
         else if ( entry.undName[0] != 0 )
-          _log << entry.undName;
+          _log += entry.undName;
         else
-          _log << "(function-name not available)";
-        _log.Format( " - {:p}\n" ) << (LPVOID)entry.offset;
+          _log += "(function-name not available)";
+        fmt::format_to( std::back_inserter( _log ), " - {:p}\n", (LPVOID)entry.offset );
 
         if ( entry.lineFileName[0] == 0 )
         {
-          _log << "  (filename not available)\n";
+          _log += "  (filename not available)\n";
         }
         else
         {
-          _log << "  " << entry.lineFileName << " : " << entry.lineNumber << "\n";
+          fmt::format_to( std::back_inserter( _log ), "  {} : {}\n", entry.lineFileName,
+                          entry.lineNumber );
         }
       }
     }
     catch ( std::exception& e )
     {
-      POLLOG_ERROR << "failed to format backtrace " << e.what() << "\n";
+      POLLOG_ERRORLN( "failed to format backtrace {}", e.what() );
     }
   }
 };
@@ -264,8 +268,8 @@ void HiddenMiniDumper::print_backtrace()
 {
   {
     StackWalkerLogger sw( StackWalker::RetrieveLine );
-    sw._log
-        << "\n##########################################################\nCurrent StackBackTrace\n";
+    sw._log +=
+        "\n##########################################################\nCurrent StackBackTrace\n";
     sw.ShowCallstack();
     // threadhelp::ThreadMap::Contents contents;
     // threadhelp::threadmap.CopyContents( contents );
@@ -280,8 +284,8 @@ void HiddenMiniDumper::print_backtrace()
     //  if ( handle )
     //    sw.ShowCallstack( handle);
     //}
-    sw._log << "##########################################################\n";
+    sw._log += "##########################################################\n";
   }
 }
-}
-}
+}  // namespace Clib
+}  // namespace Pol

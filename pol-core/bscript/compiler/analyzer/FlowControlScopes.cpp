@@ -1,15 +1,15 @@
 #include "FlowControlScopes.h"
 
-#include "bscript/compiler/analyzer/FlowControlScope.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/analyzer/FlowControlScope.h"
 
 namespace Pol::Bscript::Compiler
 {
 FlowControlScopes::FlowControlScopes( const Variables& local_variables, Report& report )
-  : current_unnamed_scope( nullptr ),
-    named_scopes(),
-    local_variables( local_variables ),
-    report( report )
+    : current_unnamed_scope( nullptr ),
+      named_scopes(),
+      local_variables( local_variables ),
+      report( report )
 {
 }
 
@@ -43,9 +43,10 @@ void FlowControlScopes::push( const FlowControlScope* scope )
     auto ins = named_scopes.insert( { scope->name, scope } );
     if ( !ins.second )
     {
-      report.error( scope->source_location, "A statement with label '", scope->name,
-                    "' is already in scope.\n",
-                    "  See also: ", ( *ins.first ).second->source_location );
+      report.error( scope->source_location,
+                    "A statement with label '{}' is already in scope.\n"
+                    "  See also: {}",
+                    scope->name, ( *ins.first ).second->source_location );
     }
   }
 }

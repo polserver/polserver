@@ -15,11 +15,11 @@ class MethodCallArgumentList;
 class MethodCall : public Expression
 {
 public:
-  MethodCall( const SourceLocation&, std::unique_ptr<Expression> lhs,
-              std::string methodname, std::unique_ptr<MethodCallArgumentList> );
+  MethodCall( const SourceLocation&, std::unique_ptr<Expression> lhs, std::string methodname,
+              std::unique_ptr<MethodCallArgumentList> );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   unsigned argument_count() const;
 

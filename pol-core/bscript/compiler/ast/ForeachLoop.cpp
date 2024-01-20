@@ -1,6 +1,6 @@
 #include "ForeachLoop.h"
 
-#include <format/format.h>
+
 #include <utility>
 
 #include "bscript/compiler/ast/Block.h"
@@ -25,11 +25,11 @@ void ForeachLoop::accept( NodeVisitor& visitor )
   visitor.visit_foreach_loop( *this );
 }
 
-void ForeachLoop::describe_to( fmt::Writer& w ) const
+void ForeachLoop::describe_to( std::string& w ) const
 {
-  w << "foreach-loop";
+  w += "foreach-loop";
   if ( !get_label().empty() )
-    w << "(label:" << get_label() << ")";
+    fmt::format_to( std::back_inserter( w ), "(label:{})", get_label() );
 }
 
 Expression& ForeachLoop::expression()

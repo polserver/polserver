@@ -1,9 +1,8 @@
 #ifndef POLSERVER_SOURCELOCATION_H
 #define POLSERVER_SOURCELOCATION_H
 
+#include <fmt/format.h>
 #include <string>
-
-#include "clib/formatfwd.h"
 
 namespace antlr4
 {
@@ -66,9 +65,12 @@ public:
   const Range range;
 };
 
-fmt::Writer& operator<<( fmt::Writer&, const SourceLocation& );  // pathname:line:column
-fmt::Writer& operator<<( fmt::Writer&, const Position& );        // line:column
-
 }  // namespace Pol::Bscript::Compiler
 
+template <>
+struct fmt::formatter<Pol::Bscript::Compiler::SourceLocation> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Bscript::Compiler::SourceLocation& l,
+                                        fmt::format_context& ctx ) const;
+};
 #endif  // POLSERVER_SOURCELOCATION_H

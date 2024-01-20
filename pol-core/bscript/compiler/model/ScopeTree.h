@@ -29,8 +29,8 @@ public:
   std::vector<std::shared_ptr<Variable>> resolve_list( const std::string& ) const;
 
 private:
-  static void describe_tree_to_indented( fmt::Writer&, const ScopeInfo&, unsigned indent );
-  friend fmt::Writer& operator<<( fmt::Writer&, const ScopeInfo& );
+  static void describe_tree_to_indented( std::string&, const ScopeInfo&, unsigned indent );
+  // friend fmt::Writer& operator<<( fmt::Writer&, const ScopeInfo& );
 };
 
 
@@ -63,10 +63,8 @@ private:
   std::vector<std::shared_ptr<ScopeInfo>> scopes;
   unsigned ignored = 0;
 
-  friend fmt::Writer& operator<<( fmt::Writer& w, const ScopeTree& );
+  // friend fmt::Writer& operator<<( fmt::Writer& w, const ScopeTree& );
 };
 
-fmt::Writer& operator<<( fmt::Writer&, const ScopeTree& );
-fmt::Writer& operator<<( fmt::Writer& w, const ScopeInfo& );
 }  // namespace Pol::Bscript::Compiler
 #endif

@@ -114,7 +114,7 @@ void handle_skill_lock( Network::Client* client, PKTBI_3A_LOCKS* msg )
     if ( msg->lock_mode < 3 )
       client->chr->attribute( uoskill.pAttr->attrid ).lock( msg->lock_mode );
     else
-      INFO_PRINT << "Client " << client->chr->name() << " tried to set an illegal lock state.\n";
+      INFO_PRINTLN( "Client {} tried to set an illegal lock state.", client->chr->name() );
   }
 }
 

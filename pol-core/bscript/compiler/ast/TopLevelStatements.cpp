@@ -1,6 +1,5 @@
 #include "TopLevelStatements.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/ast/Statement.h"
@@ -17,9 +16,9 @@ void TopLevelStatements::accept( NodeVisitor& visitor )
   visitor.visit_top_level_statements( *this );
 }
 
-void TopLevelStatements::describe_to( fmt::Writer& w ) const
+void TopLevelStatements::describe_to( std::string& w ) const
 {
-  w << "top-level-statements";
+  w += "top-level-statements";
 }
 
 }  // namespace Pol::Bscript::Compiler

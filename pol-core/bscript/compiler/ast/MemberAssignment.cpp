@@ -1,6 +1,5 @@
 #include "MemberAssignment.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
@@ -25,14 +24,14 @@ void MemberAssignment::accept( NodeVisitor& visitor )
   visitor.visit_member_assignment( *this );
 }
 
-void MemberAssignment::describe_to( fmt::Writer& w ) const
+void MemberAssignment::describe_to( std::string& w ) const
 {
-  w << "member-assignment";
+  w += "member-assignment";
   if ( consume )
-    w << "-statement";
-  w << "(" << name << ")";
+    w += "-statement";
+  fmt::format_to( std::back_inserter( w ), "({})", name );
   if ( known_member )
-    w << " (#" << known_member->id << ")";
+    fmt::format_to( std::back_inserter( w ), " (#{})", known_member->id );
 }
 
 Expression& MemberAssignment::entity()

@@ -1,11 +1,11 @@
 #ifndef POLSERVER_NODE_H
 #define POLSERVER_NODE_H
 
+#include <fmt/format.h>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
-
-#include "clib/formatfwd.h"
 
 #include "bscript/compiler/file/SourceLocation.h"
 
@@ -15,10 +15,10 @@ class Node;
 class NodeVisitor;
 typedef std::vector<std::unique_ptr<Node>> NodeVector;
 
-template<typename TO, typename FROM>
-std::unique_ptr<TO> static_unique_pointer_cast(std::unique_ptr<FROM> old)
+template <typename TO, typename FROM>
+std::unique_ptr<TO> static_unique_pointer_cast( std::unique_ptr<FROM> old )
 {
-  return std::unique_ptr<TO>{static_cast<TO*>(old.release())};
+  return std::unique_ptr<TO>{ static_cast<TO*>( old.release() ) };
 }
 
 class Node
@@ -44,7 +44,7 @@ public:
   virtual ~Node() = default;
 
   virtual void accept( NodeVisitor& visitor ) = 0;
-  virtual void describe_to( fmt::Writer& ) const = 0;
+  virtual void describe_to( std::string& ) const = 0;
 
   [[nodiscard]] std::string describe() const;
   [[nodiscard]] std::string to_string_tree() const;
@@ -73,13 +73,23 @@ public:
   void debug( const std::string& msg ) const;
   [[noreturn]] void internal_error( const std::string& msg ) const;
 
-private:
-  friend fmt::Writer& operator<<( fmt::Writer&, const Node& );
-  static void describe_tree_to_indented( fmt::Writer&, const Node&, unsigned indent );
+  static void describe_tree_to_indented( const Node&, std::string& w, unsigned indent );
 };
 
-fmt::Writer& operator<<( fmt::Writer&, const Node& );
 
 }  // namespace Pol::Bscript::Compiler
+template <typename T>
+struct fmt::formatter<
+    T, std::enable_if_t<std::is_base_of<Pol::Bscript::Compiler::Node, T>::value, char>>
+    : fmt::formatter<std::string>
+{
+  inline fmt::format_context::iterator format( const Pol::Bscript::Compiler::Node& n,
+                                               fmt::format_context& ctx ) const
+  {
+    std::string w;
+    n.describe_tree_to_indented( n, w, 0 );
+    return fmt::formatter<std::string>::format( w, ctx );
+  }
+};
 
 #endif  // POLSERVER_NODE_H

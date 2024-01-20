@@ -9,6 +9,7 @@ class VariableAssignmentStatement;
 class BasicForLoop;
 class BinaryOperator;
 class Block;
+class BooleanValue;
 class BranchSelector;
 class CaseStatement;
 class CaseDispatchDefaultSelector;
@@ -76,6 +77,7 @@ public:
   virtual void visit_basic_for_loop( BasicForLoop& );
   virtual void visit_binary_operator( BinaryOperator& );
   virtual void visit_block( Block& );
+  virtual void visit_boolean_value( BooleanValue& );
   virtual void visit_branch_selector( BranchSelector& );
   virtual void visit_case_statement( CaseStatement& );
   virtual void visit_case_dispatch_default_selector( CaseDispatchDefaultSelector& );

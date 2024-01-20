@@ -52,7 +52,7 @@ int display_orphan( UObject* o )
   sw() << o->name() << ", " << o->ref_counted_count() << '\n';
   o->printOn( sw );
   o->printOnDebug( sw_orphan );
-  INFO_PRINT << sw().str();
+  INFO_PRINT( sw().str() );
   return 0;
 }
 void display_unreaped_orphan_instances()
@@ -94,7 +94,7 @@ UObject::~UObject()
 {
   if ( ref_counted::count() != 0 )
   {
-    POLLOG_INFO << "Ouch! UObject::~UObject() with count()==" << ref_counted::count() << "\n";
+    POLLOG_INFOLN( "Ouch! UObject::~UObject() with count()=={}", ref_counted::count() );
   }
   passert( ref_counted::count() == 0 );
   if ( serial == 0 )
@@ -126,7 +126,7 @@ void UObject::destroy()
   {
     if ( ref_counted::count() < 1 )
     {
-      POLLOG_INFO << "Ouch! UObject::destroy() with count()==" << ref_counted::count() << "\n";
+      POLLOG_INFOLN( "Ouch! UObject::destroy() with count()=={}", ref_counted::count() );
     }
 
     set_dirty();  // we will have to write a 'object deleted' directive once
@@ -404,8 +404,8 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   auto* realm_tmp = find_realm( realmstr );
   if ( !realm_tmp )
   {
-    ERROR_PRINT.Format( "{} '{}' (0x{:X}): has an invalid realm property '{}'.\n" )
-        << classname() << name() << serial << realmstr;
+    ERROR_PRINTLN( "{} '{}' ({:#X}): has an invalid realm property '{}'.", classname(), name(),
+                   serial, realmstr );
     throw std::runtime_error( "Data integrity error" );
   }
   setposition( Pos4d( elem.remove_ushort( "X" ), elem.remove_ushort( "Y" ),
@@ -531,10 +531,9 @@ Clib::StreamWriter& operator<<( Clib::StreamWriter& writer, const UObject& obj )
 
 bool UObject::setgraphic( u16 /*newgraphic*/ )
 {
-  ERROR_PRINT.Format(
-      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: "
-      "0x{:X}\n" )
-      << serial;
+  ERROR_PRINTLN(
+      "UOBject::SetGraphic used, object class does not have a graphic member! Object Serial: {:#X}",
+      serial );
   return false;
 }
 

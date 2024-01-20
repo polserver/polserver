@@ -109,9 +109,11 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
 
       if ( Mobile::DecodeFacing( dir, facing ) == false )
       {
-        DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-                 << "\tCall to function npc::canmove():\n"
-                 << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
+        DEBUGLOGLN(
+            "Script Error in '{}' PC={}: \n"
+            "\tCall to function npc::canmove():\n"
+            "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}",
+            scriptname(), exec.PC, dir );
         return new BError( "Invalid facing value" );
       }
 
@@ -125,10 +127,11 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
     }
     else
     {
-      DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-               << "\tCall to function npc::canmove():\n"
-               << "\tParameter 0: Expected direction, got datatype "
-               << BObjectImp::typestr( param0->type() ) << "\n";
+      DEBUGLOGLN(
+          "Script Error in '{}' PC={}: \n"
+          "\tCall to function npc::canmove():\n"
+          "\tParameter 0: Expected direction, got datatype {}",
+          scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
       return new BError( "Invalid parameter type" );
     }
   }
@@ -279,9 +282,11 @@ BObjectImp* NPCExecutorModule::mf_Face()
 
     if ( Mobile::DecodeFacing( dir, i_facing ) == false )
     {
-      DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-               << "\tCall to function npc::face():\n"
-               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
+      DEBUGLOGLN(
+          "Script Error in '{}' PC={}: \n"
+          "\tCall to function npc::face():\n"
+          "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}",
+          scriptname(), exec.PC, dir );
       return nullptr;
     }
   }
@@ -292,10 +297,11 @@ BObjectImp* NPCExecutorModule::mf_Face()
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function npc::face():\n"
-             << "\tParameter 0: Expected direction, "
-             << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function npc::face():\n"
+        "\tParameter 0: Expected direction, , got datatype {}",
+        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
 
     return nullptr;
   }
@@ -318,9 +324,11 @@ BObjectImp* NPCExecutorModule::mf_Move()
 
     if ( Mobile::DecodeFacing( dir, facing ) == false )
     {
-      DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-               << "\tCall to function npc::move():\n"
-               << "\tParameter 0: Expected direction: N S E W NW NE SW SE, got " << dir << "\n";
+      DEBUGLOGLN(
+          "Script Error in '{}' PC={}: \n"
+          "\tCall to function npc::move():\n"
+          "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}",
+          scriptname(), exec.PC, dir );
       return nullptr;
     }
 
@@ -357,19 +365,21 @@ BObjectImp* NPCExecutorModule::mf_Move()
     }
     else
     {
-      DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-               << "\tCall to function npc::move():\n"
-               << "\tParameter 0: Expected direction or bounding box, "
-               << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
+      DEBUGLOGLN(
+          "Script Error in '{}' PC={}: \n"
+          "\tCall to function npc::move():\n"
+          "\tParameter 0: Expected direction or bounding box, , got datatype {}",
+          scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
       return nullptr;
     }
   }
   else
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function npc::move():\n"
-             << "\tParameter 0: Expected direction or bounding box, "
-             << ", got datatype " << BObjectImp::typestr( param0->type() ) << "\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function npc::move():\n"
+        "\tParameter 0: Expected direction or bounding box, , got datatype {}",
+        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
 
     return nullptr;
   }

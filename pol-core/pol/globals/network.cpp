@@ -78,13 +78,12 @@ void NetworkManager::kill_disconnected_clients()
     Network::Client* client = *itr;
     if ( !client->isReallyConnected() )
     {
-      fmt::Writer tmp;
-      tmp.Format( "Disconnecting Client#{} ({}/{})" )
-          << client->instance_ << ( client->acct ? client->acct->name() : "[no account]" )
-          << ( client->chr ? client->chr->name() : "[no character]" );
-      ERROR_PRINT << tmp.str() << "\n";
+      auto tmp = fmt::format( "Disconnecting Client#{} ({}/{})", client->instance_,
+                              client->acct ? client->acct->name() : "[no account]",
+                              client->chr ? client->chr->name() : "[no character]" );
+      ERROR_PRINTLN( tmp );
       if ( Plib::systemstate.config.loglevel >= 4 )
-        POLLOG << tmp.str() << "\n";
+        POLLOGLN( tmp );
 
       delete client;
       client = nullptr;

@@ -266,17 +266,20 @@ ObjMember object_members[] = {
     { MBR_PACKAGE, "package", true },
     { MBR_SWING_SPEED_INCREASE, "swing_speed_increase", true },
     { MBR_SWING_SPEED_INCREASE_MOD, "swing_speed_increase_mod", false },
-    { MBR_EXPORTED_FUNCTIONS, "exported_functions", false }, // 250
+    { MBR_EXPORTED_FUNCTIONS, "exported_functions", false },  // 250
     { MBR_DISABLE_INACTIVITY_TIMEOUT, "disable_inactivity_timeout", false },
     { MBR_CURSED, "cursed", false },
     { MBR_SNOOPSCRIPT, "snoopscript", false },
     { MBR_CHARACTER_OWNER, "character_owner", true },
-    { MBR_PARRYCHANCE_MOD, "parrychance_mod", false },
+    { MBR_PARRYCHANCE_MOD, "parrychance_mod", false },  // 255
+    { MBR_PILOT, "pilot", false },
+    { MBR_BUFFS, "buffs", false },
 };
 int n_objmembers = sizeof object_members / sizeof object_members[0];
 ObjMember* getKnownObjMember( const char* token )
 {
-  static auto cache = []() -> std::unordered_map<std::string, ObjMember*> {
+  static auto cache = []() -> std::unordered_map<std::string, ObjMember*>
+  {
     std::unordered_map<std::string, ObjMember*> m;
     for ( int i = 0; i < n_objmembers; ++i )
     {
@@ -456,12 +459,15 @@ ObjMethod object_methods[] = {
     { MTH_CALL, "call", false },
     { MTH_SORTEDINSERT, "sorted_insert", false },
     { MTH_SETUTF8STRING, "setutf8string", false },
+    { MTH_SET_PILOT, "set_pilot", false },  // 155
+    { MTH_SET_ALTERNATE_MULTIID, "set_alternate_multiid", false }
 };
 int n_objmethods = sizeof object_methods / sizeof object_methods[0];
 ObjMethod* getKnownObjMethod( const char* token )
 {
   // cache needs to hold a pointer to the original structure! eprog_read sets the override member
-  static auto cache = []() -> std::unordered_map<std::string, ObjMethod*> {
+  static auto cache = []() -> std::unordered_map<std::string, ObjMethod*>
+  {
     std::unordered_map<std::string, ObjMethod*> m;
     for ( int i = 0; i < n_objmethods; ++i )
     {

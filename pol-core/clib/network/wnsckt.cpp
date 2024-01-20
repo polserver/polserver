@@ -146,7 +146,7 @@ bool Socket::open( const char* ipaddr, unsigned short port )
 #endif
   )
   {
-    INFO_PRINT << "Unable to open socket in Socket::open()\n";
+    INFO_PRINTLN( "Unable to open socket in Socket::open()" );
     return false;
   }
 
@@ -359,7 +359,7 @@ void Socket::HandleError()
   {
     sprintf( ErrorBuffer, "Unknown error code 0x%08x", ErrVal );
   }
-  INFO_PRINT << ErrorBuffer << "\n";
+  INFO_PRINTLN( std::string( ErrorBuffer ) );
 #endif
 #else
   close();
@@ -372,7 +372,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
     return false;
 
 #if SCK_WATCH
-  INFO_PRINT << "{L;1}\n";
+  INFO_PRINTLN( "{L;1}" );
 #endif
 
   int res;
@@ -386,7 +386,7 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
     else if ( res == 0 )
     {
 #if SCK_WATCH
-      INFO_PRINT << "{TO}\n";
+      INFO_PRINTLN( "{TO}" );
 #endif
     }
 
@@ -398,14 +398,14 @@ bool Socket::recvbyte( unsigned char* ch, unsigned int waitms )
   if ( res == 1 )
   {
 #if SCK_WATCH
-    INFO_PRINT.Format( "\{{:#X}\}\n" ) << ch;
+    INFO_PRINTLN( "{{{:#X}}}", *ch );
 #endif
     return true;
   }
   else if ( res == 0 )
   {
 #if SCK_WATCH
-    INFO_PRINT << "{CLOSE}\n";
+    INFO_PRINTLN( "{CLOSE}" );
 #endif
     close();
     return false;
@@ -427,7 +427,7 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
     return false;
 
 #if SCK_WATCH
-  INFO_PRINT << "{L:" << len << "}\n";
+  INFO_PRINTLN( "{{L:{}}}", len );
 #endif
 
   int res;
@@ -446,7 +446,7 @@ bool Socket::recvdata_nowait( char* pdest, unsigned len, int* bytes_read )
   if ( res == 0 )
   {
 #if SCK_WATCH
-    INFO_PRINT << "{CLOSE}\n";
+    INFO_PRINTLN( "{CLOSE}" );
 #endif
     close();
     return false;
@@ -465,7 +465,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       return false;
 
 #if SCK_WATCH
-    INFO_PRINT << "{L:" << len << "}\n";
+    INFO_PRINTLN( "{{L:{}}}", len );
 #endif
     int res;
     if ( !has_incoming_data( waitms, &res ) )
@@ -478,7 +478,7 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
       else if ( res == 0 )
       {
 #if SCK_WATCH
-        INFO_PRINT << "{TO}\n";
+        INFO_PRINTLN( "{TO}" );
 #endif
       }
 
@@ -491,20 +491,20 @@ bool Socket::recvdata( void* vdest, unsigned len, unsigned int waitms )
     {
 #if SCK_WATCH
       char* tmp = pdest;
-      INFO_PRINT.Format( "\{R:{}[{}]\}\n" ) << res << len;
+      INFO_PRINTLN( "{{R:{}[{}]}}", res, len );
 #endif
       len -= res;
       pdest += res;
 
 #if SCK_WATCH
       while ( res-- )
-        INFO_PRINT.Format( "\{{:#X}\}\n" ) << (unsigned char)( *tmp++ );
+        INFO_PRINTLN( "{{{:#X}}}", (unsigned char)( *tmp++ ) );
 #endif
     }
     else if ( res == 0 )
     {
 #if SCK_WATCH
-      INFO_PRINT << "{CLOSE}\n";
+      INFO_PRINTLN( "{CLOSE}" );
 #endif
       close();
       return false;
@@ -525,7 +525,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   char* pdest = (char*)vdest;
 
 #if SCK_WATCH
-  INFO_PRINT << "{L:" << len << "}\n";
+  INFO_PRINTLN( "{{L:{}}}", len );
 #endif
 
   int res;
@@ -539,7 +539,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
     else if ( res == 0 )
     {
 #if SCK_WATCH
-      INFO_PRINT << "{TO}\n";
+      INFO_PRINTLN( "{TO}" );
 #endif
     }
 
@@ -555,7 +555,7 @@ unsigned Socket::peek( void* vdest, unsigned len, unsigned int wait_sec )
   else if ( res == 0 )
   {
 #if SCK_WATCH
-    INFO_PRINT << "{CLOSE}\n";
+    INFO_PRINTLN( "{CLOSE}" );
 #endif
     close();
     return 0;
@@ -585,7 +585,7 @@ void Socket::send( const void* vdata, unsigned datalen )
       }
       else
       {
-        INFO_PRINT << "Socket::send() error: " << sckerr << "\n";
+        INFO_PRINTLN( "Socket::send() error: {}", sckerr );
         HandleError();
         return;
       }
@@ -617,7 +617,7 @@ bool Socket::send_nowait( const void* vdata, unsigned datalen, unsigned* nsent )
       }
       else
       {
-        INFO_PRINT << "Socket::send_nowait() error: " << sckerr << "\n";
+        INFO_PRINTLN( "Socket::send_nowait() error: {}", sckerr );
         HandleError();
         return true;
       }

@@ -18,6 +18,7 @@ public:
   std::unique_ptr<Expression> optimize();
 
   void visit_children( Node& ) override;
+  void visit_boolean_value( BooleanValue& lhs ) override;
   void visit_float_value( FloatValue& lhs ) override;
   void visit_integer_value( IntegerValue& lhs ) override;
   void visit_string_value( StringValue& lhs ) override;

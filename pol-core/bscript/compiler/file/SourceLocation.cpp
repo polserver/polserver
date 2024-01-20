@@ -2,8 +2,10 @@
 
 #include "bscript/compiler/Antlr4Inc.h"
 
-#include "clib/logfacility.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "clib/logfacility.h"
+
+#include <iterator>
 
 #include <climits>
 
@@ -143,35 +145,30 @@ bool Range::contains( const Range& otherRange ) const
 
 void SourceLocation::debug( const std::string& msg ) const
 {
-  ERROR_PRINT << ( *this ) << ": " << msg << "\n";
+  ERROR_PRINTLN( "{}: {}", ( *this ), msg );
 }
 
 void SourceLocation::internal_error( const std::string& msg ) const
 {
-  ERROR_PRINT << ( *this ) << ": " << msg << "\n";
+  ERROR_PRINTLN( "{}: {}", ( *this ), msg );
   throw std::runtime_error( msg );
 }
 
 void SourceLocation::internal_error( const std::string& msg, const SourceLocation& related ) const
 {
-  ERROR_PRINT << ( *this ) << ": " << msg << "\n"
-              << "  See also: " << related << "\n";
+  ERROR_PRINTLN( "{}: {}\n  See also: {}", ( *this ), msg, related );
   throw std::runtime_error( msg );
 }
 
-fmt::Writer& operator<<( fmt::Writer& w, const Position& position )
-{
-  if ( position.line_number || position.character_column )
-  {
-    w << ":" << position.line_number << ":" << position.character_column;
-  }
-  return w;
-}
-
-fmt::Writer& operator<<( fmt::Writer& w, const SourceLocation& location )
-{
-  w << location.source_file_identifier->pathname << location.range.start;
-  return w;
-}
-
 }  // namespace Pol::Bscript::Compiler
+
+fmt::format_context::iterator fmt::formatter<Pol::Bscript::Compiler::SourceLocation>::format(
+    const Pol::Bscript::Compiler::SourceLocation& l, fmt::format_context& ctx ) const
+{
+  std::string tmp = l.source_file_identifier->pathname;
+
+  if ( l.range.start.line_number || l.range.start.character_column )
+    fmt::format_to( std::back_inserter( tmp ), ":{}:{}", l.range.start.line_number,
+                    l.range.start.character_column );
+  return fmt::formatter<std::string>::format( tmp, ctx );
+}

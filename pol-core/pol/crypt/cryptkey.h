@@ -8,6 +8,7 @@
 #ifndef __CRYPTKEY_H__
 #define __CRYPTKEY_H__
 
+#include <fmt/format.h>
 #include <string>
 
 namespace Pol
@@ -24,6 +25,10 @@ enum ECryptType
   CRYPT_BLOWFISH_TWOFISH = 4,  //- 2.0.3 (BlowFish+TwoFish)
   CRYPT_TWOFISH = 5            //- >2.0.3 (TwoFish)
 };
+inline auto format_as( ECryptType c )
+{
+  return fmt::underlying( c );
+}
 
 // Encryption keys and type
 typedef struct _CryptInfo
@@ -34,7 +39,7 @@ typedef struct _CryptInfo
 } TCryptInfo;
 
 void CalculateCryptKeys( const std::string& name, TCryptInfo& infoCrypt );
-}
-}
+}  // namespace Crypt
+}  // namespace Pol
 
 #endif  //__CRYPTKEY_H__

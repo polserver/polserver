@@ -1,10 +1,10 @@
-#ifndef POL_BASE_POSITION_H
-#define POL_BASE_POSITION_H
+#pragma once
 
 #include "clib/rawtypes.h"
 #include "plib/uconst.h"
 #include "vector.h"
-#include <format/format.h>
+#include <fmt/format.h>
+
 #include <utility>
 
 namespace Pol
@@ -32,6 +32,10 @@ enum UFACING : u8
   FACING_W = 6,
   FACING_NW = 7
 };
+inline auto format_as( UFACING f )
+{
+  return fmt::underlying( f );
+}
 
 class Pos2d
 {
@@ -76,9 +80,6 @@ public:
 Pos2d operator-( Pos2d lhs, const Vec2d& rhs );
 Pos2d operator+( Pos2d lhs, const Vec2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos2d& rhs );
-fmt::Writer& operator<<( fmt::Writer& w, const Pos2d& v );
-std::ostream& operator<<( std::ostream& os, const Pos2d& v );
-
 
 class Pos3d
 {
@@ -132,8 +133,6 @@ Pos3d operator+( Pos3d lhs, const Vec3d& rhs );
 Vec2d operator-( const Pos3d& lhs, const Pos2d& rhs );
 Vec2d operator-( const Pos2d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos3d& rhs );
-fmt::Writer& operator<<( fmt::Writer& w, const Pos3d& v );
-std::ostream& operator<<( std::ostream& os, const Pos3d& v );
 
 class Pos4d
 {
@@ -202,8 +201,6 @@ Vec2d operator-( const Pos2d& lhs, const Pos4d& rhs );
 Vec3d operator-( const Pos4d& lhs, const Pos3d& rhs );
 Vec3d operator-( const Pos3d& lhs, const Pos4d& rhs );
 // Vec3d operator-( const Pos4d& lhs, const Pos4d& rhs ); // TODO: think if this one makes sense
-fmt::Writer& operator<<( fmt::Writer& w, const Pos4d& v );
-std::ostream& operator<<( std::ostream& os, const Pos4d& v );
 
 inline Pos2d::Pos2d( u16 x, u16 y ) : _x( x ), _y( y ) {}
 
@@ -344,4 +341,20 @@ inline Pos4d& Pos4d::xyz( Pos3d xyz )
 }
 }  // namespace Core
 }  // namespace Pol
-#endif
+
+// derive from std::string formatter to support eg padding
+template <>
+struct fmt::formatter<Pol::Core::Pos2d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Pos2d& p, fmt::format_context& ctx ) const;
+};
+template <>
+struct fmt::formatter<Pol::Core::Pos3d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Pos3d& p, fmt::format_context& ctx ) const;
+};
+template <>
+struct fmt::formatter<Pol::Core::Pos4d> : fmt::formatter<std::string>
+{
+  fmt::format_context::iterator format( const Pol::Core::Pos4d& p, fmt::format_context& ctx ) const;
+};

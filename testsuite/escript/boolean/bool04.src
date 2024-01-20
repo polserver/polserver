@@ -1,0 +1,14 @@
+var a:=true;
+print(a==1); // true
+print(a==0); // false
+print(a!=2); // false
+print(a==1.0); // true
+print(a=="x"); // true
+
+print(1==a); // true
+print(""==false); // true
+
+var b:= struct{b:=a};
+print(b);
+print(b.b);
+

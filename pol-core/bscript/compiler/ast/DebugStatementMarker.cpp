@@ -1,6 +1,5 @@
 #include "DebugStatementMarker.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
@@ -17,9 +16,9 @@ void DebugStatementMarker::accept( NodeVisitor& visitor )
   visitor.visit_debug_statement_marker( *this );
 }
 
-void DebugStatementMarker::describe_to( fmt::Writer& w ) const
+void DebugStatementMarker::describe_to( std::string& w ) const
 {
-  w << "debug-statement-marker";
+  w += "debug-statement-marker";
 }
 
 }  // namespace Pol::Bscript::Compiler

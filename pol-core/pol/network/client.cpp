@@ -173,7 +173,7 @@ void Client::PreDelete()
     }
     else
     {
-      ERROR_PRINT << "Uhh...  active character not logged in!??\n";
+      ERROR_PRINTLN( "Uhh...  active character not logged in!??" );
     }
   }
 
@@ -301,7 +301,7 @@ void Client::itemizeclientversion( const std::string& ver, VersionDetailStruct& 
     detail.minor = 0;
     detail.rev = 0;
     detail.patch = 0;
-    POLLOG.Format( "Malformed clientversion string: {}\n" ) << ver;
+    POLLOGLN( "Malformed clientversion string: {}", ver );
   }
 }
 
@@ -444,8 +444,8 @@ void ThreadedClient::queue_data( const void* data, unsigned short datalen )
   else
   {
     THREAD_CHECKPOINT( active_client, 307 );
-    POLLOG.Format( "Client#{}: Unable to allocate {} bytes for queued data.  Disconnecting.\n" )
-        << myClient.instance_ << ( sizeof( Core::XmitBuffer ) - 1 + datalen );
+    POLLOGLN( "Client#{}: Unable to allocate {} bytes for queued data.  Disconnecting.",
+              myClient.instance_, ( sizeof( Core::XmitBuffer ) - 1 + datalen ) );
     disconnect = true;
   }
   THREAD_CHECKPOINT( active_client, 309 );
@@ -483,8 +483,8 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
     if ( sckerr == SOCKET_ERRNO( EWOULDBLOCK ) )
     {
       THREAD_CHECKPOINT( active_client, 205 );
-      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (1, {} bytes)\n" )
-          << myClient.instance_ << datalen;
+      POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (1, {} bytes)", myClient.instance_,
+                      datalen );
       THREAD_CHECKPOINT( active_client, 206 );
       queue_data( data, datalen );
       THREAD_CHECKPOINT( active_client, 207 );
@@ -494,8 +494,8 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
     {
       THREAD_CHECKPOINT( active_client, 208 );
       if ( !disconnect )
-        POLLOG_ERROR.Format( "Client#{}: Disconnecting client due to send() error (1): {}\n" )
-            << myClient.instance_ << sckerr;
+        POLLOG_ERRORLN( "Client#{}: Disconnecting client due to send() error (1): {}",
+                        myClient.instance_, sckerr );
       disconnect = true;
       THREAD_CHECKPOINT( active_client, 209 );
       return;
@@ -510,7 +510,7 @@ void ThreadedClient::xmit( const void* data, unsigned short datalen )
     if ( datalen )  // anything left? if so, queue for later.
     {
       THREAD_CHECKPOINT( active_client, 211 );
-      POLLOG_ERROR.Format( "Client#{}: Switching to queued data mode (2)\n" ) << myClient.instance_;
+      POLLOG_ERRORLN( "Client#{}: Switching to queued data mode (2)", myClient.instance_ );
       THREAD_CHECKPOINT( active_client, 212 );
       queue_data( cdata + nsent, datalen );
       THREAD_CHECKPOINT( active_client, 213 );
@@ -544,8 +544,8 @@ void ThreadedClient::send_queued_data()
       else
       {
         if ( !disconnect )
-          POLLOG.Format( "Client#{}: Disconnecting client due to send() error (2): {}\n" )
-              << myClient.instance_ << sckerr;
+          POLLOGLN( "Client#{}: Disconnecting client due to send() error (2): {}",
+                    myClient.instance_, sckerr );
         disconnect = true;
         return;
       }
@@ -562,8 +562,8 @@ void ThreadedClient::send_queued_data()
         if ( first_xmit_buffer == nullptr )
         {
           last_xmit_buffer = nullptr;
-          POLLOG.Format( "Client#{}: Leaving queued mode ({} bytes xmitted)\n" )
-              << myClient.instance_ << queued_bytes_counter;
+          POLLOGLN( "Client#{}: Leaving queued mode ({} bytes xmitted)", myClient.instance_,
+                    queued_bytes_counter );
           queued_bytes_counter = 0;
         }
         free( xbuffer );
@@ -633,8 +633,7 @@ bool Client::SpeedHackPrevention( bool add )
   {
     if ( movementqueue.size() > 100 )
     {
-      POLLOG_ERROR.Format( "Client#{}: More then 100 Movepackets in queue.  Disconnecting.\n" )
-          << instance_;
+      POLLOG_ERRORLN( "Client#{}: More then 100 Movepackets in queue.  Disconnecting.", instance_ );
       disconnect = true;
       return false;
     }
@@ -659,8 +658,8 @@ bool Client::SpeedHackPrevention( bool add )
     {
       if ( movementqueue.size() > 100 )
       {
-        POLLOG_ERROR.Format( "Client#{}: More then 100 Movepackets in queue.  Disconnecting.\n" )
-            << instance_;
+        POLLOG_ERRORLN( "Client#{}: More then 100 Movepackets in queue.  Disconnecting.",
+                        instance_ );
         disconnect = true;
         return false;
       }

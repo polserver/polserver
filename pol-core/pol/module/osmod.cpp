@@ -457,27 +457,27 @@ BObjectImp* OSExecutorModule::mf_SysLog()
   std::string strval = imp->getStringRep();
   if ( log_verbose )
   {
-    POLLOG << "[" << exec.scriptname() << "]: " << strval << "\n";
+    POLLOGLN( "[{}]: {}", exec.scriptname(), strval );
     if ( Plib::systemstate.config.enable_colored_output && color->length() )
     {
-      INFO_PRINT << color->value() << "syslog [" << exec.scriptname() << "]: " << strval
-                 << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+      INFO_PRINTLN( "{}syslog [{}]: {}{}", color->value(), exec.scriptname(), strval,
+                    Clib::Logging::CONSOLE_RESET_COLOR );
     }
     else
     {
-      INFO_PRINT << "syslog [" << exec.scriptname() << "]: " << strval << "\n";
+      INFO_PRINTLN( "syslog [{}]: {}", exec.scriptname(), strval );
     }
   }
   else
   {
     if ( Plib::systemstate.config.enable_colored_output && color->length() )
     {
-      POLLOG << strval << "\n";
-      INFO_PRINT << color->value() << strval << Clib::Logging::CONSOLE_RESET_COLOR << "\n";
+      POLLOGLN( strval );
+      INFO_PRINTLN( "{}{}{}", color->value(), strval, Clib::Logging::CONSOLE_RESET_COLOR );
     }
     else
     {
-      POLLOG_INFO << strval << "\n";
+      POLLOG_INFOLN( strval );
     }
   }
   return new BLong( 1 );
@@ -602,9 +602,10 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
       }
       if ( !this_uoexec.suspend() )
       {
-        DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
-                 << ": \n"
-                 << "\tThe execution of this script can't be blocked!\n";
+        DEBUGLOGLN(
+            "Script Error in '{}' PC={}: \n"
+            "\tThe execution of this script can't be blocked!",
+            this_uoexec.scriptname(), this_uoexec.PC );
         return new Bscript::BError( "Script can't be blocked" );
       }
 
@@ -626,7 +627,7 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
               std::unique_ptr<BObjectImp> paramobjimp( paramobjimp_raw );
               if ( !uoexec_w.exists() )
               {
-                DEBUGLOG << "OpenConnection Script has been destroyed\n";
+                DEBUGLOGLN( "OpenConnection Script has been destroyed" );
                 s.close();
                 return;
               }
@@ -736,9 +737,10 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
     {
       if ( !this_uoexec.suspend() )
       {
-        DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
-                 << ": \n"
-                 << "\tThe execution of this script can't be blocked!\n";
+        DEBUGLOGLN(
+            "Script Error in '{}' PC={}: \n"
+            "\tThe execution of this script can't be blocked!",
+            this_uoexec.scriptname(), this_uoexec.PC );
         return new Bscript::BError( "Script can't be blocked" );
       }
 
@@ -805,7 +807,7 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
 
                 if ( !uoexec_w.exists() )
                 {
-                  DEBUGLOG << "HTTPRequest Script has been destroyed\n";
+                  DEBUGLOGLN( "HTTPRequest Script has been destroyed" );
                   return;
                 }
                 /* Check for errors */
@@ -917,16 +919,16 @@ bool OSExecutorModule::signal_event( BObjectImp* imp )
         BObject ob( imp );
         if ( Plib::systemstate.config.loglevel >= 11 )
         {
-          INFO_PRINT << "Event queue for " << exec.scriptname() << " is full, discarding event.\n";
+          INFO_PRINTLN( "Event queue for {} is full, discarding event.", exec.scriptname() );
           ExecutorModule* em = exec.findModule( "npc" );
           if ( em )
           {
             NPCExecutorModule* npcemod = static_cast<NPCExecutorModule*>( em );
-            INFO_PRINT << "NPC Serial: " << fmt::hexu( npcemod->controlled_npc().serial )
-                       << npcemod->controlled_npc().pos() << "\n";
+            INFO_PRINTLN( "NPC Serial: {:#x}{}", npcemod->controlled_npc().serial,
+                          npcemod->controlled_npc().pos() );
           }
 
-          INFO_PRINT << "Event: " << ob->getStringRep() << "\n";
+          INFO_PRINTLN( "Event: {}", ob->getStringRep() );
         }
         return false;  // Event-queue is full
       }
@@ -1153,7 +1155,7 @@ struct PerfData
     std::vector<ScriptDiffData> res;
     if ( !data->uoexec_w.exists() )
     {
-      DEBUGLOG << "PerformanceMeasure Script has been destroyed\n";
+      DEBUGLOGLN( "PerformanceMeasure Script has been destroyed" );
       return;
     }
     double sum_instr( 0 );
@@ -1211,9 +1213,10 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
 
   if ( !this_uoexec.suspend() )
   {
-    DEBUGLOG << "Script Error in '" << this_uoexec.scriptname() << "' PC=" << this_uoexec.PC
-             << ": \n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tThe execution of this script can't be blocked!",
+        this_uoexec.scriptname(), this_uoexec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1256,7 +1259,7 @@ BObjectImp* OSExecutorModule::mf_LoadExportedScript()
     ref_ptr<Bscript::EScriptProgram> program = find_script2( sd );
     if ( program.get() == nullptr )
     {
-      ERROR_PRINT << "Error reading script " << sd.name() << "\n";
+      ERROR_PRINTLN( "Error reading script {}", sd.name() );
       return new Bscript::BError( "Unable to read script" );
     }
     Core::UOExecutor* uoexec = Core::create_script_executor();

@@ -17,8 +17,8 @@
 
 #include <ctime>
 #include <exception>
+#include <fmt/format.h>
 
-#include <format/format.h>
 #include "../bscript/berror.h"
 #include "../bscript/bobject.h"
 #include "../clib/logfacility.h"
@@ -132,7 +132,7 @@ void start_script( const char* filename, Bscript::BObjectImp* param0, Bscript::B
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
+    ERROR_PRINTLN( "Error reading script {}", filename );
     throw std::runtime_error( "Error starting script" );
   }
 
@@ -161,7 +161,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", script.name() );
     // throw runtime_error( "Error starting script" );
     return nullptr;
   }
@@ -198,7 +198,7 @@ Module::UOExecutorModule* start_script( const ScriptDef& script, Bscript::BObjec
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", script.name() );
     // throw runtime_error( "Error starting script" );
     return nullptr;
   }
@@ -292,18 +292,18 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
   Clib::scripts_thread_script = ex.scriptname();
 
   if ( Plib::systemstate.config.report_rtc_scripts )
-    INFO_PRINT << "Script " << ex.scriptname() << " running..";
+    INFO_PRINT( "Script {} running..", ex.scriptname() );
 
   while ( ex.runnable() )
   {
-    INFO_PRINT << ".";
+    INFO_PRINT( "." );
     for ( int i = 0; ( i < 1000 ) && ex.runnable(); i++ )
     {
       Clib::scripts_thread_scriptPC = ex.PC;
       ex.execInstr();
     }
   }
-  INFO_PRINT << "\n";
+  INFO_PRINTLN( "" );
   return ( ex.error_ == false );
 }
 
@@ -314,7 +314,7 @@ bool run_script_to_completion( const char* filename, Bscript::BObjectImp* parame
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
+    ERROR_PRINTLN( "Error reading script {}", filename );
     return false;
   }
 
@@ -331,7 +331,7 @@ bool run_script_to_completion( const char* filename )
   ref_ptr<Bscript::EScriptProgram> program = find_script( filename );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << filename << "\n";
+    ERROR_PRINTLN( "Error reading script {}", filename );
     return false;
   }
 
@@ -346,7 +346,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ref_ptr<Bscript::EScriptProgram> program = find_script2( script );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << script.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", script.name() );
     return new Bscript::BError( "Unable to read script" );
   }
 
@@ -370,13 +370,13 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
     {
       if ( reported )
       {
-        INFO_PRINT << ".." << ex.PC;
+        INFO_PRINT( "..{}", ex.PC );
       }
       else
       {
         if ( Plib::systemstate.config.report_rtc_scripts )
         {
-          INFO_PRINT << "Script " << script.name() << " running.." << ex.PC;
+          INFO_PRINT( "Script {} running..{}", script.name(), ex.PC );
           reported = true;
         }
       }
@@ -384,7 +384,7 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
     }
   }
   if ( reported )
-    INFO_PRINT << "\n";
+    INFO_PRINTLN( "" );
   if ( ex.error_ )
     return new Bscript::BError( "Script exited with an error condition" );
 
@@ -694,24 +694,23 @@ void deschedule_executor( UOExecutor* ex )
 
 void list_script( UOExecutor* uoexec )
 {
-  fmt::Writer tmp;
-  tmp << uoexec->prog_->name.get();
+  std::string tmp = uoexec->prog_->name.get();
   if ( !uoexec->Globals2.empty() )
-    tmp << " Gl=" << uoexec->Globals2.size();
+    tmp += fmt::format( " Gl={}", uoexec->Globals2.size() );
   if ( uoexec->Locals2 && !uoexec->Locals2->empty() )
-    tmp << " Lc=" << uoexec->Locals2->size();
+    tmp += fmt::format( " Lc={}", uoexec->Locals2->size() );
   if ( !uoexec->ValueStack.empty() )
-    tmp << " VS=" << uoexec->ValueStack.size();
+    tmp += fmt::format( " VS={}", uoexec->ValueStack.size() );
   if ( !uoexec->upperLocals2.empty() )
-    tmp << " UL=" << uoexec->upperLocals2.size();
+    tmp += fmt::format( " UL={}", uoexec->upperLocals2.size() );
   if ( !uoexec->ControlStack.empty() )
-    tmp << " CS=" << uoexec->ControlStack.size();
-  INFO_PRINT << tmp.str() << "\n";
+    tmp += fmt::format( " CS={}", uoexec->ControlStack.size() );
+  INFO_PRINTLN( tmp );
 }
 
 void list_scripts( const char* desc, const ExecList& ls )
 {
-  INFO_PRINT << desc << " scripts:\n";
+  INFO_PRINTLN( "{} scripts:", desc );
   for ( auto& exec : ls )
   {
     list_script( exec );
@@ -732,7 +731,7 @@ void list_crit_script( UOExecutor* uoexec )
 }
 void list_crit_scripts( const char* desc, const ExecList& ls )
 {
-  INFO_PRINT << desc << " scripts:\n";
+  INFO_PRINTLN( "{} scripts:", desc );
   for ( auto& exec : ls )
   {
     list_crit_script( exec );
@@ -745,5 +744,5 @@ void list_crit_scripts()
   // list_crit_scripts( "holding", holdlist );
   list_crit_scripts( "ran", scriptScheduler.getRanlist() );
 }
-}
-}
+}  // namespace Core
+}  // namespace Pol

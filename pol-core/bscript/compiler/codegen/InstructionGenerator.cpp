@@ -6,6 +6,7 @@
 #include "bscript/compiler/ast/BasicForLoop.h"
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/Block.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/BranchSelector.h"
 #include "bscript/compiler/ast/CaseDispatchGroup.h"
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
@@ -212,6 +213,12 @@ void InstructionGenerator::visit_block( Block& node )
   {
     emit.leaveblock( static_cast<unsigned>( node.local_variable_scope_info.variables.size() ) );
   }
+}
+
+void InstructionGenerator::visit_boolean_value( BooleanValue& node )
+{
+  update_debug_location( node );
+  emit.value( node.value );
 }
 
 void InstructionGenerator::visit_branch_selector( BranchSelector& node )

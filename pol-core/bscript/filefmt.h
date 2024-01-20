@@ -36,6 +36,7 @@ namespace Bscript
 #define ESCRIPT_FILE_VER_000D 0x000D
 #define ESCRIPT_FILE_VER_000F 0x000F /*unicode*/
 #define ESCRIPT_FILE_VER_0010 0x0010 /*interpolated strings*/
+#define ESCRIPT_FILE_VER_0011 0x0011 /*uninit keyword*/
 
 /*
     NOTE: Update ESCRIPT_FILE_VER_CURRENT when you make a
@@ -43,7 +44,7 @@ namespace Bscript
     and report this to users when an older compiled version
     is attempted to be executed - TJ
     */
-#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_0010 )
+#define ESCRIPT_FILE_VER_CURRENT ( ESCRIPT_FILE_VER_0011 )
 
 struct BSCRIPT_FILE_HDR
 {

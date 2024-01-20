@@ -1,6 +1,5 @@
 #include "UninitializedValue.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
@@ -16,9 +15,9 @@ void UninitializedValue::accept( NodeVisitor& visitor )
   visitor.visit_uninitialized_value( *this );
 }
 
-void UninitializedValue::describe_to( fmt::Writer& w ) const
+void UninitializedValue::describe_to( std::string& w ) const
 {
-  w << "uninitialized-value";
+  w += "uninitialized-value";
 }
 
 }  // namespace Pol::Bscript::Compiler

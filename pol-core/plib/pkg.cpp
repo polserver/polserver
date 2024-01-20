@@ -178,10 +178,11 @@ Package::Package( const std::string& pkg_dir, Clib::ConfigElem& elem )
   else
   {
     // Forms like CoreRequired POL095-2003-01-28 are no longer allowed.
-    ERROR_PRINT << "Error in package " << name_ << "(" << dir_ << ")"
-                << ":\n"
-                << "  Core version must be a semantic version (n.n.n), but got \"" << core_required_
-                << "\".\n";
+    ERROR_PRINTLN(
+        "Error in package {}({}):\n"
+        "  Core version must be a semantic version (n.n.n), but got "
+        "\"{}\".",
+        name_, dir_, core_required_ );
     throw std::runtime_error( "Malformed CoreRequired package field" );
   }
 }
@@ -200,7 +201,7 @@ bool Package::check_replacements() const
     if ( found != nullptr )
     {
       any = true;
-      INFO_PRINT << "Package " << desc() << " replaces package " << found->desc() << "\n";
+      INFO_PRINTLN( "Package {} replaces package {}", desc(), found->desc() );
       remove_package( found );
       delete found;
       found = nullptr;
@@ -215,9 +216,10 @@ void Package::check_dependencies() const
   {
     if ( !( version_greater_or_equal( POL_VERSION_STR, core_required_ ) ) )
     {
-      ERROR_PRINT << "Error in package " << desc() << ":\n"
-                  << "  Core version " << core_required_ << " is required, but version "
-                  << POL_VERSION_STR << " is running.\n";
+      ERROR_PRINTLN(
+          "Error in package {}:\n"
+          "  Core version {} is required, but version {} is running.",
+          desc(), core_required_, POL_VERSION_STR );
       throw std::runtime_error( "Package requires a newer core version" );
     }
   }
@@ -226,17 +228,21 @@ void Package::check_dependencies() const
     Package* found = find_package( elem.pkgname );
     if ( found == nullptr )
     {
-      ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
-                  << "  Package '" << elem.pkgname << "' is required, but is not installed.\n";
+      ERROR_PRINTLN(
+          "Error in package '{}' ({}):\n"
+          "  Package '{}' is required, but is not installed.",
+          name_, dir_, elem.pkgname );
       throw std::runtime_error( "Package dependency error" );
     }
     else
     {
       if ( !version_greater_or_equal( found->version_, elem.version ) )
       {
-        ERROR_PRINT << "Error in package '" << name_ << "' (" << dir_ << "):\n"
-                    << "  Package '" << elem.pkgname << "' version " << elem.version
-                    << " is required, but version " << found->version_ << " was found\n";
+        ERROR_PRINTLN(
+            "Error in package '{}' ({}):\n"
+            "  Package '{}' version {} is required, but version {} "
+            "was found",
+            name_, dir_, elem.pkgname, elem.version, found->version_ );
         throw std::runtime_error( "Package dependency error" );
       }
     }
@@ -250,8 +256,10 @@ void Package::check_conflicts() const
     Package* found = find_package( elem.pkgname );
     if ( found != nullptr )
     {
-      ERROR_PRINT << "Error in package " << desc() << ":\n"
-                  << "  Package conflicts with package " << found->desc() << "\n";
+      ERROR_PRINTLN(
+          "Error in package {}:\n"
+          "  Package conflicts with package {}",
+          desc(), found->desc() );
       throw std::runtime_error( "Package dependency error" );
     }
   }
@@ -279,26 +287,26 @@ void load_package( const std::string& pkg_dir, Clib::ConfigElem& elem, bool quie
     {
       // replace existing package with newer version
       if ( !quiet )
-        INFO_PRINT << "Replacing package " << existing_pkg->desc() << " version "
-                   << existing_pkg->version() << " with version " << pkg->version() << " found in "
-                   << pkg->dir() << "\n";
+        INFO_PRINTLN( "Replacing package {} version {} with version {} found in {}",
+                      existing_pkg->desc(), existing_pkg->version(), pkg->version(), pkg->dir() );
       remove_package( existing_pkg );
       delete existing_pkg;
       existing_pkg = nullptr;
     }
     else if ( isequal )
     {
-      ERROR_PRINT << "Error in package " << pkg->desc() << ":\n"
-                  << "  Package by same name already found in " << existing_pkg->desc() << "\n";
+      ERROR_PRINTLN(
+          "Error in package {}:\n"
+          "  Package by same name already found in {}",
+          pkg->desc(), existing_pkg->desc() );
       throw std::runtime_error( "Duplicate package found" );
     }
     else
     {
       // skip this package, its version is older
       if ( !quiet )
-        INFO_PRINT << "Skipping package " << pkg->desc() << " version " << pkg->version()
-                   << " because version " << existing_pkg->version() << " was already found in "
-                   << existing_pkg->dir() << "\n";
+        INFO_PRINTLN( "Skipping package {} version {} because version {} was already found in ",
+                      pkg->desc(), pkg->version(), existing_pkg->version(), existing_pkg->dir() );
       return;
     }
   }
@@ -332,7 +340,7 @@ void load_packages( const std::string& basedir, bool quiet )
            !fs::exists( pkg_dir / "disabled.pkg" ) )
       {
         if ( !quiet )
-          INFO_PRINT << "Loading package in " << pkg_dir.u8string() << "\n";
+          INFO_PRINTLN( "Loading package in {}", pkg_dir.u8string() );
         load_package( pkg_dir.u8string() + "/", elem, quiet );
 
         load_packages( pkg_dir.u8string(), quiet );
@@ -394,7 +402,7 @@ void load_packages( bool quiet )
       {
         dir = Clib::normalized_dir_form( dir );
         if ( !quiet )
-          INFO_PRINT << "Searching for packages under " << dir << "\n";
+          INFO_PRINTLN( "Searching for packages under {}", dir );
         load_packages( dir.c_str(), quiet );
       }
     }
@@ -434,13 +442,13 @@ bool pkgdef_split( const std::string& spec, const Package* inpkg, const Package*
         }
         else
         {
-          ERROR_PRINT << "Unable to find package '" << pkgname << "'\n";
+          ERROR_PRINTLN( "Unable to find package '{}'", pkgname );
           return false;
         }
       }
       else
       {
-        ERROR_PRINT << "Poorly formed packagefile descriptor: '" << spec << "'\n";
+        ERROR_PRINTLN( "Poorly formed packagefile descriptor: '{}'", spec );
         return false;
       }
     }

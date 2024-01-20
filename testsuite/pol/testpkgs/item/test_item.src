@@ -185,3 +185,80 @@ exported function test_item_controlscript_destroy()
   sleepms(30);
   return 1;
 endfunction
+
+exported function test_item_FindSubstance()
+  var cnt:=CreateItemAtLocation(0,0,0,0x200001);
+  if (!cnt)
+    return ret_error("Failed to create container "+cnt);
+  endif
+
+  var item:=CreateItemInContainer(cnt, "goldcoin", 1000);
+  if (!item)
+    DestroyItem(cnt);
+    return ret_error($"Failed to create item: {item}");
+  endif
+
+  var res;
+  do
+    res := ReserveItem(item);
+    if (!res)
+      break;
+    endif
+
+    // Item is reserved, so should fail.
+    res := FindSubstance( cnt, "goldcoin", 1 );
+    print($"got findsubstance res {res}");
+    if (res)
+      res := ret_error("Unexpected success in FindSubstance");
+      break;
+    endif
+
+    res := ReleaseItem(item);
+    if (!res)
+      break;
+    endif
+
+    // Item is not reserved, so should succeed.
+    res := FindSubstance( cnt, "goldcoin", 1, makeinuse := true );
+    if (!res)
+      res := ret_error($"Unexpected failure in FindSubstance: {res}");
+      break;
+    endif
+
+    // Item should be reserved
+    res := ReserveItem(item);
+    if (res != 2)
+      res := ret_error($"Unexpected return from ReserveItem: {res}");
+      break;
+    endif
+
+    res := ReleaseItem(item);
+    if (!res)
+      break;
+    endif
+
+    // Item is not reserved, so should succeed.
+    res := FindSubstance( cnt, "goldcoin", 1000, makeinuse := 1 );
+    if (!res)
+      res := ret_error($"Unexpected failure in second FindSubstance: {res}");
+      break;
+    endif
+
+    // Item should be reserved
+    res := ReserveItem(item);
+    if (res != 2)
+      res := ret_error($"Unexpected return from second ReserveItem: {res}");
+      break;
+    endif
+
+    res := ReleaseItem(item);
+    if (!res)
+      break;
+    endif
+  dowhile (false);
+
+  DestroyItem(item);
+  DestroyItem(cnt);
+
+  return res;
+endfunction

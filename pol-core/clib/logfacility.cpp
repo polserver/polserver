@@ -2,18 +2,18 @@
 /*
 logging stuff
 basic idea is to have an extra thread which performs all the file operations
-messages get send on deconstruction the fmt::Writer is used
 the sinks are fixed defined which removes a bit the flexibility, but makes the code cleaner
 and new sinks can be easily added.
 
 Usage:
-POLLOG << "my text\n"
-POLLOG.Format("hello {}") << "world";
+POLLOGLN("my text)"
+POLLOG("hello {}\n", "world");
 */
 
 #include "logfacility.h"
 
 #include <chrono>
+#include <fmt/chrono.h>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -45,18 +45,19 @@ struct LogFileBehaviour
 };
 
 // definitions of the logfile behaviours
-static LogFileBehaviour startlogBehaviour = {"log/start", false,
-                                             std::ios_base::out | std::ios_base::trunc, false};
-static LogFileBehaviour pollogBehaviour = {"log/pol", true, std::ios_base::out | std::ios_base::app,
-                                           true};
-static LogFileBehaviour debuglogBehaviour = {"log/debug", false,
-                                             std::ios_base::out | std::ios_base::app, false};
-static LogFileBehaviour scriptlogBehaviour = {"log/script", false,
-                                              std::ios_base::out | std::ios_base::app, false};
-static LogFileBehaviour leaklogBehaviour = {"log/leak", false,
-                                            std::ios_base::out | std::ios_base::app, false};
-static LogFileBehaviour flexlogBehaviour = {"",  // dummy name
-                                            false, std::ios_base::out | std::ios_base::app, false};
+static LogFileBehaviour startlogBehaviour = { "log/start", false,
+                                              std::ios_base::out | std::ios_base::trunc, false };
+static LogFileBehaviour pollogBehaviour = { "log/pol", true,
+                                            std::ios_base::out | std::ios_base::app, true };
+static LogFileBehaviour debuglogBehaviour = { "log/debug", false,
+                                              std::ios_base::out | std::ios_base::app, false };
+static LogFileBehaviour scriptlogBehaviour = { "log/script", false,
+                                               std::ios_base::out | std::ios_base::app, false };
+static LogFileBehaviour leaklogBehaviour = { "log/leak", false,
+                                             std::ios_base::out | std::ios_base::app, false };
+static LogFileBehaviour flexlogBehaviour = { "",  // dummy name
+                                             false, std::ios_base::out | std::ios_base::app,
+                                             false };
 
 // due to a bug in VS a global cannot thread join in the deconstructor
 // thats why this is only a pointer and owned somewhere in main
@@ -103,21 +104,23 @@ private:
   // endless loop in thread
   void run()
   {
-    _work_thread = std::thread( [&]() {
-      while ( !_done )
-      {
-        try
+    _work_thread = std::thread(
+        [&]()
         {
-          msg func;
-          _queue.pop_wait( &func );
-          func();  // execute
-        }
-        catch ( std::exception& msg )
-        {
-          std::cout << msg.what() << std::endl;
-        }
-      }
-    } );
+          while ( !_done )
+          {
+            try
+            {
+              msg func;
+              _queue.pop_wait( &func );
+              func();  // execute
+            }
+            catch ( std::exception& msg )
+            {
+              std::cout << msg.what() << std::endl;
+            }
+          }
+        } );
   }
   bool _done;
   msg_queue _queue;
@@ -138,19 +141,20 @@ LogFacility::~LogFacility()
 
 // send logsink as a lambda to the worker
 template <typename Sink>
-void LogFacility::save( fmt::Writer* message, const std::string& id )
+void LogFacility::save( std::string message, std::string id )
 {
-  _worker->send( [message, id]() {
-    std::unique_ptr<fmt::Writer> msg( message );
-    try
-    {
-      getSink<Sink>()->addMessage( msg.get(), id );
-    }
-    catch ( std::exception& msg )
-    {
-      std::cout << msg.what() << std::endl;
-    }
-  } );
+  _worker->send(
+      [msg = std::move( message ), id = std::move( id )]()
+      {
+        try
+        {
+          getSink<Sink>()->addMessage( msg, id );
+        }
+        catch ( std::exception& msg )
+        {
+          std::cout << msg.what() << std::endl;
+        }
+      } );
 }
 
 // register sink for later deconstruction
@@ -188,16 +192,18 @@ std::string LogFacility::registerFlexLogger( const std::string& logfilename, boo
 {
   auto promise = std::make_shared<std::promise<std::string>>();
   auto ret = promise->get_future();
-  _worker->send( [=]() {
-    try
-    {
-      promise->set_value( getSink<LogSink_flexlog>()->create( logfilename, open_timestamp ) );
-    }
-    catch ( ... )
-    {
-      promise->set_exception( std::current_exception() );
-    }
-  } );
+  _worker->send(
+      [=]()
+      {
+        try
+        {
+          promise->set_value( getSink<LogSink_flexlog>()->create( logfilename, open_timestamp ) );
+        }
+        catch ( ... )
+        {
+          promise->set_exception( std::current_exception() );
+        }
+      } );
   return ret.get();  // block wait till valid
 }
 
@@ -210,44 +216,14 @@ void LogFacility::wait_for_empty_queue()
   ret.get();  // block wait till valid
 }
 
-// Message default construct
 template <typename Sink>
-Message<Sink>::Message() : _formater( new fmt::Writer() ), _id( "" )
+void Message<Sink>::send( std::string msg, std::string id )
 {
+  if ( global_logger == nullptr )
+    printf( "%s", msg.c_str() );
+  else
+    global_logger->save<Sink>( std::move( msg ), std::move( id ) );
 }
-
-template <typename Sink>
-Message<Sink>::Message( const std::string& id ) : _formater( new fmt::Writer() ), _id( id )
-{
-}
-// directly fill on construction the formater with file, line and function
-template <typename Sink>
-Message<Sink>::Message( const std::string& file, const int line, const std::string& function )
-    : _formater( new fmt::Writer() ), _id( "" )
-{
-  *_formater << file << "[" << line << "] " << function << " : ";
-}
-// directly fill on construction the formater with file, line and function
-template <typename Sink>
-Message<Sink>::Message( const std::string& id, const std::string& file, const int line,
-                        const std::string& function )
-    : _formater( new fmt::Writer() ), _id( id )
-{
-  *_formater << file << "[" << line << "] " << function << " : ";
-}
-// on deconstruction transfer the formater to the facility
-template <typename Sink>
-Message<Sink>::~Message()
-{
-  if ( _formater->size() > 0 )
-  {
-    if ( global_logger == nullptr )
-      printf( "%s", _formater->c_str() );
-    else
-      global_logger->save<Sink>( _formater.release(), _id );
-  }
-}
-
 
 // create and get a sink
 template <typename Sink>
@@ -257,7 +233,8 @@ Sink* getSink()
   // with later vc its automatically threadsafe (magic statics)
   static std::once_flag flag;
   static Sink* sink = new Sink();
-  std::call_once( flag, []( Sink* s ) { global_logger->registerSink( s ); }, sink );
+  std::call_once(
+      flag, []( Sink* s ) { global_logger->registerSink( s ); }, sink );
   return sink;
 }
 
@@ -300,9 +277,8 @@ void LogSinkGenericFile::open_log_file( bool open_timestamp )
   _filestream.open( _log_filename, _behaviour->openmode );
   if ( !_filestream.is_open() )
   {
-    fmt::Writer tmp;
-    tmp << "failed to open logfile " << _log_filename << "\n";
-    getSink<LogSink_cerr>()->addMessage( &tmp );
+    getSink<LogSink_cerr>()->addMessage(
+        fmt::format( "failed to open logfile {}\n", _log_filename ) );
     return;
   }
   if ( open_timestamp )
@@ -316,18 +292,18 @@ void LogSinkGenericFile::open_log_file( bool open_timestamp )
 }
 
 // print given msg into filestream
-void LogSinkGenericFile::addMessage( fmt::Writer* msg )
+void LogSinkGenericFile::addMessage( const std::string& msg )
 {
   if ( _disabled )
   {
-    std::cerr << msg->str();
+    std::cerr << msg;
     std::cerr.flush();
     return;
   }
 
   if ( !_filestream.is_open() )
     return;
-  if ( !msg->size() )
+  if ( msg.empty() )
     return;
 
   if ( !_active_line )  // only rollover or add timestamp if there is currently no open line
@@ -344,11 +320,11 @@ void LogSinkGenericFile::addMessage( fmt::Writer* msg )
     else if ( _behaviour->timestamps && Clib::LogfileTimestampEveryLine )
       addTimeStamp( _filestream );
   }
-  _active_line = ( msg->data()[msg->size() - 1] != '\n' );  // is the last character a newline?
-  _filestream << msg->str();
+  _active_line = ( msg.back() != '\n' );  // is the last character a newline?
+  _filestream << msg;
   _filestream.flush();
 }
-void LogSinkGenericFile::addMessage( fmt::Writer* msg, const std::string& )
+void LogSinkGenericFile::addMessage( const std::string& msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -362,9 +338,7 @@ bool LogSinkGenericFile::test_for_rollover(
        ( tm_now.tm_mday != _opened.tm_mday || tm_now.tm_mon != _opened.tm_mon ) )
   {
     // roll the log file over
-    char buffer[30];
-    strftime( buffer, sizeof buffer, "%Y-%m-%d", &_opened );
-    std::string archive_name = _behaviour->basename + "-" + buffer + ".log";
+    std::string archive_name = fmt::format( "{}-{:%Y-%m-%d}.log", _behaviour->basename, _opened );
     _filestream.flush();
     _filestream.close();
 
@@ -382,32 +356,32 @@ bool LogSinkGenericFile::test_for_rollover(
 
 LogSink_cout::LogSink_cout() : LogSink() {}
 // print given msg into std::cout
-void LogSink_cout::addMessage( fmt::Writer* msg )
+void LogSink_cout::addMessage( const std::string& msg )
 {
-  std::cout << msg->str();
+  std::cout << msg;
   std::cout.flush();
 #if defined( WINDOWS )
   if ( LogFacility::_vsDebuggerPresent )
-    OutputDebugString( msg->c_str() );
+    OutputDebugString( msg.c_str() );
 #endif
 }
-void LogSink_cout::addMessage( fmt::Writer* msg, const std::string& )
+void LogSink_cout::addMessage( const std::string& msg, const std::string& )
 {
   addMessage( msg );
 }
 
 LogSink_cerr::LogSink_cerr() : LogSink() {}
 // print given msg into std::cerr
-void LogSink_cerr::addMessage( fmt::Writer* msg )
+void LogSink_cerr::addMessage( const std::string& msg )
 {
-  std::cerr << msg->str();
+  std::cerr << msg;
   std::cerr.flush();
 #if defined( WINDOWS )
   if ( LogFacility::_vsDebuggerPresent )
-    OutputDebugString( msg->c_str() );
+    OutputDebugString( msg.c_str() );
 #endif
 }
-void LogSink_cerr::addMessage( fmt::Writer* msg, const std::string& )
+void LogSink_cerr::addMessage( const std::string& msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -442,12 +416,12 @@ void LogSink_debuglog::disable()
   Disabled = true;
 }
 // only print the msg if not Disabled
-void LogSink_debuglog::addMessage( fmt::Writer* msg )
+void LogSink_debuglog::addMessage( const std::string& msg )
 {
   if ( !Disabled )
     LogSinkGenericFile::addMessage( msg );
 }
-void LogSink_debuglog::addMessage( fmt::Writer* msg, const std::string& )
+void LogSink_debuglog::addMessage( const std::string& msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -471,7 +445,7 @@ std::string LogSink_flexlog::create( std::string logfilename, bool open_timestam
 }
 
 // sink msg into sink of given id
-void LogSink_flexlog::addMessage( fmt::Writer* msg, const std::string& id )
+void LogSink_flexlog::addMessage( const std::string& msg, const std::string& id )
 {
   auto itr = _logfiles.find( id );
   if ( itr != _logfiles.end() )
@@ -479,7 +453,7 @@ void LogSink_flexlog::addMessage( fmt::Writer* msg, const std::string& id )
     itr->second->addMessage( msg );
   }
 }
-void LogSink_flexlog::addMessage( fmt::Writer* /*msg*/ )
+void LogSink_flexlog::addMessage( const std::string& /*msg*/ )
 {
   // empty
 }
@@ -498,13 +472,13 @@ LogSink_dual<log1, log2>::LogSink_dual() : LogSink()
 }
 // performs the sink with given msg for both sinks
 template <typename log1, typename log2>
-void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg )
+void LogSink_dual<log1, log2>::addMessage( const std::string& msg )
 {
   getSink<log1>()->addMessage( msg );
   getSink<log2>()->addMessage( msg );
 }
 template <typename log1, typename log2>
-void LogSink_dual<log1, log2>::addMessage( fmt::Writer* msg, const std::string& )
+void LogSink_dual<log1, log2>::addMessage( const std::string& msg, const std::string& )
 {
   addMessage( msg );
 }
@@ -518,20 +492,20 @@ bool Clib::Logging::LogSink_debuglog::Disabled = false;
 // could reduce the compilation time a bit
 
 #define SINK_TEMPLATE_DEFINES( sink )                                                         \
-  template class Pol::Clib::Logging::Message<Pol::Clib::Logging::sink>;                       \
+  template struct Pol::Clib::Logging::Message<Pol::Clib::Logging::sink>;                      \
   template Pol::Clib::Logging::sink* Pol::Clib::Logging::getSink<Pol::Clib::Logging::sink>(); \
   template void Pol::Clib::Logging::LogFacility::save<Pol::Clib::Logging::sink>(              \
-      fmt::Writer * message, const std::string& id );
+      std::string message, std::string id );
 
 #define SINK_TEMPLATE_DEFINES_DUAL( sink1, sink2 )                                                 \
-  template class Pol::Clib::Logging::Message<                                                      \
+  template struct Pol::Clib::Logging::Message<                                                     \
       Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>;     \
   template Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>* \
   Pol::Clib::Logging::getSink<                                                                     \
       Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>();   \
   template void Pol::Clib::Logging::LogFacility::save<                                             \
       Pol::Clib::Logging::LogSink_dual<Pol::Clib::Logging::sink1, Pol::Clib::Logging::sink2>>(     \
-      fmt::Writer * message, const std::string& id );
+      std::string message, std::string id );
 
 
 SINK_TEMPLATE_DEFINES( LogSink_cout )

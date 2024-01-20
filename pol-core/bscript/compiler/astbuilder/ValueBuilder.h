@@ -7,6 +7,7 @@
 
 namespace Pol::Bscript::Compiler
 {
+class BooleanValue;
 class IntegerValue;
 class FloatValue;
 class FunctionReference;
@@ -18,8 +19,9 @@ class ValueBuilder : public TreeBuilder
 public:
   ValueBuilder( const SourceFileIdentifier&, BuilderWorkspace& );
 
-  std::unique_ptr<FloatValue> float_value(
-      EscriptGrammar::EscriptParser::FloatLiteralContext* );
+  std::unique_ptr<BooleanValue> bool_value( EscriptGrammar::EscriptParser::BoolLiteralContext* );
+
+  std::unique_ptr<FloatValue> float_value( EscriptGrammar::EscriptParser::FloatLiteralContext* );
 
   std::unique_ptr<FunctionReference> function_reference(
       EscriptGrammar::EscriptParser::FunctionReferenceContext* );

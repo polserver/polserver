@@ -1,6 +1,5 @@
 #include "ValueConsumer.h"
 
-#include <format/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
@@ -17,9 +16,9 @@ void ValueConsumer::accept( NodeVisitor& visitor )
   visitor.visit_value_consumer( *this );
 }
 
-void ValueConsumer::describe_to( fmt::Writer& w ) const
+void ValueConsumer::describe_to( std::string& w ) const
 {
-  w << "value-consumer";
+  w += "value-consumer";
 }
 
 }  // namespace Pol::Bscript::Compiler

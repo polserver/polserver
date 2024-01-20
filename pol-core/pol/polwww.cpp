@@ -106,7 +106,7 @@ void load_mime_config( void )
   }
   catch ( ... )
   {
-    POLLOG_ERROR << "Error while parsing www.cfg\n";
+    POLLOG_ERRORLN( "Error while parsing www.cfg" );
   }
 }
 
@@ -120,12 +120,12 @@ void config_web_server()
     {
       if ( gamestate.wwwroot_pkg == nullptr )
       {
-        POLLOG.Format( "wwwroot package is {}\n" ) << pkg->desc();
+        POLLOGLN( "wwwroot package is {}", pkg->desc() );
         gamestate.wwwroot_pkg = pkg;
       }
       else
       {
-        POLLOG.Format( "Package {} also provides a wwwroot, ignoring\n" ) << pkg->desc();
+        POLLOGLN( "Package {} also provides a wwwroot, ignoring", pkg->desc() );
       }
     }
   }
@@ -212,7 +212,7 @@ std::string reasonPhrase( int code )
 {
   switch ( code )
   {
-  //####### 1xx - Informational #######
+  // ####### 1xx - Informational #######
   case 100:
     return "Continue";
   case 101:
@@ -222,7 +222,7 @@ std::string reasonPhrase( int code )
   case 103:
     return "Early Hints";
 
-  //####### 2xx - Successful #######
+  // ####### 2xx - Successful #######
   case 200:
     return "OK";
   case 201:
@@ -244,7 +244,7 @@ std::string reasonPhrase( int code )
   case 226:
     return "IM Used";
 
-  //####### 3xx - Redirection #######
+  // ####### 3xx - Redirection #######
   case 300:
     return "Multiple Choices";
   case 301:
@@ -262,7 +262,7 @@ std::string reasonPhrase( int code )
   case 308:
     return "Permanent Redirect";
 
-  //####### 4xx - Client Error #######
+  // ####### 4xx - Client Error #######
   case 400:
     return "Bad Request";
   case 401:
@@ -322,7 +322,7 @@ std::string reasonPhrase( int code )
   case 451:
     return "Unavailable For Legal Reasons";
 
-  //####### 5xx - Server Error #######
+  // ####### 5xx - Server Error #######
   case 500:
     return "Internal Server Error";
   case 501:
@@ -459,7 +459,7 @@ bool legal_pagename( const std::string& page )
   for ( const char* t = page.c_str(); *t; ++t )
   {
     char ch = *t;
-    if ( isalnum( ch ) || ( ch == '/' ) || ( ch == '_' ) || (ch == '-') )
+    if ( isalnum( ch ) || ( ch == '/' ) || ( ch == '_' ) || ( ch == '-' ) )
     {
       continue;
     }
@@ -543,7 +543,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
 
   if ( !page_sd.exists() )
   {
-    POLLOG.Format( "WebServer: not found: {}\n" ) << page_sd.name();
+    POLLOGLN( "WebServer: not found: {}", page_sd.name() );
     http_not_found( sck, page );
     return false;
   }
@@ -555,7 +555,7 @@ bool start_http_script( Clib::Socket& sck, const std::string& page, Plib::Packag
   // find_script( filename, true, config.cache_interactive_scripts );
   if ( program.get() == nullptr )
   {
-    ERROR_PRINT << "Error reading script " << page_sd.name() << "\n";
+    ERROR_PRINTLN( "Error reading script {}", page_sd.name() );
     res = false;
     lck.unlock();
     http_not_found( sck, page );
@@ -765,7 +765,7 @@ void http_func( SOCKET client_socket )
   while ( sck.connected() && lineReader.read( tmpstr, &timed_out ) )
   {
     if ( Plib::systemstate.config.web_server_debug )
-      INFO_PRINT << "http(" << sck.handle() << "): '" << tmpstr << "'\n";
+      INFO_PRINTLN( "http({}): '{}'", sck.handle(), tmpstr );
     if ( tmpstr.empty() )
       break;
     if ( strncmp( tmpstr.c_str(), "GET", 3 ) == 0 )
@@ -778,7 +778,7 @@ void http_func( SOCKET client_socket )
 
   if ( timed_out )
   {
-    INFO_PRINT << "HTTP connection " << sck.getpeername() << " timed out\n";
+    INFO_PRINTLN( "HTTP connection {} timed out", sck.getpeername() );
     sck.close();
   }
 
@@ -787,8 +787,8 @@ void http_func( SOCKET client_socket )
 
   if ( Plib::systemstate.config.web_server_debug )
   {
-    INFO_PRINT << "[" << double( requestTimer.ellapsed().count() / 1000.0 )
-               << " msec] finished reading header\n";
+    INFO_PRINTLN( "[{} msec] finished reading header",
+                  double( requestTimer.ellapsed().count() / 1000.0 ) );
   }
 
   ISTRINGSTREAM is( get );
@@ -803,10 +803,12 @@ void http_func( SOCKET client_socket )
 
   if ( Plib::systemstate.config.web_server_debug )
   {
-    INFO_PRINT << "http-cmd:   '" << cmd << "'\n"
-               << "http-host:  '" << host << "'\n"
-               << "http-url:   '" << url << "'\n"
-               << "http-proto: '" << proto << "'\n";
+    INFO_PRINTLN(
+        "http-cmd:   '{}'\n"
+        "http-host:  '{}'\n"
+        "http-url:   '{}'\n"
+        "http-proto: '{}'",
+        cmd, host, url, proto );
   }
 
   //  if (url == "/")
@@ -828,9 +830,11 @@ void http_func( SOCKET client_socket )
 
   if ( Plib::systemstate.config.web_server_debug )
   {
-    INFO_PRINT << "http-page:   '" << page << "'\n"
-               << "http-params: '" << query_string << "'\n"
-               << "http-decode: '" << http_decodestr( query_string ) << "'\n";
+    INFO_PRINTLN(
+        "http-page:   '{}'\n"
+        "http-params: '{}'\n"
+        "http-decode: '{}'",
+        page, query_string, http_decodestr( query_string ) );
   }
 
   if ( !Plib::systemstate.config.web_server_password.empty() )
@@ -843,8 +847,10 @@ void http_func( SOCKET client_socket )
       unpw = decode_base64( coded_unpw );
       if ( Plib::systemstate.config.web_server_debug )
       {
-        INFO_PRINT << "http-pw: '" << coded_unpw << "'\n"
-                   << "http-pw-decoded: '" << unpw << "'\n";
+        INFO_PRINTLN(
+            "http-pw: '{}'\n"
+            "http-pw-decoded: '{}'",
+            coded_unpw, unpw );
       }
       if ( Plib::systemstate.config.web_server_password != unpw )
       {
@@ -883,7 +889,7 @@ void http_func( SOCKET client_socket )
   }
 
   if ( Plib::systemstate.config.web_server_debug )
-    INFO_PRINT << "Page type: " << pagetype << "\n";
+    INFO_PRINTLN( "Page type: {}", pagetype );
 
   if ( pagetype == "ecl" )
   {
@@ -903,7 +909,7 @@ void http_func( SOCKET client_socket )
     }
     else
     {
-      POLLOG_INFO << "HTTP server: I can't handle pagetype '" << pagetype << "'\n";
+      POLLOG_INFOLN( "HTTP server: I can't handle pagetype '{}'", pagetype );
       http_internal_error( sck, page );
     }
   }
@@ -974,13 +980,13 @@ void http_thread( void )
   init_http_thread_support();
 
   // if (1)
-  INFO_PRINT << "Listening for HTTP requests on port " << Plib::systemstate.config.web_server_port
-             << "\n";
+  INFO_PRINTLN( "Listening for HTTP requests on port {}",
+                Plib::systemstate.config.web_server_port );
 
   SOCKET http_socket = Network::open_listen_socket( Plib::systemstate.config.web_server_port );
   if ( http_socket == INVALID_SOCKET )
   {
-    ERROR_PRINT << "Unable to listen on socket: " << http_socket << "\n";
+    ERROR_PRINTLN( "Unable to listen on socket: {}", http_socket );
     return;
   }
   fd_set listen_fd;
@@ -1014,7 +1020,7 @@ void http_thread( void )
     if ( FD_ISSET( http_socket, &listen_fd ) )
     {
       if ( Plib::systemstate.config.web_server_debug )
-        INFO_PRINT << "Accepting connection..\n";
+        INFO_PRINTLN( "Accepting connection.." );
 
       struct sockaddr client_addr;  // inet_addr
       socklen_t addrlen = sizeof client_addr;
@@ -1025,7 +1031,7 @@ void http_thread( void )
       Network::apply_socket_options( client_socket );
 
       std::string addrstr = Network::AddressToString( &client_addr );
-      INFO_PRINT << "HTTP client connected from " << addrstr << "\n";
+      INFO_PRINTLN( "HTTP client connected from {}", addrstr );
 
       worker_threads.push(
           [=]() { http_func( client_socket ); } );  // copy socket into queue to keep it valid

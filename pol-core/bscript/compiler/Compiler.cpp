@@ -64,7 +64,7 @@ void Compiler::write_dbg( const std::string& pathname, bool include_debug_text )
     auto text_ofs = include_debug_text ? std::make_unique<std::ofstream>( pathname + ".txt" )
                                        : std::unique_ptr<std::ofstream>();
 
-    DebugStoreSerializer(*output).write( ofs, text_ofs.get() );
+    DebugStoreSerializer( *output ).write( ofs, text_ofs.get() );
   }
 }
 
@@ -73,7 +73,7 @@ void Compiler::write_included_filenames( const std::string& pathname )
   if ( output )
   {
     std::ofstream ofs( pathname );
-    for( auto& r : output->source_file_identifiers )
+    for ( auto& r : output->source_file_identifiers )
     {
       ofs << r->pathname << "\n";
     }
@@ -107,7 +107,7 @@ bool Compiler::compile_file( const std::string& filename )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINT << ex.what() << '\n';
+    ERROR_PRINTLN( ex.what() );
     success = false;
   }
   return success;
@@ -218,10 +218,10 @@ std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWork
 
 void Compiler::display_outcome( const std::string& filename, Report& report )
 {
-  INFO_PRINT << filename << ": " << report.error_count() << " errors";
+  auto msg = fmt::format( "{}: {} errors", filename, report.error_count() );
   if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
-    INFO_PRINT << ", " << report.warning_count() << " warnings";
-  INFO_PRINT << ".\n";
+    msg += fmt::format( ", {} warnings", report.warning_count() );
+  INFO_PRINTLN( msg + '.' );
 }
 
 }  // namespace Pol::Bscript::Compiler

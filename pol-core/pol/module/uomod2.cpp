@@ -389,9 +389,10 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
 
   if ( total_cost > INT_MAX )
   {
-    POLLOG_INFO.Format(
-        "\nWarning: Character 0x{:X} tried to buy items with an overflow from vendor 0x{:X}.\n" )
-        << client->chr->serial << vendor->serial;
+    POLLOG_INFO(
+        "\n"
+        "Warning: Character {:#X} tried to buy items with an overflow from vendor {:#X}.\n",
+        client->chr->serial, vendor->serial );
     send_clear_vendorwindow( client, vendor );
     return;
   }
@@ -1103,9 +1104,11 @@ BObjectImp* UOExecutorModule::internal_SendUnCompressedGumpMenu( Character* chr,
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendDialogGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendDialogGump():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1230,9 +1233,11 @@ BObjectImp* UOExecutorModule::internal_SendCompressedGumpMenu( Character* chr, O
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendDialogGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendDialogGump():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1600,9 +1605,11 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendTextEntryGump():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendTextEntryGump():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1617,8 +1624,8 @@ void handle_textentry( Client* client, PKTIN_AC* msg )
 {
   if ( client->gd->textentry_uoemod == nullptr )
   {
-    ERROR_PRINT << "Client (Account " << client->chr->acct->name() << ", Character "
-                << client->chr->name() << ")used out-of-sequence textentry command?\n";
+    ERROR_PRINTLN( "Client (Account {}, Character {}) used out-of-sequence textentry command?",
+                   client->chr->acct->name(), client->chr->name() );
     return;
   }
   auto& uoex = client->gd->textentry_uoemod->uoexec();
@@ -1967,12 +1974,9 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
 #ifdef MEMORYLEAK
       if ( type == 1 )
       {
-        char buffer[30];
         auto time_tm = Clib::localtime( time( nullptr ) );
-
-        strftime( buffer, sizeof buffer, "%m/%d %H:%M:%S", &time_tm );
-        DEBUGLOG << "[" << buffer << "] polcore().internal\n";
-        LEAKLOG << buffer << ";";
+        DEBUGLOGLN( "[{:%m/%d %T}] polcore().internal", time_tm );
+        LEAKLOG( "{:%m/%d %T};", time_tm );
 
         bobject_alloc.log_stuff( "bobject" );
         uninit_alloc.log_stuff( "uninit" );
@@ -1983,13 +1987,13 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       }
 #endif
 #ifdef ESCRIPT_PROFILE
-      DEBUGLOG << "FuncName,Count,Min,Max,Sum,Avarage\n";
+      DEBUGLOGLN( "FuncName,Count,Min,Max,Sum,Avarage" );
       for ( escript_profile_map::iterator itr = EscriptProfileMap.begin();
             itr != EscriptProfileMap.end(); ++itr )
       {
-        DEBUGLOG << itr->first << "," << itr->second.count << "," << itr->second.min << ","
-                 << itr->second.max << "," << itr->second.sum << ","
-                 << ( itr->second.sum / ( 1.0 * itr->second.count ) ) << "\n";
+        DEBUGLOGLN( "{},{},{},{},{},{}", itr->first, itr->second.count, itr->second.min,
+                    itr->second.max, itr->second.sum,
+                    ( itr->second.sum / ( 1.0 * itr->second.count ) ) );
       }
 #endif
       if ( type == 2 )
@@ -1998,13 +2002,13 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       }
       else if ( type == 3 )
       {
-        POLLOG_ERROR << "Forcing crash\n";
+        POLLOG_ERRORLN( "Forcing crash" );
         int* i = nullptr;
         *i = 1;
       }
       else if ( type == 4 )
       {
-        POLLOG_ERROR << "Forcing assert crash\n";
+        POLLOG_ERRORLN( "Forcing assert crash" );
         passert_always( false );
       }
       else if ( type == 5 )
@@ -2113,7 +2117,7 @@ void handle_resurrect_menu( Client* client, PKTBI_2C* msg )
 {
   if ( msg->choice )
   {
-    INFO_PRINT << "Resurrect Menu Choice: " << int( msg->choice ) << "\n";
+    INFO_PRINTLN( "Resurrect Menu Choice: {}", int( msg->choice ) );
     // transmit( client, msg, sizeof *msg );
   }
 
@@ -2139,9 +2143,11 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendInstaResDialog():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendInstaResDialog():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2170,9 +2176,9 @@ void handle_selcolor( Client* client, PKTBI_95* msg )
       valstack = new BObject( new BError( "Client selected an out-of-range color" ) );
 
       // unsigned short newcolor = ((color - 2) % 1000) + 2;
-      POLLOG_ERROR.Format( "Client #{:d} (account {}) selected an out-of-range color 0x{:X}\n" )
-          << static_cast<unsigned long>( client->instance_ )
-          << ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ) << color;
+      POLLOG_ERRORLN( "Client #{:d} (account {}) selected an out-of-range color {:#X}",
+                      static_cast<unsigned long>( client->instance_ ),
+                      ( ( client->acct != nullptr ) ? client->acct->name() : "unknown" ), color );
     }
 
     // client->gd->selcolor_uoemod->uoexec.ValueStack.back().set( new BObject( new BLong( color )
@@ -2206,9 +2212,11 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SelectColor():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SelectColor():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2356,8 +2364,7 @@ void read_book_page_handler( Client* client, PKTBI_66* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == nullptr )
   {
-    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
-        << book_serial << client->chr->serial;
+    POLLOGLN( "Unable to find book {:#X} for character {:#X}", book_serial, client->chr->serial );
     return;
   }
 
@@ -2474,8 +2481,7 @@ void open_book_handler( Client* client, PKTBI_93* msg )
   Item* book = find_legal_item( client->chr, book_serial );
   if ( book == nullptr )
   {
-    POLLOG.Format( "Unable to find book 0x{:X} for character 0x{:X}\n" )
-        << book_serial << client->chr->serial;
+    POLLOGLN( "Unable to find book {:#X} for character {:#X}", book_serial, client->chr->serial );
     return;
   }
   BObjectImpRefVec params;
@@ -2655,8 +2661,8 @@ void popup_menu_selection_made( Network::Client* client, u32 serial, u16 id )
          serial )
       uoex.ValueStack.back().set( new BObject( new BLong( id ) ) );
     else
-      POLLOG_INFO.Format( "{}/{} send an unexpected popup reply for {}.\n" )
-          << client->acct->name() << client->chr->name() << serial;
+      POLLOG_INFO( "{}/{} send an unexpected popup reply for {:#X}.\n", client->acct->name(),
+                      client->chr->name(), serial );
   }
 
   uoex.revive();
@@ -2801,9 +2807,11 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
   // Suspend the script first
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SendPopupMenu():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SendPopupMenu():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

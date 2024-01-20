@@ -201,5 +201,17 @@
   <ranged>Yes</ranged>
 </event>
 
+<event>
+  <name>SYSEVENT_BOAT_MOVEMENT</name>
+  <explain>Used for boat piloting via mouse movement. Sent to a boat's control script.</explain>
+  <ID>0x00010000</ID>
+  <member mname="type" value="SYSEVENT_BOAT_MOVEMENT (0x00010000)"/>
+  <member mname="source" value="Pilot Character Reference"/>
+  <member mname="speed" value="speed (0 = stop, 1 = normal, 2 = fast)"/>
+  <member mname="direction" value="direction (absolute)"/>
+  <member mname="relative_direction" value="direction (relative to boat's facing)"/>
+  <whensent>When the boat's pilot uses mouse movement.</whensent>
+  <ranged>No</ranged>
+</event>
 
 </ESCRIPT>

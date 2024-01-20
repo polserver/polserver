@@ -48,7 +48,7 @@ void polsem_lock()
   int res = pthread_mutex_lock( &polsem );
   if ( res != 0 || locker != 0 )
   {
-    POLLOG.Format( "pthread_mutex_lock: res={}, tid={}, locker={}\n" ) << res << tid << locker;
+    POLLOGLN( "pthread_mutex_lock: res={}, tid={}, locker={}", res, tid, locker );
   }
   passert_always( res == 0 );
   passert_always( locker == 0 );
@@ -62,7 +62,7 @@ void polsem_unlock()
   int res = pthread_mutex_unlock( &polsem );
   if ( res != 0 )
   {
-    POLLOG.Format( "pthread_mutex_unlock: res={},tid={}" ) << res << tid;
+    POLLOG( "pthread_mutex_unlock: res={},tid={}", res, tid );
   }
   passert_always( res == 0 );
 }

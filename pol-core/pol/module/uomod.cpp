@@ -851,9 +851,11 @@ BObjectImp* UOExecutorModule::mf_Target()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::Target():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::Target():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -989,9 +991,11 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::TargetCoordinates():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::TargetCoordinates():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1032,9 +1036,11 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::TargetMultiPlacement():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::TargetMultiPlacement():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1658,7 +1664,7 @@ bool UOExecutorModule::getStaticOrDynamicMenuParam( unsigned param, Menu*& menu 
       return true;
     }
   }
-  DEBUGLOG << "SelectMenuItem: expected a menu name (static menu) or a CreateMenu() dynamic menu\n";
+  DEBUGLOGLN( "SelectMenuItem: expected a menu name (static menu) or a CreateMenu() dynamic menu" );
   return false;
 }
 
@@ -1685,9 +1691,11 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
 
   if ( !uoexec().suspend() )
   {
-    DEBUGLOG << "Script Error in '" << scriptname() << "' PC=" << exec.PC << ": \n"
-             << "\tCall to function UO::SelectMenuItem():\n"
-             << "\tThe execution of this script can't be blocked!\n";
+    DEBUGLOGLN(
+        "Script Error in '{}' PC={}: \n"
+        "\tCall to function UO::SelectMenuItem():\n"
+        "\tThe execution of this script can't be blocked!",
+        scriptname(), exec.PC );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -3129,7 +3137,7 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
   }
   catch ( std::exception& ex )
   {
-    POLLOG << "Exception during world save! (" << ex.what() << ")\n";
+    POLLOGLN( "Exception during world save! ({})", ex.what() );
     return new BError( "Exception during world save" );
   }
 }
@@ -5022,9 +5030,9 @@ BObjectImp* UOExecutorModule::mf_FindPath()
 
   if ( Plib::systemstate.config.loglevel >= 12 )
   {
-    POLLOG.Format( "[FindPath] Calling FindPath({}, {}, {}, 0x{:X}, {})\n" )
-        << pos1 << pos2 << realm->name() << flags << theSkirt;
-    POLLOG.Format( "[FindPath]   search for Blockers inside {}\n" ) << range;
+    POLLOGLN( "[FindPath] Calling FindPath({}, {}, {}, {:#X}, {})", pos1, pos2, realm->name(),
+              flags, theSkirt );
+    POLLOGLN( "[FindPath]   search for Blockers inside {}", range );
   }
 
   bool doors_block = ( flags & FP_IGNORE_DOORS ) ? false : true;
@@ -5038,15 +5046,15 @@ BObjectImp* UOExecutorModule::mf_FindPath()
                                           params.AddBlocker( chr->pos3d() );
 
                                           if ( Plib::systemstate.config.loglevel >= 12 )
-                                            POLLOG << "[FindPath]   add Blocker " << chr->name()
-                                                   << " at " << chr->pos() << "\n";
+                                            POLLOGLN( "[FindPath]   add Blocker {} at {}",
+                                                      chr->name(), chr->pos() );
                                         } );
   }
 
   if ( Plib::systemstate.config.loglevel >= 12 )
   {
-    POLLOG.Format( "[FindPath]   use StartNode {}\n" ) << pos1;
-    POLLOG.Format( "[FindPath]   use EndNode {}\n" ) << pos2;
+    POLLOGLN( "[FindPath]   use StartNode {}", pos1 );
+    POLLOGLN( "[FindPath]   use EndNode {}", pos2 );
   }
 
   // Create a start state
@@ -5164,13 +5172,11 @@ BObjectImp* UOExecutorModule::mf_FindSubstance()
 
   if ( getItemParam( 0, cont_item ) && getObjtypeParam( 1, objtype ) && getParam( 2, amount ) )
   {
-    int makeInUseLong;
     bool makeInUse;
     int flags;
-    if ( !getParam( 3, makeInUseLong ) )
+    if ( !getParam( 3, makeInUse ) )
       makeInUse = false;
-    else
-      makeInUse = ( makeInUseLong ? true : false );
+
     if ( !getParam( 4, flags ) )
       flags = 0;
 

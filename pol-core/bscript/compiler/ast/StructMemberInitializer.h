@@ -14,7 +14,7 @@ public:
   StructMemberInitializer( const SourceLocation&, std::string name, std::unique_ptr<Expression> );
 
   void accept( NodeVisitor& ) override;
-  void describe_to( fmt::Writer& ) const override;
+  void describe_to( std::string& ) const override;
 
   const std::string name;
 };

@@ -2,8 +2,8 @@
 
 #include <cstring>
 
-#include "clib/strutil.h"
 #include "bscript/compiler/Report.h"
+#include "bscript/compiler/ast/BooleanValue.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/IntegerValue.h"
@@ -11,6 +11,7 @@
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/FunctionLink.h"
+#include "clib/strutil.h"
 
 using EscriptGrammar::EscriptParser;
 
@@ -18,8 +19,30 @@ namespace Pol::Bscript::Compiler
 {
 ValueBuilder::ValueBuilder( const SourceFileIdentifier& source_file_identifier,
                             BuilderWorkspace& workspace )
-  : TreeBuilder( source_file_identifier, workspace )
+    : TreeBuilder( source_file_identifier, workspace )
 {
+}
+
+std::unique_ptr<BooleanValue> ValueBuilder::bool_value(
+    EscriptGrammar::EscriptParser::BoolLiteralContext* ctx )
+{
+  bool value;
+  auto loc = location_for( *ctx );
+
+  if ( ctx->BOOL_TRUE() )
+  {
+    value = true;
+  }
+  else if ( ctx->BOOL_FALSE() )
+  {
+    value = false;
+  }
+  else
+  {
+    location_for( *ctx ).internal_error( "unhandled boolean literal" );
+  }
+
+  return std::make_unique<BooleanValue>( loc, value );
 }
 
 std::unique_ptr<FloatValue> ValueBuilder::float_value(
@@ -61,8 +84,8 @@ std::unique_ptr<IntegerValue> ValueBuilder::integer_value(
   return std::make_unique<IntegerValue>( loc, to_int( ctx ) );
 }
 
-std::unique_ptr<StringValue> ValueBuilder::string_value(
-    antlr4::tree::TerminalNode* string_literal, bool expect_quotes )
+std::unique_ptr<StringValue> ValueBuilder::string_value( antlr4::tree::TerminalNode* string_literal,
+                                                         bool expect_quotes )
 {
   auto loc = location_for( *string_literal );
   return std::make_unique<StringValue>( loc, unquote( string_literal, expect_quotes ) );
@@ -120,8 +143,8 @@ std::string ValueBuilder::unquote( antlr4::tree::TerminalNode* string_literal, b
         char ord = static_cast<char>( strtol( hexstr, &endptr, 16 ) );
         if ( *endptr != '\0' )
         {
-          report.error( location_for( *string_literal ), "Invalid hex escape sequence '", hexstr,
-                        "'" );
+          report.error( location_for( *string_literal ), "Invalid hex escape sequence '{}'.",
+                        hexstr );
           return lit;
         }
         lit += ord;
@@ -191,12 +214,12 @@ int ValueBuilder::to_int( EscriptParser::IntegerLiteralContext* ctx )
   }
   catch ( std::invalid_argument& )
   {
-    report.error( location_for( *ctx ), "unable to convert integer value '", ctx->getText(), "'." );
+    report.error( location_for( *ctx ), "unable to convert integer value '{}'.", ctx->getText() );
     throw;
   }
   catch ( std::out_of_range& )
   {
-    report.error( location_for( *ctx ), "integer value '", ctx->getText(), "' out of range." );
+    report.error( location_for( *ctx ), "integer value '{}' out of range.", ctx->getText() );
     throw;
   }
 

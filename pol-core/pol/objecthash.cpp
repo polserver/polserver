@@ -33,8 +33,8 @@ bool ObjectHash::Insert( UObject* obj )
   if ( itr != hash.end() )
   {
     if ( Plib::systemstate.config.loglevel >= 5 )
-      POLLOG.Format( "ObjectHash insert failed for object serial 0x{:X}. (duplicate serial?)\n" )
-          << obj->serial;
+      POLLOGLN( "ObjectHash insert failed for object serial {:#X}. (duplicate serial?)",
+                obj->serial );
     return false;
   }
   hash.insert( hash.end(), std::make_pair( obj->serial, UObjectRef( obj ) ) );
@@ -205,12 +205,12 @@ void ObjectHash::Clear( bool shutdown )
   reap_iterator = hash.begin();  // set itr for ::Reap back to the beginning
   if ( shutdown && !hash.empty() )
   {
-    INFO_PRINT << "Leftover objects in objecthash: " << hash.size() << "\n";
+    INFO_PRINTLN( "Leftover objects in objecthash: {}", hash.size() );
 
     // the hash will be cleared after main() exits, with other statics.
     // this usually causes assertion failures and crashes.
     // creating a copy of the internal hash will ensure no refcounts reach zero.
-    INFO_PRINT << "Leaking a copy of the objecthash in order to avoid a crash.\n";
+    INFO_PRINTLN( "Leaking a copy of the objecthash in order to avoid a crash." );
     new hs( hash );
   }
 }

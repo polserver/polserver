@@ -49,8 +49,10 @@ std::shared_ptr<Variable> LocalVariableScope::create( const std::string& name, W
   {
     if ( existing->block_depth == block_depth )
     {
-      report.error( source_location, "Variable '", name, "' is already in scope.\n",
-                    "  See previous definition at: ", existing->source_location );
+      report.error( source_location,
+                    "Variable '{}' is already in scope.\n"
+                    "  See previous definition at: {}",
+                    name, existing->source_location );
       return existing;
     }
     shadowing.push_back( existing );
