@@ -219,6 +219,7 @@ macro(cmake_fake_target)
       cmake/Antlr.cmake
       cmake/Benchmark.cmake
       cmake/Boost.cmake
+      cmake/Cppdap.cmake
       cmake/Curl.cmake
       cmake/EscriptGrammarLib.cmake
       cmake/escript_grammar.cmake
@@ -240,6 +241,7 @@ macro(cmake_fake_target)
     cmake/Antlr.cmake
     cmake/Benchmark.cmake
     cmake/Boost.cmake
+    cmake/Cppdap.cmake
     cmake/Curl.cmake
     cmake/EscriptGrammarLib.cmake
     cmake/escript_grammar.cmake
