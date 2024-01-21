@@ -544,8 +544,12 @@ dap::ResponseOrError<dap::StackTraceResponse> DebugClientThread::handle_stackTra
 
     dap::Source source;
 
-    source.name = _script->dbg_filenames[_script->dbg_filenum[PC]];
-    source.path = _script->dbg_filenames[_script->dbg_filenum[PC]];
+    auto filepath = _script->dbg_filenames[_script->dbg_filenum[PC]];
+    fs::path p( filepath );
+    std::string abs_path = ( p.is_relative() ? ( fs::current_path() / p ) : p ).u8string();
+
+    source.name = abs_path;
+    source.path = abs_path;
 
     dap::StackFrame frame;
     frame.line = _script->dbg_linenum[PC];
