@@ -5,8 +5,10 @@
 #include "../../bscript/eprog.h"
 #include "../../bscript/impstr.h"
 #include "../../clib/esignal.h"
+#include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
 #include "../../plib/systemstate.h"
+#include "../../plib/pkg.h"
 #include "../module/uomod.h"
 #include "../polsem.h"
 #include "../scrdef.h"
@@ -15,6 +17,9 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <filesystem>
 #include <fstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace Pol
 {
@@ -106,12 +111,50 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
   PolLock lock;
   ScriptDef sd;
 
-  fs::path script_path = request.script;
+  fs::path p( request.script );
 
-  if ( script_path.extension() == ".src" )
-    script_path.replace_extension( ".ecl" );
+  if ( p.extension().u8string() == ".src" )
+    p.replace_extension( fs::path( ".ecl" ) );
 
-  if ( !sd.config_nodie( script_path.string(), nullptr, "" ) )
+  bool config_result;
+
+  // A package-path
+  if ( request.script.find( ':' ) == 0 )
+  {
+    config_result = sd.config_nodie( p.u8string(), nullptr, "scripts/" );
+  }
+  else
+  {
+    std::string relative = ( p.is_absolute() ? fs::relative( p ) : p ).u8string();
+
+    if ( relative.find( "scripts/" ) == 0 )
+    {
+      config_result = sd.config_nodie( relative.substr( 8 ), nullptr, "scripts/" );
+    }
+    else
+    {
+      const Plib::Package* package = nullptr;
+      for ( const auto* pkg : Plib::systemstate.packages )
+      {
+        if ( relative.find( pkg->dir() ) == 0 )
+        {
+          package = pkg;
+          break;
+        }
+      }
+      if ( package )
+      {
+        config_result =
+            sd.config_nodie( relative.substr( package->dir().length() ), package, "scripts/" );
+      }
+      else
+      {
+        config_result = sd.config_nodie( request.script, nullptr, "scripts/" );
+      }
+    }
+  }
+
+  if ( !config_result )
     return dap::Error( "Error in script name." );
   if ( !sd.exists() )
     return dap::Error( "Script " + sd.name() + " does not exist." );
