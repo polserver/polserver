@@ -33,7 +33,7 @@ DebugServer::DebugServer()
 
   if ( !started )
   {
-    POLLOG_ERROR << "Failed to start DAP server.\n";
+    POLLOG_ERRORLN( "Failed to start DAP server." );
     _server.reset();
   }
 }

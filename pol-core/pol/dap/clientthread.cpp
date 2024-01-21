@@ -716,13 +716,13 @@ void DebugClientThread::after_attach( const dap::ResponseOrError<dap::AttachResp
 
 void DebugClientThread::on_error( const char* msg )
 {
-  POLLOG_ERROR << "Debugger session error: " << msg << "\n";
+  POLLOG_ERRORLN( "Debugger session error: {}", msg );
   _rw->close();
 }
 
 void DebugClientThread::run()
 {
-  POLLOG_INFO << "Debug client thread started.\n";
+  POLLOG_INFOLN( "Debug client thread started." );
 
   // Session event handlers that are only attached once initialized with the password (if
   // required).
@@ -821,7 +821,7 @@ void DebugClientThread::run()
   _session->onError( [this]( const char* msg ) { on_error( msg ); } );
 
   // Attach the SocketReaderWriter to the Session and begin processing events.
-  _session->bind( _rw, []() { POLLOG_INFO << "Debug session endpoint closed.\n"; } );
+  _session->bind( _rw, []() { POLLOG_INFOLN( "Debug session endpoint closed." ); } );
 
   while ( !Clib::exit_signalled && _rw->isOpen() )
   {
@@ -852,7 +852,7 @@ void DebugClientThread::run()
     _rw->close();
   }
 
-  POLLOG_INFO << "Debug client thread closing.\n";
+  POLLOG_INFOLN( "Debug client thread closing." );
 }
 }  // namespace DAP
 }  // namespace Network
