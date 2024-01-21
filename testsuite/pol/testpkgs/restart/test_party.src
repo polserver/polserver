@@ -1,0 +1,38 @@
+use os;
+use uo;
+use party;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_party()
+  return 1;
+endprogram
+
+exported function load_save_party()
+  if (testrun == 1)
+    var chr1:=createAccountWithChar("restart_test_party1", "pass");
+    var chr2:=createAccountWithChar("restart_test_party2", "pass");
+    var res:=CreateParty(chr1,chr2);
+    if (!chr1 || !chr2 || !res)
+      return ret_error($"create failed {chr1} {chr2} {res}");
+    endif
+    chr1.party.setprop("name","test");
+  else
+    var chr1:=FindAccount("restart_test_party1").getcharacter(1);
+    var chr2:=FindAccount("restart_test_party2").getcharacter(1);
+    if (!chr1.party || !chr2.party)
+      return ret_error("lost party");
+    endif
+    if (chr2.party.leader != chr1)
+      return ret_error($"leader {chr2.party.leader.serial : #x} != {chr1.serial : #x}");
+    endif
+    if (chr1.party.members[2] != chr2)
+      return ret_error($"member {chr1.party.members[2].serial : #x} != {chr2.serial : #x}");
+    endif
+    if (chr1.party.getprop("name")!="test")
+      return ret_error("failed to load cprop: "+chr1.party.getprop("name"));
+    endif
+  endif
+  return 1;
+endfunction

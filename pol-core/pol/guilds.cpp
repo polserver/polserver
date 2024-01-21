@@ -154,7 +154,7 @@ void Guild::printOn( Clib::StreamWriter& sw ) const
   _allyguild_serials.writeOn( sw, "AllyGuild" );
   _enemyguild_serials.writeOn( sw, "EnemyGuild" );
   _proplist.printProperties( sw );
-  sw.write( "}\n" );
+  sw.write( "}\n\n" );
 }
 
 void Guild::addMember( unsigned int serial )
@@ -225,7 +225,7 @@ void write_guilds( Clib::StreamWriter& sw )
 {
   sw.write( "General\n{\n" );
   sw.add( "NextGuildId", Core::gamestate.nextguildid );
-  sw.write( "}\n" );
+  sw.write( "}\n\n" );
 
   for ( const auto& _guild : Core::gamestate.guilds )
   {
