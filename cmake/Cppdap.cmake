@@ -43,10 +43,11 @@ add_library(cppdap STATIC IMPORTED)
 set_target_properties(cppdap PROPERTIES IMPORTED_LOCATION ${CPPDAP_LIB})
 set_target_properties(cppdap PROPERTIES IMPORTED_IMPLIB ${CPPDAP_LIB})
 
-file(MAKE_DIRECTORY ${CPPDAP_INSTALL_DIR}/include) #directory has to exist during configure
 set_target_properties(cppdap PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${CPPDAP_INSTALL_DIR}/include)
 
 if(NOT EXISTS ${CPPDAP_LIB})
+  file(MAKE_DIRECTORY ${CPPDAP_INSTALL_DIR}/include) #directory has to exist during configure
   add_dependencies(cppdap cppdap_Ext)
-  set_target_properties (cppdap PROPERTIES FOLDER 3rdParty)
 endif()
+
+set_target_properties (cppdap PROPERTIES FOLDER 3rdParty)
