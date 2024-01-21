@@ -1,0 +1,40 @@
+use os;
+use uo;
+use storage;
+include "testutil";
+
+var testrun:=CInt(GetEnvironmentVariable("POLCORE_TEST_RUN"));
+
+program test_storage()
+  return 1;
+endprogram
+
+exported function load_save_storage()
+  if (testrun == 1)
+    var storage:=CreateStorageArea("restart_storage");
+    if (!storage)
+      return ret_error($"Failed to create storage: {storage}");
+    endif
+    var root:=CreateRootItemInStorageArea(storage,"restart_root",0xe75);
+    if (!root)
+      return ret_error($"Failed to create root cnt: {root}");
+    endif
+    var item:=CreateItemInContainer(root, 0x3e3f);
+    if (!item)
+      return ret_error($"Failed to create item: {item}");
+    endif
+  else
+    var storage:=FindStorageArea("restart_storage");
+    if (!storage)
+      return ret_error($"Didnt found storage {storage}");
+    endif
+    var root:=FindRootItemInStorageArea(storage, "restart_root");
+    if (!root)
+      return ret_error($"Didnt found root {root}");
+    endif
+    if (storage.count != 1 || storage.totalcount != 2)
+      return ret_error($"Count missmatch {storage.count} != 1 || {storage.totalcount} != 2");
+    endif
+  endif
+  return 1;
+endfunction
