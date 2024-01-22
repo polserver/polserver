@@ -26,8 +26,9 @@ DAP_DECLARE_STRUCT_TYPEINFO( PolAttachRequest );
 class PolLaunchRequest : public LaunchRequest
 {
 public:
-  string program;
+  string script;
   optional<string> arg;
+  optional<boolean> stopAtEntry;
 };
 
 DAP_DECLARE_STRUCT_TYPEINFO( PolLaunchRequest );
@@ -36,8 +37,8 @@ DAP_DECLARE_STRUCT_TYPEINFO( PolLaunchRequest );
 struct PolProcess
 {
   number id;
-  string program;
-  number state; // 0 = sleeping, 1 = running, 2 = debugging
+  string script;
+  number state;  // 0 = sleeping, 1 = running, 2 = debugging
 };
 
 DAP_DECLARE_STRUCT_TYPEINFO( PolProcess );
