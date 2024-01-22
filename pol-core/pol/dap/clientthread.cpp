@@ -42,7 +42,8 @@ DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& 
       _uoexec_wptr( nullptr ),
       _expression_evaluator(),
       _global_scope_handle( 0 ),
-      _was_launch_requested( false )
+      _was_launch_requested( false ),
+      _exit_sent( false )
 {
 }
 
@@ -56,14 +57,11 @@ void DebugClientThread::on_halt()
 
 void DebugClientThread::on_destroy()
 {
-  POLLOG_INFOLN( "Debugger#{} script destroyed, sending ExitedEvent and closing socket.",
-                 _instance );
+  POLLOG_INFOLN( "Debugger#{} script destroyed.", _instance );
   dap::ExitedEvent event;
   event.exitCode = 0;
   _session->send( event );
-
-  // threadsafe...? Is the event flushed to the socket before closing?
-  _rw->close();
+  _exit_sent = true;
 }
 
 dap::ConfigurationDoneResponse DebugClientThread::handle_configurationDone(
@@ -895,7 +893,7 @@ void DebugClientThread::run()
   _session->bind( _rw,
                   [&]() { POLLOG_INFOLN( "Debugger#{} session endpoint closed.", _instance ); } );
 
-  while ( !Clib::exit_signalled && _rw->isOpen() )
+  while ( !Clib::exit_signalled && !_exit_sent && _rw->isOpen() )
   {
     pol_sleep_ms( 1000 );
   }

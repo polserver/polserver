@@ -6,6 +6,7 @@
 #include "handles.h"
 #include "proto.h"
 
+#include <atomic>
 #include <dap/session.h>
 #include <memory>
 
@@ -89,6 +90,7 @@ private:
   Bscript::Compiler::ExpressionEvaluator _expression_evaluator;
   int _global_scope_handle;
   bool _was_launch_requested;
+  std::atomic<bool> _exit_sent;
 };
 
 }  // namespace DAP
