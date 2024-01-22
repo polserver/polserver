@@ -237,6 +237,11 @@ dap::ResponseOrError<dap::ThreadsResponse> DebugClientThread::handle_threads(
   return response;
 }
 
+dap::ResponseOrError<dap::SetExceptionBreakpointsResponse>
+DebugClientThread::handle_setExceptionBreakpoints( const dap::SetExceptionBreakpointsRequest& )
+{
+  return dap::SetExceptionBreakpointsResponse{};
+}
 
 dap::ResponseOrError<dap::ContinueResponse> DebugClientThread::handle_continue(
     const dap::ContinueRequest& )
@@ -800,6 +805,9 @@ void DebugClientThread::run()
 
     _session->registerHandler( [this]( const dap::ThreadsRequest& request )
                                { return handle_threads( request ); } );
+
+    _session->registerHandler( [this]( const dap::SetExceptionBreakpointsRequest& request )
+                               { return handle_setExceptionBreakpoints( request ); } );
 
     _session->registerHandler( [this]( const dap::ContinueRequest& request )
                                { return handle_continue( request ); } );
