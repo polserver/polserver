@@ -1,4 +1,6 @@
 -- POL100.2.0 --
+01-22-2024 Kevin:
+    Added: POL now exposes a Debug Adapter Protocol (DAP) server to provide debugging support. Any IDE or tooling that implements DAP can utilize this new debugging server. See pol.cfg setting DAPDebugPort.
 01-18-2024 Kevin:
     Added: Escript keyword `uninit` to represent the uninitialized value.
     Added: Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.
