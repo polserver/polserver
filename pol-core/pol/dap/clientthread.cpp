@@ -41,7 +41,8 @@ DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& 
       _session( dap::Session::create() ),
       _uoexec_wptr( nullptr ),
       _expression_evaluator(),
-      _global_scope_handle( 0 )
+      _global_scope_handle( 0 ),
+      _was_launch_requested( false )
 {
 }
 
@@ -190,6 +191,8 @@ dap::ResponseOrError<dap::LaunchResponse> DebugClientThread::handle_launch(
 
     _uoexec_wptr = uoexec->weakptr;
     _script.set( prog );
+
+    _was_launch_requested = true;
 
     return dap::LaunchResponse{};
   }
@@ -722,6 +725,13 @@ dap::ResponseOrError<dap::DisconnectResponse> DebugClientThread::handle_disconne
   if ( _uoexec_wptr.exists() )
   {
     UOExecutor* exec = _uoexec_wptr.get_weakptr();
+
+    if ( _was_launch_requested )
+    {
+      exec->seterror( true );
+      exec->revive();
+    }
+
     if ( exec->in_debugger_holdlist() )
       exec->revive_debugged();
 

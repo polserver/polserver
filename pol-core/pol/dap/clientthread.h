@@ -88,6 +88,7 @@ private:
   Handles _variable_handles;
   Bscript::Compiler::ExpressionEvaluator _expression_evaluator;
   int _global_scope_handle;
+  bool _was_launch_requested;
 };
 
 }  // namespace DAP
