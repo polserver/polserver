@@ -36,6 +36,8 @@ public:
   void visit_integer_value( Bscript::Compiler::IntegerValue& node ) override;
   void visit_member_access( Bscript::Compiler::MemberAccess& member_access ) override;
   void visit_string_value( Bscript::Compiler::StringValue& node ) override;
+  void visit_boolean_value( Bscript::Compiler::BooleanValue& node ) override;
+  void visit_uninitialized_value( Bscript::Compiler::UninitializedValue& node ) override;
 
   // Unsupported expression operations
   void visit_argument( Bscript::Compiler::Argument& ) override;
@@ -55,7 +57,6 @@ public:
   void visit_struct_initializer( Bscript::Compiler::StructInitializer& ) override;
   void visit_struct_member_initializer( Bscript::Compiler::StructMemberInitializer& ) override;
   void visit_unary_operator( Bscript::Compiler::UnaryOperator& ) override;
-  void visit_uninitialized_value( Bscript::Compiler::UninitializedValue& ) override;
   void visit_function_call( Bscript::Compiler::FunctionCall& ) override;
   void visit_function_reference( Bscript::Compiler::FunctionReference& ) override;
   void visit_variable_assignment_statement(
