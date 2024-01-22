@@ -7,8 +7,8 @@
 #include "../../clib/esignal.h"
 #include "../../clib/fileutil.h"
 #include "../../clib/logfacility.h"
-#include "../../plib/systemstate.h"
 #include "../../plib/pkg.h"
+#include "../../plib/systemstate.h"
 #include "../module/uomod.h"
 #include "../polsem.h"
 #include "../scrdef.h"
@@ -17,7 +17,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <filesystem>
 #include <fstream>
-#include <filesystem>
 
 namespace fs = std::filesystem;
 
@@ -34,8 +33,11 @@ namespace DAP
 {
 namespace fs = std::filesystem;
 
+unsigned int DebugClientThread::_instance_counter = 0;
+
 DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
-    : _rw( rw ),
+    : _instance( ++_instance_counter ),
+      _rw( rw ),
       _session( dap::Session::create() ),
       _uoexec_wptr( nullptr ),
       _expression_evaluator(),
@@ -53,6 +55,8 @@ void DebugClientThread::on_halt()
 
 void DebugClientThread::on_destroy()
 {
+  POLLOG_INFOLN( "Debugger#{} script destroyed, sending ExitedEvent and closing socket.",
+                 _instance );
   dap::ExitedEvent event;
   event.exitCode = 0;
   _session->send( event );
@@ -773,13 +777,13 @@ void DebugClientThread::after_attach( const dap::ResponseOrError<dap::AttachResp
 
 void DebugClientThread::on_error( const char* msg )
 {
-  POLLOG_ERRORLN( "Debugger session error: {}", msg );
+  POLLOG_ERRORLN( "Debugger#{} session error: {}", _instance, msg );
   _rw->close();
 }
 
 void DebugClientThread::run()
 {
-  POLLOG_INFOLN( "Debug client thread started." );
+  POLLOG_INFOLN( "Debugger#{} client thread started.", _instance );
 
   // Session event handlers that are only attached once initialized with the password (if
   // required).
@@ -878,7 +882,8 @@ void DebugClientThread::run()
   _session->onError( [this]( const char* msg ) { on_error( msg ); } );
 
   // Attach the SocketReaderWriter to the Session and begin processing events.
-  _session->bind( _rw, []() { POLLOG_INFOLN( "Debug session endpoint closed." ); } );
+  _session->bind( _rw,
+                  [&]() { POLLOG_INFOLN( "Debugger#{} session endpoint closed.", _instance ); } );
 
   while ( !Clib::exit_signalled && _rw->isOpen() )
   {
@@ -909,7 +914,7 @@ void DebugClientThread::run()
     _rw->close();
   }
 
-  POLLOG_INFOLN( "Debug client thread closing." );
+  POLLOG_INFOLN( "Debugger#{} client thread closing.", _instance );
 }
 }  // namespace DAP
 }  // namespace Network
