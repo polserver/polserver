@@ -37,6 +37,8 @@ if(NOT EXISTS ${CPPDAP_LIB})
     INSTALL_COMMAND  ${CMAKE_COMMAND} --build . --config Release --target install
     BUILD_BYPRODUCTS ${CPPDAP_LIB}
   )
+else()
+  message("  cppdap already built")
 endif()
 
 add_library(cppdap STATIC IMPORTED)
