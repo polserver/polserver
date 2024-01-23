@@ -1,4 +1,8 @@
 -- POL100.2.0 --
+01-23-2024 Turley:
+    Fixed: faster_cast_recovery/faster_cast_recovery_mod item member returned wrong value
+    Fixed: attribute cap tenth value storing
+    Fixed: reportables of mobiles should now load correctly
 01-18-2024 Kevin:
     Added: Escript keyword `uninit` to represent the uninitialized value.
     Added: Escript keywords `true` and `false`, equivalent to `Boolean(1)` and `Boolean(0)` respectively.
