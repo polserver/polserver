@@ -83,7 +83,8 @@ void write_dirty_storage( Clib::StreamWriter& sw_data )
       if ( !item->orphan() )
       {
         // write the storage area header, and the item (but not any contents)
-        sw_data.write( "StorageArea {}\n{{\n}}\n\n", area->_name );
+        sw_data.begin( "StorageArea", area->_name );
+        sw_data.end();
 
         item->printSelfOn( sw_data );
         objStorageManager.modified_serials.push_back( item->serial );

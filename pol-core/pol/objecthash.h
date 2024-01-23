@@ -7,6 +7,7 @@
 #ifndef __OBJECTHASH_H
 #define __OBJECTHASH_H
 
+#include <iosfwd>
 #include <map>
 #include <unordered_set>
 #include <utility>
@@ -57,7 +58,7 @@ public:
   UObject* Find( u32 serial );
   u32 GetNextUnusedItemSerial();
   u32 GetNextUnusedCharSerial();
-  void PrintContents( Clib::StreamWriter& sw ) const;
+  void PrintContents( std::ofstream* os ) const;
 
   hs::const_iterator begin() const;
   hs::const_iterator end() const;

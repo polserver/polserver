@@ -433,7 +433,7 @@ void PropertyList::printProperties( Clib::StreamWriter& sw ) const
     const std::string& first = prop.first;
     if ( first[0] != '#' )
     {
-      sw.write( "\tCProp\t{} {}\n", first, prop.second.get() );
+      sw.add( "CProp", fmt::format( "{} {}", first, prop.second.get() ) );
     }
   }
 }
@@ -456,7 +456,7 @@ void PropertyList::printPropertiesAsStrings( Clib::StreamWriter& sw ) const
     const std::string& first = prop.first;
     if ( first[0] != '#' )
     {
-      sw.write( "\t{} {}\n", first, prop.second.get() );
+      sw.add( first, prop.second.get() );
     }
   }
 }

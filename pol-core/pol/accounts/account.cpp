@@ -83,7 +83,7 @@ void Account::readfrom( Clib::ConfigElem& elem )
 
 void Account::writeto( Clib::StreamWriter& sw ) const
 {
-  sw.write( "Account\n{\n" );
+  sw.begin( "Account" );
   sw.add( "Name", name_ );
 
   // dave 6/5/3 don't write cleartext unless configured to
@@ -108,7 +108,7 @@ void Account::writeto( Clib::StreamWriter& sw ) const
   }
   props_.printProperties( sw );
 
-  sw.write( "}\n\n" );
+  sw.end();
 }
 
 void Account::writeto( Clib::ConfigElem& elem ) const

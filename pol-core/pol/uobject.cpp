@@ -49,7 +49,7 @@ int display_orphan( UObject* o )
 {
   Clib::StreamWriter sw( nullptr );
   Clib::StreamWriter sw_orphan( &orphans_txt );
-  sw.write( "{}, {}\n", o->name(), o->ref_counted_count() );
+  sw.comment( "{}, {}", o->name(), o->ref_counted_count() );
   o->printOn( sw );
   o->printOnDebug( sw_orphan );
   INFO_PRINT( sw.buffer() );
@@ -377,7 +377,7 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
 
 void UObject::printDebugProperties( Clib::StreamWriter& sw ) const
 {
-  sw.write( "# uobj_class: {}\n", (int)uobj_class_ );
+  sw.comment( "uobj_class: {}", (int)uobj_class_ );
 }
 
 /// Fixes invalid graphic, moving here to allow it to be overridden in subclass (see Multi)
@@ -504,17 +504,17 @@ void UObject::printSelfOn( Clib::StreamWriter& sw ) const
 
 void UObject::printOn( Clib::StreamWriter& sw ) const
 {
-  sw.write( "{}\n{{\n", classname() );
+  sw.begin( classname() );
   printProperties( sw );
-  sw.write( "}\n\n" );
+  sw.end();
 }
 
 void UObject::printOnDebug( Clib::StreamWriter& sw ) const
 {
-  sw.write( "{}\n{{\n", classname() );
+  sw.begin( classname() );
   printProperties( sw );
   printDebugProperties( sw );
-  sw.write( "}\n\n" );
+  sw.end();
 }
 
 bool UObject::setgraphic( u16 /*newgraphic*/ )

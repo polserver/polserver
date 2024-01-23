@@ -94,16 +94,16 @@ void DataFileContents::save( Clib::StreamWriter& sw )
 {
   for ( const auto& element : elements_by_string )
   {
-    sw.write( "Element {}\n{{\n", element.first );
+    sw.begin( "Element", element.first );
     element.second->printOn( sw );
-    sw.write( "}\n\n" );
+    sw.end();
   }
 
   for ( const auto& element : elements_by_integer )
   {
-    sw.write( "Element {}\n{{\n", element.first );
+    sw.begin( "Element", element.first );
     element.second->printOn( sw );
-    sw.write( "}\n\n" );
+    sw.end();
   }
 }
 
@@ -621,7 +621,7 @@ DataStoreFile::~DataStoreFile()
 
 void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
 {
-  sw.write( "DataFile\n{\n" );
+  sw.begin( "DataFile" );
   sw.add( "Descriptor", descriptor );
   sw.add( "Name", name );
 
@@ -631,7 +631,7 @@ void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
   sw.add( "Flags", flags );
   sw.add( "Version", version );
   sw.add( "OldVersion", oldversion );
-  sw.write( "}\n\n" );
+  sw.end();
 }
 
 std::string DataStoreFile::filename( unsigned ver ) const
